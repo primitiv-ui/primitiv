@@ -1,9 +1,7 @@
 # Collapsible
 
 A compound component for showing and hiding a single panel of content.
-The single-item analogue of [Accordion](../Accordion/README.md), modelled
-on the [Radix UI Collapsible](https://www.radix-ui.com/primitives/docs/components/collapsible)
-contract.
+The single-item analogue of [Accordion](../Accordion/README.md).
 
 ```tsx
 import { Collapsible } from "@primitiv/react";
@@ -48,8 +46,7 @@ its `href`) so the toggle never double-fires.
 The two shapes are discriminated at the type level: passing `defaultOpen`
 alongside `open` is a type error.
 
-Unlike `Accordion`, `Collapsible` fires `onOpenChange` in **both** modes
-— matching Radix's published contract for the same component.
+Unlike `Accordion`, `Collapsible` fires `onOpenChange` in **both** modes.
 
 ## Disabled
 

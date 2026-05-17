@@ -4,9 +4,9 @@
  * `event.preventDefault()`, in which case the library handler is skipped.
  *
  * This is the standard composition pattern used throughout headless
- * components (same shape as Radix UI) to let consumers attach their own
- * listeners onto a sub-component without clobbering the component's own
- * behaviour, while still giving them an opt-out via `preventDefault()`.
+ * components to let consumers attach their own listeners onto a
+ * sub-component without clobbering the component's own behaviour, while
+ * still giving them an opt-out via `preventDefault()`.
  *
  * @example Consumer logs every click; component still closes the modal
  * afterwards:

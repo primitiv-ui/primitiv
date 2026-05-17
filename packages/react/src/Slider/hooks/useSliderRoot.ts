@@ -4,12 +4,7 @@ import type { PointerEvent as ReactPointerEvent } from "react";
 import { useCollection, useControllableState } from "../../hooks";
 import type { SliderContextValue } from "../SliderContext";
 import type { SliderDirection, SliderOrientation } from "../types";
-import {
-  clamp,
-  getClosestThumbIndex,
-  getPointerValue,
-  sortThumbsByDomOrder,
-} from "../utils";
+import { clamp, getClosestThumbIndex, getPointerValue } from "../utils";
 
 type UseSliderRootArgs = {
   min: number;
@@ -48,13 +43,8 @@ export function useSliderRoot({
   const {
     register: registerThumb,
     itemsRef,
-    keys,
+    keys: orderedThumbIds,
   } = useCollection<string, HTMLSpanElement>();
-
-  const orderedThumbIds = useMemo(
-    () => sortThumbsByDomOrder(itemsRef.current),
-    [keys, itemsRef],
-  );
 
   const setThumbValue = useCallback(
     (index: number, nextValue: number) => {
@@ -85,6 +75,8 @@ export function useSliderRoot({
         max,
         step,
         orientation,
+        dir,
+        inverted,
       });
       const index = getClosestThumbIndex(pointerValue, valuesRef.current);
       setThumbValue(index, pointerValue);
@@ -99,6 +91,8 @@ export function useSliderRoot({
             max,
             step,
             orientation,
+            dir,
+            inverted,
           }),
         );
       };
@@ -112,7 +106,17 @@ export function useSliderRoot({
       document.addEventListener("pointerup", up);
       event.preventDefault();
     },
-    [min, max, step, orientation, setThumbValue, orderedThumbIds, itemsRef],
+    [
+      min,
+      max,
+      step,
+      orientation,
+      dir,
+      inverted,
+      setThumbValue,
+      orderedThumbIds,
+      itemsRef,
+    ],
   );
 
   useEffect(

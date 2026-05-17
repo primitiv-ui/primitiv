@@ -44,6 +44,25 @@ describe("Slider multiple thumbs", () => {
     expect(upper).toHaveAttribute("aria-valuenow", "20");
   });
 
+  it("stretches the range between the two thumbs", () => {
+    // Arrange & Act
+    render(
+      <Slider.Root defaultValue={[20, 80]}>
+        <Slider.Track>
+          <Slider.Range data-testid="range" />
+        </Slider.Track>
+        <Slider.Thumb />
+        <Slider.Thumb />
+      </Slider.Root>,
+    );
+
+    // Assert
+    expect(screen.getByTestId("range")).toHaveStyle({
+      left: "20%",
+      right: "20%",
+    });
+  });
+
   it("keeps a minimum gap between thumbs", async () => {
     // Arrange
     const user = userEvent.setup();

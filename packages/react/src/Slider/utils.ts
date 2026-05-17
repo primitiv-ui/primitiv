@@ -4,11 +4,13 @@ import type { SliderDirection, SliderOrientation } from "./types";
 
 type Edge = "left" | "right" | "top" | "bottom";
 
-type EdgeArgs = {
+export type SliderAxisArgs = {
   orientation: SliderOrientation;
   dir: SliderDirection;
   inverted: boolean;
 };
+
+export type SliderKeyAction = "increase" | "decrease" | "min" | "max";
 
 const OPPOSITE_EDGE: Record<Edge, Edge> = {
   left: "right",
@@ -24,17 +26,11 @@ export function clamp(value: number, min: number, max: number): number {
 
 /** Map a value onto its 0–100 position within the `[min, max]` range. */
 export function valueToPercent(value: number, min: number, max: number): number {
-  if (max <= min) {
-    return 0;
-  }
   return clamp(((value - min) / (max - min)) * 100, 0, 100);
 }
 
 /** Round a value to the nearest step, anchored at `min`, at step precision. */
 export function snapToStep(value: number, min: number, step: number): number {
-  if (step <= 0) {
-    return value;
-  }
   const snapped = min + Math.round((value - min) / step) * step;
   const decimals = (String(step).split(".")[1] ?? "").length;
   return Number(snapped.toFixed(decimals));
@@ -44,7 +40,7 @@ export function snapToStep(value: number, min: number, step: number): number {
  * Resolve which physical edge a thumb's offset is anchored to, accounting
  * for orientation, reading direction, and the `inverted` flag.
  */
-export function getOffsetEdge({ orientation, dir, inverted }: EdgeArgs): Edge {
+export function getOffsetEdge({ orientation, dir, inverted }: SliderAxisArgs): Edge {
   const base: Edge =
     orientation === "vertical" ? "bottom" : dir === "rtl" ? "right" : "left";
   return inverted ? OPPOSITE_EDGE[base] : base;
@@ -52,14 +48,11 @@ export function getOffsetEdge({ orientation, dir, inverted }: EdgeArgs): Edge {
 
 /** Inline style positioning a thumb at its value along the track. */
 export function getThumbStyle(
-  value: number | undefined,
+  value: number,
   min: number,
   max: number,
-  edgeArgs: EdgeArgs,
+  edgeArgs: SliderAxisArgs,
 ): CSSProperties {
-  if (value === undefined) {
-    return { position: "absolute" };
-  }
   const edge = getOffsetEdge(edgeArgs);
   return { position: "absolute", [edge]: `${valueToPercent(value, min, max)}%` };
 }
@@ -72,12 +65,12 @@ export function getRangeStyle(
   values: number[],
   min: number,
   max: number,
-  edgeArgs: EdgeArgs,
+  edgeArgs: SliderAxisArgs,
 ): CSSProperties {
   const edge = getOffsetEdge(edgeArgs);
   const percents = values.map((value) => valueToPercent(value, min, max));
   const startPercent = values.length > 1 ? Math.min(...percents) : 0;
-  const endPercent = percents.length > 0 ? Math.max(...percents) : 0;
+  const endPercent = Math.max(...percents);
   return {
     position: "absolute",
     [edge]: `${startPercent}%`,
@@ -85,11 +78,10 @@ export function getRangeStyle(
   };
 }
 
-type PointerValueArgs = {
+type PointerValueArgs = SliderAxisArgs & {
   min: number;
   max: number;
   step: number;
-  orientation: SliderOrientation;
 };
 
 /** Resolve the value at a pointer's position on the track. */
@@ -97,13 +89,55 @@ export function getPointerValue(
   clientX: number,
   clientY: number,
   rect: { left: number; width: number; bottom: number; height: number },
-  { min, max, step, orientation }: PointerValueArgs,
+  { min, max, step, orientation, dir, inverted }: PointerValueArgs,
 ): number {
-  const percent =
+  let percent =
     orientation === "vertical"
-      ? clamp((rect.bottom - clientY) / rect.height, 0, 1)
-      : clamp((clientX - rect.left) / rect.width, 0, 1);
+      ? (rect.bottom - clientY) / rect.height
+      : (clientX - rect.left) / rect.width;
+  const reversed =
+    orientation === "vertical" ? inverted : (dir === "ltr") === inverted;
+  if (reversed) {
+    percent = 1 - percent;
+  }
+  percent = clamp(percent, 0, 1);
   return clamp(snapToStep(min + percent * (max - min), min, step), min, max);
+}
+
+/**
+ * Map a key press to an abstract value action, accounting for orientation,
+ * reading direction, and the `inverted` flag. Returns `null` for keys the
+ * slider does not handle.
+ */
+export function getKeyAction(
+  key: string,
+  { orientation, dir, inverted }: SliderAxisArgs,
+): SliderKeyAction | null {
+  switch (key) {
+    case "Home":
+      return "min";
+    case "End":
+      return "max";
+    case "PageUp":
+      return "increase";
+    case "PageDown":
+      return "decrease";
+    case "ArrowUp":
+    case "ArrowDown": {
+      const upIncreases = orientation === "vertical" ? !inverted : true;
+      const increases = key === "ArrowUp" ? upIncreases : !upIncreases;
+      return increases ? "increase" : "decrease";
+    }
+    case "ArrowRight":
+    case "ArrowLeft": {
+      const rightIncreases =
+        orientation === "vertical" ? true : (dir === "ltr") !== inverted;
+      const increases = key === "ArrowRight" ? rightIncreases : !rightIncreases;
+      return increases ? "increase" : "decrease";
+    }
+    default:
+      return null;
+  }
 }
 
 /** Index of the thumb whose value sits nearest to `value` (ties favour the first). */
@@ -118,22 +152,4 @@ export function getClosestThumbIndex(value: number, values: number[]): number {
     }
   });
   return closestIndex;
-}
-
-/** Order registered thumb ids by their position in the DOM. */
-export function sortThumbsByDomOrder(
-  thumbs: Map<string, HTMLElement>,
-): string[] {
-  return Array.from(thumbs.entries())
-    .sort(([, a], [, b]) => {
-      const position = a.compareDocumentPosition(b);
-      if (position & Node.DOCUMENT_POSITION_FOLLOWING) {
-        return -1;
-      }
-      if (position & Node.DOCUMENT_POSITION_PRECEDING) {
-        return 1;
-      }
-      return 0;
-    })
-    .map(([id]) => id);
 }

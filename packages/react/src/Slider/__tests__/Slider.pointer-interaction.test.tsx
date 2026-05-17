@@ -93,6 +93,26 @@ describe("Slider pointer interaction", () => {
     expect(upper).toHaveAttribute("aria-valuenow", "70");
   });
 
+  it("moves the lower thumb when the pointer is nearer to it", () => {
+    // Arrange
+    render(
+      <Slider.Root defaultValue={[20, 80]} data-testid="root">
+        <Slider.Thumb />
+        <Slider.Thumb />
+      </Slider.Root>,
+    );
+    const root = screen.getByTestId("root");
+    mockTrack(root);
+
+    // Act
+    fireEvent.pointerDown(root, { clientX: 25 });
+
+    // Assert
+    const [lower, upper] = screen.getAllByRole("slider");
+    expect(lower).toHaveAttribute("aria-valuenow", "25");
+    expect(upper).toHaveAttribute("aria-valuenow", "80");
+  });
+
   it("focuses the thumb it activates", () => {
     // Arrange
     render(

@@ -1,0 +1,38 @@
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 13px;
+  color: var(--figma-color-text, #1e1e1e);
+  background: var(--figma-color-bg, #ffffff);
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+}
+
+.app__title {
+  margin: 0;
+  font-size: 15px;
+}
+
+.app__status {
+  margin: 0;
+}
+
+.app__page {
+  margin: 0;
+  font-size: 11px;
+  color: var(--figma-color-text-secondary, #666666);
+}
+
+.app__close {
+  align-self: flex-start;
+  margin-top: 4px;
+}

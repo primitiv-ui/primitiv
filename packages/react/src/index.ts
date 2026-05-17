@@ -9,6 +9,7 @@ export * from "./Dropdown";
 export * from "./MillerColumns";
 export * from "./Modal";
 export * from "./Portal";
+export * from "./Progress";
 export * from "./RadioCard";
 export * from "./RadioGroup";
 export * from "./Slider";

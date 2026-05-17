@@ -4,9 +4,9 @@
 
 This repo is a monorepo that houses both: the Rust engine (`harmoni-core`),
 the WebAssembly adapter that exposes it to the browser (`harmoni-wasm`),
-and the React app used to develop and visualise palettes during iteration
-(`apps/web`). The engine will eventually back a Figma plugin so that
-designers can pull Primitiv palettes directly into their Figma files.
+the React app used to develop and visualise palettes during iteration
+(`apps/web`), and the Figma plugin that will let designers pull Primitiv
+palettes directly into their Figma files (`apps/harmoni-figma-plugin`).
 
 ## Repo layout
 
@@ -21,7 +21,8 @@ primitiv/
 │   ├── react/                 # Headless React component library
 │   └── icons/                 # Fill-based SVG icon library
 └── apps/
-    └── web/                   # React dev surface (Vite + TS)
+    ├── web/                   # React dev surface (Vite + TS)
+    └── harmoni-figma-plugin/  # Figma plugin (Vite + TS + React)
 ```
 
 - `harmoni-core` is pure Rust. It has three direct dependencies
@@ -39,6 +40,10 @@ primitiv/
 - `apps/web` is a small React app used for visual iteration on the
   palette algorithm. It is **not** a production surface for the
   design system — think of it as a workbench.
+- `apps/harmoni-figma-plugin` is the Harmoni Figma plugin. It is
+  currently scaffolded — UI/sandbox build plumbing, the harmoni-wasm
+  engine seam, and a test suite — ahead of building palette features.
+  See the [plugin README](apps/harmoni-figma-plugin/README.md).
 
 ## Engine surface
 

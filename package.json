@@ -8,6 +8,7 @@
     "test:e2e": "pnpm --filter web exec playwright test",
     "test:full": "pnpm test:rust && pnpm build:wasm && pnpm test:e2e",
     "dev": "pnpm --filter web dev",
+    "dev:plugin": "pnpm --filter harmoni-figma-plugin dev",
     "install:all": "pnpm install && pnpm run build:wasm"
   },
   "devDependencies": {

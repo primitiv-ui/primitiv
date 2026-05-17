@@ -10,6 +10,7 @@ type SliderRootSharedProps = Omit<
   min?: number;
   max?: number;
   step?: number;
+  minStepsBetweenThumbs?: number;
   orientation?: SliderOrientation;
   dir?: SliderDirection;
   inverted?: boolean;

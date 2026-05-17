@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import type { SandboxMessage, UiMessage } from "../shared/messages";
 import { initEngine } from "./engine";
 import { Button } from "@primitiv/react";
+import { Close } from "@primitiv/icons";
 
 function postToSandbox(message: UiMessage): void {
   parent.postMessage({ pluginMessage: message }, "*");
@@ -52,6 +53,7 @@ export function App() {
         className="app__close"
         onClick={() => postToSandbox({ type: "close" })}
       >
+        <Close size={16} />
         Close
       </Button>
     </main>

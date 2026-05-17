@@ -1,4 +1,5 @@
 export * from "./Accordion";
+export * from "./Breadcrumb";
 export * from "./Button";
 export * from "./Carousel";
 export * from "./Checkbox";
@@ -9,6 +10,7 @@ export * from "./Dropdown";
 export * from "./MillerColumns";
 export * from "./Modal";
 export * from "./Portal";
+export * from "./Progress";
 export * from "./RadioCard";
 export * from "./RadioGroup";
 export * from "./Slider";

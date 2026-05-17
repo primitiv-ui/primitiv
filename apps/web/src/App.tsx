@@ -3,12 +3,14 @@ import { Routes, Route, Link } from "react-router-dom";
 import { ColorEngine } from "./ColorEngine";
 import {
   AccordionExample,
+  BreadcrumbExample,
   CarouselExample,
   CheckboxCardExample,
   CollapsibleExample,
   DropdownExample,
   MillerColumnsExample,
   ModalExample,
+  ProgressExample,
   RadioCardExample,
   SliderExample,
   SwitchExample,
@@ -26,12 +28,14 @@ function App() {
         <nav>
           <Link to="/">Color Engine</Link>
           <Link to="/accordion">Accordion</Link>
+          <Link to="/breadcrumb">Breadcrumb</Link>
           <Link to="/carousel">Carousel</Link>
           <Link to="/checkbox-card">Checkbox Card</Link>
           <Link to="/collapsible">Collapsible</Link>
           <Link to="/dropdown">Dropdown</Link>
           <Link to="/miller-columns">Miller Columns</Link>
           <Link to="/modal">Modal</Link>
+          <Link to="/progress">Progress</Link>
           <Link to="/radio-card">Radio Card</Link>
           <Link to="/slider">Slider</Link>
           <Link to="/switch">Switch</Link>
@@ -44,6 +48,7 @@ function App() {
         <Routes>
           <Route path="/" element={<ColorEngine />} />
           <Route path="/accordion" element={<AccordionExample />} />
+          <Route path="/breadcrumb" element={<BreadcrumbExample />} />
           <Route
             path="/checkbox-card"
             element={<CheckboxCardExample />}
@@ -56,6 +61,7 @@ function App() {
             element={<MillerColumnsExample />}
           />
           <Route path="/modal" element={<ModalExample />} />
+          <Route path="/progress" element={<ProgressExample />} />
           <Route path="/radio-card" element={<RadioCardExample />} />
           <Route path="/slider" element={<SliderExample />} />
           <Route path="/switch" element={<SwitchExample />} />

@@ -16,6 +16,7 @@ type SliderRootSharedProps = Omit<
   inverted?: boolean;
   disabled?: boolean;
   name?: string;
+  asChild?: boolean;
 };
 
 type SliderRootUncontrolledProps = SliderRootSharedProps & {
@@ -36,6 +37,12 @@ export type SliderRootProps =
   | SliderRootUncontrolledProps
   | SliderRootControlledProps;
 
-export type SliderTrackProps = ComponentProps<"span">;
-export type SliderRangeProps = ComponentProps<"span">;
-export type SliderThumbProps = ComponentProps<"span">;
+export type SliderTrackProps = ComponentProps<"span"> & {
+  asChild?: boolean;
+};
+export type SliderRangeProps = ComponentProps<"span"> & {
+  asChild?: boolean;
+};
+export type SliderThumbProps = ComponentProps<"span"> & {
+  asChild?: boolean;
+};

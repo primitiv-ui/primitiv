@@ -1,4 +1,4 @@
-import { composeEventHandlers, composeRefs } from "../Slot";
+import { Slot, composeEventHandlers, composeRefs } from "../Slot";
 
 import { SliderContext } from "./SliderContext";
 import { useSliderContext, useSliderRoot, useSliderThumb } from "./hooks";
@@ -24,6 +24,7 @@ function SliderRoot({
   onValueChange,
   onValueCommit,
   name,
+  asChild = false,
   onPointerDown,
   ref,
   children,
@@ -47,64 +48,74 @@ function SliderRoot({
     onValueChange,
     onValueCommit,
   });
+  const rootProps = {
+    ...rest,
+    ref: composeRefs(rootRef, ref),
+    dir,
+    "data-orientation": orientation,
+    "data-disabled": disabled ? "" : undefined,
+    onPointerDown: composeEventHandlers(onPointerDown, handlePointerDown),
+  };
   return (
     <SliderContext.Provider value={contextValue}>
-      <span
-        {...rest}
-        ref={composeRefs(rootRef, ref)}
-        dir={dir}
-        data-orientation={orientation}
-        data-disabled={disabled ? "" : undefined}
-        onPointerDown={composeEventHandlers(onPointerDown, handlePointerDown)}
-      >
-        {children}
-        {name !== undefined &&
-          contextValue.values.map((thumbValue, index) => (
-            <input
-              key={index}
-              type="hidden"
-              name={
-                contextValue.values.length > 1 ? `${name}[]` : name
-              }
-              value={thumbValue}
-              readOnly
-            />
-          ))}
-      </span>
+      {asChild ? (
+        <Slot {...rootProps}>{children}</Slot>
+      ) : (
+        <span {...rootProps}>{children}</span>
+      )}
+      {name !== undefined &&
+        contextValue.values.map((thumbValue, index) => (
+          <input
+            key={index}
+            type="hidden"
+            name={contextValue.values.length > 1 ? `${name}[]` : name}
+            value={thumbValue}
+            readOnly
+          />
+        ))}
     </SliderContext.Provider>
   );
 }
 
 SliderRoot.displayName = "SliderRoot";
 
-function SliderTrack({ children, ...rest }: SliderTrackProps) {
+function SliderTrack({ children, asChild = false, ...rest }: SliderTrackProps) {
   const { orientation, disabled } = useSliderContext();
-  return (
-    <span
-      {...rest}
-      data-orientation={orientation}
-      data-disabled={disabled ? "" : undefined}
-    >
-      {children}
-    </span>
+  const trackProps = {
+    ...rest,
+    "data-orientation": orientation,
+    "data-disabled": disabled ? "" : undefined,
+  };
+  return asChild ? (
+    <Slot {...trackProps}>{children}</Slot>
+  ) : (
+    <span {...trackProps}>{children}</span>
   );
 }
 
 SliderTrack.displayName = "SliderTrack";
 
-function SliderRange({ style, ...rest }: SliderRangeProps) {
+function SliderRange({
+  style,
+  asChild = false,
+  children,
+  ...rest
+}: SliderRangeProps) {
   const { values, min, max, orientation, dir, inverted, disabled } =
     useSliderContext();
-  return (
-    <span
-      {...rest}
-      data-orientation={orientation}
-      data-disabled={disabled ? "" : undefined}
-      style={{
-        ...getRangeStyle(values, min, max, { orientation, dir, inverted }),
-        ...style,
-      }}
-    />
+  const rangeProps = {
+    ...rest,
+    "data-orientation": orientation,
+    "data-disabled": disabled ? "" : undefined,
+    style: {
+      ...getRangeStyle(values, min, max, { orientation, dir, inverted }),
+      ...style,
+    },
+  };
+  return asChild ? (
+    <Slot {...rangeProps}>{children}</Slot>
+  ) : (
+    <span {...rangeProps} />
   );
 }
 
@@ -114,6 +125,8 @@ function SliderThumb({
   style,
   ref: forwardedRef,
   onKeyDown,
+  asChild = false,
+  children,
   ...rest
 }: SliderThumbProps) {
   const {
@@ -126,22 +139,25 @@ function SliderThumb({
     style: positionStyle,
     onKeyDown: handleKeyDown,
   } = useSliderThumb();
-  return (
-    <span
-      {...rest}
-      ref={composeRefs(ref, forwardedRef)}
-      role="slider"
-      tabIndex={disabled ? undefined : 0}
-      aria-orientation={orientation}
-      aria-valuemin={min}
-      aria-valuemax={max}
-      aria-valuenow={value}
-      aria-disabled={disabled || undefined}
-      data-orientation={orientation}
-      data-disabled={disabled ? "" : undefined}
-      onKeyDown={composeEventHandlers(onKeyDown, handleKeyDown)}
-      style={{ ...positionStyle, ...style }}
-    />
+  const thumbProps = {
+    ...rest,
+    ref: composeRefs(ref, forwardedRef),
+    role: "slider" as const,
+    tabIndex: disabled ? undefined : 0,
+    "aria-orientation": orientation,
+    "aria-valuemin": min,
+    "aria-valuemax": max,
+    "aria-valuenow": value,
+    "aria-disabled": disabled || undefined,
+    "data-orientation": orientation,
+    "data-disabled": disabled ? "" : undefined,
+    onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
+    style: { ...positionStyle, ...style },
+  };
+  return asChild ? (
+    <Slot {...thumbProps}>{children}</Slot>
+  ) : (
+    <span {...thumbProps}>{children}</span>
   );
 }
 

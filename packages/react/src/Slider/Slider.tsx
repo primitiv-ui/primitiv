@@ -22,6 +22,7 @@ function SliderRoot({
   value,
   onValueChange,
   onValueCommit,
+  name,
   onPointerDown,
   ref,
   children,
@@ -54,6 +55,18 @@ function SliderRoot({
         onPointerDown={composeEventHandlers(onPointerDown, handlePointerDown)}
       >
         {children}
+        {name !== undefined &&
+          contextValue.values.map((thumbValue, index) => (
+            <input
+              key={index}
+              type="hidden"
+              name={
+                contextValue.values.length > 1 ? `${name}[]` : name
+              }
+              value={thumbValue}
+              readOnly
+            />
+          ))}
       </span>
     </SliderContext.Provider>
   );

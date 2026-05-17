@@ -12,7 +12,8 @@ export type SliderContextValue = {
   inverted: boolean;
   registerThumb: (id: string, element: HTMLSpanElement | null) => void;
   orderedThumbIds: string[];
-  setThumbValue: (index: number, value: number) => void;
+  setThumbValue: (index: number, value: number) => number[] | null;
+  commit: (values: number[]) => void;
 };
 
 export const [SliderContext, useSliderContext] =

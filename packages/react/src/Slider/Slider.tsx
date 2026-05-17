@@ -21,6 +21,7 @@ function SliderRoot({
   defaultValue,
   value,
   onValueChange,
+  onValueCommit,
   onPointerDown,
   ref,
   children,
@@ -41,6 +42,7 @@ function SliderRoot({
     defaultValue,
     value,
     onValueChange,
+    onValueCommit,
   });
   return (
     <SliderContext.Provider value={contextValue}>

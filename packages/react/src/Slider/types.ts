@@ -20,12 +20,14 @@ type SliderRootUncontrolledProps = SliderRootSharedProps & {
   defaultValue?: number[];
   value?: never;
   onValueChange?: (value: number[]) => void;
+  onValueCommit?: (value: number[]) => void;
 };
 
 type SliderRootControlledProps = SliderRootSharedProps & {
   defaultValue?: never;
   value: number[];
   onValueChange?: (value: number[]) => void;
+  onValueCommit?: (value: number[]) => void;
 };
 
 export type SliderRootProps =

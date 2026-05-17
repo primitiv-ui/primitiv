@@ -17,6 +17,7 @@ type UseSliderRootArgs = {
   defaultValue?: number[];
   value?: number[];
   onValueChange?: (value: number[]) => void;
+  onValueCommit?: (value: number[]) => void;
 };
 
 export function useSliderRoot({
@@ -30,6 +31,7 @@ export function useSliderRoot({
   defaultValue,
   value,
   onValueChange,
+  onValueCommit,
 }: UseSliderRootArgs) {
   const [values, setValues] = useControllableState<number[]>(
     value,
@@ -47,7 +49,7 @@ export function useSliderRoot({
   } = useCollection<string, HTMLSpanElement>();
 
   const setThumbValue = useCallback(
-    (index: number, nextValue: number) => {
+    (index: number, nextValue: number): number[] | null => {
       const current = valuesRef.current;
       const gap = minStepsBetweenThumbs * step;
       const lowerBound = index > 0 ? current[index - 1] + gap : min;
@@ -55,11 +57,20 @@ export function useSliderRoot({
         index < current.length - 1 ? current[index + 1] - gap : max;
       const clamped = clamp(nextValue, lowerBound, upperBound);
       if (current[index] === clamped) {
-        return;
+        return null;
       }
-      setValues(current.map((entry, i) => (i === index ? clamped : entry)));
+      const next = current.map((entry, i) => (i === index ? clamped : entry));
+      setValues(next);
+      return next;
     },
     [min, max, step, minStepsBetweenThumbs, setValues],
+  );
+
+  const commit = useCallback(
+    (committed: number[]) => {
+      onValueCommit?.(committed);
+    },
+    [onValueCommit],
   );
 
   const dragRef = useRef<{
@@ -79,12 +90,12 @@ export function useSliderRoot({
         inverted,
       });
       const index = getClosestThumbIndex(pointerValue, valuesRef.current);
-      setThumbValue(index, pointerValue);
+      let pendingCommit = setThumbValue(index, pointerValue);
       itemsRef.current.get(orderedThumbIds[index])?.focus();
 
       const move = (moveEvent: PointerEvent) => {
         const moveRect = rootRef.current!.getBoundingClientRect();
-        setThumbValue(
+        const next = setThumbValue(
           index,
           getPointerValue(moveEvent.clientX, moveEvent.clientY, moveRect, {
             min,
@@ -95,11 +106,17 @@ export function useSliderRoot({
             inverted,
           }),
         );
+        if (next) {
+          pendingCommit = next;
+        }
       };
       const up = () => {
         document.removeEventListener("pointermove", move);
         document.removeEventListener("pointerup", up);
         dragRef.current = null;
+        if (pendingCommit) {
+          commit(pendingCommit);
+        }
       };
       dragRef.current = { move, up };
       document.addEventListener("pointermove", move);
@@ -114,6 +131,7 @@ export function useSliderRoot({
       dir,
       inverted,
       setThumbValue,
+      commit,
       orderedThumbIds,
       itemsRef,
     ],
@@ -141,6 +159,7 @@ export function useSliderRoot({
       registerThumb,
       orderedThumbIds,
       setThumbValue,
+      commit,
     }),
     [
       values,
@@ -153,6 +172,7 @@ export function useSliderRoot({
       registerThumb,
       orderedThumbIds,
       setThumbValue,
+      commit,
     ],
   );
 

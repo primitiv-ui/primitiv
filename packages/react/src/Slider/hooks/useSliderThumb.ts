@@ -16,6 +16,7 @@ export function useSliderThumb() {
     registerThumb,
     orderedThumbIds,
     setThumbValue,
+    commit,
   } = useSliderContext();
   const id = useId();
   const ref = useRef<HTMLSpanElement>(null);
@@ -48,9 +49,23 @@ export function useSliderThumb() {
         target = snapToStep(value + delta, min, step);
       }
       event.preventDefault();
-      setThumbValue(index, target);
+      const next = setThumbValue(index, target);
+      if (next) {
+        commit(next);
+      }
     },
-    [value, index, min, max, step, orientation, dir, inverted, setThumbValue],
+    [
+      value,
+      index,
+      min,
+      max,
+      step,
+      orientation,
+      dir,
+      inverted,
+      setThumbValue,
+      commit,
+    ],
   );
 
   return { ref, value, min, max, orientation, style, onKeyDown };

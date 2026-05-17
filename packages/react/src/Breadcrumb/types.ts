@@ -9,8 +9,11 @@ export type BreadcrumbListProps = ComponentProps<"ol">;
 /** Props for {@link Breadcrumb.Item} — all `<li>` attributes. */
 export type BreadcrumbItemProps = ComponentProps<"li">;
 
-/** Props for {@link Breadcrumb.Link} — all `<a>` attributes. */
-export type BreadcrumbLinkProps = ComponentProps<"a">;
+/** Props for {@link Breadcrumb.Link} — all `<a>` attributes plus `asChild`. */
+export type BreadcrumbLinkProps = ComponentProps<"a"> & {
+  /** Render the consumer's own element instead of the native `<a>`. */
+  asChild?: boolean;
+};
 
 /** Props for {@link Breadcrumb.Page} — all `<span>` attributes. */
 export type BreadcrumbPageProps = ComponentProps<"span">;

@@ -1,3 +1,5 @@
+import { Slot } from "../Slot";
+
 import {
   BreadcrumbItemProps,
   BreadcrumbLinkProps,
@@ -80,12 +82,30 @@ BreadcrumbItem.displayName = "BreadcrumbItem";
  * Use for every entry except the current page. Pass `href` (and any other
  * anchor attributes) directly.
  *
+ * **`asChild` prop.** Pass `asChild` to render a consumer-supplied element —
+ * typically a routing library's `<Link>` — with the breadcrumb link's props
+ * merged in. The native `<a>` is dropped.
+ *
  * @example
  * ```tsx
  * <Breadcrumb.Link href="/library">Library</Breadcrumb.Link>
  * ```
+ *
+ * @example With a router link
+ * ```tsx
+ * <Breadcrumb.Link asChild>
+ *   <RouterLink to="/library">Library</RouterLink>
+ * </Breadcrumb.Link>
+ * ```
  */
-function BreadcrumbLink({ children, ...rest }: BreadcrumbLinkProps) {
+function BreadcrumbLink({
+  children,
+  asChild = false,
+  ...rest
+}: BreadcrumbLinkProps) {
+  if (asChild) {
+    return <Slot {...rest}>{children}</Slot>;
+  }
   return <a {...rest}>{children}</a>;
 }
 

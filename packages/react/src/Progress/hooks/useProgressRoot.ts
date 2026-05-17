@@ -22,6 +22,18 @@ export function useProgressRoot({
   value = null,
   max = DEFAULT_MAX,
 }: UseProgressRootArgs): UseProgressRootResult {
+  if (!Number.isFinite(max) || max <= 0) {
+    throw new Error(
+      `Progress.Root: \`max\` must be a positive, finite number. Received: ${max}.`,
+    );
+  }
+
+  if (value != null && (!Number.isFinite(value) || value < 0 || value > max)) {
+    throw new Error(
+      `Progress.Root: \`value\` must be a finite number between 0 and ${max}, or null for an indeterminate bar. Received: ${value}.`,
+    );
+  }
+
   const isIndeterminate = value == null;
   const state: ProgressState = isIndeterminate
     ? "indeterminate"

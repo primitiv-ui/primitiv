@@ -1,4 +1,4 @@
-import { composeRefs } from "../Slot";
+import { composeEventHandlers, composeRefs } from "../Slot";
 
 import { SliderContext } from "./SliderContext";
 import { useSliderContext, useSliderRoot, useSliderThumb } from "./hooks";
@@ -13,6 +13,7 @@ import { getRangeStyle } from "./utils";
 function SliderRoot({
   min = 0,
   max = 100,
+  step = 1,
   orientation = "horizontal",
   dir = "ltr",
   inverted = false,
@@ -25,6 +26,7 @@ function SliderRoot({
   const { contextValue } = useSliderRoot({
     min,
     max,
+    step,
     orientation,
     dir,
     inverted,
@@ -70,9 +72,21 @@ function SliderRange({ style, ...rest }: SliderRangeProps) {
 
 SliderRange.displayName = "SliderRange";
 
-function SliderThumb({ style, ref: forwardedRef, ...rest }: SliderThumbProps) {
-  const { ref, value, min, max, orientation, style: positionStyle } =
-    useSliderThumb();
+function SliderThumb({
+  style,
+  ref: forwardedRef,
+  onKeyDown,
+  ...rest
+}: SliderThumbProps) {
+  const {
+    ref,
+    value,
+    min,
+    max,
+    orientation,
+    style: positionStyle,
+    onKeyDown: handleKeyDown,
+  } = useSliderThumb();
   return (
     <span
       {...rest}
@@ -84,6 +98,7 @@ function SliderThumb({ style, ref: forwardedRef, ...rest }: SliderThumbProps) {
       aria-valuemax={max}
       aria-valuenow={value}
       data-orientation={orientation}
+      onKeyDown={composeEventHandlers(onKeyDown, handleKeyDown)}
       style={{ ...positionStyle, ...style }}
     />
   );

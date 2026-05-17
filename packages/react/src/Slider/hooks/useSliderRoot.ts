@@ -1,13 +1,14 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 import { useCollection, useControllableState } from "../../hooks";
 import type { SliderContextValue } from "../SliderContext";
 import type { SliderDirection, SliderOrientation } from "../types";
-import { sortThumbsByDomOrder } from "../utils";
+import { clamp, sortThumbsByDomOrder } from "../utils";
 
 type UseSliderRootArgs = {
   min: number;
   max: number;
+  step: number;
   orientation: SliderOrientation;
   dir: SliderDirection;
   inverted: boolean;
@@ -19,6 +20,7 @@ type UseSliderRootArgs = {
 export function useSliderRoot({
   min,
   max,
+  step,
   orientation,
   dir,
   inverted,
@@ -26,7 +28,7 @@ export function useSliderRoot({
   value,
   onValueChange,
 }: UseSliderRootArgs) {
-  const [values] = useControllableState<number[]>(
+  const [values, setValues] = useControllableState<number[]>(
     value,
     defaultValue ?? [min],
     onValueChange,
@@ -42,18 +44,42 @@ export function useSliderRoot({
     [keys, itemsRef],
   );
 
+  const setThumbValue = useCallback(
+    (index: number, nextValue: number) => {
+      const clamped = clamp(nextValue, min, max);
+      if (values[index] === clamped) {
+        return;
+      }
+      setValues(values.map((current, i) => (i === index ? clamped : current)));
+    },
+    [values, min, max, setValues],
+  );
+
   const contextValue = useMemo<SliderContextValue>(
     () => ({
       values,
       min,
       max,
+      step,
       orientation,
       dir,
       inverted,
       registerThumb,
       orderedThumbIds,
+      setThumbValue,
     }),
-    [values, min, max, orientation, dir, inverted, registerThumb, orderedThumbIds],
+    [
+      values,
+      min,
+      max,
+      step,
+      orientation,
+      dir,
+      inverted,
+      registerThumb,
+      orderedThumbIds,
+      setThumbValue,
+    ],
   );
 
   return { contextValue };

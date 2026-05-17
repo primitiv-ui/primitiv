@@ -30,6 +30,16 @@ export function valueToPercent(value: number, min: number, max: number): number 
   return clamp(((value - min) / (max - min)) * 100, 0, 100);
 }
 
+/** Round a value to the nearest step, anchored at `min`, at step precision. */
+export function snapToStep(value: number, min: number, step: number): number {
+  if (step <= 0) {
+    return value;
+  }
+  const snapped = min + Math.round((value - min) / step) * step;
+  const decimals = (String(step).split(".")[1] ?? "").length;
+  return Number(snapped.toFixed(decimals));
+}
+
 /**
  * Resolve which physical edge a thumb's offset is anchored to, accounting
  * for orientation, reading direction, and the `inverted` flag.

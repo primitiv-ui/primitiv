@@ -6,11 +6,13 @@ export type SliderContextValue = {
   values: number[];
   min: number;
   max: number;
+  step: number;
   orientation: SliderOrientation;
   dir: SliderDirection;
   inverted: boolean;
   registerThumb: (id: string, element: HTMLSpanElement | null) => void;
   orderedThumbIds: string[];
+  setThumbValue: (index: number, value: number) => void;
 };
 
 export const [SliderContext, useSliderContext] =

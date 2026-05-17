@@ -80,7 +80,12 @@ export function useSliderRoot({
   const onPointerDown = useCallback(
     (event: ReactPointerEvent<HTMLSpanElement>) => {
       const rect = rootRef.current!.getBoundingClientRect();
-      const pointerValue = getPointerValue(event.clientX, rect, min, max, step);
+      const pointerValue = getPointerValue(event.clientX, event.clientY, rect, {
+        min,
+        max,
+        step,
+        orientation,
+      });
       const index = getClosestThumbIndex(pointerValue, valuesRef.current);
       setThumbValue(index, pointerValue);
       itemsRef.current.get(orderedThumbIds[index])?.focus();
@@ -89,7 +94,12 @@ export function useSliderRoot({
         const moveRect = rootRef.current!.getBoundingClientRect();
         setThumbValue(
           index,
-          getPointerValue(moveEvent.clientX, moveRect, min, max, step),
+          getPointerValue(moveEvent.clientX, moveEvent.clientY, moveRect, {
+            min,
+            max,
+            step,
+            orientation,
+          }),
         );
       };
       const up = () => {
@@ -102,7 +112,7 @@ export function useSliderRoot({
       document.addEventListener("pointerup", up);
       event.preventDefault();
     },
-    [min, max, step, setThumbValue, orderedThumbIds, itemsRef],
+    [min, max, step, orientation, setThumbValue, orderedThumbIds, itemsRef],
   );
 
   useEffect(

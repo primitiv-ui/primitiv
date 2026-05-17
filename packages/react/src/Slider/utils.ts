@@ -85,15 +85,24 @@ export function getRangeStyle(
   };
 }
 
-/** Resolve the value at a pointer's horizontal position on the track. */
+type PointerValueArgs = {
+  min: number;
+  max: number;
+  step: number;
+  orientation: SliderOrientation;
+};
+
+/** Resolve the value at a pointer's position on the track. */
 export function getPointerValue(
   clientX: number,
-  rect: { left: number; width: number },
-  min: number,
-  max: number,
-  step: number,
+  clientY: number,
+  rect: { left: number; width: number; bottom: number; height: number },
+  { min, max, step, orientation }: PointerValueArgs,
 ): number {
-  const percent = clamp((clientX - rect.left) / rect.width, 0, 1);
+  const percent =
+    orientation === "vertical"
+      ? clamp((rect.bottom - clientY) / rect.height, 0, 1)
+      : clamp((clientX - rect.left) / rect.width, 0, 1);
   return clamp(snapToStep(min + percent * (max - min), min, step), min, max);
 }
 

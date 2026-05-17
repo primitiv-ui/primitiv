@@ -14,6 +14,12 @@ importers:
 
   apps/harmoni-figma-plugin:
     dependencies:
+      '@primitiv/icons':
+        specifier: workspace:*
+        version: link:../../packages/icons
+      '@primitiv/react':
+        specifier: workspace:*
+        version: link:../../packages/react
       harmoni-wasm:
         specifier: workspace:*
         version: link:../../crates/harmoni-wasm/pkg

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import type { SandboxMessage, UiMessage } from "../shared/messages";
 import { initEngine } from "./engine";
+import { Button } from "@primitiv/react";
 
 function postToSandbox(message: UiMessage): void {
   parent.postMessage({ pluginMessage: message }, "*");
@@ -46,13 +47,13 @@ export function App() {
       {pageName !== null && (
         <p className="app__page">Connected to: {pageName}</p>
       )}
-      <button
+      <Button
         type="button"
         className="app__close"
         onClick={() => postToSandbox({ type: "close" })}
       >
         Close
-      </button>
+      </Button>
     </main>
   );
 }

@@ -111,7 +111,7 @@ function mergeProps(slotProps: AnyProps, childProps: AnyProps): AnyProps {
  * while preserving all of its own behaviour (ARIA attributes, event handlers,
  * `ref`, etc.).
  *
- * **Prop-merging rules** (same as Radix UI):
+ * **Prop-merging rules**:
  * - **Event handlers** compose — child's handler fires first, then Slot's.
  * - **`style`** is shallow-merged — child wins on key collisions.
  * - **`className`** strings are concatenated (`slotClass childClass`).

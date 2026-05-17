@@ -27,8 +27,7 @@ import type {
  *   error.
  *
  * Unlike Accordion in this library, Collapsible fires `onOpenChange` in
- * **both** uncontrolled and controlled modes — matching Radix's published
- * contract for the same component.
+ * **both** uncontrolled and controlled modes.
  *
  * **Disabled.** Pass `disabled` to render `aria-disabled="true"` on the
  * Trigger and short-circuit click and keyboard activation. The Trigger

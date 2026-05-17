@@ -10,6 +10,7 @@ import {
   MillerColumnsExample,
   ModalExample,
   RadioCardExample,
+  SliderExample,
   SwitchExample,
   ToggleExample,
   ToggleGroupExample,
@@ -32,6 +33,7 @@ function App() {
           <Link to="/miller-columns">Miller Columns</Link>
           <Link to="/modal">Modal</Link>
           <Link to="/radio-card">Radio Card</Link>
+          <Link to="/slider">Slider</Link>
           <Link to="/switch">Switch</Link>
           <Link to="/toggle">Toggle</Link>
           <Link to="/toggle-group">Toggle Group</Link>
@@ -55,6 +57,7 @@ function App() {
           />
           <Route path="/modal" element={<ModalExample />} />
           <Route path="/radio-card" element={<RadioCardExample />} />
+          <Route path="/slider" element={<SliderExample />} />
           <Route path="/switch" element={<SwitchExample />} />
           <Route path="/toggle" element={<ToggleExample />} />
           <Route path="/toggle-group" element={<ToggleGroupExample />} />

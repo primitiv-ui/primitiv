@@ -111,7 +111,8 @@ the WAI-ARIA authoring patterns. They ship with zero styles — style them with
 whatever system you use (CSS, Tailwind, CSS-in-JS, design tokens, etc.).
 
 See [`packages/react`](packages/react/README.md) for the full
-component index and per-component documentation.
+component index and per-component documentation. Planned components
+and outstanding workbench examples are tracked in [`ROADMAP.md`](ROADMAP.md).
 
 ## Getting started
 

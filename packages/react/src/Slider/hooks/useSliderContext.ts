@@ -1,0 +1,1 @@
+export { useSliderContext } from "../SliderContext";

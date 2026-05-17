@@ -113,6 +113,25 @@ describe("Slider pointer interaction", () => {
     expect(upper).toHaveAttribute("aria-valuenow", "80");
   });
 
+  it("ignores a pointer move that does not change the value", () => {
+    // Arrange
+    render(
+      <Slider.Root defaultValue={[30]} data-testid="root">
+        <Slider.Thumb />
+      </Slider.Root>,
+    );
+    const root = screen.getByTestId("root");
+    mockTrack(root);
+
+    // Act
+    fireEvent.pointerDown(root, { clientX: 30 });
+    fireEvent.pointerMove(document, { clientX: 30 });
+    fireEvent.pointerUp(document);
+
+    // Assert
+    expect(screen.getByRole("slider")).toHaveAttribute("aria-valuenow", "30");
+  });
+
   it("focuses the thumb it activates", () => {
     // Arrange
     render(

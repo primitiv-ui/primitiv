@@ -184,5 +184,14 @@ export function useSliderRoot({
     ],
   );
 
+  if (min >= max) {
+    throw new Error(
+      `Slider: \`min\` (${min}) must be less than \`max\` (${max}).`,
+    );
+  }
+  if (step <= 0) {
+    throw new Error(`Slider: \`step\` (${step}) must be greater than 0.`);
+  }
+
   return { contextValue, rootRef, onPointerDown };
 }

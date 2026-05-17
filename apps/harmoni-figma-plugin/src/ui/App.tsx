@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 
-import type { SandboxMessage, UiMessage } from '../shared/messages'
-import { initEngine } from './engine'
+import type { SandboxMessage, UiMessage } from "../shared/messages";
+import { initEngine } from "./engine";
 
 function postToSandbox(message: UiMessage): void {
-  parent.postMessage({ pluginMessage: message }, '*')
+  parent.postMessage({ pluginMessage: message }, "*");
 }
 
 /**
@@ -16,32 +16,32 @@ function postToSandbox(message: UiMessage): void {
  * back. No palette feature is wired up yet.
  */
 export function App() {
-  const [engineReady, setEngineReady] = useState(false)
-  const [pageName, setPageName] = useState<string | null>(null)
+  const [engineReady, setEngineReady] = useState(false);
+  const [pageName, setPageName] = useState<string | null>(null);
 
   useEffect(() => {
-    initEngine().then(() => setEngineReady(true))
-  }, [])
+    initEngine().then(() => setEngineReady(true));
+  }, []);
 
   useEffect(() => {
     function onMessage(event: MessageEvent) {
-      const message = event.data?.pluginMessage as SandboxMessage | undefined
-      if (message?.type === 'plugin-ready') {
-        setPageName(message.pageName)
+      const message = event.data?.pluginMessage as SandboxMessage | undefined;
+      if (message?.type === "plugin-ready") {
+        setPageName(message.pageName);
       }
     }
 
-    window.addEventListener('message', onMessage)
-    return () => window.removeEventListener('message', onMessage)
-  }, [])
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
 
   return (
     <main className="app">
       <h1 className="app__title">Harmoni</h1>
       <p className="app__status">
         {engineReady
-          ? 'Hello from Harmoni Wasm!'
-          : 'Starting the Harmoni engine…'}
+          ? "Hello from Harmoni Wasm! Body base"
+          : "Starting the Harmoni engine…"}
       </p>
       {pageName !== null && (
         <p className="app__page">Connected to: {pageName}</p>
@@ -49,10 +49,10 @@ export function App() {
       <button
         type="button"
         className="app__close"
-        onClick={() => postToSandbox({ type: 'close' })}
+        onClick={() => postToSandbox({ type: "close" })}
       >
         Close
       </button>
     </main>
-  )
+  );
 }

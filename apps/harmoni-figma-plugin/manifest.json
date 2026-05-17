@@ -6,6 +6,10 @@
   "editorType": ["figma"],
   "documentAccess": "dynamic-page",
   "networkAccess": {
-    "allowedDomains": ["none"]
+    "allowedDomains": [
+      "https://fonts.googleapis.com",
+      "https://fonts.gstatic.com"
+    ],
+    "reasoning": "Allows the plugin UI to load external typography from Google Fonts."
   }
 }

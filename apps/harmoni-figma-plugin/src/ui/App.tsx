@@ -40,7 +40,7 @@ export function App() {
       <h1 className="app__title">Harmoni</h1>
       <p className="app__status">
         {engineReady
-          ? "Hello from Harmoni Wasm! Body base"
+          ? "Hello from Harmoni Wasm!"
           : "Starting the Harmoni engine…"}
       </p>
       {pageName !== null && (

@@ -25,4 +25,21 @@ describe("VisuallyHidden component", () => {
       whiteSpace: "nowrap",
     });
   });
+
+  it("should merge a consumer style over the clip styles", () => {
+    // Arrange
+    render(
+      <VisuallyHidden style={{ position: "static", display: "block" }}>
+        Loading complete
+      </VisuallyHidden>,
+    );
+
+    // Assert
+    const hidden = screen.getByText("Loading complete");
+    expect(hidden).toHaveStyle({
+      position: "static",
+      display: "block",
+      whiteSpace: "nowrap",
+    });
+  });
 });

@@ -14,9 +14,13 @@ const visuallyHiddenStyle: CSSProperties = {
   borderWidth: 0,
 };
 
-export function VisuallyHidden({ children, ...rest }: VisuallyHiddenProps) {
+export function VisuallyHidden({
+  children,
+  style,
+  ...rest
+}: VisuallyHiddenProps) {
   return (
-    <span {...rest} style={visuallyHiddenStyle}>
+    <span {...rest} style={{ ...visuallyHiddenStyle, ...style }}>
       {children}
     </span>
   );

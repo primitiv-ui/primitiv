@@ -42,4 +42,18 @@ describe("VisuallyHidden component", () => {
       whiteSpace: "nowrap",
     });
   });
+
+  it("should render the consumer element with asChild, keeping the clip styles", () => {
+    // Arrange
+    render(
+      <VisuallyHidden asChild>
+        <label>Search</label>
+      </VisuallyHidden>,
+    );
+
+    // Assert
+    const hidden = screen.getByText("Search");
+    expect(hidden.tagName).toBe("LABEL");
+    expect(hidden).toHaveStyle({ position: "absolute", overflow: "hidden" });
+  });
 });

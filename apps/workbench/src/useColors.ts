@@ -83,8 +83,8 @@ export function useColors() {
         tintSource,
         tintStrength,
       );
-      white = `oklch(${tinted.white.l} ${tinted.white.c} ${tinted.white.h})`;
-      black = `oklch(${tinted.black.l} ${tinted.black.c} ${tinted.black.h})`;
+      white = tinted.white.oklch;
+      black = tinted.black.oklch;
     }
 
     setGreyscalePalette(
@@ -103,7 +103,7 @@ export function useColors() {
   const handleUseAsTint = (key: ColorKey) => {
     const source = colors[key].palette?.swatches[5];
     if (!source) return;
-    setTintSource(`oklch(${source.l} ${source.c} ${source.h})`);
+    setTintSource(source.oklch);
   };
 
   const handleTintStrengthChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -178,7 +178,7 @@ export function useColors() {
     };
 
   const handleShiftLeft = (key: ColorKey, targetSwatch?: Swatch) => {
-    const hex = `oklch(${targetSwatch?.l} ${targetSwatch?.c} ${targetSwatch?.h})`;
+    const hex = targetSwatch?.oklch ?? "";
 
     setColors((prev) => ({
       ...prev,
@@ -187,7 +187,7 @@ export function useColors() {
   };
 
   const handleShiftRight = (key: ColorKey, targetSwatch?: Swatch) => {
-    const hex = `oklch(${targetSwatch?.l} ${targetSwatch?.c} ${targetSwatch?.h})`;
+    const hex = targetSwatch?.oklch ?? "";
 
     setColors((prev) => ({
       ...prev,

@@ -1,5 +1,4 @@
 use crate::SwatchStep;
-use crate::palette::generator::SwatchLabel;
 use palette::color_difference::Wcag21RelativeContrast;
 use palette::{IntoColor, LinSrgb, Oklch};
 
@@ -73,12 +72,7 @@ pub fn get_best_foreground(
         let ratio = (relative_luminance(white.l, white.c, white.h) + 0.05) / (bg_lum + 0.05);
         if ratio >= 4.5 {
             return ForegroundRecommendation {
-                color: SwatchStep {
-                    l: white.l,
-                    c: white.c,
-                    h: white.h,
-                    label: SwatchLabel::Name(String::from("White")),
-                },
+                color: SwatchStep::from_label(white.l, white.c, white.h, "White"),
                 contrast_ratio: ratio,
                 is_harmonious: false,
             };
@@ -90,12 +84,7 @@ pub fn get_best_foreground(
         let ratio = (bg_lum + 0.05) / (relative_luminance(black.l, black.c, black.h) + 0.05);
         if ratio >= 4.5 {
             return ForegroundRecommendation {
-                color: SwatchStep {
-                    l: black.l,
-                    c: black.c,
-                    h: black.h,
-                    label: SwatchLabel::Name(String::from("Black")),
-                },
+                color: SwatchStep::from_label(black.l, black.c, black.h, "Black"),
                 contrast_ratio: ratio,
                 is_harmonious: false,
             };
@@ -110,12 +99,7 @@ pub fn get_best_foreground(
 
     if ratio_white >= 4.5 && ratio_white >= ratio_black {
         return ForegroundRecommendation {
-            color: SwatchStep {
-                l: 1.0,
-                c: 0.0,
-                h: 0.0,
-                label: SwatchLabel::Name(String::from("White")),
-            },
+            color: SwatchStep::from_label(1.0, 0.0, 0.0, "White"),
             contrast_ratio: ratio_white,
             is_harmonious: false,
         };
@@ -123,12 +107,7 @@ pub fn get_best_foreground(
 
     if ratio_black >= 4.5 {
         return ForegroundRecommendation {
-            color: SwatchStep {
-                l: 0.01,
-                c: 0.0,
-                h: 0.0,
-                label: SwatchLabel::Name(String::from("Black")),
-            },
+            color: SwatchStep::from_label(0.01, 0.0, 0.0, "Black"),
             contrast_ratio: ratio_black,
             is_harmonious: false,
         };

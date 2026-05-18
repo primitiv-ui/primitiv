@@ -540,5 +540,41 @@ mod generator_tests {
             assert!(err.contains("1.5"));
         }
     }
+
+    mod swatch_colour_format_tests {
+        use super::*;
+        use crate::color::output::{format_oklch, oklch_to_hex, oklch_to_rgb};
+
+        #[test]
+        fn swatch_step_from_label_carries_hex_rgb_and_oklch_colour_forms() {
+            let step =
+                SwatchStep::from_label(1.0, 0.0, 0.0, SwatchLabel::Name(String::from("White")));
+
+            assert_eq!(step.hex, "#ffffff");
+            assert_eq!(step.oklch, "oklch(1 0 0)");
+            assert_eq!(step.rgb, oklch_to_rgb(Oklch::new(1.0, 0.0, 0.0)));
+        }
+
+        #[test]
+        fn generated_palette_swatches_carry_colour_format_fields() {
+            let palette = generate_palette(Oklch::new(0.55, 0.15, 240.0), 0.0, 0.0);
+
+            for swatch in &palette.swatches {
+                let oklch = Oklch::new(swatch.l, swatch.c, swatch.h);
+                assert_eq!(swatch.hex, oklch_to_hex(oklch));
+                assert_eq!(swatch.rgb, oklch_to_rgb(oklch));
+                assert_eq!(swatch.oklch, format_oklch(oklch));
+            }
+        }
+
+        #[test]
+        fn swatch_best_foreground_carries_colour_format_fields() {
+            let palette = generate_palette(Oklch::new(0.55, 0.15, 240.0), 0.0, 0.0);
+
+            let foreground = &palette.swatches[0].best_foreground;
+            let oklch = Oklch::new(foreground.l, foreground.c, foreground.h);
+            assert_eq!(foreground.hex, oklch_to_hex(oklch));
+        }
+    }
 }
 }

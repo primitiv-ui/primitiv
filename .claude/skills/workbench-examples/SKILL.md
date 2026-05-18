@@ -63,8 +63,13 @@ computed styles and check which stylesheet rule set the property.
 
 ## Running the workbench
 
-`pnpm run dev`. The dev server pulls in `harmoni-wasm`; if it fails to
-resolve that package see the `sandbox-gotchas` skill. For a browser
-check of a single component page without building wasm, temporarily
-remove the `ColorEngine` import/route from `App.tsx` (revert before
-committing).
+**Don't try to run the workbench in the sandbox.** `pnpm run dev`
+pulls in `harmoni-wasm`, which can't be built here (no `wasm-pack` —
+see the `sandbox-gotchas` skill). Don't burn time on the dev server,
+stubbing wasm, or removing the `ColorEngine` route.
+
+When you add or edit an example page, your bar is: it **typechecks**
+(`pnpm --filter web exec tsc --noEmit`) and obeys the rules above
+(scoped SCSS, router wiring in `pages/index.ts` + `App.tsx`). The
+human runs the workbench and does the visual check in a real browser
+afterwards — note that in your summary and leave it to them.

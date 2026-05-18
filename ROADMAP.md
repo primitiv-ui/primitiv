@@ -90,7 +90,7 @@ semantics that CSS alone cannot provide.
 ### Feedback & Status
 
 - [x] Alert
-- [ ] Empty State
+- [x] Empty State
 - [x] Progress
 - [ ] Progress Circle
 - [x] Status
@@ -145,6 +145,7 @@ component now has a workbench example:
 - [x] Button
 - [x] Checkbox
 - [x] Divider
+- [x] Empty State
 - [x] Portal
 - [x] Radio Group
 - [x] Status

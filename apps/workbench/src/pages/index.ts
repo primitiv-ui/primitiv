@@ -11,6 +11,7 @@ export * from "./CollapsibleExample";
 export * from "./DesignSystemTestExample";
 export * from "./DividerExample";
 export * from "./DropdownExample";
+export * from "./EmptyStateExample";
 export * from "./MillerColumnsExample";
 export * from "./ModalExample";
 export * from "./PortalExample";

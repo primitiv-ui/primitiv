@@ -15,6 +15,7 @@ import {
   DesignSystemTestExample,
   DividerExample,
   DropdownExample,
+  EmptyStateExample,
   MillerColumnsExample,
   ModalExample,
   PortalExample,
@@ -83,6 +84,7 @@ const navGroups: { title: string; links: NavLink[] }[] = [
     title: "Feedback & Status",
     links: [
       { to: "/alert", label: "Alert" },
+      { to: "/empty-state", label: "Empty State" },
       { to: "/progress", label: "Progress" },
       { to: "/status", label: "Status" },
     ],
@@ -159,6 +161,7 @@ function App() {
           />
           <Route path="/divider" element={<DividerExample />} />
           <Route path="/dropdown" element={<DropdownExample />} />
+          <Route path="/empty-state" element={<EmptyStateExample />} />
           <Route path="/miller-columns" element={<MillerColumnsExample />} />
           <Route path="/modal" element={<ModalExample />} />
           <Route path="/portal" element={<PortalExample />} />

@@ -1,5 +1,5 @@
 import { Slot } from "../Slot";
-import { EmptyStateRootProps } from "./types";
+import { EmptyStateMediaProps, EmptyStateRootProps } from "./types";
 
 /**
  * The root of an Empty State — renders a `<div role="status">` wrapping the
@@ -44,12 +44,52 @@ function EmptyStateRoot({
 
 EmptyStateRoot.displayName = "EmptyStateRoot";
 
+/**
+ * The illustration slot of an Empty State — renders a `<div aria-hidden="true">`
+ * wrapping a decorative icon or illustration.
+ *
+ * Empty-state artwork is decorative: the {@link EmptyStateTitle | `Title`} and
+ * {@link EmptyStateDescription | `Description`} carry the meaning. `Media` is
+ * therefore hidden from assistive technology by default, so screen-reader
+ * users are not read a redundant or meaningless image. If the artwork is
+ * genuinely informative, pass `aria-hidden={false}` and give it an accessible
+ * name yourself.
+ *
+ * **`asChild` composition.** Renders the consumer's element instead of a
+ * `<div>`, merging `aria-hidden="true"` and all other props in via the
+ * {@link Slot} utility.
+ *
+ * @example
+ * ```tsx
+ * <EmptyState.Media>
+ *   <InboxIcon />
+ * </EmptyState.Media>
+ * ```
+ */
+function EmptyStateMedia({
+  asChild = false,
+  children,
+  ...rest
+}: EmptyStateMediaProps) {
+  const mediaProps = { "aria-hidden": true, ...rest };
+
+  if (asChild) {
+    return <Slot {...mediaProps}>{children}</Slot>;
+  }
+
+  return <div {...mediaProps}>{children}</div>;
+}
+
+EmptyStateMedia.displayName = "EmptyStateMedia";
+
 type EmptyStateCompound = typeof EmptyStateRoot & {
   Root: typeof EmptyStateRoot;
+  Media: typeof EmptyStateMedia;
 };
 
 const EmptyState: EmptyStateCompound = Object.assign(EmptyStateRoot, {
   Root: EmptyStateRoot,
+  Media: EmptyStateMedia,
 });
 
 /**
@@ -62,6 +102,8 @@ const EmptyState: EmptyStateCompound = Object.assign(EmptyStateRoot, {
  *
  * - {@link EmptyStateRoot | `EmptyState.Root`} — `<div role="status">`, the
  *   polite live region wrapping the placeholder.
+ * - {@link EmptyStateMedia | `EmptyState.Media`} — `<div aria-hidden="true">`,
+ *   the decorative icon/illustration slot.
  *
  * @example
  * ```tsx

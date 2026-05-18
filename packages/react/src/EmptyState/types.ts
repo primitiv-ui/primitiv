@@ -7,3 +7,6 @@ type WithAsChild = {
 
 /** Props for {@link EmptyState.Root} — all `<div>` props plus `asChild`. */
 export type EmptyStateRootProps = ComponentProps<"div"> & WithAsChild;
+
+/** Props for {@link EmptyState.Media} — all `<div>` props plus `asChild`. */
+export type EmptyStateMediaProps = ComponentProps<"div"> & WithAsChild;

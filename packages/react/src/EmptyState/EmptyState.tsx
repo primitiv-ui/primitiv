@@ -1,5 +1,6 @@
 import { Slot } from "../Slot";
 import {
+  EmptyStateActionsProps,
   EmptyStateDescriptionProps,
   EmptyStateMediaProps,
   EmptyStateRootProps,
@@ -150,11 +151,46 @@ function EmptyStateDescription({
 
 EmptyStateDescription.displayName = "EmptyStateDescription";
 
+/**
+ * The recovery-action slot of an Empty State — renders a `<div>` grouping the
+ * controls that let the user move on from the empty state (e.g. a "Clear
+ * filters" button or a "Create your first project" link).
+ *
+ * It is a plain grouping element with no role of its own, so the buttons and
+ * links inside keep their native semantics. As a child of
+ * {@link EmptyStateRoot | `Root`}'s live region, the control labels are
+ * included when the empty state is announced.
+ *
+ * **`asChild` composition.** Renders the consumer's element instead of a
+ * `<div>`, merging all props in via the {@link Slot} utility.
+ *
+ * @example
+ * ```tsx
+ * <EmptyState.Actions>
+ *   <button onClick={clearFilters}>Clear filters</button>
+ * </EmptyState.Actions>
+ * ```
+ */
+function EmptyStateActions({
+  asChild = false,
+  children,
+  ...rest
+}: EmptyStateActionsProps) {
+  if (asChild) {
+    return <Slot {...rest}>{children}</Slot>;
+  }
+
+  return <div {...rest}>{children}</div>;
+}
+
+EmptyStateActions.displayName = "EmptyStateActions";
+
 type EmptyStateCompound = typeof EmptyStateRoot & {
   Root: typeof EmptyStateRoot;
   Media: typeof EmptyStateMedia;
   Title: typeof EmptyStateTitle;
   Description: typeof EmptyStateDescription;
+  Actions: typeof EmptyStateActions;
 };
 
 const EmptyState: EmptyStateCompound = Object.assign(EmptyStateRoot, {
@@ -162,6 +198,7 @@ const EmptyState: EmptyStateCompound = Object.assign(EmptyStateRoot, {
   Media: EmptyStateMedia,
   Title: EmptyStateTitle,
   Description: EmptyStateDescription,
+  Actions: EmptyStateActions,
 });
 
 /**
@@ -179,13 +216,27 @@ const EmptyState: EmptyStateCompound = Object.assign(EmptyStateRoot, {
  * - {@link EmptyStateTitle | `EmptyState.Title`} — `<p>`, the headline.
  * - {@link EmptyStateDescription | `EmptyState.Description`} — `<p>`, the
  *   supporting copy.
+ * - {@link EmptyStateActions | `EmptyState.Actions`} — `<div>`, the
+ *   recovery-action slot.
+ *
+ * All sub-components are stateless and optional — compose only the parts a
+ * given empty state needs.
  *
  * @example
  * ```tsx
  * import { EmptyState } from "@primitiv/react";
  *
- * {projects.length === 0 && (
- *   <EmptyState.Root>No projects yet</EmptyState.Root>
+ * {results.length === 0 && (
+ *   <EmptyState.Root>
+ *     <EmptyState.Media>
+ *       <SearchIcon />
+ *     </EmptyState.Media>
+ *     <EmptyState.Title>No results found</EmptyState.Title>
+ *     <EmptyState.Description>Try adjusting your filters.</EmptyState.Description>
+ *     <EmptyState.Actions>
+ *       <button onClick={clearFilters}>Clear filters</button>
+ *     </EmptyState.Actions>
+ *   </EmptyState.Root>
  * )}
  * ```
  */

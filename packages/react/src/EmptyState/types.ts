@@ -16,3 +16,6 @@ export type EmptyStateTitleProps = ComponentProps<"p"> & WithAsChild;
 
 /** Props for {@link EmptyState.Description} — all `<p>` props plus `asChild`. */
 export type EmptyStateDescriptionProps = ComponentProps<"p"> & WithAsChild;
+
+/** Props for {@link EmptyState.Actions} — all `<div>` props plus `asChild`. */
+export type EmptyStateActionsProps = ComponentProps<"div"> & WithAsChild;

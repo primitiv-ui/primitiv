@@ -84,6 +84,24 @@ impl From<core::SwatchLabel> for SwatchLabel {
     }
 }
 
+#[derive(Tsify, Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub struct Rgb {
+    pub r: f32,
+    pub g: f32,
+    pub b: f32,
+}
+
+impl From<core::Rgb> for Rgb {
+    fn from(value: core::Rgb) -> Self {
+        Rgb {
+            r: value.r,
+            g: value.g,
+            b: value.b,
+        }
+    }
+}
+
 #[derive(Tsify, PartialEq, Debug, Clone, Serialize, Deserialize)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct SwatchStep {
@@ -91,6 +109,9 @@ pub struct SwatchStep {
     pub c: f32,
     pub h: f32,
     pub label: SwatchLabel,
+    pub hex: String,
+    pub rgb: Rgb,
+    pub oklch: String,
 }
 
 impl From<core::SwatchStep> for SwatchStep {
@@ -100,6 +121,9 @@ impl From<core::SwatchStep> for SwatchStep {
             c: value.c,
             h: value.h,
             label: value.label.into(),
+            hex: value.hex,
+            rgb: value.rgb.into(),
+            oklch: value.oklch,
         }
     }
 }
@@ -129,6 +153,9 @@ pub struct Swatch {
     pub c: f32,
     pub h: f32,
     pub label: SwatchLabel,
+    pub hex: String,
+    pub rgb: Rgb,
+    pub oklch: String,
     pub best_foreground: SwatchStep,
     pub contrast_result: ContrastResult,
 }
@@ -140,6 +167,9 @@ impl From<core::Swatch> for Swatch {
             c: value.c,
             h: value.h,
             label: value.label.into(),
+            hex: value.hex,
+            rgb: value.rgb.into(),
+            oklch: value.oklch,
             best_foreground: value.best_foreground.into(),
             contrast_result: value.contrast_result.into(),
         }
@@ -205,16 +235,27 @@ mod tests {
     #[test]
     fn swatch_step_converts_from_core_preserving_all_fields() {
         let core_step = core::SwatchStep::from_label(0.55, 0.12, 30.0, 500u16);
-        let wasm_step: SwatchStep = core_step.into();
-        assert_eq!(
-            wasm_step,
-            SwatchStep {
-                l: 0.55,
-                c: 0.12,
-                h: 30.0,
-                label: SwatchLabel::Number(500),
-            }
-        );
+        let wasm_step: SwatchStep = core_step.clone().into();
+
+        assert_eq!(wasm_step.l, 0.55);
+        assert_eq!(wasm_step.c, 0.12);
+        assert_eq!(wasm_step.h, 30.0);
+        assert_eq!(wasm_step.label, SwatchLabel::Number(500));
+        assert_eq!(wasm_step.hex, core_step.hex);
+        assert_eq!(wasm_step.oklch, core_step.oklch);
+        assert_eq!(wasm_step.rgb, Rgb::from(core_step.rgb));
+    }
+
+    #[test]
+    fn swatch_converts_from_core_preserving_colour_format_fields() {
+        let palette = core::api::generate(core::ColorInput::Css("#3b82f6".to_string()))
+            .expect("valid input should produce a palette");
+        let core_swatch = palette.swatches[5].clone();
+        let wasm_swatch: Swatch = core_swatch.clone().into();
+
+        assert_eq!(wasm_swatch.hex, core_swatch.hex);
+        assert_eq!(wasm_swatch.oklch, core_swatch.oklch);
+        assert_eq!(wasm_swatch.rgb, Rgb::from(core_swatch.rgb));
     }
 
     #[test]

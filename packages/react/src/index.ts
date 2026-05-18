@@ -17,6 +17,7 @@ export * from "./Progress";
 export * from "./RadioCard";
 export * from "./RadioGroup";
 export * from "./Slider";
+export * from "./Status";
 export * from "./Switch";
 export * from "./Table";
 export * from "./Tabs";

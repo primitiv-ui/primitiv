@@ -10,6 +10,7 @@ import {
   CheckboxExample,
   CheckboxCardExample,
   CollapsibleExample,
+  DesignSystemTestExample,
   DividerExample,
   DropdownExample,
   MillerColumnsExample,
@@ -86,6 +87,12 @@ const navGroups: { title: string; links: NavLink[] }[] = [
     ],
   },
   { title: "Utilities", links: [{ to: "/portal", label: "Portal" }] },
+  {
+    title: "Showcase",
+    links: [
+      { to: "/design-system-test", label: "Design System Test" },
+    ],
+  },
 ];
 
 function App() {
@@ -121,6 +128,10 @@ function App() {
           <Route path="/checkbox" element={<CheckboxExample />} />
           <Route path="/checkbox-card" element={<CheckboxCardExample />} />
           <Route path="/collapsible" element={<CollapsibleExample />} />
+          <Route
+            path="/design-system-test"
+            element={<DesignSystemTestExample />}
+          />
           <Route path="/divider" element={<DividerExample />} />
           <Route path="/dropdown" element={<DropdownExample />} />
           <Route

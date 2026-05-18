@@ -6,6 +6,7 @@ export * from "./CarouselExample";
 export * from "./CheckboxExample";
 export * from "./CheckboxCardExample";
 export * from "./CollapsibleExample";
+export * from "./DesignSystemTestExample";
 export * from "./DividerExample";
 export * from "./DropdownExample";
 export * from "./MillerColumnsExample";

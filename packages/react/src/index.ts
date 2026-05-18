@@ -17,6 +17,7 @@ export * from "./Portal";
 export * from "./Progress";
 export * from "./RadioCard";
 export * from "./RadioGroup";
+export * from "./SkipNav";
 export * from "./Slider";
 export * from "./Status";
 export * from "./Switch";

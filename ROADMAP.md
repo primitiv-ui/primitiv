@@ -111,7 +111,7 @@ semantics that CSS alone cannot provide.
 - [ ] Environment Provider
 - [x] Portal
 - [ ] Presence
-- [ ] Skip Nav
+- [x] Skip Nav
 - [x] Slot
 - [x] Visually Hidden
 
@@ -148,6 +148,7 @@ component now has a workbench example:
 - [x] Empty State
 - [x] Portal
 - [x] Radio Group
+- [x] Skip Nav
 - [x] Status
 - [x] Table
 - [x] Tabs

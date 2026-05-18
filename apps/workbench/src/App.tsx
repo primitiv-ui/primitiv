@@ -22,6 +22,7 @@ import {
   ProgressExample,
   RadioCardExample,
   RadioGroupExample,
+  SkipNavExample,
   SliderExample,
   StatusExample,
   SwitchExample,
@@ -101,6 +102,7 @@ const navGroups: { title: string; links: NavLink[] }[] = [
     links: [
       { to: "/accessible-icon", label: "Accessible Icon" },
       { to: "/portal", label: "Portal" },
+      { to: "/skip-nav", label: "Skip Nav" },
       { to: "/visually-hidden", label: "Visually Hidden" },
     ],
   },
@@ -168,6 +170,7 @@ function App() {
           <Route path="/progress" element={<ProgressExample />} />
           <Route path="/radio-card" element={<RadioCardExample />} />
           <Route path="/radio-group" element={<RadioGroupExample />} />
+          <Route path="/skip-nav" element={<SkipNavExample />} />
           <Route path="/slider" element={<SliderExample />} />
           <Route path="/status" element={<StatusExample />} />
           <Route path="/switch" element={<SwitchExample />} />

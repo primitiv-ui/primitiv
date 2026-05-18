@@ -1,0 +1,61 @@
+.skip-nav-example {
+  max-width: 40rem;
+  margin: 0 auto;
+
+  &__title {
+    margin-block-end: 0.5rem;
+  }
+
+  &__description {
+    margin-block-end: 1.5rem;
+    font-size: 0.9375rem;
+    color: #555;
+  }
+
+  &__link {
+    position: absolute;
+    inset-block-start: 1rem;
+    inset-inline-start: -9999px;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    background: #1a1a1a;
+    color: #fff;
+    text-decoration: none;
+
+    &:focus {
+      inset-inline-start: 1rem;
+    }
+  }
+
+  &__nav {
+    display: flex;
+    gap: 1rem;
+    margin-block-end: 1.5rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: #f3f4f6;
+  }
+
+  &__nav-link {
+    color: #2563eb;
+  }
+
+  &__content {
+    padding: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+
+    &:focus-visible {
+      outline: 2px solid #2563eb;
+      outline-offset: 2px;
+    }
+  }
+
+  &__content-title {
+    margin-block-start: 0;
+  }
+
+  &__text {
+    margin-block-end: 0;
+  }
+}

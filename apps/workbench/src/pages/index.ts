@@ -1,3 +1,4 @@
+export * from "./AccessibleIconExample";
 export * from "./AccordionExample";
 export * from "./AvatarExample";
 export * from "./BreadcrumbExample";

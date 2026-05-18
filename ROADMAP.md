@@ -106,7 +106,7 @@ semantics that CSS alone cannot provide.
 
 ### Utilities
 
-- [ ] Accessible Icon
+- [x] Accessible Icon
 - [ ] Direction Provider
 - [ ] Environment Provider
 - [x] Portal
@@ -140,6 +140,7 @@ behaviour, but were kept for meaningful ARIA semantics:
 `apps/workbench` carries one example page per component. Every public
 component now has a workbench example:
 
+- [x] Accessible Icon
 - [x] Button
 - [x] Checkbox
 - [x] Divider

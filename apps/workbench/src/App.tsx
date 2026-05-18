@@ -2,6 +2,7 @@ import { Routes, Route, Link, useLocation } from "react-router-dom";
 
 import { ColorEngine } from "./ColorEngine";
 import {
+  AccessibleIconExample,
   AccordionExample,
   AvatarExample,
   BreadcrumbExample,
@@ -90,6 +91,7 @@ const navGroups: { title: string; links: NavLink[] }[] = [
   {
     title: "Utilities",
     links: [
+      { to: "/accessible-icon", label: "Accessible Icon" },
       { to: "/portal", label: "Portal" },
       { to: "/visually-hidden", label: "Visually Hidden" },
     ],
@@ -132,6 +134,10 @@ function App() {
       <main className={containerClasses}>
         <Routes>
           <Route path="/" element={<ColorEngine />} />
+          <Route
+            path="/accessible-icon"
+            element={<AccessibleIconExample />}
+          />
           <Route path="/accordion" element={<AccordionExample />} />
           <Route path="/avatar" element={<AvatarExample />} />
           <Route path="/breadcrumb" element={<BreadcrumbExample />} />

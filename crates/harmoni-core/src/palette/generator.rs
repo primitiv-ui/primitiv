@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::audit::contrast::get_contrast_rating_for_step;
 use crate::audit::foreground::get_best_foreground;
+use crate::color::output::{format_oklch, oklch_to_hex, oklch_to_rgb, Rgb};
 use crate::ContrastResult;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -29,15 +30,25 @@ pub struct SwatchStep {
     pub c: f32,
     pub h: f32,
     pub label: SwatchLabel,
+    /// The colour as a `#rrggbb` sRGB hex string.
+    pub hex: String,
+    /// The colour as gamma-encoded sRGB, channels in `0.0..=1.0`.
+    pub rgb: Rgb,
+    /// The colour as a CSS `oklch(L C H)` string.
+    pub oklch: String,
 }
 
 impl SwatchStep {
     pub fn from_label<T: Into<SwatchLabel>>(l: f32, c: f32, h: f32, label: T) -> Self {
+        let color = Oklch::new(l, c, h);
         Self {
             l,
             c,
             h,
             label: label.into(),
+            hex: oklch_to_hex(color),
+            rgb: oklch_to_rgb(color),
+            oklch: format_oklch(color),
         }
     }
 }
@@ -48,6 +59,12 @@ pub struct Swatch {
     pub c: f32,
     pub h: f32,
     pub label: SwatchLabel,
+    /// The colour as a `#rrggbb` sRGB hex string.
+    pub hex: String,
+    /// The colour as gamma-encoded sRGB, channels in `0.0..=1.0`.
+    pub rgb: Rgb,
+    /// The colour as a CSS `oklch(L C H)` string.
+    pub oklch: String,
     pub best_foreground: SwatchStep,
     pub contrast_result: ContrastResult,
 }
@@ -214,6 +231,9 @@ fn assemble_palette(
                 c: background.c,
                 h: background.h,
                 label: background.label.clone(),
+                hex: background.hex.clone(),
+                rgb: background.rgb,
+                oklch: background.oklch.clone(),
                 best_foreground: recommendation.color,
                 contrast_result,
             }

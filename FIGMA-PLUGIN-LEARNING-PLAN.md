@@ -20,30 +20,36 @@ surfaces the Harmoni palette engine inside Figma.
 
 **Ports & adapters — "pure core, imperative shell".**
 
-1. **Pure core** — engine wrapper, OKLCH→sRGB conversion, "palette → node
-   spec" / "palette → variable spec" planners. No `figma`, no DOM. 100%
-   TDD.
+1. **Pure core** — engine wrapper, the Harmoni-colour→Figma-paint mapper,
+   "palette → node spec" / "palette → variable spec" planners. No `figma`,
+   no DOM. 100% TDD.
 2. **Message contract** (`src/shared/messages.ts`) — the discriminated
    union between UI and sandbox; the only thing crossing the boundary.
-   The UI converts colours and sends Figma-ready data; the sandbox stays
-   dumb.
+   The UI generates palettes and sends Figma-ready data; the sandbox
+   stays dumb.
 3. **Figma adapter** — one `FigmaGateway` interface over every `figma.*`
    call; real implementation in the sandbox, fake injected in tests.
 
 Each milestone = one or more red→green(→refactor) commits, strict TDD,
 pushed often.
 
-### Why a colour conversion step is unavoidable
+### How Harmoni hands you colour
 
-Harmoni does **not** output colour strings. Each `Swatch` in
-`crates/harmoni-wasm/src/types.rs` carries only numeric OKLCH fields —
-`l`, `c`, `h` (plus `label`, `best_foreground`, `contrast_result`). The
-workbench hand-builds a CSS `oklch(...)` string and hands it to the
-**browser**, which renders `oklch()` natively.
+The Harmoni engine emits each swatch colour ready to use. Every `Swatch`
+and `SwatchStep` carries — alongside its OKLCH `l`/`c`/`h` numbers —
+three derived fields:
 
-Figma is not a browser. Node `fills` and variable colour values require
-`{ r, g, b }` floats in **sRGB** — they do not accept `oklch()` strings.
-So a conversion step (milestone M2) is required.
+- `hex` — a `#rrggbb` sRGB string,
+- `rgb` — gamma-encoded sRGB `{ r, g, b }` floats in `0..=1`, exactly the
+  form Figma fills and variables expect,
+- `oklch` — a ready CSS `oklch(L C H)` string.
+
+So the plugin does **no colour-space conversion**: it reads `swatch.rgb`
+straight into a Figma `SolidPaint` or `COLOR` variable value. (Earlier
+drafts of this plan had an "OKLCH → sRGB conversion" milestone; that was
+a real gap in the *engine*, since fixed in `harmoni-core`'s
+`color/output.rs` — the library now owns colour-format output, not each
+consumer.)
 
 ---
 
@@ -80,7 +86,8 @@ and renders swatches in the iframe — preview only, no Figma writes.
    re-export.
 3. Run `pnpm run build:wasm`, then read the generated `harmoni-wasm`
    `.d.ts` to confirm the `generate_palette(hex, lightPadding,
-   darkPadding)` signature and `Palette`/`Swatch` shapes.
+   darkPadding)` signature and the `Palette`/`Swatch` shapes — note each
+   swatch's `hex`/`rgb`/`oklch` colour fields.
 
 **Implement (TDD):**
 1. RED: test a pure `generatePalette(hex, opts)` wrapper (mock
@@ -88,34 +95,34 @@ and renders swatches in the iframe — preview only, no Figma writes.
 2. GREEN: implement the wrapper.
 3. RED: test the UI state — colour input change → swatches in state.
 4. GREEN: wire a colour input (`@primitiv/react`), a Generate button, and
-   a swatch list rendered with CSS `oklch()`.
+   a swatch list rendered straight from each swatch's `oklch` field.
 
 **Concepts:** harmoni-wasm in the iframe, init gating, mocking the wasm
 module, React state.
 
-### M2 — OKLCH → sRGB conversion *(~2–3h)*
+### M2 — Harmoni colour → Figma paint *(~1–2h)*
 
-**Goal:** A pure, fully-tested `oklchToRgb({l,c,h}) → {r,g,b}` (0–1, sRGB)
-with out-of-gamut clamping.
+**Goal:** A tiny, fully-tested pure mapper from a Harmoni swatch to the
+shapes Figma writes — a `SolidPaint` for fills and an `RGB` value for
+colour variables. No colour-space maths: the engine already emits
+Figma-ready `swatch.rgb`.
 
 **Research:**
-1. Confirm the engine output is numeric OKLCH (`types.rs`).
-2. Investigate `figma.util.rgb()` / `figma.util.solidPaint()` in
-   `@figma/plugin-typings` — does the string parser accept `oklch()`? If
-   yes, conversion may collapse to a sandbox-side call.
-3. If not: choose a UI-side approach — a browser `<canvas>` `fillStyle`
-   round-trip, or `culori`'s `converter('rgb')`. Recommend converting
-   UI-side so the sandbox receives Figma-ready RGB.
+1. Confirm Harmoni emits `swatch.rgb` as gamma-encoded sRGB `{r,g,b}`
+   floats in `0..=1` — read the regenerated `harmoni-wasm` `.d.ts`.
+2. The `Paint` / `SolidPaint` / `RGB` / `RGBA` types in
+   `@figma/plugin-typings` — note `SolidPaint.color` is an `RGB` with
+   0–1 channels, so `swatch.rgb` drops straight in.
 
 **Implement (TDD):**
-1. RED: `oklchToRgb` against known fixtures (pure white, black, a mid
-   brand colour).
-2. GREEN: implement with the chosen approach.
-3. RED: an out-of-sRGB-gamut colour must clamp into range.
-4. GREEN: add clamping.
+1. RED: `swatchToSolidPaint(swatch)` → `{ type: 'SOLID', color: rgb }`.
+2. GREEN: implement.
+3. RED: `swatchToVariableValue(swatch)` → the `RGB` a `COLOR` variable
+   takes.
+4. GREEN: implement.
 
-**Concepts:** colour spaces, Figma's sRGB-only paint model, pure-function
-TDD, gamut clamping.
+**Concepts:** Figma's paint model, the `Paint`/`RGB` shapes, pure-function
+TDD — the engine already owns the colour-space conversion.
 
 ### M3 — The Figma adapter seam (dependency injection) *(~3–4h)*
 
@@ -178,7 +185,7 @@ rectangles on the canvas.
 
 **Implement (TDD):**
 1. RED: a pure `planSwatchFrame(palette)` → a node-spec tree (frame +
-   rects + text, colours already sRGB). Test it.
+   rects + text, fills mapped from each swatch's `rgb`). Test it.
 2. GREEN: implement the planner.
 3. RED: a handler that applies a node-spec via the gateway; assert the
    calls on the fake.
@@ -298,7 +305,7 @@ desktop.
 | --- | --- | --- |
 | M0 | Orientation & API map | ~2–3h |
 | M1 | Generate & preview a palette in the UI | ~3–4h |
-| M2 | OKLCH → sRGB conversion | ~2–3h |
+| M2 | Harmoni colour → Figma paint | ~1–2h |
 | M3 | The Figma adapter seam (DI) | ~3–4h |
 | M4 | First node on the canvas | ~3–4h |
 | M5 | Palette as canvas swatch nodes | ~4–6h |
@@ -308,5 +315,5 @@ desktop.
 | M9 | Error handling & UI states | ~3–5h |
 | M10 | MVP hardening & manual QA | ~2–4h |
 
-**Total: ~34–50 focused hours**, 11 milestones. A working MVP (generate →
+**Total: ~33–49 focused hours**, 11 milestones. A working MVP (generate →
 canvas + variables) lands at M6; M7–M10 harden it.

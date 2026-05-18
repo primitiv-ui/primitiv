@@ -16,4 +16,19 @@ describe("AccessibleIcon component", () => {
       "true",
     );
   });
+
+  it("should mark the icon child as non-focusable", () => {
+    // Arrange
+    render(
+      <AccessibleIcon label="Search">
+        <svg data-testid="icon" />
+      </AccessibleIcon>,
+    );
+
+    // Assert
+    expect(screen.getByTestId("icon")).toHaveAttribute(
+      "focusable",
+      "false",
+    );
+  });
 });

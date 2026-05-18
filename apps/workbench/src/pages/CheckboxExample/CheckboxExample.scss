@@ -66,8 +66,9 @@
     }
   }
 
-  &__check {
-    inline-size: 0.75rem;
-    block-size: 0.75rem;
+  &__indicator-icon {
+    display: block;
+    inline-size: 0.875rem;
+    block-size: 0.875rem;
   }
 }

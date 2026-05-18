@@ -1,21 +1,9 @@
 import { useState } from "react";
 
+import { Check, Minus } from "@primitiv/icons";
 import { Checkbox } from "@primitiv/react";
 
 import "./CheckboxExample.scss";
-
-function CheckIcon() {
-  return (
-    <svg className="cb-example__check" viewBox="0 0 10 10" aria-hidden="true">
-      <path
-        d="M1 5 4 8 9 1"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
-    </svg>
-  );
-}
 
 export function CheckboxExample() {
   const [checked, setChecked] = useState<boolean | "indeterminate">(
@@ -35,7 +23,7 @@ export function CheckboxExample() {
             aria-label="Accept terms"
           >
             <Checkbox.Indicator>
-              <CheckIcon />
+              <Check className="cb-example__indicator-icon" />
             </Checkbox.Indicator>
           </Checkbox.Root>
           <span>Accept terms</span>
@@ -52,11 +40,23 @@ export function CheckboxExample() {
           <Checkbox.Root
             className="cb-example__box"
             checked={checked}
-            onCheckedChange={setChecked}
+            onCheckedChange={() => {
+              setChecked((prev) =>
+                prev === "indeterminate"
+                  ? true
+                  : prev
+                    ? false
+                    : "indeterminate",
+              );
+            }}
             aria-label="Select all"
           >
             <Checkbox.Indicator>
-              <CheckIcon />
+              {checked === "indeterminate" ? (
+                <Minus className="cb-example__indicator-icon" />
+              ) : (
+                <Check className="cb-example__indicator-icon" />
+              )}
             </Checkbox.Indicator>
           </Checkbox.Root>
           <span>Select all</span>
@@ -73,7 +73,7 @@ export function CheckboxExample() {
             aria-label="Locked setting"
           >
             <Checkbox.Indicator>
-              <CheckIcon />
+              <Check className="cb-example__indicator-icon" />
             </Checkbox.Indicator>
           </Checkbox.Root>
           <span>Locked setting</span>

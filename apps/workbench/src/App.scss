@@ -73,6 +73,11 @@ body {
   margin: 0 auto;
   padding: 2rem;
 
+  &--full-width {
+    max-width: unset;
+    padding: 0;
+  }
+
   h1 {
     margin-bottom: 1rem;
   }

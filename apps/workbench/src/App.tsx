@@ -1,4 +1,4 @@
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useLocation } from "react-router-dom";
 
 import { ColorEngine } from "./ColorEngine";
 import {
@@ -89,13 +89,18 @@ const navGroups: { title: string; links: NavLink[] }[] = [
   { title: "Utilities", links: [{ to: "/portal", label: "Portal" }] },
   {
     title: "Showcase",
-    links: [
-      { to: "/design-system-test", label: "Design System Test" },
-    ],
+    links: [{ to: "/design-system-test", label: "Design System Test" }],
   },
 ];
 
 function App() {
+  const location = useLocation();
+  const isDesignSystemShowcasePage =
+    location.pathname === "/design-system-test";
+  const containerClasses = isDesignSystemShowcasePage
+    ? "container container--full-width"
+    : "container";
+
   return (
     <div className="app-layout">
       <aside className="sidebar">
@@ -117,7 +122,7 @@ function App() {
           </div>
         ))}
       </aside>
-      <main className="container">
+      <main className={containerClasses}>
         <Routes>
           <Route path="/" element={<ColorEngine />} />
           <Route path="/accordion" element={<AccordionExample />} />
@@ -134,10 +139,7 @@ function App() {
           />
           <Route path="/divider" element={<DividerExample />} />
           <Route path="/dropdown" element={<DropdownExample />} />
-          <Route
-            path="/miller-columns"
-            element={<MillerColumnsExample />}
-          />
+          <Route path="/miller-columns" element={<MillerColumnsExample />} />
           <Route path="/modal" element={<ModalExample />} />
           <Route path="/portal" element={<PortalExample />} />
           <Route path="/progress" element={<ProgressExample />} />

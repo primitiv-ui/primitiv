@@ -89,7 +89,7 @@ semantics that CSS alone cannot provide.
 
 ### Feedback & Status
 
-- [ ] Alert
+- [x] Alert
 - [ ] Empty State
 - [x] Progress
 - [ ] Progress Circle
@@ -141,6 +141,7 @@ behaviour, but were kept for meaningful ARIA semantics:
 component now has a workbench example:
 
 - [x] Accessible Icon
+- [x] Alert
 - [x] Button
 - [x] Checkbox
 - [x] Divider

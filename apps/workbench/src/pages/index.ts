@@ -1,5 +1,6 @@
 export * from "./AccessibleIconExample";
 export * from "./AccordionExample";
+export * from "./AlertExample";
 export * from "./AvatarExample";
 export * from "./BreadcrumbExample";
 export * from "./ButtonExample";

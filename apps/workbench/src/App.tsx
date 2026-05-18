@@ -4,6 +4,7 @@ import { ColorEngine } from "./ColorEngine";
 import {
   AccessibleIconExample,
   AccordionExample,
+  AlertExample,
   AvatarExample,
   BreadcrumbExample,
   ButtonExample,
@@ -79,7 +80,10 @@ const navGroups: { title: string; links: NavLink[] }[] = [
   },
   {
     title: "Feedback & Status",
-    links: [{ to: "/progress", label: "Progress" }],
+    links: [
+      { to: "/alert", label: "Alert" },
+      { to: "/progress", label: "Progress" },
+    ],
   },
   {
     title: "Data Display",
@@ -139,6 +143,7 @@ function App() {
             element={<AccessibleIconExample />}
           />
           <Route path="/accordion" element={<AccordionExample />} />
+          <Route path="/alert" element={<AlertExample />} />
           <Route path="/avatar" element={<AvatarExample />} />
           <Route path="/breadcrumb" element={<BreadcrumbExample />} />
           <Route path="/button" element={<ButtonExample />} />

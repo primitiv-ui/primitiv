@@ -11,4 +11,18 @@ describe("Status component", () => {
     expect(status.tagName).toBe("DIV");
     expect(status).toHaveTextContent("3 items added to your cart");
   });
+
+  it("should render the consumer element with asChild, keeping role status", () => {
+    // Arrange
+    render(
+      <Status asChild>
+        <section>Saved</section>
+      </Status>,
+    );
+
+    // Assert
+    const status = screen.getByRole("status");
+    expect(status.tagName).toBe("SECTION");
+    expect(status).toHaveTextContent("Saved");
+  });
 });

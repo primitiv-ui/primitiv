@@ -36,15 +36,29 @@ impl From<TintMode> for core::TintMode {
     }
 }
 
-#[derive(Tsify, Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+#[derive(Tsify, Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct OklchTriple {
     pub l: f32,
     pub c: f32,
     pub h: f32,
+    pub hex: String,
+    pub rgb: Rgb,
+    pub oklch: String,
 }
 
-#[derive(Tsify, Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+fn oklch_triple(color: palette::Oklch) -> OklchTriple {
+    OklchTriple {
+        l: color.l,
+        c: color.chroma,
+        h: color.hue.into_degrees(),
+        hex: core::oklch_to_hex(color),
+        rgb: core::oklch_to_rgb(color).into(),
+        oklch: core::format_oklch(color),
+    }
+}
+
+#[derive(Tsify, Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct SoftNeutrals {
     pub white: OklchTriple,
@@ -54,16 +68,8 @@ pub struct SoftNeutrals {
 impl From<core::SoftNeutrals> for SoftNeutrals {
     fn from(value: core::SoftNeutrals) -> Self {
         SoftNeutrals {
-            white: OklchTriple {
-                l: value.white.l,
-                c: value.white.chroma,
-                h: value.white.hue.into_degrees(),
-            },
-            black: OklchTriple {
-                l: value.black.l,
-                c: value.black.chroma,
-                h: value.black.hue.into_degrees(),
-            },
+            white: oklch_triple(value.white),
+            black: oklch_triple(value.black),
         }
     }
 }
@@ -289,6 +295,17 @@ mod tests {
         assert!((wasm_value.white.c - 0.02).abs() < 1e-5);
         assert!((wasm_value.black.l - 0.10).abs() < 1e-5);
         assert!((wasm_value.black.c - 0.005).abs() < 1e-5);
+    }
+
+    #[test]
+    fn soft_neutrals_converts_from_core_with_colour_format_fields() {
+        let white = palette::Oklch::new(0.95, 0.02, 240.0);
+        let black = palette::Oklch::new(0.10, 0.005, 240.0);
+        let wasm_value: SoftNeutrals = core::SoftNeutrals { white, black }.into();
+
+        assert_eq!(wasm_value.white.hex, core::oklch_to_hex(white));
+        assert_eq!(wasm_value.white.oklch, core::format_oklch(white));
+        assert_eq!(wasm_value.black.rgb, Rgb::from(core::oklch_to_rgb(black)));
     }
 
     #[test]

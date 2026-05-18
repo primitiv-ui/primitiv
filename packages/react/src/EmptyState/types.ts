@@ -13,3 +13,6 @@ export type EmptyStateMediaProps = ComponentProps<"div"> & WithAsChild;
 
 /** Props for {@link EmptyState.Title} — all `<p>` props plus `asChild`. */
 export type EmptyStateTitleProps = ComponentProps<"p"> & WithAsChild;
+
+/** Props for {@link EmptyState.Description} — all `<p>` props plus `asChild`. */
+export type EmptyStateDescriptionProps = ComponentProps<"p"> & WithAsChild;

@@ -1,5 +1,6 @@
 import { Slot } from "../Slot";
 import {
+  EmptyStateDescriptionProps,
   EmptyStateMediaProps,
   EmptyStateRootProps,
   EmptyStateTitleProps,
@@ -119,16 +120,48 @@ function EmptyStateTitle({
 
 EmptyStateTitle.displayName = "EmptyStateTitle";
 
+/**
+ * The supporting copy of an Empty State — renders a `<p>` with the secondary
+ * text that explains the situation or suggests a next step (e.g. "Try
+ * adjusting your filters").
+ *
+ * Keep it to guidance the user can act on; the actionable controls themselves
+ * belong in {@link EmptyStateActions | `Actions`}.
+ *
+ * **`asChild` composition.** Renders the consumer's element instead of a
+ * `<p>`, merging all props in via the {@link Slot} utility.
+ *
+ * @example
+ * ```tsx
+ * <EmptyState.Description>Try adjusting your filters.</EmptyState.Description>
+ * ```
+ */
+function EmptyStateDescription({
+  asChild = false,
+  children,
+  ...rest
+}: EmptyStateDescriptionProps) {
+  if (asChild) {
+    return <Slot {...rest}>{children}</Slot>;
+  }
+
+  return <p {...rest}>{children}</p>;
+}
+
+EmptyStateDescription.displayName = "EmptyStateDescription";
+
 type EmptyStateCompound = typeof EmptyStateRoot & {
   Root: typeof EmptyStateRoot;
   Media: typeof EmptyStateMedia;
   Title: typeof EmptyStateTitle;
+  Description: typeof EmptyStateDescription;
 };
 
 const EmptyState: EmptyStateCompound = Object.assign(EmptyStateRoot, {
   Root: EmptyStateRoot,
   Media: EmptyStateMedia,
   Title: EmptyStateTitle,
+  Description: EmptyStateDescription,
 });
 
 /**
@@ -144,6 +177,8 @@ const EmptyState: EmptyStateCompound = Object.assign(EmptyStateRoot, {
  * - {@link EmptyStateMedia | `EmptyState.Media`} — `<div aria-hidden="true">`,
  *   the decorative icon/illustration slot.
  * - {@link EmptyStateTitle | `EmptyState.Title`} — `<p>`, the headline.
+ * - {@link EmptyStateDescription | `EmptyState.Description`} — `<p>`, the
+ *   supporting copy.
  *
  * @example
  * ```tsx

@@ -10,6 +10,7 @@ export * from "./CheckboxCard";
 export * from "./Collapsible";
 export * from "./Divider";
 export * from "./Dropdown";
+export * from "./EmptyState";
 export * from "./MillerColumns";
 export * from "./Modal";
 export * from "./Portal";

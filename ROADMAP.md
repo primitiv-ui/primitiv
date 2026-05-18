@@ -113,7 +113,7 @@ semantics that CSS alone cannot provide.
 - [ ] Presence
 - [ ] Skip Nav
 - [x] Slot
-- [ ] Visually Hidden
+- [x] Visually Hidden
 
 ### Borderline cases
 
@@ -147,6 +147,7 @@ component now has a workbench example:
 - [x] Radio Group
 - [x] Table
 - [x] Tabs
+- [x] Visually Hidden
 
 `Slot` is an internal composition utility, not a public component —
 it does not need a workbench page.

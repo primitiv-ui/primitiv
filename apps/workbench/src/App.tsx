@@ -26,6 +26,7 @@ import {
   ToggleExample,
   ToggleGroupExample,
   TooltipExample,
+  VisuallyHiddenExample,
 } from "./pages";
 
 import "./App.scss";
@@ -86,7 +87,13 @@ const navGroups: { title: string; links: NavLink[] }[] = [
       { to: "/table", label: "Table" },
     ],
   },
-  { title: "Utilities", links: [{ to: "/portal", label: "Portal" }] },
+  {
+    title: "Utilities",
+    links: [
+      { to: "/portal", label: "Portal" },
+      { to: "/visually-hidden", label: "Visually Hidden" },
+    ],
+  },
   {
     title: "Showcase",
     links: [{ to: "/design-system-test", label: "Design System Test" }],
@@ -152,6 +159,10 @@ function App() {
           <Route path="/toggle" element={<ToggleExample />} />
           <Route path="/toggle-group" element={<ToggleGroupExample />} />
           <Route path="/tooltip" element={<TooltipExample />} />
+          <Route
+            path="/visually-hidden"
+            element={<VisuallyHiddenExample />}
+          />
         </Routes>
       </main>
     </div>

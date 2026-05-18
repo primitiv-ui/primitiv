@@ -41,6 +41,7 @@ import { Tabs } from "@primitiv/react";
 | [Toggle](src/Toggle/README.md)           | WAI-ARIA Button pattern with `aria-pressed` — single stateful toggle button with controlled/uncontrolled state, `data-state` styling hook, and `asChild` composition                                                                                                                   |
 | [ToggleGroup](src/ToggleGroup/README.md) | Grouped toggle buttons with roving-tabindex keyboard navigation — `type="single"` (at most one pressed, re-press deselects) or `type="multiple"` (items toggle independently), controlled/uncontrolled state, disabled-item skipping, and `asChild` composition                        |
 | [Tooltip](src/Tooltip/README.md)         | WAI-ARIA Tooltip pattern — hover/focus-triggered description panel with configurable delay, skip-delay across multiple tooltips, grace period for hoverable content, CSS-anchor-positioning placement (no JS measurement), Portal, controlled/uncontrolled state, and `asChild` composition |
+| [VisuallyHidden](src/VisuallyHidden/README.md) | Screen-reader-only primitive — visually hides its children with the canonical clip styles while keeping them in the accessibility tree, with consumer `style` merging and `asChild` composition |
 
 ## Internal utilities
 

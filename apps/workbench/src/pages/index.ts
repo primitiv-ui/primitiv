@@ -22,3 +22,4 @@ export * from "./TabsExample";
 export * from "./ToggleExample";
 export * from "./ToggleGroupExample";
 export * from "./TooltipExample";
+export * from "./VisuallyHiddenExample";

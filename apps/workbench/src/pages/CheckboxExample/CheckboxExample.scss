@@ -71,4 +71,14 @@
     inline-size: 0.875rem;
     block-size: 0.875rem;
   }
+
+  &__children {
+    list-style: none;
+    margin: 0;
+    padding-inline-start: 1.75rem;
+    margin-block-start: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 }

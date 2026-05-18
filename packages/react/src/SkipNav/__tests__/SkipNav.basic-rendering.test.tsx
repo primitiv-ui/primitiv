@@ -10,4 +10,14 @@ describe("SkipNav component", () => {
     const link = screen.getByRole("link", { name: "Skip to content" });
     expect(link).toHaveAttribute("href", "#main");
   });
+
+  it("should render Content as a programmatically focusable region", () => {
+    // Arrange
+    render(<SkipNav.Content>Main content</SkipNav.Content>);
+
+    // Assert
+    const content = screen.getByText("Main content");
+    expect(content).toHaveAttribute("id", "primitiv-skip-nav");
+    expect(content).toHaveAttribute("tabindex", "-1");
+  });
 });

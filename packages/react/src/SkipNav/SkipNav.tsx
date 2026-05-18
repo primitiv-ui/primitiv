@@ -1,4 +1,4 @@
-import { SkipNavLinkProps } from "./types";
+import { SkipNavContentProps, SkipNavLinkProps } from "./types";
 
 const DEFAULT_CONTENT_ID = "primitiv-skip-nav";
 
@@ -16,8 +16,19 @@ function SkipNavLink({
 
 SkipNavLink.displayName = "SkipNavLink";
 
+function SkipNavContent({ children, ...rest }: SkipNavContentProps) {
+  return (
+    <div id={DEFAULT_CONTENT_ID} tabIndex={-1} {...rest}>
+      {children}
+    </div>
+  );
+}
+
+SkipNavContent.displayName = "SkipNavContent";
+
 const SkipNav = {
   Link: SkipNavLink,
+  Content: SkipNavContent,
 };
 
 export { SkipNav };

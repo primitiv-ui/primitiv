@@ -1,4 +1,5 @@
 export * from "./Accordion";
+export * from "./Avatar";
 export * from "./Breadcrumb";
 export * from "./Button";
 export * from "./Carousel";

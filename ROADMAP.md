@@ -32,7 +32,6 @@ semantics that CSS alone cannot provide.
 - [ ] File Upload
 - [ ] Form
 - [ ] Input
-- [ ] Label
 - [ ] Number Input
 - [ ] One-Time Password Field
 - [ ] Password Input
@@ -98,7 +97,7 @@ semantics that CSS alone cannot provide.
 
 ### Data Display
 
-- [ ] Avatar
+- [x] Avatar
 - [ ] Clipboard
 - [ ] QR Code
 - [ ] Scroll Area

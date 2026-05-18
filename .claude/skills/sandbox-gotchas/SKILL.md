@@ -1,6 +1,6 @@
 ---
 name: sandbox-gotchas
-description: Known-to-bite sandbox / tooling issues in this repo — git mv cross-device failures, the wasm pkg-not-found install loop, the broken build:core script, missing wasm-pack, the deleted Playwright e2e. TRIGGER when you hit `ERR_PNPM_WORKSPACE_PKG_NOT_FOUND`, `Invalid cross-device link`, "wasm-pack: command not found", `pnpm test:e2e` failures, `build:core` errors, or unexplained pnpm install failures around the harmoni-wasm package. SKIP unless you've already hit one of these symptoms.
+description: Known-to-bite sandbox / tooling issues in this repo — git mv cross-device failures, the wasm pkg-not-found install loop, the broken build:core script, missing wasm-pack, the deleted Playwright e2e, and the un-runnable apps/web workbench. TRIGGER when you hit `ERR_PNPM_WORKSPACE_PKG_NOT_FOUND`, `Invalid cross-device link`, "wasm-pack: command not found", `pnpm test:e2e` failures, `build:core` errors, unexplained pnpm install failures around the harmoni-wasm package, or before you try to `pnpm run dev` / browser-test a workbench page. SKIP unless you've already hit one of these symptoms or are about to browser-test the workbench.
 ---
 
 # Sandbox gotchas
@@ -55,6 +55,21 @@ The Playwright e2e test was deleted because it targeted a
 contrast-preview UI that no longer exists in `App.tsx`. The
 `test:e2e` script remains in root `package.json` and would fail
 with "no tests found" if run. Not yet replaced.
+
+## Don't try to browser-test the `apps/web` workbench
+
+The workbench dev server can't run in the sandbox: `pnpm run dev`
+pulls in `harmoni-wasm`, whose `pkg/` is missing and can't be
+regenerated without `wasm-pack` (see above). Don't burn time
+starting the dev server, stubbing the wasm package, or removing the
+`ColorEngine` route to get a workbench page to render.
+
+When you add or change a workbench example page, the bar is: it
+**typechecks** (`pnpm --filter web exec tsc --noEmit`) and follows
+the `workbench-examples` skill rules (scoped SCSS, router wiring).
+The human always manually checks the workbench in a real browser
+afterwards — say so in your summary and leave the visual check to
+them.
 
 ## Don't run filesystem-scope commands from `/`
 

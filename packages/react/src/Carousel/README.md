@@ -93,7 +93,7 @@ will settle — otherwise programmatic navigation would re-snap after
 the smooth scroll. Everything else is either a state knob (JS) or a
 visual rule (CSS), with no overlap.
 
-The `apps/web` workbench at `/carousel` ships worked recipes for
+The `apps/workbench` workbench at `/carousel` ships worked recipes for
 each cell of the matrix (single / multi / multi-step × slide / fade)
 plus peek, variable-size, and programmatic-control examples.
 

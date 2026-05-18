@@ -54,7 +54,7 @@ pub use crate::palette::generator::generate_greyscale_oklch as generate_greyscal
   dark_padding }`. `generate` is a thin wrapper with defaults.
 - `audit_contrast` is fallible because it accepts arbitrary CSS.
 - `generate_greyscale` is intentionally infallible — no user input
-  means nothing to validate. The web app calls it directly.
+  means nothing to validate. The workbench calls it directly.
 - The module-and-function name collision (`api::generate` is both a
   module and a re-exported function) is intentional — same pattern
   as `std::mem::size_of`.
@@ -97,7 +97,7 @@ extern "C" {
 
 The TypeScript type `Swatch` in the generated `.d.ts` comes from
 Tsify's `typescript_custom_section` emission on `types::Swatch`.
-The web app's `import { type Palette } from "harmoni-wasm"` still
+The workbench's `import { type Palette } from "harmoni-wasm"` still
 resolves because the emitted type name is identical.
 
 > Superseded — see *Palette became a struct* below. `Palette` is
@@ -110,8 +110,8 @@ resolves because the emitted type name is identical.
 `primitiv-core` → `harmoni-core`, `primitiv-wasm` → `harmoni-wasm`.
 Everything Rust, tooling, and JS/TS now says `harmoni` except the
 deliberate product-name references: `README.md` heading,
-`package.json` name, `apps/web/index.html` title,
-`apps/web/src/App.tsx` `<h1>`.
+`package.json` name, `apps/workbench/index.html` title,
+`apps/workbench/src/App.tsx` `<h1>`.
 
 If you find yourself renaming any of those, stop — you're eroding
 the identity split between *Primitiv* (the product) and *Harmoni*
@@ -133,8 +133,8 @@ Domain types were aligned with design-system language:
   has a name. Generator return types simplified from `Vec<Palette>`
   to `Palette`.
 
-The wasm mirror types (`types.rs`) and the web app's TypeScript
-were updated mechanically. `Swatch.tsx` in the web app aliases the
+The wasm mirror types (`types.rs`) and the workbench's TypeScript
+were updated mechanically. `Swatch.tsx` in the workbench aliases the
 import as `SwatchData` to avoid colliding with the React component
 name.
 

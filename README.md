@@ -5,7 +5,7 @@
 This repo is a monorepo that houses both: the Rust engine (`harmoni-core`),
 the WebAssembly adapter that exposes it to the browser (`harmoni-wasm`),
 the React app used to develop and visualise palettes during iteration
-(`apps/web`), and the Figma plugin that will let designers pull Primitiv
+(`apps/workbench`), and the Figma plugin that will let designers pull Primitiv
 palettes directly into their Figma files (`apps/harmoni-figma-plugin`).
 
 ## Repo layout
@@ -16,12 +16,12 @@ primitiv/
 ├── pnpm-workspace.yaml        # pnpm workspace
 ├── crates/
 │   ├── harmoni-core/          # Pure-Rust palette generation + contrast audit
-│   └── harmoni-wasm/          # wasm-bindgen adapter; consumed by apps/web
+│   └── harmoni-wasm/          # wasm-bindgen adapter; consumed by apps/workbench
 ├── packages/
 │   ├── react/                 # Headless React component library
 │   └── icons/                 # Fill-based SVG icon library
 └── apps/
-    ├── web/                   # React dev surface (Vite + TS)
+    ├── workbench/             # React dev surface (Vite + TS)
     └── harmoni-figma-plugin/  # Figma plugin (Vite + TS + React)
 ```
 
@@ -37,7 +37,7 @@ primitiv/
   live as sibling crates alongside it.
 - `packages/react` is a headless, accessible React component
   library with zero styles. See the [React package README](packages/react/README.md).
-- `apps/web` is a small React app used for visual iteration on the
+- `apps/workbench` is a small React app used for visual iteration on the
   palette algorithm. It is **not** a production surface for the
   design system — think of it as a workbench.
 - `apps/harmoni-figma-plugin` is the Harmoni Figma plugin. It is
@@ -121,7 +121,7 @@ Prerequisites:
 - Rust (stable)
 - Node 20+ and pnpm 10
 - [`wasm-pack`](https://rustwasm.github.io/wasm-pack/installer/)
-  (only required to rebuild the wasm package for the web app)
+  (only required to rebuild the wasm package for the workbench app)
 
 Install dependencies and run the Rust test suite:
 
@@ -130,7 +130,7 @@ pnpm install
 cargo test --workspace
 ```
 
-Rebuild the wasm package and start the web dev server:
+Rebuild the wasm package and start the workbench dev server:
 
 ```sh
 pnpm run build:wasm
@@ -138,7 +138,7 @@ pnpm run dev
 ```
 
 `pnpm run build:wasm` regenerates `crates/harmoni-wasm/pkg/`,
-which is what `apps/web` consumes via a pnpm workspace link. The
+which is what `apps/workbench` consumes via a pnpm workspace link. The
 `pkg/` directory is not tracked in git; it is always rebuilt
 from source.
 

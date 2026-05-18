@@ -74,7 +74,9 @@ export function DesignSystemTestExample() {
 
       <main className="ds-test__main">
         <header className="ds-test__topbar">
-          <h2 className="ds-test__page-title">Design System Test</h2>
+          <h2 className="ds-test__page-title">
+            Design System Color Test - Dashboard Example
+          </h2>
           <input
             className="ds-test__search"
             type="search"
@@ -106,9 +108,7 @@ export function DesignSystemTestExample() {
               <span
                 className={
                   "ds-test__stat-delta" +
-                  (s.delta.startsWith("-")
-                    ? " ds-test__stat-delta--down"
-                    : "")
+                  (s.delta.startsWith("-") ? " ds-test__stat-delta--down" : "")
                 }
               >
                 {s.delta}
@@ -231,10 +231,7 @@ export function DesignSystemTestExample() {
             >
               <label className="ds-test__field">
                 <span className="ds-test__label">Workspace name</span>
-                <input
-                  className="ds-test__input"
-                  defaultValue="Harmoni Labs"
-                />
+                <input className="ds-test__input" defaultValue="Harmoni Labs" />
               </label>
               <label className="ds-test__field">
                 <span className="ds-test__label">Region</span>
@@ -265,10 +262,7 @@ export function DesignSystemTestExample() {
         </section>
 
         <section className="ds-test__buttons">
-          <button
-            type="button"
-            className="ds-test__btn ds-test__btn--primary"
-          >
+          <button type="button" className="ds-test__btn ds-test__btn--primary">
             Primary
           </button>
           <button

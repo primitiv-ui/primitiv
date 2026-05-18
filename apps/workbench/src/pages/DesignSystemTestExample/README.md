@@ -53,3 +53,68 @@ root:
 
 Every colour on the page resolves through this scale — no literal colour
 values are used in component rules.
+
+## Evaluation — how the generated ramps performed
+
+First run, against a single purple palette (one hue, low-chroma harmony
+tint). The dashboard was assembled and themed entirely from the generated
+ramps with **no manual colour correction** — that on its own is a good
+result. Detailed observations below.
+
+### What worked well
+
+- **Accent ramp.** The purple reads as a confident brand colour in both
+  modes. Subtle accent tints (active nav item, the "Deployment complete"
+  alert) are harmonious and clearly lower-emphasis than the solid. The
+  `--accent-contrast` flip (white in light, black in dark) keeps text on
+  the accent solid legible in both themes.
+- **Dark-mode generation.** The anchored dark ramp keeps backgrounds
+  genuinely dark and surfaces/borders cleanly separated — no muddy
+  mid-greys. The dashboard did not need a hand-tuned dark palette.
+- **Borders.** Semantic steps 5–6 give quiet but visible separators and
+  focus rings in both themes.
+
+### What needs attention
+
+1. **No comfortable mid-contrast text tier.** "Low-contrast text"
+   (step 9) and "high-contrast text" (step 10) both land at the extreme
+   dark end of the neutral ramp (neutral 800/900 in light), so secondary
+   labels like "REVENUE" read at almost full strength — there is no
+   genuinely *muted* text. The ramp **does** contain mid steps
+   (neutral 600/700 ≈ 5–9:1 on the page background), but the use-case
+   model routes those to solid backgrounds instead of text.
+2. **Low-emphasis surfaces sit too heavy.** The neutral (non-accent)
+   alert uses step 4. In dark mode that is a fairly light mid-grey that
+   competes for attention; a genuinely "subtle" neutral background wants
+   step 2–3.
+3. **The harmony tint is imperceptible.** The neutral ramp carries a
+   ~0.0095-chroma tint from the purple — visually indistinguishable from
+   pure grey. If tint-for-harmony is a goal, the generated chroma is too
+   low to have any effect; if it is not, the tint is inert.
+4. **Brand weight shifts between modes.** The dark accent solid
+   (primary-dark 600, L≈0.65) is noticeably lighter/softer than the light
+   one (primary-light 600, L≈0.44). Both are legible — this is expected
+   from the anchored two-segment dark model — but the brand reads
+   "lighter" in dark mode. Flagged so it stays a conscious trade-off.
+
+### Caveats
+
+- Findings **1 and 2 are use-case-model decisions, not generation
+  defects.** The 10-step model here was deliberately quick. Before
+  attributing anything to the generator, the model's step→use-case
+  assignment (especially text and subtle-background steps) should be
+  tuned.
+- This is a **single palette** — one hue, one tint. Re-check against a
+  warm hue and a low-chroma/near-grey brand before drawing general
+  conclusions about the generator.
+
+### Recommended next steps
+
+- Tune the use-case model: route a mid step to "low-contrast text" and
+  pull "subtle background" lighter.
+- Consider generating ramp steps against explicit per-step WCAG contrast
+  targets rather than a pure lightness curve, so a usable secondary-text
+  step is guaranteed.
+- Re-run this dashboard with 2–3 more generated palettes (warm, cool,
+  near-grey brand) to separate generator behaviour from model/mapping
+  behaviour.

@@ -93,7 +93,7 @@ semantics that CSS alone cannot provide.
 - [ ] Empty State
 - [x] Progress
 - [ ] Progress Circle
-- [ ] Status
+- [x] Status
 
 ### Data Display
 
@@ -147,6 +147,7 @@ component now has a workbench example:
 - [x] Divider
 - [x] Portal
 - [x] Radio Group
+- [x] Status
 - [x] Table
 - [x] Tabs
 - [x] Visually Hidden

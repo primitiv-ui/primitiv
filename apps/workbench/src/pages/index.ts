@@ -18,6 +18,7 @@ export * from "./ProgressExample";
 export * from "./RadioCardExample";
 export * from "./RadioGroupExample";
 export * from "./SliderExample";
+export * from "./StatusExample";
 export * from "./SwitchExample";
 export * from "./TableExample";
 export * from "./TabsExample";

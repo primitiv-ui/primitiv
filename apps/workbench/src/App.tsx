@@ -22,6 +22,7 @@ import {
   RadioCardExample,
   RadioGroupExample,
   SliderExample,
+  StatusExample,
   SwitchExample,
   TableExample,
   TabsExample,
@@ -83,6 +84,7 @@ const navGroups: { title: string; links: NavLink[] }[] = [
     links: [
       { to: "/alert", label: "Alert" },
       { to: "/progress", label: "Progress" },
+      { to: "/status", label: "Status" },
     ],
   },
   {
@@ -164,6 +166,7 @@ function App() {
           <Route path="/radio-card" element={<RadioCardExample />} />
           <Route path="/radio-group" element={<RadioGroupExample />} />
           <Route path="/slider" element={<SliderExample />} />
+          <Route path="/status" element={<StatusExample />} />
           <Route path="/switch" element={<SwitchExample />} />
           <Route path="/table" element={<TableExample />} />
           <Route path="/tabs" element={<TabsExample />} />

@@ -11,13 +11,13 @@ session needs.
   name for what was formerly `primitiv-core` / `primitiv-wasm`.
 
 Engine / Rust / wasm code → `harmoni`. Product, app title, repo
-name, README heading, web app `<h1>` → leave as `Primitiv`. The
+name, README heading, workbench app `<h1>` → leave as `Primitiv`. The
 deliberate "Primitiv" references kept after Step B:
 
 - `README.md` heading (`# Primitiv`)
 - Root `package.json` `"name": "primitiv"`
-- `apps/web/index.html` `<title>Primitiv</title>`
-- `apps/web/src/App.tsx` `<h1>Primitiv Engine</h1>`
+- `apps/workbench/index.html` `<title>Primitiv</title>`
+- `apps/workbench/src/App.tsx` `<h1>Primitiv Engine</h1>`
 
 If you're renaming any of these, stop — you're eroding the identity
 split.
@@ -32,7 +32,7 @@ split.
    batch unrelated work.
 4. **Push little and often.** Short-lived branches over long
    unshared history.
-5. **Leave the web app alone** unless mechanically forced (e.g.
+5. **Leave the workbench app alone** unless mechanically forced (e.g.
    import paths after a rename) or adding a **new component**, which
    ships with its own example page (see "Definition of done"). It's
    an iteration workbench, not a production surface — don't expand it
@@ -57,7 +57,7 @@ Every behaviour change in `packages/react` ships with:
   - a new row in `packages/react/README.md`'s components table,
     linking to the component's own `src/<Component>/README.md`. The
     component README alone is not the index — the table is.
-  - a **workbench example** page under `apps/web/src/pages` wired
+  - a **workbench example** page under `apps/workbench/src/pages` wired
     into the router (see the `workbench-examples` skill).
   - the component's `ROADMAP.md` checkbox ticked `[x]` (and removed
     from the "Workbench examples" backlog if it was listed there).
@@ -107,7 +107,7 @@ keyword or by topic; do not paraphrase their content here.
   mirror-types add-a-field checklist, opaque Palette extern type.
 - **`sandbox-gotchas`** — git mv cross-device, wasm pkg-not-found,
   broken `build:core`, missing wasm-pack, deleted Playwright e2e.
-- **`workbench-examples`** — authoring `apps/web` example pages:
+- **`workbench-examples`** — authoring `apps/workbench` example pages:
   folder layout, router wiring, and the global-CSS-bundling gotcha
   (every example's SCSS is bundled globally — scope every selector).
 - **`model-routing`** — Opus/Sonnet/Haiku decision tree.
@@ -141,7 +141,7 @@ cargo test --workspace                            # all Rust tests
 pnpm --filter @primitiv/react qa:units            # React tests + coverage
 pnpm --filter @primitiv/react exec vitest run src/X    # scoped, during a cycle
 pnpm run build:wasm                               # rebuild wasm pkg
-pnpm run dev                                      # web dev server
+pnpm run dev                                      # workbench dev server
 ```
 
 Don't use raw `grep`/`find`/`rg` from Bash when the Grep and Glob

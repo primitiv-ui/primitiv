@@ -1,18 +1,18 @@
 ---
 name: workbench-examples
-description: How the apps/web workbench is structured and the rules for authoring example pages — folder layout, router wiring, and the global-CSS-bundling gotcha where a bare element/attribute selector in one example's SCSS leaks onto every other page. TRIGGER when adding or editing an example page under apps/web/src/pages, writing or changing an example .scss file, wiring a new example into App.tsx, or debugging an example that is visually/behaviourally broken in a way another page's CSS could explain (e.g. unexpected pointer-events, backgrounds, positioning). SKIP for packages/react component work and non-web changes.
+description: How the apps/workbench app is structured and the rules for authoring example pages — folder layout, router wiring, and the global-CSS-bundling gotcha where a bare element/attribute selector in one example's SCSS leaks onto every other page. TRIGGER when adding or editing an example page under apps/workbench/src/pages, writing or changing an example .scss file, wiring a new example into App.tsx, or debugging an example that is visually/behaviourally broken in a way another page's CSS could explain (e.g. unexpected pointer-events, backgrounds, positioning). SKIP for packages/react component work and non-workbench changes.
 ---
 
 # Workbench example pages
 
-`apps/web` is the iteration workbench — one route per component, used
+`apps/workbench` is the iteration workbench — one route per component, used
 to exercise `@primitiv/react` components in a real browser. Per the
 top-level CLAUDE.md, leave it alone unless a task explicitly asks for
 an example; when it does, follow the rules below.
 
 ## Page layout
 
-Each example lives in `apps/web/src/pages/<Name>Example/`:
+Each example lives in `apps/workbench/src/pages/<Name>Example/`:
 
 ```
 <Name>Example/
@@ -23,8 +23,8 @@ Each example lives in `apps/web/src/pages/<Name>Example/`:
 
 Wire a new example into the router in two files:
 
-- `apps/web/src/pages/index.ts` — add `export * from "./<Name>Example";`
-- `apps/web/src/App.tsx` — add the import, a `<Link to="/...">` nav
+- `apps/workbench/src/pages/index.ts` — add `export * from "./<Name>Example";`
+- `apps/workbench/src/App.tsx` — add the import, a `<Link to="/...">` nav
   entry, and a `<Route>`.
 
 ## The global-CSS gotcha — scope every selector
@@ -69,7 +69,7 @@ see the `sandbox-gotchas` skill). Don't burn time on the dev server,
 stubbing wasm, or removing the `ColorEngine` route.
 
 When you add or edit an example page, your bar is: it **typechecks**
-(`pnpm --filter web exec tsc --noEmit`) and obeys the rules above
+(`pnpm --filter workbench exec tsc --noEmit`) and obeys the rules above
 (scoped SCSS, router wiring in `pages/index.ts` + `App.tsx`). The
 human runs the workbench and does the visual check in a real browser
 afterwards — note that in your summary and leave it to them.

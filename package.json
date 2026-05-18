@@ -5,9 +5,9 @@
     "build:wasm": "pnpm --filter harmoni-wasm exec wasm-pack build --target web",
     "build:core": "pnpm --filter harmoni-core exec cargo build",
     "test:rust": "pnpm --filter \"harmoni-*\" exec cargo test",
-    "test:e2e": "pnpm --filter web exec playwright test",
+    "test:e2e": "pnpm --filter workbench exec playwright test",
     "test:full": "pnpm test:rust && pnpm build:wasm && pnpm test:e2e",
-    "dev": "pnpm --filter web dev",
+    "dev": "pnpm --filter workbench dev",
     "dev:plugin": "pnpm --filter harmoni-figma-plugin dev",
     "install:all": "pnpm install && pnpm run build:wasm"
   },

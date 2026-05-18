@@ -18,7 +18,7 @@ cargo test -p harmoni-wasm
 # Fast type check
 cargo check --workspace
 
-# Rebuild the wasm pkg the web app links into
+# Rebuild the wasm pkg the workbench links into
 pnpm run build:wasm
 ```
 
@@ -78,8 +78,8 @@ When you add a new field to a core struct, you must:
 1. Add it to the core struct in `harmoni-core`.
 2. Mirror it on the `types::*` struct in `harmoni-wasm`.
 3. Update the `From` impl.
-4. Regenerate the wasm pkg if you want the new TS types in the web
-   app: `pnpm run build:wasm`.
+4. Regenerate the wasm pkg if you want the new TS types in the
+   workbench: `pnpm run build:wasm`.
 
 When you add a new wasm **entry point**, take CSS strings for colour
 arguments (`ColorInput::Css`), call the matching `api::*` function,
@@ -105,7 +105,7 @@ The TypeScript `Palette` is a **struct interface** —
 by the `Tsify` derive on `types::Palette`. It is not a `Swatch[]`
 alias. A wasm entry point converts the core palette into
 `types::Palette`, serialises it with `serde_wasm_bindgen`, and
-returns it as the opaque `Palette` handle, so the web app's
+returns it as the opaque `Palette` handle, so the workbench's
 `import { type Palette } from "harmoni-wasm"` resolves to the
 struct interface.
 

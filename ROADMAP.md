@@ -5,7 +5,7 @@ Two lists:
 
 1. **Components to build** — the master backlog.
 2. **Workbench examples** — components that exist but still need an
-   `apps/web` example page.
+   `apps/workbench` example page.
 
 ## Components to build
 
@@ -137,7 +137,7 @@ behaviour, but were kept for meaningful ARIA semantics:
 
 ## Workbench examples
 
-`apps/web` carries one example page per component. Every public
+`apps/workbench` carries one example page per component. Every public
 component now has a workbench example:
 
 - [x] Button

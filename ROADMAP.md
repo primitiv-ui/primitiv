@@ -137,17 +137,16 @@ behaviour, but were kept for meaningful ARIA semantics:
 
 ## Workbench examples
 
-`apps/web` carries one example page per component. These components
-exist in `packages/react` but do not yet have a workbench example —
-revisit to add them:
+`apps/web` carries one example page per component. Every public
+component now has a workbench example:
 
-- [ ] Button
-- [ ] Checkbox
-- [ ] Divider
-- [ ] Portal
-- [ ] Radio Group
-- [ ] Table
-- [ ] Tabs
+- [x] Button
+- [x] Checkbox
+- [x] Divider
+- [x] Portal
+- [x] Radio Group
+- [x] Table
+- [x] Tabs
 
 `Slot` is an internal composition utility, not a public component —
 it does not need a workbench page.

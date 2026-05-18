@@ -1,0 +1,53 @@
+.table-example {
+  max-width: 40rem;
+  margin: 0 auto;
+
+  &__title {
+    margin-block-end: 1.5rem;
+  }
+
+  &__section {
+    margin-block-end: 2rem;
+  }
+
+  &__section-title {
+    margin-block-end: 0.5rem;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+  }
+
+  &__description {
+    margin-block-end: 0.75rem;
+    font-size: 0.9375rem;
+    color: #555;
+  }
+
+  &__table {
+    border-collapse: collapse;
+    inline-size: 100%;
+    font-size: 0.9375rem;
+
+    th,
+    td {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #e5e7eb;
+      text-align: start;
+    }
+
+    thead {
+      background: #f9fafb;
+    }
+
+    tfoot {
+      font-weight: 600;
+    }
+
+    caption {
+      padding-block-end: 0.5rem;
+      font-size: 0.8125rem;
+      color: #6b7280;
+    }
+  }
+}

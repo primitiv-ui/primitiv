@@ -5,16 +5,23 @@ import {
   AccordionExample,
   AvatarExample,
   BreadcrumbExample,
+  ButtonExample,
   CarouselExample,
+  CheckboxExample,
   CheckboxCardExample,
   CollapsibleExample,
+  DividerExample,
   DropdownExample,
   MillerColumnsExample,
   ModalExample,
+  PortalExample,
   ProgressExample,
   RadioCardExample,
+  RadioGroupExample,
   SliderExample,
   SwitchExample,
+  TableExample,
+  TabsExample,
   ToggleExample,
   ToggleGroupExample,
   TooltipExample,
@@ -22,58 +29,119 @@ import {
 
 import "./App.scss";
 
+type NavLink = { to: string; label: string };
+
+const navGroups: { title: string; links: NavLink[] }[] = [
+  { title: "Layout", links: [{ to: "/divider", label: "Divider" }] },
+  { title: "Buttons", links: [{ to: "/button", label: "Button" }] },
+  {
+    title: "Forms",
+    links: [
+      { to: "/checkbox", label: "Checkbox" },
+      { to: "/checkbox-card", label: "Checkbox Card" },
+      { to: "/radio-group", label: "Radio Group" },
+      { to: "/radio-card", label: "Radio Card" },
+      { to: "/slider", label: "Slider" },
+      { to: "/switch", label: "Switch" },
+    ],
+  },
+  {
+    title: "Collections & Selection",
+    links: [{ to: "/miller-columns", label: "Miller Columns" }],
+  },
+  {
+    title: "Overlays",
+    links: [
+      { to: "/dropdown", label: "Dropdown" },
+      { to: "/modal", label: "Modal" },
+      { to: "/tooltip", label: "Tooltip" },
+    ],
+  },
+  {
+    title: "Disclosure",
+    links: [
+      { to: "/accordion", label: "Accordion" },
+      { to: "/breadcrumb", label: "Breadcrumb" },
+      { to: "/carousel", label: "Carousel" },
+      { to: "/collapsible", label: "Collapsible" },
+      { to: "/tabs", label: "Tabs" },
+    ],
+  },
+  {
+    title: "Navigation",
+    links: [
+      { to: "/toggle", label: "Toggle" },
+      { to: "/toggle-group", label: "Toggle Group" },
+    ],
+  },
+  {
+    title: "Feedback & Status",
+    links: [{ to: "/progress", label: "Progress" }],
+  },
+  {
+    title: "Data Display",
+    links: [
+      { to: "/avatar", label: "Avatar" },
+      { to: "/table", label: "Table" },
+    ],
+  },
+  { title: "Utilities", links: [{ to: "/portal", label: "Portal" }] },
+];
+
 function App() {
   return (
-    <>
-      <header>
-        <nav>
-          <Link to="/">Color Engine</Link>
-          <Link to="/accordion">Accordion</Link>
-          <Link to="/avatar">Avatar</Link>
-          <Link to="/breadcrumb">Breadcrumb</Link>
-          <Link to="/carousel">Carousel</Link>
-          <Link to="/checkbox-card">Checkbox Card</Link>
-          <Link to="/collapsible">Collapsible</Link>
-          <Link to="/dropdown">Dropdown</Link>
-          <Link to="/miller-columns">Miller Columns</Link>
-          <Link to="/modal">Modal</Link>
-          <Link to="/progress">Progress</Link>
-          <Link to="/radio-card">Radio Card</Link>
-          <Link to="/slider">Slider</Link>
-          <Link to="/switch">Switch</Link>
-          <Link to="/toggle">Toggle</Link>
-          <Link to="/toggle-group">Toggle Group</Link>
-          <Link to="/tooltip">Tooltip</Link>
-        </nav>
-      </header>
+    <div className="app-layout">
+      <aside className="sidebar">
+        <Link className="sidebar__home" to="/">
+          Color Engine
+        </Link>
+        {navGroups.map((group) => (
+          <div className="sidebar__group" key={group.title}>
+            <h2 className="sidebar__group-title">{group.title}</h2>
+            <ul className="sidebar__links">
+              {group.links.map((link) => (
+                <li key={link.to}>
+                  <Link className="sidebar__link" to={link.to}>
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </aside>
       <main className="container">
         <Routes>
           <Route path="/" element={<ColorEngine />} />
           <Route path="/accordion" element={<AccordionExample />} />
           <Route path="/avatar" element={<AvatarExample />} />
           <Route path="/breadcrumb" element={<BreadcrumbExample />} />
-          <Route
-            path="/checkbox-card"
-            element={<CheckboxCardExample />}
-          />
+          <Route path="/button" element={<ButtonExample />} />
           <Route path="/carousel" element={<CarouselExample />} />
+          <Route path="/checkbox" element={<CheckboxExample />} />
+          <Route path="/checkbox-card" element={<CheckboxCardExample />} />
           <Route path="/collapsible" element={<CollapsibleExample />} />
+          <Route path="/divider" element={<DividerExample />} />
           <Route path="/dropdown" element={<DropdownExample />} />
           <Route
             path="/miller-columns"
             element={<MillerColumnsExample />}
           />
           <Route path="/modal" element={<ModalExample />} />
+          <Route path="/portal" element={<PortalExample />} />
           <Route path="/progress" element={<ProgressExample />} />
           <Route path="/radio-card" element={<RadioCardExample />} />
+          <Route path="/radio-group" element={<RadioGroupExample />} />
           <Route path="/slider" element={<SliderExample />} />
           <Route path="/switch" element={<SwitchExample />} />
+          <Route path="/table" element={<TableExample />} />
+          <Route path="/tabs" element={<TabsExample />} />
           <Route path="/toggle" element={<ToggleExample />} />
           <Route path="/toggle-group" element={<ToggleGroupExample />} />
           <Route path="/tooltip" element={<TooltipExample />} />
         </Routes>
       </main>
-    </>
+    </div>
   );
 }
 

@@ -16,8 +16,8 @@ export function Swatch({ step, index }: SwatchProps) {
         }
         className="palette__swatch-inner"
         style={{
-          background: `oklch(${step.l} ${step.c} ${step.h})`,
-          color: `oklch(${step.best_foreground.l} ${step.best_foreground.c} ${step.best_foreground.h})`,
+          background: step.oklch,
+          color: step.best_foreground.oklch,
         }}
       >
         <p className="palette__swatch-step">

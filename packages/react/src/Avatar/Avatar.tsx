@@ -44,11 +44,12 @@ AvatarRoot.displayName = "AvatarRoot";
  */
 function AvatarImage({ ...rest }: AvatarImageProps) {
   const { status, setStatus } = useAvatarContext();
-  const { onLoad, onError } = useAvatarImage(setStatus);
+  const { ref, onLoad, onError } = useAvatarImage(setStatus);
 
   return (
     <img
       {...rest}
+      ref={ref}
       data-status={status}
       onLoad={onLoad}
       onError={onError}

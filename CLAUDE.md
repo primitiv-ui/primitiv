@@ -33,8 +33,10 @@ split.
 4. **Push little and often.** Short-lived branches over long
    unshared history.
 5. **Leave the web app alone** unless mechanically forced (e.g.
-   import paths after a rename). It's an iteration workbench, not a
-   production surface.
+   import paths after a rename) or adding a **new component**, which
+   ships with its own example page (see "Definition of done"). It's
+   an iteration workbench, not a production surface — don't expand it
+   for anything else.
 6. **Never open PRs unprompted.** "Update the PR description" /
    "create a new PR" are explicit; silence is not.
 7. **GitHub interactions go through MCP tools** (`mcp__github__*`),
@@ -50,14 +52,19 @@ Every behaviour change in `packages/react` ships with:
 - Updated component **README** if the change is consumer-facing
   (new props, changed defaults, new patterns, escape hatches,
   gotchas).
-- When adding a **new component**: a new row in
-  `packages/react/README.md`'s components table, linking to the
-  component's own `src/<Component>/README.md`. The component README
-  alone is not the index — the table is. Easy to miss; add the row
-  before marking the component "done".
+- When adding a **new component**, three more things — easy to miss,
+  all required before the component counts as "done":
+  - a new row in `packages/react/README.md`'s components table,
+    linking to the component's own `src/<Component>/README.md`. The
+    component README alone is not the index — the table is.
+  - a **workbench example** page under `apps/web/src/pages` wired
+    into the router (see the `workbench-examples` skill).
+  - the component's `ROADMAP.md` checkbox ticked `[x]` (and removed
+    from the "Workbench examples" backlog if it was listed there).
 
-These three (test, JSDoc, README) are not follow-ups — they are
-part of "done".
+These (test, JSDoc, README — plus, for a new component, the table
+row, workbench example, and roadmap tick) are not follow-ups — they
+are part of "done".
 
 ## Working efficiency under TDD
 

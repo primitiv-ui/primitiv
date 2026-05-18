@@ -31,4 +31,17 @@ describe("AccessibleIcon component", () => {
       "false",
     );
   });
+
+  it("should render the label in a visually hidden span", () => {
+    // Arrange
+    render(
+      <AccessibleIcon label="Search">
+        <svg data-testid="icon" />
+      </AccessibleIcon>,
+    );
+
+    // Assert
+    const label = screen.getByText("Search");
+    expect(label).toHaveStyle({ position: "absolute", overflow: "hidden" });
+  });
 });

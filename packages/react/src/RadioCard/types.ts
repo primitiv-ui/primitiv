@@ -7,11 +7,15 @@ import { ComponentProps, ReactNode, Ref } from "react";
  */
 export type RadioCardOrientation = "horizontal" | "vertical" | "both";
 
+/** Reading direction — swaps the horizontal arrow pair when `"rtl"`. */
+export type RadioCardReadingDirection = "ltr" | "rtl";
+
 type RadioCardRootBaseProps = Omit<ComponentProps<"div">, "role"> & {
   children?: ReactNode;
   ref?: Ref<HTMLDivElement>;
   asChild?: boolean;
   orientation?: RadioCardOrientation;
+  dir?: RadioCardReadingDirection;
 };
 
 type RadioCardRootUncontrolledProps = RadioCardRootBaseProps & {

@@ -1,6 +1,6 @@
 import { createStrictContext } from "../utils";
 
-import { RadioCardOrientation } from "./types";
+import { RadioCardOrientation, RadioCardReadingDirection } from "./types";
 
 export type RadioCardContextValue = {
   value: string | undefined;
@@ -14,6 +14,7 @@ export type RadioCardContextValue = {
   disabledValues: Set<string>;
   focusItem: (value: string) => void;
   orientation: RadioCardOrientation;
+  dir: RadioCardReadingDirection;
 };
 
 export const [RadioCardContext, useRadioCardContext] =

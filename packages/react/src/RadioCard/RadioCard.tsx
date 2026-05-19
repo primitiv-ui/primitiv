@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 
+import { useDirection } from "../DirectionProvider";
 import { useRovingTabindex } from "../hooks";
 import { Slot, composeEventHandlers, composeRefs } from "../Slot";
 
@@ -39,6 +40,11 @@ import {
  * navigate. Pass `orientation="horizontal"` or `"vertical"` to restrict
  * navigation to a single axis.
  *
+ * **Reading direction.** `dir` (`"ltr"` / `"rtl"`) swaps the horizontal
+ * arrow pair so Arrow Left moves forward in RTL. When omitted, it is
+ * inherited from the nearest {@link DirectionProvider}, falling back to
+ * `"ltr"`.
+ *
  * **`asChild` prop.** Pass `asChild` to render any consumer-supplied
  * element with the RadioCard's props merged in. The native `<div>` is dropped.
  *
@@ -71,10 +77,12 @@ function RadioCardRoot({
   value: controlledValue,
   onValueChange,
   orientation = "both",
+  dir,
   asChild = false,
   children,
   ...rest
 }: RadioCardRootProps) {
+  const resolvedDir = dir ?? useDirection();
   const { value, select, registerItem, itemValues, disabledValues, focusItem } =
     useRadioCardRoot({
       defaultValue,
@@ -90,6 +98,7 @@ function RadioCardRoot({
       disabledValues,
       focusItem,
       orientation,
+      dir: resolvedDir,
     }),
     [
       value,
@@ -99,11 +108,13 @@ function RadioCardRoot({
       disabledValues,
       focusItem,
       orientation,
+      resolvedDir,
     ],
   );
   const rootProps = {
     role: "radiogroup" as const,
     "aria-orientation": orientation === "both" ? undefined : orientation,
+    dir: resolvedDir,
     ...rest,
   };
   return (
@@ -164,6 +175,7 @@ function RadioCardItem({
     disabledValues,
     focusItem,
     orientation,
+    dir,
   } = useRadioCardContext();
   const isChecked = selectedValue === value;
   const enabledValues = useMemo(
@@ -183,6 +195,7 @@ function RadioCardItem({
 
   const { handleKeyDown } = useRovingTabindex<string>({
     orientation,
+    dir,
     navigable: enabledValues,
     currentKey: value,
     onNavigate: (target) => {

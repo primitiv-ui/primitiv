@@ -43,4 +43,27 @@ describe("Tree basic rendering tests", () => {
     // Assert
     expect(screen.getByTestId("tree")).toHaveAttribute("aria-label", "Files");
   });
+
+  it("should render a branch as a treeitem with its control row and a content group", () => {
+    // Arrange
+    render(
+      <Tree.Root>
+        <Tree.Branch value="src">
+          <Tree.BranchControl>src</Tree.BranchControl>
+          <Tree.BranchContent>
+            <Tree.Item value="index">index.ts</Tree.Item>
+          </Tree.BranchContent>
+        </Tree.Branch>
+      </Tree.Root>,
+    );
+
+    // Assert
+    const branch = screen.getByRole("treeitem", { name: /src/ });
+    const group = screen.getByRole("group");
+
+    expect(branch).toContainElement(group);
+    expect(group).toContainElement(
+      screen.getByRole("treeitem", { name: "index.ts" }),
+    );
+  });
 });

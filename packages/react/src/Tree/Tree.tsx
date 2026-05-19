@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+
 import { composeEventHandlers } from "../Slot";
 
 import {
@@ -57,7 +59,7 @@ export function TreeRoot(props: TreeRootProps) {
 
   return (
     <TreeContext.Provider value={treeContext}>
-      <TreeLevelContext.Provider value={{ depth: 0 }}>
+      <TreeLevelContext.Provider value={{ depth: 0, parentValue: null }}>
         <div
           role="tree"
           aria-multiselectable={selectionMode === "multiple" ? true : undefined}
@@ -78,12 +80,28 @@ export function TreeItem({
   onClick,
   ...rest
 }: TreeItemProps) {
-  const { depth } = useTreeLevelContext();
-  const { isSelected, select } = useTreeContext();
+  const { depth, parentValue } = useTreeLevelContext();
+  const { isSelected, select, registerNode } = useTreeContext();
   const selected = isSelected(value);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!ref.current) {
+      return;
+    }
+    registerNode(value, {
+      value,
+      element: ref.current,
+      isBranch: false,
+      depth,
+      parentValue,
+    });
+    return () => registerNode(value, null);
+  }, [value, depth, parentValue, registerNode]);
 
   return (
     <div
+      ref={ref}
       role="treeitem"
       aria-level={depth + 1}
       aria-selected={selected}
@@ -105,18 +123,34 @@ export function TreeItem({
 TreeItem.displayName = "TreeItem";
 
 export function TreeBranch({ value, children, ...rest }: TreeBranchProps) {
-  const { depth } = useTreeLevelContext();
-  const { isExpanded, isSelected } = useTreeContext();
+  const { depth, parentValue } = useTreeLevelContext();
+  const { isExpanded, isSelected, registerNode } = useTreeContext();
   const { control, content } = partitionBranchChildren(children);
   const expanded = isExpanded(value);
   const selected = isSelected(value);
   const contentForceMount =
     content !== null &&
     (content.props as { forceMount?: boolean }).forceMount === true;
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!ref.current) {
+      return;
+    }
+    registerNode(value, {
+      value,
+      element: ref.current,
+      isBranch: true,
+      depth,
+      parentValue,
+    });
+    return () => registerNode(value, null);
+  }, [value, depth, parentValue, registerNode]);
 
   return (
     <TreeItemContext.Provider value={{ value, expanded }}>
       <div
+        ref={ref}
         role="treeitem"
         aria-level={depth + 1}
         aria-expanded={expanded}
@@ -166,10 +200,12 @@ export function TreeBranchContent({
   ...rest
 }: TreeBranchContentProps) {
   const { depth } = useTreeLevelContext();
-  const { expanded } = useTreeItemContext();
+  const { value: branchValue, expanded } = useTreeItemContext();
 
   return (
-    <TreeLevelContext.Provider value={{ depth: depth + 1 }}>
+    <TreeLevelContext.Provider
+      value={{ depth: depth + 1, parentValue: branchValue }}
+    >
       <div
         role="group"
         data-depth={depth + 1}

@@ -1,10 +1,11 @@
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 
-import { useControllableState } from "../../hooks";
+import { useCollection, useControllableState } from "../../hooks";
 
 import type {
   SelectionMode,
   TreeContextValue,
+  TreeNodeMeta,
   TreeSelectModifiers,
 } from "../types";
 
@@ -29,10 +30,9 @@ function singleToArray(value: string | null | undefined): string[] | undefined {
 }
 
 /**
- * Owns the Tree's expansion and selection state, exposing the
- * read/toggle/select surface shared with every sub-component via
- * `TreeContext`. Selection is normalised to a single string[] internally
- * regardless of mode.
+ * Owns the Tree's expansion and selection state, the item collection
+ * used to compute the visible DFS order, and the anchor that pins
+ * Shift+click range selection.
  */
 export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
   const [expandedValues, setExpandedValues] = useControllableState<string[]>(
@@ -72,6 +72,13 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
     handleSelectedValuesChange,
   );
 
+  const { register: registerNode, itemsRef, keys } = useCollection<
+    string,
+    TreeNodeMeta
+  >();
+
+  const anchorRef = useRef<string | null>(null);
+
   const isExpanded = useCallback(
     (value: string) => expandedValues.includes(value),
     [expandedValues],
@@ -98,6 +105,32 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
     [selectedValues],
   );
 
+  const getVisibleOrder = useCallback((): string[] => {
+    const childrenByParent = new Map<string | null, string[]>();
+    for (const key of keys) {
+      const meta = itemsRef.current.get(key);
+      if (!meta) {
+        continue;
+      }
+      const bucket = childrenByParent.get(meta.parentValue) ?? [];
+      bucket.push(meta.value);
+      childrenByParent.set(meta.parentValue, bucket);
+    }
+
+    const result: string[] = [];
+    const visit = (parent: string | null): void => {
+      for (const value of childrenByParent.get(parent) ?? []) {
+        result.push(value);
+        const meta = itemsRef.current.get(value);
+        if (meta?.isBranch && expandedValues.includes(value)) {
+          visit(value);
+        }
+      }
+    };
+    visit(null);
+    return result;
+  }, [keys, itemsRef, expandedValues]);
+
   const select = useCallback(
     (value: string, modifiers?: TreeSelectModifiers) => {
       if (options.selectionMode === "single") {
@@ -105,11 +138,30 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
           return;
         }
         setSelectedValues([value]);
+        anchorRef.current = value;
         return;
       }
 
+      const shift = modifiers?.shift === true;
       const additive = modifiers?.meta === true || modifiers?.ctrl === true;
       const alreadySelected = selectedValues.includes(value);
+
+      if (shift) {
+        const anchor = anchorRef.current ?? value;
+        const order = getVisibleOrder();
+        const anchorIndex = order.indexOf(anchor);
+        const valueIndex = order.indexOf(value);
+        if (anchorIndex === -1 || valueIndex === -1) {
+          setSelectedValues([value]);
+          return;
+        }
+        const [start, end] =
+          anchorIndex <= valueIndex
+            ? [anchorIndex, valueIndex]
+            : [valueIndex, anchorIndex];
+        setSelectedValues(order.slice(start, end + 1));
+        return;
+      }
 
       if (additive) {
         setSelectedValues(
@@ -117,6 +169,7 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
             ? selectedValues.filter((current) => current !== value)
             : [...selectedValues, value],
         );
+        anchorRef.current = value;
         return;
       }
 
@@ -124,8 +177,14 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
         return;
       }
       setSelectedValues([value]);
+      anchorRef.current = value;
     },
-    [options.selectionMode, selectedValues, setSelectedValues],
+    [
+      options.selectionMode,
+      selectedValues,
+      setSelectedValues,
+      getVisibleOrder,
+    ],
   );
 
   return {
@@ -134,5 +193,7 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
     toggleExpanded,
     isSelected,
     select,
+    registerNode,
+    getVisibleOrder,
   };
 }

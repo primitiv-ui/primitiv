@@ -102,6 +102,16 @@ export type TreeBranchIndicatorProps = ComponentProps<"span">;
 export type TreeLevelContextValue = {
   /** Zero-based nesting depth — `0` for items directly inside `Tree.Root`. */
   depth: number;
+  /** The value of the enclosing branch, or `null` at the tree root. */
+  parentValue: string | null;
+};
+
+export type TreeNodeMeta = {
+  value: string;
+  element: HTMLElement;
+  isBranch: boolean;
+  depth: number;
+  parentValue: string | null;
 };
 
 export type SelectionMode = "single" | "multiple";
@@ -118,6 +128,8 @@ export type TreeContextValue = {
   toggleExpanded: (value: string, next?: boolean) => void;
   isSelected: (value: string) => boolean;
   select: (value: string, modifiers?: TreeSelectModifiers) => void;
+  registerNode: (value: string, meta: TreeNodeMeta | null) => void;
+  getVisibleOrder: () => string[];
 };
 
 export type TreeItemContextValue = {

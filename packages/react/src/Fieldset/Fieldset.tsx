@@ -1,7 +1,15 @@
 import { FieldsetLegendProps, FieldsetProps } from "./types";
 
-function Fieldset({ children, ...rest }: FieldsetProps) {
-  return <fieldset {...rest}>{children}</fieldset>;
+function Fieldset({ disabled, children, ...rest }: FieldsetProps) {
+  return (
+    <fieldset
+      {...rest}
+      disabled={disabled}
+      data-disabled={disabled ? "" : undefined}
+    >
+      {children}
+    </fieldset>
+  );
 }
 
 Fieldset.displayName = "Fieldset";

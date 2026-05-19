@@ -1,3 +1,4 @@
+import { useDirection } from "../DirectionProvider";
 import { Slot, composeEventHandlers, composeRefs } from "../Slot";
 
 import { SliderContext } from "./SliderContext";
@@ -39,6 +40,11 @@ import { getRangeStyle } from "./utils";
  * **Styling hooks.** `data-orientation="horizontal" | "vertical"` and
  * `data-disabled=""` (when disabled).
  *
+ * **Reading direction.** `dir` (`"ltr"` / `"rtl"`) sets which end of the
+ * track is the minimum and the arrow-key direction. When omitted, it is
+ * inherited from the nearest {@link DirectionProvider}, falling back to
+ * `"ltr"` when there is no provider.
+ *
  * **`asChild` prop.** Render any element in place of the default `<span>`.
  *
  * @throws if `min` is not less than `max`, or `step` is not greater than 0.
@@ -68,7 +74,7 @@ function SliderRoot({
   step = 1,
   minStepsBetweenThumbs = 0,
   orientation = "horizontal",
-  dir = "ltr",
+  dir,
   inverted = false,
   disabled = false,
   defaultValue,
@@ -82,6 +88,7 @@ function SliderRoot({
   children,
   ...rest
 }: SliderRootProps) {
+  const resolvedDir = dir ?? useDirection();
   const {
     contextValue,
     rootRef,
@@ -92,7 +99,7 @@ function SliderRoot({
     step,
     minStepsBetweenThumbs,
     orientation,
-    dir,
+    dir: resolvedDir,
     inverted,
     disabled,
     defaultValue,
@@ -103,7 +110,7 @@ function SliderRoot({
   const rootProps = {
     ...rest,
     ref: composeRefs(rootRef, ref),
-    dir,
+    dir: resolvedDir,
     "data-orientation": orientation,
     "data-disabled": disabled ? "" : undefined,
     onPointerDown: composeEventHandlers(onPointerDown, handlePointerDown),

@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
+import { DirectionProvider } from "../../DirectionProvider";
 import { Slider } from "../Slider";
 
 import { rtlKeyboardCases } from "./Slider.fixtures";
@@ -71,5 +72,28 @@ describe("Slider reading direction", () => {
 
     // Assert
     expect(screen.getByRole("slider")).toHaveAttribute("aria-valuenow", "70");
+  });
+
+  it("should inherit reading direction from a DirectionProvider", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(
+      <DirectionProvider dir="rtl">
+        <Slider.Root data-testid="root" defaultValue={[50]}>
+          <Slider.Thumb />
+        </Slider.Root>
+      </DirectionProvider>,
+    );
+    const thumb = screen.getByRole("slider");
+    thumb.focus();
+
+    // Assert — provider direction reaches the DOM
+    expect(screen.getByTestId("root")).toHaveAttribute("dir", "rtl");
+
+    // Act — in RTL, Arrow Right moves the thumb toward the start
+    await user.keyboard("{ArrowRight}");
+
+    // Assert
+    expect(thumb).toHaveAttribute("aria-valuenow", "49");
   });
 });

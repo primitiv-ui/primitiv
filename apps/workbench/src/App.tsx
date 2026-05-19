@@ -16,6 +16,7 @@ import {
   DividerExample,
   DropdownExample,
   EmptyStateExample,
+  FieldsetExample,
   MillerColumnsExample,
   ModalExample,
   PortalExample,
@@ -28,6 +29,7 @@ import {
   SwitchExample,
   TableExample,
   TabsExample,
+  TextareaExample,
   ToggleExample,
   ToggleGroupExample,
   TooltipExample,
@@ -46,10 +48,12 @@ const navGroups: { title: string; links: NavLink[] }[] = [
     links: [
       { to: "/checkbox", label: "Checkbox" },
       { to: "/checkbox-card", label: "Checkbox Card" },
+      { to: "/fieldset", label: "Fieldset" },
       { to: "/radio-group", label: "Radio Group" },
       { to: "/radio-card", label: "Radio Card" },
       { to: "/slider", label: "Slider" },
       { to: "/switch", label: "Switch" },
+      { to: "/textarea", label: "Textarea" },
     ],
   },
   {
@@ -164,6 +168,7 @@ function App() {
           <Route path="/divider" element={<DividerExample />} />
           <Route path="/dropdown" element={<DropdownExample />} />
           <Route path="/empty-state" element={<EmptyStateExample />} />
+          <Route path="/fieldset" element={<FieldsetExample />} />
           <Route path="/miller-columns" element={<MillerColumnsExample />} />
           <Route path="/modal" element={<ModalExample />} />
           <Route path="/portal" element={<PortalExample />} />
@@ -176,6 +181,7 @@ function App() {
           <Route path="/switch" element={<SwitchExample />} />
           <Route path="/table" element={<TableExample />} />
           <Route path="/tabs" element={<TabsExample />} />
+          <Route path="/textarea" element={<TextareaExample />} />
           <Route path="/toggle" element={<ToggleExample />} />
           <Route path="/toggle-group" element={<ToggleGroupExample />} />
           <Route path="/tooltip" element={<TooltipExample />} />

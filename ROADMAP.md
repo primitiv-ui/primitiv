@@ -28,7 +28,7 @@ semantics that CSS alone cannot provide.
 - [ ] Color Picker
 - [ ] Editable
 - [ ] Field
-- [ ] Fieldset
+- [x] Fieldset
 - [ ] File Upload
 - [ ] Form
 - [ ] Input
@@ -44,7 +44,7 @@ semantics that CSS alone cannot provide.
 - [x] Slider
 - [x] Switch
 - [ ] Tags Input
-- [ ] Textarea
+- [x] Textarea
 
 ### Collections & Selection
 

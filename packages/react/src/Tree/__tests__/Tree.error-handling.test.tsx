@@ -43,6 +43,17 @@ describe("Tree error handling tests", () => {
     ).toThrow("at most one <Tree.BranchContent>");
   });
 
+  it("should throw when Tree.BranchControl is rendered outside Tree.Branch", () => {
+    // Act / Assert
+    expect(() =>
+      render(
+        <Tree.Root>
+          <Tree.BranchControl>Orphan</Tree.BranchControl>
+        </Tree.Root>,
+      ),
+    ).toThrow("<Tree.Branch>");
+  });
+
   it("should throw when a branch is missing a BranchControl", () => {
     // Act / Assert
     expect(() =>

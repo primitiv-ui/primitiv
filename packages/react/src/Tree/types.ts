@@ -2,6 +2,8 @@ import { ComponentProps, ReactNode } from "react";
 
 export type TreeRootProps = ComponentProps<"div"> & {
   children: ReactNode;
+  /** Branch values expanded on first render when uncontrolled. */
+  defaultExpandedValues?: string[];
 };
 
 export type TreeItemProps = ComponentProps<"div"> & {
@@ -27,4 +29,14 @@ export type TreeBranchContentProps = ComponentProps<"div"> & {
 export type TreeLevelContextValue = {
   /** Zero-based nesting depth — `0` for items directly inside `Tree.Root`. */
   depth: number;
+};
+
+export type TreeContextValue = {
+  isExpanded: (value: string) => boolean;
+  toggleExpanded: (value: string, next?: boolean) => void;
+};
+
+export type TreeItemContextValue = {
+  value: string;
+  expanded: boolean;
 };

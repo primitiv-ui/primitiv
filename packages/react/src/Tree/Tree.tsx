@@ -1,4 +1,14 @@
-import { TreeLevelContext, useTreeLevelContext } from "./TreeContext";
+import { composeEventHandlers } from "../Slot";
+
+import {
+  TreeContext,
+  TreeItemContext,
+  TreeLevelContext,
+  useTreeContext,
+  useTreeItemContext,
+  useTreeLevelContext,
+} from "./TreeContext";
+import { useTreeRoot } from "./hooks";
 import { partitionBranchChildren } from "./utils";
 
 import type {
@@ -9,13 +19,21 @@ import type {
   TreeBranchContentProps,
 } from "./types";
 
-export function TreeRoot({ children, ...rest }: TreeRootProps) {
+export function TreeRoot({
+  children,
+  defaultExpandedValues,
+  ...rest
+}: TreeRootProps) {
+  const treeContext = useTreeRoot(defaultExpandedValues);
+
   return (
-    <TreeLevelContext.Provider value={{ depth: 0 }}>
-      <div role="tree" {...rest}>
-        {children}
-      </div>
-    </TreeLevelContext.Provider>
+    <TreeContext.Provider value={treeContext}>
+      <TreeLevelContext.Provider value={{ depth: 0 }}>
+        <div role="tree" {...rest}>
+          {children}
+        </div>
+      </TreeLevelContext.Provider>
+    </TreeContext.Provider>
   );
 }
 
@@ -33,19 +51,25 @@ export function TreeItem({ value: _value, children, ...rest }: TreeItemProps) {
 
 TreeItem.displayName = "TreeItem";
 
-export function TreeBranch({
-  value: _value,
-  children,
-  ...rest
-}: TreeBranchProps) {
+export function TreeBranch({ value, children, ...rest }: TreeBranchProps) {
   const { depth } = useTreeLevelContext();
+  const { isExpanded } = useTreeContext();
   const { control, content } = partitionBranchChildren(children);
+  const expanded = isExpanded(value);
 
   return (
-    <div role="treeitem" aria-level={depth + 1} data-depth={depth} {...rest}>
-      {control}
-      {content}
-    </div>
+    <TreeItemContext.Provider value={{ value, expanded }}>
+      <div
+        role="treeitem"
+        aria-level={depth + 1}
+        aria-expanded={expanded}
+        data-depth={depth}
+        {...rest}
+      >
+        {control}
+        {expanded ? content : null}
+      </div>
+    </TreeItemContext.Provider>
   );
 }
 
@@ -53,9 +77,20 @@ TreeBranch.displayName = "TreeBranch";
 
 export function TreeBranchControl({
   children,
+  onClick,
   ...rest
 }: TreeBranchControlProps) {
-  return <div {...rest}>{children}</div>;
+  const { value } = useTreeItemContext();
+  const { toggleExpanded } = useTreeContext();
+
+  return (
+    <div
+      onClick={composeEventHandlers(onClick, () => toggleExpanded(value))}
+      {...rest}
+    >
+      {children}
+    </div>
+  );
 }
 
 TreeBranchControl.displayName = "TreeBranchControl";

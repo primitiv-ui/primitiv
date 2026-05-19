@@ -47,7 +47,7 @@ describe("Tree basic rendering tests", () => {
   it("should render a branch as a treeitem with its control row and a content group", () => {
     // Arrange
     render(
-      <Tree.Root>
+      <Tree.Root defaultExpandedValues={["src"]}>
         <Tree.Branch value="src">
           <Tree.BranchControl>src</Tree.BranchControl>
           <Tree.BranchContent>

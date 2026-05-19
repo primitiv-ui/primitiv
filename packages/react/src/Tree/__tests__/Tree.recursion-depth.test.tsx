@@ -4,7 +4,7 @@ import { Tree } from "../Tree";
 
 function renderNestedTree() {
   return render(
-    <Tree.Root>
+    <Tree.Root defaultExpandedValues={["src", "components"]}>
       <Tree.Item value="root-leaf">root-leaf</Tree.Item>
       <Tree.Branch value="src">
         <Tree.BranchControl>src</Tree.BranchControl>

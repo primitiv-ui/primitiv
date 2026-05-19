@@ -34,6 +34,7 @@ import {
   ToggleExample,
   ToggleGroupExample,
   TooltipExample,
+  TreeExample,
   VisuallyHiddenExample,
 } from "./pages";
 
@@ -59,7 +60,10 @@ const navGroups: { title: string; links: NavLink[] }[] = [
   },
   {
     title: "Collections & Selection",
-    links: [{ to: "/miller-columns", label: "Miller Columns" }],
+    links: [
+      { to: "/miller-columns", label: "Miller Columns" },
+      { to: "/tree", label: "Tree" },
+    ],
   },
   {
     title: "Overlays",
@@ -191,6 +195,7 @@ function App() {
           <Route path="/toggle" element={<ToggleExample />} />
           <Route path="/toggle-group" element={<ToggleGroupExample />} />
           <Route path="/tooltip" element={<TooltipExample />} />
+          <Route path="/tree" element={<TreeExample />} />
           <Route
             path="/visually-hidden"
             element={<VisuallyHiddenExample />}

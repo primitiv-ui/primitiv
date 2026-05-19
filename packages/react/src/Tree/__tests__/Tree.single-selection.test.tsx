@@ -3,13 +3,16 @@ import userEvent from "@testing-library/user-event";
 
 import { Tree } from "../Tree";
 
-function renderTree(props?: {
+type SingleSelectionOverrides = {
   defaultSelectedValue?: string | null;
   selectedValue?: string | null;
   onSelectedValueChange?: (value: string | null) => void;
-}) {
+};
+
+function renderTree(props?: SingleSelectionOverrides) {
   return render(
-    <Tree.Root {...props}>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    <Tree.Root {...(props as any)}>
       <Tree.Item value="a">Apples</Tree.Item>
       <Tree.Item value="b">Bananas</Tree.Item>
     </Tree.Root>,

@@ -30,4 +30,5 @@ export * from "./TextareaExample";
 export * from "./ToggleExample";
 export * from "./ToggleGroupExample";
 export * from "./TooltipExample";
+export * from "./TreeExample";
 export * from "./VisuallyHiddenExample";

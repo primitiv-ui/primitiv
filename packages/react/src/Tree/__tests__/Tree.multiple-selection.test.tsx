@@ -3,13 +3,16 @@ import userEvent from "@testing-library/user-event";
 
 import { Tree } from "../Tree";
 
-function renderTree(props?: {
+type MultipleSelectionOverrides = {
   defaultSelectedValues?: string[];
   selectedValues?: string[];
   onSelectedValuesChange?: (values: string[]) => void;
-}) {
+};
+
+function renderTree(props?: MultipleSelectionOverrides) {
   return render(
-    <Tree.Root selectionMode="multiple" {...props}>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    <Tree.Root selectionMode="multiple" {...(props as any)}>
       <Tree.Item value="a">Apples</Tree.Item>
       <Tree.Item value="b">Bananas</Tree.Item>
       <Tree.Item value="c">Cherries</Tree.Item>

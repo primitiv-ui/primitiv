@@ -1,0 +1,140 @@
+.tree-example {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 36rem;
+}
+
+.tree-example__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  p {
+    margin: 0;
+    color: var(--color-text-muted, #555);
+    line-height: 1.5;
+  }
+
+  kbd {
+    background: var(--color-surface-2, #eee);
+    border: 1px solid var(--color-border, #ccc);
+    border-radius: 4px;
+    padding: 0 0.3em;
+    font-size: 0.85em;
+    font-family: inherit;
+  }
+}
+
+.tree-example__modes {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  border: 1px solid var(--color-border, #ddd);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.5rem;
+
+  legend {
+    padding: 0 0.5rem;
+    font-size: 0.85em;
+    color: var(--color-text-muted, #666);
+  }
+
+  label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+  }
+}
+
+.tree-example__tree {
+  border: 1px solid var(--color-border, #ddd);
+  border-radius: 8px;
+  padding: 0.5rem 0.25rem;
+  background: var(--color-surface, #fff);
+  font-family: ui-monospace, monospace;
+  font-size: 0.9rem;
+  user-select: none;
+}
+
+.tree-example__row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  outline: none;
+
+  &:hover {
+    background: var(--color-surface-2, rgba(0, 0, 0, 0.04));
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 2px var(--color-focus, #4f8bff);
+  }
+}
+
+/* Indentation driven purely by data-depth attribute selectors. Each
+   leaf or branch row owns an empty inline "indent" element whose
+   width is selected based on its enclosing treeitem's depth. */
+.tree-example [role="treeitem"][data-depth="0"] > .tree-example__row > .tree-example__indent,
+.tree-example [role="treeitem"][data-depth="0"] .tree-example__indent {
+  width: 0;
+}
+.tree-example [role="treeitem"][data-depth="1"] > .tree-example__row > .tree-example__indent,
+.tree-example [role="treeitem"][data-depth="1"] .tree-example__indent {
+  width: 1rem;
+}
+.tree-example [role="treeitem"][data-depth="2"] > .tree-example__row > .tree-example__indent,
+.tree-example [role="treeitem"][data-depth="2"] .tree-example__indent {
+  width: 2rem;
+}
+.tree-example [role="treeitem"][data-depth="3"] > .tree-example__row > .tree-example__indent,
+.tree-example [role="treeitem"][data-depth="3"] .tree-example__indent {
+  width: 3rem;
+}
+
+.tree-example__indent {
+  flex: 0 0 auto;
+  align-self: stretch;
+  border-inline-start: 1px dashed transparent;
+}
+
+/* Draw a soft vertical guide for nested rows. */
+.tree-example [role="treeitem"]:not([data-depth="0"]) > .tree-example__row > .tree-example__indent,
+.tree-example [role="treeitem"]:not([data-depth="0"]) .tree-example__indent {
+  border-inline-start-color: var(--color-border, rgba(0, 0, 0, 0.12));
+}
+
+.tree-example__chevron {
+  display: inline-block;
+  width: 1em;
+  transition: transform 120ms ease;
+}
+.tree-example__chevron[data-state="open"] {
+  transform: rotate(90deg);
+}
+
+/* Leaf rows are flat — pad the chevron slot so glyphs align. */
+.tree-example [role="treeitem"][data-leaf] > .tree-example__row::before {
+  content: "";
+  display: inline-block;
+  width: 1em;
+}
+
+.tree-example [role="treeitem"][data-selected] > .tree-example__row {
+  background: var(--color-accent-soft, rgba(79, 139, 255, 0.15));
+  color: var(--color-accent, #2358d3);
+}
+
+.tree-example [role="treeitem"][data-disabled] > .tree-example__row {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tree-example__glyph {
+  flex: 0 0 auto;
+}

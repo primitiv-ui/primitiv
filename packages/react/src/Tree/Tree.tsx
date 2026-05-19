@@ -20,8 +20,42 @@ import type {
   TreeBranchProps,
   TreeBranchControlProps,
   TreeBranchContentProps,
+  TreeBranchIndicatorProps,
 } from "./types";
 
+/**
+ * The state-owning container of a hierarchical tree view. Renders a
+ * `<div role="tree">` and provides every descendant with the expansion
+ * set, selection set, and roving-tabstop coordination.
+ *
+ * Expansion is controlled/uncontrolled via the `expandedValues` /
+ * `defaultExpandedValues` pair (with `onExpandedChange`). Selection
+ * follows the same shape under `selectionMode="single"` (default) or
+ * `"multiple"`, the two modes statically discriminated so passing the
+ * wrong prop pair is a type error.
+ *
+ * @example Uncontrolled, single selection
+ * ```tsx
+ * <Tree.Root defaultExpandedValues={["src"]}>
+ *   <Tree.Branch value="src">
+ *     <Tree.BranchControl>src</Tree.BranchControl>
+ *     <Tree.BranchContent>
+ *       <Tree.Item value="index">index.ts</Tree.Item>
+ *     </Tree.BranchContent>
+ *   </Tree.Branch>
+ * </Tree.Root>
+ * ```
+ *
+ * @example Multi-select with Ctrl/Cmd and Shift+click
+ * ```tsx
+ * <Tree.Root
+ *   selectionMode="multiple"
+ *   onSelectedValuesChange={(values) => console.log(values)}
+ * >
+ *   {…}
+ * </Tree.Root>
+ * ```
+ */
 export function TreeRoot(props: TreeRootProps) {
   const {
     children,
@@ -76,6 +110,20 @@ export function TreeRoot(props: TreeRootProps) {
 
 TreeRoot.displayName = "TreeRoot";
 
+/**
+ * A leaf treeitem — a selectable, focusable node that has no children.
+ * Renders a `<div role="treeitem">` by default; pass `asChild` to merge
+ * Tree behaviour onto a consumer element (e.g. `<a>`).
+ *
+ * Clicking the item replaces the selection in single mode and toggles
+ * it under `Ctrl`/`Cmd` in multiple mode; `Shift+click` selects the
+ * range between the previous click and this one.
+ *
+ * @example
+ * ```tsx
+ * <Tree.Item value="readme">readme</Tree.Item>
+ * ```
+ */
 export function TreeItem({
   value,
   disabled = false,
@@ -145,6 +193,31 @@ export function TreeItem({
 
 TreeItem.displayName = "TreeItem";
 
+/**
+ * A branch treeitem — a node with a row (`Tree.BranchControl`) and a
+ * nested group of children (`Tree.BranchContent`). Renders a
+ * `<div role="treeitem">` containing both, partitioning the children
+ * with `partitionBranchChildren`.
+ *
+ * The branch carries `aria-expanded`, `aria-selected`, `aria-level`,
+ * and is labelled by its control row via `aria-labelledby` so its
+ * accessible name is not polluted by descendant text. Content is
+ * unmounted while collapsed unless the inner `Tree.BranchContent`
+ * opts in to `forceMount`.
+ *
+ * @example
+ * ```tsx
+ * <Tree.Branch value="src">
+ *   <Tree.BranchControl>
+ *     <Tree.BranchIndicator>▸</Tree.BranchIndicator>
+ *     src
+ *   </Tree.BranchControl>
+ *   <Tree.BranchContent>
+ *     <Tree.Item value="index">index.ts</Tree.Item>
+ *   </Tree.BranchContent>
+ * </Tree.Branch>
+ * ```
+ */
 export function TreeBranch({
   value,
   disabled = false,
@@ -220,6 +293,20 @@ export function TreeBranch({
 
 TreeBranch.displayName = "TreeBranch";
 
+/**
+ * The clickable row of a `Tree.Branch`. Renders a `<div>` by default
+ * (or any element via `asChild`) and is identified by the id the
+ * surrounding branch points `aria-labelledby` at. Clicking the row
+ * toggles the branch's expansion and selects it in a single gesture;
+ * the inner `Tree.BranchIndicator` is decorative.
+ *
+ * @example
+ * ```tsx
+ * <Tree.BranchControl asChild>
+ *   <button type="button">src</button>
+ * </Tree.BranchControl>
+ * ```
+ */
 export function TreeBranchControl({
   asChild = false,
   children,
@@ -254,6 +341,15 @@ export function TreeBranchControl({
 
 TreeBranchControl.displayName = "TreeBranchControl";
 
+/**
+ * The nested group of items inside a `Tree.Branch`. Renders a
+ * `<div role="group">` whose children sit at one deeper nesting level.
+ *
+ * By default the content is unmounted while the branch is collapsed —
+ * the lean DOM strategy. Pass `forceMount` to keep it mounted with
+ * `aria-hidden="true"` and `data-state="closed"`, so CSS can animate
+ * it in and out without the browser tearing the subtree down.
+ */
 export function TreeBranchContent({
   children,
   forceMount = false,
@@ -281,6 +377,12 @@ export function TreeBranchContent({
 
 TreeBranchContent.displayName = "TreeBranchContent";
 
+/**
+ * A purely decorative chevron / icon wrapper for a `Tree.Branch`.
+ * Renders a `<span aria-hidden="true">` with `data-state="open"` or
+ * `"closed"` so a consumer's CSS can rotate or swap the glyph. Only
+ * meaningful inside a `Tree.BranchControl`.
+ */
 export function TreeBranchIndicator({
   children,
   ...rest

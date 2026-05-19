@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef } from "react";
 
-import { composeEventHandlers } from "../Slot";
+import { Slot, composeEventHandlers } from "../Slot";
 
 import {
   TreeContext,
@@ -77,6 +77,7 @@ TreeRoot.displayName = "TreeRoot";
 export function TreeItem({
   value,
   disabled = false,
+  asChild = false,
   children,
   onClick,
   onFocus,
@@ -110,32 +111,34 @@ export function TreeItem({
     return () => registerNode(value, null);
   }, [value, depth, parentValue, disabled, registerNode]);
 
-  return (
-    <div
-      ref={ref}
-      role="treeitem"
-      aria-level={depth + 1}
-      aria-selected={selected}
-      aria-disabled={disabled || undefined}
-      data-depth={depth}
-      data-disabled={disabled ? "" : undefined}
-      tabIndex={isTabStop ? 0 : -1}
-      onClick={composeEventHandlers(onClick, (event) => {
-        if (disabled) {
-          return;
-        }
-        select(value, {
-          meta: event.metaKey,
-          ctrl: event.ctrlKey,
-          shift: event.shiftKey,
-        });
-      })}
-      onFocus={composeEventHandlers(onFocus, () => setActiveValue(value))}
-      onKeyDown={composeEventHandlers(onKeyDown, handleRovingKeyDown)}
-      {...rest}
-    >
-      {children}
-    </div>
+  const itemProps = {
+    ref,
+    role: "treeitem",
+    "aria-level": depth + 1,
+    "aria-selected": selected,
+    "aria-disabled": disabled || undefined,
+    "data-depth": depth,
+    "data-disabled": disabled ? "" : undefined,
+    tabIndex: isTabStop ? 0 : -1,
+    onClick: composeEventHandlers(onClick, (event) => {
+      if (disabled) {
+        return;
+      }
+      select(value, {
+        meta: event.metaKey,
+        ctrl: event.ctrlKey,
+        shift: event.shiftKey,
+      });
+    }),
+    onFocus: composeEventHandlers(onFocus, () => setActiveValue(value)),
+    onKeyDown: composeEventHandlers(onKeyDown, handleRovingKeyDown),
+    ...rest,
+  } as const;
+
+  return asChild ? (
+    <Slot {...itemProps}>{children}</Slot>
+  ) : (
+    <div {...itemProps}>{children}</div>
   );
 }
 
@@ -207,6 +210,7 @@ export function TreeBranch({
 TreeBranch.displayName = "TreeBranch";
 
 export function TreeBranchControl({
+  asChild = false,
   children,
   onClick,
   ...rest
@@ -214,23 +218,25 @@ export function TreeBranchControl({
   const { value, disabled } = useTreeItemContext();
   const { toggleExpanded, select } = useTreeContext();
 
-  return (
-    <div
-      onClick={composeEventHandlers(onClick, (event) => {
-        if (disabled) {
-          return;
-        }
-        toggleExpanded(value);
-        select(value, {
-          meta: event.metaKey,
-          ctrl: event.ctrlKey,
-          shift: event.shiftKey,
-        });
-      })}
-      {...rest}
-    >
-      {children}
-    </div>
+  const controlProps = {
+    onClick: composeEventHandlers(onClick, (event) => {
+      if (disabled) {
+        return;
+      }
+      toggleExpanded(value);
+      select(value, {
+        meta: event.metaKey,
+        ctrl: event.ctrlKey,
+        shift: event.shiftKey,
+      });
+    }),
+    ...rest,
+  } as const;
+
+  return asChild ? (
+    <Slot {...controlProps}>{children}</Slot>
+  ) : (
+    <div {...controlProps}>{children}</div>
   );
 }
 

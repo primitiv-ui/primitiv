@@ -76,6 +76,8 @@ export type TreeItemProps = ComponentProps<"div"> & {
   value: string;
   /** Disable selection and remove the item from roving navigation. */
   disabled?: boolean;
+  /** Render the item as the supplied child element instead of `<div>`. */
+  asChild?: boolean;
   children: ReactNode;
 };
 
@@ -91,6 +93,8 @@ export type TreeBranchProps = Omit<ComponentProps<"div">, "ref"> & {
 };
 
 export type TreeBranchControlProps = ComponentProps<"div"> & {
+  /** Render the control as the supplied child element instead of `<div>`. */
+  asChild?: boolean;
   children: ReactNode;
 };
 

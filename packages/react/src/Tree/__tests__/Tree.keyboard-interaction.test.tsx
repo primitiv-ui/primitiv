@@ -113,6 +113,27 @@ describe("Tree keyboard interaction tests", () => {
     expect(screen.getByText("readme")).toHaveAttribute("aria-selected", "true");
   });
 
+  it("should no-op on ArrowRight when an expanded branch has no following visible item", async () => {
+    // Arrange — an expanded but empty branch at the very end of the tree
+    const user = userEvent.setup();
+    render(
+      <Tree.Root defaultExpandedValues={["src"]}>
+        <Tree.Branch value="src">
+          <Tree.BranchControl>src</Tree.BranchControl>
+          <Tree.BranchContent>{null}</Tree.BranchContent>
+        </Tree.Branch>
+      </Tree.Root>,
+    );
+    const branch = screen.getByText("src").closest('[role="treeitem"]')!;
+
+    // Act
+    (branch as HTMLElement).focus();
+    await user.keyboard("{ArrowRight}");
+
+    // Assert — focus stays on the branch
+    expect(branch).toHaveFocus();
+  });
+
   it("should toggle and select a branch on Enter", async () => {
     // Arrange
     const user = userEvent.setup();

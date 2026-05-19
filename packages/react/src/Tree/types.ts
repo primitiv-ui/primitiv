@@ -139,7 +139,7 @@ export type TreeContextValue = {
   rootId: string;
   selectionMode: SelectionMode;
   isExpanded: (value: string) => boolean;
-  toggleExpanded: (value: string, next?: boolean) => void;
+  toggleExpanded: (value: string) => void;
   isSelected: (value: string) => boolean;
   select: (value: string, modifiers?: TreeSelectModifiers) => void;
   registerNode: (value: string, meta: TreeNodeMeta | null) => void;

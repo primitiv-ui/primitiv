@@ -126,6 +126,47 @@ describe("Tree range selection tests", () => {
     );
   });
 
+  it("should fall back to just the clicked value when the anchor is no longer visible", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(
+      <Tree.Root
+        selectionMode="multiple"
+        defaultExpandedValues={["src"]}
+      >
+        <Tree.Branch value="src">
+          <Tree.BranchControl>src</Tree.BranchControl>
+          <Tree.BranchContent>
+            <Tree.Item value="index">index.ts</Tree.Item>
+          </Tree.BranchContent>
+        </Tree.Branch>
+        <Tree.Item value="pkg">package.json</Tree.Item>
+      </Tree.Root>,
+    );
+
+    // Set anchor on the nested item without touching the parent branch
+    await user.click(screen.getByText("index.ts"));
+
+    // Collapse the parent via ArrowLeft on the focused nested item —
+    // ArrowLeft on a nested leaf focuses the parent, but a separate
+    // ArrowLeft on the now-focused branch collapses it without going
+    // through select(), so the anchor stays pointed at the (now-hidden)
+    // index.ts
+    await user.keyboard("{ArrowLeft}{ArrowLeft}");
+
+    // Act — Shift+click another item; anchor "index.ts" is no longer
+    // in the visible order
+    await user.keyboard("{Shift>}");
+    await user.click(screen.getByText("package.json"));
+    await user.keyboard("{/Shift}");
+
+    // Assert — fallback path selected just the clicked value
+    expect(screen.getByText("package.json")).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+  });
+
   it("should skip collapsed branch children when ranging across a closed branch", async () => {
     // Arrange — src is collapsed
     const user = userEvent.setup();

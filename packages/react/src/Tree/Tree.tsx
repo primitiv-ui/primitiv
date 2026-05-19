@@ -99,12 +99,9 @@ export function TreeItem({
   });
 
   useLayoutEffect(() => {
-    if (!ref.current) {
-      return;
-    }
     registerNode(value, {
       value,
-      element: ref.current,
+      element: ref.current!,
       isBranch: false,
       disabled,
       depth,
@@ -181,12 +178,9 @@ export function TreeBranch({
   });
 
   useLayoutEffect(() => {
-    if (!ref.current) {
-      return;
-    }
     registerNode(value, {
       value,
-      element: ref.current,
+      element: ref.current!,
       isBranch: true,
       disabled,
       depth,

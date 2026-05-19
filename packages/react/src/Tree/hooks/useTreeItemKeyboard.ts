@@ -54,7 +54,7 @@ export function useTreeItemKeyboard(
       }
       event.preventDefault();
       if (!ctx.isExpanded(value)) {
-        ctx.toggleExpanded(value, true);
+        ctx.toggleExpanded(value);
         return;
       }
       const order = ctx.getVisibleOrder();
@@ -71,7 +71,7 @@ export function useTreeItemKeyboard(
       }
       if (isBranch && ctx.isExpanded(value)) {
         event.preventDefault();
-        ctx.toggleExpanded(value, false);
+        ctx.toggleExpanded(value);
         return;
       }
       if (parentValue !== null) {

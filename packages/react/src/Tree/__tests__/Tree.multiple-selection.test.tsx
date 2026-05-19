@@ -116,6 +116,22 @@ describe("Tree multiple selection tests", () => {
     expect(onSelectedValuesChange).toHaveBeenCalledWith(["a", "b"]);
   });
 
+  it("should not refire onSelectedValuesChange on a plain click of the only selected item", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const onSelectedValuesChange = vi.fn();
+    renderTree({
+      defaultSelectedValues: ["a"],
+      onSelectedValuesChange,
+    });
+
+    // Act — plain click on the already-only-selected item
+    await user.click(screen.getByText("Apples"));
+
+    // Assert
+    expect(onSelectedValuesChange).not.toHaveBeenCalled();
+  });
+
   it("should not expose aria-multiselectable in single mode", () => {
     // Arrange
     render(

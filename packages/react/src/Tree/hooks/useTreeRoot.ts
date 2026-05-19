@@ -58,7 +58,7 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
       if (options.selectionMode === "multiple") {
         options.onSelectedValuesChange?.(next);
       } else {
-        options.onSelectedValueChange?.(next[0] ?? null);
+        options.onSelectedValueChange?.(next[0]!);
       }
     },
     [
@@ -100,16 +100,12 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
   );
 
   const toggleExpanded = useCallback(
-    (value: string, next?: boolean) => {
+    (value: string) => {
       const open = expandedValues.includes(value);
-      const shouldOpen = next ?? !open;
-      if (shouldOpen === open) {
-        return;
-      }
       setExpandedValues(
-        shouldOpen
-          ? [...expandedValues, value]
-          : expandedValues.filter((current) => current !== value),
+        open
+          ? expandedValues.filter((current) => current !== value)
+          : [...expandedValues, value],
       );
     },
     [expandedValues, setExpandedValues],
@@ -123,10 +119,7 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
   const getVisibleOrder = useCallback((): string[] => {
     const childrenByParent = new Map<string | null, string[]>();
     for (const key of keys) {
-      const meta = itemsRef.current.get(key);
-      if (!meta) {
-        continue;
-      }
+      const meta = itemsRef.current.get(key)!;
       const bucket = childrenByParent.get(meta.parentValue) ?? [];
       bucket.push(meta.value);
       childrenByParent.set(meta.parentValue, bucket);

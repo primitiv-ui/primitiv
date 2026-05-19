@@ -44,6 +44,48 @@ describe("Tree basic rendering tests", () => {
     expect(screen.getByTestId("tree")).toHaveAttribute("aria-label", "Files");
   });
 
+  it("should ignore non-Tree elements interleaved with a branch's slots", () => {
+    // Arrange
+    render(
+      <Tree.Root defaultExpandedValues={["src"]}>
+        <Tree.Branch value="src">
+          <Tree.BranchControl>src</Tree.BranchControl>
+          <span data-testid="stray">ignored</span>
+          <Tree.BranchContent>
+            <Tree.Item value="index">index.ts</Tree.Item>
+          </Tree.BranchContent>
+        </Tree.Branch>
+      </Tree.Root>,
+    );
+
+    // Assert — stray element doesn't disrupt the partition; nested item still renders
+    expect(screen.getByRole("group")).toContainElement(
+      screen.getByRole("treeitem", { name: "index.ts" }),
+    );
+    expect(screen.queryByTestId("stray")).not.toBeInTheDocument();
+  });
+
+  it("should partition a branch's children through React fragments", () => {
+    // Arrange
+    render(
+      <Tree.Root defaultExpandedValues={["src"]}>
+        <Tree.Branch value="src">
+          <>
+            <Tree.BranchControl>src</Tree.BranchControl>
+            <Tree.BranchContent>
+              <Tree.Item value="index">index.ts</Tree.Item>
+            </Tree.BranchContent>
+          </>
+        </Tree.Branch>
+      </Tree.Root>,
+    );
+
+    // Assert
+    expect(screen.getByRole("group")).toContainElement(
+      screen.getByRole("treeitem", { name: "index.ts" }),
+    );
+  });
+
   it("should render a branch as a treeitem with its control row and a content group", () => {
     // Arrange
     render(

@@ -1,5 +1,7 @@
 import { createStrictContext } from "../utils";
 
+import { RadioGroupOrientation } from "./types";
+
 export type RadioGroupContextValue = {
   value: string | undefined;
   select: (value: string) => void;
@@ -11,6 +13,7 @@ export type RadioGroupContextValue = {
   itemValues: string[];
   disabledValues: Set<string>;
   focusItem: (value: string) => void;
+  orientation: RadioGroupOrientation;
 };
 
 export const [RadioGroupContext, useRadioGroupContext] =

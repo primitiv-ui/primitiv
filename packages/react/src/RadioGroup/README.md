@@ -68,6 +68,17 @@ non-disabled item if nothing is selected. This is the standard WAI-ARIA
 Radio Group behaviour: `Tab` takes the user into and out of the group
 in one keystroke, and arrow keys navigate inside it.
 
+## Orientation
+
+By default (`orientation="both"`) all four arrow keys navigate the group.
+Pass `orientation` to restrict navigation to a single axis:
+
+- `orientation="horizontal"` — only `ArrowLeft` / `ArrowRight` navigate.
+- `orientation="vertical"` — only `ArrowUp` / `ArrowDown` navigate.
+
+A `horizontal` or `vertical` group also reflects the axis to assistive
+technology via `aria-orientation` on the `radiogroup` element.
+
 ## Disabled items
 
 Passing `disabled` to a `RadioGroup.Item` forwards the native

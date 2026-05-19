@@ -35,6 +35,10 @@ import {
  * **ARIA.** `role="radiogroup"` is set automatically. Provide an
  * accessible name via `aria-label` or `aria-labelledby`.
  *
+ * **Orientation.** By default (`orientation="both"`) all four arrow keys
+ * navigate. Pass `orientation="horizontal"` or `"vertical"` to restrict
+ * navigation to a single axis.
+ *
  * **`asChild` prop.** Pass `asChild` to render any consumer-supplied
  * element (e.g. `<menu role="menu">` for dropdown composition) with
  * the RadioGroup's props merged in. The native `<div>` is dropped.
@@ -67,6 +71,7 @@ function RadioGroupRoot({
   defaultValue,
   value: controlledValue,
   onValueChange,
+  orientation = "both",
   asChild = false,
   children,
   ...rest
@@ -85,10 +90,23 @@ function RadioGroupRoot({
       itemValues,
       disabledValues,
       focusItem,
+      orientation,
     }),
-    [value, select, registerItem, itemValues, disabledValues, focusItem],
+    [
+      value,
+      select,
+      registerItem,
+      itemValues,
+      disabledValues,
+      focusItem,
+      orientation,
+    ],
   );
-  const rootProps = { role: "radiogroup" as const, ...rest };
+  const rootProps = {
+    role: "radiogroup" as const,
+    "aria-orientation": orientation === "both" ? undefined : orientation,
+    ...rest,
+  };
   return (
     <RadioGroupContext.Provider value={contextValue}>
       {asChild ? (
@@ -108,9 +126,9 @@ RadioGroupRoot.displayName = "RadioGroupRoot";
  * roving tabindex, and handles arrow-key navigation within the group.
  *
  * **Selection.** Clicking an Item (or pressing Space / Enter on the
- * focused Item via native `<button>` behaviour) selects it. Arrow keys
- * (Down/Right/Up/Left) move focus and selection to the next or
- * previous non-disabled Item, wrapping at the ends.
+ * focused Item via native `<button>` behaviour) selects it. The arrow
+ * keys enabled by the group's `orientation` move focus and selection to
+ * the next or previous non-disabled Item, wrapping at the ends.
  *
  * **Roving tabindex.** Only one Item per group is in the document tab
  * sequence at a time: the selected one if any, otherwise the first
@@ -151,6 +169,7 @@ function RadioGroupItem({
     itemValues,
     disabledValues,
     focusItem,
+    orientation,
   } = useRadioGroupContext();
   const isChecked = selectedValue === value;
   const enabledValues = useMemo(
@@ -169,7 +188,7 @@ function RadioGroupItem({
   }, [value, disabled, registerItem]);
 
   const { handleKeyDown } = useRovingTabindex<string>({
-    orientation: "both",
+    orientation,
     navigable: enabledValues,
     currentKey: value,
     onNavigate: (target) => {

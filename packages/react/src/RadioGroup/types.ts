@@ -1,9 +1,17 @@
 import { ComponentProps, ReactNode, Ref } from "react";
 
+/**
+ * Which arrow keys navigate the group. `"both"` (default) accepts all
+ * four; `"horizontal"` only Arrow Left/Right; `"vertical"` only Arrow
+ * Up/Down.
+ */
+export type RadioGroupOrientation = "horizontal" | "vertical" | "both";
+
 type RadioGroupRootBaseProps = Omit<ComponentProps<"div">, "role"> & {
   children?: ReactNode;
   ref?: Ref<HTMLDivElement>;
   asChild?: boolean;
+  orientation?: RadioGroupOrientation;
 };
 
 type RadioGroupRootUncontrolledProps = RadioGroupRootBaseProps & {

@@ -81,9 +81,10 @@ TreeItem.displayName = "TreeItem";
 
 export function TreeBranch({ value, children, ...rest }: TreeBranchProps) {
   const { depth } = useTreeLevelContext();
-  const { isExpanded } = useTreeContext();
+  const { isExpanded, isSelected } = useTreeContext();
   const { control, content } = partitionBranchChildren(children);
   const expanded = isExpanded(value);
+  const selected = isSelected(value);
   const contentForceMount =
     content !== null &&
     (content.props as { forceMount?: boolean }).forceMount === true;
@@ -94,6 +95,7 @@ export function TreeBranch({ value, children, ...rest }: TreeBranchProps) {
         role="treeitem"
         aria-level={depth + 1}
         aria-expanded={expanded}
+        aria-selected={selected}
         data-depth={depth}
         {...rest}
       >
@@ -112,11 +114,14 @@ export function TreeBranchControl({
   ...rest
 }: TreeBranchControlProps) {
   const { value } = useTreeItemContext();
-  const { toggleExpanded } = useTreeContext();
+  const { toggleExpanded, select } = useTreeContext();
 
   return (
     <div
-      onClick={composeEventHandlers(onClick, () => toggleExpanded(value))}
+      onClick={composeEventHandlers(onClick, () => {
+        toggleExpanded(value);
+        select(value);
+      })}
       {...rest}
     >
       {children}
@@ -151,12 +156,32 @@ export function TreeBranchContent({
 
 TreeBranchContent.displayName = "TreeBranchContent";
 
+export function TreeBranchIndicator({
+  children,
+  ...rest
+}: TreeBranchIndicatorProps) {
+  const { expanded } = useTreeItemContext();
+
+  return (
+    <span
+      aria-hidden="true"
+      data-state={expanded ? "open" : "closed"}
+      {...rest}
+    >
+      {children}
+    </span>
+  );
+}
+
+TreeBranchIndicator.displayName = "TreeBranchIndicator";
+
 type TreeCompound = typeof TreeRoot & {
   Root: typeof TreeRoot;
   Item: typeof TreeItem;
   Branch: typeof TreeBranch;
   BranchControl: typeof TreeBranchControl;
   BranchContent: typeof TreeBranchContent;
+  BranchIndicator: typeof TreeBranchIndicator;
 };
 
 const TreeCompound: TreeCompound = Object.assign(TreeRoot, {
@@ -165,6 +190,7 @@ const TreeCompound: TreeCompound = Object.assign(TreeRoot, {
   Branch: TreeBranch,
   BranchControl: TreeBranchControl,
   BranchContent: TreeBranchContent,
+  BranchIndicator: TreeBranchIndicator,
 });
 
 TreeCompound.displayName = "Tree";

@@ -1,4 +1,4 @@
-import { ComponentProps, ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 
 type TreeRootBaseProps = ComponentProps<"div"> & {
   children: ReactNode;
@@ -66,6 +66,8 @@ export type TreeBranchContentProps = ComponentProps<"div"> & {
    */
   forceMount?: boolean;
 };
+
+export type TreeBranchIndicatorProps = ComponentProps<"span">;
 
 export type TreeLevelContextValue = {
   /** Zero-based nesting depth — `0` for items directly inside `Tree.Root`. */

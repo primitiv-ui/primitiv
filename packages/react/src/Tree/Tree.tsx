@@ -22,10 +22,10 @@ export function TreeRoot({ children, ...rest }: TreeRootProps) {
 TreeRoot.displayName = "TreeRoot";
 
 export function TreeItem({ value: _value, children, ...rest }: TreeItemProps) {
-  useTreeLevelContext();
+  const { depth } = useTreeLevelContext();
 
   return (
-    <div role="treeitem" {...rest}>
+    <div role="treeitem" aria-level={depth + 1} data-depth={depth} {...rest}>
       {children}
     </div>
   );
@@ -38,11 +38,11 @@ export function TreeBranch({
   children,
   ...rest
 }: TreeBranchProps) {
-  useTreeLevelContext();
+  const { depth } = useTreeLevelContext();
   const { control, content } = partitionBranchChildren(children);
 
   return (
-    <div role="treeitem" {...rest}>
+    <div role="treeitem" aria-level={depth + 1} data-depth={depth} {...rest}>
       {control}
       {content}
     </div>
@@ -68,7 +68,7 @@ export function TreeBranchContent({
 
   return (
     <TreeLevelContext.Provider value={{ depth: depth + 1 }}>
-      <div role="group" {...rest}>
+      <div role="group" data-depth={depth + 1} {...rest}>
         {children}
       </div>
     </TreeLevelContext.Provider>

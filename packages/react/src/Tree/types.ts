@@ -39,6 +39,12 @@ export type TreeBranchControlProps = ComponentProps<"div"> & {
 
 export type TreeBranchContentProps = ComponentProps<"div"> & {
   children: ReactNode;
+  /**
+   * Keep the content mounted while the branch is collapsed so CSS can
+   * animate it in and out. When collapsed it is hidden from assistive
+   * technology with `aria-hidden`.
+   */
+  forceMount?: boolean;
 };
 
 export type TreeLevelContextValue = {

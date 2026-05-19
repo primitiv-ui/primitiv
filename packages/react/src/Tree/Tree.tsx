@@ -62,6 +62,9 @@ export function TreeBranch({ value, children, ...rest }: TreeBranchProps) {
   const { isExpanded } = useTreeContext();
   const { control, content } = partitionBranchChildren(children);
   const expanded = isExpanded(value);
+  const contentForceMount =
+    content !== null &&
+    (content.props as { forceMount?: boolean }).forceMount === true;
 
   return (
     <TreeItemContext.Provider value={{ value, expanded }}>
@@ -73,7 +76,7 @@ export function TreeBranch({ value, children, ...rest }: TreeBranchProps) {
         {...rest}
       >
         {control}
-        {expanded ? content : null}
+        {expanded || contentForceMount ? content : null}
       </div>
     </TreeItemContext.Provider>
   );
@@ -103,13 +106,21 @@ TreeBranchControl.displayName = "TreeBranchControl";
 
 export function TreeBranchContent({
   children,
+  forceMount = false,
   ...rest
 }: TreeBranchContentProps) {
   const { depth } = useTreeLevelContext();
+  const { expanded } = useTreeItemContext();
 
   return (
     <TreeLevelContext.Provider value={{ depth: depth + 1 }}>
-      <div role="group" data-depth={depth + 1} {...rest}>
+      <div
+        role="group"
+        data-depth={depth + 1}
+        data-state={expanded ? "open" : "closed"}
+        aria-hidden={forceMount && !expanded ? true : undefined}
+        {...rest}
+      >
         {children}
       </div>
     </TreeLevelContext.Provider>

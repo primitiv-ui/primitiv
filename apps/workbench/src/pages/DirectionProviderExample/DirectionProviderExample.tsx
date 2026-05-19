@@ -1,6 +1,11 @@
 import { useState } from "react";
 
-import { DirectionProvider, Tabs, useDirection } from "@primitiv/react";
+import {
+  DirectionProvider,
+  Fieldset,
+  Tabs,
+  useDirection,
+} from "@primitiv/react";
 
 import "./DirectionProviderExample.scss";
 
@@ -26,8 +31,10 @@ export function DirectionProviderExample() {
         without each being passed an explicit <code>dir</code> prop.
       </p>
 
-      <fieldset className="dp-example__controls">
-        <legend className="dp-example__legend">Provider direction</legend>
+      <Fieldset.Root className="dp-example__controls">
+        <Fieldset.Legend className="dp-example__legend">
+          Provider direction
+        </Fieldset.Legend>
         <label className="dp-example__radio">
           <input
             type="radio"
@@ -48,7 +55,7 @@ export function DirectionProviderExample() {
           />
           rtl
         </label>
-      </fieldset>
+      </Fieldset.Root>
 
       <DirectionProvider dir={dir}>
         <section className="dp-example__section">
@@ -57,7 +64,9 @@ export function DirectionProviderExample() {
         </section>
 
         <section className="dp-example__section">
-          <h3 className="dp-example__section-title">Inherited by a component</h3>
+          <h3 className="dp-example__section-title">
+            Inherited by a component
+          </h3>
           <p className="dp-example__description">
             This <code>Tabs</code> receives no <code>dir</code> prop — it
             inherits the direction from the provider. Arrow-key navigation
@@ -90,8 +99,8 @@ export function DirectionProviderExample() {
         <section className="dp-example__section">
           <h3 className="dp-example__section-title">Explicit dir wins</h3>
           <p className="dp-example__description">
-            A component's own <code>dir</code> prop overrides the provider.
-            This <code>Tabs</code> is pinned <code>ltr</code> regardless of the
+            A component's own <code>dir</code> prop overrides the provider. This{" "}
+            <code>Tabs</code> is pinned <code>ltr</code> regardless of the
             toggle.
           </p>
           <Tabs.Root dir="ltr" defaultValue="one">

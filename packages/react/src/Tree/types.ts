@@ -24,6 +24,9 @@ type TreeRootSingleUncontrolledSelectionProps = {
   defaultSelectedValue?: string | null;
   selectedValue?: never;
   onSelectedValueChange?: (value: string | null) => void;
+  defaultSelectedValues?: never;
+  selectedValues?: never;
+  onSelectedValuesChange?: never;
 };
 
 type TreeRootSingleControlledSelectionProps = {
@@ -32,6 +35,31 @@ type TreeRootSingleControlledSelectionProps = {
   /** The selected value, owned by the consumer. */
   selectedValue: string | null;
   onSelectedValueChange: (value: string | null) => void;
+  defaultSelectedValues?: never;
+  selectedValues?: never;
+  onSelectedValuesChange?: never;
+};
+
+type TreeRootMultipleUncontrolledSelectionProps = {
+  selectionMode: "multiple";
+  /** The values selected on first render when uncontrolled. */
+  defaultSelectedValues?: string[];
+  selectedValues?: never;
+  onSelectedValuesChange?: (values: string[]) => void;
+  defaultSelectedValue?: never;
+  selectedValue?: never;
+  onSelectedValueChange?: never;
+};
+
+type TreeRootMultipleControlledSelectionProps = {
+  selectionMode: "multiple";
+  defaultSelectedValues?: never;
+  /** The selected values, owned by the consumer. */
+  selectedValues: string[];
+  onSelectedValuesChange: (values: string[]) => void;
+  defaultSelectedValue?: never;
+  selectedValue?: never;
+  onSelectedValueChange?: never;
 };
 
 export type TreeRootProps = TreeRootBaseProps &
@@ -39,6 +67,8 @@ export type TreeRootProps = TreeRootBaseProps &
   (
     | TreeRootSingleUncontrolledSelectionProps
     | TreeRootSingleControlledSelectionProps
+    | TreeRootMultipleUncontrolledSelectionProps
+    | TreeRootMultipleControlledSelectionProps
   );
 
 export type TreeItemProps = ComponentProps<"div"> & {
@@ -74,12 +104,20 @@ export type TreeLevelContextValue = {
   depth: number;
 };
 
+export type SelectionMode = "single" | "multiple";
+
+export type TreeSelectModifiers = {
+  meta: boolean;
+  ctrl: boolean;
+  shift: boolean;
+};
+
 export type TreeContextValue = {
-  selectionMode: "single";
+  selectionMode: SelectionMode;
   isExpanded: (value: string) => boolean;
   toggleExpanded: (value: string, next?: boolean) => void;
   isSelected: (value: string) => boolean;
-  select: (value: string) => void;
+  select: (value: string, modifiers?: TreeSelectModifiers) => void;
 };
 
 export type TreeItemContextValue = {

@@ -19,17 +19,29 @@ import type {
   TreeBranchContentProps,
 } from "./types";
 
-export function TreeRoot({
-  children,
-  expandedValues,
-  defaultExpandedValues,
-  onExpandedChange,
-  selectionMode = "single",
-  selectedValue,
-  defaultSelectedValue,
-  onSelectedValueChange,
-  ...rest
-}: TreeRootProps) {
+export function TreeRoot(props: TreeRootProps) {
+  const {
+    children,
+    expandedValues,
+    defaultExpandedValues,
+    onExpandedChange,
+    selectionMode = "single",
+    selectedValue,
+    defaultSelectedValue,
+    onSelectedValueChange,
+    selectedValues,
+    defaultSelectedValues,
+    onSelectedValuesChange,
+    ...rest
+  } = props as TreeRootProps & {
+    selectedValue?: string | null;
+    defaultSelectedValue?: string | null;
+    onSelectedValueChange?: (value: string | null) => void;
+    selectedValues?: string[];
+    defaultSelectedValues?: string[];
+    onSelectedValuesChange?: (values: string[]) => void;
+  };
+
   const treeContext = useTreeRoot({
     expandedValues,
     defaultExpandedValues,
@@ -38,12 +50,19 @@ export function TreeRoot({
     selectedValue,
     defaultSelectedValue,
     onSelectedValueChange,
+    selectedValues,
+    defaultSelectedValues,
+    onSelectedValuesChange,
   });
 
   return (
     <TreeContext.Provider value={treeContext}>
       <TreeLevelContext.Provider value={{ depth: 0 }}>
-        <div role="tree" {...rest}>
+        <div
+          role="tree"
+          aria-multiselectable={selectionMode === "multiple" ? true : undefined}
+          {...rest}
+        >
           {children}
         </div>
       </TreeLevelContext.Provider>
@@ -69,7 +88,13 @@ export function TreeItem({
       aria-level={depth + 1}
       aria-selected={selected}
       data-depth={depth}
-      onClick={composeEventHandlers(onClick, () => select(value))}
+      onClick={composeEventHandlers(onClick, (event) =>
+        select(value, {
+          meta: event.metaKey,
+          ctrl: event.ctrlKey,
+          shift: event.shiftKey,
+        }),
+      )}
       {...rest}
     >
       {children}
@@ -118,9 +143,13 @@ export function TreeBranchControl({
 
   return (
     <div
-      onClick={composeEventHandlers(onClick, () => {
+      onClick={composeEventHandlers(onClick, (event) => {
         toggleExpanded(value);
-        select(value);
+        select(value, {
+          meta: event.metaKey,
+          ctrl: event.ctrlKey,
+          shift: event.shiftKey,
+        });
       })}
       {...rest}
     >

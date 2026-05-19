@@ -2,22 +2,37 @@ import { useCallback } from "react";
 
 import { useControllableState } from "../../hooks";
 
-import type { TreeContextValue } from "../types";
+import type {
+  SelectionMode,
+  TreeContextValue,
+  TreeSelectModifiers,
+} from "../types";
 
 export type UseTreeRootOptions = {
   expandedValues: string[] | undefined;
   defaultExpandedValues: string[] | undefined;
   onExpandedChange: ((values: string[]) => void) | undefined;
-  selectionMode: "single";
+  selectionMode: SelectionMode;
   selectedValue: string | null | undefined;
   defaultSelectedValue: string | null | undefined;
   onSelectedValueChange: ((value: string | null) => void) | undefined;
+  selectedValues: string[] | undefined;
+  defaultSelectedValues: string[] | undefined;
+  onSelectedValuesChange: ((values: string[]) => void) | undefined;
 };
+
+function singleToArray(value: string | null | undefined): string[] | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  return value === null ? [] : [value];
+}
 
 /**
  * Owns the Tree's expansion and selection state, exposing the
  * read/toggle/select surface shared with every sub-component via
- * `TreeContext`.
+ * `TreeContext`. Selection is normalised to a single string[] internally
+ * regardless of mode.
  */
 export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
   const [expandedValues, setExpandedValues] = useControllableState<string[]>(
@@ -26,10 +41,35 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
     options.onExpandedChange,
   );
 
-  const [selectedValue, setSelectedValue] = useControllableState<string | null>(
-    options.selectedValue,
-    options.defaultSelectedValue ?? null,
-    options.onSelectedValueChange,
+  const normalisedSelectedValues =
+    options.selectionMode === "multiple"
+      ? options.selectedValues
+      : singleToArray(options.selectedValue);
+
+  const normalisedDefaultSelectedValues =
+    options.selectionMode === "multiple"
+      ? (options.defaultSelectedValues ?? [])
+      : (singleToArray(options.defaultSelectedValue) ?? []);
+
+  const handleSelectedValuesChange = useCallback(
+    (next: string[]) => {
+      if (options.selectionMode === "multiple") {
+        options.onSelectedValuesChange?.(next);
+      } else {
+        options.onSelectedValueChange?.(next[0] ?? null);
+      }
+    },
+    [
+      options.selectionMode,
+      options.onSelectedValueChange,
+      options.onSelectedValuesChange,
+    ],
+  );
+
+  const [selectedValues, setSelectedValues] = useControllableState<string[]>(
+    normalisedSelectedValues,
+    normalisedDefaultSelectedValues,
+    handleSelectedValuesChange,
   );
 
   const isExpanded = useCallback(
@@ -54,18 +94,38 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
   );
 
   const isSelected = useCallback(
-    (value: string) => selectedValue === value,
-    [selectedValue],
+    (value: string) => selectedValues.includes(value),
+    [selectedValues],
   );
 
   const select = useCallback(
-    (value: string) => {
-      if (selectedValue === value) {
+    (value: string, modifiers?: TreeSelectModifiers) => {
+      if (options.selectionMode === "single") {
+        if (selectedValues[0] === value) {
+          return;
+        }
+        setSelectedValues([value]);
         return;
       }
-      setSelectedValue(value);
+
+      const additive = modifiers?.meta === true || modifiers?.ctrl === true;
+      const alreadySelected = selectedValues.includes(value);
+
+      if (additive) {
+        setSelectedValues(
+          alreadySelected
+            ? selectedValues.filter((current) => current !== value)
+            : [...selectedValues, value],
+        );
+        return;
+      }
+
+      if (selectedValues.length === 1 && alreadySelected) {
+        return;
+      }
+      setSelectedValues([value]);
     },
-    [selectedValue, setSelectedValue],
+    [options.selectionMode, selectedValues, setSelectedValues],
   );
 
   return {

@@ -66,6 +66,17 @@ const [plan, setPlan] = useState("pro");
 | `Space` / `Enter` | Select the focused Item (native `<button>` behaviour) |
 | `Tab` | Move focus out of the group (only one Item is in the tab sequence at a time) |
 
+## Orientation
+
+By default (`orientation="both"`) all four arrow keys navigate the group.
+Pass `orientation` to restrict navigation to a single axis:
+
+- `orientation="horizontal"` — only `ArrowLeft` / `ArrowRight` navigate.
+- `orientation="vertical"` — only `ArrowUp` / `ArrowDown` navigate.
+
+A `horizontal` or `vertical` group also reflects the axis to assistive
+technology via `aria-orientation` on the `radiogroup` element.
+
 ## Disabled items
 
 Pass `disabled` on any `RadioCard.Item`. The native attribute suppresses clicks,

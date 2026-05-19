@@ -1,5 +1,6 @@
 import { forwardRef, Ref } from "react";
 
+import { useDirection } from "../DirectionProvider";
 import { Slot, composeRefs } from "../Slot";
 
 import {
@@ -19,7 +20,7 @@ import type {
 
 /**
  * The root of a Tabs widget — owns the active value, provides context to
- * descendants, and renders a single container `<div dir="ltr">`.
+ * descendants, and renders a single container `<div>`.
  *
  * Supports two state modes, statically discriminated at the type level so
  * only one of the two shapes is accepted by TypeScript:
@@ -53,6 +54,11 @@ import type {
  *
  * **Styling hooks.** `data-orientation="horizontal" | "vertical"` is set
  * on the rendered container.
+ *
+ * **Reading direction.** `dir` (`"ltr"` / `"rtl"`) sets the arrow-key
+ * direction and the container's `dir` attribute. When omitted, it is
+ * inherited from the nearest {@link DirectionProvider}, falling back to
+ * `"ltr"` when there is no provider.
  *
  * @example Uncontrolled
  * ```tsx
@@ -94,7 +100,7 @@ const TabsRoot = forwardRef<TabsImperativeApi, TabsRootProps>(function TabsRoot(
   {
     className = "",
     orientation = "horizontal",
-    dir = "ltr",
+    dir,
     activationMode = "automatic",
     defaultValue,
     value,
@@ -105,10 +111,11 @@ const TabsRoot = forwardRef<TabsImperativeApi, TabsRootProps>(function TabsRoot(
   },
   ref,
 ) {
+  const resolvedDir = dir ?? useDirection();
   const { contextValue } = useTabsRoot(
     {
       orientation,
-      dir,
+      dir: resolvedDir,
       activationMode,
       defaultValue,
       value,
@@ -122,7 +129,7 @@ const TabsRoot = forwardRef<TabsImperativeApi, TabsRootProps>(function TabsRoot(
   return (
     <TabsProvider value={contextValue}>
       <div
-        dir={dir}
+        dir={resolvedDir}
         className={className}
         data-orientation={contextValue.orientation}
         {...rest}

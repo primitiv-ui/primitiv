@@ -35,6 +35,14 @@ import { Tabs } from "@primitiv/react";
 | `Enter` / `Space`          | Activate focused trigger (manual activation mode) |
 | `Tab`                      | Move from tablist into the active panel           |
 
+## Reading direction
+
+Pass `dir` (`"ltr"` / `"rtl"`) to set the arrow-key direction for horizontal
+tabs and the container's `dir` attribute. When `dir` is omitted, it is
+inherited from the nearest [`DirectionProvider`](../DirectionProvider/README.md),
+falling back to `"ltr"` when there is no provider. An explicit `dir` prop
+always wins over the inherited value.
+
 ## State modes
 
 - **Uncontrolled** — pass `defaultValue` (or omit for no initial selection).

@@ -74,12 +74,19 @@ export type TreeRootProps = TreeRootBaseProps &
 export type TreeItemProps = ComponentProps<"div"> & {
   /** Stable identifier for this item, unique within the tree. */
   value: string;
+  /** Disable selection and remove the item from roving navigation. */
+  disabled?: boolean;
   children: ReactNode;
 };
 
 export type TreeBranchProps = Omit<ComponentProps<"div">, "ref"> & {
   /** Stable identifier for this branch, unique within the tree. */
   value: string;
+  /**
+   * Disable selection, expansion-toggling, and roving navigation for
+   * this branch. The branch and its current content remain rendered.
+   */
+  disabled?: boolean;
   children: ReactNode;
 };
 
@@ -110,6 +117,7 @@ export type TreeNodeMeta = {
   value: string;
   element: HTMLElement;
   isBranch: boolean;
+  disabled: boolean;
   depth: number;
   parentValue: string | null;
 };
@@ -130,6 +138,7 @@ export type TreeContextValue = {
   select: (value: string, modifiers?: TreeSelectModifiers) => void;
   registerNode: (value: string, meta: TreeNodeMeta | null) => void;
   getVisibleOrder: () => string[];
+  isNodeDisabled: (value: string) => boolean;
   /** Value of the treeitem currently holding the single roving tabstop. */
   tabStop: string | null;
   setActiveValue: (value: string) => void;
@@ -139,4 +148,5 @@ export type TreeContextValue = {
 export type TreeItemContextValue = {
   value: string;
   expanded: boolean;
+  disabled: boolean;
 };

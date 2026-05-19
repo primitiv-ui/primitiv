@@ -87,6 +87,11 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
     [itemsRef],
   );
 
+  const isNodeDisabled = useCallback(
+    (value: string) => itemsRef.current.get(value)?.disabled === true,
+    [itemsRef],
+  );
+
   const isExpanded = useCallback(
     (value: string) => expandedValues.includes(value),
     [expandedValues],
@@ -167,7 +172,10 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
           anchorIndex <= valueIndex
             ? [anchorIndex, valueIndex]
             : [valueIndex, anchorIndex];
-        setSelectedValues(order.slice(start, end + 1));
+        const range = order
+          .slice(start, end + 1)
+          .filter((candidate) => !isNodeDisabled(candidate));
+        setSelectedValues(range);
         return;
       }
 
@@ -192,11 +200,13 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
       selectedValues,
       setSelectedValues,
       getVisibleOrder,
+      isNodeDisabled,
     ],
   );
 
   const visibleOrder = getVisibleOrder();
-  const defaultTabStop = visibleOrder[0] ?? null;
+  const defaultTabStop =
+    visibleOrder.find((candidate) => !isNodeDisabled(candidate)) ?? null;
   const tabStop =
     activeValue !== null && visibleOrder.includes(activeValue)
       ? activeValue
@@ -210,6 +220,7 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
     select,
     registerNode,
     getVisibleOrder,
+    isNodeDisabled,
     tabStop,
     setActiveValue,
     focusItem,

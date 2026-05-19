@@ -76,6 +76,7 @@ TreeRoot.displayName = "TreeRoot";
 
 export function TreeItem({
   value,
+  disabled = false,
   children,
   onClick,
   onFocus,
@@ -91,6 +92,7 @@ export function TreeItem({
   const handleRovingKeyDown = useTreeItemKeyboard(value, {
     isBranch: false,
     parentValue,
+    disabled,
   });
 
   useLayoutEffect(() => {
@@ -101,11 +103,12 @@ export function TreeItem({
       value,
       element: ref.current,
       isBranch: false,
+      disabled,
       depth,
       parentValue,
     });
     return () => registerNode(value, null);
-  }, [value, depth, parentValue, registerNode]);
+  }, [value, depth, parentValue, disabled, registerNode]);
 
   return (
     <div
@@ -113,15 +116,20 @@ export function TreeItem({
       role="treeitem"
       aria-level={depth + 1}
       aria-selected={selected}
+      aria-disabled={disabled || undefined}
       data-depth={depth}
+      data-disabled={disabled ? "" : undefined}
       tabIndex={isTabStop ? 0 : -1}
-      onClick={composeEventHandlers(onClick, (event) =>
+      onClick={composeEventHandlers(onClick, (event) => {
+        if (disabled) {
+          return;
+        }
         select(value, {
           meta: event.metaKey,
           ctrl: event.ctrlKey,
           shift: event.shiftKey,
-        }),
-      )}
+        });
+      })}
       onFocus={composeEventHandlers(onFocus, () => setActiveValue(value))}
       onKeyDown={composeEventHandlers(onKeyDown, handleRovingKeyDown)}
       {...rest}
@@ -135,6 +143,7 @@ TreeItem.displayName = "TreeItem";
 
 export function TreeBranch({
   value,
+  disabled = false,
   children,
   onFocus,
   onKeyDown,
@@ -154,6 +163,7 @@ export function TreeBranch({
   const handleRovingKeyDown = useTreeItemKeyboard(value, {
     isBranch: true,
     parentValue,
+    disabled,
   });
 
   useLayoutEffect(() => {
@@ -164,21 +174,24 @@ export function TreeBranch({
       value,
       element: ref.current,
       isBranch: true,
+      disabled,
       depth,
       parentValue,
     });
     return () => registerNode(value, null);
-  }, [value, depth, parentValue, registerNode]);
+  }, [value, depth, parentValue, disabled, registerNode]);
 
   return (
-    <TreeItemContext.Provider value={{ value, expanded }}>
+    <TreeItemContext.Provider value={{ value, expanded, disabled }}>
       <div
         ref={ref}
         role="treeitem"
         aria-level={depth + 1}
         aria-expanded={expanded}
         aria-selected={selected}
+        aria-disabled={disabled || undefined}
         data-depth={depth}
+        data-disabled={disabled ? "" : undefined}
         tabIndex={isTabStop ? 0 : -1}
         onFocus={composeEventHandlers(onFocus, () => setActiveValue(value))}
         onKeyDown={composeEventHandlers(onKeyDown, handleRovingKeyDown)}
@@ -198,12 +211,15 @@ export function TreeBranchControl({
   onClick,
   ...rest
 }: TreeBranchControlProps) {
-  const { value } = useTreeItemContext();
+  const { value, disabled } = useTreeItemContext();
   const { toggleExpanded, select } = useTreeContext();
 
   return (
     <div
       onClick={composeEventHandlers(onClick, (event) => {
+        if (disabled) {
+          return;
+        }
         toggleExpanded(value);
         select(value, {
           meta: event.metaKey,

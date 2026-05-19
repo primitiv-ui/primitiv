@@ -6,6 +6,7 @@ import { useTreeContext } from "../TreeContext";
 type TreeItemKeyboardOptions = {
   isBranch: boolean;
   parentValue: string | null;
+  disabled: boolean;
 };
 
 /**
@@ -13,14 +14,17 @@ type TreeItemKeyboardOptions = {
  * own ArrowRight / ArrowLeft semantics — expand, collapse, focus first
  * child, focus parent — on top of the vertical roving-tabindex
  * navigation, with Enter/Space activation routed through Item-vs-Branch
- * behaviour.
+ * behaviour. Disabled items short-circuit branch keys and activation
+ * but pass through Home/End so a user can escape them.
  */
 export function useTreeItemKeyboard(
   value: string,
-  { isBranch, parentValue }: TreeItemKeyboardOptions,
+  { isBranch, parentValue, disabled }: TreeItemKeyboardOptions,
 ) {
   const ctx = useTreeContext();
-  const navigable = ctx.getVisibleOrder();
+  const navigable = ctx
+    .getVisibleOrder()
+    .filter((candidate) => !ctx.isNodeDisabled(candidate));
 
   const { handleKeyDown: rovingHandleKeyDown } = useRovingTabindex<string>({
     orientation: "vertical",
@@ -30,6 +34,9 @@ export function useTreeItemKeyboard(
     includeActivate: true,
     onNavigate: (target, action) => {
       if (action === "activate") {
+        if (disabled) {
+          return;
+        }
         if (isBranch) {
           ctx.toggleExpanded(value);
         }
@@ -42,7 +49,7 @@ export function useTreeItemKeyboard(
 
   return function handleKeyDown(event: KeyboardEvent<HTMLElement>) {
     if (event.key === "ArrowRight") {
-      if (!isBranch) {
+      if (!isBranch || disabled) {
         return;
       }
       event.preventDefault();
@@ -59,6 +66,9 @@ export function useTreeItemKeyboard(
     }
 
     if (event.key === "ArrowLeft") {
+      if (disabled) {
+        return;
+      }
       if (isBranch && ctx.isExpanded(value)) {
         event.preventDefault();
         ctx.toggleExpanded(value, false);

@@ -8,17 +8,18 @@ export type RovingKeyAction = "next" | "prev" | "first" | "last" | "activate";
 
 type GetKeyToActionMapOptions = {
   /**
-   * Which arrow-key axis is active. `"horizontal"` enables Arrow Left/Right
-   * (with RTL inversion); `"vertical"` enables Arrow Up/Down (RTL is a
-   * no-op since vertical reading order does not depend on direction).
-   * `"both"` enables all four arrow keys with no RTL inversion — used by
-   * patterns like RadioGroup whose ARIA contract treats every arrow as
-   * equivalent next/prev movement.
+   * Which arrow-key axis is active. `"horizontal"` enables Arrow Left/Right,
+   * `"vertical"` enables Arrow Up/Down, `"both"` enables all four. RTL
+   * inversion (see {@link GetKeyToActionMapOptions.dir | `dir`}) swaps the
+   * horizontal pair for both `"horizontal"` and `"both"`; the vertical pair
+   * is never swapped, since vertical reading order does not depend on
+   * direction.
    */
   orientation: "horizontal" | "vertical" | "both";
   /**
-   * Reading direction. Only affects horizontal orientation, where it swaps
-   * the meaning of Arrow Left and Arrow Right. Defaults to `"ltr"`.
+   * Reading direction. When `"rtl"`, swaps the meaning of Arrow Left and
+   * Arrow Right — applied for both `"horizontal"` and `"both"` orientation
+   * (never the vertical pair). Defaults to `"ltr"`.
    */
   dir?: "ltr" | "rtl";
   /**

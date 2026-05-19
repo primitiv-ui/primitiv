@@ -24,7 +24,7 @@ describe("getKeyToActionMap", () => {
   });
 
   describe("both orientations", () => {
-    it("maps all four arrow keys with no RTL inversion", () => {
+    it("maps all four arrow keys, inverting only the horizontal pair under RTL", () => {
       // Arrange & Act
       const ltr = getKeyToActionMap({ orientation: "both" });
       const rtl = getKeyToActionMap({ orientation: "both", dir: "rtl" });

@@ -3,19 +3,23 @@ import { TextareaProps } from "./types";
 
 export function Textarea({
   asChild = false,
+  disabled,
   children,
   ref,
   ...rest
 }: TextareaProps) {
+  const rootProps = {
+    ...rest,
+    ref,
+    disabled,
+    "data-disabled": disabled ? "" : undefined,
+  };
+
   if (asChild) {
-    return (
-      <Slot {...rest} ref={ref}>
-        {children}
-      </Slot>
-    );
+    return <Slot {...rootProps}>{children}</Slot>;
   }
 
-  return <textarea {...rest} ref={ref} />;
+  return <textarea {...rootProps} />;
 }
 
 Textarea.displayName = "Textarea";

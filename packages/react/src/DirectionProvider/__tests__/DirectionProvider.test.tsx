@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import { useDirection } from "..";
+import { DirectionProvider, useDirection } from "..";
 
 function DirectionProbe() {
   return <span data-testid="probe">{useDirection()}</span>;
@@ -13,5 +13,17 @@ describe("DirectionProvider", () => {
 
     // Assert
     expect(screen.getByTestId("probe")).toHaveTextContent("ltr");
+  });
+
+  it("should provide its dir to descendants via useDirection", () => {
+    // Arrange
+    render(
+      <DirectionProvider dir="rtl">
+        <DirectionProbe />
+      </DirectionProvider>,
+    );
+
+    // Assert
+    expect(screen.getByTestId("probe")).toHaveTextContent("rtl");
   });
 });

@@ -87,6 +87,14 @@ toggling. Only `Space` / `Enter` (or a click) toggle the focused item.
 Only one item is in the document tab sequence at a time; `Tab` escapes
 the group in a single keystroke.
 
+## Reading direction
+
+Pass `dir` (`"ltr"` / `"rtl"`) to set the arrow-key direction for horizontal
+groups. When `dir` is omitted, it is inherited from the nearest
+[`DirectionProvider`](../DirectionProvider/README.md), falling back to `"ltr"`
+when there is no provider. An explicit `dir` prop always wins over the
+inherited value.
+
 ## Disabled
 
 Passing `disabled` on an `Item` forwards the native `disabled` attribute

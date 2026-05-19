@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import { useCollection, useControllableState } from "../../hooks";
 
@@ -78,6 +78,14 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
   >();
 
   const anchorRef = useRef<string | null>(null);
+  const [activeValue, setActiveValue] = useState<string | null>(null);
+
+  const focusItem = useCallback(
+    (value: string) => {
+      itemsRef.current.get(value)?.element.focus();
+    },
+    [itemsRef],
+  );
 
   const isExpanded = useCallback(
     (value: string) => expandedValues.includes(value),
@@ -187,6 +195,13 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
     ],
   );
 
+  const visibleOrder = getVisibleOrder();
+  const defaultTabStop = visibleOrder[0] ?? null;
+  const tabStop =
+    activeValue !== null && visibleOrder.includes(activeValue)
+      ? activeValue
+      : defaultTabStop;
+
   return {
     selectionMode: options.selectionMode,
     isExpanded,
@@ -195,5 +210,8 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
     select,
     registerNode,
     getVisibleOrder,
+    tabStop,
+    setActiveValue,
+    focusItem,
   };
 }

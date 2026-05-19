@@ -130,6 +130,10 @@ export type TreeContextValue = {
   select: (value: string, modifiers?: TreeSelectModifiers) => void;
   registerNode: (value: string, meta: TreeNodeMeta | null) => void;
   getVisibleOrder: () => string[];
+  /** Value of the treeitem currently holding the single roving tabstop. */
+  tabStop: string | null;
+  setActiveValue: (value: string) => void;
+  focusItem: (value: string) => void;
 };
 
 export type TreeItemContextValue = {

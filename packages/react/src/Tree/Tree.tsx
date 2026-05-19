@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 
 import { composeEventHandlers } from "../Slot";
 
@@ -10,7 +10,7 @@ import {
   useTreeItemContext,
   useTreeLevelContext,
 } from "./TreeContext";
-import { useTreeRoot } from "./hooks";
+import { useTreeItemKeyboard, useTreeRoot } from "./hooks";
 import { partitionBranchChildren } from "./utils";
 
 import type {
@@ -78,14 +78,19 @@ export function TreeItem({
   value,
   children,
   onClick,
+  onFocus,
+  onKeyDown,
   ...rest
 }: TreeItemProps) {
   const { depth, parentValue } = useTreeLevelContext();
-  const { isSelected, select, registerNode } = useTreeContext();
+  const { isSelected, select, registerNode, tabStop, setActiveValue } =
+    useTreeContext();
   const selected = isSelected(value);
+  const isTabStop = tabStop === value;
   const ref = useRef<HTMLDivElement>(null);
+  const handleRovingKeyDown = useTreeItemKeyboard(value);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!ref.current) {
       return;
     }
@@ -106,6 +111,7 @@ export function TreeItem({
       aria-level={depth + 1}
       aria-selected={selected}
       data-depth={depth}
+      tabIndex={isTabStop ? 0 : -1}
       onClick={composeEventHandlers(onClick, (event) =>
         select(value, {
           meta: event.metaKey,
@@ -113,6 +119,8 @@ export function TreeItem({
           shift: event.shiftKey,
         }),
       )}
+      onFocus={composeEventHandlers(onFocus, () => setActiveValue(value))}
+      onKeyDown={composeEventHandlers(onKeyDown, handleRovingKeyDown)}
       {...rest}
     >
       {children}
@@ -122,18 +130,27 @@ export function TreeItem({
 
 TreeItem.displayName = "TreeItem";
 
-export function TreeBranch({ value, children, ...rest }: TreeBranchProps) {
+export function TreeBranch({
+  value,
+  children,
+  onFocus,
+  onKeyDown,
+  ...rest
+}: TreeBranchProps) {
   const { depth, parentValue } = useTreeLevelContext();
-  const { isExpanded, isSelected, registerNode } = useTreeContext();
+  const { isExpanded, isSelected, registerNode, tabStop, setActiveValue } =
+    useTreeContext();
   const { control, content } = partitionBranchChildren(children);
   const expanded = isExpanded(value);
   const selected = isSelected(value);
   const contentForceMount =
     content !== null &&
     (content.props as { forceMount?: boolean }).forceMount === true;
+  const isTabStop = tabStop === value;
   const ref = useRef<HTMLDivElement>(null);
+  const handleRovingKeyDown = useTreeItemKeyboard(value);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!ref.current) {
       return;
     }
@@ -156,6 +173,9 @@ export function TreeBranch({ value, children, ...rest }: TreeBranchProps) {
         aria-expanded={expanded}
         aria-selected={selected}
         data-depth={depth}
+        tabIndex={isTabStop ? 0 : -1}
+        onFocus={composeEventHandlers(onFocus, () => setActiveValue(value))}
+        onKeyDown={composeEventHandlers(onKeyDown, handleRovingKeyDown)}
         {...rest}
       >
         {control}

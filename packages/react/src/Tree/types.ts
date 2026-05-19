@@ -9,3 +9,8 @@ export type TreeItemProps = ComponentProps<"div"> & {
   value: string;
   children: ReactNode;
 };
+
+export type TreeLevelContextValue = {
+  /** Zero-based nesting depth — `0` for items directly inside `Tree.Root`. */
+  depth: number;
+};

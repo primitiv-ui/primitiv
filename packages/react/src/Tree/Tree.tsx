@@ -1,16 +1,22 @@
+import { TreeLevelContext, useTreeLevelContext } from "./TreeContext";
+
 import type { TreeRootProps, TreeItemProps } from "./types";
 
 export function TreeRoot({ children, ...rest }: TreeRootProps) {
   return (
-    <div role="tree" {...rest}>
-      {children}
-    </div>
+    <TreeLevelContext.Provider value={{ depth: 0 }}>
+      <div role="tree" {...rest}>
+        {children}
+      </div>
+    </TreeLevelContext.Provider>
   );
 }
 
 TreeRoot.displayName = "TreeRoot";
 
 export function TreeItem({ value: _value, children, ...rest }: TreeItemProps) {
+  useTreeLevelContext();
+
   return (
     <div role="treeitem" {...rest}>
       {children}

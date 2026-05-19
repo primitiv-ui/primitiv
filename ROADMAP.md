@@ -144,6 +144,7 @@ component now has a workbench example:
 - [x] Alert
 - [x] Button
 - [x] Checkbox
+- [x] Direction Provider
 - [x] Divider
 - [x] Empty State
 - [x] Portal

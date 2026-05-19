@@ -21,10 +21,16 @@ import type {
 
 export function TreeRoot({
   children,
+  expandedValues,
   defaultExpandedValues,
+  onExpandedChange,
   ...rest
 }: TreeRootProps) {
-  const treeContext = useTreeRoot(defaultExpandedValues);
+  const treeContext = useTreeRoot(
+    expandedValues,
+    defaultExpandedValues,
+    onExpandedChange,
+  );
 
   return (
     <TreeContext.Provider value={treeContext}>

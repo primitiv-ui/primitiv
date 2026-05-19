@@ -1,10 +1,25 @@
 import { ComponentProps, ReactNode } from "react";
 
-export type TreeRootProps = ComponentProps<"div"> & {
+type TreeRootBaseProps = ComponentProps<"div"> & {
   children: ReactNode;
+};
+
+type TreeRootUncontrolledExpansionProps = {
   /** Branch values expanded on first render when uncontrolled. */
   defaultExpandedValues?: string[];
+  expandedValues?: never;
+  onExpandedChange?: (values: string[]) => void;
 };
+
+type TreeRootControlledExpansionProps = {
+  defaultExpandedValues?: never;
+  /** The set of expanded branch values, owned by the consumer. */
+  expandedValues: string[];
+  onExpandedChange: (values: string[]) => void;
+};
+
+export type TreeRootProps = TreeRootBaseProps &
+  (TreeRootUncontrolledExpansionProps | TreeRootControlledExpansionProps);
 
 export type TreeItemProps = ComponentProps<"div"> & {
   /** Stable identifier for this item, unique within the tree. */

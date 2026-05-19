@@ -9,11 +9,14 @@ import type { TreeContextValue } from "../types";
  * shared with every branch via `TreeContext`.
  */
 export function useTreeRoot(
+  controlledExpandedValues: string[] | undefined,
   defaultExpandedValues: string[] | undefined,
+  onExpandedChange: ((values: string[]) => void) | undefined,
 ): TreeContextValue {
   const [expandedValues, setExpandedValues] = useControllableState<string[]>(
-    undefined,
+    controlledExpandedValues,
     defaultExpandedValues ?? [],
+    onExpandedChange,
   );
 
   const isExpanded = useCallback(

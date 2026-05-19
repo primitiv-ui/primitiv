@@ -79,6 +79,15 @@ Pass `orientation` to restrict navigation to a single axis:
 A `horizontal` or `vertical` group also reflects the axis to assistive
 technology via `aria-orientation` on the `radiogroup` element.
 
+## Reading direction
+
+Pass `dir` (`"ltr"` / `"rtl"`) to swap the horizontal arrow pair, so
+`ArrowLeft` moves forward and `ArrowRight` moves backward in RTL. The
+vertical pair is never swapped. When `dir` is omitted, it is inherited
+from the nearest [`DirectionProvider`](../DirectionProvider/README.md),
+falling back to `"ltr"` when there is no provider. An explicit `dir` prop
+always wins over the inherited value.
+
 ## Disabled items
 
 Passing `disabled` to a `RadioGroup.Item` forwards the native

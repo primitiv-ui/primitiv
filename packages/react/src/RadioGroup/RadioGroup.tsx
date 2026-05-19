@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 
+import { useDirection } from "../DirectionProvider";
 import { useRovingTabindex } from "../hooks";
 import { Slot, composeEventHandlers, composeRefs } from "../Slot";
 
@@ -39,6 +40,11 @@ import {
  * navigate. Pass `orientation="horizontal"` or `"vertical"` to restrict
  * navigation to a single axis.
  *
+ * **Reading direction.** `dir` (`"ltr"` / `"rtl"`) swaps the horizontal
+ * arrow pair so Arrow Left moves forward in RTL. When omitted, it is
+ * inherited from the nearest {@link DirectionProvider}, falling back to
+ * `"ltr"`.
+ *
  * **`asChild` prop.** Pass `asChild` to render any consumer-supplied
  * element (e.g. `<menu role="menu">` for dropdown composition) with
  * the RadioGroup's props merged in. The native `<div>` is dropped.
@@ -72,10 +78,12 @@ function RadioGroupRoot({
   value: controlledValue,
   onValueChange,
   orientation = "both",
+  dir,
   asChild = false,
   children,
   ...rest
 }: RadioGroupRootProps) {
+  const resolvedDir = dir ?? useDirection();
   const { value, select, registerItem, itemValues, disabledValues, focusItem } =
     useRadioGroupRoot({
       defaultValue,
@@ -91,6 +99,7 @@ function RadioGroupRoot({
       disabledValues,
       focusItem,
       orientation,
+      dir: resolvedDir,
     }),
     [
       value,
@@ -100,11 +109,13 @@ function RadioGroupRoot({
       disabledValues,
       focusItem,
       orientation,
+      resolvedDir,
     ],
   );
   const rootProps = {
     role: "radiogroup" as const,
     "aria-orientation": orientation === "both" ? undefined : orientation,
+    dir: resolvedDir,
     ...rest,
   };
   return (
@@ -170,6 +181,7 @@ function RadioGroupItem({
     disabledValues,
     focusItem,
     orientation,
+    dir,
   } = useRadioGroupContext();
   const isChecked = selectedValue === value;
   const enabledValues = useMemo(
@@ -189,6 +201,7 @@ function RadioGroupItem({
 
   const { handleKeyDown } = useRovingTabindex<string>({
     orientation,
+    dir,
     navigable: enabledValues,
     currentKey: value,
     onNavigate: (target) => {

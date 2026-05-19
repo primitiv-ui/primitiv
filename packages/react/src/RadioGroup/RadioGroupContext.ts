@@ -1,6 +1,6 @@
 import { createStrictContext } from "../utils";
 
-import { RadioGroupOrientation } from "./types";
+import { RadioGroupOrientation, RadioGroupReadingDirection } from "./types";
 
 export type RadioGroupContextValue = {
   value: string | undefined;
@@ -14,6 +14,7 @@ export type RadioGroupContextValue = {
   disabledValues: Set<string>;
   focusItem: (value: string) => void;
   orientation: RadioGroupOrientation;
+  dir: RadioGroupReadingDirection;
 };
 
 export const [RadioGroupContext, useRadioGroupContext] =

@@ -13,6 +13,7 @@ import {
   CheckboxCardExample,
   CollapsibleExample,
   DesignSystemTestExample,
+  DirectionProviderExample,
   DividerExample,
   DropdownExample,
   EmptyStateExample,
@@ -105,6 +106,7 @@ const navGroups: { title: string; links: NavLink[] }[] = [
     title: "Utilities",
     links: [
       { to: "/accessible-icon", label: "Accessible Icon" },
+      { to: "/direction-provider", label: "Direction Provider" },
       { to: "/portal", label: "Portal" },
       { to: "/skip-nav", label: "Skip Nav" },
       { to: "/visually-hidden", label: "Visually Hidden" },
@@ -164,6 +166,10 @@ function App() {
           <Route
             path="/design-system-test"
             element={<DesignSystemTestExample />}
+          />
+          <Route
+            path="/direction-provider"
+            element={<DirectionProviderExample />}
           />
           <Route path="/divider" element={<DividerExample />} />
           <Route path="/dropdown" element={<DropdownExample />} />

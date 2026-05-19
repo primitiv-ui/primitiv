@@ -107,7 +107,7 @@ semantics that CSS alone cannot provide.
 ### Utilities
 
 - [x] Accessible Icon
-- [ ] Direction Provider
+- [x] Direction Provider
 - [ ] Environment Provider
 - [x] Portal
 - [ ] Presence
@@ -144,6 +144,7 @@ component now has a workbench example:
 - [x] Alert
 - [x] Button
 - [x] Checkbox
+- [x] Direction Provider
 - [x] Divider
 - [x] Empty State
 - [x] Portal

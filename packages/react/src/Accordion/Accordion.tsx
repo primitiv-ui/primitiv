@@ -1,5 +1,6 @@
 import { Ref, useEffect } from "react";
 
+import { useDirection } from "../DirectionProvider";
 import { Slot } from "../Slot";
 
 import type {
@@ -45,6 +46,11 @@ import { useAccordionTrigger } from "./hooks/useAccordionTrigger";
  * the rendered container. No `aria-orientation` is emitted because it is not
  * valid on a `<div>` according to the WAI-ARIA spec.
  *
+ * **Reading direction.** `dir` (`"ltr"` / `"rtl"`) sets the arrow-key
+ * direction for horizontal accordions and the container's `dir` attribute.
+ * When omitted, it is inherited from the nearest {@link DirectionProvider},
+ * falling back to `"ltr"` when there is no provider.
+ *
  * @example Uncontrolled — single open item
  * ```tsx
  * <Accordion.Root defaultValue="item-1">
@@ -70,21 +76,22 @@ export function AccordionRoot({
   value: controlledValue,
   onValueChange,
   orientation = "vertical",
-  dir = "ltr",
+  dir,
   ...rest
 }: AccordionRootProps) {
+  const resolvedDir = dir ?? useDirection();
   const { contextValue } = useAccordionRoot(
     controlledValue,
     defaultValue,
     multiple,
     onValueChange,
     orientation,
-    dir,
+    resolvedDir,
   );
 
   return (
     <AccordionContext.Provider value={contextValue}>
-      <div data-orientation={orientation} dir={dir} {...rest}>
+      <div data-orientation={orientation} dir={resolvedDir} {...rest}>
         {children}
       </div>
     </AccordionContext.Provider>

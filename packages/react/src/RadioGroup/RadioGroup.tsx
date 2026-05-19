@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 
+import { useDirection } from "../DirectionProvider";
 import { useRovingTabindex } from "../hooks";
 import { Slot, composeEventHandlers, composeRefs } from "../Slot";
 
@@ -35,6 +36,15 @@ import {
  * **ARIA.** `role="radiogroup"` is set automatically. Provide an
  * accessible name via `aria-label` or `aria-labelledby`.
  *
+ * **Orientation.** By default (`orientation="both"`) all four arrow keys
+ * navigate. Pass `orientation="horizontal"` or `"vertical"` to restrict
+ * navigation to a single axis.
+ *
+ * **Reading direction.** `dir` (`"ltr"` / `"rtl"`) swaps the horizontal
+ * arrow pair so Arrow Left moves forward in RTL. When omitted, it is
+ * inherited from the nearest {@link DirectionProvider}, falling back to
+ * `"ltr"`.
+ *
  * **`asChild` prop.** Pass `asChild` to render any consumer-supplied
  * element (e.g. `<menu role="menu">` for dropdown composition) with
  * the RadioGroup's props merged in. The native `<div>` is dropped.
@@ -67,10 +77,13 @@ function RadioGroupRoot({
   defaultValue,
   value: controlledValue,
   onValueChange,
+  orientation = "both",
+  dir,
   asChild = false,
   children,
   ...rest
 }: RadioGroupRootProps) {
+  const resolvedDir = dir ?? useDirection();
   const { value, select, registerItem, itemValues, disabledValues, focusItem } =
     useRadioGroupRoot({
       defaultValue,
@@ -85,10 +98,26 @@ function RadioGroupRoot({
       itemValues,
       disabledValues,
       focusItem,
+      orientation,
+      dir: resolvedDir,
     }),
-    [value, select, registerItem, itemValues, disabledValues, focusItem],
+    [
+      value,
+      select,
+      registerItem,
+      itemValues,
+      disabledValues,
+      focusItem,
+      orientation,
+      resolvedDir,
+    ],
   );
-  const rootProps = { role: "radiogroup" as const, ...rest };
+  const rootProps = {
+    role: "radiogroup" as const,
+    "aria-orientation": orientation === "both" ? undefined : orientation,
+    dir: resolvedDir,
+    ...rest,
+  };
   return (
     <RadioGroupContext.Provider value={contextValue}>
       {asChild ? (
@@ -108,9 +137,9 @@ RadioGroupRoot.displayName = "RadioGroupRoot";
  * roving tabindex, and handles arrow-key navigation within the group.
  *
  * **Selection.** Clicking an Item (or pressing Space / Enter on the
- * focused Item via native `<button>` behaviour) selects it. Arrow keys
- * (Down/Right/Up/Left) move focus and selection to the next or
- * previous non-disabled Item, wrapping at the ends.
+ * focused Item via native `<button>` behaviour) selects it. The arrow
+ * keys enabled by the group's `orientation` move focus and selection to
+ * the next or previous non-disabled Item, wrapping at the ends.
  *
  * **Roving tabindex.** Only one Item per group is in the document tab
  * sequence at a time: the selected one if any, otherwise the first
@@ -151,6 +180,8 @@ function RadioGroupItem({
     itemValues,
     disabledValues,
     focusItem,
+    orientation,
+    dir,
   } = useRadioGroupContext();
   const isChecked = selectedValue === value;
   const enabledValues = useMemo(
@@ -169,7 +200,8 @@ function RadioGroupItem({
   }, [value, disabled, registerItem]);
 
   const { handleKeyDown } = useRovingTabindex<string>({
-    orientation: "both",
+    orientation,
+    dir,
     navigable: enabledValues,
     currentKey: value,
     onNavigate: (target) => {

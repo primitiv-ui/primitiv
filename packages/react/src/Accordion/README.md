@@ -172,6 +172,11 @@ to invert the arrow-key direction so `ArrowLeft` moves forward and
 </Accordion.Root>
 ```
 
+When `dir` is omitted, it is inherited from the nearest
+[`DirectionProvider`](../DirectionProvider/README.md), falling back to `"ltr"`
+when there is no provider. An explicit `dir` prop always wins over the
+inherited value.
+
 ## Styling hooks
 
 ```css

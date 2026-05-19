@@ -7,16 +7,16 @@ import {
 
 type UseRovingTabindexOptions<K> = {
   /**
-   * Which arrow-key axis is active. `"both"` enables all four arrows
-   * with no RTL inversion (used by patterns like RadioGroup whose ARIA
-   * contract treats every arrow as "next/prev"). `"horizontal"` and
-   * `"vertical"` follow the usual orientation conventions; only
-   * horizontal respects {@link UseRovingTabindexOptions.dir}.
+   * Which arrow-key axis is active. `"horizontal"` enables Arrow
+   * Left/Right, `"vertical"` enables Arrow Up/Down, `"both"` enables all
+   * four. {@link UseRovingTabindexOptions.dir} swaps the horizontal pair
+   * under RTL for both `"horizontal"` and `"both"` orientation.
    */
   orientation: "horizontal" | "vertical" | "both";
   /**
-   * Reading direction. Only meaningful for horizontal orientation.
-   * Defaults to `"ltr"`.
+   * Reading direction. When `"rtl"`, swaps the horizontal arrow pair —
+   * meaningful for `"horizontal"` and `"both"` orientation. Defaults to
+   * `"ltr"`.
    */
   dir?: "ltr" | "rtl";
   /**

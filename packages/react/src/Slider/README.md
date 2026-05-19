@@ -40,7 +40,7 @@ supported.
 | `step` | `number` | `1` | Granularity. Must be greater than `0`. |
 | `minStepsBetweenThumbs` | `number` | `0` | Minimum gap (in steps) kept between adjacent thumbs. |
 | `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | Layout axis. |
-| `dir` | `"ltr" \| "rtl"` | `"ltr"` | Reading direction (horizontal). |
+| `dir` | `"ltr" \| "rtl"` | inherited | Reading direction (horizontal). Inherited from `DirectionProvider`, else `"ltr"`. |
 | `inverted` | `boolean` | `false` | Reverse the direction the value increases. |
 | `disabled` | `boolean` | `false` | Disable all interaction. |
 | `name` | `string` | — | Render hidden inputs for form submission. |
@@ -120,6 +120,11 @@ the Y axis to the value and thumbs are positioned from the bottom edge.
 `dir="rtl"` flips a horizontal slider so the value increases leftwards.
 `inverted` reverses the direction the value increases on either axis. Both
 affect keyboard arrows, pointer mapping, and the inline positioning styles.
+
+When `dir` is omitted, it is inherited from the nearest
+[`DirectionProvider`](../DirectionProvider/README.md), falling back to `"ltr"`
+when there is no provider. An explicit `dir` prop always wins over the
+inherited value.
 
 ## Disabled
 

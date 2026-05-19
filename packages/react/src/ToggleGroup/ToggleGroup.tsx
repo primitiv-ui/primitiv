@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 
+import { useDirection } from "../DirectionProvider";
 import { useRovingTabindex } from "../hooks";
 import { Slot, composeEventHandlers, composeRefs } from "../Slot";
 
@@ -35,6 +36,11 @@ import { ToggleGroupItemProps, ToggleGroupRootProps } from "./types";
  * **Styling hooks.** `data-orientation="horizontal" | "vertical"` on the
  * root. Each item: `data-state="on" | "off"`, `data-disabled=""`.
  *
+ * **Reading direction.** `dir` (`"ltr"` / `"rtl"`) sets the arrow-key
+ * direction for horizontal groups. When omitted, it is inherited from the
+ * nearest {@link DirectionProvider}, falling back to `"ltr"` when there is
+ * no provider.
+ *
  * **`asChild` prop.** Pass `asChild` to render any consumer-supplied
  * element in place of the native `<div>`, with the group's `role`,
  * `data-orientation`, and ref merged in.
@@ -62,12 +68,13 @@ function ToggleGroupRoot({
   value: controlledValue,
   onValueChange,
   orientation = "horizontal",
-  dir = "ltr",
+  dir,
   asChild = false,
   children,
   ref,
   ...rest
 }: ToggleGroupRootProps) {
+  const resolvedDir = dir ?? useDirection();
   const {
     value,
     toggle,
@@ -83,7 +90,7 @@ function ToggleGroupRoot({
     value: controlledValue,
     onValueChange,
     orientation,
-    dir,
+    dir: resolvedDir,
   });
 
   const contextValue = useMemo(
@@ -97,7 +104,7 @@ function ToggleGroupRoot({
       focusedValue,
       setFocusedValue,
       orientation,
-      dir,
+      dir: resolvedDir,
     }),
     [
       value,
@@ -109,7 +116,7 @@ function ToggleGroupRoot({
       focusedValue,
       setFocusedValue,
       orientation,
-      dir,
+      resolvedDir,
     ],
   );
 

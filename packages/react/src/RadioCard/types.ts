@@ -1,9 +1,21 @@
 import { ComponentProps, ReactNode, Ref } from "react";
 
+/**
+ * Which arrow keys navigate the group. `"both"` (default) accepts all
+ * four; `"horizontal"` only Arrow Left/Right; `"vertical"` only Arrow
+ * Up/Down.
+ */
+export type RadioCardOrientation = "horizontal" | "vertical" | "both";
+
+/** Reading direction — swaps the horizontal arrow pair when `"rtl"`. */
+export type RadioCardReadingDirection = "ltr" | "rtl";
+
 type RadioCardRootBaseProps = Omit<ComponentProps<"div">, "role"> & {
   children?: ReactNode;
   ref?: Ref<HTMLDivElement>;
   asChild?: boolean;
+  orientation?: RadioCardOrientation;
+  dir?: RadioCardReadingDirection;
 };
 
 type RadioCardRootUncontrolledProps = RadioCardRootBaseProps & {

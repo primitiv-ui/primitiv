@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
+import { DirectionProvider } from "../../DirectionProvider";
 import { Accordion } from "../Accordion";
 
 describe("Accordion reading direction tests", () => {
@@ -95,5 +96,44 @@ describe("Accordion reading direction tests", () => {
 
     // Assert
     expect(trigger1).toHaveFocus();
+  });
+
+  it("should inherit reading direction from a DirectionProvider", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(
+      <DirectionProvider dir="rtl">
+        <Accordion.Root data-testid="accordion" orientation="horizontal">
+          <Accordion.Item>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Content>Content</Accordion.Content>
+          </Accordion.Item>
+          <Accordion.Item>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 2</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Content>Content</Accordion.Content>
+          </Accordion.Item>
+          <Accordion.Item>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 3</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Content>Content</Accordion.Content>
+          </Accordion.Item>
+        </Accordion.Root>
+      </DirectionProvider>,
+    );
+
+    // Assert — provider direction reaches both the DOM and the keyboard
+    expect(screen.getByTestId("accordion")).toHaveAttribute("dir", "rtl");
+
+    // Act — in RTL, "forward" is ArrowLeft
+    await user.tab();
+    await user.keyboard("[ArrowLeft]");
+
+    // Assert
+    expect(screen.getByRole("button", { name: "Trigger 2" })).toHaveFocus();
   });
 });

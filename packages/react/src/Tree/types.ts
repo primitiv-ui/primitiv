@@ -135,6 +135,8 @@ export type TreeSelectModifiers = {
 };
 
 export type TreeContextValue = {
+  /** Stable id shared across the tree, used to derive ARIA wiring ids. */
+  rootId: string;
   selectionMode: SelectionMode;
   isExpanded: (value: string) => boolean;
   toggleExpanded: (value: string, next?: boolean) => void;
@@ -153,4 +155,6 @@ export type TreeItemContextValue = {
   value: string;
   expanded: boolean;
   disabled: boolean;
+  /** DOM `id` of the branch's `BranchControl`, for `aria-labelledby`. */
+  controlId: string;
 };

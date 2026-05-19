@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useId, useRef, useState } from "react";
 
 import { useCollection, useControllableState } from "../../hooks";
 
@@ -35,6 +35,8 @@ function singleToArray(value: string | null | undefined): string[] | undefined {
  * Shift+click range selection.
  */
 export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
+  const rootId = useId();
+
   const [expandedValues, setExpandedValues] = useControllableState<string[]>(
     options.expandedValues,
     options.defaultExpandedValues ?? [],
@@ -213,6 +215,7 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
       : defaultTabStop;
 
   return {
+    rootId,
     selectionMode: options.selectionMode,
     isExpanded,
     toggleExpanded,

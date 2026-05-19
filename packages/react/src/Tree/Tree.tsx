@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from "react";
 
 import { Slot, composeEventHandlers } from "../Slot";
+import { deriveId } from "../utils";
 
 import {
   TreeContext,
@@ -63,6 +64,7 @@ export function TreeRoot(props: TreeRootProps) {
         <div
           role="tree"
           aria-multiselectable={selectionMode === "multiple" ? true : undefined}
+          data-selection-mode={selectionMode}
           {...rest}
         >
           {children}
@@ -118,6 +120,8 @@ export function TreeItem({
     "aria-selected": selected,
     "aria-disabled": disabled || undefined,
     "data-depth": depth,
+    "data-leaf": "",
+    "data-selected": selected ? "" : undefined,
     "data-disabled": disabled ? "" : undefined,
     tabIndex: isTabStop ? 0 : -1,
     onClick: composeEventHandlers(onClick, (event) => {
@@ -153,8 +157,14 @@ export function TreeBranch({
   ...rest
 }: TreeBranchProps) {
   const { depth, parentValue } = useTreeLevelContext();
-  const { isExpanded, isSelected, registerNode, tabStop, setActiveValue } =
-    useTreeContext();
+  const {
+    rootId,
+    isExpanded,
+    isSelected,
+    registerNode,
+    tabStop,
+    setActiveValue,
+  } = useTreeContext();
   const { control, content } = partitionBranchChildren(children);
   const expanded = isExpanded(value);
   const selected = isSelected(value);
@@ -163,6 +173,7 @@ export function TreeBranch({
     (content.props as { forceMount?: boolean }).forceMount === true;
   const isTabStop = tabStop === value;
   const ref = useRef<HTMLDivElement>(null);
+  const controlId = deriveId(rootId, "branch-control", value);
   const handleRovingKeyDown = useTreeItemKeyboard(value, {
     isBranch: true,
     parentValue,
@@ -185,7 +196,9 @@ export function TreeBranch({
   }, [value, depth, parentValue, disabled, registerNode]);
 
   return (
-    <TreeItemContext.Provider value={{ value, expanded, disabled }}>
+    <TreeItemContext.Provider
+      value={{ value, expanded, disabled, controlId }}
+    >
       <div
         ref={ref}
         role="treeitem"
@@ -193,7 +206,11 @@ export function TreeBranch({
         aria-expanded={expanded}
         aria-selected={selected}
         aria-disabled={disabled || undefined}
+        aria-labelledby={controlId}
         data-depth={depth}
+        data-branch=""
+        data-state={expanded ? "open" : "closed"}
+        data-selected={selected ? "" : undefined}
         data-disabled={disabled ? "" : undefined}
         tabIndex={isTabStop ? 0 : -1}
         onFocus={composeEventHandlers(onFocus, () => setActiveValue(value))}
@@ -215,10 +232,11 @@ export function TreeBranchControl({
   onClick,
   ...rest
 }: TreeBranchControlProps) {
-  const { value, disabled } = useTreeItemContext();
+  const { value, disabled, controlId } = useTreeItemContext();
   const { toggleExpanded, select } = useTreeContext();
 
   const controlProps = {
+    id: controlId,
     onClick: composeEventHandlers(onClick, (event) => {
       if (disabled) {
         return;

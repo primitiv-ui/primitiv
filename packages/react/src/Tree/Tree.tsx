@@ -88,7 +88,10 @@ export function TreeItem({
   const selected = isSelected(value);
   const isTabStop = tabStop === value;
   const ref = useRef<HTMLDivElement>(null);
-  const handleRovingKeyDown = useTreeItemKeyboard(value);
+  const handleRovingKeyDown = useTreeItemKeyboard(value, {
+    isBranch: false,
+    parentValue,
+  });
 
   useLayoutEffect(() => {
     if (!ref.current) {
@@ -148,7 +151,10 @@ export function TreeBranch({
     (content.props as { forceMount?: boolean }).forceMount === true;
   const isTabStop = tabStop === value;
   const ref = useRef<HTMLDivElement>(null);
-  const handleRovingKeyDown = useTreeItemKeyboard(value);
+  const handleRovingKeyDown = useTreeItemKeyboard(value, {
+    isBranch: true,
+    parentValue,
+  });
 
   useLayoutEffect(() => {
     if (!ref.current) {

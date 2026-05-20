@@ -39,11 +39,12 @@ the React tree to figure out where they are.
 | Export                  | Role                  | Notes                                                                                                                                            |
 | ----------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `Tree.Root`             | State owner           | Owns expansion + selection, the collection, and the roving tabstop. `role="tree"`, `data-selection-mode`, `aria-multiselectable` in multiple mode |
-| `Tree.Item`             | Leaf treeitem         | `role="treeitem"`. Supports `disabled`, `asChild`                                                                                                |
-| `Tree.Branch`           | Branch treeitem       | `role="treeitem"` containing the control row and (when expanded) the content group. Supports `disabled`                                          |
+| `Tree.Item`             | Leaf treeitem         | `role="treeitem"`. Supports `label`, `disabled`, `asChild`                                                                                       |
+| `Tree.Branch`           | Branch treeitem       | `role="treeitem"` containing the control row and (when expanded) the content group. Supports `label`, `disabled`                                 |
 | `Tree.BranchControl`    | Branch row            | The clickable row inside a `Branch`. Click toggles expansion **and** selects. Supports `asChild`                                                  |
 | `Tree.BranchContent`    | Branch group          | `role="group"`. Mount/unmount with the branch, or stay mounted via `forceMount` for CSS animation                                                  |
 | `Tree.BranchIndicator`  | Chevron / glyph       | Decorative `aria-hidden` span with `data-state="open"|"closed"`                                                                                  |
+| `Tree.SelectionPath`    | Selection breadcrumbs | Renders one breadcrumb trail per currently-selected value. See [Selection path](#selection-path)                                                  |
 
 ## State model
 
@@ -155,7 +156,10 @@ The component ships **no CSS**. Style with the data attributes:
 | `data-branch=""`                     | `Branch`                               | Marks a branch treeitem                                |
 | `data-state="open|closed"`           | `Branch`, `BranchContent`, indicators | Branch expansion state                                  |
 | `data-selected=""`                   | `Item`, `Branch`                       | Set when the treeitem is selected                       |
-| `data-disabled=""`                   | `Item`, `Branch`                       | Set when the treeitem is disabled                       |
+| `data-disabled=""`                   | `Item`, `Branch`, segments             | Set when the treeitem (or breadcrumb segment) is disabled |
+| `data-tree-selection-path=""`        | `SelectionPath` wrapper                | Identifies the breadcrumb trail container               |
+| `data-empty=""`                      | `SelectionPath` wrapper                | Set when no item is selected                            |
+| `data-tree-selection-segment=""`     | `SelectionPath` segments               | One per crumb in the trail; carries `data-value`        |
 
 Indentation, guide lines, focus rings, and the chevron rotation are
 the consumer's job. The `data-depth` attribute combined with modern
@@ -212,6 +216,103 @@ styles.
 >   padding-inline-start: calc(var(--tree-indent, 0) * 1.25rem + 0.5rem);
 > }
 > ```
+
+## Selection path
+
+`Tree.Item` and `Tree.Branch` accept an optional `label` prop. It does
+**not** affect what's rendered for the row — the children still do —
+but it is stored alongside the value in Tree's node registry so the
+tree can surface a human-readable breadcrumb trail of the current
+selection.
+
+```tsx
+<Tree.Branch value="src" label="src">
+  <Tree.BranchControl>📁 src</Tree.BranchControl>
+  <Tree.BranchContent>
+    <Tree.Item value="index" label="index.ts">📄 index.ts</Tree.Item>
+  </Tree.BranchContent>
+</Tree.Branch>
+```
+
+### `Tree.SelectionPath`
+
+The out-of-box subcomponent renders one breadcrumb trail per
+currently-selected value, composing the package's `Breadcrumb`
+primitive: a `<nav aria-label="Breadcrumb"><ol>` per path, with
+non-final segments as plain `<li>` text and the leaf as a
+`Breadcrumb.Page` (`aria-current="page"`). Segments without a
+`label` prop fall back to their `value`.
+
+```tsx
+import { Tree } from "@primitiv/react";
+import { ChevronRight } from "@primitiv/icons";
+
+<Tree.Root defaultSelectedValue="index">
+  …
+  <Tree.SelectionPath separator={<ChevronRight />} />
+</Tree.Root>;
+```
+
+When no item is selected, the wrapper still renders with
+`data-empty=""` so consumers can style a placeholder (e.g. an em-dash
+via `::before`) without scoping the path bar conditionally.
+
+For full control over the markup — wiring router links, custom
+ordering, or grouping multiple selections — pass a function as
+`children`. It receives the resolved paths and replaces the default
+rendering entirely:
+
+```tsx
+<Tree.SelectionPath>
+  {({ paths }) =>
+    paths.map((path, i) => (
+      <Breadcrumb.Root key={i}>
+        <Breadcrumb.List>
+          {path.map((seg) => (
+            <Breadcrumb.Item key={seg.value}>
+              <Breadcrumb.Link asChild>
+                <RouterLink to={`/files/${seg.value}`}>
+                  {seg.label ?? seg.value}
+                </RouterLink>
+              </Breadcrumb.Link>
+            </Breadcrumb.Item>
+          ))}
+        </Breadcrumb.List>
+      </Breadcrumb.Root>
+    ))
+  }
+</Tree.SelectionPath>
+```
+
+### `useTreePath` / `useTreeSelectionPaths`
+
+For UIs that don't fit the breadcrumb shape, two hooks expose the raw
+path data:
+
+```ts
+import { useTreePath, useTreeSelectionPaths } from "@primitiv/react";
+
+const path = useTreePath(value);          // root → leaf for one value
+const paths = useTreeSelectionPaths();    // one path per selected value, in selection order
+```
+
+Both return arrays of `TreePathSegment`:
+
+```ts
+type TreePathSegment = {
+  value: string;
+  label: string | null;     // falls back to `null` when no `label` prop was supplied
+  isBranch: boolean;
+  disabled: boolean;
+  depth: number;
+};
+```
+
+Paths survive a branch collapsing without `forceMount`: Tree keeps a
+durable copy of every node's metadata so ancestry remains resolvable
+even after descendants unmount. A value that has never mounted (e.g.
+a pre-selected item whose branch has not yet opened) returns an empty
+array.
 
 ## Disabled items
 

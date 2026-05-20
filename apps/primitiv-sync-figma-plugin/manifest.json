@@ -6,7 +6,7 @@
   "editorType": ["figma"],
   "documentAccess": "dynamic-page",
   "networkAccess": {
-    "allowedDomains": ["http://127.0.0.1:4477"],
+    "allowedDomains": ["http://localhost:4477"],
     "reasoning": "Lets the plugin POST exported tokens to the local Primitiv tokens dev server."
   }
 }

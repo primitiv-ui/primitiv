@@ -59,54 +59,38 @@
   user-select: none;
 }
 
-.tree-example__row {
+/*
+ * Indentation is dynamic in depth: every treeitem reads its own
+ * data-depth via the advanced `attr()` syntax and exposes the result
+ * to its row as a CSS custom property. Because padding lives on the
+ * row (not the treeitem itself), nested treeitems don't compound
+ * their parent's indent — each row indents purely by its own depth.
+ */
+.tree-example [role="treeitem"] {
+  --tree-example-indent: calc(
+    attr(data-depth type(<integer>), 0) * 1.25rem
+  );
+}
+
+.tree-example [role="treeitem"] > .tree-example__row {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.25rem 0.5rem;
+  padding-block: 0.25rem;
+  padding-inline-start: calc(var(--tree-example-indent) + 0.5rem);
+  padding-inline-end: 0.5rem;
   border-radius: 4px;
   cursor: pointer;
   outline: none;
-
-  &:hover {
-    background: var(--color-surface-2, rgba(0, 0, 0, 0.04));
-  }
-
-  &:focus-visible {
-    box-shadow: 0 0 0 2px var(--color-focus, #4f8bff);
-  }
 }
 
-/* Indentation driven purely by data-depth attribute selectors. Each
-   leaf or branch row owns an empty inline "indent" element whose
-   width is selected based on its enclosing treeitem's depth. */
-.tree-example [role="treeitem"][data-depth="0"] > .tree-example__row > .tree-example__indent,
-.tree-example [role="treeitem"][data-depth="0"] .tree-example__indent {
-  width: 0;
-}
-.tree-example [role="treeitem"][data-depth="1"] > .tree-example__row > .tree-example__indent,
-.tree-example [role="treeitem"][data-depth="1"] .tree-example__indent {
-  width: 1rem;
-}
-.tree-example [role="treeitem"][data-depth="2"] > .tree-example__row > .tree-example__indent,
-.tree-example [role="treeitem"][data-depth="2"] .tree-example__indent {
-  width: 2rem;
-}
-.tree-example [role="treeitem"][data-depth="3"] > .tree-example__row > .tree-example__indent,
-.tree-example [role="treeitem"][data-depth="3"] .tree-example__indent {
-  width: 3rem;
+.tree-example [role="treeitem"] > .tree-example__row:hover {
+  background: var(--color-surface-2, rgba(0, 0, 0, 0.04));
 }
 
-.tree-example__indent {
-  flex: 0 0 auto;
-  align-self: stretch;
-  border-inline-start: 1px dashed transparent;
-}
-
-/* Draw a soft vertical guide for nested rows. */
-.tree-example [role="treeitem"]:not([data-depth="0"]) > .tree-example__row > .tree-example__indent,
-.tree-example [role="treeitem"]:not([data-depth="0"]) .tree-example__indent {
-  border-inline-start-color: var(--color-border, rgba(0, 0, 0, 0.12));
+.tree-example [role="treeitem"]:focus-visible > .tree-example__row,
+.tree-example [role="treeitem"] > .tree-example__row:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-focus, #4f8bff);
 }
 
 .tree-example__chevron {
@@ -118,11 +102,11 @@
   transform: rotate(90deg);
 }
 
-/* Leaf rows are flat — pad the chevron slot so glyphs align. */
-.tree-example [role="treeitem"][data-leaf] > .tree-example__row::before {
-  content: "";
+/* Leaf rows reserve a chevron-sized slot so glyphs line up with branches. */
+.tree-example__chevron-slot {
   display: inline-block;
   width: 1em;
+  flex: 0 0 auto;
 }
 
 .tree-example [role="treeitem"][data-selected] > .tree-example__row {

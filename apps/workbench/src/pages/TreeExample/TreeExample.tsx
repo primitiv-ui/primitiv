@@ -72,15 +72,16 @@ export function TreeExample() {
 function renderProject() {
   return (
     <>
-      <Tree.Item value="readme" className="tree-example__row">
-        <span className="tree-example__indent" aria-hidden="true" />
-        <span className="tree-example__glyph">📄</span>
-        readme.md
+      <Tree.Item value="readme">
+        <div className="tree-example__row">
+          <span className="tree-example__chevron-slot" aria-hidden="true" />
+          <span className="tree-example__glyph">📄</span>
+          readme.md
+        </div>
       </Tree.Item>
 
       <Tree.Branch value="src">
         <Tree.BranchControl className="tree-example__row">
-          <span className="tree-example__indent" aria-hidden="true" />
           <Tree.BranchIndicator className="tree-example__chevron">
             ▸
           </Tree.BranchIndicator>
@@ -88,15 +89,16 @@ function renderProject() {
           src
         </Tree.BranchControl>
         <Tree.BranchContent>
-          <Tree.Item value="index" className="tree-example__row">
-            <span className="tree-example__indent" aria-hidden="true" />
-            <span className="tree-example__glyph">📄</span>
-            index.ts
+          <Tree.Item value="index">
+            <div className="tree-example__row">
+              <span className="tree-example__chevron-slot" aria-hidden="true" />
+              <span className="tree-example__glyph">📄</span>
+              index.ts
+            </div>
           </Tree.Item>
 
           <Tree.Branch value="components">
             <Tree.BranchControl className="tree-example__row">
-              <span className="tree-example__indent" aria-hidden="true" />
               <Tree.BranchIndicator className="tree-example__chevron">
                 ▸
               </Tree.BranchIndicator>
@@ -104,39 +106,51 @@ function renderProject() {
               components
             </Tree.BranchControl>
             <Tree.BranchContent>
-              <Tree.Item value="button" className="tree-example__row">
-                <span className="tree-example__indent" aria-hidden="true" />
-                <span className="tree-example__glyph">📄</span>
-                button.tsx
+              <Tree.Item value="button">
+                <div className="tree-example__row">
+                  <span
+                    className="tree-example__chevron-slot"
+                    aria-hidden="true"
+                  />
+                  <span className="tree-example__glyph">📄</span>
+                  button.tsx
+                </div>
               </Tree.Item>
-              <Tree.Item value="dialog" className="tree-example__row">
-                <span className="tree-example__indent" aria-hidden="true" />
-                <span className="tree-example__glyph">📄</span>
-                dialog.tsx
+              <Tree.Item value="dialog">
+                <div className="tree-example__row">
+                  <span
+                    className="tree-example__chevron-slot"
+                    aria-hidden="true"
+                  />
+                  <span className="tree-example__glyph">📄</span>
+                  dialog.tsx
+                </div>
               </Tree.Item>
-              <Tree.Item
-                value="legacy"
-                disabled
-                className="tree-example__row"
-              >
-                <span className="tree-example__indent" aria-hidden="true" />
-                <span className="tree-example__glyph">📄</span>
-                legacy.tsx (disabled)
+              <Tree.Item value="legacy" disabled>
+                <div className="tree-example__row">
+                  <span
+                    className="tree-example__chevron-slot"
+                    aria-hidden="true"
+                  />
+                  <span className="tree-example__glyph">📄</span>
+                  legacy.tsx (disabled)
+                </div>
               </Tree.Item>
             </Tree.BranchContent>
           </Tree.Branch>
 
-          <Tree.Item value="utils" className="tree-example__row">
-            <span className="tree-example__indent" aria-hidden="true" />
-            <span className="tree-example__glyph">📄</span>
-            utils.ts
+          <Tree.Item value="utils">
+            <div className="tree-example__row">
+              <span className="tree-example__chevron-slot" aria-hidden="true" />
+              <span className="tree-example__glyph">📄</span>
+              utils.ts
+            </div>
           </Tree.Item>
         </Tree.BranchContent>
       </Tree.Branch>
 
       <Tree.Branch value="docs">
         <Tree.BranchControl className="tree-example__row">
-          <span className="tree-example__indent" aria-hidden="true" />
           <Tree.BranchIndicator className="tree-example__chevron">
             ▸
           </Tree.BranchIndicator>
@@ -144,18 +158,22 @@ function renderProject() {
           docs
         </Tree.BranchControl>
         <Tree.BranchContent>
-          <Tree.Item value="guides" className="tree-example__row">
-            <span className="tree-example__indent" aria-hidden="true" />
-            <span className="tree-example__glyph">📄</span>
-            guides.md
+          <Tree.Item value="guides">
+            <div className="tree-example__row">
+              <span className="tree-example__chevron-slot" aria-hidden="true" />
+              <span className="tree-example__glyph">📄</span>
+              guides.md
+            </div>
           </Tree.Item>
         </Tree.BranchContent>
       </Tree.Branch>
 
-      <Tree.Item value="pkg" className="tree-example__row">
-        <span className="tree-example__indent" aria-hidden="true" />
-        <span className="tree-example__glyph">📦</span>
-        package.json
+      <Tree.Item value="pkg">
+        <div className="tree-example__row">
+          <span className="tree-example__chevron-slot" aria-hidden="true" />
+          <span className="tree-example__glyph">📦</span>
+          package.json
+        </div>
       </Tree.Item>
     </>
   );

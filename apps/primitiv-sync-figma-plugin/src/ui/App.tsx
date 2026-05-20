@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import type {
   CollectionSummary,
+  MigrationPlan,
   SandboxMessage,
   UiMessage,
   VariableSummary,
@@ -62,6 +63,9 @@ export function App() {
   const [dtcgFiles, setDtcgFiles] = useState<DtcgFiles | null>(null);
   const [liveSync, setLiveSync] = useState(false);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({ kind: "idle" });
+  const [migrationPlan, setMigrationPlan] = useState<MigrationPlan | null>(
+    null,
+  );
   const liveSyncRef = useRef(false);
 
   useEffect(() => {
@@ -89,6 +93,8 @@ export function App() {
               setSyncStatus({ kind: "error", message: String(error) }),
             );
         }
+      } else if (message?.type === "migrate-preview-result") {
+        setMigrationPlan(message.plan);
       }
     }
 
@@ -134,6 +140,12 @@ export function App() {
         </Button>
         <Button
           type="button"
+          onClick={() => postToSandbox({ type: "migrate-preview-request" })}
+        >
+          Plan migration
+        </Button>
+        <Button
+          type="button"
           onClick={() =>
             postToSandbox({ type: "inspect-variables-request" })
           }
@@ -172,6 +184,42 @@ export function App() {
           ))}
         </ul>
       ) : null}
+      {migrationPlan !== null && (
+        <section className="app__migrate">
+          <h2 className="app__migrate-title">
+            Typography → Semantic migration plan
+          </h2>
+          <p>
+            {migrationPlan.semantic.needsCreate
+              ? `Will create a Semantic collection with mode "${migrationPlan.semantic.modeName}".`
+              : `Will reuse the existing Semantic collection.`}
+          </p>
+          <p>
+            {migrationPlan.newVariables.length} new variables will be created
+            under <code>typography/&lt;variant&gt;/</code>.
+          </p>
+          {migrationPlan.deletedCollectionIds.length > 0 && (
+            <p>
+              {migrationPlan.deletedCollectionIds.length} Typography
+              collection
+              {migrationPlan.deletedCollectionIds.length === 1 ? "" : "s"}{" "}
+              will be deleted after references are rebound.
+            </p>
+          )}
+          <details>
+            <summary>
+              Show all {migrationPlan.newVariables.length} new variables
+            </summary>
+            <ul className="app__migrate-list">
+              {migrationPlan.newVariables.map((v) => (
+                <li key={v.name}>
+                  <code>{v.name}</code>
+                </li>
+              ))}
+            </ul>
+          </details>
+        </section>
+      )}
       {inspectResult !== null && (
         <pre className="app__dump">
           {JSON.stringify(inspectResult, null, 2)}

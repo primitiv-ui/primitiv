@@ -80,6 +80,41 @@ body {
   }
 }
 
+.app__migrate {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--figma-color-border, #e5e5e5);
+  border-radius: 4px;
+  font-size: 11px;
+
+  p {
+    margin: 0;
+  }
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+  }
+}
+
+.app__migrate-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.app__migrate-list {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 240px;
+  overflow: auto;
+}
+
 .app__dump {
   margin: 0;
   padding: 8px;

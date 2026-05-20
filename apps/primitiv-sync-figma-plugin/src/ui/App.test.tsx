@@ -321,6 +321,109 @@ describe('App', () => {
     })
   })
 
+  describe('migrate preview', () => {
+    const SAMPLE_PLAN = {
+      semantic: { needsCreate: true, modeName: 'Value' },
+      newVariables: [
+        {
+          name: 'typography/compact/display/xl/font-family',
+          resolvedType: 'STRING' as const,
+          sourceVariableId: 'cv1',
+          sourceCollectionId: 'cc',
+        },
+        {
+          name: 'typography/compact/display/xl/font-size',
+          resolvedType: 'FLOAT' as const,
+          sourceVariableId: 'cv2',
+          sourceCollectionId: 'cc',
+        },
+      ],
+      deletedCollectionIds: ['cc', 'cf', 'cx'],
+    }
+
+    function dispatchPlan(plan: typeof SAMPLE_PLAN): void {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            pluginMessage: { type: 'migrate-preview-result', plan },
+          },
+        }),
+      )
+    }
+
+    it('posts migrate-preview-request when Plan migration is clicked', async () => {
+      const postMessage = vi.spyOn(window.parent, 'postMessage')
+      render(<App />)
+
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Plan migration' }),
+      )
+
+      expect(postMessage).toHaveBeenLastCalledWith(
+        { pluginMessage: { type: 'migrate-preview-request' } },
+        '*',
+      )
+    })
+
+    it('renders the create-or-reuse message and counts when a plan arrives', async () => {
+      render(<App />)
+
+      dispatchPlan(SAMPLE_PLAN)
+
+      expect(
+        await screen.findByText(/Will create a Semantic collection/i),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText(/2 new variables will be created/),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText(/3 Typography collection.*deleted/),
+      ).toBeInTheDocument()
+    })
+
+    it('lists each planned variable name in the preview', async () => {
+      render(<App />)
+
+      dispatchPlan(SAMPLE_PLAN)
+
+      expect(
+        await screen.findByText(
+          'typography/compact/display/xl/font-family',
+        ),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText('typography/compact/display/xl/font-size'),
+      ).toBeInTheDocument()
+    })
+
+    it('uses singular "collection" when exactly one would be deleted', async () => {
+      render(<App />)
+
+      dispatchPlan({ ...SAMPLE_PLAN, deletedCollectionIds: ['cc'] })
+
+      expect(
+        await screen.findByText(/1 Typography collection will be deleted/),
+      ).toBeInTheDocument()
+    })
+
+    it('says it will reuse Semantic when one already exists', async () => {
+      render(<App />)
+
+      dispatchPlan({
+        ...SAMPLE_PLAN,
+        semantic: {
+          needsCreate: false,
+          existingId: 'cs',
+          modeName: 'Value',
+        },
+      })
+
+      expect(
+        await screen.findByText(/Will reuse the existing Semantic/i),
+      ).toBeInTheDocument()
+    })
+  })
+
   it('asks the sandbox to close when the close button is clicked', async () => {
     const postMessage = vi.spyOn(window.parent, 'postMessage')
     render(<App />)

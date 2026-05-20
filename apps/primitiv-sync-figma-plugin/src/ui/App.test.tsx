@@ -45,6 +45,46 @@ describe('App', () => {
     expect(screen.queryByText(/Connected to:/)).not.toBeInTheDocument()
   })
 
+  it('asks the sandbox to inspect variables when the inspect button is clicked', async () => {
+    const postMessage = vi.spyOn(window.parent, 'postMessage')
+    render(<App />)
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Inspect variables' }),
+    )
+
+    expect(postMessage).toHaveBeenLastCalledWith(
+      { pluginMessage: { type: 'inspect-variables-request' } },
+      '*',
+    )
+  })
+
+  it('renders the inspect result returned by the sandbox', async () => {
+    render(<App />)
+
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        data: {
+          pluginMessage: {
+            type: 'inspect-variables-result',
+            collections: [
+              {
+                id: 'c1',
+                name: 'Primitives',
+                modes: [],
+                defaultModeId: '',
+                variableIds: [],
+              },
+            ],
+            variables: [],
+          },
+        },
+      }),
+    )
+
+    expect(await screen.findByText(/"name": "Primitives"/)).toBeInTheDocument()
+  })
+
   it('asks the sandbox to close when the close button is clicked', async () => {
     const postMessage = vi.spyOn(window.parent, 'postMessage')
     render(<App />)

@@ -1,8 +1,18 @@
 import { useEffect, useState } from "react";
 
-import type { SandboxMessage, UiMessage } from "../shared/messages";
+import type {
+  CollectionSummary,
+  SandboxMessage,
+  UiMessage,
+  VariableSummary,
+} from "../shared/messages";
 import { Button } from "@primitiv/react";
 import { Close } from "@primitiv/icons";
+
+type InspectResult = {
+  collections: CollectionSummary[];
+  variables: VariableSummary[];
+};
 
 function postToSandbox(message: UiMessage): void {
   parent.postMessage({ pluginMessage: message }, "*");
@@ -11,18 +21,27 @@ function postToSandbox(message: UiMessage): void {
 /**
  * Sync plugin UI root.
  *
- * Renders the name of the connected Figma page, confirming the message
- * channel from the sandbox is live, plus a Close affordance. The real
- * feature panels (Export, Migrate) land in later cycles.
+ * Renders the name of the connected Figma page plus an "Inspect
+ * variables" smoke command that dumps the local variable collections /
+ * variables coming back from the sandbox. The real Export and Migrate
+ * panels land in later cycles.
  */
 export function App() {
   const [pageName, setPageName] = useState<string | null>(null);
+  const [inspectResult, setInspectResult] = useState<InspectResult | null>(
+    null,
+  );
 
   useEffect(() => {
     function onMessage(event: MessageEvent) {
       const message = event.data?.pluginMessage as SandboxMessage | undefined;
       if (message?.type === "plugin-ready") {
         setPageName(message.pageName);
+      } else if (message?.type === "inspect-variables-result") {
+        setInspectResult({
+          collections: message.collections,
+          variables: message.variables,
+        });
       }
     }
 
@@ -39,14 +58,29 @@ export function App() {
       ) : (
         <p className="app__status">Waiting for Figma…</p>
       )}
-      <Button
-        type="button"
-        className="app__close"
-        onClick={() => postToSandbox({ type: "close" })}
-      >
-        <Close size={16} />
-        Close
-      </Button>
+      <div className="app__actions">
+        <Button
+          type="button"
+          onClick={() =>
+            postToSandbox({ type: "inspect-variables-request" })
+          }
+        >
+          Inspect variables
+        </Button>
+        <Button
+          type="button"
+          className="app__close"
+          onClick={() => postToSandbox({ type: "close" })}
+        >
+          <Close size={16} />
+          Close
+        </Button>
+      </div>
+      {inspectResult !== null && (
+        <pre className="app__dump">
+          {JSON.stringify(inspectResult, null, 2)}
+        </pre>
+      )}
     </main>
   );
 }

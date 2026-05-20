@@ -33,7 +33,26 @@ body {
   color: var(--figma-color-text-secondary, #666666);
 }
 
+.app__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
 .app__close {
   align-self: flex-start;
-  margin-top: 4px;
+}
+
+.app__dump {
+  margin: 0;
+  padding: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  background: var(--figma-color-bg-secondary, #f5f5f5);
+  color: var(--figma-color-text, #1e1e1e);
+  border-radius: 4px;
+  overflow: auto;
+  max-height: 480px;
+  white-space: pre;
 }

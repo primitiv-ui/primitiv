@@ -3,7 +3,7 @@ import { useState } from "react";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { Tree, useTreePath } from "../../Tree";
+import { Tree, useTreePath, useTreeSelectionPaths } from "../../Tree";
 import type { TreePathSegment } from "../../Tree";
 
 function PathProbe({ value }: { value: string }) {
@@ -109,6 +109,68 @@ describe("Tree selection-path tests", () => {
         "button.tsx",
       ]);
     });
+
+    it("should return an empty array for a value never registered in the tree", () => {
+      // Arrange
+      render(
+        <Tree.Root>
+          <Tree.Item value="readme" label="readme.md">
+            readme.md
+          </Tree.Item>
+          <PathProbe value="missing" />
+        </Tree.Root>,
+      );
+
+      // Assert
+      expect(readPath("missing")).toEqual([]);
+    });
+  });
+
+  describe("useTreeSelectionPaths", () => {
+    function SelectionProbe() {
+      const paths = useTreeSelectionPaths();
+      return <pre data-testid="selection">{JSON.stringify(paths)}</pre>;
+    }
+
+    it("should return one path per selected value, in selection order", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      render(
+        <Tree.Root
+          selectionMode="multiple"
+          defaultExpandedValues={["src"]}
+          defaultSelectedValues={["dialog"]}
+        >
+          <Tree.Branch value="src" label="src">
+            <Tree.BranchControl>src</Tree.BranchControl>
+            <Tree.BranchContent>
+              <Tree.Item value="button" label="button.tsx">
+                button.tsx
+              </Tree.Item>
+              <Tree.Item value="dialog" label="dialog.tsx">
+                dialog.tsx
+              </Tree.Item>
+            </Tree.BranchContent>
+          </Tree.Branch>
+          <SelectionProbe />
+        </Tree.Root>,
+      );
+
+      // Act — Ctrl-click button.tsx to append it.
+      await user.keyboard("{Control>}");
+      await user.click(screen.getByText("button.tsx"));
+      await user.keyboard("{/Control}");
+
+      // Assert — selection-order preserved (dialog first, button appended).
+      const paths = JSON.parse(
+        screen.getByTestId("selection").textContent ?? "[]",
+      ) as TreePathSegment[][];
+
+      expect(paths.map((path) => path[path.length - 1].value)).toEqual([
+        "dialog",
+        "button",
+      ]);
+    });
   });
 
   describe("Tree.SelectionPath default rendering", () => {
@@ -128,6 +190,46 @@ describe("Tree selection-path tests", () => {
 
       expect(wrapper).toHaveAttribute("data-empty", "");
       expect(wrapper).not.toContainElement(screen.queryByRole("navigation"));
+    });
+
+    it("should render one Breadcrumb trail per selected value, in selection order, under multi-select mode", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      render(
+        <Tree.Root
+          selectionMode="multiple"
+          defaultExpandedValues={["src"]}
+          defaultSelectedValues={["button"]}
+        >
+          <Tree.Branch value="src" label="src">
+            <Tree.BranchControl>src</Tree.BranchControl>
+            <Tree.BranchContent>
+              <Tree.Item value="button" label="button.tsx">
+                button.tsx
+              </Tree.Item>
+              <Tree.Item value="dialog" label="dialog.tsx">
+                dialog.tsx
+              </Tree.Item>
+            </Tree.BranchContent>
+          </Tree.Branch>
+          <Tree.SelectionPath data-testid="path" />
+        </Tree.Root>,
+      );
+
+      // Act — Ctrl-click `dialog.tsx` to add it to the selection.
+      await user.keyboard("{Control>}");
+      await user.click(screen.getByText("dialog.tsx"));
+      await user.keyboard("{/Control}");
+
+      // Assert
+      const wrapper = screen.getByTestId("path");
+      const trails = within(wrapper).getAllByRole("navigation", {
+        name: "Breadcrumb",
+      });
+
+      expect(trails).toHaveLength(2);
+      expect(trails[0]).toHaveTextContent("button.tsx");
+      expect(trails[1]).toHaveTextContent("dialog.tsx");
     });
 
     it("should render one Breadcrumb trail for a single selected item, with the final segment as the current page", () => {
@@ -164,6 +266,139 @@ describe("Tree selection-path tests", () => {
       // The leaf label is the current page, not a link.
       const current = within(trails[0]).getByText("button.tsx");
       expect(current).toHaveAttribute("aria-current", "page");
+    });
+
+    it("should fall back to the value for segments rendered without a label prop", () => {
+      // Arrange
+      render(
+        <Tree.Root
+          defaultExpandedValues={["src"]}
+          defaultSelectedValue="button"
+        >
+          <Tree.Branch value="src">
+            <Tree.BranchControl>src</Tree.BranchControl>
+            <Tree.BranchContent>
+              <Tree.Item value="button">button.tsx</Tree.Item>
+            </Tree.BranchContent>
+          </Tree.Branch>
+          <Tree.SelectionPath data-testid="path" />
+        </Tree.Root>,
+      );
+
+      // Assert
+      const wrapper = screen.getByTestId("path");
+      const trail = within(wrapper).getByRole("navigation", {
+        name: "Breadcrumb",
+      });
+
+      // Both labels were omitted, so the rendering falls back to value.
+      expect(within(trail).getByText("src")).toBeInTheDocument();
+      expect(within(trail).getByText("button")).toBeInTheDocument();
+    });
+
+    it("should bypass default rendering when children is a function and pass the resolved paths", () => {
+      // Arrange
+      render(
+        <Tree.Root
+          defaultExpandedValues={["src"]}
+          defaultSelectedValue="button"
+        >
+          <Tree.Branch value="src" label="src">
+            <Tree.BranchControl>src</Tree.BranchControl>
+            <Tree.BranchContent>
+              <Tree.Item value="button" label="button.tsx">
+                button.tsx
+              </Tree.Item>
+            </Tree.BranchContent>
+          </Tree.Branch>
+          <Tree.SelectionPath data-testid="path">
+            {({ paths }) => (
+              <ul data-testid="custom">
+                {paths[0]?.map((segment) => (
+                  <li key={segment.value} data-value={segment.value}>
+                    {segment.label}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Tree.SelectionPath>
+        </Tree.Root>,
+      );
+
+      // Assert — default Breadcrumb markup is replaced by the render-prop output.
+      const wrapper = screen.getByTestId("path");
+      expect(
+        within(wrapper).queryByRole("navigation", { name: "Breadcrumb" }),
+      ).not.toBeInTheDocument();
+
+      const items = within(screen.getByTestId("custom")).getAllByRole(
+        "listitem",
+      );
+      expect(items.map((node) => node.getAttribute("data-value"))).toEqual([
+        "src",
+        "button",
+      ]);
+    });
+
+    it("should mark disabled segments with data-disabled in both the leaf and ancestor positions", () => {
+      // Arrange — both the branch and the leaf are disabled.
+      render(
+        <Tree.Root
+          defaultExpandedValues={["legacy"]}
+          defaultSelectedValue="old-button"
+        >
+          <Tree.Branch value="legacy" label="legacy" disabled>
+            <Tree.BranchControl>legacy</Tree.BranchControl>
+            <Tree.BranchContent>
+              <Tree.Item value="old-button" label="old-button.tsx" disabled>
+                old-button.tsx
+              </Tree.Item>
+            </Tree.BranchContent>
+          </Tree.Branch>
+          <Tree.SelectionPath data-testid="path" />
+        </Tree.Root>,
+      );
+
+      // Assert
+      const wrapper = screen.getByTestId("path");
+      const segments = within(wrapper).getAllByText(/legacy|old-button\.tsx/);
+
+      for (const segment of segments) {
+        expect(segment).toHaveAttribute("data-disabled", "");
+      }
+    });
+
+    it("should pass the separator prop to every Breadcrumb.Separator in each trail", () => {
+      // Arrange
+      render(
+        <Tree.Root
+          defaultExpandedValues={["src", "components"]}
+          defaultSelectedValue="button"
+        >
+          <Tree.Branch value="src" label="src">
+            <Tree.BranchControl>src</Tree.BranchControl>
+            <Tree.BranchContent>
+              <Tree.Branch value="components" label="components">
+                <Tree.BranchControl>components</Tree.BranchControl>
+                <Tree.BranchContent>
+                  <Tree.Item value="button" label="button.tsx">
+                    button.tsx
+                  </Tree.Item>
+                </Tree.BranchContent>
+              </Tree.Branch>
+            </Tree.BranchContent>
+          </Tree.Branch>
+          <Tree.SelectionPath
+            data-testid="path"
+            separator={<span data-testid="sep">»</span>}
+          />
+        </Tree.Root>,
+      );
+
+      // Assert
+      const seps = within(screen.getByTestId("path")).getAllByTestId("sep");
+      // 3-segment path → 2 separators.
+      expect(seps).toHaveLength(2);
     });
   });
 });

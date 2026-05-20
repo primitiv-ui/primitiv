@@ -9,6 +9,7 @@
     "test:full": "pnpm test:rust && pnpm build:wasm && pnpm test:e2e",
     "dev": "pnpm --filter workbench dev",
     "dev:plugin": "pnpm --filter harmoni-figma-plugin dev",
+    "dev:sync-plugin": "pnpm --filter primitiv-sync-figma-plugin dev",
     "install:all": "pnpm install && pnpm run build:wasm"
   },
   "devDependencies": {

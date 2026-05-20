@@ -1,0 +1,11 @@
+# Build output Figma loads
+dist
+
+# Dependencies
+node_modules
+
+# Test / coverage
+coverage
+
+# Local overrides
+*.local

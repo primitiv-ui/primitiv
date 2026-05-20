@@ -1,0 +1,12 @@
+{
+  "name": "Primitiv Sync",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "dist/index.html",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": ["http://127.0.0.1:4477"],
+    "reasoning": "Lets the plugin POST exported tokens to the local Primitiv tokens dev server."
+  }
+}

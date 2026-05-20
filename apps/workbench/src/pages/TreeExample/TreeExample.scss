@@ -29,28 +29,27 @@
 .tree-example__panel {
   display: flex;
   flex-direction: column;
-
-  /* Remove the tree's bottom border and bottom corners so the path
-     bar attaches flush, forming one continuous bordered block. */
-  .tree-example__tree {
-    border-bottom: none;
-    border-radius: 8px 8px 0 0;
-  }
 }
 
 .tree-example__path-bar {
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
+  margin-top: 0.5rem;
   padding: 0.35rem 0.75rem;
-  border: 1px solid var(--color-border, #ddd);
-  border-radius: 0 0 8px 8px;
+  border-top: 1px solid var(--color-border, #ddd);
   background: var(--color-surface-2, #f0f0f0);
   font-family: ui-monospace, monospace;
   font-size: 0.8rem;
   color: var(--color-text, #111);
   min-height: 2rem;
   justify-content: center;
+
+  &[data-empty]::before {
+    content: "—";
+    color: var(--color-text-muted, #aaa);
+    font-style: italic;
+  }
 
   nav {
     display: contents;
@@ -72,7 +71,7 @@
   }
 
   /* ancestor segments */
-  span:not([aria-current]) {
+  [data-tree-selection-segment]:not([aria-current]) {
     color: var(--color-text-muted, #777);
   }
 
@@ -92,11 +91,6 @@
       height: 0.75rem;
     }
   }
-}
-
-.tree-example__path-bar-empty {
-  color: var(--color-text-muted, #aaa);
-  font-style: italic;
 }
 
 .tree-example__modes {

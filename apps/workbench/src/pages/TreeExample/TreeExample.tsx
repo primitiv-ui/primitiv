@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { Tree } from "@primitiv/react";
-import { ChevronRight } from "@primitiv/icons";
+import { ChevronRight, File } from "@primitiv/icons";
 
 import "./TreeExample.scss";
 
@@ -65,15 +65,17 @@ export function TreeExample() {
           <Tree.Item value="readme" label="readme.md">
             <div className="tree-example__row">
               <span className="tree-example__chevron-slot" aria-hidden="true" />
-              <span className="tree-example__glyph">📄</span>
+              <span className="tree-example__glyph">
+                <File size={14} />
+              </span>
               readme.md
             </div>
           </Tree.Item>
 
           <Tree.Branch value="src" label="src">
             <Tree.BranchControl className="tree-example__row">
-              <Tree.BranchIndicator className="tree-example__chevron">
-                ▸
+              <Tree.BranchIndicator className="tree-example__chevron" asChild>
+                <ChevronRight size={14} />
               </Tree.BranchIndicator>
               <span className="tree-example__glyph">📁</span>
               src
@@ -85,15 +87,20 @@ export function TreeExample() {
                     className="tree-example__chevron-slot"
                     aria-hidden="true"
                   />
-                  <span className="tree-example__glyph">📄</span>
+                  <span className="tree-example__glyph">
+                    <File size={14} />
+                  </span>
                   index.ts
                 </div>
               </Tree.Item>
 
               <Tree.Branch value="components" label="components">
                 <Tree.BranchControl className="tree-example__row">
-                  <Tree.BranchIndicator className="tree-example__chevron">
-                    ▸
+                  <Tree.BranchIndicator
+                    className="tree-example__chevron"
+                    asChild
+                  >
+                    <ChevronRight size={14} />
                   </Tree.BranchIndicator>
                   <span className="tree-example__glyph">📁</span>
                   components
@@ -105,7 +112,9 @@ export function TreeExample() {
                         className="tree-example__chevron-slot"
                         aria-hidden="true"
                       />
-                      <span className="tree-example__glyph">📄</span>
+                      <span className="tree-example__glyph">
+                        <File size={14} />
+                      </span>
                       button.tsx
                     </div>
                   </Tree.Item>
@@ -115,7 +124,9 @@ export function TreeExample() {
                         className="tree-example__chevron-slot"
                         aria-hidden="true"
                       />
-                      <span className="tree-example__glyph">📄</span>
+                      <span className="tree-example__glyph">
+                        <File size={14} />
+                      </span>
                       dialog.tsx
                     </div>
                   </Tree.Item>
@@ -125,7 +136,9 @@ export function TreeExample() {
                         className="tree-example__chevron-slot"
                         aria-hidden="true"
                       />
-                      <span className="tree-example__glyph">📄</span>
+                      <span className="tree-example__glyph">
+                        <File size={14} />
+                      </span>
                       legacy.tsx (disabled)
                     </div>
                   </Tree.Item>
@@ -138,7 +151,9 @@ export function TreeExample() {
                     className="tree-example__chevron-slot"
                     aria-hidden="true"
                   />
-                  <span className="tree-example__glyph">📄</span>
+                  <span className="tree-example__glyph">
+                    <File size={14} />
+                  </span>
                   utils.ts
                 </div>
               </Tree.Item>
@@ -147,8 +162,8 @@ export function TreeExample() {
 
           <Tree.Branch value="docs" label="docs">
             <Tree.BranchControl className="tree-example__row">
-              <Tree.BranchIndicator className="tree-example__chevron">
-                ▸
+              <Tree.BranchIndicator className="tree-example__chevron" asChild>
+                <ChevronRight size={14} />
               </Tree.BranchIndicator>
               <span className="tree-example__glyph">📁</span>
               docs
@@ -160,7 +175,9 @@ export function TreeExample() {
                     className="tree-example__chevron-slot"
                     aria-hidden="true"
                   />
-                  <span className="tree-example__glyph">📄</span>
+                  <span className="tree-example__glyph">
+                    <File size={14} />
+                  </span>
                   guides.md
                 </div>
               </Tree.Item>

@@ -163,6 +163,15 @@ CSS (`attr(data-depth type(<integer>))` or `[data-depth="N"]`
 selectors) is enough to drive an indented hierarchy without inline
 styles.
 
+> **Browser support note.** Reading a typed attribute through
+> `attr(data-depth type(<integer>))` inside `calc()` requires Chrome
+> 133+ or Safari 18.2+. Firefox does not yet ship the advanced
+> `attr()` syntax — it will fall back to the default value supplied
+> as the second argument (or `0` if omitted). For consumers who need
+> to support Firefox today, either enumerate per-depth rules
+> (`[data-depth="0"]…[data-depth="N"]`) or set a CSS variable
+> inline from the render layer.
+
 ## Disabled items
 
 Pass `disabled` on an `Item` or `Branch` to render `aria-disabled` and

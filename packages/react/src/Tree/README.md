@@ -167,10 +167,51 @@ styles.
 > `attr(data-depth type(<integer>))` inside `calc()` requires Chrome
 > 133+ or Safari 18.2+. Firefox does not yet ship the advanced
 > `attr()` syntax — it will fall back to the default value supplied
-> as the second argument (or `0` if omitted). For consumers who need
-> to support Firefox today, either enumerate per-depth rules
-> (`[data-depth="0"]…[data-depth="N"]`) or set a CSS variable
-> inline from the render layer.
+> as the second argument (or `0` if omitted). Two cross-browser
+> workarounds:
+>
+> **1. Enumerate per-depth rules** — pick a sensible cap for your UI
+> and write one selector per level:
+>
+> ```css
+> [role="treeitem"][data-depth="0"] > .row { padding-inline-start: 0.5rem; }
+> [role="treeitem"][data-depth="1"] > .row { padding-inline-start: 1.75rem; }
+> [role="treeitem"][data-depth="2"] > .row { padding-inline-start: 3rem; }
+> /* …extend as deep as your tree can go */
+> ```
+>
+> **2. Set a CSS variable inline from the render layer** — the
+> consumer already knows the depth when authoring the tree
+> recursively, so it can be threaded through as a prop:
+>
+> ```tsx
+> function Node({ node, depth }: { node: FileNode; depth: number }) {
+>   const indent = { "--tree-indent": depth } as React.CSSProperties;
+>   if (node.children) {
+>     return (
+>       <Tree.Branch value={node.id}>
+>         <Tree.BranchControl style={indent}>{node.label}</Tree.BranchControl>
+>         <Tree.BranchContent>
+>           {node.children.map((child) => (
+>             <Node key={child.id} node={child} depth={depth + 1} />
+>           ))}
+>         </Tree.BranchContent>
+>       </Tree.Branch>
+>     );
+>   }
+>   return (
+>     <Tree.Item value={node.id} style={indent}>
+>       {node.label}
+>     </Tree.Item>
+>   );
+> }
+> ```
+>
+> ```css
+> [role="treeitem"] > .row {
+>   padding-inline-start: calc(var(--tree-indent, 0) * 1.25rem + 0.5rem);
+> }
+> ```
 
 ## Disabled items
 

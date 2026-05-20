@@ -4,6 +4,7 @@ import type {
   UiMessage,
   VariableSummary,
 } from '../shared/messages'
+import { planMigration } from './migrate'
 
 /** Routes a message received from the plugin UI to its sandbox action. */
 export async function handleUiMessage(message: UiMessage): Promise<void> {
@@ -19,6 +20,13 @@ export async function handleUiMessage(message: UiMessage): Promise<void> {
     case 'export-tokens-request': {
       const data = await extractVariables()
       reply({ type: 'export-tokens-result', ...data })
+      return
+    }
+    case 'migrate-preview-request': {
+      await figma.loadAllPagesAsync()
+      const data = await extractVariables()
+      const plan = planMigration(data)
+      reply({ type: 'migrate-preview-result', plan })
       return
     }
     case 'close':

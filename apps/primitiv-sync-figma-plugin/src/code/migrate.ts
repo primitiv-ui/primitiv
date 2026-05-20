@@ -11,9 +11,12 @@
  * testable.
  */
 
-import type { FigmaResolvedType } from '@primitiv/tokens'
-
-import type { CollectionSummary, VariableSummary } from '../shared/messages'
+import type {
+  CollectionSummary,
+  MigrationPlan,
+  PlannedVariable,
+  VariableSummary,
+} from '../shared/messages'
 
 const SEMANTIC_COLLECTION_NAME = 'Semantic'
 const SEMANTIC_DEFAULT_MODE_NAME = 'Value'
@@ -22,26 +25,6 @@ const TYPOGRAPHY_PATTERN = /^Typography\s*\/\s*(.+)$/
 export interface MigrationInput {
   collections: CollectionSummary[]
   variables: VariableSummary[]
-}
-
-export interface PlannedVariable {
-  /** Target name in the Semantic collection (slash-separated). */
-  name: string
-  resolvedType: FigmaResolvedType
-  /** Variable to copy values from at execute time. */
-  sourceVariableId: string
-  /** Source collection id (used to map mode ids during execution). */
-  sourceCollectionId: string
-}
-
-export interface MigrationPlan {
-  semantic: {
-    needsCreate: boolean
-    existingId?: string
-    modeName: string
-  }
-  newVariables: PlannedVariable[]
-  deletedCollectionIds: string[]
 }
 
 /** Builds a migration plan from a Figma export snapshot. */

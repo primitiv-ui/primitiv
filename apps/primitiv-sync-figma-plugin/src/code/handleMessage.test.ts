@@ -77,6 +77,78 @@ describe('handleUiMessage', () => {
     })
   })
 
+  it('loads all pages and replies with a migration plan on a preview request', async () => {
+    const figmaMock = createFigmaMock()
+    figmaMock.variables.getLocalVariableCollectionsAsync.mockResolvedValue([
+      {
+        id: 'cp',
+        name: 'Primitives',
+        modes: [{ modeId: 'mp', name: 'Value' }],
+        defaultModeId: 'mp',
+        variableIds: ['pv1'],
+        key: 'k',
+        remote: false,
+      },
+      {
+        id: 'cc',
+        name: 'Typography / Compact',
+        modes: [{ modeId: 'mc', name: 'Value' }],
+        defaultModeId: 'mc',
+        variableIds: ['cv1'],
+        key: 'k',
+        remote: false,
+      },
+    ])
+    figmaMock.variables.getLocalVariablesAsync.mockResolvedValue([
+      {
+        id: 'pv1',
+        name: 'font-family/sans',
+        resolvedType: 'STRING',
+        variableCollectionId: 'cp',
+        valuesByMode: { mp: 'Asta Sans' },
+        description: '',
+        key: 'k',
+        remote: false,
+        scopes: ['ALL_SCOPES'],
+      },
+      {
+        id: 'cv1',
+        name: 'display/xl/font-family',
+        resolvedType: 'STRING',
+        variableCollectionId: 'cc',
+        valuesByMode: { mc: { type: 'VARIABLE_ALIAS', id: 'pv1' } },
+        description: '',
+        key: 'k',
+        remote: false,
+        scopes: ['ALL_SCOPES'],
+      },
+    ])
+    vi.stubGlobal('figma', figmaMock)
+
+    await handleUiMessage({ type: 'migrate-preview-request' })
+
+    expect(figmaMock.loadAllPagesAsync).toHaveBeenCalledOnce()
+    expect(figmaMock.ui.postMessage).toHaveBeenCalledWith({
+      type: 'migrate-preview-result',
+      plan: {
+        semantic: {
+          needsCreate: true,
+          existingId: undefined,
+          modeName: 'Value',
+        },
+        newVariables: [
+          {
+            name: 'typography/compact/display/xl/font-family',
+            resolvedType: 'STRING',
+            sourceVariableId: 'cv1',
+            sourceCollectionId: 'cc',
+          },
+        ],
+        deletedCollectionIds: ['cc'],
+      },
+    })
+  })
+
   it('summarises variable collections and variables on an inspect request', async () => {
     const figmaMock = createFigmaMock()
     figmaMock.variables.getLocalVariableCollectionsAsync.mockResolvedValue([

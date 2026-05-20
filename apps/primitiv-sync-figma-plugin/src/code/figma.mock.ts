@@ -9,6 +9,7 @@ export interface FigmaMock {
     postMessage: Mock
     onmessage: ((event: { pluginMessage: unknown }) => void) | null
   }
+  loadAllPagesAsync: Mock
   variables: {
     getLocalVariableCollectionsAsync: Mock
     getLocalVariablesAsync: Mock
@@ -30,6 +31,7 @@ export function createFigmaMock(): FigmaMock {
       postMessage: vi.fn(),
       onmessage: null,
     },
+    loadAllPagesAsync: vi.fn(() => Promise.resolve()),
     variables: {
       getLocalVariableCollectionsAsync: vi.fn(() => Promise.resolve([])),
       getLocalVariablesAsync: vi.fn(() => Promise.resolve([])),

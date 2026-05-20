@@ -12,11 +12,13 @@
     "lint": "tsc --noEmit",
     "qa": "pnpm qa:units",
     "qa:units": "vitest run --coverage",
-    "qa:units:watch": "vitest --coverage"
+    "qa:units:watch": "vitest --coverage",
+    "sync:serve": "tsx src/serve.ts"
   },
   "devDependencies": {
     "@types/node": "^25.5.0",
     "@vitest/coverage-v8": "^4.1.4",
+    "tsx": "^4.19.2",
     "typescript": "~6.0.2",
     "vitest": "^4.1.4"
   }

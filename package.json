@@ -10,6 +10,7 @@
     "dev": "pnpm --filter workbench dev",
     "dev:plugin": "pnpm --filter harmoni-figma-plugin dev",
     "dev:sync-plugin": "pnpm --filter primitiv-sync-figma-plugin dev",
+    "tokens:sync": "pnpm --filter @primitiv/tokens sync:serve",
     "install:all": "pnpm install && pnpm run build:wasm"
   },
   "devDependencies": {

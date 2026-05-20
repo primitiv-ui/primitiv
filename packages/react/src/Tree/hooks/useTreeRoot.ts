@@ -78,10 +78,31 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
     handleSelectedValuesChange,
   );
 
-  const { register: registerNode, itemsRef, keys } = useCollection<
-    string,
-    TreeNodeMeta
-  >();
+  const {
+    register: registerCollectionNode,
+    itemsRef,
+    keys,
+  } = useCollection<string, TreeNodeMeta>();
+
+  // Durable copy of every node meta ever registered. Unlike the
+  // collection above (which deletes on unmount so visible-order /
+  // focus reflect mounted state) this map keeps the last-seen entry
+  // for each value so `getPath` resolves ancestry even when an
+  // ancestor branch has collapsed without `forceMount` and its
+  // descendants have unmounted.
+  const pathMetaRef = useRef<Map<string, TreeNodeMeta>>(new Map());
+  const [pathMetaVersion, setPathMetaVersion] = useState(0);
+
+  const registerNode = useCallback(
+    (value: string, meta: TreeNodeMeta | null) => {
+      if (meta !== null) {
+        pathMetaRef.current.set(value, meta);
+        setPathMetaVersion((current) => current + 1);
+      }
+      registerCollectionNode(value, meta);
+    },
+    [registerCollectionNode],
+  );
 
   const getPath = useCallback(
     (value: string): TreePathSegment[] => {
@@ -89,7 +110,7 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
       let cursor: string | null = value;
       let hops = 0;
       while (cursor !== null && hops < MAX_PATH_DEPTH) {
-        const meta = itemsRef.current.get(cursor);
+        const meta = pathMetaRef.current.get(cursor);
         if (meta === undefined) {
           return [];
         }
@@ -105,9 +126,10 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
       }
       return segments;
     },
-    // `keys` changes when items mount or unmount, so consumers
-    // re-render and re-evaluate `getPath` from the latest `itemsRef`.
-    [itemsRef, keys],
+    // `pathMetaVersion` bumps whenever the persistent map mutates,
+    // forcing context-value identity to change so consumers re-render
+    // and re-evaluate `getPath`.
+    [pathMetaVersion],
   );
 
   const anchorRef = useRef<string | null>(null);

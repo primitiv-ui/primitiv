@@ -1,4 +1,7 @@
+import { useState } from "react";
+
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 import { Tree, useTreePath } from "../../Tree";
 import type { TreePathSegment } from "../../Tree";
@@ -52,6 +55,58 @@ describe("Tree selection-path tests", () => {
         true,
         true,
         false,
+      ]);
+    });
+
+    it("should still resolve the path after an ancestor branch collapses and unmounts its descendants", async () => {
+      // Arrange
+      function Fixture() {
+        const [expanded, setExpanded] = useState<string[]>(["src"]);
+        return (
+          <>
+            <button type="button" onClick={() => setExpanded([])}>
+              collapse
+            </button>
+            <Tree.Root
+              expandedValues={expanded}
+              onExpandedChange={setExpanded}
+            >
+              <Tree.Branch value="src" label="src">
+                <Tree.BranchControl>src</Tree.BranchControl>
+                <Tree.BranchContent>
+                  <Tree.Item value="button" label="button.tsx">
+                    button.tsx
+                  </Tree.Item>
+                </Tree.BranchContent>
+              </Tree.Branch>
+              <PathProbe value="button" />
+            </Tree.Root>
+          </>
+        );
+      }
+
+      const user = userEvent.setup();
+      render(<Fixture />);
+
+      // Sanity: while expanded, the path is fully resolved.
+      expect(readPath("button").map((segment) => segment.value)).toEqual([
+        "src",
+        "button",
+      ]);
+
+      // Act — collapse the branch; its content (and the descendant item)
+      // is unmounted because `forceMount` is not used.
+      await user.click(screen.getByRole("button", { name: "collapse" }));
+
+      // Assert — ancestry is still resolvable from the persisted registry.
+      const path = readPath("button");
+      expect(path.map((segment) => segment.value)).toEqual([
+        "src",
+        "button",
+      ]);
+      expect(path.map((segment) => segment.label)).toEqual([
+        "src",
+        "button.tsx",
       ]);
     });
   });

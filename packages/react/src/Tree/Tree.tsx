@@ -12,7 +12,11 @@ import {
   useTreeItemContext,
   useTreeLevelContext,
 } from "./TreeContext";
-import { useTreeItemKeyboard, useTreeRoot, useTreeSelectionPaths } from "./hooks";
+import {
+  useTreeItemKeyboard,
+  useTreeRoot,
+  useTreeSelectionPaths,
+} from "./hooks";
 import { partitionBranchChildren } from "./utils";
 
 import type {
@@ -270,9 +274,7 @@ export function TreeBranch({
   }, [value, label, depth, parentValue, disabled, registerNode]);
 
   return (
-    <TreeItemContext.Provider
-      value={{ value, expanded, disabled, controlId }}
-    >
+    <TreeItemContext.Provider value={{ value, expanded, disabled, controlId }}>
       <div
         ref={ref}
         role="treeitem"
@@ -389,21 +391,41 @@ TreeBranchContent.displayName = "TreeBranchContent";
  * Renders a `<span aria-hidden="true">` with `data-state="open"` or
  * `"closed"` so a consumer's CSS can rotate or swap the glyph. Only
  * meaningful inside a `Tree.BranchControl`.
+ *
+ * Pass `asChild` to merge the indicator's props — including
+ * `aria-hidden` and `data-state` — onto the supplied child element.
+ * This is useful when passing an icon component that must receive
+ * `data-state` directly rather than inheriting it from a wrapper:
+ *
+ * @example Default (wraps children in a `<span>`)
+ * ```tsx
+ * <Tree.BranchIndicator className="chevron">▸</Tree.BranchIndicator>
+ * ```
+ *
+ * @example asChild (spreads onto the icon element itself)
+ * ```tsx
+ * <Tree.BranchIndicator asChild>
+ *   <ChevronRight className="chevron" />
+ * </Tree.BranchIndicator>
+ * ```
  */
 export function TreeBranchIndicator({
   children,
+  asChild = false,
   ...rest
 }: TreeBranchIndicatorProps) {
   const { expanded } = useTreeItemContext();
 
-  return (
-    <span
-      aria-hidden="true"
-      data-state={expanded ? "open" : "closed"}
-      {...rest}
-    >
-      {children}
-    </span>
+  const indicatorProps = {
+    "aria-hidden": true as const,
+    "data-state": expanded ? "open" : "closed",
+    ...rest,
+  };
+
+  return asChild ? (
+    <Slot {...indicatorProps}>{children}</Slot>
+  ) : (
+    <span {...indicatorProps}>{children}</span>
   );
 }
 
@@ -467,7 +489,9 @@ export function TreeSelectionPath({
 
   let content: React.ReactNode = null;
   if (typeof children === "function") {
-    content = (children as (args: TreeSelectionPathRenderProps) => React.ReactNode)({
+    content = (
+      children as (args: TreeSelectionPathRenderProps) => React.ReactNode
+    )({
       paths,
     });
   } else if (!empty) {

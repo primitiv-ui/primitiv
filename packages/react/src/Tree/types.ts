@@ -122,7 +122,10 @@ export type TreeBranchContentProps = ComponentProps<"div"> & {
   forceMount?: boolean;
 };
 
-export type TreeBranchIndicatorProps = ComponentProps<"span">;
+export type TreeBranchIndicatorProps = ComponentProps<"span"> & {
+  /** Render as the supplied child element instead of `<span>`. */
+  asChild?: boolean;
+};
 
 /** Arguments passed to the `Tree.SelectionPath` render-prop form. */
 export type TreeSelectionPathRenderProps = {
@@ -130,10 +133,7 @@ export type TreeSelectionPathRenderProps = {
   paths: TreePathSegment[][];
 };
 
-export type TreeSelectionPathProps = Omit<
-  ComponentProps<"div">,
-  "children"
-> & {
+export type TreeSelectionPathProps = Omit<ComponentProps<"div">, "children"> & {
   /**
    * Either standard React children (ignored — the subcomponent does its
    * own rendering) or a render-prop receiving the resolved selection

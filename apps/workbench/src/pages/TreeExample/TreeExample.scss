@@ -177,6 +177,7 @@
 .tree-example__chevron {
   display: inline-block;
   width: 1em;
+  transform-origin: center;
   transition: transform 120ms ease;
 }
 .tree-example__chevron[data-state="open"] {

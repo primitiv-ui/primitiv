@@ -36,15 +36,15 @@ the React tree to figure out where they are.
 
 ## Sub-components
 
-| Export                  | Role                  | Notes                                                                                                                                            |
-| ----------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `Tree.Root`             | State owner           | Owns expansion + selection, the collection, and the roving tabstop. `role="tree"`, `data-selection-mode`, `aria-multiselectable` in multiple mode |
-| `Tree.Item`             | Leaf treeitem         | `role="treeitem"`. Supports `label`, `disabled`, `asChild`                                                                                       |
-| `Tree.Branch`           | Branch treeitem       | `role="treeitem"` containing the control row and (when expanded) the content group. Supports `label`, `disabled`                                 |
-| `Tree.BranchControl`    | Branch row            | The clickable row inside a `Branch`. Click toggles expansion **and** selects. Supports `asChild`                                                  |
-| `Tree.BranchContent`    | Branch group          | `role="group"`. Mount/unmount with the branch, or stay mounted via `forceMount` for CSS animation                                                  |
-| `Tree.BranchIndicator`  | Chevron / glyph       | Decorative `aria-hidden` span with `data-state="open"|"closed"`                                                                                  |
-| `Tree.SelectionPath`    | Selection breadcrumbs | Renders one breadcrumb trail per currently-selected value. See [Selection path](#selection-path)                                                  |
+| Export                 | Role                  | Notes                                                                                                                                             |
+| ---------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| `Tree.Root`            | State owner           | Owns expansion + selection, the collection, and the roving tabstop. `role="tree"`, `data-selection-mode`, `aria-multiselectable` in multiple mode |
+| `Tree.Item`            | Leaf treeitem         | `role="treeitem"`. Supports `label`, `disabled`, `asChild`                                                                                        |
+| `Tree.Branch`          | Branch treeitem       | `role="treeitem"` containing the control row and (when expanded) the content group. Supports `label`, `disabled`                                  |
+| `Tree.BranchControl`   | Branch row            | The clickable row inside a `Branch`. Click toggles expansion **and** selects. Supports `asChild`                                                  |
+| `Tree.BranchContent`   | Branch group          | `role="group"`. Mount/unmount with the branch, or stay mounted via `forceMount` for CSS animation                                                 |
+| `Tree.BranchIndicator` | Chevron / glyph       | Decorative `aria-hidden` span with `data-state="open"                                                                                             | "closed"`. Supports `asChild` |
+| `Tree.SelectionPath`   | Selection breadcrumbs | Renders one breadcrumb trail per currently-selected value. See [Selection path](#selection-path)                                                  |
 
 ## State model
 
@@ -91,7 +91,7 @@ In **multiple** mode:
 - Plain click replaces selection with the clicked item.
 - `Ctrl` / `Cmd` + click toggles the item in or out.
 - `Shift` + click selects the contiguous range of visible items
-  between the previous click (the *anchor*) and the clicked item,
+  between the previous click (the _anchor_) and the clicked item,
   skipping disabled items. The anchor stays put across Shift+clicks,
   matching the listbox convention.
 
@@ -122,13 +122,13 @@ The whole tree is a single roving-tabindex widget — exactly one item
 is tabbable at a time. The tabstop follows the last-focused item and
 defaults to the first enabled visible item.
 
-| Key                     | Leaf `Item`             | `Branch`                                                       |
-| ----------------------- | ----------------------- | --------------------------------------------------------------- |
-| `ArrowUp` / `ArrowDown` | Previous / next visible | Previous / next visible                                         |
-| `Home` / `End`          | First / last visible    | First / last visible                                            |
-| `ArrowRight`            | No-op                   | Collapsed: expand. Expanded: focus the first child              |
-| `ArrowLeft`             | Focus the parent branch | Expanded: collapse. Collapsed: focus the parent branch          |
-| `Enter` / `Space`       | Select                  | Toggle expansion **and** select (same as clicking the row)      |
+| Key                     | Leaf `Item`             | `Branch`                                                   |
+| ----------------------- | ----------------------- | ---------------------------------------------------------- |
+| `ArrowUp` / `ArrowDown` | Previous / next visible | Previous / next visible                                    |
+| `Home` / `End`          | First / last visible    | First / last visible                                       |
+| `ArrowRight`            | No-op                   | Collapsed: expand. Expanded: focus the first child         |
+| `ArrowLeft`             | Focus the parent branch | Expanded: collapse. Collapsed: focus the parent branch     |
+| `Enter` / `Space`       | Select                  | Toggle expansion **and** select (same as clicking the row) |
 
 Arrow keys skip disabled items. Home / End and direct focus still land
 on them so they remain discoverable.
@@ -148,18 +148,18 @@ on them so they remain discoverable.
 
 The component ships **no CSS**. Style with the data attributes:
 
-| Attribute                            | Where                                  | Meaning                                                |
-| ------------------------------------ | -------------------------------------- | ------------------------------------------------------ |
-| `data-selection-mode="single|multiple"` | `Root`                              | The active selection mode                              |
-| `data-depth="N"`                     | `Item`, `Branch`, `BranchContent`      | Zero-based nesting depth                               |
-| `data-leaf=""`                       | `Item`                                 | Marks a leaf treeitem                                  |
-| `data-branch=""`                     | `Branch`                               | Marks a branch treeitem                                |
-| `data-state="open|closed"`           | `Branch`, `BranchContent`, indicators | Branch expansion state                                  |
-| `data-selected=""`                   | `Item`, `Branch`                       | Set when the treeitem is selected                       |
-| `data-disabled=""`                   | `Item`, `Branch`, segments             | Set when the treeitem (or breadcrumb segment) is disabled |
-| `data-tree-selection-path=""`        | `SelectionPath` wrapper                | Identifies the breadcrumb trail container               |
-| `data-empty=""`                      | `SelectionPath` wrapper                | Set when no item is selected                            |
-| `data-tree-selection-segment=""`     | `SelectionPath` segments               | One per crumb in the trail; carries `data-value`        |
+| Attribute                        | Where                             | Meaning                                                   |
+| -------------------------------- | --------------------------------- | --------------------------------------------------------- | ------------------------- |
+| `data-selection-mode="single     | multiple"`                        | `Root`                                                    | The active selection mode |
+| `data-depth="N"`                 | `Item`, `Branch`, `BranchContent` | Zero-based nesting depth                                  |
+| `data-leaf=""`                   | `Item`                            | Marks a leaf treeitem                                     |
+| `data-branch=""`                 | `Branch`                          | Marks a branch treeitem                                   |
+| `data-state="open                | closed"`                          | `Branch`, `BranchContent`, indicators                     | Branch expansion state    |
+| `data-selected=""`               | `Item`, `Branch`                  | Set when the treeitem is selected                         |
+| `data-disabled=""`               | `Item`, `Branch`, segments        | Set when the treeitem (or breadcrumb segment) is disabled |
+| `data-tree-selection-path=""`    | `SelectionPath` wrapper           | Identifies the breadcrumb trail container                 |
+| `data-empty=""`                  | `SelectionPath` wrapper           | Set when no item is selected                              |
+| `data-tree-selection-segment=""` | `SelectionPath` segments          | One per crumb in the trail; carries `data-value`          |
 
 Indentation, guide lines, focus rings, and the chevron rotation are
 the consumer's job. The `data-depth` attribute combined with modern
@@ -178,9 +178,15 @@ styles.
 > and write one selector per level:
 >
 > ```css
-> [role="treeitem"][data-depth="0"] > .row { padding-inline-start: 0.5rem; }
-> [role="treeitem"][data-depth="1"] > .row { padding-inline-start: 1.75rem; }
-> [role="treeitem"][data-depth="2"] > .row { padding-inline-start: 3rem; }
+> [role="treeitem"][data-depth="0"] > .row {
+>   padding-inline-start: 0.5rem;
+> }
+> [role="treeitem"][data-depth="1"] > .row {
+>   padding-inline-start: 1.75rem;
+> }
+> [role="treeitem"][data-depth="2"] > .row {
+>   padding-inline-start: 3rem;
+> }
 > /* …extend as deep as your tree can go */
 > ```
 >
@@ -229,7 +235,9 @@ selection.
 <Tree.Branch value="src" label="src">
   <Tree.BranchControl>📁 src</Tree.BranchControl>
   <Tree.BranchContent>
-    <Tree.Item value="index" label="index.ts">📄 index.ts</Tree.Item>
+    <Tree.Item value="index" label="index.ts">
+      📄 index.ts
+    </Tree.Item>
   </Tree.BranchContent>
 </Tree.Branch>
 ```
@@ -292,8 +300,8 @@ path data:
 ```ts
 import { useTreePath, useTreeSelectionPaths } from "@primitiv/react";
 
-const path = useTreePath(value);          // root → leaf for one value
-const paths = useTreeSelectionPaths();    // one path per selected value, in selection order
+const path = useTreePath(value); // root → leaf for one value
+const paths = useTreeSelectionPaths(); // one path per selected value, in selection order
 ```
 
 Both return arrays of `TreePathSegment`:
@@ -301,7 +309,7 @@ Both return arrays of `TreePathSegment`:
 ```ts
 type TreePathSegment = {
   value: string;
-  label: string | null;     // falls back to `null` when no `label` prop was supplied
+  label: string | null; // falls back to `null` when no `label` prop was supplied
   isBranch: boolean;
   disabled: boolean;
   depth: number;

@@ -188,4 +188,106 @@ describe('collectionToDtcg', () => {
       },
     })
   })
+
+  describe('aliases', () => {
+    it('emits a DTCG reference for an alias to another variable in the same collection', () => {
+      const result = collectionToDtcg(PRIMITIVES, [
+        variable({
+          id: 'v1',
+          name: 'font-family/sans',
+          resolvedType: 'STRING',
+          valuesByMode: { m1: 'Asta Sans' },
+        }),
+        variable({
+          id: 'v2',
+          name: 'font-family/default',
+          resolvedType: 'STRING',
+          valuesByMode: { m1: { type: 'VARIABLE_ALIAS', id: 'v1' } },
+        }),
+      ])
+
+      expect(result).toEqual({
+        'font-family': {
+          sans: { $type: 'string', $value: 'Asta Sans' },
+          default: { $type: 'string', $value: '{font-family.sans}' },
+        },
+      })
+    })
+
+    it('preserves the $type of the source variable for an aliased FLOAT', () => {
+      const result = collectionToDtcg(PRIMITIVES, [
+        variable({
+          id: 'v1',
+          name: 'font-size/40',
+          resolvedType: 'FLOAT',
+          valuesByMode: { m1: 40 },
+        }),
+        variable({
+          id: 'v2',
+          name: 'font-size/default',
+          resolvedType: 'FLOAT',
+          valuesByMode: { m1: { type: 'VARIABLE_ALIAS', id: 'v1' } },
+        }),
+      ])
+
+      expect(result['font-size']).toEqual({
+        '40': { $type: 'number', $value: 40 },
+        default: { $type: 'number', $value: '{font-size.40}' },
+      })
+    })
+
+    it('uses the resolver to look up an alias that targets another collection', () => {
+      const resolveAlias = (id: string): string[] => {
+        if (id === 'primitives-v1') return ['font-family', 'sans']
+        throw new Error(`unexpected lookup ${id}`)
+      }
+
+      const compact: FigmaCollection = {
+        id: 'c-typo-compact',
+        name: 'Typography / Compact',
+        modes: [{ modeId: 'm1', name: 'Value' }],
+        defaultModeId: 'm1',
+      }
+
+      const result = collectionToDtcg(
+        compact,
+        [
+          variable({
+            id: 'compact-v1',
+            name: 'display/xl/font-family',
+            resolvedType: 'STRING',
+            variableCollectionId: 'c-typo-compact',
+            valuesByMode: {
+              m1: { type: 'VARIABLE_ALIAS', id: 'primitives-v1' },
+            },
+          }),
+        ],
+        resolveAlias,
+      )
+
+      expect(result).toEqual({
+        display: {
+          xl: {
+            'font-family': {
+              $type: 'string',
+              $value: '{font-family.sans}',
+            },
+          },
+        },
+      })
+    })
+
+    it('throws when an alias points to a variable the resolver cannot find', () => {
+      expect(() =>
+        collectionToDtcg(PRIMITIVES, [
+          variable({
+            id: 'v1',
+            name: 'font-family/default',
+            resolvedType: 'STRING',
+            valuesByMode: { m1: { type: 'VARIABLE_ALIAS', id: 'missing' } },
+          }),
+        ]),
+      ).toThrow(/missing/)
+    })
+  })
 })

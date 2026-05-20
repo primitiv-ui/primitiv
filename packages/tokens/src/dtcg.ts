@@ -19,6 +19,8 @@ export type FigmaResolvedType = 'BOOLEAN' | 'COLOR' | 'FLOAT' | 'STRING'
 
 export type FigmaRgba = { r: number; g: number; b: number; a: number }
 
+export type FigmaAlias = { type: 'VARIABLE_ALIAS'; id: string }
+
 export type FigmaVariable = {
   id: string
   name: string
@@ -38,6 +40,9 @@ export type DtcgToken = {
 
 export type DtcgGroup = { [key: string]: DtcgGroup | DtcgToken }
 
+/** Resolves a Figma variable id to the DTCG path segments of its token. */
+export type AliasResolver = (variableId: string) => string[]
+
 /**
  * Builds a DTCG group from one Figma collection's variables.
  *
@@ -46,10 +51,16 @@ export type DtcgGroup = { [key: string]: DtcgGroup | DtcgToken }
  * nested objects (`font-family/sans` → `{ "font-family": { sans: {…} } }`).
  * Values are read from the collection's `defaultModeId`; multi-mode
  * support is deferred until DTCG token sets land.
+ *
+ * Aliases (`{ type: 'VARIABLE_ALIAS', id }`) become DTCG reference
+ * strings (`{group.sub.name}`). The default resolver looks the target
+ * up within `variables` by id; cross-collection callers pass a custom
+ * resolver that knows about other collections' DTCG path prefixes.
  */
 export function collectionToDtcg(
   collection: FigmaCollection,
   variables: FigmaVariable[],
+  resolveAlias: AliasResolver = defaultResolver(variables),
 ): DtcgGroup {
   const root: DtcgGroup = {}
   const modeId = collection.defaultModeId
@@ -57,23 +68,66 @@ export function collectionToDtcg(
   for (const variable of variables) {
     if (variable.variableCollectionId !== collection.id) continue
     const rawValue = variable.valuesByMode[modeId]
-    const token = buildToken(variable.resolvedType, rawValue)
+    const token = buildToken(variable.resolvedType, rawValue, resolveAlias)
     insertAt(root, variable.name.split('/'), token)
   }
 
   return root
 }
 
-function buildToken(type: FigmaResolvedType, value: unknown): DtcgToken {
+function defaultResolver(variables: FigmaVariable[]): AliasResolver {
+  return (id) => {
+    const target = variables.find((v) => v.id === id)
+    if (!target) {
+      throw new Error(`Alias targets unknown variable: ${id}`)
+    }
+    return target.name.split('/')
+  }
+}
+
+function buildToken(
+  type: FigmaResolvedType,
+  value: unknown,
+  resolveAlias: AliasResolver,
+): DtcgToken {
+  const $type = dtcgTypeOf(type)
+  const $value = isAlias(value)
+    ? `{${resolveAlias(value.id).join('.')}}`
+    : dtcgValueOf(type, value)
+  return { $type, $value }
+}
+
+function isAlias(v: unknown): v is FigmaAlias {
+  return (
+    typeof v === 'object' &&
+    v !== null &&
+    (v as { type?: unknown }).type === 'VARIABLE_ALIAS'
+  )
+}
+
+function dtcgTypeOf(type: FigmaResolvedType): DtcgType {
   switch (type) {
     case 'STRING':
-      return { $type: 'string', $value: value as string }
+      return 'string'
     case 'FLOAT':
-      return { $type: 'number', $value: value as number }
+      return 'number'
     case 'BOOLEAN':
-      return { $type: 'boolean', $value: value as boolean }
+      return 'boolean'
     case 'COLOR':
-      return { $type: 'color', $value: rgbaToHex(value as FigmaRgba) }
+      return 'color'
+  }
+}
+
+function dtcgValueOf(type: FigmaResolvedType, value: unknown): DtcgValue {
+  switch (type) {
+    case 'STRING':
+      return value as string
+    case 'FLOAT':
+      return value as number
+    case 'BOOLEAN':
+      return value as boolean
+    case 'COLOR':
+      return rgbaToHex(value as FigmaRgba)
   }
 }
 

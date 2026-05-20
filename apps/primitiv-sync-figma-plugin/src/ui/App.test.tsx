@@ -10,6 +10,17 @@ describe('App', () => {
     expect(screen.getByText('Waiting for Figma…')).toBeInTheDocument()
   })
 
+  it('announces ui-ready to the sandbox once mounted', () => {
+    const postMessage = vi.spyOn(window.parent, 'postMessage')
+
+    render(<App />)
+
+    expect(postMessage).toHaveBeenCalledWith(
+      { pluginMessage: { type: 'ui-ready' } },
+      '*',
+    )
+  })
+
   it('shows the page name announced by the sandbox', async () => {
     render(<App />)
 
@@ -40,7 +51,7 @@ describe('App', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Close' }))
 
-    expect(postMessage).toHaveBeenCalledWith(
+    expect(postMessage).toHaveBeenLastCalledWith(
       { pluginMessage: { type: 'close' } },
       '*',
     )

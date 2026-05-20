@@ -27,6 +27,7 @@ export function App() {
     }
 
     window.addEventListener("message", onMessage);
+    postToSandbox({ type: "ui-ready" });
     return () => window.removeEventListener("message", onMessage);
   }, []);
 

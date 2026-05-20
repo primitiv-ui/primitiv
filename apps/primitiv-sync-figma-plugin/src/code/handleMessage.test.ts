@@ -10,4 +10,17 @@ describe('handleUiMessage', () => {
 
     expect(figmaMock.closePlugin).toHaveBeenCalledOnce()
   })
+
+  it('replies with plugin-ready when the UI announces it is ready', () => {
+    const figmaMock = createFigmaMock()
+    figmaMock.currentPage.name = 'Design Tokens'
+    vi.stubGlobal('figma', figmaMock)
+
+    handleUiMessage({ type: 'ui-ready' })
+
+    expect(figmaMock.ui.postMessage).toHaveBeenCalledWith({
+      type: 'plugin-ready',
+      pageName: 'Design Tokens',
+    })
+  })
 })

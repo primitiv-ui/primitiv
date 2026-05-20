@@ -14,6 +14,6 @@ export type SandboxMessage = {
 }
 
 /** A message posted from the UI back to the sandbox. */
-export type UiMessage = {
-  type: 'close'
-}
+export type UiMessage =
+  | { type: 'ui-ready' }
+  | { type: 'close' }

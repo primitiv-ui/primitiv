@@ -1,0 +1,124 @@
+.tree-example {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 36rem;
+}
+
+.tree-example__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  p {
+    margin: 0;
+    color: var(--color-text-muted, #555);
+    line-height: 1.5;
+  }
+
+  kbd {
+    background: var(--color-surface-2, #eee);
+    border: 1px solid var(--color-border, #ccc);
+    border-radius: 4px;
+    padding: 0 0.3em;
+    font-size: 0.85em;
+    font-family: inherit;
+  }
+}
+
+.tree-example__modes {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  border: 1px solid var(--color-border, #ddd);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.5rem;
+
+  legend {
+    padding: 0 0.5rem;
+    font-size: 0.85em;
+    color: var(--color-text-muted, #666);
+  }
+
+  label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+  }
+}
+
+.tree-example__tree {
+  border: 1px solid var(--color-border, #ddd);
+  border-radius: 8px;
+  padding: 0.5rem 0.25rem;
+  background: var(--color-surface, #fff);
+  font-family: ui-monospace, monospace;
+  font-size: 0.9rem;
+  user-select: none;
+}
+
+/*
+ * Indentation is dynamic in depth: every treeitem reads its own
+ * data-depth via the advanced `attr()` syntax and exposes the result
+ * to its row as a CSS custom property. Because padding lives on the
+ * row (not the treeitem itself), nested treeitems don't compound
+ * their parent's indent — each row indents purely by its own depth.
+ */
+.tree-example [role="treeitem"] {
+  --tree-example-indent: calc(
+    attr(data-depth type(<integer>), 0) * 1.25rem
+  );
+}
+
+.tree-example [role="treeitem"] > .tree-example__row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding-block: 0.25rem;
+  padding-inline-start: calc(var(--tree-example-indent) + 0.5rem);
+  padding-inline-end: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  outline: none;
+}
+
+.tree-example [role="treeitem"] > .tree-example__row:hover {
+  background: var(--color-surface-2, rgba(0, 0, 0, 0.04));
+}
+
+.tree-example [role="treeitem"]:focus-visible > .tree-example__row,
+.tree-example [role="treeitem"] > .tree-example__row:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-focus, #4f8bff);
+}
+
+.tree-example__chevron {
+  display: inline-block;
+  width: 1em;
+  transition: transform 120ms ease;
+}
+.tree-example__chevron[data-state="open"] {
+  transform: rotate(90deg);
+}
+
+/* Leaf rows reserve a chevron-sized slot so glyphs line up with branches. */
+.tree-example__chevron-slot {
+  display: inline-block;
+  width: 1em;
+  flex: 0 0 auto;
+}
+
+.tree-example [role="treeitem"][data-selected] > .tree-example__row {
+  background: var(--color-accent-soft, rgba(79, 139, 255, 0.15));
+  color: var(--color-accent, #2358d3);
+}
+
+.tree-example [role="treeitem"][data-disabled] > .tree-example__row {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tree-example__glyph {
+  flex: 0 0 auto;
+}

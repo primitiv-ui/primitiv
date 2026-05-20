@@ -40,6 +40,16 @@ export type DtcgToken = {
 
 export type DtcgGroup = { [key: string]: DtcgGroup | DtcgToken }
 
+/** The three DTCG files emitted per export. */
+export type DtcgFiles = {
+  primitives: DtcgGroup
+  semantic: DtcgGroup
+  components: DtcgGroup
+}
+
+/** Where a Figma collection lands in the DTCG output. */
+type Routing = { file: keyof DtcgFiles; prefix: string[] }
+
 /** Resolves a Figma variable id to the DTCG path segments of its token. */
 export type AliasResolver = (variableId: string) => string[]
 
@@ -73,6 +83,80 @@ export function collectionToDtcg(
   }
 
   return root
+}
+
+/**
+ * Builds the three DTCG output groups from a whole Figma export.
+ *
+ * Each collection is routed to one of `primitives` / `semantic` /
+ * `components` with an optional path prefix. The Typography variants
+ * (`Typography / Compact` etc.) fold into `semantic.typography.<variant>`
+ * so the output shape stays identical before and after the
+ * Typography → Semantic migration.
+ *
+ * A master alias resolver knows the full DTCG path of every variable in
+ * the payload (prefix + name), so cross-collection aliases produce the
+ * correct reference string even when the source and target live in
+ * different output files.
+ */
+export function figmaVarsToDtcg(
+  collections: FigmaCollection[],
+  variables: FigmaVariable[],
+): DtcgFiles {
+  const files: DtcgFiles = { primitives: {}, semantic: {}, components: {} }
+  const routes = new Map<string, Routing>(
+    collections.map((c) => [c.id, routeCollection(c.name)]),
+  )
+
+  const variablePaths = new Map<string, string[]>()
+  for (const variable of variables) {
+    const routing = routes.get(variable.variableCollectionId)
+    if (!routing) continue
+    variablePaths.set(variable.id, [
+      ...routing.prefix,
+      ...variable.name.split('/'),
+    ])
+  }
+
+  const resolveAlias: AliasResolver = (id) => {
+    const path = variablePaths.get(id)
+    if (!path) {
+      throw new Error(`Alias targets unknown variable: ${id}`)
+    }
+    return path
+  }
+
+  for (const collection of collections) {
+    const routing = routes.get(collection.id)!
+    const group = collectionToDtcg(collection, variables, resolveAlias)
+    mergeIntoPrefix(files[routing.file], routing.prefix, group)
+  }
+
+  return files
+}
+
+function routeCollection(name: string): Routing {
+  if (name === 'Primitives') return { file: 'primitives', prefix: [] }
+  if (name === 'Semantic') return { file: 'semantic', prefix: [] }
+  if (name === 'Components') return { file: 'components', prefix: [] }
+  const typo = name.match(/^Typography\s*\/\s*(.+)$/)
+  if (typo) {
+    return { file: 'semantic', prefix: ['typography', typo[1].toLowerCase()] }
+  }
+  throw new Error(`Unrecognised collection name: ${name}`)
+}
+
+function mergeIntoPrefix(
+  target: DtcgGroup,
+  prefix: string[],
+  source: DtcgGroup,
+): void {
+  let cursor = target
+  for (const key of prefix) {
+    if (cursor[key] === undefined) cursor[key] = {}
+    cursor = cursor[key] as DtcgGroup
+  }
+  Object.assign(cursor, source)
 }
 
 function defaultResolver(variables: FigmaVariable[]): AliasResolver {

@@ -1,4 +1,4 @@
-import { collectionToDtcg } from './dtcg'
+import { collectionToDtcg, figmaVarsToDtcg } from './dtcg'
 import type { FigmaCollection, FigmaVariable } from './dtcg'
 
 const PRIMITIVES: FigmaCollection = {
@@ -289,5 +289,284 @@ describe('collectionToDtcg', () => {
         ]),
       ).toThrow(/missing/)
     })
+  })
+})
+
+describe('figmaVarsToDtcg', () => {
+  const PRIMITIVES_COLL: FigmaCollection = {
+    id: 'cp',
+    name: 'Primitives',
+    modes: [{ modeId: 'mp', name: 'Value' }],
+    defaultModeId: 'mp',
+  }
+  const COMPACT_COLL: FigmaCollection = {
+    id: 'cc',
+    name: 'Typography / Compact',
+    modes: [{ modeId: 'mc', name: 'Value' }],
+    defaultModeId: 'mc',
+  }
+  const COMFORTABLE_COLL: FigmaCollection = {
+    id: 'cf',
+    name: 'Typography / Comfortable',
+    modes: [{ modeId: 'mf', name: 'Value' }],
+    defaultModeId: 'mf',
+  }
+  const COMPONENTS_COLL: FigmaCollection = {
+    id: 'cmp',
+    name: 'Components',
+    modes: [{ modeId: 'mcmp', name: 'Value' }],
+    defaultModeId: 'mcmp',
+  }
+  const SEMANTIC_COLL: FigmaCollection = {
+    id: 'cs',
+    name: 'Semantic',
+    modes: [{ modeId: 'ms', name: 'Value' }],
+    defaultModeId: 'ms',
+  }
+
+  it('returns three empty groups when given no collections', () => {
+    expect(figmaVarsToDtcg([], [])).toEqual({
+      primitives: {},
+      semantic: {},
+      components: {},
+    })
+  })
+
+  it('routes a Primitives variable into primitives without a prefix', () => {
+    const result = figmaVarsToDtcg(
+      [PRIMITIVES_COLL],
+      [
+        {
+          id: 'v1',
+          name: 'font-family/sans',
+          resolvedType: 'STRING',
+          variableCollectionId: 'cp',
+          valuesByMode: { mp: 'Asta Sans' },
+        },
+      ],
+    )
+
+    expect(result.primitives).toEqual({
+      'font-family': { sans: { $type: 'string', $value: 'Asta Sans' } },
+    })
+    expect(result.semantic).toEqual({})
+    expect(result.components).toEqual({})
+  })
+
+  it('routes a Typography / Compact variable into semantic under typography.compact', () => {
+    const result = figmaVarsToDtcg(
+      [COMPACT_COLL],
+      [
+        {
+          id: 'v1',
+          name: 'display/xl/font-size',
+          resolvedType: 'FLOAT',
+          variableCollectionId: 'cc',
+          valuesByMode: { mc: 40 },
+        },
+      ],
+    )
+
+    expect(result.semantic).toEqual({
+      typography: {
+        compact: {
+          display: {
+            xl: { 'font-size': { $type: 'number', $value: 40 } },
+          },
+        },
+      },
+    })
+  })
+
+  it('merges multiple Typography variants under the same typography group', () => {
+    const result = figmaVarsToDtcg(
+      [COMPACT_COLL, COMFORTABLE_COLL],
+      [
+        {
+          id: 'vc',
+          name: 'display/xl/font-size',
+          resolvedType: 'FLOAT',
+          variableCollectionId: 'cc',
+          valuesByMode: { mc: 40 },
+        },
+        {
+          id: 'vf',
+          name: 'display/xl/font-size',
+          resolvedType: 'FLOAT',
+          variableCollectionId: 'cf',
+          valuesByMode: { mf: 48 },
+        },
+      ],
+    )
+
+    expect(result.semantic.typography).toEqual({
+      compact: { display: { xl: { 'font-size': { $type: 'number', $value: 40 } } } },
+      comfortable: { display: { xl: { 'font-size': { $type: 'number', $value: 48 } } } },
+    })
+  })
+
+  it('routes a Components variable into components without a prefix', () => {
+    const result = figmaVarsToDtcg(
+      [COMPONENTS_COLL],
+      [
+        {
+          id: 'v1',
+          name: 'button/padding-x',
+          resolvedType: 'FLOAT',
+          variableCollectionId: 'cmp',
+          valuesByMode: { mcmp: 12 },
+        },
+      ],
+    )
+
+    expect(result.components).toEqual({
+      button: { 'padding-x': { $type: 'number', $value: 12 } },
+    })
+  })
+
+  it('routes a post-migration Semantic collection into semantic without a prefix', () => {
+    const result = figmaVarsToDtcg(
+      [SEMANTIC_COLL],
+      [
+        {
+          id: 'v1',
+          name: 'typography/compact/display/xl/font-size',
+          resolvedType: 'FLOAT',
+          variableCollectionId: 'cs',
+          valuesByMode: { ms: 40 },
+        },
+      ],
+    )
+
+    expect(result.semantic).toEqual({
+      typography: {
+        compact: {
+          display: {
+            xl: { 'font-size': { $type: 'number', $value: 40 } },
+          },
+        },
+      },
+    })
+  })
+
+  it('resolves a cross-collection alias to the target variable\'s full prefixed path', () => {
+    const result = figmaVarsToDtcg(
+      [PRIMITIVES_COLL, COMPACT_COLL],
+      [
+        {
+          id: 'pv1',
+          name: 'font-family/sans',
+          resolvedType: 'STRING',
+          variableCollectionId: 'cp',
+          valuesByMode: { mp: 'Asta Sans' },
+        },
+        {
+          id: 'cv1',
+          name: 'display/xl/font-family',
+          resolvedType: 'STRING',
+          variableCollectionId: 'cc',
+          valuesByMode: { mc: { type: 'VARIABLE_ALIAS', id: 'pv1' } },
+        },
+      ],
+    )
+
+    expect(result.primitives['font-family']).toEqual({
+      sans: { $type: 'string', $value: 'Asta Sans' },
+    })
+    expect(result.semantic.typography).toEqual({
+      compact: {
+        display: {
+          xl: {
+            'font-family': {
+              $type: 'string',
+              $value: '{font-family.sans}',
+            },
+          },
+        },
+      },
+    })
+  })
+
+  it('resolves an alias to a Typography variable using its semantic.* prefixed path', () => {
+    const result = figmaVarsToDtcg(
+      [COMPACT_COLL, COMPONENTS_COLL],
+      [
+        {
+          id: 'cv1',
+          name: 'display/xl/font-size',
+          resolvedType: 'FLOAT',
+          variableCollectionId: 'cc',
+          valuesByMode: { mc: 40 },
+        },
+        {
+          id: 'cmpv1',
+          name: 'hero/font-size',
+          resolvedType: 'FLOAT',
+          variableCollectionId: 'cmp',
+          valuesByMode: { mcmp: { type: 'VARIABLE_ALIAS', id: 'cv1' } },
+        },
+      ],
+    )
+
+    expect(result.components).toEqual({
+      hero: {
+        'font-size': {
+          $type: 'number',
+          $value: '{typography.compact.display.xl.font-size}',
+        },
+      },
+    })
+  })
+
+  it('silently drops variables whose collection is not in the payload', () => {
+    const result = figmaVarsToDtcg(
+      [PRIMITIVES_COLL],
+      [
+        {
+          id: 'orphan',
+          name: 'orphan/token',
+          resolvedType: 'STRING',
+          variableCollectionId: 'missing-coll',
+          valuesByMode: { mp: 'unused' },
+        },
+      ],
+    )
+
+    expect(result).toEqual({ primitives: {}, semantic: {}, components: {} })
+  })
+
+  it('throws when a variable aliases an id not present in the payload', () => {
+    expect(() =>
+      figmaVarsToDtcg(
+        [PRIMITIVES_COLL],
+        [
+          {
+            id: 'pv1',
+            name: 'font-family/default',
+            resolvedType: 'STRING',
+            variableCollectionId: 'cp',
+            valuesByMode: {
+              mp: { type: 'VARIABLE_ALIAS', id: 'missing-id' },
+            },
+          },
+        ],
+      ),
+    ).toThrow(/missing-id/)
+  })
+
+  it('throws for an unrecognised collection name', () => {
+    expect(() =>
+      figmaVarsToDtcg(
+        [
+          {
+            id: 'cx',
+            name: 'Mystery',
+            modes: [{ modeId: 'mx', name: 'Value' }],
+            defaultModeId: 'mx',
+          },
+        ],
+        [],
+      ),
+    ).toThrow(/Mystery/)
   })
 })

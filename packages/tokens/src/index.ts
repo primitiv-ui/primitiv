@@ -1,6 +1,7 @@
-export { collectionToDtcg } from './dtcg'
+export { collectionToDtcg, figmaVarsToDtcg } from './dtcg'
 export type {
   AliasResolver,
+  DtcgFiles,
   DtcgGroup,
   DtcgToken,
   DtcgType,

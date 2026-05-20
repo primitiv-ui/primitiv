@@ -74,6 +74,13 @@ export type TreeRootProps = TreeRootBaseProps &
 export type TreeItemProps = ComponentProps<"div"> & {
   /** Stable identifier for this item, unique within the tree. */
   value: string;
+  /**
+   * Optional display label for this item. Stored alongside the value
+   * in the tree's node registry so {@link useTreePath} and
+   * `Tree.SelectionPath` can surface it without an external lookup.
+   * Has no effect on what `Tree.Item` renders.
+   */
+  label?: string;
   /** Disable selection and remove the item from roving navigation. */
   disabled?: boolean;
   /** Render the item as the supplied child element instead of `<div>`. */
@@ -84,6 +91,13 @@ export type TreeItemProps = ComponentProps<"div"> & {
 export type TreeBranchProps = Omit<ComponentProps<"div">, "ref"> & {
   /** Stable identifier for this branch, unique within the tree. */
   value: string;
+  /**
+   * Optional display label for this branch. Stored alongside the value
+   * in the tree's node registry so {@link useTreePath} and
+   * `Tree.SelectionPath` can surface it without an external lookup.
+   * Has no effect on what `Tree.Branch` renders.
+   */
+  label?: string;
   /**
    * Disable selection, expansion-toggling, and roving navigation for
    * this branch. The branch and its current content remain rendered.
@@ -124,6 +138,20 @@ export type TreeNodeMeta = {
   disabled: boolean;
   depth: number;
   parentValue: string | null;
+  label: string | null;
+};
+
+/**
+ * One segment of an ancestor chain returned by {@link useTreePath} or
+ * `TreeContextValue.getPath`. The array is ordered **root → leaf**, so
+ * the last segment is the queried item itself.
+ */
+export type TreePathSegment = {
+  value: string;
+  label: string | null;
+  isBranch: boolean;
+  disabled: boolean;
+  depth: number;
 };
 
 export type SelectionMode = "single" | "multiple";
@@ -149,6 +177,19 @@ export type TreeContextValue = {
   tabStop: string | null;
   setActiveValue: (value: string) => void;
   focusItem: (value: string) => void;
+  /**
+   * Returns the root-to-leaf chain of segments for the given value, or
+   * an empty array if the value has never been registered. Walks the
+   * persistent node registry so paths remain resolvable even when an
+   * ancestor branch has collapsed and its descendants unmounted.
+   */
+  getPath: (value: string) => TreePathSegment[];
+  /**
+   * The currently-selected values in selection order. Mirrors
+   * `selectedValues` in multiple mode and `[selectedValue]` (or `[]`)
+   * in single mode.
+   */
+  selectedOrder: readonly string[];
 };
 
 export type TreeItemContextValue = {

@@ -126,6 +126,7 @@ TreeRoot.displayName = "TreeRoot";
  */
 export function TreeItem({
   value,
+  label,
   disabled = false,
   asChild = false,
   children,
@@ -154,9 +155,10 @@ export function TreeItem({
       disabled,
       depth,
       parentValue,
+      label: label ?? null,
     });
     return () => registerNode(value, null);
-  }, [value, depth, parentValue, disabled, registerNode]);
+  }, [value, label, depth, parentValue, disabled, registerNode]);
 
   const itemProps = {
     ref,
@@ -220,6 +222,7 @@ TreeItem.displayName = "TreeItem";
  */
 export function TreeBranch({
   value,
+  label,
   disabled = false,
   children,
   onFocus,
@@ -258,9 +261,10 @@ export function TreeBranch({
       disabled,
       depth,
       parentValue,
+      label: label ?? null,
     });
     return () => registerNode(value, null);
-  }, [value, depth, parentValue, disabled, registerNode]);
+  }, [value, label, depth, parentValue, disabled, registerNode]);
 
   return (
     <TreeItemContext.Provider

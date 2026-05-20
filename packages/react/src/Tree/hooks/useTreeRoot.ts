@@ -6,8 +6,12 @@ import type {
   SelectionMode,
   TreeContextValue,
   TreeNodeMeta,
+  TreePathSegment,
   TreeSelectModifiers,
 } from "../types";
+
+/** Defensive cap to short-circuit a cycle in `parentValue` pointers. */
+const MAX_PATH_DEPTH = 64;
 
 export type UseTreeRootOptions = {
   expandedValues: string[] | undefined;
@@ -78,6 +82,33 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
     string,
     TreeNodeMeta
   >();
+
+  const getPath = useCallback(
+    (value: string): TreePathSegment[] => {
+      const segments: TreePathSegment[] = [];
+      let cursor: string | null = value;
+      let hops = 0;
+      while (cursor !== null && hops < MAX_PATH_DEPTH) {
+        const meta = itemsRef.current.get(cursor);
+        if (meta === undefined) {
+          return [];
+        }
+        segments.unshift({
+          value: meta.value,
+          label: meta.label,
+          isBranch: meta.isBranch,
+          disabled: meta.disabled,
+          depth: meta.depth,
+        });
+        cursor = meta.parentValue;
+        hops += 1;
+      }
+      return segments;
+    },
+    // `keys` changes when items mount or unmount, so consumers
+    // re-render and re-evaluate `getPath` from the latest `itemsRef`.
+    [itemsRef, keys],
+  );
 
   const anchorRef = useRef<string | null>(null);
   const [activeValue, setActiveValue] = useState<string | null>(null);
@@ -220,5 +251,7 @@ export function useTreeRoot(options: UseTreeRootOptions): TreeContextValue {
     tabStop,
     setActiveValue,
     focusItem,
+    getPath,
+    selectedOrder: selectedValues,
   };
 }

@@ -67,7 +67,7 @@ export function TreeExample() {
             label="readme.md"
             className="tree-example__row"
           >
-            <File size={16} className="tree-example__glyph" />
+            <File size={16} />
             readme.md
           </Tree.Item>
 
@@ -76,7 +76,7 @@ export function TreeExample() {
               <Tree.BranchIndicator className="tree-example__chevron" asChild>
                 <ChevronRight size={16} />
               </Tree.BranchIndicator>
-              <Folder className="tree-example__glyph" size={16} />
+              <Folder size={16} />
               src
             </Tree.BranchControl>
             <Tree.BranchContent forceMount>
@@ -85,7 +85,7 @@ export function TreeExample() {
                 label="index.ts"
                 className="tree-example__row"
               >
-                <File size={16} className="tree-example__glyph" />
+                <File size={16} />
                 index.ts
               </Tree.Item>
 
@@ -97,7 +97,7 @@ export function TreeExample() {
                   >
                     <ChevronRight size={16} />
                   </Tree.BranchIndicator>
-                  <Folder className="tree-example__glyph" size={16} />
+                  <Folder size={16} />
                   components
                 </Tree.BranchControl>
                 <Tree.BranchContent forceMount>
@@ -106,7 +106,7 @@ export function TreeExample() {
                     label="button.tsx"
                     className="tree-example__row"
                   >
-                    <File size={16} className="tree-example__glyph" />
+                    <File size={16} />
                     button.tsx
                   </Tree.Item>
                   <Tree.Item
@@ -114,7 +114,7 @@ export function TreeExample() {
                     label="dialog.tsx"
                     className="tree-example__row"
                   >
-                    <File size={16} className="tree-example__glyph" />
+                    <File size={16} />
                     dialog.tsx
                   </Tree.Item>
                   <Tree.Item
@@ -123,7 +123,7 @@ export function TreeExample() {
                     disabled
                     className="tree-example__row"
                   >
-                    <File size={16} className="tree-example__glyph" />
+                    <File size={16} />
                     legacy.tsx (disabled)
                   </Tree.Item>
                 </Tree.BranchContent>
@@ -134,7 +134,7 @@ export function TreeExample() {
                 label="utils.ts"
                 className="tree-example__row"
               >
-                <File size={16} className="tree-example__glyph" />
+                <File size={16} />
                 utils.ts
               </Tree.Item>
             </Tree.BranchContent>
@@ -145,7 +145,7 @@ export function TreeExample() {
               <Tree.BranchIndicator className="tree-example__chevron" asChild>
                 <ChevronRight size={16} />
               </Tree.BranchIndicator>
-              <Folder className="tree-example__glyph" size={16} />
+              <Folder size={16} />
               docs
             </Tree.BranchControl>
             <Tree.BranchContent forceMount>
@@ -154,7 +154,7 @@ export function TreeExample() {
                 label="guides.md"
                 className="tree-example__row"
               >
-                <File size={16} className="tree-example__glyph" />
+                <File size={16} />
                 guides.md
               </Tree.Item>
             </Tree.BranchContent>
@@ -165,7 +165,7 @@ export function TreeExample() {
             label="package.json"
             className="tree-example__row"
           >
-            <File size={16} className="tree-example__glyph" />
+            <File size={16} />
             package.json
           </Tree.Item>
           <Tree.SelectionPath

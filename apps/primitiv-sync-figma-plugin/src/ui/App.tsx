@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import type {
   CollectionSummary,
@@ -8,29 +8,39 @@ import type {
 } from "../shared/messages";
 import { Button } from "@primitiv/react";
 import { Close } from "@primitiv/icons";
+import { figmaVarsToDtcg } from "@primitiv/tokens";
+import type { DtcgFiles, DtcgGroup } from "@primitiv/tokens";
 
 type InspectResult = {
   collections: CollectionSummary[];
   variables: VariableSummary[];
 };
 
+const DTCG_FILE_NAMES = ["primitives", "semantic", "components"] as const;
+
 function postToSandbox(message: UiMessage): void {
   parent.postMessage({ pluginMessage: message }, "*");
+}
+
+function toDataUri(group: DtcgGroup): string {
+  const json = JSON.stringify(group, null, 2);
+  return `data:application/json;charset=utf-8,${encodeURIComponent(json)}`;
 }
 
 /**
  * Sync plugin UI root.
  *
- * Renders the name of the connected Figma page plus an "Inspect
- * variables" smoke command that dumps the local variable collections /
- * variables coming back from the sandbox. The real Export and Migrate
- * panels land in later cycles.
+ * Owns the connection banner, an Inspect Variables dev affordance that
+ * dumps the raw Figma payload as JSON, and an Export Tokens action that
+ * runs the @primitiv/tokens DTCG transform against a fresh sandbox read
+ * and surfaces the three DTCG files as direct downloads.
  */
 export function App() {
   const [pageName, setPageName] = useState<string | null>(null);
   const [inspectResult, setInspectResult] = useState<InspectResult | null>(
     null,
   );
+  const [dtcgFiles, setDtcgFiles] = useState<DtcgFiles | null>(null);
 
   useEffect(() => {
     function onMessage(event: MessageEvent) {
@@ -42,6 +52,8 @@ export function App() {
           collections: message.collections,
           variables: message.variables,
         });
+      } else if (message?.type === "export-tokens-result") {
+        setDtcgFiles(figmaVarsToDtcg(message.collections, message.variables));
       }
     }
 
@@ -49,6 +61,18 @@ export function App() {
     postToSandbox({ type: "ui-ready" });
     return () => window.removeEventListener("message", onMessage);
   }, []);
+
+  const downloadHrefs = useMemo(
+    () =>
+      dtcgFiles === null
+        ? null
+        : {
+            primitives: toDataUri(dtcgFiles.primitives),
+            semantic: toDataUri(dtcgFiles.semantic),
+            components: toDataUri(dtcgFiles.components),
+          },
+    [dtcgFiles],
+  );
 
   return (
     <main className="app">
@@ -59,6 +83,12 @@ export function App() {
         <p className="app__status">Waiting for Figma…</p>
       )}
       <div className="app__actions">
+        <Button
+          type="button"
+          onClick={() => postToSandbox({ type: "export-tokens-request" })}
+        >
+          Export tokens
+        </Button>
         <Button
           type="button"
           onClick={() =>
@@ -76,6 +106,17 @@ export function App() {
           Close
         </Button>
       </div>
+      {downloadHrefs !== null && (
+        <ul className="app__downloads">
+          {DTCG_FILE_NAMES.map((name) => (
+            <li key={name}>
+              <a href={downloadHrefs[name]} download={`${name}.json`}>
+                {name}.json
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
       {inspectResult !== null && (
         <pre className="app__dump">
           {JSON.stringify(inspectResult, null, 2)}

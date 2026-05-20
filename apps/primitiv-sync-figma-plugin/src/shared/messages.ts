@@ -33,9 +33,15 @@ export type SandboxMessage =
       collections: CollectionSummary[]
       variables: VariableSummary[]
     }
+  | {
+      type: 'export-tokens-result'
+      collections: CollectionSummary[]
+      variables: VariableSummary[]
+    }
 
 /** A message posted from the UI back to the sandbox. */
 export type UiMessage =
   | { type: 'ui-ready' }
   | { type: 'inspect-variables-request' }
+  | { type: 'export-tokens-request' }
   | { type: 'close' }

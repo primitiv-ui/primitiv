@@ -85,6 +85,104 @@ describe('App', () => {
     expect(await screen.findByText(/"name": "Primitives"/)).toBeInTheDocument()
   })
 
+  it('asks the sandbox to export tokens when the export button is clicked', async () => {
+    const postMessage = vi.spyOn(window.parent, 'postMessage')
+    render(<App />)
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Export tokens' }),
+    )
+
+    expect(postMessage).toHaveBeenLastCalledWith(
+      { pluginMessage: { type: 'export-tokens-request' } },
+      '*',
+    )
+  })
+
+  it('renders download links for the three DTCG files after an export reply', async () => {
+    render(<App />)
+
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        data: {
+          pluginMessage: {
+            type: 'export-tokens-result',
+            collections: [
+              {
+                id: 'cp',
+                name: 'Primitives',
+                modes: [{ modeId: 'mp', name: 'Value' }],
+                defaultModeId: 'mp',
+                variableIds: ['v1'],
+              },
+            ],
+            variables: [
+              {
+                id: 'v1',
+                name: 'font-family/sans',
+                resolvedType: 'STRING',
+                variableCollectionId: 'cp',
+                valuesByMode: { mp: 'Asta Sans' },
+              },
+            ],
+          },
+        },
+      }),
+    )
+
+    expect(
+      await screen.findByRole('link', { name: 'primitives.json' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: 'semantic.json' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: 'components.json' }),
+    ).toBeInTheDocument()
+  })
+
+  it('encodes the transformed primitives into the download link', async () => {
+    render(<App />)
+
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        data: {
+          pluginMessage: {
+            type: 'export-tokens-result',
+            collections: [
+              {
+                id: 'cp',
+                name: 'Primitives',
+                modes: [{ modeId: 'mp', name: 'Value' }],
+                defaultModeId: 'mp',
+                variableIds: ['v1'],
+              },
+            ],
+            variables: [
+              {
+                id: 'v1',
+                name: 'font-family/sans',
+                resolvedType: 'STRING',
+                variableCollectionId: 'cp',
+                valuesByMode: { mp: 'Asta Sans' },
+              },
+            ],
+          },
+        },
+      }),
+    )
+
+    const link = (await screen.findByRole('link', {
+      name: 'primitives.json',
+    })) as HTMLAnchorElement
+    expect(link.getAttribute('download')).toBe('primitives.json')
+    expect(link.href).toMatch(/^data:application\/json/)
+    const payload = decodeURIComponent(link.href.split(',')[1])
+    expect(JSON.parse(payload)).toEqual({
+      'font-family': { sans: { $type: 'string', $value: 'Asta Sans' } },
+    })
+  })
+
   it('asks the sandbox to close when the close button is clicked', async () => {
     const postMessage = vi.spyOn(window.parent, 'postMessage')
     render(<App />)

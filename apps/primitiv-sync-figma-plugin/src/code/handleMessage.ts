@@ -12,15 +12,13 @@ export async function handleUiMessage(message: UiMessage): Promise<void> {
       reply({ type: 'plugin-ready', pageName: figma.currentPage.name })
       return
     case 'inspect-variables-request': {
-      const [collections, variables] = await Promise.all([
-        figma.variables.getLocalVariableCollectionsAsync(),
-        figma.variables.getLocalVariablesAsync(),
-      ])
-      reply({
-        type: 'inspect-variables-result',
-        collections: collections.map(summariseCollection),
-        variables: variables.map(summariseVariable),
-      })
+      const data = await extractVariables()
+      reply({ type: 'inspect-variables-result', ...data })
+      return
+    }
+    case 'export-tokens-request': {
+      const data = await extractVariables()
+      reply({ type: 'export-tokens-result', ...data })
       return
     }
     case 'close':
@@ -31,6 +29,20 @@ export async function handleUiMessage(message: UiMessage): Promise<void> {
 
 function reply(message: SandboxMessage): void {
   figma.ui.postMessage(message)
+}
+
+async function extractVariables(): Promise<{
+  collections: CollectionSummary[]
+  variables: VariableSummary[]
+}> {
+  const [collections, variables] = await Promise.all([
+    figma.variables.getLocalVariableCollectionsAsync(),
+    figma.variables.getLocalVariablesAsync(),
+  ])
+  return {
+    collections: collections.map(summariseCollection),
+    variables: variables.map(summariseVariable),
+  }
 }
 
 function summariseCollection(c: VariableCollection): CollectionSummary {

@@ -24,6 +24,59 @@ describe('handleUiMessage', () => {
     })
   })
 
+  it('summarises variable collections and variables on an export request', async () => {
+    const figmaMock = createFigmaMock()
+    figmaMock.variables.getLocalVariableCollectionsAsync.mockResolvedValue([
+      {
+        id: 'cp',
+        name: 'Primitives',
+        modes: [{ modeId: 'mp', name: 'Value' }],
+        defaultModeId: 'mp',
+        variableIds: ['vp1'],
+        key: 'k',
+        remote: false,
+      },
+    ])
+    figmaMock.variables.getLocalVariablesAsync.mockResolvedValue([
+      {
+        id: 'vp1',
+        name: 'font-family/sans',
+        resolvedType: 'STRING',
+        variableCollectionId: 'cp',
+        valuesByMode: { mp: 'Asta Sans' },
+        description: '',
+        key: 'kv',
+        remote: false,
+        scopes: ['ALL_SCOPES'],
+      },
+    ])
+    vi.stubGlobal('figma', figmaMock)
+
+    await handleUiMessage({ type: 'export-tokens-request' })
+
+    expect(figmaMock.ui.postMessage).toHaveBeenCalledWith({
+      type: 'export-tokens-result',
+      collections: [
+        {
+          id: 'cp',
+          name: 'Primitives',
+          modes: [{ modeId: 'mp', name: 'Value' }],
+          defaultModeId: 'mp',
+          variableIds: ['vp1'],
+        },
+      ],
+      variables: [
+        {
+          id: 'vp1',
+          name: 'font-family/sans',
+          resolvedType: 'STRING',
+          variableCollectionId: 'cp',
+          valuesByMode: { mp: 'Asta Sans' },
+        },
+      ],
+    })
+  })
+
   it('summarises variable collections and variables on an inspect request', async () => {
     const figmaMock = createFigmaMock()
     figmaMock.variables.getLocalVariableCollectionsAsync.mockResolvedValue([

@@ -14,6 +14,7 @@
   "dependencies": {
     "@primitiv/react": "workspace:*",
     "@primitiv/icons": "workspace:*",
+    "@primitiv/tokens": "workspace:*",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
   },

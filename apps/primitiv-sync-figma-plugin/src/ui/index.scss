@@ -43,6 +43,20 @@ body {
   align-self: flex-start;
 }
 
+.app__downloads {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  a {
+    color: var(--figma-color-text-brand, #0d99ff);
+    text-decoration: underline;
+  }
+}
+
 .app__dump {
   margin: 0;
   padding: 8px;

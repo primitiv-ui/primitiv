@@ -111,6 +111,9 @@ importers:
       '@primitiv/react':
         specifier: workspace:*
         version: link:../../packages/react
+      '@primitiv/tokens':
+        specifier: workspace:*
+        version: link:../../packages/tokens
       react:
         specifier: ^19.2.5
         version: 19.2.5

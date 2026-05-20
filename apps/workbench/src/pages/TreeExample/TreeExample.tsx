@@ -62,11 +62,13 @@ export function TreeExample() {
           defaultExpandedValues={["src", "components"]}
           {...selectionProps}
         >
-          <Tree.Item value="readme" label="readme.md">
-            <div className="tree-example__row">
-              <File size={16} className="tree-example__glyph" />
-              readme.md
-            </div>
+          <Tree.Item
+            value="readme"
+            label="readme.md"
+            className="tree-example__row"
+          >
+            <File size={16} className="tree-example__glyph" />
+            readme.md
           </Tree.Item>
 
           <Tree.Branch value="src" label="src">
@@ -78,15 +80,13 @@ export function TreeExample() {
               src
             </Tree.BranchControl>
             <Tree.BranchContent forceMount>
-              <Tree.Item value="index" label="index.ts">
-                <div className="tree-example__row">
-                  <span
-                    className="tree-example__chevron-slot"
-                    aria-hidden="true"
-                  />
-                  <File size={16} className="tree-example__glyph" />
-                  index.ts
-                </div>
+              <Tree.Item
+                value="index"
+                label="index.ts"
+                className="tree-example__row"
+              >
+                <File size={16} className="tree-example__glyph" />
+                index.ts
               </Tree.Item>
 
               <Tree.Branch value="components" label="components">
@@ -101,48 +101,41 @@ export function TreeExample() {
                   components
                 </Tree.BranchControl>
                 <Tree.BranchContent forceMount>
-                  <Tree.Item value="button" label="button.tsx">
-                    <div className="tree-example__row">
-                      <span
-                        className="tree-example__chevron-slot"
-                        aria-hidden="true"
-                      />
-                      <File size={16} className="tree-example__glyph" />
-                      button.tsx
-                    </div>
+                  <Tree.Item
+                    value="button"
+                    label="button.tsx"
+                    className="tree-example__row"
+                  >
+                    <File size={16} className="tree-example__glyph" />
+                    button.tsx
                   </Tree.Item>
-                  <Tree.Item value="dialog" label="dialog.tsx">
-                    <div className="tree-example__row">
-                      <span
-                        className="tree-example__chevron-slot"
-                        aria-hidden="true"
-                      />
-                      <File size={16} className="tree-example__glyph" />
-                      dialog.tsx
-                    </div>
+                  <Tree.Item
+                    value="dialog"
+                    label="dialog.tsx"
+                    className="tree-example__row"
+                  >
+                    <File size={16} className="tree-example__glyph" />
+                    dialog.tsx
                   </Tree.Item>
-                  <Tree.Item value="legacy" label="legacy.tsx" disabled>
-                    <div className="tree-example__row">
-                      <span
-                        className="tree-example__chevron-slot"
-                        aria-hidden="true"
-                      />
-                      <File size={16} className="tree-example__glyph" />
-                      legacy.tsx (disabled)
-                    </div>
+                  <Tree.Item
+                    value="legacy"
+                    label="legacy.tsx"
+                    disabled
+                    className="tree-example__row"
+                  >
+                    <File size={16} className="tree-example__glyph" />
+                    legacy.tsx (disabled)
                   </Tree.Item>
                 </Tree.BranchContent>
               </Tree.Branch>
 
-              <Tree.Item value="utils" label="utils.ts">
-                <div className="tree-example__row">
-                  <span
-                    className="tree-example__chevron-slot"
-                    aria-hidden="true"
-                  />
-                  <File size={16} className="tree-example__glyph" />
-                  utils.ts
-                </div>
+              <Tree.Item
+                value="utils"
+                label="utils.ts"
+                className="tree-example__row"
+              >
+                <File size={16} className="tree-example__glyph" />
+                utils.ts
               </Tree.Item>
             </Tree.BranchContent>
           </Tree.Branch>
@@ -156,24 +149,24 @@ export function TreeExample() {
               docs
             </Tree.BranchControl>
             <Tree.BranchContent forceMount>
-              <Tree.Item value="guides" label="guides.md">
-                <div className="tree-example__row">
-                  <span
-                    className="tree-example__chevron-slot"
-                    aria-hidden="true"
-                  />
-                  <File size={16} className="tree-example__glyph" />
-                  guides.md
-                </div>
+              <Tree.Item
+                value="guides"
+                label="guides.md"
+                className="tree-example__row"
+              >
+                <File size={16} className="tree-example__glyph" />
+                guides.md
               </Tree.Item>
             </Tree.BranchContent>
           </Tree.Branch>
 
-          <Tree.Item value="pkg" label="package.json">
-            <div className="tree-example__row">
-              <File size={16} className="tree-example__glyph" />
-              package.json
-            </div>
+          <Tree.Item
+            value="pkg"
+            label="package.json"
+            className="tree-example__row"
+          >
+            <File size={16} className="tree-example__glyph" />
+            package.json
           </Tree.Item>
           <Tree.SelectionPath
             className="tree-example__path-bar"

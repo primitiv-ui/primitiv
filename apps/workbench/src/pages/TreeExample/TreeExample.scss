@@ -143,6 +143,19 @@
 }
 
 /*
+ * Named tokens shared between branch and leaf row layout.
+ *
+ * --tree-row-gap          gap between items inside a row flex container
+ * --tree-row-padding-start base inline-start padding before any indent
+ * --tree-chevron-width    width of the BranchIndicator chevron
+ */
+.tree-example__tree {
+  --tree-row-gap: 0.4rem;
+  --tree-row-padding-start: 0.5rem;
+  --tree-chevron-width: 1em;
+}
+
+/*
  * Indentation is dynamic in depth: every treeitem reads its own
  * data-depth via the advanced `attr()` syntax and exposes the result
  * to its row as a CSS custom property. Because padding lives on the
@@ -153,30 +166,39 @@
   --tree-example-indent: calc(attr(data-depth type(<integer>), 0) * 1.25rem);
 }
 
-.tree-example [role="treeitem"] > .tree-example__row {
+/*
+ * Branch row: .tree-example__row is a direct child of the treeitem (BranchControl).
+ * Leaf row:   .tree-example__row IS the treeitem (class on Tree.Item itself).
+ * Both cases are covered by the combined selector below.
+ */
+.tree-example [role="treeitem"] > .tree-example__row,
+.tree-example [role="treeitem"].tree-example__row {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: var(--tree-row-gap);
   padding-block: 0.25rem;
-  padding-inline-start: calc(var(--tree-example-indent) + 0.5rem);
+  padding-inline-start: calc(
+    var(--tree-example-indent) + var(--tree-row-padding-start)
+  );
   padding-inline-end: 0.5rem;
   border-radius: 4px;
   cursor: pointer;
   outline: none;
 }
 
-.tree-example [role="treeitem"] > .tree-example__row:hover {
+.tree-example [role="treeitem"] > .tree-example__row:hover,
+.tree-example [role="treeitem"].tree-example__row:hover {
   background: var(--color-surface-2, rgba(0, 0, 0, 0.04));
 }
 
 .tree-example [role="treeitem"]:focus-visible > .tree-example__row,
-.tree-example [role="treeitem"] > .tree-example__row:focus-visible {
+.tree-example [role="treeitem"].tree-example__row:focus-visible {
   box-shadow: 0 0 0 2px var(--color-focus, #4f8bff);
 }
 
 .tree-example__chevron {
   display: inline-block;
-  width: 1em;
+  width: var(--tree-chevron-width);
   transform-origin: center;
   transition: transform 120ms ease;
 }
@@ -184,19 +206,23 @@
   transform: rotate(90deg);
 }
 
-/* Leaf rows reserve a chevron-sized slot so glyphs line up with branches. */
-.tree-example__chevron-slot {
-  display: inline-block;
-  width: 1em;
-  flex: 0 0 auto;
+/* Leaf rows add the chevron width + gap to align their glyphs with
+   the folder icons on branch rows — no extra markup needed. */
+.tree-example [role="treeitem"][data-leaf].tree-example__row {
+  padding-inline-start: calc(
+    var(--tree-example-indent) + var(--tree-row-padding-start) +
+      var(--tree-chevron-width) + var(--tree-row-gap)
+  );
 }
 
-.tree-example [role="treeitem"][data-selected] > .tree-example__row {
+.tree-example [role="treeitem"][data-selected] > .tree-example__row,
+.tree-example [role="treeitem"][data-selected].tree-example__row {
   background: var(--color-accent-soft, rgba(79, 139, 255, 0.15));
   color: var(--color-accent, #2358d3);
 }
 
-.tree-example [role="treeitem"][data-disabled] > .tree-example__row {
+.tree-example [role="treeitem"][data-disabled] > .tree-example__row,
+.tree-example [role="treeitem"][data-disabled].tree-example__row {
   opacity: 0.5;
   cursor: not-allowed;
 }

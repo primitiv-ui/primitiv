@@ -183,6 +183,144 @@ describe('App', () => {
     })
   })
 
+  describe('live sync', () => {
+    const PRIMITIVES_PAYLOAD = {
+      type: 'export-tokens-result' as const,
+      collections: [
+        {
+          id: 'cp',
+          name: 'Primitives',
+          modes: [{ modeId: 'mp', name: 'Value' }],
+          defaultModeId: 'mp',
+          variableIds: ['v1'],
+        },
+      ],
+      variables: [
+        {
+          id: 'v1',
+          name: 'font-family/sans',
+          resolvedType: 'STRING' as const,
+          variableCollectionId: 'cp',
+          valuesByMode: { mp: 'Asta Sans' },
+        },
+      ],
+    }
+
+    function dispatchExportResult(): void {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: { pluginMessage: PRIMITIVES_PAYLOAD },
+        }),
+      )
+    }
+
+    it('renders a Live sync toggle that is off by default', () => {
+      render(<App />)
+
+      const toggle = screen.getByRole('checkbox', { name: /Live sync/i })
+      expect(toggle).not.toBeChecked()
+    })
+
+    it('POSTs the DTCG payload to localhost:4477 when live sync is enabled', async () => {
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValue({ ok: true, status: 200 } as Response)
+      vi.stubGlobal('fetch', fetchMock)
+
+      render(<App />)
+      await userEvent.click(
+        screen.getByRole('checkbox', { name: /Live sync/i }),
+      )
+      dispatchExportResult()
+
+      await screen.findByText(/Synced/)
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        'http://localhost:4477/sync',
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      )
+      const body = JSON.parse(
+        (fetchMock.mock.calls[0][1] as { body: string }).body,
+      )
+      expect(body.primitives['font-family'].sans).toEqual({
+        $type: 'string',
+        $value: 'Asta Sans',
+      })
+    })
+
+    it('shows an error status when the sync server responds non-OK', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({ ok: false, status: 500 } as Response),
+      )
+
+      render(<App />)
+      await userEvent.click(
+        screen.getByRole('checkbox', { name: /Live sync/i }),
+      )
+      dispatchExportResult()
+
+      expect(await screen.findByText(/500/)).toBeInTheDocument()
+    })
+
+    it('shows an error status when the sync fetch rejects', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockRejectedValue(new Error('connection refused')),
+      )
+
+      render(<App />)
+      await userEvent.click(
+        screen.getByRole('checkbox', { name: /Live sync/i }),
+      )
+      dispatchExportResult()
+
+      expect(
+        await screen.findByText(/connection refused/),
+      ).toBeInTheDocument()
+    })
+
+    it('shows a Syncing status while the request is in flight', async () => {
+      let resolveFetch: (value: Response) => void = () => {}
+      const fetchPromise = new Promise<Response>((resolve) => {
+        resolveFetch = resolve
+      })
+      vi.stubGlobal('fetch', vi.fn().mockReturnValue(fetchPromise))
+
+      render(<App />)
+      await userEvent.click(
+        screen.getByRole('checkbox', { name: /Live sync/i }),
+      )
+      dispatchExportResult()
+
+      expect(await screen.findByText(/Syncing/)).toBeInTheDocument()
+
+      resolveFetch({ ok: true, status: 200 } as Response)
+      await screen.findByText(/Synced/)
+    })
+
+    it('hides the download links while live sync is enabled', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({ ok: true, status: 200 } as Response),
+      )
+
+      render(<App />)
+      await userEvent.click(
+        screen.getByRole('checkbox', { name: /Live sync/i }),
+      )
+      dispatchExportResult()
+      await screen.findByText(/Synced/)
+
+      expect(
+        screen.queryByRole('link', { name: 'primitives.json' }),
+      ).not.toBeInTheDocument()
+    })
+  })
+
   it('asks the sandbox to close when the close button is clicked', async () => {
     const postMessage = vi.spyOn(window.parent, 'postMessage')
     render(<App />)

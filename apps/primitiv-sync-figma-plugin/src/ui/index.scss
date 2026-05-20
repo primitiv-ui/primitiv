@@ -43,6 +43,29 @@ body {
   align-self: flex-start;
 }
 
+.app__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--figma-color-text-secondary, #666);
+  cursor: pointer;
+}
+
+.app__sync-status {
+  margin: 0;
+  font-size: 11px;
+  color: var(--figma-color-text-secondary, #666);
+
+  &--ok {
+    color: var(--figma-color-text-success, #007a3f);
+  }
+
+  &--err {
+    color: var(--figma-color-text-danger, #c1262d);
+  }
+}
+
 .app__downloads {
   list-style: none;
   margin: 0;

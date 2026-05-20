@@ -7,12 +7,17 @@ import "./TreeExample.scss";
 
 type SelectionMode = "single" | "multiple";
 
+type SelectionProps =
+  | { defaultSelectedValue: string }
+  | { selectionMode: "multiple"; defaultSelectedValues: string[] };
+
 export function TreeExample() {
   const [selectionMode, setSelectionMode] = useState<SelectionMode>("single");
 
-  function handleModeChange(mode: SelectionMode) {
-    setSelectionMode(mode);
-  }
+  const selectionProps: SelectionProps =
+    selectionMode === "single"
+      ? { defaultSelectedValue: "readme" }
+      : { selectionMode: "multiple", defaultSelectedValues: ["readme"] };
 
   return (
     <section className="tree-example">
@@ -34,7 +39,7 @@ export function TreeExample() {
               name="tree-mode"
               value="single"
               checked={selectionMode === "single"}
-              onChange={() => handleModeChange("single")}
+              onChange={() => setSelectionMode("single")}
             />
             Single
           </label>
@@ -44,7 +49,7 @@ export function TreeExample() {
               name="tree-mode"
               value="multiple"
               checked={selectionMode === "multiple"}
-              onChange={() => handleModeChange("multiple")}
+              onChange={() => setSelectionMode("multiple")}
             />
             Multiple (Ctrl/Cmd + click, Shift + click)
           </label>
@@ -52,143 +57,129 @@ export function TreeExample() {
       </header>
 
       <div className="tree-example__panel">
-        {selectionMode === "single" ? (
-          <Tree.Root
-            className="tree-example__tree"
-            defaultExpandedValues={["src", "components"]}
-            defaultSelectedValue="readme"
-          >
-            {renderProject()}
-            <Tree.SelectionPath
-              className="tree-example__path-bar"
-              separator={<ChevronRight />}
-            />
-          </Tree.Root>
-        ) : (
-          <Tree.Root
-            className="tree-example__tree"
-            selectionMode="multiple"
-            defaultExpandedValues={["src", "components"]}
-            defaultSelectedValues={["readme"]}
-          >
-            {renderProject()}
-            <Tree.SelectionPath
-              className="tree-example__path-bar"
-              separator={<ChevronRight />}
-            />
-          </Tree.Root>
-        )}
-      </div>
-    </section>
-  );
-}
-
-function renderProject() {
-  return (
-    <>
-      <Tree.Item value="readme" label="readme.md">
-        <div className="tree-example__row">
-          <span className="tree-example__chevron-slot" aria-hidden="true" />
-          <span className="tree-example__glyph">📄</span>
-          readme.md
-        </div>
-      </Tree.Item>
-
-      <Tree.Branch value="src" label="src">
-        <Tree.BranchControl className="tree-example__row">
-          <Tree.BranchIndicator className="tree-example__chevron">
-            ▸
-          </Tree.BranchIndicator>
-          <span className="tree-example__glyph">📁</span>
-          src
-        </Tree.BranchControl>
-        <Tree.BranchContent forceMount>
-          <Tree.Item value="index" label="index.ts">
+        <Tree.Root
+          className="tree-example__tree"
+          defaultExpandedValues={["src", "components"]}
+          {...selectionProps}
+        >
+          <Tree.Item value="readme" label="readme.md">
             <div className="tree-example__row">
               <span className="tree-example__chevron-slot" aria-hidden="true" />
               <span className="tree-example__glyph">📄</span>
-              index.ts
+              readme.md
             </div>
           </Tree.Item>
 
-          <Tree.Branch value="components" label="components">
+          <Tree.Branch value="src" label="src">
             <Tree.BranchControl className="tree-example__row">
               <Tree.BranchIndicator className="tree-example__chevron">
                 ▸
               </Tree.BranchIndicator>
               <span className="tree-example__glyph">📁</span>
-              components
+              src
             </Tree.BranchControl>
             <Tree.BranchContent forceMount>
-              <Tree.Item value="button" label="button.tsx">
+              <Tree.Item value="index" label="index.ts">
                 <div className="tree-example__row">
                   <span
                     className="tree-example__chevron-slot"
                     aria-hidden="true"
                   />
                   <span className="tree-example__glyph">📄</span>
-                  button.tsx
+                  index.ts
                 </div>
               </Tree.Item>
-              <Tree.Item value="dialog" label="dialog.tsx">
+
+              <Tree.Branch value="components" label="components">
+                <Tree.BranchControl className="tree-example__row">
+                  <Tree.BranchIndicator className="tree-example__chevron">
+                    ▸
+                  </Tree.BranchIndicator>
+                  <span className="tree-example__glyph">📁</span>
+                  components
+                </Tree.BranchControl>
+                <Tree.BranchContent forceMount>
+                  <Tree.Item value="button" label="button.tsx">
+                    <div className="tree-example__row">
+                      <span
+                        className="tree-example__chevron-slot"
+                        aria-hidden="true"
+                      />
+                      <span className="tree-example__glyph">📄</span>
+                      button.tsx
+                    </div>
+                  </Tree.Item>
+                  <Tree.Item value="dialog" label="dialog.tsx">
+                    <div className="tree-example__row">
+                      <span
+                        className="tree-example__chevron-slot"
+                        aria-hidden="true"
+                      />
+                      <span className="tree-example__glyph">📄</span>
+                      dialog.tsx
+                    </div>
+                  </Tree.Item>
+                  <Tree.Item value="legacy" label="legacy.tsx" disabled>
+                    <div className="tree-example__row">
+                      <span
+                        className="tree-example__chevron-slot"
+                        aria-hidden="true"
+                      />
+                      <span className="tree-example__glyph">📄</span>
+                      legacy.tsx (disabled)
+                    </div>
+                  </Tree.Item>
+                </Tree.BranchContent>
+              </Tree.Branch>
+
+              <Tree.Item value="utils" label="utils.ts">
                 <div className="tree-example__row">
                   <span
                     className="tree-example__chevron-slot"
                     aria-hidden="true"
                   />
                   <span className="tree-example__glyph">📄</span>
-                  dialog.tsx
-                </div>
-              </Tree.Item>
-              <Tree.Item value="legacy" label="legacy.tsx" disabled>
-                <div className="tree-example__row">
-                  <span
-                    className="tree-example__chevron-slot"
-                    aria-hidden="true"
-                  />
-                  <span className="tree-example__glyph">📄</span>
-                  legacy.tsx (disabled)
+                  utils.ts
                 </div>
               </Tree.Item>
             </Tree.BranchContent>
           </Tree.Branch>
 
-          <Tree.Item value="utils" label="utils.ts">
+          <Tree.Branch value="docs" label="docs">
+            <Tree.BranchControl className="tree-example__row">
+              <Tree.BranchIndicator className="tree-example__chevron">
+                ▸
+              </Tree.BranchIndicator>
+              <span className="tree-example__glyph">📁</span>
+              docs
+            </Tree.BranchControl>
+            <Tree.BranchContent forceMount>
+              <Tree.Item value="guides" label="guides.md">
+                <div className="tree-example__row">
+                  <span
+                    className="tree-example__chevron-slot"
+                    aria-hidden="true"
+                  />
+                  <span className="tree-example__glyph">📄</span>
+                  guides.md
+                </div>
+              </Tree.Item>
+            </Tree.BranchContent>
+          </Tree.Branch>
+
+          <Tree.Item value="pkg" label="package.json">
             <div className="tree-example__row">
               <span className="tree-example__chevron-slot" aria-hidden="true" />
-              <span className="tree-example__glyph">📄</span>
-              utils.ts
+              <span className="tree-example__glyph">📦</span>
+              package.json
             </div>
           </Tree.Item>
-        </Tree.BranchContent>
-      </Tree.Branch>
-
-      <Tree.Branch value="docs" label="docs">
-        <Tree.BranchControl className="tree-example__row">
-          <Tree.BranchIndicator className="tree-example__chevron">
-            ▸
-          </Tree.BranchIndicator>
-          <span className="tree-example__glyph">📁</span>
-          docs
-        </Tree.BranchControl>
-        <Tree.BranchContent forceMount>
-          <Tree.Item value="guides" label="guides.md">
-            <div className="tree-example__row">
-              <span className="tree-example__chevron-slot" aria-hidden="true" />
-              <span className="tree-example__glyph">📄</span>
-              guides.md
-            </div>
-          </Tree.Item>
-        </Tree.BranchContent>
-      </Tree.Branch>
-
-      <Tree.Item value="pkg" label="package.json">
-        <div className="tree-example__row">
-          <span className="tree-example__chevron-slot" aria-hidden="true" />
-          <span className="tree-example__glyph">📦</span>
-          package.json
-        </div>
-      </Tree.Item>
-    </>
+          <Tree.SelectionPath
+            className="tree-example__path-bar"
+            separator={<ChevronRight />}
+          />
+        </Tree.Root>
+      </div>
+    </section>
   );
 }

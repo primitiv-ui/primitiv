@@ -14,7 +14,7 @@ import {
   ContextMenuRootProps,
   ContextMenuTriggerProps,
 } from "./types";
-import { MENUITEM_SELECTOR } from "./constants";
+import { MENUITEM_SELECTOR, TYPEAHEAD_RESET_MS } from "./constants";
 
 /**
  * The root of a ContextMenu — owns the open state and the position the
@@ -139,6 +139,10 @@ function ContextMenuContent({
   const { open, setOpen, position, contentId, triggerRef } =
     useContextMenuContext();
   const menuRef = useRef<HTMLMenuElement | null>(null);
+  const typeaheadRef = useRef<{ query: string; timer: number | null }>({
+    query: "",
+    timer: null,
+  });
 
   useEffect(() => {
     const menu = menuRef.current!;
@@ -204,6 +208,33 @@ function ContextMenuContent({
       event.preventDefault();
       setOpen(false);
       triggerRef.current?.focus();
+      return;
+    }
+
+    if (event.key.length === 1 && event.key !== " ") {
+      const state = typeaheadRef.current;
+      if (state.timer !== null) window.clearTimeout(state.timer);
+      state.query = (state.query + event.key).toLowerCase();
+      state.timer = window.setTimeout(() => {
+        state.query = "";
+        state.timer = null;
+      }, TYPEAHEAD_RESET_MS);
+
+      const isRepeat =
+        state.query.length > 1 &&
+        state.query.split("").every((c) => c === state.query[0]);
+      const searchQuery = isRepeat ? state.query[0] : state.query;
+      const startIndex = currentIndex < 0 ? 0 : currentIndex;
+      const offset = searchQuery.length === 1 || isRepeat ? 1 : 0;
+      for (let i = 0; i < items.length; i++) {
+        const index = (startIndex + offset + i) % items.length;
+        const text = items[index].textContent!.trim().toLowerCase();
+        if (text.startsWith(searchQuery)) {
+          event.preventDefault();
+          items[index].focus();
+          return;
+        }
+      }
     }
   };
 

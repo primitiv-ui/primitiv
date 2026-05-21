@@ -170,8 +170,13 @@ ContextMenuTrigger.displayName = "ContextMenuTrigger";
  * Escape are handled explicitly here instead.
  *
  * Renders a `<menu role="menu">` positioned at the pointer coordinates
- * captured when the Trigger fired its `contextmenu` event. Pass `asChild`
- * to render any element with menu semantics.
+ * captured when the Trigger fired its `contextmenu` event. The cursor
+ * position is exposed twice on the element style: as explicit `left` /
+ * `top` insets (so the menu renders at the cursor with zero consumer
+ * CSS), and as `--primitiv-context-menu-x` / `--primitiv-context-menu-y`
+ * custom properties so consumer CSS can write `@position-try` fallbacks
+ * that flip the menu to the opposite side when it would overflow the
+ * viewport. Pass `asChild` to render any element with menu semantics.
  */
 function ContextMenuContent({
   children,
@@ -294,14 +299,21 @@ function ContextMenuContent({
     }
   };
 
+  // Both `left`/`top` and `--primitiv-context-menu-x`/`-y` are set: the
+  // explicit insets position the menu at the cursor by default, and the
+  // custom properties let consumer CSS write `@position-try` fallbacks
+  // that flip the menu (e.g. `right: calc(100vw - var(--primitiv-context-menu-x))`)
+  // when the primary position would overflow the viewport.
   const positionedStyle = position
-    ? {
+    ? ({
         position: "fixed" as const,
         left: position.x,
         top: position.y,
         margin: 0,
+        "--primitiv-context-menu-x": `${position.x}px`,
+        "--primitiv-context-menu-y": `${position.y}px`,
         ...style,
-      }
+      } as React.CSSProperties)
     : style;
 
   const closeOpenSubRef = useRef<(() => void) | null>(null);

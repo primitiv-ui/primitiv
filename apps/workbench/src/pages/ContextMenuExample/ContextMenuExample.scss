@@ -3,6 +3,9 @@
 }
 
 .cm-canvas {
+  /* The Trigger needs an anchor-name so .cm-content can set
+   * position-anchor; that's what enables position-try-fallbacks. */
+  anchor-name: --cm-trigger;
   display: grid;
   place-items: center;
   min-height: 240px;
@@ -15,7 +18,38 @@
   text-align: center;
 }
 
+/* Top-level menu fallbacks
+ * ─────────────────────────
+ * The library sets `left` / `top` to the cursor coordinates AND exposes
+ * those same coords as --primitiv-context-menu-x / -y so we can flip the
+ * menu via @position-try when the primary position would overflow. */
+
+@position-try --cm-content-flip-inline {
+  /* Open to the LEFT of the cursor (right edge sits at the cursor x). */
+  left: auto;
+  right: calc(100vw - var(--primitiv-context-menu-x));
+}
+
+@position-try --cm-content-flip-block {
+  /* Open ABOVE the cursor (bottom edge sits at the cursor y). */
+  top: auto;
+  bottom: calc(100vh - var(--primitiv-context-menu-y));
+}
+
+@position-try --cm-content-flip-both {
+  left: auto;
+  right: calc(100vw - var(--primitiv-context-menu-x));
+  top: auto;
+  bottom: calc(100vh - var(--primitiv-context-menu-y));
+}
+
 .cm-content {
+  position-anchor: --cm-trigger;
+  position-try-fallbacks:
+    --cm-content-flip-inline,
+    --cm-content-flip-block,
+    --cm-content-flip-both;
+
   background: #fff;
   color: #000;
   border: 1px solid rgba(0 0 0 / 0.12);
@@ -40,6 +74,12 @@
   top: anchor(top);
   left: anchor(right);
   margin-left: 8px;
+  /* When the SubTrigger sits near the right / bottom edge, the browser
+   * tries flipping the inline / block axes around the anchor, then both. */
+  position-try-fallbacks:
+    flip-inline,
+    flip-block,
+    flip-inline flip-block;
 
   background: #fff;
   color: #000;

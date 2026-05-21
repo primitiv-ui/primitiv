@@ -1,5 +1,18 @@
 import type { Mock } from 'vitest'
 
+/** Minimal stand-in for a Figma VariableCollection, for sandbox unit tests. */
+export interface MockVariableCollection {
+  id: string
+  defaultModeId: string
+  remove: Mock
+}
+
+/** Minimal stand-in for a Figma Variable, for sandbox unit tests. */
+export interface MockVariable {
+  id: string
+  setValueForMode: Mock
+}
+
 /** The slice of Figma's `figma` global the sandbox tests rely on. */
 export interface FigmaMock {
   closePlugin: Mock
@@ -13,6 +26,9 @@ export interface FigmaMock {
   variables: {
     getLocalVariableCollectionsAsync: Mock
     getLocalVariablesAsync: Mock
+    createVariableCollection: Mock
+    createVariable: Mock
+    getVariableCollectionByIdAsync: Mock
   }
 }
 
@@ -23,6 +39,15 @@ export interface FigmaMock {
  * result with `vi.stubGlobal('figma', createFigmaMock())`.
  */
 export function createFigmaMock(): FigmaMock {
+  const defaultSemanticCollection: MockVariableCollection = {
+    id: 'new-semantic-id',
+    defaultModeId: 'new-semantic-mode-id',
+    remove: vi.fn(),
+  }
+  const defaultVariable: MockVariable = {
+    id: 'new-var-id',
+    setValueForMode: vi.fn(),
+  }
   return {
     closePlugin: vi.fn(),
     showUI: vi.fn(),
@@ -35,6 +60,11 @@ export function createFigmaMock(): FigmaMock {
     variables: {
       getLocalVariableCollectionsAsync: vi.fn(() => Promise.resolve([])),
       getLocalVariablesAsync: vi.fn(() => Promise.resolve([])),
+      createVariableCollection: vi.fn(() => defaultSemanticCollection),
+      createVariable: vi.fn(() => defaultVariable),
+      getVariableCollectionByIdAsync: vi.fn(() =>
+        Promise.resolve(defaultSemanticCollection),
+      ),
     },
   }
 }

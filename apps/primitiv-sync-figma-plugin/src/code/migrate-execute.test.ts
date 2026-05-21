@@ -88,6 +88,86 @@ describe('executeMigration', () => {
     )
   })
 
+  it('skips creating a variable that already exists in the Semantic collection', async () => {
+    const figmaMock = createFigmaMock()
+    figmaMock.variables.getLocalVariablesAsync.mockResolvedValue([
+      {
+        id: 'existing-v1',
+        name: 'typography/compact/display/xl/font-family',
+        resolvedType: 'STRING',
+        variableCollectionId: 'new-semantic-id',
+        valuesByMode: {},
+        description: '',
+        key: 'k',
+        remote: false,
+        scopes: [],
+      },
+    ])
+    vi.stubGlobal('figma', figmaMock)
+
+    await executeMigration(PLAN, INPUT)
+
+    expect(figmaMock.variables.createVariable).not.toHaveBeenCalled()
+  })
+
+  it('still creates variables that do not yet exist when some do', async () => {
+    const figmaMock = createFigmaMock()
+    figmaMock.variables.getLocalVariablesAsync.mockResolvedValue([
+      {
+        id: 'existing-v1',
+        name: 'typography/compact/display/xl/font-family',
+        resolvedType: 'STRING',
+        variableCollectionId: 'new-semantic-id',
+        valuesByMode: {},
+        description: '',
+        key: 'k',
+        remote: false,
+        scopes: [],
+      },
+    ])
+    vi.stubGlobal('figma', figmaMock)
+
+    const plan: MigrationPlan = {
+      ...PLAN,
+      newVariables: [
+        {
+          name: 'typography/compact/display/xl/font-family',
+          resolvedType: 'STRING',
+          sourceVariableId: 'cv1',
+          sourceCollectionId: 'cc',
+        },
+        {
+          name: 'typography/compact/display/xl/font-size',
+          resolvedType: 'FLOAT',
+          sourceVariableId: 'cv2',
+          sourceCollectionId: 'cc',
+        },
+      ],
+    }
+    const input: MigrationInput = {
+      collections: [COMPACT_COLLECTION],
+      variables: [
+        SOURCE_VARIABLE,
+        {
+          id: 'cv2',
+          name: 'display/xl/font-size',
+          resolvedType: 'FLOAT',
+          variableCollectionId: 'cc',
+          valuesByMode: { mc: 48 },
+        },
+      ],
+    }
+
+    await executeMigration(plan, input)
+
+    expect(figmaMock.variables.createVariable).toHaveBeenCalledOnce()
+    expect(figmaMock.variables.createVariable).toHaveBeenCalledWith(
+      'typography/compact/display/xl/font-size',
+      expect.objectContaining({ id: 'new-semantic-id' }),
+      'FLOAT',
+    )
+  })
+
   it('removes each Typography collection listed as deletable', async () => {
     const figmaMock = createFigmaMock()
     const mockCollection = { id: 'cc', defaultModeId: 'mc', remove: vi.fn() }

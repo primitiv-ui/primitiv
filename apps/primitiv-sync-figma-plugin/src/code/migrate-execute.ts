@@ -29,8 +29,20 @@ export async function executeMigration(
   const variableById = new Map(input.variables.map((v) => [v.id, v]))
   const collectionById = new Map(input.collections.map((c) => [c.id, c]))
 
+  // Build a set of variable names already in the Semantic collection so the
+  // execution is idempotent — re-running after a partial migration won't fail
+  // with a duplicate-name error.
+  const existingVars = await figma.variables.getLocalVariablesAsync()
+  const existingNames = new Set(
+    existingVars
+      .filter((v) => v.variableCollectionId === semanticCollection.id)
+      .map((v) => v.name),
+  )
+
   // 2. Create each new variable and copy its source value
   for (const planned of plan.newVariables) {
+    if (existingNames.has(planned.name)) continue
+
     const newVar = figma.variables.createVariable(
       planned.name,
       semanticCollection,

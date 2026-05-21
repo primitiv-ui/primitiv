@@ -12,6 +12,7 @@ import {
   CheckboxExample,
   CheckboxCardExample,
   CollapsibleExample,
+  ContextMenuExample,
   DesignSystemTestExample,
   DirectionProviderExample,
   DividerExample,
@@ -68,6 +69,7 @@ const navGroups: { title: string; links: NavLink[] }[] = [
   {
     title: "Overlays",
     links: [
+      { to: "/context-menu", label: "Context Menu" },
       { to: "/dropdown", label: "Dropdown" },
       { to: "/modal", label: "Modal" },
       { to: "/tooltip", label: "Tooltip" },
@@ -167,6 +169,7 @@ function App() {
           <Route path="/checkbox" element={<CheckboxExample />} />
           <Route path="/checkbox-card" element={<CheckboxCardExample />} />
           <Route path="/collapsible" element={<CollapsibleExample />} />
+          <Route path="/context-menu" element={<ContextMenuExample />} />
           <Route
             path="/design-system-test"
             element={<DesignSystemTestExample />}

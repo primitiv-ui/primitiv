@@ -293,6 +293,7 @@ function ContextMenuContent({
     id: contentId,
     role: "menu" as const,
     popover: "auto" as const,
+    "data-state": (open ? "open" : "closed") as "open" | "closed",
     style: positionedStyle,
     onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
   };

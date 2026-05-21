@@ -31,6 +31,81 @@ export function ContextMenuExample() {
             <ContextMenu.SubContent className="cm-sub-content">
               <ContextMenu.Item>Email</ContextMenu.Item>
               <ContextMenu.Item>Copy link</ContextMenu.Item>
+              <ContextMenu.Separator />
+              <ContextMenu.Sub>
+                <ContextMenu.SubTrigger className="cm-sub-trigger">
+                  Options
+                  <span aria-hidden="true">{">"}</span>
+                </ContextMenu.SubTrigger>
+                <ContextMenu.SubContent className="cm-sub-content">
+                  <ContextMenu.Sub>
+                    <ContextMenu.SubTrigger className="cm-sub-trigger">
+                      Format
+                      <span aria-hidden="true">{">"}</span>
+                    </ContextMenu.SubTrigger>
+                    <ContextMenu.SubContent className="cm-sub-content">
+                      <ContextMenu.Label className="cm-label">
+                        Body format
+                      </ContextMenu.Label>
+                      <ContextMenu.RadioGroup
+                        className="cm-radio-group"
+                        defaultValue="html"
+                      >
+                        <ContextMenu.RadioItem
+                          value="plain"
+                          className="cm-radio-item"
+                          onSelect={(event) => event.preventDefault()}
+                        >
+                          <ContextMenu.ItemIndicator className="cm-item-indicator">
+                            <span aria-hidden="true">•</span>
+                          </ContextMenu.ItemIndicator>
+                          Plain text
+                        </ContextMenu.RadioItem>
+                        <ContextMenu.RadioItem
+                          value="html"
+                          className="cm-radio-item"
+                          onSelect={(event) => event.preventDefault()}
+                        >
+                          <ContextMenu.ItemIndicator className="cm-item-indicator">
+                            <span aria-hidden="true">•</span>
+                          </ContextMenu.ItemIndicator>
+                          HTML
+                        </ContextMenu.RadioItem>
+                        <ContextMenu.RadioItem
+                          value="markdown"
+                          className="cm-radio-item"
+                          onSelect={(event) => event.preventDefault()}
+                        >
+                          <ContextMenu.ItemIndicator className="cm-item-indicator">
+                            <span aria-hidden="true">•</span>
+                          </ContextMenu.ItemIndicator>
+                          Markdown
+                        </ContextMenu.RadioItem>
+                      </ContextMenu.RadioGroup>
+                    </ContextMenu.SubContent>
+                  </ContextMenu.Sub>
+                  <ContextMenu.Separator />
+                  <ContextMenu.CheckboxItem
+                    className="cm-checkbox-item"
+                    defaultChecked
+                    onSelect={(event) => event.preventDefault()}
+                  >
+                    <ContextMenu.ItemIndicator className="cm-item-indicator">
+                      <span aria-hidden="true">✓</span>
+                    </ContextMenu.ItemIndicator>
+                    Notify recipients
+                  </ContextMenu.CheckboxItem>
+                  <ContextMenu.CheckboxItem
+                    className="cm-checkbox-item"
+                    onSelect={(event) => event.preventDefault()}
+                  >
+                    <ContextMenu.ItemIndicator className="cm-item-indicator">
+                      <span aria-hidden="true">✓</span>
+                    </ContextMenu.ItemIndicator>
+                    Track delivery
+                  </ContextMenu.CheckboxItem>
+                </ContextMenu.SubContent>
+              </ContextMenu.Sub>
             </ContextMenu.SubContent>
           </ContextMenu.Sub>
           <ContextMenu.Separator />

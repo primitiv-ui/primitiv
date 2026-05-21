@@ -1,9 +1,23 @@
-import { Dropdown } from "@primitiv/react";
+import { Dropdown, DirectionProvider } from "@primitiv/react";
+import { useState } from "react";
 
 import "./DropdownExample.scss";
 
 export function DropdownExample() {
+  const [dir, setDir] = useState<"ltr" | "rtl">("ltr");
   return (
+    <div className="dd-page">
+      <div className="dd-toolbar">
+        <button
+          type="button"
+          className="dd-dir-toggle"
+          onClick={() => setDir((d) => (d === "ltr" ? "rtl" : "ltr"))}
+          aria-label={`Reading direction: ${dir.toUpperCase()}. Toggle.`}
+        >
+          dir: <strong>{dir.toUpperCase()}</strong>
+        </button>
+      </div>
+      <DirectionProvider dir={dir}>
     <Dropdown.Root>
       <Dropdown.Trigger className="dd-trigger">Options</Dropdown.Trigger>
       <Dropdown.Content className="dd-content">
@@ -59,5 +73,7 @@ export function DropdownExample() {
         </Dropdown.RadioGroup>
       </Dropdown.Content>
     </Dropdown.Root>
+      </DirectionProvider>
+    </div>
   );
 }

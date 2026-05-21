@@ -1,10 +1,23 @@
-import { ContextMenu } from "@primitiv/react";
+import { ContextMenu, DirectionProvider } from "@primitiv/react";
+import { useState } from "react";
 
 import "./ContextMenuExample.scss";
 
 export function ContextMenuExample() {
+  const [dir, setDir] = useState<"ltr" | "rtl">("ltr");
   return (
     <div className="cm-page">
+      <div className="cm-toolbar">
+        <button
+          type="button"
+          className="cm-dir-toggle"
+          onClick={() => setDir((d) => (d === "ltr" ? "rtl" : "ltr"))}
+          aria-label={`Reading direction: ${dir.toUpperCase()}. Toggle.`}
+        >
+          dir: <strong>{dir.toUpperCase()}</strong>
+        </button>
+      </div>
+      <DirectionProvider dir={dir}>
       <ContextMenu.Root>
         <ContextMenu.Trigger asChild>
           <div className="cm-canvas">
@@ -157,6 +170,7 @@ export function ContextMenuExample() {
           </ContextMenu.RadioGroup>
         </ContextMenu.Content>
       </ContextMenu.Root>
+      </DirectionProvider>
     </div>
   );
 }

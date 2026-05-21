@@ -51,3 +51,21 @@ export type ContextMenuItemProps = Omit<
    */
   onSelect?: (event: Event) => void;
 };
+
+export type ContextMenuSeparatorProps = Omit<ComponentProps<"li">, "role"> & {
+  children?: ReactNode;
+  ref?: Ref<HTMLLIElement>;
+  asChild?: boolean;
+};
+
+export type ContextMenuGroupProps = Omit<ComponentProps<"li">, "role"> & {
+  children?: ReactNode;
+  ref?: Ref<HTMLLIElement>;
+  asChild?: boolean;
+};
+
+export type ContextMenuLabelProps = ComponentProps<"li"> & {
+  children?: ReactNode;
+  ref?: Ref<HTMLLIElement>;
+  asChild?: boolean;
+};

@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+  useContext,
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { useControllableState } from "../hooks";
 import { Slot, composeEventHandlers } from "../Slot";
@@ -8,10 +16,14 @@ import {
   ContextMenuPosition,
   useContextMenuContext,
 } from "./ContextMenuContext";
+import { ContextMenuGroupContext } from "./ContextMenuGroupContext";
 import {
   ContextMenuContentProps,
+  ContextMenuGroupProps,
   ContextMenuItemProps,
+  ContextMenuLabelProps,
   ContextMenuRootProps,
+  ContextMenuSeparatorProps,
   ContextMenuTriggerProps,
 } from "./types";
 import { MENUITEM_SELECTOR, TYPEAHEAD_RESET_MS } from "./constants";
@@ -334,11 +346,96 @@ function ContextMenuItem({
 
 ContextMenuItem.displayName = "ContextMenuItem";
 
+/**
+ * A visual separator between groups of items. Renders a `<li role="separator">`
+ * by default. Non-interactive — skipped by focus, arrow navigation, and
+ * typeahead.
+ */
+function ContextMenuSeparator({
+  asChild = false,
+  children,
+  ...rest
+}: ContextMenuSeparatorProps) {
+  const separatorProps = { ...rest, role: "separator" as const };
+
+  if (asChild) {
+    return <Slot {...separatorProps}>{children}</Slot>;
+  }
+
+  return <li {...separatorProps} />;
+}
+
+ContextMenuSeparator.displayName = "ContextMenuSeparator";
+
+/**
+ * A semantic grouping of related items. Renders as a `<li role="group">`
+ * wrapping an inner `<ul role="none">`, or — with `asChild` — a single
+ * grouping element composed onto the provided child.
+ *
+ * Generates a stable id for its accompanying {@link ContextMenuLabel |
+ * `ContextMenu.Label`}, wired automatically via `aria-labelledby`.
+ */
+function ContextMenuGroup({
+  children,
+  asChild = false,
+  ...rest
+}: ContextMenuGroupProps) {
+  const labelId = useId();
+  const contextValue = useMemo(() => ({ labelId }), [labelId]);
+  const groupProps = {
+    ...rest,
+    role: "group" as const,
+    "aria-labelledby": labelId,
+  };
+
+  return (
+    <ContextMenuGroupContext.Provider value={contextValue}>
+      {asChild ? (
+        <Slot {...groupProps}>{children}</Slot>
+      ) : (
+        <li {...groupProps}>
+          <ul role="none">{children}</ul>
+        </li>
+      )}
+    </ContextMenuGroupContext.Provider>
+  );
+}
+
+ContextMenuGroup.displayName = "ContextMenuGroup";
+
+/**
+ * A non-interactive label, typically used inside a {@link ContextMenuGroup |
+ * `ContextMenu.Group`} to give that group an accessible name. When nested in
+ * a group, the label's `id` is auto-wired to the group's `aria-labelledby` —
+ * consumers don't need to thread ids manually. A caller-supplied `id` takes
+ * precedence over the auto-generated one.
+ */
+function ContextMenuLabel({
+  id,
+  children,
+  asChild = false,
+  ...rest
+}: ContextMenuLabelProps) {
+  const group = useContext(ContextMenuGroupContext);
+  const labelProps = { ...rest, id: id ?? group?.labelId };
+
+  if (asChild) {
+    return <Slot {...labelProps}>{children}</Slot>;
+  }
+
+  return <li {...labelProps}>{children}</li>;
+}
+
+ContextMenuLabel.displayName = "ContextMenuLabel";
+
 type TContextMenuCompound = typeof ContextMenuRoot & {
   Root: typeof ContextMenuRoot;
   Trigger: typeof ContextMenuTrigger;
   Content: typeof ContextMenuContent;
   Item: typeof ContextMenuItem;
+  Separator: typeof ContextMenuSeparator;
+  Group: typeof ContextMenuGroup;
+  Label: typeof ContextMenuLabel;
 };
 
 const ContextMenuCompound: TContextMenuCompound = Object.assign(
@@ -348,6 +445,9 @@ const ContextMenuCompound: TContextMenuCompound = Object.assign(
     Trigger: ContextMenuTrigger,
     Content: ContextMenuContent,
     Item: ContextMenuItem,
+    Separator: ContextMenuSeparator,
+    Group: ContextMenuGroup,
+    Label: ContextMenuLabel,
   },
 );
 

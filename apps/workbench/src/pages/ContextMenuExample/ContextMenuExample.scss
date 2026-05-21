@@ -92,11 +92,12 @@
   inset: unset;
   position: fixed;
   position-anchor: --cm-sub-trigger;
-  top: anchor(top);
-  left: anchor(right);
-  margin-left: 8px;
-  /* When the SubTrigger sits near the right / bottom edge, the browser
-   * tries flipping the inline / block axes around the anchor, then both. */
+  /* Logical so the submenu opens to the inline-end side of its trigger:
+   * to the right in LTR, to the left in RTL. flip-* fallbacks then handle
+   * overflow on either axis. */
+  inset-block-start: anchor(start);
+  inset-inline-start: anchor(end);
+  margin-inline-start: 8px;
   position-try-fallbacks:
     flip-inline,
     flip-block,

@@ -6,7 +6,10 @@ import "./DropdownExample.scss";
 export function DropdownExample() {
   const [dir, setDir] = useState<"ltr" | "rtl">("ltr");
   return (
-    <div className="dd-page">
+    // `dir` on the wrapper is what teaches CSS logical properties
+    // (anchor(start), margin-inline-start, …) to flip in RTL.
+    // DirectionProvider broadcasts the value to the component's JS.
+    <div className="dd-page" dir={dir}>
       <div className="dd-toolbar">
         <button
           type="button"

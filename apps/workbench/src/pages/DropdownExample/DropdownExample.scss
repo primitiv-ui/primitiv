@@ -28,17 +28,25 @@
   anchor-name: --dd-trigger;
 }
 
-/* ── Main menu: position below-start of trigger ──────────────────── */
+/* ── Main menu: drops below the trigger, aligned to its inline-start ─
+ * `anchor(start)` resolves to the anchor's inline-start side, which
+ * follows the resolved writing direction — left edge in LTR, right edge
+ * in RTL — so the menu hugs the trigger correctly without a separate
+ * RTL rule. flip-block as a fallback when there's no room below. */
 .dd-content {
   /* Popovers sit in the top layer; position:fixed lets anchor() resolve */
   inset: unset;
   position: fixed;
   position-anchor: --dd-trigger;
-  top: anchor(bottom);
-  left: anchor(left);
+  inset-block-start: anchor(end);
+  inset-inline-start: anchor(start);
   /* Clear UA popover stylesheet's inset:0 so anchor values take effect */
-  margin-top: 4px;
+  margin-block-start: 4px;
   color: #000;
+  position-try-fallbacks:
+    flip-block,
+    flip-inline,
+    flip-block flip-inline;
 
   background: #fff;
   border: 1px solid rgba(0 0 0 / 0.12);
@@ -57,14 +65,20 @@
   align-items: center;
 }
 
-/* ── Sub-menu: positioned to the right, top-aligned with sub-trigger */
+/* ── Sub-menu: positioned to the inline-end of the sub-trigger ─────
+ * to the right in LTR, to the left in RTL — and aligned to its
+ * block-start. flip-* fallbacks handle viewport overflow on either axis. */
 .dd-sub-content {
   inset: unset;
   position: fixed;
   position-anchor: --dd-sub-trigger;
-  top: anchor(top);
-  left: anchor(right);
-  margin-left: 8px;
+  inset-block-start: anchor(start);
+  inset-inline-start: anchor(end);
+  margin-inline-start: 8px;
+  position-try-fallbacks:
+    flip-inline,
+    flip-block,
+    flip-inline flip-block;
 
   background: #fff;
   color: #000;

@@ -110,6 +110,11 @@ keyword or by topic; do not paraphrase their content here.
 - **`workbench-examples`** — authoring `apps/workbench` example pages:
   folder layout, router wiring, and the global-CSS-bundling gotcha
   (every example's SCSS is bundled globally — scope every selector).
+- **`figma-token-sync`** — how the
+  `apps/primitiv-sync-figma-plugin` and `packages/tokens` stack
+  backs up Figma variables as DTCG JSON: features, Live sync vs
+  download flow, the `dtcg.ts` collection routing, single-mode
+  caveat, and where the removed one-shot migration code lived.
 - **`model-routing`** — Opus/Sonnet/Haiku decision tree.
 
 ## Slash commands

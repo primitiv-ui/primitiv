@@ -10,6 +10,7 @@ import {
 } from "./ContextMenuContext";
 import {
   ContextMenuContentProps,
+  ContextMenuItemProps,
   ContextMenuRootProps,
   ContextMenuTriggerProps,
 } from "./types";
@@ -186,10 +187,58 @@ function ContextMenuContent({
 
 ContextMenuContent.displayName = "ContextMenuContent";
 
+/**
+ * A standard menu item. Renders a `<li role="menuitem">` by default; pass
+ * `asChild` to render any element with menuitem semantics.
+ *
+ * Clicking the item (or pressing Enter / Space while focused) fires
+ * {@link ContextMenuItemProps.onSelect | `onSelect`} with a cancellable
+ * `Event`. The menu auto-closes after selection; call
+ * `event.preventDefault()` inside `onSelect` to keep it open.
+ *
+ * Disabled items receive `aria-disabled="true"` and no-op on activation.
+ */
+function ContextMenuItem({
+  children,
+  onClick,
+  onSelect,
+  disabled,
+  asChild = false,
+  ...rest
+}: ContextMenuItemProps) {
+  const { setOpen } = useContextMenuContext();
+
+  const handleClick = () => {
+    if (disabled) return;
+    const event = new Event("contextmenu.select", { cancelable: true });
+    onSelect?.(event);
+    if (!event.defaultPrevented) {
+      setOpen(false);
+    }
+  };
+
+  const itemProps = {
+    ...rest,
+    role: "menuitem" as const,
+    tabIndex: -1,
+    "aria-disabled": disabled || undefined,
+    onClick: composeEventHandlers(onClick, handleClick),
+  };
+
+  if (asChild) {
+    return <Slot {...itemProps}>{children}</Slot>;
+  }
+
+  return <li {...itemProps}>{children}</li>;
+}
+
+ContextMenuItem.displayName = "ContextMenuItem";
+
 type TContextMenuCompound = typeof ContextMenuRoot & {
   Root: typeof ContextMenuRoot;
   Trigger: typeof ContextMenuTrigger;
   Content: typeof ContextMenuContent;
+  Item: typeof ContextMenuItem;
 };
 
 const ContextMenuCompound: TContextMenuCompound = Object.assign(
@@ -198,6 +247,7 @@ const ContextMenuCompound: TContextMenuCompound = Object.assign(
     Root: ContextMenuRoot,
     Trigger: ContextMenuTrigger,
     Content: ContextMenuContent,
+    Item: ContextMenuItem,
   },
 );
 

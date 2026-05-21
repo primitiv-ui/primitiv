@@ -35,3 +35,19 @@ export type ContextMenuContentProps = Omit<
   ref?: Ref<HTMLMenuElement>;
   asChild?: boolean;
 };
+
+export type ContextMenuItemProps = Omit<
+  ComponentProps<"li">,
+  "role" | "tabIndex" | "onSelect"
+> & {
+  children?: ReactNode;
+  ref?: Ref<HTMLLIElement>;
+  asChild?: boolean;
+  disabled?: boolean;
+  /**
+   * Fires when the item is activated (click, Enter, or Space). Called
+   * with an event whose `preventDefault()` skips the auto-close that
+   * ContextMenu performs after selection.
+   */
+  onSelect?: (event: Event) => void;
+};

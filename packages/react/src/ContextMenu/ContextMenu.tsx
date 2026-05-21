@@ -18,6 +18,7 @@ import {
   ContextMenuPosition,
   useContextMenuContext,
 } from "./ContextMenuContext";
+import { ContextMenuContentContext } from "./ContextMenuContentContext";
 import { ContextMenuGroupContext } from "./ContextMenuGroupContext";
 import { ContextMenuItemIndicatorContext } from "./ContextMenuItemIndicatorContext";
 import { ContextMenuRadioGroupContext } from "./ContextMenuRadioGroupContext";
@@ -101,6 +102,16 @@ function ContextMenuRoot({
 }
 
 ContextMenuRoot.displayName = "ContextMenuRoot";
+
+/**
+ * Returns a callback that closes any direct-child sub-menu registered with
+ * the enclosing Content / SubContent. Items invoke this on mouseEnter so
+ * hovering a sibling dismisses an open sub, mirroring the keyboard contract.
+ */
+function useCloseSiblingSub() {
+  const content = useContext(ContextMenuContentContext);
+  return () => content?.closeOpenSubRef.current?.();
+}
 
 /**
  * The area that responds to right-click. Renders a `<span>` by default
@@ -293,6 +304,9 @@ function ContextMenuContent({
       }
     : style;
 
+  const closeOpenSubRef = useRef<(() => void) | null>(null);
+  const contentContextValue = useMemo(() => ({ closeOpenSubRef }), []);
+
   const contentProps = {
     ...rest,
     ref: menuRef,
@@ -309,11 +323,15 @@ function ContextMenuContent({
     onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
   };
 
-  if (asChild) {
-    return <Slot {...contentProps}>{children}</Slot>;
-  }
-
-  return <menu {...contentProps}>{children}</menu>;
+  return (
+    <ContextMenuContentContext.Provider value={contentContextValue}>
+      {asChild ? (
+        <Slot {...contentProps}>{children}</Slot>
+      ) : (
+        <menu {...contentProps}>{children}</menu>
+      )}
+    </ContextMenuContentContext.Provider>
+  );
 }
 
 ContextMenuContent.displayName = "ContextMenuContent";
@@ -338,6 +356,7 @@ function ContextMenuItem({
   ...rest
 }: ContextMenuItemProps) {
   const { setOpen } = useContextMenuContext();
+  const closeSiblingSub = useCloseSiblingSub();
   const [highlighted, setHighlighted] = useState(false);
 
   const handleClick = () => {
@@ -356,9 +375,10 @@ function ContextMenuItem({
     "aria-disabled": disabled || undefined,
     "data-highlighted": highlighted ? "" : undefined,
     onClick: composeEventHandlers(onClick, handleClick),
-    onMouseEnter: composeEventHandlers(rest.onMouseEnter, () =>
-      setHighlighted(true),
-    ),
+    onMouseEnter: composeEventHandlers(rest.onMouseEnter, () => {
+      setHighlighted(true);
+      closeSiblingSub();
+    }),
     onMouseLeave: composeEventHandlers(rest.onMouseLeave, () =>
       setHighlighted(false),
     ),
@@ -479,6 +499,7 @@ function ContextMenuCheckboxItem({
   ...rest
 }: ContextMenuCheckboxItemProps) {
   const { setOpen } = useContextMenuContext();
+  const closeSiblingSub = useCloseSiblingSub();
   const [highlighted, setHighlighted] = useState(false);
   const { checked, toggle } = useCheckboxRoot({
     defaultChecked,
@@ -506,9 +527,10 @@ function ContextMenuCheckboxItem({
     "aria-disabled": disabled || undefined,
     "data-highlighted": highlighted ? "" : undefined,
     onClick: composeEventHandlers(onClick, handleClick),
-    onMouseEnter: composeEventHandlers(rest.onMouseEnter, () =>
-      setHighlighted(true),
-    ),
+    onMouseEnter: composeEventHandlers(rest.onMouseEnter, () => {
+      setHighlighted(true);
+      closeSiblingSub();
+    }),
     onMouseLeave: composeEventHandlers(rest.onMouseLeave, () =>
       setHighlighted(false),
     ),
@@ -635,6 +657,7 @@ function ContextMenuRadioItem({
   ...rest
 }: ContextMenuRadioItemProps) {
   const { setOpen } = useContextMenuContext();
+  const closeSiblingSub = useCloseSiblingSub();
   const [highlighted, setHighlighted] = useState(false);
   const group = useContext(ContextMenuRadioGroupContext);
   if (!group) {
@@ -662,9 +685,10 @@ function ContextMenuRadioItem({
     "aria-disabled": disabled || undefined,
     "data-highlighted": highlighted ? "" : undefined,
     onClick: composeEventHandlers(onClick, handleClick),
-    onMouseEnter: composeEventHandlers(rest.onMouseEnter, () =>
-      setHighlighted(true),
-    ),
+    onMouseEnter: composeEventHandlers(rest.onMouseEnter, () => {
+      setHighlighted(true);
+      closeSiblingSub();
+    }),
     onMouseLeave: composeEventHandlers(rest.onMouseLeave, () =>
       setHighlighted(false),
     ),
@@ -722,6 +746,26 @@ function ContextMenuSub({
     () => ({ open, setOpen, contentId, triggerRef }),
     [open, setOpen, contentId],
   );
+
+  // Register with the enclosing Content/SubContent so sibling items can close
+  // this sub on hover (mirroring the keyboard behaviour where focus returning
+  // to the parent dismisses it). If another sibling sub is already
+  // registered as open, close it first so a hover-to-open transition onto our
+  // SubTrigger supplants the prior sub rather than stacking it.
+  const parentContent = useContext(ContextMenuContentContext);
+  useEffect(() => {
+    if (!open || !parentContent) return;
+    const close = () => setOpen(false);
+    const prev = parentContent.closeOpenSubRef.current;
+    if (prev && prev !== close) prev();
+    parentContent.closeOpenSubRef.current = close;
+    return () => {
+      if (parentContent.closeOpenSubRef.current === close) {
+        parentContent.closeOpenSubRef.current = null;
+      }
+    };
+  }, [open, parentContent, setOpen]);
+
   return (
     <ContextMenuSubContext.Provider value={contextValue}>
       {children}
@@ -751,6 +795,7 @@ function ContextMenuSubTrigger({
   ...rest
 }: ContextMenuSubTriggerProps) {
   const sub = useContextMenuSubContext();
+  const closeSiblingSub = useCloseSiblingSub();
   const [hovered, setHovered] = useState(false);
   const toggle = () => {
     if (disabled) return;
@@ -777,6 +822,7 @@ function ContextMenuSubTrigger({
     onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
     onMouseEnter: composeEventHandlers(rest.onMouseEnter, () => {
       setHovered(true);
+      closeSiblingSub();
       if (!disabled) sub.setOpen(true);
     }),
     onMouseLeave: composeEventHandlers(rest.onMouseLeave, () =>
@@ -840,6 +886,9 @@ function ContextMenuSubContent({
     sub.triggerRef.current?.focus();
   };
 
+  const closeOpenSubRef = useRef<(() => void) | null>(null);
+  const contentContextValue = useMemo(() => ({ closeOpenSubRef }), []);
+
   const subContentProps = {
     ...rest,
     ref: menuRef,
@@ -849,10 +898,15 @@ function ContextMenuSubContent({
     onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
   };
 
-  if (asChild) {
-    return <Slot {...subContentProps}>{children}</Slot>;
-  }
-  return <menu {...subContentProps}>{children}</menu>;
+  return (
+    <ContextMenuContentContext.Provider value={contentContextValue}>
+      {asChild ? (
+        <Slot {...subContentProps}>{children}</Slot>
+      ) : (
+        <menu {...subContentProps}>{children}</menu>
+      )}
+    </ContextMenuContentContext.Provider>
+  );
 }
 
 ContextMenuSubContent.displayName = "ContextMenuSubContent";

@@ -8,6 +8,7 @@ export * from "./CarouselExample";
 export * from "./CheckboxExample";
 export * from "./CheckboxCardExample";
 export * from "./CollapsibleExample";
+export * from "./ContextMenuExample";
 export * from "./DesignSystemTestExample";
 export * from "./DirectionProviderExample";
 export * from "./DividerExample";

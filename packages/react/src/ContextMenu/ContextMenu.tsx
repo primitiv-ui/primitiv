@@ -170,6 +170,18 @@ function ContextMenuContent({
     return () => menu.removeEventListener("toggle", handleToggle);
   }, [setOpen]);
 
+  useEffect(() => {
+    if (!open) return;
+    const handleClick = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (triggerRef.current?.contains(target)) return;
+      if (target.closest?.("[popover]")) return;
+      setOpen(false);
+    };
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, [open, setOpen, triggerRef]);
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLMenuElement>) => {
     const menu = menuRef.current!;
     const focused = document.activeElement as HTMLElement | null;
@@ -287,6 +299,7 @@ function ContextMenuItem({
   ...rest
 }: ContextMenuItemProps) {
   const { setOpen } = useContextMenuContext();
+  const [highlighted, setHighlighted] = useState(false);
 
   const handleClick = () => {
     if (disabled) return;
@@ -302,7 +315,14 @@ function ContextMenuItem({
     role: "menuitem" as const,
     tabIndex: -1,
     "aria-disabled": disabled || undefined,
+    "data-highlighted": highlighted ? "" : undefined,
     onClick: composeEventHandlers(onClick, handleClick),
+    onMouseEnter: composeEventHandlers(rest.onMouseEnter, () =>
+      setHighlighted(true),
+    ),
+    onMouseLeave: composeEventHandlers(rest.onMouseLeave, () =>
+      setHighlighted(false),
+    ),
   };
 
   if (asChild) {

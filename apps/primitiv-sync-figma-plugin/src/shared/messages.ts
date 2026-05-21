@@ -60,6 +60,7 @@ export type SandboxMessage =
       variables: VariableSummary[]
     }
   | { type: 'migrate-preview-result'; plan: MigrationPlan }
+  | { type: 'migrate-execute-result'; success: boolean; error?: string }
 
 /** A message posted from the UI back to the sandbox. */
 export type UiMessage =
@@ -67,4 +68,5 @@ export type UiMessage =
   | { type: 'inspect-variables-request' }
   | { type: 'export-tokens-request' }
   | { type: 'migrate-preview-request' }
+  | { type: 'migrate-execute-request' }
   | { type: 'close' }

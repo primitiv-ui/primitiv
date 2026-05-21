@@ -149,6 +149,76 @@ describe('handleUiMessage', () => {
     })
   })
 
+  it('executes the migration and replies success on an execute request', async () => {
+    const figmaMock = createFigmaMock()
+    figmaMock.variables.getLocalVariableCollectionsAsync.mockResolvedValue([
+      {
+        id: 'cc',
+        name: 'Typography / Compact',
+        modes: [{ modeId: 'mc', name: 'Value' }],
+        defaultModeId: 'mc',
+        variableIds: ['cv1'],
+        key: 'k',
+        remote: false,
+      },
+    ])
+    figmaMock.variables.getLocalVariablesAsync.mockResolvedValue([
+      {
+        id: 'cv1',
+        name: 'display/xl/font-family',
+        resolvedType: 'STRING',
+        variableCollectionId: 'cc',
+        valuesByMode: { mc: 'Asta Sans' },
+        description: '',
+        key: 'k',
+        remote: false,
+        scopes: ['ALL_SCOPES'],
+      },
+    ])
+    vi.stubGlobal('figma', figmaMock)
+
+    await handleUiMessage({ type: 'migrate-execute-request' })
+
+    expect(figmaMock.loadAllPagesAsync).toHaveBeenCalledOnce()
+    expect(figmaMock.variables.createVariableCollection).toHaveBeenCalledWith('Semantic')
+    expect(figmaMock.variables.createVariable).toHaveBeenCalledWith(
+      'typography/compact/display/xl/font-family',
+      'new-semantic-id',
+      'STRING',
+    )
+    expect(figmaMock.ui.postMessage).toHaveBeenCalledWith({
+      type: 'migrate-execute-result',
+      success: true,
+    })
+  })
+
+  it('replies with success: false when the migration throws', async () => {
+    const figmaMock = createFigmaMock()
+    figmaMock.variables.getLocalVariableCollectionsAsync.mockResolvedValue([
+      {
+        id: 'cc',
+        name: 'Typography / Compact',
+        modes: [{ modeId: 'mc', name: 'Value' }],
+        defaultModeId: 'mc',
+        variableIds: [],
+        key: 'k',
+        remote: false,
+      },
+    ])
+    figmaMock.variables.createVariableCollection.mockImplementation(() => {
+      throw new Error('Figma API error')
+    })
+    vi.stubGlobal('figma', figmaMock)
+
+    await handleUiMessage({ type: 'migrate-execute-request' })
+
+    expect(figmaMock.ui.postMessage).toHaveBeenCalledWith({
+      type: 'migrate-execute-result',
+      success: false,
+      error: 'Figma API error',
+    })
+  })
+
   it('summarises variable collections and variables on an inspect request', async () => {
     const figmaMock = createFigmaMock()
     figmaMock.variables.getLocalVariableCollectionsAsync.mockResolvedValue([

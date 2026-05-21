@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 
+import { useCheckboxRoot } from "../Checkbox/hooks";
 import { useControllableState } from "../hooks";
 import { Slot, composeEventHandlers } from "../Slot";
 
@@ -17,9 +18,12 @@ import {
   useContextMenuContext,
 } from "./ContextMenuContext";
 import { ContextMenuGroupContext } from "./ContextMenuGroupContext";
+import { ContextMenuItemIndicatorContext } from "./ContextMenuItemIndicatorContext";
 import {
+  ContextMenuCheckboxItemProps,
   ContextMenuContentProps,
   ContextMenuGroupProps,
+  ContextMenuItemIndicatorProps,
   ContextMenuItemProps,
   ContextMenuLabelProps,
   ContextMenuRootProps,
@@ -428,6 +432,124 @@ function ContextMenuLabel({
 
 ContextMenuLabel.displayName = "ContextMenuLabel";
 
+/**
+ * A toggleable menu item. Renders a `<li role="menuitemcheckbox">` with
+ * `aria-checked` reflecting the current state. Supports a WAI-ARIA tri-state:
+ * `true`, `false`, or `"indeterminate"` (encoded as `aria-checked="mixed"`).
+ * An indeterminate item resolves to `true` on the next activation.
+ *
+ * Activation (click) toggles the checked state, then fires
+ * {@link ContextMenuCheckboxItemProps.onSelect | `onSelect`} with a
+ * cancellable `Event`. Call `event.preventDefault()` to keep the menu open.
+ *
+ * Disabled items receive `aria-disabled="true"` and no-op on activation.
+ */
+function ContextMenuCheckboxItem({
+  children,
+  onClick,
+  onSelect,
+  disabled,
+  defaultChecked,
+  checked: controlledChecked,
+  onCheckedChange,
+  asChild = false,
+  ...rest
+}: ContextMenuCheckboxItemProps) {
+  const { setOpen } = useContextMenuContext();
+  const [highlighted, setHighlighted] = useState(false);
+  const { checked, toggle } = useCheckboxRoot({
+    defaultChecked,
+    checked: controlledChecked,
+    onCheckedChange,
+  });
+  const ariaChecked: "mixed" | "true" | "false" =
+    checked === "indeterminate" ? "mixed" : checked ? "true" : "false";
+
+  const handleClick = () => {
+    if (disabled) return;
+    toggle();
+    const event = new Event("contextmenu.select", { cancelable: true });
+    onSelect?.(event);
+    if (!event.defaultPrevented) {
+      setOpen(false);
+    }
+  };
+
+  const itemProps = {
+    ...rest,
+    role: "menuitemcheckbox" as const,
+    tabIndex: -1,
+    "aria-checked": ariaChecked,
+    "aria-disabled": disabled || undefined,
+    "data-highlighted": highlighted ? "" : undefined,
+    onClick: composeEventHandlers(onClick, handleClick),
+    onMouseEnter: composeEventHandlers(rest.onMouseEnter, () =>
+      setHighlighted(true),
+    ),
+    onMouseLeave: composeEventHandlers(rest.onMouseLeave, () =>
+      setHighlighted(false),
+    ),
+  };
+
+  const indicatorContextValue = useMemo(() => ({ checked }), [checked]);
+  const content = asChild ? (
+    <Slot {...itemProps}>{children}</Slot>
+  ) : (
+    <li {...itemProps}>{children}</li>
+  );
+
+  return (
+    <ContextMenuItemIndicatorContext.Provider value={indicatorContextValue}>
+      {content}
+    </ContextMenuItemIndicatorContext.Provider>
+  );
+}
+
+ContextMenuCheckboxItem.displayName = "ContextMenuCheckboxItem";
+
+/**
+ * The visible mark (usually a checkmark) rendered inside a
+ * {@link ContextMenuCheckboxItem | `ContextMenu.CheckboxItem`} (or radio item).
+ * Must be a descendant of one; rendering it anywhere else returns null
+ * silently.
+ *
+ * Renders a `<span>` by default. Exposes `data-state` reflecting the parent
+ * item's live state: `"checked"`, `"unchecked"`, or `"indeterminate"`.
+ *
+ * By default the indicator unmounts when its parent is unchecked. Pass
+ * {@link ContextMenuItemIndicatorProps.forceMount | `forceMount`} to keep
+ * the DOM node mounted in both states for animation use cases.
+ */
+function ContextMenuItemIndicator({
+  children,
+  asChild = false,
+  forceMount = false,
+  ...rest
+}: ContextMenuItemIndicatorProps) {
+  const context = useContext(ContextMenuItemIndicatorContext);
+  if (!context) return null;
+
+  const { checked } = context;
+  const dataState =
+    checked === "indeterminate"
+      ? "indeterminate"
+      : checked
+        ? "checked"
+        : "unchecked";
+
+  if (!forceMount && checked === false) return null;
+
+  const indicatorProps = { ...rest, "data-state": dataState };
+
+  if (asChild) {
+    return <Slot {...indicatorProps}>{children}</Slot>;
+  }
+
+  return <span {...indicatorProps}>{children}</span>;
+}
+
+ContextMenuItemIndicator.displayName = "ContextMenuItemIndicator";
+
 type TContextMenuCompound = typeof ContextMenuRoot & {
   Root: typeof ContextMenuRoot;
   Trigger: typeof ContextMenuTrigger;
@@ -436,6 +558,8 @@ type TContextMenuCompound = typeof ContextMenuRoot & {
   Separator: typeof ContextMenuSeparator;
   Group: typeof ContextMenuGroup;
   Label: typeof ContextMenuLabel;
+  CheckboxItem: typeof ContextMenuCheckboxItem;
+  ItemIndicator: typeof ContextMenuItemIndicator;
 };
 
 const ContextMenuCompound: TContextMenuCompound = Object.assign(
@@ -448,6 +572,8 @@ const ContextMenuCompound: TContextMenuCompound = Object.assign(
     Separator: ContextMenuSeparator,
     Group: ContextMenuGroup,
     Label: ContextMenuLabel,
+    CheckboxItem: ContextMenuCheckboxItem,
+    ItemIndicator: ContextMenuItemIndicator,
   },
 );
 

@@ -1,5 +1,7 @@
 import { ComponentProps, ReactNode, Ref } from "react";
 
+import { CheckedState } from "../Checkbox/types";
+
 type ContextMenuRootBaseProps = {
   children?: ReactNode;
 };
@@ -68,4 +70,48 @@ export type ContextMenuLabelProps = ComponentProps<"li"> & {
   children?: ReactNode;
   ref?: Ref<HTMLLIElement>;
   asChild?: boolean;
+};
+
+type ContextMenuCheckboxItemBaseProps = Omit<
+  ComponentProps<"li">,
+  "role" | "tabIndex" | "aria-checked" | "defaultChecked" | "onSelect"
+> & {
+  children?: ReactNode;
+  ref?: Ref<HTMLLIElement>;
+  asChild?: boolean;
+  disabled?: boolean;
+  /**
+   * Fires when activation completes and the auto-close fires. Call
+   * `event.preventDefault()` to keep the menu open after toggling.
+   */
+  onSelect?: (event: Event) => void;
+};
+
+type ContextMenuCheckboxItemUncontrolledProps =
+  ContextMenuCheckboxItemBaseProps & {
+    defaultChecked?: CheckedState;
+    checked?: never;
+    onCheckedChange?: (checked: boolean) => void;
+  };
+
+type ContextMenuCheckboxItemControlledProps =
+  ContextMenuCheckboxItemBaseProps & {
+    defaultChecked?: never;
+    checked: CheckedState;
+    onCheckedChange: (checked: boolean) => void;
+  };
+
+export type ContextMenuCheckboxItemProps =
+  | ContextMenuCheckboxItemUncontrolledProps
+  | ContextMenuCheckboxItemControlledProps;
+
+export type ContextMenuItemIndicatorProps = ComponentProps<"span"> & {
+  children?: ReactNode;
+  ref?: Ref<HTMLSpanElement>;
+  asChild?: boolean;
+  /**
+   * Render the indicator even when its parent item is unchecked. The
+   * `data-state` attribute still reflects the live state.
+   */
+  forceMount?: boolean;
 };

@@ -86,7 +86,45 @@ export async function executeMigration(
     }
   }
 
-  // 4. Remove each Typography collection
+  // 4. Rebind node-level boundVariables across the whole document.
+  // Typography variables are typically bound to text fields (fontSize,
+  // lineHeight, etc.) which store VariableAlias[], and to scalar node fields
+  // which store a single VariableAlias. Both are handled uniformly below.
+  // getVariableByIdAsync is called at most once per new variable id.
+  const fetchedVarCache = new Map<string, unknown>()
+  async function fetchNewVar(id: string): Promise<unknown> {
+    if (!fetchedVarCache.has(id)) {
+      fetchedVarCache.set(id, await figma.variables.getVariableByIdAsync(id))
+    }
+    return fetchedVarCache.get(id)
+  }
+
+  const allNodes = figma.root.findAll()
+  for (const node of allNodes) {
+    const bound = (node as Record<string, unknown>)['boundVariables']
+    if (!bound || typeof bound !== 'object') continue
+
+    for (const [field, aliasOrAliases] of Object.entries(
+      bound as Record<string, unknown>,
+    )) {
+      const aliases = Array.isArray(aliasOrAliases)
+        ? aliasOrAliases
+        : [aliasOrAliases]
+
+      for (const alias of aliases) {
+        if (isVariableAlias(alias) && sourceToNewId.has(alias.id)) {
+          const newVar = await fetchNewVar(sourceToNewId.get(alias.id)!)
+          if (newVar != null) {
+            ;(node as Record<string, (f: string, v: unknown) => void>)[
+              'setBoundVariable'
+            ](field, newVar)
+          }
+        }
+      }
+    }
+  }
+
+  // 5. Remove each Typography collection
   for (const collectionId of plan.deletedCollectionIds) {
     const collection =
       await figma.variables.getVariableCollectionByIdAsync(collectionId)

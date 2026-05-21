@@ -254,6 +254,94 @@ describe('executeMigration', () => {
     expect(mockCollection.remove).toHaveBeenCalledOnce()
   })
 
+  describe('node boundVariables rebinding', () => {
+    it('rebinds a scalar node field that aliases a source Typography variable', async () => {
+      const figmaMock = createFigmaMock()
+      const newSemanticVar = { id: 'nv1', setValueForMode: vi.fn() }
+      figmaMock.variables.createVariable.mockReturnValue(newSemanticVar)
+      const fetchedVar = { id: 'nv1' }
+      figmaMock.variables.getVariableByIdAsync.mockResolvedValue(fetchedVar)
+      const mockNode = {
+        boundVariables: { opacity: { type: 'VARIABLE_ALIAS', id: 'cv1' } },
+        setBoundVariable: vi.fn(),
+      }
+      figmaMock.root.findAll.mockReturnValue([mockNode])
+      vi.stubGlobal('figma', figmaMock)
+
+      await executeMigration(PLAN, INPUT)
+
+      expect(figmaMock.variables.getVariableByIdAsync).toHaveBeenCalledWith('nv1')
+      expect(mockNode.setBoundVariable).toHaveBeenCalledWith('opacity', fetchedVar)
+    })
+
+    it('rebinds a text array field that aliases a source Typography variable', async () => {
+      const figmaMock = createFigmaMock()
+      const newSemanticVar = { id: 'nv1', setValueForMode: vi.fn() }
+      figmaMock.variables.createVariable.mockReturnValue(newSemanticVar)
+      const fetchedVar = { id: 'nv1' }
+      figmaMock.variables.getVariableByIdAsync.mockResolvedValue(fetchedVar)
+      const mockNode = {
+        boundVariables: {
+          fontSize: [{ type: 'VARIABLE_ALIAS', id: 'cv1' }],
+        },
+        setBoundVariable: vi.fn(),
+      }
+      figmaMock.root.findAll.mockReturnValue([mockNode])
+      vi.stubGlobal('figma', figmaMock)
+
+      await executeMigration(PLAN, INPUT)
+
+      expect(mockNode.setBoundVariable).toHaveBeenCalledWith('fontSize', fetchedVar)
+    })
+
+    it('does not rebind node fields pointing at unrelated variables', async () => {
+      const figmaMock = createFigmaMock()
+      const mockNode = {
+        boundVariables: {
+          fontSize: [{ type: 'VARIABLE_ALIAS', id: 'unrelated-id' }],
+        },
+        setBoundVariable: vi.fn(),
+      }
+      figmaMock.root.findAll.mockReturnValue([mockNode])
+      vi.stubGlobal('figma', figmaMock)
+
+      await executeMigration(PLAN, INPUT)
+
+      expect(mockNode.setBoundVariable).not.toHaveBeenCalled()
+    })
+
+    it('skips nodes without boundVariables', async () => {
+      const figmaMock = createFigmaMock()
+      figmaMock.root.findAll.mockReturnValue([{ id: 'plain-node' }])
+      vi.stubGlobal('figma', figmaMock)
+
+      await expect(executeMigration(PLAN, INPUT)).resolves.toBeUndefined()
+    })
+
+    it('caches getVariableByIdAsync calls for the same new variable id', async () => {
+      const figmaMock = createFigmaMock()
+      const newSemanticVar = { id: 'nv1', setValueForMode: vi.fn() }
+      figmaMock.variables.createVariable.mockReturnValue(newSemanticVar)
+      figmaMock.variables.getVariableByIdAsync.mockResolvedValue({ id: 'nv1' })
+      const mockNodes = [
+        {
+          boundVariables: { opacity: { type: 'VARIABLE_ALIAS', id: 'cv1' } },
+          setBoundVariable: vi.fn(),
+        },
+        {
+          boundVariables: { visible: { type: 'VARIABLE_ALIAS', id: 'cv1' } },
+          setBoundVariable: vi.fn(),
+        },
+      ]
+      figmaMock.root.findAll.mockReturnValue(mockNodes)
+      vi.stubGlobal('figma', figmaMock)
+
+      await executeMigration(PLAN, INPUT)
+
+      expect(figmaMock.variables.getVariableByIdAsync).toHaveBeenCalledOnce()
+    })
+  })
+
   it('creates variables for all planned entries', async () => {
     const figmaMock = createFigmaMock()
     vi.stubGlobal('figma', figmaMock)

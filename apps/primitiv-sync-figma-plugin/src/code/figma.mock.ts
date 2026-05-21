@@ -23,12 +23,14 @@ export interface FigmaMock {
     onmessage: ((event: { pluginMessage: unknown }) => void) | null
   }
   loadAllPagesAsync: Mock
+  root: { findAll: Mock }
   variables: {
     getLocalVariableCollectionsAsync: Mock
     getLocalVariablesAsync: Mock
     createVariableCollection: Mock
     createVariable: Mock
     getVariableCollectionByIdAsync: Mock
+    getVariableByIdAsync: Mock
   }
 }
 
@@ -57,6 +59,7 @@ export function createFigmaMock(): FigmaMock {
       onmessage: null,
     },
     loadAllPagesAsync: vi.fn(() => Promise.resolve()),
+    root: { findAll: vi.fn(() => []) },
     variables: {
       getLocalVariableCollectionsAsync: vi.fn(() => Promise.resolve([])),
       getLocalVariablesAsync: vi.fn(() => Promise.resolve([])),
@@ -65,6 +68,7 @@ export function createFigmaMock(): FigmaMock {
       getVariableCollectionByIdAsync: vi.fn(() =>
         Promise.resolve(defaultSemanticCollection),
       ),
+      getVariableByIdAsync: vi.fn(() => Promise.resolve(null)),
     },
   }
 }

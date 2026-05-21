@@ -83,7 +83,6 @@ describe('executeMigration', () => {
     await executeMigration(PLAN, INPUT)
 
     expect(mockVar.setValueForMode).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'new-semantic-id' }),
       'new-semantic-mode-id',
       'Asta Sans',
     )

@@ -41,7 +41,7 @@ export async function executeMigration(
     const sourceCollection = collectionById.get(planned.sourceCollectionId)
     if (sourceVar !== undefined && sourceCollection !== undefined) {
       const value = sourceVar.valuesByMode[sourceCollection.defaultModeId]
-      newVar.setValueForMode(semanticCollection, semanticCollection.defaultModeId, value)
+      newVar.setValueForMode(semanticCollection.defaultModeId, value)
     }
   }
 

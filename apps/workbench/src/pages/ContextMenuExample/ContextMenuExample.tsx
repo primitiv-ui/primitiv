@@ -34,19 +34,49 @@ export function ContextMenuExample() {
             </ContextMenu.SubContent>
           </ContextMenu.Sub>
           <ContextMenu.Separator />
-          <ContextMenu.CheckboxItem className="cm-checkbox-item">
+          <ContextMenu.CheckboxItem
+            className="cm-checkbox-item"
+            onSelect={(event) => event.preventDefault()}
+          >
+            <ContextMenu.ItemIndicator className="cm-item-indicator">
+              <span aria-hidden="true">✓</span>
+            </ContextMenu.ItemIndicator>
             Show bookmarks
           </ContextMenu.CheckboxItem>
           <ContextMenu.Separator />
           <ContextMenu.Label className="cm-label">Theme</ContextMenu.Label>
-          <ContextMenu.RadioGroup className="cm-radio-group" defaultValue="system">
-            <ContextMenu.RadioItem value="light" className="cm-radio-item">
+          <ContextMenu.RadioGroup
+            className="cm-radio-group"
+            defaultValue="system"
+          >
+            <ContextMenu.RadioItem
+              value="light"
+              className="cm-radio-item"
+              onSelect={(event) => event.preventDefault()}
+            >
+              <ContextMenu.ItemIndicator className="cm-item-indicator">
+                <span aria-hidden="true">•</span>
+              </ContextMenu.ItemIndicator>
               Light
             </ContextMenu.RadioItem>
-            <ContextMenu.RadioItem value="dark" className="cm-radio-item">
+            <ContextMenu.RadioItem
+              value="dark"
+              className="cm-radio-item"
+              onSelect={(event) => event.preventDefault()}
+            >
+              <ContextMenu.ItemIndicator className="cm-item-indicator">
+                <span aria-hidden="true">•</span>
+              </ContextMenu.ItemIndicator>
               Dark
             </ContextMenu.RadioItem>
-            <ContextMenu.RadioItem value="system" className="cm-radio-item">
+            <ContextMenu.RadioItem
+              value="system"
+              className="cm-radio-item"
+              onSelect={(event) => event.preventDefault()}
+            >
+              <ContextMenu.ItemIndicator className="cm-item-indicator">
+                <span aria-hidden="true">•</span>
+              </ContextMenu.ItemIndicator>
               Match system
             </ContextMenu.RadioItem>
           </ContextMenu.RadioGroup>

@@ -5,7 +5,8 @@ A compound component implementing the
 for right-click / long-press / context-key menus, layered on top of the
 native HTML
 [Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API).
-No portal, no floating-ui — the browser handles layering and light-dismiss.
+No portal, no floating-ui — the browser handles layering via the top
+layer, and the component handles close on outside click / Escape.
 
 ```tsx
 import { ContextMenu } from "@primitiv/react";
@@ -29,7 +30,7 @@ import { ContextMenu } from "@primitiv/react";
 | --------------------------- | -------------------- | ------------------------------------------------------------------------------------ |
 | `ContextMenu.Root`          | State owner          | Uncontrolled (`defaultOpen`) or controlled (`open` + `onOpenChange`)                 |
 | `ContextMenu.Trigger`       | Right-click target   | Renders `<span>`; intercepts `contextmenu`, suppresses the native menu               |
-| `ContextMenu.Content`       | `menu`               | Native `popover="auto"`, positioned at the cursor; arrow keys, typeahead, Escape     |
+| `ContextMenu.Content`       | `menu`               | Native `popover="manual"`, positioned at the cursor; arrow keys, typeahead, Escape   |
 | `ContextMenu.Item`          | `menuitem`           | Activatable row with `onSelect` escape hatch                                         |
 | `ContextMenu.CheckboxItem`  | `menuitemcheckbox`   | Tri-state toggle (`true` / `false` / `"indeterminate"`)                              |
 | `ContextMenu.RadioGroup`    | `group`              | Single-selection container for `RadioItem`s                                          |

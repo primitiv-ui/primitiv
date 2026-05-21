@@ -38,7 +38,7 @@ describe("ContextMenu asChild", () => {
     const content = screen.getByTestId("custom-content");
     expect(content.tagName).toBe("DIV");
     expect(content).toHaveAttribute("role", "menu");
-    expect(content).toHaveAttribute("popover", "auto");
+    expect(content).toHaveAttribute("popover", "manual");
   });
 
   it("delegates Item to the child element and auto-closes on click", () => {

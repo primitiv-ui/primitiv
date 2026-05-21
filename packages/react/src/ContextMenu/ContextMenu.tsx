@@ -148,9 +148,15 @@ ContextMenuTrigger.displayName = "ContextMenuTrigger";
 /**
  * The menu panel rendered with the native HTML
  * [Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API)
- * (`popover="auto"`) — no portal, no floating-ui. The browser manages
- * layering via the top layer and dispatches a light-dismiss on outside
- * click and Escape in the light-dismiss flow.
+ * in **manual** mode (`popover="manual"`) — no portal, no floating-ui. The
+ * browser still layers the menu via the top layer, but the component owns
+ * the close flow rather than the browser's light-dismiss algorithm.
+ *
+ * Manual mode is required because the right-click gesture's pointerdown
+ * fires before the popover exists; with `popover="auto"`, the browser
+ * treats the matching pointerup as an outside click and closes the menu
+ * the instant the user releases the button. Outside-click close and
+ * Escape are handled explicitly here instead.
  *
  * Renders a `<menu role="menu">` positioned at the pointer coordinates
  * captured when the Trigger fired its `contextmenu` event. Pass `asChild`
@@ -292,7 +298,12 @@ function ContextMenuContent({
     ref: menuRef,
     id: contentId,
     role: "menu" as const,
-    popover: "auto" as const,
+    // Manual mode: the right-click gesture's pointerdown fires before the
+    // popover opens, so popover="auto"'s light-dismiss algorithm treats
+    // the matching pointerup as an outside click and closes the menu the
+    // instant the user releases the button. We close on outside click
+    // (document listener below) and Escape (key handler) ourselves.
+    popover: "manual" as const,
     "data-state": (open ? "open" : "closed") as "open" | "closed",
     style: positionedStyle,
     onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),

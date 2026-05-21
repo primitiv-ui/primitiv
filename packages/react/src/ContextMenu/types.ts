@@ -150,3 +150,42 @@ export type ContextMenuRadioItemProps = Omit<
   value: string;
   onSelect?: (event: Event) => void;
 };
+
+type ContextMenuSubBaseProps = {
+  children?: ReactNode;
+};
+
+type ContextMenuSubUncontrolledProps = ContextMenuSubBaseProps & {
+  defaultOpen?: boolean;
+  open?: never;
+  onOpenChange?: (open: boolean) => void;
+};
+
+type ContextMenuSubControlledProps = ContextMenuSubBaseProps & {
+  defaultOpen?: never;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+};
+
+export type ContextMenuSubProps =
+  | ContextMenuSubUncontrolledProps
+  | ContextMenuSubControlledProps;
+
+export type ContextMenuSubTriggerProps = Omit<
+  ComponentProps<"li">,
+  "role" | "tabIndex" | "aria-haspopup" | "aria-expanded" | "aria-controls"
+> & {
+  children?: ReactNode;
+  ref?: Ref<HTMLLIElement>;
+  asChild?: boolean;
+  disabled?: boolean;
+};
+
+export type ContextMenuSubContentProps = Omit<
+  ComponentProps<"menu">,
+  "role" | "popover" | "id"
+> & {
+  children?: ReactNode;
+  ref?: Ref<HTMLMenuElement>;
+  asChild?: boolean;
+};

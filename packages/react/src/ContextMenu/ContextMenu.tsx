@@ -22,6 +22,10 @@ import { ContextMenuGroupContext } from "./ContextMenuGroupContext";
 import { ContextMenuItemIndicatorContext } from "./ContextMenuItemIndicatorContext";
 import { ContextMenuRadioGroupContext } from "./ContextMenuRadioGroupContext";
 import {
+  ContextMenuSubContext,
+  useContextMenuSubContext,
+} from "./ContextMenuSubContext";
+import {
   ContextMenuCheckboxItemProps,
   ContextMenuContentProps,
   ContextMenuGroupProps,
@@ -32,6 +36,9 @@ import {
   ContextMenuRadioItemProps,
   ContextMenuRootProps,
   ContextMenuSeparatorProps,
+  ContextMenuSubContentProps,
+  ContextMenuSubProps,
+  ContextMenuSubTriggerProps,
   ContextMenuTriggerProps,
 } from "./types";
 import { MENUITEM_SELECTOR, TYPEAHEAD_RESET_MS } from "./constants";
@@ -663,6 +670,177 @@ function ContextMenuRadioItem({
 
 ContextMenuRadioItem.displayName = "ContextMenuRadioItem";
 
+/**
+ * A submenu boundary. Wrap a {@link ContextMenuSubTrigger | `ContextMenu.SubTrigger`}
+ * and its {@link ContextMenuSubContent | `ContextMenu.SubContent`} in a
+ * `ContextMenu.Sub` to establish an independent open state for the nested
+ * menu. Supports uncontrolled (`defaultOpen`) and controlled (`open` +
+ * `onOpenChange`) modes.
+ */
+function ContextMenuSub({
+  defaultOpen,
+  open: controlledOpen,
+  onOpenChange,
+  children,
+}: ContextMenuSubProps) {
+  const contentId = useId();
+  const triggerRef = useRef<HTMLLIElement | null>(null);
+  const [open, setOpenBase] = useControllableState<boolean>(
+    controlledOpen,
+    defaultOpen ?? false,
+    onOpenChange,
+  );
+  const openRef = useRef(open);
+  useEffect(() => {
+    openRef.current = open;
+  });
+  const setOpen = useCallback(
+    (next: boolean) => {
+      if (openRef.current === next) return;
+      openRef.current = next;
+      setOpenBase(next);
+    },
+    [setOpenBase],
+  );
+  const contextValue = useMemo(
+    () => ({ open, setOpen, contentId, triggerRef }),
+    [open, setOpen, contentId],
+  );
+  return (
+    <ContextMenuSubContext.Provider value={contextValue}>
+      {children}
+    </ContextMenuSubContext.Provider>
+  );
+}
+
+ContextMenuSub.displayName = "ContextMenuSub";
+
+/**
+ * The submenu trigger. Must be rendered inside a {@link ContextMenuSub |
+ * `ContextMenu.Sub`}.
+ *
+ * Renders a `<li role="menuitem">` with `aria-haspopup="menu"`,
+ * `aria-expanded`, and `aria-controls` wiring it to the sibling
+ * {@link ContextMenuSubContent | `ContextMenu.SubContent`}.
+ *
+ * Opens the submenu on click, `ArrowRight`, or pointer hover. Disabled
+ * triggers ignore both click and `ArrowRight`.
+ */
+function ContextMenuSubTrigger({
+  children,
+  onClick,
+  onKeyDown,
+  disabled,
+  asChild = false,
+  ...rest
+}: ContextMenuSubTriggerProps) {
+  const sub = useContextMenuSubContext();
+  const [hovered, setHovered] = useState(false);
+  const toggle = () => {
+    if (disabled) return;
+    sub.setOpen(true);
+  };
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLLIElement>) => {
+    if (disabled) return;
+    if (event.key !== "ArrowRight") return;
+    event.preventDefault();
+    event.stopPropagation();
+    sub.setOpen(true);
+  };
+  const subTriggerProps = {
+    ...rest,
+    ref: sub.triggerRef,
+    role: "menuitem" as const,
+    tabIndex: -1,
+    "aria-haspopup": "menu" as const,
+    "aria-expanded": sub.open,
+    "aria-controls": sub.contentId,
+    "aria-disabled": disabled || undefined,
+    "data-highlighted": hovered || sub.open ? "" : undefined,
+    onClick: composeEventHandlers(onClick, toggle),
+    onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
+    onMouseEnter: composeEventHandlers(rest.onMouseEnter, () => {
+      setHovered(true);
+      if (!disabled) sub.setOpen(true);
+    }),
+    onMouseLeave: composeEventHandlers(rest.onMouseLeave, () =>
+      setHovered(false),
+    ),
+  };
+  if (asChild) {
+    return <Slot {...subTriggerProps}>{children}</Slot>;
+  }
+  return <li {...subTriggerProps}>{children}</li>;
+}
+
+ContextMenuSubTrigger.displayName = "ContextMenuSubTrigger";
+
+/**
+ * The submenu panel. Must be rendered inside a {@link ContextMenuSub |
+ * `ContextMenu.Sub`}.
+ *
+ * Renders a `<menu role="menu" popover="auto">` by default. When the submenu
+ * opens, focus moves to its first enabled item. `ArrowLeft` closes the
+ * submenu and returns focus to the SubTrigger.
+ */
+function ContextMenuSubContent({
+  children,
+  onKeyDown,
+  asChild = false,
+  ...rest
+}: ContextMenuSubContentProps) {
+  const sub = useContextMenuSubContext();
+  const menuRef = useRef<HTMLMenuElement | null>(null);
+
+  useEffect(() => {
+    const menu = menuRef.current!;
+    if (sub.open) {
+      menu.showPopover();
+      const firstItem = menu.querySelector<HTMLElement>(MENUITEM_SELECTOR);
+      firstItem?.focus();
+    } else {
+      try {
+        menu.hidePopover();
+      } catch {
+        // already hidden — no-op
+      }
+    }
+  }, [sub.open]);
+
+  useEffect(() => {
+    const menu = menuRef.current!;
+    const handleToggle = (event: Event) => {
+      if ((event as ToggleEvent).newState === "closed") sub.setOpen(false);
+    };
+    menu.addEventListener("toggle", handleToggle);
+    return () => menu.removeEventListener("toggle", handleToggle);
+  }, [sub.setOpen]);
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLMenuElement>) => {
+    if (event.key !== "ArrowLeft") return;
+    event.preventDefault();
+    event.stopPropagation();
+    sub.setOpen(false);
+    sub.triggerRef.current?.focus();
+  };
+
+  const subContentProps = {
+    ...rest,
+    ref: menuRef,
+    id: sub.contentId,
+    role: "menu" as const,
+    popover: "auto" as const,
+    onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
+  };
+
+  if (asChild) {
+    return <Slot {...subContentProps}>{children}</Slot>;
+  }
+  return <menu {...subContentProps}>{children}</menu>;
+}
+
+ContextMenuSubContent.displayName = "ContextMenuSubContent";
+
 type TContextMenuCompound = typeof ContextMenuRoot & {
   Root: typeof ContextMenuRoot;
   Trigger: typeof ContextMenuTrigger;
@@ -675,6 +853,9 @@ type TContextMenuCompound = typeof ContextMenuRoot & {
   ItemIndicator: typeof ContextMenuItemIndicator;
   RadioGroup: typeof ContextMenuRadioGroup;
   RadioItem: typeof ContextMenuRadioItem;
+  Sub: typeof ContextMenuSub;
+  SubTrigger: typeof ContextMenuSubTrigger;
+  SubContent: typeof ContextMenuSubContent;
 };
 
 const ContextMenuCompound: TContextMenuCompound = Object.assign(
@@ -691,6 +872,9 @@ const ContextMenuCompound: TContextMenuCompound = Object.assign(
     ItemIndicator: ContextMenuItemIndicator,
     RadioGroup: ContextMenuRadioGroup,
     RadioItem: ContextMenuRadioItem,
+    Sub: ContextMenuSub,
+    SubTrigger: ContextMenuSubTrigger,
+    SubContent: ContextMenuSubContent,
   },
 );
 

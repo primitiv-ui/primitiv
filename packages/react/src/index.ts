@@ -8,6 +8,7 @@ export * from "./Carousel";
 export * from "./Checkbox";
 export * from "./CheckboxCard";
 export * from "./Collapsible";
+export * from "./ContextMenu";
 export * from "./DirectionProvider";
 export * from "./Divider";
 export * from "./Dropdown";

@@ -1,6 +1,7 @@
 import { useContext, useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { useCheckboxRoot } from "../Checkbox/hooks";
+import { useDirection } from "../DirectionProvider";
 import { useRadioGroupRoot } from "../RadioGroup/hooks";
 import { composeEventHandlers, Slot } from "../Slot";
 
@@ -58,6 +59,11 @@ import { MENUITEM_SELECTOR } from "./constants";
  * Only user-driven transitions (trigger clicks, Escape, selection) invoke
  * `onOpenChange`. External state flips made by the parent do not.
  *
+ * **Reading direction.** Pass {@link DropdownRootProps.dir | `dir`} to set
+ * `"ltr"` or `"rtl"`, which inverts the submenu open / close arrow keys
+ * (`ArrowRight` ↔ `ArrowLeft`). When omitted, the component reads the
+ * inherited {@link DirectionProvider} value, falling back to `"ltr"`.
+ *
  * @example Uncontrolled
  * ```tsx
  * <Dropdown.Root>
@@ -82,12 +88,15 @@ function DropdownRoot({
   defaultOpen,
   open,
   onOpenChange,
+  dir,
   children,
 }: DropdownRootProps) {
+  const inheritedDir = useDirection();
   const { contextValue } = useDropdownRoot({
     defaultOpen,
     open,
     onOpenChange,
+    dir: dir ?? inheritedDir,
   });
 
   return (
@@ -651,15 +660,16 @@ DropdownSub.displayName = "DropdownSub";
  * `aria-expanded`, and `aria-controls` wiring it to the sibling
  * {@link DropdownSubContent | `Dropdown.SubContent`}. `asChild` is supported.
  *
- * Opens the submenu on click, `ArrowRight`, or pointer hover; all other
- * keys bubble to the parent {@link DropdownContent | `Dropdown.Content`}
- * so its roving focus and typeahead continue to work while a submenu is
- * in play. Hovering onto a sibling item in the parent menu closes the
- * submenu — mirroring the keyboard contract where focus returning to
- * the parent dismisses it.
+ * Opens the submenu on click, the inline-forward arrow key, or pointer
+ * hover; all other keys bubble to the parent {@link DropdownContent |
+ * `Dropdown.Content`} so its roving focus and typeahead continue to work
+ * while a submenu is in play. The open key follows the resolved reading
+ * direction — `ArrowRight` in `"ltr"`, `ArrowLeft` in `"rtl"`. Hovering
+ * onto a sibling item in the parent menu closes the submenu — mirroring
+ * the keyboard contract where focus returning to the parent dismisses it.
  *
  * Disabled triggers receive `aria-disabled="true"` and ignore both click
- * and `ArrowRight`.
+ * and the open arrow key.
  */
 function DropdownSubTrigger({
   children,
@@ -670,6 +680,8 @@ function DropdownSubTrigger({
   ...rest
 }: DropdownSubTriggerProps) {
   const sub = useDropdownSubContext();
+  const { dir } = useDropdownContext();
+  const openKey = dir === "rtl" ? "ArrowLeft" : "ArrowRight";
   const [hovered, setHovered] = useState(false);
   const toggle = () => {
     if (disabled) return;
@@ -677,7 +689,7 @@ function DropdownSubTrigger({
   };
   const handleKeyDown = (event: React.KeyboardEvent<HTMLLIElement>) => {
     if (disabled) return;
-    if (event.key !== "ArrowRight") return;
+    if (event.key !== openKey) return;
     event.preventDefault();
     event.stopPropagation();
     sub.setOpen(true);
@@ -718,8 +730,9 @@ DropdownSubTrigger.displayName = "DropdownSubTrigger";
  * to render any element with menu semantics. When the submenu opens, focus
  * moves to its first enabled item.
  *
- * Presses of `ArrowLeft` close the submenu and return focus to the
- * {@link DropdownSubTrigger | `Dropdown.SubTrigger`}; all other keys bubble
+ * Presses of the inline-backward arrow key close the submenu and return
+ * focus to the {@link DropdownSubTrigger | `Dropdown.SubTrigger`} —
+ * `ArrowLeft` in `"ltr"`, `ArrowRight` in `"rtl"`. All other keys bubble
  * to the parent {@link DropdownContent | `Dropdown.Content`} so arrow
  * navigation and typeahead apply to the submenu's items.
  */
@@ -730,6 +743,8 @@ function DropdownSubContent({
   ...rest
 }: DropdownSubContentProps) {
   const sub = useDropdownSubContext();
+  const { dir } = useDropdownContext();
+  const closeKey = dir === "rtl" ? "ArrowRight" : "ArrowLeft";
   const menuRef = useRef<HTMLMenuElement | null>(null);
 
   useEffect(() => {
@@ -757,7 +772,7 @@ function DropdownSubContent({
   }, [sub.setOpen]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLMenuElement>) => {
-    if (event.key !== "ArrowLeft") return;
+    if (event.key !== closeKey) return;
     event.preventDefault();
     event.stopPropagation();
     sub.setOpen(false);

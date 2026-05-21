@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import { useCheckboxRoot } from "../Checkbox/hooks";
+import { useDirection } from "../DirectionProvider";
 import { useRadioGroupRoot } from "../RadioGroup/hooks";
 import { useControllableState } from "../hooks";
 import { Slot, composeEventHandlers } from "../Slot";
@@ -18,6 +19,7 @@ import {
   ContextMenuPosition,
   useContextMenuContext,
 } from "./ContextMenuContext";
+import { ContextMenuContentContext } from "./ContextMenuContentContext";
 import { ContextMenuGroupContext } from "./ContextMenuGroupContext";
 import { ContextMenuItemIndicatorContext } from "./ContextMenuItemIndicatorContext";
 import { ContextMenuRadioGroupContext } from "./ContextMenuRadioGroupContext";
@@ -59,16 +61,24 @@ import { MENUITEM_SELECTOR, TYPEAHEAD_RESET_MS } from "./constants";
  *   {@link ContextMenuRootProps.onOpenChange | `onOpenChange`} together. The
  *   parent owns the state; the component defers every transition back through
  *   the callback.
+ *
+ * **Reading direction.** Pass {@link ContextMenuRootProps.dir | `dir`} to
+ * set `"ltr"` or `"rtl"`, which inverts the submenu open / close arrow
+ * keys (`ArrowRight` ↔ `ArrowLeft`). When omitted, the component reads
+ * the inherited {@link DirectionProvider} value, falling back to `"ltr"`.
  */
 function ContextMenuRoot({
   defaultOpen = false,
   open: controlledOpen,
   onOpenChange,
+  dir,
   children,
 }: ContextMenuRootProps) {
   const contentId = useId();
   const triggerRef = useRef<HTMLElement | null>(null);
   const [position, setPosition] = useState<ContextMenuPosition | null>(null);
+  const inheritedDir = useDirection();
+  const resolvedDir = dir ?? inheritedDir;
   const [open, setOpenBase] = useControllableState<boolean>(
     controlledOpen,
     defaultOpen,
@@ -89,8 +99,16 @@ function ContextMenuRoot({
   );
 
   const contextValue = useMemo(
-    () => ({ open, setOpen, position, setPosition, contentId, triggerRef }),
-    [open, setOpen, position, contentId],
+    () => ({
+      open,
+      setOpen,
+      position,
+      setPosition,
+      contentId,
+      triggerRef,
+      dir: resolvedDir,
+    }),
+    [open, setOpen, position, contentId, resolvedDir],
   );
 
   return (
@@ -101,6 +119,16 @@ function ContextMenuRoot({
 }
 
 ContextMenuRoot.displayName = "ContextMenuRoot";
+
+/**
+ * Returns a callback that closes any direct-child sub-menu registered with
+ * the enclosing Content / SubContent. Items invoke this on mouseEnter so
+ * hovering a sibling dismisses an open sub, mirroring the keyboard contract.
+ */
+function useCloseSiblingSub() {
+  const content = useContext(ContextMenuContentContext);
+  return () => content?.closeOpenSubRef.current?.();
+}
 
 /**
  * The area that responds to right-click. Renders a `<span>` by default
@@ -148,13 +176,24 @@ ContextMenuTrigger.displayName = "ContextMenuTrigger";
 /**
  * The menu panel rendered with the native HTML
  * [Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API)
- * (`popover="auto"`) — no portal, no floating-ui. The browser manages
- * layering via the top layer and dispatches a light-dismiss on outside
- * click and Escape in the light-dismiss flow.
+ * in **manual** mode (`popover="manual"`) — no portal, no floating-ui. The
+ * browser still layers the menu via the top layer, but the component owns
+ * the close flow rather than the browser's light-dismiss algorithm.
+ *
+ * Manual mode is required because the right-click gesture's pointerdown
+ * fires before the popover exists; with `popover="auto"`, the browser
+ * treats the matching pointerup as an outside click and closes the menu
+ * the instant the user releases the button. Outside-click close and
+ * Escape are handled explicitly here instead.
  *
  * Renders a `<menu role="menu">` positioned at the pointer coordinates
- * captured when the Trigger fired its `contextmenu` event. Pass `asChild`
- * to render any element with menu semantics.
+ * captured when the Trigger fired its `contextmenu` event. The cursor
+ * position is exposed twice on the element style: as explicit `left` /
+ * `top` insets (so the menu renders at the cursor with zero consumer
+ * CSS), and as `--primitiv-context-menu-x` / `--primitiv-context-menu-y`
+ * custom properties so consumer CSS can write `@position-try` fallbacks
+ * that flip the menu to the opposite side when it would overflow the
+ * viewport. Pass `asChild` to render any element with menu semantics.
  */
 function ContextMenuContent({
   children,
@@ -277,32 +316,61 @@ function ContextMenuContent({
     }
   };
 
+  // Both `left`/`top` and `--primitiv-context-menu-x`/`-y` are set: the
+  // explicit insets position the menu at the cursor by default, and the
+  // custom properties let consumer CSS write `@position-try` fallbacks
+  // that flip the menu (e.g. `right: calc(100vw - var(--primitiv-context-menu-x))`)
+  // when the primary position would overflow the viewport.
   const positionedStyle = position
-    ? {
+    ? ({
         position: "fixed" as const,
         left: position.x,
         top: position.y,
         margin: 0,
+        "--primitiv-context-menu-x": `${position.x}px`,
+        "--primitiv-context-menu-y": `${position.y}px`,
         ...style,
-      }
+      } as React.CSSProperties)
     : style;
+
+  const closeOpenSubRef = useRef<(() => void) | null>(null);
+  const contentContextValue = useMemo(() => ({ closeOpenSubRef }), []);
+
+  // Cascade-close: when our own popover closes, also close any registered
+  // direct-child sub so its state doesn't leak into the next open. Without
+  // this, clicking an item inside a SubContent closes Root but leaves the
+  // child Sub.open=true, which then briefly drives a stale popover render
+  // the next time the menu opens. Each SubContent runs the same cascade
+  // against its own child sub, so the chain unwinds bottom-up.
+  useEffect(() => {
+    if (!open) closeOpenSubRef.current?.();
+  }, [open]);
 
   const contentProps = {
     ...rest,
     ref: menuRef,
     id: contentId,
     role: "menu" as const,
-    popover: "auto" as const,
+    // Manual mode: the right-click gesture's pointerdown fires before the
+    // popover opens, so popover="auto"'s light-dismiss algorithm treats
+    // the matching pointerup as an outside click and closes the menu the
+    // instant the user releases the button. We close on outside click
+    // (document listener below) and Escape (key handler) ourselves.
+    popover: "manual" as const,
     "data-state": (open ? "open" : "closed") as "open" | "closed",
     style: positionedStyle,
     onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
   };
 
-  if (asChild) {
-    return <Slot {...contentProps}>{children}</Slot>;
-  }
-
-  return <menu {...contentProps}>{children}</menu>;
+  return (
+    <ContextMenuContentContext.Provider value={contentContextValue}>
+      {asChild ? (
+        <Slot {...contentProps}>{children}</Slot>
+      ) : (
+        <menu {...contentProps}>{children}</menu>
+      )}
+    </ContextMenuContentContext.Provider>
+  );
 }
 
 ContextMenuContent.displayName = "ContextMenuContent";
@@ -327,6 +395,7 @@ function ContextMenuItem({
   ...rest
 }: ContextMenuItemProps) {
   const { setOpen } = useContextMenuContext();
+  const closeSiblingSub = useCloseSiblingSub();
   const [highlighted, setHighlighted] = useState(false);
 
   const handleClick = () => {
@@ -345,9 +414,10 @@ function ContextMenuItem({
     "aria-disabled": disabled || undefined,
     "data-highlighted": highlighted ? "" : undefined,
     onClick: composeEventHandlers(onClick, handleClick),
-    onMouseEnter: composeEventHandlers(rest.onMouseEnter, () =>
-      setHighlighted(true),
-    ),
+    onMouseEnter: composeEventHandlers(rest.onMouseEnter, () => {
+      setHighlighted(true);
+      closeSiblingSub();
+    }),
     onMouseLeave: composeEventHandlers(rest.onMouseLeave, () =>
       setHighlighted(false),
     ),
@@ -468,6 +538,7 @@ function ContextMenuCheckboxItem({
   ...rest
 }: ContextMenuCheckboxItemProps) {
   const { setOpen } = useContextMenuContext();
+  const closeSiblingSub = useCloseSiblingSub();
   const [highlighted, setHighlighted] = useState(false);
   const { checked, toggle } = useCheckboxRoot({
     defaultChecked,
@@ -495,9 +566,10 @@ function ContextMenuCheckboxItem({
     "aria-disabled": disabled || undefined,
     "data-highlighted": highlighted ? "" : undefined,
     onClick: composeEventHandlers(onClick, handleClick),
-    onMouseEnter: composeEventHandlers(rest.onMouseEnter, () =>
-      setHighlighted(true),
-    ),
+    onMouseEnter: composeEventHandlers(rest.onMouseEnter, () => {
+      setHighlighted(true);
+      closeSiblingSub();
+    }),
     onMouseLeave: composeEventHandlers(rest.onMouseLeave, () =>
       setHighlighted(false),
     ),
@@ -624,6 +696,7 @@ function ContextMenuRadioItem({
   ...rest
 }: ContextMenuRadioItemProps) {
   const { setOpen } = useContextMenuContext();
+  const closeSiblingSub = useCloseSiblingSub();
   const [highlighted, setHighlighted] = useState(false);
   const group = useContext(ContextMenuRadioGroupContext);
   if (!group) {
@@ -651,9 +724,10 @@ function ContextMenuRadioItem({
     "aria-disabled": disabled || undefined,
     "data-highlighted": highlighted ? "" : undefined,
     onClick: composeEventHandlers(onClick, handleClick),
-    onMouseEnter: composeEventHandlers(rest.onMouseEnter, () =>
-      setHighlighted(true),
-    ),
+    onMouseEnter: composeEventHandlers(rest.onMouseEnter, () => {
+      setHighlighted(true);
+      closeSiblingSub();
+    }),
     onMouseLeave: composeEventHandlers(rest.onMouseLeave, () =>
       setHighlighted(false),
     ),
@@ -711,6 +785,26 @@ function ContextMenuSub({
     () => ({ open, setOpen, contentId, triggerRef }),
     [open, setOpen, contentId],
   );
+
+  // Register with the enclosing Content/SubContent so sibling items can close
+  // this sub on hover (mirroring the keyboard behaviour where focus returning
+  // to the parent dismisses it). If another sibling sub is already
+  // registered as open, close it first so a hover-to-open transition onto our
+  // SubTrigger supplants the prior sub rather than stacking it.
+  const parentContent = useContext(ContextMenuContentContext);
+  useEffect(() => {
+    if (!open || !parentContent) return;
+    const close = () => setOpen(false);
+    const prev = parentContent.closeOpenSubRef.current;
+    if (prev && prev !== close) prev();
+    parentContent.closeOpenSubRef.current = close;
+    return () => {
+      if (parentContent.closeOpenSubRef.current === close) {
+        parentContent.closeOpenSubRef.current = null;
+      }
+    };
+  }, [open, parentContent, setOpen]);
+
   return (
     <ContextMenuSubContext.Provider value={contextValue}>
       {children}
@@ -728,8 +822,10 @@ ContextMenuSub.displayName = "ContextMenuSub";
  * `aria-expanded`, and `aria-controls` wiring it to the sibling
  * {@link ContextMenuSubContent | `ContextMenu.SubContent`}.
  *
- * Opens the submenu on click, `ArrowRight`, or pointer hover. Disabled
- * triggers ignore both click and `ArrowRight`.
+ * Opens the submenu on click, the inline-forward arrow key, or pointer
+ * hover. The open key follows the resolved reading direction —
+ * `ArrowRight` in `"ltr"`, `ArrowLeft` in `"rtl"`. Disabled triggers
+ * ignore both click and the open arrow key.
  */
 function ContextMenuSubTrigger({
   children,
@@ -740,6 +836,9 @@ function ContextMenuSubTrigger({
   ...rest
 }: ContextMenuSubTriggerProps) {
   const sub = useContextMenuSubContext();
+  const { dir } = useContextMenuContext();
+  const openKey = dir === "rtl" ? "ArrowLeft" : "ArrowRight";
+  const closeSiblingSub = useCloseSiblingSub();
   const [hovered, setHovered] = useState(false);
   const toggle = () => {
     if (disabled) return;
@@ -747,7 +846,7 @@ function ContextMenuSubTrigger({
   };
   const handleKeyDown = (event: React.KeyboardEvent<HTMLLIElement>) => {
     if (disabled) return;
-    if (event.key !== "ArrowRight") return;
+    if (event.key !== openKey) return;
     event.preventDefault();
     event.stopPropagation();
     sub.setOpen(true);
@@ -766,6 +865,7 @@ function ContextMenuSubTrigger({
     onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
     onMouseEnter: composeEventHandlers(rest.onMouseEnter, () => {
       setHovered(true);
+      closeSiblingSub();
       if (!disabled) sub.setOpen(true);
     }),
     onMouseLeave: composeEventHandlers(rest.onMouseLeave, () =>
@@ -785,8 +885,9 @@ ContextMenuSubTrigger.displayName = "ContextMenuSubTrigger";
  * `ContextMenu.Sub`}.
  *
  * Renders a `<menu role="menu" popover="auto">` by default. When the submenu
- * opens, focus moves to its first enabled item. `ArrowLeft` closes the
- * submenu and returns focus to the SubTrigger.
+ * opens, focus moves to its first enabled item. The inline-backward arrow
+ * key closes the submenu and returns focus to the SubTrigger —
+ * `ArrowLeft` in `"ltr"`, `ArrowRight` in `"rtl"`.
  */
 function ContextMenuSubContent({
   children,
@@ -795,6 +896,8 @@ function ContextMenuSubContent({
   ...rest
 }: ContextMenuSubContentProps) {
   const sub = useContextMenuSubContext();
+  const { dir } = useContextMenuContext();
+  const closeKey = dir === "rtl" ? "ArrowRight" : "ArrowLeft";
   const menuRef = useRef<HTMLMenuElement | null>(null);
 
   useEffect(() => {
@@ -822,12 +925,20 @@ function ContextMenuSubContent({
   }, [sub.setOpen]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLMenuElement>) => {
-    if (event.key !== "ArrowLeft") return;
+    if (event.key !== closeKey) return;
     event.preventDefault();
     event.stopPropagation();
     sub.setOpen(false);
     sub.triggerRef.current?.focus();
   };
+
+  const closeOpenSubRef = useRef<(() => void) | null>(null);
+  const contentContextValue = useMemo(() => ({ closeOpenSubRef }), []);
+
+  // Cascade-close — see the matching effect on ContextMenuContent.
+  useEffect(() => {
+    if (!sub.open) closeOpenSubRef.current?.();
+  }, [sub.open]);
 
   const subContentProps = {
     ...rest,
@@ -838,10 +949,15 @@ function ContextMenuSubContent({
     onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
   };
 
-  if (asChild) {
-    return <Slot {...subContentProps}>{children}</Slot>;
-  }
-  return <menu {...subContentProps}>{children}</menu>;
+  return (
+    <ContextMenuContentContext.Provider value={contentContextValue}>
+      {asChild ? (
+        <Slot {...subContentProps}>{children}</Slot>
+      ) : (
+        <menu {...subContentProps}>{children}</menu>
+      )}
+    </ContextMenuContentContext.Provider>
+  );
 }
 
 ContextMenuSubContent.displayName = "ContextMenuSubContent";

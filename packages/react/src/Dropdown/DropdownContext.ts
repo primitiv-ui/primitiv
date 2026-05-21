@@ -1,5 +1,6 @@
 import { RefObject } from "react";
 
+import { Direction } from "../DirectionProvider";
 import { createStrictContext } from "../utils";
 
 export type DropdownContextValue = {
@@ -7,6 +8,7 @@ export type DropdownContextValue = {
   setOpen: (open: boolean) => void;
   contentId: string;
   triggerRef: RefObject<HTMLButtonElement | null>;
+  dir: Direction;
 };
 
 export const [DropdownContext, useDropdownContext] =

@@ -1,5 +1,6 @@
 import { RefObject } from "react";
 
+import { Direction } from "../DirectionProvider";
 import { createStrictContext } from "../utils";
 
 export type ContextMenuPosition = { x: number; y: number };
@@ -11,6 +12,7 @@ export type ContextMenuContextValue = {
   setPosition: (position: ContextMenuPosition | null) => void;
   contentId: string;
   triggerRef: RefObject<HTMLElement | null>;
+  dir: Direction;
 };
 
 export const [ContextMenuContext, useContextMenuContext] =

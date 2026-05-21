@@ -2,20 +2,75 @@
   padding: 16px;
 }
 
+.cm-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.cm-dir-toggle {
+  font: inherit;
+  padding: 6px 12px;
+  border: 1px solid rgba(255 255 255 / 0.25);
+  border-radius: 6px;
+  background: rgba(255 255 255 / 0.06);
+  color: rgba(255 255 255 / 0.9);
+  cursor: pointer;
+}
+
+.cm-dir-toggle:hover {
+  background: rgba(255 255 255 / 0.12);
+}
+
 .cm-canvas {
+  /* The Trigger needs an anchor-name so .cm-content can set
+   * position-anchor; that's what enables position-try-fallbacks. */
+  anchor-name: --cm-trigger;
   display: grid;
   place-items: center;
   min-height: 240px;
   padding: 24px;
-  border: 1px dashed rgba(0 0 0 / 0.25);
+  border: 1px dashed rgba(255 255 255 / 0.35);
   border-radius: 8px;
-  background: rgba(0 0 0 / 0.02);
-  color: rgba(0 0 0 / 0.65);
+  background: rgba(255 255 255 / 0.03);
+  color: rgba(255 255 255 / 0.85);
   user-select: none;
   text-align: center;
 }
 
+/* Top-level menu fallbacks
+ * ─────────────────────────
+ * The library sets `left` / `top` to the cursor coordinates AND exposes
+ * those same coords as --primitiv-context-menu-x / -y so we can flip the
+ * menu via @position-try when the primary position would overflow. */
+
+@position-try --cm-content-flip-inline {
+  /* Open to the LEFT of the cursor (right edge sits at the cursor x). */
+  left: auto;
+  right: calc(100vw - var(--primitiv-context-menu-x));
+}
+
+@position-try --cm-content-flip-block {
+  /* Open ABOVE the cursor (bottom edge sits at the cursor y). */
+  top: auto;
+  bottom: calc(100vh - var(--primitiv-context-menu-y));
+}
+
+@position-try --cm-content-flip-both {
+  left: auto;
+  right: calc(100vw - var(--primitiv-context-menu-x));
+  top: auto;
+  bottom: calc(100vh - var(--primitiv-context-menu-y));
+}
+
 .cm-content {
+  position-anchor: --cm-trigger;
+  position-try-fallbacks:
+    --cm-content-flip-inline,
+    --cm-content-flip-block,
+    --cm-content-flip-both;
+
   background: #fff;
   color: #000;
   border: 1px solid rgba(0 0 0 / 0.12);
@@ -37,9 +92,16 @@
   inset: unset;
   position: fixed;
   position-anchor: --cm-sub-trigger;
-  top: anchor(top);
-  left: anchor(right);
-  margin-left: 8px;
+  /* Logical so the submenu opens to the inline-end side of its trigger:
+   * to the right in LTR, to the left in RTL. flip-* fallbacks then handle
+   * overflow on either axis. */
+  inset-block-start: anchor(start);
+  inset-inline-start: anchor(end);
+  margin-inline-start: 8px;
+  position-try-fallbacks:
+    flip-inline,
+    flip-block,
+    flip-inline flip-block;
 
   background: #fff;
   color: #000;
@@ -53,11 +115,27 @@
 
 .cm-content li,
 .cm-sub-content li {
+  position: relative;
   padding: 6px 12px 6px 28px;
   border-radius: 4px;
   cursor: default;
   font-size: 14px;
   user-select: none;
+}
+
+.cm-item-indicator {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  font-size: 12px;
+  line-height: 1;
+  color: currentColor;
 }
 
 .cm-content [data-highlighted],

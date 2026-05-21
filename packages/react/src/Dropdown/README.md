@@ -36,8 +36,8 @@ import { Dropdown } from "@primitiv/react";
 | `Dropdown.Group`         | `group`              | Semantic grouping for related items                                                  |
 | `Dropdown.Separator`     | `separator`          | Visual divider; skipped by focus and typeahead                                       |
 | `Dropdown.Sub`           | State owner          | Submenu boundary; same state modes as `Root`                                         |
-| `Dropdown.SubTrigger`    | `menuitem`           | Opens the submenu on click or `ArrowRight`                                           |
-| `Dropdown.SubContent`    | `menu`               | Submenu panel; `ArrowLeft` closes it and returns focus to the trigger                |
+| `Dropdown.SubTrigger`    | `menuitem`           | Opens the submenu on click or the inline-forward arrow (`ArrowRight` LTR / `ArrowLeft` RTL) |
+| `Dropdown.SubContent`    | `menu`               | Submenu panel; the inline-backward arrow (`ArrowLeft` LTR / `ArrowRight` RTL) closes it and returns focus to the trigger |
 
 All sub-components that render an element accept `asChild` to compose
 their ARIA and behaviour onto a caller-supplied child.
@@ -51,12 +51,29 @@ their ARIA and behaviour onto a caller-supplied child.
 | `Enter` / `Space`       | Activate the focused item                         |
 | `Escape`                | Close the menu and return focus to the trigger    |
 | any printable character | Typeahead — focuses the next item matching prefix |
-| `ArrowRight`            | Open a focused submenu (on `SubTrigger`)          |
-| `ArrowLeft`             | Close the current submenu (from inside)           |
+| `ArrowRight`            | Open a focused submenu (`SubTrigger`, LTR) / close the submenu (inside `SubContent`, RTL) |
+| `ArrowLeft`             | Close the current submenu (inside `SubContent`, LTR) / open a focused submenu (`SubTrigger`, RTL) |
 
 Typeahead accumulates keystrokes within a 500 ms window; pressing the
 same character repeatedly cycles through items sharing that first letter.
 Disabled items are skipped by arrow navigation, typeahead, and activation.
+
+## Reading direction
+
+Pass `dir="ltr"` or `dir="rtl"` on `Dropdown.Root` to invert the submenu
+open / close arrow keys. When omitted, the component reads the inherited
+`DirectionProvider` value, falling back to `"ltr"`:
+
+```tsx
+<DirectionProvider dir="rtl">
+  <Dropdown.Root>{/* submenus now open on ArrowLeft */}</Dropdown.Root>
+</DirectionProvider>
+```
+
+An explicit `dir` prop on `Dropdown.Root` always wins over the inherited
+value. The reading direction only affects keyboard handling — submenu
+visual placement is the consumer's CSS concern (use logical properties
+or `position-try-fallbacks` with `flip-inline`).
 
 ## State modes
 
@@ -96,7 +113,8 @@ no-op on activation. Arrow navigation and typeahead skip them.
 <Dropdown.Item disabled>Archive (coming soon)</Dropdown.Item>
 ```
 
-A disabled `SubTrigger` refuses to open on both click and `ArrowRight`.
+A disabled `SubTrigger` refuses to open on both click and the
+inline-forward arrow key.
 
 ## Checkbox and radio items
 
@@ -172,9 +190,10 @@ throws a descriptive error.
 </Dropdown.Content>
 ```
 
-Open a submenu with `ArrowRight` or a click on the trigger; close it with
-`ArrowLeft` or by selecting an item. Focus returns to the `SubTrigger`
-when the submenu closes.
+Open a submenu with the inline-forward arrow key (`ArrowRight` in LTR,
+`ArrowLeft` in RTL) or a click on the trigger; close it with the
+inline-backward arrow or by selecting an item. Focus returns to the
+`SubTrigger` when the submenu closes.
 
 Hovering the `SubTrigger` opens the submenu automatically; hovering onto
 a sibling item in the parent menu closes it, mirroring the keyboard

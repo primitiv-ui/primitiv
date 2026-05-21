@@ -73,7 +73,11 @@ describe("ContextMenu state modes", () => {
   });
 
   it("honours controlled open prop on ContextMenu.Sub", () => {
-    // Arrange
+    // Arrange — the external button lives outside any open menu, so we keep
+    // Root closed during the flip; otherwise Content's outside-click handler
+    // would fire on the same gesture and cascade-close the sub. The
+    // assertion is on Sub.open's reflection in aria-expanded, which is
+    // independent of Root's open state.
     function Controlled() {
       const [open, setOpen] = useState(false);
       return (
@@ -85,7 +89,7 @@ describe("ContextMenu state modes", () => {
           >
             Open sub
           </button>
-          <ContextMenu.Root defaultOpen>
+          <ContextMenu.Root>
             <ContextMenu.Trigger>Area</ContextMenu.Trigger>
             <ContextMenu.Content>
               <ContextMenu.Sub open={open} onOpenChange={setOpen}>

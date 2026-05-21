@@ -1,19 +1,52 @@
+.dd-page {
+  padding: 16px;
+}
+
+.dd-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.dd-dir-toggle {
+  font: inherit;
+  padding: 6px 12px;
+  border: 1px solid rgba(255 255 255 / 0.25);
+  border-radius: 6px;
+  background: rgba(255 255 255 / 0.06);
+  color: rgba(255 255 255 / 0.9);
+  cursor: pointer;
+}
+
+.dd-dir-toggle:hover {
+  background: rgba(255 255 255 / 0.12);
+}
+
 /* ── Trigger: declare the anchor ─────────────────────────────────── */
 .dd-trigger {
   anchor-name: --dd-trigger;
 }
 
-/* ── Main menu: position below-start of trigger ──────────────────── */
+/* ── Main menu: drops below the trigger, aligned to its inline-start ─
+ * `anchor(start)` resolves to the anchor's inline-start side, which
+ * follows the resolved writing direction — left edge in LTR, right edge
+ * in RTL — so the menu hugs the trigger correctly without a separate
+ * RTL rule. flip-block as a fallback when there's no room below. */
 .dd-content {
   /* Popovers sit in the top layer; position:fixed lets anchor() resolve */
   inset: unset;
   position: fixed;
   position-anchor: --dd-trigger;
-  top: anchor(bottom);
-  left: anchor(left);
+  inset-block-start: anchor(end);
+  inset-inline-start: anchor(start);
   /* Clear UA popover stylesheet's inset:0 so anchor values take effect */
-  margin-top: 4px;
+  margin-block-start: 4px;
   color: #000;
+  position-try-fallbacks:
+    flip-block,
+    flip-inline,
+    flip-block flip-inline;
 
   background: #fff;
   border: 1px solid rgba(0 0 0 / 0.12);
@@ -32,14 +65,20 @@
   align-items: center;
 }
 
-/* ── Sub-menu: positioned to the right, top-aligned with sub-trigger */
+/* ── Sub-menu: positioned to the inline-end of the sub-trigger ─────
+ * to the right in LTR, to the left in RTL — and aligned to its
+ * block-start. flip-* fallbacks handle viewport overflow on either axis. */
 .dd-sub-content {
   inset: unset;
   position: fixed;
   position-anchor: --dd-sub-trigger;
-  top: anchor(top);
-  left: anchor(right);
-  margin-left: 8px;
+  inset-block-start: anchor(start);
+  inset-inline-start: anchor(end);
+  margin-inline-start: 8px;
+  position-try-fallbacks:
+    flip-inline,
+    flip-block,
+    flip-inline flip-block;
 
   background: #fff;
   color: #000;
@@ -54,11 +93,27 @@
 /* ── Shared item styles ───────────────────────────────────────────── */
 .dd-content li,
 .dd-sub-content li {
+  position: relative;
   padding: 6px 12px 6px 28px;
   border-radius: 4px;
   cursor: default;
   font-size: 14px;
   user-select: none;
+}
+
+.dd-item-indicator {
+  position: absolute;
+  inset-inline-start: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  font-size: 12px;
+  line-height: 1;
+  color: currentColor;
 }
 
 .dd-content [data-highlighted],
@@ -88,5 +143,6 @@
 }
 
 .dd-sub-radio-group-item[role="menuitemradio"] {
-  padding-inline-start: 0;
+  /* Keep the 28px left gutter so the .dd-item-indicator has room to render. */
+  padding-inline-start: 28px;
 }

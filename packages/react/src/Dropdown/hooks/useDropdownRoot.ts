@@ -6,18 +6,21 @@ import {
   useRef,
 } from "react";
 
+import { Direction } from "../../DirectionProvider";
 import { useControllableState } from "../../hooks";
 
 type UseDropdownRootArgs = {
   defaultOpen?: boolean;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  dir?: Direction;
 };
 
 export function useDropdownRoot({
   defaultOpen = false,
   open: controlledOpen,
   onOpenChange,
+  dir = "ltr",
 }: UseDropdownRootArgs) {
   const contentId = useId();
   const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -46,8 +49,8 @@ export function useDropdownRoot({
   );
 
   const contextValue = useMemo(
-    () => ({ open, setOpen, contentId, triggerRef }),
-    [open, setOpen, contentId],
+    () => ({ open, setOpen, contentId, triggerRef, dir }),
+    [open, setOpen, contentId, dir],
   );
 
   return { open, setOpen, contextValue };

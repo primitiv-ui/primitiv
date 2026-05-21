@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { ContextMenu } from "../ContextMenu";
@@ -188,6 +188,75 @@ describe("ContextMenu.Sub", () => {
 
     // Assert
     expect(subTrigger).toHaveAttribute("aria-disabled", "true");
+    expect(subTrigger).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("closes the nested Sub when an item inside the SubContent is activated, so the sub state does not leak to the next open", async () => {
+    // Repro: open menu, hover into the sub, click an item inside. The whole
+    // menu closes. If the sub's own state were left stale, re-opening the
+    // menu would briefly render the sub popover before anything else closed
+    // it — a real-browser flash in the top-left corner.
+    const user = userEvent.setup();
+    render(
+      <ContextMenu.Root defaultOpen>
+        <ContextMenu.Trigger>Area</ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <ContextMenu.Sub>
+            <ContextMenu.SubTrigger>Share</ContextMenu.SubTrigger>
+            <ContextMenu.SubContent>
+              <ContextMenu.Item>Email</ContextMenu.Item>
+            </ContextMenu.SubContent>
+          </ContextMenu.Sub>
+        </ContextMenu.Content>
+      </ContextMenu.Root>,
+    );
+    const subTrigger = screen.getByRole("menuitem", {
+      name: "Share",
+      hidden: true,
+    });
+
+    // Act — hover opens the sub, then activate a nested item
+    await user.hover(subTrigger);
+    expect(subTrigger).toHaveAttribute("aria-expanded", "true");
+    fireEvent.click(
+      screen.getByRole("menuitem", { name: "Email", hidden: true }),
+    );
+
+    // Assert — the sub's open must have collapsed alongside the root close
+    expect(subTrigger).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("closes a stale nested Sub when the parent menu closes via outside click", async () => {
+    // Same leak shape via a different close path: outside-click dismisses
+    // the menu while a sub is open. The sub must collapse with it.
+    const user = userEvent.setup();
+    render(
+      <div>
+        <ContextMenu.Root defaultOpen>
+          <ContextMenu.Trigger>Area</ContextMenu.Trigger>
+          <ContextMenu.Content>
+            <ContextMenu.Sub>
+              <ContextMenu.SubTrigger>Share</ContextMenu.SubTrigger>
+              <ContextMenu.SubContent>
+                <ContextMenu.Item>Email</ContextMenu.Item>
+              </ContextMenu.SubContent>
+            </ContextMenu.Sub>
+          </ContextMenu.Content>
+        </ContextMenu.Root>
+        <button type="button">Outside</button>
+      </div>,
+    );
+    const subTrigger = screen.getByRole("menuitem", {
+      name: "Share",
+      hidden: true,
+    });
+    await user.hover(subTrigger);
+    expect(subTrigger).toHaveAttribute("aria-expanded", "true");
+
+    // Act
+    await user.click(screen.getByText("Outside"));
+
+    // Assert
     expect(subTrigger).toHaveAttribute("aria-expanded", "false");
   });
 });

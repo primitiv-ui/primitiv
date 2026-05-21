@@ -1,9 +1,17 @@
 import { ComponentProps, ReactNode, Ref } from "react";
 
 import { CheckedState } from "../Checkbox/types";
+import { Direction } from "../DirectionProvider";
 
 type DropdownRootBaseProps = {
   children?: ReactNode;
+  /**
+   * Reading direction for the menu. Affects which arrow key opens / closes
+   * a submenu — `ArrowRight` opens in `"ltr"`, `ArrowLeft` opens in
+   * `"rtl"`. Falls back to the inherited {@link DirectionProvider} value,
+   * or to `"ltr"` if no provider is present.
+   */
+  dir?: Direction;
 };
 
 type DropdownRootUncontrolledProps = DropdownRootBaseProps & {

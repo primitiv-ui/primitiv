@@ -23,6 +23,11 @@ type SyncStatus =
   | { kind: "success" }
   | { kind: "error"; message: string };
 
+type MigrateStatus =
+  | { kind: "idle" }
+  | { kind: "success" }
+  | { kind: "error"; message: string };
+
 const DTCG_FILE_NAMES = ["primitives", "semantic", "components"] as const;
 const SYNC_URL = "http://localhost:4477/sync";
 
@@ -66,6 +71,9 @@ export function App() {
   const [migrationPlan, setMigrationPlan] = useState<MigrationPlan | null>(
     null,
   );
+  const [migrateStatus, setMigrateStatus] = useState<MigrateStatus>({
+    kind: "idle",
+  });
   const liveSyncRef = useRef(false);
 
   useEffect(() => {
@@ -95,6 +103,12 @@ export function App() {
         }
       } else if (message?.type === "migrate-preview-result") {
         setMigrationPlan(message.plan);
+      } else if (message?.type === "migrate-execute-result") {
+        if (message.success) {
+          setMigrateStatus({ kind: "success" });
+        } else {
+          setMigrateStatus({ kind: "error", message: message.error ?? "Unknown error" });
+        }
       }
     }
 
@@ -218,6 +232,22 @@ export function App() {
               ))}
             </ul>
           </details>
+          <Button
+            type="button"
+            onClick={() => postToSandbox({ type: "migrate-execute-request" })}
+          >
+            Run migration
+          </Button>
+          {migrateStatus.kind === "success" && (
+            <p className="app__migrate-status app__migrate-status--ok">
+              Migration complete
+            </p>
+          )}
+          {migrateStatus.kind === "error" && (
+            <p className="app__migrate-status app__migrate-status--err">
+              {migrateStatus.message}
+            </p>
+          )}
         </section>
       )}
       {inspectResult !== null && (

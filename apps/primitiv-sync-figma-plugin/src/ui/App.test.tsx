@@ -422,6 +422,75 @@ describe('App', () => {
         await screen.findByText(/Will reuse the existing Semantic/i),
       ).toBeInTheDocument()
     })
+
+    it('shows a Run migration button only after a plan has been previewed', async () => {
+      render(<App />)
+
+      expect(
+        screen.queryByRole('button', { name: /Run migration/i }),
+      ).not.toBeInTheDocument()
+
+      dispatchPlan(SAMPLE_PLAN)
+
+      expect(
+        await screen.findByRole('button', { name: /Run migration/i }),
+      ).toBeInTheDocument()
+    })
+
+    it('posts migrate-execute-request when Run migration is clicked', async () => {
+      const postMessage = vi.spyOn(window.parent, 'postMessage')
+      render(<App />)
+
+      dispatchPlan(SAMPLE_PLAN)
+      await userEvent.click(
+        await screen.findByRole('button', { name: /Run migration/i }),
+      )
+
+      expect(postMessage).toHaveBeenLastCalledWith(
+        { pluginMessage: { type: 'migrate-execute-request' } },
+        '*',
+      )
+    })
+
+    it('shows a success notice when the sandbox confirms the migration ran', async () => {
+      render(<App />)
+      dispatchPlan(SAMPLE_PLAN)
+      await screen.findByRole('button', { name: /Run migration/i })
+
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            pluginMessage: { type: 'migrate-execute-result', success: true },
+          },
+        }),
+      )
+
+      expect(
+        await screen.findByText(/Migration complete/i),
+      ).toBeInTheDocument()
+    })
+
+    it('shows the error message when the migration fails', async () => {
+      render(<App />)
+      dispatchPlan(SAMPLE_PLAN)
+      await screen.findByRole('button', { name: /Run migration/i })
+
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            pluginMessage: {
+              type: 'migrate-execute-result',
+              success: false,
+              error: 'Figma API error',
+            },
+          },
+        }),
+      )
+
+      expect(
+        await screen.findByText(/Figma API error/),
+      ).toBeInTheDocument()
+    })
   })
 
   it('asks the sandbox to close when the close button is clicked', async () => {

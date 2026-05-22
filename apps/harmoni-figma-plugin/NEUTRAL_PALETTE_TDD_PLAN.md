@@ -7,28 +7,33 @@
 │         UI context (iframe)         │  │   Sandbox context (code.ts)  │
 │                                     │  │                               │
 │  main.tsx                           │  │  handleUiMessage              │
-│    └─ NeutralRampProvider (context) │  │    └─ figma.variables.*       │
-│         └─ App                      │  │            ▲                  │
-│              └─ NeutralPanel        │  │     postMessage bridge        │
-│                   └─ context        │  │                               │
-│                        │            │  │                               │
+│    ├─ HarmoniApiProvider (context)  │  │    └─ figma.variables.*       │
+│    └─ MemoryRouter (production)     │  │            ▲                  │
+│         └─ App (defines routes)     │  │     postMessage bridge        │
+│              └─ /neutral            │  │     (deferred with Apply)     │
+│                   └─ NeutralScreen  │  │                               │
+│                        ├─ ColourPicker × 2                             │
+│                        └─ PaletteRamp                                  │
+│                             └─ SwatchChip × 10                         │
+│                                     │  │                               │
 │   NeutralPaletteViewModel           │  │                               │
 │   (pure functions)                  │  │                               │
 └─────────────────────────────────────┘  └──────────────────────────────┘
                    ▲
          renderWithProviders
-       injects NeutralRampPort
-         (default: fakeRampPort)
+    injects HarmoniApiPort + initialEntries
+      (defaults: fakeHarmoniApi, ['/'])
 ```
 
-Real adapters live in `main.tsx`. Tests never touch `main.tsx`. `App.tsx` is adapter-agnostic — it just renders components.
+Real adapters live in `main.tsx`. Tests never touch `main.tsx`. `App.tsx` is adapter-agnostic — it defines routes only, not providers. `main.tsx` wraps it in both `HarmoniApiProvider` and `MemoryRouter`.
 
-**Two testing strategies, nothing else:**
+**Three testing layers, nothing else:**
 
 | Layer | What | How |
 |---|---|---|
 | **View model** | Pure functions: label formatting, payload building | Unit tests — plain function calls, no React, no jsdom |
-| **Integration** | Full behaviour from user interaction to Figma API | `renderWithProviders` + fake port + figma stub + postMessage bridge |
+| **Component** | Prop-driven display: `PaletteRamp`, `ColourPicker` | Unit tests — plain `render`, no providers |
+| **Integration** | User interaction → API call → UI update | `renderWithProviders` + `initialEntries` + fake port |
 
 Hooks are an implementation detail. There are no hook unit tests.
 
@@ -37,11 +42,11 @@ Hooks are an implementation detail. There are no hook unit tests.
 ## Feature scope (this plan)
 
 - **White and Black colour pickers** in the plugin UI (the "soft white" and "soft black" neutral endpoints)
-- **Neutral ramp generation** — calling `generateRamp` on the port whenever a picker changes
+- **Neutral ramp generation** — calling `generate_neutral_ramp` on the port whenever a picker changes
 - **Preview** of the 10 generated swatches in the UI
-- **"Apply to Figma"** — sending the palette to the sandbox, which creates Figma Colour variables in a `Neutral` collection
+- **Routing** — introducing React Router with a `/neutral` route; `MemoryRouter` + `initialEntries` in tests
 
-Deferred (later plan): `Use as neutral colour tint`, `TintMode: Achromatic` toggle, idempotent update (overwrite existing collection instead of always creating a new one).
+Deferred (later plan): `Apply to Figma`, `Use as neutral colour tint`, `TintMode: Achromatic` toggle, idempotent update (overwrite existing collection instead of always creating a new one).
 
 ---
 
@@ -50,31 +55,42 @@ Deferred (later plan): `Use as neutral colour tint`, `TintMode: Achromatic` togg
 ```
 src/
   shared/
-    messages.ts                          ← extend with apply-neutral-palette
+    messages.ts                          ← unchanged for now (Apply deferred)
   ui/
     context/
-      NeutralRampContext.ts              ← createContext + useNeutralRampPort hook
-      NeutralRampProvider.tsx            ← thin provider component
+      HarmoniApiContext.ts               ← createContext + useHarmoniApi hook
+      HarmoniApiProvider.tsx             ← thin provider component
     ports/
-      NeutralRampPort.ts                 ← port interface (the DI seam)
+      HarmoniApiPort.ts                  ← port interface (full harmoni-wasm surface)
     adapters/
-      harmoniRampAdapter.ts              ← production wasm implementation
+      harmoniApiAdapter.ts               ← production wasm implementation
     view-model/
       neutralPaletteViewModel.ts         ← pure functions
       neutralPaletteViewModel.test.ts    ← unit tests (no React)
+    components/
+      PaletteRamp/
+        PaletteRamp.tsx                  ← prop-driven: accepts Palette
+        PaletteRamp.test.tsx             ← component unit tests (plain render)
+      SwatchChip/
+        SwatchChip.tsx                   ← prop-driven: accepts Swatch
+        SwatchChip.test.tsx              ← component unit tests (plain render)
+      ColourPicker/
+        ColourPicker.tsx                 ← controlled: label + value + onChange
+        ColourPicker.test.tsx            ← component unit tests (plain render)
+    screens/
+      NeutralScreen/
+        NeutralScreen.tsx                ← reads from context, composes components
+        NeutralScreen.test.tsx           ← integration tests
     test-utils/
-      renderWithProviders.tsx            ← single injection point for all UI tests
-    neutralPalette.fixtures.ts           ← shared data: FIXTURE_PALETTE, fakeRampPort
-    useNeutralPalette.ts                 ← thin React hook (untested in isolation)
-    NeutralPanel.tsx                     ← thin component (reads port from context)
-    NeutralPanel.test.tsx                ← integration tests
-    App.tsx                              ← no adapter wiring, just renders components
-    App.test.tsx                         ← one new integration test for the panel wiring
-    main.tsx                             ← wires real adapters (not tested)
+      renderWithProviders.tsx            ← injection point: HarmoniApiPort + initialEntries
+    neutralPalette.fixtures.ts           ← FIXTURE_PALETTE, fakeHarmoniApi
+    App.tsx                              ← defines routes only — no providers, no adapters
+    App.test.tsx                         ← verifies route-to-screen wiring
+    main.tsx                             ← wires real adapters and MemoryRouter (not tested)
   code/
-    handleMessage.ts                     ← extend with apply-neutral-palette case
-    handleMessage.test.ts                ← existing tests unchanged
-    figma.mock.ts                        ← extend with variables API
+    handleMessage.ts                     ← unchanged for now (Apply deferred)
+    handleMessage.test.ts                ← unchanged
+    figma.mock.ts                        ← unchanged for now
 ```
 
 ---
@@ -88,72 +104,95 @@ A Figma plugin runs as two separate programs that never share memory:
 | **Sandbox** (`src/code/`) | Calls `figma.*` API, no DOM | `vi.stubGlobal('figma', createFigmaMock())` |
 | **UI** (`src/ui/`) | React + DOM + harmoni-wasm, no `figma.*` | `renderWithProviders` + Testing Library |
 
-The `harmoni-wasm` engine cannot be initialised in jsdom. Its correctness is proven by the Rust test suite (`cargo test`). The UI tests prove only that our code calls the engine with the right arguments and renders its output correctly — done via the `NeutralRampPort` DI seam.
+The `harmoni-wasm` engine cannot be initialised in jsdom. Its correctness is proven by the Rust test suite (`cargo test`). The UI tests prove only that our code calls the engine with the right arguments and renders its output correctly — done via the `HarmoniApiPort` DI seam.
 
-In integration tests, both contexts share the same jsdom environment. A `postMessage` spy bridges them: when the UI posts to the sandbox, the spy intercepts and routes to `handleUiMessage` synchronously.
+The postMessage bridge (routing UI actions to the sandbox) is deferred to the Apply to Figma plan.
+
+Since the plugin UI runs in a sandboxed iframe with no real URL, `MemoryRouter` is used both in tests and production. `App.tsx` defines routes but owns no router; `main.tsx` wraps it. Tests get a `MemoryRouter` from `renderWithProviders` — passing `initialEntries` pre-selects a route without simulating navigation clicks.
 
 ---
 
 ## Port and context
 
 ```ts
-// src/ui/ports/NeutralRampPort.ts
-import type { Palette } from 'harmoni-wasm'
+// src/ui/ports/HarmoniApiPort.ts
+import type {
+  ContrastResult,
+  Palette,
+  PaletteSet,
+  SoftNeutrals,
+  TintMode,
+} from 'harmoni-wasm'
 
-export interface NeutralRampPort {
-  generateRamp(white: string, black: string): Palette
+export interface HarmoniApiPort {
+  derive_soft_neutrals(brand: string, softness: number): SoftNeutrals
+  generate_neutral_ramp(white: string, black: string, tint: TintMode): Palette
+  generate_palette(hex: string, lightPadding: number, darkPadding: number): Palette
+  generate_palette_pair(
+    hex: string,
+    lightLightness: number[],
+    darkLightness: number[],
+    lightPadding: number,
+    darkPadding: number,
+  ): PaletteSet
+  generate_palette_with_light_padding(hex: string, lightPadding: number): Palette
+  generate_palette_with_lightness(
+    hex: string,
+    lightness: number[],
+    lightPadding: number,
+    darkPadding: number,
+  ): Palette
+  get_contrast_rating(bg: string, fg: string): ContrastResult
+  tint_neutrals(white: string, black: string, source: string, strength: number): SoftNeutrals
 }
 ```
 
-`TintMode` is always `'Inherit'` at this stage — it is not exposed through the port yet (deferred). The adapter fixes it internally.
+The interface names match the wasm export names exactly. This is intentional: the production adapter is a direct assignment.
 
 ```ts
-// src/ui/context/NeutralRampContext.ts
+// src/ui/context/HarmoniApiContext.ts
 import { createContext, useContext } from 'react'
-import type { NeutralRampPort } from '../ports/NeutralRampPort'
+import type { HarmoniApiPort } from '../ports/HarmoniApiPort'
 
-const NeutralRampContext = createContext<NeutralRampPort | null>(null)
+const HarmoniApiContext = createContext<HarmoniApiPort | null>(null)
 
-export { NeutralRampContext }
+export { HarmoniApiContext }
 
-export function useNeutralRampPort(): NeutralRampPort {
-  const port = useContext(NeutralRampContext)
-  if (!port) throw new Error('NeutralRampPort not provided')
-  return port
+export function useHarmoniApi(): HarmoniApiPort {
+  const api = useContext(HarmoniApiContext)
+  if (!api) throw new Error('HarmoniApiPort not provided')
+  return api
 }
 ```
 
 ```tsx
-// src/ui/context/NeutralRampProvider.tsx
-import type { NeutralRampPort } from '../ports/NeutralRampPort'
-import { NeutralRampContext } from './NeutralRampContext'
+// src/ui/context/HarmoniApiProvider.tsx
+import type { HarmoniApiPort } from '../ports/HarmoniApiPort'
+import { HarmoniApiContext } from './HarmoniApiContext'
 
-export function NeutralRampProvider({
-  port,
+export function HarmoniApiProvider({
+  api,
   children,
 }: {
-  port: NeutralRampPort
+  api: HarmoniApiPort
   children: React.ReactNode
 }) {
   return (
-    <NeutralRampContext.Provider value={port}>
+    <HarmoniApiContext.Provider value={api}>
       {children}
-    </NeutralRampContext.Provider>
+    </HarmoniApiContext.Provider>
   )
 }
 ```
 
-The production adapter:
+The production adapter wraps the `harmoni` singleton from `engine.ts`. Because the port names match the wasm exports exactly, the adapter is a direct assignment with no wrapping logic:
 
 ```ts
-// src/ui/adapters/harmoniRampAdapter.ts
+// src/ui/adapters/harmoniApiAdapter.ts
 import { harmoni } from '../engine'
-import type { NeutralRampPort } from '../ports/NeutralRampPort'
+import type { HarmoniApiPort } from '../ports/HarmoniApiPort'
 
-export const harmoniRampAdapter: NeutralRampPort = {
-  generateRamp: (white, black) =>
-    harmoni.generate_neutral_ramp(white, black, 'Inherit'),
-}
+export const harmoniApiAdapter: HarmoniApiPort = harmoni
 ```
 
 Wired in the entry point — not tested:
@@ -161,9 +200,11 @@ Wired in the entry point — not tested:
 ```tsx
 // src/ui/main.tsx  (addition)
 createRoot(document.getElementById('root')!).render(
-  <NeutralRampProvider port={harmoniRampAdapter}>
-    <App />
-  </NeutralRampProvider>,
+  <HarmoniApiProvider api={harmoniApiAdapter}>
+    <MemoryRouter>
+      <App />
+    </MemoryRouter>
+  </HarmoniApiProvider>,
 )
 ```
 
@@ -171,33 +212,38 @@ createRoot(document.getElementById('root')!).render(
 
 ## `renderWithProviders`
 
-The single injection point for all UI tests. The `Wrapper` function provides every context the component tree needs, with real defaults replaced by test doubles where necessary.
+The single injection point for all UI tests. Wraps the component tree in both `HarmoniApiProvider` and `MemoryRouter`. The `initialEntries` option pre-selects a route, removing the need to simulate navigation clicks in route-specific tests.
 
 ```tsx
 // src/ui/test-utils/renderWithProviders.tsx
 import { render, type RenderOptions } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { type PropsWithChildren, type ReactElement, type JSX } from 'react'
 
-import { NeutralRampProvider } from '../context/NeutralRampProvider'
-import { fakeRampPort } from '../neutralPalette.fixtures'
-import type { NeutralRampPort } from '../ports/NeutralRampPort'
+import { HarmoniApiProvider } from '../context/HarmoniApiProvider'
+import { fakeHarmoniApi } from '../neutralPalette.fixtures'
+import type { HarmoniApiPort } from '../ports/HarmoniApiPort'
 
 export type RenderWithProvidersOptions = {
-  neutralRampPort?: NeutralRampPort
+  harmoniApi?: HarmoniApiPort
+  initialEntries?: string[]
 } & Omit<RenderOptions, 'queries'>
 
 export function renderWithProviders(
   ui: ReactElement,
   {
-    neutralRampPort = fakeRampPort,
+    harmoniApi = fakeHarmoniApi,
+    initialEntries = ['/'],
     ...renderOptions
   }: RenderWithProvidersOptions = {},
 ) {
   function Wrapper({ children }: PropsWithChildren): JSX.Element {
     return (
-      <NeutralRampProvider port={neutralRampPort}>
-        {children}
-      </NeutralRampProvider>
+      <MemoryRouter initialEntries={initialEntries}>
+        <HarmoniApiProvider api={harmoniApi}>
+          {children}
+        </HarmoniApiProvider>
+      </MemoryRouter>
     )
   }
 
@@ -205,19 +251,24 @@ export function renderWithProviders(
 }
 ```
 
-`fakeRampPort` is the default — most tests never need to override it. Tests that want to observe the calling convention pass a `portSpy` instead.
+`fakeHarmoniApi` is the default — most tests never need to override it. Tests that need to assert on the calling convention pass an `apiSpy` instead.
 
 ---
 
 ## Fixture (`neutralPalette.fixtures.ts`)
 
-Pure data, no test helpers. Grounded in the Rust test values from `ramp_tests.rs` (`oklch(0.975, 0.006, 240)` white, `oklch(0.10, 0.00375, 240)` black). The `SwatchLabel` shape reflects the Tsify/serde externally-tagged encoding: `{ Number: 50 }` for numeric steps.
+Pure data, no test helpers. The `FIXTURE_PALETTE` values are grounded in the Rust test values from `ramp_tests.rs`. `fakeHarmoniApi` provides minimal stub returns for every method on the port — real functions, not `vi.fn()`.
 
 ```ts
 // src/ui/neutralPalette.fixtures.ts
-import type { Palette, Swatch, SwatchStep } from 'harmoni-wasm'
-import type { NeutralSwatchPayload } from '../shared/messages'
-import type { NeutralRampPort } from './ports/NeutralRampPort'
+import type {
+  ContrastResult,
+  Palette,
+  Swatch,
+  SwatchStep,
+  SoftNeutrals,
+} from 'harmoni-wasm'
+import type { HarmoniApiPort } from './ports/HarmoniApiPort'
 
 const STEPS   = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900] as const
 const LVALUES = [0.975, 0.93, 0.85, 0.75, 0.64, 0.53, 0.42, 0.32, 0.22, 0.10] as const
@@ -256,17 +307,29 @@ export const FIXTURE_PALETTE: Palette = {
   note: '',
 }
 
-export const FIXTURE_SWATCHES: NeutralSwatchPayload[] = FIXTURE_PALETTE.swatches.map(
-  (s) => ({ label: s.label as NeutralSwatchPayload['label'], rgb: s.rgb }),
-)
+export const FIXTURE_SOFT_NEUTRALS: SoftNeutrals = {
+  white: { l: 0.975, c: 0.006, h: 240, hex: '#f8f8ff', rgb: { r: 0.97, g: 0.97, b: 1.0 }, oklch: 'oklch(0.975 0.006 240)' },
+  black: { l: 0.10, c: 0.00375, h: 240, hex: '#0d0d14', rgb: { r: 0.05, g: 0.05, b: 0.08 }, oklch: 'oklch(0.10 0.00375 240)' },
+}
 
-// Default port for renderWithProviders — real function, not vi.fn()
-export const fakeRampPort: NeutralRampPort = {
-  generateRamp: (_white, _black) => FIXTURE_PALETTE,
+export const FIXTURE_CONTRAST_RESULT: ContrastResult = {
+  ratio: 4.5,
+  display_ratio: '4.50',
+  rating: 'AA',
+}
+
+// Default port for renderWithProviders — real functions, not vi.fn()
+export const fakeHarmoniApi: HarmoniApiPort = {
+  derive_soft_neutrals:              (_brand, _softness)                => FIXTURE_SOFT_NEUTRALS,
+  generate_neutral_ramp:             (_white, _black, _tint)            => FIXTURE_PALETTE,
+  generate_palette:                  (_hex, _lp, _dp)                   => FIXTURE_PALETTE,
+  generate_palette_pair:             (_hex, _ll, _dl, _lp, _dp)        => ({ light: FIXTURE_PALETTE, dark: FIXTURE_PALETTE }),
+  generate_palette_with_light_padding: (_hex, _lp)                     => FIXTURE_PALETTE,
+  generate_palette_with_lightness:   (_hex, _l, _lp, _dp)              => FIXTURE_PALETTE,
+  get_contrast_rating:               (_bg, _fg)                         => FIXTURE_CONTRAST_RESULT,
+  tint_neutrals:                     (_white, _black, _source, _strength) => FIXTURE_SOFT_NEUTRALS,
 }
 ```
-
-`fakeRampPort` is a real function, not a spy. Tests that need to assert on calling convention override it locally with a `vi.fn()`.
 
 ---
 
@@ -277,17 +340,13 @@ No React, no jsdom, no mocks.
 ```ts
 // src/ui/view-model/neutralPaletteViewModel.ts
 import type { Palette, SwatchLabel } from 'harmoni-wasm'
-import type { NeutralSwatchPayload } from '../../shared/messages'
 
 export function formatSwatchLabel(label: SwatchLabel): string {
   return 'Number' in label ? String(label.Number) : label.Name
 }
 
-export function paletteToSwatchPayload(palette: Palette): NeutralSwatchPayload[] {
-  return palette.swatches.map((s) => ({
-    label: s.label as NeutralSwatchPayload['label'],
-    rgb: s.rgb,
-  }))
+export function paletteToSwatchPayload(palette: Palette): Array<{ label: SwatchLabel; hex: string }> {
+  return palette.swatches.map((s) => ({ label: s.label, hex: s.hex }))
 }
 ```
 
@@ -312,13 +371,6 @@ describe('paletteToSwatchPayload', () => {
     expect(paletteToSwatchPayload(FIXTURE_PALETTE)).toHaveLength(10)
   })
 
-  it('carries label and rgb only', () => {
-    const [first] = paletteToSwatchPayload(FIXTURE_PALETTE)
-    expect(Object.keys(first)).toEqual(['label', 'rgb'])
-    expect(first.label).toEqual({ Number: 50 })
-    expect(first.rgb).toEqual(FIXTURE_PALETTE.swatches[0].rgb)
-  })
-
   it('preserves step order from the source palette', () => {
     const labels = paletteToSwatchPayload(FIXTURE_PALETTE)
       .map((p) => formatSwatchLabel(p.label))
@@ -329,188 +381,182 @@ describe('paletteToSwatchPayload', () => {
 
 ---
 
-## Cycle 2 — `messages.ts` and `figma.mock.ts`
+## Cycle 2 — Component unit tests
 
-```ts
-// src/shared/messages.ts (additions)
-export type NeutralSwatchPayload = {
-  label: { Number: number } | { Name: string }
-  rgb: { r: number; g: number; b: number }
-}
+These are prop-driven display components: they accept data as props and render it. No context. Tested with plain `render` — no `renderWithProviders` needed.
 
-export type UiMessage =
-  | { type: 'close' }
-  | { type: 'apply-neutral-palette'; swatches: NeutralSwatchPayload[] }
+### `SwatchChip`
+
+Renders a single swatch: its colour and label.
+
+```tsx
+// src/ui/components/SwatchChip/SwatchChip.test.tsx
+import { render, screen } from '@testing-library/react'
+import { SwatchChip } from './SwatchChip'
+import { FIXTURE_PALETTE } from '../../neutralPalette.fixtures'
+
+describe('SwatchChip', () => {
+  it('displays the step label', () => {
+    render(<SwatchChip swatch={FIXTURE_PALETTE.swatches[0]} />)
+    expect(screen.getByText('50')).toBeInTheDocument()
+  })
+
+  it('applies the swatch hex as a background colour', () => {
+    render(<SwatchChip swatch={FIXTURE_PALETTE.swatches[0]} />)
+    const chip = screen.getByRole('listitem')
+    expect(chip).toHaveStyle({ backgroundColor: FIXTURE_PALETTE.swatches[0].hex })
+  })
+})
 ```
 
-```ts
-// src/code/figma.mock.ts (additions)
-export interface FigmaMock {
-  // ... existing fields ...
-  variables: {
-    createVariableCollection: Mock  // (name: string) => { id, modes }
-    createVariable: Mock            // (name, collection, 'COLOR') => { setValueForMode }
-  }
-}
+### `PaletteRamp`
 
-// In createFigmaMock():
-variables: {
-  createVariableCollection: vi.fn().mockReturnValue({
-    id: 'mock-collection-id',
-    modes: [{ modeId: 'mock-mode-id', name: 'Default' }],
-  }),
-  createVariable: vi.fn().mockReturnValue({
-    setValueForMode: vi.fn(),
-  }),
-},
+Renders a list of `SwatchChip` components from a `Palette` prop.
+
+```tsx
+// src/ui/components/PaletteRamp/PaletteRamp.test.tsx
+import { render, screen } from '@testing-library/react'
+import { PaletteRamp } from './PaletteRamp'
+import { FIXTURE_PALETTE } from '../../neutralPalette.fixtures'
+
+describe('PaletteRamp', () => {
+  it('renders one chip per swatch step', () => {
+    render(<PaletteRamp palette={FIXTURE_PALETTE} />)
+    expect(screen.getAllByRole('listitem')).toHaveLength(10)
+  })
+
+  it('labels each chip with its step number', () => {
+    render(<PaletteRamp palette={FIXTURE_PALETTE} />)
+    for (const step of ['50','100','200','300','400','500','600','700','800','900']) {
+      expect(screen.getByText(step)).toBeInTheDocument()
+    }
+  })
+})
+```
+
+### `ColourPicker`
+
+Controlled colour input: `label`, `value`, `onChange`.
+
+```tsx
+// src/ui/components/ColourPicker/ColourPicker.test.tsx
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { ColourPicker } from './ColourPicker'
+
+describe('ColourPicker', () => {
+  it('renders a colour input with an accessible label', () => {
+    render(<ColourPicker label="White" value="#ffffff" onChange={() => {}} />)
+    expect(screen.getByLabelText('White')).toHaveAttribute('type', 'color')
+  })
+
+  it('reflects the current value', () => {
+    render(<ColourPicker label="White" value="#aabbcc" onChange={() => {}} />)
+    expect(screen.getByLabelText('White')).toHaveValue('#aabbcc')
+  })
+
+  it('calls onChange with the new hex value when the input changes', async () => {
+    const onChange = vi.fn()
+    render(<ColourPicker label="White" value="#ffffff" onChange={onChange} />)
+    await userEvent.type(screen.getByLabelText('White'), '#f0f0f0')
+    expect(onChange).toHaveBeenCalled()
+  })
+})
 ```
 
 ---
 
-## Cycle 3 — Integration tests (`NeutralPanel.test.tsx`)
+## Cycle 3 — Integration tests (`NeutralScreen.test.tsx`)
 
-### Sandbox bridge
+Integration tests cover the full behavioural chain within the UI: user interaction → `HarmoniApiPort.generate_neutral_ramp` called with the right args → ramp display updates. No postMessage bridge — that is deferred with Apply to Figma.
 
-The `beforeEach` block owns the seam between the two plugin contexts. When the component calls `window.parent.postMessage(...)`, the spy intercepts and routes to `handleUiMessage`. Both contexts share the same jsdom environment in tests, so one interception point covers the full round-trip.
+`renderWithProviders` is used here because `NeutralScreen` reads `useHarmoniApi()` from context. Tests that need to observe the calling convention override `harmoniApi` with a spy; everything else uses the default `fakeHarmoniApi`.
 
-```ts
-// src/ui/NeutralPanel.test.tsx
+```tsx
+// src/ui/screens/NeutralScreen/NeutralScreen.test.tsx
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { NeutralPanel } from './NeutralPanel'
-import { handleUiMessage } from '../code/handleMessage'
-import { createFigmaMock, type FigmaMock } from '../code/figma.mock'
-import { FIXTURE_PALETTE } from './neutralPalette.fixtures'
-import { renderWithProviders } from './test-utils/renderWithProviders'
+import { NeutralScreen } from './NeutralScreen'
+import { FIXTURE_PALETTE, fakeHarmoniApi } from '../../neutralPalette.fixtures'
+import { renderWithProviders } from '../../test-utils/renderWithProviders'
 
-let figmaMock: FigmaMock
-
-beforeEach(() => {
-  figmaMock = createFigmaMock()
-  vi.stubGlobal('figma', figmaMock)
-
-  vi.spyOn(window.parent, 'postMessage').mockImplementation(async (data) => {
-    if (data?.pluginMessage) await handleUiMessage(data.pluginMessage)
-  })
-})
-```
-
-### Tests
-
-```ts
-describe('NeutralPanel — pickers', () => {
-  it('renders a colour picker labelled "White"', () => {
-    renderWithProviders(<NeutralPanel />)
+describe('NeutralScreen — initial render', () => {
+  it('renders a White colour picker', () => {
+    renderWithProviders(<NeutralScreen />)
     expect(screen.getByLabelText('White')).toHaveAttribute('type', 'color')
   })
 
-  it('renders a colour picker labelled "Black"', () => {
-    renderWithProviders(<NeutralPanel />)
+  it('renders a Black colour picker', () => {
+    renderWithProviders(<NeutralScreen />)
     expect(screen.getByLabelText('Black')).toHaveAttribute('type', 'color')
   })
-})
 
-describe('NeutralPanel — ramp preview', () => {
   it('renders the ten step labels on mount', () => {
-    renderWithProviders(<NeutralPanel />)
+    renderWithProviders(<NeutralScreen />)
     for (const step of ['50','100','200','300','400','500','600','700','800','900']) {
       expect(screen.getByText(step)).toBeInTheDocument()
     }
   })
 })
 
-describe('NeutralPanel — ramp regeneration', () => {
-  it('calls generateRamp with the updated white when the White picker changes', async () => {
-    const portSpy = { generateRamp: vi.fn().mockReturnValue(FIXTURE_PALETTE) }
-    renderWithProviders(<NeutralPanel />, { neutralRampPort: portSpy })
+describe('NeutralScreen — ramp regeneration', () => {
+  it('calls generate_neutral_ramp with the updated white when the White picker changes', async () => {
+    const apiSpy = {
+      ...fakeHarmoniApi,
+      generate_neutral_ramp: vi.fn().mockReturnValue(FIXTURE_PALETTE),
+    }
+    renderWithProviders(<NeutralScreen />, { harmoniApi: apiSpy })
 
     await userEvent.type(screen.getByLabelText('White'), '#f0f0f0')
 
-    expect(portSpy.generateRamp).toHaveBeenCalledWith(
+    expect(apiSpy.generate_neutral_ramp).toHaveBeenCalledWith(
       expect.stringContaining('#f0f0f0'),
       '#000000',
+      'Inherit',
     )
   })
 
-  it('calls generateRamp with the updated black when the Black picker changes', async () => {
-    const portSpy = { generateRamp: vi.fn().mockReturnValue(FIXTURE_PALETTE) }
-    renderWithProviders(<NeutralPanel />, { neutralRampPort: portSpy })
+  it('calls generate_neutral_ramp with the updated black when the Black picker changes', async () => {
+    const apiSpy = {
+      ...fakeHarmoniApi,
+      generate_neutral_ramp: vi.fn().mockReturnValue(FIXTURE_PALETTE),
+    }
+    renderWithProviders(<NeutralScreen />, { harmoniApi: apiSpy })
 
     await userEvent.type(screen.getByLabelText('Black'), '#111111')
 
-    expect(portSpy.generateRamp).toHaveBeenCalledWith(
+    expect(apiSpy.generate_neutral_ramp).toHaveBeenCalledWith(
       '#ffffff',
       expect.stringContaining('#111111'),
-    )
-  })
-})
-
-describe('NeutralPanel — Apply to Figma', () => {
-  it('renders an "Apply to Figma" button', () => {
-    renderWithProviders(<NeutralPanel />)
-    expect(screen.getByRole('button', { name: 'Apply to Figma' })).toBeInTheDocument()
-  })
-
-  it('creates a Neutral variable collection when Apply is clicked', async () => {
-    renderWithProviders(<NeutralPanel />)
-
-    await userEvent.click(screen.getByRole('button', { name: 'Apply to Figma' }))
-
-    expect(figmaMock.variables.createVariableCollection).toHaveBeenCalledWith('Neutral')
-  })
-
-  it('creates one COLOR variable per swatch step', async () => {
-    renderWithProviders(<NeutralPanel />)
-
-    await userEvent.click(screen.getByRole('button', { name: 'Apply to Figma' }))
-
-    expect(figmaMock.variables.createVariable).toHaveBeenCalledTimes(10)
-  })
-
-  it('names each variable after its step label', async () => {
-    renderWithProviders(<NeutralPanel />)
-
-    await userEvent.click(screen.getByRole('button', { name: 'Apply to Figma' }))
-
-    expect(figmaMock.variables.createVariable).toHaveBeenCalledWith(
-      '50',
-      expect.objectContaining({ id: 'mock-collection-id' }),
-      'COLOR',
-    )
-    expect(figmaMock.variables.createVariable).toHaveBeenCalledWith(
-      '900',
-      expect.objectContaining({ id: 'mock-collection-id' }),
-      'COLOR',
+      'Inherit',
     )
   })
 
-  it('sets each variable value to the swatch RGB colour for the default mode', async () => {
-    const variableMock = { setValueForMode: vi.fn() }
-    figmaMock.variables.createVariable.mockReturnValue(variableMock)
-    renderWithProviders(<NeutralPanel />)
+  it('re-renders the ramp with the result of each regeneration call', async () => {
+    const updatedPalette = { ...FIXTURE_PALETTE, note: 'updated' }
+    const apiSpy = {
+      ...fakeHarmoniApi,
+      generate_neutral_ramp: vi.fn().mockReturnValue(updatedPalette),
+    }
+    renderWithProviders(<NeutralScreen />, { harmoniApi: apiSpy })
 
-    await userEvent.click(screen.getByRole('button', { name: 'Apply to Figma' }))
+    await userEvent.type(screen.getByLabelText('White'), '#f0f0f0')
 
-    const first = FIXTURE_PALETTE.swatches[0]
-    expect(variableMock.setValueForMode).toHaveBeenCalledWith(
-      'mock-mode-id',
-      { r: first.rgb.r, g: first.rgb.g, b: first.rgb.b },
-    )
+    expect(screen.getAllByRole('listitem')).toHaveLength(10)
   })
 })
 ```
 
-The regeneration tests are the only ones that pass a `portSpy` — they need to observe the calling convention. Everything else uses the default `fakeRampPort` from `renderWithProviders` and asserts on the Figma API end of the chain.
-
 ---
 
-## Cycle 4 — App wiring test
+## Cycle 4 — App routing test
 
-`App.test.tsx` already mocks `./engine`. The existing mock is extended to expose `harmoni.generate_neutral_ramp`, and one new test confirms the panel renders within the app:
+`App.tsx` defines routes only — no providers. `renderWithProviders` supplies both the `MemoryRouter` (via `initialEntries`) and the `HarmoniApiProvider`. One test confirms the neutral screen renders at `/neutral`.
 
-```ts
+```tsx
 // src/ui/App.test.tsx (additions)
+import { FIXTURE_PALETTE } from './neutralPalette.fixtures'
 
 vi.mock('./engine', () => ({
   initEngine: vi.fn(() => Promise.resolve()),
@@ -519,8 +565,8 @@ vi.mock('./engine', () => ({
   },
 }))
 
-it('renders the neutral palette colour pickers', async () => {
-  renderWithProviders(<App />)
+it('renders the NeutralScreen at /neutral', async () => {
+  renderWithProviders(<App />, { initialEntries: ['/neutral'] })
   await screen.findByText('Hello from Harmoni Wasm!')
 
   expect(screen.getByLabelText('White')).toBeInTheDocument()
@@ -536,11 +582,13 @@ it('renders the neutral palette colour pickers', async () => {
 |---|---|
 | 1 | `test(neutral): red — view model unit tests` |
 | 2 | `feat(neutral): green — neutralPaletteViewModel pure functions` |
-| 3 | `test(neutral): red — NeutralPanel integration tests` |
-| 4 | `feat(neutral): green — NeutralPanel, context, hook, sandbox handler` |
-| 5 | `feat(neutral): wire NeutralPanel into App and main` |
+| 3 | `test(neutral): red — SwatchChip, PaletteRamp, ColourPicker component tests` |
+| 4 | `feat(neutral): green — SwatchChip, PaletteRamp, ColourPicker components` |
+| 5 | `test(neutral): red — NeutralScreen integration tests` |
+| 6 | `feat(neutral): green — NeutralScreen, HarmoniApiProvider, context, hook` |
+| 7 | `feat(neutral): wire NeutralScreen into App routing and main` |
 
-Commits 3 and 4 are outside-in: write all integration tests first (fully red), then implement the whole stack in one green pass using the view model functions from commit 2.
+Commits 5 and 6 are outside-in: write all integration tests first (fully red), then implement the whole screen in one green pass, composing the components from commits 3–4.
 
 ---
 
@@ -550,8 +598,11 @@ Commits 3 and 4 are outside-in: write all integration tests first (fully red), t
 # View model unit tests
 pnpm --filter harmoni-figma-plugin exec vitest run src/ui/view-model/neutralPaletteViewModel
 
+# Component unit tests
+pnpm --filter harmoni-figma-plugin exec vitest run src/ui/components
+
 # Integration tests
-pnpm --filter harmoni-figma-plugin exec vitest run src/ui/NeutralPanel
+pnpm --filter harmoni-figma-plugin exec vitest run src/ui/screens/NeutralScreen
 pnpm --filter harmoni-figma-plugin exec vitest run src/ui/App
 
 # Full suite before committing
@@ -562,6 +613,7 @@ pnpm --filter harmoni-figma-plugin qa:units
 
 ## What this plan deliberately defers
 
-- **Idempotency** — second Apply overwrites rather than duplicates. Needs `figma.variables.getLocalVariableCollectionsAsync`. Clear next cycle once the base flow is green.
-- **`TintMode: Achromatic` toggle** — port interface and message type are ready for it.
-- **"Use as neutral colour tint"** — links a brand palette colour to the neutral generator.
+- **Apply to Figma** — sending the palette to the sandbox, creating Figma Colour variables. Separate plan; requires extending `messages.ts`, the postMessage bridge, `figma.mock.ts`, and `handleMessage.ts`.
+- **Idempotency** — second Apply overwrites rather than duplicates. Needs `figma.variables.getLocalVariableCollectionsAsync`.
+- **`TintMode: Achromatic` toggle** — port interface signature is already correct for it; just not exposed in the UI yet.
+- **"Use as neutral colour tint"** — links a brand palette colour to the neutral generator via `tint_neutrals`.

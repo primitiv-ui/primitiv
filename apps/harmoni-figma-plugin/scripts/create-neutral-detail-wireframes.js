@@ -4,422 +4,264 @@
  * Appends three screens to the "Wireframes — Harmoni Plugin" page
  * (creates the page if it doesn't exist yet):
  *
- *   Screen 2a — Default state
- *               Enhanced White/Black colour pickers (swatch + hex + chevron
- *               inside a card control, referencing the ColorEngine.tsx
- *               input[type=color] pattern) and the 10-step neutral ramp.
+ *   Screen 2a — Default palette editor state (baseline reference)
+ *               Compact curve visualisation, all controls at rest.
  *
- *   Screen 2b — Lightness curve editor
- *               Sliders/Curve tab bar, then 10 vertical range sliders — one
- *               per ramp step, aligned to the swatch columns above — mapping
- *               to ColorEngine.tsx CurveEditor / palette.lightness_curve.
+ *   Screen 2b — Lightness curve expanded
+ *               "Edit curve ›" tapped: the compact dot visualisation is
+ *               replaced inline by a Sliders / Curve tab bar + 10 vertical
+ *               sliders. Right column scrolls — Apply is below the fold.
  *
- *   Screen 2c — Padding sliders
- *               Light-padding and dark-padding horizontal range sliders with
- *               value readouts. Shift buttons deferred (not yet specified).
- *
- * Layout references:
- *   apps/workbench/src/ColorEngine.tsx  — control structure & vocabulary
- *   apps/harmoni-figma-plugin/PLUGIN_UX_PLAN.md — agreed dimensions & tokens
+ *   Screen 2c — After curve edit
+ *               Compact curve restored with modified lightness values,
+ *               left column neutral ramp updated to reflect the new curve.
  *
  * HOW TO RUN
  * ----------
  * 1. Open your Figma file in the desktop app.
  * 2. Plugins → Development → Open console (⌘⌥I on Mac).
- * 3. Type "allow pasting" and press Enter, then paste this file and Enter.
- *
- * Run after the existing wireframe scripts (Screens 1–6 occupy
- * x = 0 … 2040). New frames land at x = 2448, 2856, 3264.
+ * 3. Type "allow pasting" and press Enter, then paste and press Enter.
  */
 
 (async function createNeutralDetailWireframes() {
 
-  // ─── Fonts ────────────────────────────────────────────────────────────────
   await figma.loadFontAsync({ family: "Inter", style: "Regular" });
   await figma.loadFontAsync({ family: "Inter", style: "Medium" });
   await figma.loadFontAsync({ family: "Inter", style: "Bold" });
 
-  // ─── Page ─────────────────────────────────────────────────────────────────
   let page = figma.root.children.find(p => p.name === "Wireframes — Harmoni Plugin");
-  if (!page) {
-    page = figma.createPage();
-    page.name = "Wireframes — Harmoni Plugin";
-  }
+  if (!page) { page = figma.createPage(); page.name = "Wireframes — Harmoni Plugin"; }
   figma.currentPage = page;
 
-  // ─── Layout constants ─────────────────────────────────────────────────────
-  const W     = 360;
-  const H     = 620;
-  const PAD   = 16;
-  const CW    = W - PAD * 2;           // 328px content width
-  const HDR_H = 48;
-  const GAP   = 48;
+  // ─── Shared layout + helpers (identical across all four scripts) ──────────
 
-  // Positioned after existing Screens 1–6 (each occupies W+GAP = 408px)
-  const X2A = (W + GAP) * 6;           // 2448
-  const X2B = (W + GAP) * 7;           // 2856
-  const X2C = (W + GAP) * 8;           // 3264
+  const W = 640, H = 620, PAD = 16, HDR_H = 48, GAP = 48;
+  const CW    = W - PAD * 2;
+  const LCW   = 364, CGAP = 12;
+  const RCW   = CW - LCW - CGAP;
+  const RCX   = PAD + LCW + CGAP;
+  const PITCH = W + GAP;
+  const SW = 32, SH = 60, SGAP = 4;
+  const RAMP_W = SW * 10 + SGAP * 9;
+  const RAMP_X = PAD + Math.round((LCW - RAMP_W) / 2);
 
-  // ─── Ramp geometry (matches create-wireframes.js) ─────────────────────────
-  const SWATCH_W   = 28;
-  const SWATCH_H   = 52;
-  const SWATCH_GAP = 4;
-  const RAMP_W     = SWATCH_W * 10 + SWATCH_GAP * 9;         // 316px
-  const RAMP_X     = PAD + Math.round((CW - RAMP_W) / 2);    // 22px from frame left
+  const LIGHTNESS = [248,232,212,188,161,132,104,78,53,26];
+  const STEPS = ["50","100","200","300","400","500","600","700","800","900"];
+  const FG    = ["900","900","900","900","900","50","50","50","50","50"];
+  const RATIOS  = ["14.2","9.8","6.5","4.9","3.8","4.6","6.1","9.1","12.8","19.3"];
+  const RATINGS = ["AA","AA","AA","AA","AA","AA","AA","AA","AA","AA"];
+  const LVALS   = [0.97,0.91,0.83,0.74,0.63,0.52,0.41,0.31,0.21,0.10];
 
-  // Greyscale approximation for steps 50 → 900
-  const LIGHTNESS = [248, 232, 212, 188, 161, 132, 104, 78, 53, 26];
-  const STEPS     = ["50","100","200","300","400","500","600","700","800","900"];
-  const FG_STEP   = ["900","900","900","900","900","50","50","50","50","50"];
-  const RATIOS    = ["14.2","9.8","6.5","4.9","3.8","4.6","6.1","9.1","12.8","19.3"];
-  const RATINGS   = ["AA","AA","AA","AA","AA","AA","AA","AA","AA","AA"];
+  // Modified curve: steeper descent — shows the result of a user edit
+  const LVALS_EDITED = [0.94,0.86,0.75,0.63,0.50,0.37,0.26,0.17,0.10,0.04];
 
-  // Lightness values (0–1, 1 = lightest) feeding the curve-editor sliders
-  // Matches the descending curve produced by harmoni-core for a neutral ramp
-  const LVALS = [0.97, 0.91, 0.83, 0.74, 0.63, 0.52, 0.41, 0.31, 0.21, 0.10];
+  const BRAND_ROWS = [
+    { label:"Primary",   colors:["#DBEAFE","#BFDBFE","#93C5FD","#60A5FA","#3B82F6","#2563EB","#1D4ED8","#1E40AF","#1E3A8A","#172554"] },
+    { label:"Secondary", colors:["#EDE9FE","#DDD6FE","#C4B5FD","#A78BFA","#8B5CF6","#7C3AED","#6D28D9","#5B21B6","#4C1D95","#2E1065"] },
+    { label:"Accent",    colors:["#FEF3C7","#FDE68A","#FCD34D","#FBBF24","#F59E0B","#D97706","#B45309","#92400E","#78350F","#451A03"] },
+  ];
 
-  // ─── Primitive helpers ────────────────────────────────────────────────────
+  function rgb(hex) { return { r:parseInt(hex.slice(1,3),16)/255, g:parseInt(hex.slice(3,5),16)/255, b:parseInt(hex.slice(5,7),16)/255 }; }
+  function solid(hex) { return [{ type:"SOLID", color:rgb(hex) }]; }
+  function solidA(hex,a) { return [{ type:"SOLID", color:rgb(hex), opacity:a }]; }
+  function grey(l) { const h=Math.round(l).toString(16).padStart(2,"0"); return `#${h}${h}${h}`; }
 
-  function hexToRgb(hex) {
-    return {
-      r: parseInt(hex.slice(1, 3), 16) / 255,
-      g: parseInt(hex.slice(3, 5), 16) / 255,
-      b: parseInt(hex.slice(5, 7), 16) / 255,
-    };
+  function mkFrame(name,x,y,w,h,bg) {
+    const f=figma.createFrame(); f.name=name; f.x=x; f.y=y;
+    f.resize(w,h); f.fills=solid(bg||"#F2F2F2"); f.clipsContent=true; return f;
+  }
+  function mkRect(p,name,x,y,w,h,fill) {
+    const r=figma.createRectangle(); r.name=name; r.x=x; r.y=y; r.resize(w,h);
+    r.fills=Array.isArray(fill)?fill:solid(fill); p.appendChild(r); return r;
+  }
+  function mkText(p,s,x,y,sz,style,hex) {
+    const t=figma.createText(); t.fontName={family:"Inter",style}; t.fontSize=sz;
+    t.fills=solid(hex); t.characters=String(s); t.x=x; t.y=y; p.appendChild(t); return t;
+  }
+  function mkDiv(p,x,y,w) { return mkRect(p,"Divider",x,y,w,1,"#D8D8D8"); }
+  function mkSec(p,s,x,y) { return mkText(p,s,x,y,10,"Medium","#999999"); }
+
+  function mkBreadcrumbHdr(p,project,palette) {
+    mkRect(p,"Header bg",0,0,W,HDR_H,"#1E1E1E");
+    mkText(p,"‹",14,13,20,"Regular","#FFFFFF"); mkText(p,project,38,15,14,"Medium","#FFFFFF");
+    const sepX=38+project.length*7+4;
+    mkText(p,"/",sepX,15,14,"Regular","#555555"); mkText(p,palette,sepX+14,15,14,"Regular","#CCCCCC");
+    const cb=mkRect(p,"Close",W-PAD-22,13,22,22,solidA("#FFFFFF",0.12)); cb.cornerRadius=4;
+    mkText(p,"×",W-PAD-16,15,12,"Regular","#FFFFFF");
   }
 
-  function solid(hex) {
-    return [{ type: "SOLID", color: hexToRgb(hex) }];
+  function drawLeftCol(p,cfg) {
+    cfg=cfg||{}; const sa=cfg.shapeActive||"Round", lv=cfg.lvals||LVALS, BSH=24;
+    let ly=HDR_H+16;
+    mkSec(p,"NEUTRAL",PAD,ly); ly+=18; mkDiv(p,PAD,ly,LCW); ly+=12;
+    for (let i=0;i<10;i++) {
+      const l=Math.round(lv[i]*255), sx=RAMP_X+i*(SW+SGAP);
+      const sw=mkRect(p,`Swatch ${STEPS[i]}`,sx,ly,SW,SH,grey(l)); sw.cornerRadius=sa==="Round"?2:0;
+      const fg=l>145?"#1E1E1E":"#FFFFFF";
+      mkText(p,FG[i],sx+2,ly+10,7,"Bold",fg); mkText(p,RATIOS[i],sx+2,ly+21,7,"Regular",fg); mkText(p,RATINGS[i],sx+2,ly+32,7,"Bold",fg);
+    }
+    for (let i=0;i<10;i++) mkText(p,STEPS[i],RAMP_X+i*(SW+SGAP)+1,ly+SH+3,7,"Regular","#555555");
+    ly+=SH+22;
+    mkSec(p,"BRAND",PAD,ly); ly+=18; mkDiv(p,PAD,ly,LCW); ly+=12;
+    for (const row of BRAND_ROWS) {
+      mkText(p,row.label,PAD,ly,11,"Medium","#444444");
+      for (let i=0;i<10;i++) {
+        const sw=mkRect(p,`${row.label} ${STEPS[i]}`,RAMP_X+i*(SW+SGAP),ly+14,SW,BSH,row.colors[i]); sw.cornerRadius=sa==="Round"?2:0;
+      }
+      for (let i=0;i<10;i++) mkText(p,STEPS[i],RAMP_X+i*(SW+SGAP)+1,ly+14+BSH+2,7,"Regular","#555555");
+      ly+=14+BSH+14;
+    }
+    const ab=mkRect(p,"Add brand colour",PAD,ly,LCW,28,"#FFFFFF");
+    ab.strokes=solid("#C8C8C8"); ab.strokeWeight=1; ab.dashPattern=[4,3]; ab.cornerRadius=4;
+    mkText(p,"+ Add brand colour",PAD+8,ly+8,11,"Regular","#888888");
   }
 
-  function solidA(hex, opacity) {
-    return [{ type: "SOLID", color: hexToRgb(hex), opacity }];
-  }
+  function drawRightCol(p,cfg) {
+    cfg=cfg||{};
+    const lv=cfg.lvals||LVALS, curveX=!!cfg.curveExpanded, sa=cfg.shapeActive||"Round";
+    const stepL=cfg.stepLabels!==false, a11y=!!cfg.a11yBadges;
+    const styChk=!!cfg.applyStylesChecked, varChk=cfg.applyVarsChecked!==false;
+    const coll=cfg.applyCollection!==undefined?cfg.applyCollection:"My Library";
+    const appEn=cfg.applyEnabled!==false, colOp=!!cfg.collectionOpen;
+    const PW=Math.floor((RCW-8)/2);
+    let ry=HDR_H+16;
 
-  function grey(l) {
-    const h = Math.round(l).toString(16).padStart(2, "0");
-    return `#${h}${h}${h}`;
-  }
+    mkSec(p,"NEUTRAL COLOURS",RCX,ry); ry+=14; mkDiv(p,RCX,ry,RCW); ry+=10;
+    function pickerCard(label,hexDisplay,swatchHex,cx) {
+      const card=mkRect(p,label+" picker",cx,ry,PW,40,"#FFFFFF");
+      card.strokes=solid("#E0E0E0"); card.strokeWeight=1; card.cornerRadius=6;
+      const sw=mkRect(p,label+" swatch",cx+8,ry+8,24,24,swatchHex); sw.cornerRadius=3;
+      if (/^#f/i.test(swatchHex)) { sw.strokes=solid("#CCCCCC"); sw.strokeWeight=1; }
+      mkText(p,label,cx+36,ry+5,9,"Regular","#999999"); mkText(p,hexDisplay,cx+36,ry+19,10,"Medium","#1E1E1E"); mkText(p,"▾",cx+PW-14,ry+14,10,"Regular","#BBBBBB");
+    }
+    pickerCard("White","#FAFAFA","#FAFAFA",RCX); pickerCard("Black","#121212","#121212",RCX+PW+8); ry+=48;
 
-  function makeFrame(name, x, y, w, h, bg = "#F2F2F2") {
-    const f = figma.createFrame();
-    f.name = name;
-    f.x = x; f.y = y;
-    f.resize(w, h);
-    f.fills = solid(bg);
-    f.clipsContent = true;
-    return f;
-  }
-
-  function makeRect(parent, name, x, y, w, h, fill) {
-    const r = figma.createRectangle();
-    r.name = name;
-    r.x = x; r.y = y;
-    r.resize(w, h);
-    r.fills = Array.isArray(fill) ? fill : solid(fill);
-    parent.appendChild(r);
-    return r;
-  }
-
-  function makeText(parent, content, x, y, size, style, hex) {
-    const t = figma.createText();
-    t.fontName = { family: "Inter", style };
-    t.fontSize = size;
-    t.fills = solid(hex);
-    t.characters = content;
-    t.x = x; t.y = y;
-    parent.appendChild(t);
-    return t;
-  }
-
-  function makeDivider(parent, x, y, w) {
-    return makeRect(parent, "Divider", x, y, w, 1, "#D8D8D8");
-  }
-
-  function makeSectionLabel(parent, label, x, y) {
-    return makeText(parent, label, x, y, 10, "Medium", "#999999");
-  }
-
-  function makeHeader(parent, title, showBack = false) {
-    makeRect(parent, "Header bg", 0, 0, W, HDR_H, "#1E1E1E");
-    if (showBack) {
-      makeText(parent, "‹", 14, 13, 20, "Regular", "#FFFFFF");
-      makeText(parent, title, 38, 15, 14, "Medium", "#FFFFFF");
+    mkSec(p,"LIGHTNESS CURVE",RCX,ry); ry+=14; mkDiv(p,RCX,ry,RCW); ry+=10;
+    if (curveX) {
+      const tc=mkRect(p,"Tabs",RCX,ry,RCW,28,"#FFFFFF"); tc.strokes=solid("#E0E0E0"); tc.strokeWeight=1; tc.cornerRadius=5;
+      const pill=mkRect(p,"Sliders pill",RCX,ry,RCW/2,28,"#1E1E1E");
+      pill.topLeftRadius=5; pill.bottomLeftRadius=5; pill.topRightRadius=0; pill.bottomRightRadius=0;
+      mkText(p,"Sliders",RCX+Math.round(RCW/4-18),ry+9,11,"Medium","#FFFFFF"); mkText(p,"Curve",RCX+Math.round(RCW*3/4-14),ry+9,11,"Regular","#888888"); ry+=36;
+      for (let i=0;i<10;i++) mkText(p,Math.round(lv[i]*100)+"%",RAMP_X+i*(SW+SGAP),ry,7,"Regular","#888888");
+      ry+=12;
+      const SH2=64,TH=8,TW2=12;
+      for (let i=0;i<10;i++) {
+        const sx=RAMP_X+i*(SW+SGAP), trX=sx+Math.round((SW-4)/2), tTop=Math.round((1-lv[i])*(SH2-TH));
+        const tr=mkRect(p,`Track ${i}`,trX,ry,4,SH2,"#D8D8D8"); tr.cornerRadius=2;
+        const fH=tTop+Math.round(TH/2);
+        if (fH>1) { const fi=mkRect(p,`Fill ${i}`,trX,ry,4,fH,"#1E1E1E"); fi.topLeftRadius=2; fi.topRightRadius=2; }
+        mkRect(p,`Thumb ${i}`,sx+Math.round((SW-TW2)/2),ry+tTop,TW2,TH,"#1E1E1E").cornerRadius=2;
+      }
+      for (let i=0;i<10;i++) mkText(p,STEPS[i],RAMP_X+i*(SW+SGAP)+1,ry+SH2+2,7,"Regular","#555555");
+      ry+=SH2+16; mkText(p,"Done  ↑",RCX+RCW-46,ry,10,"Regular","#2563EB"); ry+=18;
     } else {
-      makeText(parent, title, PAD, 15, 14, "Medium", "#FFFFFF");
-    }
-    const closeBox = makeRect(parent, "Close", W - PAD - 22, 13, 22, 22, solidA("#FFFFFF", 0.12));
-    closeBox.cornerRadius = 4;
-    makeText(parent, "×", W - PAD - 16, 15, 12, "Regular", "#FFFFFF");
-  }
-
-  // Colour picker control card: label (small, grey) + hex value + swatch + chevron.
-  // Maps to the <label><input type="color" …/></label> pattern in ColorEngine.tsx.
-  // PW = 156px, two controls fit side-by-side with a 16px gap inside the content area.
-  function makePickerControl(parent, label, hexDisplay, swatchHex, x, y) {
-    const PW   = 156;
-    const card = makeRect(parent, label + " picker", x, y, PW, 40, "#FFFFFF");
-    card.strokes = solid("#E0E0E0");
-    card.strokeWeight = 1;
-    card.cornerRadius = 6;
-
-    const sw = makeRect(parent, label + " swatch", x + 8, y + 8, 24, 24, swatchHex);
-    sw.cornerRadius = 3;
-    // White swatch needs a border so it reads against the white card background
-    if (swatchHex === "#FAFAFA" || swatchHex === "#FFFFFF") {
-      sw.strokes = solid("#CCCCCC");
-      sw.strokeWeight = 1;
+      const CH=48; const ca=mkRect(p,"Curve area",RCX,ry,RCW,CH,"#F8F8F8");
+      ca.strokes=solid("#E0E0E0"); ca.strokeWeight=1; ca.cornerRadius=4;
+      const ins=12, daW=RCW-ins*2, daH=CH-12;
+      for (let i=0;i<10;i++) { mkRect(p,`Dot ${i}`,RCX+ins+Math.round(i*daW/9)-3,ry+6+Math.round((1-lv[i])*daH)-3,6,6,"#1E1E1E").cornerRadius=3; }
+      ry+=CH+6; mkText(p,"Edit curve  ›",RCX,ry,10,"Regular","#2563EB"); ry+=18;
     }
 
-    makeText(parent, label,      x + 38, y + 5,  9,  "Regular", "#999999");
-    makeText(parent, hexDisplay, x + 38, y + 19, 11, "Medium",  "#1E1E1E");
-    makeText(parent, "▾",        x + PW - 18, y + 12, 11, "Regular", "#BBBBBB");
-  }
-
-  // 10-step neutral ramp + step labels below. Matches Swatch.tsx internals.
-  function makeNeutralRamp(parent, y) {
-    for (let i = 0; i < 10; i++) {
-      const l  = LIGHTNESS[i];
-      const sx = RAMP_X + i * (SWATCH_W + SWATCH_GAP);
-
-      const sw = makeRect(parent, `Swatch ${STEPS[i]}`, sx, y, SWATCH_W, SWATCH_H, grey(l));
-      sw.cornerRadius = 2;
-
-      const infoHex = l > 145 ? "#1E1E1E" : "#FFFFFF";
-      const ix = sx + 2;
-      makeText(parent, FG_STEP[i], ix, y + 8,  7, "Bold",    infoHex);
-      makeText(parent, RATIOS[i],  ix, y + 18, 7, "Regular", infoHex);
-      makeText(parent, RATINGS[i], ix, y + 28, 7, "Bold",    infoHex);
+    mkSec(p,"PADDING",RCX,ry); ry+=14; mkDiv(p,RCX,ry,RCW); ry+=10;
+    function hSlider(label,value,maxVal) {
+      const LW=60,VW=28,TRW=RCW-LW-VW-4,TX=RCX+LW,FW=Math.round((value/maxVal)*TRW),TD=12;
+      mkText(p,label,RCX,ry+8,11,"Regular","#333333");
+      mkRect(p,label+" track",TX,ry+11,TRW,4,"#D8D8D8").cornerRadius=2;
+      if (FW>0) { const fi=mkRect(p,label+" fill",TX,ry+11,FW,4,"#1E1E1E"); fi.topLeftRadius=2; fi.bottomLeftRadius=2; }
+      const th=mkRect(p,label+" thumb",TX+FW-TD/2,ry+11-(TD-4)/2,TD,TD,"#1E1E1E");
+      th.cornerRadius=6; th.strokes=solid("#FFFFFF"); th.strokeWeight=2;
+      mkText(p,value+"%",TX+TRW+4,ry+6,11,"Medium","#1E1E1E");
     }
-    for (let i = 0; i < 10; i++) {
-      const sx = RAMP_X + i * (SWATCH_W + SWATCH_GAP);
-      makeText(parent, STEPS[i], sx + 2, y + SWATCH_H + 3, 7, "Regular", "#555555");
+    hSlider("Light",12,30); ry+=30; hSlider("Dark",8,30); ry+=34;
+
+    mkDiv(p,RCX,ry,RCW); ry+=8; mkSec(p,"SWATCH STYLE",RCX,ry); ry+=14; mkDiv(p,RCX,ry,RCW); ry+=10;
+    mkText(p,"Shape",RCX,ry+5,11,"Regular","#333333");
+    const TGW=100,TGX=RCX+RCW-TGW;
+    mkRect(p,"Shape toggle bg",TGX,ry,TGW,24,"#E0E0E0").cornerRadius=4;
+    if (sa==="Round") {
+      const pill=mkRect(p,"Round pill",TGX,ry,TGW/2,24,"#1E1E1E");
+      pill.topLeftRadius=4; pill.bottomLeftRadius=4; pill.topRightRadius=0; pill.bottomRightRadius=0;
+      mkText(p,"Round",TGX+6,ry+7,9,"Medium","#FFFFFF"); mkText(p,"Square",TGX+TGW/2+6,ry+7,9,"Regular","#666666");
+    } else {
+      const pill=mkRect(p,"Square pill",TGX+TGW/2,ry,TGW/2,24,"#1E1E1E");
+      pill.topRightRadius=4; pill.bottomRightRadius=4; pill.topLeftRadius=0; pill.bottomLeftRadius=0;
+      mkText(p,"Round",TGX+6,ry+7,9,"Regular","#666666"); mkText(p,"Square",TGX+TGW/2+6,ry+7,9,"Medium","#FFFFFF");
     }
+    ry+=32;
+    function toggleRow(label,on) {
+      mkText(p,label,RCX,ry+4,11,"Regular","#333333"); const tX=RCX+RCW-32;
+      mkRect(p,label+" toggle",tX,ry,32,18,on?"#1E1E1E":"#D0D0D0").cornerRadius=9;
+      mkRect(p,label+" knob",on?tX+16:tX+2,ry+2,14,14,"#FFFFFF").cornerRadius=7;
+    }
+    toggleRow("Step labels",stepL); ry+=26; toggleRow("A11y badges",a11y); ry+=30;
+
+    mkDiv(p,RCX,ry,RCW); ry+=8; mkSec(p,"APPLY TO FIGMA",RCX,ry); ry+=14; mkDiv(p,RCX,ry,RCW); ry+=10;
+    function checkRow(label,checked) {
+      const cb=mkRect(p,label+" cb",RCX,ry+1,14,14,checked?"#1E1E1E":"#FFFFFF");
+      cb.cornerRadius=3; cb.strokes=solid(checked?"#1E1E1E":"#C0C0C0"); cb.strokeWeight=1.5;
+      if (checked) mkText(p,"✓",RCX+2,ry,11,"Bold","#FFFFFF");
+      mkText(p,label,RCX+20,ry+2,11,"Regular","#333333");
+    }
+    checkRow("Colour styles",styChk); ry+=22; checkRow("Colour variables",varChk); ry+=26;
+    mkText(p,"Collection",RCX,ry,10,"Regular","#999999"); ry+=14;
+    const dd=mkRect(p,"Collection dropdown",RCX,ry,RCW,30,"#FFFFFF");
+    dd.strokes=solid("#D0D0D0"); dd.strokeWeight=1; dd.cornerRadius=5;
+    mkText(p,coll||"Choose collection…",RCX+8,ry+8,11,"Regular",coll?"#1E1E1E":"#AAAAAA");
+    mkText(p,"▾",RCX+RCW-16,ry+9,11,"Regular","#888888");
+    if (colOp) {
+      const dH=88, dY=ry-dH;
+      const drop=mkRect(p,"Collection menu",RCX,dY,RCW,dH,"#FFFFFF");
+      drop.strokes=solid("#D0D0D0"); drop.strokeWeight=1; drop.cornerRadius=5;
+      drop.effects=[{type:"DROP_SHADOW",color:{r:0,g:0,b:0,a:0.12},offset:{x:0,y:-4},radius:8,spread:0,visible:true,blendMode:"NORMAL"}];
+      const COLS=["My Library","Typography Tokens","Colour System"];
+      for (let i=0;i<COLS.length;i++) {
+        if (i===0) mkRect(p,"Menu item bg",RCX,dY+i*28,RCW,28,"#F2F2F2");
+        mkText(p,COLS[i],RCX+10,dY+i*28+8,11,i===0?"Medium":"Regular",i===0?"#1E1E1E":"#444444");
+      }
+    }
+    ry+=38;
+    mkRect(p,"Apply to Figma",RCX,ry,RCW,36,appEn?"#1E1E1E":"#AAAAAA").cornerRadius=6;
+    mkText(p,"Apply to Figma",RCX+Math.round((RCW-76)/2),ry+11,12,"Medium","#FFFFFF");
   }
 
-  // Right-aligned "Apply to Figma" button (matches existing Screen 2 layout)
-  function makeApplyBtn(parent, y) {
-    const AW  = 132;
-    const AX  = PAD + CW - AW;
-    const btn = makeRect(parent, "Apply to Figma", AX, y, AW, 32, "#1E1E1E");
-    btn.cornerRadius = 6;
-    makeText(parent, "Apply to Figma", AX + 14, y + 9, 11, "Medium", "#FFFFFF");
-  }
-
-  // Shared Neutral section: NEUTRAL label → divider → pickers → ramp.
-  // Returns the y-cursor immediately below the ramp step labels.
-  function makeNeutralSection(parent) {
-    let y = HDR_H + 16;              // 64
-
-    makeSectionLabel(parent, "NEUTRAL", PAD, y);
-    y += 18;                         // 82
-
-    makeDivider(parent, PAD, y, CW);
-    y += 12;                         // 94
-
-    // Two picker controls side by side (156px each, 16px gap = CW exactly)
-    makePickerControl(parent, "White", "#FAFAFA", "#FAFAFA", PAD,            y);
-    makePickerControl(parent, "Black", "#121212", "#121212", PAD + 156 + 16, y);
-    y += 52;                         // 40px card + 12px gap → 146
-
-    makeNeutralRamp(parent, y);
-    y += SWATCH_H + 16;              // 52 + 16 → 214
-
-    return y;
+  function mkPaletteEditor(name,xPos,project,palette,lcCfg,rcCfg) {
+    const f=mkFrame(name,xPos,0,W,H,"#F2F2F2");
+    mkBreadcrumbHdr(f,project,palette);
+    mkRect(f,"Column divider",RCX-7,HDR_H+8,1,H-HDR_H-16,"#D8D8D8");
+    drawLeftCol(f,lcCfg); drawRightCol(f,rcCfg); return f;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // SCREEN 2a — Default state (enhanced colour picker controls)
+  // SCREEN 2a — Default palette editor (baseline reference)
   // ═══════════════════════════════════════════════════════════════════════════
-  const s2a = makeFrame("Screen 2a — Project (Neutral) Default", X2A, 0, W, H);
-  makeHeader(s2a, "Acme Corp", true);
-
-  let ya = makeNeutralSection(s2a);   // 214
-
-  makeApplyBtn(s2a, ya);
-  ya += 52;                           // 266
-
-  makeSectionLabel(s2a, "BRAND", PAD, ya);
-  ya += 18;                           // 284
-
-  makeDivider(s2a, PAD, ya, CW);
-  ya += 12;                           // 296
-
-  const brandBox = makeRect(s2a, "Brand — placeholder", PAD, ya, CW, 84, "#F8F8F8");
-  brandBox.strokes = solid("#D0D0D0");
-  brandBox.strokeWeight = 1;
-  brandBox.dashPattern = [6, 4];
-  brandBox.cornerRadius = 6;
-  makeText(s2a, "Brand colours — coming soon", PAD + 44, ya + 34, 11, "Regular", "#AAAAAA");
+  const s2a=mkPaletteEditor(
+    "Screen 2a — Neutral (default)", PITCH*6, "Acme Corp", "Neutral", {}, {}
+  );
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // SCREEN 2b — Lightness curve editor (Sliders tab active)
-  //
-  // Maps to ColorEngine.tsx CurveEditor component:
-  //   <Tabs.Trigger value="a">Sliders</Tabs.Trigger>
-  //   <Tabs.Content value="a"> — 10 × input[type=range] over lightness_curve[]
+  // SCREEN 2b — Curve editor expanded inline
+  // Right column shows the Sliders tab + 10 vertical sliders.
+  // Content overflows the 620px frame height (Apply is below the fold) —
+  // this is intentional: it demonstrates the scrollable right panel.
   // ═══════════════════════════════════════════════════════════════════════════
-  const s2b = makeFrame("Screen 2b — Project (Neutral) Curve Editor", X2B, 0, W, H);
-  makeHeader(s2b, "Acme Corp", true);
-
-  let yb = makeNeutralSection(s2b);   // 214
-
-  // ── Section header ─────────────────────────────────────────────────────────
-  makeSectionLabel(s2b, "LIGHTNESS CURVE", PAD, yb);
-  yb += 18;                           // 232
-
-  makeDivider(s2b, PAD, yb, CW);
-  yb += 12;                           // 244
-
-  // ── Segmented tab bar: Sliders | Curve ────────────────────────────────────
-  const TAB_W = Math.round(CW / 2);   // 164px per tab
-
-  // Outer card provides the overall border and radius
-  const tabCard = makeRect(s2b, "Tabs container", PAD, yb, CW, 30, "#FFFFFF");
-  tabCard.strokes = solid("#E0E0E0");
-  tabCard.strokeWeight = 1;
-  tabCard.cornerRadius = 6;
-
-  // Active pill covers the left half
-  const activePill = makeRect(s2b, "Tab — Sliders (active)", PAD, yb, TAB_W, 30, "#1E1E1E");
-  activePill.topLeftRadius     = 6;
-  activePill.topRightRadius    = 0;
-  activePill.bottomLeftRadius  = 6;
-  activePill.bottomRightRadius = 0;
-
-  // Tab labels — centred within each half (estimated glyph widths at 12px)
-  // "Sliders" ≈ 46px → centre of left tab (x=98) → start at 75
-  makeText(s2b, "Sliders", 75,  yb + 9, 12, "Medium",  "#FFFFFF");
-  // "Curve"   ≈ 33px → centre of right tab (x=262) → start at 245
-  makeText(s2b, "Curve",   245, yb + 9, 12, "Regular", "#888888");
-
-  // Thin divider between the two tab halves
-  makeRect(s2b, "Tab mid-divider", PAD + TAB_W, yb + 6, 1, 18, "#D8D8D8");
-
-  yb += 38;                           // 30px bar + 8px gap → 282
-
-  // ── 10 vertical lightness sliders ─────────────────────────────────────────
-  // One slider per ramp step, x-aligned with the swatch columns above.
-  // Thumb position: top = lightest (1.0), bottom = darkest (0.0).
-  const SLIDER_H = 64;
-  const THUMB_H  = 8;
-  const THUMB_W  = 12;
-
-  // Percentage value labels above each slider column
-  for (let i = 0; i < 10; i++) {
-    const sx  = RAMP_X + i * (SWATCH_W + SWATCH_GAP);
-    makeText(s2b, Math.round(LVALS[i] * 100) + "%", sx, yb, 7, "Regular", "#888888");
-  }
-  yb += 12;                           // 294
-
-  // Tracks, active fills, and thumbs
-  for (let i = 0; i < 10; i++) {
-    const sx = RAMP_X + i * (SWATCH_W + SWATCH_GAP);
-
-    // 4px track centred horizontally in the 28px swatch column
-    const trackX = sx + Math.round((SWATCH_W - 4) / 2);
-
-    // Thumb y offset from track top (higher lightness → thumb closer to top)
-    const thumbTop = Math.round((1 - LVALS[i]) * (SLIDER_H - THUMB_H));
-
-    // Track background (full height, light grey)
-    const track = makeRect(s2b, `Track ${STEPS[i]}`, trackX, yb, 4, SLIDER_H, "#D8D8D8");
-    track.cornerRadius = 2;
-
-    // Active fill — from top down to thumb midpoint (represents lightness amount)
-    const fillH = thumbTop + Math.round(THUMB_H / 2);
-    if (fillH > 1) {
-      const fill = makeRect(s2b, `Fill ${STEPS[i]}`, trackX, yb, 4, fillH, "#1E1E1E");
-      fill.topLeftRadius  = 2;
-      fill.topRightRadius = 2;
-    }
-
-    // Thumb — wider than the track, centred in the swatch column
-    const thumbX = sx + Math.round((SWATCH_W - THUMB_W) / 2);
-    const thumb  = makeRect(s2b, `Thumb ${STEPS[i]}`, thumbX, yb + thumbTop, THUMB_W, THUMB_H, "#1E1E1E");
-    thumb.cornerRadius = 2;
-  }
-
-  yb += SLIDER_H + 8;                 // 294 + 64 + 8 = 366
-
-  // Step labels below sliders, aligned with ramp columns
-  for (let i = 0; i < 10; i++) {
-    const sx = RAMP_X + i * (SWATCH_W + SWATCH_GAP);
-    makeText(s2b, STEPS[i], sx + 2, yb, 7, "Regular", "#555555");
-  }
-  yb += 20;                           // 386
-
-  makeApplyBtn(s2b, yb);
+  const s2b=mkPaletteEditor(
+    "Screen 2b — Neutral (curve expanded)", PITCH*7, "Acme Corp", "Neutral",
+    {},
+    { curveExpanded:true }
+  );
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // SCREEN 2c — Padding sliders (light + dark padding)
-  //
-  // Maps to ColorEngine.tsx:
-  //   palette__slider-container--light-padding  — input[type=range] value=lightPadding
-  //   palette__slider-container--dark-padding   — input[type=range] value=darkPadding
-  //
-  // Shift buttons are deferred and not shown here.
+  // SCREEN 2c — After curve edit
+  // Steeper lightness descent applied. Left column neutral ramp updates to
+  // show the changed values; compact curve dots reflect the new shape.
   // ═══════════════════════════════════════════════════════════════════════════
-  const s2c = makeFrame("Screen 2c — Project (Neutral) Padding", X2C, 0, W, H);
-  makeHeader(s2c, "Acme Corp", true);
+  const s2c=mkPaletteEditor(
+    "Screen 2c — Neutral (after curve edit)", PITCH*8, "Acme Corp", "Neutral",
+    { lvals:LVALS_EDITED },
+    { lvals:LVALS_EDITED }
+  );
 
-  let yc = makeNeutralSection(s2c);   // 214
+  figma.viewport.scrollAndZoomIntoView([s2a,s2b,s2c]);
+  console.log('✓ Added Screens 2a, 2b, 2c (neutral detail states) to "Wireframes — Harmoni Plugin".');
 
-  makeSectionLabel(s2c, "PADDING", PAD, yc);
-  yc += 18;                           // 232
-
-  makeDivider(s2c, PAD, yc, CW);
-  yc += 12;                           // 244
-
-  // Horizontal range slider row helper.
-  // value / maxVal control the thumb position; value is shown as "n%" on the right.
-  function makeHSliderRow(parent, label, value, maxVal, y) {
-    const LABEL_W  = 92;
-    const VAL_W    = 36;
-    const TRACK_W  = CW - LABEL_W - VAL_W - 8;    // 192px track
-    const TRACK_X  = PAD + LABEL_W;
-    const FILL_W   = Math.round((value / maxVal) * TRACK_W);
-    const THUMB_SZ = 14;
-
-    // Label (left-aligned)
-    makeText(parent, label, PAD, y + 10, 12, "Regular", "#333333");
-
-    // Track background
-    const track = makeRect(parent, label + " track", TRACK_X, y + 13, TRACK_W, 4, "#D8D8D8");
-    track.cornerRadius = 2;
-
-    // Active fill (left portion)
-    if (FILL_W > 0) {
-      const fill = makeRect(parent, label + " fill", TRACK_X, y + 13, FILL_W, 4, "#1E1E1E");
-      fill.topLeftRadius    = 2;
-      fill.bottomLeftRadius = 2;
-    }
-
-    // Thumb (circle, centred on the fill end-point)
-    const thumbX = TRACK_X + FILL_W - Math.round(THUMB_SZ / 2);
-    const thumbY = y + 13 - Math.round((THUMB_SZ - 4) / 2);
-    const thumb  = makeRect(parent, label + " thumb", thumbX, thumbY, THUMB_SZ, THUMB_SZ, "#1E1E1E");
-    thumb.cornerRadius = 7;
-    thumb.strokes = solid("#FFFFFF");
-    thumb.strokeWeight = 2;
-
-    // Value readout (right-aligned after the track)
-    makeText(parent, value + "%", TRACK_X + TRACK_W + 8, y + 8, 12, "Medium", "#1E1E1E");
-  }
-
-  // Light padding: 12% of a ~30% maximum
-  makeHSliderRow(s2c, "Light padding", 12, 30, yc);
-  yc += 44;                           // 40px row + 4px gap → 288
-
-  // Dark padding: 8% of a ~30% maximum
-  makeHSliderRow(s2c, "Dark padding", 8, 30, yc);
-  yc += 44;                           // 332
-
-  makeApplyBtn(s2c, yc);
-
-  // ─── Zoom to fit new screens ──────────────────────────────────────────────
-  figma.viewport.scrollAndZoomIntoView([s2a, s2b, s2c]);
-
-  console.log('✓ Added Screens 2a, 2b, 2c to "Wireframes — Harmoni Plugin".');
-
-})().catch((err) => console.error("Wireframe error:", err.message));
+})().catch(err => console.error("Wireframe error:", err.message));

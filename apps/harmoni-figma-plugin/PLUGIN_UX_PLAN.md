@@ -146,24 +146,32 @@ picker.
 Paste into the Figma developer console
 (`Plugins → Development → Open console`). Type `allow pasting` once
 per session before pasting. See the `figma-console-scripts` skill
-for the full process and API reference.
+for the full process and API reference, including the **versioned
+naming convention** described below.
 
-### v1 scripts (current direction)
+### Naming convention
+
+Every wireframe script and the page it creates **must include a
+version segment** (e.g. `v1`, `v2`, …) so future iterations don't
+overwrite or shadow earlier ones. As the design evolves we bump
+the version; older versions remain in git history but the active
+scripts on disk only carry the current version's prefix.
+
+| Surface | Pattern | Example |
+|---|---|---|
+| Filename | `create-<version>-<subject>-wireframes.js` | `create-v1-output-detail-wireframes.js` |
+| Figma page name | `Wireframes — Harmoni Plugin (<version>[ — <subject>])` | `Wireframes — Harmoni Plugin (v1 — output detail)` |
+
+When the design crosses a version boundary, delete the previous
+version's scripts from disk (git history preserves them) and start
+a fresh set under the new prefix.
+
+### Current scripts (v1)
 
 | Script | What it renders |
 |---|---|
 | `scripts/create-v1-wireframes.js` | Single-screen plugin at widths 320 / 400 / 480, plus one "tint active" variant. |
 | `scripts/create-v1-output-detail-wireframes.js` | Three 480px frames showing the output zone in each of its three states: default (with "Configure ›" affordances visible), canvas swatches detail, and colour variables detail. Top half of the screen is identical across all three frames to communicate that the rest of the UI doesn't change. |
-
-### v0 scripts (historical — kept for reference, do not run as canonical)
-
-| Script | Screens |
-|---|---|
-| `scripts/create-wireframes.js` | Screen 1 (Projects) + Screen 2 (Project / Neutral) |
-| `scripts/create-apply-wireframes.js` | Screen 3 (Apply — choose outputs) + Screen 4 (Apply — collection picker) |
-| `scripts/create-swatch-config-wireframes.js` | Screen 5 (Swatch style config) + Screen 6 (Canvas output preview) |
-| `scripts/create-neutral-detail-wireframes.js` | Screen 2a (Default — enhanced pickers) + 2b (Lightness curve editor) + 2c (Padding sliders) |
-| `scripts/create-wide-wireframes.js` | Screen R1 + R2 (640px navigation-reduced exploration that prefigured this v1 reset) |
 
 ---
 
@@ -212,6 +220,26 @@ remain visible. The zone header acts as breadcrumb + back.
 **What felt right:** _(fill in after review in Figma)_
 **What didn't:** _(fill in after review in Figma)_
 **Next experiment:** _(fill in after review in Figma)_
+
+### 2026-05-22 — housekeeping: versioned script naming, v0 scripts removed
+
+**Width tried:** n/a (housekeeping).
+**Changes from previous:** Deleted the five v0 scripts
+(`create-wireframes.js`, `create-apply-wireframes.js`,
+`create-swatch-config-wireframes.js`,
+`create-neutral-detail-wireframes.js`,
+`create-wide-wireframes.js`) — preserved in git history, not on
+disk. Established a versioned naming convention for both script
+filenames (`create-v1-…`) and the Figma page names they create
+(`Wireframes — Harmoni Plugin (v1 …)`) so future iterations are
+trackable through time. Convention documented in the
+`figma-console-scripts` skill.
+**What felt right:** _(n/a — housekeeping)_
+**What didn't:** _(n/a — housekeeping)_
+**Next experiment:** Continue the v1 iteration. Likely candidates:
+empty / disabled output state, collection-dropdown open state,
+post-apply feedback, header overflow menu contents,
+new-project / empty-state flow.
 
 ---
 

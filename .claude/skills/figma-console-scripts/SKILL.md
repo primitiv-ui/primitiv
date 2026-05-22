@@ -163,7 +163,7 @@ changing `W` or `PAD` propagates everywhere.
 ### 3. Write the helper functions
 
 Every wireframe script in this repo uses the same helper set. Copy them from
-an existing script (`create-wireframes.js`) rather than re-inventing them:
+an existing script (`create-v1-wireframes.js`) rather than re-inventing them:
 
 | Helper | Purpose |
 |---|---|
@@ -215,9 +215,27 @@ Typography: Inter Regular / Medium / Bold at 10px (labels), 11px
 
 ### 6. Save to `scripts/` and document in `PLUGIN_UX_PLAN.md`
 
-All console scripts live in `apps/harmoni-figma-plugin/scripts/`. Name them
-`create-<subject>-wireframes.js`. Add the screen to the Screen inventory
-table in `PLUGIN_UX_PLAN.md` before committing.
+All console scripts live in `apps/harmoni-figma-plugin/scripts/`. Both
+the filename and the Figma page name **must include a version segment**
+(see below). Add the script to the wireframe scripts table in
+`PLUGIN_UX_PLAN.md` before committing.
+
+### Versioned naming convention
+
+Every wireframe iteration is tied to a version (`v1`, `v2`, …). The
+version appears in two places so the work is trackable through time:
+
+| Surface | Pattern | Example |
+|---|---|---|
+| Filename | `create-<version>-<subject>-wireframes.js` | `create-v1-output-detail-wireframes.js` |
+| Figma page name | `Wireframes — Harmoni Plugin (<version>[ — <subject>])` | `Wireframes — Harmoni Plugin (v1 — output detail)` |
+
+When the design crosses a version boundary (a substantive reset
+documented in `PLUGIN_UX_PLAN.md`), delete the previous version's
+scripts from disk — git history preserves them — and start a fresh set
+under the new prefix. Don't leave mixed-version scripts sitting beside
+each other; the wireframes file directory should always represent
+"current direction only".
 
 ## Scripts in this repo
 
@@ -225,13 +243,54 @@ All reusable console scripts live in:
 
 ```
 apps/harmoni-figma-plugin/scripts/
-  create-wireframes.js        ← Screens 1 & 2 (Projects + Project view)
-  create-apply-wireframes.js  ← Screens 3 & 4 (Apply to Figma flow)
+  create-v1-wireframes.js                  ← single-screen layout at 320 / 400 / 480px + tint variant
+  create-v1-output-detail-wireframes.js    ← output zone in default / canvas-swatches / variables states
 ```
 
-These scripts find or create the "Wireframes — Harmoni Plugin" page and
-append frames to it. Run them in order, or independently — each is
-self-contained.
+Each script creates its own Figma page (versioned name) and is
+self-contained — paste and run any of them independently.
+
+## Headless components and icons are available to the plugin
+
+The `harmoni-figma-plugin` already depends on **`@primitiv/react`** and
+**`@primitiv/icons`** as workspace packages
+(see `apps/harmoni-figma-plugin/package.json`). When wireframing, prefer
+to show behaviour using components that already exist in the workspace —
+the eventual implementation will use them, so wireframes that anticipate
+that vocabulary are more honest.
+
+The `@primitiv/react` headless component inventory currently includes:
+
+`AccessibleIcon`, `Accordion`, `Alert`, `Avatar`, `Breadcrumb`, `Button`,
+`Carousel`, `Checkbox`, `CheckboxCard`, `Collapsible`, `ContextMenu`,
+`DirectionProvider`, `Divider`, `Dropdown`, `EmptyState`, `Fieldset`,
+`MillerColumns`, `Modal`, `Portal`, `Progress`, `RadioCard`, `RadioGroup`,
+`SkipNav`, `Slider`, `Slot`, `Status`, `Switch`, `Table`, `Tabs`,
+`Textarea`, `Toggle`, `ToggleGroup`, `Tooltip`, `Tree`, `VisuallyHidden`.
+
+Concretely useful in plugin wireframes:
+
+- **`Tree` / `MillerColumns`** — variable collection picker, project lists, any nested selector.
+- **`Tabs` / `ToggleGroup` / `Switch`** — segmented controls, on/off toggles.
+- **`Breadcrumb`** — the output-zone breadcrumb-style header (`‹ Apply ▸ Canvas swatches`).
+- **`Dropdown` / `Modal` / `Tooltip`** — collection pickers, popovers, helper hints.
+- **`Slider`** — padding sliders, tint strength, any continuous control.
+- **`Alert` / `Status` / `EmptyState`** — post-apply feedback, no-project state.
+
+`@primitiv/icons` exposes a generated set of common UI icons
+(`ArrowLeft`, `ArrowRight`, `Check`, `ChevronDown`, `ChevronLeft`,
+`ChevronRight`, `ChevronUp`, `Close`, `Copy`, `Delete`, `Download`,
+`Edit`, `Eye`, `Folder`, `Info`, `Menu`, `Plus`, etc. — see
+`packages/icons/src/icons/`). Wireframes can use Unicode glyphs (`‹`,
+`▾`, `✓`) for speed; the implementation should pull the corresponding
+icon from `@primitiv/icons`. Call this out in the wireframe comments
+when the choice matters (e.g. "the ‹ will be `<ChevronLeft />` in
+implementation").
+
+**Don't reinvent these in wireframes.** If a wireframe needs a tree, a
+miller-columns picker, or a breadcrumb, draft it using the visual
+vocabulary of the existing component — that way the wireframe doubles
+as guidance for the implementer.
 
 ## Gotchas
 

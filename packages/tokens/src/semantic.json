@@ -5,7 +5,7 @@
         "xs": {
           "font-family": {
             "$type": "string",
-            "$value": "String value"
+            "$value": "{font-family.serif}"
           },
           "font-weight": {
             "$type": "number",

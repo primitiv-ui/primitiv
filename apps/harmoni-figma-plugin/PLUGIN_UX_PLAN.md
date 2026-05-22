@@ -106,6 +106,91 @@ Each swatch mirrors the workbench layout exactly:
 └─────────────────────────────────────┘
 ```
 
+### Screen 2a — Project view (Default — enhanced colour pickers)
+
+Same layout as Screen 2. White/Black controls rendered as full picker cards
+(swatch + hex value + dropdown chevron) rather than bare coloured squares.
+
+```
+┌─────────────────────────────────────┐
+│ ‹  Acme Corp                      × │
+├─────────────────────────────────────┤
+│ NEUTRAL                             │
+│ ─────────────────────────────────── │
+│ ┌──────────────┐ ┌──────────────┐   │
+│ │White         │ │Black         │   │  ← picker cards
+│ │[■] #FAFAFA ▾ │ │[■] #121212 ▾│   │
+│ └──────────────┘ └──────────────┘   │
+│ ┌──┬──┬──┬──┬──┬──┬──┬──┬──┬──┐   │
+│ │  │  │  │  │  │  │  │  │  │  │   │  ← neutral ramp
+│ └──┴──┴──┴──┴──┴──┴──┴──┴──┴──┘   │
+│  50 100 …                    900    │
+│                    [Apply to Figma] │
+│ BRAND                               │
+│ ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─┐ │
+│   Brand colours — coming soon       │
+│ └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─┘ │
+└─────────────────────────────────────┘
+```
+
+### Screen 2b — Project view (Lightness curve editor — Sliders tab)
+
+CurveEditor section below the ramp: a segmented Sliders/Curve tab bar, then
+10 vertical range sliders aligned to the swatch columns above, each showing
+the lightness value (%) for that step. Maps to `CurveEditor` in
+`ColorEngine.tsx` and `palette.lightness_curve` in `harmoni-core`.
+
+```
+┌─────────────────────────────────────┐
+│ ‹  Acme Corp                      × │
+├─────────────────────────────────────┤
+│ NEUTRAL                             │
+│ ─────────────────────────────────── │
+│ ┌──────────────┐ ┌──────────────┐   │
+│ │[■] #FAFAFA ▾ │ │[■] #121212 ▾│   │
+│ └──────────────┘ └──────────────┘   │
+│ ┌──┬──┬──┬──┬──┬──┬──┬──┬──┬──┐   │
+│ │  │  │  │  │  │  │  │  │  │  │   │
+│ └──┴──┴──┴──┴──┴──┴──┴──┴──┴──┘   │
+│  50 100 …                    900    │
+│ LIGHTNESS CURVE                     │
+│ ─────────────────────────────────── │
+│ ┌■ Sliders ■■■■│  Curve           ┐ │  ← segmented control
+│  97%91%83%74%63%52%41%31%21%10%    │  ← value labels
+│   ┃  ┃  ┃  ╻  ╻  ╻  ╻  ╻  ╻  ╻   │  ← vertical sliders
+│   ●  ●  ●  ●  ●  ●  ●  ●  ●  ●   │  ← thumbs (descending)
+│  50 100 200 … 900                  │
+│                    [Apply to Figma] │
+└─────────────────────────────────────┘
+```
+
+### Screen 2c — Project view (Padding sliders)
+
+Light-padding and dark-padding horizontal range sliders, each with a value
+readout. Maps to the `palette__slider-container` elements in `ColorEngine.tsx`.
+Shift buttons are deferred (feature not yet finalised).
+
+```
+┌─────────────────────────────────────┐
+│ ‹  Acme Corp                      × │
+├─────────────────────────────────────┤
+│ NEUTRAL                             │
+│ ─────────────────────────────────── │
+│ ┌──────────────┐ ┌──────────────┐   │
+│ │[■] #FAFAFA ▾ │ │[■] #121212 ▾│   │
+│ └──────────────┘ └──────────────┘   │
+│ ┌──┬──┬──┬──┬──┬──┬──┬──┬──┬──┐   │
+│ │  │  │  │  │  │  │  │  │  │  │   │
+│ └──┴──┴──┴──┴──┴──┴──┴──┴──┴──┘   │
+│  50 100 …                    900    │
+│ PADDING                             │
+│ ─────────────────────────────────── │
+│ Light padding  [███●──────────]  12%│
+│ Dark padding   [██●───────────]   8%│
+│                    [Apply to Figma] │
+└─────────────────────────────────────┘
+```
+
 ### Screen 3 — Apply: choose outputs (initial state)
 
 ```
@@ -296,6 +381,7 @@ for the full process and API reference.
 | `scripts/create-wireframes.js` | Screen 1 (Projects) + Screen 2 (Project / Neutral) |
 | `scripts/create-apply-wireframes.js` | Screen 3 (Apply — choose outputs) + Screen 4 (Apply — collection picker) |
 | `scripts/create-swatch-config-wireframes.js` | Screen 5 (Swatch style config) + Screen 6 (Canvas output preview) |
+| `scripts/create-neutral-detail-wireframes.js` | Screen 2a (Default — enhanced pickers) + 2b (Lightness curve editor) + 2c (Padding sliders) |
 
 Run in order. Each script finds or creates the "Wireframes — Harmoni Plugin" page
 and appends its frames to the right of the existing ones.

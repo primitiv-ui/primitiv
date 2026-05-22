@@ -131,6 +131,70 @@ Each swatch mirrors the workbench layout exactly:
 └─────────────────────────────────────┘
 ```
 
+### Screen 5 — Swatch style configuration
+
+When "Canvas swatches" is checked, an additional **SWATCH STYLE** section
+appears letting the user customise how generated swatches look before applying.
+
+```
+┌─────────────────────────────────────┐
+│ ‹  Apply to Figma                 × │
+├─────────────────────────────────────┤
+│ GENERATE                            │
+│ ─────────────────────────────────── │
+│ ┌─────────────────────────────────┐ │
+│ │ ✓  Canvas swatches              │ │  ← checked
+│ │    Place swatch frames on the   │ │
+│ │    active Figma page            │ │
+│ └─────────────────────────────────┘ │
+│                                     │
+│ SWATCH STYLE                        │
+│ ─────────────────────────────────── │
+│  Shape   [■ Square] [● Circle]      │  ← segment control
+│                                     │
+│  Step numbers          50,100…  ●─  │  ← toggle ON
+│                                     │
+│  Accessibility info    Ratio+AA  ─○ │  ← toggle OFF
+│                                     │
+│ PREVIEW                             │
+│ ─────────────────────────────────── │
+│  ┌──┬──┬──┬──┬──┐                  │
+│  │  │  │  │  │  │                  │  ← 5 sampled steps (50,200,400,700,900)
+│  └──┴──┴──┴──┴──┘                  │
+│                                     │
+│ ┌─────────────────────────────────┐ │
+│ │ □  Colour variables             │ │
+│ └─────────────────────────────────┘ │
+│ ─────────────────────────────────── │
+│ [     Cancel     ] [    Apply    ]  │
+└─────────────────────────────────────┘
+```
+
+### Screen 6 — Canvas output preview (dark Figma canvas)
+
+Shows how the three swatch output modes would look on the Figma canvas:
+square swatches with full info, circular swatches, and label-only swatches.
+
+```
+┌─────────────────────────────────────┐
+│ ░░ Figma toolbar ░░░░  Harmoni      │  ← dark #2C2C2C toolbar
+├─────────────────────────────────────┤
+│                                     │  ← #3C3C3C canvas background
+│  ┌────────── square-full ─────────┐ │
+│  │ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■           │ │  ← 28×60px: fg step+ratio+AA inside
+│  └────────────────────────────────┘ │
+│                                     │
+│  ┌────────── circle-full ─────────┐ │
+│  │ ● ● ● ● ● ● ● ● ● ●           │ │  ← 28×28px circles, AA inside
+│  └────────────────────────────────┘ │
+│                                     │
+│  ┌────────── square-labels ───────┐ │
+│  │ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■           │ │  ← 28×40px: step number only
+│  └────────────────────────────────┘ │
+│                                     │
+└─────────────────────────────────────┘
+```
+
 ### Screen 4 — Apply: Colour variables checked + collection picker open
 
 The collection picker uses the Tree component from `@primitiv/react`.
@@ -178,6 +242,7 @@ Selecting a collection row enables the Apply button.
 | Brand → neutral tint (`tint_neutrals`) | next |
 | Derive soft neutrals from brand (`derive_soft_neutrals`) | next |
 | Apply to Figma — canvas swatches | deferred |
+| Apply to Figma — swatch style config (shape, step numbers, a11y info) | deferred |
 | Apply to Figma — colour variables | deferred |
 | Variable collection picker (Tree / Miller Columns) | deferred |
 | Project save / management | deferred |
@@ -230,6 +295,7 @@ for the full process and API reference.
 |---|---|
 | `scripts/create-wireframes.js` | Screen 1 (Projects) + Screen 2 (Project / Neutral) |
 | `scripts/create-apply-wireframes.js` | Screen 3 (Apply — choose outputs) + Screen 4 (Apply — collection picker) |
+| `scripts/create-swatch-config-wireframes.js` | Screen 5 (Swatch style config) + Screen 6 (Canvas output preview) |
 
 Run in order. Each script finds or creates the "Wireframes — Harmoni Plugin" page
 and appends its frames to the right of the existing ones.

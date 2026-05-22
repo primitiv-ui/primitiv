@@ -72,11 +72,28 @@ top → bottom:
    - "Use as neutral tint" toggle / button.
    - Brand light ramp + inline curve sliders + padding + shift.
    - Brand dark ramp + inline curve sliders + padding + shift.
-4. **Output strip**
-   - Output mode toggles (canvas swatches / colour variables).
-   - Target collection inline (popover attached to control, not a
-     modal overlay).
-   - Single primary Apply button.
+4. **Output zone** — has two states:
+   - **Default state** — output mode toggles (canvas swatches /
+     colour variables), each card carries a small "Configure ›"
+     affordance when its toggle is on. Target collection summary
+     inline. Single primary Apply button.
+   - **Detail state** — clicking "Configure ›" on either output
+     replaces the zone body with a detail view scoped to that
+     output. The zone header changes to a breadcrumb
+     (e.g. `‹ Apply ▸ Canvas swatches`) acting as the back
+     affordance. **Everything above the zone — palettes, pickers,
+     curves, padding — stays visible and interactive.** The Apply
+     button remains in the zone so the user can apply from inside
+     a detail view.
+   - **Canvas swatches detail** controls: layout direction
+     (horizontal / vertical), shape (square / round), step
+     number labels (on/off), accessibility badges (on/off), live
+     preview of the rendered output.
+   - **Colour variables detail** controls: target collection
+     picker, naming pattern (`brand-500` / `brand/500` /
+     `Brand 500`), what to write (light only / dark only / both
+     as mode-bound variables), preview list of the variables
+     that will be created or updated.
 
 Every input is **live**: changing any value regenerates affected
 ramps immediately. There is no preview-vs-apply split.
@@ -92,9 +109,13 @@ ramps immediately. There is no preview-vs-apply split.
   brand colour and 4 ramps (neutral light/dark, brand light/dark),
   scrolling inside the plugin window is fine and feels
   SupaPalette-like.
-- **Inline > expand > modal.** Nothing opens "another screen". Tint
-  controls appear/disappear inline. The collection list is a
-  popover *attached to* the Apply control, not a full overlay.
+- **Inline > expand > zone-scoped detail > modal.** Most state
+  changes inline (tint controls appear/disappear, picker dropdowns).
+  The output zone is the one place where the controls have enough
+  surface area to need a dedicated view — there it uses a
+  zone-scoped detail state (see "Output zone" above) rather than a
+  modal overlay or a real route change. The rest of the screen stays
+  visible while a detail view is open.
 - **Width-agnostic wireframing.** Author wireframes in terms of
   control groups + stacking order. Render at multiple widths
   (320 / 400 / 480) and pick the narrowest width that fits the
@@ -132,6 +153,7 @@ for the full process and API reference.
 | Script | What it renders |
 |---|---|
 | `scripts/create-v1-wireframes.js` | Single-screen plugin at widths 320 / 400 / 480, plus one "tint active" variant. |
+| `scripts/create-v1-output-detail-wireframes.js` | Three 480px frames showing the output zone in each of its three states: default (with "Configure ›" affordances visible), canvas swatches detail, and colour variables detail. Top half of the screen is identical across all three frames to communicate that the rest of the UI doesn't change. |
 
 ### v0 scripts (historical — kept for reference, do not run as canonical)
 
@@ -158,7 +180,7 @@ The format for each entry:
 **Next experiment:** …
 ```
 
-### 2026-05-22 — v1 reset
+### 2026-05-22 — v1 reset + width decision
 
 **Width tried:** 320 / 400 / 480 (rendered side by side via
 `create-v1-wireframes.js`).
@@ -166,9 +188,30 @@ The format for each entry:
 single-screen layout. Dropped projects landing; project picker
 moves into the header. Curve sliders inline at all times. Single
 brand colour. Both light and dark ramps shown simultaneously.
-**What felt right:** _(fill in after first review in Figma)_
-**What didn't:** _(fill in after first review in Figma)_
-**Next experiment:** _(fill in after first review in Figma)_
+**What felt right:** **480px is the chosen width.** At 320px and
+400px the curve sliders + step labels + contrast badges inside the
+swatches felt cramped; at 480px everything breathes and the
+SupaPalette-sidekick feel is still preserved (not a takeover).
+**What didn't:** The output strip can't realistically hold the
+controls each output needs (canvas swatches: shape, layout, labels,
+badges, preview; variables: collection, naming, modes, preview).
+The inline "collection summary + Apply" treatment is too thin.
+**Next experiment:** Introduce a **zone-scoped detail state** in
+the output area — see the 2026-05-22 (output zone exploration)
+entry below.
+
+### 2026-05-22 — output zone exploration
+
+**Width tried:** 480px (single — width is now settled).
+**Changes from previous:** Output strip becomes a stateful "zone"
+with three states: default (toggles + Configure affordances +
+Apply), canvas swatches detail (layout/shape/labels/badges/preview),
+colour variables detail (collection/naming/modes/preview). Detail
+states replace the zone body only; palettes and controls above
+remain visible. The zone header acts as breadcrumb + back.
+**What felt right:** _(fill in after review in Figma)_
+**What didn't:** _(fill in after review in Figma)_
+**Next experiment:** _(fill in after review in Figma)_
 
 ---
 
@@ -184,12 +227,19 @@ brand colour. Both light and dark ramps shown simultaneously.
 | Brand colour (single) | v1 |
 | Brand → neutral tint (`tint_neutrals`) | v1 |
 | Header-level project picker | v1 |
-| Apply to Figma — canvas swatches | v1 (inline in output strip) |
-| Apply to Figma — colour variables | v1 (inline in output strip) |
-| Inline collection picker (popover, not modal) | v1 |
+| Apply to Figma — canvas swatches output | v1 |
+| Canvas swatches detail — layout (horizontal / vertical) | v1 |
+| Canvas swatches detail — shape (square / round) | v1 |
+| Canvas swatches detail — step labels toggle | v1 |
+| Canvas swatches detail — a11y badges toggle | v1 |
+| Canvas swatches detail — live preview | v1 |
+| Apply to Figma — colour variables output | v1 |
+| Variables detail — target collection picker | v1 |
+| Variables detail — naming pattern | v1 |
+| Variables detail — modes (light / dark / both) | v1 |
+| Variables detail — preview of variables to be written | v1 |
 | Multiple brand colours per project | deferred |
 | Derive soft neutrals from brand (`derive_soft_neutrals`) | deferred |
-| Swatch style customisation (shape, labels, badges on output) | deferred |
 | Project save / management UI beyond the picker | deferred |
 | Settings | deferred |
 

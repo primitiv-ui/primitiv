@@ -115,6 +115,12 @@ keyword or by topic; do not paraphrase their content here.
   backs up Figma variables as DTCG JSON: features, Live sync vs
   download flow, the `dtcg.ts` collection routing, single-mode
   caveat, and where the removed one-shot migration code lived.
+- **`figma-console-scripts`** — how to generate and run one-shot
+  wireframe scripts in the Figma developer console: the "allow pasting"
+  step, Plugin API access, font loading, the end-to-end process for
+  turning a UI description into a working script (requirements →
+  constants → helpers → render layers), design tokens, and the
+  `scripts/` convention in `apps/harmoni-figma-plugin/`.
 - **`model-routing`** — Opus/Sonnet/Haiku decision tree.
 
 ## Slash commands

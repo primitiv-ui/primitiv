@@ -106,6 +106,66 @@ Each swatch mirrors the workbench layout exactly:
 └─────────────────────────────────────┘
 ```
 
+### Screen 3 — Apply: choose outputs (initial state)
+
+```
+┌─────────────────────────────────────┐
+│ ‹  Apply to Figma                 × │
+├─────────────────────────────────────┤
+│ GENERATE                            │
+│ ─────────────────────────────────── │
+│ ┌─────────────────────────────────┐ │
+│ │ □  Canvas swatches              │ │
+│ │    Place swatch frames on the   │ │
+│ │    active Figma page            │ │
+│ └─────────────────────────────────┘ │
+│ ┌─────────────────────────────────┐ │
+│ │ □  Colour variables             │ │
+│ │    Write variables to a chosen  │ │
+│ │    collection                   │ │
+│ └─────────────────────────────────┘ │
+│ Select at least one output…         │
+│                                     │
+│ ─────────────────────────────────── │
+│ [     Cancel     ] [    Apply ░   ] │  ← Apply disabled
+└─────────────────────────────────────┘
+```
+
+### Screen 4 — Apply: Colour variables checked + collection picker open
+
+The collection picker uses the Tree component from `@primitiv/react`.
+Selecting a collection row enables the Apply button.
+
+```
+┌─────────────────────────────────────┐
+│ ‹  Apply to Figma                 × │
+├─────────────────────────────────────┤
+│ GENERATE                            │
+│ ─────────────────────────────────── │
+│ ┌─────────────────────────────────┐ │
+│ │ □  Canvas swatches              │ │
+│ │    Place swatch frames on the   │ │
+│ │    active Figma page            │ │
+│ └─────────────────────────────────┘ │
+│ ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─┐ │
+│ │ ✓  Colour variables             │ │  ← checked, bold border
+│ │    Write variables to a chosen  │ │
+│ │    collection                   │ │
+│ └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─┘ │
+│                                     │
+│ VARIABLE COLLECTION                 │
+│ ─────────────────────────────────── │
+│   ▶  Brand                          │
+│ ██ ●  Neutral                    ▌  │  ← selected row (highlight bg)
+│   ▶  Dark mode                      │
+│                                     │
+│   + New collection                  │
+│                                     │
+│ ─────────────────────────────────── │
+│ [     Cancel     ] [    Apply    ]  │  ← Apply enabled
+└─────────────────────────────────────┘
+```
+
 ---
 
 ## Feature inventory
@@ -160,8 +220,16 @@ clicks. See `NEUTRAL_PALETTE_TDD_PLAN.md` for the full testing strategy.
 
 ---
 
-## Wireframe script
+## Wireframe scripts
 
-`scripts/create-wireframes.js` — paste into the Figma developer console
-(`Plugins → Development → Open console`) to generate both wireframe screens
-on a new page called "Wireframes — Harmoni Plugin".
+Paste into the Figma developer console (`Plugins → Development → Open console`).
+Type `allow pasting` first, then paste. See the `figma-console-scripts` skill
+for the full process and API reference.
+
+| Script | Screens |
+|---|---|
+| `scripts/create-wireframes.js` | Screen 1 (Projects) + Screen 2 (Project / Neutral) |
+| `scripts/create-apply-wireframes.js` | Screen 3 (Apply — choose outputs) + Screen 4 (Apply — collection picker) |
+
+Run in order. Each script finds or creates the "Wireframes — Harmoni Plugin" page
+and appends its frames to the right of the existing ones.

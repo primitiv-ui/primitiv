@@ -115,6 +115,11 @@ keyword or by topic; do not paraphrase their content here.
   backs up Figma variables as DTCG JSON: features, Live sync vs
   download flow, the `dtcg.ts` collection routing, single-mode
   caveat, and where the removed one-shot migration code lived.
+- **`figma-wireframe-tokens`** — token file locations (`packages/tokens/src/`),
+  resolved colour/typography/radii values, Button component variant naming,
+  slot property keys, and the pattern for replacing a flat node with a real
+  component instance. TRIGGER when placing or styling components in Figma
+  wireframes, looking up token hex values, or working with the Button component.
 - **`figma-console-scripts`** — how to generate and run one-shot
   wireframe scripts in the Figma developer console: the "allow pasting"
   step, Plugin API access, font loading, the end-to-end process for

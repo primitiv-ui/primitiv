@@ -100,3 +100,9 @@ Use these for auto-layout padding and item spacing. When new wireframes are buil
 | `color.neutral.grey.300` | `#8f8f8f` |
 | `color.neutral.grey.600` | `#3b3b3b` |
 | `color.neutral.grey.700` | `#222222` |
+
+## Icons
+
+Always use icons from the **Icons** page in the current Figma file. Never use emoji, Unicode symbols, or placeholder glyphs as stand-ins.
+
+At the start of any wireframe session that needs icons, search for them with `figma_search_components` so node IDs are fresh for the session, then instantiate from the result.

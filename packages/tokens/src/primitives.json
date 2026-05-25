@@ -268,17 +268,37 @@
     }
   },
   "font-size": {
+    "10": {
+      "$type": "number",
+      "$value": 10
+    },
+    "11": {
+      "$type": "number",
+      "$value": 11
+    },
     "12": {
       "$type": "number",
       "$value": 12
+    },
+    "13": {
+      "$type": "number",
+      "$value": 13
     },
     "14": {
       "$type": "number",
       "$value": 14
     },
+    "15": {
+      "$type": "number",
+      "$value": 15
+    },
     "16": {
       "$type": "number",
       "$value": 16
+    },
+    "17": {
+      "$type": "number",
+      "$value": 17
     },
     "18": {
       "$type": "number",
@@ -346,6 +366,14 @@
     }
   },
   "line-height": {
+    "12": {
+      "$type": "number",
+      "$value": 12
+    },
+    "14": {
+      "$type": "number",
+      "$value": 14
+    },
     "16": {
       "$type": "number",
       "$value": 16

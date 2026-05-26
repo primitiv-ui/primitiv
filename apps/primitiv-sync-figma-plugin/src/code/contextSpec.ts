@@ -16,7 +16,8 @@
  *    no-op on the current Figma plugin API.
  */
 
-export type ContextName = 'comfortable'
+export type { ContextName } from '../shared/messages'
+import type { ContextName } from '../shared/messages'
 
 export type VariableSpec = {
   name: string

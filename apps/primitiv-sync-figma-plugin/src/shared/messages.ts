@@ -8,8 +8,20 @@
  */
 
 import type { FigmaResolvedType } from '@primitiv/tokens'
-import type { BootstrapResult } from '../code/bootstrapContext'
-import type { ContextName } from '../code/contextSpec'
+
+/** Context options the Bootstrap context action accepts. */
+export type ContextName = 'comfortable'
+
+/** Result returned by the Bootstrap context action. */
+export type BootstrapResult = {
+  context: ContextName
+  collection: 'created' | 'updated'
+  variablesCreated: number
+  variablesUpdated: number
+  textStylesCreated: number
+  textStylesUpdated: number
+  warnings: string[]
+}
 
 /** A serialisable summary of a Figma variable collection. */
 export type CollectionSummary = {

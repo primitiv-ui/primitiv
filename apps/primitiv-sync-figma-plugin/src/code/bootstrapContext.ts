@@ -19,21 +19,10 @@ import {
   findOrCreateTextStyle,
   findOrCreateVariable,
 } from './figmaIdempotent'
-import {
-  CONTEXT_SPECS,
-  type ContextName,
-  type TextStyleSpec,
-} from './contextSpec'
+import { CONTEXT_SPECS, type TextStyleSpec } from './contextSpec'
+import type { BootstrapResult, ContextName } from '../shared/messages'
 
-export type BootstrapResult = {
-  context: ContextName
-  collection: 'created' | 'updated'
-  variablesCreated: number
-  variablesUpdated: number
-  textStylesCreated: number
-  textStylesUpdated: number
-  warnings: string[]
-}
+export type { BootstrapResult }
 
 const CONTEXT_LABEL: Record<ContextName, string> = {
   comfortable: 'Comfortable',

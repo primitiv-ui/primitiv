@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import type {
+  BootstrapResult,
   CollectionSummary,
+  ContextName,
   SandboxMessage,
   UiMessage,
   VariableSummary,
 } from "../shared/messages";
-import type { BootstrapResult } from "../code/bootstrapContext";
-import type { ContextName } from "../code/contextSpec";
 import { Button } from "@primitiv/react";
 import { Close } from "@primitiv/icons";
 import { figmaVarsToDtcg } from "@primitiv/tokens";

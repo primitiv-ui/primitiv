@@ -158,8 +158,9 @@ describe('bootstrapContext (comfortable)', () => {
 
     await bootstrapContext({ context: 'comfortable' })
 
+    type CreatedStyle = { setBoundVariable: ReturnType<typeof vi.fn> }
     const styles = figmaMock.createTextStyle.mock.results.map(
-      (r: { value: { setBoundVariable: ReturnType<typeof vi.fn> } }) => r.value,
+      (r) => (r as { value: CreatedStyle }).value,
     )
     for (const style of styles) {
       const fields = style.setBoundVariable.mock.calls.map((c: string[]) => c[0])

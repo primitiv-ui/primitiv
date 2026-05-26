@@ -10,7 +10,7 @@
 import type { FigmaResolvedType } from '@primitiv/tokens'
 
 /** Context options the Bootstrap context action accepts. */
-export type ContextName = 'comfortable'
+export type ContextName = 'comfortable' | 'compact' | 'spacious' | 'dense'
 
 /** Result returned by the Bootstrap context action. */
 export type BootstrapResult = {

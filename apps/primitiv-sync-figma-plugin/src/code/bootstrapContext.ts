@@ -26,6 +26,9 @@ export type { BootstrapResult }
 
 const CONTEXT_LABEL: Record<ContextName, string> = {
   comfortable: 'Comfortable',
+  compact: 'Compact',
+  spacious: 'Spacious',
+  dense: 'Dense',
 }
 
 export async function bootstrapContext(options: {

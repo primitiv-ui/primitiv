@@ -34,6 +34,9 @@ const DTCG_FILE_NAMES = ["primitives", "semantic", "components"] as const;
 const SYNC_URL = "http://localhost:4477/sync";
 const CONTEXT_OPTIONS: { value: ContextName; label: string }[] = [
   { value: "comfortable", label: "Comfortable" },
+  { value: "compact", label: "Compact" },
+  { value: "spacious", label: "Spacious" },
+  { value: "dense", label: "Dense" },
 ];
 
 function postToSandbox(message: UiMessage): void {

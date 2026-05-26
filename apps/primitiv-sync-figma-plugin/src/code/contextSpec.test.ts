@@ -292,3 +292,44 @@ describe('CONTEXT_SPECS.comfortable', () => {
     expect(new Set(names).size).toBe(names.length)
   })
 })
+
+describe('CONTEXT_SPECS — all four contexts', () => {
+  it('exposes comfortable, compact, spacious and dense', () => {
+    expect(new Set(Object.keys(CONTEXT_SPECS))).toEqual(
+      new Set(['comfortable', 'compact', 'spacious', 'dense']),
+    )
+  })
+
+  for (const ctx of ['compact', 'spacious', 'dense'] as const) {
+    it(`${ctx} carries the full typography role set`, () => {
+      const names = CONTEXT_SPECS[ctx].variables.map((v) => v.name)
+      for (const tier of ['xs', 'sm', 'md', 'lg', 'xl']) {
+        expect(names).toContain(`label/${tier}/font-size`)
+      }
+      for (const tier of ['xs', 'sm', 'md', 'lg']) {
+        expect(names).toContain(`body/${tier}/font-size`)
+      }
+      for (const h of ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']) {
+        expect(names).toContain(`heading/${h}/font-size`)
+      }
+      expect(names).toContain('display/lg/font-size')
+      expect(names).toContain('display/xl/font-size')
+      expect(names).toContain('overline/font-size')
+    })
+
+    it(`${ctx} carries all four anatomy patterns`, () => {
+      const names = CONTEXT_SPECS[ctx].variables.map((v) => v.name)
+      expect(names).toContain('framed-control/md/height')
+      expect(names).toContain('label-control/md/radius')
+      expect(names).toContain('nav-item/md/height')
+      expect(names).toContain('container/md/padding')
+    })
+
+    it(`${ctx} text-style names lead with the matching title-case context`, () => {
+      const title = ctx.charAt(0).toUpperCase() + ctx.slice(1)
+      for (const s of CONTEXT_SPECS[ctx].textStyles) {
+        expect(s.name.startsWith(`${title} / `)).toBe(true)
+      }
+    })
+  }
+})

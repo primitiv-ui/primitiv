@@ -52,8 +52,9 @@ type Routing = { file: keyof DtcgFiles; prefix: string[] }
 
 /**
  * The v1 default context whose values back the short-form alias layer
- * (`semantic.typography.*`). Changing this is the one-line switch for the
- * default — components keep referencing the short-form names.
+ * (`semantic.typography.*`, `semantic.anatomy.*`). Changing this is the
+ * one-line switch for the default — components keep referencing the
+ * short-form names.
  */
 const DEFAULT_CONTEXT = 'comfortable'
 
@@ -65,6 +66,14 @@ const TYPOGRAPHY_ROLES = [
   'display',
   'overline',
   'mono',
+]
+
+/** Anatomy patterns per RFC 0001 §6.1. Routed under `semantic.anatomy.*`. */
+const ANATOMY_PATTERNS = [
+  'framed-control',
+  'label-control',
+  'nav-item',
+  'container',
 ]
 
 /** Resolves a Figma variable id to the DTCG path segments of its token. */
@@ -155,10 +164,10 @@ export function figmaVarsToDtcg(
 }
 
 /**
- * Emits `semantic.typography.*` as DTCG aliases pointing at the default
- * context's typography roles. Components consume the short forms so they
- * stay context-agnostic; switching the default is changing
- * {@link DEFAULT_CONTEXT}.
+ * Emits `semantic.typography.*` and `semantic.anatomy.*` as DTCG aliases
+ * pointing at the default context's typography roles and anatomy patterns.
+ * Components consume the short forms so they stay context-agnostic;
+ * switching the default is changing {@link DEFAULT_CONTEXT}.
  */
 function synthesiseShortFormAliases(semantic: DtcgGroup): void {
   const contextRoot = semantic.context as DtcgGroup | undefined
@@ -170,6 +179,13 @@ function synthesiseShortFormAliases(semantic: DtcgGroup): void {
     if (TYPOGRAPHY_ROLES.includes(key)) {
       const typography = ensureGroup(semantic, 'typography')
       typography[key] = aliasGroup(value as DtcgGroup, [
+        'context',
+        DEFAULT_CONTEXT,
+        key,
+      ])
+    } else if (ANATOMY_PATTERNS.includes(key)) {
+      const anatomy = ensureGroup(semantic, 'anatomy')
+      anatomy[key] = aliasGroup(value as DtcgGroup, [
         'context',
         DEFAULT_CONTEXT,
         key,

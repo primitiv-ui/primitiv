@@ -685,6 +685,50 @@ describe('figmaVarsToDtcg', () => {
       })
     })
 
+    it('emits semantic.anatomy.<pattern>.<tier>.<leaf> aliases pointing at the comfortable context', () => {
+      const result = figmaVarsToDtcg(
+        [COMFORTABLE_CTX],
+        [
+          {
+            id: 'v1',
+            name: 'framed-control/md/height',
+            resolvedType: 'FLOAT',
+            variableCollectionId: 'cxf',
+            valuesByMode: { mxf: 40 },
+          },
+        ],
+      )
+
+      expect(result.semantic.anatomy).toEqual({
+        'framed-control': {
+          md: {
+            height: {
+              $type: 'number',
+              $value: '{context.comfortable.framed-control.md.height}',
+            },
+          },
+        },
+      })
+    })
+
+    it('ignores keys in the default context that are neither typography roles nor anatomy patterns', () => {
+      const result = figmaVarsToDtcg(
+        [COMFORTABLE_CTX],
+        [
+          {
+            id: 'v1',
+            name: 'mystery/md/foo',
+            resolvedType: 'STRING',
+            variableCollectionId: 'cxf',
+            valuesByMode: { mxf: 'bar' },
+          },
+        ],
+      )
+
+      expect(result.semantic.typography).toBeUndefined()
+      expect(result.semantic.anatomy).toBeUndefined()
+    })
+
     it('synthesises nothing when the default context is absent', () => {
       const compactOnly: FigmaCollection = {
         ...COMFORTABLE_CTX,

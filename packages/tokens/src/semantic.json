@@ -1226,6 +1226,10 @@
           "line-height": {
             "$type": "number",
             "$value": "{line-height.16}"
+          },
+          "font-style": {
+            "$type": "string",
+            "$value": "{font-style.semibold}"
           }
         },
         "sm": {
@@ -1244,6 +1248,10 @@
           "line-height": {
             "$type": "number",
             "$value": "{line-height.20}"
+          },
+          "font-style": {
+            "$type": "string",
+            "$value": "{font-style.semibold}"
           }
         },
         "md": {
@@ -1262,6 +1270,10 @@
           "line-height": {
             "$type": "number",
             "$value": "{line-height.24}"
+          },
+          "font-style": {
+            "$type": "string",
+            "$value": "{font-style.semibold}"
           }
         },
         "lg": {
@@ -1280,6 +1292,10 @@
           "line-height": {
             "$type": "number",
             "$value": "{line-height.28}"
+          },
+          "font-style": {
+            "$type": "string",
+            "$value": "{font-style.semibold}"
           }
         },
         "xl": {
@@ -1298,6 +1314,10 @@
           "line-height": {
             "$type": "number",
             "$value": "{line-height.32}"
+          },
+          "font-style": {
+            "$type": "string",
+            "$value": "{font-style.semibold}"
           }
         }
       },
@@ -1318,6 +1338,10 @@
           "line-height": {
             "$type": "number",
             "$value": "{line-height.16}"
+          },
+          "font-style": {
+            "$type": "string",
+            "$value": "{font-style.regular}"
           }
         },
         "sm": {
@@ -1336,6 +1360,10 @@
           "line-height": {
             "$type": "number",
             "$value": "{line-height.20}"
+          },
+          "font-style": {
+            "$type": "string",
+            "$value": "{font-style.regular}"
           }
         },
         "md": {
@@ -1354,6 +1382,10 @@
           "line-height": {
             "$type": "number",
             "$value": "{line-height.24}"
+          },
+          "font-style": {
+            "$type": "string",
+            "$value": "{font-style.regular}"
           }
         },
         "lg": {
@@ -1372,6 +1404,10 @@
           "line-height": {
             "$type": "number",
             "$value": "{line-height.32}"
+          },
+          "font-style": {
+            "$type": "string",
+            "$value": "{font-style.regular}"
           }
         }
       },
@@ -1392,6 +1428,10 @@
           "line-height": {
             "$type": "number",
             "$value": "{line-height.56}"
+          },
+          "font-style": {
+            "$type": "string",
+            "$value": "{font-style.semibold}"
           }
         },
         "h2": {
@@ -1410,6 +1450,10 @@
           "line-height": {
             "$type": "number",
             "$value": "{line-height.48}"
+          },
+          "font-style": {
+            "$type": "string",
+            "$value": "{font-style.semibold}"
           }
         },
         "h3": {
@@ -1428,6 +1472,10 @@
           "line-height": {
             "$type": "number",
             "$value": "{line-height.40}"
+          },
+          "font-style": {
+            "$type": "string",
+            "$value": "{font-style.semibold}"
           }
         },
         "h4": {
@@ -1446,6 +1494,10 @@
           "line-height": {
             "$type": "number",
             "$value": "{line-height.36}"
+          },
+          "font-style": {
+            "$type": "string",
+            "$value": "{font-style.semibold}"
           }
         },
         "h5": {
@@ -1464,6 +1516,10 @@
           "line-height": {
             "$type": "number",
             "$value": "{line-height.32}"
+          },
+          "font-style": {
+            "$type": "string",
+            "$value": "{font-style.semibold}"
           }
         },
         "h6": {
@@ -1482,6 +1538,10 @@
           "line-height": {
             "$type": "number",
             "$value": "{line-height.28}"
+          },
+          "font-style": {
+            "$type": "string",
+            "$value": "{font-style.semibold}"
           }
         }
       },
@@ -1502,6 +1562,10 @@
           "line-height": {
             "$type": "number",
             "$value": "{line-height.64}"
+          },
+          "font-style": {
+            "$type": "string",
+            "$value": "{font-style.medium}"
           }
         },
         "xl": {
@@ -1520,6 +1584,10 @@
           "line-height": {
             "$type": "number",
             "$value": "{line-height.76}"
+          },
+          "font-style": {
+            "$type": "string",
+            "$value": "{font-style.medium}"
           }
         }
       },
@@ -1539,6 +1607,10 @@
         "line-height": {
           "$type": "number",
           "$value": "{line-height.16}"
+        },
+        "font-style": {
+          "$type": "string",
+          "$value": "{font-style.medium}"
         }
       },
       "framed-control": {

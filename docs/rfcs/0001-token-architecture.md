@@ -32,6 +32,9 @@ The key architectural moves:
 4. **Four contexts (`dense`, `compact`, `comfortable`, `spacious`) bundle
    typography AND anatomy.** Density is not a separate axis; it is folded
    into the context. Per‑component overrides remain possible.
+   **Figma free‑tier constraint:** each context ships as its own
+   single‑mode collection; Figma Pro's multi‑mode collections are a
+   future migration target, not a v1 dependency.
 5. **Anatomy patterns are first‑class.** `framed-control`, `label-control`,
    `nav-item`, `container` are named anatomy patterns (after Alexander)
    that components compose. Most controls do not invent their own
@@ -423,45 +426,76 @@ are reviewed; they don't multiply silently.
 
 ### 7.3 In the JSON tree
 
-Two equally valid shapes:
+The architectural ideal and the v1 implementation diverge here, because
+Figma free‑tier collections are single‑mode. We adopt a hybrid:
+**Shape A in Figma + DTCG, with a small alias layer that keeps
+components context‑agnostic.**
 
-**Shape A — context-as-root (one tree per context):**
+**Shape A — context-as-root (one collection per context, single mode each):**
 
 ```
 semantic.context.compact.typography.label.md
 semantic.context.compact.anatomy.framed-control.md.height
 semantic.context.comfortable.typography.label.md
+semantic.context.comfortable.anatomy.framed-control.md.height
+semantic.context.spacious.typography.label.md
+semantic.context.dense.typography.label.md
 …
 ```
 
-**Shape B — concern-as-root with mode-based override (one tree, four
-Figma modes):**
+**Shape B — concern-as-root with mode-based override (one collection,
+four Figma modes):**
 
 ```
 semantic.typography.label.md          ← four values, one per mode
 semantic.anatomy.framed-control.md    ← four values, one per mode
 ```
 
-**Recommendation: Shape B.** Components reference role and anatomy by
-name only (`{semantic.typography.label.md}`, not
-`{semantic.context.comfortable.typography.label.md}`). Context selection
-happens at the consumer:
+**v1 recommendation: Shape A in Figma and DTCG, with role‑name aliases
+on top.** Free‑tier Figma is one mode per collection, so Shape B is
+not available without a plan upgrade. To preserve the architectural
+property that *components are context‑agnostic*, we add a thin alias
+layer:
 
-- In Figma: a single multi‑mode collection per concern (one mode per
-  context).
-- In CSS: a `.context-comfortable` class swaps the CSS custom property
-  values; component CSS references the role name and never the context.
+```
+semantic.typography.label.md   → {semantic.context.<default>.typography.label.md}
+semantic.anatomy.framed-control.md
+                               → {semantic.context.<default>.anatomy.framed-control.md}
+```
 
-Shape B forces the right dependency direction: components are
-context‑agnostic. Shape A makes it tempting to reference a specific
-context in component tokens, which couples them.
+Components reference the short forms (`{semantic.typography.label.md}`,
+`{semantic.anatomy.framed-control.md}`) — they never name a context.
+The `<default>` is `comfortable` for v1 and is the only place
+"current context" is hard‑coded. Switching the default is a one‑line
+change in the alias group.
 
-**Caveat (Figma sync):** the current
-`packages/tokens/src/dtcg.ts#routeCollection` routes by collection name
-and reads only `collection.defaultModeId`. Multi‑mode export is the noted
-follow‑up in the figma-token-sync skill. Shape B requires that follow‑up
-before the export reflects all four contexts. See §10 for the migration
-plan.
+How the four contexts are reached at consumption:
+
+- **In CSS:** the build emits four sets of CSS custom properties, one per
+  `.context-*` selector. Component CSS reads the short‑form role name;
+  the active class swap retargets it. The alias layer's choice of
+  `comfortable` only matters as the unscoped fallback.
+- **In Figma:** four single‑mode collections — `Context / Compact`,
+  `Context / Comfortable`, `Context / Spacious`, `Context / Dense`.
+  Designers pick a context by selecting a Button **component variant**
+  whose nested text styles bind to that context's variables. The
+  context choice is encoded as a Figma component property, not a
+  collection mode.
+
+**Future migration to Shape B (Figma Pro):** when the team upgrades,
+the four `Context / *` collections collapse into one `Context`
+collection with four modes. The DTCG export adds multi‑mode support to
+`dtcg.ts` (the noted follow‑up in `figma-token-sync`). The short‑form
+alias layer survives unchanged; components don't move. The migration is
+a Figma‑side reorganisation plus one transform change. See §10 for the
+detailed plan and §11 for where it sits in the migration order.
+
+**Why Shape A is acceptable as v1, not just a fallback.** It actually
+forces clearer thinking: the four contexts are visible as distinct
+trees in the JSON, which makes diffing context‑specific values trivial
+and surfaces accidental drift loudly. Shape B's elegance only pays off
+once mode‑aware tooling exists at every consumer; until then Shape A is
+the more debuggable shape.
 
 ### 7.4 What this replaces
 
@@ -651,33 +685,86 @@ Typography / Spacious        → semantic.json (typography.spacious.*)
 Typography / Dense           → semantic.json (typography.dense.*)
 ```
 
-### 10.1 Target Figma layout
+### 10.1 Target Figma layout (free‑tier, v1)
+
+All collections are single‑mode. There is one collection per context
+(four for typography+anatomy), and intent splits per theme mode (one
+for light, one for dark when it lands).
 
 ```
 Primitives                   single mode
-Intent                       single mode (eventually: light + dark modes)
-Role                         four modes (dense, compact, comfortable, spacious)
-Anatomy                      four modes (dense, compact, comfortable, spacious)
+Intent / Light               single mode  (today)
+Intent / Dark                single mode  (when dark mode lands)
+Context / Compact            single mode  (typography roles + anatomy patterns)
+Context / Comfortable        single mode
+Context / Spacious           single mode
+Context / Dense              single mode
 Interaction                  single mode
-Components                   single mode (eventually: per-product modes)
+Components                   single mode
 ```
 
-### 10.2 Required `dtcg.ts` changes
+The four `Context / *` collections each contain the **same set of
+variable names** — `typography.label.md`, `typography.body.md`,
+`anatomy.framed-control.md.height`, etc. — but with different values.
+Same shape, four payloads.
 
-1. Add `Intent` → `semantic.json` under `intent.*` (or merge under
-   `semantic.color.*` — naming TBD; see §13).
-2. Add `Role` → `semantic.json` under `typography.*`, **with mode
-   support**, one set of values per context (the noted multi‑mode
-   follow‑up).
-3. Add `Anatomy` → `semantic.json` under `anatomy.*`, with mode support.
+### 10.2 Target Figma layout (post‑upgrade to Pro)
+
+When the team upgrades:
+
+```
+Primitives                   single mode
+Intent                       two modes  (light, dark)
+Context                      four modes (compact, comfortable, spacious, dense)
+Interaction                  single mode
+Components                   single mode  (eventually: per-product modes)
+```
+
+The four `Context / *` collections collapse into one `Context`
+collection with four modes. `Intent / Light` and `Intent / Dark`
+collapse into one `Intent` collection with two modes. The variable
+names don't change; only the storage shape does.
+
+### 10.3 Required `dtcg.ts` changes (v1, free‑tier)
+
+1. Add `Intent / Light` → `semantic.json` under `color.intent.*` (or
+   `intent.*`; see §13). Mirror under `Intent / Dark` when it lands.
+2. Add the four `Context / <ctx>` collections → `semantic.json` under
+   `context.<ctx>.typography.*` and `context.<ctx>.anatomy.*`. Each is
+   a regular single‑mode read; no multi‑mode logic required.
+3. **Synthesise the short‑form alias layer** at the end of the
+   transform: emit `semantic.typography.*` and `semantic.anatomy.*` as
+   DTCG aliases pointing at the v1 default context (`comfortable`). The
+   default context is a constant in `dtcg.ts`; changing it is one line.
+   This is the only piece of *generated* output in the transform —
+   everything else is a direct read.
 4. Add `Interaction` → `semantic.json` under `interaction.*`.
-5. Retire the four `Typography / <context>` collection routes once `Role`
-   replaces them.
+5. Retire the existing four `Typography / <context>` collection routes
+   once the new `Context / <ctx>` collections supersede them.
 
 The DTCG transform is pure, has tests in
 `packages/tokens/src/dtcg.test.ts`, and is the right place to do the
-work. The multi‑mode extension is the one piece of net‑new transform
-logic.
+work. None of the above requires multi‑mode handling — the v1 export
+stays single‑mode end to end.
+
+### 10.4 The multi‑mode follow‑up (deferred to Pro upgrade)
+
+The figma-token-sync skill already notes multi‑mode export as the next
+extension to `dtcg.ts`. It is **not** required for v1 and is removed
+from the Phase 3 migration scope. When the team upgrades to Pro:
+
+- Add multi‑mode reading to `dtcg.ts` (read every mode of each
+  collection rather than `collection.defaultModeId` alone).
+- Emit `context.<ctx>.*` from the modes of a single `Context` collection
+  instead of from four collections.
+- Emit `color.intent.<theme>.*` from the modes of a single `Intent`
+  collection instead of two.
+- The short‑form alias layer (`semantic.typography.*`,
+  `semantic.anatomy.*`, `color.intent.*`) does not change — it still
+  points at the v1 default context / theme. Switching defaults remains
+  a one‑line change.
+
+Component tokens are untouched by the upgrade.
 
 ### 10.3 The sync server stays as is
 
@@ -718,22 +805,42 @@ own commit; each is reversible without rewriting the world.
 8. **Add `button.outline` and `button.ghost`** variants now that the
    wiring layer is sane.
 
-### Phase 3 — Figma
+### Phase 3 — Figma (free‑tier, single‑mode collections)
 
-9. **Restructure Figma collections** to match §10.1. Create `Intent`,
-   `Role`, `Anatomy`, `Interaction` collections; migrate variables.
-10. **Extend `dtcg.ts` for multi‑mode collections** — the noted
-    follow‑up. Add tests for the four‑mode export of `Role` and
-    `Anatomy`. The Typography‑by‑collection routing retires here.
+9. **Restructure Figma collections** to match §10.1. Create
+   `Intent / Light`, four `Context / <ctx>` collections, and
+   `Interaction`. Migrate variables. The four existing
+   `Typography / <ctx>` collections retire as the new
+   `Context / <ctx>` collections supersede them.
+10. **Extend `dtcg.ts` for the new collection routes** (§10.3). No
+    multi‑mode logic; each collection is a single‑mode read. Add the
+    short‑form alias synthesis step (`semantic.typography.*`,
+    `semantic.anatomy.*` → `comfortable`). Update tests in
+    `dtcg.test.ts`.
 11. **Re‑sync from Figma** end‑to‑end. Compare the new
-    `semantic.json` against the hand‑authored stubs from Phase 1; resolve
-    any drift.
+    `semantic.json` against the hand‑authored stubs from Phase 1;
+    resolve any drift.
 
 ### Phase 4 — Real values
 
-12. **Wire Harmoni outputs into `intent.*`** once the palette engine
-    provides stable ramps. Until then, `intent.*` aliases point at the
-    existing `color.gold.*` / `color.red.*` ramps as a holding pattern.
+12. **Wire Harmoni outputs into `color.intent.*`** once the palette
+    engine provides stable ramps. Until then, `color.intent.*` aliases
+    point at the existing `color.gold.*` / `color.red.*` ramps as a
+    holding pattern.
+
+### Phase 5 — Pro upgrade (deferred)
+
+Not part of v1. Triggered by a Figma plan upgrade.
+
+13. **Collapse the four `Context / <ctx>` collections** into a single
+    `Context` collection with four modes. Collapse `Intent / Light`
+    and `Intent / Dark` into a single `Intent` collection with two
+    modes.
+14. **Add multi‑mode reading to `dtcg.ts`** (§10.4). Re‑emit
+    `context.<ctx>.*` and `color.intent.<theme>.*` from collection
+    modes rather than separate collections.
+15. **Re‑sync and verify byte‑identical output** for `semantic.json` and
+    `components.json`. The upgrade should be invisible to consumers.
 
 Each phase ships behind real components on the working branch. No big
 bang.
@@ -802,8 +909,14 @@ To resolve in follow‑up RFCs or before Phase 2:
    Recommendation: keep `color` at the root and nest intent groups under
    it (`color.action.primary.default`) for migration ease.
 2. **Dark mode.** The intent layer is the only layer that needs modes for
-   theming. When dark mode lands, `intent` gains light/dark modes; nothing
-   else changes. Out of scope for this RFC.
+   theming. **On free‑tier Figma** (one mode per collection), dark mode
+   ships as a second collection — `Intent / Dark` — alongside
+   `Intent / Light`, with `dtcg.ts` emitting `color.intent.light.*` and
+   `color.intent.dark.*` from the two collections. The short‑form alias
+   `color.intent.*` points at the light theme as the v1 default,
+   mirroring the context default in §7.3. On Pro tier the two
+   collections collapse into one `Intent` collection with two modes
+   (§10.4). Out of scope for this RFC beyond reserving the shape.
 3. **Elevation and motion.** Future foundations. Not blocking.
 4. **Brand multi‑tenancy.** If Primitiv ever powers more than one
    product, `intent` gains per‑product modes. Designed for, not built

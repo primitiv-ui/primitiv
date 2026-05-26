@@ -1125,6 +1125,10 @@ Three tiers, picked per operation by how often it'll be run:
 developer console (the `figma-console-scripts` skill covers the
 mechanics — "allow pasting", font loading, plugin API access). Cheap
 to write, no maintenance. Right tool for a refactor you'll do once.
+When working from terminal Claude Code with the `figma-console-mcp`
+tool available, scripts can be authored and executed directly against
+a live Figma session — that is the intended implementation channel
+for Tier 1 prototyping.
 
 **Tier 2 — Sync plugin action.** Promoted from Tier 1 once an
 operation proves reusable. Add a button in the plugin UI, route via
@@ -1144,15 +1148,20 @@ V1 lives in Tiers 1 and 2 only.
 
 Three kinds of operations, each with a defined home on the ladder.
 
-**Bootstrap** — one‑shot structural creation.
+**Bootstrap** — structural creation. Nominally "one‑shot" per phase,
+but **promoted to Tier 2 from the start**:
 - Create `Intent / Light`, four `Context / *`, and `Interaction`
   collections per §10.1.
 - Populate variables for the §4 intent groups, the §5 typography
   roles, the §6 anatomy patterns, the §8 interaction tokens.
 - Create text styles per (context × role × tier), each bound to the
   matching context's variables.
-- Used in migration phases 1, 2, 4. Tier 1 scripts are fine here —
-  they're run once per phase and then archived.
+- Used in migration phases 1, 2, 4. **Live as plugin actions, not
+  console scripts** — even though each phase runs them once, the
+  inputs (the role/anatomy spec) keep evolving and rerunning a
+  vetted, idempotent plugin action is safer than re‑pasting a console
+  script. Tier 1 prototypes still earn their keep during *authoring*
+  of these actions; they don't graduate to the archive.
 
 **Maintenance** — recurring, idempotent.
 - Update a variable's value (e.g. Harmoni produces a new palette ramp).
@@ -1312,29 +1321,53 @@ collapse to "the variable changed".
 
 In scope:
 
-- Tier 1 console scripts for the Phase 1, 2, 4 bootstrap operations
-  (create collections, create variables, create bound text styles).
-- Tier 2 plugin actions for any operation that needs to be run more
-  than twice: at minimum, **Rebind text styles** and **Apply a
-  variable rename**.
+- **Tier 2 plugin actions** for the Phase 1, 2, 4 bootstrap operations
+  and for the maintenance set — at minimum: **Bootstrap context**,
+  **Rebind text styles**, **Apply a variable rename**.
+- Tier 1 dev‑console scripts as throwaway prototypes during authoring
+  of the above (typically via `figma-console-mcp` in a terminal Claude
+  Code session). They never become the production implementation.
 - The idempotency rule (§15.6) applies to every operation, however
   small.
+
+Plugin UI policy: **minimal, grown one action at a time**. New
+buttons land in the sync plugin's UI only when the underlying action
+is implemented and tested. No placeholder buttons, no disabled
+"coming soon" surface. Each promoted Tier 2 action ships as a single
+commit: action code, tests, button.
 
 Out of scope:
 
 - Tier 3 manifest.
 - Continuous push‑from‑repo synchronisation.
 - Multi‑mode operations (Phase 6).
+- A second plugin. The existing `primitiv-sync-figma-plugin` absorbs
+  the write operations alongside the export; we do not split it.
 
 ### 15.10 Concrete next step
 
-Before any RFC‑driven Figma work begins, the first Tier 1 script worth
-writing is **bootstrap‑comfortable**: a single dev‑console script that
-creates `Context / Comfortable` from scratch with every variable in
-§5 + §6, the corresponding bound text styles, and a small smoke test
-(a temporary frame demonstrating that changing one variable updates
-all bound surfaces). Running it once proves the binding setup works
-end to end and de‑risks the rest of Phase 1.
+Before any RFC‑driven Figma work begins, the first operation worth
+implementing is **Bootstrap context** (Tier 2, plugin action). The
+workflow:
+
+1. In a terminal Claude Code session with `figma-console-mcp`
+   available, write a Tier 1 prototype that creates
+   `Context / Comfortable` from scratch with every variable in §5 +
+   §6, the corresponding bound text styles, and a small smoke test
+   (a temporary frame demonstrating that changing one variable
+   updates all bound surfaces).
+2. Verify the binding setup end to end against the live Figma file.
+3. Promote the prototype directly into the sync plugin as the
+   **Bootstrap context** action, wired into `shared/messages.ts` and
+   `code/handleMessage.ts`, with unit tests. The action takes a
+   `context` argument so the same code creates Compact, Spacious, and
+   Dense in Phase 4 without rewriting.
+4. Run the promoted action from the plugin UI to actually create
+   `Context / Comfortable` in Figma. Export tokens; commit the JSON.
+
+The Tier 1 prototype from step 1 is throwaway scaffolding — it never
+ships, it never gets archived as the source of truth. Step 3 is where
+the production implementation lands.
 
 ---
 

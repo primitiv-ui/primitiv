@@ -48,6 +48,41 @@ The Button is worked through end‑to‑end in §8 as the canonical example.
 
 ---
 
+## 0.1 Scope and source of truth
+
+This RFC is constrained to a specific v1 scope. Stating it explicitly
+because the architecture choices below only make sense within it.
+
+**In scope for v1:**
+
+- The shape and naming of design tokens.
+- The Figma collection layout that holds them.
+- A `Button` component **authored in Figma** that consumes those
+  tokens, with working context / size / variant / state.
+- The DTCG sync plugin reading Figma → emitting JSON into
+  `packages/tokens/src/*.json` for backup.
+
+**Out of scope for v1 (deferred, named so they don't accumulate):**
+
+- Any frontend build pipeline (CSS variable generation, Tailwind
+  config, JS module emission, Style Dictionary integration).
+- Storybook, the workbench app, or any other code‑level rendering
+  surface.
+- React component implementations that consume these tokens.
+- Any push direction repo → Figma. The sync is one‑way pull for now.
+
+**Source of truth: Figma.** All authoring happens in Figma. The repo's
+`packages/tokens/src/*.json` files are a **backup snapshot**, regenerated
+by the sync plugin. If the JSON and Figma disagree, Figma wins.
+
+This direction may invert later, once a build pipeline ships and the
+repo becomes the authoring surface. The RFC's architecture is designed
+to survive that inversion without restructuring — the layer names,
+patterns, and reference shapes are identical either way. Only the
+*direction of edits* changes.
+
+---
+
 ## 1. Principles
 
 These are the principles every decision below derives from. Borrowed from
@@ -471,16 +506,19 @@ change in the alias group.
 
 How the four contexts are reached at consumption:
 
-- **In CSS:** the build emits four sets of CSS custom properties, one per
-  `.context-*` selector. Component CSS reads the short‑form role name;
-  the active class swap retargets it. The alias layer's choice of
-  `comfortable` only matters as the unscoped fallback.
-- **In Figma:** four single‑mode collections — `Context / Compact`,
-  `Context / Comfortable`, `Context / Spacious`, `Context / Dense`.
-  Designers pick a context by selecting a Button **component variant**
-  whose nested text styles bind to that context's variables. The
-  context choice is encoded as a Figma component property, not a
-  collection mode.
+- **In Figma (v1, in scope):** four single‑mode collections —
+  `Context / Compact`, `Context / Comfortable`, `Context / Spacious`,
+  `Context / Dense`. Designers pick a context by selecting a Button
+  **component variant** whose nested text styles bind to that
+  context's variables. The context choice is encoded as a Figma
+  component property, not a collection mode.
+- **In CSS (deferred, out of v1 scope):** when the build pipeline
+  lands, it will emit four sets of CSS custom properties, one per
+  `.context-*` selector. Component CSS reads the short‑form role
+  name; the active class swap retargets it. The alias layer's choice
+  of `comfortable` becomes the unscoped fallback. None of this is
+  built for v1 — it is described so that the JSON shape committed now
+  is a happy input for it later (§0.1).
 
 **Future migration to Shape B (Figma Pro):** when the team upgrades,
 the four `Context / *` collections collapse into one `Context`
@@ -603,6 +641,11 @@ into `height`, `padding-inline`, `gap`, `icon-size`, `radius`. If a
 flatter shape is preferred for tooling, each leaf can alias individually.)
 
 ### 9.3 Resolution example
+
+The chain below describes how an instance resolves. In v1 the consumer
+is a Figma component instance; the chain still applies but the
+"resolution" is Figma's alias graph rather than CSS custom property
+fallthrough. Same shape, different runtime.
 
 Input:
 
@@ -775,75 +818,111 @@ writes a bigger `semantic.json`. No changes needed.
 
 ## 11. Migration plan
 
-Twelve small steps, each independently safe to land. Each becomes its
-own commit; each is reversible without rewriting the world.
+Figma is the source of truth (§0.1), so authoring leads and repo sync
+follows. The plan is ordered accordingly: each phase produces something
+working in Figma, and the repo JSON catches up via the sync plugin at
+the end of each phase. Every step is independently safe to land and
+reversible.
 
-### Phase 1 — Names and stubs (no Figma changes yet)
+### Phase 0 — Paper validation (one short session)
 
-1. **Add `intent.*` stubs to `semantic.json`** with placeholder aliases
-   pointing at existing palette ramps. No new Figma variables yet — this
-   is JSON‑only, to prove the shape and let component tokens start
-   referencing intent names.
-2. **Add `interaction.*` to `semantic.json`** with the five values from §8.
-3. **Add `anatomy.*` to `semantic.json`** with values lifted from the
-   ChatGPT v1 RFC's regular density table for the comfortable context.
-   Single mode for now.
-4. **Rename `typography.<ctx>.ui.label` → `typography.<ctx>.label.md`**
-   and **drop `typography.<ctx>.ui.button`** in `semantic.json`. Update
-   the `dtcg.ts` Typography routing accordingly. Tests updated.
-5. **Add `typography.<ctx>.label.{xs,sm,md,lg,xl}`** to fill the ladder
-   (currently only `md` exists as `ui.label`).
-6. **Decide `space` vs `size`** in `primitives.json`. Either delete one
-   or document the divergent purpose.
+1. **Walk one Button variant end‑to‑end on paper.** Pick
+   `Button / primary / md / comfortable / hover` and write out the full
+   resolution chain by hand against the RFC (intent → role → anatomy →
+   interaction → primitive). The goal is to surface naming or shape
+   bugs before any Figma work. Drop or revise anything that doesn't
+   resolve cleanly. No file changes.
 
-### Phase 2 — Component rewiring
+### Phase 1 — Figma authoring: foundations (one context first)
 
-7. **Rewrite `components.json`** so every Button token references
-   `intent.action.*`, not `color.primary.*`. Drop the per‑variant
-   `disabled` colour repetitions (covered by `interaction.disabled`).
-   Add `button.size.{xs..xl}` referencing role + anatomy.
-8. **Add `button.outline` and `button.ghost`** variants now that the
-   wiring layer is sane.
+2. **Create the `Intent / Light` collection** in Figma with the §4
+   pattern set as variables (no values yet — alias placeholders to
+   existing palette ramps). This is the structural pour.
+3. **Create the `Context / Comfortable` collection** with the typography
+   roles (label, body, heading, display, overline) and the anatomy
+   patterns (framed‑control, label‑control, nav‑item, container) as
+   variables. Hand‑pick values for `label.*` and `framed-control.*`
+   from the current `typography.comfortable.*` tokens — the rest
+   already exist in primitives.
+4. **Create the `Interaction` collection** with the five values from §8.
+5. **Author the text styles** in Figma for the comfortable context,
+   binding `fontSize`, `lineHeight`, `fontFamily`, and `fontWeight` to
+   the variables from step 3. Naming: `Comfortable / Label / md`, etc.
+   Variable binding is what makes this resilient to future typography
+   refactors — value changes propagate automatically.
 
-### Phase 3 — Figma (free‑tier, single‑mode collections)
+### Phase 2 — Figma authoring: the Button
 
-9. **Restructure Figma collections** to match §10.1. Create
-   `Intent / Light`, four `Context / <ctx>` collections, and
-   `Interaction`. Migrate variables. The four existing
-   `Typography / <ctx>` collections retire as the new
-   `Context / <ctx>` collections supersede them.
-10. **Extend `dtcg.ts` for the new collection routes** (§10.3). No
+6. **Build the Button component in Figma** under the comfortable
+   context. Variant properties: `variant` (primary/secondary/outline/
+   ghost/danger/link), `size` (xs/sm/md/lg/xl), and state surfaced via
+   interactive component states (default/hover/pressed/disabled/focus).
+   Fills, strokes, padding, gaps, radii, and text styles all bind to
+   variables from Phase 1 — no raw values anywhere.
+7. **Validate the Button** by changing a single primitive (e.g.
+   `palette.brand.500`) and confirming every state in every variant
+   updates correctly via the alias chain. If anything doesn't update,
+   it's holding a raw value — fix at the source.
+
+### Phase 3 — Repo sync: extend `dtcg.ts`
+
+8. **Extend `dtcg.ts`** for the new collection routes (§10.3). No
     multi‑mode logic; each collection is a single‑mode read. Add the
     short‑form alias synthesis step (`semantic.typography.*`,
     `semantic.anatomy.*` → `comfortable`). Update tests in
-    `dtcg.test.ts`.
-11. **Re‑sync from Figma** end‑to‑end. Compare the new
-    `semantic.json` against the hand‑authored stubs from Phase 1;
-    resolve any drift.
+    `dtcg.test.ts`. The four existing `Typography / <ctx>` routes
+    retire here.
+9. **Re‑sync from Figma** end‑to‑end. The new `semantic.json` and
+   `components.json` reflect Phase 1–2 authoring. Commit the
+   regenerated JSON as the v2 backup baseline.
+10. **Decide `space` vs `size`** in `primitives.json`. Either delete
+    one or document the divergent purpose. This is the only Phase 3
+    edit made directly in JSON; it is a primitive cleanup and doesn't
+    affect Figma.
 
-### Phase 4 — Real values
+### Phase 4 — Figma authoring: the other three contexts
 
-12. **Wire Harmoni outputs into `color.intent.*`** once the palette
+11. **Duplicate `Context / Comfortable`** to `Context / Compact`,
+    `Context / Spacious`, `Context / Dense`. Adjust the values per the
+    existing context tables in `semantic.json` (already designed —
+    just being re‑homed in the new collection shape).
+12. **Author the text styles** for the other three contexts, binding
+    to the new context collections' variables. Naming pattern as in
+    Phase 1 step 5.
+13. **Extend the Button component** to use the new contexts. Either
+    (a) one Button master with a `context` variant property whose
+    combinations bind to each context's text styles, or (b) four
+    Button masters, one per context. See §13 open question 10. Re‑sync.
+
+### Phase 5 — Real values
+
+14. **Wire Harmoni outputs into `color.intent.*`** once the palette
     engine provides stable ramps. Until then, `color.intent.*` aliases
     point at the existing `color.gold.*` / `color.red.*` ramps as a
     holding pattern.
 
-### Phase 5 — Pro upgrade (deferred)
+### Phase 6 — Pro upgrade (deferred)
 
 Not part of v1. Triggered by a Figma plan upgrade.
 
-13. **Collapse the four `Context / <ctx>` collections** into a single
+15. **Collapse the four `Context / <ctx>` collections** into a single
     `Context` collection with four modes. Collapse `Intent / Light`
     and `Intent / Dark` into a single `Intent` collection with two
     modes.
-14. **Add multi‑mode reading to `dtcg.ts`** (§10.4). Re‑emit
+16. **Add multi‑mode reading to `dtcg.ts`** (§10.4). Re‑emit
     `context.<ctx>.*` and `color.intent.<theme>.*` from collection
     modes rather than separate collections.
-15. **Re‑sync and verify byte‑identical output** for `semantic.json` and
-    `components.json`. The upgrade should be invisible to consumers.
+17. **Re‑sync and verify byte‑identical output** for `semantic.json`
+    and `components.json`. The upgrade should be invisible to
+    consumers.
 
-Each phase ships behind real components on the working branch. No big
-bang.
+### Phase 7 — Build pipeline (further deferred)
+
+Not part of v1. Triggered by the first non‑Figma consumer (a React app,
+a Storybook surface, a marketing site). At that point the source of
+truth inversion (§0.1) becomes worth considering.
+
+Each phase ships on the working branch. No big bang.
 
 ---
 
@@ -939,14 +1018,26 @@ To resolve in follow‑up RFCs or before Phase 2:
    resolving the three choices in one place. Out of scope for this RFC;
    reserved here so it doesn't get invented ad hoc.
 
-9. **Downstream consumption / tooling.** `packages/tokens/src/*.json`
-   is the source of truth, but how it becomes CSS custom properties,
-   Tailwind config, JS modules, or React Native styles is out of scope.
-   The shape committed in this RFC must be a happy input for either a
-   custom transformer or a tool like Style Dictionary. Two things to
-   honour either way: (a) every leaf carries a `$type`, (b) aliases use
-   the canonical `{group.sub.name}` form. Both are already true of the
-   current files.
+9. **Downstream consumption / tooling.** Out of v1 scope (§0.1). When
+   a build pipeline ships and the source of truth inverts from Figma to
+   the repo, the JSON shape committed here must be a happy input for
+   either a custom transformer or a tool like Style Dictionary. Two
+   invariants to honour either way: (a) every leaf carries a `$type`,
+   (b) aliases use the canonical `{group.sub.name}` form. Both are
+   already true of the current files.
+
+10. **Figma Button authoring: one master with `context` variants, or
+    four masters?** Phase 4 step 13 leaves this open. Trade‑offs:
+    - **One master with a `context` variant property.** Variant
+      explosion (~120 cells: 4 contexts × 5 sizes × 6 variants), but
+      single source of truth in Figma. Bulk updates touch one
+      component. Consumers pick context via property toggle. Likely
+      the right answer; large but tractable.
+    - **Four masters (one per context).** Smaller per‑component
+      variant matrix (~30 cells), but four places to keep in sync
+      whenever the Button changes. Drift risk is real.
+    Pick during Phase 4 once the comfortable Button is shipped and the
+    variant cell count is concrete. Defer the decision deliberately.
 
 ---
 

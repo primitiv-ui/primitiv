@@ -1075,7 +1075,270 @@ we are violating the architecture.
 
 ---
 
-## 15. Appendix — Pattern map (Alexander‑style)
+## 15. Synchronisation operations
+
+The sync plugin (`apps/primitiv-sync-figma-plugin`) currently does one
+thing: read Figma → emit DTCG JSON. That stays. This section describes
+the **write‑side** operations we'll need to make structural refactors
+reproducible — so that "rename a typography role" or "rebind every text
+style to the new variable" is a scripted operation, not a manual sweep.
+
+### 15.1 The problem this solves
+
+The previous Typography refactor required hand‑updating every text
+style in Figma. That was the warning. The Figma Plugin API can write
+variables, variable collections, text styles, **and** variable bindings
+on text‑style properties — so a future refactor of the same shape
+should be a one‑command operation.
+
+The single most important change is: **every text‑style property that
+*can* be bound to a variable, *is*** (font‑size, line‑height,
+letter‑spacing — and font‑weight on recent Figma versions). Once
+that's in place, value changes propagate from one variable edit to
+every bound style and every instance using those styles. The hand
+sweep doesn't recur.
+
+### 15.2 What changes versus today's sync
+
+Today (read‑only):
+
+```
+Figma  ──── export ────▶  packages/tokens/src/*.json
+```
+
+Adding (write side):
+
+```
+script / plugin action  ──── apply ────▶  Figma variables + text styles
+```
+
+Note the absence of an arrow from the repo into Figma. The repo is not
+the source of truth (§0.1). The write side is **operator‑initiated
+inside Figma**, sometimes with the script's input checked into the
+repo for review, sometimes pasted ad hoc into the dev console.
+
+### 15.3 Tier ladder
+
+Three tiers, picked per operation by how often it'll be run:
+
+**Tier 1 — Dev‑console script.** One‑off prototypes. Paste into Figma's
+developer console (the `figma-console-scripts` skill covers the
+mechanics — "allow pasting", font loading, plugin API access). Cheap
+to write, no maintenance. Right tool for a refactor you'll do once.
+
+**Tier 2 — Sync plugin action.** Promoted from Tier 1 once an
+operation proves reusable. Add a button in the plugin UI, route via
+`shared/messages.ts`, handle in `code/handleMessage.ts`. Tested with
+the same vitest setup the rest of the plugin uses. Right tool for
+"recreate the bound text styles" after any structural change.
+
+**Tier 3 — Declarative manifest (deferred).** A JSON manifest in the
+repo describing the desired Figma state, with the plugin reconciling
+diffs. Closest to "infrastructure as code", but contradicts the
+Figma‑as‑source rule (§0.1) — the manifest would itself become a
+competing source of truth. Park until that inversion happens.
+
+V1 lives in Tiers 1 and 2 only.
+
+### 15.4 Operation taxonomy
+
+Three kinds of operations, each with a defined home on the ladder.
+
+**Bootstrap** — one‑shot structural creation.
+- Create `Intent / Light`, four `Context / *`, and `Interaction`
+  collections per §10.1.
+- Populate variables for the §4 intent groups, the §5 typography
+  roles, the §6 anatomy patterns, the §8 interaction tokens.
+- Create text styles per (context × role × tier), each bound to the
+  matching context's variables.
+- Used in migration phases 1, 2, 4. Tier 1 scripts are fine here —
+  they're run once per phase and then archived.
+
+**Maintenance** — recurring, idempotent.
+- Update a variable's value (e.g. Harmoni produces a new palette ramp).
+- Rename a variable while preserving every binding pointed at it.
+- Add a new tier to an existing role (e.g. `label.xxl`).
+- Rebind text styles after a structural rename (the rebuilt safety
+  net).
+- Tier 2. These earn a plugin action because the next refactor will
+  need them again.
+
+**Read** — existing export.
+- Already works. No changes.
+
+### 15.5 Plugin API surface
+
+A focused list of the calls these operations rely on. (Exact method
+signatures vary slightly across Figma plugin API versions; verify
+against the current Plugin API docs before writing.)
+
+**Collections and variables**
+
+```ts
+figma.variables.createVariableCollection(name)
+figma.variables.createVariable(name, collection, resolvedType)
+variable.setValueForMode(modeId, value)          // literal or alias
+variable.name = newName                          // rename in place
+variable.remove()                                // explicit delete only
+```
+
+Aliases:
+
+```ts
+variable.setValueForMode(modeId, {
+  type: 'VARIABLE_ALIAS',
+  id: targetVariable.id,
+})
+```
+
+**Text styles**
+
+```ts
+const style = figma.createTextStyle()
+style.name = 'Comfortable / Label / md'         // forward slashes = folders
+style.fontName = { family: 'Inter', style: 'Semibold' }   // must be loaded
+style.fontSize = 16                              // direct, or bind below
+style.lineHeight = { value: 24, unit: 'PIXELS' }
+style.letterSpacing = { value: 0, unit: 'PIXELS' }
+```
+
+**Variable binding on text styles** — the crucial bit:
+
+```ts
+style.setBoundVariable('fontSize', fontSizeVariable)
+style.setBoundVariable('lineHeight', lineHeightVariable)
+style.setBoundVariable('letterSpacing', letterSpacingVariable)
+// fontWeight binding is supported on recent versions;
+// fontFamily binding has caveats — see §15.8.
+```
+
+**Font loading** — required before any text style touches a font:
+
+```ts
+await figma.loadFontAsync({ family: 'Inter', style: 'Semibold' })
+```
+
+Forgetting this is the most common cause of "my script half‑worked".
+Every Tier 1 prototype starts with a `loadFontAsync` for every font
+combination it'll use.
+
+### 15.6 Idempotency rule
+
+The single safety mechanism that prevents another hand‑sweep refactor:
+
+> **Find or create, mutate in place. Delete only when explicitly told
+> to.**
+
+Concretely:
+
+1. Before creating a variable or style, look it up by name (or by a
+   stable ID stored in plugin client storage). If it exists, mutate.
+2. Never delete by absence ("the manifest doesn't mention it, so
+   remove it"). Deletes need an explicit operation name.
+3. Renames keep the same Figma node, so bindings survive. A "rename"
+   is `variable.name = …`, **not** `delete + create`.
+4. If a script can't find a variable it expects, it errors loudly and
+   bails — it does not invent state.
+
+This is why even Tier 1 console scripts should compose `findOrCreate`
+helpers rather than start with `figma.variables.createVariable(...)`
+unconditionally.
+
+### 15.7 Worked example: change `comfortable label/md` font‑size
+
+The whole point of the binding setup is that this is now mechanical.
+
+**Setup (one‑time, Tier 1 script during Phase 1):**
+
+```
+Context / Comfortable collection
+  variable: typography.label.md.font-size = 16
+  variable: typography.label.md.line-height = 24
+  variable: typography.label.md.font-weight = 600
+
+Text style: "Comfortable / Label / md"
+  bound: fontSize    → typography.label.md.font-size
+  bound: lineHeight  → typography.label.md.line-height
+  bound: fontWeight  → typography.label.md.font-weight
+  direct: fontName.family = "Inter"
+```
+
+**The change (any time after):**
+
+1. Designer (or Harmoni, or a plugin action) sets
+   `typography.label.md.font-size = 17`.
+2. The "Comfortable / Label / md" text style re‑renders at 17/24.
+3. Every Button instance using that style — across every variant cell
+   that includes `context=Comfortable, size=md` — re‑renders at 17/24.
+4. Designer clicks **Export tokens**. `packages/tokens/src/semantic.json`
+   updates: `context.comfortable.typography.label.md.font-size` is now
+   `{font-size.17}` (or the value is updated upstream in primitives,
+   depending on which layer changed).
+5. Commit. No text styles touched by hand.
+
+Compare to the pre‑binding world: step 2 would have required reopening
+every text style and changing the number; step 3 would have required
+no action only because step 2 propagated correctly. Both steps now
+collapse to "the variable changed".
+
+### 15.8 Notes and gotchas
+
+- **Font family / weight as variables.** Numeric properties bind
+  cleanly. Font family is a string variable, supported but younger in
+  the API — verify on the current Figma version before relying on it.
+  Font weight binding works when the family has a matching variant
+  style at that weight; missing variants fall back unpredictably.
+  Safe default: bind size/line‑height/letter‑spacing; keep family and
+  weight direct until a specific need overrides them.
+- **Single‑mode collections.** Every `setValueForMode` call on a
+  free‑tier collection uses `collection.defaultModeId`. The plugin
+  helper can hide this so scripts read `setValue(variable, value)`
+  without thinking about modes; the multi‑mode upgrade (Phase 6)
+  swaps the helper, not the call sites.
+- **Reload after structural changes.** Some Figma states (active
+  selection, instance overrides) need a manual reload to pick up
+  newly bound variables. Script should report this in the plugin UI.
+- **Plugin client storage for stable IDs.** Naming‑based lookups are
+  brittle to renames. For Tier 2 maintenance operations, store the
+  stable Figma variable IDs in `figma.clientStorage` keyed by the
+  canonical token path; rename operations then update the *name* but
+  preserve the *ID*.
+- **Backup before destructive operations.** Any operation that
+  removes a variable or rebinds many styles should call **Export
+  tokens** first and prompt the user to commit the resulting JSON.
+  The DTCG snapshot becomes the undo point.
+
+### 15.9 Scope for v1
+
+In scope:
+
+- Tier 1 console scripts for the Phase 1, 2, 4 bootstrap operations
+  (create collections, create variables, create bound text styles).
+- Tier 2 plugin actions for any operation that needs to be run more
+  than twice: at minimum, **Rebind text styles** and **Apply a
+  variable rename**.
+- The idempotency rule (§15.6) applies to every operation, however
+  small.
+
+Out of scope:
+
+- Tier 3 manifest.
+- Continuous push‑from‑repo synchronisation.
+- Multi‑mode operations (Phase 6).
+
+### 15.10 Concrete next step
+
+Before any RFC‑driven Figma work begins, the first Tier 1 script worth
+writing is **bootstrap‑comfortable**: a single dev‑console script that
+creates `Context / Comfortable` from scratch with every variable in
+§5 + §6, the corresponding bound text styles, and a small smoke test
+(a temporary frame demonstrating that changing one variable updates
+all bound surfaces). Running it once proves the binding setup works
+end to end and de‑risks the rest of Phase 1.
+
+---
+
+## 16. Appendix — Pattern map (Alexander‑style)
 
 A quick‑reference index of the named patterns. Use these names in
 conversation, in code review, and in component READMEs.

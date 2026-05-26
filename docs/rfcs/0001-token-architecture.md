@@ -1369,6 +1369,55 @@ The Tier 1 prototype from step 1 is throwaway scaffolding — it never
 ships, it never gets archived as the source of truth. Step 3 is where
 the production implementation lands.
 
+### 15.11 Deferred from the first Bootstrap context cut
+
+The first Tier‑2 *Bootstrap context* action ships a deliberately narrow
+slice so the Button (Phase 2) validates the end‑to‑end loop quickly.
+The following items are explicitly deferred to follow‑up commits, in
+this order:
+
+1. **Anatomy patterns beyond `framed-control`.** `label-control`,
+   `nav-item`, and `container` (§6.1) are not in the first cut. The
+   first action populates `framed-control.*` only — enough to build
+   the Button. The other three patterns land as separate commits once
+   the Button is rendering against the live variables. Values are
+   seeded from the existing `radii.*` / `space.*` scale and called
+   out in their commit bodies for review.
+
+2. **The `mono` typography role.** Reserved in §5.1, deferred in
+   §13.6. The first action skips it; `overline` is included.
+
+3. **Font‑weight binding.** The Tier‑1 console probe (run against
+   the working Figma desktop on 2026‑05‑26) confirmed that
+   `setBoundVariable('fontWeight', …)` is a **silent no‑op** on the
+   current Plugin API — the call returns without throwing, but the
+   binding never appears in `style.boundVariables`. The supported
+   alternative is `setBoundVariable('fontStyle', …)` against a
+   **STRING** variable whose value is a font style name
+   (`"SemiBold"`, `"Medium"`). That requires a parallel `font-style/*`
+   STRING primitive group alongside the existing numeric
+   `font-weight/*` — out of scope for the first cut so the primitives
+   layer stays unchanged. The first action therefore keeps
+   `fontName.style` as a direct value on each text style, populated
+   from `contextSpec`. A follow‑up adds the `font-style/*` primitives
+   and switches to bound `fontStyle`.
+
+   **Probe upgrade vs §15.8's safe default:** `fontFamily` binding
+   *does* work against a STRING variable aliased into
+   `font-family/sans` (`font-family/serif`). The first action binds
+   `fontFamily` along with `fontSize`, `lineHeight`, and
+   `letterSpacing`; only `fontStyle`/`fontWeight` stay direct.
+
+4. **`dtcg.ts` routing for `Context / *` collections.** The new
+   collections produced by the action are not yet routed in
+   `packages/tokens/src/dtcg.ts`, so they will not appear in
+   `semantic.json` after an Export. Routing is a one‑line change in
+   `routeCollection` plus a fixture in `dtcg.test.ts` and ships as a
+   separate PR after the action's output exists in Figma.
+
+These are scope deferrals, not architectural changes. The RFC's
+target shape (§10.1) and the operation tiers (§15.3) are unchanged.
+
 ---
 
 ## 16. Appendix — Pattern map (Alexander‑style)

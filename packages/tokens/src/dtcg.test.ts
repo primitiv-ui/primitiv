@@ -405,6 +405,48 @@ describe('figmaVarsToDtcg', () => {
     })
   })
 
+  it('routes a Context / Comfortable variable into semantic under context.comfortable', () => {
+    const CONTEXT_COMFORTABLE_COLL: FigmaCollection = {
+      id: 'cxf',
+      name: 'Context / Comfortable',
+      modes: [{ modeId: 'mxf', name: 'Mode 1' }],
+      defaultModeId: 'mxf',
+    }
+
+    const result = figmaVarsToDtcg(
+      [CONTEXT_COMFORTABLE_COLL],
+      [
+        {
+          id: 'v1',
+          name: 'label/md/font-size',
+          resolvedType: 'FLOAT',
+          variableCollectionId: 'cxf',
+          valuesByMode: { mxf: 16 },
+        },
+        {
+          id: 'v2',
+          name: 'framed-control/md/height',
+          resolvedType: 'FLOAT',
+          variableCollectionId: 'cxf',
+          valuesByMode: { mxf: 40 },
+        },
+      ],
+    )
+
+    expect(result.semantic).toEqual({
+      context: {
+        comfortable: {
+          label: {
+            md: { 'font-size': { $type: 'number', $value: 16 } },
+          },
+          'framed-control': {
+            md: { height: { $type: 'number', $value: 40 } },
+          },
+        },
+      },
+    })
+  })
+
   it('routes a Components variable into components without a prefix', () => {
     const result = figmaVarsToDtcg(
       [COMPONENTS_COLL],

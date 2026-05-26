@@ -50,6 +50,23 @@ export type DtcgFiles = {
 /** Where a Figma collection lands in the DTCG output. */
 type Routing = { file: keyof DtcgFiles; prefix: string[] }
 
+/**
+ * The v1 default context whose values back the short-form alias layer
+ * (`semantic.typography.*`). Changing this is the one-line switch for the
+ * default — components keep referencing the short-form names.
+ */
+const DEFAULT_CONTEXT = 'comfortable'
+
+/** Typography roles per RFC 0001 §5.1. Routed under `semantic.typography.*`. */
+const TYPOGRAPHY_ROLES = [
+  'label',
+  'body',
+  'heading',
+  'display',
+  'overline',
+  'mono',
+]
+
 /** Resolves a Figma variable id to the DTCG path segments of its token. */
 export type AliasResolver = (variableId: string) => string[]
 
@@ -132,7 +149,66 @@ export function figmaVarsToDtcg(
     mergeIntoPrefix(files[routing.file], routing.prefix, group)
   }
 
+  synthesiseShortFormAliases(files.semantic)
+
   return files
+}
+
+/**
+ * Emits `semantic.typography.*` as DTCG aliases pointing at the default
+ * context's typography roles. Components consume the short forms so they
+ * stay context-agnostic; switching the default is changing
+ * {@link DEFAULT_CONTEXT}.
+ */
+function synthesiseShortFormAliases(semantic: DtcgGroup): void {
+  const contextRoot = semantic.context as DtcgGroup | undefined
+  if (!contextRoot) return
+  const defaultCtx = contextRoot[DEFAULT_CONTEXT] as DtcgGroup | undefined
+  if (!defaultCtx) return
+
+  for (const [key, value] of Object.entries(defaultCtx)) {
+    if (TYPOGRAPHY_ROLES.includes(key)) {
+      const typography = ensureGroup(semantic, 'typography')
+      typography[key] = aliasGroup(value as DtcgGroup, [
+        'context',
+        DEFAULT_CONTEXT,
+        key,
+      ])
+    }
+  }
+}
+
+function ensureGroup(parent: DtcgGroup, key: string): DtcgGroup {
+  let existing = parent[key] as DtcgGroup | undefined
+  if (!existing) {
+    existing = {}
+    parent[key] = existing
+  }
+  return existing
+}
+
+function aliasGroup(source: DtcgGroup, sourcePath: string[]): DtcgGroup {
+  const result: DtcgGroup = {}
+  for (const [key, value] of Object.entries(source)) {
+    if (isDtcgToken(value)) {
+      result[key] = {
+        $type: value.$type,
+        $value: `{${[...sourcePath, key].join('.')}}`,
+      }
+    } else {
+      result[key] = aliasGroup(value as DtcgGroup, [...sourcePath, key])
+    }
+  }
+  return result
+}
+
+function isDtcgToken(value: unknown): value is DtcgToken {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    '$type' in value &&
+    '$value' in value
+  )
 }
 
 function routeCollection(name: string): Routing {

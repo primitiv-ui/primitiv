@@ -115,10 +115,10 @@ export function collectionToDtcg(
  * Builds the three DTCG output groups from a whole Figma export.
  *
  * Each collection is routed to one of `primitives` / `semantic` /
- * `components` with an optional path prefix. The Typography variants
- * (`Typography / Compact` etc.) fold into `semantic.typography.<variant>`
- * so the output shape stays identical before and after the
- * Typography → Semantic migration.
+ * `components` with an optional path prefix. `Context / <name>` collections
+ * fold into `semantic.context.<name>`, and the short-form alias layer
+ * (`semantic.typography.*`, `semantic.anatomy.*`) is synthesised at the
+ * end of the transform from the default context.
  *
  * A master alias resolver knows the full DTCG path of every variable in
  * the payload (prefix + name), so cross-collection aliases produce the
@@ -231,10 +231,6 @@ function routeCollection(name: string): Routing {
   if (name === 'Primitives') return { file: 'primitives', prefix: [] }
   if (name === 'Semantic') return { file: 'semantic', prefix: [] }
   if (name === 'Components') return { file: 'components', prefix: [] }
-  const typo = name.match(/^Typography\s*\/\s*(.+)$/)
-  if (typo) {
-    return { file: 'semantic', prefix: ['typography', typo[1].toLowerCase()] }
-  }
   const ctx = name.match(/^Context\s*\/\s*(.+)$/)
   if (ctx) {
     return { file: 'semantic', prefix: ['context', ctx[1].toLowerCase()] }

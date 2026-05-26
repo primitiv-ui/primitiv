@@ -88,17 +88,28 @@ Collection names are matched **literally** by `routeCollection`:
 | `Primitives` | `primitives.json` | `[]` |
 | `Semantic` | `semantic.json` | `[]` |
 | `Components` | `components.json` | `[]` |
-| `Typography / Compact` | `semantic.json` | `['typography', 'compact']` |
-| `Typography / Comfortable` | `semantic.json` | `['typography', 'comfortable']` |
-| `Typography / Spacious` | `semantic.json` | `['typography', 'spacious']` |
 | `Context / <name>` | `semantic.json` | `['context', '<name lower>']` |
 | anything else | **throws** `Unrecognised collection name: <name>` |
 
-The Typography and Context prefixes are regex-matched
-(`/^Typography\s*\/\s*(.+)$/`, `/^Context\s*\/\s*(.+)$/`) so the
-variant / context name is taken from whatever follows the slash,
-lower-cased. The Context route lands under `semantic.context.<name>`
-and is what the Bootstrap context action (RFC 0001 §15.10) emits to.
+The Context prefix is regex-matched (`/^Context\s*\/\s*(.+)$/`) so the
+context name is taken from whatever follows the slash, lower-cased. The
+Context route lands under `semantic.context.<name>` and is what the
+Bootstrap context action (RFC 0001 §15.10) emits to.
+
+The legacy `Typography / <variant>` route was retired in Phase 3 per
+RFC §10.3 step 5; if a `Typography / *` collection still exists in
+Figma the export throws and the user must delete or rename it before
+the next sync.
+
+After routing, the transform synthesises a **short-form alias layer**
+(RFC §10.3 step 3): `semantic.typography.<role>.*` and
+`semantic.anatomy.<pattern>.*` are emitted as DTCG aliases pointing at
+the default context (`comfortable`). Roles and patterns come from the
+constants `TYPOGRAPHY_ROLES` (RFC §5.1) and `ANATOMY_PATTERNS` (RFC
+§6.1) in `dtcg.ts`; the default context is the `DEFAULT_CONTEXT`
+constant — changing the default is a one-line edit. Keys in the
+default context that are neither a role nor a pattern are silently
+ignored.
 
 **Renaming a Figma collection breaks the export.** If you rename or
 add a collection, update `routeCollection` in
@@ -117,9 +128,9 @@ add a collection, update `routeCollection` in
 Aliases (`{ type: 'VARIABLE_ALIAS', id }`) become DTCG reference
 strings of the form `{group.sub.name}`. The transform pre-computes
 every variable's full DTCG path (routing prefix + slash-split name)
-so cross-collection aliases resolve correctly — a Typography
-variable's alias into `font-size/40` becomes
-`{font-size.40}` because Primitives has an empty prefix.
+so cross-collection aliases resolve correctly — a `Context / Compact`
+variable's alias into `font-family/sans` becomes
+`{font-family.sans}` because Primitives has an empty prefix.
 
 ### Single-mode only
 

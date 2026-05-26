@@ -115,6 +115,54 @@ body {
   overflow: auto;
 }
 
+.app__bootstrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--figma-color-border, #e5e5e5);
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.app__bootstrap-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.app__bootstrap-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.app__bootstrap-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  ul {
+    margin: 0;
+    padding-left: 16px;
+  }
+}
+
+.app__bootstrap-warnings {
+  color: var(--figma-color-text-warning, #8b6914);
+
+  p {
+    margin: 0;
+  }
+
+  ul {
+    margin: 4px 0 0;
+    padding-left: 16px;
+    max-height: 160px;
+    overflow: auto;
+  }
+}
+
 .app__dump {
   margin: 0;
   padding: 8px;

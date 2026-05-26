@@ -1,6 +1,9 @@
 import {
   CONTEXT_SPECS,
   anatomyVars,
+  containerVars,
+  labelControlVars,
+  navItemVars,
   typographyTextStyles,
   typographyVars,
 } from './contextSpec'
@@ -83,6 +86,72 @@ describe('anatomyVars', () => {
       { name: 'framed-control/md/gap', type: 'FLOAT', aliasTo: 'space/space-8' },
       { name: 'framed-control/md/icon-size', type: 'FLOAT', aliasTo: 'size/size-16' },
       { name: 'framed-control/md/radius', type: 'FLOAT', aliasTo: 'radii/6' },
+    ])
+  })
+})
+
+describe('labelControlVars', () => {
+  it('expands a tier into five variable specs — padding-inline, padding-block, gap, icon-size, radius', () => {
+    const tiers = {
+      md: {
+        paddingInline: 'space-8',
+        paddingBlock: 'space-4',
+        gap: 'space-4',
+        iconSize: 'size-14',
+        radius: '4',
+      },
+    }
+
+    const result = labelControlVars('label-control', tiers)
+
+    expect(result).toEqual([
+      { name: 'label-control/md/padding-inline', type: 'FLOAT', aliasTo: 'space/space-8' },
+      { name: 'label-control/md/padding-block', type: 'FLOAT', aliasTo: 'space/space-4' },
+      { name: 'label-control/md/gap', type: 'FLOAT', aliasTo: 'space/space-4' },
+      { name: 'label-control/md/icon-size', type: 'FLOAT', aliasTo: 'size/size-14' },
+      { name: 'label-control/md/radius', type: 'FLOAT', aliasTo: 'radii/4' },
+    ])
+  })
+})
+
+describe('navItemVars', () => {
+  it('expands a tier into four variable specs — height, padding-inline, gap, icon-size (no radius)', () => {
+    const tiers = {
+      md: {
+        height: 'size-40',
+        paddingInline: 'space-16',
+        gap: 'space-8',
+        iconSize: 'size-16',
+      },
+    }
+
+    const result = navItemVars('nav-item', tiers)
+
+    expect(result).toEqual([
+      { name: 'nav-item/md/height', type: 'FLOAT', aliasTo: 'size/size-40' },
+      { name: 'nav-item/md/padding-inline', type: 'FLOAT', aliasTo: 'space/space-16' },
+      { name: 'nav-item/md/gap', type: 'FLOAT', aliasTo: 'space/space-8' },
+      { name: 'nav-item/md/icon-size', type: 'FLOAT', aliasTo: 'size/size-16' },
+    ])
+  })
+})
+
+describe('containerVars', () => {
+  it('expands a tier into three variable specs — padding, gap, radius', () => {
+    const tiers = {
+      md: {
+        padding: 'space-16',
+        gap: 'space-12',
+        radius: '8',
+      },
+    }
+
+    const result = containerVars('container', tiers)
+
+    expect(result).toEqual([
+      { name: 'container/md/padding', type: 'FLOAT', aliasTo: 'space/space-16' },
+      { name: 'container/md/gap', type: 'FLOAT', aliasTo: 'space/space-12' },
+      { name: 'container/md/radius', type: 'FLOAT', aliasTo: 'radii/8' },
     ])
   })
 })
@@ -191,11 +260,26 @@ describe('CONTEXT_SPECS.comfortable', () => {
     expect(names.every((n) => !n.startsWith('mono/'))).toBe(true)
   })
 
-  it('does not contain label-control / nav-item / container anatomy — deferred per §15.11', () => {
+  it('contains label-control anatomy variables for xs/sm/md/lg', () => {
     const names = spec.variables.map((v) => v.name)
-    expect(names.every((n) => !n.startsWith('label-control/'))).toBe(true)
-    expect(names.every((n) => !n.startsWith('nav-item/'))).toBe(true)
-    expect(names.every((n) => !n.startsWith('container/'))).toBe(true)
+    for (const tier of ['xs', 'sm', 'md', 'lg']) {
+      expect(names).toContain(`label-control/${tier}/radius`)
+    }
+  })
+
+  it('contains nav-item anatomy variables for xs/sm/md/lg (height, no radius)', () => {
+    const names = spec.variables.map((v) => v.name)
+    for (const tier of ['xs', 'sm', 'md', 'lg']) {
+      expect(names).toContain(`nav-item/${tier}/height`)
+    }
+    expect(names.every((n) => !n.startsWith('nav-item/') || !n.endsWith('/radius'))).toBe(true)
+  })
+
+  it('contains container anatomy variables for sm/md/lg/xl', () => {
+    const names = spec.variables.map((v) => v.name)
+    for (const tier of ['sm', 'md', 'lg', 'xl']) {
+      expect(names).toContain(`container/${tier}/padding`)
+    }
   })
 
   it('has no duplicate variable names', () => {

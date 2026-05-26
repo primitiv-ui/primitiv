@@ -59,6 +59,27 @@ export type AnatomyTier = {
   radius: string
 }
 
+export type LabelControlTier = {
+  paddingInline: string
+  paddingBlock: string
+  gap: string
+  iconSize: string
+  radius: string
+}
+
+export type NavItemTier = {
+  height: string
+  paddingInline: string
+  gap: string
+  iconSize: string
+}
+
+export type ContainerTier = {
+  padding: string
+  gap: string
+  radius: string
+}
+
 function familyName(family: 'sans' | 'serif'): string {
   return family === 'sans' ? 'Khand' : 'Asta Sans'
 }
@@ -145,6 +166,54 @@ export function anatomyVars(
   return out
 }
 
+export function labelControlVars(
+  pattern: string,
+  tiers: Record<string, LabelControlTier>,
+): VariableSpec[] {
+  const out: VariableSpec[] = []
+  for (const [tier, a] of Object.entries(tiers)) {
+    out.push(
+      { name: `${pattern}/${tier}/padding-inline`, type: 'FLOAT', aliasTo: `space/${a.paddingInline}` },
+      { name: `${pattern}/${tier}/padding-block`, type: 'FLOAT', aliasTo: `space/${a.paddingBlock}` },
+      { name: `${pattern}/${tier}/gap`, type: 'FLOAT', aliasTo: `space/${a.gap}` },
+      { name: `${pattern}/${tier}/icon-size`, type: 'FLOAT', aliasTo: `size/${a.iconSize}` },
+      { name: `${pattern}/${tier}/radius`, type: 'FLOAT', aliasTo: `radii/${a.radius}` },
+    )
+  }
+  return out
+}
+
+export function navItemVars(
+  pattern: string,
+  tiers: Record<string, NavItemTier>,
+): VariableSpec[] {
+  const out: VariableSpec[] = []
+  for (const [tier, a] of Object.entries(tiers)) {
+    out.push(
+      { name: `${pattern}/${tier}/height`, type: 'FLOAT', aliasTo: `size/${a.height}` },
+      { name: `${pattern}/${tier}/padding-inline`, type: 'FLOAT', aliasTo: `space/${a.paddingInline}` },
+      { name: `${pattern}/${tier}/gap`, type: 'FLOAT', aliasTo: `space/${a.gap}` },
+      { name: `${pattern}/${tier}/icon-size`, type: 'FLOAT', aliasTo: `size/${a.iconSize}` },
+    )
+  }
+  return out
+}
+
+export function containerVars(
+  pattern: string,
+  tiers: Record<string, ContainerTier>,
+): VariableSpec[] {
+  const out: VariableSpec[] = []
+  for (const [tier, a] of Object.entries(tiers)) {
+    out.push(
+      { name: `${pattern}/${tier}/padding`, type: 'FLOAT', aliasTo: `space/${a.padding}` },
+      { name: `${pattern}/${tier}/gap`, type: 'FLOAT', aliasTo: `space/${a.gap}` },
+      { name: `${pattern}/${tier}/radius`, type: 'FLOAT', aliasTo: `radii/${a.radius}` },
+    )
+  }
+  return out
+}
+
 export function typographyTextStyles(
   context: string,
   role: string,
@@ -211,6 +280,27 @@ const COMFORTABLE_ANATOMY = {
   },
 } satisfies Record<string, Record<string, AnatomyTier>>
 
+const COMFORTABLE_LABEL_CONTROL = {
+  xs: { paddingInline: 'space-4',  paddingBlock: 'space-2', gap: 'space-2', iconSize: 'size-10', radius: '2' },
+  sm: { paddingInline: 'space-6',  paddingBlock: 'space-2', gap: 'space-4', iconSize: 'size-12', radius: '2' },
+  md: { paddingInline: 'space-8',  paddingBlock: 'space-4', gap: 'space-4', iconSize: 'size-14', radius: '4' },
+  lg: { paddingInline: 'space-12', paddingBlock: 'space-6', gap: 'space-6', iconSize: 'size-16', radius: '6' },
+} satisfies Record<string, LabelControlTier>
+
+const COMFORTABLE_NAV_ITEM = {
+  xs: { height: 'size-24', paddingInline: 'space-8',  gap: 'space-4', iconSize: 'size-12' },
+  sm: { height: 'size-32', paddingInline: 'space-12', gap: 'space-4', iconSize: 'size-14' },
+  md: { height: 'size-40', paddingInline: 'space-16', gap: 'space-8', iconSize: 'size-16' },
+  lg: { height: 'size-48', paddingInline: 'space-20', gap: 'space-8', iconSize: 'size-20' },
+} satisfies Record<string, NavItemTier>
+
+const COMFORTABLE_CONTAINER = {
+  sm: { padding: 'space-12', gap: 'space-8',  radius: '6' },
+  md: { padding: 'space-16', gap: 'space-12', radius: '8' },
+  lg: { padding: 'space-24', gap: 'space-16', radius: '12' },
+  xl: { padding: 'space-32', gap: 'space-20', radius: '16' },
+} satisfies Record<string, ContainerTier>
+
 const COMFORTABLE_SPEC: ContextSpec = {
   variables: [
     ...typographyVars('label', COMFORTABLE_TYPOGRAPHY.label),
@@ -219,6 +309,9 @@ const COMFORTABLE_SPEC: ContextSpec = {
     ...typographyVars('display', COMFORTABLE_TYPOGRAPHY.display),
     ...typographyVars('overline', COMFORTABLE_TYPOGRAPHY.overline),
     ...anatomyVars('framed-control', COMFORTABLE_ANATOMY['framed-control']),
+    ...labelControlVars('label-control', COMFORTABLE_LABEL_CONTROL),
+    ...navItemVars('nav-item', COMFORTABLE_NAV_ITEM),
+    ...containerVars('container', COMFORTABLE_CONTAINER),
   ],
   textStyles: [
     ...typographyTextStyles('Comfortable', 'label', COMFORTABLE_TYPOGRAPHY.label),

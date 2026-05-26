@@ -924,6 +924,25 @@ truth inversion (§0.1) becomes worth considering.
 
 Each phase ships on the working branch. No big bang.
 
+### Phase status — snapshot
+
+Reality vs the plan above. Updated as work lands.
+
+| Phase | State |
+| --- | --- |
+| **0** Paper validation | ✅ Done in‑chat. |
+| **1** Foundations | Partial. ✅ `Context / Comfortable` with the full §5 typography roles **and all four** §6 anatomy patterns (framed‑control, label‑control, nav‑item, container) — overshooting the original Phase 1 scope of framed‑control‑only. ✅ `font-style/*` STRING primitive group + bound `fontStyle` on every text style; §15.11 item 3 closed. ⬜ `Intent / Light` deferred (waits on Harmoni — §13.5). ⬜ `Interaction` collection not authored; Button states wait on this. |
+| **2** The Button | ✅ Single Button component set in Figma with `variant × size × context` variant properties (6 × 5 × 4 = 120 cells). Every dimension bound: height, padding‑inline, gap, corner radii, icon width/height — all resolving through the active context's `framed-control/<size>/*`. Text style binds to `<Ctx> / Label / <size>`. Component properties expose the icon slots (toggle + swap) and the label text. Per‑variant colours wired to existing primitives (gold/red/grey) pending the intent layer; demo set on the **Button — Context Demo** page renders all 120 cells. ⬜ States (hover / active / focus / disabled) and focus‑ring geometry (§8) deferred until the Interaction collection lands. |
+| **3** Repo sync | Partial. ✅ `Context / X` routing in `dtcg.ts` and tests; ✅ `semantic.context.{comfortable,compact,spacious,dense}.*` exported. ⬜ Short‑form alias synthesis (§10.3 step 3) — the next live step. ⬜ `Typography / X` route retirement (§10.3 step 5). ⬜ `space` vs `size` decision (§11 step 10). |
+| **4** Other three contexts | ✅ Compact, Spacious, Dense all populated via the `Bootstrap context` action; ✅ Button consumes all four through its `context` variant property. |
+| **5** Harmoni → intent | ⬜ Waiting on the Harmoni ramp prototype. |
+| **6, 7** | ⬜ Untouched. |
+
+**Next live cycle** — Phase 3 remaining work: synthesise the short‑form
+alias layer, retire the legacy Typography routes, decide `space` vs
+`size`, then author the Interaction collection so Button states can
+land.
+
 ---
 
 ## 12. Naming conventions
@@ -1027,17 +1046,14 @@ To resolve in follow‑up RFCs or before Phase 2:
    already true of the current files.
 
 10. **Figma Button authoring: one master with `context` variants, or
-    four masters?** Phase 4 step 13 leaves this open. Trade‑offs:
-    - **One master with a `context` variant property.** Variant
-      explosion (~120 cells: 4 contexts × 5 sizes × 6 variants), but
-      single source of truth in Figma. Bulk updates touch one
-      component. Consumers pick context via property toggle. Likely
-      the right answer; large but tractable.
-    - **Four masters (one per context).** Smaller per‑component
-      variant matrix (~30 cells), but four places to keep in sync
-      whenever the Button changes. Drift risk is real.
-    Pick during Phase 4 once the comfortable Button is shipped and the
-    variant cell count is concrete. Defer the decision deliberately.
+    four masters? — Resolved: one master.** Shipped as a single
+    component set with `variant × size × context` variant properties
+    (6 × 5 × 4 = 120 cells). Component properties expose the leading
+    and trailing icon slots (instance‑swappable, individually
+    toggleable) plus the label text as per‑instance overrides. The
+    cell count is tractable in Figma's variant panel today; revisit
+    the four‑masters split only if adding states pushes it past a
+    workable ceiling (states alone would take it to ~480 cells).
 
 ---
 
@@ -1408,12 +1424,14 @@ this order:
    style except the initial fallback values used before the
    bindings resolve.
 
-4. **`dtcg.ts` routing for `Context / *` collections.** The new
-   collections produced by the action are not yet routed in
-   `packages/tokens/src/dtcg.ts`, so they will not appear in
-   `semantic.json` after an Export. Routing is a one‑line change in
-   `routeCollection` plus a fixture in `dtcg.test.ts` and ships as a
-   separate PR after the action's output exists in Figma.
+4. **`dtcg.ts` routing for `Context / *` collections — landed.** The
+   `routeCollection` regex now matches `Context / <name>` and routes
+   into `semantic.context.<name>`. `semantic.json` carries the full
+   `context.{comfortable,compact,spacious,dense}.*` tree. The
+   short‑form alias layer (`semantic.typography.*`,
+   `semantic.anatomy.*` pointing at the default context per §10.3
+   step 3) and retirement of the legacy `Typography / *` routes
+   (§10.3 step 5) are the remaining Phase 3 work.
 
 These are scope deferrals, not architectural changes. The RFC's
 target shape (§10.1) and the operation tiers (§15.3) are unchanged.

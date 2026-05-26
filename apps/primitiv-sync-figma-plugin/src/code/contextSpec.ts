@@ -32,6 +32,7 @@ export type TextStyleSpec = {
   defaultLineHeight: number
   bindings: {
     fontFamily: string
+    fontStyle: string
     fontSize: string
     lineHeight: string
   }
@@ -97,6 +98,11 @@ export function typographyVars(
         type: 'FLOAT',
         aliasTo: `line-height/${t.lineHeight}`,
       },
+      {
+        name: tierPath(role, tier, 'font-style'),
+        type: 'STRING',
+        aliasTo: `font-style/${t.weight}`,
+      },
     )
   }
   return out
@@ -156,6 +162,7 @@ export function typographyTextStyles(
       defaultLineHeight: t.lineHeight,
       bindings: {
         fontFamily: tierPath(role, tier, 'font-family'),
+        fontStyle: tierPath(role, tier, 'font-style'),
         fontSize: tierPath(role, tier, 'font-size'),
         lineHeight: tierPath(role, tier, 'line-height'),
       },

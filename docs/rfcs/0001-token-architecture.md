@@ -1387,26 +1387,24 @@ this order:
 2. **The `mono` typography role.** Reserved in §5.1, deferred in
    §13.6. The first action skips it; `overline` is included.
 
-3. **Font‑weight binding.** The Tier‑1 console probe (run against
-   the working Figma desktop on 2026‑05‑26) confirmed that
-   `setBoundVariable('fontWeight', …)` is a **silent no‑op** on the
-   current Plugin API — the call returns without throwing, but the
-   binding never appears in `style.boundVariables`. The supported
-   alternative is `setBoundVariable('fontStyle', …)` against a
-   **STRING** variable whose value is a font style name
-   (`"SemiBold"`, `"Medium"`). That requires a parallel `font-style/*`
-   STRING primitive group alongside the existing numeric
-   `font-weight/*` — out of scope for the first cut so the primitives
-   layer stays unchanged. The first action therefore keeps
-   `fontName.style` as a direct value on each text style, populated
-   from `contextSpec`. A follow‑up adds the `font-style/*` primitives
-   and switches to bound `fontStyle`.
-
-   **Probe upgrade vs §15.8's safe default:** `fontFamily` binding
-   *does* work against a STRING variable aliased into
-   `font-family/sans` (`font-family/serif`). The first action binds
-   `fontFamily` along with `fontSize`, `lineHeight`, and
-   `letterSpacing`; only `fontStyle`/`fontWeight` stay direct.
+3. **Font‑weight binding — landed via `fontStyle`.** The Tier‑1
+   console probe (run against the working Figma desktop on
+   2026‑05‑26) confirmed that `setBoundVariable('fontWeight', …)` is
+   a **silent no‑op** on the current Plugin API — the call returns
+   without throwing, but the binding never appears in
+   `style.boundVariables`. The supported alternative is
+   `setBoundVariable('fontStyle', …)` against a **STRING** variable
+   whose value is a font style name (`"SemiBold"`, `"Medium"`,
+   `"Regular"`). The action now binds `fontStyle` against a parallel
+   `font-style/*` STRING primitive group; the existing numeric
+   `font-weight/*` stays in place for DTCG consumers. Each
+   typography tier therefore owns five variables: `font-family`,
+   `font-weight` (numeric, for DTCG), `font-size`, `line-height`,
+   and `font-style` (the Figma‑binding string). All four bindable
+   fields (`fontFamily`, `fontStyle`, `fontSize`, `lineHeight`) are
+   bound on every authored text style; nothing is direct on the
+   style except the initial fallback values used before the
+   bindings resolve.
 
 4. **`dtcg.ts` routing for `Context / *` collections.** The new
    collections produced by the action are not yet routed in

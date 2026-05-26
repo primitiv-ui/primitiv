@@ -6,7 +6,7 @@ import {
 } from './contextSpec'
 
 describe('typographyVars', () => {
-  it('expands a tier into four variable specs — family, weight, size, line-height', () => {
+  it('expands a tier into five variable specs — family, weight, size, line-height, style', () => {
     const tiers = {
       md: {
         family: 'sans' as const,
@@ -24,6 +24,7 @@ describe('typographyVars', () => {
       { name: 'label/md/font-weight', type: 'FLOAT', aliasTo: 'font-weight/semibold' },
       { name: 'label/md/font-size', type: 'FLOAT', aliasTo: 'font-size/16' },
       { name: 'label/md/line-height', type: 'FLOAT', aliasTo: 'line-height/24' },
+      { name: 'label/md/font-style', type: 'STRING', aliasTo: 'font-style/semibold' },
     ])
   })
 
@@ -52,10 +53,12 @@ describe('typographyVars', () => {
       'body/xs/font-weight',
       'body/xs/font-size',
       'body/xs/line-height',
+      'body/xs/font-style',
       'body/sm/font-family',
       'body/sm/font-weight',
       'body/sm/font-size',
       'body/sm/line-height',
+      'body/sm/font-style',
     ])
   })
 })
@@ -105,6 +108,7 @@ describe('typographyTextStyles', () => {
       defaultLineHeight: 24,
       bindings: {
         fontFamily: 'label/md/font-family',
+        fontStyle: 'label/md/font-style',
         fontSize: 'label/md/font-size',
         lineHeight: 'label/md/line-height',
       },
@@ -127,6 +131,7 @@ describe('typographyTextStyles', () => {
     expect(style.name).toBe('Comfortable / Overline')
     expect(style.bindings).toEqual({
       fontFamily: 'overline/font-family',
+      fontStyle: 'overline/font-style',
       fontSize: 'overline/font-size',
       lineHeight: 'overline/line-height',
     })

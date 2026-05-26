@@ -99,6 +99,7 @@ export async function bootstrapContext(options: {
     }
 
     bindIfPresent(style, 'fontFamily', createdByName.get(styleSpec.bindings.fontFamily))
+    bindIfPresent(style, 'fontStyle', createdByName.get(styleSpec.bindings.fontStyle))
     bindIfPresent(style, 'fontSize', createdByName.get(styleSpec.bindings.fontSize))
     bindIfPresent(style, 'lineHeight', createdByName.get(styleSpec.bindings.lineHeight))
 

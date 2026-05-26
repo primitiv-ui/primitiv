@@ -152,7 +152,7 @@ describe('bootstrapContext (comfortable)', () => {
     )
   })
 
-  it('binds fontFamily, fontSize and lineHeight on each created text style', async () => {
+  it('binds fontFamily, fontStyle, fontSize and lineHeight on each created text style', async () => {
     const { collection, vars } = buildPrimitives()
     const figmaMock = stubFigma({ collections: [collection], variables: vars })
 
@@ -165,6 +165,7 @@ describe('bootstrapContext (comfortable)', () => {
     for (const style of styles) {
       const fields = style.setBoundVariable.mock.calls.map((c: string[]) => c[0])
       expect(fields).toContain('fontFamily')
+      expect(fields).toContain('fontStyle')
       expect(fields).toContain('fontSize')
       expect(fields).toContain('lineHeight')
     }

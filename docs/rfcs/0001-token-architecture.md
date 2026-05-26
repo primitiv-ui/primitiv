@@ -167,6 +167,22 @@ enforced socially today; it should be enforced by the architecture).
 4. **Do not add `palette.brand.*` aliases inside primitives.** Aliasing
    the brand belongs in intent (§4). Primitives stay raw.
 
+5. **Reserve names for future primitive groups.** Each of the following
+   is a primitive group that will land eventually; declaring them here
+   prevents accidental introduction at the wrong layer (e.g. a future PR
+   inlining `duration: 200ms` inside a component file):
+
+   - `shadow.*` — drop-shadow recipes (offset, blur, spread, colour)
+   - `z-index.*` — layered stacking
+   - `duration.*` — motion durations (`fast`, `default`, `slow`)
+   - `easing.*` — motion curves (`standard`, `accelerate`, `decelerate`)
+   - `breakpoint.*` — viewport thresholds
+
+   None of these are required for Button, Input, or the rest of the
+   Phase 1–2 components. They are listed so that when the first
+   elevation/motion/responsive request arrives, the layer answer is
+   pre‑decided.
+
 ---
 
 ## 4. Layer 2 — Intent (semantic colour)
@@ -756,12 +772,23 @@ ladder or use an override. We do not extend tiers ad hoc.
 - Focus is a separate concern (`focus.ring`, `interaction.focus.*`), not
   a state suffix on every variant.
 
-### 12.4 Reserved names
+### 12.4 Reserved names and forbidden aliases
 
 - `default` is the resting state; we never overload it to mean "fallback
   variant".
 - `base` (currently used in `typography.<ctx>.body.base`) gets renamed to
   `md` for ladder consistency. Body tiers become `xs sm md lg`.
+- **Forbidden synonyms.** One name per concept; PR reviews reject the
+  alternatives:
+  - Use `h1`, never `heading-1` or `h-1`.
+  - Use `md`, never `base`, `default-size`, `regular`, or `normal`.
+  - Use `default`, never `idle`, `rest`, `normal`, or `base-state`.
+  - Use `disabled`, never `disable`, `inactive`, or `off`.
+  - Use `padding-inline` / `padding-block`, never `padding-x` /
+    `padding-y` (CSS logical names match the platform).
+- **One verb per state.** A token suffix is either a state
+  (`hover`/`active`/`disabled`) or a sub‑role (`foreground`/`border`),
+  never both fused into one segment.
 
 ---
 
@@ -788,6 +815,25 @@ To resolve in follow‑up RFCs or before Phase 2:
 7. **Per‑variant border policy for `outline` and `ghost`.** Whether
    `outline.border.hover` actually changes colour or just borrows a
    background hover. Visual design call.
+
+8. **A composition layer above components.** Components are
+   context‑agnostic by design (§7.3, Shape B). Consumers (a dashboard
+   app, a marketing site, a Figma plugin UI) compose **a context + a
+   brand + a mode** into a coherent theme. Today that composition is
+   implicit ("we are in `comfortable`, with the gold brand, in light
+   mode"). As more products land, this earns an explicit name —
+   provisional working name `theme.*` — sitting above components and
+   resolving the three choices in one place. Out of scope for this RFC;
+   reserved here so it doesn't get invented ad hoc.
+
+9. **Downstream consumption / tooling.** `packages/tokens/src/*.json`
+   is the source of truth, but how it becomes CSS custom properties,
+   Tailwind config, JS modules, or React Native styles is out of scope.
+   The shape committed in this RFC must be a happy input for either a
+   custom transformer or a tool like Style Dictionary. Two things to
+   honour either way: (a) every leaf carries a `$type`, (b) aliases use
+   the canonical `{group.sub.name}` form. Both are already true of the
+   current files.
 
 ---
 

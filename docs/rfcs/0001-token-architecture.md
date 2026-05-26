@@ -185,12 +185,15 @@ enforced socially today; it should be enforced by the architecture).
 
 ### 3.2 Changes
 
-1. **Deduplicate `space` and `size`.** They are identical scales with
-   identical values. Pick one. Recommendation: keep `size` for raw
-   dimension values (control heights, icon sizes, max‑widths) and keep
-   `space` for layout gaps and paddings, **and let them diverge** as
-   needed — but they must not be silent mirrors of each other. If they
-   stay equal, fold one into the other now.
+1. **`space` and `size` — resolved: keep both, divergent purpose.**
+   The two scales currently share identical numeric values but carry
+   distinct semantic roles: `size.*` backs raw dimensions (control
+   heights, icon sizes, max-widths) and `space.*` backs layout
+   (padding-inline / padding-block / gap). The anatomy aliases in the
+   `Bootstrap context` plugin action already follow this split — every
+   `height` / `icon-size` aliases into `size/*`, every padding / gap
+   aliases into `space/*`. They are free to diverge in future without
+   any consumer change; the alias targets are already correct.
 
 2. **Remove the gold/red specific naming from intent‑adjacent consumers.**
    Primitives keep their palette identity (`color.gold.500`), but every
@@ -875,10 +878,13 @@ reversible.
 9. **Re‑sync from Figma** end‑to‑end. The new `semantic.json` and
    `components.json` reflect Phase 1–2 authoring. Commit the
    regenerated JSON as the v2 backup baseline.
-10. **Decide `space` vs `size`** in `primitives.json`. Either delete
-    one or document the divergent purpose. This is the only Phase 3
-    edit made directly in JSON; it is a primitive cleanup and doesn't
-    affect Figma.
+10. **Decide `space` vs `size` — resolved: keep both, divergent
+    purpose.** See §3.2 item 1. The Figma collections and JSON
+    snapshot are already aligned: `size.*` and `space.*` carry equal
+    values for now but are aliased into distinct anatomy slots
+    (`height` / `icon-size` → `size`, padding / gap → `space`).
+    Future divergence in values is a single Figma edit, not a
+    structural change.
 
 ### Phase 4 — Figma authoring: the other three contexts
 
@@ -933,15 +939,16 @@ Reality vs the plan above. Updated as work lands.
 | **0** Paper validation | ✅ Done in‑chat. |
 | **1** Foundations | Partial. ✅ `Context / Comfortable` with the full §5 typography roles **and all four** §6 anatomy patterns (framed‑control, label‑control, nav‑item, container) — overshooting the original Phase 1 scope of framed‑control‑only. ✅ `font-style/*` STRING primitive group + bound `fontStyle` on every text style; §15.11 item 3 closed. ⬜ `Intent / Light` deferred (waits on Harmoni — §13.5). ⬜ `Interaction` collection not authored; Button states wait on this. |
 | **2** The Button | ✅ Single Button component set in Figma with `variant × size × context` variant properties (6 × 5 × 4 = 120 cells). Every dimension bound: height, padding‑inline, gap, corner radii, icon width/height — all resolving through the active context's `framed-control/<size>/*`. Text style binds to `<Ctx> / Label / <size>`. Component properties expose the icon slots (toggle + swap) and the label text. Per‑variant colours wired to existing primitives (gold/red/grey) pending the intent layer; demo set on the **Button — Context Demo** page renders all 120 cells. ⬜ States (hover / active / focus / disabled) and focus‑ring geometry (§8) deferred until the Interaction collection lands. |
-| **3** Repo sync | Partial. ✅ `Context / X` routing in `dtcg.ts` and tests; ✅ `semantic.context.{comfortable,compact,spacious,dense}.*` exported. ⬜ Short‑form alias synthesis (§10.3 step 3) — the next live step. ⬜ `Typography / X` route retirement (§10.3 step 5). ⬜ `space` vs `size` decision (§11 step 10). |
+| **3** Repo sync | ✅ Complete. `Context / X` routing in `dtcg.ts` and tests; `semantic.context.{comfortable,compact,spacious,dense}.*` exported; short‑form alias synthesis (§10.3 step 3) emits `semantic.typography.*` and `semantic.anatomy.*` as DTCG aliases pointing at the default (`comfortable`) context; `Typography / X` route retired (§10.3 step 5) — `routeCollection` now throws on the legacy name, Figma‑side cleanup is the user's follow‑up; `space` vs `size` decision (§11 step 10) resolved as "keep both, divergent purpose". |
 | **4** Other three contexts | ✅ Compact, Spacious, Dense all populated via the `Bootstrap context` action; ✅ Button consumes all four through its `context` variant property. |
 | **5** Harmoni → intent | ⬜ Waiting on the Harmoni ramp prototype. |
 | **6, 7** | ⬜ Untouched. |
 
-**Next live cycle** — Phase 3 remaining work: synthesise the short‑form
-alias layer, retire the legacy Typography routes, decide `space` vs
-`size`, then author the Interaction collection so Button states can
-land.
+**Next live cycle** — Phase 3 is complete. Remaining v1 authoring
+work, in order: author the `Interaction` collection (§11 Phase 1
+step 4) and then add states (hover / active / focus / disabled) to
+the Button (§9, §8) so it can finally consume the interaction
+overlays and focus geometry.
 
 ---
 

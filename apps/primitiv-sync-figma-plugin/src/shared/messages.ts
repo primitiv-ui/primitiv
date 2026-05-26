@@ -8,6 +8,8 @@
  */
 
 import type { FigmaResolvedType } from '@primitiv/tokens'
+import type { BootstrapResult } from '../code/bootstrapContext'
+import type { ContextName } from '../code/contextSpec'
 
 /** A serialisable summary of a Figma variable collection. */
 export type CollectionSummary = {
@@ -40,10 +42,17 @@ export type SandboxMessage =
       collections: CollectionSummary[]
       variables: VariableSummary[]
     }
+  | { type: 'bootstrap-context-result'; result: BootstrapResult }
+  | {
+      type: 'bootstrap-context-error'
+      context: ContextName
+      message: string
+    }
 
 /** A message posted from the UI back to the sandbox. */
 export type UiMessage =
   | { type: 'ui-ready' }
   | { type: 'inspect-variables-request' }
   | { type: 'export-tokens-request' }
+  | { type: 'bootstrap-context-request'; context: ContextName }
   | { type: 'close' }

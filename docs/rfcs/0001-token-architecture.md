@@ -1369,6 +1369,55 @@ The Tier 1 prototype from step 1 is throwaway scaffolding — it never
 ships, it never gets archived as the source of truth. Step 3 is where
 the production implementation lands.
 
+### 15.11 Deferred from the first Bootstrap context cut
+
+The first Tier‑2 *Bootstrap context* action ships a deliberately narrow
+slice so the Button (Phase 2) validates the end‑to‑end loop quickly.
+The following items are explicitly deferred to follow‑up commits, in
+this order:
+
+1. **Anatomy patterns beyond `framed-control` — landed.** All four
+   anatomy patterns from §6.1 are now in `contextSpec`:
+   `framed-control` (xs/sm/md/lg/xl), `label-control`
+   (xs/sm/md/lg, no height — sizes to content), `nav-item`
+   (xs/sm/md/lg, no radius), and `container` (sm/md/lg/xl, only
+   padding/gap/radius). Each pattern has its own tier table and
+   expander so the field sets stay distinct. Values seeded from the
+   existing `space/space-N`, `size/size-N`, and `radii/N` primitives;
+   tuning happens via editing the tier tables.
+
+2. **The `mono` typography role.** Reserved in §5.1, deferred in
+   §13.6. The first action skips it; `overline` is included.
+
+3. **Font‑weight binding — landed via `fontStyle`.** The Tier‑1
+   console probe (run against the working Figma desktop on
+   2026‑05‑26) confirmed that `setBoundVariable('fontWeight', …)` is
+   a **silent no‑op** on the current Plugin API — the call returns
+   without throwing, but the binding never appears in
+   `style.boundVariables`. The supported alternative is
+   `setBoundVariable('fontStyle', …)` against a **STRING** variable
+   whose value is a font style name (`"SemiBold"`, `"Medium"`,
+   `"Regular"`). The action now binds `fontStyle` against a parallel
+   `font-style/*` STRING primitive group; the existing numeric
+   `font-weight/*` stays in place for DTCG consumers. Each
+   typography tier therefore owns five variables: `font-family`,
+   `font-weight` (numeric, for DTCG), `font-size`, `line-height`,
+   and `font-style` (the Figma‑binding string). All four bindable
+   fields (`fontFamily`, `fontStyle`, `fontSize`, `lineHeight`) are
+   bound on every authored text style; nothing is direct on the
+   style except the initial fallback values used before the
+   bindings resolve.
+
+4. **`dtcg.ts` routing for `Context / *` collections.** The new
+   collections produced by the action are not yet routed in
+   `packages/tokens/src/dtcg.ts`, so they will not appear in
+   `semantic.json` after an Export. Routing is a one‑line change in
+   `routeCollection` plus a fixture in `dtcg.test.ts` and ships as a
+   separate PR after the action's output exists in Figma.
+
+These are scope deferrals, not architectural changes. The RFC's
+target shape (§10.1) and the operation tiers (§15.3) are unchanged.
+
 ---
 
 ## 16. Appendix — Pattern map (Alexander‑style)

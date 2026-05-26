@@ -321,6 +321,108 @@ describe('App', () => {
     })
   })
 
+  describe('bootstrap context', () => {
+    it('renders a Bootstrap context button', () => {
+      render(<App />)
+
+      expect(
+        screen.getByRole('button', { name: /Bootstrap context/i }),
+      ).toBeInTheDocument()
+    })
+
+    it('sends bootstrap-context-request with the selected context when clicked', async () => {
+      const postMessage = vi.spyOn(window.parent, 'postMessage')
+      render(<App />)
+
+      await userEvent.click(
+        screen.getByRole('button', { name: /Bootstrap context/i }),
+      )
+
+      expect(postMessage).toHaveBeenLastCalledWith(
+        {
+          pluginMessage: {
+            type: 'bootstrap-context-request',
+            context: 'comfortable',
+          },
+        },
+        '*',
+      )
+    })
+
+    it('shows a summary of the bootstrap result when it arrives', async () => {
+      render(<App />)
+
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            pluginMessage: {
+              type: 'bootstrap-context-result',
+              result: {
+                context: 'comfortable',
+                collection: 'created',
+                variablesCreated: 97,
+                variablesUpdated: 0,
+                textStylesCreated: 18,
+                textStylesUpdated: 0,
+                warnings: [],
+              },
+            },
+          },
+        }),
+      )
+
+      expect(await screen.findByText(/97/)).toBeInTheDocument()
+      expect(screen.getByText(/18/)).toBeInTheDocument()
+    })
+
+    it('lists warnings returned with the bootstrap result', async () => {
+      render(<App />)
+
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            pluginMessage: {
+              type: 'bootstrap-context-result',
+              result: {
+                context: 'comfortable',
+                collection: 'updated',
+                variablesCreated: 0,
+                variablesUpdated: 97,
+                textStylesCreated: 0,
+                textStylesUpdated: 18,
+                warnings: ['Primitive "font-size/12" missing — skipped'],
+              },
+            },
+          },
+        }),
+      )
+
+      expect(
+        await screen.findByText(/font-size\/12/),
+      ).toBeInTheDocument()
+    })
+
+    it('shows the error message when a bootstrap-context-error arrives', async () => {
+      render(<App />)
+
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            pluginMessage: {
+              type: 'bootstrap-context-error',
+              context: 'comfortable',
+              message: 'Primitives collection not found',
+            },
+          },
+        }),
+      )
+
+      expect(
+        await screen.findByText(/Primitives collection not found/),
+      ).toBeInTheDocument()
+    })
+  })
+
   it('asks the sandbox to close when the close button is clicked', async () => {
     const postMessage = vi.spyOn(window.parent, 'postMessage')
     render(<App />)

@@ -91,10 +91,14 @@ Collection names are matched **literally** by `routeCollection`:
 | `Typography / Compact` | `semantic.json` | `['typography', 'compact']` |
 | `Typography / Comfortable` | `semantic.json` | `['typography', 'comfortable']` |
 | `Typography / Spacious` | `semantic.json` | `['typography', 'spacious']` |
+| `Context / <name>` | `semantic.json` | `['context', '<name lower>']` |
 | anything else | **throws** `Unrecognised collection name: <name>` |
 
-The Typography prefix is regex-matched (`/^Typography\s*\/\s*(.+)$/`)
-so the variant name is taken from whatever follows the slash, lower-cased.
+The Typography and Context prefixes are regex-matched
+(`/^Typography\s*\/\s*(.+)$/`, `/^Context\s*\/\s*(.+)$/`) so the
+variant / context name is taken from whatever follows the slash,
+lower-cased. The Context route lands under `semantic.context.<name>`
+and is what the Bootstrap context action (RFC 0001 §15.10) emits to.
 
 **Renaming a Figma collection breaks the export.** If you rename or
 add a collection, update `routeCollection` in

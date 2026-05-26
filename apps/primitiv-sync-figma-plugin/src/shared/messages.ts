@@ -9,6 +9,20 @@
 
 import type { FigmaResolvedType } from '@primitiv/tokens'
 
+/** Context options the Bootstrap context action accepts. */
+export type ContextName = 'comfortable' | 'compact' | 'spacious' | 'dense'
+
+/** Result returned by the Bootstrap context action. */
+export type BootstrapResult = {
+  context: ContextName
+  collection: 'created' | 'updated'
+  variablesCreated: number
+  variablesUpdated: number
+  textStylesCreated: number
+  textStylesUpdated: number
+  warnings: string[]
+}
+
 /** A serialisable summary of a Figma variable collection. */
 export type CollectionSummary = {
   id: string
@@ -40,10 +54,17 @@ export type SandboxMessage =
       collections: CollectionSummary[]
       variables: VariableSummary[]
     }
+  | { type: 'bootstrap-context-result'; result: BootstrapResult }
+  | {
+      type: 'bootstrap-context-error'
+      context: ContextName
+      message: string
+    }
 
 /** A message posted from the UI back to the sandbox. */
 export type UiMessage =
   | { type: 'ui-ready' }
   | { type: 'inspect-variables-request' }
   | { type: 'export-tokens-request' }
+  | { type: 'bootstrap-context-request'; context: ContextName }
   | { type: 'close' }

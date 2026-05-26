@@ -748,5 +748,19 @@
         "$value": "#3d0000"
       }
     }
+  },
+  "font-style": {
+    "semibold": {
+      "$type": "string",
+      "$value": "SemiBold"
+    },
+    "medium": {
+      "$type": "string",
+      "$value": "Medium"
+    },
+    "regular": {
+      "$type": "string",
+      "$value": "Regular"
+    }
   }
 }

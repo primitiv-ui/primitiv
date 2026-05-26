@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import type {
+  BootstrapResult,
   CollectionSummary,
+  ContextName,
   SandboxMessage,
   UiMessage,
   VariableSummary,
@@ -22,8 +24,20 @@ type SyncStatus =
   | { kind: "success" }
   | { kind: "error"; message: string };
 
+type BootstrapStatus =
+  | { kind: "idle" }
+  | { kind: "running" }
+  | { kind: "success"; result: BootstrapResult }
+  | { kind: "error"; message: string };
+
 const DTCG_FILE_NAMES = ["primitives", "semantic", "components"] as const;
 const SYNC_URL = "http://localhost:4477/sync";
+const CONTEXT_OPTIONS: { value: ContextName; label: string }[] = [
+  { value: "comfortable", label: "Comfortable" },
+  { value: "compact", label: "Compact" },
+  { value: "spacious", label: "Spacious" },
+  { value: "dense", label: "Dense" },
+];
 
 function postToSandbox(message: UiMessage): void {
   parent.postMessage({ pluginMessage: message }, "*");
@@ -62,6 +76,11 @@ export function App() {
   const [dtcgFiles, setDtcgFiles] = useState<DtcgFiles | null>(null);
   const [liveSync, setLiveSync] = useState(false);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({ kind: "idle" });
+  const [selectedContext, setSelectedContext] =
+    useState<ContextName>("comfortable");
+  const [bootstrapStatus, setBootstrapStatus] = useState<BootstrapStatus>({
+    kind: "idle",
+  });
   const liveSyncRef = useRef(false);
 
   useEffect(() => {
@@ -89,6 +108,10 @@ export function App() {
               setSyncStatus({ kind: "error", message: String(error) }),
             );
         }
+      } else if (message?.type === "bootstrap-context-result") {
+        setBootstrapStatus({ kind: "success", result: message.result });
+      } else if (message?.type === "bootstrap-context-error") {
+        setBootstrapStatus({ kind: "error", message: message.message });
       }
     }
 
@@ -172,11 +195,82 @@ export function App() {
           ))}
         </ul>
       ) : null}
+      <section className="app__bootstrap">
+        <h2 className="app__bootstrap-title">Bootstrap context</h2>
+        <label className="app__bootstrap-row">
+          Context:
+          <select
+            value={selectedContext}
+            onChange={(e) =>
+              setSelectedContext(e.target.value as ContextName)
+            }
+          >
+            {CONTEXT_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <Button
+          type="button"
+          onClick={() => {
+            setBootstrapStatus({ kind: "running" });
+            postToSandbox({
+              type: "bootstrap-context-request",
+              context: selectedContext,
+            });
+          }}
+        >
+          Bootstrap context
+        </Button>
+        {bootstrapStatus.kind === "running" && (
+          <p className="app__sync-status">Bootstrapping…</p>
+        )}
+        {bootstrapStatus.kind === "success" && (
+          <BootstrapSummary result={bootstrapStatus.result} />
+        )}
+        {bootstrapStatus.kind === "error" && (
+          <p className="app__sync-status app__sync-status--err">
+            Bootstrap failed: {bootstrapStatus.message}
+          </p>
+        )}
+      </section>
       {inspectResult !== null && (
         <pre className="app__dump">
           {JSON.stringify(inspectResult, null, 2)}
         </pre>
       )}
     </main>
+  );
+}
+
+function BootstrapSummary({ result }: { result: BootstrapResult }) {
+  return (
+    <div className="app__bootstrap-summary">
+      <p className="app__sync-status app__sync-status--ok">
+        Bootstrapped {result.context} — collection {result.collection}
+      </p>
+      <ul>
+        <li>
+          Variables: {result.variablesCreated} created,{" "}
+          {result.variablesUpdated} updated
+        </li>
+        <li>
+          Text styles: {result.textStylesCreated} created,{" "}
+          {result.textStylesUpdated} updated
+        </li>
+      </ul>
+      {result.warnings.length > 0 && (
+        <div className="app__bootstrap-warnings">
+          <p>{result.warnings.length} warning(s):</p>
+          <ul>
+            {result.warnings.map((w, i) => (
+              <li key={i}>{w}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
   );
 }

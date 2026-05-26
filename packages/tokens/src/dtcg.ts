@@ -143,6 +143,10 @@ function routeCollection(name: string): Routing {
   if (typo) {
     return { file: 'semantic', prefix: ['typography', typo[1].toLowerCase()] }
   }
+  const ctx = name.match(/^Context\s*\/\s*(.+)$/)
+  if (ctx) {
+    return { file: 'semantic', prefix: ['context', ctx[1].toLowerCase()] }
+  }
   throw new Error(`Unrecognised collection name: ${name}`)
 }
 

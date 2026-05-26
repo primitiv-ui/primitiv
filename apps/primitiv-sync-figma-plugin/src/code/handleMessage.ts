@@ -4,6 +4,7 @@ import type {
   UiMessage,
   VariableSummary,
 } from '../shared/messages'
+import { bootstrapContext } from './bootstrapContext'
 
 /** Routes a message received from the plugin UI to its sandbox action. */
 export async function handleUiMessage(message: UiMessage): Promise<void> {
@@ -19,6 +20,19 @@ export async function handleUiMessage(message: UiMessage): Promise<void> {
     case 'export-tokens-request': {
       const data = await extractVariables()
       reply({ type: 'export-tokens-result', ...data })
+      return
+    }
+    case 'bootstrap-context-request': {
+      try {
+        const result = await bootstrapContext({ context: message.context })
+        reply({ type: 'bootstrap-context-result', result })
+      } catch (error) {
+        reply({
+          type: 'bootstrap-context-error',
+          context: message.context,
+          message: error instanceof Error ? error.message : String(error),
+        })
+      }
       return
     }
     case 'close':

@@ -15,13 +15,9 @@ import {
   findOrCreateVariable,
 } from './figmaIdempotent'
 import { INTERACTION_SPEC } from './interactionSpec'
+import type { BootstrapInteractionResult } from '../shared/messages'
 
-export type BootstrapInteractionResult = {
-  collection: 'created' | 'updated'
-  variablesCreated: number
-  variablesUpdated: number
-  warnings: string[]
-}
+export type { BootstrapInteractionResult }
 
 export async function bootstrapInteraction(): Promise<BootstrapInteractionResult> {
   const allCollections =

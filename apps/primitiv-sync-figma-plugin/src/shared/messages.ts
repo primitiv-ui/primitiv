@@ -23,6 +23,14 @@ export type BootstrapResult = {
   warnings: string[]
 }
 
+/** Result returned by the Bootstrap interaction action. */
+export type BootstrapInteractionResult = {
+  collection: 'created' | 'updated'
+  variablesCreated: number
+  variablesUpdated: number
+  warnings: string[]
+}
+
 /** A serialisable summary of a Figma variable collection. */
 export type CollectionSummary = {
   id: string
@@ -60,6 +68,8 @@ export type SandboxMessage =
       context: ContextName
       message: string
     }
+  | { type: 'bootstrap-interaction-result'; result: BootstrapInteractionResult }
+  | { type: 'bootstrap-interaction-error'; message: string }
 
 /** A message posted from the UI back to the sandbox. */
 export type UiMessage =
@@ -67,4 +77,5 @@ export type UiMessage =
   | { type: 'inspect-variables-request' }
   | { type: 'export-tokens-request' }
   | { type: 'bootstrap-context-request'; context: ContextName }
+  | { type: 'bootstrap-interaction-request' }
   | { type: 'close' }

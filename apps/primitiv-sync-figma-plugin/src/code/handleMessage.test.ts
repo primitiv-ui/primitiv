@@ -1,9 +1,14 @@
 import { handleUiMessage } from './handleMessage'
 import { createFigmaMock } from './figma.mock'
 import { bootstrapContext } from './bootstrapContext'
+import { bootstrapInteraction } from './bootstrapInteraction'
 
 vi.mock('./bootstrapContext', () => ({
   bootstrapContext: vi.fn(),
+}))
+
+vi.mock('./bootstrapInteraction', () => ({
+  bootstrapInteraction: vi.fn(),
 }))
 
 describe('handleUiMessage', () => {
@@ -105,6 +110,41 @@ describe('handleUiMessage', () => {
     expect(figmaMock.ui.postMessage).toHaveBeenCalledWith({
       type: 'bootstrap-context-result',
       result: fakeResult,
+    })
+  })
+
+  it('routes a bootstrap-interaction-request and posts bootstrap-interaction-result on success', async () => {
+    const figmaMock = createFigmaMock()
+    vi.stubGlobal('figma', figmaMock)
+    const fakeResult = {
+      collection: 'created' as const,
+      variablesCreated: 5,
+      variablesUpdated: 0,
+      warnings: [],
+    }
+    vi.mocked(bootstrapInteraction).mockResolvedValueOnce(fakeResult)
+
+    await handleUiMessage({ type: 'bootstrap-interaction-request' })
+
+    expect(bootstrapInteraction).toHaveBeenCalledOnce()
+    expect(figmaMock.ui.postMessage).toHaveBeenCalledWith({
+      type: 'bootstrap-interaction-result',
+      result: fakeResult,
+    })
+  })
+
+  it('posts bootstrap-interaction-error when the action throws', async () => {
+    const figmaMock = createFigmaMock()
+    vi.stubGlobal('figma', figmaMock)
+    vi.mocked(bootstrapInteraction).mockRejectedValueOnce(
+      new Error('Primitives collection not found'),
+    )
+
+    await handleUiMessage({ type: 'bootstrap-interaction-request' })
+
+    expect(figmaMock.ui.postMessage).toHaveBeenCalledWith({
+      type: 'bootstrap-interaction-error',
+      message: 'Primitives collection not found',
     })
   })
 

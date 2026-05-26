@@ -5,6 +5,7 @@ import type {
   VariableSummary,
 } from '../shared/messages'
 import { bootstrapContext } from './bootstrapContext'
+import { bootstrapInteraction } from './bootstrapInteraction'
 
 /** Routes a message received from the plugin UI to its sandbox action. */
 export async function handleUiMessage(message: UiMessage): Promise<void> {
@@ -30,6 +31,18 @@ export async function handleUiMessage(message: UiMessage): Promise<void> {
         reply({
           type: 'bootstrap-context-error',
           context: message.context,
+          message: error instanceof Error ? error.message : String(error),
+        })
+      }
+      return
+    }
+    case 'bootstrap-interaction-request': {
+      try {
+        const result = await bootstrapInteraction()
+        reply({ type: 'bootstrap-interaction-result', result })
+      } catch (error) {
+        reply({
+          type: 'bootstrap-interaction-error',
           message: error instanceof Error ? error.message : String(error),
         })
       }

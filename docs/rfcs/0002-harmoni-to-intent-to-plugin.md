@@ -330,9 +330,10 @@ Commits `5aa9fcc`, `1237f21`, `ff12824` on `main`. Three TDD cycles:
 
 **Remaining work before RFC 0001 Phase 5 can be ticked ✅ (Figma-side verification):**
 
-1. Run **Bootstrap Intent / Light** in the sync plugin with `Primitives / Palette`
-   already populated by the Harmoni plugin. Expect 36 variables created, 10 danger
-   warnings.
+1. ✅ Run **Bootstrap Intent / Light** in the sync plugin. Result: 38 variables
+   created, 8 danger warnings (the 2 danger foreground variables alias into
+   `color/neutral/*` and created successfully; only the 8 background/border
+   danger variables need the missing `color/danger/light/*` ramp).
 2. Verify aliases propagate: change a palette variable → intent layer reflects it.
 3. Run **Export tokens** to confirm `dtcg.ts` picks up `Intent / Light` and routes
    it to `semantic.json`.

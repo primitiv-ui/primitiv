@@ -632,6 +632,40 @@ describe('figmaVarsToDtcg', () => {
     expect(result.components).toEqual({})
   })
 
+  it('routes an Intent / Light variable into semantic under color.*', () => {
+    const INTENT_LIGHT_COLL: FigmaCollection = {
+      id: 'cil',
+      name: 'Intent / Light',
+      modes: [{ modeId: 'mil', name: 'Value' }],
+      defaultModeId: 'mil',
+    }
+
+    const result = figmaVarsToDtcg(
+      [INTENT_LIGHT_COLL],
+      [
+        {
+          id: 'v1',
+          name: 'action/primary/default',
+          resolvedType: 'COLOR',
+          variableCollectionId: 'cil',
+          valuesByMode: { mil: { r: 0.2, g: 0.4, b: 0.8, a: 1 } },
+        },
+        {
+          id: 'v2',
+          name: 'surface/default',
+          resolvedType: 'COLOR',
+          variableCollectionId: 'cil',
+          valuesByMode: { mil: { r: 0.98, g: 0.98, b: 0.98, a: 1 } },
+        },
+      ],
+    )
+
+    expect(result.semantic.color).toEqual({
+      action: { primary: { default: { $type: 'color', $value: '#3366cc' } } },
+      surface: { default: { $type: 'color', $value: '#fafafa' } },
+    })
+  })
+
   it('throws for an unrecognised collection name', () => {
     expect(() =>
       figmaVarsToDtcg(

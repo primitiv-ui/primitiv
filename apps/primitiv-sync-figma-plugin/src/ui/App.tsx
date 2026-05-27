@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import type {
+  BootstrapInteractionResult,
   BootstrapResult,
   CollectionSummary,
   ContextName,
@@ -28,6 +29,12 @@ type BootstrapStatus =
   | { kind: "idle" }
   | { kind: "running" }
   | { kind: "success"; result: BootstrapResult }
+  | { kind: "error"; message: string };
+
+type InteractionStatus =
+  | { kind: "idle" }
+  | { kind: "running" }
+  | { kind: "success"; result: BootstrapInteractionResult }
   | { kind: "error"; message: string };
 
 const DTCG_FILE_NAMES = ["primitives", "semantic", "components"] as const;
@@ -81,6 +88,9 @@ export function App() {
   const [bootstrapStatus, setBootstrapStatus] = useState<BootstrapStatus>({
     kind: "idle",
   });
+  const [interactionStatus, setInteractionStatus] = useState<InteractionStatus>(
+    { kind: "idle" },
+  );
   const liveSyncRef = useRef(false);
 
   useEffect(() => {
@@ -112,6 +122,10 @@ export function App() {
         setBootstrapStatus({ kind: "success", result: message.result });
       } else if (message?.type === "bootstrap-context-error") {
         setBootstrapStatus({ kind: "error", message: message.message });
+      } else if (message?.type === "bootstrap-interaction-result") {
+        setInteractionStatus({ kind: "success", result: message.result });
+      } else if (message?.type === "bootstrap-interaction-error") {
+        setInteractionStatus({ kind: "error", message: message.message });
       }
     }
 
@@ -236,12 +250,65 @@ export function App() {
           </p>
         )}
       </section>
+      <section className="app__bootstrap">
+        <h2 className="app__bootstrap-title">Bootstrap interaction</h2>
+        <Button
+          type="button"
+          onClick={() => {
+            setInteractionStatus({ kind: "running" });
+            postToSandbox({ type: "bootstrap-interaction-request" });
+          }}
+        >
+          Bootstrap interaction
+        </Button>
+        {interactionStatus.kind === "running" && (
+          <p className="app__sync-status">Bootstrapping…</p>
+        )}
+        {interactionStatus.kind === "success" && (
+          <InteractionSummary result={interactionStatus.result} />
+        )}
+        {interactionStatus.kind === "error" && (
+          <p className="app__sync-status app__sync-status--err">
+            Bootstrap failed: {interactionStatus.message}
+          </p>
+        )}
+      </section>
       {inspectResult !== null && (
         <pre className="app__dump">
           {JSON.stringify(inspectResult, null, 2)}
         </pre>
       )}
     </main>
+  );
+}
+
+function InteractionSummary({
+  result,
+}: {
+  result: BootstrapInteractionResult;
+}) {
+  return (
+    <div className="app__bootstrap-summary">
+      <p className="app__sync-status app__sync-status--ok">
+        Bootstrapped Interaction — collection {result.collection}
+      </p>
+      <ul>
+        <li>
+          Variables: {result.variablesCreated} created,{" "}
+          {result.variablesUpdated} updated
+        </li>
+      </ul>
+      {result.warnings.length > 0 && (
+        <div className="app__bootstrap-warnings">
+          <p>{result.warnings.length} warning(s):</p>
+          <ul>
+            {result.warnings.map((w, i) => (
+              <li key={i}>{w}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
   );
 }
 

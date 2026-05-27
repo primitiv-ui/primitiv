@@ -423,6 +423,100 @@ describe('App', () => {
     })
   })
 
+  describe('bootstrap interaction', () => {
+    it('renders a Bootstrap interaction button', () => {
+      render(<App />)
+
+      expect(
+        screen.getByRole('button', { name: /Bootstrap interaction/i }),
+      ).toBeInTheDocument()
+    })
+
+    it('sends bootstrap-interaction-request when clicked', async () => {
+      const postMessage = vi.spyOn(window.parent, 'postMessage')
+      render(<App />)
+
+      await userEvent.click(
+        screen.getByRole('button', { name: /Bootstrap interaction/i }),
+      )
+
+      expect(postMessage).toHaveBeenLastCalledWith(
+        {
+          pluginMessage: { type: 'bootstrap-interaction-request' },
+        },
+        '*',
+      )
+    })
+
+    it('shows a summary of the bootstrap interaction result when it arrives', async () => {
+      render(<App />)
+
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            pluginMessage: {
+              type: 'bootstrap-interaction-result',
+              result: {
+                collection: 'created',
+                variablesCreated: 5,
+                variablesUpdated: 0,
+                warnings: [],
+              },
+            },
+          },
+        }),
+      )
+
+      expect(
+        await screen.findByText(/Bootstrapped Interaction/i),
+      ).toBeInTheDocument()
+      expect(screen.getByText(/5 created/)).toBeInTheDocument()
+    })
+
+    it('lists warnings returned with the bootstrap interaction result', async () => {
+      render(<App />)
+
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            pluginMessage: {
+              type: 'bootstrap-interaction-result',
+              result: {
+                collection: 'updated',
+                variablesCreated: 0,
+                variablesUpdated: 4,
+                warnings: ['Primitive "opacity/90" missing — skipped'],
+              },
+            },
+          },
+        }),
+      )
+
+      expect(
+        await screen.findByText(/opacity\/90/),
+      ).toBeInTheDocument()
+    })
+
+    it('shows the error message when a bootstrap-interaction-error arrives', async () => {
+      render(<App />)
+
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            pluginMessage: {
+              type: 'bootstrap-interaction-error',
+              message: 'Primitives collection not found',
+            },
+          },
+        }),
+      )
+
+      expect(
+        await screen.findByText(/Primitives collection not found/),
+      ).toBeInTheDocument()
+    })
+  })
+
   it('asks the sandbox to close when the close button is clicked', async () => {
     const postMessage = vi.spyOn(window.parent, 'postMessage')
     render(<App />)

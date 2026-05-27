@@ -126,6 +126,15 @@ keyword or by topic; do not paraphrase their content here.
   turning a UI description into a working script (requirements →
   constants → helpers → render layers), design tokens, and the
   `scripts/` convention in `apps/harmoni-figma-plugin/`.
+- **`figma-variable-architecture`** — the Figma variable collection
+  hierarchy, the `framed-control/*` anatomy token set (height,
+  padding-inline, gap, icon-size, radius, focus-ring-gap-radius,
+  focus-ring-radius), resolved values for every size slot (xs–xl) in
+  both Comfortable and Compact densities, the focus ring radius formula
+  (R+2 gap / R+4 ring), and the script pattern for adding new variables.
+  TRIGGER when adding new variables, binding layer properties to tokens,
+  extending framed-control to a new component, or debugging focus ring
+  geometry.
 - **`model-routing`** — Opus/Sonnet/Haiku decision tree.
 
 ## Slash commands

@@ -1,6 +1,6 @@
 # RFC 0002 — Harmoni → Intent → Plugin
 
-> **Status:** Draft
+> **Status:** Phase A complete — Phase B next
 > **Author:** simonrevill, with architectural review
 > **Date:** 2026-05-27
 > **Relates to:** RFC 0001 (Token Architecture), specifically §11 Phase 5
@@ -177,16 +177,89 @@ shape, the variables get renamed or moved at that point.
 
 Phase A is done when:
 
-1. The harmoni plugin opens, accepts the three colour inputs, and
+1. ✅ The harmoni plugin opens, accepts the three colour inputs, and
    shows ramps on screen.
-2. Apply writes variables into Figma.
-3. A subsequent run of the sync plugin's Export tokens picks the
+2. ✅ Apply writes variables into Figma. *(code complete; live
+   smoke-test pending)*
+3. ⬜ A subsequent run of the sync plugin's Export tokens picks the
    new variables up and writes them into `primitives.json` (or
    wherever they were routed) without crashing.
-4. The variables can be aliased from a hand-authored test
+4. ⬜ The variables can be aliased from a hand-authored test
    variable. This is the precondition for Phase B.
 
 Acceptance is **smoke-test level**. No unit tests are required.
+
+Items 3 and 4 are the remaining Figma-side verification steps before
+Phase B can start.
+
+---
+
+### 2.6 Phase A — Delivered 2026-05-27
+
+Commit `05f9d17` on `main`. What was built and where it diverged from
+the plan:
+
+**Files added to `apps/harmoni-figma-plugin/src/ui/`:**
+
+- `types.ts` — `BrandConfig` (one brand colour, not the eight in the
+  workbench — see deviation below).
+- `constants.ts` — `DEFAULT_LIGHTNESS`, `DEFAULT_DARK_LIGHTNESS`,
+  `DEFAULT_BRAND_HEX`.
+- `Swatch.tsx`, `Palette.tsx` — swatch and palette row display,
+  ported verbatim.
+- `useColors.ts` — hook driving the engine. Uses `initEngine()` from
+  `engine.ts` instead of bare `init()` so the wasm binary is passed
+  as a data URI (required inside Figma's single-file iframe).
+- `ColorEngine.tsx` — three colour pickers (white / black / brand),
+  neutral ramp, brand-light and brand-dark ramps, tint controls,
+  independent padding sliders per ramp, Apply and Close buttons.
+
+**Files added to `apps/harmoni-figma-plugin/src/code/`:**
+
+- `figmaIdempotent.ts` — find-or-create helpers, re-implemented
+  locally (§7 question 3 — re-implement now, extract in Phase C if
+  it earns its keep).
+- `applyPalette.ts` — writes `color/neutral/<step>`,
+  `color/brand/light/<step>`, `color/brand/dark/<step>` into the
+  `Primitives / Palette` collection (resolves §7 question 1).
+
+**Files modified:**
+
+- `shared/messages.ts` — `RgbaColor`, `SwatchData`, `RampData` types;
+  `apply-palette` message variant added to `UiMessage`.
+- `code/handleMessage.ts` — now async; routes `apply-palette` →
+  `applyPalette()`.
+- `ui/App.tsx` — replaced placeholder greeting with `<ColorEngine />`.
+- `ui/App.test.tsx` — updated to mock `ColorEngine`; old greeting
+  tests removed.
+- `code/handleMessage.test.ts` — added `apply-palette` delegation
+  test. `handleMessage.ts` remains at 100% coverage.
+- `vitest.config.ts` — Phase A files excluded from coverage per
+  Principle 2.
+
+**Deviations from §2.2:**
+
+- **One brand colour instead of eight.** The workbench had eight
+  named hues; Phase A simplifies to a single brand input. This is
+  intentional — the goal is palette variables for the intent layer,
+  not a full colour picker. Phase C will surface the richer input if
+  needed.
+- **`generate_palette_pair` called twice.** To give the brand-light
+  and brand-dark ramps fully independent padding sliders (four
+  sliders total: left + right per ramp), `regenerateBrand` calls
+  the engine once per ramp and uses `.light` from the first call
+  and `.dark` from the second. The ramps are generated with their
+  own padding pair rather than sharing a single pair.
+- **oklch → RGBA conversion via canvas.** The sandbox cannot call
+  browser APIs, so swatches are converted to `{ r, g, b, a }` in
+  the UI iframe using `CanvasRenderingContext2D.getImageData` before
+  the `apply-palette` message is posted.
+- **Lightness curve editor not ported.** The workbench `CurveEditor`
+  (per-step lightness sliders for each ramp) was left out. The
+  default lightness curve is sufficient to produce Figma variables
+  for Phase B; the curve editor is a Phase C concern.
+- **Shift left / right buttons not ported.** Same rationale — not
+  needed for the Phase B precondition.
 
 ---
 
@@ -342,13 +415,10 @@ hard reset.
 
 ## 7. Open questions
 
-1. **Target collection for Phase A palette variables.** Working
-   name `Primitives / Palette`, or write directly into Primitives
-   alongside the existing `color.gold.*` / `color.neutral.*`? The
-   distinction matters because RFC 0001 §3.2 reserves Primitives
-   as the raw value layer — palette ramps fit that definition,
-   but the existing gold/red ramps are placeholders that will be
-   replaced. Resolve before Phase A's Apply action ships.
+1. ✅ **Target collection for Phase A palette variables.** Resolved:
+   `Primitives / Palette`, single-mode. Variables named
+   `color/neutral/<step>`, `color/brand/light/<step>`,
+   `color/brand/dark/<step>`. Written by `applyPalette.ts`.
 
 2. **Renaming the existing palette primitives.** When harmoni
    ramps replace `color.gold.*`, do we rename them
@@ -358,10 +428,10 @@ hard reset.
    change; the question is purely a primitives-side rename
    call.
 
-3. **Sharing `figmaIdempotent.ts` between plugins.** Phase A may
-   re-implement the helpers; Phase C may extract them into a
-   shared `packages/figma-plugin-helpers` package. Whether the
-   extraction earns its keep is a Phase C call.
+3. ✅ **Sharing `figmaIdempotent.ts` between plugins.** Resolved for
+   Phase A: re-implemented locally in
+   `apps/harmoni-figma-plugin/src/code/figmaIdempotent.ts`.
+   Extraction to a shared package remains a Phase C call.
 
 4. **Dark mode timing.** Phase B can ship Light first and Dark
    later, or both together if the engine's dark ramps are stable

@@ -2,6 +2,7 @@ import { handleUiMessage } from './handleMessage'
 import { createFigmaMock } from './figma.mock'
 import { bootstrapContext } from './bootstrapContext'
 import { bootstrapInteraction } from './bootstrapInteraction'
+import { bootstrapIntentLight } from './bootstrapIntentLight'
 
 vi.mock('./bootstrapContext', () => ({
   bootstrapContext: vi.fn(),
@@ -9,6 +10,10 @@ vi.mock('./bootstrapContext', () => ({
 
 vi.mock('./bootstrapInteraction', () => ({
   bootstrapInteraction: vi.fn(),
+}))
+
+vi.mock('./bootstrapIntentLight', () => ({
+  bootstrapIntentLight: vi.fn(),
 }))
 
 describe('handleUiMessage', () => {
@@ -217,6 +222,41 @@ describe('handleUiMessage', () => {
           valuesByMode: { '1:0': 'Asta Sans' },
         },
       ],
+    })
+  })
+
+  it('routes a bootstrap-intent-light-request and posts bootstrap-intent-light-result on success', async () => {
+    const figmaMock = createFigmaMock()
+    vi.stubGlobal('figma', figmaMock)
+    const fakeResult = {
+      collection: 'created' as const,
+      variablesCreated: 40,
+      variablesUpdated: 0,
+      warnings: ['Palette variable "color/danger/light/500" missing — skipped intent variable "action/danger/default"'],
+    }
+    vi.mocked(bootstrapIntentLight).mockResolvedValueOnce(fakeResult)
+
+    await handleUiMessage({ type: 'bootstrap-intent-light-request' })
+
+    expect(bootstrapIntentLight).toHaveBeenCalledOnce()
+    expect(figmaMock.ui.postMessage).toHaveBeenCalledWith({
+      type: 'bootstrap-intent-light-result',
+      result: fakeResult,
+    })
+  })
+
+  it('posts bootstrap-intent-light-error when the action throws', async () => {
+    const figmaMock = createFigmaMock()
+    vi.stubGlobal('figma', figmaMock)
+    vi.mocked(bootstrapIntentLight).mockRejectedValueOnce(
+      new Error('Primitives / Palette collection not found'),
+    )
+
+    await handleUiMessage({ type: 'bootstrap-intent-light-request' })
+
+    expect(figmaMock.ui.postMessage).toHaveBeenCalledWith({
+      type: 'bootstrap-intent-light-error',
+      message: 'Primitives / Palette collection not found',
     })
   })
 })

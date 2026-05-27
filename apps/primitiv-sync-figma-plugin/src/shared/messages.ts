@@ -78,6 +78,8 @@ export type SandboxMessage =
     }
   | { type: 'bootstrap-interaction-result'; result: BootstrapInteractionResult }
   | { type: 'bootstrap-interaction-error'; message: string }
+  | { type: 'bootstrap-intent-light-result'; result: BootstrapIntentLightResult }
+  | { type: 'bootstrap-intent-light-error'; message: string }
 
 /** A message posted from the UI back to the sandbox. */
 export type UiMessage =
@@ -86,4 +88,5 @@ export type UiMessage =
   | { type: 'export-tokens-request' }
   | { type: 'bootstrap-context-request'; context: ContextName }
   | { type: 'bootstrap-interaction-request' }
+  | { type: 'bootstrap-intent-light-request' }
   | { type: 'close' }

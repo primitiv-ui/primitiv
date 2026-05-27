@@ -25,6 +25,12 @@
  */
 (async function () {
 
+  // ─── Font loading ─────────────────────────────────────────────────────────
+  // Required before any text node can have its characters set.
+  // Inter is always available in Figma — restyle labels to Khand / Asta Sans afterwards.
+  await figma.loadFontAsync({ family: "Inter", style: "Bold" });
+  await figma.loadFontAsync({ family: "Inter", style: "Regular" });
+
   // ─── Property names ───────────────────────────────────────────────────────
   // These must match the exact property names defined in your Figma component set.
   const PROP = {
@@ -153,8 +159,90 @@
     }
   }
 
+  // ─── Text labels ──────────────────────────────────────────────────────────
+  // Labels are placed on the canvas (outside the component set, which only
+  // accepts COMPONENT children). All label nodes are collected into a single
+  // "Button Grid Labels" group so they can be selected, hidden, or deleted
+  // as one unit. Restyle font/colour afterwards — Inter is used here as a
+  // safe default that is always available in Figma.
+  //
+  // Layout:
+  //   Above the set — variant group headers (bold, row 1)
+  //                   state sub-headers     (regular, row 2)
+  //   Left of the set — density section labels (bold, outer column)
+  //                     size row labels        (regular, inner column)
+
+  const ABOVE_VARIANTS = 48;   // px above component set top edge: variant labels
+  const ABOVE_STATES   = 24;   // px above component set top edge: state labels
+  const LEFT_DENSITY   = 180;  // px left of component set left edge: density labels
+  const LEFT_SIZES     = 56;   // px left of component set left edge: size labels
+
+  const cx = componentSet.x;
+  const cy = componentSet.y;
+
+  const labelNodes = [];
+
+  function makeLabel(text, canvasX, canvasY, bold) {
+    const t      = figma.createText();
+    t.fontName   = { family: "Inter", style: bold ? "Bold" : "Regular" };
+    t.fontSize   = bold ? 12 : 11;
+    t.characters = text;
+    t.x          = canvasX;
+    t.y          = canvasY;
+    figma.currentPage.appendChild(t);
+    labelNodes.push(t);
+    return t;
+  }
+
+  // Variant group headers + state sub-headers (above the component set)
+  for (const variant of VARIANT_ORDER) {
+    const firstCol     = `${variant}_${STATE_ORDER[0]}`;
+    const lastCol      = `${variant}_${STATE_ORDER[STATE_ORDER.length - 1]}`;
+    const groupLeft    = colX[firstCol]  ?? 0;
+    const groupRight   = (colX[lastCol] ?? 0) + (colMaxWidth[lastCol] ?? 0);
+    const groupCenterX = groupLeft + (groupRight - groupLeft) / 2;
+
+    // Variant label — centred over the whole group
+    const vl = makeLabel(variant.toUpperCase(), 0, cy - ABOVE_VARIANTS, true);
+    vl.x = cx + groupCenterX - vl.width / 2;
+
+    // State labels — centred over each individual state column
+    for (const state of STATE_ORDER) {
+      const col        = `${variant}_${state}`;
+      const colCenterX = (colX[col] ?? 0) + (colMaxWidth[col] ?? 0) / 2;
+      const sl         = makeLabel(state, 0, cy - ABOVE_STATES, false);
+      sl.x             = cx + colCenterX - sl.width / 2;
+    }
+  }
+
+  // Density section labels + size row labels (left of the component set)
+  for (const density of DENSITY_ORDER) {
+    const firstRow      = `${density}_${SIZE_ORDER[0]}`;
+    const lastRow       = `${density}_${SIZE_ORDER[SIZE_ORDER.length - 1]}`;
+    const sectionTop    = rowY[firstRow] ?? 0;
+    const sectionBottom = (rowY[lastRow] ?? 0) + (rowMaxHeight[lastRow] ?? 0);
+    const sectionMidY   = sectionTop + (sectionBottom - sectionTop) / 2;
+
+    // Density label — vertically centred over the whole section
+    const dl = makeLabel(density.toUpperCase(), cx - LEFT_DENSITY, 0, true);
+    dl.y = cy + sectionMidY - dl.height / 2;
+
+    // Size labels — vertically centred over each row within the section
+    for (const size of SIZE_ORDER) {
+      const row     = `${density}_${size}`;
+      const rowMidY = (rowY[row] ?? 0) + (rowMaxHeight[row] ?? 0) / 2;
+      const sl      = makeLabel(size, cx - LEFT_SIZES, 0, false);
+      sl.y          = cy + rowMidY - sl.height / 2;
+    }
+  }
+
+  // Collect into a group for easy management
+  const labelGroup = figma.group(labelNodes, figma.currentPage);
+  labelGroup.name  = "Button Grid Labels";
+  console.log(`Created ${labelNodes.length} labels in group "${labelGroup.name}".`);
+
   // ─── Zoom to result ───────────────────────────────────────────────────────
-  figma.viewport.scrollAndZoomIntoView([componentSet]);
+  figma.viewport.scrollAndZoomIntoView([componentSet, labelGroup]);
 
   console.log(`Done. Placed ${placed} components${skipped ? `, skipped ${skipped}` : ""}.`);
   console.log(`Component set resized to ${Math.round(x)} × ${Math.round(y)} px.`);

@@ -13,7 +13,19 @@ export type SandboxMessage = {
   pageName: string
 }
 
-/** A message posted from the UI back to the sandbox. */
-export type UiMessage = {
-  type: 'close'
+export type RgbaColor = { r: number; g: number; b: number; a: number }
+
+export type SwatchData = {
+  step: string
+  rgba: RgbaColor
 }
+
+export type RampData = {
+  name: string
+  swatches: SwatchData[]
+}
+
+/** A message posted from the UI back to the sandbox. */
+export type UiMessage =
+  | { type: 'close' }
+  | { type: 'apply-palette'; ramps: RampData[] }

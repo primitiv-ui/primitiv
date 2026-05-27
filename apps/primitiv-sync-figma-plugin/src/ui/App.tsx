@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import type {
   BootstrapInteractionResult,
+  BootstrapIntentLightResult,
   BootstrapResult,
   CollectionSummary,
   ContextName,
@@ -35,6 +36,12 @@ type InteractionStatus =
   | { kind: "idle" }
   | { kind: "running" }
   | { kind: "success"; result: BootstrapInteractionResult }
+  | { kind: "error"; message: string };
+
+type IntentLightStatus =
+  | { kind: "idle" }
+  | { kind: "running" }
+  | { kind: "success"; result: BootstrapIntentLightResult }
   | { kind: "error"; message: string };
 
 const DTCG_FILE_NAMES = ["primitives", "semantic", "components"] as const;
@@ -91,6 +98,9 @@ export function App() {
   const [interactionStatus, setInteractionStatus] = useState<InteractionStatus>(
     { kind: "idle" },
   );
+  const [intentLightStatus, setIntentLightStatus] = useState<IntentLightStatus>(
+    { kind: "idle" },
+  );
   const liveSyncRef = useRef(false);
 
   useEffect(() => {
@@ -126,6 +136,10 @@ export function App() {
         setInteractionStatus({ kind: "success", result: message.result });
       } else if (message?.type === "bootstrap-interaction-error") {
         setInteractionStatus({ kind: "error", message: message.message });
+      } else if (message?.type === "bootstrap-intent-light-result") {
+        setIntentLightStatus({ kind: "success", result: message.result });
+      } else if (message?.type === "bootstrap-intent-light-error") {
+        setIntentLightStatus({ kind: "error", message: message.message });
       }
     }
 
@@ -273,6 +287,29 @@ export function App() {
           </p>
         )}
       </section>
+      <section className="app__bootstrap">
+        <h2 className="app__bootstrap-title">Bootstrap Intent / Light</h2>
+        <Button
+          type="button"
+          onClick={() => {
+            setIntentLightStatus({ kind: "running" });
+            postToSandbox({ type: "bootstrap-intent-light-request" });
+          }}
+        >
+          Bootstrap Intent / Light
+        </Button>
+        {intentLightStatus.kind === "running" && (
+          <p className="app__sync-status">Bootstrapping…</p>
+        )}
+        {intentLightStatus.kind === "success" && (
+          <IntentLightSummary result={intentLightStatus.result} />
+        )}
+        {intentLightStatus.kind === "error" && (
+          <p className="app__sync-status app__sync-status--err">
+            Bootstrap failed: {intentLightStatus.message}
+          </p>
+        )}
+      </section>
       {inspectResult !== null && (
         <pre className="app__dump">
           {JSON.stringify(inspectResult, null, 2)}
@@ -291,6 +328,36 @@ function InteractionSummary({
     <div className="app__bootstrap-summary">
       <p className="app__sync-status app__sync-status--ok">
         Bootstrapped Interaction — collection {result.collection}
+      </p>
+      <ul>
+        <li>
+          Variables: {result.variablesCreated} created,{" "}
+          {result.variablesUpdated} updated
+        </li>
+      </ul>
+      {result.warnings.length > 0 && (
+        <div className="app__bootstrap-warnings">
+          <p>{result.warnings.length} warning(s):</p>
+          <ul>
+            {result.warnings.map((w, i) => (
+              <li key={i}>{w}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function IntentLightSummary({
+  result,
+}: {
+  result: BootstrapIntentLightResult;
+}) {
+  return (
+    <div className="app__bootstrap-summary">
+      <p className="app__sync-status app__sync-status--ok">
+        Bootstrapped Intent / Light — collection {result.collection}
       </p>
       <ul>
         <li>

@@ -124,7 +124,17 @@
     }
   }
 
+  // ─── Resize the component set frame first ────────────────────────────────
+  // x = right edge of the last column (total width needed).
+  // y = bottom edge of the last row   (total height needed).
+  // Expanding the frame before repositioning ensures no component is ever moved
+  // to a coordinate outside the container bounds mid-operation.
+  componentSet.resize(x, y);
+
   // ─── Position every component ─────────────────────────────────────────────
+  // colMaxWidth guarantees every column is wide enough for the widest component
+  // in that variant+state pair (across all densities and sizes), so no component
+  // overflows into the next column. rowMaxHeight gives the same guarantee per row.
   let placed  = 0;
   let skipped = 0;
 
@@ -142,10 +152,6 @@
       skipped++;
     }
   }
-
-  // ─── Resize the component set frame to fit ────────────────────────────────
-  // x and y are already at the right/bottom edge after the measurement loops.
-  componentSet.resize(x, y);
 
   // ─── Zoom to result ───────────────────────────────────────────────────────
   figma.viewport.scrollAndZoomIntoView([componentSet]);

@@ -604,6 +604,34 @@ describe('figmaVarsToDtcg', () => {
     ).toThrow(/missing-id/)
   })
 
+  it('routes a Primitives / Palette variable into primitives without a prefix', () => {
+    const PALETTE_COLL: FigmaCollection = {
+      id: 'cpal',
+      name: 'Primitives / Palette',
+      modes: [{ modeId: 'mpal', name: 'Value' }],
+      defaultModeId: 'mpal',
+    }
+
+    const result = figmaVarsToDtcg(
+      [PALETTE_COLL],
+      [
+        {
+          id: 'v1',
+          name: 'color/neutral/50',
+          resolvedType: 'COLOR',
+          variableCollectionId: 'cpal',
+          valuesByMode: { mpal: { r: 0.98, g: 0.98, b: 0.98, a: 1 } },
+        },
+      ],
+    )
+
+    expect(result.primitives).toEqual({
+      color: { neutral: { '50': { $type: 'color', $value: '#fafafa' } } },
+    })
+    expect(result.semantic).toEqual({})
+    expect(result.components).toEqual({})
+  })
+
   it('throws for an unrecognised collection name', () => {
     expect(() =>
       figmaVarsToDtcg(

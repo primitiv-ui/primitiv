@@ -229,6 +229,7 @@ function isDtcgToken(value: unknown): value is DtcgToken {
 
 function routeCollection(name: string): Routing {
   if (name === 'Primitives') return { file: 'primitives', prefix: [] }
+  if (name === 'Primitives / Palette') return { file: 'primitives', prefix: [] }
   if (name === 'Semantic') return { file: 'semantic', prefix: [] }
   if (name === 'Components') return { file: 'components', prefix: [] }
   if (name === 'Interaction')

@@ -83,6 +83,184 @@
         "$type": "color",
         "$value": "{color.red.900}"
       }
+    },
+    "action": {
+      "primary": {
+        "default": {
+          "$type": "color",
+          "$value": "{color.brand.light.500}"
+        },
+        "hover": {
+          "$type": "color",
+          "$value": "{color.brand.light.600}"
+        },
+        "active": {
+          "$type": "color",
+          "$value": "{color.brand.light.700}"
+        },
+        "disabled": {
+          "$type": "color",
+          "$value": "{color.brand.light.200}"
+        },
+        "foreground": {
+          "default": {
+            "$type": "color",
+            "$value": "{color.neutral.50}"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{color.neutral.400}"
+          }
+        },
+        "border": {
+          "default": {
+            "$type": "color",
+            "$value": "{color.brand.light.500}"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "{color.brand.light.600}"
+          },
+          "active": {
+            "$type": "color",
+            "$value": "{color.brand.light.700}"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{color.brand.light.200}"
+          }
+        }
+      },
+      "secondary": {
+        "default": {
+          "$type": "color",
+          "$value": "{color.neutral.100}"
+        },
+        "hover": {
+          "$type": "color",
+          "$value": "{color.neutral.200}"
+        },
+        "active": {
+          "$type": "color",
+          "$value": "{color.neutral.300}"
+        },
+        "disabled": {
+          "$type": "color",
+          "$value": "{color.neutral.50}"
+        },
+        "foreground": {
+          "default": {
+            "$type": "color",
+            "$value": "{color.neutral.900}"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{color.neutral.400}"
+          }
+        },
+        "border": {
+          "default": {
+            "$type": "color",
+            "$value": "{color.neutral.300}"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "{color.neutral.400}"
+          },
+          "active": {
+            "$type": "color",
+            "$value": "{color.neutral.500}"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{color.neutral.200}"
+          }
+        }
+      },
+      "danger": {
+        "foreground": {
+          "default": {
+            "$type": "color",
+            "$value": "{color.neutral.50}"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{color.neutral.400}"
+          }
+        }
+      }
+    },
+    "surface": {
+      "default": {
+        "$type": "color",
+        "$value": "{color.neutral.50}"
+      },
+      "subtle": {
+        "$type": "color",
+        "$value": "{color.neutral.100}"
+      },
+      "raised": {
+        "$type": "color",
+        "$value": "{color.neutral.50}"
+      },
+      "overlay": {
+        "$type": "color",
+        "$value": "{color.neutral.900}"
+      },
+      "inverse": {
+        "$type": "color",
+        "$value": "{color.neutral.800}"
+      }
+    },
+    "content": {
+      "primary": {
+        "$type": "color",
+        "$value": "{color.neutral.900}"
+      },
+      "secondary": {
+        "$type": "color",
+        "$value": "{color.neutral.700}"
+      },
+      "muted": {
+        "$type": "color",
+        "$value": "{color.neutral.500}"
+      },
+      "disabled": {
+        "$type": "color",
+        "$value": "{color.neutral.400}"
+      },
+      "inverse": {
+        "$type": "color",
+        "$value": "{color.neutral.50}"
+      },
+      "on-action": {
+        "$type": "color",
+        "$value": "{color.neutral.50}"
+      }
+    },
+    "border": {
+      "subtle": {
+        "$type": "color",
+        "$value": "{color.neutral.200}"
+      },
+      "default": {
+        "$type": "color",
+        "$value": "{color.neutral.300}"
+      },
+      "strong": {
+        "$type": "color",
+        "$value": "{color.neutral.500}"
+      },
+      "focus": {
+        "$type": "color",
+        "$value": "{color.brand.light.500}"
+      }
+    },
+    "focus": {
+      "ring": {
+        "$type": "color",
+        "$value": "{color.brand.light.500}"
+      }
     }
   },
   "context": {

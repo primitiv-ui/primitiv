@@ -1,6 +1,6 @@
 # RFC 0002 — Harmoni → Intent → Plugin
 
-> **Status:** Phase A complete — Phase B next
+> **Status:** Phase B complete — Phase C next
 > **Author:** simonrevill, with architectural review
 > **Date:** 2026-05-27
 > **Relates to:** RFC 0001 (Token Architecture), specifically §11 Phase 5
@@ -300,6 +300,42 @@ Figma Pro upgrade where it becomes a second mode of a single
 - `dtcg.ts` exports `semantic.color.action.*`, `semantic.color.
   surface.*`, etc. (or under whichever root key §13.1 resolves to).
 - RFC 0001 Phase 5 flips from ⬜ to ✅.
+
+---
+
+### 3.4 Phase B — Delivered 2026-05-27
+
+Commits `5aa9fcc`, `1237f21`, `ff12824` on `main`. Three TDD cycles:
+
+**Files added to `apps/primitiv-sync-figma-plugin/src/code/`:**
+
+- `intentLightSpec.ts` — pure data: `INTENT_LIGHT_SPEC` with collection name
+  (`Intent / Light`), alias source (`Primitives / Palette`), and 46 variables
+  covering `action.{primary,secondary,danger}.{states,foreground,border}`,
+  `surface.*`, `content.*`, `border.*`, `focus.ring`. Danger targets
+  `color/danger/light/*` — produces expected warnings until a danger ramp lands.
+- `bootstrapIntentLight.ts` — idempotent action mirroring `bootstrapInteraction`:
+  finds `Primitives / Palette`, find-or-creates `Intent / Light`, creates/updates
+  all COLOR alias variables, warns on missing targets.
+- `bootstrapIntentLight.test.ts` — 6 tests covering all behaviours.
+
+**Files modified:**
+
+- `shared/messages.ts` — `BootstrapIntentLightResult` type; new `UiMessage` and
+  `SandboxMessage` variants for the intent light action.
+- `code/handleMessage.ts` — new `bootstrap-intent-light-request` routing case.
+- `code/handleMessage.test.ts` — 2 new routing tests.
+- `ui/App.tsx` — Bootstrap Intent / Light button, state, and `IntentLightSummary`.
+- `ui/App.test.tsx` — 4 new UI tests. Total suite: 98 tests.
+
+**Remaining work before RFC 0001 Phase 5 can be ticked ✅ (Figma-side verification):**
+
+1. Run **Bootstrap Intent / Light** in the sync plugin with `Primitives / Palette`
+   already populated by the Harmoni plugin. Expect 36 variables created, 10 danger
+   warnings.
+2. Verify aliases propagate: change a palette variable → intent layer reflects it.
+3. Run **Export tokens** to confirm `dtcg.ts` picks up `Intent / Light` and routes
+   it to `semantic.json`.
 
 ---
 

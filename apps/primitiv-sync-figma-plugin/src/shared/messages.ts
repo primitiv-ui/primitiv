@@ -31,6 +31,14 @@ export type BootstrapInteractionResult = {
   warnings: string[]
 }
 
+/** Result returned by the Bootstrap Intent / Light action. */
+export type BootstrapIntentLightResult = {
+  collection: 'created' | 'updated'
+  variablesCreated: number
+  variablesUpdated: number
+  warnings: string[]
+}
+
 /** A serialisable summary of a Figma variable collection. */
 export type CollectionSummary = {
   id: string

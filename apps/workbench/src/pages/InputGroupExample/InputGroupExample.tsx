@@ -118,9 +118,9 @@ export function InputGroupExample() {
               onClick={() => setShowPassword((shown) => !shown)}
             >
               {showPassword ? (
-                <EyeOff size={16} aria-hidden="true" />
-              ) : (
                 <Eye size={16} aria-hidden="true" />
+              ) : (
+                <EyeOff size={16} aria-hidden="true" />
               )}
             </button>
           </InputGroup.TrailingAdornment>

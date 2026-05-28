@@ -130,3 +130,38 @@ the context flows through any DOM nesting.
 clear error if rendered outside a `<Field.Root>`. The strict-context
 hook ensures the typo / misuse fails loudly rather than rendering
 silently broken markup.
+
+## `asChild` composition
+
+Every part supports `asChild` for swapping the default element while
+preserving the wiring:
+
+```tsx
+// Render the field as a semantic <fieldset>
+<Field.Root asChild>
+  <fieldset>
+    <Field.Label>Email</Field.Label>
+    <Input type="email" />
+  </fieldset>
+</Field.Root>
+
+// Render the description as a <p> instead of a <div>
+<Field.Description asChild>
+  <p className="hint">We won't share it.</p>
+</Field.Description>
+
+// Render the error as a <p>
+<Field.ErrorText asChild>
+  <p className="error">{errors.email?.message}</p>
+</Field.ErrorText>
+
+// Render the label on a custom heading slot
+<Field.Label asChild>
+  <span className="label-text">Email</span>
+</Field.Label>
+```
+
+Merge rules follow the standard Slot contract: event handlers compose
+(child runs first), `style` is shallow-merged, `className` is
+concatenated, and the wired attributes (`htmlFor`, `id`, `role`,
+`data-field*`) are always merged onto the consumer element.

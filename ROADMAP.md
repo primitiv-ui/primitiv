@@ -18,10 +18,10 @@ Composite components (PaletteRamp, Swatch, etc.) are out of scope here.
 | Slider | ✓ built | needed | Horizontal (Padding control) and vertical (curve editors) |
 | Switch | ✓ built | needed | Step labels and A11y badges on/off toggles |
 | Toggle Group | ✓ built | needed | Layout, Shape, Naming, and Modes pill selectors |
-| Input | not built | needed | Hex colour text inputs; trigger may include a leading colour-swatch slot |
+| Input | ✓ built | needed | Hex colour text inputs; trigger may include a leading colour-swatch slot (will land in `InputGroup`) |
 | Select | ✓ built (native) | needed | Workspace picker and Collection dropdown; Rich Select / Combobox tracked in [`docs/select-future-work.md`](docs/select-future-work.md) |
 
-Build priority: ~~Select (native)~~ → **Input** → Figma design for the remaining four.
+Build priority: ~~Select (native)~~ → ~~Input~~ → **InputGroup** (adornments) → Figma design for the remaining four.
 
 ## Components to build
 
@@ -47,7 +47,7 @@ semantics that CSS alone cannot provide.
 - [x] Fieldset
 - [ ] File Upload
 - [ ] Form
-- [ ] Input
+- [x] Input
 - [ ] Number Input
 - [ ] One-Time Password Field
 - [ ] Password Input
@@ -163,6 +163,7 @@ component now has a workbench example:
 - [x] Direction Provider
 - [x] Divider
 - [x] Empty State
+- [x] Input
 - [x] Portal
 - [x] Radio Group
 - [x] Skip Nav

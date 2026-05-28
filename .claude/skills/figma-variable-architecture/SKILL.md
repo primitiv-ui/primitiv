@@ -11,8 +11,10 @@ description: Architecture of the Figma variable collections — collection hiera
 | ---------------------------- | ----------------- | ----------------------------- | ----------------------------------------------------- |
 | `Primitives`                 | `primitives.json` | (none)                        | Raw scale values: radii, spacing, colour, typography  |
 | `Semantic`                   | `semantic.json`   | (none)                        | Named decisions: typography scales, anatomy patterns  |
-| `Context / Comfortable`      | `semantic.json`   | `context.comfortable`         | Component sizing for the comfortable density          |
+| `Context / Dense`            | `semantic.json`   | `context.dense`               | Component sizing for the dense density                |
 | `Context / Compact`          | `semantic.json`   | `context.compact`             | Component sizing for the compact density              |
+| `Context / Comfortable`      | `semantic.json`   | `context.comfortable`         | Component sizing for the comfortable density          |
+| `Context / Spacious`         | `semantic.json`   | `context.spacious`            | Component sizing for the spacious density             |
 | `Interaction`                | `semantic.json`   | `interaction`                 | Interaction-state tokens                              |
 | `Components`                 | `components.json` | (none)                        | Per-component token decisions (wired to aliases)      |
 
@@ -48,15 +50,15 @@ The Context collections are the ones you'll touch most when building or updating
 | `framed-control/{size}/focus-ring-gap-radius` | Corner radius of the white gap layer between control edge and ring |
 | `framed-control/{size}/focus-ring-radius`     | Corner radius of the focus ring (blue stroke) layer            |
 
-### Resolved values — Context / Comfortable
+### Resolved values — Context / Dense
 
 | Slot | height | padding-inline | gap | icon-size | radius | focus-ring-gap-radius | focus-ring-radius |
 | ---- | ------ | -------------- | --- | --------- | ------ | --------------------- | ----------------- |
-| xs   | 24     | 8              | 4   | 12        | 4      | 6                     | 8                 |
-| sm   | 32     | 12             | 4   | 14        | 6      | 8                     | 10                |
-| md   | 40     | 16             | 8   | 16        | 6      | 8                     | 10                |
-| lg   | 48     | 20             | 8   | 20        | 8      | 10                    | 12                |
-| xl   | 56     | 24             | 12  | 24        | 8      | 10                    | 12                |
+| xs   | 16     | 4              | 2   | 10        | 2      | 4                     | 6                 |
+| sm   | 20     | 6              | 4   | 12        | 4      | 6                     | 8                 |
+| md   | 24     | 8              | 4   | 14        | 4      | 6                     | 8                 |
+| lg   | 32     | 12             | 4   | 16        | 4      | 6                     | 8                 |
+| xl   | 40     | 16             | 6   | 20        | 6      | 8                     | 10                |
 
 ### Resolved values — Context / Compact
 
@@ -68,7 +70,27 @@ The Context collections are the ones you'll touch most when building or updating
 | lg   | 40     | 16             | 6   | 20        | 8      | 10                    | 12                |
 | xl   | 48     | 20             | 8   | 24        | 8      | 10                    | 12                |
 
-All values alias into `Primitives` (e.g. `radii/6`, `space-8`, `size-16`). The density difference is entirely in `height`, `padding-inline`, and `gap` — the radii are the same across both densities for every slot.
+### Resolved values — Context / Comfortable
+
+| Slot | height | padding-inline | gap | icon-size | radius | focus-ring-gap-radius | focus-ring-radius |
+| ---- | ------ | -------------- | --- | --------- | ------ | --------------------- | ----------------- |
+| xs   | 24     | 8              | 4   | 12        | 4      | 6                     | 8                 |
+| sm   | 32     | 12             | 4   | 14        | 6      | 8                     | 10                |
+| md   | 40     | 16             | 8   | 16        | 6      | 8                     | 10                |
+| lg   | 48     | 20             | 8   | 20        | 8      | 10                    | 12                |
+| xl   | 56     | 24             | 12  | 24        | 8      | 10                    | 12                |
+
+### Resolved values — Context / Spacious
+
+| Slot | height | padding-inline | gap | icon-size | radius | focus-ring-gap-radius | focus-ring-radius |
+| ---- | ------ | -------------- | --- | --------- | ------ | --------------------- | ----------------- |
+| xs   | 28     | 10             | 4   | 14        | 6      | 8                     | 10                |
+| sm   | 40     | 14             | 6   | 16        | 8      | 10                    | 12                |
+| md   | 48     | 20             | 8   | 20        | 8      | 10                    | 12                |
+| lg   | 56     | 28             | 10  | 24        | 10     | 12                    | 14                |
+| xl   | 68     | 32             | 12  | 28        | 12     | 14                    | 16                |
+
+All values alias into `Primitives` (e.g. `radii/6`, `space-8`, `size-16`). `height`, `padding-inline`, and `gap` vary across all four densities. Radii are identical between Compact and Comfortable only — Dense uses smaller radii and Spacious uses larger ones, so focus-ring values differ across all four density collections.
 
 ## Focus ring anatomy and formula
 

@@ -84,6 +84,24 @@
         "$value": "{color.red.900}"
       }
     },
+    "border": {
+      "subtle": {
+        "$type": "color",
+        "$value": "{color.neutral.200}"
+      },
+      "default": {
+        "$type": "color",
+        "$value": "{color.neutral.300}"
+      },
+      "strong": {
+        "$type": "color",
+        "$value": "{color.neutral.500}"
+      },
+      "focus": {
+        "$type": "color",
+        "$value": "{color.brand.light.500}"
+      }
+    },
     "action": {
       "primary": {
         "default": {
@@ -100,7 +118,7 @@
         },
         "disabled": {
           "$type": "color",
-          "$value": "{color.brand.light.200}"
+          "$value": "{color.brand.light.500}"
         },
         "foreground": {
           "default": {
@@ -109,7 +127,7 @@
           },
           "disabled": {
             "$type": "color",
-            "$value": "{color.neutral.400}"
+            "$value": "{color.neutral.50}"
           }
         },
         "border": {
@@ -127,26 +145,26 @@
           },
           "disabled": {
             "$type": "color",
-            "$value": "{color.brand.light.200}"
+            "$value": "{color.brand.light.500}"
           }
         }
       },
       "secondary": {
         "default": {
           "$type": "color",
-          "$value": "{color.neutral.100}"
+          "$value": "{color.neutral.transparent}"
         },
         "hover": {
           "$type": "color",
-          "$value": "{color.neutral.200}"
+          "$value": "{color.neutral.100}"
         },
         "active": {
           "$type": "color",
-          "$value": "{color.neutral.300}"
+          "$value": "{color.neutral.200}"
         },
         "disabled": {
           "$type": "color",
-          "$value": "{color.neutral.50}"
+          "$value": "{color.neutral.transparent}"
         },
         "foreground": {
           "default": {
@@ -155,7 +173,7 @@
           },
           "disabled": {
             "$type": "color",
-            "$value": "{color.neutral.400}"
+            "$value": "{color.neutral.900}"
           }
         },
         "border": {
@@ -181,11 +199,65 @@
         "foreground": {
           "default": {
             "$type": "color",
-            "$value": "{color.neutral.50}"
+            "$value": "{color.neutral.white}"
           },
           "disabled": {
             "$type": "color",
-            "$value": "{color.neutral.400}"
+            "$value": "{color.neutral.white}"
+          }
+        },
+        "default": {
+          "$type": "color",
+          "$value": "{color.danger.light.500}"
+        },
+        "hover": {
+          "$type": "color",
+          "$value": "{color.danger.light.600}"
+        },
+        "active": {
+          "$type": "color",
+          "$value": "{color.danger.light.700}"
+        },
+        "disabled": {
+          "$type": "color",
+          "$value": "{color.danger.light.500}"
+        },
+        "border": {
+          "default": {
+            "$type": "color",
+            "$value": "{color.danger.light.500}"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "{color.danger.light.600}"
+          },
+          "active": {
+            "$type": "color",
+            "$value": "{color.danger.light.700}"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{color.danger.light.500}"
+          }
+        }
+      },
+      "link": {
+        "foreground": {
+          "default": {
+            "$type": "color",
+            "$value": "{color.brand.light.500}"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "{color.brand.light.600}"
+          },
+          "active": {
+            "$type": "color",
+            "$value": "{color.brand.light.700}"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{color.brand.light.500}"
           }
         }
       }
@@ -238,28 +310,10 @@
         "$value": "{color.neutral.50}"
       }
     },
-    "border": {
-      "subtle": {
-        "$type": "color",
-        "$value": "{color.neutral.200}"
-      },
-      "default": {
-        "$type": "color",
-        "$value": "{color.neutral.300}"
-      },
-      "strong": {
-        "$type": "color",
-        "$value": "{color.neutral.500}"
-      },
-      "focus": {
-        "$type": "color",
-        "$value": "{color.brand.light.500}"
-      }
-    },
     "focus": {
       "ring": {
         "$type": "color",
-        "$value": "{color.brand.light.500}"
+        "$value": "{color.action.primary.default}"
       }
     }
   },
@@ -690,6 +744,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.4}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
           }
         },
         "sm": {
@@ -712,6 +774,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.6}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.10}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
           }
         },
         "md": {
@@ -734,6 +804,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.6}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.10}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
           }
         },
         "lg": {
@@ -756,6 +834,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.8}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.12}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.10}"
           }
         },
         "xl": {
@@ -778,6 +864,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.8}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.12}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.10}"
           }
         }
       },
@@ -1430,6 +1524,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.4}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
           }
         },
         "sm": {
@@ -1452,6 +1554,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.6}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.10}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
           }
         },
         "md": {
@@ -1474,6 +1584,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.6}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.10}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
           }
         },
         "lg": {
@@ -1496,6 +1614,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.8}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.12}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.10}"
           }
         },
         "xl": {
@@ -1518,6 +1644,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.8}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.12}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.10}"
           }
         }
       },
@@ -2170,6 +2304,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.6}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
           }
         },
         "sm": {
@@ -2192,6 +2334,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.8}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.10}"
           }
         },
         "md": {
@@ -2214,6 +2364,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.8}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.10}"
           }
         },
         "lg": {
@@ -2236,6 +2394,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.10}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.10}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.12}"
           }
         },
         "xl": {
@@ -2256,6 +2422,14 @@
             "$value": "{size.size-28}"
           },
           "radius": {
+            "$type": "number",
+            "$value": "{radii.12}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.10}"
+          },
+          "focus-ring-radius": {
             "$type": "number",
             "$value": "{radii.12}"
           }
@@ -2910,6 +3084,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.2}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
           }
         },
         "sm": {
@@ -2932,6 +3114,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.4}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.10}"
           }
         },
         "md": {
@@ -2954,6 +3144,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.4}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.10}"
           }
         },
         "lg": {
@@ -2976,6 +3174,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.4}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.10}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.12}"
           }
         },
         "xl": {
@@ -2998,6 +3204,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.6}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.10}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.12}"
           }
         }
       },
@@ -3685,6 +3899,14 @@
         "radius": {
           "$type": "number",
           "$value": "{context.comfortable.framed-control.xs.radius}"
+        },
+        "focus-ring-radius": {
+          "$type": "number",
+          "$value": "{context.comfortable.framed-control.xs.focus-ring-radius}"
+        },
+        "focus-ring-gap-radius": {
+          "$type": "number",
+          "$value": "{context.comfortable.framed-control.xs.focus-ring-gap-radius}"
         }
       },
       "sm": {
@@ -3707,6 +3929,14 @@
         "radius": {
           "$type": "number",
           "$value": "{context.comfortable.framed-control.sm.radius}"
+        },
+        "focus-ring-radius": {
+          "$type": "number",
+          "$value": "{context.comfortable.framed-control.sm.focus-ring-radius}"
+        },
+        "focus-ring-gap-radius": {
+          "$type": "number",
+          "$value": "{context.comfortable.framed-control.sm.focus-ring-gap-radius}"
         }
       },
       "md": {
@@ -3729,6 +3959,14 @@
         "radius": {
           "$type": "number",
           "$value": "{context.comfortable.framed-control.md.radius}"
+        },
+        "focus-ring-radius": {
+          "$type": "number",
+          "$value": "{context.comfortable.framed-control.md.focus-ring-radius}"
+        },
+        "focus-ring-gap-radius": {
+          "$type": "number",
+          "$value": "{context.comfortable.framed-control.md.focus-ring-gap-radius}"
         }
       },
       "lg": {
@@ -3751,6 +3989,14 @@
         "radius": {
           "$type": "number",
           "$value": "{context.comfortable.framed-control.lg.radius}"
+        },
+        "focus-ring-radius": {
+          "$type": "number",
+          "$value": "{context.comfortable.framed-control.lg.focus-ring-radius}"
+        },
+        "focus-ring-gap-radius": {
+          "$type": "number",
+          "$value": "{context.comfortable.framed-control.lg.focus-ring-gap-radius}"
         }
       },
       "xl": {
@@ -3773,6 +4019,14 @@
         "radius": {
           "$type": "number",
           "$value": "{context.comfortable.framed-control.xl.radius}"
+        },
+        "focus-ring-radius": {
+          "$type": "number",
+          "$value": "{context.comfortable.framed-control.xl.focus-ring-radius}"
+        },
+        "focus-ring-gap-radius": {
+          "$type": "number",
+          "$value": "{context.comfortable.framed-control.xl.focus-ring-gap-radius}"
         }
       }
     },

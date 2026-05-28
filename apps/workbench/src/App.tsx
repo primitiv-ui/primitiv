@@ -25,6 +25,7 @@ import {
   ProgressExample,
   RadioCardExample,
   RadioGroupExample,
+  SelectExample,
   SkipNavExample,
   SliderExample,
   StatusExample,
@@ -54,6 +55,7 @@ const navGroups: { title: string; links: NavLink[] }[] = [
       { to: "/fieldset", label: "Fieldset" },
       { to: "/radio-group", label: "Radio Group" },
       { to: "/radio-card", label: "Radio Card" },
+      { to: "/select", label: "Select" },
       { to: "/slider", label: "Slider" },
       { to: "/switch", label: "Switch" },
       { to: "/textarea", label: "Textarea" },
@@ -188,6 +190,7 @@ function App() {
           <Route path="/progress" element={<ProgressExample />} />
           <Route path="/radio-card" element={<RadioCardExample />} />
           <Route path="/radio-group" element={<RadioGroupExample />} />
+          <Route path="/select" element={<SelectExample />} />
           <Route path="/skip-nav" element={<SkipNavExample />} />
           <Route path="/slider" element={<SliderExample />} />
           <Route path="/status" element={<StatusExample />} />

@@ -19,9 +19,9 @@ Composite components (PaletteRamp, Swatch, etc.) are out of scope here.
 | Switch | ✓ built | needed | Step labels and A11y badges on/off toggles |
 | Toggle Group | ✓ built | needed | Layout, Shape, Naming, and Modes pill selectors |
 | Input | not built | needed | Hex colour text inputs; trigger may include a leading colour-swatch slot |
-| Select | not built | needed | Workspace picker and Collection dropdown; native `<select>` first, Combobox later |
+| Select | ✓ built (native) | needed | Workspace picker and Collection dropdown; Rich Select / Combobox tracked in [`docs/select-future-work.md`](docs/select-future-work.md) |
 
-Build priority: **Select (native)** → **Input** → Figma design for the remaining four.
+Build priority: ~~Select (native)~~ → **Input** → Figma design for the remaining four.
 
 ## Components to build
 
@@ -56,7 +56,7 @@ semantics that CSS alone cannot provide.
 - [x] Radio Card
 - [ ] Rating
 - [ ] Segmented Control
-- [ ] Select (Native)
+- [x] Select (Native)
 - [x] Slider
 - [x] Switch
 - [ ] Tags Input
@@ -64,9 +64,9 @@ semantics that CSS alone cannot provide.
 
 ### Collections & Selection
 
-- [ ] Combobox
+- [ ] Combobox — see [`docs/select-future-work.md`](docs/select-future-work.md)
 - [ ] Listbox
-- [ ] Select
+- [ ] Select (Rich) — see [`docs/select-future-work.md`](docs/select-future-work.md)
 - [x] Tree
 - [x] Miller Columns
 - [ ] Date & Time

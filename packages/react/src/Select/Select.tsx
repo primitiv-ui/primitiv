@@ -138,6 +138,50 @@ type TSelectCompound = typeof SelectRoot & {
   Placeholder: typeof SelectPlaceholder;
 };
 
+/**
+ * Headless **Select** — a compound component wrapping the native
+ * `<select>` / `<option>` / `<optgroup>` elements. Zero styles ship.
+ *
+ * Because the underlying element is the real `<select>`, the browser
+ * owns the popup, keyboard interaction (arrow keys, Home/End,
+ * typeahead), mobile UX (wheel pickers), and form submission. No
+ * positioning JS or Portal is involved.
+ *
+ * `Select` is both callable (an alias of {@link SelectRoot | `Select.Root`})
+ * and carries its sub-components as static properties.
+ *
+ * - {@link SelectRoot | `Select.Root`} — state owner, renders `<select>`.
+ * - {@link SelectOption | `Select.Option`} — renders `<option>`.
+ * - {@link SelectGroup | `Select.Group`} — renders `<optgroup label>`.
+ * - {@link SelectPlaceholder | `Select.Placeholder`} — disabled+hidden
+ *   first option used as the initial hint.
+ *
+ * @example Minimal usage
+ * ```tsx
+ * import { Select } from "@primitiv/react";
+ *
+ * <Select.Root defaultValue="apple" aria-label="Pick a fruit">
+ *   <Select.Option value="apple">Apple</Select.Option>
+ *   <Select.Option value="banana">Banana</Select.Option>
+ * </Select.Root>
+ * ```
+ *
+ * @example With placeholder and groups
+ * ```tsx
+ * <Select.Root required aria-label="Pick a food">
+ *   <Select.Placeholder>Choose…</Select.Placeholder>
+ *   <Select.Group label="Fruits">
+ *     <Select.Option value="apple">Apple</Select.Option>
+ *   </Select.Group>
+ *   <Select.Group label="Vegetables">
+ *     <Select.Option value="carrot">Carrot</Select.Option>
+ *   </Select.Group>
+ * </Select.Root>
+ * ```
+ *
+ * @see {@link SelectRoot} for state modes, placeholder integration, and `asChild`.
+ * @see {@link SelectPlaceholder} for the placeholder + `defaultValue` interaction.
+ */
 const SelectCompound: TSelectCompound = Object.assign(SelectRoot, {
   Root: SelectRoot,
   Option: SelectOption,

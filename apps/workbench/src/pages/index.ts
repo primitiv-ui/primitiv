@@ -21,6 +21,7 @@ export * from "./PortalExample";
 export * from "./ProgressExample";
 export * from "./RadioCardExample";
 export * from "./RadioGroupExample";
+export * from "./SelectExample";
 export * from "./SkipNavExample";
 export * from "./SliderExample";
 export * from "./StatusExample";

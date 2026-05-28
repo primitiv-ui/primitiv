@@ -2,16 +2,22 @@
  * arrange-button-component-set.js
  *
  * Positions all variants in the Button component set into the documented grid.
- * Run this once, after all 300 variants are built.
+ * Run this once, after all 400 variants are built.
  *
  * Grid structure:
- *   Rows    → Density section (Compact / Comfortable / Spacious)
+ *   Rows    → Context section (dense / compact / comfortable / spacious)
  *               × Size row (md first, then xs sm lg xl)
- *   Columns → Variant group (Primary / Secondary / Link / Danger)
- *               × State (Default / Hover / Active / Focus / Disabled)
+ *   Columns → Variant group (primary / secondary / link / danger)
+ *               × State (default / hover / active / focus / disabled)
  *
- * md is placed first in each density section so that Compact + md + Primary + Default
+ * md is placed first in each context section so that dense + md + primary + default
  * lands at the top-left — Figma picks the top-left component as the default instance.
+ *
+ * Property names and values are lowercase and match the live set exactly:
+ *   Context = dense | compact | comfortable | spacious
+ *   Variant = primary | secondary | link | danger
+ *   Size    = md | xs | sm | lg | xl
+ *   State   = default | hover | active | focus | disabled
  *
  * Icon slots (leading + trailing) are boolean properties within each component,
  * not a grid dimension, so they do not affect positioning.
@@ -34,7 +40,7 @@
   // ─── Property names ───────────────────────────────────────────────────────
   // These must match the exact property names defined in your Figma component set.
   const PROP = {
-    density: "Density",
+    density: "Context",
     size:    "Size",
     variant: "Variant",
     state:   "State",
@@ -43,10 +49,10 @@
   // ─── Value ordering ───────────────────────────────────────────────────────
   // Controls the visual sequence of rows and columns.
   // md is SIZE_ORDER[0] so it occupies the top row of every density section.
-  const DENSITY_ORDER = ["Compact",  "Comfortable", "Spacious"];
+  const DENSITY_ORDER = ["dense", "compact", "comfortable", "spacious"];
   const SIZE_ORDER    = ["md", "xs", "sm", "lg", "xl"];
-  const VARIANT_ORDER = ["Primary",  "Secondary",   "Link",    "Danger"];
-  const STATE_ORDER   = ["Default",  "Hover",       "Active",  "Focus", "Disabled"];
+  const VARIANT_ORDER = ["primary", "secondary", "link", "danger"];
+  const STATE_ORDER   = ["default", "hover", "active", "focus", "disabled"];
 
   // ─── Gaps (px) ────────────────────────────────────────────────────────────
   const GAP_STATE   =  8;   // between state columns within a variant group
@@ -206,12 +212,12 @@
     const vl = makeLabel(variant.toUpperCase(), 0, cy - ABOVE_VARIANTS, true);
     vl.x = cx + groupCenterX - vl.width / 2;
 
-    // State labels — centred over each individual state column
+    // State labels — left-aligned to each state column's left edge. The buttons
+    // within a column are left-aligned (placed at colX), so the label aligns to
+    // the button's left edge rather than centring over the column's max width.
     for (const state of STATE_ORDER) {
-      const col        = `${variant}_${state}`;
-      const colCenterX = (colX[col] ?? 0) + (colMaxWidth[col] ?? 0) / 2;
-      const sl         = makeLabel(state, 0, cy - ABOVE_STATES, false);
-      sl.x             = cx + colCenterX - sl.width / 2;
+      const col = `${variant}_${state}`;
+      makeLabel(state, cx + (colX[col] ?? 0), cy - ABOVE_STATES, false);
     }
   }
 

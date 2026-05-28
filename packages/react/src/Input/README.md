@@ -146,18 +146,35 @@ const ref = useRef<HTMLInputElement>(null);
 <Input ref={ref} aria-label="Email" />
 ```
 
-## Coming next
+## Field integration
 
-Adornments and label / error wiring are deliberately **not** part of
-`Input`:
+When rendered inside a [`<Field.Root>`](../Field/README.md), `Input`
+reads `FieldContext` and inherits:
 
-- **InputGroup** (next) — a framed wrapper with named leading /
-  trailing adornment slots. Wraps `Input` (and other framed controls)
-  with icons, currency symbols, clear buttons, password reveal toggles,
-  and so on.
-- **Field** (after) — a label / description / error-text coordinator
-  that auto-wires `id`, `aria-describedby`, and the `disabled` /
-  `invalid` cascade across any nested control.
+- `id` (from `field.id`)
+- `aria-describedby` (composed: consumer ids first, then the field's
+  `descriptionId`, then `errorId` when invalid)
+- `aria-invalid` (`"true"` when the field is invalid)
+- `disabled`
+- `required`
 
-Until those ship, wire labels and `aria-describedby` manually as shown
-above.
+Consumer-supplied props always win — pass an explicit value on the
+`Input` to override any field-derived one. Outside a `<Field.Root>`,
+behaviour is unchanged.
+
+```tsx
+<Field.Root invalid={!!errors.email}>
+  <Field.Label>Email</Field.Label>
+  <Input type="email" required {...register("email")} />
+  <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
+</Field.Root>
+```
+
+## Composition partners
+
+- **[InputGroup](../InputGroup/README.md)** — a framed wrapper with
+  named leading / trailing adornment slots. Use for icons, currency
+  symbols, clear buttons, password-reveal toggles.
+- **[Field](../Field/README.md)** — the label / description / error-text
+  coordinator (above). `Field` and `InputGroup` compose freely:
+  `<Field.Root><InputGroup><Input /></InputGroup></Field.Root>`.

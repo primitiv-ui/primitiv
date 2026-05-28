@@ -21,7 +21,7 @@ Composite components (PaletteRamp, Swatch, etc.) are out of scope here.
 | Input | ✓ built | needed | Hex colour text inputs; pair with `InputGroup` for the leading colour-swatch slot |
 | Select | ✓ built (native) | needed | Workspace picker and Collection dropdown; Rich Select / Combobox tracked in [`docs/select-future-work.md`](docs/select-future-work.md) |
 
-Build priority: ~~Select (native)~~ → ~~Input~~ → ~~InputGroup~~ → **Field** (label / description / error wiring) → Figma design for the remaining four.
+Build priority: ~~Select (native)~~ → ~~Input~~ → ~~InputGroup~~ → ~~Field~~ → Figma design for the remaining four.
 
 ## Components to build
 
@@ -43,7 +43,7 @@ semantics that CSS alone cannot provide.
 - [x] Checkbox Card
 - [ ] Color Picker
 - [ ] Editable
-- [ ] Field
+- [x] Field
 - [x] Fieldset
 - [ ] File Upload
 - [ ] Form
@@ -164,6 +164,7 @@ component now has a workbench example:
 - [x] Direction Provider
 - [x] Divider
 - [x] Empty State
+- [x] Field
 - [x] Input
 - [x] Input Group
 - [x] Portal

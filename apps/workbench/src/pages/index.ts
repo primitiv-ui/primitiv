@@ -14,6 +14,7 @@ export * from "./DirectionProviderExample";
 export * from "./DividerExample";
 export * from "./DropdownExample";
 export * from "./EmptyStateExample";
+export * from "./FieldExample";
 export * from "./FieldsetExample";
 export * from "./InputExample";
 export * from "./InputGroupExample";

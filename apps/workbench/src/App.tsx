@@ -18,6 +18,7 @@ import {
   DividerExample,
   DropdownExample,
   EmptyStateExample,
+  FieldExample,
   FieldsetExample,
   InputExample,
   InputGroupExample,
@@ -54,6 +55,7 @@ const navGroups: { title: string; links: NavLink[] }[] = [
     links: [
       { to: "/checkbox", label: "Checkbox" },
       { to: "/checkbox-card", label: "Checkbox Card" },
+      { to: "/field", label: "Field" },
       { to: "/fieldset", label: "Fieldset" },
       { to: "/input", label: "Input" },
       { to: "/input-group", label: "Input Group" },
@@ -187,6 +189,7 @@ function App() {
           <Route path="/divider" element={<DividerExample />} />
           <Route path="/dropdown" element={<DropdownExample />} />
           <Route path="/empty-state" element={<EmptyStateExample />} />
+          <Route path="/field" element={<FieldExample />} />
           <Route path="/fieldset" element={<FieldsetExample />} />
           <Route path="/input" element={<InputExample />} />
           <Route path="/input-group" element={<InputGroupExample />} />

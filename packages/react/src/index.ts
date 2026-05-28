@@ -13,6 +13,7 @@ export * from "./DirectionProvider";
 export * from "./Divider";
 export * from "./Dropdown";
 export * from "./EmptyState";
+export * from "./Field";
 export * from "./Fieldset";
 export * from "./Input";
 export * from "./InputGroup";

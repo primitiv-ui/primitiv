@@ -33,7 +33,7 @@
   }
 
   &__value {
-    color: #111;
+    color: oklch(1 0 0);
   }
 
   &__row {
@@ -47,7 +47,7 @@
   &__label {
     font-weight: 500;
     font-size: 0.9375rem;
-    color: #111;
+    color: #e5e7eb;
   }
 
   &__list {

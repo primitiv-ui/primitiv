@@ -5,16 +5,19 @@
  * Run this once, after all 400 variants are built.
  *
  * Grid structure:
- *   Rows    → Context section (dense / compact / comfortable / spacious)
+ *   Rows    → Context section (compact / comfortable / spacious / dense)
  *               × Size row (md first, then xs sm lg xl)
  *   Columns → Variant group (primary / secondary / link / danger)
  *               × State (default / hover / active / focus / disabled)
  *
- * md is placed first in each context section so that dense + md + primary + default
- * lands at the top-left — Figma picks the top-left component as the default instance.
+ * md is placed first in each context section, and compact is the first context
+ * section, so compact + md + primary + default lands at the top-left. The script
+ * also moves that component to index 0 of the set's children, so Figma uses it as
+ * the default instance. Dense sits last — it is the least-used context (only the
+ * plugin needs it).
  *
  * Property names and values are lowercase and match the live set exactly:
- *   Context = dense | compact | comfortable | spacious
+ *   Context = compact | comfortable | spacious | dense
  *   Variant = primary | secondary | link | danger
  *   Size    = md | xs | sm | lg | xl
  *   State   = default | hover | active | focus | disabled
@@ -49,7 +52,7 @@
   // ─── Value ordering ───────────────────────────────────────────────────────
   // Controls the visual sequence of rows and columns.
   // md is SIZE_ORDER[0] so it occupies the top row of every density section.
-  const DENSITY_ORDER = ["dense", "compact", "comfortable", "spacious"];
+  const DENSITY_ORDER = ["compact", "comfortable", "spacious", "dense"];
   const SIZE_ORDER    = ["md", "xs", "sm", "lg", "xl"];
   const VARIANT_ORDER = ["primary", "secondary", "link", "danger"];
   const STATE_ORDER   = ["default", "hover", "active", "focus", "disabled"];
@@ -164,6 +167,17 @@
       skipped++;
     }
   }
+
+  // ─── Make the top-left cell the default instance ──────────────────────────
+  // Figma uses the FIRST child of the set as the default variant. Position alone
+  // is not always enough, so explicitly move DENSITY_ORDER[0] + SIZE_ORDER[0] +
+  // VARIANT_ORDER[0] + STATE_ORDER[0] (compact/md/primary/default) to index 0.
+  const defaultComp = valid.find(c => {
+    const p = c.variantProperties;
+    return p[PROP.density] === DENSITY_ORDER[0] && p[PROP.size] === SIZE_ORDER[0]
+        && p[PROP.variant] === VARIANT_ORDER[0] && p[PROP.state] === STATE_ORDER[0];
+  });
+  if (defaultComp) componentSet.insertChild(0, defaultComp);
 
   // ─── Text labels ──────────────────────────────────────────────────────────
   // Labels are placed on the canvas (outside the component set, which only

@@ -97,12 +97,17 @@ All values alias into `Primitives` (e.g. `radii/6`, `space-8`, `size-16`). `heig
 Every framed control's focus state uses a three-layer anatomy:
 
 ```
-[ focus-ring layer     ]  ← 3px #99C8FF OUTSIDE stroke
-[ focus-ring-gap layer ]  ← white fill, no stroke
+[ focus-ring layer     ]  ← 2px brand-colour stroke (focus/ring token), enlarged frame
+[ focus-ring-gap layer ]  ← 2px transparent stroke (color/neutral/transparent), enlarged frame
 [ control frame        ]  ← the button/control itself
 ```
 
-Each layer sits centred over the one inside it, extending outward.
+The two ring layers are **separate frames, larger than the control**, sitting
+behind the content (children index 0 and 1), each centred over the control and
+extending outward — *not* an OUTSIDE stroke on the control itself. The gap layer
+is +2 px per side, the ring layer +4 px per side. Strokes are **INSIDE** on these
+enlarged frames, so the visible stroke sits in the band outside the control edge.
+(Verified against the live Button set, 2026-05-28.)
 
 ### Corner radii
 
@@ -114,14 +119,38 @@ Each layer sits centred over the one inside it, extending outward.
 
 **Why R + 2 for the gap:** the gap layer extends 2 px beyond the control edge on all sides, so its corner arc must shift out by 2 px to remain concentric.
 
-**Why R + 4 for the ring:** the ring layer frame edge marks the inner edge of the 3 px OUTSIDE stroke. For the stroke's arc to be geometrically concentric with the gap layer's outer edge, the frame radius needs to be gap-radius + ~½ stroke width (1.5 px → rounded to 2 px), giving R + 2 + 2 = R + 4.
+**Why R + 4 for the ring:** the ring frame extends +4 px per side, so its corner
+arc must shift out by 4 px from the control radius to stay concentric.
 
-### Focus ring stroke spec
+### Focus ring stroke spec (live Button set)
 
-- Width: **3 px**
-- Colour: **#99C8FF** (a fixed value, not a variable alias — matches all components)
-- Placement: **OUTSIDE** in Figma (stroke sits outside the frame boundary)
-- Toggled via a **"Focus ring"** boolean component property on each variant frame
+- Width: **2 px**, bound to `focus/ring/width` (in the `Interaction` collection).
+- Colour: bound to the **`focus/ring`** token, which aliases
+  `action/primary/default` → `color/brand/light/500` (**#20836F**, brand/teal).
+  It is **intent-neutral** — the ring is the brand colour on *every* variant
+  (primary, secondary, link, danger), because it points at the primary action
+  token regardless of the variant's own colour. It is **not** a fixed `#99C8FF`.
+- The ring is a **2 px INSIDE stroke on an enlarged frame** (R + 4, +4 px/side),
+  not an OUTSIDE stroke on the control.
+- The gap layer is a **2 px INSIDE stroke** bound to `color/neutral/transparent`
+  (white at alpha 0) on a +2 px/side frame (R + 2) — a transparent spacer band,
+  not a white fill.
+- Toggled via a **"Focus ring"** boolean component property on each variant frame.
+
+> Older component *descriptions* in the file (Switch, Checkbox, Tabs…) still cite
+> "3 px #99C8FF OUTSIDE" — that text is stale. Trust the live `focus/ring` /
+> `focus/ring/width` tokens and the actual focus-variant nodes over those notes.
+
+**Gotcha — ring-frame radius slips.** The two ring frames must bind their corner
+radii to *their own component's* size slot (`framed-control/{size}/focus-ring-radius`
+on the ring, `…/focus-ring-gap-radius` on the gap). When variants are built by
+duplicating across sizes, these bindings are easy to leave pointing at the source
+size (or, seen once, the gap frame bound to the *ring*-radius token) — the control
+frame still looks right but the ring is non-concentric (most visible at xl). On the
+Button set, 16 of 160 ring frames had slipped this way. Fix deterministically:
+sweep every `State=focus` component and `setBoundVariable` all four radius corners
+of each ring frame to the correct context+size token. Frame *offsets* are a fixed
++4 px/side (ring) and +2 px/side (gap) regardless of size, so only the radii slip.
 
 ## Primitives referenced by framed-control
 
@@ -179,6 +208,62 @@ The link button is intent-neutral — it always uses the brand colour, styled li
 
 1. Decide the value for each size slot in both densities.
 2. Check whether a `Primitives` alias exists for each value (prefer aliasing over raw numbers).
-3. Use `figma_execute` with `getVariableCollectionByIdAsync` (async API required) to create the variable in both `VariableCollectionId:340:2719` (Comfortable, mode `340:1`) and `VariableCollectionId:341:2956` (Compact, mode `341:2`).
+3. Use `figma_execute` with `getVariableCollectionByIdAsync` (async API required) to create the variable in **all four** Context collections (see IDs below).
 4. Set the value with `figma.variables.createVariableAlias(primitiveVar)`.
 5. If the property also needs a DTCG entry, run the sync plugin to back up — the `Context / *` route in `dtcg.ts` handles it automatically.
+
+### Context collection IDs
+
+| Collection | ID |
+| ---------- | -- |
+| `Context / Dense`       | `VariableCollectionId:341:3320` |
+| `Context / Compact`     | `VariableCollectionId:341:2956` |
+| `Context / Comfortable` | `VariableCollectionId:340:2719` |
+| `Context / Spacious`    | `VariableCollectionId:341:3138` |
+
+Each holds the full `framed-control/{size}/*` and `label/{size}/*` set under the
+same names — they are independent variables, distinguished only by collection.
+
+## Building components across contexts/variants — clone-and-rebind
+
+The cheapest, lowest-error way to add a context (or a missing variant) to a
+framed-control component set is to **clone an already-correct variant and rebind
+its Context-collection variables to the target collection's same-named twins**.
+Used to build the whole `dense` context + the missing `spacious·link` sizes on
+the Button set (see the `figma-button-set-complete` memory). Works because every
+density binds identically-named `framed-control/*` + `label/*` vars; only the
+collection differs. Colour (`action/*`), border-width, and the focus-ring stroke
+token live *outside* the Context collections, so they carry over untouched — and
+the focus ring is intent-neutral, so a per-variant clone keeps the right ring.
+
+Recipe (run via `figma_execute`, async API throughout):
+
+1. Build `name→ Variable` map for the **target** Context collection
+   (`getVariableCollectionByIdAsync(id)`, then `getVariableByIdAsync` per
+   `variableIds`).
+2. `const clone = src.clone(); set.appendChild(clone);`
+3. `clone.name = "Context=<ctx>, Variant=<v>, Size=<s>, State=<st>"` — setting the
+   name in `prop=value, …` form is what sets `variantProperties`.
+4. Walk every node depth-first and rebind:
+   - read `node.boundVariables`; **skip `fills` and `strokes`** (colour paints —
+     not context-bound);
+   - text typography fields (`fontSize`/`fontStyle`/`fontFamily`/`lineHeight`)
+     arrive as **arrays** — take element `[0]`; layout fields are scalar `{id}`;
+   - resolve the source var; if its `variableCollectionId` is one of the four
+     Context collections, look up the same `name` in the target map and
+     `node.setBoundVariable(field, targetVar)`.
+5. Idempotency: before a batch, remove any pre-existing clones for that
+   context+variant so re-runs don't duplicate.
+
+This is also the migration tool for the eventual modes consolidation
+([[figma-density-consolidation]]) — same walk, rebinding to the consolidated
+collection instead of a sibling Context collection.
+
+### Layout & arrange
+
+`apps/harmoni-figma-plugin/scripts/arrange-button-component-set.js` lays the set
+out into the documented grid. Props are `Context/Variant/Size/State` (lowercase
+values). Context order is **compact → comfortable → spacious → dense** (dense
+last; least-used), md-first rows, so `compact/md/primary/default` is top-left;
+the script also `insertChild(0, …)` that component so Figma uses it as the
+**default instance**. State labels are left-aligned to each column's button edge.

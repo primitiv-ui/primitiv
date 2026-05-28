@@ -4,7 +4,7 @@
 
 | Axis       | Values                                        | Direction              |
 |------------|-----------------------------------------------|------------------------|
-| Context    | dense, compact, comfortable, spacious         | Sections, top → bottom |
+| Context    | compact, comfortable, spacious, dense         | Sections, top → bottom |
 | Size       | md (anchor), xs, sm, lg, xl                   | Rows within section    |
 | Variant    | primary, secondary, link, danger              | Column groups          |
 | State      | default, hover, active, focus, disabled       | Columns within variant |
@@ -23,11 +23,16 @@ Icon-only Button will be a separate component, built later.
 
 With five sizes (xs → xl), strict ascending order puts **xs** at row 1. But Figma's
 default instance is always the top-left component in the set, which must be
-**dense / md**. These two requirements conflict.
+**compact / md**. These two requirements conflict.
 
 Resolution: **md anchors row 1 in every context section**, followed by xs → sm → lg → xl
 in ascending order below. The ascending sequence is preserved for all five sizes; md
 simply sits above it as the canonical default. Row labels make this self-evident.
+
+**compact is the first context section** (so compact/md/primary/default lands
+top-left as the default instance), and **dense sits last** — it is the least-used
+context (needed only for the plugin). The arrange script also moves that top-left
+component to index 0 of the set's children so Figma treats it as the default.
 
 ---
 
@@ -38,25 +43,25 @@ BUTTON COMPONENT SET
 ═══════════════════════════════════════════════════════════════════════════════════════════════════
           ←──── primary ──────────────── ←── secondary ────────────────── ←── link ──────────────── ←── danger ────────────────
           def  hov  act  foc  dis        def  hov  act  foc  dis        def  hov  act  foc  dis   def  hov  act  foc  dis
-──────────────────────────────────────────────────────────────────────────────────────────────────────── DENSE
+──────────────────────────────────────────────────────────────────────────────────────────────────────── COMPACT
   md ★    [  ] [  ] [  ] [  ] [  ]       [  ] [  ] [  ] [  ] [  ]       [  ] [  ] [  ] [  ] [  ]  [  ] [  ] [  ] [  ] [  ]
   xs      [  ] [  ] [  ] [  ] [  ]       [  ] [  ] [  ] [  ] [  ]       [  ] [  ] [  ] [  ] [  ]  [  ] [  ] [  ] [  ] [  ]
   sm      [  ] [  ] [  ] [  ] [  ]       [  ] [  ] [  ] [  ] [  ]       [  ] [  ] [  ] [  ] [  ]  [  ] [  ] [  ] [  ] [  ]
   lg      [  ] [  ] [  ] [  ] [  ]       [  ] [  ] [  ] [  ] [  ]       [  ] [  ] [  ] [  ] [  ]  [  ] [  ] [  ] [  ] [  ]
   xl      [  ] [  ] [  ] [  ] [  ]       [  ] [  ] [  ] [  ] [  ]       [  ] [  ] [  ] [  ] [  ]  [  ] [  ] [  ] [  ] [  ]
-──────────────────────────────────────────────────────────────────────────────────────────────────────── COMPACT
+──────────────────────────────────────────────────────────────────────────────────────────────────────── COMFORTABLE
   md      …same 4 variant groups × 5 states …
   xs      …
   sm      …
   lg      …
   xl      …
-──────────────────────────────────────────────────────────────────────────────────────────────────────── COMFORTABLE
-  md … xs … sm … lg … xl …
 ──────────────────────────────────────────────────────────────────────────────────────────────────────── SPACIOUS
+  md … xs … sm … lg … xl …
+──────────────────────────────────────────────────────────────────────────────────────────────────────── DENSE
   md … xs … sm … lg … xl …
 ═══════════════════════════════════════════════════════════════════════════════════════════════════
 
-★  Top-left = dense / md / primary / default → Figma default instance
+★  Top-left = compact / md / primary / default → Figma default instance
 [  ] Each cell contains: leading icon + label + trailing icon (all visible; toggle off to hide)
 ```
 

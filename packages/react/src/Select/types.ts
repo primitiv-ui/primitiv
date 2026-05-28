@@ -64,3 +64,18 @@ export type SelectGroupProps = ComponentProps<"optgroup"> & {
   children?: ReactNode;
   ref?: Ref<HTMLOptGroupElement>;
 };
+
+/**
+ * Props for {@link Select.Placeholder}.
+ *
+ * `value`, `disabled`, and `hidden` are owned by the component — the
+ * placeholder always has `value=""`, is always disabled, and is always
+ * hidden from the dropdown — so they can't be set by the consumer.
+ */
+export type SelectPlaceholderProps = Omit<
+  ComponentProps<"option">,
+  "value" | "disabled" | "hidden"
+> & {
+  children?: ReactNode;
+  ref?: Ref<HTMLOptionElement>;
+};

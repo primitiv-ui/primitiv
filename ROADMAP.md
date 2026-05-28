@@ -7,6 +7,22 @@ Two lists:
 2. **Workbench examples** — components that exist but still need an
    `apps/workbench` example page.
 
+## Harmoni plugin UI — minimum base components
+
+The six base components required to build the Harmoni plugin wireframe screens.
+Composite components (PaletteRamp, Swatch, etc.) are out of scope here.
+
+| Component | `@primitiv/react` | Figma design | Notes |
+|---|---|---|---|
+| Button | ✓ built | in progress | Primary, secondary, ghost/link, and icon-only variants all appear |
+| Slider | ✓ built | needed | Horizontal (Padding control) and vertical (curve editors) |
+| Switch | ✓ built | needed | Step labels and A11y badges on/off toggles |
+| Toggle Group | ✓ built | needed | Layout, Shape, Naming, and Modes pill selectors |
+| Input | not built | needed | Hex colour text inputs; trigger may include a leading colour-swatch slot |
+| Select | not built | needed | Workspace picker and Collection dropdown; native `<select>` first, Combobox later |
+
+Build priority: **Select (native)** → **Input** → Figma design for the remaining four.
+
 ## Components to build
 
 What remains is every component that carries genuine interaction

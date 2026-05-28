@@ -1,7 +1,7 @@
 import { FormEvent, useState } from "react";
 
 import { Mail } from "@primitiv/icons";
-import { Field, Input, InputGroup } from "@primitiv/react";
+import { Field, Input, InputGroup, Select, Textarea } from "@primitiv/react";
 
 import "./FieldExample.scss";
 
@@ -122,6 +122,39 @@ export function FieldExample() {
           />
           <Field.Description className="fl-example__hint">
             Contact support to change this.
+          </Field.Description>
+        </Field.Root>
+      </section>
+
+      <section className="fl-example__section">
+        <h3 className="fl-example__section-title">Works with any control</h3>
+        <p className="fl-example__description">
+          <code>Textarea</code> and <code>Select.Root</code> both read{" "}
+          <code>FieldContext</code> too — same auto-wiring rules apply.
+        </p>
+        <Field.Root className="fl-example__field" id="fl-bio">
+          <Field.Label className="fl-example__label">Bio</Field.Label>
+          <Textarea
+            className="fl-example__input"
+            rows={3}
+            placeholder="Tell us about yourself"
+          />
+          <Field.Description className="fl-example__hint">
+            A short summary shown on your profile.
+          </Field.Description>
+        </Field.Root>
+        <Field.Root className="fl-example__field" id="fl-fruit">
+          <Field.Label className="fl-example__label">
+            Favourite fruit
+          </Field.Label>
+          <Select.Root className="fl-example__input">
+            <Select.Placeholder>Choose a fruit…</Select.Placeholder>
+            <Select.Option value="apple">Apple</Select.Option>
+            <Select.Option value="banana">Banana</Select.Option>
+            <Select.Option value="cherry">Cherry</Select.Option>
+          </Select.Root>
+          <Field.Description className="fl-example__hint">
+            We'll feature this on the menu.
           </Field.Description>
         </Field.Root>
       </section>

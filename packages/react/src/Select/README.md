@@ -123,6 +123,34 @@ the root `<select>` for CSS targeting.
 </Select.Root>
 ```
 
+## Field integration
+
+When rendered inside a [`<Field.Root>`](../Field/README.md),
+`Select.Root` reads `FieldContext` and inherits:
+
+- `id` (from `field.id`)
+- `aria-describedby` (composed: consumer ids first, then the field's
+  `descriptionId`, then `errorId` when invalid)
+- `aria-invalid` (`"true"` when the field is invalid)
+- `disabled`
+- `required`
+
+Consumer-supplied props always win — pass an explicit value on the
+`Select.Root` to override any field-derived one. Outside a `<Field.Root>`,
+behaviour is unchanged.
+
+```tsx
+<Field.Root invalid={!!errors.fruit}>
+  <Field.Label>Fruit</Field.Label>
+  <Select.Root {...register("fruit")}>
+    <Select.Placeholder>Choose a fruit…</Select.Placeholder>
+    <Select.Option value="apple">Apple</Select.Option>
+    <Select.Option value="banana">Banana</Select.Option>
+  </Select.Root>
+  <Field.ErrorText>{errors.fruit?.message}</Field.ErrorText>
+</Field.Root>
+```
+
 ## Form integration
 
 Native `<select>` is a form-associated element. Pass `name` and

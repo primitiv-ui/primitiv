@@ -69,7 +69,12 @@ function SelectRoot({
         : {};
 
   return (
-    <select {...rest} {...controlProps} onChange={handleChange}>
+    <select
+      {...rest}
+      {...controlProps}
+      data-disabled={rest.disabled ? "" : undefined}
+      onChange={handleChange}
+    >
       {children}
     </select>
   );

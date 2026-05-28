@@ -253,6 +253,10 @@ same names — they are independent variables, distinguished only by collection.
 
 ## Building components across contexts/variants — clone-and-rebind
 
+> For the full build *process* (pre-flight checks, the incremental audit loop,
+> laying out the set, and verification), see the **`figma-framed-control-component`**
+> skill. This section is the token-level mechanics it relies on.
+
 The cheapest, lowest-error way to add a context (or a missing variant) to a
 framed-control component set is to **clone an already-correct variant and rebind
 its Context-collection variables to the target collection's same-named twins**.

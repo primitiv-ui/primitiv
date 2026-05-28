@@ -134,7 +134,17 @@ keyword or by topic; do not paraphrase their content here.
   (R+2 gap / R+4 ring), and the script pattern for adding new variables.
   TRIGGER when adding new variables, binding layer properties to tokens,
   extending framed-control to a new component, or debugging focus ring
-  geometry.
+  geometry. Now also holds the canonical focus-ring build recipe (the
+  shared standard for every framed control).
+- **`figma-framed-control-component`** — end-to-end *playbook* for
+  building or extending a framed-control component set in Figma
+  (Button, Switch, Checkbox, …): pre-flight (real-set vs POC), learn
+  the anatomy, clone-and-rebind to add a context/variant/fill gaps,
+  the incremental instance-preview audit loop, the arrange script +
+  default-instance trick, and verification. Pairs with
+  `figma-variable-architecture` (the token-value reference it links to).
+  TRIGGER when building/extending/laying-out/auditing a framed-control
+  component set in Figma.
 - **`model-routing`** — Opus/Sonnet/Haiku decision tree.
 
 ## Slash commands

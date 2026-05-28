@@ -29,7 +29,13 @@ function FieldRoot({
 
   return (
     <FieldContext.Provider value={value}>
-      <div {...rest} data-field="">
+      <div
+        {...rest}
+        data-field=""
+        data-field-invalid={invalid ? "" : undefined}
+        data-field-disabled={disabled ? "" : undefined}
+        data-field-required={required ? "" : undefined}
+      >
         {children}
       </div>
     </FieldContext.Provider>
@@ -61,7 +67,8 @@ function FieldDescription({ children, ...rest }: FieldDescriptionProps) {
 FieldDescription.displayName = "FieldDescription";
 
 function FieldErrorText({ children, ...rest }: FieldErrorTextProps) {
-  const { errorId } = useFieldContext();
+  const { errorId, invalid } = useFieldContext();
+  if (!invalid) return null;
   return (
     <div id={errorId} role="alert" {...rest}>
       {children}

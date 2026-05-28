@@ -63,10 +63,10 @@ describe("Field basic rendering", () => {
     );
   });
 
-  it("Field.ErrorText renders a <div role='alert'> with derived id", () => {
+  it("Field.ErrorText renders a <div role='alert'> with derived id when invalid", () => {
     // Arrange & Act
     render(
-      <Field.Root id="email">
+      <Field.Root id="email" invalid>
         <Field.ErrorText>Required.</Field.ErrorText>
       </Field.Root>,
     );

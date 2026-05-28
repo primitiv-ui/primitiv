@@ -12,6 +12,14 @@ type SelectRootBaseProps = Omit<
    * `ChangeEvent` (e.g. to inspect `event.target.validity`).
    */
   onChange?: ChangeEventHandler<HTMLSelectElement>;
+  /**
+   * When `true`, Root delegates to a single consumer-supplied element
+   * (expected to render a `<select>`) and merges its own props onto it
+   * via the {@link Slot} pattern. The placeholder-detection inside Root
+   * walks direct children only, so placeholder + `asChild` requires the
+   * consumer to set `defaultValue=""` explicitly.
+   */
+  asChild?: boolean;
 };
 
 type SelectRootUncontrolledProps = SelectRootBaseProps & {

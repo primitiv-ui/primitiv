@@ -1,5 +1,7 @@
 import { ChangeEvent, Children, isValidElement, ReactNode } from "react";
 
+import { Slot } from "../Slot";
+
 import {
   SelectGroupProps,
   SelectOptionProps,
@@ -43,6 +45,7 @@ function hasPlaceholderChild(children: ReactNode): boolean {
  */
 function SelectRoot({
   children,
+  asChild = false,
   onChange,
   onValueChange,
   value,
@@ -55,6 +58,7 @@ function SelectRoot({
   };
 
   const inferredDefaultValue =
+    !asChild &&
     value === undefined &&
     defaultValue === undefined &&
     hasPlaceholderChild(children)
@@ -68,16 +72,17 @@ function SelectRoot({
         ? { defaultValue: inferredDefaultValue }
         : {};
 
-  return (
-    <select
-      {...rest}
-      {...controlProps}
-      data-disabled={rest.disabled ? "" : undefined}
-      onChange={handleChange}
-    >
-      {children}
-    </select>
-  );
+  const rootProps = {
+    ...rest,
+    ...controlProps,
+    "data-disabled": rest.disabled ? "" : undefined,
+    onChange: handleChange,
+  };
+
+  if (asChild) {
+    return <Slot {...rootProps}>{children}</Slot>;
+  }
+  return <select {...rootProps}>{children}</select>;
 }
 
 SelectRoot.displayName = "SelectRoot";

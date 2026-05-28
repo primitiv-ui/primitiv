@@ -1,3 +1,4 @@
+import { useFieldProps } from "../Field/hooks";
 import { Slot } from "../Slot";
 import { TextareaProps } from "./types";
 
@@ -12,6 +13,13 @@ import { TextareaProps } from "./types";
  * **Labelling.** A `<textarea>` has no implicit accessible name. Pair it
  * with a `<label>` (`htmlFor` → the textarea's `id`), or pass `aria-label`
  * / `aria-labelledby` for the control to be announced correctly.
+ *
+ * **Field integration.** When rendered inside a `<Field.Root>`, Textarea
+ * opts into `FieldContext` and inherits `id`, `aria-describedby`,
+ * `aria-invalid`, `disabled`, and `required` from the field. Any prop
+ * the consumer passes wins; `aria-describedby` is composed (consumer
+ * ids first, then field-supplied description / error ids). Outside a
+ * `<Field.Root>`, behaviour is unchanged.
  *
  * **Ref forwarding.** Pass a `ref` prop to access the underlying
  * `HTMLTextAreaElement` directly:
@@ -40,6 +48,15 @@ import { TextareaProps } from "./types";
  * <Textarea id="bio" rows={4} placeholder="Tell us about yourself" />
  * ```
  *
+ * @example Inside a Field — id and aria wired automatically
+ * ```tsx
+ * <Field.Root invalid={!!errors.bio}>
+ *   <Field.Label>Bio</Field.Label>
+ *   <Textarea rows={4} {...register("bio")} />
+ *   <Field.ErrorText>{errors.bio?.message}</Field.ErrorText>
+ * </Field.Root>
+ * ```
+ *
  * @example Disabled
  * ```tsx
  * <Textarea aria-label="Bio" disabled />
@@ -54,16 +71,16 @@ import { TextareaProps } from "./types";
  */
 export function Textarea({
   asChild = false,
-  disabled,
   children,
   ref,
-  ...rest
+  ...consumer
 }: TextareaProps) {
+  const merged = useFieldProps(consumer);
+
   const rootProps = {
-    ...rest,
+    ...merged,
     ref,
-    disabled,
-    "data-disabled": disabled ? "" : undefined,
+    "data-disabled": merged.disabled ? "" : undefined,
   };
 
   if (asChild) {

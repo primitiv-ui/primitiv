@@ -2307,11 +2307,11 @@
           },
           "focus-ring-gap-radius": {
             "$type": "number",
-            "$value": "{radii.6}"
+            "$value": "{radii.8}"
           },
           "focus-ring-radius": {
             "$type": "number",
-            "$value": "{radii.8}"
+            "$value": "{radii.10}"
           }
         },
         "sm": {
@@ -2337,11 +2337,11 @@
           },
           "focus-ring-gap-radius": {
             "$type": "number",
-            "$value": "{radii.8}"
+            "$value": "{radii.10}"
           },
           "focus-ring-radius": {
             "$type": "number",
-            "$value": "{radii.10}"
+            "$value": "{radii.12}"
           }
         },
         "md": {
@@ -2367,11 +2367,11 @@
           },
           "focus-ring-gap-radius": {
             "$type": "number",
-            "$value": "{radii.8}"
+            "$value": "{radii.10}"
           },
           "focus-ring-radius": {
             "$type": "number",
-            "$value": "{radii.10}"
+            "$value": "{radii.12}"
           }
         },
         "lg": {
@@ -2397,11 +2397,11 @@
           },
           "focus-ring-gap-radius": {
             "$type": "number",
-            "$value": "{radii.10}"
+            "$value": "{radii.12}"
           },
           "focus-ring-radius": {
             "$type": "number",
-            "$value": "{radii.12}"
+            "$value": "{radii.14}"
           }
         },
         "xl": {
@@ -2427,11 +2427,11 @@
           },
           "focus-ring-gap-radius": {
             "$type": "number",
-            "$value": "{radii.10}"
+            "$value": "{radii.14}"
           },
           "focus-ring-radius": {
             "$type": "number",
-            "$value": "{radii.12}"
+            "$value": "{radii.16}"
           }
         }
       },
@@ -3087,11 +3087,11 @@
           },
           "focus-ring-gap-radius": {
             "$type": "number",
-            "$value": "{radii.6}"
+            "$value": "{radii.4}"
           },
           "focus-ring-radius": {
             "$type": "number",
-            "$value": "{radii.8}"
+            "$value": "{radii.6}"
           }
         },
         "sm": {
@@ -3117,11 +3117,11 @@
           },
           "focus-ring-gap-radius": {
             "$type": "number",
-            "$value": "{radii.8}"
+            "$value": "{radii.6}"
           },
           "focus-ring-radius": {
             "$type": "number",
-            "$value": "{radii.10}"
+            "$value": "{radii.8}"
           }
         },
         "md": {
@@ -3147,11 +3147,11 @@
           },
           "focus-ring-gap-radius": {
             "$type": "number",
-            "$value": "{radii.8}"
+            "$value": "{radii.6}"
           },
           "focus-ring-radius": {
             "$type": "number",
-            "$value": "{radii.10}"
+            "$value": "{radii.8}"
           }
         },
         "lg": {
@@ -3177,11 +3177,11 @@
           },
           "focus-ring-gap-radius": {
             "$type": "number",
-            "$value": "{radii.10}"
+            "$value": "{radii.6}"
           },
           "focus-ring-radius": {
             "$type": "number",
-            "$value": "{radii.12}"
+            "$value": "{radii.8}"
           }
         },
         "xl": {
@@ -3207,11 +3207,11 @@
           },
           "focus-ring-gap-radius": {
             "$type": "number",
-            "$value": "{radii.10}"
+            "$value": "{radii.8}"
           },
           "focus-ring-radius": {
             "$type": "number",
-            "$value": "{radii.12}"
+            "$value": "{radii.10}"
           }
         }
       },

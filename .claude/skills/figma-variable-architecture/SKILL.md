@@ -137,6 +137,33 @@ arc must shift out by 4 px from the control radius to stay concentric.
   not a white fill.
 - Toggled via a **"Focus ring"** boolean component property on each variant frame.
 
+### Canonical recipe — focus ring on ANY component
+
+This ring is the **shared standard for every framed control** (Button, Switch,
+Checkbox, Tabs/Trigger, …). Build it identically each time so all components match.
+For a focus variant of size `S` in context collection `C`, add two frames as the
+**first two children** (behind the content), each centred on the control with
+`layoutPositioning = "ABSOLUTE"`:
+
+1. **`focus-ring-gap`** (index 0 or 1, drawn under the ring):
+   - size = control **+2 px per side** (w+4, h+4); position x=y=**−2** rel. control.
+   - 4 corner radii → `C` `framed-control/${S}/focus-ring-gap-radius`.
+   - stroke INSIDE, 4 weights → `focus/ring/width`; stroke colour → `color/neutral/transparent`.
+   - no fill.
+2. **`focus-ring`** (outermost):
+   - size = control **+4 px per side** (w+8, h+8); position x=y=**−4** rel. control.
+   - 4 corner radii → `C` `framed-control/${S}/focus-ring-radius`.
+   - stroke INSIDE, 4 weights → `focus/ring/width`; stroke colour → `focus/ring`.
+   - no fill.
+3. Expose a boolean **"Focus ring"** component property bound to both frames'
+   visibility (so non-focus variants hide it / it can be toggled).
+
+The +2/+4 px offsets are **fixed for all sizes**; only the radii vary (via the
+size token). Pin the radii to `S` — do not inherit them from a duplicated source
+size (see the slip gotcha below). For a non-rectangular control (e.g. a circular
+Switch thumb/track) the same two-frame, +2/+4, INSIDE-stroke model applies; use
+the control's own radius token in place of `framed-control/*` if it differs.
+
 > Older component *descriptions* in the file (Switch, Checkbox, Tabs…) still cite
 > "3 px #99C8FF OUTSIDE" — that text is stale. Trust the live `focus/ring` /
 > `focus/ring/width` tokens and the actual focus-variant nodes over those notes.

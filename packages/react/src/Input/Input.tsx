@@ -1,3 +1,6 @@
+import { useContext } from "react";
+
+import { FieldContext } from "../Field/FieldContext";
 import { Slot } from "../Slot";
 import { InputProps } from "./types";
 
@@ -35,6 +38,13 @@ import { InputProps } from "./types";
  * <Input {...register("email")} type="email" required />
  * ```
  *
+ * **Field integration.** When rendered inside a `<Field.Root>`, Input
+ * opts into `FieldContext` and inherits `id`, `aria-describedby`,
+ * `aria-invalid`, `disabled`, and `required` from the field. Any prop
+ * the consumer passes wins; `aria-describedby` is composed (consumer
+ * ids first, then field-supplied description / error ids). Outside a
+ * `<Field.Root>`, behaviour is unchanged.
+ *
  * **Ref forwarding.** Pass a `ref` prop to access the underlying
  * `HTMLInputElement`:
  *
@@ -56,16 +66,23 @@ import { InputProps } from "./types";
  * via the {@link Slot} utility. `type` is **not** forwarded in this
  * mode — the child element owns its own type semantics.
  *
- * **Adornments and label / error wiring** are not part of `Input`
- * itself. Adornments (leading / trailing icons, currency symbols, clear
- * buttons) will land in a separate `InputGroup` primitive; label,
- * description, and error-text coordination will land in `Field`. Until
- * those ship, wire `aria-describedby` and `aria-invalid` manually.
+ * **Adornments** live in the separate `InputGroup` primitive — leading
+ * / trailing icons, currency symbols, clear buttons, password-reveal
+ * toggles.
  *
  * @example Basic usage
  * ```tsx
  * <label htmlFor="email">Email</label>
  * <Input id="email" type="email" required />
+ * ```
+ *
+ * @example Inside a Field — id, aria-*, disabled, required all wired automatically
+ * ```tsx
+ * <Field.Root invalid={!!errors.email}>
+ *   <Field.Label>Email</Field.Label>
+ *   <Input type="email" {...register("email")} />
+ *   <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
+ * </Field.Root>
  * ```
  *
  * @example Disabled
@@ -83,15 +100,38 @@ import { InputProps } from "./types";
 export function Input({
   asChild = false,
   type = "text",
-  disabled,
+  id: idProp,
+  "aria-describedby": ariaDescribedByProp,
+  "aria-invalid": ariaInvalidProp,
+  disabled: disabledProp,
+  required: requiredProp,
   children,
   ref,
   ...rest
 }: InputProps) {
+  const field = useContext(FieldContext);
+
+  const id = idProp ?? field?.id;
+  const disabled = disabledProp ?? field?.disabled;
+  const required = requiredProp ?? field?.required;
+  const ariaInvalid = ariaInvalidProp ?? (field?.invalid || undefined);
+  const composedDescribedBy =
+    [
+      ariaDescribedByProp,
+      field?.descriptionId,
+      field?.invalid ? field?.errorId : null,
+    ]
+      .filter(Boolean)
+      .join(" ") || undefined;
+
   const rootProps = {
     ...rest,
+    id,
     ref,
     disabled,
+    required,
+    "aria-invalid": ariaInvalid,
+    "aria-describedby": composedDescribedBy,
     "data-disabled": disabled ? "" : undefined,
   };
 

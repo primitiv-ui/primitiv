@@ -9,17 +9,25 @@ export type FieldRootProps = ComponentProps<"div"> & {
   disabled?: boolean;
   /** Marks the field as required; cascades to the control via context. */
   required?: boolean;
+  /** Renders the consumer element instead of `<div>` via Slot. */
+  asChild?: boolean;
   children?: ReactNode;
 };
 
 export type FieldLabelProps = ComponentProps<"label"> & {
+  /** Renders the consumer element instead of `<label>` via Slot. */
+  asChild?: boolean;
   children?: ReactNode;
 };
 
 export type FieldDescriptionProps = ComponentProps<"div"> & {
+  /** Renders the consumer element instead of `<div>` via Slot. */
+  asChild?: boolean;
   children?: ReactNode;
 };
 
 export type FieldErrorTextProps = ComponentProps<"div"> & {
+  /** Renders the consumer element instead of `<div>` via Slot. */
+  asChild?: boolean;
   children?: ReactNode;
 };

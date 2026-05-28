@@ -1,5 +1,6 @@
 import { useId, useMemo } from "react";
 
+import { Slot } from "../Slot";
 import { FieldContext } from "./FieldContext";
 import { useFieldContext } from "./hooks";
 import {
@@ -29,6 +30,11 @@ import {
  * `data-field-required` attributes when the corresponding flag is
  * truthy, so CSS can style the whole field group on a single selector.
  *
+ * **`asChild` composition.** Pass `asChild` to render the consumer's
+ * element instead of `<div>` — e.g. a semantic `<fieldset>` or
+ * `<section>`. The `data-field-*` hooks and context provider stay
+ * intact.
+ *
  * @example
  * ```tsx
  * <Field.Root id="email" invalid={!!errors.email}>
@@ -44,6 +50,7 @@ function FieldRoot({
   invalid = false,
   disabled = false,
   required = false,
+  asChild = false,
   children,
   ...rest
 }: FieldRootProps) {
@@ -57,17 +64,21 @@ function FieldRoot({
     [id, descriptionId, errorId, invalid, disabled, required],
   );
 
+  const rootProps = {
+    ...rest,
+    "data-field": "",
+    "data-field-invalid": invalid ? "" : undefined,
+    "data-field-disabled": disabled ? "" : undefined,
+    "data-field-required": required ? "" : undefined,
+  };
+
   return (
     <FieldContext.Provider value={value}>
-      <div
-        {...rest}
-        data-field=""
-        data-field-invalid={invalid ? "" : undefined}
-        data-field-disabled={disabled ? "" : undefined}
-        data-field-required={required ? "" : undefined}
-      >
-        {children}
-      </div>
+      {asChild ? (
+        <Slot {...rootProps}>{children}</Slot>
+      ) : (
+        <div {...rootProps}>{children}</div>
+      )}
     </FieldContext.Provider>
   );
 }
@@ -78,15 +89,19 @@ FieldRoot.displayName = "FieldRoot";
  * Renders a `<label>` wired to the field's id via `htmlFor` — clicking
  * the label focuses the associated control.
  *
+ * **`asChild` composition.** Pass `asChild` to render any consumer
+ * element with the `htmlFor` attribute merged on.
+ *
  * @throws If rendered outside a `<Field.Root>`.
  */
-function FieldLabel({ children, ...rest }: FieldLabelProps) {
+function FieldLabel({ asChild = false, children, ...rest }: FieldLabelProps) {
   const { id } = useFieldContext();
-  return (
-    <label htmlFor={id} {...rest}>
-      {children}
-    </label>
-  );
+  const labelProps = { ...rest, htmlFor: id };
+
+  if (asChild) {
+    return <Slot {...labelProps}>{children}</Slot>;
+  }
+  return <label {...labelProps}>{children}</label>;
 }
 
 FieldLabel.displayName = "FieldLabel";
@@ -97,15 +112,23 @@ FieldLabel.displayName = "FieldLabel";
  * announce it alongside the label — `Input` does this automatically
  * when nested inside a `<Field.Root>`.
  *
+ * **`asChild` composition.** Pass `asChild` to render a `<p>`,
+ * `<span>`, or any other element with the `id` merged on.
+ *
  * @throws If rendered outside a `<Field.Root>`.
  */
-function FieldDescription({ children, ...rest }: FieldDescriptionProps) {
+function FieldDescription({
+  asChild = false,
+  children,
+  ...rest
+}: FieldDescriptionProps) {
   const { descriptionId } = useFieldContext();
-  return (
-    <div id={descriptionId} {...rest}>
-      {children}
-    </div>
-  );
+  const descriptionProps = { ...rest, id: descriptionId };
+
+  if (asChild) {
+    return <Slot {...descriptionProps}>{children}</Slot>;
+  }
+  return <div {...descriptionProps}>{children}</div>;
 }
 
 FieldDescription.displayName = "FieldDescription";
@@ -116,6 +139,9 @@ FieldDescription.displayName = "FieldDescription";
  * consumers can render it unconditionally and rely on the field to gate
  * visibility.
  *
+ * **`asChild` composition.** Pass `asChild` to render the consumer's
+ * element with the `id` and `role="alert"` merged on.
+ *
  * @example
  * ```tsx
  * <Field.Root invalid={!!errors.email}>
@@ -125,14 +151,19 @@ FieldDescription.displayName = "FieldDescription";
  *
  * @throws If rendered outside a `<Field.Root>`.
  */
-function FieldErrorText({ children, ...rest }: FieldErrorTextProps) {
+function FieldErrorText({
+  asChild = false,
+  children,
+  ...rest
+}: FieldErrorTextProps) {
   const { errorId, invalid } = useFieldContext();
   if (!invalid) return null;
-  return (
-    <div id={errorId} role="alert" {...rest}>
-      {children}
-    </div>
-  );
+  const errorProps = { ...rest, id: errorId, role: "alert" as const };
+
+  if (asChild) {
+    return <Slot {...errorProps}>{children}</Slot>;
+  }
+  return <div {...errorProps}>{children}</div>;
 }
 
 FieldErrorText.displayName = "FieldErrorText";
@@ -160,13 +191,16 @@ type TFieldCompound = typeof FieldRoot & {
  * sub-components as static properties:
  *
  * - {@link FieldRoot | `Field.Root`} — provides context, renders the
- *   `<div data-field>` wrapper.
+ *   `<div data-field>` wrapper (or any element via `asChild`).
  * - {@link FieldLabel | `Field.Label`} — `<label htmlFor>` wired to the
  *   field id.
  * - {@link FieldDescription | `Field.Description`} — `<div id>` for
  *   help text, referenced via `aria-describedby`.
  * - {@link FieldErrorText | `Field.ErrorText`} — `<div role="alert">`
  *   rendered only when invalid.
+ *
+ * Every part supports `asChild` for the consumer to swap in their own
+ * element while keeping the wiring.
  *
  * @example Basic
  * ```tsx

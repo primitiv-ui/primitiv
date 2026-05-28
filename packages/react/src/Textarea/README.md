@@ -72,3 +72,27 @@ while keeping the same prop contract:
 const ref = useRef<HTMLTextAreaElement>(null);
 <Textarea ref={ref} aria-label="Bio" />
 ```
+
+## Field integration
+
+When rendered inside a [`<Field.Root>`](../Field/README.md), `Textarea`
+reads `FieldContext` and inherits:
+
+- `id` (from `field.id`)
+- `aria-describedby` (composed: consumer ids first, then the field's
+  `descriptionId`, then `errorId` when invalid)
+- `aria-invalid` (`"true"` when the field is invalid)
+- `disabled`
+- `required`
+
+Consumer-supplied props always win — pass an explicit value on the
+`Textarea` to override any field-derived one. Outside a `<Field.Root>`,
+behaviour is unchanged.
+
+```tsx
+<Field.Root invalid={!!errors.bio}>
+  <Field.Label>Bio</Field.Label>
+  <Textarea rows={4} required {...register("bio")} />
+  <Field.ErrorText>{errors.bio?.message}</Field.ErrorText>
+</Field.Root>
+```

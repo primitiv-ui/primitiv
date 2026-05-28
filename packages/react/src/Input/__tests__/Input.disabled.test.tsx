@@ -31,4 +31,19 @@ describe("Input disabled state", () => {
       screen.getByRole("textbox", { name: "Email" }),
     ).not.toHaveAttribute("data-disabled");
   });
+
+  it("sets data-disabled on the child element when asChild and disabled", () => {
+    // Arrange & Act
+    render(
+      <Input asChild aria-label="Email" disabled>
+        <input />
+      </Input>,
+    );
+
+    // Assert
+    expect(screen.getByRole("textbox", { name: "Email" })).toHaveAttribute(
+      "data-disabled",
+      "",
+    );
+  });
 });

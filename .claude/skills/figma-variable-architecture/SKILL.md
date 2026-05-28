@@ -16,6 +16,16 @@ description: Architecture of the Figma variable collections — collection hiera
 | `Interaction`                | `semantic.json`   | `interaction`                 | Interaction-state tokens                              |
 | `Components`                 | `components.json` | (none)                        | Per-component token decisions (wired to aliases)      |
 
+### Why density levels are separate collections (not modes)
+
+The slash in a Figma collection name is **purely visual grouping** in the collections panel — it creates no parent/child relationship. `Context / Compact` and `Context / Comfortable` are fully independent collections.
+
+The correct Figma architecture for density switching is a **single `Context` collection with 4 modes** (Dense, Compact, Comfortable, Spacious). That enables frame-level mode overrides so any frame can switch density without rebinding variables. The current separate-collection structure is a **Figma free-tier workaround**: the free plan allows only 1 mode per collection, making multi-mode consolidation impossible.
+
+The same pattern applies to `Primitives / Palette` and `Intent / Light` — these are standalone collections, not groups inside `Primitives` or `Intent`.
+
+**Target architecture (Professional tier):** consolidate all `Context / *` collections into one `Context` collection with 4 modes. This will require rebinding component token references. Do this migration before building out further components to minimise rebinding scope.
+
 The Context collections are the ones you'll touch most when building or updating components. Each holds the full `framed-control/*` anatomy for every size slot.
 
 ## The framed-control token anatomy

@@ -44,7 +44,7 @@ type IntentStatus =
   | { kind: "success"; result: BootstrapIntentResult }
   | { kind: "error"; message: string };
 
-const DTCG_FILE_NAMES = ["primitives", "semantic", "components"] as const;
+const DTCG_FILE_NAMES = ["primitives", "palette", "intent", "context", "interaction"] as const;
 const SYNC_URL = "http://localhost:4477/sync";
 const CONTEXT_OPTIONS: { value: ContextName; label: string }[] = [
   { value: "comfortable", label: "Comfortable" },
@@ -153,9 +153,11 @@ export function App() {
       dtcgFiles === null
         ? null
         : {
-            primitives: toDataUri(dtcgFiles.primitives),
-            semantic: toDataUri(dtcgFiles.semantic),
-            components: toDataUri(dtcgFiles.components),
+            primitives:  toDataUri(dtcgFiles.primitives),
+            palette:     toDataUri(dtcgFiles.palette),
+            intent:      toDataUri(dtcgFiles.intent),
+            context:     toDataUri(dtcgFiles.context),
+            interaction: toDataUri(dtcgFiles.interaction),
           },
     [dtcgFiles],
   );

@@ -35,13 +35,15 @@ describe('createSyncServer', () => {
     return `http://127.0.0.1:${port}${path}`
   }
 
-  it('writes the three DTCG files to disk on POST /sync', async () => {
+  it('writes the five DTCG files to disk on POST /sync', async () => {
     const payload = {
       primitives: {
         'font-family': { sans: { $type: 'string', $value: 'Asta Sans' } },
       },
-      semantic: { typography: {} },
-      components: { button: {} },
+      palette: { light: {}, dark: {} },
+      intent: { light: {}, dark: {} },
+      context: { comfortable: {} },
+      interaction: {},
     }
 
     const response = await fetch(url(), {
@@ -58,21 +60,31 @@ describe('createSyncServer', () => {
     ).toEqual(payload.primitives)
     expect(
       JSON.parse(
-        await fs.readFile(path.join(outDir, 'semantic.json'), 'utf8'),
+        await fs.readFile(path.join(outDir, 'palette.json'), 'utf8'),
       ),
-    ).toEqual(payload.semantic)
+    ).toEqual(payload.palette)
     expect(
       JSON.parse(
-        await fs.readFile(path.join(outDir, 'components.json'), 'utf8'),
+        await fs.readFile(path.join(outDir, 'intent.json'), 'utf8'),
       ),
-    ).toEqual(payload.components)
+    ).toEqual(payload.intent)
+    expect(
+      JSON.parse(
+        await fs.readFile(path.join(outDir, 'context.json'), 'utf8'),
+      ),
+    ).toEqual(payload.context)
+    expect(
+      JSON.parse(
+        await fs.readFile(path.join(outDir, 'interaction.json'), 'utf8'),
+      ),
+    ).toEqual(payload.interaction)
   })
 
   it('includes the CORS Allow-Origin header on a successful sync', async () => {
     const response = await fetch(url(), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ primitives: {}, semantic: {}, components: {} }),
+      body: JSON.stringify({ primitives: {}, palette: {}, intent: {}, context: {}, interaction: {} }),
     })
 
     expect(response.headers.get('access-control-allow-origin')).toBe('*')
@@ -118,8 +130,10 @@ describe('createSyncServer', () => {
       primitives: {
         color: { red: { $type: 'color', $value: '#ff0000' } },
       },
-      semantic: {},
-      components: {},
+      palette: {},
+      intent: {},
+      context: {},
+      interaction: {},
     }
 
     await fetch(url(), {

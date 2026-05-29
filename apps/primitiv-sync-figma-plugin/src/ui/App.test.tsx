@@ -99,7 +99,7 @@ describe('App', () => {
     )
   })
 
-  it('renders download links for the three DTCG files after an export reply', async () => {
+  it('renders download links for the five DTCG files after an export reply', async () => {
     render(<App />)
 
     window.dispatchEvent(
@@ -134,10 +134,16 @@ describe('App', () => {
       await screen.findByRole('link', { name: 'primitives.json' }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('link', { name: 'semantic.json' }),
+      screen.getByRole('link', { name: 'palette.json' }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('link', { name: 'components.json' }),
+      screen.getByRole('link', { name: 'intent.json' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: 'context.json' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: 'interaction.json' }),
     ).toBeInTheDocument()
   })
 

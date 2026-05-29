@@ -661,7 +661,42 @@ describe('figmaVarsToDtcg', () => {
     expect(result.components).toEqual({})
   })
 
-  it('routes an Intent / Light variable into semantic under color.*', () => {
+  it('routes an Intent collection into semantic.color.{mode}.*', () => {
+    const INTENT_COLL: FigmaCollection = {
+      id: 'ci',
+      name: 'Intent',
+      modes: [
+        { modeId: 'light', name: 'Light' },
+        { modeId: 'dark', name: 'Dark' },
+      ],
+      defaultModeId: 'light',
+    }
+
+    const result = figmaVarsToDtcg(
+      [INTENT_COLL],
+      [
+        {
+          id: 'v1',
+          name: 'action/primary/default',
+          resolvedType: 'COLOR',
+          variableCollectionId: 'ci',
+          valuesByMode: {
+            light: { r: 0.2, g: 0.4, b: 0.8, a: 1 },
+            dark:  { r: 0.1, g: 0.2, b: 0.5, a: 1 },
+          },
+        },
+      ],
+    )
+
+    expect((result.semantic.color as Record<string, unknown>).light).toEqual({
+      action: { primary: { default: { $type: 'color', $value: '#3366cc' } } },
+    })
+    expect((result.semantic.color as Record<string, unknown>).dark).toEqual({
+      action: { primary: { default: { $type: 'color', $value: '#1a3380' } } },
+    })
+  })
+
+  it('still routes legacy Intent / Light into semantic.color.light.*', () => {
     const INTENT_LIGHT_COLL: FigmaCollection = {
       id: 'cil',
       name: 'Intent / Light',
@@ -674,13 +709,6 @@ describe('figmaVarsToDtcg', () => {
       [
         {
           id: 'v1',
-          name: 'action/primary/default',
-          resolvedType: 'COLOR',
-          variableCollectionId: 'cil',
-          valuesByMode: { mil: { r: 0.2, g: 0.4, b: 0.8, a: 1 } },
-        },
-        {
-          id: 'v2',
           name: 'surface/default',
           resolvedType: 'COLOR',
           variableCollectionId: 'cil',
@@ -689,8 +717,7 @@ describe('figmaVarsToDtcg', () => {
       ],
     )
 
-    expect(result.semantic.color).toEqual({
-      action: { primary: { default: { $type: 'color', $value: '#3366cc' } } },
+    expect((result.semantic.color as Record<string, unknown>).light).toEqual({
       surface: { default: { $type: 'color', $value: '#fafafa' } },
     })
   })

@@ -31,8 +31,8 @@ export type BootstrapInteractionResult = {
   warnings: string[]
 }
 
-/** Result returned by the Bootstrap Intent / Light action. */
-export type BootstrapIntentLightResult = {
+/** Result returned by the Bootstrap Intent action. */
+export type BootstrapIntentResult = {
   collection: 'created' | 'updated'
   variablesCreated: number
   variablesUpdated: number
@@ -78,8 +78,8 @@ export type SandboxMessage =
     }
   | { type: 'bootstrap-interaction-result'; result: BootstrapInteractionResult }
   | { type: 'bootstrap-interaction-error'; message: string }
-  | { type: 'bootstrap-intent-light-result'; result: BootstrapIntentLightResult }
-  | { type: 'bootstrap-intent-light-error'; message: string }
+  | { type: 'bootstrap-intent-result'; result: BootstrapIntentResult }
+  | { type: 'bootstrap-intent-error'; message: string }
 
 /** A message posted from the UI back to the sandbox. */
 export type UiMessage =
@@ -88,5 +88,5 @@ export type UiMessage =
   | { type: 'export-tokens-request' }
   | { type: 'bootstrap-context-request'; context: ContextName }
   | { type: 'bootstrap-interaction-request' }
-  | { type: 'bootstrap-intent-light-request' }
+  | { type: 'bootstrap-intent-request' }
   | { type: 'close' }

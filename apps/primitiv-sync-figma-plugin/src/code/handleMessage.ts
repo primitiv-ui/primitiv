@@ -6,7 +6,7 @@ import type {
 } from '../shared/messages'
 import { bootstrapContext } from './bootstrapContext'
 import { bootstrapInteraction } from './bootstrapInteraction'
-import { bootstrapIntentLight } from './bootstrapIntentLight'
+import { bootstrapIntent } from './bootstrapIntent'
 
 /** Routes a message received from the plugin UI to its sandbox action. */
 export async function handleUiMessage(message: UiMessage): Promise<void> {
@@ -49,13 +49,13 @@ export async function handleUiMessage(message: UiMessage): Promise<void> {
       }
       return
     }
-    case 'bootstrap-intent-light-request': {
+    case 'bootstrap-intent-request': {
       try {
-        const result = await bootstrapIntentLight()
-        reply({ type: 'bootstrap-intent-light-result', result })
+        const result = await bootstrapIntent()
+        reply({ type: 'bootstrap-intent-result', result })
       } catch (error) {
         reply({
-          type: 'bootstrap-intent-light-error',
+          type: 'bootstrap-intent-error',
           message: error instanceof Error ? error.message : String(error),
         })
       }

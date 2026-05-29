@@ -134,7 +134,10 @@ export function figmaVarsToDtcg(
   // The unified multi-mode Context collection is handled per-mode and excluded from
   // the standard routing loop (which only reads defaultModeId per collection).
   const unifiedContext = collections.find((c) => c.name === 'Context')
-  const routedCollections = collections.filter((c) => c.name !== 'Context')
+  const unifiedIntent = collections.find((c) => c.name === 'Intent')
+  const routedCollections = collections.filter(
+    (c) => c.name !== 'Context' && c.name !== 'Intent',
+  )
 
   const routes = new Map<string, Routing>(
     routedCollections.map((c) => [c.id, routeCollection(c.name)]),
@@ -183,6 +186,19 @@ export function figmaVarsToDtcg(
       const prefix = ['context', mode.name.toLowerCase()]
       const group = collectionToDtcg(
         unifiedContext,
+        variables,
+        resolveAlias,
+        mode.modeId,
+      )
+      mergeIntoPrefix(files.semantic, prefix, group)
+    }
+  }
+
+  if (unifiedIntent) {
+    for (const mode of unifiedIntent.modes) {
+      const prefix = ['color', mode.name.toLowerCase()]
+      const group = collectionToDtcg(
+        unifiedIntent,
         variables,
         resolveAlias,
         mode.modeId,
@@ -268,7 +284,7 @@ function routeCollection(name: string): Routing {
   if (name === 'Interaction')
     return { file: 'semantic', prefix: ['interaction'] }
   if (name === 'Intent / Light')
-    return { file: 'semantic', prefix: ['color'] }
+    return { file: 'semantic', prefix: ['color', 'light'] }
   const ctx = name.match(/^Context\s*\/\s*(.+)$/)
   if (ctx) {
     return { file: 'semantic', prefix: ['context', ctx[1].toLowerCase()] }

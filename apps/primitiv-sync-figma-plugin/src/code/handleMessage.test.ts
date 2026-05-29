@@ -2,7 +2,7 @@ import { handleUiMessage } from './handleMessage'
 import { createFigmaMock } from './figma.mock'
 import { bootstrapContext } from './bootstrapContext'
 import { bootstrapInteraction } from './bootstrapInteraction'
-import { bootstrapIntentLight } from './bootstrapIntentLight'
+import { bootstrapIntent } from './bootstrapIntent'
 
 vi.mock('./bootstrapContext', () => ({
   bootstrapContext: vi.fn(),
@@ -12,8 +12,8 @@ vi.mock('./bootstrapInteraction', () => ({
   bootstrapInteraction: vi.fn(),
 }))
 
-vi.mock('./bootstrapIntentLight', () => ({
-  bootstrapIntentLight: vi.fn(),
+vi.mock('./bootstrapIntent', () => ({
+  bootstrapIntent: vi.fn(),
 }))
 
 describe('handleUiMessage', () => {
@@ -225,37 +225,37 @@ describe('handleUiMessage', () => {
     })
   })
 
-  it('routes a bootstrap-intent-light-request and posts bootstrap-intent-light-result on success', async () => {
+  it('routes a bootstrap-intent-request and posts bootstrap-intent-result on success', async () => {
     const figmaMock = createFigmaMock()
     vi.stubGlobal('figma', figmaMock)
     const fakeResult = {
-      collection: 'created' as const,
-      variablesCreated: 40,
-      variablesUpdated: 0,
-      warnings: ['Palette variable "color/danger/light/500" missing — skipped intent variable "action/danger/default"'],
+      collection: 'updated' as const,
+      variablesCreated: 0,
+      variablesUpdated: 46,
+      warnings: [],
     }
-    vi.mocked(bootstrapIntentLight).mockResolvedValueOnce(fakeResult)
+    vi.mocked(bootstrapIntent).mockResolvedValueOnce(fakeResult)
 
-    await handleUiMessage({ type: 'bootstrap-intent-light-request' })
+    await handleUiMessage({ type: 'bootstrap-intent-request' })
 
-    expect(bootstrapIntentLight).toHaveBeenCalledOnce()
+    expect(bootstrapIntent).toHaveBeenCalledOnce()
     expect(figmaMock.ui.postMessage).toHaveBeenCalledWith({
-      type: 'bootstrap-intent-light-result',
+      type: 'bootstrap-intent-result',
       result: fakeResult,
     })
   })
 
-  it('posts bootstrap-intent-light-error when the action throws', async () => {
+  it('posts bootstrap-intent-error when the action throws', async () => {
     const figmaMock = createFigmaMock()
     vi.stubGlobal('figma', figmaMock)
-    vi.mocked(bootstrapIntentLight).mockRejectedValueOnce(
+    vi.mocked(bootstrapIntent).mockRejectedValueOnce(
       new Error('Primitives / Palette collection not found'),
     )
 
-    await handleUiMessage({ type: 'bootstrap-intent-light-request' })
+    await handleUiMessage({ type: 'bootstrap-intent-request' })
 
     expect(figmaMock.ui.postMessage).toHaveBeenCalledWith({
-      type: 'bootstrap-intent-light-error',
+      type: 'bootstrap-intent-error',
       message: 'Primitives / Palette collection not found',
     })
   })

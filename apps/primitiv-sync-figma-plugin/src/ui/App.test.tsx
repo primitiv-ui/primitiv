@@ -517,43 +517,43 @@ describe('App', () => {
     })
   })
 
-  describe('bootstrap intent light', () => {
-    it('renders a Bootstrap Intent Light button', () => {
+  describe('bootstrap intent', () => {
+    it('renders a Bootstrap Intent button', () => {
       render(<App />)
 
       expect(
-        screen.getByRole('button', { name: /Bootstrap Intent \/ Light/i }),
+        screen.getByRole('button', { name: /Bootstrap Intent/i }),
       ).toBeInTheDocument()
     })
 
-    it('sends bootstrap-intent-light-request when clicked', async () => {
+    it('sends bootstrap-intent-request when clicked', async () => {
       const postMessage = vi.spyOn(window.parent, 'postMessage')
       render(<App />)
 
       await userEvent.click(
-        screen.getByRole('button', { name: /Bootstrap Intent \/ Light/i }),
+        screen.getByRole('button', { name: /Bootstrap Intent/i }),
       )
 
       expect(postMessage).toHaveBeenLastCalledWith(
         {
-          pluginMessage: { type: 'bootstrap-intent-light-request' },
+          pluginMessage: { type: 'bootstrap-intent-request' },
         },
         '*',
       )
     })
 
-    it('shows a summary of the bootstrap intent light result when it arrives', async () => {
+    it('shows a summary of the bootstrap intent result when it arrives', async () => {
       render(<App />)
 
       window.dispatchEvent(
         new MessageEvent('message', {
           data: {
             pluginMessage: {
-              type: 'bootstrap-intent-light-result',
+              type: 'bootstrap-intent-result',
               result: {
-                collection: 'created',
-                variablesCreated: 40,
-                variablesUpdated: 0,
+                collection: 'updated',
+                variablesCreated: 0,
+                variablesUpdated: 46,
                 warnings: [],
               },
             },
@@ -562,19 +562,19 @@ describe('App', () => {
       )
 
       expect(
-        await screen.findByText(/Bootstrapped Intent \/ Light/i),
+        await screen.findByText(/Bootstrapped Intent/i),
       ).toBeInTheDocument()
-      expect(screen.getByText(/40 created/)).toBeInTheDocument()
+      expect(screen.getByText(/46 updated/)).toBeInTheDocument()
     })
 
-    it('shows the error message when a bootstrap-intent-light-error arrives', async () => {
+    it('shows the error message when a bootstrap-intent-error arrives', async () => {
       render(<App />)
 
       window.dispatchEvent(
         new MessageEvent('message', {
           data: {
             pluginMessage: {
-              type: 'bootstrap-intent-light-error',
+              type: 'bootstrap-intent-error',
               message: 'Primitives / Palette collection not found',
             },
           },

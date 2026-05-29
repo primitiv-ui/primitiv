@@ -28,6 +28,8 @@ export function ColorEngine() {
     wasmReady,
     neutralWhite,
     neutralBlack,
+    effectiveWhite,
+    effectiveBlack,
     tintSource,
     tintStrength,
     neutralPalette,
@@ -46,8 +48,8 @@ export function ColorEngine() {
 
   function handleApply() {
     const singles: SingleColorData[] = [
-      { name: "white", rgba: oklchToRgba(neutralWhite) },
-      { name: "black", rgba: oklchToRgba(neutralBlack) },
+      { name: "white", rgba: oklchToRgba(effectiveWhite) },
+      { name: "black", rgba: oklchToRgba(effectiveBlack) },
     ];
 
     const ramps: PairedRampData[] = [];

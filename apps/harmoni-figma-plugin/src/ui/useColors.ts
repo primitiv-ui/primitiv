@@ -38,6 +38,8 @@ export function useColors() {
   const [wasmReady, setWasmReady] = useState(false);
   const [neutralWhite, setNeutralWhite] = useState("#ffffff");
   const [neutralBlack, setNeutralBlack] = useState("#000000");
+  const [effectiveWhite, setEffectiveWhite] = useState("#ffffff");
+  const [effectiveBlack, setEffectiveBlack] = useState("#000000");
   const [tintSource, setTintSource] = useState<string | null>(null);
   const [tintStrength, setTintStrength] = useState(0.5);
   const [neutralPalette, setNeutralPalette] = useState<Palette>();
@@ -64,6 +66,8 @@ export function useColors() {
       black = tinted.black.oklch;
     }
 
+    setEffectiveWhite(white);
+    setEffectiveBlack(black);
     setNeutralPalette(
       generate_neutral_ramp(white, black, "Inherit" as TintMode),
     );
@@ -119,6 +123,8 @@ export function useColors() {
     wasmReady,
     neutralWhite,
     neutralBlack,
+    effectiveWhite,
+    effectiveBlack,
     tintSource,
     tintStrength,
     neutralPalette,

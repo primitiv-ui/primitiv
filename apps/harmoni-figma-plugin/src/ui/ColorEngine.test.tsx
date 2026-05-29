@@ -7,6 +7,8 @@ vi.mock('./useColors', () => ({
     wasmReady: true,
     neutralWhite: '#ffffff',
     neutralBlack: '#000000',
+    effectiveWhite: '#ffffff',
+    effectiveBlack: '#000000',
     tintSource: null,
     tintStrength: 0,
     neutralPalette: undefined,

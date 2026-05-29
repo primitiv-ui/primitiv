@@ -298,6 +298,34 @@ Props are `Variant/Size/State` (no Context dimension). `md` is placed first
 (top row) so `md/primary/default` is top-left; the script `insertChild(0, …)`
 that component so Figma uses it as the **default instance**.
 
+## Label typography resolved values
+
+`label/*` variables encode the typography decisions for interactive control labels (Button, Checkbox, Switch, Tabs, etc.) across all four density modes and five size slots.
+
+### font-size
+
+| Slot | Dense | Compact | Comfortable | Spacious |
+| ---- | ----- | ------- | ----------- | -------- |
+| xs   | 10    | 12      | 13          | 14       |
+| sm   | 11    | 14      | 16          | 18       |
+| md   | 12    | 16      | 18          | 20       |
+| lg   | 13    | 18      | 20          | 22       |
+| xl   | 14    | 20      | 22          | 24       |
+
+### line-height
+
+| Slot | Dense | Compact | Comfortable | Spacious |
+| ---- | ----- | ------- | ----------- | -------- |
+| xs   | 12    | 16      | 20          | 20       |
+| sm   | 14    | 20      | 24          | 28       |
+| md   | 16    | 24      | 28          | 32       |
+| lg   | 16    | 28      | 32          | 36       |
+| xl   | 20    | 32      | 36          | 40       |
+
+`font-family`, `font-weight`, and `font-style` are identical across all four modes (sans / semibold / SemiBold). All values alias into `Primitives` (`font-size/12`, `line-height/24`, etc.).
+
+> **Gotcha — Comfortable and Spacious copying Compact.** When label variables were first created, Comfortable and Spacious were left aliasing the same Primitives values as Compact. The tables above reflect the corrected values (fixed 2026-05-29). If you bootstrap a new file or re-run the Bootstrap context action, verify that each mode has distinct font-size values — the action may need updating to match these tables.
+
 ## Text styles and mode overrides
 
 Text styles in Figma (`TextStyle`) **do not support `setExplicitVariableModeForCollection`** — the method does not exist on `BaseStyle`. This means text style variable bindings always resolve using the collection's **default mode** (Compact, modeId `369:9`) unless the text node sits inside a frame with a mode override.
@@ -306,6 +334,8 @@ Practical behaviour:
 - **Text node in a frame with `Context → Dense` override**: the bound variable resolves to the Dense mode value — correct.
 - **Text style panel preview**: always shows the default mode (Compact) regardless of the style's intended density. This is a Figma limitation, not a bug.
 - **Canonical text styles** (72 total, 18 per density): `Dense / Label / md`, `Comfortable / Body / lg`, etc. All bound to the unified Context collection. The density in the style name is the *intended* use context, not an enforced mode.
+
+**Critical: all 72 text styles bind to the same underlying variables.** `Dense / Label / md` and `Comfortable / Label / md` both bind their `fontSize` to the single `label/md/font-size` variable — there is no separate per-density variable. The density prefix in the style name is documentation only. In the Figma style panel, all four density variants of a given role/size will show identical values (the Compact default). They only render differently when the text node sits inside a frame that has a mode override applied — at which point the shared variable resolves to the correct density value.
 
 **Typography variable paths in text styles** follow the same naming as in component anatomy:
 - `label/{xs–xl}/font-family`, `font-style`, `font-size`, `line-height`

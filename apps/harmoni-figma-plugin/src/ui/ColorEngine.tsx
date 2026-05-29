@@ -52,8 +52,8 @@ export function ColorEngine() {
   function handleApply() {
     const singles: SingleColorData[] = writeWhiteBlack
       ? [
-          { name: "white", rgba: oklchToRgba(effectiveWhite) },
-          { name: "black", rgba: oklchToRgba(effectiveBlack) },
+          { name: "white", rgba: oklchToRgba(neutralWhite) },
+          { name: "black", rgba: oklchToRgba(neutralBlack) },
         ]
       : [];
 

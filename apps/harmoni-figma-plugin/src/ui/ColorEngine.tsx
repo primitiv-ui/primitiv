@@ -30,8 +30,6 @@ export function ColorEngine() {
     wasmReady,
     neutralWhite,
     neutralBlack,
-    effectiveWhite,
-    effectiveBlack,
     tintSource,
     tintStrength,
     neutralPalette,

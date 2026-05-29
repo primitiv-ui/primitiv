@@ -189,6 +189,35 @@ describe('collectionToDtcg', () => {
     })
   })
 
+  it('reads from an explicit modeId rather than the collection default', () => {
+    const multiMode = {
+      ...PRIMITIVES,
+      modes: [
+        { modeId: 'dense', name: 'Dense' },
+        { modeId: 'comfortable', name: 'Comfortable' },
+      ],
+      defaultModeId: 'comfortable',
+    }
+
+    const result = collectionToDtcg(
+      multiMode,
+      [
+        variable({
+          id: 'v1',
+          name: 'framed-control/md/height',
+          resolvedType: 'FLOAT',
+          valuesByMode: { dense: 24, comfortable: 40 },
+        }),
+      ],
+      undefined,
+      'dense',
+    )
+
+    expect(result).toEqual({
+      'framed-control': { md: { height: { $type: 'number', $value: 24 } } },
+    })
+  })
+
   describe('aliases', () => {
     it('emits a DTCG reference for an alias to another variable in the same collection', () => {
       const result = collectionToDtcg(PRIMITIVES, [
@@ -823,6 +852,68 @@ describe('figmaVarsToDtcg', () => {
 
       expect(result.semantic.typography).toBeUndefined()
       expect(result.semantic.anatomy).toBeUndefined()
+    })
+  })
+
+  describe('unified Context collection (multi-mode)', () => {
+    const CONTEXT_UNIFIED: FigmaCollection = {
+      id: 'ctx',
+      name: 'Context',
+      modes: [
+        { modeId: 'dense', name: 'Dense' },
+        { modeId: 'compact', name: 'Compact' },
+        { modeId: 'comfortable', name: 'Comfortable' },
+        { modeId: 'spacious', name: 'Spacious' },
+      ],
+      defaultModeId: 'comfortable',
+    }
+
+    it('routes each mode of a unified Context collection into semantic.context.<modeName>', () => {
+      const result = figmaVarsToDtcg(
+        [CONTEXT_UNIFIED],
+        [
+          {
+            id: 'v1',
+            name: 'framed-control/md/height',
+            resolvedType: 'FLOAT',
+            variableCollectionId: 'ctx',
+            valuesByMode: { dense: 24, compact: 32, comfortable: 40, spacious: 48 },
+          },
+        ],
+      )
+
+      expect(result.semantic.context).toEqual({
+        dense:       { 'framed-control': { md: { height: { $type: 'number', $value: 24 } } } },
+        compact:     { 'framed-control': { md: { height: { $type: 'number', $value: 32 } } } },
+        comfortable: { 'framed-control': { md: { height: { $type: 'number', $value: 40 } } } },
+        spacious:    { 'framed-control': { md: { height: { $type: 'number', $value: 48 } } } },
+      })
+    })
+
+    it('synthesises short-form anatomy aliases from the comfortable mode of a unified Context collection', () => {
+      const result = figmaVarsToDtcg(
+        [CONTEXT_UNIFIED],
+        [
+          {
+            id: 'v1',
+            name: 'framed-control/md/height',
+            resolvedType: 'FLOAT',
+            variableCollectionId: 'ctx',
+            valuesByMode: { dense: 24, compact: 32, comfortable: 40, spacious: 48 },
+          },
+        ],
+      )
+
+      expect(result.semantic.anatomy).toEqual({
+        'framed-control': {
+          md: {
+            height: {
+              $type: 'number',
+              $value: '{context.comfortable.framed-control.md.height}',
+            },
+          },
+        },
+      })
     })
   })
 })

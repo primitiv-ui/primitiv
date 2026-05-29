@@ -11,24 +11,15 @@ description: Architecture of the Figma variable collections — collection hiera
 | ---------------------------- | ----------------- | ----------------------------- | ----------------------------------------------------- |
 | `Primitives`                 | `primitives.json` | (none)                        | Raw scale values: radii, spacing, colour, typography  |
 | `Semantic`                   | `semantic.json`   | (none)                        | Named decisions: typography scales, anatomy patterns  |
-| `Context / Dense`            | `semantic.json`   | `context.dense`               | Component sizing for the dense density                |
-| `Context / Compact`          | `semantic.json`   | `context.compact`             | Component sizing for the compact density              |
-| `Context / Comfortable`      | `semantic.json`   | `context.comfortable`         | Component sizing for the comfortable density          |
-| `Context / Spacious`         | `semantic.json`   | `context.spacious`            | Component sizing for the spacious density             |
+| `Context` (4 modes)          | `semantic.json`   | `context.<modeName>`          | Component sizing for all 4 densities                  |
 | `Interaction`                | `semantic.json`   | `interaction`                 | Interaction-state tokens                              |
 | `Components`                 | `components.json` | (none)                        | Per-component token decisions (wired to aliases)      |
 
-### Why density levels are separate collections (not modes)
-
-The slash in a Figma collection name is **purely visual grouping** in the collections panel — it creates no parent/child relationship. `Context / Compact` and `Context / Comfortable` are fully independent collections.
-
-The correct Figma architecture for density switching is a **single `Context` collection with 4 modes** (Dense, Compact, Comfortable, Spacious). That enables frame-level mode overrides so any frame can switch density without rebinding variables. The current separate-collection structure is a **Figma free-tier workaround**: the free plan allows only 1 mode per collection, making multi-mode consolidation impossible.
+The `Context` collection has 4 modes: **Dense**, **Compact**, **Comfortable**, **Spacious**. Each holds 218 variables (framed-control, label, switch, checkbox, container, nav-item, body/heading/display/overline typography) that alias into `Primitives`. Frame-level mode overrides let any frame switch density without rebinding variables — set a mode override on the containing frame, and all components inside adopt that density.
 
 The same pattern applies to `Primitives / Palette` and `Intent / Light` — these are standalone collections, not groups inside `Primitives` or `Intent`.
 
-**Target architecture (Professional tier):** consolidate all `Context / *` collections into one `Context` collection with 4 modes. This will require rebinding component token references. Do this migration before building out further components to minimise rebinding scope.
-
-The Context collections are the ones you'll touch most when building or updating components. Each holds the full `framed-control/*` anatomy for every size slot.
+The `Context` collection is the one you'll touch most when building or updating components. It holds the full `framed-control/*` anatomy for every size slot across all 4 modes.
 
 ## The framed-control token anatomy
 
@@ -50,7 +41,7 @@ The Context collections are the ones you'll touch most when building or updating
 | `framed-control/{size}/focus-ring-gap-radius` | Corner radius of the white gap layer between control edge and ring |
 | `framed-control/{size}/focus-ring-radius`     | Corner radius of the focus ring (blue stroke) layer            |
 
-### Resolved values — Context / Dense
+### Resolved values — Dense mode
 
 | Slot | height | padding-inline | gap | icon-size | radius | focus-ring-gap-radius | focus-ring-radius |
 | ---- | ------ | -------------- | --- | --------- | ------ | --------------------- | ----------------- |
@@ -60,7 +51,7 @@ The Context collections are the ones you'll touch most when building or updating
 | lg   | 32     | 12             | 4   | 16        | 4      | 6                     | 8                 |
 | xl   | 40     | 16             | 6   | 20        | 6      | 8                     | 10                |
 
-### Resolved values — Context / Compact
+### Resolved values — Compact mode
 
 | Slot | height | padding-inline | gap | icon-size | radius | focus-ring-gap-radius | focus-ring-radius |
 | ---- | ------ | -------------- | --- | --------- | ------ | --------------------- | ----------------- |
@@ -70,7 +61,7 @@ The Context collections are the ones you'll touch most when building or updating
 | lg   | 40     | 16             | 6   | 20        | 8      | 10                    | 12                |
 | xl   | 48     | 20             | 8   | 24        | 8      | 10                    | 12                |
 
-### Resolved values — Context / Comfortable
+### Resolved values — Comfortable mode
 
 | Slot | height | padding-inline | gap | icon-size | radius | focus-ring-gap-radius | focus-ring-radius |
 | ---- | ------ | -------------- | --- | --------- | ------ | --------------------- | ----------------- |
@@ -80,7 +71,7 @@ The Context collections are the ones you'll touch most when building or updating
 | lg   | 48     | 20             | 8   | 20        | 8      | 10                    | 12                |
 | xl   | 56     | 24             | 12  | 24        | 8      | 10                    | 12                |
 
-### Resolved values — Context / Spacious
+### Resolved values — Spacious mode
 
 | Slot | height | padding-inline | gap | icon-size | radius | focus-ring-gap-radius | focus-ring-radius |
 | ---- | ------ | -------------- | --- | --------- | ------ | --------------------- | ----------------- |
@@ -90,7 +81,7 @@ The Context collections are the ones you'll touch most when building or updating
 | lg   | 56     | 28             | 10  | 24        | 10     | 12                    | 14                |
 | xl   | 68     | 32             | 12  | 28        | 12     | 14                    | 16                |
 
-All values alias into `Primitives` (e.g. `radii/6`, `space-8`, `size-16`). `height`, `padding-inline`, and `gap` vary across all four densities. Radii are identical between Compact and Comfortable only — Dense uses smaller radii and Spacious uses larger ones, so focus-ring values differ across all four density collections.
+All values alias into `Primitives` (e.g. `radii/6`, `space-8`, `size-16`). `height`, `padding-inline`, and `gap` vary across all four modes. Radii are identical between Compact and Comfortable only — Dense uses smaller radii and Spacious uses larger ones, so focus-ring values differ across all four modes.
 
 ## Focus ring anatomy and formula
 
@@ -233,23 +224,25 @@ The link button is intent-neutral — it always uses the brand colour, styled li
 
 ## Adding a new framed-control property
 
-1. Decide the value for each size slot in both densities.
+1. Decide the value for each size slot across all 4 modes.
 2. Check whether a `Primitives` alias exists for each value (prefer aliasing over raw numbers).
-3. Use `figma_execute` with `getVariableCollectionByIdAsync` (async API required) to create the variable in **all four** Context collections (see IDs below).
-4. Set the value with `figma.variables.createVariableAlias(primitiveVar)`.
-5. If the property also needs a DTCG entry, run the sync plugin to back up — the `Context / *` route in `dtcg.ts` handles it automatically.
+3. Use `figma_execute` with `getVariableCollectionByIdAsync` (async API required) to create the variable in the `Context` collection and `setValueForMode` for each of the 4 mode IDs.
+4. Set each mode's value with `figma.variables.createVariableAlias(primitiveVar)`.
+5. If the property also needs a DTCG entry, run the sync plugin to back up — the `Context` multi-mode route in `dtcg.ts` handles it automatically.
 
-### Context collection IDs
+### Context collection ID and modes
 
-| Collection | ID |
-| ---------- | -- |
-| `Context / Dense`       | `VariableCollectionId:341:3320` |
-| `Context / Compact`     | `VariableCollectionId:341:2956` |
-| `Context / Comfortable` | `VariableCollectionId:340:2719` |
-| `Context / Spacious`    | `VariableCollectionId:341:3138` |
+| | ID |
+| ---- | -- |
+| Collection `Context` | `VariableCollectionId:369:31958` |
+| Mode: Dense          | `369:8` |
+| Mode: Compact        | `369:9` |
+| Mode: Comfortable    | `369:10` |
+| Mode: Spacious       | `369:11` |
 
-Each holds the full `framed-control/{size}/*` and `label/{size}/*` set under the
-same names — they are independent variables, distinguished only by collection.
+The collection holds all 218 variables for all densities. Variables alias into `Primitives`; the mode determines which alias (and resolved value) is active.
+
+> **Deprecated (do not use for new work):** The old free-tier collections `Context / Dense` (`341:3320`), `Context / Compact` (`341:2956`), `Context / Comfortable` (`340:2719`), `Context / Spacious` (`341:3138`) still exist and will be deleted in a future cleanup step. All component sets (Button, Switch, Checkbox) were migrated to the unified `Context` collection on 2026-05-29.
 
 ## Building components across contexts/variants — clone-and-rebind
 
@@ -259,19 +252,17 @@ same names — they are independent variables, distinguished only by collection.
 
 The cheapest, lowest-error way to add a context (or a missing variant) to a
 framed-control component set is to **clone an already-correct variant and rebind
-its Context-collection variables to the target collection's same-named twins**.
-Used to build the whole `dense` context + the missing `spacious·link` sizes on
-the Button set (see the `figma-button-set-complete` memory). Works because every
-density binds identically-named `framed-control/*` + `label/*` vars; only the
-collection differs. Colour (`action/*`), border-width, and the focus-ring stroke
-token live *outside* the Context collections, so they carry over untouched — and
-the focus ring is intent-neutral, so a per-variant clone keeps the right ring.
+its Context variables to the unified `Context` collection's same-named vars,
+then set an explicit mode override on the cloned component**. Colour (`action/*`),
+border-width, and the focus-ring stroke token live outside `Context`, so they
+carry over untouched. The focus ring is intent-neutral, so a per-variant clone
+keeps the right ring.
 
 Recipe (run via `figma_execute`, async API throughout):
 
-1. Build `name→ Variable` map for the **target** Context collection
-   (`getVariableCollectionByIdAsync(id)`, then `getVariableByIdAsync` per
-   `variableIds`).
+1. Build `name→ Variable` map for the unified `Context` collection
+   (`getVariableCollectionByIdAsync('VariableCollectionId:369:31958')`, then
+   `getVariableByIdAsync` per `variableIds`).
 2. `const clone = src.clone(); set.appendChild(clone);`
 3. `clone.name = "Context=<ctx>, Variant=<v>, Size=<s>, State=<st>"` — setting the
    name in `prop=value, …` form is what sets `variantProperties`.
@@ -280,15 +271,23 @@ Recipe (run via `figma_execute`, async API throughout):
      not context-bound);
    - text typography fields (`fontSize`/`fontStyle`/`fontFamily`/`lineHeight`)
      arrive as **arrays** — take element `[0]`; layout fields are scalar `{id}`;
-   - resolve the source var; if its `variableCollectionId` is one of the four
-     Context collections, look up the same `name` in the target map and
-     `node.setBoundVariable(field, targetVar)`.
-5. Idempotency: before a batch, remove any pre-existing clones for that
+   - resolve the source var; if its `variableCollectionId` is `369:31958` (the
+     unified Context collection), it is already on the right collection — no
+     rebind needed; just proceed to step 5.
+   - if the source var is still on one of the old deprecated collections, look up
+     the same `name` in the target map and `node.setBoundVariable(field, targetVar)`.
+5. Set an **explicit mode override** on the cloned component so it self-renders at
+   the right density: `comp.setExplicitVariableModeForCollection(contextCol, modeId)`
+   where `modeId` is the mode matching the component's `Context=` variant property
+   (`dense=369:8`, `compact=369:9`, `comfortable=369:10`, `spacious=369:11`).
+6. Idempotency: before a batch, remove any pre-existing clones for that
    context+variant so re-runs don't duplicate.
 
-This is also the migration tool for the eventual modes consolidation
-([[figma-density-consolidation]]) — same walk, rebinding to the consolidated
-collection instead of a sibling Context collection.
+**Efficient rebind pattern (as used in the 2026-05-29 migration):** instead of
+pre-fetching all collection variables, do a synchronous walk first to collect
+unique `boundVariable` IDs, batch-fetch only those IDs in parallel, then filter
+to old-collection vars and build the rebind map. This keeps async overhead to a
+minimum even for 400-component sets.
 
 ### Layout & arrange
 

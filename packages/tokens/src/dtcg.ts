@@ -97,9 +97,9 @@ export function collectionToDtcg(
   collection: FigmaCollection,
   variables: FigmaVariable[],
   resolveAlias: AliasResolver = defaultResolver(variables),
+  modeId: string = collection.defaultModeId,
 ): DtcgGroup {
   const root: DtcgGroup = {}
-  const modeId = collection.defaultModeId
 
   for (const variable of variables) {
     if (variable.variableCollectionId !== collection.id) continue
@@ -130,18 +130,38 @@ export function figmaVarsToDtcg(
   variables: FigmaVariable[],
 ): DtcgFiles {
   const files: DtcgFiles = { primitives: {}, semantic: {}, components: {} }
+
+  // The unified multi-mode Context collection is handled per-mode and excluded from
+  // the standard routing loop (which only reads defaultModeId per collection).
+  const unifiedContext = collections.find((c) => c.name === 'Context')
+  const routedCollections = collections.filter((c) => c.name !== 'Context')
+
   const routes = new Map<string, Routing>(
-    collections.map((c) => [c.id, routeCollection(c.name)]),
+    routedCollections.map((c) => [c.id, routeCollection(c.name)]),
   )
 
   const variablePaths = new Map<string, string[]>()
   for (const variable of variables) {
     const routing = routes.get(variable.variableCollectionId)
-    if (!routing) continue
-    variablePaths.set(variable.id, [
-      ...routing.prefix,
-      ...variable.name.split('/'),
-    ])
+    if (routing) {
+      variablePaths.set(variable.id, [
+        ...routing.prefix,
+        ...variable.name.split('/'),
+      ])
+    }
+  }
+
+  // Unified Context variables resolve aliases to the default context's path so that
+  // any cross-collection alias pointing at a Context variable gets a stable path.
+  if (unifiedContext) {
+    for (const variable of variables) {
+      if (variable.variableCollectionId !== unifiedContext.id) continue
+      variablePaths.set(variable.id, [
+        'context',
+        DEFAULT_CONTEXT,
+        ...variable.name.split('/'),
+      ])
+    }
   }
 
   const resolveAlias: AliasResolver = (id) => {
@@ -152,10 +172,23 @@ export function figmaVarsToDtcg(
     return path
   }
 
-  for (const collection of collections) {
+  for (const collection of routedCollections) {
     const routing = routes.get(collection.id)!
     const group = collectionToDtcg(collection, variables, resolveAlias)
     mergeIntoPrefix(files[routing.file], routing.prefix, group)
+  }
+
+  if (unifiedContext) {
+    for (const mode of unifiedContext.modes) {
+      const prefix = ['context', mode.name.toLowerCase()]
+      const group = collectionToDtcg(
+        unifiedContext,
+        variables,
+        resolveAlias,
+        mode.modeId,
+      )
+      mergeIntoPrefix(files.semantic, prefix, group)
+    }
   }
 
   synthesiseShortFormAliases(files.semantic)

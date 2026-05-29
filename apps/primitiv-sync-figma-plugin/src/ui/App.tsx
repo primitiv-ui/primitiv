@@ -357,7 +357,7 @@ function IntentSummary({
   return (
     <div className="app__bootstrap-summary">
       <p className="app__sync-status app__sync-status--ok">
-        Bootstrapped Intent / Light — collection {result.collection}
+        Bootstrapped Intent — collection {result.collection}
       </p>
       <ul>
         <li>

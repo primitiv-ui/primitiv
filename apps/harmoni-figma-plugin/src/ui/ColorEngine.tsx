@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { RampData, UiMessage } from "../shared/messages";
+import type { PairedRampData, SingleColorData, UiMessage } from "../shared/messages";
 import { Palette } from "./Palette";
 import { useColors } from "./useColors";
 
@@ -45,39 +45,39 @@ export function ColorEngine() {
   } = useColors();
 
   function handleApply() {
-    const ramps: RampData[] = [];
+    const singles: SingleColorData[] = [
+      { name: "white", rgba: oklchToRgba(neutralWhite) },
+      { name: "black", rgba: oklchToRgba(neutralBlack) },
+    ];
+
+    const ramps: PairedRampData[] = [];
 
     if (neutralPalette?.swatches) {
       ramps.push({
         name: "neutral",
-        swatches: neutralPalette.swatches.map((s, i) => ({
+        light: neutralPalette.swatches.map((s, i) => ({
           step: stepLabel(i),
           rgba: oklchToRgba(s.oklch),
         })),
+        // dark neutral deferred — uses light values in dark mode until a dark ramp is generated
       });
     }
 
     if (brand.lightPalette?.swatches) {
       ramps.push({
-        name: `${rampName}/light`,
-        swatches: brand.lightPalette.swatches.map((s, i) => ({
+        name: rampName,
+        light: brand.lightPalette.swatches.map((s, i) => ({
+          step: stepLabel(i),
+          rgba: oklchToRgba(s.oklch),
+        })),
+        dark: brand.darkPalette?.swatches.map((s, i) => ({
           step: stepLabel(i),
           rgba: oklchToRgba(s.oklch),
         })),
       });
     }
 
-    if (brand.darkPalette?.swatches) {
-      ramps.push({
-        name: `${rampName}/dark`,
-        swatches: brand.darkPalette.swatches.map((s, i) => ({
-          step: stepLabel(i),
-          rgba: oklchToRgba(s.oklch),
-        })),
-      });
-    }
-
-    postToSandbox({ type: "apply-palette", ramps });
+    postToSandbox({ type: "apply-palette", ramps, singles });
   }
 
   return (

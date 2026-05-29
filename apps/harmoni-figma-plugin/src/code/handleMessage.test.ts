@@ -18,10 +18,11 @@ describe('handleUiMessage', () => {
   it('delegates to applyPalette when it receives an apply-palette message', async () => {
     const { applyPalette } = await import('./applyPalette')
     vi.stubGlobal('figma', createFigmaMock())
-    const ramps = [{ name: 'neutral', swatches: [] }]
+    const ramps = [{ name: 'neutral', light: [] }]
+    const singles = [{ name: 'white', rgba: { r: 1, g: 1, b: 1, a: 1 } }]
 
-    await handleUiMessage({ type: 'apply-palette', ramps })
+    await handleUiMessage({ type: 'apply-palette', ramps, singles })
 
-    expect(applyPalette).toHaveBeenCalledWith(ramps)
+    expect(applyPalette).toHaveBeenCalledWith(ramps, singles)
   })
 })

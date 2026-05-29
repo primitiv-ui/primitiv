@@ -68,7 +68,7 @@ describe('ColorEngine ramp name', () => {
       expect.objectContaining({
         pluginMessage: expect.objectContaining({
           ramps: expect.arrayContaining([
-            expect.objectContaining({ name: 'danger/light' }),
+            expect.objectContaining({ name: 'danger', light: expect.any(Array) }),
           ]),
         }),
       }),

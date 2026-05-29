@@ -8,7 +8,7 @@ export async function handleUiMessage(message: UiMessage): Promise<void> {
       figma.closePlugin()
       return
     case 'apply-palette':
-      await applyPalette(message.ramps)
+      await applyPalette(message.ramps, message.singles)
       return
   }
 }

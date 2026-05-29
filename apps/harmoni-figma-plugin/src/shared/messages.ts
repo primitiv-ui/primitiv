@@ -20,12 +20,20 @@ export type SwatchData = {
   rgba: RgbaColor
 }
 
-export type RampData = {
+/** A ramp with separate light and dark mode swatches. Omit `dark` to reuse light values in dark mode. */
+export type PairedRampData = {
   name: string
-  swatches: SwatchData[]
+  light: SwatchData[]
+  dark?: SwatchData[]
+}
+
+/** A single colour variable written identically to both Light and Dark modes. */
+export type SingleColorData = {
+  name: string
+  rgba: RgbaColor
 }
 
 /** A message posted from the UI back to the sandbox. */
 export type UiMessage =
   | { type: 'close' }
-  | { type: 'apply-palette'; ramps: RampData[] }
+  | { type: 'apply-palette'; ramps: PairedRampData[]; singles: SingleColorData[] }

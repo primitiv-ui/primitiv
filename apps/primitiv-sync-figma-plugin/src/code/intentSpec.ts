@@ -45,17 +45,17 @@ export const INTENT_SPEC: {
     { name: 'action/primary/border/active',     type: 'COLOR', aliasTo: 'color/brand/700' },
     { name: 'action/primary/border/disabled',   type: 'COLOR', aliasTo: 'color/brand/200' },
 
-    // action.secondary
-    { name: 'action/secondary/default',          type: 'COLOR', aliasTo: 'color/neutral/100' },
-    { name: 'action/secondary/hover',            type: 'COLOR', aliasTo: 'color/neutral/200' },
-    { name: 'action/secondary/active',           type: 'COLOR', aliasTo: 'color/neutral/300' },
-    { name: 'action/secondary/disabled',         type: 'COLOR', aliasTo: 'color/neutral/50' },
+    // action.secondary — dark mode uses elevated dark surface steps so button remains visible
+    { name: 'action/secondary/default',          type: 'COLOR', aliasTo: 'color/neutral/100', darkAliasTo: 'color/neutral/800' },
+    { name: 'action/secondary/hover',            type: 'COLOR', aliasTo: 'color/neutral/200', darkAliasTo: 'color/neutral/700' },
+    { name: 'action/secondary/active',           type: 'COLOR', aliasTo: 'color/neutral/300', darkAliasTo: 'color/neutral/600' },
+    { name: 'action/secondary/disabled',         type: 'COLOR', aliasTo: 'color/neutral/50',  darkAliasTo: 'color/neutral/900' },
     { name: 'action/secondary/foreground/default', type: 'COLOR', aliasTo: 'color/neutral/900' },
     { name: 'action/secondary/foreground/disabled', type: 'COLOR', aliasTo: 'color/neutral/400' },
-    { name: 'action/secondary/border/default',   type: 'COLOR', aliasTo: 'color/neutral/300' },
-    { name: 'action/secondary/border/hover',     type: 'COLOR', aliasTo: 'color/neutral/400' },
+    { name: 'action/secondary/border/default',   type: 'COLOR', aliasTo: 'color/neutral/300', darkAliasTo: 'color/neutral/700' },
+    { name: 'action/secondary/border/hover',     type: 'COLOR', aliasTo: 'color/neutral/400', darkAliasTo: 'color/neutral/600' },
     { name: 'action/secondary/border/active',    type: 'COLOR', aliasTo: 'color/neutral/500' },
-    { name: 'action/secondary/border/disabled',  type: 'COLOR', aliasTo: 'color/neutral/200' },
+    { name: 'action/secondary/border/disabled',  type: 'COLOR', aliasTo: 'color/neutral/200', darkAliasTo: 'color/neutral/800' },
 
     // action.danger (alias targets become valid once a "danger" ramp is applied via Harmoni)
     { name: 'action/danger/default',             type: 'COLOR', aliasTo: 'color/danger/500' },
@@ -75,19 +75,19 @@ export const INTENT_SPEC: {
     { name: 'action/link/foreground/active',   type: 'COLOR', aliasTo: 'color/brand/700' },
     { name: 'action/link/foreground/disabled', type: 'COLOR', aliasTo: 'color/brand/500' },
 
-    // surface
+    // surface — overlay needs to stay dark in dark mode (neutral/50 inverts to near-black)
     { name: 'surface/default',  type: 'COLOR', aliasTo: 'color/neutral/50' },
     { name: 'surface/subtle',   type: 'COLOR', aliasTo: 'color/neutral/100' },
     { name: 'surface/raised',   type: 'COLOR', aliasTo: 'color/neutral/50' },
-    { name: 'surface/overlay',  type: 'COLOR', aliasTo: 'color/neutral/900' },
+    { name: 'surface/overlay',  type: 'COLOR', aliasTo: 'color/neutral/900', darkAliasTo: 'color/neutral/50' },
     { name: 'surface/inverse',  type: 'COLOR', aliasTo: 'color/neutral/800' },
 
-    // content
+    // content — inverse sits on a light surface in dark mode so needs dark text (color/black)
     { name: 'content/primary',   type: 'COLOR', aliasTo: 'color/neutral/900' },
     { name: 'content/secondary', type: 'COLOR', aliasTo: 'color/neutral/700' },
     { name: 'content/muted',     type: 'COLOR', aliasTo: 'color/neutral/500' },
     { name: 'content/disabled',  type: 'COLOR', aliasTo: 'color/neutral/400' },
-    { name: 'content/inverse',   type: 'COLOR', aliasTo: 'color/white' },
+    { name: 'content/inverse',   type: 'COLOR', aliasTo: 'color/white', darkAliasTo: 'color/black' },
     { name: 'content/on-action', type: 'COLOR', aliasTo: 'color/white' },
 
     // border

@@ -115,7 +115,7 @@ export function figmaVarsToDtcg(
   const intent      = collections.find((c) => c.name === 'Intent')
   const context     = collections.find((c) => c.name === 'Context')
   const singleMode  = collections.filter(
-    (c) => c.name !== 'Primitives / Palette' && c.name !== 'Intent' && c.name !== 'Context',
+    (c) => c.name === 'Primitives' || c.name === 'Interaction',
   )
 
   const routes = new Map<string, Routing>(

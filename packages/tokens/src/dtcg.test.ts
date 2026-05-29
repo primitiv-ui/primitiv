@@ -529,12 +529,21 @@ describe('figmaVarsToDtcg', () => {
     ).toThrow(/missing-id/)
   })
 
-  it('throws for an unrecognised single-mode collection name', () => {
-    expect(() =>
-      figmaVarsToDtcg(
-        [{ id: 'cx', name: 'Mystery', modes: [{ modeId: 'mx', name: 'Value' }], defaultModeId: 'mx' }],
-        [],
-      ),
-    ).toThrow(/Mystery/)
+  it('silently drops unrecognised collections', () => {
+    const result = figmaVarsToDtcg(
+      [
+        PRIMITIVES_COLL,
+        { id: 'cx', name: 'Mystery', modes: [{ modeId: 'mx', name: 'Value' }], defaultModeId: 'mx' },
+      ],
+      [
+        { id: 'v1', name: 'font-family/sans', resolvedType: 'STRING', variableCollectionId: 'cp', valuesByMode: { mp: 'Asta Sans' } },
+        { id: 'v2', name: 'orphan/token',     resolvedType: 'STRING', variableCollectionId: 'cx', valuesByMode: { mx: 'ignored' } },
+      ],
+    )
+
+    expect(result.primitives).toEqual({
+      'font-family': { sans: { $type: 'string', $value: 'Asta Sans' } },
+    })
+    expect(result).toEqual(expect.objectContaining({ palette: {}, intent: {}, context: {}, interaction: {} }))
   })
 })

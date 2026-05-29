@@ -23,8 +23,8 @@ function stepLabel(index: number): string {
 
 export function ColorEngine() {
   const [rampName, setRampName] = useState("brand");
-  const [writeWhiteBlack, setWriteWhiteBlack] = useState(true);
-  const [writeNeutral, setWriteNeutral] = useState(true);
+  const [writeWhiteBlack, setWriteWhiteBlack] = useState(false);
+  const [writeNeutral, setWriteNeutral] = useState(false);
 
   const {
     wasmReady,

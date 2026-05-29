@@ -33,6 +33,7 @@ export function ColorEngine() {
     tintSource,
     tintStrength,
     neutralPalette,
+    neutralDarkPalette,
     brand,
     handleNeutralWhiteChange,
     handleNeutralBlackChange,
@@ -61,7 +62,10 @@ export function ColorEngine() {
           step: stepLabel(i),
           rgba: oklchToRgba(s.oklch),
         })),
-        // dark neutral deferred — uses light values in dark mode until a dark ramp is generated
+        dark: neutralDarkPalette?.swatches.map((s, i) => ({
+          step: stepLabel(i),
+          rgba: oklchToRgba(s.oklch),
+        })),
       });
     }
 
@@ -127,8 +131,12 @@ export function ColorEngine() {
 
       <section className="color-engine__palettes">
         <div>
-          <p>Neutral</p>
+          <p>Neutral — light</p>
           <Palette palette={neutralPalette} />
+        </div>
+        <div>
+          <p>Neutral — dark</p>
+          <Palette palette={neutralDarkPalette} />
         </div>
         <div>
           <p>Brand — light</p>

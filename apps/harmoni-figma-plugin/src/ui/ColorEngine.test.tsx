@@ -12,6 +12,7 @@ vi.mock('./useColors', () => ({
     tintSource: null,
     tintStrength: 0,
     neutralPalette: undefined,
+    neutralDarkPalette: undefined,
     brand: {
       hex: '#c0392b',
       lightPalette: {

@@ -43,6 +43,7 @@ export function useColors() {
   const [tintSource, setTintSource] = useState<string | null>(null);
   const [tintStrength, setTintStrength] = useState(0.5);
   const [neutralPalette, setNeutralPalette] = useState<Palette>();
+  const [neutralDarkPalette, setNeutralDarkPalette] = useState<Palette>();
   const [brand, setBrand] = useState<BrandConfig>({ hex: DEFAULT_BRAND_HEX });
 
   useEffect(() => {
@@ -68,9 +69,8 @@ export function useColors() {
 
     setEffectiveWhite(white);
     setEffectiveBlack(black);
-    setNeutralPalette(
-      generate_neutral_ramp(white, black, "Inherit" as TintMode),
-    );
+    setNeutralPalette(generate_neutral_ramp(white, black, "Inherit" as TintMode));
+    setNeutralDarkPalette(generate_neutral_ramp(black, white, "Inherit" as TintMode));
   }, [wasmReady, neutralWhite, neutralBlack, tintSource, tintStrength]);
 
   const handleNeutralWhiteChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -128,6 +128,7 @@ export function useColors() {
     tintSource,
     tintStrength,
     neutralPalette,
+    neutralDarkPalette,
     brand,
     handleNeutralWhiteChange,
     handleNeutralBlackChange,

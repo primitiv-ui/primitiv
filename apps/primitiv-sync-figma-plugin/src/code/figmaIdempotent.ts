@@ -9,6 +9,30 @@
 export type FindOrCreateResult<T> = { value: T; created: boolean }
 
 /**
+ * Returns the mode with the given name in `collection`, or creates it.
+ *
+ * When the collection has exactly one mode still named Figma's initial
+ * default ("Mode 1"), that mode is renamed rather than leaving an
+ * unused orphan. Otherwise a new mode is added via `addMode`.
+ */
+export function findOrCreateMode(
+  collection: VariableCollection,
+  modeName: string,
+): FindOrCreateResult<{ modeId: string; name: string }> {
+  const existing = collection.modes.find((m) => m.name === modeName)
+  if (existing) return { value: existing, created: false }
+
+  if (collection.modes.length === 1 && collection.modes[0].name === 'Mode 1') {
+    const { modeId } = collection.modes[0]
+    collection.renameMode(modeId, modeName)
+    return { value: { modeId, name: modeName }, created: true }
+  }
+
+  const modeId = collection.addMode(modeName)
+  return { value: { modeId, name: modeName }, created: true }
+}
+
+/**
  * Returns the local variable collection with the given name, or
  * creates a new one when nothing matches.
  */

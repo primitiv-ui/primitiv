@@ -53,16 +53,36 @@ export function createFigmaMock(): FigmaMock {
     variables: {
       getLocalVariableCollectionsAsync: vi.fn(() => Promise.resolve([])),
       getLocalVariablesAsync: vi.fn(() => Promise.resolve([])),
-      createVariableCollection: vi.fn((name: string) => ({
-        id: `col-${name}`,
-        name,
-        modes: [{ modeId: 'mode-0', name: 'Mode 1' }],
-        defaultModeId: 'mode-0',
-        variableIds: [],
-        key: 'k',
-        remote: false,
-        remove: vi.fn(),
-      })),
+      createVariableCollection: vi.fn((name: string) => {
+        const col: {
+          id: string; name: string
+          modes: { modeId: string; name: string }[]
+          defaultModeId: string; variableIds: never[]
+          key: string; remote: boolean
+          remove: ReturnType<typeof vi.fn>
+          renameMode: ReturnType<typeof vi.fn>
+          addMode: ReturnType<typeof vi.fn>
+        } = {
+          id: `col-${name}`,
+          name,
+          modes: [{ modeId: 'mode-0', name: 'Mode 1' }],
+          defaultModeId: 'mode-0',
+          variableIds: [],
+          key: 'k',
+          remote: false,
+          remove: vi.fn(),
+          renameMode: vi.fn((modeId: string, newName: string) => {
+            const m = col.modes.find((m) => m.modeId === modeId)
+            if (m) m.name = newName
+          }),
+          addMode: vi.fn((modeName: string) => {
+            const modeId = `mode-${col.modes.length}`
+            col.modes.push({ modeId, name: modeName })
+            return modeId
+          }),
+        }
+        return col
+      }),
       createVariable: vi.fn(
         (name: string, collection: { id: string }, type: string) => ({
           id: `var-${name}`,

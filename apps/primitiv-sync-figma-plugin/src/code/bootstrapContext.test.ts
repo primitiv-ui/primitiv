@@ -57,7 +57,7 @@ describe('bootstrapContext (comfortable)', () => {
     )
   })
 
-  it('creates the Context / Comfortable collection when none exists', async () => {
+  it('creates the Context collection (not a per-density one) when none exists', async () => {
     const { collection, vars } = buildPrimitives()
     const figmaMock = stubFigma({ collections: [collection], variables: vars })
 
@@ -65,17 +65,22 @@ describe('bootstrapContext (comfortable)', () => {
 
     expect(
       figmaMock.variables.createVariableCollection,
-    ).toHaveBeenCalledWith('Context / Comfortable')
+    ).toHaveBeenCalledWith('Context')
+    expect(
+      figmaMock.variables.createVariableCollection,
+    ).not.toHaveBeenCalledWith('Context / Comfortable')
   })
 
-  it('reuses the Context / Comfortable collection when one already exists', async () => {
+  it('reuses the Context collection when it already exists', async () => {
     const { collection, vars } = buildPrimitives()
     const existing = {
       id: 'CTX',
-      name: 'Context / Comfortable',
-      modes: [{ modeId: 'c:0', name: 'Mode 1' }],
-      defaultModeId: 'c:0',
+      name: 'Context',
+      modes: [{ modeId: 'c:comfortable', name: 'Comfortable' }],
+      defaultModeId: 'c:comfortable',
       variableIds: [],
+      renameMode: vi.fn(),
+      addMode: vi.fn(),
     } as unknown as VariableCollection
     const figmaMock = stubFigma({
       collections: [collection, existing],
@@ -88,6 +93,27 @@ describe('bootstrapContext (comfortable)', () => {
       figmaMock.variables.createVariableCollection,
     ).not.toHaveBeenCalled()
     expect(result.collection).toBe('updated')
+  })
+
+  it('sets each variable value for the mode matching the requested context', async () => {
+    const { collection, vars } = buildPrimitives()
+    const figmaMock = stubFigma({ collections: [collection], variables: vars })
+
+    await bootstrapContext({ context: 'comfortable' })
+
+    // The new Context collection is created with default 'Mode 1' (modeId: 'mode-0'),
+    // then findOrCreateMode renames it to 'Comfortable' — the modeId stays 'mode-0'.
+    const fontSizeMd = CONTEXT_SPECS.comfortable.variables.find(
+      (v) => v.name === 'label/md/font-size',
+    )!
+    const target = vars.find((v) => v.name === fontSizeMd.aliasTo)!
+    const newSizeVar = figmaMock.variables.createVariable.mock.results
+      .map((r) => r.value)
+      .find((v: { name: string }) => v.name === 'label/md/font-size')!
+    expect(newSizeVar.setValueForMode).toHaveBeenCalledWith('mode-0', {
+      type: 'VARIABLE_ALIAS',
+      id: target.id,
+    })
   })
 
   it('creates one variable per spec leaf and points it at the matching primitive via VARIABLE_ALIAS', async () => {

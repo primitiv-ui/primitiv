@@ -1,5 +1,6 @@
 import {
   findOrCreateCollection,
+  findOrCreateMode,
   findOrCreateTextStyle,
   findOrCreateVariable,
 } from './figmaIdempotent'
@@ -143,6 +144,61 @@ describe('findOrCreateVariable', () => {
     await expect(
       findOrCreateVariable('label/md/font-size', collection, 'FLOAT'),
     ).rejects.toThrow(/type/i)
+  })
+})
+
+describe('findOrCreateMode', () => {
+  function makeCol(modes: { modeId: string; name: string }[]) {
+    const col = {
+      modes,
+      renameMode: vi.fn((id: string, newName: string) => {
+        const m = col.modes.find((m) => m.modeId === id)
+        if (m) m.name = newName
+      }),
+      addMode: vi.fn((name: string) => {
+        const modeId = `mode-${col.modes.length}`
+        col.modes.push({ modeId, name })
+        return modeId
+      }),
+    }
+    return col as unknown as VariableCollection
+  }
+
+  it('returns the existing mode when one with the given name exists', () => {
+    const col = makeCol([
+      { modeId: 'dense', name: 'Dense' },
+      { modeId: 'comfortable', name: 'Comfortable' },
+    ])
+    const result = findOrCreateMode(col, 'Comfortable')
+    expect(result).toEqual({
+      value: { modeId: 'comfortable', name: 'Comfortable' },
+      created: false,
+    })
+    expect((col as any).renameMode).not.toHaveBeenCalled()
+    expect((col as any).addMode).not.toHaveBeenCalled()
+  })
+
+  it('renames the default "Mode 1" when the collection has only that mode', () => {
+    const col = makeCol([{ modeId: 'm:0', name: 'Mode 1' }])
+    const result = findOrCreateMode(col, 'Comfortable')
+    expect(result).toEqual({
+      value: { modeId: 'm:0', name: 'Comfortable' },
+      created: true,
+    })
+    expect((col as any).renameMode).toHaveBeenCalledWith('m:0', 'Comfortable')
+    expect((col as any).addMode).not.toHaveBeenCalled()
+  })
+
+  it('adds a new mode when multiple modes exist and none match', () => {
+    const col = makeCol([
+      { modeId: 'dense', name: 'Dense' },
+      { modeId: 'compact', name: 'Compact' },
+    ])
+    const result = findOrCreateMode(col, 'Comfortable')
+    expect(result.created).toBe(true)
+    expect(result.value.name).toBe('Comfortable')
+    expect((col as any).addMode).toHaveBeenCalledWith('Comfortable')
+    expect((col as any).renameMode).not.toHaveBeenCalled()
   })
 })
 

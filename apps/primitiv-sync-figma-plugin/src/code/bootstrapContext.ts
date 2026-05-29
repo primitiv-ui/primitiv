@@ -16,6 +16,7 @@
 
 import {
   findOrCreateCollection,
+  findOrCreateMode,
   findOrCreateTextStyle,
   findOrCreateVariable,
 } from './figmaIdempotent'
@@ -53,11 +54,10 @@ export async function bootstrapContext(options: {
     if (v.variableCollectionId === primitives.id) primitiveByName.set(v.name, v)
   }
 
-  const collectionResult = await findOrCreateCollection(
-    `Context / ${contextLabel}`,
-  )
+  const collectionResult = await findOrCreateCollection('Context')
   const contextCollection = collectionResult.value
-  const modeId = contextCollection.defaultModeId
+  const modeResult = findOrCreateMode(contextCollection, contextLabel)
+  const modeId = modeResult.value.modeId
 
   const warnings: string[] = []
   const createdByName = new Map<string, Variable>()

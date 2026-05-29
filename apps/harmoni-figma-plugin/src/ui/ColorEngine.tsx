@@ -23,6 +23,8 @@ function stepLabel(index: number): string {
 
 export function ColorEngine() {
   const [rampName, setRampName] = useState("brand");
+  const [writeWhiteBlack, setWriteWhiteBlack] = useState(true);
+  const [writeNeutral, setWriteNeutral] = useState(true);
 
   const {
     wasmReady,
@@ -48,14 +50,16 @@ export function ColorEngine() {
   } = useColors();
 
   function handleApply() {
-    const singles: SingleColorData[] = [
-      { name: "white", rgba: oklchToRgba(effectiveWhite) },
-      { name: "black", rgba: oklchToRgba(effectiveBlack) },
-    ];
+    const singles: SingleColorData[] = writeWhiteBlack
+      ? [
+          { name: "white", rgba: oklchToRgba(effectiveWhite) },
+          { name: "black", rgba: oklchToRgba(effectiveBlack) },
+        ]
+      : [];
 
     const ramps: PairedRampData[] = [];
 
-    if (neutralPalette?.swatches) {
+    if (writeNeutral && neutralPalette?.swatches) {
       ramps.push({
         name: "neutral",
         light: neutralPalette.swatches.map((s, i) => ({
@@ -213,6 +217,22 @@ export function ColorEngine() {
             value={rampName}
             onChange={(e) => setRampName(e.target.value)}
           />
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={writeWhiteBlack}
+            onChange={(e) => setWriteWhiteBlack(e.target.checked)}
+          />
+          Write white &amp; black
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={writeNeutral}
+            onChange={(e) => setWriteNeutral(e.target.checked)}
+          />
+          Write neutral ramp
         </label>
         <button type="button" onClick={handleApply} disabled={!wasmReady}>
           Apply to Figma

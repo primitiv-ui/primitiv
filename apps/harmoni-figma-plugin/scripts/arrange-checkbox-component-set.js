@@ -1,164 +1,146 @@
 // arrange-checkbox-component-set.js
-// Arranges the Checkbox component set (240 variants) into a labelled grid.
-// Run via figma_execute — replace the findOne lookup with getNodeByIdAsync if the ID is known.
+// Arranges the Checkbox component set (60 variants) into a labelled grid.
+// Run via the Figma developer console with the Checkbox component set selected.
 //
 // Grid axes:
-//   Rows: Context (compact→comfortable→spacious→dense), md-first within each section
-//   Cols: State (unchecked|checked|indeterminate) × Interaction (default|hover|focus|disabled)
+//   Rows: Size (md first, then xs sm lg xl)
+//   Cols: State (unchecked | checked | indeterminate) × Interaction (default | hover | focus | disabled)
 //
+// Density is controlled by the containing frame's Context variable mode override.
 // Re-run safe: deletes "Checkbox Grid Labels" group before regenerating.
 
-const SIZE_ORDER        = ['md', 'xs', 'sm', 'lg', 'xl'];
-const CONTEXT_ORDER     = ['compact', 'comfortable', 'spacious', 'dense'];
-const STATE_ORDER       = ['unchecked', 'checked', 'indeterminate'];
-const INTERACTION_ORDER = ['default', 'hover', 'focus', 'disabled'];
+(async function () {
 
-const GAP_INTERACTION = 8;
-const GAP_STATE       = 32;
-const GAP_SIZE        = 12;
-const GAP_DENSITY     = 64;
-const EDGE_PAD        = 8; // keeps −4 px focus-ring overflow from being clipped
+  await figma.loadFontAsync({ family: 'Inter', style: 'Regular' });
+  await figma.loadFontAsync({ family: 'Inter', style: 'Bold' });
 
-function parseProps(name) {
-  return {
-    ctx:  name.match(/Context=(\w+)/)?.[1],
-    sz:   name.match(/Size=(\w+)/)?.[1],
-    st:   name.match(/State=(\w+)/)?.[1],
-    iact: name.match(/Interaction=(\w+)/)?.[1],
-  };
-}
+  const SIZE_ORDER        = ['md', 'xs', 'sm', 'lg', 'xl'];
+  const STATE_ORDER       = ['unchecked', 'checked', 'indeterminate'];
+  const INTERACTION_ORDER = ['default', 'hover', 'focus', 'disabled'];
 
-const set = figma.currentPage.findOne(n => n.type === 'COMPONENT_SET' && n.name === 'Checkbox');
-if (!set) throw new Error('Checkbox component set not found on this page');
+  const GAP_INTERACTION = 8;
+  const GAP_STATE       = 32;
+  const GAP_SIZE        = 12;
+  const EDGE_PAD        = 8;
 
-// Measure max width/height per column and row cell
-const colWidths = {}, rowHeights = {};
-for (const comp of set.children) {
-  const { ctx, sz, st, iact } = parseProps(comp.name);
-  const ck = `${st}_${iact}`;
-  const rk = `${ctx}_${sz}`;
-  colWidths[ck]  = Math.max(colWidths[ck]  || 0, comp.width);
-  rowHeights[rk] = Math.max(rowHeights[rk] || 0, comp.height);
-}
-
-// Column X positions
-const colX = {};
-let x = 0;
-for (const st of STATE_ORDER) {
-  for (let i = 0; i < INTERACTION_ORDER.length; i++) {
-    const iact = INTERACTION_ORDER[i];
-    const k = `${st}_${iact}`;
-    colX[k] = x;
-    x += colWidths[k];
-    if (i < INTERACTION_ORDER.length - 1) x += GAP_INTERACTION;
+  const set = figma.currentPage.selection.find(n => n.type === 'COMPONENT_SET');
+  if (!set) {
+    console.error('Nothing selected. Select the Checkbox component set and re-run.');
+    return;
   }
-  x += GAP_STATE;
-}
-const totalW = x - GAP_STATE;
 
-// Row Y positions
-const rowY = {};
-let y = 0;
-for (let ci = 0; ci < CONTEXT_ORDER.length; ci++) {
-  const ctx = CONTEXT_ORDER[ci];
+  function parseProps(name) {
+    return {
+      sz:   name.match(/Size=(\w+)/)?.[1],
+      st:   name.match(/State=(\w+)/)?.[1],
+      iact: name.match(/Interaction=(\w+)/)?.[1],
+    };
+  }
+
+  const all   = [...set.children].filter(n => n.type === 'COMPONENT');
+  const valid = all.filter(c => {
+    const { sz, st, iact } = parseProps(c.name);
+    return sz && st && iact;
+  });
+  console.log(`Found ${valid.length} valid components in "${set.name}".`);
+
+  const colWidths  = {};
+  const rowHeights = {};
+  for (const comp of valid) {
+    const { sz, st, iact } = parseProps(comp.name);
+    const ck = `${st}_${iact}`;
+    colWidths[ck]  = Math.max(colWidths[ck]  || 0, comp.width);
+    rowHeights[sz] = Math.max(rowHeights[sz] || 0, comp.height);
+  }
+
+  // Column x-positions
+  const colX = {};
+  let x = 0;
+  for (let si = 0; si < STATE_ORDER.length; si++) {
+    if (si > 0) x += GAP_STATE;
+    for (let ii = 0; ii < INTERACTION_ORDER.length; ii++) {
+      if (ii > 0) x += GAP_INTERACTION;
+      const k = `${STATE_ORDER[si]}_${INTERACTION_ORDER[ii]}`;
+      colX[k] = x;
+      x += colWidths[k] || 0;
+    }
+  }
+
+  // Row y-positions
+  const rowY = {};
+  let y = 0;
   for (let si = 0; si < SIZE_ORDER.length; si++) {
-    const sz = SIZE_ORDER[si];
-    const k = `${ctx}_${sz}`;
-    rowY[k] = y;
-    y += rowHeights[k];
-    if (si < SIZE_ORDER.length - 1) y += GAP_SIZE;
+    if (si > 0) y += GAP_SIZE;
+    rowY[SIZE_ORDER[si]] = y;
+    y += rowHeights[SIZE_ORDER[si]] || 0;
   }
-  if (ci < CONTEXT_ORDER.length - 1) y += GAP_DENSITY;
-}
-const totalH = y;
 
-// Apply EDGE_PAD to all positions
-for (const k of Object.keys(colX))  colX[k]  += EDGE_PAD;
-for (const k of Object.keys(rowY))  rowY[k]  += EDGE_PAD;
+  for (const k of Object.keys(colX)) colX[k] += EDGE_PAD;
+  for (const k of Object.keys(rowY)) rowY[k] += EDGE_PAD;
 
-// Position components — centred within their grid cell
-for (const comp of set.children) {
-  const { ctx, sz, st, iact } = parseProps(comp.name);
-  const ck = `${st}_${iact}`;
-  const rk = `${ctx}_${sz}`;
-  comp.x = colX[ck] + Math.floor((colWidths[ck] - comp.width)  / 2);
-  comp.y = rowY[rk] + Math.floor((rowHeights[rk] - comp.height) / 2);
-}
+  set.resize(x + EDGE_PAD * 2, y + EDGE_PAD * 2);
 
-// Resize component set
-set.resize(totalW + EDGE_PAD * 2, totalH + EDGE_PAD * 2);
+  let placed = 0, skipped = 0;
+  for (const comp of valid) {
+    const { sz, st, iact } = parseProps(comp.name);
+    const ck = `${st}_${iact}`;
+    if (colX[ck] !== undefined && rowY[sz] !== undefined) {
+      comp.x = colX[ck] + Math.floor((colWidths[ck] - comp.width)   / 2);
+      comp.y = rowY[sz]  + Math.floor((rowHeights[sz] - comp.height) / 2);
+      placed++;
+    } else {
+      console.warn(`Could not place: ${comp.name}`); skipped++;
+    }
+  }
 
-// Default instance: compact / md / unchecked / default (top-left cell)
-const defaultComp = [...set.children].find(
-  c => c.name === 'Context=compact, Size=md, State=unchecked, Interaction=default'
-);
-if (defaultComp) set.insertChild(0, defaultComp);
+  // Default instance: md / unchecked / default
+  const defaultComp = valid.find(c => {
+    const { sz, st, iact } = parseProps(c.name);
+    return sz === 'md' && st === 'unchecked' && iact === 'default';
+  });
+  if (defaultComp) set.insertChild(0, defaultComp);
 
-// Labels
-const existing = figma.currentPage.findOne(n => n.name === 'Checkbox Grid Labels');
-if (existing) existing.remove();
+  // Labels
+  const existing = figma.currentPage.findOne(n => n.name === 'Checkbox Grid Labels');
+  if (existing) existing.remove();
 
-await figma.loadFontAsync({ family: 'Inter', style: 'Regular' });
-await figma.loadFontAsync({ family: 'Inter', style: 'Bold' });
+  const labelNodes = [];
 
-const labelNodes = [];
-
-// State group headers — bold, centred over each group's full width
-for (const st of STATE_ORDER) {
-  const firstX    = colX[`${st}_default`];
-  const lastKey   = `${st}_disabled`;
-  const groupRight = colX[lastKey] + colWidths[lastKey];
-  const t = figma.createText();
-  t.fontName = { family: 'Inter', style: 'Bold' };
-  t.fontSize = 12;
-  t.characters = st.charAt(0).toUpperCase() + st.slice(1);
-  t.x = set.x + (firstX + groupRight) / 2 - t.width / 2;
-  t.y = set.y - 48;
-  labelNodes.push(t);
-}
-
-// Interaction sub-labels — regular, left-aligned to each column
-for (const st of STATE_ORDER) {
-  for (const iact of INTERACTION_ORDER) {
+  function makeLabel(text, lx, ly, bold) {
     const t = figma.createText();
-    t.fontName = { family: 'Inter', style: 'Regular' };
-    t.fontSize = 10;
-    t.characters = iact;
-    t.x = set.x + colX[`${st}_${iact}`];
-    t.y = set.y - 24;
+    t.fontName   = { family: 'Inter', style: bold ? 'Bold' : 'Regular' };
+    t.fontSize   = bold ? 12 : 10;
+    t.characters = text;
+    t.x = lx; t.y = ly;
+    figma.currentPage.appendChild(t);
     labelNodes.push(t);
+    return t;
   }
-}
 
-// Context density labels — bold, vertically centred over each density section
-for (const ctx of CONTEXT_ORDER) {
-  const topY    = rowY[`${ctx}_md`];
-  const botKey  = `${ctx}_xl`;
-  const sectionBot = rowY[botKey] + rowHeights[botKey];
-  const t = figma.createText();
-  t.fontName = { family: 'Inter', style: 'Bold' };
-  t.fontSize = 12;
-  t.characters = ctx.charAt(0).toUpperCase() + ctx.slice(1);
-  t.x = set.x - 180;
-  t.y = set.y + (topY + sectionBot) / 2 - t.height / 2;
-  labelNodes.push(t);
-}
+  // State group headers + interaction sub-labels (above the set)
+  for (const st of STATE_ORDER) {
+    const firstX     = colX[`${st}_default`];
+    const lastKey    = `${st}_disabled`;
+    const groupRight = colX[lastKey] + colWidths[lastKey];
+    const t = makeLabel(st.charAt(0).toUpperCase() + st.slice(1), 0, set.y - 48, true);
+    t.x = set.x + (firstX + groupRight) / 2 - t.width / 2;
 
-// Size row labels — regular, vertically centred over each size row
-for (const ctx of CONTEXT_ORDER) {
+    for (const iact of INTERACTION_ORDER) {
+      makeLabel(iact, set.x + colX[`${st}_${iact}`], set.y - 24, false);
+    }
+  }
+
+  // Size row labels (left of the set)
   for (const sz of SIZE_ORDER) {
-    const k = `${ctx}_${sz}`;
-    const t = figma.createText();
-    t.fontName = { family: 'Inter', style: 'Regular' };
-    t.fontSize = 10;
-    t.characters = sz;
-    t.x = set.x - 56;
-    t.y = set.y + rowY[k] + rowHeights[k] / 2 - t.height / 2;
-    labelNodes.push(t);
+    const rowMidY = (rowY[sz] || 0) + (rowHeights[sz] || 0) / 2;
+    const sl = makeLabel(sz, set.x - 56, 0, false);
+    sl.y = set.y + rowMidY - sl.height / 2;
   }
-}
 
-const labelGroup = figma.group(labelNodes, figma.currentPage);
-labelGroup.name = 'Checkbox Grid Labels';
+  const labelGroup = figma.group(labelNodes, figma.currentPage);
+  labelGroup.name  = 'Checkbox Grid Labels';
 
-figma.viewport.scrollAndZoomIntoView([set, labelGroup]);
+  figma.viewport.scrollAndZoomIntoView([set, labelGroup]);
+  console.log(`Done. Placed ${placed}${skipped ? `, skipped ${skipped}` : ''}.`);
+
+})().catch(err => console.error('Script error:', err.message));

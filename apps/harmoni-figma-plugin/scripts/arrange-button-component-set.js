@@ -2,28 +2,21 @@
  * arrange-button-component-set.js
  *
  * Positions all variants in the Button component set into the documented grid.
- * Run this once, after all 400 variants are built.
+ * Run this after building or restructuring variants.
  *
  * Grid structure:
- *   Rows    → Context section (compact / comfortable / spacious / dense)
- *               × Size row (md first, then xs sm lg xl)
+ *   Rows    → Size (md first, then xs sm lg xl)
  *   Columns → Variant group (primary / secondary / link / danger)
  *               × State (default / hover / active / focus / disabled)
  *
- * md is placed first in each context section, and compact is the first context
- * section, so compact + md + primary + default lands at the top-left. The script
- * also moves that component to index 0 of the set's children, so Figma uses it as
- * the default instance. Dense sits last — it is the least-used context (only the
- * plugin needs it).
+ * Density is no longer a grid dimension — it is controlled by the containing
+ * frame's Context variable mode override in the design. The component set shows
+ * variants at whatever density the canvas default mode resolves to (Compact).
  *
  * Property names and values are lowercase and match the live set exactly:
- *   Context = compact | comfortable | spacious | dense
  *   Variant = primary | secondary | link | danger
  *   Size    = md | xs | sm | lg | xl
  *   State   = default | hover | active | focus | disabled
- *
- * Icon slots (leading + trailing) are boolean properties within each component,
- * not a grid dimension, so they do not affect positioning.
  *
  * ─── Usage ───────────────────────────────────────────────────────────────────
  *  1. Select the Button component set on the canvas.
@@ -34,89 +27,47 @@
  */
 (async function () {
 
-  // ─── Font loading ─────────────────────────────────────────────────────────
-  // Required before any text node can have its characters set.
-  // Inter is always available in Figma — restyle labels to Khand / Asta Sans afterwards.
   await figma.loadFontAsync({ family: "Inter", style: "Bold" });
   await figma.loadFontAsync({ family: "Inter", style: "Regular" });
 
-  // ─── Property names ───────────────────────────────────────────────────────
-  // These must match the exact property names defined in your Figma component set.
-  const PROP = {
-    density: "Context",
-    size:    "Size",
-    variant: "Variant",
-    state:   "State",
-  };
+  const PROP = { size: "Size", variant: "Variant", state: "State" };
 
-  // ─── Value ordering ───────────────────────────────────────────────────────
-  // Controls the visual sequence of rows and columns.
-  // md is SIZE_ORDER[0] so it occupies the top row of every density section.
-  const DENSITY_ORDER = ["compact", "comfortable", "spacious", "dense"];
   const SIZE_ORDER    = ["md", "xs", "sm", "lg", "xl"];
   const VARIANT_ORDER = ["primary", "secondary", "link", "danger"];
   const STATE_ORDER   = ["default", "hover", "active", "focus", "disabled"];
 
-  // ─── Gaps (px) ────────────────────────────────────────────────────────────
-  const GAP_STATE   =  8;   // between state columns within a variant group
-  const GAP_VARIANT = 32;   // between variant column groups
-  const GAP_SIZE    = 12;   // between size rows within a density section
-  const GAP_DENSITY = 64;   // between density sections
-  // Focus ring frames extend 4 px beyond each component edge. EDGE_PAD ensures
-  // the first row/column never reaches the component-set frame boundary.
+  const GAP_STATE   =  8;
+  const GAP_VARIANT = 32;
+  const GAP_SIZE    = 12;
   const EDGE_PAD    =  8;
 
-  // ─── Find the component set ───────────────────────────────────────────────
-  const componentSet = figma.currentPage.selection
-    .find(n => n.type === "COMPONENT_SET");
-
+  const componentSet = figma.currentPage.selection.find(n => n.type === "COMPONENT_SET");
   if (!componentSet) {
     console.error("Nothing selected. Select the Button component set and re-run.");
     return;
   }
 
-  const all = componentSet.children.filter(n => n.type === "COMPONENT");
-  console.log(`Found ${all.length} components in "${componentSet.name}".`);
-
-  // ─── Validate properties ──────────────────────────────────────────────────
-  const invalid = all.filter(c => {
-    const p = c.variantProperties ?? {};
-    return !p[PROP.density] || !p[PROP.size] || !p[PROP.variant] || !p[PROP.state];
-  });
-
-  if (invalid.length) {
-    console.warn(`${invalid.length} component(s) are missing expected properties and will be skipped:`);
-    invalid.forEach(c => console.warn("  skipped:", c.name, JSON.stringify(c.variantProperties)));
-  }
-
+  const all   = componentSet.children.filter(n => n.type === "COMPONENT");
   const valid = all.filter(c => {
     const p = c.variantProperties ?? {};
-    return p[PROP.density] && p[PROP.size] && p[PROP.variant] && p[PROP.state];
+    return p[PROP.size] && p[PROP.variant] && p[PROP.state];
   });
+  console.log(`Found ${valid.length} valid components in "${componentSet.name}".`);
 
-  // ─── Measure maximum dimensions ───────────────────────────────────────────
-  // colMaxWidth  keyed by "Variant_State"  — max width  across all densities and sizes
-  // rowMaxHeight keyed by "Density_Size"   — max height across all variants and states
-  //
-  // Using the maximum ensures every column is wide enough for the largest button
-  // at that variant/state (typically xl), and every row is tall enough for the
-  // tallest button at that density/size.
+  // Measure max dimensions
   const colMaxWidth  = {};
   const rowMaxHeight = {};
-
   for (const c of valid) {
     const p   = c.variantProperties;
     const col = `${p[PROP.variant]}_${p[PROP.state]}`;
-    const row = `${p[PROP.density]}_${p[PROP.size]}`;
+    const row = p[PROP.size];
     colMaxWidth[col]  = Math.max(colMaxWidth[col]  ?? 0, c.width);
     rowMaxHeight[row] = Math.max(rowMaxHeight[row] ?? 0, c.height);
   }
 
-  // ─── Calculate column x-positions ─────────────────────────────────────────
-  // Walk left → right: Primary(5 states) | gap | Secondary(5 states) | gap | …
+  // Column x-positions
   const colX = {};
   let x = 0;
-
   for (let vi = 0; vi < VARIANT_ORDER.length; vi++) {
     if (vi > 0) x += GAP_VARIANT;
     for (let si = 0; si < STATE_ORDER.length; si++) {
@@ -127,148 +78,85 @@
     }
   }
 
-  // ─── Calculate row y-positions ────────────────────────────────────────────
-  // Walk top → bottom: Compact(md xs sm lg xl) | gap | Comfortable(…) | gap | Spacious(…)
+  // Row y-positions
   const rowY = {};
   let y = 0;
-
-  for (let di = 0; di < DENSITY_ORDER.length; di++) {
-    if (di > 0) y += GAP_DENSITY;
-    for (let si = 0; si < SIZE_ORDER.length; si++) {
-      if (si > 0) y += GAP_SIZE;
-      const row = `${DENSITY_ORDER[di]}_${SIZE_ORDER[si]}`;
-      rowY[row] = y;
-      y += rowMaxHeight[row] ?? 0;
-    }
+  for (let si = 0; si < SIZE_ORDER.length; si++) {
+    if (si > 0) y += GAP_SIZE;
+    rowY[SIZE_ORDER[si]] = y;
+    y += rowMaxHeight[SIZE_ORDER[si]] ?? 0;
   }
 
-  // ─── Shift all positions inward by EDGE_PAD ──────────────────────────────
-  // Keeps focus ring overflow (4 px per side) away from the component-set boundary.
   for (const k of Object.keys(colX)) colX[k] += EDGE_PAD;
   for (const k of Object.keys(rowY)) rowY[k] += EDGE_PAD;
 
-  // ─── Resize the component set frame first ────────────────────────────────
   componentSet.resize(x + EDGE_PAD * 2, y + EDGE_PAD * 2);
 
-  // ─── Position every component ─────────────────────────────────────────────
-  // colMaxWidth guarantees every column is wide enough for the widest component
-  // in that variant+state pair (across all densities and sizes), so no component
-  // overflows into the next column. rowMaxHeight gives the same guarantee per row.
-  let placed  = 0;
-  let skipped = 0;
-
+  let placed = 0, skipped = 0;
   for (const c of valid) {
     const p   = c.variantProperties;
     const col = `${p[PROP.variant]}_${p[PROP.state]}`;
-    const row = `${p[PROP.density]}_${p[PROP.size]}`;
-
+    const row = p[PROP.size];
     if (colX[col] !== undefined && rowY[row] !== undefined) {
-      c.x = colX[col];
-      c.y = rowY[row];
-      placed++;
+      c.x = colX[col]; c.y = rowY[row]; placed++;
     } else {
-      console.warn(`Could not place: ${c.name} (col="${col}", row="${row}")`);
-      skipped++;
+      console.warn(`Could not place: ${c.name}`); skipped++;
     }
   }
 
-  // ─── Make the top-left cell the default instance ──────────────────────────
-  // Figma uses the FIRST child of the set as the default variant. Position alone
-  // is not always enough, so explicitly move DENSITY_ORDER[0] + SIZE_ORDER[0] +
-  // VARIANT_ORDER[0] + STATE_ORDER[0] (compact/md/primary/default) to index 0.
+  // Default instance: md / primary / default
   const defaultComp = valid.find(c => {
     const p = c.variantProperties;
-    return p[PROP.density] === DENSITY_ORDER[0] && p[PROP.size] === SIZE_ORDER[0]
-        && p[PROP.variant] === VARIANT_ORDER[0] && p[PROP.state] === STATE_ORDER[0];
+    return p[PROP.size] === SIZE_ORDER[0] && p[PROP.variant] === VARIANT_ORDER[0] && p[PROP.state] === STATE_ORDER[0];
   });
   if (defaultComp) componentSet.insertChild(0, defaultComp);
 
-  // ─── Text labels ──────────────────────────────────────────────────────────
-  // Labels are placed on the canvas (outside the component set, which only
-  // accepts COMPONENT children). All label nodes are collected into a single
-  // "Button Grid Labels" group so they can be selected, hidden, or deleted
-  // as one unit. Restyle font/colour afterwards — Inter is used here as a
-  // safe default that is always available in Figma.
-  //
-  // Layout:
-  //   Above the set — variant group headers (bold, row 1)
-  //                   state sub-headers     (regular, row 2)
-  //   Left of the set — density section labels (bold, outer column)
-  //                     size row labels        (regular, inner column)
+  // Labels
+  const existing = figma.currentPage.findOne(n => n.name === "Button Grid Labels");
+  if (existing) existing.remove();
 
-  const ABOVE_VARIANTS = 48;   // px above component set top edge: variant labels
-  const ABOVE_STATES   = 24;   // px above component set top edge: state labels
-  const LEFT_DENSITY   = 180;  // px left of component set left edge: density labels
-  const LEFT_SIZES     = 56;   // px left of component set left edge: size labels
-
+  const ABOVE_VARIANTS = 48;
+  const ABOVE_STATES   = 24;
+  const LEFT_SIZES     = 56;
   const cx = componentSet.x;
   const cy = componentSet.y;
-
   const labelNodes = [];
 
   function makeLabel(text, canvasX, canvasY, bold) {
-    const t      = figma.createText();
-    t.fontName   = { family: "Inter", style: bold ? "Bold" : "Regular" };
-    t.fontSize   = bold ? 12 : 11;
+    const t = figma.createText();
+    t.fontName = { family: "Inter", style: bold ? "Bold" : "Regular" };
+    t.fontSize = bold ? 12 : 11;
     t.characters = text;
-    t.x          = canvasX;
-    t.y          = canvasY;
+    t.x = canvasX; t.y = canvasY;
     figma.currentPage.appendChild(t);
     labelNodes.push(t);
     return t;
   }
 
-  // Variant group headers + state sub-headers (above the component set)
+  // Variant group headers + state sub-headers
   for (const variant of VARIANT_ORDER) {
-    const firstCol     = `${variant}_${STATE_ORDER[0]}`;
-    const lastCol      = `${variant}_${STATE_ORDER[STATE_ORDER.length - 1]}`;
-    const groupLeft    = colX[firstCol]  ?? 0;
-    const groupRight   = (colX[lastCol] ?? 0) + (colMaxWidth[lastCol] ?? 0);
-    const groupCenterX = groupLeft + (groupRight - groupLeft) / 2;
-
-    // Variant label — centred over the whole group
+    const firstCol    = `${variant}_${STATE_ORDER[0]}`;
+    const lastCol     = `${variant}_${STATE_ORDER[STATE_ORDER.length - 1]}`;
+    const groupLeft   = colX[firstCol] ?? 0;
+    const groupRight  = (colX[lastCol] ?? 0) + (colMaxWidth[lastCol] ?? 0);
     const vl = makeLabel(variant.toUpperCase(), 0, cy - ABOVE_VARIANTS, true);
-    vl.x = cx + groupCenterX - vl.width / 2;
-
-    // State labels — left-aligned to each state column's left edge. The buttons
-    // within a column are left-aligned (placed at colX), so the label aligns to
-    // the button's left edge rather than centring over the column's max width.
+    vl.x = cx + groupLeft + (groupRight - groupLeft) / 2 - vl.width / 2;
     for (const state of STATE_ORDER) {
-      const col = `${variant}_${state}`;
-      makeLabel(state, cx + (colX[col] ?? 0), cy - ABOVE_STATES, false);
+      makeLabel(state, cx + (colX[`${variant}_${state}`] ?? 0), cy - ABOVE_STATES, false);
     }
   }
 
-  // Density section labels + size row labels (left of the component set)
-  for (const density of DENSITY_ORDER) {
-    const firstRow      = `${density}_${SIZE_ORDER[0]}`;
-    const lastRow       = `${density}_${SIZE_ORDER[SIZE_ORDER.length - 1]}`;
-    const sectionTop    = rowY[firstRow] ?? 0;
-    const sectionBottom = (rowY[lastRow] ?? 0) + (rowMaxHeight[lastRow] ?? 0);
-    const sectionMidY   = sectionTop + (sectionBottom - sectionTop) / 2;
-
-    // Density label — vertically centred over the whole section
-    const dl = makeLabel(density.toUpperCase(), cx - LEFT_DENSITY, 0, true);
-    dl.y = cy + sectionMidY - dl.height / 2;
-
-    // Size labels — vertically centred over each row within the section
-    for (const size of SIZE_ORDER) {
-      const row     = `${density}_${size}`;
-      const rowMidY = (rowY[row] ?? 0) + (rowMaxHeight[row] ?? 0) / 2;
-      const sl      = makeLabel(size, cx - LEFT_SIZES, 0, false);
-      sl.y          = cy + rowMidY - sl.height / 2;
-    }
+  // Size row labels
+  for (const size of SIZE_ORDER) {
+    const rowMidY = (rowY[size] ?? 0) + (rowMaxHeight[size] ?? 0) / 2;
+    const sl = makeLabel(size, cx - LEFT_SIZES, 0, false);
+    sl.y = cy + rowMidY - sl.height / 2;
   }
 
-  // Collect into a group for easy management
   const labelGroup = figma.group(labelNodes, figma.currentPage);
   labelGroup.name  = "Button Grid Labels";
-  console.log(`Created ${labelNodes.length} labels in group "${labelGroup.name}".`);
 
-  // ─── Zoom to result ───────────────────────────────────────────────────────
   figma.viewport.scrollAndZoomIntoView([componentSet, labelGroup]);
-
   console.log(`Done. Placed ${placed} components${skipped ? `, skipped ${skipped}` : ""}.`);
-  console.log(`Component set resized to ${Math.round(x)} × ${Math.round(y)} px.`);
 
 })().catch(err => console.error("Script error:", err.message));

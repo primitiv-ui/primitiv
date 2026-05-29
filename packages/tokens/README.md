@@ -12,11 +12,11 @@ token transformer (e.g. CSS variables, Tailwind config) reads from.
 | File | Contents |
 | --- | --- |
 | `src/dtcg.ts` | Pure transform: Figma-shaped variables → DTCG group |
-| `src/server.ts` | Local HTTP server (`POST /sync`) that writes the three DTCG files atomically |
+| `src/server.ts` | Local HTTP server (`POST /sync`) that writes the five DTCG files atomically |
 | `src/serve.ts` | Boot script for the sync server |
 | `src/index.ts` | Public entry; re-exports the transform, the server, and types |
 | `src/*.test.ts` | Vitest unit tests, 100% coverage |
-| `src/{primitives,semantic,components}.json` | DTCG output written by the sync server. **Committed** — these files are the repo's source of truth for downstream transformers. |
+| `src/{primitives,palette,intent,context,interaction}.json` | DTCG output written by the sync server. **Committed** — these files are the repo's source of truth for downstream transformers. |
 
 ## Backing up tokens (end-to-end)
 
@@ -70,30 +70,31 @@ Development → Primitiv Sync**. The UI banner shows
 ### 6. Turn the **Live sync** toggle on
 
 Off by default. With Live sync on, Export POSTs to the running
-server. With it off, Export gives you three download anchors
-(`primitives.json`, `semantic.json`, `components.json`) — save
-each into `packages/tokens/src/` by hand.
+server. With it off, Export gives you five download anchors
+(`primitives.json`, `palette.json`, `intent.json`, `context.json`,
+`interaction.json`) — save each into `packages/tokens/src/` by hand.
 
 ### 7. Click **Export tokens**
 
 The plugin extracts every local collection + variable via
 `figma.variables.*`, runs `figmaVarsToDtcg`, and POSTs
-`{ primitives, semantic, components }` to `localhost:4477/sync`.
-The UI confirms *Synced to localhost:4477* on success; the server
-writes each layer atomically (write to `.tmp`, then rename).
+`{ primitives, palette, intent, context, interaction }` to
+`localhost:4477/sync`. The UI confirms *Synced to localhost:4477*
+on success; the server writes each file atomically (write to
+`.tmp`, then rename).
 
 ### 8. Verify and commit
 
 ```sh
 git status packages/tokens/src
 git diff   packages/tokens/src
-git add    packages/tokens/src/{primitives,semantic,components}.json
+git add    packages/tokens/src/{primitives,palette,intent,context,interaction}.json
 git commit -m "tokens: sync from figma"
 git push
 ```
 
 Downstream transformers (CSS variables, Tailwind config, etc.)
-read from these three files — committing them is what makes the
+read from these five files — committing them is what makes the
 backup "real".
 
 ## Troubleshooting
@@ -102,8 +103,8 @@ backup "real".
 | --- | --- | --- |
 | `sh: 1: tsx: not found` when running `pnpm tokens:sync` | `node_modules` missing or stale | `pnpm install`, then retry |
 | Plugin UI reports an error on Export with Live sync **on** | Server isn't running, or `4477` is owned by another process | Check terminal 1 is alive; `lsof -i :4477` if you suspect a port clash |
-| Server throws `Unrecognised collection name: <name>` | A new Figma collection isn't in the routing table | Add a case to `routeCollection` in `src/dtcg.ts` and extend `src/dtcg.test.ts` |
-| Want a one-off backup without booting the server | Live sync is unnecessary for a single pull | Leave Live sync **off**, click Export, save the three download anchors into `src/` manually |
+| Unknown Figma collections appear in the file | Collections not in the known routing list are silently dropped | If you need them routed, add them to the whitelist in `figmaVarsToDtcg` in `src/dtcg.ts` and extend `src/dtcg.test.ts` |
+| Want a one-off backup without booting the server | Live sync is unnecessary for a single pull | Leave Live sync **off**, click Export, save the five download anchors into `src/` manually |
 
 ## Conventions
 
@@ -112,5 +113,8 @@ backup "real".
 - Each token has `$type` and `$value`. Aliases (next cycle) will use
   DTCG's `{group.sub.name}` reference string.
 - Colours emit as hex: `#rrggbb` opaque, `#rrggbbaa` translucent.
-- Values are read from the collection's `defaultModeId`; multi-mode
-  support is deferred to a later cycle.
+- Multi-mode collections (`Primitives / Palette`, `Intent`, `Context`)
+  are iterated per mode; the lowercase mode name becomes the top-level
+  key in that file (e.g. `palette.json` has `light` and `dark` keys).
+- Single-mode collections (`Primitives`, `Interaction`) are read from
+  `defaultModeId` and emitted flat.

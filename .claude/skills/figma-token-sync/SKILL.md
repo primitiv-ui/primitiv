@@ -1,6 +1,6 @@
 ---
 name: figma-token-sync
-description: How the primitiv-sync-figma-plugin and @primitiv/tokens work together to back up Figma variables as DTCG JSON in the repo — features, the export flow (Live sync vs Downloads), the dtcg.ts collection routing, single-mode caveat, alias resolution, and the deliberately-removed one-shot migration code. TRIGGER when editing apps/primitiv-sync-figma-plugin or packages/tokens, when running a token backup, when adding a new Figma variable collection that needs routing, when the Live sync server is involved (localhost:4477), when extending the DTCG transform, or when asked to revisit the sync plugin UI. SKIP for harmoni-figma-plugin work, packages/react component work, and any non-token Figma exploration.
+description: How the primitiv-sync-figma-plugin and @primitiv/tokens work together to back up Figma variables as DTCG JSON in the repo — features, the export flow (Live sync vs Downloads), the dtcg.ts collection routing, alias resolution, and the deliberately-removed one-shot migration code. TRIGGER when editing apps/primitiv-sync-figma-plugin or packages/tokens, when running a token backup, when adding a new Figma variable collection that needs routing, when the Live sync server is involved (localhost:4477), when extending the DTCG transform, or when asked to revisit the sync plugin UI. SKIP for harmoni-figma-plugin work, packages/react component work, and any non-token Figma exploration.
 ---
 
 # Figma → DTCG token sync
@@ -28,8 +28,8 @@ sandbox (`src/code/handleMessage.ts`) handles them by talking to
 | Action | What happens | Used for |
 | --- | --- | --- |
 | **Inspect variables** | Dumps every local collection + variable as raw JSON in the UI's `<pre>` panel | Debugging the Figma side; sanity-checking what the plugin sees |
-| **Export tokens** | Same extraction, then runs `figmaVarsToDtcg` to produce `{ primitives, semantic, components }` | The actual backup flow |
-| **Live sync** (toggle) | Off: Export surfaces three `data:` URI download links (`primitives.json`, `semantic.json`, `components.json`). On: Export POSTs the payload to `http://localhost:4477/sync` and the server writes the files into `packages/tokens/src/` | Toggle is off by default — turn it on only when the local sync server is running |
+| **Export tokens** | Same extraction, then runs `figmaVarsToDtcg` to produce `{ primitives, palette, intent, context, interaction }` | The actual backup flow |
+| **Live sync** (toggle) | Off: Export surfaces five `data:` URI download links. On: Export POSTs the payload to `http://localhost:4477/sync` and the server writes the files into `packages/tokens/src/` | Toggle is off by default — turn it on only when the local sync server is running |
 | **Close** | `figma.closePlugin()` | Standard plugin exit |
 
 There is **no** migration UI any more. The Typography → Semantic move
@@ -46,8 +46,8 @@ move is done`. Reinstating it means restoring `planMigration` /
    pnpm --filter @primitiv/tokens sync:serve     # equivalent
    ```
    Binds to `http://localhost:4477`. `POST /sync` accepts a
-   `{ primitives, semantic, components }` body and writes each layer
-   atomically into `packages/tokens/src/<layer>.json`.
+   `{ primitives, palette, intent, context, interaction }` body and
+   writes each file atomically into `packages/tokens/src/<name>.json`.
 
 2. **Watch-build the plugin:**
    ```sh
@@ -64,7 +64,7 @@ move is done`. Reinstating it means restoring `planMigration` /
    *Connected to: <page name>* once the sandbox sends `plugin-ready`.
 
 5. **Click Export tokens.**
-   - Live sync **off** → the UI renders three download anchors. Save
+   - Live sync **off** → the UI renders five download anchors. Save
      each into `packages/tokens/src/`.
    - Live sync **on** → the UI POSTs to `localhost:4477` and shows
      *Synced to localhost:4477* or an error from the server.
@@ -77,45 +77,48 @@ move is done`. Reinstating it means restoring `planMigration` /
 
 `packages/tokens/src/dtcg.ts` is **pure** — no fs, no network. It
 takes the sandbox's serialised payload (collections + variables) and
-emits three DTCG groups.
+emits five DTCG groups stored in `DtcgFiles`.
 
 ### Collection routing
 
-Collection names are matched **literally** by `routeCollection`:
+Collections are split into two categories before routing:
+
+**Multi-mode collections** — iterated per mode; mode name (lowercased)
+becomes the top-level key in that file:
+
+| Figma collection name | Output file |
+| --- | --- |
+| `Primitives / Palette` | `palette.json` |
+| `Intent` | `intent.json` |
+| `Context` | `context.json` |
+
+**Single-mode collections** — matched by name whitelist; variables are
+read from `defaultModeId`:
 
 | Figma collection name | Output file | Path prefix |
 | --- | --- | --- |
 | `Primitives` | `primitives.json` | `[]` |
-| `Semantic` | `semantic.json` | `[]` |
-| `Components` | `components.json` | `[]` |
-| `Context / <name>` | `semantic.json` | `['context', '<name lower>']` |
-| `Interaction` | `semantic.json` | `['interaction']` |
-| anything else | **throws** `Unrecognised collection name: <name>` |
+| `Interaction` | `interaction.json` | `[]` |
 
-The Context prefix is regex-matched (`/^Context\s*\/\s*(.+)$/`) so the
-context name is taken from whatever follows the slash, lower-cased. The
-Context route lands under `semantic.context.<name>` and is what the
-Bootstrap context action (RFC 0001 §15.10) emits to.
+Any collection not in either list is **silently dropped** — the export
+continues without it. This means legacy collections left over in Figma
+(e.g. old `Semantic`, `Components`, or per-density `Context / *`
+collections) are ignored rather than crashing the export.
 
-The legacy `Typography / <variant>` route was retired in Phase 3 per
-RFC §10.3 step 5; if a `Typography / *` collection still exists in
-Figma the export throws and the user must delete or rename it before
-the next sync.
+**Renaming or adding a collection** that you want routed: add it to
+the multi-mode block or the `singleMode` whitelist filter in
+`figmaVarsToDtcg`, add a route to `routeCollection` if single-mode,
+and extend the test fixtures in `dtcg.test.ts`.
 
-After routing, the transform synthesises a **short-form alias layer**
-(RFC §10.3 step 3): `semantic.typography.<role>.*` and
-`semantic.anatomy.<pattern>.*` are emitted as DTCG aliases pointing at
-the default context (`comfortable`). Roles and patterns come from the
-constants `TYPOGRAPHY_ROLES` (RFC §5.1) and `ANATOMY_PATTERNS` (RFC
-§6.1) in `dtcg.ts`; the default context is the `DEFAULT_CONTEXT`
-constant — changing the default is a one-line edit. Keys in the
-default context that are neither a role nor a pattern are silently
-ignored.
+### Alias resolution
 
-**Renaming a Figma collection breaks the export.** If you rename or
-add a collection, update `routeCollection` in
-`packages/tokens/src/dtcg.ts` and extend the test fixtures in
-`packages/tokens/src/dtcg.test.ts`.
+The transform pre-computes every variable's DTCG path from its
+**natural name** (slash-split, no collection prefix). Variable names
+are unique across the system, so cross-collection aliases resolve
+correctly regardless of which file the target variable lives in.
+
+A `Context` variable aliasing `space/8` from `Primitives` becomes
+`{space.8}` in the output.
 
 ### Value emission
 
@@ -127,19 +130,7 @@ add a collection, update `routeCollection` in
 | `COLOR` | `'color'` | hex — `#rrggbb` opaque or `#rrggbbaa` translucent |
 
 Aliases (`{ type: 'VARIABLE_ALIAS', id }`) become DTCG reference
-strings of the form `{group.sub.name}`. The transform pre-computes
-every variable's full DTCG path (routing prefix + slash-split name)
-so cross-collection aliases resolve correctly — a `Context / Compact`
-variable's alias into `font-family/sans` becomes
-`{font-family.sans}` because Primitives has an empty prefix.
-
-### Single-mode only
-
-Values are read from `collection.defaultModeId`. Multi-mode DTCG token
-sets (one set per Figma mode) are deferred until needed. If the design
-team adopts non-default modes for a routed collection, the export
-silently emits only the default values — this is the next thing to
-extend.
+strings of the form `{group.sub.name}`.
 
 ## The HTTP sync server
 
@@ -147,8 +138,8 @@ extend.
 
 - **Bind**: `http://localhost:4477`.
 - **Endpoint**: `POST /sync` only.
-- **Body**: `{ primitives: DtcgGroup, semantic: DtcgGroup, components: DtcgGroup }`.
-- **Write**: each layer pretty-printed to `packages/tokens/src/<layer>.json` atomically (write to `.tmp`, then rename).
+- **Body**: `{ primitives, palette, intent, context, interaction }` (each a `DtcgGroup`).
+- **Write**: each file pretty-printed to `packages/tokens/src/<name>.json` atomically (write to `.tmp`, then rename).
 - **CORS**: wide open. Safe because the only caller is the sync plugin's UI iframe, and the server never leaves loopback.
 
 The plugin's network manifest (`manifest.json`) allows
@@ -160,9 +151,8 @@ transport is genuinely needed.
 Add to this stack when:
 
 - A new Figma variable collection needs DTCG routing.
-- The shape of a token (extra metadata, multi-mode, $description)
-  needs to change.
-- A new export action is wanted (e.g. a per-mode export).
+- The shape of a token (extra metadata, $description) needs to change.
+- A new export action is wanted.
 
 Do **not** add to this stack:
 
@@ -194,4 +184,4 @@ pnpm --filter @primitiv/tokens lint                   # tsc --noEmit
 - `apps/primitiv-sync-figma-plugin/src/ui/App.tsx` — UI actions and Live sync behaviour.
 - `packages/tokens/src/dtcg.ts` — the pure transform and routing table.
 - `packages/tokens/src/server.ts` — local HTTP sync server.
-- `packages/tokens/README.md` — package conventions, single-mode caveat.
+- `packages/tokens/README.md` — package conventions.

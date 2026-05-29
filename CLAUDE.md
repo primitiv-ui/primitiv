@@ -132,10 +132,13 @@ keyword or by topic; do not paraphrase their content here.
   anatomy token set, resolved values for every size slot (xs–xl) in all 4 modes,
   the focus ring radius formula (R+2 gap / R+4 ring), the canonical focus-ring
   build recipe, the text-style mode-override constraint (TextStyle has no
-  `setExplicitVariableModeForCollection`), and the script pattern for adding
-  new variables. TRIGGER when adding new variables, binding layer properties
-  to tokens, extending framed-control to a new component, debugging focus ring
-  geometry, or working with text styles and mode overrides.
+  `setExplicitVariableModeForCollection`), the unified `Intent` collection
+  (2 modes: Light/Dark — aliases into `Primitives / Palette` which also has
+  Light/Dark modes), `color/white` and `color/black` anchor variables, and
+  the `color/white` rule (use for foreground-on-colour, not `color/neutral/50`).
+  TRIGGER when adding new variables, binding layer properties to tokens,
+  extending framed-control to a new component, debugging focus ring geometry,
+  or working with text styles and mode overrides.
 - **`figma-framed-control-component`** — end-to-end *playbook* for building or
   extending a framed-control component set in Figma (Button, Switch, Checkbox, …):
   pre-flight, anatomy, clone-and-rebind to add a variant/fill gaps, component-

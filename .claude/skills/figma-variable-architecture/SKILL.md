@@ -1,23 +1,27 @@
 ---
 name: figma-variable-architecture
-description: Architecture of the Figma variable collections — collection hierarchy, the framed-control anatomy tokens, size slots (xs–xl), density contexts (Comfortable / Compact), the focus ring radius formula, and the Intent / Light action token structure (primary, secondary, danger, link). TRIGGER when adding new variables, working out what token to bind to a layer property, extending the framed-control system to a new component, debugging a focus ring that looks geometrically wrong, checking the correct radius/size value for a given density and slot, or adding new intent/action tokens. SKIP for token export/backup work (see figma-token-sync) and for wireframe styling lookups (see figma-wireframe-tokens).
+description: Architecture of the Figma variable collections — collection hierarchy, the framed-control anatomy tokens, size slots (xs–xl), density contexts (Comfortable / Compact), the focus ring radius formula, and the Intent action token structure (primary, secondary, danger, link — two modes: Light/Dark). TRIGGER when adding new variables, working out what token to bind to a layer property, extending the framed-control system to a new component, debugging a focus ring that looks geometrically wrong, checking the correct radius/size value for a given density and slot, or adding new intent/action tokens. SKIP for token export/backup work (see figma-token-sync) and for wireframe styling lookups (see figma-wireframe-tokens).
 ---
 
 # Figma variable architecture
 
 ## Collection hierarchy
 
-| Figma collection name        | DTCG output file  | Path prefix in DTCG           | Purpose                                               |
-| ---------------------------- | ----------------- | ----------------------------- | ----------------------------------------------------- |
-| `Primitives`                 | `primitives.json` | (none)                        | Raw scale values: radii, spacing, colour, typography  |
-| `Semantic`                   | `semantic.json`   | (none)                        | Named decisions: typography scales, anatomy patterns  |
-| `Context` (4 modes)          | `semantic.json`   | `context.<modeName>`          | Component sizing for all 4 densities                  |
-| `Interaction`                | `semantic.json`   | `interaction`                 | Interaction-state tokens                              |
-| `Components`                 | `components.json` | (none)                        | Per-component token decisions (wired to aliases)      |
+| Figma collection name        | Modes          | DTCG output file  | Path prefix in DTCG           | Purpose                                               |
+| ---------------------------- | -------------- | ----------------- | ----------------------------- | ----------------------------------------------------- |
+| `Primitives`                 | single         | `primitives.json` | (none)                        | Raw scale values: radii, spacing, colour, typography  |
+| `Primitives / Palette`       | Light, Dark    | `primitives.json` | (none)                        | Colour ramps: brand, neutral, danger, white, black    |
+| `Semantic`                   | single         | `semantic.json`   | (none)                        | Named decisions: typography scales, anatomy patterns  |
+| `Intent` (2 modes)           | Light, Dark    | `semantic.json`   | `color.<modeName>`            | Semantic colour decisions: action, surface, content   |
+| `Context` (4 modes)          | Dense–Spacious | `semantic.json`   | `context.<modeName>`          | Component sizing for all 4 densities                  |
+| `Interaction`                | single         | `semantic.json`   | `interaction`                 | Interaction-state tokens                              |
+| `Components`                 | single         | `components.json` | (none)                        | Per-component token decisions (wired to aliases)      |
 
-The `Context` collection has 4 modes: **Dense**, **Compact**, **Comfortable**, **Spacious**. Each holds 218 variables (framed-control, label, switch, checkbox, container, nav-item, body/heading/display/overline typography) that alias into `Primitives`. Frame-level mode overrides let any frame switch density without rebinding variables — set a mode override on the containing frame, and all components inside adopt that density.
+**`Primitives / Palette`** is kept separate from `Primitives` because it requires two modes (Light and Dark) while all other Primitives are mode-agnostic. Merging them would force every spacing and radius variable into a two-mode collection unnecessarily.
 
-The same pattern applies to `Primitives / Palette` and `Intent / Light` — these are standalone collections, not groups inside `Primitives` or `Intent`.
+**`Intent`** has two modes — **Light** and **Dark**. Both modes alias the same `Primitives / Palette` variable names; the palette's own Light/Dark modes provide the colour inversion automatically. Frame-level mode overrides on both `Intent` and `Primitives / Palette` together control the active theme.
+
+The `Context` collection has 4 modes: **Dense**, **Compact**, **Comfortable**, **Spacious**. Frame-level mode overrides let any frame switch density without rebinding variables.
 
 The `Context` collection is the one you'll touch most when building or updating components. It holds the full `framed-control/*` anatomy for every size slot across all 4 modes.
 
@@ -182,11 +186,13 @@ The aliases used are all in the `Primitives` collection. Relevant IDs for script
 | `radii/10`     | `VariableID:142:114`  | 10    |
 | `radii/12`     | `VariableID:142:115`  | 12    |
 
-## Intent / Light action tokens
+## Intent action tokens
 
-Collection: `Intent / Light` (`VariableCollectionId:346:4407`, mode `346:7`).
+Collection: `Intent` — two modes: **Light** and **Dark**.
 
-Action tokens encode colour decisions for interactive controls by intent. All aliases point into `Primitives / Palette`.
+Action tokens encode colour decisions for interactive controls by intent. All aliases point into `Primitives / Palette` by variable name; the palette's own Light/Dark modes resolve the actual colour value. Both Intent modes use identical alias targets — the palette modes handle the colour difference.
+
+**Important:** `action/*/foreground/default` and `content/inverse` and `content/on-action` alias `color/white` (the user-defined soft white anchor), **not** `color/neutral/50`. `color/neutral/50` is tinted by the neutral ramp and inverts in dark mode — wrong for text on coloured surfaces. `color/white` is the raw user-chosen white anchor in both modes.
 
 ### Token structure per intent
 
@@ -198,29 +204,40 @@ Filled-button intents (primary, secondary, danger) each have three groups:
 | `action/{intent}/foreground/` | `default · disabled` | Text/icon colour on top of the fill |
 | `action/{intent}/border/` | `default · hover · active · disabled` | Border/stroke colour per interaction state |
 
-### Resolved values
+### Palette alias targets
 
-| Intent | default bg | hover bg | active bg | disabled bg | foreground |
-| ------ | ---------- | -------- | --------- | ----------- | ---------- |
-| primary | brand.500 `#20836F` | brand.600 `#086453` | brand.700 `#003E31` | brand.500 | neutral.50 (white) |
-| secondary | neutral.100 `#E2E8E6` | neutral.200 | neutral.300 | neutral.50 | neutral.900 (black) |
-| danger | danger.500 `#C0392B` | danger.600 `#952318` | danger.700 `#640000` | danger.500 | neutral/white |
+| Intent | default bg | hover bg | active bg | disabled bg | foreground/default |
+| ------ | ---------- | -------- | --------- | ----------- | ------------------ |
+| primary | `color/brand/500` | `color/brand/600` | `color/brand/700` | `color/brand/200` | `color/white` |
+| secondary | `color/neutral/100` | `color/neutral/200` | `color/neutral/300` | `color/neutral/50` | `color/neutral/900` |
+| danger | `color/danger/500` | `color/danger/600` | `color/danger/700` | `color/danger/200` | `color/white` |
 
-Secondary border: neutral.300 default → neutral.400 hover → neutral.500 active → neutral.200 disabled.
-Primary and danger borders mirror their bg colour at each state.
+Secondary border: `neutral/300` default → `neutral/400` hover → `neutral/500` active → `neutral/200` disabled.
+Primary and danger borders mirror their background alias at each state.
 
 ### The link variant
 
-`action/link` has **foreground tokens only** — no background, no border. The button frame has no fill; 50% opacity on the disabled variant frame handles the muted appearance (same pattern as all other disabled states in this system).
+`action/link` has **foreground tokens only** — no background, no border. The button frame has no fill; 50% opacity on the disabled variant frame handles the muted appearance.
 
-| Token | Alias | Resolved |
-| ----- | ----- | -------- |
-| `action/link/foreground/default` | `color/brand/light/500` | `#20836F` |
-| `action/link/foreground/hover` | `color/brand/light/600` | `#086453` |
-| `action/link/foreground/active` | `color/brand/light/700` | `#003E31` |
-| `action/link/foreground/disabled` | `color/brand/light/500` | `#20836F` (opacity does the work) |
+| Token | Alias |
+| ----- | ----- |
+| `action/link/foreground/default` | `color/brand/500` |
+| `action/link/foreground/hover` | `color/brand/600` |
+| `action/link/foreground/active` | `color/brand/700` |
+| `action/link/foreground/disabled` | `color/brand/500` (opacity does the work) |
 
-The link button is intent-neutral — it always uses the brand colour, styled like a standard `<a>` tag. There is no secondary or danger link variant.
+### Other intent groups
+
+| Group | Notable tokens |
+| ----- | -------------- |
+| `surface/*` | `default/raised → color/neutral/50`, `overlay → color/neutral/900`, `inverse → color/neutral/800` |
+| `content/*` | `primary → color/neutral/900`, `inverse/on-action → color/white` |
+| `border/*` | `subtle/default/strong → neutral steps`, `focus → color/brand/500` |
+| `focus/ring` | `color/brand/500` |
+
+### Primitives / Palette anchor variables
+
+`color/white` and `color/black` are special single-step variables (no step suffix) written by the Harmoni plugin when "Write white & black" is checked. They store the user-chosen soft white and soft black — the raw colour picker values, not derived or tinted. Both modes hold the same value (white is white in light and dark). Components and intent tokens that need a true white/black reference these rather than `color/neutral/50` or `color/neutral/900`.
 
 ## Adding a new framed-control property
 

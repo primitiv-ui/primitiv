@@ -4,7 +4,8 @@
  * Positions all variants in the Toggle component set into the documented grid.
  *
  * Grid structure:
- *   Rows    → Size (md first, then xs sm lg xl)
+ *   Rows    → Position group (standalone / start / middle / end)
+ *               × Size (md first, then xs sm lg xl) within each group
  *   Columns → State group (off / on)
  *               × Interaction (default / hover / active / focus / disabled)
  *
@@ -14,6 +15,7 @@
  *   Size        = md | xs | sm | lg | xl
  *   State       = off | on
  *   Interaction = default | hover | active | focus | disabled
+ *   Position    = standalone | start | middle | end
  *
  * ─── Usage ───────────────────────────────────────────────────────────────────
  *  1. Select the Toggle component set on the canvas.
@@ -27,8 +29,9 @@
   await figma.loadFontAsync({ family: "Inter", style: "Bold" });
   await figma.loadFontAsync({ family: "Inter", style: "Regular" });
 
-  const PROP = { size: "Size", state: "State", interaction: "Interaction" };
+  const PROP = { size: "Size", state: "State", interaction: "Interaction", position: "Position" };
 
+  const POSITION_ORDER    = ["standalone", "start", "middle", "end"];
   const SIZE_ORDER        = ["md", "xs", "sm", "lg", "xl"];
   const STATE_ORDER       = ["off", "on"];
   const INTERACTION_ORDER = ["default", "hover", "active", "focus", "disabled"];
@@ -36,6 +39,7 @@
   const GAP_INTERACTION = 16;
   const GAP_STATE       = 48;
   const GAP_SIZE        = 20;
+  const GAP_POSITION    = 56;  // larger gap between position groups
   const EDGE_PAD        = 24;
 
   const componentSet = figma.currentPage.selection.find(n => n.type === "COMPONENT_SET");
@@ -44,23 +48,32 @@
     return;
   }
 
-  const all   = componentSet.children.filter(n => n.type === "COMPONENT");
-  const valid = all.filter(c => {
-    const p = c.variantProperties ?? {};
-    return p[PROP.size] && p[PROP.state] && p[PROP.interaction];
-  });
+  const valid = componentSet.children.filter(n => n.type === "COMPONENT" && n.name.includes("Position="));
   console.log(`Found ${valid.length} valid components in "${componentSet.name}".`);
 
+  function parseProps(name) {
+    return {
+      size:        name.match(/Size=(\w+)/)?.[1],
+      state:       name.match(/State=(\w+)/)?.[1],
+      interaction: name.match(/Interaction=(\w+)/)?.[1],
+      position:    name.match(/Position=(\w+)/)?.[1],
+    };
+  }
+
+  // Column widths keyed by "state_interaction"
+  // Row heights keyed by "position_size"
   const colMaxWidth  = {};
   const rowMaxHeight = {};
+
   for (const c of valid) {
-    const p   = c.variantProperties ?? {};
-    const col = `${p[PROP.state]}_${p[PROP.interaction]}`;
-    const row = p[PROP.size];
+    const p   = parseProps(c.name);
+    const col = `${p.state}_${p.interaction}`;
+    const row = `${p.position}_${p.size}`;
     colMaxWidth[col]  = Math.max(colMaxWidth[col]  ?? 0, c.width);
     rowMaxHeight[row] = Math.max(rowMaxHeight[row] ?? 0, c.height);
   }
 
+  // Column X positions
   const colX = {};
   let x = 0;
   for (let si = 0; si < STATE_ORDER.length; si++) {
@@ -73,14 +86,20 @@
     }
   }
 
+  // Row Y positions (position groups with larger gap between them)
   const rowY = {};
   let y = 0;
-  for (let si = 0; si < SIZE_ORDER.length; si++) {
-    if (si > 0) y += GAP_SIZE;
-    rowY[SIZE_ORDER[si]] = y;
-    y += rowMaxHeight[SIZE_ORDER[si]] ?? 0;
+  for (let pi = 0; pi < POSITION_ORDER.length; pi++) {
+    if (pi > 0) y += GAP_POSITION;
+    for (let si = 0; si < SIZE_ORDER.length; si++) {
+      if (si > 0) y += GAP_SIZE;
+      const row = `${POSITION_ORDER[pi]}_${SIZE_ORDER[si]}`;
+      rowY[row] = y;
+      y += rowMaxHeight[row] ?? 0;
+    }
   }
 
+  // Apply EDGE_PAD
   for (const k of Object.keys(colX)) colX[k] += EDGE_PAD;
   for (const k of Object.keys(rowY)) rowY[k] += EDGE_PAD;
 
@@ -88,9 +107,9 @@
 
   let placed = 0, skipped = 0;
   for (const c of valid) {
-    const p   = c.variantProperties ?? {};
-    const col = `${p[PROP.state]}_${p[PROP.interaction]}`;
-    const row = p[PROP.size];
+    const p   = parseProps(c.name);
+    const col = `${p.state}_${p.interaction}`;
+    const row = `${p.position}_${p.size}`;
     if (colX[col] !== undefined && rowY[row] !== undefined) {
       c.x = colX[col]; c.y = rowY[row]; placed++;
     } else {
@@ -98,10 +117,10 @@
     }
   }
 
-  // Default instance: md / off / default
+  // Default instance: standalone / md / off / default (top-left)
   const defaultComp = valid.find(c => {
-    const p = c.variantProperties ?? {};
-    return p[PROP.size] === "md" && p[PROP.state] === "off" && p[PROP.interaction] === "default";
+    const p = parseProps(c.name);
+    return p.position === "standalone" && p.size === "md" && p.state === "off" && p.interaction === "default";
   });
   if (defaultComp) componentSet.insertChild(0, defaultComp);
 
@@ -111,22 +130,23 @@
 
   const ABOVE_STATES       = 48;
   const ABOVE_INTERACTIONS = 24;
-  const LEFT_SIZES         = 56;
+  const LEFT_SIZES         = 64;   // wider to fit position+size labels
   const cx = componentSet.x;
   const cy = componentSet.y;
   const labelNodes = [];
 
-  function makeLabel(text, canvasX, canvasY, bold) {
+  function makeLabel(text, lx, ly, bold) {
     const t = figma.createText();
     t.fontName = { family: "Inter", style: bold ? "Bold" : "Regular" };
     t.fontSize = bold ? 12 : 11;
     t.characters = text;
-    t.x = canvasX; t.y = canvasY;
+    t.x = lx; t.y = ly;
     figma.currentPage.appendChild(t);
     labelNodes.push(t);
     return t;
   }
 
+  // Column headers (only need to render once — same for all position groups)
   for (const state of STATE_ORDER) {
     const firstCol   = `${state}_${INTERACTION_ORDER[0]}`;
     const lastCol    = `${state}_${INTERACTION_ORDER[INTERACTION_ORDER.length - 1]}`;
@@ -142,10 +162,16 @@
     }
   }
 
-  for (const size of SIZE_ORDER) {
-    const rowMidY = (rowY[size] ?? 0) + (rowMaxHeight[size] ?? 0) / 2;
-    const sl = makeLabel(size, cx - LEFT_SIZES, 0, false);
-    sl.y = cy + rowMidY - sl.height / 2;
+  // Row labels: "position / size"
+  for (const position of POSITION_ORDER) {
+    for (const size of SIZE_ORDER) {
+      const row    = `${position}_${size}`;
+      const rowH   = rowMaxHeight[row] ?? 0;
+      const rowMid = (rowY[row] ?? 0) + rowH / 2;
+      const label  = position === "standalone" ? size : `${position} / ${size}`;
+      const sl = makeLabel(label, cx - LEFT_SIZES, 0, false);
+      sl.y = cy + rowMid - sl.height / 2;
+    }
   }
 
   const labelGroup = figma.group(labelNodes, figma.currentPage);

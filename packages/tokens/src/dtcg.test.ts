@@ -328,319 +328,84 @@ describe('figmaVarsToDtcg', () => {
     modes: [{ modeId: 'mp', name: 'Value' }],
     defaultModeId: 'mp',
   }
-  const CONTEXT_COMPACT_COLL: FigmaCollection = {
-    id: 'cxc',
-    name: 'Context / Compact',
-    modes: [{ modeId: 'mxc', name: 'Value' }],
-    defaultModeId: 'mxc',
+  const INTERACTION_COLL: FigmaCollection = {
+    id: 'ci',
+    name: 'Interaction',
+    modes: [{ modeId: 'mi', name: 'Value' }],
+    defaultModeId: 'mi',
   }
-  const COMPONENTS_COLL: FigmaCollection = {
-    id: 'cmp',
-    name: 'Components',
-    modes: [{ modeId: 'mcmp', name: 'Value' }],
-    defaultModeId: 'mcmp',
+  const PALETTE_COLL: FigmaCollection = {
+    id: 'cpal',
+    name: 'Primitives / Palette',
+    modes: [
+      { modeId: 'light', name: 'Light' },
+      { modeId: 'dark',  name: 'Dark' },
+    ],
+    defaultModeId: 'light',
   }
-  const SEMANTIC_COLL: FigmaCollection = {
-    id: 'cs',
-    name: 'Semantic',
-    modes: [{ modeId: 'ms', name: 'Value' }],
-    defaultModeId: 'ms',
+  const INTENT_COLL: FigmaCollection = {
+    id: 'cint',
+    name: 'Intent',
+    modes: [
+      { modeId: 'light', name: 'Light' },
+      { modeId: 'dark',  name: 'Dark' },
+    ],
+    defaultModeId: 'light',
+  }
+  const CONTEXT_COLL: FigmaCollection = {
+    id: 'ctx',
+    name: 'Context',
+    modes: [
+      { modeId: 'dense',       name: 'Dense' },
+      { modeId: 'compact',     name: 'Compact' },
+      { modeId: 'comfortable', name: 'Comfortable' },
+      { modeId: 'spacious',    name: 'Spacious' },
+    ],
+    defaultModeId: 'comfortable',
   }
 
-  it('returns three empty groups when given no collections', () => {
+  it('returns five empty groups when given no collections', () => {
     expect(figmaVarsToDtcg([], [])).toEqual({
       primitives: {},
-      semantic: {},
-      components: {},
+      palette: {},
+      intent: {},
+      context: {},
+      interaction: {},
     })
   })
 
   it('routes a Primitives variable into primitives without a prefix', () => {
     const result = figmaVarsToDtcg(
       [PRIMITIVES_COLL],
-      [
-        {
-          id: 'v1',
-          name: 'font-family/sans',
-          resolvedType: 'STRING',
-          variableCollectionId: 'cp',
-          valuesByMode: { mp: 'Asta Sans' },
-        },
-      ],
+      [{ id: 'v1', name: 'font-family/sans', resolvedType: 'STRING', variableCollectionId: 'cp', valuesByMode: { mp: 'Asta Sans' } }],
     )
 
     expect(result.primitives).toEqual({
       'font-family': { sans: { $type: 'string', $value: 'Asta Sans' } },
     })
-    expect(result.semantic).toEqual({})
-    expect(result.components).toEqual({})
+    expect(result.palette).toEqual({})
+    expect(result.intent).toEqual({})
+    expect(result.context).toEqual({})
+    expect(result.interaction).toEqual({})
   })
 
-  it('merges multiple Context collections under the same context group', () => {
-    const CONTEXT_COMFORTABLE_COLL: FigmaCollection = {
-      id: 'cxf',
-      name: 'Context / Comfortable',
-      modes: [{ modeId: 'mxf', name: 'Value' }],
-      defaultModeId: 'mxf',
-    }
-
-    const result = figmaVarsToDtcg(
-      [CONTEXT_COMPACT_COLL, CONTEXT_COMFORTABLE_COLL],
-      [
-        {
-          id: 'vc',
-          name: 'label/md/font-size',
-          resolvedType: 'FLOAT',
-          variableCollectionId: 'cxc',
-          valuesByMode: { mxc: 14 },
-        },
-        {
-          id: 'vf',
-          name: 'label/md/font-size',
-          resolvedType: 'FLOAT',
-          variableCollectionId: 'cxf',
-          valuesByMode: { mxf: 16 },
-        },
-      ],
-    )
-
-    expect(result.semantic.context).toEqual({
-      compact: { label: { md: { 'font-size': { $type: 'number', $value: 14 } } } },
-      comfortable: { label: { md: { 'font-size': { $type: 'number', $value: 16 } } } },
-    })
-  })
-
-  it('routes a Context / Comfortable variable into semantic under context.comfortable', () => {
-    const CONTEXT_COMFORTABLE_COLL: FigmaCollection = {
-      id: 'cxf',
-      name: 'Context / Comfortable',
-      modes: [{ modeId: 'mxf', name: 'Mode 1' }],
-      defaultModeId: 'mxf',
-    }
-
-    const result = figmaVarsToDtcg(
-      [CONTEXT_COMFORTABLE_COLL],
-      [
-        {
-          id: 'v1',
-          name: 'label/md/font-size',
-          resolvedType: 'FLOAT',
-          variableCollectionId: 'cxf',
-          valuesByMode: { mxf: 16 },
-        },
-        {
-          id: 'v2',
-          name: 'framed-control/md/height',
-          resolvedType: 'FLOAT',
-          variableCollectionId: 'cxf',
-          valuesByMode: { mxf: 40 },
-        },
-      ],
-    )
-
-    expect(result.semantic.context).toEqual({
-      comfortable: {
-        label: {
-          md: { 'font-size': { $type: 'number', $value: 16 } },
-        },
-        'framed-control': {
-          md: { height: { $type: 'number', $value: 40 } },
-        },
-      },
-    })
-  })
-
-  it('routes an Interaction variable into semantic under interaction.*', () => {
-    const INTERACTION_COLL: FigmaCollection = {
-      id: 'ci',
-      name: 'Interaction',
-      modes: [{ modeId: 'mi', name: 'Value' }],
-      defaultModeId: 'mi',
-    }
-
+  it('routes an Interaction variable into interaction without a prefix', () => {
     const result = figmaVarsToDtcg(
       [INTERACTION_COLL],
       [
-        {
-          id: 'v1',
-          name: 'hover/opacity',
-          resolvedType: 'FLOAT',
-          variableCollectionId: 'ci',
-          valuesByMode: { mi: 0.9 },
-        },
-        {
-          id: 'v2',
-          name: 'focus/ring/width',
-          resolvedType: 'FLOAT',
-          variableCollectionId: 'ci',
-          valuesByMode: { mi: 2 },
-        },
+        { id: 'v1', name: 'hover/opacity',   resolvedType: 'FLOAT', variableCollectionId: 'ci', valuesByMode: { mi: 0.9 } },
+        { id: 'v2', name: 'focus/ring/width', resolvedType: 'FLOAT', variableCollectionId: 'ci', valuesByMode: { mi: 2 } },
       ],
     )
 
-    expect(result.semantic.interaction).toEqual({
+    expect(result.interaction).toEqual({
       hover: { opacity: { $type: 'number', $value: 0.9 } },
       focus: { ring: { width: { $type: 'number', $value: 2 } } },
     })
+    expect(result.primitives).toEqual({})
   })
 
-  it('routes a Components variable into components without a prefix', () => {
-    const result = figmaVarsToDtcg(
-      [COMPONENTS_COLL],
-      [
-        {
-          id: 'v1',
-          name: 'button/padding-x',
-          resolvedType: 'FLOAT',
-          variableCollectionId: 'cmp',
-          valuesByMode: { mcmp: 12 },
-        },
-      ],
-    )
-
-    expect(result.components).toEqual({
-      button: { 'padding-x': { $type: 'number', $value: 12 } },
-    })
-  })
-
-  it('routes a post-migration Semantic collection into semantic without a prefix', () => {
-    const result = figmaVarsToDtcg(
-      [SEMANTIC_COLL],
-      [
-        {
-          id: 'v1',
-          name: 'typography/compact/display/xl/font-size',
-          resolvedType: 'FLOAT',
-          variableCollectionId: 'cs',
-          valuesByMode: { ms: 40 },
-        },
-      ],
-    )
-
-    expect(result.semantic).toEqual({
-      typography: {
-        compact: {
-          display: {
-            xl: { 'font-size': { $type: 'number', $value: 40 } },
-          },
-        },
-      },
-    })
-  })
-
-  it('resolves a cross-collection alias to the target variable\'s full prefixed path', () => {
-    const result = figmaVarsToDtcg(
-      [PRIMITIVES_COLL, CONTEXT_COMPACT_COLL],
-      [
-        {
-          id: 'pv1',
-          name: 'font-family/sans',
-          resolvedType: 'STRING',
-          variableCollectionId: 'cp',
-          valuesByMode: { mp: 'Asta Sans' },
-        },
-        {
-          id: 'cv1',
-          name: 'label/md/font-family',
-          resolvedType: 'STRING',
-          variableCollectionId: 'cxc',
-          valuesByMode: { mxc: { type: 'VARIABLE_ALIAS', id: 'pv1' } },
-        },
-      ],
-    )
-
-    expect(result.primitives['font-family']).toEqual({
-      sans: { $type: 'string', $value: 'Asta Sans' },
-    })
-    expect(result.semantic.context).toEqual({
-      compact: {
-        label: {
-          md: {
-            'font-family': {
-              $type: 'string',
-              $value: '{font-family.sans}',
-            },
-          },
-        },
-      },
-    })
-  })
-
-  it('resolves an alias to a Context variable using its semantic.* prefixed path', () => {
-    const result = figmaVarsToDtcg(
-      [CONTEXT_COMPACT_COLL, COMPONENTS_COLL],
-      [
-        {
-          id: 'cv1',
-          name: 'label/md/font-size',
-          resolvedType: 'FLOAT',
-          variableCollectionId: 'cxc',
-          valuesByMode: { mxc: 14 },
-        },
-        {
-          id: 'cmpv1',
-          name: 'hero/font-size',
-          resolvedType: 'FLOAT',
-          variableCollectionId: 'cmp',
-          valuesByMode: { mcmp: { type: 'VARIABLE_ALIAS', id: 'cv1' } },
-        },
-      ],
-    )
-
-    expect(result.components).toEqual({
-      hero: {
-        'font-size': {
-          $type: 'number',
-          $value: '{context.compact.label.md.font-size}',
-        },
-      },
-    })
-  })
-
-  it('silently drops variables whose collection is not in the payload', () => {
-    const result = figmaVarsToDtcg(
-      [PRIMITIVES_COLL],
-      [
-        {
-          id: 'orphan',
-          name: 'orphan/token',
-          resolvedType: 'STRING',
-          variableCollectionId: 'missing-coll',
-          valuesByMode: { mp: 'unused' },
-        },
-      ],
-    )
-
-    expect(result).toEqual({ primitives: {}, semantic: {}, components: {} })
-  })
-
-  it('throws when a variable aliases an id not present in the payload', () => {
-    expect(() =>
-      figmaVarsToDtcg(
-        [PRIMITIVES_COLL],
-        [
-          {
-            id: 'pv1',
-            name: 'font-family/default',
-            resolvedType: 'STRING',
-            variableCollectionId: 'cp',
-            valuesByMode: {
-              mp: { type: 'VARIABLE_ALIAS', id: 'missing-id' },
-            },
-          },
-        ],
-      ),
-    ).toThrow(/missing-id/)
-  })
-
-  it('routes a Primitives / Palette variable into primitives without a prefix', () => {
-    const PALETTE_COLL: FigmaCollection = {
-      id: 'cpal',
-      name: 'Primitives / Palette',
-      modes: [{ modeId: 'mpal', name: 'Value' }],
-      defaultModeId: 'mpal',
-    }
-
+  it('routes Primitives / Palette per-mode into palette with mode name as top-level key', () => {
     const result = figmaVarsToDtcg(
       [PALETTE_COLL],
       [
@@ -649,29 +414,22 @@ describe('figmaVarsToDtcg', () => {
           name: 'color/neutral/50',
           resolvedType: 'COLOR',
           variableCollectionId: 'cpal',
-          valuesByMode: { mpal: { r: 0.98, g: 0.98, b: 0.98, a: 1 } },
+          valuesByMode: {
+            light: { r: 0.98, g: 0.98, b: 0.98, a: 1 },
+            dark:  { r: 0.05, g: 0.05, b: 0.05, a: 1 },
+          },
         },
       ],
     )
 
-    expect(result.primitives).toEqual({
-      color: { neutral: { '50': { $type: 'color', $value: '#fafafa' } } },
+    expect(result.palette).toEqual({
+      light: { color: { neutral: { '50': { $type: 'color', $value: '#fafafa' } } } },
+      dark:  { color: { neutral: { '50': { $type: 'color', $value: '#0d0d0d' } } } },
     })
-    expect(result.semantic).toEqual({})
-    expect(result.components).toEqual({})
+    expect(result.primitives).toEqual({})
   })
 
-  it('routes an Intent collection into semantic.color.{mode}.*', () => {
-    const INTENT_COLL: FigmaCollection = {
-      id: 'ci',
-      name: 'Intent',
-      modes: [
-        { modeId: 'light', name: 'Light' },
-        { modeId: 'dark', name: 'Dark' },
-      ],
-      defaultModeId: 'light',
-    }
-
+  it('routes Intent per-mode into intent with mode name as top-level key', () => {
     const result = figmaVarsToDtcg(
       [INTENT_COLL],
       [
@@ -679,7 +437,7 @@ describe('figmaVarsToDtcg', () => {
           id: 'v1',
           name: 'action/primary/default',
           resolvedType: 'COLOR',
-          variableCollectionId: 'ci',
+          variableCollectionId: 'cint',
           valuesByMode: {
             light: { r: 0.2, g: 0.4, b: 0.8, a: 1 },
             dark:  { r: 0.1, g: 0.2, b: 0.5, a: 1 },
@@ -688,259 +446,95 @@ describe('figmaVarsToDtcg', () => {
       ],
     )
 
-    expect((result.semantic.color as Record<string, unknown>).light).toEqual({
-      action: { primary: { default: { $type: 'color', $value: '#3366cc' } } },
-    })
-    expect((result.semantic.color as Record<string, unknown>).dark).toEqual({
-      action: { primary: { default: { $type: 'color', $value: '#1a3380' } } },
+    expect(result.intent).toEqual({
+      light: { action: { primary: { default: { $type: 'color', $value: '#3366cc' } } } },
+      dark:  { action: { primary: { default: { $type: 'color', $value: '#1a3380' } } } },
     })
   })
 
-  it('still routes legacy Intent / Light into semantic.color.light.*', () => {
-    const INTENT_LIGHT_COLL: FigmaCollection = {
-      id: 'cil',
-      name: 'Intent / Light',
-      modes: [{ modeId: 'mil', name: 'Value' }],
-      defaultModeId: 'mil',
-    }
-
+  it('routes Context per-mode into context with mode name as top-level key', () => {
     const result = figmaVarsToDtcg(
-      [INTENT_LIGHT_COLL],
+      [CONTEXT_COLL],
       [
         {
           id: 'v1',
-          name: 'surface/default',
-          resolvedType: 'COLOR',
-          variableCollectionId: 'cil',
-          valuesByMode: { mil: { r: 0.98, g: 0.98, b: 0.98, a: 1 } },
+          name: 'framed-control/md/height',
+          resolvedType: 'FLOAT',
+          variableCollectionId: 'ctx',
+          valuesByMode: { dense: 24, compact: 32, comfortable: 40, spacious: 48 },
         },
       ],
     )
 
-    expect((result.semantic.color as Record<string, unknown>).light).toEqual({
-      surface: { default: { $type: 'color', $value: '#fafafa' } },
+    expect(result.context).toEqual({
+      dense:       { 'framed-control': { md: { height: { $type: 'number', $value: 24 } } } },
+      compact:     { 'framed-control': { md: { height: { $type: 'number', $value: 32 } } } },
+      comfortable: { 'framed-control': { md: { height: { $type: 'number', $value: 40 } } } },
+      spacious:    { 'framed-control': { md: { height: { $type: 'number', $value: 48 } } } },
     })
   })
 
-  it('throws for an unrecognised collection name', () => {
+  it('resolves a cross-collection alias using the target variable natural name path', () => {
+    const result = figmaVarsToDtcg(
+      [PRIMITIVES_COLL, CONTEXT_COLL],
+      [
+        { id: 'pv1', name: 'space/8', resolvedType: 'FLOAT', variableCollectionId: 'cp', valuesByMode: { mp: 8 } },
+        {
+          id: 'cv1',
+          name: 'framed-control/md/padding-inline',
+          resolvedType: 'FLOAT',
+          variableCollectionId: 'ctx',
+          valuesByMode: { dense: { type: 'VARIABLE_ALIAS', id: 'pv1' }, compact: { type: 'VARIABLE_ALIAS', id: 'pv1' }, comfortable: { type: 'VARIABLE_ALIAS', id: 'pv1' }, spacious: { type: 'VARIABLE_ALIAS', id: 'pv1' } },
+        },
+      ],
+    )
+
+    expect(result.context.comfortable).toEqual({
+      'framed-control': { md: { 'padding-inline': { $type: 'number', $value: '{space.8}' } } },
+    })
+  })
+
+  it('resolves an Intent → Palette cross-collection alias', () => {
+    const result = figmaVarsToDtcg(
+      [PALETTE_COLL, INTENT_COLL],
+      [
+        { id: 'pal1', name: 'color/brand/500', resolvedType: 'COLOR', variableCollectionId: 'cpal', valuesByMode: { light: { r: 0.1, g: 0.5, b: 0.4, a: 1 }, dark: { r: 0.2, g: 0.6, b: 0.5, a: 1 } } },
+        { id: 'int1', name: 'action/primary/default', resolvedType: 'COLOR', variableCollectionId: 'cint', valuesByMode: { light: { type: 'VARIABLE_ALIAS', id: 'pal1' }, dark: { type: 'VARIABLE_ALIAS', id: 'pal1' } } },
+      ],
+    )
+
+    expect(result.intent.light).toEqual({
+      action: { primary: { default: { $type: 'color', $value: '{color.brand.500}' } } },
+    })
+    expect(result.intent.dark).toEqual({
+      action: { primary: { default: { $type: 'color', $value: '{color.brand.500}' } } },
+    })
+  })
+
+  it('silently drops variables whose collection is not in the payload', () => {
+    const result = figmaVarsToDtcg(
+      [PRIMITIVES_COLL],
+      [{ id: 'orphan', name: 'orphan/token', resolvedType: 'STRING', variableCollectionId: 'missing-coll', valuesByMode: { mp: 'unused' } }],
+    )
+
+    expect(result).toEqual({ primitives: {}, palette: {}, intent: {}, context: {}, interaction: {} })
+  })
+
+  it('throws when a variable aliases an id not present in the payload', () => {
     expect(() =>
       figmaVarsToDtcg(
-        [
-          {
-            id: 'cx',
-            name: 'Mystery',
-            modes: [{ modeId: 'mx', name: 'Value' }],
-            defaultModeId: 'mx',
-          },
-        ],
+        [PRIMITIVES_COLL],
+        [{ id: 'pv1', name: 'font-family/default', resolvedType: 'STRING', variableCollectionId: 'cp', valuesByMode: { mp: { type: 'VARIABLE_ALIAS', id: 'missing-id' } } }],
+      ),
+    ).toThrow(/missing-id/)
+  })
+
+  it('throws for an unrecognised single-mode collection name', () => {
+    expect(() =>
+      figmaVarsToDtcg(
+        [{ id: 'cx', name: 'Mystery', modes: [{ modeId: 'mx', name: 'Value' }], defaultModeId: 'mx' }],
         [],
       ),
     ).toThrow(/Mystery/)
-  })
-
-  describe('short-form alias synthesis', () => {
-    const COMFORTABLE_CTX: FigmaCollection = {
-      id: 'cxf',
-      name: 'Context / Comfortable',
-      modes: [{ modeId: 'mxf', name: 'Mode 1' }],
-      defaultModeId: 'mxf',
-    }
-
-    it('emits semantic.typography.<role>.<tier>.<leaf> aliases pointing at the comfortable context', () => {
-      const result = figmaVarsToDtcg(
-        [COMFORTABLE_CTX],
-        [
-          {
-            id: 'v1',
-            name: 'label/md/font-size',
-            resolvedType: 'FLOAT',
-            variableCollectionId: 'cxf',
-            valuesByMode: { mxf: 16 },
-          },
-        ],
-      )
-
-      expect(result.semantic.typography).toEqual({
-        label: {
-          md: {
-            'font-size': {
-              $type: 'number',
-              $value: '{context.comfortable.label.md.font-size}',
-            },
-          },
-        },
-      })
-    })
-
-    it('groups multiple typography roles under a single typography alias parent', () => {
-      const result = figmaVarsToDtcg(
-        [COMFORTABLE_CTX],
-        [
-          {
-            id: 'v1',
-            name: 'label/md/font-size',
-            resolvedType: 'FLOAT',
-            variableCollectionId: 'cxf',
-            valuesByMode: { mxf: 16 },
-          },
-          {
-            id: 'v2',
-            name: 'body/md/font-size',
-            resolvedType: 'FLOAT',
-            variableCollectionId: 'cxf',
-            valuesByMode: { mxf: 14 },
-          },
-        ],
-      )
-
-      expect(result.semantic.typography).toEqual({
-        label: {
-          md: {
-            'font-size': {
-              $type: 'number',
-              $value: '{context.comfortable.label.md.font-size}',
-            },
-          },
-        },
-        body: {
-          md: {
-            'font-size': {
-              $type: 'number',
-              $value: '{context.comfortable.body.md.font-size}',
-            },
-          },
-        },
-      })
-    })
-
-    it('emits semantic.anatomy.<pattern>.<tier>.<leaf> aliases pointing at the comfortable context', () => {
-      const result = figmaVarsToDtcg(
-        [COMFORTABLE_CTX],
-        [
-          {
-            id: 'v1',
-            name: 'framed-control/md/height',
-            resolvedType: 'FLOAT',
-            variableCollectionId: 'cxf',
-            valuesByMode: { mxf: 40 },
-          },
-        ],
-      )
-
-      expect(result.semantic.anatomy).toEqual({
-        'framed-control': {
-          md: {
-            height: {
-              $type: 'number',
-              $value: '{context.comfortable.framed-control.md.height}',
-            },
-          },
-        },
-      })
-    })
-
-    it('ignores keys in the default context that are neither typography roles nor anatomy patterns', () => {
-      const result = figmaVarsToDtcg(
-        [COMFORTABLE_CTX],
-        [
-          {
-            id: 'v1',
-            name: 'mystery/md/foo',
-            resolvedType: 'STRING',
-            variableCollectionId: 'cxf',
-            valuesByMode: { mxf: 'bar' },
-          },
-        ],
-      )
-
-      expect(result.semantic.typography).toBeUndefined()
-      expect(result.semantic.anatomy).toBeUndefined()
-    })
-
-    it('synthesises nothing when the default context is absent', () => {
-      const compactOnly: FigmaCollection = {
-        ...COMFORTABLE_CTX,
-        id: 'cxc',
-        name: 'Context / Compact',
-      }
-
-      const result = figmaVarsToDtcg(
-        [compactOnly],
-        [
-          {
-            id: 'v1',
-            name: 'label/md/font-size',
-            resolvedType: 'FLOAT',
-            variableCollectionId: 'cxc',
-            valuesByMode: { mxf: 14 },
-          },
-        ],
-      )
-
-      expect(result.semantic.typography).toBeUndefined()
-      expect(result.semantic.anatomy).toBeUndefined()
-    })
-  })
-
-  describe('unified Context collection (multi-mode)', () => {
-    const CONTEXT_UNIFIED: FigmaCollection = {
-      id: 'ctx',
-      name: 'Context',
-      modes: [
-        { modeId: 'dense', name: 'Dense' },
-        { modeId: 'compact', name: 'Compact' },
-        { modeId: 'comfortable', name: 'Comfortable' },
-        { modeId: 'spacious', name: 'Spacious' },
-      ],
-      defaultModeId: 'comfortable',
-    }
-
-    it('routes each mode of a unified Context collection into semantic.context.<modeName>', () => {
-      const result = figmaVarsToDtcg(
-        [CONTEXT_UNIFIED],
-        [
-          {
-            id: 'v1',
-            name: 'framed-control/md/height',
-            resolvedType: 'FLOAT',
-            variableCollectionId: 'ctx',
-            valuesByMode: { dense: 24, compact: 32, comfortable: 40, spacious: 48 },
-          },
-        ],
-      )
-
-      expect(result.semantic.context).toEqual({
-        dense:       { 'framed-control': { md: { height: { $type: 'number', $value: 24 } } } },
-        compact:     { 'framed-control': { md: { height: { $type: 'number', $value: 32 } } } },
-        comfortable: { 'framed-control': { md: { height: { $type: 'number', $value: 40 } } } },
-        spacious:    { 'framed-control': { md: { height: { $type: 'number', $value: 48 } } } },
-      })
-    })
-
-    it('synthesises short-form anatomy aliases from the comfortable mode of a unified Context collection', () => {
-      const result = figmaVarsToDtcg(
-        [CONTEXT_UNIFIED],
-        [
-          {
-            id: 'v1',
-            name: 'framed-control/md/height',
-            resolvedType: 'FLOAT',
-            variableCollectionId: 'ctx',
-            valuesByMode: { dense: 24, compact: 32, comfortable: 40, spacious: 48 },
-          },
-        ],
-      )
-
-      expect(result.semantic.anatomy).toEqual({
-        'framed-control': {
-          md: {
-            height: {
-              $type: 'number',
-              $value: '{context.comfortable.framed-control.md.height}',
-            },
-          },
-        },
-      })
-    })
   })
 })

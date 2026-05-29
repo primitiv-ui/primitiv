@@ -40,41 +40,17 @@ export type DtcgToken = {
 
 export type DtcgGroup = { [key: string]: DtcgGroup | DtcgToken }
 
-/** The three DTCG files emitted per export. */
+/** One DTCG file per Figma collection. */
 export type DtcgFiles = {
   primitives: DtcgGroup
-  semantic: DtcgGroup
-  components: DtcgGroup
+  palette: DtcgGroup
+  intent: DtcgGroup
+  context: DtcgGroup
+  interaction: DtcgGroup
 }
 
-/** Where a Figma collection lands in the DTCG output. */
+/** Where a single-mode Figma collection lands in the DTCG output. */
 type Routing = { file: keyof DtcgFiles; prefix: string[] }
-
-/**
- * The v1 default context whose values back the short-form alias layer
- * (`semantic.typography.*`, `semantic.anatomy.*`). Changing this is the
- * one-line switch for the default — components keep referencing the
- * short-form names.
- */
-const DEFAULT_CONTEXT = 'comfortable'
-
-/** Typography roles per RFC 0001 §5.1. Routed under `semantic.typography.*`. */
-const TYPOGRAPHY_ROLES = [
-  'label',
-  'body',
-  'heading',
-  'display',
-  'overline',
-  'mono',
-]
-
-/** Anatomy patterns per RFC 0001 §6.1. Routed under `semantic.anatomy.*`. */
-const ANATOMY_PATTERNS = [
-  'framed-control',
-  'label-control',
-  'nav-item',
-  'container',
-]
 
 /** Resolves a Figma variable id to the DTCG path segments of its token. */
 export type AliasResolver = (variableId: string) => string[]
@@ -112,184 +88,92 @@ export function collectionToDtcg(
 }
 
 /**
- * Builds the three DTCG output groups from a whole Figma export.
+ * Builds one DTCG output group per Figma collection.
  *
- * Each collection is routed to one of `primitives` / `semantic` /
- * `components` with an optional path prefix. `Context / <name>` collections
- * fold into `semantic.context.<name>`, and the short-form alias layer
- * (`semantic.typography.*`, `semantic.anatomy.*`) is synthesised at the
- * end of the transform from the default context.
+ * Single-mode collections (`Primitives`, `Interaction`) route directly to
+ * their own file. Multi-mode collections (`Primitives / Palette`, `Intent`,
+ * `Context`) are iterated per-mode, with the lowercase mode name as the
+ * top-level key in their file.
  *
- * A master alias resolver knows the full DTCG path of every variable in
- * the payload (prefix + name), so cross-collection aliases produce the
- * correct reference string even when the source and target live in
- * different output files.
+ * Alias resolution uses each variable's natural name path so cross-collection
+ * references produce stable DTCG reference strings regardless of which file
+ * the variable lives in.
  */
 export function figmaVarsToDtcg(
   collections: FigmaCollection[],
   variables: FigmaVariable[],
 ): DtcgFiles {
-  const files: DtcgFiles = { primitives: {}, semantic: {}, components: {} }
+  const files: DtcgFiles = {
+    primitives: {},
+    palette: {},
+    intent: {},
+    context: {},
+    interaction: {},
+  }
 
-  // The unified multi-mode Context collection is handled per-mode and excluded from
-  // the standard routing loop (which only reads defaultModeId per collection).
-  const unifiedContext = collections.find((c) => c.name === 'Context')
-  const unifiedIntent = collections.find((c) => c.name === 'Intent')
-  const routedCollections = collections.filter(
-    (c) => c.name !== 'Context' && c.name !== 'Intent',
+  const palette     = collections.find((c) => c.name === 'Primitives / Palette')
+  const intent      = collections.find((c) => c.name === 'Intent')
+  const context     = collections.find((c) => c.name === 'Context')
+  const singleMode  = collections.filter(
+    (c) => c.name !== 'Primitives / Palette' && c.name !== 'Intent' && c.name !== 'Context',
   )
 
   const routes = new Map<string, Routing>(
-    routedCollections.map((c) => [c.id, routeCollection(c.name)]),
+    singleMode.map((c) => [c.id, routeCollection(c.name)]),
   )
 
+  // All variables are addressable by their natural name path — no collection prefix.
+  // Variable names are unique across the system, so cross-collection alias references
+  // resolve correctly without knowing which file a variable lives in.
   const variablePaths = new Map<string, string[]>()
   for (const variable of variables) {
-    const routing = routes.get(variable.variableCollectionId)
-    if (routing) {
-      variablePaths.set(variable.id, [
-        ...routing.prefix,
-        ...variable.name.split('/'),
-      ])
-    }
-  }
-
-  // Unified Context variables resolve aliases to the default context's path so that
-  // any cross-collection alias pointing at a Context variable gets a stable path.
-  if (unifiedContext) {
-    for (const variable of variables) {
-      if (variable.variableCollectionId !== unifiedContext.id) continue
-      variablePaths.set(variable.id, [
-        'context',
-        DEFAULT_CONTEXT,
-        ...variable.name.split('/'),
-      ])
-    }
+    variablePaths.set(variable.id, variable.name.split('/'))
   }
 
   const resolveAlias: AliasResolver = (id) => {
     const path = variablePaths.get(id)
-    if (!path) {
-      throw new Error(`Alias targets unknown variable: ${id}`)
-    }
+    if (!path) throw new Error(`Alias targets unknown variable: ${id}`)
     return path
   }
 
-  for (const collection of routedCollections) {
-    const routing = routes.get(collection.id)!
-    const group = collectionToDtcg(collection, variables, resolveAlias)
+  // Single-mode collections
+  for (const col of singleMode) {
+    const routing = routes.get(col.id)!
+    const group = collectionToDtcg(col, variables, resolveAlias)
     mergeIntoPrefix(files[routing.file], routing.prefix, group)
   }
 
-  if (unifiedContext) {
-    for (const mode of unifiedContext.modes) {
-      const prefix = ['context', mode.name.toLowerCase()]
-      const group = collectionToDtcg(
-        unifiedContext,
-        variables,
-        resolveAlias,
-        mode.modeId,
-      )
-      mergeIntoPrefix(files.semantic, prefix, group)
+  // Primitives / Palette — per mode, lowercase mode name as top-level key
+  if (palette) {
+    for (const mode of palette.modes) {
+      const group = collectionToDtcg(palette, variables, resolveAlias, mode.modeId)
+      mergeIntoPrefix(files.palette, [mode.name.toLowerCase()], group)
     }
   }
 
-  if (unifiedIntent) {
-    for (const mode of unifiedIntent.modes) {
-      const prefix = ['color', mode.name.toLowerCase()]
-      const group = collectionToDtcg(
-        unifiedIntent,
-        variables,
-        resolveAlias,
-        mode.modeId,
-      )
-      mergeIntoPrefix(files.semantic, prefix, group)
+  // Intent — per mode, lowercase mode name as top-level key
+  if (intent) {
+    for (const mode of intent.modes) {
+      const group = collectionToDtcg(intent, variables, resolveAlias, mode.modeId)
+      mergeIntoPrefix(files.intent, [mode.name.toLowerCase()], group)
     }
   }
 
-  synthesiseShortFormAliases(files.semantic)
+  // Context — per mode, lowercase mode name as top-level key
+  if (context) {
+    for (const mode of context.modes) {
+      const group = collectionToDtcg(context, variables, resolveAlias, mode.modeId)
+      mergeIntoPrefix(files.context, [mode.name.toLowerCase()], group)
+    }
+  }
 
   return files
 }
 
-/**
- * Emits `semantic.typography.*` and `semantic.anatomy.*` as DTCG aliases
- * pointing at the default context's typography roles and anatomy patterns.
- * Components consume the short forms so they stay context-agnostic;
- * switching the default is changing {@link DEFAULT_CONTEXT}.
- */
-function synthesiseShortFormAliases(semantic: DtcgGroup): void {
-  const contextRoot = semantic.context as DtcgGroup | undefined
-  if (!contextRoot) return
-  const defaultCtx = contextRoot[DEFAULT_CONTEXT] as DtcgGroup | undefined
-  if (!defaultCtx) return
-
-  for (const [key, value] of Object.entries(defaultCtx)) {
-    if (TYPOGRAPHY_ROLES.includes(key)) {
-      const typography = ensureGroup(semantic, 'typography')
-      typography[key] = aliasGroup(value as DtcgGroup, [
-        'context',
-        DEFAULT_CONTEXT,
-        key,
-      ])
-    } else if (ANATOMY_PATTERNS.includes(key)) {
-      const anatomy = ensureGroup(semantic, 'anatomy')
-      anatomy[key] = aliasGroup(value as DtcgGroup, [
-        'context',
-        DEFAULT_CONTEXT,
-        key,
-      ])
-    }
-  }
-}
-
-function ensureGroup(parent: DtcgGroup, key: string): DtcgGroup {
-  let existing = parent[key] as DtcgGroup | undefined
-  if (!existing) {
-    existing = {}
-    parent[key] = existing
-  }
-  return existing
-}
-
-function aliasGroup(source: DtcgGroup, sourcePath: string[]): DtcgGroup {
-  const result: DtcgGroup = {}
-  for (const [key, value] of Object.entries(source)) {
-    if (isDtcgToken(value)) {
-      result[key] = {
-        $type: value.$type,
-        $value: `{${[...sourcePath, key].join('.')}}`,
-      }
-    } else {
-      result[key] = aliasGroup(value as DtcgGroup, [...sourcePath, key])
-    }
-  }
-  return result
-}
-
-function isDtcgToken(value: unknown): value is DtcgToken {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    '$type' in value &&
-    '$value' in value
-  )
-}
-
 function routeCollection(name: string): Routing {
-  if (name === 'Primitives') return { file: 'primitives', prefix: [] }
-  if (name === 'Primitives / Palette') return { file: 'primitives', prefix: [] }
-  if (name === 'Semantic') return { file: 'semantic', prefix: [] }
-  if (name === 'Components') return { file: 'components', prefix: [] }
-  if (name === 'Interaction')
-    return { file: 'semantic', prefix: ['interaction'] }
-  if (name === 'Intent / Light')
-    return { file: 'semantic', prefix: ['color', 'light'] }
-  const ctx = name.match(/^Context\s*\/\s*(.+)$/)
-  if (ctx) {
-    return { file: 'semantic', prefix: ['context', ctx[1].toLowerCase()] }
-  }
-  throw new Error(`Unrecognised collection name: ${name}`)
+  if (name === 'Primitives')   return { file: 'primitives',   prefix: [] }
+  if (name === 'Interaction')  return { file: 'interaction',  prefix: [] }
+  throw new Error(`Unrecognised collection name: "${name}"`)
 }
 
 function mergeIntoPrefix(

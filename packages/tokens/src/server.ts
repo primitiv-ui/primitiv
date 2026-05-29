@@ -24,7 +24,7 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'Content-Type',
 } as const
 
-const DTCG_FILE_NAMES = ['primitives', 'semantic', 'components'] as const
+const DTCG_FILE_NAMES = ['primitives', 'palette', 'intent', 'context', 'interaction'] as const
 
 /** Creates the HTTP server. Call `.listen(port)` to start accepting requests. */
 export function createSyncServer(options: SyncServerOptions): http.Server {

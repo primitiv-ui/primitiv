@@ -24,14 +24,14 @@ visually and positionally instead.
    await figma.loadAllPagesAsync();
    // for each page: page.findAllWithCriteria({ types: ["COMPONENT_SET"] })
    ```
-   Watch for decoy sets on `*— … Demo` pages (e.g. a Button POC that uses
-   *modes* — the real set is default-mode-only on the free tier). Verify by
-   `explicitVariableModes` being empty and the page name being the plain one.
+   Watch for decoy sets on `*— … Demo` pages. Verify by checking the page
+   name is plain (e.g. "Button", not "Button — Context Demo").
 3. **Read the real property names** off the set —
    `componentSet.componentPropertyDefinitions`. Do not assume casing or
-   names; the live Button set uses `Context / Variant / Size / State` with
-   **lowercase values**, plus boolean / instance-swap / text props
-   (`Show leading icon`, `Leading icon`, `Label`, …).
+   names; the live Button set uses `Variant / Size / State` with **lowercase
+   values**, plus boolean / instance-swap / text props (`Show leading icon`,
+   `Leading icon`, `Label`, …). There is **no Context dimension** — density is
+   controlled by the containing frame's variable mode override.
 4. **Tally the matrix** to find what's missing:
    ```js
    // count present combos of Context×Variant×Size×State; diff against the
@@ -66,31 +66,28 @@ the `figma-variable-architecture` anatomy table:
 
 ## 2. Build by clone-and-rebind
 
-The cheapest, lowest-error way to add a context, add a variant, or fill a gap
-is to **clone an already-correct variant and rebind its Context-collection
-variables to the target collection's same-named twins**. Each density is a
-separate collection (free-tier workaround) with identical variable *names*,
-so only the collection differs; colour/border/focus-ring-stroke tokens live
-outside the Context collections and carry over untouched. Full recipe and the
-four collection IDs: `figma-variable-architecture` → "Building components
-across contexts/variants — clone-and-rebind". Skeleton:
+The cheapest, lowest-error way to add a variant or fill a gap is to **clone
+an already-correct variant and rebind any stale Context-collection variables
+to the unified `Context` collection's same-named vars**. Colour/border/
+focus-ring-stroke tokens live outside the Context collection and carry over
+untouched. Full recipe and collection IDs: `figma-variable-architecture` →
+"Building components across contexts/variants — clone-and-rebind". Skeleton:
 
 ```js
-// build name->Variable map for the TARGET context collection, then per source:
+// build name→Variable map for the unified Context collection, then per source:
 const clone = src.clone();
 set.appendChild(clone);
-clone.name = `Context=${ctx}, Variant=${v}, Size=${s}, State=${st}`; // sets variantProperties
+clone.name = `Variant=${v}, Size=${s}, State=${st}`; // sets variantProperties
 await rebind(clone); // walk boundVariables; skip fills/strokes; text fields are arrays ([0]);
-                     // if a var's collection is a Context/* collection, setBoundVariable to the
-                     // same-named var in the target collection
+                     // rebind any var whose collection is the Context collection to the
+                     // same-named var; do NOT set an explicit mode override on the clone
 ```
 
 - **Idempotency**: before a batch, remove any pre-existing clones for that
-  context+variant so re-runs don't duplicate.
+  variant so re-runs don't duplicate.
 - **Shared sizing**: primary/secondary/danger share `framed-control/*` per
-  size; link shares it too (just drops the frame). So the rebind is uniform
-  across all variants — clone whichever complete context is cleanest
-  (compact worked well as the dense source).
+  size; link shares it too (just drops the frame). The rebind is uniform
+  across all variants.
 - **Pitfall**: a clone faithfully copies *source* slip-bugs (e.g. a
   ring-frame radius bound to the wrong size slot). Sweep-fix afterwards — see
   the focus-ring slip gotcha in `figma-variable-architecture`.
@@ -111,23 +108,22 @@ await rebind(clone); // walk boundVariables; skip fills/strokes; text fields are
 
 When a component has geometry that does not map to shared `framed-control/*`
 tokens (e.g. Switch track dimensions, Checkbox box size), create a
-**`{component}/` namespace in each Context collection** alongside
+**`{component}/` namespace in the unified `Context` collection** alongside
 `framed-control/*`:
 
 ```
-Context / Compact
+Context (mode: Compact)
   framed-control/md/height        ← shared
-  switch/md/track-height          ← Switch-specific
+  switch/md/track-height          ← Switch-specific (set value for each mode)
   switch/md/track-width
   switch/md/thumb-size
   switch/md/thumb-margin
 ```
 
-Same clone-and-rebind walk picks these up automatically because the rebind
-checks `variableCollectionId` — any variable whose collection is one of the
-four Context collections gets rebound. Adding the `{component}/` namespace
-keeps `framed-control/*` clean (shared anatomy only) and gives each
-component a tidy, discoverable home.
+The rebind walk picks these up automatically because it checks
+`variableCollectionId`. Adding the `{component}/` namespace keeps
+`framed-control/*` clean (shared anatomy only) and gives each component a
+tidy, discoverable home.
 
 ## 2b. Using auto-layout to make dimensions token-drivable
 
@@ -199,8 +195,8 @@ See the **`figma-arrange-component-set`** skill for the full layout recipe,
 EDGE_PAD explanation, re-run safety pattern, and how to adapt for a new
 component. Quick summary:
 
-- Grid: density rows (compact → comfortable → spacious → dense, md first)
-  × variant/state columns (sub-grouped by interaction/state).
+- Grid: size rows (md first, then xs sm lg xl) × variant/state columns
+  (sub-grouped by interaction/state). No density rows — density is a frame concern.
 - Script lives in `apps/harmoni-figma-plugin/scripts/arrange-<component>-component-set.js`.
 - **EDGE_PAD = 8**: all component positions are shifted 8 px inward so focus
   ring overflow (−4 px) never reaches the component-set frame boundary and
@@ -244,10 +240,11 @@ component. Quick summary:
 - **`variantProperties` unreliable during build**: while old and new variants
   coexist in a set (mixed schemas), `c.variantProperties` throws
   "Component set for node has existing errors". Use name-based parsing
-  (`name.match(/Context=(\w+)/)`) instead — always reliable.
-- Free tier = 1 mode per collection → densities are separate collections;
-  the eventual Professional-tier modes consolidation reuses the same
-  clone-and-rebind walk (see the density-consolidation memory).
+  (`name.match(/Size=(\w+)/)`) instead — always reliable.
+- **No explicit mode overrides on components**: do NOT call
+  `setExplicitVariableModeForCollection` on component variants. The density is
+  owned by the containing frame. Setting overrides on components locks instances
+  to a single density, breaking frame-level mode switching for consumers.
 - **Non-token properties must be swept manually after rebind**: only variables
   whose `variableCollectionId` is a Context collection are updated by the
   rebind walk. Static pixel values (icon size, icon position, explicit x/y)

@@ -1,6 +1,6 @@
 ---
 name: figma-arrange-component-set
-description: Canonical recipe for arranging a framed-control component set into the documented density × size × variant grid, generating row/column text labels, and saving the script as a repo artefact. Covers the EDGE_PAD focus-ring fix, re-run safety, name-based variant parsing, and how to adapt the template for any new component. TRIGGER when laying out a component set grid, adding labels to a component set, writing or running an arrange script, or adapting the arrange pattern to a new component. SKIP for token work, component anatomy building, and React work.
+description: Canonical recipe for arranging a framed-control component set into the documented size × variant grid, generating row/column text labels, and saving the script as a repo artefact. Covers the EDGE_PAD focus-ring fix, re-run safety, name-based variant parsing, and how to adapt the template for any new component. TRIGGER when laying out a component set grid, adding labels to a component set, writing or running an arrange script, or adapting the arrange pattern to a new component. SKIP for token work, component anatomy building, and React work.
 ---
 
 # Arranging a framed-control component set
@@ -11,30 +11,32 @@ re-run after adding variants) via the Figma developer console **or** via
 `mcp__figma-console__figma_execute`.
 
 Existing scripts:
-- `arrange-button-component-set.js` — Button (Context/Variant/Size/State)
-- `arrange-switch-component-set.js` — Switch (Context/Size/State/Interaction)
+- `arrange-button-component-set.js` — Button (Variant/Size/State) — 100 variants
+- `arrange-switch-component-set.js` — Switch (Size/State/Interaction) — 40 variants
+- `arrange-checkbox-component-set.js` — Checkbox (Size/State/Interaction) — 60 variants
 
 ## Grid convention
 
 | Axis | Groups (major) | Rows/cols (minor) |
 |------|---------------|-------------------|
-| **Rows** | Density sections: compact → comfortable → spacious → dense | Size rows within each section: md first, then xs sm lg xl |
+| **Rows** | Size: md first, then xs sm lg xl | — |
 | **Cols** | Variant or State groups | Interaction or State sub-columns |
 
-**md first** — placing `md` at the top of each density section means the
-top-left cell is always the most-used variant at the most-used size, which
-also becomes the component's **default instance**.
+**md first** — placing `md` at the top means the top-left cell is always the
+most-used variant at the most-used size, which also becomes the component's
+**default instance**.
 
-**Dense last** — dense is the least-used density (plugin UI only); it sits at
-the bottom so it is out of the way in everyday use.
+**No density rows.** Density is controlled by the containing frame's `Context`
+variable mode override — it is not a grid dimension. All components in the set
+display at the default mode (Compact) in the canvas; they adapt to their
+frame's mode when used in a design.
 
 ## Gap constants (standard values)
 
 ```js
 const GAP_INTERACTION = 8;    // between sub-columns within a group
 const GAP_STATE       = 32;   // between variant/state column groups
-const GAP_SIZE        = 12;   // between size rows within a density section
-const GAP_DENSITY     = 64;   // between density sections
+const GAP_SIZE        = 12;   // between size rows
 const EDGE_PAD        = 8;    // inner padding on all 4 edges of the component set
 ```
 
@@ -65,15 +67,13 @@ Use a predictable name: `"<ComponentName> Grid Labels"`.
 
 ## Name-based variant parsing (preferred over variantProperties)
 
-During a build session, the component set may have mixed variant schemas (e.g.
-old `Size=small` variants alongside new `Context=compact, Size=md` variants).
+During a build session, the component set may have mixed variant schemas.
 `node.variantProperties` throws `"Component set for node has existing errors"`
 in that state. Parse from the node name instead — it is always reliable:
 
 ```js
 function parseProps(name) {
   return {
-    ctx:  name.match(/Context=(\w+)/)?.[1],
     sz:   name.match(/Size=(\w+)/)?.[1],
     st:   name.match(/State=(\w+)/)?.[1],
     iact: name.match(/Interaction=(\w+)/)?.[1],
@@ -85,9 +85,9 @@ Only use `variantProperties` in scripts that run on a clean, fully-built set.
 
 ## Adapting for a new component
 
-1. Copy the closest existing script (Button or Switch) to
+1. Copy the closest existing script to
    `apps/harmoni-figma-plugin/scripts/arrange-<component>-component-set.js`.
-2. Change the four property name constants and the four ordering arrays.
+2. Change the property name constants and ordering arrays.
 3. Update gap constants if the component has different visual weight.
 4. Change the label group name to `"<ComponentName> Grid Labels"`.
 5. Update the default-instance lookup to the correct top-left cell values.
@@ -122,7 +122,6 @@ any text node characters can be set, even in `figma_execute`.
 ```
          [above - 48px]  GROUP HEADERS  (bold, centred over each group's full width)
          [above - 24px]  sub-col labels (regular, left-aligned to each column's left edge)
-[left - 180px] DENSITY LABELS  (bold, vertically centred over each density section)
 [left -  56px] size labels     (regular, vertically centred over each size row)
 ```
 

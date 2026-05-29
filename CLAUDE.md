@@ -113,8 +113,8 @@ keyword or by topic; do not paraphrase their content here.
 - **`figma-token-sync`** — how the
   `apps/primitiv-sync-figma-plugin` and `packages/tokens` stack
   backs up Figma variables as DTCG JSON: features, Live sync vs
-  download flow, the `dtcg.ts` collection routing, single-mode
-  caveat, and where the removed one-shot migration code lived.
+  download flow, the `dtcg.ts` collection routing (now handles the
+  unified multi-mode `Context` collection), and where removed code lived.
 - **`figma-wireframe-tokens`** — token file locations (`packages/tokens/src/`),
   resolved colour/typography/radii values, Button component variant naming,
   slot property keys, and the pattern for replacing a flat node with a real
@@ -127,31 +127,29 @@ keyword or by topic; do not paraphrase their content here.
   constants → helpers → render layers), design tokens, and the
   `scripts/` convention in `apps/harmoni-figma-plugin/`.
 - **`figma-variable-architecture`** — the Figma variable collection
-  hierarchy, the `framed-control/*` anatomy token set (height,
-  padding-inline, gap, icon-size, radius, focus-ring-gap-radius,
-  focus-ring-radius), resolved values for every size slot (xs–xl) in
-  both Comfortable and Compact densities, the focus ring radius formula
-  (R+2 gap / R+4 ring), and the script pattern for adding new variables.
-  TRIGGER when adding new variables, binding layer properties to tokens,
-  extending framed-control to a new component, or debugging focus ring
-  geometry. Now also holds the canonical focus-ring build recipe (the
-  shared standard for every framed control).
-- **`figma-framed-control-component`** — end-to-end *playbook* for
-  building or extending a framed-control component set in Figma
-  (Button, Switch, Checkbox, …): pre-flight (real-set vs POC), learn
-  the anatomy, clone-and-rebind to add a context/variant/fill gaps,
-  component-specific `{component}/` tokens in Context collections,
-  auto-layout for token-driven dimensions, the incremental audit loop,
-  arrange + default-instance, verification, and all build-time gotchas
-  (x=0 clamp, ABSOLUTE layout, variantProperties errors, non-token sweeps).
-  TRIGGER when building/extending/laying-out/auditing a framed-control
-  component set in Figma.
+  hierarchy, the unified `Context` collection (4 modes: Dense/Compact/
+  Comfortable/Spacious, ID `369:31958`, default=Compact), the `framed-control/*`
+  anatomy token set, resolved values for every size slot (xs–xl) in all 4 modes,
+  the focus ring radius formula (R+2 gap / R+4 ring), the canonical focus-ring
+  build recipe, the text-style mode-override constraint (TextStyle has no
+  `setExplicitVariableModeForCollection`), and the script pattern for adding
+  new variables. TRIGGER when adding new variables, binding layer properties
+  to tokens, extending framed-control to a new component, debugging focus ring
+  geometry, or working with text styles and mode overrides.
+- **`figma-framed-control-component`** — end-to-end *playbook* for building or
+  extending a framed-control component set in Figma (Button, Switch, Checkbox, …):
+  pre-flight, anatomy, clone-and-rebind to add a variant/fill gaps, component-
+  specific `{component}/` tokens in the unified Context collection, auto-layout
+  for token-driven dimensions, incremental audit loop, arrange + default-instance,
+  verification, and build-time gotchas. **Density is frame-owned** — do NOT set
+  explicit mode overrides on component variants (breaks consumer frame switching).
+  TRIGGER when building/extending/laying-out/auditing a framed-control set.
 - **`figma-arrange-component-set`** — canonical recipe for the arrange +
-  label step: grid convention (density rows × variant/state cols, md first,
-  dense last), EDGE_PAD=8 focus-ring fix, re-run safety, name-based parsing,
-  and how to adapt the script template for any new component. TRIGGER when
-  writing or running an arrange script, laying out a component set grid, or
-  adding labels to a component set.
+  label step: grid convention (size rows × variant/state cols, md first),
+  EDGE_PAD=8 focus-ring fix, re-run safety, name-based parsing, and how to
+  adapt the script template for any new component. No density rows — density
+  is a frame concern. TRIGGER when writing or running an arrange script,
+  laying out a component set grid, or adding labels to a component set.
 - **`model-routing`** — Opus/Sonnet/Haiku decision tree.
 
 ## Slash commands

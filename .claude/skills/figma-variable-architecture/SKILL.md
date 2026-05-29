@@ -277,23 +277,38 @@ Recipe (run via `figma_execute`, async API throughout):
    - if the source var is still on one of the old deprecated collections, look up
      the same `name` in the target map and `node.setBoundVariable(field, targetVar)`.
 5. Set an **explicit mode override** on the cloned component so it self-renders at
-   the right density: `comp.setExplicitVariableModeForCollection(contextCol, modeId)`
-   where `modeId` is the mode matching the component's `Context=` variant property
-   (`dense=369:8`, `compact=369:9`, `comfortable=369:10`, `spacious=369:11`).
-6. Idempotency: before a batch, remove any pre-existing clones for that
-   context+variant so re-runs don't duplicate.
+5. Idempotency: before a batch, remove any pre-existing clones for that
+   variant so re-runs don't duplicate.
 
-**Efficient rebind pattern (as used in the 2026-05-29 migration):** instead of
-pre-fetching all collection variables, do a synchronous walk first to collect
-unique `boundVariable` IDs, batch-fetch only those IDs in parallel, then filter
-to old-collection vars and build the rebind map. This keeps async overhead to a
-minimum even for 400-component sets.
+**Important:** Do NOT set explicit mode overrides on component variants. With
+the Professional-tier unified collection, density is owned by the **containing
+frame** — any frame with `Context → Dense` mode override makes all components
+inside render at Dense. Setting overrides on components locks instances to one
+density and breaks consumer frame-level switching.
+
+**Efficient rebind pattern:** instead of pre-fetching all collection variables,
+do a synchronous walk first to collect unique `boundVariable` IDs, batch-fetch
+only those in parallel, then filter to old-collection vars and build the rebind
+map. This keeps async overhead minimal even for large component sets.
 
 ### Layout & arrange
 
-`apps/harmoni-figma-plugin/scripts/arrange-button-component-set.js` lays the set
-out into the documented grid. Props are `Context/Variant/Size/State` (lowercase
-values). Context order is **compact → comfortable → spacious → dense** (dense
-last; least-used), md-first rows, so `compact/md/primary/default` is top-left;
-the script also `insertChild(0, …)` that component so Figma uses it as the
-**default instance**. State labels are left-aligned to each column's button edge.
+Arrange scripts lay sets out into a size-rows × variant/state-columns grid.
+Props are `Variant/Size/State` (no Context dimension). `md` is placed first
+(top row) so `md/primary/default` is top-left; the script `insertChild(0, …)`
+that component so Figma uses it as the **default instance**.
+
+## Text styles and mode overrides
+
+Text styles in Figma (`TextStyle`) **do not support `setExplicitVariableModeForCollection`** — the method does not exist on `BaseStyle`. This means text style variable bindings always resolve using the collection's **default mode** (Compact, modeId `369:9`) unless the text node sits inside a frame with a mode override.
+
+Practical behaviour:
+- **Text node in a frame with `Context → Dense` override**: the bound variable resolves to the Dense mode value — correct.
+- **Text style panel preview**: always shows the default mode (Compact) regardless of the style's intended density. This is a Figma limitation, not a bug.
+- **Canonical text styles** (72 total, 18 per density): `Dense / Label / md`, `Comfortable / Body / lg`, etc. All bound to the unified Context collection. The density in the style name is the *intended* use context, not an enforced mode.
+
+**Typography variable paths in text styles** follow the same naming as in component anatomy:
+- `label/{xs–xl}/font-family`, `font-style`, `font-size`, `line-height`
+- `body/{xs–lg}/…`, `heading/{h1–h6}/…`, `display/{lg,xl}/…`, `overline/…`
+
+**Component label text nodes** (e.g. Button's "Button text") bind directly to Context collection variables inline — no text style applied. They respond correctly to frame mode overrides without any text style involvement.

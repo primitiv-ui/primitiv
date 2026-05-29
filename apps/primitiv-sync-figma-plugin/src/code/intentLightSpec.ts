@@ -9,9 +9,8 @@
  *   border.*   — subtle / default / strong / focus
  *   focus.*    — ring
  *
- * Danger aliases target `color/danger/light/*`, which does not exist in Phase A's
- * Primitives / Palette. Those variables will produce warnings until a danger
- * ramp is added by the Harmoni plugin.
+ * Danger aliases target `color/danger/*`, which does not exist until a danger
+ * ramp is added via the Harmoni plugin. Those variables will produce warnings until then.
  */
 
 export type IntentLightVariableSpec = {
@@ -29,16 +28,16 @@ export const INTENT_LIGHT_SPEC: {
   aliasCollection: 'Primitives / Palette',
   variables: [
     // action.primary
-    { name: 'action/primary/default', type: 'COLOR', aliasTo: 'color/brand/light/500' },
-    { name: 'action/primary/hover', type: 'COLOR', aliasTo: 'color/brand/light/600' },
-    { name: 'action/primary/active', type: 'COLOR', aliasTo: 'color/brand/light/700' },
-    { name: 'action/primary/disabled', type: 'COLOR', aliasTo: 'color/brand/light/200' },
+    { name: 'action/primary/default', type: 'COLOR', aliasTo: 'color/brand/500' },
+    { name: 'action/primary/hover', type: 'COLOR', aliasTo: 'color/brand/600' },
+    { name: 'action/primary/active', type: 'COLOR', aliasTo: 'color/brand/700' },
+    { name: 'action/primary/disabled', type: 'COLOR', aliasTo: 'color/brand/200' },
     { name: 'action/primary/foreground/default', type: 'COLOR', aliasTo: 'color/neutral/50' },
     { name: 'action/primary/foreground/disabled', type: 'COLOR', aliasTo: 'color/neutral/400' },
-    { name: 'action/primary/border/default', type: 'COLOR', aliasTo: 'color/brand/light/500' },
-    { name: 'action/primary/border/hover', type: 'COLOR', aliasTo: 'color/brand/light/600' },
-    { name: 'action/primary/border/active', type: 'COLOR', aliasTo: 'color/brand/light/700' },
-    { name: 'action/primary/border/disabled', type: 'COLOR', aliasTo: 'color/brand/light/200' },
+    { name: 'action/primary/border/default', type: 'COLOR', aliasTo: 'color/brand/500' },
+    { name: 'action/primary/border/hover', type: 'COLOR', aliasTo: 'color/brand/600' },
+    { name: 'action/primary/border/active', type: 'COLOR', aliasTo: 'color/brand/700' },
+    { name: 'action/primary/border/disabled', type: 'COLOR', aliasTo: 'color/brand/200' },
 
     // action.secondary
     { name: 'action/secondary/default', type: 'COLOR', aliasTo: 'color/neutral/100' },
@@ -83,9 +82,9 @@ export const INTENT_LIGHT_SPEC: {
     { name: 'border/subtle', type: 'COLOR', aliasTo: 'color/neutral/200' },
     { name: 'border/default', type: 'COLOR', aliasTo: 'color/neutral/300' },
     { name: 'border/strong', type: 'COLOR', aliasTo: 'color/neutral/500' },
-    { name: 'border/focus', type: 'COLOR', aliasTo: 'color/brand/light/500' },
+    { name: 'border/focus', type: 'COLOR', aliasTo: 'color/brand/500' },
 
     // focus
-    { name: 'focus/ring', type: 'COLOR', aliasTo: 'color/brand/light/500' },
+    { name: 'focus/ring', type: 'COLOR', aliasTo: 'color/brand/500' },
   ],
 }

@@ -11,7 +11,7 @@
  *
  * Density is no longer a grid dimension — it is controlled by the containing
  * frame's Context variable mode override in the design. The component set shows
- * variants at whatever density the canvas default mode resolves to (Compact).
+ * variants at whatever density the canvas default mode resolves to (Comfortable).
  *
  * Property names and values are lowercase and match the live set exactly:
  *   Variant = primary | secondary | link | danger
@@ -36,10 +36,10 @@
   const VARIANT_ORDER = ["primary", "secondary", "link", "danger"];
   const STATE_ORDER   = ["default", "hover", "active", "focus", "disabled"];
 
-  const GAP_STATE   =  8;
-  const GAP_VARIANT = 32;
-  const GAP_SIZE    = 12;
-  const EDGE_PAD    =  8;
+  const GAP_STATE   = 16;
+  const GAP_VARIANT = 48;
+  const GAP_SIZE    = 20;
+  const EDGE_PAD    = 24;
 
   const componentSet = figma.currentPage.selection.find(n => n.type === "COMPONENT_SET");
   if (!componentSet) {
@@ -142,7 +142,10 @@
     const vl = makeLabel(variant.toUpperCase(), 0, cy - ABOVE_VARIANTS, true);
     vl.x = cx + groupLeft + (groupRight - groupLeft) / 2 - vl.width / 2;
     for (const state of STATE_ORDER) {
-      makeLabel(state, cx + (colX[`${variant}_${state}`] ?? 0), cy - ABOVE_STATES, false);
+      const ck   = `${variant}_${state}`;
+      const colW = colMaxWidth[ck] ?? 0;
+      const lbl  = makeLabel(state, 0, cy - ABOVE_STATES, false);
+      lbl.x = cx + (colX[ck] ?? 0) + colW / 2 - lbl.width / 2;
     }
   }
 

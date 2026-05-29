@@ -33,10 +33,10 @@
   const STATE_ORDER       = ["unchecked", "checked"];
   const INTERACTION_ORDER = ["default", "hover", "focus", "disabled"];
 
-  const GAP_INTERACTION = 8;
-  const GAP_STATE       = 32;
-  const GAP_SIZE        = 12;
-  const EDGE_PAD        = 8;
+  const GAP_INTERACTION = 16;
+  const GAP_STATE       = 48;
+  const GAP_SIZE        = 20;
+  const EDGE_PAD        = 24;
 
   const componentSet = figma.currentPage.selection.find(n => n.type === "COMPONENT_SET");
   if (!componentSet) {
@@ -135,7 +135,10 @@
     const sl = makeLabel(state.toUpperCase(), 0, cy - ABOVE_STATES, true);
     sl.x = cx + groupLeft + (groupRight - groupLeft) / 2 - sl.width / 2;
     for (const interaction of INTERACTION_ORDER) {
-      makeLabel(interaction, cx + (colX[`${state}_${interaction}`] ?? 0), cy - ABOVE_INTERACTIONS, false);
+      const ck   = `${state}_${interaction}`;
+      const colW = colMaxWidth[ck] ?? 0;
+      const lbl  = makeLabel(interaction, 0, cy - ABOVE_INTERACTIONS, false);
+      lbl.x = cx + (colX[ck] ?? 0) + colW / 2 - lbl.width / 2;
     }
   }
 

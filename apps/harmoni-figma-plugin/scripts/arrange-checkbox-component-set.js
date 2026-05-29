@@ -18,10 +18,10 @@
   const STATE_ORDER       = ['unchecked', 'checked', 'indeterminate'];
   const INTERACTION_ORDER = ['default', 'hover', 'focus', 'disabled'];
 
-  const GAP_INTERACTION = 8;
-  const GAP_STATE       = 32;
-  const GAP_SIZE        = 12;
-  const EDGE_PAD        = 8;
+  const GAP_INTERACTION = 16;
+  const GAP_STATE       = 48;
+  const GAP_SIZE        = 20;
+  const EDGE_PAD        = 24;
 
   const set = figma.currentPage.selection.find(n => n.type === 'COMPONENT_SET');
   if (!set) {
@@ -85,8 +85,8 @@
     const { sz, st, iact } = parseProps(comp.name);
     const ck = `${st}_${iact}`;
     if (colX[ck] !== undefined && rowY[sz] !== undefined) {
-      comp.x = colX[ck] + Math.floor((colWidths[ck] - comp.width)   / 2);
-      comp.y = rowY[sz]  + Math.floor((rowHeights[sz] - comp.height) / 2);
+      comp.x = colX[ck];
+      comp.y = rowY[sz];
       placed++;
     } else {
       console.warn(`Could not place: ${comp.name}`); skipped++;
@@ -126,7 +126,9 @@
     t.x = set.x + (firstX + groupRight) / 2 - t.width / 2;
 
     for (const iact of INTERACTION_ORDER) {
-      makeLabel(iact, set.x + colX[`${st}_${iact}`], set.y - 24, false);
+      const ck  = `${st}_${iact}`;
+      const lbl = makeLabel(iact, 0, set.y - 24, false);
+      lbl.x = set.x + (colX[ck] ?? 0);
     }
   }
 

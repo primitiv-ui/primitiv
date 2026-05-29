@@ -28,22 +28,22 @@ most-used variant at the most-used size, which also becomes the component's
 
 **No density rows.** Density is controlled by the containing frame's `Context`
 variable mode override — it is not a grid dimension. All components in the set
-display at the default mode (Compact) in the canvas; they adapt to their
+display at the default mode (Comfortable) in the canvas; they adapt to their
 frame's mode when used in a design.
 
 ## Gap constants (standard values)
 
 ```js
-const GAP_INTERACTION = 8;    // between sub-columns within a group
-const GAP_STATE       = 32;   // between variant/state column groups
-const GAP_SIZE        = 12;   // between size rows
-const EDGE_PAD        = 8;    // inner padding on all 4 edges of the component set
+const GAP_INTERACTION = 16;   // between sub-columns within a group
+const GAP_STATE       = 48;   // between variant/state column groups
+const GAP_SIZE        = 20;   // between size rows
+const EDGE_PAD        = 24;   // inner padding on all 4 edges of the component set
 ```
 
 `EDGE_PAD` is **required**. Focus ring frames extend 4 px beyond each
 component's nominal bounds. Without the pad, the first row and column sit at
 `x=0, y=0` inside the component set frame, and the −4 px ring overflow is
-clipped by the frame boundary. 8 px = 4 px ring + 4 px breathing room.
+clipped by the frame boundary. 24 px = 4 px ring + 20 px breathing room.
 
 Apply it by shifting *all* colX and rowY values by EDGE_PAD after calculating
 them, then adding `EDGE_PAD * 2` to both dimensions when resizing the set:
@@ -121,8 +121,18 @@ any text node characters can be set, even in `figma_execute`.
 
 ```
          [above - 48px]  GROUP HEADERS  (bold, centred over each group's full width)
-         [above - 24px]  sub-col labels (regular, left-aligned to each column's left edge)
+         [above - 24px]  sub-col labels (regular, centred on each column's width)
 [left -  56px] size labels     (regular, vertically centred over each size row)
+```
+
+Sub-column labels are **centred on their column**, not left-aligned. This prevents
+overlap at small sizes (e.g. "disabled" ≈ 44 px wide would bleed into the next
+column at `GAP_INTERACTION = 8`). Pattern used in all three scripts:
+
+```js
+const colW = colMaxWidth[colKey] ?? 0;
+const lbl  = makeLabel(text, 0, labelY, false);
+lbl.x = cx + colX[colKey] + colW / 2 - lbl.width / 2;
 ```
 
 All label nodes are collected into a single `figma.group(nodes, page)` so they

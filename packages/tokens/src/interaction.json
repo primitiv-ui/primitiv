@@ -1,1 +1,32 @@
-{}
+{
+  "hover": {
+    "opacity": {
+      "$type": "number",
+      "$value": "{opacity.90}"
+    }
+  },
+  "active": {
+    "opacity": {
+      "$type": "number",
+      "$value": "{opacity.80}"
+    }
+  },
+  "disabled": {
+    "opacity": {
+      "$type": "number",
+      "$value": "{opacity.40}"
+    }
+  },
+  "focus": {
+    "ring": {
+      "width": {
+        "$type": "number",
+        "$value": "{border-width.2}"
+      },
+      "offset": {
+        "$type": "number",
+        "$value": "{border-width.2}"
+      }
+    }
+  }
+}

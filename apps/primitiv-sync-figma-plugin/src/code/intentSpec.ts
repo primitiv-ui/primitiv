@@ -38,7 +38,7 @@ export const INTENT_SPEC: {
     { name: 'action/primary/hover',             type: 'COLOR', aliasTo: 'color/brand/600' },
     { name: 'action/primary/active',            type: 'COLOR', aliasTo: 'color/brand/700' },
     { name: 'action/primary/disabled',          type: 'COLOR', aliasTo: 'color/brand/200' },
-    { name: 'action/primary/foreground/default', type: 'COLOR', aliasTo: 'color/neutral/50' },
+    { name: 'action/primary/foreground/default', type: 'COLOR', aliasTo: 'color/white' },
     { name: 'action/primary/foreground/disabled', type: 'COLOR', aliasTo: 'color/neutral/400' },
     { name: 'action/primary/border/default',    type: 'COLOR', aliasTo: 'color/brand/500' },
     { name: 'action/primary/border/hover',      type: 'COLOR', aliasTo: 'color/brand/600' },
@@ -62,7 +62,7 @@ export const INTENT_SPEC: {
     { name: 'action/danger/hover',               type: 'COLOR', aliasTo: 'color/danger/600' },
     { name: 'action/danger/active',              type: 'COLOR', aliasTo: 'color/danger/700' },
     { name: 'action/danger/disabled',            type: 'COLOR', aliasTo: 'color/danger/200' },
-    { name: 'action/danger/foreground/default',  type: 'COLOR', aliasTo: 'color/neutral/50' },
+    { name: 'action/danger/foreground/default',  type: 'COLOR', aliasTo: 'color/white' },
     { name: 'action/danger/foreground/disabled', type: 'COLOR', aliasTo: 'color/neutral/400' },
     { name: 'action/danger/border/default',      type: 'COLOR', aliasTo: 'color/danger/500' },
     { name: 'action/danger/border/hover',        type: 'COLOR', aliasTo: 'color/danger/600' },
@@ -87,8 +87,8 @@ export const INTENT_SPEC: {
     { name: 'content/secondary', type: 'COLOR', aliasTo: 'color/neutral/700' },
     { name: 'content/muted',     type: 'COLOR', aliasTo: 'color/neutral/500' },
     { name: 'content/disabled',  type: 'COLOR', aliasTo: 'color/neutral/400' },
-    { name: 'content/inverse',   type: 'COLOR', aliasTo: 'color/neutral/50' },
-    { name: 'content/on-action', type: 'COLOR', aliasTo: 'color/neutral/50' },
+    { name: 'content/inverse',   type: 'COLOR', aliasTo: 'color/white' },
+    { name: 'content/on-action', type: 'COLOR', aliasTo: 'color/white' },
 
     // border
     { name: 'border/subtle',  type: 'COLOR', aliasTo: 'color/neutral/200' },

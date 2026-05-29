@@ -57,7 +57,7 @@ export const INTENT_SPEC: {
     { name: 'action/secondary/border/active',    type: 'COLOR', aliasTo: 'color/neutral/500' },
     { name: 'action/secondary/border/disabled',  type: 'COLOR', aliasTo: 'color/neutral/200' },
 
-    // action.danger
+    // action.danger (alias targets become valid once a "danger" ramp is applied via Harmoni)
     { name: 'action/danger/default',             type: 'COLOR', aliasTo: 'color/danger/500' },
     { name: 'action/danger/hover',               type: 'COLOR', aliasTo: 'color/danger/600' },
     { name: 'action/danger/active',              type: 'COLOR', aliasTo: 'color/danger/700' },
@@ -68,6 +68,12 @@ export const INTENT_SPEC: {
     { name: 'action/danger/border/hover',        type: 'COLOR', aliasTo: 'color/danger/600' },
     { name: 'action/danger/border/active',       type: 'COLOR', aliasTo: 'color/danger/700' },
     { name: 'action/danger/border/disabled',     type: 'COLOR', aliasTo: 'color/danger/200' },
+
+    // action.link — foreground only (no background or border; opacity handles disabled state)
+    { name: 'action/link/foreground/default',  type: 'COLOR', aliasTo: 'color/brand/500' },
+    { name: 'action/link/foreground/hover',    type: 'COLOR', aliasTo: 'color/brand/600' },
+    { name: 'action/link/foreground/active',   type: 'COLOR', aliasTo: 'color/brand/700' },
+    { name: 'action/link/foreground/disabled', type: 'COLOR', aliasTo: 'color/brand/500' },
 
     // surface
     { name: 'surface/default',  type: 'COLOR', aliasTo: 'color/neutral/50' },

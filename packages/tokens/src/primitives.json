@@ -611,46 +611,86 @@
     "neutral": {
       "50": {
         "$type": "color",
-        "$value": "#faffff"
+        "$value": "#f2e7f0"
       },
       "100": {
         "$type": "color",
-        "$value": "#e2e8e6"
+        "$value": "#e0d6de"
       },
       "200": {
         "$type": "color",
-        "$value": "#c3c9c7"
+        "$value": "#c8bec6"
       },
       "300": {
         "$type": "color",
-        "$value": "#a8adac"
+        "$value": "#b3aab2"
       },
       "400": {
         "$type": "color",
-        "$value": "#868c8a"
+        "$value": "#999198"
       },
       "500": {
         "$type": "color",
-        "$value": "#5c6160"
+        "$value": "#787177"
       },
       "600": {
         "$type": "color",
-        "$value": "#3c403e"
+        "$value": "#5e575d"
       },
       "700": {
         "$type": "color",
-        "$value": "#151818"
+        "$value": "#3d383c"
       },
       "800": {
         "$type": "color",
-        "$value": "#010202"
+        "$value": "#262125"
       },
       "900": {
         "$type": "color",
-        "$value": "#000000"
+        "$value": "#171216"
       }
     },
     "brand": {
+      "50": {
+        "$type": "color",
+        "$value": "#f6e7f4"
+      },
+      "100": {
+        "$type": "color",
+        "$value": "#f4c9ed"
+      },
+      "200": {
+        "$type": "color",
+        "$value": "#eea1e3"
+      },
+      "300": {
+        "$type": "color",
+        "$value": "#e082d4"
+      },
+      "400": {
+        "$type": "color",
+        "$value": "#c85ebd"
+      },
+      "500": {
+        "$type": "color",
+        "$value": "#a72a9d"
+      },
+      "600": {
+        "$type": "color",
+        "$value": "#801378"
+      },
+      "700": {
+        "$type": "color",
+        "$value": "#52004d"
+      },
+      "800": {
+        "$type": "color",
+        "$value": "#30002d"
+      },
+      "900": {
+        "$type": "color",
+        "$value": "#180016"
+      },
       "light": {
         "50": {
           "$type": "color",
@@ -821,6 +861,14 @@
           "$value": "#ffd7cb"
         }
       }
+    },
+    "white": {
+      "$type": "color",
+      "$value": "#ebebeb"
+    },
+    "black": {
+      "$type": "color",
+      "$value": "#141414"
     }
   },
   "font-style": {

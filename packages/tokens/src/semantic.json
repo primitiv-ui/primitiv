@@ -99,26 +99,26 @@
       },
       "focus": {
         "$type": "color",
-        "$value": "{color.brand.light.500}"
+        "$value": "{color.brand.500}"
       }
     },
     "action": {
       "primary": {
         "default": {
           "$type": "color",
-          "$value": "{color.brand.light.500}"
+          "$value": "{color.brand.500}"
         },
         "hover": {
           "$type": "color",
-          "$value": "{color.brand.light.600}"
+          "$value": "{color.brand.600}"
         },
         "active": {
           "$type": "color",
-          "$value": "{color.brand.light.700}"
+          "$value": "{color.brand.700}"
         },
         "disabled": {
           "$type": "color",
-          "$value": "{color.brand.light.500}"
+          "$value": "{color.brand.200}"
         },
         "foreground": {
           "default": {
@@ -127,44 +127,44 @@
           },
           "disabled": {
             "$type": "color",
-            "$value": "{color.neutral.50}"
+            "$value": "{color.neutral.400}"
           }
         },
         "border": {
           "default": {
             "$type": "color",
-            "$value": "{color.brand.light.500}"
+            "$value": "{color.brand.500}"
           },
           "hover": {
             "$type": "color",
-            "$value": "{color.brand.light.600}"
+            "$value": "{color.brand.600}"
           },
           "active": {
             "$type": "color",
-            "$value": "{color.brand.light.700}"
+            "$value": "{color.brand.700}"
           },
           "disabled": {
             "$type": "color",
-            "$value": "{color.brand.light.500}"
+            "$value": "{color.brand.200}"
           }
         }
       },
       "secondary": {
         "default": {
           "$type": "color",
-          "$value": "{color.neutral.transparent}"
+          "$value": "{color.neutral.100}"
         },
         "hover": {
           "$type": "color",
-          "$value": "{color.neutral.100}"
+          "$value": "{color.neutral.200}"
         },
         "active": {
           "$type": "color",
-          "$value": "{color.neutral.200}"
+          "$value": "{color.neutral.300}"
         },
         "disabled": {
           "$type": "color",
-          "$value": "{color.neutral.transparent}"
+          "$value": "{color.neutral.50}"
         },
         "foreground": {
           "default": {
@@ -173,7 +173,7 @@
           },
           "disabled": {
             "$type": "color",
-            "$value": "{color.neutral.900}"
+            "$value": "{color.neutral.400}"
           }
         },
         "border": {
@@ -199,11 +199,11 @@
         "foreground": {
           "default": {
             "$type": "color",
-            "$value": "{color.neutral.white}"
+            "$value": "{color.neutral.50}"
           },
           "disabled": {
             "$type": "color",
-            "$value": "{color.neutral.white}"
+            "$value": "{color.neutral.400}"
           }
         },
         "default": {
@@ -220,7 +220,7 @@
         },
         "disabled": {
           "$type": "color",
-          "$value": "{color.danger.light.500}"
+          "$value": "{color.danger.light.200}"
         },
         "border": {
           "default": {
@@ -237,7 +237,7 @@
           },
           "disabled": {
             "$type": "color",
-            "$value": "{color.danger.light.500}"
+            "$value": "{color.danger.light.200}"
           }
         }
       },
@@ -313,7 +313,39 @@
     "focus": {
       "ring": {
         "$type": "color",
-        "$value": "{color.action.primary.default}"
+        "$value": "{color.brand.500}"
+      }
+    }
+  },
+  "interaction": {
+    "hover": {
+      "opacity": {
+        "$type": "number",
+        "$value": "{opacity.90}"
+      }
+    },
+    "active": {
+      "opacity": {
+        "$type": "number",
+        "$value": "{opacity.80}"
+      }
+    },
+    "disabled": {
+      "opacity": {
+        "$type": "number",
+        "$value": "{opacity.40}"
+      }
+    },
+    "focus": {
+      "ring": {
+        "width": {
+          "$type": "number",
+          "$value": "{border-width.2}"
+        },
+        "offset": {
+          "$type": "number",
+          "$value": "{border-width.2}"
+        }
       }
     }
   },
@@ -331,29 +363,7 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.12}"
-          },
-          "line-height": {
-            "$type": "number",
-            "$value": "{line-height.16}"
-          },
-          "font-style": {
-            "$type": "string",
-            "$value": "{font-style.semibold}"
-          }
-        },
-        "sm": {
-          "font-family": {
-            "$type": "string",
-            "$value": "{font-family.sans}"
-          },
-          "font-weight": {
-            "$type": "number",
-            "$value": "{font-weight.semibold}"
-          },
-          "font-size": {
-            "$type": "number",
-            "$value": "{font-size.14}"
+            "$value": "{font-size.13}"
           },
           "line-height": {
             "$type": "number",
@@ -364,7 +374,7 @@
             "$value": "{font-style.semibold}"
           }
         },
-        "md": {
+        "sm": {
           "font-family": {
             "$type": "string",
             "$value": "{font-family.sans}"
@@ -386,7 +396,7 @@
             "$value": "{font-style.semibold}"
           }
         },
-        "lg": {
+        "md": {
           "font-family": {
             "$type": "string",
             "$value": "{font-family.sans}"
@@ -408,7 +418,7 @@
             "$value": "{font-style.semibold}"
           }
         },
-        "xl": {
+        "lg": {
           "font-family": {
             "$type": "string",
             "$value": "{font-family.sans}"
@@ -424,6 +434,28 @@
           "line-height": {
             "$type": "number",
             "$value": "{line-height.32}"
+          },
+          "font-style": {
+            "$type": "string",
+            "$value": "{font-style.semibold}"
+          }
+        },
+        "xl": {
+          "font-family": {
+            "$type": "string",
+            "$value": "{font-family.sans}"
+          },
+          "font-weight": {
+            "$type": "number",
+            "$value": "{font-weight.semibold}"
+          },
+          "font-size": {
+            "$type": "number",
+            "$value": "{font-size.22}"
+          },
+          "line-height": {
+            "$type": "number",
+            "$value": "{line-height.36}"
           },
           "font-style": {
             "$type": "string",
@@ -1094,6 +1126,210 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.16}"
+          }
+        }
+      },
+      "switch": {
+        "xs": {
+          "track-height": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "track-width": {
+            "$type": "number",
+            "$value": "{size.size-32}"
+          },
+          "thumb-size": {
+            "$type": "number",
+            "$value": "{size.size-16}"
+          },
+          "thumb-margin": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          }
+        },
+        "sm": {
+          "track-height": {
+            "$type": "number",
+            "$value": "{size.size-24}"
+          },
+          "track-width": {
+            "$type": "number",
+            "$value": "{size.size-40}"
+          },
+          "thumb-size": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "thumb-margin": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          }
+        },
+        "md": {
+          "track-height": {
+            "$type": "number",
+            "$value": "{size.size-28}"
+          },
+          "track-width": {
+            "$type": "number",
+            "$value": "{size.size-48}"
+          },
+          "thumb-size": {
+            "$type": "number",
+            "$value": "{size.size-24}"
+          },
+          "thumb-margin": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          }
+        },
+        "lg": {
+          "track-height": {
+            "$type": "number",
+            "$value": "{size.size-32}"
+          },
+          "track-width": {
+            "$type": "number",
+            "$value": "{size.size-56}"
+          },
+          "thumb-size": {
+            "$type": "number",
+            "$value": "{size.size-28}"
+          },
+          "thumb-margin": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          }
+        },
+        "xl": {
+          "track-height": {
+            "$type": "number",
+            "$value": "{size.size-40}"
+          },
+          "track-width": {
+            "$type": "number",
+            "$value": "{size.size-68}"
+          },
+          "thumb-size": {
+            "$type": "number",
+            "$value": "{size.size-32}"
+          },
+          "thumb-margin": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          }
+        }
+      },
+      "checkbox": {
+        "xs": {
+          "box-size": {
+            "$type": "number",
+            "$value": "{size.size-14}"
+          },
+          "box-radius": {
+            "$type": "number",
+            "$value": "{radii.2}"
+          },
+          "mark-size": {
+            "$type": "number",
+            "$value": "{size.size-10}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          }
+        },
+        "sm": {
+          "box-size": {
+            "$type": "number",
+            "$value": "{size.size-16}"
+          },
+          "box-radius": {
+            "$type": "number",
+            "$value": "{radii.2}"
+          },
+          "mark-size": {
+            "$type": "number",
+            "$value": "{size.size-10}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          }
+        },
+        "md": {
+          "box-size": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "box-radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          },
+          "mark-size": {
+            "$type": "number",
+            "$value": "{size.size-14}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          }
+        },
+        "lg": {
+          "box-size": {
+            "$type": "number",
+            "$value": "{size.size-24}"
+          },
+          "box-radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          },
+          "mark-size": {
+            "$type": "number",
+            "$value": "{size.size-16}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          }
+        },
+        "xl": {
+          "box-size": {
+            "$type": "number",
+            "$value": "{size.size-28}"
+          },
+          "box-radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          },
+          "mark-size": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
           }
         }
       }
@@ -1876,6 +2112,210 @@
             "$value": "{radii.12}"
           }
         }
+      },
+      "switch": {
+        "xs": {
+          "track-height": {
+            "$type": "number",
+            "$value": "{size.size-16}"
+          },
+          "track-width": {
+            "$type": "number",
+            "$value": "{size.size-28}"
+          },
+          "thumb-size": {
+            "$type": "number",
+            "$value": "{size.size-12}"
+          },
+          "thumb-margin": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          }
+        },
+        "sm": {
+          "track-height": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "track-width": {
+            "$type": "number",
+            "$value": "{size.size-32}"
+          },
+          "thumb-size": {
+            "$type": "number",
+            "$value": "{size.size-16}"
+          },
+          "thumb-margin": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          }
+        },
+        "md": {
+          "track-height": {
+            "$type": "number",
+            "$value": "{size.size-24}"
+          },
+          "track-width": {
+            "$type": "number",
+            "$value": "{size.size-40}"
+          },
+          "thumb-size": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "thumb-margin": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          }
+        },
+        "lg": {
+          "track-height": {
+            "$type": "number",
+            "$value": "{size.size-28}"
+          },
+          "track-width": {
+            "$type": "number",
+            "$value": "{size.size-48}"
+          },
+          "thumb-size": {
+            "$type": "number",
+            "$value": "{size.size-24}"
+          },
+          "thumb-margin": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          }
+        },
+        "xl": {
+          "track-height": {
+            "$type": "number",
+            "$value": "{size.size-32}"
+          },
+          "track-width": {
+            "$type": "number",
+            "$value": "{size.size-56}"
+          },
+          "thumb-size": {
+            "$type": "number",
+            "$value": "{size.size-28}"
+          },
+          "thumb-margin": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          }
+        }
+      },
+      "checkbox": {
+        "xs": {
+          "box-size": {
+            "$type": "number",
+            "$value": "{size.size-12}"
+          },
+          "box-radius": {
+            "$type": "number",
+            "$value": "{radii.2}"
+          },
+          "mark-size": {
+            "$type": "number",
+            "$value": "{size.size-8}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          }
+        },
+        "sm": {
+          "box-size": {
+            "$type": "number",
+            "$value": "{size.size-14}"
+          },
+          "box-radius": {
+            "$type": "number",
+            "$value": "{radii.2}"
+          },
+          "mark-size": {
+            "$type": "number",
+            "$value": "{size.size-10}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          }
+        },
+        "md": {
+          "box-size": {
+            "$type": "number",
+            "$value": "{size.size-16}"
+          },
+          "box-radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          },
+          "mark-size": {
+            "$type": "number",
+            "$value": "{size.size-10}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          }
+        },
+        "lg": {
+          "box-size": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "box-radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          },
+          "mark-size": {
+            "$type": "number",
+            "$value": "{size.size-14}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          }
+        },
+        "xl": {
+          "box-size": {
+            "$type": "number",
+            "$value": "{size.size-24}"
+          },
+          "box-radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          },
+          "mark-size": {
+            "$type": "number",
+            "$value": "{size.size-16}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          }
+        }
       }
     },
     "spacious": {
@@ -1891,7 +2331,7 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.12}"
+            "$value": "{font-size.14}"
           },
           "line-height": {
             "$type": "number",
@@ -1913,11 +2353,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.14}"
+            "$value": "{font-size.18}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.24}"
+            "$value": "{line-height.28}"
           },
           "font-style": {
             "$type": "string",
@@ -1935,11 +2375,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.16}"
+            "$value": "{font-size.20}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.28}"
+            "$value": "{line-height.32}"
           },
           "font-style": {
             "$type": "string",
@@ -1957,11 +2397,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.18}"
+            "$value": "{font-size.22}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.32}"
+            "$value": "{line-height.36}"
           },
           "font-style": {
             "$type": "string",
@@ -1979,11 +2419,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.20}"
+            "$value": "{font-size.24}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.36}"
+            "$value": "{line-height.40}"
           },
           "font-style": {
             "$type": "string",
@@ -2305,13 +2745,13 @@
             "$type": "number",
             "$value": "{radii.6}"
           },
-          "focus-ring-gap-radius": {
-            "$type": "number",
-            "$value": "{radii.8}"
-          },
           "focus-ring-radius": {
             "$type": "number",
             "$value": "{radii.10}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
           }
         },
         "sm": {
@@ -2335,13 +2775,13 @@
             "$type": "number",
             "$value": "{radii.8}"
           },
-          "focus-ring-gap-radius": {
-            "$type": "number",
-            "$value": "{radii.10}"
-          },
           "focus-ring-radius": {
             "$type": "number",
             "$value": "{radii.12}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.10}"
           }
         },
         "md": {
@@ -2365,13 +2805,13 @@
             "$type": "number",
             "$value": "{radii.8}"
           },
-          "focus-ring-gap-radius": {
-            "$type": "number",
-            "$value": "{radii.10}"
-          },
           "focus-ring-radius": {
             "$type": "number",
             "$value": "{radii.12}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.10}"
           }
         },
         "lg": {
@@ -2395,13 +2835,13 @@
             "$type": "number",
             "$value": "{radii.10}"
           },
-          "focus-ring-gap-radius": {
-            "$type": "number",
-            "$value": "{radii.12}"
-          },
           "focus-ring-radius": {
             "$type": "number",
             "$value": "{radii.14}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.12}"
           }
         },
         "xl": {
@@ -2425,13 +2865,13 @@
             "$type": "number",
             "$value": "{radii.12}"
           },
-          "focus-ring-gap-radius": {
-            "$type": "number",
-            "$value": "{radii.14}"
-          },
           "focus-ring-radius": {
             "$type": "number",
             "$value": "{radii.16}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.14}"
           }
         }
       },
@@ -2654,6 +3094,210 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.20}"
+          }
+        }
+      },
+      "switch": {
+        "xs": {
+          "track-height": {
+            "$type": "number",
+            "$value": "{size.size-24}"
+          },
+          "track-width": {
+            "$type": "number",
+            "$value": "{size.size-40}"
+          },
+          "thumb-size": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "thumb-margin": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          }
+        },
+        "sm": {
+          "track-height": {
+            "$type": "number",
+            "$value": "{size.size-28}"
+          },
+          "track-width": {
+            "$type": "number",
+            "$value": "{size.size-48}"
+          },
+          "thumb-size": {
+            "$type": "number",
+            "$value": "{size.size-24}"
+          },
+          "thumb-margin": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          }
+        },
+        "md": {
+          "track-height": {
+            "$type": "number",
+            "$value": "{size.size-32}"
+          },
+          "track-width": {
+            "$type": "number",
+            "$value": "{size.size-56}"
+          },
+          "thumb-size": {
+            "$type": "number",
+            "$value": "{size.size-28}"
+          },
+          "thumb-margin": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          }
+        },
+        "lg": {
+          "track-height": {
+            "$type": "number",
+            "$value": "{size.size-40}"
+          },
+          "track-width": {
+            "$type": "number",
+            "$value": "{size.size-68}"
+          },
+          "thumb-size": {
+            "$type": "number",
+            "$value": "{size.size-32}"
+          },
+          "thumb-margin": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          }
+        },
+        "xl": {
+          "track-height": {
+            "$type": "number",
+            "$value": "{size.size-48}"
+          },
+          "track-width": {
+            "$type": "number",
+            "$value": "{size.size-80}"
+          },
+          "thumb-size": {
+            "$type": "number",
+            "$value": "{size.size-40}"
+          },
+          "thumb-margin": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          }
+        }
+      },
+      "checkbox": {
+        "xs": {
+          "box-size": {
+            "$type": "number",
+            "$value": "{size.size-16}"
+          },
+          "box-radius": {
+            "$type": "number",
+            "$value": "{radii.2}"
+          },
+          "mark-size": {
+            "$type": "number",
+            "$value": "{size.size-10}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          }
+        },
+        "sm": {
+          "box-size": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "box-radius": {
+            "$type": "number",
+            "$value": "{radii.2}"
+          },
+          "mark-size": {
+            "$type": "number",
+            "$value": "{size.size-14}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          }
+        },
+        "md": {
+          "box-size": {
+            "$type": "number",
+            "$value": "{size.size-24}"
+          },
+          "box-radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          },
+          "mark-size": {
+            "$type": "number",
+            "$value": "{size.size-16}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          }
+        },
+        "lg": {
+          "box-size": {
+            "$type": "number",
+            "$value": "{size.size-28}"
+          },
+          "box-radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          },
+          "mark-size": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          }
+        },
+        "xl": {
+          "box-size": {
+            "$type": "number",
+            "$value": 32
+          },
+          "box-radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          },
+          "mark-size": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
           }
         }
       }
@@ -3085,13 +3729,13 @@
             "$type": "number",
             "$value": "{radii.2}"
           },
-          "focus-ring-gap-radius": {
-            "$type": "number",
-            "$value": "{radii.4}"
-          },
           "focus-ring-radius": {
             "$type": "number",
             "$value": "{radii.6}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
           }
         },
         "sm": {
@@ -3115,13 +3759,13 @@
             "$type": "number",
             "$value": "{radii.4}"
           },
-          "focus-ring-gap-radius": {
-            "$type": "number",
-            "$value": "{radii.6}"
-          },
           "focus-ring-radius": {
             "$type": "number",
             "$value": "{radii.8}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
           }
         },
         "md": {
@@ -3145,13 +3789,13 @@
             "$type": "number",
             "$value": "{radii.4}"
           },
-          "focus-ring-gap-radius": {
-            "$type": "number",
-            "$value": "{radii.6}"
-          },
           "focus-ring-radius": {
             "$type": "number",
             "$value": "{radii.8}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
           }
         },
         "lg": {
@@ -3175,13 +3819,13 @@
             "$type": "number",
             "$value": "{radii.4}"
           },
-          "focus-ring-gap-radius": {
-            "$type": "number",
-            "$value": "{radii.6}"
-          },
           "focus-ring-radius": {
             "$type": "number",
             "$value": "{radii.8}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
           }
         },
         "xl": {
@@ -3205,13 +3849,13 @@
             "$type": "number",
             "$value": "{radii.6}"
           },
-          "focus-ring-gap-radius": {
-            "$type": "number",
-            "$value": "{radii.8}"
-          },
           "focus-ring-radius": {
             "$type": "number",
             "$value": "{radii.10}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
           }
         }
       },
@@ -3436,37 +4080,209 @@
             "$value": "{radii.8}"
           }
         }
-      }
-    }
-  },
-  "interaction": {
-    "hover": {
-      "opacity": {
-        "$type": "number",
-        "$value": "{opacity.90}"
-      }
-    },
-    "active": {
-      "opacity": {
-        "$type": "number",
-        "$value": "{opacity.80}"
-      }
-    },
-    "disabled": {
-      "opacity": {
-        "$type": "number",
-        "$value": "{opacity.40}"
-      }
-    },
-    "focus": {
-      "ring": {
-        "width": {
-          "$type": "number",
-          "$value": "{border-width.2}"
+      },
+      "switch": {
+        "xs": {
+          "track-height": {
+            "$type": "number",
+            "$value": "{size.size-12}"
+          },
+          "track-width": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "thumb-size": {
+            "$type": "number",
+            "$value": "{size.size-8}"
+          },
+          "thumb-margin": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          }
         },
-        "offset": {
-          "$type": "number",
-          "$value": "{border-width.2}"
+        "sm": {
+          "track-height": {
+            "$type": "number",
+            "$value": "{size.size-16}"
+          },
+          "track-width": {
+            "$type": "number",
+            "$value": "{size.size-28}"
+          },
+          "thumb-size": {
+            "$type": "number",
+            "$value": "{size.size-12}"
+          },
+          "thumb-margin": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          }
+        },
+        "md": {
+          "track-height": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "track-width": {
+            "$type": "number",
+            "$value": "{size.size-32}"
+          },
+          "thumb-size": {
+            "$type": "number",
+            "$value": "{size.size-16}"
+          },
+          "thumb-margin": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          }
+        },
+        "lg": {
+          "track-height": {
+            "$type": "number",
+            "$value": "{size.size-24}"
+          },
+          "track-width": {
+            "$type": "number",
+            "$value": "{size.size-40}"
+          },
+          "thumb-size": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "thumb-margin": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          }
+        },
+        "xl": {
+          "track-height": {
+            "$type": "number",
+            "$value": "{size.size-28}"
+          },
+          "track-width": {
+            "$type": "number",
+            "$value": "{size.size-48}"
+          },
+          "thumb-size": {
+            "$type": "number",
+            "$value": "{size.size-24}"
+          },
+          "thumb-margin": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          }
+        }
+      },
+      "checkbox": {
+        "xs": {
+          "box-size": {
+            "$type": "number",
+            "$value": "{size.size-10}"
+          },
+          "box-radius": {
+            "$type": "number",
+            "$value": "{radii.2}"
+          },
+          "mark-size": {
+            "$type": "number",
+            "$value": 6
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          }
+        },
+        "sm": {
+          "box-size": {
+            "$type": "number",
+            "$value": "{size.size-12}"
+          },
+          "box-radius": {
+            "$type": "number",
+            "$value": "{radii.2}"
+          },
+          "mark-size": {
+            "$type": "number",
+            "$value": "{size.size-8}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          }
+        },
+        "md": {
+          "box-size": {
+            "$type": "number",
+            "$value": "{size.size-14}"
+          },
+          "box-radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          },
+          "mark-size": {
+            "$type": "number",
+            "$value": "{size.size-10}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          }
+        },
+        "lg": {
+          "box-size": {
+            "$type": "number",
+            "$value": "{size.size-16}"
+          },
+          "box-radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          },
+          "mark-size": {
+            "$type": "number",
+            "$value": "{size.size-10}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          }
+        },
+        "xl": {
+          "box-size": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "box-radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          },
+          "mark-size": {
+            "$type": "number",
+            "$value": "{size.size-14}"
+          },
+          "focus-ring-gap-radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          },
+          "focus-ring-radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          }
         }
       }
     }

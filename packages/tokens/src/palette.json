@@ -134,6 +134,10 @@
           "$type": "color",
           "$value": "#300000"
         }
+      },
+      "transparent": {
+        "$type": "color",
+        "$value": "#00000000"
       }
     }
   },
@@ -272,6 +276,10 @@
           "$type": "color",
           "$value": "#ffd1c6"
         }
+      },
+      "transparent": {
+        "$type": "color",
+        "$value": "#00000000"
       }
     }
   }

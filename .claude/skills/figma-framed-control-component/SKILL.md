@@ -198,14 +198,73 @@ component. Quick summary:
 - Grid: size rows (md first, then xs sm lg xl) × variant/state columns
   (sub-grouped by interaction/state). No density rows — density is a frame concern.
 - Script lives in `apps/harmoni-figma-plugin/scripts/arrange-<component>-component-set.js`.
-- **EDGE_PAD = 8**: all component positions are shifted 8 px inward so focus
-  ring overflow (−4 px) never reaches the component-set frame boundary and
-  gets clipped.
+- **EDGE_PAD = 24** (canonical across every arrange script): all component
+  positions are shifted 24 px inward (4 px ring overflow + 20 px breathing room)
+  so focus ring overflow (−4 px) never reaches the component-set frame boundary
+  and gets clipped.
 - Default instance: `componentSet.insertChild(0, topLeftComponent)`.
 - Re-run safe: delete the existing `"<Name> Grid Labels"` group before
   regenerating labels.
 - Run via `figma_execute` by replacing the `selection.find(…)` lookup with a
   direct `getNodeByIdAsync` call.
+
+## 5a. Component properties — booleans, text, instance-swap, and the exposure limit
+
+After `combineAsVariants`, add properties with `set.addComponentProperty(name, type,
+default, opts?)` and wire each variant's node via `node.componentPropertyReferences`.
+Mirror the live Button schema: `Leading/Trailing Icon` BOOLEAN (→ icon `visible`),
+`Label`/`Value` TEXT (→ text `characters`), `Leading/Trailing Icon Instance`
+INSTANCE_SWAP (→ icon `mainComponent`). **No "Focus ring" boolean** — the ring is
+carried by `State=focus` alone (Button's ring frames have empty refs); don't add one.
+
+**TEXT property = ONE shared default across all variants.** A text node bound to a
+TEXT property displays the property's single default everywhere — you cannot give
+`Filled=empty` and `Filled=filled` different default strings while both are bound.
+The empty/filled distinction is therefore **colour only** (muted vs primary), with
+one editable `Value`. To get genuinely different per-variant text you must *unbind*
+(set each node's `characters` directly) and delete the property — losing the named,
+panel-editable field. Usually not worth it; keep the property.
+
+**Changing the icon glyph — and the exposure limitation (systemic).** The icon
+library is one COMPONENT_SET with an `icon` glyph variant (39 glyphs) × `size`.
+Consumers change the glyph via the INSTANCE_SWAP popover, which shows the set as a
+**single collapsed "Icon" entry + a search box** — type the glyph name to pick.
+That is the ceiling of what is scriptable. A clean *top-level glyph dropdown*
+requires Figma's **"Expose property"** on the nested icon, and that is **UI-only —
+the plugin API cannot do it**: assigning `instance.isExposedInstance = true` is a
+no-op (it persists as a boolean but `comp.exposedInstances` stays empty and no
+nested property ever surfaces on instances). Verified exhaustively 2026-05-31.
+Do not burn time trying to script exposure.
+
+INSTANCE_SWAP wiring that *does* work:
+- `preferredValues: [{ type:"COMPONENT_SET", key:<iconSetKey> }]` — keep it to the
+  icon set only. Adding the Button set (or others) just clutters the swap search.
+  Icon set key `da2000986513297ee3823cf917a294e6a39991f2`.
+- Per-size glyph: `iconInstance.swapComponent(await getNodeByIdAsync(glyphIdForSize))`
+  preserves overrides by node name; re-apply the inner `Vector` fill binding after,
+  and `setProperties` won't help pick the right *size* variant — swap to the
+  size-specific component id.
+- Default booleans/glyphs are a design call: Input ships `Leading/Trailing Icon`
+  **true** with `user` / `eye` glyphs (login/password read).
+
+## Non-framed compositions (e.g. Field)
+
+Some form components are **not** framed controls — Field is a vertical *composition*
+(label + nested control + helper text), no border, no `framed-control/*` on the root.
+The same clone-and-rebind + combine + arrange flow applies, with these differences:
+
+- Root: VERTICAL auto-layout, fixed width (240), HUG height, `counterAxisAlignItems=MIN`.
+- **Nested control is a real instance of another set** (Field embeds the Input set).
+  Coordinate it per variant by setting its variant props: Field `State=invalid` →
+  `inputInstance.setProperties({State:"invalid"})`, and Size likewise. Consumers can
+  still select the nested instance to configure it (nested props can't be exposed —
+  see above).
+- Colours come from `content/*` (label `content/primary`, helper `content/secondary`
+  → `content/error` red on invalid → `content/disabled`), not `action/*`.
+- Description + error collapse to **one helper-text slot whose colour changes by
+  state** (Figma has no conditional rendering — one slot beats two).
+- Axes are `State × Size` (no Variant/Filled/interaction). See the
+  `figma-arrange-component-set` skill for its single-col-axis arrange variant.
 
 ## 6. Verify
 
@@ -250,3 +309,18 @@ component. Quick summary:
   rebind walk. Static pixel values (icon size, icon position, explicit x/y)
   stay at source values. After clone-and-rebind, sweep these separately using
   the resolved `node.width`/`node.height`.
+- **`componentPropertyReferences` cannot be `null`** — to drop a reference set
+  it to `{}` (or a new object without that key). Assigning `null` throws
+  `"Expected object, received null"`.
+- **Build the golden at page root, not inside a WIP frame.** If you build the
+  first variant inside a working frame and later collect variants with
+  `page.children.filter(...)`, the nested golden is missed and propagation
+  silently skips it (you get N−1 per size). Reparent to the page, or collect
+  with `page.findOne`/`findAll` (deep), before cloning.
+- **Combining a *variant* strips property references — no INSTANCE_SWAP
+  corruption.** Cloning a Button **variant component** (not an instance) drops
+  its `componentPropertyReferences`, so the icon instances come over clean.
+  The old "binding mainComponent corrupts the instance" fear applies to
+  *instances*, not to variants cloned across sets — verify `refs:{}` and proceed.
+- **Match icon glyphs by `variantProperties`, not substring.** `name.includes("icon=eye")`
+  also matches `icon=eye-off`. Use `v.variantProperties.icon === "eye" && v.variantProperties.size === s`.

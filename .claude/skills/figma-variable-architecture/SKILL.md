@@ -231,9 +231,30 @@ Primary and danger borders mirror their background alias at each state.
 | Group | Notable tokens |
 | ----- | -------------- |
 | `surface/*` | `default/raised → color/neutral/50`, `overlay → color/neutral/900`, `inverse → color/neutral/800` |
-| `content/*` | `primary → color/neutral/900`, `inverse/on-action → color/white` |
-| `border/*` | `subtle/default/strong → neutral steps`, `focus → color/brand/500` |
+| `content/*` | `primary → color/neutral/900`, `secondary · muted · disabled → neutral steps`, `error → color/danger/500`, `inverse/on-action → color/white` |
+| `border/*` | `subtle/default/strong → neutral steps`, `focus → color/brand/500`, `invalid → color/danger/500` |
 | `focus/ring` | `color/brand/500` |
+
+#### Non-action controls use surface / border / content (not `action/*`)
+
+`action/*` tokens are for **buttons** (intent-coloured fills). Form-input controls
+— Input, Textarea, Select, and the Field wrapper — are **not actions**: they use
+the neutral semantic families instead. The Input set (the first such component)
+binds: fill → `surface/default` (disabled `surface/subtle`); stroke →
+`border/default` (hover `border/strong`, focus `border/focus`, invalid
+`border/invalid`); value text → `content/muted` (placeholder) / `content/primary`
+(value) / `content/disabled`. There is **no intent/Variant axis** — a single
+visual style.
+
+#### Danger-semantic tokens (`border/invalid`, `content/error`)
+
+Both alias `color/danger/500` in Light **and** Dark (the palette's own modes do the
+inversion — same pattern as every other Intent COLOR var). `border/invalid` is the
+red stroke on an invalid control; `content/error` is red text (error helper text,
+required `*`). Do **not** reuse a `border/*` token for text fill or an `action/danger/*`
+(button) token for a control border — those are semantically wrong. Created
+2026-05-31 for Input/Field; both backed up to `intent.json` by hand (the deterministic
+transform: `border.invalid` after `border.focus`, `content.error` after `content.on-action`).
 
 ### Primitives / Palette anchor variables
 
@@ -343,6 +364,29 @@ that component so Figma uses it as the **default instance**.
 
 > **Gotcha — Comfortable and Spacious copying Compact.** When label variables were first created, Comfortable and Spacious were left aliasing the same Primitives values as Compact. The tables above reflect the corrected values (fixed 2026-05-29). If you bootstrap a new file or re-run the Bootstrap context action, verify that each mode has distinct font-size values — the action may need updating to match these tables.
 
+> **Gotcha — what the font families actually resolve to.** `font-family/sans`
+> resolves to **Khand**, `font-family/serif` to **Asta Sans**. *Both are sans
+> faces* — "serif" is a misnomer (Asta Sans is the body/UI text font). So:
+> `label/*` → **Khand SemiBold** (the bold, condensed label/button face), and
+> `body/*` → **Asta Sans Regular** (the regular value/helper/input text face).
+> Before setting `characters` on a text node, `loadFontAsync` the *resolved*
+> face (`{family:"Khand",style:"SemiBold"}` or `{family:"Asta Sans",style:"Regular"}`),
+> not the variable name. This is why Input value text uses `body/*` (regular) and
+> Field labels use `label/*` (semibold).
+
+> **Gotcha — typography variable resolvedTypes are mixed.** When creating
+> typography variables, `font-family` and `font-style` are **STRING**, but
+> `font-weight`, `font-size`, and `line-height` are **FLOAT**. Creating a
+> `font-weight` variable as STRING (then aliasing the FLOAT primitive) throws
+> `"Mismatched variable resolved type for mode …"`. Pick the resolvedType per
+> field, not per "it's typography".
+
+> **`body/*` now runs xs–xl.** The body ramp originally stopped at `lg`;
+> `body/xl/*` was added 2026-05-31 (font-size/line-height mirror `label/xl` per
+> mode — Comfortable 22/36, Compact 20/32, Spacious 24/40, Dense 14/20 — family
+> serif, weight/style regular) so form controls have a body face at every size.
+> Backed up to `context.json` (`body.xl` in all four mode blocks).
+
 ## Text styles and mode overrides
 
 Text styles in Figma (`TextStyle`) **do not support `setExplicitVariableModeForCollection`** — the method does not exist on `BaseStyle`. This means text style variable bindings always resolve using the collection's **default mode** (Compact, modeId `369:9`) unless the text node sits inside a frame with a mode override.
@@ -356,6 +400,6 @@ Practical behaviour:
 
 **Typography variable paths in text styles** follow the same naming as in component anatomy:
 - `label/{xs–xl}/font-family`, `font-style`, `font-size`, `line-height`
-- `body/{xs–lg}/…`, `heading/{h1–h6}/…`, `display/{lg,xl}/…`, `overline/…`
+- `body/{xs–xl}/…`, `heading/{h1–h6}/…`, `display/{lg,xl}/…`, `overline/…`
 
 **Component label text nodes** (e.g. Button's "Button text") bind directly to Context collection variables inline — no text style applied. They respond correctly to frame mode overrides without any text style involvement.

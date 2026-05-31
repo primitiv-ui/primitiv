@@ -14,6 +14,8 @@ Existing scripts:
 - `arrange-button-component-set.js` — Button (Variant/Size/State) — 100 variants
 - `arrange-switch-component-set.js` — Switch (Size/State/Interaction) — 40 variants
 - `arrange-checkbox-component-set.js` — Checkbox (Size/State/Interaction) — 60 variants
+- `arrange-input-component-set.js` — Input (Size/State/Filled) — 50 variants; State major col × Filled sub-col, no Variant axis
+- `arrange-field-component-set.js` — Field (Size/State) — 15 variants; **single column axis** (State only, no sub-columns) — the minimal case
 
 ## Grid convention
 
@@ -97,13 +99,15 @@ across all components — do not change them.
 
 ### Mapping component dimensions to Button's Variant/State axes
 
-| Button axis | Meaning | Switch equivalent | Checkbox equivalent |
-|-------------|---------|-------------------|---------------------|
-| Variant | Visual intent (primary/secondary/…) | State (unchecked/checked) | State (unchecked/checked/indeterminate) |
-| State | Interaction state (default/hover/…) | Interaction (default/hover/…) | Interaction (default/hover/…) |
+| Button axis | Meaning | Switch equivalent | Checkbox equivalent | Input equivalent | Field equivalent |
+|-------------|---------|-------------------|---------------------|------------------|------------------|
+| Variant (major col) | Visual intent (primary/secondary/…) | State (unchecked/checked) | State (unchecked/checked/indeterminate) | State (default/hover/focus/disabled/invalid) | State (default/invalid/disabled) |
+| State (sub col) | Interaction state (default/hover/…) | Interaction (default/hover/…) | Interaction (default/hover/…) | Filled (empty/filled) | — *(none — single col axis)* |
 
 If a component has no Variant equivalent (e.g. a single-appearance toggle),
-collapse to one "group" — the major column axis just has one entry.
+collapse to one "group" — the major column axis just has one entry. And if there
+is no sub-column axis either (Field: State only), drop the inner loop entirely —
+`colX[state] = x; x += colMaxWidth[state]` with just `GAP_STATE` between columns.
 
 ## Running via figma_execute
 

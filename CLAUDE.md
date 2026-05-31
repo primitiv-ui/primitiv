@@ -136,9 +136,13 @@ keyword or by topic; do not paraphrase their content here.
   (2 modes: Light/Dark — aliases into `Primitives / Palette` which also has
   Light/Dark modes), `color/white` and `color/black` anchor variables, and
   the `color/white` rule (use for foreground-on-colour, not `color/neutral/50`).
+  Also: the `surface`/`border`/`content` families used by non-action controls
+  (Input/Field, no intent axis), the danger-semantic tokens (`border/invalid`,
+  `content/error`), the font-resolution gotcha (`sans`=Khand, `serif`=Asta Sans —
+  both sans), and the typography resolvedType gotcha (`font-weight` is FLOAT).
   TRIGGER when adding new variables, binding layer properties to tokens,
   extending framed-control to a new component, debugging focus ring geometry,
-  or working with text styles and mode overrides.
+  picking a token for a form-input control, or working with text styles and mode overrides.
 - **`figma-framed-control-component`** — end-to-end *playbook* for building or
   extending a framed-control component set in Figma (Button, Switch, Checkbox, …):
   pre-flight, anatomy, clone-and-rebind to add a variant/fill gaps, component-
@@ -146,11 +150,19 @@ keyword or by topic; do not paraphrase their content here.
   for token-driven dimensions, incremental audit loop, arrange + default-instance,
   verification, and build-time gotchas. **Density is frame-owned** — do NOT set
   explicit mode overrides on component variants (breaks consumer frame switching).
-  TRIGGER when building/extending/laying-out/auditing a framed-control set.
+  Also covers component-property wiring (booleans/text/INSTANCE_SWAP), the
+  **exposed-nested-property limitation** (`isExposedInstance` is a no-op via the
+  API — a clean top-level glyph dropdown is UI-only; the swap popover is the
+  scriptable ceiling), the single-shared-default TEXT-property rule, and
+  **non-framed compositions** (Field: vertical label + nested-control + helper,
+  state-coordinated nested instance, `content/*` colours). TRIGGER when
+  building/extending/laying-out/auditing a framed-control OR a form-field
+  composition, or wiring icon/text/swap properties on a set.
 - **`figma-arrange-component-set`** — canonical recipe for the arrange +
   label step: grid convention (size rows × variant/state cols, md first),
-  EDGE_PAD=8 focus-ring fix, re-run safety, name-based parsing, and how to
-  adapt the script template for any new component. No density rows — density
+  EDGE_PAD focus-ring fix, re-run safety, name-based parsing, and how to
+  adapt the script template for any new component — including single-column-axis
+  sets (Field: State only, no sub-columns). No density rows — density
   is a frame concern. TRIGGER when writing or running an arrange script,
   laying out a component set grid, or adding labels to a component set.
 - **`model-routing`** — Opus/Sonnet/Haiku decision tree.

@@ -15,13 +15,18 @@ Composite components (PaletteRamp, Swatch, etc.) are out of scope here.
 | Component | `@primitiv/react` | Figma design | Notes |
 |---|---|---|---|
 | Button | ✓ built | ✓ | Primary, secondary, ghost/link, and icon-only variants all appear |
-| Slider | ✓ built | needed | Horizontal (Padding control) and vertical (curve editors) |
-| Switch | ✓ built | needed | Step labels and A11y badges on/off toggles |
-| Toggle Group | ✓ built | needed | Layout, Shape, Naming, and Modes pill selectors |
-| Input | ✓ built | needed | Hex colour text inputs; pair with `InputGroup` for the leading colour-swatch slot |
+| Slider | ✓ built | ✓ | Horizontal (Padding control) and vertical (curve editors) |
+| Switch | ✓ built | ✓ | Step labels and A11y badges on/off toggles |
+| Toggle Group | ✓ built | ✓ | Layout, Shape, Naming, and Modes pill selectors |
+| Input | ✓ built | ✓ | Hex colour text inputs; pair with `InputGroup` for the leading colour-swatch slot |
 | Select | ✓ built (native) | needed | Workspace picker and Collection dropdown; Rich Select / Combobox tracked in [`docs/select-future-work.md`](docs/select-future-work.md) |
 
-Build priority: ~~Select (native)~~ → ~~Input~~ → ~~InputGroup~~ → ~~Field~~ → Figma design for the remaining four.
+"Figma design" = a Figma component set exists for the component. Select is the
+only one outstanding (native control, no Figma set yet). The Field wrapper
+(label + nested control + helper) also has a Figma set, though it is not one of
+the six base components above.
+
+Build priority: ~~Select (native)~~ → ~~Input~~ → ~~InputGroup~~ → ~~Field~~ → Figma design for Select.
 
 ## Components to build
 

@@ -206,6 +206,10 @@
       "on-action": {
         "$type": "color",
         "$value": "{color.white}"
+      },
+      "error": {
+        "$type": "color",
+        "$value": "{color.danger.500}"
       }
     },
     "border": {
@@ -224,6 +228,10 @@
       "focus": {
         "$type": "color",
         "$value": "{color.brand.500}"
+      },
+      "invalid": {
+        "$type": "color",
+        "$value": "{color.danger.500}"
       }
     },
     "focus": {
@@ -440,6 +448,10 @@
       "on-action": {
         "$type": "color",
         "$value": "{color.white}"
+      },
+      "error": {
+        "$type": "color",
+        "$value": "{color.danger.500}"
       }
     },
     "border": {
@@ -458,6 +470,10 @@
       "focus": {
         "$type": "color",
         "$value": "{color.brand.500}"
+      },
+      "invalid": {
+        "$type": "color",
+        "$value": "{color.danger.500}"
       }
     },
     "focus": {

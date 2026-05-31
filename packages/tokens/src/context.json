@@ -200,6 +200,28 @@
           "$type": "string",
           "$value": "{font-style.regular}"
         }
+      },
+      "xl": {
+        "font-family": {
+          "$type": "string",
+          "$value": "{font-family.serif}"
+        },
+        "font-weight": {
+          "$type": "number",
+          "$value": "{font-weight.regular}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.22}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.36}"
+        },
+        "font-style": {
+          "$type": "string",
+          "$value": "{font-style.regular}"
+        }
       }
     },
     "heading": {
@@ -1179,6 +1201,28 @@
         "line-height": {
           "$type": "number",
           "$value": "{line-height.28}"
+        },
+        "font-style": {
+          "$type": "string",
+          "$value": "{font-style.regular}"
+        }
+      },
+      "xl": {
+        "font-family": {
+          "$type": "string",
+          "$value": "{font-family.serif}"
+        },
+        "font-weight": {
+          "$type": "number",
+          "$value": "{font-weight.regular}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.20}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.32}"
         },
         "font-style": {
           "$type": "string",
@@ -2168,6 +2212,28 @@
           "$type": "string",
           "$value": "{font-style.regular}"
         }
+      },
+      "xl": {
+        "font-family": {
+          "$type": "string",
+          "$value": "{font-family.serif}"
+        },
+        "font-weight": {
+          "$type": "number",
+          "$value": "{font-weight.regular}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.24}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.40}"
+        },
+        "font-style": {
+          "$type": "string",
+          "$value": "{font-style.regular}"
+        }
       }
     },
     "heading": {
@@ -3147,6 +3213,28 @@
         "line-height": {
           "$type": "number",
           "$value": "{line-height.16}"
+        },
+        "font-style": {
+          "$type": "string",
+          "$value": "{font-style.regular}"
+        }
+      },
+      "xl": {
+        "font-family": {
+          "$type": "string",
+          "$value": "{font-family.serif}"
+        },
+        "font-weight": {
+          "$type": "number",
+          "$value": "{font-weight.regular}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.14}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.20}"
         },
         "font-style": {
           "$type": "string",

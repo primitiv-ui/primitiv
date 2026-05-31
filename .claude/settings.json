@@ -89,6 +89,7 @@
   },
   "env": {
     "PRIMITIV_REACT_PKG": "@primitiv/react",
-    "CLAUDE_PROJECT_NAME": "primitiv"
+    "CLAUDE_PROJECT_NAME": "primitiv",
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "80"
   }
 }

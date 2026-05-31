@@ -9,8 +9,6 @@
  *     Rows    → Size (md first, then xs sm lg xl)
  *     Columns → State (default / hover / focus / disabled)
  *
- * EDGE_PAD = 8 so focus-ring overflow (−4 px) never clips the component-set frame.
- *
  * Density is controlled by the containing frame's Context variable mode override.
  *
  * Property names and values match the live set exactly:
@@ -20,137 +18,188 @@
  *   State       = default | hover | focus | disabled
  *
  * ─── Usage ───────────────────────────────────────────────────────────────────
- * 1. Open Figma Desktop with the Primitiv Design System file on the Slider page.
- * 2. Paste this entire script into the developer console (Plugin → Developer tools).
- * 3. Run. Re-run is safe; it deletes the existing "Slider Grid Labels" group first.
+ *  1. Select the Slider component set on the canvas.
+ *  2. Open the developer console: Plugins → Development → Open console (⌘⌥I).
+ *  3. Click in the console input, type  allow pasting  and press Enter.
+ *  4. Paste this script and press Enter.
+ *  Re-run is safe; it deletes the existing "Slider Grid Labels" group first.
  * ─────────────────────────────────────────────────────────────────────────────
  */
+(async function () {
 
-(async () => {
-  const SLIDER_SET_ID = '391:4171';
-  const EDGE_PAD      = 8;
-  const H_CELL_W      = 200;
-  const H_CELL_H      = 32;
-  const V_CELL_W      = 32;
-  const V_CELL_H      = 200;
-  const COL_GAP       = 24;
-  const ROW_GAP       = 16;
-  const SECTION_GAP   = 48;
+  await figma.loadFontAsync({ family: "Inter", style: "Bold" });
+  await figma.loadFontAsync({ family: "Inter", style: "Regular" });
 
-  const ORIENTATIONS = ['Horizontal', 'Vertical'];
-  const VARIANTS     = ['Single', 'Range'];
-  const SIZE_ORDER   = ['md', 'xs', 'sm', 'lg', 'xl'];
-  const STATE_ORDER  = ['default', 'hover', 'focus', 'disabled'];
+  const SECTION_ORDER = [
+    { orient: "Horizontal", variant: "Single" },
+    { orient: "Horizontal", variant: "Range"  },
+    { orient: "Vertical",   variant: "Single" },
+    { orient: "Vertical",   variant: "Range"  },
+  ];
+  const SIZE_ORDER  = ["md", "xs", "sm", "lg", "xl"];
+  const STATE_ORDER = ["default", "hover", "focus", "disabled"];
 
-  const sliderSet = await figma.getNodeByIdAsync(SLIDER_SET_ID);
-  if (!sliderSet || sliderSet.type !== 'COMPONENT_SET') {
-    console.error('Slider component set not found at', SLIDER_SET_ID);
+  const GAP_STATE   = 32;   // gap between state columns within a section
+  const GAP_SIZE    = 20;   // gap between size rows within a section
+  const GAP_SECTION = 56;   // gap between sections
+  const EDGE_PAD    = 24;   // inset so ring overflow never clips the set frame
+
+  const componentSet = figma.currentPage.selection.find(n => n.type === "COMPONENT_SET");
+  if (!componentSet) {
+    console.error("Nothing selected. Select the Slider component set and re-run.");
     return;
   }
 
-  // ── Re-run safety: remove stale label group ────────────────────────────────
-  const staleLabels = figma.currentPage.findOne(n => n.name === 'Slider Grid Labels');
-  if (staleLabels) staleLabels.remove();
+  const valid = componentSet.children.filter(n => n.type === "COMPONENT");
+  console.log(`Found ${valid.length} variants in "${componentSet.name}".`);
 
-  // ── Compute section Y offsets ──────────────────────────────────────────────
-  const sectionHeight = (cellH) =>
-    SIZE_ORDER.length * (cellH + ROW_GAP) - ROW_GAP + SECTION_GAP;
-
-  const sectionOffsetY = (oIdx, vIdx) => {
-    let y = EDGE_PAD;
-    for (let oi = 0; oi < oIdx; oi++) {
-      const cellH = oi === 0 ? H_CELL_H : V_CELL_H;
-      y += VARIANTS.length * sectionHeight(cellH);
-    }
-    const cellH = oIdx === 0 ? H_CELL_H : V_CELL_H;
-    y += vIdx * sectionHeight(cellH);
-    return y;
-  };
-
-  // ── Position each variant ──────────────────────────────────────────────────
-  for (const comp of sliderSet.children) {
-    const o  = comp.name.match(/Orientation=(\w+)/)?.[1];
-    const va = comp.name.match(/Variant=(\w+)/)?.[1];
-    const si = comp.name.match(/Size=(\w+)/)?.[1];
-    const st = comp.name.match(/State=(\w+)/)?.[1];
-    if (!o || !va || !si || !st) continue;
-
-    const oIdx = ORIENTATIONS.indexOf(o);
-    const vIdx = VARIANTS.indexOf(va);
-    const sRow = SIZE_ORDER.indexOf(si);
-    const sCol = STATE_ORDER.indexOf(st);
-    if (oIdx < 0 || vIdx < 0 || sRow < 0 || sCol < 0) continue;
-
-    const isH  = o === 'Horizontal';
-    const cellW = isH ? H_CELL_W : V_CELL_W;
-    const cellH = isH ? H_CELL_H : V_CELL_H;
-
-    comp.x = EDGE_PAD + sCol * (cellW + COL_GAP);
-    comp.y = sectionOffsetY(oIdx, vIdx) + sRow * (cellH + ROW_GAP);
+  function parseProps(name) {
+    return {
+      orient:  name.match(/Orientation=(\w+)/)?.[1],
+      variant: name.match(/Variant=(\w+)/)?.[1],
+      size:    name.match(/Size=(\w+)/)?.[1],
+      state:   name.match(/State=(\w+)/)?.[1],
+    };
   }
 
-  // ── Resize set to fit content ──────────────────────────────────────────────
-  const totalW = EDGE_PAD + STATE_ORDER.length * (H_CELL_W + COL_GAP) - COL_GAP + EDGE_PAD;
-  const totalH = EDGE_PAD
-    + VARIANTS.length * sectionHeight(H_CELL_H)
-    + SECTION_GAP
-    + VARIANTS.length * sectionHeight(V_CELL_H);
-  sliderSet.resize(totalW, totalH);
+  // ── Per-section layout: compute column widths and row heights independently ──
+  // (H sliders are ~240 px wide; V sliders are ring-size wide — separate tables
+  //  prevent the V sections from having giant empty columns.)
 
-  // ── Default instance: H / Single / md / default ───────────────────────────
-  const defComp = sliderSet.children.find(
-    c => c.name === 'Orientation=Horizontal, Variant=Single, Size=md, State=default'
-  );
-  if (defComp) sliderSet.insertChild(0, defComp);
+  const sectionData = SECTION_ORDER.map(({ orient, variant }) => {
+    const comps = valid.filter(c => {
+      const p = parseProps(c.name);
+      return p.orient === orient && p.variant === variant;
+    });
 
-  // ── Generate row/column labels ─────────────────────────────────────────────
-  await figma.loadFontAsync({ family: 'Inter', style: 'Regular' });
+    const colW = {};   // state → max component width
+    const rowH = {};   // size  → max component height
+    for (const c of comps) {
+      const p = parseProps(c.name);
+      colW[p.state] = Math.max(colW[p.state] ?? 0, c.width);
+      rowH[p.size]  = Math.max(rowH[p.size]  ?? 0, c.height);
+    }
 
+    // Column X positions (relative to section left)
+    const colX = {};
+    let x = 0;
+    for (let i = 0; i < STATE_ORDER.length; i++) {
+      if (i > 0) x += GAP_STATE;
+      const s = STATE_ORDER[i];
+      colX[s] = x;
+      x += colW[s] ?? 0;
+    }
+    const sectionW = x;
+
+    // Row Y positions (relative to section top)
+    const rowY = {};
+    let y = 0;
+    for (let i = 0; i < SIZE_ORDER.length; i++) {
+      if (i > 0) y += GAP_SIZE;
+      const s = SIZE_ORDER[i];
+      rowY[s] = y;
+      y += rowH[s] ?? 0;
+    }
+    const sectionH = y;
+
+    return { orient, variant, comps, colX, rowY, colW, rowH, sectionW, sectionH };
+  });
+
+  // ── Assign absolute Y offsets per section ──────────────────────────────────
+  const HEADER_H  = 28;   // section header text height (reserved above each section)
+  const LABEL_Y   = 20;   // state label Y offset above section content
+
+  let globalY = 0;
+  const sectionTopY = sectionData.map(sd => {
+    const topY = globalY;
+    globalY += HEADER_H + sd.sectionH + GAP_SECTION;
+    return topY;
+  });
+
+  // Total width = widest section + 2 × EDGE_PAD + row label gutter
+  const LEFT_GUTTER = 40;
+  const totalW = Math.max(...sectionData.map(sd => sd.sectionW)) + EDGE_PAD + LEFT_GUTTER + EDGE_PAD;
+  const totalH = globalY - GAP_SECTION + EDGE_PAD * 2;
+  componentSet.resize(totalW, totalH);
+
+  // ── Place variants ──────────────────────────────────────────────────────────
+  let placed = 0, skipped = 0;
+  for (let si = 0; si < sectionData.length; si++) {
+    const sd   = sectionData[si];
+    const secY = EDGE_PAD + sectionTopY[si] + HEADER_H;
+    for (const c of sd.comps) {
+      const p = parseProps(c.name);
+      const cx = sd.colX[p.state];
+      const cy = sd.rowY[p.size];
+      if (cx !== undefined && cy !== undefined) {
+        c.x = EDGE_PAD + LEFT_GUTTER + cx;
+        c.y = secY + cy;
+        placed++;
+      } else {
+        console.warn(`Could not place: ${c.name}`);
+        skipped++;
+      }
+    }
+  }
+
+  // ── Default instance: H / Single / md / default (top-left) ────────────────
+  const defaultComp = valid.find(c => {
+    const p = parseProps(c.name);
+    return p.orient === "Horizontal" && p.variant === "Single" && p.size === "md" && p.state === "default";
+  });
+  if (defaultComp) componentSet.insertChild(0, defaultComp);
+
+  // ── Labels ─────────────────────────────────────────────────────────────────
+  const stale = figma.currentPage.findOne(n => n.name === "Slider Grid Labels");
+  if (stale) stale.remove();
+
+  const cx = componentSet.x;
+  const cy = componentSet.y;
   const labelNodes = [];
 
-  const makeLabel = (text, x, y, color = { r: 0.6, g: 0.6, b: 0.6 }) => {
+  function makeLabel(text, lx, ly, bold) {
     const t = figma.createText();
+    t.fontName = { family: "Inter", style: bold ? "Bold" : "Regular" };
+    t.fontSize = bold ? 12 : 11;
     t.characters = text;
-    t.fontSize = 10;
-    t.fills = [{ type: 'SOLID', color }];
-    t.x = sliderSet.x + x;
-    t.y = sliderSet.y + y;
+    t.x = cx + lx;
+    t.y = cy + ly;
+    figma.currentPage.appendChild(t);
     labelNodes.push(t);
-  };
+    return t;
+  }
 
-  // Column headers (state labels) — once above the first H-Single section
-  STATE_ORDER.forEach((state, sCol) => {
-    const isH = true;
-    const cellW = H_CELL_W;
-    makeLabel(
-      state,
-      EDGE_PAD + sCol * (cellW + COL_GAP),
-      EDGE_PAD - 14
-    );
-  });
+  for (let si = 0; si < sectionData.length; si++) {
+    const sd   = sectionData[si];
+    const secY = EDGE_PAD + sectionTopY[si];
+    const contentX = EDGE_PAD + LEFT_GUTTER;
+    const contentY = secY + HEADER_H;
 
-  // Section + row labels
-  ORIENTATIONS.forEach((orientation, oIdx) => {
-    VARIANTS.forEach((variant, vIdx) => {
-      const isH  = orientation === 'Horizontal';
-      const cellH = isH ? H_CELL_H : V_CELL_H;
-      const secY  = sectionOffsetY(oIdx, vIdx);
-      const secLabel = `${orientation} · ${variant}`;
-      makeLabel(secLabel, EDGE_PAD, secY - 16, { r: 0.3, g: 0.3, b: 0.3 });
+    // Section header
+    const headerText = `${sd.orient.toUpperCase()} / ${sd.variant.toUpperCase()}`;
+    makeLabel(headerText, contentX, secY + 6, true);
 
-      SIZE_ORDER.forEach((size, sRow) => {
-        makeLabel(
-          size,
-          EDGE_PAD - 20,
-          secY + sRow * (cellH + ROW_GAP) + cellH / 2 - 5
-        );
-      });
-    });
-  });
+    // State column labels
+    for (const state of STATE_ORDER) {
+      const colW = sd.colW[state] ?? 0;
+      const lbl  = makeLabel(state, 0, contentY - LABEL_Y, false);
+      lbl.x = cx + contentX + (sd.colX[state] ?? 0) + colW / 2 - lbl.width / 2;
+    }
 
-  // Group labels
+    // Size row labels
+    for (const size of SIZE_ORDER) {
+      const rH  = sd.rowH[size] ?? 0;
+      const mid = contentY + (sd.rowY[size] ?? 0) + rH / 2;
+      const lbl = makeLabel(size, 0, 0, false);
+      lbl.x = cx + EDGE_PAD;
+      lbl.y = cy + mid - lbl.height / 2;
+    }
+  }
+
   const labelGroup = figma.group(labelNodes, figma.currentPage);
-  labelGroup.name = 'Slider Grid Labels';
+  labelGroup.name  = "Slider Grid Labels";
 
-  console.log(`Slider component set arranged: ${sliderSet.children.length} variants.`);
-})();
+  figma.viewport.scrollAndZoomIntoView([componentSet, labelGroup]);
+  console.log(`Done. Placed ${placed}${skipped ? `, skipped ${skipped}` : ""}.`);
+
+})().catch(err => console.error("Script error:", err.message));

@@ -228,11 +228,11 @@
     }
   },
   "font-family": {
-    "sans": {
+    "heading": {
       "$type": "string",
       "$value": "Khand"
     },
-    "serif": {
+    "text": {
       "$type": "string",
       "$value": "Asta Sans"
     }

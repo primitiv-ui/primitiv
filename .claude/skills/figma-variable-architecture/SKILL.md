@@ -364,15 +364,18 @@ that component so Figma uses it as the **default instance**.
 
 > **Gotcha — Comfortable and Spacious copying Compact.** When label variables were first created, Comfortable and Spacious were left aliasing the same Primitives values as Compact. The tables above reflect the corrected values (fixed 2026-05-29). If you bootstrap a new file or re-run the Bootstrap context action, verify that each mode has distinct font-size values — the action may need updating to match these tables.
 
-> **Gotcha — what the font families actually resolve to.** `font-family/sans`
-> resolves to **Khand**, `font-family/serif` to **Asta Sans**. *Both are sans
-> faces* — "serif" is a misnomer (Asta Sans is the body/UI text font). So:
-> `label/*` → **Khand SemiBold** (the bold, condensed label/button face), and
-> `body/*` → **Asta Sans Regular** (the regular value/helper/input text face).
-> Before setting `characters` on a text node, `loadFontAsync` the *resolved*
-> face (`{family:"Khand",style:"SemiBold"}` or `{family:"Asta Sans",style:"Regular"}`),
-> not the variable name. This is why Input value text uses `body/*` (regular) and
-> Field labels use `label/*` (semibold).
+> **Gotcha — what the font families actually resolve to.** `font-family/heading`
+> resolves to **Khand**, `font-family/text` to **Asta Sans**. *Both are sans
+> faces* — Khand is the condensed display/heading/label face, Asta Sans the
+> body/UI text face. (Renamed from `sans`/`serif` on 2026-05-31 — `serif` was a
+> misnomer since neither face is a serif.) So: `label/*` → **Khand SemiBold**
+> (the bold, condensed label/button face), and `body/*` → **Asta Sans Regular**
+> (the regular value/helper/input text face). Before setting `characters` on a
+> text node, `loadFontAsync` the *resolved* face (`{family:"Khand",style:"SemiBold"}`
+> or `{family:"Asta Sans",style:"Regular"}`), not the variable name. This is why
+> Input value text uses `body/*` (regular) and Field labels use `label/*` (semibold).
+> Note `font-family/heading` (Khand) backs not just headings but labels, display,
+> and overline too — the name reflects its most prominent role, not its only one.
 
 > **Gotcha — typography variable resolvedTypes are mixed.** When creating
 > typography variables, `font-family` and `font-style` are **STRING**, but
@@ -394,9 +397,9 @@ Text styles in Figma (`TextStyle`) **do not support `setExplicitVariableModeForC
 Practical behaviour:
 - **Text node in a frame with `Context → Dense` override**: the bound variable resolves to the Dense mode value — correct.
 - **Text style panel preview**: always shows the default mode (Compact) regardless of the style's intended density. This is a Figma limitation, not a bug.
-- **Canonical text styles** (72 total, 18 per density): `Dense / Label / md`, `Comfortable / Body / lg`, etc. All bound to the unified Context collection. The density in the style name is the *intended* use context, not an enforced mode.
+- **Canonical text styles** (76 total, 19 per density): `Dense / Label / md`, `Comfortable / Body / lg`, etc. All bound to the unified Context collection. The density in the style name is the *intended* use context, not an enforced mode. (`Body / xl` per density added 2026-05-31 alongside the `body/xl/*` variables — Body now runs xs–xl like Label.)
 
-**Critical: all 72 text styles bind to the same underlying variables.** `Dense / Label / md` and `Comfortable / Label / md` both bind their `fontSize` to the single `label/md/font-size` variable — there is no separate per-density variable. The density prefix in the style name is documentation only. In the Figma style panel, all four density variants of a given role/size will show identical values (the Compact default). They only render differently when the text node sits inside a frame that has a mode override applied — at which point the shared variable resolves to the correct density value.
+**Critical: all 76 text styles bind to the same underlying variables.** `Dense / Label / md` and `Comfortable / Label / md` both bind their `fontSize` to the single `label/md/font-size` variable — there is no separate per-density variable. The density prefix in the style name is documentation only. In the Figma style panel, all four density variants of a given role/size will show identical values (the Compact default). They only render differently when the text node sits inside a frame that has a mode override applied — at which point the shared variable resolves to the correct density value.
 
 **Typography variable paths in text styles** follow the same naming as in component anatomy:
 - `label/{xs–xl}/font-family`, `font-style`, `font-size`, `line-height`

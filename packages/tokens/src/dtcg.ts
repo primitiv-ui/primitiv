@@ -60,7 +60,7 @@ export type AliasResolver = (variableId: string) => string[]
  *
  * Variables whose `variableCollectionId` does not match are skipped, so
  * callers can pass the full variable list. Slash-separated names become
- * nested objects (`font-family/sans` → `{ "font-family": { sans: {…} } }`).
+ * nested objects (`font-family/heading` → `{ "font-family": { heading: {…} } }`).
  * Values are read from the collection's `defaultModeId`; multi-mode
  * support is deferred until DTCG token sets land.
  *

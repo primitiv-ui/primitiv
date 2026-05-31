@@ -19,10 +19,13 @@ These are the repo copy. The Figma variables are the live source of truth, but t
 
 ## Typography — font families
 
-| Token               | Family        | Use for                                     |
-| ------------------- | ------------- | ------------------------------------------- |
-| `font-family.sans`  | **Khand**     | Headings, UI labels, overlines, button text |
-| `font-family.serif` | **Asta Sans** | Body text, descriptive copy, sub-labels     |
+| Token                  | Family        | Use for                                     |
+| ---------------------- | ------------- | ------------------------------------------- |
+| `font-family.heading`  | **Khand**     | Headings, UI labels, overlines, button text |
+| `font-family.text`     | **Asta Sans** | Body text, descriptive copy, sub-labels     |
+
+> Renamed from `sans`/`serif` on 2026-05-31 — neither face is a serif. Khand is
+> the condensed heading/label/display face; Asta Sans is the body/UI text face.
 
 **Never use Inter in wireframes.** Inter is not in the design system.
 

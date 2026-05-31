@@ -108,8 +108,8 @@ backup "real".
 
 ## Conventions
 
-- Slash-separated Figma variable names (`font-family/sans`) become
-  nested DTCG groups (`{ "font-family": { "sans": {…} } }`).
+- Slash-separated Figma variable names (`font-family/heading`) become
+  nested DTCG groups (`{ "font-family": { "heading": {…} } }`).
 - Each token has `$type` and `$value`. Aliases (next cycle) will use
   DTCG's `{group.sub.name}` reference string.
 - Colours emit as hex: `#rrggbb` opaque, `#rrggbbaa` translucent.

@@ -24,7 +24,7 @@ describe('collectionToDtcg', () => {
     const result = collectionToDtcg(PRIMITIVES, [
       variable({
         id: 'v1',
-        name: 'font-family/sans',
+        name: 'font-family/heading',
         resolvedType: 'STRING',
         valuesByMode: { m1: 'Asta Sans' },
       }),
@@ -32,7 +32,7 @@ describe('collectionToDtcg', () => {
 
     expect(result).toEqual({
       'font-family': {
-        sans: { $type: 'string', $value: 'Asta Sans' },
+        heading: { $type: 'string', $value: 'Asta Sans' },
       },
     })
   })
@@ -109,13 +109,13 @@ describe('collectionToDtcg', () => {
     const result = collectionToDtcg(PRIMITIVES, [
       variable({
         id: 'v1',
-        name: 'font-family/sans',
+        name: 'font-family/heading',
         resolvedType: 'STRING',
         valuesByMode: { m1: 'Asta Sans' },
       }),
       variable({
         id: 'v2',
-        name: 'font-family/serif',
+        name: 'font-family/text',
         resolvedType: 'STRING',
         valuesByMode: { m1: 'Crimson Pro' },
       }),
@@ -129,8 +129,8 @@ describe('collectionToDtcg', () => {
 
     expect(result).toEqual({
       'font-family': {
-        sans: { $type: 'string', $value: 'Asta Sans' },
-        serif: { $type: 'string', $value: 'Crimson Pro' },
+        heading: { $type: 'string', $value: 'Asta Sans' },
+        text: { $type: 'string', $value: 'Crimson Pro' },
       },
       'font-size': {
         '40': { $type: 'number', $value: 40 },
@@ -142,7 +142,7 @@ describe('collectionToDtcg', () => {
     const result = collectionToDtcg(PRIMITIVES, [
       variable({
         id: 'v1',
-        name: 'font-family/sans',
+        name: 'font-family/heading',
         resolvedType: 'STRING',
         valuesByMode: { m1: 'Asta Sans' },
       }),
@@ -157,7 +157,7 @@ describe('collectionToDtcg', () => {
 
     expect(result).toEqual({
       'font-family': {
-        sans: { $type: 'string', $value: 'Asta Sans' },
+        heading: { $type: 'string', $value: 'Asta Sans' },
       },
     })
   })
@@ -175,7 +175,7 @@ describe('collectionToDtcg', () => {
       [
         variable({
           id: 'v1',
-          name: 'font-family/sans',
+          name: 'font-family/heading',
           resolvedType: 'STRING',
           valuesByMode: { m1: 'ignored', m2: 'Asta Sans' },
         }),
@@ -184,7 +184,7 @@ describe('collectionToDtcg', () => {
 
     expect(result).toEqual({
       'font-family': {
-        sans: { $type: 'string', $value: 'Asta Sans' },
+        heading: { $type: 'string', $value: 'Asta Sans' },
       },
     })
   })
@@ -223,7 +223,7 @@ describe('collectionToDtcg', () => {
       const result = collectionToDtcg(PRIMITIVES, [
         variable({
           id: 'v1',
-          name: 'font-family/sans',
+          name: 'font-family/heading',
           resolvedType: 'STRING',
           valuesByMode: { m1: 'Asta Sans' },
         }),
@@ -237,8 +237,8 @@ describe('collectionToDtcg', () => {
 
       expect(result).toEqual({
         'font-family': {
-          sans: { $type: 'string', $value: 'Asta Sans' },
-          default: { $type: 'string', $value: '{font-family.sans}' },
+          heading: { $type: 'string', $value: 'Asta Sans' },
+          default: { $type: 'string', $value: '{font-family.heading}' },
         },
       })
     })
@@ -267,7 +267,7 @@ describe('collectionToDtcg', () => {
 
     it('uses the resolver to look up an alias that targets another collection', () => {
       const resolveAlias = (id: string): string[] => {
-        if (id === 'primitives-v1') return ['font-family', 'sans']
+        if (id === 'primitives-v1') return ['font-family', 'heading']
         throw new Error(`unexpected lookup ${id}`)
       }
 
@@ -299,7 +299,7 @@ describe('collectionToDtcg', () => {
           xl: {
             'font-family': {
               $type: 'string',
-              $value: '{font-family.sans}',
+              $value: '{font-family.heading}',
             },
           },
         },
@@ -377,11 +377,11 @@ describe('figmaVarsToDtcg', () => {
   it('routes a Primitives variable into primitives without a prefix', () => {
     const result = figmaVarsToDtcg(
       [PRIMITIVES_COLL],
-      [{ id: 'v1', name: 'font-family/sans', resolvedType: 'STRING', variableCollectionId: 'cp', valuesByMode: { mp: 'Asta Sans' } }],
+      [{ id: 'v1', name: 'font-family/heading', resolvedType: 'STRING', variableCollectionId: 'cp', valuesByMode: { mp: 'Asta Sans' } }],
     )
 
     expect(result.primitives).toEqual({
-      'font-family': { sans: { $type: 'string', $value: 'Asta Sans' } },
+      'font-family': { heading: { $type: 'string', $value: 'Asta Sans' } },
     })
     expect(result.palette).toEqual({})
     expect(result.intent).toEqual({})
@@ -536,13 +536,13 @@ describe('figmaVarsToDtcg', () => {
         { id: 'cx', name: 'Mystery', modes: [{ modeId: 'mx', name: 'Value' }], defaultModeId: 'mx' },
       ],
       [
-        { id: 'v1', name: 'font-family/sans', resolvedType: 'STRING', variableCollectionId: 'cp', valuesByMode: { mp: 'Asta Sans' } },
+        { id: 'v1', name: 'font-family/heading', resolvedType: 'STRING', variableCollectionId: 'cp', valuesByMode: { mp: 'Asta Sans' } },
         { id: 'v2', name: 'orphan/token',     resolvedType: 'STRING', variableCollectionId: 'cx', valuesByMode: { mx: 'ignored' } },
       ],
     )
 
     expect(result.primitives).toEqual({
-      'font-family': { sans: { $type: 'string', $value: 'Asta Sans' } },
+      'font-family': { heading: { $type: 'string', $value: 'Asta Sans' } },
     })
     expect(result).toEqual(expect.objectContaining({ palette: {}, intent: {}, context: {}, interaction: {} }))
   })

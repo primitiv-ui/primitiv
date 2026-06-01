@@ -165,6 +165,13 @@ keyword or by topic; do not paraphrase their content here.
   sets (Field: State only, no sub-columns). No density rows — density
   is a frame concern. TRIGGER when writing or running an arrange script,
   laying out a component set grid, or adding labels to a component set.
+- **`figma-component-descriptions`** — schema and process for writing the
+  `description` field on every Figma component set — the primary way an agent
+  understands a component (axes, tokens, properties, pairing) without touching
+  the canvas. Contains the canonical description for every current component.
+  Mandatory last step after any component build or update. TRIGGER when
+  finishing a component design, checking whether descriptions are complete, or
+  building a layout from existing components.
 - **`model-routing`** — Opus/Sonnet/Haiku decision tree.
 
 ## Slash commands

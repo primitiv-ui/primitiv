@@ -97,7 +97,7 @@ Axes: Variant primary|secondary|danger|link · Size xs|sm|md|lg|xl · State defa
 Tokens: fill/stroke/fg → action/{variant}/* per state
         sizing → framed-control/{size}/height|padding-inline|gap|radius
 
-Properties: Label (TEXT "Button") · Show leading icon (BOOL true) · Leading icon (SWAP) · Show trailing icon (BOOL false) · Trailing icon (SWAP)
+Properties: Label (TEXT "Button text") · Leading Icon (BOOL true) · Leading Icon Instance (SWAP) · Trailing Icon (BOOL true) · Trailing Icon Instance (SWAP)
 
 Density: Context mode override on parent frame
 Notes: link variant has no fill or stroke; focus ring is brand teal on all variants; disabled uses action/*/disabled tokens

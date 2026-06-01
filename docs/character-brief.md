@@ -17,26 +17,41 @@ So this brief is organised as one stated *position* per axis, and a
 pointer to the token(s) that express it. An axis without a token that
 encodes its opinion is an axis we haven't really committed to yet.
 
-## Ethos — first principles (to develop)
+## Ethos — first principles (developing)
 
-The per-axis positions below should ladder up to a small set of first
-principles — the *why* behind the choices. This section is a parking
-lot for that conversation, not a finished statement. Threads to pull
-on next:
+The per-axis positions below should ladder up to this small set of
+first principles — the *why* behind the choices. Still being refined,
+but the spine is taking shape:
 
-- **Proportion as a through-line.** Density is not just a sizing
-  convenience; it expresses a belief that *proportional control* is a
-  first-class feature of the system, controllable globally and per
-  component.
+- **Harmonious, accessible colour.** The engine is named *Harmoni* for
+  a reason: colour relationships should be harmonious *and* accessible
+  by construction — palettes generated to hold their perceptual
+  relationships and contrast, not hand-picked and spot-checked after
+  the fact.
+- **OKLCH-first, perceptually uniform colour.** Harmoni's Rust core
+  works in OKLCH because it is perceptually uniform — equal numeric
+  steps read as equal perceptual steps, and lightness / chroma stay
+  truthful across hues in a way HSL and raw sRGB do not. Colour
+  decisions reason in OKLCH first; sRGB hex is an *output*, not the
+  model. *Constraint:* Figma cannot yet store OKLCH as variable
+  values, so the tokens in the file are sRGB approximations of an
+  OKLCH-native intent — a known gap we are working toward closing. A
+  future, more advanced Harmoni colour picker will align with this.
+- **Mathematical proportion as a through-line.** Colour is not the
+  only thing derived rather than hand-placed: spacing, type scale,
+  radius, and density flow from proportional relationships too.
+  *Proportional control* is therefore a first-class feature — the
+  four-mode density axis is the visible edge of it — adjustable
+  globally and, where needed, per component.
 - **Cross-environment translation.** The identity must survive the
   jump from Figma to the Web (and beyond) — the tokens, not the
   canvas, are the source of truth.
-- **The library / tool relationship.** How `@primitiv/react`,
-  `@primitiv/tokens`, and Harmoni express one coherent ethos rather
-  than three separate concerns.
+- **One coherent ethos across the stack.** `@primitiv/react`,
+  `@primitiv/tokens`, and Harmoni are three expressions of the same
+  principles, not three separate concerns.
 
-> Owner to expand. Once written, every axis position should trace back
-> to one of these principles; any that doesn't is suspect.
+> Once settled, every axis position should trace back to one of these
+> principles; any that doesn't is suspect.
 
 ## Axis summary
 
@@ -153,6 +168,11 @@ read weakly on dark surfaces).
 in Harmoni and backed up via the sync plugin, so the values in the
 repo are *volatile snapshots*, not a decision. Resist treating the
 current teal as fixed. This gets its own dedicated session later.
+
+The exploration is **OKLCH-native** (see Ethos): we reason about the
+primary in OKLCH and the synced Figma token is its sRGB approximation,
+not the canonical value — so judging the colour by the hex in the file
+is judging the lossy copy.
 
 Note the coupling with the focus ring below: if the ring stays
 brand-anchored, every primary experiment moves the ring too.

@@ -246,6 +246,35 @@ binds: fill → `surface/default` (disabled `surface/subtle`); stroke →
 (value) / `content/disabled`. There is **no intent/Variant axis** — a single
 visual style.
 
+#### Overlay / surface components — `dropdown/*` pattern in Context
+
+Dropdown menus, popovers, and similar surface components are also **not framed controls** — they contain items rather than being interactive controls themselves. Their sizing lives in component-specific namespaces within the unified `Context` collection, not under `framed-control/*`.
+
+The `dropdown/*` namespace (10 tokens, added 2026-06-01) is the established pattern:
+
+| Token group | Tokens |
+| --- | --- |
+| `dropdown/item/*` | `height`, `padding-inline`, `gap`, `icon-size`, `radius` |
+| `dropdown/label/*` | `height`, `padding-inline` |
+| `dropdown/separator/*` | `spacing` |
+| `dropdown/panel/*` | `padding-block`, `radius` |
+
+Bindings: item-type frames bind `height`, `paddingLeft/Right`, `itemSpacing`, `cornerRadius` to `dropdown/item/*`. The Panel binds its padding and radius to `dropdown/panel/*`. Item text uses `body/sm/*` (Asta Sans Regular); the group Label header uses `label/xs/*` (Khand SemiBold — the face contrast creates hierarchy).
+
+Future surface components (Tooltip, Popover, Context Menu, Command Palette) should follow this same `<component>/*` namespace-in-Context pattern.
+
+#### Planned: `elevation/*` variables for drop shadows
+
+Drop shadows on surface components (Panel, Tooltip, Dialog, etc.) are currently hardcoded effects. **Elevation variables have not yet been created.** When they are, they should live in a dedicated collection or under `Primitives`, covering at minimum three levels:
+
+| Level | Use case | Y | Blur | Alpha |
+| --- | --- | --- | --- | --- |
+| `elevation/sm` | Cards, raised elements | 2 | 4 | 0.08 |
+| `elevation/md` | Dropdowns, popovers | 4 | 16 | 0.12 |
+| `elevation/lg` | Dialogs, modals | 8 | 24 | 0.16 |
+
+The Dropdown Panel (`elevation/md`) is the first consumer — its current hardcoded shadow `rgba(0,0,0,0.12)` y=4 blur=16 maps exactly to that slot. Once elevation variables exist, rebind the Panel's effect `boundVariables` (color, radius, offsetY) accordingly.
+
 #### Danger-semantic tokens (`border/invalid`, `content/error`)
 
 Both alias `color/danger/500` in Light **and** Dark (the palette's own modes do the

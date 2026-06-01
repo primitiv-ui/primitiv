@@ -173,7 +173,7 @@ Tokens: fill → surface/default (disabled: surface/subtle)
         text → content/muted (empty) · content/primary (filled) · content/disabled
         sizing → framed-control/{size}/*; typography → body/{size}/* (Asta Sans Regular)
 
-Properties: Value (TEXT "Enter text…") · Show leading icon (BOOL) · Leading icon (SWAP user) · Show trailing icon (BOOL) · Trailing icon (SWAP eye)
+Properties: Value (TEXT "Placeholder") · Leading Icon (BOOL true) · Leading Icon Instance (SWAP user) · Trailing Icon (BOOL true) · Trailing Icon Instance (SWAP eye)
 
 Density: Context mode override on parent frame
 Pairs with: Field (wrapper), InputGroup (for leading colour-swatch slot)

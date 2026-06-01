@@ -63,16 +63,20 @@ Notes: [non-obvious design decisions, constraints, gotchas]
 ## Setting a description via figma_execute
 
 ```js
-// Single component set
+// IMPORTANT: navigate to the component's own page first — cross-page writes
+// via getNodeByIdAsync alone do NOT persist.
+await figma.loadAllPagesAsync();
+const page = figma.root.children.find(p => p.name === 'Select');
+await figma.setCurrentPageAsync(page);
+
 const set = await figma.getNodeByIdAsync('403:1883');
 set.description = `[description text]`;
-
-// Standalone component (non-set)
-const comp = await figma.getNodeByIdAsync('402:18499');
-comp.description = `[description text]`;
 ```
 
-Descriptions live on the node itself — they survive renames and moves. Use template literals for multi-line text.
+When writing descriptions for multiple components across different pages, group
+by page and call `setCurrentPageAsync` before each group. Descriptions live on
+the node itself — they survive renames and moves. Use template literals for
+multi-line text.
 
 ---
 

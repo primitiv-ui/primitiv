@@ -10,7 +10,7 @@ description: Architecture of the Figma variable collections — collection hiera
 | Figma collection name        | Modes          | DTCG output file  | Path prefix in DTCG           | Purpose                                               |
 | ---------------------------- | -------------- | ----------------- | ----------------------------- | ----------------------------------------------------- |
 | `Primitives`                 | single         | `primitives.json` | (none)                        | Raw scale values: radii, spacing, colour, typography  |
-| `Primitives / Palette`       | Light, Dark    | `primitives.json` | (none)                        | Colour ramps: brand, neutral, danger, white, black    |
+| `Primitives / Palette`       | Light, Dark    | `primitives.json` | (none)                        | Colour ramps: brand, neutral, danger, white, black; plus absolute-white/black constants (excluded from DTCG) |
 | `Semantic`                   | single         | `semantic.json`   | (none)                        | Named decisions: typography scales, anatomy patterns  |
 | `Intent` (2 modes)           | Light, Dark    | `semantic.json`   | `color.<modeName>`            | Semantic colour decisions: action, surface, content   |
 | `Context` (4 modes)          | Dense–Spacious | `semantic.json`   | `context.<modeName>`          | Component sizing for all 4 densities                  |
@@ -192,7 +192,7 @@ Collection: `Intent` — two modes: **Light** and **Dark**.
 
 Action tokens encode colour decisions for interactive controls by intent. All aliases point into `Primitives / Palette` by variable name; the palette's own Light/Dark modes resolve the actual colour value. Both Intent modes use identical alias targets — the palette modes handle the colour difference.
 
-**Important:** `action/*/foreground/default` and `content/inverse` and `content/on-action` alias `color/white` (the user-defined soft white anchor), **not** `color/neutral/50`. `color/neutral/50` is tinted by the neutral ramp and inverts in dark mode — wrong for text on coloured surfaces. `color/white` is the raw user-chosen white anchor in both modes.
+**Important:** `action/*/foreground/default` and `content/on-action` alias `color/absolute-white` (#FFFFFF), **not** `color/white` and not `color/neutral/50`. `color/white` is Harmoni's palette white-point (a soft, potentially tinted off-white, e.g. `#ebebeb`) — wrong for text on coloured surfaces where true white is required. `color/absolute-white` is a design-system constant that Harmoni never writes and the sync plugin excludes from DTCG export. See "Primitives / Palette anchor variables" below.
 
 ### Token structure per intent
 
@@ -208,9 +208,9 @@ Filled-button intents (primary, secondary, danger) each have three groups:
 
 | Intent | default bg | hover bg | active bg | disabled bg | foreground/default |
 | ------ | ---------- | -------- | --------- | ----------- | ------------------ |
-| primary | `color/brand/500` | `color/brand/600` | `color/brand/700` | `color/brand/200` | `color/white` |
+| primary | `color/brand/500` | `color/brand/600` | `color/brand/700` | `color/brand/200` | `color/absolute-white` |
 | secondary | `color/neutral/100` | `color/neutral/200` | `color/neutral/300` | `color/neutral/50` | `color/neutral/900` |
-| danger | `color/danger/500` | `color/danger/600` | `color/danger/700` | `color/danger/200` | `color/white` |
+| danger | `color/danger/500` | `color/danger/600` | `color/danger/700` | `color/danger/200` | `color/absolute-white` |
 
 Secondary border: `neutral/300` default → `neutral/400` hover → `neutral/500` active → `neutral/200` disabled.
 Primary and danger borders mirror their background alias at each state.
@@ -231,7 +231,7 @@ Primary and danger borders mirror their background alias at each state.
 | Group | Notable tokens |
 | ----- | -------------- |
 | `surface/*` | `default/raised → color/neutral/50`, `overlay → color/neutral/900`, `inverse → color/neutral/800` |
-| `content/*` | `primary → color/neutral/900`, `secondary · muted · disabled → neutral steps`, `error → color/danger/500`, `inverse/on-action → color/white` |
+| `content/*` | `primary → color/neutral/900`, `secondary · muted · disabled → neutral steps`, `error → color/danger/500`, `on-action → color/absolute-white`, `inverse → color/white` |
 | `border/*` | `subtle/default/strong → neutral steps`, `focus → color/brand/500`, `invalid → color/danger/500` |
 | `focus/ring` | `color/brand/500` |
 
@@ -287,7 +287,16 @@ transform: `border.invalid` after `border.focus`, `content.error` after `content
 
 ### Primitives / Palette anchor variables
 
-`color/white` and `color/black` are special single-step variables (no step suffix) written by the Harmoni plugin when "Write white & black" is checked. They store the user-chosen soft white and soft black — the raw colour picker values, not derived or tinted. Both modes hold the same value (white is white in light and dark). Components and intent tokens that need a true white/black reference these rather than `color/neutral/50` or `color/neutral/900`.
+There are two distinct categories of white/black in the palette — do not confuse them:
+
+| Variable | Written by Harmoni | DTCG export | What it is |
+| --- | --- | --- | --- |
+| `color/white` | ✓ (when "Write white & black" checked) | ✓ | Palette white-point — the user-chosen soft white, e.g. `#ebebeb`. May be tinted/off-white. Same value in Light and Dark. |
+| `color/black` | ✓ | ✓ | Palette black-point — the user-chosen soft black, e.g. `#141414`. May be near-black. Same value in both modes. |
+| `color/absolute-white` | ✗ (never touched by Harmoni) | ✗ (excluded from DTCG backup) | Pure `#FFFFFF`. Design-system constant. |
+| `color/absolute-black` | ✗ | ✗ | Pure `#000000`. Design-system constant. |
+
+**Rule:** use `color/absolute-white` for any token that must be true white regardless of the palette (foreground on coloured action surfaces: `action/primary/foreground/default`, `action/danger/foreground/default`, `content/on-action`). Use `color/white` only where the palette's white-point is semantically appropriate (e.g. `content/inverse` — inverse text on a dark surface, where the soft white reads fine). Never use `color/neutral/50` for foreground-on-colour — it inverts in dark mode and is palette-tinted.
 
 ## Adding a new framed-control property
 

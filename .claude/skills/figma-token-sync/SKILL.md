@@ -105,6 +105,13 @@ continues without it. This means legacy collections left over in Figma
 (e.g. old `Semantic`, `Components`, or per-density `Context / *`
 collections) are ignored rather than crashing the export.
 
+**Palette constants exclusion** — `color/absolute-white` and
+`color/absolute-black` are design-system constants that Harmoni never
+writes. They are excluded from the `Primitives / Palette` backup via the
+`PALETTE_CONSTANTS` set passed to `collectionToDtcg` in `figmaVarsToDtcg`.
+Do not remove this exclusion — if these variables were exported, a future
+Harmoni sync import could overwrite them with palette-relative values.
+
 **Renaming or adding a collection** that you want routed: add it to
 the multi-mode block or the `singleMode` whitelist filter in
 `figmaVarsToDtcg`, add a route to `routeCollection` if single-mode,

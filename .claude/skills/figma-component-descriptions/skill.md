@@ -115,7 +115,7 @@ Axes: Size xs|sm|md|lg|xl · State unchecked|checked · Interaction default|hove
 Tokens: track fill → action/secondary/* (unchecked) · action/primary/* (checked)
         sizing → switch/{size}/track-width|track-height|thumb-size|thumb-margin (Context collection)
 
-Properties: (none — all behaviour via Axes)
+Properties: Focus ring (BOOL false)
 
 Density: Context mode override on parent frame
 Notes: thumb position driven by paddingLeft/Right on auto-layout track; focus ring is circular (radius 9999); disabled uses 50% frame opacity
@@ -210,7 +210,7 @@ Axes: Orientation Horizontal|Vertical · Variant Single|Range · Size xs|sm|md|l
 Tokens: track fill → action/secondary/* (inactive) · action/primary/* (active/filled portion)
         sizing → slider/{size}/track-height|track-width (Context collection)
 
-Properties: (none — compose with Slider/Thumb overlaid on track)
+Properties: Show fill (BOOL true)
 
 Density: Context mode override on parent frame
 Pairs with: Slider/Thumb (always used together)
@@ -248,11 +248,33 @@ Tokens: off → action/secondary/* (neutral fill/border/fg)
         on  → action/primary/* (brand fill/border/white fg)
         sizing → framed-control/{size}/*
 
-Properties: Label (TEXT "Toggle") · Show leading icon (BOOL) · Leading icon (SWAP)
+Properties: Label (TEXT "Toggle") · Leading Icon (BOOL true) · Leading Icon Instance (SWAP)
 
 Density: Context mode override on parent frame
 Pairs with: Toggle Group (Position=start|middle|end for grouped pill selectors)
 Notes: Position controls corner-radius clamping at group edges; standalone has full radius on all corners
+```
+
+### Toggle Group — `389:3372`
+
+```
+Horizontal group of Toggle buttons for mutually-exclusive or multi-select pill navigation.
+
+Type: non-framed composition
+
+Axes: Count 2|3|4|5 · Size xs|sm|md|lg|xl
+
+Tokens: individual Toggles inherit action/primary/* (on) · action/secondary/* (off); sizing → framed-control/{size}/*
+
+Properties: Item 1 · Label (TEXT "Item 1") · Item 1 · Leading Icon (BOOL false)
+            Item 2 · Label (TEXT "Item 2") · Item 2 · Leading Icon (BOOL false)
+            Item 3 · Label (TEXT "Item 3") · Item 3 · Leading Icon (BOOL false)
+            Item 4 · Label (TEXT "Item 4") · Item 4 · Leading Icon (BOOL false)
+            Item 5 · Label (TEXT "Item 5") · Item 5 · Leading Icon (BOOL false)
+
+Density: Context mode override on parent frame
+Pairs with: Toggle (nested — Position=start|middle|end set automatically by group)
+Notes: all 5 item property slots are always exposed; Count controls how many are visible. Item slots beyond Count are hidden but still present.
 ```
 
 ### Dropdown/Item — `401:18180`
@@ -268,7 +290,7 @@ Tokens: bg → action/secondary/default (hover) · color/transparent (default/di
         text → content/primary; typography → body/sm/* (Asta Sans Regular)
         sizing → dropdown/item/height|padding-inline|gap|radius (Context collection)
 
-Properties: (none)
+Properties: Label (TEXT "Menu item")
 
 Density: Context mode override on parent frame
 Pairs with: Dropdown/Panel (parent), Dropdown/Label (group header), Dropdown/Separator (divider)
@@ -285,7 +307,7 @@ Axes: State default|hover|disabled
 
 Tokens: same sizing family as Dropdown/Item; chevron size → dropdown/item/icon-size
 
-Properties: (none)
+Properties: Label (TEXT "Sub menu")
 
 Density: Context mode override on parent frame
 Pairs with: Dropdown/Panel (parent), another Dropdown/Panel (child submenu)
@@ -302,7 +324,7 @@ Axes: State default|hover|disabled · Checked false|true|indeterminate
 
 Tokens: sizing → dropdown/item/*; nested Checkbox variant coordinated to Checked axis
 
-Properties: (none)
+Properties: Label (TEXT "Option")
 
 Density: Context mode override on parent frame
 Pairs with: Dropdown/Panel
@@ -319,7 +341,7 @@ Axes: State default|hover|disabled · Selected false|true
 
 Tokens: sizing → dropdown/item/*; nested Radio variant coordinated to Selected axis
 
-Properties: (none)
+Properties: Label (TEXT "Option")
 
 Density: Context mode override on parent frame
 Pairs with: Dropdown/Panel

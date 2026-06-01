@@ -17,209 +17,184 @@ So this brief is organised as one stated *position* per axis, and a
 pointer to the token(s) that express it. An axis without a token that
 encodes its opinion is an axis we haven't really committed to yet.
 
+## Ethos — first principles (to develop)
+
+The per-axis positions below should ladder up to a small set of first
+principles — the *why* behind the choices. This section is a parking
+lot for that conversation, not a finished statement. Threads to pull
+on next:
+
+- **Proportion as a through-line.** Density is not just a sizing
+  convenience; it expresses a belief that *proportional control* is a
+  first-class feature of the system, controllable globally and per
+  component.
+- **Cross-environment translation.** The identity must survive the
+  jump from Figma to the Web (and beyond) — the tokens, not the
+  canvas, are the source of truth.
+- **The library / tool relationship.** How `@primitiv/react`,
+  `@primitiv/tokens`, and Harmoni express one coherent ethos rather
+  than three separate concerns.
+
+> Owner to expand. Once written, every axis position should trace back
+> to one of these principles; any that doesn't is suspect.
+
 ## Axis summary
+
+Status legend: ✅ decided · 🔬 exploring (actively iterating, no commit
+yet) · ⬜ gap (not started).
 
 | Axis | Position | Status |
 | --- | --- | --- |
-| Chroma / primary | Muted teal-green `#20836F` — editorial, not corporate | ✅ decided |
-| Density | Four-mode Context (Dense→Spacious) — proportional control is a feature | ✅ decided |
-| Focus / interaction | Brand-coloured ring on *every* intent, transparent gap band | ✅ decided |
-| Type pairing | Condensed display (Khand) in tension with humanist body (Asta Sans) | ✅ decided |
-| **Radius / shape** | *see below — recommendation pending sign-off* | 🟡 developing |
-| **Elevation / shadow** | *see below — recommendation pending sign-off* | 🟡 developing |
-| **Expressive typography** | *see below — recommendation pending sign-off* | 🟡 developing |
-| Motion | duration + easing signature | ⬜ gap (deferred) |
-| Iconography | stroke weight / corner / grid | ⬜ gap (deferred) |
-
-The four decided axes are captured first for context, then the three
-in-development axes get full treatment.
+| Type contrast | Condensed display vs humanist body — the *contrast* is the commitment, faces are swappable | ✅ decided |
+| Density / proportion | Four-mode Context (Dense→Spacious); proportion as a through-line, cross-environment | ✅ decided |
+| Radius / shape | Small roundness — never sharp, never pill; intrinsically-round components excepted | ✅ decided |
+| Elevation / shadow | Borders-first; multi-layer neutral shadows only where hierarchy demands | ✅ position (build TBD) |
+| Expressive typography | Tracking + casing as tokens; Khand for display / heading / label / overline only | ✅ decided |
+| Chroma / primary | In active exploration via Harmoni — synced but volatile | 🔬 exploring |
+| Focus / interaction | Ring colour undecided: brand vs blue vs black; gap-band geometry kept | 🔬 exploring |
+| Motion | duration + easing signature | ⬜ gap |
+| Iconography | stroke weight / corner / grid, rhyming with radius | ⬜ gap |
 
 ---
 
-## Decided axes (captured for context)
+## Decided axes
 
-### Chroma / primary
+### Type contrast
 
-`#20836F` — a muted teal-green, deliberately *not* a SaaS-default
-blue. Confident, slightly editorial. The brand ramp lives in
-`Primitives / Palette` with Light/Dark modes; semantic decisions flow
-through `Intent` (`action/*`, `surface/*`, `content/*`, `border/*`).
-This is a real point of view and should be protected — resist drift
-toward a safer blue.
-
-### Density
-
-Four Context modes — Dense, Compact, Comfortable, Spacious — where
-most systems ship one or two. Four is itself a statement: *Primitiv is
-about proportional control.* The height-to-padding ratio in each mode
-(how chunky vs. tight a control feels) is an identity decision living
-inside the `framed-control/*` numbers, not just a sizing convenience.
-
-### Focus / interaction
-
-The focus ring is a genuine signature: a 2px brand-coloured ring on
-the +4 frame with a transparent gap band, and crucially **the same
-brand colour on every variant** — including danger — because
-`focus/ring` aliases `action/primary/default`. Most systems go
-blue-on-everything. Ours is brand-on-everything. Treat this as a named
-trait, not an implementation detail.
-
-### Type pairing
-
-Khand + Asta Sans. The principle worth protecting:
+Currently Khand + Asta Sans, but the commitment is the *principle*,
+not the faces:
 
 > A condensed, architectural display/label face in tension with a
 > calm, humanist body face.
 
-Khand is tall, narrow, geometric, a little brutalist — it works hard
-in small label caps. Asta Sans is warm, open, legible — it gets out
-of the way for body and input text. **The contrast between them is the
-identity**, more than either face alone, and it suits the name
-"Primitiv" (modernist, raw-fundamentals, Bauhaus-adjacent). Any future
-face change must preserve that contrast, not just swap glyphs. Current
-recommendation: keep the pairing; spend identity budget on the axes
-below instead.
+The contrast is what stays even if the typefaces change. It works in
+components (tight, confident labels) and in prose (Khand headings over
+quiet Asta body) alike. **Khand is strictly an expressive face** —
+display, headings, labels, overlines — and never runs at body sizes,
+because that contrast is the whole point. Asta Sans owns body, input,
+and helper text.
+
+### Density / proportion
+
+Four Context modes — Dense, Compact, Comfortable, Spacious — where
+most systems ship one or two. Four is a statement: *proportional
+control is a feature of Primitiv.* The height-to-padding ratio in each
+mode (how chunky vs. tight a control feels) is an identity decision
+living inside the `framed-control/*` numbers, and it's controllable
+both globally and, where needed, per component. This concept is meant
+to translate to the Web, not stay a Figma-only convenience — see the
+ethos note on proportion.
+
+### Radius / shape
+
+**Small roundness.** Never sharp corners anywhere; equally, never
+pill-shaped components and never fully-round icon buttons. A precise,
+engineered feel that rhymes with Khand's condensed geometry and the
+"Primitiv" name.
+
+**The one exception:** components that are *intrinsically* circular —
+e.g. an Avatar — are round by their nature, not by the shape language.
+We should name a small "intrinsic-round" carve-out concept so these
+don't become ad-hoc special cases.
+
+Token implication: keep `framed-control/{size}/radius` on the small
+end of the `radii/*` scale, and pin the radius-to-height relationship
+so a control reads equally Primitiv at every size and density.
+
+### Expressive typography
+
+The expressive end of the type system is where Khand earns its keep,
+and these are now positions, not proposals:
+
+- **Tracking + casing are tokens** (already in use) — so the
+  uppercase, tracked voice of overlines/labels is reproducible rather
+  than per-designer.
+- **`display/xl` is the loud voice** — reserved for marketing pages,
+  landing pages, heroes; distinct from `heading/*` in product UI.
+- **Khand never drops to body sizes** — protecting the display↔body
+  contrast ratio is the identity gesture.
+
+### Elevation / shadow (position decided, build TBD)
+
+**Borders-first.** Borders do the structural work; shadow is a tool of
+*visual hierarchy*, never decoration. The rules:
+
+1. **Only where hierarchy demands it.** A shadow lifts a genuinely
+   floating surface off the canvas. Current allowlist: **Dropdown
+   panel, Context Menu panel, Modal.** It is *not* used to make a
+   resting element look "cool" — e.g. a ColorSwatch gets no shadow.
+2. **Built from neutral colour tokens, multi-layered.** Shadows are
+   composed from existing neutral tokens and **stacked in several
+   layers** to get a realistic falloff — not a single flat drop
+   shadow. This means an `elevation/*` token is a *set of layered
+   shadows*, not one shadow, which the token model (`@primitiv/tokens`
+   DTCG + Figma effect styles) must support.
+3. **Tooling.** Revisit the online layered-shadow generators to derive
+   the layer stack rather than hand-tuning.
+
+Starting point for levels (to be expanded into layer stacks):
+
+| Level | Use case | rough single-layer equivalent |
+| --- | --- | --- |
+| `elevation/md` | Dropdown / Context Menu panels, popovers | y4 blur16 ~0.12 |
+| `elevation/lg` | Modal / dialog | y8 blur24 ~0.16 |
+
+The Dropdown Panel's current hardcoded `rgba(0,0,0,0.12)` y4 blur16 is
+the first thing to migrate. Dark-mode behaviour is still open (shadows
+read weakly on dark surfaces).
 
 ---
 
-## Developing — Radius / shape language
+## Exploring (actively iterating, not committed)
 
-**Why it matters most.** Shape is arguably the single most recognisable
-axis in any system (Carbon reads engineered because it's near-sharp;
-Material/Apple read friendly because radius is generous and
-consistent). Right now Primitiv's radius is *implicit* — a by-product
-of size math (`framed-control/{size}/radius` scales 2→12 across slots
-and densities) rather than a stated position.
+### Chroma / primary
 
-**Recommended position.** Architectural and crisp. Smaller, tighter
-radii rhyme with Khand's condensed geometry and the "Primitiv" name —
-a control that feels precise and engineered, not soft. Concretely:
-keep the small end small, cap the large end lower than a friendly
-system would, and keep the *ratio* of radius-to-height roughly
-constant so a control reads equally "Primitiv" at every size.
+**Not set in stone.** The primary token set is regenerated constantly
+in Harmoni and backed up via the sync plugin, so the values in the
+repo are *volatile snapshots*, not a decision. Resist treating the
+current teal as fixed. This gets its own dedicated session later.
 
-**Proposed token work.**
+Note the coupling with the focus ring below: if the ring stays
+brand-anchored, every primary experiment moves the ring too.
 
-- Introduce a named **shape stance** rather than leaving radius as raw
-  math — e.g. a documented rule "radius ≈ N% of height, clamped to the
-  `radii/*` scale" so the curve is intentional, not incidental.
-- Audit the four density modes for radius *consistency of feel*: today
-  Dense uses smaller radii, Spacious larger, Compact = Comfortable.
-  Decide whether that spread expresses the stance or dilutes it.
-- Ensure non-framed surfaces (Dropdown Panel, future Tooltip/Dialog)
-  draw their radius from the same stance so panels and controls agree.
+### Focus / interaction
 
-**Open questions.**
+The gap-band geometry is kept — the transparent spacer band with the
++2 / +4 enlarged frames is a signature worth keeping regardless of
+colour. The **ring colour is undecided**, with three candidates and a
+real trade-off underneath:
 
-1. Crisp/architectural (recommended) or soft/approachable?
-2. Should radius scale with density at all, or stay near-constant so
-   the *shape* signature is identical across Dense→Spacious?
-3. Is there a place for a `radius/full` (pill) treatment in the
-   language, or is that off-brand for a "primitiv" system?
+| Candidate | Pro | Con |
+| --- | --- | --- |
+| Brand (current) | Cohesive; auto-tracks the primary | Churns with every chroma experiment; a muted brand can read weak as a focus signal |
+| Pure black | Stable, high-contrast, neutral; decoupled from chroma | Less expressive; needs a dark-mode inverse |
+| Conventional blue | Familiar affordance | Fights the editorial brand; reintroduces the "blue-on-everything" default we deliberately avoided |
+
+The underlying question is **stable signature vs. auto-tracking**: a
+brand-anchored ring is one less thing to maintain but inherits the
+primary's instability; black/blue gives a fixed signature independent
+of chroma churn at the cost of a new axis to manage.
 
 ---
 
-## Developing — Elevation / shadow
-
-**Why it matters.** Flat-with-borders vs. floating-with-soft-shadows
-is a whole personality. Given the **framed-control / border-first**
-philosophy already baked in, Primitiv is plausibly a
-*borders-over-shadows* system — and that restraint is itself a
-character trait (very Polaris). The risk is bolting on heavy shadows
-later and eroding it.
-
-**Recommended position.** Restrained elevation. Borders do the
-structural work; shadow is used *only* to lift genuinely floating
-surfaces (menus, popovers, dialogs) off the canvas, and stays soft and
-low-alpha. No decorative shadows on resting elements.
-
-**Proposed token work.** Formalise the already-planned `elevation/*`
-set (currently the Dropdown Panel uses a hardcoded
-`rgba(0,0,0,0.12)` y=4 blur=16):
-
-| Level | Use case | Y | Blur | Alpha |
-| --- | --- | --- | --- | --- |
-| `elevation/sm` | Cards, raised elements | 2 | 4 | 0.08 |
-| `elevation/md` | Dropdowns, popovers | 4 | 16 | 0.12 |
-| `elevation/lg` | Dialogs, modals | 8 | 24 | 0.16 |
-
-- Home them in a dedicated collection or under `Primitives` (mode-
-  agnostic), then rebind the Dropdown Panel effect's `boundVariables`
-  (color, offsetY, radius, blur) — `elevation/md` maps to its current
-  hardcoded shadow exactly.
-- Decide dark-mode behaviour: shadows read weakly on dark surfaces, so
-  consider a paired border/inner-glow treatment rather than just a
-  darker shadow.
-
-**Open questions.**
-
-1. Three levels enough, or do we need an `elevation/xl` for
-   command-palette / full-screen overlays?
-2. Borders-first means most components have *no* elevation — is that
-   the stated rule, with a short allowlist of surfaces that may float?
-3. Is shadow colour always neutral-black-alpha, or ever tinted toward
-   the brand for warmth?
-
----
-
-## Developing — Expressive typography
-
-**Why it matters.** A system reads as itself partly through its type
-*scale ratio* and its use of case and tracking — not just its faces.
-Right now Khand earns its keep mostly in labels; the `display/*` and
-`overline/*` ramps are where its character can shine but are barely
-exercised in workhorse UI.
-
-**Recommended position.** Let Khand carry the personality at the
-expressive end (display, overline, large headings) and keep Asta Sans
-calm and unstyled in the workhorse middle (body, input, helper). The
-identity gesture is the **contrast ratio** between a tall, tracked,
-possibly upper-case Khand display and quiet Asta body — push that
-contrast rather than flattening the scale.
-
-**Proposed token work.**
-
-- **Case + tracking as tokens.** Khand small-caps labels and overlines
-  want intentional letter-spacing. Consider `tracking/*`
-  (letter-spacing) and a documented case convention (e.g. overline =
-  uppercase, tracked) so the expressive voice is reproducible, not
-  per-designer.
-- **Display ramp usage.** `display/lg` / `display/xl` exist; give them
-  a clear home (marketing surfaces, empty states, section heroes) so
-  the system has a recognisable "loud" voice distinct from `heading/*`.
-- **Scale ratio.** Pin the display→body size jump deliberately — a
-  larger ratio reads more editorial/confident, a smaller one more
-  utilitarian. This ratio is an identity dial.
-
-**Open questions.**
-
-1. Are overlines / micro-labels uppercase-tracked Khand by default? If
-   so, that's a strong, cheap signature — worth a token + convention.
-2. How loud is the display voice allowed to be — is there a real use
-   for `display/xl` in product UI, or is it marketing-only?
-3. Do we ever set Khand at body sizes, or is Khand strictly an
-   expressive/label face and Asta strictly the reading face? (A clean
-   rule here is itself part of the identity.)
-
----
-
-## Deferred axes
+## Gaps (not started)
 
 - **Motion.** No duration/easing tokens yet. A small set —
   `motion/duration/{instant,fast,base,slow}` and
   `motion/easing/{standard,entrance,exit}` — would give every
-  interaction a consistent feel. High identity-per-effort; next in
-  line after the three above.
+  interaction a consistent feel. High identity-per-effort.
 - **Iconography.** Stroke weight, corner treatment, and grid should
-  rhyme with the radius stance (sharp icons + sharp controls, or
-  rounded + rounded). Decide alongside, or just after, the radius
-  position.
+  rhyme with the small-radius stance (crisp, not rounded). Decide
+  alongside or just after radius.
 
 ## How to use this brief
 
-1. Convert each 🟡 axis from "recommended position" to "decided" by
-   answering its open questions.
+1. Move each 🔬 axis to ✅ by settling its open trade-off, then encode
+   the decision in a token.
 2. For every decided axis, ensure a token encodes the opinion — if
-   there isn't one (radius stance, elevation set, tracking), create it.
-3. Revisit when adding a new component: which axes does it touch, and
+   there isn't one (radius-to-height rule, layered elevation, tracking
+   scale, intrinsic-round carve-out), create it.
+3. Develop the **Ethos** section so every axis position traces back to
+   a first principle.
+4. Revisit when adding a new component: which axes does it touch, and
    does it honour the stated position for each?

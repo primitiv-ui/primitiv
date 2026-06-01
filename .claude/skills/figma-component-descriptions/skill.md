@@ -152,7 +152,7 @@ Tokens: label fill → content/primary (disabled: content/disabled)
         helper fill → content/secondary → content/error (invalid) → content/disabled
         nested Input: State coordinated to match Field State
 
-Properties: (none — configure via Axes; edit nested Input instance directly)
+Properties: Label (TEXT "Label") · Helper (TEXT "Helper text") · Show helper (BOOL true) · Required (BOOL false)
 
 Density: Context mode override on parent frame (propagates to nested Input)
 Pairs with: Input (nested by default), Select (can substitute as the nested control)
@@ -444,3 +444,4 @@ After building or significantly updating a component set, verify:
 - [ ] Properties block lists every exposed TEXT/BOOL/SWAP property with its default
 - [ ] Notes captures any non-obvious design decisions
 - [ ] This skill's "Canonical descriptions" section updated with the new/revised entry
+- [ ] **Throwaway component test passed** — instantiate the component using only the description (axes, properties, density), screenshot it, verify it renders correctly, then delete the test frame. This catches stale Properties fields and incorrect axis values that a read-back alone won't reveal.

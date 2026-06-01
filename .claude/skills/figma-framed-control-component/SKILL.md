@@ -266,7 +266,24 @@ The same clone-and-rebind + combine + arrange flow applies, with these differenc
 - Axes are `State × Size` (no Variant/Filled/interaction). See the
   `figma-arrange-component-set` skill for its single-col-axis arrange variant.
 
-## 6. Verify
+## 6. Write the component description (mandatory)
+
+After the arrange step and final verification, write the component's description
+field. This is not optional — no component is *done* without it.
+
+See the **`figma-component-descriptions`** skill for the full schema, field-by-field
+guide, and the canonical description for every existing component. Quick recipe:
+
+```js
+const set = await figma.getNodeByIdAsync('<set-id>');
+set.description = `[description text — see figma-component-descriptions for schema]`;
+```
+
+Then add the new description to the "Canonical descriptions" section of the
+`figma-component-descriptions` skill so future sessions can reference it without
+re-reading Figma.
+
+## 7. Verify
 
 - **Concentricity / geometry**: dump control + ring frames; assert gap
   radius = R+2 and ring radius = R+4, with uniform +2/+4 px per-side offsets.

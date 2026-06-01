@@ -74,11 +74,13 @@ export function collectionToDtcg(
   variables: FigmaVariable[],
   resolveAlias: AliasResolver = defaultResolver(variables),
   modeId: string = collection.defaultModeId,
+  exclude: ReadonlySet<string> = new Set(),
 ): DtcgGroup {
   const root: DtcgGroup = {}
 
   for (const variable of variables) {
     if (variable.variableCollectionId !== collection.id) continue
+    if (exclude.has(variable.name)) continue
     const rawValue = variable.valuesByMode[modeId]
     const token = buildToken(variable.resolvedType, rawValue, resolveAlias)
     insertAt(root, variable.name.split('/'), token)
@@ -143,10 +145,17 @@ export function figmaVarsToDtcg(
     mergeIntoPrefix(files[routing.file], routing.prefix, group)
   }
 
+  // color/absolute-white and color/absolute-black are design-system constants
+  // that Harmoni never writes — exclude them from the palette backup.
+  const PALETTE_CONSTANTS: ReadonlySet<string> = new Set([
+    'color/absolute-white',
+    'color/absolute-black',
+  ])
+
   // Primitives / Palette — per mode, lowercase mode name as top-level key
   if (palette) {
     for (const mode of palette.modes) {
-      const group = collectionToDtcg(palette, variables, resolveAlias, mode.modeId)
+      const group = collectionToDtcg(palette, variables, resolveAlias, mode.modeId, PALETTE_CONSTANTS)
       mergeIntoPrefix(files.palette, [mode.name.toLowerCase()], group)
     }
   }

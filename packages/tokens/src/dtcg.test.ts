@@ -319,6 +319,23 @@ describe('collectionToDtcg', () => {
       ).toThrow(/missing/)
     })
   })
+
+  it('skips variables whose names are in the exclude set', () => {
+    const result = collectionToDtcg(
+      PRIMITIVES,
+      [
+        variable({ id: 'v1', name: 'color/keep', resolvedType: 'COLOR', valuesByMode: { m1: { r: 1, g: 0, b: 0, a: 1 } } }),
+        variable({ id: 'v2', name: 'color/skip', resolvedType: 'COLOR', valuesByMode: { m1: { r: 0, g: 1, b: 0, a: 1 } } }),
+      ],
+      undefined,
+      undefined,
+      new Set(['color/skip']),
+    )
+
+    expect(result).toEqual({
+      color: { keep: { $type: 'color', $value: '#ff0000' } },
+    })
+  })
 })
 
 describe('figmaVarsToDtcg', () => {
@@ -518,6 +535,24 @@ describe('figmaVarsToDtcg', () => {
     )
 
     expect(result).toEqual({ primitives: {}, palette: {}, intent: {}, context: {}, interaction: {} })
+  })
+
+  it('excludes color/absolute-white and color/absolute-black from the palette output', () => {
+    const result = figmaVarsToDtcg(
+      [PALETTE_COLL],
+      [
+        { id: 'v1', name: 'color/neutral/50',      resolvedType: 'COLOR', variableCollectionId: 'cpal', valuesByMode: { light: { r: 0.98, g: 0.98, b: 0.98, a: 1 }, dark: { r: 0.05, g: 0.05, b: 0.05, a: 1 } } },
+        { id: 'v2', name: 'color/absolute-white',  resolvedType: 'COLOR', variableCollectionId: 'cpal', valuesByMode: { light: { r: 1, g: 1, b: 1, a: 1 }, dark: { r: 1, g: 1, b: 1, a: 1 } } },
+        { id: 'v3', name: 'color/absolute-black',  resolvedType: 'COLOR', variableCollectionId: 'cpal', valuesByMode: { light: { r: 0, g: 0, b: 0, a: 1 }, dark: { r: 0, g: 0, b: 0, a: 1 } } },
+      ],
+    )
+
+    expect(result.palette.light).toEqual({
+      color: { neutral: { '50': { $type: 'color', $value: '#fafafa' } } },
+    })
+    expect(result.palette.dark).toEqual({
+      color: { neutral: { '50': { $type: 'color', $value: '#0d0d0d' } } },
+    })
   })
 
   it('throws when a variable aliases an id not present in the payload', () => {

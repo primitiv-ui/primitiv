@@ -324,3 +324,33 @@ The same clone-and-rebind + combine + arrange flow applies, with these differenc
   *instances*, not to variants cloned across sets — verify `refs:{}` and proceed.
 - **Match icon glyphs by `variantProperties`, not substring.** `name.includes("icon=eye")`
   also matches `icon=eye-off`. Use `v.variantProperties.icon === "eye" && v.variantProperties.size === s`.
+- **Instance-sublayer override matrix (plugin API).** On an *instance's* children you
+  CAN override `resize()`, `layoutGrow`/`layoutSizing*`, `visible`, and component
+  properties — but NOT **position**: `set_x`/`set_y` throw "cannot be overridden in
+  an instance". So a per-instance value/position feature must come from variants or
+  from auto-layout *sizing* (resize a spacer), never from moving a sublayer.
+- **`layoutGrow` is binary (0/1).** Weighted/fractional grow is rejected
+  ("Expected 0 or 1"), so two FILL children always split 50/50 — you cannot build an
+  arbitrary-% spacer that survives resize from FILL alone. Resize-safe arbitrary %
+  needs `SCALE` constraints, but `SCALE` also scales the node's *size* (so it shrinks
+  a thumb to ~1px on a 6× resize). There is no clean auto-layout route to a
+  resize-safe value slider — keep value at a fixed 50% (centred) and detach to move it.
+- **Centre a token-sized child through BOTH resize and density.** A child whose w/h is
+  bound to a density token resizes **corner-anchored**; `CENTER`/`SCALE` constraints do
+  NOT re-centre it on its *own* token resize (constraints only react to *parent* resize).
+  Fix that survives both: wrap it in an auto-layout "rail" that **fills the parent**
+  (`constraints = STRETCH/STRETCH`, `primaryAxisAlignItems = counterAxisAlignItems =
+  CENTER`, both sizing modes FIXED) and make the child a flow item
+  (`layoutPositioning = "AUTO"`) — auto-layout re-lays-out on *any* child size change.
+  (Slider thumb-rail, 2026-06-01.) An absolute auto-layout frame's FIXED **primary**
+  size can also fight instance resizes (it stays at the master size, e.g. 240, and
+  overflows) — `rail.resize(inst.w, inst.h)` per instance, or keep `layoutMode` so the
+  axis that needs to shrink is the *counter* axis.
+- **Nested-instance component properties don't auto-forward in a composite set.** On a
+  set built from nested instances (Toggle Group = Toggles), a parent `Item N · Label`/
+  `Leading Icon` property is a no-op on the nested instance — set the nested instance's
+  OWN props directly (`item.setProperties({ "Label#…": txt, "Leading Icon#…": false }))`).
+  Same family as the exposed-nested-property limit above.
+- **Copying a paint preserves its variable binding.** `dst.fills = src.fills` carries the
+  paint-level `boundVariables.color` across (you do *not* re-bind) — handy when cloning a
+  colour element; the binding rule itself is "set on the paint, not via `setBoundVariable`".

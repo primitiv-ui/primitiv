@@ -2,33 +2,32 @@
 
 // ─── Blossom-derived cover flow ──────────────────────────────────────────────
 //
-// Two separate keyframe animations driven by the same named view-timeline:
-//   coverflow-translate  →  applied to __visual  (translateX + scale)
-//   coverflow-rotate     →  applied to __card    (rotateY only)
+// Structure (mirrors Blossom's li › .slide › .card):
 //
-// Splitting them onto two elements avoids compositing issues and mirrors
-// the exact Blossom approach. `animation-range: contain` means the animation
-// plays only while the snap unit is "within" the viewport (centred range),
-// producing a symmetric tilt around the active position.
+//   __slide   (130px snap unit, owns the named view-timeline)
+//   __visual  (200%-wide, position: absolute, left: -50% — overflows the snap
+//              unit on each side so adjacent cards visually interleave)
+//              ↳ animation: translateX + scale
+//   __card    (the rotating surface)
+//              ↳ animation: perspective() rotateY
 //
-// Snap unit (__slide):  130px wide — `padding-inline: calc(50% - 65px)` always
-//   shows exactly 130px of scroll track regardless of container width.
-// Visual (__visual):    200% wide (260px), offset left -50% → overflows 65px
-//   outside the snap unit on each side so adjacent cards visually interleave.
-//
-// view-timeline inset:  calc(50% - 182px)  (= 130px × 1.4, scaled from
-//   Blossom's 100px × 1.4 = 140px).
+// IMPORTANT: `perspective` is inside the keyframe transform function, NOT as a
+// CSS property. When `perspective:` is a CSS property it needs
+// `transform-style: preserve-3d` on the parent chain — but `overflow-x: auto`
+// on any ancestor forces that to flat. `perspective()` in the transform
+// function has no such constraint and works correctly inside a scroll
+// container.
 
 @keyframes coverflow-rotate {
-  from  { transform: rotateY(-55deg); }
-  50%   { transform: rotateY(0deg); }
-  to    { transform: rotateY(55deg); }
+  from { transform: perspective(500px) rotateY(-55deg); }
+  50%  { transform: perspective(500px) rotateY(0deg); }
+  to   { transform: perspective(500px) rotateY(55deg); }
 }
 
 @keyframes coverflow-translate {
-  from  { transform: translateX(30%); }
-  50%   { transform: translateX(0) scale(1.2); }
-  to    { transform: translateX(-30%); }
+  from { transform: translateX(30%); }
+  50%  { transform: translateX(0) scale(1.2); }
+  to   { transform: translateX(-30%); }
 }
 
 .cover-flow {
@@ -41,7 +40,7 @@
     scroll-behavior: smooth;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
-    // Centers the 130px snap unit.
+    // Centers the 130px snap unit at any container width.
     padding-inline: calc(50% - 65px);
     scroll-padding-inline: calc(50% - 65px);
 
@@ -50,35 +49,36 @@
     }
   }
 
-  // Snap unit — narrow so multiple cards are visible on each side.
   &__slide {
     flex: 0 0 130px;
     position: relative;
-    // Height comes from the aspect-ratio so the absolute __visual has
-    // something to anchor to.
+    // Height from aspect-ratio so __visual has something to anchor to.
     aspect-ratio: cx.$ratio;
     scroll-snap-align: center;
     scroll-snap-stop: always;
 
-    // Named view-timeline scoped to the inline scroll axis.
-    // The inset narrows the "view" to a band around the centre so that
-    // animation-range: contain covers the symmetrical tilt region.
-    @supports (view-timeline: --x inline 0px) {
-      view-timeline: --coverflow-slide inline calc(50% - 182px);
+    // Named view-timeline: progress is driven by the slide's inline
+    // scroll position. animation-range: contain (on children) means the
+    // animation plays over the symmetrical centred band.
+    // Inset = 130px × 1.4 = 182px (Blossom uses 100px × 1.4 = 140px).
+    @supports (animation-timeline: --x) {
+      view-timeline-name: --coverflow-slide;
+      view-timeline-axis: inline;
+      view-timeline-inset: calc(50% - 182px);
     }
   }
 
-  // 200%-wide perspective + translate container. Extends 65px outside the
-  // snap unit on each side so that adjacent cards visually overlap.
+  // 200%-wide visual container — extends 65px outside __slide on each side.
+  // Handles translateX + scale so adjacent cards slide toward each other
+  // as the active card scales up.
   &__visual {
-    perspective: 500px;
     position: absolute;
     top: 0;
     left: -50%;
     width: 200%;
     aspect-ratio: cx.$ratio;
 
-    @supports (view-timeline: --x inline 0px) {
+    @supports (animation-timeline: --x) {
       animation: coverflow-translate linear both;
       animation-timeline: --coverflow-slide;
       animation-range: contain;
@@ -89,7 +89,8 @@
     }
   }
 
-  // Inner card — rotates only, holds the surface styling.
+  // Inner card — rotateY with perspective() in the transform (not as a
+  // CSS property) so it is immune to overflow-ancestor flattening.
   &__card {
     width: 100%;
     height: 100%;
@@ -98,7 +99,7 @@
     background: cx.$surface-slide;
     box-shadow: cx.$shadow-card;
 
-    @supports (view-timeline: --x inline 0px) {
+    @supports (animation-timeline: --x) {
       animation: coverflow-rotate linear both;
       animation-timeline: --coverflow-slide;
       animation-range: contain;

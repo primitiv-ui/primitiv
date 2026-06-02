@@ -62,7 +62,7 @@ describe("Carousel imperative getProgress / refresh", () => {
     });
   });
 
-  it("refresh() should re-issue the scrollTo for the current page", () => {
+  it("refresh() should re-issue the scroll for the current page", () => {
     const ref = createRef<CarouselImperativeApi>();
     render(
       <Carousel.Root ref={ref} ariaLabel="Featured products">
@@ -73,13 +73,15 @@ describe("Carousel imperative getProgress / refresh", () => {
       </Carousel.Root>,
     );
 
-    const viewport = screen.getByTestId("viewport");
-    const scrollToSpy = vi.spyOn(viewport, "scrollTo");
+    const scrollIntoViewSpy = vi.spyOn(
+      screen.getByTestId("slide-0"),
+      "scrollIntoView",
+    );
 
     act(() => {
       ref.current!.refresh();
     });
 
-    expect(scrollToSpy).toHaveBeenCalled();
+    expect(scrollIntoViewSpy).toHaveBeenCalled();
   });
 });

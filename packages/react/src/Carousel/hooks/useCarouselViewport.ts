@@ -106,19 +106,17 @@ export function useCarouselViewport() {
     // mount, neither of which goes through next() / previous().
     isProgrammaticScrollRef.current = true;
 
+    // Native-first: delegate the horizontal scroll to the browser via
+    // scrollIntoView rather than computing scrollLeft ourselves. The
+    // consumer's `scroll-snap-align` then makes the final correction so
+    // we never fight the snap engine. `inline` maps to snapAlign;
+    // `block: "nearest"` keeps the page from scrolling vertically.
     const targetEl = slidesRef.current!.get(firstSlideKey)!;
-    const slideRect = targetEl.getBoundingClientRect();
-    const viewportRect = viewport.getBoundingClientRect();
-    const centeringOffset =
-      snapAlign === "center"
-        ? (viewportRect.width - slideRect.width) / 2
-        : 0;
-    const targetScrollLeft =
-      viewport.scrollLeft +
-      (slideRect.left - viewportRect.left) -
-      centeringOffset;
-
-    viewport.scrollTo({ left: targetScrollLeft, behavior: scrollBehavior });
+    targetEl.scrollIntoView({
+      behavior: scrollBehavior,
+      inline: snapAlign === "center" ? "center" : "start",
+      block: "nearest",
+    });
 
     // Clear the programmatic-scroll guard once the animation settles.
     // `scrollend` is the reliable signal in real browsers; the setTimeout

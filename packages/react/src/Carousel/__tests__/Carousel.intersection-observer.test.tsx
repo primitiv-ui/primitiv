@@ -165,9 +165,9 @@ describe("Carousel IntersectionObserver fallback + isInView", () => {
 
   it("should not let an IO callback reset the page while a programmatic scroll is in flight", async () => {
     // Regression test: clicking NextTrigger calls next() which sets
-    // internalPage to 1 and triggers a scrollTo. If the IO callback fires
-    // before the scroll settles (slide-0 still ≥0.6 visible), the callback
-    // must not call goTo(0) and undo the navigation.
+    // internalPage to 1 and triggers a scrollIntoView. If the IO callback
+    // fires before the scroll settles (slide-0 still ≥0.6 visible), the
+    // callback must not call goTo(0) and undo the navigation.
     const user = userEvent.setup();
     render(
       <Carousel.Root ariaLabel="Featured products">

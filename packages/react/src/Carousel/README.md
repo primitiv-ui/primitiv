@@ -67,8 +67,8 @@ auto-rotation tick.
 
 The component ships zero styles, but a few features sit on the line
 between JS and CSS. This table is the contract — the rule of thumb
-is that JS owns _what is the active page_ and _where the scroll
-target lands_, and CSS owns _what the user sees_:
+is that JS owns _what is the active page_ and _delegates the scroll to
+the browser_ (`scrollIntoView`), and CSS owns _what the user sees_:
 
 | Feature                            | JS owns                                                  | CSS owns                                                                 |
 | ---------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------ |
@@ -76,20 +76,20 @@ target lands_, and CSS owns _what the user sees_:
 | Boundary clamping                  | `canGoNext` / `canGoPrevious`, trigger `disabled`        | —                                                                        |
 | Crossfade / scale / dissolve       | `data-state="active"` flip on slides                     | `position: absolute`, `opacity` + `transition`                           |
 | Slide layout & widths              | —                                                        | `flex-basis` / `inline-size`, `gap`, `aspect-ratio`                      |
-| Peek of adjacent slides            | `snapAlign` (so scroll math matches CSS snap)            | Viewport `padding-inline`, slide `flex-basis`, `scroll-snap-align`       |
+| Peek of adjacent slides            | `snapAlign` → `scrollIntoView({ inline })`               | Viewport `padding-inline`, slide `flex-basis`, `scroll-snap-align`       |
 | Gap between slides                 | —                                                        | `gap` on the viewport (no `spacing` prop — pure CSS)                     |
-| Variable-size slides               | Scroll target via `getBoundingClientRect`                | Per-slide width / `aspect-ratio`, `scroll-snap-align`                    |
+| Variable-size slides               | `scrollIntoView` on the target slide                     | Per-slide width / `aspect-ratio`, `scroll-snap-align`                    |
 | Snap targeting                     | `snapAlign: "start" \| "center"` (Root only)             | `scroll-snap-type` on viewport, `scroll-snap-align` on each slide        |
 | Reduced motion                     | `behavior: "instant"`                                    | Optional `@media (prefers-reduced-motion: reduce)` on consumer animations |
 | Keyboard navigation                | Arrow / Home / End on focused viewport                   | `:focus-visible` on viewport                                             |
 | Touch / swipe                      | Native scroll + `scrollsnapchange` to sync state         | `overscroll-behavior-x: contain`, `scrollbar-width: none`                |
 | Indicator state                    | `data-state` on `[data-carousel-indicator]`              | Visual: dot, bar, thumbnail, etc.                                        |
 
-The only JS prop on the visual side is `snapAlign`, and only because
-the JS scroll target has to match where the browser's CSS snap engine
-will settle — otherwise programmatic navigation would re-snap after
-the smooth scroll. Everything else is either a state knob (JS) or a
-visual rule (CSS), with no overlap.
+The only JS prop on the visual side is `snapAlign`, and only because it
+picks the `inline` option passed to `scrollIntoView` (`"start"` or
+`"center"`) so the programmatic scroll lands where the browser's CSS
+snap engine will settle. Everything else is either a state knob (JS) or
+a visual rule (CSS), with no overlap.
 
 The `apps/workbench` workbench at `/carousel` ships worked recipes for
 each cell of the matrix (single / multi / multi-step × slide / fade)
@@ -286,7 +286,7 @@ carouselRef.current?.refresh();
 const { page, totalPages, value } = carouselRef.current!.getProgress();
 ```
 
-`refresh()` re-issues the viewport's `scrollTo` for the current
+`refresh()` re-issues the viewport's `scrollIntoView` for the current
 page — useful when external layout changes (window resize, container
 reflow, dynamic content) leave the scroll position misaligned with
 React state. `getProgress()` returns a normalised
@@ -337,9 +337,9 @@ position without the browser snapping-correcting after the scroll:
 ```
 
 Pair with `scroll-snap-align: center` on `Carousel.Slide` in your CSS.
-The default is `"start"`; `"center"` subtracts
-`(viewportWidth − slideWidth) / 2` from the scroll target so it matches
-where the browser's snap engine would settle.
+The default is `"start"`; `snapAlign` picks the `inline` option passed
+to `scrollIntoView` (`"start"` or `"center"`), and the browser's CSS
+snap engine makes the final correction.
 
 ### Transition modes
 
@@ -369,7 +369,7 @@ viewport handles slide changes visually.
 
 ### Reduced motion
 
-The Viewport's programmatic `scrollTo` reads
+The Viewport's programmatic `scrollIntoView` reads
 `window.matchMedia("(prefers-reduced-motion: reduce)")` once on
 mount. When the user has reduced motion enabled at the OS level,
 page changes use `behavior: "instant"` instead of `"smooth"` so the
@@ -380,10 +380,10 @@ unaffected — the browser owns that animation.
 
 When the active page changes for any reason (`Carousel.NextTrigger` /
 `Carousel.PreviousTrigger` click, indicator click, autoplay tick),
-the viewport calls `scrollTo` so the visual surface tracks React
-state. The scroll target is derived from the first slide of the new
-page via `getBoundingClientRect`, so consumer CSS owns slide width
-and gap. Default `behavior` is `"smooth"`.
+the viewport calls `scrollIntoView` on the first slide of the new page
+so the visual surface tracks React state. Because the browser owns the
+scroll, consumer CSS owns slide width and gap, and `scroll-snap-align`
+makes the final correction. Default `behavior` is `"smooth"`.
 
 The reverse path is also wired: when the user swipes the viewport,
 the browser fires `scrollsnapchange` with the snapped slide as the

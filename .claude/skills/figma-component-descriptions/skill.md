@@ -454,6 +454,52 @@ Properties: (none at set level — swap to the correct glyph+size variant via IN
 Notes: select glyph via INSTANCE_SWAP popover (not scriptable — Expose is UI-only); icon set key da2000986513297ee3823cf917a294e6a39991f2; always match size to framed-control/{size}/icon-size of the host component
 ```
 
+### Accordion/Item — `416:6729`
+
+```
+Collapsible trigger that toggles an accordion section open or closed.
+
+Type: framed-control
+
+Axes: Size xs|sm|md|lg|xl · Position standalone|first|middle|last · State closed|open · Interaction default|hover|focus|disabled
+
+Tokens: fill   action/secondary/* (all states — open/closed differ only in chevron direction)
+        stroke action/secondary/border/*
+        fg     action/secondary/foreground/*
+        sizing framed-control/{size}/*
+
+Properties: Label (TEXT "Accordion item") · Show leading icon (BOOL false)
+
+Density: Context mode override on parent frame
+Pairs with: Accordion/Panel (placed directly below when State=open)
+Notes: corner radii — standalone/closed: all 4 bound; standalone/open + first/*: TL/TR bound BL/BR=0; middle/*: all 0; last/closed: BL/BR bound TL/TR=0; last/open: all 0.
+  Stroke — bottom stroke removed on all positions/states except standalone/closed and last/closed; the element below provides the single divider via its top stroke.
+  Focus rings — ring gap and ring corner radii match the item's per-corner shape: bound corners use focus-ring-gap-radius/focus-ring-radius variables; flat corners are hardcoded 2/4px. Chevron-down closed, chevron-up open.
+```
+
+### Accordion/Panel — `417:6881`
+
+```
+Content area revealed below an open Accordion/Item trigger.
+
+Type: non-framed composition
+
+Axes: Size xs|sm|md|lg|xl · Position standalone|first|middle|last
+
+Tokens: fill    surface/default
+        stroke  action/secondary/border/default (matches item stroke — INSIDE)
+                top/left/right always 1px; bottom only for standalone|last
+        padding panel/padding/block · panel/padding/inline (Context — density-responsive)
+        text    body/{size}/* (Asta Sans Regular) · content/primary
+
+Properties: Content (TEXT "Panel content")
+
+Density: Context mode override on parent frame (panel/* tokens scale across all 4 modes)
+Pairs with: Accordion/Item (always placed immediately below an open trigger)
+Notes: TL/TR always 0. BL/BR=framed-control/{size}/radius for standalone|last; 0 for first|middle.
+Bottom stroke present for standalone|last (closes the group); absent for first|middle (next item's top stroke is the divider). Set Position to match the Position of the Accordion/Item above it. panel/padding/* tokens also used by Tabs/Panel.
+```
+
 ---
 
 ## Definition of done checklist

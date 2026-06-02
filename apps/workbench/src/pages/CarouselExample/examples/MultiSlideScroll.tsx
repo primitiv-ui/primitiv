@@ -21,7 +21,6 @@ export function MultiSlideScroll() {
       className="multi-slide-scroll"
       ariaLabel="Metal primitives — three per page"
       slidesPerPage={3}
-      loop
     >
       <Carousel.Viewport className="multi-slide-scroll__viewport">
         {carouselImages.map(({ src, description }) => (

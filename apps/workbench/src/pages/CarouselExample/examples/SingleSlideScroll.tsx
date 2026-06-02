@@ -18,7 +18,6 @@ export function SingleSlideScroll() {
     <Carousel.Root
       className="single-slide-scroll"
       ariaLabel="Metal primitives — single slide"
-      loop
     >
       <Carousel.Viewport className="single-slide-scroll__viewport">
         {carouselImages.map(({ src, description }) => (

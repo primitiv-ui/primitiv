@@ -48,7 +48,6 @@ export function Programmatic() {
         ref={carouselRef}
         className="programmatic__carousel"
         ariaLabel="Metal primitives — programmatic"
-        loop
         page={page}
         onPageChange={setPage}
       >

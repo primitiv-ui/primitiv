@@ -33,7 +33,6 @@ export function VariableSizes() {
     <Carousel.Root
       className="variable-sizes"
       ariaLabel="Metal primitives — mixed slide widths"
-      loop
       snapAlign="center"
     >
       <Carousel.Viewport className="variable-sizes__viewport">

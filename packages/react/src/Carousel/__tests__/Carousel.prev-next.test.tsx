@@ -1,11 +1,10 @@
-import { useState } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { Carousel } from "..";
 
 function renderWithSlides(
-  rootProps: { defaultPage?: number; loop?: boolean } = {},
+  rootProps: { defaultPage?: number } = {},
   count = 3,
 ) {
   return render(
@@ -21,7 +20,7 @@ function renderWithSlides(
   );
 }
 
-describe("Carousel boundary behaviour with loop=false (default)", () => {
+describe("Carousel boundary behaviour", () => {
   it("should disable Carousel.PreviousTrigger when the active page is the first slide", () => {
     renderWithSlides();
 
@@ -48,12 +47,6 @@ describe("Carousel boundary behaviour with loop=false (default)", () => {
     expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
   });
 
-  it("should explicitly accept loop={false} (matching the default)", () => {
-    renderWithSlides({ loop: false });
-
-    expect(screen.getByRole("button", { name: "Previous" })).toBeDisabled();
-  });
-
   it("should disable both triggers when there are no slides registered", () => {
     render(
       <Carousel.Root ariaLabel="Featured products">
@@ -71,69 +64,5 @@ describe("Carousel boundary behaviour with loop=false (default)", () => {
 
     expect(screen.getByRole("button", { name: "Previous" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
-  });
-});
-
-describe("Carousel boundary behaviour with loop=true", () => {
-  it("should wrap to the last slide when Carousel.PreviousTrigger is clicked at the first slide", async () => {
-    const user = userEvent.setup();
-    renderWithSlides({ loop: true });
-
-    await user.click(screen.getByRole("button", { name: "Previous" }));
-
-    expect(screen.getByTestId("slide-2")).toHaveAttribute(
-      "data-state",
-      "active",
-    );
-  });
-
-  it("should wrap to the first slide when Carousel.NextTrigger is clicked at the last slide", async () => {
-    const user = userEvent.setup();
-    renderWithSlides({ loop: true, defaultPage: 2 });
-
-    await user.click(screen.getByRole("button", { name: "Next" }));
-
-    expect(screen.getByTestId("slide-0")).toHaveAttribute(
-      "data-state",
-      "active",
-    );
-  });
-
-  it("should call onPageChange with the wrapped target page in controlled mode", async () => {
-    const user = userEvent.setup();
-    const onPageChange = vi.fn();
-
-    function Parent() {
-      const [page, setPage] = useState(0);
-      return (
-        <Carousel.Root
-          ariaLabel="Featured products"
-          loop
-          page={page}
-          onPageChange={(next) => {
-            onPageChange(next);
-            setPage(next);
-          }}
-        >
-          <Carousel.Viewport>
-            <Carousel.Slide data-testid="slide-0" />
-            <Carousel.Slide data-testid="slide-1" />
-            <Carousel.Slide data-testid="slide-2" />
-          </Carousel.Viewport>
-          <Carousel.PreviousTrigger>Previous</Carousel.PreviousTrigger>
-          <Carousel.NextTrigger>Next</Carousel.NextTrigger>
-        </Carousel.Root>
-      );
-    }
-
-    render(<Parent />);
-
-    await user.click(screen.getByRole("button", { name: "Previous" }));
-
-    expect(onPageChange).toHaveBeenLastCalledWith(2);
-    expect(screen.getByTestId("slide-2")).toHaveAttribute(
-      "data-state",
-      "active",
-    );
   });
 });

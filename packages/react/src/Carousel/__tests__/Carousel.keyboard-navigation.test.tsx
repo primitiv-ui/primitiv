@@ -93,7 +93,7 @@ describe("Carousel keyboard navigation", () => {
     );
   });
 
-  it("should clamp at the boundaries when arrow keys are pressed without loop", async () => {
+  it("should clamp at the boundaries when arrow keys are pressed", async () => {
     function Fixture({ start }: { start: number }) {
       return (
         <Carousel.Root ariaLabel="Featured products" defaultPage={start}>

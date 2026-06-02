@@ -27,7 +27,6 @@ export function Peek() {
     <Carousel.Root
       className="peek"
       ariaLabel="Metal primitives — peek of next slide"
-      loop
       snapAlign="center"
     >
       <Carousel.Viewport className="peek__viewport">

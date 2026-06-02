@@ -26,14 +26,13 @@ aria-roledescription="slide">` and self-registers with the Root so each
   `data-state="active" | "inactive"` tracking the active page, plus a
   `data-carousel-slide` CSS hook.
 - **`Carousel.NextTrigger`** — `<button>` that advances the active page
-  by one. `disabled` at the last page when `loop` is `false`, and
-  whenever zero or one slides are registered. Consumer `onClick` runs
-  before the navigation; consumer-supplied `disabled={true}` is honoured
-  alongside the boundary check.
+  by one. `disabled` at the last page, and whenever zero or one slides
+  are registered. Consumer `onClick` runs before the navigation;
+  consumer-supplied `disabled={true}` is honoured alongside the boundary
+  check.
 - **`Carousel.PreviousTrigger`** — `<button>` that retreats the active
-  page by one. `disabled` at the first page when `loop` is `false`,
-  with the same zero/one-slide and consumer-`disabled` semantics as
-  `NextTrigger`.
+  page by one. `disabled` at the first page, with the same zero/one-slide
+  and consumer-`disabled` semantics as `NextTrigger`.
 - **`Carousel.IndicatorGroup`** — labelled `<div role="group">`
   wrapping consumer-mapped indicator dots. Pass `label` (becomes
   `aria-label`) or `ariaLabelledBy`; the discriminated union rejects
@@ -75,14 +74,13 @@ target lands_, and CSS owns _what the user sees_:
 | ---------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------ |
 | Active page state                  | `page` / `defaultPage`, `onPageChange`, `goTo`           | —                                                                        |
 | Boundary clamping                  | `canGoNext` / `canGoPrevious`, trigger `disabled`        | —                                                                        |
-| Loop wrap animation (slide mode)   | Edge clones, scroll into clone, re-anchor on `scrollend` | Slides positioned in flow; clones inherit slide CSS                      |
 | Crossfade / scale / dissolve       | `data-state="active"` flip on slides                     | `position: absolute`, `opacity` + `transition`                           |
 | Slide layout & widths              | —                                                        | `flex-basis` / `inline-size`, `gap`, `aspect-ratio`                      |
 | Peek of adjacent slides            | `snapAlign` (so scroll math matches CSS snap)            | Viewport `padding-inline`, slide `flex-basis`, `scroll-snap-align`       |
 | Gap between slides                 | —                                                        | `gap` on the viewport (no `spacing` prop — pure CSS)                     |
 | Variable-size slides               | Scroll target via `getBoundingClientRect`                | Per-slide width / `aspect-ratio`, `scroll-snap-align`                    |
 | Snap targeting                     | `snapAlign: "start" \| "center"` (Root only)             | `scroll-snap-type` on viewport, `scroll-snap-align` on each slide        |
-| Reduced motion                     | `behavior: "instant"`, skip clone hop                    | Optional `@media (prefers-reduced-motion: reduce)` on consumer animations |
+| Reduced motion                     | `behavior: "instant"`                                    | Optional `@media (prefers-reduced-motion: reduce)` on consumer animations |
 | Keyboard navigation                | Arrow / Home / End on focused viewport                   | `:focus-visible` on viewport                                             |
 | Touch / swipe                      | Native scroll + `scrollsnapchange` to sync state         | `overscroll-behavior-x: contain`, `scrollbar-width: none`                |
 | Indicator state                    | `data-state` on `[data-carousel-indicator]`              | Visual: dot, bar, thumbnail, etc.                                        |
@@ -105,7 +103,7 @@ or `ariaLabelledBy`:
 ```tsx
 import { Carousel } from "@primitiv/react";
 
-<Carousel.Root ariaLabel="Featured products" loop>
+<Carousel.Root ariaLabel="Featured products">
   <Carousel.Viewport>
     <Carousel.Slide>
       <img src="/cube.png" alt="Cube" />
@@ -321,7 +319,7 @@ for routing links and other elements that need trigger semantics:
 Because `<a>` and other non-button elements don't honour the HTML
 `disabled` attribute, the prev/next triggers also short-circuit
 their click handler when boundary clamping says "no further" — so
-asChild on a non-button still respects `loop={false}` boundaries.
+asChild on a non-button still respects the boundary clamp.
 
 ### Snap alignment
 
@@ -492,9 +490,8 @@ With `slidesPerPage={3}` and 5 slides:
 - Each slide on the active page emits `data-state="active"`; slides
   on other pages emit `"inactive"`.
 - `Carousel.NextTrigger` advances one page per click; the boundary
-  clamp is at the last page (so with `loop={false}`, Next is
-  disabled while page 1 is active).
-- `loop={true}` wraps at page boundaries.
+  clamp is at the last page (so Next is disabled while page 1 is
+  active).
 
 The slide-level `aria-label="N of M"` continues to count individual
 slides (so a 5-slide carousel announces "1 of 5", "2 of 5", … even
@@ -521,17 +518,12 @@ clamp respects the last full window. The indicator count formula is
 `ceil(total / slidesPerPage)` for `"auto"`), so the visible window
 always stays full in numeric mode.
 
-### Boundary behaviour and looping
+### Boundary behaviour
 
-By default, the prev/next triggers clamp at the ends:
-`Carousel.PreviousTrigger` is `disabled` at the first slide,
-`Carousel.NextTrigger` at the last. Both are also `disabled` when zero
-or one slides are registered, since there's nowhere to navigate.
-
-Pass `loop` to wrap navigation around the ends — clicking
-`Carousel.PreviousTrigger` at the first slide jumps to the last, and
-clicking `Carousel.NextTrigger` at the last jumps to the first. With
-`loop`, the triggers are never auto-disabled at boundaries.
+The prev/next triggers clamp at the ends: `Carousel.PreviousTrigger` is
+`disabled` at the first slide, `Carousel.NextTrigger` at the last. Both
+are also `disabled` when zero or one slides are registered, since
+there's nowhere to navigate.
 
 ### Keyboard navigation
 
@@ -546,14 +538,13 @@ interactive content. With the Viewport focused:
 | `Home`       | Jump to the first page                          |
 | `End`        | Jump to the last page                           |
 
-Arrow keys clamp at the boundaries when `loop` is `false` and animate
-through the loop-wrap clones when `loop` is `true`, mirroring the
-trigger buttons. Keypresses are only intercepted when the Viewport
-itself is the focus target — focus inside a slide (e.g. on a link or
-form control) keeps its native arrow-key semantics.
+Arrow keys clamp at the boundaries, mirroring the trigger buttons.
+Keypresses are only intercepted when the Viewport itself is the focus
+target — focus inside a slide (e.g. on a link or form control) keeps
+its native arrow-key semantics.
 
 ```tsx
-<Carousel.Root ariaLabel="Featured products" loop>
+<Carousel.Root ariaLabel="Featured products">
   <Carousel.Viewport>
     <Carousel.Slide>First</Carousel.Slide>
     <Carousel.Slide>Second</Carousel.Slide>
@@ -567,50 +558,6 @@ form control) keeps its native arrow-key semantics.
 Consumer-supplied `disabled={true}` on either trigger is honoured
 regardless of boundary state — useful for momentarily freezing
 navigation while another part of the UI takes over.
-
-#### Wrap animation
-
-When `loop` is enabled with the default `transition="slide"`, pressing
-Next on the last slide animates slide 0 sliding **in from the right**
-— and pressing Previous on the first slide animates slide N **in from
-the left** — rather than the viewport scrolling backwards across its
-full width to the wrap target.
-
-Under the hood, `Carousel.Viewport` injects aria-hidden `inert` clones
-of the first and last `slidesPerPage` slides at the trailing and
-leading ends of the slide list. The wrap scroll lands smoothly on the
-matching clone; once the animation settles, the Viewport silently
-snaps `scrollLeft` to the real slide so the position re-enters the
-normal range. The clones don't register into the slide list — page
-math, indicator counts, the IntersectionObserver, and `slideKeys` all
-stay derived from the real slides. They're targetable via
-`data-carousel-slide-clone="leading"|"trailing"` if you need to
-suppress, restyle, or override their presentation:
-
-```css
-/* Hide the clones if your layout doesn't want the visible buffer. */
-[data-carousel-slide-clone] {
-  visibility: hidden;
-}
-```
-
-Caveats and asymmetries:
-
-- `prefers-reduced-motion: reduce` skips the clone hop entirely — the
-  wrap snaps directly to the real slide with `behavior: "instant"`.
-- Imperative `goTo(arbitrary)` jumps and `Carousel.Indicator` clicks
-  bypass this animation. Those reads as "jump to that page" and the
-  long scroll communicates progress; only `next()` / `previous()`
-  crossing the boundary use the clone path.
-- Manual swipes that overshoot onto a clone (e.g. flicking past the
-  last slide) are detected via `scrollsnapchange`: the Viewport
-  instant-snaps to the matching real slide and dispatches the wrap
-  page change so React state catches up in the same frame.
-- Consumer components that wrap `Carousel.Slide` (e.g. a custom
-  `<MyFeaturedSlide>` that returns a `Carousel.Slide`) are not
-  detected by the clone pass and gracefully degrade to the long
-  backwards scroll. If the wrap animation matters, use
-  `Carousel.Slide` directly.
 
 ### Indicator dots (manual)
 
@@ -698,9 +645,8 @@ timer while `playing` is `true`:
 
 The timer reads from the live `playing` flag and the active page —
 toggling pause via `Carousel.PlayPauseTrigger` (or via the controlled
-`onPlayingChange`) cancels the next tick. With `loop={false}` (the
-default), the timer stops once the active page reaches the last slide;
-with `loop={true}` it wraps to the first.
+`onPlayingChange`) cancels the next tick. The timer stops once the
+active page reaches the last slide.
 
 The timer also pauses automatically while the user is hovering the
 Root or has focus on a descendant element, per WCAG 2.2.2 (Pause,

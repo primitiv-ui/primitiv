@@ -25,7 +25,6 @@ export function MultiStepSlideCrossfade() {
       slidesPerPage={3}
       slidesPerMove={1}
       transition="none"
-      loop
     >
       <Carousel.Viewport className="multi-step-slide-crossfade__viewport">
         {carouselImages.map(({ src, description }) => (

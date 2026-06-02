@@ -22,7 +22,6 @@ export function MultiStepSlideScroll() {
       ariaLabel="Metal primitives — three per page, step one"
       slidesPerPage={3}
       slidesPerMove={1}
-      loop
     >
       <Carousel.Viewport className="multi-step-slide-scroll__viewport">
         {carouselImages.map(({ src, description }) => (

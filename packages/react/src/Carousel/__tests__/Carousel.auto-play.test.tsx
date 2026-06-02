@@ -168,7 +168,7 @@ describe("Carousel autoplay timer", () => {
     );
   });
 
-  it("should stop advancing once the active page reaches the last slide when loop is false", () => {
+  it("should stop advancing once the active page reaches the last slide", () => {
     render(
       <Carousel.Root
         ariaLabel="Featured products"
@@ -196,32 +196,6 @@ describe("Carousel autoplay timer", () => {
       vi.advanceTimersByTime(20_000);
     });
     expect(screen.getByTestId("slide-1")).toHaveAttribute(
-      "data-state",
-      "active",
-    );
-  });
-
-  it("should wrap around when loop is true", () => {
-    render(
-      <Carousel.Root
-        ariaLabel="Featured products"
-        autoplay
-        defaultPlaying
-        loop
-        defaultPage={1}
-      >
-        <Carousel.Viewport>
-          <Carousel.Slide data-testid="slide-0" />
-          <Carousel.Slide data-testid="slide-1" />
-        </Carousel.Viewport>
-      </Carousel.Root>,
-    );
-
-    act(() => {
-      vi.advanceTimersByTime(4000);
-    });
-
-    expect(screen.getByTestId("slide-0")).toHaveAttribute(
       "data-state",
       "active",
     );

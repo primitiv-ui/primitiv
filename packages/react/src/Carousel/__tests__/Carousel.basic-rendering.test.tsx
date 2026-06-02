@@ -146,6 +146,24 @@ describe("Carousel basic rendering tests", () => {
 
       expect(viewport).toHaveAttribute("class", "");
     });
+
+    it("should render slides in source order without injecting extra DOM nodes", () => {
+      render(
+        <Carousel.Root ariaLabel="Featured products">
+          <Carousel.Viewport data-testid="carousel-viewport">
+            <Carousel.Slide data-testid="slide-0" />
+            <Carousel.Slide data-testid="slide-1" />
+            <Carousel.Slide data-testid="slide-2" />
+          </Carousel.Viewport>
+        </Carousel.Root>,
+      );
+      const viewport = screen.getByTestId("carousel-viewport");
+
+      expect(viewport.querySelectorAll("[data-carousel-slide]")).toHaveLength(3);
+      expect(
+        viewport.querySelectorAll("[data-carousel-slide-clone]"),
+      ).toHaveLength(0);
+    });
   });
 
   describe("Carousel.Slide", () => {

@@ -83,7 +83,7 @@ describe("Carousel numeric slidesPerMove", () => {
     );
   });
 
-  it("should disable NextTrigger at the last windowed page when loop=false", async () => {
+  it("should disable NextTrigger at the last windowed page", async () => {
     const user = userEvent.setup();
     render(
       <Carousel.Root

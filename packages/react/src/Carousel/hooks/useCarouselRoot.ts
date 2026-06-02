@@ -51,10 +51,6 @@ type UseCarouselRootProps = {
   /** Required when `page` is provided. Invoked with the next page
    * value the Root would like to advance to. */
   onPageChange?: (page: number) => void;
-  /** When `true`, navigation wraps at the ends. When `false` (default),
-   * `next()` is a no-op at the last page and `previous()` is a no-op
-   * at the first. */
-  loop?: boolean;
   /** Uncontrolled seed for the playing flag. Defaults to `false`. */
   defaultPlaying?: boolean;
   /** Controlled playing flag. When provided, the hook is in controlled
@@ -101,18 +97,16 @@ type UseCarouselRootProps = {
  *   every change back through `onPageChange` and reads the live value
  *   from the `page` prop on every render.
  *
- * `loop` toggles boundary behaviour: when `true`, `next` and `previous`
- * wrap around using modular arithmetic; when `false` (default) both
- * methods short-circuit at the ends. `canGoNext` / `canGoPrevious` on
- * the published context drive the `disabled` attribute on the prev/next
- * triggers.
+ * `next` and `previous` clamp at the ends — `next` is a no-op on the
+ * last page and `previous` a no-op on the first. `canGoNext` /
+ * `canGoPrevious` on the published context drive the `disabled`
+ * attribute on the prev/next triggers.
  */
 export function useCarouselRoot(
   {
     defaultPage = 0,
     page,
     onPageChange,
-    loop = false,
     defaultPlaying = false,
     playing,
     onPlayingChange,
@@ -187,12 +181,11 @@ export function useCarouselRoot(
   const suspended =
     (hovered || focused || touchActive) && !userInitiatedPlayRef.current;
 
-  // Boundary derivation: navigation requires at least one page. With
-  // loop, every position has a forward and backward target. Without,
-  // the ends clamp at the last page (which, with slidesPerPage > 1,
-  // is generally before the last slide).
-  const canGoPrevious = totalPages > 0 && (loop || currentPage > 0);
-  const canGoNext = totalPages > 0 && (loop || currentPage < totalPages - 1);
+  // Boundary derivation: navigation requires at least one page. The
+  // ends clamp at the last page (which, with slidesPerPage > 1, is
+  // generally before the last slide).
+  const canGoPrevious = totalPages > 0 && currentPage > 0;
+  const canGoNext = totalPages > 0 && currentPage < totalPages - 1;
 
   const registerSlide = useCallback(
     (key: string, element: HTMLDivElement | null) => {
@@ -212,38 +205,28 @@ export function useCarouselRoot(
   // never fires at boundaries. Guards become reachable (and necessary)
   // once the imperative API or autoplay land; they're added then.
   const isProgrammaticScrollRef = useRef(false);
-  // Only set when next()/previous() crosses the loop boundary — the
-  // Viewport reads it to scroll into the edge clone (slide-0 from the
-  // right / slide-N from the left) instead of the long backwards scroll
-  // a regular wrap would produce. Stays null for every non-boundary
-  // navigation including imperative goTo.
-  const pendingWrapRef = useRef<"forward" | "backward" | null>(null);
 
   const next = useCallback(() => {
+    if (currentPage >= totalPages - 1) return;
     isProgrammaticScrollRef.current = true;
-    if (loop && totalPages > 1 && currentPage === totalPages - 1) {
-      pendingWrapRef.current = "forward";
-    }
-    const target = (currentPage + 1) % totalPages;
+    const target = currentPage + 1;
     if (isControlled) {
       onPageChange?.(target);
     } else {
       setInternalPage(target);
     }
-  }, [currentPage, totalPages, isControlled, onPageChange, loop]);
+  }, [currentPage, totalPages, isControlled, onPageChange]);
 
   const previous = useCallback(() => {
+    if (currentPage <= 0) return;
     isProgrammaticScrollRef.current = true;
-    if (loop && totalPages > 1 && currentPage === 0) {
-      pendingWrapRef.current = "backward";
-    }
-    const target = (currentPage - 1 + totalPages) % totalPages;
+    const target = currentPage - 1;
     if (isControlled) {
       onPageChange?.(target);
     } else {
       setInternalPage(target);
     }
-  }, [currentPage, totalPages, isControlled, onPageChange, loop]);
+  }, [currentPage, isControlled, onPageChange]);
 
   const goTo = useCallback(
     (target: number) => {
@@ -258,8 +241,8 @@ export function useCarouselRoot(
 
   // Autoplay timer. Schedules a single setTimeout per active page; when
   // next() runs it bumps currentPage, which retriggers the effect with
-  // a fresh timer. canGoNext gates the schedule so loop=false stops at
-  // the last slide and loop=true wraps via next()'s modular arithmetic.
+  // a fresh timer. canGoNext gates the schedule so autoplay stops at
+  // the last page.
   // The suspended flag pauses the timer while the user is hovering or
   // has focus inside the Root, per WCAG 2.2.2.
   useEffect(() => {
@@ -424,12 +407,10 @@ export function useCarouselRoot(
       ids,
       transition,
       snapAlign,
-      loop,
       refreshTick,
       visibleSlideIndicesRef,
       setSlideInView,
       isProgrammaticScrollRef,
-      pendingWrapRef,
     }),
     [
       registerSlide,
@@ -452,7 +433,6 @@ export function useCarouselRoot(
       ids,
       transition,
       snapAlign,
-      loop,
       refreshTick,
       setSlideInView,
     ],

@@ -21,7 +21,6 @@ export function SingleSlideCrossfade() {
     <Carousel.Root
       className="single-slide-crossfade"
       ariaLabel="Metal primitives — crossfade"
-      loop
       transition="none"
     >
       <Carousel.Viewport className="single-slide-crossfade__viewport">

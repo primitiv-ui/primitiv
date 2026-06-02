@@ -11,45 +11,33 @@ import { useCarouselContext } from "./useCarouselContext";
  * `slidesRef`, reads its `getBoundingClientRect` relative to the
  * viewport, and calls `scrollTo` so the visual surface tracks React
  * state. The current `scrollLeft` is included in the target so the
- * calculation is correct mid-scroll. Each scroll-effect run also
- * asserts `isProgrammaticScrollRef` so the wrap-clone branch of the
- * scrollsnapchange handler can recognise edge-clone snap landings as
- * the result of our own scroll (initial-mount layout snap, smooth
- * wrap into a clone) rather than a user wrap intent. When a wrap is
- * still in flight at cleanup time (rapid follow-up navigation while
- * the smooth scroll into a clone hasn't settled), the cleanup invokes
- * the wrap re-anchor synchronously so the next scroll-effect computes
- * its target relative to the real slide rather than the stale clone
- * position.
+ * calculation is correct mid-scroll. The run also asserts
+ * `isProgrammaticScrollRef` so the IntersectionObserver fallback
+ * doesn't treat the in-flight animation as a user scroll and undo the
+ * page change; the flag clears on `scrollend` (with a timeout
+ * fallback for environments that don't fire it).
  *
  * **Scroll → state.** When the user swipes the viewport, the browser
  * fires `scrollsnapchange` with the new snap target. The handler
  * looks up which slide that target is, computes
  * `floor(slideIndex / slidesPerPage)`, and calls `goTo` on the new
  * page (skipping when the page is unchanged so consumers don't see
- * spurious onPageChange callbacks). When the snap target is one of
- * the loop-wrap clones, the handler re-anchors the viewport and
- * dispatches the wrap goTo — but only when `isProgrammaticScrollRef`
- * is clear and the wrap target differs from `currentPage`. Otherwise
- * the snap-change is a side effect of our own programmatic wrap (or
- * the initial-mount layout settling on the leading clone) and
- * driving a page change here would set `isUserScrollRef` sticky-true
- * and short-circuit the next legitimate navigation.
+ * spurious onPageChange callbacks, and bailing when the snap target
+ * isn't one of our registered slides).
  *
  * **Keyboard → state.** Returns an `onKeyDown` handler that wires the
  * WAI-ARIA Carousel pattern arrow keys (`ArrowRight` / `ArrowLeft` for
  * next / previous) plus `Home` / `End` (first / last) onto the same
- * imperative API the trigger buttons call, so smooth scroll and
- * loop-wrap animation match the click path. The handler only fires
- * when the Viewport itself is the focus target — focus inside a slide
- * keeps its native arrow-key semantics — and respects `canGoNext` /
- * `canGoPrevious` so it clamps at the ends when `loop` is `false`.
+ * imperative API the trigger buttons call, so smooth scroll matches
+ * the click path. The handler only fires when the Viewport itself is
+ * the focus target — focus inside a slide keeps its native arrow-key
+ * semantics — and respects `canGoNext` / `canGoPrevious` so it clamps
+ * at the ends.
  */
 export function useCarouselViewport() {
   const {
     slidesRef,
     slideKeys,
-    slidesPerPage,
     effectiveSlidesPerMove,
     totalPages,
     currentPage,
@@ -64,7 +52,6 @@ export function useCarouselViewport() {
     visibleSlideIndicesRef,
     setSlideInView,
     isProgrammaticScrollRef,
-    pendingWrapRef,
   } = useCarouselContext();
   const internalRef = useRef<HTMLDivElement>(null);
   // Set to true by the scrollsnapchange handler and the IntersectionObserver
@@ -112,50 +99,14 @@ export function useCarouselViewport() {
 
     const viewport = internalRef.current!;
 
-    // Mark the scroll as programmatic for any browser-fired
-    // scrollsnapchange that lands on an edge clone while our scrollTo
-    // is in flight (initial-mount layout snap, smooth wrap into a
-    // clone). next() / previous() also set this — re-asserting here
-    // covers indicator-driven goTo and the initial scroll on mount,
-    // neither of which goes through next() / previous().
+    // Mark the scroll as programmatic so the IntersectionObserver
+    // doesn't treat the in-flight animation as a user scroll and undo
+    // the page change. next() / previous() also set this — re-asserting
+    // here covers indicator-driven goTo and the initial scroll on
+    // mount, neither of which goes through next() / previous().
     isProgrammaticScrollRef.current = true;
 
-    // Loop boundary wrap: instead of the long backwards scroll a
-    // regular wrap would produce, redirect into the matching edge
-    // clone so the new page appears to slide in from the natural
-    // direction. Capturing the direction here lets the scrollend
-    // callback know whether to follow up with a silent snap to the
-    // real slide once the animation settles.
-    //
-    // Reduced motion bypasses the clone hop: when scrollBehavior is
-    // already "instant" there's no smooth animation to host, so the
-    // round-trip clone→real snap would be two no-op scrolls instead
-    // of one. Drop the wrap intent and fall through to the real slide.
-    const wrapDirection =
-      scrollBehavior === "instant" ? null : pendingWrapRef.current;
-    pendingWrapRef.current = null;
-
-    let targetEl: Element;
-    if (wrapDirection === "forward") {
-      // First trailing clone = copy of slide 0. querySelectorAll DOM order
-      // puts it at index 0, and there are buffer clones after it so this
-      // element is never at the absolute right DOM edge.
-      targetEl = viewport.querySelector(
-        '[data-carousel-slide-clone="trailing"]',
-      )!;
-    } else if (wrapDirection === "backward") {
-      // The leading clones are ordered [buffer..., copy-of-(N-spp), ..., copy-of-(N-1)].
-      // The clone at index (cloneCount - slidesPerPage) is the one that puts
-      // a full viewport-width of last-page content in view, with the buffer
-      // clone(s) further left so the scroll target is never at the DOM edge.
-      const leadingClones = viewport.querySelectorAll(
-        '[data-carousel-slide-clone="leading"]',
-      );
-      targetEl = leadingClones[leadingClones.length - slidesPerPage]!;
-    } else {
-      targetEl = slidesRef.current!.get(firstSlideKey)!;
-    }
-
+    const targetEl = slidesRef.current!.get(firstSlideKey)!;
     const slideRect = targetEl.getBoundingClientRect();
     const viewportRect = viewport.getBoundingClientRect();
     const centeringOffset =
@@ -163,7 +114,9 @@ export function useCarouselViewport() {
         ? (viewportRect.width - slideRect.width) / 2
         : 0;
     const targetScrollLeft =
-      viewport.scrollLeft + (slideRect.left - viewportRect.left) - centeringOffset;
+      viewport.scrollLeft +
+      (slideRect.left - viewportRect.left) -
+      centeringOffset;
 
     viewport.scrollTo({ left: targetScrollLeft, behavior: scrollBehavior });
 
@@ -172,41 +125,9 @@ export function useCarouselViewport() {
     // is a fallback for environments (jsdom, older Safari) that don't fire
     // it. The timeout is longer than any typical smooth-scroll duration so
     // real-browser IO entries that fire mid-animation are still suppressed.
-    // The `cleared` guard makes the body idempotent — real browsers fire
-    // scrollend AND the setTimeout fallback later, but the wrap-snap must
-    // only happen once.
-    let cleared = false;
+    // Re-clearing the flag is harmless, so no idempotency guard is needed.
     const clearFlag = () => {
-      if (cleared) return;
-      cleared = true;
       isProgrammaticScrollRef.current = false;
-      if (wrapDirection !== null) {
-        // Silent snap from the clone we just scrolled into back to the
-        // matching real slide so scrollLeft re-enters the normal range.
-        // `instant` skips scroll-behavior: smooth, so the user only ever
-        // sees the smooth animation into the clone — never this re-anchor.
-        // The lookup may miss when this runs from the cleanup path on
-        // unmount (slide callback refs have already detached); skip the
-        // re-anchor in that case — the viewport is going away anyway.
-        const realEl = slidesRef.current!.get(firstSlideKey);
-        if (!realEl) return;
-        const realRect = realEl.getBoundingClientRect();
-        const realViewportRect = viewport.getBoundingClientRect();
-        const realTarget =
-          viewport.scrollLeft + (realRect.left - realViewportRect.left);
-        // Suspend scroll-snap-type during the instant re-anchor so the
-        // browser's snap engine doesn't animate between snap points after
-        // the position jump. Without this, the consumer's `scroll-snap-type:
-        // x mandatory` causes a visible "settle" frame in Chrome between
-        // the clone's snap point and the real slide's snap point. Restored
-        // on the next frame so user scrolls still snap.
-        const originalSnapType = viewport.style.scrollSnapType;
-        viewport.style.scrollSnapType = "none";
-        viewport.scrollTo({ left: realTarget, behavior: "instant" });
-        requestAnimationFrame(() => {
-          viewport.style.scrollSnapType = originalSnapType;
-        });
-      }
     };
     viewport.addEventListener("scrollend", clearFlag, { once: true });
     const timeoutId = setTimeout(() => {
@@ -216,14 +137,6 @@ export function useCarouselViewport() {
     return () => {
       clearTimeout(timeoutId);
       viewport.removeEventListener("scrollend", clearFlag);
-      // A rapid follow-up navigation re-runs the effect while the wrap's
-      // smooth scroll is still in flight. Without re-anchoring here, the
-      // next effect computes its target from a scrollLeft parked over the
-      // edge clone and the smooth scroll lands far away — exactly the
-      // long backwards scroll the clones exist to prevent. clearFlag is
-      // idempotent via the `cleared` guard, so this is a no-op when
-      // scrollend or the timeout fallback already fired.
-      clearFlag();
     };
   }, [
     transition,
@@ -249,55 +162,11 @@ export function useCarouselViewport() {
 
       // findIndex returns -1 when the snap target isn't one of our
       // registered slides — e.g. a consumer-wrapped element inside the
-      // viewport, or one of the loop-wrap clones.
+      // viewport. Ignore those; only registered slides drive the page.
       const slideIndex = slideKeys.findIndex(
         (key) => slidesRef.current!.get(key) === target,
       );
-      if (slideIndex < 0) {
-        // Trailing/leading clone: the user swiped past the slide list
-        // edge. Re-anchor the viewport to the real wrap-target slide
-        // with an instant scroll so they're not stuck on a clone
-        // position, then dispatch the wrap goTo.
-        const cloneType =
-          target instanceof HTMLElement
-            ? target.dataset.carouselSlideClone
-            : undefined;
-        if (cloneType !== "trailing" && cloneType !== "leading") return;
-
-        const wrapPage = cloneType === "trailing" ? 0 : totalPages - 1;
-
-        // Two ways the snap target ends up on an edge clone without a
-        // user actually wrapping: (a) our own scroll-effect targeted
-        // the clone for the wrap animation and the smooth scroll just
-        // settled, (b) the browser reported the leading clone as the
-        // initial snap on mount before we'd scrolled to slide-0. In
-        // both cases the page state is already correct — driving a
-        // page change here would set isUserScrollRef sticky-true and
-        // short-circuit the next legitimate navigation. The
-        // scroll-effect's scrollend handler does the silent re-anchor
-        // for case (a); case (b) needs no re-anchor because the
-        // initial scrollTo is already heading to the active page.
-        if (
-          isProgrammaticScrollRef.current ||
-          wrapPage === currentPage
-        ) {
-          return;
-        }
-
-        const realKey = slideKeys[wrapPage * effectiveSlidesPerMove];
-
-        const viewport = internalRef.current!;
-        const realSlide = slidesRef.current!.get(realKey)!;
-        const realRect = realSlide.getBoundingClientRect();
-        const viewportRect = viewport.getBoundingClientRect();
-        viewport.scrollTo({
-          left: viewport.scrollLeft + (realRect.left - viewportRect.left),
-          behavior: "instant",
-        });
-        isUserScrollRef.current = true;
-        goTo(wrapPage);
-        return;
-      }
+      if (slideIndex < 0) return;
 
       const targetPage = Math.floor(slideIndex / effectiveSlidesPerMove);
       if (targetPage !== currentPage) {
@@ -313,7 +182,6 @@ export function useCarouselViewport() {
     slideKeys,
     slidesRef,
     effectiveSlidesPerMove,
-    totalPages,
     currentPage,
     goTo,
   ]);

@@ -25,7 +25,6 @@ export function MultiSlideCrossfade() {
       ariaLabel="Metal primitives — three per page, crossfade"
       slidesPerPage={3}
       transition="none"
-      loop
     >
       <Carousel.Viewport className="multi-slide-crossfade__viewport">
         {carouselImages.map(({ src, description }) => (

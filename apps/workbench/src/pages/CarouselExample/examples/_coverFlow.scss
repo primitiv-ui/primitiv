@@ -20,19 +20,19 @@
 @keyframes cover-flow-coverflow-card {
   // Entering from right: RIGHT edge toward viewer.
   0% {
-    opacity: 0.45;
-    transform: perspective(900px) rotateY(-52deg) scale(0.76);
+    opacity: 0.5;
+    transform: perspective(700px) rotateY(-72deg) scale(0.7);
   }
   // Fully centred (active): flat and full-size.
   35%,
   65% {
     opacity: 1;
-    transform: perspective(900px) rotateY(0deg) scale(1);
+    transform: perspective(700px) rotateY(0deg) scale(1);
   }
   // Exiting to left: LEFT edge toward viewer.
   100% {
-    opacity: 0.45;
-    transform: perspective(900px) rotateY(52deg) scale(0.76);
+    opacity: 0.5;
+    transform: perspective(700px) rotateY(72deg) scale(0.7);
   }
 }
 
@@ -48,10 +48,10 @@
     scroll-behavior: smooth;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
-    // Generous peek so partially-visible tilted slides are visible on
-    // both sides of the centred active slide.
-    padding-inline: 18%;
-    scroll-padding-inline: 18%;
+    // Narrower peek brings the tilted side-slides in close behind the
+    // active card, tightening the classic cover-flow stack effect.
+    padding-inline: 10%;
+    scroll-padding-inline: 10%;
 
     &::-webkit-scrollbar {
       display: none;
@@ -59,7 +59,7 @@
   }
 
   &__slide {
-    flex: 0 0 64%;
+    flex: 0 0 80%;
     scroll-snap-align: center;
     scroll-snap-stop: always;
     @include cx.slide-surface;

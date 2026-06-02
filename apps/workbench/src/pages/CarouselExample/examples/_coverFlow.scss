@@ -1,8 +1,5 @@
 @use "./carouselShared" as cx;
 
-// Keyframes are at file root — safe because the animation-name is unique
-// enough not to collide, and the property is only applied inside the
-// .cover-flow__slide selector below (which IS scoped via the BEM prefix).
 // Cover Flow rotation convention (matches iTunes / Blossom):
 //
 //   Slide entering from the RIGHT → right edge closest to viewer → rotateY(negative)
@@ -14,37 +11,28 @@
 //   …  \  \  |  /  /  …
 //        left active right
 //
-// where \ = rotateY(positive, left edge forward)
-//       | = rotateY(0, flat)
-//       / = rotateY(negative, right edge forward)
-// Geometry: how many side items are visible at once
-//
-// At rotateY(72°), a card visually appears cos(72°) ≈ 31% of its actual width.
-// If the active card occupies W% of the viewport, each side has (100-W)/2 %
-// of "peek" space. Number of visible side items ≈ peek / (W × 0.31).
-//
-// Target: ~3 side items visible.
-// flex-basis W = 38%  →  peek = (100-38)/2 = 31%  →  31 / (38×0.31) ≈ 2.6 ✓
-//
-// perspective(550px) gives a natural depth field — shorter values exaggerate
-// the fisheye; longer values flatten the effect. At 38% card widths ~140px
-// on a 380px container, 550px places the "eye" about 4 card-widths away.
+// Tightness: negative margin-inline brings adjacent slide positions
+// physically closer together in the scroll track — without it the
+// gap between the visible (rotated, narrow) cards is very large.
+// margin-inline: -22% means each slide advances only 66-44=22% of the
+// viewport per step rather than the full 66%, so the cards stack snugly.
+// The active slide gets z-index: 2 (via data-state) to stay on top.
 @keyframes cover-flow-coverflow-card {
   // Entering from right: RIGHT edge toward viewer.
   0% {
     opacity: 0.4;
-    transform: perspective(550px) rotateY(-72deg) scale(0.72);
+    transform: perspective(600px) rotateY(-70deg) scale(0.75);
   }
   // Fully centred (active): flat and full-size.
   35%,
   65% {
     opacity: 1;
-    transform: perspective(550px) rotateY(0deg) scale(1);
+    transform: perspective(600px) rotateY(0deg) scale(1);
   }
   // Exiting to left: LEFT edge toward viewer.
   100% {
     opacity: 0.4;
-    transform: perspective(550px) rotateY(72deg) scale(0.72);
+    transform: perspective(600px) rotateY(70deg) scale(0.75);
   }
 }
 
@@ -60,9 +48,8 @@
     scroll-behavior: smooth;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
-    // 31% peek on each side leaves room for ~3 rotated cards per side.
-    padding-inline: 31%;
-    scroll-padding-inline: 31%;
+    padding-inline: 17%;
+    scroll-padding-inline: 17%;
 
     &::-webkit-scrollbar {
       display: none;
@@ -70,17 +57,21 @@
   }
 
   &__slide {
-    flex: 0 0 38%;
+    // Negative margin brings adjacent slide positions physically close so
+    // rotated cards stack tightly rather than leaving large gaps.
+    // Net advance per snap step = 66% - 44% = 22% of the viewport.
+    flex: 0 0 66%;
+    margin-inline: -22%;
     scroll-snap-align: center;
     scroll-snap-stop: always;
+    position: relative;
     @include cx.slide-surface;
 
-    // Scroll-driven 3D rotation. `view(inline)` tracks each slide's
-    // position in the inline-scrolling viewport; the animation drives
-    // the 3D tilt purely from scroll progress — no JS required.
-    // `perspective()` in the transform function (not the CSS property)
-    // avoids the stacking-context clipping that the property causes
-    // inside an overflow:auto container.
+    // Active slide sits on top of its neighbours.
+    &[data-state="active"] {
+      z-index: 2;
+    }
+
     @supports (animation-timeline: view()) {
       animation: cover-flow-coverflow-card linear both;
       animation-timeline: view(inline);

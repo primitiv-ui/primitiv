@@ -35,6 +35,8 @@
 
   &__viewport {
     @include cx.viewport-track;
+    display: flex;
+    align-items: center;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;

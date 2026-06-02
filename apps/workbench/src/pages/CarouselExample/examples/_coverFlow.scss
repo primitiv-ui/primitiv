@@ -17,22 +17,34 @@
 // where \ = rotateY(positive, left edge forward)
 //       | = rotateY(0, flat)
 //       / = rotateY(negative, right edge forward)
+// Geometry: how many side items are visible at once
+//
+// At rotateY(72°), a card visually appears cos(72°) ≈ 31% of its actual width.
+// If the active card occupies W% of the viewport, each side has (100-W)/2 %
+// of "peek" space. Number of visible side items ≈ peek / (W × 0.31).
+//
+// Target: ~3 side items visible.
+// flex-basis W = 38%  →  peek = (100-38)/2 = 31%  →  31 / (38×0.31) ≈ 2.6 ✓
+//
+// perspective(550px) gives a natural depth field — shorter values exaggerate
+// the fisheye; longer values flatten the effect. At 38% card widths ~140px
+// on a 380px container, 550px places the "eye" about 4 card-widths away.
 @keyframes cover-flow-coverflow-card {
   // Entering from right: RIGHT edge toward viewer.
   0% {
-    opacity: 0.5;
-    transform: perspective(700px) rotateY(-72deg) scale(0.7);
+    opacity: 0.4;
+    transform: perspective(550px) rotateY(-72deg) scale(0.72);
   }
   // Fully centred (active): flat and full-size.
   35%,
   65% {
     opacity: 1;
-    transform: perspective(700px) rotateY(0deg) scale(1);
+    transform: perspective(550px) rotateY(0deg) scale(1);
   }
   // Exiting to left: LEFT edge toward viewer.
   100% {
-    opacity: 0.5;
-    transform: perspective(700px) rotateY(72deg) scale(0.7);
+    opacity: 0.4;
+    transform: perspective(550px) rotateY(72deg) scale(0.72);
   }
 }
 
@@ -48,10 +60,9 @@
     scroll-behavior: smooth;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
-    // Narrower peek brings the tilted side-slides in close behind the
-    // active card, tightening the classic cover-flow stack effect.
-    padding-inline: 10%;
-    scroll-padding-inline: 10%;
+    // 31% peek on each side leaves room for ~3 rotated cards per side.
+    padding-inline: 31%;
+    scroll-padding-inline: 31%;
 
     &::-webkit-scrollbar {
       display: none;
@@ -59,7 +70,7 @@
   }
 
   &__slide {
-    flex: 0 0 80%;
+    flex: 0 0 38%;
     scroll-snap-align: center;
     scroll-snap-stop: always;
     @include cx.slide-surface;

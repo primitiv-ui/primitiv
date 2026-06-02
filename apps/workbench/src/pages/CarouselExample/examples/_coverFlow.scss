@@ -3,11 +3,25 @@
 // Keyframes are at file root — safe because the animation-name is unique
 // enough not to collide, and the property is only applied inside the
 // .cover-flow__slide selector below (which IS scoped via the BEM prefix).
+// Cover Flow rotation convention (matches iTunes / Blossom):
+//
+//   Slide entering from the RIGHT → right edge closest to viewer → rotateY(negative)
+//   Slide centred (active)        → flat → rotateY(0)
+//   Slide exiting to the LEFT     → left edge closest to viewer → rotateY(positive)
+//
+// Think of the carousel from above:
+//
+//   …  \  \  |  /  /  …
+//        left active right
+//
+// where \ = rotateY(positive, left edge forward)
+//       | = rotateY(0, flat)
+//       / = rotateY(negative, right edge forward)
 @keyframes cover-flow-coverflow-card {
-  // Slide entering from the right: tilted right, slightly smaller.
+  // Entering from right: RIGHT edge toward viewer.
   0% {
-    opacity: 0.5;
-    transform: perspective(900px) rotateY(38deg) scale(0.88);
+    opacity: 0.45;
+    transform: perspective(900px) rotateY(-52deg) scale(0.76);
   }
   // Fully centred (active): flat and full-size.
   35%,
@@ -15,10 +29,10 @@
     opacity: 1;
     transform: perspective(900px) rotateY(0deg) scale(1);
   }
-  // Slide exiting to the left: tilted left, slightly smaller.
+  // Exiting to left: LEFT edge toward viewer.
   100% {
-    opacity: 0.5;
-    transform: perspective(900px) rotateY(-38deg) scale(0.88);
+    opacity: 0.45;
+    transform: perspective(900px) rotateY(52deg) scale(0.76);
   }
 }
 

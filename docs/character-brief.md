@@ -62,7 +62,7 @@ yet) · ⬜ gap (not started).
 | --- | --- | --- |
 | Type contrast | Condensed display vs humanist body — the *contrast* is the commitment, faces are swappable | ✅ decided |
 | Density / proportion | Four-mode Context (Dense→Spacious); proportion as a through-line, cross-environment | ✅ decided |
-| Radius / shape | Derived `r = k·height` (k≈0.1875, provisional); small, never sharp/pill; intrinsic-round excepted | ✅ model decided |
+| Radius / shape | Derived `r = k·height`, **k = 0.1875** (3/16); small, never sharp/pill; intrinsic-round excepted | ✅ decided |
 | Elevation / shadow | Borders-first; multi-layer neutral shadows only where hierarchy demands | ✅ position (build TBD) |
 | Expressive typography | Tracking + casing as tokens; Khand for display / heading / label / overline only | ✅ decided |
 | Chroma / primary | In active exploration via Harmoni — synced but volatile | 🔬 exploring |
@@ -111,7 +111,7 @@ smaller heights yield smaller radii with no separate table.
 
 ```
 radius = clamp( snap_to_scale(height × k), floor≈2, —)
-k = 0.1875  (3/16) — provisional, pending visual validation
+k = 0.1875  (3/16)
 ```
 
 A floor of ~2 guarantees "never sharp"; any `k` well under 0.5

@@ -1,12 +1,13 @@
+@use "./carouselShared" as cx;
+
 .multi-step-slide-scroll {
   --gap: 1rem;
 
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  @include cx.frame;
 
   &__viewport {
     display: flex;
+    align-items: flex-start;
     gap: var(--gap);
     overflow-x: auto;
     scroll-snap-type: x mandatory;
@@ -21,70 +22,24 @@
 
   &__slide {
     flex: 0 0 calc((100% - 2 * var(--gap)) / 3);
-    display: flex;
-    justify-content: center;
-    align-items: center;
     scroll-snap-align: start;
     scroll-snap-stop: always;
-    -webkit-user-drag: none;
+    @include cx.slide-surface;
   }
 
   &__image {
-    inline-size: 100%;
-    block-size: auto;
-    object-fit: contain;
+    @include cx.image;
   }
 
   &__controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 4rem;
+    @include cx.controls;
   }
 
   &__trigger {
-    appearance: none;
-    background: transparent;
-    border: 1px solid currentColor;
-    border-radius: 50%;
-    inline-size: 2rem;
-    block-size: 2rem;
-    font: inherit;
-    cursor: pointer;
-
-    &:disabled {
-      opacity: 0.3;
-      cursor: not-allowed;
-    }
+    @include cx.trigger;
   }
 
   &__indicator-group {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-
-    [data-carousel-indicator] {
-      appearance: none;
-      background: transparent;
-      border: 0;
-      cursor: pointer;
-      min-inline-size: 1.5rem;
-      min-block-size: 1.5rem;
-      display: inline-grid;
-      place-items: center;
-
-      &::before {
-        content: "";
-        inline-size: 0.5rem;
-        block-size: 0.5rem;
-        border-radius: 50%;
-        background: lightgray;
-      }
-
-      &[data-state="active"]::before {
-        background: black;
-      }
-    }
+    @include cx.indicators;
   }
 }

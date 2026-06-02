@@ -1297,6 +1297,18 @@
           "$value": "{radii.8}"
         }
       }
+    },
+    "toggle": {
+      "label": {
+        "font-weight": {
+          "$type": "number",
+          "$value": "{font-weight.regular}"
+        },
+        "font-style": {
+          "$type": "string",
+          "$value": "{font-style.regular}"
+        }
+      }
     }
   },
   "compact": {
@@ -2595,6 +2607,18 @@
         "radius": {
           "$type": "number",
           "$value": "{radii.8}"
+        }
+      }
+    },
+    "toggle": {
+      "label": {
+        "font-weight": {
+          "$type": "number",
+          "$value": "{font-weight.regular}"
+        },
+        "font-style": {
+          "$type": "string",
+          "$value": "{font-style.regular}"
         }
       }
     }
@@ -3897,6 +3921,18 @@
           "$value": "{radii.12}"
         }
       }
+    },
+    "toggle": {
+      "label": {
+        "font-weight": {
+          "$type": "number",
+          "$value": "{font-weight.regular}"
+        },
+        "font-style": {
+          "$type": "string",
+          "$value": "{font-style.regular}"
+        }
+      }
     }
   },
   "dense": {
@@ -5195,6 +5231,18 @@
         "radius": {
           "$type": "number",
           "$value": "{radii.6}"
+        }
+      }
+    },
+    "toggle": {
+      "label": {
+        "font-weight": {
+          "$type": "number",
+          "$value": "{font-weight.regular}"
+        },
+        "font-style": {
+          "$type": "string",
+          "$value": "{font-style.regular}"
         }
       }
     }

@@ -4,17 +4,15 @@ import { carouselImages } from "../fixtures";
 import "./_coverFlow.scss";
 
 /**
- * Cover Flow — slides fan out with a 3D perspective rotation as they
- * scroll off-centre, like the classic iTunes/iOS cover browser.
+ * Cover Flow — based on the Blossom carousel CSS technique.
  *
- * JS owns: `snapAlign="center"` (programmatic navigation passes
- *   `inline: "center"` to scrollIntoView; CSS snap engine corrects).
- * CSS owns: scroll-driven animation via `animation-timeline: view(inline)`.
- *   Each slide animates from a tilted-right entry → flat centre → tilted-left
- *   exit driven purely by its scroll position in the viewport — no JS
- *   frame computation, no resize observers. `perspective()` inside the
- *   transform function works inside an overflow:auto container (avoids the
- *   stacking-context clipping issue that `perspective` as a property causes).
+ * Each Carousel.Slide is a narrow snap unit (130px). Inside it sits a
+ * 200%-wide absolutely-positioned `__visual` div (the perspective + translateX
+ * container) that overflows the snap unit on each side, and inside that a
+ * `__card` div that handles only the rotateY. Both elements are driven by
+ * the same named `view-timeline` defined on the snap unit — using
+ * `animation-range: contain` so the animation is anchored to the centred
+ * position rather than the full entry/exit journey.
  */
 export function CoverFlow() {
   return (
@@ -26,11 +24,15 @@ export function CoverFlow() {
       <Carousel.Viewport className="cover-flow__viewport">
         {carouselImages.map(({ src, description }) => (
           <Carousel.Slide key={src} className="cover-flow__slide">
-            <img
-              className="cover-flow__image"
-              src={src}
-              alt={description}
-            />
+            <div className="cover-flow__visual">
+              <div className="cover-flow__card">
+                <img
+                  className="cover-flow__image"
+                  src={src}
+                  alt={description}
+                />
+              </div>
+            </div>
           </Carousel.Slide>
         ))}
       </Carousel.Viewport>

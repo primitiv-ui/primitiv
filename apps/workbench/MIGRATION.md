@@ -7,7 +7,7 @@ checklists as files land.
 ## Status at a glance
 
 - [x] Phase 0 — approach decided (**Option A**, below)
-- [ ] Phase 1 — Carousel cluster (shared partial + 12 examples)
+- [x] Phase 1 — Carousel cluster (shared partial + 12 examples)
 - [ ] Phase 2 — Standalone example stylesheets (~38 files)
 - [ ] Phase 3 — App shell + teardown (`App.scss`, remove `sass` dep)
 
@@ -63,22 +63,22 @@ is retrofitted onto the shared file in Phase 1.
 
 ## Phase 1 — Carousel cluster
 
-- [ ] Author `carouselShared.css` (tokens on `.carousel-example` +
+- [x] Author `carouselShared.css` (tokens on `.carousel-example` +
       `cx-*` skin classes).
-- [ ] SingleSlideScroll
-- [ ] SingleSlideCrossfade
-- [ ] MultiSlideScroll
-- [ ] MultiSlideCrossfade
-- [ ] MultiStepSlideScroll
-- [ ] MultiStepSlideCrossfade
-- [ ] Peek
-- [ ] VariableSizes
-- [ ] Programmatic
-- [ ] AutoPlay
-- [ ] Thumbnails
-- [ ] Retrofit `coverFlow.css` onto the shared file
-- [ ] Delete `_carouselShared.scss`
-- [ ] Convert `CarouselExample.scss` (the tabs shell)
+- [x] SingleSlideScroll
+- [x] SingleSlideCrossfade
+- [x] MultiSlideScroll
+- [x] MultiSlideCrossfade
+- [x] MultiStepSlideScroll
+- [x] MultiStepSlideCrossfade
+- [x] Peek
+- [x] VariableSizes
+- [x] Programmatic
+- [x] AutoPlay
+- [x] Thumbnails
+- [x] Retrofit `coverFlow.css` onto the shared file
+- [x] Delete `_carouselShared.scss`
+- [x] Convert `CarouselExample.scss` (the tabs shell)
 
 (One commit per file.)
 

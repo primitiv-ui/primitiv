@@ -163,6 +163,69 @@ describe("Carousel IntersectionObserver fallback + isInView", () => {
     );
   });
 
+  it("should not drive the page from the IntersectionObserver when the browser supports scrollsnapchange", () => {
+    // scrollsnapchange reports the precise centred snap target, so it owns
+    // the active page. The IO's lowest-index-visible heuristic is only a
+    // fallback for browsers without the event — and for a centre-aligned
+    // carousel that shows several slides at once it would override the
+    // correct page with the *leftmost* visible slide. When the event is
+    // available the observer must feed isInView only, not the page.
+    const ref = {
+      current: null,
+    } as unknown as RefObject<CarouselImperativeApi>;
+    // The presence of the on* handler property is the feature-detection
+    // signal; assigning it (even null) makes `"onscrollsnapchange" in window`
+    // true the way a supporting browser does.
+    (
+      window as unknown as { onscrollsnapchange: unknown }
+    ).onscrollsnapchange = null;
+    try {
+      render(
+        <Carousel.Root
+          ref={ref}
+          ariaLabel="Featured products"
+          snapAlign="center"
+        >
+          <Carousel.Viewport data-testid="viewport">
+            <Carousel.Slide data-testid="slide-0" />
+            <Carousel.Slide data-testid="slide-1" />
+            <Carousel.Slide data-testid="slide-2" />
+          </Carousel.Viewport>
+        </Carousel.Root>,
+      );
+
+      act(() => {
+        screen.getByTestId("viewport").dispatchEvent(new Event("scrollend"));
+      });
+
+      const io = MockIntersectionObserver.latest!;
+      act(() => {
+        io.fire([
+          {
+            target: screen.getByTestId("slide-2"),
+            isIntersecting: true,
+            intersectionRatio: 0.9,
+          },
+        ]);
+      });
+
+      // The page stays put — scrollsnapchange owns it…
+      expect(screen.getByTestId("slide-0")).toHaveAttribute(
+        "data-state",
+        "active",
+      );
+      expect(screen.getByTestId("slide-2")).toHaveAttribute(
+        "data-state",
+        "inactive",
+      );
+      // …but isInView still reflects what the observer reported.
+      expect(ref.current!.isInView(2)).toBe(true);
+    } finally {
+      delete (window as unknown as { onscrollsnapchange?: unknown })
+        .onscrollsnapchange;
+    }
+  });
+
   it("should not let an IO callback reset the page while a programmatic scroll is in flight", async () => {
     // Regression test: clicking NextTrigger calls next() which sets
     // internalPage to 1 and triggers a scrollIntoView. If the IO callback

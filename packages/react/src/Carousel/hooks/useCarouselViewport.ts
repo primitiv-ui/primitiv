@@ -23,7 +23,10 @@ import { useCarouselContext } from "./useCarouselContext";
  * `floor(slideIndex / slidesPerPage)`, and calls `goTo` on the new
  * page (skipping when the page is unchanged so consumers don't see
  * spurious onPageChange callbacks, and bailing when the snap target
- * isn't one of our registered slides).
+ * isn't one of our registered slides). An `IntersectionObserver`
+ * provides the same page-drive for browsers without `scrollsnapchange`,
+ * but stands down when the event is supported (it is authoritative);
+ * the observer still always feeds `isInView`.
  *
  * **Keyboard → state.** Returns an `onKeyDown` handler that wires the
  * WAI-ARIA Carousel pattern arrow keys (`ArrowRight` / `ArrowLeft` for
@@ -191,6 +194,16 @@ export function useCarouselViewport() {
   useEffect(() => {
     if (transition !== "slide") return;
 
+    // When the browser fires scrollsnapchange (Chrome 129+), that event is
+    // the authoritative source of the active page — snapTargetInline is the
+    // precisely-snapped slide. The observer below then only feeds isInView.
+    // Its lowest-index-visible heuristic is a coarse page fallback for
+    // browsers without the event, and would mis-track a centre-aligned
+    // carousel that shows several slides at once (it follows the leftmost
+    // visible slide, not the centred one), so it must not drive the page
+    // when the event is available.
+    const supportsSnapEvents = "onscrollsnapchange" in window;
+
     const observer = new IntersectionObserver(
       (entries) => {
         // Both lookups (slideKeys.findIndex → registered key, and the
@@ -207,6 +220,10 @@ export function useCarouselViewport() {
             entry.isIntersecting && entry.intersectionRatio >= 0.6,
           );
         }
+
+        // isInView is updated above regardless; only the page-drive below
+        // is the fallback that scrollsnapchange supersedes.
+        if (supportsSnapEvents) return;
 
         const visible = visibleSlideIndicesRef.current;
         if (visible.size === 0) return;

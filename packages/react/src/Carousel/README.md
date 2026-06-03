@@ -396,10 +396,17 @@ doesn't dispatch a spurious callback.
 For browsers without `scrollsnapchange`, the same path runs against
 an `IntersectionObserver` (threshold 0.6) on each slide — when the
 observer fires, the lowest-index visible slide derives the active
-page via `floor(firstVisibleSlideIndex / slidesPerPage)`. The
-observer also feeds `Carousel.Root`'s imperative
-`isInView(slideIndex)` so consumers can lazy-load slide content
-based on actual visibility, not just the active-page index.
+page via `floor(firstVisibleSlideIndex / slidesPerPage)`. This
+page-drive is **only** a fallback: when `scrollsnapchange` is
+supported it is authoritative (it reports the precisely-snapped
+slide), so the observer stands down and does not also drive the page.
+That matters for `snapAlign="center"` carousels with several slides
+visible at once (e.g. a cover flow) — the lowest-index-visible
+heuristic would otherwise track the *leftmost* visible slide rather
+than the centred one and fight `scrollsnapchange`. The observer still
+always feeds `Carousel.Root`'s imperative `isInView(slideIndex)` so
+consumers can lazy-load slide content based on actual visibility, not
+just the active-page index.
 
 ### Custom DOM ids
 

@@ -1,7 +1,7 @@
 import { Dropdown, DirectionProvider } from "@primitiv/react";
 import { useState } from "react";
 
-import "./DropdownExample.scss";
+import "./DropdownExample.css";
 
 export function DropdownExample() {
   const [dir, setDir] = useState<"ltr" | "rtl">("ltr");

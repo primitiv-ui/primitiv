@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { Slider } from "@primitiv/react";
 
-import "./SliderExample.scss";
+import "./SliderExample.css";
 
 export function SliderExample() {
   const [volume, setVolume] = useState([60]);

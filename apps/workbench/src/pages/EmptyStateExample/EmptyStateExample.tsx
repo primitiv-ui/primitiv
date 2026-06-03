@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { EmptyState } from "@primitiv/react";
 
-import "./EmptyStateExample.scss";
+import "./EmptyStateExample.css";
 
 const PROJECTS = ["Harmoni", "Primitiv", "Workbench", "Roadmap"];
 

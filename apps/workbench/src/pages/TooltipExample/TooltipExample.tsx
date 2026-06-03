@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { Tooltip } from "@primitiv/react";
 
-import "./TooltipExample.scss";
+import "./TooltipExample.css";
 
 export function TooltipExample() {
   const [open, setOpen] = useState(false);

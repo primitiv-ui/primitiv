@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Check, Minus } from "@primitiv/icons";
 import { CheckboxCard, CheckedState } from "@primitiv/react";
 
-import "./CheckboxCardExample.scss";
+import "./CheckboxCardExample.css";
 
 type Features = {
   analytics: boolean;

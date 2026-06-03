@@ -28,6 +28,48 @@ the six base components above.
 
 Build priority: ~~Select (native)~~ → ~~Input~~ → ~~InputGroup~~ → ~~Field~~ → Figma design for Select.
 
+## Figma design coverage
+
+Which built components have a Figma component set. Utility-only primitives
+(AccessibleIcon, DirectionProvider, Portal, SkipNav, VisuallyHidden) are
+not visual components and do not need a Figma design.
+
+| Component | Figma design | Node ID |
+|---|---|---|
+| Accordion | ✓ | 416:6729 (Item), 417:6881 (Panel) |
+| Alert | — | |
+| Avatar | ✓ | 433:7944 |
+| Breadcrumb | — | |
+| Button | ✓ | 347:14161 |
+| Carousel | — | |
+| Checkbox | ✓ | 369:30652 |
+| CheckboxCard | — | |
+| Collapsible | — | |
+| ContextMenu | — | |
+| Divider | — | |
+| Dropdown | ✓ | 402:18499 |
+| EmptyState | — | |
+| Field | ✓ | 394:7449 |
+| Fieldset | — | |
+| Input | ✓ | 393:6159 |
+| InputGroup | — | |
+| MillerColumns | — | |
+| Modal | — | |
+| Progress | — | |
+| RadioCard | — | |
+| RadioGroup | ✓ | 401:17958 |
+| Select | ✓ | 403:1883 |
+| Slider | ✓ | 392:5196 (track), 392:4353 (thumb) |
+| Status | — | |
+| Switch | ✓ | 315:5884 |
+| Table | — | |
+| Tabs | ✓ | 425:5528 (Trigger), 425:5539 (Panel) |
+| Textarea | — | |
+| Toggle | ✓ | 385:1418 |
+| ToggleGroup | ✓ | assembled from Toggle |
+| Tooltip | — | |
+| Tree | — | |
+
 ## Components to build
 
 What remains is every component that carries genuine interaction

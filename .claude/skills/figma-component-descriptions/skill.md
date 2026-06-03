@@ -545,6 +545,29 @@ Pairs with: Tabs/Trigger (placed immediately below a trigger strip)
 Notes: TL/TR always 0 — connects flush to the trigger strip above. BL/BR rounded using the same size slot as the triggers above. Stroke family matches Tabs/Trigger to prevent a visible seam at the junction. All 4 edges = 1px stroke (panel is always terminal). minHeight=80px gives substance when empty; no preferred nested instance — content slot is open. panel/padding/* tokens shared with Accordion/Panel.
 ```
 
+### Icon Button — `433:8386`
+
+```
+Square icon-only framed control; use when the action is self-evident from the icon alone (e.g. close, search, add).
+
+Type: framed-control
+
+Axes: Variant primary|secondary|danger|link · Size xs|sm|md|lg|xl · State default|hover|active|focus|disabled
+
+Tokens: fill/stroke/fg → action/{variant}/* per state (same families as Button)
+        sizing → framed-control/{size}/height bound to BOTH width and height (always square)
+        radius → framed-control/{size}/radius
+        icon fill → action/{variant}/foreground/default (disabled: foreground/disabled)
+
+Properties: Icon (SWAP — grid icon default; swap to any glyph from the icon set)
+
+Density: Context mode override on parent frame
+Pairs with: Button (when a label is needed), Modal.Close, Toolbar, ActionBar
+Notes: width = height = framed-control/{size}/height — always square, no padding-inline binding needed.
+  link variant: no fill or stroke; disabled link uses 50% root opacity.
+  Focus ring: two-frame anatomy (focus-ring-gap + focus-ring); ring dimensions = comp.width+4/+8, re-swept after arrange to fix constraint offset computed against initial resize(32,32). STRETCH constraints maintain correct offsets across density modes after the sweep.
+```
+
 ---
 
 ## Definition of done checklist

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Tree } from "@primitiv/react";
 import { ChevronRight, File, Folder } from "@primitiv/icons";
 
-import "./TreeExample.scss";
+import "./TreeExample.css";
 
 type SelectionMode = "single" | "multiple";
 

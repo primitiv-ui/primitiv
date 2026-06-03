@@ -1,0 +1,40 @@
+/* MultiSlideCrossfade — layout-only rules. */
+
+.multi-slide-crossfade {
+  --gap: 0.75rem;
+}
+
+.multi-slide-crossfade__viewport {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap);
+  padding: 0.75rem;
+}
+
+/* slide-surface provides the card aspect ratio so the grid row has a stable
+ * height even when all slides in a column are opacity:0 (partial last page). */
+.multi-slide-crossfade__slide {
+  grid-row: 1;
+  opacity: 0;
+  transition: opacity 400ms ease;
+  pointer-events: none;
+
+  &:nth-child(3n + 1) {
+    grid-column: 1;
+  }
+  &:nth-child(3n + 2) {
+    grid-column: 2;
+  }
+  &:nth-child(3n + 3) {
+    grid-column: 3;
+  }
+
+  &[data-state="active"] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}

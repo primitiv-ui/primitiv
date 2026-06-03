@@ -1,7 +1,7 @@
 import { Carousel } from "@primitiv/react";
 
 import { carouselImages } from "../fixtures";
-import "./_multiSlideCrossfade.scss";
+import "./multiSlideCrossfade.css";
 
 /**
  * Three slides visible per page, CSS-only crossfade between pages,
@@ -21,38 +21,38 @@ import "./_multiSlideCrossfade.scss";
 export function MultiSlideCrossfade() {
   return (
     <Carousel.Root
-      className="multi-slide-crossfade"
+      className="multi-slide-crossfade cx-frame"
       ariaLabel="Metal primitives — three per page, crossfade"
       slidesPerPage={3}
       transition="none"
     >
-      <Carousel.Viewport className="multi-slide-crossfade__viewport">
+      <Carousel.Viewport className="multi-slide-crossfade__viewport cx-viewport-track">
         {carouselImages.map(({ src, description }) => (
           <Carousel.Slide
             key={src}
-            className="multi-slide-crossfade__slide"
+            className="multi-slide-crossfade__slide cx-slide-surface"
           >
             <img
-              className="multi-slide-crossfade__image"
+              className="multi-slide-crossfade__image cx-image"
               src={src}
               alt={description}
             />
           </Carousel.Slide>
         ))}
       </Carousel.Viewport>
-      <div className="multi-slide-crossfade__controls">
+      <div className="multi-slide-crossfade__controls cx-controls">
         <Carousel.PreviousTrigger
-          className="multi-slide-crossfade__trigger"
+          className="multi-slide-crossfade__trigger cx-trigger"
           aria-label="Previous"
         >
           {"<"}
         </Carousel.PreviousTrigger>
         <Carousel.Indicators
-          className="multi-slide-crossfade__indicator-group"
+          className="multi-slide-crossfade__indicator-group cx-indicators"
           label="Choose page"
         />
         <Carousel.NextTrigger
-          className="multi-slide-crossfade__trigger"
+          className="multi-slide-crossfade__trigger cx-trigger"
           aria-label="Next"
         >
           {">"}

@@ -761,3 +761,81 @@ slides per page, plus a `gap` on the viewport for the inter-slide
 spacing. For a crossfade transition, use `transition="none"` on
 `Carousel.Root` and style the slides absolute-positioned with an
 opacity transition keyed off `[data-carousel-slide][data-state="active"]`.
+
+### Cover Flow (scroll-driven 3D)
+
+A "cover flow" — narrow snap units with cards that tilt away in 3D
+and stack with depth — can be built entirely in CSS, with no extra JS,
+using scroll-driven animations (`view-timeline` + `animation-timeline`).
+The full working source is the workbench example at
+`apps/workbench/src/pages/CarouselExample/examples/_coverFlow.scss`;
+this section documents the design so it can be reused or ported.
+
+**Structure.** Each slide is a narrow snap unit that owns the named
+timelines. Inside it, a card-sized `visual` box is centred over the
+snap unit (and overflows it so neighbours interleave) and handles the
+`translateX`; inside that, a `card` element handles the `rotateY`.
+Keep `perspective()` *inside* the keyframe transform — a `overflow-x`
+scroll container flattens a `perspective` CSS property, but the
+function form is immune.
+
+**Two timelines, one slide.** The rotate/translate run on a tight
+centred band (`view-timeline-inset` shrinks the scrollport) over
+`animation-range: contain`. The depth order runs on a *second*,
+full-scrollport timeline (`inset: 0`) over `animation-range: cover`.
+The wide range matters: `z-index` is an animatable integer, so a
+`1 → peak → 1` keyframe driven by each slide's own timeline makes the
+most-centred card win the stack generically — no per-slide numbers.
+A narrow range would clamp every off-centre slide to the boundary
+`z-index`, leaving DOM order to (incorrectly) break the ties on one
+side.
+
+**Customising.** Drive every dimension from a small set of custom
+properties on the root, and derive the rest with `calc()`:
+
+```css
+.cover-flow {
+  /* Geometry knobs */
+  --cf-viewport-w: 38rem;   /* visible carousel width                  */
+  --cf-card-w: 180px;       /* rendered card width                     */
+  --cf-aspect: 1.168;       /* width ÷ height — 1 = square, >1 = wide   */
+  --cf-snap: 90px;          /* centre-to-centre spacing (< card-w → overlap) */
+  --cf-track-pad: 0px;      /* grey track shown above/below the cards   */
+  --cf-radius: 10px;
+  /* Motion knobs */
+  --cf-spread: 1.4;         /* tilt band width, in multiples of --cf-snap */
+  --cf-tilt: 55deg;         /* max rotateY of the side cards            */
+  --cf-perspective: 500px;
+  --cf-shift: 30%;          /* translateX of the card toward centre     */
+  --cf-lift: 10;            /* peak z-index of the centred card         */
+
+  /* Derived — leave alone */
+  --cf-card-h: calc(var(--cf-card-w) / var(--cf-aspect));
+  --cf-viewport-h: calc(var(--cf-card-h) + var(--cf-track-pad) * 2);
+  --cf-center-pad: calc(50% - var(--cf-snap) / 2); /* centres first/last card */
+  --cf-band: calc(var(--cf-snap) * var(--cf-spread));
+}
+```
+
+With that in place the three common tweaks are one line each:
+
+- **Viewport size** — set `--cf-viewport-w`. The height follows the
+  cards automatically (`card-h + 2·track-pad`), so you rarely set it.
+- **Padding / spacing** — `--cf-track-pad` adds grey track above and
+  below the cards; `--cf-snap` is the centre-to-centre spacing — the
+  smaller it is relative to `--cf-card-w`, the more the cards overlap
+  (it also sets the centring gutter).
+- **Slide shape** — `--cf-aspect` is width ÷ height (`1` = exact
+  square, `>1` = landscape, `<1` = portrait); `--cf-card-w` is the
+  rendered size. A 240px square is `--cf-card-w: 240px; --cf-aspect: 1`.
+
+Two gotchas:
+
+- `--cf-aspect` must resolve to a *number*, not a fraction token.
+  `--cf-aspect: 16 / 9` lands inside `card-w / aspect` and divides
+  twice; use `--cf-aspect: calc(16 / 9)` (or a literal like `1.778`).
+- The whole recipe relies on `animation-timeline` and `calc()` length
+  division. Wrap it in `@supports (animation-timeline: --x)` and keep
+  a static `[data-state="active"] { z-index: var(--cf-lift) }` fallback
+  plus `@media (prefers-reduced-motion: reduce) { animation: none }` so
+  the carousel degrades to a plain scroll-snap row.

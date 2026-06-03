@@ -4,47 +4,97 @@
 //
 // Structure (mirrors Blossom's li › .slide › .card):
 //
-//   __slide   (130px snap unit, owns the named view-timeline)
-//   __visual  (200%-wide, position: absolute, left: -50% — overflows the snap
-//              unit on each side so adjacent cards visually interleave)
-//              ↳ animation: translateX + scale
-//   __card    (the rotating surface)
-//              ↳ animation: perspective() rotateY
+//   __slide   snap unit (--cf-snap wide); owns the named view-timelines and
+//             the z-index lift.
+//   __visual  card-sized box centred over the snap unit; overflows it when
+//             --cf-card-w > --cf-snap so neighbours interleave.
+//             ↳ animation: translateX (slides toward centre)
+//   __card    the rotating surface.
+//             ↳ animation: perspective() rotateY
 //
-// IMPORTANT: `perspective` is inside the keyframe transform function, NOT as a
-// CSS property. When `perspective:` is a CSS property it needs
-// `transform-style: preserve-3d` on the parent chain — but `overflow-x: auto`
-// on any ancestor forces that to flat. `perspective()` in the transform
-// function has no such constraint and works correctly inside a scroll
-// container.
+// IMPORTANT: `perspective` lives inside the keyframe transform function, NOT as
+// a CSS property — `overflow-x: auto` on the scroll container would otherwise
+// flatten it (a scrolling ancestor forces `transform-style` flat).
+//
+// ─── Customisation recipe ─────────────────────────────────────────────────────
+// Every dimension derives from the knobs in the `.cover-flow` block below. Edit
+// the knobs; never touch the derived values or the rules.
+//
+//   1. Viewport size   → --cf-viewport-w sets the visible width. The height
+//                        follows the cards automatically (card height + track
+//                        padding), so you rarely set it directly.
+//   2. Padding         → --cf-track-pad is the grey track shown above/below the
+//                        cards. --cf-snap is the centre-to-centre spacing: the
+//                        smaller it is relative to --cf-card-w, the more the
+//                        cards overlap (and it also sets the centring gutter).
+//   3. Slide shape     → --cf-aspect is width ÷ height (1 = exact square, >1 =
+//                        landscape, <1 = portrait); --cf-card-w is the rendered
+//                        size; --cf-radius rounds the corners. Want a 240px
+//                        square? --cf-card-w: 240px; --cf-aspect: 1.
+//
+// Motion knobs (--cf-spread / --cf-tilt / --cf-perspective / --cf-shift /
+// --cf-lift) tune the 3D feel without touching geometry.
 
 @keyframes coverflow-rotate {
-  from { transform: perspective(500px) rotateY(-55deg); }
-  50%  { transform: perspective(500px) rotateY(0deg); }
-  to   { transform: perspective(500px) rotateY(55deg); }
+  from { transform: perspective(var(--cf-perspective)) rotateY(calc(-1 * var(--cf-tilt))); }
+  50%  { transform: perspective(var(--cf-perspective)) rotateY(0deg); }
+  to   { transform: perspective(var(--cf-perspective)) rotateY(var(--cf-tilt)); }
 }
 
 @keyframes coverflow-translate {
-  from { transform: translateX(30%); }
-  50%  { transform: translateX(0) scale(1.2); }
-  to   { transform: translateX(-30%); }
+  from { transform: translateX(var(--cf-shift)); }
+  50%  { transform: translateX(0); }
+  to   { transform: translateX(calc(-1 * var(--cf-shift))); }
+}
+
+// Stacking ramp: peaks at the centred slide, falls away symmetrically. z-index
+// is an animatable integer, so driving it from the slide's own view-timeline
+// gives a generic depth order with no per-slide numbers — the most-centred card
+// always wins.
+@keyframes coverflow-lift {
+  from { z-index: 1; }
+  50%  { z-index: var(--cf-lift); }
+  to   { z-index: 1; }
 }
 
 .cover-flow {
   @include cx.frame;
 
+  // ─── Tunable knobs ──────────────────────────────────────────────────────────
+  // Geometry
+  --cf-viewport-w: 38rem;            // visible carousel width
+  --cf-card-w: 180px;                // rendered card width
+  --cf-aspect: #{cx.$ratio};         // card width ÷ height (1 = square)
+  --cf-snap: 90px;                   // centre-to-centre spacing (< card-w → overlap)
+  --cf-track-pad: 0px;               // grey track shown above/below the cards
+  --cf-radius: #{cx.$radius-card};   // card corner rounding
+  // Motion
+  --cf-spread: 1.4;                  // tilt band width, in multiples of --cf-snap
+  --cf-tilt: 55deg;                  // max rotateY of the side cards
+  --cf-perspective: 500px;           // 3D perspective depth
+  --cf-shift: 30%;                   // translateX of the card toward centre
+  --cf-lift: 10;                     // peak z-index of the centred card
+
+  // ─── Derived — do not edit ───────────────────────────────────────────────────
+  --cf-card-h: calc(var(--cf-card-w) / var(--cf-aspect));
+  --cf-viewport-h: calc(var(--cf-card-h) + var(--cf-track-pad) * 2);
+  --cf-center-pad: calc(50% - var(--cf-snap) / 2);     // centres first/last card
+  --cf-band: calc(var(--cf-snap) * var(--cf-spread));  // half-width of tilt band
+
+  max-inline-size: var(--cf-viewport-w);
+
   &__viewport {
     @include cx.viewport-track;
     display: flex;
-    align-items: center;
+    align-items: stretch;
+    height: var(--cf-viewport-h);
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
-    // Centers the 130px snap unit at any container width.
-    padding-inline: calc(50% - 65px);
-    scroll-padding-inline: calc(50% - 65px);
+    padding-inline: var(--cf-center-pad);
+    scroll-padding-inline: var(--cf-center-pad);
 
     &::-webkit-scrollbar {
       display: none;
@@ -52,33 +102,58 @@
   }
 
   &__slide {
-    flex: 0 0 130px;
+    flex: 0 0 var(--cf-snap);
     position: relative;
-    // Height from aspect-ratio so __visual has something to anchor to.
-    aspect-ratio: cx.$ratio;
+    z-index: 1;
     scroll-snap-align: center;
     scroll-snap-stop: always;
 
-    // Named view-timeline: progress is driven by the slide's inline
-    // scroll position. animation-range: contain (on children) means the
-    // animation plays over the symmetrical centred band.
-    // Inset = 130px × 1.4 = 182px (Blossom uses 100px × 1.4 = 140px).
+    // Fallback stacking when the scroll-driven lift is unavailable (no
+    // animation-timeline support, or reduced motion): the React-tracked active
+    // slide draws above its DOM-later neighbours so its right half isn't hidden.
+    &[data-state="active"] {
+      z-index: var(--cf-lift);
+    }
+
+    // Two named view-timelines, both driven by the slide's inline scroll
+    // position:
+    //   --coverflow-slide  tight centred band (inset = 50% − --cf-band),
+    //                      consumed by __visual / __card over `contain` for the
+    //                      rotate + translate.
+    //   --coverflow-lift   full scrollport (inset 0), consumed here over
+    //                      `cover` for the z-index ramp. The wide range is
+    //                      essential: a narrow range clamps every off-centre
+    //                      slide to the boundary z-index, letting DOM order
+    //                      wrongly break the ties on the right. Spanning the
+    //                      whole scrollport gives each neighbour a distinct,
+    //                      decreasing z so both sides recede symmetrically.
     @supports (animation-timeline: --x) {
-      view-timeline-name: --coverflow-slide;
-      view-timeline-axis: inline;
-      view-timeline-inset: calc(50% - 182px);
+      view-timeline-name: --coverflow-slide, --coverflow-lift;
+      view-timeline-axis: inline, inline;
+      view-timeline-inset: calc(50% - var(--cf-band)), 0;
+
+      // Self-referencing the lift timeline: the slide rises toward centre,
+      // overriding the static z-index fallback.
+      animation: coverflow-lift linear both;
+      animation-timeline: --coverflow-lift;
+      animation-range: cover;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
     }
   }
 
-  // 200%-wide visual container — extends 65px outside __slide on each side.
-  // Handles translateX + scale so adjacent cards slide toward each other
-  // as the active card scales up.
+  // Card-sized box centred over the snap unit; overflows it when
+  // --cf-card-w > --cf-snap so adjacent cards interleave. Handles translateX.
   &__visual {
     position: absolute;
-    top: 0;
-    left: -50%;
-    width: 200%;
-    aspect-ratio: cx.$ratio;
+    top: 50%;
+    left: 50%;
+    width: var(--cf-card-w);
+    height: var(--cf-card-h);
+    margin-top: calc(var(--cf-card-h) / -2);
+    margin-left: calc(var(--cf-card-w) / -2);
 
     @supports (animation-timeline: --x) {
       animation: coverflow-translate linear both;
@@ -91,12 +166,12 @@
     }
   }
 
-  // Inner card — rotateY with perspective() in the transform (not as a
-  // CSS property) so it is immune to overflow-ancestor flattening.
+  // Inner card — rotateY with perspective() in the transform (not a CSS
+  // property) so it survives overflow-ancestor flattening.
   &__card {
     width: 100%;
     height: 100%;
-    border-radius: cx.$radius-card;
+    border-radius: var(--cf-radius);
     overflow: hidden;
     background: cx.$surface-slide;
     box-shadow: cx.$shadow-card;

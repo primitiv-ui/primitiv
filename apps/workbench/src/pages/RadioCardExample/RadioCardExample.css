@@ -1,0 +1,107 @@
+.rc-example {
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.rc-example__title {
+  margin-block-end: 1.5rem;
+}
+
+.rc-example__section {
+  margin-block-end: 2.5rem;
+}
+
+.rc-example__section-title {
+  margin-block-end: 0.5rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #888;
+}
+
+.rc-example__description {
+  margin-block-end: 0.75rem;
+  font-size: 0.9375rem;
+  color: #555;
+}
+
+.rc-example__value {
+  color: #111;
+}
+
+.rc-example__group {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.rc-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 8rem;
+  padding: 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  background: white;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease,
+    box-shadow 120ms ease;
+
+  &:hover:not([disabled]) {
+    border-color: #a5b4fc;
+    background: #f5f3ff;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+  }
+
+  &[data-state="checked"] {
+    border-color: #6366f1;
+    background: #eef2ff;
+    box-shadow: 0 0 0 1px #6366f1;
+  }
+
+  &[disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.rc-card__indicator-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 1rem;
+  margin-block-end: 0.5rem;
+}
+
+.rc-card__indicator {
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 50%;
+  background: #6366f1;
+  display: block;
+}
+
+.rc-card__label {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: #111;
+}
+
+.rc-card__price {
+  font-size: 0.8125rem;
+  color: #6b7280;
+}
+
+.rc-card__badge {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-style: italic;
+}

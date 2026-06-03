@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { RadioCard } from "@primitiv/react";
 
-import "./RadioCardExample.scss";
+import "./RadioCardExample.css";
 
 export function RadioCardExample() {
   const [plan, setPlan] = useState("pro");

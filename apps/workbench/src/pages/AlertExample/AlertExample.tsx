@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { Alert } from "@primitiv/react";
 
-import "./AlertExample.scss";
+import "./AlertExample.css";
 
 export function AlertExample() {
   const [error, setError] = useState<string | null>(null);

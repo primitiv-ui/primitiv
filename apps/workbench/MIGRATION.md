@@ -9,7 +9,7 @@ checklists as files land.
 - [x] Phase 0 — approach decided (**Option A**, below)
 - [x] Phase 1 — Carousel cluster (shared partial + 12 examples)
 - [x] Phase 2 — Standalone example stylesheets (~38 files)
-- [ ] Phase 3 — App shell + teardown (`App.scss`, remove `sass` dep)
+- [x] Phase 3 — App shell + teardown (`App.scss`, remove `sass` dep)
 
 ## Scope (snapshot when this doc was written)
 

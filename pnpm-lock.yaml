@@ -245,9 +245,6 @@ importers:
       globals:
         specifier: ^15.11.0
         version: 15.15.0
-      sass:
-        specifier: ^1.98.0
-        version: 1.98.0
       typescript:
         specifier: ~6.0.2
         version: 6.0.2

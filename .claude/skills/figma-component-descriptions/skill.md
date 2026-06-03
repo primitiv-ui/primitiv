@@ -500,6 +500,50 @@ Notes: TL/TR always 0. BL/BR=framed-control/{size}/radius for standalone|last; 0
 Bottom stroke present for standalone|last (closes the group); absent for first|middle (next item's top stroke is the divider). Set Position to match the Position of the Accordion/Item above it. panel/padding/* tokens also used by Tabs/Panel.
 ```
 
+### Tabs/Trigger — `425:5528`
+
+```
+Tab trigger button for horizontal navigation strips; uses primary styling when active, secondary when inactive.
+
+Type: framed-control
+
+Axes: Position standalone|start|middle|end · Size xs|sm|md|lg|xl · State active|inactive · Interaction default|hover|focus|disabled
+
+Tokens: fill   action/primary/* (State=active) · action/secondary/* (State=inactive) per Interaction
+        stroke action/primary/border/* (active) · action/secondary/border/* (inactive) per Interaction
+        fg     action/primary/foreground/* (active) · action/secondary/foreground/* (inactive)
+        sizing framed-control/{size}/height|padding-inline|gap|radius
+
+Properties: Label (TEXT "Tab") · Leading Icon (BOOL false)
+
+Density: Context mode override on parent frame
+Pairs with: Tabs/Panel (placed directly below a strip of triggers)
+Notes: Position controls corner-radius clamping at strip edges — standalone: all 4 corners bound; start: TL/BL bound TR/BR=0; middle: all 0; end: TL/BL=0 TR/BR bound.
+  Bottom stroke removed on all positions (panel's top stroke is the single divider at the trigger-panel junction). Right stroke removed on start and middle (next trigger's left stroke is the divider). State=active maps to data-state="active" in the React component; State=inactive maps to "inactive".
+  Focus rings — per-corner radii match Position: bound corners use focus-ring-gap-radius/focus-ring-radius variables; flat corners hardcoded 2/4px.
+```
+
+### Tabs/Panel — `425:5539`
+
+```
+Content panel placed directly below a strip of Tabs/Trigger controls.
+
+Type: non-framed composition
+
+Axes: Size xs|sm|md|lg|xl
+
+Tokens: fill    none (transparent)
+        stroke  action/secondary/border/default (INSIDE, all 4 edges = 1px — matches trigger stroke family)
+        padding panel/padding/block (top/bottom) · panel/padding/inline (left/right)
+        radius  TL/TR = 0; BL/BR = framed-control/{size}/radius
+
+Properties: Content (TEXT "Panel content")
+
+Density: Context mode override on parent frame (panel/* tokens scale across all 4 modes)
+Pairs with: Tabs/Trigger (placed immediately below a trigger strip)
+Notes: TL/TR always 0 — connects flush to the trigger strip above. BL/BR rounded using the same size slot as the triggers above. Stroke family matches Tabs/Trigger to prevent a visible seam at the junction. All 4 edges = 1px stroke (panel is always terminal). panel/padding/* tokens shared with Accordion/Panel.
+```
+
 ---
 
 ## Definition of done checklist

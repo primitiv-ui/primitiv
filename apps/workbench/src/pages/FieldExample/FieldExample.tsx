@@ -3,7 +3,7 @@ import { FormEvent, useState } from "react";
 import { Mail } from "@primitiv/icons";
 import { Field, Input, InputGroup, Select, Textarea } from "@primitiv/react";
 
-import "./FieldExample.scss";
+import "./FieldExample.css";
 
 export function FieldExample() {
   const [email, setEmail] = useState("");

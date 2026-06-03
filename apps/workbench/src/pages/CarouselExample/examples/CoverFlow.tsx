@@ -3,7 +3,7 @@ import { CSSProperties, useState } from "react";
 import { Carousel, RadioGroup, Slider } from "@primitiv/react";
 
 import { carouselImages } from "../fixtures";
-import "./_coverFlow.scss";
+import "./coverFlow.css";
 
 /**
  * Cover Flow — based on the Blossom carousel CSS technique.
@@ -14,7 +14,7 @@ import "./_coverFlow.scss";
  * rotateY. Both are driven by named `view-timeline`s defined on the snap unit.
  *
  * Every dimension of the effect is exposed as a `--cf-*` custom property in
- * `_coverFlow.scss`. The playground above the carousel maps a slider (or, for
+ * `coverFlow.css`. The playground above the carousel maps a slider (or, for
  * the slide shape, a radio group) onto each knob and writes the live values as
  * an inline `style` on `Carousel.Root` — inline styles override the stylesheet
  * defaults, so the SCSS values are the starting point and the reader can tune

@@ -1,0 +1,404 @@
+/* ─── Blossom-derived cover flow ──────────────────────────────────────────────
+ *
+ * Modern-CSS proof-of-concept: this example was the first to drop SCSS. It uses
+ * CSS custom properties (no `$variables`), native nesting (no `&__bem`
+ * concatenation — flat BEM selectors, `&` only for states/pseudos/at-rules),
+ * and inlined rules in place of the shared SCSS mixins. The shared cosmetic
+ * tokens live as `--cx-*` custom properties on the example root below; when the
+ * other examples migrate, those move to a shared stylesheet.
+ *
+ * Structure (mirrors Blossom's li › .slide › .card):
+ *
+ *   __slide   snap unit (--cf-snap wide); owns the named view-timelines and
+ *             the z-index lift.
+ *   __visual  card-sized box centred over the snap unit; overflows it when
+ *             --cf-card-w > --cf-snap so neighbours interleave.
+ *             ↳ animation: translateX (slides toward centre)
+ *   __card    the rotating surface.
+ *             ↳ animation: perspective() rotateY
+ *
+ * IMPORTANT: `perspective` lives inside the keyframe transform function, NOT as
+ * a CSS property — `overflow-x: auto` on the scroll container would otherwise
+ * flatten it (a scrolling ancestor forces `transform-style` flat).
+ *
+ * ─── Customisation recipe ─────────────────────────────────────────────────────
+ * Every dimension derives from the knobs in the `.cover-flow` block. Edit the
+ * knobs; never touch the derived values or the rules. (The workbench wires a
+ * live control panel onto these via an inline `style` on the root.)
+ *
+ *   1. Viewport size   → --cf-viewport-w sets the visible width. The height
+ *                        follows the cards automatically (card height + track
+ *                        padding).
+ *   2. Padding         → --cf-track-pad is the grey track shown above/below the
+ *                        cards. --cf-snap is the centre-to-centre spacing: the
+ *                        smaller it is relative to --cf-card-w, the more the
+ *                        cards overlap (it also sets the centring gutter).
+ *   3. Slide shape     → --cf-aspect is width ÷ height (1 = square, >1 =
+ *                        landscape, <1 = portrait); --cf-card-w is the rendered
+ *                        size; --cf-radius rounds the corners.
+ *
+ * Motion knobs (--cf-spread / --cf-tilt / --cf-perspective / --cf-shift /
+ * --cf-lift) tune the 3D feel without touching geometry.
+ */
+
+@keyframes coverflow-rotate {
+  from { transform: perspective(var(--cf-perspective)) rotateY(calc(-1 * var(--cf-tilt))); }
+  50%  { transform: perspective(var(--cf-perspective)) rotateY(0deg); }
+  to   { transform: perspective(var(--cf-perspective)) rotateY(var(--cf-tilt)); }
+}
+
+@keyframes coverflow-translate {
+  from { transform: translateX(var(--cf-shift)); }
+  50%  { transform: translateX(0); }
+  to   { transform: translateX(calc(-1 * var(--cf-shift))); }
+}
+
+/* Stacking ramp: peaks at the centred slide, falls away symmetrically. z-index
+ * is an animatable integer, so driving it from the slide's own view-timeline
+ * gives a generic depth order with no per-slide numbers. */
+@keyframes coverflow-lift {
+  from { z-index: 1; }
+  50%  { z-index: var(--cf-lift); }
+  to   { z-index: 1; }
+}
+
+/* Example root. Holds the shared cosmetic tokens (inherited by .cover-flow,
+ * which is nested inside) and lays out the control panel above the carousel. */
+.cf-playground {
+  /* Shared cosmetic tokens (formerly carouselShared.scss $variables). */
+  --cx-accent: #6366f1;
+  --cx-ink: #111827;
+  --cx-muted: #9ca3af;
+  --cx-border: #d1d5db;
+  --cx-surface: #f3f4f6; /* slide placeholder + trigger background */
+  --cx-track: #e5e7eb; /* viewport track + segmented-control background */
+  --cx-radius-card: 10px;
+  --cx-shadow-card: 0 1px 2px rgb(17 24 39 / 0.06), 0 4px 10px rgb(17 24 39 / 0.08);
+
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.cover-flow {
+  /* ─── Tunable knobs ──────────────────────────────────────────────────────── */
+  /* Geometry */
+  --cf-viewport-w: 38rem; /* visible carousel width */
+  --cf-card-w: 180px; /* rendered card width */
+  --cf-aspect: calc(1120 / 959); /* card width ÷ height (1 = square) */
+  --cf-snap: 90px; /* centre-to-centre spacing (< card-w → overlap) */
+  --cf-track-pad: 32px; /* grey track shown above/below the cards */
+  --cf-radius: 6px; /* card corner rounding */
+  /* Motion */
+  --cf-spread: 1.4; /* tilt band width, in multiples of --cf-snap */
+  --cf-tilt: 55deg; /* max rotateY of the side cards */
+  --cf-perspective: 500px; /* 3D perspective depth */
+  --cf-shift: 30%; /* translateX of the card toward centre */
+  --cf-lift: 10; /* peak z-index of the centred card */
+
+  /* ─── Derived — do not edit ──────────────────────────────────────────────── */
+  --cf-card-h: calc(var(--cf-card-w) / var(--cf-aspect));
+  --cf-viewport-h: calc(var(--cf-card-h) + var(--cf-track-pad) * 2);
+  --cf-center-pad: calc(50% - var(--cf-snap) / 2); /* centres first/last card */
+  --cf-band: calc(var(--cf-snap) * var(--cf-spread)); /* half-width of tilt band */
+
+  /* Frame (formerly @include frame), width overridden by the knob. */
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-inline: auto;
+  max-inline-size: var(--cf-viewport-w);
+}
+
+.cover-flow__viewport {
+  /* Track surface (formerly @include viewport-track). */
+  background: var(--cx-track);
+  border-radius: var(--cx-radius-card);
+
+  display: flex;
+  align-items: stretch;
+  height: var(--cf-viewport-h);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  padding-inline: var(--cf-center-pad);
+  scroll-padding-inline: var(--cf-center-pad);
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.cover-flow__slide {
+  flex: 0 0 var(--cf-snap);
+  position: relative;
+  z-index: 1;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+
+  /* Fallback stacking when the scroll-driven lift is unavailable (no
+   * animation-timeline support, or reduced motion): the React-tracked active
+   * slide draws above its DOM-later neighbours so its right half isn't hidden. */
+  &[data-state="active"] {
+    z-index: var(--cf-lift);
+  }
+
+  /* Two named view-timelines, both driven by the slide's inline scroll
+   * position:
+   *   --coverflow-slide  tight centred band (inset = 50% − --cf-band),
+   *                      consumed by __visual / __card over `contain`.
+   *   --coverflow-lift   full scrollport (inset 0), consumed here over `cover`
+   *                      for the z-index ramp. The wide range is essential: a
+   *                      narrow range clamps every off-centre slide to the
+   *                      boundary z-index, letting DOM order wrongly break ties
+   *                      on the right. Spanning the scrollport gives each
+   *                      neighbour a distinct, decreasing z. */
+  @supports (animation-timeline: --x) {
+    view-timeline-name: --coverflow-slide, --coverflow-lift;
+    view-timeline-axis: inline, inline;
+    view-timeline-inset: calc(50% - var(--cf-band)), 0;
+
+    animation: coverflow-lift linear both;
+    animation-timeline: --coverflow-lift;
+    animation-range: cover;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* Card-sized box centred over the snap unit; overflows it when
+ * --cf-card-w > --cf-snap so adjacent cards interleave. Handles translateX. */
+.cover-flow__visual {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--cf-card-w);
+  height: var(--cf-card-h);
+  margin-top: calc(var(--cf-card-h) / -2);
+  margin-left: calc(var(--cf-card-w) / -2);
+
+  @supports (animation-timeline: --x) {
+    animation: coverflow-translate linear both;
+    animation-timeline: --coverflow-slide;
+    animation-range: contain;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* Inner card — rotateY with perspective() in the transform (not a CSS property)
+ * so it survives overflow-ancestor flattening. */
+.cover-flow__card {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--cf-radius);
+  overflow: hidden;
+  background: var(--cx-surface);
+  box-shadow: var(--cx-shadow-card);
+
+  @supports (animation-timeline: --x) {
+    animation: coverflow-rotate linear both;
+    animation-timeline: --coverflow-slide;
+    animation-range: contain;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* Image (formerly @include image). */
+.cover-flow__image {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  -webkit-user-drag: none;
+}
+
+/* Controls row (formerly @include controls). */
+.cover-flow__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+/* Circular prev/next button (formerly @include trigger). */
+.cover-flow__trigger {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  inline-size: 2rem;
+  block-size: 2rem;
+  padding: 0;
+  border: 1px solid var(--cx-border);
+  border-radius: 999px;
+  background: var(--cx-surface);
+  color: var(--cx-ink);
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease,
+    transform 120ms ease;
+
+  &:hover:not(:disabled) {
+    background: var(--cx-track);
+    border-color: var(--cx-muted);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.92);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--cx-accent);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+/* Dot indicators that expand into a pill on the active page (formerly
+ * @include indicators). */
+.cover-flow__indicator-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+
+  & [data-carousel-indicator] {
+    appearance: none;
+    display: inline-grid;
+    place-items: center;
+    min-inline-size: 1.5rem;
+    min-block-size: 1.5rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+
+    &::before {
+      content: "";
+      inline-size: 0.375rem;
+      block-size: 0.375rem;
+      border-radius: 999px;
+      background: var(--cx-border);
+      transition:
+        inline-size 160ms ease,
+        background 160ms ease;
+    }
+
+    &[data-state="active"]::before {
+      inline-size: 1rem;
+      background: var(--cx-accent);
+    }
+  }
+}
+
+/* ─── Playground controls ─────────────────────────────────────────────────────
+ * Live editors for the --cf-* knobs, sat above the carousel. Every selector is
+ * scoped under .cf-playground so it can't leak onto other workbench examples
+ * (all example CSS is bundled globally). The slider skin (.sl-root / .sl-track
+ * / .sl-range / .sl-thumb) is still reused from the Slider example. */
+.cf-playground__panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem 2rem;
+  inline-size: 100%;
+  max-inline-size: 44rem;
+  margin-inline: auto;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--cx-border);
+  border-radius: 12px;
+  background: #fff;
+}
+
+/* Shape selector spans the full width above the two slider columns. */
+.cf-playground__shape-control {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cf-playground__group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.cf-playground__group-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cx-muted);
+}
+
+.cf-playground__control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.cf-playground__label {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: #555;
+}
+
+.cf-playground__value {
+  color: var(--cx-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Segmented control built from RadioGroup.Item buttons. */
+.cf-playground__shape {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--cx-border);
+  border-radius: 8px;
+  background: var(--cx-track);
+}
+
+.cf-playground__shape-option {
+  appearance: none;
+  border: 0;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  background: transparent;
+  color: #555;
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+
+  &[data-state="checked"] {
+    background: var(--cx-accent);
+    color: #fff;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--cx-accent);
+    outline-offset: 2px;
+  }
+}

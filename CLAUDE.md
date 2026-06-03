@@ -109,7 +109,7 @@ keyword or by topic; do not paraphrase their content here.
   broken `build:core`, missing wasm-pack, deleted Playwright e2e.
 - **`workbench-examples`** — authoring `apps/workbench` example pages:
   folder layout, router wiring, and the global-CSS-bundling gotcha
-  (every example's SCSS is bundled globally — scope every selector).
+  (every example's CSS is bundled globally — scope every selector).
 - **`figma-token-sync`** — how the
   `apps/primitiv-sync-figma-plugin` and `packages/tokens` stack
   backs up Figma variables as DTCG JSON: features, Live sync vs

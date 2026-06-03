@@ -4,7 +4,7 @@ import { Carousel } from "@primitiv/react";
 import type { CarouselImperativeApi } from "@primitiv/react";
 
 import { carouselImages } from "../fixtures";
-import "./_programmatic.scss";
+import "./programmatic.css";
 
 /**
  * Single image visible at a time, with consumer-owned controls
@@ -14,7 +14,7 @@ import "./_programmatic.scss";
  *
  * JS owns: imperative `goTo(index)` for the quick-jump toolbar,
  *   `onPageChange` callback to mirror page state in React for
- *   the progress bar, `loop`.
+ *   the progress bar.
  * CSS owns: same single-slide-scroll layout as the canonical
  *   Single · Slide example, plus a `width: calc(var(--progress)
  *   * 100%)` rule on a `::after` pseudo-element for the bar.
@@ -26,7 +26,7 @@ export function Programmatic() {
   const progress = totalPages > 1 ? page / (totalPages - 1) : 0;
 
   return (
-    <div className="programmatic">
+    <div className="programmatic cx-frame">
       <div
         className="programmatic__progress"
         style={{ "--progress": progress } as React.CSSProperties}
@@ -48,37 +48,36 @@ export function Programmatic() {
         ref={carouselRef}
         className="programmatic__carousel"
         ariaLabel="Metal primitives — programmatic"
-        loop
         page={page}
         onPageChange={setPage}
       >
-        <Carousel.Viewport className="programmatic__viewport">
+        <Carousel.Viewport className="programmatic__viewport cx-viewport-track">
           {carouselImages.map(({ src, description }) => (
             <Carousel.Slide
               key={src}
-              className="programmatic__slide"
+              className="programmatic__slide cx-slide-surface"
             >
               <img
-                className="programmatic__image"
+                className="programmatic__image cx-image"
                 src={src}
                 alt={description}
               />
             </Carousel.Slide>
           ))}
         </Carousel.Viewport>
-        <div className="programmatic__controls">
+        <div className="programmatic__controls cx-controls">
           <Carousel.PreviousTrigger
-            className="programmatic__trigger"
+            className="programmatic__trigger cx-trigger"
             aria-label="Previous"
           >
             {"<"}
           </Carousel.PreviousTrigger>
           <Carousel.Indicators
-            className="programmatic__indicator-group"
+            className="programmatic__indicator-group cx-indicators"
             label="Choose slide"
           />
           <Carousel.NextTrigger
-            className="programmatic__trigger"
+            className="programmatic__trigger cx-trigger"
             aria-label="Next"
           >
             {">"}

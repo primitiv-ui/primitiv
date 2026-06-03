@@ -1,14 +1,4 @@
-import {
-  Children,
-  CSSProperties,
-  forwardRef,
-  isValidElement,
-  MouseEvent,
-  ReactElement,
-  ReactNode,
-  useCallback,
-  useMemo,
-} from "react";
+import { forwardRef, MouseEvent, useCallback } from "react";
 
 import { Slot } from "../Slot";
 import { CarouselProvider } from "./CarouselContext";
@@ -90,7 +80,6 @@ export const CarouselRoot = forwardRef<
     defaultPage,
     page,
     onPageChange,
-    loop,
     defaultPlaying,
     playing,
     onPlayingChange,
@@ -111,7 +100,6 @@ export const CarouselRoot = forwardRef<
       defaultPage,
       page,
       onPageChange,
-      loop,
       defaultPlaying,
       playing,
       onPlayingChange,
@@ -169,17 +157,6 @@ CarouselRoot.displayName = "CarouselRoot";
  * element. The component ships no styles — apply your own scroll-snap
  * recipe via this attribute.
  *
- * **Loop-wrap clones.** When `loop` is enabled on `Carousel.Root` (and
- * `transition` is the default `"slide"` with at least two slides),
- * the Viewport injects aria-hidden `inert` clones of the first and
- * last `slidesPerPage` slides at the trailing and leading ends of the
- * slide list. The clones don't register into `slidesRef` so page
- * math, indicator counts, and the IntersectionObserver are unaffected.
- * They exist purely so the wrap scroll has somewhere natural to land
- * — slide 0 entering from the right rather than the carousel
- * scrolling backwards across its full width. Targetable via
- * `data-carousel-slide-clone="leading"|"trailing"`.
- *
  * **Keyboard navigation.** The Viewport is in the tab order
  * (`tabIndex={0}`) so keyboard users can reach the rotation control
  * without first tabbing through every slide's interactive content.
@@ -190,11 +167,10 @@ CarouselRoot.displayName = "CarouselRoot";
  * - `Home` jumps to the first page.
  * - `End` jumps to the last page.
  *
- * Arrow keys clamp at the boundaries when `loop` is `false` and wrap
- * through the loop-wrap clones when `loop` is `true`, mirroring the
- * trigger buttons. Keypresses are only intercepted when the Viewport
- * itself is the focus target — focus inside a slide (e.g. on a link
- * or form control) keeps its native arrow-key semantics.
+ * Arrow keys clamp at the boundaries, mirroring the trigger buttons.
+ * Keypresses are only intercepted when the Viewport itself is the focus
+ * target — focus inside a slide (e.g. on a link or form control) keeps
+ * its native arrow-key semantics.
  *
  * @example
  * ```tsx
@@ -210,16 +186,8 @@ export function CarouselViewport({
   children,
   ...rest
 }: CarouselViewportProps) {
-  const { isAutoRotating, ids, loop, transition, slidesPerPage } =
-    useCarouselContext();
+  const { isAutoRotating, ids } = useCarouselContext();
   const { viewportRef, onKeyDown } = useCarouselViewport();
-
-  const renderedChildren = useMemo(() => {
-    // transition='none' hands the visual to consumer CSS — there's no
-    // wrap-scroll to host, so clones would only add aria-hidden noise.
-    if (!loop || transition !== "slide") return children;
-    return injectLoopClones(children, slidesPerPage);
-  }, [children, loop, transition, slidesPerPage]);
 
   return (
     <div
@@ -232,127 +200,12 @@ export function CarouselViewport({
       {...(ids.viewport !== undefined && { id: ids.viewport })}
       {...rest}
     >
-      {renderedChildren}
-    </div>
-  );
-}
-
-CarouselViewport.displayName = "CarouselViewport";
-
-/**
- * Brand applied to `CarouselSlide` so the Viewport can detect slide
- * elements among its children for the loop-wrap clone pass without
- * coupling to function identity (which doesn't survive HMR or alias
- * imports). Consumer-wrapped slides won't carry the brand and so are
- * left untouched — the wrap animation then degrades to today's
- * long-scroll for those cases.
- */
-const CAROUSEL_SLIDE_TYPE: unique symbol = Symbol.for(
-  "primitiv.carousel.slide",
-);
-
-type CloneSlideProps = {
-  position: "leading" | "trailing";
-  className?: string;
-  style?: CSSProperties;
-  children?: ReactNode;
-};
-
-/**
- * Internal — never exported. Renders an aria-hidden, inert copy of a
- * slide's *content* at the leading or trailing edge of the slide list
- * so the wrap animation has somewhere to scroll *into*. Skips
- * `useCarouselSlide` deliberately: clones must not register into
- * `slidesRef`/`slideKeys`, so page math, IntersectionObserver, and
- * indicator counts stay derived from the real slides only.
- */
-function CarouselCloneSlide({
-  position,
-  className = "",
-  style,
-  children,
-}: CloneSlideProps) {
-  return (
-    <div
-      role="group"
-      aria-roledescription="slide"
-      aria-hidden="true"
-      // Boolean form is supported in React 19 and emits the correct
-      // empty-string attribute on the DOM, which excludes the subtree
-      // from focus, hit-testing, and the AT tree.
-      inert
-      data-carousel-slide=""
-      data-carousel-slide-clone={position}
-      className={className}
-      style={style}
-    >
       {children}
     </div>
   );
 }
 
-CarouselCloneSlide.displayName = "CarouselCloneSlide";
-
-type SlideElementProps = {
-  className?: string;
-  style?: CSSProperties;
-  children?: ReactNode;
-};
-
-function isSlideElement(
-  node: ReactNode,
-): node is ReactElement<SlideElementProps> {
-  return (
-    isValidElement(node) &&
-    typeof node.type === "function" &&
-    (node.type as { [CAROUSEL_SLIDE_TYPE]?: true })[CAROUSEL_SLIDE_TYPE] ===
-      true
-  );
-}
-
-function injectLoopClones(
-  children: ReactNode,
-  slidesPerPage: number,
-): ReactNode {
-  const items = Children.toArray(children);
-  const slides: ReactElement<SlideElementProps>[] = [];
-  const others: ReactNode[] = [];
-  for (const item of items) {
-    if (isSlideElement(item)) slides.push(item);
-    else others.push(item);
-  }
-  // One slide (or none) — there is nowhere for the wrap scroll to land,
-  // so clones would only add aria-hidden noise.
-  if (slides.length <= 1) return children;
-
-  // One extra clone beyond slidesPerPage ensures the wrap target is never the
-  // last DOM element, which eliminates edge-of-scroll browser effects (subtle
-  // bounce / paint delay) that don't appear for interior scroll positions.
-  const cloneCount = Math.min(slidesPerPage + 1, slides.length);
-
-  const trailing = slides.slice(0, cloneCount).map((slide, i) => (
-    <CarouselCloneSlide
-      key={`__primitiv-clone-trailing-${i}`}
-      position="trailing"
-      className={slide.props.className}
-      style={slide.props.style}
-    >
-      {slide.props.children}
-    </CarouselCloneSlide>
-  ));
-  const leading = slides.slice(slides.length - cloneCount).map((slide, i) => (
-    <CarouselCloneSlide
-      key={`__primitiv-clone-leading-${i}`}
-      position="leading"
-      className={slide.props.className}
-      style={slide.props.style}
-    >
-      {slide.props.children}
-    </CarouselCloneSlide>
-  ));
-
-  return [...leading, ...slides, ...trailing, ...others];
-}
+CarouselViewport.displayName = "CarouselViewport";
 
 /**
  * An individual slide. Renders a `<div>` with `role="group"` and
@@ -430,24 +283,18 @@ export function CarouselSlide({
 
 CarouselSlide.displayName = "CarouselSlide";
 
-// Brand for the Viewport's loop-wrap clone pass — see CAROUSEL_SLIDE_TYPE.
-(CarouselSlide as unknown as { [CAROUSEL_SLIDE_TYPE]: true })[
-  CAROUSEL_SLIDE_TYPE
-] = true;
-
 /**
  * Advances the active page by one. Renders as
  * `<button type="button">` and dispatches the consumer's `onClick`
  * before invoking the navigation, so analytics handlers and similar
  * still fire when the user advances the carousel.
  *
- * **Boundary clamping.** When `loop` is `false` on `Carousel.Root` (the
- * default), the trigger is `disabled` once the active page reaches the
- * last slide; the click is also a no-op at boundaries because `next()`
- * short-circuits when there's nowhere to go. The button is always
- * disabled when there are zero or one slides registered. Consumer-
- * supplied `disabled={true}` is also honoured (it OR's with the
- * boundary check).
+ * **Boundary clamping.** The trigger is `disabled` once the active page
+ * reaches the last slide; the click is also a no-op at boundaries
+ * because `next()` short-circuits when there's nowhere to go. The
+ * button is always disabled when there are zero or one slides
+ * registered. Consumer-supplied `disabled={true}` is also honoured (it
+ * OR's with the boundary check).
  *
  * Must be rendered as a descendant of `Carousel.Root`; rendering it
  * elsewhere throws a descriptive error.
@@ -509,12 +356,11 @@ CarouselNextTrigger.displayName = "CarouselNextTrigger";
  * before invoking the navigation, so analytics handlers and similar
  * still fire when the user retreats the carousel.
  *
- * **Boundary clamping.** When `loop` is `false` on `Carousel.Root` (the
- * default), the trigger is `disabled` while the active page is the
- * first slide; the click is also a no-op at boundaries because
- * `previous()` short-circuits when there's nowhere to go. The button is
- * always disabled when there are zero or one slides registered.
- * Consumer-supplied `disabled={true}` is also honoured.
+ * **Boundary clamping.** The trigger is `disabled` while the active
+ * page is the first slide; the click is also a no-op at boundaries
+ * because `previous()` short-circuits when there's nowhere to go. The
+ * button is always disabled when there are zero or one slides
+ * registered. Consumer-supplied `disabled={true}` is also honoured.
  *
  * Must be rendered as a descendant of `Carousel.Root`; rendering it
  * elsewhere throws a descriptive error.

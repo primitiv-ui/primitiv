@@ -43,7 +43,7 @@ import {
   VisuallyHiddenExample,
 } from "./pages";
 
-import "./App.scss";
+import "./App.css";
 
 type NavLink = { to: string; label: string };
 

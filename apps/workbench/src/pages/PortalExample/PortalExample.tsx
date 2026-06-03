@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { Portal } from "@primitiv/react";
 
-import "./PortalExample.scss";
+import "./PortalExample.css";
 
 export function PortalExample() {
   const [open, setOpen] = useState(false);

@@ -70,7 +70,7 @@ describe("Carousel slidesPerPage", () => {
     ).toHaveLength(3);
   });
 
-  it("should disable Carousel.NextTrigger at the last page (not the last slide) when loop is false", () => {
+  it("should disable Carousel.NextTrigger at the last page (not the last slide)", () => {
     render(
       <Carousel.Root
         ariaLabel="Featured products"
@@ -137,38 +137,6 @@ describe("Carousel slidesPerPage", () => {
       "active",
     );
     expect(screen.getByTestId("slide-3")).toHaveAttribute(
-      "data-state",
-      "active",
-    );
-  });
-
-  it("should wrap by page boundaries when loop is true", async () => {
-    const user = userEvent.setup();
-    render(
-      <Carousel.Root
-        ariaLabel="Featured products"
-        slidesPerPage={2}
-        defaultPage={1}
-        loop
-      >
-        <Carousel.Viewport>
-          <Carousel.Slide data-testid="slide-0" />
-          <Carousel.Slide data-testid="slide-1" />
-          <Carousel.Slide data-testid="slide-2" />
-          <Carousel.Slide data-testid="slide-3" />
-        </Carousel.Viewport>
-        <Carousel.NextTrigger>Next</Carousel.NextTrigger>
-      </Carousel.Root>,
-    );
-
-    // Page 1 → wraps to page 0; slide 0 + slide 1 active.
-    await user.click(screen.getByRole("button", { name: "Next" }));
-
-    expect(screen.getByTestId("slide-0")).toHaveAttribute(
-      "data-state",
-      "active",
-    );
-    expect(screen.getByTestId("slide-1")).toHaveAttribute(
       "data-state",
       "active",
     );

@@ -2,7 +2,7 @@ import { useState, type ComponentProps } from "react";
 
 import { Select } from "@primitiv/react";
 
-import "./SelectExample.scss";
+import "./SelectExample.css";
 
 function StyledSelect(props: ComponentProps<"select">) {
   return <select {...props} className="sel-example__styled-select" />;

@@ -7,7 +7,7 @@ import {
   useDirection,
 } from "@primitiv/react";
 
-import "./DirectionProviderExample.scss";
+import "./DirectionProviderExample.css";
 
 function InheritedDirection() {
   const dir = useDirection();

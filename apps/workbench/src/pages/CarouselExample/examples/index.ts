@@ -1,3 +1,5 @@
+export * from "./AutoPlay";
+export * from "./CoverFlow";
 export * from "./MultiSlideCrossfade";
 export * from "./MultiSlideScroll";
 export * from "./MultiStepSlideCrossfade";
@@ -6,4 +8,5 @@ export * from "./Peek";
 export * from "./Programmatic";
 export * from "./SingleSlideCrossfade";
 export * from "./SingleSlideScroll";
+export * from "./Thumbnails";
 export * from "./VariableSizes";

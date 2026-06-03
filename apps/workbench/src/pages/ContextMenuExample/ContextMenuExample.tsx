@@ -1,7 +1,7 @@
 import { ContextMenu, DirectionProvider } from "@primitiv/react";
 import { useState } from "react";
 
-import "./ContextMenuExample.scss";
+import "./ContextMenuExample.css";
 
 export function ContextMenuExample() {
   const [dir, setDir] = useState<"ltr" | "rtl">("ltr");

@@ -54,6 +54,34 @@ describe("Carousel imperative API", () => {
     );
   });
 
+  it("should make next() a no-op on the last page", () => {
+    const ref = createRef<CarouselImperativeApi>();
+    render(<ImperativeFixture apiRef={ref} defaultPage={2} />);
+
+    act(() => {
+      ref.current!.next();
+    });
+
+    expect(screen.getByTestId("slide-2")).toHaveAttribute(
+      "data-state",
+      "active",
+    );
+  });
+
+  it("should make previous() a no-op on the first page", () => {
+    const ref = createRef<CarouselImperativeApi>();
+    render(<ImperativeFixture apiRef={ref} />);
+
+    act(() => {
+      ref.current!.previous();
+    });
+
+    expect(screen.getByTestId("slide-0")).toHaveAttribute(
+      "data-state",
+      "active",
+    );
+  });
+
   it("should expose goTo(page) that jumps directly to the target page", () => {
     const ref = createRef<CarouselImperativeApi>();
     render(<ImperativeFixture apiRef={ref} />);

@@ -3,7 +3,7 @@ import type { CSSProperties } from "react";
 import { Carousel } from "@primitiv/react";
 
 import { carouselImages } from "../fixtures";
-import "./_variableSizes.scss";
+import "./variableSizes.css";
 
 const slideWidths = [
   "50%",
@@ -17,8 +17,8 @@ const slideWidths = [
 
 /**
  * Slides of mixed widths in a single carousel. Already supported by
- * the JS — the viewport's scroll target is derived from each slide's
- * `getBoundingClientRect`, so no fixed width is assumed.
+ * the JS — the viewport delegates the scroll to the target slide's
+ * `scrollIntoView`, so no fixed width is assumed.
  *
  * JS owns: `snapAlign="center"` so programmatic navigation lands
  *   each slide centred regardless of its individual width. Without
@@ -26,44 +26,43 @@ const slideWidths = [
  *   to the browser's snap engine.
  * CSS owns: per-slide `flex: 0 0 var(--w)` driven by an inline
  *   custom property the example sets per slide;
- *   `scroll-snap-align: center` to match the JS scroll target.
+ *   `scroll-snap-align: center` to match the native scroll target.
  */
 export function VariableSizes() {
   return (
     <Carousel.Root
-      className="variable-sizes"
+      className="variable-sizes cx-frame"
       ariaLabel="Metal primitives — mixed slide widths"
-      loop
       snapAlign="center"
     >
-      <Carousel.Viewport className="variable-sizes__viewport">
+      <Carousel.Viewport className="variable-sizes__viewport cx-viewport-track">
         {carouselImages.map(({ src, description }, index) => (
           <Carousel.Slide
             key={src}
-            className="variable-sizes__slide"
+            className="variable-sizes__slide cx-slide-surface"
             style={{ "--w": slideWidths[index] } as CSSProperties}
           >
             <img
-              className="variable-sizes__image"
+              className="variable-sizes__image cx-image"
               src={src}
               alt={description}
             />
           </Carousel.Slide>
         ))}
       </Carousel.Viewport>
-      <div className="variable-sizes__controls">
+      <div className="variable-sizes__controls cx-controls">
         <Carousel.PreviousTrigger
-          className="variable-sizes__trigger"
+          className="variable-sizes__trigger cx-trigger"
           aria-label="Previous"
         >
           {"<"}
         </Carousel.PreviousTrigger>
         <Carousel.Indicators
-          className="variable-sizes__indicator-group"
+          className="variable-sizes__indicator-group cx-indicators"
           label="Choose slide"
         />
         <Carousel.NextTrigger
-          className="variable-sizes__trigger"
+          className="variable-sizes__trigger cx-trigger"
           aria-label="Next"
         >
           {">"}

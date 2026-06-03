@@ -66,7 +66,7 @@ starting the dev server, stubbing the wasm package, or removing the
 
 When you add or change a workbench example page, the bar is: it
 **typechecks** (`pnpm --filter workbench exec tsc --noEmit`) and follows
-the `workbench-examples` skill rules (scoped SCSS, router wiring).
+the `workbench-examples` skill rules (scoped CSS, router wiring).
 The human always manually checks the workbench in a real browser
 afterwards — say so in your summary and leave the visual check to
 them.

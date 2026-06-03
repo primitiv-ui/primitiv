@@ -5,7 +5,7 @@ import {
 } from "@primitiv/react";
 import { ChevronRight } from "@primitiv/icons";
 
-import "./MillerColumnsExample.scss";
+import "./MillerColumnsExample.css";
 
 type FileNode = {
   id: string;

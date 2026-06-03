@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { Progress } from "@primitiv/react";
 
-import "./ProgressExample.scss";
+import "./ProgressExample.css";
 
 const clamp = (n: number) => Math.max(0, Math.min(100, n));
 

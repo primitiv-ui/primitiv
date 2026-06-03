@@ -2,7 +2,7 @@ import { FormEvent, useState } from "react";
 
 import { Input } from "@primitiv/react";
 
-import "./InputExample.scss";
+import "./InputExample.css";
 
 const TYPES = [
   { type: "text", label: "Text", placeholder: "Anything" },

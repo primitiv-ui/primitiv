@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { Switch } from "@primitiv/react";
 
-import "./DesignSystemTestExample.scss";
+import "./DesignSystemTestExample.css";
 
 const NAV = [
   "Overview",

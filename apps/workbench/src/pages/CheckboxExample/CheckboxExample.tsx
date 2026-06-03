@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Check, Minus } from "@primitiv/icons";
 import { Checkbox, CheckedState } from "@primitiv/react";
 
-import "./CheckboxExample.scss";
+import "./CheckboxExample.css";
 
 type Options = {
   a: boolean;

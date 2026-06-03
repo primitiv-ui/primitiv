@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { ToggleGroup } from "@primitiv/react";
 
-import "./ToggleGroupExample.scss";
+import "./ToggleGroupExample.css";
 
 export function ToggleGroupExample() {
   const [align, setAlign] = useState<string | undefined>("left");

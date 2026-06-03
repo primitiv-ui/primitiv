@@ -182,3 +182,36 @@ component now has a workbench example:
 
 `Slot` is an internal composition utility, not a public component —
 it does not need a workbench page.
+
+## Carousel example backlog (Blossom parity)
+
+The Carousel workbench page
+(`apps/workbench/src/pages/CarouselExample`) aims to cover the example
+set from the [Blossom Carousel library](https://blossom-carousel.com/docs/examples)
+plus our own transition variants. Status of each Blossom example
+(✅ done · 🟡 feature exists, no dedicated demo · ⬜ missing):
+
+**Basic**
+
+- [x] Simple — Single/MultiSlideScroll
+- [x] Buttons — prev/next triggers (+ Programmatic)
+- [x] Dots — Indicators
+- [x] Thumbnails — Thumbnails
+- [ ] Snapping (centred) — 🟡 `snapAlign="center"` exists; no basic demo
+- [ ] Masonry — ⬜ grid-based masonry with complex snapping cells
+- [ ] Right to Left — 🟡 component supports `dir`; no carousel demo
+- [ ] Sticky Slides — ⬜ sticky labels/content inside slides
+
+**Advanced**
+
+- [x] Cover Flow — CoverFlow (with the live `--cf-*` playground)
+- [ ] Slideshow — ⬜ parallax slide movement
+- [ ] Stories — ⬜ 3D transitions with overscroll behaviour
+- [ ] Smart Stack — ⬜ iOS-style stacked cards animated on scroll
+- [ ] Cards — ⬜ sticky card stack (chat-app style)
+- [ ] Flipbook — ⬜ 3D page-turning effect
+- [ ] Timeline — ⬜ video-editor timeline with sticky clip labels
+
+Our own examples with no Blossom counterpart (not gaps): Single/Multi
+crossfade, Multi-step (slide + fade), Peek, Variable sizes, Autoplay,
+Programmatic.

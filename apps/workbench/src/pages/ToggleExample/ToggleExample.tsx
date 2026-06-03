@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { Toggle } from "@primitiv/react";
 
-import "./ToggleExample.scss";
+import "./ToggleExample.css";
 
 export function ToggleExample() {
   const [bold, setBold] = useState(false);

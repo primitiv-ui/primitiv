@@ -26,14 +26,13 @@ aria-roledescription="slide">` and self-registers with the Root so each
   `data-state="active" | "inactive"` tracking the active page, plus a
   `data-carousel-slide` CSS hook.
 - **`Carousel.NextTrigger`** — `<button>` that advances the active page
-  by one. `disabled` at the last page when `loop` is `false`, and
-  whenever zero or one slides are registered. Consumer `onClick` runs
-  before the navigation; consumer-supplied `disabled={true}` is honoured
-  alongside the boundary check.
+  by one. `disabled` at the last page, and whenever zero or one slides
+  are registered. Consumer `onClick` runs before the navigation;
+  consumer-supplied `disabled={true}` is honoured alongside the boundary
+  check.
 - **`Carousel.PreviousTrigger`** — `<button>` that retreats the active
-  page by one. `disabled` at the first page when `loop` is `false`,
-  with the same zero/one-slide and consumer-`disabled` semantics as
-  `NextTrigger`.
+  page by one. `disabled` at the first page, with the same zero/one-slide
+  and consumer-`disabled` semantics as `NextTrigger`.
 - **`Carousel.IndicatorGroup`** — labelled `<div role="group">`
   wrapping consumer-mapped indicator dots. Pass `label` (becomes
   `aria-label`) or `ariaLabelledBy`; the discriminated union rejects
@@ -68,30 +67,29 @@ auto-rotation tick.
 
 The component ships zero styles, but a few features sit on the line
 between JS and CSS. This table is the contract — the rule of thumb
-is that JS owns _what is the active page_ and _where the scroll
-target lands_, and CSS owns _what the user sees_:
+is that JS owns _what is the active page_ and _delegates the scroll to
+the browser_ (`scrollIntoView`), and CSS owns _what the user sees_:
 
 | Feature                            | JS owns                                                  | CSS owns                                                                 |
 | ---------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------ |
 | Active page state                  | `page` / `defaultPage`, `onPageChange`, `goTo`           | —                                                                        |
 | Boundary clamping                  | `canGoNext` / `canGoPrevious`, trigger `disabled`        | —                                                                        |
-| Loop wrap animation (slide mode)   | Edge clones, scroll into clone, re-anchor on `scrollend` | Slides positioned in flow; clones inherit slide CSS                      |
 | Crossfade / scale / dissolve       | `data-state="active"` flip on slides                     | `position: absolute`, `opacity` + `transition`                           |
 | Slide layout & widths              | —                                                        | `flex-basis` / `inline-size`, `gap`, `aspect-ratio`                      |
-| Peek of adjacent slides            | `snapAlign` (so scroll math matches CSS snap)            | Viewport `padding-inline`, slide `flex-basis`, `scroll-snap-align`       |
+| Peek of adjacent slides            | `snapAlign` → `scrollIntoView({ inline })`               | Viewport `padding-inline`, slide `flex-basis`, `scroll-snap-align`       |
 | Gap between slides                 | —                                                        | `gap` on the viewport (no `spacing` prop — pure CSS)                     |
-| Variable-size slides               | Scroll target via `getBoundingClientRect`                | Per-slide width / `aspect-ratio`, `scroll-snap-align`                    |
+| Variable-size slides               | `scrollIntoView` on the target slide                     | Per-slide width / `aspect-ratio`, `scroll-snap-align`                    |
 | Snap targeting                     | `snapAlign: "start" \| "center"` (Root only)             | `scroll-snap-type` on viewport, `scroll-snap-align` on each slide        |
-| Reduced motion                     | `behavior: "instant"`, skip clone hop                    | Optional `@media (prefers-reduced-motion: reduce)` on consumer animations |
+| Reduced motion                     | `behavior: "instant"`                                    | Optional `@media (prefers-reduced-motion: reduce)` on consumer animations |
 | Keyboard navigation                | Arrow / Home / End on focused viewport                   | `:focus-visible` on viewport                                             |
 | Touch / swipe                      | Native scroll + `scrollsnapchange` to sync state         | `overscroll-behavior-x: contain`, `scrollbar-width: none`                |
 | Indicator state                    | `data-state` on `[data-carousel-indicator]`              | Visual: dot, bar, thumbnail, etc.                                        |
 
-The only JS prop on the visual side is `snapAlign`, and only because
-the JS scroll target has to match where the browser's CSS snap engine
-will settle — otherwise programmatic navigation would re-snap after
-the smooth scroll. Everything else is either a state knob (JS) or a
-visual rule (CSS), with no overlap.
+The only JS prop on the visual side is `snapAlign`, and only because it
+picks the `inline` option passed to `scrollIntoView` (`"start"` or
+`"center"`) so the programmatic scroll lands where the browser's CSS
+snap engine will settle. Everything else is either a state knob (JS) or
+a visual rule (CSS), with no overlap.
 
 The `apps/workbench` workbench at `/carousel` ships worked recipes for
 each cell of the matrix (single / multi / multi-step × slide / fade)
@@ -105,7 +103,7 @@ or `ariaLabelledBy`:
 ```tsx
 import { Carousel } from "@primitiv/react";
 
-<Carousel.Root ariaLabel="Featured products" loop>
+<Carousel.Root ariaLabel="Featured products">
   <Carousel.Viewport>
     <Carousel.Slide>
       <img src="/cube.png" alt="Cube" />
@@ -288,7 +286,7 @@ carouselRef.current?.refresh();
 const { page, totalPages, value } = carouselRef.current!.getProgress();
 ```
 
-`refresh()` re-issues the viewport's `scrollTo` for the current
+`refresh()` re-issues the viewport's `scrollIntoView` for the current
 page — useful when external layout changes (window resize, container
 reflow, dynamic content) leave the scroll position misaligned with
 React state. `getProgress()` returns a normalised
@@ -321,7 +319,7 @@ for routing links and other elements that need trigger semantics:
 Because `<a>` and other non-button elements don't honour the HTML
 `disabled` attribute, the prev/next triggers also short-circuit
 their click handler when boundary clamping says "no further" — so
-asChild on a non-button still respects `loop={false}` boundaries.
+asChild on a non-button still respects the boundary clamp.
 
 ### Snap alignment
 
@@ -339,9 +337,9 @@ position without the browser snapping-correcting after the scroll:
 ```
 
 Pair with `scroll-snap-align: center` on `Carousel.Slide` in your CSS.
-The default is `"start"`; `"center"` subtracts
-`(viewportWidth − slideWidth) / 2` from the scroll target so it matches
-where the browser's snap engine would settle.
+The default is `"start"`; `snapAlign` picks the `inline` option passed
+to `scrollIntoView` (`"start"` or `"center"`), and the browser's CSS
+snap engine makes the final correction.
 
 ### Transition modes
 
@@ -371,7 +369,7 @@ viewport handles slide changes visually.
 
 ### Reduced motion
 
-The Viewport's programmatic `scrollTo` reads
+The Viewport's programmatic `scrollIntoView` reads
 `window.matchMedia("(prefers-reduced-motion: reduce)")` once on
 mount. When the user has reduced motion enabled at the OS level,
 page changes use `behavior: "instant"` instead of `"smooth"` so the
@@ -382,10 +380,10 @@ unaffected — the browser owns that animation.
 
 When the active page changes for any reason (`Carousel.NextTrigger` /
 `Carousel.PreviousTrigger` click, indicator click, autoplay tick),
-the viewport calls `scrollTo` so the visual surface tracks React
-state. The scroll target is derived from the first slide of the new
-page via `getBoundingClientRect`, so consumer CSS owns slide width
-and gap. Default `behavior` is `"smooth"`.
+the viewport calls `scrollIntoView` on the first slide of the new page
+so the visual surface tracks React state. Because the browser owns the
+scroll, consumer CSS owns slide width and gap, and `scroll-snap-align`
+makes the final correction. Default `behavior` is `"smooth"`.
 
 The reverse path is also wired: when the user swipes the viewport,
 the browser fires `scrollsnapchange` with the snapped slide as the
@@ -398,10 +396,17 @@ doesn't dispatch a spurious callback.
 For browsers without `scrollsnapchange`, the same path runs against
 an `IntersectionObserver` (threshold 0.6) on each slide — when the
 observer fires, the lowest-index visible slide derives the active
-page via `floor(firstVisibleSlideIndex / slidesPerPage)`. The
-observer also feeds `Carousel.Root`'s imperative
-`isInView(slideIndex)` so consumers can lazy-load slide content
-based on actual visibility, not just the active-page index.
+page via `floor(firstVisibleSlideIndex / slidesPerPage)`. This
+page-drive is **only** a fallback: when `scrollsnapchange` is
+supported it is authoritative (it reports the precisely-snapped
+slide), so the observer stands down and does not also drive the page.
+That matters for `snapAlign="center"` carousels with several slides
+visible at once (e.g. a cover flow) — the lowest-index-visible
+heuristic would otherwise track the *leftmost* visible slide rather
+than the centred one and fight `scrollsnapchange`. The observer still
+always feeds `Carousel.Root`'s imperative `isInView(slideIndex)` so
+consumers can lazy-load slide content based on actual visibility, not
+just the active-page index.
 
 ### Custom DOM ids
 
@@ -492,9 +497,8 @@ With `slidesPerPage={3}` and 5 slides:
 - Each slide on the active page emits `data-state="active"`; slides
   on other pages emit `"inactive"`.
 - `Carousel.NextTrigger` advances one page per click; the boundary
-  clamp is at the last page (so with `loop={false}`, Next is
-  disabled while page 1 is active).
-- `loop={true}` wraps at page boundaries.
+  clamp is at the last page (so Next is disabled while page 1 is
+  active).
 
 The slide-level `aria-label="N of M"` continues to count individual
 slides (so a 5-slide carousel announces "1 of 5", "2 of 5", … even
@@ -521,17 +525,12 @@ clamp respects the last full window. The indicator count formula is
 `ceil(total / slidesPerPage)` for `"auto"`), so the visible window
 always stays full in numeric mode.
 
-### Boundary behaviour and looping
+### Boundary behaviour
 
-By default, the prev/next triggers clamp at the ends:
-`Carousel.PreviousTrigger` is `disabled` at the first slide,
-`Carousel.NextTrigger` at the last. Both are also `disabled` when zero
-or one slides are registered, since there's nowhere to navigate.
-
-Pass `loop` to wrap navigation around the ends — clicking
-`Carousel.PreviousTrigger` at the first slide jumps to the last, and
-clicking `Carousel.NextTrigger` at the last jumps to the first. With
-`loop`, the triggers are never auto-disabled at boundaries.
+The prev/next triggers clamp at the ends: `Carousel.PreviousTrigger` is
+`disabled` at the first slide, `Carousel.NextTrigger` at the last. Both
+are also `disabled` when zero or one slides are registered, since
+there's nowhere to navigate.
 
 ### Keyboard navigation
 
@@ -546,14 +545,13 @@ interactive content. With the Viewport focused:
 | `Home`       | Jump to the first page                          |
 | `End`        | Jump to the last page                           |
 
-Arrow keys clamp at the boundaries when `loop` is `false` and animate
-through the loop-wrap clones when `loop` is `true`, mirroring the
-trigger buttons. Keypresses are only intercepted when the Viewport
-itself is the focus target — focus inside a slide (e.g. on a link or
-form control) keeps its native arrow-key semantics.
+Arrow keys clamp at the boundaries, mirroring the trigger buttons.
+Keypresses are only intercepted when the Viewport itself is the focus
+target — focus inside a slide (e.g. on a link or form control) keeps
+its native arrow-key semantics.
 
 ```tsx
-<Carousel.Root ariaLabel="Featured products" loop>
+<Carousel.Root ariaLabel="Featured products">
   <Carousel.Viewport>
     <Carousel.Slide>First</Carousel.Slide>
     <Carousel.Slide>Second</Carousel.Slide>
@@ -567,50 +565,6 @@ form control) keeps its native arrow-key semantics.
 Consumer-supplied `disabled={true}` on either trigger is honoured
 regardless of boundary state — useful for momentarily freezing
 navigation while another part of the UI takes over.
-
-#### Wrap animation
-
-When `loop` is enabled with the default `transition="slide"`, pressing
-Next on the last slide animates slide 0 sliding **in from the right**
-— and pressing Previous on the first slide animates slide N **in from
-the left** — rather than the viewport scrolling backwards across its
-full width to the wrap target.
-
-Under the hood, `Carousel.Viewport` injects aria-hidden `inert` clones
-of the first and last `slidesPerPage` slides at the trailing and
-leading ends of the slide list. The wrap scroll lands smoothly on the
-matching clone; once the animation settles, the Viewport silently
-snaps `scrollLeft` to the real slide so the position re-enters the
-normal range. The clones don't register into the slide list — page
-math, indicator counts, the IntersectionObserver, and `slideKeys` all
-stay derived from the real slides. They're targetable via
-`data-carousel-slide-clone="leading"|"trailing"` if you need to
-suppress, restyle, or override their presentation:
-
-```css
-/* Hide the clones if your layout doesn't want the visible buffer. */
-[data-carousel-slide-clone] {
-  visibility: hidden;
-}
-```
-
-Caveats and asymmetries:
-
-- `prefers-reduced-motion: reduce` skips the clone hop entirely — the
-  wrap snaps directly to the real slide with `behavior: "instant"`.
-- Imperative `goTo(arbitrary)` jumps and `Carousel.Indicator` clicks
-  bypass this animation. Those reads as "jump to that page" and the
-  long scroll communicates progress; only `next()` / `previous()`
-  crossing the boundary use the clone path.
-- Manual swipes that overshoot onto a clone (e.g. flicking past the
-  last slide) are detected via `scrollsnapchange`: the Viewport
-  instant-snaps to the matching real slide and dispatches the wrap
-  page change so React state catches up in the same frame.
-- Consumer components that wrap `Carousel.Slide` (e.g. a custom
-  `<MyFeaturedSlide>` that returns a `Carousel.Slide`) are not
-  detected by the clone pass and gracefully degrade to the long
-  backwards scroll. If the wrap animation matters, use
-  `Carousel.Slide` directly.
 
 ### Indicator dots (manual)
 
@@ -698,9 +652,8 @@ timer while `playing` is `true`:
 
 The timer reads from the live `playing` flag and the active page —
 toggling pause via `Carousel.PlayPauseTrigger` (or via the controlled
-`onPlayingChange`) cancels the next tick. With `loop={false}` (the
-default), the timer stops once the active page reaches the last slide;
-with `loop={true}` it wraps to the first.
+`onPlayingChange`) cancels the next tick. The timer stops once the
+active page reaches the last slide.
 
 The timer also pauses automatically while the user is hovering the
 Root or has focus on a descendant element, per WCAG 2.2.2 (Pause,
@@ -815,3 +768,81 @@ slides per page, plus a `gap` on the viewport for the inter-slide
 spacing. For a crossfade transition, use `transition="none"` on
 `Carousel.Root` and style the slides absolute-positioned with an
 opacity transition keyed off `[data-carousel-slide][data-state="active"]`.
+
+### Cover Flow (scroll-driven 3D)
+
+A "cover flow" — narrow snap units with cards that tilt away in 3D
+and stack with depth — can be built entirely in CSS, with no extra JS,
+using scroll-driven animations (`view-timeline` + `animation-timeline`).
+The full working source is the workbench example at
+`apps/workbench/src/pages/CarouselExample/examples/_coverFlow.scss`;
+this section documents the design so it can be reused or ported.
+
+**Structure.** Each slide is a narrow snap unit that owns the named
+timelines. Inside it, a card-sized `visual` box is centred over the
+snap unit (and overflows it so neighbours interleave) and handles the
+`translateX`; inside that, a `card` element handles the `rotateY`.
+Keep `perspective()` *inside* the keyframe transform — a `overflow-x`
+scroll container flattens a `perspective` CSS property, but the
+function form is immune.
+
+**Two timelines, one slide.** The rotate/translate run on a tight
+centred band (`view-timeline-inset` shrinks the scrollport) over
+`animation-range: contain`. The depth order runs on a *second*,
+full-scrollport timeline (`inset: 0`) over `animation-range: cover`.
+The wide range matters: `z-index` is an animatable integer, so a
+`1 → peak → 1` keyframe driven by each slide's own timeline makes the
+most-centred card win the stack generically — no per-slide numbers.
+A narrow range would clamp every off-centre slide to the boundary
+`z-index`, leaving DOM order to (incorrectly) break the ties on one
+side.
+
+**Customising.** Drive every dimension from a small set of custom
+properties on the root, and derive the rest with `calc()`:
+
+```css
+.cover-flow {
+  /* Geometry knobs */
+  --cf-viewport-w: 38rem;   /* visible carousel width                  */
+  --cf-card-w: 180px;       /* rendered card width                     */
+  --cf-aspect: 1.168;       /* width ÷ height — 1 = square, >1 = wide   */
+  --cf-snap: 90px;          /* centre-to-centre spacing (< card-w → overlap) */
+  --cf-track-pad: 0px;      /* grey track shown above/below the cards   */
+  --cf-radius: 10px;
+  /* Motion knobs */
+  --cf-spread: 1.4;         /* tilt band width, in multiples of --cf-snap */
+  --cf-tilt: 55deg;         /* max rotateY of the side cards            */
+  --cf-perspective: 500px;
+  --cf-shift: 30%;          /* translateX of the card toward centre     */
+  --cf-lift: 10;            /* peak z-index of the centred card         */
+
+  /* Derived — leave alone */
+  --cf-card-h: calc(var(--cf-card-w) / var(--cf-aspect));
+  --cf-viewport-h: calc(var(--cf-card-h) + var(--cf-track-pad) * 2);
+  --cf-center-pad: calc(50% - var(--cf-snap) / 2); /* centres first/last card */
+  --cf-band: calc(var(--cf-snap) * var(--cf-spread));
+}
+```
+
+With that in place the three common tweaks are one line each:
+
+- **Viewport size** — set `--cf-viewport-w`. The height follows the
+  cards automatically (`card-h + 2·track-pad`), so you rarely set it.
+- **Padding / spacing** — `--cf-track-pad` adds grey track above and
+  below the cards; `--cf-snap` is the centre-to-centre spacing — the
+  smaller it is relative to `--cf-card-w`, the more the cards overlap
+  (it also sets the centring gutter).
+- **Slide shape** — `--cf-aspect` is width ÷ height (`1` = exact
+  square, `>1` = landscape, `<1` = portrait); `--cf-card-w` is the
+  rendered size. A 240px square is `--cf-card-w: 240px; --cf-aspect: 1`.
+
+Two gotchas:
+
+- `--cf-aspect` must resolve to a *number*, not a fraction token.
+  `--cf-aspect: 16 / 9` lands inside `card-w / aspect` and divides
+  twice; use `--cf-aspect: calc(16 / 9)` (or a literal like `1.778`).
+- The whole recipe relies on `animation-timeline` and `calc()` length
+  division. Wrap it in `@supports (animation-timeline: --x)` and keep
+  a static `[data-state="active"] { z-index: var(--cf-lift) }` fallback
+  plus `@media (prefers-reduced-motion: reduce) { animation: none }` so
+  the carousel degrades to a plain scroll-snap row.

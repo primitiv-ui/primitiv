@@ -1,6 +1,6 @@
 import { Table } from "@primitiv/react";
 
-import "./TableExample.scss";
+import "./TableExample.css";
 
 const members = [
   { name: "Alice", role: "Engineer", location: "London" },

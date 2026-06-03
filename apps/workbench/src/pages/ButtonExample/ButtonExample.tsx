@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { Button } from "@primitiv/react";
 
-import "./ButtonExample.scss";
+import "./ButtonExample.css";
 
 export function ButtonExample() {
   const [count, setCount] = useState(0);

@@ -1,0 +1,110 @@
+.collapsible-example {
+  min-width: 23.4375rem;
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+.collapsible-example__title {
+  margin-block-end: 1rem;
+}
+
+.collapsible {
+  interpolate-size: allow-keywords;
+}
+
+.collapsible__trigger {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  background-color: white;
+  color: black;
+  border: none;
+  cursor: pointer;
+}
+
+.collapsible__trigger-icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  transform-origin: center center;
+  transform: rotate(0deg);
+  transition: transform 150ms ease-in-out;
+}
+
+.collapsible__trigger-icon[data-state="open"] {
+  transform: rotate(-180deg);
+}
+
+.collapsible__content {
+  display: block;
+  overflow: hidden;
+  transition: height 150ms ease-in-out;
+  border-right: 0.0625rem solid #e0e0e0;
+  border-bottom: 0.0625rem solid #e0e0e0;
+  border-left: 0.0625rem solid #e0e0e0;
+}
+
+.collapsible__content[data-state="closed"] {
+  height: 0;
+}
+
+.collapsible__content[data-state="open"] {
+  height: max-content;
+}
+
+.collapsible__settings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.collapsible__field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.checkbox {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+@keyframes checkbox-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes checkbox-exit {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+.checkbox__indicator {
+  &[data-state="unchecked"] {
+    animation: checkbox-exit 150ms ease-in forwards;
+  }
+
+  &[data-state="checked"],
+  &[data-state="indeterminate"] {
+    animation: checkbox-enter 150ms ease-out forwards;
+  }
+}

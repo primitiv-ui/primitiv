@@ -1,20 +1,19 @@
 import { Carousel } from "@primitiv/react";
 
 import { carouselImages } from "../fixtures";
-import "./_peek.scss";
+import "./peek.css";
 
 /**
  * Single image centred in the viewport with a sliver of the
  * previous and next slides visible to either side, scroll-driven
- * slide transition, seamless loop. The Ark UI "spacing" recipe —
- * achieved with `padding-inline` on the viewport, `flex-basis`
- * less than 100% on the slide, and `scroll-snap-align: center`.
+ * slide transition. The Ark UI "spacing" recipe — achieved with
+ * `padding-inline` on the viewport, `flex-basis` less than 100% on
+ * the slide, and `scroll-snap-align: center`.
  *
- * JS owns: `snapAlign="center"` so programmatic navigation lands
- *   on the centred offset (`(viewportWidth - slideWidth) / 2`)
- *   instead of the start edge — this matches where the browser's
- *   snap engine settles, so there's no double-correction after a
- *   `goTo`.
+ * JS owns: `snapAlign="center"` so programmatic navigation passes
+ *   `inline: "center"` to `scrollIntoView` — the browser's
+ *   `scroll-snap-align: center` then makes the final correction, so
+ *   there's no double-correction after a `goTo`.
  * CSS owns: viewport `padding-inline` (the symmetric peek
  *   distance), viewport `scroll-padding-inline` (so the snap
  *   target accounts for the padding), slide
@@ -25,31 +24,30 @@ import "./_peek.scss";
 export function Peek() {
   return (
     <Carousel.Root
-      className="peek"
+      className="peek cx-frame"
       ariaLabel="Metal primitives — peek of next slide"
-      loop
       snapAlign="center"
     >
-      <Carousel.Viewport className="peek__viewport">
+      <Carousel.Viewport className="peek__viewport cx-viewport-track">
         {carouselImages.map(({ src, description }) => (
-          <Carousel.Slide key={src} className="peek__slide">
-            <img className="peek__image" src={src} alt={description} />
+          <Carousel.Slide key={src} className="peek__slide cx-slide-surface">
+            <img className="peek__image cx-image" src={src} alt={description} />
           </Carousel.Slide>
         ))}
       </Carousel.Viewport>
-      <div className="peek__controls">
+      <div className="peek__controls cx-controls">
         <Carousel.PreviousTrigger
-          className="peek__trigger"
+          className="peek__trigger cx-trigger"
           aria-label="Previous"
         >
           {"<"}
         </Carousel.PreviousTrigger>
         <Carousel.Indicators
-          className="peek__indicator-group"
+          className="peek__indicator-group cx-indicators"
           label="Choose slide"
         />
         <Carousel.NextTrigger
-          className="peek__trigger"
+          className="peek__trigger cx-trigger"
           aria-label="Next"
         >
           {">"}

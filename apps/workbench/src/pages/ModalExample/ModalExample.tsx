@@ -1,6 +1,6 @@
 import { Modal } from "@primitiv/react";
 
-import "./ModalExample.scss";
+import "./ModalExample.css";
 
 export function ModalExample() {
   return (

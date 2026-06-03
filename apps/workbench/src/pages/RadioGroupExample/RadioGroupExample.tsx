@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { RadioGroup } from "@primitiv/react";
 
-import "./RadioGroupExample.scss";
+import "./RadioGroupExample.css";
 
 const densities = ["compact", "comfortable", "spacious"];
 

@@ -1,0 +1,51 @@
+.divider-example {
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.divider-example__title {
+  margin-block-end: 1.5rem;
+}
+
+.divider-example__section {
+  margin-block-end: 2rem;
+}
+
+.divider-example__section-title {
+  margin-block-end: 0.5rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #888;
+}
+
+.divider-example__description {
+  margin-block-end: 0.75rem;
+  font-size: 0.9375rem;
+  color: #555;
+}
+
+.divider-example__text {
+  margin: 0;
+}
+
+.divider-example__row {
+  display: flex;
+  align-items: center;
+}
+
+.divider-example__rule {
+  display: block;
+  border: none;
+  background: #d1d5db;
+  block-size: 1px;
+  inline-size: 100%;
+  margin-block: 0.75rem;
+}
+
+.divider-example__rule--vertical {
+  inline-size: 1px;
+  block-size: 1rem;
+  margin-block: 0;
+  margin-inline: 0.75rem;
+}

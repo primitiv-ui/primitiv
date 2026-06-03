@@ -18,7 +18,7 @@ function fireScrollSnapChange(
 }
 
 describe("Carousel transition modes", () => {
-  it('should skip the programmatic scrollTo on page change when transition="none"', async () => {
+  it('should skip the programmatic scroll on page change when transition="none"', async () => {
     const user = userEvent.setup();
     render(
       <Carousel.Root ariaLabel="Featured products" transition="none">
@@ -30,8 +30,10 @@ describe("Carousel transition modes", () => {
       </Carousel.Root>,
     );
 
-    const viewport = screen.getByTestId("viewport");
-    const scrollToSpy = vi.spyOn(viewport, "scrollTo");
+    const scrollIntoViewSpy = vi.spyOn(
+      screen.getByTestId("slide-1"),
+      "scrollIntoView",
+    );
 
     await user.click(screen.getByRole("button", { name: "Next" }));
 
@@ -41,7 +43,7 @@ describe("Carousel transition modes", () => {
       "data-state",
       "active",
     );
-    expect(scrollToSpy).not.toHaveBeenCalled();
+    expect(scrollIntoViewSpy).not.toHaveBeenCalled();
   });
 
   it('should ignore scrollsnapchange events on the viewport when transition="none"', () => {

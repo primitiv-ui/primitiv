@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { Status } from "@primitiv/react";
 
-import "./StatusExample.scss";
+import "./StatusExample.css";
 
 export function StatusExample() {
   const [count, setCount] = useState(0);

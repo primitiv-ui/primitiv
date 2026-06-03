@@ -1,0 +1,37 @@
+/* SingleSlideCrossfade — layout-only rules.
+ * The viewport acts as the card surface here (slides stack inside it
+ * absolutely), so cx-slide-surface and cx-viewport-track are not used.
+ * Shared trigger / indicators / controls live via cx-* classes.
+ */
+
+/* The viewport is the visible card: slides stack absolutely inside it,
+ * only opacity changes. The rounded surface and shadow live here (not on
+ * each slide, which would be clipped by overflow:hidden).
+ * Matches the single-slide-scroll visible width (80% of 38rem). */
+.single-slide-crossfade__viewport {
+  position: relative;
+  aspect-ratio: var(--cx-ratio);
+  inline-size: 80%;
+  margin-inline: auto;
+  overflow: hidden;
+  border-radius: var(--cx-radius-card);
+  background: var(--cx-track);
+  box-shadow: var(--cx-shadow-card);
+}
+
+.single-slide-crossfade__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 400ms ease;
+  pointer-events: none;
+
+  &[data-state="active"] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}

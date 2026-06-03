@@ -1,6 +1,6 @@
 ---
 name: workbench-examples
-description: How the apps/workbench app is structured and the rules for authoring example pages — folder layout, router wiring, and the global-CSS-bundling gotcha where a bare element/attribute selector in one example's SCSS leaks onto every other page. TRIGGER when adding or editing an example page under apps/workbench/src/pages, writing or changing an example .scss file, wiring a new example into App.tsx, or debugging an example that is visually/behaviourally broken in a way another page's CSS could explain (e.g. unexpected pointer-events, backgrounds, positioning). SKIP for packages/react component work and non-workbench changes.
+description: How the apps/workbench app is structured and the rules for authoring example pages — folder layout, router wiring, and the global-CSS-bundling gotcha where a bare element/attribute selector in one example's CSS leaks onto every other page. TRIGGER when adding or editing an example page under apps/workbench/src/pages, writing or changing an example .css file, wiring a new example into App.tsx, or debugging an example that is visually/behaviourally broken in a way another page's CSS could explain (e.g. unexpected pointer-events, backgrounds, positioning). SKIP for packages/react component work and non-workbench changes.
 ---
 
 # Workbench example pages
@@ -17,7 +17,7 @@ Each example lives in `apps/workbench/src/pages/<Name>Example/`:
 ```
 <Name>Example/
   <Name>Example.tsx     the example component (exported by name)
-  <Name>Example.scss    its styles
+  <Name>Example.css    its styles
   index.ts              export * from "./<Name>Example";
 ```
 
@@ -29,9 +29,9 @@ Wire a new example into the router in two files:
 
 ## The global-CSS gotcha — scope every selector
 
-**`App.tsx` statically imports every page, so every example's `.scss`
+**`App.tsx` statically imports every page, so every example's `.css`
 is bundled into one global stylesheet.** There is no CSS-Modules
-scoping: a rule written in `TooltipExample.scss` also applies on the
+scoping: a rule written in `TooltipExample.css` also applies on the
 Modal page, the Carousel page, everywhere.
 
 Therefore **every selector must be scoped to the page's own classes.**
@@ -49,7 +49,7 @@ If you must match a family of classes, anchor it to the prefix:
 
 ### Real incident
 
-`TooltipExample.scss` shipped `[class$="__content"] { pointer-events:
+`TooltipExample.css` shipped `[class$="__content"] { pointer-events:
 none; … }`. It matched `<Modal.Content className="modal__content">` on
 the Modal page — the `<dialog>` became click-through and the Close
 button silently stopped working. The bug was latent for days because
@@ -70,6 +70,6 @@ stubbing wasm, or removing the `ColorEngine` route.
 
 When you add or edit an example page, your bar is: it **typechecks**
 (`pnpm --filter workbench exec tsc --noEmit`) and obeys the rules above
-(scoped SCSS, router wiring in `pages/index.ts` + `App.tsx`). The
+(scoped CSS, router wiring in `pages/index.ts` + `App.tsx`). The
 human runs the workbench and does the visual check in a real browser
 afterwards — note that in your summary and leave it to them.

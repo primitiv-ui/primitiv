@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { Textarea } from "@primitiv/react";
 
-import "./TextareaExample.scss";
+import "./TextareaExample.css";
 
 export function TextareaExample() {
   const [value, setValue] = useState("");

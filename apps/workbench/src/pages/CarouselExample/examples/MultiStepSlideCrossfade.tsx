@@ -1,16 +1,16 @@
 import { Carousel } from "@primitiv/react";
 
 import { carouselImages } from "../fixtures";
-import "./_multiStepSlideCrossfade.scss";
+import "./multiStepSlideCrossfade.css";
 
 /**
  * Three slides visible per page, single-slide step, CSS-only
- * crossfade between pages, seamless loop.
+ * crossfade between pages.
  *
  * JS owns: `slidesPerPage={3}`, `slidesPerMove={1}` (5 total
- *   pages — `floor((7 - 3) / 1) + 1`), `transition="none"`,
- *   `loop`. The page diff between adjacent pages is exactly one
- *   slide, so each step swaps one column visually.
+ *   pages — `floor((7 - 3) / 1) + 1`), `transition="none"`. The
+ *   page diff between adjacent pages is exactly one slide, so each
+ *   step swaps one column visually.
  * CSS owns: same three-column grid as `MultiSlideCrossfade`.
  *   Slide `i` lives permanently in column `(i mod 3) + 1`, so the
  *   slide that leaves and the slide that enters always share a
@@ -20,40 +20,39 @@ import "./_multiStepSlideCrossfade.scss";
 export function MultiStepSlideCrossfade() {
   return (
     <Carousel.Root
-      className="multi-step-slide-crossfade"
+      className="multi-step-slide-crossfade cx-frame"
       ariaLabel="Metal primitives — three per page, step one, crossfade"
       slidesPerPage={3}
       slidesPerMove={1}
       transition="none"
-      loop
     >
-      <Carousel.Viewport className="multi-step-slide-crossfade__viewport">
+      <Carousel.Viewport className="multi-step-slide-crossfade__viewport cx-viewport-track">
         {carouselImages.map(({ src, description }) => (
           <Carousel.Slide
             key={src}
-            className="multi-step-slide-crossfade__slide"
+            className="multi-step-slide-crossfade__slide cx-slide-surface"
           >
             <img
-              className="multi-step-slide-crossfade__image"
+              className="multi-step-slide-crossfade__image cx-image"
               src={src}
               alt={description}
             />
           </Carousel.Slide>
         ))}
       </Carousel.Viewport>
-      <div className="multi-step-slide-crossfade__controls">
+      <div className="multi-step-slide-crossfade__controls cx-controls">
         <Carousel.PreviousTrigger
-          className="multi-step-slide-crossfade__trigger"
+          className="multi-step-slide-crossfade__trigger cx-trigger"
           aria-label="Previous"
         >
           {"<"}
         </Carousel.PreviousTrigger>
         <Carousel.Indicators
-          className="multi-step-slide-crossfade__indicator-group"
+          className="multi-step-slide-crossfade__indicator-group cx-indicators"
           label="Choose window"
         />
         <Carousel.NextTrigger
-          className="multi-step-slide-crossfade__trigger"
+          className="multi-step-slide-crossfade__trigger cx-trigger"
           aria-label="Next"
         >
           {">"}

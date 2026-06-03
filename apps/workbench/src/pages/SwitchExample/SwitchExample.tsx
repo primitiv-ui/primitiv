@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Check } from "@primitiv/icons";
 import { Switch } from "@primitiv/react";
 
-import "./SwitchExample.scss";
+import "./SwitchExample.css";
 
 const FEATURES = [
   { key: "analytics", label: "Analytics", description: "Track usage metrics" },

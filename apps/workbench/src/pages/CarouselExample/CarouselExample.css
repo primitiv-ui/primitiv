@@ -1,0 +1,39 @@
+/* CarouselExample tabs shell. */
+
+.carousel-example {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.carousel-example__tabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid #d4d4d4;
+}
+
+.carousel-example__tab {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 0.5rem 0.75rem;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  margin-bottom: -1px;
+
+  &[data-state="active"] {
+    border-bottom-color: currentColor;
+    font-weight: 600;
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+}
+
+.carousel-example__panel[data-state="inactive"] {
+  display: none;
+}

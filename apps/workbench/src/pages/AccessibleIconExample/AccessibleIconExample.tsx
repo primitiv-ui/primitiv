@@ -1,6 +1,6 @@
 import { AccessibleIcon } from "@primitiv/react";
 
-import "./AccessibleIconExample.scss";
+import "./AccessibleIconExample.css";
 
 function CloseGlyph() {
   return (

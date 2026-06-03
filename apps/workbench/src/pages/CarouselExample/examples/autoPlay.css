@@ -1,0 +1,66 @@
+/* AutoPlay — local rules only.
+ * Viewport and slide use cx-viewport-track / cx-slide-surface.
+ * Controls overrides the cx-controls gap; trigger / indicators use cx-*.
+ */
+
+.autoplay__viewport {
+  display: flex;
+  align-items: flex-start;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  padding-inline: 10%;
+  scroll-padding-inline: 10%;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.autoplay__slide {
+  flex: 0 0 80%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* Narrower gap than the default cx-controls 1rem to accommodate the extra
+ * play/pause button without pushing the row too wide. */
+.autoplay__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+/* Play/Pause pill button: sits inline with the circular triggers, styled as
+ * a small pill to visually distinguish it from the prev/next controls. */
+.autoplay__playpause {
+  appearance: none;
+  padding: 0.25rem 0.875rem;
+  border: 1px solid var(--cx-border);
+  border-radius: 999px;
+  background: var(--cx-surface);
+  color: var(--cx-ink);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease;
+
+  &[data-state="playing"] {
+    border-color: var(--cx-accent);
+    color: var(--cx-accent);
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--cx-track);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--cx-accent);
+    outline-offset: 2px;
+  }
+}

@@ -1,0 +1,33 @@
+/* Peek — layout-only rules.
+ * Canonical "reference size" example: slides at 75% width with 12.5%
+ * grey track visible on each side.
+ */
+
+.peek {
+  --gap: 0.75rem;
+  --peek: 12.5%;
+  --slide-width: 75%;
+}
+
+.peek__viewport {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  padding-inline: var(--peek);
+  scroll-padding-inline: var(--peek);
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.peek__slide {
+  flex: 0 0 var(--slide-width);
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}

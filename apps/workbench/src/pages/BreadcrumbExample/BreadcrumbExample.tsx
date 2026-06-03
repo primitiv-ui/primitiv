@@ -2,7 +2,7 @@ import { Fragment } from "react";
 
 import { Breadcrumb } from "@primitiv/react";
 
-import "./BreadcrumbExample.scss";
+import "./BreadcrumbExample.css";
 
 const CRUMBS = [
   { label: "Workspace", href: "/" },

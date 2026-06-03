@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Close, Eye, EyeOff, Mail, Search } from "@primitiv/icons";
 import { Input, InputGroup } from "@primitiv/react";
 
-import "./InputGroupExample.scss";
+import "./InputGroupExample.css";
 
 export function InputGroupExample() {
   const [search, setSearch] = useState("");

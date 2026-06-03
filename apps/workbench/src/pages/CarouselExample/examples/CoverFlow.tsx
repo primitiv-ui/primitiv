@@ -41,8 +41,8 @@ const GEOMETRY: SliderControl[] = [
   { prop: "--cf-viewport-w", label: "Viewport width", unit: "rem", min: 26, max: 50, step: 1, value: 38 },
   { prop: "--cf-card-w", label: "Card width", unit: "px", min: 120, max: 260, step: 5, value: 180 },
   { prop: "--cf-snap", label: "Snap spacing", unit: "px", min: 50, max: 160, step: 5, value: 90 },
-  { prop: "--cf-track-pad", label: "Track padding", unit: "px", min: 0, max: 40, step: 2, value: 0 },
-  { prop: "--cf-radius", label: "Corner radius", unit: "px", min: 0, max: 32, step: 1, value: 10 },
+  { prop: "--cf-track-pad", label: "Track padding", unit: "px", min: 0, max: 40, step: 2, value: 32 },
+  { prop: "--cf-radius", label: "Corner radius", unit: "px", min: 0, max: 32, step: 1, value: 6 },
 ];
 
 const MOTION: SliderControl[] = [

@@ -66,8 +66,8 @@
   --cf-card-w: 180px;                // rendered card width
   --cf-aspect: #{cx.$ratio};         // card width ÷ height (1 = square)
   --cf-snap: 90px;                   // centre-to-centre spacing (< card-w → overlap)
-  --cf-track-pad: 0px;               // grey track shown above/below the cards
-  --cf-radius: #{cx.$radius-card};   // card corner rounding
+  --cf-track-pad: 32px;              // grey track shown above/below the cards
+  --cf-radius: 6px;                  // card corner rounding
   // Motion
   --cf-spread: 1.4;                  // tilt band width, in multiples of --cf-snap
   --cf-tilt: 55deg;                  // max rotateY of the side cards

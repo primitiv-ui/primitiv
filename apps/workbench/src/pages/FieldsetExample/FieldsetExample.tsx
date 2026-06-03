@@ -1,6 +1,6 @@
 import { Fieldset } from "@primitiv/react";
 
-import "./FieldsetExample.scss";
+import "./FieldsetExample.css";
 
 export function FieldsetExample() {
   return (

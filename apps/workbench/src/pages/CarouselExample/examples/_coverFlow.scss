@@ -203,3 +203,104 @@
     @include cx.indicators;
   }
 }
+
+// ─── Playground controls ─────────────────────────────────────────────────────
+// Live editors for the --cf-* knobs, sat above the carousel. Every selector is
+// scoped under .cf-playground so it can't leak onto other workbench examples
+// (all example SCSS is bundled globally). The slider skin (.sl-root / .sl-track
+// / .sl-range / .sl-thumb) is reused from the Slider example.
+.cf-playground {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  &__panel {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem 2rem;
+    inline-size: 100%;
+    max-inline-size: 44rem;
+    margin-inline: auto;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid cx.$border;
+    border-radius: 12px;
+    background: #fff;
+  }
+
+  // Shape selector spans the full width above the two slider columns.
+  &__shape-control {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+
+  &__group-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: cx.$muted;
+  }
+
+  &__control {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  &__label {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: #555;
+  }
+
+  &__value {
+    color: cx.$ink;
+    font-variant-numeric: tabular-nums;
+  }
+
+  // Segmented control built from RadioGroup.Item buttons.
+  &__shape {
+    display: inline-flex;
+    align-self: flex-start;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border: 1px solid cx.$border;
+    border-radius: 8px;
+    background: cx.$viewport-track;
+  }
+
+  &__shape-option {
+    appearance: none;
+    border: 0;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    background: transparent;
+    color: #555;
+    font: inherit;
+    font-size: 0.8125rem;
+    cursor: pointer;
+    transition:
+      background 120ms ease,
+      color 120ms ease;
+
+    &[data-state="checked"] {
+      background: cx.$accent;
+      color: #fff;
+    }
+
+    &:focus-visible {
+      outline: 2px solid cx.$accent;
+      outline-offset: 2px;
+    }
+  }
+}

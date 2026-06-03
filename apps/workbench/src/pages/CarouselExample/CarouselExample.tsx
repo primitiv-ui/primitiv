@@ -16,7 +16,8 @@ import {
   Thumbnails,
   VariableSizes,
 } from "./examples";
-import "./CarouselExample.scss";
+import "./CarouselExample.css";
+import "./examples/carouselShared.css";
 
 interface ExampleTab {
   value: string;

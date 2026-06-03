@@ -1,6 +1,6 @@
 import { Avatar } from "@primitiv/react";
 
-import "./AvatarExample.scss";
+import "./AvatarExample.css";
 
 // An inline SVG portrait — guaranteed to load without a network request.
 const portrait =

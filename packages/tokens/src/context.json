@@ -576,6 +576,10 @@
           "$type": "number",
           "$value": "{radii.12}"
         }
+      },
+      "border-width": {
+        "$type": "number",
+        "$value": "{border-width.1}"
       }
     },
     "label-control": {
@@ -1309,6 +1313,18 @@
           "$value": "{font-style.regular}"
         }
       }
+    },
+    "panel": {
+      "padding": {
+        "block": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "inline": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        }
+      }
     }
   },
   "compact": {
@@ -1888,6 +1904,10 @@
           "$type": "number",
           "$value": "{radii.10}"
         }
+      },
+      "border-width": {
+        "$type": "number",
+        "$value": "{border-width.1}"
       }
     },
     "label-control": {
@@ -2621,6 +2641,18 @@
           "$value": "{font-style.regular}"
         }
       }
+    },
+    "panel": {
+      "padding": {
+        "block": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "inline": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        }
+      }
     }
   },
   "spacious": {
@@ -3200,6 +3232,10 @@
           "$type": "number",
           "$value": "{radii.14}"
         }
+      },
+      "border-width": {
+        "$type": "number",
+        "$value": "{border-width.1}"
       }
     },
     "label-control": {
@@ -3933,6 +3969,18 @@
           "$value": "{font-style.regular}"
         }
       }
+    },
+    "panel": {
+      "padding": {
+        "block": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        },
+        "inline": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        }
+      }
     }
   },
   "dense": {
@@ -4512,6 +4560,10 @@
           "$type": "number",
           "$value": "{radii.10}"
         }
+      },
+      "border-width": {
+        "$type": "number",
+        "$value": "{border-width.1}"
       }
     },
     "label-control": {
@@ -5243,6 +5295,18 @@
         "font-style": {
           "$type": "string",
           "$value": "{font-style.regular}"
+        }
+      }
+    },
+    "panel": {
+      "padding": {
+        "block": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
         }
       }
     }

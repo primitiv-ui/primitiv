@@ -97,7 +97,7 @@
         "foreground": {
           "default": {
             "$type": "color",
-            "$value": "{color.white}"
+            "$value": "{color.absolute-white}"
           },
           "disabled": {
             "$type": "color",
@@ -163,7 +163,7 @@
     "surface": {
       "default": {
         "$type": "color",
-        "$value": "{color.neutral.50}"
+        "$value": "{color.absolute-white}"
       },
       "subtle": {
         "$type": "color",
@@ -205,7 +205,7 @@
       },
       "on-action": {
         "$type": "color",
-        "$value": "{color.white}"
+        "$value": "{color.absolute-white}"
       },
       "error": {
         "$type": "color",
@@ -339,7 +339,7 @@
         "foreground": {
           "default": {
             "$type": "color",
-            "$value": "{color.white}"
+            "$value": "{color.absolute-white}"
           },
           "disabled": {
             "$type": "color",
@@ -405,7 +405,7 @@
     "surface": {
       "default": {
         "$type": "color",
-        "$value": "{color.neutral.900}"
+        "$value": "{color.black}"
       },
       "subtle": {
         "$type": "color",
@@ -447,7 +447,7 @@
       },
       "on-action": {
         "$type": "color",
-        "$value": "{color.white}"
+        "$value": "{color.absolute-white}"
       },
       "error": {
         "$type": "color",

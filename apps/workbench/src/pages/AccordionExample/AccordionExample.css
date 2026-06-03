@@ -35,11 +35,11 @@
   border: 0;
   text-align: left;
   cursor: pointer;
+}
 
-  &[data-state="open"] .accordion__trigger-icon {
-    transform-origin: center;
-    transform: rotate(180deg);
-  }
+.accordion__trigger[data-state="open"] .accordion__trigger-icon {
+  transform-origin: center;
+  transform: rotate(180deg);
 }
 
 .accordion__trigger-icon {

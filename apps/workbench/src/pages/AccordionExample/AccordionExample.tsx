@@ -1,7 +1,7 @@
 import { Accordion } from "@primitiv/react";
 import { ChevronDown } from "@primitiv/icons";
 
-import "./AccordionExample.scss";
+import "./AccordionExample.css";
 
 export function AccordionExample() {
   return (

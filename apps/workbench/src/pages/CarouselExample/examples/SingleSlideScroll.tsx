@@ -1,7 +1,7 @@
 import { Carousel } from "@primitiv/react";
 
 import { carouselImages } from "../fixtures";
-import "./_singleSlideScroll.scss";
+import "./singleSlideScroll.css";
 
 /**
  * Single image visible at a time, scroll-driven slide transition.
@@ -15,36 +15,36 @@ import "./_singleSlideScroll.scss";
 export function SingleSlideScroll() {
   return (
     <Carousel.Root
-      className="single-slide-scroll"
+      className="single-slide-scroll cx-frame"
       ariaLabel="Metal primitives — single slide"
     >
-      <Carousel.Viewport className="single-slide-scroll__viewport">
+      <Carousel.Viewport className="single-slide-scroll__viewport cx-viewport-track">
         {carouselImages.map(({ src, description }) => (
           <Carousel.Slide
             key={src}
-            className="single-slide-scroll__slide"
+            className="single-slide-scroll__slide cx-slide-surface"
           >
             <img
-              className="single-slide-scroll__image"
+              className="single-slide-scroll__image cx-image"
               src={src}
               alt={description}
             />
           </Carousel.Slide>
         ))}
       </Carousel.Viewport>
-      <div className="single-slide-scroll__controls">
+      <div className="single-slide-scroll__controls cx-controls">
         <Carousel.PreviousTrigger
-          className="single-slide-scroll__trigger"
+          className="single-slide-scroll__trigger cx-trigger"
           aria-label="Previous"
         >
           {"<"}
         </Carousel.PreviousTrigger>
         <Carousel.Indicators
-          className="single-slide-scroll__indicator-group"
+          className="single-slide-scroll__indicator-group cx-indicators"
           label="Choose slide"
         />
         <Carousel.NextTrigger
-          className="single-slide-scroll__trigger"
+          className="single-slide-scroll__trigger cx-trigger"
           aria-label="Next"
         >
           {">"}

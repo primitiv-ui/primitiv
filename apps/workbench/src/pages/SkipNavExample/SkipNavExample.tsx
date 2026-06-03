@@ -1,6 +1,6 @@
 import { SkipNav } from "@primitiv/react";
 
-import "./SkipNavExample.scss";
+import "./SkipNavExample.css";
 
 export function SkipNavExample() {
   return (

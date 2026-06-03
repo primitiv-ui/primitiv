@@ -51,6 +51,7 @@ const MOTION: SliderControl[] = [
   { prop: "--cf-perspective", label: "Perspective", unit: "px", min: 250, max: 900, step: 25, value: 500 },
   { prop: "--cf-shift", label: "Card shift", unit: "%", min: 0, max: 55, step: 1, value: 30 },
   { prop: "--cf-lift", label: "Lift (z-index)", unit: "", min: 4, max: 16, step: 1, value: 10 },
+  { prop: "--cf-scale", label: "Active scale", unit: "", min: 1, max: 1.6, step: 0.05, value: 1 },
 ];
 
 const ALL_SLIDERS = [...GEOMETRY, ...MOTION];
@@ -64,8 +65,13 @@ const SHAPES = [
   { label: "Portrait", value: String(3 / 4) },
 ];
 
+// Decimal places to show for a given step (e.g. 0.05 → 2, 0.1 → 1, 1 → 0).
+function decimalsFor(step: number): number {
+  return Number.isInteger(step) ? 0 : (String(step).split(".")[1] ?? "").length;
+}
+
 function formatValue({ unit, step }: SliderControl, raw: number): string {
-  const num = step < 1 ? raw.toFixed(1) : String(raw);
+  const num = raw.toFixed(decimalsFor(step));
   const suffix = unit === "deg" ? "°" : unit;
   return `${num}${suffix}`;
 }

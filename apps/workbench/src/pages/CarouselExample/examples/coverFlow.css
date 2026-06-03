@@ -38,7 +38,9 @@
  *                        size; --cf-radius rounds the corners.
  *
  * Motion knobs (--cf-spread / --cf-tilt / --cf-perspective / --cf-shift /
- * --cf-lift) tune the 3D feel without touching geometry.
+ * --cf-lift / --cf-scale) tune the 3D feel without touching geometry. The
+ * centred card scales toward --cf-scale and back as it crosses the band, so
+ * the enlargement transitions smoothly with the scroll.
  */
 
 @keyframes coverflow-rotate {
@@ -48,9 +50,9 @@
 }
 
 @keyframes coverflow-translate {
-  from { transform: translateX(var(--cf-shift)); }
-  50%  { transform: translateX(0); }
-  to   { transform: translateX(calc(-1 * var(--cf-shift))); }
+  from { transform: translateX(var(--cf-shift)) scale(1); }
+  50%  { transform: translateX(0) scale(var(--cf-scale)); }
+  to   { transform: translateX(calc(-1 * var(--cf-shift))) scale(1); }
 }
 
 /* Stacking ramp: peaks at the centred slide, falls away symmetrically. z-index
@@ -95,10 +97,15 @@
   --cf-perspective: 500px; /* 3D perspective depth */
   --cf-shift: 30%; /* translateX of the card toward centre */
   --cf-lift: 10; /* peak z-index of the centred card */
+  --cf-scale: 1; /* size of the centred card (1 = no enlargement) */
 
   /* ─── Derived — do not edit ──────────────────────────────────────────────── */
   --cf-card-h: calc(var(--cf-card-w) / var(--cf-aspect));
-  --cf-viewport-h: calc(var(--cf-card-h) + var(--cf-track-pad) * 2);
+  /* Reserve vertical room for the peak scale so the enlarged active card is
+   * never clipped (overflow-x: auto forces overflow-y to clip). */
+  --cf-viewport-h: calc(
+    var(--cf-card-h) * var(--cf-scale) + var(--cf-track-pad) * 2
+  );
   --cf-center-pad: calc(50% - var(--cf-snap) / 2); /* centres first/last card */
   --cf-band: calc(var(--cf-snap) * var(--cf-spread)); /* half-width of tilt band */
 

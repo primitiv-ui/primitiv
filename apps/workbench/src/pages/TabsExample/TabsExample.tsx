@@ -1,6 +1,6 @@
 import { Tabs } from "@primitiv/react";
 
-import "./TabsExample.scss";
+import "./TabsExample.css";
 
 export function TabsExample() {
   return (

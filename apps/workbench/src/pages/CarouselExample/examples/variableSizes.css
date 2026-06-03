@@ -1,0 +1,31 @@
+/* VariableSizes — layout-only rules.
+ * Each slide's width is driven by an inline --w custom property set in JSX.
+ */
+
+.variable-sizes {
+  --gap: 0.75rem;
+  --peek: 12.5%;
+}
+
+.variable-sizes__viewport {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  padding-inline: var(--peek);
+  scroll-padding-inline: var(--peek);
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.variable-sizes__slide {
+  flex: 0 0 var(--w);
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}

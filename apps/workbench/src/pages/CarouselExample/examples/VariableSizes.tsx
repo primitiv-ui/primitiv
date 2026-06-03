@@ -3,7 +3,7 @@ import type { CSSProperties } from "react";
 import { Carousel } from "@primitiv/react";
 
 import { carouselImages } from "../fixtures";
-import "./_variableSizes.scss";
+import "./variableSizes.css";
 
 const slideWidths = [
   "50%",
@@ -31,38 +31,38 @@ const slideWidths = [
 export function VariableSizes() {
   return (
     <Carousel.Root
-      className="variable-sizes"
+      className="variable-sizes cx-frame"
       ariaLabel="Metal primitives — mixed slide widths"
       snapAlign="center"
     >
-      <Carousel.Viewport className="variable-sizes__viewport">
+      <Carousel.Viewport className="variable-sizes__viewport cx-viewport-track">
         {carouselImages.map(({ src, description }, index) => (
           <Carousel.Slide
             key={src}
-            className="variable-sizes__slide"
+            className="variable-sizes__slide cx-slide-surface"
             style={{ "--w": slideWidths[index] } as CSSProperties}
           >
             <img
-              className="variable-sizes__image"
+              className="variable-sizes__image cx-image"
               src={src}
               alt={description}
             />
           </Carousel.Slide>
         ))}
       </Carousel.Viewport>
-      <div className="variable-sizes__controls">
+      <div className="variable-sizes__controls cx-controls">
         <Carousel.PreviousTrigger
-          className="variable-sizes__trigger"
+          className="variable-sizes__trigger cx-trigger"
           aria-label="Previous"
         >
           {"<"}
         </Carousel.PreviousTrigger>
         <Carousel.Indicators
-          className="variable-sizes__indicator-group"
+          className="variable-sizes__indicator-group cx-indicators"
           label="Choose slide"
         />
         <Carousel.NextTrigger
-          className="variable-sizes__trigger"
+          className="variable-sizes__trigger cx-trigger"
           aria-label="Next"
         >
           {">"}

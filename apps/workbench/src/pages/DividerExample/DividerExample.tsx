@@ -1,6 +1,6 @@
 import { Divider } from "@primitiv/react";
 
-import "./DividerExample.scss";
+import "./DividerExample.css";
 
 export function DividerExample() {
   return (

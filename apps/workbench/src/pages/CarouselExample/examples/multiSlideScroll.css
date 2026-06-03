@@ -1,0 +1,28 @@
+/* MultiSlideScroll — layout-only rules. */
+
+.multi-slide-scroll {
+  --gap: 0.75rem;
+}
+
+.multi-slide-scroll__viewport {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  padding: 0.75rem;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.multi-slide-scroll__slide {
+  /* Three cards plus two gaps fill the track exactly (inside the padding box). */
+  flex: 0 0 calc((100% - 2 * var(--gap)) / 3);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}

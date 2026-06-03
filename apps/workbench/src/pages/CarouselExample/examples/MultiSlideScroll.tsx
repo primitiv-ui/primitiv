@@ -1,7 +1,7 @@
 import { Carousel } from "@primitiv/react";
 
 import { carouselImages } from "../fixtures";
-import "./_multiSlideScroll.scss";
+import "./multiSlideScroll.css";
 
 /**
  * Three slides visible per page, scroll-driven slide transition,
@@ -17,37 +17,37 @@ import "./_multiSlideScroll.scss";
 export function MultiSlideScroll() {
   return (
     <Carousel.Root
-      className="multi-slide-scroll"
+      className="multi-slide-scroll cx-frame"
       ariaLabel="Metal primitives — three per page"
       slidesPerPage={3}
     >
-      <Carousel.Viewport className="multi-slide-scroll__viewport">
+      <Carousel.Viewport className="multi-slide-scroll__viewport cx-viewport-track">
         {carouselImages.map(({ src, description }) => (
           <Carousel.Slide
             key={src}
-            className="multi-slide-scroll__slide"
+            className="multi-slide-scroll__slide cx-slide-surface"
           >
             <img
-              className="multi-slide-scroll__image"
+              className="multi-slide-scroll__image cx-image"
               src={src}
               alt={description}
             />
           </Carousel.Slide>
         ))}
       </Carousel.Viewport>
-      <div className="multi-slide-scroll__controls">
+      <div className="multi-slide-scroll__controls cx-controls">
         <Carousel.PreviousTrigger
-          className="multi-slide-scroll__trigger"
+          className="multi-slide-scroll__trigger cx-trigger"
           aria-label="Previous"
         >
           {"<"}
         </Carousel.PreviousTrigger>
         <Carousel.Indicators
-          className="multi-slide-scroll__indicator-group"
+          className="multi-slide-scroll__indicator-group cx-indicators"
           label="Choose page"
         />
         <Carousel.NextTrigger
-          className="multi-slide-scroll__trigger"
+          className="multi-slide-scroll__trigger cx-trigger"
           aria-label="Next"
         >
           {">"}

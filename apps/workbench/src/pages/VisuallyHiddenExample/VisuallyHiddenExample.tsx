@@ -1,6 +1,6 @@
 import { VisuallyHidden } from "@primitiv/react";
 
-import "./VisuallyHiddenExample.scss";
+import "./VisuallyHiddenExample.css";
 
 export function VisuallyHiddenExample() {
   return (

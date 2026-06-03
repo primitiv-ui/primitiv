@@ -305,6 +305,7 @@ re-reading Figma.
 - `figma_capture_screenshot` (live) over `figma_take_screenshot` (cloud).
 - Ring-frame radius slips survive cloning — always sweep-fix.
 - **Ring-frame constraints must be `STRETCH`, not `MIN`**: both `focus-ring` and `focus-ring-gap` need `constraints: { horizontal: "STRETCH", vertical: "STRETCH" }` so the ring follows the control when label text changes. The default on a new frame is `MIN` (anchored top-left only) — always set this explicitly. See `figma-variable-architecture` → "Gotcha — ring-frame constraints must be STRETCH".
+- **Border widths must go through the Context layer — never bind directly to Primitives.** Every framed-control stroke side weight (`strokeTopWeight` etc.) must be bound to `framed-control/border-width` (Context collection, `VariableID:428:6601`), which aliases `border-width/1` in Primitives. Binding directly to `border-width/1` (Primitive) violates the token layering rule. Hardcoded numeric weights (including 1.5px on Checkbox/Radio — now corrected to 1px) are also forbidden. After any clone-and-rebind sweep, verify with `node.boundVariables.strokeTopWeight?.id === 'VariableID:428:6601'`.
 - **x=0 clamp gotcha**: Adding `layoutMode = "HORIZONTAL"` to an existing
   frame in-place clamps any child at a negative x/y to 0 during the layout
   transition. Ring frames at x=−2/−4 silently move to x=0, making the ring

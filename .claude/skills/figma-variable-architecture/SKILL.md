@@ -44,6 +44,7 @@ The `Context` collection is the one you'll touch most when building or updating 
 | `framed-control/{size}/radius`     | Corner radius of the control frame itself                      |
 | `framed-control/{size}/focus-ring-gap-radius` | Corner radius of the white gap layer between control edge and ring |
 | `framed-control/{size}/focus-ring-radius`     | Corner radius of the focus ring (blue stroke) layer            |
+| `framed-control/border-width`                 | Stroke weight for all framed-control borders (size-invariant, density-invariant). Aliases `border-width/1` from Primitives. All components must bind their stroke side weights to this token — never to `border-width/*` directly and never as a hardcoded value. Added 2026-06-03; applied to Button, Toggle, Input, Select, Checkbox, Radio, Accordion/Item, Accordion/Panel, Tabs/Trigger, Tabs/Panel. |
 
 ### Resolved values — Dense mode
 

@@ -1,0 +1,27 @@
+/* MultiStepSlideScroll — layout-only rules. */
+
+.multi-step-slide-scroll {
+  --gap: 0.75rem;
+}
+
+.multi-step-slide-scroll__viewport {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  padding: 0.75rem;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.multi-step-slide-scroll__slide {
+  flex: 0 0 calc((100% - 2 * var(--gap)) / 3);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}

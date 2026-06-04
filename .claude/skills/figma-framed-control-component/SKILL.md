@@ -379,3 +379,15 @@ re-reading Figma.
 - **Copying a paint preserves its variable binding.** `dst.fills = src.fills` carries the
   paint-level `boundVariables.color` across (you do *not* re-bind) — handy when cloning a
   colour element; the binding rule itself is "set on the paint, not via `setBoundVariable`".
+- **Every component page needs Light mode set explicitly.** The `Intent` collection defaults to
+  Dark mode. Without an explicit override, all `border/*` and `surface/*` tokens resolve to
+  near-black Dark-mode values on the canvas — `border/default` appears black, `surface/default`
+  appears near-black. Fix: `page.setExplicitVariableModeForCollection(intentCol, '346:7')` and
+  the same for `Primitives / Palette` (`palCol`, Light modeId `345:6`). Apply to every new
+  component page immediately after creation. Already applied to all existing pages as of 2026-06-04.
+- **Two focus border patterns — choose one explicitly.** Input uses `border/focus` (changes the
+  control's border to brand blue on focus, plus the ring). Select and Textarea use `border/default`
+  (no border colour change — ring is the sole focus indicator). These two patterns are intentionally
+  different; do not mix them within a single component. `border/focus` resolves to a strong blue
+  (`#235CE1`), not teal — it is visually prominent. When in doubt, prefer the Select/Textarea
+  pattern (ring-only) for large input controls where a coloured border would be distracting.

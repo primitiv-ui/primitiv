@@ -260,6 +260,17 @@ binds: fill → `surface/default` (disabled `surface/subtle`); stroke →
 (value) / `content/disabled`. There is **no intent/Variant axis** — a single
 visual style.
 
+**Two focus border patterns (confirmed 2026-06-04):**
+- **Input**: `border/focus` on the focused control border (changes border colour) + ring.
+  `border/focus` resolves to a strong **blue** (`#235CE1` in the current palette) — not teal.
+- **Select / Textarea**: `border/default` on focus — border colour does not change; the
+  2-frame focus ring is the **sole** focus indicator. More appropriate for large controls
+  where a coloured border would be visually heavy. Disabled state also differs: Input uses
+  `border/subtle`, Select uses `border/default`.
+
+When adding a new form-input control, decide upfront which pattern to follow and document it
+in the component description.
+
 #### Overlay / surface components — `dropdown/*` pattern in Context
 
 Dropdown menus, popovers, and similar surface components are also **not framed controls** — they contain items rather than being interactive controls themselves. Their sizing lives in component-specific namespaces within the unified `Context` collection, not under `framed-control/*`.

@@ -15,6 +15,7 @@ Existing scripts:
 - `arrange-switch-component-set.js` — Switch (Size/State/Interaction) — 40 variants
 - `arrange-checkbox-component-set.js` — Checkbox (Size/State/Interaction) — 60 variants
 - `arrange-input-component-set.js` — Input (Size/State/Filled) — 50 variants; State major col × Filled sub-col, no Variant axis
+- `arrange-textarea-component-set.js` — Textarea (Size/State/Filled) — 50 variants; identical grid to Input (State major col × Filled sub-col)
 - `arrange-field-component-set.js` — Field (Size/State) — 15 variants; **single column axis** (State only, no sub-columns) — the minimal case
 
 ## Grid convention

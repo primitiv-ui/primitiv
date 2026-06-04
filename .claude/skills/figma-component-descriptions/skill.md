@@ -673,6 +673,30 @@ Notes: primaryAxisAlignItems=MAX (right-aligned). Use Size matching the parent M
   Button labels are static — replace instances for different action labels.
 ```
 
+### Textarea — `439:14511`
+
+```
+Multi-line text entry; no intent axis — neutral surface/border/content styling.
+
+Type: framed-control (multi-line variant of Input)
+
+Axes: Size xs|sm|md|lg|xl · State default|hover|focus|disabled|invalid · Filled filled|empty
+
+Tokens: fill → surface/default (disabled: surface/subtle)
+        stroke → border/default · hover: border/strong · focus: border/default (ring is sole focus indicator) · disabled: border/subtle · invalid: border/invalid
+        text → content/muted (empty) · content/primary (filled) · content/disabled
+        sizing → textarea/{size}/min-height; padding all 4 sides → framed-control/{size}/padding-inline; radius → framed-control/{size}/radius
+
+Properties: Value (TEXT "Placeholder text") — shared across all variants; empty/filled distinction is colour only
+
+Density: Context mode override on parent frame
+Pairs with: Field (wrapper for label + helper text), Input (single-line counterpart)
+Notes: no icon slots; height fixed per size/density (textarea/{size}/min-height token — ~3 body lines + padding);
+  text fills the full area top-left aligned; focus ring is standard 2-frame anatomy with STRETCH constraints.
+  Focus follows Select pattern (ring-only, no border colour change) — NOT Input pattern (border/focus).
+  Grid layout: Filled as major axis (empty | filled) × State sub-columns, unlike Input which uses State as major axis.
+```
+
 ---
 
 ## Definition of done checklist

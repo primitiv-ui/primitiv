@@ -39,7 +39,7 @@ not visual components and do not need a Figma design.
 | Accordion | ✓ | 416:6729 (Item), 417:6881 (Panel) |
 | Alert | — | |
 | Avatar | ✓ | 433:7944 |
-| Breadcrumb | — | |
+| Breadcrumb | ✓ | 436:12220 (Item), 436:12221 (Separator), 436:12911 (composition) |
 | Button | ✓ | 347:14161 |
 | Carousel | — | |
 | Checkbox | ✓ | 369:30652 |
@@ -51,10 +51,11 @@ not visual components and do not need a Figma design.
 | EmptyState | — | |
 | Field | ✓ | 394:7449 |
 | Fieldset | — | |
+| Icon Button | ✓ | 433:8386 |
 | Input | ✓ | 393:6159 |
 | InputGroup | — | |
 | MillerColumns | — | |
-| Modal | — | |
+| Modal | ✓ | 435:10250 (Modal), 435:9450 (Header), 435:10108 (Body), 435:10161 (Footer) |
 | Progress | — | |
 | RadioCard | — | |
 | RadioGroup | ✓ | 401:17958 |
@@ -64,7 +65,7 @@ not visual components and do not need a Figma design.
 | Switch | ✓ | 315:5884 |
 | Table | — | |
 | Tabs | ✓ | 425:5528 (Trigger), 425:5539 (Panel) |
-| Textarea | — | |
+| Textarea | ✓ | 439:14511 |
 | Toggle | ✓ | 385:1418 |
 | ToggleGroup | ✓ | assembled from Toggle |
 | Tooltip | — | |

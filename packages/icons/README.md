@@ -73,12 +73,14 @@ All other [SVG element attributes](https://developer.mozilla.org/en-US/docs/Web/
 | [Mail](src/icons/Mail.tsx) | `import { Mail } from "@primitiv/icons"` |
 | [Menu](src/icons/Menu.tsx) | `import { Menu } from "@primitiv/icons"` |
 | [Minus](src/icons/Minus.tsx) | `import { Minus } from "@primitiv/icons"` |
+| [Moon](src/icons/Moon.tsx) | `import { Moon } from "@primitiv/icons"` |
 | [Plus](src/icons/Plus.tsx) | `import { Plus } from "@primitiv/icons"` |
 | [Search](src/icons/Search.tsx) | `import { Search } from "@primitiv/icons"` |
 | [Settings](src/icons/Settings.tsx) | `import { Settings } from "@primitiv/icons"` |
 | [Share](src/icons/Share.tsx) | `import { Share } from "@primitiv/icons"` |
 | [Sort](src/icons/Sort.tsx) | `import { Sort } from "@primitiv/icons"` |
 | [Success](src/icons/Success.tsx) | `import { Success } from "@primitiv/icons"` |
+| [Sun](src/icons/Sun.tsx) | `import { Sun } from "@primitiv/icons"` |
 | [Upload](src/icons/Upload.tsx) | `import { Upload } from "@primitiv/icons"` |
 | [User](src/icons/User.tsx) | `import { User } from "@primitiv/icons"` |
 | [Warning](src/icons/Warning.tsx) | `import { Warning } from "@primitiv/icons"` |

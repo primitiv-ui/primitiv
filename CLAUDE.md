@@ -172,6 +172,15 @@ keyword or by topic; do not paraphrase their content here.
   Mandatory last step after any component build or update. TRIGGER when
   finishing a component design, checking whether descriptions are complete, or
   building a layout from existing components.
+- **`figma-icon-glyph`** — end-to-end playbook for adding a new glyph to
+  the Figma `Icon` component set (5 size variants) AND the `@primitiv/icons`
+  package: the house line style (1.5px stroke → `outlineStroke` → flatten to
+  solid fill, butt caps / miter joins, ~2px padding), the `vectorPaths`
+  H/V/A-command restriction and the offset-circle trick for arcs, the
+  `outlineStroke`-leaves-source gotcha, the clone-and-rebind into the 5 size
+  bands, exporting the same geometry as the source `.svg`, and the
+  `pnpm generate` / README-row / `icons.test.tsx` (auto-covers all) loop.
+  TRIGGER when drawing/adding an icon glyph or adding an svg to packages/icons.
 - **`model-routing`** — Opus/Sonnet/Haiku decision tree.
 
 ## Slash commands

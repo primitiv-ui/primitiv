@@ -46,7 +46,7 @@ not visual components and do not need a Figma design.
 | CheckboxCard | — | |
 | Collapsible | — | |
 | ContextMenu | — | |
-| Divider | — | |
+| Divider | ✓ | |
 | Dropdown | ✓ | 402:18499 |
 | EmptyState | — | |
 | Field | ✓ | 394:7449 |
@@ -56,7 +56,7 @@ not visual components and do not need a Figma design.
 | InputGroup | — | |
 | MillerColumns | — | |
 | Modal | ✓ | 435:10250 (Modal), 435:9450 (Header), 435:10108 (Body), 435:10161 (Footer) |
-| Progress | — | |
+| Progress | ✓ | 443:7839 |
 | RadioCard | — | |
 | RadioGroup | ✓ | 401:17958 |
 | Select | ✓ | 403:1883 |

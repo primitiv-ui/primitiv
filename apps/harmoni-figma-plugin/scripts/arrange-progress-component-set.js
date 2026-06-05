@@ -6,9 +6,12 @@
  *          secondary/default, secondary/indeterminate,
  *          danger/default, danger/indeterminate
  *
- * Track height is density-invariant (progress/{size}/height aliases the
- * same size primitive across all 4 Context modes):
- *   xs=4px  sm=6px  md=8px  lg=12px  xl=16px
+ * Track height varies by density (progress/{size}/height in Context collection):
+ *   Dense:       xs=2   sm=3   md=4   lg=6   xl=8
+ *   Compact:     xs=4   sm=6   md=8   lg=12  xl=16   ← canvas default
+ *   Comfortable: xs=6   sm=8   md=10  lg=16  xl=20
+ *   Spacious:    xs=8   sm=10  md=14  lg=20  xl=24
+ * sizeHeights below uses Compact values (what the canvas renders at).
  *
  * Run in the Figma developer console on the Progress page.
  * Labels are placed as TEXT nodes on the page (ComponentSet can only

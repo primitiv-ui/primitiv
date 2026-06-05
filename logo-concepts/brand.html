@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Primitiv / Harmoni — Brand Marks</title>
+<style>
+  :root{
+    --bg:#fbfbfa; --panel:#fff; --ink:#0e0e0e; --muted:#8a8a8a; --line:#ececec;
+    --accent:#0a7; --code:#f4f4f2; --dark:#0d0d0d;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--sans);
+       -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 28px;}
+
+  /* header */
+  header{padding:72px 0 40px;border-bottom:1px solid var(--line);}
+  .eyebrow{font:600 11px/1 var(--mono);letter-spacing:.28em;text-transform:uppercase;
+           color:var(--muted);margin:0 0 18px;}
+  header h1{font-size:40px;line-height:1.05;letter-spacing:-.02em;margin:0 0 14px;font-weight:600;}
+  header p{font-size:17px;color:#444;max-width:60ch;margin:0;}
+  .heromark{display:flex;gap:30px;margin:34px 0 0;align-items:flex-end;}
+  .heromark img{height:74px;}
+
+  /* nav */
+  nav{position:sticky;top:0;background:rgba(251,251,250,.86);backdrop-filter:blur(8px);
+      border-bottom:1px solid var(--line);z-index:5;}
+  nav .wrap{display:flex;gap:26px;padding:14px 28px;overflow-x:auto;}
+  nav a{color:var(--muted);text-decoration:none;font:600 12px/1 var(--mono);
+        letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;}
+  nav a:hover{color:var(--ink);}
+
+  section{padding:60px 0;border-bottom:1px solid var(--line);}
+  h2{font-size:13px;font-family:var(--mono);letter-spacing:.18em;text-transform:uppercase;
+     color:var(--muted);margin:0 0 6px;font-weight:600;}
+  h2 + .lead{font-size:24px;letter-spacing:-.01em;margin:0 0 30px;font-weight:600;max-width:40ch;}
+  p.note{color:#555;max-width:66ch;}
+
+  /* asset cards */
+  .grid{display:grid;gap:20px;}
+  .g2{grid-template-columns:1fr 1fr;}
+  @media(max-width:760px){.g2{grid-template-columns:1fr;}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+  .card .lab{display:flex;justify-content:space-between;align-items:center;
+             padding:13px 18px;border-bottom:1px solid var(--line);}
+  .card .lab b{font-weight:600;font-size:14px;}
+  .card .lab code{font:500 11px/1 var(--mono);color:var(--muted);}
+  .stage{display:flex;align-items:center;justify-content:center;padding:40px;min-height:150px;}
+  .stage.dark{background:var(--dark);}
+  .stage.dark img{filter:brightness(0) invert(1);}
+  .stage img{max-width:78%;max-height:140px;}
+  .stage.tall img{max-height:230px;}
+  .stage.tall{min-height:260px;}
+
+  /* spec tables */
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:14px;}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{font:600 11px/1.3 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);width:230px;}
+  td code,.k{font-family:var(--mono);font-size:13px;background:var(--code);
+             padding:1px 6px;border-radius:5px;}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:36px;}
+  @media(max-width:760px){.two{grid-template-columns:1fr;}}
+
+  .formula{background:var(--code);border:1px solid var(--line);border-radius:10px;
+           padding:16px 18px;font-family:var(--mono);font-size:13px;line-height:1.7;color:#333;
+           overflow-x:auto;}
+  .formula b{color:var(--accent);}
+  .pill{display:inline-block;font:600 11px/1 var(--mono);letter-spacing:.05em;
+        background:var(--code);border:1px solid var(--line);border-radius:20px;
+        padding:6px 12px;margin:0 6px 8px 0;color:#444;}
+  ul.clean{margin:8px 0 0;padding:0 0 0 18px;color:#555;}
+  ul.clean li{margin:6px 0;}
+  footer{padding:50px 0 80px;color:var(--muted);font-size:13px;}
+  .swatch{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;
+          border:1px solid #0002;margin-right:6px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <p class="eyebrow">Brand Marks · Reference</p>
+    <h1>Primitiv <span style="color:var(--muted)">/</span> Harmoni</h1>
+    <p>A two-mark system generated from a single equilateral triangle and the golden ratio.
+       Primitiv is the primitive form; Harmoni is the harmonic series it generates.
+       One colour, pure geometry, fully reproducible.</p>
+    <div class="heromark">
+      <img src="primitiv-logo.svg" alt="Primitiv mark">
+      <img src="harmoni-logo.svg" alt="Harmoni mark">
+    </div>
+  </div>
+</header>
+
+<nav><div class="wrap">
+  <a href="#marks">Marks</a>
+  <a href="#geometry">Geometry</a>
+  <a href="#primitiv">Primitiv</a>
+  <a href="#harmoni">Harmoni</a>
+  <a href="#type">Typography</a>
+  <a href="#lockups">Lockups</a>
+  <a href="#favicon">Favicon</a>
+  <a href="#usage">Usage</a>
+  <a href="#files">Files</a>
+</div></nav>
+
+<main class="wrap">
+
+<!-- MARKS -->
+<section id="marks">
+  <h2>01 — The Marks</h2>
+  <p class="lead">Two symbols, one geometric language.</p>
+  <div class="grid g2">
+    <div class="card">
+      <div class="lab"><b>Primitiv</b><code>primitiv-logo.svg</code></div>
+      <div class="stage"><img src="primitiv-logo.svg" alt="Primitiv mark"></div>
+      <div class="stage dark"><img src="primitiv-logo.svg" alt="Primitiv mark dark"></div>
+    </div>
+    <div class="card">
+      <div class="lab"><b>Harmoni</b><code>harmoni-logo.svg</code></div>
+      <div class="stage"><img src="harmoni-logo.svg" alt="Harmoni mark"></div>
+      <div class="stage dark"><img src="harmoni-logo.svg" alt="Harmoni mark dark"></div>
+    </div>
+  </div>
+  <p class="note" style="margin-top:22px">
+    Both marks share the same equilateral triangle and the same physical gap width, so they
+    read as siblings. Primitiv expresses a <i>linear</i> golden-ratio scale; Harmoni expresses
+    a <i>concentric</i> one — a single form generating an inner form.
+  </p>
+</section>
+
+<!-- GEOMETRY -->
+<section id="geometry">
+  <h2>02 — Shared Geometry</h2>
+  <p class="lead">One equilateral triangle. Everything derives from it.</p>
+  <div class="two">
+    <div>
+      <table>
+        <tr><th>Canvas</th><td><code>viewBox="0 0 100 100"</code></td></tr>
+        <tr><th>Apex (A)</th><td><code>50, 10</code></td></tr>
+        <tr><th>Bottom-left (B)</th><td><code>11, 77.5</code></td></tr>
+        <tr><th>Bottom-right (C)</th><td><code>89, 77.5</code></td></tr>
+        <tr><th>Base width</th><td><code>78</code> units</td></tr>
+        <tr><th>Altitude (height)</th><td><code>67.5</code> units</td></tr>
+        <tr><th>Centroid (O)</th><td><code>50, 55</code></td></tr>
+        <tr><th>Inradius (O→edge)</th><td><code>22.5</code> units</td></tr>
+        <tr><th>Golden ratio φ</th><td><code>1.618…</code></td></tr>
+      </table>
+    </div>
+    <div>
+      <p class="note" style="margin-top:0">
+        The two marks are tied together by a single rule: <b>the negative-space gap is the
+        same physical width in both</b>. That width is set by Primitiv and matched by Harmoni.
+      </p>
+      <div class="formula">
+<b>Primitiv gap</b> (between bands)
+ = 2 × 0.0375 × altitude
+ = 0.075 × 67.5
+ = <b>5.06 units</b>
+
+<b>Harmoni gap</b> (between rings)
+ = inradius × Δscale
+ = 22.5 × 0.225
+ = <b>5.06 units</b>   ← matched
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRIMITIV -->
+<section id="primitiv">
+  <h2>03 — Primitiv · construction</h2>
+  <p class="lead">A golden-ratio scale, leaning into mass.</p>
+  <div class="two">
+    <div class="card">
+      <div class="lab"><b>Primitiv mark</b><code>3 bands · φ</code></div>
+      <div class="stage"><img src="primitiv-logo.svg" alt="Primitiv"></div>
+    </div>
+    <div>
+      <table>
+        <tr><th>Construction</th><td>3 bands parallel to the right edge <code>AC</code>, converging at the bottom-left vertex <code>B</code>.</td></tr>
+        <tr><th>Band thicknesses</th><td><code>1 : φ : φ²</code> &nbsp;(<code>1 : 1.618 : 2.618</code>)</td></tr>
+        <tr><th>Direction</th><td>Steps ascend left→right into a heavy mass at the bottom-right.</td></tr>
+        <tr><th>Gap</th><td><code>0.0375</code> of the edge span each side → <code>5.06u</code> perpendicular.</td></tr>
+        <tr><th>Fill</th><td>3 solid polygons, <span class="k">#000</span>, transparent gaps.</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- HARMONI -->
+<section id="harmoni">
+  <h2>04 — Harmoni · construction</h2>
+  <p class="lead">The same form, generating an inner form.</p>
+  <div class="two">
+    <div class="card">
+      <div class="lab"><b>Harmoni mark</b><code>nested · even-odd</code></div>
+      <div class="stage"><img src="harmoni-logo.svg" alt="Harmoni"></div>
+    </div>
+    <div>
+      <table>
+        <tr><th>Construction</th><td>Concentric triangles scaled about the centroid, filled <code>even-odd</code>.</td></tr>
+        <tr><th>Scales</th><td><code>1.0</code> → <code>0.55</code> → <code>0.325</code></td></tr>
+        <tr><th>Result</th><td>Bold outer frame · 5.06u gap · small solid inner triangle (one harmonic step).</td></tr>
+        <tr><th>Gap</th><td>Δscale <code>0.225</code> = <code>5.06u</code> — identical to Primitiv.</td></tr>
+        <tr><th>Fill</th><td>Single path, <code>fill-rule="evenodd"</code>, <span class="k">#000</span>.</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- TYPOGRAPHY -->
+<section id="type">
+  <h2>05 — Typography</h2>
+  <p class="lead">Jost — geometric sans, sharpened to match.</p>
+  <div class="grid g2">
+    <div class="card">
+      <div class="lab"><b>PRIMITIV</b><code>primitiv-wordmark.svg</code></div>
+      <div class="stage"><img src="primitiv-wordmark.svg" alt="PRIMITIV wordmark"></div>
+      <div class="stage dark"><img src="primitiv-wordmark.svg" alt="PRIMITIV wordmark dark"></div>
+    </div>
+    <div class="card">
+      <div class="lab"><b>HARMONI</b><code>harmoni-wordmark.svg</code></div>
+      <div class="stage"><img src="harmoni-wordmark.svg" alt="HARMONI wordmark"></div>
+      <div class="stage dark"><img src="harmoni-wordmark.svg" alt="HARMONI wordmark dark"></div>
+    </div>
+  </div>
+  <div class="two" style="margin-top:26px">
+    <table>
+      <tr><th>Typeface</th><td>Jost (Indestructible Type · Owen Earl) — Futura-inspired geometric sans, OFL.</td></tr>
+      <tr><th>Weight</th><td>Medium · <code>wght 500</code></td></tr>
+      <tr><th>Case</th><td>All caps</td></tr>
+      <tr><th>Tracking</th><td><code>0.16em</code></td></tr>
+      <tr><th>Format</th><td>Converted to outline paths — no live font dependency.</td></tr>
+    </table>
+    <p class="note" style="margin-top:0">
+      Chosen because its pointed <code>A</code> and <code>M</code> apexes are the same sharp
+      peaks as the triangle marks — symbol and wordmark speak one geometric language.
+      Shipping as outlines keeps the wordmarks pixel-identical everywhere and dependency-free.
+    </p>
+  </div>
+</section>
+
+<!-- LOCKUPS -->
+<section id="lockups">
+  <h2>06 — Lockups</h2>
+  <p class="lead">Mark + wordmark, optically aligned.</p>
+  <div class="grid g2">
+    <div class="card">
+      <div class="lab"><b>Primitiv — horizontal</b><code>primitiv-lockup.svg</code></div>
+      <div class="stage"><img src="primitiv-lockup.svg" alt=""></div>
+      <div class="stage dark"><img src="primitiv-lockup.svg" alt=""></div>
+    </div>
+    <div class="card">
+      <div class="lab"><b>Harmoni — horizontal</b><code>harmoni-lockup.svg</code></div>
+      <div class="stage"><img src="harmoni-lockup.svg" alt=""></div>
+      <div class="stage dark"><img src="harmoni-lockup.svg" alt=""></div>
+    </div>
+    <div class="card">
+      <div class="lab"><b>Primitiv — stacked</b><code>primitiv-lockup-stacked.svg</code></div>
+      <div class="stage tall"><img src="primitiv-lockup-stacked.svg" alt=""></div>
+      <div class="stage tall dark"><img src="primitiv-lockup-stacked.svg" alt=""></div>
+    </div>
+    <div class="card">
+      <div class="lab"><b>Harmoni — stacked</b><code>harmoni-lockup-stacked.svg</code></div>
+      <div class="stage tall"><img src="harmoni-lockup-stacked.svg" alt=""></div>
+      <div class="stage tall dark"><img src="harmoni-lockup-stacked.svg" alt=""></div>
+    </div>
+  </div>
+  <table style="margin-top:26px">
+    <tr><th>Horizontal</th><td>Wordmark cap-height = <code>0.60 ×</code> mark height · gap = <code>0.32 ×</code> mark height · wordmark vertically centred.</td></tr>
+    <tr><th>Stacked</th><td>Wordmark width = mark width · vertical gap = <code>0.24 ×</code> mark height.</td></tr>
+  </table>
+</section>
+
+<!-- FAVICON -->
+<section id="favicon">
+  <h2>07 — Favicon / App icon</h2>
+  <p class="lead">The Primitiv mark, squared.</p>
+  <div class="grid g2">
+    <div class="card">
+      <div class="lab"><b>Sizes</b><code>favicon.svg</code></div>
+      <div class="stage" style="gap:34px">
+        <img src="favicon.svg" alt="64" style="width:64px;height:64px;max-width:none">
+        <img src="favicon.svg" alt="32" style="width:32px;height:32px;max-width:none">
+        <img src="favicon.svg" alt="16" style="width:16px;height:16px;max-width:none">
+      </div>
+      <div class="stage dark" style="gap:34px">
+        <img src="favicon.svg" alt="64" style="width:64px;height:64px;max-width:none">
+        <img src="favicon.svg" alt="32" style="width:32px;height:32px;max-width:none">
+        <img src="favicon.svg" alt="16" style="width:16px;height:16px;max-width:none">
+      </div>
+    </div>
+    <div class="card">
+      <div class="lab"><b>Browser tab</b><code>16px</code></div>
+      <div class="stage" style="justify-content:flex-start;padding:30px">
+        <span style="display:inline-flex;align-items:center;gap:8px;background:#ececec;
+              border-radius:9px 9px 0 0;padding:9px 16px;font-size:13px;color:#333;">
+          <img src="favicon.svg" alt="" style="width:16px;height:16px;max-width:none">
+          Primitiv
+        </span>
+      </div>
+      <div class="stage" style="justify-content:center;padding:24px">
+        <span style="display:inline-flex;align-items:center;justify-content:center;
+              width:80px;height:80px;background:#000;border-radius:18px;">
+          <img src="favicon.svg" alt="app icon" style="width:54px;height:54px;max-width:none;
+               filter:brightness(0) invert(1)">
+        </span>
+      </div>
+    </div>
+  </div>
+  <table style="margin-top:22px">
+    <tr><th>Vector</th><td><code>favicon.svg</code> — mark centred in a square, ~14% padding, transparent.</td></tr>
+    <tr><th>Raster</th><td><code>favicon-16.png</code> · <code>favicon-32.png</code> · <code>apple-touch-icon.png</code> (180px).</td></tr>
+    <tr><th>App icon</th><td>For a filled tile, place the white mark on a solid <span class="k">#000</span> rounded square (shown above).</td></tr>
+  </table>
+</section>
+
+<!-- USAGE -->
+<section id="usage">
+  <h2>08 — Usage</h2>
+  <p class="lead">Keep it simple — the geometry does the work.</p>
+  <div class="two">
+    <div>
+      <p style="margin-top:0"><b>Colour</b></p>
+      <span class="pill"><span class="swatch" style="background:#000"></span>Black #000 — default</span>
+      <span class="pill"><span class="swatch" style="background:#fff"></span>White #fff — on dark</span>
+      <ul class="clean">
+        <li>One colour only. Black on light, white on dark.</li>
+        <li>Negative space is transparent — never fill it.</li>
+        <li>No gradients, outlines, shadows, or rotation.</li>
+      </ul>
+    </div>
+    <div>
+      <p style="margin-top:0"><b>Clear space &amp; size</b></p>
+      <ul class="clean">
+        <li>Clear space ≥ the inner-triangle height of the Harmoni mark on all sides.</li>
+        <li>Minimum mark size ≈ 16px — both survive the favicon test.</li>
+        <li>Don't recolour, stretch, or re-letter-space the wordmarks (they're outlined for this reason).</li>
+        <li>Don't pair the Primitiv mark with the Harmoni wordmark or vice-versa.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- FILES -->
+<section id="files">
+  <h2>09 — Final files</h2>
+  <p class="lead">Eight assets, repo root.</p>
+  <table>
+    <tr><th>Marks</th><td><code>primitiv-logo.svg</code> · <code>harmoni-logo.svg</code></td></tr>
+    <tr><th>Wordmarks</th><td><code>primitiv-wordmark.svg</code> · <code>harmoni-wordmark.svg</code></td></tr>
+    <tr><th>Lockups — horizontal</th><td><code>primitiv-lockup.svg</code> · <code>harmoni-lockup.svg</code></td></tr>
+    <tr><th>Lockups — stacked</th><td><code>primitiv-lockup-stacked.svg</code> · <code>harmoni-lockup-stacked.svg</code></td></tr>
+    <tr><th>Favicon</th><td><code>favicon.svg</code> · <code>favicon-16.png</code> · <code>favicon-32.png</code> · <code>apple-touch-icon.png</code></td></tr>
+  </table>
+  <p class="note" style="margin-top:18px">
+    All files: single-colour <span class="k">#000</span> on transparent · outlined paths ·
+    flattened coordinates rounded to 2 decimals · no <code>&lt;g&gt;</code> transforms ·
+    no editor metadata. Exploration history and generator scripts live in
+    <code>logo-concepts/</code>.
+  </p>
+</section>
+
+</main>
+
+<footer><div class="wrap">
+  Primitiv / Harmoni brand marks · generated from one equilateral triangle &amp; the golden ratio.
+</div></footer>
+
+</body>
+</html>

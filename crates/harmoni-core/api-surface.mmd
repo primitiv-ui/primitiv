@@ -1,0 +1,51 @@
+%% Harmoni API surface — View 1: the two ways in (entry points + inputs).
+%% Same capabilities via two facades: pure-Rust harmoni_core::api and the
+%% harmoni_wasm #[wasm_bindgen] layer (a thin string/number wrapper over it).
+%% Every CoreApi method returns Result<…, ColorInputError> (omitted below).
+%% Curve = a 10-element lightness array ([f32; 10] in Rust, number[] in TS).
+classDiagram
+    direction LR
+    class CoreApi {
+        <<harmoni_core::api (Rust)>>
+        +generate(ColorInput) Palette
+        +generate_with_options(ColorInput, GenerateOptions) Palette
+        +generate_with_lightness(ColorInput, Curve, GenerateOptions) Palette
+        +generate_pair(ColorInput, Curve, Curve, GenerateOptions) PaletteSet
+        +generate_neutral_ramp(ColorInput, ColorInput, TintMode) Palette
+        +derive_soft_neutrals(ColorInput, f32) SoftNeutrals
+        +tint_neutrals(ColorInput, ColorInput, ColorInput, f32) SoftNeutrals
+        +audit_contrast(ColorInput, ColorInput) ContrastResult
+    }
+    class WasmApi {
+        <<harmoni_wasm (TS/JS)>>
+        +generate_palette(hex, padL, padR) Palette
+        +generate_palette_with_lightness(hex, Curve, padL, padR) Palette
+        +generate_palette_with_light_padding(hex, padL) Palette
+        +generate_palette_pair(hex, Curve, Curve, padL, padR) PaletteSet
+        +generate_neutral_ramp(white, black, TintMode) Palette
+        +derive_soft_neutrals(brand, softness) SoftNeutrals
+        +tint_neutrals(white, black, source, strength) SoftNeutrals
+        +get_contrast_rating(bg, fg) ContrastResult
+    }
+    class ColorInput {
+        <<enumeration>>
+        Css
+        Rgb
+        Hsl
+        Oklch
+    }
+    class GenerateOptions {
+        +f32 light_padding
+        +f32 dark_padding
+        +Option~Oklch~ soft_white
+        +Option~Oklch~ soft_black
+    }
+    class TintMode {
+        <<enumeration>>
+        Inherit
+        Achromatic
+    }
+    WasmApi ..> CoreApi : wraps (string to ColorInput)
+    CoreApi ..> ColorInput : accepts
+    CoreApi ..> GenerateOptions : accepts
+    CoreApi ..> TintMode : accepts

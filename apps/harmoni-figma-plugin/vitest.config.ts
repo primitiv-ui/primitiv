@@ -26,6 +26,7 @@ export default defineConfig({
         'src/ui/constants.ts',
         'src/code/figmaIdempotent.ts',
         'src/code/applyPalette.ts',
+        'src/code/applyForeground.ts',
       ],
     },
   },

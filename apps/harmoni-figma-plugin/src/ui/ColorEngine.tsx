@@ -63,10 +63,12 @@ export function ColorEngine() {
         light: neutralPalette.swatches.map((s, i) => ({
           step: stepLabel(i),
           rgba: oklchToRgba(s.oklch),
+          foregroundSource: s.foreground_source,
         })),
         dark: neutralDarkPalette?.swatches.map((s, i) => ({
           step: stepLabel(i),
           rgba: oklchToRgba(s.oklch),
+          foregroundSource: s.foreground_source,
         })),
       });
     }
@@ -77,10 +79,12 @@ export function ColorEngine() {
         light: brand.lightPalette.swatches.map((s, i) => ({
           step: stepLabel(i),
           rgba: oklchToRgba(s.oklch),
+          foregroundSource: s.foreground_source,
         })),
         dark: brand.darkPalette?.swatches.map((s, i) => ({
           step: stepLabel(i),
           rgba: oklchToRgba(s.oklch),
+          foregroundSource: s.foreground_source,
         })),
       });
     }

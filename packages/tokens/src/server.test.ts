@@ -35,12 +35,13 @@ describe('createSyncServer', () => {
     return `http://127.0.0.1:${port}${path}`
   }
 
-  it('writes the five DTCG files to disk on POST /sync', async () => {
+  it('writes the six DTCG files to disk on POST /sync', async () => {
     const payload = {
       primitives: {
         'font-family': { sans: { $type: 'string', $value: 'Asta Sans' } },
       },
       palette: { light: {}, dark: {} },
+      foreground: { light: {}, dark: {} },
       intent: { light: {}, dark: {} },
       context: { comfortable: {} },
       interaction: {},
@@ -63,6 +64,11 @@ describe('createSyncServer', () => {
         await fs.readFile(path.join(outDir, 'palette.json'), 'utf8'),
       ),
     ).toEqual(payload.palette)
+    expect(
+      JSON.parse(
+        await fs.readFile(path.join(outDir, 'foreground.json'), 'utf8'),
+      ),
+    ).toEqual(payload.foreground)
     expect(
       JSON.parse(
         await fs.readFile(path.join(outDir, 'intent.json'), 'utf8'),

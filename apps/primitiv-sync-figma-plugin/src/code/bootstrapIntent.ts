@@ -60,10 +60,18 @@ export async function bootstrapIntent(): Promise<BootstrapIntentResult> {
     )
   }
 
+  const foregroundCollection = allCollections.find(
+    (c) => c.name === INTENT_SPEC.foregroundCollection,
+  )
+
   const allVars = await figma.variables.getLocalVariablesAsync()
   const paletteByName = new Map<string, Variable>()
+  const foregroundByName = new Map<string, Variable>()
   for (const v of allVars) {
     if (v.variableCollectionId === paletteCollection.id) paletteByName.set(v.name, v)
+    if (foregroundCollection && v.variableCollectionId === foregroundCollection.id) {
+      foregroundByName.set(v.name, v)
+    }
   }
 
   const { collection, lightModeId, darkModeId } = await resolveCollection()
@@ -73,7 +81,8 @@ export async function bootstrapIntent(): Promise<BootstrapIntentResult> {
   let variablesUpdated = 0
 
   for (const spec of INTENT_SPEC.variables) {
-    const lightTarget = paletteByName.get(spec.aliasTo)
+    const byName = spec.from === 'foreground' ? foregroundByName : paletteByName
+    const lightTarget = byName.get(spec.aliasTo)
     if (!lightTarget) {
       warnings.push(
         `Palette variable "${spec.aliasTo}" missing — skipped "${spec.name}"`,
@@ -81,7 +90,7 @@ export async function bootstrapIntent(): Promise<BootstrapIntentResult> {
       continue
     }
     const darkAliasTo = spec.darkAliasTo ?? spec.aliasTo
-    const darkTarget = paletteByName.get(darkAliasTo) ?? lightTarget
+    const darkTarget = byName.get(darkAliasTo) ?? lightTarget
 
     const varResult = await findOrCreateVariable(spec.name, collection, spec.type)
     varResult.value.setValueForMode(lightModeId, {

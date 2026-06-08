@@ -15,9 +15,24 @@ export type SandboxMessage = {
 
 export type RgbaColor = { r: number; g: number; b: number; a: number }
 
+/**
+ * Which tier of the engine's contrast audit produced a swatch's foreground.
+ * Mirrors `harmoni-wasm`'s `ForegroundSource`; carried per swatch so the
+ * sandbox can write a `Primitives / Foreground` alias to the matching palette
+ * variable (the ramp's own 50/900, or a white/black anchor) per RFC 0003.
+ */
+export type ForegroundSource =
+  | 'Step900'
+  | 'Step50'
+  | 'SoftWhite'
+  | 'SoftBlack'
+  | 'PureWhite'
+  | 'PureBlack'
+
 export type SwatchData = {
   step: string
   rgba: RgbaColor
+  foregroundSource?: ForegroundSource
 }
 
 /** A ramp with separate light and dark mode swatches. Omit `dark` to reuse light values in dark mode. */

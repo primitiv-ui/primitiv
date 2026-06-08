@@ -81,6 +81,7 @@ pub fn generate_neutral_ramp(soft_white: Oklch, soft_black: Oklch, tint: TintMod
                 rgb: background.rgb,
                 oklch: background.oklch.clone(),
                 best_foreground: recommendation.color,
+                foreground_source: recommendation.source,
                 contrast_result,
             }
         })

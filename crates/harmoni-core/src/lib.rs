@@ -5,6 +5,7 @@ pub mod neutral;
 pub mod palette;
 
 pub use audit::contrast::ContrastResult;
+pub use audit::foreground::ForegroundSource;
 pub use color::input::{ColorInput, ColorInputError};
 pub use color::output::{format_oklch, oklch_to_hex, oklch_to_rgb, Rgb};
 pub use neutral::derive::SoftNeutrals;

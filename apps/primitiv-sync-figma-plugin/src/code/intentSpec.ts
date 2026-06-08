@@ -17,12 +17,21 @@ export type IntentVariableSpec = {
   type: 'COLOR'
   aliasTo: string
   darkAliasTo?: string
+  /**
+   * Which palette-side collection `aliasTo` / `darkAliasTo` resolve against.
+   * Defaults to `'palette'` (`Primitives / Palette`). Foreground tokens use
+   * `'foreground'` so they alias into the per-step `Primitives / Foreground`
+   * collection Harmoni writes — letting the contrast-chosen foreground vary
+   * per hue (RFC 0003) instead of a fixed `color/white`.
+   */
+  from?: 'palette' | 'foreground'
 }
 
 export const INTENT_SPEC: {
   collection: string
   legacyCollection: string
   aliasCollection: string
+  foregroundCollection: string
   lightModeName: string
   darkModeName: string
   variables: IntentVariableSpec[]
@@ -30,6 +39,7 @@ export const INTENT_SPEC: {
   collection: 'Intent',
   legacyCollection: 'Intent / Light',
   aliasCollection: 'Primitives / Palette',
+  foregroundCollection: 'Primitives / Foreground',
   lightModeName: 'Light',
   darkModeName: 'Dark',
   variables: [
@@ -38,7 +48,7 @@ export const INTENT_SPEC: {
     { name: 'action/primary/hover',             type: 'COLOR', aliasTo: 'color/brand/600' },
     { name: 'action/primary/active',            type: 'COLOR', aliasTo: 'color/brand/700' },
     { name: 'action/primary/disabled',          type: 'COLOR', aliasTo: 'color/brand/200' },
-    { name: 'action/primary/foreground/default', type: 'COLOR', aliasTo: 'color/white' },
+    { name: 'action/primary/foreground/default', type: 'COLOR', aliasTo: 'foreground/brand/500', from: 'foreground' },
     { name: 'action/primary/foreground/disabled', type: 'COLOR', aliasTo: 'color/neutral/400' },
     { name: 'action/primary/border/default',    type: 'COLOR', aliasTo: 'color/brand/500' },
     { name: 'action/primary/border/hover',      type: 'COLOR', aliasTo: 'color/brand/600' },
@@ -50,7 +60,9 @@ export const INTENT_SPEC: {
     { name: 'action/secondary/hover',            type: 'COLOR', aliasTo: 'color/neutral/200', darkAliasTo: 'color/neutral/700' },
     { name: 'action/secondary/active',           type: 'COLOR', aliasTo: 'color/neutral/300', darkAliasTo: 'color/neutral/600' },
     { name: 'action/secondary/disabled',         type: 'COLOR', aliasTo: 'color/neutral/50',  darkAliasTo: 'color/neutral/900' },
-    { name: 'action/secondary/foreground/default', type: 'COLOR', aliasTo: 'color/neutral/900' },
+    // Secondary's background step itself differs by mode (neutral/100 light,
+    // neutral/800 dark), so the foreground must follow the step per mode.
+    { name: 'action/secondary/foreground/default', type: 'COLOR', aliasTo: 'foreground/neutral/100', darkAliasTo: 'foreground/neutral/800', from: 'foreground' },
     { name: 'action/secondary/foreground/disabled', type: 'COLOR', aliasTo: 'color/neutral/400' },
     { name: 'action/secondary/border/default',   type: 'COLOR', aliasTo: 'color/neutral/300', darkAliasTo: 'color/neutral/700' },
     { name: 'action/secondary/border/hover',     type: 'COLOR', aliasTo: 'color/neutral/400', darkAliasTo: 'color/neutral/600' },
@@ -62,7 +74,7 @@ export const INTENT_SPEC: {
     { name: 'action/danger/hover',               type: 'COLOR', aliasTo: 'color/danger/600' },
     { name: 'action/danger/active',              type: 'COLOR', aliasTo: 'color/danger/700' },
     { name: 'action/danger/disabled',            type: 'COLOR', aliasTo: 'color/danger/200' },
-    { name: 'action/danger/foreground/default',  type: 'COLOR', aliasTo: 'color/white' },
+    { name: 'action/danger/foreground/default',  type: 'COLOR', aliasTo: 'foreground/danger/500', from: 'foreground' },
     { name: 'action/danger/foreground/disabled', type: 'COLOR', aliasTo: 'color/neutral/400' },
     { name: 'action/danger/border/default',      type: 'COLOR', aliasTo: 'color/danger/500' },
     { name: 'action/danger/border/hover',        type: 'COLOR', aliasTo: 'color/danger/600' },
@@ -87,8 +99,11 @@ export const INTENT_SPEC: {
     { name: 'content/secondary', type: 'COLOR', aliasTo: 'color/neutral/700' },
     { name: 'content/muted',     type: 'COLOR', aliasTo: 'color/neutral/500' },
     { name: 'content/disabled',  type: 'COLOR', aliasTo: 'color/neutral/400' },
-    { name: 'content/inverse',   type: 'COLOR', aliasTo: 'color/white', darkAliasTo: 'color/black' },
-    { name: 'content/on-action', type: 'COLOR', aliasTo: 'color/white' },
+    // Inverse text sits on surface/inverse (neutral/800, both modes); the
+    // foreground for neutral/800 already flips white↔black across the palette
+    // modes, so no darkAliasTo is needed.
+    { name: 'content/inverse',   type: 'COLOR', aliasTo: 'foreground/neutral/800', from: 'foreground' },
+    { name: 'content/on-action', type: 'COLOR', aliasTo: 'foreground/brand/500', from: 'foreground' },
 
     // border
     { name: 'border/subtle',  type: 'COLOR', aliasTo: 'color/neutral/200' },

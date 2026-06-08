@@ -207,3 +207,94 @@ any sRGB background.
 crate can't expose `palette::Oklch` directly. `TintMode` has `From`
 impls in *both* directions because it is passed into the engine, not
 just returned.
+
+### Foreground source discriminant (RFC 0003)
+
+`get_best_foreground` now also returns a `ForegroundSource` enum
+(`Step900 · Step50 · SoftWhite · SoftBlack · PureWhite · PureBlack`)
+naming which of the six tiers won — it replaced the old
+`is_harmonious` bool. Every `Swatch` carries it as `foreground_source`
+alongside the resolved `best_foreground`, so a consumer can re-express
+the choice as a token alias (the ramp's own 50/900, or a white/black
+anchor) rather than a baked colour. Mirrored on the wasm `Swatch`.
+
+## API surface at a glance
+
+The settled public shape, as UML. Source lives in the crate root —
+`crates/harmoni-core/api-surface.mmd` (entry points + inputs) and
+`crates/harmoni-core/data-model.mmd` (the data model below). Same
+capabilities reach Rust adapters via `harmoni_core::api` and TS/JS via
+the `harmoni_wasm` `#[wasm_bindgen]` wrapper.
+
+```mermaid
+classDiagram
+    direction TB
+    class PaletteSet {
+        +Palette light
+        +Palette dark
+    }
+    class Palette {
+        +Curve lightness_curve
+        +f32 max_recommended_light_padding
+        +f32 max_recommended_dark_padding
+        +String note
+    }
+    class Swatch {
+        +f32 l
+        +f32 c
+        +f32 h
+        +SwatchLabel label
+        +String hex
+        +Rgb rgb
+        +String oklch
+        +SwatchStep best_foreground
+        +ForegroundSource foreground_source
+        +ContrastResult contrast_result
+    }
+    class SwatchStep {
+        +f32 l
+        +f32 c
+        +f32 h
+        +SwatchLabel label
+        +String hex
+        +Rgb rgb
+        +String oklch
+    }
+    class SwatchLabel {
+        <<enumeration>>
+        Number
+        Name
+    }
+    class ForegroundSource {
+        <<enumeration>>
+        Step900
+        Step50
+        SoftWhite
+        SoftBlack
+        PureWhite
+        PureBlack
+    }
+    class ContrastResult {
+        +f32 ratio
+        +String display_ratio
+        +String rating
+    }
+    class Rgb {
+        +f32 r
+        +f32 g
+        +f32 b
+    }
+    class SoftNeutrals {
+        +Oklch white
+        +Oklch black
+    }
+    PaletteSet o-- "2" Palette
+    Palette *-- "10" Swatch : swatches
+    Swatch *-- SwatchStep : best_foreground
+    Swatch --> ForegroundSource : foreground_source
+    Swatch --> ContrastResult
+    Swatch --> Rgb
+    Swatch --> SwatchLabel
+    SwatchStep --> Rgb
+    SwatchStep --> SwatchLabel
+```

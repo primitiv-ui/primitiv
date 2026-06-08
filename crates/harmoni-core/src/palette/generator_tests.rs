@@ -575,6 +575,17 @@ mod generator_tests {
             let oklch = Oklch::new(foreground.l, foreground.c, foreground.h);
             assert_eq!(foreground.hex, oklch_to_hex(oklch));
         }
+
+        #[test]
+        fn swatch_carries_the_foreground_source_that_was_chosen() {
+            use crate::ForegroundSource;
+
+            let palette = generate_palette(Oklch::new(0.55, 0.15, 240.0), 0.0, 0.0);
+
+            // Step 50 is the lightest background; its harmonious dark
+            // candidate (step 900) clears AA, so the source is Step900.
+            assert_eq!(palette.swatches[0].foreground_source, ForegroundSource::Step900);
+        }
     }
 }
 }

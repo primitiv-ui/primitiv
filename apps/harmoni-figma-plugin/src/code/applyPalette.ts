@@ -1,4 +1,5 @@
 import type { PairedRampData, SingleColorData } from '../shared/messages'
+import { applyForeground } from './applyForeground'
 import { findOrCreateCollection, findOrCreateVariable } from './figmaIdempotent'
 
 const COLLECTION_NAME = 'Primitives / Palette'
@@ -46,4 +47,7 @@ export async function applyPalette(
       variable.setValueForMode(darkModeId, darkSwatch.rgba)
     }
   }
+
+  // Per-step foreground aliases depend on the palette variables just written.
+  await applyForeground(ramps)
 }

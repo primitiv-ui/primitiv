@@ -152,6 +152,30 @@ impl From<core::ContrastResult> for ContrastResult {
     }
 }
 
+#[derive(Tsify, Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub enum ForegroundSource {
+    Step900,
+    Step50,
+    SoftWhite,
+    SoftBlack,
+    PureWhite,
+    PureBlack,
+}
+
+impl From<core::ForegroundSource> for ForegroundSource {
+    fn from(value: core::ForegroundSource) -> Self {
+        match value {
+            core::ForegroundSource::Step900 => ForegroundSource::Step900,
+            core::ForegroundSource::Step50 => ForegroundSource::Step50,
+            core::ForegroundSource::SoftWhite => ForegroundSource::SoftWhite,
+            core::ForegroundSource::SoftBlack => ForegroundSource::SoftBlack,
+            core::ForegroundSource::PureWhite => ForegroundSource::PureWhite,
+            core::ForegroundSource::PureBlack => ForegroundSource::PureBlack,
+        }
+    }
+}
+
 #[derive(Tsify, PartialEq, Debug, Clone, Serialize, Deserialize)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct Swatch {
@@ -163,6 +187,7 @@ pub struct Swatch {
     pub rgb: Rgb,
     pub oklch: String,
     pub best_foreground: SwatchStep,
+    pub foreground_source: ForegroundSource,
     pub contrast_result: ContrastResult,
 }
 
@@ -177,6 +202,7 @@ impl From<core::Swatch> for Swatch {
             rgb: value.rgb.into(),
             oklch: value.oklch,
             best_foreground: value.best_foreground.into(),
+            foreground_source: value.foreground_source.into(),
             contrast_result: value.contrast_result.into(),
         }
     }
@@ -262,6 +288,34 @@ mod tests {
         assert_eq!(wasm_swatch.hex, core_swatch.hex);
         assert_eq!(wasm_swatch.oklch, core_swatch.oklch);
         assert_eq!(wasm_swatch.rgb, Rgb::from(core_swatch.rgb));
+    }
+
+    #[test]
+    fn foreground_source_converts_every_variant_from_core() {
+        let cases = [
+            (core::ForegroundSource::Step900, ForegroundSource::Step900),
+            (core::ForegroundSource::Step50, ForegroundSource::Step50),
+            (core::ForegroundSource::SoftWhite, ForegroundSource::SoftWhite),
+            (core::ForegroundSource::SoftBlack, ForegroundSource::SoftBlack),
+            (core::ForegroundSource::PureWhite, ForegroundSource::PureWhite),
+            (core::ForegroundSource::PureBlack, ForegroundSource::PureBlack),
+        ];
+        for (core_value, expected) in cases {
+            assert_eq!(ForegroundSource::from(core_value), expected);
+        }
+    }
+
+    #[test]
+    fn swatch_converts_from_core_preserving_foreground_source() {
+        let palette = core::api::generate(core::ColorInput::Css("#3b82f6".to_string()))
+            .expect("valid input should produce a palette");
+        let core_swatch = palette.swatches[5].clone();
+        let wasm_swatch: Swatch = core_swatch.clone().into();
+
+        assert_eq!(
+            wasm_swatch.foreground_source,
+            ForegroundSource::from(core_swatch.foreground_source),
+        );
     }
 
     #[test]

@@ -1,6 +1,7 @@
 # RFC 0003 — Dynamic foreground wiring
 
-> **Status:** Proposed
+> **Status:** Implemented (engine + sync-plugin + DTCG landed test-first;
+> Harmoni-plugin write is Phase-A throwaway, live Figma smoke-test pending)
 > **Author:** simonrevill, with architectural review
 > **Date:** 2026-06-08
 > **Relates to:** RFC 0001 (Token Architecture) §4.1 and §12.3;
@@ -194,15 +195,19 @@ collection — keyed on the *background* step each role sits on:
 | Token | Old alias | New alias |
 | --- | --- | --- |
 | `action/primary/foreground/default` | `color/white` | `foreground/brand/500` |
-| `action/secondary/foreground/default` | `color/neutral/900` | `foreground/neutral/100` |
+| `action/secondary/foreground/default` | `color/neutral/900` | `foreground/neutral/100` (+`darkAliasTo foreground/neutral/800`) |
 | `action/danger/foreground/default` | `color/white` | `foreground/danger/500` |
 | `content/on-action` | `color/white` | `foreground/brand/500` |
 | `content/inverse` | `color/white` (+`darkAliasTo`) | `foreground/neutral/800` |
 
 `*/foreground/disabled` (→ `color/neutral/400`) and
-`action/link/foreground/*` are unchanged. The `darkAliasTo` overrides
-on the repointed tokens are dropped — each mode's Foreground ramp
-already inverts.
+`action/link/foreground/*` are unchanged. `darkAliasTo` is dropped
+wherever the role's *background step is mode-invariant* (primary,
+danger, on-action, inverse) — the Foreground ramp's own Light/Dark
+modes invert the value. It is **retained only for secondary**, whose
+background step itself differs by mode (`neutral/100` light →
+`neutral/800` dark), so the foreground must follow the step:
+`foreground/neutral/100` light, `foreground/neutral/800` dark.
 
 This requires the bootstrap action to resolve aliases against **two**
 source collections: `Primitives / Palette` for backgrounds/borders,
@@ -212,17 +217,24 @@ resolves accordingly.
 
 ### 3.5 DTCG routing (cross-cutting)
 
-`packages/tokens/src/dtcg.ts` gains a route for `Primitives /
-Foreground` (new `foreground.json`, or a `foreground` key under the
-palette output — settled in implementation).
+`packages/tokens/src/dtcg.ts` routes `Primitives / Foreground`
+per-mode into its own **`foreground.json`** (a sixth `DtcgFiles`
+key), and `server.ts` persists it alongside the other layer files.
+Aliases resolve into the palette like the other multi-mode
+collections.
 
-**Edge to resolve:** the `PureWhite`/`PureBlack` tiers alias to
+**Edge (still open):** the `PureWhite`/`PureBlack` tiers alias to
 `color/absolute-white`/`color/absolute-black`, which `PALETTE_CONSTANTS`
-*excludes* from export. A foreground alias resolving to one of them
-would emit a reference to an un-emitted token. Resolution options:
-(a) emit the two constants when a foreground references them, or
-(b) collapse those tiers to a literal hex on export. Decision deferred
-to the DTCG implementation cycle; (a) is the lower-surprise default.
+*excludes* from the palette export. A foreground alias resolving to one
+of them would emit a reference to an un-emitted token. The plugin side
+already sidesteps this — `applyForeground` skips writing a step whose
+target variable is absent, so no broken alias reaches Figma in the
+common case (the constants aren't in the file). If the constants *are*
+defined in Figma, the export would still emit a dangling
+`{color.absolute-white}` reference. Resolution options when that lands:
+(a) emit the two constants when a foreground references them
+(lower-surprise default), or (b) collapse those tiers to a literal hex
+on export. Deferred until a real palette exercises a pure tier.
 
 ---
 

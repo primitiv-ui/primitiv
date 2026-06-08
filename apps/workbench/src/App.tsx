@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Routes, Route, Link, useLocation } from "react-router-dom";
 
 import { ColorEngine } from "./ColorEngine";
@@ -140,9 +141,44 @@ function App() {
     ? "container container--full-width"
     : "container";
 
+  // On mobile the sidebar collapses into a slide-in drawer. Close it whenever
+  // the route changes so a tap on a link doesn't leave the menu hanging open.
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
   return (
     <div className="app-layout">
-      <aside className="sidebar">
+      <header className="app-topbar">
+        <button
+          type="button"
+          className="app-topbar__menu-button"
+          aria-label={isMenuOpen ? "Close navigation" : "Open navigation"}
+          aria-expanded={isMenuOpen}
+          aria-controls="workbench-sidebar"
+          onClick={() => setIsMenuOpen((open) => !open)}
+        >
+          <span className="app-topbar__menu-icon" aria-hidden="true" />
+          Menu
+        </button>
+        <Link className="app-topbar__title" to="/">
+          Primitiv Workbench
+        </Link>
+      </header>
+      {isMenuOpen && (
+        <button
+          type="button"
+          className="app-backdrop"
+          aria-label="Close navigation"
+          tabIndex={-1}
+          onClick={() => setIsMenuOpen(false)}
+        />
+      )}
+      <aside
+        id="workbench-sidebar"
+        className={isMenuOpen ? "sidebar sidebar--open" : "sidebar"}
+      >
         <Link className="sidebar__home" to="/">
           Color Engine
         </Link>

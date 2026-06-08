@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react'
 import wasm from "vite-plugin-wasm"
 
 export default defineConfig({
+  // Dev stays at "/"; the GitHub Pages build sets WORKBENCH_BASE so the app
+  // is served under the docs site at /primitiv/workbench/.
+  base: process.env.WORKBENCH_BASE ?? '/',
   plugins: [
     react(),
     wasm()

@@ -44,6 +44,7 @@ export type DtcgGroup = { [key: string]: DtcgGroup | DtcgToken }
 export type DtcgFiles = {
   primitives: DtcgGroup
   palette: DtcgGroup
+  foreground: DtcgGroup
   intent: DtcgGroup
   context: DtcgGroup
   interaction: DtcgGroup
@@ -108,12 +109,14 @@ export function figmaVarsToDtcg(
   const files: DtcgFiles = {
     primitives: {},
     palette: {},
+    foreground: {},
     intent: {},
     context: {},
     interaction: {},
   }
 
   const palette     = collections.find((c) => c.name === 'Primitives / Palette')
+  const foreground  = collections.find((c) => c.name === 'Primitives / Foreground')
   const intent      = collections.find((c) => c.name === 'Intent')
   const context     = collections.find((c) => c.name === 'Context')
   const singleMode  = collections.filter(
@@ -157,6 +160,15 @@ export function figmaVarsToDtcg(
     for (const mode of palette.modes) {
       const group = collectionToDtcg(palette, variables, resolveAlias, mode.modeId, PALETTE_CONSTANTS)
       mergeIntoPrefix(files.palette, [mode.name.toLowerCase()], group)
+    }
+  }
+
+  // Primitives / Foreground — per mode; a thin alias layer over the palette
+  // carrying each ramp step's contrast-chosen foreground (RFC 0003).
+  if (foreground) {
+    for (const mode of foreground.modes) {
+      const group = collectionToDtcg(foreground, variables, resolveAlias, mode.modeId)
+      mergeIntoPrefix(files.foreground, [mode.name.toLowerCase()], group)
     }
   }
 

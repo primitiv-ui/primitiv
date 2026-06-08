@@ -24,7 +24,7 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'Content-Type',
 } as const
 
-const DTCG_FILE_NAMES = ['primitives', 'palette', 'intent', 'context', 'interaction'] as const
+const DTCG_FILE_NAMES = ['primitives', 'palette', 'foreground', 'intent', 'context', 'interaction'] as const
 
 /** Creates the HTTP server. Call `.listen(port)` to start accepting requests. */
 export function createSyncServer(options: SyncServerOptions): http.Server {
@@ -82,7 +82,7 @@ async function writeDtcgFiles(
   for (const name of DTCG_FILE_NAMES) {
     const target = path.join(outDir, `${name}.json`)
     const tmp = `${target}.tmp`
-    const json = JSON.stringify(files[name], null, 2) + '\n'
+    const json = JSON.stringify(files[name] ?? {}, null, 2) + '\n'
     await fs.writeFile(tmp, json, 'utf8')
     await fs.rename(tmp, target)
   }

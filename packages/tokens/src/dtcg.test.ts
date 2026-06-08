@@ -369,6 +369,15 @@ describe('figmaVarsToDtcg', () => {
     ],
     defaultModeId: 'light',
   }
+  const FOREGROUND_COLL: FigmaCollection = {
+    id: 'cfg',
+    name: 'Primitives / Foreground',
+    modes: [
+      { modeId: 'light', name: 'Light' },
+      { modeId: 'dark',  name: 'Dark' },
+    ],
+    defaultModeId: 'light',
+  }
   const CONTEXT_COLL: FigmaCollection = {
     id: 'ctx',
     name: 'Context',
@@ -381,10 +390,11 @@ describe('figmaVarsToDtcg', () => {
     defaultModeId: 'comfortable',
   }
 
-  it('returns five empty groups when given no collections', () => {
+  it('returns six empty groups when given no collections', () => {
     expect(figmaVarsToDtcg([], [])).toEqual({
       primitives: {},
       palette: {},
+      foreground: {},
       intent: {},
       context: {},
       interaction: {},
@@ -469,6 +479,31 @@ describe('figmaVarsToDtcg', () => {
     })
   })
 
+  it('routes Primitives / Foreground per-mode into foreground, resolving aliases', () => {
+    const result = figmaVarsToDtcg(
+      [FOREGROUND_COLL],
+      [
+        { id: 'pal900',   name: 'color/brand/900', resolvedType: 'COLOR', variableCollectionId: 'cpal', valuesByMode: {} },
+        { id: 'palwhite', name: 'color/white',     resolvedType: 'COLOR', variableCollectionId: 'cpal', valuesByMode: {} },
+        {
+          id: 'fg1',
+          name: 'foreground/brand/500',
+          resolvedType: 'COLOR',
+          variableCollectionId: 'cfg',
+          valuesByMode: {
+            light: { type: 'VARIABLE_ALIAS', id: 'pal900' },
+            dark:  { type: 'VARIABLE_ALIAS', id: 'palwhite' },
+          },
+        },
+      ],
+    )
+
+    expect(result.foreground).toEqual({
+      light: { foreground: { brand: { '500': { $type: 'color', $value: '{color.brand.900}' } } } },
+      dark:  { foreground: { brand: { '500': { $type: 'color', $value: '{color.white}' } } } },
+    })
+  })
+
   it('routes Context per-mode into context with mode name as top-level key', () => {
     const result = figmaVarsToDtcg(
       [CONTEXT_COLL],
@@ -534,7 +569,7 @@ describe('figmaVarsToDtcg', () => {
       [{ id: 'orphan', name: 'orphan/token', resolvedType: 'STRING', variableCollectionId: 'missing-coll', valuesByMode: { mp: 'unused' } }],
     )
 
-    expect(result).toEqual({ primitives: {}, palette: {}, intent: {}, context: {}, interaction: {} })
+    expect(result).toEqual({ primitives: {}, palette: {}, foreground: {}, intent: {}, context: {}, interaction: {} })
   })
 
   it('excludes color/absolute-white and color/absolute-black from the palette output', () => {

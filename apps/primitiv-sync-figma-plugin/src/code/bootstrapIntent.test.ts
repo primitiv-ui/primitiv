@@ -33,6 +33,33 @@ function buildPaletteCollection(
   return { collection, vars }
 }
 
+function buildForegroundCollection(): {
+  collection: VariableCollection
+  vars: PaletteVar[]
+} {
+  const collection = {
+    id: 'FG',
+    name: 'Primitives / Foreground',
+    modes: [{ modeId: 'fg:0', name: 'Light' }],
+    defaultModeId: 'fg:0',
+    variableIds: [],
+  } as unknown as VariableCollection
+  const targets = new Set<string>()
+  for (const v of INTENT_SPEC.variables) {
+    if (v.from !== 'foreground') continue
+    targets.add(v.aliasTo)
+    if (v.darkAliasTo) targets.add(v.darkAliasTo)
+  }
+  const vars: PaletteVar[] = [...targets].map((path) => ({
+    id: `FG-${path}`,
+    name: path,
+    resolvedType: 'COLOR',
+    variableCollectionId: 'FG',
+    valuesByMode: {},
+  }))
+  return { collection, vars }
+}
+
 function buildIntentCollection(name: string, modes: { modeId: string; name: string }[]) {
   return {
     id: 'INT',
@@ -161,6 +188,32 @@ describe('bootstrapIntent', () => {
     expect(figmaMock.variables.createVariable).not.toHaveBeenCalled()
     expect(result.variablesCreated).toBe(0)
     expect(result.variablesUpdated).toBeGreaterThan(0)
+  })
+
+  it('aliases foreground tokens into the Primitives / Foreground collection', async () => {
+    const palette = buildPaletteCollection()
+    const foreground = buildForegroundCollection()
+    const figmaMock = stubFigma({
+      collections: [palette.collection, foreground.collection],
+      variables: [...palette.vars, ...foreground.vars],
+    })
+
+    await bootstrapIntent()
+
+    const spec = INTENT_SPEC.variables.find(
+      (v) => v.name === 'action/primary/foreground/default',
+    )!
+    expect(spec.from).toBe('foreground')
+
+    const target = foreground.vars.find((v) => v.name === spec.aliasTo)!
+    const createdVar = figmaMock.variables.createVariable.mock.results
+      .map((r) => r.value)
+      .find((v: { name: string }) => v.name === 'action/primary/foreground/default')!
+
+    expect(createdVar.setValueForMode).toHaveBeenCalledWith(
+      expect.any(String),
+      { type: 'VARIABLE_ALIAS', id: target.id },
+    )
   })
 
   it('skips variables whose alias target is missing and reports them in warnings', async () => {

@@ -1,13 +1,29 @@
 use crate::SwatchStep;
 use palette::color_difference::Wcag21RelativeContrast;
 use palette::{IntoColor, LinSrgb, Oklch};
+use serde::{Deserialize, Serialize};
+
+/// Which tier of the fallback in [`get_best_foreground`] produced a
+/// recommendation. A consumer (the plugin) maps this to an alias target —
+/// the ramp's own step, or the soft/pure white/black anchor — so the chosen
+/// foreground can be re-expressed as a Figma variable alias rather than a
+/// baked colour. `Step900`/`Step50` are the harmonious tiers.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ForegroundSource {
+    Step900,
+    Step50,
+    SoftWhite,
+    SoftBlack,
+    PureWhite,
+    PureBlack,
+}
 
 // New return type — rich information for the UI and strict AA guarantee
 #[derive(Debug, Clone, PartialEq)]
 pub struct ForegroundRecommendation {
     pub color: SwatchStep,
     pub contrast_ratio: f32,
-    pub is_harmonious: bool, // true = used palette's own step 50 or 900
+    pub source: ForegroundSource,
 }
 
 fn relative_luminance(l: f32, c: f32, h: f32) -> f32 {
@@ -54,7 +70,7 @@ pub fn get_best_foreground(
         return ForegroundRecommendation {
             color: dark_candidate.clone(),
             contrast_ratio: ratio_dark,
-            is_harmonious: true,
+            source: ForegroundSource::Step900,
         };
     }
 
@@ -63,7 +79,7 @@ pub fn get_best_foreground(
         return ForegroundRecommendation {
             color: light_candidate.clone(),
             contrast_ratio: ratio_light,
-            is_harmonious: true,
+            source: ForegroundSource::Step50,
         };
     }
 
@@ -74,7 +90,7 @@ pub fn get_best_foreground(
             return ForegroundRecommendation {
                 color: SwatchStep::from_label(white.l, white.c, white.h, "White"),
                 contrast_ratio: ratio,
-                is_harmonious: false,
+                source: ForegroundSource::SoftWhite,
             };
         }
     }
@@ -86,7 +102,7 @@ pub fn get_best_foreground(
             return ForegroundRecommendation {
                 color: SwatchStep::from_label(black.l, black.c, black.h, "Black"),
                 contrast_ratio: ratio,
-                is_harmonious: false,
+                source: ForegroundSource::SoftBlack,
             };
         }
     }
@@ -101,7 +117,7 @@ pub fn get_best_foreground(
         return ForegroundRecommendation {
             color: SwatchStep::from_label(1.0, 0.0, 0.0, "White"),
             contrast_ratio: ratio_white,
-            is_harmonious: false,
+            source: ForegroundSource::PureWhite,
         };
     }
 
@@ -109,7 +125,7 @@ pub fn get_best_foreground(
         return ForegroundRecommendation {
             color: SwatchStep::from_label(0.01, 0.0, 0.0, "Black"),
             contrast_ratio: ratio_black,
-            is_harmonious: false,
+            source: ForegroundSource::PureBlack,
         };
     }
 

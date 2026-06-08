@@ -2,7 +2,7 @@ use palette::{IntoColor, LinSrgb, Oklch};
 use serde::{Deserialize, Serialize};
 
 use crate::audit::contrast::get_contrast_rating_for_step;
-use crate::audit::foreground::get_best_foreground;
+use crate::audit::foreground::{get_best_foreground, ForegroundSource};
 use crate::color::output::{format_oklch, oklch_to_hex, oklch_to_rgb, Rgb};
 use crate::ContrastResult;
 
@@ -66,6 +66,10 @@ pub struct Swatch {
     /// The colour as a CSS `oklch(L C H)` string.
     pub oklch: String,
     pub best_foreground: SwatchStep,
+    /// Which tier of the contrast audit produced `best_foreground`. Lets a
+    /// consumer re-express the foreground as a variable alias (the ramp's own
+    /// step, or a white/black anchor) rather than a baked colour.
+    pub foreground_source: ForegroundSource,
     pub contrast_result: ContrastResult,
 }
 
@@ -235,6 +239,7 @@ fn assemble_palette(
                 rgb: background.rgb,
                 oklch: background.oklch.clone(),
                 best_foreground: recommendation.color,
+                foreground_source: recommendation.source,
                 contrast_result,
             }
         })

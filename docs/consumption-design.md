@@ -276,26 +276,23 @@ Figma variables ──(sync plugin)──► DTCG JSON (@primitiv-ui/tokens)
 ```
 
 - **Input:** the DTCG JSON already in `@primitiv-ui/tokens`.
-- **Transform — lean toward a custom emitter over Style Dictionary.** The CLI
-  is Rust and the goal is a single self-contained binary (section 7); a Rust
-  emitter living *in* the CLI gives `primitiv tokens` and `primitiv theme` with
-  zero Node dependency, whereas Style Dictionary forces either a bundled Node
-  runtime or a separate JS build step the Rust CLI shells out to — both
-  undercut the single-binary story. Primitiv's layered token model
+- **Transform — a custom Rust emitter, in the CLI (confirmed).** With the CLI
+  built in Rust (section 7, D13), the emitter lives in it (or a shared crate)
+  and consumes the DTCG JSON via serde directly. This gives full control over
+  the contract-specific output (`--primitiv-*` naming, the per-component
+  custom-property API), which matters because Primitiv's layered token model
   (primitives → intent → role → anatomy → interaction → component, plus density
-  contexts — RFC 0001) is bespoke enough that you would be writing custom Style
-  Dictionary transforms anyway, and a custom emitter gives full control over the
-  contract-specific output (`--primitiv-*` naming, the per-component
-  custom-property API). DTCG is just JSON — serde parses it in Rust directly;
-  the existing `dtcg.ts` types are a *spec reference to port*, not reusable Rust
-  code, so it is net-new (but not much) Rust. **Fallback** if TS comfort wins: a
-  TS emitter in `@primitiv-ui/tokens` as a build step, accepting that
-  `primitiv tokens` then needs Node present. Outputs either way: CSS custom
-  properties (canonical), SCSS, a TS/JS token object, and a Tailwind preset.
-- **Harmoni belongs here.** The Rust CLI can call the Harmoni **core crate
-  directly** (no wasm) to generate a brand palette locally and emit it as a
-  theme: `primitiv theme --brand "#0a7755"`. This is the one place the Rust
-  engine, the tokens, and the CLI converge.
+  contexts — RFC 0001) is bespoke enough that Style Dictionary would need custom
+  transforms anyway. The existing `dtcg.ts` types are a *spec reference to
+  port*, not reusable Rust code, so the emitter is net-new (but not much) Rust.
+  Outputs: CSS custom properties (canonical), SCSS, a TS/JS token object, and a
+  Tailwind preset.
+- **Harmoni belongs here.** Because the CLI is Rust, it links the Harmoni
+  **core crate directly** (no wasm) to generate a brand palette locally and
+  emit it as a theme: `primitiv theme --brand "#0a7755"`. This is the one place
+  the Rust engine, the tokens, and the CLI converge — and it gives
+  `harmoni-core` a second consumer (native, via the CLI) alongside the wasm
+  boundary used by browser/JS consumers, validating that core/wasm split.
 - **Example styles** are authored against the canonical CSS custom
   properties, then emitted per format alongside the token output.
 
@@ -351,6 +348,38 @@ Every command runs in two modes:
 - **Interactive** (human): prompts as above.
 - **Non-interactive** (agent / CI): every prompt has a flag; `--yes` accepts
   config defaults; `--json` emits structured output; exit codes are stable.
+
+### 7.4 Implementation & distribution
+
+**The CLI is a Rust binary (D13).** This is a deliberate, first-class goal of
+the project — not the marginally-lowest-friction option for a JS-only audience
+(a Node/TS shell would edge it there). It earns real secondary merit, though:
+it links `harmoni-core` natively for `primitiv theme` (section 6), houses the
+token emitter, and keeps the door open to non-JS token consumers (a latent,
+not-yet-pressing case).
+
+Distribution follows the **proven native-binary-on-npm pattern** used by Biome,
+SWC, lightningcss, and Tailwind's Oxide engine — **not** a fragile
+`postinstall` download:
+
+- A thin wrapper package (`primitiv` / `@primitiv-ui/cli`) whose `bin` points at
+  a tiny launcher.
+- Per-platform packages (`@primitiv-ui/cli-darwin-arm64`,
+  `…-linux-x64-gnu`, `…-linux-x64-musl`, `…-win32-x64-msvc`, …), each carrying
+  the prebuilt binary and declaring `os`/`cpu`.
+- The wrapper lists them in `optionalDependencies`; the package manager installs
+  only the matching one. The launcher resolves and execs it.
+- `cargo-dist` (or napi-rs) scaffolds the GitHub Actions build matrix and the
+  platform packages, removing most of the boilerplate.
+- Also installable via `cargo install` for Rust-native users.
+- `pnpm create @primitiv-ui` / `npx primitiv init` resolve through the same
+  wrapper.
+
+**Consequences for shipping** (RELEASING.md territory, flagged here so it isn't
+a surprise): `publish.yml` grows a cross-platform build matrix and a
+target-aware "build all targets → publish platform packages → publish wrapper"
+ordering. JSR stays source-only and does **not** carry the CLI binary (it's an
+npm + Cargo story); the libraries still publish to both.
 
 ---
 
@@ -410,7 +439,8 @@ The Agent profile is first-class, not bolted on:
 | D9 | Agent support is first-class: static manifest + non-interactive `--json` CLI |
 | D10 | Capture as **split RFCs** 0004 / 0005 / 0006 (this doc seeds them) |
 | D11 | Default theme's default primary = Primitiv's own primary colour; a default, not a lock-in — overridable via tokens / CSS custom properties / a Harmoni-generated palette (Rust lib or Figma plugin) |
-| D12 | Token transform leans **custom emitter** (likely Rust, inside the CLI) over Style Dictionary, to preserve the single-binary story; language/location to confirm (§11) |
+| D12 | Token transform = **custom Rust emitter inside the CLI** (consumes DTCG via serde), over Style Dictionary — for full control of contract-specific output |
+| D13 | **CLI is a Rust binary** — a deliberate first-class project goal (craft), with native `harmoni-core` linking + latent non-JS-consumer support as secondary merit. Distributed via the Biome/SWC `optionalDependencies` per-platform-package pattern + `cargo install`; **not** a Node/TS shell (which would be marginally lower-friction but is explicitly not chosen) |
 
 ---
 
@@ -425,14 +455,14 @@ To resolve before / within the RFCs:
    their `tailwind.config`): how much does `add` automate vs. instruct?
 3. **Per-component subpath exports** for Dev 1's "install specific
    components" — confirm tree-shaking alone is sufficient, or add subpaths.
-4. **Emitter language / location** (D12 leans custom): a Rust emitter inside
-   the CLI (preserves the single-binary story) vs. a TS emitter in
-   `@primitiv-ui/tokens` (reuses `dtcg.ts`, but `primitiv tokens` then needs
-   Node). Ties directly to the CLI-distribution question (#5).
-5. **CLI distribution**: a `create-primitiv` npm shim that downloads the
-   Rust binary, a pure-npm fallback, `cargo install`, `pnpm dlx` — what's
-   the canonical invocation, and how do we ship a Rust binary to JS users
-   ergonomically?
+4. ~~Emitter language / location~~ — **resolved (D12):** custom Rust emitter in
+   the CLI.
+5. **CLI distribution — approach resolved (D13):** Biome/SWC
+   `optionalDependencies` per-platform packages + `cargo install`, scaffolded
+   with `cargo-dist`/napi-rs. Residual sub-questions: **which targets at
+   launch** (is `linux-x64-musl` / Alpine in scope for v1? `win32-arm64`?), the
+   **wrapper package name** (`primitiv` vs `@primitiv-ui/cli`), and the
+   `pnpm create @primitiv-ui` entry-point wiring.
 6. **Dev 3 reach**: how far we go documenting / testing the contract against
    non-Primitiv components (Radix), vs. stating "best-effort, contract is
    the boundary."

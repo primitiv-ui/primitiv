@@ -150,7 +150,8 @@ surface, and it is part of each component's public API.
    `.primitiv-tabs`. A compound component names its parts **BEM-style** off the
    root — `.primitiv-tabs__trigger`, `.primitiv-tabs__panel` (decided, D14).
    Each part is directly selectable, with no descendant selector and no extra
-   emitted attribute needed to target it.
+   emitted attribute needed to target it. (*Whether the headless component
+   emits this class or the consumer applies it is an open question — §7.5.*)
 2. **Modifier classes** — *purely visual variants the headless layer does not
    model*: tone/intent, size, emphasis. `.primitiv-button--primary`,
    `.primitiv-button--lg`, `.primitiv-tabs--underline`. Applied by the consumer
@@ -305,8 +306,17 @@ decision record):
 4. ~~Dev 3 reach investment (§5)~~ — **resolved (D17):** document the boundary;
    no Radix testing or shimming for v1.
 
-No open questions remain in this RFC. CLI- and pipeline-level details live in
-RFC 0005 / 0006.
+One question surfaced later, during the token-pipeline discussion:
+
+5. **Who emits the root class (§3.1.1)?** The contract names `.primitiv-button`
+   as the root but doesn't pin down whether the **headless component emits it**
+   or the **consumer applies it** via `className`. This is load-bearing for two
+   dependents: the contract's own portability story, and any future **CSS
+   Modules** output (parked, RFC 0006 §10.6) — a module can own a
+   consumer-applied class cleanly, whereas a component-emitted *global* class
+   would need `:global()`. To settle on the next RFC 0004 pass.
+
+CLI- and pipeline-level details live in RFC 0005 / 0006.
 
 ---
 

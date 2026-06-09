@@ -479,6 +479,7 @@ Per D10, this doc is promoted into three tightly-scoped RFCs (matching the
 - **RFC 0004 — Consumption distribution model & styling contract.**
   Sections 3 and 4. The foundation: the hybrid seam and the `data-*` +
   root-class contract. Settle first; the others depend on it.
+  **Drafted →** `docs/rfcs/0004-consumption-distribution-and-styling-contract.md`.
 - **RFC 0005 — The Primitiv CLI & `primitiv.json`.** Sections 7, 8, 9.
   Surface, config, registry, agent affordances.
 - **RFC 0006 — Token & style pipeline.** Sections 5 and 6. DTCG → formats,

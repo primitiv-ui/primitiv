@@ -122,10 +122,10 @@ both via the single package:
 
 - **Tree-shaking** — importing `{ Button }` from the barrel drops the rest.
   This is the baseline and is sufficient on its own.
-- **Per-component subpath exports** — `@primitiv-ui/react/button` — as an
-  ergonomic addition, generated at build time from the existing per-component
-  folders. *Proposed* (see §7), not load-bearing: tree-shaking already
-  satisfies the requirement.
+- **Per-component subpath exports** — `@primitiv-ui/react/button` — generated
+  at build time from the existing per-component folders. **Decided (D16):**
+  shipped alongside the barrel. Tree-shaking still satisfies subsets either way,
+  so subpaths are an ergonomic clarity win, not load-bearing.
 
 ### 2.4 Rejected — a second "styled components" package
 
@@ -146,8 +146,10 @@ surface, and it is part of each component's public API.
 ### 3.1 The four parts
 
 1. **Root class** — identifies the component: `.primitiv-button`,
-   `.primitiv-tabs`. One per component (or per anatomical part where a compound
-   component has several, e.g. `.primitiv-tabs__trigger`).
+   `.primitiv-tabs`. A compound component names its parts **BEM-style** off the
+   root — `.primitiv-tabs__trigger`, `.primitiv-tabs__panel` (decided, D14).
+   Each part is directly selectable, with no descendant selector and no extra
+   emitted attribute needed to target it.
 2. **Modifier classes** — *purely visual variants the headless layer does not
    model*: tone/intent, size, emphasis. `.primitiv-button--primary`,
    `.primitiv-button--lg`, `.primitiv-tabs--underline`. Applied by the consumer
@@ -203,8 +205,19 @@ editing component CSS — and it is the seam a Harmoni-generated palette overrid
 names, the modifier classes it offers, the `data-*` attributes it emits, and
 its `--primitiv-*` custom properties. This `contract.json` ships in the registry
 (0005, §8 of the design doc) and is what both the example CSS and any external
-consumer code against. The contract doc is generated/verified from the headless
-component so it cannot drift from the attributes actually emitted.
+consumer code against.
+
+**Generation — hybrid (decided, D15).** The contract has two halves with two
+sources of truth, so it is produced from both:
+
+- The **`data-*` half** is derived from and asserted against the *rendered
+  headless component* by a test, so it cannot drift from what is actually
+  emitted.
+- The **modifier classes and custom-property API** are authored alongside the
+  stylesheet, since they are styling conventions the headless layer does not
+  emit and cannot be machine-detected from a render.
+
+The two halves are assembled into one `contract.json` per component.
 
 ---
 
@@ -255,9 +268,9 @@ bounded by Principle 5:
   conventions, state styling carries over; modifier classes (consumer-applied)
   always carry over; gaps are where the other library names things differently.
 
-**v1 position:** document the contract precisely and state the best-effort
-boundary. We do **not** commit to testing the styles against Radix or shimming
-attribute differences for v1 (see §7).
+**v1 position (decided, D17):** document the contract precisely and state the
+best-effort boundary. We do **not** commit to testing the styles against Radix
+or shimming attribute differences for v1.
 
 ---
 
@@ -274,19 +287,21 @@ attribute differences for v1 (see §7).
 
 ## 7. Open questions
 
-1. **Per-component subpath exports (§2.3).** Confirm whether to ship
-   `@primitiv-ui/react/button`-style subpaths in addition to the barrel, or rely
-   on tree-shaking alone. Leaning: add them (cheap, generated), but not
-   load-bearing.
-2. **Compound-component part naming (§3.1).** Settle the convention for
-   multi-part components — `.primitiv-tabs__trigger` (BEM-ish) vs. nested data
-   parts vs. separate root classes per part — and apply it uniformly.
-3. **`contract.json` generation (§3.4).** How the contract doc is derived from /
-   verified against the headless component so it cannot drift (a test? a
-   generator? both).
-4. **Dev 3 reach investment (§5).** Whether v1 does anything beyond documenting
-   the boundary — e.g. a compatibility note per component, or an explicit
-   "contract diff" against Radix. Leaning: documentation only for v1.
+All four questions raised in drafting were resolved on 2026-06-09 (see the
+decision record):
+
+1. ~~Per-component subpath exports (§2.3)~~ — **resolved (D16):** ship subpaths
+   alongside the barrel.
+2. ~~Compound-component part naming (§3.1)~~ — **resolved (D14):** BEM-style part
+   classes off the root.
+3. ~~`contract.json` generation (§3.4)~~ — **resolved (D15):** hybrid — `data-*`
+   auto-verified against the render, modifiers and custom properties authored
+   with the stylesheet.
+4. ~~Dev 3 reach investment (§5)~~ — **resolved (D17):** document the boundary;
+   no Radix testing or shimming for v1.
+
+No open questions remain in this RFC. CLI- and pipeline-level details live in
+RFC 0005 / 0006.
 
 ---
 
@@ -300,5 +315,7 @@ attribute differences for v1 (see §7).
 | 4 | The data-vs-modifier rule decides an option's surface; one surface per option | D3 |
 | 5 | Custom-property API in two namespaces: `--primitiv-<token-path>` (theme) and `--primitiv-<component>-<part>` (per-component) | D3, D11 |
 | 6 | Per-component `contract.json` is the public, drift-proof description styles and consumers code against | D3 |
-| 7 | Subset installs via tree-shaking (baseline) + proposed per-component subpaths (ergonomic) | §11.3 |
-| 8 | Dev 3 reach is honest best-effort; document the boundary, no Radix shimming for v1 | §11.5 |
+| 7 | Subset installs via tree-shaking (baseline) + per-component subpaths shipped alongside the barrel (ergonomic) | D16 |
+| 8 | Dev 3 reach is honest best-effort; document the boundary, no Radix shimming for v1 | D17 |
+| 9 | Compound components name parts BEM-style off the root (`.primitiv-tabs__trigger`) | D14 |
+| 10 | `contract.json` is hybrid: `data-*` auto-verified against the render, modifiers + custom properties authored with the stylesheet | D15 |

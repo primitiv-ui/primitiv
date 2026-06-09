@@ -441,6 +441,10 @@ The Agent profile is first-class, not bolted on:
 | D11 | Default theme's default primary = Primitiv's own primary colour; a default, not a lock-in — overridable via tokens / CSS custom properties / a Harmoni-generated palette (Rust lib or Figma plugin) |
 | D12 | Token transform = **custom Rust emitter inside the CLI** (consumes DTCG via serde), over Style Dictionary — for full control of contract-specific output |
 | D13 | **CLI is a Rust binary** — a deliberate first-class project goal (craft), with native `harmoni-core` linking + latent non-JS-consumer support as secondary merit. Distributed via the Biome/SWC `optionalDependencies` per-platform-package pattern + `cargo install`; **not** a Node/TS shell (which would be marginally lower-friction but is explicitly not chosen) |
+| D14 | Compound components name parts **BEM-style** off the root class (`.primitiv-tabs__trigger`) |
+| D15 | `contract.json` is **hybrid**: the `data-*` half is auto-verified against the rendered component; modifier classes + custom properties are authored with the stylesheet |
+| D16 | Per-component subpath exports (`@primitiv-ui/react/button`) ship **alongside** the barrel (generated); tree-shaking still serves subsets |
+| D17 | Dev 3 reach: **document the contract boundary** for v1; no Radix testing or attribute shimming |
 
 ---
 
@@ -453,8 +457,8 @@ To resolve before / within the RFCs:
 2. **Transitive dep resolution** when the consumer's chosen format needs
    project-level wiring (e.g. registering the generated Tailwind preset in
    their `tailwind.config`): how much does `add` automate vs. instruct?
-3. **Per-component subpath exports** for Dev 1's "install specific
-   components" — confirm tree-shaking alone is sufficient, or add subpaths.
+3. ~~Per-component subpath exports~~ — **resolved (D16):** ship subpaths
+   alongside the barrel; tree-shaking still serves subsets.
 4. ~~Emitter language / location~~ — **resolved (D12):** custom Rust emitter in
    the CLI.
 5. **CLI distribution — approach resolved (D13):** Biome/SWC
@@ -463,9 +467,8 @@ To resolve before / within the RFCs:
    launch** (is `linux-x64-musl` / Alpine in scope for v1? `win32-arm64`?), the
    **wrapper package name** (`primitiv` vs `@primitiv-ui/cli`), and the
    `pnpm create @primitiv-ui` entry-point wiring.
-6. **Dev 3 reach**: how far we go documenting / testing the contract against
-   non-Primitiv components (Radix), vs. stating "best-effort, contract is
-   the boundary."
+6. ~~Dev 3 reach~~ — **resolved (D17):** document the contract boundary for v1;
+   no Radix testing or attribute shimming.
 7. **Workbench role**: extend `apps/workbench` into the styling authoring
    surface, or stand up a dedicated styled preview app.
 

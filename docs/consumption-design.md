@@ -456,6 +456,9 @@ The Agent profile is first-class, not bolted on:
 | D26 | CLI configures an **existing** project, never generates one; **React-only** component logic (the `framework` field is forward-looking); **tiered** support — Tier-0 (install/tokens/styles) works anywhere, Tier-1 auto-wiring for a maintained set, Tier-2 prints a manual snippet so unknown setups degrade rather than fail |
 | D27 | v1 first-class auto-wiring = **Vite + React** and **Next.js**; Remix / Astro / unknown fall back to the manual snippet |
 | D28 | A from-scratch project generator is **deferred past v1**; `create-primitiv-ui` is name-reserved but in v1 just runs `init` in an already-created app (errors helpfully on an empty dir) |
+| D29 | CLI test architecture = **ports & adapters**: pure core + effect traits (`FileSystem`, `PackageManager`, `Registry`, `Prompter`) faked in tests, real at the edge; `primitiv-cli` is lib + thin bin; the emitter is its own `primitiv-emit` crate; the agent flags (`--json`/`--yes`/`--dry-run`/`--registry path`) double as test seams |
+| D30 | **100% coverage** across the CLI workspace; **Rust enters CI** (`cargo test` + `cargo llvm-cov` gate) — it runs in no workflow today |
+| D31 | Generated outputs asserted via **hand-authored golden files** + exact compare (pure red-green); no auto-accepted snapshots (`insta` only as diff-review) |
 
 ---
 

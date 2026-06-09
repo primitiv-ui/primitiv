@@ -38,9 +38,11 @@ in [`../RELEASING.md`](../RELEASING.md); the full decision log (D1–D25) lives 
 
 ## 🏗️ Build phase — the work that comes next (per the RFCs)
 
-Foundation-first order:
+Foundation-first order (test strategy for all of it: **RFC 0007** — ports &
+adapters, hand-authored golden files, 100% coverage):
 
-- [ ] **Token emitter** (RFC 0006 §4) — DTCG → CSS (canonical) / SCSS / TS / Tailwind, custom Rust emitter. TDD from the existing `packages/tokens` fixtures. Both `tokens` and the example styles depend on it, so it goes first.
+- [ ] **Rust CI + test harness** (RFC 0007 §7) — add `cargo test --workspace` + `cargo llvm-cov` gate (Rust runs in no workflow today); scaffold the `primitiv-emit` / `primitiv-cli` crates (lib + thin bin) and the port traits.
+- [ ] **Token emitter** (RFC 0006 §4) — DTCG → CSS (canonical) / SCSS / TS / Tailwind, the pure `primitiv-emit` crate. TDD with golden files from the existing `packages/tokens` fixtures. Both `tokens` and the example styles depend on it, so it goes first.
 - [ ] **`primitiv theme`** (RFC 0006 §5) — link `harmoni-core`; brand → palette → token overrides; emit light + dark token sets.
 - [ ] **Styling contract + `contract.json`** per component (RFC 0004 §3) — hybrid generation (data-* auto-verified, modifiers/custom-props authored).
 - [ ] **Default theme authoring** in the workbench (RFC 0006 §7) — ported from Figma, one design emitted per format.

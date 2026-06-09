@@ -147,7 +147,7 @@ type TSwitchCompound = typeof SwitchRoot & {
  *
  * @example Minimal usage
  * ```tsx
- * import { Switch } from "@primitiv/react";
+ * import { Switch } from "@primitiv-ui/react";
  *
  * <Switch.Root aria-label="Enable notifications">
  *   <Switch.Thumb />

@@ -4,7 +4,7 @@ A headless, accessible multi-line text input. Zero styles ship — apply
 whatever design system you use.
 
 ```tsx
-import { Textarea } from "@primitiv/react";
+import { Textarea } from "@primitiv-ui/react";
 
 <label htmlFor="bio">Bio</label>
 <Textarea id="bio" rows={4} placeholder="Tell us about yourself" />

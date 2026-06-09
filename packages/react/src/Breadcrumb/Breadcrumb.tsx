@@ -199,7 +199,7 @@ type TBreadcrumbCompound = typeof BreadcrumbRoot & {
  *
  * @example Minimal usage
  * ```tsx
- * import { Breadcrumb } from "@primitiv/react";
+ * import { Breadcrumb } from "@primitiv-ui/react";
  *
  * <Breadcrumb.Root>
  *   <Breadcrumb.List>

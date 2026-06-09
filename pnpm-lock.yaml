@@ -14,10 +14,10 @@ importers:
 
   apps/harmoni-figma-plugin:
     dependencies:
-      '@primitiv/icons':
+      '@primitiv-ui/icons':
         specifier: workspace:*
         version: link:../../packages/icons
-      '@primitiv/react':
+      '@primitiv-ui/react':
         specifier: workspace:*
         version: link:../../packages/react
       harmoni-wasm:
@@ -108,13 +108,13 @@ importers:
 
   apps/primitiv-sync-figma-plugin:
     dependencies:
-      '@primitiv/icons':
+      '@primitiv-ui/icons':
         specifier: workspace:*
         version: link:../../packages/icons
-      '@primitiv/react':
+      '@primitiv-ui/react':
         specifier: workspace:*
         version: link:../../packages/react
-      '@primitiv/tokens':
+      '@primitiv-ui/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
       react:
@@ -196,10 +196,10 @@ importers:
 
   apps/workbench:
     dependencies:
-      '@primitiv/icons':
+      '@primitiv-ui/icons':
         specifier: workspace:*
         version: link:../../packages/icons
-      '@primitiv/react':
+      '@primitiv-ui/react':
         specifier: workspace:*
         version: link:../../packages/react
       harmoni-wasm:

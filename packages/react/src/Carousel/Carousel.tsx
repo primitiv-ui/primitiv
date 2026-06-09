@@ -678,7 +678,7 @@ type CarouselCompound = typeof CarouselRoot & {
  *
  * @example
  * ```tsx
- * import { Carousel } from "@primitiv/react";
+ * import { Carousel } from "@primitiv-ui/react";
  *
  * <Carousel.Root ariaLabel="Featured products">
  *   <Carousel.Viewport>

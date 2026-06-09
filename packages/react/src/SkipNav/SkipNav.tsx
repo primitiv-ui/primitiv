@@ -91,7 +91,7 @@ SkipNavContent.displayName = "SkipNavContent";
  *
  * @example Minimal usage
  * ```tsx
- * import { SkipNav } from "@primitiv/react";
+ * import { SkipNav } from "@primitiv-ui/react";
  *
  * export function App() {
  *   return (

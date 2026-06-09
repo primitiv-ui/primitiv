@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-import { Tree } from "@primitiv/react";
-import { ChevronRight, File, Folder } from "@primitiv/icons";
+import { Tree } from "@primitiv-ui/react";
+import { ChevronRight, File, Folder } from "@primitiv-ui/icons";
 
 import "./TreeExample.css";
 

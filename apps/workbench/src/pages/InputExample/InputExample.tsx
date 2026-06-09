@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 
-import { Input } from "@primitiv/react";
+import { Input } from "@primitiv-ui/react";
 
 import "./InputExample.css";
 

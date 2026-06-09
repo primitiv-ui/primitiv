@@ -6,7 +6,7 @@ collection, search, or view has no content. Renders a polite
 conditionally-mounted empty state is announced. Zero styles ship.
 
 ```tsx
-import { EmptyState } from "@primitiv/react";
+import { EmptyState } from "@primitiv-ui/react";
 
 {
   results.length === 0 && (
@@ -126,4 +126,4 @@ elements directly or via your own `className`s:
 
 ---
 
-[Back to @primitiv/react](../../README.md)
+[Back to @primitiv-ui/react](../../README.md)

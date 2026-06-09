@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Button } from "@primitiv/react";
+import { Button } from "@primitiv-ui/react";
 
 import "./ButtonExample.css";
 

@@ -252,14 +252,14 @@ self-contained — paste and run any of them independently.
 
 ## Headless components and icons are available to the plugin
 
-The `harmoni-figma-plugin` already depends on **`@primitiv/react`** and
-**`@primitiv/icons`** as workspace packages
+The `harmoni-figma-plugin` already depends on **`@primitiv-ui/react`** and
+**`@primitiv-ui/icons`** as workspace packages
 (see `apps/harmoni-figma-plugin/package.json`). When wireframing, prefer
 to show behaviour using components that already exist in the workspace —
 the eventual implementation will use them, so wireframes that anticipate
 that vocabulary are more honest.
 
-The `@primitiv/react` headless component inventory currently includes:
+The `@primitiv-ui/react` headless component inventory currently includes:
 
 `AccessibleIcon`, `Accordion`, `Alert`, `Avatar`, `Breadcrumb`, `Button`,
 `Carousel`, `Checkbox`, `CheckboxCard`, `Collapsible`, `ContextMenu`,
@@ -277,13 +277,13 @@ Concretely useful in plugin wireframes:
 - **`Slider`** — padding sliders, tint strength, any continuous control.
 - **`Alert` / `Status` / `EmptyState`** — post-apply feedback, no-project state.
 
-`@primitiv/icons` exposes a generated set of common UI icons
+`@primitiv-ui/icons` exposes a generated set of common UI icons
 (`ArrowLeft`, `ArrowRight`, `Check`, `ChevronDown`, `ChevronLeft`,
 `ChevronRight`, `ChevronUp`, `Close`, `Copy`, `Delete`, `Download`,
 `Edit`, `Eye`, `Folder`, `Info`, `Menu`, `Plus`, etc. — see
 `packages/icons/src/icons/`). Wireframes can use Unicode glyphs (`‹`,
 `▾`, `✓`) for speed; the implementation should pull the corresponding
-icon from `@primitiv/icons`. Call this out in the wireframe comments
+icon from `@primitiv-ui/icons`. Call this out in the wireframe comments
 when the choice matters (e.g. "the ‹ will be `<ChevronLeft />` in
 implementation").
 

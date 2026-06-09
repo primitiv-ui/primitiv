@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-import { Check } from "@primitiv/icons";
-import { Switch } from "@primitiv/react";
+import { Check } from "@primitiv-ui/icons";
+import { Switch } from "@primitiv-ui/react";
 
 import "./SwitchExample.css";
 

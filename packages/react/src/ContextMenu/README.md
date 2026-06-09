@@ -9,7 +9,7 @@ No portal, no floating-ui — the browser handles layering via the top
 layer, and the component handles close on outside click / Escape.
 
 ```tsx
-import { ContextMenu } from "@primitiv/react";
+import { ContextMenu } from "@primitiv-ui/react";
 
 <ContextMenu.Root>
   <ContextMenu.Trigger>

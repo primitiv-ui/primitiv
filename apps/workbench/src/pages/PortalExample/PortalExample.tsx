@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Portal } from "@primitiv/react";
+import { Portal } from "@primitiv-ui/react";
 
 import "./PortalExample.css";
 

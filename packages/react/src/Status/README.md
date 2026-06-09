@@ -5,7 +5,7 @@ implementing the
 [WAI-ARIA `status` role](https://www.w3.org/TR/wai-aria-1.2/#status).
 
 ```tsx
-import { Status } from "@primitiv/react";
+import { Status } from "@primitiv-ui/react";
 
 {
   saved && <Status>All changes saved.</Status>;

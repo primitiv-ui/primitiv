@@ -8,7 +8,7 @@ A compound component for showing and hiding a single panel of content.
 The single-item analogue of [Accordion](../Accordion/README.md).
 
 ```tsx
-import { Collapsible } from "@primitiv/react";
+import { Collapsible } from "@primitiv-ui/react";
 
 <Collapsible.Root defaultOpen>
   <Collapsible.Trigger>Toggle</Collapsible.Trigger>

@@ -6,7 +6,7 @@ description: How the apps/workbench app is structured and the rules for authorin
 # Workbench example pages
 
 `apps/workbench` is the iteration workbench — one route per component, used
-to exercise `@primitiv/react` components in a real browser. Per the
+to exercise `@primitiv-ui/react` components in a real browser. Per the
 top-level CLAUDE.md, leave it alone unless a task explicitly asks for
 an example; when it does, follow the rules below.
 

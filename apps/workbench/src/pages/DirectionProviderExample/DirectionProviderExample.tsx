@@ -5,7 +5,7 @@ import {
   Fieldset,
   Tabs,
   useDirection,
-} from "@primitiv/react";
+} from "@primitiv-ui/react";
 
 import "./DirectionProviderExample.css";
 

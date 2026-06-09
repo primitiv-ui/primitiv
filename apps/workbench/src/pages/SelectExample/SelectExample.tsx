@@ -1,6 +1,6 @@
 import { useState, type ComponentProps } from "react";
 
-import { Select } from "@primitiv/react";
+import { Select } from "@primitiv-ui/react";
 
 import "./SelectExample.css";
 

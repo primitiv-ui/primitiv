@@ -4,7 +4,7 @@ title: React components
 
 # React components
 
-`@primitiv/react` is a headless component library: accessible behaviour,
+`@primitiv-ui/react` is a headless component library: accessible behaviour,
 keyboard support and ARIA wiring with **zero styles shipped**. Bring your own
 design system. Every component below has its own page (README + a runnable
 workbench example).
@@ -79,5 +79,5 @@ workbench example).
 
 ## Packages
 
-- [Icons](/react/icons) — `@primitiv/icons`
-- [Tokens](/react/tokens) — `@primitiv/tokens`
+- [Icons](/react/icons) — `@primitiv-ui/icons`
+- [Tokens](/react/tokens) — `@primitiv-ui/tokens`

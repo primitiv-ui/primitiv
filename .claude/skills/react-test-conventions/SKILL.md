@@ -64,19 +64,19 @@ remove the unreachable code.
 Scoped (during a TDD cycle):
 
 ```sh
-pnpm --filter @primitiv/react vitest run src/<Component>
+pnpm --filter @primitiv-ui/react vitest run src/<Component>
 ```
 
 Full suite with coverage (before a docs commit or at end of cycle):
 
 ```sh
-pnpm --filter @primitiv/react qa:units
+pnpm --filter @primitiv-ui/react qa:units
 ```
 
 Watch mode:
 
 ```sh
-pnpm --filter @primitiv/react qa:units:watch
+pnpm --filter @primitiv-ui/react qa:units:watch
 ```
 
 Per CLAUDE.md efficiency notes: one test run per green check is

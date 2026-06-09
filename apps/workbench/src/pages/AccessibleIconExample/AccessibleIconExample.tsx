@@ -1,4 +1,4 @@
-import { AccessibleIcon } from "@primitiv/react";
+import { AccessibleIcon } from "@primitiv-ui/react";
 
 import "./AccessibleIconExample.css";
 

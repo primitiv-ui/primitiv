@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { ToggleGroup } from "@primitiv/react";
+import { ToggleGroup } from "@primitiv-ui/react";
 
 import "./ToggleGroupExample.css";
 

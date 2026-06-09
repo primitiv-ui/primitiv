@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Toggle } from "@primitiv/react";
+import { Toggle } from "@primitiv-ui/react";
 
 import "./ToggleExample.css";
 

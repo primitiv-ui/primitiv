@@ -8,7 +8,7 @@ A headless, accessible grouping for related form controls — a stateless
 compound component wrapping `<fieldset>` and `<legend>`. Zero styles ship.
 
 ```tsx
-import { Fieldset } from "@primitiv/react";
+import { Fieldset } from "@primitiv-ui/react";
 
 <Fieldset.Root>
   <Fieldset.Legend>Notifications</Fieldset.Legend>

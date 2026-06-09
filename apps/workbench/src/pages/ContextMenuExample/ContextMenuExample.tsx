@@ -1,4 +1,4 @@
-import { ContextMenu, DirectionProvider } from "@primitiv/react";
+import { ContextMenu, DirectionProvider } from "@primitiv-ui/react";
 import { useState } from "react";
 
 import "./ContextMenuExample.css";

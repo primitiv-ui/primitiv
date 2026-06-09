@@ -11,7 +11,7 @@ are typical candidates.
 ### Default — mount into `document.body`
 
 ```tsx
-import { Portal } from "@primitiv/react";
+import { Portal } from "@primitiv-ui/react";
 
 <Portal>
   <div role="dialog" aria-modal="true">

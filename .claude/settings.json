@@ -4,10 +4,10 @@
     "allow": [
       "Skill",
       "Bash(pnpm vitest run:*)",
-      "Bash(pnpm --filter @primitiv/react vitest run:*)",
-      "Bash(pnpm --filter @primitiv/react qa:*)",
-      "Bash(pnpm --filter @primitiv/react qa:units)",
-      "Bash(pnpm --filter @primitiv/react qa:units:watch)",
+      "Bash(pnpm --filter @primitiv-ui/react vitest run:*)",
+      "Bash(pnpm --filter @primitiv-ui/react qa:*)",
+      "Bash(pnpm --filter @primitiv-ui/react qa:units)",
+      "Bash(pnpm --filter @primitiv-ui/react qa:units:watch)",
       "Bash(pnpm --filter \"harmoni-*\" exec cargo test:*)",
       "Bash(cargo test --workspace:*)",
       "Bash(cargo test --package:*)",
@@ -88,7 +88,7 @@
     ]
   },
   "env": {
-    "PRIMITIV_REACT_PKG": "@primitiv/react",
+    "PRIMITIV_REACT_PKG": "@primitiv-ui/react",
     "CLAUDE_PROJECT_NAME": "primitiv",
     "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "80"
   }

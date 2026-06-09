@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 
-import { Breadcrumb } from "@primitiv/react";
+import { Breadcrumb } from "@primitiv-ui/react";
 
 import "./BreadcrumbExample.css";
 

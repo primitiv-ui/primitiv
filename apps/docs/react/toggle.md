@@ -14,7 +14,7 @@ free from the browser. It owns a single boolean `pressed` value and
 exposes it through `aria-pressed` and the `data-state` styling hook.
 
 ```tsx
-import { Toggle } from "@primitiv/react";
+import { Toggle } from "@primitiv-ui/react";
 
 <Toggle aria-label="Bold">B</Toggle>;
 ```

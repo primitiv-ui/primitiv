@@ -15,7 +15,7 @@ navigation, an Indicator slot driven by the selected value, and the
 `asChild` composition every primitive in this package supports.
 
 ```tsx
-import { RadioGroup } from "@primitiv/react";
+import { RadioGroup } from "@primitiv-ui/react";
 
 <RadioGroup.Root defaultValue="comfortable" aria-label="Density">
   <RadioGroup.Item value="compact">

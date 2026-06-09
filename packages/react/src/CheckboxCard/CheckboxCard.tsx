@@ -181,7 +181,7 @@ type TCheckboxCardCompound = typeof CheckboxCardRoot & {
  *
  * @example Minimal usage
  * ```tsx
- * import { CheckboxCard } from "@primitiv/react";
+ * import { CheckboxCard } from "@primitiv-ui/react";
  *
  * <CheckboxCard.Root aria-label="Enable feature">
  *   <CheckboxCard.Indicator>

@@ -1,6 +1,6 @@
 // Single source of truth for the React component docs.
 //
-// Each entry maps a `@primitiv/react` component to:
+// Each entry maps a `@primitiv-ui/react` component to:
 //   - the README included verbatim on its page
 //     (packages/react/src/<name>/README.md)
 //   - the workbench example whose source is embedded as a runnable sample

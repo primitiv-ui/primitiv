@@ -8,7 +8,7 @@ A compound component implementing the
 [WAI-ARIA Tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/).
 
 ```tsx
-import { Tabs } from "@primitiv/react";
+import { Tabs } from "@primitiv-ui/react";
 
 <Tabs.Root defaultValue="overview">
   <Tabs.List label="Account sections">

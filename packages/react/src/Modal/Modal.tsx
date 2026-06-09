@@ -434,7 +434,7 @@ type ModalCompound = typeof ModalRoot & {
  *
  * @example Minimal usage
  * ```tsx
- * import { Modal } from "@primitiv/react";
+ * import { Modal } from "@primitiv-ui/react";
  *
  * <Modal.Root>
  *   <Modal.Trigger>Open</Modal.Trigger>

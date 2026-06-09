@@ -12,7 +12,7 @@ The value is always an **array of numbers**, with one thumb per entry. Zero
 styles ship.
 
 ```tsx
-import { Slider } from "@primitiv/react";
+import { Slider } from "@primitiv-ui/react";
 
 <Slider.Root defaultValue={[40]} aria-label="Volume">
   <Slider.Track>

@@ -23,7 +23,7 @@ const visuallyHiddenStyle: CSSProperties = {
  * assistive technology. Use it for text that gives a control or region an
  * accessible name without showing on screen.
  *
- * **Functional styles.** Unlike other `@primitiv/react` components, the
+ * **Functional styles.** Unlike other `@primitiv-ui/react` components, the
  * clip styles are applied inline because they *are* the component's
  * behaviour, not decoration. A consumer `style` is merged on top, so any
  * individual property can still be overridden.

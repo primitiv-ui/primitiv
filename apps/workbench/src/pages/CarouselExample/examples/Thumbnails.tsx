@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Carousel } from "@primitiv/react";
+import { Carousel } from "@primitiv-ui/react";
 
 import { carouselImages } from "../fixtures";
 import "./thumbnails.css";

@@ -1,4 +1,4 @@
-import { Fieldset } from "@primitiv/react";
+import { Fieldset } from "@primitiv-ui/react";
 
 import "./FieldsetExample.css";
 

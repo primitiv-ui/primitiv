@@ -1,6 +1,6 @@
 # Select — future work
 
-The shipped `@primitiv/react` `Select` is a thin wrapper over the native
+The shipped `@primitiv-ui/react` `Select` is a thin wrapper over the native
 `<select>` element. This doc captures the design conversation behind
 the two richer components that are deliberately deferred, so the next
 session can pick them up cold.

@@ -285,7 +285,7 @@ type TSliderCompound = typeof SliderRoot & {
  *
  * @example
  * ```tsx
- * import { Slider } from "@primitiv/react";
+ * import { Slider } from "@primitiv-ui/react";
  *
  * <Slider.Root defaultValue={[40]} aria-label="Volume">
  *   <Slider.Track><Slider.Range /></Slider.Track>

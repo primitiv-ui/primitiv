@@ -6,7 +6,7 @@ on a `<div role="progressbar">`. Display-only and non-interactive: it
 reflects a consumer-supplied `value`. Zero styles ship.
 
 ```tsx
-import { Progress } from "@primitiv/react";
+import { Progress } from "@primitiv-ui/react";
 
 <Progress.Root value={60} aria-label="Upload progress">
   <Progress.Indicator />

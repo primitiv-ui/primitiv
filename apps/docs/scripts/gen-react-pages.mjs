@@ -8,7 +8,7 @@
 // the single source of truth; CI runs this script before building, so pages are
 // always fresh.
 //
-// Run with: pnpm --filter @primitiv/docs gen:react
+// Run with: pnpm --filter @primitiv-ui/docs gen:react
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -98,7 +98,7 @@ title: React components
 
 # React components
 
-\`@primitiv/react\` is a headless component library: accessible behaviour,
+\`@primitiv-ui/react\` is a headless component library: accessible behaviour,
 keyboard support and ARIA wiring with **zero styles shipped**. Bring your own
 design system. Every component below has its own page (README + a runnable
 workbench example).
@@ -115,8 +115,8 @@ ${groups
 
 ## Packages
 
-- [Icons](/react/icons) — \`@primitiv/icons\`
-- [Tokens](/react/tokens) — \`@primitiv/tokens\`
+- [Icons](/react/icons) — \`@primitiv-ui/icons\`
+- [Tokens](/react/tokens) — \`@primitiv-ui/tokens\`
 `;
 writeFileSync(resolve(reactDir, "index.md"), overview);
 

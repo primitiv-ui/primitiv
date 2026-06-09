@@ -2,8 +2,8 @@ import {
   MillerColumns,
   Modal,
   useMillerColumnsSelection,
-} from "@primitiv/react";
-import { ChevronRight } from "@primitiv/icons";
+} from "@primitiv-ui/react";
+import { ChevronRight } from "@primitiv-ui/icons";
 
 import "./MillerColumnsExample.css";
 

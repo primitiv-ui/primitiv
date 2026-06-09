@@ -1,4 +1,4 @@
-import { Table } from "@primitiv/react";
+import { Table } from "@primitiv-ui/react";
 
 import "./TableExample.css";
 

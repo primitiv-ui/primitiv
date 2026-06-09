@@ -10,8 +10,8 @@ that powers it. This site documents both, plus a live, interactive workbench.
 ## Two names, one project
 
 - **Primitiv** — the product: a headless, accessible React component library
-  (`@primitiv/react`) with zero styles shipped, plus an icon set
-  (`@primitiv/icons`) and design tokens (`@primitiv/tokens`).
+  (`@primitiv-ui/react`) with zero styles shipped, plus an icon set
+  (`@primitiv-ui/icons`) and design tokens (`@primitiv-ui/tokens`).
 - **Harmoni** — the engine: a pure-Rust palette generator (`harmoni-core`)
   with a WebAssembly adapter (`harmoni-wasm`) that runs it in the browser.
 
@@ -34,7 +34,7 @@ primitiv/
 
 ## What's here
 
-- [**React components**](/react/) — every `@primitiv/react` component, with its
+- [**React components**](/react/) — every `@primitiv-ui/react` component, with its
   README and a runnable workbench example.
 - [**Harmoni**](/harmoni/) — the Rust API and its WASM/TypeScript surface.
 - [**Workbench**](/workbench/) — the live app; exercise any component in the

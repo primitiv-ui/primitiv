@@ -10,8 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@primitiv/react": "workspace:*",
-    "@primitiv/icons": "workspace:*",
+    "@primitiv-ui/react": "workspace:*",
+    "@primitiv-ui/icons": "workspace:*",
     "harmoni-wasm": "workspace:*",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",

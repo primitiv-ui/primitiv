@@ -5,7 +5,7 @@ A compound component wrapping standard HTML table elements. Follows the
 with zero styles shipped.
 
 ```tsx
-import { Table } from "@primitiv/react";
+import { Table } from "@primitiv-ui/react";
 
 <Table.ScrollArea>
   <Table.Root>
@@ -202,4 +202,4 @@ caption {
 
 ---
 
-[Back to @primitiv/react](../../README.md)
+[Back to @primitiv-ui/react](../../README.md)

@@ -1,4 +1,4 @@
-import { Dropdown, DirectionProvider } from "@primitiv/react";
+import { Dropdown, DirectionProvider } from "@primitiv-ui/react";
 import { useState } from "react";
 
 import "./DropdownExample.css";

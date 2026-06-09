@@ -10,7 +10,7 @@ on a native `<button role="switch">`. Semantically represents an immediate
 on/off action (as opposed to a selection choice). Zero styles ship.
 
 ```tsx
-import { Switch } from "@primitiv/react";
+import { Switch } from "@primitiv-ui/react";
 
 <Switch.Root defaultChecked aria-label="Enable notifications">
   <Switch.Thumb />

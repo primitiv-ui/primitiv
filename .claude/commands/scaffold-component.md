@@ -38,7 +38,7 @@ command.
 
 5. **Run the scoped test** to verify RED:
    ```sh
-   pnpm --filter @primitiv/react exec vitest run src/$ARGUMENTS
+   pnpm --filter @primitiv-ui/react exec vitest run src/$ARGUMENTS
    ```
    It must fail. If it passes, the scaffold is wrong — fix and
    re-run before committing.

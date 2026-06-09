@@ -9,7 +9,7 @@ implementing the
 [WAI-ARIA `alert` role](https://www.w3.org/TR/wai-aria-1.2/#alert).
 
 ```tsx
-import { Alert } from "@primitiv/react";
+import { Alert } from "@primitiv-ui/react";
 
 {
   error && <Alert>{error}</Alert>;

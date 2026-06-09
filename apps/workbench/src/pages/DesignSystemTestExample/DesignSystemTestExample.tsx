@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Switch } from "@primitiv/react";
+import { Switch } from "@primitiv-ui/react";
 
 import "./DesignSystemTestExample.css";
 

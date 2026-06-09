@@ -38,7 +38,7 @@ site — open it and try every component directly in your browser.
 ## Run the docs site locally
 
 ```sh
-pnpm --filter @primitiv/docs docs:dev
+pnpm --filter @primitiv-ui/docs docs:dev
 ```
 
 The React component pages are generated from the shared component list. After
@@ -46,16 +46,16 @@ adding a component to `packages/react`, update
 `apps/docs/.vitepress/components.mjs` and regenerate:
 
 ```sh
-pnpm --filter @primitiv/docs gen:react
+pnpm --filter @primitiv-ui/docs gen:react
 ```
 
 ## Using a component
 
-Every `@primitiv/react` component is headless — accessible behaviour with zero
+Every `@primitiv-ui/react` component is headless — accessible behaviour with zero
 styles. Import it and bring your own CSS:
 
 ```tsx
-import { Tabs } from "@primitiv/react";
+import { Tabs } from "@primitiv-ui/react";
 
 <Tabs.Root defaultValue="overview">
   <Tabs.List label="Account sections">

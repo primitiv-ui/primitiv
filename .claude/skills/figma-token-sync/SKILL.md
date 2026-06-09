@@ -1,6 +1,6 @@
 ---
 name: figma-token-sync
-description: How the primitiv-sync-figma-plugin and @primitiv/tokens work together to back up Figma variables as DTCG JSON in the repo — features, the export flow (Live sync vs Downloads), the dtcg.ts collection routing, alias resolution, and the deliberately-removed one-shot migration code. TRIGGER when editing apps/primitiv-sync-figma-plugin or packages/tokens, when running a token backup, when adding a new Figma variable collection that needs routing, when the Live sync server is involved (localhost:4477), when extending the DTCG transform, or when asked to revisit the sync plugin UI. SKIP for harmoni-figma-plugin work, packages/react component work, and any non-token Figma exploration.
+description: How the primitiv-sync-figma-plugin and @primitiv-ui/tokens work together to back up Figma variables as DTCG JSON in the repo — features, the export flow (Live sync vs Downloads), the dtcg.ts collection routing, alias resolution, and the deliberately-removed one-shot migration code. TRIGGER when editing apps/primitiv-sync-figma-plugin or packages/tokens, when running a token backup, when adding a new Figma variable collection that needs routing, when the Live sync server is involved (localhost:4477), when extending the DTCG transform, or when asked to revisit the sync plugin UI. SKIP for harmoni-figma-plugin work, packages/react component work, and any non-token Figma exploration.
 ---
 
 # Figma → DTCG token sync
@@ -43,7 +43,7 @@ move is done`. Reinstating it means restoring `planMigration` /
 1. **Start the sync server (only if you want Live sync):**
    ```sh
    pnpm tokens:sync                              # repo-root alias
-   pnpm --filter @primitiv/tokens sync:serve     # equivalent
+   pnpm --filter @primitiv-ui/tokens sync:serve     # equivalent
    ```
    Binds to `http://localhost:4477`. `POST /sync` accepts a
    `{ primitives, palette, intent, context, interaction }` body and
@@ -179,8 +179,8 @@ pnpm --filter primitiv-sync-figma-plugin build        # one-shot prod build
 
 # Tokens
 pnpm tokens:sync                                      # boot local sync server
-pnpm --filter @primitiv/tokens qa:units               # vitest + coverage
-pnpm --filter @primitiv/tokens lint                   # tsc --noEmit
+pnpm --filter @primitiv-ui/tokens qa:units               # vitest + coverage
+pnpm --filter @primitiv-ui/tokens lint                   # tsc --noEmit
 ```
 
 ## Files to read first if you're modifying this stack

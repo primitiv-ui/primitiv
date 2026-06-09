@@ -10,7 +10,7 @@ a single form control plus its label, description, and error message.
 Zero styles ship.
 
 ```tsx
-import { Field, Input } from "@primitiv/react";
+import { Field, Input } from "@primitiv-ui/react";
 
 <Field.Root>
   <Field.Label>Email</Field.Label>

@@ -1,4 +1,4 @@
-import { SkipNav } from "@primitiv/react";
+import { SkipNav } from "@primitiv-ui/react";
 
 import "./SkipNavExample.css";
 

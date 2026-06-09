@@ -105,7 +105,7 @@ Every carousel must have an accessible name. Pass exactly one of `ariaLabel`
 or `ariaLabelledBy`:
 
 ```tsx
-import { Carousel } from "@primitiv/react";
+import { Carousel } from "@primitiv-ui/react";
 
 <Carousel.Root ariaLabel="Featured products">
   <Carousel.Viewport>

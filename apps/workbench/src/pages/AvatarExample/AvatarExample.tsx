@@ -1,4 +1,4 @@
-import { Avatar } from "@primitiv/react";
+import { Avatar } from "@primitiv-ui/react";
 
 import "./AvatarExample.css";
 

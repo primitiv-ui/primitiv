@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Textarea } from "@primitiv/react";
+import { Textarea } from "@primitiv-ui/react";
 
 import "./TextareaExample.css";
 

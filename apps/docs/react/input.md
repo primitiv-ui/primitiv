@@ -8,7 +8,7 @@ A headless, accessible single-line text input. Zero styles ship — apply
 whatever design system you use.
 
 ```tsx
-import { Input } from "@primitiv/react";
+import { Input } from "@primitiv-ui/react";
 
 <label htmlFor="email">Email</label>
 <Input id="email" type="email" required />

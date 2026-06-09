@@ -60,7 +60,7 @@ jobs:
         run: pnpm --filter workbench build
 
       - name: Build docs
-        run: pnpm --filter @primitiv/docs docs:build
+        run: pnpm --filter @primitiv-ui/docs docs:build
 
       # Combine: the workbench is served from /workbench/ within the docs site.
       - name: Assemble site

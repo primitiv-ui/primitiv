@@ -35,7 +35,7 @@ tree as a cosmetic + animation surface (for custom backdrop styling
 or motion wrappers that exceed what `::backdrop` can express).
 
 ```tsx
-import { Modal } from "@primitiv/react";
+import { Modal } from "@primitiv-ui/react";
 
 <Modal.Root open={open} onOpenChange={setOpen}>
   <Modal.Trigger>Open</Modal.Trigger>
@@ -113,7 +113,7 @@ open. `onPointerDownOutside` receives the native `PointerEvent`
 ## Imperative API
 
 ```tsx
-import { Modal, type ModalImperativeApi } from "@primitiv/react";
+import { Modal, type ModalImperativeApi } from "@primitiv-ui/react";
 
 const ref = useRef<ModalImperativeApi>(null);
 

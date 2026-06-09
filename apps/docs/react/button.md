@@ -8,7 +8,7 @@ A headless, accessible `<button>` element. Zero styles ship — apply whatever
 design system you use.
 
 ```tsx
-import { Button } from "@primitiv/react";
+import { Button } from "@primitiv-ui/react";
 
 <Button onClick={handleSave}>Save</Button>
 ```

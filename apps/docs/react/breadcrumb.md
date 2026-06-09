@@ -10,7 +10,7 @@ a `<nav>` landmark wrapping an ordered list of links to ancestor pages, ending
 with the current page. Stateless — purely structural. Zero styles ship.
 
 ```tsx
-import { Breadcrumb } from "@primitiv/react";
+import { Breadcrumb } from "@primitiv-ui/react";
 
 <Breadcrumb.Root>
   <Breadcrumb.List>

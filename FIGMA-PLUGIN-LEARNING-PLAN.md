@@ -94,7 +94,7 @@ and renders swatches in the iframe — preview only, no Figma writes.
    `harmoni-wasm` with the `vi.hoisted` pattern from `engine.test.ts`).
 2. GREEN: implement the wrapper.
 3. RED: test the UI state — colour input change → swatches in state.
-4. GREEN: wire a colour input (`@primitiv/react`), a Generate button, and
+4. GREEN: wire a colour input (`@primitiv-ui/react`), a Generate button, and
    a swatch list rendered straight from each swatch's `oklch` field.
 
 **Concepts:** harmoni-wasm in the iframe, init gating, mocking the wasm

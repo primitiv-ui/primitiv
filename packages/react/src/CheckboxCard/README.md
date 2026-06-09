@@ -7,7 +7,7 @@ including the tri-state ("mixed") variant. The entire card surface is the
 interactive element. Zero styles ship.
 
 ```tsx
-import { CheckboxCard } from "@primitiv/react";
+import { CheckboxCard } from "@primitiv-ui/react";
 
 <CheckboxCard.Root aria-label="Enable dark mode">
   <CheckboxCard.Indicator>

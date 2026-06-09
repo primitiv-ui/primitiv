@@ -1,4 +1,4 @@
-import { Divider } from "@primitiv/react";
+import { Divider } from "@primitiv-ui/react";
 
 import "./DividerExample.css";
 

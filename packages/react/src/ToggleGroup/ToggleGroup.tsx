@@ -276,7 +276,7 @@ type TToggleGroupCompound = typeof ToggleGroupRoot & {
  *
  * @example Single mode — text alignment
  * ```tsx
- * import { ToggleGroup } from "@primitiv/react";
+ * import { ToggleGroup } from "@primitiv-ui/react";
  *
  * <ToggleGroup.Root type="single" defaultValue="left" aria-label="Alignment">
  *   <ToggleGroup.Item value="left">Left</ToggleGroup.Item>

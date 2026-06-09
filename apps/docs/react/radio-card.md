@@ -10,7 +10,7 @@ implementing the
 The entire card surface is the interactive element. Zero styles ship.
 
 ```tsx
-import { RadioCard } from "@primitiv/react";
+import { RadioCard } from "@primitiv-ui/react";
 
 <RadioCard.Root defaultValue="pro" aria-label="Plan">
   <RadioCard.Item value="starter">

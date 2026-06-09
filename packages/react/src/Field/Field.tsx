@@ -204,7 +204,7 @@ type TFieldCompound = typeof FieldRoot & {
  *
  * @example Basic
  * ```tsx
- * import { Field, Input } from "@primitiv/react";
+ * import { Field, Input } from "@primitiv-ui/react";
  *
  * <Field.Root>
  *   <Field.Label>Email</Field.Label>

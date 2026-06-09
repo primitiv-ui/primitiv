@@ -4,7 +4,7 @@ A compound component implementing the
 [WAI-ARIA Accordion pattern](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/).
 
 ```tsx
-import { Accordion } from "@primitiv/react";
+import { Accordion } from "@primitiv-ui/react";
 
 <Accordion.Root defaultValue="shipping">
   <Accordion.Item value="shipping">

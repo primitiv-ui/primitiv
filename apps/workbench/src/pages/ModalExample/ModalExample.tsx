@@ -1,4 +1,4 @@
-import { Modal } from "@primitiv/react";
+import { Modal } from "@primitiv-ui/react";
 
 import "./ModalExample.css";
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Status } from "@primitiv/react";
+import { Status } from "@primitiv-ui/react";
 
 import "./StatusExample.css";
 

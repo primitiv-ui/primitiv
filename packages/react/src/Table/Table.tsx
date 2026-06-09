@@ -331,7 +331,7 @@ const TableCompound: TableCompound = Object.assign(Table, {
  *
  * @example Minimal usage
  * ```tsx
- * import { Table } from "@primitiv/react";
+ * import { Table } from "@primitiv-ui/react";
  *
  * export function Demo() {
  *   return (

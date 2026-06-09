@@ -167,8 +167,8 @@ Each example edit is its own small SCSS-only commit.
 
 ## Verification
 
-- **Per cycle:** `pnpm --filter @primitiv/react exec vitest run src/Carousel`.
-- **End of Phase A and Phase B:** `pnpm --filter @primitiv/react qa:units`
+- **Per cycle:** `pnpm --filter @primitiv-ui/react exec vitest run src/Carousel`.
+- **End of Phase A and Phase B:** `pnpm --filter @primitiv-ui/react qa:units`
   (full suite + 100% coverage). Watch coverage on the `snapAlign==="center"`
   inline branch, the `isUserScrollRef` skip, the `scrollBehavior==="instant"`
   branch, and the `firstSlideKey` undefined guard — add micro-tests if v8

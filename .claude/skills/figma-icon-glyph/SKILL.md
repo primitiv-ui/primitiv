@@ -1,9 +1,9 @@
 ---
 name: figma-icon-glyph
-description: End-to-end playbook for adding a new glyph to the Figma Icon component set AND the @primitiv/icons package, in the house line style. Covers the 1.5px stroke→outline build recipe, the offset-circle trick for arcs, the 5-size clone-and-rebind into the set, repositioning into the size bands, exporting the SVG, and the generate/README/test loop. TRIGGER when adding/drawing a new icon glyph (sun, moon, star, etc.), extending the Icon set, or adding an svg to packages/icons. SKIP for framed-control components, token work, and wireframes.
+description: End-to-end playbook for adding a new glyph to the Figma Icon component set AND the @primitiv-ui/icons package, in the house line style. Covers the 1.5px stroke→outline build recipe, the offset-circle trick for arcs, the 5-size clone-and-rebind into the set, repositioning into the size bands, exporting the SVG, and the generate/README/test loop. TRIGGER when adding/drawing a new icon glyph (sun, moon, star, etc.), extending the Icon set, or adding an svg to packages/icons. SKIP for framed-control components, token work, and wireframes.
 ---
 
-# Adding a new icon glyph (Figma Icon set + @primitiv/icons)
+# Adding a new icon glyph (Figma Icon set + @primitiv-ui/icons)
 
 One glyph touches two surfaces that must stay in sync:
 
@@ -154,8 +154,8 @@ path, `fill-rule="evenodd"` if it has holes / multiple subpaths (rays, rings):
 ## Step 5 — Generate, document, test
 
 ```sh
-pnpm --filter @primitiv/icons generate          # idempotent: only the new .tsx + barrel change
-pnpm --filter @primitiv/icons qa:units          # 100% coverage expected
+pnpm --filter @primitiv-ui/icons generate          # idempotent: only the new .tsx + barrel change
+pnpm --filter @primitiv-ui/icons qa:units          # 100% coverage expected
 ```
 
 - The generator regenerates **all** components from the svgs; `git status`

@@ -7,7 +7,7 @@
  * both sides import this module.
  */
 
-import type { FigmaResolvedType } from '@primitiv/tokens'
+import type { FigmaResolvedType } from '@primitiv-ui/tokens'
 
 /** Context options the Bootstrap context action accepts. */
 export type ContextName = 'comfortable' | 'compact' | 'spacious' | 'dense'

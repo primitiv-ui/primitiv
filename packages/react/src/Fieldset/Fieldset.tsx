@@ -82,7 +82,7 @@ const FieldsetCompound: FieldsetCompound = Object.assign(Fieldset, {
  *
  * @example Grouping a set of radios
  * ```tsx
- * import { Fieldset } from "@primitiv/react";
+ * import { Fieldset } from "@primitiv-ui/react";
  *
  * <Fieldset.Root>
  *   <Fieldset.Legend>Plan</Fieldset.Legend>

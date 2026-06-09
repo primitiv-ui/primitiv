@@ -1,6 +1,6 @@
 import { CSSProperties, useState } from "react";
 
-import { Carousel, RadioGroup, Slider } from "@primitiv/react";
+import { Carousel, RadioGroup, Slider } from "@primitiv-ui/react";
 
 import { carouselImages } from "../fixtures";
 import "./coverFlow.css";

@@ -46,8 +46,8 @@ but the spine is taking shape:
 - **Cross-environment translation.** The identity must survive the
   jump from Figma to the Web (and beyond) — the tokens, not the
   canvas, are the source of truth.
-- **One coherent ethos across the stack.** `@primitiv/react`,
-  `@primitiv/tokens`, and Harmoni are three expressions of the same
+- **One coherent ethos across the stack.** `@primitiv-ui/react`,
+  `@primitiv-ui/tokens`, and Harmoni are three expressions of the same
   principles, not three separate concerns.
 
 > Once settled, every axis position should trace back to one of these
@@ -146,7 +146,7 @@ regularises that.)
 **Materialization (Figma vs code).** Figma variables can't compute, so
 the rule *generates* the per-slot `framed-control/{size}/radius`
 values that alias `radii/*` (as today, but produced by the rule, not
-by hand). In `@primitiv/react` / `@primitiv/tokens` the radius can be
+by hand). In `@primitiv-ui/react` / `@primitiv-ui/tokens` the radius can be
 **computed** directly from the height token. Either way the *rule* is
 the source of truth; the tokens are its output.
 
@@ -176,7 +176,7 @@ and these are now positions, not proposals:
    composed from existing neutral tokens and **stacked in several
    layers** to get a realistic falloff — not a single flat drop
    shadow. This means an `elevation/*` token is a *set of layered
-   shadows*, not one shadow, which the token model (`@primitiv/tokens`
+   shadows*, not one shadow, which the token model (`@primitiv-ui/tokens`
    DTCG + Figma effect styles) must support.
 3. **Tooling.** Revisit the online layered-shadow generators to derive
    the layer stack rather than hand-tuning.

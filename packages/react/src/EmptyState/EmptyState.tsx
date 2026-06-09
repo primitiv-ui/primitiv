@@ -224,7 +224,7 @@ const EmptyState: EmptyStateCompound = Object.assign(EmptyStateRoot, {
  *
  * @example
  * ```tsx
- * import { EmptyState } from "@primitiv/react";
+ * import { EmptyState } from "@primitiv-ui/react";
  *
  * {results.length === 0 && (
  *   <EmptyState.Root>

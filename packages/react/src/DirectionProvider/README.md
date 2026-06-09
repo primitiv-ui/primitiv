@@ -9,7 +9,7 @@ Renders **no DOM** — only a React context provider.
 ## Usage
 
 ```tsx
-import { DirectionProvider } from "@primitiv/react";
+import { DirectionProvider } from "@primitiv-ui/react";
 
 <DirectionProvider dir="rtl">
   <Tabs.Root defaultValue="overview">…</Tabs.Root>
@@ -44,7 +44,7 @@ so it is always safe to call — direction-aware components use it as the
 default for an omitted `dir` prop:
 
 ```tsx
-import { useDirection } from "@primitiv/react";
+import { useDirection } from "@primitiv-ui/react";
 
 function MyControl({ dir }: { dir?: "ltr" | "rtl" }) {
   const resolvedDir = dir ?? useDirection();
@@ -57,6 +57,6 @@ function MyControl({ dir }: { dir?: "ltr" | "rtl" }) {
 - `DirectionProvider` never inspects the DOM. Setting `dir` on `<html>`
   (or another element) for CSS purposes remains the consumer's
   responsibility — this component only propagates the value to
-  `@primitiv/react` components.
+  `@primitiv-ui/react` components.
 - Providers nest: an inner `DirectionProvider` overrides an outer one for
   its subtree.

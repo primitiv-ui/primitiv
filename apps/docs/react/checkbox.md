@@ -15,7 +15,7 @@ support, `Indicator` mounting driven by the checked state, and the
 `asChild` composition every primitive in this package supports.
 
 ```tsx
-import { Checkbox } from "@primitiv/react";
+import { Checkbox } from "@primitiv-ui/react";
 
 <Checkbox.Root defaultChecked aria-label="Accept terms">
   <Checkbox.Indicator>

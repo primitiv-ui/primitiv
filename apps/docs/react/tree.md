@@ -9,7 +9,7 @@ collapsible groups of selectable rows, modelled on the WAI-ARIA tree
 pattern.
 
 ```tsx
-import { Tree } from "@primitiv/react";
+import { Tree } from "@primitiv-ui/react";
 
 <Tree.Root defaultExpandedValues={["src"]}>
   <Tree.Item value="readme">readme</Tree.Item>
@@ -256,8 +256,8 @@ non-final segments as plain `<li>` text and the leaf as a
 `label` prop fall back to their `value`.
 
 ```tsx
-import { Tree } from "@primitiv/react";
-import { ChevronRight } from "@primitiv/icons";
+import { Tree } from "@primitiv-ui/react";
+import { ChevronRight } from "@primitiv-ui/icons";
 
 <Tree.Root defaultSelectedValue="index">
   …
@@ -302,7 +302,7 @@ For UIs that don't fit the breadcrumb shape, two hooks expose the raw
 path data:
 
 ```ts
-import { useTreePath, useTreeSelectionPaths } from "@primitiv/react";
+import { useTreePath, useTreeSelectionPaths } from "@primitiv-ui/react";
 
 const path = useTreePath(value); // root → leaf for one value
 const paths = useTreeSelectionPaths(); // one path per selected value, in selection order

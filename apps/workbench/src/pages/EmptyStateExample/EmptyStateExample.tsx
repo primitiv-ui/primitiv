@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { EmptyState } from "@primitiv/react";
+import { EmptyState } from "@primitiv-ui/react";
 
 import "./EmptyStateExample.css";
 

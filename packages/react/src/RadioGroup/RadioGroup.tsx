@@ -324,7 +324,7 @@ type TRadioGroupCompound = typeof RadioGroupRoot & {
  *
  * @example Minimal usage
  * ```tsx
- * import { RadioGroup } from "@primitiv/react";
+ * import { RadioGroup } from "@primitiv-ui/react";
  *
  * <RadioGroup.Root defaultValue="compact" aria-label="Density">
  *   <RadioGroup.Item value="compact">

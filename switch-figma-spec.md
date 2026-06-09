@@ -175,7 +175,7 @@ Every component node — the Component Set itself, and any nested components (Tr
 ```
 Switch — headless, accessible binary toggle.
 
-React component: Switch from @primitiv/react
+React component: Switch from @primitiv-ui/react
   - Switch.Root  →  <button role="switch">
   - Switch.Thumb →  <span aria-hidden="true">
 

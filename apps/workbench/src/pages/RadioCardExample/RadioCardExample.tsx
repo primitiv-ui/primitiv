@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { RadioCard } from "@primitiv/react";
+import { RadioCard } from "@primitiv-ui/react";
 
 import "./RadioCardExample.css";
 

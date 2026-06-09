@@ -1,5 +1,5 @@
-import { Accordion } from "@primitiv/react";
-import { ChevronDown } from "@primitiv/icons";
+import { Accordion } from "@primitiv-ui/react";
+import { ChevronDown } from "@primitiv-ui/icons";
 
 import "./AccordionExample.css";
 

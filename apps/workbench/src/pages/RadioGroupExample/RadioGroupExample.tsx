@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { RadioGroup } from "@primitiv/react";
+import { RadioGroup } from "@primitiv-ui/react";
 
 import "./RadioGroupExample.css";
 

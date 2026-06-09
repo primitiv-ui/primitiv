@@ -9,7 +9,7 @@ implementing the standard
 [screen-reader-only pattern](https://www.w3.org/WAI/WCAG21/Techniques/css/C7).
 
 ```tsx
-import { VisuallyHidden } from "@primitiv/react";
+import { VisuallyHidden } from "@primitiv-ui/react";
 
 <button>
   <SearchIcon aria-hidden="true" />
@@ -28,7 +28,7 @@ import { VisuallyHidden } from "@primitiv/react";
 
 ## Functional styles
 
-Unlike other `@primitiv/react` components, `VisuallyHidden` ships inline
+Unlike other `@primitiv-ui/react` components, `VisuallyHidden` ships inline
 styles — the clip rectangle that removes content from the visual layout
 *is* the component's behaviour, not decoration:
 

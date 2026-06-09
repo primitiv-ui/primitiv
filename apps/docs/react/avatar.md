@@ -9,7 +9,7 @@ a graceful fallback for while it loads, or when it is missing or broken. Zero
 styles ship.
 
 ```tsx
-import { Avatar } from "@primitiv/react";
+import { Avatar } from "@primitiv-ui/react";
 
 <Avatar.Root>
   <Avatar.Image src="/users/ada.jpg" alt="Ada Lovelace" />

@@ -1,4 +1,4 @@
-import { VisuallyHidden } from "@primitiv/react";
+import { VisuallyHidden } from "@primitiv-ui/react";
 
 import "./VisuallyHiddenExample.css";
 

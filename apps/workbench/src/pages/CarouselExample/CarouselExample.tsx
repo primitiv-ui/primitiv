@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { Tabs } from "@primitiv/react";
+import { Tabs } from "@primitiv-ui/react";
 
 import {
   AutoPlay,

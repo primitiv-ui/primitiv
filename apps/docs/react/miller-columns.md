@@ -10,7 +10,7 @@ of vertical lists where selecting a node reveals its children in the
 next column to the right.
 
 ```tsx
-import { MillerColumns } from "@primitiv/react";
+import { MillerColumns } from "@primitiv-ui/react";
 
 function Node({ node }) {
   return (
@@ -187,7 +187,7 @@ To render content for whatever is selected, read the selection with
 the `useMillerColumnsSelection` hook from any component inside `Root`:
 
 ```tsx
-import { useMillerColumnsSelection } from "@primitiv/react";
+import { useMillerColumnsSelection } from "@primitiv-ui/react";
 
 function FilePreview() {
   const { path, selectedValue } = useMillerColumnsSelection();

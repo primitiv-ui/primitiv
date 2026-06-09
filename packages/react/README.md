@@ -1,4 +1,4 @@
-# @primitiv/react
+# @primitiv-ui/react
 
 Headless, accessible React components built on the
 [WAI-ARIA authoring patterns](https://www.w3.org/WAI/ARIA/apg/patterns/).
@@ -11,7 +11,7 @@ The package is part of the Primitiv monorepo. Within the workspace, import
 directly:
 
 ```tsx
-import { Tabs } from "@primitiv/react";
+import { Tabs } from "@primitiv-ui/react";
 ```
 
 ## Components

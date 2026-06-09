@@ -1,6 +1,6 @@
 # Roadmap
 
-Planning notes for the `@primitiv/react` headless component library.
+Planning notes for the `@primitiv-ui/react` headless component library.
 Two lists:
 
 1. **Components to build** — the master backlog.
@@ -12,7 +12,7 @@ Two lists:
 The six base components required to build the Harmoni plugin wireframe screens.
 Composite components (PaletteRamp, Swatch, etc.) are out of scope here.
 
-| Component | `@primitiv/react` | Figma design | Notes |
+| Component | `@primitiv-ui/react` | Figma design | Notes |
 |---|---|---|---|
 | Button | ✓ built | ✓ | Primary, secondary, ghost/link, and icon-only variants all appear |
 | Slider | ✓ built | ✓ | Horizontal (Padding control) and vertical (curve editors) |

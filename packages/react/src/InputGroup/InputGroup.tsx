@@ -191,7 +191,7 @@ type TInputGroupCompound = typeof InputGroupRoot & {
  *
  * @example Leading search icon
  * ```tsx
- * import { InputGroup, Input } from "@primitiv/react";
+ * import { InputGroup, Input } from "@primitiv-ui/react";
  *
  * <InputGroup>
  *   <InputGroup.LeadingAdornment>

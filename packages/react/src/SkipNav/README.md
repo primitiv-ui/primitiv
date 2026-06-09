@@ -6,7 +6,7 @@ screen-reader users bypass repeated navigation. Implements the
 technique.
 
 ```tsx
-import { SkipNav } from "@primitiv/react";
+import { SkipNav } from "@primitiv-ui/react";
 
 <>
   <SkipNav.Link>Skip to main content</SkipNav.Link>

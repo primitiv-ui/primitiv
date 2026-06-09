@@ -1,5 +1,5 @@
 import { ChangeEvent, useState } from "react";
-import { Switch, Tabs } from "@primitiv/react";
+import { Switch, Tabs } from "@primitiv-ui/react";
 
 import { Palette as ColorPalette } from "./Palette";
 import { useColors } from "./useColors";

@@ -7,7 +7,7 @@ on top of the native HTML
 No portal, no floating-ui — the browser handles layering and light-dismiss.
 
 ```tsx
-import { Dropdown } from "@primitiv/react";
+import { Dropdown } from "@primitiv-ui/react";
 
 <Dropdown.Root>
   <Dropdown.Trigger>Options</Dropdown.Trigger>

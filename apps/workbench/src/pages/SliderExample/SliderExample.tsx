@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Slider } from "@primitiv/react";
+import { Slider } from "@primitiv-ui/react";
 
 import "./SliderExample.css";
 

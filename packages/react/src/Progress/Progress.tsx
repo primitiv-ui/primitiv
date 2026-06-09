@@ -158,7 +158,7 @@ type TProgressCompound = typeof ProgressRoot & {
  *
  * @example Minimal usage
  * ```tsx
- * import { Progress } from "@primitiv/react";
+ * import { Progress } from "@primitiv-ui/react";
  *
  * <Progress.Root value={40} aria-label="Upload progress">
  *   <Progress.Indicator />

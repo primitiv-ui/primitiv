@@ -9,7 +9,7 @@ alongside optional leading and trailing adornments — icons, currency
 symbols, clear buttons, password-reveal toggles. Zero styles ship.
 
 ```tsx
-import { InputGroup, Input } from "@primitiv/react";
+import { InputGroup, Input } from "@primitiv-ui/react";
 
 <InputGroup>
   <InputGroup.LeadingAdornment>

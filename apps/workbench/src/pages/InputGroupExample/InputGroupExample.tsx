@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-import { Close, Eye, EyeOff, Mail, Search } from "@primitiv/icons";
-import { Input, InputGroup } from "@primitiv/react";
+import { Close, Eye, EyeOff, Mail, Search } from "@primitiv-ui/icons";
+import { Input, InputGroup } from "@primitiv-ui/react";
 
 import "./InputGroupExample.css";
 

@@ -10,10 +10,10 @@ import type {
   UiMessage,
   VariableSummary,
 } from "../shared/messages";
-import { Button } from "@primitiv/react";
-import { Close } from "@primitiv/icons";
-import { figmaVarsToDtcg } from "@primitiv/tokens";
-import type { DtcgFiles, DtcgGroup } from "@primitiv/tokens";
+import { Button } from "@primitiv-ui/react";
+import { Close } from "@primitiv-ui/icons";
+import { figmaVarsToDtcg } from "@primitiv-ui/tokens";
+import type { DtcgFiles, DtcgGroup } from "@primitiv-ui/tokens";
 
 type InspectResult = {
   collections: CollectionSummary[];

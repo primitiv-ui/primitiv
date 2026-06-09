@@ -85,7 +85,7 @@ docs commit later.
 ## Verify RED before committing
 
 ```sh
-pnpm --filter @primitiv/react exec vitest run src/<Component>
+pnpm --filter @primitiv-ui/react exec vitest run src/<Component>
 ```
 
 The run should fail with a module-not-found, a compile error, or an

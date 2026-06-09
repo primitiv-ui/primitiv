@@ -1,7 +1,7 @@
 import { FormEvent, useState } from "react";
 
-import { Mail } from "@primitiv/icons";
-import { Field, Input, InputGroup, Select, Textarea } from "@primitiv/react";
+import { Mail } from "@primitiv-ui/icons";
+import { Field, Input, InputGroup, Select, Textarea } from "@primitiv-ui/react";
 
 import "./FieldExample.css";
 

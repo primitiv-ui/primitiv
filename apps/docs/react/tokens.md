@@ -2,7 +2,7 @@
 title: Tokens
 ---
 
-# @primitiv/tokens
+# @primitiv-ui/tokens
 
 The DTCG-conformant token layer that sits between the Figma source of
 truth and any downstream consumer.

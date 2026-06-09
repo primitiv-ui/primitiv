@@ -12,9 +12,9 @@
     "qa:units:watch": "vitest --coverage"
   },
   "dependencies": {
-    "@primitiv/react": "workspace:*",
-    "@primitiv/icons": "workspace:*",
-    "@primitiv/tokens": "workspace:*",
+    "@primitiv-ui/react": "workspace:*",
+    "@primitiv-ui/icons": "workspace:*",
+    "@primitiv-ui/tokens": "workspace:*",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
   },

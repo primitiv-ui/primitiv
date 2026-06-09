@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-import { Check, Minus } from "@primitiv/icons";
-import { Checkbox, CheckedState } from "@primitiv/react";
+import { Check, Minus } from "@primitiv-ui/icons";
+import { Checkbox, CheckedState } from "@primitiv-ui/react";
 
 import "./CheckboxExample.css";
 

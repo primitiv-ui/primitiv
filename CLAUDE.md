@@ -73,7 +73,7 @@ are part of "done".
   footer line is still required.
 - **No per-cycle TodoWrite list.** Every cycle is the same shape.
 - **One test run per green check.**
-  `pnpm --filter @primitiv/react vitest run src/<Component>` is
+  `pnpm --filter @primitiv-ui/react vitest run src/<Component>` is
   enough. Skip full-suite + `--coverage` unless you suspect a
   coverage gap or a regression elsewhere.
 - **One- or two-sentence end-of-cycle summary.** The diff is the
@@ -173,7 +173,7 @@ keyword or by topic; do not paraphrase their content here.
   finishing a component design, checking whether descriptions are complete, or
   building a layout from existing components.
 - **`figma-icon-glyph`** — end-to-end playbook for adding a new glyph to
-  the Figma `Icon` component set (5 size variants) AND the `@primitiv/icons`
+  the Figma `Icon` component set (5 size variants) AND the `@primitiv-ui/icons`
   package: the house line style (1.5px stroke → `outlineStroke` → flatten to
   solid fill, butt caps / miter joins, ~2px padding), the `vectorPaths`
   H/V/A-command restriction and the offset-circle trick for arcs, the
@@ -202,15 +202,15 @@ keyword or by topic; do not paraphrase their content here.
 - `Palette` is a struct (`swatches` + `lightness_curve` + padding /
   `note` metadata), not a `Vec<Swatch>` type alias.
 - `packages/react` is the headless component library
-  (`@primitiv/react`). Component inventory lives at
+  (`@primitiv-ui/react`). Component inventory lives at
   `.claude/skills/new-react-component/_generated/component-inventory.md`.
 
 ## Useful commands
 
 ```sh
 cargo test --workspace                            # all Rust tests
-pnpm --filter @primitiv/react qa:units            # React tests + coverage
-pnpm --filter @primitiv/react exec vitest run src/X    # scoped, during a cycle
+pnpm --filter @primitiv-ui/react qa:units            # React tests + coverage
+pnpm --filter @primitiv-ui/react exec vitest run src/X    # scoped, during a cycle
 pnpm run build:wasm                               # rebuild wasm pkg
 pnpm run dev                                      # workbench dev server
 ```

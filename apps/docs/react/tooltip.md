@@ -22,7 +22,7 @@ via CSS Anchor Positioning — the component emits no inline styles.
 - `asChild` composition on Trigger and Arrow.
 
 ```tsx
-import { Tooltip } from "@primitiv/react";
+import { Tooltip } from "@primitiv-ui/react";
 
 <Tooltip.Provider>
   <Tooltip.Root>

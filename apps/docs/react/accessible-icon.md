@@ -8,7 +8,7 @@ Gives an icon-only control an accessible name, following the
 [icon accessibility guidance](https://www.sarasoueidan.com/blog/accessible-icon-buttons/).
 
 ```tsx
-import { AccessibleIcon } from "@primitiv/react";
+import { AccessibleIcon } from "@primitiv-ui/react";
 
 <button>
   <AccessibleIcon label="Close dialog">

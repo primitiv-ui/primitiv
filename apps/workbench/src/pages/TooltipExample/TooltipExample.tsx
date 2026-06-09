@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Tooltip } from "@primitiv/react";
+import { Tooltip } from "@primitiv-ui/react";
 
 import "./TooltipExample.css";
 

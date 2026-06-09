@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Alert } from "@primitiv/react";
+import { Alert } from "@primitiv-ui/react";
 
 import "./AlertExample.css";
 

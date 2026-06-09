@@ -390,7 +390,7 @@ type TabsCompound = typeof TabsRoot & {
  *
  * @example Minimal usage
  * ```tsx
- * import { Tabs } from "@primitiv/react";
+ * import { Tabs } from "@primitiv-ui/react";
  *
  * export function Demo() {
  *   return (

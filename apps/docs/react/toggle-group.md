@@ -8,7 +8,7 @@ A headless, accessible compound component that manages a group of pressable
 toggle buttons with roving-tabindex keyboard navigation.
 
 ```tsx
-import { ToggleGroup } from "@primitiv/react";
+import { ToggleGroup } from "@primitiv-ui/react";
 
 <ToggleGroup.Root type="single" defaultValue="left" aria-label="Alignment">
   <ToggleGroup.Item value="left">Left</ToggleGroup.Item>

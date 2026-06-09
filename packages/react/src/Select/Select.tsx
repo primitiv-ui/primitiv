@@ -168,7 +168,7 @@ type TSelectCompound = typeof SelectRoot & {
  *
  * @example Minimal usage
  * ```tsx
- * import { Select } from "@primitiv/react";
+ * import { Select } from "@primitiv-ui/react";
  *
  * <Select.Root defaultValue="apple" aria-label="Pick a fruit">
  *   <Select.Option value="apple">Apple</Select.Option>

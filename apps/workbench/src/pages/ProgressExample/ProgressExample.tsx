@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Progress } from "@primitiv/react";
+import { Progress } from "@primitiv-ui/react";
 
 import "./ProgressExample.css";
 

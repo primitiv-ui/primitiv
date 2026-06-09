@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 
-import { Carousel } from "@primitiv/react";
-import type { CarouselImperativeApi } from "@primitiv/react";
+import { Carousel } from "@primitiv-ui/react";
+import type { CarouselImperativeApi } from "@primitiv-ui/react";
 
 import { carouselImages } from "../fixtures";
 import "./programmatic.css";

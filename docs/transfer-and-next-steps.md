@@ -14,11 +14,11 @@ in [`../RELEASING.md`](../RELEASING.md); the full decision log (D1–D25) lives 
   - `create-primitiv-ui` — the `npm create primitiv-ui` scaffold
 - Placeholders live under `reserved/` (outside the pnpm workspace).
 
-## 🔐 Security cleanup (now / today)
+## 🔐 Security cleanup — done (2026-06-09)
 
-- [ ] Delete the `NPM_TOKEN` repo secret (Settings → Secrets and variables → Actions).
-- [ ] Revoke the granular npm token (npmjs.com → Access Tokens).
-- [ ] Optional: delete `.github/workflows/reserve-names.yml` — its one job is done.
+- [x] Deleted the `NPM_TOKEN` repo secret.
+- [x] Revoked the granular npm token.
+- [x] Removed `.github/workflows/reserve-names.yml` — its one job is done.
 
 ## 📦 Org transfer to `primitiv-ui` (the 16th) — detail in RELEASING.md §1
 

@@ -22,35 +22,17 @@ GitHub org changes no package name and requires no re-publish. The only
 transfer-coupled field is a `repository` URL — deliberately omitted from these
 placeholders, so they are transfer-proof.
 
-## Publishing (to actually claim the names)
+## Status — reserved ✅ (2026-06-09)
 
-npm has no "reserve without publish" — you claim a name by publishing it once,
-from the npm account that should own it.
+Both names are claimed. They were published as placeholders (**v0.0.1**) from the
+`simonrevill` npm account via a one-off GitHub Actions workflow
+(`reserve-names.yml`, since removed). The `NPM_TOKEN` secret and the npm token it
+held have been deleted / revoked.
 
-### From a computer
-
-```sh
-npm login
-( cd reserved/primitiv-ui        && npm publish )
-( cd reserved/create-primitiv-ui && npm publish )
-```
-
-### From a phone (no computer until later)
-
-You can't run `npm publish` in a normal mobile browser, but you can publish via
-GitHub Actions — every step works from your phone's browser:
-
-1. **npmjs.com** (mobile browser) → log in → *Access Tokens* → create a classic
-   **Automation** token (it can create brand-new packages).
-2. **GitHub** (mobile browser; use "Desktop site" if the menu is hidden) → repo
-   *Settings* → *Secrets and variables* → *Actions* → add a secret
-   `NPM_TOKEN` = that token.
-3. **Actions** tab → run the **"Reserve npm names (placeholders)"** workflow
-   (`.github/workflows/reserve-names.yml`).
-
-(Android power users could instead run `npm publish` inside Termux; iOS via iSH.
-The Actions route keeps the token out of a phone shell and is the recommended
-way.)
+- https://www.npmjs.com/package/primitiv-ui
+- https://www.npmjs.com/package/create-primitiv-ui
 
 Once the real CLI ships, these placeholders are replaced by the actual
-`primitiv-ui` / `create-primitiv-ui` builds at a higher version.
+`primitiv-ui` / `create-primitiv-ui` builds at a higher version (RFC 0005 §7).
+That release publishes via **Trusted Publishing** (tokenless) — no `NPM_TOKEN`
+needed again.

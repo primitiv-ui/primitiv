@@ -129,6 +129,91 @@ layer, RFC 0004 §3.3) in the chosen format. `--brand <hex>` required;
 Prints the registry's components, their versions, and whether each is installed
 in this project. `--json` emits the index as data for agents.
 
+### 2.6 Invocations by scenario
+
+The CLI package is **`primitiv-ui`**, the scaffold is **`create-primitiv-ui`**,
+and the command is always **`primitiv`**. Examples lead with pnpm (the repo's
+manager); the equivalents below cover npm, yarn, and bun.
+
+**Package-manager equivalence.**
+
+| Action | pnpm | npm | yarn | bun |
+|---|---|---|---|---|
+| Scaffold a project | `pnpm create primitiv-ui` | `npm create primitiv-ui` | `yarn create primitiv-ui` | `bun create primitiv-ui` |
+| One-off, no install | `pnpm dlx primitiv-ui <cmd>` | `npx primitiv-ui <cmd>` | `yarn dlx primitiv-ui <cmd>` | `bunx primitiv-ui <cmd>` |
+| Add as dev dependency | `pnpm add -D primitiv-ui` | `npm i -D primitiv-ui` | `yarn add -D primitiv-ui` | `bun add -d primitiv-ui` |
+| Run the installed bin | `pnpm exec primitiv <cmd>` | `npx primitiv <cmd>` | `yarn exec primitiv <cmd>` | `bunx primitiv <cmd>` |
+| Install globally | `pnpm add -g primitiv-ui` | `npm i -g primitiv-ui` | `yarn global add primitiv-ui` | `bun add -g primitiv-ui` |
+
+Notes: `dlx`/`global` forms assume **Yarn 2+ (Berry)**; on Yarn Classic use the
+npm forms (`npx`, `npm i -g`). Once `primitiv-ui` is a dependency, the everyday
+path is a `package.json` script — `"scripts": { "primitiv": "primitiv" }` — run
+as `pnpm primitiv add button` (and the equivalent for each manager).
+
+> **The cold-`npx primitiv` trap.** `npx primitiv` / `pnpm dlx primitiv` — note
+> the bare `primitiv`, *not* `primitiv-ui` — with no local install resolves the
+> unrelated `primitiv` npm package (Primitiv AI). Once `primitiv-ui` is
+> installed, the local `primitiv` bin shadows it, so `pnpm exec primitiv` /
+> `npx primitiv` are safe. For cold one-offs always name the package:
+> `pnpm dlx primitiv-ui …` / `npx primitiv-ui …`.
+
+**Scenario A — Greenfield, complete solution (Dev 2).**
+
+```sh
+pnpm create primitiv-ui            # scaffold: framework, styles? format, brand → primitiv.json
+primitiv add button switch         # ensure package + copy styles in the chosen format
+primitiv tokens                    # emit the token layer (format from config)
+```
+
+Without scaffolding: `pnpm add -D primitiv-ui && pnpm exec primitiv init`.
+
+**Scenario B — Headless only, own styling (Dev 1).** No CLI required:
+
+```sh
+pnpm add @primitiv-ui/react        # whole library; tree-shaking trims the unused
+```
+
+Or drive it through the CLI, explicitly skipping styles:
+
+```sh
+pnpm dlx primitiv-ui add button --no-styles
+```
+
+**Scenario C — Styles only, existing library e.g. Radix (Dev 3).**
+
+```sh
+pnpm add -D primitiv-ui
+pnpm exec primitiv add button --styles-only --format css
+pnpm exec primitiv add switch slider --styles-only        # several at once
+```
+
+**Scenario D — Tokens & theme in a chosen format.**
+
+```sh
+pnpm exec primitiv tokens --format scss --out src/styles/tokens.scss
+pnpm exec primitiv theme --brand "#0a7755" --format css   # Harmoni palette → theme overrides
+```
+
+**Scenario E — Agent / CI, non-interactive.**
+
+```sh
+pnpm dlx primitiv-ui list --json                          # discover components
+pnpm dlx primitiv-ui add button --yes --json              # deterministic install
+pnpm dlx primitiv-ui add button --dry-run --json          # plan, write nothing
+primitiv add button --yes --no-wiring --registry 0.1.0    # pin + skip config patching
+primitiv tokens --format css --cwd packages/app --yes     # explicit project dir
+```
+
+**Scenario F — Global or Rust-native (no per-project install).**
+
+```sh
+pnpm add -g primitiv-ui            # or: npm i -g primitiv-ui / bun add -g primitiv-ui
+primitiv add button                # bin on PATH
+
+cargo install <crate>              # Rust-native users (crate name confirmed at publish)
+primitiv add button
+```
+
 ---
 
 ## 3. `primitiv.json`

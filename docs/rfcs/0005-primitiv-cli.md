@@ -153,8 +153,12 @@ Global flags: `--json`, `--yes` (accept config defaults / confirmations),
 ### 2.1 `init`
 
 Detects the framework and package manager (from the lockfile — pnpm / npm /
-yarn / bun), then asks: example styles wanted? default format? brand colour?
-where copied files land. Writes `primitiv.json` (§3). The `pnpm create
+yarn / bun) **and any import alias** (from `tsconfig.json` / `jsconfig.json`
+`compilerOptions.paths`), then asks — each pre-filled with the detected value:
+example styles wanted? default format? brand colour? where copied files land?
+which import alias for generated code (§3.3). Each answer also has a flag
+(`--styles` / `--format` / `--brand` / `--path` / `--alias-components`), and
+`--yes` accepts the detected defaults. Writes `primitiv.json` (§3). The `pnpm create
 primitiv-ui` entry point (the `create-primitiv-ui` package, §7.2) runs `init`
 in an **existing** project; a from-scratch generator is deferred (§1.5.5), and
 `init` errors helpfully when run in an empty directory.
@@ -294,7 +298,7 @@ primitiv add button
     "path": "src/styles/primitiv/tokens.css"
   },
   "theme": { "brand": "#0a7755" },
-  "aliases": { "components": "@/components" },  // optional import-alias mapping
+  "aliases": { "components": "@/components" },  // detected from tsconfig paths; used for generated imports (§3.3)
   "registry": { "version": "0.1.0" }            // pin (see §6.4)
 }
 ```
@@ -306,6 +310,21 @@ cwd). In a monorepo each package may carry its own. Commands that don't need it
 (Principle 4) run without one; if a needed value is absent and the run is
 non-interactive, the command errors with a clear message and a stable exit code
 rather than prompting.
+
+### 3.3 Aliases (D32)
+
+`aliases` maps a logical target (e.g. `components`) to the consumer's import
+alias. `init` **detects** it from `tsconfig.json` / `jsconfig.json`
+`compilerOptions.paths` (Vite / Next configs normally mirror these), proposes it,
+and persists the confirmed value; `--alias-components <value>` sets it
+non-interactively. If the project has **no** alias, the CLI falls back to
+relative imports rather than inventing one.
+
+Because the model is hybrid — logic is an npm package, styles are copy-in CSS —
+the alias only matters for the **importable** outputs (the TS token object, the
+Tailwind recipe) and any generated `import` line; plain CSS / SCSS needs none.
+The map is therefore intentionally minimal (only the targets actually emitted),
+not a broad alias registry.
 
 ---
 
@@ -550,3 +569,4 @@ the libraries still publish to both. (Detail tracked in `RELEASING.md`.)
 | 9 | CLI configures an **existing** project (not a generator); **React-only** component logic; **tiered** support — Tier-0 anywhere / Tier-1 auto-wire / Tier-2 manual snippet | D26 |
 | 10 | v1 auto-wiring adapters = **Vite + React** and **Next.js**; Remix/Astro/unknown → manual fallback | D27 |
 | 11 | Greenfield generator **deferred**; v1 `create-primitiv-ui` runs `init` in an existing app | D28 |
+| 12 | `aliases` **detected** from tsconfig/jsconfig `paths` at `init`, overridable by prompt or `--alias-*` flag, persisted; relative-import fallback when absent; minimal set (only emitted targets) given the hybrid model | D32 |

@@ -275,6 +275,16 @@ Specified in RFC 0005; listed here for the pipeline's entry points:
    after the base tokens.)
 5. **Workbench styled-preview shape.** One combined themed gallery vs a styled
    variant of each existing per-component example page.
+6. **CSS Modules output — parked.** Not a v1 format (the four of D23 stand). CSS
+   Modules only localises *class names*; the contract's `data-*` and `--primitiv-*`
+   layers are global and module-safe, so the only friction is the root/modifier
+   **class** layer. Whether a clean `.module.css` emit is even possible hinges on
+   an RFC 0004 decision — *does the headless component hard-emit a fixed root
+   class (→ needs `:global()`, awkward) or rely on a consumer-applied
+   `className` (→ modules work naturally)?* Until that's settled, module projects
+   are served by importing the global `.css`/`.scss` contract stylesheet once at
+   the root while keeping modules for their own components. Revisit once the
+   contract's class-emission is pinned down.
 
 ---
 

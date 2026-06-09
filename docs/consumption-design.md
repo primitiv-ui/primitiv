@@ -445,6 +445,10 @@ The Agent profile is first-class, not bolted on:
 | D15 | `contract.json` is **hybrid**: the `data-*` half is auto-verified against the rendered component; modifier classes + custom properties are authored with the stylesheet |
 | D16 | Per-component subpath exports (`@primitiv-ui/react/button`) ship **alongside** the barrel (generated); tree-shaking still serves subsets |
 | D17 | Dev 3 reach: **document the contract boundary** for v1; no Radix testing or attribute shimming |
+| D18 | `add` refresh = **detect & prompt** on conflict (hash vs originally-written); `--force`/`--yes` flags; never silently clobber edits |
+| D19 | Project wiring (e.g. Tailwind preset registration) = **detect & offer to patch**; never silently edit a consumer-owned config |
+| D20 | CLI naming = unscoped **`primitiv`** (command) + **`create-primitiv`** (scaffold); platform binaries scoped `@primitiv-ui/cli-*`; libraries stay `@primitiv-ui/*` |
+| D21 | v1 platform matrix = common desktop set (`darwin-arm64/x64`, `linux-x64/arm64-gnu`, `win32-x64`); musl as fast-follow; `cargo install` fallback |
 
 ---
 
@@ -452,25 +456,23 @@ The Agent profile is first-class, not bolted on:
 
 To resolve before / within the RFCs:
 
-1. **Re-add refresh semantics** (§5.2): overwrite, three-way diff, or
-   skip-if-modified for copied style files the consumer may have edited.
-2. **Transitive dep resolution** when the consumer's chosen format needs
-   project-level wiring (e.g. registering the generated Tailwind preset in
-   their `tailwind.config`): how much does `add` automate vs. instruct?
+1. ~~Re-add refresh semantics~~ — **resolved (D18):** detect & prompt on
+   conflict; `--force`/`--yes`; never silently clobber edits. (RFC 0005 §4.2.)
+2. ~~Transitive wiring (auto vs instruct)~~ — **resolved (D19):** detect & offer
+   to patch; never silently edit a consumer config. (RFC 0005 §4.3.)
 3. ~~Per-component subpath exports~~ — **resolved (D16):** ship subpaths
    alongside the barrel; tree-shaking still serves subsets.
 4. ~~Emitter language / location~~ — **resolved (D12):** custom Rust emitter in
    the CLI.
-5. **CLI distribution — approach resolved (D13):** Biome/SWC
-   `optionalDependencies` per-platform packages + `cargo install`, scaffolded
-   with `cargo-dist`/napi-rs. Residual sub-questions: **which targets at
-   launch** (is `linux-x64-musl` / Alpine in scope for v1? `win32-arm64`?), the
-   **wrapper package name** (`primitiv` vs `@primitiv-ui/cli`), and the
-   `pnpm create @primitiv-ui` entry-point wiring.
+5. ~~CLI distribution~~ — **resolved (D13, D20, D21):** `optionalDependencies`
+   per-platform packages + `cargo install`; unscoped `primitiv`/`create-primitiv`
+   wrappers, scoped `@primitiv-ui/cli-*` binaries; common-desktop-gnu matrix with
+   musl as a fast-follow. (RFC 0005 §7.)
 6. ~~Dev 3 reach~~ — **resolved (D17):** document the contract boundary for v1;
    no Radix testing or attribute shimming.
 7. **Workbench role**: extend `apps/workbench` into the styling authoring
-   surface, or stand up a dedicated styled preview app.
+   surface, or stand up a dedicated styled preview app. *(Deferred to RFC 0006 —
+   style authoring.)*
 
 ---
 
@@ -485,6 +487,7 @@ Per D10, this doc is promoted into three tightly-scoped RFCs (matching the
   **Drafted →** `docs/rfcs/0004-consumption-distribution-and-styling-contract.md`.
 - **RFC 0005 — The Primitiv CLI & `primitiv.json`.** Sections 7, 8, 9.
   Surface, config, registry, agent affordances.
+  **Drafted →** `docs/rfcs/0005-primitiv-cli.md`.
 - **RFC 0006 — Token & style pipeline.** Sections 5 and 6. DTCG → formats,
   the one-design-many-formats emitter, the Figma-sourced default theme, and
   Harmoni's role in theming.

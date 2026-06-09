@@ -1,0 +1,20 @@
+{
+  "name": "primitiv-ui",
+  "version": "0.0.1",
+  "description": "Primitiv design system CLI (placeholder; in development). Headless components ship as @primitiv-ui/react, /icons, /tokens.",
+  "bin": {
+    "primitiv": "bin/primitiv.js"
+  },
+  "files": [
+    "bin"
+  ],
+  "keywords": [
+    "primitiv",
+    "primitiv-ui",
+    "design-system",
+    "cli"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

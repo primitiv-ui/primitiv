@@ -33,9 +33,9 @@ The moves:
    `contract.json` from RFC 0004 — fetched over HTTPS, no backend, doubling as
    the agent manifest (§6).
 5. **A Rust binary** distributed via the proven `optionalDependencies`
-   per-platform-package pattern, command name `primitiv` (unscoped), platform
-   binaries scoped under `@primitiv-ui/cli-*`, also installable via
-   `cargo install` (§7).
+   per-platform-package pattern: command `primitiv`, front-door packages
+   unscoped `primitiv-ui` / `create-primitiv-ui`, platform binaries scoped
+   `@primitiv-ui/cli-*`, also installable via `cargo install` (§7).
 
 ## 0.1 Scope
 
@@ -99,9 +99,9 @@ Global flags: `--json`, `--yes` (accept config defaults / confirmations),
 
 Detects the framework and package manager (from the lockfile — pnpm / npm /
 yarn / bun), then asks: example styles wanted? default format? brand colour?
-where copied files land. Writes `primitiv.json` (§3). The `pnpm create primitiv`
-/ `npx create-primitiv` entry point (§7.2) runs `init` in a new or existing
-project.
+where copied files land. Writes `primitiv.json` (§3). The `pnpm create
+primitiv-ui` entry point (the `create-primitiv-ui` package, §7.2) runs `init`
+in a new or existing project.
 
 ### 2.2 `add`
 
@@ -306,23 +306,41 @@ The CLI is a single Rust binary (design doc D13). It links `harmoni-core`
 natively for `theme`, houses the token emitter (RFC 0006), and reads/writes
 files and the registry. No Node runtime is involved in its execution.
 
-### 7.2 Package & command naming — unscoped `primitiv` (D20)
+### 7.2 Package & command naming — unscoped `primitiv-ui` front door (D20, D22)
 
-- **Command / wrapper package:** unscoped **`primitiv`** on npm, exposing the
-  `primitiv` bin. Bare invocation: `npx primitiv add button`.
-- **Scaffold entry:** unscoped **`create-primitiv`**, so `pnpm create primitiv`
-  / `npm create primitiv` run `init`.
+The unscoped **`primitiv`** package is **already owned by an unrelated product**
+— Primitiv AI (`primitiv-ai/primitiv`, a spec-driven-development engine for
+AI-assisted dev), `primitiv@1.0.7` published 2026-04-06 — so the bare
+`primitiv` package, `npm i primitiv`, and `npx primitiv` resolve to *them*. The
+front door is therefore the unscoped names that mirror our scope:
+
+- **CLI / wrapper package:** unscoped **`primitiv-ui`**, exposing the `primitiv`
+  bin. A bin name is a local symlink, unaffected by who owns the `primitiv`
+  *package*, so the command stays on-brand. Install `pnpm add -D primitiv-ui`;
+  run `primitiv add button` or `pnpm dlx primitiv-ui add button`.
+- **Scaffold entry:** unscoped **`create-primitiv-ui`**, so `pnpm create
+  primitiv-ui` / `npm create primitiv-ui` run `init`.
+- **Command (D22):** **`primitiv`**. No short global bin is shipped — two-letter
+  names are clash-prone (e.g. `pv` is the ubiquitous *pipe viewer*); power users
+  alias on their own machines, keeping that collision opt-in and theirs.
 - **Platform binaries:** scoped **`@primitiv-ui/cli-<target>`** (e.g.
-  `@primitiv-ui/cli-darwin-arm64`), listed in the `primitiv` wrapper's
-  `optionalDependencies`; the package manager installs only the matching one and
-  the wrapper's launcher resolves and execs it.
+  `@primitiv-ui/cli-darwin-arm64`), listed in the `primitiv-ui` wrapper's
+  `optionalDependencies`; the manager installs only the matching one and the
+  launcher resolves and execs it.
 - **Libraries are unaffected:** they stay `@primitiv-ui/{react,icons,tokens}`.
-- Also installable via `cargo install primitiv` for Rust-native users.
+- Also installable via `cargo install` for Rust-native users (crate/binary name
+  to confirm at publish).
 
-> **Dependency this creates:** the unscoped `primitiv` and `create-primitiv`
-> names must be secured on npm before launch, and kept in lockstep with the
-> `@primitiv-ui` scope. (Captured as a launch checklist item, not a design
-> risk.)
+> **Reserve now.** `primitiv-ui` and `create-primitiv-ui` are unscoped and
+> first-come — the `primitiv` situation is the cautionary tale. Publish minimal
+> placeholder packages to claim them ahead of launch. Scoped names
+> (`@primitiv-ui/*`) need no race — the scope is owned — so they can wait.
+> **JSR is not involved:** it has no unscoped names and does not host a native
+> binary; the CLI is an npm + Cargo story.
+
+> **Brand note (non-blocking):** Primitiv AI operates in adjacent
+> AI-assisted-dev tooling. The `@primitiv-ui` / `primitiv-ui` identity stays
+> distinct, but the spoken-brand overlap is worth tracking.
 
 ### 7.3 Platform matrix — common desktop set, gnu (D21)
 
@@ -335,7 +353,7 @@ covers any target not yet packaged.
 
 `publish.yml` grows a cross-platform **build matrix** and a target-aware order:
 build all targets → publish the `@primitiv-ui/cli-*` platform packages → publish
-the `primitiv` / `create-primitiv` wrappers (which depend on them).
+the `primitiv-ui` / `create-primitiv-ui` wrappers (which depend on them).
 `cargo-dist` (or napi-rs) scaffolds the matrix and the platform packages. JSR is
 source-only and does **not** carry the CLI binary — it's an npm + Cargo story;
 the libraries still publish to both. (Detail tracked in `RELEASING.md`.)
@@ -379,6 +397,7 @@ the libraries still publish to both. (Detail tracked in `RELEASING.md`.)
 | 2 | `primitiv.json` persists choices; commands stay config-less where possible | D7, §3 |
 | 3 | `add` refresh = **detect & prompt** on conflict; `--force`/`--yes` flags; never silently clobber edits | D18 |
 | 4 | Project wiring = **detect & offer to patch**; never silently edit a consumer config | D19 |
-| 5 | CLI naming = unscoped **`primitiv`** + **`create-primitiv`**; platform binaries scoped `@primitiv-ui/cli-*`; libraries stay `@primitiv-ui/*` | D20 |
+| 5 | CLI front door = unscoped **`primitiv-ui`** + **`create-primitiv-ui`** (bare `primitiv` is owned by Primitiv AI); platform binaries scoped `@primitiv-ui/cli-*`; libraries stay `@primitiv-ui/*`; reserve the unscoped names now (first-come), scoped can wait, JSR not involved for the CLI | D20 |
+| 8 | Command users type = **`primitiv`** (a local bin, unaffected by the package collision); no short global bin shipped (clash-prone, e.g. `pv` = pipe viewer); power users alias themselves | D22 |
 | 6 | Platform matrix = common desktop set (gnu); musl as fast-follow; `cargo install` fallback | D21 |
 | 7 | Registry = static `registry.json` + per-component files (incl. `contract.json`), pinned by version, agent-readable | D8, §6 |

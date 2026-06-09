@@ -447,8 +447,9 @@ The Agent profile is first-class, not bolted on:
 | D17 | Dev 3 reach: **document the contract boundary** for v1; no Radix testing or attribute shimming |
 | D18 | `add` refresh = **detect & prompt** on conflict (hash vs originally-written); `--force`/`--yes` flags; never silently clobber edits |
 | D19 | Project wiring (e.g. Tailwind preset registration) = **detect & offer to patch**; never silently edit a consumer-owned config |
-| D20 | CLI naming = unscoped **`primitiv`** (command) + **`create-primitiv`** (scaffold); platform binaries scoped `@primitiv-ui/cli-*`; libraries stay `@primitiv-ui/*` |
+| D20 | CLI front door = unscoped **`primitiv-ui`** + **`create-primitiv-ui`** (the bare `primitiv` npm name is owned by an unrelated product, Primitiv AI); platform binaries scoped `@primitiv-ui/cli-*`; libraries stay `@primitiv-ui/*`. Reserve the unscoped names **now** (first-come); scoped can wait (scope owned); JSR not involved for the CLI |
 | D21 | v1 platform matrix = common desktop set (`darwin-arm64/x64`, `linux-x64/arm64-gnu`, `win32-x64`); musl as fast-follow; `cargo install` fallback |
+| D22 | Command users type = **`primitiv`** (a local bin, unaffected by the package-name collision); no short global bin shipped (clash-prone — e.g. `pv` = pipe viewer); power users alias on their own machines |
 
 ---
 

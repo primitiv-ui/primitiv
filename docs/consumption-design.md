@@ -453,6 +453,9 @@ The Agent profile is first-class, not bolted on:
 | D23 | Token emitter produces **all four formats from day one**: CSS custom properties (canonical), SCSS, TS/JS object, Tailwind preset — from one Rust emitter |
 | D24 | v1 ships **light theme + dark tokens** (dark ramps already exist as Figma Intent Light/Dark modes); no bespoke per-component dark CSS; dark **values stay evolvable** (consumers depend on `--primitiv-*` names, not values) |
 | D25 | Default theme authored & visually checked by **extending `apps/workbench`** with a styled preview (a conscious exception to the "leave the workbench alone" rule) |
+| D26 | CLI configures an **existing** project, never generates one; **React-only** component logic (the `framework` field is forward-looking); **tiered** support — Tier-0 (install/tokens/styles) works anywhere, Tier-1 auto-wiring for a maintained set, Tier-2 prints a manual snippet so unknown setups degrade rather than fail |
+| D27 | v1 first-class auto-wiring = **Vite + React** and **Next.js**; Remix / Astro / unknown fall back to the manual snippet |
+| D28 | A from-scratch project generator is **deferred past v1**; `create-primitiv-ui` is name-reserved but in v1 just runs `init` in an already-created app (errors helpfully on an empty dir) |
 
 ---
 

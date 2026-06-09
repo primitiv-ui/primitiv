@@ -39,9 +39,9 @@ The moves:
 
 ## 0.1 Scope
 
-In scope: the command surface, `primitiv.json`, the `add`/refresh/wiring
-behaviour, the registry file format, agent affordances, and CLI
-implementation/distribution. The token **transform** itself (DTCG → formats)
+In scope: the command surface, the prerequisites & supported-environment limits
+(§1.5), `primitiv.json`, the `add`/refresh/wiring behaviour, the registry file
+format, agent affordances, and CLI implementation/distribution. The token **transform** itself (DTCG → formats)
 and the per-component style authoring are specified in RFC 0006; this RFC only
 defines the commands that *drive* them. The styling contract is RFC 0004.
 
@@ -81,6 +81,61 @@ registry files, and that is cacheable.
 
 ---
 
+## 1.5 Prerequisites & supported environments
+
+The CLI configures Primitiv **into a project the consumer already has**. This
+section defines what it assumes and how far its framework knowledge extends — the
+limits of v1.
+
+### 1.5.1 An existing project, not a generator (D26)
+
+`init` / `add` assume a Node package with a `package.json`, a React setup, and a
+bundler. The CLI **detects and configures**; it never creates the framework or
+the app. Run in an empty directory it errors with a pointer ("create an app
+first — e.g. `npm create vite` / `create-next-app` — then `primitiv init`"),
+rather than scaffolding one.
+
+### 1.5.2 React only (D26)
+
+Component logic ships for **React** only. Vue / Svelte / Angular / Solid are out
+of scope until headless logic exists for them. The `primitiv.json` `framework`
+field is **forward-looking, not load-bearing** — it records `"react"` and
+reserves room, but no non-React path is built (resolves the old Open Q5).
+
+### 1.5.3 Tiered support — degrade, don't fail
+
+The CLI's dependence on framework knowledge is layered, so an unrecognised setup
+is still useful rather than blocked:
+
+| Tier | Capability | Framework knowledge | Availability |
+|---|---|---|---|
+| **0** | install `@primitiv-ui/react`, `tokens` emit, `add --styles-only` | none — writes files / adds a dep | **any** Node project |
+| **1** | auto-wiring: global-CSS location, Tailwind config, import aliases, RSC `"use client"` boundaries | a maintained per-framework adapter | the supported set (§1.5.4) |
+| **2** | unknown / unsupported setup | none — prints the exact wiring snippet to add by hand (the `--no-wiring` path, §4.3) | everywhere else |
+
+Tier 2 is the floor: the CLI always copies styles and emits tokens, and where it
+can't auto-wire it tells you precisely what to add. We therefore build auto-wiring
+adapters only for a short, deliberate list — never "every architecture."
+
+### 1.5.4 v1 auto-wiring set (D27)
+
+First-class **Tier-1** adapters in v1: **Vite + React** and **Next.js** (the two
+dominant React setups; Next includes the App-Router `"use client"` boundary and
+its Tailwind / global-CSS conventions). **Remix / React-Router and Astro** are a
+fast-follow; until then they — and any unknown setup — take the Tier-2 manual
+path.
+
+### 1.5.5 Greenfield is deferred (D28)
+
+A from-scratch project generator is **out of scope for v1**. `create-primitiv-ui`
+exists and the name is reserved, but in v1 it simply runs `init` against an
+already-created app (erroring helpfully on an empty dir) — it does **not**
+scaffold a framework. A blessed starter template (likely Vite + React) is
+deferred post-v1; for now, bring your own app via `create-vite` /
+`create-next-app`, then `init`.
+
+---
+
 ## 2. Command surface
 
 ```sh
@@ -101,7 +156,8 @@ Detects the framework and package manager (from the lockfile — pnpm / npm /
 yarn / bun), then asks: example styles wanted? default format? brand colour?
 where copied files land. Writes `primitiv.json` (§3). The `pnpm create
 primitiv-ui` entry point (the `create-primitiv-ui` package, §7.2) runs `init`
-in a new or existing project.
+in an **existing** project; a from-scratch generator is deferred (§1.5.5), and
+`init` errors helpfully when run in an empty directory.
 
 ### 2.2 `add`
 
@@ -139,14 +195,15 @@ manager); the equivalents below cover npm, yarn, and bun.
 
 | Action | pnpm | npm | yarn | bun |
 |---|---|---|---|---|
-| Scaffold a project | `pnpm create primitiv-ui` | `npm create primitiv-ui` | `yarn create primitiv-ui` | `bun create primitiv-ui` |
+| Set up in an existing app¹ | `pnpm create primitiv-ui` | `npm create primitiv-ui` | `yarn create primitiv-ui` | `bun create primitiv-ui` |
 | One-off, no install | `pnpm dlx primitiv-ui <cmd>` | `npx primitiv-ui <cmd>` | `yarn dlx primitiv-ui <cmd>` | `bunx primitiv-ui <cmd>` |
 | Add as dev dependency | `pnpm add -D primitiv-ui` | `npm i -D primitiv-ui` | `yarn add -D primitiv-ui` | `bun add -d primitiv-ui` |
 | Run the installed bin | `pnpm exec primitiv <cmd>` | `npx primitiv <cmd>` | `yarn exec primitiv <cmd>` | `bunx primitiv <cmd>` |
 | Install globally | `pnpm add -g primitiv-ui` | `npm i -g primitiv-ui` | `yarn global add primitiv-ui` | `bun add -g primitiv-ui` |
 
-Notes: `dlx`/`global` forms assume **Yarn 2+ (Berry)**; on Yarn Classic use the
-npm forms (`npx`, `npm i -g`). Once `primitiv-ui` is a dependency, the everyday
+Notes: ¹ `create primitiv-ui` runs `init` in an app you've already created — v1
+ships no from-scratch generator (§1.5.5). `dlx`/`global` forms assume **Yarn 2+
+(Berry)**; on Yarn Classic use the npm forms (`npx`, `npm i -g`). Once `primitiv-ui` is a dependency, the everyday
 path is a `package.json` script — `"scripts": { "primitiv": "primitiv" }` — run
 as `pnpm primitiv add button` (and the equivalent for each manager).
 
@@ -157,15 +214,17 @@ as `pnpm primitiv add button` (and the equivalent for each manager).
 > `npx primitiv` are safe. For cold one-offs always name the package:
 > `pnpm dlx primitiv-ui …` / `npx primitiv-ui …`.
 
-**Scenario A — Greenfield, complete solution (Dev 2).**
+**Scenario A — Existing app, complete solution (Dev 2).** Bring an app first
+(e.g. `pnpm create vite` / `create-next-app`), then:
 
 ```sh
-pnpm create primitiv-ui            # scaffold: framework, styles? format, brand → primitiv.json
+pnpm create primitiv-ui            # runs `init` in the app: styles? format, brand → primitiv.json
 primitiv add button switch         # ensure package + copy styles in the chosen format
 primitiv tokens                    # emit the token layer (format from config)
 ```
 
-Without scaffolding: `pnpm add -D primitiv-ui && pnpm exec primitiv init`.
+Equivalent without the create alias: `pnpm add -D primitiv-ui && pnpm exec
+primitiv init`. (A from-scratch generator is deferred, §1.5.5.)
 
 **Scenario B — Headless only, own styling (Dev 1).** No CLI required:
 
@@ -404,7 +463,8 @@ front door is therefore the unscoped names that mirror our scope:
   *package*, so the command stays on-brand. Install `pnpm add -D primitiv-ui`;
   run `primitiv add button` or `pnpm dlx primitiv-ui add button`.
 - **Scaffold entry:** unscoped **`create-primitiv-ui`**, so `pnpm create
-  primitiv-ui` / `npm create primitiv-ui` run `init`.
+  primitiv-ui` / `npm create primitiv-ui` run `init` in an existing app — v1 does
+  no framework generation (§1.5.5).
 - **Command (D22):** **`primitiv`**. No short global bin is shipped — two-letter
   names are clash-prone (e.g. `pv` is the ubiquitous *pipe viewer*); power users
   alias on their own machines, keeping that collision opt-in and theirs.
@@ -469,8 +529,9 @@ the libraries still publish to both. (Detail tracked in `RELEASING.md`.)
 4. **Package-manager coverage (§2.1).** pnpm / npm / yarn / bun are detected
    from the lockfile; confirm Deno (and bun's workspace quirks) are out of scope
    for v1.
-5. **`add` for non-React frameworks.** `framework` is in `primitiv.json` but v1
-   ships React only; confirm the field is forward-looking, not load-bearing yet.
+5. ~~`add` for non-React frameworks.~~ **Resolved (D26, §1.5.2):** React-only
+   component logic; the `primitiv.json` `framework` field is forward-looking, not
+   load-bearing.
 
 ---
 
@@ -486,3 +547,6 @@ the libraries still publish to both. (Detail tracked in `RELEASING.md`.)
 | 8 | Command users type = **`primitiv`** (a local bin, unaffected by the package collision); no short global bin shipped (clash-prone, e.g. `pv` = pipe viewer); power users alias themselves | D22 |
 | 6 | Platform matrix = common desktop set (gnu); musl as fast-follow; `cargo install` fallback | D21 |
 | 7 | Registry = static `registry.json` + per-component files (incl. `contract.json`), pinned by version, agent-readable | D8, §6 |
+| 9 | CLI configures an **existing** project (not a generator); **React-only** component logic; **tiered** support — Tier-0 anywhere / Tier-1 auto-wire / Tier-2 manual snippet | D26 |
+| 10 | v1 auto-wiring adapters = **Vite + React** and **Next.js**; Remix/Astro/unknown → manual fallback | D27 |
+| 11 | Greenfield generator **deferred**; v1 `create-primitiv-ui` runs `init` in an existing app | D28 |

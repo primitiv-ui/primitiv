@@ -1,0 +1,97 @@
+name: Publish packages
+
+# Publishes the @primitiv-ui/* libraries to npm and JSR.
+#
+# Manual only by default, plus on a published GitHub Release. It never runs
+# on push — publishing is always a deliberate act.
+#
+# Auth is tokenless via OIDC (no long-lived secrets in the repo):
+#   - npm  uses Trusted Publishing + provenance (id-token: write).
+#   - JSR  uses its built-in GitHub Actions OIDC (id-token: write).
+#
+# PREREQUISITES — see RELEASING.md. This workflow will not succeed until:
+#   1. The publishable packages are publish-ready (private:false, real
+#      version, valid "exports" map). They are NOT yet.
+#   2. Each npm package has a Trusted Publisher configured on npmjs.com
+#      pointing at this repo + this workflow file.
+#   3. Each JSR package is linked to this GitHub repo in its JSR settings.
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+# Never let two publish runs race.
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # required for npm provenance/trusted publishing AND JSR OIDC
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.4.0
+
+      # harmoni-wasm is a workspace member other packages resolve against, so it
+      # must exist before `pnpm install` (same reason as the docs workflow).
+      - name: Build harmoni-wasm
+        run: wasm-pack build crates/harmoni-wasm --target web
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Regenerate the icon source from the SVGs before packing.
+      - name: Generate icons
+        run: pnpm --filter @primitiv-ui/icons generate
+
+      # Make sure the publishable packages are green before anything ships.
+      - name: Test
+        run: pnpm -r --filter "@primitiv-ui/react" --filter "@primitiv-ui/icons" --filter "@primitiv-ui/tokens" qa:units
+
+      # Ensure an npm new enough for OIDC Trusted Publishing.
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      # Recursive publish: skips private packages, rewrites workspace: ranges to
+      # real versions, and emits provenance. With a Trusted Publisher configured
+      # on npmjs.com this needs no token. If your npm/pnpm build can't do
+      # tokenless OIDC yet, uncomment the env block below and add the secret.
+      - name: Publish to npm
+        run: pnpm -r publish --access public --no-git-checks --provenance
+        # env:
+        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # JSR authenticates via OIDC automatically inside GitHub Actions.
+      # Each package must be linked to this repo in its JSR settings first.
+      - name: Publish to JSR
+        run: |
+          for pkg in packages/react packages/icons packages/tokens; do
+            echo "::group::jsr publish $pkg"
+            (cd "$pkg" && npx jsr publish)
+            echo "::endgroup::"
+          done

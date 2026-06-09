@@ -75,8 +75,9 @@ required by default.
 ### Principle 5 — Reach is honest
 
 Primitiv guarantees the contract on its own headless components. Applying the
-styles to a *different* component (Radix, etc.) works to the degree that
-component emits the same contract — a documented best-effort, not a promise.
+styles to a *different* component (Radix is one example; the same holds for any
+styleable third-party or in-house component) works to the degree that component
+emits the same contract — a documented best-effort, not a promise.
 
 ---
 
@@ -258,15 +259,19 @@ Aligning with RFC 0001 §9: the Button's intents are `primary`, `secondary`,
 
 The contract is deliberately built from conventions other headless libraries
 share — a root class plus `data-*` state attributes — so the example styles are
-*not* Primitiv-only by construction. But reuse on a non-Primitiv component is
-bounded by Principle 5:
+*not* Primitiv-only by construction. Radix appears here as a concrete example,
+but the point generalises to **any component library whose elements you can
+apply classes and attributes to** — Headless UI, Ark, React Aria, a bespoke
+in-house component, and so on. Reuse on a non-Primitiv component is bounded by
+Principle 5:
 
 - **On Primitiv-headless:** guaranteed. The component emits exactly the contract
   its stylesheet targets.
-- **On Radix / others:** works for every part of the contract that component
-  also emits. Where Radix uses the same `data-state` / `data-disabled`
-  conventions, state styling carries over; modifier classes (consumer-applied)
-  always carry over; gaps are where the other library names things differently.
+- **On any other styleable component:** works for every part of the contract
+  that component also emits. Where it uses the same `data-state` /
+  `data-disabled` conventions, state styling carries over; modifier classes
+  (consumer-applied) always carry over; gaps are where it names things
+  differently.
 
 **v1 position (decided, D17):** document the contract precisely and state the
 best-effort boundary. We do **not** commit to testing the styles against Radix

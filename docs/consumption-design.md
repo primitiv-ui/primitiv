@@ -450,6 +450,9 @@ The Agent profile is first-class, not bolted on:
 | D20 | CLI front door = unscoped **`primitiv-ui`** + **`create-primitiv-ui`** (the bare `primitiv` npm name is owned by an unrelated product, Primitiv AI); platform binaries scoped `@primitiv-ui/cli-*`; libraries stay `@primitiv-ui/*`. Reserve the unscoped names **now** (first-come); scoped can wait (scope owned); JSR not involved for the CLI |
 | D21 | v1 platform matrix = common desktop set (`darwin-arm64/x64`, `linux-x64/arm64-gnu`, `win32-x64`); musl as fast-follow; `cargo install` fallback |
 | D22 | Command users type = **`primitiv`** (a local bin, unaffected by the package-name collision); no short global bin shipped (clash-prone — e.g. `pv` = pipe viewer); power users alias on their own machines |
+| D23 | Token emitter produces **all four formats from day one**: CSS custom properties (canonical), SCSS, TS/JS object, Tailwind preset — from one Rust emitter |
+| D24 | v1 ships **light theme + dark tokens** (dark ramps already exist as Figma Intent Light/Dark modes); no bespoke per-component dark CSS; dark **values stay evolvable** (consumers depend on `--primitiv-*` names, not values) |
+| D25 | Default theme authored & visually checked by **extending `apps/workbench`** with a styled preview (a conscious exception to the "leave the workbench alone" rule) |
 
 ---
 
@@ -471,9 +474,9 @@ To resolve before / within the RFCs:
    musl as a fast-follow. (RFC 0005 §7.)
 6. ~~Dev 3 reach~~ — **resolved (D17):** document the contract boundary for v1;
    no Radix testing or attribute shimming.
-7. **Workbench role**: extend `apps/workbench` into the styling authoring
-   surface, or stand up a dedicated styled preview app. *(Deferred to RFC 0006 —
-   style authoring.)*
+7. ~~Workbench role~~ — **resolved (D25):** extend `apps/workbench` with a
+   styled preview surface (a conscious exception to the "leave the workbench
+   alone" rule). (RFC 0006 §7.)
 
 ---
 
@@ -492,6 +495,7 @@ Per D10, this doc is promoted into three tightly-scoped RFCs (matching the
 - **RFC 0006 — Token & style pipeline.** Sections 5 and 6. DTCG → formats,
   the one-design-many-formats emitter, the Figma-sourced default theme, and
   Harmoni's role in theming.
+  **Drafted →** `docs/rfcs/0006-token-and-style-pipeline.md`.
 
 ---
 

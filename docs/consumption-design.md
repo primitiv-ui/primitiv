@@ -129,22 +129,38 @@ Because CSS is coupled to DOM structure and component state, "give me
 Primitiv's Button styles for my component" only works if both sides expose
 the **same styling surface**. The contract *is* that surface.
 
-**Decision: the contract is a root identifier class + the `data-*` state
-attributes the headless components already emit.**
+**Decision: the contract has four parts — a root class, modifier classes,
+the `data-*` state attributes, and a CSS custom-property API.**
 
-- A **root class** identifies the component: `.primitiv-button`.
-- **State** is read from `data-*` attributes the headless layer already
-  sets: `data-state`, `data-disabled`, `data-orientation`, `data-loading`,
-  etc. (the `data-*` styling surface from the `react-component-patterns`
-  conventions).
-- A **CSS custom-property API** per component (`--primitiv-button-*`) is the
-  themable seam (see section 5).
+- A **root class** identifies the component: `.primitiv-button`,
+  `.primitiv-tabs`.
+- **Modifier classes** express *purely visual variants the headless layer
+  does not model* — tone/intent, size, emphasis: `.primitiv-button--primary`,
+  `.primitiv-button--lg`, `.primitiv-tabs--underline`. Applied by the consumer
+  (or by a copied-in recipe).
+- **`data-*` attributes** express *state and behavioural options the headless
+  layer already emits*: `data-state`, `data-disabled`, `data-loading`,
+  `data-orientation` (the `data-*` styling surface from the
+  `react-component-patterns` conventions). Styling reads these automatically;
+  the consumer wires nothing.
+- A **CSS custom-property API** per component (`--primitiv-*`) is the themable
+  seam (see section 5).
 
 ```css
-.primitiv-button { /* base, reads tokens via --primitiv-button-* */ }
-.primitiv-button[data-disabled] { /* … */ }
-.primitiv-button[data-loading] { /* … */ }
+.primitiv-tabs { /* base, reads tokens via --primitiv-tabs-* */ }
+.primitiv-tabs--underline { /* visual variant → a modifier class */ }
+.primitiv-tabs[data-orientation="vertical"] { /* behavioural → a data attr */ }
+.primitiv-button[data-disabled] { /* state → a data attr */ }
 ```
+
+**The data-vs-modifier rule.** If the headless component already reflects it —
+orientation flips keyboard navigation, `disabled`, open/closed state — style
+the **`data-*`** attribute; it is emitted for free and stays in sync with
+behaviour. If it is a look-only choice the headless layer does not know about —
+intent colour, size, emphasis — use a **modifier class**. This is the
+cva/shadcn convention and keeps *one*, not two, ways to express each thing.
+(So vertical tabs are `[data-orientation="vertical"]`, **not**
+`.primitiv-tabs--vertical` — orientation is behavioural.)
 
 Why this and not plain BEM-style classes or pre-styled wrappers:
 
@@ -208,6 +224,17 @@ This justifies investing in the token/theming layer (section 6): the
 default theme stays stable while consumers recolour and re-scale through
 tokens.
 
+**Default primary colour.** The default theme ships with Primitiv's own
+primary colour as the default value of the primary token (e.g.
+`--primitiv-color-primary`), regardless of format — design tokens, a Tailwind
+theme config, or otherwise. It is the *default, not a lock-in*. A consumer
+overrides it however they like: their own CSS custom properties, a palette
+generated from the **Harmoni** Rust library or the Harmoni Figma plugin, or any
+other method. Because Harmoni derives a full, contrast-checked palette from a
+single brand colour, the canonical re-skin path is "set your brand colour →
+regenerate the palette with Harmoni → override the token set" — but nothing
+forces it; a hand-edited custom property works just as well.
+
 ### 5.4 One look, many formats
 
 A consumer picks the format that fits their stack; **all formats look
@@ -249,9 +276,22 @@ Figma variables ──(sync plugin)──► DTCG JSON (@primitiv-ui/tokens)
 ```
 
 - **Input:** the DTCG JSON already in `@primitiv-ui/tokens`.
-- **Transform:** either Style Dictionary or a small homegrown emitter — the
-  DTCG types already exist in the package. Outputs CSS custom properties
-  (canonical), SCSS, a TS/JS token object, and a Tailwind preset.
+- **Transform — lean toward a custom emitter over Style Dictionary.** The CLI
+  is Rust and the goal is a single self-contained binary (section 7); a Rust
+  emitter living *in* the CLI gives `primitiv tokens` and `primitiv theme` with
+  zero Node dependency, whereas Style Dictionary forces either a bundled Node
+  runtime or a separate JS build step the Rust CLI shells out to — both
+  undercut the single-binary story. Primitiv's layered token model
+  (primitives → intent → role → anatomy → interaction → component, plus density
+  contexts — RFC 0001) is bespoke enough that you would be writing custom Style
+  Dictionary transforms anyway, and a custom emitter gives full control over the
+  contract-specific output (`--primitiv-*` naming, the per-component
+  custom-property API). DTCG is just JSON — serde parses it in Rust directly;
+  the existing `dtcg.ts` types are a *spec reference to port*, not reusable Rust
+  code, so it is net-new (but not much) Rust. **Fallback** if TS comfort wins: a
+  TS emitter in `@primitiv-ui/tokens` as a build step, accepting that
+  `primitiv tokens` then needs Node present. Outputs either way: CSS custom
+  properties (canonical), SCSS, a TS/JS token object, and a Tailwind preset.
 - **Harmoni belongs here.** The Rust CLI can call the Harmoni **core crate
   directly** (no wasm) to generate a brand palette locally and emit it as a
   theme: `primitiv theme --brand "#0a7755"`. This is the one place the Rust
@@ -361,7 +401,7 @@ The Agent profile is first-class, not bolted on:
 |---|---|
 | D1 | Hybrid model: logic = versioned package, styles = opt-in copy-in |
 | D2 | No second "styled components" package |
-| D3 | Styling contract = root class + `data-*` state attributes + `--primitiv-*` custom-property API |
+| D3 | Styling contract = root class + modifier classes (visual variants) + `data-*` (state/behavioural) + `--primitiv-*` custom-property API; the data-vs-modifier rule decides which surface a given option uses |
 | D4 | Example styles = copy-in **editable** source, owned by the consumer |
 | D5 | Example styles = **polished default theme**, re-skinned via tokens, **ported from Figma** |
 | D6 | One visual design, emitted in many formats (CSS/SCSS/Tailwind/…), all token-derived |
@@ -369,6 +409,8 @@ The Agent profile is first-class, not bolted on:
 | D8 | Registry = **static** `registry.json` + files, no backend |
 | D9 | Agent support is first-class: static manifest + non-interactive `--json` CLI |
 | D10 | Capture as **split RFCs** 0004 / 0005 / 0006 (this doc seeds them) |
+| D11 | Default theme's default primary = Primitiv's own primary colour; a default, not a lock-in — overridable via tokens / CSS custom properties / a Harmoni-generated palette (Rust lib or Figma plugin) |
+| D12 | Token transform leans **custom emitter** (likely Rust, inside the CLI) over Style Dictionary, to preserve the single-binary story; language/location to confirm (§11) |
 
 ---
 
@@ -383,8 +425,10 @@ To resolve before / within the RFCs:
    their `tailwind.config`): how much does `add` automate vs. instruct?
 3. **Per-component subpath exports** for Dev 1's "install specific
    components" — confirm tree-shaking alone is sufficient, or add subpaths.
-4. **Transform tool**: Style Dictionary vs. homegrown emitter over the
-   existing DTCG types.
+4. **Emitter language / location** (D12 leans custom): a Rust emitter inside
+   the CLI (preserves the single-binary story) vs. a TS emitter in
+   `@primitiv-ui/tokens` (reuses `dtcg.ts`, but `primitiv tokens` then needs
+   Node). Ties directly to the CLI-distribution question (#5).
 5. **CLI distribution**: a `create-primitiv` npm shim that downloads the
    Rust binary, a pure-npm fallback, `cargo install`, `pnpm dlx` — what's
    the canonical invocation, and how do we ship a Rust binary to JS users

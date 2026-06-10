@@ -1,7 +1,25 @@
 use pretty_assertions::assert_eq;
 
-use crate::alias::{resolve_against_base, resolve_aliases};
+use crate::alias::{link_aliases, resolve_against_base, resolve_aliases};
 use crate::token::Token;
+
+#[test]
+fn rewrites_alias_values_as_var_references_and_leaves_literals_untouched() {
+    let tokens = vec![
+        Token::new(&["action", "primary"], "{color.brand.500}"),
+        Token::new(&["color", "brand", "500"], "oklch(0.55 0.13 162)"),
+    ];
+
+    let linked = link_aliases(tokens);
+
+    assert_eq!(
+        linked,
+        vec![
+            Token::new(&["action", "primary"], "var(--primitiv-color-brand-500)"),
+            Token::new(&["color", "brand", "500"], "oklch(0.55 0.13 162)"),
+        ]
+    );
+}
 
 #[test]
 fn resolves_a_mode_alias_against_the_base_and_returns_only_the_mode_tokens() {

@@ -42,8 +42,27 @@ pub fn resolve_against_base(base: &[Token], mode_tokens: Vec<Token>) -> Vec<Toke
     resolve_aliases(namespace).split_off(split)
 }
 
+/// Rewrite DTCG alias values as CSS `var()` references for emission
+/// (RFC 0006 §4.3, the var()-chain decision): `{color.brand.500}` becomes
+/// `var(--primitiv-color-brand-500)`. Non-alias values are left untouched.
+///
+/// Unlike [`resolve_aliases`] (which inlines the target value for the TS object
+/// and theme-value computation), this preserves the indirection so a later
+/// override of the referenced custom property still propagates.
+pub fn link_aliases(tokens: Vec<Token>) -> Vec<Token> {
+    tokens
+        .into_iter()
+        .map(|mut token| {
+            if let Some(target) = alias_target(&token.value) {
+                token.value = format!("var(--primitiv-{})", target.replace('.', "-"));
+            }
+            token
+        })
+        .collect()
+}
+
 /// The dotted path inside a `{…}` alias, or `None` for a literal value.
-fn alias_target(value: &str) -> Option<&str> {
+pub(crate) fn alias_target(value: &str) -> Option<&str> {
     value
         .strip_prefix('{')
         .and_then(|inner| inner.strip_suffix('}'))

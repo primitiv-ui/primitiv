@@ -6,6 +6,7 @@ use crate::alias::link_aliases;
 use crate::css::{emit_css, Scope};
 use crate::dtcg::{flatten_modes, tokens_from_dtcg};
 use crate::mode::{scope_selectors, Axis};
+use crate::scss::emit_scss;
 use crate::token::Token;
 
 /// The routed DTCG documents for a token emit. Routing comes from the CLI (the
@@ -24,13 +25,27 @@ pub struct TokenSources<'a> {
 /// per theme mode and per density mode, with aliases linked as `var()`
 /// references — all inside `@layer primitiv.tokens`.
 pub fn emit_tokens_css(sources: &TokenSources) -> String {
+    emit_css(&token_scopes(sources))
+}
+
+/// Emit the same shared token surface as SCSS (RFC 0006 §4.2): the canonical CSS
+/// followed by `$primitiv-*` variables resolving to the custom properties — the
+/// thinnest adapter over the CSS, identical values across both formats.
+pub fn emit_tokens_scss(sources: &TokenSources) -> String {
+    emit_scss(&token_scopes(sources))
+}
+
+/// Build the ordered mode scopes for a token emit: the mode-independent base in
+/// `:root`, then one block per theme mode and per density mode, with aliases
+/// linked as `var()` references. Shared by every serialiser.
+fn token_scopes(sources: &TokenSources) -> Vec<Scope> {
     let mut scopes = vec![Scope {
         selectors: vec![":root".to_string()],
         tokens: base_tokens(sources.base),
     }];
     scopes.extend(axis_scopes(&Axis::Theme, sources.theme));
     scopes.extend(axis_scopes(&Axis::Density, sources.density));
-    emit_css(&scopes)
+    scopes
 }
 
 /// Flatten the single-mode documents into one mode-independent token list,

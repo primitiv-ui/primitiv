@@ -20,6 +20,24 @@ pub fn tokens_from_dtcg(root: &Value) -> Vec<Token> {
     tokens
 }
 
+/// Split a multi-mode DTCG document into per-mode token groups (RFC 0009 §2.2).
+///
+/// Multi-mode collections (`palette`, `intent`, `context`) put the **mode** as
+/// the top-level key (`light`/`dark`, or a density). Each top-level entry is one
+/// mode; its subtree is flattened with [`tokens_from_dtcg`], so the mode segment
+/// is stripped from the token names and survives only as the returned mode
+/// label. The labels map to `[data-theme]` / `[data-density]` scopes in a later
+/// cycle.
+pub fn flatten_modes(document: &Value) -> Vec<(String, Vec<Token>)> {
+    let mut modes = Vec::new();
+    if let Some(map) = document.as_object() {
+        for (mode, subtree) in map {
+            modes.push((mode.clone(), tokens_from_dtcg(subtree)));
+        }
+    }
+    modes
+}
+
 fn collect(map: &Map<String, Value>, path: &mut Vec<String>, out: &mut Vec<Token>) {
     for (key, child) in map {
         if key.starts_with('$') {

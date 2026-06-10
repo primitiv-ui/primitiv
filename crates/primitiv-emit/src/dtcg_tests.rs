@@ -1,8 +1,31 @@
 use pretty_assertions::assert_eq;
 use serde_json::json;
 
-use crate::dtcg::tokens_from_dtcg;
+use crate::dtcg::{flatten_modes, tokens_from_dtcg};
 use crate::token::Token;
+
+#[test]
+fn splits_a_multi_mode_document_into_per_mode_token_groups() {
+    let dtcg = json!({
+        "light": { "color": { "bg": { "$type": "color", "$value": "#fff" } } },
+        "dark":  { "color": { "bg": { "$type": "color", "$value": "#111" } } }
+    });
+
+    let modes = flatten_modes(&dtcg);
+
+    assert_eq!(
+        modes,
+        vec![
+            ("dark".to_string(), vec![Token::new(&["color", "bg"], "#111")]),
+            ("light".to_string(), vec![Token::new(&["color", "bg"], "#fff")]),
+        ]
+    );
+}
+
+#[test]
+fn yields_no_modes_when_the_document_is_not_a_group() {
+    assert_eq!(flatten_modes(&json!(42)), Vec::<(String, Vec<Token>)>::new());
+}
 
 #[test]
 fn flattens_nested_dtcg_groups_into_tokens() {

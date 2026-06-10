@@ -1,0 +1,53 @@
+name: Rust
+
+# The Rust test + coverage gate (RFC 0007 §7). Before this, Rust ran in no
+# workflow. Two layers:
+#   - `cargo test --workspace` compiles and runs every crate (harmoni-core,
+#     harmoni-wasm, and the CLI crates), so the whole workspace is enforced.
+#   - `cargo llvm-cov` gates the CLI workspace (primitiv-emit + primitiv-cli)
+#     at 100% line coverage. The harmoni crates are excluded from the gate
+#     (their discipline is already established); excluding by name means new
+#     CLI crates fall under the gate automatically.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'crates/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.github/workflows/rust.yml'
+  pull_request:
+    paths:
+      - 'crates/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.github/workflows/rust.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
+
+      # Compile and test every crate in the workspace.
+      - name: Test
+        run: cargo test --workspace
+
+      # Gate the CLI workspace at 100% line coverage. Excluding the harmoni
+      # crates by name keeps future CLI crates (e.g. primitiv-emit) covered
+      # without editing this list.
+      - name: Coverage gate (CLI crates, 100%)
+        run: cargo llvm-cov --workspace --exclude harmoni-core --exclude harmoni-wasm --fail-under-lines 100

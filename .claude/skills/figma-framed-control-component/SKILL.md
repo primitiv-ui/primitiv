@@ -1,6 +1,6 @@
 ---
 name: figma-framed-control-component
-description: End-to-end playbook for building or extending a framed-control component set in Figma (Button, Switch, Checkbox, Toggle, Tabs/Trigger, …) bound to the design-system tokens — pre-flight checks, the clone-and-rebind technique for adding a context/variant/filling gaps, the incremental instance-preview audit loop, laying the set out with the arrange script, and verification. TRIGGER when building a new framed-control component in Figma, adding a density context or variant to an existing set, filling missing variant combinations, laying out a component set, or auditing one for token/geometry correctness. SKIP for React/Rust work, token export/backup (see figma-token-sync), wireframe styling lookups (see figma-wireframe-tokens), and pure variable/token-value questions (see figma-variable-architecture).
+description: End-to-end playbook for building or extending a framed-control component set in Figma (Button, Switch, Checkbox, Toggle, …) bound to the design-system tokens, including component-property wiring and non-framed form-field compositions (Field). TRIGGER when building, extending, laying out, or auditing a framed-control or form-field composition, adding a variant or filling missing combinations, or wiring icon/text/swap properties on a set. SKIP for React/Rust work, token export/backup (see figma-token-sync), wireframe styling lookups (see figma-wireframe-tokens), and pure variable/token-value questions (see figma-variable-architecture).
 ---
 
 # Building a framed-control component in Figma

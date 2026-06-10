@@ -1,6 +1,6 @@
 ---
 name: figma-console-scripts
-description: How to generate and run one-shot wireframe scripts in the Figma developer console — the "allow pasting" security step, full Plugin API access, font loading, and the end-to-end process for turning a UI description into a working script (gather requirements → lay out constants → write helpers → render layers). TRIGGER when generating wireframes, creating Figma content programmatically, or asked to write a script that creates frames/text/shapes in a Figma file. SKIP for plugin UI code, Figma token sync work, and anything involving the plugin sandbox (code.ts).
+description: How to write and run one-shot scripts in the Figma developer console — the "allow pasting" step, font loading, and the process for turning a UI description into a working script. TRIGGER when generating wireframes, creating Figma content programmatically, or asked to write a script that creates frames/text/shapes in a Figma file. SKIP for plugin UI code, Figma token sync work, and anything involving the plugin sandbox (code.ts).
 ---
 
 # Running scripts in the Figma developer console

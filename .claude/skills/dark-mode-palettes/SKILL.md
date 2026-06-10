@@ -1,6 +1,6 @@
 ---
 name: dark-mode-palettes
-description: How harmoni generates dark-mode palettes — the anchored two-segment lightness model, generate_dark_palette / generate_pair / PaletteSet, and the work deliberately deferred past v1. TRIGGER when working on dark palette generation, when changing generate_dark_palette or generate_pair, when asked why dark backgrounds stay dark for a pale brand, or when revisiting any deferred dark-mode item (cross-step contrast auditing, dark chroma scale, dark padding). SKIP for light-only palette work and pure React work.
+description: How harmoni generates dark-mode palettes (anchored two-segment lightness model) and the work deliberately deferred past v1. TRIGGER when working on dark palette generation, changing generate_dark_palette or generate_pair, asked why dark backgrounds stay dark for a pale brand, or revisiting a deferred dark-mode item. SKIP for light-only palette work and pure React work.
 ---
 
 # Dark mode palettes

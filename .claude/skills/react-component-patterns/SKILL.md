@@ -1,6 +1,6 @@
 ---
 name: react-component-patterns
-description: Reference for the architectural patterns shared by every headless component in packages/react — Slot/asChild, createStrictContext, useControllableState, useCollection, useRovingTabindex, stable ID derivation via deriveId, data-* styling hooks, React 19 ref-as-prop. TRIGGER when you see or need to write any of: "Slot", "asChild", "createStrictContext", "useControllableState", "useCollection", "useRovingTabindex", "deriveId", "compound component", "roving tabindex", "controllable state", "data-state", "data-orientation", "data-disabled", "ref-as-prop", "compose refs"; or when scaffolding a new compound component or wiring keyboard navigation / context for one. SKIP for read-only inspection turns and for non-React work.
+description: Reference for the architectural patterns shared by every headless component in packages/react. TRIGGER on any of: Slot, asChild, createStrictContext, useControllableState, useCollection, useRovingTabindex, deriveId, compound component, roving tabindex, controllable state, data-state/data-orientation/data-disabled, ref-as-prop, compose refs; or when scaffolding a compound component or wiring keyboard navigation / context for one. SKIP for read-only inspection turns and for non-React work.
 ---
 
 # React component patterns

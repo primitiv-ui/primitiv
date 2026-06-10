@@ -1,6 +1,6 @@
 ---
 name: harmoni-architecture-history
-description: The settled shape of the harmoni palette engine — what Steps C, D, A, B did, the ColorInput abstraction, the harmoni-core/harmoni-wasm boundary, the Tsify mirror-types pattern, the SwatchStep/SwatchLabel/Swatch/Palette vocabulary, and the neutral colour module (ramps, soft neutrals, tinting). Historical reference, not steering for new work. TRIGGER when working on Rust crates (`crates/harmoni-core`, `crates/harmoni-wasm`), when you need to understand why `api::generate` is both a module and a function, why `harmoni-core` has zero wasm dependencies, what mirror types exist, what the canonical color form is, or what the neutral ramp / soft-neutral / tint functions do. SKIP for any pure React work.
+description: Historical reference for the settled shape of the harmoni palette engine — Steps C/D/A/B, ColorInput, the harmoni-core/harmoni-wasm boundary, mirror types, the Swatch/Palette vocabulary, and the neutral colour module. TRIGGER when working in crates/harmoni-core or crates/harmoni-wasm and needing the why behind the api module boundary, the zero-wasm-deps rule, the canonical color form, mirror types, or the neutral ramp / soft-neutral / tint functions. SKIP for any pure React work.
 ---
 
 # Harmoni architecture history

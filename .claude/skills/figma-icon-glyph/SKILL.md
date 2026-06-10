@@ -1,6 +1,6 @@
 ---
 name: figma-icon-glyph
-description: End-to-end playbook for adding a new glyph to the Figma Icon component set AND the @primitiv-ui/icons package, in the house line style. Covers the 1.5px stroke→outline build recipe, the offset-circle trick for arcs, the 5-size clone-and-rebind into the set, repositioning into the size bands, exporting the SVG, and the generate/README/test loop. TRIGGER when adding/drawing a new icon glyph (sun, moon, star, etc.), extending the Icon set, or adding an svg to packages/icons. SKIP for framed-control components, token work, and wireframes.
+description: Playbook for adding a new glyph to the Figma Icon component set AND the @primitiv-ui/icons package in the house line style — stroke→outline build recipe, 5-size clone-and-rebind, SVG export, generate/README/test loop. TRIGGER when adding/drawing a new icon glyph (sun, moon, star, etc.), extending the Icon set, or adding an svg to packages/icons. SKIP for framed-control components, token work, and wireframes.
 ---
 
 # Adding a new icon glyph (Figma Icon set + @primitiv-ui/icons)

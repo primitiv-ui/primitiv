@@ -114,6 +114,16 @@ source of truth for when a skill applies.
 - `packages/react` is the headless component library
   (`@primitiv-ui/react`). Component inventory lives at
   `.claude/skills/new-react-component/_generated/component-inventory.md`.
+- **The build phase has started** (live checklist:
+  `docs/transfer-and-next-steps.md`). New crates: `crates/primitiv-cli`
+  (the `FileSystem` port + in-memory fake) and `crates/primitiv-emit`
+  (the pure DTCG → CSS emitter). Rust now runs in CI via
+  `.github/workflows/rust.yml`, gating the CLI crates at 100% with
+  `cargo llvm-cov`. The **CSS-canonical token emit is done end-to-end**
+  (`emit_tokens_css`); remaining emitter work is the two-tier
+  per-component split, the `primitiv.theme` layer, and the SCSS / TS /
+  Tailwind serialisers. Two decisions landed: category-map number units
+  (rem/unitless) and `var()`-reference alias emit for CSS.
 
 ## Useful commands
 

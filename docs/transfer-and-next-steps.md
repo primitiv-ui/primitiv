@@ -42,10 +42,13 @@ in [`../RELEASING.md`](../RELEASING.md); the full decision log (D1–D25) lives 
 Foundation-first order (test strategy for all of it: **RFC 0007** — ports &
 adapters, hand-authored golden files, 100% coverage):
 
-- [ ] **Rust CI + test harness** (RFC 0007 §7) — add `cargo test --workspace` + `cargo llvm-cov` gate (Rust runs in no workflow today); scaffold the `primitiv-emit` / `primitiv-cli` crates (lib + thin bin) and the port traits.
+- [x] **Rust CI + test harness** (RFC 0007 §7) — add `cargo test --workspace` + `cargo llvm-cov` gate (Rust runs in no workflow today); scaffold the `primitiv-emit` / `primitiv-cli` crates (lib + thin bin) and the port traits.
+  - **Done (2026-06-10).** `crates/primitiv-cli` holds the `FileSystem` port + in-memory fake; `crates/primitiv-emit` is the pure emitter; `.github/workflows/rust.yml` runs `cargo test --workspace` and a `cargo llvm-cov --fail-under-lines 100` gate scoped to the CLI crates (`--exclude harmoni-core --exclude harmoni-wasm`, so new CLI crates fall under it automatically). 100% regions/lines/functions held throughout.
 - [ ] **Token emitter** (RFC 0006 §4) — DTCG → CSS (canonical) / SCSS / TS / Tailwind, the pure `primitiv-emit` crate. TDD with golden files from the existing `packages/tokens` fixtures. Both `tokens` and the example styles depend on it, so it goes first. Its output shape is fixed by **RFC 0008**: the `@layer primitiv` sublayer stack, no `!important`, and the two-tier token split (shared theme tokens once; per-component API tokens inside each component stylesheet) — bake both into the first golden file.
+  - **In progress — CSS-canonical emit is done end-to-end** (`emit_tokens_css`): DTCG parse/flatten → category-aware number formatting → mode-aware flatten → `var()` alias linking → `:root` + `[data-theme]`/`[data-density]` scope blocks inside `@layer primitiv.tokens`, no `!important`. Proven against the real `packages/tokens` (all 1199 aliases linked, both axes scoped). **Remaining:** the **two-tier per-component split** (RFC 0008 §3.2 — shared theme tokens are the only tier emitted so far), the **`primitiv.theme` overrides layer**, and the **SCSS / TS / Tailwind** serialisers.
 - [ ] **`primitiv theme`** (RFC 0006 §5) — link `harmoni-core`; brand → palette → token overrides; emit light + dark token sets.
-- [ ] **Mode scoping** (RFC 0009) — emit `[data-theme]` + `[data-density]` scopes (density-neutral names, the `context.<density>` axis collapsed into `[data-density]`); ship the Tailwind `dark:`-variant remap. Falls out of the emitter (it is how dark + density are emitted), so it lands with the token emitter, not as separate work.
+- [x] **Mode scoping** (RFC 0009) — emit `[data-theme]` + `[data-density]` scopes (density-neutral names, the `context.<density>` axis collapsed into `[data-density]`); ship the Tailwind `dark:`-variant remap. Falls out of the emitter (it is how dark + density are emitted), so it lands with the token emitter, not as separate work.
+  - **Done (theme + density scopes)** — emitted by the token pipeline (`Axis`, `scope_selectors`, `Scope`, default-first mode ordering). The `:root` default sharing and `[data-*]` overrides match RFC 0009 §2.2. **Remaining:** the Tailwind `dark:`-variant remap (a CLI `add`-wiring concern, RFC 0009 §4.2), which lands with the CLI.
 - [ ] **Styling contract + `contract.json`** per component (RFC 0004 §3) — hybrid generation (data-* auto-verified, modifiers/custom-props authored).
 - [ ] **Default theme authoring** in the workbench (RFC 0006 §7) — ported from Figma, one design emitted per format.
 - [ ] **The CLI** (RFC 0005) — `init` / `add` / `tokens` / `theme` / `list`, `primitiv.json`, the static registry, refresh + wiring behaviour.
@@ -62,6 +65,19 @@ cluster — `cargo-llvm-cov`, in-memory FS for command tests, separate
 `primitiv.lock` manifest, Deno out of scope (D49). Plus the earlier settles: BEM
 part naming, hybrid `contract.json`, all-four formats, cascade layers + two-tier
 token scoping (RFC 0008), and `data-theme`/`data-density` mode scoping (RFC 0009).
+
+**Decided during the build (2026-06-10):**
+
+- **Number-unit policy** — DTCG types every number as `"number"`, so the emitter
+  maps the unit by token **category** (first path segment): length categories
+  (`space`, `size`, `radii`, `font-size`, `line-height`, `border-width`,
+  `letter-spacing`) → `rem` at a 16px base; `opacity` → a unitless `0–1` ratio;
+  everything else (`font-weight`) → the unitless number. See `value.rs`.
+- **Alias emit = `var()` references for CSS** — a DTCG alias `{color.brand.500}`
+  emits as `var(--primitiv-color-brand-500)` (`link_aliases`), preserving the
+  override chain so a `primitiv theme` palette override propagates. The inlining
+  resolvers (`resolve_aliases` / `resolve_against_base`) are reserved for the
+  TS token object and `primitiv theme` value computation, **not** the CSS path.
 
 **Deliberately deferred (answer emerges during the build):**
 

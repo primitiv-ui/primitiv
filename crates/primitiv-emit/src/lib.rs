@@ -6,7 +6,7 @@ pub mod value;
 
 pub use alias::resolve_aliases;
 pub use css::emit_css;
-pub use dtcg::tokens_from_dtcg;
+pub use dtcg::{flatten_modes, tokens_from_dtcg};
 pub use token::Token;
 pub use value::format_number;
 

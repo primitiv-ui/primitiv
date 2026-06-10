@@ -47,7 +47,7 @@ screen sprawl.
 
 ## Single-screen control inventory
 
-The plugin renders **one screen at `/`**. Vertical stack,
+The plugin renders **one screen**. Vertical stack,
 top → bottom:
 
 1. **Header strip**
@@ -102,9 +102,8 @@ ramps immediately. There is no preview-vs-apply split.
 
 ## v1 layout principles
 
-- **One screen, no routes.** The `MemoryRouter` scaffolding in
-  `apps/harmoni-figma-plugin/src/ui/` stays in place; v1 mounts a
-  single screen at `/`.
+- **One screen, no routes.** `App` mounts the single `ColorEngine`
+  screen directly — there is no router.
 - **Vertical scroll over horizontal compression.** With a single
   brand colour and 4 ramps (neutral light/dark, brand light/dark),
   scrolling inside the plugin window is fine and feels
@@ -129,15 +128,12 @@ ramps immediately. There is no preview-vs-apply split.
 
 ---
 
-## Navigation model — routing
+## Navigation model
 
-| Route | Screen |
-|---|---|
-| `/` | Single working screen (header + neutral block + brand block + output strip) |
-
-The previous two-route model (`/` projects + `/project/:id` editor)
-is superseded. Project selection happens via the in-screen header
-picker.
+There is no routing. `App` mounts the single `ColorEngine` screen
+directly; project selection happens via the in-screen header picker
+(the earlier projects landing / `/project/:id` editor model is
+superseded — see Appendix A.5 for that history).
 
 ---
 
@@ -344,5 +340,5 @@ with an **inline popover** attached to the Apply control — see
 | `/` | Projects (landing) |
 | `/project/:id` | Project view (Neutral + Brand sections) |
 
-Superseded — see "Navigation model — routing" above for the v1
-single-route model.
+Superseded — see "Navigation model" above for the v1 single-screen
+model.

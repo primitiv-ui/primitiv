@@ -1,6 +1,8 @@
 # Component Size Variant Convention
 
-The Primitiv Design System has a typographic scale with 3 density contexts (Compact / Comfortable / Spacious). A `ui` namespace already exists within each density context — `typography.{mode}.ui.button` and `typography.{mode}.ui.label` — but currently each has only one size (16px semibold sans). Components like Button need multiple size variants, and this document establishes the convention for deriving those variants consistently across all components.
+The Primitiv Design System has a typographic scale with 4 density contexts (Dense / Compact / Comfortable / Spacious). Each context already carries size-keyed UI label typography — `label.{xs|sm|md|lg|xl}` in `packages/tokens/src/context.json`. Components like Button need multiple size variants, and this document establishes the convention for deriving those variants consistently across all components.
+
+> **Status — design intent, not yet wired up.** The typography size tiers exist (as `label.*` per context), but no component yet consumes them through a `size` prop, and the component-token layer described below has not been built. The concrete token-emission shape is being settled by the token-pipeline RFCs (`docs/rfcs/0001`, `docs/rfcs/0006`); treat the JSON below as illustrative of the intended pattern, not the current file layout.
 
 ---
 
@@ -10,25 +12,25 @@ The Primitiv Design System has a typographic scale with 3 density contexts (Comp
 
 **Component size** (xs → xl) = the *intrinsic* size of the component, chosen at authoring time. A `lg` button stays `lg` regardless of density.
 
-These multiply together. Both axes already exist in the token structure — density contexts as the top-level namespace, component sizes as the missing inner dimension.
+These multiply together. Density contexts are the top-level namespace; size tiers now exist for UI label typography (`label.{xs..xl}`), and the per-component size dimension below builds on them.
 
 ---
 
 ## Convention
 
-### 1. Expand the `ui` namespace with size variants
+### 1. Size-keyed UI typography per context
 
-The `ui` category is the right home — it's already semantically distinct from reading typography (`body`, `heading`, `display`). Add size tiers to it:
+UI typography is semantically distinct from reading typography (`body`, `heading`, `display`) and is where size tiers live. They are already authored per density context as:
 
 ```
-typography.{mode}.ui.button.xs
-typography.{mode}.ui.button.sm
-typography.{mode}.ui.button.md   ← current single token becomes this
-typography.{mode}.ui.button.lg
-typography.{mode}.ui.button.xl
+label.xs
+label.sm
+label.md   ← the canonical default tier
+label.lg
+label.xl
 ```
 
-All variants share font-family (sans / Khand) and font-weight (semibold / 600). Only font-size changes per tier:
+All tiers share font-family (sans / Khand) and font-weight (semibold / 600). Only font-size changes per tier:
 
 | Size | font-size | line-height |
 |------|-----------|-------------|
@@ -38,34 +40,28 @@ All variants share font-family (sans / Khand) and font-weight (semibold / 600). 
 | lg   | 18        | 28          |
 | xl   | 20        | 28          |
 
-Validate visually in Figma across all 3 density contexts before committing values.
+Validate visually in Figma across all 4 density contexts before committing values.
 
 ### 2. The same pattern propagates to every other UI component
 
-Any component with text gets its own size variants under `ui`:
-
-```
-typography.{mode}.ui.badge.{xs|sm|md|lg}
-typography.{mode}.ui.tag.{xs|sm|md|lg}
-typography.{mode}.ui.tab.{sm|md|lg}
-```
-
-Not every component needs all 5 tiers — each component's README declares which subset it supports.
+Every text-bearing component maps its `size` onto this tier set (badge sm–lg, tag sm–lg, tab sm–lg, button xs–xl, …). Not every component needs all 5 tiers — each component's README declares which subset it supports.
 
 ### 3. Canonical 5-tier scale: `xs | sm | md | lg | xl`
 
 Add `2xs` / `2xl` only when a specific component genuinely needs them. Button needs xs → xl. Most other components will need sm → lg only.
 
-### 4. Component size tokens in `components.json` reference the `ui` tokens
+### 4. Component size tokens reference the typography tiers
+
+A component-token layer (not yet built — see Status) maps each size to its typography tier:
 
 ```json
 "button": {
   "size": {
-    "xs": { "typography": "{typography.comfortable.ui.button.xs}" },
-    "sm": { "typography": "{typography.comfortable.ui.button.sm}" },
-    "md": { "typography": "{typography.comfortable.ui.button.md}" },
-    "lg": { "typography": "{typography.comfortable.ui.button.lg}" },
-    "xl": { "typography": "{typography.comfortable.ui.button.xl}" }
+    "xs": { "typography": "{label.xs}" },
+    "sm": { "typography": "{label.sm}" },
+    "md": { "typography": "{label.md}" },
+    "lg": { "typography": "{label.lg}" },
+    "xl": { "typography": "{label.xl}" }
   }
 }
 ```
@@ -106,39 +102,39 @@ Using font sizes 12→14→16→18→20 (+2 arithmetic step):
 
 Every height lands exactly on an existing `size-*` token. Every padding-x lands on an existing `space-*` token. No new primitive tokens are needed.
 
-Because line-height is trimmed, `ui.button.*` tokens only need to specify font-family, font-weight, and font-size — line-height is included for non-trimmed contexts (accessibility tools, fallback rendering) but does not drive the height calculation.
+Because line-height is trimmed, the `label.*` tokens only need to specify font-family, font-weight, and font-size — line-height is included for non-trimmed contexts (accessibility tools, fallback rendering) but does not drive the height calculation.
 
 ### Density context interaction
 
-Height and padding are **fixed per size tier** — they do not scale with density context. Only the typography (font-size) scales. A `lg` button is always 48px tall regardless of whether it appears in a Compact or Spacious layout; the text inside it simply uses the Compact or Spacious `ui.button.lg` type style.
+Height and padding are **fixed per size tier** — they do not scale with density context. Only the typography (font-size) scales. A `lg` button is always 48px tall regardless of whether it appears in a Compact or Spacious layout; the text inside it simply uses the Compact or Spacious `label.lg` type style.
 
-### Full `components.json` token shape
+### Full component-token shape (illustrative)
 
 ```json
 "button": {
   "size": {
     "xs": {
-      "typography": "{typography.comfortable.ui.button.xs}",
+      "typography": "{label.xs}",
       "height": "{size.size-28}",
       "padding-x": "{space.space-12}"
     },
     "sm": {
-      "typography": "{typography.comfortable.ui.button.sm}",
+      "typography": "{label.sm}",
       "height": "{size.size-32}",
       "padding-x": "{space.space-12}"
     },
     "md": {
-      "typography": "{typography.comfortable.ui.button.md}",
+      "typography": "{label.md}",
       "height": "{size.size-40}",
       "padding-x": "{space.space-16}"
     },
     "lg": {
-      "typography": "{typography.comfortable.ui.button.lg}",
+      "typography": "{label.lg}",
       "height": "{size.size-48}",
       "padding-x": "{space.space-20}"
     },
     "xl": {
-      "typography": "{typography.comfortable.ui.button.xl}",
+      "typography": "{label.xl}",
       "height": "{size.size-56}",
       "padding-x": "{space.space-24}"
     }
@@ -152,12 +148,10 @@ The three properties (`typography`, `height`, `padding-x`) are the repeating pat
 
 ## Implementation Order
 
-1. **Figma** — Add size variants to the `ui.button` variable in each density mode. Validate all 15 combinations (5 sizes × 3 densities) visually. Lock down font-size values before touching files.
+1. ✅ **Typography tiers** — size-keyed UI label typography (`label.{xs..xl}`) is authored per density context in `packages/tokens/src/context.json` (4 contexts × 5 tiers).
 
-2. **`packages/tokens/src/semantic.json`** — Expand `typography.compact.ui.button`, `typography.comfortable.ui.button`, and `typography.spacious.ui.button` from a single token to 5 size-keyed tokens. Repeat for `ui.label`.
+2. **Component-token layer** — add a `button.size` group mapping each tier to `typography`, `height`, and `padding-x` references. The home for this layer is being settled by the token-pipeline RFCs (`docs/rfcs/0001`, `docs/rfcs/0006`).
 
-3. **`packages/tokens/src/components.json`** — Add `button.size` section with `typography`, `height`, and `padding-x` references per tier.
+3. **`packages/react` Button component** — add a `size` prop (`"xs" | "sm" | "md" | "lg" | "xl"`, default `"md"`) mapping each value to the corresponding CSS custom property. Proves the convention end to end.
 
-4. **`packages/react` Button component** — Add `size` prop (`"xs" | "sm" | "md" | "lg" | "xl"`, default `"md"`). Map each value to the corresponding CSS custom property. Proves the convention end to end.
-
-5. **Propagate** — Every subsequent component picks from the established tier set and documents which subset it supports in its README.
+4. **Propagate** — every subsequent component picks from the established tier set and documents which subset it supports in its README.

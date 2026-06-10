@@ -274,6 +274,7 @@ name = "primitiv-emit"
 version = "0.1.0"
 dependencies = [
  "pretty_assertions",
+ "serde_json",
 ]
 
 [[package]]

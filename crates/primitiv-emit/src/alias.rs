@@ -28,6 +28,20 @@ pub fn resolve_aliases(tokens: Vec<Token>) -> Vec<Token> {
         .collect()
 }
 
+/// Resolve one mode's tokens against the shared base namespace (RFC 0009 §2.2).
+///
+/// A mode's aliases reference the mode-independent **base** (primitive /
+/// interaction) tokens and same-mode siblings (already included in
+/// `mode_tokens`). Both are unioned into one namespace for resolution, but only
+/// the resolved `mode_tokens` are returned: base tokens are emitted once in
+/// `:root`, while these populate the mode's own `[data-*]` scope.
+pub fn resolve_against_base(base: &[Token], mode_tokens: Vec<Token>) -> Vec<Token> {
+    let split = base.len();
+    let mut namespace = base.to_vec();
+    namespace.extend(mode_tokens);
+    resolve_aliases(namespace).split_off(split)
+}
+
 /// The dotted path inside a `{…}` alias, or `None` for a literal value.
 fn alias_target(value: &str) -> Option<&str> {
     value

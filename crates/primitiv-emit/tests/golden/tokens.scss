@@ -1,0 +1,11 @@
+@layer primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.tokens {
+  :root {
+    --primitiv-color-primary: oklch(0.55 0.13 162);
+    --primitiv-radius-md: 0.5rem;
+  }
+}
+
+$primitiv-color-primary: var(--primitiv-color-primary);
+$primitiv-radius-md: var(--primitiv-radius-md);

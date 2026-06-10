@@ -186,6 +186,12 @@ surface per option. Concretely: vertical tabs are `[data-orientation="vertical"]
 `--primary` *is* a modifier, because the headless Button has no notion of
 intent colour.
 
+The rule pins *which surface* an option uses, but not *which wins* when a state
+and a variant collide on the same property (a disabled primary button:
+`[data-disabled]` vs `--primary`, equal specificity). That precedence — state
+beats variant beats base — is made authored and guaranteed by the cascade-layer
+order in **RFC 0008 §2.3**.
+
 ### 3.3 The CSS custom-property API
 
 Two namespaces of custom property, both prefixed `--primitiv-`:
@@ -199,7 +205,10 @@ Two namespaces of custom property, both prefixed `--primitiv-`:
 This is what lets the *polished default theme* (design doc §5.3) stay stable
 while consumers recolour and re-scale by overriding properties rather than
 editing component CSS — and it is the seam a Harmoni-generated palette overrides
-(design doc §5.3, D11).
+(design doc §5.3, D11). **How these two namespaces are scoped on emit** — the
+theme tokens shared and emitted once, the per-component API tokens shipped inside
+each component stylesheet so a partial install carries only what it added — is
+RFC 0008 §3.
 
 ### 3.4 Per-component contract documentation
 
@@ -314,7 +323,10 @@ One question surfaced later, during the token-pipeline discussion:
    dependents: the contract's own portability story, and any future **CSS
    Modules** output (parked, RFC 0006 §10.6) — a module can own a
    consumer-applied class cleanly, whereas a component-emitted *global* class
-   would need `:global()`. To settle on the next RFC 0004 pass.
+   would need `:global()`. To settle on the next RFC 0004 pass. *(Note: the
+   cascade-layer model of RFC 0008 is **orthogonal** to this question — a layer
+   wraps the rule block, not the class application — so it neither depends on nor
+   blocks this decision; RFC 0008 §2.6.)*
 
 CLI- and pipeline-level details live in RFC 0005 / 0006.
 

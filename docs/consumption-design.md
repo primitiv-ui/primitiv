@@ -462,6 +462,18 @@ The Agent profile is first-class, not bolted on:
 | D32 | `aliases` are **detected** from tsconfig/jsconfig `compilerOptions.paths` at `init`, overridable by prompt or `--alias-*` flag, persisted in `primitiv.json`; relative-import fallback when absent; minimal set (only emitted targets) given the hybrid model |
 | — | **Parked:** CSS Modules as a styling-output format — kept to the four formats (D23) for v1; revisit once RFC 0004 settles whether the headless component hard-emits a root class (RFC 0006 §10.6) |
 
+**CSS architecture follow-up (2026-06-10) — RFC 0008.** A later pass settled how
+the emitted CSS is ordered and how the token output is scoped:
+
+| # | Decision |
+|---|---|
+| D33 | All Primitiv CSS is emitted inside one top-level `@layer primitiv` with ordered sublayers `tokens → theme → base → variants → states`; a consumer's **unlayered** CSS always wins (no specificity war), making "you own and edit it" structural |
+| D34 | Sublayer order encodes precedence: `data-*` **state** > **variant** modifier class > **base** — resolving the ordering RFC 0004 §3.2's data-vs-modifier rule left open |
+| D35 | Primitiv-emitted CSS contains **no `!important`** — the layer is the override mechanism (an important rule would invert layer precedence and beat the consumer) |
+| D36 | Token output is **two-tier**: shared theme tokens (`--primitiv-<token-path>`) emitted **once**, never pruned (the global re-skin surface, `primitiv.tokens`); per-component API tokens (`--primitiv-<component>-<part>`) ship **inside each component stylesheet** (`primitiv.base`), so a partial install carries only the components added |
+| D37 | **Reject** subsetting the shared theme-token file for v1 — it breaks `primitiv theme` re-skin and cross-component consistency, the size win is negligible, and names are the contract |
+| D38 | Shared theme-token emit is **idempotent** (write-once, refreshed under the D18 rules); `primitiv theme` overrides occupy a `primitiv.theme` sublayer so they beat base tokens by layer order, not load order — recommending RFC 0006 §10.4 resolve as a separate file |
+
 ---
 
 ## 11. Open questions

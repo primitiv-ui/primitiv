@@ -6,7 +6,8 @@
 > **Seeds from:** `docs/consumption-design.md` §7–§9.
 > **Relates to:** RFC 0004 (distribution model & styling contract) — *what* the
 > CLI installs and the contract it installs against; RFC 0006 (token & style
-> pipeline) — the emitter the CLI drives.
+> pipeline) — the emitter the CLI drives; RFC 0008 (CSS architecture) — the
+> layered, two-tier shape of the files `add` / `tokens` write.
 
 ---
 
@@ -374,7 +375,10 @@ A registry entry declares what it needs (§6.2): the headless package(s), the
 token layer (component styles resolve `--primitiv-*` custom properties, so the
 token output must exist), the Tailwind preset for the Tailwind format, and any
 sibling components. `add` resolves these, installing/emitting the token layer if
-absent, so a style file is never copied into a project that can't resolve it.
+absent, so a style file is never copied into a project that can't resolve it. The
+shared token layer is a **single, idempotent** artifact (RFC 0008 §3.5): adding N
+components emits it once and refreshes it under the §4.2 rules, never duplicating
+it per component.
 
 ---
 

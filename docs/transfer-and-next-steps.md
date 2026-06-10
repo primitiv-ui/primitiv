@@ -43,7 +43,7 @@ Foundation-first order (test strategy for all of it: **RFC 0007** — ports &
 adapters, hand-authored golden files, 100% coverage):
 
 - [ ] **Rust CI + test harness** (RFC 0007 §7) — add `cargo test --workspace` + `cargo llvm-cov` gate (Rust runs in no workflow today); scaffold the `primitiv-emit` / `primitiv-cli` crates (lib + thin bin) and the port traits.
-- [ ] **Token emitter** (RFC 0006 §4) — DTCG → CSS (canonical) / SCSS / TS / Tailwind, the pure `primitiv-emit` crate. TDD with golden files from the existing `packages/tokens` fixtures. Both `tokens` and the example styles depend on it, so it goes first.
+- [ ] **Token emitter** (RFC 0006 §4) — DTCG → CSS (canonical) / SCSS / TS / Tailwind, the pure `primitiv-emit` crate. TDD with golden files from the existing `packages/tokens` fixtures. Both `tokens` and the example styles depend on it, so it goes first. Its output shape is fixed by **RFC 0008**: the `@layer primitiv` sublayer stack, no `!important`, and the two-tier token split (shared theme tokens once; per-component API tokens inside each component stylesheet) — bake both into the first golden file.
 - [ ] **`primitiv theme`** (RFC 0006 §5) — link `harmoni-core`; brand → palette → token overrides; emit light + dark token sets.
 - [ ] **Styling contract + `contract.json`** per component (RFC 0004 §3) — hybrid generation (data-* auto-verified, modifiers/custom-props authored).
 - [ ] **Default theme authoring** in the workbench (RFC 0006 §7) — ported from Figma, one design emitted per format.
@@ -56,4 +56,4 @@ adapters, hand-authored golden files, 100% coverage):
 - TS token object shape; Tailwind v4-only vs also v3 (RFC 0006 §10).
 - `primitiv theme` output — separate overrides file vs merge (RFC 0006 §10).
 - Written-file manifest location; registry hosting URL; package-manager coverage (RFC 0005 §9).
-- (Already settled: BEM compound-part naming, hybrid `contract.json` generation, all-four token formats, light-theme + dark-tokens.)
+- (Already settled: BEM compound-part naming, hybrid `contract.json` generation, all-four token formats, light-theme + dark-tokens; **CSS cascade layers + two-tier token scoping — RFC 0008**.)

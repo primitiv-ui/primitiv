@@ -6,8 +6,10 @@
 > **Seeds from:** `docs/consumption-design.md` §5–§6.
 > **Relates to:** RFC 0001 (token architecture — the layered token source);
 > RFC 0004 (the styling contract + `--primitiv-*` custom-property API the output
-> targets); RFC 0005 (the CLI that drives `tokens` / `theme` / `add`). Skills:
-> `figma-token-sync`, `figma-variable-architecture`, `dark-mode-palettes`.
+> targets); RFC 0005 (the CLI that drives `tokens` / `theme` / `add`);
+> RFC 0008 (the cascade-layer structure and two-tier token scoping this
+> emitter's output takes). Skills: `figma-token-sync`,
+> `figma-variable-architecture`, `dark-mode-palettes`.
 
 ---
 
@@ -149,6 +151,14 @@ Two custom-property namespaces, per RFC 0004 §3.3:
 - **Per-component API** — `--primitiv-<component>-<part>` (e.g.
   `--primitiv-button-bg`), defaulting to theme tokens.
 
+**Layering & scoping (RFC 0008).** Every emitted selector is wrapped in the
+`@layer primitiv` sublayer stack (`tokens → theme → base → variants → states`),
+and the output is **two-tier**: the theme tokens are emitted once as a shared,
+never-pruned file (`primitiv.tokens`), while the per-component API tokens ship
+*inside* each component's stylesheet (`primitiv.base`) so a partial install
+carries only the components added. The emitter writes no `!important`. See RFC
+0008 §2–§3.
+
 ---
 
 ## 5. Theme generation (Harmoni)
@@ -271,8 +281,9 @@ Specified in RFC 0005; listed here for the pipeline's entry points:
 3. **Tailwind version target.** v4-first (CSS-variable-native, simplest) vs
    also supporting v3 (`theme.extend` JS config) for the Tailwind output.
 4. **Theme output location.** Does `primitiv theme` write a separate overrides
-   file or merge into the emitted token file? (Likely a separate file, layered
-   after the base tokens.)
+   file or merge into the emitted token file? **RFC 0008 §5 recommends** a
+   separate file in the `primitiv.theme` sublayer, which beats the base tokens by
+   *layer order* rather than load order — to ratify here.
 5. **Workbench styled-preview shape.** One combined themed gallery vs a styled
    variant of each existing per-component example page.
 6. **CSS Modules output — parked.** Not a v1 format (the four of D23 stand). CSS

@@ -31,6 +31,7 @@ live in [`../consumption-design.md`](../consumption-design.md).
 | [0005](0005-primitiv-cli.md) | The Primitiv CLI | Draft |
 | [0006](0006-token-and-style-pipeline.md) | Token & style pipeline | Draft |
 | [0007](0007-cli-development-and-test-strategy.md) | CLI development & test strategy | Draft |
+| [0008](0008-css-architecture-cascade-layers-and-token-scoping.md) | CSS architecture: cascade layers & token scoping | Draft |
 
 - **0004** — the foundation: the hybrid model (versioned headless packages +
   opt-in copy-in styles) and the four-part styling contract (root class +
@@ -43,6 +44,12 @@ live in [`../consumption-design.md`](../consumption-design.md).
 - **0007** — how the CLI is built test-first: ports & adapters (pure core, faked
   effects), the test pyramid, hand-authored golden files, 100% coverage, and
   Rust entering CI.
+- **0008** — the CSS architecture beneath the contract: one `@layer primitiv`
+  with an ordered sublayer stack (so consumer CSS always wins and state beats
+  variant), no `!important`, and the two-tier token split that lets a partial
+  install carry only the components it added.
 
-Read **0004 → 0005 → 0006** in order; each builds on the one before. **0007** is
-the build/test strategy for 0005–0006 and applies once implementation starts.
+Read **0004 → 0005 → 0006** in order; each builds on the one before. **0008**
+constrains the *shape* of 0006's emitted CSS (layers + token scoping) and is read
+alongside it. **0007** is the build/test strategy for 0005–0006 and applies once
+implementation starts.

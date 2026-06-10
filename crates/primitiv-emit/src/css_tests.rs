@@ -1,6 +1,6 @@
 use pretty_assertions::assert_eq;
 
-use crate::css::emit_css;
+use crate::css::{emit_css, Scope};
 use crate::token::Token;
 
 /// Shared, pure-data fixture: a trimmed slice of the theme-token surface (one
@@ -15,10 +15,29 @@ fn theme_tokens() -> Vec<Token> {
 
 #[test]
 fn emits_the_shared_theme_token_surface_as_canonical_css() {
-    let css = emit_css(&theme_tokens());
+    let css = emit_css(&[Scope::new(&[":root"], theme_tokens())]);
 
     assert_eq!(
         css,
         include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/golden/tokens.css"))
+    );
+}
+
+#[test]
+fn emits_one_block_per_mode_scope_with_the_default_sharing_root() {
+    let css = emit_css(&[
+        Scope::new(
+            &[":root", "[data-theme=\"light\"]"],
+            vec![Token::new(&["color", "bg"], "#fff")],
+        ),
+        Scope::new(
+            &["[data-theme=\"dark\"]"],
+            vec![Token::new(&["color", "bg"], "#111")],
+        ),
+    ]);
+
+    assert_eq!(
+        css,
+        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/golden/theme-modes.css"))
     );
 }

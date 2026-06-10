@@ -23,3 +23,22 @@ fn emits_the_canonical_css_then_a_scss_variable_per_token() {
         include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/golden/tokens.scss"))
     );
 }
+
+#[test]
+fn emits_one_scss_variable_for_a_token_shared_across_mode_scopes() {
+    let scss = emit_scss(&[
+        Scope::new(
+            &[":root", "[data-theme=\"light\"]"],
+            vec![Token::new(&["color", "bg"], "#fff")],
+        ),
+        Scope::new(
+            &["[data-theme=\"dark\"]"],
+            vec![Token::new(&["color", "bg"], "#111")],
+        ),
+    ]);
+
+    assert_eq!(
+        scss,
+        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/golden/theme-modes.scss"))
+    );
+}

@@ -83,105 +83,15 @@ are part of "done".
 - **Share fixtures across tests.** Mirror what
   `Tabs.fixtures.ts` does — pure data, no helpers.
 
-## Skill index — load on demand
+## Skills — load on demand
 
-Skills are not loaded until you trigger them. Reach for them by
-keyword or by topic; do not paraphrase their content here.
-
-- **`react-component-patterns`** — Slot/asChild, createStrictContext,
-  useControllableState, useCollection, useRovingTabindex, deriveId,
-  data-* styling surface, React 19 ref-as-prop.
-- **`react-test-conventions`** — concern-based file split, userEvent
-  v14 conventions (and the `" "` vs `{Space}` gotcha), fixture
-  layout, scoped vitest invocation, coverage exclusions.
-- **`new-react-component`** — scaffold playbook for a new headless
-  component. Stops at the RED commit. References generated
-  inventories under `.claude/skills/new-react-component/_generated/`.
-- **`harmoni-architecture-history`** — Steps C/D/A/B, ColorInput,
-  mirror-types pattern, vocabulary rename, the neutral module.
-  Historical reference.
-- **`dark-mode-palettes`** — the anchored two-segment dark
-  generation model, `generate_dark_palette` / `generate_pair` /
-  `PaletteSet`, and the work deferred past v1.
-- **`rust-wasm-workflow`** — cargo commands, api module boundary,
-  mirror-types add-a-field checklist, opaque Palette extern type.
-- **`sandbox-gotchas`** — git mv cross-device, wasm pkg-not-found,
-  broken `build:core`, missing wasm-pack, deleted Playwright e2e.
-- **`workbench-examples`** — authoring `apps/workbench` example pages:
-  folder layout, router wiring, and the global-CSS-bundling gotcha
-  (every example's CSS is bundled globally — scope every selector).
-- **`figma-token-sync`** — how the
-  `apps/primitiv-sync-figma-plugin` and `packages/tokens` stack
-  backs up Figma variables as DTCG JSON: features, Live sync vs
-  download flow, the `dtcg.ts` collection routing (now handles the
-  unified multi-mode `Context` collection), and where removed code lived.
-- **`figma-wireframe-tokens`** — token file locations (`packages/tokens/src/`),
-  resolved colour/typography/radii values, Button component variant naming,
-  slot property keys, and the pattern for replacing a flat node with a real
-  component instance. TRIGGER when placing or styling components in Figma
-  wireframes, looking up token hex values, or working with the Button component.
-- **`figma-console-scripts`** — how to generate and run one-shot
-  wireframe scripts in the Figma developer console: the "allow pasting"
-  step, Plugin API access, font loading, the end-to-end process for
-  turning a UI description into a working script (requirements →
-  constants → helpers → render layers), design tokens, and the
-  `scripts/` convention in `apps/harmoni-figma-plugin/`.
-- **`figma-variable-architecture`** — the Figma variable collection
-  hierarchy, the unified `Context` collection (4 modes: Dense/Compact/
-  Comfortable/Spacious, ID `369:31958`, default=Compact), the `framed-control/*`
-  anatomy token set, resolved values for every size slot (xs–xl) in all 4 modes,
-  the focus ring radius formula (R+2 gap / R+4 ring), the canonical focus-ring
-  build recipe, the text-style mode-override constraint (TextStyle has no
-  `setExplicitVariableModeForCollection`), the unified `Intent` collection
-  (2 modes: Light/Dark — aliases into `Primitives / Palette` which also has
-  Light/Dark modes), `color/white` and `color/black` anchor variables, and
-  the `color/white` rule (use for foreground-on-colour, not `color/neutral/50`).
-  Also: the `surface`/`border`/`content` families used by non-action controls
-  (Input/Field, no intent axis), the danger-semantic tokens (`border/invalid`,
-  `content/error`), the font-resolution gotcha (`sans`=Khand, `serif`=Asta Sans —
-  both sans), and the typography resolvedType gotcha (`font-weight` is FLOAT).
-  TRIGGER when adding new variables, binding layer properties to tokens,
-  extending framed-control to a new component, debugging focus ring geometry,
-  picking a token for a form-input control, or working with text styles and mode overrides.
-- **`figma-framed-control-component`** — end-to-end *playbook* for building or
-  extending a framed-control component set in Figma (Button, Switch, Checkbox, …):
-  pre-flight, anatomy, clone-and-rebind to add a variant/fill gaps, component-
-  specific `{component}/` tokens in the unified Context collection, auto-layout
-  for token-driven dimensions, incremental audit loop, arrange + default-instance,
-  verification, and build-time gotchas. **Density is frame-owned** — do NOT set
-  explicit mode overrides on component variants (breaks consumer frame switching).
-  Also covers component-property wiring (booleans/text/INSTANCE_SWAP), the
-  **exposed-nested-property limitation** (`isExposedInstance` is a no-op via the
-  API — a clean top-level glyph dropdown is UI-only; the swap popover is the
-  scriptable ceiling), the single-shared-default TEXT-property rule, and
-  **non-framed compositions** (Field: vertical label + nested-control + helper,
-  state-coordinated nested instance, `content/*` colours). TRIGGER when
-  building/extending/laying-out/auditing a framed-control OR a form-field
-  composition, or wiring icon/text/swap properties on a set.
-- **`figma-arrange-component-set`** — canonical recipe for the arrange +
-  label step: grid convention (size rows × variant/state cols, md first),
-  EDGE_PAD focus-ring fix, re-run safety, name-based parsing, and how to
-  adapt the script template for any new component — including single-column-axis
-  sets (Field: State only, no sub-columns). No density rows — density
-  is a frame concern. TRIGGER when writing or running an arrange script,
-  laying out a component set grid, or adding labels to a component set.
-- **`figma-component-descriptions`** — schema and process for writing the
-  `description` field on every Figma component set — the primary way an agent
-  understands a component (axes, tokens, properties, pairing) without touching
-  the canvas. Contains the canonical description for every current component.
-  Mandatory last step after any component build or update. TRIGGER when
-  finishing a component design, checking whether descriptions are complete, or
-  building a layout from existing components.
-- **`figma-icon-glyph`** — end-to-end playbook for adding a new glyph to
-  the Figma `Icon` component set (5 size variants) AND the `@primitiv-ui/icons`
-  package: the house line style (1.5px stroke → `outlineStroke` → flatten to
-  solid fill, butt caps / miter joins, ~2px padding), the `vectorPaths`
-  H/V/A-command restriction and the offset-circle trick for arcs, the
-  `outlineStroke`-leaves-source gotcha, the clone-and-rebind into the 5 size
-  bands, exporting the same geometry as the source `.svg`, and the
-  `pnpm generate` / README-row / `icons.test.tsx` (auto-covers all) loop.
-  TRIGGER when drawing/adding an icon glyph or adding an svg to packages/icons.
-- **`model-routing`** — Opus/Sonnet/Haiku decision tree.
+Reference material lives in skills under `.claude/skills/`, covering
+React component work, the Rust/wasm engine, Figma (variables,
+components, scripts, token sync), and repo tooling gotchas. Each
+skill's frontmatter description (with TRIGGER/SKIP conditions) is
+injected into every session automatically — do not duplicate or
+paraphrase skill content in this file; the frontmatter is the single
+source of truth for when a skill applies.
 
 ## Slash commands
 

@@ -16,7 +16,8 @@ in [`../RELEASING.md`](../RELEASING.md); the full decision log (D1–D25) lives 
   (org names carry no `@`; owning the org reserves every `@primitiv-ui/*` name).
   So `@primitiv-ui/react`, `/icons`, `/tokens`, `/cli-*` need **no** per-package
   registration — each is created on first publish.
-- Placeholders live under `reserved/` (outside the pnpm workspace).
+- Placeholder package source lived under `reserved/` (outside the pnpm
+  workspace) — removed from disk after publishing; git history preserves it.
 
 ## 🔐 Security cleanup — done (2026-06-09)
 
@@ -47,7 +48,7 @@ adapters, hand-authored golden files, 100% coverage):
 - [ ] **Styling contract + `contract.json`** per component (RFC 0004 §3) — hybrid generation (data-* auto-verified, modifiers/custom-props authored).
 - [ ] **Default theme authoring** in the workbench (RFC 0006 §7) — ported from Figma, one design emitted per format.
 - [ ] **The CLI** (RFC 0005) — `init` / `add` / `tokens` / `theme` / `list`, `primitiv.json`, the static registry, refresh + wiring behaviour.
-- [ ] **Distribution** (RFC 0005 §7) — Rust binary via `optionalDependencies` (`@primitiv-ui/cli-*`), `cargo-dist`/napi-rs matrix; replace the `reserved/` placeholders with the real `primitiv-ui` / `create-primitiv-ui` at a higher version.
+- [ ] **Distribution** (RFC 0005 §7) — Rust binary via `optionalDependencies` (`@primitiv-ui/cli-*`), `cargo-dist`/napi-rs matrix; supersede the published v0.0.1 name-reservation placeholders with the real `primitiv-ui` / `create-primitiv-ui` at a higher version.
 
 ## ❓ Small open questions to settle during the build
 

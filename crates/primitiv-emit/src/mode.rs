@@ -8,16 +8,30 @@ pub enum Axis {
     Density,
 }
 
+impl Axis {
+    /// The inheritable DOM attribute for this axis.
+    fn attribute(&self) -> &'static str {
+        match self {
+            Axis::Theme => "data-theme",
+            Axis::Density => "data-density",
+        }
+    }
+
+    /// The resting default mode — the one that shares `:root`.
+    pub fn default_mode(&self) -> &'static str {
+        match self {
+            Axis::Theme => "light",
+            Axis::Density => "comfortable",
+        }
+    }
+}
+
 /// The CSS selectors for one mode's scope block (RFC 0009 §2.2). The axis's
 /// default mode shares `:root` (`:root, [data-theme="light"]`); every other mode
 /// emits as its own attribute selector (`[data-theme="dark"]`).
 pub fn scope_selectors(axis: &Axis, mode: &str) -> Vec<String> {
-    let (attribute, default_mode) = match axis {
-        Axis::Theme => ("data-theme", "light"),
-        Axis::Density => ("data-density", "comfortable"),
-    };
-    let scoped = format!("[{attribute}=\"{mode}\"]");
-    if mode == default_mode {
+    let scoped = format!("[{}=\"{}\"]", axis.attribute(), mode);
+    if mode == axis.default_mode() {
         vec![":root".to_string(), scoped]
     } else {
         vec![scoped]

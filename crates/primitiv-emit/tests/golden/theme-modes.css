@@ -1,0 +1,11 @@
+@layer primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.tokens {
+  :root,
+  [data-theme="light"] {
+    --primitiv-color-bg: #fff;
+  }
+  [data-theme="dark"] {
+    --primitiv-color-bg: #111;
+  }
+}

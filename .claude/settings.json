@@ -87,6 +87,18 @@
       "mcp__github__delete_file"
     ]
   },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh"
+          }
+        ]
+      }
+    ]
+  },
   "env": {
     "PRIMITIV_REACT_PKG": "@primitiv-ui/react",
     "CLAUDE_PROJECT_NAME": "primitiv",

@@ -1,6 +1,6 @@
 ---
 name: figma-framed-control-component
-description: End-to-end playbook for building or extending a framed-control component set in Figma (Button, Switch, Checkbox, Toggle, Tabs/Trigger, …) bound to the design-system tokens — pre-flight checks, the clone-and-rebind technique for adding a context/variant/filling gaps, the incremental instance-preview audit loop, laying the set out with the arrange script, and verification. TRIGGER when building a new framed-control component in Figma, adding a density context or variant to an existing set, filling missing variant combinations, laying out a component set, or auditing one for token/geometry correctness. SKIP for React/Rust work, token export/backup (see figma-token-sync), wireframe styling lookups (see figma-wireframe-tokens), and pure variable/token-value questions (see figma-variable-architecture).
+description: End-to-end playbook for building or extending a framed-control component set in Figma (Button, Switch, Checkbox, Toggle, …) bound to the design-system tokens, including component-property wiring and non-framed form-field compositions (Field). TRIGGER when building, extending, laying out, or auditing a framed-control or form-field composition, adding a variant or filling missing combinations, or wiring icon/text/swap properties on a set. SKIP for React/Rust work, token export/backup (see figma-token-sync), wireframe styling lookups (see figma-wireframe-tokens), and pure variable/token-value questions (see figma-variable-architecture).
 ---
 
 # Building a framed-control component in Figma
@@ -14,6 +14,17 @@ this one and look values up there rather than duplicating them here.
 All work is driven through `mcp__figma-console__figma_execute` (Plugin API,
 async throughout). This is Figma-only experimental work — no TDD; verify
 visually and positionally instead.
+
+Reference files — load the one you need, when you need it:
+
+- `references/gotchas.md` — the full build-time gotcha catalogue. **Read
+  before any build or audit sweep.**
+- `references/component-properties.md` — boolean/TEXT/INSTANCE_SWAP wiring,
+  the exposed-nested-property limitation, the single-shared-default TEXT rule.
+- `references/auto-layout-sizing.md` — making dimensions token-drivable with
+  auto-layout (Switch track pattern) and the geometry/constraint gotchas.
+- `references/field-compositions.md` — non-framed compositions (Field:
+  label + nested control instance + helper text).
 
 ## 0. Pre-flight — confirm you're on the real set
 
@@ -94,17 +105,17 @@ await rebind(clone); // walk boundVariables; skip fills/strokes; text fields are
 - **After rebind, always re-set ring frame x/y** — clones inherit the
   source's ring positions, but if the source was built via in-place
   auto-layout addition, those positions may have been clamped to 0 (see
-  x=0 clamp gotcha below). Safest: unconditionally set
-  `gapFr.x = -2; gapFr.y = -2` and `ringFr.x = -4; ringFr.y = -4` in the
-  rebind sweep, and resize ring frames to `(clone.width+4)×(clone.height+4)`
-  and `(clone.width+8)×(clone.height+8)`.
+  the x=0 clamp gotcha in `references/auto-layout-sizing.md`). Safest:
+  unconditionally set `gapFr.x = -2; gapFr.y = -2` and
+  `ringFr.x = -4; ringFr.y = -4` in the rebind sweep, and resize ring frames
+  to `(clone.width+4)×(clone.height+4)` and `(clone.width+8)×(clone.height+8)`.
 - **Non-token properties don't rebind** — only variables in Context
   collections are updated. Anything set as a static value at build time
   (icon size/position, tick centering, explicit pixel offsets) stays at
   the source value. After clone-and-rebind, sweep these separately using
   the resolved `node.width`/`node.height` values.
 
-## 2a. Component-specific sizing tokens
+### Component-specific sizing tokens
 
 When a component has geometry that does not map to shared `framed-control/*`
 tokens (e.g. Switch track dimensions, Checkbox box size), create a
@@ -125,44 +136,9 @@ The rebind walk picks these up automatically because it checks
 `framed-control/*` clean (shared anatomy only) and gives each component a
 tidy, discoverable home.
 
-## 2b. Using auto-layout to make dimensions token-drivable
-
-`node.width` and `node.height` can only be bound to FLOAT variables when the
-node has `layoutSizingHorizontal/Vertical = "FIXED"`, which in turn requires
-`layoutMode ≠ NONE`. Without auto-layout you cannot bind dimensions to tokens
-at all — component geometry stays hardcoded and clone-and-rebind won't resize
-across densities.
-
-For a pill/track component (e.g. Switch) where layout drives thumb position:
-
-```js
-comp.layoutMode = "HORIZONTAL";
-comp.layoutSizingHorizontal = "FIXED";
-comp.layoutSizingVertical   = "FIXED";
-comp.counterAxisAlignItems  = "CENTER";      // centres thumb vertically
-// Unchecked: thumb at left
-comp.primaryAxisAlignItems  = "MIN";
-comp.setBoundVariable('paddingLeft',  thumbMarginVar);
-// Checked: thumb at right  
-comp.primaryAxisAlignItems  = "MAX";
-comp.setBoundVariable('paddingRight', thumbMarginVar);
-// Bind dimensions
-comp.setBoundVariable('width',  trackWidthVar);
-comp.setBoundVariable('height', trackHeightVar);
-// Ring frames must be ABSOLUTE so layout doesn't reposition them
-ringGapFr.layoutPositioning  = "ABSOLUTE";
-ringFr.layoutPositioning     = "ABSOLUTE";
-// Thumb stays in flow with FIXED sizing
-thumb.layoutSizingHorizontal = "FIXED";
-thumb.layoutSizingVertical   = "FIXED";
-thumb.setBoundVariable('width',  thumbSizeVar);
-thumb.setBoundVariable('height', thumbSizeVar);
-```
-
-`paddingLeft` / `paddingRight` bound to the margin token drives thumb
-position automatically across densities. The auto-layout centering
-(`counterAxisAlignItems = CENTER`) is equivalent to `y = thumbMargin` because
-`thumbSize = trackHeight − 2 × thumbMargin` by construction.
+If the component's dimensions must respond to density, the nodes need
+auto-layout before width/height can be bound — see
+`references/auto-layout-sizing.md`.
 
 ## 3. Focus ring
 
@@ -208,63 +184,8 @@ component. Quick summary:
 - Run via `figma_execute` by replacing the `selection.find(…)` lookup with a
   direct `getNodeByIdAsync` call.
 
-## 5a. Component properties — booleans, text, instance-swap, and the exposure limit
-
-After `combineAsVariants`, add properties with `set.addComponentProperty(name, type,
-default, opts?)` and wire each variant's node via `node.componentPropertyReferences`.
-Mirror the live Button schema: `Leading/Trailing Icon` BOOLEAN (→ icon `visible`),
-`Label`/`Value` TEXT (→ text `characters`), `Leading/Trailing Icon Instance`
-INSTANCE_SWAP (→ icon `mainComponent`). **No "Focus ring" boolean** — the ring is
-carried by `State=focus` alone (Button's ring frames have empty refs); don't add one.
-
-**TEXT property = ONE shared default across all variants.** A text node bound to a
-TEXT property displays the property's single default everywhere — you cannot give
-`Filled=empty` and `Filled=filled` different default strings while both are bound.
-The empty/filled distinction is therefore **colour only** (muted vs primary), with
-one editable `Value`. To get genuinely different per-variant text you must *unbind*
-(set each node's `characters` directly) and delete the property — losing the named,
-panel-editable field. Usually not worth it; keep the property.
-
-**Changing the icon glyph — and the exposure limitation (systemic).** The icon
-library is one COMPONENT_SET with an `icon` glyph variant (39 glyphs) × `size`.
-Consumers change the glyph via the INSTANCE_SWAP popover, which shows the set as a
-**single collapsed "Icon" entry + a search box** — type the glyph name to pick.
-That is the ceiling of what is scriptable. A clean *top-level glyph dropdown*
-requires Figma's **"Expose property"** on the nested icon, and that is **UI-only —
-the plugin API cannot do it**: assigning `instance.isExposedInstance = true` is a
-no-op (it persists as a boolean but `comp.exposedInstances` stays empty and no
-nested property ever surfaces on instances). Verified exhaustively 2026-05-31.
-Do not burn time trying to script exposure.
-
-INSTANCE_SWAP wiring that *does* work:
-- `preferredValues: [{ type:"COMPONENT_SET", key:<iconSetKey> }]` — keep it to the
-  icon set only. Adding the Button set (or others) just clutters the swap search.
-  Icon set key `da2000986513297ee3823cf917a294e6a39991f2`.
-- Per-size glyph: `iconInstance.swapComponent(await getNodeByIdAsync(glyphIdForSize))`
-  preserves overrides by node name; re-apply the inner `Vector` fill binding after,
-  and `setProperties` won't help pick the right *size* variant — swap to the
-  size-specific component id.
-- Default booleans/glyphs are a design call: Input ships `Leading/Trailing Icon`
-  **true** with `user` / `eye` glyphs (login/password read).
-
-## Non-framed compositions (e.g. Field)
-
-Some form components are **not** framed controls — Field is a vertical *composition*
-(label + nested control + helper text), no border, no `framed-control/*` on the root.
-The same clone-and-rebind + combine + arrange flow applies, with these differences:
-
-- Root: VERTICAL auto-layout, fixed width (240), HUG height, `counterAxisAlignItems=MIN`.
-- **Nested control is a real instance of another set** (Field embeds the Input set).
-  Coordinate it per variant by setting its variant props: Field `State=invalid` →
-  `inputInstance.setProperties({State:"invalid"})`, and Size likewise. Consumers can
-  still select the nested instance to configure it (nested props can't be exposed —
-  see above).
-- Colours come from `content/*` (label `content/primary`, helper `content/secondary`
-  → `content/error` red on invalid → `content/disabled`), not `action/*`.
-- Description + error collapse to **one helper-text slot whose colour changes by
-  state** (Figma has no conditional rendering — one slot beats two).
-- Axes are `State × Size` (no Variant/Filled/interaction). See the
-  `figma-arrange-component-set` skill for its single-col-axis arrange variant.
+After arranging, wire component properties (booleans, text, instance-swap) —
+see `references/component-properties.md`.
 
 ## 6. Write the component description (mandatory)
 
@@ -299,95 +220,5 @@ re-reading Figma.
   variables — never via a text style. Verify with `node.boundVariables`: all four
   fields must be present. Any unbound field is a density bug — the text will silently
   ignore frame mode overrides and always render at Compact values.
-
-## Gotchas (quick list)
-
-- Decoy POC sets (modes, "… Demo" page) vs the real default-mode set.
-- `getNodeByIdAsync` etc. required (dynamic-page document access).
-- `figma.currentPage = page` **throws** — use `await figma.setCurrentPageAsync(page)`.
-- `boundVariables`: `fills`/`strokes` are colour paints (skip when rebinding
-  context geometry); text typography fields come back as **arrays**.
-- `figma_capture_screenshot` (live) over `figma_take_screenshot` (cloud).
-- Ring-frame radius slips survive cloning — always sweep-fix.
-- **Ring-frame constraints must be `STRETCH`, not `MIN`**: both `focus-ring` and `focus-ring-gap` need `constraints: { horizontal: "STRETCH", vertical: "STRETCH" }` so the ring follows the control when label text changes. The default on a new frame is `MIN` (anchored top-left only) — always set this explicitly. See `figma-variable-architecture` → "Gotcha — ring-frame constraints must be STRETCH".
-- **Text typography must be bound inline — never via text styles.** Every TEXT node's `fontSize`, `fontStyle`, `fontFamily`, and `lineHeight` must be bound to Context variables (`label/{size}/*`, `body/{size}/*`, `content/*` etc.) via `node.setBoundVariable`. A text style looks correct in the panel but silently ignores frame mode overrides — it always resolves at the default mode (Compact) regardless of which density the containing frame is set to. Found on Modal/Header title (2026-06-04). Applies to every text node in every component, including surface and non-framed-control components.
-- **Border widths must go through the Context layer — never bind directly to Primitives.** Every framed-control stroke side weight (`strokeTopWeight` etc.) must be bound to `framed-control/border-width` (Context collection, `VariableID:428:6601`), which aliases `border-width/1` in Primitives. Binding directly to `border-width/1` (Primitive) violates the token layering rule. Hardcoded numeric weights (including 1.5px on Checkbox/Radio — now corrected to 1px) are also forbidden. After any clone-and-rebind sweep, verify with `node.boundVariables.strokeTopWeight?.id === 'VariableID:428:6601'`.
-- **x=0 clamp gotcha**: Adding `layoutMode = "HORIZONTAL"` to an existing
-  frame in-place clamps any child at a negative x/y to 0 during the layout
-  transition. Ring frames at x=−2/−4 silently move to x=0, making the ring
-  appear asymmetric (flush-left, overflowing right). Fix: always explicitly
-  set `gapFr.x = -2; ringFr.x = -4` *after* `layoutMode` is set, and again
-  after every clone-and-rebind sweep.
-- **`layoutPositioning = "ABSOLUTE"` requires a layout parent**: setting it
-  on a child of a `layoutMode = NONE` frame throws. Add `layoutMode` to the
-  parent first, *then* set children to ABSOLUTE.
-- **`variantProperties` unreliable during build**: while old and new variants
-  coexist in a set (mixed schemas), `c.variantProperties` throws
-  "Component set for node has existing errors". Use name-based parsing
-  (`name.match(/Size=(\w+)/)`) instead — always reliable.
-- **No explicit mode overrides on components**: do NOT call
-  `setExplicitVariableModeForCollection` on component variants. The density is
-  owned by the containing frame. Setting overrides on components locks instances
-  to a single density, breaking frame-level mode switching for consumers.
-- **Non-token properties must be swept manually after rebind**: only variables
-  whose `variableCollectionId` is a Context collection are updated by the
-  rebind walk. Static pixel values (icon size, icon position, explicit x/y)
-  stay at source values. After clone-and-rebind, sweep these separately using
-  the resolved `node.width`/`node.height`.
-- **`componentPropertyReferences` cannot be `null`** — to drop a reference set
-  it to `{}` (or a new object without that key). Assigning `null` throws
-  `"Expected object, received null"`.
-- **Build the golden at page root, not inside a WIP frame.** If you build the
-  first variant inside a working frame and later collect variants with
-  `page.children.filter(...)`, the nested golden is missed and propagation
-  silently skips it (you get N−1 per size). Reparent to the page, or collect
-  with `page.findOne`/`findAll` (deep), before cloning.
-- **Combining a *variant* strips property references — no INSTANCE_SWAP
-  corruption.** Cloning a Button **variant component** (not an instance) drops
-  its `componentPropertyReferences`, so the icon instances come over clean.
-  The old "binding mainComponent corrupts the instance" fear applies to
-  *instances*, not to variants cloned across sets — verify `refs:{}` and proceed.
-- **Match icon glyphs by `variantProperties`, not substring.** `name.includes("icon=eye")`
-  also matches `icon=eye-off`. Use `v.variantProperties.icon === "eye" && v.variantProperties.size === s`.
-- **Instance-sublayer override matrix (plugin API).** On an *instance's* children you
-  CAN override `resize()`, `layoutGrow`/`layoutSizing*`, `visible`, and component
-  properties — but NOT **position**: `set_x`/`set_y` throw "cannot be overridden in
-  an instance". So a per-instance value/position feature must come from variants or
-  from auto-layout *sizing* (resize a spacer), never from moving a sublayer.
-- **`layoutGrow` is binary (0/1).** Weighted/fractional grow is rejected
-  ("Expected 0 or 1"), so two FILL children always split 50/50 — you cannot build an
-  arbitrary-% spacer that survives resize from FILL alone. Resize-safe arbitrary %
-  needs `SCALE` constraints, but `SCALE` also scales the node's *size* (so it shrinks
-  a thumb to ~1px on a 6× resize). There is no clean auto-layout route to a
-  resize-safe value slider — keep value at a fixed 50% (centred) and detach to move it.
-- **Centre a token-sized child through BOTH resize and density.** A child whose w/h is
-  bound to a density token resizes **corner-anchored**; `CENTER`/`SCALE` constraints do
-  NOT re-centre it on its *own* token resize (constraints only react to *parent* resize).
-  Fix that survives both: wrap it in an auto-layout "rail" that **fills the parent**
-  (`constraints = STRETCH/STRETCH`, `primaryAxisAlignItems = counterAxisAlignItems =
-  CENTER`, both sizing modes FIXED) and make the child a flow item
-  (`layoutPositioning = "AUTO"`) — auto-layout re-lays-out on *any* child size change.
-  (Slider thumb-rail, 2026-06-01.) An absolute auto-layout frame's FIXED **primary**
-  size can also fight instance resizes (it stays at the master size, e.g. 240, and
-  overflows) — `rail.resize(inst.w, inst.h)` per instance, or keep `layoutMode` so the
-  axis that needs to shrink is the *counter* axis.
-- **Nested-instance component properties don't auto-forward in a composite set.** On a
-  set built from nested instances (Toggle Group = Toggles), a parent `Item N · Label`/
-  `Leading Icon` property is a no-op on the nested instance — set the nested instance's
-  OWN props directly (`item.setProperties({ "Label#…": txt, "Leading Icon#…": false }))`).
-  Same family as the exposed-nested-property limit above.
-- **Copying a paint preserves its variable binding.** `dst.fills = src.fills` carries the
-  paint-level `boundVariables.color` across (you do *not* re-bind) — handy when cloning a
-  colour element; the binding rule itself is "set on the paint, not via `setBoundVariable`".
-- **Every component page needs Light mode set explicitly.** The `Intent` collection defaults to
-  Dark mode. Without an explicit override, all `border/*` and `surface/*` tokens resolve to
-  near-black Dark-mode values on the canvas — `border/default` appears black, `surface/default`
-  appears near-black. Fix: `page.setExplicitVariableModeForCollection(intentCol, '346:7')` and
-  the same for `Primitives / Palette` (`palCol`, Light modeId `345:6`). Apply to every new
-  component page immediately after creation. Already applied to all existing pages as of 2026-06-04.
-- **Two focus border patterns — choose one explicitly.** Input uses `border/focus` (changes the
-  control's border to brand blue on focus, plus the ring). Select and Textarea use `border/default`
-  (no border colour change — ring is the sole focus indicator). These two patterns are intentionally
-  different; do not mix them within a single component. `border/focus` resolves to a strong blue
-  (`#235CE1`), not teal — it is visually prominent. When in doubt, prefer the Select/Textarea
-  pattern (ring-only) for large input controls where a coloured border would be distracting.
+- **Gotcha sweep**: re-read `references/gotchas.md` and check each item that
+  applies to what you just built.

@@ -1,6 +1,6 @@
 ---
 name: figma-console-scripts
-description: How to generate and run one-shot wireframe scripts in the Figma developer console — the "allow pasting" security step, full Plugin API access, font loading, and the end-to-end process for turning a UI description into a working script (gather requirements → lay out constants → write helpers → render layers). TRIGGER when generating wireframes, creating Figma content programmatically, or asked to write a script that creates frames/text/shapes in a Figma file. SKIP for plugin UI code, Figma token sync work, and anything involving the plugin sandbox (code.ts).
+description: How to write and run one-shot scripts in the Figma developer console — the "allow pasting" step, font loading, and the process for turning a UI description into a working script. TRIGGER when generating wireframes, creating Figma content programmatically, or asked to write a script that creates frames/text/shapes in a Figma file. SKIP for plugin UI code, Figma token sync work, and anything involving the plugin sandbox (code.ts).
 ---
 
 # Running scripts in the Figma developer console
@@ -8,6 +8,13 @@ description: How to generate and run one-shot wireframe scripts in the Figma dev
 The Figma desktop app exposes a JavaScript console that has full access to
 the Plugin API (`figma.*`). This is the fastest way to generate content
 programmatically — no manifest, no build step, just paste and run.
+
+Reference files — load on demand:
+
+- `references/wireframe-recipes.md` — fill/stroke/text API patterns, the
+  shared helper-function set, and the wireframe design-token table.
+- `references/workspace-components.md` — the `@primitiv-ui/react` component
+  and `@primitiv-ui/icons` inventories to mirror in wireframes.
 
 ## Opening the console
 
@@ -74,57 +81,6 @@ page.name = "My New Page";
 figma.currentPage = page;   // switches the canvas to this page
 ```
 
-## Key API patterns
-
-### Fills and strokes
-
-Figma fills are arrays of paint objects. Solid colour:
-
-```js
-function solid(hex) {
-  return [{
-    type: "SOLID",
-    color: {
-      r: parseInt(hex.slice(1,3), 16) / 255,
-      g: parseInt(hex.slice(3,5), 16) / 255,
-      b: parseInt(hex.slice(5,7), 16) / 255,
-    }
-  }];
-}
-```
-
-Semi-transparent fill: add `opacity` to the paint object (0–1).
-
-Dashed strokes: set `node.dashPattern = [dashLength, gapLength]` after
-assigning `node.strokes`.
-
-### Text nodes
-
-```js
-const t = figma.createText();
-t.fontName = { family: "Inter", style: "Regular" };  // must set before characters
-t.fontSize = 14;
-t.fills = solid("#1E1E1E");
-t.characters = "Hello";
-t.x = 16;
-t.y = 24;
-parent.appendChild(t);
-```
-
-Text auto-sizes by default. To set a fixed width, set `t.textAutoResize`
-and `t.resize(width, height)`.
-
-### Appending to a frame
-
-Nodes are appended with `parent.appendChild(node)`. The node's `x`/`y` is
-then relative to the parent frame's top-left corner.
-
-### Corner radius
-
-- `node.cornerRadius = 8` — all corners
-- Individual corners: `node.topLeftRadius`, `node.topRightRadius`,
-  `node.bottomLeftRadius`, `node.bottomRightRadius`
-
 ## Process: generating a wireframe script from scratch
 
 Follow this order every time — skipping steps leads to misaligned elements
@@ -162,19 +118,10 @@ changing `W` or `PAD` propagates everywhere.
 
 ### 3. Write the helper functions
 
-Every wireframe script in this repo uses the same helper set. Copy them from
-an existing script (`create-v1-wireframes.js`) rather than re-inventing them:
-
-| Helper | Purpose |
-|---|---|
-| `solid(hex)` | Returns a Figma fill array for a solid hex colour |
-| `solidA(hex, opacity)` | Solid fill with opacity (0–1) |
-| `makeFrame(name, x, y, w, h, bg)` | Creates a top-level frame |
-| `makeRect(parent, name, x, y, w, h, fill)` | Rectangle appended to parent |
-| `makeText(parent, content, x, y, size, style, hex)` | Text appended to parent |
-| `makeDivider(parent, x, y, w)` | 1px grey separator line |
-| `makeSectionLabel(parent, label, x, y)` | 10px uppercase grey section heading |
-| `makeHeader(parent, title, showBack)` | Dark 48px header bar |
+Copy the shared helper set (`solid`, `makeFrame`, `makeText`, `makeHeader`,
+…) from an existing script (`create-v1-wireframes.js`) rather than
+re-inventing it — the full table and the API patterns behind it are in
+`references/wireframe-recipes.md`.
 
 ### 4. Render each screen in layers — top to bottom
 
@@ -189,31 +136,11 @@ Maintain a single `let y = HDR_H + 16` cursor and advance it explicitly
 after every element. This makes the layout easy to adjust — insert a new
 element by bumping all subsequent `y +=` values.
 
-### 5. Design tokens used in this project's wireframes
+Use the wireframe design-token table in `references/wireframe-recipes.md`
+for colours and type sizes, and mirror existing workspace components
+(`references/workspace-components.md`) instead of inventing new patterns.
 
-| Token | Value | Use |
-|---|---|---|
-| Frame background | `#F2F2F2` | All screen backgrounds |
-| Header bg | `#1E1E1E` | Dark header bars |
-| Header text | `#FFFFFF` | Header title, back arrow |
-| Close button bg | `solidA("#FFFFFF", 0.12)` | Header close box |
-| Content card bg | `#FFFFFF` | Project items, option cards |
-| Content card border | `#E0E0E0` | Default card stroke |
-| Selected card border | `#1E1E1E` | Checked/active option cards |
-| Divider | `#D8D8D8` | Section separators |
-| Section label | `#999999` | Uppercase 10px section headings |
-| Body text | `#1E1E1E` | Primary labels |
-| Secondary text | `#888888` | Descriptions, dates |
-| Muted text | `#AAAAAA` | Hints, placeholders |
-| Primary button bg | `#1E1E1E` | Apply, confirm actions |
-| Disabled button bg | `#BBBBBB` | Inactive Apply |
-| Selection highlight | `#E8E8E8` | Tree row selected state |
-| Placeholder bg | `#F8F8F8` | Dashed placeholder sections |
-
-Typography: Inter Regular / Medium / Bold at 10px (labels), 11px
-(descriptions), 12–13px (body), 14px (header title), 20px (page headings).
-
-### 6. Save to `scripts/` and document in `PLUGIN_UX_PLAN.md`
+### 5. Save to `scripts/` and document in `PLUGIN_UX_PLAN.md`
 
 All console scripts live in `apps/harmoni-figma-plugin/scripts/`. Both
 the filename and the Figma page name **must include a version segment**
@@ -249,48 +176,6 @@ apps/harmoni-figma-plugin/scripts/
 
 Each script creates its own Figma page (versioned name) and is
 self-contained — paste and run any of them independently.
-
-## Headless components and icons are available to the plugin
-
-The `harmoni-figma-plugin` already depends on **`@primitiv-ui/react`** and
-**`@primitiv-ui/icons`** as workspace packages
-(see `apps/harmoni-figma-plugin/package.json`). When wireframing, prefer
-to show behaviour using components that already exist in the workspace —
-the eventual implementation will use them, so wireframes that anticipate
-that vocabulary are more honest.
-
-The `@primitiv-ui/react` headless component inventory currently includes:
-
-`AccessibleIcon`, `Accordion`, `Alert`, `Avatar`, `Breadcrumb`, `Button`,
-`Carousel`, `Checkbox`, `CheckboxCard`, `Collapsible`, `ContextMenu`,
-`DirectionProvider`, `Divider`, `Dropdown`, `EmptyState`, `Fieldset`,
-`MillerColumns`, `Modal`, `Portal`, `Progress`, `RadioCard`, `RadioGroup`,
-`SkipNav`, `Slider`, `Slot`, `Status`, `Switch`, `Table`, `Tabs`,
-`Textarea`, `Toggle`, `ToggleGroup`, `Tooltip`, `Tree`, `VisuallyHidden`.
-
-Concretely useful in plugin wireframes:
-
-- **`Tree` / `MillerColumns`** — variable collection picker, project lists, any nested selector.
-- **`Tabs` / `ToggleGroup` / `Switch`** — segmented controls, on/off toggles.
-- **`Breadcrumb`** — the output-zone breadcrumb-style header (`‹ Apply ▸ Canvas swatches`).
-- **`Dropdown` / `Modal` / `Tooltip`** — collection pickers, popovers, helper hints.
-- **`Slider`** — padding sliders, tint strength, any continuous control.
-- **`Alert` / `Status` / `EmptyState`** — post-apply feedback, no-project state.
-
-`@primitiv-ui/icons` exposes a generated set of common UI icons
-(`ArrowLeft`, `ArrowRight`, `Check`, `ChevronDown`, `ChevronLeft`,
-`ChevronRight`, `ChevronUp`, `Close`, `Copy`, `Delete`, `Download`,
-`Edit`, `Eye`, `Folder`, `Info`, `Menu`, `Plus`, etc. — see
-`packages/icons/src/icons/`). Wireframes can use Unicode glyphs (`‹`,
-`▾`, `✓`) for speed; the implementation should pull the corresponding
-icon from `@primitiv-ui/icons`. Call this out in the wireframe comments
-when the choice matters (e.g. "the ‹ will be `<ChevronLeft />` in
-implementation").
-
-**Don't reinvent these in wireframes.** If a wireframe needs a tree, a
-miller-columns picker, or a breadcrumb, draft it using the visual
-vocabulary of the existing component — that way the wireframe doubles
-as guidance for the implementer.
 
 ## Gotchas
 

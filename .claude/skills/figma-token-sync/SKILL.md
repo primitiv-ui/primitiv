@@ -1,6 +1,6 @@
 ---
 name: figma-token-sync
-description: How the primitiv-sync-figma-plugin and @primitiv-ui/tokens work together to back up Figma variables as DTCG JSON in the repo — features, the export flow (Live sync vs Downloads), the dtcg.ts collection routing, alias resolution, and the deliberately-removed one-shot migration code. TRIGGER when editing apps/primitiv-sync-figma-plugin or packages/tokens, when running a token backup, when adding a new Figma variable collection that needs routing, when the Live sync server is involved (localhost:4477), when extending the DTCG transform, or when asked to revisit the sync plugin UI. SKIP for harmoni-figma-plugin work, packages/react component work, and any non-token Figma exploration.
+description: How the primitiv-sync-figma-plugin and @primitiv-ui/tokens back up Figma variables as DTCG JSON in the repo. TRIGGER when editing apps/primitiv-sync-figma-plugin or packages/tokens, running a token backup, adding a Figma variable collection that needs routing, using the Live sync server (localhost:4477), extending the DTCG transform, or revisiting the sync plugin UI. SKIP for harmoni-figma-plugin work, packages/react component work, and any non-token Figma exploration.
 ---
 
 # Figma → DTCG token sync

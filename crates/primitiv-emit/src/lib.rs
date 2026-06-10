@@ -4,7 +4,7 @@ pub mod dtcg;
 pub mod token;
 pub mod value;
 
-pub use alias::resolve_aliases;
+pub use alias::{resolve_against_base, resolve_aliases};
 pub use css::emit_css;
 pub use dtcg::{flatten_modes, tokens_from_dtcg};
 pub use token::Token;

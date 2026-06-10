@@ -45,6 +45,7 @@ adapters, hand-authored golden files, 100% coverage):
 - [ ] **Rust CI + test harness** (RFC 0007 §7) — add `cargo test --workspace` + `cargo llvm-cov` gate (Rust runs in no workflow today); scaffold the `primitiv-emit` / `primitiv-cli` crates (lib + thin bin) and the port traits.
 - [ ] **Token emitter** (RFC 0006 §4) — DTCG → CSS (canonical) / SCSS / TS / Tailwind, the pure `primitiv-emit` crate. TDD with golden files from the existing `packages/tokens` fixtures. Both `tokens` and the example styles depend on it, so it goes first. Its output shape is fixed by **RFC 0008**: the `@layer primitiv` sublayer stack, no `!important`, and the two-tier token split (shared theme tokens once; per-component API tokens inside each component stylesheet) — bake both into the first golden file.
 - [ ] **`primitiv theme`** (RFC 0006 §5) — link `harmoni-core`; brand → palette → token overrides; emit light + dark token sets.
+- [ ] **Mode scoping** (RFC 0009) — emit `[data-theme]` + `[data-density]` scopes (density-neutral names, the `context.<density>` axis collapsed into `[data-density]`); ship the Tailwind `dark:`-variant remap. Falls out of the emitter (it is how dark + density are emitted), so it lands with the token emitter, not as separate work.
 - [ ] **Styling contract + `contract.json`** per component (RFC 0004 §3) — hybrid generation (data-* auto-verified, modifiers/custom-props authored).
 - [ ] **Default theme authoring** in the workbench (RFC 0006 §7) — ported from Figma, one design emitted per format.
 - [ ] **The CLI** (RFC 0005) — `init` / `add` / `tokens` / `theme` / `list`, `primitiv.json`, the static registry, refresh + wiring behaviour.
@@ -56,4 +57,4 @@ adapters, hand-authored golden files, 100% coverage):
 - TS token object shape; Tailwind v4-only vs also v3 (RFC 0006 §10).
 - `primitiv theme` output — separate overrides file vs merge (RFC 0006 §10).
 - Written-file manifest location; registry hosting URL; package-manager coverage (RFC 0005 §9).
-- (Already settled: BEM compound-part naming, hybrid `contract.json` generation, all-four token formats, light-theme + dark-tokens; **CSS cascade layers + two-tier token scoping — RFC 0008**.)
+- (Already settled: BEM compound-part naming, hybrid `contract.json` generation, all-four token formats, light-theme + dark-tokens; **CSS cascade layers + two-tier token scoping — RFC 0008**; **mode scoping via `data-theme`/`data-density` attributes — RFC 0009**, which also resolves the old dark-switch-selector open question.)

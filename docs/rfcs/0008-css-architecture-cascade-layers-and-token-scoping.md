@@ -292,7 +292,10 @@ that one design, not a per-format reinvention.
 - **Dark tokens** (RFC 0006 §5.2) are token *values*, so they live in
   `primitiv.tokens` alongside the light defaults. The `[data-theme="dark"]`
   scope wins over `:root` by normal source order *within* the layer — no
-  cross-layer interaction needed.
+  cross-layer interaction needed. The **density** scopes (`[data-density="…"]`,
+  RFC 0009) are the sibling mode axis and live in the same `primitiv.tokens`
+  layer on identical terms; both rely on plain custom-property inheritance, not
+  cascade-layer ordering, so nesting a scope works regardless of layers.
 - **Brand overrides** from `primitiv theme --brand` (RFC 0006 §5.1) go in the
   `primitiv.theme` sublayer, which sits *above* `primitiv.tokens`. Because layer
   order — not file load order — decides, the brand override reliably beats the

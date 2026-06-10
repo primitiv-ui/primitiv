@@ -160,7 +160,10 @@ surface, and it is part of each component's public API.
    already emits*: `data-state`, `data-disabled`, `data-loading`,
    `data-orientation` (the `data-*` styling surface from the
    `react-component-patterns` conventions). Styling reads them automatically;
-   the consumer wires nothing.
+   the consumer wires nothing. *(Distinct from these per-component **state**
+   attributes are the global **mode-scope** attributes `data-theme` and
+   `data-density` — an ambient, inherited theming surface set on any ancestor,
+   not per-component state. They are specified in RFC 0009.)*
 4. **CSS custom-property API** — the themable seam (§3.3).
 
 ```css

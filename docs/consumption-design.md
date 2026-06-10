@@ -474,6 +474,18 @@ the emitted CSS is ordered and how the token output is scoped:
 | D37 | **Reject** subsetting the shared theme-token file for v1 — it breaks `primitiv theme` re-skin and cross-component consistency, the size win is negligible, and names are the contract |
 | D38 | Shared theme-token emit is **idempotent** (write-once, refreshed under the D18 rules); `primitiv theme` overrides occupy a `primitiv.theme` sublayer so they beat base tokens by layer order, not load order — recommending RFC 0006 §10.4 resolve as a separate file |
 
+**Mode scoping — theme & density (2026-06-10) — RFC 0009.** Generalises the
+dark-mode scope into two orthogonal mode axes set as inheritable DOM attributes:
+
+| # | Decision |
+|---|---|
+| D39 | Theme and density are **two orthogonal, inheritable DOM-attribute scopes** (`data-theme`, `data-density`); a mode is a *scope*, not a token name; custom-property inheritance reproduces Figma's page → frame → child density model on the web |
+| D40 | **Attributes, not classes**, for both axes (resolves RFC 0006 §10.1's selector question); kept as **separate** attributes — orthogonal, no `data-mode="dark-dense"` combinatorial explosion |
+| D41 | Density values = Figma `Context` modes (`dense`/`compact`/`comfortable`/`spacious`); **default density = comfortable**, default theme = light; `prefers-color-scheme` stays **opt-in** |
+| D42 | Density-dependent tokens emit under **density-neutral names**; the `context.<density>` axis collapses into `[data-density]` scopes living in the `primitiv.tokens` layer (RFC 0008) |
+| D43 | Model works across **all four formats** with no per-format reinvention; Tailwind wiring documented — remap the `dark:` variant to `[data-theme="dark"]`, optional `data-[density]` variants; v4 utilities inherit the active mode automatically (CSS-variable-native) |
+| D44 | **v1 ships attribute-based density**; **responsive (container-query) density is designed-in but deferred** — additive on the same value-sets (each density also exposed as a container-applicable block + a `container-type` helper); CSS style-queries the eventual purest path |
+
 ---
 
 ## 11. Open questions

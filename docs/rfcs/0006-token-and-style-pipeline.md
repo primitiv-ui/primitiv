@@ -189,6 +189,12 @@ The emitter surfaces both Intent modes. Default switching mechanism: a
 per-component dark CSS is authored in v1** — components read the variables, so
 the dark token set re-skins them automatically.
 
+**Density is the sibling mode axis.** `[data-theme]` is one of two orthogonal
+mode scopes; **density** (`[data-density]`, the 4-mode Figma `Context`
+collection) is emitted the same way — the mode collapsed out of the token name
+into a scope, inherited down the DOM. The full model (both axes, the inheritance
+semantics, format/Tailwind compatibility, responsive density) is **RFC 0009**.
+
 ### 5.3 Dark stays evolvable
 
 Per Principle 2/3: dark values (chroma especially) are expected to improve as
@@ -272,9 +278,10 @@ Specified in RFC 0005; listed here for the pipeline's entry points:
 
 ## 10. Open questions
 
-1. **Dark switch selector.** Confirm `[data-theme="dark"]` as canonical (vs
-   `.dark` class) and whether the `prefers-color-scheme` variant is emitted by
-   default or opt-in.
+1. ~~**Dark switch selector.**~~ **Resolved by RFC 0009 (D40):** the
+   `data-*`-attribute scope is canonical for both mode axes (`[data-theme]`,
+   `[data-density]`), over a `.class`. The `prefers-color-scheme` variant stays
+   **opt-in**, not default (RFC 0009 §6).
 2. **TS token object shape.** Flat (`tokens['color.primary']`) vs nested
    (`tokens.color.primary`), and whether it ships as part of `@primitiv-ui/tokens`
    or is emitted by the CLI like the other formats.

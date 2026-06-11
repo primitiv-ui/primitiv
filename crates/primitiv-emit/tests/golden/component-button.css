@@ -1,0 +1,6 @@
+@layer primitiv.base {
+  .primitiv-button {
+    --primitiv-button-bg: var(--primitiv-color-primary);
+    --primitiv-button-fg: var(--primitiv-color-on-primary);
+  }
+}

@@ -1,24 +1,34 @@
 use std::collections::BTreeSet;
 
 use crate::error::CliError;
+use crate::package_manager::PackageManager;
+use crate::ports::fs::FileSystem;
 use crate::ports::output::Output;
+use crate::ports::process::ProcessRunner;
 use crate::ports::registry::Registry;
 use crate::registry::RegistryIndex;
 
 /// The `primitiv add <component...>` command (RFC 0005 §2.2 / §4).
 ///
-/// This is the resolution spine of `add`: it loads the registry index through
-/// the [`Registry`] port, resolves each requested component **and its transitive
-/// component dependencies** (§4.4), and reports the install plan to stdout — the
-/// human table, or the structured plan under `--json` for agents (§6.5). A
-/// requested or depended-on component that the registry doesn't carry is a
-/// [`CliError::NotFound`]. The package-install and style-copy effects (§4.2–§4.3)
-/// layer on in later slices; resolving and reporting come first.
+/// It loads the registry index through the [`Registry`] port, resolves each
+/// requested component **and its transitive component dependencies** (§4.4),
+/// reports the install plan to stdout — the human table, or the structured plan
+/// under `--json` for agents (§6.5) — then **ensures the headless package(s)**
+/// are installed by running the detected package manager through the
+/// [`ProcessRunner`] port (§4.1 step 2). `--dry-run` reports the plan and stops
+/// before touching anything. A requested or depended-on component the registry
+/// doesn't carry is a [`CliError::NotFound`]; a package manager that fails is a
+/// [`CliError::Install`]. The style-copy and wiring effects (§4.2–§4.3) layer on
+/// in later slices.
+#[allow(clippy::too_many_arguments)]
 pub fn add(
+    fs: &impl FileSystem,
     registry: &impl Registry,
     output: &impl Output,
+    runner: &impl ProcessRunner,
     components: &[String],
     json: bool,
+    dry_run: bool,
 ) -> Result<(), CliError> {
     let index = registry
         .index()
@@ -31,7 +41,38 @@ pub fn add(
         render(&index, &resolved)
     };
     output.write_stdout(plan.as_bytes())?;
+    if !dry_run {
+        ensure_packages(fs, runner, &index, &resolved)?;
+    }
     Ok(())
+}
+
+/// Install the resolved components' headless package(s) with the project's
+/// package manager (RFC 0005 §4.1 step 2). The manager is detected from the
+/// lockfile in the working directory, and a single invocation installs the
+/// deduplicated package set; an empty set (nothing declares a package) is a
+/// no-op. A spawn failure or non-zero exit becomes a [`CliError::Install`].
+fn ensure_packages(
+    fs: &impl FileSystem,
+    runner: &impl ProcessRunner,
+    index: &RegistryIndex,
+    resolved: &[String],
+) -> Result<(), CliError> {
+    let packages = packages(index, resolved);
+    if packages.is_empty() {
+        return Ok(());
+    }
+    let dir = fs.current_dir()?;
+    let manager = PackageManager::detect(fs, &dir);
+    runner
+        .run(manager.program(), &manager.install_args(&packages), &dir)
+        .map_err(|error| {
+            CliError::Install(format!(
+                "failed to install {} with {}: {error}",
+                packages.join(", "),
+                manager.program()
+            ))
+        })
 }
 
 /// Resolve the requested components to the full, deduplicated, sorted set that

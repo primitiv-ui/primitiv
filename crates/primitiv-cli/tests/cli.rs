@@ -85,10 +85,13 @@ fn list_json_streams_the_raw_registry_index() {
 }
 
 #[test]
-fn add_reports_the_resolved_plan() {
+fn add_dry_run_reports_the_resolved_plan_without_installing() {
+    // `--dry-run` keeps the e2e from shelling out to a real package manager: it
+    // reports the plan and stops (RFC 0005 §5). The install path is proven at the
+    // command layer with the process-runner fake.
     Command::cargo_bin("primitiv")
         .unwrap()
-        .args(["add", "button", "switch"])
+        .args(["add", "button", "switch", "--dry-run"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Resolved 2 components to add:"))
@@ -102,7 +105,7 @@ fn add_reports_the_resolved_plan() {
 fn add_json_emits_the_structured_plan() {
     Command::cargo_bin("primitiv")
         .unwrap()
-        .args(["add", "button", "--json"])
+        .args(["add", "button", "--json", "--dry-run"])
         .assert()
         .success()
         .stdout(predicate::str::contains("\"components\""))

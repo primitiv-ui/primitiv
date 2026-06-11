@@ -24,6 +24,10 @@ fn maps_each_variant_to_a_stable_exit_code() {
         CliError::NotFound("no such component".to_string()).exit_code(),
         9
     );
+    assert_eq!(
+        CliError::Install("install failed".to_string()).exit_code(),
+        10
+    );
 }
 
 #[test]
@@ -82,5 +86,15 @@ fn renders_a_not_found_message_verbatim() {
     assert_eq!(
         error.to_string(),
         "component 'nope' is not in the registry"
+    );
+}
+
+#[test]
+fn renders_an_install_message_verbatim() {
+    let error = CliError::Install("failed to install @primitiv-ui/react with pnpm".to_string());
+
+    assert_eq!(
+        error.to_string(),
+        "failed to install @primitiv-ui/react with pnpm"
     );
 }

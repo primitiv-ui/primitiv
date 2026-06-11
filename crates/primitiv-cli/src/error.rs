@@ -32,14 +32,18 @@ pub enum CliError {
     /// registry index — `add` of something the registry doesn't carry
     /// (RFC 0005 §4.4).
     NotFound(String),
+    /// The package manager `add` invoked failed — it couldn't be spawned, or it
+    /// exited non-zero (RFC 0005 §4.1 step 2).
+    Install(String),
 }
 
 impl CliError {
     /// The process exit code the bin returns for this error (RFC 0005 §5).
     /// Codes are stable and distinct per failure source so an agent or CI can
     /// branch on them: `2` usage, `3` invalid colour, `4` I/O, `5` config,
-    /// `6` conflict, `7` registry, `8` not-a-project, `9` component not found.
-    /// New error variants take a new code rather than reusing one.
+    /// `6` conflict, `7` registry, `8` not-a-project, `9` component not found,
+    /// `10` install failed. New error variants take a new code rather than
+    /// reusing one.
     pub fn exit_code(&self) -> u8 {
         match self {
             CliError::Usage(_) => 2,
@@ -50,6 +54,7 @@ impl CliError {
             CliError::Registry(_) => 7,
             CliError::Project(_) => 8,
             CliError::NotFound(_) => 9,
+            CliError::Install(_) => 10,
         }
     }
 }
@@ -67,6 +72,7 @@ impl fmt::Display for CliError {
             CliError::Registry(message) => write!(f, "{message}"),
             CliError::Project(message) => write!(f, "{message}"),
             CliError::NotFound(message) => write!(f, "{message}"),
+            CliError::Install(message) => write!(f, "{message}"),
         }
     }
 }

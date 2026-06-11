@@ -115,6 +115,7 @@ fn parses_the_add_command_with_one_component() {
         Command::Add {
             components: vec!["button".to_string()],
             json: false,
+            dry_run: false,
         }
     );
 }
@@ -128,20 +129,22 @@ fn parses_the_add_command_with_several_components() {
         Command::Add {
             components: vec!["button".to_string(), "switch".to_string()],
             json: false,
+            dry_run: false,
         }
     );
 }
 
 #[test]
-fn parses_add_with_the_json_flag_among_the_components() {
-    // The flag is order-free: it can sit after a component name.
-    let command = parse(&args(&["add", "button", "--json"])).unwrap();
+fn parses_add_with_the_json_and_dry_run_flags_among_the_components() {
+    // Flags are order-free: they can sit after a component name, in any order.
+    let command = parse(&args(&["add", "button", "--dry-run", "--json"])).unwrap();
 
     assert_eq!(
         command,
         Command::Add {
             components: vec!["button".to_string()],
             json: true,
+            dry_run: true,
         }
     );
 }

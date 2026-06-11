@@ -164,18 +164,31 @@ adapters, hand-authored golden files, 100% coverage):
     `dependsOn.packages` (the headless library) under a `Packages to ensure:`
     section, omitted when none. **`add --json` is landed** (RFC 0005 §5 / §6.5):
     the same plan — components with versions, plus the packages — as
-    machine-readable JSON for the Agent profile, hand-rendered to exact bytes; the
-    remaining install/copy flags (`--styles-only`, `--no-styles`, `--format`,
-    `--path`, `--force`, `--dry-run`) arrive with the slices that act on them.
-    **Remaining for `add`** (the keystone's *effects*, §4.2–§4.4): the
-    package-install step (needs a **process-runner port** for the detected manager
-    — the next new I/O seam, plus lockfile-based package-manager detection), the
-    style-copy + refresh/`primitiv.lock` semantics (needs the registry to serve
-    per-component file bytes and the authored style files from items 5/6), project
-    wiring (§4.3), `--dry-run`, and the `--registry` / HTTPS registry adapter.
-    **Other remaining CLI work:** the detection / prompting increment for `init`;
-    the `list` **"installed in this project"** column; the Tailwind
-    `dark:`-variant remap (RFC 0009 §4.2).
+    machine-readable JSON for the Agent profile, hand-rendered to exact bytes.
+    The **package-install effect is now landed** (RFC 0005 §4.1 step 2): a new
+    `PackageManager` enum (`package_manager.rs`) detects pnpm/yarn/bun/npm from
+    the project lockfile (npm the default) and builds the install command, and a
+    new **`ProcessRunner` port** (`ports/process.rs` — an `OsProcessRunner` that
+    spawns the manager and maps a non-zero exit to an error, plus an
+    invocation-recording `InMemoryProcessRunner` fake) is the seam `add` runs it
+    through. `add` now ensures the resolved components' `packages` via one
+    detected-manager invocation in the working directory; a spawn failure or
+    non-zero exit is a new `CliError::Install` variant (exit code `10`).
+    **`--dry-run` is landed** (RFC 0005 §5): it reports the plan and stops before
+    installing — and is what the `add` e2e uses, so the real binary never shells
+    out to a live package manager (the install path is proven at the command layer
+    with the runner fake; the `OsProcessRunner` adapter is unit-tested with
+    harmless commands). **Remaining for `add`** (§4.2–§4.4): the style-copy +
+    refresh/`primitiv.lock` semantics (needs the registry to serve per-component
+    file bytes and the authored style files from items 5/6), project wiring
+    (§4.3), the `--styles-only` / `--no-styles` / `--format` / `--path` /
+    `--force` flags, the `--registry` / HTTPS registry adapter, and routing the
+    package manager's own output to stderr so `--json` keeps a clean stdout (today
+    a non-dry-run `--json` install interleaves the manager's chatter with the JSON;
+    agents wanting pure JSON use `--dry-run`). **Other remaining CLI work:** the
+    detection / prompting increment for `init` (the lockfile package-manager
+    detection now exists and is reusable); the `list` **"installed in this
+    project"** column; the Tailwind `dark:`-variant remap (RFC 0009 §4.2).
 - [ ] **Distribution** (RFC 0005 §7) — Rust binary via `optionalDependencies` (`@primitiv-ui/cli-*`), `cargo-dist`/napi-rs matrix; supersede the published v0.0.1 name-reservation placeholders with the real `primitiv-ui` / `create-primitiv-ui` at a higher version.
 
 ## ❓ Open questions

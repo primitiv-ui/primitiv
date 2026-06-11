@@ -5,7 +5,7 @@ use palette::Oklch;
 use crate::color::input::{ColorInput, ColorInputError};
 use crate::palette::generator::{
     generate_dark_palette, generate_palette_with_scale, Palette, TARGET_CHROMA_SCALE,
-    TARGET_LIGHTNESS, validate_lightness_curve,
+    TARGET_LIGHTNESS, TARGET_LIGHTNESS_DARK, validate_lightness_curve,
 };
 
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -73,6 +73,19 @@ pub fn generate_pair(
     );
 
     Ok(PaletteSet { light, dark })
+}
+
+/// Generate a brand's paired light + dark palette using the system default
+/// theme curves (`TARGET_LIGHTNESS` for light, `TARGET_LIGHTNESS_DARK` for
+/// dark). This is the entry point `primitiv theme --brand` builds on: the
+/// curve choice lives here in the engine, so the CLI passes only the brand.
+pub fn generate_brand_pair(input: ColorInput) -> Result<PaletteSet, ColorInputError> {
+    generate_pair(
+        input,
+        &TARGET_LIGHTNESS,
+        &TARGET_LIGHTNESS_DARK,
+        GenerateOptions::default(),
+    )
 }
 
 pub fn generate_with_lightness(

@@ -11,8 +11,8 @@ pub mod neutral;
 
 pub use audit::audit_contrast;
 pub use generate::{
-    generate, generate_pair, generate_with_lightness, generate_with_options, GenerateOptions,
-    PaletteSet,
+    generate, generate_brand_pair, generate_pair, generate_with_lightness, generate_with_options,
+    GenerateOptions, PaletteSet,
 };
 pub use neutral::{derive_soft_neutrals, generate_neutral_ramp, tint_neutrals};
 

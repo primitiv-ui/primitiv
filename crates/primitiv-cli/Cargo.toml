@@ -2,3 +2,10 @@
 name = "primitiv-cli"
 version = "0.1.0"
 edition = "2024"
+
+[dependencies]
+harmoni-core = { path = "../harmoni-core" }
+primitiv-emit = { path = "../primitiv-emit" }
+
+[dev-dependencies]
+pretty_assertions = "1"

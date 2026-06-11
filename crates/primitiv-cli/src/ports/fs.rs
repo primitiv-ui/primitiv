@@ -27,12 +27,20 @@ pub trait FileSystem {
 #[derive(Debug, Default)]
 pub struct InMemoryFs {
     files: RefCell<HashMap<PathBuf, Vec<u8>>>,
+    fail_writes: RefCell<Option<PathBuf>>,
 }
 
 #[cfg(test)]
 impl InMemoryFs {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Make any [`write`](FileSystem::write) to `path` fail with
+    /// `PermissionDenied`, so command tests can drive a write-error branch
+    /// without a real, unwritable filesystem (RFC 0007 §7).
+    pub fn fail_writes_to(&self, path: &Path) {
+        *self.fail_writes.borrow_mut() = Some(path.to_path_buf());
     }
 }
 
@@ -47,6 +55,9 @@ impl FileSystem for InMemoryFs {
     }
 
     fn write(&self, path: &Path, bytes: &[u8]) -> io::Result<()> {
+        if self.fail_writes.borrow().as_deref() == Some(path) {
+            return Err(io::Error::new(io::ErrorKind::PermissionDenied, "write blocked"));
+        }
         self.files.borrow_mut().insert(path.to_path_buf(), bytes.to_vec());
         Ok(())
     }

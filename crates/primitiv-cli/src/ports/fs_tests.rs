@@ -30,3 +30,16 @@ fn should_error_with_not_found_when_reading_a_missing_path() {
 
     assert_eq!(err.kind(), std::io::ErrorKind::NotFound);
 }
+
+#[test]
+fn should_fail_writes_to_a_path_marked_as_failing() {
+    let fs = InMemoryFs::new();
+    let path = Path::new("src/styles/primitiv.theme.css");
+    fs.fail_writes_to(path);
+
+    let err = fs.write(path, b"x").unwrap_err();
+
+    assert_eq!(err.kind(), std::io::ErrorKind::PermissionDenied);
+    // Other paths still write normally.
+    assert!(fs.write(Path::new("other"), b"y").is_ok());
+}

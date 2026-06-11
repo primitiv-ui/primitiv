@@ -103,10 +103,27 @@ adapters, hand-authored golden files, 100% coverage):
     now also **defaults the format from the config's `tokens.format`** (then CSS),
     consulting `primitiv.json` via `config::try_resolve` — a new variant of
     `resolve` that returns `Ok(None)` for a missing config (fine for a format
-    default) while a **malformed** config still errors. **Remaining:** the
-    config-less `tokens` → stdout path (Principle 4's literal `tokens --format
-    css` with no config); the `init`, `add`, `list` commands; the static registry
-    (+ the `Registry` port); refresh + wiring behaviour; the Tailwind
+    default) while a **malformed** config still errors. The **`init` command is
+    now landed (non-interactive core)** (`commands/init.rs`): it gathers
+    format / brand / styles-path / styles-enabled / component-alias from
+    order-free flags (each defaulted — `css`, `#0a7755`, `src/styles/primitiv`,
+    enabled, no alias), hand-renders the canonical `primitiv.json` (an authored
+    golden, not `serde_json`, so the bytes are exact — RFC 0007 §4), and writes it
+    to the working directory through the `FileSystem` port (`current_dir` + the
+    dormant `exists`), the durable config every other command already reads
+    (RFC 0005 §2.1 / §3.1). It is the **write-side counterpart to `config::resolve`**
+    and the first consumer of `exists`. Honouring **Principle 2 (never clobber)**,
+    an existing `primitiv.json` is a hard error unless `--force` is given — a new
+    `CliError::Conflict` variant (exit code `6`). The token-layer file extension
+    tracks the format (`tailwind` → `.css`, since the preset is CSS). **Deferred to
+    later increments** (the testable seam was deliberately the flags core):
+    framework / package-manager detection (lockfile), tsconfig/jsconfig alias
+    detection (`compilerOptions.paths`, RFC 0005 §3.3), and interactive prompting —
+    so `--yes` and a `--cwd` global flag are not yet wired (init uses the process
+    cwd via the port). **Remaining:** the config-less `tokens` → stdout path
+    (Principle 4's literal `tokens --format css` with no config); the detection /
+    prompting increment for `init`; the `add` and `list` commands; the static
+    registry (+ the `Registry` port); refresh + wiring behaviour; the Tailwind
     `dark:`-variant remap (RFC 0009 §4.2).
 - [ ] **Distribution** (RFC 0005 §7) — Rust binary via `optionalDependencies` (`@primitiv-ui/cli-*`), `cargo-dist`/napi-rs matrix; supersede the published v0.0.1 name-reservation placeholders with the real `primitiv-ui` / `create-primitiv-ui` at a higher version.
 

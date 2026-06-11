@@ -93,6 +93,28 @@ fn rejects_init_value_flags_with_no_value() {
 }
 
 #[test]
+fn parses_the_list_command() {
+    let command = parse(&args(&["list"])).unwrap();
+
+    assert_eq!(command, Command::List { json: false });
+}
+
+#[test]
+fn parses_the_list_command_with_json() {
+    let command = parse(&args(&["list", "--json"])).unwrap();
+
+    assert_eq!(command, Command::List { json: true });
+}
+
+#[test]
+fn rejects_an_unexpected_argument_to_list() {
+    assert!(matches!(
+        parse(&args(&["list", "--bogus"])).unwrap_err(),
+        CliError::Usage(_)
+    ));
+}
+
+#[test]
 fn parses_the_theme_command_with_brand_and_out() {
     let command = parse(&args(&["theme", "--brand", "#0a7755", "--out", "x.css"])).unwrap();
 

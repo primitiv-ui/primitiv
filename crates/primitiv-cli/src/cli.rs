@@ -8,6 +8,9 @@ use crate::format::Format;
 #[derive(Debug, PartialEq)]
 pub enum Command {
     Init(InitOptions),
+    List {
+        json: bool,
+    },
     Theme {
         brand: String,
         out: String,
@@ -26,15 +29,30 @@ pub enum Command {
 pub fn parse(args: &[String]) -> Result<Command, CliError> {
     let (name, rest) = args
         .split_first()
-        .ok_or_else(|| usage("no command given; expected: init, theme, tokens"))?;
+        .ok_or_else(|| usage("no command given; expected: init, list, theme, tokens"))?;
     match name.as_str() {
         "init" => parse_init(rest),
+        "list" => parse_list(rest),
         "theme" => parse_theme(rest),
         "tokens" => parse_tokens(rest),
         other => Err(usage(format!(
-            "unknown command '{other}'; expected: init, theme, tokens"
+            "unknown command '{other}'; expected: init, list, theme, tokens"
         ))),
     }
+}
+
+/// Parse `list [--json]` — the only flag is `--json`, which switches the output
+/// from the human table to the raw index for agents (RFC 0005 §2.5 / §6.5).
+fn parse_list(args: &[String]) -> Result<Command, CliError> {
+    let mut json = false;
+    let mut rest = args.iter();
+    while let Some(flag) = rest.next() {
+        match flag.as_str() {
+            "--json" => json = true,
+            other => return Err(usage(format!("unexpected argument '{other}'"))),
+        }
+    }
+    Ok(Command::List { json })
 }
 
 /// Parse `init [--format <fmt>] [--brand <hex>] [--path <dir>]

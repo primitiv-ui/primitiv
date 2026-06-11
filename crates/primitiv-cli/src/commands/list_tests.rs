@@ -1,6 +1,6 @@
 use crate::commands::list::list;
 use crate::error::CliError;
-use crate::ports::output::{InMemoryOutput, Output};
+use crate::ports::output::InMemoryOutput;
 use crate::ports::registry::InMemoryRegistry;
 
 /// A registry index the command formats — two components at distinct versions.

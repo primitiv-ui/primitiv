@@ -5,6 +5,7 @@ pub mod dtcg;
 pub mod mode;
 pub mod pipeline;
 pub mod scss;
+pub mod tailwind;
 pub mod token;
 pub mod ts;
 pub mod value;
@@ -19,6 +20,7 @@ pub use pipeline::{
     emit_ts_tokens, TokenSources,
 };
 pub use scss::emit_scss;
+pub use tailwind::emit_tailwind;
 pub use token::Token;
 pub use ts::emit_ts;
 pub use value::format_number;
@@ -37,6 +39,8 @@ mod mode_tests;
 mod pipeline_tests;
 #[cfg(test)]
 mod scss_tests;
+#[cfg(test)]
+mod tailwind_tests;
 #[cfg(test)]
 mod ts_tests;
 #[cfg(test)]

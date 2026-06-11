@@ -114,6 +114,7 @@ fn parses_the_add_command_with_one_component() {
         command,
         Command::Add {
             components: vec!["button".to_string()],
+            json: false,
         }
     );
 }
@@ -126,6 +127,21 @@ fn parses_the_add_command_with_several_components() {
         command,
         Command::Add {
             components: vec!["button".to_string(), "switch".to_string()],
+            json: false,
+        }
+    );
+}
+
+#[test]
+fn parses_add_with_the_json_flag_among_the_components() {
+    // The flag is order-free: it can sit after a component name.
+    let command = parse(&args(&["add", "button", "--json"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Add {
+            components: vec!["button".to_string()],
+            json: true,
         }
     );
 }

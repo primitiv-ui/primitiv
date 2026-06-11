@@ -9,7 +9,8 @@ use crate::registry::RegistryIndex;
 ///
 /// This is the resolution spine of `add`: it loads the registry index through
 /// the [`Registry`] port, resolves each requested component **and its transitive
-/// component dependencies** (§4.4), and reports the install plan to stdout. A
+/// component dependencies** (§4.4), and reports the install plan to stdout — the
+/// human table, or the structured plan under `--json` for agents (§6.5). A
 /// requested or depended-on component that the registry doesn't carry is a
 /// [`CliError::NotFound`]. The package-install and style-copy effects (§4.2–§4.3)
 /// layer on in later slices; resolving and reporting come first.
@@ -17,13 +18,19 @@ pub fn add(
     registry: &impl Registry,
     output: &impl Output,
     components: &[String],
+    json: bool,
 ) -> Result<(), CliError> {
     let index = registry
         .index()
         .map_err(|error| CliError::Registry(error.to_string()))?;
     let index = RegistryIndex::parse(&index)?;
     let resolved = resolve(&index, components)?;
-    output.write_stdout(render(&index, &resolved).as_bytes())?;
+    let plan = if json {
+        render_json(&index, &resolved)
+    } else {
+        render(&index, &resolved)
+    };
+    output.write_stdout(plan.as_bytes())?;
     Ok(())
 }
 
@@ -69,6 +76,40 @@ fn render(index: &RegistryIndex, resolved: &[String]) -> String {
         }
     }
     plan
+}
+
+/// Format the plan as JSON for agents (RFC 0005 §6.5): the resolved components
+/// with their versions, and the packages to ensure — the same data the human
+/// table carries, machine-readable. Hand-rendered to exact bytes (the authored-
+/// golden discipline, RFC 0007 §4); the values are registry-controlled and need
+/// no escaping.
+fn render_json(index: &RegistryIndex, resolved: &[String]) -> String {
+    let components: Vec<String> = resolved
+        .iter()
+        .map(|name| {
+            let version = &index.components[name].version;
+            format!("    {{ \"name\": \"{name}\", \"version\": \"{version}\" }}")
+        })
+        .collect();
+    let packages: Vec<String> = packages(index, resolved)
+        .iter()
+        .map(|package| format!("    \"{package}\""))
+        .collect();
+    format!(
+        "{{\n  \"components\": {},\n  \"packages\": {}\n}}\n",
+        json_array(components),
+        json_array(packages),
+    )
+}
+
+/// Wrap pre-indented `items` as a JSON array, collapsing to `[]` when empty so
+/// an empty package list stays valid.
+fn json_array(items: Vec<String>) -> String {
+    if items.is_empty() {
+        "[]".to_string()
+    } else {
+        format!("[\n{}\n  ]", items.join(",\n"))
+    }
 }
 
 /// The deduplicated, sorted union of the npm packages the resolved components

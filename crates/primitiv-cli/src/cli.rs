@@ -10,6 +10,7 @@ pub enum Command {
     Init(InitOptions),
     Add {
         components: Vec<String>,
+        json: bool,
     },
     List {
         json: bool,
@@ -45,22 +46,28 @@ pub fn parse(args: &[String]) -> Result<Command, CliError> {
     }
 }
 
-/// Parse `add <component...>` — one or more component names, at least one
-/// required (RFC 0005 §2.2). The install/copy flags (`--styles-only`,
-/// `--no-styles`, `--format`, `--path`, `--force`) arrive with the later slices
-/// that act on them; for now a `--`-prefixed argument is an unexpected one.
+/// Parse `add <component...> [--json]` — one or more component names, at least
+/// one required (RFC 0005 §2.2), with `--json` selecting the structured plan for
+/// agents (§6.5). Names and the flag are order-free. The install/copy flags
+/// (`--styles-only`, `--no-styles`, `--format`, `--path`, `--force`) arrive with
+/// the later slices that act on them; any other `--`-prefixed argument is
+/// unexpected.
 fn parse_add(args: &[String]) -> Result<Command, CliError> {
     let mut components = Vec::new();
+    let mut json = false;
     for arg in args {
-        if arg.starts_with("--") {
-            return Err(usage(format!("unexpected argument '{arg}'")));
+        match arg.as_str() {
+            "--json" => json = true,
+            other if other.starts_with("--") => {
+                return Err(usage(format!("unexpected argument '{other}'")))
+            }
+            other => components.push(other.to_string()),
         }
-        components.push(arg.clone());
     }
     if components.is_empty() {
         return Err(usage("add requires at least one component"));
     }
-    Ok(Command::Add { components })
+    Ok(Command::Add { components, json })
 }
 
 /// Parse `list [--json]` — the only flag is `--json`, which switches the output

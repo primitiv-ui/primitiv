@@ -3,6 +3,15 @@ import { useState } from "react";
 import { Button } from "@primitiv-ui/react";
 
 import "./ButtonExample.css";
+// The generated Primitiv token layer (custom-property defaults) + the canonical
+// per-component default theme straight from the registry. Together they style
+// the `.primitiv-button` contract classes applied below — the same bytes
+// `primitiv add button` copies into a consumer repo (RFC 0006 §7).
+import "./primitiv-tokens.css";
+import "../../../../../registry/r/button/styles.css";
+
+const INTENTS = ["primary", "secondary", "danger", "link"] as const;
+const SIZES = ["xs", "sm", "md", "lg", "xl"] as const;
 
 export function ButtonExample() {
   const [count, setCount] = useState(0);
@@ -10,6 +19,65 @@ export function ButtonExample() {
   return (
     <div className="btn-example">
       <h2 className="btn-example__title">Button</h2>
+
+      <section className="btn-example__section">
+        <h3 className="btn-example__section-title">
+          Default theme — styling contract
+        </h3>
+        <p className="btn-example__description">
+          The headless <code>Button</code> with the registry{" "}
+          <code>.primitiv-button</code> classes applied. Intents are visual
+          modifiers; <code>data-disabled</code> styles itself.
+        </p>
+
+        <div className="btn-example__row">
+          {INTENTS.map((intent) => (
+            <Button
+              key={intent}
+              className={`primitiv-button primitiv-button--${intent} primitiv-button--md`}
+            >
+              {intent}
+            </Button>
+          ))}
+        </div>
+
+        <div className="btn-example__row">
+          {SIZES.map((size) => (
+            <Button
+              key={size}
+              className={`primitiv-button primitiv-button--primary primitiv-button--${size}`}
+            >
+              {size}
+            </Button>
+          ))}
+        </div>
+
+        <div className="btn-example__row">
+          <Button className="primitiv-button primitiv-button--primary primitiv-button--md">
+            Default
+          </Button>
+          <Button
+            className="primitiv-button primitiv-button--primary primitiv-button--md"
+            disabled
+          >
+            Disabled
+          </Button>
+          <Button
+            className="primitiv-button primitiv-button--danger primitiv-button--md"
+            aria-label="Delete"
+          >
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24">
+              <path
+                d="M6 18 18 6M6 6l12 12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              />
+            </svg>
+            Delete
+          </Button>
+        </div>
+      </section>
 
       <section className="btn-example__section">
         <h3 className="btn-example__section-title">Default</h3>

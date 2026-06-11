@@ -93,6 +93,10 @@ fn rejects_a_flag_with_no_value() {
         parse(&args(&["theme", "--out"])).unwrap_err(),
         CliError::Usage(_)
     ));
+    assert!(matches!(
+        parse(&args(&["theme", "--format"])).unwrap_err(),
+        CliError::Usage(_)
+    ));
 }
 
 #[test]

@@ -42,6 +42,15 @@ fn surfaces_an_invalid_brand_colour() {
 }
 
 #[test]
+fn surfaces_an_invalid_brand_colour_in_the_scss_path() {
+    let fs = InMemoryFs::new();
+
+    let err = theme(&fs, "not-a-colour", Path::new("out.scss"), Format::Scss).unwrap_err();
+
+    assert!(matches!(err, CliError::InvalidColor(_)));
+}
+
+#[test]
 fn surfaces_a_write_failure() {
     let fs = InMemoryFs::new();
     let out = Path::new("out.css");

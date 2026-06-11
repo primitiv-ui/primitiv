@@ -1,9 +1,10 @@
 use std::path::Path;
 
-use primitiv_emit::{emit_tokens_css, TokenSources};
+use primitiv_emit::{emit_tailwind_tokens, emit_tokens_css, emit_tokens_scss, TokenSources};
 use serde_json::Value;
 
 use crate::error::CliError;
+use crate::format::Format;
 use crate::ports::fs::FileSystem;
 
 // The design system's own DTCG token documents, embedded into the binary so
@@ -22,20 +23,27 @@ const INTENT: &str =
 const CONTEXT: &str =
     include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/context.json"));
 
-/// The `primitiv tokens --out <path>` command (RFC 0005 §2.3): route the
-/// embedded design-system DTCG into the emitter, serialise the shared token
-/// layer as canonical CSS, and write it to `out` through the filesystem port.
-/// SCSS / Tailwind formats and `primitiv.json` path / format defaults land next.
-pub fn tokens(fs: &impl FileSystem, out: &Path) -> Result<(), CliError> {
+/// The `primitiv tokens --out <path> [--format <fmt>]` command (RFC 0005 §2.3):
+/// route the embedded design-system DTCG into the emitter, serialise the shared
+/// token layer in the requested `format`, and write it to `out` through the
+/// filesystem port. CSS is canonical; SCSS is the canonical CSS plus resolving
+/// `$primitiv-*` variables; Tailwind is the `@theme` preset. (`primitiv.json`
+/// path / format defaults land next.)
+pub fn tokens(fs: &impl FileSystem, format: Format, out: &Path) -> Result<(), CliError> {
     let base = [parse(PRIMITIVES), parse(INTERACTION)];
     let theme = [parse(PALETTE), parse(INTENT)];
     let density = [parse(CONTEXT)];
-    let css = emit_tokens_css(&TokenSources {
+    let sources = TokenSources {
         base: &base,
         theme: &theme,
         density: &density,
-    });
-    fs.write(out, css.as_bytes())?;
+    };
+    let output = match format {
+        Format::Css => emit_tokens_css(&sources),
+        Format::Scss => emit_tokens_scss(&sources),
+        Format::Tailwind => emit_tailwind_tokens(&sources),
+    };
+    fs.write(out, output.as_bytes())?;
     Ok(())
 }
 

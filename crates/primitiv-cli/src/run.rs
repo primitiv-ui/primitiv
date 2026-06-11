@@ -13,6 +13,6 @@ use crate::ports::fs::FileSystem;
 pub fn run(fs: &impl FileSystem, args: &[String]) -> Result<(), CliError> {
     match parse(args)? {
         Command::Theme { brand, out, format } => theme(fs, &brand, Path::new(&out), format),
-        Command::Tokens { out } => tokens(fs, Path::new(&out)),
+        Command::Tokens { out, format } => tokens(fs, format, Path::new(&out)),
     }
 }

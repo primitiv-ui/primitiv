@@ -8,8 +8,9 @@ use crate::error::CliError;
 use crate::format::Format;
 use crate::ports::fs::FileSystem;
 
-/// The config file the CLI looks for at each directory while resolving.
-const FILE_NAME: &str = "primitiv.json";
+/// The config file the CLI looks for at each directory while resolving, and the
+/// name `init` writes (so the two stay in lockstep).
+pub(crate) const FILE_NAME: &str = "primitiv.json";
 
 /// The durable `primitiv.json` a consumer keeps in their project (RFC 0005 §3).
 /// It records the choices — format, paths, brand, registry pin — so every re-run

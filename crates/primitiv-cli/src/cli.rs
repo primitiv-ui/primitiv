@@ -1,3 +1,4 @@
+use crate::commands::init::{InitOptions, DEFAULT_BRAND, DEFAULT_STYLES_PATH};
 use crate::error::CliError;
 use crate::format::Format;
 
@@ -6,6 +7,7 @@ use crate::format::Format;
 /// data enum lets the parser be a pure, fully-tested function.
 #[derive(Debug, PartialEq)]
 pub enum Command {
+    Init(InitOptions),
     Theme {
         brand: String,
         out: String,
@@ -24,14 +26,52 @@ pub enum Command {
 pub fn parse(args: &[String]) -> Result<Command, CliError> {
     let (name, rest) = args
         .split_first()
-        .ok_or_else(|| usage("no command given; expected: theme, tokens"))?;
+        .ok_or_else(|| usage("no command given; expected: init, theme, tokens"))?;
     match name.as_str() {
+        "init" => parse_init(rest),
         "theme" => parse_theme(rest),
         "tokens" => parse_tokens(rest),
         other => Err(usage(format!(
-            "unknown command '{other}'; expected: theme, tokens"
+            "unknown command '{other}'; expected: init, theme, tokens"
         ))),
     }
+}
+
+/// Parse `init [--format <fmt>] [--brand <hex>] [--path <dir>]
+/// [--styles | --no-styles] [--alias-components <value>] [--force]` — every
+/// option order-free, each filled from its default when omitted (RFC 0005 §2.1).
+/// This is the non-interactive seam: every prompt the future interactive `init`
+/// will ask has a flag here, so an agent never drives a TTY (Principle 3).
+fn parse_init(args: &[String]) -> Result<Command, CliError> {
+    let mut format = Format::Css;
+    let mut brand = DEFAULT_BRAND.to_string();
+    let mut path = DEFAULT_STYLES_PATH.to_string();
+    let mut styles_enabled = true;
+    let mut alias_components = None;
+    let mut force = false;
+    let mut rest = args.iter();
+    while let Some(flag) = rest.next() {
+        match flag.as_str() {
+            "--format" => format = parse_format(&take_value(&mut rest, "--format")?)?,
+            "--brand" => brand = take_value(&mut rest, "--brand")?,
+            "--path" => path = take_value(&mut rest, "--path")?,
+            "--styles" => styles_enabled = true,
+            "--no-styles" => styles_enabled = false,
+            "--alias-components" => {
+                alias_components = Some(take_value(&mut rest, "--alias-components")?)
+            }
+            "--force" => force = true,
+            other => return Err(usage(format!("unexpected argument '{other}'"))),
+        }
+    }
+    Ok(Command::Init(InitOptions {
+        format,
+        brand,
+        path,
+        styles_enabled,
+        alias_components,
+        force,
+    }))
 }
 
 /// Parse `tokens [--out <path>] [--format <fmt>]` — both optional, order-free.

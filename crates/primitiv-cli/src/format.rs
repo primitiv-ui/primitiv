@@ -22,4 +22,14 @@ impl Format {
             _ => None,
         }
     }
+
+    /// The lowercase name of this format — the inverse of [`parse`](Format::parse)
+    /// and the value written into a `primitiv.json` `format` field.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Format::Css => "css",
+            Format::Scss => "scss",
+            Format::Tailwind => "tailwind",
+        }
+    }
 }

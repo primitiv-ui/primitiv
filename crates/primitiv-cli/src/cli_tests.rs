@@ -1,11 +1,95 @@
 use pretty_assertions::assert_eq;
 
 use crate::cli::{parse, Command};
+use crate::commands::init::InitOptions;
 use crate::error::CliError;
 use crate::format::Format;
 
 fn args(parts: &[&str]) -> Vec<String> {
     parts.iter().map(|part| part.to_string()).collect()
+}
+
+#[test]
+fn parses_the_init_command_with_defaults() {
+    let command = parse(&args(&["init"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Init(InitOptions {
+            format: Format::Css,
+            brand: "#0a7755".to_string(),
+            path: "src/styles/primitiv".to_string(),
+            styles_enabled: true,
+            alias_components: None,
+            force: false,
+        })
+    );
+}
+
+#[test]
+fn parses_every_init_override_flag() {
+    let command = parse(&args(&[
+        "init",
+        "--format",
+        "scss",
+        "--brand",
+        "#123456",
+        "--path",
+        "app/styles",
+        "--no-styles",
+        "--alias-components",
+        "@/ui",
+        "--force",
+    ]))
+    .unwrap();
+
+    assert_eq!(
+        command,
+        Command::Init(InitOptions {
+            format: Format::Scss,
+            brand: "#123456".to_string(),
+            path: "app/styles".to_string(),
+            styles_enabled: false,
+            alias_components: Some("@/ui".to_string()),
+            force: true,
+        })
+    );
+}
+
+#[test]
+fn parses_explicit_styles_re_enabling_a_prior_no_styles() {
+    let command = parse(&args(&["init", "--no-styles", "--styles"])).unwrap();
+
+    assert!(matches!(
+        command,
+        Command::Init(InitOptions { styles_enabled: true, .. })
+    ));
+}
+
+#[test]
+fn rejects_an_unexpected_argument_to_init() {
+    assert!(matches!(
+        parse(&args(&["init", "--bogus"])).unwrap_err(),
+        CliError::Usage(_)
+    ));
+}
+
+#[test]
+fn rejects_an_unknown_format_for_init() {
+    assert!(matches!(
+        parse(&args(&["init", "--format", "toml"])).unwrap_err(),
+        CliError::Usage(_)
+    ));
+}
+
+#[test]
+fn rejects_init_value_flags_with_no_value() {
+    for flag in ["--format", "--brand", "--path", "--alias-components"] {
+        assert!(matches!(
+            parse(&args(&["init", flag])).unwrap_err(),
+            CliError::Usage(_)
+        ));
+    }
 }
 
 #[test]

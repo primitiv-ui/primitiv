@@ -92,11 +92,17 @@ adapters, hand-authored golden files, 100% coverage):
     `FileSystem` port (RFC 0005 §2.3). It now takes a **`--format`
     (`css` | `scss` | `tailwind`, default `css`)** flag, dispatching the embedded
     sources to `emit_tokens_css` / `emit_tokens_scss` / `emit_tailwind_tokens`
-    (TS is deferred with the rest of the mode-aware TS shape). **Remaining:**
-    `tokens` `primitiv.json` path / format defaults (the first consumer of
-    `config::resolve`); the `init`, `add`, `list` commands; the static registry
-    (+ the `Registry` port); refresh + wiring behaviour; the Tailwind
-    `dark:`-variant remap (RFC 0009 §4.2).
+    (TS is deferred with the rest of the mode-aware TS shape). It is now the
+    **first consumer of `config::resolve`**: with `--out` omitted it walks up
+    from the working directory to the nearest `primitiv.json` and writes to its
+    `tokens.path` (RFC 0005 §2.3 / §3.2), so an `init`-ed project needs no flag.
+    The `FileSystem` port grew a `current_dir` method (thin `OsFs` passthrough;
+    the fake reports a settable dir and can fail it) so the walk-up's start is
+    driven in tests without touching the bin shell. **Remaining:** defaulting the
+    *format* from `primitiv.json` and the config-less `tokens` → stdout path
+    (Principle 4's literal `tokens --format css`); the `init`, `add`, `list`
+    commands; the static registry (+ the `Registry` port); refresh + wiring
+    behaviour; the Tailwind `dark:`-variant remap (RFC 0009 §4.2).
 - [ ] **Distribution** (RFC 0005 §7) — Rust binary via `optionalDependencies` (`@primitiv-ui/cli-*`), `cargo-dist`/napi-rs matrix; supersede the published v0.0.1 name-reservation placeholders with the real `primitiv-ui` / `create-primitiv-ui` at a higher version.
 
 ## ❓ Open questions

@@ -1,6 +1,7 @@
 use std::path::Path;
 
 use crate::cli::{parse, Command};
+use crate::commands::init::init;
 use crate::commands::theme::theme;
 use crate::commands::tokens::tokens;
 use crate::error::CliError;
@@ -12,6 +13,7 @@ use crate::ports::fs::FileSystem;
 /// OS-backed [`FileSystem`], then maps the returned [`CliError`] to an exit code.
 pub fn run(fs: &impl FileSystem, args: &[String]) -> Result<(), CliError> {
     match parse(args)? {
+        Command::Init(options) => init(fs, &options),
         Command::Theme { brand, out, format } => theme(fs, &brand, Path::new(&out), format),
         Command::Tokens { out, format } => {
             tokens(fs, format, out.as_deref().map(Path::new))

@@ -2,8 +2,8 @@ use pretty_assertions::assert_eq;
 use serde_json::{json, Value};
 
 use crate::pipeline::{
-    emit_component_tokens_css, emit_tailwind_tokens, emit_theme_overrides_css, emit_tokens_css,
-    emit_tokens_scss, emit_ts_tokens, TokenSources,
+    emit_component_tokens_css, emit_tailwind_tokens, emit_theme_brand_css, emit_theme_overrides_css,
+    emit_tokens_css, emit_tokens_scss, emit_ts_tokens, TokenSources,
 };
 
 /// Shared, pure-data fixture: routed DTCG documents exercising every axis — a
@@ -116,6 +116,24 @@ fn emits_paired_light_dark_brand_overrides_in_the_theme_layer() {
             "/tests/golden/theme-overrides.css"
         ))
     );
+}
+
+#[test]
+fn emits_a_brand_palette_as_paired_theme_overrides() {
+    let css = emit_theme_brand_css("#0a7755").expect("valid brand");
+
+    assert_eq!(
+        css,
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/theme-brand.css"
+        ))
+    );
+}
+
+#[test]
+fn rejects_an_unparseable_brand_colour() {
+    assert!(emit_theme_brand_css("not-a-colour").is_err());
 }
 
 #[test]

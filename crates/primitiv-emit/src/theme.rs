@@ -12,11 +12,6 @@ pub fn brand_tokens(palette: &Palette) -> Vec<Token> {
     palette
         .swatches
         .iter()
-        .map(|swatch| {
-            Token::new(
-                &["color", "brand", &swatch.label.to_string()],
-                &swatch.hex,
-            )
-        })
+        .map(|swatch| Token::new(&["color", "brand", &swatch.label.to_string()], &swatch.hex))
         .collect()
 }

@@ -4,7 +4,7 @@ use harmoni_core::api::generate_brand_pair;
 use harmoni_core::{ColorInput, ColorInputError, Palette};
 use serde_json::Value;
 
-use crate::alias::{link_aliases, resolve_aliases};
+use crate::alias::link_aliases;
 use crate::component::{emit_component_css, Component};
 use crate::css::{emit_css, emit_theme_css, Scope};
 use crate::dtcg::{flatten_modes, tokens_from_dtcg};
@@ -13,7 +13,6 @@ use crate::scss::{emit_scss, emit_theme_scss};
 use crate::tailwind::{emit_tailwind, emit_theme_tailwind};
 use crate::theme::brand_tokens;
 use crate::token::Token;
-use crate::ts::emit_ts;
 
 /// The routed DTCG documents for a token emit. Routing comes from the CLI (the
 /// `figma-token-sync` collection table): single-mode documents (`primitives`,
@@ -39,20 +38,6 @@ pub fn emit_tokens_css(sources: &TokenSources) -> String {
 /// thinnest adapter over the CSS, identical values across both formats.
 pub fn emit_tokens_scss(sources: &TokenSources) -> String {
     emit_scss(&token_scopes(sources))
-}
-
-/// Emit the mode-independent base tokens as a nested, typed TS object (RFC 0006
-/// §4.2, D47). Unlike the CSS path, the TS object **inlines** alias values
-/// (`resolve_aliases`) rather than emitting `var()` references — it is for
-/// tokens-in-code, where a concrete value is wanted. Mode-aware TS (theme /
-/// density) is a single-tree policy question that lands with the CLI `tokens`
-/// command; this is the base-token surface it builds on.
-pub fn emit_ts_tokens(documents: &[Value]) -> String {
-    let mut tokens = Vec::new();
-    for document in documents {
-        tokens.extend(tokens_from_dtcg(document));
-    }
-    emit_ts(&resolve_aliases(tokens))
 }
 
 /// Emit the shared theme-token surface as a Tailwind v4 `@theme` preset

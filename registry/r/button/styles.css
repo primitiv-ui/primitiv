@@ -1,0 +1,161 @@
+/*
+ * Button — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add button`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-button class, the --xs…--xl
+ * / --primary…--link modifiers, and the --primitiv-button-* custom properties),
+ * not these values (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * Structure follows RFC 0008: per-component API tokens + the base rule live in
+ * primitiv.base, visual modifiers in primitiv.variants, state styling in
+ * primitiv.states. The sublayer order is declared once in the shared token
+ * layer (primitiv.tokens.css); this file only re-opens the named sublayers.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-action-* and
+ * --primitiv-framed-control-* custom properties it resolves.
+ */
+
+@layer primitiv.base {
+  .primitiv-button {
+    /* Per-component API — the themable knobs, defaulting to the primary intent
+       at the md size. Modifiers below re-point them; consumers can override any
+       one without touching the rule. */
+    --primitiv-button-bg: var(--primitiv-action-primary-default);
+    --primitiv-button-fg: var(--primitiv-action-primary-foreground-default);
+    --primitiv-button-border-color: var(--primitiv-action-primary-border-default);
+    --primitiv-button-border-width: var(--primitiv-framed-control-border-width);
+    --primitiv-button-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-button-height: var(--primitiv-framed-control-md-height);
+    --primitiv-button-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-button-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-button-icon-size: var(--primitiv-framed-control-md-icon-size);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--primitiv-button-gap);
+    block-size: var(--primitiv-button-height);
+    padding-inline: var(--primitiv-button-padding-inline);
+    border: var(--primitiv-button-border-width) solid var(--primitiv-button-border-color);
+    border-radius: var(--primitiv-button-radius);
+    background: var(--primitiv-button-bg);
+    color: var(--primitiv-button-fg);
+    font: inherit;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      background-color 120ms ease,
+      border-color 120ms ease,
+      color 120ms ease;
+  }
+
+  .primitiv-button svg {
+    inline-size: var(--primitiv-button-icon-size);
+    block-size: var(--primitiv-button-icon-size);
+  }
+}
+
+@layer primitiv.variants {
+  /* Intent — purely visual; the headless layer has no notion of it. */
+  .primitiv-button--primary {
+    --primitiv-button-bg: var(--primitiv-action-primary-default);
+    --primitiv-button-fg: var(--primitiv-action-primary-foreground-default);
+    --primitiv-button-border-color: var(--primitiv-action-primary-border-default);
+  }
+  .primitiv-button--primary:hover {
+    --primitiv-button-bg: var(--primitiv-action-primary-hover);
+    --primitiv-button-border-color: var(--primitiv-action-primary-border-hover);
+  }
+  .primitiv-button--primary:active {
+    --primitiv-button-bg: var(--primitiv-action-primary-active);
+    --primitiv-button-border-color: var(--primitiv-action-primary-border-active);
+  }
+
+  .primitiv-button--secondary {
+    --primitiv-button-bg: var(--primitiv-action-secondary-default);
+    --primitiv-button-fg: var(--primitiv-action-secondary-foreground-default);
+    --primitiv-button-border-color: var(--primitiv-action-secondary-border-default);
+  }
+  .primitiv-button--secondary:hover {
+    --primitiv-button-bg: var(--primitiv-action-secondary-hover);
+    --primitiv-button-border-color: var(--primitiv-action-secondary-border-hover);
+  }
+  .primitiv-button--secondary:active {
+    --primitiv-button-bg: var(--primitiv-action-secondary-active);
+    --primitiv-button-border-color: var(--primitiv-action-secondary-border-active);
+  }
+
+  .primitiv-button--danger {
+    --primitiv-button-bg: var(--primitiv-action-danger-default);
+    --primitiv-button-fg: var(--primitiv-action-danger-foreground-default);
+    --primitiv-button-border-color: var(--primitiv-action-danger-border-default);
+  }
+  .primitiv-button--danger:hover {
+    --primitiv-button-bg: var(--primitiv-action-danger-hover);
+    --primitiv-button-border-color: var(--primitiv-action-danger-border-hover);
+  }
+  .primitiv-button--danger:active {
+    --primitiv-button-bg: var(--primitiv-action-danger-active);
+    --primitiv-button-border-color: var(--primitiv-action-danger-border-active);
+  }
+
+  /* Link — no frame; text-coloured only. */
+  .primitiv-button--link {
+    --primitiv-button-bg: transparent;
+    --primitiv-button-border-color: transparent;
+    --primitiv-button-fg: var(--primitiv-action-link-foreground-default);
+  }
+  .primitiv-button--link:hover {
+    --primitiv-button-fg: var(--primitiv-action-link-foreground-hover);
+  }
+  .primitiv-button--link:active {
+    --primitiv-button-fg: var(--primitiv-action-link-foreground-active);
+  }
+
+  /* Size — re-points the framed-control knobs to the chosen slot. Density stays
+     ambient via [data-density] on the token values themselves (RFC 0009). */
+  .primitiv-button--xs {
+    --primitiv-button-radius: var(--primitiv-framed-control-xs-radius);
+    --primitiv-button-height: var(--primitiv-framed-control-xs-height);
+    --primitiv-button-padding-inline: var(--primitiv-framed-control-xs-padding-inline);
+    --primitiv-button-gap: var(--primitiv-framed-control-xs-gap);
+    --primitiv-button-icon-size: var(--primitiv-framed-control-xs-icon-size);
+  }
+  .primitiv-button--sm {
+    --primitiv-button-radius: var(--primitiv-framed-control-sm-radius);
+    --primitiv-button-height: var(--primitiv-framed-control-sm-height);
+    --primitiv-button-padding-inline: var(--primitiv-framed-control-sm-padding-inline);
+    --primitiv-button-gap: var(--primitiv-framed-control-sm-gap);
+    --primitiv-button-icon-size: var(--primitiv-framed-control-sm-icon-size);
+  }
+  .primitiv-button--md {
+    --primitiv-button-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-button-height: var(--primitiv-framed-control-md-height);
+    --primitiv-button-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-button-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-button-icon-size: var(--primitiv-framed-control-md-icon-size);
+  }
+  .primitiv-button--lg {
+    --primitiv-button-radius: var(--primitiv-framed-control-lg-radius);
+    --primitiv-button-height: var(--primitiv-framed-control-lg-height);
+    --primitiv-button-padding-inline: var(--primitiv-framed-control-lg-padding-inline);
+    --primitiv-button-gap: var(--primitiv-framed-control-lg-gap);
+    --primitiv-button-icon-size: var(--primitiv-framed-control-lg-icon-size);
+  }
+  .primitiv-button--xl {
+    --primitiv-button-radius: var(--primitiv-framed-control-xl-radius);
+    --primitiv-button-height: var(--primitiv-framed-control-xl-height);
+    --primitiv-button-padding-inline: var(--primitiv-framed-control-xl-padding-inline);
+    --primitiv-button-gap: var(--primitiv-framed-control-xl-gap);
+    --primitiv-button-icon-size: var(--primitiv-framed-control-xl-icon-size);
+  }
+}
+
+@layer primitiv.states {
+  /* Disabled is intent-neutral so it reads the same on every variant; the
+     states layer sits above variants, so it always wins (RFC 0008 §2.3). */
+  .primitiv-button[data-disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

@@ -3,7 +3,7 @@ use serde_json::{json, Value};
 
 use crate::pipeline::{
     emit_component_tokens_css, emit_theme_overrides_css, emit_tokens_css, emit_tokens_scss,
-    TokenSources,
+    emit_ts_tokens, TokenSources,
 };
 
 /// Shared, pure-data fixture: routed DTCG documents exercising every axis — a
@@ -114,6 +114,26 @@ fn emits_paired_light_dark_brand_overrides_in_the_theme_layer() {
         include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/tests/golden/theme-overrides.css"
+        ))
+    );
+}
+
+#[test]
+fn inlines_base_token_aliases_into_the_ts_object() {
+    let primitives = json!({
+        "opacity": { "60": { "$type": "number", "$value": 60 } }
+    });
+    let interaction = json!({
+        "active": { "opacity": { "$type": "number", "$value": "{opacity.60}" } }
+    });
+
+    let ts = emit_ts_tokens(&[primitives, interaction]);
+
+    assert_eq!(
+        ts,
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/tokens-base.ts"
         ))
     );
 }

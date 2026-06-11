@@ -1,7 +1,9 @@
 use pretty_assertions::assert_eq;
 use serde_json::{json, Value};
 
-use crate::pipeline::{emit_tokens_css, emit_tokens_scss, TokenSources};
+use crate::pipeline::{
+    emit_component_tokens_css, emit_tokens_css, emit_tokens_scss, TokenSources,
+};
 
 /// Shared, pure-data fixture: routed DTCG documents exercising every axis — a
 /// single-mode base (primitive number + interaction alias), the theme axis
@@ -75,6 +77,24 @@ fn emits_the_same_token_surface_as_scss_with_dollar_variables() {
         include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/tests/golden/token-pipeline.scss"
+        ))
+    );
+}
+
+#[test]
+fn links_component_api_token_aliases_to_var_references() {
+    let document = json!({
+        "bg": { "$type": "color", "$value": "{color.primary}" },
+        "fg": { "$type": "color", "$value": "{color.on-primary}" }
+    });
+
+    let css = emit_component_tokens_css("button", &document);
+
+    assert_eq!(
+        css,
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/component-button.css"
         ))
     );
 }

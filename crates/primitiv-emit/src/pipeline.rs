@@ -3,6 +3,7 @@ use std::collections::BTreeMap;
 use serde_json::Value;
 
 use crate::alias::link_aliases;
+use crate::component::{emit_component_css, Component};
 use crate::css::{emit_css, Scope};
 use crate::dtcg::{flatten_modes, tokens_from_dtcg};
 use crate::mode::{scope_selectors, Axis};
@@ -33,6 +34,17 @@ pub fn emit_tokens_css(sources: &TokenSources) -> String {
 /// thinnest adapter over the CSS, identical values across both formats.
 pub fn emit_tokens_scss(sources: &TokenSources) -> String {
     emit_scss(&token_scopes(sources))
+}
+
+/// Emit a component's per-component API tokens from its DTCG document (RFC 0008
+/// §3.2): flatten the part tree, link alias values to `var()` references against
+/// the shared theme tokens, and serialise the `primitiv.base` block. The
+/// component name namespaces every knob (`--primitiv-<name>-<part>`).
+pub fn emit_component_tokens_css(name: &str, document: &Value) -> String {
+    emit_component_css(&Component {
+        name: name.to_string(),
+        tokens: link_aliases(tokens_from_dtcg(document)),
+    })
 }
 
 /// Build the ordered mode scopes for a token emit: the mode-independent base in

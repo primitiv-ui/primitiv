@@ -13,7 +13,9 @@ pub use component::{emit_component_css, Component};
 pub use css::emit_css;
 pub use dtcg::{flatten_modes, tokens_from_dtcg};
 pub use mode::{scope_selectors, Axis};
-pub use pipeline::{emit_tokens_css, emit_tokens_scss, TokenSources};
+pub use pipeline::{
+    emit_component_tokens_css, emit_tokens_css, emit_tokens_scss, TokenSources,
+};
 pub use scss::emit_scss;
 pub use token::Token;
 pub use value::format_number;

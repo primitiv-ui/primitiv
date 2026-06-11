@@ -26,6 +26,24 @@ fn writes_the_brand_theme_and_exits_zero() {
 }
 
 #[test]
+fn init_writes_a_primitiv_json_into_the_working_directory() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .arg("init")
+        .assert()
+        .success();
+
+    let config = dir.child("primitiv.json");
+    config.assert(predicate::str::contains(
+        "\"$schema\": \"https://primitiv-ui.dev/schema/primitiv.json\"",
+    ));
+    config.assert(predicate::str::contains("\"brand\": \"#0a7755\""));
+}
+
+#[test]
 fn reports_a_usage_error_on_stderr_and_exits_two() {
     Command::cargo_bin("primitiv")
         .unwrap()

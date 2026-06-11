@@ -65,3 +65,13 @@ fn should_resolve_a_config_in_the_starting_directory() {
 
     assert_eq!(config.theme.brand, "#0a7755");
 }
+
+#[test]
+fn should_walk_up_to_a_parent_directory_to_find_the_config() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("project/primitiv.json"), FULL).unwrap();
+
+    let config = resolve(&fs, Path::new("project/packages/app")).unwrap();
+
+    assert_eq!(config.registry.version, "0.1.0");
+}

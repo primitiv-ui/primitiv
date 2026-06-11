@@ -1,4 +1,5 @@
 use std::collections::BTreeMap;
+use std::io;
 use std::path::Path;
 
 use serde::Deserialize;
@@ -66,6 +67,14 @@ impl Config {
 /// §3.2). The lookup goes through the [`FileSystem`] port, so it is driven by
 /// the in-memory fake in tests and the OS adapter in the bin.
 pub fn resolve(fs: &impl FileSystem, start: &Path) -> Result<Config, CliError> {
-    let bytes = fs.read(&start.join(FILE_NAME))?;
-    Config::parse(&bytes)
+    let mut dir = Some(start);
+    while let Some(current) = dir {
+        match fs.read(&current.join(FILE_NAME)) {
+            Ok(bytes) => return Config::parse(&bytes),
+            Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+            Err(error) => return Err(CliError::Io(error)),
+        }
+        dir = current.parent();
+    }
+    Err(CliError::Config(String::new()))
 }

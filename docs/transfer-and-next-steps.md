@@ -44,8 +44,8 @@ adapters, hand-authored golden files, 100% coverage):
 
 - [x] **Rust CI + test harness** (RFC 0007 §7) — add `cargo test --workspace` + `cargo llvm-cov` gate (Rust runs in no workflow today); scaffold the `primitiv-emit` / `primitiv-cli` crates (lib + thin bin) and the port traits.
   - **Done (2026-06-10).** `crates/primitiv-cli` holds the `FileSystem` port + in-memory fake; `crates/primitiv-emit` is the pure emitter; `.github/workflows/rust.yml` runs `cargo test --workspace` and a `cargo llvm-cov --fail-under-lines 100` gate scoped to the CLI crates (`--exclude harmoni-core --exclude harmoni-wasm`, so new CLI crates fall under it automatically). 100% regions/lines/functions held throughout.
-- [x] **Token emitter** (RFC 0006 §4) — DTCG → CSS (canonical) / SCSS / TS / Tailwind, the pure `primitiv-emit` crate. TDD with golden files from the existing `packages/tokens` fixtures. Both `tokens` and the example styles depend on it, so it goes first. Its output shape is fixed by **RFC 0008**: the `@layer primitiv` sublayer stack, no `!important`, and the two-tier token split (shared theme tokens once; per-component API tokens inside each component stylesheet) — bake both into the first golden file.
-  - **Done (all four formats) — CSS-canonical emit is done end-to-end** (`emit_tokens_css`): DTCG parse/flatten → category-aware number formatting → mode-aware flatten → `var()` alias linking → `:root` + `[data-theme]`/`[data-density]` scope blocks inside `@layer primitiv.tokens`, no `!important`. Proven against the real `packages/tokens` (all 1199 aliases linked, both axes scoped). The **SCSS serialiser** is also landed (`emit_scss` / `emit_tokens_scss`): the canonical CSS verbatim followed by `$primitiv-*` variables resolving to the custom properties (deduped across mode scopes), the thinnest adapter over the CSS (RFC 0006 §4.2). The **two-tier per-component split** is landed too (`emit_component_css` / `emit_component_tokens_css`): a `.primitiv-<name>` block of `--primitiv-<name>-<part>` API tokens emitted inside the component's own stylesheet in `@layer primitiv.base` (not the shared file), with alias values linked to `var()` references (RFC 0008 §3.2). The **`primitiv.theme` overrides layer** is landed (`emit_theme_css` / `emit_theme_overrides_css`): paired light + dark brand overrides emitted as a separate file in `@layer primitiv.theme` (above `primitiv.tokens`, no sublayer declaration), so a re-skin beats the base palette by layer order (RFC 0006 §5 / RFC 0008 §5). The **TS/JS serialiser** is landed (`emit_ts` / `emit_ts_tokens`): a nested, typed token object (`tokens.color.primary`) exported `as const`, keys quoted when not valid identifiers, alias values **inlined** via `resolve_aliases` (not `var()` references — the TS object is for tokens-in-code), RFC 0006 §4.2 / D47. Mode-aware TS (theme/density in one tree) is deferred to the CLI `tokens` command. The **Tailwind v4 serialiser** is landed (`emit_tailwind` / `emit_tailwind_tokens`): a `@theme` preset mapping the shared surface (once per name, deduped across modes) onto Tailwind's namespaces (`space`→`spacing`, `font-size`→`text`, …) as `var()` references, so utilities resolve the custom properties and a mode ancestor re-skins them (RFC 0006 §4.2 / RFC 0009 §4.2). **All four formats are now done.** The `@custom-variant dark` remap stays a CLI `add`-wiring concern (RFC 0009 §4.2). The remaining emitter-adjacent work is the `primitiv theme` brand→palette computation that feeds the override docs (separate item below).
+- [x] **Token emitter** (RFC 0006 §4) — DTCG → CSS (canonical) / SCSS / Tailwind, the pure `primitiv-emit` crate (TS/JS dropped, D50). TDD with golden files from the existing `packages/tokens` fixtures. Both `tokens` and the example styles depend on it, so it goes first. Its output shape is fixed by **RFC 0008**: the `@layer primitiv` sublayer stack, no `!important`, and the two-tier token split (shared theme tokens once; per-component API tokens inside each component stylesheet) — bake both into the first golden file.
+  - **Done (CSS / SCSS / Tailwind) — CSS-canonical emit is done end-to-end** (`emit_tokens_css`): DTCG parse/flatten → category-aware number formatting → mode-aware flatten → `var()` alias linking → `:root` + `[data-theme]`/`[data-density]` scope blocks inside `@layer primitiv.tokens`, no `!important`. Proven against the real `packages/tokens` (all 1199 aliases linked, both axes scoped). The **SCSS serialiser** is also landed (`emit_scss` / `emit_tokens_scss`): the canonical CSS verbatim followed by `$primitiv-*` variables resolving to the custom properties (deduped across mode scopes), the thinnest adapter over the CSS (RFC 0006 §4.2). The **two-tier per-component split** is landed too (`emit_component_css` / `emit_component_tokens_css`): a `.primitiv-<name>` block of `--primitiv-<name>-<part>` API tokens emitted inside the component's own stylesheet in `@layer primitiv.base` (not the shared file), with alias values linked to `var()` references (RFC 0008 §3.2). The **`primitiv.theme` overrides layer** is landed (`emit_theme_css` / `emit_theme_overrides_css`): paired light + dark brand overrides emitted as a separate file in `@layer primitiv.theme` (above `primitiv.tokens`, no sublayer declaration), so a re-skin beats the base palette by layer order (RFC 0006 §5 / RFC 0008 §5). The **Tailwind v4 serialiser** is landed (`emit_tailwind` / `emit_tailwind_tokens`): a `@theme` preset mapping the shared surface (once per name, deduped across modes) onto Tailwind's namespaces (`space`→`spacing`, `font-size`→`text`, …) as `var()` references, so utilities resolve the custom properties and a mode ancestor re-skins them (RFC 0006 §4.2 / RFC 0009 §4.2). A **TS/JS serialiser** was originally landed but has since been **dropped (D50)** — it inlined values rather than emitting `var()` references, so it could not lean on the cascade to resolve theme/density, and the mode-varying tokens it blocked on are exactly the ones that must not be frozen into JS; `emit_ts` / `emit_ts_tokens` and the inlining resolvers (`resolve_aliases` / `resolve_against_base`) that served only it were removed. **The three cascade-based formats (CSS / SCSS / Tailwind) are the supported set.** The `@custom-variant dark` remap stays a CLI `add`-wiring concern (RFC 0009 §4.2). The remaining emitter-adjacent work is the `primitiv theme` brand→palette computation that feeds the override docs (separate item below).
 - [x] **`primitiv theme`** (RFC 0006 §5) — link `harmoni-core`; brand → palette → token overrides; emit light + dark token sets.
   - **Done (CSS-canonical, brand → paired overrides).** `harmoni-core` is linked
     natively into `primitiv-emit`: a new `api::generate_brand_pair` encapsulates
@@ -66,9 +66,10 @@ adapters, hand-authored golden files, 100% coverage):
     Tailwind which assumes the always-emitted canonical CSS), and the `theme`
     command takes a **`--format` flag** (`css` | `scss` | `tailwind`, default
     `css`) parsed into a `Format` enum and dispatched through to the emitter.
-    **Remaining:** the TS theme-override serialiser and its `--format ts` variant;
-    TS additionally needs the deferred mode-aware shape decided first (the
-    paired light + dark brand ramp is exactly the mode-aware case TS punts on).
+    **Complete** across all supported formats: the TS theme-override serialiser
+    that was the last open piece is no longer needed — TS was **dropped (D50)**,
+    since the paired light + dark brand ramp is exactly the mode-varying case a
+    value-inlining TS object cannot represent without fighting the cascade.
 - [x] **Mode scoping** (RFC 0009) — emit `[data-theme]` + `[data-density]` scopes (density-neutral names, the `context.<density>` axis collapsed into `[data-density]`); ship the Tailwind `dark:`-variant remap. Falls out of the emitter (it is how dark + density are emitted), so it lands with the token emitter, not as separate work.
   - **Done (theme + density scopes)** — emitted by the token pipeline (`Axis`, `scope_selectors`, `Scope`, default-first mode ordering). The `:root` default sharing and `[data-*]` overrides match RFC 0009 §2.2. **Remaining:** the Tailwind `dark:`-variant remap (a CLI `add`-wiring concern, RFC 0009 §4.2), which lands with the CLI.
 - [ ] **Styling contract + `contract.json`** per component (RFC 0004 §3) — hybrid generation (data-* auto-verified, modifiers/custom-props authored).
@@ -92,7 +93,7 @@ adapters, hand-authored golden files, 100% coverage):
     `FileSystem` port (RFC 0005 §2.3). It now takes a **`--format`
     (`css` | `scss` | `tailwind`, default `css`)** flag, dispatching the embedded
     sources to `emit_tokens_css` / `emit_tokens_scss` / `emit_tailwind_tokens`
-    (TS is deferred with the rest of the mode-aware TS shape). It is now the
+    (the three supported formats; TS was dropped, D50). It is now the
     **first consumer of `config::resolve`**: with `--out` omitted it walks up
     from the working directory to the nearest `primitiv.json` and writes to its
     `tokens.path` (RFC 0005 §2.3 / §3.2), so an `init`-ed project needs no flag.
@@ -113,13 +114,15 @@ adapters, hand-authored golden files, 100% coverage):
 
 **Cleared before the build (2026-06-10, D45–D49)** — the pre-build open questions
 are now settled: root-class emission (component-emitted identity classes, D45),
-Tailwind v4-only (D46), nested+typed TS tokens (D47), paired light+dark from
+Tailwind v4-only (D46), nested+typed TS tokens (D47 — **later reversed by D50,
+which drops the TS/JS format entirely**), paired light+dark from
 `primitiv theme` with a stable structural contract (D48), and the operational
 cluster — `cargo-llvm-cov`, in-memory FS for command tests, separate
 `primitiv.theme` file, reserved-empty reset layer, GitHub-raw registry, separate
 `primitiv.lock` manifest, Deno out of scope (D49). Plus the earlier settles: BEM
-part naming, hybrid `contract.json`, all-four formats, cascade layers + two-tier
-token scoping (RFC 0008), and `data-theme`/`data-density` mode scoping (RFC 0009).
+part naming, hybrid `contract.json`, the (now three) cascade-based formats,
+cascade layers + two-tier token scoping (RFC 0008), and
+`data-theme`/`data-density` mode scoping (RFC 0009).
 
 **Decided during the build (2026-06-10):**
 
@@ -128,11 +131,13 @@ token scoping (RFC 0008), and `data-theme`/`data-density` mode scoping (RFC 0009
   (`space`, `size`, `radii`, `font-size`, `line-height`, `border-width`,
   `letter-spacing`) → `rem` at a 16px base; `opacity` → a unitless `0–1` ratio;
   everything else (`font-weight`) → the unitless number. See `value.rs`.
-- **Alias emit = `var()` references for CSS** — a DTCG alias `{color.brand.500}`
-  emits as `var(--primitiv-color-brand-500)` (`link_aliases`), preserving the
-  override chain so a `primitiv theme` palette override propagates. The inlining
-  resolvers (`resolve_aliases` / `resolve_against_base`) are reserved for the
-  TS token object and `primitiv theme` value computation, **not** the CSS path.
+- **Alias emit = `var()` references for every format** — a DTCG alias
+  `{color.brand.500}` emits as `var(--primitiv-color-brand-500)` (`link_aliases`),
+  preserving the override chain so a `primitiv theme` palette override
+  propagates. This is the only alias path now: the inlining resolvers
+  (`resolve_aliases` / `resolve_against_base`) existed solely for the TS object
+  and were removed when TS was dropped (D50) — `primitiv theme` value
+  computation turned out to use the `var()`-linking path too.
 
 **Deliberately deferred (answer emerges during the build):**
 

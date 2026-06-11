@@ -40,8 +40,10 @@ live in [`../consumption-design.md`](../consumption-design.md).
 - **0005** — the `primitiv` Rust CLI: commands, `primitiv.json`, the safe `add`
   flow, the static registry, distribution, and the pnpm/npm/yarn/bun invocation
   cookbook.
-- **0006** — one Rust emitter → all four token formats, light theme + evolvable
-  dark tokens, and the Figma-sourced default theme authored in the workbench.
+- **0006** — one Rust emitter → the three cascade-based token formats (CSS /
+  SCSS / Tailwind; the planned TS/JS format was dropped, D50), light theme +
+  evolvable dark tokens, and the Figma-sourced default theme authored in the
+  workbench.
 - **0007** — how the CLI is built test-first: ports & adapters (pure core, faked
   effects), the test pyramid, hand-authored golden files, 100% coverage, and
   Rust entering CI.
@@ -51,8 +53,9 @@ live in [`../consumption-design.md`](../consumption-design.md).
   install carry only the components it added.
 - **0009** — mode scoping: theme and density as two orthogonal, inheritable
   `data-*` attributes (`data-theme`, `data-density`), reproducing Figma's
-  page/frame/child inheritance on the web, working across all four formats, with
-  responsive (container-query) density designed-in as a deferred follow-on.
+  page/frame/child inheritance on the web, working across the cascade-based
+  formats, with responsive (container-query) density designed-in as a deferred
+  follow-on.
 
 Read **0004 → 0005 → 0006** in order; each builds on the one before. **0008**
 constrains the *shape* of 0006's emitted CSS (layers + token scoping) and **0009**

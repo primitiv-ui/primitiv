@@ -123,11 +123,17 @@ source of truth for when a skill applies.
   (the pure DTCG → CSS emitter). Rust now runs in CI via
   `.github/workflows/rust.yml`, gating the CLI crates at 100% **lines,
   regions, and functions** with `cargo llvm-cov` (regions catch the
-  branch a lines-only gate would miss). The **CSS-canonical token emit is done end-to-end**
-  (`emit_tokens_css`); remaining emitter work is the two-tier
-  per-component split, the `primitiv.theme` layer, and the SCSS / TS /
-  Tailwind serialisers. Two decisions landed: category-map number units
-  (rem/unitless) and `var()`-reference alias emit for CSS.
+  branch a lines-only gate would miss). The **token emitter is complete
+  across the three supported formats — CSS (canonical), SCSS, Tailwind**
+  (two-tier per-component split and the `primitiv.theme` overrides layer
+  included). A TS/JS format was planned and partly built but **dropped
+  (D50)**: it inlines values rather than emitting `var()` references, so it
+  can't lean on the cascade to resolve theme/density — the three
+  cascade-based formats are the set. The `tokens` and `theme` commands and
+  the `primitiv.json` config (`config::resolve` / `try_resolve`) are landed;
+  see the live checklist for what's next (`init` / `add` / `list`, the
+  registry). Decisions landed include category-map number units
+  (rem/unitless) and `var()`-reference alias emit for every format.
 
 ## Useful commands
 

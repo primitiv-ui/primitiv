@@ -1,4 +1,5 @@
 use crate::config;
+use crate::detect;
 use crate::error::CliError;
 use crate::format::Format;
 use crate::ports::fs::FileSystem;
@@ -14,17 +15,19 @@ pub const DEFAULT_STYLES_PATH: &str = "src/styles/primitiv";
 /// completion against the published schema (RFC 0005 §3.1).
 const SCHEMA_URL: &str = "https://primitiv-ui.dev/schema/primitiv.json";
 
-/// The fully-resolved choices `init` writes into `primitiv.json`. The parser
-/// fills each field from a flag or its default, so this carries no `Option`s and
-/// the command is a pure render-and-write (RFC 0005 §2.1). Detection and
-/// prompting (package manager, tsconfig alias) are a later increment; for now
-/// every value is a flag or a default.
+/// The flag-level choices `init` resolves into `primitiv.json` (RFC 0005 §2.1).
+/// Most fields are a flag or a default; `alias_components` is an `Option` because
+/// it has a third source — when the flag is absent `init` *detects* it from the
+/// project's `tsconfig.json` / `jsconfig.json` (§3.3). Interactive prompting
+/// remains a later increment.
 #[derive(Debug, PartialEq)]
 pub struct InitOptions {
     pub format: Format,
     pub brand: String,
     pub path: String,
     pub styles_enabled: bool,
+    /// The components import alias when given explicitly via
+    /// `--alias-components`; `None` defers to tsconfig/jsconfig detection.
     pub alias_components: Option<String>,
     pub force: bool,
 }
@@ -36,6 +39,12 @@ pub struct InitOptions {
 /// This is the non-interactive core: the choices arrive as flags (or defaults),
 /// not prompts. Honouring Principle 2 (never clobber), an existing
 /// `primitiv.json` is a [`CliError::Conflict`] unless `--force` is set.
+///
+/// When `--alias-components` is omitted the components import alias is
+/// **detected** from the project's `tsconfig.json` / `jsconfig.json`
+/// (`detect::components_alias`, RFC 0005 §3.3); an explicit flag always wins,
+/// and a project with no detectable alias falls back to relative imports (an
+/// empty `aliases` map).
 ///
 /// `init` configures an **existing** project; it never scaffolds one. Run in a
 /// directory with no `package.json` it is a [`CliError::Project`] pointing at
@@ -57,15 +66,19 @@ pub fn init(fs: &impl FileSystem, options: &InitOptions) -> Result<(), CliError>
             path.display()
         )));
     }
-    fs.write(&path, render(options).as_bytes())?;
+    let alias = match &options.alias_components {
+        Some(value) => Some(value.clone()),
+        None => detect::components_alias(fs, &dir)?,
+    };
+    fs.write(&path, render(options, alias.as_deref()).as_bytes())?;
     Ok(())
 }
 
 /// Serialise the options into the canonical `primitiv.json` text. Hand-rendered
 /// (not `serde_json`) so the emitted bytes are an exactly-authored golden, the
 /// same discipline as the emitter's CSS output (RFC 0007 §4).
-fn render(options: &InitOptions) -> String {
-    let aliases = match &options.alias_components {
+fn render(options: &InitOptions, alias_components: Option<&str>) -> String {
+    let aliases = match alias_components {
         Some(value) => format!("{{ \"components\": \"{value}\" }}"),
         None => "{}".to_string(),
     };

@@ -63,6 +63,78 @@ const EXPECTED_TAILWIND: &str = r##"{
 }
 "##;
 
+/// The config a flag-less `init` writes in a project whose `tsconfig.json`
+/// declares a root `@/*` path mapping: the `components` alias is detected and
+/// persisted rather than left empty.
+const EXPECTED_DETECTED_ALIAS: &str = r##"{
+  "$schema": "https://primitiv-ui.dev/schema/primitiv.json",
+  "version": 1,
+  "framework": "react",
+  "styles": { "enabled": true, "format": "css", "path": "src/styles/primitiv" },
+  "tokens": { "format": "css", "path": "src/styles/primitiv/tokens.css" },
+  "theme": { "brand": "#0a7755" },
+  "aliases": { "components": "@/components" },
+  "registry": { "version": "0.1.0" }
+}
+"##;
+
+#[test]
+fn detects_the_components_alias_from_tsconfig_when_no_flag_is_given() {
+    let fs = InMemoryFs::new();
+    fs.set_current_dir(Path::new("project"));
+    fs.write(Path::new("project/package.json"), b"{}").unwrap();
+    fs.write(
+        Path::new("project/tsconfig.json"),
+        br#"{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }"#,
+    )
+    .unwrap();
+
+    init(&fs, &default_options()).unwrap();
+
+    let written =
+        String::from_utf8(fs.read(Path::new("project/primitiv.json")).unwrap()).unwrap();
+    assert_eq!(written, EXPECTED_DETECTED_ALIAS);
+}
+
+#[test]
+fn an_explicit_alias_flag_wins_over_detection() {
+    let fs = InMemoryFs::new();
+    fs.set_current_dir(Path::new("project"));
+    fs.write(Path::new("project/package.json"), b"{}").unwrap();
+    // A tsconfig that would otherwise detect `@/components` is ignored when the
+    // flag is set.
+    fs.write(
+        Path::new("project/tsconfig.json"),
+        br#"{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }"#,
+    )
+    .unwrap();
+
+    init(
+        &fs,
+        &InitOptions {
+            alias_components: Some("@/ui".to_string()),
+            ..default_options()
+        },
+    )
+    .unwrap();
+
+    let written =
+        String::from_utf8(fs.read(Path::new("project/primitiv.json")).unwrap()).unwrap();
+    assert!(written.contains(r#""aliases": { "components": "@/ui" }"#));
+}
+
+#[test]
+fn surfaces_a_failure_to_detect_the_alias() {
+    let fs = InMemoryFs::new();
+    fs.set_current_dir(Path::new("project"));
+    fs.write(Path::new("project/package.json"), b"{}").unwrap();
+    fs.fail_reads_to(Path::new("project/tsconfig.json"));
+
+    let err = init(&fs, &default_options()).unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
 #[test]
 fn writes_a_default_primitiv_json_to_the_working_directory() {
     let fs = InMemoryFs::new();

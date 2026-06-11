@@ -119,12 +119,21 @@ adapters, hand-authored golden files, 100% coverage):
     later increments** (the testable seam was deliberately the flags core):
     framework / package-manager detection (lockfile), tsconfig/jsconfig alias
     detection (`compilerOptions.paths`, RFC 0005 §3.3), and interactive prompting —
-    so `--yes` and a `--cwd` global flag are not yet wired (init uses the process
-    cwd via the port). **Remaining:** the config-less `tokens` → stdout path
-    (Principle 4's literal `tokens --format css` with no config); the detection /
-    prompting increment for `init`; the `add` and `list` commands; the static
-    registry (+ the `Registry` port); refresh + wiring behaviour; the Tailwind
-    `dark:`-variant remap (RFC 0009 §4.2).
+    so `--yes` is not yet wired (init uses the process cwd via the port). The
+    **config-less `tokens` → stdout path is now landed** (Principle 4): a new
+    **`Output` port** (`ports/output.rs` — an `OsStdout` passthrough adapter + an
+    `InMemoryOutput` capture fake, mirroring `FileSystem`) is threaded through
+    `run` / `main`, and `tokens` now resolves its destination in three tiers —
+    explicit `--out` wins, else the config's `tokens.path`, else **stdout** — so
+    the literal `tokens --format css` with no `--out`/config streams the layer
+    (RFC 0005 §2.3 / Principle 4) instead of erroring. The old "needs `--out` or a
+    config" error is gone. **`--cwd` global flag — deferred (decided):** every
+    command resolves the working directory through the port's `current_dir`
+    (process cwd); a `--cwd` override is a cross-cutting concern best added with
+    `add` / `list`, where monorepo package targeting first matters, not bolted on
+    here. **Remaining:** the detection / prompting increment for `init`; the `add`
+    and `list` commands; the static registry (+ the `Registry` port); refresh +
+    wiring behaviour; the Tailwind `dark:`-variant remap (RFC 0009 §4.2).
 - [ ] **Distribution** (RFC 0005 §7) — Rust binary via `optionalDependencies` (`@primitiv-ui/cli-*`), `cargo-dist`/napi-rs matrix; supersede the published v0.0.1 name-reservation placeholders with the real `primitiv-ui` / `create-primitiv-ui` at a higher version.
 
 ## ❓ Open questions

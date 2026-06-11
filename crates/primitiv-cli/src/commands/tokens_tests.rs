@@ -38,6 +38,19 @@ fn writes_the_token_layer_as_scss_when_the_format_is_scss() {
 }
 
 #[test]
+fn writes_the_token_layer_as_a_tailwind_preset_when_the_format_is_tailwind() {
+    let fs = InMemoryFs::new();
+    let out = Path::new("src/styles/primitiv/tokens.css");
+
+    tokens(&fs, Format::Tailwind, out).unwrap();
+
+    let written = String::from_utf8(fs.read(out).unwrap()).unwrap();
+    // The Tailwind v4 @theme preset maps names onto Tailwind namespaces.
+    assert!(written.contains("@theme {"));
+    assert!(written.contains("--spacing-space-4: var(--primitiv-space-space-4);"));
+}
+
+#[test]
 fn surfaces_a_write_failure() {
     let fs = InMemoryFs::new();
     let out = Path::new("tokens.css");

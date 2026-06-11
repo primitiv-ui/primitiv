@@ -158,16 +158,24 @@ adapters, hand-authored golden files, 100% coverage):
     stdout via the `Output` port. A requested or depended-on component the
     registry doesn't carry is a new `CliError::NotFound` variant (exit code `9`)
     pointing at `primitiv list`. The hand-rolled parser accepts `add
-    <component...>` (≥1 required); the install/copy flags (`--styles-only`,
-    `--no-styles`, `--format`, `--path`, `--force`) arrive with the slices that
-    act on them. **Remaining for `add`** (the keystone's effects, §4.2–§4.4): the
-    package-install step (needs a process-runner port for the detected manager),
-    the style-copy + refresh/`primitiv.lock` semantics (needs the registry to
-    serve per-component file bytes and the authored style files from items 5/6),
-    project wiring (§4.3), `--dry-run`/`--json` reporting, and the `--registry` /
-    HTTPS registry adapter. **Other remaining CLI work:** the detection /
-    prompting increment for `init`; the `list` **"installed in this project"**
-    column; the Tailwind `dark:`-variant remap (RFC 0009 §4.2).
+    <component...>` (≥1 required). The **install plan now carries the npm packages
+    to ensure** (RFC 0005 §4.4): `DependsOn` grew a defaulted `packages` list, and
+    `add` reports the deduplicated, sorted union of the resolved components'
+    `dependsOn.packages` (the headless library) under a `Packages to ensure:`
+    section, omitted when none. **`add --json` is landed** (RFC 0005 §5 / §6.5):
+    the same plan — components with versions, plus the packages — as
+    machine-readable JSON for the Agent profile, hand-rendered to exact bytes; the
+    remaining install/copy flags (`--styles-only`, `--no-styles`, `--format`,
+    `--path`, `--force`, `--dry-run`) arrive with the slices that act on them.
+    **Remaining for `add`** (the keystone's *effects*, §4.2–§4.4): the
+    package-install step (needs a **process-runner port** for the detected manager
+    — the next new I/O seam, plus lockfile-based package-manager detection), the
+    style-copy + refresh/`primitiv.lock` semantics (needs the registry to serve
+    per-component file bytes and the authored style files from items 5/6), project
+    wiring (§4.3), `--dry-run`, and the `--registry` / HTTPS registry adapter.
+    **Other remaining CLI work:** the detection / prompting increment for `init`;
+    the `list` **"installed in this project"** column; the Tailwind
+    `dark:`-variant remap (RFC 0009 §4.2).
 - [ ] **Distribution** (RFC 0005 §7) — Rust binary via `optionalDependencies` (`@primitiv-ui/cli-*`), `cargo-dist`/napi-rs matrix; supersede the published v0.0.1 name-reservation placeholders with the real `primitiv-ui` / `create-primitiv-ui` at a higher version.
 
 ## ❓ Open questions

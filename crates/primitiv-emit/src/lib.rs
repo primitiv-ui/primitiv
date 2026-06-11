@@ -1,4 +1,5 @@
 pub mod alias;
+pub mod component;
 pub mod css;
 pub mod dtcg;
 pub mod mode;
@@ -8,6 +9,7 @@ pub mod token;
 pub mod value;
 
 pub use alias::{link_aliases, resolve_against_base, resolve_aliases};
+pub use component::{emit_component_css, Component};
 pub use css::emit_css;
 pub use dtcg::{flatten_modes, tokens_from_dtcg};
 pub use mode::{scope_selectors, Axis};
@@ -18,6 +20,8 @@ pub use value::format_number;
 
 #[cfg(test)]
 mod alias_tests;
+#[cfg(test)]
+mod component_tests;
 #[cfg(test)]
 mod css_tests;
 #[cfg(test)]

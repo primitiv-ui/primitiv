@@ -2,8 +2,8 @@ use pretty_assertions::assert_eq;
 use serde_json::{json, Value};
 
 use crate::pipeline::{
-    emit_component_tokens_css, emit_theme_overrides_css, emit_tokens_css, emit_tokens_scss,
-    emit_ts_tokens, TokenSources,
+    emit_component_tokens_css, emit_tailwind_tokens, emit_theme_overrides_css, emit_tokens_css,
+    emit_tokens_scss, emit_ts_tokens, TokenSources,
 };
 
 /// Shared, pure-data fixture: routed DTCG documents exercising every axis — a
@@ -134,6 +134,25 @@ fn inlines_base_token_aliases_into_the_ts_object() {
         include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/tests/golden/tokens-base.ts"
+        ))
+    );
+}
+
+#[test]
+fn maps_the_shared_surface_into_a_tailwind_preset_once_per_name() {
+    let docs = documents();
+
+    let tailwind = emit_tailwind_tokens(&TokenSources {
+        base: &docs.base,
+        theme: &docs.theme,
+        density: &docs.density,
+    });
+
+    assert_eq!(
+        tailwind,
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/tailwind-pipeline.css"
         ))
     );
 }

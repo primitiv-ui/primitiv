@@ -1,0 +1,4 @@
+@theme {
+  --color-primary: var(--primitiv-color-primary);
+  --radius-md: var(--primitiv-radius-md);
+}

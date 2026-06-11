@@ -1,0 +1,8 @@
+@theme {
+  --opacity-60: var(--primitiv-opacity-60);
+  --spacing-space-4: var(--primitiv-space-space-4);
+  --active-opacity: var(--primitiv-active-opacity);
+  --color-brand-500: var(--primitiv-color-brand-500);
+  --action-primary: var(--primitiv-action-primary);
+  --control-height: var(--primitiv-control-height);
+}

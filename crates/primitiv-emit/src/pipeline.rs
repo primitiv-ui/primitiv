@@ -8,6 +8,7 @@ use crate::css::{emit_css, emit_theme_css, Scope};
 use crate::dtcg::{flatten_modes, tokens_from_dtcg};
 use crate::mode::{scope_selectors, Axis};
 use crate::scss::emit_scss;
+use crate::tailwind::emit_tailwind;
 use crate::token::Token;
 use crate::ts::emit_ts;
 
@@ -49,6 +50,25 @@ pub fn emit_ts_tokens(documents: &[Value]) -> String {
         tokens.extend(tokens_from_dtcg(document));
     }
     emit_ts(&resolve_aliases(tokens))
+}
+
+/// Emit the shared theme-token surface as a Tailwind v4 `@theme` preset
+/// (RFC 0006 §4.2, RFC 0009 §4.2). The preset maps token **names**, not values
+/// — Tailwind utilities resolve the `--primitiv-*` custom properties at runtime,
+/// so a mode swaps automatically — so every name is emitted once, collected
+/// across the mode-independent base and every theme / density mode (the
+/// duplicate names a mode pair shares collapse in [`emit_tailwind`]).
+pub fn emit_tailwind_tokens(sources: &TokenSources) -> String {
+    let mut tokens = Vec::new();
+    for document in sources.base {
+        tokens.extend(tokens_from_dtcg(document));
+    }
+    for document in sources.theme.iter().chain(sources.density) {
+        for (_, mode_tokens) in flatten_modes(document) {
+            tokens.extend(mode_tokens);
+        }
+    }
+    emit_tailwind(&tokens)
 }
 
 /// Emit `primitiv theme` brand overrides from their paired light + dark DTCG

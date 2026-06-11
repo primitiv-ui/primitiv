@@ -1,0 +1,40 @@
+@layer primitiv.theme {
+  :root,
+  [data-theme="light"] {
+    --primitiv-color-brand-50: #e0e9e4;
+    --primitiv-color-brand-100: #bfdacd;
+    --primitiv-color-brand-200: #93c7ae;
+    --primitiv-color-brand-300: #72b396;
+    --primitiv-color-brand-400: #4d9979;
+    --primitiv-color-brand-500: #0a7755;
+    --primitiv-color-brand-600: #00583c;
+    --primitiv-color-brand-700: #00331d;
+    --primitiv-color-brand-800: #001809;
+    --primitiv-color-brand-900: #000701;
+  }
+  [data-theme="dark"] {
+    --primitiv-color-brand-50: #131a17;
+    --primitiv-color-brand-100: #0f261c;
+    --primitiv-color-brand-200: #003522;
+    --primitiv-color-brand-300: #00472f;
+    --primitiv-color-brand-400: #005e42;
+    --primitiv-color-brand-500: #0a7755;
+    --primitiv-color-brand-600: #4d9a7a;
+    --primitiv-color-brand-700: #7dbea1;
+    --primitiv-color-brand-800: #abe0c7;
+    --primitiv-color-brand-900: #cef6e3;
+  }
+}
+
+@theme {
+  --color-brand-50: var(--primitiv-color-brand-50);
+  --color-brand-100: var(--primitiv-color-brand-100);
+  --color-brand-200: var(--primitiv-color-brand-200);
+  --color-brand-300: var(--primitiv-color-brand-300);
+  --color-brand-400: var(--primitiv-color-brand-400);
+  --color-brand-500: var(--primitiv-color-brand-500);
+  --color-brand-600: var(--primitiv-color-brand-600);
+  --color-brand-700: var(--primitiv-color-brand-700);
+  --color-brand-800: var(--primitiv-color-brand-800);
+  --color-brand-900: var(--primitiv-color-brand-900);
+}

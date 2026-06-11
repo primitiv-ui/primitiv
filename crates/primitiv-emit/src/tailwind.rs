@@ -3,6 +3,7 @@
 
 use std::collections::HashSet;
 
+use crate::css::{emit_theme_css, Scope};
 use crate::token::Token;
 
 /// Emit the theme-token surface as a Tailwind v4 `@theme` preset (RFC 0006 §4.2,
@@ -29,6 +30,28 @@ pub fn emit_tailwind(tokens: &[Token]) -> String {
     }
     out.push_str("}\n");
     out
+}
+
+/// Emit `primitiv theme` brand overrides as Tailwind (RFC 0006 §4.2/§5): the
+/// `primitiv.theme` custom-property block verbatim (via [`emit_theme_css`]) then
+/// the `@theme` preset mapping those tokens onto Tailwind namespaces. Unlike the
+/// token-layer preset — which assumes the always-emitted canonical CSS defines
+/// the custom properties — a `theme` override is a single self-contained file,
+/// so it carries its own custom-property definitions, mirroring the SCSS path.
+pub fn emit_theme_tailwind(scopes: &[Scope]) -> String {
+    let mut out = emit_theme_css(scopes);
+    out.push('\n');
+    out.push_str(&emit_tailwind(&scope_tokens(scopes)));
+    out
+}
+
+/// Flatten every scope's tokens into one list (light then dark); [`emit_tailwind`]
+/// dedupes the names a mode pair shares down to one `@theme` entry each.
+fn scope_tokens(scopes: &[Scope]) -> Vec<Token> {
+    scopes
+        .iter()
+        .flat_map(|scope| scope.tokens.iter().cloned())
+        .collect()
 }
 
 /// A token's Tailwind theme-variable name: its category (first path segment)

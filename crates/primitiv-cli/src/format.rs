@@ -6,6 +6,7 @@
 pub enum Format {
     Css,
     Scss,
+    Tailwind,
 }
 
 impl Format {
@@ -15,6 +16,7 @@ impl Format {
         match value {
             "css" => Some(Format::Css),
             "scss" => Some(Format::Scss),
+            "tailwind" => Some(Format::Tailwind),
             _ => None,
         }
     }

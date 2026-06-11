@@ -10,7 +10,7 @@ use crate::css::{emit_css, emit_theme_css, Scope};
 use crate::dtcg::{flatten_modes, tokens_from_dtcg};
 use crate::mode::{scope_selectors, Axis};
 use crate::scss::{emit_scss, emit_theme_scss};
-use crate::tailwind::emit_tailwind;
+use crate::tailwind::{emit_tailwind, emit_theme_tailwind};
 use crate::theme::brand_tokens;
 use crate::token::Token;
 use crate::ts::emit_ts;
@@ -99,6 +99,14 @@ pub fn emit_theme_brand_css(brand: &str) -> Result<String, ColorInputError> {
 /// `primitiv.theme` CSS is followed by the resolving `$primitiv-*` variables.
 pub fn emit_theme_brand_scss(brand: &str) -> Result<String, ColorInputError> {
     Ok(emit_theme_scss(&brand_scopes(brand)?))
+}
+
+/// Emit `primitiv theme --brand <hex>` overrides as Tailwind (RFC 0005 §2.4,
+/// RFC 0006 §4.2/§5): the same paired light + dark brand scopes as
+/// [`emit_theme_brand_css`], serialised through the Tailwind adapter so the
+/// `primitiv.theme` custom properties are followed by the `@theme` preset.
+pub fn emit_theme_brand_tailwind(brand: &str) -> Result<String, ColorInputError> {
+    Ok(emit_theme_tailwind(&brand_scopes(brand)?))
 }
 
 /// Derive the paired light + dark brand-ramp scopes from a brand colour: link

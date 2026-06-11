@@ -51,7 +51,8 @@ fn parse_theme(args: &[String]) -> Result<Command, CliError> {
 
 /// Map a `--format` value to a [`Format`], erroring on an unrecognised one.
 fn parse_format(value: &str) -> Result<Format, CliError> {
-    Format::parse(value).ok_or_else(|| usage(format!("unknown format '{value}'; expected: css, scss")))
+    Format::parse(value)
+        .ok_or_else(|| usage(format!("unknown format '{value}'; expected: css, scss, tailwind")))
 }
 
 /// Consume the value following a flag, erroring if the flag ends the args.

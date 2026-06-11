@@ -3,7 +3,8 @@ use serde_json::{json, Value};
 
 use crate::pipeline::{
     emit_component_tokens_css, emit_tailwind_tokens, emit_theme_brand_css, emit_theme_brand_scss,
-    emit_theme_overrides_css, emit_tokens_css, emit_tokens_scss, emit_ts_tokens, TokenSources,
+    emit_theme_brand_tailwind, emit_theme_overrides_css, emit_tokens_css, emit_tokens_scss,
+    emit_ts_tokens, TokenSources,
 };
 
 /// Shared, pure-data fixture: routed DTCG documents exercising every axis — a
@@ -145,9 +146,23 @@ fn emits_a_brand_palette_as_paired_theme_overrides_in_scss() {
 }
 
 #[test]
+fn emits_a_brand_palette_as_paired_theme_overrides_in_tailwind() {
+    let tailwind = emit_theme_brand_tailwind("#0a7755").expect("valid brand");
+
+    assert_eq!(
+        tailwind,
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/theme-brand.tailwind.css"
+        ))
+    );
+}
+
+#[test]
 fn rejects_an_unparseable_brand_colour() {
     assert!(emit_theme_brand_css("not-a-colour").is_err());
     assert!(emit_theme_brand_scss("not-a-colour").is_err());
+    assert!(emit_theme_brand_tailwind("not-a-colour").is_err());
 }
 
 #[test]

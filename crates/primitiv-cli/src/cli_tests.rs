@@ -55,6 +55,22 @@ fn parses_an_explicit_css_format() {
 }
 
 #[test]
+fn parses_an_explicit_tailwind_format() {
+    let command =
+        parse(&args(&["theme", "--brand", "#0a7755", "--out", "x.css", "--format", "tailwind"]))
+            .unwrap();
+
+    assert_eq!(
+        command,
+        Command::Theme {
+            brand: "#0a7755".to_string(),
+            out: "x.css".to_string(),
+            format: Format::Tailwind,
+        }
+    );
+}
+
+#[test]
 fn rejects_an_unknown_format() {
     assert!(matches!(
         parse(&args(&["theme", "--brand", "#0a7755", "--out", "x", "--format", "toml"]))

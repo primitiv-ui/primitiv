@@ -20,6 +20,26 @@ pub trait FileSystem {
     fn exists(&self, path: &Path) -> bool;
 }
 
+/// The OS-backed [`FileSystem`] adapter the real bin runs on — a thin
+/// passthrough to `std::fs`. It carries no logic of its own (RFC 0007 §2.1);
+/// directory creation and other policy stay in the command layer, where they
+/// are unit-testable against the [`InMemoryFs`] fake.
+pub struct OsFs;
+
+impl FileSystem for OsFs {
+    fn read(&self, path: &Path) -> io::Result<Vec<u8>> {
+        std::fs::read(path)
+    }
+
+    fn write(&self, path: &Path, bytes: &[u8]) -> io::Result<()> {
+        std::fs::write(path, bytes)
+    }
+
+    fn exists(&self, path: &Path) -> bool {
+        path.exists()
+    }
+}
+
 /// An in-memory [`FileSystem`] fake for command-layer tests (RFC 0007 §2.2,
 /// D49). Writes land in a map; reads of unwritten paths report `NotFound`,
 /// mirroring `std::fs`.

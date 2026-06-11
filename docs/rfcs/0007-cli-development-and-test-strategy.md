@@ -289,9 +289,10 @@ fast and precise; the e2e layer proves the seams are wired.
 3. **Config-format parsers as a fuzz target.** Whether `primitiv.json` and DTCG
    parsing warrant `proptest`/fuzzing beyond example-based tests. *(Deferred —
    decide once the parsers exist; example-based tests first.)*
-4. **A `rust-cli-test-conventions` skill.** Promote §3–§6 into an on-demand skill
-   (mirroring `react-test-conventions`) once the first command is built and the
-   patterns are proven. *(Deliberately deferred until the patterns are real.)*
+4. ~~**A `rust-cli-test-conventions` skill.**~~ **Resolved:** written once the
+   bin + e2e layer landed, capturing the ports/`InMemoryFs`-failure-injection,
+   hand-rolled-parser, golden-file, lib+thin-bin, and e2e-subprocess-coverage
+   conventions (`.claude/skills/rust-cli-test-conventions/`).
 
 ---
 

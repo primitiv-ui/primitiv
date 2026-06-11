@@ -18,19 +18,23 @@ pub enum CliError {
     Io(io::Error),
     /// A `primitiv.json` that is missing where one is required, or malformed.
     Config(String),
+    /// A write would clobber a file the consumer owns (e.g. `init` over an
+    /// existing `primitiv.json`) and no `--force` was given (Principle 2).
+    Conflict(String),
 }
 
 impl CliError {
     /// The process exit code the bin returns for this error (RFC 0005 §5).
     /// Codes are stable and distinct per failure source so an agent or CI can
-    /// branch on them: `2` usage, `3` invalid colour, `4` I/O, `5` config. New
-    /// error variants take a new code rather than reusing one.
+    /// branch on them: `2` usage, `3` invalid colour, `4` I/O, `5` config,
+    /// `6` conflict. New error variants take a new code rather than reusing one.
     pub fn exit_code(&self) -> u8 {
         match self {
             CliError::Usage(_) => 2,
             CliError::InvalidColor(_) => 3,
             CliError::Io(_) => 4,
             CliError::Config(_) => 5,
+            CliError::Conflict(_) => 6,
         }
     }
 }
@@ -44,6 +48,7 @@ impl fmt::Display for CliError {
             }
             CliError::Io(error) => write!(f, "{error}"),
             CliError::Config(message) => write!(f, "{message}"),
+            CliError::Conflict(message) => write!(f, "{message}"),
         }
     }
 }

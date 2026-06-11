@@ -3,6 +3,7 @@ use std::path::Path;
 use pretty_assertions::assert_eq;
 
 use crate::commands::init::{init, InitOptions, DEFAULT_BRAND, DEFAULT_STYLES_PATH};
+use crate::error::CliError;
 use crate::format::Format;
 use crate::ports::fs::{FileSystem, InMemoryFs};
 
@@ -93,6 +94,38 @@ fn reflects_every_overridden_choice_in_the_written_config() {
 
     let written = String::from_utf8(fs.read(Path::new("primitiv.json")).unwrap()).unwrap();
     assert_eq!(written, EXPECTED_SCSS);
+}
+
+#[test]
+fn refuses_to_overwrite_an_existing_config() {
+    let fs = InMemoryFs::new();
+    let existing = Path::new("primitiv.json");
+    fs.write(existing, b"{ \"hand\": \"edited\" }").unwrap();
+
+    let err = init(&fs, &default_options()).unwrap_err();
+
+    assert!(matches!(err, CliError::Conflict(_)));
+    // The consumer's file is left exactly as it was (Principle 2).
+    assert_eq!(fs.read(existing).unwrap(), b"{ \"hand\": \"edited\" }");
+}
+
+#[test]
+fn overwrites_an_existing_config_when_forced() {
+    let fs = InMemoryFs::new();
+    let existing = Path::new("primitiv.json");
+    fs.write(existing, b"{ \"hand\": \"edited\" }").unwrap();
+
+    init(
+        &fs,
+        &InitOptions {
+            force: true,
+            ..default_options()
+        },
+    )
+    .unwrap();
+
+    let written = String::from_utf8(fs.read(existing).unwrap()).unwrap();
+    assert_eq!(written, EXPECTED_DEFAULT);
 }
 
 #[test]

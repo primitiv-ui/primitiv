@@ -38,6 +38,12 @@ pub struct InitOptions {
 /// `primitiv.json` is a [`CliError::Conflict`] unless `--force` is set.
 pub fn init(fs: &impl FileSystem, options: &InitOptions) -> Result<(), CliError> {
     let path = fs.current_dir()?.join(config::FILE_NAME);
+    if fs.exists(&path) && !options.force {
+        return Err(CliError::Conflict(format!(
+            "{} already exists; pass --force to overwrite",
+            path.display()
+        )));
+    }
     fs.write(&path, render(options).as_bytes())?;
     Ok(())
 }

@@ -17,6 +17,7 @@ fn maps_each_variant_to_a_stable_exit_code() {
         4
     );
     assert_eq!(CliError::Config("missing".to_string()).exit_code(), 5);
+    assert_eq!(CliError::Conflict("exists".to_string()).exit_code(), 6);
 }
 
 #[test]
@@ -45,4 +46,11 @@ fn renders_a_config_message_verbatim() {
     let error = CliError::Config("no primitiv.json found".to_string());
 
     assert_eq!(error.to_string(), "no primitiv.json found");
+}
+
+#[test]
+fn renders_a_conflict_message_verbatim() {
+    let error = CliError::Conflict("primitiv.json already exists".to_string());
+
+    assert_eq!(error.to_string(), "primitiv.json already exists");
 }

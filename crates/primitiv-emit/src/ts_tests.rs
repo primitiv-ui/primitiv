@@ -24,6 +24,22 @@ fn emits_a_nested_typed_token_object() {
 }
 
 #[test]
+fn nests_sibling_leaves_under_a_shared_parent_object() {
+    let ts = emit_ts(&[
+        Token::new(&["color", "primary"], "oklch(0.55 0.13 162)"),
+        Token::new(&["color", "secondary"], "oklch(0.72 0.13 162)"),
+    ]);
+
+    assert_eq!(
+        ts,
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/tokens-shared-parent.ts"
+        ))
+    );
+}
+
+#[test]
 fn quotes_keys_that_are_not_valid_identifiers() {
     let ts = emit_ts(&[
         Token::new(&["color", "brand", "500"], "#0a7755"),

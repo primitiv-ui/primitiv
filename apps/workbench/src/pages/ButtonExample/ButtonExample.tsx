@@ -12,6 +12,7 @@ import "../../../../../registry/r/button/styles.css";
 
 const INTENTS = ["primary", "secondary", "danger", "link"] as const;
 const SIZES = ["xs", "sm", "md", "lg", "xl"] as const;
+const DENSITIES = ["dense", "compact", "comfortable", "spacious"] as const;
 
 export function ButtonExample() {
   const [count, setCount] = useState(0);
@@ -77,6 +78,36 @@ export function ButtonExample() {
             Delete
           </Button>
         </div>
+      </section>
+
+      <section className="btn-example__section">
+        <h3 className="btn-example__section-title">Density</h3>
+        <p className="btn-example__description">
+          The same md button under each <code>data-density</code> scope. Density
+          is ambient — set on any ancestor — and the <code>framed-control/*</code>{" "}
+          and <code>label/*</code> tokens resolve to the matching scale (RFC
+          0009).
+        </p>
+
+        {DENSITIES.map((density) => (
+          <div
+            key={density}
+            data-density={density}
+            className="btn-example__density"
+          >
+            <span className="btn-example__density-label">{density}</span>
+            <div className="btn-example__row">
+              {INTENTS.map((intent) => (
+                <Button
+                  key={intent}
+                  className={`primitiv-button primitiv-button--${intent} primitiv-button--md`}
+                >
+                  {intent}
+                </Button>
+              ))}
+            </div>
+          </div>
+        ))}
       </section>
 
       <section className="btn-example__section">

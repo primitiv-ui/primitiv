@@ -4,6 +4,7 @@ pub mod config;
 pub mod error;
 pub mod format;
 pub mod ports;
+pub mod registry;
 pub mod run;
 
 #[cfg(test)]
@@ -12,5 +13,7 @@ mod cli_tests;
 mod config_tests;
 #[cfg(test)]
 mod error_tests;
+#[cfg(test)]
+mod registry_tests;
 #[cfg(test)]
 mod run_tests;

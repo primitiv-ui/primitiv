@@ -130,10 +130,25 @@ adapters, hand-authored golden files, 100% coverage):
     config" error is gone. **`--cwd` global flag — deferred (decided):** every
     command resolves the working directory through the port's `current_dir`
     (process cwd); a `--cwd` override is a cross-cutting concern best added with
-    `add` / `list`, where monorepo package targeting first matters, not bolted on
-    here. **Remaining:** the detection / prompting increment for `init`; the `add`
-    and `list` commands; the static registry (+ the `Registry` port); refresh +
-    wiring behaviour; the Tailwind `dark:`-variant remap (RFC 0009 §4.2).
+    `add`, where monorepo package targeting first matters, not bolted on here. The
+    **`list` command + the static registry are now landed** (RFC 0005 §2.5 / §6):
+    a new **`Registry` port** (`ports/registry.rs` — an `EmbeddedRegistry` adapter
+    that bakes the registry into the binary like the DTCG tokens, plus an
+    `InMemoryRegistry` fake) is the last I/O seam; a typed `RegistryIndex`
+    (`registry.rs`, serde, mirroring `config.rs`) parses the index; and
+    `commands/list.rs` writes an aligned `COMPONENT  VERSION` table to stdout via
+    the `Output` port, or streams the raw index with `--json` (the agent
+    affordance, §6.5). The seed **`registry/registry.json`** lists `button` and
+    `switch` (full `dependsOn` / `formats` / `contract` shape; only version +
+    name are surfaced today). A new `CliError::Registry` variant (exit code `7`)
+    covers an unreachable registry or a malformed index. The remote GitHub-raw
+    HTTPS adapter and a `--registry <path>` override (§6.4) slot in behind the
+    port later — deferred until remote fetch is actually needed (no HTTP dep
+    pulled in yet). **Remaining:** the detection / prompting increment for `init`;
+    the `list` **"installed in this project"** column; the `add` command (the
+    keystone — ensure-package / copy-styles / refresh / wiring, §4) and its
+    `--registry` / HTTPS registry adapter; the Tailwind `dark:`-variant remap
+    (RFC 0009 §4.2).
 - [ ] **Distribution** (RFC 0005 §7) — Rust binary via `optionalDependencies` (`@primitiv-ui/cli-*`), `cargo-dist`/napi-rs matrix; supersede the published v0.0.1 name-reservation placeholders with the real `primitiv-ui` / `create-primitiv-ui` at a higher version.
 
 ## ❓ Open questions

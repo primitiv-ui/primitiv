@@ -1,11 +1,19 @@
 use pretty_assertions::assert_eq;
-use serde_json::json;
+use serde_json::{json, Value};
 
-use crate::pipeline::{emit_tokens_css, TokenSources};
+use crate::pipeline::{emit_tokens_css, emit_tokens_scss, TokenSources};
 
-#[test]
-fn emits_base_then_theme_and_density_scopes_with_linked_aliases() {
-    // Single-mode base: a primitive number (formatted) and an interaction alias.
+/// Shared, pure-data fixture: routed DTCG documents exercising every axis — a
+/// single-mode base (primitive number + interaction alias), the theme axis
+/// (palette colours per mode + intent references), and the density axis (context
+/// references that vary per density).
+struct Documents {
+    base: Vec<Value>,
+    theme: Vec<Value>,
+    density: Vec<Value>,
+}
+
+fn documents() -> Documents {
     let primitives = json!({
         "space": { "space-4": { "$type": "number", "$value": 4 } },
         "opacity": { "60": { "$type": "number", "$value": 60 } }
@@ -13,8 +21,6 @@ fn emits_base_then_theme_and_density_scopes_with_linked_aliases() {
     let interaction = json!({
         "active": { "opacity": { "$type": "number", "$value": "{opacity.60}" } }
     });
-
-    // Theme axis: palette holds concrete colours per mode; intent references them.
     let palette = json!({
         "light": { "color": { "brand": { "500": { "$type": "color", "$value": "#0a7755" } } } },
         "dark":  { "color": { "brand": { "500": { "$type": "color", "$value": "#5fd3a8" } } } }
@@ -23,21 +29,26 @@ fn emits_base_then_theme_and_density_scopes_with_linked_aliases() {
         "light": { "action": { "primary": { "$type": "color", "$value": "{color.brand.500}" } } },
         "dark":  { "action": { "primary": { "$type": "color", "$value": "{color.brand.500}" } } }
     });
-
-    // Density axis: context references primitives, varying per density.
     let context = json!({
         "comfortable": { "control": { "height": { "$type": "number", "$value": "{size.size-40}" } } },
         "dense":       { "control": { "height": { "$type": "number", "$value": "{size.size-24}" } } }
     });
 
-    let base = vec![primitives, interaction];
-    let theme = vec![palette, intent];
-    let density = vec![context];
+    Documents {
+        base: vec![primitives, interaction],
+        theme: vec![palette, intent],
+        density: vec![context],
+    }
+}
+
+#[test]
+fn emits_base_then_theme_and_density_scopes_with_linked_aliases() {
+    let docs = documents();
 
     let css = emit_tokens_css(&TokenSources {
-        base: &base,
-        theme: &theme,
-        density: &density,
+        base: &docs.base,
+        theme: &docs.theme,
+        density: &docs.density,
     });
 
     assert_eq!(
@@ -45,6 +56,25 @@ fn emits_base_then_theme_and_density_scopes_with_linked_aliases() {
         include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/tests/golden/token-pipeline.css"
+        ))
+    );
+}
+
+#[test]
+fn emits_the_same_token_surface_as_scss_with_dollar_variables() {
+    let docs = documents();
+
+    let scss = emit_tokens_scss(&TokenSources {
+        base: &docs.base,
+        theme: &docs.theme,
+        density: &docs.density,
+    });
+
+    assert_eq!(
+        scss,
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/token-pipeline.scss"
         ))
     );
 }

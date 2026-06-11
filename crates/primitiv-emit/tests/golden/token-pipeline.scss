@@ -1,0 +1,32 @@
+@layer primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.tokens {
+  :root {
+    --primitiv-opacity-60: 0.6;
+    --primitiv-space-space-4: 0.25rem;
+    --primitiv-active-opacity: var(--primitiv-opacity-60);
+  }
+  :root,
+  [data-theme="light"] {
+    --primitiv-color-brand-500: #0a7755;
+    --primitiv-action-primary: var(--primitiv-color-brand-500);
+  }
+  [data-theme="dark"] {
+    --primitiv-color-brand-500: #5fd3a8;
+    --primitiv-action-primary: var(--primitiv-color-brand-500);
+  }
+  :root,
+  [data-density="comfortable"] {
+    --primitiv-control-height: var(--primitiv-size-size-40);
+  }
+  [data-density="dense"] {
+    --primitiv-control-height: var(--primitiv-size-size-24);
+  }
+}
+
+$primitiv-opacity-60: var(--primitiv-opacity-60);
+$primitiv-space-space-4: var(--primitiv-space-space-4);
+$primitiv-active-opacity: var(--primitiv-active-opacity);
+$primitiv-color-brand-500: var(--primitiv-color-brand-500);
+$primitiv-action-primary: var(--primitiv-action-primary);
+$primitiv-control-height: var(--primitiv-control-height);

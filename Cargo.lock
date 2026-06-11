@@ -480,6 +480,8 @@ dependencies = [
  "predicates",
  "pretty_assertions",
  "primitiv-emit",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

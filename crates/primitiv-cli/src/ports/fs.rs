@@ -48,6 +48,7 @@ impl FileSystem for OsFs {
 pub struct InMemoryFs {
     files: RefCell<HashMap<PathBuf, Vec<u8>>>,
     fail_writes: RefCell<Option<PathBuf>>,
+    fail_reads: RefCell<Option<PathBuf>>,
 }
 
 #[cfg(test)]
@@ -62,11 +63,22 @@ impl InMemoryFs {
     pub fn fail_writes_to(&self, path: &Path) {
         *self.fail_writes.borrow_mut() = Some(path.to_path_buf());
     }
+
+    /// Make any [`read`](FileSystem::read) of `path` fail with
+    /// `PermissionDenied`, so a command can drive the non-`NotFound` read-error
+    /// branch (which the walk-up resolver treats as a hard I/O failure rather
+    /// than "keep looking") without a real, unreadable filesystem.
+    pub fn fail_reads_to(&self, path: &Path) {
+        *self.fail_reads.borrow_mut() = Some(path.to_path_buf());
+    }
 }
 
 #[cfg(test)]
 impl FileSystem for InMemoryFs {
     fn read(&self, path: &Path) -> io::Result<Vec<u8>> {
+        if self.fail_reads.borrow().as_deref() == Some(path) {
+            return Err(io::Error::new(io::ErrorKind::PermissionDenied, "read blocked"));
+        }
         self.files
             .borrow()
             .get(path)

@@ -74,6 +74,18 @@ adapters, hand-authored golden files, 100% coverage):
 - [ ] **Styling contract + `contract.json`** per component (RFC 0004 §3) — hybrid generation (data-* auto-verified, modifiers/custom-props authored).
 - [ ] **Default theme authoring** in the workbench (RFC 0006 §7) — ported from Figma, one design emitted per format.
 - [ ] **The CLI** (RFC 0005) — `init` / `add` / `tokens` / `theme` / `list`, `primitiv.json`, the static registry, refresh + wiring behaviour.
+  - **Started.** The hand-rolled arg parser, the `theme` command (CSS / SCSS /
+    Tailwind via `--format`), the `FileSystem` port (+ `InMemoryFs` fake) and the
+    e2e-covered bin shell are landed. **`primitiv.json` config is now landed**
+    (`config.rs`): a serde-typed `Config` with a pure `parse`, and a `resolve`
+    that walks up from a start directory through the `FileSystem` port to the
+    nearest `primitiv.json` (RFC 0005 §3.1–3.2) — `NotFound` ascends, any other
+    read error is a hard I/O failure, an exhausted search errors with the search
+    root. A new `CliError::Config` variant (exit code `5`) covers missing /
+    malformed config. This unblocks `tokens` / `init` / `add`, which read it for
+    their format and path defaults. **Remaining:** the `tokens`, `init`, `add`,
+    `list` commands; the static registry (+ the `Registry` port); refresh +
+    wiring behaviour; the Tailwind `dark:`-variant remap (RFC 0009 §4.2).
 - [ ] **Distribution** (RFC 0005 §7) — Rust binary via `optionalDependencies` (`@primitiv-ui/cli-*`), `cargo-dist`/napi-rs matrix; supersede the published v0.0.1 name-reservation placeholders with the real `primitiv-ui` / `create-primitiv-ui` at a higher version.
 
 ## ❓ Open questions

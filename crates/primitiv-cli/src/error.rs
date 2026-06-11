@@ -16,18 +16,21 @@ pub enum CliError {
     InvalidColor(ColorInputError),
     /// A filesystem read/write failure.
     Io(io::Error),
+    /// A `primitiv.json` that is missing where one is required, or malformed.
+    Config(String),
 }
 
 impl CliError {
     /// The process exit code the bin returns for this error (RFC 0005 §5).
     /// Codes are stable and distinct per failure source so an agent or CI can
-    /// branch on them: `2` usage, `3` invalid colour, `4` I/O. New error
-    /// variants take a new code rather than reusing one.
+    /// branch on them: `2` usage, `3` invalid colour, `4` I/O, `5` config. New
+    /// error variants take a new code rather than reusing one.
     pub fn exit_code(&self) -> u8 {
         match self {
             CliError::Usage(_) => 2,
             CliError::InvalidColor(_) => 3,
             CliError::Io(_) => 4,
+            CliError::Config(_) => 5,
         }
     }
 }
@@ -40,6 +43,7 @@ impl fmt::Display for CliError {
                 write!(f, "invalid colour '{value}'")
             }
             CliError::Io(error) => write!(f, "{error}"),
+            CliError::Config(message) => write!(f, "{message}"),
         }
     }
 }

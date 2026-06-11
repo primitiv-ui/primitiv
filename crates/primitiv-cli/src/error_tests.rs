@@ -16,6 +16,7 @@ fn maps_each_variant_to_a_stable_exit_code() {
         CliError::Io(io::Error::new(io::ErrorKind::PermissionDenied, "nope")).exit_code(),
         4
     );
+    assert_eq!(CliError::Config("missing".to_string()).exit_code(), 5);
 }
 
 #[test]
@@ -37,4 +38,11 @@ fn renders_an_io_error_through_its_own_display() {
     let error = CliError::Io(io::Error::new(io::ErrorKind::NotFound, "no such file"));
 
     assert_eq!(error.to_string(), "no such file");
+}
+
+#[test]
+fn renders_a_config_message_verbatim() {
+    let error = CliError::Config("no primitiv.json found".to_string());
+
+    assert_eq!(error.to_string(), "no primitiv.json found");
 }

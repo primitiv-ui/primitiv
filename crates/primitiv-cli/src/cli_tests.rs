@@ -107,6 +107,46 @@ fn parses_the_list_command_with_json() {
 }
 
 #[test]
+fn parses_the_add_command_with_one_component() {
+    let command = parse(&args(&["add", "button"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Add {
+            components: vec!["button".to_string()],
+        }
+    );
+}
+
+#[test]
+fn parses_the_add_command_with_several_components() {
+    let command = parse(&args(&["add", "button", "switch"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Add {
+            components: vec!["button".to_string(), "switch".to_string()],
+        }
+    );
+}
+
+#[test]
+fn rejects_add_with_no_components() {
+    assert!(matches!(
+        parse(&args(&["add"])).unwrap_err(),
+        CliError::Usage(_)
+    ));
+}
+
+#[test]
+fn rejects_an_unexpected_flag_to_add() {
+    assert!(matches!(
+        parse(&args(&["add", "button", "--soon"])).unwrap_err(),
+        CliError::Usage(_)
+    ));
+}
+
+#[test]
 fn rejects_an_unexpected_argument_to_list() {
     assert!(matches!(
         parse(&args(&["list", "--bogus"])).unwrap_err(),

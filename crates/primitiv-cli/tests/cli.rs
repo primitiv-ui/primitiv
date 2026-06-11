@@ -85,6 +85,30 @@ fn list_json_streams_the_raw_registry_index() {
 }
 
 #[test]
+fn add_reports_the_resolved_plan() {
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .args(["add", "button", "switch"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Resolved 2 components to add:"))
+        .stdout(predicate::str::contains("button"))
+        .stdout(predicate::str::contains("switch"));
+}
+
+#[test]
+fn add_rejects_an_unknown_component_and_exits_nine() {
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .args(["add", "nope"])
+        .assert()
+        .code(9)
+        .stderr(predicate::str::contains(
+            "primitiv: component 'nope' is not in the registry",
+        ));
+}
+
+#[test]
 fn tokens_streams_the_layer_to_stdout_when_config_less() {
     let dir = assert_fs::TempDir::new().unwrap();
 

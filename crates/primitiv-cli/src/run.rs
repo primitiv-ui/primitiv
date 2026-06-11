@@ -1,6 +1,7 @@
 use std::path::Path;
 
 use crate::cli::{parse, Command};
+use crate::commands::add::add;
 use crate::commands::init::init;
 use crate::commands::list::list;
 use crate::commands::theme::theme;
@@ -23,6 +24,7 @@ pub fn run(
 ) -> Result<(), CliError> {
     match parse(args)? {
         Command::Init(options) => init(fs, &options),
+        Command::Add { components } => add(registry, output, &components),
         Command::List { json } => list(registry, output, json),
         Command::Theme { brand, out, format } => theme(fs, &brand, Path::new(&out), format),
         Command::Tokens { out, format } => {

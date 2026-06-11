@@ -15,11 +15,27 @@ pub struct RegistryIndex {
     pub components: BTreeMap<String, ComponentEntry>,
 }
 
-/// One component's entry in the index — its independently-pinned version
-/// (RFC 0005 §6.2).
+/// One component's entry in the index — its independently-pinned version and
+/// what it depends on (RFC 0005 §6.2).
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct ComponentEntry {
     pub version: String,
+    /// The siblings `add` must pull in alongside this component (§4.4). Absent
+    /// in the JSON means none, so a minimal `{ "version": … }` entry still
+    /// parses (the same forward-compatibility the `list`-facing fields rely on).
+    #[serde(rename = "dependsOn", default)]
+    pub depends_on: DependsOn,
+}
+
+/// What a component needs pulled in alongside it (RFC 0005 §6.2). Only the
+/// sibling `components` are modelled today — `add`'s transitive resolution
+/// (§4.4) walks them; the `packages` / `tokens` fields the index also carries
+/// are read by later `add` slices, so the index keeps them without this type
+/// changing.
+#[derive(Debug, Deserialize, PartialEq, Default)]
+pub struct DependsOn {
+    #[serde(default)]
+    pub components: Vec<String>,
 }
 
 impl RegistryIndex {

@@ -20,6 +20,10 @@ fn maps_each_variant_to_a_stable_exit_code() {
     assert_eq!(CliError::Conflict("exists".to_string()).exit_code(), 6);
     assert_eq!(CliError::Registry("offline".to_string()).exit_code(), 7);
     assert_eq!(CliError::Project("no package.json".to_string()).exit_code(), 8);
+    assert_eq!(
+        CliError::NotFound("no such component".to_string()).exit_code(),
+        9
+    );
 }
 
 #[test]
@@ -69,4 +73,14 @@ fn renders_a_project_message_verbatim() {
     let error = CliError::Project("no package.json found in .".to_string());
 
     assert_eq!(error.to_string(), "no package.json found in .");
+}
+
+#[test]
+fn renders_a_not_found_message_verbatim() {
+    let error = CliError::NotFound("component 'nope' is not in the registry".to_string());
+
+    assert_eq!(
+        error.to_string(),
+        "component 'nope' is not in the registry"
+    );
 }

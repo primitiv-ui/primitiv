@@ -49,6 +49,18 @@ fn dispatches_the_list_command_and_streams_the_registry() {
 }
 
 #[test]
+fn dispatches_the_add_command_and_reports_the_plan() {
+    let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
+
+    run(&fs, &stdout, &EmbeddedRegistry, &args(&["add", "button"])).unwrap();
+
+    let reported = String::from_utf8(stdout.captured()).unwrap();
+    assert!(reported.contains("Resolved 1 component to add:"));
+    assert!(reported.contains("button"));
+}
+
+#[test]
 fn dispatches_the_tokens_command_and_writes_the_file() {
     let fs = InMemoryFs::new();
     let stdout = InMemoryOutput::new();

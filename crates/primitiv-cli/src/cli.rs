@@ -8,6 +8,9 @@ use crate::format::Format;
 #[derive(Debug, PartialEq)]
 pub enum Command {
     Init(InitOptions),
+    Add {
+        components: Vec<String>,
+    },
     List {
         json: bool,
     },
@@ -29,16 +32,35 @@ pub enum Command {
 pub fn parse(args: &[String]) -> Result<Command, CliError> {
     let (name, rest) = args
         .split_first()
-        .ok_or_else(|| usage("no command given; expected: init, list, theme, tokens"))?;
+        .ok_or_else(|| usage("no command given; expected: init, add, list, theme, tokens"))?;
     match name.as_str() {
         "init" => parse_init(rest),
+        "add" => parse_add(rest),
         "list" => parse_list(rest),
         "theme" => parse_theme(rest),
         "tokens" => parse_tokens(rest),
         other => Err(usage(format!(
-            "unknown command '{other}'; expected: init, list, theme, tokens"
+            "unknown command '{other}'; expected: init, add, list, theme, tokens"
         ))),
     }
+}
+
+/// Parse `add <component...>` — one or more component names, at least one
+/// required (RFC 0005 §2.2). The install/copy flags (`--styles-only`,
+/// `--no-styles`, `--format`, `--path`, `--force`) arrive with the later slices
+/// that act on them; for now a `--`-prefixed argument is an unexpected one.
+fn parse_add(args: &[String]) -> Result<Command, CliError> {
+    let mut components = Vec::new();
+    for arg in args {
+        if arg.starts_with("--") {
+            return Err(usage(format!("unexpected argument '{arg}'")));
+        }
+        components.push(arg.clone());
+    }
+    if components.is_empty() {
+        return Err(usage("add requires at least one component"));
+    }
+    Ok(Command::Add { components })
 }
 
 /// Parse `list [--json]` — the only flag is `--json`, which switches the output

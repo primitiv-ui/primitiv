@@ -1,6 +1,7 @@
 pub mod cli;
 pub mod commands;
 pub mod error;
+pub mod format;
 pub mod ports;
 pub mod run;
 

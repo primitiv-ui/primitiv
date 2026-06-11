@@ -65,7 +65,18 @@ impl Node {
     }
 }
 
-/// A path segment as a TS object key — bare when it is a valid identifier.
+/// A path segment as a TS object key — bare when it is a valid JS identifier
+/// (`color`), quoted otherwise (`"space-4"`, `"500"`), so hyphens and
+/// leading digits stay legal object keys.
 fn object_key(segment: &str) -> String {
-    segment.to_string()
+    let mut chars = segment.chars();
+    let valid = chars
+        .next()
+        .is_some_and(|first| first.is_ascii_alphabetic() || first == '_' || first == '$')
+        && chars.all(|char| char.is_ascii_alphanumeric() || char == '_' || char == '$');
+    if valid {
+        segment.to_string()
+    } else {
+        format!("\"{segment}\"")
+    }
 }

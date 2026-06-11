@@ -22,3 +22,19 @@ fn emits_a_nested_typed_token_object() {
         include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/golden/tokens.ts"))
     );
 }
+
+#[test]
+fn quotes_keys_that_are_not_valid_identifiers() {
+    let ts = emit_ts(&[
+        Token::new(&["color", "brand", "500"], "#0a7755"),
+        Token::new(&["space", "space-4"], "0.25rem"),
+    ]);
+
+    assert_eq!(
+        ts,
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/tokens-quoted-keys.ts"
+        ))
+    );
+}

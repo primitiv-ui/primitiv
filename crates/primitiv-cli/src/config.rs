@@ -76,5 +76,8 @@ pub fn resolve(fs: &impl FileSystem, start: &Path) -> Result<Config, CliError> {
         }
         dir = current.parent();
     }
-    Err(CliError::Config(String::new()))
+    Err(CliError::Config(format!(
+        "no {FILE_NAME} found in {} or any parent directory",
+        start.display()
+    )))
 }

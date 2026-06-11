@@ -75,3 +75,16 @@ fn should_walk_up_to_a_parent_directory_to_find_the_config() {
 
     assert_eq!(config.registry.version, "0.1.0");
 }
+
+#[test]
+fn should_error_with_the_search_root_when_no_config_exists_anywhere() {
+    let fs = InMemoryFs::new();
+
+    let error = resolve(&fs, Path::new("project/app")).unwrap_err();
+
+    assert_eq!(error.exit_code(), 5);
+    assert_eq!(
+        error.to_string(),
+        "no primitiv.json found in project/app or any parent directory"
+    );
+}

@@ -88,3 +88,15 @@ fn should_error_with_the_search_root_when_no_config_exists_anywhere() {
         "no primitiv.json found in project/app or any parent directory"
     );
 }
+
+#[test]
+fn should_propagate_a_read_error_other_than_not_found() {
+    let fs = InMemoryFs::new();
+    let path = Path::new("project/primitiv.json");
+    fs.write(path, FULL).unwrap();
+    fs.fail_reads_to(path);
+
+    let error = resolve(&fs, Path::new("project")).unwrap_err();
+
+    assert_eq!(error.exit_code(), 4);
+}

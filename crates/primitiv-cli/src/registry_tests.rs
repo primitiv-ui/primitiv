@@ -67,6 +67,29 @@ fn parses_each_components_transitive_component_dependencies() {
 }
 
 #[test]
+fn parses_each_components_npm_package_dependencies() {
+    const INDEX: &[u8] = br##"{
+  "version": "0.1.0",
+  "components": {
+    "button": { "version": "0.1.0", "dependsOn": { "packages": ["@primitiv-ui/react"] } },
+    "icon": { "version": "0.1.0" }
+  }
+}"##;
+
+    let index = RegistryIndex::parse(INDEX).unwrap();
+
+    assert_eq!(
+        index.components["button"].depends_on.packages,
+        vec!["@primitiv-ui/react".to_string()]
+    );
+    // A component with no `dependsOn` defaults to an empty package list.
+    assert_eq!(
+        index.components["icon"].depends_on.packages,
+        Vec::<String>::new()
+    );
+}
+
+#[test]
 fn errors_on_a_malformed_registry_index() {
     let error = RegistryIndex::parse(b"{ not json }").unwrap_err();
 

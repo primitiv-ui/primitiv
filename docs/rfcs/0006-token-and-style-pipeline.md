@@ -137,10 +137,13 @@ a thin front-end over it.
 |---|---|---|
 | **CSS** | `--primitiv-*` custom properties | **Canonical.** Everything else is an adapter over these. |
 | **SCSS** | SCSS variables / maps + the same selectors | Resolves to the CSS custom properties; gives SCSS-pipeline users `$`-vars and maps. |
-| **TS/JS** | a **nested, typed** token object (`tokens.color.primary`), CLI-emitted | For tokens-in-code (JS styling, theming the React layer, tooling). Nested for autocomplete (D47). |
+| ~~**TS/JS**~~ | ~~a **nested, typed** token object~~ | **Dropped (D50).** A TS object inlines concrete values, so it cannot defer mode resolution to the cascade the way the formats below do; the mode-varying tokens it blocked on are exactly the ones that must not be frozen into JS. |
 | **Tailwind** | a **v4** preset/config + per-component recipes | Tailwind **v4 is CSS-variable-native**, so the preset largely *is* the custom properties plus a `@theme` mapping — a thin, natural adapter. **v4-only for v1** (D46); v3 best-effort, not promised. |
 
-One emitter, four serialisers; identical values across all (design doc §5.4).
+One emitter, **three** cascade-based serialisers; identical values across all
+(design doc §5.4). A TS/JS object was originally planned as a fourth but was
+**dropped (D50)** — it is the one format that inlines values rather than emitting
+`var()` references, so it cannot lean on the cascade to resolve theme/density.
 
 ### 4.3 Namespacing
 
@@ -292,9 +295,11 @@ Specified in RFC 0005; listed here for the pipeline's entry points:
    `data-*`-attribute scope is canonical for both mode axes (`[data-theme]`,
    `[data-density]`), over a `.class`. The `prefers-color-scheme` variant stays
    **opt-in**, not default (RFC 0009 §6).
-2. ~~**TS token object shape.**~~ **Resolved (D47):** a **nested, typed** object
-   (`tokens.color.primary`) for autocomplete, **CLI-emitted** like the other
-   formats (consistent with D23), not hand-maintained in `@primitiv-ui/tokens`.
+2. ~~**TS token object shape.**~~ **Reversed (D50):** the TS/JS format is
+   **dropped**. D47 had settled a nested, typed, CLI-emitted object, but the
+   mode-aware shape it needed never had a non-dissonant answer — TS inlines
+   values and so fights the cascade-first model. The base-only emitter and the
+   inlining resolvers it relied on were removed from `primitiv-emit`.
 3. ~~**Tailwind version target.**~~ **Resolved (D46):** **v4-only** for v1
    (CSS-variable-native, aligns with the whole token model); v3 is best-effort via
    `data-[…]:` variants, not a v1 promise.
@@ -320,7 +325,7 @@ Specified in RFC 0005; listed here for the pipeline's entry points:
 | # | Decision | Maps to |
 |---|---|---|
 | 1 | One Rust emitter (in the CLI) transforms DTCG → all outputs | D12 |
-| 2 | v1 emits **all four** formats: CSS (canonical), SCSS, TS/JS, Tailwind | D23 |
+| 2 | v1 emits **three** cascade-based formats: CSS (canonical), SCSS, Tailwind (TS/JS dropped) | D23, D50 |
 | 3 | Public surface is `--primitiv-*` **names**; values (incl. dark) may change non-breakingly | D6, Principle 2 |
 | 4 | v1 ships **light theme + dark tokens** (already in Figma Intent modes); no bespoke per-component dark CSS; dark values stay evolvable | D24 |
 | 5 | Dark switch via `[data-theme="dark"]` scope (+ opt-in `prefers-color-scheme`) | §5.2 |
@@ -328,6 +333,6 @@ Specified in RFC 0005; listed here for the pipeline's entry points:
 | 7 | `primitiv theme` (Harmoni) emits theme-token overrides re-skinning via custom properties | D11 |
 | 8 | Default theme authored by **extending `apps/workbench`** with a styled preview (conscious CLAUDE.md exception) | D25 |
 | 9 | Tailwind output = **v4 only** for v1; v3 best-effort, not promised | D46 |
-| 10 | TS/JS token object = **nested + typed** (`tokens.color.primary`), CLI-emitted | D47 |
+| 10 | ~~TS/JS token object = **nested + typed**, CLI-emitted~~ — **dropped** | D47, reversed by D50 |
 | 11 | `primitiv theme --brand` emits **paired light + dark** in v1; emitted **structure is the stable contract**, dark values from `harmoni-core` evolve non-breakingly | D48 |
 | 12 | `primitiv theme` writes a **separate** overrides file in the `primitiv.theme` sublayer (robust by layer order, not load order) | D49 |

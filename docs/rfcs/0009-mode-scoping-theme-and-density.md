@@ -214,11 +214,14 @@ maps resolve into the same inherited custom properties. Nothing format-specific.
   / `data-[density=dense]:` variants still work; documented best-effort, not a v1
   promise.
 
-### 4.3 TS/JS token object
+### 4.3 TS/JS token object — dropped (D50)
 
-The token object exposes *values*; mode selection is a DOM concern, so the object
-is mode-agnostic (the same way it is layer-agnostic, RFC 0008 §4). Consumers
-theming in JS read the value set and apply scopes in markup as above.
+The TS/JS format has since been **dropped (D50)**, and this is exactly why: a
+token object exposes *values*, but mode selection is a DOM/cascade concern. A
+value-inlining object is therefore mode-agnostic — which means it cannot carry
+theme/density at all without re-implementing the cascade in JS. The three
+cascade-based formats (CSS / SCSS / Tailwind) emit `var()` references and let the
+DOM scopes above resolve modes for free; the dropped TS object could not.
 
 ---
 
@@ -301,5 +304,5 @@ post-v1.)
 | 2 | **Attributes, not classes**, for both axes — resolving RFC 0006 §10.1's selector question; kept as separate attributes (orthogonal, no `data-mode` combinatorial explosion) | D40 |
 | 3 | Density values = Figma `Context` modes (`dense`/`compact`/`comfortable`/`spacious`); **default density = comfortable**, default theme = light; `prefers-color-scheme` stays opt-in | D41 |
 | 4 | Density-dependent tokens emit under **density-neutral names**; the `context.<density>` axis collapses into `[data-density]` scopes in the `primitiv.tokens` layer (RFC 0008) | D42 |
-| 5 | Model works across **all four formats**; Tailwind wiring documented — remap `dark:` to `[data-theme="dark"]`, optional `data-[density]` variants; v4 utilities inherit the active mode automatically | D43 |
+| 5 | Model works across the **cascade-based formats** (CSS/SCSS/Tailwind; TS dropped, D50); Tailwind wiring documented — remap `dark:` to `[data-theme="dark"]`, optional `data-[density]` variants; v4 utilities inherit the active mode automatically | D43, D50 |
 | 6 | **v1 ships attribute-based density**; **responsive (container-query) density is designed-in but deferred** — additive on the same value-sets (emit each density as a container-applicable block + a `container-type` helper); CSS style-queries are the eventual purest path | D44 |

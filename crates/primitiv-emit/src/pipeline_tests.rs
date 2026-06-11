@@ -4,7 +4,7 @@ use serde_json::{json, Value};
 use crate::pipeline::{
     emit_component_tokens_css, emit_tailwind_tokens, emit_theme_brand_css, emit_theme_brand_scss,
     emit_theme_brand_tailwind, emit_theme_overrides_css, emit_tokens_css, emit_tokens_scss,
-    emit_ts_tokens, TokenSources,
+    TokenSources,
 };
 
 /// Shared, pure-data fixture: routed DTCG documents exercising every axis — a
@@ -163,26 +163,6 @@ fn rejects_an_unparseable_brand_colour() {
     assert!(emit_theme_brand_css("not-a-colour").is_err());
     assert!(emit_theme_brand_scss("not-a-colour").is_err());
     assert!(emit_theme_brand_tailwind("not-a-colour").is_err());
-}
-
-#[test]
-fn inlines_base_token_aliases_into_the_ts_object() {
-    let primitives = json!({
-        "opacity": { "60": { "$type": "number", "$value": 60 } }
-    });
-    let interaction = json!({
-        "active": { "opacity": { "$type": "number", "$value": "{opacity.60}" } }
-    });
-
-    let ts = emit_ts_tokens(&[primitives, interaction]);
-
-    assert_eq!(
-        ts,
-        include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/tests/golden/tokens-base.ts"
-        ))
-    );
 }
 
 #[test]

@@ -74,7 +74,7 @@ red-green cycle for a CLI feature. Out of scope: the command *behaviour* (RFC
 crates/
   harmoni-core/      # existing — palette engine; linked by `theme`
   harmoni-wasm/      # existing
-  primitiv-emit/     # NEW — pure DTCG → {css,scss,ts,tailwind} transform (RFC 0006)
+  primitiv-emit/     # NEW — pure DTCG → {css,scss,tailwind} transform (RFC 0006; TS dropped, D50)
   primitiv-cli/      # NEW — lib + thin bin
     src/
       lib.rs         # all logic; co-located `_tests.rs` siblings
@@ -136,7 +136,7 @@ surface are the same surface.
 | Layer | Count | Where | What it proves |
 |---|---|---|---|
 | **Unit — pure core** | many | `lib.rs` `_tests.rs` siblings | config parse/merge, registry resolution + transitive-dep planning, the `add` plan, diff/hash refresh, detection logic |
-| **Emitter golden** | per format × shape | `primitiv-emit` `_tests.rs` + `tests/golden/` | the exact bytes of emitted CSS/SCSS/TS/Tailwind |
+| **Emitter golden** | per format × shape | `primitiv-emit` `_tests.rs` + `tests/golden/` | the exact bytes of emitted CSS/SCSS/Tailwind (TS dropped, D50) |
 | **Command (fakes)** | medium | `primitiv-cli` `_tests.rs` | a command orchestrates the ports correctly — recorded PM commands + resulting in-memory FS |
 | **End-to-end (real bin)** | few | `crates/primitiv-cli/tests/` | the real binary: arg-parsing, adapter wiring, exit codes, real files on disk |
 

@@ -24,7 +24,10 @@ split.
 
 ## Working style — non-negotiable
 
-1. **Strict TDD.** Red → green → refactor. Coverage stays at 100%.
+1. **Strict TDD.** Red → green → refactor. Coverage stays at 100% —
+   **lines, regions, and functions** (Rust) / lines, branches,
+   statements, functions (TS). A lines-only check is not enough: it
+   lets an untested branch through. Drive every branch from a test.
 2. **Pure red-green.** No characterisation tests that pass on first
    run. If a test passes immediately, delete it and find a genuinely
    new behaviour to drive.
@@ -118,8 +121,9 @@ source of truth for when a skill applies.
   `docs/transfer-and-next-steps.md`). New crates: `crates/primitiv-cli`
   (the `FileSystem` port + in-memory fake) and `crates/primitiv-emit`
   (the pure DTCG → CSS emitter). Rust now runs in CI via
-  `.github/workflows/rust.yml`, gating the CLI crates at 100% with
-  `cargo llvm-cov`. The **CSS-canonical token emit is done end-to-end**
+  `.github/workflows/rust.yml`, gating the CLI crates at 100% **lines,
+  regions, and functions** with `cargo llvm-cov` (regions catch the
+  branch a lines-only gate would miss). The **CSS-canonical token emit is done end-to-end**
   (`emit_tokens_css`); remaining emitter work is the two-tier
   per-component split, the `primitiv.theme` layer, and the SCSS / TS /
   Tailwind serialisers. Two decisions landed: category-map number units
@@ -129,6 +133,9 @@ source of truth for when a skill applies.
 
 ```sh
 cargo test --workspace                            # all Rust tests
+# CLI-crate coverage gate — the exact check CI runs (lines+regions+functions):
+cargo llvm-cov --workspace --exclude harmoni-core --exclude harmoni-wasm \
+  --fail-under-lines 100 --fail-under-regions 100 --fail-under-functions 100
 pnpm --filter @primitiv-ui/react qa:units            # React tests + coverage
 pnpm --filter @primitiv-ui/react exec vitest run src/X    # scoped, during a cycle
 pnpm run build:wasm                               # rebuild wasm pkg

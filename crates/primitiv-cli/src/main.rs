@@ -8,11 +8,12 @@
 use std::process::ExitCode;
 
 use primitiv_cli::ports::fs::OsFs;
+use primitiv_cli::ports::output::OsStdout;
 use primitiv_cli::run::run;
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
-    match run(&OsFs, &args) {
+    match run(&OsFs, &OsStdout, &args) {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => {
             eprintln!("primitiv: {error}");

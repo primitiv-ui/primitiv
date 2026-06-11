@@ -12,7 +12,7 @@ pub enum Command {
         format: Format,
     },
     Tokens {
-        out: String,
+        out: Option<String>,
         format: Format,
     },
 }
@@ -34,9 +34,9 @@ pub fn parse(args: &[String]) -> Result<Command, CliError> {
     }
 }
 
-/// Parse `tokens --out <path> [--format <fmt>]` — `--out` required, `--format`
-/// optional (defaults to CSS), all order-free. (`primitiv.json` defaults land
-/// with a later increment of the command.)
+/// Parse `tokens [--out <path>] [--format <fmt>]` — both optional, order-free.
+/// `--format` defaults to CSS; an omitted `--out` falls back to the
+/// `primitiv.json` `tokens.path` at command time (RFC 0005 §2.3 / §3.2).
 fn parse_tokens(args: &[String]) -> Result<Command, CliError> {
     let mut out = None;
     let mut format = Format::Css;
@@ -48,10 +48,7 @@ fn parse_tokens(args: &[String]) -> Result<Command, CliError> {
             other => return Err(usage(format!("unexpected argument '{other}'"))),
         }
     }
-    Ok(Command::Tokens {
-        out: out.ok_or_else(|| usage("tokens requires --out <path>"))?,
-        format,
-    })
+    Ok(Command::Tokens { out, format })
 }
 
 /// Parse `theme --brand <hex> --out <path> [--format <fmt>]` — `--brand` and

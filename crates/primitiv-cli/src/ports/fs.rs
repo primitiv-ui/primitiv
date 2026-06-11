@@ -1,12 +1,11 @@
 use std::io;
 use std::path::Path;
+use std::path::PathBuf;
 
 #[cfg(test)]
 use std::cell::RefCell;
 #[cfg(test)]
 use std::collections::HashMap;
-#[cfg(test)]
-use std::path::PathBuf;
 
 /// The filesystem port — the single seam every command goes through to touch
 /// disk.
@@ -18,6 +17,9 @@ pub trait FileSystem {
     fn read(&self, path: &Path) -> io::Result<Vec<u8>>;
     fn write(&self, path: &Path, bytes: &[u8]) -> io::Result<()>;
     fn exists(&self, path: &Path) -> bool;
+    /// The directory a walk-up (e.g. [`config::resolve`](crate::config::resolve))
+    /// starts from — the process working directory for the real bin.
+    fn current_dir(&self) -> io::Result<PathBuf>;
 }
 
 /// The OS-backed [`FileSystem`] adapter the real bin runs on — a thin
@@ -38,6 +40,10 @@ impl FileSystem for OsFs {
     fn exists(&self, path: &Path) -> bool {
         path.exists()
     }
+
+    fn current_dir(&self) -> io::Result<PathBuf> {
+        std::env::current_dir()
+    }
 }
 
 /// An in-memory [`FileSystem`] fake for command-layer tests (RFC 0007 §2.2,
@@ -49,6 +55,8 @@ pub struct InMemoryFs {
     files: RefCell<HashMap<PathBuf, Vec<u8>>>,
     fail_writes: RefCell<Option<PathBuf>>,
     fail_reads: RefCell<Option<PathBuf>>,
+    cwd: RefCell<PathBuf>,
+    fail_current_dir: RefCell<bool>,
 }
 
 #[cfg(test)]
@@ -70,6 +78,18 @@ impl InMemoryFs {
     /// than "keep looking") without a real, unreadable filesystem.
     pub fn fail_reads_to(&self, path: &Path) {
         *self.fail_reads.borrow_mut() = Some(path.to_path_buf());
+    }
+
+    /// Set the directory [`current_dir`](FileSystem::current_dir) reports, so a
+    /// command test can place the start of a config walk-up at a known path.
+    pub fn set_current_dir(&self, path: &Path) {
+        *self.cwd.borrow_mut() = path.to_path_buf();
+    }
+
+    /// Make [`current_dir`](FileSystem::current_dir) fail with `NotFound`, so a
+    /// command can drive the branch where the working directory is unavailable.
+    pub fn fail_current_dir(&self) {
+        *self.fail_current_dir.borrow_mut() = true;
     }
 }
 
@@ -96,5 +116,12 @@ impl FileSystem for InMemoryFs {
 
     fn exists(&self, path: &Path) -> bool {
         self.files.borrow().contains_key(path)
+    }
+
+    fn current_dir(&self) -> io::Result<PathBuf> {
+        if *self.fail_current_dir.borrow() {
+            return Err(io::Error::new(io::ErrorKind::NotFound, "no working directory"));
+        }
+        Ok(self.cwd.borrow().clone())
     }
 }

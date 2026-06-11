@@ -86,7 +86,7 @@ fn parses_the_tokens_command_with_out() {
     assert_eq!(
         command,
         Command::Tokens {
-            out: "src/styles/tokens.css".to_string(),
+            out: Some("src/styles/tokens.css".to_string()),
             format: Format::Css,
         }
     );
@@ -100,8 +100,21 @@ fn parses_the_tokens_command_with_an_explicit_scss_format() {
     assert_eq!(
         command,
         Command::Tokens {
-            out: "x.scss".to_string(),
+            out: Some("x.scss".to_string()),
             format: Format::Scss,
+        }
+    );
+}
+
+#[test]
+fn parses_bare_tokens_with_no_flags() {
+    let command = parse(&args(&["tokens"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Tokens {
+            out: None,
+            format: Format::Css,
         }
     );
 }
@@ -110,14 +123,6 @@ fn parses_the_tokens_command_with_an_explicit_scss_format() {
 fn rejects_an_unknown_format_for_tokens() {
     assert!(matches!(
         parse(&args(&["tokens", "--out", "x", "--format", "toml"])).unwrap_err(),
-        CliError::Usage(_)
-    ));
-}
-
-#[test]
-fn rejects_tokens_missing_out() {
-    assert!(matches!(
-        parse(&args(&["tokens"])).unwrap_err(),
         CliError::Usage(_)
     ));
 }

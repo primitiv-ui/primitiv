@@ -1,8 +1,9 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use primitiv_emit::{emit_tailwind_tokens, emit_tokens_css, emit_tokens_scss, TokenSources};
 use serde_json::Value;
 
+use crate::config::resolve;
 use crate::error::CliError;
 use crate::format::Format;
 use crate::ports::fs::FileSystem;
@@ -23,13 +24,22 @@ const INTENT: &str =
 const CONTEXT: &str =
     include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/context.json"));
 
-/// The `primitiv tokens --out <path> [--format <fmt>]` command (RFC 0005 §2.3):
+/// The `primitiv tokens [--out <path>] [--format <fmt>]` command (RFC 0005 §2.3):
 /// route the embedded design-system DTCG into the emitter, serialise the shared
-/// token layer in the requested `format`, and write it to `out` through the
-/// filesystem port. CSS is canonical; SCSS is the canonical CSS plus resolving
-/// `$primitiv-*` variables; Tailwind is the `@theme` preset. (`primitiv.json`
-/// path / format defaults land next.)
-pub fn tokens(fs: &impl FileSystem, format: Format, out: &Path) -> Result<(), CliError> {
+/// token layer in the requested `format`, and write it through the filesystem
+/// port. CSS is canonical; SCSS is the canonical CSS plus resolving
+/// `$primitiv-*` variables; Tailwind is the `@theme` preset.
+///
+/// When `out` is omitted the destination falls back to the `tokens.path` of the
+/// nearest `primitiv.json` (resolved by walking up from the working directory),
+/// so an `init`-ed project needs no flag (RFC 0005 §3.2). Defaulting the
+/// *format* from the config — and emitting to stdout with no config at all — are
+/// later increments.
+pub fn tokens(fs: &impl FileSystem, format: Format, out: Option<&Path>) -> Result<(), CliError> {
+    let out = match out {
+        Some(out) => out.to_path_buf(),
+        None => PathBuf::from(resolve(fs, &fs.current_dir()?)?.tokens.path),
+    };
     let base = [parse(PRIMITIVES), parse(INTERACTION)];
     let theme = [parse(PALETTE), parse(INTENT)];
     let density = [parse(CONTEXT)];
@@ -43,7 +53,7 @@ pub fn tokens(fs: &impl FileSystem, format: Format, out: &Path) -> Result<(), Cl
         Format::Scss => emit_tokens_scss(&sources),
         Format::Tailwind => emit_tailwind_tokens(&sources),
     };
-    fs.write(out, output.as_bytes())?;
+    fs.write(&out, output.as_bytes())?;
     Ok(())
 }
 

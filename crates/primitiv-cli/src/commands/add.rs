@@ -9,7 +9,8 @@ use crate::registry::RegistryIndex;
 ///
 /// This is the resolution spine of `add`: it loads the registry index through
 /// the [`Registry`] port, resolves each requested component **and its transitive
-/// component dependencies** (§4.4), and reports the install plan to stdout. A
+/// component dependencies** (§4.4), and reports the install plan to stdout — the
+/// human table, or the structured plan under `--json` for agents (§6.5). A
 /// requested or depended-on component that the registry doesn't carry is a
 /// [`CliError::NotFound`]. The package-install and style-copy effects (§4.2–§4.3)
 /// layer on in later slices; resolving and reporting come first.
@@ -17,13 +18,19 @@ pub fn add(
     registry: &impl Registry,
     output: &impl Output,
     components: &[String],
+    json: bool,
 ) -> Result<(), CliError> {
     let index = registry
         .index()
         .map_err(|error| CliError::Registry(error.to_string()))?;
     let index = RegistryIndex::parse(&index)?;
     let resolved = resolve(&index, components)?;
-    output.write_stdout(render(&index, &resolved).as_bytes())?;
+    let plan = if json {
+        render_json(&index, &resolved)
+    } else {
+        render(&index, &resolved)
+    };
+    output.write_stdout(plan.as_bytes())?;
     Ok(())
 }
 
@@ -50,7 +57,9 @@ fn resolve(index: &RegistryIndex, requested: &[String]) -> Result<Vec<String>, C
 }
 
 /// Format the resolved set as a plan — a `Resolved N component(s) to add:` header
-/// over an aligned `name  version` list, the components in sorted order.
+/// over an aligned `name  version` list, then (when any) the `Packages to
+/// ensure:` the components pull in. Both lists are sorted; the package list is
+/// the deduplicated union across the resolved components (RFC 0005 §4.4).
 fn render(index: &RegistryIndex, resolved: &[String]) -> String {
     let plural = if resolved.len() == 1 { "" } else { "s" };
     let width = resolved.iter().map(String::len).max().unwrap_or(0);
@@ -59,5 +68,58 @@ fn render(index: &RegistryIndex, resolved: &[String]) -> String {
         let version = &index.components[name].version;
         plan.push_str(&format!("  {name:<width$}  {version}\n"));
     }
+    let packages = packages(index, resolved);
+    if !packages.is_empty() {
+        plan.push_str("\nPackages to ensure:\n");
+        for package in &packages {
+            plan.push_str(&format!("  {package}\n"));
+        }
+    }
     plan
+}
+
+/// Format the plan as JSON for agents (RFC 0005 §6.5): the resolved components
+/// with their versions, and the packages to ensure — the same data the human
+/// table carries, machine-readable. Hand-rendered to exact bytes (the authored-
+/// golden discipline, RFC 0007 §4); the values are registry-controlled and need
+/// no escaping.
+fn render_json(index: &RegistryIndex, resolved: &[String]) -> String {
+    let components: Vec<String> = resolved
+        .iter()
+        .map(|name| {
+            let version = &index.components[name].version;
+            format!("    {{ \"name\": \"{name}\", \"version\": \"{version}\" }}")
+        })
+        .collect();
+    let packages: Vec<String> = packages(index, resolved)
+        .iter()
+        .map(|package| format!("    \"{package}\""))
+        .collect();
+    format!(
+        "{{\n  \"components\": {},\n  \"packages\": {}\n}}\n",
+        json_array(components),
+        json_array(packages),
+    )
+}
+
+/// Wrap pre-indented `items` as a JSON array, collapsing to `[]` when empty so
+/// an empty package list stays valid.
+fn json_array(items: Vec<String>) -> String {
+    if items.is_empty() {
+        "[]".to_string()
+    } else {
+        format!("[\n{}\n  ]", items.join(",\n"))
+    }
+}
+
+/// The deduplicated, sorted union of the npm packages the resolved components
+/// declare — the headless libraries `add` ensures are installed (RFC 0005 §4.4).
+fn packages<'a>(index: &'a RegistryIndex, resolved: &[String]) -> Vec<&'a str> {
+    resolved
+        .iter()
+        .flat_map(|name| index.components[name].depends_on.packages.iter())
+        .map(String::as_str)
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect()
 }

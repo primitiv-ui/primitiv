@@ -27,15 +27,18 @@ pub struct ComponentEntry {
     pub depends_on: DependsOn,
 }
 
-/// What a component needs pulled in alongside it (RFC 0005 §6.2). Only the
-/// sibling `components` are modelled today — `add`'s transitive resolution
-/// (§4.4) walks them; the `packages` / `tokens` fields the index also carries
-/// are read by later `add` slices, so the index keeps them without this type
-/// changing.
+/// What a component needs pulled in alongside it (RFC 0005 §6.2): the sibling
+/// `components` `add`'s transitive resolution (§4.4) walks, and the npm
+/// `packages` it must ensure are installed (the headless library). The `tokens`
+/// flag the index also carries is read by a later `add` slice, so the index
+/// keeps it without this type changing. Both lists default to empty, so a
+/// minimal `dependsOn` (or none) still parses.
 #[derive(Debug, Deserialize, PartialEq, Default)]
 pub struct DependsOn {
     #[serde(default)]
     pub components: Vec<String>,
+    #[serde(default)]
+    pub packages: Vec<String>,
 }
 
 impl RegistryIndex {

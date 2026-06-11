@@ -9,7 +9,7 @@ use crate::component::{emit_component_css, Component};
 use crate::css::{emit_css, emit_theme_css, Scope};
 use crate::dtcg::{flatten_modes, tokens_from_dtcg};
 use crate::mode::{scope_selectors, Axis};
-use crate::scss::emit_scss;
+use crate::scss::{emit_scss, emit_theme_scss};
 use crate::tailwind::emit_tailwind;
 use crate::theme::brand_tokens;
 use crate::token::Token;
@@ -90,11 +90,27 @@ pub fn emit_theme_overrides_css(documents: &[Value]) -> String {
 /// dark in `[data-theme="dark"]`. The emitted structure is the stable contract
 /// (D48); the hex values track `harmoni-core` and evolve non-breakingly.
 pub fn emit_theme_brand_css(brand: &str) -> Result<String, ColorInputError> {
+    Ok(emit_theme_css(&brand_scopes(brand)?))
+}
+
+/// Emit `primitiv theme --brand <hex>` overrides as SCSS (RFC 0005 §2.4,
+/// RFC 0006 §4.2/§5): the same paired light + dark brand scopes as
+/// [`emit_theme_brand_css`], serialised through the SCSS adapter so the
+/// `primitiv.theme` CSS is followed by the resolving `$primitiv-*` variables.
+pub fn emit_theme_brand_scss(brand: &str) -> Result<String, ColorInputError> {
+    Ok(emit_theme_scss(&brand_scopes(brand)?))
+}
+
+/// Derive the paired light + dark brand-ramp scopes from a brand colour: link
+/// `harmoni-core` for a contrast-checked pair, then map each side to its
+/// `--primitiv-color-brand-*` theme-axis scope. Shared by every theme-brand
+/// serialiser so the formats stay byte-identical in structure.
+fn brand_scopes(brand: &str) -> Result<Vec<Scope>, ColorInputError> {
     let set = generate_brand_pair(ColorInput::Css(brand.to_string()))?;
-    Ok(emit_theme_css(&[
+    Ok(vec![
         brand_scope("light", &set.light),
         brand_scope("dark", &set.dark),
-    ]))
+    ])
 }
 
 /// One theme-axis scope of brand-ramp overrides for a mode: the mode's

@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use assert_fs::prelude::*;
 
@@ -62,4 +62,28 @@ fn os_fs_reports_a_missing_path_as_absent() {
     let dir = assert_fs::TempDir::new().unwrap();
 
     assert!(!OsFs.exists(dir.child("nope.css").path()));
+}
+
+#[test]
+fn os_fs_reports_the_process_current_directory() {
+    assert_eq!(OsFs.current_dir().unwrap(), std::env::current_dir().unwrap());
+}
+
+#[test]
+fn in_memory_fs_reports_its_configured_current_directory() {
+    let fs = InMemoryFs::new();
+    fs.set_current_dir(Path::new("project/packages/app"));
+
+    assert_eq!(fs.current_dir().unwrap(), PathBuf::from("project/packages/app"));
+}
+
+#[test]
+fn in_memory_fs_can_fail_current_dir() {
+    let fs = InMemoryFs::new();
+    fs.fail_current_dir();
+
+    assert_eq!(
+        fs.current_dir().unwrap_err().kind(),
+        std::io::ErrorKind::NotFound
+    );
 }

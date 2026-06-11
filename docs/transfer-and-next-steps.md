@@ -59,9 +59,13 @@ adapters, hand-authored golden files, 100% coverage):
     the dark ramp is the anchored model (reliably-dark bg → light text). The
     **emitted structure is the stable contract (D48)**; the hex values track
     `harmoni-core` and evolve non-breakingly (a `Display for SwatchLabel` renders
-    the path segment). **Remaining:** the SCSS / TS / Tailwind theme-override
-    serialisers (mirroring the token-emitter's multi-format split) and the
-    `theme` command's flag/`--out`/`--format` wiring, which land with the CLI.
+    the path segment). The **SCSS theme-override serialiser is landed**
+    (`emit_theme_brand_scss`: the `primitiv.theme` CSS plus the resolving
+    `$primitiv-*` vars), and the `theme` command now takes a **`--format` flag**
+    (`css` | `scss`, default `css`) parsed into a `Format` enum and dispatched
+    through to the emitter. **Remaining:** the TS / Tailwind theme-override
+    serialisers (mirroring the token-emitter's multi-format split) and their
+    `--format` variants; TS additionally needs the deferred mode-aware shape.
 - [x] **Mode scoping** (RFC 0009) — emit `[data-theme]` + `[data-density]` scopes (density-neutral names, the `context.<density>` axis collapsed into `[data-density]`); ship the Tailwind `dark:`-variant remap. Falls out of the emitter (it is how dark + density are emitted), so it lands with the token emitter, not as separate work.
   - **Done (theme + density scopes)** — emitted by the token pipeline (`Axis`, `scope_selectors`, `Scope`, default-first mode ordering). The `:root` default sharing and `[data-*]` overrides match RFC 0009 §2.2. **Remaining:** the Tailwind `dark:`-variant remap (a CLI `add`-wiring concern, RFC 0009 §4.2), which lands with the CLI.
 - [ ] **Styling contract + `contract.json`** per component (RFC 0004 §3) — hybrid generation (data-* auto-verified, modifiers/custom-props authored).

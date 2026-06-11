@@ -88,13 +88,15 @@ adapters, hand-authored golden files, 100% coverage):
     (`packages/tokens/src/*.json`) via `include_str!`, routes them into the
     emitter per the figma-token-sync collection table (`primitives` +
     `interaction` → base; `palette` + `intent` → theme axis; `context` →
-    density axis), and writes the canonical token layer to `--out` through the
-    `FileSystem` port (RFC 0005 §2.3). It mirrors how `theme` first landed
-    (CSS-only, config-less); `--format scss|tailwind` and `primitiv.json`
-    path / format defaults are the next increments. **Remaining:** `tokens`
-    `--format` + config defaults; the `init`, `add`, `list` commands; the
-    static registry (+ the `Registry` port); refresh + wiring behaviour; the
-    Tailwind `dark:`-variant remap (RFC 0009 §4.2).
+    density axis), and writes the token layer to `--out` through the
+    `FileSystem` port (RFC 0005 §2.3). It now takes a **`--format`
+    (`css` | `scss` | `tailwind`, default `css`)** flag, dispatching the embedded
+    sources to `emit_tokens_css` / `emit_tokens_scss` / `emit_tailwind_tokens`
+    (TS is deferred with the rest of the mode-aware TS shape). **Remaining:**
+    `tokens` `primitiv.json` path / format defaults (the first consumer of
+    `config::resolve`); the `init`, `add`, `list` commands; the static registry
+    (+ the `Registry` port); refresh + wiring behaviour; the Tailwind
+    `dark:`-variant remap (RFC 0009 §4.2).
 - [ ] **Distribution** (RFC 0005 §7) — Rust binary via `optionalDependencies` (`@primitiv-ui/cli-*`), `cargo-dist`/napi-rs matrix; supersede the published v0.0.1 name-reservation placeholders with the real `primitiv-ui` / `create-primitiv-ui` at a higher version.
 
 ## ❓ Open questions

@@ -2,7 +2,7 @@
 
 use std::collections::HashSet;
 
-use crate::css::{emit_css, Scope};
+use crate::css::{emit_css, emit_theme_css, Scope};
 
 /// Emit the shared theme-token surface as SCSS (RFC 0006 §4.2): the canonical
 /// CSS custom-property contract verbatim — SCSS is a superset of CSS — followed
@@ -13,6 +13,24 @@ use crate::css::{emit_css, Scope};
 /// and `[data-theme="dark"]`) emits a single `$`-var, in first-occurrence order.
 pub fn emit_scss(scopes: &[Scope]) -> String {
     let mut out = emit_css(scopes);
+    append_scss_vars(&mut out, scopes);
+    out
+}
+
+/// Emit `primitiv theme` brand overrides as SCSS (RFC 0006 §4.2/§5): the
+/// `primitiv.theme`-layer CSS verbatim (via [`emit_theme_css`]) followed by the
+/// same `$primitiv-*` variable block, so an SCSS consumer re-skins through the
+/// overrides layer exactly as the CSS path does.
+pub fn emit_theme_scss(scopes: &[Scope]) -> String {
+    let mut out = emit_theme_css(scopes);
+    append_scss_vars(&mut out, scopes);
+    out
+}
+
+/// Append the `$primitiv-*` variable block after the CSS body: a blank-line
+/// separator, then one `$`-var per distinct token name (first-occurrence order),
+/// each resolving to its custom property.
+fn append_scss_vars(out: &mut String, scopes: &[Scope]) {
     out.push('\n');
     let mut seen = HashSet::new();
     for scope in scopes {
@@ -23,5 +41,4 @@ pub fn emit_scss(scopes: &[Scope]) -> String {
             }
         }
     }
-    out
 }

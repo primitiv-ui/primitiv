@@ -45,6 +45,26 @@ fn init_writes_a_primitiv_json_into_the_working_directory() {
 }
 
 #[test]
+fn init_detects_the_components_alias_from_a_real_tsconfig() {
+    let dir = assert_fs::TempDir::new().unwrap();
+    dir.child("package.json").write_str("{}").unwrap();
+    dir.child("tsconfig.json")
+        .write_str(r#"{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }"#)
+        .unwrap();
+
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .arg("init")
+        .assert()
+        .success();
+
+    dir.child("primitiv.json").assert(predicate::str::contains(
+        "\"aliases\": { \"components\": \"@/components\" }",
+    ));
+}
+
+#[test]
 fn init_refuses_to_run_outside_a_node_project_and_exits_eight() {
     let dir = assert_fs::TempDir::new().unwrap();
 

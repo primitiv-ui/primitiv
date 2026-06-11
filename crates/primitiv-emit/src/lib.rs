@@ -6,6 +6,7 @@ pub mod mode;
 pub mod pipeline;
 pub mod scss;
 pub mod token;
+pub mod ts;
 pub mod value;
 
 pub use alias::{link_aliases, resolve_against_base, resolve_aliases};
@@ -19,6 +20,7 @@ pub use pipeline::{
 };
 pub use scss::emit_scss;
 pub use token::Token;
+pub use ts::emit_ts;
 pub use value::format_number;
 
 #[cfg(test)]
@@ -35,5 +37,7 @@ mod mode_tests;
 mod pipeline_tests;
 #[cfg(test)]
 mod scss_tests;
+#[cfg(test)]
+mod ts_tests;
 #[cfg(test)]
 mod value_tests;

@@ -1,9 +1,14 @@
 use std::collections::BTreeMap;
+use std::path::Path;
 
 use serde::Deserialize;
 
 use crate::error::CliError;
 use crate::format::Format;
+use crate::ports::fs::FileSystem;
+
+/// The config file the CLI looks for at each directory while resolving.
+const FILE_NAME: &str = "primitiv.json";
 
 /// The durable `primitiv.json` a consumer keeps in their project (RFC 0005 §3).
 /// It records the choices — format, paths, brand, registry pin — so every re-run
@@ -55,4 +60,12 @@ impl Config {
     pub fn parse(bytes: &[u8]) -> Result<Config, CliError> {
         serde_json::from_slice(bytes).map_err(|error| CliError::Config(error.to_string()))
     }
+}
+
+/// Find and parse the nearest `primitiv.json` starting at `start` (RFC 0005
+/// §3.2). The lookup goes through the [`FileSystem`] port, so it is driven by
+/// the in-memory fake in tests and the OS adapter in the bin.
+pub fn resolve(fs: &impl FileSystem, start: &Path) -> Result<Config, CliError> {
+    let bytes = fs.read(&start.join(FILE_NAME))?;
+    Config::parse(&bytes)
 }

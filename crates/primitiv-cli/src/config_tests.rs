@@ -1,9 +1,11 @@
 use std::collections::BTreeMap;
+use std::path::Path;
 
 use pretty_assertions::assert_eq;
 
-use crate::config::{Config, Registry, Styles, Theme, Tokens};
+use crate::config::{resolve, Config, Registry, Styles, Theme, Tokens};
 use crate::format::Format;
+use crate::ports::fs::{FileSystem, InMemoryFs};
 
 /// A complete `primitiv.json` as `init` would write it (RFC 0005 §3.1), used to
 /// drive the full typed shape in one parse.
@@ -52,4 +54,14 @@ fn should_error_when_the_document_is_not_valid_json() {
     let error = Config::parse(b"{ not json }").unwrap_err();
 
     assert_eq!(error.exit_code(), 5);
+}
+
+#[test]
+fn should_resolve_a_config_in_the_starting_directory() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("project/primitiv.json"), FULL).unwrap();
+
+    let config = resolve(&fs, Path::new("project")).unwrap();
+
+    assert_eq!(config.theme.brand, "#0a7755");
 }

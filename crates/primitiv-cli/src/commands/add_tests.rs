@@ -25,6 +25,16 @@ const WITH_DEPS: &[u8] = br##"{
   }
 }"##;
 
+/// A registry whose components declare the npm packages they need, including an
+/// overlap so resolving both exercises dedup across package lists (RFC 0005 §4.4).
+const WITH_PACKAGES: &[u8] = br##"{
+  "version": "0.1.0",
+  "components": {
+    "button": { "version": "0.1.0", "dependsOn": { "packages": ["@primitiv-ui/react"] } },
+    "icon": { "version": "0.2.0", "dependsOn": { "packages": ["@primitiv-ui/react", "@primitiv-ui/icons"] } }
+  }
+}"##;
+
 /// Turn string literals into the owned component list the command takes.
 fn names(parts: &[&str]) -> Vec<String> {
     parts.iter().map(|part| part.to_string()).collect()
@@ -40,6 +50,22 @@ fn reports_a_single_resolved_component() {
     assert_eq!(
         String::from_utf8(output.captured()).unwrap(),
         "Resolved 1 component to add:\n  button  0.1.0\n",
+    );
+}
+
+#[test]
+fn lists_the_npm_packages_to_ensure_sorted_and_deduplicated() {
+    let registry = InMemoryRegistry::new(WITH_PACKAGES);
+    let output = InMemoryOutput::new();
+
+    add(&registry, &output, &names(&["button", "icon"])).unwrap();
+
+    // The packages section lists the union of both components' deps — sorted and
+    // with the shared `@primitiv-ui/react` appearing once.
+    assert_eq!(
+        String::from_utf8(output.captured()).unwrap(),
+        "Resolved 2 components to add:\n  button  0.1.0\n  icon    0.2.0\n\n\
+         Packages to ensure:\n  @primitiv-ui/icons\n  @primitiv-ui/react\n",
     );
 }
 

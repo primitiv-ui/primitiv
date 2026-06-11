@@ -50,7 +50,9 @@ fn resolve(index: &RegistryIndex, requested: &[String]) -> Result<Vec<String>, C
 }
 
 /// Format the resolved set as a plan — a `Resolved N component(s) to add:` header
-/// over an aligned `name  version` list, the components in sorted order.
+/// over an aligned `name  version` list, then (when any) the `Packages to
+/// ensure:` the components pull in. Both lists are sorted; the package list is
+/// the deduplicated union across the resolved components (RFC 0005 §4.4).
 fn render(index: &RegistryIndex, resolved: &[String]) -> String {
     let plural = if resolved.len() == 1 { "" } else { "s" };
     let width = resolved.iter().map(String::len).max().unwrap_or(0);
@@ -59,5 +61,24 @@ fn render(index: &RegistryIndex, resolved: &[String]) -> String {
         let version = &index.components[name].version;
         plan.push_str(&format!("  {name:<width$}  {version}\n"));
     }
+    let packages = packages(index, resolved);
+    if !packages.is_empty() {
+        plan.push_str("\nPackages to ensure:\n");
+        for package in &packages {
+            plan.push_str(&format!("  {package}\n"));
+        }
+    }
     plan
+}
+
+/// The deduplicated, sorted union of the npm packages the resolved components
+/// declare — the headless libraries `add` ensures are installed (RFC 0005 §4.4).
+fn packages<'a>(index: &'a RegistryIndex, resolved: &[String]) -> Vec<&'a str> {
+    resolved
+        .iter()
+        .flat_map(|name| index.components[name].depends_on.packages.iter())
+        .map(String::as_str)
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect()
 }

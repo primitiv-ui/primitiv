@@ -208,6 +208,12 @@ snapshot semantics, no accept step, nothing that can pass on first run.
 - **100% across the CLI workspace** (`primitiv-emit` + `primitiv-cli`), matching
   the repo-wide rule. Error branches and adapter glue are covered too — via
   fake-injected command tests and the e2e layer — not exempted.
+- **The gate measures lines, regions, AND functions — not lines alone.** A
+  lines-only threshold lets an untested branch slip through (the `if`-with-no-
+  `else` skip path still counts its lines as hit). The gate is therefore
+  `--fail-under-lines 100 --fail-under-regions 100 --fail-under-functions 100`;
+  regions are the closest llvm-cov metric to branch coverage, so they are what
+  enforce "every branch is driven by a test."
 - **Rust enters CI.** Today no workflow runs Rust. A new job runs
   `cargo test --workspace` and `cargo llvm-cov` with the coverage gate on PRs
   touching `crates/**`. (`cargo test --workspace` already covers `harmoni-core`

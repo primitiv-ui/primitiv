@@ -93,7 +93,21 @@ fn add_reports_the_resolved_plan() {
         .success()
         .stdout(predicate::str::contains("Resolved 2 components to add:"))
         .stdout(predicate::str::contains("button"))
-        .stdout(predicate::str::contains("switch"));
+        .stdout(predicate::str::contains("switch"))
+        .stdout(predicate::str::contains("Packages to ensure:"))
+        .stdout(predicate::str::contains("@primitiv-ui/react"));
+}
+
+#[test]
+fn add_json_emits_the_structured_plan() {
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .args(["add", "button", "--json"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("\"components\""))
+        .stdout(predicate::str::contains("\"name\": \"button\""))
+        .stdout(predicate::str::contains("\"@primitiv-ui/react\""));
 }
 
 #[test]

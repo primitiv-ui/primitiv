@@ -87,7 +87,7 @@ fn parses_the_tokens_command_with_out() {
         command,
         Command::Tokens {
             out: Some("src/styles/tokens.css".to_string()),
-            format: Format::Css,
+            format: None,
         }
     );
 }
@@ -101,7 +101,7 @@ fn parses_the_tokens_command_with_an_explicit_scss_format() {
         command,
         Command::Tokens {
             out: Some("x.scss".to_string()),
-            format: Format::Scss,
+            format: Some(Format::Scss),
         }
     );
 }
@@ -114,7 +114,7 @@ fn parses_bare_tokens_with_no_flags() {
         command,
         Command::Tokens {
             out: None,
-            format: Format::Css,
+            format: None,
         }
     );
 }

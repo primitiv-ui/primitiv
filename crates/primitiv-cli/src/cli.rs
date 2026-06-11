@@ -13,7 +13,7 @@ pub enum Command {
     },
     Tokens {
         out: Option<String>,
-        format: Format,
+        format: Option<Format>,
     },
 }
 
@@ -35,16 +35,16 @@ pub fn parse(args: &[String]) -> Result<Command, CliError> {
 }
 
 /// Parse `tokens [--out <path>] [--format <fmt>]` — both optional, order-free.
-/// `--format` defaults to CSS; an omitted `--out` falls back to the
-/// `primitiv.json` `tokens.path` at command time (RFC 0005 §2.3 / §3.2).
+/// An omitted flag is left `None` so the command can fall back to the
+/// `primitiv.json` defaults at run time (RFC 0005 §2.3 / §3.2).
 fn parse_tokens(args: &[String]) -> Result<Command, CliError> {
     let mut out = None;
-    let mut format = Format::Css;
+    let mut format = None;
     let mut rest = args.iter();
     while let Some(flag) = rest.next() {
         match flag.as_str() {
             "--out" => out = Some(take_value(&mut rest, "--out")?),
-            "--format" => format = parse_format(&take_value(&mut rest, "--format")?)?,
+            "--format" => format = Some(parse_format(&take_value(&mut rest, "--format")?)?),
             other => return Err(usage(format!("unexpected argument '{other}'"))),
         }
     }

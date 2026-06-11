@@ -63,21 +63,43 @@ impl Config {
     }
 }
 
-/// Find and parse the nearest `primitiv.json` starting at `start` (RFC 0005
-/// §3.2). The lookup goes through the [`FileSystem`] port, so it is driven by
-/// the in-memory fake in tests and the OS adapter in the bin.
+/// Find and parse the nearest `primitiv.json` starting at `start`, **requiring**
+/// one (RFC 0005 §3.2): an absent file is a [`CliError::Config`]. For commands
+/// that need the config (the file path can only come from it).
 pub fn resolve(fs: &impl FileSystem, start: &Path) -> Result<Config, CliError> {
+    match read_nearest(fs, start)? {
+        Some(bytes) => Config::parse(&bytes),
+        None => Err(CliError::Config(format!(
+            "no {FILE_NAME} found in {} or any parent directory",
+            start.display()
+        ))),
+    }
+}
+
+/// Like [`resolve`], but an absent config is `Ok(None)` rather than an error —
+/// for commands that only consult `primitiv.json` for *optional* defaults and
+/// fall back when it is missing. A **malformed** config still errors, so a
+/// broken file is never silently ignored.
+pub fn try_resolve(fs: &impl FileSystem, start: &Path) -> Result<Option<Config>, CliError> {
+    match read_nearest(fs, start)? {
+        Some(bytes) => Config::parse(&bytes).map(Some),
+        None => Ok(None),
+    }
+}
+
+/// Read the bytes of the nearest `primitiv.json`, walking up from `start`
+/// through the [`FileSystem`] port (RFC 0005 §3.2). `NotFound` at a level
+/// ascends to the parent; any other read error is a hard I/O failure;
+/// exhausting the ancestors yields `Ok(None)`.
+fn read_nearest(fs: &impl FileSystem, start: &Path) -> Result<Option<Vec<u8>>, CliError> {
     let mut dir = Some(start);
     while let Some(current) = dir {
         match fs.read(&current.join(FILE_NAME)) {
-            Ok(bytes) => return Config::parse(&bytes),
+            Ok(bytes) => return Ok(Some(bytes)),
             Err(error) if error.kind() == io::ErrorKind::NotFound => {}
             Err(error) => return Err(CliError::Io(error)),
         }
         dir = current.parent();
     }
-    Err(CliError::Config(format!(
-        "no {FILE_NAME} found in {} or any parent directory",
-        start.display()
-    )))
+    Ok(None)
 }

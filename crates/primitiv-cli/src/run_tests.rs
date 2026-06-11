@@ -22,6 +22,16 @@ fn dispatches_the_theme_command_and_writes_the_file() {
 }
 
 #[test]
+fn dispatches_the_tokens_command_and_writes_the_file() {
+    let fs = InMemoryFs::new();
+
+    run(&fs, &args(&["tokens", "--out", "tokens.css"])).unwrap();
+
+    let written = String::from_utf8(fs.read(Path::new("tokens.css")).unwrap()).unwrap();
+    assert!(written.contains("@layer primitiv.tokens"));
+}
+
+#[test]
 fn propagates_a_parse_error() {
     let fs = InMemoryFs::new();
 

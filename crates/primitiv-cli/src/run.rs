@@ -2,6 +2,7 @@ use std::path::Path;
 
 use crate::cli::{parse, Command};
 use crate::commands::theme::theme;
+use crate::commands::tokens::tokens;
 use crate::error::CliError;
 use crate::ports::fs::FileSystem;
 
@@ -12,5 +13,6 @@ use crate::ports::fs::FileSystem;
 pub fn run(fs: &impl FileSystem, args: &[String]) -> Result<(), CliError> {
     match parse(args)? {
         Command::Theme { brand, out, format } => theme(fs, &brand, Path::new(&out), format),
+        Command::Tokens { out } => tokens(fs, Path::new(&out)),
     }
 }

@@ -80,6 +80,33 @@ fn rejects_an_unknown_format() {
 }
 
 #[test]
+fn parses_the_tokens_command_with_out() {
+    let command = parse(&args(&["tokens", "--out", "src/styles/tokens.css"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Tokens {
+            out: "src/styles/tokens.css".to_string(),
+        }
+    );
+}
+
+#[test]
+fn rejects_tokens_missing_out() {
+    assert!(matches!(
+        parse(&args(&["tokens"])).unwrap_err(),
+        CliError::Usage(_)
+    ));
+}
+
+#[test]
+fn rejects_an_unexpected_argument_to_tokens() {
+    let err = parse(&args(&["tokens", "--out", "x.css", "--extra"])).unwrap_err();
+
+    assert!(matches!(err, CliError::Usage(_)));
+}
+
+#[test]
 fn rejects_an_empty_argument_list() {
     assert!(matches!(parse(&[]).unwrap_err(), CliError::Usage(_)));
 }
@@ -111,6 +138,10 @@ fn rejects_a_flag_with_no_value() {
     ));
     assert!(matches!(
         parse(&args(&["theme", "--format"])).unwrap_err(),
+        CliError::Usage(_)
+    ));
+    assert!(matches!(
+        parse(&args(&["tokens", "--out"])).unwrap_err(),
         CliError::Usage(_)
     ));
 }

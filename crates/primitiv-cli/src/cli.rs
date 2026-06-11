@@ -11,6 +11,9 @@ pub enum Command {
         out: String,
         format: Format,
     },
+    Tokens {
+        out: String,
+    },
 }
 
 /// Parse the argument list (the process args **without** the binary name) into
@@ -20,11 +23,30 @@ pub enum Command {
 pub fn parse(args: &[String]) -> Result<Command, CliError> {
     let (name, rest) = args
         .split_first()
-        .ok_or_else(|| usage("no command given; expected: theme"))?;
+        .ok_or_else(|| usage("no command given; expected: theme, tokens"))?;
     match name.as_str() {
         "theme" => parse_theme(rest),
-        other => Err(usage(format!("unknown command '{other}'; expected: theme"))),
+        "tokens" => parse_tokens(rest),
+        other => Err(usage(format!(
+            "unknown command '{other}'; expected: theme, tokens"
+        ))),
     }
+}
+
+/// Parse `tokens --out <path>` — `--out` required, order-free. (The `--format`
+/// flag and `primitiv.json` defaults land with later increments of the command.)
+fn parse_tokens(args: &[String]) -> Result<Command, CliError> {
+    let mut out = None;
+    let mut rest = args.iter();
+    while let Some(flag) = rest.next() {
+        match flag.as_str() {
+            "--out" => out = Some(take_value(&mut rest, "--out")?),
+            other => return Err(usage(format!("unexpected argument '{other}'"))),
+        }
+    }
+    Ok(Command::Tokens {
+        out: out.ok_or_else(|| usage("tokens requires --out <path>"))?,
+    })
 }
 
 /// Parse `theme --brand <hex> --out <path> [--format <fmt>]` — `--brand` and

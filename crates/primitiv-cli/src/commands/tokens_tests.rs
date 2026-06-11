@@ -140,6 +140,20 @@ fn streams_to_stdout_when_neither_out_nor_a_config_is_present() {
 }
 
 #[test]
+fn surfaces_a_write_failure_to_the_config_path() {
+    let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
+    fs.set_current_dir(Path::new("project"));
+    fs.write(Path::new("project/primitiv.json"), CONFIG).unwrap();
+    fs.fail_writes_to(Path::new("src/styles/from-config.css"));
+
+    // --out omitted, config present: the write targets the config's tokens.path.
+    let err = tokens(&fs, &stdout, Some(Format::Css), None).unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
 fn surfaces_a_stdout_write_failure() {
     let fs = InMemoryFs::new();
     let stdout = InMemoryOutput::new();

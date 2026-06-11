@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use primitiv_emit::{emit_theme_brand_css, emit_theme_brand_scss};
+use primitiv_emit::{emit_theme_brand_css, emit_theme_brand_scss, emit_theme_brand_tailwind};
 
 use crate::error::CliError;
 use crate::format::Format;
@@ -15,6 +15,7 @@ pub fn theme(fs: &impl FileSystem, brand: &str, out: &Path, format: Format) -> R
     let overrides = match format {
         Format::Css => emit_theme_brand_css(brand)?,
         Format::Scss => emit_theme_brand_scss(brand)?,
+        Format::Tailwind => emit_theme_brand_tailwind(brand)?,
     };
     fs.write(out, overrides.as_bytes())?;
     Ok(())

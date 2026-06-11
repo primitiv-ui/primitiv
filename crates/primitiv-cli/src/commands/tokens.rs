@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use primitiv_emit::{emit_tailwind_tokens, emit_tokens_css, emit_tokens_scss, TokenSources};
 use serde_json::Value;
 
-use crate::config::resolve;
+use crate::config::try_resolve;
 use crate::error::CliError;
 use crate::format::Format;
 use crate::ports::fs::FileSystem;
@@ -26,19 +26,41 @@ const CONTEXT: &str =
 
 /// The `primitiv tokens [--out <path>] [--format <fmt>]` command (RFC 0005 §2.3):
 /// route the embedded design-system DTCG into the emitter, serialise the shared
-/// token layer in the requested `format`, and write it through the filesystem
+/// token layer in the resolved `format`, and write it through the filesystem
 /// port. CSS is canonical; SCSS is the canonical CSS plus resolving
 /// `$primitiv-*` variables; Tailwind is the `@theme` preset.
 ///
-/// When `out` is omitted the destination falls back to the `tokens.path` of the
-/// nearest `primitiv.json` (resolved by walking up from the working directory),
-/// so an `init`-ed project needs no flag (RFC 0005 §3.2). Defaulting the
-/// *format* from the config — and emitting to stdout with no config at all — are
-/// later increments.
-pub fn tokens(fs: &impl FileSystem, format: Format, out: Option<&Path>) -> Result<(), CliError> {
+/// Either flag omitted is filled from the nearest `primitiv.json` (resolved by
+/// walking up from the working directory, RFC 0005 §3.2): `format` falls back to
+/// the config's `tokens.format` and then to CSS, while `out` falls back to the
+/// config's `tokens.path` — required, since there is no other source for it.
+/// A missing config is fine for the format default but errors for the path; a
+/// *malformed* config always errors. (Emitting to stdout with no config — the
+/// fully config-less case — is a later increment.)
+pub fn tokens(
+    fs: &impl FileSystem,
+    format: Option<Format>,
+    out: Option<&Path>,
+) -> Result<(), CliError> {
+    let config = if format.is_none() || out.is_none() {
+        try_resolve(fs, &fs.current_dir()?)?
+    } else {
+        None
+    };
+    let format = format
+        .or_else(|| config.as_ref().map(|config| config.tokens.format))
+        .unwrap_or(Format::Css);
     let out = match out {
         Some(out) => out.to_path_buf(),
-        None => PathBuf::from(resolve(fs, &fs.current_dir()?)?.tokens.path),
+        None => PathBuf::from(
+            config
+                .map(|config| config.tokens.path)
+                .ok_or_else(|| {
+                    CliError::Config(
+                        "tokens needs --out <path> or a primitiv.json with tokens.path".to_string(),
+                    )
+                })?,
+        ),
     };
     let base = [parse(PRIMITIVES), parse(INTERACTION)];
     let theme = [parse(PALETTE), parse(INTENT)];

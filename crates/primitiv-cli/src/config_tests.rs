@@ -3,7 +3,7 @@ use std::path::Path;
 
 use pretty_assertions::assert_eq;
 
-use crate::config::{resolve, Config, Registry, Styles, Theme, Tokens};
+use crate::config::{resolve, try_resolve, Config, Registry, Styles, Theme, Tokens};
 use crate::format::Format;
 use crate::ports::fs::{FileSystem, InMemoryFs};
 
@@ -97,6 +97,47 @@ fn should_propagate_a_read_error_other_than_not_found() {
     fs.fail_reads_to(path);
 
     let error = resolve(&fs, Path::new("project")).unwrap_err();
+
+    assert_eq!(error.exit_code(), 4);
+}
+
+#[test]
+fn try_resolve_returns_the_config_when_one_is_found() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("project/primitiv.json"), FULL).unwrap();
+
+    let config = try_resolve(&fs, Path::new("project/app")).unwrap();
+
+    assert_eq!(config.unwrap().theme.brand, "#0a7755");
+}
+
+#[test]
+fn try_resolve_returns_none_when_no_config_exists() {
+    let fs = InMemoryFs::new();
+
+    let config = try_resolve(&fs, Path::new("project/app")).unwrap();
+
+    assert_eq!(config, None);
+}
+
+#[test]
+fn try_resolve_still_errors_on_a_malformed_config() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("project/primitiv.json"), b"{ not json }").unwrap();
+
+    let error = try_resolve(&fs, Path::new("project")).unwrap_err();
+
+    assert_eq!(error.exit_code(), 5);
+}
+
+#[test]
+fn try_resolve_propagates_a_read_error_other_than_not_found() {
+    let fs = InMemoryFs::new();
+    let path = Path::new("project/primitiv.json");
+    fs.write(path, FULL).unwrap();
+    fs.fail_reads_to(path);
+
+    let error = try_resolve(&fs, Path::new("project")).unwrap_err();
 
     assert_eq!(error.exit_code(), 4);
 }

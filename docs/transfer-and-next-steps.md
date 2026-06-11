@@ -98,11 +98,15 @@ adapters, hand-authored golden files, 100% coverage):
     `tokens.path` (RFC 0005 §2.3 / §3.2), so an `init`-ed project needs no flag.
     The `FileSystem` port grew a `current_dir` method (thin `OsFs` passthrough;
     the fake reports a settable dir and can fail it) so the walk-up's start is
-    driven in tests without touching the bin shell. **Remaining:** defaulting the
-    *format* from `primitiv.json` and the config-less `tokens` → stdout path
-    (Principle 4's literal `tokens --format css`); the `init`, `add`, `list`
-    commands; the static registry (+ the `Registry` port); refresh + wiring
-    behaviour; the Tailwind `dark:`-variant remap (RFC 0009 §4.2).
+    driven in tests without touching the bin shell. With `--format` omitted it
+    now also **defaults the format from the config's `tokens.format`** (then CSS),
+    consulting `primitiv.json` via `config::try_resolve` — a new variant of
+    `resolve` that returns `Ok(None)` for a missing config (fine for a format
+    default) while a **malformed** config still errors. **Remaining:** the
+    config-less `tokens` → stdout path (Principle 4's literal `tokens --format
+    css` with no config); the `init`, `add`, `list` commands; the static registry
+    (+ the `Registry` port); refresh + wiring behaviour; the Tailwind
+    `dark:`-variant remap (RFC 0009 §4.2).
 - [ ] **Distribution** (RFC 0005 §7) — Rust binary via `optionalDependencies` (`@primitiv-ui/cli-*`), `cargo-dist`/napi-rs matrix; supersede the published v0.0.1 name-reservation placeholders with the real `primitiv-ui` / `create-primitiv-ui` at a higher version.
 
 ## ❓ Open questions

@@ -11,6 +11,7 @@ pub enum Command {
     Add {
         components: Vec<String>,
         json: bool,
+        dry_run: bool,
     },
     List {
         json: bool,
@@ -46,18 +47,21 @@ pub fn parse(args: &[String]) -> Result<Command, CliError> {
     }
 }
 
-/// Parse `add <component...> [--json]` — one or more component names, at least
-/// one required (RFC 0005 §2.2), with `--json` selecting the structured plan for
-/// agents (§6.5). Names and the flag are order-free. The install/copy flags
-/// (`--styles-only`, `--no-styles`, `--format`, `--path`, `--force`) arrive with
-/// the later slices that act on them; any other `--`-prefixed argument is
-/// unexpected.
+/// Parse `add <component...> [--json] [--dry-run]` — one or more component
+/// names, at least one required (RFC 0005 §2.2), with `--json` selecting the
+/// structured plan for agents (§6.5) and `--dry-run` reporting the plan without
+/// installing anything (§5). Names and flags are order-free. The remaining
+/// install/copy flags (`--styles-only`, `--no-styles`, `--format`, `--path`,
+/// `--force`) arrive with the later slices that act on them; any other
+/// `--`-prefixed argument is unexpected.
 fn parse_add(args: &[String]) -> Result<Command, CliError> {
     let mut components = Vec::new();
     let mut json = false;
+    let mut dry_run = false;
     for arg in args {
         match arg.as_str() {
             "--json" => json = true,
+            "--dry-run" => dry_run = true,
             other if other.starts_with("--") => {
                 return Err(usage(format!("unexpected argument '{other}'")))
             }
@@ -67,7 +71,11 @@ fn parse_add(args: &[String]) -> Result<Command, CliError> {
     if components.is_empty() {
         return Err(usage("add requires at least one component"));
     }
-    Ok(Command::Add { components, json })
+    Ok(Command::Add {
+        components,
+        json,
+        dry_run,
+    })
 }
 
 /// Parse `list [--json]` — the only flag is `--json`, which switches the output

@@ -9,12 +9,13 @@ use std::process::ExitCode;
 
 use primitiv_cli::ports::fs::OsFs;
 use primitiv_cli::ports::output::OsStdout;
+use primitiv_cli::ports::process::OsProcessRunner;
 use primitiv_cli::ports::registry::EmbeddedRegistry;
 use primitiv_cli::run::run;
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
-    match run(&OsFs, &OsStdout, &EmbeddedRegistry, &args) {
+    match run(&OsFs, &OsStdout, &EmbeddedRegistry, &OsProcessRunner, &args) {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => {
             eprintln!("primitiv: {error}");

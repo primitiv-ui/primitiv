@@ -44,6 +44,27 @@ fn init_writes_a_primitiv_json_into_the_working_directory() {
 }
 
 #[test]
+fn list_prints_the_registry_components() {
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .arg("list")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("COMPONENT"))
+        .stdout(predicate::str::contains("button"));
+}
+
+#[test]
+fn list_json_streams_the_raw_registry_index() {
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .args(["list", "--json"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("\"components\""));
+}
+
+#[test]
 fn tokens_streams_the_layer_to_stdout_when_config_less() {
     let dir = assert_fs::TempDir::new().unwrap();
 

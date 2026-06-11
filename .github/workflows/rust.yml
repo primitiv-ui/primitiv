@@ -50,6 +50,10 @@ jobs:
       # Gate the CLI workspace at 100% on lines, regions, and functions.
       # Regions catch the branch a lines-only gate would miss. Excluding the
       # harmoni crates by name keeps future CLI crates (e.g. primitiv-emit)
-      # covered without editing this list.
+      # covered without editing this list. The bin shell (primitiv-cli's
+      # main.rs + the OsFs adapter) is NOT exempted: the tests/cli.rs e2e layer
+      # runs the real binary and cargo-llvm-cov merges the subprocess's
+      # coverage, so the shell hits 100% with no --ignore-filename-regex
+      # carve-out (RFC 0007 §7, "glue not exempted").
       - name: Coverage gate (CLI crates, 100%)
         run: cargo llvm-cov --workspace --exclude harmoni-core --exclude harmoni-wasm --fail-under-lines 100 --fail-under-regions 100 --fail-under-functions 100

@@ -7,4 +7,6 @@ pub mod run;
 #[cfg(test)]
 mod cli_tests;
 #[cfg(test)]
+mod error_tests;
+#[cfg(test)]
 mod run_tests;

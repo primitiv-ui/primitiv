@@ -208,6 +208,19 @@ snapshot semantics, no accept step, nothing that can pass on first run.
 - **100% across the CLI workspace** (`primitiv-emit` + `primitiv-cli`), matching
   the repo-wide rule. Error branches and adapter glue are covered too — via
   fake-injected command tests and the e2e layer — not exempted.
+- **The bin shell is covered by e2e, not exempted.** `main.rs` (`env::args`
+  collection, the `CliError` → stderr + exit-code map) and the `OsFs` adapter
+  are the one part the unit/command layers can't reach. Rather than carve them
+  out with `--ignore-filename-regex`, the `tests/cli.rs` e2e layer runs the real
+  `primitiv` binary via `CARGO_BIN_EXE`, and `cargo-llvm-cov` merges the
+  spawned process's coverage back in — **verified in this repo**: `main.rs`
+  reaches 100% regions/functions/lines from the e2e subprocess alone, with no
+  exemption. This honours Principle 1 ("no exemption for being just glue"). The
+  `OsFs` passthrough is additionally unit-tested against an `assert_fs` temp dir
+  (§2.2), since the adapter itself is testable; only the `env::args`/exit-code
+  shell genuinely needs the subprocess path. The documented-exemption fallback
+  (`--ignore-filename-regex` over `main.rs`) stays unused unless subprocess
+  coverage ever regresses.
 - **The gate measures lines, regions, AND functions — not lines alone.** A
   lines-only threshold lets an untested branch slip through (the `if`-with-no-
   `else` skip path still counts its lines as hit). The gate is therefore
@@ -276,9 +289,10 @@ fast and precise; the e2e layer proves the seams are wired.
 3. **Config-format parsers as a fuzz target.** Whether `primitiv.json` and DTCG
    parsing warrant `proptest`/fuzzing beyond example-based tests. *(Deferred —
    decide once the parsers exist; example-based tests first.)*
-4. **A `rust-cli-test-conventions` skill.** Promote §3–§6 into an on-demand skill
-   (mirroring `react-test-conventions`) once the first command is built and the
-   patterns are proven. *(Deliberately deferred until the patterns are real.)*
+4. ~~**A `rust-cli-test-conventions` skill.**~~ **Resolved:** written once the
+   bin + e2e layer landed, capturing the ports/`InMemoryFs`-failure-injection,
+   hand-rolled-parser, golden-file, lib+thin-bin, and e2e-subprocess-coverage
+   conventions (`.claude/skills/rust-cli-test-conventions/`).
 
 ---
 

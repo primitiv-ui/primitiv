@@ -7,5 +7,12 @@ edition = "2024"
 harmoni-core = { path = "../harmoni-core" }
 primitiv-emit = { path = "../primitiv-emit" }
 
+[[bin]]
+name = "primitiv"
+path = "src/main.rs"
+
 [dev-dependencies]
+assert_cmd = "2"
+assert_fs = "1"
+predicates = "3"
 pretty_assertions = "1"

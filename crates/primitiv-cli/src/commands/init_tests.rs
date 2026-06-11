@@ -67,6 +67,7 @@ const EXPECTED_TAILWIND: &str = r##"{
 fn writes_a_default_primitiv_json_to_the_working_directory() {
     let fs = InMemoryFs::new();
     fs.set_current_dir(Path::new("project"));
+    fs.write(Path::new("project/package.json"), b"{}").unwrap();
 
     init(&fs, &default_options()).unwrap();
 
@@ -78,6 +79,7 @@ fn writes_a_default_primitiv_json_to_the_working_directory() {
 #[test]
 fn reflects_every_overridden_choice_in_the_written_config() {
     let fs = InMemoryFs::new();
+    fs.write(Path::new("package.json"), b"{}").unwrap();
 
     init(
         &fs,
@@ -99,6 +101,7 @@ fn reflects_every_overridden_choice_in_the_written_config() {
 #[test]
 fn refuses_to_overwrite_an_existing_config() {
     let fs = InMemoryFs::new();
+    fs.write(Path::new("package.json"), b"{}").unwrap();
     let existing = Path::new("primitiv.json");
     fs.write(existing, b"{ \"hand\": \"edited\" }").unwrap();
 
@@ -112,6 +115,7 @@ fn refuses_to_overwrite_an_existing_config() {
 #[test]
 fn overwrites_an_existing_config_when_forced() {
     let fs = InMemoryFs::new();
+    fs.write(Path::new("package.json"), b"{}").unwrap();
     let existing = Path::new("primitiv.json");
     fs.write(existing, b"{ \"hand\": \"edited\" }").unwrap();
 
@@ -129,6 +133,19 @@ fn overwrites_an_existing_config_when_forced() {
 }
 
 #[test]
+fn refuses_to_run_outside_a_node_project() {
+    let fs = InMemoryFs::new();
+    fs.set_current_dir(Path::new("empty"));
+
+    // No package.json in the working directory: there is no project to configure.
+    let err = init(&fs, &default_options()).unwrap_err();
+
+    assert!(matches!(err, CliError::Project(_)));
+    // Nothing is written into a directory that isn't a project (Principle 2).
+    assert!(!fs.exists(Path::new("empty/primitiv.json")));
+}
+
+#[test]
 fn surfaces_a_failure_to_read_the_working_directory() {
     let fs = InMemoryFs::new();
     fs.fail_current_dir();
@@ -141,6 +158,7 @@ fn surfaces_a_failure_to_read_the_working_directory() {
 #[test]
 fn surfaces_a_write_failure() {
     let fs = InMemoryFs::new();
+    fs.write(Path::new("package.json"), b"{}").unwrap();
     fs.fail_writes_to(Path::new("primitiv.json"));
 
     let err = init(&fs, &default_options()).unwrap_err();
@@ -151,6 +169,7 @@ fn surfaces_a_write_failure() {
 #[test]
 fn keeps_the_css_extension_for_the_tailwind_token_layer() {
     let fs = InMemoryFs::new();
+    fs.write(Path::new("package.json"), b"{}").unwrap();
 
     init(
         &fs,

@@ -24,14 +24,18 @@ pub enum CliError {
     /// The component registry could not be loaded or its index was malformed
     /// (RFC 0005 §5 — the network/registry failure source).
     Registry(String),
+    /// The command was run outside an existing project — e.g. `init` in a
+    /// directory with no `package.json`. The CLI configures a project the
+    /// consumer already has; it never scaffolds one (RFC 0005 §1.5.1).
+    Project(String),
 }
 
 impl CliError {
     /// The process exit code the bin returns for this error (RFC 0005 §5).
     /// Codes are stable and distinct per failure source so an agent or CI can
     /// branch on them: `2` usage, `3` invalid colour, `4` I/O, `5` config,
-    /// `6` conflict, `7` registry. New error variants take a new code rather than
-    /// reusing one.
+    /// `6` conflict, `7` registry, `8` not-a-project. New error variants take a
+    /// new code rather than reusing one.
     pub fn exit_code(&self) -> u8 {
         match self {
             CliError::Usage(_) => 2,
@@ -40,6 +44,7 @@ impl CliError {
             CliError::Config(_) => 5,
             CliError::Conflict(_) => 6,
             CliError::Registry(_) => 7,
+            CliError::Project(_) => 8,
         }
     }
 }
@@ -55,6 +60,7 @@ impl fmt::Display for CliError {
             CliError::Config(message) => write!(f, "{message}"),
             CliError::Conflict(message) => write!(f, "{message}"),
             CliError::Registry(message) => write!(f, "{message}"),
+            CliError::Project(message) => write!(f, "{message}"),
         }
     }
 }

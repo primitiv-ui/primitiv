@@ -36,8 +36,21 @@ pub struct InitOptions {
 /// This is the non-interactive core: the choices arrive as flags (or defaults),
 /// not prompts. Honouring Principle 2 (never clobber), an existing
 /// `primitiv.json` is a [`CliError::Conflict`] unless `--force` is set.
+///
+/// `init` configures an **existing** project; it never scaffolds one. Run in a
+/// directory with no `package.json` it is a [`CliError::Project`] pointing at
+/// `npm create vite` / `create-next-app` (RFC 0005 §1.5.1), rather than seeding
+/// a `primitiv.json` next to nothing.
 pub fn init(fs: &impl FileSystem, options: &InitOptions) -> Result<(), CliError> {
-    let path = fs.current_dir()?.join(config::FILE_NAME);
+    let dir = fs.current_dir()?;
+    if !fs.exists(&dir.join("package.json")) {
+        return Err(CliError::Project(format!(
+            "no package.json found in {}; create an app first \
+             (e.g. npm create vite or create-next-app), then run primitiv init",
+            dir.display()
+        )));
+    }
+    let path = dir.join(config::FILE_NAME);
     if fs.exists(&path) && !options.force {
         return Err(CliError::Conflict(format!(
             "{} already exists; pass --force to overwrite",

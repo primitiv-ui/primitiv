@@ -28,6 +28,7 @@ fn writes_the_brand_theme_and_exits_zero() {
 #[test]
 fn init_writes_a_primitiv_json_into_the_working_directory() {
     let dir = assert_fs::TempDir::new().unwrap();
+    dir.child("package.json").write_str("{}").unwrap();
 
     Command::cargo_bin("primitiv")
         .unwrap()
@@ -41,6 +42,25 @@ fn init_writes_a_primitiv_json_into_the_working_directory() {
         "\"$schema\": \"https://primitiv-ui.dev/schema/primitiv.json\"",
     ));
     config.assert(predicate::str::contains("\"brand\": \"#0a7755\""));
+}
+
+#[test]
+fn init_refuses_to_run_outside_a_node_project_and_exits_eight() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    // An empty directory with no package.json: there is no project to configure.
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .arg("init")
+        .assert()
+        .code(8)
+        .stderr(predicate::str::contains(
+            "primitiv: no package.json found in",
+        ));
+
+    dir.child("primitiv.json")
+        .assert(predicate::path::missing());
 }
 
 #[test]

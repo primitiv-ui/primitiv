@@ -29,6 +29,7 @@ fn dispatches_the_theme_command_and_writes_the_file() {
 fn dispatches_the_init_command_and_writes_the_config() {
     let fs = InMemoryFs::new();
     let stdout = InMemoryOutput::new();
+    fs.write(Path::new("package.json"), b"{}").unwrap();
 
     run(&fs, &stdout, &EmbeddedRegistry, &args(&["init"])).unwrap();
 

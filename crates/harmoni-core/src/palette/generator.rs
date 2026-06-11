@@ -18,6 +18,17 @@ impl From<u16> for SwatchLabel {
     }
 }
 
+impl std::fmt::Display for SwatchLabel {
+    /// Render a label to its token path segment: a numeric step as its digits
+    /// (`Number(500)` → `500`), a named step as the name verbatim.
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SwatchLabel::Number(n) => write!(f, "{n}"),
+            SwatchLabel::Name(name) => write!(f, "{name}"),
+        }
+    }
+}
+
 impl From<&str> for SwatchLabel {
     fn from(s: &str) -> Self {
         SwatchLabel::Name(s.to_string())

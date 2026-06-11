@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, type ComponentProps } from "react";
 
-import { Button } from "@primitiv-ui/react";
+import { Button, RadioGroup } from "@primitiv-ui/react";
+import { ChevronLeft, ChevronRight } from "@primitiv-ui/icons";
 
 import "./ButtonExample.css";
 // The generated Primitiv token layer (custom-property defaults) + the canonical
@@ -14,8 +15,31 @@ const INTENTS = ["primary", "secondary", "danger", "link"] as const;
 const SIZES = ["xs", "sm", "md", "lg", "xl"] as const;
 const DENSITIES = ["dense", "compact", "comfortable", "spacious"] as const;
 
+/**
+ * A contract-styled button with a left + right chevron and the label
+ * "Button text", plus a small caption naming the variant it demonstrates. The
+ * chevrons let the preview show the icons scaling with the size/density tokens
+ * (they resolve `--primitiv-button-icon-size` via `.primitiv-button svg`).
+ */
+function LabeledButton({
+  caption,
+  ...props
+}: { caption: string } & ComponentProps<typeof Button>) {
+  return (
+    <div className="btn-example__labeled">
+      <Button {...props}>
+        <ChevronLeft />
+        Button text
+        <ChevronRight />
+      </Button>
+      <small className="btn-example__caption">{caption}</small>
+    </div>
+  );
+}
+
 export function ButtonExample() {
   const [count, setCount] = useState(0);
+  const [size, setSize] = useState("md");
 
   return (
     <div className="btn-example">
@@ -27,67 +51,75 @@ export function ButtonExample() {
         </h3>
         <p className="btn-example__description">
           The headless <code>Button</code> with the registry{" "}
-          <code>.primitiv-button</code> classes applied. Intents are visual
-          modifiers; <code>data-disabled</code> styles itself.
+          <code>.primitiv-button</code> classes applied, each with a left and
+          right icon. Intents are visual modifiers; <code>data-disabled</code>{" "}
+          styles itself.
         </p>
 
         <div className="btn-example__row">
           {INTENTS.map((intent) => (
-            <Button
+            <LabeledButton
               key={intent}
+              caption={intent}
               className={`primitiv-button primitiv-button--${intent} primitiv-button--md`}
-            >
-              {intent}
-            </Button>
+            />
           ))}
         </div>
 
         <div className="btn-example__row">
-          {SIZES.map((size) => (
-            <Button
-              key={size}
-              className={`primitiv-button primitiv-button--primary primitiv-button--${size}`}
-            >
-              {size}
-            </Button>
+          {SIZES.map((slot) => (
+            <LabeledButton
+              key={slot}
+              caption={slot}
+              className={`primitiv-button primitiv-button--primary primitiv-button--${slot}`}
+            />
           ))}
         </div>
 
         <div className="btn-example__row">
-          <Button className="primitiv-button primitiv-button--primary primitiv-button--md">
-            Default
-          </Button>
-          <Button
+          <LabeledButton
+            caption="default"
             className="primitiv-button primitiv-button--primary primitiv-button--md"
+          />
+          <LabeledButton
+            caption="disabled"
             disabled
-          >
-            Disabled
-          </Button>
-          <Button
-            className="primitiv-button primitiv-button--danger primitiv-button--md"
-            aria-label="Delete"
-          >
-            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24">
-              <path
-                d="M6 18 18 6M6 6l12 12"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              />
-            </svg>
-            Delete
-          </Button>
+            className="primitiv-button primitiv-button--primary primitiv-button--md"
+          />
         </div>
       </section>
 
       <section className="btn-example__section">
         <h3 className="btn-example__section-title">Density</h3>
         <p className="btn-example__description">
-          The same md button under each <code>data-density</code> scope. Density
-          is ambient — set on any ancestor — and the <code>framed-control/*</code>{" "}
+          The same buttons under each <code>data-density</code> scope. Density is
+          ambient — set on any ancestor — and the <code>framed-control/*</code>{" "}
           and <code>label/*</code> tokens resolve to the matching scale (RFC
-          0009).
+          0009). Pick a size to rescale them all.
         </p>
+
+        <RadioGroup.Root
+          className="btn-example__sizes"
+          value={size}
+          onValueChange={setSize}
+          aria-label="Button size"
+        >
+          {SIZES.map((slot) => (
+            <RadioGroup.Item
+              key={slot}
+              className="btn-example__size-option"
+              value={slot}
+            >
+              <span className="btn-example__size-ring">
+                <RadioGroup.Indicator
+                  className="btn-example__size-dot"
+                  forceMount
+                />
+              </span>
+              {slot}
+            </RadioGroup.Item>
+          ))}
+        </RadioGroup.Root>
 
         {DENSITIES.map((density) => (
           <div
@@ -98,12 +130,11 @@ export function ButtonExample() {
             <span className="btn-example__density-label">{density}</span>
             <div className="btn-example__row">
               {INTENTS.map((intent) => (
-                <Button
+                <LabeledButton
                   key={intent}
-                  className={`primitiv-button primitiv-button--${intent} primitiv-button--md`}
-                >
-                  {intent}
-                </Button>
+                  caption={intent}
+                  className={`primitiv-button primitiv-button--${intent} primitiv-button--${size}`}
+                />
               ))}
             </div>
           </div>

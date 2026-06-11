@@ -50,6 +50,65 @@
   color: #888;
 }
 
+/* A contract-styled button stacked over its variant caption. */
+.btn-example__labeled {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.btn-example__caption {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+/* Size selector (RadioGroup) for the density section. */
+.btn-example__sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block-end: 1.25rem;
+  padding: 0;
+}
+
+.btn-example__size-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border: 1px solid #ccc;
+  border-radius: 0.375rem;
+  background: white;
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.btn-example__size-option[data-state="checked"] {
+  border-color: #111;
+}
+
+.btn-example__size-ring {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+  border: 1px solid #999;
+  border-radius: 50%;
+}
+
+.btn-example__size-dot {
+  inline-size: 0.375rem;
+  block-size: 0.375rem;
+  border-radius: 50%;
+  background: #111;
+}
+
+.btn-example__size-dot[data-state="unchecked"] {
+  opacity: 0;
+}
+
 .btn-example__button {
   display: inline-flex;
   align-items: center;

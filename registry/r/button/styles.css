@@ -29,6 +29,10 @@
     --primitiv-button-padding-inline: var(--primitiv-framed-control-md-padding-inline);
     --primitiv-button-gap: var(--primitiv-framed-control-md-gap);
     --primitiv-button-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-button-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-button-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-button-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-button-line-height: var(--primitiv-label-md-line-height);
 
     display: inline-flex;
     align-items: center;
@@ -40,8 +44,13 @@
     border-radius: var(--primitiv-button-radius);
     background: var(--primitiv-button-bg);
     color: var(--primitiv-button-fg);
-    font: inherit;
-    line-height: 1;
+    font-family: var(--primitiv-button-font-family);
+    font-size: var(--primitiv-button-font-size);
+    font-weight: var(--primitiv-button-font-weight);
+    line-height: var(--primitiv-button-line-height);
+    /* Trim the line-box leading to the cap height so the label optically
+       centres within the control frame regardless of the font's metrics. */
+    text-box: trim-both cap alphabetic;
     cursor: pointer;
     transition:
       background-color 120ms ease,
@@ -120,6 +129,10 @@
     --primitiv-button-padding-inline: var(--primitiv-framed-control-xs-padding-inline);
     --primitiv-button-gap: var(--primitiv-framed-control-xs-gap);
     --primitiv-button-icon-size: var(--primitiv-framed-control-xs-icon-size);
+    --primitiv-button-font-family: var(--primitiv-label-xs-font-family);
+    --primitiv-button-font-size: var(--primitiv-label-xs-font-size);
+    --primitiv-button-font-weight: var(--primitiv-label-xs-font-weight);
+    --primitiv-button-line-height: var(--primitiv-label-xs-line-height);
   }
   .primitiv-button--sm {
     --primitiv-button-radius: var(--primitiv-framed-control-sm-radius);
@@ -127,6 +140,10 @@
     --primitiv-button-padding-inline: var(--primitiv-framed-control-sm-padding-inline);
     --primitiv-button-gap: var(--primitiv-framed-control-sm-gap);
     --primitiv-button-icon-size: var(--primitiv-framed-control-sm-icon-size);
+    --primitiv-button-font-family: var(--primitiv-label-sm-font-family);
+    --primitiv-button-font-size: var(--primitiv-label-sm-font-size);
+    --primitiv-button-font-weight: var(--primitiv-label-sm-font-weight);
+    --primitiv-button-line-height: var(--primitiv-label-sm-line-height);
   }
   .primitiv-button--md {
     --primitiv-button-radius: var(--primitiv-framed-control-md-radius);
@@ -134,6 +151,10 @@
     --primitiv-button-padding-inline: var(--primitiv-framed-control-md-padding-inline);
     --primitiv-button-gap: var(--primitiv-framed-control-md-gap);
     --primitiv-button-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-button-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-button-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-button-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-button-line-height: var(--primitiv-label-md-line-height);
   }
   .primitiv-button--lg {
     --primitiv-button-radius: var(--primitiv-framed-control-lg-radius);
@@ -141,6 +162,10 @@
     --primitiv-button-padding-inline: var(--primitiv-framed-control-lg-padding-inline);
     --primitiv-button-gap: var(--primitiv-framed-control-lg-gap);
     --primitiv-button-icon-size: var(--primitiv-framed-control-lg-icon-size);
+    --primitiv-button-font-family: var(--primitiv-label-lg-font-family);
+    --primitiv-button-font-size: var(--primitiv-label-lg-font-size);
+    --primitiv-button-font-weight: var(--primitiv-label-lg-font-weight);
+    --primitiv-button-line-height: var(--primitiv-label-lg-line-height);
   }
   .primitiv-button--xl {
     --primitiv-button-radius: var(--primitiv-framed-control-xl-radius);
@@ -148,6 +173,10 @@
     --primitiv-button-padding-inline: var(--primitiv-framed-control-xl-padding-inline);
     --primitiv-button-gap: var(--primitiv-framed-control-xl-gap);
     --primitiv-button-icon-size: var(--primitiv-framed-control-xl-icon-size);
+    --primitiv-button-font-family: var(--primitiv-label-xl-font-family);
+    --primitiv-button-font-size: var(--primitiv-label-xl-font-size);
+    --primitiv-button-font-weight: var(--primitiv-label-xl-font-weight);
+    --primitiv-button-line-height: var(--primitiv-label-xl-line-height);
   }
 }
 

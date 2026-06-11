@@ -19,6 +19,7 @@ fn maps_each_variant_to_a_stable_exit_code() {
     assert_eq!(CliError::Config("missing".to_string()).exit_code(), 5);
     assert_eq!(CliError::Conflict("exists".to_string()).exit_code(), 6);
     assert_eq!(CliError::Registry("offline".to_string()).exit_code(), 7);
+    assert_eq!(CliError::Project("no package.json".to_string()).exit_code(), 8);
 }
 
 #[test]
@@ -61,4 +62,11 @@ fn renders_a_registry_message_verbatim() {
     let error = CliError::Registry("registry unreachable".to_string());
 
     assert_eq!(error.to_string(), "registry unreachable");
+}
+
+#[test]
+fn renders_a_project_message_verbatim() {
+    let error = CliError::Project("no package.json found in .".to_string());
+
+    assert_eq!(error.to_string(), "no package.json found in .");
 }

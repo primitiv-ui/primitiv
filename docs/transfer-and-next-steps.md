@@ -115,11 +115,16 @@ adapters, hand-authored golden files, 100% coverage):
     and the first consumer of `exists`. Honouring **Principle 2 (never clobber)**,
     an existing `primitiv.json` is a hard error unless `--force` is given — a new
     `CliError::Conflict` variant (exit code `6`). The token-layer file extension
-    tracks the format (`tailwind` → `.css`, since the preset is CSS). **Deferred to
-    later increments** (the testable seam was deliberately the flags core):
-    framework / package-manager detection (lockfile), tsconfig/jsconfig alias
-    detection (`compilerOptions.paths`, RFC 0005 §3.3), and interactive prompting —
-    so `--yes` is not yet wired (init uses the process cwd via the port). The
+    tracks the format (`tailwind` → `.css`, since the preset is CSS). The
+    **non-project guard is now landed** (RFC 0005 §1.5.1): `init` configures an
+    *existing* project, so a working directory with no `package.json` is a hard
+    error (`CliError::Project`, exit code `8`) pointing at `npm create vite` /
+    `create-next-app`, rather than seeding a `primitiv.json` next to nothing — it
+    never scaffolds an app. **Deferred to later increments** (the testable seam was
+    deliberately the flags core): framework / package-manager detection (lockfile),
+    tsconfig/jsconfig alias detection (`compilerOptions.paths`, RFC 0005 §3.3), and
+    interactive prompting — so `--yes` is not yet wired (init uses the process cwd
+    via the port). The
     **config-less `tokens` → stdout path is now landed** (Principle 4): a new
     **`Output` port** (`ports/output.rs` — an `OsStdout` passthrough adapter + an
     `InMemoryOutput` capture fake, mirroring `FileSystem`) is threaded through

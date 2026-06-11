@@ -273,6 +273,7 @@ version = "0.1.0"
 name = "primitiv-emit"
 version = "0.1.0"
 dependencies = [
+ "harmoni-core",
  "pretty_assertions",
  "serde_json",
 ]

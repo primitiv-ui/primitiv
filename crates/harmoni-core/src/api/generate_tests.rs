@@ -1,5 +1,6 @@
 use crate::api::generate::{
-    generate, generate_pair, generate_with_lightness, generate_with_options, GenerateOptions,
+    generate, generate_brand_pair, generate_pair, generate_with_lightness, generate_with_options,
+    GenerateOptions,
 };
 use crate::color::input::ColorInput;
 use crate::palette::generator::{SwatchLabel, TARGET_LIGHTNESS, TARGET_LIGHTNESS_DARK};
@@ -78,6 +79,21 @@ fn generate_pair_returns_a_light_palette_matching_generate_and_an_anchored_dark_
         "dark step 900 should be reliably light, got {}",
         set.dark.swatches[9].l
     );
+}
+
+#[test]
+fn generate_brand_pair_uses_the_default_theme_curves() {
+    let brand = generate_brand_pair(sample_input()).expect("valid input should produce a pair");
+
+    let explicit = generate_pair(
+        sample_input(),
+        &TARGET_LIGHTNESS,
+        &TARGET_LIGHTNESS_DARK,
+        GenerateOptions::default(),
+    )
+    .expect("valid input");
+
+    assert_eq!(brand, explicit);
 }
 
 #[test]

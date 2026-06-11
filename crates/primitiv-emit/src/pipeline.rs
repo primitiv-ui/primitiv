@@ -1,5 +1,7 @@
 use std::collections::BTreeMap;
 
+use harmoni_core::api::generate_brand_pair;
+use harmoni_core::{ColorInput, ColorInputError, Palette};
 use serde_json::Value;
 
 use crate::alias::{link_aliases, resolve_aliases};
@@ -9,6 +11,7 @@ use crate::dtcg::{flatten_modes, tokens_from_dtcg};
 use crate::mode::{scope_selectors, Axis};
 use crate::scss::emit_scss;
 use crate::tailwind::emit_tailwind;
+use crate::theme::brand_tokens;
 use crate::token::Token;
 use crate::ts::emit_ts;
 
@@ -78,6 +81,30 @@ pub fn emit_tailwind_tokens(sources: &TokenSources) -> String {
 /// separate overrides file that beats the base palette by layer order.
 pub fn emit_theme_overrides_css(documents: &[Value]) -> String {
     emit_theme_css(&axis_scopes(&Axis::Theme, documents))
+}
+
+/// Emit `primitiv theme --brand <hex>` overrides (RFC 0005 §2.4, RFC 0006 §5.1):
+/// link `harmoni-core` to derive a contrast-checked paired light + dark palette
+/// from the brand, map each side's ramp to `--primitiv-color-brand-*` tokens,
+/// and serialise them into the `primitiv.theme` layer — light sharing `:root`,
+/// dark in `[data-theme="dark"]`. The emitted structure is the stable contract
+/// (D48); the hex values track `harmoni-core` and evolve non-breakingly.
+pub fn emit_theme_brand_css(brand: &str) -> Result<String, ColorInputError> {
+    let set = generate_brand_pair(ColorInput::Css(brand.to_string()))?;
+    Ok(emit_theme_css(&[
+        brand_scope("light", &set.light),
+        brand_scope("dark", &set.dark),
+    ]))
+}
+
+/// One theme-axis scope of brand-ramp overrides for a mode: the mode's
+/// `[data-theme]` selectors (the default mode also sharing `:root`) carrying the
+/// palette's `--primitiv-color-brand-*` tokens.
+fn brand_scope(mode: &str, palette: &Palette) -> Scope {
+    Scope {
+        selectors: scope_selectors(&Axis::Theme, mode),
+        tokens: brand_tokens(palette),
+    }
 }
 
 /// Emit a component's per-component API tokens from its DTCG document (RFC 0008

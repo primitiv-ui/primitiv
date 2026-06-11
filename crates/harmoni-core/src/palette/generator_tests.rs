@@ -109,6 +109,16 @@ mod generator_tests {
             let label: SwatchLabel = "White".into();
             assert_eq!(label, SwatchLabel::Name(String::from("White")));
         }
+
+        #[test]
+        fn should_render_a_numeric_label_as_its_digits() {
+            assert_eq!(SwatchLabel::Number(500).to_string(), "500");
+        }
+
+        #[test]
+        fn should_render_a_named_label_as_its_name() {
+            assert_eq!(SwatchLabel::Name(String::from("brand")).to_string(), "brand");
+        }
     }
 
     mod max_chroma_hue_coverage {

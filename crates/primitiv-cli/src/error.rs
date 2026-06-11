@@ -1,3 +1,4 @@
+use std::fmt;
 use std::io;
 
 use harmoni_core::ColorInputError;
@@ -15,6 +16,32 @@ pub enum CliError {
     InvalidColor(ColorInputError),
     /// A filesystem read/write failure.
     Io(io::Error),
+}
+
+impl CliError {
+    /// The process exit code the bin returns for this error (RFC 0005 §5).
+    /// Codes are stable and distinct per failure source so an agent or CI can
+    /// branch on them: `2` usage, `3` invalid colour, `4` I/O. New error
+    /// variants take a new code rather than reusing one.
+    pub fn exit_code(&self) -> u8 {
+        match self {
+            CliError::Usage(_) => 2,
+            CliError::InvalidColor(_) => 3,
+            CliError::Io(_) => 4,
+        }
+    }
+}
+
+impl fmt::Display for CliError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            CliError::Usage(message) => write!(f, "{message}"),
+            CliError::InvalidColor(ColorInputError::InvalidCss(value)) => {
+                write!(f, "invalid colour '{value}'")
+            }
+            CliError::Io(error) => write!(f, "{error}"),
+        }
+    }
 }
 
 impl From<ColorInputError> for CliError {

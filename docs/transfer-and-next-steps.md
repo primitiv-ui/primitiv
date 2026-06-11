@@ -73,7 +73,27 @@ adapters, hand-authored golden files, 100% coverage):
 - [x] **Mode scoping** (RFC 0009) — emit `[data-theme]` + `[data-density]` scopes (density-neutral names, the `context.<density>` axis collapsed into `[data-density]`); ship the Tailwind `dark:`-variant remap. Falls out of the emitter (it is how dark + density are emitted), so it lands with the token emitter, not as separate work.
   - **Done (theme + density scopes)** — emitted by the token pipeline (`Axis`, `scope_selectors`, `Scope`, default-first mode ordering). The `:root` default sharing and `[data-*]` overrides match RFC 0009 §2.2. **Remaining:** the Tailwind `dark:`-variant remap (a CLI `add`-wiring concern, RFC 0009 §4.2), which lands with the CLI.
 - [ ] **Styling contract + `contract.json`** per component (RFC 0004 §3) — hybrid generation (data-* auto-verified, modifiers/custom-props authored).
+  - **Button landed.** `registry/r/button/contract.json` is the first hybrid
+    contract: the `data-*` half (`data-disabled`, `source: "auto"`) is
+    drift-guarded against the rendered headless `Button` by a `packages/react`
+    test (`Button.contract.test.tsx`) so it cannot drift from what the component
+    emits; the authored half (`.primitiv-button` root class, `--primary…--link` /
+    `--xs…--xl` modifiers, the `--primitiv-button-*` custom-property API incl.
+    typography) is hand-written. The React package is **untouched** (stays
+    headless — root/part class *emission* is parked for the `add`-wiring
+    increment, options sketched: generated local wrapper vs provider vs
+    always-inert). **Remaining:** the same for `switch`.
 - [ ] **Default theme authoring** in the workbench (RFC 0006 §7) — ported from Figma, one design emitted per format.
+  - **Button CSS landed.** `registry/r/button/styles.css` is the canonical
+    default theme in the RFC 0008 `primitiv.base`/`variants`/`states` layer
+    shape, wiring `--primitiv-button-*` to the synced `action/*` (colour),
+    `framed-control/*` (sizing) and `label/*` (typography) tokens, with
+    `text-box` leading-trim. The workbench Button example imports the generated
+    token layer + this canonical CSS and applies the contract classes, so the
+    deployed workbench is the visual-check surface. **Remaining (next PR):** the
+    SCSS form (CSS verbatim) and the Tailwind v4 recipe; values are
+    authored-from-tokens and will be reconciled against the Figma Button design
+    (no Figma access until 2026-06-16). `switch` to follow.
 - [ ] **The CLI** (RFC 0005) — `init` / `add` / `tokens` / `theme` / `list`, `primitiv.json`, the static registry, refresh + wiring behaviour.
   - **Started.** The hand-rolled arg parser, the `theme` command (CSS / SCSS /
     Tailwind via `--format`), the `FileSystem` port (+ `InMemoryFs` fake) and the

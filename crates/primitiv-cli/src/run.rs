@@ -11,6 +11,6 @@ use crate::ports::fs::FileSystem;
 /// OS-backed [`FileSystem`], then maps the returned [`CliError`] to an exit code.
 pub fn run(fs: &impl FileSystem, args: &[String]) -> Result<(), CliError> {
     match parse(args)? {
-        Command::Theme { brand, out, format: _ } => theme(fs, &brand, Path::new(&out)),
+        Command::Theme { brand, out, format } => theme(fs, &brand, Path::new(&out), format),
     }
 }

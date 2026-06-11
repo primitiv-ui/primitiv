@@ -4,6 +4,7 @@ use crate::commands::tokens::tokens;
 use crate::error::CliError;
 use crate::format::Format;
 use crate::ports::fs::{FileSystem, InMemoryFs};
+use crate::ports::output::InMemoryOutput;
 
 /// A `primitiv.json` whose `tokens.path` the command falls back to when `--out`
 /// is omitted (RFC 0005 §2.3 / §3.1).
@@ -32,9 +33,10 @@ const CONFIG_SCSS: &[u8] = br##"{
 #[test]
 fn writes_the_design_system_token_layer_as_css() {
     let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
     let out = Path::new("src/styles/primitiv/tokens.css");
 
-    tokens(&fs, Some(Format::Css), Some(out)).unwrap();
+    tokens(&fs, &stdout, Some(Format::Css), Some(out)).unwrap();
 
     let written = String::from_utf8(fs.read(out).unwrap()).unwrap();
     // The cascade-layer declaration (RFC 0008) heads the file.
@@ -51,9 +53,10 @@ fn writes_the_design_system_token_layer_as_css() {
 #[test]
 fn writes_the_token_layer_as_scss_when_the_format_is_scss() {
     let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
     let out = Path::new("src/styles/primitiv/tokens.scss");
 
-    tokens(&fs, Some(Format::Scss), Some(out)).unwrap();
+    tokens(&fs, &stdout, Some(Format::Scss), Some(out)).unwrap();
 
     let written = String::from_utf8(fs.read(out).unwrap()).unwrap();
     // The SCSS surface is the canonical CSS plus resolving $primitiv-* variables.
@@ -64,9 +67,10 @@ fn writes_the_token_layer_as_scss_when_the_format_is_scss() {
 #[test]
 fn writes_the_token_layer_as_a_tailwind_preset_when_the_format_is_tailwind() {
     let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
     let out = Path::new("src/styles/primitiv/tokens.css");
 
-    tokens(&fs, Some(Format::Tailwind), Some(out)).unwrap();
+    tokens(&fs, &stdout, Some(Format::Tailwind), Some(out)).unwrap();
 
     let written = String::from_utf8(fs.read(out).unwrap()).unwrap();
     // The Tailwind v4 @theme preset maps names onto Tailwind namespaces.
@@ -77,24 +81,27 @@ fn writes_the_token_layer_as_a_tailwind_preset_when_the_format_is_tailwind() {
 #[test]
 fn falls_back_to_the_config_path_when_out_is_omitted() {
     let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
     fs.set_current_dir(Path::new("project"));
     fs.write(Path::new("project/primitiv.json"), CONFIG).unwrap();
 
-    tokens(&fs, Some(Format::Css), None).unwrap();
+    tokens(&fs, &stdout, Some(Format::Css), None).unwrap();
 
     // Written to the config's tokens.path, resolved by walking up from the cwd.
-    let written = String::from_utf8(fs.read(Path::new("src/styles/from-config.css")).unwrap()).unwrap();
+    let written =
+        String::from_utf8(fs.read(Path::new("src/styles/from-config.css")).unwrap()).unwrap();
     assert!(written.contains("@layer primitiv.tokens"));
 }
 
 #[test]
 fn defaults_the_format_from_the_config_when_it_is_omitted() {
     let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
     fs.set_current_dir(Path::new("project"));
     fs.write(Path::new("project/primitiv.json"), CONFIG_SCSS).unwrap();
 
     // Neither flag given: both the format (scss) and the path come from config.
-    tokens(&fs, None, None).unwrap();
+    tokens(&fs, &stdout, None, None).unwrap();
 
     let written =
         String::from_utf8(fs.read(Path::new("src/styles/from-config.scss")).unwrap()).unwrap();
@@ -104,11 +111,12 @@ fn defaults_the_format_from_the_config_when_it_is_omitted() {
 #[test]
 fn defaults_the_format_to_css_when_omitted_and_no_config_exists() {
     let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
     fs.set_current_dir(Path::new("project"));
     let out = Path::new("tokens.css");
 
     // --out given, --format omitted, no config: CSS is the canonical fallback.
-    tokens(&fs, None, Some(out)).unwrap();
+    tokens(&fs, &stdout, None, Some(out)).unwrap();
 
     let written = String::from_utf8(fs.read(out).unwrap()).unwrap();
     assert!(written.contains("@layer primitiv.tokens"));
@@ -116,23 +124,57 @@ fn defaults_the_format_to_css_when_omitted_and_no_config_exists() {
 }
 
 #[test]
-fn errors_when_out_is_omitted_and_no_config_exists() {
+fn streams_to_stdout_when_neither_out_nor_a_config_is_present() {
     let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
     fs.set_current_dir(Path::new("project"));
 
-    let err = tokens(&fs, Some(Format::Css), None).unwrap_err();
+    // Principle 4: a fully config-less `tokens --format css` writes to stdout.
+    tokens(&fs, &stdout, Some(Format::Css), None).unwrap();
 
-    assert!(matches!(err, CliError::Config(_)));
+    let streamed = String::from_utf8(stdout.captured()).unwrap();
+    assert!(streamed.contains("@layer primitiv.tokens"));
+    assert!(streamed.contains("--primitiv-space-space-4: 0.25rem;"));
+    // Nothing was written to disk.
+    assert!(!fs.exists(Path::new("project/tokens.css")));
+}
+
+#[test]
+fn surfaces_a_write_failure_to_the_config_path() {
+    let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
+    fs.set_current_dir(Path::new("project"));
+    fs.write(Path::new("project/primitiv.json"), CONFIG).unwrap();
+    fs.fail_writes_to(Path::new("src/styles/from-config.css"));
+
+    // --out omitted, config present: the write targets the config's tokens.path.
+    let err = tokens(&fs, &stdout, Some(Format::Css), None).unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn surfaces_a_stdout_write_failure() {
+    let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
+    fs.set_current_dir(Path::new("project"));
+    stdout.fail_stdout();
+
+    // Config-less, so the layer routes to stdout — a broken stream surfaces as I/O.
+    let err = tokens(&fs, &stdout, Some(Format::Css), None).unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
 }
 
 #[test]
 fn errors_on_a_malformed_config_even_when_out_is_given() {
     let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
     fs.set_current_dir(Path::new("project"));
     fs.write(Path::new("project/primitiv.json"), b"{ not json }").unwrap();
 
     // --format omitted forces a config read; a broken file is never ignored.
-    let err = tokens(&fs, None, Some(Path::new("tokens.css"))).unwrap_err();
+    let err = tokens(&fs, &stdout, None, Some(Path::new("tokens.css"))).unwrap_err();
 
     assert!(matches!(err, CliError::Config(_)));
 }
@@ -140,9 +182,10 @@ fn errors_on_a_malformed_config_even_when_out_is_given() {
 #[test]
 fn errors_when_out_is_omitted_and_the_working_directory_is_unavailable() {
     let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
     fs.fail_current_dir();
 
-    let err = tokens(&fs, Some(Format::Css), None).unwrap_err();
+    let err = tokens(&fs, &stdout, Some(Format::Css), None).unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -150,10 +193,11 @@ fn errors_when_out_is_omitted_and_the_working_directory_is_unavailable() {
 #[test]
 fn surfaces_a_write_failure() {
     let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
     let out = Path::new("tokens.css");
     fs.fail_writes_to(out);
 
-    let err = tokens(&fs, Some(Format::Css), Some(out)).unwrap_err();
+    let err = tokens(&fs, &stdout, Some(Format::Css), Some(out)).unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }

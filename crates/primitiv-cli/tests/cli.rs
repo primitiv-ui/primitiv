@@ -44,6 +44,20 @@ fn init_writes_a_primitiv_json_into_the_working_directory() {
 }
 
 #[test]
+fn tokens_streams_the_layer_to_stdout_when_config_less() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    // No primitiv.json anywhere above the temp dir, so the layer goes to stdout.
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .args(["tokens", "--format", "css"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("@layer primitiv.tokens"));
+}
+
+#[test]
 fn reports_a_usage_error_on_stderr_and_exits_two() {
     Command::cargo_bin("primitiv")
         .unwrap()

@@ -1,0 +1,9 @@
+@layer primitiv.theme {
+  :root,
+  [data-theme="light"] {
+    --primitiv-color-primary: oklch(0.55 0.13 162);
+  }
+  [data-theme="dark"] {
+    --primitiv-color-primary: oklch(0.72 0.13 162);
+  }
+}

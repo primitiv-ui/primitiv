@@ -10,7 +10,7 @@ pub mod value;
 
 pub use alias::{link_aliases, resolve_against_base, resolve_aliases};
 pub use component::{emit_component_css, Component};
-pub use css::emit_css;
+pub use css::{emit_css, emit_theme_css};
 pub use dtcg::{flatten_modes, tokens_from_dtcg};
 pub use mode::{scope_selectors, Axis};
 pub use pipeline::{

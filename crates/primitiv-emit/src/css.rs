@@ -32,7 +32,26 @@ impl Scope {
 pub fn emit_css(scopes: &[Scope]) -> String {
     let mut out = String::new();
     out.push_str(SUBLAYER_DECLARATION);
-    out.push_str("\n\n@layer primitiv.tokens {\n");
+    out.push_str("\n\n");
+    out.push_str(&emit_layer("primitiv.tokens", scopes));
+    out
+}
+
+/// Emit `primitiv theme` brand overrides into the `primitiv.theme` sublayer
+/// (RFC 0006 §5.1, RFC 0008 §5): the same scope blocks of `--primitiv-*` custom
+/// properties, but in the layer that sits *above* `primitiv.tokens`, so a
+/// re-skin reliably beats the base palette by layer order regardless of import
+/// order. This is a separate file; it re-opens the named layer and never
+/// re-declares the sublayer order (that lives once in the shared token file).
+pub fn emit_theme_css(scopes: &[Scope]) -> String {
+    emit_layer("primitiv.theme", scopes)
+}
+
+/// Render the scope blocks inside one named `@layer`, shared by every layer the
+/// emitter writes — the `--primitiv-<path>: <value>` custom properties under
+/// each scope's comma-joined selectors.
+fn emit_layer(layer: &str, scopes: &[Scope]) -> String {
+    let mut out = format!("@layer {layer} {{\n");
     for scope in scopes {
         out.push_str(&format!("  {} {{\n", scope.selectors.join(",\n  ")));
         for token in &scope.tokens {

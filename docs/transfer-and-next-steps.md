@@ -120,9 +120,19 @@ adapters, hand-authored golden files, 100% coverage):
     *existing* project, so a working directory with no `package.json` is a hard
     error (`CliError::Project`, exit code `8`) pointing at `npm create vite` /
     `create-next-app`, rather than seeding a `primitiv.json` next to nothing — it
-    never scaffolds an app. **Deferred to later increments** (the testable seam was
-    deliberately the flags core): framework / package-manager detection (lockfile),
-    tsconfig/jsconfig alias detection (`compilerOptions.paths`, RFC 0005 §3.3), and
+    never scaffolds an app. **tsconfig/jsconfig alias detection is now landed**
+    (RFC 0005 §3.3 / D32): a new pure `detect` module reads the working
+    directory's `tsconfig.json` then `jsconfig.json` through the `FileSystem`
+    port and maps a root `compilerOptions.paths` mapping
+    (`"<prefix>/*"` → `./src/*` / `src/*` / `./*`) to the consumer's
+    `<prefix>/components` import alias; an explicit `--alias-components` flag
+    still wins, a present-but-aliasless config is authoritative (no fall-through),
+    a malformed config falls back to relative imports (an empty `aliases` map),
+    and a non-`NotFound` read is a hard `CliError::Io`. **Still deferred**
+    (the testable seam was deliberately the flags core): framework /
+    package-manager *persistence* at init (the lockfile package-manager detector
+    in `package_manager.rs` already exists and is reusable; `primitiv.json`
+    carries no `packageManager` field today, so `add` re-detects it), and
     interactive prompting — so `--yes` is not yet wired (init uses the process cwd
     via the port). The
     **config-less `tokens` → stdout path is now landed** (Principle 4): a new
@@ -185,10 +195,11 @@ adapters, hand-authored golden files, 100% coverage):
     `--force` flags, the `--registry` / HTTPS registry adapter, and routing the
     package manager's own output to stderr so `--json` keeps a clean stdout (today
     a non-dry-run `--json` install interleaves the manager's chatter with the JSON;
-    agents wanting pure JSON use `--dry-run`). **Other remaining CLI work:** the
-    detection / prompting increment for `init` (the lockfile package-manager
-    detection now exists and is reusable); the `list` **"installed in this
-    project"** column; the Tailwind `dark:`-variant remap (RFC 0009 §4.2).
+    agents wanting pure JSON use `--dry-run`). **Other remaining CLI work:**
+    interactive prompting for `init` (the alias detection above now feeds the
+    pre-filled prompt; the lockfile package-manager detector is reusable for the
+    manager prompt); the `list` **"installed in this project"** column; the
+    Tailwind `dark:`-variant remap (RFC 0009 §4.2).
 - [ ] **Distribution** (RFC 0005 §7) — Rust binary via `optionalDependencies` (`@primitiv-ui/cli-*`), `cargo-dist`/napi-rs matrix; supersede the published v0.0.1 name-reservation placeholders with the real `primitiv-ui` / `create-primitiv-ui` at a higher version.
 
 ## ❓ Open questions

@@ -149,11 +149,25 @@ adapters, hand-authored golden files, 100% coverage):
     covers an unreachable registry or a malformed index. The remote GitHub-raw
     HTTPS adapter and a `--registry <path>` override (§6.4) slot in behind the
     port later — deferred until remote fetch is actually needed (no HTTP dep
-    pulled in yet). **Remaining:** the detection / prompting increment for `init`;
-    the `list` **"installed in this project"** column; the `add` command (the
-    keystone — ensure-package / copy-styles / refresh / wiring, §4) and its
-    `--registry` / HTTPS registry adapter; the Tailwind `dark:`-variant remap
-    (RFC 0009 §4.2).
+    pulled in yet). The **`add` command's resolution spine is now landed** (RFC
+    0005 §2.2 / §4.1 step 1 / §4.4): `ComponentEntry` grew a defaulted
+    `dependsOn.components` (`registry.rs`), and `commands/add.rs` loads the index
+    through the `Registry` port, resolves each requested component **plus its
+    transitive component deps** (an `insert`-guarded `BTreeSet` walk that both
+    deduplicates and stays cycle-safe), and reports the sorted install plan to
+    stdout via the `Output` port. A requested or depended-on component the
+    registry doesn't carry is a new `CliError::NotFound` variant (exit code `9`)
+    pointing at `primitiv list`. The hand-rolled parser accepts `add
+    <component...>` (≥1 required); the install/copy flags (`--styles-only`,
+    `--no-styles`, `--format`, `--path`, `--force`) arrive with the slices that
+    act on them. **Remaining for `add`** (the keystone's effects, §4.2–§4.4): the
+    package-install step (needs a process-runner port for the detected manager),
+    the style-copy + refresh/`primitiv.lock` semantics (needs the registry to
+    serve per-component file bytes and the authored style files from items 5/6),
+    project wiring (§4.3), `--dry-run`/`--json` reporting, and the `--registry` /
+    HTTPS registry adapter. **Other remaining CLI work:** the detection /
+    prompting increment for `init`; the `list` **"installed in this project"**
+    column; the Tailwind `dark:`-variant remap (RFC 0009 §4.2).
 - [ ] **Distribution** (RFC 0005 §7) — Rust binary via `optionalDependencies` (`@primitiv-ui/cli-*`), `cargo-dist`/napi-rs matrix; supersede the published v0.0.1 name-reservation placeholders with the real `primitiv-ui` / `create-primitiv-ui` at a higher version.
 
 ## ❓ Open questions

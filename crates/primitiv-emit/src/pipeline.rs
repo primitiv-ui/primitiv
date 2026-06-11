@@ -4,7 +4,7 @@ use serde_json::Value;
 
 use crate::alias::link_aliases;
 use crate::component::{emit_component_css, Component};
-use crate::css::{emit_css, Scope};
+use crate::css::{emit_css, emit_theme_css, Scope};
 use crate::dtcg::{flatten_modes, tokens_from_dtcg};
 use crate::mode::{scope_selectors, Axis};
 use crate::scss::emit_scss;
@@ -34,6 +34,15 @@ pub fn emit_tokens_css(sources: &TokenSources) -> String {
 /// thinnest adapter over the CSS, identical values across both formats.
 pub fn emit_tokens_scss(sources: &TokenSources) -> String {
     emit_scss(&token_scopes(sources))
+}
+
+/// Emit `primitiv theme` brand overrides from their paired light + dark DTCG
+/// documents (RFC 0006 §5.1–5.2, RFC 0008 §5): build the theme-axis scopes
+/// (default mode sharing `:root`, the rest as `[data-theme="…"]` blocks) with
+/// aliases linked, and serialise them into the `primitiv.theme` layer — the
+/// separate overrides file that beats the base palette by layer order.
+pub fn emit_theme_overrides_css(documents: &[Value]) -> String {
+    emit_theme_css(&axis_scopes(&Axis::Theme, documents))
 }
 
 /// Emit a component's per-component API tokens from its DTCG document (RFC 0008

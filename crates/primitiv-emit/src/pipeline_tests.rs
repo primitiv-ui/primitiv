@@ -2,7 +2,8 @@ use pretty_assertions::assert_eq;
 use serde_json::{json, Value};
 
 use crate::pipeline::{
-    emit_component_tokens_css, emit_tokens_css, emit_tokens_scss, TokenSources,
+    emit_component_tokens_css, emit_theme_overrides_css, emit_tokens_css, emit_tokens_scss,
+    TokenSources,
 };
 
 /// Shared, pure-data fixture: routed DTCG documents exercising every axis — a
@@ -95,6 +96,24 @@ fn links_component_api_token_aliases_to_var_references() {
         include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/tests/golden/component-button.css"
+        ))
+    );
+}
+
+#[test]
+fn emits_paired_light_dark_brand_overrides_in_the_theme_layer() {
+    let overrides = json!({
+        "light": { "color": { "primary": { "$type": "color", "$value": "oklch(0.55 0.13 162)" } } },
+        "dark":  { "color": { "primary": { "$type": "color", "$value": "oklch(0.72 0.13 162)" } } }
+    });
+
+    let css = emit_theme_overrides_css(&[overrides]);
+
+    assert_eq!(
+        css,
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/theme-overrides.css"
         ))
     );
 }

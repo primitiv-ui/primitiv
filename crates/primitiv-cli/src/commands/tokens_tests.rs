@@ -140,6 +140,19 @@ fn streams_to_stdout_when_neither_out_nor_a_config_is_present() {
 }
 
 #[test]
+fn surfaces_a_stdout_write_failure() {
+    let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
+    fs.set_current_dir(Path::new("project"));
+    stdout.fail_stdout();
+
+    // Config-less, so the layer routes to stdout — a broken stream surfaces as I/O.
+    let err = tokens(&fs, &stdout, Some(Format::Css), None).unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
 fn errors_on_a_malformed_config_even_when_out_is_given() {
     let fs = InMemoryFs::new();
     let stdout = InMemoryOutput::new();

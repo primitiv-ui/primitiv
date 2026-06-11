@@ -13,8 +13,36 @@ pub fn emit_tailwind(tokens: &[Token]) -> String {
     let mut out = String::from("@theme {\n");
     for token in tokens {
         let name = token.path.join("-");
-        out.push_str(&format!("  --{name}: var(--primitiv-{name});\n"));
+        out.push_str(&format!(
+            "  --{}: var(--primitiv-{name});\n",
+            theme_name(&token.path)
+        ));
     }
     out.push_str("}\n");
     out
+}
+
+/// A token's Tailwind theme-variable name: its category (first path segment)
+/// renamed to Tailwind v4's canonical namespace, then the rest of the path.
+/// Renaming the category is what lets a `space-4` token drive `p-4`/`m-4`,
+/// a `font-size-lg` token drive `text-lg`, and so on.
+fn theme_name(path: &[String]) -> String {
+    let (category, rest) = path.split_first().expect("token path is never empty");
+    let mut segments = vec![tailwind_namespace(category).to_string()];
+    segments.extend(rest.iter().cloned());
+    segments.join("-")
+}
+
+/// Map a token category onto Tailwind v4's theme namespace where the names
+/// differ; categories Tailwind already spells the same (`color`, `radius`,
+/// `font-weight`) and ones it has no namespace for pass through unchanged.
+fn tailwind_namespace(category: &str) -> &str {
+    match category {
+        "space" => "spacing",
+        "radii" => "radius",
+        "font-size" => "text",
+        "line-height" => "leading",
+        "letter-spacing" => "tracking",
+        other => other,
+    }
 }

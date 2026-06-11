@@ -1,0 +1,7 @@
+@theme {
+  --spacing-4: var(--primitiv-space-4);
+  --radius-md: var(--primitiv-radii-md);
+  --text-lg: var(--primitiv-font-size-lg);
+  --leading-tight: var(--primitiv-line-height-tight);
+  --tracking-wide: var(--primitiv-letter-spacing-wide);
+}

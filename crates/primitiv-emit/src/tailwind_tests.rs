@@ -22,3 +22,22 @@ fn maps_tokens_into_a_theme_block_of_var_references() {
         include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/golden/tailwind.css"))
     );
 }
+
+#[test]
+fn renames_categories_to_their_tailwind_namespaces() {
+    let tailwind = emit_tailwind(&[
+        Token::new(&["space", "4"], "0.25rem"),
+        Token::new(&["radii", "md"], "0.5rem"),
+        Token::new(&["font-size", "lg"], "1.125rem"),
+        Token::new(&["line-height", "tight"], "1.25"),
+        Token::new(&["letter-spacing", "wide"], "0.025rem"),
+    ]);
+
+    assert_eq!(
+        tailwind,
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/tailwind-namespaces.css"
+        ))
+    );
+}

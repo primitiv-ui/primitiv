@@ -237,7 +237,7 @@ We maintain *one* visual design, not N stylesheets.
 **The contract is the single API source (D53).** Beyond the visual design
 (`styles.css`, hand-authored), each component's *API* is authored once in
 `contract.json` (RFC 0004 §3.4), and the consumer artifacts are **generated**
-from it: the **`cva` recipe** (the Tailwind format's class engine) and the
+from it: the **`cva` recipe** (the styled surface's class engine, every format) and the
 **JSDoc'd styled wrapper** (`<Button variant size>` — the primary DX, RFC 0004
 §3.5). So the recipe joins the SCSS form as a *derived* artifact — only
 `styles.css` (design) and `contract.json` (API) are authored per component.

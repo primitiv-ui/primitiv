@@ -3,26 +3,29 @@
   "components": {
     "button": {
       "version": "0.1.0",
-      "dependsOn": {
-        "packages": ["@primitiv-ui/react"],
-        "packagesByFormat": { "tailwind": ["class-variance-authority"] },
-        "tokens": true,
-        "components": []
-      },
-      "formats": {
-        "css": ["styles.css"],
-        "scss": ["styles.scss"],
-        "tailwind": ["styles.css", "tailwind/button.recipe.ts"]
+      "dependsOn": { "packages": ["@primitiv-ui/react"], "tokens": true, "components": [] },
+      "styles": {
+        "packages": ["class-variance-authority"],
+        "react": ["button.recipe.ts", "button.tsx"],
+        "formats": {
+          "css": ["styles.css"],
+          "scss": ["styles.scss"],
+          "tailwind": ["styles.css"]
+        }
       },
       "contract": "contract.json"
     },
     "switch": {
       "version": "0.1.0",
       "dependsOn": { "packages": ["@primitiv-ui/react"], "tokens": true, "components": [] },
-      "formats": {
-        "css": ["styles.css"],
-        "scss": ["styles.scss"],
-        "tailwind": ["tailwind/switch.recipe.ts"]
+      "styles": {
+        "packages": ["class-variance-authority"],
+        "react": ["switch.recipe.ts", "switch.tsx"],
+        "formats": {
+          "css": ["styles.css"],
+          "scss": ["styles.scss"],
+          "tailwind": ["styles.css"]
+        }
       },
       "contract": "contract.json"
     }

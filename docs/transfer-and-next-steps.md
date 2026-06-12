@@ -115,22 +115,24 @@ adapters, hand-authored golden files, 100% coverage):
     followed by one `$primitiv-button-*` alias per declared knob, produced by a
     new `emit_component_scss(css)` in `primitiv-emit` (mirrors the token-layer
     `emit_scss`) and held to the canonical CSS by a drift-guard test asserting
-    the committed file equals `emit_component_scss(styles.css)`. The **Tailwind
-    v4 recipe is now landed** (`registry/r/button/tailwind/button.recipe.ts`):
-    authored, not transpiled (RFC 0006 §6.1 — arbitrary CSS → utilities is
-    lossy), it is a `cva` function over the **contract's modifier classes** (not
-    utilities), so the styling stays in `styles.css` and round-trips perfectly
-    (keyframes, the knob seam, `text-box` trim — none of which have a Tailwind
-    utility form). The Tailwind format therefore rides on the CSS contract:
-    `formats.tailwind` ships `styles.css` + the recipe, and `cva` is a
-    Tailwind-format-scoped package (`dependsOn.packagesByFormat.tailwind`) the
-    existing `add` package-install effect ensures only when that format is
-    chosen. A keys-match drift guard
-    (`packages/react/src/Button/__tests__/Button.recipe.test.ts`) pins the
-    recipe to `contract.json`. **Button's format trio (CSS / SCSS / Tailwind) is
-    complete.** Values are authored-from-tokens and will be reconciled against
-    the Figma Button design (no Figma access until 2026-06-16). `switch` to
-    follow.
+    the committed file equals `emit_component_scss(styles.css)`. The **styled
+    surface is now generated from the contract (D51–D55).** `contract.json` is
+    enriched to the single API source (array modifiers + `description` /
+    `default` / `prop` / `options`), and `primitiv-emit` generates **both** the
+    `cva` recipe (`registry/r/button/button.recipe.ts`) and the JSDoc'd wrapper
+    (`registry/r/button/button.tsx`) from it — `contract → recipe` / `contract →
+    wrapper` emitters proven against **synthetic** contracts (D54), with Button
+    drift guards in `crates/primitiv-emit/src/{recipe,wrapper}_tests.rs`. The
+    consumer prop is `variant` (`intent` stays the contract key, D52); the
+    recipe + wrapper are the **format-independent** React surface gated by the
+    **styles opt-in** (D55) — `cva` moved from a Tailwind-format dep to
+    `styles.packages`; `formats` now selects only the stylesheet. The old
+    `tailwind/button.recipe.ts` + the TS keys-match guard are superseded. The
+    **Tailwind v4 recipe landed earlier (#139)** and now flows from the
+    generator. **Button's format trio (CSS / SCSS / Tailwind) + the styled
+    surface are complete.** Values are authored-from-tokens and will be
+    reconciled against the Figma Button design (no Figma access until
+    2026-06-16). `switch` to follow — the same generators, the generality proof.
 - [ ] **The CLI** (RFC 0005) — `init` / `add` / `tokens` / `theme` / `list`, `primitiv.json`, the static registry, refresh + wiring behaviour.
   - **Started.** The hand-rolled arg parser, the `theme` command (CSS / SCSS /
     Tailwind via `--format`), the `FileSystem` port (+ `InMemoryFs` fake) and the

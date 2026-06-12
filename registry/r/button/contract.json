@@ -2,6 +2,8 @@
   "$schema": "https://primitiv-ui.dev/schema/contract.json",
   "name": "button",
   "version": "0.1.0",
+  "description": "A clickable action — a button, or a link styled as one via `asChild`.",
+  "docs": "https://primitiv-ui.dev/docs/components/button",
   "root": {
     "element": "button",
     "class": "primitiv-button"
@@ -14,21 +16,32 @@
       "source": "auto"
     }
   ],
-  "modifiers": {
-    "intent": {
-      "primary": "primitiv-button--primary",
-      "secondary": "primitiv-button--secondary",
-      "danger": "primitiv-button--danger",
-      "link": "primitiv-button--link"
+  "modifiers": [
+    {
+      "name": "intent",
+      "prop": "variant",
+      "default": "primary",
+      "description": "Visual intent / emphasis.",
+      "options": [
+        { "name": "primary", "class": "primitiv-button--primary", "description": "High-emphasis primary action." },
+        { "name": "secondary", "class": "primitiv-button--secondary", "description": "Medium-emphasis secondary action." },
+        { "name": "danger", "class": "primitiv-button--danger", "description": "Destructive action — delete, remove." },
+        { "name": "link", "class": "primitiv-button--link", "description": "Reads as a link; no frame." }
+      ]
     },
-    "size": {
-      "xs": "primitiv-button--xs",
-      "sm": "primitiv-button--sm",
-      "md": "primitiv-button--md",
-      "lg": "primitiv-button--lg",
-      "xl": "primitiv-button--xl"
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Control size; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-button--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-button--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-button--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-button--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-button--xl", "description": "Extra large." }
+      ]
     }
-  },
+  ],
   "customProperties": [
     { "name": "--primitiv-button-bg", "defaultsTo": "var(--primitiv-action-primary-default)" },
     { "name": "--primitiv-button-fg", "defaultsTo": "var(--primitiv-action-primary-foreground-default)" },

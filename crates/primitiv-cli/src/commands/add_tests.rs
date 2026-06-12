@@ -58,6 +58,19 @@ const WITH_PACKAGE_AND_STYLES: &[u8] = br##"{
   }
 }"##;
 
+/// A registry whose `button` carries the full styled surface — a CSS stylesheet
+/// and the format-independent React surface (recipe + wrapper, D55).
+const WITH_STYLED_SURFACE: &[u8] = br##"{
+  "version": "0.1.0",
+  "components": {
+    "button": { "version": "0.1.0", "styles": { "formats": { "css": ["styles.css"] }, "react": ["button.recipe.ts", "button.tsx"] } }
+  }
+}"##;
+
+/// A `tsconfig.json` mapping the `@/*` alias to `./src/*`, so the React surface
+/// resolves to `src/components`.
+const TSCONFIG: &[u8] = br#"{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }"#;
+
 /// A project config opting into CSS styles under `src/styles/primitiv` — what
 /// `init` writes (RFC 0005 §3.1).
 const CONFIG: &[u8] = br##"{
@@ -648,6 +661,114 @@ fn errors_on_a_malformed_project_config_during_style_copy() {
     ).unwrap_err();
 
     assert!(matches!(err, CliError::Config(_)));
+}
+
+#[test]
+fn copies_the_react_surface_into_the_alias_resolved_components_directory() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    fs.write(Path::new("tsconfig.json"), TSCONFIG).unwrap();
+    let registry = InMemoryRegistry::new(WITH_STYLED_SURFACE)
+        .with_file("button", "styles.css", b".primitiv-button{}")
+        .with_file("button", "button.recipe.ts", b"export const button = cva();")
+        .with_file("button", "button.tsx", b"export function Button() {}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), ..Default::default() },
+    )
+    .unwrap();
+
+    // The stylesheet still lands in the styles path...
+    assert!(fs.exists(Path::new("src/styles/primitiv/button/styles.css")));
+    // ...and the recipe + wrapper land flat in the alias-resolved components dir.
+    assert_eq!(
+        fs.read(Path::new("src/components/button.recipe.ts")).unwrap(),
+        b"export const button = cva();"
+    );
+    assert_eq!(
+        fs.read(Path::new("src/components/button.tsx")).unwrap(),
+        b"export function Button() {}"
+    );
+}
+
+#[test]
+fn falls_back_to_a_root_components_directory_without_a_detectable_alias() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    // No tsconfig/jsconfig: the alias cannot be detected, so the React surface
+    // falls back to the project-root `components` directory.
+    let registry = InMemoryRegistry::new(WITH_STYLED_SURFACE)
+        .with_file("button", "styles.css", b".primitiv-button{}")
+        .with_file("button", "button.recipe.ts", b"recipe")
+        .with_file("button", "button.tsx", b"wrapper");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), ..Default::default() },
+    )
+    .unwrap();
+
+    assert_eq!(fs.read(Path::new("components/button.tsx")).unwrap(), b"wrapper");
+}
+
+#[test]
+fn errors_when_the_registry_cannot_serve_a_react_file() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    // The stylesheet is served but the React surface is not, so the copy fails
+    // in the React loop rather than the stylesheet loop.
+    let registry = InMemoryRegistry::new(WITH_STYLED_SURFACE)
+        .with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), ..Default::default() },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Registry(_)));
+}
+
+#[test]
+fn surfaces_a_failure_to_resolve_the_components_directory() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    // The tsconfig read fails (not merely absent), so the alias resolution is a
+    // hard I/O error rather than the relative-import fallback.
+    fs.fail_reads_to(Path::new("tsconfig.json"));
+    let registry = InMemoryRegistry::new(WITH_STYLED_SURFACE)
+        .with_file("button", "styles.css", b".primitiv-button{}")
+        .with_file("button", "button.recipe.ts", b"recipe")
+        .with_file("button", "button.tsx", b"wrapper");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), ..Default::default() },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
 }
 
 #[test]

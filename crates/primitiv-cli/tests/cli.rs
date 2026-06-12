@@ -146,11 +146,11 @@ fn add_rejects_an_unknown_component_and_exits_nine() {
 }
 
 #[test]
-fn add_styles_only_copies_the_stylesheet_on_the_real_filesystem() {
+fn add_styles_only_copies_the_styled_surface_on_the_real_filesystem() {
     // `--styles-only` skips the package install, so this is the one `add` e2e
     // that runs the real copy without shelling out to a live package manager:
     // it proves the OsFs write + create_dir_all + EmbeddedRegistry file fetch +
-    // config resolve all wire up (RFC 0005 §4.1 step 4).
+    // config + alias resolution all wire up (RFC 0005 §4.1 step 4).
     let dir = assert_fs::TempDir::new().unwrap();
     dir.child("primitiv.json")
         .write_str(
@@ -165,6 +165,10 @@ fn add_styles_only_copies_the_stylesheet_on_the_real_filesystem() {
 }"##,
         )
         .unwrap();
+    // The `@/*` → `./src/*` mapping resolves the React surface to `src/components`.
+    dir.child("tsconfig.json")
+        .write_str(r#"{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }"#)
+        .unwrap();
 
     Command::cargo_bin("primitiv")
         .unwrap()
@@ -173,8 +177,14 @@ fn add_styles_only_copies_the_stylesheet_on_the_real_filesystem() {
         .assert()
         .success();
 
+    // The stylesheet lands in the styles path...
     dir.child("src/styles/primitiv/button/styles.css")
         .assert(predicate::str::contains(".primitiv-button"));
+    // ...and the React surface in the alias-resolved components directory.
+    dir.child("src/components/button.tsx")
+        .assert(predicate::str::contains("export"));
+    dir.child("src/components/button.recipe.ts")
+        .assert(predicate::path::exists());
 }
 
 #[test]

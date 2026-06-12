@@ -82,12 +82,7 @@ fn read_project_config(fs: &impl FileSystem, dir: &Path) -> Result<Option<Vec<u8
 /// `compilerOptions.paths`, or no root-style mapping — yields `None`, the signal
 /// to fall back to relative imports rather than invent an alias (RFC 0005 §3.3).
 pub fn parse_components_alias(bytes: &[u8]) -> Option<String> {
-    let config: TsConfig = serde_json::from_slice(bytes).ok()?;
-    let paths = config.compiler_options?.paths?;
-    paths
-        .iter()
-        .find_map(|(key, targets)| root_alias_prefix(key, targets))
-        .map(|prefix| format!("{prefix}/components"))
+    root_mapping(bytes).map(|mapping| format!("{}/components", mapping.prefix))
 }
 
 /// Resolve the consumer's components **directory** from the bytes of a
@@ -98,31 +93,36 @@ pub fn parse_components_alias(bytes: &[u8]) -> Option<String> {
 /// cannot make sense of yields `None` (the relative-import fallback cue), exactly
 /// as the alias detector does.
 pub fn parse_components_path(bytes: &[u8]) -> Option<String> {
+    root_mapping(bytes).map(|mapping| mapping.dir)
+}
+
+/// The first root path mapping in a `tsconfig.json` / `jsconfig.json` (RFC 0005
+/// §3.3) — the single source both [`parse_components_alias`] and
+/// [`parse_components_path`] derive from, so the parse / `paths` / root-mapping
+/// branches live in one place. A config that fails to parse, carries no
+/// `compilerOptions.paths`, or has no root-style mapping yields `None`.
+fn root_mapping(bytes: &[u8]) -> Option<RootMapping> {
     let config: TsConfig = serde_json::from_slice(bytes).ok()?;
     let paths = config.compiler_options?.paths?;
-    paths
-        .iter()
-        .find_map(|(key, targets)| root_alias_dir(key, targets))
-}
-
-/// If `key` is a root path mapping (`"<prefix>/*"` resolving to the source
-/// root), return its `<prefix>`.
-fn root_alias_prefix<'a>(key: &'a str, targets: &[String]) -> Option<&'a str> {
-    let prefix = key.strip_suffix("/*")?;
-    root_target_dir(targets.first()?).map(|_| prefix)
-}
-
-/// If `key` is a root path mapping, return the components directory it resolves
-/// to — `<base>/components`, or just `components` when the base is the project
-/// root.
-fn root_alias_dir(key: &str, targets: &[String]) -> Option<String> {
-    key.strip_suffix("/*")?;
-    let base = root_target_dir(targets.first()?)?;
-    Some(if base.is_empty() {
-        "components".to_string()
-    } else {
-        format!("{base}/components")
+    paths.iter().find_map(|(key, targets)| {
+        let prefix = key.strip_suffix("/*")?;
+        let base = root_target_dir(targets.first()?)?;
+        Some(RootMapping {
+            prefix: prefix.to_string(),
+            dir: if base.is_empty() {
+                "components".to_string()
+            } else {
+                format!("{base}/components")
+            },
+        })
     })
+}
+
+/// A resolved root path mapping: the import-alias `prefix` (`@`, `~`, …) and the
+/// `components` **directory** it maps to on disk (RFC 0005 §3.3).
+struct RootMapping {
+    prefix: String,
+    dir: String,
 }
 
 /// The source-root directory a root-style path-mapping `target` resolves to:

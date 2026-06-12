@@ -44,15 +44,19 @@ macro_rules! registry_file {
 }
 
 /// Every per-component file baked into the binary (RFC 0005 §6.1) — the
-/// stylesheets `add` copies for each supported format. Looked up by
-/// `(component, file)`; entries grow as later `add` slices copy more artefacts
-/// (the React surface, the contract). Tailwind reuses each component's
-/// `styles.css`, so no separate file is embedded for it.
+/// per-format stylesheets and the format-independent React surface (recipe +
+/// wrapper) `add` copies. Looked up by `(component, file)`; entries grow as
+/// later `add` slices copy more artefacts (e.g. the contract). Tailwind reuses
+/// each component's `styles.css`, so no separate file is embedded for it.
 const FILES: &[(&str, &str, &str)] = &[
     registry_file!("button", "styles.css"),
     registry_file!("button", "styles.scss"),
+    registry_file!("button", "button.recipe.ts"),
+    registry_file!("button", "button.tsx"),
     registry_file!("switch", "styles.css"),
     registry_file!("switch", "styles.scss"),
+    registry_file!("switch", "switch.recipe.ts"),
+    registry_file!("switch", "switch.tsx"),
 ];
 
 impl Registry for EmbeddedRegistry {

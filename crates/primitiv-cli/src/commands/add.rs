@@ -2,6 +2,7 @@ use std::collections::BTreeSet;
 use std::path::Path;
 
 use crate::config;
+use crate::detect;
 use crate::error::CliError;
 use crate::package_manager::PackageManager;
 use crate::ports::fs::FileSystem;
@@ -71,20 +72,24 @@ pub fn add(
             ensure_packages(fs, runner, &index, &resolved, &dir)?;
         }
         if !*no_styles {
-            copy_styles(fs, registry, &index, &resolved, &dir)?;
+            copy_styled_surface(fs, registry, &index, &resolved, &dir)?;
         }
     }
     Ok(())
 }
 
-/// Copy each resolved component's stylesheet for the configured format into the
-/// styles path (RFC 0005 §4.1 step 4). Style-copy opts in through the project
-/// config: with no `primitiv.json` (a headless-only install) or
-/// `styles.enabled = false`, nothing is copied. Otherwise each declared file is
-/// fetched through the [`Registry`] port and written under
-/// `<styles.path>/<component>/`, the component directory created first. A file
-/// the registry can't serve is a [`CliError::Registry`].
-fn copy_styles(
+/// The components directory `add` writes the React surface into when the project
+/// has no detectable import alias (RFC 0005 §3.3 fallback) — the project-root
+/// `components`, making no `src`-layout assumption.
+const DEFAULT_COMPONENTS_DIR: &str = "components";
+
+/// Copy a resolved set's styled surface into the project (RFC 0005 §4.1 step 4,
+/// D55). It opts in through the project config: with no `primitiv.json` (a
+/// headless-only install) or `styles.enabled = false`, nothing is copied.
+/// Otherwise each component's per-format stylesheet lands in the styles path and
+/// its format-independent React surface (recipe + wrapper) in the components
+/// directory.
+fn copy_styled_surface(
     fs: &impl FileSystem,
     registry: &impl Registry,
     index: &RegistryIndex,
@@ -97,16 +102,75 @@ fn copy_styles(
     if !config.styles.enabled {
         return Ok(());
     }
+    copy_stylesheets(fs, registry, index, resolved, &config)?;
+    copy_react_surface(fs, registry, index, resolved, dir)
+}
+
+/// Copy each component's stylesheet for the configured format into
+/// `<styles.path>/<component>/` (RFC 0005 §4.1 step 4).
+fn copy_stylesheets(
+    fs: &impl FileSystem,
+    registry: &impl Registry,
+    index: &RegistryIndex,
+    resolved: &[String],
+    config: &config::Config,
+) -> Result<(), CliError> {
     for name in resolved {
         let component_dir = Path::new(&config.styles.path).join(name);
         for file in index.components[name].styles.formats.files(config.styles.format) {
-            let bytes = registry
-                .file(name, file)
-                .map_err(|error| CliError::Registry(error.to_string()))?;
-            fs.create_dir_all(&component_dir)?;
-            fs.write(&component_dir.join(file), &bytes)?;
+            copy_file(fs, registry, name, file, &component_dir)?;
         }
     }
+    Ok(())
+}
+
+/// Copy each component's **format-independent** React surface (recipe + wrapper,
+/// D55) into the consumer's components directory, resolved from the project's
+/// import alias (`detect::components_path`) or the [`DEFAULT_COMPONENTS_DIR`]
+/// fallback. The files are co-located flat (the wrapper imports its recipe as
+/// `./<name>.recipe`), so the directory is shared across components. With no
+/// component declaring a React surface the alias is never resolved, so a project
+/// without one is not forced to have a readable tsconfig.
+fn copy_react_surface(
+    fs: &impl FileSystem,
+    registry: &impl Registry,
+    index: &RegistryIndex,
+    resolved: &[String],
+    dir: &Path,
+) -> Result<(), CliError> {
+    let has_react = resolved
+        .iter()
+        .any(|name| !index.components[name].styles.react.is_empty());
+    if !has_react {
+        return Ok(());
+    }
+    let components_dir =
+        detect::components_path(fs, dir)?.unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
+    let components_dir = Path::new(&components_dir);
+    for name in resolved {
+        for file in &index.components[name].styles.react {
+            copy_file(fs, registry, name, file, components_dir)?;
+        }
+    }
+    Ok(())
+}
+
+/// Fetch one registry file and write it into `dest_dir`, creating the directory
+/// first (RFC 0005 §4.1 step 4). A file the registry can't serve is a
+/// [`CliError::Registry`]; a directory/write failure surfaces as the port's
+/// [`CliError::Io`].
+fn copy_file(
+    fs: &impl FileSystem,
+    registry: &impl Registry,
+    name: &str,
+    file: &str,
+    dest_dir: &Path,
+) -> Result<(), CliError> {
+    let bytes = registry
+        .file(name, file)
+        .map_err(|error| CliError::Registry(error.to_string()))?;
+    fs.create_dir_all(dest_dir)?;
+    fs.write(&dest_dir.join(file), &bytes)?;
     Ok(())
 }
 

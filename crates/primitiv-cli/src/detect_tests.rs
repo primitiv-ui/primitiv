@@ -2,7 +2,7 @@ use std::path::Path;
 
 use pretty_assertions::assert_eq;
 
-use crate::detect::{components_alias, parse_components_alias};
+use crate::detect::{components_alias, parse_components_alias, parse_components_path};
 use crate::error::CliError;
 use crate::ports::fs::{FileSystem, InMemoryFs};
 
@@ -73,6 +73,31 @@ fn ignores_a_mapping_that_does_not_resolve_to_the_source_root() {
     let config = br#"{ "compilerOptions": { "paths": { "@/*": ["./app/lib/*"] } } }"#;
 
     assert_eq!(parse_components_alias(config), None);
+}
+
+#[test]
+fn resolves_a_root_src_mapping_to_the_src_components_directory() {
+    // `@/*` → `./src/*` means the components alias resolves on disk to
+    // `src/components`, where `add` writes the React surface.
+    let config = br#"{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }"#;
+
+    assert_eq!(parse_components_path(config), Some("src/components".to_string()));
+}
+
+#[test]
+fn resolves_a_next_js_root_mapping_to_the_components_directory() {
+    // Next.js without a `src` dir maps the alias at the project root, so the
+    // components directory is just `components`.
+    let config = br#"{ "compilerOptions": { "paths": { "@/*": ["./*"] } } }"#;
+
+    assert_eq!(parse_components_path(config), Some("components".to_string()));
+}
+
+#[test]
+fn resolves_to_none_when_there_is_no_root_mapping() {
+    let config = br#"{ "compilerOptions": { "paths": { "@/*": ["./app/lib/*"] } } }"#;
+
+    assert_eq!(parse_components_path(config), None);
 }
 
 #[test]

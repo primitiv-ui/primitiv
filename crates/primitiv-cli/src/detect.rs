@@ -73,12 +73,49 @@ pub fn parse_components_alias(bytes: &[u8]) -> Option<String> {
         .map(|prefix| format!("{prefix}/components"))
 }
 
+/// Resolve the consumer's components **directory** from the bytes of a
+/// `tsconfig.json` / `jsconfig.json` (RFC 0005 §3.3 / D32) — the inverse of
+/// [`parse_components_alias`], used by `add` to place the copied React surface.
+/// A root mapping to `./src/*` resolves to `src/components`; a Next.js root
+/// mapping (`./*`, no `src` dir) resolves to `components`. Anything the rule
+/// cannot make sense of yields `None` (the relative-import fallback cue), exactly
+/// as the alias detector does.
+pub fn parse_components_path(bytes: &[u8]) -> Option<String> {
+    let config: TsConfig = serde_json::from_slice(bytes).ok()?;
+    let paths = config.compiler_options?.paths?;
+    paths
+        .iter()
+        .find_map(|(key, targets)| root_alias_dir(key, targets))
+}
+
 /// If `key` is a root path mapping (`"<prefix>/*"` resolving to the source
-/// root), return its `<prefix>`. The target's optional leading `./` is ignored,
-/// so `./src/*` and `src/*` are treated alike.
+/// root), return its `<prefix>`.
 fn root_alias_prefix<'a>(key: &'a str, targets: &[String]) -> Option<&'a str> {
     let prefix = key.strip_suffix("/*")?;
-    let target = targets.first()?;
-    let target = target.strip_prefix("./").unwrap_or(target);
-    (target == "src/*" || target == "*").then_some(prefix)
+    root_target_dir(targets.first()?).map(|_| prefix)
+}
+
+/// If `key` is a root path mapping, return the components directory it resolves
+/// to — `<base>/components`, or just `components` when the base is the project
+/// root.
+fn root_alias_dir(key: &str, targets: &[String]) -> Option<String> {
+    key.strip_suffix("/*")?;
+    let base = root_target_dir(targets.first()?)?;
+    Some(if base.is_empty() {
+        "components".to_string()
+    } else {
+        format!("{base}/components")
+    })
+}
+
+/// The source-root directory a root-style path-mapping `target` resolves to:
+/// `src/*` → `src`, `*` (Next.js without a `src` dir) → the project root (the
+/// empty base). The optional leading `./` is ignored, so `./src/*` and `src/*`
+/// are treated alike. Any other target is not a root mapping.
+fn root_target_dir(target: &str) -> Option<&'static str> {
+    match target.strip_prefix("./").unwrap_or(target) {
+        "src/*" => Some("src"),
+        "*" => Some(""),
+        _ => None,
+    }
 }

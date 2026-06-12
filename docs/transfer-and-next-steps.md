@@ -101,7 +101,17 @@ adapters, hand-authored golden files, 100% coverage):
     typography) is hand-written. The React package is **untouched** (stays
     headless — root/part class *emission* is parked for the `add`-wiring
     increment, options sketched: generated local wrapper vs provider vs
-    always-inert). **Remaining:** the same for `switch`.
+    always-inert).
+  - **Switch landed (the state-driven proof, D54).**
+    `registry/r/switch/contract.json` is the deliberately-different second
+    contract: the `data-*` half (`data-state="checked"|"unchecked"` — always
+    present — plus `data-disabled`, `source: "auto"`) is drift-guarded against the
+    rendered headless `Switch` (`Switch.contract.test.tsx`); the authored half is
+    the `.primitiv-switch` root, a new **`parts`** field (the
+    `primitiv-switch__thumb` decorative slot) and the `--primitiv-switch-*`
+    custom-property API, with **no `modifiers`** (no `variant`). The react package
+    gained a `SwitchProps` type alias — the `<Component>Props` convention the
+    generated wrapper imports.
 - [ ] **Default theme authoring** in the workbench (RFC 0006 §7) — ported from Figma, one design emitted per format.
   - **Button CSS landed.** `registry/r/button/styles.css` is the canonical
     default theme in the RFC 0008 `primitiv.base`/`variants`/`states` layer
@@ -132,7 +142,21 @@ adapters, hand-authored golden files, 100% coverage):
     generator. **Button's format trio (CSS / SCSS / Tailwind) + the styled
     surface are complete.** Values are authored-from-tokens and will be
     reconciled against the Figma Button design (no Figma access until
-    2026-06-16). `switch` to follow — the same generators, the generality proof.
+    2026-06-16).
+  - **Switch landed — the generality proof holds.** The state-driven,
+    parts-based, no-`variant` Switch flows through the **same** generators as
+    Button (proven on a synthetic parts/no-modifier fixture first, D54):
+    `emit_recipe` emits a **base-only** `cva("primitiv-switch")` (and a
+    reserved-word-safe `switchRecipe` const, since `export const switch` is a
+    syntax error); `emit_wrapper` emits a **type-alias** props surface (no modifier
+    props, also sidestepping the union controlled/uncontrolled type) and a
+    **compound auto-render** that fills the thumb slot, so the consumer writes one
+    `<Switch>` (shadcn parity, D51 — option A); `emit_component_scss` derives
+    `styles.scss` unchanged. `registry/r/switch/{styles.css,styles.scss,
+    switch.recipe.ts,switch.tsx}` are committed with drift guards; the workbench
+    `SwitchExample` gained a contract-styled section + density row, and the shared
+    token layer moved up to `apps/workbench/src/primitiv-tokens.css` (imported once
+    in `main.tsx`).
 - [ ] **The CLI** (RFC 0005) — `init` / `add` / `tokens` / `theme` / `list`, `primitiv.json`, the static registry, refresh + wiring behaviour.
   - **Started.** The hand-rolled arg parser, the `theme` command (CSS / SCSS /
     Tailwind via `--format`), the `FileSystem` port (+ `InMemoryFs` fake) and the

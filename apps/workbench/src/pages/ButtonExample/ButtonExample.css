@@ -109,6 +109,24 @@
   opacity: 0;
 }
 
+/*
+ * The workbench's global reset (src/index.css) carries an UNLAYERED
+ * `button { font-family: inherit; font-size: inherit }` rule, and unlayered CSS
+ * beats cascade layers — so it overrides the Button's typography, which lives in
+ * `@layer primitiv.base`, and the label stops scaling with the size/density
+ * tokens (geometry, untouched by the reset, keeps scaling). This is RFC 0008 §1
+ * working as intended — the consumer's cascade is sovereign. Re-assert the
+ * typography knobs here, scoped to the preview, so the demo shows the scaling
+ * the layered styles intend; a real consumer would do the same through these
+ * same custom properties.
+ */
+.btn-example .primitiv-button {
+  font-family: var(--primitiv-button-font-family);
+  font-size: var(--primitiv-button-font-size);
+  font-weight: var(--primitiv-button-font-weight);
+  line-height: var(--primitiv-button-line-height);
+}
+
 .btn-example__button {
   display: inline-flex;
   align-items: center;

@@ -76,3 +76,21 @@ $primitiv-demo-gap: var(--primitiv-demo-gap);\n"
         )
     );
 }
+
+/// Drift guard: the committed `registry/r/button/styles.scss` is exactly the
+/// derived form of the canonical `styles.css`. SCSS is the canonical CSS
+/// re-expressed for SCSS consumers (D: "Registry CSS, derive rest"), so it must
+/// stay byte-for-byte what [`emit_component_scss`] produces — no hand-drift.
+#[test]
+fn the_committed_button_scss_is_the_derived_form_of_its_css() {
+    let css = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/r/button/styles.css"
+    ));
+    let scss = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/r/button/styles.scss"
+    ));
+
+    assert_eq!(emit_component_scss(css), scss);
+}

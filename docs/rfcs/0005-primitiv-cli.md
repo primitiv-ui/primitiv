@@ -411,14 +411,19 @@ per-component files, served from the repo / GitHub raw / a CDN. No backend.
 registry.json                     # index: components, versions, deps
 r/
   button/
-    contract.json                 # RFC 0004 §3.4 — root class, parts, data-*, css-vars
-    styles.css                    # canonical
-    styles.scss
-    tailwind/button.recipe.ts     # preset fragment + recipe
+    contract.json                 # RFC 0004 §3.4 — the single authored API source
+    styles.css                    # canonical (authored)
+    styles.scss                   # generated from styles.css
+    button.recipe.ts              # generated from contract.json (cva)
+    button.tsx                    # generated from contract.json (styled wrapper)
   switch/…
 ```
 
 ### 6.2 `registry.json`
+
+The `styles` block is the **opt-in** bundle (D55): the extra packages a styled
+install ensures, the format-independent React surface (recipe + wrapper), and the
+per-format stylesheet. A headless-only install reads only `dependsOn`.
 
 ```jsonc
 {
@@ -431,10 +436,14 @@ r/
         "tokens": true,
         "components": []
       },
-      "formats": {
-        "css":     ["styles.css"],
-        "scss":    ["styles.scss"],
-        "tailwind":["tailwind/button.recipe.ts"]
+      "styles": {
+        "packages": ["class-variance-authority"],
+        "react":    ["button.recipe.ts", "button.tsx"],
+        "formats": {
+          "css":     ["styles.css"],
+          "scss":    ["styles.scss"],
+          "tailwind":["styles.css"]
+        }
       },
       "contract": "contract.json"
     }

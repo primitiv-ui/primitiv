@@ -282,11 +282,19 @@ adapters, hand-authored golden files, 100% coverage):
     stylesheet into `<styles.path>/<component>/`, the component directory created
     first. It is **gated on a styles-enabled `primitiv.json`** (D55): a
     headless-only install (no config) or `styles.enabled = false` copies nothing;
-    a file the registry can't serve is a `CliError::Registry`. **Remaining for
-    `add`** (§4.2–§4.4): copying the **React surface** (recipe + wrapper, to the
-    `aliases.components` path) and the **contract**; the
-    refresh/`primitiv.lock` semantics; project wiring
-    (§4.3), the `--styles-only` / `--no-styles` / `--format` / `--path` /
+    a file the registry can't serve is a `CliError::Registry`. **`add`'s
+    arguments are now an `AddOptions` struct** (mirroring `InitOptions`, so the
+    remaining flags join without churning call sites), and the
+    **`--styles-only` / `--no-styles` flags are landed**: `--styles-only` copies
+    the styled surface but skips the package install (§4.1 step 2), `--no-styles`
+    installs the package but skips the styles (step 3), and combining the two is a
+    usage error (it would do neither). `--styles-only` also unlocked the **first
+    real-binary `add` e2e for the copy** — it skips the install, so the bin never
+    shells out to a live package manager. **Remaining for `add`** (§4.2–§4.4):
+    copying the **React surface** (recipe + wrapper, to the `aliases.components`
+    path — needs alias→filesystem-path resolution, the inverse of `detect`) and
+    the **contract**; the refresh/`primitiv.lock` semantics; project wiring
+    (§4.3), the `--format` / `--path` /
     `--force` flags, the `--registry` / HTTPS registry adapter, and routing the
     package manager's own output to stderr so `--json` keeps a clean stdout (today
     a non-dry-run `--json` install interleaves the manager's chatter with the JSON;

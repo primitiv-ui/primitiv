@@ -1,18 +1,24 @@
 pub mod alias;
 pub mod component;
+pub mod contract;
 pub mod css;
 pub mod dtcg;
 pub mod mode;
 pub mod pipeline;
+pub mod recipe;
 pub mod scss;
 pub mod tailwind;
 pub mod theme;
 pub mod token;
 pub mod value;
+pub mod wrapper;
 
 pub use alias::link_aliases;
 pub use component::{emit_component_css, Component};
+pub use contract::Contract;
 pub use css::{emit_css, emit_theme_css};
+pub use recipe::emit_recipe;
+pub use wrapper::emit_wrapper;
 pub use dtcg::{flatten_modes, tokens_from_dtcg};
 pub use mode::{scope_selectors, Axis};
 pub use pipeline::{
@@ -31,7 +37,13 @@ mod alias_tests;
 #[cfg(test)]
 mod component_tests;
 #[cfg(test)]
+mod contract_fixtures;
+#[cfg(test)]
 mod css_tests;
+#[cfg(test)]
+mod recipe_tests;
+#[cfg(test)]
+mod wrapper_tests;
 #[cfg(test)]
 mod dtcg_tests;
 #[cfg(test)]

@@ -1,7 +1,7 @@
 use pretty_assertions::assert_eq;
 
 use crate::contract::Contract;
-use crate::contract_fixtures::{BARE, DEMO_BOX};
+use crate::contract_fixtures::{BARE, DEMO_BOX, DEMO_TOGGLE};
 use crate::wrapper::emit_wrapper;
 
 #[test]
@@ -26,6 +26,19 @@ fn omits_the_see_tag_when_the_contract_has_no_docs() {
         include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/tests/golden/bare.wrapper.tsx"
+        ))
+    );
+}
+
+#[test]
+fn generates_a_compound_auto_rendering_wrapper_for_a_no_modifier_parts_contract() {
+    let contract = Contract::parse(DEMO_TOGGLE.as_bytes()).unwrap();
+
+    assert_eq!(
+        emit_wrapper(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/demo-toggle.wrapper.tsx"
         ))
     );
 }

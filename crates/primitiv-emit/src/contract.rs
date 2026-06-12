@@ -19,9 +19,23 @@ pub struct Contract {
     #[serde(default)]
     pub docs: Option<String>,
     pub root: Root,
+    /// The decorative slot parts (`Switch.Thumb`), in authored order. Empty for a
+    /// single-element component (Button); when present, the styled wrapper renders
+    /// the compound and fills each slot. Structural, consumer-composed parts
+    /// (`Tabs.Trigger`) are a separate concern and not modelled here.
+    #[serde(default)]
+    pub parts: Vec<Part>,
     /// The visual modifier groups, in authored order.
     #[serde(default)]
     pub modifiers: Vec<ModifierGroup>,
+}
+
+/// One decorative slot part — its sub-component name (`thumb` → `Switch.Thumb`)
+/// and the BEM part class the wrapper applies (`primitiv-switch__thumb`).
+#[derive(Debug, Deserialize)]
+pub struct Part {
+    pub name: String,
+    pub class: String,
 }
 
 /// The contract's root element + identity class.

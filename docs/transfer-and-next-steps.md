@@ -314,6 +314,34 @@ cascade layers + two-tier token scoping (RFC 0008), and
   and were removed when TS was dropped (D50) — `primitiv theme` value
   computation turned out to use the `var()`-linking path too.
 
+**Decided during the build (2026-06-12, the Switch slice):**
+
+- **Two kinds of sub-component — decorative *slots* vs structural *parts* (D56).**
+  Compound components split into two categories the generators treat differently,
+  and conflating them is the trap to avoid:
+  - **Decorative slots** — `Switch.Thumb`, `Checkbox.Indicator`, a Select chevron.
+    They take *no consumer content*, sit at a *fixed position* in the tree, and
+    exist only to be styled/animated. There is exactly one sensible subtree, so the
+    styled wrapper **auto-renders** them (the consumer writes one `<Switch>` and
+    the thumb comes for free — option A, shadcn parity). This is what the
+    contract's `parts` field models, and what `emit_wrapper`'s compound-render path
+    fills.
+  - **Structural parts** — `Tabs.List` / `Tabs.Trigger` / `Tabs.Panel`,
+    `ContextMenu.Item`. Here the composition *is* the consumer's API (which
+    triggers, which panels), so there is no canonical subtree to generate. These
+    do **not** auto-render: the styled surface is **N thin per-part wrappers**, one
+    per part, each applying its BEM part class, composed by the consumer exactly
+    like the headless API (the shadcn `Tabs` / `TabsTrigger` / `TabsContent`
+    shape). The first structural compound drives this path.
+  - **Why picking auto-render for Switch doesn't bind structural compounds.** The
+    `parts` schema evolves **non-breakingly** — every contract field to date
+    (`dependsOn.components`, `packages`, `prop`, `parts`) landed as a
+    `#[serde(default)]` addition. So a structural compound adds a defaulted
+    discriminator (e.g. a part `role`/`kind`) and the generator branches on it,
+    driven by that real component (D54), *not* speculated now. The "slot" concept
+    and the "structural part" concept are orthogonal; teaching the generator one
+    does not foreclose the other.
+
 **Deliberately deferred (answer emerges during the build):**
 
 - Config-parser fuzzing (RFC 0007 §11.3) — once the parsers exist.

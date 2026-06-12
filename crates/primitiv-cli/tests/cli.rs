@@ -146,6 +146,38 @@ fn add_rejects_an_unknown_component_and_exits_nine() {
 }
 
 #[test]
+fn add_styles_only_copies_the_stylesheet_on_the_real_filesystem() {
+    // `--styles-only` skips the package install, so this is the one `add` e2e
+    // that runs the real copy without shelling out to a live package manager:
+    // it proves the OsFs write + create_dir_all + EmbeddedRegistry file fetch +
+    // config resolve all wire up (RFC 0005 §4.1 step 4).
+    let dir = assert_fs::TempDir::new().unwrap();
+    dir.child("primitiv.json")
+        .write_str(
+            r##"{
+  "version": 1,
+  "framework": "react",
+  "styles": { "enabled": true, "format": "css", "path": "src/styles/primitiv" },
+  "tokens": { "format": "css", "path": "src/styles/primitiv/tokens.css" },
+  "theme": { "brand": "#0a7755" },
+  "aliases": {},
+  "registry": { "version": "0.1.0" }
+}"##,
+        )
+        .unwrap();
+
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .args(["add", "button", "--styles-only"])
+        .assert()
+        .success();
+
+    dir.child("src/styles/primitiv/button/styles.css")
+        .assert(predicate::str::contains(".primitiv-button"));
+}
+
+#[test]
 fn tokens_streams_the_layer_to_stdout_when_config_less() {
     let dir = assert_fs::TempDir::new().unwrap();
 

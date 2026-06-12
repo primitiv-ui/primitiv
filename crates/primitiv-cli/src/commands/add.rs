@@ -19,6 +19,12 @@ pub struct AddOptions {
     pub components: Vec<String>,
     pub json: bool,
     pub dry_run: bool,
+    /// Copy the styled surface but skip installing the headless package (RFC
+    /// 0005 §4.1 step 2). Mutually exclusive with `no_styles` (enforced by the
+    /// parser).
+    pub styles_only: bool,
+    /// Install the headless package but stop before copying styles (§4.1 step 3).
+    pub no_styles: bool,
 }
 
 /// The `primitiv add <component...>` command (RFC 0005 §2.2 / §4).
@@ -45,6 +51,8 @@ pub fn add(
         components,
         json,
         dry_run,
+        styles_only,
+        no_styles,
     } = options;
     let index = registry
         .index()
@@ -59,8 +67,12 @@ pub fn add(
     output.write_stdout(plan.as_bytes())?;
     if !*dry_run {
         let dir = fs.current_dir()?;
-        ensure_packages(fs, runner, &index, &resolved, &dir)?;
-        copy_styles(fs, registry, &index, &resolved, &dir)?;
+        if !*styles_only {
+            ensure_packages(fs, runner, &index, &resolved, &dir)?;
+        }
+        if !*no_styles {
+            copy_styles(fs, registry, &index, &resolved, &dir)?;
+        }
     }
     Ok(())
 }

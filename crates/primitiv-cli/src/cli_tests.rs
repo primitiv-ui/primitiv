@@ -144,8 +144,47 @@ fn parses_add_with_the_json_and_dry_run_flags_among_the_components() {
             components: vec!["button".to_string()],
             json: true,
             dry_run: true,
+            ..Default::default()
         })
     );
+}
+
+#[test]
+fn parses_add_with_the_styles_only_flag() {
+    let command = parse(&args(&["add", "button", "--styles-only"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Add(AddOptions {
+            components: vec!["button".to_string()],
+            styles_only: true,
+            ..Default::default()
+        })
+    );
+}
+
+#[test]
+fn parses_add_with_the_no_styles_flag() {
+    let command = parse(&args(&["add", "button", "--no-styles"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Add(AddOptions {
+            components: vec!["button".to_string()],
+            no_styles: true,
+            ..Default::default()
+        })
+    );
+}
+
+#[test]
+fn rejects_add_combining_styles_only_and_no_styles() {
+    // The two contradict — skipping both the package and the styles — so the
+    // combination is a usage error rather than a silent no-op.
+    assert!(matches!(
+        parse(&args(&["add", "button", "--styles-only", "--no-styles"])).unwrap_err(),
+        CliError::Usage(_)
+    ));
 }
 
 #[test]

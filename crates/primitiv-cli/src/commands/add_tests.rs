@@ -48,6 +48,16 @@ const WITH_STYLES: &[u8] = br##"{
   }
 }"##;
 
+/// A registry whose `button` declares **both** a package to install and a
+/// stylesheet to copy, so `--styles-only` / `--no-styles` can be shown to skip
+/// exactly one of the two effects.
+const WITH_PACKAGE_AND_STYLES: &[u8] = br##"{
+  "version": "0.1.0",
+  "components": {
+    "button": { "version": "0.1.0", "dependsOn": { "packages": ["@primitiv-ui/react"] }, "styles": { "formats": { "css": ["styles.css"] } } }
+  }
+}"##;
+
 /// A project config opting into CSS styles under `src/styles/primitiv` — what
 /// `init` writes (RFC 0005 §3.1).
 const CONFIG: &[u8] = br##"{
@@ -92,7 +102,7 @@ fn reports_a_single_resolved_component() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: true },
+        &AddOptions { components: names(&["button"]), json: false, dry_run: true, ..Default::default() },
     ).unwrap();
 
     assert_eq!(
@@ -113,7 +123,7 @@ fn lists_the_npm_packages_to_ensure_sorted_and_deduplicated() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button", "icon"]), json: false, dry_run: true },
+        &AddOptions { components: names(&["button", "icon"]), json: false, dry_run: true, ..Default::default() },
     ).unwrap();
 
     // The packages section lists the union of both components' deps — sorted and
@@ -137,7 +147,7 @@ fn renders_the_plan_as_json_with_components_and_packages() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button", "icon"]), json: true, dry_run: true },
+        &AddOptions { components: names(&["button", "icon"]), json: true, dry_run: true, ..Default::default() },
     ).unwrap();
 
     assert_eq!(
@@ -168,7 +178,7 @@ fn renders_json_with_an_empty_packages_array_when_there_are_none() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: true, dry_run: true },
+        &AddOptions { components: names(&["button"]), json: true, dry_run: true, ..Default::default() },
     ).unwrap();
 
     assert_eq!(
@@ -196,7 +206,7 @@ fn reports_several_resolved_components_sorted_and_aligned() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["switch", "button"]), json: false, dry_run: true },
+        &AddOptions { components: names(&["switch", "button"]), json: false, dry_run: true, ..Default::default() },
     ).unwrap();
 
     assert_eq!(
@@ -217,7 +227,7 @@ fn pulls_in_transitive_component_dependencies() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["field"]), json: false, dry_run: true },
+        &AddOptions { components: names(&["field"]), json: false, dry_run: true, ..Default::default() },
     ).unwrap();
 
     assert_eq!(
@@ -239,7 +249,7 @@ fn deduplicates_a_component_requested_and_pulled_in_as_a_dependency() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["field", "button"]), json: false, dry_run: true },
+        &AddOptions { components: names(&["field", "button"]), json: false, dry_run: true, ..Default::default() },
     ).unwrap();
 
     assert_eq!(
@@ -260,7 +270,7 @@ fn errors_when_a_requested_component_is_unknown() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["nope"]), json: false, dry_run: true },
+        &AddOptions { components: names(&["nope"]), json: false, dry_run: true, ..Default::default() },
     ).unwrap_err();
 
     assert!(matches!(err, CliError::NotFound(_)));
@@ -285,7 +295,7 @@ fn errors_when_a_dependency_is_missing_from_the_registry() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["field"]), json: false, dry_run: true },
+        &AddOptions { components: names(&["field"]), json: false, dry_run: true, ..Default::default() },
     ).unwrap_err();
 
     assert!(matches!(err, CliError::NotFound(_)));
@@ -303,7 +313,7 @@ fn errors_when_the_registry_is_unavailable() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: true },
+        &AddOptions { components: names(&["button"]), json: false, dry_run: true, ..Default::default() },
     ).unwrap_err();
 
     assert!(matches!(err, CliError::Registry(_)));
@@ -321,7 +331,7 @@ fn errors_on_a_malformed_registry_index() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: true },
+        &AddOptions { components: names(&["button"]), json: false, dry_run: true, ..Default::default() },
     ).unwrap_err();
 
     assert!(matches!(err, CliError::Registry(_)));
@@ -340,7 +350,7 @@ fn surfaces_a_stdout_failure() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: true },
+        &AddOptions { components: names(&["button"]), json: false, dry_run: true, ..Default::default() },
     ).unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
@@ -360,7 +370,7 @@ fn installs_the_packages_with_the_detected_manager() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button", "icon"]), json: false, dry_run: false },
+        &AddOptions { components: names(&["button", "icon"]), json: false, dry_run: false, ..Default::default() },
     ).unwrap();
 
     // One `pnpm add` invocation in the project directory installs the deduped,
@@ -380,6 +390,65 @@ fn installs_the_packages_with_the_detected_manager() {
 }
 
 #[test]
+fn styles_only_copies_styles_without_installing_the_package() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry = InMemoryRegistry::new(WITH_PACKAGE_AND_STYLES)
+        .with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions {
+            components: names(&["button"]),
+            styles_only: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    // The package install is skipped despite `button` declaring one...
+    assert!(runner.calls().is_empty());
+    // ...but the stylesheet is still copied.
+    assert_eq!(
+        fs.read(Path::new("src/styles/primitiv/button/styles.css")).unwrap(),
+        b".primitiv-button{}"
+    );
+}
+
+#[test]
+fn no_styles_installs_the_package_without_copying_styles() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry = InMemoryRegistry::new(WITH_PACKAGE_AND_STYLES)
+        .with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions {
+            components: names(&["button"]),
+            no_styles: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    // The package is installed...
+    assert_eq!(runner.calls().len(), 1);
+    // ...but no stylesheet is copied.
+    assert!(!fs.exists(Path::new("src/styles/primitiv/button/styles.css")));
+}
+
+#[test]
 fn does_not_install_under_dry_run() {
     let fs = InMemoryFs::new();
     let registry = InMemoryRegistry::new(WITH_PACKAGES);
@@ -391,7 +460,7 @@ fn does_not_install_under_dry_run() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: true },
+        &AddOptions { components: names(&["button"]), json: false, dry_run: true, ..Default::default() },
     ).unwrap();
 
     assert!(runner.calls().is_empty());
@@ -410,7 +479,7 @@ fn does_not_install_when_no_component_needs_a_package() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: false },
+        &AddOptions { components: names(&["button"]), json: false, dry_run: false, ..Default::default() },
     ).unwrap();
 
     assert!(runner.calls().is_empty());
@@ -429,7 +498,7 @@ fn errors_when_the_package_manager_fails() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: false },
+        &AddOptions { components: names(&["button"]), json: false, dry_run: false, ..Default::default() },
     ).unwrap_err();
 
     assert!(matches!(err, CliError::Install(_)));
@@ -449,7 +518,7 @@ fn copies_the_configured_format_stylesheet_into_the_styles_path() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: false },
+        &AddOptions { components: names(&["button"]), json: false, dry_run: false, ..Default::default() },
     ).unwrap();
 
     // The CSS lands under <styles.path>/<component>/ verbatim.
@@ -473,7 +542,7 @@ fn does_not_copy_styles_when_the_project_opts_out() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: false },
+        &AddOptions { components: names(&["button"]), json: false, dry_run: false, ..Default::default() },
     ).unwrap();
 
     assert!(!fs.exists(Path::new("src/styles/primitiv/button/styles.css")));
@@ -493,7 +562,7 @@ fn does_not_copy_styles_when_there_is_no_project_config() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: false },
+        &AddOptions { components: names(&["button"]), json: false, dry_run: false, ..Default::default() },
     ).unwrap();
 
     assert!(!fs.exists(Path::new("src/styles/primitiv/button/styles.css")));
@@ -513,7 +582,7 @@ fn errors_when_the_registry_cannot_serve_a_style_file() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: false },
+        &AddOptions { components: names(&["button"]), json: false, dry_run: false, ..Default::default() },
     ).unwrap_err();
 
     assert!(matches!(err, CliError::Registry(_)));
@@ -534,7 +603,7 @@ fn surfaces_a_directory_creation_failure_during_style_copy() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: false },
+        &AddOptions { components: names(&["button"]), json: false, dry_run: false, ..Default::default() },
     ).unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
@@ -555,7 +624,7 @@ fn surfaces_a_write_failure_during_style_copy() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: false },
+        &AddOptions { components: names(&["button"]), json: false, dry_run: false, ..Default::default() },
     ).unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
@@ -575,7 +644,7 @@ fn errors_on_a_malformed_project_config_during_style_copy() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: false },
+        &AddOptions { components: names(&["button"]), json: false, dry_run: false, ..Default::default() },
     ).unwrap_err();
 
     assert!(matches!(err, CliError::Config(_)));
@@ -594,7 +663,7 @@ fn surfaces_a_failure_to_read_the_working_directory_before_installing() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: false },
+        &AddOptions { components: names(&["button"]), json: false, dry_run: false, ..Default::default() },
     ).unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));

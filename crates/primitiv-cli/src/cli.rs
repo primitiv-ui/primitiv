@@ -44,21 +44,28 @@ pub fn parse(args: &[String]) -> Result<Command, CliError> {
     }
 }
 
-/// Parse `add <component...> [--json] [--dry-run]` — one or more component
-/// names, at least one required (RFC 0005 §2.2), with `--json` selecting the
-/// structured plan for agents (§6.5) and `--dry-run` reporting the plan without
-/// installing anything (§5). Names and flags are order-free. The remaining
-/// install/copy flags (`--styles-only`, `--no-styles`, `--format`, `--path`,
-/// `--force`) arrive with the later slices that act on them; any other
-/// `--`-prefixed argument is unexpected.
+/// Parse `add <component...> [--json] [--dry-run] [--styles-only | --no-styles]`
+/// — one or more component names, at least one required (RFC 0005 §2.2), with
+/// `--json` selecting the structured plan for agents (§6.5) and `--dry-run`
+/// reporting the plan without touching anything (§5). `--styles-only` copies the
+/// styled surface without installing the headless package (§4.1 step 2);
+/// `--no-styles` installs the package and stops before the styles (step 3) —
+/// combining the two would do neither, so it is a usage error. Names and flags
+/// are order-free. The remaining copy flags (`--format`, `--path`, `--force`)
+/// arrive with the later slices that act on them; any other `--`-prefixed
+/// argument is unexpected.
 fn parse_add(args: &[String]) -> Result<Command, CliError> {
     let mut components = Vec::new();
     let mut json = false;
     let mut dry_run = false;
+    let mut styles_only = false;
+    let mut no_styles = false;
     for arg in args {
         match arg.as_str() {
             "--json" => json = true,
             "--dry-run" => dry_run = true,
+            "--styles-only" => styles_only = true,
+            "--no-styles" => no_styles = true,
             other if other.starts_with("--") => {
                 return Err(usage(format!("unexpected argument '{other}'")))
             }
@@ -68,10 +75,17 @@ fn parse_add(args: &[String]) -> Result<Command, CliError> {
     if components.is_empty() {
         return Err(usage("add requires at least one component"));
     }
+    if styles_only && no_styles {
+        return Err(usage(
+            "add cannot combine --styles-only and --no-styles",
+        ));
+    }
     Ok(Command::Add(AddOptions {
         components,
         json,
         dry_run,
+        styles_only,
+        no_styles,
     }))
 }
 

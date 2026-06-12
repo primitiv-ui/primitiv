@@ -61,3 +61,22 @@ fn the_committed_button_wrapper_is_the_generated_form_of_its_contract() {
         ))
     );
 }
+
+/// Drift guard: the committed `registry/r/switch/switch.tsx` is exactly the
+/// generated form of its contract — the compound, parts-based proof (D54).
+#[test]
+fn the_committed_switch_wrapper_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/r/switch/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_wrapper(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/r/switch/switch.tsx"
+        ))
+    );
+}

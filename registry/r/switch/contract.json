@@ -8,6 +8,9 @@
     "element": "button",
     "class": "primitiv-switch"
   },
+  "parts": [
+    { "name": "thumb", "class": "primitiv-switch__thumb" }
+  ],
   "dataAttributes": [
     { "name": "data-state", "value": "checked", "when": "checked", "source": "auto" },
     { "name": "data-state", "value": "unchecked", "when": "unchecked", "source": "auto" },

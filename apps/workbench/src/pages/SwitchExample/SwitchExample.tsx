@@ -4,12 +4,11 @@ import { Check } from "@primitiv-ui/icons";
 import { Switch } from "@primitiv-ui/react";
 
 import "./SwitchExample.css";
-// The generated Primitiv token layer (custom-property defaults) + the canonical
-// per-component default theme straight from the registry. Together they style
-// the `.primitiv-switch` / `.primitiv-switch__thumb` contract classes applied
-// below — the same bytes `primitiv add switch` copies into a consumer repo (the
-// state-driven, no-modifier counterpart to Button; RFC 0006 §7).
-import "./primitiv-tokens.css";
+// The canonical per-component default theme straight from the registry — the
+// same bytes `primitiv add switch` copies into a consumer repo (the state-driven,
+// no-modifier counterpart to Button; RFC 0006 §7). It styles the
+// `.primitiv-switch` / `.primitiv-switch__thumb` contract classes applied below,
+// resolving against the app-level Primitiv token layer (imported in main.tsx).
 import "../../../../../registry/r/switch/styles.css";
 
 const DENSITIES = ["dense", "compact", "comfortable", "spacious"] as const;

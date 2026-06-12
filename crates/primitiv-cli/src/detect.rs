@@ -41,9 +41,26 @@ struct CompilerOptions {
 /// With neither file present the result is `Ok(None)` — the cue to fall back to
 /// relative imports.
 pub fn components_alias(fs: &impl FileSystem, dir: &Path) -> Result<Option<String>, CliError> {
+    Ok(read_project_config(fs, dir)?.and_then(|bytes| parse_components_alias(&bytes)))
+}
+
+/// Resolve the consumer's components **directory** by reading `tsconfig.json`
+/// then `jsconfig.json` from `dir` through the [`FileSystem`] port — the path
+/// counterpart to [`components_alias`], used by `add` to place the copied React
+/// surface (RFC 0005 §3.3). Same precedence and error rules: the first config
+/// that exists is authoritative, a non-`NotFound` read is a hard
+/// [`CliError::Io`], and neither file present yields `Ok(None)`.
+pub fn components_path(fs: &impl FileSystem, dir: &Path) -> Result<Option<String>, CliError> {
+    Ok(read_project_config(fs, dir)?.and_then(|bytes| parse_components_path(&bytes)))
+}
+
+/// Read the bytes of the first of `tsconfig.json` / `jsconfig.json` present in
+/// `dir` (RFC 0005 §3.3). A `NotFound` ascends to the next candidate; any other
+/// read error is a hard [`CliError::Io`]; neither present is `Ok(None)`.
+fn read_project_config(fs: &impl FileSystem, dir: &Path) -> Result<Option<Vec<u8>>, CliError> {
     for name in CONFIG_FILES {
         match fs.read(&dir.join(name)) {
-            Ok(bytes) => return Ok(parse_components_alias(&bytes)),
+            Ok(bytes) => return Ok(Some(bytes)),
             Err(error) if error.kind() == io::ErrorKind::NotFound => continue,
             Err(error) => return Err(CliError::Io(error)),
         }

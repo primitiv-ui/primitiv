@@ -2,7 +2,9 @@ use std::path::Path;
 
 use pretty_assertions::assert_eq;
 
-use crate::detect::{components_alias, parse_components_alias, parse_components_path};
+use crate::detect::{
+    components_alias, components_path, parse_components_alias, parse_components_path,
+};
 use crate::error::CliError;
 use crate::ports::fs::{FileSystem, InMemoryFs};
 
@@ -160,6 +162,30 @@ fn surfaces_a_failure_to_read_a_config() {
     fs.fail_reads_to(Path::new("project/tsconfig.json"));
 
     let err = components_alias(&fs, Path::new("project")).unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn reads_the_components_path_from_tsconfig_in_the_directory() {
+    let fs = InMemoryFs::new();
+    fs.write(
+        Path::new("project/tsconfig.json"),
+        br#"{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }"#,
+    )
+    .unwrap();
+
+    let path = components_path(&fs, Path::new("project")).unwrap();
+
+    assert_eq!(path, Some("src/components".to_string()));
+}
+
+#[test]
+fn surfaces_a_failure_to_read_a_config_when_resolving_the_path() {
+    let fs = InMemoryFs::new();
+    fs.fail_reads_to(Path::new("project/tsconfig.json"));
+
+    let err = components_path(&fs, Path::new("project")).unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }

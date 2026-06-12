@@ -4,6 +4,7 @@ use pretty_assertions::assert_eq;
 
 use crate::commands::add::{add, AddOptions};
 use crate::error::CliError;
+use crate::format::Format;
 use crate::ports::fs::{FileSystem, InMemoryFs};
 use crate::ports::output::InMemoryOutput;
 use crate::ports::process::InMemoryProcessRunner;
@@ -64,6 +65,15 @@ const WITH_STYLED_SURFACE: &[u8] = br##"{
   "version": "0.1.0",
   "components": {
     "button": { "version": "0.1.0", "styles": { "formats": { "css": ["styles.css"] }, "react": ["button.recipe.ts", "button.tsx"] } }
+  }
+}"##;
+
+/// A registry whose `button` declares stylesheets for two formats, so a
+/// `--format` override can be shown to select the non-default one.
+const MULTI_FORMAT: &[u8] = br##"{
+  "version": "0.1.0",
+  "components": {
+    "button": { "version": "0.1.0", "styles": { "formats": { "css": ["styles.css"], "scss": ["styles.scss"] } } }
   }
 }"##;
 
@@ -720,6 +730,34 @@ fn falls_back_to_a_root_components_directory_without_a_detectable_alias() {
     .unwrap();
 
     assert_eq!(fs.read(Path::new("components/button.tsx")).unwrap(), b"wrapper");
+}
+
+#[test]
+fn the_format_flag_overrides_the_config_stylesheet_format() {
+    let fs = InMemoryFs::new();
+    // The config selects CSS, but `--format scss` overrides it for this copy.
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry =
+        InMemoryRegistry::new(MULTI_FORMAT).with_file("button", "styles.scss", b"// scss");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions {
+            components: names(&["button"]),
+            format: Some(Format::Scss),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    // The SCSS stylesheet is copied, and the CSS one is not.
+    assert!(fs.exists(Path::new("src/styles/primitiv/button/styles.scss")));
+    assert!(!fs.exists(Path::new("src/styles/primitiv/button/styles.css")));
 }
 
 #[test]

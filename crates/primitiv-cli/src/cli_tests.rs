@@ -150,6 +150,37 @@ fn parses_add_with_the_json_and_dry_run_flags_among_the_components() {
 }
 
 #[test]
+fn parses_add_with_a_format_override() {
+    // `--format` overrides the config's stylesheet format for this copy.
+    let command = parse(&args(&["add", "button", "--format", "scss"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Add(AddOptions {
+            components: vec!["button".to_string()],
+            format: Some(Format::Scss),
+            ..Default::default()
+        })
+    );
+}
+
+#[test]
+fn rejects_add_format_with_no_value() {
+    assert!(matches!(
+        parse(&args(&["add", "button", "--format"])).unwrap_err(),
+        CliError::Usage(_)
+    ));
+}
+
+#[test]
+fn rejects_an_unknown_add_format() {
+    assert!(matches!(
+        parse(&args(&["add", "button", "--format", "less"])).unwrap_err(),
+        CliError::Usage(_)
+    ));
+}
+
+#[test]
 fn parses_add_with_the_styles_only_flag() {
     let command = parse(&args(&["add", "button", "--styles-only"])).unwrap();
 

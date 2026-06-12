@@ -39,6 +39,38 @@ const WITH_PACKAGES: &[u8] = br##"{
   }
 }"##;
 
+/// A registry whose `button` declares a CSS stylesheet to copy (RFC 0005 §6.2),
+/// so the style-copy path has something to fetch.
+const WITH_STYLES: &[u8] = br##"{
+  "version": "0.1.0",
+  "components": {
+    "button": { "version": "0.1.0", "styles": { "formats": { "css": ["styles.css"] } } }
+  }
+}"##;
+
+/// A project config opting into CSS styles under `src/styles/primitiv` — what
+/// `init` writes (RFC 0005 §3.1).
+const CONFIG: &[u8] = br##"{
+  "version": 1,
+  "framework": "react",
+  "styles": { "enabled": true, "format": "css", "path": "src/styles/primitiv" },
+  "tokens": { "format": "css", "path": "src/styles/primitiv/tokens.css" },
+  "theme": { "brand": "#0a7755" },
+  "aliases": {},
+  "registry": { "version": "0.1.0" }
+}"##;
+
+/// The same config with the styled surface opted out (`styles.enabled = false`).
+const CONFIG_NO_STYLES: &[u8] = br##"{
+  "version": 1,
+  "framework": "react",
+  "styles": { "enabled": false, "format": "css", "path": "src/styles/primitiv" },
+  "tokens": { "format": "css", "path": "src/styles/primitiv/tokens.css" },
+  "theme": { "brand": "#0a7755" },
+  "aliases": {},
+  "registry": { "version": "0.1.0" }
+}"##;
+
 /// Turn string literals into the owned component list the command takes.
 fn names(parts: &[&str]) -> Vec<String> {
     parts.iter().map(|part| part.to_string()).collect()
@@ -305,6 +337,110 @@ fn errors_when_the_package_manager_fails() {
     let err = add(&fs, &registry, &output, &runner, &names(&["button"]), false, false).unwrap_err();
 
     assert!(matches!(err, CliError::Install(_)));
+}
+
+#[test]
+fn copies_the_configured_format_stylesheet_into_the_styles_path() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add(&fs, &registry, &output, &runner, &names(&["button"]), false, false).unwrap();
+
+    // The CSS lands under <styles.path>/<component>/ verbatim.
+    assert_eq!(
+        fs.read(Path::new("src/styles/primitiv/button/styles.css")).unwrap(),
+        b".primitiv-button{}"
+    );
+}
+
+#[test]
+fn does_not_copy_styles_when_the_project_opts_out() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_NO_STYLES).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add(&fs, &registry, &output, &runner, &names(&["button"]), false, false).unwrap();
+
+    assert!(!fs.exists(Path::new("src/styles/primitiv/button/styles.css")));
+}
+
+#[test]
+fn does_not_copy_styles_when_there_is_no_project_config() {
+    let fs = InMemoryFs::new();
+    // No primitiv.json: a headless-only install copies nothing.
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add(&fs, &registry, &output, &runner, &names(&["button"]), false, false).unwrap();
+
+    assert!(!fs.exists(Path::new("src/styles/primitiv/button/styles.css")));
+}
+
+#[test]
+fn errors_when_the_registry_cannot_serve_a_style_file() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    // The index declares styles.css but the registry serves no file bytes.
+    let registry = InMemoryRegistry::new(WITH_STYLES);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    let err = add(&fs, &registry, &output, &runner, &names(&["button"]), false, false).unwrap_err();
+
+    assert!(matches!(err, CliError::Registry(_)));
+}
+
+#[test]
+fn surfaces_a_directory_creation_failure_during_style_copy() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    fs.fail_create_dir_to(Path::new("src/styles/primitiv/button"));
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    let err = add(&fs, &registry, &output, &runner, &names(&["button"]), false, false).unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn surfaces_a_write_failure_during_style_copy() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    fs.fail_writes_to(Path::new("src/styles/primitiv/button/styles.css"));
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    let err = add(&fs, &registry, &output, &runner, &names(&["button"]), false, false).unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn errors_on_a_malformed_project_config_during_style_copy() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), b"{ not json }").unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    let err = add(&fs, &registry, &output, &runner, &names(&["button"]), false, false).unwrap_err();
+
+    assert!(matches!(err, CliError::Config(_)));
 }
 
 #[test]

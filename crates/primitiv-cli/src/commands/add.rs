@@ -1,5 +1,7 @@
 use std::collections::BTreeSet;
+use std::path::Path;
 
+use crate::config;
 use crate::error::CliError;
 use crate::package_manager::PackageManager;
 use crate::ports::fs::FileSystem;
@@ -42,7 +44,42 @@ pub fn add(
     };
     output.write_stdout(plan.as_bytes())?;
     if !dry_run {
-        ensure_packages(fs, runner, &index, &resolved)?;
+        let dir = fs.current_dir()?;
+        ensure_packages(fs, runner, &index, &resolved, &dir)?;
+        copy_styles(fs, registry, &index, &resolved, &dir)?;
+    }
+    Ok(())
+}
+
+/// Copy each resolved component's stylesheet for the configured format into the
+/// styles path (RFC 0005 §4.1 step 4). Style-copy opts in through the project
+/// config: with no `primitiv.json` (a headless-only install) or
+/// `styles.enabled = false`, nothing is copied. Otherwise each declared file is
+/// fetched through the [`Registry`] port and written under
+/// `<styles.path>/<component>/`, the component directory created first. A file
+/// the registry can't serve is a [`CliError::Registry`].
+fn copy_styles(
+    fs: &impl FileSystem,
+    registry: &impl Registry,
+    index: &RegistryIndex,
+    resolved: &[String],
+    dir: &Path,
+) -> Result<(), CliError> {
+    let Some(config) = config::try_resolve(fs, dir)? else {
+        return Ok(());
+    };
+    if !config.styles.enabled {
+        return Ok(());
+    }
+    for name in resolved {
+        let component_dir = Path::new(&config.styles.path).join(name);
+        for file in index.components[name].styles.formats.files(config.styles.format) {
+            let bytes = registry
+                .file(name, file)
+                .map_err(|error| CliError::Registry(error.to_string()))?;
+            fs.create_dir_all(&component_dir)?;
+            fs.write(&component_dir.join(file), &bytes)?;
+        }
     }
     Ok(())
 }
@@ -57,15 +94,15 @@ fn ensure_packages(
     runner: &impl ProcessRunner,
     index: &RegistryIndex,
     resolved: &[String],
+    dir: &Path,
 ) -> Result<(), CliError> {
     let packages = packages(index, resolved);
     if packages.is_empty() {
         return Ok(());
     }
-    let dir = fs.current_dir()?;
-    let manager = PackageManager::detect(fs, &dir);
+    let manager = PackageManager::detect(fs, dir);
     runner
-        .run(manager.program(), &manager.install_args(&packages), &dir)
+        .run(manager.program(), &manager.install_args(&packages), dir)
         .map_err(|error| {
             CliError::Install(format!(
                 "failed to install {} with {}: {error}",

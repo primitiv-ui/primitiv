@@ -25,10 +25,35 @@ const INDEX: &str = include_str!(concat!(
     "/../../registry/registry.json"
 ));
 
-const BUTTON_STYLES_CSS: &str = include_str!(concat!(
-    env!("CARGO_MANIFEST_DIR"),
-    "/../../registry/r/button/styles.css"
-));
+/// Embed a registry file's bytes under its `(component, file)` key — the path is
+/// derived from the key, so the two cannot drift.
+macro_rules! registry_file {
+    ($component:literal, $file:literal) => {
+        (
+            $component,
+            $file,
+            include_str!(concat!(
+                env!("CARGO_MANIFEST_DIR"),
+                "/../../registry/r/",
+                $component,
+                "/",
+                $file
+            )),
+        )
+    };
+}
+
+/// Every per-component file baked into the binary (RFC 0005 §6.1) — the
+/// stylesheets `add` copies for each supported format. Looked up by
+/// `(component, file)`; entries grow as later `add` slices copy more artefacts
+/// (the React surface, the contract). Tailwind reuses each component's
+/// `styles.css`, so no separate file is embedded for it.
+const FILES: &[(&str, &str, &str)] = &[
+    registry_file!("button", "styles.css"),
+    registry_file!("button", "styles.scss"),
+    registry_file!("switch", "styles.css"),
+    registry_file!("switch", "styles.scss"),
+];
 
 impl Registry for EmbeddedRegistry {
     fn index(&self) -> io::Result<Vec<u8>> {
@@ -36,13 +61,16 @@ impl Registry for EmbeddedRegistry {
     }
 
     fn file(&self, component: &str, file: &str) -> io::Result<Vec<u8>> {
-        match (component, file) {
-            ("button", "styles.css") => Ok(BUTTON_STYLES_CSS.as_bytes().to_vec()),
-            _ => Err(io::Error::new(
-                io::ErrorKind::NotFound,
-                format!("registry has no file 'r/{component}/{file}'"),
-            )),
-        }
+        FILES
+            .iter()
+            .find(|(c, f, _)| *c == component && *f == file)
+            .map(|(_, _, bytes)| bytes.as_bytes().to_vec())
+            .ok_or_else(|| {
+                io::Error::new(
+                    io::ErrorKind::NotFound,
+                    format!("registry has no file 'r/{component}/{file}'"),
+                )
+            })
     }
 }
 

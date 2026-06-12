@@ -3,6 +3,7 @@ use std::collections::BTreeMap;
 use serde::Deserialize;
 
 use crate::error::CliError;
+use crate::format::Format;
 
 /// The registry index (`registry.json`, RFC 0005 §6.2) — the manifest of the
 /// components available to install and their versions. Only the fields `list`
@@ -25,6 +26,44 @@ pub struct ComponentEntry {
     /// parses (the same forward-compatibility the `list`-facing fields rely on).
     #[serde(rename = "dependsOn", default)]
     pub depends_on: DependsOn,
+    /// The opt-in styled bundle (RFC 0005 §6.2): the per-format stylesheet `add`
+    /// copies. Defaulted, so a headless-only entry parses; the `packages` and
+    /// `react` keys the block also carries are read by a later `add` slice.
+    #[serde(default)]
+    pub styles: Styles,
+}
+
+/// A component's styled bundle (RFC 0005 §6.2). Only the per-format stylesheet
+/// list `add` copies is modelled today; the rest of the block (`packages`,
+/// `react`) is ignored until the slices that consume it land.
+#[derive(Debug, Deserialize, PartialEq, Default)]
+pub struct Styles {
+    #[serde(default)]
+    pub formats: Formats,
+}
+
+/// The style files a component declares per output format (RFC 0005 §6.2). Each
+/// list defaults to empty, so a component with no styles for a format parses.
+#[derive(Debug, Deserialize, PartialEq, Default)]
+pub struct Formats {
+    #[serde(default)]
+    pub css: Vec<String>,
+    #[serde(default)]
+    pub scss: Vec<String>,
+    #[serde(default)]
+    pub tailwind: Vec<String>,
+}
+
+impl Formats {
+    /// The style files declared for `format` — empty when the component carries
+    /// no styles for it.
+    pub fn files(&self, format: Format) -> &[String] {
+        match format {
+            Format::Css => &self.css,
+            Format::Scss => &self.scss,
+            Format::Tailwind => &self.tailwind,
+        }
+    }
 }
 
 /// What a component needs pulled in alongside it (RFC 0005 §6.2): the sibling

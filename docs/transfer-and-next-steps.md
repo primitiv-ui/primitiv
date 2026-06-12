@@ -96,10 +96,22 @@ adapters, hand-authored golden files, 100% coverage):
     followed by one `$primitiv-button-*` alias per declared knob, produced by a
     new `emit_component_scss(css)` in `primitiv-emit` (mirrors the token-layer
     `emit_scss`) and held to the canonical CSS by a drift-guard test asserting
-    the committed file equals `emit_component_scss(styles.css)`. **Remaining
-    (next PR):** the Tailwind v4 recipe (authored, not transpiled — RFC 0006
-    §6.1); values are authored-from-tokens and will be reconciled against the
-    Figma Button design (no Figma access until 2026-06-16). `switch` to follow.
+    the committed file equals `emit_component_scss(styles.css)`. The **Tailwind
+    v4 recipe is now landed** (`registry/r/button/tailwind/button.recipe.ts`):
+    authored, not transpiled (RFC 0006 §6.1 — arbitrary CSS → utilities is
+    lossy), it is a `cva` function over the **contract's modifier classes** (not
+    utilities), so the styling stays in `styles.css` and round-trips perfectly
+    (keyframes, the knob seam, `text-box` trim — none of which have a Tailwind
+    utility form). The Tailwind format therefore rides on the CSS contract:
+    `formats.tailwind` ships `styles.css` + the recipe, and `cva` is a
+    Tailwind-format-scoped package (`dependsOn.packagesByFormat.tailwind`) the
+    existing `add` package-install effect ensures only when that format is
+    chosen. A keys-match drift guard
+    (`packages/react/src/Button/__tests__/Button.recipe.test.ts`) pins the
+    recipe to `contract.json`. **Button's format trio (CSS / SCSS / Tailwind) is
+    complete.** Values are authored-from-tokens and will be reconciled against
+    the Figma Button design (no Figma access until 2026-06-16). `switch` to
+    follow.
 - [ ] **The CLI** (RFC 0005) — `init` / `add` / `tokens` / `theme` / `list`, `primitiv.json`, the static registry, refresh + wiring behaviour.
   - **Started.** The hand-rolled arg parser, the `theme` command (CSS / SCSS /
     Tailwind via `--format`), the `FileSystem` port (+ `InMemoryFs` fake) and the

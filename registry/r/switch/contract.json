@@ -1,0 +1,16 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "switch",
+  "version": "0.1.0",
+  "description": "An on/off toggle — an immediate binary action, not a form selection.",
+  "docs": "https://primitiv-ui.dev/docs/components/switch",
+  "root": {
+    "element": "button",
+    "class": "primitiv-switch"
+  },
+  "dataAttributes": [
+    { "name": "data-state", "value": "checked", "when": "checked", "source": "auto" },
+    { "name": "data-state", "value": "unchecked", "when": "unchecked", "source": "auto" },
+    { "name": "data-disabled", "value": "", "when": "disabled", "source": "auto" }
+  ]
+}

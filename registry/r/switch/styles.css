@@ -1,0 +1,81 @@
+/*
+ * Switch — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add switch`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-switch root + __thumb part,
+ * the data-state="checked" hooks, and the --primitiv-switch-* custom
+ * properties), not these values (RFC 0006 Principle 2 — names are stable,
+ * values are not).
+ *
+ * Switch is the state-driven proof: no visual modifiers, a single size. The
+ * track colour swaps and the thumb slides off data-state alone (RFC 0008 §2.3 —
+ * the states layer sits above base, so it always wins). Structure follows RFC
+ * 0008: per-component API tokens + the resting look live in primitiv.base, the
+ * checked/disabled styling in primitiv.states. The sublayer order is declared
+ * once in the shared token layer (primitiv.tokens.css).
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-action-*,
+ * --primitiv-surface-*, --primitiv-border-* and --primitiv-switch-* custom
+ * properties it resolves.
+ */
+
+@layer primitiv.base {
+  .primitiv-switch {
+    /* Per-component API — the themable knobs, defaulting to the md size and the
+       resting (unchecked) track. The states layer below re-points them;
+       consumers can override any one without touching the rule. */
+    --primitiv-switch-track-bg: var(--primitiv-border-strong);
+    --primitiv-switch-track-bg-checked: var(--primitiv-action-primary-default);
+    --primitiv-switch-track-width: var(--primitiv-switch-md-track-width);
+    --primitiv-switch-track-height: var(--primitiv-switch-md-track-height);
+    --primitiv-switch-track-radius: 9999px;
+    --primitiv-switch-thumb-bg: var(--primitiv-surface-default);
+    --primitiv-switch-thumb-size: var(--primitiv-switch-md-thumb-size);
+    --primitiv-switch-thumb-margin: var(--primitiv-switch-md-thumb-margin);
+    --primitiv-switch-thumb-radius: 9999px;
+
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    inline-size: var(--primitiv-switch-track-width);
+    block-size: var(--primitiv-switch-track-height);
+    padding: 0;
+    border: 0;
+    border-radius: var(--primitiv-switch-track-radius);
+    background: var(--primitiv-switch-track-bg);
+    cursor: pointer;
+    transition: background-color 120ms ease;
+  }
+
+  .primitiv-switch__thumb {
+    position: absolute;
+    inset-inline-start: var(--primitiv-switch-thumb-margin);
+    inline-size: var(--primitiv-switch-thumb-size);
+    block-size: var(--primitiv-switch-thumb-size);
+    border-radius: var(--primitiv-switch-thumb-radius);
+    background: var(--primitiv-switch-thumb-bg);
+    transition: translate 120ms ease;
+  }
+}
+
+@layer primitiv.states {
+  /* Checked — the track adopts the primary action colour and the thumb slides
+     to the trailing edge. The travel is the free space: the track width minus
+     the thumb minus a margin at each end. */
+  .primitiv-switch[data-state="checked"] {
+    background: var(--primitiv-switch-track-bg-checked);
+  }
+  .primitiv-switch__thumb[data-state="checked"] {
+    translate: calc(
+      var(--primitiv-switch-track-width) - var(--primitiv-switch-thumb-size) -
+        (2 * var(--primitiv-switch-thumb-margin))
+    );
+  }
+
+  /* Disabled is state-neutral so it reads the same checked or unchecked. */
+  .primitiv-switch[data-disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

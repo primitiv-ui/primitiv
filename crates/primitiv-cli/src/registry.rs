@@ -26,20 +26,25 @@ pub struct ComponentEntry {
     /// parses (the same forward-compatibility the `list`-facing fields rely on).
     #[serde(rename = "dependsOn", default)]
     pub depends_on: DependsOn,
-    /// The opt-in styled bundle (RFC 0005 §6.2): the per-format stylesheet `add`
-    /// copies. Defaulted, so a headless-only entry parses; the `packages` and
-    /// `react` keys the block also carries are read by a later `add` slice.
+    /// The opt-in styled bundle (RFC 0005 §6.2): the per-format stylesheet and
+    /// the React surface `add` copies. Defaulted, so a headless-only entry
+    /// parses; the `packages` key the block also carries is read by a later
+    /// `add` slice.
     #[serde(default)]
     pub styles: Styles,
 }
 
-/// A component's styled bundle (RFC 0005 §6.2). Only the per-format stylesheet
-/// list `add` copies is modelled today; the rest of the block (`packages`,
-/// `react`) is ignored until the slices that consume it land.
+/// A component's styled bundle (RFC 0005 §6.2): the per-format stylesheet `add`
+/// copies into the styles path, and the **format-independent React surface**
+/// (recipe + wrapper, D55) it copies into the components directory. The
+/// `packages` key the block also carries is ignored until the slice that ensures
+/// the styled-surface dependencies lands.
 #[derive(Debug, Deserialize, PartialEq, Default)]
 pub struct Styles {
     #[serde(default)]
     pub formats: Formats,
+    #[serde(default)]
+    pub react: Vec<String>,
 }
 
 /// The style files a component declares per output format (RFC 0005 §6.2). Each

@@ -41,9 +41,26 @@ struct CompilerOptions {
 /// With neither file present the result is `Ok(None)` — the cue to fall back to
 /// relative imports.
 pub fn components_alias(fs: &impl FileSystem, dir: &Path) -> Result<Option<String>, CliError> {
+    Ok(read_project_config(fs, dir)?.and_then(|bytes| parse_components_alias(&bytes)))
+}
+
+/// Resolve the consumer's components **directory** by reading `tsconfig.json`
+/// then `jsconfig.json` from `dir` through the [`FileSystem`] port — the path
+/// counterpart to [`components_alias`], used by `add` to place the copied React
+/// surface (RFC 0005 §3.3). Same precedence and error rules: the first config
+/// that exists is authoritative, a non-`NotFound` read is a hard
+/// [`CliError::Io`], and neither file present yields `Ok(None)`.
+pub fn components_path(fs: &impl FileSystem, dir: &Path) -> Result<Option<String>, CliError> {
+    Ok(read_project_config(fs, dir)?.and_then(|bytes| parse_components_path(&bytes)))
+}
+
+/// Read the bytes of the first of `tsconfig.json` / `jsconfig.json` present in
+/// `dir` (RFC 0005 §3.3). A `NotFound` ascends to the next candidate; any other
+/// read error is a hard [`CliError::Io`]; neither present is `Ok(None)`.
+fn read_project_config(fs: &impl FileSystem, dir: &Path) -> Result<Option<Vec<u8>>, CliError> {
     for name in CONFIG_FILES {
         match fs.read(&dir.join(name)) {
-            Ok(bytes) => return Ok(parse_components_alias(&bytes)),
+            Ok(bytes) => return Ok(Some(bytes)),
             Err(error) if error.kind() == io::ErrorKind::NotFound => continue,
             Err(error) => return Err(CliError::Io(error)),
         }
@@ -65,20 +82,57 @@ pub fn components_alias(fs: &impl FileSystem, dir: &Path) -> Result<Option<Strin
 /// `compilerOptions.paths`, or no root-style mapping — yields `None`, the signal
 /// to fall back to relative imports rather than invent an alias (RFC 0005 §3.3).
 pub fn parse_components_alias(bytes: &[u8]) -> Option<String> {
-    let config: TsConfig = serde_json::from_slice(bytes).ok()?;
-    let paths = config.compiler_options?.paths?;
-    paths
-        .iter()
-        .find_map(|(key, targets)| root_alias_prefix(key, targets))
-        .map(|prefix| format!("{prefix}/components"))
+    root_mapping(bytes).map(|mapping| format!("{}/components", mapping.prefix))
 }
 
-/// If `key` is a root path mapping (`"<prefix>/*"` resolving to the source
-/// root), return its `<prefix>`. The target's optional leading `./` is ignored,
-/// so `./src/*` and `src/*` are treated alike.
-fn root_alias_prefix<'a>(key: &'a str, targets: &[String]) -> Option<&'a str> {
-    let prefix = key.strip_suffix("/*")?;
-    let target = targets.first()?;
-    let target = target.strip_prefix("./").unwrap_or(target);
-    (target == "src/*" || target == "*").then_some(prefix)
+/// Resolve the consumer's components **directory** from the bytes of a
+/// `tsconfig.json` / `jsconfig.json` (RFC 0005 §3.3 / D32) — the inverse of
+/// [`parse_components_alias`], used by `add` to place the copied React surface.
+/// A root mapping to `./src/*` resolves to `src/components`; a Next.js root
+/// mapping (`./*`, no `src` dir) resolves to `components`. Anything the rule
+/// cannot make sense of yields `None` (the relative-import fallback cue), exactly
+/// as the alias detector does.
+pub fn parse_components_path(bytes: &[u8]) -> Option<String> {
+    root_mapping(bytes).map(|mapping| mapping.dir)
+}
+
+/// The first root path mapping in a `tsconfig.json` / `jsconfig.json` (RFC 0005
+/// §3.3) — the single source both [`parse_components_alias`] and
+/// [`parse_components_path`] derive from, so the parse / `paths` / root-mapping
+/// branches live in one place. A config that fails to parse, carries no
+/// `compilerOptions.paths`, or has no root-style mapping yields `None`.
+fn root_mapping(bytes: &[u8]) -> Option<RootMapping> {
+    let config: TsConfig = serde_json::from_slice(bytes).ok()?;
+    let paths = config.compiler_options?.paths?;
+    paths.iter().find_map(|(key, targets)| {
+        let prefix = key.strip_suffix("/*")?;
+        let base = root_target_dir(targets.first()?)?;
+        Some(RootMapping {
+            prefix: prefix.to_string(),
+            dir: if base.is_empty() {
+                "components".to_string()
+            } else {
+                format!("{base}/components")
+            },
+        })
+    })
+}
+
+/// A resolved root path mapping: the import-alias `prefix` (`@`, `~`, …) and the
+/// `components` **directory** it maps to on disk (RFC 0005 §3.3).
+struct RootMapping {
+    prefix: String,
+    dir: String,
+}
+
+/// The source-root directory a root-style path-mapping `target` resolves to:
+/// `src/*` → `src`, `*` (Next.js without a `src` dir) → the project root (the
+/// empty base). The optional leading `./` is ignored, so `./src/*` and `src/*`
+/// are treated alike. Any other target is not a root mapping.
+fn root_target_dir(target: &str) -> Option<&'static str> {
+    match target.strip_prefix("./").unwrap_or(target) {
+        "src/*" => Some("src"),
+        "*" => Some(""),
+        _ => None,
+    }
 }

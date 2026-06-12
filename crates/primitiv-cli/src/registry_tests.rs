@@ -113,6 +113,26 @@ fn parses_each_components_per_format_style_files() {
 }
 
 #[test]
+fn parses_a_components_format_independent_react_surface() {
+    const INDEX: &[u8] = br##"{
+  "version": "0.1.0",
+  "components": {
+    "button": { "version": "0.1.0", "styles": { "react": ["button.recipe.ts", "button.tsx"] } },
+    "icon": { "version": "0.1.0" }
+  }
+}"##;
+
+    let index = RegistryIndex::parse(INDEX).unwrap();
+
+    assert_eq!(
+        index.components["button"].styles.react,
+        vec!["button.recipe.ts".to_string(), "button.tsx".to_string()]
+    );
+    // A component with no styles block declares no React surface.
+    assert!(index.components["icon"].styles.react.is_empty());
+}
+
+#[test]
 fn errors_on_a_malformed_registry_index() {
     let error = RegistryIndex::parse(b"{ not json }").unwrap_err();
 

@@ -2,7 +2,9 @@ use std::path::Path;
 
 use pretty_assertions::assert_eq;
 
-use crate::detect::{components_alias, parse_components_alias};
+use crate::detect::{
+    components_alias, components_path, parse_components_alias, parse_components_path,
+};
 use crate::error::CliError;
 use crate::ports::fs::{FileSystem, InMemoryFs};
 
@@ -76,6 +78,31 @@ fn ignores_a_mapping_that_does_not_resolve_to_the_source_root() {
 }
 
 #[test]
+fn resolves_a_root_src_mapping_to_the_src_components_directory() {
+    // `@/*` → `./src/*` means the components alias resolves on disk to
+    // `src/components`, where `add` writes the React surface.
+    let config = br#"{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }"#;
+
+    assert_eq!(parse_components_path(config), Some("src/components".to_string()));
+}
+
+#[test]
+fn resolves_a_next_js_root_mapping_to_the_components_directory() {
+    // Next.js without a `src` dir maps the alias at the project root, so the
+    // components directory is just `components`.
+    let config = br#"{ "compilerOptions": { "paths": { "@/*": ["./*"] } } }"#;
+
+    assert_eq!(parse_components_path(config), Some("components".to_string()));
+}
+
+#[test]
+fn resolves_to_none_when_there_is_no_root_mapping() {
+    let config = br#"{ "compilerOptions": { "paths": { "@/*": ["./app/lib/*"] } } }"#;
+
+    assert_eq!(parse_components_path(config), None);
+}
+
+#[test]
 fn reads_the_alias_from_tsconfig_in_the_directory() {
     let fs = InMemoryFs::new();
     fs.write(
@@ -135,6 +162,30 @@ fn surfaces_a_failure_to_read_a_config() {
     fs.fail_reads_to(Path::new("project/tsconfig.json"));
 
     let err = components_alias(&fs, Path::new("project")).unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn reads_the_components_path_from_tsconfig_in_the_directory() {
+    let fs = InMemoryFs::new();
+    fs.write(
+        Path::new("project/tsconfig.json"),
+        br#"{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }"#,
+    )
+    .unwrap();
+
+    let path = components_path(&fs, Path::new("project")).unwrap();
+
+    assert_eq!(path, Some("src/components".to_string()));
+}
+
+#[test]
+fn surfaces_a_failure_to_read_a_config_when_resolving_the_path() {
+    let fs = InMemoryFs::new();
+    fs.fail_reads_to(Path::new("project/tsconfig.json"));
+
+    let err = components_path(&fs, Path::new("project")).unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }

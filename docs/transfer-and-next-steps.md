@@ -282,11 +282,30 @@ adapters, hand-authored golden files, 100% coverage):
     stylesheet into `<styles.path>/<component>/`, the component directory created
     first. It is **gated on a styles-enabled `primitiv.json`** (D55): a
     headless-only install (no config) or `styles.enabled = false` copies nothing;
-    a file the registry can't serve is a `CliError::Registry`. **Remaining for
-    `add`** (§4.2–§4.4): copying the **React surface** (recipe + wrapper, to the
-    `aliases.components` path) and the **contract**; the
-    refresh/`primitiv.lock` semantics; project wiring
-    (§4.3), the `--styles-only` / `--no-styles` / `--format` / `--path` /
+    a file the registry can't serve is a `CliError::Registry`. **`add`'s
+    arguments are now an `AddOptions` struct** (mirroring `InitOptions`, so the
+    remaining flags join without churning call sites), and the
+    **`--styles-only` / `--no-styles` flags are landed**: `--styles-only` copies
+    the styled surface but skips the package install (§4.1 step 2), `--no-styles`
+    installs the package but skips the styles (step 3), and combining the two is a
+    usage error (it would do neither). `--styles-only` also unlocked the **first
+    real-binary `add` e2e for the copy** — it skips the install, so the bin never
+    shells out to a live package manager. The **React-surface copy is now
+    landed** (D55): `detect` grew a `components_path` (the inverse of
+    `components_alias`, both now deriving from one `root_mapping` so the parse /
+    `paths` branches live once) that maps a tsconfig/jsconfig root path mapping to
+    `src/components` (or `components` for a Next.js no-`src` root), and `add`
+    copies each component's format-independent recipe + wrapper into that
+    directory — co-located flat (the wrapper imports its recipe as
+    `./<name>.recipe`) — alongside the stylesheet copy, the fetch+write factored
+    into a shared `copy_file`. With **no detectable alias** the surface falls back
+    to a project-root `components` dir; an **unreadable** tsconfig is a hard
+    `CliError::Io`. The registry index models the `styles.react` list and the
+    `EmbeddedRegistry` bakes the recipe/wrapper in; the `--styles-only` e2e now
+    asserts the full styled surface (stylesheet **and** React files) on a real
+    filesystem. **Remaining for `add`** (§4.2–§4.4):
+    copying the **contract**; the refresh/`primitiv.lock` semantics; project
+    wiring (§4.3), the `--format` / `--path` /
     `--force` flags, the `--registry` / HTTPS registry adapter, and routing the
     package manager's own output to stderr so `--json` keeps a clean stdout (today
     a non-dry-run `--json` install interleaves the manager's chatter with the JSON;

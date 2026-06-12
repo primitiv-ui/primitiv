@@ -9,6 +9,11 @@ use std::io;
 /// the embedded one cannot fail.
 pub trait Registry {
     fn index(&self) -> io::Result<Vec<u8>>;
+
+    /// Fetch a single component file's bytes — `r/<component>/<file>` in the
+    /// registry layout (RFC 0005 §6.1), the per-component artefacts `add` copies
+    /// into a project. A file the registry doesn't carry is a `NotFound`.
+    fn file(&self, component: &str, file: &str) -> io::Result<Vec<u8>>;
 }
 
 /// The registry baked into the binary at build time (RFC 0005 §6.4, v1) — the
@@ -20,9 +25,24 @@ const INDEX: &str = include_str!(concat!(
     "/../../registry/registry.json"
 ));
 
+const BUTTON_STYLES_CSS: &str = include_str!(concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/../../registry/r/button/styles.css"
+));
+
 impl Registry for EmbeddedRegistry {
     fn index(&self) -> io::Result<Vec<u8>> {
         Ok(INDEX.as_bytes().to_vec())
+    }
+
+    fn file(&self, component: &str, file: &str) -> io::Result<Vec<u8>> {
+        match (component, file) {
+            ("button", "styles.css") => Ok(BUTTON_STYLES_CSS.as_bytes().to_vec()),
+            _ => Err(io::Error::new(
+                io::ErrorKind::NotFound,
+                format!("registry has no file 'r/{component}/{file}'"),
+            )),
+        }
     }
 }
 
@@ -32,6 +52,7 @@ impl Registry for EmbeddedRegistry {
 #[cfg(test)]
 pub struct InMemoryRegistry {
     index: Vec<u8>,
+    files: std::collections::HashMap<(String, String), Vec<u8>>,
     fail: bool,
 }
 
@@ -41,8 +62,18 @@ impl InMemoryRegistry {
     pub fn new(index: &[u8]) -> Self {
         Self {
             index: index.to_vec(),
+            files: std::collections::HashMap::new(),
             fail: false,
         }
+    }
+
+    /// Add a component file the registry will serve through
+    /// [`file`](Registry::file), so `add`'s copy path is driven without the
+    /// embedded content.
+    pub fn with_file(mut self, component: &str, file: &str, bytes: &[u8]) -> Self {
+        self.files
+            .insert((component.to_string(), file.to_string()), bytes.to_vec());
+        self
     }
 
     /// A registry whose [`index`](Registry::index) fails, modelling an
@@ -50,6 +81,7 @@ impl InMemoryRegistry {
     pub fn failing() -> Self {
         Self {
             index: Vec::new(),
+            files: std::collections::HashMap::new(),
             fail: true,
         }
     }
@@ -65,5 +97,12 @@ impl Registry for InMemoryRegistry {
             ));
         }
         Ok(self.index.clone())
+    }
+
+    fn file(&self, component: &str, file: &str) -> io::Result<Vec<u8>> {
+        self.files
+            .get(&(component.to_string(), file.to_string()))
+            .cloned()
+            .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "registry file unavailable"))
     }
 }

@@ -11,6 +11,46 @@ fn embedded_registry_serves_the_baked_in_index() {
 }
 
 #[test]
+fn embedded_registry_serves_a_component_file() {
+    let bytes = EmbeddedRegistry.file("button", "styles.css").unwrap();
+
+    // The baked-in Button stylesheet, served verbatim.
+    let css = String::from_utf8(bytes).unwrap();
+    assert!(css.contains(".primitiv-button"));
+}
+
+#[test]
+fn embedded_registry_reports_an_unknown_file_as_not_found() {
+    assert_eq!(
+        EmbeddedRegistry
+            .file("button", "nope.css")
+            .unwrap_err()
+            .kind(),
+        std::io::ErrorKind::NotFound
+    );
+}
+
+#[test]
+fn in_memory_registry_serves_a_configured_file() {
+    let registry = InMemoryRegistry::new(b"{}").with_file("button", "styles.css", b".primitiv-button{}");
+
+    assert_eq!(
+        registry.file("button", "styles.css").unwrap(),
+        b".primitiv-button{}"
+    );
+}
+
+#[test]
+fn in_memory_registry_reports_an_unconfigured_file_as_not_found() {
+    let registry = InMemoryRegistry::new(b"{}");
+
+    assert_eq!(
+        registry.file("button", "styles.css").unwrap_err().kind(),
+        std::io::ErrorKind::NotFound
+    );
+}
+
+#[test]
 fn in_memory_registry_serves_its_configured_index() {
     let registry = InMemoryRegistry::new(b"{ \"version\": \"9.9.9\" }");
 

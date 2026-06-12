@@ -26,11 +26,7 @@ pub fn run(
 ) -> Result<(), CliError> {
     match parse(args)? {
         Command::Init(options) => init(fs, &options),
-        Command::Add {
-            components,
-            json,
-            dry_run,
-        } => add(fs, registry, output, runner, &components, json, dry_run),
+        Command::Add(options) => add(fs, registry, output, runner, &options),
         Command::List { json } => list(registry, output, json),
         Command::Theme { brand, out, format } => theme(fs, &brand, Path::new(&out), format),
         Command::Tokens { out, format } => {

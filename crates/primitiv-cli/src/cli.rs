@@ -1,3 +1,4 @@
+use crate::commands::add::AddOptions;
 use crate::commands::init::{InitOptions, DEFAULT_BRAND, DEFAULT_STYLES_PATH};
 use crate::error::CliError;
 use crate::format::Format;
@@ -8,11 +9,7 @@ use crate::format::Format;
 #[derive(Debug, PartialEq)]
 pub enum Command {
     Init(InitOptions),
-    Add {
-        components: Vec<String>,
-        json: bool,
-        dry_run: bool,
-    },
+    Add(AddOptions),
     List {
         json: bool,
     },
@@ -71,11 +68,11 @@ fn parse_add(args: &[String]) -> Result<Command, CliError> {
     if components.is_empty() {
         return Err(usage("add requires at least one component"));
     }
-    Ok(Command::Add {
+    Ok(Command::Add(AddOptions {
         components,
         json,
         dry_run,
-    })
+    }))
 }
 
 /// Parse `list [--json]` — the only flag is `--json`, which switches the output

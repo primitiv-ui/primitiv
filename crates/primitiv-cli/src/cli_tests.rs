@@ -1,6 +1,7 @@
 use pretty_assertions::assert_eq;
 
 use crate::cli::{parse, Command};
+use crate::commands::add::AddOptions;
 use crate::commands::init::InitOptions;
 use crate::error::CliError;
 use crate::format::Format;
@@ -112,11 +113,10 @@ fn parses_the_add_command_with_one_component() {
 
     assert_eq!(
         command,
-        Command::Add {
+        Command::Add(AddOptions {
             components: vec!["button".to_string()],
-            json: false,
-            dry_run: false,
-        }
+            ..Default::default()
+        })
     );
 }
 
@@ -126,11 +126,10 @@ fn parses_the_add_command_with_several_components() {
 
     assert_eq!(
         command,
-        Command::Add {
+        Command::Add(AddOptions {
             components: vec!["button".to_string(), "switch".to_string()],
-            json: false,
-            dry_run: false,
-        }
+            ..Default::default()
+        })
     );
 }
 
@@ -141,11 +140,11 @@ fn parses_add_with_the_json_and_dry_run_flags_among_the_components() {
 
     assert_eq!(
         command,
-        Command::Add {
+        Command::Add(AddOptions {
             components: vec!["button".to_string()],
             json: true,
             dry_run: true,
-        }
+        })
     );
 }
 

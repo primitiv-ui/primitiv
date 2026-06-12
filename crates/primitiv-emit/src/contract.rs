@@ -19,9 +19,23 @@ pub struct Contract {
     #[serde(default)]
     pub docs: Option<String>,
     pub root: Root,
+    /// The decorative slot parts (`Switch.Thumb`), in authored order. Empty for a
+    /// single-element component (Button); when present, the styled wrapper renders
+    /// the compound and fills each slot. Structural, consumer-composed parts
+    /// (`Tabs.Trigger`) are a separate concern and not modelled here.
+    #[serde(default)]
+    pub parts: Vec<Part>,
     /// The visual modifier groups, in authored order.
     #[serde(default)]
     pub modifiers: Vec<ModifierGroup>,
+}
+
+/// One decorative slot part — its sub-component name (`thumb` → `Switch.Thumb`)
+/// and the BEM part class the wrapper applies (`primitiv-switch__thumb`).
+#[derive(Debug, Deserialize)]
+pub struct Part {
+    pub name: String,
+    pub class: String,
 }
 
 /// The contract's root element + identity class.
@@ -88,6 +102,29 @@ pub(crate) fn camel_case(name: &str) -> String {
         }
     }
     out
+}
+
+/// The recipe `const` binding for a component — its camelCase name, unless that
+/// is a JS reserved word (`switch` → `export const switch` is a syntax error),
+/// in which case a `Recipe` suffix disambiguates it (`switchRecipe`). Shared by
+/// the recipe (the `export`) and the wrapper (the `import`).
+pub(crate) fn recipe_binding(name: &str) -> String {
+    let camel = camel_case(name);
+    if is_reserved_word(&camel) {
+        format!("{camel}Recipe")
+    } else {
+        camel
+    }
+}
+
+/// Whether an identifier collides with a JS reserved word, so it can't be a bare
+/// `const` binding. Only the subset a kebab-case component name could realistically
+/// produce is listed — `switch` is the live case.
+fn is_reserved_word(ident: &str) -> bool {
+    matches!(
+        ident,
+        "switch" | "default" | "class" | "case" | "do" | "for" | "if" | "else" | "new" | "void"
+    )
 }
 
 /// Uppercase the first character of a non-empty name segment.

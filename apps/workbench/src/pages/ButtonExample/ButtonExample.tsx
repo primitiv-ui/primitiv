@@ -4,11 +4,10 @@ import { Button, RadioGroup } from "@primitiv-ui/react";
 import { ChevronLeft, ChevronRight } from "@primitiv-ui/icons";
 
 import "./ButtonExample.css";
-// The generated Primitiv token layer (custom-property defaults) + the canonical
-// per-component default theme straight from the registry. Together they style
-// the `.primitiv-button` contract classes applied below — the same bytes
-// `primitiv add button` copies into a consumer repo (RFC 0006 §7).
-import "./primitiv-tokens.css";
+// The canonical per-component default theme straight from the registry — the
+// same bytes `primitiv add button` copies into a consumer repo (RFC 0006 §7).
+// It styles the `.primitiv-button` contract classes applied below, resolving
+// against the app-level Primitiv token layer (imported once in main.tsx).
 import "../../../../../registry/r/button/styles.css";
 
 const INTENTS = ["primary", "secondary", "danger", "link"] as const;

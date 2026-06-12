@@ -5,6 +5,10 @@ import { BrowserRouter, HashRouter } from "react-router-dom";
 import App from "./App.tsx";
 
 import "./index.css";
+// The generated Primitiv token layer (custom-property defaults), ambient for
+// every contract-styled example. Each example imports only its own registry
+// styles.css, which resolves against these.
+import "./primitiv-tokens.css";
 
 // The GitHub Pages build (VITE_HASH_ROUTER=true) uses a hash router so deep
 // links survive a hard refresh — GitHub Pages only serves one root 404.html

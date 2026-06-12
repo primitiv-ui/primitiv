@@ -1,8 +1,10 @@
 /*
  * GENERATED — do not edit by hand.
- * Primitiv token layer for the workbench Button preview.
+ * Primitiv token layer shared by every workbench contract-styled preview
+ * (imported once in main.tsx). The custom-property defaults the registry
+ * styles.css files resolve against.
  * Regenerate: cargo run -p primitiv-cli -- tokens --format css --out \
- *   apps/workbench/src/pages/ButtonExample/primitiv-tokens.css
+ *   apps/workbench/src/primitiv-tokens.css
  */
 @layer primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 

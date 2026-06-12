@@ -42,6 +42,25 @@ in [`../RELEASING.md`](../RELEASING.md); the full decision log (D1–D25) lives 
 Foundation-first order (test strategy for all of it: **RFC 0007** — ports &
 adapters, hand-authored golden files, 100% coverage):
 
+> **Guiding invariant (D54).** Changing a component — new props, renamed
+> variants, a restyle, a new format — must touch **only** the registry
+> (`contract.json` / `styles.css`) and the headless package, never
+> `primitiv-cli` / `primitiv-emit` *logic*. The CLI knows formats + the contract
+> *schema* + file ops; the emitter knows generic transforms only. **Enforced** by
+> testing CLI/emit on **synthetic fixture contracts** — real components only in
+> e2e. **Button** (modifier-driven) + **Switch** (state-driven, a part, no
+> `variant`) are the deliberately-different proof across CSS/SCSS/Tailwind.
+
+> **Consumer styled-surface — sequenced plan (D51–D53).** The contract is the
+> single authored API source; the recipe + JSDoc'd wrapper are generated from
+> it. Order: **(1)** enrich the contract schema (`description` / `default` /
+> `prop` / `options`) + update Button's drift guards; **(2)** `contract → recipe`
+> and `contract → wrapper` emitters in `primitiv-emit`, golden-tested on
+> synthetic contracts first, then Button (the #139 recipe is the recipe golden);
+> **(3)** Switch contract + `styles.css` through the *same* generators (the
+> generality proof); **(4)** `add` style-copy + wiring, schema-driven. `variant`
+> is the consumer prop; `intent` stays the design-system / contract key.
+
 - [x] **Rust CI + test harness** (RFC 0007 §7) — add `cargo test --workspace` + `cargo llvm-cov` gate (Rust runs in no workflow today); scaffold the `primitiv-emit` / `primitiv-cli` crates (lib + thin bin) and the port traits.
   - **Done (2026-06-10).** `crates/primitiv-cli` holds the `FileSystem` port + in-memory fake; `crates/primitiv-emit` is the pure emitter; `.github/workflows/rust.yml` runs `cargo test --workspace` and a `cargo llvm-cov --fail-under-lines 100` gate scoped to the CLI crates (`--exclude harmoni-core --exclude harmoni-wasm`, so new CLI crates fall under it automatically). 100% regions/lines/functions held throughout.
 - [x] **Token emitter** (RFC 0006 §4) — DTCG → CSS (canonical) / SCSS / Tailwind, the pure `primitiv-emit` crate (TS/JS dropped, D50). TDD with golden files from the existing `packages/tokens` fixtures. Both `tokens` and the example styles depend on it, so it goes first. Its output shape is fixed by **RFC 0008**: the `@layer primitiv` sublayer stack, no `!important`, and the two-tier token split (shared theme tokens once; per-component API tokens inside each component stylesheet) — bake both into the first golden file.

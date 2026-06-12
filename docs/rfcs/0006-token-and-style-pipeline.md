@@ -227,10 +227,20 @@ properties, then emitted into each format the consumer can choose (design doc
 
 - **CSS** — contract selectors (RFC 0004 §3.1) reading `--primitiv-*`.
 - **SCSS** — the same design exposed through the SCSS token output.
-- **Tailwind** — a recipe over the preset; utilities resolve to the same
-  custom properties.
+- **Tailwind** — a `cva` recipe over the contract classes (RFC 0004 §3.5 / D51):
+  the styling stays in `styles.css`, so it round-trips perfectly (keyframes, the
+  knob seam, `text-box` trim — none of which have a utility form); the `@theme`
+  preset backs the custom properties. Authored, not transpiled (§6.1 below).
 
 We maintain *one* visual design, not N stylesheets.
+
+**The contract is the single API source (D53).** Beyond the visual design
+(`styles.css`, hand-authored), each component's *API* is authored once in
+`contract.json` (RFC 0004 §3.4), and the consumer artifacts are **generated**
+from it: the **`cva` recipe** (the Tailwind format's class engine) and the
+**JSDoc'd styled wrapper** (`<Button variant size>` — the primary DX, RFC 0004
+§3.5). So the recipe joins the SCSS form as a *derived* artifact — only
+`styles.css` (design) and `contract.json` (API) are authored per component.
 
 ### 6.2 Ported from Figma (source of truth)
 

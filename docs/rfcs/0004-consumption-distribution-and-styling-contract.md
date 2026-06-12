@@ -234,6 +234,53 @@ sources of truth, so it is produced from both:
 
 The two halves are assembled into one `contract.json` per component.
 
+**Enriched schema — the single API source (D53).** Beyond the bare classes,
+each modifier group carries a `description`, a `default`, an optional `prop`
+(the consumer-facing prop name, defaulting to the group key — D52), and `options`
+mapping each value to `{ class, description }`; the component carries a
+`description` and a `docs` link. This makes `contract.json` the **single authored
+source** for a component's styling API — rich enough to *generate* the consumer
+artifacts from (§3.5), so the prose a consumer reads in their IDE and the classes
+the recipe applies can never disagree.
+
+```jsonc
+"modifiers": {
+  "intent": {                          // canonical design-system key
+    "prop": "variant",                 // surfaced prop name (D52)
+    "default": "primary",
+    "description": "Visual intent / emphasis.",
+    "options": {
+      "primary": { "class": "primitiv-button--primary", "description": "High-emphasis primary action." }
+      // …
+    }
+  },
+  "size": { "default": "md", "description": "…", "options": { /* xs…xl */ } }
+}
+```
+
+### 3.5 Generated consumer artifacts — the styled wrapper (D51, D53)
+
+The primary DX is a **styled wrapper component** copied into the consumer repo by
+`primitiv add`, exposing typed variant props — the familiar shadcn
+`<Button variant size>` surface. It composes the **headless package** (logic)
+with the **copied recipe** (classes); because it lives in the consumer's repo it
+is "consumer-applied", so the published package stays styling-agnostic (§7.5 /
+D45). Three layers, primary → escape hatch → ground truth:
+
+| Layer | Looks like | Role | shadcn parallel |
+|---|---|---|---|
+| **Styled wrapper** (primary) | `<Button variant="danger" size="sm">` | The typed, documented default DX | `<Button variant size>` |
+| **Recipe function** (escape hatch) | `className={button({ variant: "link" })}` | Classes on a non-component element / `asChild` | `buttonVariants({…})` |
+| **Raw contract classes** (ground truth) | `class="primitiv-button primitiv-button--danger"` | Framework-agnostic, documented | reading the source |
+
+Both the recipe **and** the wrapper are **generated** from `contract.json` by
+`primitiv-emit` (D53) — the wrapper carrying JSDoc (component description + a
+documented prop per modifier group with its `@default` and a `@see` doc link;
+the headless props' JSDoc flows through for free via `extends`). So per component
+the **authored** surface is `contract.json` (the API spec) + `styles.css` (the
+visual design) + the headless component; the recipe, wrapper, SCSS form and token
+layer are derived. You author the spec, never the boilerplate.
+
 ---
 
 ## 4. Worked example — the Button
@@ -363,3 +410,7 @@ CLI- and pipeline-level details live in RFC 0005 / 0006.
 | 9 | Compound components name parts BEM-style off the root (`.primitiv-tabs__trigger`) | D14 |
 | 10 | `contract.json` is hybrid: `data-*` auto-verified against the render, modifiers + custom properties authored with the stylesheet | D15 |
 | 11 | The headless component **emits its root/part identity classes** (merged with consumer `className`); modifier classes stay consumer/recipe-applied; the package emits **only semantic classes, never utilities** (stays styling-agnostic for Dev 1) | D45 |
+| 12 | The primary DX is a **copied-in styled wrapper** (`<Button variant size>`, shadcn parity) over the headless package + recipe; recipe = escape hatch, raw classes = ground truth | D51 |
+| 13 | Consumer prop = **`variant`**; `intent` stays the design-system term and the contract's modifier-group key (declared `prop` surfaces the name) | D52 |
+| 14 | `contract.json` is the **single authored API source** (enriched with descriptions / defaults / `prop` / `options`); the recipe **and** the JSDoc'd wrapper are **generated** from it (recipe joins SCSS as derived) | D53 |
+| 15 | **Decoupling invariant:** changing a component touches only the registry + headless package, never `primitiv-cli` / `primitiv-emit` logic; enforced by testing CLI/emit on **synthetic contracts** (real components only in e2e) | D54 |

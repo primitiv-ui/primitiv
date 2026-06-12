@@ -29,6 +29,52 @@
   color: #111;
 }
 
+/* Size picker (re-points the --primitiv-switch-* anatomy knobs). */
+.sw-example__sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block-end: 1.25rem;
+  padding: 0;
+}
+
+.sw-example__size-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border: 1px solid #ccc;
+  border-radius: 0.375rem;
+  background: white;
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.sw-example__size-option[data-state="checked"] {
+  border-color: #111;
+}
+
+.sw-example__size-ring {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+  border: 1px solid #999;
+  border-radius: 50%;
+}
+
+.sw-example__size-dot {
+  inline-size: 0.375rem;
+  block-size: 0.375rem;
+  border-radius: 50%;
+  background: #111;
+}
+
+.sw-example__size-dot[data-state="unchecked"] {
+  opacity: 0;
+}
+
 /* Contract-styled preview rows (the registry `.primitiv-switch` surface). */
 .sw-example__contract-row {
   display: flex;

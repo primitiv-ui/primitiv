@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 
 import { Check } from "@primitiv-ui/icons";
-import { Switch } from "@primitiv-ui/react";
+import { RadioGroup, Switch } from "@primitiv-ui/react";
 
 import "./SwitchExample.css";
 // The canonical per-component default theme straight from the registry — the
@@ -12,6 +12,7 @@ import "./SwitchExample.css";
 import "../../../../../registry/r/switch/styles.css";
 
 const DENSITIES = ["dense", "compact", "comfortable", "spacious"] as const;
+const SIZES = ["xs", "sm", "md", "lg", "xl"] as const;
 
 const FEATURES = [
   { key: "analytics", label: "Analytics", description: "Track usage metrics" },
@@ -32,6 +33,18 @@ export function SwitchExample() {
     notifications: false,
     backups: true,
   });
+  const [size, setSize] = useState("md");
+
+  // Switch has no size *modifier* — it re-sizes by re-pointing its
+  // `--primitiv-switch-*` anatomy knobs at the chosen size slot (the same knob
+  // seam a consumer overrides). The slot is still density-scoped, so this
+  // composes with the `[data-density]` rows below.
+  const sizeVars = {
+    "--primitiv-switch-track-width": `var(--primitiv-switch-${size}-track-width)`,
+    "--primitiv-switch-track-height": `var(--primitiv-switch-${size}-track-height)`,
+    "--primitiv-switch-thumb-size": `var(--primitiv-switch-${size}-thumb-size)`,
+    "--primitiv-switch-thumb-margin": `var(--primitiv-switch-${size}-thumb-margin)`,
+  } as CSSProperties;
 
   return (
     <div className="sw-example">
@@ -80,8 +93,32 @@ export function SwitchExample() {
           The same contract-styled switch under each <code>data-density</code>{" "}
           scope. Density is ambient — set on any ancestor — and the{" "}
           <code>switch/*</code> anatomy tokens resolve to the matching scale (RFC
-          0009).
+          0009). Pick a size to re-point the anatomy knobs and rescale them all.
         </p>
+
+        <RadioGroup.Root
+          className="sw-example__sizes"
+          value={size}
+          onValueChange={setSize}
+          aria-label="Switch size"
+        >
+          {SIZES.map((slot) => (
+            <RadioGroup.Item
+              key={slot}
+              className="sw-example__size-option"
+              value={slot}
+            >
+              <span className="sw-example__size-ring">
+                <RadioGroup.Indicator
+                  className="sw-example__size-dot"
+                  forceMount
+                />
+              </span>
+              {slot}
+            </RadioGroup.Item>
+          ))}
+        </RadioGroup.Root>
+
         {DENSITIES.map((density) => (
           <div
             key={density}
@@ -92,13 +129,15 @@ export function SwitchExample() {
             <div className="sw-example__contract-row">
               <Switch.Root
                 className="primitiv-switch"
-                aria-label={`Switch off — ${density}`}
+                style={sizeVars}
+                aria-label={`Switch off — ${density} ${size}`}
               >
                 <Switch.Thumb className="primitiv-switch__thumb" />
               </Switch.Root>
               <Switch.Root
                 className="primitiv-switch"
-                aria-label={`Switch on — ${density}`}
+                style={sizeVars}
+                aria-label={`Switch on — ${density} ${size}`}
                 defaultChecked
               >
                 <Switch.Thumb className="primitiv-switch__thumb" />

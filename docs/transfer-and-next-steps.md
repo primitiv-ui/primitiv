@@ -271,9 +271,21 @@ adapters, hand-authored golden files, 100% coverage):
     installing — and is what the `add` e2e uses, so the real binary never shells
     out to a live package manager (the install path is proven at the command layer
     with the runner fake; the `OsProcessRunner` adapter is unit-tested with
-    harmless commands). **Remaining for `add`** (§4.2–§4.4): the style-copy +
-    refresh/`primitiv.lock` semantics (needs the registry to serve per-component
-    file bytes and the authored style files from items 5/6), project wiring
+    harmless commands). The **style-copy spine is now landed** (RFC 0005 §4.1
+    step 4): the `Registry` port grew a `file(component, file)` method (the
+    `EmbeddedRegistry` bakes each component's per-format stylesheets in via a
+    `(component, file, bytes)` table; the `InMemoryRegistry` fake gained
+    `with_file`), the `FileSystem` port grew `create_dir_all` (a thin `OsFs`
+    passthrough; the fake records a `fail_create_dir_to` knob), the registry
+    index now models the `styles.formats` block (a `Formats::files(format)`
+    accessor), and `add` copies each resolved component's configured-format
+    stylesheet into `<styles.path>/<component>/`, the component directory created
+    first. It is **gated on a styles-enabled `primitiv.json`** (D55): a
+    headless-only install (no config) or `styles.enabled = false` copies nothing;
+    a file the registry can't serve is a `CliError::Registry`. **Remaining for
+    `add`** (§4.2–§4.4): copying the **React surface** (recipe + wrapper, to the
+    `aliases.components` path) and the **contract**; the
+    refresh/`primitiv.lock` semantics; project wiring
     (§4.3), the `--styles-only` / `--no-styles` / `--format` / `--path` /
     `--force` flags, the `--registry` / HTTPS registry adapter, and routing the
     package manager's own output to stderr so `--json` keeps a clean stdout (today

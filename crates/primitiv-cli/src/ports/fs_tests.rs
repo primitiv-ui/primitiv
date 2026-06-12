@@ -58,6 +58,35 @@ fn os_fs_writes_and_reads_back_a_real_file() {
 }
 
 #[test]
+fn os_fs_creates_a_nested_directory() {
+    let dir = assert_fs::TempDir::new().unwrap();
+    let nested = dir.child("styles/primitiv/button");
+
+    OsFs.create_dir_all(nested.path()).unwrap();
+
+    assert!(nested.path().is_dir());
+}
+
+#[test]
+fn in_memory_fs_create_dir_all_succeeds() {
+    let fs = InMemoryFs::new();
+
+    assert!(fs.create_dir_all(Path::new("styles/primitiv/button")).is_ok());
+}
+
+#[test]
+fn in_memory_fs_can_fail_create_dir_all() {
+    let fs = InMemoryFs::new();
+    let path = Path::new("styles/primitiv/button");
+    fs.fail_create_dir_to(path);
+
+    assert_eq!(
+        fs.create_dir_all(path).unwrap_err().kind(),
+        std::io::ErrorKind::PermissionDenied
+    );
+}
+
+#[test]
 fn os_fs_reports_a_missing_path_as_absent() {
     let dir = assert_fs::TempDir::new().unwrap();
 

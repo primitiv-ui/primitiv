@@ -17,6 +17,11 @@ pub trait FileSystem {
     fn read(&self, path: &Path) -> io::Result<Vec<u8>>;
     fn write(&self, path: &Path, bytes: &[u8]) -> io::Result<()>;
     fn exists(&self, path: &Path) -> bool;
+    /// Create `path` and every missing parent (`std::fs::create_dir_all`). The
+    /// command layer calls this before writing a copied file into a nested
+    /// destination, keeping the directory-creation policy out of the thin OS
+    /// adapter (RFC 0007 §2.1).
+    fn create_dir_all(&self, path: &Path) -> io::Result<()>;
     /// The directory a walk-up (e.g. [`config::resolve`](crate::config::resolve))
     /// starts from — the process working directory for the real bin.
     fn current_dir(&self) -> io::Result<PathBuf>;
@@ -41,6 +46,10 @@ impl FileSystem for OsFs {
         path.exists()
     }
 
+    fn create_dir_all(&self, path: &Path) -> io::Result<()> {
+        std::fs::create_dir_all(path)
+    }
+
     fn current_dir(&self) -> io::Result<PathBuf> {
         std::env::current_dir()
     }
@@ -55,6 +64,7 @@ pub struct InMemoryFs {
     files: RefCell<HashMap<PathBuf, Vec<u8>>>,
     fail_writes: RefCell<Option<PathBuf>>,
     fail_reads: RefCell<Option<PathBuf>>,
+    fail_create_dir: RefCell<Option<PathBuf>>,
     cwd: RefCell<PathBuf>,
     fail_current_dir: RefCell<bool>,
 }
@@ -78,6 +88,13 @@ impl InMemoryFs {
     /// than "keep looking") without a real, unreadable filesystem.
     pub fn fail_reads_to(&self, path: &Path) {
         *self.fail_reads.borrow_mut() = Some(path.to_path_buf());
+    }
+
+    /// Make any [`create_dir_all`](FileSystem::create_dir_all) of `path` fail
+    /// with `PermissionDenied`, so a command can drive its directory-creation
+    /// error branch without a real, unwritable filesystem.
+    pub fn fail_create_dir_to(&self, path: &Path) {
+        *self.fail_create_dir.borrow_mut() = Some(path.to_path_buf());
     }
 
     /// Set the directory [`current_dir`](FileSystem::current_dir) reports, so a
@@ -116,6 +133,13 @@ impl FileSystem for InMemoryFs {
 
     fn exists(&self, path: &Path) -> bool {
         self.files.borrow().contains_key(path)
+    }
+
+    fn create_dir_all(&self, path: &Path) -> io::Result<()> {
+        if self.fail_create_dir.borrow().as_deref() == Some(path) {
+            return Err(io::Error::new(io::ErrorKind::PermissionDenied, "mkdir blocked"));
+        }
+        Ok(())
     }
 
     fn current_dir(&self) -> io::Result<PathBuf> {

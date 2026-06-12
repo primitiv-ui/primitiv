@@ -2,7 +2,8 @@ use std::collections::BTreeMap;
 
 use pretty_assertions::assert_eq;
 
-use crate::registry::{ComponentEntry, DependsOn, RegistryIndex};
+use crate::format::Format;
+use crate::registry::{ComponentEntry, DependsOn, RegistryIndex, Styles};
 
 /// A registry index as `registry.json` carries it (RFC 0005 §6.2) — `button`
 /// keeps an extra `contract` field to prove the richer per-component data the
@@ -29,6 +30,7 @@ fn parses_the_index_components_and_their_versions() {
                     ComponentEntry {
                         version: "0.1.0".into(),
                         depends_on: DependsOn::default(),
+                        styles: Styles::default(),
                     },
                 ),
                 (
@@ -36,6 +38,7 @@ fn parses_the_index_components_and_their_versions() {
                     ComponentEntry {
                         version: "0.2.0".into(),
                         depends_on: DependsOn::default(),
+                        styles: Styles::default(),
                     },
                 ),
             ]),
@@ -87,6 +90,26 @@ fn parses_each_components_npm_package_dependencies() {
         index.components["icon"].depends_on.packages,
         Vec::<String>::new()
     );
+}
+
+#[test]
+fn parses_each_components_per_format_style_files() {
+    const INDEX: &[u8] = br##"{
+  "version": "0.1.0",
+  "components": {
+    "button": { "version": "0.1.0", "styles": { "formats": { "css": ["styles.css"], "scss": ["styles.scss"], "tailwind": ["styles.css"] } } },
+    "icon": { "version": "0.1.0" }
+  }
+}"##;
+
+    let index = RegistryIndex::parse(INDEX).unwrap();
+
+    let button = &index.components["button"].styles.formats;
+    assert_eq!(button.files(Format::Css), ["styles.css"]);
+    assert_eq!(button.files(Format::Scss), ["styles.scss"]);
+    assert_eq!(button.files(Format::Tailwind), ["styles.css"]);
+    // A component with no styles block declares no files for any format.
+    assert!(index.components["icon"].styles.formats.files(Format::Css).is_empty());
 }
 
 #[test]

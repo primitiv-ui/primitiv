@@ -27,6 +27,37 @@ pub fn emit_theme_scss(scopes: &[Scope]) -> String {
     out
 }
 
+/// Emit a component stylesheet as SCSS (RFC 0006 §4.2): the canonical CSS
+/// verbatim — SCSS is a strict superset of CSS, so it round-trips, keyframes and
+/// all — followed by one `$primitiv-*` variable per custom property the
+/// stylesheet *declares*, each resolving to that property. Consumers re-skin by
+/// overriding the custom properties; the `$`-vars are the `$`-pipeline mirror of
+/// the same knobs.
+///
+/// Only *declared* properties are aliased: a `var(--primitiv-button-gap)`
+/// reference, or a backing `--primitiv-action-*` token referenced but not
+/// declared in this file, is skipped — a declaration is a line whose trimmed
+/// form starts `--name:`. A property re-declared by a modifier emits a single
+/// `$`-var, in first-occurrence order.
+pub fn emit_component_scss(css: &str) -> String {
+    let mut out = css.to_string();
+    out.push('\n');
+    let mut seen = HashSet::new();
+    for line in css.lines() {
+        if let Some(name) = line
+            .trim_start()
+            .strip_prefix("--")
+            .and_then(|rest| rest.split_once(':'))
+            .map(|(name, _)| name.trim_end())
+        {
+            if seen.insert(name.to_string()) {
+                out.push_str(&format!("${name}: var(--{name});\n"));
+            }
+        }
+    }
+    out
+}
+
 /// Append the `$primitiv-*` variable block after the CSS body: a blank-line
 /// separator, then one `$`-var per distinct token name (first-occurrence order),
 /// each resolving to its custom property.

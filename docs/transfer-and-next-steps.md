@@ -90,10 +90,16 @@ adapters, hand-authored golden files, 100% coverage):
     `framed-control/*` (sizing) and `label/*` (typography) tokens, with
     `text-box` leading-trim. The workbench Button example imports the generated
     token layer + this canonical CSS and applies the contract classes, so the
-    deployed workbench is the visual-check surface. **Remaining (next PR):** the
-    SCSS form (CSS verbatim) and the Tailwind v4 recipe; values are
-    authored-from-tokens and will be reconciled against the Figma Button design
-    (no Figma access until 2026-06-16). `switch` to follow.
+    deployed workbench is the visual-check surface. The **SCSS form is now
+    landed** (`registry/r/button/styles.scss`): per D ("Registry CSS, derive
+    rest"), it is `styles.css` *verbatim* (SCSS is a strict superset of CSS)
+    followed by one `$primitiv-button-*` alias per declared knob, produced by a
+    new `emit_component_scss(css)` in `primitiv-emit` (mirrors the token-layer
+    `emit_scss`) and held to the canonical CSS by a drift-guard test asserting
+    the committed file equals `emit_component_scss(styles.css)`. **Remaining
+    (next PR):** the Tailwind v4 recipe (authored, not transpiled — RFC 0006
+    §6.1); values are authored-from-tokens and will be reconciled against the
+    Figma Button design (no Figma access until 2026-06-16). `switch` to follow.
 - [ ] **The CLI** (RFC 0005) — `init` / `add` / `tokens` / `theme` / `list`, `primitiv.json`, the static registry, refresh + wiring behaviour.
   - **Started.** The hand-rolled arg parser, the `theme` command (CSS / SCSS /
     Tailwind via `--format`), the `FileSystem` port (+ `InMemoryFs` fake) and the

@@ -20,7 +20,7 @@ pub use pipeline::{
     emit_theme_brand_tailwind, emit_theme_overrides_css, emit_tokens_css, emit_tokens_scss,
     TokenSources,
 };
-pub use scss::{emit_scss, emit_theme_scss};
+pub use scss::{emit_component_scss, emit_scss, emit_theme_scss};
 pub use tailwind::{emit_tailwind, emit_theme_tailwind};
 pub use theme::brand_tokens;
 pub use token::Token;

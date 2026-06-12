@@ -10,7 +10,7 @@ theme** (RFC 0004 §3, RFC 0006 §6).
 |---|---|---|
 | `contract.json` | — | The styling contract (RFC 0004 §3.4) — the component's public styling API. |
 | `styles.css` | css | The canonical default theme. |
-| `styles.scss` | scss | _(next increment)_ |
+| `styles.scss` | scss | The canonical CSS re-expressed for SCSS consumers (derived). |
 | `tailwind/button.recipe.ts` | tailwind | _(next increment)_ |
 
 ## The contract (`contract.json`)
@@ -41,3 +41,19 @@ to trim the label's line-box leading for optical centring.
 `data-*`, custom-property names), not these values (RFC 0006 Principle 2 — names
 are stable, values are not). Requires the token layer (`primitiv tokens`) for
 the `--primitiv-*` custom properties it resolves.
+
+## The SCSS form (`styles.scss`)
+
+CSS is canonical; SCSS is the same stylesheet re-expressed for `$`-pipeline
+consumers (D: "Registry CSS, derive rest"). Because SCSS is a strict superset of
+CSS, `styles.scss` is `styles.css` **verbatim** — layers, `text-box` longhands
+and all — followed by one `$primitiv-button-*` variable per `--primitiv-button-*`
+knob the stylesheet declares, each resolving to its custom property
+(`$primitiv-button-bg: var(--primitiv-button-bg);` …). Override the custom
+properties to re-skin; the `$`-vars are just the SCSS-side mirror of the same
+knobs.
+
+It is **derived, not hand-maintained**: `primitiv-emit`'s `emit_component_scss`
+produces it from `styles.css`, and a drift-guard test
+(`crates/primitiv-emit/src/scss_tests.rs`) asserts the committed file is exactly
+that output, so the two can't fall out of sync.

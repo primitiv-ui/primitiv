@@ -49,8 +49,12 @@
     font-weight: var(--primitiv-button-font-weight);
     line-height: var(--primitiv-button-line-height);
     /* Trim the line-box leading to the cap height so the label optically
-       centres within the control frame regardless of the font's metrics. */
-    text-box: trim-both cap alphabetic;
+       centres within the control frame regardless of the font's metrics. The
+       longhands (not the `text-box` shorthand) for the widest engine support —
+       Safari ships `text-box-trim`/`text-box-edge` ahead of the shorthand, and
+       where unsupported this no-ops and `line-height` governs. */
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
     cursor: pointer;
     transition:
       background-color 120ms ease,

@@ -90,6 +90,29 @@ pub(crate) fn camel_case(name: &str) -> String {
     out
 }
 
+/// The recipe `const` binding for a component — its camelCase name, unless that
+/// is a JS reserved word (`switch` → `export const switch` is a syntax error),
+/// in which case a `Recipe` suffix disambiguates it (`switchRecipe`). Shared by
+/// the recipe (the `export`) and the wrapper (the `import`).
+pub(crate) fn recipe_binding(name: &str) -> String {
+    let camel = camel_case(name);
+    if is_reserved_word(&camel) {
+        format!("{camel}Recipe")
+    } else {
+        camel
+    }
+}
+
+/// Whether an identifier collides with a JS reserved word, so it can't be a bare
+/// `const` binding. Only the subset a kebab-case component name could realistically
+/// produce is listed — `switch` is the live case.
+fn is_reserved_word(ident: &str) -> bool {
+    matches!(
+        ident,
+        "switch" | "default" | "class" | "case" | "do" | "for" | "if" | "else" | "new" | "void"
+    )
+}
+
 /// Uppercase the first character of a non-empty name segment.
 fn capitalize(segment: &str) -> String {
     let mut chars = segment.chars();

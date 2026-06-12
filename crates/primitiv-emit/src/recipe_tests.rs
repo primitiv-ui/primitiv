@@ -1,7 +1,7 @@
 use pretty_assertions::assert_eq;
 
 use crate::contract::Contract;
-use crate::contract_fixtures::DEMO_BOX;
+use crate::contract_fixtures::{DEMO_BOX, DEMO_TOGGLE};
 use crate::recipe::emit_recipe;
 
 #[test]
@@ -13,6 +13,19 @@ fn generates_a_cva_recipe_over_the_contract_modifier_classes() {
         include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/tests/golden/demo-box.recipe.ts"
+        ))
+    );
+}
+
+#[test]
+fn generates_a_base_only_recipe_for_a_no_modifier_contract() {
+    let contract = Contract::parse(DEMO_TOGGLE.as_bytes()).unwrap();
+
+    assert_eq!(
+        emit_recipe(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/demo-toggle.recipe.ts"
         ))
     );
 }

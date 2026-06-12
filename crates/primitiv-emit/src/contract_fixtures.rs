@@ -34,6 +34,21 @@ pub(crate) const DEMO_BOX: &str = r#"{
   ]
 }"#;
 
+/// State-driven synthetic contract — the generality proof for a *parts-based,
+/// no-modifier* component (Switch's shape without being Switch, D54). A root
+/// plus one decorative slot part, no `variant` axis, docs present. Exercises the
+/// recipe's base-only `cva` and the wrapper's compound auto-render + type-alias
+/// props.
+pub(crate) const DEMO_TOGGLE: &str = r#"{
+  "name": "demo-toggle",
+  "description": "A demo on/off toggle.",
+  "docs": "https://example.test/demo-toggle",
+  "root": { "element": "button", "class": "primitiv-demo-toggle" },
+  "parts": [
+    { "name": "thumb", "class": "primitiv-demo-toggle__thumb" }
+  ]
+}"#;
+
 /// Sparse synthetic contract — single-word name, no docs, one group with no
 /// `prop` (so the group key is the prop).
 pub(crate) const BARE: &str = r#"{

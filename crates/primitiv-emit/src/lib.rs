@@ -39,6 +39,8 @@ mod component_tests;
 #[cfg(test)]
 mod contract_fixtures;
 #[cfg(test)]
+mod contract_tests;
+#[cfg(test)]
 mod css_tests;
 #[cfg(test)]
 mod recipe_tests;

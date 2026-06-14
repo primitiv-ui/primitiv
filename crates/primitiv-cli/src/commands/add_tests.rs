@@ -105,6 +105,15 @@ const CONFIG_NO_STYLES: &[u8] = br##"{
   "registry": { "version": "0.1.0" }
 }"##;
 
+/// A registry whose `button` declares a CSS stylesheet and a React surface
+/// (recipe + wrapper), used to drive the dry-run refresh report.
+const WITH_REACT_SURFACE: &[u8] = br##"{
+  "version": "0.1.0",
+  "components": {
+    "button": { "version": "0.1.0", "styles": { "formats": { "css": ["styles.css"] }, "react": ["button.recipe.ts", "button.tsx"] } }
+  }
+}"##;
+
 /// Turn string literals into the owned component list the command takes.
 fn names(parts: &[&str]) -> Vec<String> {
     parts.iter().map(|part| part.to_string()).collect()
@@ -991,4 +1000,148 @@ fn surfaces_a_failure_to_read_the_working_directory_before_installing() {
     ).unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
+}
+
+// ── dry-run refresh report ────────────────────────────────────────────────
+
+#[test]
+fn dry_run_appends_the_refresh_plan_with_per_file_status() {
+    use crate::lock::Lock;
+
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+
+    // stylesheet — on disk, content matches lock → refresh
+    let stylesheet = Path::new("src/styles/primitiv/button/styles.css");
+    let stylesheet_bytes = b".primitiv-button{}";
+    fs.write(stylesheet, stylesheet_bytes).unwrap();
+
+    // wrapper — on disk but edited → keep
+    let wrapper = Path::new("components/button.tsx");
+    fs.write(wrapper, b"consumer edited").unwrap();
+
+    // recipe — not on disk → new
+    // (no write for components/button.recipe.ts)
+
+    // Seed the lock: stylesheet recorded (matching), wrapper recorded with original bytes
+    let mut lock = Lock::default();
+    lock.record("src/styles/primitiv/button/styles.css", stylesheet_bytes);
+    lock.record("components/button.tsx", b"original recipe");
+    lock.write(&fs, Path::new("primitiv.lock")).unwrap();
+
+    let registry = InMemoryRegistry::new(WITH_REACT_SURFACE);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), dry_run: true, ..Default::default() },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    // The plan header is still present
+    assert!(out.contains("Resolved 1 component to add:"), "missing plan header");
+    // The refresh section appears
+    assert!(out.contains("\nRefresh plan:\n"), "missing refresh section");
+    // Each file gets the right status label
+    assert!(out.contains("src/styles/primitiv/button/styles.css") && out.contains("refresh"),
+        "stylesheet should be 'refresh'");
+    assert!(out.contains("components/button.recipe.ts") && out.contains("new"),
+        "recipe should be 'new'");
+    assert!(out.contains("components/button.tsx") && out.contains("keep"),
+        "wrapper should be 'keep'");
+}
+
+#[test]
+fn dry_run_has_no_refresh_plan_when_no_config_is_present() {
+    let fs = InMemoryFs::new();
+    // No primitiv.json: no styled surface → no refresh plan section
+    let registry = InMemoryRegistry::new(WITH_REACT_SURFACE);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), dry_run: true, ..Default::default() },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(!out.contains("Refresh plan:"), "should not emit refresh section without config");
+}
+
+#[test]
+fn dry_run_has_no_refresh_plan_when_no_styles_flag_is_set() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry = InMemoryRegistry::new(WITH_REACT_SURFACE);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), dry_run: true, no_styles: true, ..Default::default() },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(!out.contains("Refresh plan:"), "should not emit refresh section with --no-styles");
+}
+
+#[test]
+fn dry_run_has_no_refresh_plan_when_styles_are_disabled_in_config() {
+    let fs = InMemoryFs::new();
+    // Config present but styles.enabled = false: planned_files returns empty → no section.
+    fs.write(Path::new("primitiv.json"), CONFIG_NO_STYLES).unwrap();
+    let registry = InMemoryRegistry::new(WITH_REACT_SURFACE);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), dry_run: true, ..Default::default() },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(!out.contains("Refresh plan:"), "should not emit refresh section when styles disabled");
+}
+
+#[test]
+fn dry_run_refresh_plan_covers_stylesheet_only_when_there_is_no_react_surface() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    // WITH_STYLES has only a CSS stylesheet — no React surface. The plan should
+    // list the stylesheet file and omit the React block (exercises the has_react=false path).
+    let registry = InMemoryRegistry::new(WITH_STYLES);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), dry_run: true, ..Default::default() },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(out.contains("\nRefresh plan:\n"), "should emit refresh section");
+    assert!(out.contains("src/styles/primitiv/button/styles.css"),
+        "stylesheet should appear in plan");
+    assert!(out.contains("new"), "absent file should be 'new'");
 }

@@ -1,11 +1,11 @@
 use std::collections::BTreeSet;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crate::config;
 use crate::detect;
 use crate::error::CliError;
 use crate::format::Format;
-use crate::lock::{self, Lock};
+use crate::lock::{self, Lock, Refresh};
 use crate::package_manager::PackageManager;
 use crate::ports::fs::FileSystem;
 use crate::ports::output::Output;
@@ -38,6 +38,22 @@ pub struct AddOptions {
     /// Overwrite every copied file, even one a consumer has edited since `add`
     /// last wrote it (RFC 0005 §4.2). Without it, edited files are kept.
     pub force: bool,
+}
+
+/// One file the real (non-dry) copy would process — used by the dry-run refresh
+/// report to classify each destination without fetching registry bytes.
+struct PlannedFile {
+    dest: PathBuf,
+}
+
+/// The human-readable status label for a classified file (RFC 0005 §4.2).
+fn status_label(refresh: &Refresh, force: bool) -> &'static str {
+    match refresh {
+        Refresh::New => "new",
+        Refresh::Unchanged => "refresh",
+        Refresh::Edited if force => "overwrite",
+        Refresh::Edited => "keep",
+    }
 }
 
 /// The `primitiv add <component...>` command (RFC 0005 §2.2 / §4).
@@ -81,6 +97,27 @@ pub fn add(
         render(&index, &resolved)
     };
     output.write_stdout(plan.as_bytes())?;
+    // When dry-running in human mode, append the per-file refresh plan (RFC 0005
+    // §4.2). This is omitted when --no-styles is set or when no config / styles
+    // are enabled (planned_files returns empty and the section is suppressed).
+    if *dry_run && !*json && !*no_styles {
+        let dir = fs.current_dir()?;
+        let files = planned_files(fs, &index, &resolved, *format, path.as_deref(), &dir)?;
+        let lock_path = dir.join(lock::FILE_NAME);
+        let lock = Lock::read(fs, &lock_path)?;
+        let classified: Result<Vec<(String, &'static str)>, CliError> = files
+            .iter()
+            .map(|pf| {
+                let refresh = lock.classify(fs, &pf.dest)?;
+                let label = status_label(&refresh, *force);
+                Ok((pf.dest.to_string_lossy().into_owned(), label))
+            })
+            .collect();
+        let classified = classified?;
+        if !classified.is_empty() {
+            output.write_stdout(render_refresh_plan(&classified).as_bytes())?;
+        }
+    }
     if !*dry_run {
         let dir = fs.current_dir()?;
         if !*styles_only {
@@ -198,6 +235,64 @@ fn copy_react_surface(
         }
     }
     Ok(())
+}
+
+/// Enumerate every destination file the real copy would process — the same set
+/// the dry-run refresh report classifies. Returns an empty `Vec` when styles are
+/// disabled / no config is present (mirroring `copy_styled_surface`). The React
+/// alias resolution is attempted only when at least one component declares a
+/// React surface (mirroring `copy_react_surface`). No registry bytes are fetched.
+fn planned_files(
+    fs: &impl FileSystem,
+    index: &RegistryIndex,
+    resolved: &[String],
+    format: Option<Format>,
+    path: Option<&str>,
+    dir: &Path,
+) -> Result<Vec<PlannedFile>, CliError> {
+    let Some(config) = config::try_resolve(fs, dir)? else {
+        return Ok(vec![]);
+    };
+    if !config.styles.enabled {
+        return Ok(vec![]);
+    }
+    let format = format.unwrap_or(config.styles.format);
+    let styles_path = path.unwrap_or(&config.styles.path);
+    let mut files = Vec::new();
+    // Stylesheets: <styles_path>/<component>/<file>
+    for name in resolved {
+        let component_dir = Path::new(styles_path).join(name);
+        for file in index.components[name].styles.formats.files(format) {
+            files.push(PlannedFile { dest: component_dir.join(file) });
+        }
+    }
+    // React surface: <components_dir>/<file> (shared directory, flat layout)
+    let has_react = resolved
+        .iter()
+        .any(|name| !index.components[name].styles.react.is_empty());
+    if has_react {
+        let components_dir = detect::components_path(fs, dir)?
+            .unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
+        let components_dir = PathBuf::from(&components_dir);
+        for name in resolved {
+            for file in &index.components[name].styles.react {
+                files.push(PlannedFile { dest: components_dir.join(file) });
+            }
+        }
+    }
+    Ok(files)
+}
+
+/// Render the human "Refresh plan:" section for the dry-run report. Each entry
+/// is `  {path:<width$}  {status}`, left-aligned to the max path width, matching
+/// the aligned layout of the components table (RFC 0005 §4.2).
+fn render_refresh_plan(files: &[(String, &str)]) -> String {
+    let width = files.iter().map(|(p, _)| p.len()).max().unwrap_or(0);
+    let mut out = "\nRefresh plan:\n".to_string();
+    for (path, status) in files {
+        out.push_str(&format!("  {path:<width$}  {status}\n"));
+    }
+    out
 }
 
 /// Fetch one registry file and write it into `dest_dir` — but only when the

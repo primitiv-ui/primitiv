@@ -1145,3 +1145,180 @@ fn dry_run_refresh_plan_covers_stylesheet_only_when_there_is_no_react_surface() 
         "stylesheet should appear in plan");
     assert!(out.contains("new"), "absent file should be 'new'");
 }
+
+#[test]
+fn dry_run_with_force_labels_an_edited_file_as_overwrite() {
+    use crate::lock::Lock;
+
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+
+    // stylesheet — on disk but consumer-edited; with --force it should show 'overwrite'
+    let dest = Path::new("src/styles/primitiv/button/styles.css");
+    fs.write(dest, b"consumer edited").unwrap();
+
+    // Seed the lock with the original bytes so the current content looks edited
+    let mut lock = Lock::default();
+    lock.record("src/styles/primitiv/button/styles.css", b".primitiv-button{}");
+    lock.write(&fs, Path::new("primitiv.lock")).unwrap();
+
+    let registry = InMemoryRegistry::new(WITH_STYLES);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), dry_run: true, force: true, ..Default::default() },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(out.contains("overwrite"), "edited file with --force should be 'overwrite'");
+    assert!(!out.contains("keep"), "edited file with --force should not be 'keep'");
+}
+
+// ── dry-run error-path coverage ───────────────────────────────────────────
+
+#[test]
+fn dry_run_surfaces_a_current_dir_failure() {
+    let fs = InMemoryFs::new();
+    fs.fail_current_dir();
+    let registry = InMemoryRegistry::new(WITH_REACT_SURFACE);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), dry_run: true, ..Default::default() },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn dry_run_surfaces_a_config_read_failure_in_planned_files() {
+    let fs = InMemoryFs::new();
+    // primitiv.json exists but is unreadable: config::try_resolve errors.
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    fs.fail_reads_to(Path::new("primitiv.json"));
+    let registry = InMemoryRegistry::new(WITH_REACT_SURFACE);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), dry_run: true, ..Default::default() },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn dry_run_surfaces_a_lock_read_failure() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    // Lock exists but is unreadable.
+    fs.write(Path::new("primitiv.lock"), b"{}").unwrap();
+    fs.fail_reads_to(Path::new("primitiv.lock"));
+    let registry = InMemoryRegistry::new(WITH_STYLES);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), dry_run: true, ..Default::default() },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn dry_run_surfaces_a_classify_read_failure() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    // The stylesheet destination exists (so classify reads it) but is unreadable.
+    let dest = Path::new("src/styles/primitiv/button/styles.css");
+    fs.write(dest, b"content").unwrap();
+    fs.fail_reads_to(dest);
+    let registry = InMemoryRegistry::new(WITH_STYLES);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), dry_run: true, ..Default::default() },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn dry_run_surfaces_a_stdout_failure_writing_the_refresh_plan() {
+    use crate::lock::Lock;
+
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    // Seed lock with a file that won't exist on disk → status 'new', non-empty list.
+    let mut lock = Lock::default();
+    lock.record("src/styles/primitiv/button/styles.css", b".primitiv-button{}");
+    lock.write(&fs, Path::new("primitiv.lock")).unwrap();
+    let registry = InMemoryRegistry::new(WITH_STYLES);
+    let output = InMemoryOutput::new();
+    // Let the first write (the plan) succeed, then fail the second write (the
+    // refresh plan section) to drive the stdout-error branch at line 118.
+    output.fail_stdout_after(1);
+    let runner = InMemoryProcessRunner::new();
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), dry_run: true, ..Default::default() },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn dry_run_surfaces_a_components_dir_detection_failure_in_planned_files() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    // tsconfig exists but is unreadable: detect::components_path errors.
+    fs.write(Path::new("tsconfig.json"), TSCONFIG).unwrap();
+    fs.fail_reads_to(Path::new("tsconfig.json"));
+    let registry = InMemoryRegistry::new(WITH_REACT_SURFACE);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), dry_run: true, ..Default::default() },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}

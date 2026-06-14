@@ -31,6 +31,9 @@ impl Output for OsStdout {
 pub struct InMemoryOutput {
     stdout: RefCell<Vec<u8>>,
     fail: RefCell<bool>,
+    /// Remaining successful writes before the next write fails. `None` means no
+    /// scheduled failure; `Some(0)` means the very next write fails.
+    writes_before_fail: RefCell<Option<usize>>,
 }
 
 #[cfg(test)]
@@ -39,11 +42,17 @@ impl InMemoryOutput {
         Self::default()
     }
 
-    /// Make the next [`write_stdout`](Output::write_stdout) fail with
+    /// Make ALL [`write_stdout`](Output::write_stdout) calls fail with
     /// `BrokenPipe`, so a command can drive its stdout-error branch without a
     /// real broken stream (e.g. a closed downstream pipe).
     pub fn fail_stdout(&self) {
         *self.fail.borrow_mut() = true;
+    }
+
+    /// Let the next `n` writes succeed, then fail the `(n+1)`-th with
+    /// `BrokenPipe`. `fail_stdout_after(0)` is equivalent to `fail_stdout()`.
+    pub fn fail_stdout_after(&self, n: usize) {
+        *self.writes_before_fail.borrow_mut() = Some(n);
     }
 
     /// The bytes streamed to stdout so far.
@@ -58,6 +67,17 @@ impl Output for InMemoryOutput {
         if *self.fail.borrow() {
             return Err(io::Error::new(io::ErrorKind::BrokenPipe, "stdout blocked"));
         }
+        let mut guard = self.writes_before_fail.borrow_mut();
+        match *guard {
+            Some(0) => {
+                return Err(io::Error::new(io::ErrorKind::BrokenPipe, "stdout blocked"));
+            }
+            Some(ref mut n) => {
+                *n -= 1;
+            }
+            None => {}
+        }
+        drop(guard);
         self.stdout.borrow_mut().extend_from_slice(bytes);
         Ok(())
     }

@@ -91,31 +91,46 @@ pub fn add(
         .map_err(|error| CliError::Registry(error.to_string()))?;
     let index = RegistryIndex::parse(&index)?;
     let resolved = resolve(&index, components)?;
+    // Compute the per-file classification for the dry-run report. Both the human
+    // ("Refresh plan:") and JSON ("files" array) outputs consume it.
+    // - `None` when not dry-running (JSON omits the "files" key entirely).
+    // - `Some(vec![])` when --no-styles is set (no files to copy; JSON still
+    //   includes the empty array, human section is suppressed).
+    // - `Some(files)` otherwise, classifying each planned destination.
+    let refresh_files: Option<Vec<(String, &'static str)>> = if *dry_run {
+        if *no_styles {
+            Some(vec![])
+        } else {
+            let dir = fs.current_dir()?;
+            let files = planned_files(fs, &index, &resolved, *format, path.as_deref(), &dir)?;
+            let lock_path = dir.join(lock::FILE_NAME);
+            let lock = Lock::read(fs, &lock_path)?;
+            let classified: Result<Vec<(String, &'static str)>, CliError> = files
+                .iter()
+                .map(|pf| {
+                    let refresh = lock.classify(fs, &pf.dest)?;
+                    let label = status_label(&refresh, *force);
+                    Ok((pf.dest.to_string_lossy().into_owned(), label))
+                })
+                .collect();
+            Some(classified?)
+        }
+    } else {
+        None
+    };
     let plan = if *json {
-        render_json(&index, &resolved)
+        render_json(&index, &resolved, refresh_files.as_deref())
     } else {
         render(&index, &resolved)
     };
     output.write_stdout(plan.as_bytes())?;
-    // When dry-running in human mode, append the per-file refresh plan (RFC 0005
-    // §4.2). This is omitted when --no-styles is set or when no config / styles
-    // are enabled (planned_files returns empty and the section is suppressed).
-    if *dry_run && !*json && !*no_styles {
-        let dir = fs.current_dir()?;
-        let files = planned_files(fs, &index, &resolved, *format, path.as_deref(), &dir)?;
-        let lock_path = dir.join(lock::FILE_NAME);
-        let lock = Lock::read(fs, &lock_path)?;
-        let classified: Result<Vec<(String, &'static str)>, CliError> = files
-            .iter()
-            .map(|pf| {
-                let refresh = lock.classify(fs, &pf.dest)?;
-                let label = status_label(&refresh, *force);
-                Ok((pf.dest.to_string_lossy().into_owned(), label))
-            })
-            .collect();
-        let classified = classified?;
-        if !classified.is_empty() {
-            output.write_stdout(render_refresh_plan(&classified).as_bytes())?;
+    // When dry-running in human mode, append the "Refresh plan:" section after the
+    // main plan. JSON already embeds the "files" array inside the object above.
+    if !*json {
+        if let Some(ref files) = refresh_files {
+            if !files.is_empty() {
+                output.write_stdout(render_refresh_plan(files).as_bytes())?;
+            }
         }
     }
     if !*dry_run {
@@ -395,10 +410,16 @@ fn render(index: &RegistryIndex, resolved: &[String]) -> String {
 
 /// Format the plan as JSON for agents (RFC 0005 §6.5): the resolved components
 /// with their versions, and the packages to ensure — the same data the human
-/// table carries, machine-readable. Hand-rendered to exact bytes (the authored-
-/// golden discipline, RFC 0007 §4); the values are registry-controlled and need
-/// no escaping.
-fn render_json(index: &RegistryIndex, resolved: &[String]) -> String {
+/// table carries, machine-readable. Under `--dry-run`, `files` is `Some` and the
+/// object includes a `"files"` array (even when empty → `[]`); a non-dry-run call
+/// passes `None` and the key is omitted. Hand-rendered to exact bytes (the
+/// authored-golden discipline, RFC 0007 §4); the values are registry-controlled
+/// and need no escaping.
+fn render_json(
+    index: &RegistryIndex,
+    resolved: &[String],
+    files: Option<&[(String, &str)]>,
+) -> String {
     let components: Vec<String> = resolved
         .iter()
         .map(|name| {
@@ -410,11 +431,26 @@ fn render_json(index: &RegistryIndex, resolved: &[String]) -> String {
         .iter()
         .map(|package| format!("    \"{package}\""))
         .collect();
-    format!(
-        "{{\n  \"components\": {},\n  \"packages\": {}\n}}\n",
-        json_array(components),
-        json_array(packages),
-    )
+    if let Some(file_entries) = files {
+        let file_items: Vec<String> = file_entries
+            .iter()
+            .map(|(path, status)| {
+                format!("    {{ \"path\": \"{path}\", \"status\": \"{status}\" }}")
+            })
+            .collect();
+        format!(
+            "{{\n  \"components\": {},\n  \"packages\": {},\n  \"files\": {}\n}}\n",
+            json_array(components),
+            json_array(packages),
+            json_array(file_items),
+        )
+    } else {
+        format!(
+            "{{\n  \"components\": {},\n  \"packages\": {}\n}}\n",
+            json_array(components),
+            json_array(packages),
+        )
+    }
 }
 
 /// Wrap pre-indented `items` as a JSON array, collapsing to `[]` when empty so

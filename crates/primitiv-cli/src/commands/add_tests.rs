@@ -193,7 +193,8 @@ fn renders_the_plan_as_json_with_components_and_packages() {
   "packages": [
     "@primitiv-ui/icons",
     "@primitiv-ui/react"
-  ]
+  ],
+  "files": []
 }
 "#,
     );
@@ -216,6 +217,73 @@ fn renders_json_with_an_empty_packages_array_when_there_are_none() {
 
     assert_eq!(
         String::from_utf8(output.captured()).unwrap(),
+        r#"{
+  "components": [
+    { "name": "button", "version": "0.1.0" }
+  ],
+  "packages": [],
+  "files": []
+}
+"#,
+    );
+}
+
+#[test]
+fn renders_json_dry_run_with_a_files_array_when_styles_are_configured() {
+    use crate::lock::Lock;
+
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    // stylesheet on disk, content matches lock → refresh; recipe absent → new.
+    let stylesheet = Path::new("src/styles/primitiv/button/styles.css");
+    let stylesheet_bytes = b".primitiv-button{}";
+    fs.write(stylesheet, stylesheet_bytes).unwrap();
+    let mut lock = Lock::default();
+    lock.record("src/styles/primitiv/button/styles.css", stylesheet_bytes);
+    lock.write(&fs, Path::new("primitiv.lock")).unwrap();
+    let registry = InMemoryRegistry::new(WITH_REACT_SURFACE);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), json: true, dry_run: true, ..Default::default() },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(out.contains("\"files\""), "should include files array");
+    assert!(out.contains("\"refresh\""), "matched file should be 'refresh'");
+    assert!(out.contains("\"new\""), "absent file should be 'new'");
+    // Verify the exact JSON structure for the files section.
+    assert!(out.contains("\"path\": \"src/styles/primitiv/button/styles.css\""),
+        "stylesheet path should appear");
+}
+
+#[test]
+fn renders_json_without_a_files_key_on_a_non_dry_run() {
+    // A non-dry-run `--json` call omits the "files" key entirely
+    // (it only appears under --dry-run).
+    let fs = InMemoryFs::new();
+    let registry = InMemoryRegistry::new(FLAT);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), json: true, dry_run: false, ..Default::default() },
+    ).unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(!out.contains("\"files\""), "non-dry-run JSON should not have files key");
+    assert_eq!(
+        out,
         r#"{
   "components": [
     { "name": "button", "version": "0.1.0" }

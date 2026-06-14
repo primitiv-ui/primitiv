@@ -1,6 +1,10 @@
+use std::path::Path;
+
 use pretty_assertions::assert_eq;
 
+use crate::error::CliError;
 use crate::lock::{fnv1a_hex, Lock};
+use crate::ports::fs::{FileSystem, InMemoryFs};
 
 #[test]
 fn hashes_the_empty_input_to_the_fnv_offset_basis() {
@@ -51,4 +55,95 @@ fn renders_recorded_files_sorted_by_path() {
             fnv1a_hex(b".primitiv-button{}"),
         )
     );
+}
+
+#[test]
+fn reads_a_missing_lock_as_empty() {
+    let fs = InMemoryFs::new();
+
+    assert_eq!(Lock::read(&fs, Path::new("primitiv.lock")).unwrap(), Lock::default());
+}
+
+#[test]
+fn reads_back_a_written_lock() {
+    let fs = InMemoryFs::new();
+    let mut lock = Lock::default();
+    lock.record("src/components/button.tsx", b"wrapper");
+    lock.write(&fs, Path::new("primitiv.lock")).unwrap();
+
+    assert_eq!(Lock::read(&fs, Path::new("primitiv.lock")).unwrap(), lock);
+}
+
+#[test]
+fn surfaces_a_non_not_found_read_error() {
+    let fs = InMemoryFs::new();
+    fs.fail_reads_to(Path::new("primitiv.lock"));
+
+    let err = Lock::read(&fs, Path::new("primitiv.lock")).unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn surfaces_a_write_failure() {
+    let fs = InMemoryFs::new();
+    fs.fail_writes_to(Path::new("primitiv.lock"));
+
+    let err = Lock::default().write(&fs, Path::new("primitiv.lock")).unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn writes_a_file_that_does_not_exist_yet() {
+    let fs = InMemoryFs::new();
+
+    assert!(Lock::default()
+        .should_write(&fs, Path::new("styles.css"), false)
+        .unwrap());
+}
+
+#[test]
+fn force_writes_even_an_edited_file() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("styles.css"), b"edited by the consumer").unwrap();
+
+    assert!(Lock::default()
+        .should_write(&fs, Path::new("styles.css"), true)
+        .unwrap());
+}
+
+#[test]
+fn refreshes_a_file_left_untouched_since_it_was_written() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("styles.css"), b".primitiv-button{}").unwrap();
+    let mut lock = Lock::default();
+    lock.record("styles.css", b".primitiv-button{}");
+
+    // The on-disk content still matches what add recorded, so it refreshes.
+    assert!(lock.should_write(&fs, Path::new("styles.css"), false).unwrap());
+}
+
+#[test]
+fn keeps_a_consumer_edited_file() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("styles.css"), b"edited by the consumer").unwrap();
+    let mut lock = Lock::default();
+    lock.record("styles.css", b".primitiv-button{}");
+
+    // The on-disk content differs from what add recorded, so it is kept.
+    assert!(!lock.should_write(&fs, Path::new("styles.css"), false).unwrap());
+}
+
+#[test]
+fn surfaces_a_read_failure_while_deciding() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("styles.css"), b"x").unwrap();
+    fs.fail_reads_to(Path::new("styles.css"));
+
+    let err = Lock::default()
+        .should_write(&fs, Path::new("styles.css"), false)
+        .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
 }

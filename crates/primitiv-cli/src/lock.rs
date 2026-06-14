@@ -3,8 +3,13 @@
 //! from a consumer-edited one (kept, never silently clobbered).
 
 use std::collections::BTreeMap;
+use std::io;
+use std::path::Path;
 
 use serde::Deserialize;
+
+use crate::error::CliError;
+use crate::ports::fs::FileSystem;
 
 /// The parsed `primitiv.lock`: a map from each written file's project-relative
 /// path to the [`fnv1a_hex`] of the bytes `add` last wrote there. A `BTreeMap`
@@ -44,6 +49,41 @@ impl Lock {
     /// whether the on-disk file still matches.
     pub fn record(&mut self, path: &str, bytes: &[u8]) {
         self.files.insert(path.to_string(), fnv1a_hex(bytes));
+    }
+
+    /// Read the lock at `path` through the [`FileSystem`] port. A missing lock is
+    /// an empty manifest (the first `add` in a project); any other read error is
+    /// a hard [`CliError::Io`].
+    pub fn read(fs: &impl FileSystem, path: &Path) -> Result<Lock, CliError> {
+        match fs.read(path) {
+            Ok(bytes) => Ok(Lock::parse(&bytes)),
+            Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(Lock::default()),
+            Err(error) => Err(CliError::Io(error)),
+        }
+    }
+
+    /// Write the manifest to `path` through the [`FileSystem`] port.
+    pub fn write(&self, fs: &impl FileSystem, path: &Path) -> Result<(), CliError> {
+        fs.write(path, &self.to_bytes()).map_err(CliError::Io)
+    }
+
+    /// Whether `add` should write `dest` (RFC 0005 §4.2). `--force` always
+    /// writes; a file not yet on disk is new and written; an existing file is
+    /// refreshed only when its current content still matches what the lock
+    /// recorded (untouched since `add` wrote it) — a consumer-edited or untracked
+    /// file is kept. A read failure on the existing file is a [`CliError::Io`].
+    pub fn should_write(
+        &self,
+        fs: &impl FileSystem,
+        dest: &Path,
+        force: bool,
+    ) -> Result<bool, CliError> {
+        if force || !fs.exists(dest) {
+            return Ok(true);
+        }
+        let current = fnv1a_hex(&fs.read(dest).map_err(CliError::Io)?);
+        let key = dest.to_string_lossy();
+        Ok(self.files.get(key.as_ref()) == Some(&current))
     }
 }
 

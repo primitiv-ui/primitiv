@@ -19,15 +19,20 @@ pub trait ProcessRunner {
     fn run(&self, program: &str, args: &[String], cwd: &Path) -> io::Result<()>;
 }
 
-/// The real [`ProcessRunner`] the bin runs on — spawns the command, inheriting
-/// the parent's stdio so the package manager's own progress reaches the user
-/// (RFC 0007 §2.1). A non-zero exit becomes an error so the command layer can
+/// The real [`ProcessRunner`] the bin runs on — spawns the command, routing the
+/// manager's **stdout to our stderr** so its progress still reaches the user
+/// without polluting a `--json` stdout (RFC 0005 §5); the manager's stderr is
+/// inherited as usual. A non-zero exit becomes an error so the command layer can
 /// surface a failed install.
 pub struct OsProcessRunner;
 
 impl ProcessRunner for OsProcessRunner {
     fn run(&self, program: &str, args: &[String], cwd: &Path) -> io::Result<()> {
-        let status = Command::new(program).args(args).current_dir(cwd).status()?;
+        let status = Command::new(program)
+            .args(args)
+            .current_dir(cwd)
+            .stdout(io::stderr())
+            .status()?;
         if status.success() {
             Ok(())
         } else {

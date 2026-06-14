@@ -322,9 +322,13 @@ adapters, hand-authored golden files, 100% coverage):
     (`OsProcessRunner` sets the child's stdout to the parent's stderr), so a
     non-dry-run `add --json` keeps a clean JSON stdout while install progress
     still reaches the user on stderr (RFC 0005 §5) — the earlier interleaving
-    wart is gone. **Remaining for `add`** (§4.2–§4.4):
-    the interactive diff/keep/overwrite/skip prompt and the `--dry-run` refresh
-    report (the non-interactive keep-edits / `--force` path is the v1 surface);
+    wart is gone. The **`--dry-run` refresh report** (per-file new/refresh/keep/overwrite
+    status, both human and `--json`) is now landed — `planned_files` enumerates
+    the same stylesheet + React-surface destinations the real copy would write,
+    `Lock::classify` gives the status for each, and `--force` flips edited →
+    overwrite in the label. **Remaining for `add`** (§4.2–§4.4):
+    the interactive diff/keep/overwrite/skip prompt (the non-interactive
+    keep-edits / `--force` path is the v1 surface);
     copying the **contract**; project
     wiring (§4.3), and the `--registry` / HTTPS registry adapter.
     **Other remaining CLI work:**

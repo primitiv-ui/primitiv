@@ -4,6 +4,8 @@ use std::path::Path;
 use crate::config;
 use crate::detect;
 use crate::error::CliError;
+use crate::format::Format;
+use crate::lock::{self, Lock};
 use crate::package_manager::PackageManager;
 use crate::ports::fs::FileSystem;
 use crate::ports::output::Output;
@@ -26,6 +28,16 @@ pub struct AddOptions {
     pub styles_only: bool,
     /// Install the headless package but stop before copying styles (§4.1 step 3).
     pub no_styles: bool,
+    /// Override the stylesheet format for this copy (§4.1 step 3 / §5). When
+    /// `None` the project config's `styles.format` is used; an explicit
+    /// `--format` wins, mirroring `tokens` / `theme` (no persistence).
+    pub format: Option<Format>,
+    /// Override the styles destination for this copy (§5). When `None` the
+    /// config's `styles.path` is used; an explicit `--path` wins (no persistence).
+    pub path: Option<String>,
+    /// Overwrite every copied file, even one a consumer has edited since `add`
+    /// last wrote it (RFC 0005 §4.2). Without it, edited files are kept.
+    pub force: bool,
 }
 
 /// The `primitiv add <component...>` command (RFC 0005 §2.2 / §4).
@@ -54,6 +66,9 @@ pub fn add(
         dry_run,
         styles_only,
         no_styles,
+        format,
+        path,
+        force,
     } = options;
     let index = registry
         .index()
@@ -72,7 +87,16 @@ pub fn add(
             ensure_packages(fs, runner, &index, &resolved, &dir)?;
         }
         if !*no_styles {
-            copy_styled_surface(fs, registry, &index, &resolved, &dir)?;
+            copy_styled_surface(
+                fs,
+                registry,
+                &index,
+                &resolved,
+                &dir,
+                *format,
+                path.as_deref(),
+                *force,
+            )?;
         }
     }
     Ok(())
@@ -88,13 +112,23 @@ const DEFAULT_COMPONENTS_DIR: &str = "components";
 /// headless-only install) or `styles.enabled = false`, nothing is copied.
 /// Otherwise each component's per-format stylesheet lands in the styles path and
 /// its format-independent React surface (recipe + wrapper) in the components
-/// directory.
+/// directory. An explicit `format` / `path` overrides the config's
+/// `styles.format` / `styles.path` for the stylesheet (RFC 0005 §4.1 step 3 /
+/// §5); the React surface is format-independent and alias-placed, so neither
+/// affects it. Every write goes through the [`Lock`] refresh check (§4.2): the
+/// manifest beside the config is read first, each copied file is recorded, and
+/// the updated lock is written back, so a re-add keeps consumer edits unless
+/// `force` is set.
+#[allow(clippy::too_many_arguments)]
 fn copy_styled_surface(
     fs: &impl FileSystem,
     registry: &impl Registry,
     index: &RegistryIndex,
     resolved: &[String],
     dir: &Path,
+    format: Option<Format>,
+    path: Option<&str>,
+    force: bool,
 ) -> Result<(), CliError> {
     let Some(config) = config::try_resolve(fs, dir)? else {
         return Ok(());
@@ -102,23 +136,32 @@ fn copy_styled_surface(
     if !config.styles.enabled {
         return Ok(());
     }
-    copy_stylesheets(fs, registry, index, resolved, &config)?;
-    copy_react_surface(fs, registry, index, resolved, dir)
+    let format = format.unwrap_or(config.styles.format);
+    let styles_path = path.unwrap_or(&config.styles.path);
+    let lock_path = dir.join(lock::FILE_NAME);
+    let mut lock = Lock::read(fs, &lock_path)?;
+    copy_stylesheets(fs, registry, &mut lock, index, resolved, styles_path, format, force)?;
+    copy_react_surface(fs, registry, &mut lock, index, resolved, dir, force)?;
+    lock.write(fs, &lock_path)
 }
 
-/// Copy each component's stylesheet for the configured format into
-/// `<styles.path>/<component>/` (RFC 0005 §4.1 step 4).
+/// Copy each component's stylesheet for the resolved `format` into
+/// `<styles_path>/<component>/` (RFC 0005 §4.1 step 4).
+#[allow(clippy::too_many_arguments)]
 fn copy_stylesheets(
     fs: &impl FileSystem,
     registry: &impl Registry,
+    lock: &mut Lock,
     index: &RegistryIndex,
     resolved: &[String],
-    config: &config::Config,
+    styles_path: &str,
+    format: Format,
+    force: bool,
 ) -> Result<(), CliError> {
     for name in resolved {
-        let component_dir = Path::new(&config.styles.path).join(name);
-        for file in index.components[name].styles.formats.files(config.styles.format) {
-            copy_file(fs, registry, name, file, &component_dir)?;
+        let component_dir = Path::new(styles_path).join(name);
+        for file in index.components[name].styles.formats.files(format) {
+            copy_file(fs, registry, lock, name, file, &component_dir, force)?;
         }
     }
     Ok(())
@@ -134,9 +177,11 @@ fn copy_stylesheets(
 fn copy_react_surface(
     fs: &impl FileSystem,
     registry: &impl Registry,
+    lock: &mut Lock,
     index: &RegistryIndex,
     resolved: &[String],
     dir: &Path,
+    force: bool,
 ) -> Result<(), CliError> {
     let has_react = resolved
         .iter()
@@ -149,28 +194,35 @@ fn copy_react_surface(
     let components_dir = Path::new(&components_dir);
     for name in resolved {
         for file in &index.components[name].styles.react {
-            copy_file(fs, registry, name, file, components_dir)?;
+            copy_file(fs, registry, lock, name, file, components_dir, force)?;
         }
     }
     Ok(())
 }
 
-/// Fetch one registry file and write it into `dest_dir`, creating the directory
-/// first (RFC 0005 §4.1 step 4). A file the registry can't serve is a
-/// [`CliError::Registry`]; a directory/write failure surfaces as the port's
-/// [`CliError::Io`].
+/// Fetch one registry file and write it into `dest_dir` — but only when the
+/// [`Lock`] says so (RFC 0005 §4.2): a new or untouched file is written and its
+/// hash recorded; a consumer-edited file is kept unless `force`. A file the
+/// registry can't serve is a [`CliError::Registry`]; a directory/write failure
+/// surfaces as the port's [`CliError::Io`].
 fn copy_file(
     fs: &impl FileSystem,
     registry: &impl Registry,
+    lock: &mut Lock,
     name: &str,
     file: &str,
     dest_dir: &Path,
+    force: bool,
 ) -> Result<(), CliError> {
     let bytes = registry
         .file(name, file)
         .map_err(|error| CliError::Registry(error.to_string()))?;
-    fs.create_dir_all(dest_dir)?;
-    fs.write(&dest_dir.join(file), &bytes)?;
+    let dest = dest_dir.join(file);
+    if lock.should_write(fs, &dest, force)? {
+        fs.create_dir_all(dest_dir)?;
+        fs.write(&dest, &bytes)?;
+        lock.record(&dest.to_string_lossy(), &bytes);
+    }
     Ok(())
 }
 

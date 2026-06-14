@@ -303,13 +303,31 @@ adapters, hand-authored golden files, 100% coverage):
     `CliError::Io`. The registry index models the `styles.react` list and the
     `EmbeddedRegistry` bakes the recipe/wrapper in; the `--styles-only` e2e now
     asserts the full styled surface (stylesheet **and** React files) on a real
-    filesystem. **Remaining for `add`** (§4.2–§4.4):
-    copying the **contract**; the refresh/`primitiv.lock` semantics; project
-    wiring (§4.3), the `--format` / `--path` /
-    `--force` flags, the `--registry` / HTTPS registry adapter, and routing the
-    package manager's own output to stderr so `--json` keeps a clean stdout (today
-    a non-dry-run `--json` install interleaves the manager's chatter with the JSON;
-    agents wanting pure JSON use `--dry-run`). **Other remaining CLI work:**
+    filesystem. The **`add --format` and `--path` override flags are landed**
+    (parsed into `AddOptions`, with the hand-rolled parser now value-aware):
+    `--format` selects the stylesheet format and `--path` its destination for the
+    copy, both overriding the config with no persistence (mirroring
+    `tokens` / `theme`); the alias-placed, format-independent React surface is
+    unaffected. The **`primitiv.lock` refresh semantics + `--force` are landed**
+    (RFC 0005 §4.2): a new `lock` module hashes file content with a
+    **dependency-free FNV-1a** (`fnv1a_hex`, stable across platforms unlike
+    `std`'s `DefaultHasher`) and holds the `Lock` manifest (serde-read,
+    hand-rendered bytes; a malformed lock degrades to empty so edits are never
+    clobbered). Every copied file now routes through `Lock::should_write`: a new
+    or untouched file (on-disk content still matches the recorded hash) is written
+    and re-recorded; a **consumer-edited** file (content differs) is **kept**;
+    `--force` overwrites regardless. `add` reads `primitiv.lock` beside the config,
+    threads it through the stylesheet + React-surface copy, and writes the updated
+    manifest back. The **package manager's stdout is now routed to stderr**
+    (`OsProcessRunner` sets the child's stdout to the parent's stderr), so a
+    non-dry-run `add --json` keeps a clean JSON stdout while install progress
+    still reaches the user on stderr (RFC 0005 §5) — the earlier interleaving
+    wart is gone. **Remaining for `add`** (§4.2–§4.4):
+    the interactive diff/keep/overwrite/skip prompt and the `--dry-run` refresh
+    report (the non-interactive keep-edits / `--force` path is the v1 surface);
+    copying the **contract**; project
+    wiring (§4.3), and the `--registry` / HTTPS registry adapter.
+    **Other remaining CLI work:**
     interactive prompting for `init` (the alias detection above now feeds the
     pre-filled prompt; the lockfile package-manager detector is reusable for the
     manager prompt); the `list` **"installed in this project"** column; the

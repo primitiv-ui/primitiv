@@ -4,6 +4,7 @@ pub mod config;
 pub mod detect;
 pub mod error;
 pub mod format;
+pub mod lock;
 pub mod package_manager;
 pub mod ports;
 pub mod registry;
@@ -17,6 +18,8 @@ mod config_tests;
 mod detect_tests;
 #[cfg(test)]
 mod error_tests;
+#[cfg(test)]
+mod lock_tests;
 #[cfg(test)]
 mod package_manager_tests;
 #[cfg(test)]

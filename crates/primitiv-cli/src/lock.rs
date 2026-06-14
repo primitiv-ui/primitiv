@@ -14,6 +14,22 @@ use crate::ports::fs::FileSystem;
 /// The lock file's name, written beside `primitiv.json` (RFC 0005 §4.2).
 pub const FILE_NAME: &str = "primitiv.lock";
 
+/// How a destination file compares to the lock's recorded hash (RFC 0005 §4.2).
+///
+/// Used by [`Lock::classify`] to label each file in the dry-run refresh report
+/// and by [`Lock::should_write`] to decide whether to overwrite it.
+#[derive(Debug, PartialEq)]
+pub enum Refresh {
+    /// The file does not yet exist on disk — `add` will create it.
+    New,
+    /// The file is on disk and its content matches what the lock recorded
+    /// (untouched since `add` last wrote it) — safe to overwrite.
+    Unchanged,
+    /// The file is on disk but its content differs from the lock record
+    /// (consumer-edited) — kept unless `--force` is set.
+    Edited,
+}
+
 /// The parsed `primitiv.lock`: a map from each written file's project-relative
 /// path to the [`fnv1a_hex`] of the bytes `add` last wrote there. A `BTreeMap`
 /// keeps the serialised order deterministic.
@@ -70,23 +86,44 @@ impl Lock {
         fs.write(path, &self.to_bytes()).map_err(CliError::Io)
     }
 
+    /// Classify a destination file against the lock and disk (RFC 0005 §4.2).
+    /// Returns [`Refresh::New`] when the file does not exist, [`Refresh::Unchanged`]
+    /// when it is on disk and matches the lock's recorded hash, or
+    /// [`Refresh::Edited`] when it is on disk but differs. A read failure on the
+    /// existing file is a [`CliError::Io`].
+    pub fn classify(
+        &self,
+        fs: &impl FileSystem,
+        dest: &Path,
+    ) -> Result<Refresh, CliError> {
+        if !fs.exists(dest) {
+            return Ok(Refresh::New);
+        }
+        let current = fnv1a_hex(&fs.read(dest).map_err(CliError::Io)?);
+        let key = dest.to_string_lossy();
+        if self.files.get(key.as_ref()) == Some(&current) {
+            Ok(Refresh::Unchanged)
+        } else {
+            Ok(Refresh::Edited)
+        }
+    }
+
     /// Whether `add` should write `dest` (RFC 0005 §4.2). `--force` always
-    /// writes; a file not yet on disk is new and written; an existing file is
-    /// refreshed only when its current content still matches what the lock
-    /// recorded (untouched since `add` wrote it) — a consumer-edited or untracked
-    /// file is kept. A read failure on the existing file is a [`CliError::Io`].
+    /// writes (without reading the file); a file not yet on disk is new and
+    /// written; an existing file is refreshed only when its current content still
+    /// matches what the lock recorded (untouched since `add` wrote it) — a
+    /// consumer-edited or untracked file is kept. A read failure on the existing
+    /// file is a [`CliError::Io`].
     pub fn should_write(
         &self,
         fs: &impl FileSystem,
         dest: &Path,
         force: bool,
     ) -> Result<bool, CliError> {
-        if force || !fs.exists(dest) {
+        if force {
             return Ok(true);
         }
-        let current = fnv1a_hex(&fs.read(dest).map_err(CliError::Io)?);
-        let key = dest.to_string_lossy();
-        Ok(self.files.get(key.as_ref()) == Some(&current))
+        Ok(!matches!(self.classify(fs, dest)?, Refresh::Edited))
     }
 }
 

@@ -147,3 +147,60 @@ fn surfaces_a_read_failure_while_deciding() {
 
     assert!(matches!(err, CliError::Io(_)));
 }
+
+// ── classify ────────────────────────────────────────────────────────────────
+
+#[test]
+fn classify_returns_new_when_the_file_does_not_exist() {
+    use crate::lock::Refresh;
+    let fs = InMemoryFs::new();
+
+    assert!(matches!(
+        Lock::default().classify(&fs, Path::new("styles.css")).unwrap(),
+        Refresh::New
+    ));
+}
+
+#[test]
+fn classify_returns_unchanged_when_disk_content_matches_the_lock() {
+    use crate::lock::Refresh;
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("styles.css"), b".primitiv-button{}").unwrap();
+    let mut lock = Lock::default();
+    lock.record("styles.css", b".primitiv-button{}");
+
+    assert!(matches!(
+        lock.classify(&fs, Path::new("styles.css")).unwrap(),
+        Refresh::Unchanged
+    ));
+}
+
+#[test]
+fn classify_returns_edited_when_disk_content_differs_from_the_lock() {
+    use crate::lock::Refresh;
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("styles.css"), b"edited by the consumer").unwrap();
+    let mut lock = Lock::default();
+    lock.record("styles.css", b".primitiv-button{}");
+
+    assert!(matches!(
+        lock.classify(&fs, Path::new("styles.css")).unwrap(),
+        Refresh::Edited
+    ));
+}
+
+#[test]
+fn classify_surfaces_a_read_failure_as_io_error() {
+    use crate::lock::Refresh;
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("styles.css"), b"x").unwrap();
+    fs.fail_reads_to(Path::new("styles.css"));
+
+    let err = Lock::default()
+        .classify(&fs, Path::new("styles.css"))
+        .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+    // Silence the unused import warning when the test is compiled.
+    let _ = Refresh::New;
+}

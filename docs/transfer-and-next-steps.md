@@ -308,10 +308,21 @@ adapters, hand-authored golden files, 100% coverage):
     `--format` selects the stylesheet format and `--path` its destination for the
     copy, both overriding the config with no persistence (mirroring
     `tokens` / `theme`); the alias-placed, format-independent React surface is
-    unaffected. **Remaining for `add`** (§4.2–§4.4):
-    copying the **contract**; the refresh/`primitiv.lock` semantics; project
-    wiring (§4.3), the
-    `--force` flag, the `--registry` / HTTPS registry adapter, and routing the
+    unaffected. The **`primitiv.lock` refresh semantics + `--force` are landed**
+    (RFC 0005 §4.2): a new `lock` module hashes file content with a
+    **dependency-free FNV-1a** (`fnv1a_hex`, stable across platforms unlike
+    `std`'s `DefaultHasher`) and holds the `Lock` manifest (serde-read,
+    hand-rendered bytes; a malformed lock degrades to empty so edits are never
+    clobbered). Every copied file now routes through `Lock::should_write`: a new
+    or untouched file (on-disk content still matches the recorded hash) is written
+    and re-recorded; a **consumer-edited** file (content differs) is **kept**;
+    `--force` overwrites regardless. `add` reads `primitiv.lock` beside the config,
+    threads it through the stylesheet + React-surface copy, and writes the updated
+    manifest back. **Remaining for `add`** (§4.2–§4.4):
+    the interactive diff/keep/overwrite/skip prompt and the `--dry-run` refresh
+    report (the non-interactive keep-edits / `--force` path is the v1 surface);
+    copying the **contract**; project
+    wiring (§4.3), the `--registry` / HTTPS registry adapter, and routing the
     package manager's own output to stderr so `--json` keeps a clean stdout (today
     a non-dry-run `--json` install interleaves the manager's chatter with the JSON;
     agents wanting pure JSON use `--dry-run`). **Other remaining CLI work:**

@@ -52,9 +52,8 @@ pub fn parse(args: &[String]) -> Result<Command, CliError> {
 /// `--no-styles` installs the package and stops before the styles (step 3) —
 /// combining the two would do neither, so it is a usage error. `--format <fmt>`
 /// overrides the config's stylesheet format for this copy and `--path <dir>` its
-/// destination. Names and flags are order-free. The remaining copy flag
-/// (`--force`) arrives with the refresh slice that acts on it; any other
-/// `--`-prefixed argument is unexpected.
+/// destination; `--force` overwrites even consumer-edited files (§4.2). Names and
+/// flags are order-free; any other `--`-prefixed argument is unexpected.
 fn parse_add(args: &[String]) -> Result<Command, CliError> {
     let mut components = Vec::new();
     let mut json = false;
@@ -63,6 +62,7 @@ fn parse_add(args: &[String]) -> Result<Command, CliError> {
     let mut no_styles = false;
     let mut format = None;
     let mut path = None;
+    let mut force = false;
     let mut rest = args.iter();
     while let Some(arg) = rest.next() {
         match arg.as_str() {
@@ -72,6 +72,7 @@ fn parse_add(args: &[String]) -> Result<Command, CliError> {
             "--no-styles" => no_styles = true,
             "--format" => format = Some(parse_format(&take_value(&mut rest, "--format")?)?),
             "--path" => path = Some(take_value(&mut rest, "--path")?),
+            "--force" => force = true,
             other if other.starts_with("--") => {
                 return Err(usage(format!("unexpected argument '{other}'")))
             }
@@ -94,6 +95,7 @@ fn parse_add(args: &[String]) -> Result<Command, CliError> {
         no_styles,
         format,
         path,
+        force,
     }))
 }
 

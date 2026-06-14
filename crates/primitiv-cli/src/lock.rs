@@ -11,6 +11,9 @@ use serde::Deserialize;
 use crate::error::CliError;
 use crate::ports::fs::FileSystem;
 
+/// The lock file's name, written beside `primitiv.json` (RFC 0005 §4.2).
+pub const FILE_NAME: &str = "primitiv.lock";
+
 /// The parsed `primitiv.lock`: a map from each written file's project-relative
 /// path to the [`fnv1a_hex`] of the bytes `add` last wrote there. A `BTreeMap`
 /// keeps the serialised order deterministic.

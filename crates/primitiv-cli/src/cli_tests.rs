@@ -204,6 +204,20 @@ fn rejects_add_path_with_no_value() {
 }
 
 #[test]
+fn parses_add_with_the_force_flag() {
+    let command = parse(&args(&["add", "button", "--force"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Add(AddOptions {
+            components: vec!["button".to_string()],
+            force: true,
+            ..Default::default()
+        })
+    );
+}
+
+#[test]
 fn parses_add_with_the_styles_only_flag() {
     let command = parse(&args(&["add", "button", "--styles-only"])).unwrap();
 

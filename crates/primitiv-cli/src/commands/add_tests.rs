@@ -5,6 +5,7 @@ use pretty_assertions::assert_eq;
 use crate::commands::add::{add, AddOptions};
 use crate::error::CliError;
 use crate::format::Format;
+use crate::lock::Lock;
 use crate::ports::fs::{FileSystem, InMemoryFs};
 use crate::ports::output::InMemoryOutput;
 use crate::ports::process::InMemoryProcessRunner;
@@ -786,6 +787,142 @@ fn the_path_flag_overrides_the_config_styles_destination() {
     // The stylesheet lands under the overridden path, not the config's.
     assert!(fs.exists(Path::new("lib/styles/button/styles.css")));
     assert!(!fs.exists(Path::new("src/styles/primitiv/button/styles.css")));
+}
+
+#[test]
+fn records_copied_files_in_the_lock() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), ..Default::default() },
+    )
+    .unwrap();
+
+    // primitiv.lock records the copied stylesheet so a re-add can detect edits.
+    let lock = Lock::read(&fs, Path::new("primitiv.lock")).unwrap();
+    assert!(lock.files.contains_key("src/styles/primitiv/button/styles.css"));
+}
+
+#[test]
+fn keeps_a_consumer_edited_file_on_re_add() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let dest = Path::new("src/styles/primitiv/button/styles.css");
+
+    // First add writes the stylesheet and records its hash...
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), ..Default::default() },
+    )
+    .unwrap();
+    // ...the consumer edits it...
+    fs.write(dest, b".primitiv-button { color: red }").unwrap();
+    // ...and a re-add leaves the edit untouched.
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), ..Default::default() },
+    )
+    .unwrap();
+
+    assert_eq!(fs.read(dest).unwrap(), b".primitiv-button { color: red }");
+}
+
+#[test]
+fn force_overwrites_a_consumer_edited_file_on_re_add() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let dest = Path::new("src/styles/primitiv/button/styles.css");
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), ..Default::default() },
+    )
+    .unwrap();
+    fs.write(dest, b".primitiv-button { color: red }").unwrap();
+    // --force overwrites the edit with the registry version.
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), force: true, ..Default::default() },
+    )
+    .unwrap();
+
+    assert_eq!(fs.read(dest).unwrap(), b".primitiv-button{}");
+}
+
+#[test]
+fn surfaces_a_failure_to_read_the_lock() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    fs.fail_reads_to(Path::new("primitiv.lock"));
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), ..Default::default() },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn surfaces_a_failure_to_read_an_existing_target_during_refresh() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    // The target already exists, but reading it (to decide refresh vs keep) fails.
+    let dest = Path::new("src/styles/primitiv/button/styles.css");
+    fs.write(dest, b"pre-existing").unwrap();
+    fs.fail_reads_to(dest);
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &AddOptions { components: names(&["button"]), ..Default::default() },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
 }
 
 #[test]

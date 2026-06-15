@@ -30,13 +30,13 @@ fn generates_a_base_only_recipe_for_a_no_modifier_contract() {
     );
 }
 
-/// Drift guard: the committed `registry/r/button/button.recipe.ts` is exactly
+/// Drift guard: the committed `registry/components/button/button.recipe.ts` is exactly
 /// the generated form of its contract (D53), so the artifact can't hand-drift.
 #[test]
 fn the_committed_button_recipe_is_the_generated_form_of_its_contract() {
     let contract = Contract::parse(include_bytes!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/../../registry/r/button/contract.json"
+        "/../../registry/components/button/contract.json"
     )))
     .unwrap();
 
@@ -44,18 +44,18 @@ fn the_committed_button_recipe_is_the_generated_form_of_its_contract() {
         emit_recipe(&contract),
         include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/../../registry/r/button/button.recipe.ts"
+            "/../../registry/components/button/button.recipe.ts"
         ))
     );
 }
 
-/// Drift guard: the committed `registry/r/switch/switch.recipe.ts` is exactly the
+/// Drift guard: the committed `registry/components/switch/switch.recipe.ts` is exactly the
 /// generated form of its contract — the state-driven, no-modifier proof (D54).
 #[test]
 fn the_committed_switch_recipe_is_the_generated_form_of_its_contract() {
     let contract = Contract::parse(include_bytes!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/../../registry/r/switch/contract.json"
+        "/../../registry/components/switch/contract.json"
     )))
     .unwrap();
 
@@ -63,7 +63,7 @@ fn the_committed_switch_recipe_is_the_generated_form_of_its_contract() {
         emit_recipe(&contract),
         include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/../../registry/r/switch/switch.recipe.ts"
+            "/../../registry/components/switch/switch.recipe.ts"
         ))
     );
 }

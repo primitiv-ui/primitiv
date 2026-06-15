@@ -1319,7 +1319,7 @@ fn the_registry_override_reads_from_a_repo_local_directory() {
     // A repo-local registry under vendor/registry: index + the Button stylesheet.
     fs.write(Path::new("vendor/registry/registry.json"), WITH_STYLES).unwrap();
     fs.write(
-        Path::new("vendor/registry/r/button/styles.css"),
+        Path::new("vendor/registry/components/button/styles.css"),
         b".primitiv-button{ color: local }",
     )
     .unwrap();
@@ -1361,7 +1361,7 @@ fn the_registry_override_fetches_from_an_http_url() {
             "/registry.json",
             r#"{ "version": "0.1.0", "components": { "button": { "version": "0.1.0", "styles": { "formats": { "css": ["styles.css"] } } } } }"#,
         ),
-        ("/r/button/styles.css", ".primitiv-button{ color: served }"),
+        ("/components/button/styles.css", ".primitiv-button{ color: served }"),
     ]);
     let fs = InMemoryFs::new();
     fs.write(Path::new("primitiv.json"), CONFIG).unwrap();

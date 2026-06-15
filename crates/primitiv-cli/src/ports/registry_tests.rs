@@ -105,10 +105,10 @@ fn local_registry_reads_the_index_from_its_base_directory() {
 }
 
 #[test]
-fn local_registry_reads_a_component_file_from_the_r_layout() {
+fn local_registry_reads_a_component_file_from_the_components_layout() {
     let fs = InMemoryFs::new();
     fs.write(
-        Path::new("vendor/registry/r/button/styles.css"),
+        Path::new("vendor/registry/components/button/styles.css"),
         b".primitiv-button{}",
     )
     .unwrap();

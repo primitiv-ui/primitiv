@@ -8,7 +8,7 @@ import "./ButtonExample.css";
 // same bytes `primitiv add button` copies into a consumer repo (RFC 0006 §7).
 // It styles the `.primitiv-button` contract classes applied below, resolving
 // against the app-level Primitiv token layer (imported once in main.tsx).
-import "../../../../../registry/r/button/styles.css";
+import "../../../../../registry/components/button/styles.css";
 
 const INTENTS = ["primary", "secondary", "danger", "link"] as const;
 const SIZES = ["xs", "sm", "md", "lg", "xl"] as const;

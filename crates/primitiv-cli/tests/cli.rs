@@ -238,7 +238,7 @@ fn add_registry_override_copies_from_a_repo_local_directory() {
 }"##,
         )
         .unwrap();
-    dir.child("vendor/registry/r/button/styles.css")
+    dir.child("vendor/registry/components/button/styles.css")
         .write_str(".primitiv-button { color: local }")
         .unwrap();
 

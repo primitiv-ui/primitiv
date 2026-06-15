@@ -59,7 +59,7 @@ fn header(name: &str, pascal: &str) -> String {
         "/*\n \
          * {pascal} styled-surface recipe — generated from contract.json.\n \
          *\n \
-         * Do not edit by hand: change registry/r/{name}/contract.json and regenerate.\n \
+         * Do not edit by hand: change registry/components/{name}/contract.json and regenerate.\n \
          * Maps the variant props to the contract's modifier classes; the styling lives\n \
          * in the copied stylesheet (RFC 0006 §6.1 / D53).\n \
          */\n"

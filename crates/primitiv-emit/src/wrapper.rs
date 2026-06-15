@@ -108,7 +108,7 @@ fn header(name: &str, pascal: &str) -> String {
         "/*\n \
          * {pascal} — styled wrapper, generated from contract.json.\n \
          *\n \
-         * Do not edit by hand: change registry/r/{name}/contract.json and regenerate.\n \
+         * Do not edit by hand: change registry/components/{name}/contract.json and regenerate.\n \
          * A typed props surface over the headless @primitiv-ui/react component + the\n \
          * generated recipe — the primary DX (RFC 0004 §3.5 / D51).\n \
          */\n"

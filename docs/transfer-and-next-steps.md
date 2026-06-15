@@ -93,7 +93,7 @@ adapters, hand-authored golden files, 100% coverage):
 - [x] **Mode scoping** (RFC 0009) — emit `[data-theme]` + `[data-density]` scopes (density-neutral names, the `context.<density>` axis collapsed into `[data-density]`); ship the Tailwind `dark:`-variant remap. Falls out of the emitter (it is how dark + density are emitted), so it lands with the token emitter, not as separate work.
   - **Done (theme + density scopes)** — emitted by the token pipeline (`Axis`, `scope_selectors`, `Scope`, default-first mode ordering). The `:root` default sharing and `[data-*]` overrides match RFC 0009 §2.2. The **Tailwind `dark:`-variant remap + layer-order statement** (RFC 0009 §4.2) landed with the CLI — `wiring.rs` (`SNIPPET`, `contains_wiring`, `patch`) and the `offer_wiring` / `patch_wiring` logic in `add.rs`; the idempotency check and the interactive detect-and-patch path are both tested end-to-end.
 - [x] **Styling contract + `contract.json`** per component (RFC 0004 §3) — hybrid generation (data-* auto-verified, modifiers/custom-props authored). **Done for the v1 set (Button + Switch);** further components are routine application of the now-complete mechanism.
-  - **Button landed.** `registry/r/button/contract.json` is the first hybrid
+  - **Button landed.** `registry/components/button/contract.json` is the first hybrid
     contract: the `data-*` half (`data-disabled`, `source: "auto"`) is
     drift-guarded against the rendered headless `Button` by a `packages/react`
     test (`Button.contract.test.tsx`) so it cannot drift from what the component
@@ -104,7 +104,7 @@ adapters, hand-authored golden files, 100% coverage):
     increment, options sketched: generated local wrapper vs provider vs
     always-inert).
   - **Switch landed (the state-driven proof, D54).**
-    `registry/r/switch/contract.json` is the deliberately-different second
+    `registry/components/switch/contract.json` is the deliberately-different second
     contract: the `data-*` half (`data-state="checked"|"unchecked"` — always
     present — plus `data-disabled`, `source: "auto"`) is drift-guarded against the
     rendered headless `Switch` (`Switch.contract.test.tsx`); the authored half is
@@ -114,14 +114,14 @@ adapters, hand-authored golden files, 100% coverage):
     gained a `SwitchProps` type alias — the `<Component>Props` convention the
     generated wrapper imports.
 - [x] **Default theme authoring** in the workbench (RFC 0006 §7) — ported from Figma, one design emitted per format. **Done for the v1 set (Button + Switch)** across CSS / SCSS / Tailwind + the generated recipe/wrapper; values reconcile against Figma when access returns.
-  - **Button CSS landed.** `registry/r/button/styles.css` is the canonical
+  - **Button CSS landed.** `registry/components/button/styles.css` is the canonical
     default theme in the RFC 0008 `primitiv.base`/`variants`/`states` layer
     shape, wiring `--primitiv-button-*` to the synced `action/*` (colour),
     `framed-control/*` (sizing) and `label/*` (typography) tokens, with
     `text-box` leading-trim. The workbench Button example imports the generated
     token layer + this canonical CSS and applies the contract classes, so the
     deployed workbench is the visual-check surface. The **SCSS form is now
-    landed** (`registry/r/button/styles.scss`): per D ("Registry CSS, derive
+    landed** (`registry/components/button/styles.scss`): per D ("Registry CSS, derive
     rest"), it is `styles.css` *verbatim* (SCSS is a strict superset of CSS)
     followed by one `$primitiv-button-*` alias per declared knob, produced by a
     new `emit_component_scss(css)` in `primitiv-emit` (mirrors the token-layer
@@ -130,8 +130,8 @@ adapters, hand-authored golden files, 100% coverage):
     surface is now generated from the contract (D51–D55).** `contract.json` is
     enriched to the single API source (array modifiers + `description` /
     `default` / `prop` / `options`), and `primitiv-emit` generates **both** the
-    `cva` recipe (`registry/r/button/button.recipe.ts`) and the JSDoc'd wrapper
-    (`registry/r/button/button.tsx`) from it — `contract → recipe` / `contract →
+    `cva` recipe (`registry/components/button/button.recipe.ts`) and the JSDoc'd wrapper
+    (`registry/components/button/button.tsx`) from it — `contract → recipe` / `contract →
     wrapper` emitters proven against **synthetic** contracts (D54), with Button
     drift guards in `crates/primitiv-emit/src/{recipe,wrapper}_tests.rs`. The
     consumer prop is `variant` (`intent` stays the contract key, D52); the
@@ -153,7 +153,7 @@ adapters, hand-authored golden files, 100% coverage):
     props, also sidestepping the union controlled/uncontrolled type) and a
     **compound auto-render** that fills the thumb slot, so the consumer writes one
     `<Switch>` (shadcn parity, D51 — option A); `emit_component_scss` derives
-    `styles.scss` unchanged. `registry/r/switch/{styles.css,styles.scss,
+    `styles.scss` unchanged. `registry/components/switch/{styles.css,styles.scss,
     switch.recipe.ts,switch.tsx}` are committed with drift guards; the workbench
     `SwitchExample` gained a contract-styled section + density row, and the shared
     token layer moved up to `apps/workbench/src/primitiv-tokens.css` (imported once
@@ -254,7 +254,7 @@ adapters, hand-authored golden files, 100% coverage):
     `http(s)://` URL or a version tag (`0.1.0` / `v1.2.3` → GitHub raw at that
     tag) to a new `HttpsRegistry` adapter (a blocking `ureq` fetch over rustls,
     no gzip), any other value to a `LocalRegistry` reading
-    `<base>/registry.json` + `<base>/r/<component>/<file>` through the
+    `<base>/registry.json` + `<base>/components/<component>/<file>` through the
     `FileSystem` port, and absence to the embedded copy — `add` picks the source
     at run time as a `&dyn Registry` trait object. The `HttpsRegistry` base URL is
     injected, so a loopback `TcpListener` server drives the real fetch path at

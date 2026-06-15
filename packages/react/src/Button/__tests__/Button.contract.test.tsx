@@ -8,7 +8,7 @@ import { Button } from "../Button";
 
 /**
  * Auto-verification of the Button styling contract (RFC 0004 §3.4 / D15). The
- * `data-*` half of `registry/r/button/contract.json` is *derived from and
+ * `data-*` half of `registry/components/button/contract.json` is *derived from and
  * asserted against the rendered headless component* so it can never drift from
  * what the component actually emits. The authored half (root class, modifiers,
  * custom properties) is checked for self-consistency only — it is a styling
@@ -16,7 +16,7 @@ import { Button } from "../Button";
  */
 const contractPath = resolve(
   dirname(fileURLToPath(import.meta.url)),
-  "../../../../../registry/r/button/contract.json",
+  "../../../../../registry/components/button/contract.json",
 );
 
 const contract = JSON.parse(readFileSync(contractPath, "utf8"));

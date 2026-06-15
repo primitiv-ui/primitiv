@@ -8,7 +8,7 @@ import { Switch } from "../Switch";
 
 /**
  * Auto-verification of the Switch styling contract (RFC 0004 §3.4 / D15). The
- * `data-*` half of `registry/r/switch/contract.json` is *derived from and
+ * `data-*` half of `registry/components/switch/contract.json` is *derived from and
  * asserted against the rendered headless component* so it can never drift from
  * what the component actually emits. Switch is the state-driven proof (no
  * modifiers): its surface is `data-state="checked" | "unchecked"` (always
@@ -18,7 +18,7 @@ import { Switch } from "../Switch";
  */
 const contractPath = resolve(
   dirname(fileURLToPath(import.meta.url)),
-  "../../../../../registry/r/switch/contract.json",
+  "../../../../../registry/components/switch/contract.json",
 );
 
 const contract = JSON.parse(readFileSync(contractPath, "utf8"));

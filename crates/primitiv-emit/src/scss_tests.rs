@@ -77,7 +77,7 @@ $primitiv-demo-gap: var(--primitiv-demo-gap);\n"
     );
 }
 
-/// Drift guard: the committed `registry/r/button/styles.scss` is exactly the
+/// Drift guard: the committed `registry/components/button/styles.scss` is exactly the
 /// derived form of the canonical `styles.css`. SCSS is the canonical CSS
 /// re-expressed for SCSS consumers (D: "Registry CSS, derive rest"), so it must
 /// stay byte-for-byte what [`emit_component_scss`] produces — no hand-drift.
@@ -85,28 +85,28 @@ $primitiv-demo-gap: var(--primitiv-demo-gap);\n"
 fn the_committed_button_scss_is_the_derived_form_of_its_css() {
     let css = include_str!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/../../registry/r/button/styles.css"
+        "/../../registry/components/button/styles.css"
     ));
     let scss = include_str!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/../../registry/r/button/styles.scss"
+        "/../../registry/components/button/styles.scss"
     ));
 
     assert_eq!(emit_component_scss(css), scss);
 }
 
-/// Drift guard: the committed `registry/r/switch/styles.scss` is exactly the
+/// Drift guard: the committed `registry/components/switch/styles.scss` is exactly the
 /// derived form of its canonical `styles.css` — the state-driven, parts-based
 /// proof that the SCSS adapter is component-shape-agnostic.
 #[test]
 fn the_committed_switch_scss_is_the_derived_form_of_its_css() {
     let css = include_str!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/../../registry/r/switch/styles.css"
+        "/../../registry/components/switch/styles.css"
     ));
     let scss = include_str!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/../../registry/r/switch/styles.scss"
+        "/../../registry/components/switch/styles.scss"
     ));
 
     assert_eq!(emit_component_scss(css), scss);

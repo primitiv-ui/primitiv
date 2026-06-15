@@ -9,7 +9,7 @@ import "./SwitchExample.css";
 // no-modifier counterpart to Button; RFC 0006 §7). It styles the
 // `.primitiv-switch` / `.primitiv-switch__thumb` contract classes applied below,
 // resolving against the app-level Primitiv token layer (imported in main.tsx).
-import "../../../../../registry/r/switch/styles.css";
+import "../../../../../registry/components/switch/styles.css";
 
 const DENSITIES = ["dense", "compact", "comfortable", "spacious"] as const;
 const SIZES = ["xs", "sm", "md", "lg", "xl"] as const;

@@ -14,7 +14,7 @@ use crate::ports::fs::FileSystem;
 pub trait Registry {
     fn index(&self) -> io::Result<Vec<u8>>;
 
-    /// Fetch a single component file's bytes — `r/<component>/<file>` in the
+    /// Fetch a single component file's bytes — `components/<component>/<file>` in the
     /// registry layout (RFC 0005 §6.1), the per-component artefacts `add` copies
     /// into a project. A file the registry doesn't carry is a `NotFound`.
     fn file(&self, component: &str, file: &str) -> io::Result<Vec<u8>>;
@@ -38,7 +38,7 @@ macro_rules! registry_file {
             $file,
             include_str!(concat!(
                 env!("CARGO_MANIFEST_DIR"),
-                "/../../registry/r/",
+                "/../../registry/components/",
                 $component,
                 "/",
                 $file
@@ -78,7 +78,7 @@ impl Registry for EmbeddedRegistry {
             .ok_or_else(|| {
                 io::Error::new(
                     io::ErrorKind::NotFound,
-                    format!("registry has no file 'r/{component}/{file}'"),
+                    format!("registry has no file 'components/{component}/{file}'"),
                 )
             })
     }
@@ -86,7 +86,7 @@ impl Registry for EmbeddedRegistry {
 
 /// A [`Registry`] backed by a repo-local directory (RFC 0005 §6.4) — the
 /// `--registry <path>` override for monorepo dogfooding / offline use. It reads
-/// `<base>/registry.json` and per-component `<base>/r/<component>/<file>` through
+/// `<base>/registry.json` and per-component `<base>/components/<component>/<file>` through
 /// the [`FileSystem`] port, so it runs on `OsFs` in the bin and `InMemoryFs` in
 /// tests. A missing index or file surfaces as the port's `NotFound`, which the
 /// consumer maps to a [`CliError::Registry`](crate::error::CliError::Registry).
@@ -112,13 +112,13 @@ impl<F: FileSystem> Registry for LocalRegistry<'_, F> {
 
     fn file(&self, component: &str, file: &str) -> io::Result<Vec<u8>> {
         self.fs
-            .read(&self.base.join("r").join(component).join(file))
+            .read(&self.base.join("components").join(component).join(file))
     }
 }
 
 /// A [`Registry`] served over HTTP(S) (RFC 0005 §6.4) — the registry fetched
 /// from the network, e.g. GitHub raw at the pinned tag. It GETs
-/// `<base>/registry.json` and per-component `<base>/r/<component>/<file>` with a
+/// `<base>/registry.json` and per-component `<base>/components/<component>/<file>` with a
 /// blocking `ureq` request; a transport failure or non-2xx status surfaces as an
 /// `io::Error`, which the consumer maps to a
 /// [`CliError::Registry`](crate::error::CliError::Registry). The base URL is
@@ -150,7 +150,7 @@ impl Registry for HttpsRegistry {
     }
 
     fn file(&self, component: &str, file: &str) -> io::Result<Vec<u8>> {
-        self.get(&format!("r/{component}/{file}"))
+        self.get(&format!("components/{component}/{file}"))
     }
 }
 

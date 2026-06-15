@@ -1,7 +1,7 @@
 /*
  * Button styled-surface recipe — generated from contract.json.
  *
- * Do not edit by hand: change registry/r/button/contract.json and regenerate.
+ * Do not edit by hand: change registry/components/button/contract.json and regenerate.
  * Maps the variant props to the contract's modifier classes; the styling lives
  * in the copied stylesheet (RFC 0006 §6.1 / D53).
  */

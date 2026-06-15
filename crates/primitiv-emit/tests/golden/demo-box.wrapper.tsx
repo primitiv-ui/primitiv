@@ -1,7 +1,7 @@
 /*
  * DemoBox — styled wrapper, generated from contract.json.
  *
- * Do not edit by hand: change registry/r/demo-box/contract.json and regenerate.
+ * Do not edit by hand: change registry/components/demo-box/contract.json and regenerate.
  * A typed props surface over the headless @primitiv-ui/react component + the
  * generated recipe — the primary DX (RFC 0004 §3.5 / D51).
  */

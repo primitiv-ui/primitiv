@@ -11,7 +11,7 @@ use crate::ports::fs::FileSystem;
 use crate::ports::output::Output;
 use crate::ports::process::ProcessRunner;
 use crate::ports::prompt::{Decision, Prompt};
-use crate::ports::registry::Registry;
+use crate::ports::registry::{LocalRegistry, Registry};
 use crate::registry::RegistryIndex;
 use crate::wiring;
 
@@ -43,6 +43,12 @@ pub struct AddOptions {
     /// Skip project wiring entirely and print the manual snippet instead
     /// (RFC 0005 §4.3 Tier-2 floor). Non-interactive runs also skip silently.
     pub no_wiring: bool,
+    /// Override the registry source with a repo-local directory (RFC 0005 §6.4):
+    /// `--registry <path>` reads `registry.json` + `r/<component>/<file>` from
+    /// there instead of the binary's embedded copy (monorepo dogfooding /
+    /// offline). The version-ref / HTTPS form stays deferred. When `None` the
+    /// embedded registry is used.
+    pub registry: Option<String>,
 }
 
 /// One file the real (non-dry) copy would process — used by both the dry-run
@@ -106,7 +112,19 @@ pub fn add(
         path,
         force,
         no_wiring,
+        registry: registry_override,
     } = options;
+    // `--registry <path>` swaps the embedded registry for a repo-local directory
+    // (RFC 0005 §6.4); otherwise the passed-in registry (embedded in the bin) is
+    // used. A trait object lets the source be chosen at run time.
+    let local;
+    let registry: &dyn Registry = match registry_override {
+        Some(path) => {
+            local = LocalRegistry::new(fs, path);
+            &local
+        }
+        None => registry,
+    };
     let index = registry
         .index()
         .map_err(|error| CliError::Registry(error.to_string()))?;
@@ -303,7 +321,7 @@ fn find_tailwind_entry(fs: &impl FileSystem, dir: &std::path::Path) -> Option<st
 #[allow(clippy::too_many_arguments)]
 fn copy_styled_surface(
     fs: &impl FileSystem,
-    registry: &impl Registry,
+    registry: &dyn Registry,
     prompt: &impl Prompt,
     interactive: bool,
     index: &RegistryIndex,
@@ -418,7 +436,7 @@ fn render_refresh_plan(files: &[(String, &str)]) -> String {
 /// directory/write failure (or a failed prompt) surfaces as a [`CliError::Io`].
 fn copy_file(
     fs: &impl FileSystem,
-    registry: &impl Registry,
+    registry: &dyn Registry,
     prompt: &impl Prompt,
     interactive: bool,
     lock: &mut Lock,

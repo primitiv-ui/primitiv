@@ -1,12 +1,16 @@
 use std::io;
+use std::path::{Path, PathBuf};
 
-/// The component-registry port — the seam `list` (and later `add`) loads the
-/// registry index (`registry.json`, RFC 0005 §6) through.
+use crate::ports::fs::FileSystem;
+
+/// The component-registry port — the seam `list` and `add` load the registry
+/// index (`registry.json`, RFC 0005 §6) through.
 ///
-/// v1 bakes the registry into the binary ([`EmbeddedRegistry`]); the GitHub-raw
-/// HTTPS adapter and the `--registry <path>` override (RFC 0005 §6.4) slot in
-/// behind this trait later. The fallible signature is for those remote adapters;
-/// the embedded one cannot fail.
+/// v1 bakes the registry into the binary ([`EmbeddedRegistry`]); the
+/// `--registry <path>` override reads a repo-local registry directory
+/// ([`LocalRegistry`], RFC 0005 §6.4), and the GitHub-raw HTTPS adapter slots in
+/// behind this trait later. The fallible signature is for those non-embedded
+/// adapters; the embedded one cannot fail.
 pub trait Registry {
     fn index(&self) -> io::Result<Vec<u8>>;
 
@@ -77,6 +81,38 @@ impl Registry for EmbeddedRegistry {
                     format!("registry has no file 'r/{component}/{file}'"),
                 )
             })
+    }
+}
+
+/// A [`Registry`] backed by a repo-local directory (RFC 0005 §6.4) — the
+/// `--registry <path>` override for monorepo dogfooding / offline use. It reads
+/// `<base>/registry.json` and per-component `<base>/r/<component>/<file>` through
+/// the [`FileSystem`] port, so it runs on `OsFs` in the bin and `InMemoryFs` in
+/// tests. A missing index or file surfaces as the port's `NotFound`, which the
+/// consumer maps to a [`CliError::Registry`](crate::error::CliError::Registry).
+pub struct LocalRegistry<'a, F: FileSystem> {
+    fs: &'a F,
+    base: PathBuf,
+}
+
+impl<'a, F: FileSystem> LocalRegistry<'a, F> {
+    /// A registry rooted at `base` (the directory holding `registry.json`).
+    pub fn new(fs: &'a F, base: impl AsRef<Path>) -> Self {
+        Self {
+            fs,
+            base: base.as_ref().to_path_buf(),
+        }
+    }
+}
+
+impl<F: FileSystem> Registry for LocalRegistry<'_, F> {
+    fn index(&self) -> io::Result<Vec<u8>> {
+        self.fs.read(&self.base.join("registry.json"))
+    }
+
+    fn file(&self, component: &str, file: &str) -> io::Result<Vec<u8>> {
+        self.fs
+            .read(&self.base.join("r").join(component).join(file))
     }
 }
 

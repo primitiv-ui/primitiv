@@ -115,6 +115,25 @@ const WITH_REACT_SURFACE: &[u8] = br##"{
   }
 }"##;
 
+/// A project config opting into Tailwind styles under `src/styles/primitiv`.
+const CONFIG_TAILWIND: &[u8] = br##"{
+  "version": 1,
+  "framework": "react",
+  "styles": { "enabled": true, "format": "tailwind", "path": "src/styles/primitiv" },
+  "tokens": { "format": "css", "path": "src/styles/primitiv/tokens.css" },
+  "theme": { "brand": "#0a7755" },
+  "aliases": {},
+  "registry": { "version": "0.1.0" }
+}"##;
+
+/// A registry whose `button` declares a Tailwind stylesheet.
+const WITH_TAILWIND_STYLES: &[u8] = br##"{
+  "version": "0.1.0",
+  "components": {
+    "button": { "version": "0.1.0", "styles": { "formats": { "tailwind": ["styles.css"] } } }
+  }
+}"##;
+
 /// Turn string literals into the owned component list the command takes.
 fn names(parts: &[&str]) -> Vec<String> {
     parts.iter().map(|part| part.to_string()).collect()
@@ -1994,4 +2013,184 @@ fn an_interactive_add_surfaces_a_prompt_failure_as_io() {
     .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
+}
+
+// --- Tailwind wiring (RFC 0005 §4.3 / RFC 0009 §4.2 / RFC 0008 §2.5) ---
+
+#[test]
+fn no_wiring_flag_prints_the_snippet_after_a_tailwind_copy() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            no_wiring: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(
+        out.contains("@custom-variant dark"),
+        "expected wiring snippet in output, got:\n{out}"
+    );
+    assert!(
+        out.contains("@layer"),
+        "expected layer order line in output, got:\n{out}"
+    );
+}
+
+#[test]
+fn non_interactive_tailwind_add_prints_the_snippet() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(out.contains("@custom-variant dark"));
+}
+
+#[test]
+fn css_format_add_does_not_print_the_wiring_snippet() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".p{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(!out.contains("@custom-variant dark"));
+}
+
+#[test]
+fn no_styles_flag_suppresses_the_wiring_snippet() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    let registry = InMemoryRegistry::new(WITH_TAILWIND_STYLES);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            no_styles: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(!out.contains("@custom-variant dark"));
+}
+
+#[test]
+fn dry_run_does_not_print_the_wiring_snippet() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    let registry = InMemoryRegistry::new(WITH_TAILWIND_STYLES);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(!out.contains("@custom-variant dark"));
+}
+
+#[test]
+fn json_flag_suppresses_the_wiring_snippet() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            json: true,
+            no_wiring: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(!out.contains("@custom-variant dark"));
 }

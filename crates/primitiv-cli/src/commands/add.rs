@@ -13,6 +13,7 @@ use crate::ports::process::ProcessRunner;
 use crate::ports::prompt::{Decision, Prompt};
 use crate::ports::registry::Registry;
 use crate::registry::RegistryIndex;
+use crate::wiring;
 
 /// The order-free options `add` is invoked with (RFC 0005 §2.2 / §5), mirroring
 /// [`InitOptions`](crate::commands::init::InitOptions): one or more component
@@ -159,6 +160,7 @@ pub fn add(
             ensure_packages(fs, runner, &index, &resolved, &dir)?;
         }
         if !*no_styles {
+            let effective_format = effective_format(fs, *format, &dir);
             copy_styled_surface(
                 fs,
                 registry,
@@ -171,6 +173,9 @@ pub fn add(
                 path.as_deref(),
                 *force,
             )?;
+            if effective_format == Format::Tailwind {
+                offer_wiring(output, prompt, fs, interactive, *no_wiring, *json, &dir)?;
+            }
         }
     }
     Ok(())
@@ -180,6 +185,108 @@ pub fn add(
 /// has no detectable import alias (RFC 0005 §3.3 fallback) — the project-root
 /// `components`, making no `src`-layout assumption.
 const DEFAULT_COMPONENTS_DIR: &str = "components";
+
+/// Resolve the effective stylesheet format for a copy: an explicit `format`
+/// override wins; otherwise the project config's `styles.format`; otherwise CSS.
+/// Pure read via `try_resolve` so a missing config degrades gracefully.
+fn effective_format(fs: &impl FileSystem, format: Option<Format>, dir: &std::path::Path) -> Format {
+    format
+        .or_else(|| {
+            config::try_resolve(fs, dir)
+                .ok()
+                .flatten()
+                .map(|c| c.styles.format)
+        })
+        .unwrap_or(Format::Css)
+}
+
+/// Offer the Tailwind project wiring (RFC 0005 §4.3). For non-interactive
+/// sessions or when `--no-wiring` is set, prints the manual snippet so the
+/// consumer can add it by hand (the Tier-2 floor). Interactive detect-and-patch
+/// (Tier-1) is handled in the `else` branch added in the next slice.
+fn offer_wiring(
+    output: &impl Output,
+    prompt: &impl Prompt,
+    fs: &impl FileSystem,
+    interactive: bool,
+    no_wiring: bool,
+    json: bool,
+    dir: &std::path::Path,
+) -> Result<(), CliError> {
+    if no_wiring || !interactive {
+        if !json {
+            output.write_stdout(wiring_snippet_message().as_bytes())?;
+        }
+    } else {
+        patch_wiring(output, prompt, fs, json, dir)?;
+    }
+    Ok(())
+}
+
+/// The human-readable message wrapping the wiring [`wiring::SNIPPET`] for the
+/// non-interactive / `--no-wiring` floor path. The snippet itself is exact bytes
+/// the consumer copies into their Tailwind entry CSS.
+fn wiring_snippet_message() -> String {
+    format!(
+        "\nTailwind wiring — add these lines to your entry CSS before @import \"tailwindcss\":\n\n{}\n",
+        wiring::SNIPPET
+    )
+}
+
+/// Detect the consumer's Tailwind entry CSS, check for idempotency, and ask
+/// via the [`Prompt`] port whether to apply the wiring patch (Tier-1). Falls
+/// back to printing the manual snippet when: no entry CSS is found, or the wiring
+/// is already present (no-op), or the consumer declines.
+fn patch_wiring(
+    output: &impl Output,
+    prompt: &impl Prompt,
+    fs: &impl FileSystem,
+    json: bool,
+    dir: &std::path::Path,
+) -> Result<(), CliError> {
+    let Some(entry_path) = find_tailwind_entry(fs, dir) else {
+        if !json {
+            output.write_stdout(wiring_snippet_message().as_bytes())?;
+        }
+        return Ok(());
+    };
+    let css = String::from_utf8_lossy(
+        &fs.read(&entry_path).map_err(CliError::Io)?,
+    )
+    .into_owned();
+    if wiring::contains_wiring(&css) {
+        return Ok(());
+    }
+    let patched = wiring::patch(&css);
+    if !json {
+        let question = format!(
+            "Add Tailwind wiring to {}?",
+            entry_path.display()
+        );
+        if prompt.confirm(&question).map_err(CliError::Io)? {
+            fs.write(&entry_path, patched.as_bytes())?;
+        } else if !json {
+            output.write_stdout(wiring_snippet_message().as_bytes())?;
+        }
+    }
+    Ok(())
+}
+
+/// The bounded candidate list of Tailwind entry CSS files that `add` checks for
+/// existing wiring (Vite: `src/index.css` / `src/App.css`; Next.js:
+/// `app/globals.css` / `styles/globals.css`). The first file found is used.
+fn find_tailwind_entry(fs: &impl FileSystem, dir: &std::path::Path) -> Option<std::path::PathBuf> {
+    const CANDIDATES: &[&str] = &[
+        "src/index.css",
+        "src/App.css",
+        "app/globals.css",
+        "styles/globals.css",
+    ];
+    CANDIDATES
+        .iter()
+        .map(|rel| dir.join(rel))
+        .find(|p| fs.exists(p))
+}
 
 /// Copy a resolved set's styled surface into the project (RFC 0005 §4.1 step 4,
 /// D55). It opts in through the project config: with no `primitiv.json` (a

@@ -40,7 +40,7 @@ jobs:
 
       - name: Publish libraries to JSR
         run: |
-          for pkg in packages/react packages/icons packages/tokens; do
+          for pkg in packages/icons packages/tokens; do
             echo "::group::jsr publish $pkg"
             (cd "$pkg" && npx jsr publish --allow-slow-types)
             echo "::endgroup::"

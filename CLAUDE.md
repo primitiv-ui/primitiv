@@ -44,7 +44,7 @@ split.
    "create a new PR" are explicit; silence is not.
 7. **GitHub interactions go through MCP tools** (`mcp__github__*`),
    not `gh` or the raw API. Scope is restricted to
-   `simonrevill/primitiv`.
+   `primitiv-ui/primitiv`.
 
 ## Definition of done for any component change
 

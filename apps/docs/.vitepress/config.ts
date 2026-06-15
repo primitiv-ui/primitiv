@@ -90,7 +90,7 @@ export default defineConfig({
       ],
     },
     socialLinks: [
-      { icon: "github", link: "https://github.com/simonrevill/primitiv" },
+      { icon: "github", link: "https://github.com/primitiv-ui/primitiv" },
     ],
     search: { provider: "local" },
     outline: { level: [2, 3] },

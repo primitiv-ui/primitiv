@@ -2,7 +2,7 @@ name: Publish to JSR (one-shot bootstrap)
 
 # Temporary workflow — delete after JSR publish succeeds.
 # Created because the main publish.yml already pushed packages to npm;
-# re-running it would hit E403 before reaching the JSR step.
+# re-running it would hit E403 "already published" before reaching the JSR step.
 
 on:
   workflow_dispatch:
@@ -40,7 +40,7 @@ jobs:
 
       - name: Publish libraries to JSR
         run: |
-          for pkg in packages/react packages/icons packages/tokens; do
+          for pkg in packages/icons packages/tokens; do
             echo "::group::jsr publish $pkg"
             (cd "$pkg" && npx jsr publish --allow-slow-types)
             echo "::endgroup::"

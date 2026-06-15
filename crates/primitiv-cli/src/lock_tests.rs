@@ -3,7 +3,7 @@ use std::path::Path;
 use pretty_assertions::assert_eq;
 
 use crate::error::CliError;
-use crate::lock::{fnv1a_hex, Lock};
+use crate::lock::{Lock, fnv1a_hex};
 use crate::ports::fs::{FileSystem, InMemoryFs};
 
 #[test]
@@ -24,7 +24,9 @@ fn parses_a_lock_into_its_file_hashes() {
     let lock = Lock::parse(br#"{ "files": { "src/components/button.tsx": "af63dc4c8601ec8c" } }"#);
 
     assert_eq!(
-        lock.files.get("src/components/button.tsx").map(String::as_str),
+        lock.files
+            .get("src/components/button.tsx")
+            .map(String::as_str),
         Some("af63dc4c8601ec8c")
     );
 }
@@ -43,7 +45,10 @@ fn renders_an_empty_lock() {
 #[test]
 fn renders_recorded_files_sorted_by_path() {
     let mut lock = Lock::default();
-    lock.record("src/styles/primitiv/button/styles.css", b".primitiv-button{}");
+    lock.record(
+        "src/styles/primitiv/button/styles.css",
+        b".primitiv-button{}",
+    );
     lock.record("src/components/button.tsx", b"wrapper");
 
     // Sorted by path; each value is the FNV-1a hash of the recorded bytes.
@@ -61,7 +66,10 @@ fn renders_recorded_files_sorted_by_path() {
 fn reads_a_missing_lock_as_empty() {
     let fs = InMemoryFs::new();
 
-    assert_eq!(Lock::read(&fs, Path::new("primitiv.lock")).unwrap(), Lock::default());
+    assert_eq!(
+        Lock::read(&fs, Path::new("primitiv.lock")).unwrap(),
+        Lock::default()
+    );
 }
 
 #[test]
@@ -89,60 +97,8 @@ fn surfaces_a_write_failure() {
     let fs = InMemoryFs::new();
     fs.fail_writes_to(Path::new("primitiv.lock"));
 
-    let err = Lock::default().write(&fs, Path::new("primitiv.lock")).unwrap_err();
-
-    assert!(matches!(err, CliError::Io(_)));
-}
-
-#[test]
-fn writes_a_file_that_does_not_exist_yet() {
-    let fs = InMemoryFs::new();
-
-    assert!(Lock::default()
-        .should_write(&fs, Path::new("styles.css"), false)
-        .unwrap());
-}
-
-#[test]
-fn force_writes_even_an_edited_file() {
-    let fs = InMemoryFs::new();
-    fs.write(Path::new("styles.css"), b"edited by the consumer").unwrap();
-
-    assert!(Lock::default()
-        .should_write(&fs, Path::new("styles.css"), true)
-        .unwrap());
-}
-
-#[test]
-fn refreshes_a_file_left_untouched_since_it_was_written() {
-    let fs = InMemoryFs::new();
-    fs.write(Path::new("styles.css"), b".primitiv-button{}").unwrap();
-    let mut lock = Lock::default();
-    lock.record("styles.css", b".primitiv-button{}");
-
-    // The on-disk content still matches what add recorded, so it refreshes.
-    assert!(lock.should_write(&fs, Path::new("styles.css"), false).unwrap());
-}
-
-#[test]
-fn keeps_a_consumer_edited_file() {
-    let fs = InMemoryFs::new();
-    fs.write(Path::new("styles.css"), b"edited by the consumer").unwrap();
-    let mut lock = Lock::default();
-    lock.record("styles.css", b".primitiv-button{}");
-
-    // The on-disk content differs from what add recorded, so it is kept.
-    assert!(!lock.should_write(&fs, Path::new("styles.css"), false).unwrap());
-}
-
-#[test]
-fn surfaces_a_read_failure_while_deciding() {
-    let fs = InMemoryFs::new();
-    fs.write(Path::new("styles.css"), b"x").unwrap();
-    fs.fail_reads_to(Path::new("styles.css"));
-
     let err = Lock::default()
-        .should_write(&fs, Path::new("styles.css"), false)
+        .write(&fs, Path::new("primitiv.lock"))
         .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
@@ -156,7 +112,9 @@ fn classify_returns_new_when_the_file_does_not_exist() {
     let fs = InMemoryFs::new();
 
     assert!(matches!(
-        Lock::default().classify(&fs, Path::new("styles.css")).unwrap(),
+        Lock::default()
+            .classify(&fs, Path::new("styles.css"))
+            .unwrap(),
         Refresh::New
     ));
 }
@@ -165,7 +123,8 @@ fn classify_returns_new_when_the_file_does_not_exist() {
 fn classify_returns_unchanged_when_disk_content_matches_the_lock() {
     use crate::lock::Refresh;
     let fs = InMemoryFs::new();
-    fs.write(Path::new("styles.css"), b".primitiv-button{}").unwrap();
+    fs.write(Path::new("styles.css"), b".primitiv-button{}")
+        .unwrap();
     let mut lock = Lock::default();
     lock.record("styles.css", b".primitiv-button{}");
 
@@ -179,7 +138,8 @@ fn classify_returns_unchanged_when_disk_content_matches_the_lock() {
 fn classify_returns_edited_when_disk_content_differs_from_the_lock() {
     use crate::lock::Refresh;
     let fs = InMemoryFs::new();
-    fs.write(Path::new("styles.css"), b"edited by the consumer").unwrap();
+    fs.write(Path::new("styles.css"), b"edited by the consumer")
+        .unwrap();
     let mut lock = Lock::default();
     lock.record("styles.css", b".primitiv-button{}");
 

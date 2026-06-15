@@ -16,8 +16,8 @@ pub const FILE_NAME: &str = "primitiv.lock";
 
 /// How a destination file compares to the lock's recorded hash (RFC 0005 §4.2).
 ///
-/// Used by [`Lock::classify`] to label each file in the dry-run refresh report
-/// and by [`Lock::should_write`] to decide whether to overwrite it.
+/// Returned by [`Lock::classify`] so `add` can decide whether to refresh, keep,
+/// or prompt — and label each file in the dry-run refresh report.
 #[derive(Debug, PartialEq)]
 pub enum Refresh {
     /// The file does not yet exist on disk — `add` will create it.
@@ -91,11 +91,7 @@ impl Lock {
     /// when it is on disk and matches the lock's recorded hash, or
     /// [`Refresh::Edited`] when it is on disk but differs. A read failure on the
     /// existing file is a [`CliError::Io`].
-    pub fn classify(
-        &self,
-        fs: &impl FileSystem,
-        dest: &Path,
-    ) -> Result<Refresh, CliError> {
+    pub fn classify(&self, fs: &impl FileSystem, dest: &Path) -> Result<Refresh, CliError> {
         if !fs.exists(dest) {
             return Ok(Refresh::New);
         }
@@ -106,24 +102,6 @@ impl Lock {
         } else {
             Ok(Refresh::Edited)
         }
-    }
-
-    /// Whether `add` should write `dest` (RFC 0005 §4.2). `--force` always
-    /// writes (without reading the file); a file not yet on disk is new and
-    /// written; an existing file is refreshed only when its current content still
-    /// matches what the lock recorded (untouched since `add` wrote it) — a
-    /// consumer-edited or untracked file is kept. A read failure on the existing
-    /// file is a [`CliError::Io`].
-    pub fn should_write(
-        &self,
-        fs: &impl FileSystem,
-        dest: &Path,
-        force: bool,
-    ) -> Result<bool, CliError> {
-        if force {
-            return Ok(true);
-        }
-        Ok(!matches!(self.classify(fs, dest)?, Refresh::Edited))
     }
 }
 

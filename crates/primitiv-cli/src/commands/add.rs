@@ -10,6 +10,7 @@ use crate::package_manager::PackageManager;
 use crate::ports::fs::FileSystem;
 use crate::ports::output::Output;
 use crate::ports::process::ProcessRunner;
+use crate::ports::prompt::{Decision, Prompt};
 use crate::ports::registry::Registry;
 use crate::registry::RegistryIndex;
 
@@ -48,7 +49,9 @@ struct PlannedFile {
     name: String,
     /// The file name within the component's registry entry, used to fetch bytes.
     file: String,
-    /// The destination path the file will be written to.
+    /// The destination directory, created before the write (always a real dir).
+    dir: PathBuf,
+    /// The destination path (`dir/file`) the file will be written to.
     dest: PathBuf,
 }
 
@@ -75,11 +78,18 @@ fn status_label(refresh: &Refresh, force: bool) -> &'static str {
 /// registry doesn't carry is a [`CliError::NotFound`]; a package manager that
 /// fails is a [`CliError::Install`]. The remaining wiring effects (§4.3) layer
 /// on in later slices.
+///
+/// When `interactive`, a consumer-edited file prompts overwrite/keep through the
+/// [`Prompt`] port (RFC 0005 §4.2); non-interactively the edit is kept (unless
+/// `--force`). The dry-run report never prompts.
+#[allow(clippy::too_many_arguments)]
 pub fn add(
     fs: &impl FileSystem,
     registry: &impl Registry,
     output: &impl Output,
     runner: &impl ProcessRunner,
+    prompt: &impl Prompt,
+    interactive: bool,
     options: &AddOptions,
 ) -> Result<(), CliError> {
     let AddOptions {
@@ -148,6 +158,8 @@ pub fn add(
             copy_styled_surface(
                 fs,
                 registry,
+                prompt,
+                interactive,
                 &index,
                 &resolved,
                 &dir,
@@ -181,6 +193,8 @@ const DEFAULT_COMPONENTS_DIR: &str = "components";
 fn copy_styled_surface(
     fs: &impl FileSystem,
     registry: &impl Registry,
+    prompt: &impl Prompt,
+    interactive: bool,
     index: &RegistryIndex,
     resolved: &[String],
     dir: &Path,
@@ -195,7 +209,7 @@ fn copy_styled_surface(
         return Ok(());
     }
     for pf in &files {
-        copy_file(fs, registry, &mut lock, &pf.name, &pf.file, &pf.dest, force)?;
+        copy_file(fs, registry, prompt, interactive, &mut lock, pf, force)?;
     }
     lock.write(fs, &lock_path)
 }
@@ -231,6 +245,7 @@ fn planned_files(
                 name: name.clone(),
                 file: file.to_string(),
                 dest: component_dir.join(file),
+                dir: component_dir.clone(),
             });
         }
     }
@@ -239,8 +254,8 @@ fn planned_files(
         .iter()
         .any(|name| !index.components[name].styles.react.is_empty());
     if has_react {
-        let components_dir = detect::components_path(fs, dir)?
-            .unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
+        let components_dir =
+            detect::components_path(fs, dir)?.unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
         let components_dir = PathBuf::from(&components_dir);
         for name in resolved {
             for file in &index.components[name].styles.react {
@@ -248,6 +263,7 @@ fn planned_files(
                     name: name.clone(),
                     file: file.clone(),
                     dest: components_dir.join(file),
+                    dir: components_dir.clone(),
                 });
             }
         }
@@ -267,27 +283,46 @@ fn render_refresh_plan(files: &[(String, &str)]) -> String {
     out
 }
 
-/// Fetch one registry file and write it to `dest` — but only when the
-/// [`Lock`] says so (RFC 0005 §4.2): a new or untouched file is written and its
-/// hash recorded; a consumer-edited file is kept unless `force`. A file the
-/// registry can't serve is a [`CliError::Registry`]; a directory/write failure
-/// surfaces as the port's [`CliError::Io`].
+/// Fetch one registry file and write it to `dest` — but only when the refresh
+/// rules say so (RFC 0005 §4.2). `force` always writes; otherwise a new or
+/// untouched file is written and its hash recorded, and a consumer-edited file is
+/// kept — unless the session is `interactive`, when the [`Prompt`] port asks
+/// overwrite/keep. A file the registry can't serve is a [`CliError::Registry`]; a
+/// directory/write failure (or a failed prompt) surfaces as a [`CliError::Io`].
 fn copy_file(
     fs: &impl FileSystem,
     registry: &impl Registry,
+    prompt: &impl Prompt,
+    interactive: bool,
     lock: &mut Lock,
-    name: &str,
-    file: &str,
-    dest: &Path,
+    pf: &PlannedFile,
     force: bool,
 ) -> Result<(), CliError> {
+    let PlannedFile {
+        name,
+        file,
+        dir,
+        dest,
+    } = pf;
     let bytes = registry
         .file(name, file)
         .map_err(|error| CliError::Registry(error.to_string()))?;
-    if lock.should_write(fs, dest, force)? {
-        if let Some(dest_dir) = dest.parent() {
-            fs.create_dir_all(dest_dir)?;
+    let write = if force {
+        true
+    } else {
+        match lock.classify(fs, dest)? {
+            Refresh::New | Refresh::Unchanged => true,
+            Refresh::Edited if interactive => {
+                matches!(
+                    prompt.decide(dest).map_err(CliError::Io)?,
+                    Decision::Overwrite
+                )
+            }
+            Refresh::Edited => false,
         }
+    };
+    if write {
+        fs.create_dir_all(dir)?;
         fs.write(dest, &bytes)?;
         lock.record(&dest.to_string_lossy(), &bytes);
     }

@@ -5,17 +5,28 @@
 //! library and is unit-tested; this shell carries none and is exercised
 //! end-to-end by `tests/cli.rs`.
 
+use std::io::IsTerminal;
 use std::process::ExitCode;
 
 use primitiv_cli::ports::fs::OsFs;
 use primitiv_cli::ports::output::OsStdout;
 use primitiv_cli::ports::process::OsProcessRunner;
+use primitiv_cli::ports::prompt::OsPrompt;
 use primitiv_cli::ports::registry::EmbeddedRegistry;
 use primitiv_cli::run::run;
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
-    match run(&OsFs, &OsStdout, &EmbeddedRegistry, &OsProcessRunner, &args) {
+    let interactive = std::io::stdin().is_terminal();
+    match run(
+        &OsFs,
+        &OsStdout,
+        &EmbeddedRegistry,
+        &OsProcessRunner,
+        &OsPrompt,
+        interactive,
+        &args,
+    ) {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => {
             eprintln!("primitiv: {error}");

@@ -91,7 +91,27 @@ fn list_prints_the_registry_components() {
         .assert()
         .success()
         .stdout(predicate::str::contains("COMPONENT"))
+        .stdout(predicate::str::contains("INSTALLED"))
         .stdout(predicate::str::contains("button"));
+}
+
+#[test]
+fn list_marks_a_component_installed_from_the_lock_on_disk() {
+    // Proves the real OsFs current_dir + Lock::read path: a primitiv.lock that
+    // records `button` makes its INSTALLED cell read `yes`.
+    let dir = assert_fs::TempDir::new().unwrap();
+    dir.child("primitiv.lock")
+        .write_str("{\n  \"components\": [\n    \"button\"\n  ],\n  \"files\": {}\n}\n")
+        .unwrap();
+
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .arg("list")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("button"))
+        .stdout(predicate::str::contains("yes"));
 }
 
 #[test]

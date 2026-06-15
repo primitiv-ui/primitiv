@@ -31,14 +31,31 @@ pub fn parse_decision(answer: &str) -> Decision {
     }
 }
 
+/// Map a typed answer to a yes/no boolean for `[Y/n]` prompts. `n` / `no` (any
+/// case, surrounding whitespace ignored) returns `false`; everything else —
+/// including `y`, `yes`, an empty line (the default), and unrecognised input —
+/// returns `true`, the safe-default yes.
+pub fn parse_confirm(answer: &str) -> bool {
+    !matches!(
+        answer.trim().to_ascii_lowercase().as_str(),
+        "n" | "no"
+    )
+}
+
 /// The prompt port — the seam `add` asks the consumer to resolve an edited-file
-/// conflict (RFC 0005 §4.2). The real binary supplies [`OsPrompt`]; command-layer
-/// tests supply the [`InMemoryPrompt`] fake (RFC 0007 §2.2). Whether the prompt is
-/// reached at all is the caller's `interactive` decision (a non-TTY never asks).
+/// conflict (RFC 0005 §4.2) or confirm a wiring patch (§4.3). The real binary
+/// supplies [`OsPrompt`]; command-layer tests supply the [`InMemoryPrompt`] fake
+/// (RFC 0007 §2.2). Whether either prompt is reached at all is the caller's
+/// `interactive` decision (a non-TTY never asks).
 pub trait Prompt {
     /// Ask whether to overwrite the edited file at `dest`, returning the
     /// consumer's [`Decision`]. An input/output failure is an `io::Error`.
     fn decide(&self, dest: &Path) -> io::Result<Decision>;
+
+    /// Ask a `[Y/n]` confirmation question, returning `true` when the consumer
+    /// confirms (including on empty input — the default is yes) and `false` when
+    /// they decline. An input/output failure is an `io::Error`.
+    fn confirm(&self, question: &str) -> io::Result<bool>;
 }
 
 /// The real [`Prompt`] the bin runs on — writes the question to stderr (so a
@@ -59,17 +76,28 @@ impl Prompt for OsPrompt {
         let mut line = String::new();
         io::stdin().read_line(&mut line).map(|_| parse_decision(&line))
     }
+
+    fn confirm(&self, question: &str) -> io::Result<bool> {
+        let _ = write!(io::stderr(), "{question} [Y/n] ");
+        let _ = io::stderr().flush();
+        let mut line = String::new();
+        io::stdin().read_line(&mut line).map(|_| parse_confirm(&line))
+    }
 }
 
 /// An in-memory [`Prompt`] fake for command-layer tests (RFC 0007 §2.2): it
-/// answers with a scripted [`Decision`], records the paths it was asked about (so
-/// a test can assert it was — or wasn't — consulted), and can be made to fail so
-/// the command's prompt-error branch is driven without a real stream.
+/// answers with a scripted [`Decision`] for `decide` and a boolean for `confirm`,
+/// records what it was asked (so a test can assert it was — or wasn't — consulted),
+/// and can be made to fail so the command's prompt-error branches are driven
+/// without a real stream. `fail()` affects both methods; `deny_confirm()` only
+/// affects `confirm`.
 #[cfg(test)]
 pub struct InMemoryPrompt {
     decision: Decision,
+    confirm_yes: RefCell<bool>,
     fail: RefCell<bool>,
     asked: RefCell<Vec<PathBuf>>,
+    confirmed: RefCell<Vec<String>>,
 }
 
 #[cfg(test)]
@@ -77,20 +105,34 @@ impl InMemoryPrompt {
     pub fn new(decision: Decision) -> Self {
         Self {
             decision,
+            confirm_yes: RefCell::new(true),
             fail: RefCell::new(false),
             asked: RefCell::new(Vec::new()),
+            confirmed: RefCell::new(Vec::new()),
         }
     }
 
-    /// Make the next [`decide`](Prompt::decide) fail, modelling a closed/broken
-    /// stdin.
+    /// Make the next [`decide`](Prompt::decide) or [`confirm`](Prompt::confirm)
+    /// fail, modelling a closed/broken stdin.
     pub fn fail(&self) {
         *self.fail.borrow_mut() = true;
     }
 
-    /// The destinations the prompt was asked about, in order.
+    /// Set the [`confirm`](Prompt::confirm) answer to `false` (deny). The
+    /// default is `true` (yes, matching `[Y/n]`).
+    pub fn deny_confirm(&self) {
+        *self.confirm_yes.borrow_mut() = false;
+    }
+
+    /// The destinations the prompt was asked about via [`decide`](Prompt::decide),
+    /// in order.
     pub fn asked(&self) -> Vec<PathBuf> {
         self.asked.borrow().clone()
+    }
+
+    /// The questions asked via [`confirm`](Prompt::confirm), in order.
+    pub fn confirmed(&self) -> Vec<String> {
+        self.confirmed.borrow().clone()
     }
 }
 
@@ -102,5 +144,13 @@ impl Prompt for InMemoryPrompt {
         }
         self.asked.borrow_mut().push(dest.to_path_buf());
         Ok(self.decision)
+    }
+
+    fn confirm(&self, question: &str) -> io::Result<bool> {
+        if *self.fail.borrow() {
+            return Err(io::Error::other("prompt failed"));
+        }
+        self.confirmed.borrow_mut().push(question.to_string());
+        Ok(*self.confirm_yes.borrow())
     }
 }

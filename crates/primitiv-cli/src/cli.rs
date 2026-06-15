@@ -44,16 +44,18 @@ pub fn parse(args: &[String]) -> Result<Command, CliError> {
     }
 }
 
-/// Parse `add <component...> [--json] [--dry-run] [--styles-only | --no-styles]`
-/// — one or more component names, at least one required (RFC 0005 §2.2), with
-/// `--json` selecting the structured plan for agents (§6.5) and `--dry-run`
-/// reporting the plan without touching anything (§5). `--styles-only` copies the
-/// styled surface without installing the headless package (§4.1 step 2);
-/// `--no-styles` installs the package and stops before the styles (step 3) —
-/// combining the two would do neither, so it is a usage error. `--format <fmt>`
-/// overrides the config's stylesheet format for this copy and `--path <dir>` its
-/// destination; `--force` overwrites even consumer-edited files (§4.2). Names and
-/// flags are order-free; any other `--`-prefixed argument is unexpected.
+/// Parse `add <component...> [--json] [--dry-run] [--styles-only | --no-styles]
+/// [--format <fmt>] [--path <dir>] [--force] [--no-wiring]` — one or more
+/// component names, at least one required (RFC 0005 §2.2), with `--json`
+/// selecting the structured plan for agents (§6.5) and `--dry-run` reporting the
+/// plan without touching anything (§5). `--styles-only` copies the styled surface
+/// without installing the headless package (§4.1 step 2); `--no-styles` installs
+/// the package and stops before the styles (step 3) — combining the two would do
+/// neither, so it is a usage error. `--format <fmt>` overrides the config's
+/// stylesheet format for this copy and `--path <dir>` its destination; `--force`
+/// overwrites even consumer-edited files (§4.2); `--no-wiring` skips the project
+/// wiring offer and prints the manual snippet instead (§4.3). Names and flags are
+/// order-free; any other `--`-prefixed argument is unexpected.
 fn parse_add(args: &[String]) -> Result<Command, CliError> {
     let mut components = Vec::new();
     let mut json = false;
@@ -63,6 +65,7 @@ fn parse_add(args: &[String]) -> Result<Command, CliError> {
     let mut format = None;
     let mut path = None;
     let mut force = false;
+    let mut no_wiring = false;
     let mut rest = args.iter();
     while let Some(arg) = rest.next() {
         match arg.as_str() {
@@ -73,6 +76,7 @@ fn parse_add(args: &[String]) -> Result<Command, CliError> {
             "--format" => format = Some(parse_format(&take_value(&mut rest, "--format")?)?),
             "--path" => path = Some(take_value(&mut rest, "--path")?),
             "--force" => force = true,
+            "--no-wiring" => no_wiring = true,
             other if other.starts_with("--") => {
                 return Err(usage(format!("unexpected argument '{other}'")))
             }
@@ -96,6 +100,7 @@ fn parse_add(args: &[String]) -> Result<Command, CliError> {
         format,
         path,
         force,
+        no_wiring,
     }))
 }
 

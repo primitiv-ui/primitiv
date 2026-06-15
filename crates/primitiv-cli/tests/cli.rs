@@ -233,6 +233,38 @@ fn tokens_streams_the_layer_to_stdout_when_config_less() {
 }
 
 #[test]
+fn add_tailwind_project_prints_wiring_snippet_in_non_interactive_mode() {
+    // The binary is never a TTY under assert_cmd, so interactive=false. For a
+    // Tailwind-format project that print the wiring snippet to stdout after copy.
+    let dir = assert_fs::TempDir::new().unwrap();
+    dir.child("primitiv.json")
+        .write_str(
+            r##"{
+  "version": 1,
+  "framework": "react",
+  "styles": { "enabled": true, "format": "tailwind", "path": "src/styles/primitiv" },
+  "tokens": { "format": "css", "path": "src/styles/primitiv/tokens.css" },
+  "theme": { "brand": "#0a7755" },
+  "aliases": {},
+  "registry": { "version": "0.1.0" }
+}"##,
+        )
+        .unwrap();
+    dir.child("tsconfig.json")
+        .write_str(r#"{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }"#)
+        .unwrap();
+
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .args(["add", "button", "--styles-only"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("@custom-variant dark"))
+        .stdout(predicate::str::contains("Tailwind wiring"));
+}
+
+#[test]
 fn reports_a_usage_error_on_stderr_and_exits_two() {
     Command::cargo_bin("primitiv")
         .unwrap()

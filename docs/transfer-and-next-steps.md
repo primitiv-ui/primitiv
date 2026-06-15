@@ -90,7 +90,7 @@ adapters, hand-authored golden files, 100% coverage):
     since the paired light + dark brand ramp is exactly the mode-varying case a
     value-inlining TS object cannot represent without fighting the cascade.
 - [x] **Mode scoping** (RFC 0009) — emit `[data-theme]` + `[data-density]` scopes (density-neutral names, the `context.<density>` axis collapsed into `[data-density]`); ship the Tailwind `dark:`-variant remap. Falls out of the emitter (it is how dark + density are emitted), so it lands with the token emitter, not as separate work.
-  - **Done (theme + density scopes)** — emitted by the token pipeline (`Axis`, `scope_selectors`, `Scope`, default-first mode ordering). The `:root` default sharing and `[data-*]` overrides match RFC 0009 §2.2. **Remaining:** the Tailwind `dark:`-variant remap (a CLI `add`-wiring concern, RFC 0009 §4.2), which lands with the CLI.
+  - **Done (theme + density scopes)** — emitted by the token pipeline (`Axis`, `scope_selectors`, `Scope`, default-first mode ordering). The `:root` default sharing and `[data-*]` overrides match RFC 0009 §2.2. The **Tailwind `dark:`-variant remap + layer-order statement** (RFC 0009 §4.2) landed with the CLI — `wiring.rs` (`SNIPPET`, `contains_wiring`, `patch`) and the `offer_wiring` / `patch_wiring` logic in `add.rs`; the idempotency check and the interactive detect-and-patch path are both tested end-to-end.
 - [ ] **Styling contract + `contract.json`** per component (RFC 0004 §3) — hybrid generation (data-* auto-verified, modifiers/custom-props authored).
   - **Button landed.** `registry/r/button/contract.json` is the first hybrid
     contract: the `data-*` half (`data-disabled`, `source: "auto"`) is
@@ -337,14 +337,18 @@ adapters, hand-authored golden files, 100% coverage):
     without prompting, and `--force` still overwrites all without asking; a
     `--yes` flag is intentionally deferred (non-breaking to add later). `add`'s
     copy decision moved from `Lock::should_write` (removed) to `Lock::classify` +
-    the prompt. **Remaining for `add`** (§4.2–§4.4):
-    copying the **contract**; project
-    wiring (§4.3), and the `--registry` / HTTPS registry adapter.
-    **Other remaining CLI work:**
-    interactive prompting for `init` (the alias detection above now feeds the
-    pre-filled prompt; the lockfile package-manager detector is reusable for the
-    manager prompt); the `list` **"installed in this project"** column; the
-    Tailwind `dark:`-variant remap (RFC 0009 §4.2).
+    the prompt. **Project wiring (§4.3) is now landed**: `wiring.rs` holds the
+    `SNIPPET` (`@custom-variant dark` remap + `@layer` order statement),
+    `contains_wiring` (idempotency check), and `patch` (prepend with blank-line
+    separator); `--no-wiring` is parsed; `offer_wiring` / `patch_wiring` in
+    `add.rs` dispatch between the interactive detect-and-patch Tier-1 path
+    (detect entry CSS, ask `[Y/n]`, apply) and the non-interactive /
+    `--no-wiring` Tier-2 floor (print snippet to stdout). All error paths
+    covered; a new e2e test proves the real binary prints the snippet for a
+    Tailwind-format project. **Remaining for `add`**: copying the **contract**;
+    the `--registry` / HTTPS registry adapter. **Other remaining CLI work:**
+    interactive prompting for `init`; the `list` **"installed in this
+    project"** column.
 - [ ] **Distribution** (RFC 0005 §7) — Rust binary via `optionalDependencies` (`@primitiv-ui/cli-*`), `cargo-dist`/napi-rs matrix; supersede the published v0.0.1 name-reservation placeholders with the real `primitiv-ui` / `create-primitiv-ui` at a higher version.
 
 ## ❓ Open questions

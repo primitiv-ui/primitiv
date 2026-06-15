@@ -90,8 +90,10 @@ pub fn init(
             path.display()
         )));
     }
-    let detected_alias = match &options.alias_components {
-        Some(value) => Some(value.clone()),
+    // Detect the alias only when the flag is absent — an explicit
+    // `--alias-components` wins in `resolve`, so detection would be discarded.
+    let detected_alias = match options.alias_components {
+        Some(_) => None,
         None => detect::components_alias(fs, &dir)?,
     };
     let resolved = resolve(options, prompt, interactive, detected_alias)?;
@@ -102,8 +104,9 @@ pub fn init(
 /// Collapse each [`InitOptions`] choice to a concrete value: a given flag wins;
 /// otherwise an interactive session (not `--yes`) prompts for it pre-filled with
 /// its default, and a non-interactive one takes the default silently (RFC 0005
-/// §2.1). The components alias is not prompted here — it carries the detected
-/// value through (prompting it is a later increment).
+/// §2.1). The components alias prompt is pre-filled with the **detected** value
+/// (`detected_alias`); a blank answer (no detection, nothing typed) means relative
+/// imports.
 fn resolve(
     options: &InitOptions,
     prompt: &impl Prompt,
@@ -137,12 +140,24 @@ fn resolve(
         None if ask => ask_text(prompt, "Where should copied styles land", DEFAULT_STYLES_PATH)?,
         None => DEFAULT_STYLES_PATH.to_string(),
     };
+    let alias_components = match &options.alias_components {
+        Some(value) => Some(value.clone()),
+        None if ask => {
+            let answer = ask_text(
+                prompt,
+                "Components import alias (blank for relative imports)",
+                detected_alias.as_deref().unwrap_or(""),
+            )?;
+            (!answer.is_empty()).then_some(answer)
+        }
+        None => detected_alias,
+    };
     Ok(ResolvedInit {
         format,
         brand,
         path,
         styles_enabled,
-        alias_components: detected_alias,
+        alias_components,
     })
 }
 

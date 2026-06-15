@@ -300,8 +300,41 @@ fn interactive_init_prompts_for_each_omitted_choice() {
             "Stylesheet format (css, scss, tailwind)",
             "Brand colour",
             "Where should copied styles land",
+            "Components import alias (blank for relative imports)",
         ]
     );
+}
+
+#[test]
+fn interactive_init_prompts_for_the_components_alias_pre_filled_with_detection() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("package.json"), b"{}").unwrap();
+    // A tsconfig that detects `@/components`: the alias prompt is pre-filled with
+    // it, and an empty answer (the exhausted queue) accepts the detected default.
+    fs.write(
+        Path::new("tsconfig.json"),
+        br#"{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }"#,
+    )
+    .unwrap();
+    let prompt = silent_prompt();
+
+    init(&fs, &prompt, true, &default_options()).unwrap();
+
+    let written = String::from_utf8(fs.read(Path::new("primitiv.json")).unwrap()).unwrap();
+    assert_eq!(written, EXPECTED_DETECTED_ALIAS);
+}
+
+#[test]
+fn interactive_init_surfaces_an_alias_prompt_failure() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("package.json"), b"{}").unwrap();
+    let prompt = silent_prompt();
+    // styles + format + brand + path succeed (calls 1–4); the alias prompt (5) fails.
+    prompt.fail_after(4);
+
+    let err = init(&fs, &prompt, true, &default_options()).unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
 }
 
 #[test]

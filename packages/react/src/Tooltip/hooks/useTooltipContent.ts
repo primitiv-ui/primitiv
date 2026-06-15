@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-import { composeEventHandlers } from "../../Slot";
+import { composeEventHandlers } from "../../Slot/index.ts";
 import { useTooltipContext } from "../TooltipContext";
 import type { TooltipContentProps } from "../types";
 

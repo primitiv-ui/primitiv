@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 
-import { Tabs } from '..';
+import { Tabs } from '../index.ts';
 
 describe('Tabs controlled state tests', () => {
   it('should respect the value prop for active tab', () => {

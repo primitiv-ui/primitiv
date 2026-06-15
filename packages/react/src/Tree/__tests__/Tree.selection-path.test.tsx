@@ -3,8 +3,8 @@ import { useState } from "react";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { Tree, useTreePath, useTreeSelectionPaths } from "../../Tree";
-import type { TreePathSegment } from "../../Tree";
+import { Tree, useTreePath, useTreeSelectionPaths } from "../../Tree/index.ts";
+import type { TreePathSegment } from "../../Tree/index.ts";
 
 function PathProbe({ value }: { value: string }) {
   const path = useTreePath(value);

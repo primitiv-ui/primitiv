@@ -1,7 +1,7 @@
 import { Ref, useEffect, useId } from "react";
 
-import { Portal } from "../Portal";
-import { Slot, composeEventHandlers, composeRefs } from "../Slot";
+import { Portal } from "../Portal/index.ts";
+import { Slot, composeEventHandlers, composeRefs } from "../Slot/index.ts";
 
 import { ModalProvider } from "./ModalContext";
 import {
@@ -9,7 +9,7 @@ import {
   useModalContext,
   useModalRoot,
   useModalTrigger,
-} from "./hooks";
+} from "./hooks/index.ts";
 import {
   ModalCloseProps,
   ModalContentProps,

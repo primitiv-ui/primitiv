@@ -1,6 +1,6 @@
 import { useId, useMemo } from "react";
 
-import { deriveId } from "../../utils";
+import { deriveId } from "../../utils/index.ts";
 
 import { useAccordionContext } from "./useAccordionContext";
 

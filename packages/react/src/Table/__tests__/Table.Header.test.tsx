@@ -1,4 +1,4 @@
-import { Table } from "..";
+import { Table } from "../index.ts";
 import { render, screen } from "@testing-library/react";
 
 describe("Table.Header rendering", () => {

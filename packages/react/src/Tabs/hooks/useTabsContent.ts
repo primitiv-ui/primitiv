@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { TabsContentProps } from "../types";
 import { getTriggerAndPanelIds } from "../utils";
 
-import { useTabsContext } from ".";
+import { useTabsContext } from "./index.ts";
 
 export function useTabsContent({ value }: Pick<TabsContentProps, "value">) {
   const { orientation, activeValue, tabsId, lazyMount } = useTabsContext();

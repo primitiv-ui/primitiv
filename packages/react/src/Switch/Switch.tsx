@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 
-import { Slot, composeEventHandlers } from "../Slot";
+import { Slot, composeEventHandlers } from "../Slot/index.ts";
 
 import { SwitchContext } from "./SwitchContext";
-import { useSwitchContext, useSwitchRoot } from "./hooks";
+import { useSwitchContext, useSwitchRoot } from "./hooks/index.ts";
 import { SwitchRootProps, SwitchThumbProps } from "./types";
 
 /**

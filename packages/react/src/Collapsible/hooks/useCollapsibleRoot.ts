@@ -1,6 +1,6 @@
 import { useCallback, useId, useMemo } from "react";
 
-import { useControllableState } from "../../hooks";
+import { useControllableState } from "../../hooks/index.ts";
 
 export function useCollapsibleRoot(
   controlledOpen: boolean | undefined,

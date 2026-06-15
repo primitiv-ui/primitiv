@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import { Tabs, TabsOrientation } from "..";
+import { Tabs, TabsOrientation } from "../index.ts";
 
 describe("Tabs basic rendering tests", () => {
   describe("Tabs.Root", () => {

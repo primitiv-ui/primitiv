@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { Carousel } from "..";
+import { Carousel } from "../index.ts";
 
 describe("Carousel keyboard navigation", () => {
   it("should advance the active page when ArrowRight is pressed with the viewport focused", async () => {

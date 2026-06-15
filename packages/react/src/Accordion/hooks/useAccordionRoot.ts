@@ -1,6 +1,6 @@
 import { useRef, useMemo, useCallback, useId, useEffect } from "react";
 
-import { useCollection, useControllableState } from "../../hooks";
+import { useCollection, useControllableState } from "../../hooks/index.ts";
 
 import type { AccordionReadingDirection } from "../types";
 

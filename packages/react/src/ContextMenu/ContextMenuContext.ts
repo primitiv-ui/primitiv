@@ -1,7 +1,7 @@
 import { RefObject } from "react";
 
-import { Direction } from "../DirectionProvider";
-import { createStrictContext } from "../utils";
+import { Direction } from "../DirectionProvider/index.ts";
+import { createStrictContext } from "../utils/index.ts";
 
 export type ContextMenuPosition = { x: number; y: number };
 

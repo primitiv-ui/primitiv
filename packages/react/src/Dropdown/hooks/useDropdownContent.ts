@@ -1,5 +1,5 @@
 import { useRef, useEffect, useMemo, KeyboardEventHandler } from "react";
-import { composeEventHandlers } from "../../Slot";
+import { composeEventHandlers } from "../../Slot/index.ts";
 import { MENUITEM_SELECTOR, TYPEAHEAD_RESET_MS } from "../constants";
 import { useDropdownContext } from "./useDropdownContext";
 import { DropdownContentProps } from "../types";

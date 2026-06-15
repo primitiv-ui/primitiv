@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import { DirectionProvider, useDirection } from "..";
+import { DirectionProvider, useDirection } from "../index.ts";
 
 function DirectionProbe() {
   return <span data-testid="probe">{useDirection()}</span>;

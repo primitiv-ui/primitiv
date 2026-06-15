@@ -1,8 +1,8 @@
 import { createRef, useRef } from "react";
 import { act, render, screen } from "@testing-library/react";
 
-import { Carousel } from "..";
-import type { CarouselImperativeApi } from "..";
+import { Carousel } from "../index.ts";
+import type { CarouselImperativeApi } from "../index.ts";
 
 function ImperativeFixture({
   apiRef,

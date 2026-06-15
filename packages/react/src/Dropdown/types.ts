@@ -1,7 +1,7 @@
 import { ComponentProps, ReactNode, Ref } from "react";
 
 import { CheckedState } from "../Checkbox/types";
-import { Direction } from "../DirectionProvider";
+import { Direction } from "../DirectionProvider/index.ts";
 
 type DropdownRootBaseProps = {
   children?: ReactNode;

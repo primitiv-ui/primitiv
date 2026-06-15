@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { Carousel } from "..";
+import { Carousel } from "../index.ts";
 
 function mockReducedMotion(matches: boolean) {
   window.matchMedia = vi.fn().mockImplementation((query: string) => ({

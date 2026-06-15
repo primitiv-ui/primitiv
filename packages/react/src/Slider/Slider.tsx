@@ -1,8 +1,8 @@
-import { useDirection } from "../DirectionProvider";
-import { Slot, composeEventHandlers, composeRefs } from "../Slot";
+import { useDirection } from "../DirectionProvider/index.ts";
+import { Slot, composeEventHandlers, composeRefs } from "../Slot/index.ts";
 
 import { SliderContext } from "./SliderContext";
-import { useSliderContext, useSliderRoot, useSliderThumb } from "./hooks";
+import { useSliderContext, useSliderRoot, useSliderThumb } from "./hooks/index.ts";
 import type {
   SliderRangeProps,
   SliderRootProps,

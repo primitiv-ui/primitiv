@@ -1,4 +1,4 @@
-import { Status } from "..";
+import { Status } from "../index.ts";
 import { render, screen } from "@testing-library/react";
 
 describe("Status component", () => {

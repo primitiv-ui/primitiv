@@ -1,4 +1,4 @@
-import { createStrictContext } from "../utils";
+import { createStrictContext } from "../utils/index.ts";
 
 import { RadioCardOrientation, RadioCardReadingDirection } from "./types";
 

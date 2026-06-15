@@ -1,7 +1,7 @@
 import { useMemo, useRef, useEffect, MouseEvent, KeyboardEvent } from "react";
 
-import { useRovingTabindex } from "../../hooks";
-import { composeRefs } from "../../Slot";
+import { useRovingTabindex } from "../../hooks/index.ts";
+import { composeRefs } from "../../Slot/index.ts";
 
 import { AccordionTriggerProps } from "../types";
 

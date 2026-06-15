@@ -1,4 +1,4 @@
-import { createStrictContext } from "../utils";
+import { createStrictContext } from "../utils/index.ts";
 
 import type { SliderDirection, SliderOrientation } from "./types";
 

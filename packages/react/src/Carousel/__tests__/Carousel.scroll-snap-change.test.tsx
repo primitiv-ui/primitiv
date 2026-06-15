@@ -1,6 +1,6 @@
 import { act, render, screen } from "@testing-library/react";
 
-import { Carousel } from "..";
+import { Carousel } from "../index.ts";
 
 function fireScrollSnapChange(viewport: HTMLElement, snapTarget: HTMLElement) {
   const event = new Event("scrollsnapchange", { bubbles: false });

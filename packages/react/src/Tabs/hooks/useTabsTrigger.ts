@@ -5,7 +5,7 @@ import {
   MouseEvent,
 } from "react";
 
-import { useRovingTabindex } from "../../hooks";
+import { useRovingTabindex } from "../../hooks/index.ts";
 
 import { TabsTriggerProps } from "../types";
 import { getTriggerAndPanelIds } from "../utils";

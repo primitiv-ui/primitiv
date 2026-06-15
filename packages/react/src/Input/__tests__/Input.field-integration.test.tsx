@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import { Field } from "../../Field";
+import { Field } from "../../Field/index.ts";
 import { Input } from "../Input";
 
 describe("Input — Field integration", () => {

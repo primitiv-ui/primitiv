@@ -2,8 +2,8 @@ import { RefObject, useRef } from "react";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { Carousel } from "..";
-import type { CarouselImperativeApi } from "..";
+import { Carousel } from "../index.ts";
+import type { CarouselImperativeApi } from "../index.ts";
 import { MockIntersectionObserver } from "../../test/intersectionObserverPolyfill";
 
 describe("Carousel IntersectionObserver fallback + isInView", () => {

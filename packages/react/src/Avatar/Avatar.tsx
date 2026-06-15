@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { Slot } from "../Slot";
+import { Slot } from "../Slot/index.ts";
 
 import { AvatarContext } from "./AvatarContext";
-import { useAvatarContext, useAvatarImage } from "./hooks";
+import { useAvatarContext, useAvatarImage } from "./hooks/index.ts";
 import {
   AvatarFallbackProps,
   AvatarImageLoadingStatus,

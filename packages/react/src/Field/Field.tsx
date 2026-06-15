@@ -1,8 +1,8 @@
 import { useId, useMemo } from "react";
 
-import { Slot } from "../Slot";
+import { Slot } from "../Slot/index.ts";
 import { FieldContext } from "./FieldContext";
-import { useFieldContext } from "./hooks";
+import { useFieldContext } from "./hooks/index.ts";
 import {
   FieldDescriptionProps,
   FieldErrorTextProps,

@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { Carousel } from "..";
+import { Carousel } from "../index.ts";
 
 describe("Carousel slidesPerPage", () => {
   it("should mark every slide on the active page as active when slidesPerPage > 1", () => {

@@ -1,6 +1,6 @@
 import { RefObject } from "react";
 
-import { createStrictContext } from "../utils";
+import { createStrictContext } from "../utils/index.ts";
 
 export type DropdownSubContextValue = {
   open: boolean;

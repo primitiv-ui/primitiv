@@ -6,8 +6,8 @@ import {
   useRef,
 } from "react";
 
-import { Direction } from "../../DirectionProvider";
-import { useControllableState } from "../../hooks";
+import { Direction } from "../../DirectionProvider/index.ts";
+import { useControllableState } from "../../hooks/index.ts";
 
 type UseDropdownRootArgs = {
   defaultOpen?: boolean;

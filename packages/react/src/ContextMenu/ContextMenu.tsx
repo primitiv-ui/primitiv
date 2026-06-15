@@ -8,11 +8,11 @@ import {
   useState,
 } from "react";
 
-import { useCheckboxRoot } from "../Checkbox/hooks";
-import { useDirection } from "../DirectionProvider";
-import { useRadioGroupRoot } from "../RadioGroup/hooks";
-import { useControllableState } from "../hooks";
-import { Slot, composeEventHandlers } from "../Slot";
+import { useCheckboxRoot } from "../Checkbox/hooks/index.ts";
+import { useDirection } from "../DirectionProvider/index.ts";
+import { useRadioGroupRoot } from "../RadioGroup/hooks/index.ts";
+import { useControllableState } from "../hooks/index.ts";
+import { Slot, composeEventHandlers } from "../Slot/index.ts";
 
 import {
   ContextMenuContext,

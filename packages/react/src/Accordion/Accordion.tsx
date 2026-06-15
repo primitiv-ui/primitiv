@@ -1,7 +1,7 @@
 import { Ref, useEffect } from "react";
 
-import { useDirection } from "../DirectionProvider";
-import { Slot } from "../Slot";
+import { useDirection } from "../DirectionProvider/index.ts";
+import { Slot } from "../Slot/index.ts";
 
 import type {
   AccordionRootProps,
@@ -21,7 +21,7 @@ import {
   useAccordionItem,
   useAccordionItemContext,
   useAccordionRoot,
-} from "./hooks";
+} from "./hooks/index.ts";
 import { useAccordionTrigger } from "./hooks/useAccordionTrigger";
 
 /**

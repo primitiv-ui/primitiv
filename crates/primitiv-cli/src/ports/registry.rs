@@ -116,6 +116,50 @@ impl<F: FileSystem> Registry for LocalRegistry<'_, F> {
     }
 }
 
+/// A [`Registry`] served over HTTP(S) (RFC 0005 §6.4) — the registry fetched
+/// from the network, e.g. GitHub raw at the pinned tag. It GETs
+/// `<base>/registry.json` and per-component `<base>/r/<component>/<file>` with a
+/// blocking `ureq` request; a transport failure or non-2xx status surfaces as an
+/// `io::Error`, which the consumer maps to a
+/// [`CliError::Registry`](crate::error::CliError::Registry). The base URL is
+/// injected — production points at GitHub raw, tests at a loopback server — so
+/// the fetch path is covered without reaching the network.
+pub struct HttpsRegistry {
+    base: String,
+}
+
+impl HttpsRegistry {
+    /// A registry rooted at `base` (the URL prefix holding `registry.json`), with
+    /// no trailing slash.
+    pub fn new(base: impl Into<String>) -> Self {
+        Self { base: base.into() }
+    }
+
+    /// GET `<base>/<rel>` and read the whole body, mapping any `ureq` error to an
+    /// `io::Error`.
+    fn get(&self, rel: &str) -> io::Result<Vec<u8>> {
+        let url = format!("{}/{rel}", self.base);
+        let mut response = ureq::get(&url).call().map_err(to_io)?;
+        response.body_mut().read_to_vec().map_err(to_io)
+    }
+}
+
+impl Registry for HttpsRegistry {
+    fn index(&self) -> io::Result<Vec<u8>> {
+        self.get("registry.json")
+    }
+
+    fn file(&self, component: &str, file: &str) -> io::Result<Vec<u8>> {
+        self.get(&format!("r/{component}/{file}"))
+    }
+}
+
+/// Map a `ureq` transport / non-2xx-status error to the [`Registry`] port's
+/// `io::Error`.
+fn to_io(error: ureq::Error) -> io::Error {
+    io::Error::other(error.to_string())
+}
+
 /// An in-memory [`Registry`] fake for command-layer tests (RFC 0007 §2.2): it
 /// serves a caller-supplied index, or fails, so `list`'s formatting and its
 /// registry-load error branch are driven without the embedded content.

@@ -1,8 +1,32 @@
+use std::io::{Read, Write};
+use std::net::TcpListener;
 use std::path::Path;
+use std::thread;
 
 use crate::ports::fs::{FileSystem, InMemoryFs};
-use crate::ports::registry::{EmbeddedRegistry, InMemoryRegistry, LocalRegistry, Registry};
+use crate::ports::registry::{
+    EmbeddedRegistry, HttpsRegistry, InMemoryRegistry, LocalRegistry, Registry,
+};
 use crate::registry::RegistryIndex;
+
+/// Spin up a loopback HTTP server that answers the next request with `status`
+/// and `body`, then returns its `http://127.0.0.1:<port>` base URL. Lets the real
+/// `ureq` fetch path run deterministically without reaching the network (RFC 0007
+/// §2.2 — the adapter's testable seam). The listener moves into the handler
+/// thread, which runs detached for the one request the test makes.
+fn serve_once(status: &str, body: &str) -> String {
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let port = listener.local_addr().unwrap().port();
+    let response = format!("{status}\r\nContent-Length: {}\r\n\r\n{body}", body.len());
+    thread::spawn(move || {
+        if let Ok((mut stream, _)) = listener.accept() {
+            let mut scratch = [0u8; 1024];
+            let _ = stream.read(&mut scratch);
+            let _ = stream.write_all(response.as_bytes());
+        }
+    });
+    format!("http://127.0.0.1:{port}")
+}
 
 #[test]
 fn embedded_registry_serves_the_baked_in_index() {
@@ -105,4 +129,31 @@ fn local_registry_reports_a_missing_file_as_not_found() {
         registry.file("button", "styles.css").unwrap_err().kind(),
         std::io::ErrorKind::NotFound
     );
+}
+
+#[test]
+fn https_registry_fetches_the_index_over_http() {
+    let base = serve_once("HTTP/1.1 200 OK", "{ \"version\": \"0.1.0\" }");
+    let registry = HttpsRegistry::new(base);
+
+    assert_eq!(registry.index().unwrap(), b"{ \"version\": \"0.1.0\" }");
+}
+
+#[test]
+fn https_registry_fetches_a_component_file_over_http() {
+    let base = serve_once("HTTP/1.1 200 OK", ".primitiv-button{}");
+    let registry = HttpsRegistry::new(base);
+
+    assert_eq!(
+        registry.file("button", "styles.css").unwrap(),
+        b".primitiv-button{}"
+    );
+}
+
+#[test]
+fn https_registry_maps_a_non_2xx_status_to_an_error() {
+    let base = serve_once("HTTP/1.1 404 Not Found", "not here");
+    let registry = HttpsRegistry::new(base);
+
+    assert!(registry.file("button", "styles.css").is_err());
 }

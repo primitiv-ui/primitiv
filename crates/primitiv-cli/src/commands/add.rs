@@ -39,6 +39,9 @@ pub struct AddOptions {
     /// Overwrite every copied file, even one a consumer has edited since `add`
     /// last wrote it (RFC 0005 §4.2). Without it, edited files are kept.
     pub force: bool,
+    /// Skip project wiring entirely and print the manual snippet instead
+    /// (RFC 0005 §4.3 Tier-2 floor). Non-interactive runs also skip silently.
+    pub no_wiring: bool,
 }
 
 /// One file the real (non-dry) copy would process — used by both the dry-run
@@ -101,6 +104,7 @@ pub fn add(
         format,
         path,
         force,
+        no_wiring,
     } = options;
     let index = registry
         .index()

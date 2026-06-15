@@ -256,6 +256,20 @@ fn rejects_add_combining_styles_only_and_no_styles() {
 }
 
 #[test]
+fn parses_add_with_the_no_wiring_flag() {
+    let command = parse(&args(&["add", "button", "--no-wiring"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Add(AddOptions {
+            components: vec!["button".to_string()],
+            no_wiring: true,
+            ..Default::default()
+        })
+    );
+}
+
+#[test]
 fn rejects_add_with_no_components() {
     assert!(matches!(
         parse(&args(&["add"])).unwrap_err(),

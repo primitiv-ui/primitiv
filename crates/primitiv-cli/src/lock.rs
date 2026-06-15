@@ -2,7 +2,7 @@
 //! hashes `add` wrote, so a re-add can tell an untouched file (safe to refresh)
 //! from a consumer-edited one (kept, never silently clobbered).
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::io;
 use std::path::Path;
 
@@ -30,11 +30,16 @@ pub enum Refresh {
     Edited,
 }
 
-/// The parsed `primitiv.lock`: a map from each written file's project-relative
-/// path to the [`fnv1a_hex`] of the bytes `add` last wrote there. A `BTreeMap`
-/// keeps the serialised order deterministic.
+/// The parsed `primitiv.lock`: the set of installed component names plus a map
+/// from each written file's project-relative path to the [`fnv1a_hex`] of the
+/// bytes `add` last wrote there. The `components` set is what `list` reads to
+/// mark a component installed (RFC 0005 §2.5); the `files` map drives the
+/// refresh check (§4.2). `BTreeSet`/`BTreeMap` keep the serialised order
+/// deterministic.
 #[derive(Debug, Default, PartialEq, Deserialize)]
 pub struct Lock {
+    #[serde(default)]
+    pub components: BTreeSet<String>,
     #[serde(default)]
     pub files: BTreeMap<String, String>,
 }
@@ -50,24 +55,33 @@ impl Lock {
     }
 
     /// Render the manifest as canonical `primitiv.lock` bytes. Hand-rendered (the
-    /// authored-golden discipline, RFC 0007 §4) — paths are `/`-joined registry
-    /// file names and values are hex hashes, so no JSON escaping is needed.
+    /// authored-golden discipline, RFC 0007 §4) — component names are registry
+    /// keys, paths are `/`-joined registry file names, and values are hex hashes,
+    /// so no JSON escaping is needed. The `components` array always leads the
+    /// `files` map, each collapsing to `[]` / `{}` when empty.
     pub fn to_bytes(&self) -> Vec<u8> {
-        if self.files.is_empty() {
-            return b"{\n  \"files\": {}\n}\n".to_vec();
-        }
-        let entries: Vec<String> = self
-            .files
-            .iter()
-            .map(|(path, hash)| format!("    \"{path}\": \"{hash}\""))
-            .collect();
-        format!("{{\n  \"files\": {{\n{}\n  }}\n}}\n", entries.join(",\n")).into_bytes()
+        format!(
+            "{{\n  \"components\": {},\n  \"files\": {}\n}}\n",
+            render_array(self.components.iter().map(|name| format!("    \"{name}\""))),
+            render_object(
+                self.files
+                    .iter()
+                    .map(|(path, hash)| format!("    \"{path}\": \"{hash}\""))
+            ),
+        )
+        .into_bytes()
     }
 
     /// Record that `bytes` were written to `path`, so a later re-add can detect
     /// whether the on-disk file still matches.
     pub fn record(&mut self, path: &str, bytes: &[u8]) {
         self.files.insert(path.to_string(), fnv1a_hex(bytes));
+    }
+
+    /// Record that `name` is installed in the project, so `list` can mark it
+    /// (RFC 0005 §2.5). A re-add of the same component is idempotent (a set).
+    pub fn record_component(&mut self, name: &str) {
+        self.components.insert(name.to_string());
     }
 
     /// Read the lock at `path` through the [`FileSystem`] port. A missing lock is
@@ -102,6 +116,28 @@ impl Lock {
         } else {
             Ok(Refresh::Edited)
         }
+    }
+}
+
+/// Render pre-indented `items` as a JSON array, collapsing to `[]` when empty so
+/// an empty component set stays valid two-space-indented JSON.
+fn render_array(items: impl Iterator<Item = String>) -> String {
+    let items: Vec<String> = items.collect();
+    if items.is_empty() {
+        "[]".to_string()
+    } else {
+        format!("[\n{}\n  ]", items.join(",\n"))
+    }
+}
+
+/// Render pre-indented `entries` as a JSON object, collapsing to `{}` when empty
+/// so an empty file map stays valid.
+fn render_object(entries: impl Iterator<Item = String>) -> String {
+    let entries: Vec<String> = entries.collect();
+    if entries.is_empty() {
+        "{}".to_string()
+    } else {
+        format!("{{\n{}\n  }}", entries.join(",\n"))
     }
 }
 

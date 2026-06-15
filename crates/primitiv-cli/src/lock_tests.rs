@@ -38,8 +38,50 @@ fn parses_a_malformed_lock_as_empty() {
 }
 
 #[test]
+fn records_installed_component_names_sorted_in_the_lock() {
+    let mut lock = Lock::default();
+    lock.record_component("switch");
+    lock.record_component("button");
+    // A re-add of the same component is idempotent (a set, not a list).
+    lock.record_component("button");
+
+    assert_eq!(
+        lock.components.iter().map(String::as_str).collect::<Vec<_>>(),
+        vec!["button", "switch"]
+    );
+}
+
+#[test]
+fn renders_recorded_components_before_the_files() {
+    let mut lock = Lock::default();
+    lock.record_component("button");
+    lock.record("src/components/button.tsx", b"wrapper");
+
+    assert_eq!(
+        String::from_utf8(lock.to_bytes()).unwrap(),
+        format!(
+            "{{\n  \"components\": [\n    \"button\"\n  ],\n  \"files\": {{\n    \"src/components/button.tsx\": \"{}\"\n  }}\n}}\n",
+            fnv1a_hex(b"wrapper"),
+        )
+    );
+}
+
+#[test]
+fn parses_recorded_components_from_a_lock() {
+    let lock = Lock::parse(br#"{ "components": ["button", "switch"], "files": {} }"#);
+
+    assert_eq!(
+        lock.components.iter().map(String::as_str).collect::<Vec<_>>(),
+        vec!["button", "switch"]
+    );
+}
+
+#[test]
 fn renders_an_empty_lock() {
-    assert_eq!(Lock::default().to_bytes(), b"{\n  \"files\": {}\n}\n");
+    assert_eq!(
+        Lock::default().to_bytes(),
+        b"{\n  \"components\": [],\n  \"files\": {}\n}\n"
+    );
 }
 
 #[test]
@@ -51,11 +93,12 @@ fn renders_recorded_files_sorted_by_path() {
     );
     lock.record("src/components/button.tsx", b"wrapper");
 
-    // Sorted by path; each value is the FNV-1a hash of the recorded bytes.
+    // Sorted by path; each value is the FNV-1a hash of the recorded bytes. The
+    // (empty) components array still leads the object.
     assert_eq!(
         String::from_utf8(lock.to_bytes()).unwrap(),
         format!(
-            "{{\n  \"files\": {{\n    \"src/components/button.tsx\": \"{}\",\n    \"src/styles/primitiv/button/styles.css\": \"{}\"\n  }}\n}}\n",
+            "{{\n  \"components\": [],\n  \"files\": {{\n    \"src/components/button.tsx\": \"{}\",\n    \"src/styles/primitiv/button/styles.css\": \"{}\"\n  }}\n}}\n",
             fnv1a_hex(b"wrapper"),
             fnv1a_hex(b".primitiv-button{}"),
         )

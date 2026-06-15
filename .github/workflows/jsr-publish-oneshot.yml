@@ -1,0 +1,47 @@
+name: Publish to JSR (one-shot bootstrap)
+
+# Temporary workflow — delete after JSR publish succeeds.
+# Created because the main publish.yml already pushed packages to npm;
+# re-running it would hit E403 "already published" before reaching the JSR step.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  jsr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: jetli/wasm-pack-action@v0.4.0
+
+      - name: Build harmoni-wasm
+        run: wasm-pack build crates/harmoni-wasm --target web
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate icons
+        run: pnpm --filter @primitiv-ui/icons generate
+
+      - name: Publish libraries to JSR
+        run: |
+          for pkg in packages/react packages/icons packages/tokens; do
+            echo "::group::jsr publish $pkg"
+            (cd "$pkg" && npx jsr publish)
+            echo "::endgroup::"
+          done

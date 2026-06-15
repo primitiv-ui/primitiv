@@ -9,6 +9,7 @@ pub mod package_manager;
 pub mod ports;
 pub mod registry;
 pub mod run;
+pub mod wiring;
 
 #[cfg(test)]
 mod cli_tests;
@@ -26,3 +27,5 @@ mod package_manager_tests;
 mod registry_tests;
 #[cfg(test)]
 mod run_tests;
+#[cfg(test)]
+mod wiring_tests;

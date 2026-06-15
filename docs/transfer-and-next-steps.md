@@ -211,13 +211,22 @@ adapters, hand-authored golden files, 100% coverage):
     `<prefix>/components` import alias; an explicit `--alias-components` flag
     still wins, a present-but-aliasless config is authoritative (no fall-through),
     a malformed config falls back to relative imports (an empty `aliases` map),
-    and a non-`NotFound` read is a hard `CliError::Io`. **Still deferred**
+    and a non-`NotFound` read is a hard `CliError::Io`. **Interactive prompting is
+    now landed** (RFC 0005 §2.1): each promptable `InitOptions` field is an
+    `Option` (`None` = omitted), and `init` resolves each by flag → prompt →
+    default. In an interactive TTY (and without `--yes`) it asks for example
+    styles (a `[Y/n]` confirm), stylesheet format, brand colour, styles path, and
+    the components import alias (each pre-filled with its default / the detected
+    alias) via a new free-text `Prompt::ask(question, default)` primitive
+    (`resolve_answer`: trimmed answer or the default on an empty line); the new
+    global **`--yes`** flag accepts every default without prompting, and a
+    non-interactive session takes them silently (Principle 3 — every prompt has a
+    flag). The `InMemoryPrompt` fake grew a `fail_after(n)` counter so a specific
+    prompt deep in the flow drives its `CliError::Io` branch. **Still deferred**
     (the testable seam was deliberately the flags core): framework /
     package-manager *persistence* at init (the lockfile package-manager detector
     in `package_manager.rs` already exists and is reusable; `primitiv.json`
-    carries no `packageManager` field today, so `add` re-detects it), and
-    interactive prompting — so `--yes` is not yet wired (init uses the process cwd
-    via the port). The
+    carries no `packageManager` field today, so `add` re-detects it). The
     **config-less `tokens` → stdout path is now landed** (Principle 4): a new
     **`Output` port** (`ports/output.rs` — an `OsStdout` passthrough adapter + an
     `InMemoryOutput` capture fake, mirroring `FileSystem`) is threaded through
@@ -356,8 +365,10 @@ adapters, hand-authored golden files, 100% coverage):
     once its surface is copied, and `list` reads the lock beside the working
     directory to mark each component `yes` / `-` in a new `INSTALLED` column
     (`--json` stays the raw index); a new e2e proves the real `OsFs` +
-    `Lock::read` path. **Remaining for `add`**: the `--registry` / HTTPS registry
-    adapter. **Other remaining CLI work:** interactive prompting for `init`.
+    `Lock::read` path. **Interactive `init` prompting is now landed** (§2.1): a
+    free-text `Prompt::ask` primitive + the `--yes` flag drive prompts for styles
+    / format / brand / path / alias, each pre-filled with its default. **Remaining
+    CLI work:** the `--registry` / HTTPS registry adapter for `add`.
 - [ ] **Distribution** (RFC 0005 §7) — Rust binary via `optionalDependencies` (`@primitiv-ui/cli-*`), `cargo-dist`/napi-rs matrix; supersede the published v0.0.1 name-reservation placeholders with the real `primitiv-ui` / `create-primitiv-ui` at a higher version.
 
 ## ❓ Open questions

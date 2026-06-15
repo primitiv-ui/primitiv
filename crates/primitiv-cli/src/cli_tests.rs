@@ -14,17 +14,7 @@ fn args(parts: &[&str]) -> Vec<String> {
 fn parses_the_init_command_with_defaults() {
     let command = parse(&args(&["init"])).unwrap();
 
-    assert_eq!(
-        command,
-        Command::Init(InitOptions {
-            format: Format::Css,
-            brand: "#0a7755".to_string(),
-            path: "src/styles/primitiv".to_string(),
-            styles_enabled: true,
-            alias_components: None,
-            force: false,
-        })
-    );
+    assert_eq!(command, Command::Init(InitOptions::default()));
 }
 
 #[test]
@@ -41,18 +31,20 @@ fn parses_every_init_override_flag() {
         "--alias-components",
         "@/ui",
         "--force",
+        "--yes",
     ]))
     .unwrap();
 
     assert_eq!(
         command,
         Command::Init(InitOptions {
-            format: Format::Scss,
-            brand: "#123456".to_string(),
-            path: "app/styles".to_string(),
-            styles_enabled: false,
+            format: Some(Format::Scss),
+            brand: Some("#123456".to_string()),
+            path: Some("app/styles".to_string()),
+            styles_enabled: Some(false),
             alias_components: Some("@/ui".to_string()),
             force: true,
+            yes: true,
         })
     );
 }
@@ -63,7 +55,7 @@ fn parses_explicit_styles_re_enabling_a_prior_no_styles() {
 
     assert!(matches!(
         command,
-        Command::Init(InitOptions { styles_enabled: true, .. })
+        Command::Init(InitOptions { styles_enabled: Some(true), .. })
     ));
 }
 

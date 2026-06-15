@@ -1,5 +1,6 @@
 {
   "name": "@primitiv-ui/tokens",
   "version": "0.1.0",
-  "exports": "./src/index.ts"
+  "exports": "./src/index.ts",
+  "license": "MIT"
 }

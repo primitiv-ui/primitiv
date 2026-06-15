@@ -6,8 +6,7 @@ use crate::format::Format;
 use crate::registry::{ComponentEntry, DependsOn, RegistryIndex, Styles};
 
 /// A registry index as `registry.json` carries it (RFC 0005 §6.2) — `button`
-/// keeps an extra `contract` field to prove the richer per-component data the
-/// index also holds is ignored by the `list`-facing type.
+/// carries a `contract` field (the consumer API spec) while `switch` omits it.
 const INDEX: &[u8] = br##"{
   "version": "0.1.0",
   "components": {
@@ -31,6 +30,7 @@ fn parses_the_index_components_and_their_versions() {
                         version: "0.1.0".into(),
                         depends_on: DependsOn::default(),
                         styles: Styles::default(),
+                        contract: Some("contract.json".into()),
                     },
                 ),
                 (
@@ -39,11 +39,24 @@ fn parses_the_index_components_and_their_versions() {
                         version: "0.2.0".into(),
                         depends_on: DependsOn::default(),
                         styles: Styles::default(),
+                        contract: None,
                     },
                 ),
             ]),
         }
     );
+}
+
+#[test]
+fn parses_a_components_contract_file() {
+    let index = RegistryIndex::parse(INDEX).unwrap();
+
+    assert_eq!(
+        index.components["button"].contract,
+        Some("contract.json".to_string())
+    );
+    // A component with no `contract` field defaults to None.
+    assert_eq!(index.components["switch"].contract, None);
 }
 
 #[test]

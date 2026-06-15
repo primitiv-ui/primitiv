@@ -134,6 +134,19 @@ const WITH_TAILWIND_STYLES: &[u8] = br##"{
   }
 }"##;
 
+/// A registry whose `button` declares a CSS stylesheet, the React surface, and
+/// a `contract` file — the full styled bundle including the consumer API spec.
+const WITH_CONTRACT: &[u8] = br##"{
+  "version": "0.1.0",
+  "components": {
+    "button": {
+      "version": "0.1.0",
+      "contract": "contract.json",
+      "styles": { "formats": { "css": ["styles.css"] }, "react": ["button.recipe.ts", "button.tsx"] }
+    }
+  }
+}"##;
+
 /// Turn string literals into the owned component list the command takes.
 fn names(parts: &[&str]) -> Vec<String> {
     parts.iter().map(|part| part.to_string()).collect()
@@ -1065,6 +1078,44 @@ fn copies_the_react_surface_into_the_alias_resolved_components_directory() {
 }
 
 #[test]
+fn copies_the_contract_into_the_components_directory() {
+    // The contract.json (the consumer API spec) lands in the components directory
+    // alongside the recipe and wrapper when the registry declares a `contract`.
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    fs.write(Path::new("tsconfig.json"), TSCONFIG).unwrap();
+    let registry = InMemoryRegistry::new(WITH_CONTRACT)
+        .with_file("button", "styles.css", b".primitiv-button{}")
+        .with_file("button", "button.recipe.ts", b"export const button = cva();")
+        .with_file("button", "button.tsx", b"export function Button() {}")
+        .with_file("button", "contract.json", b"{\"name\":\"button\"}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    // contract.json lands flat in the alias-resolved components directory,
+    // co-located with the recipe and wrapper.
+    assert_eq!(
+        fs.read(Path::new("src/components/contract.json")).unwrap(),
+        b"{\"name\":\"button\"}"
+    );
+}
+
+#[test]
 fn falls_back_to_a_root_components_directory_without_a_detectable_alias() {
     let fs = InMemoryFs::new();
     fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
@@ -1190,6 +1241,35 @@ fn records_copied_files_in_the_lock() {
         lock.files
             .contains_key("src/styles/primitiv/button/styles.css")
     );
+}
+
+#[test]
+fn records_installed_components_in_the_lock() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    // The component is recorded so `list` can mark it installed (RFC 0005 §2.5).
+    let lock = Lock::read(&fs, Path::new("primitiv.lock")).unwrap();
+    assert!(lock.components.contains("button"));
 }
 
 #[test]

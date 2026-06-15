@@ -208,6 +208,53 @@ fn add_styles_only_copies_the_styled_surface_on_the_real_filesystem() {
 }
 
 #[test]
+fn add_registry_override_copies_from_a_repo_local_directory() {
+    // Proves the real OsFs + LocalRegistry path: `--registry <dir>` reads the
+    // index and the Button stylesheet from a repo-local registry on disk rather
+    // than the binary's embedded copy. `--styles-only` keeps the package manager
+    // out of the run.
+    let dir = assert_fs::TempDir::new().unwrap();
+    dir.child("primitiv.json")
+        .write_str(
+            r##"{
+  "version": 1,
+  "framework": "react",
+  "styles": { "enabled": true, "format": "css", "path": "src/styles/primitiv" },
+  "tokens": { "format": "css", "path": "src/styles/primitiv/tokens.css" },
+  "theme": { "brand": "#0a7755" },
+  "aliases": {},
+  "registry": { "version": "0.1.0" }
+}"##,
+        )
+        .unwrap();
+    // A repo-local registry: index plus the Button stylesheet, under `vendor`.
+    dir.child("vendor/registry/registry.json")
+        .write_str(
+            r##"{
+  "version": "0.1.0",
+  "components": {
+    "button": { "version": "0.1.0", "styles": { "formats": { "css": ["styles.css"] } } }
+  }
+}"##,
+        )
+        .unwrap();
+    dir.child("vendor/registry/r/button/styles.css")
+        .write_str(".primitiv-button { color: local }")
+        .unwrap();
+
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .args(["add", "button", "--styles-only", "--registry", "vendor/registry"])
+        .assert()
+        .success();
+
+    // The copied stylesheet is the local registry's, not the embedded one.
+    dir.child("src/styles/primitiv/button/styles.css")
+        .assert(predicate::str::contains("color: local"));
+}
+
+#[test]
 fn add_dry_run_emits_the_refresh_plan_when_styles_are_configured() {
     // Covers the OsFs monomorphisation of the dry-run refresh report path: with a
     // primitiv.json present, `add --dry-run` appends the "Refresh plan:" section

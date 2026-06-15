@@ -1,0 +1,15 @@
+{
+  "name": "@primitiv-ui/cli-win32-x64",
+  "version": "0.1.0",
+  "description": "The primitiv CLI binary for Windows x64",
+  "os": ["win32"],
+  "cpu": ["x64"],
+  "files": ["primitiv.exe"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/primitiv-ui/primitiv.git",
+    "directory": "npm/cli-win32-x64"
+  },
+  "license": "MIT",
+  "publishConfig": { "access": "public" }
+}

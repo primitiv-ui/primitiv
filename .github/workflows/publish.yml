@@ -1,94 +1,163 @@
 name: Publish packages
 
-# Publishes the @primitiv-ui/* libraries to npm and JSR.
+# Publishes all primitiv-ui packages in dependency order:
+#   1. Builds the `primitiv` Rust binary for each platform in parallel.
+#   2. Publishes @primitiv-ui/cli-<target> platform packages.
+#   3. Publishes the `primitiv-ui` wrapper and `create-primitiv-ui` scaffold.
+#   4. Publishes @primitiv-ui/{react,icons,tokens} libraries to npm and JSR.
 #
-# Manual only by default, plus on a published GitHub Release. It never runs
-# on push — publishing is always a deliberate act.
+# Steps 2–3 must complete before 4 because npm resolves optionalDependencies
+# at install time; the platform packages must already exist.
 #
-# Auth is tokenless via OIDC (no long-lived secrets in the repo):
+# Auth is tokenless via OIDC (no long-lived secrets):
 #   - npm  uses Trusted Publishing + provenance (id-token: write).
 #   - JSR  uses its built-in GitHub Actions OIDC (id-token: write).
 #
-# PREREQUISITES — see RELEASING.md. This workflow will not succeed until:
-#   1. The publishable packages are publish-ready (private:false, real
-#      version, valid "exports" map). They are NOT yet.
-#   2. Each npm package has a Trusted Publisher configured on npmjs.com
-#      pointing at this repo + this workflow file.
-#   3. Each JSR package is linked to this GitHub repo in its JSR settings.
+# PREREQUISITES — see RELEASING.md.
+# For the very first publish of a new package, if Trusted Publishing is not
+# yet configured on npmjs.com, uncomment the NODE_AUTH_TOKEN env blocks
+# and add an NPM_TOKEN repo secret as a one-time bootstrap, then remove it
+# once TP is confirmed.
 
 on:
   workflow_dispatch:
   release:
     types: [published]
 
-# Never let two publish runs race.
 concurrency:
   group: publish
   cancel-in-progress: false
 
 jobs:
+  # ── 1. Cross-platform Rust binary builds ──────────────────────────────────
+  build-cli:
+    name: Build CLI / ${{ matrix.npm-target }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: macos-latest,     target: aarch64-apple-darwin,       npm-target: darwin-arm64    }
+          - { os: macos-13,         target: x86_64-apple-darwin,        npm-target: darwin-x64      }
+          - { os: ubuntu-latest,    target: x86_64-unknown-linux-gnu,   npm-target: linux-x64-gnu   }
+          - { os: ubuntu-24.04-arm, target: aarch64-unknown-linux-gnu,  npm-target: linux-arm64-gnu }
+          - { os: windows-latest,   target: x86_64-pc-windows-msvc,     npm-target: win32-x64       }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      - name: Build
+        run: cargo build --release --target ${{ matrix.target }} -p primitiv-cli
+
+      # Stage the binary under a fixed name so the download path is predictable.
+      - name: Stage binary
+        shell: bash
+        run: |
+          mkdir -p staging
+          if [ -f "target/${{ matrix.target }}/release/primitiv.exe" ]; then
+            cp "target/${{ matrix.target }}/release/primitiv.exe" staging/primitiv.exe
+          else
+            cp "target/${{ matrix.target }}/release/primitiv" staging/primitiv
+          fi
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli-${{ matrix.npm-target }}
+          path: staging/
+          if-no-files-found: error
+
+  # ── 2–4. Place binaries and publish everything ────────────────────────────
   publish:
+    name: Publish packages
+    needs: build-cli
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write # required for npm provenance/trusted publishing AND JSR OIDC
+      id-token: write   # npm Trusted Publishing + JSR OIDC
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: 10
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: pnpm
           registry-url: https://registry.npmjs.org
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: jetli/wasm-pack-action@v0.4.0
 
-      - name: Cache Rust build
-        uses: Swatinem/rust-cache@v2
-
-      - name: Install wasm-pack
-        uses: jetli/wasm-pack-action@v0.4.0
-
-      # harmoni-wasm is a workspace member other packages resolve against, so it
-      # must exist before `pnpm install` (same reason as the docs workflow).
       - name: Build harmoni-wasm
         run: wasm-pack build crates/harmoni-wasm --target web
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Regenerate the icon source from the SVGs before packing.
       - name: Generate icons
         run: pnpm --filter @primitiv-ui/icons generate
 
-      # Make sure the publishable packages are green before anything ships.
-      - name: Test
+      - name: Test libraries
         run: pnpm -r --filter "@primitiv-ui/react" --filter "@primitiv-ui/icons" --filter "@primitiv-ui/tokens" qa:units
 
-      # Ensure an npm new enough for OIDC Trusted Publishing.
       - name: Update npm
         run: npm install -g npm@latest
 
-      # Recursive publish: skips private packages, rewrites workspace: ranges to
-      # real versions, and emits provenance. With a Trusted Publisher configured
-      # on npmjs.com this needs no token. If your npm/pnpm build can't do
-      # tokenless OIDC yet, uncomment the env block below and add the secret.
-      - name: Publish to npm
+      # Download all five CLI binaries from the build-cli matrix jobs.
+      - name: Download CLI binaries
+        uses: actions/download-artifact@v4
+        with:
+          pattern: cli-*
+          path: /tmp/cli-artifacts
+
+      # Copy each binary into its npm platform package directory.
+      # The binary is not committed — it only exists at publish time.
+      - name: Place CLI binaries in platform packages
+        run: |
+          install -Dm755 /tmp/cli-artifacts/cli-darwin-arm64/primitiv    npm/cli-darwin-arm64/primitiv
+          install -Dm755 /tmp/cli-artifacts/cli-darwin-x64/primitiv      npm/cli-darwin-x64/primitiv
+          install -Dm755 /tmp/cli-artifacts/cli-linux-x64-gnu/primitiv   npm/cli-linux-x64-gnu/primitiv
+          install -Dm755 /tmp/cli-artifacts/cli-linux-arm64-gnu/primitiv npm/cli-linux-arm64-gnu/primitiv
+          cp /tmp/cli-artifacts/cli-win32-x64/primitiv.exe               npm/cli-win32-x64/primitiv.exe
+
+      # Platform packages must land before the wrapper (which lists them as
+      # optionalDependencies), so npm can resolve them on install.
+      - name: Publish CLI platform packages
+        run: |
+          for pkg in cli-darwin-arm64 cli-darwin-x64 cli-linux-x64-gnu cli-linux-arm64-gnu cli-win32-x64; do
+            echo "::group::publish @primitiv-ui/$pkg"
+            (cd "npm/$pkg" && npm publish --access public --provenance)
+            echo "::endgroup::"
+          done
+        # env:
+        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish CLI wrapper and scaffold
+        run: |
+          (cd npm/cli-wrapper      && npm publish --access public --provenance)
+          (cd npm/create-primitiv-ui && npm publish --access public --provenance)
+        # env:
+        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # pnpm -r publish skips packages with "private": true automatically.
+      - name: Publish libraries to npm
         run: pnpm -r publish --access public --no-git-checks --provenance
         # env:
         #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # JSR authenticates via OIDC automatically inside GitHub Actions.
-      # Each package must be linked to this repo in its JSR settings first.
-      - name: Publish to JSR
+      - name: Publish libraries to JSR
         run: |
           for pkg in packages/react packages/icons packages/tokens; do
             echo "::group::jsr publish $pkg"

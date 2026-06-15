@@ -44,7 +44,61 @@ publishing keys off.
 
 ---
 
-## 2. Make the packages publish-ready (not done yet)
+## 2. CLI binary distribution
+
+The `primitiv` Rust binary is distributed via the proven `optionalDependencies`
+per-platform-package pattern (same as esbuild, Biome, oxc). The pieces:
+
+| Directory | npm name | Role |
+|---|---|---|
+| `npm/cli-darwin-arm64/` | `@primitiv-ui/cli-darwin-arm64` | Binary for macOS Apple Silicon |
+| `npm/cli-darwin-x64/` | `@primitiv-ui/cli-darwin-x64` | Binary for macOS Intel |
+| `npm/cli-linux-x64-gnu/` | `@primitiv-ui/cli-linux-x64-gnu` | Binary for Linux x64 (glibc) |
+| `npm/cli-linux-arm64-gnu/` | `@primitiv-ui/cli-linux-arm64-gnu` | Binary for Linux arm64 (glibc) |
+| `npm/cli-win32-x64/` | `@primitiv-ui/cli-win32-x64` | Binary for Windows x64 |
+| `npm/cli-wrapper/` | `primitiv-ui` | JS launcher; lists platform packages as `optionalDependencies` |
+| `npm/create-primitiv-ui/` | `create-primitiv-ui` | `npm create primitiv-ui` entry point |
+
+**How it works at install time:** the package manager installs only the
+matching platform package (skipping others via `os`/`cpu` guards). The
+`bin/primitiv.mjs` launcher resolves the binary from whichever platform
+package was installed and `spawnSync`s it.
+
+**Binaries are not committed.** The `npm/cli-*/primitiv[.exe]` files are in
+`.gitignore`. `publish.yml` builds them via a matrix job, stages them in
+`/tmp/cli-artifacts/`, copies them into the package directories, then
+publishes immediately.
+
+**Platform matrix (v1):** `darwin-arm64`, `darwin-x64`, `linux-x64-gnu`,
+`linux-arm64-gnu`, `win32-x64`. musl is a documented fast-follow.
+`cargo install primitiv-cli` covers any target not yet packaged.
+
+**Versioning:** platform packages, wrapper, and scaffold are versioned
+together. When cutting a new release, bump all seven package.json `version`
+fields and the `optionalDependencies` in `npm/cli-wrapper/package.json` to
+match. The `@primitiv-ui/cli-*` packages supersede their published v0.0.1
+placeholders at v0.1.0+.
+
+**One-time Trusted Publishing setup (npm)** — do this for each package name:
+
+1. Go to `npmjs.com/package/<name>` → Settings → Trusted Publisher.
+2. Add a GitHub Actions publisher:
+   - Repository: `primitiv-ui/primitiv`
+   - Workflow: `publish.yml`
+
+For `@primitiv-ui/cli-*` packages that don't exist yet: configure TP before
+the first publish (npmjs.com supports this for new packages). If TP rejects
+a new package, do a one-time bootstrap with `NPM_TOKEN` (uncomment the env
+blocks in `publish.yml`, add the secret, publish once, then switch to TP and
+remove the secret).
+
+**musl fast-follow** — when needed, add two more entries to the matrix and
+two more platform packages (`cli-linux-x64-musl`, `cli-linux-arm64-musl`),
+then add them to the wrapper's `optionalDependencies`.
+
+---
+
+## 3. Make the library packages publish-ready (not done yet)
 
 The three publishable packages — `packages/react`, `packages/icons`,
 `packages/tokens` — are currently **not** shippable. Each needs:

@@ -35,7 +35,7 @@ in [`../RELEASING.md`](../RELEASING.md); the full decision log (D1–D25) lives 
 - [ ] Configure the npm **Trusted Publisher** per package → `primitiv-ui/primitiv` + `publish.yml`.
 - [ ] Link each **JSR** package to the new repo.
 - [ ] When the real packages ship, set their `repository` URLs to `primitiv-ui/primitiv` (the placeholders deliberately omit them).
-- [ ] Update the `REGISTRY_REPO` const in `crates/primitiv-cli/src/commands/add.rs` (`simonrevill/primitiv` → `primitiv-ui/primitiv`) so `--registry <version>` resolves GitHub-raw at the transferred repo. It is the **only** hard-coded repo path in the CLI (the registry HTTPS base URL is derived from it). A `cli.rs` parse test pins the override forms but not the host, so this is a silent change to watch for.
+- [x] Update the `REGISTRY_REPO` const in `crates/primitiv-cli/src/commands/add.rs` (`simonrevill/primitiv` → `primitiv-ui/primitiv`) so `--registry <version>` resolves GitHub-raw at the transferred repo. It is the **only** hard-coded repo path in the CLI (the registry HTTPS base URL is derived from it). A `cli.rs` parse test pins the override forms but not the host, so this is a silent change to watch for.
 - [ ] Optional: add the `@primitiv-ui` npm org as an owner of the unscoped `primitiv-ui` / `create-primitiv-ui` names (currently owned by the personal account).
 
 ## 🏗️ Build phase — the work that comes next (per the RFCs)
@@ -383,12 +383,18 @@ adapters, hand-authored golden files, 100% coverage):
     server (no network, no exemption, no test dep). **The CLI command surface
     (`init` / `add` / `tokens` / `theme` / `list`) is now feature-complete for
     v1** — the only remaining RFC 0005 work is Distribution (Step 8).
-- [ ] **Distribution** (RFC 0005 §7) — Rust binary via `optionalDependencies` (`@primitiv-ui/cli-*`), `cargo-dist`/napi-rs matrix; supersede the published v0.0.1 name-reservation placeholders with the real `primitiv-ui` / `create-primitiv-ui` at a higher version. **Before/with this:** update the `REGISTRY_REPO` const in `crates/primitiv-cli/src/commands/add.rs` to the transferred repo path (see the org-transfer checklist) — the version-pinned `--registry` form fetches GitHub-raw from it, so a stale value silently points releases at the old repo.
-  - **Open decisions & steps** (this item is a build, not a checklist tick — and it is *not* TDD-driven, so the 100% coverage loop doesn't apply):
-    - **Decide first: `cargo-dist` vs napi-rs** (RFC §7.4 leaves it open). It scaffolds the cross-platform build matrix and the platform packages, so it shapes everything below — settle it before writing any config.
-    - **Platform matrix** (RFC §7.3): `darwin-arm64`, `darwin-x64`, `linux-x64-gnu`, `linux-arm64-gnu`, `win32-x64`. **musl** (`linux-{x64,arm64}-musl`) is a documented fast-follow; `cargo install` covers any target not yet packaged.
-    - **npm wrapper** (RFC §7.2): per-target `@primitiv-ui/cli-<target>` packages listed in the `primitiv-ui` wrapper's `optionalDependencies`; a JS launcher resolves the matching one and `exec`s the binary. Libraries (`@primitiv-ui/{react,icons,tokens}`) are unaffected.
-    - **`publish.yml`** (RFC §7.4): grows a cross-platform build matrix and a target-aware order — build all targets → publish the `@primitiv-ui/cli-*` platform packages → publish the `primitiv-ui` / `create-primitiv-ui` wrappers (which depend on them). The real packages supersede the published v0.0.1 placeholders at a higher version. Detail tracked in `RELEASING.md`.
+- [x] **Distribution** (RFC 0005 §7) — **Done (2026-06-15).** Rust binary distributed via `optionalDependencies` per-platform packages; manual implementation (not cargo-dist / napi-rs — see decision below). REGISTRY_REPO updated; `publish.yml` extended; `RELEASING.md` updated with CLI section. The v0.0.1 placeholder packages (`primitiv-ui` / `create-primitiv-ui`) are superseded at v0.1.0 on first real publish.
+  - **Decision: manual implementation** (not cargo-dist, not napi-rs). cargo-dist wants to own the release workflow — generating its own `dist.yml` and conflicting with our existing `publish.yml`. napi-rs is for native Node.js addons, not standalone CLI binaries. Manual is what esbuild / Biome / oxc do: per-platform package.json + a 30-line JS launcher. We know every line.
+  - **Platform matrix** (RFC §7.3): `darwin-arm64` (`macos-latest`), `darwin-x64` (`macos-13`), `linux-x64-gnu` (`ubuntu-latest`), `linux-arm64-gnu` (`ubuntu-24.04-arm`), `win32-x64` (`windows-latest`). musl is a documented fast-follow. `cargo install primitiv-cli` covers unlisted targets.
+  - **npm packages** (in `npm/` directory, outside the pnpm workspace):
+    - 5 × `@primitiv-ui/cli-<target>` — each just a `package.json` with `os`/`cpu` guards + the binary (injected at publish time, gitignored).
+    - `primitiv-ui` (wrapper) — `bin: primitiv → bin/primitiv.mjs`; lists platform packages as `optionalDependencies`.
+    - `create-primitiv-ui` (scaffold) — `pnpm create primitiv-ui` installs `primitiv-ui` then runs `primitiv init`.
+  - **`publish.yml`** restructured into two jobs: `build-cli` (5-target matrix, uploads artifacts) → `publish` (downloads artifacts, places binaries, publishes in dependency order: platform packages → wrapper/scaffold → libraries). Detail in `RELEASING.md §2`.
+  - **Remaining before first real publish** (phone/web tasks):
+    - Transfer repo (see org-transfer checklist above).
+    - Configure npm Trusted Publishing for each package on npmjs.com (see `RELEASING.md §2`).
+    - Bump all package `version` fields from `0.1.0` when ready to ship, if needed.
     - **Prerequisites:** the org transfer (above) and the `REGISTRY_REPO` const update should land first, since the published binary fetches the version-pinned registry from the transferred repo.
 
 ## ❓ Open questions

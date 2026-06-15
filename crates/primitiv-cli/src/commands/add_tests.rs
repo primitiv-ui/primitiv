@@ -1273,6 +1273,46 @@ fn records_installed_components_in_the_lock() {
 }
 
 #[test]
+fn the_registry_override_reads_from_a_repo_local_directory() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    // A repo-local registry under vendor/registry: index + the Button stylesheet.
+    fs.write(Path::new("vendor/registry/registry.json"), WITH_STYLES).unwrap();
+    fs.write(
+        Path::new("vendor/registry/r/button/styles.css"),
+        b".primitiv-button{ color: local }",
+    )
+    .unwrap();
+    // The passed-in (embedded) registry fails: success proves the local one is used.
+    let registry = InMemoryRegistry::failing();
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            registry: Some("vendor/registry".to_string()),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    // The stylesheet copied into the project came from the local registry.
+    assert_eq!(
+        fs.read(Path::new("src/styles/primitiv/button/styles.css"))
+            .unwrap(),
+        b".primitiv-button{ color: local }"
+    );
+}
+
+#[test]
 fn keeps_a_consumer_edited_file_on_re_add() {
     let fs = InMemoryFs::new();
     fs.write(Path::new("primitiv.json"), CONFIG).unwrap();

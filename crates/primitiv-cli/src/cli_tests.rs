@@ -262,6 +262,28 @@ fn parses_add_with_the_no_wiring_flag() {
 }
 
 #[test]
+fn parses_add_with_a_registry_override() {
+    let command = parse(&args(&["add", "button", "--registry", "vendor/registry"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Add(AddOptions {
+            components: vec!["button".to_string()],
+            registry: Some("vendor/registry".to_string()),
+            ..Default::default()
+        })
+    );
+}
+
+#[test]
+fn rejects_add_registry_with_no_value() {
+    assert!(matches!(
+        parse(&args(&["add", "button", "--registry"])).unwrap_err(),
+        CliError::Usage(_)
+    ));
+}
+
+#[test]
 fn rejects_add_with_no_components() {
     assert!(matches!(
         parse(&args(&["add"])).unwrap_err(),

@@ -54,8 +54,9 @@ pub fn parse(args: &[String]) -> Result<Command, CliError> {
 /// neither, so it is a usage error. `--format <fmt>` overrides the config's
 /// stylesheet format for this copy and `--path <dir>` its destination; `--force`
 /// overwrites even consumer-edited files (§4.2); `--no-wiring` skips the project
-/// wiring offer and prints the manual snippet instead (§4.3). Names and flags are
-/// order-free; any other `--`-prefixed argument is unexpected.
+/// wiring offer and prints the manual snippet instead (§4.3); `--registry <path>`
+/// reads a repo-local registry directory instead of the embedded one (§6.4).
+/// Names and flags are order-free; any other `--`-prefixed argument is unexpected.
 fn parse_add(args: &[String]) -> Result<Command, CliError> {
     let mut components = Vec::new();
     let mut json = false;
@@ -66,6 +67,7 @@ fn parse_add(args: &[String]) -> Result<Command, CliError> {
     let mut path = None;
     let mut force = false;
     let mut no_wiring = false;
+    let mut registry = None;
     let mut rest = args.iter();
     while let Some(arg) = rest.next() {
         match arg.as_str() {
@@ -77,6 +79,7 @@ fn parse_add(args: &[String]) -> Result<Command, CliError> {
             "--path" => path = Some(take_value(&mut rest, "--path")?),
             "--force" => force = true,
             "--no-wiring" => no_wiring = true,
+            "--registry" => registry = Some(take_value(&mut rest, "--registry")?),
             other if other.starts_with("--") => {
                 return Err(usage(format!("unexpected argument '{other}'")))
             }
@@ -101,6 +104,7 @@ fn parse_add(args: &[String]) -> Result<Command, CliError> {
         path,
         force,
         no_wiring,
+        registry,
     }))
 }
 

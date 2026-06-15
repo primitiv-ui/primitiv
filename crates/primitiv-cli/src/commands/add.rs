@@ -40,9 +40,15 @@ pub struct AddOptions {
     pub force: bool,
 }
 
-/// One file the real (non-dry) copy would process — used by the dry-run refresh
-/// report to classify each destination without fetching registry bytes.
+/// One file the real (non-dry) copy would process — used by both the dry-run
+/// refresh report (which classifies each destination without fetching bytes) and
+/// the real copy (which fetches bytes and writes them through the port).
 struct PlannedFile {
+    /// The component name in the registry index, used to fetch bytes.
+    name: String,
+    /// The file name within the component's registry entry, used to fetch bytes.
+    file: String,
+    /// The destination path the file will be written to.
     dest: PathBuf,
 }
 
@@ -182,81 +188,24 @@ fn copy_styled_surface(
     path: Option<&str>,
     force: bool,
 ) -> Result<(), CliError> {
-    let Some(config) = config::try_resolve(fs, dir)? else {
-        return Ok(());
-    };
-    if !config.styles.enabled {
-        return Ok(());
-    }
-    let format = format.unwrap_or(config.styles.format);
-    let styles_path = path.unwrap_or(&config.styles.path);
     let lock_path = dir.join(lock::FILE_NAME);
     let mut lock = Lock::read(fs, &lock_path)?;
-    copy_stylesheets(fs, registry, &mut lock, index, resolved, styles_path, format, force)?;
-    copy_react_surface(fs, registry, &mut lock, index, resolved, dir, force)?;
+    let files = planned_files(fs, index, resolved, format, path, dir)?;
+    if files.is_empty() {
+        return Ok(());
+    }
+    for pf in &files {
+        copy_file(fs, registry, &mut lock, &pf.name, &pf.file, &pf.dest, force)?;
+    }
     lock.write(fs, &lock_path)
 }
 
-/// Copy each component's stylesheet for the resolved `format` into
-/// `<styles_path>/<component>/` (RFC 0005 §4.1 step 4).
-#[allow(clippy::too_many_arguments)]
-fn copy_stylesheets(
-    fs: &impl FileSystem,
-    registry: &impl Registry,
-    lock: &mut Lock,
-    index: &RegistryIndex,
-    resolved: &[String],
-    styles_path: &str,
-    format: Format,
-    force: bool,
-) -> Result<(), CliError> {
-    for name in resolved {
-        let component_dir = Path::new(styles_path).join(name);
-        for file in index.components[name].styles.formats.files(format) {
-            copy_file(fs, registry, lock, name, file, &component_dir, force)?;
-        }
-    }
-    Ok(())
-}
-
-/// Copy each component's **format-independent** React surface (recipe + wrapper,
-/// D55) into the consumer's components directory, resolved from the project's
-/// import alias (`detect::components_path`) or the [`DEFAULT_COMPONENTS_DIR`]
-/// fallback. The files are co-located flat (the wrapper imports its recipe as
-/// `./<name>.recipe`), so the directory is shared across components. With no
-/// component declaring a React surface the alias is never resolved, so a project
-/// without one is not forced to have a readable tsconfig.
-fn copy_react_surface(
-    fs: &impl FileSystem,
-    registry: &impl Registry,
-    lock: &mut Lock,
-    index: &RegistryIndex,
-    resolved: &[String],
-    dir: &Path,
-    force: bool,
-) -> Result<(), CliError> {
-    let has_react = resolved
-        .iter()
-        .any(|name| !index.components[name].styles.react.is_empty());
-    if !has_react {
-        return Ok(());
-    }
-    let components_dir =
-        detect::components_path(fs, dir)?.unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
-    let components_dir = Path::new(&components_dir);
-    for name in resolved {
-        for file in &index.components[name].styles.react {
-            copy_file(fs, registry, lock, name, file, components_dir, force)?;
-        }
-    }
-    Ok(())
-}
-
 /// Enumerate every destination file the real copy would process — the same set
-/// the dry-run refresh report classifies. Returns an empty `Vec` when styles are
-/// disabled / no config is present (mirroring `copy_styled_surface`). The React
-/// alias resolution is attempted only when at least one component declares a
-/// React surface (mirroring `copy_react_surface`). No registry bytes are fetched.
+/// the dry-run refresh report classifies and the real copy writes. Returns an
+/// empty `Vec` when styles are disabled / no config is present (mirroring
+/// `copy_styled_surface`). The React alias resolution is attempted only when at
+/// least one component declares a React surface (mirroring `copy_react_surface`).
+/// No registry bytes are fetched.
 fn planned_files(
     fs: &impl FileSystem,
     index: &RegistryIndex,
@@ -278,7 +227,11 @@ fn planned_files(
     for name in resolved {
         let component_dir = Path::new(styles_path).join(name);
         for file in index.components[name].styles.formats.files(format) {
-            files.push(PlannedFile { dest: component_dir.join(file) });
+            files.push(PlannedFile {
+                name: name.clone(),
+                file: file.to_string(),
+                dest: component_dir.join(file),
+            });
         }
     }
     // React surface: <components_dir>/<file> (shared directory, flat layout)
@@ -291,7 +244,11 @@ fn planned_files(
         let components_dir = PathBuf::from(&components_dir);
         for name in resolved {
             for file in &index.components[name].styles.react {
-                files.push(PlannedFile { dest: components_dir.join(file) });
+                files.push(PlannedFile {
+                    name: name.clone(),
+                    file: file.clone(),
+                    dest: components_dir.join(file),
+                });
             }
         }
     }
@@ -310,7 +267,7 @@ fn render_refresh_plan(files: &[(String, &str)]) -> String {
     out
 }
 
-/// Fetch one registry file and write it into `dest_dir` — but only when the
+/// Fetch one registry file and write it to `dest` — but only when the
 /// [`Lock`] says so (RFC 0005 §4.2): a new or untouched file is written and its
 /// hash recorded; a consumer-edited file is kept unless `force`. A file the
 /// registry can't serve is a [`CliError::Registry`]; a directory/write failure
@@ -321,16 +278,17 @@ fn copy_file(
     lock: &mut Lock,
     name: &str,
     file: &str,
-    dest_dir: &Path,
+    dest: &Path,
     force: bool,
 ) -> Result<(), CliError> {
     let bytes = registry
         .file(name, file)
         .map_err(|error| CliError::Registry(error.to_string()))?;
-    let dest = dest_dir.join(file);
-    if lock.should_write(fs, &dest, force)? {
-        fs.create_dir_all(dest_dir)?;
-        fs.write(&dest, &bytes)?;
+    if lock.should_write(fs, dest, force)? {
+        if let Some(dest_dir) = dest.parent() {
+            fs.create_dir_all(dest_dir)?;
+        }
+        fs.write(dest, &bytes)?;
         lock.record(&dest.to_string_lossy(), &bytes);
     }
     Ok(())

@@ -2,7 +2,9 @@ use std::path::Path;
 
 use pretty_assertions::assert_eq;
 
-use crate::ports::prompt::{parse_confirm, parse_decision, Decision, InMemoryPrompt, OsPrompt, Prompt};
+use crate::ports::prompt::{
+    parse_confirm, parse_decision, resolve_answer, Decision, InMemoryPrompt, OsPrompt, Prompt,
+};
 
 #[test]
 fn parses_o_as_overwrite() {
@@ -133,4 +135,64 @@ fn in_memory_prompt_confirm_fail_returns_error() {
     prompt.fail();
     assert!(prompt.confirm("Apply wiring?").is_err());
     assert!(prompt.confirmed().is_empty());
+}
+
+// --- resolve_answer ---
+
+#[test]
+fn resolve_answer_returns_the_trimmed_input() {
+    assert_eq!(resolve_answer("  #ff0000\n", "#0a7755"), "#ff0000");
+}
+
+#[test]
+fn empty_answer_resolves_to_the_default() {
+    assert_eq!(resolve_answer("", "#0a7755"), "#0a7755");
+}
+
+#[test]
+fn whitespace_only_answer_resolves_to_the_default() {
+    assert_eq!(resolve_answer("   \n", "#0a7755"), "#0a7755");
+}
+
+// --- OsPrompt::ask ---
+
+#[test]
+fn os_prompt_asks_and_returns_the_default_on_end_of_input() {
+    // stdin is end-of-input under `cargo test` → empty → the supplied default.
+    assert_eq!(OsPrompt.ask("Brand colour?", "#0a7755").unwrap(), "#0a7755");
+}
+
+// --- InMemoryPrompt::ask ---
+
+#[test]
+fn in_memory_prompt_returns_a_scripted_answer_and_records_the_question() {
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+    prompt.queue_answers(&["#ff0000"]);
+
+    assert_eq!(prompt.ask("Brand colour?", "#0a7755").unwrap(), "#ff0000");
+    assert_eq!(prompt.questions(), vec!["Brand colour?"]);
+}
+
+#[test]
+fn in_memory_prompt_answers_with_the_default_when_nothing_is_scripted() {
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    assert_eq!(prompt.ask("Brand colour?", "#0a7755").unwrap(), "#0a7755");
+}
+
+#[test]
+fn in_memory_prompt_scripted_answers_are_consumed_in_order() {
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+    prompt.queue_answers(&["scss", "app/styles"]);
+
+    assert_eq!(prompt.ask("Format?", "css").unwrap(), "scss");
+    assert_eq!(prompt.ask("Path?", "src/styles/primitiv").unwrap(), "app/styles");
+}
+
+#[test]
+fn in_memory_prompt_ask_fail_returns_error() {
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+    prompt.fail();
+    assert!(prompt.ask("Brand colour?", "#0a7755").is_err());
+    assert!(prompt.questions().is_empty());
 }

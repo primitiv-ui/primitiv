@@ -7,6 +7,8 @@ use std::path::Path;
 #[cfg(test)]
 use std::cell::RefCell;
 #[cfg(test)]
+use std::collections::VecDeque;
+#[cfg(test)]
 use std::path::PathBuf;
 
 /// The consumer's answer when `add` finds a file they have edited since it was
@@ -42,11 +44,25 @@ pub fn parse_confirm(answer: &str) -> bool {
     )
 }
 
+/// Resolve a free-text answer against its `default`: the trimmed input, or the
+/// default when the consumer types nothing (an empty line — the pre-filled
+/// value, RFC 0005 §2.1). Mirrors the `parse_*` helpers: a pure function so the
+/// "empty → default" rule unit-tests without a stream.
+pub fn resolve_answer(input: &str, default: &str) -> String {
+    let trimmed = input.trim();
+    if trimmed.is_empty() {
+        default.to_string()
+    } else {
+        trimmed.to_string()
+    }
+}
+
 /// The prompt port — the seam `add` asks the consumer to resolve an edited-file
-/// conflict (RFC 0005 §4.2) or confirm a wiring patch (§4.3). The real binary
-/// supplies [`OsPrompt`]; command-layer tests supply the [`InMemoryPrompt`] fake
-/// (RFC 0007 §2.2). Whether either prompt is reached at all is the caller's
-/// `interactive` decision (a non-TTY never asks).
+/// conflict (RFC 0005 §4.2) or confirm a wiring patch (§4.3), and `init` asks for
+/// each omitted config choice (§2.1). The real binary supplies [`OsPrompt`];
+/// command-layer tests supply the [`InMemoryPrompt`] fake (RFC 0007 §2.2).
+/// Whether any prompt is reached at all is the caller's `interactive` decision (a
+/// non-TTY never asks).
 pub trait Prompt {
     /// Ask whether to overwrite the edited file at `dest`, returning the
     /// consumer's [`Decision`]. An input/output failure is an `io::Error`.
@@ -56,6 +72,11 @@ pub trait Prompt {
     /// confirms (including on empty input — the default is yes) and `false` when
     /// they decline. An input/output failure is an `io::Error`.
     fn confirm(&self, question: &str) -> io::Result<bool>;
+
+    /// Ask a free-text `question` pre-filled with `default`, returning the
+    /// consumer's trimmed answer or the default on an empty line (RFC 0005 §2.1).
+    /// An input/output failure is an `io::Error`.
+    fn ask(&self, question: &str, default: &str) -> io::Result<String>;
 }
 
 /// The real [`Prompt`] the bin runs on — writes the question to stderr (so a
@@ -83,6 +104,15 @@ impl Prompt for OsPrompt {
         let mut line = String::new();
         io::stdin().read_line(&mut line).map(|_| parse_confirm(&line))
     }
+
+    fn ask(&self, question: &str, default: &str) -> io::Result<String> {
+        let _ = write!(io::stderr(), "{question} ({default}) ");
+        let _ = io::stderr().flush();
+        let mut line = String::new();
+        io::stdin()
+            .read_line(&mut line)
+            .map(|_| resolve_answer(&line, default))
+    }
 }
 
 /// An in-memory [`Prompt`] fake for command-layer tests (RFC 0007 §2.2): it
@@ -98,6 +128,8 @@ pub struct InMemoryPrompt {
     fail: RefCell<bool>,
     asked: RefCell<Vec<PathBuf>>,
     confirmed: RefCell<Vec<String>>,
+    answers: RefCell<VecDeque<String>>,
+    questions: RefCell<Vec<String>>,
 }
 
 #[cfg(test)]
@@ -109,7 +141,22 @@ impl InMemoryPrompt {
             fail: RefCell::new(false),
             asked: RefCell::new(Vec::new()),
             confirmed: RefCell::new(Vec::new()),
+            answers: RefCell::new(VecDeque::new()),
+            questions: RefCell::new(Vec::new()),
         }
+    }
+
+    /// Queue free-text answers [`ask`](Prompt::ask) returns in order. An exhausted
+    /// queue answers with the prompt's default (modelling an empty line).
+    pub fn queue_answers(&self, answers: &[&str]) {
+        self.answers
+            .borrow_mut()
+            .extend(answers.iter().map(|a| a.to_string()));
+    }
+
+    /// The free-text questions asked via [`ask`](Prompt::ask), in order.
+    pub fn questions(&self) -> Vec<String> {
+        self.questions.borrow().clone()
     }
 
     /// Make the next [`decide`](Prompt::decide) or [`confirm`](Prompt::confirm)
@@ -152,5 +199,17 @@ impl Prompt for InMemoryPrompt {
         }
         self.confirmed.borrow_mut().push(question.to_string());
         Ok(*self.confirm_yes.borrow())
+    }
+
+    fn ask(&self, question: &str, default: &str) -> io::Result<String> {
+        if *self.fail.borrow() {
+            return Err(io::Error::other("prompt failed"));
+        }
+        self.questions.borrow_mut().push(question.to_string());
+        Ok(self
+            .answers
+            .borrow_mut()
+            .pop_front()
+            .unwrap_or_else(|| default.to_string()))
     }
 }

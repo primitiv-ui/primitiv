@@ -35,6 +35,7 @@ in [`../RELEASING.md`](../RELEASING.md); the full decision log (D1–D25) lives 
 - [ ] Configure the npm **Trusted Publisher** per package → `primitiv-ui/primitiv` + `publish.yml`.
 - [ ] Link each **JSR** package to the new repo.
 - [ ] When the real packages ship, set their `repository` URLs to `primitiv-ui/primitiv` (the placeholders deliberately omit them).
+- [ ] Update the `REGISTRY_REPO` const in `crates/primitiv-cli/src/commands/add.rs` (`simonrevill/primitiv` → `primitiv-ui/primitiv`) so `--registry <version>` resolves GitHub-raw at the transferred repo. It is the **only** hard-coded repo path in the CLI (the registry HTTPS base URL is derived from it). A `cli.rs` parse test pins the override forms but not the host, so this is a silent change to watch for.
 - [ ] Optional: add the `@primitiv-ui` npm org as an owner of the unscoped `primitiv-ui` / `create-primitiv-ui` names (currently owned by the personal account).
 
 ## 🏗️ Build phase — the work that comes next (per the RFCs)
@@ -382,7 +383,7 @@ adapters, hand-authored golden files, 100% coverage):
     server (no network, no exemption, no test dep). **The CLI command surface
     (`init` / `add` / `tokens` / `theme` / `list`) is now feature-complete for
     v1** — the only remaining RFC 0005 work is Distribution (Step 8).
-- [ ] **Distribution** (RFC 0005 §7) — Rust binary via `optionalDependencies` (`@primitiv-ui/cli-*`), `cargo-dist`/napi-rs matrix; supersede the published v0.0.1 name-reservation placeholders with the real `primitiv-ui` / `create-primitiv-ui` at a higher version.
+- [ ] **Distribution** (RFC 0005 §7) — Rust binary via `optionalDependencies` (`@primitiv-ui/cli-*`), `cargo-dist`/napi-rs matrix; supersede the published v0.0.1 name-reservation placeholders with the real `primitiv-ui` / `create-primitiv-ui` at a higher version. **Before/with this:** update the `REGISTRY_REPO` const in `crates/primitiv-cli/src/commands/add.rs` to the transferred repo path (see the org-transfer checklist) — the version-pinned `--registry` form fetches GitHub-raw from it, so a stale value silently points releases at the old repo.
 
 ## ❓ Open questions
 

@@ -35,8 +35,9 @@ crates/primitiv-cli/
     cli.rs            # hand-rolled arg parser → Command enum
     run.rs            # parse + dispatch to a command, threading the port
     error.rs          # CliError: exit_code() + Display (RFC 0005 §5)
-    commands/<cmd>.rs # one command, writing through the port
-    ports/fs.rs       # FileSystem trait + OsFs adapter + InMemoryFs fake
+    commands/<cmd>.rs # one command, writing through the ports
+    ports/<effect>.rs # one trait + real adapter + #[cfg(test)] fake each
+                       #   (fs, output, process, prompt, registry)
   tests/cli.rs        # e2e: the real binary via CARGO_BIN_EXE
 ```
 
@@ -53,7 +54,16 @@ crates/primitiv-cli/
 ## Ports & adapters — the test seam
 
 Every effect is a trait the logic depends on; the real bin passes a real
-adapter, tests pass a fake (RFC 0007 §2.2).
+adapter, tests pass a fake (RFC 0007 §2.2). The five ports (all in
+`ports/`), each a real adapter + a `#[cfg(test)]` fake:
+
+| Port | Real adapter | Fake |
+|---|---|---|
+| `FileSystem` | `OsFs` | `InMemoryFs` |
+| `Output` (stdout) | `OsStdout` | `InMemoryOutput` |
+| `ProcessRunner` (spawn) | `OsProcessRunner` | `InMemoryProcessRunner` |
+| `Prompt` (stdin Q&A) | `OsPrompt` | `InMemoryPrompt` |
+| `Registry` | `EmbeddedRegistry` (baked-in) · `LocalRegistry` (dir) · `HttpsRegistry` (`ureq`) | `InMemoryRegistry` |
 
 ```rust
 pub trait FileSystem {
@@ -74,13 +84,59 @@ pub trait FileSystem {
 - **Failure injection** — `fail_writes_to(path)` makes one path's
   `write` return `PermissionDenied`, so the `CliError::Io` branch is
   driven without an unwritable real filesystem. This is how you close
-  the error-path region a happy-path test leaves open. Add a parallel
-  knob (`fail_reads_to`, …) when a new effect needs its error branch
-  covered.
+  the error-path region a happy-path test leaves open. Each fake carries
+  the knobs its branches need: `fail_reads_to` / `fail_create_dir_to` /
+  `fail_current_dir` (`InMemoryFs`), `fail_stdout` / `fail_stdout_after(n)`
+  (`InMemoryOutput`), `fail` (`InMemoryProcessRunner` / `InMemoryRegistry`).
+  Add a parallel knob when a new effect needs its error branch covered.
+- **Counter-based failure for multi-call flows** — when one function calls
+  a port several times (e.g. interactive `init` asks the `Prompt` port
+  styles→format→brand→path→alias in sequence), an all-or-nothing `fail()`
+  can only ever reach the *first* call's error region. `InMemoryPrompt`'s
+  `fail_after(n)` lets the first `n` calls succeed then fails the next, so
+  the `?` on *each* later call is driven in turn (`fail_after(0)` ==
+  `fail()`). Reach for this pattern whenever a per-call error region won't
+  close.
 
 The command is the seam's consumer: `theme(fs: &impl FileSystem, …)`
 takes the port by generic, so the same function runs on `OsFs` in the
 bin and `InMemoryFs` in tests.
+
+## Adapters chosen at run time — `&dyn`, not generic
+
+The default is to take a port **by generic** (`&impl Registry`). But when
+the concrete adapter is picked from a flag *at run time* — `add` routes
+`--registry <ref>` to embedded / `LocalRegistry` / `HttpsRegistry` — the
+generic can't express "one of three types decided now". Keep the command's
+*external* signature generic (so call sites and fakes are unchanged) and
+switch to a `&dyn Registry` trait object **internally**:
+
+```rust
+let local; let https;                       // outlive the borrow
+let registry: &dyn Registry = match classify_registry(reg) {
+    RegistrySource::Embedded => registry,   // the passed-in &impl, coerced
+    RegistrySource::Local(p)  => { local = LocalRegistry::new(fs, &p); &local }
+    RegistrySource::Https(u)  => { https = HttpsRegistry::new(u); &https }
+};
+```
+
+Helpers downstream then take `&dyn Registry`. Keep the *routing*
+(`classify_registry`) a **pure function** (`pub(crate)` so its
+`http(s)://` / version-tag / path / none arms unit-test without I/O) — the
+arms that need network or a real dir are covered separately (below).
+
+## Testing a network adapter without the network
+
+`HttpsRegistry` does real `ureq` I/O, yet holds 100% with **no exemption,
+no test dep, no flaky live fetch**: its **base URL is injected**. Production
+points at GitHub-raw; tests point at a `std::net::TcpListener` loopback
+server that answers one canned HTTP response, so the real `.call()` /
+body-read path runs against `http://127.0.0.1:<port>`. Send
+`Connection: close` so `ureq` opens a fresh connection per request and a
+simple accept-loop sees one request at a time. A non-2xx response drives
+the error arm. (`ureq` is pulled `default-features = false, features =
+["rustls"]` — the `gzip` default drags in `flate2`, which the sandbox
+network policy blocks and the adapter doesn't need.)
 
 ## The arg parser is hand-rolled, not clap (deliberate)
 
@@ -96,7 +152,7 @@ no I/O. Flags are order-free (`while let Some(flag) = iter.next()` with a
 
 ## Golden files: authored, never captured
 
-Generated output (`primitiv-emit` CSS/SCSS/TS/Tailwind) is asserted by
+Generated output (`primitiv-emit` CSS/SCSS/Tailwind) is asserted by
 exact compare against a **hand-authored** expected file — write the
 intended bytes first (encoding design intent), then make the emitter
 match. **`insta` / snapshot testing is ruled out** (a snapshot passes

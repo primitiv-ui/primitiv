@@ -18,6 +18,10 @@ name: Publish packages
 # yet configured on npmjs.com, uncomment the NODE_AUTH_TOKEN env blocks
 # and add an NPM_TOKEN repo secret as a one-time bootstrap, then remove it
 # once TP is confirmed.
+#
+# JSR NOTE: @primitiv-ui/react is excluded from JSR until its Node-style
+# directory barrel imports (from '.', from './Modal', etc.) are refactored
+# to use explicit file extensions. See packages/react/src.
 
 on:
   workflow_dispatch:
@@ -29,7 +33,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # ── 1. Cross-platform Rust binary builds ──────────────────────────────────
+  # ── 1. Cross-platform Rust binary builds ─────────────────────────────────────────────
   build-cli:
     name: Build CLI / ${{ matrix.npm-target }}
     strategy:
@@ -37,7 +41,7 @@ jobs:
       matrix:
         include:
           - { os: macos-latest,     target: aarch64-apple-darwin,       npm-target: darwin-arm64    }
-          - { os: macos-13,         target: x86_64-apple-darwin,        npm-target: darwin-x64      }
+          - { os: macos-latest,     target: x86_64-apple-darwin,        npm-target: darwin-x64      }
           - { os: ubuntu-latest,    target: x86_64-unknown-linux-gnu,   npm-target: linux-x64-gnu   }
           - { os: ubuntu-24.04-arm, target: aarch64-unknown-linux-gnu,  npm-target: linux-arm64-gnu }
           - { os: windows-latest,   target: x86_64-pc-windows-msvc,     npm-target: win32-x64       }
@@ -74,7 +78,7 @@ jobs:
           path: staging/
           if-no-files-found: error
 
-  # ── 2–4. Place binaries and publish everything ────────────────────────────
+  # ── 2–4. Place binaries and publish everything ──────────────────────────────────
   publish:
     name: Publish packages
     needs: build-cli
@@ -140,26 +144,28 @@ jobs:
             (cd "npm/$pkg" && npm publish --access public --provenance)
             echo "::endgroup::"
           done
-        # env:
-        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish CLI wrapper and scaffold
         run: |
           (cd npm/cli-wrapper      && npm publish --access public --provenance)
           (cd npm/create-primitiv-ui && npm publish --access public --provenance)
-        # env:
-        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # pnpm -r publish skips packages with "private": true automatically.
       - name: Publish libraries to npm
         run: pnpm -r publish --access public --no-git-checks --provenance
-        # env:
-        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # JSR authenticates via OIDC automatically inside GitHub Actions.
+      # @primitiv-ui/react is excluded until its barrel imports are refactored
+      # to use explicit file extensions (Deno/JSR requirement).
       - name: Publish libraries to JSR
         run: |
-          for pkg in packages/react packages/icons packages/tokens; do
+          for pkg in packages/icons packages/tokens; do
             echo "::group::jsr publish $pkg"
             (cd "$pkg" && npx jsr publish)
             echo "::endgroup::"

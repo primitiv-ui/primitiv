@@ -3,6 +3,11 @@ name: Publish to JSR (one-shot bootstrap)
 # Temporary workflow — delete after JSR publish succeeds.
 # Created because the main publish.yml already pushed packages to npm;
 # re-running it would hit E403 before reaching the JSR step.
+#
+# @primitiv-ui/react is excluded: it uses Node-style directory barrel
+# imports (from '.', from './Modal') across 71 files. Deno/JSR does not
+# resolve directory imports even with --unstable-sloppy-imports. A
+# separate import-refactor PR is needed before react can go on JSR.
 
 on:
   workflow_dispatch:
@@ -40,7 +45,7 @@ jobs:
 
       - name: Publish libraries to JSR
         run: |
-          for pkg in packages/react packages/icons packages/tokens; do
+          for pkg in packages/icons packages/tokens; do
             echo "::group::jsr publish $pkg"
             (cd "$pkg" && npx jsr publish)
             echo "::endgroup::"

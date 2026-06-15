@@ -1,8 +1,11 @@
+use std::io::{Read, Write};
+use std::net::TcpListener;
 use std::path::Path;
+use std::thread;
 
 use pretty_assertions::assert_eq;
 
-use crate::commands::add::{AddOptions, add};
+use crate::commands::add::{add, classify_registry, AddOptions, RegistrySource};
 use crate::error::CliError;
 use crate::format::Format;
 use crate::lock::Lock;
@@ -11,6 +14,43 @@ use crate::ports::output::InMemoryOutput;
 use crate::ports::process::InMemoryProcessRunner;
 use crate::ports::prompt::{Decision, InMemoryPrompt};
 use crate::ports::registry::InMemoryRegistry;
+
+/// Spin up a loopback HTTP server routing request paths to canned bodies (404 for
+/// the rest), returning its `http://127.0.0.1:<port>` base URL — so `add`'s
+/// HTTPS-registry path runs against a real socket without the network. Each
+/// response sets `Connection: close`, so `ureq` opens a fresh connection per
+/// request and the accept loop sees one request at a time.
+fn serve_registry(routes: &[(&'static str, &'static str)]) -> String {
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let port = listener.local_addr().unwrap().port();
+    let routes: Vec<(String, String)> = routes
+        .iter()
+        .map(|(path, body)| (path.to_string(), body.to_string()))
+        .collect();
+    thread::spawn(move || {
+        for stream in listener.incoming() {
+            let Ok(mut stream) = stream else { break };
+            let mut scratch = [0u8; 1024];
+            let read = stream.read(&mut scratch).unwrap_or(0);
+            let request = String::from_utf8_lossy(&scratch[..read]);
+            let path = request
+                .lines()
+                .next()
+                .and_then(|line| line.split_whitespace().nth(1))
+                .unwrap_or("");
+            let response = match routes.iter().find(|(route, _)| route == path) {
+                Some((_, body)) => format!(
+                    "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+                    body.len()
+                ),
+                None => "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
+                    .to_string(),
+            };
+            let _ = stream.write_all(response.as_bytes());
+        }
+    });
+    format!("http://127.0.0.1:{port}")
+}
 
 /// A registry of two independent components, neither depending on the other.
 const FLAT: &[u8] = br##"{
@@ -1310,6 +1350,81 @@ fn the_registry_override_reads_from_a_repo_local_directory() {
             .unwrap(),
         b".primitiv-button{ color: local }"
     );
+}
+
+#[test]
+fn the_registry_override_fetches_from_an_http_url() {
+    // An `http(s)://` --registry value is served over the network through the
+    // HttpsRegistry adapter; a loopback server stands in for GitHub raw.
+    let base = serve_registry(&[
+        (
+            "/registry.json",
+            r#"{ "version": "0.1.0", "components": { "button": { "version": "0.1.0", "styles": { "formats": { "css": ["styles.css"] } } } } }"#,
+        ),
+        ("/r/button/styles.css", ".primitiv-button{ color: served }"),
+    ]);
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    // The passed-in registry fails: success proves the HTTP one is used.
+    let registry = InMemoryRegistry::failing();
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            registry: Some(base),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    assert_eq!(
+        fs.read(Path::new("src/styles/primitiv/button/styles.css"))
+            .unwrap(),
+        b".primitiv-button{ color: served }"
+    );
+}
+
+#[test]
+fn classify_registry_routes_each_ref_form() {
+    // Absent → the embedded registry.
+    assert!(matches!(classify_registry(None), RegistrySource::Embedded));
+    // An http(s):// value → a direct HTTPS base URL, verbatim.
+    assert!(matches!(
+        classify_registry(Some("http://127.0.0.1:8080")),
+        RegistrySource::Https(url) if url == "http://127.0.0.1:8080"
+    ));
+    assert!(matches!(
+        classify_registry(Some("https://cdn.example/registry")),
+        RegistrySource::Https(url) if url == "https://cdn.example/registry"
+    ));
+    // A version tag → GitHub raw at that tag (with and without a leading `v`).
+    assert!(matches!(
+        classify_registry(Some("0.1.0")),
+        RegistrySource::Https(url)
+            if url == "https://raw.githubusercontent.com/simonrevill/primitiv/0.1.0/registry"
+    ));
+    assert!(matches!(
+        classify_registry(Some("v1.2.3")),
+        RegistrySource::Https(url) if url.ends_with("/v1.2.3/registry")
+    ));
+    // Anything else is a repo-local path — including a dotted, non-digit value.
+    assert!(matches!(
+        classify_registry(Some("vendor/registry")),
+        RegistrySource::Local(path) if path == "vendor/registry"
+    ));
+    assert!(matches!(
+        classify_registry(Some("./registry")),
+        RegistrySource::Local(path) if path == "./registry"
+    ));
 }
 
 #[test]

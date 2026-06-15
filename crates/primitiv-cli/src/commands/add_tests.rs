@@ -2,13 +2,14 @@ use std::path::Path;
 
 use pretty_assertions::assert_eq;
 
-use crate::commands::add::{add, AddOptions};
+use crate::commands::add::{AddOptions, add};
 use crate::error::CliError;
 use crate::format::Format;
 use crate::lock::Lock;
 use crate::ports::fs::{FileSystem, InMemoryFs};
 use crate::ports::output::InMemoryOutput;
 use crate::ports::process::InMemoryProcessRunner;
+use crate::ports::prompt::{Decision, InMemoryPrompt};
 use crate::ports::registry::InMemoryRegistry;
 
 /// A registry of two independent components, neither depending on the other.
@@ -105,6 +106,15 @@ const CONFIG_NO_STYLES: &[u8] = br##"{
   "registry": { "version": "0.1.0" }
 }"##;
 
+/// A registry whose `button` declares a CSS stylesheet and a React surface
+/// (recipe + wrapper), used to drive the dry-run refresh report.
+const WITH_REACT_SURFACE: &[u8] = br##"{
+  "version": "0.1.0",
+  "components": {
+    "button": { "version": "0.1.0", "styles": { "formats": { "css": ["styles.css"] }, "react": ["button.recipe.ts", "button.tsx"] } }
+  }
+}"##;
+
 /// Turn string literals into the owned component list the command takes.
 fn names(parts: &[&str]) -> Vec<String> {
     parts.iter().map(|part| part.to_string()).collect()
@@ -120,14 +130,23 @@ fn reports_a_single_resolved_component() {
     let registry = InMemoryRegistry::new(FLAT);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: true, ..Default::default() },
-    ).unwrap();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            json: false,
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
 
     assert_eq!(
         String::from_utf8(output.captured()).unwrap(),
@@ -141,14 +160,23 @@ fn lists_the_npm_packages_to_ensure_sorted_and_deduplicated() {
     let registry = InMemoryRegistry::new(WITH_PACKAGES);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button", "icon"]), json: false, dry_run: true, ..Default::default() },
-    ).unwrap();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button", "icon"]),
+            json: false,
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
 
     // The packages section lists the union of both components' deps — sorted and
     // with the shared `@primitiv-ui/react` appearing once.
@@ -165,14 +193,23 @@ fn renders_the_plan_as_json_with_components_and_packages() {
     let registry = InMemoryRegistry::new(WITH_PACKAGES);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button", "icon"]), json: true, dry_run: true, ..Default::default() },
-    ).unwrap();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button", "icon"]),
+            json: true,
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
 
     assert_eq!(
         String::from_utf8(output.captured()).unwrap(),
@@ -184,7 +221,8 @@ fn renders_the_plan_as_json_with_components_and_packages() {
   "packages": [
     "@primitiv-ui/icons",
     "@primitiv-ui/react"
-  ]
+  ],
+  "files": []
 }
 "#,
     );
@@ -196,17 +234,118 @@ fn renders_json_with_an_empty_packages_array_when_there_are_none() {
     let registry = InMemoryRegistry::new(FLAT);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: true, dry_run: true, ..Default::default() },
-    ).unwrap();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            json: true,
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
 
     assert_eq!(
         String::from_utf8(output.captured()).unwrap(),
+        r#"{
+  "components": [
+    { "name": "button", "version": "0.1.0" }
+  ],
+  "packages": [],
+  "files": []
+}
+"#,
+    );
+}
+
+#[test]
+fn renders_json_dry_run_with_a_files_array_when_styles_are_configured() {
+    use crate::lock::Lock;
+
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    // stylesheet on disk, content matches lock → refresh; recipe absent → new.
+    let stylesheet = Path::new("src/styles/primitiv/button/styles.css");
+    let stylesheet_bytes = b".primitiv-button{}";
+    fs.write(stylesheet, stylesheet_bytes).unwrap();
+    let mut lock = Lock::default();
+    lock.record("src/styles/primitiv/button/styles.css", stylesheet_bytes);
+    lock.write(&fs, Path::new("primitiv.lock")).unwrap();
+    let registry = InMemoryRegistry::new(WITH_REACT_SURFACE);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            json: true,
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(out.contains("\"files\""), "should include files array");
+    assert!(
+        out.contains("\"refresh\""),
+        "matched file should be 'refresh'"
+    );
+    assert!(out.contains("\"new\""), "absent file should be 'new'");
+    // Verify the exact JSON structure for the files section.
+    assert!(
+        out.contains("\"path\": \"src/styles/primitiv/button/styles.css\""),
+        "stylesheet path should appear"
+    );
+}
+
+#[test]
+fn renders_json_without_a_files_key_on_a_non_dry_run() {
+    // A non-dry-run `--json` call omits the "files" key entirely
+    // (it only appears under --dry-run).
+    let fs = InMemoryFs::new();
+    let registry = InMemoryRegistry::new(FLAT);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            json: true,
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(
+        !out.contains("\"files\""),
+        "non-dry-run JSON should not have files key"
+    );
+    assert_eq!(
+        out,
         r#"{
   "components": [
     { "name": "button", "version": "0.1.0" }
@@ -223,6 +362,7 @@ fn reports_several_resolved_components_sorted_and_aligned() {
     let registry = InMemoryRegistry::new(FLAT);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     // Requested out of order; the plan is sorted and the version column aligned.
     add(
@@ -230,8 +370,16 @@ fn reports_several_resolved_components_sorted_and_aligned() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["switch", "button"]), json: false, dry_run: true, ..Default::default() },
-    ).unwrap();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["switch", "button"]),
+            json: false,
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
 
     assert_eq!(
         String::from_utf8(output.captured()).unwrap(),
@@ -245,14 +393,23 @@ fn pulls_in_transitive_component_dependencies() {
     let registry = InMemoryRegistry::new(WITH_DEPS);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["field"]), json: false, dry_run: true, ..Default::default() },
-    ).unwrap();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["field"]),
+            json: false,
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
 
     assert_eq!(
         String::from_utf8(output.captured()).unwrap(),
@@ -266,6 +423,7 @@ fn deduplicates_a_component_requested_and_pulled_in_as_a_dependency() {
     let registry = InMemoryRegistry::new(WITH_DEPS);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     // `button` is both requested and a dependency of `field`: it appears once.
     add(
@@ -273,8 +431,16 @@ fn deduplicates_a_component_requested_and_pulled_in_as_a_dependency() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["field", "button"]), json: false, dry_run: true, ..Default::default() },
-    ).unwrap();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["field", "button"]),
+            json: false,
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
 
     assert_eq!(
         String::from_utf8(output.captured()).unwrap(),
@@ -288,14 +454,23 @@ fn errors_when_a_requested_component_is_unknown() {
     let registry = InMemoryRegistry::new(FLAT);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     let err = add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["nope"]), json: false, dry_run: true, ..Default::default() },
-    ).unwrap_err();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["nope"]),
+            json: false,
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::NotFound(_)));
 }
@@ -313,14 +488,23 @@ fn errors_when_a_dependency_is_missing_from_the_registry() {
     let registry = InMemoryRegistry::new(DANGLING);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     let err = add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["field"]), json: false, dry_run: true, ..Default::default() },
-    ).unwrap_err();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["field"]),
+            json: false,
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::NotFound(_)));
 }
@@ -331,14 +515,23 @@ fn errors_when_the_registry_is_unavailable() {
     let registry = InMemoryRegistry::failing();
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     let err = add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: true, ..Default::default() },
-    ).unwrap_err();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            json: false,
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Registry(_)));
 }
@@ -349,14 +542,23 @@ fn errors_on_a_malformed_registry_index() {
     let registry = InMemoryRegistry::new(b"{ not json }");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     let err = add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: true, ..Default::default() },
-    ).unwrap_err();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            json: false,
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Registry(_)));
 }
@@ -367,6 +569,7 @@ fn surfaces_a_stdout_failure() {
     let registry = InMemoryRegistry::new(FLAT);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
     output.fail_stdout();
 
     let err = add(
@@ -374,8 +577,16 @@ fn surfaces_a_stdout_failure() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: true, ..Default::default() },
-    ).unwrap_err();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            json: false,
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -388,14 +599,23 @@ fn installs_the_packages_with_the_detected_manager() {
     let registry = InMemoryRegistry::new(WITH_PACKAGES);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button", "icon"]), json: false, dry_run: false, ..Default::default() },
-    ).unwrap();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button", "icon"]),
+            json: false,
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .unwrap();
 
     // One `pnpm add` invocation in the project directory installs the deduped,
     // sorted package set.
@@ -417,16 +637,22 @@ fn installs_the_packages_with_the_detected_manager() {
 fn styles_only_copies_styles_without_installing_the_package() {
     let fs = InMemoryFs::new();
     fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
-    let registry = InMemoryRegistry::new(WITH_PACKAGE_AND_STYLES)
-        .with_file("button", "styles.css", b".primitiv-button{}");
+    let registry = InMemoryRegistry::new(WITH_PACKAGE_AND_STYLES).with_file(
+        "button",
+        "styles.css",
+        b".primitiv-button{}",
+    );
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     add(
         &fs,
         &registry,
         &output,
         &runner,
+        &prompt,
+        false,
         &AddOptions {
             components: names(&["button"]),
             styles_only: true,
@@ -439,7 +665,8 @@ fn styles_only_copies_styles_without_installing_the_package() {
     assert!(runner.calls().is_empty());
     // ...but the stylesheet is still copied.
     assert_eq!(
-        fs.read(Path::new("src/styles/primitiv/button/styles.css")).unwrap(),
+        fs.read(Path::new("src/styles/primitiv/button/styles.css"))
+            .unwrap(),
         b".primitiv-button{}"
     );
 }
@@ -448,16 +675,22 @@ fn styles_only_copies_styles_without_installing_the_package() {
 fn no_styles_installs_the_package_without_copying_styles() {
     let fs = InMemoryFs::new();
     fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
-    let registry = InMemoryRegistry::new(WITH_PACKAGE_AND_STYLES)
-        .with_file("button", "styles.css", b".primitiv-button{}");
+    let registry = InMemoryRegistry::new(WITH_PACKAGE_AND_STYLES).with_file(
+        "button",
+        "styles.css",
+        b".primitiv-button{}",
+    );
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     add(
         &fs,
         &registry,
         &output,
         &runner,
+        &prompt,
+        false,
         &AddOptions {
             components: names(&["button"]),
             no_styles: true,
@@ -478,14 +711,23 @@ fn does_not_install_under_dry_run() {
     let registry = InMemoryRegistry::new(WITH_PACKAGES);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: true, ..Default::default() },
-    ).unwrap();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            json: false,
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
 
     assert!(runner.calls().is_empty());
 }
@@ -496,6 +738,7 @@ fn does_not_install_when_no_component_needs_a_package() {
     let registry = InMemoryRegistry::new(FLAT);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     // FLAT's components declare no packages, so even a non-dry run runs nothing.
     add(
@@ -503,8 +746,16 @@ fn does_not_install_when_no_component_needs_a_package() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: false, ..Default::default() },
-    ).unwrap();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            json: false,
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .unwrap();
 
     assert!(runner.calls().is_empty());
 }
@@ -515,6 +766,7 @@ fn errors_when_the_package_manager_fails() {
     let registry = InMemoryRegistry::new(WITH_PACKAGES);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
     runner.fail();
 
     let err = add(
@@ -522,8 +774,16 @@ fn errors_when_the_package_manager_fails() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: false, ..Default::default() },
-    ).unwrap_err();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            json: false,
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Install(_)));
 }
@@ -536,18 +796,28 @@ fn copies_the_configured_format_stylesheet_into_the_styles_path() {
         InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: false, ..Default::default() },
-    ).unwrap();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            json: false,
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .unwrap();
 
     // The CSS lands under <styles.path>/<component>/ verbatim.
     assert_eq!(
-        fs.read(Path::new("src/styles/primitiv/button/styles.css")).unwrap(),
+        fs.read(Path::new("src/styles/primitiv/button/styles.css"))
+            .unwrap(),
         b".primitiv-button{}"
     );
 }
@@ -555,19 +825,29 @@ fn copies_the_configured_format_stylesheet_into_the_styles_path() {
 #[test]
 fn does_not_copy_styles_when_the_project_opts_out() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), CONFIG_NO_STYLES).unwrap();
+    fs.write(Path::new("primitiv.json"), CONFIG_NO_STYLES)
+        .unwrap();
     let registry =
         InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: false, ..Default::default() },
-    ).unwrap();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            json: false,
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .unwrap();
 
     assert!(!fs.exists(Path::new("src/styles/primitiv/button/styles.css")));
 }
@@ -580,14 +860,23 @@ fn does_not_copy_styles_when_there_is_no_project_config() {
         InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: false, ..Default::default() },
-    ).unwrap();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            json: false,
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .unwrap();
 
     assert!(!fs.exists(Path::new("src/styles/primitiv/button/styles.css")));
 }
@@ -600,14 +889,23 @@ fn errors_when_the_registry_cannot_serve_a_style_file() {
     let registry = InMemoryRegistry::new(WITH_STYLES);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     let err = add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: false, ..Default::default() },
-    ).unwrap_err();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            json: false,
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Registry(_)));
 }
@@ -621,14 +919,23 @@ fn surfaces_a_directory_creation_failure_during_style_copy() {
         InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     let err = add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: false, ..Default::default() },
-    ).unwrap_err();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            json: false,
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -642,14 +949,23 @@ fn surfaces_a_write_failure_during_style_copy() {
         InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     let err = add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: false, ..Default::default() },
-    ).unwrap_err();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            json: false,
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -657,19 +973,29 @@ fn surfaces_a_write_failure_during_style_copy() {
 #[test]
 fn errors_on_a_malformed_project_config_during_style_copy() {
     let fs = InMemoryFs::new();
-    fs.write(Path::new("primitiv.json"), b"{ not json }").unwrap();
+    fs.write(Path::new("primitiv.json"), b"{ not json }")
+        .unwrap();
     let registry =
         InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     let err = add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: false, ..Default::default() },
-    ).unwrap_err();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            json: false,
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Config(_)));
 }
@@ -681,17 +1007,27 @@ fn copies_the_react_surface_into_the_alias_resolved_components_directory() {
     fs.write(Path::new("tsconfig.json"), TSCONFIG).unwrap();
     let registry = InMemoryRegistry::new(WITH_STYLED_SURFACE)
         .with_file("button", "styles.css", b".primitiv-button{}")
-        .with_file("button", "button.recipe.ts", b"export const button = cva();")
+        .with_file(
+            "button",
+            "button.recipe.ts",
+            b"export const button = cva();",
+        )
         .with_file("button", "button.tsx", b"export function Button() {}");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), ..Default::default() },
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
     )
     .unwrap();
 
@@ -699,7 +1035,8 @@ fn copies_the_react_surface_into_the_alias_resolved_components_directory() {
     assert!(fs.exists(Path::new("src/styles/primitiv/button/styles.css")));
     // ...and the recipe + wrapper land flat in the alias-resolved components dir.
     assert_eq!(
-        fs.read(Path::new("src/components/button.recipe.ts")).unwrap(),
+        fs.read(Path::new("src/components/button.recipe.ts"))
+            .unwrap(),
         b"export const button = cva();"
     );
     assert_eq!(
@@ -720,17 +1057,26 @@ fn falls_back_to_a_root_components_directory_without_a_detectable_alias() {
         .with_file("button", "button.tsx", b"wrapper");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), ..Default::default() },
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
     )
     .unwrap();
 
-    assert_eq!(fs.read(Path::new("components/button.tsx")).unwrap(), b"wrapper");
+    assert_eq!(
+        fs.read(Path::new("components/button.tsx")).unwrap(),
+        b"wrapper"
+    );
 }
 
 #[test]
@@ -742,12 +1088,15 @@ fn the_format_flag_overrides_the_config_stylesheet_format() {
         InMemoryRegistry::new(MULTI_FORMAT).with_file("button", "styles.scss", b"// scss");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     add(
         &fs,
         &registry,
         &output,
         &runner,
+        &prompt,
+        false,
         &AddOptions {
             components: names(&["button"]),
             format: Some(Format::Scss),
@@ -770,12 +1119,15 @@ fn the_path_flag_overrides_the_config_styles_destination() {
         InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     add(
         &fs,
         &registry,
         &output,
         &runner,
+        &prompt,
+        false,
         &AddOptions {
             components: names(&["button"]),
             path: Some("lib/styles".to_string()),
@@ -797,19 +1149,28 @@ fn records_copied_files_in_the_lock() {
         InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), ..Default::default() },
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
     )
     .unwrap();
 
     // primitiv.lock records the copied stylesheet so a re-add can detect edits.
     let lock = Lock::read(&fs, Path::new("primitiv.lock")).unwrap();
-    assert!(lock.files.contains_key("src/styles/primitiv/button/styles.css"));
+    assert!(
+        lock.files
+            .contains_key("src/styles/primitiv/button/styles.css")
+    );
 }
 
 #[test]
@@ -820,6 +1181,7 @@ fn keeps_a_consumer_edited_file_on_re_add() {
         InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
     let dest = Path::new("src/styles/primitiv/button/styles.css");
 
     // First add writes the stylesheet and records its hash...
@@ -828,7 +1190,12 @@ fn keeps_a_consumer_edited_file_on_re_add() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), ..Default::default() },
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
     )
     .unwrap();
     // ...the consumer edits it...
@@ -839,7 +1206,12 @@ fn keeps_a_consumer_edited_file_on_re_add() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), ..Default::default() },
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
     )
     .unwrap();
 
@@ -854,6 +1226,7 @@ fn force_overwrites_a_consumer_edited_file_on_re_add() {
         InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
     let dest = Path::new("src/styles/primitiv/button/styles.css");
 
     add(
@@ -861,7 +1234,12 @@ fn force_overwrites_a_consumer_edited_file_on_re_add() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), ..Default::default() },
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
     )
     .unwrap();
     fs.write(dest, b".primitiv-button { color: red }").unwrap();
@@ -871,7 +1249,13 @@ fn force_overwrites_a_consumer_edited_file_on_re_add() {
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), force: true, ..Default::default() },
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            force: true,
+            ..Default::default()
+        },
     )
     .unwrap();
 
@@ -887,13 +1271,19 @@ fn surfaces_a_failure_to_read_the_lock() {
         InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     let err = add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), ..Default::default() },
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
     )
     .unwrap_err();
 
@@ -912,13 +1302,19 @@ fn surfaces_a_failure_to_read_an_existing_target_during_refresh() {
         InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     let err = add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), ..Default::default() },
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
     )
     .unwrap_err();
 
@@ -931,17 +1327,26 @@ fn errors_when_the_registry_cannot_serve_a_react_file() {
     fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
     // The stylesheet is served but the React surface is not, so the copy fails
     // in the React loop rather than the stylesheet loop.
-    let registry = InMemoryRegistry::new(WITH_STYLED_SURFACE)
-        .with_file("button", "styles.css", b".primitiv-button{}");
+    let registry = InMemoryRegistry::new(WITH_STYLED_SURFACE).with_file(
+        "button",
+        "styles.css",
+        b".primitiv-button{}",
+    );
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     let err = add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), ..Default::default() },
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
     )
     .unwrap_err();
 
@@ -961,13 +1366,19 @@ fn surfaces_a_failure_to_resolve_the_components_directory() {
         .with_file("button", "button.tsx", b"wrapper");
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     let err = add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), ..Default::default() },
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
     )
     .unwrap_err();
 
@@ -981,14 +1392,606 @@ fn surfaces_a_failure_to_read_the_working_directory_before_installing() {
     let registry = InMemoryRegistry::new(WITH_PACKAGES);
     let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
 
     let err = add(
         &fs,
         &registry,
         &output,
         &runner,
-        &AddOptions { components: names(&["button"]), json: false, dry_run: false, ..Default::default() },
-    ).unwrap_err();
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            json: false,
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+// ── dry-run refresh report ────────────────────────────────────────────────
+
+#[test]
+fn dry_run_appends_the_refresh_plan_with_per_file_status() {
+    use crate::lock::Lock;
+
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+
+    // stylesheet — on disk, content matches lock → refresh
+    let stylesheet = Path::new("src/styles/primitiv/button/styles.css");
+    let stylesheet_bytes = b".primitiv-button{}";
+    fs.write(stylesheet, stylesheet_bytes).unwrap();
+
+    // wrapper — on disk but edited → keep
+    let wrapper = Path::new("components/button.tsx");
+    fs.write(wrapper, b"consumer edited").unwrap();
+
+    // recipe — not on disk → new
+    // (no write for components/button.recipe.ts)
+
+    // Seed the lock: stylesheet recorded (matching), wrapper recorded with original bytes
+    let mut lock = Lock::default();
+    lock.record("src/styles/primitiv/button/styles.css", stylesheet_bytes);
+    lock.record("components/button.tsx", b"original recipe");
+    lock.write(&fs, Path::new("primitiv.lock")).unwrap();
+
+    let registry = InMemoryRegistry::new(WITH_REACT_SURFACE);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    // The plan header is still present
+    assert!(
+        out.contains("Resolved 1 component to add:"),
+        "missing plan header"
+    );
+    // The refresh section appears
+    assert!(out.contains("\nRefresh plan:\n"), "missing refresh section");
+    // Each file gets the right status label
+    assert!(
+        out.contains("src/styles/primitiv/button/styles.css") && out.contains("refresh"),
+        "stylesheet should be 'refresh'"
+    );
+    assert!(
+        out.contains("components/button.recipe.ts") && out.contains("new"),
+        "recipe should be 'new'"
+    );
+    assert!(
+        out.contains("components/button.tsx") && out.contains("keep"),
+        "wrapper should be 'keep'"
+    );
+}
+
+#[test]
+fn dry_run_has_no_refresh_plan_when_no_config_is_present() {
+    let fs = InMemoryFs::new();
+    // No primitiv.json: no styled surface → no refresh plan section
+    let registry = InMemoryRegistry::new(WITH_REACT_SURFACE);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(
+        !out.contains("Refresh plan:"),
+        "should not emit refresh section without config"
+    );
+}
+
+#[test]
+fn dry_run_has_no_refresh_plan_when_no_styles_flag_is_set() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry = InMemoryRegistry::new(WITH_REACT_SURFACE);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: true,
+            no_styles: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(
+        !out.contains("Refresh plan:"),
+        "should not emit refresh section with --no-styles"
+    );
+}
+
+#[test]
+fn dry_run_has_no_refresh_plan_when_styles_are_disabled_in_config() {
+    let fs = InMemoryFs::new();
+    // Config present but styles.enabled = false: planned_files returns empty → no section.
+    fs.write(Path::new("primitiv.json"), CONFIG_NO_STYLES)
+        .unwrap();
+    let registry = InMemoryRegistry::new(WITH_REACT_SURFACE);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(
+        !out.contains("Refresh plan:"),
+        "should not emit refresh section when styles disabled"
+    );
+}
+
+#[test]
+fn dry_run_refresh_plan_covers_stylesheet_only_when_there_is_no_react_surface() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    // WITH_STYLES has only a CSS stylesheet — no React surface. The plan should
+    // list the stylesheet file and omit the React block (exercises the has_react=false path).
+    let registry = InMemoryRegistry::new(WITH_STYLES);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(
+        out.contains("\nRefresh plan:\n"),
+        "should emit refresh section"
+    );
+    assert!(
+        out.contains("src/styles/primitiv/button/styles.css"),
+        "stylesheet should appear in plan"
+    );
+    assert!(out.contains("new"), "absent file should be 'new'");
+}
+
+#[test]
+fn dry_run_with_force_labels_an_edited_file_as_overwrite() {
+    use crate::lock::Lock;
+
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+
+    // stylesheet — on disk but consumer-edited; with --force it should show 'overwrite'
+    let dest = Path::new("src/styles/primitiv/button/styles.css");
+    fs.write(dest, b"consumer edited").unwrap();
+
+    // Seed the lock with the original bytes so the current content looks edited
+    let mut lock = Lock::default();
+    lock.record(
+        "src/styles/primitiv/button/styles.css",
+        b".primitiv-button{}",
+    );
+    lock.write(&fs, Path::new("primitiv.lock")).unwrap();
+
+    let registry = InMemoryRegistry::new(WITH_STYLES);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: true,
+            force: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(
+        out.contains("overwrite"),
+        "edited file with --force should be 'overwrite'"
+    );
+    assert!(
+        !out.contains("keep"),
+        "edited file with --force should not be 'keep'"
+    );
+}
+
+// ── dry-run error-path coverage ───────────────────────────────────────────
+
+#[test]
+fn dry_run_surfaces_a_current_dir_failure() {
+    let fs = InMemoryFs::new();
+    fs.fail_current_dir();
+    let registry = InMemoryRegistry::new(WITH_REACT_SURFACE);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn dry_run_surfaces_a_config_read_failure_in_planned_files() {
+    let fs = InMemoryFs::new();
+    // primitiv.json exists but is unreadable: config::try_resolve errors.
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    fs.fail_reads_to(Path::new("primitiv.json"));
+    let registry = InMemoryRegistry::new(WITH_REACT_SURFACE);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn dry_run_surfaces_a_lock_read_failure() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    // Lock exists but is unreadable.
+    fs.write(Path::new("primitiv.lock"), b"{}").unwrap();
+    fs.fail_reads_to(Path::new("primitiv.lock"));
+    let registry = InMemoryRegistry::new(WITH_STYLES);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn dry_run_surfaces_a_classify_read_failure() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    // The stylesheet destination exists (so classify reads it) but is unreadable.
+    let dest = Path::new("src/styles/primitiv/button/styles.css");
+    fs.write(dest, b"content").unwrap();
+    fs.fail_reads_to(dest);
+    let registry = InMemoryRegistry::new(WITH_STYLES);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn dry_run_surfaces_a_stdout_failure_writing_the_refresh_plan() {
+    use crate::lock::Lock;
+
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    // Seed lock with a file that won't exist on disk → status 'new', non-empty list.
+    let mut lock = Lock::default();
+    lock.record(
+        "src/styles/primitiv/button/styles.css",
+        b".primitiv-button{}",
+    );
+    lock.write(&fs, Path::new("primitiv.lock")).unwrap();
+    let registry = InMemoryRegistry::new(WITH_STYLES);
+    let output = InMemoryOutput::new();
+    // Let the first write (the plan) succeed, then fail the second write (the
+    // refresh plan section) to drive the stdout-error branch at line 118.
+    output.fail_stdout_after(1);
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn dry_run_surfaces_a_components_dir_detection_failure_in_planned_files() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    // tsconfig exists but is unreadable: detect::components_path errors.
+    fs.write(Path::new("tsconfig.json"), TSCONFIG).unwrap();
+    fs.fail_reads_to(Path::new("tsconfig.json"));
+    let registry = InMemoryRegistry::new(WITH_REACT_SURFACE);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn an_interactive_overwrite_replaces_a_consumer_edited_file() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let dest = Path::new("src/styles/primitiv/button/styles.css");
+
+    // First add records the stylesheet, then the consumer edits it.
+    let keep = InMemoryPrompt::new(Decision::Keep);
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &keep,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+    fs.write(dest, b".primitiv-button { color: red }").unwrap();
+
+    // An interactive re-add where the consumer chooses overwrite takes the
+    // registry version.
+    let overwrite = InMemoryPrompt::new(Decision::Overwrite);
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &overwrite,
+        true,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    assert_eq!(fs.read(dest).unwrap(), b".primitiv-button{}");
+    assert_eq!(overwrite.asked(), vec![dest.to_path_buf()]);
+}
+
+#[test]
+fn an_interactive_keep_preserves_a_consumer_edited_file() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let dest = Path::new("src/styles/primitiv/button/styles.css");
+
+    let keep = InMemoryPrompt::new(Decision::Keep);
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &keep,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+    fs.write(dest, b".primitiv-button { color: red }").unwrap();
+
+    // The consumer is asked and chooses keep, so the edit survives.
+    let keep_again = InMemoryPrompt::new(Decision::Keep);
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &keep_again,
+        true,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    assert_eq!(fs.read(dest).unwrap(), b".primitiv-button { color: red }");
+    assert_eq!(keep_again.asked(), vec![dest.to_path_buf()]);
+}
+
+#[test]
+fn an_interactive_add_surfaces_a_prompt_failure_as_io() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let dest = Path::new("src/styles/primitiv/button/styles.css");
+
+    let keep = InMemoryPrompt::new(Decision::Keep);
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &keep,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+    fs.write(dest, b".primitiv-button { color: red }").unwrap();
+
+    // The prompt itself fails (a broken stdin), surfacing as an I/O error.
+    let failing = InMemoryPrompt::new(Decision::Keep);
+    failing.fail();
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &failing,
+        true,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }

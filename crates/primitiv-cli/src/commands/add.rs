@@ -1,15 +1,16 @@
 use std::collections::BTreeSet;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crate::config;
 use crate::detect;
 use crate::error::CliError;
 use crate::format::Format;
-use crate::lock::{self, Lock};
+use crate::lock::{self, Lock, Refresh};
 use crate::package_manager::PackageManager;
 use crate::ports::fs::FileSystem;
 use crate::ports::output::Output;
 use crate::ports::process::ProcessRunner;
+use crate::ports::prompt::{Decision, Prompt};
 use crate::ports::registry::Registry;
 use crate::registry::RegistryIndex;
 
@@ -40,6 +41,30 @@ pub struct AddOptions {
     pub force: bool,
 }
 
+/// One file the real (non-dry) copy would process — used by both the dry-run
+/// refresh report (which classifies each destination without fetching bytes) and
+/// the real copy (which fetches bytes and writes them through the port).
+struct PlannedFile {
+    /// The component name in the registry index, used to fetch bytes.
+    name: String,
+    /// The file name within the component's registry entry, used to fetch bytes.
+    file: String,
+    /// The destination directory, created before the write (always a real dir).
+    dir: PathBuf,
+    /// The destination path (`dir/file`) the file will be written to.
+    dest: PathBuf,
+}
+
+/// The human-readable status label for a classified file (RFC 0005 §4.2).
+fn status_label(refresh: &Refresh, force: bool) -> &'static str {
+    match refresh {
+        Refresh::New => "new",
+        Refresh::Unchanged => "refresh",
+        Refresh::Edited if force => "overwrite",
+        Refresh::Edited => "keep",
+    }
+}
+
 /// The `primitiv add <component...>` command (RFC 0005 §2.2 / §4).
 ///
 /// It loads the registry index through the [`Registry`] port, resolves each
@@ -53,11 +78,18 @@ pub struct AddOptions {
 /// registry doesn't carry is a [`CliError::NotFound`]; a package manager that
 /// fails is a [`CliError::Install`]. The remaining wiring effects (§4.3) layer
 /// on in later slices.
+///
+/// When `interactive`, a consumer-edited file prompts overwrite/keep through the
+/// [`Prompt`] port (RFC 0005 §4.2); non-interactively the edit is kept (unless
+/// `--force`). The dry-run report never prompts.
+#[allow(clippy::too_many_arguments)]
 pub fn add(
     fs: &impl FileSystem,
     registry: &impl Registry,
     output: &impl Output,
     runner: &impl ProcessRunner,
+    prompt: &impl Prompt,
+    interactive: bool,
     options: &AddOptions,
 ) -> Result<(), CliError> {
     let AddOptions {
@@ -75,12 +107,48 @@ pub fn add(
         .map_err(|error| CliError::Registry(error.to_string()))?;
     let index = RegistryIndex::parse(&index)?;
     let resolved = resolve(&index, components)?;
+    // Compute the per-file classification for the dry-run report. Both the human
+    // ("Refresh plan:") and JSON ("files" array) outputs consume it.
+    // - `None` when not dry-running (JSON omits the "files" key entirely).
+    // - `Some(vec![])` when --no-styles is set (no files to copy; JSON still
+    //   includes the empty array, human section is suppressed).
+    // - `Some(files)` otherwise, classifying each planned destination.
+    let refresh_files: Option<Vec<(String, &'static str)>> = if *dry_run {
+        if *no_styles {
+            Some(vec![])
+        } else {
+            let dir = fs.current_dir()?;
+            let files = planned_files(fs, &index, &resolved, *format, path.as_deref(), &dir)?;
+            let lock_path = dir.join(lock::FILE_NAME);
+            let lock = Lock::read(fs, &lock_path)?;
+            let classified: Result<Vec<(String, &'static str)>, CliError> = files
+                .iter()
+                .map(|pf| {
+                    let refresh = lock.classify(fs, &pf.dest)?;
+                    let label = status_label(&refresh, *force);
+                    Ok((pf.dest.to_string_lossy().into_owned(), label))
+                })
+                .collect();
+            Some(classified?)
+        }
+    } else {
+        None
+    };
     let plan = if *json {
-        render_json(&index, &resolved)
+        render_json(&index, &resolved, refresh_files.as_deref())
     } else {
         render(&index, &resolved)
     };
     output.write_stdout(plan.as_bytes())?;
+    // When dry-running in human mode, append the "Refresh plan:" section after the
+    // main plan. JSON already embeds the "files" array inside the object above.
+    if !*json {
+        if let Some(ref files) = refresh_files {
+            if !files.is_empty() {
+                output.write_stdout(render_refresh_plan(files).as_bytes())?;
+            }
+        }
+    }
     if !*dry_run {
         let dir = fs.current_dir()?;
         if !*styles_only {
@@ -90,6 +158,8 @@ pub fn add(
             copy_styled_surface(
                 fs,
                 registry,
+                prompt,
+                interactive,
                 &index,
                 &resolved,
                 &dir,
@@ -123,6 +193,8 @@ const DEFAULT_COMPONENTS_DIR: &str = "components";
 fn copy_styled_surface(
     fs: &impl FileSystem,
     registry: &impl Registry,
+    prompt: &impl Prompt,
+    interactive: bool,
     index: &RegistryIndex,
     resolved: &[String],
     dir: &Path,
@@ -130,97 +202,128 @@ fn copy_styled_surface(
     path: Option<&str>,
     force: bool,
 ) -> Result<(), CliError> {
-    let Some(config) = config::try_resolve(fs, dir)? else {
-        return Ok(());
-    };
-    if !config.styles.enabled {
-        return Ok(());
-    }
-    let format = format.unwrap_or(config.styles.format);
-    let styles_path = path.unwrap_or(&config.styles.path);
     let lock_path = dir.join(lock::FILE_NAME);
     let mut lock = Lock::read(fs, &lock_path)?;
-    copy_stylesheets(fs, registry, &mut lock, index, resolved, styles_path, format, force)?;
-    copy_react_surface(fs, registry, &mut lock, index, resolved, dir, force)?;
+    let files = planned_files(fs, index, resolved, format, path, dir)?;
+    if files.is_empty() {
+        return Ok(());
+    }
+    for pf in &files {
+        copy_file(fs, registry, prompt, interactive, &mut lock, pf, force)?;
+    }
     lock.write(fs, &lock_path)
 }
 
-/// Copy each component's stylesheet for the resolved `format` into
-/// `<styles_path>/<component>/` (RFC 0005 §4.1 step 4).
-#[allow(clippy::too_many_arguments)]
-fn copy_stylesheets(
+/// Enumerate every destination file the real copy would process — the same set
+/// the dry-run refresh report classifies and the real copy writes. Returns an
+/// empty `Vec` when styles are disabled / no config is present (mirroring
+/// `copy_styled_surface`). The React alias resolution is attempted only when at
+/// least one component declares a React surface (mirroring `copy_react_surface`).
+/// No registry bytes are fetched.
+fn planned_files(
     fs: &impl FileSystem,
-    registry: &impl Registry,
-    lock: &mut Lock,
     index: &RegistryIndex,
     resolved: &[String],
-    styles_path: &str,
-    format: Format,
-    force: bool,
-) -> Result<(), CliError> {
+    format: Option<Format>,
+    path: Option<&str>,
+    dir: &Path,
+) -> Result<Vec<PlannedFile>, CliError> {
+    let Some(config) = config::try_resolve(fs, dir)? else {
+        return Ok(vec![]);
+    };
+    if !config.styles.enabled {
+        return Ok(vec![]);
+    }
+    let format = format.unwrap_or(config.styles.format);
+    let styles_path = path.unwrap_or(&config.styles.path);
+    let mut files = Vec::new();
+    // Stylesheets: <styles_path>/<component>/<file>
     for name in resolved {
         let component_dir = Path::new(styles_path).join(name);
         for file in index.components[name].styles.formats.files(format) {
-            copy_file(fs, registry, lock, name, file, &component_dir, force)?;
+            files.push(PlannedFile {
+                name: name.clone(),
+                file: file.to_string(),
+                dest: component_dir.join(file),
+                dir: component_dir.clone(),
+            });
         }
     }
-    Ok(())
-}
-
-/// Copy each component's **format-independent** React surface (recipe + wrapper,
-/// D55) into the consumer's components directory, resolved from the project's
-/// import alias (`detect::components_path`) or the [`DEFAULT_COMPONENTS_DIR`]
-/// fallback. The files are co-located flat (the wrapper imports its recipe as
-/// `./<name>.recipe`), so the directory is shared across components. With no
-/// component declaring a React surface the alias is never resolved, so a project
-/// without one is not forced to have a readable tsconfig.
-fn copy_react_surface(
-    fs: &impl FileSystem,
-    registry: &impl Registry,
-    lock: &mut Lock,
-    index: &RegistryIndex,
-    resolved: &[String],
-    dir: &Path,
-    force: bool,
-) -> Result<(), CliError> {
+    // React surface: <components_dir>/<file> (shared directory, flat layout)
     let has_react = resolved
         .iter()
         .any(|name| !index.components[name].styles.react.is_empty());
-    if !has_react {
-        return Ok(());
-    }
-    let components_dir =
-        detect::components_path(fs, dir)?.unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
-    let components_dir = Path::new(&components_dir);
-    for name in resolved {
-        for file in &index.components[name].styles.react {
-            copy_file(fs, registry, lock, name, file, components_dir, force)?;
+    if has_react {
+        let components_dir =
+            detect::components_path(fs, dir)?.unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
+        let components_dir = PathBuf::from(&components_dir);
+        for name in resolved {
+            for file in &index.components[name].styles.react {
+                files.push(PlannedFile {
+                    name: name.clone(),
+                    file: file.clone(),
+                    dest: components_dir.join(file),
+                    dir: components_dir.clone(),
+                });
+            }
         }
     }
-    Ok(())
+    Ok(files)
 }
 
-/// Fetch one registry file and write it into `dest_dir` — but only when the
-/// [`Lock`] says so (RFC 0005 §4.2): a new or untouched file is written and its
-/// hash recorded; a consumer-edited file is kept unless `force`. A file the
-/// registry can't serve is a [`CliError::Registry`]; a directory/write failure
-/// surfaces as the port's [`CliError::Io`].
+/// Render the human "Refresh plan:" section for the dry-run report. Each entry
+/// is `  {path:<width$}  {status}`, left-aligned to the max path width, matching
+/// the aligned layout of the components table (RFC 0005 §4.2).
+fn render_refresh_plan(files: &[(String, &str)]) -> String {
+    let width = files.iter().map(|(p, _)| p.len()).max().unwrap_or(0);
+    let mut out = "\nRefresh plan:\n".to_string();
+    for (path, status) in files {
+        out.push_str(&format!("  {path:<width$}  {status}\n"));
+    }
+    out
+}
+
+/// Fetch one registry file and write it to `dest` — but only when the refresh
+/// rules say so (RFC 0005 §4.2). `force` always writes; otherwise a new or
+/// untouched file is written and its hash recorded, and a consumer-edited file is
+/// kept — unless the session is `interactive`, when the [`Prompt`] port asks
+/// overwrite/keep. A file the registry can't serve is a [`CliError::Registry`]; a
+/// directory/write failure (or a failed prompt) surfaces as a [`CliError::Io`].
 fn copy_file(
     fs: &impl FileSystem,
     registry: &impl Registry,
+    prompt: &impl Prompt,
+    interactive: bool,
     lock: &mut Lock,
-    name: &str,
-    file: &str,
-    dest_dir: &Path,
+    pf: &PlannedFile,
     force: bool,
 ) -> Result<(), CliError> {
+    let PlannedFile {
+        name,
+        file,
+        dir,
+        dest,
+    } = pf;
     let bytes = registry
         .file(name, file)
         .map_err(|error| CliError::Registry(error.to_string()))?;
-    let dest = dest_dir.join(file);
-    if lock.should_write(fs, &dest, force)? {
-        fs.create_dir_all(dest_dir)?;
-        fs.write(&dest, &bytes)?;
+    let write = if force {
+        true
+    } else {
+        match lock.classify(fs, dest)? {
+            Refresh::New | Refresh::Unchanged => true,
+            Refresh::Edited if interactive => {
+                matches!(
+                    prompt.decide(dest).map_err(CliError::Io)?,
+                    Decision::Overwrite
+                )
+            }
+            Refresh::Edited => false,
+        }
+    };
+    if write {
+        fs.create_dir_all(dir)?;
+        fs.write(dest, &bytes)?;
         lock.record(&dest.to_string_lossy(), &bytes);
     }
     Ok(())
@@ -300,10 +403,16 @@ fn render(index: &RegistryIndex, resolved: &[String]) -> String {
 
 /// Format the plan as JSON for agents (RFC 0005 §6.5): the resolved components
 /// with their versions, and the packages to ensure — the same data the human
-/// table carries, machine-readable. Hand-rendered to exact bytes (the authored-
-/// golden discipline, RFC 0007 §4); the values are registry-controlled and need
-/// no escaping.
-fn render_json(index: &RegistryIndex, resolved: &[String]) -> String {
+/// table carries, machine-readable. Under `--dry-run`, `files` is `Some` and the
+/// object includes a `"files"` array (even when empty → `[]`); a non-dry-run call
+/// passes `None` and the key is omitted. Hand-rendered to exact bytes (the
+/// authored-golden discipline, RFC 0007 §4); the values are registry-controlled
+/// and need no escaping.
+fn render_json(
+    index: &RegistryIndex,
+    resolved: &[String],
+    files: Option<&[(String, &str)]>,
+) -> String {
     let components: Vec<String> = resolved
         .iter()
         .map(|name| {
@@ -315,11 +424,26 @@ fn render_json(index: &RegistryIndex, resolved: &[String]) -> String {
         .iter()
         .map(|package| format!("    \"{package}\""))
         .collect();
-    format!(
-        "{{\n  \"components\": {},\n  \"packages\": {}\n}}\n",
-        json_array(components),
-        json_array(packages),
-    )
+    if let Some(file_entries) = files {
+        let file_items: Vec<String> = file_entries
+            .iter()
+            .map(|(path, status)| {
+                format!("    {{ \"path\": \"{path}\", \"status\": \"{status}\" }}")
+            })
+            .collect();
+        format!(
+            "{{\n  \"components\": {},\n  \"packages\": {},\n  \"files\": {}\n}}\n",
+            json_array(components),
+            json_array(packages),
+            json_array(file_items),
+        )
+    } else {
+        format!(
+            "{{\n  \"components\": {},\n  \"packages\": {}\n}}\n",
+            json_array(components),
+            json_array(packages),
+        )
+    }
 }
 
 /// Wrap pre-indented `items` as a JSON array, collapsing to `[]` when empty so

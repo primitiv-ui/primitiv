@@ -7,6 +7,7 @@ use crate::error::CliError;
 use crate::ports::fs::{FileSystem, InMemoryFs};
 use crate::ports::output::InMemoryOutput;
 use crate::ports::process::InMemoryProcessRunner;
+use crate::ports::prompt::OsPrompt;
 use crate::ports::registry::EmbeddedRegistry;
 use crate::run::run;
 
@@ -20,11 +21,22 @@ fn dispatches_the_theme_command_and_writes_the_file() {
     let stdout = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
 
-    run(&fs, &stdout, &EmbeddedRegistry, &runner, &args(&["theme", "--brand", "#0a7755", "--out", "out.css"]))
-        .unwrap();
+    run(
+        &fs,
+        &stdout,
+        &EmbeddedRegistry,
+        &runner,
+        &OsPrompt,
+        false,
+        &args(&["theme", "--brand", "#0a7755", "--out", "out.css"]),
+    )
+    .unwrap();
 
     let written = fs.read(Path::new("out.css")).unwrap();
-    assert_eq!(written, emit_theme_brand_css("#0a7755").unwrap().into_bytes());
+    assert_eq!(
+        written,
+        emit_theme_brand_css("#0a7755").unwrap().into_bytes()
+    );
 }
 
 #[test]
@@ -34,7 +46,16 @@ fn dispatches_the_init_command_and_writes_the_config() {
     let runner = InMemoryProcessRunner::new();
     fs.write(Path::new("package.json"), b"{}").unwrap();
 
-    run(&fs, &stdout, &EmbeddedRegistry, &runner, &args(&["init"])).unwrap();
+    run(
+        &fs,
+        &stdout,
+        &EmbeddedRegistry,
+        &runner,
+        &OsPrompt,
+        false,
+        &args(&["init"]),
+    )
+    .unwrap();
 
     let written = String::from_utf8(fs.read(Path::new("primitiv.json")).unwrap()).unwrap();
     assert!(written.contains("\"$schema\": \"https://primitiv-ui.dev/schema/primitiv.json\""));
@@ -46,7 +67,16 @@ fn dispatches_the_list_command_and_streams_the_registry() {
     let stdout = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
 
-    run(&fs, &stdout, &EmbeddedRegistry, &runner, &args(&["list"])).unwrap();
+    run(
+        &fs,
+        &stdout,
+        &EmbeddedRegistry,
+        &runner,
+        &OsPrompt,
+        false,
+        &args(&["list"]),
+    )
+    .unwrap();
 
     let streamed = String::from_utf8(stdout.captured()).unwrap();
     assert!(streamed.contains("button"));
@@ -58,7 +88,16 @@ fn dispatches_the_add_command_and_reports_the_plan() {
     let stdout = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
 
-    run(&fs, &stdout, &EmbeddedRegistry, &runner, &args(&["add", "button"])).unwrap();
+    run(
+        &fs,
+        &stdout,
+        &EmbeddedRegistry,
+        &runner,
+        &OsPrompt,
+        false,
+        &args(&["add", "button"]),
+    )
+    .unwrap();
 
     let reported = String::from_utf8(stdout.captured()).unwrap();
     assert!(reported.contains("Resolved 1 component to add:"));
@@ -71,7 +110,16 @@ fn dispatches_the_tokens_command_and_writes_the_file() {
     let stdout = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
 
-    run(&fs, &stdout, &EmbeddedRegistry, &runner, &args(&["tokens", "--out", "tokens.css"])).unwrap();
+    run(
+        &fs,
+        &stdout,
+        &EmbeddedRegistry,
+        &runner,
+        &OsPrompt,
+        false,
+        &args(&["tokens", "--out", "tokens.css"]),
+    )
+    .unwrap();
 
     let written = String::from_utf8(fs.read(Path::new("tokens.css")).unwrap()).unwrap();
     assert!(written.contains("@layer primitiv.tokens"));
@@ -83,7 +131,16 @@ fn propagates_a_parse_error() {
     let stdout = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
 
-    let err = run(&fs, &stdout, &EmbeddedRegistry, &runner, &args(&["bogus"])).unwrap_err();
+    let err = run(
+        &fs,
+        &stdout,
+        &EmbeddedRegistry,
+        &runner,
+        &OsPrompt,
+        false,
+        &args(&["bogus"]),
+    )
+    .unwrap_err();
 
     assert!(matches!(err, CliError::Usage(_)));
 }

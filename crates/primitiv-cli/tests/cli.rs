@@ -188,6 +188,37 @@ fn add_styles_only_copies_the_styled_surface_on_the_real_filesystem() {
 }
 
 #[test]
+fn add_dry_run_emits_the_refresh_plan_when_styles_are_configured() {
+    // Covers the OsFs monomorphisation of the dry-run refresh report path: with a
+    // primitiv.json present, `add --dry-run` appends the "Refresh plan:" section
+    // classifying each destination file (all new here since nothing is on disk).
+    let dir = assert_fs::TempDir::new().unwrap();
+    dir.child("primitiv.json")
+        .write_str(
+            r##"{
+  "version": 1,
+  "framework": "react",
+  "styles": { "enabled": true, "format": "css", "path": "src/styles/primitiv" },
+  "tokens": { "format": "css", "path": "src/styles/primitiv/tokens.css" },
+  "theme": { "brand": "#0a7755" },
+  "aliases": {},
+  "registry": { "version": "0.1.0" }
+}"##,
+        )
+        .unwrap();
+
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .args(["add", "button", "--dry-run"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Resolved 1 component to add:"))
+        .stdout(predicate::str::contains("Refresh plan:"))
+        .stdout(predicate::str::contains("new"));
+}
+
+#[test]
 fn tokens_streams_the_layer_to_stdout_when_config_less() {
     let dir = assert_fs::TempDir::new().unwrap();
 

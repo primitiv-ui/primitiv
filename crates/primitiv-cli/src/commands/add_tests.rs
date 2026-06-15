@@ -1244,6 +1244,35 @@ fn records_copied_files_in_the_lock() {
 }
 
 #[test]
+fn records_installed_components_in_the_lock() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    // The component is recorded so `list` can mark it installed (RFC 0005 §2.5).
+    let lock = Lock::read(&fs, Path::new("primitiv.lock")).unwrap();
+    assert!(lock.components.contains("button"));
+}
+
+#[test]
 fn keeps_a_consumer_edited_file_on_re_add() {
     let fs = InMemoryFs::new();
     fs.write(Path::new("primitiv.json"), CONFIG).unwrap();

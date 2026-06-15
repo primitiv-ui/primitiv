@@ -319,6 +319,11 @@ fn copy_styled_surface(
     if files.is_empty() {
         return Ok(());
     }
+    // Mark each resolved component (the requests plus their transitive deps,
+    // whose surfaces also land) installed, so `list` can flag it (RFC 0005 §2.5).
+    for name in resolved {
+        lock.record_component(name);
+    }
     for pf in &files {
         copy_file(fs, registry, prompt, interactive, &mut lock, pf, force)?;
     }

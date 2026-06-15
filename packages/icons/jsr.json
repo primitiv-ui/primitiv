@@ -2,5 +2,9 @@
   "name": "@primitiv-ui/icons",
   "version": "0.1.0",
   "exports": "./src/index.ts",
-  "license": "MIT"
+  "license": "MIT",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "npm:react"
+  }
 }

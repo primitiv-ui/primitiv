@@ -265,7 +265,7 @@ fn patch_wiring(
         );
         if prompt.confirm(&question).map_err(CliError::Io)? {
             fs.write(&entry_path, patched.as_bytes())?;
-        } else if !json {
+        } else {
             output.write_stdout(wiring_snippet_message().as_bytes())?;
         }
     }

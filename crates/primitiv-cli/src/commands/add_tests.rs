@@ -2194,3 +2194,382 @@ fn json_flag_suppresses_the_wiring_snippet() {
     let out = String::from_utf8(output.captured()).unwrap();
     assert!(!out.contains("@custom-variant dark"));
 }
+
+// --- interactive detect-and-patch (Tier 1) ---
+
+#[test]
+fn interactive_tailwind_add_patches_entry_css_on_confirm() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n").unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep); // confirm defaults to yes
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        true, // interactive
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let patched = String::from_utf8(fs.read(Path::new("src/index.css")).unwrap()).unwrap();
+    assert!(patched.contains("@custom-variant dark"), "entry CSS was not patched:\n{patched}");
+    assert!(patched.contains("@import \"tailwindcss\""), "original import must be preserved");
+    // Snippet was not also printed to stdout (the patch was applied)
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(!out.contains("@custom-variant dark"), "snippet should not be in stdout when patched");
+}
+
+#[test]
+fn interactive_tailwind_add_prints_snippet_when_consumer_declines() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n").unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+    prompt.deny_confirm(); // consumer says no
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        true,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    // Entry CSS was not patched
+    let css = String::from_utf8(fs.read(Path::new("src/index.css")).unwrap()).unwrap();
+    assert!(!css.contains("@custom-variant dark"));
+    // Snippet was printed instead
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(out.contains("@custom-variant dark"));
+}
+
+#[test]
+fn interactive_tailwind_add_is_a_noop_when_wiring_already_present() {
+    use crate::wiring::SNIPPET;
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    let already_wired = format!("{SNIPPET}\n\n@import \"tailwindcss\";\n");
+    fs.write(Path::new("src/index.css"), already_wired.as_bytes()).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        true,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    // Prompt was not consulted (already wired → no-op)
+    assert!(prompt.confirmed().is_empty());
+    // Snippet was not printed to stdout
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(!out.contains("@custom-variant dark"));
+}
+
+#[test]
+fn interactive_tailwind_add_prints_snippet_when_entry_css_not_found() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    // No src/index.css or any candidate file present
+    let registry =
+        InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        true,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    // Prompt was not consulted (no entry CSS to patch)
+    assert!(prompt.confirmed().is_empty());
+    // Snippet was printed as the manual fallback
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(out.contains("@custom-variant dark"));
+}
+
+#[test]
+fn interactive_tailwind_confirm_error_surfaces_as_io_error() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n").unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+    prompt.fail(); // stdin is broken
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        true,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn interactive_tailwind_json_mode_skips_snippet_when_no_entry_css() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    // No entry CSS candidate present — json=true means no snippet
+    let registry =
+        InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        true, // interactive
+        &AddOptions {
+            components: names(&["button"]),
+            json: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(!out.contains("@custom-variant dark"));
+}
+
+#[test]
+fn interactive_tailwind_write_failure_surfaces_as_io_error() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n").unwrap();
+    fs.fail_writes_to(Path::new("src/index.css"));
+    let registry =
+        InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep); // confirms yes
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        true,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn interactive_tailwind_stdout_error_on_not_found_snippet_surfaces_as_io() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    // No entry CSS — not-found branch will try to write snippet to stdout
+    let registry =
+        InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
+    let output = InMemoryOutput::new();
+    // Plan output is the first write; snippet is the second — fail the second
+    output.fail_stdout_after(1);
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        true,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn interactive_tailwind_read_error_on_entry_css_surfaces_as_io() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n").unwrap();
+    fs.fail_reads_to(Path::new("src/index.css"));
+    let registry =
+        InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        true,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn interactive_tailwind_json_mode_skips_patch_when_entry_css_found() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n").unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        true,
+        &AddOptions {
+            components: names(&["button"]),
+            json: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    // Entry CSS was not patched — json mode skips the confirm+write block
+    let css = String::from_utf8(fs.read(Path::new("src/index.css")).unwrap()).unwrap();
+    assert!(!css.contains("@custom-variant dark"));
+    // Prompt was not consulted
+    assert!(prompt.confirmed().is_empty());
+}
+
+#[test]
+fn interactive_tailwind_decline_stdout_error_surfaces_as_io() {
+    // Drives the ? error path on write_stdout in patch_wiring's decline (else) branch.
+    // fail_stdout_after(1) lets the plan write succeed; the snippet write fails.
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    fs.write(Path::new("src/index.css"), b"@import \"tailwindcss\";\n").unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
+    let output = InMemoryOutput::new();
+    output.fail_stdout_after(1);
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+    prompt.deny_confirm();
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        true,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn no_wiring_stdout_error_surfaces_as_io() {
+    // Drives the error path of the write_stdout ? on line 218 in offer_wiring:
+    // no_wiring=true + json=false means the snippet write is the second write;
+    // fail_stdout_after(1) makes it fail.
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_TAILWIND).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_TAILWIND_STYLES).with_file("button", "styles.css", b".p{}");
+    let output = InMemoryOutput::new();
+    output.fail_stdout_after(1);
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            no_wiring: true,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}

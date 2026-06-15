@@ -44,6 +44,11 @@ htmlcov/
 lcov.info
 coverage/
 
+# --- npm CLI platform packages ---
+# Binaries are injected at publish time by CI; never committed.
+npm/cli-*/primitiv
+npm/cli-*/primitiv.exe
+
 # --- Claude Code ---
 # Per-machine local overrides — shared settings.json IS tracked
 .claude/settings.local.json

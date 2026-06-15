@@ -1410,7 +1410,7 @@ fn classify_registry_routes_each_ref_form() {
     assert!(matches!(
         classify_registry(Some("0.1.0")),
         RegistrySource::Https(url)
-            if url == "https://raw.githubusercontent.com/simonrevill/primitiv/0.1.0/registry"
+            if url == "https://raw.githubusercontent.com/primitiv-ui/primitiv/0.1.0/registry"
     ));
     assert!(matches!(
         classify_registry(Some("v1.2.3")),

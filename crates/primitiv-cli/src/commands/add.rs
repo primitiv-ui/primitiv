@@ -212,7 +212,7 @@ const DEFAULT_COMPONENTS_DIR: &str = "components";
 
 /// The GitHub `owner/repo` the version-pinned registry is fetched from (RFC 0005
 /// §6.4). Tracks the repo location; updates if/when the repo transfers.
-const REGISTRY_REPO: &str = "simonrevill/primitiv";
+const REGISTRY_REPO: &str = "primitiv-ui/primitiv";
 
 /// Where a `--registry <ref>` resolves the registry from (RFC 0005 §6.4).
 pub(crate) enum RegistrySource {

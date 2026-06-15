@@ -40,36 +40,87 @@ publishing keys off.
   rely on (none are needed if you stay fully OIDC/tokenless).
 - **Trusted Publisher config** (npm + JSR) — must reference the **new**
   `primitiv-ui/primitiv` owner/repo. Set these up *after* the transfer
-  (section 3), or update them if you set them up earlier.
+  (section 4), or update them if you set them up earlier.
 
 ---
 
-## 2. Make the packages publish-ready (not done yet)
+## 2. CLI binary distribution
 
-The three publishable packages — `packages/react`, `packages/icons`,
-`packages/tokens` — are currently **not** shippable. Each needs:
+The `primitiv` Rust binary is distributed via the proven `optionalDependencies`
+per-platform-package pattern (same as esbuild, Biome, oxc). The pieces:
 
-- [ ] `"private": true` removed (or set `false`).
-- [ ] A real `"version"` (they're all `0.0.0`).
-- [ ] A valid `"exports"` **map** — today it's `["."]`, which is invalid for
-      npm. Should be e.g.
-      `{ ".": { "types": "...", "import": "..." } }`.
-- [ ] A decision on **source vs build**: today `main`/`types` point at
-      `./src/index.ts` (raw TS). That works for JSR (source-first) and for
-      bundler consumers, but a typical public npm package ships compiled
-      `dist` + `.d.ts`. If you add a build, wire a `build` script and a
-      `"files"` allowlist, and add the build step to the workflow.
-- [ ] `"files"` set on each package (only `react` has one) so the published
-      tarball contains the right paths.
-- [ ] `"publishConfig": { "access": "public" }` (scoped packages are private
-      by default on npm).
+| Directory | npm name | Role |
+|---|---|---|
+| `npm/cli-darwin-arm64/` | `@primitiv-ui/cli-darwin-arm64` | Binary for macOS Apple Silicon |
+| `npm/cli-darwin-x64/` | `@primitiv-ui/cli-darwin-x64` | Binary for macOS Intel |
+| `npm/cli-linux-x64-gnu/` | `@primitiv-ui/cli-linux-x64-gnu` | Binary for Linux x64 (glibc) |
+| `npm/cli-linux-arm64-gnu/` | `@primitiv-ui/cli-linux-arm64-gnu` | Binary for Linux arm64 (glibc) |
+| `npm/cli-win32-x64/` | `@primitiv-ui/cli-win32-x64` | Binary for Windows x64 |
+| `npm/cli-wrapper/` | `primitiv-ui` | JS launcher; lists platform packages as `optionalDependencies` |
+| `npm/create-primitiv-ui/` | `create-primitiv-ui` | `npm create primitiv-ui` entry point |
+
+**How it works at install time:** the package manager installs only the
+matching platform package (skipping others via `os`/`cpu` guards). The
+`bin/primitiv.mjs` launcher resolves the binary from whichever platform
+package was installed and `spawnSync`s it.
+
+**Binaries are not committed.** The `npm/cli-*/primitiv[.exe]` files are in
+`.gitignore`. `publish.yml` builds them via a matrix job, stages them in
+`/tmp/cli-artifacts/`, copies them into the package directories, then
+publishes immediately.
+
+**Platform matrix (v1):** `darwin-arm64`, `darwin-x64`, `linux-x64-gnu`,
+`linux-arm64-gnu`, `win32-x64`. musl is a documented fast-follow.
+`cargo install primitiv-cli` covers any target not yet packaged.
+
+**Versioning:** platform packages, wrapper, and scaffold are versioned
+together. When cutting a new release, bump all seven package.json `version`
+fields and the `optionalDependencies` in `npm/cli-wrapper/package.json` to
+match. The `@primitiv-ui/cli-*` packages supersede their published v0.0.1
+placeholders at v0.1.0+.
+
+**One-time Trusted Publishing setup (npm)** — do this for each package name:
+
+1. Go to `npmjs.com/package/<name>` → Settings → Trusted Publisher.
+2. Add a GitHub Actions publisher:
+   - Repository: `primitiv-ui/primitiv`
+   - Workflow: `publish.yml`
+
+For `@primitiv-ui/cli-*` packages that don't exist yet: configure TP before
+the first publish (npmjs.com supports this for new packages). If TP rejects
+a new package, do a one-time bootstrap with `NPM_TOKEN` (uncomment the env
+blocks in `publish.yml`, add the secret, publish once, then switch to TP and
+remove the secret).
+
+**musl fast-follow** — when needed, add two more entries to the matrix and
+two more platform packages (`cli-linux-x64-musl`, `cli-linux-arm64-musl`),
+then add them to the wrapper's `optionalDependencies`.
+
+---
+
+## 3. Library packages (publish-ready as of 2026-06-15)
+
+`packages/react`, `packages/icons`, `packages/tokens` — all three are now
+shippable at v0.1.0. Changes made:
+
+- [x] `"private": true` removed; `"publishConfig": { "access": "public" }` added.
+- [x] Version set to `0.1.0`.
+- [x] `"exports"` maps valid (`{ "types": ..., "default": ... }` shape).
+- [x] **Source-first** (decided for v1): `main`/`types` point at `./src/index.ts`.
+  All modern bundlers (Vite, Next.js, Rollup, webpack 5+) consume TypeScript
+  directly; JSR is source-first by design. No `dist` step added — add one
+  only if a non-bundler consumer (plain Node, Deno without bundler) needs it.
+- [x] `"files": ["src"]` set on all three.
+- [x] `"repository"` field set to `primitiv-ui/primitiv` (as instructed in
+  the org-transfer checklist).
 
 The workflow already runs `qa:units` on all three before publishing, so
-tests gate the release.
+tests gate the release. `pnpm -r publish` skips `private: true` packages
+(`apps/workbench`, `crates/harmoni-wasm/pkg`) automatically.
 
 ---
 
-## 3. One-time tokenless (OIDC) publishing setup
+## 4. One-time tokenless (OIDC) publishing setup
 
 No long-lived tokens live in the repo. Both registries authenticate from
 GitHub Actions via OIDC (`id-token: write`, already set in the workflow).
@@ -97,13 +148,13 @@ For **each** package (`@primitiv-ui/react`, `/icons`, `/tokens`):
 For each package on jsr.io → package **Settings** → link to the GitHub
 repository `primitiv-ui/primitiv`. JSR then trusts OIDC publishes from
 Actions automatically — no token. (Each package also needs a valid
-`exports` map / `jsr.json`; see section 2.)
+`exports` map / `jsr.json`; see section 3.)
 
 ---
 
-## 4. Cutting a release
+## 5. Cutting a release
 
-Once 2 and 3 are done:
+Once sections 2, 3, and 4 are done:
 
 1. Bump the package versions (manually, or adopt Changesets later).
 2. Commit, then create a **GitHub Release** (which tags the commit).

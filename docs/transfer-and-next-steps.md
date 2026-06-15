@@ -345,10 +345,19 @@ adapters, hand-authored golden files, 100% coverage):
     (detect entry CSS, ask `[Y/n]`, apply) and the non-interactive /
     `--no-wiring` Tier-2 floor (print snippet to stdout). All error paths
     covered; a new e2e test proves the real binary prints the snippet for a
-    Tailwind-format project. **Remaining for `add`**: copying the **contract**;
-    the `--registry` / HTTPS registry adapter. **Other remaining CLI work:**
-    interactive prompting for `init`; the `list` **"installed in this
-    project"** column.
+    Tailwind-format project. **Contract copy (§4.4) is now landed**:
+    `ComponentEntry` grew a defaulted `contract: Option<String>`, the
+    `EmbeddedRegistry` bakes each component's `contract.json` in, and
+    `planned_files` / `copy_styled_surface` copy it into the components directory
+    alongside the recipe + wrapper when declared. **The `list` "installed in this
+    project" column is now landed** (RFC 0005 §2.5): `primitiv.lock` grew a
+    `components` set (`record_component`, serialised as a `components` array
+    leading the `files` map), `add` records each resolved component as installed
+    once its surface is copied, and `list` reads the lock beside the working
+    directory to mark each component `yes` / `-` in a new `INSTALLED` column
+    (`--json` stays the raw index); a new e2e proves the real `OsFs` +
+    `Lock::read` path. **Remaining for `add`**: the `--registry` / HTTPS registry
+    adapter. **Other remaining CLI work:** interactive prompting for `init`.
 - [ ] **Distribution** (RFC 0005 §7) — Rust binary via `optionalDependencies` (`@primitiv-ui/cli-*`), `cargo-dist`/napi-rs matrix; supersede the published v0.0.1 name-reservation placeholders with the real `primitiv-ui` / `create-primitiv-ui` at a higher version.
 
 ## ❓ Open questions

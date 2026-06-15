@@ -11,7 +11,7 @@ use crate::ports::fs::FileSystem;
 use crate::ports::output::Output;
 use crate::ports::process::ProcessRunner;
 use crate::ports::prompt::{Decision, Prompt};
-use crate::ports::registry::{LocalRegistry, Registry};
+use crate::ports::registry::{HttpsRegistry, LocalRegistry, Registry};
 use crate::registry::RegistryIndex;
 use crate::wiring;
 
@@ -43,11 +43,11 @@ pub struct AddOptions {
     /// Skip project wiring entirely and print the manual snippet instead
     /// (RFC 0005 §4.3 Tier-2 floor). Non-interactive runs also skip silently.
     pub no_wiring: bool,
-    /// Override the registry source with a repo-local directory (RFC 0005 §6.4):
-    /// `--registry <path>` reads `registry.json` + `r/<component>/<file>` from
-    /// there instead of the binary's embedded copy (monorepo dogfooding /
-    /// offline). The version-ref / HTTPS form stays deferred. When `None` the
-    /// embedded registry is used.
+    /// Override the registry source (RFC 0005 §6.4): an `http(s)://` URL or a
+    /// version tag (`0.1.0`, served from GitHub raw) fetches over the network,
+    /// any other value is a repo-local directory (`registry.json` +
+    /// `r/<component>/<file>`) for monorepo dogfooding / offline use. When `None`
+    /// the binary's embedded registry is used.
     pub registry: Option<String>,
 }
 
@@ -114,16 +114,22 @@ pub fn add(
         no_wiring,
         registry: registry_override,
     } = options;
-    // `--registry <path>` swaps the embedded registry for a repo-local directory
-    // (RFC 0005 §6.4); otherwise the passed-in registry (embedded in the bin) is
+    // `--registry <ref>` overrides the registry source (RFC 0005 §6.4): an
+    // `http(s)://` URL or a version tag fetches over the network, any other value
+    // is a repo-local directory; otherwise the passed-in (embedded) registry is
     // used. A trait object lets the source be chosen at run time.
     let local;
-    let registry: &dyn Registry = match registry_override {
-        Some(path) => {
+    let https;
+    let registry: &dyn Registry = match classify_registry(registry_override.as_deref()) {
+        RegistrySource::Embedded => registry,
+        RegistrySource::Local(path) => {
             local = LocalRegistry::new(fs, path);
             &local
         }
-        None => registry,
+        RegistrySource::Https(url) => {
+            https = HttpsRegistry::new(url);
+            &https
+        }
     };
     let index = registry
         .index()
@@ -203,6 +209,48 @@ pub fn add(
 /// has no detectable import alias (RFC 0005 §3.3 fallback) — the project-root
 /// `components`, making no `src`-layout assumption.
 const DEFAULT_COMPONENTS_DIR: &str = "components";
+
+/// The GitHub `owner/repo` the version-pinned registry is fetched from (RFC 0005
+/// §6.4). Tracks the repo location; updates if/when the repo transfers.
+const REGISTRY_REPO: &str = "simonrevill/primitiv";
+
+/// Where a `--registry <ref>` resolves the registry from (RFC 0005 §6.4).
+pub(crate) enum RegistrySource {
+    /// No override — the binary's embedded registry (the passed-in port).
+    Embedded,
+    /// A repo-local directory (monorepo dogfooding / offline).
+    Local(String),
+    /// An HTTP(S) base URL — a direct URL, or GitHub raw at a pinned tag.
+    Https(String),
+}
+
+/// Classify a `--registry` value (RFC 0005 §6.4): an `http(s)://` value is a
+/// direct base URL; a version tag (`0.1.0` / `v1.2.3`) resolves to GitHub raw at
+/// that tag; anything else is a repo-local path; absent means the embedded
+/// registry. Pure, so the routing is unit-tested without any I/O.
+pub(crate) fn classify_registry(reg: Option<&str>) -> RegistrySource {
+    match reg {
+        None => RegistrySource::Embedded,
+        Some(value) if value.starts_with("http://") || value.starts_with("https://") => {
+            RegistrySource::Https(value.to_string())
+        }
+        Some(value) if is_version(value) => RegistrySource::Https(github_raw_base(value)),
+        Some(value) => RegistrySource::Local(value.to_string()),
+    }
+}
+
+/// Whether `value` looks like a registry version tag — an optional `v` then a
+/// dotted, digit-led identifier (`0.1.0`, `v1.2.3`) — as opposed to a path.
+fn is_version(value: &str) -> bool {
+    let core = value.strip_prefix('v').unwrap_or(value);
+    core.contains('.') && core.starts_with(|c: char| c.is_ascii_digit())
+}
+
+/// The GitHub-raw base URL serving the registry at the pinned `version` tag — the
+/// `registry/` directory holding `registry.json` and `r/<component>/<file>`.
+fn github_raw_base(version: &str) -> String {
+    format!("https://raw.githubusercontent.com/{REGISTRY_REPO}/{version}/registry")
+}
 
 /// Resolve the effective stylesheet format for a copy: an explicit `format`
 /// override wins; otherwise the project config's `styles.format`; otherwise CSS.

@@ -130,10 +130,19 @@ source of truth for when a skill applies.
   (D50)**: it inlines values rather than emitting `var()` references, so it
   can't lean on the cascade to resolve theme/density — the three
   cascade-based formats are the set. The `tokens` and `theme` commands and
-  the `primitiv.json` config (`config::resolve` / `try_resolve`) are landed;
-  see the live checklist for what's next (`init` / `add` / `list`, the
-  registry). Decisions landed include category-map number units
-  (rem/unitless) and `var()`-reference alias emit for every format.
+  the `primitiv.json` config (`config::resolve` / `try_resolve`) are landed.
+  The **CLI command surface is now v1 feature-complete**: `init` (incl.
+  interactive prompting + `--yes`), `add` (resolve → install → copy the styled
+  surface + React surface + `contract.json` → `primitiv.lock` refresh /
+  `--force` / interactive overwrite-keep → project wiring), `tokens`, `theme`,
+  and `list` (with the lock-backed installed column). The registry has three
+  adapters behind one port — embedded (baked in), `LocalRegistry`
+  (`--registry <path>`) and `HttpsRegistry` (`--registry <url|version>`, a
+  blocking `ureq`/rustls fetch from GitHub-raw) — chosen at run time as a
+  `&dyn Registry`; the HTTPS fetch path is held at 100% by a loopback
+  `TcpListener` test server (no network, no exemption, no test dep). **Only
+  Distribution (Step 8) remains.** Decisions landed include category-map number
+  units (rem/unitless) and `var()`-reference alias emit for every format.
 
 ## Useful commands
 

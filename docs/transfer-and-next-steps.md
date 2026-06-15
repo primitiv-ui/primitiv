@@ -384,6 +384,12 @@ adapters, hand-authored golden files, 100% coverage):
     (`init` / `add` / `tokens` / `theme` / `list`) is now feature-complete for
     v1** — the only remaining RFC 0005 work is Distribution (Step 8).
 - [ ] **Distribution** (RFC 0005 §7) — Rust binary via `optionalDependencies` (`@primitiv-ui/cli-*`), `cargo-dist`/napi-rs matrix; supersede the published v0.0.1 name-reservation placeholders with the real `primitiv-ui` / `create-primitiv-ui` at a higher version. **Before/with this:** update the `REGISTRY_REPO` const in `crates/primitiv-cli/src/commands/add.rs` to the transferred repo path (see the org-transfer checklist) — the version-pinned `--registry` form fetches GitHub-raw from it, so a stale value silently points releases at the old repo.
+  - **Open decisions & steps** (this item is a build, not a checklist tick — and it is *not* TDD-driven, so the 100% coverage loop doesn't apply):
+    - **Decide first: `cargo-dist` vs napi-rs** (RFC §7.4 leaves it open). It scaffolds the cross-platform build matrix and the platform packages, so it shapes everything below — settle it before writing any config.
+    - **Platform matrix** (RFC §7.3): `darwin-arm64`, `darwin-x64`, `linux-x64-gnu`, `linux-arm64-gnu`, `win32-x64`. **musl** (`linux-{x64,arm64}-musl`) is a documented fast-follow; `cargo install` covers any target not yet packaged.
+    - **npm wrapper** (RFC §7.2): per-target `@primitiv-ui/cli-<target>` packages listed in the `primitiv-ui` wrapper's `optionalDependencies`; a JS launcher resolves the matching one and `exec`s the binary. Libraries (`@primitiv-ui/{react,icons,tokens}`) are unaffected.
+    - **`publish.yml`** (RFC §7.4): grows a cross-platform build matrix and a target-aware order — build all targets → publish the `@primitiv-ui/cli-*` platform packages → publish the `primitiv-ui` / `create-primitiv-ui` wrappers (which depend on them). The real packages supersede the published v0.0.1 placeholders at a higher version. Detail tracked in `RELEASING.md`.
+    - **Prerequisites:** the org transfer (above) and the `REGISTRY_REPO` const update should land first, since the published binary fetches the version-pinned registry from the transferred repo.
 
 ## ❓ Open questions
 

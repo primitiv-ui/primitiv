@@ -54,9 +54,10 @@ pub fn parse(args: &[String]) -> Result<Command, CliError> {
 /// neither, so it is a usage error. `--format <fmt>` overrides the config's
 /// stylesheet format for this copy and `--path <dir>` its destination; `--force`
 /// overwrites even consumer-edited files (§4.2); `--no-wiring` skips the project
-/// wiring offer and prints the manual snippet instead (§4.3); `--registry <path>`
-/// reads a repo-local registry directory instead of the embedded one (§6.4).
-/// Names and flags are order-free; any other `--`-prefixed argument is unexpected.
+/// wiring offer and prints the manual snippet instead (§4.3); `--registry <ref>`
+/// overrides the registry source — an `http(s)://` URL or a version tag fetches
+/// over the network, any other value is a repo-local directory (§6.4). Names and
+/// flags are order-free; any other `--`-prefixed argument is unexpected.
 fn parse_add(args: &[String]) -> Result<Command, CliError> {
     let mut components = Vec::new();
     let mut json = false;

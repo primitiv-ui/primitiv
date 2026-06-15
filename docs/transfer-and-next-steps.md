@@ -248,15 +248,17 @@ adapters, hand-authored golden files, 100% coverage):
     affordance, §6.5). The seed **`registry/registry.json`** lists `button` and
     `switch` (full `dependsOn` / `formats` / `contract` shape; only version +
     name are surfaced today). A new `CliError::Registry` variant (exit code `7`)
-    covers an unreachable registry or a malformed index. The **`--registry <path>`
-    override is now landed** (§6.4): a `LocalRegistry` adapter reads
+    covers an unreachable registry or a malformed index. The **`--registry <ref>`
+    override is now landed in full** (§6.4): `classify_registry` routes an
+    `http(s)://` URL or a version tag (`0.1.0` / `v1.2.3` → GitHub raw at that
+    tag) to a new `HttpsRegistry` adapter (a blocking `ureq` fetch over rustls,
+    no gzip), any other value to a `LocalRegistry` reading
     `<base>/registry.json` + `<base>/r/<component>/<file>` through the
-    `FileSystem` port, and `add` selects it (as a `&dyn Registry` trait object,
-    chosen at run time) when `--registry` is given, else the embedded copy — for
-    monorepo dogfooding / offline use, proven by an `OsFs` e2e. The remote
-    GitHub-raw HTTPS adapter (the version-ref form of `--registry`) slots in
-    behind the same port later — deferred until remote fetch is actually needed
-    (no HTTP dep pulled in yet). The **`add` command's resolution spine is now landed** (RFC
+    `FileSystem` port, and absence to the embedded copy — `add` picks the source
+    at run time as a `&dyn Registry` trait object. The `HttpsRegistry` base URL is
+    injected, so a loopback `TcpListener` server drives the real fetch path at
+    100% with no network, no exemption, and no test dep (the `LocalRegistry` path
+    also has an `OsFs` e2e). The **`add` command's resolution spine is now landed** (RFC
     0005 §2.2 / §4.1 step 1 / §4.4): `ComponentEntry` grew a defaulted
     `dependsOn.components` (`registry.rs`), and `commands/add.rs` loads the index
     through the `Registry` port, resolves each requested component **plus its
@@ -373,12 +375,13 @@ adapters, hand-authored golden files, 100% coverage):
     `Lock::read` path. **Interactive `init` prompting is now landed** (§2.1): a
     free-text `Prompt::ask` primitive + the `--yes` flag drive prompts for styles
     / format / brand / path / alias, each pre-filled with its default. **The
-    `--registry <path>` local override is now landed** (§6.4): a `LocalRegistry`
-    adapter reads a repo-local registry directory through the `FileSystem` port,
-    selected by `add` at run time. **Remaining CLI work:** the GitHub-raw HTTPS
-    registry adapter (the version-ref `--registry` form), deferred until an HTTP
-    dep is justified — the CLI command surface (`init` / `add` / `tokens` /
-    `theme` / `list`) is otherwise feature-complete for v1.
+    `--registry <ref>` override is now landed in full** (§6.4): `LocalRegistry`
+    (repo-local path) and `HttpsRegistry` (an `http(s)://` URL or a version tag →
+    GitHub raw, a blocking `ureq`/rustls fetch) behind the same port, selected by
+    `add` at run time; the HTTPS fetch path is covered at 100% by a loopback test
+    server (no network, no exemption, no test dep). **The CLI command surface
+    (`init` / `add` / `tokens` / `theme` / `list`) is now feature-complete for
+    v1** — the only remaining RFC 0005 work is Distribution (Step 8).
 - [ ] **Distribution** (RFC 0005 §7) — Rust binary via `optionalDependencies` (`@primitiv-ui/cli-*`), `cargo-dist`/napi-rs matrix; supersede the published v0.0.1 name-reservation placeholders with the real `primitiv-ui` / `create-primitiv-ui` at a higher version.
 
 ## ❓ Open questions

@@ -43,11 +43,11 @@ pub struct AddOptions {
     /// Skip project wiring entirely and print the manual snippet instead
     /// (RFC 0005 §4.3 Tier-2 floor). Non-interactive runs also skip silently.
     pub no_wiring: bool,
-    /// Override the registry source with a repo-local directory (RFC 0005 §6.4):
-    /// `--registry <path>` reads `registry.json` + `r/<component>/<file>` from
-    /// there instead of the binary's embedded copy (monorepo dogfooding /
-    /// offline). The version-ref / HTTPS form stays deferred. When `None` the
-    /// embedded registry is used.
+    /// Override the registry source (RFC 0005 §6.4): an `http(s)://` URL or a
+    /// version tag (`0.1.0`, served from GitHub raw) fetches over the network,
+    /// any other value is a repo-local directory (`registry.json` +
+    /// `r/<component>/<file>`) for monorepo dogfooding / offline use. When `None`
+    /// the binary's embedded registry is used.
     pub registry: Option<String>,
 }
 

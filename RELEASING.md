@@ -40,7 +40,7 @@ publishing keys off.
   rely on (none are needed if you stay fully OIDC/tokenless).
 - **Trusted Publisher config** (npm + JSR) — must reference the **new**
   `primitiv-ui/primitiv` owner/repo. Set these up *after* the transfer
-  (section 3), or update them if you set them up earlier.
+  (section 4), or update them if you set them up earlier.
 
 ---
 
@@ -98,32 +98,29 @@ then add them to the wrapper's `optionalDependencies`.
 
 ---
 
-## 3. Make the library packages publish-ready (not done yet)
+## 3. Library packages (publish-ready as of 2026-06-15)
 
-The three publishable packages — `packages/react`, `packages/icons`,
-`packages/tokens` — are currently **not** shippable. Each needs:
+`packages/react`, `packages/icons`, `packages/tokens` — all three are now
+shippable at v0.1.0. Changes made:
 
-- [ ] `"private": true` removed (or set `false`).
-- [ ] A real `"version"` (they're all `0.0.0`).
-- [ ] A valid `"exports"` **map** — today it's `["."]`, which is invalid for
-      npm. Should be e.g.
-      `{ ".": { "types": "...", "import": "..." } }`.
-- [ ] A decision on **source vs build**: today `main`/`types` point at
-      `./src/index.ts` (raw TS). That works for JSR (source-first) and for
-      bundler consumers, but a typical public npm package ships compiled
-      `dist` + `.d.ts`. If you add a build, wire a `build` script and a
-      `"files"` allowlist, and add the build step to the workflow.
-- [ ] `"files"` set on each package (only `react` has one) so the published
-      tarball contains the right paths.
-- [ ] `"publishConfig": { "access": "public" }` (scoped packages are private
-      by default on npm).
+- [x] `"private": true` removed; `"publishConfig": { "access": "public" }` added.
+- [x] Version set to `0.1.0`.
+- [x] `"exports"` maps valid (`{ "types": ..., "default": ... }` shape).
+- [x] **Source-first** (decided for v1): `main`/`types` point at `./src/index.ts`.
+  All modern bundlers (Vite, Next.js, Rollup, webpack 5+) consume TypeScript
+  directly; JSR is source-first by design. No `dist` step added — add one
+  only if a non-bundler consumer (plain Node, Deno without bundler) needs it.
+- [x] `"files": ["src"]` set on all three.
+- [x] `"repository"` field set to `primitiv-ui/primitiv` (as instructed in
+  the org-transfer checklist).
 
 The workflow already runs `qa:units` on all three before publishing, so
-tests gate the release.
+tests gate the release. `pnpm -r publish` skips `private: true` packages
+(`apps/workbench`, `crates/harmoni-wasm/pkg`) automatically.
 
 ---
 
-## 3. One-time tokenless (OIDC) publishing setup
+## 4. One-time tokenless (OIDC) publishing setup
 
 No long-lived tokens live in the repo. Both registries authenticate from
 GitHub Actions via OIDC (`id-token: write`, already set in the workflow).
@@ -151,13 +148,13 @@ For **each** package (`@primitiv-ui/react`, `/icons`, `/tokens`):
 For each package on jsr.io → package **Settings** → link to the GitHub
 repository `primitiv-ui/primitiv`. JSR then trusts OIDC publishes from
 Actions automatically — no token. (Each package also needs a valid
-`exports` map / `jsr.json`; see section 2.)
+`exports` map / `jsr.json`; see section 3.)
 
 ---
 
-## 4. Cutting a release
+## 5. Cutting a release
 
-Once 2 and 3 are done:
+Once sections 2, 3, and 4 are done:
 
 1. Bump the package versions (manually, or adopt Changesets later).
 2. Commit, then create a **GitHub Release** (which tags the commit).

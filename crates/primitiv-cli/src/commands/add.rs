@@ -360,11 +360,14 @@ fn planned_files(
             });
         }
     }
-    // React surface: <components_dir>/<file> (shared directory, flat layout)
+    // React surface + contract: <components_dir>/<file> (shared directory, flat layout)
     let has_react = resolved
         .iter()
         .any(|name| !index.components[name].styles.react.is_empty());
-    if has_react {
+    let has_contract = resolved
+        .iter()
+        .any(|name| index.components[name].contract.is_some());
+    if has_react || has_contract {
         let components_dir =
             detect::components_path(fs, dir)?.unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
         let components_dir = PathBuf::from(&components_dir);
@@ -374,6 +377,14 @@ fn planned_files(
                     name: name.clone(),
                     file: file.clone(),
                     dest: components_dir.join(file),
+                    dir: components_dir.clone(),
+                });
+            }
+            if let Some(ref contract) = index.components[name].contract {
+                files.push(PlannedFile {
+                    name: name.clone(),
+                    file: contract.clone(),
+                    dest: components_dir.join(contract),
                     dir: components_dir.clone(),
                 });
             }

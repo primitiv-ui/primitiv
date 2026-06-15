@@ -32,6 +32,12 @@ pub struct ComponentEntry {
     /// `add` slice.
     #[serde(default)]
     pub styles: Styles,
+    /// The consumer API specification file (RFC 0005 §6.2 / RFC 0004 §3) —
+    /// `contract.json` — copied into the components directory alongside the
+    /// recipe and wrapper so tooling can read it co-located. `None` when the
+    /// entry does not declare one (headless-only installs).
+    #[serde(default)]
+    pub contract: Option<String>,
 }
 
 /// A component's styled bundle (RFC 0005 §6.2): the per-format stylesheet `add`

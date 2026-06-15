@@ -42,6 +42,6 @@ jobs:
         run: |
           for pkg in packages/react packages/icons packages/tokens; do
             echo "::group::jsr publish $pkg"
-            (cd "$pkg" && npx jsr publish)
+            (cd "$pkg" && npx jsr publish --allow-slow-types)
             echo "::endgroup::"
           done

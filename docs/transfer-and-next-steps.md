@@ -326,9 +326,18 @@ adapters, hand-authored golden files, 100% coverage):
     status, both human and `--json`) is now landed — `planned_files` enumerates
     the same stylesheet + React-surface destinations the real copy would write,
     `Lock::classify` gives the status for each, and `--force` flips edited →
-    overwrite in the label. **Remaining for `add`** (§4.2–§4.4):
-    the interactive diff/keep/overwrite/skip prompt (the non-interactive
-    keep-edits / `--force` path is the v1 surface);
+    overwrite in the label. The **interactive overwrite/keep prompt is now
+    landed** (RFC 0005 §4.2): a new **`Prompt` port** (`ports/prompt.rs` — an
+    `OsPrompt` that writes the question to stderr and reads stdin, end-of-input
+    keeping edits, plus an `InMemoryPrompt` fake) is consulted for a
+    consumer-edited file when the session is **interactive** (the bin decides once
+    via `std::io::IsTerminal`, threaded through as a `bool`); the consumer chooses
+    overwrite or keep (two-way — "skip" is redundant with keep for a single file,
+    D-this-session). Non-interactively (CI / agents / a pipe) the edit is kept
+    without prompting, and `--force` still overwrites all without asking; a
+    `--yes` flag is intentionally deferred (non-breaking to add later). `add`'s
+    copy decision moved from `Lock::should_write` (removed) to `Lock::classify` +
+    the prompt. **Remaining for `add`** (§4.2–§4.4):
     copying the **contract**; project
     wiring (§4.3), and the `--registry` / HTTPS registry adapter.
     **Other remaining CLI work:**

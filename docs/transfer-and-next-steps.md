@@ -92,7 +92,7 @@ adapters, hand-authored golden files, 100% coverage):
     value-inlining TS object cannot represent without fighting the cascade.
 - [x] **Mode scoping** (RFC 0009) — emit `[data-theme]` + `[data-density]` scopes (density-neutral names, the `context.<density>` axis collapsed into `[data-density]`); ship the Tailwind `dark:`-variant remap. Falls out of the emitter (it is how dark + density are emitted), so it lands with the token emitter, not as separate work.
   - **Done (theme + density scopes)** — emitted by the token pipeline (`Axis`, `scope_selectors`, `Scope`, default-first mode ordering). The `:root` default sharing and `[data-*]` overrides match RFC 0009 §2.2. The **Tailwind `dark:`-variant remap + layer-order statement** (RFC 0009 §4.2) landed with the CLI — `wiring.rs` (`SNIPPET`, `contains_wiring`, `patch`) and the `offer_wiring` / `patch_wiring` logic in `add.rs`; the idempotency check and the interactive detect-and-patch path are both tested end-to-end.
-- [ ] **Styling contract + `contract.json`** per component (RFC 0004 §3) — hybrid generation (data-* auto-verified, modifiers/custom-props authored).
+- [x] **Styling contract + `contract.json`** per component (RFC 0004 §3) — hybrid generation (data-* auto-verified, modifiers/custom-props authored). **Done for the v1 set (Button + Switch);** further components are routine application of the now-complete mechanism.
   - **Button landed.** `registry/r/button/contract.json` is the first hybrid
     contract: the `data-*` half (`data-disabled`, `source: "auto"`) is
     drift-guarded against the rendered headless `Button` by a `packages/react`
@@ -113,7 +113,7 @@ adapters, hand-authored golden files, 100% coverage):
     custom-property API, with **no `modifiers`** (no `variant`). The react package
     gained a `SwitchProps` type alias — the `<Component>Props` convention the
     generated wrapper imports.
-- [ ] **Default theme authoring** in the workbench (RFC 0006 §7) — ported from Figma, one design emitted per format.
+- [x] **Default theme authoring** in the workbench (RFC 0006 §7) — ported from Figma, one design emitted per format. **Done for the v1 set (Button + Switch)** across CSS / SCSS / Tailwind + the generated recipe/wrapper; values reconcile against Figma when access returns.
   - **Button CSS landed.** `registry/r/button/styles.css` is the canonical
     default theme in the RFC 0008 `primitiv.base`/`variants`/`states` layer
     shape, wiring `--primitiv-button-*` to the synced `action/*` (colour),
@@ -158,7 +158,7 @@ adapters, hand-authored golden files, 100% coverage):
     `SwitchExample` gained a contract-styled section + density row, and the shared
     token layer moved up to `apps/workbench/src/primitiv-tokens.css` (imported once
     in `main.tsx`).
-- [ ] **The CLI** (RFC 0005) — `init` / `add` / `tokens` / `theme` / `list`, `primitiv.json`, the static registry, refresh + wiring behaviour.
+- [x] **The CLI** (RFC 0005) — `init` / `add` / `tokens` / `theme` / `list`, `primitiv.json`, the static registry, refresh + wiring behaviour. **Done — the command surface is v1 feature-complete** (interactive `init` + `--yes`; `add` resolve→install→styled+React surface+`contract.json`→lock refresh/`--force`/overwrite-keep→project wiring; `tokens`; `theme`; `list` with the installed column; embedded / local-dir / HTTPS registry adapters behind one port).
   - **Started.** The hand-rolled arg parser, the `theme` command (CSS / SCSS /
     Tailwind via `--format`), the `FileSystem` port (+ `InMemoryFs` fake) and the
     e2e-covered bin shell are landed. **`primitiv.json` config is now landed**

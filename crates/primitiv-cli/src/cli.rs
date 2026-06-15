@@ -1,5 +1,5 @@
 use crate::commands::add::AddOptions;
-use crate::commands::init::{InitOptions, DEFAULT_BRAND, DEFAULT_STYLES_PATH};
+use crate::commands::init::InitOptions;
 use crate::error::CliError;
 use crate::format::Format;
 
@@ -119,29 +119,33 @@ fn parse_list(args: &[String]) -> Result<Command, CliError> {
 }
 
 /// Parse `init [--format <fmt>] [--brand <hex>] [--path <dir>]
-/// [--styles | --no-styles] [--alias-components <value>] [--force]` — every
-/// option order-free, each filled from its default when omitted (RFC 0005 §2.1).
-/// This is the non-interactive seam: every prompt the future interactive `init`
-/// will ask has a flag here, so an agent never drives a TTY (Principle 3).
+/// [--styles | --no-styles] [--alias-components <value>] [--force] [--yes]` —
+/// every option order-free. Each promptable choice is left `None` when its flag
+/// is omitted, so `init` can prompt for it interactively or fall back to the
+/// default (RFC 0005 §2.1); `--yes` accepts every default without prompting. This
+/// is the non-interactive seam: every prompt has a flag here, so an agent never
+/// drives a TTY (Principle 3).
 fn parse_init(args: &[String]) -> Result<Command, CliError> {
-    let mut format = Format::Css;
-    let mut brand = DEFAULT_BRAND.to_string();
-    let mut path = DEFAULT_STYLES_PATH.to_string();
-    let mut styles_enabled = true;
+    let mut format = None;
+    let mut brand = None;
+    let mut path = None;
+    let mut styles_enabled = None;
     let mut alias_components = None;
     let mut force = false;
+    let mut yes = false;
     let mut rest = args.iter();
     while let Some(flag) = rest.next() {
         match flag.as_str() {
-            "--format" => format = parse_format(&take_value(&mut rest, "--format")?)?,
-            "--brand" => brand = take_value(&mut rest, "--brand")?,
-            "--path" => path = take_value(&mut rest, "--path")?,
-            "--styles" => styles_enabled = true,
-            "--no-styles" => styles_enabled = false,
+            "--format" => format = Some(parse_format(&take_value(&mut rest, "--format")?)?),
+            "--brand" => brand = Some(take_value(&mut rest, "--brand")?),
+            "--path" => path = Some(take_value(&mut rest, "--path")?),
+            "--styles" => styles_enabled = Some(true),
+            "--no-styles" => styles_enabled = Some(false),
             "--alias-components" => {
                 alias_components = Some(take_value(&mut rest, "--alias-components")?)
             }
             "--force" => force = true,
+            "--yes" => yes = true,
             other => return Err(usage(format!("unexpected argument '{other}'"))),
         }
     }
@@ -152,6 +156,7 @@ fn parse_init(args: &[String]) -> Result<Command, CliError> {
         styles_enabled,
         alias_components,
         force,
+        yes,
     }))
 }
 

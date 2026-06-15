@@ -116,16 +116,19 @@ impl Prompt for OsPrompt {
 }
 
 /// An in-memory [`Prompt`] fake for command-layer tests (RFC 0007 §2.2): it
-/// answers with a scripted [`Decision`] for `decide` and a boolean for `confirm`,
-/// records what it was asked (so a test can assert it was — or wasn't — consulted),
-/// and can be made to fail so the command's prompt-error branches are driven
-/// without a real stream. `fail()` affects both methods; `deny_confirm()` only
-/// affects `confirm`.
+/// answers with a scripted [`Decision`] for `decide`, a boolean for `confirm`,
+/// and queued strings for `ask`, records what it was asked (so a test can assert
+/// it was — or wasn't — consulted), and can be made to fail so the command's
+/// prompt-error branches are driven without a real stream. `fail()` /
+/// `fail_after(n)` affect every method; `deny_confirm()` only affects `confirm`.
 #[cfg(test)]
 pub struct InMemoryPrompt {
     decision: Decision,
     confirm_yes: RefCell<bool>,
-    fail: RefCell<bool>,
+    /// `Some(n)` makes the `(n + 1)`-th prompt call fail (the first `n` succeed),
+    /// so a specific prompt in a multi-prompt flow drives its error branch; `None`
+    /// never fails.
+    fail_after: RefCell<Option<usize>>,
     asked: RefCell<Vec<PathBuf>>,
     confirmed: RefCell<Vec<String>>,
     answers: RefCell<VecDeque<String>>,
@@ -138,7 +141,7 @@ impl InMemoryPrompt {
         Self {
             decision,
             confirm_yes: RefCell::new(true),
-            fail: RefCell::new(false),
+            fail_after: RefCell::new(None),
             asked: RefCell::new(Vec::new()),
             confirmed: RefCell::new(Vec::new()),
             answers: RefCell::new(VecDeque::new()),
@@ -159,10 +162,31 @@ impl InMemoryPrompt {
         self.questions.borrow().clone()
     }
 
-    /// Make the next [`decide`](Prompt::decide) or [`confirm`](Prompt::confirm)
-    /// fail, modelling a closed/broken stdin.
+    /// Make the next prompt call (`decide` / `confirm` / `ask`) fail, modelling a
+    /// closed/broken stdin.
     pub fn fail(&self) {
-        *self.fail.borrow_mut() = true;
+        *self.fail_after.borrow_mut() = Some(0);
+    }
+
+    /// Let the first `n` prompt calls succeed, then fail the next — so a single
+    /// prompt deep in `init`'s flow drives its `CliError::Io` branch.
+    pub fn fail_after(&self, n: usize) {
+        *self.fail_after.borrow_mut() = Some(n);
+    }
+
+    /// Consume one unit of the fail budget: error when it is exhausted (`Some(0)`),
+    /// otherwise decrement and proceed. Called before any recording so a failed
+    /// prompt records nothing.
+    fn check_fail(&self) -> io::Result<()> {
+        let mut budget = self.fail_after.borrow_mut();
+        match *budget {
+            Some(0) => Err(io::Error::other("prompt failed")),
+            Some(remaining) => {
+                *budget = Some(remaining - 1);
+                Ok(())
+            }
+            None => Ok(()),
+        }
     }
 
     /// Set the [`confirm`](Prompt::confirm) answer to `false` (deny). The
@@ -186,25 +210,19 @@ impl InMemoryPrompt {
 #[cfg(test)]
 impl Prompt for InMemoryPrompt {
     fn decide(&self, dest: &Path) -> io::Result<Decision> {
-        if *self.fail.borrow() {
-            return Err(io::Error::other("prompt failed"));
-        }
+        self.check_fail()?;
         self.asked.borrow_mut().push(dest.to_path_buf());
         Ok(self.decision)
     }
 
     fn confirm(&self, question: &str) -> io::Result<bool> {
-        if *self.fail.borrow() {
-            return Err(io::Error::other("prompt failed"));
-        }
+        self.check_fail()?;
         self.confirmed.borrow_mut().push(question.to_string());
         Ok(*self.confirm_yes.borrow())
     }
 
     fn ask(&self, question: &str, default: &str) -> io::Result<String> {
-        if *self.fail.borrow() {
-            return Err(io::Error::other("prompt failed"));
-        }
+        self.check_fail()?;
         self.questions.borrow_mut().push(question.to_string());
         Ok(self
             .answers

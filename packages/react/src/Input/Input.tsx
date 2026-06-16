@@ -1,5 +1,5 @@
-import { useFieldProps } from "../Field/hooks";
-import { Slot } from "../Slot";
+import { useFieldProps } from "../Field/hooks/index.ts";
+import { Slot } from "../Slot/index.ts";
 import { InputProps } from "./types";
 
 /**

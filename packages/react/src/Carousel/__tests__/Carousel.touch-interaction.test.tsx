@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 
-import { Carousel } from "..";
+import { Carousel } from "../index.ts";
 
 describe("Carousel autoplay touch-pause (WCAG 2.2.2)", () => {
   beforeEach(() => {

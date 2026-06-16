@@ -1,9 +1,9 @@
 import { Ref } from "react";
 
-import { Slot } from "../Slot";
+import { Slot } from "../Slot/index.ts";
 
 import { CollapsibleContext, useCollapsibleContext } from "./CollapsibleContext";
-import { useCollapsibleRoot, useCollapsibleTrigger } from "./hooks";
+import { useCollapsibleRoot, useCollapsibleTrigger } from "./hooks/index.ts";
 
 import type {
   CollapsibleRootProps,

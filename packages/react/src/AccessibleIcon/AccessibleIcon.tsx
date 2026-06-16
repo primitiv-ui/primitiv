@@ -1,5 +1,5 @@
 import { Children, cloneElement, ReactElement } from "react";
-import { VisuallyHidden } from "../VisuallyHidden";
+import { VisuallyHidden } from "../VisuallyHidden/index.ts";
 import { AccessibleIconProps } from "./types";
 
 type DecorativeIconProps = { "aria-hidden": string; focusable: string };

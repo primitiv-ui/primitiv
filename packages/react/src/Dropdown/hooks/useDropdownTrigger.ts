@@ -1,5 +1,5 @@
 import { MouseEventHandler } from "react";
-import { composeEventHandlers } from "../../Slot";
+import { composeEventHandlers } from "../../Slot/index.ts";
 import { DropdownTriggerProps } from "../types";
 import { useDropdownContext } from "./useDropdownContext";
 

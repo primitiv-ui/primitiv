@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import { Carousel } from "..";
+import { Carousel } from "../index.ts";
 
 describe("Carousel error handling", () => {
   it("should throw when Carousel.PlayPauseTrigger is rendered without autoplay enabled on Carousel.Root", () => {

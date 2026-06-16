@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { DirectionProvider } from "../../DirectionProvider";
+import { DirectionProvider } from "../../DirectionProvider/index.ts";
 import { Slider } from "../Slider";
 
 import { rtlKeyboardCases } from "./Slider.fixtures";

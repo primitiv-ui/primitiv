@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 
-import { useCollection, useControllableState } from "../../hooks";
+import { useCollection, useControllableState } from "../../hooks/index.ts";
 import type { SliderContextValue } from "../SliderContext";
 import type { SliderDirection, SliderOrientation } from "../types";
 import { clamp, getClosestThumbIndex, getPointerValue } from "../utils";

@@ -1,6 +1,6 @@
 import { KeyboardEvent } from "react";
 
-import { composeEventHandlers } from "../../Slot";
+import { composeEventHandlers } from "../../Slot/index.ts";
 import { useTooltipContext } from "../TooltipContext";
 import type { TooltipTriggerProps } from "../types";
 

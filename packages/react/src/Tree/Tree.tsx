@@ -1,8 +1,8 @@
 import { Fragment, useLayoutEffect, useRef } from "react";
 
-import { Breadcrumb } from "../Breadcrumb";
-import { Slot, composeEventHandlers } from "../Slot";
-import { deriveId } from "../utils";
+import { Breadcrumb } from "../Breadcrumb/index.ts";
+import { Slot, composeEventHandlers } from "../Slot/index.ts";
+import { deriveId } from "../utils/index.ts";
 
 import {
   TreeContext,
@@ -16,7 +16,7 @@ import {
   useTreeItemKeyboard,
   useTreeRoot,
   useTreeSelectionPaths,
-} from "./hooks";
+} from "./hooks/index.ts";
 import { partitionBranchChildren } from "./utils";
 
 import type {

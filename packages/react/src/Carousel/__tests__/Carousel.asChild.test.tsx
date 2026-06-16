@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { Carousel } from "..";
+import { Carousel } from "../index.ts";
 
 describe("Carousel.NextTrigger asChild", () => {
   it("should render the supplied child element and route the click through to the page-advance handler", async () => {

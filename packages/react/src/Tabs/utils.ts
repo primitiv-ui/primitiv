@@ -1,4 +1,4 @@
-import { deriveId } from "../utils";
+import { deriveId } from "../utils/index.ts";
 
 export function getTriggerAndPanelIds(tabsId: string, value: string) {
   return {

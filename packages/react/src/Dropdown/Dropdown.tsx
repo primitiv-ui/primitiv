@@ -1,9 +1,9 @@
 import { useContext, useEffect, useId, useMemo, useRef, useState } from "react";
 
-import { useCheckboxRoot } from "../Checkbox/hooks";
-import { useDirection } from "../DirectionProvider";
-import { useRadioGroupRoot } from "../RadioGroup/hooks";
-import { composeEventHandlers, Slot } from "../Slot";
+import { useCheckboxRoot } from "../Checkbox/hooks/index.ts";
+import { useDirection } from "../DirectionProvider/index.ts";
+import { useRadioGroupRoot } from "../RadioGroup/hooks/index.ts";
+import { composeEventHandlers, Slot } from "../Slot/index.ts";
 
 import { DropdownContext } from "./DropdownContext";
 import { DropdownContentContext } from "./DropdownContentContext";
@@ -21,7 +21,7 @@ import {
   useDropdownRoot,
   useDropdownSubContext,
   useDropdownTrigger,
-} from "./hooks";
+} from "./hooks/index.ts";
 import {
   DropdownCheckboxItemProps,
   DropdownContentProps,

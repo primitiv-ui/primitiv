@@ -7,7 +7,7 @@ import {
   Ref,
 } from "react";
 
-import { useCollection, useControllableState } from "../../hooks";
+import { useCollection, useControllableState } from "../../hooks/index.ts";
 
 import type { TabsRootProps, TabsImperativeApi } from "../types";
 

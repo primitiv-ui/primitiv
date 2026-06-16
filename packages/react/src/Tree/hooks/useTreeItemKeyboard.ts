@@ -1,6 +1,6 @@
 import type { KeyboardEvent } from "react";
 
-import { useRovingTabindex } from "../../hooks";
+import { useRovingTabindex } from "../../hooks/index.ts";
 import { useTreeContext } from "../TreeContext";
 
 type TreeItemKeyboardOptions = {

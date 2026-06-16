@@ -1,13 +1,13 @@
 import { forwardRef, MouseEvent, useCallback } from "react";
 
-import { Slot } from "../Slot";
+import { Slot } from "../Slot/index.ts";
 import { CarouselProvider } from "./CarouselContext";
 import {
   useCarouselContext,
   useCarouselRoot,
   useCarouselSlide,
   useCarouselViewport,
-} from "./hooks";
+} from "./hooks/index.ts";
 import type {
   CarouselImperativeApi,
   CarouselRootProps,

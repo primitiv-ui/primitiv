@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import { Field } from "../../Field";
+import { Field } from "../../Field/index.ts";
 import { Select } from "../Select";
 
 function renderSelect(children?: React.ReactNode) {

@@ -1,4 +1,4 @@
-import { createStrictContext } from "../utils";
+import { createStrictContext } from "../utils/index.ts";
 import { CollapsibleContextValue } from "./types";
 
 export const [CollapsibleContext, useCollapsibleContext] =

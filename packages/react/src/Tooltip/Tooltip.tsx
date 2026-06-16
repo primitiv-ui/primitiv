@@ -1,5 +1,5 @@
-import { Portal } from "../Portal";
-import { Slot, composeRefs } from "../Slot";
+import { Portal } from "../Portal/index.ts";
+import { Slot, composeRefs } from "../Slot/index.ts";
 
 import {
   TooltipProvider,
@@ -11,7 +11,7 @@ import {
   useTooltipProvider,
   useTooltipRoot,
   useTooltipTrigger,
-} from "./hooks";
+} from "./hooks/index.ts";
 import type {
   TooltipArrowProps,
   TooltipContentProps,

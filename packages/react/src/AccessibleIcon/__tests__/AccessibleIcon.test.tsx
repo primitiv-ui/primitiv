@@ -1,4 +1,4 @@
-import { AccessibleIcon } from "..";
+import { AccessibleIcon } from "../index.ts";
 import { render, screen } from "@testing-library/react";
 
 describe("AccessibleIcon component", () => {

@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 
-import { Slot } from "../Slot";
+import { Slot } from "../Slot/index.ts";
 
 import { ProgressContext } from "./ProgressContext";
-import { useProgressContext, useProgressRoot } from "./hooks";
+import { useProgressContext, useProgressRoot } from "./hooks/index.ts";
 import { ProgressIndicatorProps, ProgressRootProps } from "./types";
 
 function defaultGetValueLabel(value: number, max: number): string {

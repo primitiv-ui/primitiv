@@ -1,14 +1,14 @@
 import { forwardRef, Ref } from "react";
 
-import { useDirection } from "../DirectionProvider";
-import { Slot, composeRefs } from "../Slot";
+import { useDirection } from "../DirectionProvider/index.ts";
+import { Slot, composeRefs } from "../Slot/index.ts";
 
 import {
   useTabsRoot,
   useTabsContext,
   useTabsTrigger,
   useTabsContent,
-} from "./hooks";
+} from "./hooks/index.ts";
 import { TabsProvider } from "./TabsContext";
 import type {
   TabsRootProps,

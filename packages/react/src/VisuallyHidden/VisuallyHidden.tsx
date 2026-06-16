@@ -1,5 +1,5 @@
 import { CSSProperties } from "react";
-import { Slot } from "../Slot";
+import { Slot } from "../Slot/index.ts";
 import { VisuallyHiddenProps } from "./types";
 
 const visuallyHiddenStyle: CSSProperties = {

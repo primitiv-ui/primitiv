@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { DirectionProvider } from "../../DirectionProvider";
+import { DirectionProvider } from "../../DirectionProvider/index.ts";
 import { RadioGroup } from "../RadioGroup";
 
 describe("RadioGroup reading direction", () => {

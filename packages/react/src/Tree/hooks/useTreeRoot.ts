@@ -1,6 +1,6 @@
 import { useCallback, useId, useRef, useState } from "react";
 
-import { useCollection, useControllableState } from "../../hooks";
+import { useCollection, useControllableState } from "../../hooks/index.ts";
 
 import type {
   SelectionMode,

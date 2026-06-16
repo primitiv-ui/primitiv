@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 
-import { useControllableState } from "../../hooks";
+import { useControllableState } from "../../hooks/index.ts";
 
 import { CheckedState } from "../types";
 

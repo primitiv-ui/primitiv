@@ -1,7 +1,7 @@
 import { Ref } from "react";
 import { createPortal } from "react-dom";
 
-import { Slot } from "../Slot";
+import { Slot } from "../Slot/index.ts";
 
 import {
   MillerColumnsContext,
@@ -15,7 +15,7 @@ import {
   useMillerColumnsItemContext,
   useMillerColumnsResizeHandle,
   useMillerColumnsRoot,
-} from "./hooks";
+} from "./hooks/index.ts";
 
 import { partitionItemChildren } from "./utils";
 

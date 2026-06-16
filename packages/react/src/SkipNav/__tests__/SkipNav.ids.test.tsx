@@ -1,4 +1,4 @@
-import { SkipNav } from "..";
+import { SkipNav } from "../index.ts";
 import { render, screen } from "@testing-library/react";
 
 describe("SkipNav id wiring", () => {

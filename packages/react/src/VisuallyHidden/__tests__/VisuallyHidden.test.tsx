@@ -1,4 +1,4 @@
-import { VisuallyHidden } from "..";
+import { VisuallyHidden } from "../index.ts";
 import { render, screen } from "@testing-library/react";
 
 describe("VisuallyHidden component", () => {

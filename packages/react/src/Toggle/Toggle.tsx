@@ -1,5 +1,5 @@
-import { useControllableState } from "../hooks";
-import { Slot, composeEventHandlers } from "../Slot";
+import { useControllableState } from "../hooks/index.ts";
+import { Slot, composeEventHandlers } from "../Slot/index.ts";
 
 import { ToggleProps } from "./types";
 

@@ -1,4 +1,4 @@
-import { Slot } from "../Slot";
+import { Slot } from "../Slot/index.ts";
 import {
   EmptyStateActionsProps,
   EmptyStateDescriptionProps,

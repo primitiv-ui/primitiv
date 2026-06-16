@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 
-import { Slot, composeEventHandlers } from "../Slot";
+import { Slot, composeEventHandlers } from "../Slot/index.ts";
 
 import { CheckboxContext } from "./CheckboxContext";
-import { useCheckboxContext, useCheckboxRoot } from "./hooks";
+import { useCheckboxContext, useCheckboxRoot } from "./hooks/index.ts";
 import {
   CheckboxIndicatorProps,
   CheckboxRootProps,

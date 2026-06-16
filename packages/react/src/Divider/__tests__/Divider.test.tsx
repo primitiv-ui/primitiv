@@ -1,4 +1,4 @@
-import { Divider } from "..";
+import { Divider } from "../index.ts";
 import { render, screen } from "@testing-library/react";
 
 describe("Divider component", () => {

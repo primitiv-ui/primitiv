@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef } from "react";
 
-import { useDirection } from "../DirectionProvider";
-import { useRovingTabindex } from "../hooks";
-import { Slot, composeEventHandlers, composeRefs } from "../Slot";
+import { useDirection } from "../DirectionProvider/index.ts";
+import { useRovingTabindex } from "../hooks/index.ts";
+import { Slot, composeEventHandlers, composeRefs } from "../Slot/index.ts";
 
 import { ToggleGroupContext } from "./ToggleGroupContext";
-import { useToggleGroupRoot, useToggleGroupContext } from "./hooks";
+import { useToggleGroupRoot, useToggleGroupContext } from "./hooks/index.ts";
 import { ToggleGroupItemProps, ToggleGroupRootProps } from "./types";
 
 /**

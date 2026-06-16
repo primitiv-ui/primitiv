@@ -93,7 +93,10 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: pnpm
-          registry-url: https://registry.npmjs.org
+          # No `registry-url`: it makes setup-node write a deprecated
+          # `always-auth` key into the runner npmrc (npm warns on it). We
+          # publish tokenless via Trusted Publishing to the default
+          # registry (npmjs.org), so the generated npmrc isn't needed.
 
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2

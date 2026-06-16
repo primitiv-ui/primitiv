@@ -195,6 +195,28 @@ is now removed. To keep it that way:
   only React 19 installed needs the pin temporarily aligned — production value
   stays `^18`.
 
+### Other JSR score levers (beyond slow types)
+
+`jsr publish --dry-run` only checks slow types; the **score** has more
+factors, surfaced by `deno doc --lint <entrypoint>`:
+
+- **Description** — JSR's config file (`jsr.json`) has **no `description`
+  field** (its schema is `name` / `version` / `license` / `exports` /
+  `publish` only). The description shown on jsr.io and counted by the score
+  is set **per package in the jsr.io web UI** (package → Settings →
+  Description). Putting `description` in `jsr.json` does nothing. The npm
+  listing reads its description from `package.json` instead — keep both in
+  sync there.
+- **Documentation coverage** — every exported symbol (functions, components,
+  **types/interfaces, and their members**) needs a JSDoc doc comment, and
+  every type referenced by a public symbol must itself be exported from the
+  entrypoint (`deno doc --lint` flags these as `missing-jsdoc` and
+  `private-type-ref`). Run `deno doc --lint packages/<pkg>/src/index.ts` to
+  get the exact list. The `@primitiv-ui/icons` generator emits a JSDoc per
+  glyph so regenerated icons stay covered.
+- **Runtime compatibility** — mark which runtimes each package supports in
+  the jsr.io package settings; an unset list costs score.
+
 Lockstep version bumps are **required**, not just tidy: `publish.yml` publishes
 the `@primitiv-ui/cli-*` platform packages, the wrapper, and the scaffold with
 plain `npm publish`, which **errors on an already-published version**. (Only the

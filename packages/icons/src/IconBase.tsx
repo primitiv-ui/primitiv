@@ -5,6 +5,13 @@ interface IconBaseProps extends IconProps {
   ref?: Ref<SVGSVGElement>
 }
 
+/**
+ * The shared SVG wrapper every Primitiv icon renders through. Sets up the
+ * `viewBox`, `currentColor` fill, and `size`-driven width/height, forwards
+ * a ref to the `<svg>`, and marks the icon `aria-hidden` unless an
+ * `aria-label` is provided. Generated icon components pass their paths as
+ * `children`; you rarely render this directly.
+ */
 export const IconBase = ({
   size = 24,
   ref,

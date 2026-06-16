@@ -25,18 +25,35 @@ in [`../RELEASING.md`](../RELEASING.md); the full decision log (D1–D25) lives 
 - [x] Revoked the granular npm token.
 - [x] Removed `.github/workflows/reserve-names.yml` — its one job is done.
 
-## 📦 Org transfer to `primitiv-ui` (the 16th) — detail in RELEASING.md §1
+## 📦 Org transfer to `primitiv-ui` — done (2026-06-16) — detail in RELEASING.md §1
 
-- [ ] Transfer `simonrevill/primitiv` → `primitiv-ui/primitiv` (Settings → Transfer ownership).
-- [ ] Update local remotes: `git remote set-url origin https://github.com/primitiv-ui/primitiv.git`.
-- [ ] Re-apply branch protection / rulesets (they don't always travel).
+- [x] Transfer `simonrevill/primitiv` → `primitiv-ui/primitiv` (Settings → Transfer ownership).
+- [ ] Update local remotes: `git remote set-url origin https://github.com/primitiv-ui/primitiv.git` (per-developer; do on each clone).
+- [ ] Re-apply branch protection / rulesets (they don't always travel) — verify on `main`.
 - [ ] Re-check GitHub Pages base (`deploy-docs.yml` `WORKBENCH_BASE` — still correct if the repo name stays `primitiv`).
-- [ ] Re-add Actions secrets (they do **not** transfer). For real releases prefer **Trusted Publishing** (tokenless) over re-adding `NPM_TOKEN`.
-- [ ] Configure the npm **Trusted Publisher** per package → `primitiv-ui/primitiv` + `publish.yml`.
-- [ ] Link each **JSR** package to the new repo.
-- [ ] When the real packages ship, set their `repository` URLs to `primitiv-ui/primitiv` (the placeholders deliberately omit them).
+- [x] Actions secrets — went **fully tokenless (OIDC)**; `NPM_TOKEN` deleted, no secrets to re-add.
+- [x] Configure the npm **Trusted Publisher** per package → `primitiv-ui/primitiv` + `publish.yml`.
+- [x] Link each **JSR** package to the new repo.
+- [x] Real packages shipped with `repository` URLs pointing at `primitiv-ui/primitiv`.
 - [x] Update the `REGISTRY_REPO` const in `crates/primitiv-cli/src/commands/add.rs` (`simonrevill/primitiv` → `primitiv-ui/primitiv`) so `--registry <version>` resolves GitHub-raw at the transferred repo. It is the **only** hard-coded repo path in the CLI (the registry HTTPS base URL is derived from it). A `cli.rs` parse test pins the override forms but not the host, so this is a silent change to watch for.
 - [ ] Optional: add the `@primitiv-ui` npm org as an owner of the unscoped `primitiv-ui` / `create-primitiv-ui` names (currently owned by the personal account).
+
+## 🚀 First publish + JSR slow-types cleanup — done (2026-06-16)
+
+- [x] **First publish at v0.1.0** — all 10 npm packages (5 `cli-*` platform
+  packages, `primitiv-ui` wrapper, `create-primitiv-ui`, and the three
+  libraries) plus the three JSR packages live, via tokenless OIDC.
+- [x] **JSR slow-types cleanup** — the v0.1.0 packages shipped with
+  `--allow-slow-types` as a bootstrap shortcut (scores: icons 29 / react 47 /
+  tokens 70). Removed the flag; every exported symbol now has explicit types so
+  JSR can analyse the public API without inference. All three pass
+  `jsr publish --dry-run` clean. See RELEASING.md §6.
+- [x] **Versions bumped to 0.1.1** across every publishable package (lockstep)
+  + the three `jsr.json` files, ready for the release that carries the cleanup.
+- [ ] **Publish 0.1.1** (Release or `workflow_dispatch`) — JSR re-scores each
+  package once the new version lands.
+- [ ] Improve **JSDoc coverage** on `icons` / `tokens` exports — the remaining
+  JSR score factor after slow types (react is already well-documented).
 
 ## 🏗️ Build phase — the work that comes next (per the RFCs)
 

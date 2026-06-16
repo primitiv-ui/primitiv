@@ -143,6 +143,14 @@ source of truth for when a skill applies.
   `TcpListener` test server (no network, no exemption, no test dep). **Only
   Distribution (Step 8) remains.** Decisions landed include category-map number
   units (rem/unitless) and `var()`-reference alias emit for every format.
+- **Distribution / publishing has started.** The repo transferred to
+  `primitiv-ui/primitiv`; all 10 npm packages + the 3 JSR packages
+  (`@primitiv-ui/{react,icons,tokens}`) published at v0.1.0 via tokenless OIDC.
+  The JSR **slow-types cleanup** is landed — `--allow-slow-types` removed; every
+  exported symbol carries an explicit type (verify with `npx jsr publish
+  --dry-run`). Publishing mechanics, the no-slow-types rules, and the
+  lockstep-version-bump gotcha live in `RELEASING.md` (§5–6); the live checklist
+  is `docs/transfer-and-next-steps.md`.
 
 ## Useful commands
 

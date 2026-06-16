@@ -157,6 +157,5 @@ Releasing is documented in [`RELEASING.md`](RELEASING.md).
 
 ## License
 
-The published `@primitiv-ui/*` packages and the `primitiv` CLI are released
-under the **MIT License**. A repository-level `LICENSE` file is still to be
-added.
+Primitiv — the `@primitiv-ui/*` packages and the `primitiv` CLI — is released
+under the **MIT License**. See [`LICENSE`](LICENSE).

@@ -1,6 +1,6 @@
 {
   "name": "@primitiv-ui/icons",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Fill-based SVG icon library for the Primitiv ecosystem. Icons inherit currentColor, scale via a size prop, accept all native SVG attributes, and tree-shake cleanly.",
   "exports": "./src/index.ts",
   "license": "MIT",

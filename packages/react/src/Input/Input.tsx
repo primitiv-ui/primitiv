@@ -1,3 +1,5 @@
+import type { ReactElement } from "react";
+
 import { useFieldProps } from "../Field/hooks/index.ts";
 import { Slot } from "../Slot/index.ts";
 import { InputProps } from "./types";
@@ -101,7 +103,7 @@ export function Input({
   children,
   ref,
   ...consumer
-}: InputProps) {
+}: InputProps): ReactElement {
   const merged = useFieldProps(consumer);
 
   const rootProps = {

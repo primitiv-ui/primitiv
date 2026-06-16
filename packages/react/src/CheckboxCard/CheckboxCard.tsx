@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import type { ReactElement } from "react";
 
 import { Slot, composeEventHandlers } from "../Slot/index.ts";
 
@@ -66,7 +67,7 @@ function dataStateOf(checked: CheckedState) {
  * </CheckboxCard.Root>
  * ```
  */
-function CheckboxCardRoot(props: CheckboxCardRootProps) {
+function CheckboxCardRoot(props: CheckboxCardRootProps): ReactElement {
   const {
     defaultChecked,
     checked,
@@ -141,7 +142,7 @@ function CheckboxCardIndicator({
   forceMount,
   asChild = false,
   ...rest
-}: CheckboxCardIndicatorProps) {
+}: CheckboxCardIndicatorProps): ReactElement | null {
   const { checked } = useCheckboxCardContext();
   const isVisible = checked !== false;
   if (!isVisible && !forceMount) return null;

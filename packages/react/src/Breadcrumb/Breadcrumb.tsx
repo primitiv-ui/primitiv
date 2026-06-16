@@ -1,3 +1,5 @@
+import type { ReactElement } from "react";
+
 import { Slot } from "../Slot/index.ts";
 
 import {
@@ -24,7 +26,10 @@ import {
  * </Breadcrumb.Root>
  * ```
  */
-function BreadcrumbRoot({ children, ...rest }: BreadcrumbRootProps) {
+function BreadcrumbRoot({
+  children,
+  ...rest
+}: BreadcrumbRootProps): ReactElement {
   return (
     <nav aria-label="Breadcrumb" {...rest}>
       {children}
@@ -51,7 +56,10 @@ BreadcrumbRoot.displayName = "BreadcrumbRoot";
  * </Breadcrumb.List>
  * ```
  */
-function BreadcrumbList({ children, ...rest }: BreadcrumbListProps) {
+function BreadcrumbList({
+  children,
+  ...rest
+}: BreadcrumbListProps): ReactElement {
   return <ol {...rest}>{children}</ol>;
 }
 
@@ -70,7 +78,10 @@ BreadcrumbList.displayName = "BreadcrumbList";
  * </Breadcrumb.Item>
  * ```
  */
-function BreadcrumbItem({ children, ...rest }: BreadcrumbItemProps) {
+function BreadcrumbItem({
+  children,
+  ...rest
+}: BreadcrumbItemProps): ReactElement {
   return <li {...rest}>{children}</li>;
 }
 
@@ -102,7 +113,7 @@ function BreadcrumbLink({
   children,
   asChild = false,
   ...rest
-}: BreadcrumbLinkProps) {
+}: BreadcrumbLinkProps): ReactElement {
   if (asChild) {
     return <Slot {...rest}>{children}</Slot>;
   }
@@ -125,7 +136,10 @@ BreadcrumbLink.displayName = "BreadcrumbLink";
  * </Breadcrumb.Item>
  * ```
  */
-function BreadcrumbPage({ children, ...rest }: BreadcrumbPageProps) {
+function BreadcrumbPage({
+  children,
+  ...rest
+}: BreadcrumbPageProps): ReactElement {
   return (
     <span aria-current="page" {...rest}>
       {children}
@@ -160,7 +174,7 @@ BreadcrumbPage.displayName = "BreadcrumbPage";
 function BreadcrumbSeparator({
   children = "/",
   ...rest
-}: BreadcrumbSeparatorProps) {
+}: BreadcrumbSeparatorProps): ReactElement {
   return (
     <li role="presentation" aria-hidden="true" {...rest}>
       {children}

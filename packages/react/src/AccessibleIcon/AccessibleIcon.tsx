@@ -26,7 +26,10 @@ type DecorativeIconProps = { "aria-hidden": string; focusable: string };
  * </button>
  * ```
  */
-export function AccessibleIcon({ label, children }: AccessibleIconProps) {
+export function AccessibleIcon({
+  label,
+  children,
+}: AccessibleIconProps): ReactElement {
   const icon = Children.only(children) as ReactElement<DecorativeIconProps>;
 
   return (

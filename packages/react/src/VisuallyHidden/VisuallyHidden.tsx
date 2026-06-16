@@ -1,4 +1,5 @@
 import { CSSProperties } from "react";
+import type { ReactElement } from "react";
 import { Slot } from "../Slot/index.ts";
 import { VisuallyHiddenProps } from "./types";
 
@@ -51,7 +52,7 @@ export function VisuallyHidden({
   children,
   style,
   ...rest
-}: VisuallyHiddenProps) {
+}: VisuallyHiddenProps): ReactElement {
   const rootProps = {
     ...rest,
     style: { ...visuallyHiddenStyle, ...style },

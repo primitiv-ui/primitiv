@@ -1,3 +1,4 @@
+import type { Context } from "react";
 import { createStrictContext } from "../utils/index.ts";
 
 import { AvatarImageLoadingStatus } from "./types";
@@ -13,8 +14,11 @@ export type AvatarContextValue = {
   setStatus: (status: AvatarImageLoadingStatus) => void;
 };
 
-export const [AvatarContext, useAvatarContext] =
-  createStrictContext<AvatarContextValue>(
-    "Avatar.Image and Avatar.Fallback must be rendered inside an <Avatar.Root>.",
-    "AvatarContext",
-  );
+const avatarContextPair = createStrictContext<AvatarContextValue>(
+  "Avatar.Image and Avatar.Fallback must be rendered inside an <Avatar.Root>.",
+  "AvatarContext",
+);
+
+export const AvatarContext: Context<AvatarContextValue | null> =
+  avatarContextPair[0];
+export const useAvatarContext: () => AvatarContextValue = avatarContextPair[1];

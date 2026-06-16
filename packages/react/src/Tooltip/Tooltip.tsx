@@ -1,3 +1,5 @@
+import type { ReactElement } from "react";
+
 import { Portal } from "../Portal/index.ts";
 import { Slot, composeRefs } from "../Slot/index.ts";
 
@@ -37,8 +39,11 @@ function TooltipProviderComponent({
   children,
   delayDuration = 700,
   skipDelayDuration = 300,
-}: TooltipProviderProps) {
-  const { contextValue } = useTooltipProvider({ delayDuration, skipDelayDuration });
+}: TooltipProviderProps): ReactElement {
+  const { contextValue } = useTooltipProvider({
+    delayDuration,
+    skipDelayDuration,
+  });
   return (
     <TooltipProviderProvider value={contextValue}>
       {children}
@@ -72,7 +77,7 @@ function TooltipRoot({
   onOpenChange,
   delayDuration,
   disableHoverableContent,
-}: TooltipRootProps) {
+}: TooltipRootProps): ReactElement {
   const { contextValue } = useTooltipRoot({
     defaultOpen,
     open,
@@ -114,7 +119,7 @@ function TooltipTrigger({
   onKeyDown,
   type,
   ...rest
-}: TooltipTriggerProps) {
+}: TooltipTriggerProps): ReactElement {
   const { getTriggerProps } = useTooltipTrigger({
     onPointerEnter,
     onPointerLeave,
@@ -149,7 +154,11 @@ TooltipTrigger.displayName = "TooltipTrigger";
  * </Tooltip.Portal>
  * ```
  */
-function TooltipPortal({ children, container, forceMount }: TooltipPortalProps) {
+function TooltipPortal({
+  children,
+  container,
+  forceMount,
+}: TooltipPortalProps): ReactElement | null {
   const { open } = useTooltipContext();
 
   if (!open && !forceMount) return null;
@@ -195,7 +204,7 @@ function TooltipContent({
   onPointerEnter,
   onPointerLeave,
   ...rest
-}: TooltipContentProps) {
+}: TooltipContentProps): ReactElement | null {
   const { open } = useTooltipContext();
   const { getContentProps, internalRef } = useTooltipContent({
     onEscapeKeyDown,
@@ -227,7 +236,11 @@ TooltipContent.displayName = "TooltipContent";
  * </Tooltip.Content>
  * ```
  */
-function TooltipArrow({ ref, asChild = false, ...rest }: TooltipArrowProps) {
+function TooltipArrow({
+  ref,
+  asChild = false,
+  ...rest
+}: TooltipArrowProps): ReactElement {
   if (asChild) {
     return <Slot ref={ref} {...rest} />;
   }

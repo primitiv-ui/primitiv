@@ -1,4 +1,5 @@
 import { useId, useMemo } from "react";
+import type { ReactElement } from "react";
 
 import { Slot } from "../Slot/index.ts";
 import { FieldContext } from "./FieldContext";
@@ -53,7 +54,7 @@ function FieldRoot({
   asChild = false,
   children,
   ...rest
-}: FieldRootProps) {
+}: FieldRootProps): ReactElement {
   const autoId = useId();
   const id = idProp ?? autoId;
   const descriptionId = `${id}-description`;
@@ -94,7 +95,11 @@ FieldRoot.displayName = "FieldRoot";
  *
  * @throws If rendered outside a `<Field.Root>`.
  */
-function FieldLabel({ asChild = false, children, ...rest }: FieldLabelProps) {
+function FieldLabel({
+  asChild = false,
+  children,
+  ...rest
+}: FieldLabelProps): ReactElement {
   const { id } = useFieldContext();
   const labelProps = { ...rest, htmlFor: id };
 
@@ -121,7 +126,7 @@ function FieldDescription({
   asChild = false,
   children,
   ...rest
-}: FieldDescriptionProps) {
+}: FieldDescriptionProps): ReactElement {
   const { descriptionId } = useFieldContext();
   const descriptionProps = { ...rest, id: descriptionId };
 
@@ -155,7 +160,7 @@ function FieldErrorText({
   asChild = false,
   children,
   ...rest
-}: FieldErrorTextProps) {
+}: FieldErrorTextProps): ReactElement | null {
   const { errorId, invalid } = useFieldContext();
   if (!invalid) return null;
   const errorProps = { ...rest, id: errorId, role: "alert" as const };

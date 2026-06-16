@@ -1,4 +1,5 @@
 import { Ref, useEffect } from "react";
+import type { ReactElement } from "react";
 
 import { useDirection } from "../DirectionProvider/index.ts";
 import { Slot } from "../Slot/index.ts";
@@ -78,7 +79,7 @@ export function AccordionRoot({
   orientation = "vertical",
   dir,
   ...rest
-}: AccordionRootProps) {
+}: AccordionRootProps): ReactElement {
   const resolvedDir = dir ?? useDirection();
   const { contextValue } = useAccordionRoot(
     controlledValue,
@@ -124,7 +125,7 @@ export function AccordionItem({
   children,
   value,
   ...rest
-}: AccordionItemProps) {
+}: AccordionItemProps): ReactElement {
   const { contextValue } = useAccordionItem(value);
 
   return (
@@ -156,7 +157,7 @@ export function AccordionHeader({
   children,
   level = 3,
   ...rest
-}: AccordionHeaderProps) {
+}: AccordionHeaderProps): ReactElement {
   useAccordionHeaderContext();
   const HeadingTag: HeadingTag = `h${level}`;
 
@@ -229,16 +230,14 @@ AccordionHeader.displayName = "AccordionHeader";
  * </Accordion.Trigger>
  * ```
  */
-export function AccordionTrigger<
-  T extends HTMLElement = HTMLButtonElement,
->({
+export function AccordionTrigger<T extends HTMLElement = HTMLButtonElement>({
   ref,
   children,
   onClick,
   disabled = false,
   asChild = false,
   ...rest
-}: AccordionTriggerProps<T>) {
+}: AccordionTriggerProps<T>): ReactElement {
   // Cast the external ref to match the internal button ref's element type —
   // RefObject<T> is invariant in React's types, but at runtime the callback
   // receives whatever DOM element is actually rendered (button or asChild).
@@ -306,7 +305,7 @@ export function AccordionContent({
   children,
   forceMount = false,
   ...rest
-}: AccordionContentProps) {
+}: AccordionContentProps): ReactElement {
   const { panelId, buttonId, itemId, isExpanded } = useAccordionItemContext();
   const { registerPanel, unregisterPanel } = useAccordionContext();
 
@@ -373,7 +372,7 @@ AccordionContent.displayName = "AccordionContent";
 export function AccordionTriggerIcon({
   children,
   ...rest
-}: AccordionTriggerIconProps) {
+}: AccordionTriggerIconProps): ReactElement {
   const { isExpanded } = useAccordionItemContext();
 
   return (

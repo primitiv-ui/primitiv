@@ -1,3 +1,4 @@
+import type { Context } from "react";
 import { createStrictContext } from "../utils/index.ts";
 
 import { RadioCardOrientation, RadioCardReadingDirection } from "./types";
@@ -17,7 +18,11 @@ export type RadioCardContextValue = {
   dir: RadioCardReadingDirection;
 };
 
-export const [RadioCardContext, useRadioCardContext] =
-  createStrictContext<RadioCardContextValue>(
-    "RadioCard sub-components must be rendered inside a <RadioCard.Root>.",
-  );
+const radioCardContextPair = createStrictContext<RadioCardContextValue>(
+  "RadioCard sub-components must be rendered inside a <RadioCard.Root>.",
+);
+
+export const RadioCardContext: Context<RadioCardContextValue | null> =
+  radioCardContextPair[0];
+export const useRadioCardContext: () => RadioCardContextValue =
+  radioCardContextPair[1];

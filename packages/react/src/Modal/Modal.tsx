@@ -1,4 +1,5 @@
 import { Ref, useEffect, useId } from "react";
+import type { ReactElement } from "react";
 
 import { Portal } from "../Portal/index.ts";
 import { Slot, composeEventHandlers, composeRefs } from "../Slot/index.ts";
@@ -73,7 +74,7 @@ function ModalRoot({
   defaultOpen,
   open,
   onOpenChange,
-}: ModalRootProps) {
+}: ModalRootProps): ReactElement {
   const { contextValue } = useModalRoot(
     { defaultOpen, open, onOpenChange },
     ref,
@@ -110,7 +111,7 @@ function ModalTrigger({
   type,
   asChild = false,
   ...rest
-}: ModalTriggerProps) {
+}: ModalTriggerProps): ReactElement {
   const { getTriggerProps } = useModalTrigger(onClick, rest);
 
   if (asChild) {
@@ -141,7 +142,11 @@ ModalTrigger.displayName = "ModalTrigger";
  * </Modal.Portal>
  * ```
  */
-function ModalPortal({ children, container, forceMount }: ModalPortalProps) {
+function ModalPortal({
+  children,
+  container,
+  forceMount,
+}: ModalPortalProps): ReactElement | null {
   const { open } = useModalContext();
 
   if (!open && !forceMount) return null;
@@ -189,7 +194,7 @@ function ModalOverlay({
   asChild = false,
   forceMount,
   ...rest
-}: ModalOverlayProps) {
+}: ModalOverlayProps): ReactElement | null {
   const { open } = useModalContext();
   if (!open && !forceMount) return null;
   const overlayProps = {
@@ -252,7 +257,7 @@ function ModalContent({
   onPointerDownOutside,
   ref: externalRef,
   ...rest
-}: ModalContentProps & { ref?: Ref<HTMLDialogElement> }) {
+}: ModalContentProps & { ref?: Ref<HTMLDialogElement> }): ReactElement {
   const { ref: innerRef, open, contentId } = useModalContent();
   const { contentCallbacksRef, titleId, descriptionId } = useModalContext();
   // Keep the ref pointed at the latest callbacks so event handlers wired
@@ -297,7 +302,11 @@ ModalContent.displayName = "ModalContent";
  * </Modal.Title>
  * ```
  */
-function ModalTitle({ children, asChild = false, ...rest }: ModalTitleProps) {
+function ModalTitle({
+  children,
+  asChild = false,
+  ...rest
+}: ModalTitleProps): ReactElement {
   const { registerTitle } = useModalContext();
   const id = useId();
 
@@ -342,7 +351,7 @@ function ModalDescription({
   children,
   asChild = false,
   ...rest
-}: ModalDescriptionProps) {
+}: ModalDescriptionProps): ReactElement {
   const { registerDescription } = useModalContext();
   const id = useId();
 
@@ -386,7 +395,11 @@ ModalDescription.displayName = "ModalDescription";
  * </Modal.Close>
  * ```
  */
-function ModalClose({ onClick, asChild = false, ...rest }: ModalCloseProps) {
+function ModalClose({
+  onClick,
+  asChild = false,
+  ...rest
+}: ModalCloseProps): ReactElement {
   const { setOpen } = useModalContext();
   const closeProps = {
     ...rest,

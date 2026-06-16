@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import type { ReactElement } from "react";
 
 import { Slot } from "../Slot/index.ts";
 
@@ -53,7 +54,7 @@ function ProgressRoot({
   asChild = false,
   children,
   ...rest
-}: ProgressRootProps) {
+}: ProgressRootProps): ReactElement {
   const resolved = useProgressRoot({ value, max });
   const { state } = resolved;
 
@@ -120,7 +121,7 @@ function ProgressIndicator({
   asChild = false,
   children,
   ...rest
-}: ProgressIndicatorProps) {
+}: ProgressIndicatorProps): ReactElement {
   const { value, max, state } = useProgressContext();
   const indicatorProps = {
     ...rest,

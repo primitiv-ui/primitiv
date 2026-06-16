@@ -1,3 +1,5 @@
+import type { ReactElement } from "react";
+
 import { useControllableState } from "../hooks/index.ts";
 import { Slot, composeEventHandlers } from "../Slot/index.ts";
 
@@ -50,7 +52,7 @@ function Toggle({
   children,
   ref,
   ...rest
-}: ToggleProps) {
+}: ToggleProps): ReactElement {
   const [pressed, setPressed] = useControllableState<boolean>(
     controlledPressed,
     defaultPressed ?? false,
@@ -73,7 +75,11 @@ function Toggle({
   };
 
   if (asChild) return <Slot {...toggleProps}>{children}</Slot>;
-  return <button type="button" {...toggleProps}>{children}</button>;
+  return (
+    <button type="button" {...toggleProps}>
+      {children}
+    </button>
+  );
 }
 
 Toggle.displayName = "Toggle";

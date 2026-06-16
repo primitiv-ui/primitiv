@@ -1,3 +1,5 @@
+import type { ReactElement } from "react";
+
 import { DividerProps } from "./types";
 
 /**
@@ -43,7 +45,7 @@ export function Divider({
   orientation = "horizontal",
   className = "",
   ...rest
-}: DividerProps) {
+}: DividerProps): ReactElement {
   return (
     <span
       role="separator"

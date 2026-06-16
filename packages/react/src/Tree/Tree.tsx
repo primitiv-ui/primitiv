@@ -1,4 +1,5 @@
 import { Fragment, useLayoutEffect, useRef } from "react";
+import type { ReactElement } from "react";
 
 import { Breadcrumb } from "../Breadcrumb/index.ts";
 import { Slot, composeEventHandlers } from "../Slot/index.ts";
@@ -63,7 +64,7 @@ import type {
  * </Tree.Root>
  * ```
  */
-export function TreeRoot(props: TreeRootProps) {
+export function TreeRoot(props: TreeRootProps): ReactElement {
   const {
     children,
     expandedValues,
@@ -141,7 +142,7 @@ export function TreeItem({
   onFocus,
   onKeyDown,
   ...rest
-}: TreeItemProps) {
+}: TreeItemProps): ReactElement {
   const { depth, parentValue } = useTreeLevelContext();
   const { isSelected, select, registerNode, tabStop, setActiveValue } =
     useTreeContext();
@@ -235,7 +236,7 @@ export function TreeBranch({
   onFocus,
   onKeyDown,
   ...rest
-}: TreeBranchProps) {
+}: TreeBranchProps): ReactElement {
   const { depth, parentValue } = useTreeLevelContext();
   const {
     rootId,
@@ -321,7 +322,7 @@ export function TreeBranchControl({
   children,
   onClick,
   ...rest
-}: TreeBranchControlProps) {
+}: TreeBranchControlProps): ReactElement {
   const { value, disabled, controlId } = useTreeItemContext();
   const { toggleExpanded, select } = useTreeContext();
 
@@ -363,7 +364,7 @@ export function TreeBranchContent({
   children,
   forceMount = false,
   ...rest
-}: TreeBranchContentProps) {
+}: TreeBranchContentProps): ReactElement {
   const { depth } = useTreeLevelContext();
   const { value: branchValue, expanded } = useTreeItemContext();
 
@@ -413,7 +414,7 @@ export function TreeBranchIndicator({
   children,
   asChild = false,
   ...rest
-}: TreeBranchIndicatorProps) {
+}: TreeBranchIndicatorProps): ReactElement {
   const { expanded } = useTreeItemContext();
 
   const indicatorProps = {
@@ -483,7 +484,7 @@ export function TreeSelectionPath({
   children,
   separator,
   ...rest
-}: TreeSelectionPathProps) {
+}: TreeSelectionPathProps): ReactElement {
   const paths = useTreeSelectionPaths();
   const empty = paths.length === 0;
 

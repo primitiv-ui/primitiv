@@ -1,3 +1,5 @@
+import type { ReactElement } from "react";
+
 import { Slot } from "../Slot/index.ts";
 import { StatusProps } from "./types";
 
@@ -31,7 +33,11 @@ import { StatusProps } from "./types";
  * </Status>
  * ```
  */
-export function Status({ asChild = false, children, ...rest }: StatusProps) {
+export function Status({
+  asChild = false,
+  children,
+  ...rest
+}: StatusProps): ReactElement {
   const rootProps = { role: "status", ...rest };
 
   if (asChild) {

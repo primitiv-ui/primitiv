@@ -1,4 +1,5 @@
 import { ChangeEvent, Children, isValidElement, ReactNode } from "react";
+import type { ReactElement } from "react";
 
 import { useFieldProps } from "../Field/hooks/index.ts";
 import { Slot } from "../Slot/index.ts";
@@ -59,7 +60,7 @@ function SelectRoot({
   value,
   defaultValue,
   ...consumer
-}: SelectRootProps) {
+}: SelectRootProps): ReactElement {
   const merged = useFieldProps(consumer);
 
   const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -104,7 +105,7 @@ SelectRoot.displayName = "SelectRoot";
  * Native `<option>` only renders text; rich content (icons, descriptions)
  * is not supported.
  */
-function SelectOption({ children, ...rest }: SelectOptionProps) {
+function SelectOption({ children, ...rest }: SelectOptionProps): ReactElement {
   return <option {...rest}>{children}</option>;
 }
 
@@ -115,7 +116,7 @@ SelectOption.displayName = "SelectOption";
  * native `<optgroup>` element. The `label` is shown by the browser as a
  * non-selectable heading and is announced as the group's accessible name.
  */
-function SelectGroup({ children, ...rest }: SelectGroupProps) {
+function SelectGroup({ children, ...rest }: SelectGroupProps): ReactElement {
   return <optgroup {...rest}>{children}</optgroup>;
 }
 
@@ -131,7 +132,10 @@ SelectGroup.displayName = "SelectGroup";
  * Pair with `required` on {@link Select.Root} to make the browser's
  * native form validation catch an unchosen value at submission.
  */
-function SelectPlaceholder({ children, ...rest }: SelectPlaceholderProps) {
+function SelectPlaceholder({
+  children,
+  ...rest
+}: SelectPlaceholderProps): ReactElement {
   return (
     <option {...rest} value="" disabled hidden>
       {children}

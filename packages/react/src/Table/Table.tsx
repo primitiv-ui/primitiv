@@ -1,3 +1,5 @@
+import type { ReactElement } from "react";
+
 import {
   TableBodyProps,
   TableCaptionProps,
@@ -40,7 +42,7 @@ import {
  * </Table.Root>
  * ```
  */
-function Table({ children, ...rest }: TableRootProps) {
+function Table({ children, ...rest }: TableRootProps): ReactElement {
   return <table {...rest}>{children}</table>;
 }
 
@@ -63,7 +65,7 @@ Table.displayName = "Table";
  * </Table.Head>
  * ```
  */
-function TableHead({ children, ...rest }: TableHeadProps) {
+function TableHead({ children, ...rest }: TableHeadProps): ReactElement {
   return <thead {...rest}>{children}</thead>;
 }
 
@@ -87,7 +89,7 @@ TableHead.displayName = "TableHead";
  * </Table.Body>
  * ```
  */
-function TableBody({ children, ...rest }: TableBodyProps) {
+function TableBody({ children, ...rest }: TableBodyProps): ReactElement {
   return <tbody {...rest}>{children}</tbody>;
 }
 
@@ -110,7 +112,7 @@ TableBody.displayName = "TableBody";
  * </Table.Footer>
  * ```
  */
-function TableFooter({ children, ...rest }: TableFooterProps) {
+function TableFooter({ children, ...rest }: TableFooterProps): ReactElement {
   return <tfoot {...rest}>{children}</tfoot>;
 }
 
@@ -132,7 +134,7 @@ TableFooter.displayName = "TableFooter";
  * </Table.Row>
  * ```
  */
-function TableRow({ children, ...rest }: TableRowProps) {
+function TableRow({ children, ...rest }: TableRowProps): ReactElement {
   return <tr {...rest}>{children}</tr>;
 }
 
@@ -166,7 +168,7 @@ TableRow.displayName = "TableRow";
  * <Table.Header scope="row">Alice</Table.Header>
  * ```
  */
-function TableHeader({ children, ...rest }: TableHeaderProps) {
+function TableHeader({ children, ...rest }: TableHeaderProps): ReactElement {
   return <th {...rest}>{children}</th>;
 }
 
@@ -188,7 +190,7 @@ TableHeader.displayName = "TableHeader";
  * <Table.Cell colSpan={2}>Full-width note</Table.Cell>
  * ```
  */
-function TableCell({ children, ...rest }: TableCellProps) {
+function TableCell({ children, ...rest }: TableCellProps): ReactElement {
   return <td {...rest}>{children}</td>;
 }
 
@@ -222,7 +224,11 @@ TableCell.displayName = "TableCell";
  * </Table.ScrollArea>
  * ```
  */
-function TableScrollArea({ children, style, ...rest }: TableScrollAreaProps) {
+function TableScrollArea({
+  children,
+  style,
+  ...rest
+}: TableScrollAreaProps): ReactElement {
   return (
     <div
       style={{
@@ -277,7 +283,7 @@ function TableCaption({
   children,
   captionSide = "bottom",
   ...rest
-}: TableCaptionProps) {
+}: TableCaptionProps): ReactElement {
   return (
     <caption style={{ captionSide }} {...rest}>
       {children}

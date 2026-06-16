@@ -1,3 +1,4 @@
+import type { Context } from "react";
 import { createStrictContext } from "../utils/index.ts";
 
 import type { SliderDirection, SliderOrientation } from "./types";
@@ -17,8 +18,11 @@ export type SliderContextValue = {
   commit: (values: number[]) => void;
 };
 
-export const [SliderContext, useSliderContext] =
-  createStrictContext<SliderContextValue>(
-    "Slider sub-components must be rendered inside a <Slider.Root>.",
-    "SliderContext",
-  );
+const sliderContextPair = createStrictContext<SliderContextValue>(
+  "Slider sub-components must be rendered inside a <Slider.Root>.",
+  "SliderContext",
+);
+
+export const SliderContext: Context<SliderContextValue | null> =
+  sliderContextPair[0];
+export const useSliderContext: () => SliderContextValue = sliderContextPair[1];

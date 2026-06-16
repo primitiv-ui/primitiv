@@ -26,7 +26,7 @@ import {
  * </Breadcrumb.Root>
  * ```
  */
-function BreadcrumbRoot({
+export function BreadcrumbRoot({
   children,
   ...rest
 }: BreadcrumbRootProps): ReactElement {
@@ -37,6 +37,7 @@ function BreadcrumbRoot({
   );
 }
 
+/** @internal */
 BreadcrumbRoot.displayName = "BreadcrumbRoot";
 
 /**
@@ -56,13 +57,14 @@ BreadcrumbRoot.displayName = "BreadcrumbRoot";
  * </Breadcrumb.List>
  * ```
  */
-function BreadcrumbList({
+export function BreadcrumbList({
   children,
   ...rest
 }: BreadcrumbListProps): ReactElement {
   return <ol {...rest}>{children}</ol>;
 }
 
+/** @internal */
 BreadcrumbList.displayName = "BreadcrumbList";
 
 /**
@@ -78,13 +80,14 @@ BreadcrumbList.displayName = "BreadcrumbList";
  * </Breadcrumb.Item>
  * ```
  */
-function BreadcrumbItem({
+export function BreadcrumbItem({
   children,
   ...rest
 }: BreadcrumbItemProps): ReactElement {
   return <li {...rest}>{children}</li>;
 }
 
+/** @internal */
 BreadcrumbItem.displayName = "BreadcrumbItem";
 
 /**
@@ -109,7 +112,7 @@ BreadcrumbItem.displayName = "BreadcrumbItem";
  * </Breadcrumb.Link>
  * ```
  */
-function BreadcrumbLink({
+export function BreadcrumbLink({
   children,
   asChild = false,
   ...rest
@@ -120,6 +123,7 @@ function BreadcrumbLink({
   return <a {...rest}>{children}</a>;
 }
 
+/** @internal */
 BreadcrumbLink.displayName = "BreadcrumbLink";
 
 /**
@@ -136,7 +140,7 @@ BreadcrumbLink.displayName = "BreadcrumbLink";
  * </Breadcrumb.Item>
  * ```
  */
-function BreadcrumbPage({
+export function BreadcrumbPage({
   children,
   ...rest
 }: BreadcrumbPageProps): ReactElement {
@@ -147,6 +151,7 @@ function BreadcrumbPage({
   );
 }
 
+/** @internal */
 BreadcrumbPage.displayName = "BreadcrumbPage";
 
 /**
@@ -171,7 +176,7 @@ BreadcrumbPage.displayName = "BreadcrumbPage";
  * <Breadcrumb.Separator><ChevronRight /></Breadcrumb.Separator>
  * ```
  */
-function BreadcrumbSeparator({
+export function BreadcrumbSeparator({
   children = "/",
   ...rest
 }: BreadcrumbSeparatorProps): ReactElement {
@@ -182,9 +187,11 @@ function BreadcrumbSeparator({
   );
 }
 
+/** @internal */
 BreadcrumbSeparator.displayName = "BreadcrumbSeparator";
 
-type TBreadcrumbCompound = typeof BreadcrumbRoot & {
+/** Type of the {@link Breadcrumb} compound: the root callable plus its attached sub-components. */
+export type TBreadcrumbCompound = typeof BreadcrumbRoot & {
   Root: typeof BreadcrumbRoot;
   List: typeof BreadcrumbList;
   Item: typeof BreadcrumbItem;
@@ -243,6 +250,7 @@ const BreadcrumbCompound: TBreadcrumbCompound = Object.assign(BreadcrumbRoot, {
   Separator: BreadcrumbSeparator,
 });
 
+/** @internal */
 BreadcrumbCompound.displayName = "Breadcrumb";
 
 export { BreadcrumbCompound as Breadcrumb };

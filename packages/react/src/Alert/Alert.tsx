@@ -46,4 +46,5 @@ export function Alert({
   return <div {...rootProps}>{children}</div>;
 }
 
+/** @internal */
 Alert.displayName = "Alert";

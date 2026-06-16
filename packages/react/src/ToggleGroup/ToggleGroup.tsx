@@ -63,7 +63,7 @@ import { ToggleGroupItemProps, ToggleGroupRootProps } from "./types";
  * </ToggleGroup.Root>
  * ```
  */
-function ToggleGroupRoot({
+export function ToggleGroupRoot({
   type,
   defaultValue,
   value: controlledValue,
@@ -139,6 +139,7 @@ function ToggleGroupRoot({
   );
 }
 
+/** @internal */
 ToggleGroupRoot.displayName = "ToggleGroupRoot";
 
 /**
@@ -168,7 +169,7 @@ ToggleGroupRoot.displayName = "ToggleGroupRoot";
  *
  * @throws if rendered outside a `ToggleGroup.Root`.
  */
-function ToggleGroupItem({
+export function ToggleGroupItem({
   value,
   disabled,
   asChild = false,
@@ -251,9 +252,14 @@ function ToggleGroupItem({
   );
 }
 
+/** @internal */
 ToggleGroupItem.displayName = "ToggleGroupItem";
 
-type TToggleGroupCompound = typeof ToggleGroupRoot & {
+/**
+ * The shape of the exported `ToggleGroup` value — callable as
+ * `ToggleGroup.Root` and carrying `Root` and `Item` as static properties.
+ */
+export type TToggleGroupCompound = typeof ToggleGroupRoot & {
   Root: typeof ToggleGroupRoot;
   Item: typeof ToggleGroupItem;
 };

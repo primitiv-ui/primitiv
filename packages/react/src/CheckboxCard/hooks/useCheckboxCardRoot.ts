@@ -2,7 +2,7 @@ import { useCallback } from "react";
 
 import { useControllableState } from "../../hooks/index.ts";
 
-import { CheckedState } from "../types";
+import type { CheckedState } from "../../Checkbox/types";
 
 type UseCheckboxCardRootArgs = {
   defaultChecked?: CheckedState;

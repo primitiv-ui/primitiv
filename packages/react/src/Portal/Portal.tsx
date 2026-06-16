@@ -24,6 +24,7 @@ function Portal({ children, container }: PortalProps): ReactPortal {
   return createPortal(children, container ?? document.body);
 }
 
+/** @internal */
 Portal.displayName = "Portal";
 
 export { Portal };

@@ -47,4 +47,5 @@ export function Status({
   return <div {...rootProps}>{children}</div>;
 }
 
+/** @internal */
 Status.displayName = "Status";

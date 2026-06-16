@@ -68,7 +68,7 @@ import { MENUITEM_SELECTOR, TYPEAHEAD_RESET_MS } from "./constants";
  * keys (`ArrowRight` ↔ `ArrowLeft`). When omitted, the component reads
  * the inherited {@link DirectionProvider} value, falling back to `"ltr"`.
  */
-function ContextMenuRoot({
+export function ContextMenuRoot({
   defaultOpen = false,
   open: controlledOpen,
   onOpenChange,
@@ -119,6 +119,7 @@ function ContextMenuRoot({
   );
 }
 
+/** @internal */
 ContextMenuRoot.displayName = "ContextMenuRoot";
 
 /**
@@ -141,7 +142,7 @@ function useCloseSiblingSub() {
  * the native menu is suppressed and the ContextMenu opens, positioned at
  * the pointer.
  */
-function ContextMenuTrigger({
+export function ContextMenuTrigger({
   children,
   onContextMenu,
   asChild = false,
@@ -172,6 +173,7 @@ function ContextMenuTrigger({
   return <span {...triggerProps}>{children}</span>;
 }
 
+/** @internal */
 ContextMenuTrigger.displayName = "ContextMenuTrigger";
 
 /**
@@ -196,7 +198,7 @@ ContextMenuTrigger.displayName = "ContextMenuTrigger";
  * that flip the menu to the opposite side when it would overflow the
  * viewport. Pass `asChild` to render any element with menu semantics.
  */
-function ContextMenuContent({
+export function ContextMenuContent({
   children,
   style,
   onKeyDown,
@@ -374,6 +376,7 @@ function ContextMenuContent({
   );
 }
 
+/** @internal */
 ContextMenuContent.displayName = "ContextMenuContent";
 
 /**
@@ -387,7 +390,7 @@ ContextMenuContent.displayName = "ContextMenuContent";
  *
  * Disabled items receive `aria-disabled="true"` and no-op on activation.
  */
-function ContextMenuItem({
+export function ContextMenuItem({
   children,
   onClick,
   onSelect,
@@ -431,6 +434,7 @@ function ContextMenuItem({
   return <li {...itemProps}>{children}</li>;
 }
 
+/** @internal */
 ContextMenuItem.displayName = "ContextMenuItem";
 
 /**
@@ -438,7 +442,7 @@ ContextMenuItem.displayName = "ContextMenuItem";
  * by default. Non-interactive — skipped by focus, arrow navigation, and
  * typeahead.
  */
-function ContextMenuSeparator({
+export function ContextMenuSeparator({
   asChild = false,
   children,
   ...rest
@@ -452,6 +456,7 @@ function ContextMenuSeparator({
   return <li {...separatorProps} />;
 }
 
+/** @internal */
 ContextMenuSeparator.displayName = "ContextMenuSeparator";
 
 /**
@@ -462,7 +467,7 @@ ContextMenuSeparator.displayName = "ContextMenuSeparator";
  * Generates a stable id for its accompanying {@link ContextMenuLabel |
  * `ContextMenu.Label`}, wired automatically via `aria-labelledby`.
  */
-function ContextMenuGroup({
+export function ContextMenuGroup({
   children,
   asChild = false,
   ...rest
@@ -488,6 +493,7 @@ function ContextMenuGroup({
   );
 }
 
+/** @internal */
 ContextMenuGroup.displayName = "ContextMenuGroup";
 
 /**
@@ -497,7 +503,7 @@ ContextMenuGroup.displayName = "ContextMenuGroup";
  * consumers don't need to thread ids manually. A caller-supplied `id` takes
  * precedence over the auto-generated one.
  */
-function ContextMenuLabel({
+export function ContextMenuLabel({
   id,
   children,
   asChild = false,
@@ -513,6 +519,7 @@ function ContextMenuLabel({
   return <li {...labelProps}>{children}</li>;
 }
 
+/** @internal */
 ContextMenuLabel.displayName = "ContextMenuLabel";
 
 /**
@@ -527,7 +534,7 @@ ContextMenuLabel.displayName = "ContextMenuLabel";
  *
  * Disabled items receive `aria-disabled="true"` and no-op on activation.
  */
-function ContextMenuCheckboxItem({
+export function ContextMenuCheckboxItem({
   children,
   onClick,
   onSelect,
@@ -590,6 +597,7 @@ function ContextMenuCheckboxItem({
   );
 }
 
+/** @internal */
 ContextMenuCheckboxItem.displayName = "ContextMenuCheckboxItem";
 
 /**
@@ -605,7 +613,7 @@ ContextMenuCheckboxItem.displayName = "ContextMenuCheckboxItem";
  * {@link ContextMenuItemIndicatorProps.forceMount | `forceMount`} to keep
  * the DOM node mounted in both states for animation use cases.
  */
-function ContextMenuItemIndicator({
+export function ContextMenuItemIndicator({
   children,
   asChild = false,
   forceMount = false,
@@ -637,6 +645,7 @@ function ContextMenuItemIndicator({
   return <span {...indicatorProps}>{children}</span>;
 }
 
+/** @internal */
 ContextMenuItemIndicator.displayName = "ContextMenuItemIndicator";
 
 /**
@@ -644,7 +653,7 @@ ContextMenuItemIndicator.displayName = "ContextMenuItemIndicator";
  * {@link ContextMenuRadioItem | `ContextMenu.RadioItem`} elements. Renders a
  * `<li role="group">` wrapping `<ul role="none">`.
  */
-function ContextMenuRadioGroup({
+export function ContextMenuRadioGroup({
   defaultValue,
   value: controlledValue,
   onValueChange,
@@ -673,6 +682,7 @@ function ContextMenuRadioGroup({
   );
 }
 
+/** @internal */
 ContextMenuRadioGroup.displayName = "ContextMenuRadioGroup";
 
 /**
@@ -687,7 +697,7 @@ ContextMenuRadioGroup.displayName = "ContextMenuRadioGroup";
  * {@link ContextMenuRadioItemProps.onSelect | `onSelect`} with a cancellable
  * `Event`. Call `event.preventDefault()` to keep the menu open.
  */
-function ContextMenuRadioItem({
+export function ContextMenuRadioItem({
   children,
   onClick,
   onSelect,
@@ -748,6 +758,7 @@ function ContextMenuRadioItem({
   );
 }
 
+/** @internal */
 ContextMenuRadioItem.displayName = "ContextMenuRadioItem";
 
 /**
@@ -757,7 +768,7 @@ ContextMenuRadioItem.displayName = "ContextMenuRadioItem";
  * menu. Supports uncontrolled (`defaultOpen`) and controlled (`open` +
  * `onOpenChange`) modes.
  */
-function ContextMenuSub({
+export function ContextMenuSub({
   defaultOpen,
   open: controlledOpen,
   onOpenChange,
@@ -813,6 +824,7 @@ function ContextMenuSub({
   );
 }
 
+/** @internal */
 ContextMenuSub.displayName = "ContextMenuSub";
 
 /**
@@ -828,7 +840,7 @@ ContextMenuSub.displayName = "ContextMenuSub";
  * `ArrowRight` in `"ltr"`, `ArrowLeft` in `"rtl"`. Disabled triggers
  * ignore both click and the open arrow key.
  */
-function ContextMenuSubTrigger({
+export function ContextMenuSubTrigger({
   children,
   onClick,
   onKeyDown,
@@ -879,6 +891,7 @@ function ContextMenuSubTrigger({
   return <li {...subTriggerProps}>{children}</li>;
 }
 
+/** @internal */
 ContextMenuSubTrigger.displayName = "ContextMenuSubTrigger";
 
 /**
@@ -890,7 +903,7 @@ ContextMenuSubTrigger.displayName = "ContextMenuSubTrigger";
  * key closes the submenu and returns focus to the SubTrigger —
  * `ArrowLeft` in `"ltr"`, `ArrowRight` in `"rtl"`.
  */
-function ContextMenuSubContent({
+export function ContextMenuSubContent({
   children,
   onKeyDown,
   asChild = false,
@@ -961,9 +974,11 @@ function ContextMenuSubContent({
   );
 }
 
+/** @internal */
 ContextMenuSubContent.displayName = "ContextMenuSubContent";
 
-type TContextMenuCompound = typeof ContextMenuRoot & {
+/** Type of the {@link ContextMenu} compound: the root callable plus its attached sub-components. */
+export type TContextMenuCompound = typeof ContextMenuRoot & {
   Root: typeof ContextMenuRoot;
   Trigger: typeof ContextMenuTrigger;
   Content: typeof ContextMenuContent;
@@ -980,6 +995,15 @@ type TContextMenuCompound = typeof ContextMenuRoot & {
   SubContent: typeof ContextMenuSubContent;
 };
 
+/**
+ * Headless, accessible **ContextMenu** — a compound component implementing the
+ * [WAI-ARIA menu pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menu/) opened
+ * by a right-click (or long-press) on its trigger, with submenus, checkbox and
+ * radio items, groups, labels and separators. Zero styles ship.
+ *
+ * The default export is the `Root`; sub-components are attached as static
+ * properties (`ContextMenu.Trigger`, `ContextMenu.Content`, …).
+ */
 const ContextMenuCompound: TContextMenuCompound = Object.assign(
   ContextMenuRoot,
   {
@@ -1000,6 +1024,7 @@ const ContextMenuCompound: TContextMenuCompound = Object.assign(
   },
 );
 
+/** @internal */
 ContextMenuCompound.displayName = "ContextMenu";
 
 export { ContextMenuCompound as ContextMenu };

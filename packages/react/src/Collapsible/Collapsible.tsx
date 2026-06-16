@@ -88,6 +88,7 @@ export function CollapsibleRoot({
   );
 }
 
+/** @internal */
 CollapsibleRoot.displayName = "CollapsibleRoot";
 
 /**
@@ -171,6 +172,7 @@ export function CollapsibleTrigger<T extends HTMLElement = HTMLButtonElement>({
   );
 }
 
+/** @internal */
 CollapsibleTrigger.displayName = "CollapsibleTrigger";
 
 /**
@@ -241,6 +243,7 @@ export function CollapsibleContent({
   );
 }
 
+/** @internal */
 CollapsibleContent.displayName = "CollapsibleContent";
 
 /**
@@ -293,15 +296,27 @@ export function CollapsibleTriggerIcon({
   );
 }
 
+/** @internal */
 CollapsibleTriggerIcon.displayName = "CollapsibleTriggerIcon";
 
+/** Type of the {@link Collapsible} compound — the Root callable plus its sub-components. */
 type CollapsibleCompound = typeof CollapsibleRoot & {
+  /** The root, owning open/closed state and context. */
   Root: typeof CollapsibleRoot;
+  /** The button that toggles the panel. */
   Trigger: typeof CollapsibleTrigger;
+  /** The collapsible panel. */
   Content: typeof CollapsibleContent;
+  /** An aria-hidden icon wrapper with an open/closed `data-state` hook. */
   TriggerIcon: typeof CollapsibleTriggerIcon;
 };
 
+/**
+ * Collapsible — a single disclosure widget pairing a trigger with a panel
+ * that expands and collapses. Use as a namespace (`Collapsible.Root`,
+ * `Collapsible.Trigger`, `Collapsible.Content`, `Collapsible.TriggerIcon`);
+ * the default export is also callable as the Root.
+ */
 const CollapsibleCompound: CollapsibleCompound = Object.assign(
   CollapsibleRoot,
   {

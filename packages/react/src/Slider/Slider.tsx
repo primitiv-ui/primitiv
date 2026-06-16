@@ -74,7 +74,7 @@ import { getRangeStyle } from "./utils";
  * </Slider.Root>
  * ```
  */
-function SliderRoot({
+export function SliderRoot({
   min = 0,
   max = 100,
   step = 1,
@@ -142,6 +142,7 @@ function SliderRoot({
   );
 }
 
+/** @internal */
 SliderRoot.displayName = "SliderRoot";
 
 /**
@@ -153,7 +154,7 @@ SliderRoot.displayName = "SliderRoot";
  *
  * @throws if rendered outside a `Slider.Root`.
  */
-function SliderTrack({
+export function SliderTrack({
   children,
   asChild = false,
   ...rest
@@ -171,6 +172,7 @@ function SliderTrack({
   );
 }
 
+/** @internal */
 SliderTrack.displayName = "SliderTrack";
 
 /**
@@ -183,7 +185,7 @@ SliderTrack.displayName = "SliderTrack";
  *
  * @throws if rendered outside a `Slider.Root`.
  */
-function SliderRange({
+export function SliderRange({
   style,
   asChild = false,
   children,
@@ -207,6 +209,7 @@ function SliderRange({
   );
 }
 
+/** @internal */
 SliderRange.displayName = "SliderRange";
 
 /**
@@ -230,7 +233,7 @@ SliderRange.displayName = "SliderRange";
  *
  * @throws if rendered outside a `Slider.Root`.
  */
-function SliderThumb({
+export function SliderThumb({
   style,
   ref: forwardedRef,
   onKeyDown,
@@ -270,9 +273,11 @@ function SliderThumb({
   );
 }
 
+/** @internal */
 SliderThumb.displayName = "SliderThumb";
 
-type TSliderCompound = typeof SliderRoot & {
+/** Static-property shape of the compound {@link Slider} export: the callable {@link SliderRoot} plus its namespaced sub-components. */
+export type TSliderCompound = typeof SliderRoot & {
   Root: typeof SliderRoot;
   Track: typeof SliderTrack;
   Range: typeof SliderRange;

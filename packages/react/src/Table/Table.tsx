@@ -42,11 +42,12 @@ import {
  * </Table.Root>
  * ```
  */
-function Table({ children, ...rest }: TableRootProps): ReactElement {
+export function TableRoot({ children, ...rest }: TableRootProps): ReactElement {
   return <table {...rest}>{children}</table>;
 }
 
-Table.displayName = "Table";
+/** @internal */
+TableRoot.displayName = "Table";
 
 /**
  * Groups header rows inside a `<thead>` element.
@@ -65,10 +66,11 @@ Table.displayName = "Table";
  * </Table.Head>
  * ```
  */
-function TableHead({ children, ...rest }: TableHeadProps): ReactElement {
+export function TableHead({ children, ...rest }: TableHeadProps): ReactElement {
   return <thead {...rest}>{children}</thead>;
 }
 
+/** @internal */
 TableHead.displayName = "TableHead";
 
 /**
@@ -89,10 +91,11 @@ TableHead.displayName = "TableHead";
  * </Table.Body>
  * ```
  */
-function TableBody({ children, ...rest }: TableBodyProps): ReactElement {
+export function TableBody({ children, ...rest }: TableBodyProps): ReactElement {
   return <tbody {...rest}>{children}</tbody>;
 }
 
+/** @internal */
 TableBody.displayName = "TableBody";
 
 /**
@@ -112,10 +115,14 @@ TableBody.displayName = "TableBody";
  * </Table.Footer>
  * ```
  */
-function TableFooter({ children, ...rest }: TableFooterProps): ReactElement {
+export function TableFooter({
+  children,
+  ...rest
+}: TableFooterProps): ReactElement {
   return <tfoot {...rest}>{children}</tfoot>;
 }
 
+/** @internal */
 TableFooter.displayName = "TableFooter";
 
 /**
@@ -134,10 +141,11 @@ TableFooter.displayName = "TableFooter";
  * </Table.Row>
  * ```
  */
-function TableRow({ children, ...rest }: TableRowProps): ReactElement {
+export function TableRow({ children, ...rest }: TableRowProps): ReactElement {
   return <tr {...rest}>{children}</tr>;
 }
 
+/** @internal */
 TableRow.displayName = "TableRow";
 
 /**
@@ -168,10 +176,14 @@ TableRow.displayName = "TableRow";
  * <Table.Header scope="row">Alice</Table.Header>
  * ```
  */
-function TableHeader({ children, ...rest }: TableHeaderProps): ReactElement {
+export function TableHeader({
+  children,
+  ...rest
+}: TableHeaderProps): ReactElement {
   return <th {...rest}>{children}</th>;
 }
 
+/** @internal */
 TableHeader.displayName = "TableHeader";
 
 /**
@@ -190,10 +202,11 @@ TableHeader.displayName = "TableHeader";
  * <Table.Cell colSpan={2}>Full-width note</Table.Cell>
  * ```
  */
-function TableCell({ children, ...rest }: TableCellProps): ReactElement {
+export function TableCell({ children, ...rest }: TableCellProps): ReactElement {
   return <td {...rest}>{children}</td>;
 }
 
+/** @internal */
 TableCell.displayName = "TableCell";
 
 /**
@@ -224,7 +237,7 @@ TableCell.displayName = "TableCell";
  * </Table.ScrollArea>
  * ```
  */
-function TableScrollArea({
+export function TableScrollArea({
   children,
   style,
   ...rest
@@ -244,6 +257,7 @@ function TableScrollArea({
   );
 }
 
+/** @internal */
 TableScrollArea.displayName = "TableScrollArea";
 
 /**
@@ -279,7 +293,7 @@ TableScrollArea.displayName = "TableScrollArea";
  * </Table.Root>
  * ```
  */
-function TableCaption({
+export function TableCaption({
   children,
   captionSide = "bottom",
   ...rest
@@ -291,10 +305,15 @@ function TableCaption({
   );
 }
 
+/** @internal */
 TableCaption.displayName = "TableCaption";
 
-type TableCompound = typeof Table & {
-  Root: typeof Table;
+/**
+ * The shape of the exported `Table` value — callable as `Table.Root` and
+ * carrying every sub-component as a static property.
+ */
+export type TableCompound = typeof TableRoot & {
+  Root: typeof TableRoot;
   Head: typeof TableHead;
   Body: typeof TableBody;
   Footer: typeof TableFooter;
@@ -304,18 +323,6 @@ type TableCompound = typeof Table & {
   ScrollArea: typeof TableScrollArea;
   Caption: typeof TableCaption;
 };
-
-const TableCompound: TableCompound = Object.assign(Table, {
-  Root: Table,
-  Head: TableHead,
-  Body: TableBody,
-  Footer: TableFooter,
-  Row: TableRow,
-  Header: TableHeader,
-  Cell: TableCell,
-  ScrollArea: TableScrollArea,
-  Caption: TableCaption,
-});
 
 /**
  * Headless, accessible **Table** — a compound component wrapping standard
@@ -381,6 +388,19 @@ const TableCompound: TableCompound = Object.assign(Table, {
  * @see {@link TableCaption} for caption placement and why it beats `aria-label`.
  * @see {@link TableScrollArea} for the horizontal-scroll style caveat.
  */
+const TableCompound: TableCompound = Object.assign(TableRoot, {
+  Root: TableRoot,
+  Head: TableHead,
+  Body: TableBody,
+  Footer: TableFooter,
+  Row: TableRow,
+  Header: TableHeader,
+  Cell: TableCell,
+  ScrollArea: TableScrollArea,
+  Caption: TableCaption,
+});
+
+/** @internal */
 TableCompound.displayName = "Table";
 
 export { TableCompound as Table };

@@ -119,4 +119,5 @@ export function Input({
   return <input type={type} {...rootProps} />;
 }
 
+/** @internal */
 Input.displayName = "Input";

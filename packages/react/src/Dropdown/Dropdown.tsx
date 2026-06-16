@@ -85,7 +85,7 @@ import { MENUITEM_SELECTOR } from "./constants";
  * </Dropdown.Root>
  * ```
  */
-function DropdownRoot({
+export function DropdownRoot({
   defaultOpen,
   open,
   onOpenChange,
@@ -107,6 +107,7 @@ function DropdownRoot({
   );
 }
 
+/** @internal */
 DropdownRoot.displayName = "DropdownRoot";
 
 /**
@@ -127,7 +128,7 @@ DropdownRoot.displayName = "DropdownRoot";
  * </Dropdown.Trigger>
  * ```
  */
-function DropdownTrigger({
+export function DropdownTrigger({
   children,
   onClick,
   asChild = false,
@@ -146,6 +147,7 @@ function DropdownTrigger({
   );
 }
 
+/** @internal */
 DropdownTrigger.displayName = "DropdownTrigger";
 
 /**
@@ -179,7 +181,7 @@ DropdownTrigger.displayName = "DropdownTrigger";
  * lands on the next sibling item in the parent rather than getting
  * stuck on a non-focusable item inside a closed sub-popover.
  */
-function DropdownContent({
+export function DropdownContent({
   children,
   onKeyDown,
   asChild = false,
@@ -201,6 +203,7 @@ function DropdownContent({
   );
 }
 
+/** @internal */
 DropdownContent.displayName = "DropdownContent";
 
 /**
@@ -216,7 +219,7 @@ DropdownContent.displayName = "DropdownContent";
  * Disabled items receive `aria-disabled="true"` and are skipped by arrow
  * navigation, typeahead, and activation handlers.
  */
-function DropdownItem({
+export function DropdownItem({
   children,
   onClick,
   onSelect,
@@ -238,6 +241,7 @@ function DropdownItem({
   return <li {...itemProps}>{children}</li>;
 }
 
+/** @internal */
 DropdownItem.displayName = "DropdownItem";
 
 /**
@@ -245,7 +249,7 @@ DropdownItem.displayName = "DropdownItem";
  * by default; pass `asChild` to render any element with separator semantics.
  * Non-interactive — skipped by focus, arrow navigation, and typeahead.
  */
-function DropdownSeparator({
+export function DropdownSeparator({
   asChild = false,
   children,
   ...rest
@@ -259,6 +263,7 @@ function DropdownSeparator({
   return <li {...separatorProps} />;
 }
 
+/** @internal */
 DropdownSeparator.displayName = "DropdownSeparator";
 
 /**
@@ -271,7 +276,7 @@ DropdownSeparator.displayName = "DropdownSeparator";
  * first child to provide the accessible name; screen readers will announce
  * the group when arrowing into it.
  */
-function DropdownGroup({
+export function DropdownGroup({
   children,
   asChild = false,
   ...rest
@@ -291,6 +296,7 @@ function DropdownGroup({
   );
 }
 
+/** @internal */
 DropdownGroup.displayName = "DropdownGroup";
 
 /**
@@ -302,7 +308,7 @@ DropdownGroup.displayName = "DropdownGroup";
  * Renders a `<li>` by default; pass `asChild` to render any element. A
  * caller-supplied `id` takes precedence over the auto-generated one.
  */
-function DropdownLabel({
+export function DropdownLabel({
   id,
   children,
   asChild = false,
@@ -316,6 +322,7 @@ function DropdownLabel({
   return <li {...labelProps}>{children}</li>;
 }
 
+/** @internal */
 DropdownLabel.displayName = "DropdownLabel";
 
 /**
@@ -344,7 +351,7 @@ DropdownLabel.displayName = "DropdownLabel";
  *
  * Disabled items receive `aria-disabled="true"` and no-op on activation.
  */
-function DropdownCheckboxItem({
+export function DropdownCheckboxItem({
   children,
   onClick,
   onSelect,
@@ -404,6 +411,7 @@ function DropdownCheckboxItem({
   );
 }
 
+/** @internal */
 DropdownCheckboxItem.displayName = "DropdownCheckboxItem";
 
 /**
@@ -418,7 +426,7 @@ DropdownCheckboxItem.displayName = "DropdownCheckboxItem";
  *   Optional `onValueChange` observes selections.
  * - **Controlled** — pass `value` *and* `onValueChange` together.
  */
-function DropdownRadioGroup({
+export function DropdownRadioGroup({
   defaultValue,
   value: controlledValue,
   onValueChange,
@@ -446,6 +454,7 @@ function DropdownRadioGroup({
   );
 }
 
+/** @internal */
 DropdownRadioGroup.displayName = "DropdownRadioGroup";
 
 /**
@@ -468,7 +477,7 @@ DropdownRadioGroup.displayName = "DropdownRadioGroup";
  *
  * Disabled items receive `aria-disabled="true"` and no-op on activation.
  */
-function DropdownRadioItem({
+export function DropdownRadioItem({
   children,
   onClick,
   onSelect,
@@ -526,6 +535,7 @@ function DropdownRadioItem({
   );
 }
 
+/** @internal */
 DropdownRadioItem.displayName = "DropdownRadioItem";
 
 /**
@@ -555,7 +565,7 @@ DropdownRadioItem.displayName = "DropdownRadioItem";
  * </Dropdown.CheckboxItem>
  * ```
  */
-function DropdownItemIndicator({
+export function DropdownItemIndicator({
   children,
   asChild = false,
   forceMount = false,
@@ -582,6 +592,7 @@ function DropdownItemIndicator({
   return <span {...indicatorProps}>{children}</span>;
 }
 
+/** @internal */
 DropdownItemIndicator.displayName = "DropdownItemIndicator";
 
 /**
@@ -609,7 +620,7 @@ DropdownItemIndicator.displayName = "DropdownItemIndicator";
  * </Dropdown.Root>
  * ```
  */
-function DropdownSub({
+export function DropdownSub({
   defaultOpen,
   open: controlledOpen,
   onOpenChange,
@@ -651,6 +662,7 @@ function DropdownSub({
   );
 }
 
+/** @internal */
 DropdownSub.displayName = "DropdownSub";
 
 /**
@@ -672,7 +684,7 @@ DropdownSub.displayName = "DropdownSub";
  * Disabled triggers receive `aria-disabled="true"` and ignore both click
  * and the open arrow key.
  */
-function DropdownSubTrigger({
+export function DropdownSubTrigger({
   children,
   onClick,
   onKeyDown,
@@ -721,6 +733,7 @@ function DropdownSubTrigger({
   return <li {...subTriggerProps}>{children}</li>;
 }
 
+/** @internal */
 DropdownSubTrigger.displayName = "DropdownSubTrigger";
 
 /**
@@ -737,7 +750,7 @@ DropdownSubTrigger.displayName = "DropdownSubTrigger";
  * to the parent {@link DropdownContent | `Dropdown.Content`} so arrow
  * navigation and typeahead apply to the submenu's items.
  */
-function DropdownSubContent({
+export function DropdownSubContent({
   children,
   onKeyDown,
   asChild = false,
@@ -802,9 +815,11 @@ function DropdownSubContent({
   );
 }
 
+/** @internal */
 DropdownSubContent.displayName = "DropdownSubContent";
 
-type TDropdownCompound = typeof DropdownRoot & {
+/** Type of the {@link Dropdown} compound: the root callable plus its attached sub-components. */
+export type TDropdownCompound = typeof DropdownRoot & {
   Root: typeof DropdownRoot;
   Trigger: typeof DropdownTrigger;
   Content: typeof DropdownContent;
@@ -821,6 +836,15 @@ type TDropdownCompound = typeof DropdownRoot & {
   SubContent: typeof DropdownSubContent;
 };
 
+/**
+ * Headless, accessible **Dropdown** menu — a compound component implementing the
+ * [WAI-ARIA menu-button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/)
+ * with submenus, checkbox and radio items, groups, labels and separators. Zero
+ * styles ship.
+ *
+ * The default export is the `Root`; sub-components are attached as static
+ * properties (`Dropdown.Trigger`, `Dropdown.Content`, …).
+ */
 const DropdownCompound: TDropdownCompound = Object.assign(DropdownRoot, {
   Root: DropdownRoot,
   Trigger: DropdownTrigger,
@@ -838,6 +862,7 @@ const DropdownCompound: TDropdownCompound = Object.assign(DropdownRoot, {
   SubContent: DropdownSubContent,
 });
 
+/** @internal */
 DropdownCompound.displayName = "Dropdown";
 
 export { DropdownCompound as Dropdown };

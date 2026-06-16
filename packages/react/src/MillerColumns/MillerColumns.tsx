@@ -81,6 +81,7 @@ export function MillerColumnsRoot({
   );
 }
 
+/** @internal */
 MillerColumnsRoot.displayName = "MillerColumnsRoot";
 
 /**
@@ -123,6 +124,7 @@ export function MillerColumnsColumn({
   );
 }
 
+/** @internal */
 MillerColumnsColumn.displayName = "MillerColumnsColumn";
 
 /**
@@ -186,6 +188,7 @@ export function MillerColumnsItem<T extends HTMLElement = HTMLDivElement>({
   );
 }
 
+/** @internal */
 MillerColumnsItem.displayName = "MillerColumnsItem";
 
 /**
@@ -232,6 +235,7 @@ export function MillerColumnsItemIndicator({
   );
 }
 
+/** @internal */
 MillerColumnsItemIndicator.displayName = "MillerColumnsItemIndicator";
 
 /**
@@ -259,6 +263,7 @@ export function MillerColumnsResizeHandle(
   return <div {...handleProps} />;
 }
 
+/** @internal */
 MillerColumnsResizeHandle.displayName = "MillerColumnsResizeHandle";
 
 /**
@@ -302,17 +307,31 @@ export function MillerColumnsPreviewPanel({
   );
 }
 
+/** @internal */
 MillerColumnsPreviewPanel.displayName = "MillerColumnsPreviewPanel";
 
+/** Type of the {@link MillerColumns} compound — the Root callable plus its sub-components. */
 type MillerColumnsCompound = typeof MillerColumnsRoot & {
+  /** The root strip, owning selection state and portal slots. */
   Root: typeof MillerColumnsRoot;
+  /** A single vertical list within the strip. */
   Column: typeof MillerColumnsColumn;
+  /** A selectable node within a column. */
   Item: typeof MillerColumnsItem;
+  /** The branch-item chevron affordance. */
   ItemIndicator: typeof MillerColumnsItemIndicator;
+  /** The drag-to-resize separator. */
   ResizeHandle: typeof MillerColumnsResizeHandle;
+  /** The trailing preview pane. */
   PreviewPanel: typeof MillerColumnsPreviewPanel;
 };
 
+/**
+ * MillerColumns — a horizontal strip of vertical lists where selecting a
+ * node reveals its children in the next column. Use as a namespace
+ * (`MillerColumns.Root`, `MillerColumns.Column`, `MillerColumns.Item`, …);
+ * the default export is also callable as the Root.
+ */
 const MillerColumnsCompound: MillerColumnsCompound = Object.assign(
   MillerColumnsRoot,
   {

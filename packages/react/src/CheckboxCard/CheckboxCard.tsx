@@ -5,11 +5,8 @@ import { Slot, composeEventHandlers } from "../Slot/index.ts";
 
 import { CheckboxCardContext } from "./CheckboxCardContext";
 import { useCheckboxCardContext, useCheckboxCardRoot } from "./hooks/index.ts";
-import {
-  CheckboxCardIndicatorProps,
-  CheckboxCardRootProps,
-  CheckedState,
-} from "./types";
+import { CheckboxCardIndicatorProps, CheckboxCardRootProps } from "./types";
+import type { CheckedState } from "../Checkbox/types";
 
 function dataStateOf(checked: CheckedState) {
   if (checked === "indeterminate") return "indeterminate" as const;
@@ -67,7 +64,7 @@ function dataStateOf(checked: CheckedState) {
  * </CheckboxCard.Root>
  * ```
  */
-function CheckboxCardRoot(props: CheckboxCardRootProps): ReactElement {
+export function CheckboxCardRoot(props: CheckboxCardRootProps): ReactElement {
   const {
     defaultChecked,
     checked,
@@ -109,6 +106,7 @@ function CheckboxCardRoot(props: CheckboxCardRootProps): ReactElement {
   );
 }
 
+/** @internal */
 CheckboxCardRoot.displayName = "CheckboxCardRoot";
 
 /**
@@ -137,7 +135,7 @@ CheckboxCardRoot.displayName = "CheckboxCardRoot";
  *
  * @throws if rendered outside a `CheckboxCard.Root`.
  */
-function CheckboxCardIndicator({
+export function CheckboxCardIndicator({
   children,
   forceMount,
   asChild = false,
@@ -157,9 +155,12 @@ function CheckboxCardIndicator({
   return <span {...indicatorProps}>{children}</span>;
 }
 
+/** @internal */
 CheckboxCardIndicator.displayName = "CheckboxCardIndicator";
 
-type TCheckboxCardCompound = typeof CheckboxCardRoot & {
+/** Type of the {@link CheckboxCard} compound: the callable `CheckboxCard.Root`
+ * component augmented with its sub-components as static properties. */
+export type TCheckboxCardCompound = typeof CheckboxCardRoot & {
   Root: typeof CheckboxCardRoot;
   Indicator: typeof CheckboxCardIndicator;
 };

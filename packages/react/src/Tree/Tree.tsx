@@ -116,6 +116,7 @@ export function TreeRoot(props: TreeRootProps): ReactElement {
   );
 }
 
+/** @internal */
 TreeRoot.displayName = "TreeRoot";
 
 /**
@@ -201,6 +202,7 @@ export function TreeItem({
   );
 }
 
+/** @internal */
 TreeItem.displayName = "TreeItem";
 
 /**
@@ -301,6 +303,7 @@ export function TreeBranch({
   );
 }
 
+/** @internal */
 TreeBranch.displayName = "TreeBranch";
 
 /**
@@ -349,6 +352,7 @@ export function TreeBranchControl({
   );
 }
 
+/** @internal */
 TreeBranchControl.displayName = "TreeBranchControl";
 
 /**
@@ -385,6 +389,7 @@ export function TreeBranchContent({
   );
 }
 
+/** @internal */
 TreeBranchContent.displayName = "TreeBranchContent";
 
 /**
@@ -430,6 +435,7 @@ export function TreeBranchIndicator({
   );
 }
 
+/** @internal */
 TreeBranchIndicator.displayName = "TreeBranchIndicator";
 
 /**
@@ -545,9 +551,14 @@ export function TreeSelectionPath({
   );
 }
 
+/** @internal */
 TreeSelectionPath.displayName = "TreeSelectionPath";
 
-type TreeCompound = typeof TreeRoot & {
+/**
+ * The shape of the exported `Tree` value — callable as `Tree.Root` and
+ * carrying every sub-component as a static property.
+ */
+export type TreeCompound = typeof TreeRoot & {
   Root: typeof TreeRoot;
   Item: typeof TreeItem;
   Branch: typeof TreeBranch;
@@ -557,6 +568,39 @@ type TreeCompound = typeof TreeRoot & {
   SelectionPath: typeof TreeSelectionPath;
 };
 
+/**
+ * Headless, accessible **Tree** — a compound component implementing the
+ * WAI-ARIA tree view pattern (`role="tree"` / `treeitem` / `group`) with
+ * roving tabindex, single or multiple selection, and expandable branches,
+ * with zero styles.
+ *
+ * `Tree` is both callable (an alias of {@link TreeRoot | `Tree.Root`}) and
+ * carries its sub-components as static properties:
+ *
+ * - {@link TreeRoot | `Tree.Root`} — state owner, context provider, `role="tree"`.
+ * - {@link TreeItem | `Tree.Item`} — a leaf `role="treeitem"`.
+ * - {@link TreeBranch | `Tree.Branch`} — an expandable `role="treeitem"` with children.
+ * - {@link TreeBranchControl | `Tree.BranchControl`} — the branch's selectable / toggling control.
+ * - {@link TreeBranchContent | `Tree.BranchContent`} — the collapsible `role="group"` of child nodes.
+ * - {@link TreeBranchIndicator | `Tree.BranchIndicator`} — expand/collapse affordance.
+ * - {@link TreeSelectionPath | `Tree.SelectionPath`} — breadcrumb of the selected node's ancestry.
+ *
+ * @example
+ * ```tsx
+ * import { Tree } from "@primitiv-ui/react";
+ *
+ * <Tree.Root>
+ *   <Tree.Branch value="src">
+ *     <Tree.BranchControl>
+ *       src <Tree.BranchIndicator />
+ *     </Tree.BranchControl>
+ *     <Tree.BranchContent>
+ *       <Tree.Item value="index">index.ts</Tree.Item>
+ *     </Tree.BranchContent>
+ *   </Tree.Branch>
+ * </Tree.Root>;
+ * ```
+ */
 const TreeCompound: TreeCompound = Object.assign(TreeRoot, {
   Root: TreeRoot,
   Item: TreeItem,
@@ -567,6 +611,7 @@ const TreeCompound: TreeCompound = Object.assign(TreeRoot, {
   SelectionPath: TreeSelectionPath,
 });
 
+/** @internal */
 TreeCompound.displayName = "Tree";
 
 export { TreeCompound as Tree };

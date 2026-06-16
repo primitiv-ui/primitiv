@@ -19,6 +19,8 @@ const avatarContextPair = createStrictContext<AvatarContextValue>(
   "AvatarContext",
 );
 
+/** React context carrying the {@link AvatarContextValue} shared by the avatar's sub-components. */
 export const AvatarContext: Context<AvatarContextValue | null> =
   avatarContextPair[0];
+/** Hook returning the {@link AvatarContextValue}; throws when used outside an `<Avatar.Root>`. */
 export const useAvatarContext: () => AvatarContextValue = avatarContextPair[1];

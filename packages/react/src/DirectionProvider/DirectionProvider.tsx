@@ -33,4 +33,5 @@ export function DirectionProvider({
   );
 }
 
+/** @internal */
 DirectionProvider.displayName = "DirectionProvider";

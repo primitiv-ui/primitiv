@@ -56,4 +56,5 @@ export function Divider({
   );
 }
 
+/** @internal */
 Divider.displayName = "Divider";

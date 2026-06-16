@@ -46,7 +46,7 @@ import {
  * </Field.Root>
  * ```
  */
-function FieldRoot({
+export function FieldRoot({
   id: idProp,
   invalid = false,
   disabled = false,
@@ -84,6 +84,7 @@ function FieldRoot({
   );
 }
 
+/** @internal */
 FieldRoot.displayName = "FieldRoot";
 
 /**
@@ -95,7 +96,7 @@ FieldRoot.displayName = "FieldRoot";
  *
  * @throws If rendered outside a `<Field.Root>`.
  */
-function FieldLabel({
+export function FieldLabel({
   asChild = false,
   children,
   ...rest
@@ -109,6 +110,7 @@ function FieldLabel({
   return <label {...labelProps}>{children}</label>;
 }
 
+/** @internal */
 FieldLabel.displayName = "FieldLabel";
 
 /**
@@ -122,7 +124,7 @@ FieldLabel.displayName = "FieldLabel";
  *
  * @throws If rendered outside a `<Field.Root>`.
  */
-function FieldDescription({
+export function FieldDescription({
   asChild = false,
   children,
   ...rest
@@ -136,6 +138,7 @@ function FieldDescription({
   return <div {...descriptionProps}>{children}</div>;
 }
 
+/** @internal */
 FieldDescription.displayName = "FieldDescription";
 
 /**
@@ -156,7 +159,7 @@ FieldDescription.displayName = "FieldDescription";
  *
  * @throws If rendered outside a `<Field.Root>`.
  */
-function FieldErrorText({
+export function FieldErrorText({
   asChild = false,
   children,
   ...rest
@@ -171,12 +174,18 @@ function FieldErrorText({
   return <div {...errorProps}>{children}</div>;
 }
 
+/** @internal */
 FieldErrorText.displayName = "FieldErrorText";
 
-type TFieldCompound = typeof FieldRoot & {
+/** Type of the {@link Field} compound — the Root callable plus its sub-components. */
+export type TFieldCompound = typeof FieldRoot & {
+  /** The wrapper that owns shared field state and context. */
   Root: typeof FieldRoot;
+  /** The field's label. */
   Label: typeof FieldLabel;
+  /** The field's supporting helper text. */
   Description: typeof FieldDescription;
+  /** The error message shown when invalid. */
   ErrorText: typeof FieldErrorText;
 };
 

@@ -77,7 +77,7 @@ function dataStateOf(checked: CheckedState) {
  * </Checkbox.Root>
  * ```
  */
-function CheckboxRoot(props: CheckboxRootProps): ReactElement {
+export function CheckboxRoot(props: CheckboxRootProps): ReactElement {
   const {
     defaultChecked,
     checked,
@@ -119,6 +119,7 @@ function CheckboxRoot(props: CheckboxRootProps): ReactElement {
   );
 }
 
+/** @internal */
 CheckboxRoot.displayName = "CheckboxRoot";
 
 /**
@@ -165,7 +166,7 @@ CheckboxRoot.displayName = "CheckboxRoot";
  *
  * @throws if rendered outside a `Checkbox.Root`.
  */
-function CheckboxIndicator({
+export function CheckboxIndicator({
   children,
   forceMount,
   asChild = false,
@@ -185,9 +186,11 @@ function CheckboxIndicator({
   return <span {...indicatorProps}>{children}</span>;
 }
 
+/** @internal */
 CheckboxIndicator.displayName = "CheckboxIndicator";
 
-type TCheckboxCompound = typeof CheckboxRoot & {
+/** Type of the {@link Checkbox} compound: the root callable plus its attached sub-components. */
+export type TCheckboxCompound = typeof CheckboxRoot & {
   Root: typeof CheckboxRoot;
   Indicator: typeof CheckboxIndicator;
 };
@@ -224,6 +227,7 @@ const CheckboxCompound: TCheckboxCompound = Object.assign(CheckboxRoot, {
   Indicator: CheckboxIndicator,
 });
 
+/** @internal */
 CheckboxCompound.displayName = "Checkbox";
 
 export { CheckboxCompound as Checkbox };

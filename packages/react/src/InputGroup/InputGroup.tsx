@@ -36,7 +36,7 @@ import { InputGroupAdornmentProps, InputGroupRootProps } from "./types";
  * </InputGroup>
  * ```
  */
-function InputGroupRoot({
+export function InputGroupRoot({
   asChild = false,
   children,
   ref,
@@ -55,6 +55,7 @@ function InputGroupRoot({
   return <div {...rootProps}>{children}</div>;
 }
 
+/** @internal */
 InputGroupRoot.displayName = "InputGroupRoot";
 
 /**
@@ -91,7 +92,7 @@ InputGroupRoot.displayName = "InputGroupRoot";
  * </InputGroup.LeadingAdornment>
  * ```
  */
-function InputGroupLeadingAdornment({
+export function InputGroupLeadingAdornment({
   asChild = false,
   children,
   ref,
@@ -110,6 +111,7 @@ function InputGroupLeadingAdornment({
   return <span {...adornmentProps}>{children}</span>;
 }
 
+/** @internal */
 InputGroupLeadingAdornment.displayName = "InputGroupLeadingAdornment";
 
 /**
@@ -138,7 +140,7 @@ InputGroupLeadingAdornment.displayName = "InputGroupLeadingAdornment";
  * </InputGroup.TrailingAdornment>
  * ```
  */
-function InputGroupTrailingAdornment({
+export function InputGroupTrailingAdornment({
   asChild = false,
   children,
   ref,
@@ -157,9 +159,11 @@ function InputGroupTrailingAdornment({
   return <span {...adornmentProps}>{children}</span>;
 }
 
+/** @internal */
 InputGroupTrailingAdornment.displayName = "InputGroupTrailingAdornment";
 
-type TInputGroupCompound = typeof InputGroupRoot & {
+/** Type of the {@link InputGroup} compound: the root callable plus its attached sub-components. */
+export type TInputGroupCompound = typeof InputGroupRoot & {
   Root: typeof InputGroupRoot;
   LeadingAdornment: typeof InputGroupLeadingAdornment;
   TrailingAdornment: typeof InputGroupTrailingAdornment;
@@ -225,6 +229,7 @@ const InputGroupCompound: TInputGroupCompound = Object.assign(InputGroupRoot, {
   TrailingAdornment: InputGroupTrailingAdornment,
 });
 
+/** @internal */
 InputGroupCompound.displayName = "InputGroup";
 
 export { InputGroupCompound as InputGroup };

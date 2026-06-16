@@ -8,6 +8,7 @@
  * it but is a separate module.
  */
 
+/** A Figma variable collection as surfaced by the Plugin Variables API — its modes and default mode. */
 export type FigmaCollection = {
   id: string
   name: string
@@ -15,12 +16,16 @@ export type FigmaCollection = {
   defaultModeId: string
 }
 
+/** The resolved primitive type of a Figma variable. */
 export type FigmaResolvedType = 'BOOLEAN' | 'COLOR' | 'FLOAT' | 'STRING'
 
+/** An RGBA colour as Figma reports it — each channel in the 0–1 range. */
 export type FigmaRgba = { r: number; g: number; b: number; a: number }
 
+/** A Figma variable alias — a reference to another variable by id. */
 export type FigmaAlias = { type: 'VARIABLE_ALIAS'; id: string }
 
+/** A single Figma variable with its per-mode values. */
 export type FigmaVariable = {
   id: string
   name: string
@@ -29,15 +34,19 @@ export type FigmaVariable = {
   valuesByMode: Record<string, unknown>
 }
 
+/** A DTCG token `$type`. */
 export type DtcgType = 'string' | 'number' | 'color' | 'boolean'
 
+/** A resolved DTCG token `$value`. */
 export type DtcgValue = string | number | boolean
 
+/** A DTCG token — a `$type` / `$value` pair. */
 export type DtcgToken = {
   $type: DtcgType
   $value: DtcgValue
 }
 
+/** A DTCG group — a tree of nested groups and tokens. */
 export type DtcgGroup = { [key: string]: DtcgGroup | DtcgToken }
 
 /** One DTCG file per Figma collection. */

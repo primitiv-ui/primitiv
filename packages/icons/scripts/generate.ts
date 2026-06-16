@@ -63,6 +63,17 @@ for (const file of svgFiles) {
 import type { IconProps } from '../types.ts'
 import { IconBase } from '../IconBase.tsx'
 
+/**
+ * The ${componentName} icon.
+ *
+ * A fill-based SVG that inherits \`currentColor\` and scales via the
+ * \`size\` prop. Accepts all native \`<svg>\` attributes (see {@link IconProps}).
+ *
+ * @example
+ * \`\`\`tsx
+ * <${componentName} size={20} aria-label="${componentName}" />
+ * \`\`\`
+ */
 export const ${componentName} = (props: IconProps): ReactElement => (
   <IconBase {...props}>
     ${innerSvg}

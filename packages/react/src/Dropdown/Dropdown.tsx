@@ -1,9 +1,10 @@
 import { useContext, useEffect, useId, useMemo, useRef, useState } from "react";
+import type { ReactElement } from "react";
 
-import { useCheckboxRoot } from "../Checkbox/hooks";
-import { useDirection } from "../DirectionProvider";
-import { useRadioGroupRoot } from "../RadioGroup/hooks";
-import { composeEventHandlers, Slot } from "../Slot";
+import { useCheckboxRoot } from "../Checkbox/hooks/index.ts";
+import { useDirection } from "../DirectionProvider/index.ts";
+import { useRadioGroupRoot } from "../RadioGroup/hooks/index.ts";
+import { composeEventHandlers, Slot } from "../Slot/index.ts";
 
 import { DropdownContext } from "./DropdownContext";
 import { DropdownContentContext } from "./DropdownContentContext";
@@ -21,7 +22,7 @@ import {
   useDropdownRoot,
   useDropdownSubContext,
   useDropdownTrigger,
-} from "./hooks";
+} from "./hooks/index.ts";
 import {
   DropdownCheckboxItemProps,
   DropdownContentProps,
@@ -90,7 +91,7 @@ function DropdownRoot({
   onOpenChange,
   dir,
   children,
-}: DropdownRootProps) {
+}: DropdownRootProps): ReactElement {
   const inheritedDir = useDirection();
   const { contextValue } = useDropdownRoot({
     defaultOpen,
@@ -131,7 +132,7 @@ function DropdownTrigger({
   onClick,
   asChild = false,
   ...rest
-}: DropdownTriggerProps) {
+}: DropdownTriggerProps): ReactElement {
   const { triggerProps } = useDropdownTrigger({ onClick, restProps: rest });
 
   if (asChild) {
@@ -183,7 +184,7 @@ function DropdownContent({
   onKeyDown,
   asChild = false,
   ...rest
-}: DropdownContentProps) {
+}: DropdownContentProps): ReactElement {
   const { contentContextValue, contentProps } = useDropdownContent({
     onKeyDown,
     restProps: rest,
@@ -222,7 +223,7 @@ function DropdownItem({
   disabled,
   asChild = false,
   ...rest
-}: DropdownItemProps) {
+}: DropdownItemProps): ReactElement {
   const { itemProps } = useDropdownItem({
     disabled,
     onClick,
@@ -248,7 +249,7 @@ function DropdownSeparator({
   asChild = false,
   children,
   ...rest
-}: DropdownSeparatorProps) {
+}: DropdownSeparatorProps): ReactElement {
   const separatorProps = { ...rest, role: "separator" as const };
 
   if (asChild) {
@@ -274,7 +275,7 @@ function DropdownGroup({
   children,
   asChild = false,
   ...rest
-}: DropdownGroupProps) {
+}: DropdownGroupProps): ReactElement {
   const { contextValue, groupProps } = useDropdownGroup({ restProps: rest });
 
   return (
@@ -306,7 +307,7 @@ function DropdownLabel({
   children,
   asChild = false,
   ...rest
-}: DropdownLabelProps) {
+}: DropdownLabelProps): ReactElement {
   const { labelProps } = useDropdownLabel({ id, restProps: rest });
 
   if (asChild) {
@@ -353,7 +354,7 @@ function DropdownCheckboxItem({
   onCheckedChange,
   asChild = false,
   ...rest
-}: DropdownCheckboxItemProps) {
+}: DropdownCheckboxItemProps): ReactElement {
   const { setOpen, triggerRef } = useDropdownContext();
   const closeSiblingSub = useCloseSiblingSub();
   const [highlighted, setHighlighted] = useState(false);
@@ -424,7 +425,7 @@ function DropdownRadioGroup({
   children,
   asChild = false,
   ...rest
-}: DropdownRadioGroupProps) {
+}: DropdownRadioGroupProps): ReactElement {
   const { value, select } = useRadioGroupRoot({
     defaultValue,
     value: controlledValue,
@@ -475,7 +476,7 @@ function DropdownRadioItem({
   value: itemValue,
   asChild = false,
   ...rest
-}: DropdownRadioItemProps) {
+}: DropdownRadioItemProps): ReactElement {
   const { setOpen, triggerRef } = useDropdownContext();
   const closeSiblingSub = useCloseSiblingSub();
   const [highlighted, setHighlighted] = useState(false);
@@ -559,7 +560,7 @@ function DropdownItemIndicator({
   asChild = false,
   forceMount = false,
   ...rest
-}: DropdownItemIndicatorProps) {
+}: DropdownItemIndicatorProps): ReactElement | null {
   const context = useContext(DropdownItemIndicatorContext);
   if (!context) {
     throw new Error(
@@ -613,7 +614,7 @@ function DropdownSub({
   open: controlledOpen,
   onOpenChange,
   children,
-}: DropdownSubProps) {
+}: DropdownSubProps): ReactElement {
   const { open, setOpen } = useDropdownRoot({
     defaultOpen,
     open: controlledOpen,
@@ -678,7 +679,7 @@ function DropdownSubTrigger({
   disabled,
   asChild = false,
   ...rest
-}: DropdownSubTriggerProps) {
+}: DropdownSubTriggerProps): ReactElement {
   const sub = useDropdownSubContext();
   const { dir } = useDropdownContext();
   const openKey = dir === "rtl" ? "ArrowLeft" : "ArrowRight";
@@ -741,7 +742,7 @@ function DropdownSubContent({
   onKeyDown,
   asChild = false,
   ...rest
-}: DropdownSubContentProps) {
+}: DropdownSubContentProps): ReactElement {
   const sub = useDropdownSubContext();
   const { dir } = useDropdownContext();
   const closeKey = dir === "rtl" ? "ArrowRight" : "ArrowLeft";

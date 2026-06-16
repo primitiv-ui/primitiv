@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { createRef } from "react";
 
-import { Tabs, TabsImperativeApi } from "..";
+import { Tabs, TabsImperativeApi } from "../index.ts";
 
 describe("Tabs Imperative API", () => {
   it("should expose setActiveTab method via ref", () => {

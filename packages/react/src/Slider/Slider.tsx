@@ -1,8 +1,14 @@
-import { useDirection } from "../DirectionProvider";
-import { Slot, composeEventHandlers, composeRefs } from "../Slot";
+import type { ReactElement } from "react";
+
+import { useDirection } from "../DirectionProvider/index.ts";
+import { Slot, composeEventHandlers, composeRefs } from "../Slot/index.ts";
 
 import { SliderContext } from "./SliderContext";
-import { useSliderContext, useSliderRoot, useSliderThumb } from "./hooks";
+import {
+  useSliderContext,
+  useSliderRoot,
+  useSliderThumb,
+} from "./hooks/index.ts";
 import type {
   SliderRangeProps,
   SliderRootProps,
@@ -87,7 +93,7 @@ function SliderRoot({
   ref,
   children,
   ...rest
-}: SliderRootProps) {
+}: SliderRootProps): ReactElement {
   const resolvedDir = dir ?? useDirection();
   const {
     contextValue,
@@ -147,7 +153,11 @@ SliderRoot.displayName = "SliderRoot";
  *
  * @throws if rendered outside a `Slider.Root`.
  */
-function SliderTrack({ children, asChild = false, ...rest }: SliderTrackProps) {
+function SliderTrack({
+  children,
+  asChild = false,
+  ...rest
+}: SliderTrackProps): ReactElement {
   const { orientation, disabled } = useSliderContext();
   const trackProps = {
     ...rest,
@@ -178,7 +188,7 @@ function SliderRange({
   asChild = false,
   children,
   ...rest
-}: SliderRangeProps) {
+}: SliderRangeProps): ReactElement {
   const { values, min, max, orientation, dir, inverted, disabled } =
     useSliderContext();
   const rangeProps = {
@@ -227,7 +237,7 @@ function SliderThumb({
   asChild = false,
   children,
   ...rest
-}: SliderThumbProps) {
+}: SliderThumbProps): ReactElement {
   const {
     ref,
     value,

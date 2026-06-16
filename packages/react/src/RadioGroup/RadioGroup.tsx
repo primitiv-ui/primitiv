@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef } from "react";
+import type { ReactElement } from "react";
 
-import { useDirection } from "../DirectionProvider";
-import { useRovingTabindex } from "../hooks";
-import { Slot, composeEventHandlers, composeRefs } from "../Slot";
+import { useDirection } from "../DirectionProvider/index.ts";
+import { useRovingTabindex } from "../hooks/index.ts";
+import { Slot, composeEventHandlers, composeRefs } from "../Slot/index.ts";
 
 import { RadioGroupContext } from "./RadioGroupContext";
 import { RadioGroupItemContext } from "./RadioGroupItemContext";
@@ -10,7 +11,7 @@ import {
   useRadioGroupContext,
   useRadioGroupItemContext,
   useRadioGroupRoot,
-} from "./hooks";
+} from "./hooks/index.ts";
 import {
   RadioGroupIndicatorProps,
   RadioGroupItemProps,
@@ -82,7 +83,7 @@ function RadioGroupRoot({
   asChild = false,
   children,
   ...rest
-}: RadioGroupRootProps) {
+}: RadioGroupRootProps): ReactElement {
   const resolvedDir = dir ?? useDirection();
   const { value, select, registerItem, itemValues, disabledValues, focusItem } =
     useRadioGroupRoot({
@@ -172,7 +173,7 @@ function RadioGroupItem({
   asChild = false,
   ref,
   ...rest
-}: RadioGroupItemProps) {
+}: RadioGroupItemProps): ReactElement {
   const {
     value: selectedValue,
     select,
@@ -282,7 +283,7 @@ function RadioGroupIndicator({
   forceMount,
   asChild = false,
   ...rest
-}: RadioGroupIndicatorProps) {
+}: RadioGroupIndicatorProps): ReactElement | null {
   const { checked } = useRadioGroupItemContext();
   if (!checked && !forceMount) return null;
   const indicatorProps = {

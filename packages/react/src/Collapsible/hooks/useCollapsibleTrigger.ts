@@ -1,6 +1,6 @@
 import { useRef, MouseEvent, KeyboardEvent } from "react";
 
-import { composeRefs } from "../../Slot";
+import { composeRefs } from "../../Slot/index.ts";
 
 import { CollapsibleTriggerProps } from "../types";
 import { useCollapsibleContext } from "../CollapsibleContext";

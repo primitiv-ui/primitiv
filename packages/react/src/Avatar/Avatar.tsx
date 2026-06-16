@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
+import type { ReactElement } from "react";
 
-import { Slot } from "../Slot";
+import { Slot } from "../Slot/index.ts";
 
 import { AvatarContext } from "./AvatarContext";
-import { useAvatarContext, useAvatarImage } from "./hooks";
+import { useAvatarContext, useAvatarImage } from "./hooks/index.ts";
 import {
   AvatarFallbackProps,
   AvatarImageLoadingStatus,
@@ -22,7 +23,11 @@ import {
  * **`asChild` prop.** Pass `asChild` to render the consumer's own element as
  * the container, with the `data-status` hook merged in.
  */
-function AvatarRoot({ asChild = false, children, ...rest }: AvatarRootProps) {
+function AvatarRoot({
+  asChild = false,
+  children,
+  ...rest
+}: AvatarRootProps): ReactElement {
   const [status, setStatus] = useState<AvatarImageLoadingStatus>("idle");
 
   const contextValue = useMemo(() => ({ status, setStatus }), [status]);
@@ -55,7 +60,11 @@ AvatarRoot.displayName = "AvatarRoot";
  *
  * @throws if rendered outside an `Avatar.Root`.
  */
-function AvatarImage({ asChild = false, children, ...rest }: AvatarImageProps) {
+function AvatarImage({
+  asChild = false,
+  children,
+  ...rest
+}: AvatarImageProps): ReactElement {
   const { status, setStatus } = useAvatarContext();
   const { ref, onLoad, onError } = useAvatarImage(setStatus);
 
@@ -97,7 +106,7 @@ function AvatarFallback({
   asChild = false,
   children,
   ...rest
-}: AvatarFallbackProps) {
+}: AvatarFallbackProps): ReactElement | null {
   const { status } = useAvatarContext();
   const [delayElapsed, setDelayElapsed] = useState(delayMs === undefined);
 

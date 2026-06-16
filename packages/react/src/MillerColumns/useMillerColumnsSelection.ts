@@ -1,4 +1,4 @@
-import { useMillerColumnsContext } from "./hooks";
+import { useMillerColumnsContext } from "./hooks/index.ts";
 
 import type { MillerColumnsSelection } from "./types";
 

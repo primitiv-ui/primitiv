@@ -1,14 +1,20 @@
 import { forwardRef, Ref } from "react";
+import type {
+  ForwardRefExoticComponent,
+  PropsWithoutRef,
+  ReactElement,
+  RefAttributes,
+} from "react";
 
-import { useDirection } from "../DirectionProvider";
-import { Slot, composeRefs } from "../Slot";
+import { useDirection } from "../DirectionProvider/index.ts";
+import { Slot, composeRefs } from "../Slot/index.ts";
 
 import {
   useTabsRoot,
   useTabsContext,
   useTabsTrigger,
   useTabsContent,
-} from "./hooks";
+} from "./hooks/index.ts";
 import { TabsProvider } from "./TabsContext";
 import type {
   TabsRootProps,
@@ -96,7 +102,9 @@ import type {
  * <button onClick={() => ref.current?.setActiveTab("two")}>Go to two</button>
  * ```
  */
-const TabsRoot = forwardRef<TabsImperativeApi, TabsRootProps>(function TabsRoot(
+const TabsRoot: ForwardRefExoticComponent<
+  PropsWithoutRef<TabsRootProps> & RefAttributes<TabsImperativeApi>
+> = forwardRef<TabsImperativeApi, TabsRootProps>(function TabsRoot(
   {
     className = "",
     orientation = "horizontal",
@@ -166,7 +174,7 @@ export function TabsList({
   label,
   ariaLabelledBy,
   ...rest
-}: TabsListProps) {
+}: TabsListProps): ReactElement {
   const { orientation } = useTabsContext();
 
   return (
@@ -259,7 +267,7 @@ export function TabsTrigger<T extends HTMLElement = HTMLButtonElement>({
   disabled = false,
   asChild = false,
   ...rest
-}: TabsTriggerProps<T>) {
+}: TabsTriggerProps<T>): ReactElement {
   const {
     buttonRef,
     triggerId,
@@ -345,9 +353,16 @@ export function TabsContent({
   className = "",
   value,
   ...rest
-}: TabsContentProps) {
-  const { panelId, triggerId, orientation, isActive, state, tabIndex, shouldRender } =
-    useTabsContent({ value });
+}: TabsContentProps): ReactElement {
+  const {
+    panelId,
+    triggerId,
+    orientation,
+    isActive,
+    state,
+    tabIndex,
+    shouldRender,
+  } = useTabsContent({ value });
 
   return (
     <div

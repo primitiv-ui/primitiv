@@ -21,16 +21,32 @@ Build the pair with `createStrictContext`
 (`packages/react/src/utils/createStrictContext.ts`):
 
 ```ts
+import type { Context } from "react";
+
 type FooContextValue = { activeValue: string; setActive: (v: string) => void };
 
-export const [FooContext, useFooContext] = createStrictContext<FooContextValue>(
+// `createStrictContext` returns a tuple, but JSR rejects array-destructured
+// exports as a "slow type". Bind the pair to a local const and re-export the
+// two halves with explicit types so the public API stays analysable:
+const fooContext = createStrictContext<FooContextValue>(
   "Foo sub-components must be rendered inside <Foo.Root>.",
   "FooContext",
 );
+
+export const FooContext: Context<FooContextValue | null> = fooContext[0];
+export const useFooContext: () => FooContextValue = fooContext[1];
 ```
 
 Convention: state lives in `use<Component>Root`, the context value is
 assembled there, and `Root` renders `<FooContext.Provider value={ctx}>`.
+
+> **JSR / slow types.** This package publishes to JSR, which forbids
+> "slow types" (types that must be inferred). Two rules bite when authoring
+> a component: never array-destructure an export (above), and **give every
+> exported component an explicit return type** — `ReactElement` (or
+> `ReactElement | null` / `ReactPortal`). `forwardRef` / `createContext`
+> consts need an explicit type too. Verify with `npx jsr publish --dry-run`;
+> see RELEASING.md §6.
 
 ## 2. Controlled vs uncontrolled state
 

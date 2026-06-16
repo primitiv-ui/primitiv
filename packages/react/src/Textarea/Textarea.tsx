@@ -1,5 +1,7 @@
-import { useFieldProps } from "../Field/hooks";
-import { Slot } from "../Slot";
+import type { ReactElement } from "react";
+
+import { useFieldProps } from "../Field/hooks/index.ts";
+import { Slot } from "../Slot/index.ts";
 import { TextareaProps } from "./types";
 
 /**
@@ -74,7 +76,7 @@ export function Textarea({
   children,
   ref,
   ...consumer
-}: TextareaProps) {
+}: TextareaProps): ReactElement {
   const merged = useFieldProps(consumer);
 
   const rootProps = {

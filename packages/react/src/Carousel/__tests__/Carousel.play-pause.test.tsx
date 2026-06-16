@@ -2,7 +2,7 @@ import { useState } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { Carousel } from "..";
+import { Carousel } from "../index.ts";
 
 describe("Carousel.PlayPauseTrigger basic shape", () => {
   it("should render the PlayPauseTrigger as <button type='button'>", () => {

@@ -1,4 +1,4 @@
-import { createStrictContext } from "../utils";
+import { createStrictContext } from "../utils/index.ts";
 import { AccordionContextValue, AccordionItemContextValue } from "./types";
 
 export const [AccordionContext, useAccordionContext] =

@@ -1,6 +1,6 @@
 import { useCallback, useId, useMemo, useRef } from "react";
 
-import { useControllableState } from "../../hooks";
+import { useControllableState } from "../../hooks/index.ts";
 import { useTooltipProviderContext } from "../TooltipContext";
 import type { TooltipContextValue, TooltipRootProps } from "../types";
 

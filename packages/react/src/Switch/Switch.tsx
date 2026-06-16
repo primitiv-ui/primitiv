@@ -1,9 +1,10 @@
 import { useMemo } from "react";
+import type { ReactElement } from "react";
 
-import { Slot, composeEventHandlers } from "../Slot";
+import { Slot, composeEventHandlers } from "../Slot/index.ts";
 
 import { SwitchContext } from "./SwitchContext";
-import { useSwitchContext, useSwitchRoot } from "./hooks";
+import { useSwitchContext, useSwitchRoot } from "./hooks/index.ts";
 import { SwitchRootProps, SwitchThumbProps } from "./types";
 
 /**
@@ -58,7 +59,7 @@ function SwitchRoot({
   children,
   ref,
   ...rest
-}: SwitchRootProps) {
+}: SwitchRootProps): ReactElement {
   const { checked: isChecked, toggle } = useSwitchRoot({
     defaultChecked,
     checked,
@@ -111,7 +112,11 @@ SwitchRoot.displayName = "SwitchRoot";
  *
  * @throws if rendered outside a `Switch.Root`.
  */
-function SwitchThumb({ children, asChild = false, ...rest }: SwitchThumbProps) {
+function SwitchThumb({
+  children,
+  asChild = false,
+  ...rest
+}: SwitchThumbProps): ReactElement {
   const { checked } = useSwitchContext();
   const thumbProps = {
     ...rest,

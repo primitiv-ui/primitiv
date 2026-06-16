@@ -59,10 +59,11 @@ for (const file of svgFiles) {
 
   const innerSvg = svgAttrsToJsx(stripFills(extractInnerSvg(optimized)))
 
-  const component = `import type { IconProps } from '../types'
-import { IconBase } from '../IconBase'
+  const component = `import type { ReactElement } from 'react'
+import type { IconProps } from '../types.ts'
+import { IconBase } from '../IconBase.tsx'
 
-export const ${componentName} = (props: IconProps) => (
+export const ${componentName} = (props: IconProps): ReactElement => (
   <IconBase {...props}>
     ${innerSvg}
   </IconBase>

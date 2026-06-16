@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 
-import { useCollection, useControllableState } from "../../hooks";
+import { useCollection, useControllableState } from "../../hooks/index.ts";
 
 type UseRadioCardRootArgs = {
   defaultValue?: string;

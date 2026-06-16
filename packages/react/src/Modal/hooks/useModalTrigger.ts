@@ -1,6 +1,6 @@
 import { MouseEventHandler } from "react";
-import { useModalContext } from ".";
-import { composeEventHandlers } from "../../Slot";
+import { useModalContext } from "./index.ts";
+import { composeEventHandlers } from "../../Slot/index.ts";
 import type { ModalTriggerProps } from "../types";
 
 export function useModalTrigger(

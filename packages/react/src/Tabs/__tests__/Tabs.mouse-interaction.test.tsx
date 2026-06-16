@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { Tabs } from '..';
+import { Tabs } from '../index.ts';
 
 describe('Tabs mouse interaction tests', () => {
   describe('tab and panel activation', () => {

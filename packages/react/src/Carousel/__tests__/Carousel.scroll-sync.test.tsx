@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { Carousel } from "..";
+import { Carousel } from "../index.ts";
 
 describe("Carousel scroll sync (programmatic page change)", () => {
   it("should call scrollIntoView on the first slide of the target page when the active page changes", async () => {

@@ -1,4 +1,6 @@
-import { Slot } from "../Slot";
+import type { ReactElement } from "react";
+
+import { Slot } from "../Slot/index.ts";
 import {
   EmptyStateActionsProps,
   EmptyStateDescriptionProps,
@@ -38,7 +40,7 @@ function EmptyStateRoot({
   asChild = false,
   children,
   ...rest
-}: EmptyStateRootProps) {
+}: EmptyStateRootProps): ReactElement {
   const rootProps = { role: "status", ...rest };
 
   if (asChild) {
@@ -76,7 +78,7 @@ function EmptyStateMedia({
   asChild = false,
   children,
   ...rest
-}: EmptyStateMediaProps) {
+}: EmptyStateMediaProps): ReactElement {
   const mediaProps = { "aria-hidden": true, ...rest };
 
   if (asChild) {
@@ -111,7 +113,7 @@ function EmptyStateTitle({
   asChild = false,
   children,
   ...rest
-}: EmptyStateTitleProps) {
+}: EmptyStateTitleProps): ReactElement {
   if (asChild) {
     return <Slot {...rest}>{children}</Slot>;
   }
@@ -141,7 +143,7 @@ function EmptyStateDescription({
   asChild = false,
   children,
   ...rest
-}: EmptyStateDescriptionProps) {
+}: EmptyStateDescriptionProps): ReactElement {
   if (asChild) {
     return <Slot {...rest}>{children}</Slot>;
   }
@@ -175,7 +177,7 @@ function EmptyStateActions({
   asChild = false,
   children,
   ...rest
-}: EmptyStateActionsProps) {
+}: EmptyStateActionsProps): ReactElement {
   if (asChild) {
     return <Slot {...rest}>{children}</Slot>;
   }

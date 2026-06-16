@@ -1,7 +1,8 @@
 import { Ref } from "react";
+import type { ReactElement, ReactPortal } from "react";
 import { createPortal } from "react-dom";
 
-import { Slot } from "../Slot";
+import { Slot } from "../Slot/index.ts";
 
 import {
   MillerColumnsContext,
@@ -15,7 +16,7 @@ import {
   useMillerColumnsItemContext,
   useMillerColumnsResizeHandle,
   useMillerColumnsRoot,
-} from "./hooks";
+} from "./hooks/index.ts";
 
 import { partitionItemChildren } from "./utils";
 
@@ -53,7 +54,7 @@ export function MillerColumnsRoot({
   value,
   onValueChange,
   ...rest
-}: MillerColumnsRootProps) {
+}: MillerColumnsRootProps): ReactElement {
   const { contextValue, columnCount, registerSlotRef, stripRef } =
     useMillerColumnsRoot(value, defaultValue, onValueChange);
 
@@ -99,7 +100,7 @@ export function MillerColumnsColumn({
   children,
   style,
   ...rest
-}: MillerColumnsColumnProps) {
+}: MillerColumnsColumnProps): ReactPortal | null {
   const { slot, depth, width, columnContextValue } = useMillerColumnsColumn();
 
   if (!slot) {
@@ -166,7 +167,7 @@ export function MillerColumnsItem<T extends HTMLElement = HTMLDivElement>({
   ref,
   asChild = false,
   ...props
-}: MillerColumnsItemProps<T>) {
+}: MillerColumnsItemProps<T>): ReactElement {
   const { cell, column } = partitionItemChildren(children);
   const { itemProps, selected, itemContextValue } = useMillerColumnsItem(
     { ref: ref as Ref<HTMLDivElement>, ...props },
@@ -212,7 +213,7 @@ MillerColumnsItem.displayName = "MillerColumnsItem";
 export function MillerColumnsItemIndicator({
   children,
   ...rest
-}: MillerColumnsItemIndicatorProps) {
+}: MillerColumnsItemIndicatorProps): ReactElement | null {
   const { selected, hasChildren } = useMillerColumnsItemContext();
 
   if (!hasChildren) {
@@ -252,7 +253,7 @@ MillerColumnsItemIndicator.displayName = "MillerColumnsItemIndicator";
  */
 export function MillerColumnsResizeHandle(
   props: MillerColumnsResizeHandleProps,
-) {
+): ReactElement {
   const { handleProps } = useMillerColumnsResizeHandle(props);
 
   return <div {...handleProps} />;
@@ -291,7 +292,7 @@ MillerColumnsResizeHandle.displayName = "MillerColumnsResizeHandle";
 export function MillerColumnsPreviewPanel({
   children,
   ...rest
-}: MillerColumnsPreviewPanelProps) {
+}: MillerColumnsPreviewPanelProps): ReactElement {
   useMillerColumnsContext();
 
   return (

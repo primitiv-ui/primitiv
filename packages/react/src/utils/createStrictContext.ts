@@ -20,11 +20,15 @@ import { createContext, useContext, type Context } from "react";
  * ```ts
  * type FooContextValue = { count: number };
  *
- * export const [FooContext, useFooContext] =
- *   createStrictContext<FooContextValue>(
- *     "Foo sub-components must be rendered inside <Foo.Root>.",
- *     "FooContext",
- *   );
+ * // JSR rejects array-destructured exports as a "slow type", so bind the
+ * // pair locally and re-export each half with an explicit type:
+ * const fooContext = createStrictContext<FooContextValue>(
+ *   "Foo sub-components must be rendered inside <Foo.Root>.",
+ *   "FooContext",
+ * );
+ *
+ * export const FooContext: Context<FooContextValue | null> = fooContext[0];
+ * export const useFooContext: () => FooContextValue = fooContext[1];
  * ```
  */
 export function createStrictContext<T>(

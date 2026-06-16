@@ -1,4 +1,4 @@
-import { EmptyState } from "..";
+import { EmptyState } from "../index.ts";
 import { render } from "@testing-library/react";
 
 describe("EmptyState.Media component", () => {

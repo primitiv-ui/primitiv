@@ -1,8 +1,9 @@
-import { createContext } from "react";
+import { createContext, type Context } from "react";
 
 import type { CarouselContextValue } from "./types";
 
-export const CarouselContext = createContext<CarouselContextValue | null>(null);
+export const CarouselContext: Context<CarouselContextValue | null> =
+  createContext<CarouselContextValue | null>(null);
 
 CarouselContext.displayName = "CarouselContext";
 

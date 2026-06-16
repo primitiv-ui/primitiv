@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 
-import { useCollection, useControllableState } from "../../hooks";
+import { useCollection, useControllableState } from "../../hooks/index.ts";
 
 type ItemMeta = { element: HTMLButtonElement; disabled: boolean };
 

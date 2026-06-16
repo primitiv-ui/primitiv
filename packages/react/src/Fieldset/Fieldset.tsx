@@ -1,3 +1,5 @@
+import type { ReactElement } from "react";
+
 import { FieldsetLegendProps, FieldsetProps } from "./types";
 
 /**
@@ -27,7 +29,11 @@ import { FieldsetLegendProps, FieldsetProps } from "./types";
  * </Fieldset.Root>
  * ```
  */
-function Fieldset({ disabled, children, ...rest }: FieldsetProps) {
+function Fieldset({
+  disabled,
+  children,
+  ...rest
+}: FieldsetProps): ReactElement {
   return (
     <fieldset
       {...rest}
@@ -53,7 +59,10 @@ Fieldset.displayName = "Fieldset";
  * <Fieldset.Legend>Shipping address</Fieldset.Legend>
  * ```
  */
-function FieldsetLegend({ children, ...rest }: FieldsetLegendProps) {
+function FieldsetLegend({
+  children,
+  ...rest
+}: FieldsetLegendProps): ReactElement {
   return <legend {...rest}>{children}</legend>;
 }
 

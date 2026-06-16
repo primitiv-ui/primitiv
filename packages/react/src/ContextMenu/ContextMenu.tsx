@@ -7,12 +7,13 @@ import {
   useRef,
   useState,
 } from "react";
+import type { ReactElement } from "react";
 
-import { useCheckboxRoot } from "../Checkbox/hooks";
-import { useDirection } from "../DirectionProvider";
-import { useRadioGroupRoot } from "../RadioGroup/hooks";
-import { useControllableState } from "../hooks";
-import { Slot, composeEventHandlers } from "../Slot";
+import { useCheckboxRoot } from "../Checkbox/hooks/index.ts";
+import { useDirection } from "../DirectionProvider/index.ts";
+import { useRadioGroupRoot } from "../RadioGroup/hooks/index.ts";
+import { useControllableState } from "../hooks/index.ts";
+import { Slot, composeEventHandlers } from "../Slot/index.ts";
 
 import {
   ContextMenuContext,
@@ -73,7 +74,7 @@ function ContextMenuRoot({
   onOpenChange,
   dir,
   children,
-}: ContextMenuRootProps) {
+}: ContextMenuRootProps): ReactElement {
   const contentId = useId();
   const triggerRef = useRef<HTMLElement | null>(null);
   const [position, setPosition] = useState<ContextMenuPosition | null>(null);
@@ -146,7 +147,7 @@ function ContextMenuTrigger({
   asChild = false,
   disabled,
   ...rest
-}: ContextMenuTriggerProps) {
+}: ContextMenuTriggerProps): ReactElement {
   const { setOpen, setPosition, triggerRef } = useContextMenuContext();
 
   const handleContextMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -201,7 +202,7 @@ function ContextMenuContent({
   onKeyDown,
   asChild = false,
   ...rest
-}: ContextMenuContentProps) {
+}: ContextMenuContentProps): ReactElement {
   const { open, setOpen, position, contentId, triggerRef } =
     useContextMenuContext();
   const menuRef = useRef<HTMLMenuElement | null>(null);
@@ -393,7 +394,7 @@ function ContextMenuItem({
   disabled,
   asChild = false,
   ...rest
-}: ContextMenuItemProps) {
+}: ContextMenuItemProps): ReactElement {
   const { setOpen } = useContextMenuContext();
   const closeSiblingSub = useCloseSiblingSub();
   const [highlighted, setHighlighted] = useState(false);
@@ -441,7 +442,7 @@ function ContextMenuSeparator({
   asChild = false,
   children,
   ...rest
-}: ContextMenuSeparatorProps) {
+}: ContextMenuSeparatorProps): ReactElement {
   const separatorProps = { ...rest, role: "separator" as const };
 
   if (asChild) {
@@ -465,7 +466,7 @@ function ContextMenuGroup({
   children,
   asChild = false,
   ...rest
-}: ContextMenuGroupProps) {
+}: ContextMenuGroupProps): ReactElement {
   const labelId = useId();
   const contextValue = useMemo(() => ({ labelId }), [labelId]);
   const groupProps = {
@@ -501,7 +502,7 @@ function ContextMenuLabel({
   children,
   asChild = false,
   ...rest
-}: ContextMenuLabelProps) {
+}: ContextMenuLabelProps): ReactElement {
   const group = useContext(ContextMenuGroupContext);
   const labelProps = { ...rest, id: id ?? group?.labelId };
 
@@ -536,7 +537,7 @@ function ContextMenuCheckboxItem({
   onCheckedChange,
   asChild = false,
   ...rest
-}: ContextMenuCheckboxItemProps) {
+}: ContextMenuCheckboxItemProps): ReactElement {
   const { setOpen } = useContextMenuContext();
   const closeSiblingSub = useCloseSiblingSub();
   const [highlighted, setHighlighted] = useState(false);
@@ -609,7 +610,7 @@ function ContextMenuItemIndicator({
   asChild = false,
   forceMount = false,
   ...rest
-}: ContextMenuItemIndicatorProps) {
+}: ContextMenuItemIndicatorProps): ReactElement | null {
   const context = useContext(ContextMenuItemIndicatorContext);
   if (!context) {
     throw new Error(
@@ -650,7 +651,7 @@ function ContextMenuRadioGroup({
   children,
   asChild = false,
   ...rest
-}: ContextMenuRadioGroupProps) {
+}: ContextMenuRadioGroupProps): ReactElement {
   const { value, select } = useRadioGroupRoot({
     defaultValue,
     value: controlledValue,
@@ -694,7 +695,7 @@ function ContextMenuRadioItem({
   value: itemValue,
   asChild = false,
   ...rest
-}: ContextMenuRadioItemProps) {
+}: ContextMenuRadioItemProps): ReactElement {
   const { setOpen } = useContextMenuContext();
   const closeSiblingSub = useCloseSiblingSub();
   const [highlighted, setHighlighted] = useState(false);
@@ -761,7 +762,7 @@ function ContextMenuSub({
   open: controlledOpen,
   onOpenChange,
   children,
-}: ContextMenuSubProps) {
+}: ContextMenuSubProps): ReactElement {
   const contentId = useId();
   const triggerRef = useRef<HTMLLIElement | null>(null);
   const [open, setOpenBase] = useControllableState<boolean>(
@@ -834,7 +835,7 @@ function ContextMenuSubTrigger({
   disabled,
   asChild = false,
   ...rest
-}: ContextMenuSubTriggerProps) {
+}: ContextMenuSubTriggerProps): ReactElement {
   const sub = useContextMenuSubContext();
   const { dir } = useContextMenuContext();
   const openKey = dir === "rtl" ? "ArrowLeft" : "ArrowRight";
@@ -894,7 +895,7 @@ function ContextMenuSubContent({
   onKeyDown,
   asChild = false,
   ...rest
-}: ContextMenuSubContentProps) {
+}: ContextMenuSubContentProps): ReactElement {
   const sub = useContextMenuSubContext();
   const { dir } = useContextMenuContext();
   const closeKey = dir === "rtl" ? "ArrowRight" : "ArrowLeft";

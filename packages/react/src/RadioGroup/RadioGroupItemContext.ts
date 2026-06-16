@@ -1,4 +1,4 @@
-import { createStrictContext } from "../utils";
+import { createStrictContext } from "../utils/index.ts";
 
 export type RadioGroupItemContextValue = {
   checked: boolean;

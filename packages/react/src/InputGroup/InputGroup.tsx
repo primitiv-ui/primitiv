@@ -1,4 +1,6 @@
-import { Slot } from "../Slot";
+import type { ReactElement } from "react";
+
+import { Slot } from "../Slot/index.ts";
 import { InputGroupAdornmentProps, InputGroupRootProps } from "./types";
 
 /**
@@ -39,7 +41,7 @@ function InputGroupRoot({
   children,
   ref,
   ...rest
-}: InputGroupRootProps) {
+}: InputGroupRootProps): ReactElement {
   const rootProps = {
     ...rest,
     ref,
@@ -94,7 +96,7 @@ function InputGroupLeadingAdornment({
   children,
   ref,
   ...rest
-}: InputGroupAdornmentProps) {
+}: InputGroupAdornmentProps): ReactElement {
   const adornmentProps = {
     ...rest,
     ref,
@@ -141,7 +143,7 @@ function InputGroupTrailingAdornment({
   children,
   ref,
   ...rest
-}: InputGroupAdornmentProps) {
+}: InputGroupAdornmentProps): ReactElement {
   const adornmentProps = {
     ...rest,
     ref,

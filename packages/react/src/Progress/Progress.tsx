@@ -1,9 +1,10 @@
 import { useMemo } from "react";
+import type { ReactElement } from "react";
 
-import { Slot } from "../Slot";
+import { Slot } from "../Slot/index.ts";
 
 import { ProgressContext } from "./ProgressContext";
-import { useProgressContext, useProgressRoot } from "./hooks";
+import { useProgressContext, useProgressRoot } from "./hooks/index.ts";
 import { ProgressIndicatorProps, ProgressRootProps } from "./types";
 
 function defaultGetValueLabel(value: number, max: number): string {
@@ -53,7 +54,7 @@ function ProgressRoot({
   asChild = false,
   children,
   ...rest
-}: ProgressRootProps) {
+}: ProgressRootProps): ReactElement {
   const resolved = useProgressRoot({ value, max });
   const { state } = resolved;
 
@@ -120,7 +121,7 @@ function ProgressIndicator({
   asChild = false,
   children,
   ...rest
-}: ProgressIndicatorProps) {
+}: ProgressIndicatorProps): ReactElement {
   const { value, max, state } = useProgressContext();
   const indicatorProps = {
     ...rest,

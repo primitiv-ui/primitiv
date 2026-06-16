@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { act, useState } from 'react';
 
-import { Tabs } from '..';
+import { Tabs } from '../index.ts';
 
 import { errorCases } from './Tabs.fixtures';
 

@@ -1,3 +1,5 @@
+import type { ReactElement } from "react";
+
 import { DirectionContext } from "./DirectionContext";
 import { DirectionProviderProps } from "./types";
 
@@ -20,7 +22,10 @@ import { DirectionProviderProps } from "./types";
  * </DirectionProvider>
  * ```
  */
-export function DirectionProvider({ dir, children }: DirectionProviderProps) {
+export function DirectionProvider({
+  dir,
+  children,
+}: DirectionProviderProps): ReactElement {
   return (
     <DirectionContext.Provider value={dir}>
       {children}

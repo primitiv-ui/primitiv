@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createRef } from "react";
 
-import { Tabs } from "..";
+import { Tabs } from "../index.ts";
 
 describe("Tabs.Trigger asChild", () => {
   it("renders the child element instead of a <button> when asChild is true", () => {

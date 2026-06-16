@@ -1,4 +1,6 @@
-import { Slot } from "../Slot";
+import type { ReactElement } from "react";
+
+import { Slot } from "../Slot/index.ts";
 import { AlertProps } from "./types";
 
 /**
@@ -30,7 +32,11 @@ import { AlertProps } from "./types";
  * </Alert>
  * ```
  */
-export function Alert({ asChild = false, children, ...rest }: AlertProps) {
+export function Alert({
+  asChild = false,
+  children,
+  ...rest
+}: AlertProps): ReactElement {
   const rootProps = { role: "alert", ...rest };
 
   if (asChild) {

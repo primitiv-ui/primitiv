@@ -156,12 +156,52 @@ Actions automatically — no token. (Each package also needs a valid
 
 Once sections 2, 3, and 4 are done:
 
-1. Bump the package versions (manually, or adopt Changesets later).
+1. Bump the package versions (manually, or adopt Changesets later). **Bump
+   every publishable package together** — see §6 on why the CLI packages can't
+   be left behind.
 2. Commit, then create a **GitHub Release** (which tags the commit).
 3. The `release: published` trigger runs `publish.yml`, or run it manually:
    Actions → **Publish packages** → **Run workflow**.
 4. The job builds wasm → installs → generates icons → tests → publishes to
    npm (with provenance) → publishes to JSR.
+
+---
+
+## 6. JSR slow types (no `--allow-slow-types`)
+
+JSR scores "no slow types" as its single biggest factor. A symbol is a "slow
+type" if its type must be **inferred** rather than declared, because JSR/Deno
+analyses the public API without running the full TypeScript checker (for speed
+and to emit `.d.ts` for Node consumers). The v0.1.0 packages were bootstrapped
+with `--allow-slow-types` (scores: icons 29 / react 47 / tokens 70); the flag
+is now removed. To keep it that way:
+
+- **Every exported function/component needs an explicit return type.** For React
+  components that's `ReactElement` (or `ReactElement | null` / `ReactPortal`
+  where applicable) — never rely on inference.
+- **Exported `const`s assigned from a call need an explicit type** —
+  `forwardRef(...)`, `createContext(...)`, etc.
+- **No array-destructured exports.** `export const [X, useX] = createStrictContext(...)`
+  is rejected; split into two individually-typed bindings (the
+  `react-component-patterns` skill shows the canonical form).
+- **Barrel imports need explicit `.ts` / `.tsx` extensions** for JSR module
+  resolution (`export * from "./Foo/index.ts"`, not `"./Foo"`). The
+  `@primitiv-ui/icons` generator template emits these automatically.
+- **Verify before publishing**, from each package dir:
+  `npx jsr publish --dry-run` (or `deno publish --dry-run --no-check`). It must
+  report `Success` with no slow-type errors.
+- `@primitiv-ui/icons` pins `jsxImportSource` to `npm:react@^18` in its
+  `jsr.json`; that resolves on JSR's servers. A local dry-run on a machine with
+  only React 19 installed needs the pin temporarily aligned — production value
+  stays `^18`.
+
+Lockstep version bumps are **required**, not just tidy: `publish.yml` publishes
+the `@primitiv-ui/cli-*` platform packages, the wrapper, and the scaffold with
+plain `npm publish`, which **errors on an already-published version**. (Only the
+library step uses `pnpm -r publish`, which skips versions already on the
+registry.) So a release that bumps only the libraries fails at the CLI publish
+step — bump all ten publishable packages (and the wrapper's
+`optionalDependencies`) together.
 
 ---
 
@@ -175,3 +215,10 @@ Once sections 2, 3, and 4 are done:
 - This is process documentation, not a guarantee: confirm the current npm
   Trusted Publishing and pnpm OIDC support at release time, as both have
   evolved recently.
+- **Don't test the CLI in StackBlitz / WebContainer.** `create-primitiv-ui`
+  installs `primitiv-ui`, which downloads a per-platform **native Rust binary**
+  and `spawnSync`s it. WebContainers run an in-browser WASM Node that can't
+  execute native binaries (and their npm shim throws `ERR_INVALID_PROTOCOL`).
+  Test in a real Node environment — local, a Codespace, or a Linux/Docker
+  container — with `npm create primitiv-ui@latest`. Unsupported arches fall
+  back to `cargo install primitiv-cli`.

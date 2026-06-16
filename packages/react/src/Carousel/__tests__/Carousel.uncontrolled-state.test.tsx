@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { Carousel } from "..";
+import { Carousel } from "../index.ts";
 
 describe("Carousel uncontrolled page state", () => {
   it("should mark the slide at index 0 as active by default when no defaultPage is provided", () => {

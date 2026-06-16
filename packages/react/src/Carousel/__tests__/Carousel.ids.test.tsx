@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import { Carousel } from "..";
+import { Carousel } from "../index.ts";
 
 describe("Carousel custom ids", () => {
   it("should apply ids.root to the rendered <section>", () => {

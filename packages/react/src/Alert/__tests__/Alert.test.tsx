@@ -1,4 +1,4 @@
-import { Alert } from "..";
+import { Alert } from "../index.ts";
 import { render, screen } from "@testing-library/react";
 
 describe("Alert component", () => {

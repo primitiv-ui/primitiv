@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import { Carousel } from "..";
+import { Carousel } from "../index.ts";
 
 describe("Carousel translations", () => {
   it("should override the slide aria-label format via translations.slideLabel", () => {

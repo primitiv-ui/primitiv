@@ -1,9 +1,13 @@
 import { Ref } from "react";
+import type { ReactElement } from "react";
 
-import { Slot } from "../Slot";
+import { Slot } from "../Slot/index.ts";
 
-import { CollapsibleContext, useCollapsibleContext } from "./CollapsibleContext";
-import { useCollapsibleRoot, useCollapsibleTrigger } from "./hooks";
+import {
+  CollapsibleContext,
+  useCollapsibleContext,
+} from "./CollapsibleContext";
+import { useCollapsibleRoot, useCollapsibleTrigger } from "./hooks/index.ts";
 
 import type {
   CollapsibleRootProps,
@@ -63,7 +67,7 @@ export function CollapsibleRoot({
   onOpenChange,
   disabled = false,
   ...rest
-}: CollapsibleRootProps) {
+}: CollapsibleRootProps): ReactElement {
   const { contextValue } = useCollapsibleRoot(
     controlledOpen,
     defaultOpen,
@@ -140,16 +144,14 @@ CollapsibleRoot.displayName = "CollapsibleRoot";
  * </Collapsible.Trigger>
  * ```
  */
-export function CollapsibleTrigger<
-  T extends HTMLElement = HTMLButtonElement,
->({
+export function CollapsibleTrigger<T extends HTMLElement = HTMLButtonElement>({
   ref,
   children,
   onClick,
   onKeyDown,
   asChild = false,
   ...rest
-}: CollapsibleTriggerProps<T>) {
+}: CollapsibleTriggerProps<T>): ReactElement {
   const { triggerProps } = useCollapsibleTrigger({
     ref: ref as Ref<HTMLButtonElement>,
     onClick,
@@ -222,7 +224,7 @@ export function CollapsibleContent({
   children,
   forceMount = false,
   ...rest
-}: CollapsibleContentProps) {
+}: CollapsibleContentProps): ReactElement {
   const { open, disabled, contentId } = useCollapsibleContext();
 
   return (
@@ -281,15 +283,11 @@ CollapsibleContent.displayName = "CollapsibleContent";
 export function CollapsibleTriggerIcon({
   children,
   ...rest
-}: CollapsibleTriggerIconProps) {
+}: CollapsibleTriggerIconProps): ReactElement {
   const { open } = useCollapsibleContext();
 
   return (
-    <span
-      aria-hidden="true"
-      data-state={open ? "open" : "closed"}
-      {...rest}
-    >
+    <span aria-hidden="true" data-state={open ? "open" : "closed"} {...rest}>
       {children}
     </span>
   );
@@ -304,12 +302,15 @@ type CollapsibleCompound = typeof CollapsibleRoot & {
   TriggerIcon: typeof CollapsibleTriggerIcon;
 };
 
-const CollapsibleCompound: CollapsibleCompound = Object.assign(CollapsibleRoot, {
-  Root: CollapsibleRoot,
-  Trigger: CollapsibleTrigger,
-  Content: CollapsibleContent,
-  TriggerIcon: CollapsibleTriggerIcon,
-});
+const CollapsibleCompound: CollapsibleCompound = Object.assign(
+  CollapsibleRoot,
+  {
+    Root: CollapsibleRoot,
+    Trigger: CollapsibleTrigger,
+    Content: CollapsibleContent,
+    TriggerIcon: CollapsibleTriggerIcon,
+  },
+);
 
 CollapsibleCompound.displayName = "Collapsible";
 

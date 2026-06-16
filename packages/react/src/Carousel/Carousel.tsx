@@ -1,13 +1,19 @@
 import { forwardRef, MouseEvent, useCallback } from "react";
+import type {
+  ForwardRefExoticComponent,
+  PropsWithoutRef,
+  ReactElement,
+  RefAttributes,
+} from "react";
 
-import { Slot } from "../Slot";
+import { Slot } from "../Slot/index.ts";
 import { CarouselProvider } from "./CarouselContext";
 import {
   useCarouselContext,
   useCarouselRoot,
   useCarouselSlide,
   useCarouselViewport,
-} from "./hooks";
+} from "./hooks/index.ts";
 import type {
   CarouselImperativeApi,
   CarouselRootProps,
@@ -69,10 +75,9 @@ import type {
  * <Carousel.Root ariaLabelledBy="promos">…</Carousel.Root>
  * ```
  */
-export const CarouselRoot = forwardRef<
-  CarouselImperativeApi,
-  CarouselRootProps
->(function CarouselRoot(
+export const CarouselRoot: ForwardRefExoticComponent<
+  PropsWithoutRef<CarouselRootProps> & RefAttributes<CarouselImperativeApi>
+> = forwardRef<CarouselImperativeApi, CarouselRootProps>(function CarouselRoot(
   {
     className = "",
     ariaLabel,
@@ -185,7 +190,7 @@ export function CarouselViewport({
   className = "",
   children,
   ...rest
-}: CarouselViewportProps) {
+}: CarouselViewportProps): ReactElement {
   const { isAutoRotating, ids } = useCarouselContext();
   const { viewportRef, onKeyDown } = useCarouselViewport();
 
@@ -254,7 +259,7 @@ export function CarouselSlide({
   ariaLabel,
   children,
   ...rest
-}: CarouselSlideProps) {
+}: CarouselSlideProps): ReactElement {
   const { slideRef, index, total, state } = useCarouselSlide();
   const { translations } = useCarouselContext();
   const autoLabel =
@@ -311,7 +316,7 @@ export function CarouselNextTrigger({
   asChild = false,
   children,
   ...rest
-}: CarouselNextTriggerProps) {
+}: CarouselNextTriggerProps): ReactElement {
   const { next, canGoNext, ids } = useCarouselContext();
   const isDisabled = disabled === true || !canGoNext;
 
@@ -377,7 +382,7 @@ export function CarouselPreviousTrigger({
   asChild = false,
   children,
   ...rest
-}: CarouselPreviousTriggerProps) {
+}: CarouselPreviousTriggerProps): ReactElement {
   const { previous, canGoPrevious, ids } = useCarouselContext();
   const isDisabled = disabled === true || !canGoPrevious;
 
@@ -445,7 +450,7 @@ export function CarouselIndicatorGroup({
   ariaLabelledBy,
   children,
   ...rest
-}: CarouselIndicatorGroupProps) {
+}: CarouselIndicatorGroupProps): ReactElement {
   const { ids } = useCarouselContext();
 
   return (
@@ -497,7 +502,7 @@ export function CarouselIndicator({
   asChild = false,
   children,
   ...rest
-}: CarouselIndicatorProps) {
+}: CarouselIndicatorProps): ReactElement {
   const { goTo, currentPage, translations } = useCarouselContext();
   const isActive = index === currentPage;
 
@@ -552,7 +557,9 @@ CarouselIndicator.displayName = "CarouselIndicator";
  * <Carousel.Indicators label="Choose slide" />
  * ```
  */
-export function CarouselIndicators(props: CarouselIndicatorsProps) {
+export function CarouselIndicators(
+  props: CarouselIndicatorsProps,
+): ReactElement {
   const { totalPages } = useCarouselContext();
 
   return (
@@ -594,7 +601,7 @@ export function CarouselPlayPauseTrigger({
   asChild = false,
   children,
   ...rest
-}: CarouselPlayPauseTriggerProps) {
+}: CarouselPlayPauseTriggerProps): ReactElement {
   const { playing, togglePlaying, translations, ids, autoplayEnabled } =
     useCarouselContext();
 

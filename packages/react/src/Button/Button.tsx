@@ -1,4 +1,6 @@
-import { Slot } from "../Slot";
+import type { ReactElement } from "react";
+
+import { Slot } from "../Slot/index.ts";
 import { ButtonProps } from "./types";
 
 /**
@@ -73,7 +75,7 @@ export function Button({
   children,
   ref,
   ...rest
-}: ButtonProps) {
+}: ButtonProps): ReactElement {
   const rootProps = {
     ...rest,
     ref,

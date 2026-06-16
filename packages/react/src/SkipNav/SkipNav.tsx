@@ -1,3 +1,5 @@
+import type { ReactElement } from "react";
+
 import { SkipNavContentProps, SkipNavLinkProps } from "./types";
 
 const DEFAULT_CONTENT_ID = "primitiv-skip-nav";
@@ -34,7 +36,7 @@ function SkipNavLink({
   children,
   contentId = DEFAULT_CONTENT_ID,
   ...rest
-}: SkipNavLinkProps) {
+}: SkipNavLinkProps): ReactElement {
   return (
     <a href={`#${contentId}`} {...rest}>
       {children}
@@ -63,7 +65,10 @@ SkipNavLink.displayName = "SkipNavLink";
  * </SkipNav.Content>
  * ```
  */
-function SkipNavContent({ children, ...rest }: SkipNavContentProps) {
+function SkipNavContent({
+  children,
+  ...rest
+}: SkipNavContentProps): ReactElement {
   return (
     <div id={DEFAULT_CONTENT_ID} tabIndex={-1} {...rest}>
       {children}

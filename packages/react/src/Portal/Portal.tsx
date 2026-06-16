@@ -1,3 +1,4 @@
+import type { ReactPortal } from "react";
 import { createPortal } from "react-dom";
 
 import type { PortalProps } from "./types";
@@ -19,7 +20,7 @@ import type { PortalProps } from "./types";
  *   <div role="dialog">…</div>
  * </Portal>
  */
-function Portal({ children, container }: PortalProps) {
+function Portal({ children, container }: PortalProps): ReactPortal {
   return createPortal(children, container ?? document.body);
 }
 

@@ -140,21 +140,15 @@ jobs:
             (cd "npm/$pkg" && npm publish --access public --provenance)
             echo "::endgroup::"
           done
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish CLI wrapper and scaffold
         run: |
           (cd npm/cli-wrapper      && npm publish --access public --provenance)
           (cd npm/create-primitiv-ui && npm publish --access public --provenance)
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # pnpm -r publish skips packages with "private": true automatically.
       - name: Publish libraries to npm
         run: pnpm -r publish --access public --no-git-checks --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # JSR authenticates via OIDC automatically inside GitHub Actions.
       - name: Publish libraries to JSR

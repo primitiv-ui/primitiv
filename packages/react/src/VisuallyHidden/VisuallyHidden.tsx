@@ -65,4 +65,5 @@ export function VisuallyHidden({
   return <span {...rootProps}>{children}</span>;
 }
 
+/** @internal */
 VisuallyHidden.displayName = "VisuallyHidden";

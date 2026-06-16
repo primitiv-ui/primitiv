@@ -29,7 +29,7 @@ import { FieldsetLegendProps, FieldsetProps } from "./types";
  * </Fieldset.Root>
  * ```
  */
-function Fieldset({
+export function FieldsetRoot({
   disabled,
   children,
   ...rest
@@ -45,7 +45,8 @@ function Fieldset({
   );
 }
 
-Fieldset.displayName = "Fieldset";
+/** @internal */
+FieldsetRoot.displayName = "Fieldset";
 
 /**
  * The caption for a {@link Fieldset} — renders a native `<legend>`.
@@ -59,24 +60,24 @@ Fieldset.displayName = "Fieldset";
  * <Fieldset.Legend>Shipping address</Fieldset.Legend>
  * ```
  */
-function FieldsetLegend({
+export function FieldsetLegend({
   children,
   ...rest
 }: FieldsetLegendProps): ReactElement {
   return <legend {...rest}>{children}</legend>;
 }
 
+/** @internal */
 FieldsetLegend.displayName = "FieldsetLegend";
 
-type FieldsetCompound = typeof Fieldset & {
-  Root: typeof Fieldset;
+/**
+ * The shape of the exported `Fieldset` value — callable as
+ * `Fieldset.Root` and carrying `Root` and `Legend` as static properties.
+ */
+export type FieldsetCompound = typeof FieldsetRoot & {
+  Root: typeof FieldsetRoot;
   Legend: typeof FieldsetLegend;
 };
-
-const FieldsetCompound: FieldsetCompound = Object.assign(Fieldset, {
-  Root: Fieldset,
-  Legend: FieldsetLegend,
-});
 
 /**
  * Headless, accessible **Fieldset** — a stateless compound component that
@@ -108,6 +109,12 @@ const FieldsetCompound: FieldsetCompound = Object.assign(Fieldset, {
  * </Fieldset.Root>
  * ```
  */
+const FieldsetCompound: FieldsetCompound = Object.assign(FieldsetRoot, {
+  Root: FieldsetRoot,
+  Legend: FieldsetLegend,
+});
+
+/** @internal */
 FieldsetCompound.displayName = "Fieldset";
 
 export { FieldsetCompound as Fieldset };

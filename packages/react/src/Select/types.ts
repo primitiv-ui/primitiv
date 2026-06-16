@@ -1,6 +1,11 @@
 import { ChangeEventHandler, ComponentProps, ReactNode, Ref } from "react";
 
-type SelectRootBaseProps = Omit<
+/**
+ * Shared base for both {@link SelectRootProps} variants — the native
+ * `<select>` attributes (minus the state-owning ones), the `asChild`
+ * escape hatch, and the raw `onChange` passthrough.
+ */
+export type SelectRootBaseProps = Omit<
   ComponentProps<"select">,
   "value" | "defaultValue" | "multiple" | "onChange"
 > & {
@@ -22,13 +27,23 @@ type SelectRootBaseProps = Omit<
   asChild?: boolean;
 };
 
-type SelectRootUncontrolledProps = SelectRootBaseProps & {
+/**
+ * Uncontrolled variant of {@link SelectRootProps}: the browser owns the
+ * selection. Pass `defaultValue` (or omit it); `onValueChange` is optional
+ * and `value` is forbidden.
+ */
+export type SelectRootUncontrolledProps = SelectRootBaseProps & {
   defaultValue?: string;
   value?: never;
   onValueChange?: (value: string) => void;
 };
 
-type SelectRootControlledProps = SelectRootBaseProps & {
+/**
+ * Controlled variant of {@link SelectRootProps}: the parent owns the
+ * selection. Pass `value` and `onValueChange` together; `defaultValue` is
+ * forbidden.
+ */
+export type SelectRootControlledProps = SelectRootBaseProps & {
   defaultValue?: never;
   value: string;
   onValueChange: (value: string) => void;

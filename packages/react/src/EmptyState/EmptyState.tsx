@@ -36,7 +36,7 @@ import {
  * )}
  * ```
  */
-function EmptyStateRoot({
+export function EmptyStateRoot({
   asChild = false,
   children,
   ...rest
@@ -50,6 +50,7 @@ function EmptyStateRoot({
   return <div {...rootProps}>{children}</div>;
 }
 
+/** @internal */
 EmptyStateRoot.displayName = "EmptyStateRoot";
 
 /**
@@ -74,7 +75,7 @@ EmptyStateRoot.displayName = "EmptyStateRoot";
  * </EmptyState.Media>
  * ```
  */
-function EmptyStateMedia({
+export function EmptyStateMedia({
   asChild = false,
   children,
   ...rest
@@ -88,6 +89,7 @@ function EmptyStateMedia({
   return <div {...mediaProps}>{children}</div>;
 }
 
+/** @internal */
 EmptyStateMedia.displayName = "EmptyStateMedia";
 
 /**
@@ -109,7 +111,7 @@ EmptyStateMedia.displayName = "EmptyStateMedia";
  * </EmptyState.Title>
  * ```
  */
-function EmptyStateTitle({
+export function EmptyStateTitle({
   asChild = false,
   children,
   ...rest
@@ -121,6 +123,7 @@ function EmptyStateTitle({
   return <p {...rest}>{children}</p>;
 }
 
+/** @internal */
 EmptyStateTitle.displayName = "EmptyStateTitle";
 
 /**
@@ -139,7 +142,7 @@ EmptyStateTitle.displayName = "EmptyStateTitle";
  * <EmptyState.Description>Try adjusting your filters.</EmptyState.Description>
  * ```
  */
-function EmptyStateDescription({
+export function EmptyStateDescription({
   asChild = false,
   children,
   ...rest
@@ -151,6 +154,7 @@ function EmptyStateDescription({
   return <p {...rest}>{children}</p>;
 }
 
+/** @internal */
 EmptyStateDescription.displayName = "EmptyStateDescription";
 
 /**
@@ -173,7 +177,7 @@ EmptyStateDescription.displayName = "EmptyStateDescription";
  * </EmptyState.Actions>
  * ```
  */
-function EmptyStateActions({
+export function EmptyStateActions({
   asChild = false,
   children,
   ...rest
@@ -185,23 +189,22 @@ function EmptyStateActions({
   return <div {...rest}>{children}</div>;
 }
 
+/** @internal */
 EmptyStateActions.displayName = "EmptyStateActions";
 
-type EmptyStateCompound = typeof EmptyStateRoot & {
+/** Type of the {@link EmptyState} compound — the Root callable plus its sub-components. */
+export type EmptyStateCompound = typeof EmptyStateRoot & {
+  /** The `<div role="status">` live region wrapping the placeholder. */
   Root: typeof EmptyStateRoot;
+  /** The decorative icon/illustration slot. */
   Media: typeof EmptyStateMedia;
+  /** The headline. */
   Title: typeof EmptyStateTitle;
+  /** The supporting copy. */
   Description: typeof EmptyStateDescription;
+  /** The recovery-action slot. */
   Actions: typeof EmptyStateActions;
 };
-
-const EmptyState: EmptyStateCompound = Object.assign(EmptyStateRoot, {
-  Root: EmptyStateRoot,
-  Media: EmptyStateMedia,
-  Title: EmptyStateTitle,
-  Description: EmptyStateDescription,
-  Actions: EmptyStateActions,
-});
 
 /**
  * Headless, accessible **Empty State** — a stateless compound component for
@@ -242,6 +245,15 @@ const EmptyState: EmptyStateCompound = Object.assign(EmptyStateRoot, {
  * )}
  * ```
  */
+const EmptyState: EmptyStateCompound = Object.assign(EmptyStateRoot, {
+  Root: EmptyStateRoot,
+  Media: EmptyStateMedia,
+  Title: EmptyStateTitle,
+  Description: EmptyStateDescription,
+  Actions: EmptyStateActions,
+});
+
+/** @internal */
 EmptyState.displayName = "EmptyState";
 
 export { EmptyState };

@@ -1,1 +1,2 @@
-export { ContextMenu } from "./ContextMenu";
+export * from "./ContextMenu";
+export * from "./types";

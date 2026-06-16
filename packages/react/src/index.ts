@@ -36,3 +36,4 @@ export * from "./ToggleGroup/index.ts";
 export * from "./Tooltip/index.ts";
 export * from "./Tree/index.ts";
 export * from "./VisuallyHidden/index.ts";
+export type { HeadingLevel } from "./types.ts";

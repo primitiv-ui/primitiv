@@ -153,6 +153,7 @@ export type CarouselTranslations = {
   stopSlideshow?: string;
 };
 
+/** Props for `Carousel.Root` — the labelled `<section>` wrapping the whole widget; combines label, page-state, and playing-state shapes with autoplay, transition, and layout options. */
 export type CarouselRootProps = Omit<
   ComponentProps<"section">,
   "aria-label" | "aria-labelledby"
@@ -278,8 +279,10 @@ export type CarouselContextValue = {
   isProgrammaticScrollRef: RefObject<boolean>;
 };
 
+/** Props for `Carousel.Viewport` — the scroll-snap slide container; accepts all native `<div>` props. */
 export type CarouselViewportProps = ComponentProps<"div">;
 
+/** Props for `Carousel.Slide` — an individual slide that self-registers with the Root; native `<div>` props plus an optional accessible-label override. */
 export type CarouselSlideProps = Omit<ComponentProps<"div">, "aria-label"> & {
   /** Override the auto-generated `"N of M"` `aria-label`. Use this when
    * the slide has a more meaningful description than its position
@@ -288,6 +291,7 @@ export type CarouselSlideProps = Omit<ComponentProps<"div">, "aria-label"> & {
   ariaLabel?: string;
 };
 
+/** Props for `Carousel.NextTrigger` — the button that advances one page; native `<button>` props plus `asChild`. */
 export type CarouselNextTriggerProps = ComponentProps<"button"> & {
   /** Render the child element instead of the default `<button>`. All
    * trigger props (onClick, disabled, ids.nextTrigger, …) are merged
@@ -295,6 +299,7 @@ export type CarouselNextTriggerProps = ComponentProps<"button"> & {
   asChild?: boolean;
 };
 
+/** Props for `Carousel.PreviousTrigger` — the button that retreats one page; native `<button>` props plus `asChild`. */
 export type CarouselPreviousTriggerProps = ComponentProps<"button"> & {
   /** See `CarouselNextTriggerProps.asChild`. */
   asChild?: boolean;
@@ -315,6 +320,7 @@ export type CarouselIndicatorGroupProps = Omit<
     | { label?: never; ariaLabelledBy: string }
   );
 
+/** Props for `Carousel.Indicator` — a button that jumps to its target page; native `<button>` props plus the target `index` and `asChild`. */
 export type CarouselIndicatorProps = ComponentProps<"button"> & {
   /** Zero-based page this indicator targets. Clicking jumps to it. */
   index: number;
@@ -357,6 +363,7 @@ export type CarouselImperativeApi = {
   isInView: (slideIndex: number) => boolean;
 };
 
+/** Live progress snapshot reported by the carousel: the active page, the total page count, and a normalised `value` in `[0, 1]`. */
 export type CarouselProgress = {
   page: number;
   totalPages: number;
@@ -388,6 +395,7 @@ export type CarouselPlayPauseTriggerChildren =
   | ReactNode
   | ((state: { playing: boolean }) => ReactNode);
 
+/** Props for `Carousel.PlayPauseTrigger` — toggles autoplay; native `<button>` props with a state-aware render-prop `children` and `asChild`. */
 export type CarouselPlayPauseTriggerProps = Omit<
   ComponentProps<"button">,
   "children"

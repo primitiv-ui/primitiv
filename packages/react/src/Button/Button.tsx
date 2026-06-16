@@ -94,4 +94,5 @@ export function Button({
   );
 }
 
+/** @internal */
 Button.displayName = "Button";

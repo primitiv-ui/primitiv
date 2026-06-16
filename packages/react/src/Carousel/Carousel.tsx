@@ -210,6 +210,7 @@ export function CarouselViewport({
   );
 }
 
+/** @internal */
 CarouselViewport.displayName = "CarouselViewport";
 
 /**
@@ -286,6 +287,7 @@ export function CarouselSlide({
   );
 }
 
+/** @internal */
 CarouselSlide.displayName = "CarouselSlide";
 
 /**
@@ -353,6 +355,7 @@ export function CarouselNextTrigger({
   );
 }
 
+/** @internal */
 CarouselNextTrigger.displayName = "CarouselNextTrigger";
 
 /**
@@ -415,6 +418,7 @@ export function CarouselPreviousTrigger({
   );
 }
 
+/** @internal */
 CarouselPreviousTrigger.displayName = "CarouselPreviousTrigger";
 
 /**
@@ -469,6 +473,7 @@ export function CarouselIndicatorGroup({
   );
 }
 
+/** @internal */
 CarouselIndicatorGroup.displayName = "CarouselIndicatorGroup";
 
 /**
@@ -535,6 +540,7 @@ export function CarouselIndicator({
   );
 }
 
+/** @internal */
 CarouselIndicator.displayName = "CarouselIndicator";
 
 /**
@@ -571,6 +577,7 @@ export function CarouselIndicators(
   );
 }
 
+/** @internal */
 CarouselIndicators.displayName = "CarouselIndicators";
 
 /**
@@ -644,8 +651,10 @@ export function CarouselPlayPauseTrigger({
   );
 }
 
+/** @internal */
 CarouselPlayPauseTrigger.displayName = "CarouselPlayPauseTrigger";
 
+/** Static-property shape of the compound {@link Carousel} export: the callable {@link CarouselRoot} plus its namespaced sub-components. */
 type CarouselCompound = typeof CarouselRoot & {
   Root: typeof CarouselRoot;
   Viewport: typeof CarouselViewport;

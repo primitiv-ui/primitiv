@@ -102,7 +102,7 @@ import type {
  * <button onClick={() => ref.current?.setActiveTab("two")}>Go to two</button>
  * ```
  */
-const TabsRoot: ForwardRefExoticComponent<
+export const TabsRoot: ForwardRefExoticComponent<
   PropsWithoutRef<TabsRootProps> & RefAttributes<TabsImperativeApi>
 > = forwardRef<TabsImperativeApi, TabsRootProps>(function TabsRoot(
   {
@@ -196,6 +196,7 @@ export function TabsList({
   );
 }
 
+/** @internal */
 TabsList.displayName = "TabsList";
 
 /**
@@ -316,6 +317,7 @@ export function TabsTrigger<T extends HTMLElement = HTMLButtonElement>({
   );
 }
 
+/** @internal */
 TabsTrigger.displayName = "TabsTrigger";
 
 /**
@@ -381,9 +383,12 @@ export function TabsContent({
   );
 }
 
+/** @internal */
 TabsContent.displayName = "TabsContent";
 
-type TabsCompound = typeof TabsRoot & {
+/** Type of the {@link Tabs} compound: the callable `Tabs.Root` component
+ * augmented with its sub-components as static properties. */
+export type TabsCompound = typeof TabsRoot & {
   Root: typeof TabsRoot;
   List: typeof TabsList;
   Trigger: typeof TabsTrigger;

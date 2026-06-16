@@ -49,7 +49,7 @@ import { SwitchRootProps, SwitchThumbProps } from "./types";
  * </Switch.Root>
  * ```
  */
-function SwitchRoot({
+export function SwitchRoot({
   defaultChecked,
   checked,
   onCheckedChange,
@@ -89,6 +89,7 @@ function SwitchRoot({
   );
 }
 
+/** @internal */
 SwitchRoot.displayName = "SwitchRoot";
 
 /**
@@ -112,7 +113,7 @@ SwitchRoot.displayName = "SwitchRoot";
  *
  * @throws if rendered outside a `Switch.Root`.
  */
-function SwitchThumb({
+export function SwitchThumb({
   children,
   asChild = false,
   ...rest
@@ -129,10 +130,14 @@ function SwitchThumb({
   return <span {...thumbProps}>{children}</span>;
 }
 
+/** @internal */
 SwitchThumb.displayName = "SwitchThumb";
 
-type TSwitchCompound = typeof SwitchRoot & {
+/** Type of the {@link Switch} compound — the Root callable plus its sub-components. */
+export type TSwitchCompound = typeof SwitchRoot & {
+  /** The root toggle button, owning checked state and context. */
   Root: typeof SwitchRoot;
+  /** The sliding thumb indicator. */
   Thumb: typeof SwitchThumb;
 };
 

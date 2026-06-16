@@ -1,6 +1,14 @@
 import { HTMLAttributes, ButtonHTMLAttributes, ReactNode, Ref } from "react";
 
-type ToggleGroupRootBaseProps = Omit<HTMLAttributes<HTMLDivElement>, "dir"> & {
+/**
+ * Mode-independent props shared by every `ToggleGroup.Root` variant —
+ * orientation, direction, `asChild`, children, and the ref. Combined with
+ * a mode-specific arm to form {@link ToggleGroupRootProps}.
+ */
+export type ToggleGroupRootBaseProps = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  "dir"
+> & {
   orientation?: "horizontal" | "vertical";
   dir?: "ltr" | "rtl";
   asChild?: boolean;
@@ -8,34 +16,56 @@ type ToggleGroupRootBaseProps = Omit<HTMLAttributes<HTMLDivElement>, "dir"> & {
   ref?: Ref<HTMLDivElement>;
 };
 
-type SingleUncontrolledProps = {
+/**
+ * Single-selection mode, uncontrolled — at most one item pressed, with the
+ * initial value supplied via `defaultValue`.
+ */
+export type SingleUncontrolledProps = {
   type: "single";
   defaultValue?: string;
   value?: never;
   onValueChange?: never;
 };
 
-type SingleControlledProps = {
+/**
+ * Single-selection mode, controlled — the pressed value is owned by the
+ * caller via `value` / `onValueChange`.
+ */
+export type SingleControlledProps = {
   type: "single";
   value: string | undefined;
   onValueChange: (value: string | undefined) => void;
   defaultValue?: never;
 };
 
-type MultipleUncontrolledProps = {
+/**
+ * Multiple-selection mode, uncontrolled — items toggle independently, with
+ * the initial set supplied via `defaultValue`.
+ */
+export type MultipleUncontrolledProps = {
   type: "multiple";
   defaultValue?: string[];
   value?: never;
   onValueChange?: never;
 };
 
-type MultipleControlledProps = {
+/**
+ * Multiple-selection mode, controlled — the set of pressed values is owned
+ * by the caller via `value` / `onValueChange`.
+ */
+export type MultipleControlledProps = {
   type: "multiple";
   value: string[];
   onValueChange: (value: string[]) => void;
   defaultValue?: never;
 };
 
+/**
+ * Props for `ToggleGroup.Root`. Combines the shared
+ * {@link ToggleGroupRootBaseProps} with one mode-specific arm — single or
+ * multiple, controlled or uncontrolled — so the `value` / `defaultValue` /
+ * `onValueChange` shape is enforced per `type`.
+ */
 export type ToggleGroupRootProps = ToggleGroupRootBaseProps &
   (
     | SingleUncontrolledProps
@@ -44,6 +74,11 @@ export type ToggleGroupRootProps = ToggleGroupRootBaseProps &
     | MultipleControlledProps
   );
 
+/**
+ * Props for `ToggleGroup.Item` — a pressable toggle button. `value`
+ * identifies the item within the group; `asChild` merges the behaviour
+ * onto a custom child element.
+ */
 export type ToggleGroupItemProps = Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
   "type"
@@ -54,6 +89,11 @@ export type ToggleGroupItemProps = Omit<
   ref?: Ref<HTMLButtonElement>;
 };
 
+/**
+ * Context shared from `ToggleGroup.Root` to its items — the pressed
+ * values, the toggle action, item registration for roving tabindex, and
+ * the resolved orientation / direction.
+ */
 export type ToggleGroupContextValue = {
   value: string[];
   toggle: (itemValue: string) => void;

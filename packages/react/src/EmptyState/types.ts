@@ -1,6 +1,7 @@
 import { ComponentProps } from "react";
 
-type WithAsChild = {
+/** Mixin adding the `asChild` opt-in to a sub-component's props. */
+export type WithAsChild = {
   /** Render the consumer's own element instead of the default, via `Slot`. */
   asChild?: boolean;
 };

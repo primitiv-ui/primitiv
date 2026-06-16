@@ -23,7 +23,7 @@ import {
  * **`asChild` prop.** Pass `asChild` to render the consumer's own element as
  * the container, with the `data-status` hook merged in.
  */
-function AvatarRoot({
+export function AvatarRoot({
   asChild = false,
   children,
   ...rest
@@ -45,6 +45,7 @@ function AvatarRoot({
   );
 }
 
+/** @internal */
 AvatarRoot.displayName = "AvatarRoot";
 
 /**
@@ -60,7 +61,7 @@ AvatarRoot.displayName = "AvatarRoot";
  *
  * @throws if rendered outside an `Avatar.Root`.
  */
-function AvatarImage({
+export function AvatarImage({
   asChild = false,
   children,
   ...rest
@@ -86,6 +87,7 @@ function AvatarImage({
   return <img {...imageProps} ref={ref} />;
 }
 
+/** @internal */
 AvatarImage.displayName = "AvatarImage";
 
 /**
@@ -101,7 +103,7 @@ AvatarImage.displayName = "AvatarImage";
  *
  * @throws if rendered outside an `Avatar.Root`.
  */
-function AvatarFallback({
+export function AvatarFallback({
   delayMs,
   asChild = false,
   children,
@@ -131,9 +133,11 @@ function AvatarFallback({
   return <span {...fallbackProps}>{children}</span>;
 }
 
+/** @internal */
 AvatarFallback.displayName = "AvatarFallback";
 
-type TAvatarCompound = typeof AvatarRoot & {
+/** Static-property shape of the compound {@link Avatar} export: the callable {@link AvatarRoot} plus its namespaced sub-components. */
+export type TAvatarCompound = typeof AvatarRoot & {
   Root: typeof AvatarRoot;
   Image: typeof AvatarImage;
   Fallback: typeof AvatarFallback;

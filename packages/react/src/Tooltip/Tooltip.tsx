@@ -35,7 +35,7 @@ import type {
  * </Tooltip.Provider>
  * ```
  */
-function TooltipProviderComponent({
+export function TooltipProviderComponent({
   children,
   delayDuration = 700,
   skipDelayDuration = 300,
@@ -51,6 +51,7 @@ function TooltipProviderComponent({
   );
 }
 
+/** @internal */
 TooltipProviderComponent.displayName = "TooltipProvider";
 
 /**
@@ -70,7 +71,7 @@ TooltipProviderComponent.displayName = "TooltipProvider";
  * </Tooltip.Root>
  * ```
  */
-function TooltipRoot({
+export function TooltipRoot({
   children,
   defaultOpen,
   open,
@@ -89,6 +90,7 @@ function TooltipRoot({
   return <TooltipProvider value={contextValue}>{children}</TooltipProvider>;
 }
 
+/** @internal */
 TooltipRoot.displayName = "TooltipRoot";
 
 /**
@@ -109,7 +111,7 @@ TooltipRoot.displayName = "TooltipRoot";
  * </Tooltip.Trigger>
  * ```
  */
-function TooltipTrigger({
+export function TooltipTrigger({
   ref,
   asChild = false,
   onPointerEnter,
@@ -136,6 +138,7 @@ function TooltipTrigger({
   return <button ref={ref} type={type ?? "button"} {...getTriggerProps()} />;
 }
 
+/** @internal */
 TooltipTrigger.displayName = "TooltipTrigger";
 
 /**
@@ -154,7 +157,7 @@ TooltipTrigger.displayName = "TooltipTrigger";
  * </Tooltip.Portal>
  * ```
  */
-function TooltipPortal({
+export function TooltipPortal({
   children,
   container,
   forceMount,
@@ -166,6 +169,7 @@ function TooltipPortal({
   return <Portal container={container}>{children}</Portal>;
 }
 
+/** @internal */
 TooltipPortal.displayName = "TooltipPortal";
 
 /**
@@ -196,7 +200,7 @@ TooltipPortal.displayName = "TooltipPortal";
  * </Tooltip.Content>
  * ```
  */
-function TooltipContent({
+export function TooltipContent({
   ref,
   forceMount,
   onEscapeKeyDown,
@@ -219,6 +223,7 @@ function TooltipContent({
   return <div ref={composeRefs(internalRef, ref)} {...getContentProps()} />;
 }
 
+/** @internal */
 TooltipContent.displayName = "TooltipContent";
 
 /**
@@ -236,7 +241,7 @@ TooltipContent.displayName = "TooltipContent";
  * </Tooltip.Content>
  * ```
  */
-function TooltipArrow({
+export function TooltipArrow({
   ref,
   asChild = false,
   ...rest
@@ -248,9 +253,11 @@ function TooltipArrow({
   return <span ref={ref} {...rest} />;
 }
 
+/** @internal */
 TooltipArrow.displayName = "TooltipArrow";
 
-type TooltipCompound = typeof TooltipRoot & {
+/** Type of the {@link Tooltip} compound: the root callable plus its attached sub-components. */
+export type TooltipCompound = typeof TooltipRoot & {
   Provider: typeof TooltipProviderComponent;
   Root: typeof TooltipRoot;
   Trigger: typeof TooltipTrigger;
@@ -259,6 +266,16 @@ type TooltipCompound = typeof TooltipRoot & {
   Arrow: typeof TooltipArrow;
 };
 
+/**
+ * Headless, accessible **Tooltip** — a compound component implementing the
+ * [WAI-ARIA tooltip pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/):
+ * a deferred, hoverable label anchored to a trigger, with a shared
+ * {@link Tooltip.Provider} governing open / skip delays across a group. Zero
+ * styles ship.
+ *
+ * The default export is the `Root`; sub-components are attached as static
+ * properties (`Tooltip.Provider`, `Tooltip.Trigger`, `Tooltip.Content`, …).
+ */
 const TooltipCompound: TooltipCompound = Object.assign(TooltipRoot, {
   Provider: TooltipProviderComponent,
   Root: TooltipRoot,
@@ -268,6 +285,7 @@ const TooltipCompound: TooltipCompound = Object.assign(TooltipRoot, {
   Arrow: TooltipArrow,
 });
 
+/** @internal */
 TooltipCompound.displayName = "Tooltip";
 
 export { TooltipCompound as Tooltip };

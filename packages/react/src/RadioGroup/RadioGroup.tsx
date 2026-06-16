@@ -74,7 +74,7 @@ import {
  * </RadioGroup.Root>
  * ```
  */
-function RadioGroupRoot({
+export function RadioGroupRoot({
   defaultValue,
   value: controlledValue,
   onValueChange,
@@ -130,6 +130,7 @@ function RadioGroupRoot({
   );
 }
 
+/** @internal */
 RadioGroupRoot.displayName = "RadioGroupRoot";
 
 /**
@@ -164,7 +165,7 @@ RadioGroupRoot.displayName = "RadioGroupRoot";
  *
  * @throws if rendered outside a `RadioGroup.Root`.
  */
-function RadioGroupItem({
+export function RadioGroupItem({
   value,
   children,
   onClick,
@@ -238,6 +239,7 @@ function RadioGroupItem({
   );
 }
 
+/** @internal */
 RadioGroupItem.displayName = "RadioGroupItem";
 
 /**
@@ -278,7 +280,7 @@ RadioGroupItem.displayName = "RadioGroupItem";
  *
  * @throws if rendered outside a `RadioGroup.Item`.
  */
-function RadioGroupIndicator({
+export function RadioGroupIndicator({
   children,
   forceMount,
   asChild = false,
@@ -297,9 +299,11 @@ function RadioGroupIndicator({
   return <span {...indicatorProps}>{children}</span>;
 }
 
+/** @internal */
 RadioGroupIndicator.displayName = "RadioGroupIndicator";
 
-type TRadioGroupCompound = typeof RadioGroupRoot & {
+/** Type of the {@link RadioGroup} compound: the root callable plus its attached sub-components. */
+export type TRadioGroupCompound = typeof RadioGroupRoot & {
   Root: typeof RadioGroupRoot;
   Item: typeof RadioGroupItem;
   Indicator: typeof RadioGroupIndicator;
@@ -349,6 +353,7 @@ const RadioGroupCompound: TRadioGroupCompound = Object.assign(RadioGroupRoot, {
   Indicator: RadioGroupIndicator,
 });
 
+/** @internal */
 RadioGroupCompound.displayName = "RadioGroup";
 
 export { RadioGroupCompound as RadioGroup };

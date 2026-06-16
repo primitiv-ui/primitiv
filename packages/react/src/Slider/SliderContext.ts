@@ -3,6 +3,7 @@ import { createStrictContext } from "../utils/index.ts";
 
 import type { SliderDirection, SliderOrientation } from "./types";
 
+/** Shared state published by `Slider.Root` to its sub-components: the current values, range/step bounds, orientation and direction, thumb registration, and value-commit callbacks. */
 export type SliderContextValue = {
   values: number[];
   min: number;
@@ -23,6 +24,8 @@ const sliderContextPair = createStrictContext<SliderContextValue>(
   "SliderContext",
 );
 
+/** React context carrying the {@link SliderContextValue} shared by the slider's sub-components. */
 export const SliderContext: Context<SliderContextValue | null> =
   sliderContextPair[0];
+/** Hook returning the {@link SliderContextValue}; throws when used outside a `<Slider.Root>`. */
 export const useSliderContext: () => SliderContextValue = sliderContextPair[1];

@@ -99,6 +99,7 @@ export function AccordionRoot({
   );
 }
 
+/** @internal */
 AccordionRoot.displayName = "AccordionRoot";
 
 /**
@@ -135,6 +136,7 @@ export function AccordionItem({
   );
 }
 
+/** @internal */
 AccordionItem.displayName = "AccordionItem";
 
 /**
@@ -164,6 +166,7 @@ export function AccordionHeader({
   return <HeadingTag {...rest}>{children}</HeadingTag>;
 }
 
+/** @internal */
 AccordionHeader.displayName = "AccordionHeader";
 
 /**
@@ -260,6 +263,7 @@ export function AccordionTrigger<T extends HTMLElement = HTMLButtonElement>({
   );
 }
 
+/** @internal */
 AccordionTrigger.displayName = "AccordionTrigger";
 
 /**
@@ -329,6 +333,7 @@ export function AccordionContent({
   );
 }
 
+/** @internal */
 AccordionContent.displayName = "AccordionContent";
 
 /**
@@ -386,8 +391,10 @@ export function AccordionTriggerIcon({
   );
 }
 
+/** @internal */
 AccordionTriggerIcon.displayName = "AccordionTriggerIcon";
 
+/** @internal */
 type AccordionCompound = typeof AccordionRoot & {
   Root: typeof AccordionRoot;
   Item: typeof AccordionItem;
@@ -397,6 +404,22 @@ type AccordionCompound = typeof AccordionRoot & {
   TriggerIcon: typeof AccordionTriggerIcon;
 };
 
+/**
+ * Headless, accessible **Accordion** — a compound component for a vertically
+ * (or horizontally) stacked set of collapsible sections, following the
+ * [WAI-ARIA Accordion pattern](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/)
+ * with zero styles.
+ *
+ * `Accordion` is both callable (an alias of {@link AccordionRoot | `Accordion.Root`})
+ * and carries its sub-components as static properties:
+ *
+ * - {@link AccordionRoot | `Accordion.Root`} — state owner and context provider.
+ * - {@link AccordionItem | `Accordion.Item`} — one collapsible section.
+ * - {@link AccordionHeader | `Accordion.Header`} — heading wrapper for the trigger.
+ * - {@link AccordionTrigger | `Accordion.Trigger`} — button that toggles the section.
+ * - {@link AccordionContent | `Accordion.Content`} — the collapsible panel.
+ * - {@link AccordionTriggerIcon | `Accordion.TriggerIcon`} — decorative state indicator.
+ */
 const AccordionCompound: AccordionCompound = Object.assign(AccordionRoot, {
   Root: AccordionRoot,
   Item: AccordionItem,

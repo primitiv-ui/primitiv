@@ -73,7 +73,7 @@ import {
  * </RadioCard.Root>
  * ```
  */
-function RadioCardRoot({
+export function RadioCardRoot({
   defaultValue,
   value: controlledValue,
   onValueChange,
@@ -129,6 +129,7 @@ function RadioCardRoot({
   );
 }
 
+/** @internal */
 RadioCardRoot.displayName = "RadioCardRoot";
 
 /**
@@ -158,7 +159,7 @@ RadioCardRoot.displayName = "RadioCardRoot";
  *
  * @throws if rendered outside a `RadioCard.Root`.
  */
-function RadioCardItem({
+export function RadioCardItem({
   value,
   children,
   onClick,
@@ -232,6 +233,7 @@ function RadioCardItem({
   );
 }
 
+/** @internal */
 RadioCardItem.displayName = "RadioCardItem";
 
 /**
@@ -260,7 +262,7 @@ RadioCardItem.displayName = "RadioCardItem";
  *
  * @throws if rendered outside a `RadioCard.Item`.
  */
-function RadioCardIndicator({
+export function RadioCardIndicator({
   children,
   forceMount,
   asChild = false,
@@ -279,9 +281,12 @@ function RadioCardIndicator({
   return <span {...indicatorProps}>{children}</span>;
 }
 
+/** @internal */
 RadioCardIndicator.displayName = "RadioCardIndicator";
 
-type TRadioCardCompound = typeof RadioCardRoot & {
+/** Type of the {@link RadioCard} compound: the callable `RadioCard.Root`
+ * component augmented with its sub-components as static properties. */
+export type TRadioCardCompound = typeof RadioCardRoot & {
   Root: typeof RadioCardRoot;
   Item: typeof RadioCardItem;
   Indicator: typeof RadioCardIndicator;

@@ -47,7 +47,7 @@ function defaultGetValueLabel(value: number, max: number): string {
  * </Progress.Root>
  * ```
  */
-function ProgressRoot({
+export function ProgressRoot({
   value,
   max,
   getValueLabel = defaultGetValueLabel,
@@ -93,6 +93,7 @@ function ProgressRoot({
   );
 }
 
+/** @internal */
 ProgressRoot.displayName = "ProgressRoot";
 
 /**
@@ -117,7 +118,7 @@ ProgressRoot.displayName = "ProgressRoot";
  *
  * @throws if rendered outside a `Progress.Root`.
  */
-function ProgressIndicator({
+export function ProgressIndicator({
   asChild = false,
   children,
   ...rest
@@ -135,9 +136,11 @@ function ProgressIndicator({
   return <div {...indicatorProps}>{children}</div>;
 }
 
+/** @internal */
 ProgressIndicator.displayName = "ProgressIndicator";
 
-type TProgressCompound = typeof ProgressRoot & {
+/** Type of the {@link Progress} compound: the root callable plus its attached sub-components. */
+export type TProgressCompound = typeof ProgressRoot & {
   Root: typeof ProgressRoot;
   Indicator: typeof ProgressIndicator;
 };
@@ -174,6 +177,7 @@ const ProgressCompound: TProgressCompound = Object.assign(ProgressRoot, {
   Indicator: ProgressIndicator,
 });
 
+/** @internal */
 ProgressCompound.displayName = "Progress";
 
 export { ProgressCompound as Progress };

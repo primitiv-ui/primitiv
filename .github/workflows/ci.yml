@@ -1,0 +1,48 @@
+name: CI
+
+# Provides the required `test` status check for changes outside the Rust
+# crates. `rust.yml` already defines a `test` job, but it is path-filtered to
+# `crates/**`, so a PR touching only the JS/TS packages produces no `test`
+# check and branch protection blocks the merge. This workflow runs the
+# library test suites and reports the same `test` context for those PRs.
+#
+# It mirrors the build sequence in `publish.yml`: the pnpm workspace resolves
+# against `crates/harmoni-wasm/pkg`, so the wasm package must be built before
+# `pnpm install`, and the icons are regenerated before their tests run.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: jetli/wasm-pack-action@v0.4.0
+
+      - name: Build harmoni-wasm
+        run: wasm-pack build crates/harmoni-wasm --target web
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate icons
+        run: pnpm --filter @primitiv-ui/icons generate
+
+      - name: Test libraries
+        run: pnpm -r --filter "@primitiv-ui/react" --filter "@primitiv-ui/icons" --filter "@primitiv-ui/tokens" qa:units

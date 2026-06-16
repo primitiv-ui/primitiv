@@ -40,4 +40,5 @@ export function AccessibleIcon({
   );
 }
 
+/** @internal */
 AccessibleIcon.displayName = "AccessibleIcon";

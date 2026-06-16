@@ -92,4 +92,5 @@ export function Textarea({
   return <textarea {...rootProps} />;
 }
 
+/** @internal */
 Textarea.displayName = "Textarea";

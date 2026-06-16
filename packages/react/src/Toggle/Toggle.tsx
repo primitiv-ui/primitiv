@@ -82,6 +82,7 @@ function Toggle({
   );
 }
 
+/** @internal */
 Toggle.displayName = "Toggle";
 
 export { Toggle };

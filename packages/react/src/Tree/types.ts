@@ -1,24 +1,28 @@
 import type { ComponentProps, ReactNode } from "react";
 
-type TreeRootBaseProps = ComponentProps<"div"> & {
+/** Mode-independent props shared by every `Tree.Root` variant. */
+export type TreeRootBaseProps = ComponentProps<"div"> & {
   children: ReactNode;
 };
 
-type TreeRootUncontrolledExpansionProps = {
+/** Uncontrolled expansion — initial expanded branches via `defaultExpandedValues`. */
+export type TreeRootUncontrolledExpansionProps = {
   /** Branch values expanded on first render when uncontrolled. */
   defaultExpandedValues?: string[];
   expandedValues?: never;
   onExpandedChange?: (values: string[]) => void;
 };
 
-type TreeRootControlledExpansionProps = {
+/** Controlled expansion — the expanded set is owned by the consumer. */
+export type TreeRootControlledExpansionProps = {
   defaultExpandedValues?: never;
   /** The set of expanded branch values, owned by the consumer. */
   expandedValues: string[];
   onExpandedChange: (values: string[]) => void;
 };
 
-type TreeRootSingleUncontrolledSelectionProps = {
+/** Single-selection mode, uncontrolled — initial value via `defaultSelectedValue`. */
+export type TreeRootSingleUncontrolledSelectionProps = {
   selectionMode?: "single";
   /** The value selected on first render when uncontrolled. */
   defaultSelectedValue?: string | null;
@@ -29,7 +33,8 @@ type TreeRootSingleUncontrolledSelectionProps = {
   onSelectedValuesChange?: never;
 };
 
-type TreeRootSingleControlledSelectionProps = {
+/** Single-selection mode, controlled — the selected value is owned by the consumer. */
+export type TreeRootSingleControlledSelectionProps = {
   selectionMode?: "single";
   defaultSelectedValue?: never;
   /** The selected value, owned by the consumer. */
@@ -40,7 +45,8 @@ type TreeRootSingleControlledSelectionProps = {
   onSelectedValuesChange?: never;
 };
 
-type TreeRootMultipleUncontrolledSelectionProps = {
+/** Multiple-selection mode, uncontrolled — initial values via `defaultSelectedValues`. */
+export type TreeRootMultipleUncontrolledSelectionProps = {
   selectionMode: "multiple";
   /** The values selected on first render when uncontrolled. */
   defaultSelectedValues?: string[];
@@ -51,7 +57,8 @@ type TreeRootMultipleUncontrolledSelectionProps = {
   onSelectedValueChange?: never;
 };
 
-type TreeRootMultipleControlledSelectionProps = {
+/** Multiple-selection mode, controlled — the selected values are owned by the consumer. */
+export type TreeRootMultipleControlledSelectionProps = {
   selectionMode: "multiple";
   defaultSelectedValues?: never;
   /** The selected values, owned by the consumer. */
@@ -62,6 +69,12 @@ type TreeRootMultipleControlledSelectionProps = {
   onSelectedValueChange?: never;
 };
 
+/**
+ * Props for `Tree.Root`. Combines the shared {@link TreeRootBaseProps} with
+ * one expansion arm (controlled / uncontrolled) and one selection arm
+ * (single / multiple, controlled / uncontrolled), so the relevant
+ * `value` / `defaultValue` / `onChange` shape is enforced per mode.
+ */
 export type TreeRootProps = TreeRootBaseProps &
   (TreeRootUncontrolledExpansionProps | TreeRootControlledExpansionProps) &
   (
@@ -71,6 +84,7 @@ export type TreeRootProps = TreeRootBaseProps &
     | TreeRootMultipleControlledSelectionProps
   );
 
+/** Props for `Tree.Item` — a selectable, focusable leaf treeitem. */
 export type TreeItemProps = ComponentProps<"div"> & {
   /** Stable identifier for this item, unique within the tree. */
   value: string;
@@ -88,6 +102,7 @@ export type TreeItemProps = ComponentProps<"div"> & {
   children: ReactNode;
 };
 
+/** Props for `Tree.Branch` — an expandable treeitem with nested children. */
 export type TreeBranchProps = Omit<ComponentProps<"div">, "ref"> & {
   /** Stable identifier for this branch, unique within the tree. */
   value: string;
@@ -106,12 +121,14 @@ export type TreeBranchProps = Omit<ComponentProps<"div">, "ref"> & {
   children: ReactNode;
 };
 
+/** Props for `Tree.BranchControl` — the branch's selectable, toggling control row. */
 export type TreeBranchControlProps = ComponentProps<"div"> & {
   /** Render the control as the supplied child element instead of `<div>`. */
   asChild?: boolean;
   children: ReactNode;
 };
 
+/** Props for `Tree.BranchContent` — the collapsible group of a branch's child nodes. */
 export type TreeBranchContentProps = ComponentProps<"div"> & {
   children: ReactNode;
   /**
@@ -122,6 +139,7 @@ export type TreeBranchContentProps = ComponentProps<"div"> & {
   forceMount?: boolean;
 };
 
+/** Props for `Tree.BranchIndicator` — the expand/collapse affordance. */
 export type TreeBranchIndicatorProps = ComponentProps<"span"> & {
   /** Render as the supplied child element instead of `<span>`. */
   asChild?: boolean;
@@ -133,6 +151,10 @@ export type TreeSelectionPathRenderProps = {
   paths: TreePathSegment[][];
 };
 
+/**
+ * Props for `Tree.SelectionPath` — a breadcrumb of the selected node's
+ * root-to-leaf ancestry, with an optional render-prop for custom layout.
+ */
 export type TreeSelectionPathProps = Omit<ComponentProps<"div">, "children"> & {
   /**
    * Either standard React children (ignored — the subcomponent does its
@@ -147,6 +169,7 @@ export type TreeSelectionPathProps = Omit<ComponentProps<"div">, "children"> & {
   separator?: ReactNode;
 };
 
+/** Per-level context — the nesting depth and enclosing branch value, shared down each subtree. */
 export type TreeLevelContextValue = {
   /** Zero-based nesting depth — `0` for items directly inside `Tree.Root`. */
   depth: number;
@@ -154,6 +177,7 @@ export type TreeLevelContextValue = {
   parentValue: string | null;
 };
 
+/** Registry entry for one tree node — its value, element, and structural metadata. */
 export type TreeNodeMeta = {
   value: string;
   element: HTMLElement;
@@ -177,14 +201,21 @@ export type TreePathSegment = {
   depth: number;
 };
 
+/** Whether the tree allows one selected node (`"single"`) or many (`"multiple"`). */
 export type SelectionMode = "single" | "multiple";
 
+/** Keyboard/pointer modifiers that influence a selection gesture. */
 export type TreeSelectModifiers = {
   meta: boolean;
   ctrl: boolean;
   shift: boolean;
 };
 
+/**
+ * Context shared from `Tree.Root` to every descendant — selection and
+ * expansion state, the node registry, roving-tabindex bookkeeping, and the
+ * path resolver.
+ */
 export type TreeContextValue = {
   /** Stable id shared across the tree, used to derive ARIA wiring ids. */
   rootId: string;
@@ -215,6 +246,7 @@ export type TreeContextValue = {
   selectedOrder: readonly string[];
 };
 
+/** Context a branch shares with its own control and content — its value, expanded/disabled state, and control id. */
 export type TreeItemContextValue = {
   value: string;
   expanded: boolean;

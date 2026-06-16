@@ -415,6 +415,7 @@ function ModalClose({
 
 ModalClose.displayName = "ModalClose";
 
+/** @internal */
 type ModalCompound = typeof ModalRoot & {
   Root: typeof ModalRoot;
   Trigger: typeof ModalTrigger;

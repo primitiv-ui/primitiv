@@ -52,7 +52,7 @@ function hasPlaceholderChild(children: ReactNode): boolean {
  * ids first, then field-supplied description / error ids). Outside a
  * `<Field.Root>`, behaviour is unchanged.
  */
-function SelectRoot({
+export function SelectRoot({
   children,
   asChild = false,
   onChange,
@@ -96,6 +96,7 @@ function SelectRoot({
   return <select {...rootProps}>{children}</select>;
 }
 
+/** @internal */
 SelectRoot.displayName = "SelectRoot";
 
 /**
@@ -105,10 +106,14 @@ SelectRoot.displayName = "SelectRoot";
  * Native `<option>` only renders text; rich content (icons, descriptions)
  * is not supported.
  */
-function SelectOption({ children, ...rest }: SelectOptionProps): ReactElement {
+export function SelectOption({
+  children,
+  ...rest
+}: SelectOptionProps): ReactElement {
   return <option {...rest}>{children}</option>;
 }
 
+/** @internal */
 SelectOption.displayName = "SelectOption";
 
 /**
@@ -116,10 +121,14 @@ SelectOption.displayName = "SelectOption";
  * native `<optgroup>` element. The `label` is shown by the browser as a
  * non-selectable heading and is announced as the group's accessible name.
  */
-function SelectGroup({ children, ...rest }: SelectGroupProps): ReactElement {
+export function SelectGroup({
+  children,
+  ...rest
+}: SelectGroupProps): ReactElement {
   return <optgroup {...rest}>{children}</optgroup>;
 }
 
+/** @internal */
 SelectGroup.displayName = "SelectGroup";
 
 /**
@@ -132,7 +141,7 @@ SelectGroup.displayName = "SelectGroup";
  * Pair with `required` on {@link Select.Root} to make the browser's
  * native form validation catch an unchosen value at submission.
  */
-function SelectPlaceholder({
+export function SelectPlaceholder({
   children,
   ...rest
 }: SelectPlaceholderProps): ReactElement {
@@ -143,9 +152,11 @@ function SelectPlaceholder({
   );
 }
 
+/** @internal */
 SelectPlaceholder.displayName = "SelectPlaceholder";
 
-type TSelectCompound = typeof SelectRoot & {
+/** Type of the {@link Select} compound: the root callable plus its attached sub-components. */
+export type TSelectCompound = typeof SelectRoot & {
   Root: typeof SelectRoot;
   Option: typeof SelectOption;
   Group: typeof SelectGroup;

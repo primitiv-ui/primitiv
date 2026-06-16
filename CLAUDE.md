@@ -14,7 +14,7 @@ Engine / Rust / wasm code → `harmoni`. Product, app title, repo
 name, README heading, workbench app `<h1>` → leave as `Primitiv`. The
 deliberate "Primitiv" references kept after Step B:
 
-- `README.md` heading (`# Primitiv`)
+- `README.md` branding (the Primitiv logo lockup + tagline at the top)
 - Root `package.json` `"name": "primitiv"`
 - `apps/workbench/index.html` `<title>Primitiv</title>`
 - `apps/workbench/src/App.tsx` `<h1>Primitiv Engine</h1>`

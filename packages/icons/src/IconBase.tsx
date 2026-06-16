@@ -1,5 +1,5 @@
-import type { Ref } from 'react'
-import type { IconProps } from './types'
+import type { Ref, ReactElement } from 'react'
+import type { IconProps } from './types.ts'
 
 interface IconBaseProps extends IconProps {
   ref?: Ref<SVGSVGElement>
@@ -10,7 +10,7 @@ export const IconBase = ({
   ref,
   children,
   ...props
-}: IconBaseProps) => (
+}: IconBaseProps): ReactElement => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={size}

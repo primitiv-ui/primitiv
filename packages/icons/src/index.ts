@@ -1,3 +1,3 @@
-export type { IconProps } from './types'
-export { IconBase } from './IconBase'
-export * from './icons/index'
+export type { IconProps } from './types.ts'
+export { IconBase } from './IconBase.tsx'
+export * from './icons/index.ts'

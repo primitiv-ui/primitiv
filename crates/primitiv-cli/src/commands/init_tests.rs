@@ -6,6 +6,7 @@ use crate::commands::init::{init, InitOptions};
 use crate::error::CliError;
 use crate::format::Format;
 use crate::ports::fs::{FileSystem, InMemoryFs};
+use crate::ports::output::InMemoryOutput;
 use crate::ports::prompt::{Decision, InMemoryPrompt};
 
 /// The options the parser produces when `init` is run with no flags — every
@@ -89,7 +90,7 @@ fn detects_the_components_alias_from_tsconfig_when_no_flag_is_given() {
     )
     .unwrap();
 
-    init(&fs, &silent_prompt(), false, &default_options()).unwrap();
+    init(&fs, &InMemoryOutput::new(), &silent_prompt(), false, &default_options()).unwrap();
 
     let written =
         String::from_utf8(fs.read(Path::new("project/primitiv.json")).unwrap()).unwrap();
@@ -111,6 +112,7 @@ fn an_explicit_alias_flag_wins_over_detection() {
 
     init(
         &fs,
+        &InMemoryOutput::new(),
         &silent_prompt(),
         false,
         &InitOptions {
@@ -132,7 +134,7 @@ fn surfaces_a_failure_to_detect_the_alias() {
     fs.write(Path::new("project/package.json"), b"{}").unwrap();
     fs.fail_reads_to(Path::new("project/tsconfig.json"));
 
-    let err = init(&fs, &silent_prompt(), false, &default_options()).unwrap_err();
+    let err = init(&fs, &InMemoryOutput::new(), &silent_prompt(), false, &default_options()).unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -143,7 +145,7 @@ fn writes_a_default_primitiv_json_to_the_working_directory() {
     fs.set_current_dir(Path::new("project"));
     fs.write(Path::new("project/package.json"), b"{}").unwrap();
 
-    init(&fs, &silent_prompt(), false, &default_options()).unwrap();
+    init(&fs, &InMemoryOutput::new(), &silent_prompt(), false, &default_options()).unwrap();
 
     let written =
         String::from_utf8(fs.read(Path::new("project/primitiv.json")).unwrap()).unwrap();
@@ -157,6 +159,7 @@ fn reflects_every_overridden_choice_in_the_written_config() {
 
     init(
         &fs,
+        &InMemoryOutput::new(),
         &silent_prompt(),
         false,
         &InitOptions {
@@ -182,7 +185,7 @@ fn refuses_to_overwrite_an_existing_config() {
     let existing = Path::new("primitiv.json");
     fs.write(existing, b"{ \"hand\": \"edited\" }").unwrap();
 
-    let err = init(&fs, &silent_prompt(), false, &default_options()).unwrap_err();
+    let err = init(&fs, &InMemoryOutput::new(), &silent_prompt(), false, &default_options()).unwrap_err();
 
     assert!(matches!(err, CliError::Conflict(_)));
     // The consumer's file is left exactly as it was (Principle 2).
@@ -198,6 +201,7 @@ fn overwrites_an_existing_config_when_forced() {
 
     init(
         &fs,
+        &InMemoryOutput::new(),
         &silent_prompt(),
         false,
         &InitOptions {
@@ -217,7 +221,7 @@ fn refuses_to_run_outside_a_node_project() {
     fs.set_current_dir(Path::new("empty"));
 
     // No package.json in the working directory: there is no project to configure.
-    let err = init(&fs, &silent_prompt(), false, &default_options()).unwrap_err();
+    let err = init(&fs, &InMemoryOutput::new(), &silent_prompt(), false, &default_options()).unwrap_err();
 
     assert!(matches!(err, CliError::Project(_)));
     // Nothing is written into a directory that isn't a project (Principle 2).
@@ -229,7 +233,7 @@ fn surfaces_a_failure_to_read_the_working_directory() {
     let fs = InMemoryFs::new();
     fs.fail_current_dir();
 
-    let err = init(&fs, &silent_prompt(), false, &default_options()).unwrap_err();
+    let err = init(&fs, &InMemoryOutput::new(), &silent_prompt(), false, &default_options()).unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -240,7 +244,7 @@ fn surfaces_a_write_failure() {
     fs.write(Path::new("package.json"), b"{}").unwrap();
     fs.fail_writes_to(Path::new("primitiv.json"));
 
-    let err = init(&fs, &silent_prompt(), false, &default_options()).unwrap_err();
+    let err = init(&fs, &InMemoryOutput::new(), &silent_prompt(), false, &default_options()).unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -252,6 +256,7 @@ fn keeps_the_css_extension_for_the_tailwind_token_layer() {
 
     init(
         &fs,
+        &InMemoryOutput::new(),
         &silent_prompt(),
         false,
         &InitOptions {
@@ -288,7 +293,7 @@ fn interactive_init_prompts_for_each_omitted_choice() {
     // a [Y/n] confirm, which defaults to yes.
     prompt.queue_answers(&["scss", "#ff0000", "app/styles"]);
 
-    init(&fs, &prompt, true, &default_options()).unwrap();
+    init(&fs, &InMemoryOutput::new(), &prompt, true, &default_options()).unwrap();
 
     let written = String::from_utf8(fs.read(Path::new("primitiv.json")).unwrap()).unwrap();
     assert_eq!(written, EXPECTED_INTERACTIVE);
@@ -318,7 +323,7 @@ fn interactive_init_prompts_for_the_components_alias_pre_filled_with_detection()
     .unwrap();
     let prompt = silent_prompt();
 
-    init(&fs, &prompt, true, &default_options()).unwrap();
+    init(&fs, &InMemoryOutput::new(), &prompt, true, &default_options()).unwrap();
 
     let written = String::from_utf8(fs.read(Path::new("primitiv.json")).unwrap()).unwrap();
     assert_eq!(written, EXPECTED_DETECTED_ALIAS);
@@ -332,7 +337,7 @@ fn interactive_init_surfaces_an_alias_prompt_failure() {
     // styles + format + brand + path succeed (calls 1–4); the alias prompt (5) fails.
     prompt.fail_after(4);
 
-    let err = init(&fs, &prompt, true, &default_options()).unwrap_err();
+    let err = init(&fs, &InMemoryOutput::new(), &prompt, true, &default_options()).unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -346,7 +351,7 @@ fn interactive_init_falls_back_to_css_for_an_unrecognised_format() {
     // their defaults (the queue is exhausted, so `ask` returns each default).
     prompt.queue_answers(&["nonsense"]);
 
-    init(&fs, &prompt, true, &default_options()).unwrap();
+    init(&fs, &InMemoryOutput::new(), &prompt, true, &default_options()).unwrap();
 
     let written = String::from_utf8(fs.read(Path::new("primitiv.json")).unwrap()).unwrap();
     assert_eq!(written, EXPECTED_DEFAULT);
@@ -361,6 +366,7 @@ fn the_yes_flag_accepts_the_defaults_without_prompting() {
     // Interactive, but `--yes` short-circuits every prompt to its default.
     init(
         &fs,
+        &InMemoryOutput::new(),
         &prompt,
         true,
         &InitOptions {
@@ -383,7 +389,7 @@ fn interactive_init_surfaces_a_styles_prompt_failure() {
     let prompt = silent_prompt();
     prompt.fail();
 
-    let err = init(&fs, &prompt, true, &default_options()).unwrap_err();
+    let err = init(&fs, &InMemoryOutput::new(), &prompt, true, &default_options()).unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -396,7 +402,7 @@ fn interactive_init_surfaces_a_format_prompt_failure() {
     // The styles confirm (call 1) succeeds; the format prompt (call 2) fails.
     prompt.fail_after(1);
 
-    let err = init(&fs, &prompt, true, &default_options()).unwrap_err();
+    let err = init(&fs, &InMemoryOutput::new(), &prompt, true, &default_options()).unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -409,7 +415,7 @@ fn interactive_init_surfaces_a_brand_prompt_failure() {
     // styles confirm + format prompt succeed (calls 1–2); the brand prompt (3) fails.
     prompt.fail_after(2);
 
-    let err = init(&fs, &prompt, true, &default_options()).unwrap_err();
+    let err = init(&fs, &InMemoryOutput::new(), &prompt, true, &default_options()).unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }
@@ -422,7 +428,57 @@ fn interactive_init_surfaces_a_path_prompt_failure() {
     // styles + format + brand succeed (calls 1–3); the path prompt (4) fails.
     prompt.fail_after(3);
 
-    let err = init(&fs, &prompt, true, &default_options()).unwrap_err();
+    let err = init(&fs, &InMemoryOutput::new(), &prompt, true, &default_options()).unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn init_emits_the_token_layer_when_styles_are_enabled() {
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+    fs.write(Path::new("package.json"), b"{}").unwrap();
+
+    init(&fs, &output, &silent_prompt(), false, &default_options()).unwrap();
+
+    let token_path = Path::new("src/styles/primitiv/tokens.css");
+    assert!(fs.exists(token_path), "token layer should be written");
+    let content = String::from_utf8(fs.read(token_path).unwrap()).unwrap();
+    assert!(content.contains("@layer primitiv.tokens"));
+}
+
+#[test]
+fn init_does_not_emit_the_token_layer_when_styles_are_disabled() {
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+    fs.write(Path::new("package.json"), b"{}").unwrap();
+
+    init(
+        &fs,
+        &output,
+        &silent_prompt(),
+        false,
+        &InitOptions {
+            styles_enabled: Some(false),
+            ..default_options()
+        },
+    )
+    .unwrap();
+
+    assert!(
+        !fs.exists(Path::new("src/styles/primitiv/tokens.css")),
+        "token layer must not be written when styles are disabled"
+    );
+}
+
+#[test]
+fn init_surfaces_a_token_layer_write_failure() {
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+    fs.write(Path::new("package.json"), b"{}").unwrap();
+    fs.fail_writes_to(Path::new("src/styles/primitiv/tokens.css"));
+
+    let err = init(&fs, &output, &silent_prompt(), false, &default_options()).unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
 }

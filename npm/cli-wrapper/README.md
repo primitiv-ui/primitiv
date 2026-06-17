@@ -4,34 +4,58 @@ The **Primitiv UI** design-system CLI. Add headless, accessible,
 fully-styled components — and their design tokens — to any Vite or
 Next.js project from the command line.
 
-## Install
+## Quick start
+
+Run inside an existing Vite or Next.js project:
 
 ```sh
-npm i -D primitiv-ui
-# or: pnpm add -D primitiv-ui
+# pnpm
+pnpm create primitiv-ui
+
+# npm
+npm create primitiv-ui@latest
+
+# yarn / bun
+yarn create primitiv-ui
+bun create primitiv-ui
 ```
 
-This provides the `primitiv` command. The CLI is a small native binary
-(written in Rust); `primitiv-ui` is a thin launcher that pulls in the
-matching per-platform package via `optionalDependencies` and runs it — so
-you only download the one binary your machine needs.
-
-## Usage
+This scaffolds `primitiv.json` and generates the token layer. Then add
+components with:
 
 ```sh
-primitiv init          # scaffold primitiv.json and wire up tokens/theme
-primitiv add button    # add a component: styled surface + headless React + contract
-primitiv tokens        # emit design tokens (CSS / SCSS / Tailwind)
-primitiv theme         # emit the theme overrides layer
+pnpm dlx primitiv-ui@latest add button
+# or: npx primitiv-ui@latest add button
+```
+
+## Commands
+
+```sh
+primitiv init          # scaffold primitiv.json + generate the token layer
+primitiv add button    # add a component: stylesheet + React surface + contract
+primitiv tokens        # (re)generate the design-token layer
+primitiv theme         # generate a brand-palette override layer
 primitiv list          # list available components and what's installed
 ```
 
-Pass `--help` to any command for its flags (e.g. `primitiv add --help`).
+## How it works
+
+`primitiv-ui` is a thin JS launcher. It resolves the matching native binary
+for your platform via `optionalDependencies` and runs it — so you only
+download the one binary your machine needs.
+
+You don't need to install it as a project dependency. Use `npx` or your
+package manager's `dlx` / `create` command to invoke it on demand:
+
+```sh
+npx primitiv-ui@latest add switch
+pnpm dlx primitiv-ui@latest add switch
+```
 
 ## Supported platforms
 
-macOS (arm64, x64), Linux (x64, arm64 — glibc), and Windows (x64). On any
-other target, install the binary from source:
+macOS (arm64, x64), Linux (x64, arm64 — glibc), Windows (x64). On any
+other target, install from source:
 
 ```sh
 cargo install primitiv-cli

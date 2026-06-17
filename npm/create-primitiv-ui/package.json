@@ -6,7 +6,10 @@
   "bin": {
     "create-primitiv-ui": "./create.mjs"
   },
-  "files": ["create.mjs"],
+  "files": ["create.mjs", "create-logic.mjs"],
+  "scripts": {
+    "test": "node --test create.test.mjs"
+  },
   "engines": { "node": ">=18" },
   "repository": {
     "type": "git",

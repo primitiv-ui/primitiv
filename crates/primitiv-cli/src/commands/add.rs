@@ -185,6 +185,7 @@ pub fn add(
         }
         if !*no_styles {
             let effective_format = effective_format(fs, *format, &dir);
+            let project_config = config::try_resolve(fs, &dir)?;
             copy_styled_surface(
                 fs,
                 registry,
@@ -200,6 +201,7 @@ pub fn add(
             if effective_format == Format::Tailwind {
                 offer_wiring(output, prompt, fs, interactive, *no_wiring, *json, &dir)?;
             }
+            ensure_tokens(fs, output, project_config.as_ref())?;
         }
     }
     Ok(())
@@ -237,6 +239,35 @@ pub(crate) fn classify_registry(reg: Option<&str>) -> RegistrySource {
         Some(value) if is_version(value) => RegistrySource::Https(github_raw_base(value)),
         Some(value) => RegistrySource::Local(value.to_string()),
     }
+}
+
+/// Check whether the configured token layer file exists; generate it if absent.
+/// Prints a notice to `output` before writing. Skips silently when: `config` is
+/// `None` (no `primitiv.json`), `styles.enabled` is `false`, or the token file
+/// already exists.
+fn ensure_tokens(
+    fs: &impl FileSystem,
+    output: &impl Output,
+    config: Option<&crate::config::Config>,
+) -> Result<(), CliError> {
+    let Some(config) = config else {
+        return Ok(());
+    };
+    if !config.styles.enabled {
+        return Ok(());
+    }
+    let token_path = PathBuf::from(&config.tokens.path);
+    if fs.exists(&token_path) {
+        return Ok(());
+    }
+    output.write_stdout(
+        format!("Generating token layer at {}…\n", config.tokens.path).as_bytes(),
+    )?;
+    let parent = token_path.parent().unwrap_or(Path::new(""));
+    if parent != Path::new("") {
+        fs.create_dir_all(parent)?;
+    }
+    crate::commands::tokens::tokens(fs, output, Some(config.tokens.format), Some(&token_path))
 }
 
 /// Whether `value` looks like a registry version tag — an optional `v` then a

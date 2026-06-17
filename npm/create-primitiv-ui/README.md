@@ -1,24 +1,39 @@
 # create-primitiv-ui
 
-Set up **Primitiv UI** in a new or existing Vite / Next.js project with a
+Set up **Primitiv UI** in an existing Vite or Next.js project with a
 single command.
 
 ## Usage
 
 ```sh
+# pnpm
+pnpm create primitiv-ui
+
+# npm
 npm create primitiv-ui@latest
-# or: pnpm create primitiv-ui
+
+# yarn / bun
+yarn create primitiv-ui
+bun create primitiv-ui
 ```
 
-It detects your package manager, installs
-[`primitiv-ui`](https://www.npmjs.com/package/primitiv-ui) as a dev
-dependency, then runs `primitiv init` to scaffold configuration. Any
-arguments you pass are forwarded to `primitiv init`.
+This runs `primitiv init` via `npx primitiv-ui@latest init` — no local
+install needed. It walks you through choosing a stylesheet format, brand
+colour, and styles path, then writes `primitiv.json` and generates the
+shared token layer.
+
+Any arguments you pass are forwarded to `primitiv init`:
+
+```sh
+pnpm create primitiv-ui --yes           # accept all defaults
+pnpm create primitiv-ui --format scss   # choose SCSS up front
+```
 
 Once set up, add components with:
 
 ```sh
-npx primitiv add button
+pnpm dlx primitiv-ui@latest add button
+# or: npx primitiv-ui@latest add button
 ```
 
 > **Needs a real Node environment.** The CLI runs a native binary, so this

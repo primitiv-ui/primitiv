@@ -482,3 +482,15 @@ fn init_surfaces_a_token_layer_write_failure() {
 
     assert!(matches!(err, CliError::Io(_)));
 }
+
+#[test]
+fn init_surfaces_a_token_dir_creation_failure() {
+    let fs = InMemoryFs::new();
+    let output = InMemoryOutput::new();
+    fs.write(Path::new("package.json"), b"{}").unwrap();
+    fs.fail_create_dir_to(Path::new("src/styles/primitiv"));
+
+    let err = init(&fs, &output, &silent_prompt(), false, &default_options()).unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}

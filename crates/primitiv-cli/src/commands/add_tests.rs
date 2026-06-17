@@ -2808,3 +2808,279 @@ fn no_wiring_stdout_error_surfaces_as_io() {
 
     assert!(matches!(err, CliError::Io(_)));
 }
+
+#[test]
+fn add_generates_the_token_layer_when_the_configured_path_does_not_exist() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let token_path = Path::new("src/styles/primitiv/tokens.css");
+    assert!(fs.exists(token_path), "token layer should be generated");
+    let content = String::from_utf8(fs.read(token_path).unwrap()).unwrap();
+    assert!(content.contains("@layer primitiv.tokens"));
+}
+
+#[test]
+fn add_does_not_overwrite_an_existing_token_file() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let existing = b"/* existing tokens */";
+    fs.write(Path::new("src/styles/primitiv/tokens.css"), existing).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    assert_eq!(
+        fs.read(Path::new("src/styles/primitiv/tokens.css")).unwrap(),
+        existing,
+        "existing token file must not be overwritten"
+    );
+}
+
+#[test]
+fn add_skips_token_generation_when_no_styles_flag_is_set() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: false,
+            no_styles: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    assert!(
+        !fs.exists(Path::new("src/styles/primitiv/tokens.css")),
+        "token layer must not be generated when --no-styles is set"
+    );
+}
+
+#[test]
+fn add_prints_a_notice_when_generating_the_token_layer() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let out = String::from_utf8(output.captured()).unwrap();
+    assert!(
+        out.contains("Generating token layer"),
+        "should print a notice when generating tokens"
+    );
+    assert!(
+        out.contains("src/styles/primitiv/tokens.css"),
+        "notice should include the token path"
+    );
+}
+
+/// A project config where the token path has no directory component — exercises
+/// the `parent == Path::new("")` branch of `ensure_tokens`.
+const CONFIG_FLAT_TOKENS: &[u8] = br##"{
+  "version": 1,
+  "framework": "react",
+  "styles": { "enabled": true, "format": "css", "path": "src/styles/primitiv" },
+  "tokens": { "format": "css", "path": "tokens.css" },
+  "theme": { "brand": "#0a7755" },
+  "aliases": {},
+  "registry": { "version": "0.1.0" }
+}"##;
+
+/// A config with the token layer in a separate directory so its `create_dir_all`
+/// can be failed independently from the styles path.
+const CONFIG_SEPARATE_TOKEN_DIR: &[u8] = br##"{
+  "version": 1,
+  "framework": "react",
+  "styles": { "enabled": true, "format": "css", "path": "src/styles/primitiv" },
+  "tokens": { "format": "css", "path": "dist/tokens/tokens.css" },
+  "theme": { "brand": "#0a7755" },
+  "aliases": {},
+  "registry": { "version": "0.1.0" }
+}"##;
+
+#[test]
+fn add_generates_token_layer_when_path_has_no_directory_component() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_FLAT_TOKENS).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    assert!(fs.exists(Path::new("tokens.css")), "token layer should be generated at root");
+}
+
+#[test]
+fn add_surfaces_a_stdout_failure_when_generating_token_notice() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    // The plan write succeeds; the token notice write is the second write — fail it.
+    output.fail_stdout_after(1);
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn add_surfaces_a_create_dir_failure_when_generating_the_token_layer() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_SEPARATE_TOKEN_DIR).unwrap();
+    // Fail create_dir_all for the token's parent dir (different from the styles dir).
+    fs.fail_create_dir_to(Path::new("dist/tokens"));
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn add_surfaces_a_config_read_failure_when_checking_for_styles() {
+    // When primitiv.json exists but is unreadable, the config::try_resolve call in
+    // the `!no_styles` block surfaces as an I/O error before `ensure_tokens` runs.
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    fs.fail_reads_to(Path::new("primitiv.json"));
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}

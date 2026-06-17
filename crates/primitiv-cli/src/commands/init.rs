@@ -3,6 +3,7 @@ use crate::detect;
 use crate::error::CliError;
 use crate::format::Format;
 use crate::ports::fs::FileSystem;
+use crate::ports::output::Output;
 use crate::ports::prompt::Prompt;
 
 /// The system default brand colour `init` records when none is given — the same
@@ -71,6 +72,7 @@ struct ResolvedInit {
 /// a `primitiv.json` next to nothing.
 pub fn init(
     fs: &impl FileSystem,
+    output: &impl Output,
     prompt: &impl Prompt,
     interactive: bool,
     options: &InitOptions,
@@ -98,6 +100,12 @@ pub fn init(
     };
     let resolved = resolve(options, prompt, interactive, detected_alias)?;
     fs.write(&path, render(&resolved).as_bytes())?;
+    if resolved.styles_enabled {
+        let token_dir = dir.join(&resolved.path);
+        let token_out = token_dir.join(format!("tokens.{}", token_extension(resolved.format)));
+        fs.create_dir_all(&token_dir)?;
+        crate::commands::tokens::tokens(fs, output, Some(resolved.format), Some(&token_out))?;
+    }
     Ok(())
 }
 

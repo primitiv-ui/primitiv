@@ -34,6 +34,8 @@ primitiv/
 
 ## What's here
 
+- [**CLI**](/guide/cli) — add styled components to a Vite or Next.js project
+  from the command line.
 - [**React components**](/react/) — every `@primitiv-ui/react` component, with its
   README and a runnable workbench example.
 - [**Harmoni**](/harmoni/) — the Rust API and its WASM/TypeScript surface.

@@ -52,6 +52,7 @@ export default defineConfig({
     siteTitle: "Primitiv",
     nav: [
       { text: "Guide", link: "/guide/getting-started" },
+      { text: "CLI", link: "/guide/cli" },
       { text: "React", link: "/react/" },
       { text: "Harmoni", link: "/harmoni/" },
       // Lives in the same Pages deployment, served by the workbench build.
@@ -64,6 +65,7 @@ export default defineConfig({
           items: [
             { text: "Introduction", link: "/guide/" },
             { text: "Getting started", link: "/guide/getting-started" },
+            { text: "CLI", link: "/guide/cli" },
           ],
         },
       ],

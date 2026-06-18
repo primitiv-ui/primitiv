@@ -55,7 +55,7 @@ jobs:
             npm/cli-darwin-x64/package.json npm/cli-linux-arm64-gnu/package.json \
             npm/cli-linux-x64-gnu/package.json npm/cli-win32-x64/package.json \
             npm/create-primitiv-ui/package.json
-          git commit -m "chore: release v${{ inputs.version }}"
+          git diff --cached --quiet || git commit -m "chore: release v${{ inputs.version }}"
           git tag "v${{ inputs.version }}"
           git push origin HEAD
           git push origin "v${{ inputs.version }}"

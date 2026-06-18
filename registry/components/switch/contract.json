@@ -11,6 +11,20 @@
   "parts": [
     { "name": "thumb", "class": "primitiv-switch__thumb" }
   ],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Control size; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-switch--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-switch--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-switch--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-switch--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-switch--xl", "description": "Extra large." }
+      ]
+    }
+  ],
   "dataAttributes": [
     { "name": "data-state", "value": "checked", "when": "checked", "source": "auto" },
     { "name": "data-state", "value": "unchecked", "when": "unchecked", "source": "auto" },

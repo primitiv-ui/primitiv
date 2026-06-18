@@ -64,6 +64,23 @@ the switch from the focus ring. `data-disabled=""` is set for CSS targeting.
 </Switch.Root>
 ```
 
+## Size
+
+The styled surface installed by `primitiv add switch` exposes a `size` prop.
+The default is `md`.
+
+| Value | Description |
+|-------|-------------|
+| `xs` | Extra small |
+| `sm` | Small |
+| `md` | Medium (default) |
+| `lg` | Large |
+| `xl` | Extra large |
+
+```tsx
+<Switch size="sm" aria-label="Enable notifications" />
+```
+
 ## The Thumb
 
 `Switch.Thumb` is **always mounted** — unlike `Checkbox.Indicator`, it never

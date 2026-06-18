@@ -7,12 +7,10 @@
  * properties), not these values (RFC 0006 Principle 2 — names are stable,
  * values are not).
  *
- * Switch is the state-driven proof: no visual modifiers, a single size. The
- * track colour swaps and the thumb slides off data-state alone (RFC 0008 §2.3 —
- * the states layer sits above base, so it always wins). Structure follows RFC
- * 0008: per-component API tokens + the resting look live in primitiv.base, the
- * checked/disabled styling in primitiv.states. The sublayer order is declared
- * once in the shared token layer (primitiv.tokens.css).
+ * Structure follows RFC 0008: per-component API tokens + the resting look live
+ * in primitiv.base, size modifiers in primitiv.variants, checked/disabled
+ * styling in primitiv.states. The sublayer order is declared once in the shared
+ * token layer (primitiv.tokens.css).
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-action-*,
  * --primitiv-surface-*, --primitiv-border-* and --primitiv-switch-* custom
@@ -56,6 +54,41 @@
     border-radius: var(--primitiv-switch-thumb-radius);
     background: var(--primitiv-switch-thumb-bg);
     transition: translate 120ms ease;
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the anatomy knobs to the chosen token slot. Density stays
+     ambient via [data-density] on the token values themselves (RFC 0009). */
+  .primitiv-switch--xs {
+    --primitiv-switch-track-width: var(--primitiv-switch-xs-track-width);
+    --primitiv-switch-track-height: var(--primitiv-switch-xs-track-height);
+    --primitiv-switch-thumb-size: var(--primitiv-switch-xs-thumb-size);
+    --primitiv-switch-thumb-margin: var(--primitiv-switch-xs-thumb-margin);
+  }
+  .primitiv-switch--sm {
+    --primitiv-switch-track-width: var(--primitiv-switch-sm-track-width);
+    --primitiv-switch-track-height: var(--primitiv-switch-sm-track-height);
+    --primitiv-switch-thumb-size: var(--primitiv-switch-sm-thumb-size);
+    --primitiv-switch-thumb-margin: var(--primitiv-switch-sm-thumb-margin);
+  }
+  .primitiv-switch--md {
+    --primitiv-switch-track-width: var(--primitiv-switch-md-track-width);
+    --primitiv-switch-track-height: var(--primitiv-switch-md-track-height);
+    --primitiv-switch-thumb-size: var(--primitiv-switch-md-thumb-size);
+    --primitiv-switch-thumb-margin: var(--primitiv-switch-md-thumb-margin);
+  }
+  .primitiv-switch--lg {
+    --primitiv-switch-track-width: var(--primitiv-switch-lg-track-width);
+    --primitiv-switch-track-height: var(--primitiv-switch-lg-track-height);
+    --primitiv-switch-thumb-size: var(--primitiv-switch-lg-thumb-size);
+    --primitiv-switch-thumb-margin: var(--primitiv-switch-lg-thumb-margin);
+  }
+  .primitiv-switch--xl {
+    --primitiv-switch-track-width: var(--primitiv-switch-xl-track-width);
+    --primitiv-switch-track-height: var(--primitiv-switch-xl-track-height);
+    --primitiv-switch-thumb-size: var(--primitiv-switch-xl-thumb-size);
+    --primitiv-switch-thumb-margin: var(--primitiv-switch-xl-thumb-margin);
   }
 }
 

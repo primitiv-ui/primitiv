@@ -49,6 +49,55 @@ pub(crate) const DEMO_TOGGLE: &str = r#"{
   ]
 }"#;
 
+/// Structural synthetic contract — the generality proof for a *consumer-composed
+/// compound* (Tabs' shape without being Tabs, D56/D54). A root with its own
+/// modifier (`size`) plus two structural subcomponents: `bar` carries a per-part
+/// modifier (`align`), `item` has none. Exercises the recipe's per-part `cva`
+/// emission and the wrapper's N-thin-per-part composition.
+pub(crate) const DEMO_VIEW: &str = r#"{
+  "name": "demo-view",
+  "description": "A demo composed view.",
+  "docs": "https://example.test/demo-view",
+  "root": { "element": "div", "class": "primitiv-demo-view", "component": "Root" },
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Control size.",
+      "options": [
+        { "name": "sm", "class": "primitiv-demo-view--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-demo-view--md", "description": "Medium." }
+      ]
+    }
+  ],
+  "subcomponents": [
+    {
+      "name": "bar",
+      "component": "Bar",
+      "element": "div",
+      "class": "primitiv-demo-view__bar",
+      "modifiers": [
+        {
+          "name": "align",
+          "default": "start",
+          "description": "Alignment of the items.",
+          "options": [
+            { "name": "start", "class": "primitiv-demo-view__bar--start", "description": "Start." },
+            { "name": "center", "class": "primitiv-demo-view__bar--center", "description": "Centre." },
+            { "name": "end", "class": "primitiv-demo-view__bar--end", "description": "End." }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "item",
+      "component": "Item",
+      "element": "button",
+      "class": "primitiv-demo-view__item"
+    }
+  ]
+}"#;
+
 /// Sparse synthetic contract — single-word name, no docs, one group with no
 /// `prop` (so the group key is the prop).
 pub(crate) const BARE: &str = r#"{

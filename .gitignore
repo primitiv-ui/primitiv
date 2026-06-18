@@ -52,3 +52,4 @@ npm/cli-*/primitiv.exe
 # --- Claude Code ---
 # Per-machine local overrides — shared settings.json IS tracked
 .claude/settings.local.json
+.claude/worktrees/

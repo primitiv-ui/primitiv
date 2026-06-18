@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
-use crate::config;
+use crate::config::{self, Config};
 use crate::detect;
 use crate::error::CliError;
 use crate::format::Format;
@@ -171,7 +171,17 @@ pub fn add(
             Some(vec![])
         } else {
             let dir = fs.current_dir()?;
-            let files = planned_files(fs, &index, &resolved, *format, path.as_deref(), &dir)?;
+            let project_config = config::try_resolve(fs, &dir)?;
+            let components_dir = detect::components_path(fs, &dir)?
+                .unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
+            let files = planned_files(
+                &index,
+                &resolved,
+                *format,
+                path.as_deref(),
+                project_config.as_ref(),
+                &components_dir,
+            );
             let lock_path = dir.join(lock::FILE_NAME);
             let lock = Lock::read(fs, &lock_path)?;
             let classified: Result<Vec<(String, &'static str)>, CliError> = files
@@ -208,8 +218,11 @@ pub fn add(
             ensure_packages(fs, runner, &index, &resolved, &dir)?;
         }
         if !*no_styles {
-            let effective_format = effective_format(fs, *format, &dir);
+            ensure_style_packages(fs, runner, &index, &resolved, &dir)?;
             let project_config = config::try_resolve(fs, &dir)?;
+            let effective_format: Format = (*format)
+                .or_else(|| project_config.as_ref().map(|c| c.styles.format))
+                .unwrap_or(Format::Css);
             copy_styled_surface(
                 fs,
                 registry,
@@ -221,6 +234,7 @@ pub fn add(
                 *format,
                 path.as_deref(),
                 *force,
+                project_config.as_ref(),
             )?;
             if effective_format == Format::Tailwind {
                 offer_wiring(output, prompt, fs, interactive, *no_wiring, *json, &dir)?;
@@ -232,9 +246,9 @@ pub fn add(
 }
 
 /// The components directory `add` writes the React surface into when the project
-/// has no detectable import alias (RFC 0005 §3.3 fallback) — the project-root
-/// `components`, making no `src`-layout assumption.
-const DEFAULT_COMPONENTS_DIR: &str = "components";
+/// has no detectable import alias (RFC 0005 §3.3 fallback) — `src/components`,
+/// matching the layout convention of Vite, Next.js, and CRA projects.
+const DEFAULT_COMPONENTS_DIR: &str = "src/components";
 
 /// The GitHub `owner/repo` the version-pinned registry is fetched from (RFC 0005
 /// §6.4). Tracks the repo location; updates if/when the repo transfers.
@@ -307,19 +321,6 @@ fn github_raw_base(version: &str) -> String {
     format!("https://raw.githubusercontent.com/{REGISTRY_REPO}/{version}/registry")
 }
 
-/// Resolve the effective stylesheet format for a copy: an explicit `format`
-/// override wins; otherwise the project config's `styles.format`; otherwise CSS.
-/// Pure read via `try_resolve` so a missing config degrades gracefully.
-fn effective_format(fs: &impl FileSystem, format: Option<Format>, dir: &std::path::Path) -> Format {
-    format
-        .or_else(|| {
-            config::try_resolve(fs, dir)
-                .ok()
-                .flatten()
-                .map(|c| c.styles.format)
-        })
-        .unwrap_or(Format::Css)
-}
 
 /// Offer the Tailwind project wiring (RFC 0005 §4.3). For non-interactive
 /// sessions or when `--no-wiring` is set, prints the manual snippet so the
@@ -433,10 +434,13 @@ fn copy_styled_surface(
     format: Option<Format>,
     path: Option<&str>,
     force: bool,
+    config: Option<&Config>,
 ) -> Result<(), CliError> {
     let lock_path = dir.join(lock::FILE_NAME);
     let mut lock = Lock::read(fs, &lock_path)?;
-    let files = planned_files(fs, index, resolved, format, path, dir)?;
+    let components_dir = detect::components_path(fs, dir)?
+        .unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
+    let files = planned_files(index, resolved, format, path, config, &components_dir);
     if files.is_empty() {
         return Ok(());
     }
@@ -448,6 +452,7 @@ fn copy_styled_surface(
     for pf in &files {
         copy_file(fs, registry, prompt, interactive, &mut lock, pf, force)?;
     }
+    update_barrel(fs, &lock, Path::new(&components_dir))?;
     lock.write(fs, &lock_path)
 }
 
@@ -458,18 +463,18 @@ fn copy_styled_surface(
 /// least one component declares a React surface (mirroring `copy_react_surface`).
 /// No registry bytes are fetched.
 fn planned_files(
-    fs: &impl FileSystem,
     index: &RegistryIndex,
     resolved: &[String],
     format: Option<Format>,
     path: Option<&str>,
-    dir: &Path,
-) -> Result<Vec<PlannedFile>, CliError> {
-    let Some(config) = config::try_resolve(fs, dir)? else {
-        return Ok(vec![]);
+    config: Option<&Config>,
+    components_dir: &str,
+) -> Vec<PlannedFile> {
+    let Some(config) = config else {
+        return vec![];
     };
     if !config.styles.enabled {
-        return Ok(vec![]);
+        return vec![];
     }
     let format = format.unwrap_or(config.styles.format);
     let styles_path = path.unwrap_or(&config.styles.path);
@@ -495,9 +500,7 @@ fn planned_files(
         .iter()
         .any(|name| index.components[name].contract.is_some());
     if has_react || has_contract {
-        let components_dir =
-            detect::components_path(fs, dir)?.unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
-        let components_dir = PathBuf::from(&components_dir);
+        let components_dir = PathBuf::from(components_dir);
         for name in resolved {
             // Pre-compute the first stylesheet path for this component (for the
             // styles import we prepend to the tsx wrapper).
@@ -539,7 +542,7 @@ fn planned_files(
             }
         }
     }
-    Ok(files)
+    files
 }
 
 /// Render the human "Refresh plan:" section for the dry-run report. Each entry
@@ -745,4 +748,84 @@ fn packages<'a>(index: &'a RegistryIndex, resolved: &[String]) -> Vec<&'a str> {
         .collect::<BTreeSet<_>>()
         .into_iter()
         .collect()
+}
+
+/// The deduplicated, sorted list of styled-surface npm packages declared across
+/// the resolved component set (RFC 0005 §6.2 `styles.packages` — e.g.
+/// `class-variance-authority`). Mirrors [`packages`] for the headless set.
+fn style_packages<'a>(index: &'a RegistryIndex, resolved: &[String]) -> Vec<&'a str> {
+    resolved
+        .iter()
+        .flat_map(|name| index.components[name].styles.packages.iter())
+        .map(String::as_str)
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect()
+}
+
+/// Install the resolved components' styled-surface package(s) with the project's
+/// package manager (RFC 0005 §6.2 `styles.packages`). Called only when styles
+/// are enabled (`!--no-styles`), so `--styles-only` still ensures CVA is present.
+fn ensure_style_packages(
+    fs: &impl FileSystem,
+    runner: &impl ProcessRunner,
+    index: &RegistryIndex,
+    resolved: &[String],
+    dir: &Path,
+) -> Result<(), CliError> {
+    let packages = style_packages(index, resolved);
+    if packages.is_empty() {
+        return Ok(());
+    }
+    let manager = PackageManager::detect(fs, dir);
+    runner
+        .run(manager.program(), &manager.install_args(&packages), dir)
+        .map_err(|error| {
+            CliError::Install(format!(
+                "failed to install {} with {}: {error}",
+                packages.join(", "),
+                manager.program()
+            ))
+        })
+}
+
+/// Write (or overwrite) `{components_dir}/index.ts` re-exporting every tsx
+/// wrapper the lock has recorded under `components_dir`, sorted alphabetically.
+/// The barrel is fully managed — regenerated from the lock on every `add` — so
+/// it is not itself tracked in the lock. Skips silently when no tsx wrappers
+/// are in the lock for this directory (CSS-only or headless-only installs).
+fn update_barrel(
+    fs: &impl FileSystem,
+    lock: &Lock,
+    components_dir: &Path,
+) -> Result<(), CliError> {
+    let dir_prefix = format!(
+        "{}/",
+        components_dir.to_string_lossy().replace('\\', "/").trim_end_matches('/')
+    );
+    let mut stems: Vec<String> = lock
+        .files
+        .keys()
+        .filter(|p| {
+            let p = p.replace('\\', "/");
+            p.starts_with(&dir_prefix) && p.ends_with(".tsx") && !p.contains(".recipe.")
+        })
+        .filter_map(|p| {
+            Path::new(p.as_str())
+                .file_stem()
+                .and_then(|s| s.to_str())
+                .map(|s| s.to_string())
+        })
+        .collect();
+    if stems.is_empty() {
+        return Ok(());
+    }
+    stems.sort();
+    stems.dedup();
+    let content: String = stems
+        .iter()
+        .map(|stem| format!("export * from \"./{stem}\";\n"))
+        .collect();
+    fs.write(&components_dir.join("index.ts"), content.as_bytes())
+        .map_err(CliError::Io)
 }

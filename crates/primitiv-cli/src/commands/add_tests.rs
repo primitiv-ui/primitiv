@@ -110,6 +110,32 @@ const WITH_STYLED_SURFACE: &[u8] = br##"{
   }
 }"##;
 
+/// A registry whose `button` carries the full styled surface AND style-level
+/// dependencies (class-variance-authority), so the style-package install path
+/// can be driven (RFC 0005 §6.2 `styles.packages`).
+const WITH_STYLE_PACKAGES: &[u8] = br##"{
+  "version": "0.1.0",
+  "components": {
+    "button": {
+      "version": "0.1.0",
+      "styles": {
+        "packages": ["class-variance-authority"],
+        "formats": { "css": ["styles.css"] },
+        "react": ["button.recipe.ts", "button.tsx"]
+      }
+    }
+  }
+}"##;
+
+/// Two styled components each with a tsx wrapper, for barrel file tests.
+const WITH_TWO_STYLED_COMPONENTS: &[u8] = br##"{
+  "version": "0.1.0",
+  "components": {
+    "button": { "version": "0.1.0", "styles": { "formats": { "css": ["styles.css"] }, "react": ["button.recipe.ts", "button.tsx"] } },
+    "switch": { "version": "0.1.0", "styles": { "formats": { "css": ["styles.css"] }, "react": ["switch.recipe.ts", "switch.tsx"] } }
+  }
+}"##;
+
 /// A registry whose `button` declares stylesheets for two formats, so a
 /// `--format` override can be shown to select the non-default one.
 const MULTI_FORMAT: &[u8] = br##"{
@@ -1155,11 +1181,11 @@ fn copies_the_contract_into_the_components_directory() {
 }
 
 #[test]
-fn falls_back_to_a_root_components_directory_without_a_detectable_alias() {
+fn falls_back_to_src_components_directory_without_a_detectable_alias() {
     let fs = InMemoryFs::new();
     fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
     // No tsconfig/jsconfig: the alias cannot be detected, so the React surface
-    // falls back to the project-root `components` directory.
+    // falls back to the `src/components` directory.
     let registry = InMemoryRegistry::new(WITH_STYLED_SURFACE)
         .with_file("button", "styles.css", b".primitiv-button{}")
         .with_file("button", "button.recipe.ts", b"recipe")
@@ -1183,7 +1209,7 @@ fn falls_back_to_a_root_components_directory_without_a_detectable_alias() {
     .unwrap();
 
     // The wrapper has a styles import prepended; check the body is present.
-    let tsx = fs.read(Path::new("components/button.tsx")).unwrap();
+    let tsx = fs.read(Path::new("src/components/button.tsx")).unwrap();
     assert!(std::str::from_utf8(&tsx).unwrap().contains("wrapper"));
 }
 
@@ -1680,16 +1706,16 @@ fn dry_run_appends_the_refresh_plan_with_per_file_status() {
     fs.write(stylesheet, stylesheet_bytes).unwrap();
 
     // wrapper — on disk but edited → keep
-    let wrapper = Path::new("components/button.tsx");
+    let wrapper = Path::new("src/components/button.tsx");
     fs.write(wrapper, b"consumer edited").unwrap();
 
     // recipe — not on disk → new
-    // (no write for components/button.recipe.ts)
+    // (no write for src/components/button.recipe.ts)
 
     // Seed the lock: stylesheet recorded (matching), wrapper recorded with original bytes
     let mut lock = Lock::default();
     lock.record("src/styles/primitiv/button/styles.css", stylesheet_bytes);
-    lock.record("components/button.tsx", b"original recipe");
+    lock.record("src/components/button.tsx", b"original recipe");
     lock.write(&fs, Path::new("primitiv.lock")).unwrap();
 
     let registry = InMemoryRegistry::new(WITH_REACT_SURFACE);
@@ -1726,11 +1752,11 @@ fn dry_run_appends_the_refresh_plan_with_per_file_status() {
         "stylesheet should be 'refresh'"
     );
     assert!(
-        out.contains("components/button.recipe.ts") && out.contains("new"),
+        out.contains("src/components/button.recipe.ts") && out.contains("new"),
         "recipe should be 'new'"
     );
     assert!(
-        out.contains("components/button.tsx") && out.contains("keep"),
+        out.contains("src/components/button.tsx") && out.contains("keep"),
         "wrapper should be 'keep'"
     );
 }
@@ -2057,6 +2083,34 @@ fn dry_run_surfaces_a_stdout_failure_writing_the_refresh_plan() {
     // Let the first write (the plan) succeed, then fail the second write (the
     // refresh plan section) to drive the stdout-error branch at line 118.
     output.fail_stdout_after(1);
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
+fn dry_run_config_read_failure_surfaces_as_io_error() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    fs.fail_reads_to(Path::new("primitiv.json"));
+    let registry = InMemoryRegistry::new(WITH_REACT_SURFACE);
+    let output = InMemoryOutput::new();
     let runner = InMemoryProcessRunner::new();
     let prompt = InMemoryPrompt::new(Decision::Keep);
 
@@ -3248,12 +3302,12 @@ fn add_styles_import_uses_scss_extension_when_format_is_scss() {
 
 #[test]
 fn add_styles_import_correct_when_no_alias_detected() {
-    // Without tsconfig the components dir falls back to `components/` (root-relative).
+    // Without tsconfig the components dir falls back to `src/components/`.
     // CSS lives at `src/styles/primitiv/button/styles.css`.
-    // Relative path from `components/` to `src/styles/...` is `../src/styles/primitiv/button/styles.css`.
+    // Relative path from `src/components/` to `src/styles/...` is `../styles/primitiv/button/styles.css`.
     let fs = InMemoryFs::new();
     fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
-    // No tsconfig.json — alias detection falls back to `components/`
+    // No tsconfig.json — alias detection falls back to `src/components/`
     let registry = InMemoryRegistry::new(WITH_STYLED_SURFACE)
         .with_file("button", "styles.css", b".primitiv-button{}")
         .with_file("button", "button.recipe.ts", b"export const button = cva();")
@@ -3276,10 +3330,309 @@ fn add_styles_import_correct_when_no_alias_detected() {
     )
     .unwrap();
 
-    let tsx = fs.read(Path::new("components/button.tsx")).unwrap();
+    let tsx = fs.read(Path::new("src/components/button.tsx")).unwrap();
     let content = std::str::from_utf8(&tsx).unwrap();
     assert!(
-        content.starts_with("import \"../src/styles/primitiv/button/styles.css\";\n"),
+        content.starts_with("import \"../styles/primitiv/button/styles.css\";\n"),
         "expected correct relative path without alias, got: {content:?}"
     );
+}
+
+// ── style package installation ───────────────────────────────────────────────
+
+#[test]
+fn installs_style_packages_when_styles_are_enabled() {
+    let fs = InMemoryFs::new();
+    fs.set_current_dir(Path::new("project"));
+    fs.write(Path::new("project/pnpm-lock.yaml"), b"").unwrap();
+    fs.write(Path::new("project/primitiv.json"), CONFIG).unwrap();
+    fs.write(Path::new("project/tsconfig.json"), TSCONFIG).unwrap();
+    let registry = InMemoryRegistry::new(WITH_STYLE_PACKAGES)
+        .with_file("button", "styles.css", b".primitiv-button{}")
+        .with_file("button", "button.recipe.ts", b"recipe")
+        .with_file("button", "button.tsx", b"wrapper");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let calls = runner.calls();
+    let style_call = calls.iter().find(|(_, args, _)| {
+        args.contains(&"class-variance-authority".to_string())
+    });
+    assert!(
+        style_call.is_some(),
+        "expected class-variance-authority to be installed, runner calls: {calls:?}"
+    );
+}
+
+#[test]
+fn styles_only_still_installs_style_packages() {
+    // `--styles-only` skips headless packages but style deps (CVA) are still needed.
+    let fs = InMemoryFs::new();
+    fs.set_current_dir(Path::new("project"));
+    fs.write(Path::new("project/pnpm-lock.yaml"), b"").unwrap();
+    fs.write(Path::new("project/primitiv.json"), CONFIG).unwrap();
+    fs.write(Path::new("project/tsconfig.json"), TSCONFIG).unwrap();
+    let registry = InMemoryRegistry::new(WITH_STYLE_PACKAGES)
+        .with_file("button", "styles.css", b".primitiv-button{}")
+        .with_file("button", "button.recipe.ts", b"recipe")
+        .with_file("button", "button.tsx", b"wrapper");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            styles_only: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let calls = runner.calls();
+    assert_eq!(calls.len(), 1, "expected exactly one install call (CVA), got: {calls:?}");
+    assert!(
+        calls[0].1.contains(&"class-variance-authority".to_string()),
+        "expected class-variance-authority install, got: {:?}", calls[0]
+    );
+}
+
+#[test]
+fn no_styles_skips_style_package_install() {
+    // `--no-styles` skips the entire styled surface, including CVA.
+    let fs = InMemoryFs::new();
+    fs.set_current_dir(Path::new("project"));
+    fs.write(Path::new("project/pnpm-lock.yaml"), b"").unwrap();
+    fs.write(Path::new("project/primitiv.json"), CONFIG).unwrap();
+    let registry = InMemoryRegistry::new(WITH_STYLE_PACKAGES)
+        .with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            no_styles: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let calls = runner.calls();
+    let cva_installed = calls.iter().any(|(_, args, _)| {
+        args.contains(&"class-variance-authority".to_string())
+    });
+    assert!(!cva_installed, "expected CVA to be skipped with --no-styles, got: {calls:?}");
+}
+
+#[test]
+fn errors_when_style_package_install_fails() {
+    let fs = InMemoryFs::new();
+    fs.set_current_dir(Path::new("project"));
+    fs.write(Path::new("project/primitiv.json"), CONFIG).unwrap();
+    let registry = InMemoryRegistry::new(WITH_STYLE_PACKAGES)
+        .with_file("button", "styles.css", b".primitiv-button{}")
+        .with_file("button", "button.recipe.ts", b"recipe")
+        .with_file("button", "button.tsx", b"wrapper");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+    runner.fail();
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            // no_styles=false so ensure_style_packages is called
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Install(_)));
+}
+
+// ── barrel file ──────────────────────────────────────────────────────────────
+
+#[test]
+fn add_writes_barrel_file_in_components_dir() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    fs.write(Path::new("tsconfig.json"), TSCONFIG).unwrap();
+    let registry = InMemoryRegistry::new(WITH_STYLED_SURFACE)
+        .with_file("button", "styles.css", b".primitiv-button{}")
+        .with_file("button", "button.recipe.ts", b"recipe")
+        .with_file("button", "button.tsx", b"wrapper");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let barrel = fs.read(Path::new("src/components/index.ts")).unwrap();
+    assert_eq!(
+        barrel,
+        b"export * from \"./button\";\n",
+        "barrel should export button"
+    );
+}
+
+#[test]
+fn barrel_file_includes_all_installed_components() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    fs.write(Path::new("tsconfig.json"), TSCONFIG).unwrap();
+    let registry = InMemoryRegistry::new(WITH_TWO_STYLED_COMPONENTS)
+        .with_file("button", "styles.css", b".btn{}")
+        .with_file("button", "button.recipe.ts", b"recipe btn")
+        .with_file("button", "button.tsx", b"wrapper btn")
+        .with_file("switch", "styles.css", b".sw{}")
+        .with_file("switch", "switch.recipe.ts", b"recipe sw")
+        .with_file("switch", "switch.tsx", b"wrapper sw");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    // Add button first
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    // Add switch second
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["switch"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let barrel = fs.read(Path::new("src/components/index.ts")).unwrap();
+    assert_eq!(
+        std::str::from_utf8(&barrel).unwrap(),
+        "export * from \"./button\";\nexport * from \"./switch\";\n",
+        "barrel should export both components sorted"
+    );
+}
+
+#[test]
+fn barrel_not_written_when_no_tsx_wrappers_in_surface() {
+    // CSS-only styled surface (no react surface) → no barrel file
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry =
+        InMemoryRegistry::new(WITH_STYLES).with_file("button", "styles.css", b".primitiv-button{}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    assert!(
+        !fs.exists(Path::new("src/components/index.ts")),
+        "no barrel should be written without tsx wrappers"
+    );
+}
+
+#[test]
+fn barrel_write_failure_surfaces_as_io_error() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    let registry = InMemoryRegistry::new(WITH_STYLED_SURFACE)
+        .with_file("button", "styles.css", b".primitiv-button{}")
+        .with_file("button", "button.recipe.ts", b"recipe")
+        .with_file("button", "button.tsx", b"wrapper");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+    fs.fail_writes_to(Path::new("src/components/index.ts"));
+
+    let err = add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
 }

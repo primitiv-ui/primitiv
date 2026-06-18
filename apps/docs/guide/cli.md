@@ -71,6 +71,10 @@ After that you have everything you need to use a styled Button in your app:
 | `src/styles/primitiv/button/styles.css` | Button stylesheet — automatically imported by `button.tsx` |
 | `src/components/button.tsx` | Styled React wrapper — already imports its own stylesheet |
 | `src/components/button.recipe.ts` | `cva` recipe — extend this to add your own variants |
+| `src/components/index.ts` | Barrel file — re-exports every installed component |
+
+`add` also installs [`class-variance-authority`](https://cva.style) automatically — the recipe
+files depend on it. No manual `npm install cva` step needed.
 
 Import the token layer once in your entry file so the custom properties are
 available everywhere:
@@ -80,10 +84,10 @@ available everywhere:
 import './styles/primitiv/tokens.css'
 ```
 
-Then use the Button — its stylesheet is already wired in:
+Then import components from the barrel — each new `add` keeps it up to date:
 
 ```ts
-import { Button } from './components/button'
+import { Button } from './components'
 ```
 
 ---
@@ -121,7 +125,7 @@ bunx primitiv-ui@latest init
 | Stylesheet format | `css` | `--format <css\|scss\|tailwind>` |
 | Brand colour | `#0a7755` | `--brand <hex>` |
 | Styles path | `src/styles/primitiv` | `--path <dir>` |
-| Component alias | detected from `tsconfig.json` | `--alias-components <alias>` |
+| Components directory or alias | detected from `tsconfig.json` | `--alias-components <alias\|dir>` |
 
 Pass `--yes` to accept all defaults without prompting:
 
@@ -157,9 +161,11 @@ pnpm dlx primitiv-ui@latest init --format scss --brand "#ff5500" --path app/styl
 
 ### `add`
 
-Installs a component — copies the stylesheet, the React surface, and ensures
-the headless npm package is installed. If the token layer hasn't been generated
-yet, `add` creates it automatically.
+Installs a component — copies the stylesheet and React surface, installs the
+headless npm package **and `class-variance-authority`**, and generates the
+token layer if it doesn't exist yet. It also updates `src/components/index.ts`
+to re-export every installed component, so you always have a single clean
+import path.
 
 ::: code-group
 

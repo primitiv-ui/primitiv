@@ -305,7 +305,7 @@ fn interactive_init_prompts_for_each_omitted_choice() {
             "Stylesheet format (css, scss, tailwind)",
             "Brand colour",
             "Where should copied styles land",
-            "Components import alias (blank for relative imports)",
+            "Components directory (or import alias)",
         ]
     );
 }

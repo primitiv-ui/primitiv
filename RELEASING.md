@@ -158,7 +158,14 @@ Once sections 2, 3, and 4 are done:
 
 1. Bump the package versions (manually, or adopt Changesets later). **Bump
    every publishable package together** — see §6 on why the CLI packages can't
-   be left behind.
+   be left behind. That means **13 version fields in total**:
+   - `npm/cli-{darwin-arm64,darwin-x64,linux-x64-gnu,linux-arm64-gnu,win32-x64}/package.json` (×5)
+   - `npm/cli-wrapper/package.json` + its `optionalDependencies` (×5 nested)
+   - `npm/create-primitiv-ui/package.json`
+   - `packages/{react,icons,tokens}/package.json` (×3)
+   - **`packages/{react,icons,tokens}/jsr.json` (×3)** — JSR reads version from
+     `jsr.json`, not `package.json`; skipping these silently re-publishes the
+     previous version on JSR without error.
 2. Commit, then create a **GitHub Release** (which tags the commit).
 3. The `release: published` trigger runs `publish.yml`, or run it manually:
    Actions → **Publish packages** → **Run workflow**.

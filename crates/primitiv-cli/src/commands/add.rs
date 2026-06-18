@@ -63,6 +63,30 @@ struct PlannedFile {
     dir: PathBuf,
     /// The destination path (`dir/file`) the file will be written to.
     dest: PathBuf,
+    /// For tsx wrapper files only: the `import "…";` line to prepend so the
+    /// component self-imports its stylesheet. `None` for all other files.
+    styles_import: Option<String>,
+}
+
+/// Compute the relative import path from `from_dir` to `to`, using forward
+/// slashes (safe for JS/TS `import` statements on all platforms).
+fn relative_import_path(from_dir: &Path, to: &Path) -> String {
+    let from_parts: Vec<_> = from_dir.components().collect();
+    let to_parts: Vec<_> = to.components().collect();
+    let common = from_parts
+        .iter()
+        .zip(to_parts.iter())
+        .take_while(|(a, b)| a == b)
+        .count();
+    let ups = from_parts.len() - common;
+    let mut result = PathBuf::new();
+    for _ in 0..ups {
+        result.push("..");
+    }
+    for part in &to_parts[common..] {
+        result.push(part);
+    }
+    result.to_string_lossy().replace('\\', "/")
 }
 
 /// The human-readable status label for a classified file (RFC 0005 §4.2).
@@ -459,6 +483,7 @@ fn planned_files(
                 file: file.to_string(),
                 dest: component_dir.join(file),
                 dir: component_dir.clone(),
+                styles_import: None,
             });
         }
     }
@@ -474,12 +499,33 @@ fn planned_files(
             detect::components_path(fs, dir)?.unwrap_or_else(|| DEFAULT_COMPONENTS_DIR.to_string());
         let components_dir = PathBuf::from(&components_dir);
         for name in resolved {
+            // Pre-compute the first stylesheet path for this component (for the
+            // styles import we prepend to the tsx wrapper).
+            let css_path: Option<PathBuf> = index.components[name]
+                .styles
+                .formats
+                .files(format)
+                .first()
+                .map(|f| Path::new(styles_path).join(name).join(f));
             for file in &index.components[name].styles.react {
+                // The tsx wrapper (not the recipe) gets a self-import so the
+                // component is self-contained: `import { Button } from './button'`
+                // pulls in both the wrapper and its stylesheet.
+                let is_wrapper = file.ends_with(".tsx") && !file.contains(".recipe.");
+                let styles_import = if is_wrapper {
+                    css_path.as_ref().map(|css| {
+                        let rel = relative_import_path(&components_dir, css);
+                        format!("import \"{rel}\";\n")
+                    })
+                } else {
+                    None
+                };
                 files.push(PlannedFile {
                     name: name.clone(),
                     file: file.clone(),
                     dest: components_dir.join(file),
                     dir: components_dir.clone(),
+                    styles_import,
                 });
             }
             if let Some(ref contract) = index.components[name].contract {
@@ -488,6 +534,7 @@ fn planned_files(
                     file: contract.clone(),
                     dest: components_dir.join(contract),
                     dir: components_dir.clone(),
+                    styles_import: None,
                 });
             }
         }
@@ -527,6 +574,7 @@ fn copy_file(
         file,
         dir,
         dest,
+        ..
     } = pf;
     let bytes = registry
         .file(name, file)
@@ -547,8 +595,15 @@ fn copy_file(
     };
     if write {
         fs.create_dir_all(dir)?;
-        fs.write(dest, &bytes)?;
-        lock.record(&dest.to_string_lossy(), &bytes);
+        let final_bytes: Vec<u8> = if let Some(ref prefix) = pf.styles_import {
+            let mut v = prefix.as_bytes().to_vec();
+            v.extend_from_slice(&bytes);
+            v
+        } else {
+            bytes
+        };
+        fs.write(dest, &final_bytes)?;
+        lock.record(&dest.to_string_lossy(), &final_bytes);
     }
     Ok(())
 }

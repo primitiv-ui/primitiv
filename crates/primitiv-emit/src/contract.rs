@@ -147,6 +147,21 @@ pub(crate) fn recipe_binding(name: &str) -> String {
     }
 }
 
+/// The recipe `const` binding for a structural subcomponent — the component's
+/// camelCase name followed by the PascalCase part name (`tabs` + `list` →
+/// `tabsList`). Shared by the recipe (the `export`) and the wrapper (the
+/// `import`). The compound suffix can't collide with a JS reserved word, so no
+/// disambiguation is needed (unlike the bare root [`recipe_binding`]).
+pub(crate) fn subcomponent_binding(name: &str, part: &str) -> String {
+    format!("{}{}", camel_case(name), pascal_case(part))
+}
+
+/// The PascalCase identifier for a structural subcomponent (`tabs` + `list` →
+/// `TabsList`) — the styled wrapper's component / props / variants-type prefix.
+pub(crate) fn subcomponent_pascal(name: &str, part: &str) -> String {
+    format!("{}{}", pascal_case(name), pascal_case(part))
+}
+
 /// Whether an identifier collides with a JS reserved word, so it can't be a bare
 /// `const` binding. Only the subset a kebab-case component name could realistically
 /// produce is listed — `switch` is the live case.

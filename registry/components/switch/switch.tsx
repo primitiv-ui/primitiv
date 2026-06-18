@@ -14,11 +14,20 @@ import { switchRecipe } from "./switch.recipe";
  * @see https://primitiv-ui.dev/docs/components/switch
  */
 export interface SwitchProps extends SwitchPrimitiveProps {
-  /** Control size. Defaults to `"md"`. */
+  /**
+   * Control size; `data-density` scales each size further.
+   * - `xs` — Extra small.
+   * - `sm` — Small.
+   * - `md` — Medium (the default).
+   * - `lg` — Large.
+   * - `xl` — Extra large.
+   * @default "md"
+   * @see https://primitiv-ui.dev/docs/components/switch
+   */
   size?: "xs" | "sm" | "md" | "lg" | "xl";
 }
 
-export function Switch({ className, size, ...props }: SwitchProps) {
+export function Switch({ size, className, ...props }: SwitchProps) {
   return (
     <SwitchPrimitive.Root className={[switchRecipe({ size }), className].filter(Boolean).join(" ")} {...props}>
       <SwitchPrimitive.Thumb className="primitiv-switch__thumb" />

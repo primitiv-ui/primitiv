@@ -1111,10 +1111,9 @@ fn copies_the_react_surface_into_the_alias_resolved_components_directory() {
             .unwrap(),
         b"export const button = cva();"
     );
-    assert_eq!(
-        fs.read(Path::new("src/components/button.tsx")).unwrap(),
-        b"export function Button() {}"
-    );
+    // The wrapper has a styles import prepended; check it contains the original body.
+    let tsx = fs.read(Path::new("src/components/button.tsx")).unwrap();
+    assert!(std::str::from_utf8(&tsx).unwrap().contains("export function Button() {}"));
 }
 
 #[test]
@@ -1183,10 +1182,9 @@ fn falls_back_to_a_root_components_directory_without_a_detectable_alias() {
     )
     .unwrap();
 
-    assert_eq!(
-        fs.read(Path::new("components/button.tsx")).unwrap(),
-        b"wrapper"
-    );
+    // The wrapper has a styles import prepended; check the body is present.
+    let tsx = fs.read(Path::new("components/button.tsx")).unwrap();
+    assert!(std::str::from_utf8(&tsx).unwrap().contains("wrapper"));
 }
 
 #[test]
@@ -3083,4 +3081,205 @@ fn add_surfaces_a_config_read_failure_when_checking_for_styles() {
     .unwrap_err();
 
     assert!(matches!(err, CliError::Io(_)));
+}
+
+// ── styles import injection ────────────────────────────────────────────────
+
+#[test]
+fn add_prepends_styles_import_in_tsx_wrapper() {
+    // With a tsconfig alias, the tsx wrapper lands in `src/components/`.
+    // The stylesheet lands in `src/styles/primitiv/button/styles.css`.
+    // The relative path from `src/components/` is `../styles/primitiv/button/styles.css`.
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    fs.write(Path::new("tsconfig.json"), TSCONFIG).unwrap();
+    let registry = InMemoryRegistry::new(WITH_STYLED_SURFACE)
+        .with_file("button", "styles.css", b".primitiv-button{}")
+        .with_file("button", "button.recipe.ts", b"export const button = cva();")
+        .with_file("button", "button.tsx", b"export function Button() {}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let tsx = fs.read(Path::new("src/components/button.tsx")).unwrap();
+    let content = std::str::from_utf8(&tsx).unwrap();
+    assert!(
+        content.starts_with("import \"../styles/primitiv/button/styles.css\";\n"),
+        "expected styles import at top of button.tsx, got: {content:?}"
+    );
+    assert!(content.contains("export function Button() {}"));
+}
+
+#[test]
+fn add_does_not_prepend_import_in_recipe_file() {
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    fs.write(Path::new("tsconfig.json"), TSCONFIG).unwrap();
+    let registry = InMemoryRegistry::new(WITH_STYLED_SURFACE)
+        .with_file("button", "styles.css", b".primitiv-button{}")
+        .with_file("button", "button.recipe.ts", b"export const button = cva();")
+        .with_file("button", "button.tsx", b"export function Button() {}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let recipe = fs
+        .read(Path::new("src/components/button.recipe.ts"))
+        .unwrap();
+    let content = std::str::from_utf8(&recipe).unwrap();
+    assert!(
+        !content.contains("import \""),
+        "recipe file should not get a styles import, got: {content:?}"
+    );
+}
+
+#[test]
+fn add_omits_styles_import_when_no_styles_flag_is_set() {
+    // --no-styles skips the styled surface entirely, so no tsx is written.
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    fs.write(Path::new("tsconfig.json"), TSCONFIG).unwrap();
+    let registry = InMemoryRegistry::new(WITH_STYLED_SURFACE)
+        .with_file("button", "styles.css", b".primitiv-button{}")
+        .with_file("button", "button.recipe.ts", b"export const button = cva();")
+        .with_file("button", "button.tsx", b"export function Button() {}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            no_styles: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    assert!(
+        !fs.exists(Path::new("src/components/button.tsx")),
+        "tsx file should not be written when --no-styles is set"
+    );
+}
+
+#[test]
+fn add_styles_import_uses_scss_extension_when_format_is_scss() {
+    const CONFIG_SCSS: &[u8] = br##"{
+      "version": 1,
+      "framework": "react",
+      "styles": { "enabled": true, "format": "scss", "path": "src/styles/primitiv" },
+      "tokens": { "format": "scss", "path": "src/styles/primitiv/tokens.scss" },
+      "theme": { "brand": "#0a7755" },
+      "aliases": {},
+      "registry": { "version": "0.1.0" }
+    }"##;
+    const WITH_SCSS_SURFACE: &[u8] = br##"{
+      "version": "0.1.0",
+      "components": {
+        "button": { "version": "0.1.0", "styles": { "formats": { "scss": ["styles.scss"] }, "react": ["button.recipe.ts", "button.tsx"] } }
+      }
+    }"##;
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG_SCSS).unwrap();
+    fs.write(Path::new("tsconfig.json"), TSCONFIG).unwrap();
+    let registry = InMemoryRegistry::new(WITH_SCSS_SURFACE)
+        .with_file("button", "styles.scss", b".primitiv-button{}")
+        .with_file("button", "button.recipe.ts", b"export const button = cva();")
+        .with_file("button", "button.tsx", b"export function Button() {}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let tsx = fs.read(Path::new("src/components/button.tsx")).unwrap();
+    let content = std::str::from_utf8(&tsx).unwrap();
+    assert!(
+        content.starts_with("import \"../styles/primitiv/button/styles.scss\";\n"),
+        "expected scss import, got: {content:?}"
+    );
+}
+
+#[test]
+fn add_styles_import_correct_when_no_alias_detected() {
+    // Without tsconfig the components dir falls back to `components/` (root-relative).
+    // CSS lives at `src/styles/primitiv/button/styles.css`.
+    // Relative path from `components/` to `src/styles/...` is `../src/styles/primitiv/button/styles.css`.
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    // No tsconfig.json — alias detection falls back to `components/`
+    let registry = InMemoryRegistry::new(WITH_STYLED_SURFACE)
+        .with_file("button", "styles.css", b".primitiv-button{}")
+        .with_file("button", "button.recipe.ts", b"export const button = cva();")
+        .with_file("button", "button.tsx", b"export function Button() {}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let tsx = fs.read(Path::new("components/button.tsx")).unwrap();
+    let content = std::str::from_utf8(&tsx).unwrap();
+    assert!(
+        content.starts_with("import \"../src/styles/primitiv/button/styles.css\";\n"),
+        "expected correct relative path without alias, got: {content:?}"
+    );
 }

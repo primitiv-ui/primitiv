@@ -1,6 +1,6 @@
 {
   "name": "primitiv-ui",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Primitiv UI \u2014 the design system CLI. Run `primitiv add button` in any Vite or Next.js project.",
   "keywords": [
     "primitiv",
@@ -19,11 +19,11 @@
     "node": ">=18"
   },
   "optionalDependencies": {
-    "@primitiv-ui/cli-darwin-arm64": "0.1.5",
-    "@primitiv-ui/cli-darwin-x64": "0.1.5",
-    "@primitiv-ui/cli-linux-x64-gnu": "0.1.5",
-    "@primitiv-ui/cli-linux-arm64-gnu": "0.1.5",
-    "@primitiv-ui/cli-win32-x64": "0.1.5"
+    "@primitiv-ui/cli-darwin-arm64": "0.1.6",
+    "@primitiv-ui/cli-darwin-x64": "0.1.6",
+    "@primitiv-ui/cli-linux-x64-gnu": "0.1.6",
+    "@primitiv-ui/cli-linux-arm64-gnu": "0.1.6",
+    "@primitiv-ui/cli-win32-x64": "0.1.6"
   },
   "repository": {
     "type": "git",

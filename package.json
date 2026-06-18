@@ -16,6 +16,7 @@
     "install:all": "pnpm install && pnpm run build:wasm"
   },
   "devDependencies": {
-    "@playwright/test": "1.46.1"
+    "@playwright/test": "1.46.1",
+    "class-variance-authority": "^0.7.1"
   }
 }

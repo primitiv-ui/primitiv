@@ -132,10 +132,13 @@ source of truth for when a skill applies.
   cascade-based formats are the set. The `tokens` and `theme` commands and
   the `primitiv.json` config (`config::resolve` / `try_resolve`) are landed.
   The **CLI command surface is now v1 feature-complete**: `init` (incl.
-  interactive prompting + `--yes`), `add` (resolve → install → copy the styled
-  surface + React surface + `contract.json` → `primitiv.lock` refresh /
-  `--force` / interactive overwrite-keep → project wiring), `tokens`, `theme`,
-  and `list` (with the lock-backed installed column). The registry has three
+  interactive prompting + `--yes` → emits token layer as its final step),
+  `add` (resolve → install → copy the styled surface + React surface +
+  `contract.json` → `primitiv.lock` refresh / `--force` / interactive
+  overwrite-keep → project wiring → auto-generates token layer when absent →
+  **prepends a `import "./styles…css"` line to the tsx wrapper** so the
+  component self-imports its stylesheet), `tokens`, `theme`, and `list` (with
+  the lock-backed installed column). The registry has three
   adapters behind one port — embedded (baked in), `LocalRegistry`
   (`--registry <path>`) and `HttpsRegistry` (`--registry <url|version>`, a
   blocking `ureq`/rustls fetch from GitHub-raw) — chosen at run time as a

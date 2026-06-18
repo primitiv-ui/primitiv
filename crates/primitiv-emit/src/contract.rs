@@ -21,11 +21,36 @@ pub struct Contract {
     pub root: Root,
     /// The decorative slot parts (`Switch.Thumb`), in authored order. Empty for a
     /// single-element component (Button); when present, the styled wrapper renders
-    /// the compound and fills each slot. Structural, consumer-composed parts
-    /// (`Tabs.Trigger`) are a separate concern and not modelled here.
+    /// the compound and fills each slot. Distinct from [`subcomponents`](Self::subcomponents):
+    /// a slot is auto-rendered into a fixed subtree, a subcomponent is composed by
+    /// the consumer (D56).
     #[serde(default)]
     pub parts: Vec<Part>,
+    /// The structural, consumer-composed subcomponents (`Tabs.List` / `.Trigger` /
+    /// `.Content`), in authored order. Empty for a single-element or decorative-slot
+    /// component; when present, the styled surface is N thin per-part wrappers the
+    /// consumer composes (shadcn parity, D56).
+    #[serde(default)]
+    pub subcomponents: Vec<Subcomponent>,
     /// The visual modifier groups, in authored order.
+    #[serde(default)]
+    pub modifiers: Vec<ModifierGroup>,
+}
+
+/// One structural, consumer-composed subcomponent of a compound (`Tabs.List`).
+/// Unlike a decorative [`Part`], it is not auto-rendered: the styled surface emits
+/// a thin wrapper the consumer places themselves, carrying its own BEM class and
+/// optional per-part modifier groups (e.g. the list's `justify` axis, D56).
+#[derive(Debug, Deserialize)]
+pub struct Subcomponent {
+    /// The part key (`list`), kebab-case for multi-word names.
+    pub name: String,
+    /// The headless sub-component this wraps (`List` → `Tabs.List`).
+    pub component: String,
+    /// The BEM part class the wrapper applies (`primitiv-tabs__list`).
+    pub class: String,
+    /// The part's own modifier groups, in authored order. Empty for a part with no
+    /// visual variants (a trigger).
     #[serde(default)]
     pub modifiers: Vec<ModifierGroup>,
 }
@@ -43,6 +68,11 @@ pub struct Part {
 pub struct Root {
     pub element: String,
     pub class: String,
+    /// The headless sub-component the root wraps (`Root` → `Tabs.Root`) for a
+    /// structural compound; `None` for a single-element or decorative-slot
+    /// component, whose wrapper targets the primitive directly.
+    #[serde(default)]
+    pub component: Option<String>,
 }
 
 /// One modifier group (`intent`, `size`) — a `variant`-style prop axis.
@@ -115,6 +145,21 @@ pub(crate) fn recipe_binding(name: &str) -> String {
     } else {
         camel
     }
+}
+
+/// The recipe `const` binding for a structural subcomponent — the component's
+/// camelCase name followed by the PascalCase part name (`tabs` + `list` →
+/// `tabsList`). Shared by the recipe (the `export`) and the wrapper (the
+/// `import`). The compound suffix can't collide with a JS reserved word, so no
+/// disambiguation is needed (unlike the bare root [`recipe_binding`]).
+pub(crate) fn subcomponent_binding(name: &str, part: &str) -> String {
+    format!("{}{}", camel_case(name), pascal_case(part))
+}
+
+/// The PascalCase identifier for a structural subcomponent (`tabs` + `list` →
+/// `TabsList`) — the styled wrapper's component / props / variants-type prefix.
+pub(crate) fn subcomponent_pascal(name: &str, part: &str) -> String {
+    format!("{}{}", pascal_case(name), pascal_case(part))
 }
 
 /// Whether an identifier collides with a JS reserved word, so it can't be a bare

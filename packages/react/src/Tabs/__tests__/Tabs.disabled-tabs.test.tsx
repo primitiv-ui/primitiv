@@ -61,7 +61,7 @@ describe("Tabs disabled tabs tests", () => {
     expect(firstTab).toHaveAttribute("aria-disabled", "true");
   });
 
-  it("should have the data-disabled attribute set to false by default", () => {
+  it("should not set the data-disabled attribute by default", () => {
     // Arrange
     render(
       <Tabs.Root defaultValue="tab1">
@@ -75,11 +75,11 @@ describe("Tabs disabled tabs tests", () => {
     );
     const firstTab = screen.getByRole("tab", { name: "Tab 1" });
 
-    // Assert
-    expect(firstTab).toHaveAttribute("data-disabled", "false");
+    // Assert — matches the Button/Switch convention: omitted when enabled.
+    expect(firstTab).not.toHaveAttribute("data-disabled");
   });
 
-  it("should have the data-disabled attribute set to true when disabled prop is provided", () => {
+  it("should set data-disabled to an empty string when disabled prop is provided", () => {
     // Arrange
     render(
       <Tabs.Root defaultValue="tab1">
@@ -95,8 +95,8 @@ describe("Tabs disabled tabs tests", () => {
     );
     const firstTab = screen.getByRole("tab", { name: "Tab 1" });
 
-    // Assert
-    expect(firstTab).toHaveAttribute("data-disabled", "true");
+    // Assert — matches the Button/Switch convention: "" when disabled.
+    expect(firstTab).toHaveAttribute("data-disabled", "");
   });
 
   it("should not change the currently active panel when clicking on a disabled tab", async () => {

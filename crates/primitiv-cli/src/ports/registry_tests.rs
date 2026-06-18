@@ -35,6 +35,17 @@ fn embedded_registry_serves_the_baked_in_index() {
     // The authored registry.json is valid and carries the seed components.
     assert!(index.components.contains_key("button"));
     assert!(index.components.contains_key("switch"));
+    assert!(index.components.contains_key("tabs"));
+}
+
+#[test]
+fn embedded_registry_serves_the_structural_compound_files() {
+    // Tabs is the first structural compound — its baked-in surface is served
+    // verbatim, so `primitiv add tabs` resolves against the binary's own copy.
+    let css = String::from_utf8(EmbeddedRegistry.file("tabs", "styles.css").unwrap()).unwrap();
+    assert!(css.contains(".primitiv-tabs__trigger"));
+    let wrapper = String::from_utf8(EmbeddedRegistry.file("tabs", "tabs.tsx").unwrap()).unwrap();
+    assert!(wrapper.contains("export function TabsTrigger"));
 }
 
 #[test]

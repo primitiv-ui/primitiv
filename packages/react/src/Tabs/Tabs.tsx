@@ -238,6 +238,8 @@ TabsList.displayName = "TabsList";
  * **Styling hooks.**
  * - `data-state="active" | "inactive"` on the rendered element.
  * - `data-orientation="horizontal" | "vertical"`.
+ * - `data-disabled=""` when disabled (omitted otherwise), so CSS can target
+ *   `[data-disabled]` without the `:disabled` pseudo-class.
  *
  * @example Basic usage
  * ```tsx
@@ -297,7 +299,7 @@ export function TabsTrigger<T extends HTMLElement = HTMLButtonElement>({
     "aria-controls": panelId,
     "aria-selected": isActive,
     "aria-disabled": disabled,
-    "data-disabled": disabled,
+    "data-disabled": disabled ? "" : undefined,
     "data-orientation": orientation,
     "data-state": state,
     tabIndex,

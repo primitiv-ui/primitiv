@@ -1,8 +1,23 @@
 use pretty_assertions::assert_eq;
 
 use crate::contract::Contract;
-use crate::contract_fixtures::{BARE, DEMO_BOX, DEMO_TOGGLE};
+use crate::contract_fixtures::{BARE, DEMO_BOX, DEMO_TOGGLE, DEMO_VIEW};
 use crate::wrapper::emit_wrapper;
+
+#[test]
+fn generates_n_thin_per_part_wrappers_for_a_structural_compound() {
+    let contract = Contract::parse(DEMO_VIEW.as_bytes()).unwrap();
+
+    // One wrapper per part the consumer composes: the root (its `size`), `bar`
+    // (its `align`) and the base-only `item` — no auto-rendered subtree (D56).
+    assert_eq!(
+        emit_wrapper(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/demo-view.wrapper.tsx"
+        ))
+    );
+}
 
 #[test]
 fn generates_a_jsdoc_styled_wrapper_from_a_full_contract() {

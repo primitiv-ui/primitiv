@@ -1,0 +1,69 @@
+name: Release
+
+# Bumps all 13 version fields in lockstep, commits, tags, and creates a
+# GitHub Release. The `release: published` trigger on publish.yml then fires
+# automatically, building the CLI binaries and publishing everything to npm
+# and JSR.
+#
+# Run this workflow on `main` after all feature branches are merged.
+# The bot push requires the GitHub Actions bot to be permitted to push to
+# `main` — see RELEASING.md §5 for branch-protection notes.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Target version (e.g. 0.1.8)"
+        required: true
+        type: string
+
+permissions:
+  contents: write  # commit, tag, push, create release
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Use the default GITHUB_TOKEN. If branch protection blocks the bot
+          # push, swap this for a PAT with contents:write — see RELEASING.md §5.
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump all version fields
+        run: node scripts/bump-version.mjs ${{ inputs.version }}
+
+      - name: Commit and tag
+        run: |
+          git add \
+            packages/react/package.json packages/icons/package.json packages/tokens/package.json \
+            packages/react/jsr.json packages/icons/jsr.json packages/tokens/jsr.json \
+            npm/cli-wrapper/package.json npm/cli-darwin-arm64/package.json \
+            npm/cli-darwin-x64/package.json npm/cli-linux-arm64-gnu/package.json \
+            npm/cli-linux-x64-gnu/package.json npm/cli-win32-x64/package.json \
+            npm/create-primitiv-ui/package.json
+          git commit -m "chore: release v${{ inputs.version }}"
+          git tag "v${{ inputs.version }}"
+          git push origin HEAD
+          git push origin "v${{ inputs.version }}"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "v${{ inputs.version }}" \
+            --title "v${{ inputs.version }}" \
+            --generate-notes

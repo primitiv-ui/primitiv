@@ -1,15 +1,23 @@
 {
   "name": "@primitiv-ui/cli-darwin-x64",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "The primitiv CLI binary for macOS Intel (x64)",
-  "os": ["darwin"],
-  "cpu": ["x64"],
-  "files": ["primitiv"],
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "files": [
+    "primitiv"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/primitiv-ui/primitiv.git",
     "directory": "npm/cli-darwin-x64"
   },
   "license": "MIT",
-  "publishConfig": { "access": "public" }
+  "publishConfig": {
+    "access": "public"
+  }
 }

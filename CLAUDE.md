@@ -172,9 +172,11 @@ node scripts/bump-version.mjs 0.x.y              # bump all 13 version fields at
 ## Releasing
 
 Never bump versions by hand — always use `scripts/bump-version.mjs`. The
-automated path is **Actions → Release → Run workflow** (enter the target
-version; it bumps, commits, tags, and creates a GitHub Release which triggers
-`publish.yml`). Full details and gotchas are in `RELEASING.md §5`.
+two-step release path:
+1. **Actions → Release → Run workflow** (enter target version) — bumps, commits, tags, creates the GitHub Release.
+2. **Actions → Publish packages → Run workflow** (on `main`, no inputs) — builds CLI binaries and publishes to npm + JSR.
+
+Step 2 is always a manual dispatch. GitHub's GITHUB_TOKEN loop-prevention blocks the `release: published` event from propagating to `publish.yml` when the release is created by an automated workflow. Full details and gotchas are in `RELEASING.md §5`.
 
 **Embedded registry gotcha:** every file under `registry/components/` is
 baked into the CLI binary at compile time via `include_str!`. A version bump

@@ -1,9 +1,12 @@
 name: Release
 
 # Bumps all 13 version fields in lockstep, commits, tags, and creates a
-# GitHub Release. The `release: published` trigger on publish.yml then fires
-# automatically, building the CLI binaries and publishing everything to npm
-# and JSR.
+# GitHub Release.
+#
+# After this workflow succeeds, manually trigger publish.yml
+# (Actions → "Publish packages" → Run workflow). GitHub's GITHUB_TOKEN
+# loop-prevention blocks the `release: published` event from propagating
+# to other workflows, so the publish step is always a manual dispatch.
 #
 # Run this workflow on `main` after all feature branches are merged.
 # The bot push requires the GitHub Actions bot to be permitted to push to

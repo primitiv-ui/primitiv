@@ -1,19 +1,29 @@
 {
   "name": "primitiv-ui",
-  "version": "0.1.2",
-  "description": "Primitiv UI — the design system CLI. Run `primitiv add button` in any Vite or Next.js project.",
-  "keywords": ["primitiv", "design-system", "cli", "react", "tailwind"],
+  "version": "0.1.4",
+  "description": "Primitiv UI \u2014 the design system CLI. Run `primitiv add button` in any Vite or Next.js project.",
+  "keywords": [
+    "primitiv",
+    "design-system",
+    "cli",
+    "react",
+    "tailwind"
+  ],
   "bin": {
     "primitiv": "./bin/primitiv.mjs"
   },
-  "files": ["bin"],
-  "engines": { "node": ">=18" },
+  "files": [
+    "bin"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "optionalDependencies": {
-    "@primitiv-ui/cli-darwin-arm64": "0.1.2",
-    "@primitiv-ui/cli-darwin-x64": "0.1.2",
-    "@primitiv-ui/cli-linux-x64-gnu": "0.1.2",
-    "@primitiv-ui/cli-linux-arm64-gnu": "0.1.2",
-    "@primitiv-ui/cli-win32-x64": "0.1.2"
+    "@primitiv-ui/cli-darwin-arm64": "0.1.4",
+    "@primitiv-ui/cli-darwin-x64": "0.1.4",
+    "@primitiv-ui/cli-linux-x64-gnu": "0.1.4",
+    "@primitiv-ui/cli-linux-arm64-gnu": "0.1.4",
+    "@primitiv-ui/cli-win32-x64": "0.1.4"
   },
   "repository": {
     "type": "git",
@@ -21,5 +31,7 @@
     "directory": "npm/cli-wrapper"
   },
   "license": "MIT",
-  "publishConfig": { "access": "public" }
+  "publishConfig": {
+    "access": "public"
+  }
 }

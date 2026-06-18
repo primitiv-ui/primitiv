@@ -154,38 +154,75 @@ Actions automatically — no token. (Each package also needs a valid
 
 ## 5. Cutting a release
 
-Once sections 2, 3, and 4 are done:
+Once sections 2, 3, and 4 are done, use the automated release workflow —
+**don't bump versions by hand**.
 
-1. Bump the package versions (manually, or adopt Changesets later). **All 13
-   fields must move together** — see §6 on why the CLI packages can't be left
-   behind:
+### The easy path (recommended)
 
-   | File | Field |
-   |---|---|
-   | `npm/cli-darwin-arm64/package.json` | `"version"` |
-   | `npm/cli-darwin-x64/package.json` | `"version"` |
-   | `npm/cli-linux-x64-gnu/package.json` | `"version"` |
-   | `npm/cli-linux-arm64-gnu/package.json` | `"version"` |
-   | `npm/cli-win32-x64/package.json` | `"version"` |
-   | `npm/cli-wrapper/package.json` | `"version"` |
-   | `npm/cli-wrapper/package.json` | `"optionalDependencies"` (all 5 entries) |
-   | `npm/create-primitiv-ui/package.json` | `"version"` |
-   | `packages/react/package.json` | `"version"` |
-   | `packages/icons/package.json` | `"version"` |
-   | `packages/tokens/package.json` | `"version"` |
-   | `packages/react/jsr.json` | `"version"` |
-   | `packages/icons/jsr.json` | `"version"` |
-   | `packages/tokens/jsr.json` | `"version"` |
+1. Merge all feature branches to `main`.
+2. Go to **Actions → Release → Run workflow** and enter the target version
+   (e.g. `0.1.8`).
+3. The `release.yml` workflow:
+   - Runs `node scripts/bump-version.mjs <version>` (see below).
+   - Commits and pushes the version bump to `main`.
+   - Creates and pushes a `v<version>` git tag.
+   - Creates a GitHub Release, which **automatically triggers `publish.yml`**.
+4. `publish.yml` builds the CLI binaries, runs tests, and publishes to npm +
+   JSR. Watch it in the Actions tab.
 
-   > **JSR gotcha:** JSR reads the version from `jsr.json`, **not**
-   > `package.json`. Omitting the `jsr.json` bump silently re-publishes the
-   > previous version on JSR with no error — the npm versions will advance but
-   > jsr.io will stay stale.
-2. Commit, then create a **GitHub Release** (which tags the commit).
-3. The `release: published` trigger runs `publish.yml`, or run it manually:
-   Actions → **Publish packages** → **Run workflow**.
-4. The job builds wasm → installs → generates icons → tests → publishes to
-   npm (with provenance) → publishes to JSR.
+> **Branch protection note:** the bot push in step 3 requires the GitHub
+> Actions bot (`github-actions[bot]`) to be allowed to push directly to
+> `main`. If your ruleset blocks it, either add a bypass for the bot, or swap
+> `secrets.GITHUB_TOKEN` in `release.yml` for a PAT with `contents:write`.
+
+### What `scripts/bump-version.mjs` touches
+
+The script updates every version location in a single pass — never update
+these by hand across multiple commits:
+
+| Location | What changes |
+|---|---|
+| `packages/{react,icons,tokens}/package.json` | `"version"` |
+| `packages/{react,icons,tokens}/jsr.json` | `"version"` |
+| `npm/cli-{darwin-arm64,darwin-x64,linux-arm64-gnu,linux-x64-gnu,win32-x64}/package.json` | `"version"` |
+| `npm/cli-wrapper/package.json` | `"version"` **and** all 5 `"optionalDependencies"` entries |
+| `npm/create-primitiv-ui/package.json` | `"version"` |
+
+> **JSR gotcha:** JSR reads the version from `jsr.json`, **not**
+> `package.json`. Omitting the `jsr.json` bump silently re-publishes the
+> previous version on JSR — the npm versions advance but jsr.io stays stale.
+> The script handles both; do not bypass it.
+
+> **optionalDependencies gotcha:** the `cli-wrapper`'s `optionalDependencies`
+> must match the platform package versions. The script updates both the
+> wrapper's `"version"` and the five dependency pins in one go.
+
+### CLI embedded-registry gotcha
+
+The `primitiv` CLI binary embeds every file in `registry/components/` at
+**compile time** via Rust's `include_str!` macro (see
+`crates/primitiv-cli/src/ports/registry.rs`). This means:
+
+- **Any change to a registry file (component styles, recipe, contract, tsx
+  wrapper) requires a full Rust rebuild to take effect in the CLI.** Bumping
+  npm/jsr version numbers alone is not enough.
+- The `publish.yml` workflow always rebuilds all CLI binaries before
+  publishing, so releasing via the workflow is always correct.
+- If you need to verify registry changes locally before release, use
+  `primitiv add <component> --registry <path>` which uses the `LocalRegistry`
+  adapter and reads live files from disk.
+
+### Running the bump script locally
+
+```sh
+node scripts/bump-version.mjs 0.1.8
+git add -A
+git commit -m "chore: release v0.1.8"
+git tag v0.1.8
+git push origin HEAD
+git push origin v0.1.8
+# Then create a GitHub Release from the tag to trigger publish.yml
+```
 
 ---
 

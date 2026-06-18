@@ -166,7 +166,22 @@ pnpm --filter @primitiv-ui/react qa:units            # React tests + coverage
 pnpm --filter @primitiv-ui/react exec vitest run src/X    # scoped, during a cycle
 pnpm run build:wasm                               # rebuild wasm pkg
 pnpm run dev                                      # workbench dev server
+node scripts/bump-version.mjs 0.x.y              # bump all 13 version fields atomically
 ```
+
+## Releasing
+
+Never bump versions by hand — always use `scripts/bump-version.mjs`. The
+automated path is **Actions → Release → Run workflow** (enter the target
+version; it bumps, commits, tags, and creates a GitHub Release which triggers
+`publish.yml`). Full details and gotchas are in `RELEASING.md §5`.
+
+**Embedded registry gotcha:** every file under `registry/components/` is
+baked into the CLI binary at compile time via `include_str!`. A version bump
+alone does NOT surface registry changes to consumers — the CLI binary must be
+rebuilt. `publish.yml` always rebuilds, so the automated workflow is always
+correct. Never tell a user a registry change is live until a new CLI version
+has been published via the workflow.
 
 Don't use raw `grep`/`find`/`rg` from Bash when the Grep and Glob
 tools fit. Don't run `find` from `/`.

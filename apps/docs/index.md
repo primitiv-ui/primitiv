@@ -14,6 +14,9 @@ hero:
       text: React components
       link: /react/
     - theme: alt
+      text: Primitiv CLI
+      link: /guide/cli
+    - theme: alt
       text: Harmoni engine
       link: /harmoni/
 features:

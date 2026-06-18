@@ -68,8 +68,8 @@ After that you have everything you need to use a styled Button in your app:
 | File | What it is |
 |---|---|
 | `src/styles/primitiv/tokens.css` | Shared design token layer (`--primitiv-*` custom properties) |
-| `src/styles/primitiv/button/styles.css` | Button stylesheet — import this in your entry CSS |
-| `src/components/button.tsx` | Styled React wrapper — use this in your JSX |
+| `src/styles/primitiv/button/styles.css` | Button stylesheet — automatically imported by `button.tsx` |
+| `src/components/button.tsx` | Styled React wrapper — already imports its own stylesheet |
 | `src/components/button.recipe.ts` | `cva` recipe — extend this to add your own variants |
 
 Import the token layer once in your entry file so the custom properties are
@@ -80,10 +80,9 @@ available everywhere:
 import './styles/primitiv/tokens.css'
 ```
 
-Then import the Button component stylesheet where you use it, or globally:
+Then use the Button — its stylesheet is already wired in:
 
 ```ts
-import './styles/primitiv/button/styles.css'
 import { Button } from './components/button'
 ```
 

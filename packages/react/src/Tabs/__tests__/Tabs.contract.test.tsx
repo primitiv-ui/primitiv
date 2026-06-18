@@ -141,16 +141,13 @@ describe("Tabs styling contract", () => {
   });
 
   it("emits data-disabled on the trigger exactly as the contract documents it", () => {
-    const valueFor = (when: string) =>
-      subcontract("trigger").dataAttributes.find(
-        (attribute) => attribute.name === "data-disabled" && attribute.when === when,
-      )!.value;
+    const entry = subcontract("trigger").dataAttributes.find(
+      (attribute) => attribute.name === "data-disabled",
+    )!;
     renderTabs();
     const [enabledTrigger, disabledTrigger] = screen.getAllByRole("tab");
-    // Tabs.Trigger always reflects its boolean `disabled` prop (unlike Button /
-    // Switch, which omit data-disabled when false) — so the attribute is present
-    // on both, "true" when disabled and "false" when enabled.
-    expect(disabledTrigger).toHaveAttribute("data-disabled", valueFor("disabled"));
-    expect(enabledTrigger).toHaveAttribute("data-disabled", valueFor("enabled"));
+    // Button/Switch convention: present as "" when disabled, omitted otherwise.
+    expect(disabledTrigger).toHaveAttribute("data-disabled", entry.value);
+    expect(enabledTrigger).not.toHaveAttribute("data-disabled");
   });
 });

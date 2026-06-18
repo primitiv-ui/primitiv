@@ -60,8 +60,7 @@
         { "name": "data-state", "value": "inactive", "when": "inactive", "source": "auto" },
         { "name": "data-orientation", "value": "horizontal", "when": "horizontal", "source": "auto" },
         { "name": "data-orientation", "value": "vertical", "when": "vertical", "source": "auto" },
-        { "name": "data-disabled", "value": "true", "when": "disabled", "source": "auto" },
-        { "name": "data-disabled", "value": "false", "when": "enabled", "source": "auto" }
+        { "name": "data-disabled", "value": "", "when": "disabled", "source": "auto" }
       ]
     },
     {

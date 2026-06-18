@@ -43,10 +43,13 @@ pub struct ComponentEntry {
 /// A component's styled bundle (RFC 0005 §6.2): the per-format stylesheet `add`
 /// copies into the styles path, and the **format-independent React surface**
 /// (recipe + wrapper, D55) it copies into the components directory. The
-/// `packages` key the block also carries is ignored until the slice that ensures
-/// the styled-surface dependencies lands.
+/// `packages` key lists npm packages the styled surface requires (e.g.
+/// `class-variance-authority`); `add` installs them alongside the headless
+/// dependencies when styles are enabled.
 #[derive(Debug, Deserialize, PartialEq, Default)]
 pub struct Styles {
+    #[serde(default)]
+    pub packages: Vec<String>,
     #[serde(default)]
     pub formats: Formats,
     #[serde(default)]

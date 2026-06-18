@@ -153,7 +153,7 @@ fn resolve(
         None if ask => {
             let answer = ask_text(
                 prompt,
-                "Components import alias (blank for relative imports)",
+                "Components directory (or import alias)",
                 detected_alias.as_deref().unwrap_or(""),
             )?;
             (!answer.is_empty()).then_some(answer)

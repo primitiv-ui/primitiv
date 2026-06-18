@@ -39,10 +39,11 @@
     --primitiv-tabs-trigger-border-width: var(--primitiv-framed-control-border-width);
     --primitiv-tabs-trigger-bg: var(--primitiv-action-secondary-default);
     --primitiv-tabs-trigger-fg: var(--primitiv-action-secondary-foreground-default);
-    --primitiv-tabs-trigger-border-color: var(--primitiv-action-secondary-border-default);
     --primitiv-tabs-trigger-bg-active: var(--primitiv-action-primary-default);
     --primitiv-tabs-trigger-fg-active: var(--primitiv-action-primary-foreground-default);
-    --primitiv-tabs-trigger-border-color-active: var(--primitiv-action-primary-border-default);
+    --primitiv-tabs-list-bg: var(--primitiv-surface-default);
+    --primitiv-tabs-list-border-color: var(--primitiv-action-secondary-border-default);
+    --primitiv-tabs-divider-color: var(--primitiv-action-secondary-border-default);
     --primitiv-tabs-trigger-font-family: var(--primitiv-label-md-font-family);
     --primitiv-tabs-trigger-font-size: var(--primitiv-label-md-font-size);
     --primitiv-tabs-trigger-font-weight: var(--primitiv-label-md-font-weight);
@@ -63,10 +64,18 @@
     flex-direction: column;
   }
 
-  /* The tablist — a connected strip of triggers. */
+  /* The tablist — the frame: a surface background and a top/inline border (no
+     bottom — the panel's top border is the junction seam), with rounded top
+     corners. This is what makes the strip read as connected to the panel below,
+     and what the triggers' dividers sit inside (the ToggleGroup pattern). */
   .primitiv-tabs__list {
     display: flex;
     flex-direction: row;
+    background: var(--primitiv-tabs-list-bg);
+    border: var(--primitiv-tabs-trigger-border-width) solid var(--primitiv-tabs-list-border-color);
+    border-block-end: 0;
+    border-start-start-radius: var(--primitiv-tabs-trigger-radius);
+    border-start-end-radius: var(--primitiv-tabs-trigger-radius);
   }
 
   /* A trigger — a framed control, inactive (secondary) by default. The bottom
@@ -79,8 +88,13 @@
     gap: var(--primitiv-tabs-trigger-gap);
     block-size: var(--primitiv-tabs-trigger-height);
     padding-inline: var(--primitiv-tabs-trigger-padding-inline);
-    border: var(--primitiv-tabs-trigger-border-width) solid var(--primitiv-tabs-trigger-border-color);
+    /* The border matches the background so the trigger reads as a flat segment
+       inside the list frame; only the inter-trigger divider (below) stays
+       visible. No bottom border — the panel's top border is the junction seam;
+       no trailing border — the divider lives on the next trigger's leading edge. */
+    border: var(--primitiv-tabs-trigger-border-width) solid var(--primitiv-tabs-trigger-bg);
     border-block-end: 0;
+    border-inline-end: 0;
     background: var(--primitiv-tabs-trigger-bg);
     color: var(--primitiv-tabs-trigger-fg);
     font-family: var(--primitiv-tabs-trigger-font-family);
@@ -104,23 +118,24 @@
     block-size: var(--primitiv-tabs-trigger-icon-size);
   }
 
-  /* Position clamping — corners round only at the strip's outer edges. The
-     leading trigger rounds its leading corners, the trailing trigger its
-     trailing corners; a lone trigger gets all four (both rules apply), an inner
-     trigger none. Derived from DOM position, never a prop. */
+  /* Only the strip's outer *top* corners round — the leading trigger's
+     top-leading and the trailing trigger's top-trailing. The bottom corners stay
+     square: the triggers sit flush on the panel. A lone trigger rounds both top
+     corners (both rules apply). Logical radii, so it mirrors under RTL. */
   .primitiv-tabs__trigger:first-child {
     border-start-start-radius: var(--primitiv-tabs-trigger-radius);
-    border-end-start-radius: var(--primitiv-tabs-trigger-radius);
   }
   .primitiv-tabs__trigger:last-child {
     border-start-end-radius: var(--primitiv-tabs-trigger-radius);
-    border-end-end-radius: var(--primitiv-tabs-trigger-radius);
   }
 
-  /* The shared vertical divider is drawn once: every trigger but the last drops
-     its trailing border, leaving the next trigger's leading border as the seam. */
-  .primitiv-tabs__trigger:not(:last-child) {
-    border-inline-end: 0;
+  /* The single divider between adjacent triggers — the leading border of every
+     trigger but the first (the first's leading edge is the list frame). The one
+     border colour that survives the bg-matched border above (the ToggleGroup
+     pattern). */
+  .primitiv-tabs__trigger:not(:first-child) {
+    border-inline-start: var(--primitiv-tabs-trigger-border-width) solid
+      var(--primitiv-tabs-divider-color);
   }
 
   /* The panel — flush to the strip above: square top, rounded bottom, the same
@@ -250,13 +265,12 @@
   .primitiv-tabs__trigger[data-state="active"] {
     --primitiv-tabs-trigger-bg: var(--primitiv-tabs-trigger-bg-active);
     --primitiv-tabs-trigger-fg: var(--primitiv-tabs-trigger-fg-active);
-    --primitiv-tabs-trigger-border-color: var(--primitiv-tabs-trigger-border-color-active);
   }
 
-  /* Hover — only on an inactive trigger; the active one stays put. */
+  /* Hover — only on an inactive trigger; the active one stays put. The bg-matched
+     border follows the background, so no separate hover border is needed. */
   .primitiv-tabs__trigger[data-state="inactive"]:hover {
     --primitiv-tabs-trigger-bg: var(--primitiv-action-secondary-hover);
-    --primitiv-tabs-trigger-border-color: var(--primitiv-action-secondary-border-hover);
   }
 
   /* Focus is the browser default for now — the Figma two-layer focus ring is a

@@ -471,8 +471,31 @@ cascade layers + two-tier token scoping (RFC 0008), and
     and the "structural part" concept are orthogonal; teaching the generator one
     does not foreclose the other.
 
+**Structural compounds — landed (Tabs, the first; D56).** The consumption layer
+now covers the third component shape. The `primitiv-emit` contract schema grew a
+`subcomponents` field (proven on a synthetic `DEMO_VIEW` fixture, D54), and the
+recipe + wrapper generators emit **one `cva` per part** and **N thin per-part
+wrappers** (`Tabs` / `TabsList` / `TabsTrigger` / `TabsContent`, flat shadcn shape)
+the consumer composes — distinct from Switch's auto-rendered decorative slot.
+`registry/components/tabs/{contract.json, styles.css, styles.scss, tabs.recipe.ts,
+tabs.tsx, README.md}` are committed and drift-guarded, the component is in
+`registry.json` + the `EmbeddedRegistry`, and the workbench `TabsExample` gained
+contract-styled / justify / density sections. The headless `Tabs.Trigger` was also
+aligned to the Button/Switch `data-disabled` convention (`""` / omitted) as part of
+this. `size` is the root prop, `justify` the list prop; `Position` is structural
+CSS (`:first-child`/`:last-child`), not a prop. **Further structural compounds
+(Accordion-style, Menu-style) are now routine application of this mechanism.**
+
 **Deliberately deferred (answer emerges during the build):**
 
+- **Component focus ring in CSS (system-wide).** The Figma two-layer focus ring
+  (the gap + ring layers, `framed-control/{size}/focus-ring-*-radius` +
+  `focus/ring/width` / `focus/ring/offset` interaction tokens) is **defined in the
+  token layer but unwired in every component stylesheet** — Button, Switch and Tabs
+  all fall back to the browser default, so it doesn't match the design. Build it as
+  one shared `:focus-visible` pattern (stacked `box-shadow` / pseudo-elements, since
+  `outline` can't express the two-layer offset-with-radius) applied uniformly across
+  every framed control, not per-component.
 - Config-parser fuzzing (RFC 0007 §11.3) — once the parsers exist.
 - A `rust-cli-test-conventions` skill (RFC 0007 §11.4) — after the first command.
 - Workbench styled-preview shape (RFC 0006 §10.5) — while authoring the theme.

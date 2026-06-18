@@ -13,11 +13,14 @@ import { switchRecipe } from "./switch.recipe";
  *
  * @see https://primitiv-ui.dev/docs/components/switch
  */
-export type SwitchProps = SwitchPrimitiveProps;
+export interface SwitchProps extends SwitchPrimitiveProps {
+  /** Control size. Defaults to `"md"`. */
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
+}
 
-export function Switch({ className, ...props }: SwitchProps) {
+export function Switch({ className, size, ...props }: SwitchProps) {
   return (
-    <SwitchPrimitive.Root className={[switchRecipe(), className].filter(Boolean).join(" ")} {...props}>
+    <SwitchPrimitive.Root className={[switchRecipe({ size }), className].filter(Boolean).join(" ")} {...props}>
       <SwitchPrimitive.Thumb className="primitiv-switch__thumb" />
     </SwitchPrimitive.Root>
   );

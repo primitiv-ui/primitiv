@@ -156,9 +156,31 @@ Actions automatically — no token. (Each package also needs a valid
 
 Once sections 2, 3, and 4 are done:
 
-1. Bump the package versions (manually, or adopt Changesets later). **Bump
-   every publishable package together** — see §6 on why the CLI packages can't
-   be left behind.
+1. Bump the package versions (manually, or adopt Changesets later). **All 13
+   fields must move together** — see §6 on why the CLI packages can't be left
+   behind:
+
+   | File | Field |
+   |---|---|
+   | `npm/cli-darwin-arm64/package.json` | `"version"` |
+   | `npm/cli-darwin-x64/package.json` | `"version"` |
+   | `npm/cli-linux-x64-gnu/package.json` | `"version"` |
+   | `npm/cli-linux-arm64-gnu/package.json` | `"version"` |
+   | `npm/cli-win32-x64/package.json` | `"version"` |
+   | `npm/cli-wrapper/package.json` | `"version"` |
+   | `npm/cli-wrapper/package.json` | `"optionalDependencies"` (all 5 entries) |
+   | `npm/create-primitiv-ui/package.json` | `"version"` |
+   | `packages/react/package.json` | `"version"` |
+   | `packages/icons/package.json` | `"version"` |
+   | `packages/tokens/package.json` | `"version"` |
+   | `packages/react/jsr.json` | `"version"` |
+   | `packages/icons/jsr.json` | `"version"` |
+   | `packages/tokens/jsr.json` | `"version"` |
+
+   > **JSR gotcha:** JSR reads the version from `jsr.json`, **not**
+   > `package.json`. Omitting the `jsr.json` bump silently re-publishes the
+   > previous version on JSR with no error — the npm versions will advance but
+   > jsr.io will stay stale.
 2. Commit, then create a **GitHub Release** (which tags the commit).
 3. The `release: published` trigger runs `publish.yml`, or run it manually:
    Actions → **Publish packages** → **Run workflow**.

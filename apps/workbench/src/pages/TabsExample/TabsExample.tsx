@@ -1,5 +1,7 @@
+import { useState } from "react";
+
 import { Check } from "@primitiv-ui/icons";
-import { Tabs } from "@primitiv-ui/react";
+import { RadioGroup, Tabs } from "@primitiv-ui/react";
 
 import "./TabsExample.css";
 // The canonical per-component default theme straight from the registry — the
@@ -11,9 +13,12 @@ import "./TabsExample.css";
 import "../../../../../registry/components/tabs/styles.css";
 
 const DENSITIES = ["dense", "compact", "comfortable", "spacious"] as const;
+const SIZES = ["xs", "sm", "md", "lg", "xl"] as const;
 const JUSTIFY = ["start", "center", "end"] as const;
 
 export function TabsExample() {
+  const [size, setSize] = useState("md");
+
   return (
     <div className="tabs-example">
       <h2 className="tabs-example__title">Tabs</h2>
@@ -101,9 +106,33 @@ export function TabsExample() {
         <p className="tabs-example__description">
           The same contract-styled tabs under each <code>data-density</code>{" "}
           scope. Density is ambient — set on any ancestor — and the{" "}
-          <code>framed-control/*</code> anatomy tokens resolve to the matching
-          scale (RFC 0009).
+          <code>framed-control/*</code> and <code>label/*</code> tokens resolve to
+          the matching scale (RFC 0009). Pick a size to rescale them all.
         </p>
+
+        <RadioGroup.Root
+          className="tabs-example__sizes"
+          value={size}
+          onValueChange={setSize}
+          aria-label="Tabs size"
+        >
+          {SIZES.map((slot) => (
+            <RadioGroup.Item
+              key={slot}
+              className="tabs-example__size-option"
+              value={slot}
+            >
+              <span className="tabs-example__size-ring">
+                <RadioGroup.Indicator
+                  className="tabs-example__size-dot"
+                  forceMount
+                />
+              </span>
+              {slot}
+            </RadioGroup.Item>
+          ))}
+        </RadioGroup.Root>
+
         {DENSITIES.map((density) => (
           <div
             key={density}
@@ -112,7 +141,7 @@ export function TabsExample() {
           >
             <span className="tabs-example__row-label">{density}</span>
             <Tabs.Root
-              className="primitiv-tabs primitiv-tabs--md"
+              className={`primitiv-tabs primitiv-tabs--${size}`}
               defaultValue="overview"
             >
               <Tabs.List
@@ -142,25 +171,28 @@ export function TabsExample() {
         <p className="tabs-example__description">
           Arrow keys move focus and activate the panel immediately.
         </p>
-        <Tabs.Root defaultValue="overview">
-          <Tabs.List className="tabs-example__list" label="Account sections">
-            <Tabs.Trigger className="tabs-example__trigger" value="overview">
+        <Tabs.Root className="primitiv-tabs primitiv-tabs--md" defaultValue="overview">
+          <Tabs.List
+            className="primitiv-tabs__list primitiv-tabs__list--start"
+            label="Account sections"
+          >
+            <Tabs.Trigger className="primitiv-tabs__trigger" value="overview">
               Overview
             </Tabs.Trigger>
-            <Tabs.Trigger className="tabs-example__trigger" value="settings">
+            <Tabs.Trigger className="primitiv-tabs__trigger" value="settings">
               Settings
             </Tabs.Trigger>
-            <Tabs.Trigger className="tabs-example__trigger" value="billing">
+            <Tabs.Trigger className="primitiv-tabs__trigger" value="billing">
               Billing
             </Tabs.Trigger>
           </Tabs.List>
-          <Tabs.Content className="tabs-example__panel" value="overview">
+          <Tabs.Content className="primitiv-tabs__panel" value="overview">
             Dashboard summary and recent activity.
           </Tabs.Content>
-          <Tabs.Content className="tabs-example__panel" value="settings">
+          <Tabs.Content className="primitiv-tabs__panel" value="settings">
             Profile preferences and notification options.
           </Tabs.Content>
-          <Tabs.Content className="tabs-example__panel" value="billing">
+          <Tabs.Content className="primitiv-tabs__panel" value="billing">
             Invoices, payment methods, and plan details.
           </Tabs.Content>
         </Tabs.Root>
@@ -172,25 +204,32 @@ export function TabsExample() {
           Arrow keys move focus only; <code>Enter</code> / <code>Space</code>{" "}
           confirms the selection.
         </p>
-        <Tabs.Root defaultValue="first" activationMode="manual">
-          <Tabs.List className="tabs-example__list" label="Manual tabs">
-            <Tabs.Trigger className="tabs-example__trigger" value="first">
+        <Tabs.Root
+          className="primitiv-tabs primitiv-tabs--md"
+          defaultValue="first"
+          activationMode="manual"
+        >
+          <Tabs.List
+            className="primitiv-tabs__list primitiv-tabs__list--start"
+            label="Manual tabs"
+          >
+            <Tabs.Trigger className="primitiv-tabs__trigger" value="first">
               First
             </Tabs.Trigger>
-            <Tabs.Trigger className="tabs-example__trigger" value="second">
+            <Tabs.Trigger className="primitiv-tabs__trigger" value="second">
               Second
             </Tabs.Trigger>
-            <Tabs.Trigger className="tabs-example__trigger" value="third">
+            <Tabs.Trigger className="primitiv-tabs__trigger" value="third">
               Third
             </Tabs.Trigger>
           </Tabs.List>
-          <Tabs.Content className="tabs-example__panel" value="first">
+          <Tabs.Content className="primitiv-tabs__panel" value="first">
             First panel content.
           </Tabs.Content>
-          <Tabs.Content className="tabs-example__panel" value="second">
+          <Tabs.Content className="primitiv-tabs__panel" value="second">
             Second panel content.
           </Tabs.Content>
-          <Tabs.Content className="tabs-example__panel" value="third">
+          <Tabs.Content className="primitiv-tabs__panel" value="third">
             Third panel content.
           </Tabs.Content>
         </Tabs.Root>

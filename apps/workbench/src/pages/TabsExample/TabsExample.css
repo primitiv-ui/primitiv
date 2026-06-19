@@ -25,38 +25,6 @@
   color: #555;
 }
 
-.tabs-example__list {
-  display: flex;
-  gap: 0.25rem;
-  border-block-end: 1px solid #d1d5db;
-}
-
-.tabs-example__trigger {
-  padding: 0.5rem 0.875rem;
-  border: none;
-  background: none;
-  font: inherit;
-  font-size: 0.9375rem;
-  color: #555;
-  cursor: pointer;
-  border-block-end: 2px solid transparent;
-
-  &[data-state="active"] {
-    color: #111;
-    border-block-end-color: #6366f1;
-  }
-
-  &:focus-visible {
-    outline: 2px solid #6366f1;
-    outline-offset: -2px;
-  }
-}
-
-.tabs-example__panel {
-  padding-block: 1rem;
-  font-size: 0.9375rem;
-}
-
 /* Contract-styled rows (justify + density demos): a small label beside the
    styled Tabs. Scoped to the example so nothing leaks onto other pages. */
 .tabs-example__justify,
@@ -71,4 +39,67 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #888;
+}
+
+/* Size selector (RadioGroup) for the density section. */
+.tabs-example__sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block-end: 1.25rem;
+  padding: 0;
+}
+
+.tabs-example__size-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border: 1px solid #ccc;
+  border-radius: 0.375rem;
+  background: white;
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.tabs-example__size-option[data-state="checked"] {
+  border-color: #111;
+}
+
+.tabs-example__size-ring {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+  border: 1px solid #999;
+  border-radius: 50%;
+}
+
+.tabs-example__size-dot {
+  inline-size: 0.375rem;
+  block-size: 0.375rem;
+  border-radius: 50%;
+  background: #111;
+}
+
+.tabs-example__size-dot[data-state="unchecked"] {
+  opacity: 0;
+}
+
+/*
+ * The workbench's global reset (src/index.css) carries an UNLAYERED
+ * `button { font-family: inherit; font-size: inherit }` rule, and unlayered CSS
+ * beats cascade layers — so it overrides the trigger's typography, which lives in
+ * `@layer primitiv.base`, and the label stops rendering in label/Khand (geometry,
+ * untouched by the reset, keeps scaling). This is RFC 0008 §1 working as intended
+ * — the consumer's cascade is sovereign. Re-assert the typography knobs here,
+ * scoped to the preview, so the demo shows the label styling the layered styles
+ * intend; a real consumer would do the same through these same custom properties.
+ */
+.tabs-example .primitiv-tabs__trigger {
+  font-family: var(--primitiv-tabs-trigger-font-family);
+  font-size: var(--primitiv-tabs-trigger-font-size);
+  font-weight: var(--primitiv-tabs-trigger-font-weight);
+  line-height: var(--primitiv-tabs-trigger-line-height);
 }

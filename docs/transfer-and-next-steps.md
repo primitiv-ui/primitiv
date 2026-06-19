@@ -486,6 +486,22 @@ this. `size` is the root prop, `justify` the list prop; `Position` is structural
 CSS (`:first-child`/`:last-child`), not a prop. **Further structural compounds
 (Accordion-style, Menu-style) are now routine application of this mechanism.**
 
+**Generated props are `type` intersections, never `interface extends` (D57).**
+The wrapper generator's variant-prop branch emitted `interface XProps extends
+XPrimitiveProps`. That is a hard TypeScript error (TS2312) whenever the primitive's
+props are a controlled/uncontrolled **union** — an `interface` can only extend an
+object type or an intersection of object types, not a union — and the broken type
+silently dropped inherited members like `children`. It surfaced first on `Tabs`
+(`TabsRootProps` is `… & (Uncontrolled | Controlled)`) but `Switch` shared the latent
+bug. The no-modifier branch already side-stepped it with a plain `type` alias; the
+fix makes the modifier branch emit `type XProps = XPrimitiveProps & { … }` too, so
+**every** generated component is a `type` intersection. Intersection distributes over
+the union (`(A | B) & M` = `(A & M) | (B & M)`), preserving `children` and the
+discriminated controlled/uncontrolled shape. The registry `.tsx` files are
+`include_str!`'d into the CLI as strings and therefore **never typechecked in CI**,
+which is how this reached a release; the drift-guard tests in `wrapper_tests.rs`
+catch generator/artifact divergence but not type validity.
+
 **Deliberately deferred (answer emerges during the build):**
 
 - **Component focus ring in CSS (system-wide).** The Figma two-layer focus ring

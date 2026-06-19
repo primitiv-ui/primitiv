@@ -13,7 +13,7 @@ import { switchRecipe } from "./switch.recipe";
  *
  * @see https://primitiv-ui.dev/docs/components/switch
  */
-export interface SwitchProps extends SwitchPrimitiveProps {
+export type SwitchProps = SwitchPrimitiveProps & {
   /**
    * Control size; `data-density` scales each size further.
    * - `xs` — Extra small.
@@ -25,7 +25,7 @@ export interface SwitchProps extends SwitchPrimitiveProps {
    * @see https://primitiv-ui.dev/docs/components/switch
    */
   size?: "xs" | "sm" | "md" | "lg" | "xl";
-}
+};
 
 export function Switch({ size, className, ...props }: SwitchProps) {
   return (

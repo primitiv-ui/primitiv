@@ -13,7 +13,7 @@ import { button } from "./button.recipe";
  *
  * @see https://primitiv-ui.dev/docs/components/button
  */
-export interface ButtonProps extends ButtonPrimitiveProps {
+export type ButtonProps = ButtonPrimitiveProps & {
   /**
    * Visual intent / emphasis.
    * - `primary` — High-emphasis primary action.
@@ -35,7 +35,7 @@ export interface ButtonProps extends ButtonPrimitiveProps {
    * @see https://primitiv-ui.dev/docs/components/button
    */
   size?: "xs" | "sm" | "md" | "lg" | "xl";
-}
+};
 
 export function Button({ variant, size, className, ...props }: ButtonProps) {
   return <ButtonPrimitive className={[button({ variant, size }), className].filter(Boolean).join(" ")} {...props} />;

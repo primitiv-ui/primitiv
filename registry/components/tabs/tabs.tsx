@@ -19,7 +19,7 @@ import { tabs, tabsList, tabsTrigger, tabsContent } from "./tabs.recipe";
  *
  * @see https://primitiv-ui.dev/docs/components/tabs
  */
-export interface TabsProps extends TabsPrimitiveProps {
+export type TabsProps = TabsPrimitiveProps & {
   /**
    * Control size for the whole widget; `data-density` scales each size further.
    * - `xs` — Extra small.
@@ -31,13 +31,13 @@ export interface TabsProps extends TabsPrimitiveProps {
    * @see https://primitiv-ui.dev/docs/components/tabs
    */
   size?: "xs" | "sm" | "md" | "lg" | "xl";
-}
+};
 
 export function Tabs({ size, className, ...props }: TabsProps) {
   return <TabsPrimitive.Root className={[tabs({ size }), className].filter(Boolean).join(" ")} {...props} />;
 }
 
-export interface TabsListProps extends TabsListPrimitiveProps {
+export type TabsListProps = TabsListPrimitiveProps & {
   /**
    * Alignment of the triggers along the tablist. Direction-aware — `start`/`end` follow the reading direction, flipping under RTL via the inherited `DirectionProvider`.
    * - `start` — Triggers grouped at the start edge (the default).
@@ -47,7 +47,7 @@ export interface TabsListProps extends TabsListPrimitiveProps {
    * @see https://primitiv-ui.dev/docs/components/tabs
    */
   justify?: "start" | "center" | "end";
-}
+};
 
 export function TabsList({ justify, className, ...props }: TabsListProps) {
   return <TabsPrimitive.List className={[tabsList({ justify }), className].filter(Boolean).join(" ")} {...props} />;

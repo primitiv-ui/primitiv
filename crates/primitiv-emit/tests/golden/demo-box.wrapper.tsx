@@ -13,7 +13,7 @@ import { demoBox } from "./demo-box.recipe";
  *
  * @see https://example.test/demo-box
  */
-export interface DemoBoxProps extends DemoBoxPrimitiveProps {
+export type DemoBoxProps = DemoBoxPrimitiveProps & {
   /**
    * Visual intent.
    * - `primary` — Primary action.
@@ -30,7 +30,7 @@ export interface DemoBoxProps extends DemoBoxPrimitiveProps {
    * @see https://example.test/demo-box
    */
   size?: "sm" | "md";
-}
+};
 
 export function DemoBox({ variant, size, className, ...props }: DemoBoxProps) {
   return <DemoBoxPrimitive className={[demoBox({ variant, size }), className].filter(Boolean).join(" ")} {...props} />;

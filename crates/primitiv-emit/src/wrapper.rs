@@ -2,7 +2,7 @@
 //! is the primary DX: a typed `<Button variant size>` props surface over the
 //! headless `@primitiv-ui/react` component + the generated recipe. Variant-prop
 //! JSDoc is generated from the contract; the headless props' JSDoc flows through
-//! the `extends` for free.
+//! the intersection for free.
 
 use crate::contract::{
     pascal_case, recipe_binding, subcomponent_binding, subcomponent_pascal, Contract, ModifierGroup,
@@ -67,7 +67,7 @@ pub fn emit_wrapper(contract: &Contract) -> String {
 /// subcomponent), each applying its part class via its own recipe and forwarding
 /// the rest. The consumer composes them exactly like the headless API — there is
 /// no canonical subtree to auto-render (D56). Only the root carries the
-/// component-level JSDoc; each part's headless props JSDoc flows through `extends`.
+/// component-level JSDoc; each part's headless props JSDoc flows through the intersection.
 fn emit_structural_wrapper(contract: &Contract) -> String {
     let pascal = pascal_case(&contract.name);
     let root_component = contract.root.component.as_deref().unwrap_or("Root");
@@ -154,9 +154,12 @@ fn emit_component_jsdoc(out: &mut String, description: &str, docs: Option<&str>)
     out.push_str(" */\n");
 }
 
-/// A part's props type: a plain alias when no modifier adds props (which also
-/// sidesteps the primitive's union props type that `interface extends` can't
-/// widen); an `interface extends` carrying the variant-prop fields otherwise.
+/// A part's props type: a plain alias when no modifier adds props; otherwise a
+/// `type` intersection of the primitive props and the variant-prop fields. An
+/// intersection — never `interface extends` — because a primitive's props are
+/// often a controlled/uncontrolled union, and an `interface` cannot extend a
+/// union (TS2312). Intersection distributes over the union, so `children` and
+/// every other inherited member survives. Types over interfaces throughout (D57).
 fn emit_props(
     out: &mut String,
     styled: &str,
@@ -169,7 +172,7 @@ fn emit_props(
         return;
     }
 
-    out.push_str(&format!("export interface {styled}Props extends {primitive} {{\n"));
+    out.push_str(&format!("export type {styled}Props = {primitive} & {{\n"));
     for group in modifiers {
         out.push_str("  /**\n");
         out.push_str(&format!("   * {}\n", group.description));
@@ -189,7 +192,7 @@ fn emit_props(
             .join(" | ");
         out.push_str(&format!("  {}?: {union};\n", group.prop()));
     }
-    out.push_str("}\n\n");
+    out.push_str("};\n\n");
 }
 
 /// One part's function component: destructure the variant props + `className`,

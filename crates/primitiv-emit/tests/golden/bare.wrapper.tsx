@@ -11,7 +11,7 @@ import { bare } from "./bare.recipe";
 /**
  * A bare control.
  */
-export interface BareProps extends BarePrimitiveProps {
+export type BareProps = BarePrimitiveProps & {
   /**
    * Tone.
    * - `neutral` — Neutral.
@@ -19,7 +19,7 @@ export interface BareProps extends BarePrimitiveProps {
    * @default "neutral"
    */
   tone?: "neutral" | "accent";
-}
+};
 
 export function Bare({ tone, className, ...props }: BareProps) {
   return <BarePrimitive className={[bare({ tone }), className].filter(Boolean).join(" ")} {...props} />;

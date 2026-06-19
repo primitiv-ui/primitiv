@@ -18,7 +18,7 @@ import { demoView, demoViewBar, demoViewItem } from "./demo-view.recipe";
  *
  * @see https://example.test/demo-view
  */
-export interface DemoViewProps extends DemoViewPrimitiveProps {
+export type DemoViewProps = DemoViewPrimitiveProps & {
   /**
    * Control size.
    * - `sm` — Small.
@@ -27,13 +27,13 @@ export interface DemoViewProps extends DemoViewPrimitiveProps {
    * @see https://example.test/demo-view
    */
   size?: "sm" | "md";
-}
+};
 
 export function DemoView({ size, className, ...props }: DemoViewProps) {
   return <DemoViewPrimitive.Root className={[demoView({ size }), className].filter(Boolean).join(" ")} {...props} />;
 }
 
-export interface DemoViewBarProps extends DemoViewBarPrimitiveProps {
+export type DemoViewBarProps = DemoViewBarPrimitiveProps & {
   /**
    * Alignment of the items.
    * - `start` — Start.
@@ -43,7 +43,7 @@ export interface DemoViewBarProps extends DemoViewBarPrimitiveProps {
    * @see https://example.test/demo-view
    */
   align?: "start" | "center" | "end";
-}
+};
 
 export function DemoViewBar({ align, className, ...props }: DemoViewBarProps) {
   return <DemoViewPrimitive.Bar className={[demoViewBar({ align }), className].filter(Boolean).join(" ")} {...props} />;

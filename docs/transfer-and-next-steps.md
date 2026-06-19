@@ -574,5 +574,7 @@ nothing extra to do — the contract drives it; just keep convenience props as t
   contract, (b) a JS pre-generation step that extracts the headless component's
   JSDoc and feeds the Rust emitter, or (c) keep it light — emit the styling-prop
   docs plus an `@see {@link Tabs}` pointer and let the per-prop flow-through carry
-  the rest. Applies to every part of a structural compound (each `Tabs*` wrapper
-  gets its matching headless part's JSDoc). Decide the sourcing approach first.
+  the rest. Applies to **every** generated wrapper — single (Button),
+  decorative-slot compound (Switch) and structural (Tabs) alike; for a structural
+  compound each part additionally pulls its matching headless part's JSDoc.
+  Decide the sourcing approach first.

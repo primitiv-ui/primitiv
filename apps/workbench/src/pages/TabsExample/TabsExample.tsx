@@ -1,5 +1,7 @@
+import { useState } from "react";
+
 import { Check } from "@primitiv-ui/icons";
-import { Tabs } from "@primitiv-ui/react";
+import { RadioGroup, Tabs } from "@primitiv-ui/react";
 
 import "./TabsExample.css";
 // The canonical per-component default theme straight from the registry — the
@@ -11,9 +13,12 @@ import "./TabsExample.css";
 import "../../../../../registry/components/tabs/styles.css";
 
 const DENSITIES = ["dense", "compact", "comfortable", "spacious"] as const;
+const SIZES = ["xs", "sm", "md", "lg", "xl"] as const;
 const JUSTIFY = ["start", "center", "end"] as const;
 
 export function TabsExample() {
+  const [size, setSize] = useState("md");
+
   return (
     <div className="tabs-example">
       <h2 className="tabs-example__title">Tabs</h2>
@@ -101,9 +106,33 @@ export function TabsExample() {
         <p className="tabs-example__description">
           The same contract-styled tabs under each <code>data-density</code>{" "}
           scope. Density is ambient — set on any ancestor — and the{" "}
-          <code>framed-control/*</code> anatomy tokens resolve to the matching
-          scale (RFC 0009).
+          <code>framed-control/*</code> and <code>label/*</code> tokens resolve to
+          the matching scale (RFC 0009). Pick a size to rescale them all.
         </p>
+
+        <RadioGroup.Root
+          className="tabs-example__sizes"
+          value={size}
+          onValueChange={setSize}
+          aria-label="Tabs size"
+        >
+          {SIZES.map((slot) => (
+            <RadioGroup.Item
+              key={slot}
+              className="tabs-example__size-option"
+              value={slot}
+            >
+              <span className="tabs-example__size-ring">
+                <RadioGroup.Indicator
+                  className="tabs-example__size-dot"
+                  forceMount
+                />
+              </span>
+              {slot}
+            </RadioGroup.Item>
+          ))}
+        </RadioGroup.Root>
+
         {DENSITIES.map((density) => (
           <div
             key={density}
@@ -112,7 +141,7 @@ export function TabsExample() {
           >
             <span className="tabs-example__row-label">{density}</span>
             <Tabs.Root
-              className="primitiv-tabs primitiv-tabs--md"
+              className={`primitiv-tabs primitiv-tabs--${size}`}
               defaultValue="overview"
             >
               <Tabs.List

@@ -5,7 +5,8 @@
  * A typed props surface over the headless @primitiv-ui/react component + the
  * generated recipe — the primary DX (RFC 0004 §3.5 / D51).
  */
-import { DemoBox as DemoBoxPrimitive, type DemoBoxProps as DemoBoxPrimitiveProps } from "@primitiv-ui/react";
+import { DemoBox as DemoBoxPrimitive } from "@primitiv-ui/react";
+import { type ComponentPropsWithRef } from "react";
 import { demoBox } from "./demo-box.recipe";
 
 /**
@@ -13,7 +14,7 @@ import { demoBox } from "./demo-box.recipe";
  *
  * @see https://example.test/demo-box
  */
-export type DemoBoxProps = DemoBoxPrimitiveProps & {
+export type DemoBoxProps = ComponentPropsWithRef<typeof DemoBoxPrimitive> & {
   /**
    * Visual intent.
    * - `primary` — Primary action.

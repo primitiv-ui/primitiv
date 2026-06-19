@@ -5,13 +5,8 @@
  * A typed props surface over the headless @primitiv-ui/react component + the
  * generated recipe — the primary DX (RFC 0004 §3.5 / D51).
  */
-import {
-  Tabs as TabsPrimitive,
-  type TabsRootProps as TabsPrimitiveProps,
-  type TabsListProps as TabsListPrimitiveProps,
-  type TabsTriggerProps as TabsTriggerPrimitiveProps,
-  type TabsContentProps as TabsContentPrimitiveProps,
-} from "@primitiv-ui/react";
+import { Tabs as TabsPrimitive } from "@primitiv-ui/react";
+import { type ComponentPropsWithRef } from "react";
 import { tabs, tabsList, tabsTrigger, tabsContent } from "./tabs.recipe";
 
 /**
@@ -19,7 +14,7 @@ import { tabs, tabsList, tabsTrigger, tabsContent } from "./tabs.recipe";
  *
  * @see https://primitiv-ui.dev/docs/components/tabs
  */
-export type TabsProps = TabsPrimitiveProps & {
+export type TabsProps = ComponentPropsWithRef<typeof TabsPrimitive.Root> & {
   /**
    * Control size for the whole widget; `data-density` scales each size further.
    * - `xs` — Extra small.
@@ -37,7 +32,7 @@ export function Tabs({ size, className, ...props }: TabsProps) {
   return <TabsPrimitive.Root className={[tabs({ size }), className].filter(Boolean).join(" ")} {...props} />;
 }
 
-export type TabsListProps = TabsListPrimitiveProps & {
+export type TabsListProps = ComponentPropsWithRef<typeof TabsPrimitive.List> & {
   /**
    * Alignment of the triggers along the tablist. Direction-aware — `start`/`end` follow the reading direction, flipping under RTL via the inherited `DirectionProvider`.
    * - `start` — Triggers grouped at the start edge (the default).
@@ -53,13 +48,13 @@ export function TabsList({ justify, className, ...props }: TabsListProps) {
   return <TabsPrimitive.List className={[tabsList({ justify }), className].filter(Boolean).join(" ")} {...props} />;
 }
 
-export type TabsTriggerProps = TabsTriggerPrimitiveProps;
+export type TabsTriggerProps = ComponentPropsWithRef<typeof TabsPrimitive.Trigger>;
 
 export function TabsTrigger({ className, ...props }: TabsTriggerProps) {
   return <TabsPrimitive.Trigger className={[tabsTrigger(), className].filter(Boolean).join(" ")} {...props} />;
 }
 
-export type TabsContentProps = TabsContentPrimitiveProps;
+export type TabsContentProps = ComponentPropsWithRef<typeof TabsPrimitive.Content>;
 
 export function TabsContent({ className, ...props }: TabsContentProps) {
   return <TabsPrimitive.Content className={[tabsContent(), className].filter(Boolean).join(" ")} {...props} />;

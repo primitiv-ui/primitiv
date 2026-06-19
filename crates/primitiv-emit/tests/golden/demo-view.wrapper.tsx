@@ -5,12 +5,8 @@
  * A typed props surface over the headless @primitiv-ui/react component + the
  * generated recipe — the primary DX (RFC 0004 §3.5 / D51).
  */
-import {
-  DemoView as DemoViewPrimitive,
-  type DemoViewRootProps as DemoViewPrimitiveProps,
-  type DemoViewBarProps as DemoViewBarPrimitiveProps,
-  type DemoViewItemProps as DemoViewItemPrimitiveProps,
-} from "@primitiv-ui/react";
+import { DemoView as DemoViewPrimitive } from "@primitiv-ui/react";
+import { type ComponentPropsWithRef } from "react";
 import { demoView, demoViewBar, demoViewItem } from "./demo-view.recipe";
 
 /**
@@ -18,7 +14,7 @@ import { demoView, demoViewBar, demoViewItem } from "./demo-view.recipe";
  *
  * @see https://example.test/demo-view
  */
-export type DemoViewProps = DemoViewPrimitiveProps & {
+export type DemoViewProps = ComponentPropsWithRef<typeof DemoViewPrimitive.Root> & {
   /**
    * Control size.
    * - `sm` — Small.
@@ -33,7 +29,7 @@ export function DemoView({ size, className, ...props }: DemoViewProps) {
   return <DemoViewPrimitive.Root className={[demoView({ size }), className].filter(Boolean).join(" ")} {...props} />;
 }
 
-export type DemoViewBarProps = DemoViewBarPrimitiveProps & {
+export type DemoViewBarProps = ComponentPropsWithRef<typeof DemoViewPrimitive.Bar> & {
   /**
    * Alignment of the items.
    * - `start` — Start.
@@ -49,7 +45,7 @@ export function DemoViewBar({ align, className, ...props }: DemoViewBarProps) {
   return <DemoViewPrimitive.Bar className={[demoViewBar({ align }), className].filter(Boolean).join(" ")} {...props} />;
 }
 
-export type DemoViewItemProps = DemoViewItemPrimitiveProps;
+export type DemoViewItemProps = ComponentPropsWithRef<typeof DemoViewPrimitive.Item>;
 
 export function DemoViewItem({ className, ...props }: DemoViewItemProps) {
   return <DemoViewPrimitive.Item className={[demoViewItem(), className].filter(Boolean).join(" ")} {...props} />;

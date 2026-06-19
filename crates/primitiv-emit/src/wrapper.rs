@@ -2,7 +2,8 @@
 //! is the primary DX: a typed `<Button variant size>` props surface over the
 //! headless `@primitiv-ui/react` component + the generated recipe. Variant-prop
 //! JSDoc is generated from the contract; the headless props' JSDoc flows through
-//! the intersection for free.
+//! `ComponentPropsWithRef` for free. The styled props are the headless props
+//! plus the variant props — same API, same `ref`, plus the conveniences (D59).
 
 use crate::contract::{
     pascal_case, recipe_binding, subcomponent_binding, subcomponent_pascal, Contract, ModifierGroup,
@@ -22,15 +23,24 @@ pub fn emit_wrapper(contract: &Contract) -> String {
 
     let mut out = header(&contract.name, &pascal);
     out.push_str(&format!(
-        "import {{ {pascal} as {pascal}Primitive, type {pascal}Props as {pascal}PrimitiveProps }} from \"@primitiv-ui/react\";\n"
+        "import {{ {pascal} as {pascal}Primitive }} from \"@primitiv-ui/react\";\n"
     ));
+    out.push_str("import { type ComponentPropsWithRef } from \"react\";\n");
     out.push_str(&format!("import {{ {binding} }} from \"./{}.recipe\";\n\n", contract.name));
 
+    // The element the wrapper renders — and the source of its props (incl. ref).
+    // A decorative-slot compound (Switch) renders `.Root`; a single element
+    // (Button) renders the component itself.
+    let root_value = if contract.parts.is_empty() {
+        format!("{pascal}Primitive")
+    } else {
+        format!("{pascal}Primitive.Root")
+    };
     emit_component_jsdoc(&mut out, &contract.description, contract.docs.as_deref());
     emit_props(
         &mut out,
         &pascal,
-        &format!("{pascal}PrimitiveProps"),
+        &format!("ComponentPropsWithRef<typeof {root_value}>"),
         &contract.modifiers,
         contract.docs.as_deref(),
     );
@@ -67,28 +77,20 @@ pub fn emit_wrapper(contract: &Contract) -> String {
 /// subcomponent), each applying its part class via its own recipe and forwarding
 /// the rest. The consumer composes them exactly like the headless API — there is
 /// no canonical subtree to auto-render (D56). Only the root carries the
-/// component-level JSDoc; each part's headless props JSDoc flows through the intersection.
+/// component-level JSDoc; each part derives its props (incl. ref) from the
+/// headless part via `ComponentPropsWithRef` (D59).
 fn emit_structural_wrapper(contract: &Contract) -> String {
     let pascal = pascal_case(&contract.name);
     let root_component = contract.root.component.as_deref().unwrap_or("Root");
 
     let mut out = header(&contract.name, &pascal);
 
-    // Import the headless compound plus each part's props type (aliased so the
-    // generated styled props types own the unsuffixed names), then the recipes.
-    out.push_str("import {\n");
-    out.push_str(&format!("  {pascal} as {pascal}Primitive,\n"));
+    // Import just the headless compound; each part's props (incl. its correctly
+    // typed ref) are derived from the part component with `ComponentPropsWithRef`.
     out.push_str(&format!(
-        "  type {pascal}{root_component}Props as {pascal}PrimitiveProps,\n"
+        "import {{ {pascal} as {pascal}Primitive }} from \"@primitiv-ui/react\";\n"
     ));
-    for sub in &contract.subcomponents {
-        out.push_str(&format!(
-            "  type {pascal}{}Props as {}PrimitiveProps,\n",
-            sub.component,
-            subcomponent_pascal(&contract.name, &sub.name)
-        ));
-    }
-    out.push_str("} from \"@primitiv-ui/react\";\n");
+    out.push_str("import { type ComponentPropsWithRef } from \"react\";\n");
 
     let bindings = std::iter::once(recipe_binding(&contract.name))
         .chain(
@@ -106,7 +108,7 @@ fn emit_structural_wrapper(contract: &Contract) -> String {
     emit_props(
         &mut out,
         &pascal,
-        &format!("{pascal}PrimitiveProps"),
+        &format!("ComponentPropsWithRef<typeof {pascal}Primitive.{root_component}>"),
         &contract.modifiers,
         contract.docs.as_deref(),
     );
@@ -126,7 +128,7 @@ fn emit_structural_wrapper(contract: &Contract) -> String {
         emit_props(
             &mut out,
             &sub_pascal,
-            &format!("{sub_pascal}PrimitiveProps"),
+            &format!("ComponentPropsWithRef<typeof {pascal}Primitive.{}>", sub.component),
             &sub.modifiers,
             contract.docs.as_deref(),
         );
@@ -154,12 +156,15 @@ fn emit_component_jsdoc(out: &mut String, description: &str, docs: Option<&str>)
     out.push_str(" */\n");
 }
 
-/// A part's props type: a plain alias when no modifier adds props; otherwise a
-/// `type` intersection of the primitive props and the variant-prop fields. An
-/// intersection — never `interface extends` — because a primitive's props are
-/// often a controlled/uncontrolled union, and an `interface` cannot extend a
-/// union (TS2312). Intersection distributes over the union, so `children` and
-/// every other inherited member survives. Types over interfaces throughout (D57).
+/// A part's props type. `primitive` is a `ComponentPropsWithRef<typeof X>` over
+/// the headless part, so the styled props are **exactly** what the headless
+/// component accepts — every prop, the `children`, and the correctly typed
+/// `ref` (the imperative handle for `Tabs.Root`, the DOM node elsewhere) —
+/// which the wrapper forwards by spreading `{...props}` (D59). With no modifier
+/// it's a plain alias; otherwise a `type` intersection adds the variant props.
+/// Always a `type` intersection, never `interface extends`: a primitive's props
+/// are often a controlled/uncontrolled union, and an `interface` cannot extend a
+/// union (TS2312), whereas intersection distributes over it (D57).
 fn emit_props(
     out: &mut String,
     styled: &str,

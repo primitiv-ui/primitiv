@@ -5,7 +5,8 @@
  * A typed props surface over the headless @primitiv-ui/react component + the
  * generated recipe — the primary DX (RFC 0004 §3.5 / D51).
  */
-import { DemoToggle as DemoTogglePrimitive, type DemoToggleProps as DemoTogglePrimitiveProps } from "@primitiv-ui/react";
+import { DemoToggle as DemoTogglePrimitive } from "@primitiv-ui/react";
+import { type ComponentPropsWithRef } from "react";
 import { demoToggle } from "./demo-toggle.recipe";
 
 /**
@@ -13,7 +14,7 @@ import { demoToggle } from "./demo-toggle.recipe";
  *
  * @see https://example.test/demo-toggle
  */
-export type DemoToggleProps = DemoTogglePrimitiveProps;
+export type DemoToggleProps = ComponentPropsWithRef<typeof DemoTogglePrimitive.Root>;
 
 export function DemoToggle({ className, ...props }: DemoToggleProps) {
   return (

@@ -520,6 +520,28 @@ through pnpm's layout — stubs cva, and runs `tsc --noEmit`. The wrapper file
 alone surfaces both bug classes (the `interface extends` at the declaration, the
 ref mismatch at the spread), so no consumer fixture is needed.
 
+**Styled wrappers expose the headless API verbatim, `ref` included — props are
+derived with `ComponentPropsWithRef<typeof Primitive>` (D59).** The invariant a
+consumer can rely on: choosing the styled component over the raw
+`@primitiv-ui/react` one changes **nothing** about the API except the added
+convenience props (`variant`, `size`, `justify`, …). The generator no longer
+imports a named `XPrimitiveProps` type; it derives each wrapper's props from the
+part component itself — `type XProps = ComponentPropsWithRef<typeof Primitive> &
+{ …conveniences }` — and the wrapper's existing `{...props}` spread forwards the
+`ref`. `ComponentPropsWithRef` yields *exactly* the props a consumer passes to
+the headless part, with the **correct** ref per pattern: the imperative handle
+for `Tabs.Root` (`forwardRef`), the DOM node for `Button` / `Switch.Root` /
+`Tabs.Trigger` (ref-as-prop), and whatever the part forwards for `Tabs.List` /
+`.Content`. This subsumes D58's manual concern generically — **any future
+component, whatever its ref shape, gets parity for free**, no per-part ref
+knowledge in the generator. Verified two ways: the D58 type guard
+(`qa:registry-types`) proves the wrappers type-check, and a render test confirms
+a `ref` passed to styled `<Button>` lands on the `HTMLButtonElement` while a
+`ref` on styled `<Tabs>` lands on the `setActiveTab` handle. Works on React 18
+and 19 (`ComponentPropsWithRef` predates both). When authoring a new component:
+nothing extra to do — the contract drives it; just keep convenience props as the
+*only* additions in the contract's `modifiers`.
+
 **Deliberately deferred (answer emerges during the build):**
 
 - **Component focus ring in CSS (system-wide).** The Figma two-layer focus ring

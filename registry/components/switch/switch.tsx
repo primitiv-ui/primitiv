@@ -5,7 +5,8 @@
  * A typed props surface over the headless @primitiv-ui/react component + the
  * generated recipe — the primary DX (RFC 0004 §3.5 / D51).
  */
-import { Switch as SwitchPrimitive, type SwitchProps as SwitchPrimitiveProps } from "@primitiv-ui/react";
+import { Switch as SwitchPrimitive } from "@primitiv-ui/react";
+import { type ComponentPropsWithRef } from "react";
 import { switchRecipe } from "./switch.recipe";
 
 /**
@@ -13,7 +14,7 @@ import { switchRecipe } from "./switch.recipe";
  *
  * @see https://primitiv-ui.dev/docs/components/switch
  */
-export type SwitchProps = SwitchPrimitiveProps & {
+export type SwitchProps = ComponentPropsWithRef<typeof SwitchPrimitive.Root> & {
   /**
    * Control size; `data-density` scales each size further.
    * - `xs` — Extra small.

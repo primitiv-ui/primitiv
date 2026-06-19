@@ -1,6 +1,6 @@
 {
   "name": "@primitiv-ui/react",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Headless, accessible React components built on the WAI-ARIA authoring patterns. Zero styles ship with this package — bring your own (CSS, Tailwind, CSS-in-JS, design tokens).",
   "type": "module",
   "main": "./src/index.ts",

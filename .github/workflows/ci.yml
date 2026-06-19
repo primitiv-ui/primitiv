@@ -46,3 +46,6 @@ jobs:
 
       - name: Test libraries
         run: pnpm -r --filter "@primitiv-ui/react" --filter "@primitiv-ui/icons" --filter "@primitiv-ui/tokens" qa:units
+
+      - name: Type-check registry wrappers
+        run: pnpm qa:registry-types

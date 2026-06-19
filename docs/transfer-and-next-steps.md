@@ -502,6 +502,24 @@ discriminated controlled/uncontrolled shape. The registry `.tsx` files are
 which is how this reached a release; the drift-guard tests in `wrapper_tests.rs`
 catch generator/artifact divergence but not type validity.
 
+**A forwardRef component's props must omit the DOM `ref`, and the generated
+wrappers are now type-checked in CI (D58).** A second type bug shipped right
+behind D57: `TabsRootProps` derived from `ComponentProps<"div">`, which carries
+`ref: Ref<HTMLDivElement>` — but `Tabs.Root` is a `forwardRef` whose ref is the
+`TabsImperativeApi` handle. Using `<Tabs.Root>` directly was fine (the component
+type strips and re-adds the ref), but the styled wrapper spreads the **raw**
+`TabsRootProps` back in (`<Tabs.Root {...props} />`), and the `HTMLDivElement` vs
+`TabsImperativeApi` ref types collide. Fix: `Omit<…, "onChange" | "ref">` on the
+root props (any future imperative-handle component needs the same). `Button` and
+`Switch` are unaffected — their refs are the real `HTMLButtonElement`. The
+**root cause of both D57 and D58 is the same**: the generated wrappers were
+type-checked nowhere. Closed by `scripts/check-registry-types.mjs` (`pnpm
+qa:registry-types`, wired into `ci.yml`): it copies the wrappers + recipes into a
+temp dir under `packages/react` — the only scope where `@types/react` resolves
+through pnpm's layout — stubs cva, and runs `tsc --noEmit`. The wrapper file
+alone surfaces both bug classes (the `interface extends` at the declaration, the
+ref mismatch at the spread), so no consumer fixture is needed.
+
 **Deliberately deferred (answer emerges during the build):**
 
 - **Component focus ring in CSS (system-wide).** The Figma two-layer focus ring

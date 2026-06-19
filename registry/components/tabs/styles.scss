@@ -90,12 +90,13 @@
     gap: var(--primitiv-tabs-trigger-gap);
     block-size: var(--primitiv-tabs-trigger-height);
     padding-inline: var(--primitiv-tabs-trigger-padding-inline);
-    /* The border matches the background so the trigger reads as a flat segment
-       inside the list frame; only the inter-trigger divider (below) stays
-       visible. No bottom border — the panel's top border is the junction seam;
-       no trailing border — the divider lives on the next trigger's leading edge. */
+    /* The trigger's only border is its leading edge — the divider (overridden to
+       the divider colour for every trigger but the first, below; background-
+       matched and so invisible on the first). No block borders: a bg-coloured top
+       border would miter at 45° against the divider and clip its top corner. No
+       trailing border: the divider lives on the next trigger's leading edge. */
     border: var(--primitiv-tabs-trigger-border-width) solid var(--primitiv-tabs-trigger-bg);
-    border-block-end: 0;
+    border-block: 0;
     border-inline-end: 0;
     background: var(--primitiv-tabs-trigger-bg);
     color: var(--primitiv-tabs-trigger-fg);

@@ -86,3 +86,20 @@
 .tabs-example__size-dot[data-state="unchecked"] {
   opacity: 0;
 }
+
+/*
+ * The workbench's global reset (src/index.css) carries an UNLAYERED
+ * `button { font-family: inherit; font-size: inherit }` rule, and unlayered CSS
+ * beats cascade layers — so it overrides the trigger's typography, which lives in
+ * `@layer primitiv.base`, and the label stops rendering in label/Khand (geometry,
+ * untouched by the reset, keeps scaling). This is RFC 0008 §1 working as intended
+ * — the consumer's cascade is sovereign. Re-assert the typography knobs here,
+ * scoped to the preview, so the demo shows the label styling the layered styles
+ * intend; a real consumer would do the same through these same custom properties.
+ */
+.tabs-example .primitiv-tabs__trigger {
+  font-family: var(--primitiv-tabs-trigger-font-family);
+  font-size: var(--primitiv-tabs-trigger-font-size);
+  font-weight: var(--primitiv-tabs-trigger-font-weight);
+  line-height: var(--primitiv-tabs-trigger-line-height);
+}

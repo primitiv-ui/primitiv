@@ -34,7 +34,7 @@
     --primitiv-tabs-trigger-height: var(--primitiv-framed-control-md-height);
     --primitiv-tabs-trigger-padding-inline: var(--primitiv-framed-control-md-padding-inline);
     --primitiv-tabs-trigger-gap: var(--primitiv-framed-control-md-gap);
-    --primitiv-tabs-trigger-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-tabs-list-radius: var(--primitiv-framed-control-md-radius);
     --primitiv-tabs-trigger-icon-size: var(--primitiv-framed-control-md-icon-size);
     --primitiv-tabs-trigger-border-width: var(--primitiv-framed-control-border-width);
     --primitiv-tabs-trigger-bg: var(--primitiv-action-secondary-default);
@@ -66,16 +66,18 @@
 
   /* The tablist — the frame: a surface background and a top/inline border (no
      bottom — the panel's top border is the junction seam), with rounded top
-     corners. This is what makes the strip read as connected to the panel below,
-     and what the triggers' dividers sit inside (the ToggleGroup pattern). */
+     corners. `overflow: hidden` clips the square triggers to that rounded shape,
+     so the strip reads as one connected frame with the panel below (the
+     ToggleGroup pattern — the group owns the radius, the segments stay square). */
   .primitiv-tabs__list {
     display: flex;
     flex-direction: row;
+    overflow: hidden;
     background: var(--primitiv-tabs-list-bg);
     border: var(--primitiv-tabs-trigger-border-width) solid var(--primitiv-tabs-list-border-color);
     border-block-end: 0;
-    border-start-start-radius: var(--primitiv-tabs-trigger-radius);
-    border-start-end-radius: var(--primitiv-tabs-trigger-radius);
+    border-start-start-radius: var(--primitiv-tabs-list-radius);
+    border-start-end-radius: var(--primitiv-tabs-list-radius);
   }
 
   /* A trigger — a framed control, inactive (secondary) by default. The bottom
@@ -118,16 +120,8 @@
     block-size: var(--primitiv-tabs-trigger-icon-size);
   }
 
-  /* Only the strip's outer *top* corners round — the leading trigger's
-     top-leading and the trailing trigger's top-trailing. The bottom corners stay
-     square: the triggers sit flush on the panel. A lone trigger rounds both top
-     corners (both rules apply). Logical radii, so it mirrors under RTL. */
-  .primitiv-tabs__trigger:first-child {
-    border-start-start-radius: var(--primitiv-tabs-trigger-radius);
-  }
-  .primitiv-tabs__trigger:last-child {
-    border-start-end-radius: var(--primitiv-tabs-trigger-radius);
-  }
+  /* The triggers carry no radii of their own — they stay square and the list's
+     `overflow: hidden` clips them to the frame's rounded corners. */
 
   /* The single divider between adjacent triggers — the leading border of every
      trigger but the first (the first's leading edge is the list frame). The one
@@ -180,7 +174,7 @@
     --primitiv-tabs-trigger-height: var(--primitiv-framed-control-xs-height);
     --primitiv-tabs-trigger-padding-inline: var(--primitiv-framed-control-xs-padding-inline);
     --primitiv-tabs-trigger-gap: var(--primitiv-framed-control-xs-gap);
-    --primitiv-tabs-trigger-radius: var(--primitiv-framed-control-xs-radius);
+    --primitiv-tabs-list-radius: var(--primitiv-framed-control-xs-radius);
     --primitiv-tabs-trigger-icon-size: var(--primitiv-framed-control-xs-icon-size);
     --primitiv-tabs-trigger-font-family: var(--primitiv-label-xs-font-family);
     --primitiv-tabs-trigger-font-size: var(--primitiv-label-xs-font-size);
@@ -196,7 +190,7 @@
     --primitiv-tabs-trigger-height: var(--primitiv-framed-control-sm-height);
     --primitiv-tabs-trigger-padding-inline: var(--primitiv-framed-control-sm-padding-inline);
     --primitiv-tabs-trigger-gap: var(--primitiv-framed-control-sm-gap);
-    --primitiv-tabs-trigger-radius: var(--primitiv-framed-control-sm-radius);
+    --primitiv-tabs-list-radius: var(--primitiv-framed-control-sm-radius);
     --primitiv-tabs-trigger-icon-size: var(--primitiv-framed-control-sm-icon-size);
     --primitiv-tabs-trigger-font-family: var(--primitiv-label-sm-font-family);
     --primitiv-tabs-trigger-font-size: var(--primitiv-label-sm-font-size);
@@ -212,7 +206,7 @@
     --primitiv-tabs-trigger-height: var(--primitiv-framed-control-md-height);
     --primitiv-tabs-trigger-padding-inline: var(--primitiv-framed-control-md-padding-inline);
     --primitiv-tabs-trigger-gap: var(--primitiv-framed-control-md-gap);
-    --primitiv-tabs-trigger-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-tabs-list-radius: var(--primitiv-framed-control-md-radius);
     --primitiv-tabs-trigger-icon-size: var(--primitiv-framed-control-md-icon-size);
     --primitiv-tabs-trigger-font-family: var(--primitiv-label-md-font-family);
     --primitiv-tabs-trigger-font-size: var(--primitiv-label-md-font-size);
@@ -228,7 +222,7 @@
     --primitiv-tabs-trigger-height: var(--primitiv-framed-control-lg-height);
     --primitiv-tabs-trigger-padding-inline: var(--primitiv-framed-control-lg-padding-inline);
     --primitiv-tabs-trigger-gap: var(--primitiv-framed-control-lg-gap);
-    --primitiv-tabs-trigger-radius: var(--primitiv-framed-control-lg-radius);
+    --primitiv-tabs-list-radius: var(--primitiv-framed-control-lg-radius);
     --primitiv-tabs-trigger-icon-size: var(--primitiv-framed-control-lg-icon-size);
     --primitiv-tabs-trigger-font-family: var(--primitiv-label-lg-font-family);
     --primitiv-tabs-trigger-font-size: var(--primitiv-label-lg-font-size);
@@ -244,7 +238,7 @@
     --primitiv-tabs-trigger-height: var(--primitiv-framed-control-xl-height);
     --primitiv-tabs-trigger-padding-inline: var(--primitiv-framed-control-xl-padding-inline);
     --primitiv-tabs-trigger-gap: var(--primitiv-framed-control-xl-gap);
-    --primitiv-tabs-trigger-radius: var(--primitiv-framed-control-xl-radius);
+    --primitiv-tabs-list-radius: var(--primitiv-framed-control-xl-radius);
     --primitiv-tabs-trigger-icon-size: var(--primitiv-framed-control-xl-icon-size);
     --primitiv-tabs-trigger-font-family: var(--primitiv-label-xl-font-family);
     --primitiv-tabs-trigger-font-size: var(--primitiv-label-xl-font-size);
@@ -287,7 +281,7 @@
 $primitiv-tabs-trigger-height: var(--primitiv-tabs-trigger-height);
 $primitiv-tabs-trigger-padding-inline: var(--primitiv-tabs-trigger-padding-inline);
 $primitiv-tabs-trigger-gap: var(--primitiv-tabs-trigger-gap);
-$primitiv-tabs-trigger-radius: var(--primitiv-tabs-trigger-radius);
+$primitiv-tabs-list-radius: var(--primitiv-tabs-list-radius);
 $primitiv-tabs-trigger-icon-size: var(--primitiv-tabs-trigger-icon-size);
 $primitiv-tabs-trigger-border-width: var(--primitiv-tabs-trigger-border-width);
 $primitiv-tabs-trigger-bg: var(--primitiv-tabs-trigger-bg);

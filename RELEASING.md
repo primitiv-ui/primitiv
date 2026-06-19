@@ -170,10 +170,15 @@ Once sections 2, 3, and 4 are done, use the automated release workflow —
 4. `publish.yml` builds the CLI binaries, runs tests, and publishes to npm +
    JSR. Watch it in the Actions tab.
 
-> **Branch protection note:** the bot push in step 3 requires the GitHub
-> Actions bot (`github-actions[bot]`) to be allowed to push directly to
-> `main`. If your ruleset blocks it, either add a bypass for the bot, or swap
-> `secrets.GITHUB_TOKEN` in `release.yml` for a PAT with `contents:write`.
+> **Branch protection note:** the push in step 3 goes straight to `main`, which
+> is protected (require-a-PR + the `test` status check). The built-in
+> `github-actions[bot]` **cannot** be added to a classic branch-protection
+> bypass list — it isn't a selectable actor — so `release.yml`'s checkout uses
+> the **`RELEASE_TOKEN`** secret: a PAT (`contents: write`) owned by a maintainer
+> whose own pushes bypass protection (i.e. an admin, with *"Do not allow
+> bypassing the above settings"* left unchecked). The release commit is then
+> pushed as that user. If the token is rotated, update the `RELEASE_TOKEN` repo
+> secret; no workflow change is needed.
 
 ### What `scripts/bump-version.mjs` touches
 

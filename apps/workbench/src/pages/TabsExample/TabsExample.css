@@ -25,38 +25,6 @@
   color: #555;
 }
 
-.tabs-example__list {
-  display: flex;
-  gap: 0.25rem;
-  border-block-end: 1px solid #d1d5db;
-}
-
-.tabs-example__trigger {
-  padding: 0.5rem 0.875rem;
-  border: none;
-  background: none;
-  font: inherit;
-  font-size: 0.9375rem;
-  color: #555;
-  cursor: pointer;
-  border-block-end: 2px solid transparent;
-
-  &[data-state="active"] {
-    color: #111;
-    border-block-end-color: #6366f1;
-  }
-
-  &:focus-visible {
-    outline: 2px solid #6366f1;
-    outline-offset: -2px;
-  }
-}
-
-.tabs-example__panel {
-  padding-block: 1rem;
-  font-size: 0.9375rem;
-}
-
 /* Contract-styled rows (justify + density demos): a small label beside the
    styled Tabs. Scoped to the example so nothing leaks onto other pages. */
 .tabs-example__justify,

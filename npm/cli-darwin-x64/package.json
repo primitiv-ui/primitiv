@@ -1,6 +1,6 @@
 {
   "name": "@primitiv-ui/cli-darwin-x64",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "The primitiv CLI binary for macOS Intel (x64)",
   "os": [
     "darwin"

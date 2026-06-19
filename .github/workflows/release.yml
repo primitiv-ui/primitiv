@@ -33,9 +33,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # Use the default GITHUB_TOKEN. If branch protection blocks the bot
-          # push, swap this for a PAT with contents:write — see RELEASING.md §5.
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # A PAT (contents:write) owned by a maintainer who can bypass branch
+          # protection on `main`. The default GITHUB_TOKEN / github-actions[bot]
+          # cannot be added to a classic branch-protection bypass list, so the
+          # release commit push is authenticated as the PAT user instead. See
+          # RELEASING.md §5.
+          token: ${{ secrets.RELEASE_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:

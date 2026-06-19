@@ -5,7 +5,8 @@
  * A typed props surface over the headless @primitiv-ui/react component + the
  * generated recipe — the primary DX (RFC 0004 §3.5 / D51).
  */
-import { Button as ButtonPrimitive, type ButtonProps as ButtonPrimitiveProps } from "@primitiv-ui/react";
+import { Button as ButtonPrimitive } from "@primitiv-ui/react";
+import { type ComponentPropsWithRef } from "react";
 import { button } from "./button.recipe";
 
 /**
@@ -13,7 +14,7 @@ import { button } from "./button.recipe";
  *
  * @see https://primitiv-ui.dev/docs/components/button
  */
-export type ButtonProps = ButtonPrimitiveProps & {
+export type ButtonProps = ComponentPropsWithRef<typeof ButtonPrimitive> & {
   /**
    * Visual intent / emphasis.
    * - `primary` — High-emphasis primary action.

@@ -51,8 +51,16 @@ export type ControlledTabsRootProps = {
 
 /** Props for `Tabs.Root` — the state owner and context provider. Extends the
  * native `<div>` props (minus `onChange`) and resolves to either the
- * controlled or uncontrolled prop shape. */
-export type TabsRootProps = Omit<ComponentProps<"div">, "onChange"> & {
+ * controlled or uncontrolled prop shape.
+ *
+ * `ref` is omitted from the inherited `<div>` props deliberately: `Tabs.Root`
+ * is a `forwardRef` component whose ref is the {@link TabsImperativeApi}
+ * imperative handle, **not** the underlying `HTMLDivElement`. The component
+ * type re-adds the correct `ref` via `RefAttributes<TabsImperativeApi>`. Were
+ * the `HTMLDivElement` `ref` left in, a styled wrapper that spreads these props
+ * straight back into `Tabs.Root` (`<Tabs.Root {...props} />`) would fail to
+ * type-check on incompatible `ref` types (D58). */
+export type TabsRootProps = Omit<ComponentProps<"div">, "onChange" | "ref"> & {
   orientation?: TabsOrientation;
   dir?: TabsReadingDirection;
   activationMode?: TabsActivationMode;

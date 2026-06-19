@@ -558,3 +558,21 @@ nothing extra to do — the contract drives it; just keep convenience props as t
 - A first-class CSS Modules emit (RFC 0006 §10.6) — post-v1; no longer blocked.
 - `DensityProvider` ergonomics + responsive-density emit shape (RFC 0009 §8.1–8.2)
   — post-v1.
+- **Component-level JSDoc on the generated styled wrappers (future session).**
+  Today the generator emits a JSDoc block (the contract `description` + `@see`)
+  on the `export type …Props`, and **per-prop** JSDoc already flows through on
+  hover because the props are `ComponentPropsWithRef<typeof Primitive>` (e.g.
+  hovering `label` on `<TabsList>` shows the headless prop's docs — D59). What's
+  missing is a JSDoc block on the **`export function`** itself, so hovering the
+  *component* (`<Tabs>`) surfaces its usage docs. The goal (raised after a
+  consumer was caught out by `Tabs.List`'s required `label`): on hover of a
+  styled component, show the **styling props first** (`variant`, `size`,
+  `justify`, … — the contract `modifiers`), then the headless component's own
+  rich JSDoc (examples, keyboard tables, a11y notes). **Open design question —
+  where the headless prose comes from:** it lives in the react *source*, not in
+  `contract.json`, so the options are (a) embed/sync a `jsdoc` field into the
+  contract, (b) a JS pre-generation step that extracts the headless component's
+  JSDoc and feeds the Rust emitter, or (c) keep it light — emit the styling-prop
+  docs plus an `@see {@link Tabs}` pointer and let the per-prop flow-through carry
+  the rest. Applies to every part of a structural compound (each `Tabs*` wrapper
+  gets its matching headless part's JSDoc). Decide the sourcing approach first.

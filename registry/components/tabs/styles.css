@@ -168,6 +168,28 @@
     justify-content: flex-end;
   }
 
+  /* Outer divider on the group edge that faces the empty list surface: with the
+     strip grouped at the start the trailing trigger needs it, at the end the
+     leading trigger, centred both. The flush edge stays bordered by the list
+     frame, so it gets none. (No block borders on the trigger, so these can't
+     miter.) */
+  .primitiv-tabs__list--start .primitiv-tabs__trigger:last-child {
+    border-inline-end: var(--primitiv-tabs-trigger-border-width) solid
+      var(--primitiv-tabs-divider-color);
+  }
+  .primitiv-tabs__list--end .primitiv-tabs__trigger:first-child {
+    border-inline-start: var(--primitiv-tabs-trigger-border-width) solid
+      var(--primitiv-tabs-divider-color);
+  }
+  .primitiv-tabs__list--center .primitiv-tabs__trigger:first-child {
+    border-inline-start: var(--primitiv-tabs-trigger-border-width) solid
+      var(--primitiv-tabs-divider-color);
+  }
+  .primitiv-tabs__list--center .primitiv-tabs__trigger:last-child {
+    border-inline-end: var(--primitiv-tabs-trigger-border-width) solid
+      var(--primitiv-tabs-divider-color);
+  }
+
   /* Size — re-points the framed-control + typography knobs to the chosen slot
      for both the trigger and the panel. Density stays ambient via [data-density]
      on the token values themselves (RFC 0009). */

@@ -34,6 +34,7 @@ fn embedded_registry_serves_the_baked_in_index() {
 
     // The authored registry.json is valid and carries the seed components.
     assert!(index.components.contains_key("button"));
+    assert!(index.components.contains_key("field"));
     assert!(index.components.contains_key("input"));
     assert!(index.components.contains_key("switch"));
     assert!(index.components.contains_key("tabs"));
@@ -47,6 +48,16 @@ fn embedded_registry_serves_the_structural_compound_files() {
     assert!(css.contains(".primitiv-tabs__trigger"));
     let wrapper = String::from_utf8(EmbeddedRegistry.file("tabs", "tabs.tsx").unwrap()).unwrap();
     assert!(wrapper.contains("export function TabsTrigger"));
+}
+
+#[test]
+fn embedded_registry_serves_the_field_files() {
+    // Field is a structural, no-modifier compound — its baked-in surface carries
+    // the per-part wrappers `primitiv add field` resolves against the binary.
+    let css = String::from_utf8(EmbeddedRegistry.file("field", "styles.css").unwrap()).unwrap();
+    assert!(css.contains(".primitiv-field__error"));
+    let wrapper = String::from_utf8(EmbeddedRegistry.file("field", "field.tsx").unwrap()).unwrap();
+    assert!(wrapper.contains("export function FieldErrorText"));
 }
 
 #[test]

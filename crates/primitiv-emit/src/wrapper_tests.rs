@@ -97,6 +97,25 @@ fn the_committed_input_wrapper_is_the_generated_form_of_its_contract() {
     );
 }
 
+/// Drift guard: the committed `registry/components/field/field.tsx` is exactly the
+/// generated form of its contract — the structural, no-modifier compound proof.
+#[test]
+fn the_committed_field_wrapper_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/field/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_wrapper(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/components/field/field.tsx"
+        ))
+    );
+}
+
 /// Drift guard: the committed `registry/components/switch/switch.tsx` is exactly the
 /// generated form of its contract — the compound, parts-based proof (D54).
 #[test]
@@ -160,4 +179,3 @@ fn omits_the_distributive_helper_when_there_are_no_modifiers() {
 
     assert!(!wrapper.contains("DistributiveOmit"));
 }
-

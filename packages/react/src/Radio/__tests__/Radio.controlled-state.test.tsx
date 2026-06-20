@@ -11,18 +11,30 @@ describe("Radio controlled state", () => {
       <Radio.Root checked={false} onCheckedChange={() => {}} aria-label="Compact" />,
     );
     const radio = screen.getByRole("radio", { name: "Compact" });
-    expect(radio).toHaveAttribute("aria-checked", "false");
+    expect(radio).not.toBeChecked();
 
     rerender(
       <Radio.Root checked onCheckedChange={() => {}} aria-label="Compact" />,
     );
 
     // Assert
-    expect(radio).toHaveAttribute("aria-checked", "true");
-    expect(radio).toHaveAttribute("data-state", "checked");
+    expect(radio).toBeChecked();
   });
 
-  it("does not update its rendered state when the parent refuses to update `checked`", async () => {
+  it("mirrors the controlled value into the wrapper's data-state", () => {
+    // Arrange & Act
+    const { container } = render(
+      <Radio.Root checked onCheckedChange={() => {}} aria-label="Compact" />,
+    );
+
+    // Assert
+    expect(container.querySelector("label")).toHaveAttribute(
+      "data-state",
+      "checked",
+    );
+  });
+
+  it("does not change its rendered state when the parent refuses to update `checked`", async () => {
     // Arrange
     const user = userEvent.setup();
     const onCheckedChange = vi.fn();
@@ -38,11 +50,9 @@ describe("Radio controlled state", () => {
     // Act
     await user.click(radio);
 
-    // Assert: callback fired but the rendered state stays false because the
-    // parent did not flip the controlled prop.
+    // Assert: callback fired but the rendered state stays unchecked.
     expect(onCheckedChange).toHaveBeenCalledWith(true);
-    expect(radio).toHaveAttribute("aria-checked", "false");
-    expect(radio).toHaveAttribute("data-state", "unchecked");
+    expect(radio).not.toBeChecked();
   });
 
   it("lets a parent drive the value end to end", async () => {
@@ -60,10 +70,10 @@ describe("Radio controlled state", () => {
     }
     render(<Harness />);
     const radio = screen.getByRole("radio", { name: "Compact" });
-    expect(radio).toHaveAttribute("aria-checked", "false");
+    expect(radio).not.toBeChecked();
 
-    // Act & Assert: the click is deferred to the parent, which selects it.
+    // Act & Assert
     await user.click(radio);
-    expect(radio).toHaveAttribute("aria-checked", "true");
+    expect(radio).toBeChecked();
   });
 });

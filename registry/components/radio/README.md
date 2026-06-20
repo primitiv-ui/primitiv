@@ -2,14 +2,17 @@
 
 The artefacts `primitiv add radio` resolves and copies into a consumer repo.
 Radio is the **binary sibling of the checkbox**: it shares the same shape — a
-`data-state`-driven `<button>` root with one decorative **part** (the
-indicator) and a `size` modifier axis — but drops the indeterminate state, so it
-exercises the *same* `primitiv-emit` generators on a two-value control.
+`<label>` box root with one decorative **part** (the indicator) and a `size`
+modifier axis — but drops the indeterminate state, so it exercises the *same*
+`primitiv-emit` generators on a two-value control.
 
-It styles the standalone headless `Radio` (`Radio.Root` + `Radio.Indicator`).
-For a managed set with roving-tabindex keyboard navigation, the headless
-`RadioGroup` is the primitive; this styled surface is the lone control you group
-yourself.
+It styles the standalone headless `Radio` (`Radio.Root` + `Radio.Indicator`),
+whose root is a `<label>` wrapping a **real, visually-hidden native
+`<input type="radio">`**. That makes it a genuine form control: siblings sharing
+a `name` form a native radio group (the browser enforces single-selection), and
+it submits with an enclosing form. For a managed set with roving-tabindex
+keyboard navigation, the headless `RadioGroup` is the primitive; this styled
+surface is the lone native control you group yourself with `name`.
 
 ## Files
 
@@ -31,13 +34,16 @@ A **hybrid** document with two halves and two sources of truth (D15):
 
 - **`dataAttributes`** — `source: "auto"`. Derived from and **asserted against
   the rendered headless `Radio`** by a drift-guard test
-  (`packages/react/src/Radio/__tests__/Radio.contract.test.tsx`). Radio emits
+  (`packages/react/src/Radio/__tests__/Radio.contract.test.tsx`). The box emits
   `data-state` — `"checked"` or `"unchecked"`, always present — plus
-  `data-disabled` (empty value, when `disabled`). No indeterminate.
+  `data-disabled` (empty value, when `disabled`). No indeterminate. (`data-state`
+  is a best-effort mirror; the stylesheet keys the *checked* look off the input's
+  native `:checked` instead — see below.)
 - **`root` / `parts` / `modifiers` / `customProperties`** — authored. The
-  `.primitiv-radio` root class, the `primitiv-radio__indicator` **part** (a
-  decorative slot, named BEM-style off the root, D14), the `size` modifier axis,
-  and the `--primitiv-radio-*` custom-property API.
+  `.primitiv-radio` root class (the `<label>` box), the
+  `primitiv-radio__indicator` **part** (a decorative slot, named BEM-style off
+  the root, D14), the `size` modifier axis, and the `--primitiv-radio-*`
+  custom-property API.
 
 ## The default theme (`styles.css`)
 
@@ -48,14 +54,21 @@ Structured per RFC 0008 — the per-component API tokens + resting look in
 size, density-aware), with the radius and dot derived from it, plus `action/*` +
 `surface/*` + `border/*` for colour.
 
-The **indicator is the dot**: the headless layer mounts it only while selected,
-so a `dot-size` circle filled with the current colour is the whole indicator.
-**Unlike the checkbox, the box stays light when selected** — the brand colour
-shows only as the centred dot and a highlighted ring, the convention that keeps a
-radio visually distinct from a checkbox. On `:focus-visible` the box draws the
-**shared two-layer focus ring** every framed control shows; the `size` axis (with
-ambient `[data-density]`) re-points only the box size for each slot — the radius
-(always a full circle, `--primitiv-radii-full`) and the dot (half the box,
+The **indicator is the dot**: a `dot-size` circle filled with the current
+colour, always in the DOM but `scale: 0` until the input is checked, when
+`.primitiv-radio > input:checked ~ .primitiv-radio__indicator` scales it to `1`.
+Keying the reveal — and the highlighted ring via `.primitiv-radio:has(>
+input:checked)` — off the input's **native `:checked`** rather than the
+`data-state` mirror is deliberate: when the browser silently deselects a grouped
+sibling (an event React never sees), the CSS stays correct. **Unlike the
+checkbox, the box stays light when selected** — the brand colour shows only as
+the centred dot and a highlighted ring, the convention that keeps a radio
+visually distinct from a checkbox. The hidden input is laid over the whole box
+(`appearance: none`, transparent) so it stays the hit/focus target; on
+`:focus-visible` the box draws the **shared two-layer focus ring** via
+`:has(> input:focus-visible)`. The `size` axis (with ambient `[data-density]`)
+re-points only the box size for each slot — the radius (always a full circle,
+`--primitiv-radii-full`) and the dot (half the box,
 `calc(var(--primitiv-radio-size) / 2)`) derive from it, so they scale with size
 and density automatically.
 

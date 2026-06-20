@@ -21,11 +21,36 @@ export function RadioExample() {
       <h2 className="radio-ex__title">Radio</h2>
 
       <section className="radio-ex__section">
-        <h3 className="radio-ex__section-title">Consumer-owned group</h3>
+        <h3 className="radio-ex__section-title">Native group (shared name)</h3>
         <p className="radio-ex__description">
-          Standalone <code>Radio.Root</code> controls sharing one piece of
-          state — the consumer owns the grouping. Selection is one-way: clicking
-          the selected radio does nothing; selected is{" "}
+          Three uncontrolled radios sharing one <code>name</code> — the browser
+          forms a native radio group and enforces single-selection. No shared
+          React state; selecting one deselects the others for free.
+        </p>
+
+        <ul className="radio-ex__options" role="presentation">
+          {DENSITY_OPTIONS.map(([key, label]) => (
+            <li key={key} className="radio-ex__field">
+              <Radio.Root
+                id={`radio-native-${key}`}
+                className="radio-ex__control"
+                name="density-native"
+                value={key}
+                defaultChecked={key === "comfortable"}
+              >
+                <Radio.Indicator className="radio-ex__dot" />
+              </Radio.Root>
+              <label htmlFor={`radio-native-${key}`}>{label}</label>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="radio-ex__section">
+        <h3 className="radio-ex__section-title">Controlled group</h3>
+        <p className="radio-ex__description">
+          The same control, but the parent owns the value via{" "}
+          <code>checked</code> / <code>onCheckedChange</code>; selected is{" "}
           <span className="radio-ex__value">{density}</span>.
         </p>
 
@@ -35,12 +60,12 @@ export function RadioExample() {
               <Radio.Root
                 id={`radio-density-${key}`}
                 className="radio-ex__control"
+                name="density-controlled"
+                value={key}
                 checked={density === key}
                 onCheckedChange={() => setDensity(key)}
               >
-                <Radio.Indicator>
-                  <span className="radio-ex__dot" />
-                </Radio.Indicator>
+                <Radio.Indicator className="radio-ex__dot" />
               </Radio.Root>
               <label htmlFor={`radio-density-${key}`}>{label}</label>
             </li>
@@ -51,18 +76,18 @@ export function RadioExample() {
       <section className="radio-ex__section">
         <h3 className="radio-ex__section-title">Uncontrolled single opt-in</h3>
         <p className="radio-ex__description">
-          A lone radio with <code>defaultChecked</code> omitted — it owns its own
-          state and only ever moves into the selected position.
+          A lone radio — it owns its own state and only ever moves into the
+          selected position.
         </p>
         <div className="radio-ex__field">
           <Radio.Root
             id="radio-opt-in"
             className="radio-ex__control"
+            name="opt-in"
+            value="yes"
             onCheckedChange={() => setOptedIn(true)}
           >
-            <Radio.Indicator>
-              <span className="radio-ex__dot" />
-            </Radio.Indicator>
+            <Radio.Indicator className="radio-ex__dot" />
           </Radio.Root>
           <label htmlFor="radio-opt-in">
             Opt in{optedIn ? " — thanks!" : ""}
@@ -76,12 +101,12 @@ export function RadioExample() {
           <Radio.Root
             id="radio-disabled"
             className="radio-ex__control"
+            name="disabled-demo"
+            value="x"
             defaultChecked
             disabled
           >
-            <Radio.Indicator>
-              <span className="radio-ex__dot" />
-            </Radio.Indicator>
+            <Radio.Indicator className="radio-ex__dot" />
           </Radio.Root>
           <label htmlFor="radio-disabled">Unavailable plan</label>
         </div>

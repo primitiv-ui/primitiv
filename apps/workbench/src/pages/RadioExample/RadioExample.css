@@ -47,6 +47,7 @@
 }
 
 .radio-ex__control {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -58,11 +59,28 @@
   background: white;
   cursor: pointer;
 
-  &[data-state="checked"] {
+  /* The real native input, erased but laid over the box as the hit/focus
+     target — the source of truth for every visual state below. */
+  & > input {
+    appearance: none;
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    border: 0;
+    border-radius: 9999px;
+    background: transparent;
+    cursor: inherit;
+  }
+
+  /* Checked / focus key off the input's native state via :has, so a sibling
+     the browser silently deselects updates correctly. */
+  &:has(> input:checked) {
     border-color: #6366f1;
   }
 
-  &:focus-visible {
+  &:has(> input:focus-visible) {
     outline: 2px solid #6366f1;
     outline-offset: 2px;
   }
@@ -79,4 +97,10 @@
   block-size: 0.625rem;
   border-radius: 9999px;
   background: #6366f1;
+  scale: 0;
+  transition: scale 120ms ease;
+}
+
+.radio-ex__control > input:checked ~ .radio-ex__dot {
+  scale: 1;
 }

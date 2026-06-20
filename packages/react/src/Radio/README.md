@@ -1,116 +1,135 @@
 # Radio
 
-A headless, accessible, **standalone** compound component implementing the
-single-selection half of the
-[WAI-ARIA Radio pattern](https://www.w3.org/WAI/ARIA/apg/patterns/radio/).
+A headless, accessible, **standalone** radio control built on a **real native
+`<input type="radio">`**.
 
-Radio renders a native `<button role="radio">` so it gets keyboard
-activation (`Space` / `Enter`), focus ring, and disabled semantics for free
-from the browser. The React layer adds one-way selection, `Indicator`
-mounting driven by the selected state, and the `asChild` composition every
-primitive in this package supports.
+Radio renders a `<label>` that is the visible box, wrapping a visually-hidden
+native `<input type="radio">` (the focusable, form-participating control) and a
+decorative `Indicator` dot. Because the underlying element is a genuine native
+radio, siblings sharing a `name` form a **native radio group** — the browser,
+not JavaScript, enforces single-selection and silently deselects the others.
+It also submits with an enclosing form, resets with it, and gets keyboard
+activation and focus for free.
 
-> **Radio vs. RadioGroup.** `Radio` is the lone control for when you own the
-> grouping (a native form `name`, a bespoke layout, a single opt-in). For a
-> managed set with roving-tabindex keyboard navigation, arrow-key selection,
-> and disabled-item skipping, reach for
-> [`RadioGroup`](../RadioGroup/README.md) instead — it composes `role="radio"`
-> items the same way but owns the shared selected value.
+> **Radio vs. RadioGroup.** `Radio` is the lone native control for when you own
+> the grouping (a shared `name`, a bespoke layout, a single opt-in). For a
+> managed set with roving-tabindex keyboard navigation, arrow-key selection, and
+> disabled-item skipping, reach for [`RadioGroup`](../RadioGroup/README.md) — it
+> composes `role="radio"` items and owns the shared selected value itself.
 
 ```tsx
 import { Radio } from "@primitiv-ui/react";
 
-<Radio.Root defaultChecked aria-label="Compact">
-  <Radio.Indicator>
-    <DotIcon />
-  </Radio.Indicator>
+<Radio.Root name="density" value="comfortable" defaultChecked aria-label="Comfortable">
+  <Radio.Indicator />
 </Radio.Root>;
 ```
 
 ## Sub-components
 
-| Export            | Element    | Notes                                                                       |
-| ----------------- | ---------- | --------------------------------------------------------------------------- |
-| `Radio.Root`      | `<button>` | `role="radio"`, `aria-checked`, `data-state`, `data-disabled`. `asChild`    |
-| `Radio.Indicator` | `<span>`   | `aria-hidden="true"`. Renders only while selected. `asChild`, `forceMount`  |
+| Export            | Element                          | Notes                                                                              |
+| ----------------- | -------------------------------- | ---------------------------------------------------------------------------------- |
+| `Radio.Root`      | `<label>` + hidden `<input>`     | The styled box. `data-state`, `data-disabled` on the label; `name`/`value`/`aria-*`/`ref` go to the input. |
+| `Radio.Indicator` | `<span>`                         | `aria-hidden="true"`. Always mounted; CSS reveals it. `asChild`                    |
+
+`Radio.Root`'s `className` / `style` style the **box** (the `<label>` you see).
+Every other prop spreads onto the hidden `<input>`, because semantically the
+Root *is* the radio: pass `name`, `value`, `id`, `required`, `aria-*`, `ref`,
+etc. straight to `Radio.Root`.
+
+## Native grouping (the headline)
+
+Give sibling radios the same `name` and the browser groups them. No shared
+state, no `RadioGroup`, no controlled wiring required:
+
+```tsx
+{plans.map((plan) => (
+  <Radio.Root key={plan.id} name="plan" value={plan.id} aria-label={plan.label}>
+    <Radio.Indicator />
+  </Radio.Root>
+))}
+```
+
+Selecting one deselects the rest, and the chosen `value` submits under `plan`
+with an enclosing `<form>`.
 
 ## Selected state
 
 Radio is binary. The `checked` / `defaultChecked` value is a `boolean`:
 
-| Value   | `aria-checked` | `data-state`  | Indicator renders?       |
-| ------- | -------------- | ------------- | ------------------------ |
-| `true`  | `"true"`       | `"checked"`   | Yes                      |
-| `false` | `"false"`      | `"unchecked"` | No (unless `forceMount`) |
+| Value   | Native    | `data-state`  | Dot visible? |
+| ------- | --------- | ------------- | ------------ |
+| `true`  | `:checked`| `"checked"`   | Yes          |
+| `false` | —         | `"unchecked"` | No           |
 
-Selection is **one-way**: clicking an unselected radio selects it, but
-clicking the already-selected radio is a no-op — a lone radio never toggles
-itself off, and `onCheckedChange` does not fire for a re-select. De-selection
-happens when a sibling is chosen, which is the grouping consumer's concern.
+A native radio only ever moves *into* the checked state by user action —
+clicking the already-selected radio is a no-op, and selection moves off it only
+when a sibling is chosen. You get that for free.
 
 ## State modes
 
 - **Uncontrolled** — pass `defaultChecked` (or omit for unselected on mount).
-- **Controlled** — pass `checked` **and** `onCheckedChange` together.
+  The **browser** owns the value, so native `name`-grouping works.
+- **Controlled** — pass `checked` **and** `onCheckedChange` together. The parent
+  owns the value (and the grouping).
 
 The two shapes are statically discriminated at the type level; TypeScript
 rejects mixing them.
 
 ```tsx
-// Uncontrolled
-<Radio.Root defaultChecked>…</Radio.Root>;
+// Uncontrolled native group
+<Radio.Root name="density" value="compact" defaultChecked>
+  <Radio.Indicator />
+</Radio.Root>;
 
 // Controlled — the consumer owns the group's selected value.
 const [value, setValue] = useState("comfortable");
 <Radio.Root
+  name="density"
+  value="compact"
   checked={value === "compact"}
   onCheckedChange={() => setValue("compact")}
 >
-  …
+  <Radio.Indicator />
 </Radio.Root>;
 ```
 
+> **`data-state` is a best-effort mirror.** It is accurate in controlled mode and
+> for self-clicks, but a sibling the browser silently deselects fires no React
+> event, so its `data-state` can lag. Drive the *visual* checked look off the
+> input's native `:checked` (and `:has(> input:checked)` on the box), as the
+> shipped registry stylesheet does — not off `data-state`.
+
 ## Keyboard interaction
 
-| Key     | Behaviour                              |
-| ------- | -------------------------------------- |
-| `Space` | Selects the radio (native `<button>`)  |
-| `Enter` | Selects the radio (native `<button>`)  |
+| Key            | Behaviour                                  |
+| -------------- | ------------------------------------------ |
+| `Space`        | Selects the focused radio (native `<input>`) |
+| `Tab`          | Moves to / from the radio (native)         |
 
-Keyboard handling comes from the underlying `<button>` element — no custom
-`keydown` listeners are needed. (Arrow-key navigation across a set is a
-`RadioGroup` concern, not a standalone `Radio` one.)
+Keyboard handling comes from the underlying native input — no custom `keydown`
+listeners. (Arrow-key navigation *within* a group is a `RadioGroup` concern.)
 
 ## Disabled
 
-Passing `disabled` forwards the native `disabled` attribute to the button
+Passing `disabled` forwards the native `disabled` attribute to the input
 (removing it from the tab order and suppressing clicks) **and** sets
-`data-disabled=""` on the root so CSS can target `[data-disabled]` without
+`data-disabled=""` on the box so CSS can target `[data-disabled]` without
 reaching for `:disabled`.
 
 ```tsx
 <Radio.Root disabled aria-label="Unavailable plan">
-  <Radio.Indicator>
-    <DotIcon />
-  </Radio.Indicator>
+  <Radio.Indicator />
 </Radio.Root>
 ```
 
 ## `asChild` composition
 
-Both `Radio.Root` and `Radio.Indicator` accept an `asChild` boolean. When
-set, the component delegates rendering to its single child element and merges
-its own ARIA attributes, data-state, composed event handlers, and ref onto
-the child (the asChild contract: the child's handler runs first, the
-library's runs second unless the child calls `preventDefault`).
+`Radio.Indicator` accepts an `asChild` boolean. When set, the component
+delegates rendering to its single child element and merges its `aria-hidden`,
+`data-state`, and ref onto the child — typically to use an `<svg>` as the dot:
 
 ```tsx
-// Menu-item radio — the same state machinery, different element + role.
-<Radio.Root asChild aria-label="Sort by name">
-  <li role="menuitemradio">Sort by name</li>
-</Radio.Root>
-
-// Icon-only indicator — the svg itself becomes the indicator.
 <Radio.Indicator asChild>
   <svg viewBox="0 0 10 10">
     <circle cx="5" cy="5" r="3" />
@@ -118,39 +137,23 @@ library's runs second unless the child calls `preventDefault`).
 </Radio.Indicator>
 ```
 
-## Animation hooks
-
-`Radio.Indicator` accepts a `forceMount` boolean. When set, the indicator
-stays in the DOM regardless of selected state so a CSS animation can play
-against `data-state="unchecked"`:
-
-```tsx
-<Radio.Indicator forceMount>
-  <DotIcon />
-</Radio.Indicator>
-```
-
-```css
-[data-state="checked"] {
-  animation: dot-in 120ms ease-out;
-}
-[data-state="unchecked"] {
-  animation: dot-out 100ms ease-in forwards;
-}
-```
-
-Consumers using `forceMount` own the exit timing themselves.
-
 ## Styling hooks
 
-`data-state="checked" | "unchecked"` is set on both `Radio.Root` and
-`Radio.Indicator`, letting any CSS system target both phases.
+- The box (`Radio.Root`) carries `data-state="checked" | "unchecked"` and
+  `data-disabled=""`.
+- The hidden input exposes the always-correct native states: `:checked`,
+  `:focus-visible`, `:disabled`. Prefer these for the *checked* look.
 
 ```css
-button[data-state="checked"] {
+/* Reveal the dot from the native checked state — correct even on a silent
+   sibling deselect. */
+.radio > input:checked ~ .radio__indicator {
+  scale: 1;
+}
+.radio:has(> input:checked) {
   border-color: oklch(55% 0.2 265);
 }
-button[data-disabled] {
+.radio[data-disabled] {
   opacity: 0.5;
   cursor: not-allowed;
 }

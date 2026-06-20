@@ -2,10 +2,10 @@
   "$schema": "https://primitiv-ui.dev/schema/contract.json",
   "name": "radio",
   "version": "0.1.0",
-  "description": "A single radio control — a one-way on selection you group yourself.",
+  "description": "A single native radio input you group yourself with a shared `name`.",
   "docs": "https://primitiv-ui.dev/docs/components/radio",
   "root": {
-    "element": "button",
+    "element": "label",
     "class": "primitiv-radio"
   },
   "parts": [

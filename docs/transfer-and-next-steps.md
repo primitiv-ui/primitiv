@@ -544,14 +544,21 @@ nothing extra to do — the contract drives it; just keep convenience props as t
 
 **Deliberately deferred (answer emerges during the build):**
 
-- **Component focus ring in CSS (system-wide).** The Figma two-layer focus ring
-  (the gap + ring layers, `framed-control/{size}/focus-ring-*-radius` +
-  `focus/ring/width` / `focus/ring/offset` interaction tokens) is **defined in the
-  token layer but unwired in every component stylesheet** — Button, Switch and Tabs
-  all fall back to the browser default, so it doesn't match the design. Build it as
-  one shared `:focus-visible` pattern (stacked `box-shadow` / pseudo-elements, since
-  `outline` can't express the two-layer offset-with-radius) applied uniformly across
-  every framed control, not per-component.
+- **Component focus ring in CSS (system-wide).** *In progress.* The shared
+  `:focus-visible` ring is now wired as two stacked `box-shadow`s — a
+  `--primitiv-surface-default` gap then the `--primitiv-focus-ring` brand ring —
+  which auto-follow each control's own radius (so the per-size
+  `framed-control/{size}/focus-ring-*-radius` tokens turn out to be unnecessary in
+  CSS; box-shadow derives R+2 / R+4 for free) and read from the
+  `--primitiv-focus-ring` / `--primitiv-focus-ring-width` /
+  `--primitiv-focus-ring-offset` tokens. **Button and Switch landed** (plain outset
+  ring). **Tabs is a prototype pending review (option A):** its triggers live inside
+  the list's `overflow: hidden`, which would crop an outset ring, so the clip was
+  swapped for per-justify structural corner rounding to let the ring escape and read
+  on the active/brand trigger. Open caveat: the structural rounding assumes a
+  stretched tablist (free space for `justify`); a shrink-to-content list would poke
+  the un-rounded end corner. Decide whether to keep option A or fall back to an inset
+  ring for the connected strip.
 - Config-parser fuzzing (RFC 0007 §11.3) — once the parsers exist.
 - A `rust-cli-test-conventions` skill (RFC 0007 §11.4) — after the first command.
 - Workbench styled-preview shape (RFC 0006 §10.5) — while authoring the theme.

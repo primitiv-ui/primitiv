@@ -9,13 +9,13 @@
  *   - checkbox/xl/box-size   [Spacious] → size/size-32   (single-cell slip)
  *   - checkbox/xs/mark-size  [Dense]    → size/size-6     (single-cell slip)
  *   - radio/{xs,sm,md,lg,xl}/{box-radius, focus-ring-gap-radius, focus-ring-radius}
- *       → radii/full (a circle), all 4 modes
- *   - radio/*/dot-size is left raw on purpose: it is box-size/2, and there is no
+ *       -> radii/full (a circle), all 4 modes
+ *   - radio dot-size is left raw on purpose: it is box-size/2, and there is no
  *     size-5 / size-7 primitive to bind to (the registry stylesheet derives it).
  *
  * After running, re-run the audit plugin: rawNumberVariables should no longer
- * list any checkbox/* or radio/{box-radius,focus-ring-*}; only radio/*/dot-size
- * and the modal/* anatomy should remain.
+ * list any checkbox or radio box-radius / focus-ring radii; only the radio
+ * dot-size values and the modal anatomy should remain.
  */
 (async () => {
   const log = [];

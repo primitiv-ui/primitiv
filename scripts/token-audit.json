@@ -1,0 +1,420 @@
+{
+  "contextCollection": "Context",
+  "modes": [
+    "Comfortable",
+    "Compact",
+    "Spacious",
+    "Dense"
+  ],
+  "totalContextVariables": 331,
+  "rawNumberVariables": [
+    {
+      "name": "checkbox/xl/box-size",
+      "rawModes": {
+        "Spacious": 32
+      }
+    },
+    {
+      "name": "checkbox/xs/mark-size",
+      "rawModes": {
+        "Dense": 6
+      }
+    },
+    {
+      "name": "modal/lg/gap",
+      "rawModes": {
+        "Dense": 8,
+        "Compact": 12,
+        "Comfortable": 14,
+        "Spacious": 18
+      }
+    },
+    {
+      "name": "modal/lg/padding-block",
+      "rawModes": {
+        "Dense": 8,
+        "Compact": 10,
+        "Comfortable": 14,
+        "Spacious": 16
+      }
+    },
+    {
+      "name": "modal/lg/padding-inline",
+      "rawModes": {
+        "Dense": 16,
+        "Compact": 20,
+        "Comfortable": 24,
+        "Spacious": 28
+      }
+    },
+    {
+      "name": "modal/lg/radius",
+      "rawModes": {
+        "Dense": 8,
+        "Compact": 10,
+        "Comfortable": 12,
+        "Spacious": 16
+      }
+    },
+    {
+      "name": "modal/md/gap",
+      "rawModes": {
+        "Dense": 8,
+        "Compact": 10,
+        "Comfortable": 12,
+        "Spacious": 16
+      }
+    },
+    {
+      "name": "modal/md/padding-block",
+      "rawModes": {
+        "Dense": 8,
+        "Compact": 10,
+        "Comfortable": 12,
+        "Spacious": 14
+      }
+    },
+    {
+      "name": "modal/md/padding-inline",
+      "rawModes": {
+        "Dense": 14,
+        "Compact": 16,
+        "Comfortable": 20,
+        "Spacious": 24
+      }
+    },
+    {
+      "name": "modal/md/radius",
+      "rawModes": {
+        "Dense": 6,
+        "Compact": 8,
+        "Comfortable": 10,
+        "Spacious": 12
+      }
+    },
+    {
+      "name": "modal/sm/gap",
+      "rawModes": {
+        "Dense": 6,
+        "Compact": 8,
+        "Comfortable": 10,
+        "Spacious": 12
+      }
+    },
+    {
+      "name": "modal/sm/padding-block",
+      "rawModes": {
+        "Dense": 6,
+        "Compact": 8,
+        "Comfortable": 10,
+        "Spacious": 12
+      }
+    },
+    {
+      "name": "modal/sm/padding-inline",
+      "rawModes": {
+        "Dense": 12,
+        "Compact": 14,
+        "Comfortable": 16,
+        "Spacious": 20
+      }
+    },
+    {
+      "name": "modal/sm/radius",
+      "rawModes": {
+        "Dense": 4,
+        "Compact": 6,
+        "Comfortable": 8,
+        "Spacious": 10
+      }
+    },
+    {
+      "name": "modal/xl/gap",
+      "rawModes": {
+        "Dense": 10,
+        "Compact": 12,
+        "Comfortable": 16,
+        "Spacious": 20
+      }
+    },
+    {
+      "name": "modal/xl/padding-block",
+      "rawModes": {
+        "Dense": 10,
+        "Compact": 12,
+        "Comfortable": 16,
+        "Spacious": 20
+      }
+    },
+    {
+      "name": "modal/xl/padding-inline",
+      "rawModes": {
+        "Dense": 20,
+        "Compact": 24,
+        "Comfortable": 28,
+        "Spacious": 32
+      }
+    },
+    {
+      "name": "modal/xl/radius",
+      "rawModes": {
+        "Dense": 10,
+        "Compact": 12,
+        "Comfortable": 16,
+        "Spacious": 20
+      }
+    },
+    {
+      "name": "radio/lg/box-radius",
+      "rawModes": {
+        "Dense": 8,
+        "Compact": 10,
+        "Comfortable": 12,
+        "Spacious": 14
+      }
+    },
+    {
+      "name": "radio/lg/dot-size",
+      "rawModes": {
+        "Dense": 8,
+        "Compact": 10,
+        "Comfortable": 12,
+        "Spacious": 14
+      }
+    },
+    {
+      "name": "radio/lg/focus-ring-gap-radius",
+      "rawModes": {
+        "Dense": 10,
+        "Compact": 12,
+        "Comfortable": 14,
+        "Spacious": 16
+      }
+    },
+    {
+      "name": "radio/lg/focus-ring-radius",
+      "rawModes": {
+        "Dense": 12,
+        "Compact": 14,
+        "Comfortable": 16,
+        "Spacious": 18
+      }
+    },
+    {
+      "name": "radio/md/box-radius",
+      "rawModes": {
+        "Dense": 7,
+        "Compact": 8,
+        "Comfortable": 10,
+        "Spacious": 12
+      }
+    },
+    {
+      "name": "radio/md/dot-size",
+      "rawModes": {
+        "Dense": 7,
+        "Compact": 8,
+        "Comfortable": 10,
+        "Spacious": 12
+      }
+    },
+    {
+      "name": "radio/md/focus-ring-gap-radius",
+      "rawModes": {
+        "Dense": 9,
+        "Compact": 10,
+        "Comfortable": 12,
+        "Spacious": 14
+      }
+    },
+    {
+      "name": "radio/md/focus-ring-radius",
+      "rawModes": {
+        "Dense": 11,
+        "Compact": 12,
+        "Comfortable": 14,
+        "Spacious": 16
+      }
+    },
+    {
+      "name": "radio/sm/box-radius",
+      "rawModes": {
+        "Dense": 6,
+        "Compact": 7,
+        "Comfortable": 8,
+        "Spacious": 10
+      }
+    },
+    {
+      "name": "radio/sm/dot-size",
+      "rawModes": {
+        "Dense": 6,
+        "Compact": 7,
+        "Comfortable": 8,
+        "Spacious": 10
+      }
+    },
+    {
+      "name": "radio/sm/focus-ring-gap-radius",
+      "rawModes": {
+        "Dense": 8,
+        "Compact": 9,
+        "Comfortable": 10,
+        "Spacious": 12
+      }
+    },
+    {
+      "name": "radio/sm/focus-ring-radius",
+      "rawModes": {
+        "Dense": 10,
+        "Compact": 11,
+        "Comfortable": 12,
+        "Spacious": 14
+      }
+    },
+    {
+      "name": "radio/xl/box-radius",
+      "rawModes": {
+        "Dense": 10,
+        "Compact": 12,
+        "Comfortable": 14,
+        "Spacious": 16
+      }
+    },
+    {
+      "name": "radio/xl/dot-size",
+      "rawModes": {
+        "Dense": 10,
+        "Compact": 12,
+        "Comfortable": 14,
+        "Spacious": 16
+      }
+    },
+    {
+      "name": "radio/xl/focus-ring-gap-radius",
+      "rawModes": {
+        "Dense": 12,
+        "Compact": 14,
+        "Comfortable": 16,
+        "Spacious": 18
+      }
+    },
+    {
+      "name": "radio/xl/focus-ring-radius",
+      "rawModes": {
+        "Dense": 14,
+        "Compact": 16,
+        "Comfortable": 18,
+        "Spacious": 20
+      }
+    },
+    {
+      "name": "radio/xs/box-radius",
+      "rawModes": {
+        "Dense": 5,
+        "Compact": 6,
+        "Comfortable": 7,
+        "Spacious": 8
+      }
+    },
+    {
+      "name": "radio/xs/dot-size",
+      "rawModes": {
+        "Dense": 5,
+        "Compact": 6,
+        "Comfortable": 7,
+        "Spacious": 8
+      }
+    },
+    {
+      "name": "radio/xs/focus-ring-gap-radius",
+      "rawModes": {
+        "Dense": 7,
+        "Compact": 8,
+        "Comfortable": 9,
+        "Spacious": 10
+      }
+    },
+    {
+      "name": "radio/xs/focus-ring-radius",
+      "rawModes": {
+        "Dense": 9,
+        "Compact": 10,
+        "Comfortable": 11,
+        "Spacious": 12
+      }
+    }
+  ],
+  "watchlist": {
+    "checkbox/xl/box-size": {
+      "Dense": {
+        "alias": "size/size-20"
+      },
+      "Compact": {
+        "alias": "size/size-24"
+      },
+      "Comfortable": {
+        "alias": "size/size-28"
+      },
+      "Spacious": {
+        "raw": 32
+      }
+    },
+    "checkbox/xs/mark-size": {
+      "Dense": {
+        "raw": 6
+      },
+      "Compact": {
+        "alias": "size/size-8"
+      },
+      "Comfortable": {
+        "alias": "size/size-10"
+      },
+      "Spacious": {
+        "alias": "size/size-10"
+      }
+    },
+    "radio/md/box-radius": {
+      "Dense": {
+        "raw": 7
+      },
+      "Compact": {
+        "raw": 8
+      },
+      "Comfortable": {
+        "raw": 10
+      },
+      "Spacious": {
+        "raw": 12
+      }
+    },
+    "radio/md/dot-size": {
+      "Dense": {
+        "raw": 7
+      },
+      "Compact": {
+        "raw": 8
+      },
+      "Comfortable": {
+        "raw": 10
+      },
+      "Spacious": {
+        "raw": 12
+      }
+    },
+    "radio/md/focus-ring-radius": {
+      "Dense": {
+        "raw": 11
+      },
+      "Compact": {
+        "raw": 12
+      },
+      "Comfortable": {
+        "raw": 14
+      },
+      "Spacious": {
+        "raw": 16
+      }
+    }
+  }
+}

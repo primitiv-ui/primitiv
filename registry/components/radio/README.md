@@ -44,9 +44,9 @@ A **hybrid** document with two halves and two sources of truth (D15):
 Structured per RFC 0008 — the per-component API tokens + resting look in
 `primitiv.base`, the `size` re-pointing in `primitiv.variants`, and the
 `data-state` / focus / `data-disabled` styling in `primitiv.states`. It wires
-`--primitiv-radio-*` to the synced theme tokens — `radio/*` for the box and dot
-anatomy (per size, density-aware), `action/*` + `surface/*` + `border/*` for
-colour.
+`--primitiv-radio-*` to the synced theme tokens — `radio/*` for the box size (per
+size, density-aware), with the radius and dot derived from it, plus `action/*` +
+`surface/*` + `border/*` for colour.
 
 The **indicator is the dot**: the headless layer mounts it only while selected,
 so a `dot-size` circle filled with the current colour is the whole indicator.
@@ -54,8 +54,10 @@ so a `dot-size` circle filled with the current colour is the whole indicator.
 shows only as the centred dot and a highlighted ring, the convention that keeps a
 radio visually distinct from a checkbox. On `:focus-visible` the box draws the
 **shared two-layer focus ring** every framed control shows; the `size` axis (with
-ambient `[data-density]`) scales the box, dot and radius together by re-pointing
-the anatomy knobs to each size's token slot.
+ambient `[data-density]`) re-points only the box size for each slot — the radius
+(always a full circle, `--primitiv-radii-full`) and the dot (half the box,
+`calc(var(--primitiv-radio-size) / 2)`) derive from it, so they scale with size
+and density automatically.
 
 **It is yours to edit.** The stable surface is the *contract* (classes, `data-*`,
 custom-property names), not these values (RFC 0006 Principle 2 — names are stable,

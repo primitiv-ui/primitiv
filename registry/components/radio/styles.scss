@@ -24,17 +24,19 @@
 
 @layer primitiv.base {
   .primitiv-radio {
-    /* Per-component API — the themable knobs, defaulting to the md size and the
-       resting (unchecked) box. The states layer below re-points the checked
-       border; consumers can override any one without touching the rule. */
+    /* Per-component API — the themable knobs, defaulting to the md box size.
+       The radius is a full circle and the dot is half the box, both derived
+       from --primitiv-radio-size, so size and density scale them together.
+       The states layer below re-points the checked border; consumers can
+       override any one without touching the rule. */
     --primitiv-radio-bg: var(--primitiv-surface-default);
     --primitiv-radio-border-color: var(--primitiv-border-strong);
     --primitiv-radio-border-color-checked: var(--primitiv-action-primary-default);
     --primitiv-radio-border-width: var(--primitiv-border-width-1);
     --primitiv-radio-dot-color: var(--primitiv-action-primary-default);
     --primitiv-radio-size: var(--primitiv-radio-md-box-size);
-    --primitiv-radio-radius: var(--primitiv-radio-md-box-radius);
-    --primitiv-radio-dot-size: var(--primitiv-radio-md-dot-size);
+    --primitiv-radio-radius: var(--primitiv-radii-full);
+    --primitiv-radio-dot-size: calc(var(--primitiv-radio-size) / 2);
 
     box-sizing: border-box;
     position: relative;
@@ -66,32 +68,23 @@
 }
 
 @layer primitiv.variants {
-  /* Size — re-points the anatomy knobs to the chosen token slot. Density stays
-     ambient via [data-density] on the token values themselves (RFC 0009). */
+  /* Size — re-points only the box size for each slot; the radius (always a full
+     circle) and the dot (half the box) derive from --primitiv-radio-size, so
+     density stays ambient via [data-density] on the box-size token (RFC 0009). */
   .primitiv-radio--xs {
     --primitiv-radio-size: var(--primitiv-radio-xs-box-size);
-    --primitiv-radio-radius: var(--primitiv-radio-xs-box-radius);
-    --primitiv-radio-dot-size: var(--primitiv-radio-xs-dot-size);
   }
   .primitiv-radio--sm {
     --primitiv-radio-size: var(--primitiv-radio-sm-box-size);
-    --primitiv-radio-radius: var(--primitiv-radio-sm-box-radius);
-    --primitiv-radio-dot-size: var(--primitiv-radio-sm-dot-size);
   }
   .primitiv-radio--md {
     --primitiv-radio-size: var(--primitiv-radio-md-box-size);
-    --primitiv-radio-radius: var(--primitiv-radio-md-box-radius);
-    --primitiv-radio-dot-size: var(--primitiv-radio-md-dot-size);
   }
   .primitiv-radio--lg {
     --primitiv-radio-size: var(--primitiv-radio-lg-box-size);
-    --primitiv-radio-radius: var(--primitiv-radio-lg-box-radius);
-    --primitiv-radio-dot-size: var(--primitiv-radio-lg-dot-size);
   }
   .primitiv-radio--xl {
     --primitiv-radio-size: var(--primitiv-radio-xl-box-size);
-    --primitiv-radio-radius: var(--primitiv-radio-xl-box-radius);
-    --primitiv-radio-dot-size: var(--primitiv-radio-xl-dot-size);
   }
 }
 

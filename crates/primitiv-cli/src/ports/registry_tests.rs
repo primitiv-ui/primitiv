@@ -34,6 +34,7 @@ fn embedded_registry_serves_the_baked_in_index() {
 
     // The authored registry.json is valid and carries the seed components.
     assert!(index.components.contains_key("button"));
+    assert!(index.components.contains_key("input"));
     assert!(index.components.contains_key("switch"));
     assert!(index.components.contains_key("tabs"));
 }
@@ -46,6 +47,16 @@ fn embedded_registry_serves_the_structural_compound_files() {
     assert!(css.contains(".primitiv-tabs__trigger"));
     let wrapper = String::from_utf8(EmbeddedRegistry.file("tabs", "tabs.tsx").unwrap()).unwrap();
     assert!(wrapper.contains("export function TabsTrigger"));
+}
+
+#[test]
+fn embedded_registry_serves_the_input_files() {
+    // Input is the first registry control whose styled wrapper omits a native
+    // attribute (`size`) — its baked-in surface is served verbatim.
+    let css = String::from_utf8(EmbeddedRegistry.file("input", "styles.css").unwrap()).unwrap();
+    assert!(css.contains(".primitiv-input"));
+    let wrapper = String::from_utf8(EmbeddedRegistry.file("input", "input.tsx").unwrap()).unwrap();
+    assert!(wrapper.contains("export function Input"));
 }
 
 #[test]

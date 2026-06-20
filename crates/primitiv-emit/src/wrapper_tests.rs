@@ -77,6 +77,26 @@ fn the_committed_button_wrapper_is_the_generated_form_of_its_contract() {
     );
 }
 
+/// Drift guard: the committed `registry/components/input/input.tsx` is exactly the
+/// generated form of its contract — the proof a styled `size` survives the native
+/// `size` attribute via the distributive omit (D59).
+#[test]
+fn the_committed_input_wrapper_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/input/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_wrapper(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/components/input/input.tsx"
+        ))
+    );
+}
+
 /// Drift guard: the committed `registry/components/switch/switch.tsx` is exactly the
 /// generated form of its contract — the compound, parts-based proof (D54).
 #[test]
@@ -114,3 +134,30 @@ fn the_committed_tabs_wrapper_is_the_generated_form_of_its_contract() {
         ))
     );
 }
+
+/// A styled wrapper owns its modifier prop names, so they must be omitted from
+/// the primitive props before the variant union is intersected in. Without it a
+/// modifier whose name shadows a native attribute (e.g. `size` on `<input>`,
+/// typed `number`) intersects to `never` and the styled prop becomes unusable.
+/// The omit is *distributive* so it preserves the primitive's controlled /
+/// uncontrolled prop union (a plain `Omit` collapses it and breaks the spread).
+#[test]
+fn distributively_omits_modifier_prop_names_from_the_primitive_props() {
+    let wrapper = emit_wrapper(&Contract::parse(DEMO_BOX.as_bytes()).unwrap());
+
+    assert!(wrapper.contains(
+        "type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;",
+    ));
+    assert!(wrapper.contains(
+        "export type DemoBoxProps = DistributiveOmit<ComponentPropsWithRef<typeof DemoBoxPrimitive>, \"variant\" | \"size\"> & {",
+    ));
+}
+
+/// A no-modifier wrapper needs no omit, so the helper is not emitted.
+#[test]
+fn omits_the_distributive_helper_when_there_are_no_modifiers() {
+    let wrapper = emit_wrapper(&Contract::parse(DEMO_TOGGLE.as_bytes()).unwrap());
+
+    assert!(!wrapper.contains("DistributiveOmit"));
+}
+

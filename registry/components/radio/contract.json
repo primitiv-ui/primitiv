@@ -37,7 +37,7 @@
     { "name": "--primitiv-radio-border-width", "defaultsTo": "var(--primitiv-border-width-1)" },
     { "name": "--primitiv-radio-dot-color", "defaultsTo": "var(--primitiv-action-primary-default)" },
     { "name": "--primitiv-radio-size", "defaultsTo": "var(--primitiv-radio-md-box-size)" },
-    { "name": "--primitiv-radio-radius", "defaultsTo": "var(--primitiv-radio-md-box-radius)" },
-    { "name": "--primitiv-radio-dot-size", "defaultsTo": "var(--primitiv-radio-md-dot-size)" }
+    { "name": "--primitiv-radio-radius", "defaultsTo": "var(--primitiv-radii-full)" },
+    { "name": "--primitiv-radio-dot-size", "defaultsTo": "calc(var(--primitiv-radio-size) / 2)" }
   ]
 }

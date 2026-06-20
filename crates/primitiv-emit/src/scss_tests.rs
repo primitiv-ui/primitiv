@@ -95,6 +95,22 @@ fn the_committed_button_scss_is_the_derived_form_of_its_css() {
     assert_eq!(emit_component_scss(css), scss);
 }
 
+/// Drift guard: the committed `registry/components/input/styles.scss` is exactly the
+/// derived form of its canonical `styles.css` — the text-field proof.
+#[test]
+fn the_committed_input_scss_is_the_derived_form_of_its_css() {
+    let css = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/input/styles.css"
+    ));
+    let scss = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/input/styles.scss"
+    ));
+
+    assert_eq!(emit_component_scss(css), scss);
+}
+
 /// Drift guard: the committed `registry/components/switch/styles.scss` is exactly the
 /// derived form of its canonical `styles.css` — the state-driven, parts-based
 /// proof that the SCSS adapter is component-shape-agnostic.

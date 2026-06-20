@@ -1,0 +1,44 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "input",
+  "version": "0.1.0",
+  "description": "A single-line text input — the framed field consumers type into.",
+  "docs": "https://primitiv-ui.dev/docs/components/input",
+  "root": {
+    "element": "input",
+    "class": "primitiv-input"
+  },
+  "dataAttributes": [
+    { "name": "data-disabled", "value": "", "when": "disabled", "source": "auto" }
+  ],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Control size; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-input--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-input--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-input--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-input--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-input--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-input-bg", "defaultsTo": "var(--primitiv-surface-default)" },
+    { "name": "--primitiv-input-fg", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-input-placeholder-color", "defaultsTo": "var(--primitiv-content-muted)" },
+    { "name": "--primitiv-input-border-color", "defaultsTo": "var(--primitiv-border-default)" },
+    { "name": "--primitiv-input-border-color-focus", "defaultsTo": "var(--primitiv-border-focus)" },
+    { "name": "--primitiv-input-border-color-invalid", "defaultsTo": "var(--primitiv-border-invalid)" },
+    { "name": "--primitiv-input-border-width", "defaultsTo": "var(--primitiv-framed-control-border-width)" },
+    { "name": "--primitiv-input-radius", "defaultsTo": "var(--primitiv-framed-control-md-radius)" },
+    { "name": "--primitiv-input-height", "defaultsTo": "var(--primitiv-framed-control-md-height)" },
+    { "name": "--primitiv-input-padding-inline", "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)" },
+    { "name": "--primitiv-input-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
+    { "name": "--primitiv-input-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-input-font-weight", "defaultsTo": "var(--primitiv-body-md-font-weight)" },
+    { "name": "--primitiv-input-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" }
+  ]
+}

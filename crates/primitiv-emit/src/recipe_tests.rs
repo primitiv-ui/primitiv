@@ -83,6 +83,25 @@ fn the_committed_tabs_recipe_is_the_generated_form_of_its_contract() {
     );
 }
 
+/// Drift guard: the committed `registry/components/input/input.recipe.ts` is exactly
+/// the generated form of its contract — the size-only text-field proof.
+#[test]
+fn the_committed_input_recipe_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/input/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_recipe(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/components/input/input.recipe.ts"
+        ))
+    );
+}
+
 /// Drift guard: the committed `registry/components/switch/switch.recipe.ts` is exactly the
 /// generated form of its contract — the state-driven, no-modifier proof (D54).
 #[test]

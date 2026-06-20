@@ -3644,7 +3644,7 @@
       "xl": {
         "box-size": {
           "$type": "number",
-          "$value": 32
+          "$value": "{size.size-32}"
         },
         "box-radius": {
           "$type": "number",
@@ -4892,7 +4892,7 @@
         },
         "mark-size": {
           "$type": "number",
-          "$value": 6
+          "$value": "{size.size-6}"
         },
         "focus-ring-gap-radius": {
           "$type": "number",

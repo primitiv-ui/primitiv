@@ -986,7 +986,7 @@
     --primitiv-checkbox-xs-box-size: var(--primitiv-size-size-10);
     --primitiv-checkbox-xs-focus-ring-gap-radius: var(--primitiv-radii-4);
     --primitiv-checkbox-xs-focus-ring-radius: var(--primitiv-radii-6);
-    --primitiv-checkbox-xs-mark-size: 6;
+    --primitiv-checkbox-xs-mark-size: var(--primitiv-size-size-6);
     --primitiv-container-lg-gap: var(--primitiv-space-space-10);
     --primitiv-container-lg-padding: var(--primitiv-space-space-14);
     --primitiv-container-lg-radius: var(--primitiv-radii-6);
@@ -1273,7 +1273,7 @@
     --primitiv-checkbox-sm-focus-ring-radius: var(--primitiv-radii-6);
     --primitiv-checkbox-sm-mark-size: var(--primitiv-size-size-14);
     --primitiv-checkbox-xl-box-radius: var(--primitiv-radii-4);
-    --primitiv-checkbox-xl-box-size: 32;
+    --primitiv-checkbox-xl-box-size: var(--primitiv-size-size-32);
     --primitiv-checkbox-xl-focus-ring-gap-radius: var(--primitiv-radii-6);
     --primitiv-checkbox-xl-focus-ring-radius: var(--primitiv-radii-8);
     --primitiv-checkbox-xl-mark-size: var(--primitiv-size-size-20);

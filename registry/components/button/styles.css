@@ -12,8 +12,8 @@
  * layer (primitiv.tokens.css); this file only re-opens the named sublayers.
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-action-*,
- * --primitiv-framed-control-*, --primitiv-focus-ring-* and --primitiv-surface-*
- * custom properties it resolves.
+ * --primitiv-framed-control-*, --primitiv-focus-ring-*, --primitiv-surface-*
+ * and --primitiv-opacity-* custom properties it resolves.
  */
 
 @layer primitiv.base {
@@ -204,7 +204,7 @@
   /* Disabled is intent-neutral so it reads the same on every variant; the
      states layer sits above variants, so it always wins (RFC 0008 §2.3). */
   .primitiv-button[data-disabled] {
-    opacity: 0.5;
+    opacity: var(--primitiv-opacity-50);
     cursor: not-allowed;
   }
 }

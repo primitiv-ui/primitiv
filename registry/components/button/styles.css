@@ -12,8 +12,8 @@
  * layer (primitiv.tokens.css); this file only re-opens the named sublayers.
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-action-*,
- * --primitiv-framed-control-*, --primitiv-focus-ring-*, --primitiv-surface-*
- * and --primitiv-opacity-* custom properties it resolves.
+ * --primitiv-framed-control-*, --primitiv-focus-ring-*, --primitiv-surface-*,
+ * --primitiv-opacity-* and --primitiv-color-* custom properties it resolves.
  */
 
 @layer primitiv.base {
@@ -115,8 +115,8 @@
 
   /* Link — no frame; text-coloured only. */
   .primitiv-button--link {
-    --primitiv-button-bg: transparent;
-    --primitiv-button-border-color: transparent;
+    --primitiv-button-bg: var(--primitiv-color-transparent);
+    --primitiv-button-border-color: var(--primitiv-color-transparent);
     --primitiv-button-fg: var(--primitiv-action-link-foreground-default);
   }
   .primitiv-button--link:hover {

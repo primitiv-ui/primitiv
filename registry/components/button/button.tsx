@@ -9,12 +9,14 @@ import { Button as ButtonPrimitive } from "@primitiv-ui/react";
 import { type ComponentPropsWithRef } from "react";
 import { button } from "./button.recipe";
 
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
+
 /**
  * A clickable action — a button, or a link styled as one via `asChild`.
  *
  * @see https://primitiv-ui.dev/docs/components/button
  */
-export type ButtonProps = ComponentPropsWithRef<typeof ButtonPrimitive> & {
+export type ButtonProps = DistributiveOmit<ComponentPropsWithRef<typeof ButtonPrimitive>, "variant" | "size"> & {
   /**
    * Visual intent / emphasis.
    * - `primary` — High-emphasis primary action.

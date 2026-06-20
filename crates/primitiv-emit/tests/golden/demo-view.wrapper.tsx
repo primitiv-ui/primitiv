@@ -9,12 +9,14 @@ import { DemoView as DemoViewPrimitive } from "@primitiv-ui/react";
 import { type ComponentPropsWithRef } from "react";
 import { demoView, demoViewBar, demoViewItem } from "./demo-view.recipe";
 
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
+
 /**
  * A demo composed view.
  *
  * @see https://example.test/demo-view
  */
-export type DemoViewProps = ComponentPropsWithRef<typeof DemoViewPrimitive.Root> & {
+export type DemoViewProps = DistributiveOmit<ComponentPropsWithRef<typeof DemoViewPrimitive.Root>, "size"> & {
   /**
    * Control size.
    * - `sm` — Small.
@@ -29,7 +31,7 @@ export function DemoView({ size, className, ...props }: DemoViewProps) {
   return <DemoViewPrimitive.Root className={[demoView({ size }), className].filter(Boolean).join(" ")} {...props} />;
 }
 
-export type DemoViewBarProps = ComponentPropsWithRef<typeof DemoViewPrimitive.Bar> & {
+export type DemoViewBarProps = DistributiveOmit<ComponentPropsWithRef<typeof DemoViewPrimitive.Bar>, "align"> & {
   /**
    * Alignment of the items.
    * - `start` — Start.

@@ -1,6 +1,6 @@
 {
   "name": "@primitiv-ui/cli-linux-arm64-gnu",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "The primitiv CLI binary for Linux arm64 (glibc)",
   "os": [
     "linux"

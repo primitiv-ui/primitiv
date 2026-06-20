@@ -75,6 +75,53 @@ are genuine novel judgement — which is the only thing worth your attention.
   has a *closed loop*. Fanning out loops you still babysit multiplies
   supervision, not throughput. So this waits on the course-correction thread.
 
+### Cross-session interference — the concurrency model
+The "update docs/skills/rfcs after each session" practice is a **sequential
+consistency model**: it works because there's a total order (session N writes
+learnings → N+1 reads them). Parallel sessions break that order → stale reads
+and write-write conflicts on the **shared spines**: `CLAUDE.md`, skills, rfcs,
+`ROADMAP.md`, the 13 version fields, the registry, generated inventory.
+
+The confidence test is mechanical, not a vibe:
+> Two sessions are safe in parallel iff their **write sets are disjoint** and
+> neither depends on a learning the other is currently producing.
+
+Principle: **divergent work parallelizes; convergent (knowledge) work
+serializes.** Fan out N implementation cycles, then converge in one session that
+harvests learnings into docs/skills/rfcs.
+
+## Flows catalogue (proposed schema)
+
+Document each recurring task shape. The point of the per-flow **blast radius** is
+twofold: (a) the drift-point column is where a plan-gate goes (loop guardrail);
+(b) intersecting two flows' write sets answers "can I parallelize these?".
+
+Per flow: **Trigger · Sequence · Reads · Writes (blast radius) · Drift-point ·
+Closing signal.**
+
+### Worked example — "Add a new React component"
+- **Trigger:** "scaffold X" / "new component" for a component not yet in
+  `packages/react`.
+- **Sequence:** `/scaffold-component` (RED commit) → human-driven green/docs
+  cycles → definition-of-done checklist.
+- **Reads:** `new-react-component`, `react-component-patterns`,
+  `react-test-conventions` skills; component-inventory.
+- **Writes (blast radius):**
+  - `packages/react/src/<Component>/**` — *isolated, safe to parallelize*.
+  - `packages/react/README.md` components table — **shared spine**.
+  - `apps/workbench/src/pages/**` + `App.tsx` router — **shared spine** (`App.tsx`).
+  - `ROADMAP.md` checkbox — **shared spine**.
+  - generated component-inventory — **shared/generated**.
+- **Drift-point:** the component's API/anatomy *before* tests are written →
+  wants a plan-gate on the public surface.
+- **Closing signal:** `pnpm --filter @primitiv-ui/react vitest run src/<Component>`
+  green at 100% coverage.
+- **Parallelism note:** even this "self-contained" flow touches **four** shared
+  spines. Two parallel new-component sessions *will* collide on `App.tsx` and the
+  README table — so the divergent code parallelizes, but the doc-table / router /
+  roadmap / inventory edits are a convergence point to serialize or assign to one
+  session.
+
 ## Sequencing (current best guess)
 
 The two open threads are the same thread. You can't safely parallelize until

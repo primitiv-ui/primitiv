@@ -9,12 +9,14 @@ import { DemoBox as DemoBoxPrimitive } from "@primitiv-ui/react";
 import { type ComponentPropsWithRef } from "react";
 import { demoBox } from "./demo-box.recipe";
 
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
+
 /**
  * A demo box control.
  *
  * @see https://example.test/demo-box
  */
-export type DemoBoxProps = ComponentPropsWithRef<typeof DemoBoxPrimitive> & {
+export type DemoBoxProps = DistributiveOmit<ComponentPropsWithRef<typeof DemoBoxPrimitive>, "variant" | "size"> & {
   /**
    * Visual intent.
    * - `primary` — Primary action.

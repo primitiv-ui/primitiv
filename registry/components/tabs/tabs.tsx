@@ -9,12 +9,14 @@ import { Tabs as TabsPrimitive } from "@primitiv-ui/react";
 import { type ComponentPropsWithRef } from "react";
 import { tabs, tabsList, tabsTrigger, tabsContent } from "./tabs.recipe";
 
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
+
 /**
  * An accessible tabbed interface — a tablist of triggers that switch between panels (WAI-ARIA Tabs pattern).
  *
  * @see https://primitiv-ui.dev/docs/components/tabs
  */
-export type TabsProps = ComponentPropsWithRef<typeof TabsPrimitive.Root> & {
+export type TabsProps = DistributiveOmit<ComponentPropsWithRef<typeof TabsPrimitive.Root>, "size"> & {
   /**
    * Control size for the whole widget; `data-density` scales each size further.
    * - `xs` — Extra small.
@@ -32,7 +34,7 @@ export function Tabs({ size, className, ...props }: TabsProps) {
   return <TabsPrimitive.Root className={[tabs({ size }), className].filter(Boolean).join(" ")} {...props} />;
 }
 
-export type TabsListProps = ComponentPropsWithRef<typeof TabsPrimitive.List> & {
+export type TabsListProps = DistributiveOmit<ComponentPropsWithRef<typeof TabsPrimitive.List>, "justify"> & {
   /**
    * Alignment of the triggers along the tablist. Direction-aware — `start`/`end` follow the reading direction, flipping under RTL via the inherited `DirectionProvider`.
    * - `start` — Triggers grouped at the start edge (the default).

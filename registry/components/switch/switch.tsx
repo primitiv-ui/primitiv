@@ -9,12 +9,14 @@ import { Switch as SwitchPrimitive } from "@primitiv-ui/react";
 import { type ComponentPropsWithRef } from "react";
 import { switchRecipe } from "./switch.recipe";
 
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
+
 /**
  * An on/off toggle — an immediate binary action, not a form selection.
  *
  * @see https://primitiv-ui.dev/docs/components/switch
  */
-export type SwitchProps = ComponentPropsWithRef<typeof SwitchPrimitive.Root> & {
+export type SwitchProps = DistributiveOmit<ComponentPropsWithRef<typeof SwitchPrimitive.Root>, "size"> & {
   /**
    * Control size; `data-density` scales each size further.
    * - `xs` — Extra small.

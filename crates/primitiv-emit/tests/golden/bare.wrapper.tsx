@@ -9,10 +9,12 @@ import { Bare as BarePrimitive } from "@primitiv-ui/react";
 import { type ComponentPropsWithRef } from "react";
 import { bare } from "./bare.recipe";
 
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
+
 /**
  * A bare control.
  */
-export type BareProps = ComponentPropsWithRef<typeof BarePrimitive> & {
+export type BareProps = DistributiveOmit<ComponentPropsWithRef<typeof BarePrimitive>, "tone"> & {
   /**
    * Tone.
    * - `neutral` — Neutral.

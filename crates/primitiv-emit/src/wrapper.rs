@@ -28,6 +28,8 @@ pub fn emit_wrapper(contract: &Contract) -> String {
     out.push_str("import { type ComponentPropsWithRef } from \"react\";\n");
     out.push_str(&format!("import {{ {binding} }} from \"./{}.recipe\";\n\n", contract.name));
 
+    emit_distributive_omit_helper(&mut out, contract);
+
     // The element the wrapper renders — and the source of its props (incl. ref).
     // A decorative-slot compound (Switch) renders `.Root`; a single element
     // (Button) renders the component itself.
@@ -103,6 +105,8 @@ fn emit_structural_wrapper(contract: &Contract) -> String {
         .join(", ");
     out.push_str(&format!("import {{ {bindings} }} from \"./{}.recipe\";\n\n", contract.name));
 
+    emit_distributive_omit_helper(&mut out, contract);
+
     // Root part — the one that carries the component description.
     emit_component_jsdoc(&mut out, &contract.description, contract.docs.as_deref());
     emit_props(
@@ -144,6 +148,24 @@ fn emit_structural_wrapper(contract: &Contract) -> String {
     out
 }
 
+/// Emit the `DistributiveOmit` helper `emit_props` relies on — but only when the
+/// wrapper has a modifier group to omit (a no-modifier file needs none). It is
+/// distributive, not a plain `Omit`, so omitting a styled prop from the primitive
+/// keeps the controlled / uncontrolled prop union intact for the `{...props}`
+/// spread (a plain `Omit` collapses the union and breaks assignability).
+fn emit_distributive_omit_helper(out: &mut String, contract: &Contract) {
+    let has_modifiers = !contract.modifiers.is_empty()
+        || contract
+            .subcomponents
+            .iter()
+            .any(|sub| !sub.modifiers.is_empty());
+    if has_modifiers {
+        out.push_str(
+            "type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;\n\n",
+        );
+    }
+}
+
 /// The component-level JSDoc: the contract description, plus a `@see` line when
 /// the contract carries a docs URL.
 fn emit_component_jsdoc(out: &mut String, description: &str, docs: Option<&str>) {
@@ -177,7 +199,20 @@ fn emit_props(
         return;
     }
 
-    out.push_str(&format!("export type {styled}Props = {primitive} & {{\n"));
+    // The styled wrapper owns its modifier prop names, so omit them from the
+    // primitive props before intersecting the variant union: otherwise a modifier
+    // that shadows a native attribute (e.g. `size` on `<input>`, typed `number`)
+    // intersects to `never` and the styled prop is unusable (D59). The omit is
+    // `DistributiveOmit` (emitted by `emit_distributive_omit_helper`) so it keeps
+    // the primitive's controlled / uncontrolled prop union intact for the spread.
+    let omit = modifiers
+        .iter()
+        .map(|group| format!("\"{}\"", group.prop()))
+        .collect::<Vec<_>>()
+        .join(" | ");
+    out.push_str(&format!(
+        "export type {styled}Props = DistributiveOmit<{primitive}, {omit}> & {{\n"
+    ));
     for group in modifiers {
         out.push_str("  /**\n");
         out.push_str(&format!("   * {}\n", group.description));

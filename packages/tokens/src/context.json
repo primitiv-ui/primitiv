@@ -1148,7 +1148,7 @@
         },
         "box-radius": {
           "$type": "number",
-          "$value": 7
+          "$value": "{radii.full}"
         },
         "dot-size": {
           "$type": "number",
@@ -1156,11 +1156,11 @@
         },
         "focus-ring-gap-radius": {
           "$type": "number",
-          "$value": 9
+          "$value": "{radii.full}"
         },
         "focus-ring-radius": {
           "$type": "number",
-          "$value": 11
+          "$value": "{radii.full}"
         }
       },
       "sm": {
@@ -1170,7 +1170,7 @@
         },
         "box-radius": {
           "$type": "number",
-          "$value": 8
+          "$value": "{radii.full}"
         },
         "dot-size": {
           "$type": "number",
@@ -1178,11 +1178,11 @@
         },
         "focus-ring-gap-radius": {
           "$type": "number",
-          "$value": 10
+          "$value": "{radii.full}"
         },
         "focus-ring-radius": {
           "$type": "number",
-          "$value": 12
+          "$value": "{radii.full}"
         }
       },
       "md": {
@@ -1192,7 +1192,7 @@
         },
         "box-radius": {
           "$type": "number",
-          "$value": 10
+          "$value": "{radii.full}"
         },
         "dot-size": {
           "$type": "number",
@@ -1200,11 +1200,11 @@
         },
         "focus-ring-gap-radius": {
           "$type": "number",
-          "$value": 12
+          "$value": "{radii.full}"
         },
         "focus-ring-radius": {
           "$type": "number",
-          "$value": 14
+          "$value": "{radii.full}"
         }
       },
       "lg": {
@@ -1214,7 +1214,7 @@
         },
         "box-radius": {
           "$type": "number",
-          "$value": 12
+          "$value": "{radii.full}"
         },
         "dot-size": {
           "$type": "number",
@@ -1222,11 +1222,11 @@
         },
         "focus-ring-gap-radius": {
           "$type": "number",
-          "$value": 14
+          "$value": "{radii.full}"
         },
         "focus-ring-radius": {
           "$type": "number",
-          "$value": 16
+          "$value": "{radii.full}"
         }
       },
       "xl": {
@@ -1236,7 +1236,7 @@
         },
         "box-radius": {
           "$type": "number",
-          "$value": 14
+          "$value": "{radii.full}"
         },
         "dot-size": {
           "$type": "number",
@@ -1244,11 +1244,11 @@
         },
         "focus-ring-gap-radius": {
           "$type": "number",
-          "$value": 16
+          "$value": "{radii.full}"
         },
         "focus-ring-radius": {
           "$type": "number",
-          "$value": 18
+          "$value": "{radii.full}"
         }
       }
     },
@@ -2476,7 +2476,7 @@
         },
         "box-radius": {
           "$type": "number",
-          "$value": 6
+          "$value": "{radii.full}"
         },
         "dot-size": {
           "$type": "number",
@@ -2484,11 +2484,11 @@
         },
         "focus-ring-gap-radius": {
           "$type": "number",
-          "$value": 8
+          "$value": "{radii.full}"
         },
         "focus-ring-radius": {
           "$type": "number",
-          "$value": 10
+          "$value": "{radii.full}"
         }
       },
       "sm": {
@@ -2498,7 +2498,7 @@
         },
         "box-radius": {
           "$type": "number",
-          "$value": 7
+          "$value": "{radii.full}"
         },
         "dot-size": {
           "$type": "number",
@@ -2506,11 +2506,11 @@
         },
         "focus-ring-gap-radius": {
           "$type": "number",
-          "$value": 9
+          "$value": "{radii.full}"
         },
         "focus-ring-radius": {
           "$type": "number",
-          "$value": 11
+          "$value": "{radii.full}"
         }
       },
       "md": {
@@ -2520,7 +2520,7 @@
         },
         "box-radius": {
           "$type": "number",
-          "$value": 8
+          "$value": "{radii.full}"
         },
         "dot-size": {
           "$type": "number",
@@ -2528,11 +2528,11 @@
         },
         "focus-ring-gap-radius": {
           "$type": "number",
-          "$value": 10
+          "$value": "{radii.full}"
         },
         "focus-ring-radius": {
           "$type": "number",
-          "$value": 12
+          "$value": "{radii.full}"
         }
       },
       "lg": {
@@ -2542,7 +2542,7 @@
         },
         "box-radius": {
           "$type": "number",
-          "$value": 10
+          "$value": "{radii.full}"
         },
         "dot-size": {
           "$type": "number",
@@ -2550,11 +2550,11 @@
         },
         "focus-ring-gap-radius": {
           "$type": "number",
-          "$value": 12
+          "$value": "{radii.full}"
         },
         "focus-ring-radius": {
           "$type": "number",
-          "$value": 14
+          "$value": "{radii.full}"
         }
       },
       "xl": {
@@ -2564,7 +2564,7 @@
         },
         "box-radius": {
           "$type": "number",
-          "$value": 12
+          "$value": "{radii.full}"
         },
         "dot-size": {
           "$type": "number",
@@ -2572,11 +2572,11 @@
         },
         "focus-ring-gap-radius": {
           "$type": "number",
-          "$value": 14
+          "$value": "{radii.full}"
         },
         "focus-ring-radius": {
           "$type": "number",
-          "$value": 16
+          "$value": "{radii.full}"
         }
       }
     },
@@ -3804,7 +3804,7 @@
         },
         "box-radius": {
           "$type": "number",
-          "$value": 8
+          "$value": "{radii.full}"
         },
         "dot-size": {
           "$type": "number",
@@ -3812,11 +3812,11 @@
         },
         "focus-ring-gap-radius": {
           "$type": "number",
-          "$value": 10
+          "$value": "{radii.full}"
         },
         "focus-ring-radius": {
           "$type": "number",
-          "$value": 12
+          "$value": "{radii.full}"
         }
       },
       "sm": {
@@ -3826,7 +3826,7 @@
         },
         "box-radius": {
           "$type": "number",
-          "$value": 10
+          "$value": "{radii.full}"
         },
         "dot-size": {
           "$type": "number",
@@ -3834,11 +3834,11 @@
         },
         "focus-ring-gap-radius": {
           "$type": "number",
-          "$value": 12
+          "$value": "{radii.full}"
         },
         "focus-ring-radius": {
           "$type": "number",
-          "$value": 14
+          "$value": "{radii.full}"
         }
       },
       "md": {
@@ -3848,7 +3848,7 @@
         },
         "box-radius": {
           "$type": "number",
-          "$value": 12
+          "$value": "{radii.full}"
         },
         "dot-size": {
           "$type": "number",
@@ -3856,11 +3856,11 @@
         },
         "focus-ring-gap-radius": {
           "$type": "number",
-          "$value": 14
+          "$value": "{radii.full}"
         },
         "focus-ring-radius": {
           "$type": "number",
-          "$value": 16
+          "$value": "{radii.full}"
         }
       },
       "lg": {
@@ -3870,7 +3870,7 @@
         },
         "box-radius": {
           "$type": "number",
-          "$value": 14
+          "$value": "{radii.full}"
         },
         "dot-size": {
           "$type": "number",
@@ -3878,11 +3878,11 @@
         },
         "focus-ring-gap-radius": {
           "$type": "number",
-          "$value": 16
+          "$value": "{radii.full}"
         },
         "focus-ring-radius": {
           "$type": "number",
-          "$value": 18
+          "$value": "{radii.full}"
         }
       },
       "xl": {
@@ -3892,7 +3892,7 @@
         },
         "box-radius": {
           "$type": "number",
-          "$value": 16
+          "$value": "{radii.full}"
         },
         "dot-size": {
           "$type": "number",
@@ -3900,11 +3900,11 @@
         },
         "focus-ring-gap-radius": {
           "$type": "number",
-          "$value": 18
+          "$value": "{radii.full}"
         },
         "focus-ring-radius": {
           "$type": "number",
-          "$value": 20
+          "$value": "{radii.full}"
         }
       }
     },
@@ -5132,7 +5132,7 @@
         },
         "box-radius": {
           "$type": "number",
-          "$value": 5
+          "$value": "{radii.full}"
         },
         "dot-size": {
           "$type": "number",
@@ -5140,11 +5140,11 @@
         },
         "focus-ring-gap-radius": {
           "$type": "number",
-          "$value": 7
+          "$value": "{radii.full}"
         },
         "focus-ring-radius": {
           "$type": "number",
-          "$value": 9
+          "$value": "{radii.full}"
         }
       },
       "sm": {
@@ -5154,7 +5154,7 @@
         },
         "box-radius": {
           "$type": "number",
-          "$value": 6
+          "$value": "{radii.full}"
         },
         "dot-size": {
           "$type": "number",
@@ -5162,11 +5162,11 @@
         },
         "focus-ring-gap-radius": {
           "$type": "number",
-          "$value": 8
+          "$value": "{radii.full}"
         },
         "focus-ring-radius": {
           "$type": "number",
-          "$value": 10
+          "$value": "{radii.full}"
         }
       },
       "md": {
@@ -5176,7 +5176,7 @@
         },
         "box-radius": {
           "$type": "number",
-          "$value": 7
+          "$value": "{radii.full}"
         },
         "dot-size": {
           "$type": "number",
@@ -5184,11 +5184,11 @@
         },
         "focus-ring-gap-radius": {
           "$type": "number",
-          "$value": 9
+          "$value": "{radii.full}"
         },
         "focus-ring-radius": {
           "$type": "number",
-          "$value": 11
+          "$value": "{radii.full}"
         }
       },
       "lg": {
@@ -5198,7 +5198,7 @@
         },
         "box-radius": {
           "$type": "number",
-          "$value": 8
+          "$value": "{radii.full}"
         },
         "dot-size": {
           "$type": "number",
@@ -5206,11 +5206,11 @@
         },
         "focus-ring-gap-radius": {
           "$type": "number",
-          "$value": 10
+          "$value": "{radii.full}"
         },
         "focus-ring-radius": {
           "$type": "number",
-          "$value": 12
+          "$value": "{radii.full}"
         }
       },
       "xl": {
@@ -5220,7 +5220,7 @@
         },
         "box-radius": {
           "$type": "number",
-          "$value": 10
+          "$value": "{radii.full}"
         },
         "dot-size": {
           "$type": "number",
@@ -5228,11 +5228,11 @@
         },
         "focus-ring-gap-radius": {
           "$type": "number",
-          "$value": 12
+          "$value": "{radii.full}"
         },
         "focus-ring-radius": {
           "$type": "number",
-          "$value": 14
+          "$value": "{radii.full}"
         }
       }
     },

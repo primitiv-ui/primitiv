@@ -43,6 +43,20 @@
       },
       "contract": "contract.json"
     },
+    "input-group": {
+      "version": "0.1.0",
+      "dependsOn": { "packages": ["@primitiv-ui/react"], "tokens": true, "components": ["input"] },
+      "styles": {
+        "packages": ["class-variance-authority"],
+        "react": ["input-group.recipe.ts", "input-group.tsx"],
+        "formats": {
+          "css": ["styles.css"],
+          "scss": ["styles.scss"],
+          "tailwind": ["styles.css"]
+        }
+      },
+      "contract": "contract.json"
+    },
     "switch": {
       "version": "0.1.0",
       "dependsOn": { "packages": ["@primitiv-ui/react"], "tokens": true, "components": [] },

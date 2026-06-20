@@ -36,8 +36,21 @@ fn embedded_registry_serves_the_baked_in_index() {
     assert!(index.components.contains_key("button"));
     assert!(index.components.contains_key("field"));
     assert!(index.components.contains_key("input"));
+    assert!(index.components.contains_key("input-group"));
     assert!(index.components.contains_key("switch"));
     assert!(index.components.contains_key("tabs"));
+}
+
+#[test]
+fn embedded_input_group_declares_its_input_component_dependency() {
+    let index = RegistryIndex::parse(&EmbeddedRegistry.index().unwrap()).unwrap();
+
+    // InputGroup's default theme neutralises the nested `.primitiv-input` frame,
+    // so it pulls Input in transitively — the first real component dependency.
+    assert_eq!(
+        index.components["input-group"].depends_on.components,
+        ["input"],
+    );
 }
 
 #[test]
@@ -58,6 +71,19 @@ fn embedded_registry_serves_the_field_files() {
     assert!(css.contains(".primitiv-field__error"));
     let wrapper = String::from_utf8(EmbeddedRegistry.file("field", "field.tsx").unwrap()).unwrap();
     assert!(wrapper.contains("export function FieldErrorText"));
+}
+
+#[test]
+fn embedded_registry_serves_the_input_group_files() {
+    // InputGroup is a structural compound with adornment slots — its baked-in
+    // surface carries the per-part wrappers `primitiv add input-group` resolves.
+    let css =
+        String::from_utf8(EmbeddedRegistry.file("input-group", "styles.css").unwrap()).unwrap();
+    assert!(css.contains(".primitiv-input-group__leading"));
+    let wrapper =
+        String::from_utf8(EmbeddedRegistry.file("input-group", "input-group.tsx").unwrap())
+            .unwrap();
+    assert!(wrapper.contains("export function InputGroupLeadingAdornment"));
 }
 
 #[test]

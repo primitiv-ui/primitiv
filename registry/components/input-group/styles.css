@@ -1,0 +1,193 @@
+/*
+ * InputGroup — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add input-group`. It is yours to
+ * edit: the stable surface is the contract (the .primitiv-input-group root +
+ * __leading / __trailing parts, the --xs…--xl modifiers, and the
+ * --primitiv-input-group-* custom properties), not these values (RFC 0006
+ * Principle 2 — names are stable, values are not).
+ *
+ * The group owns the frame. It draws the border, background, radius, and focus
+ * ring, and the Input nested inside surrenders its own frame — the group
+ * overrides the Input's `--primitiv-input-*` knobs (the stable Input contract) so
+ * the two cooperate through tokens rather than fighting over specificity. State
+ * is read straight off the inner control with `:focus-within` and `:has()`, so no
+ * JS coordination is needed (RFC 0008).
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting frame in
+ * primitiv.base, size modifiers in primitiv.variants, focus / invalid / disabled
+ * styling in primitiv.states. The sublayer order is declared once in the shared
+ * token layer (primitiv.tokens.css); this file only re-opens the named sublayers.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-surface-*,
+ * --primitiv-content-*, --primitiv-border-*, --primitiv-framed-control-*,
+ * --primitiv-body-*, --primitiv-focus-ring-*, --primitiv-space-*,
+ * --primitiv-color-* and --primitiv-opacity-* custom properties it resolves.
+ */
+
+@layer primitiv.base {
+  .primitiv-input-group {
+    /* Per-component API — the themable knobs, defaulting to the md size and the
+       resting (default) border. The states layer below re-points the border on
+       focus / invalid. */
+    --primitiv-input-group-bg: var(--primitiv-surface-default);
+    --primitiv-input-group-fg: var(--primitiv-content-primary);
+    --primitiv-input-group-adornment-color: var(--primitiv-content-muted);
+    --primitiv-input-group-border-color: var(--primitiv-border-default);
+    --primitiv-input-group-border-color-focus: var(--primitiv-border-focus);
+    --primitiv-input-group-border-color-invalid: var(--primitiv-border-invalid);
+    --primitiv-input-group-border-width: var(--primitiv-framed-control-border-width);
+    --primitiv-input-group-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-input-group-height: var(--primitiv-framed-control-md-height);
+    --primitiv-input-group-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-input-group-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-input-group-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-input-group-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-input-group-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-input-group-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-input-group-line-height: var(--primitiv-body-md-line-height);
+
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--primitiv-input-group-gap);
+    inline-size: 100%;
+    block-size: var(--primitiv-input-group-height);
+    padding-inline: var(--primitiv-input-group-padding-inline);
+    border: var(--primitiv-input-group-border-width) solid var(--primitiv-input-group-border-color);
+    border-radius: var(--primitiv-input-group-radius);
+    background: var(--primitiv-input-group-bg);
+    color: var(--primitiv-input-group-fg);
+    font-family: var(--primitiv-input-group-font-family);
+    font-size: var(--primitiv-input-group-font-size);
+    font-weight: var(--primitiv-input-group-font-weight);
+    line-height: var(--primitiv-input-group-line-height);
+    transition: border-color 120ms ease;
+  }
+
+  /* The wrapped Input surrenders its frame to the group: the group draws the
+     border / background / ring and owns the inline padding, so the Input fills
+     the remaining space frameless and inherits the group's typography. These
+     override the Input's own `--primitiv-input-*` knobs on a more specific
+     selector, so they win without an !important or a specificity battle. */
+  .primitiv-input-group .primitiv-input {
+    --primitiv-input-bg: var(--primitiv-color-transparent);
+    --primitiv-input-border-color: var(--primitiv-color-transparent);
+    --primitiv-input-border-color-focus: var(--primitiv-color-transparent);
+    --primitiv-input-border-color-invalid: var(--primitiv-color-transparent);
+    --primitiv-input-height: auto;
+    --primitiv-input-padding-inline: var(--primitiv-space-space-0);
+    --primitiv-input-font-family: inherit;
+    --primitiv-input-font-size: inherit;
+    --primitiv-input-font-weight: inherit;
+    --primitiv-input-line-height: inherit;
+
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+
+  .primitiv-input-group .primitiv-input:focus-visible {
+    box-shadow: none;
+  }
+
+  /* Adornment slots — non-shrinking, vertically centred, dimmed relative to the
+     typed text. Decorative glyphs inside take the frame's icon size. */
+  .primitiv-input-group__leading,
+  .primitiv-input-group__trailing {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    color: var(--primitiv-input-group-adornment-color);
+  }
+
+  .primitiv-input-group__leading svg,
+  .primitiv-input-group__trailing svg {
+    inline-size: var(--primitiv-input-group-icon-size);
+    block-size: var(--primitiv-input-group-icon-size);
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the framed-control knobs to the chosen slot. Density stays
+     ambient via [data-density] on the token values themselves (RFC 0009). */
+  .primitiv-input-group--xs {
+    --primitiv-input-group-radius: var(--primitiv-framed-control-xs-radius);
+    --primitiv-input-group-height: var(--primitiv-framed-control-xs-height);
+    --primitiv-input-group-padding-inline: var(--primitiv-framed-control-xs-padding-inline);
+    --primitiv-input-group-gap: var(--primitiv-framed-control-xs-gap);
+    --primitiv-input-group-icon-size: var(--primitiv-framed-control-xs-icon-size);
+    --primitiv-input-group-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-input-group-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-input-group-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-input-group-line-height: var(--primitiv-body-xs-line-height);
+  }
+  .primitiv-input-group--sm {
+    --primitiv-input-group-radius: var(--primitiv-framed-control-sm-radius);
+    --primitiv-input-group-height: var(--primitiv-framed-control-sm-height);
+    --primitiv-input-group-padding-inline: var(--primitiv-framed-control-sm-padding-inline);
+    --primitiv-input-group-gap: var(--primitiv-framed-control-sm-gap);
+    --primitiv-input-group-icon-size: var(--primitiv-framed-control-sm-icon-size);
+    --primitiv-input-group-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-input-group-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-input-group-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-input-group-line-height: var(--primitiv-body-sm-line-height);
+  }
+  .primitiv-input-group--md {
+    --primitiv-input-group-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-input-group-height: var(--primitiv-framed-control-md-height);
+    --primitiv-input-group-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-input-group-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-input-group-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-input-group-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-input-group-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-input-group-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-input-group-line-height: var(--primitiv-body-md-line-height);
+  }
+  .primitiv-input-group--lg {
+    --primitiv-input-group-radius: var(--primitiv-framed-control-lg-radius);
+    --primitiv-input-group-height: var(--primitiv-framed-control-lg-height);
+    --primitiv-input-group-padding-inline: var(--primitiv-framed-control-lg-padding-inline);
+    --primitiv-input-group-gap: var(--primitiv-framed-control-lg-gap);
+    --primitiv-input-group-icon-size: var(--primitiv-framed-control-lg-icon-size);
+    --primitiv-input-group-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-input-group-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-input-group-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-input-group-line-height: var(--primitiv-body-lg-line-height);
+  }
+  .primitiv-input-group--xl {
+    --primitiv-input-group-radius: var(--primitiv-framed-control-xl-radius);
+    --primitiv-input-group-height: var(--primitiv-framed-control-xl-height);
+    --primitiv-input-group-padding-inline: var(--primitiv-framed-control-xl-padding-inline);
+    --primitiv-input-group-gap: var(--primitiv-framed-control-xl-gap);
+    --primitiv-input-group-icon-size: var(--primitiv-framed-control-xl-icon-size);
+    --primitiv-input-group-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-input-group-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-input-group-font-weight: var(--primitiv-body-xl-font-weight);
+    --primitiv-input-group-line-height: var(--primitiv-body-xl-line-height);
+  }
+}
+
+@layer primitiv.states {
+  /* Focus — the frame reacts to focus anywhere inside it (the wrapped control or
+     an interactive adornment). The border adopts the focus colour and the shared
+     two-layer ring draws outside it, following the frame's own radius. */
+  .primitiv-input-group:focus-within {
+    border-color: var(--primitiv-input-group-border-color-focus);
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Invalid — the frame reads the wrapped control's `aria-invalid` directly, so
+     the danger border tracks the field without any prop on the group. */
+  .primitiv-input-group:has(input[aria-invalid="true"]) {
+    border-color: var(--primitiv-input-group-border-color-invalid);
+  }
+
+  /* Disabled — dim the whole frame when the wrapped control is disabled. */
+  .primitiv-input-group:has(input:disabled) {
+    opacity: var(--primitiv-opacity-50);
+    cursor: not-allowed;
+  }
+}

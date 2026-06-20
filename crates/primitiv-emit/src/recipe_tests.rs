@@ -121,6 +121,26 @@ fn the_committed_field_recipe_is_the_generated_form_of_its_contract() {
     );
 }
 
+/// Drift guard: the committed `registry/components/input-group/input-group.recipe.ts`
+/// is exactly the generated form of its contract — a sized root plus base-only
+/// adornment parts.
+#[test]
+fn the_committed_input_group_recipe_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/input-group/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_recipe(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/components/input-group/input-group.recipe.ts"
+        ))
+    );
+}
+
 /// Drift guard: the committed `registry/components/switch/switch.recipe.ts` is exactly the
 /// generated form of its contract — the state-driven, no-modifier proof (D54).
 #[test]

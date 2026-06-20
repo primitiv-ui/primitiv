@@ -127,6 +127,23 @@ fn the_committed_field_scss_is_the_derived_form_of_its_css() {
     assert_eq!(emit_component_scss(css), scss);
 }
 
+/// Drift guard: the committed `registry/components/input-group/styles.scss` is
+/// exactly the derived form of its canonical `styles.css` — the adornment-frame
+/// proof, whose `$`-var scan must collect every `--primitiv-input-group-*` knob.
+#[test]
+fn the_committed_input_group_scss_is_the_derived_form_of_its_css() {
+    let css = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/input-group/styles.css"
+    ));
+    let scss = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/input-group/styles.scss"
+    ));
+
+    assert_eq!(emit_component_scss(css), scss);
+}
+
 /// Drift guard: the committed `registry/components/switch/styles.scss` is exactly the
 /// derived form of its canonical `styles.css` — the state-driven, parts-based
 /// proof that the SCSS adapter is component-shape-agnostic.

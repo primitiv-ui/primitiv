@@ -116,6 +116,27 @@ fn the_committed_field_wrapper_is_the_generated_form_of_its_contract() {
     );
 }
 
+/// Drift guard: the committed `registry/components/input-group/input-group.tsx` is
+/// exactly the generated form of its contract — a structural compound that *also*
+/// carries a root `size` modifier, so the distributive omit and the per-part
+/// wrappers appear together.
+#[test]
+fn the_committed_input_group_wrapper_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/input-group/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_wrapper(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/components/input-group/input-group.tsx"
+        ))
+    );
+}
+
 /// Drift guard: the committed `registry/components/switch/switch.tsx` is exactly the
 /// generated form of its contract — the compound, parts-based proof (D54).
 #[test]

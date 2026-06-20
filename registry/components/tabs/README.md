@@ -59,9 +59,15 @@ resting look in `primitiv.base`, the `justify` / `size` modifiers in
 `framed-control/*` for sizing, `action/*` + `surface/*` + `content/*` for colour,
 `label/*` + `body/*` for type, `panel/padding/*` for the panel inset.
 
-The Figma two-layer focus ring is **deferred** (a system-wide concern across every
-framed control); Tabs uses the browser default until that lands, staying
-consistent with Button and Switch.
+On `:focus-visible` (keyboard focus only) the focused trigger draws the **shared
+two-layer focus ring** — the same surface-gap + brand-ring `box-shadow` Button and
+Switch use. To let that *outset* ring show, the list runs `overflow: visible`
+rather than clipping its triggers; the two corner triggers round their own outer
+top corner per `justify` instead (a stretched tablist, where the strip groups to
+one side — see the prototype note in the stylesheet for the shrink-to-content
+caveat). The focused trigger lifts above its neighbours and the panel so the ring
+isn't overdrawn. Restyle the ring system-wide via the `--primitiv-focus-ring`,
+`--primitiv-focus-ring-width` and `--primitiv-focus-ring-offset` tokens.
 
 **It is yours to edit.** The stable surface is the *contract* (classes, `data-*`,
 custom-property names), not these values (RFC 0006 Principle 2). Horizontal

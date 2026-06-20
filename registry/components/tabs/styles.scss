@@ -21,8 +21,8 @@
  * Horizontal orientation only for v1; vertical (data-orientation="vertical") is a
  * deferred fast-follow. Requires the token layer (`primitiv tokens`) for the
  * --primitiv-action-*, --primitiv-surface-*, --primitiv-content-*,
- * --primitiv-framed-control-*, --primitiv-label-*, --primitiv-body-* and
- * --primitiv-panel-* custom properties it resolves.
+ * --primitiv-framed-control-*, --primitiv-focus-ring-*, --primitiv-label-*,
+ * --primitiv-body-* and --primitiv-panel-* custom properties it resolves.
  */
 
 @layer primitiv.base {
@@ -66,13 +66,16 @@
 
   /* The tablist — the frame: a surface background and a top/inline border (no
      bottom — the panel's top border is the junction seam), with rounded top
-     corners. `overflow: hidden` clips the square triggers to that rounded shape,
-     so the strip reads as one connected frame with the panel below (the
-     ToggleGroup pattern — the group owns the radius, the segments stay square). */
+     corners. The strip reads as one connected frame with the panel below (the
+     ToggleGroup pattern — the group owns the radius). `overflow` stays VISIBLE
+     (not `hidden`): the focus ring is an outset box-shadow on the trigger, and a
+     clip here would crop it to the strip. Because nothing clips them, the two
+     corner triggers round their own outer top corner structurally (per justify,
+     below) instead of being clipped to the frame. */
   .primitiv-tabs__list {
     display: flex;
     flex-direction: row;
-    overflow: hidden;
+    overflow: visible;
     background: var(--primitiv-tabs-list-bg);
     border: var(--primitiv-tabs-trigger-border-width) solid var(--primitiv-tabs-list-border-color);
     border-block-end: 0;
@@ -121,8 +124,9 @@
     block-size: var(--primitiv-tabs-trigger-icon-size);
   }
 
-  /* The triggers carry no radii of their own — they stay square and the list's
-     `overflow: hidden` clips them to the frame's rounded corners. */
+  /* The triggers are square by default; only the two that sit flush against the
+     frame's rounded top corners round their outer corner, set per justify below
+     (the list no longer clips them — see the `overflow: visible` note above). */
 
   /* The single divider between adjacent triggers — the leading border of every
      trigger but the first (the first's leading edge is the list frame). The one
@@ -180,6 +184,27 @@
   .primitiv-tabs__list--end .primitiv-tabs__trigger:first-child {
     border-inline-start: var(--primitiv-tabs-trigger-border-width) solid
       var(--primitiv-tabs-divider-color);
+  }
+
+  /* Round the one trigger flush against each rounded list corner — replacing the
+     clip the list used to own. Start groups the strip at the leading edge, so its
+     first trigger meets the leading-top corner; end's last trigger meets the
+     trailing-top corner; centred, the strip floats off both corners (list surface
+     fills them) so neither trigger rounds. The radius is the list radius less the
+     1px frame so the trigger arc nests inside the border. NOTE (prototype): this
+     assumes a stretched list (free space for justify to act, as when the tablist
+     fills its column). A shrink-to-content list has no free space — both ends
+     touch both corners — so the un-rounded end would poke; revisit if that case
+     needs covering. */
+  .primitiv-tabs__list--start .primitiv-tabs__trigger:first-child {
+    border-start-start-radius: calc(
+      var(--primitiv-tabs-list-radius) - var(--primitiv-tabs-trigger-border-width)
+    );
+  }
+  .primitiv-tabs__list--end .primitiv-tabs__trigger:last-child {
+    border-start-end-radius: calc(
+      var(--primitiv-tabs-list-radius) - var(--primitiv-tabs-trigger-border-width)
+    );
   }
   .primitiv-tabs__list--center .primitiv-tabs__trigger:first-child {
     border-inline-start: var(--primitiv-tabs-trigger-border-width) solid
@@ -290,9 +315,22 @@
     --primitiv-tabs-trigger-bg: var(--primitiv-action-secondary-hover);
   }
 
-  /* Focus is the browser default for now — the Figma two-layer focus ring is a
-     deferred, system-wide concern (Button ships none either), so Tabs stays
-     consistent rather than introducing a one-off ring here. */
+  /* Focus — the shared two-layer ring, the same surface-gap + brand-ring
+     box-shadow every framed control shows. It is OUTSET (the list keeps
+     `overflow: visible` so it isn't cropped) and follows the trigger's edges, so
+     it reads against the surrounding surface even on the active/brand trigger.
+     The focused trigger lifts above its neighbours and the panel so the ring
+     isn't overdrawn. :focus-visible keeps it to keyboard focus; restyle it via
+     the global --primitiv-focus-ring* / --primitiv-surface-default tokens. */
+  .primitiv-tabs__trigger:focus-visible {
+    position: relative;
+    z-index: 1;
+    outline: none;
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
 
   /* Disabled is state-neutral so it reads the same active or inactive. */
   .primitiv-tabs__trigger[data-disabled] {

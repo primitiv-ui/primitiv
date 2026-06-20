@@ -1,0 +1,123 @@
+/*
+ * Radio — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add radio`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-radio root + __indicator
+ * part, the data-state="checked|unchecked" hooks, and the --primitiv-radio-*
+ * custom properties), not these values (RFC 0006 Principle 2 — names are
+ * stable, values are not).
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look live
+ * in primitiv.base, size modifiers in primitiv.variants, checked / disabled
+ * styling in primitiv.states. The sublayer order is declared once in the shared
+ * token layer (primitiv.tokens.css).
+ *
+ * Unlike the checkbox, the radio box stays light when selected — the brand
+ * colour shows as a centred dot and a highlighted ring, the convention that
+ * keeps a radio visually distinct from a checkbox.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-action-*,
+ * --primitiv-surface-*, --primitiv-border-*, --primitiv-border-width-*,
+ * --primitiv-radii-*, --primitiv-space-*, --primitiv-opacity-*,
+ * --primitiv-focus-ring-* and --primitiv-radio-* custom properties it resolves.
+ */
+
+@layer primitiv.base {
+  .primitiv-radio {
+    /* Per-component API — the themable knobs, defaulting to the md size and the
+       resting (unchecked) box. The states layer below re-points the checked
+       border; consumers can override any one without touching the rule. */
+    --primitiv-radio-bg: var(--primitiv-surface-default);
+    --primitiv-radio-border-color: var(--primitiv-border-strong);
+    --primitiv-radio-border-color-checked: var(--primitiv-action-primary-default);
+    --primitiv-radio-border-width: var(--primitiv-border-width-1);
+    --primitiv-radio-dot-color: var(--primitiv-action-primary-default);
+    --primitiv-radio-size: var(--primitiv-radio-md-box-size);
+    --primitiv-radio-radius: var(--primitiv-radio-md-box-radius);
+    --primitiv-radio-dot-size: var(--primitiv-radio-md-dot-size);
+
+    box-sizing: border-box;
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-radio-size);
+    block-size: var(--primitiv-radio-size);
+    padding: var(--primitiv-space-space-0);
+    border: var(--primitiv-radio-border-width) solid var(--primitiv-radio-border-color);
+    border-radius: var(--primitiv-radio-radius);
+    background: var(--primitiv-radio-bg);
+    color: var(--primitiv-radio-dot-color);
+    cursor: pointer;
+    transition: border-color 120ms ease;
+  }
+
+  /* The indicator is the dot — the headless layer mounts it only while selected,
+     so its presence alone means "draw the dot". A dot-size circle filled with the
+     current colour, centred in the box by the flex container above. */
+  .primitiv-radio__indicator {
+    display: block;
+    inline-size: var(--primitiv-radio-dot-size);
+    block-size: var(--primitiv-radio-dot-size);
+    border-radius: var(--primitiv-radii-full);
+    background: currentColor;
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the anatomy knobs to the chosen token slot. Density stays
+     ambient via [data-density] on the token values themselves (RFC 0009). */
+  .primitiv-radio--xs {
+    --primitiv-radio-size: var(--primitiv-radio-xs-box-size);
+    --primitiv-radio-radius: var(--primitiv-radio-xs-box-radius);
+    --primitiv-radio-dot-size: var(--primitiv-radio-xs-dot-size);
+  }
+  .primitiv-radio--sm {
+    --primitiv-radio-size: var(--primitiv-radio-sm-box-size);
+    --primitiv-radio-radius: var(--primitiv-radio-sm-box-radius);
+    --primitiv-radio-dot-size: var(--primitiv-radio-sm-dot-size);
+  }
+  .primitiv-radio--md {
+    --primitiv-radio-size: var(--primitiv-radio-md-box-size);
+    --primitiv-radio-radius: var(--primitiv-radio-md-box-radius);
+    --primitiv-radio-dot-size: var(--primitiv-radio-md-dot-size);
+  }
+  .primitiv-radio--lg {
+    --primitiv-radio-size: var(--primitiv-radio-lg-box-size);
+    --primitiv-radio-radius: var(--primitiv-radio-lg-box-radius);
+    --primitiv-radio-dot-size: var(--primitiv-radio-lg-dot-size);
+  }
+  .primitiv-radio--xl {
+    --primitiv-radio-size: var(--primitiv-radio-xl-box-size);
+    --primitiv-radio-radius: var(--primitiv-radio-xl-box-radius);
+    --primitiv-radio-dot-size: var(--primitiv-radio-xl-dot-size);
+  }
+}
+
+@layer primitiv.states {
+  /* Selected only highlights the ring; the dot (the indicator) carries the fill,
+     so the box itself stays light — the radio convention. */
+  .primitiv-radio[data-state="checked"] {
+    border-color: var(--primitiv-radio-border-color-checked);
+  }
+
+  /* Focus — the shared two-layer ring, identical on every framed control. Two
+     stacked box-shadows follow the box's own radius: a surface-coloured gap band,
+     then the brand ring just outside it. :focus-visible keeps it to keyboard
+     focus. Restyle it by overriding the --primitiv-focus-ring* /
+     --primitiv-surface-default tokens globally, not via a per-component knob. */
+  .primitiv-radio:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Disabled is state-neutral so it reads the same checked or unchecked. */
+  .primitiv-radio[data-disabled] {
+    opacity: var(--primitiv-opacity-50);
+    cursor: not-allowed;
+  }
+}

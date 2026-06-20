@@ -1,0 +1,129 @@
+/*
+ * Checkbox — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add checkbox`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-checkbox root + __indicator
+ * part, the data-state="checked|unchecked|indeterminate" hooks, and the
+ * --primitiv-checkbox-* custom properties), not these values (RFC 0006
+ * Principle 2 — names are stable, values are not).
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look live
+ * in primitiv.base, size modifiers in primitiv.variants, checked / indeterminate
+ * / disabled styling in primitiv.states. The sublayer order is declared once in
+ * the shared token layer (primitiv.tokens.css).
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-action-*,
+ * --primitiv-surface-*, --primitiv-border-*, --primitiv-border-width-*,
+ * --primitiv-space-*, --primitiv-opacity-*, --primitiv-focus-ring-* and
+ * --primitiv-checkbox-* custom properties it resolves.
+ */
+
+@layer primitiv.base {
+  .primitiv-checkbox {
+    /* Per-component API — the themable knobs, defaulting to the md size and the
+       resting (unchecked) box. The states layer below re-points the colour knobs;
+       consumers can override any one without touching the rule. */
+    --primitiv-checkbox-bg: var(--primitiv-surface-default);
+    --primitiv-checkbox-bg-checked: var(--primitiv-action-primary-default);
+    --primitiv-checkbox-border-color: var(--primitiv-border-strong);
+    --primitiv-checkbox-border-color-checked: var(--primitiv-action-primary-default);
+    --primitiv-checkbox-border-width: var(--primitiv-border-width-1);
+    --primitiv-checkbox-mark-color: var(--primitiv-action-primary-foreground-default);
+    --primitiv-checkbox-size: var(--primitiv-checkbox-md-box-size);
+    --primitiv-checkbox-radius: var(--primitiv-checkbox-md-box-radius);
+    --primitiv-checkbox-mark-size: var(--primitiv-checkbox-md-mark-size);
+
+    box-sizing: border-box;
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-checkbox-size);
+    block-size: var(--primitiv-checkbox-size);
+    padding: var(--primitiv-space-space-0);
+    border: var(--primitiv-checkbox-border-width) solid var(--primitiv-checkbox-border-color);
+    border-radius: var(--primitiv-checkbox-radius);
+    background: var(--primitiv-checkbox-bg);
+    color: var(--primitiv-checkbox-mark-color);
+    cursor: pointer;
+    transition:
+      background-color 120ms ease,
+      border-color 120ms ease;
+  }
+
+  /* The indicator is the mark itself — the headless layer mounts it only while
+     checked or indeterminate, so its presence alone means "draw a mark". A
+     mark-size square filled with the current colour and clipped to a tick; the
+     indeterminate state below re-clips the same square to a bar. */
+  .primitiv-checkbox__indicator {
+    display: block;
+    inline-size: var(--primitiv-checkbox-mark-size);
+    block-size: var(--primitiv-checkbox-mark-size);
+    background: currentColor;
+    clip-path: polygon(40% 68%, 12% 40%, 0% 52%, 40% 92%, 100% 22%, 88% 10%);
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the anatomy knobs to the chosen token slot. Density stays
+     ambient via [data-density] on the token values themselves (RFC 0009). */
+  .primitiv-checkbox--xs {
+    --primitiv-checkbox-size: var(--primitiv-checkbox-xs-box-size);
+    --primitiv-checkbox-radius: var(--primitiv-checkbox-xs-box-radius);
+    --primitiv-checkbox-mark-size: var(--primitiv-checkbox-xs-mark-size);
+  }
+  .primitiv-checkbox--sm {
+    --primitiv-checkbox-size: var(--primitiv-checkbox-sm-box-size);
+    --primitiv-checkbox-radius: var(--primitiv-checkbox-sm-box-radius);
+    --primitiv-checkbox-mark-size: var(--primitiv-checkbox-sm-mark-size);
+  }
+  .primitiv-checkbox--md {
+    --primitiv-checkbox-size: var(--primitiv-checkbox-md-box-size);
+    --primitiv-checkbox-radius: var(--primitiv-checkbox-md-box-radius);
+    --primitiv-checkbox-mark-size: var(--primitiv-checkbox-md-mark-size);
+  }
+  .primitiv-checkbox--lg {
+    --primitiv-checkbox-size: var(--primitiv-checkbox-lg-box-size);
+    --primitiv-checkbox-radius: var(--primitiv-checkbox-lg-box-radius);
+    --primitiv-checkbox-mark-size: var(--primitiv-checkbox-lg-mark-size);
+  }
+  .primitiv-checkbox--xl {
+    --primitiv-checkbox-size: var(--primitiv-checkbox-xl-box-size);
+    --primitiv-checkbox-radius: var(--primitiv-checkbox-xl-box-radius);
+    --primitiv-checkbox-mark-size: var(--primitiv-checkbox-xl-mark-size);
+  }
+}
+
+@layer primitiv.states {
+  /* Checked and indeterminate both fill the box with the primary action colour;
+     the indicator carries the mark shape (a tick by default, a bar when mixed). */
+  .primitiv-checkbox[data-state="checked"],
+  .primitiv-checkbox[data-state="indeterminate"] {
+    border-color: var(--primitiv-checkbox-border-color-checked);
+    background: var(--primitiv-checkbox-bg-checked);
+  }
+
+  .primitiv-checkbox__indicator[data-state="indeterminate"] {
+    clip-path: polygon(0% 38%, 100% 38%, 100% 62%, 0% 62%);
+  }
+
+  /* Focus — the shared two-layer ring, identical on every framed control. Two
+     stacked box-shadows follow the box's own radius: a surface-coloured gap band,
+     then the brand ring just outside it. :focus-visible keeps it to keyboard
+     focus. Restyle it by overriding the --primitiv-focus-ring* /
+     --primitiv-surface-default tokens globally, not via a per-component knob. */
+  .primitiv-checkbox:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Disabled is state-neutral so it reads the same checked or unchecked. */
+  .primitiv-checkbox[data-disabled] {
+    opacity: var(--primitiv-opacity-50);
+    cursor: not-allowed;
+  }
+}

@@ -27,6 +27,7 @@ import {
   ModalExample,
   PortalExample,
   ProgressExample,
+  RadioExample,
   RadioCardExample,
   RadioGroupExample,
   SelectExample,
@@ -60,6 +61,7 @@ const navGroups: { title: string; links: NavLink[] }[] = [
       { to: "/fieldset", label: "Fieldset" },
       { to: "/input", label: "Input" },
       { to: "/input-group", label: "Input Group" },
+      { to: "/radio", label: "Radio" },
       { to: "/radio-group", label: "Radio Group" },
       { to: "/radio-card", label: "Radio Card" },
       { to: "/select", label: "Select" },
@@ -233,6 +235,7 @@ function App() {
           <Route path="/modal" element={<ModalExample />} />
           <Route path="/portal" element={<PortalExample />} />
           <Route path="/progress" element={<ProgressExample />} />
+          <Route path="/radio" element={<RadioExample />} />
           <Route path="/radio-card" element={<RadioCardExample />} />
           <Route path="/radio-group" element={<RadioGroupExample />} />
           <Route path="/select" element={<SelectExample />} />

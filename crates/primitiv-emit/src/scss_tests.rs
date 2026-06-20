@@ -161,6 +161,40 @@ fn the_committed_switch_scss_is_the_derived_form_of_its_css() {
     assert_eq!(emit_component_scss(css), scss);
 }
 
+/// Drift guard: the committed `registry/components/checkbox/styles.scss` is exactly
+/// the derived form of its canonical `styles.css` — the deriver collects every
+/// `--primitiv-checkbox-*` knob across the base, variants and states sublayers.
+#[test]
+fn the_committed_checkbox_scss_is_the_derived_form_of_its_css() {
+    let css = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/checkbox/styles.css"
+    ));
+    let scss = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/checkbox/styles.scss"
+    ));
+
+    assert_eq!(emit_component_scss(css), scss);
+}
+
+/// Drift guard: the committed `registry/components/radio/styles.scss` is exactly the
+/// derived form of its canonical `styles.css` — the binary sibling of the checkbox,
+/// confirming the deriver collects every `--primitiv-radio-*` knob in CSS order.
+#[test]
+fn the_committed_radio_scss_is_the_derived_form_of_its_css() {
+    let css = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/radio/styles.css"
+    ));
+    let scss = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/radio/styles.scss"
+    ));
+
+    assert_eq!(emit_component_scss(css), scss);
+}
+
 /// Drift guard: the committed `registry/components/tabs/styles.scss` is exactly the
 /// derived form of its canonical `styles.css` — the structural-compound proof that
 /// the deriver collects every `--primitiv-tabs-*` knob across all three sublayers.

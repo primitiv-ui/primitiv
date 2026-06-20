@@ -1,0 +1,7 @@
+{
+  "name": "Primitiv Token Audit",
+  "id": "primitiv-token-audit-throwaway",
+  "api": "1.0.0",
+  "main": "code.js",
+  "editorType": ["figma"]
+}

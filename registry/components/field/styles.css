@@ -1,0 +1,90 @@
+/*
+ * Field — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add field`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-field root + __label /
+ * __description / __error parts, the data-field* hooks, and the
+ * --primitiv-field-* custom properties), not these values (RFC 0006 Principle 2
+ * — names are stable, values are not).
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting layout live
+ * in primitiv.base, the disabled / required styling in primitiv.states. There is
+ * no primitiv.variants layer — Field has no modifiers. The sublayer order is
+ * declared once in the shared token layer (primitiv.tokens.css); this file only
+ * re-opens the named sublayers.
+ *
+ * Field does not style the control it wraps — the control (Input, …) styles its
+ * own invalid / disabled look from the aria-invalid / disabled that Field
+ * cascades. This file owns only the label, helper text, and error message.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-space-*,
+ * --primitiv-content-*, --primitiv-label-*, --primitiv-body-* and
+ * --primitiv-opacity-* custom properties it resolves.
+ */
+
+@layer primitiv.base {
+  .primitiv-field {
+    /* Per-component API — the themable knobs. Consumers can override any one
+       without touching the rules below. */
+    --primitiv-field-gap: var(--primitiv-space-space-8);
+    --primitiv-field-label-color: var(--primitiv-content-primary);
+    --primitiv-field-label-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-field-label-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-field-label-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-field-label-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-field-helper-color: var(--primitiv-content-muted);
+    --primitiv-field-error-color: var(--primitiv-content-error);
+    --primitiv-field-helper-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-field-helper-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-field-helper-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-field-helper-line-height: var(--primitiv-body-sm-line-height);
+    --primitiv-field-required-color: var(--primitiv-content-error);
+    --primitiv-field-required-gap: var(--primitiv-space-space-2);
+
+    /* The field stacks its label, control, description, and error vertically,
+       each separated by the same gap. */
+    display: flex;
+    flex-direction: column;
+    gap: var(--primitiv-field-gap);
+  }
+
+  .primitiv-field__label {
+    color: var(--primitiv-field-label-color);
+    font-family: var(--primitiv-field-label-font-family);
+    font-size: var(--primitiv-field-label-font-size);
+    font-weight: var(--primitiv-field-label-font-weight);
+    line-height: var(--primitiv-field-label-line-height);
+  }
+
+  .primitiv-field__description {
+    color: var(--primitiv-field-helper-color);
+    font-family: var(--primitiv-field-helper-font-family);
+    font-size: var(--primitiv-field-helper-font-size);
+    font-weight: var(--primitiv-field-helper-font-weight);
+    line-height: var(--primitiv-field-helper-line-height);
+  }
+
+  .primitiv-field__error {
+    color: var(--primitiv-field-error-color);
+    font-family: var(--primitiv-field-helper-font-family);
+    font-size: var(--primitiv-field-helper-font-size);
+    font-weight: var(--primitiv-field-helper-font-weight);
+    line-height: var(--primitiv-field-helper-line-height);
+  }
+}
+
+@layer primitiv.states {
+  /* Required — the label grows a trailing marker. Driven by the field's own
+     data-field-required hook so the whole group stays a single source of truth. */
+  .primitiv-field[data-field-required] .primitiv-field__label::after {
+    content: "*";
+    margin-inline-start: var(--primitiv-field-required-gap);
+    color: var(--primitiv-field-required-color);
+  }
+
+  /* Disabled — dim the whole group. The control itself also reads the cascaded
+     `disabled`, so it stops accepting input independently of this dimming. */
+  .primitiv-field[data-field-disabled] {
+    opacity: var(--primitiv-opacity-50);
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "field",
+  "version": "0.1.0",
+  "description": "A form-field wrapper — coordinates a label, control, description, and error message and cascades id / validity / disabled / required to the control it wraps.",
+  "docs": "https://primitiv-ui.dev/docs/components/field",
+  "root": {
+    "element": "div",
+    "class": "primitiv-field",
+    "component": "Root"
+  },
+  "dataAttributes": [
+    { "name": "data-field", "value": "", "when": "always", "source": "auto" },
+    { "name": "data-field-invalid", "value": "", "when": "invalid", "source": "auto" },
+    { "name": "data-field-disabled", "value": "", "when": "disabled", "source": "auto" },
+    { "name": "data-field-required", "value": "", "when": "required", "source": "auto" }
+  ],
+  "subcomponents": [
+    {
+      "name": "label",
+      "component": "Label",
+      "element": "label",
+      "class": "primitiv-field__label"
+    },
+    {
+      "name": "description",
+      "component": "Description",
+      "element": "div",
+      "class": "primitiv-field__description"
+    },
+    {
+      "name": "error-text",
+      "component": "ErrorText",
+      "element": "div",
+      "class": "primitiv-field__error"
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-field-gap", "defaultsTo": "var(--primitiv-space-space-8)" },
+    { "name": "--primitiv-field-label-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-field-label-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
+    { "name": "--primitiv-field-label-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },
+    { "name": "--primitiv-field-label-font-weight", "defaultsTo": "var(--primitiv-label-md-font-weight)" },
+    { "name": "--primitiv-field-label-line-height", "defaultsTo": "var(--primitiv-label-md-line-height)" },
+    { "name": "--primitiv-field-helper-color", "defaultsTo": "var(--primitiv-content-muted)" },
+    { "name": "--primitiv-field-error-color", "defaultsTo": "var(--primitiv-content-error)" },
+    { "name": "--primitiv-field-helper-font-family", "defaultsTo": "var(--primitiv-body-sm-font-family)" },
+    { "name": "--primitiv-field-helper-font-size", "defaultsTo": "var(--primitiv-body-sm-font-size)" },
+    { "name": "--primitiv-field-helper-font-weight", "defaultsTo": "var(--primitiv-body-sm-font-weight)" },
+    { "name": "--primitiv-field-helper-line-height", "defaultsTo": "var(--primitiv-body-sm-line-height)" },
+    { "name": "--primitiv-field-required-color", "defaultsTo": "var(--primitiv-content-error)" },
+    { "name": "--primitiv-field-required-gap", "defaultsTo": "var(--primitiv-space-space-2)" }
+  ]
+}

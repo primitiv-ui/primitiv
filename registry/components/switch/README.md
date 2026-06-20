@@ -56,6 +56,13 @@ colour — and the checked thumb travel is a `calc()` over the same anatomy knob
 (track width minus thumb minus a margin at each end), so a re-sized track stays
 consistent.
 
+On `:focus-visible` (keyboard focus only) the track draws the **shared two-layer
+focus ring** — a `--primitiv-surface-default` gap band then the
+`--primitiv-focus-ring` brand ring, stacked as `box-shadow`s so the ring follows
+the track's pill radius. It is the same ring every framed control shows; restyle
+it system-wide by overriding the `--primitiv-focus-ring`,
+`--primitiv-focus-ring-width` and `--primitiv-focus-ring-offset` tokens.
+
 **It is yours to edit.** The stable surface is the *contract* (classes,
 `data-*`, custom-property names), not these values (RFC 0006 Principle 2 — names
 are stable, values are not). Requires the token layer (`primitiv tokens`) for

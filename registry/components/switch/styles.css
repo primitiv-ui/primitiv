@@ -13,8 +13,8 @@
  * token layer (primitiv.tokens.css).
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-action-*,
- * --primitiv-surface-*, --primitiv-border-* and --primitiv-switch-* custom
- * properties it resolves.
+ * --primitiv-surface-*, --primitiv-border-*, --primitiv-focus-ring-* and
+ * --primitiv-switch-* custom properties it resolves.
  */
 
 @layer primitiv.base {
@@ -104,6 +104,19 @@
       var(--primitiv-switch-track-width) - var(--primitiv-switch-thumb-size) -
         (2 * var(--primitiv-switch-thumb-margin))
     );
+  }
+
+  /* Focus — the shared two-layer ring, identical on every framed control. Two
+     stacked box-shadows follow the track's own pill radius: a surface-coloured
+     gap band, then the brand ring just outside it. :focus-visible keeps it to
+     keyboard focus. Restyle it by overriding the --primitiv-focus-ring* /
+     --primitiv-surface-default tokens globally, not via a per-component knob. */
+  .primitiv-switch:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
   }
 
   /* Disabled is state-neutral so it reads the same checked or unchecked. */

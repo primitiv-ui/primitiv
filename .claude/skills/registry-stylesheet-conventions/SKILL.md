@@ -1,7 +1,12 @@
+---
+name: registry-stylesheet-conventions
+description: How to author the copied registry component stylesheets (registry/components/<name>/styles.css and its .scss mirror) — the no-magic-numbers rule (tokenize every literal that maps to a design token, including zeros), the genuine exceptions, how to find a token's emitted custom-property name, and the CSS/SCSS/contract sync checklist. TRIGGER when editing or auditing a registry component stylesheet, replacing a literal value with a token, hard-coding a value in styles.css/styles.scss, or adding a new registry component's theme. SKIP for headless packages/react component work, the Rust/token-emit engine, and Figma variable work.
+---
+
 # Registry stylesheet conventions
 
-Notes for authoring the copied component stylesheets (`<component>/styles.css`
-and its `.scss` mirror). The layer structure lives in RFC 0008; this file
+For authoring the copied component stylesheets (`registry/components/<name>/styles.css`
+and its `.scss` mirror). The layer structure lives in RFC 0008; this skill
 captures the **no-magic-numbers** rule and its edges.
 
 ## Tokenize literals — don't hard-code values

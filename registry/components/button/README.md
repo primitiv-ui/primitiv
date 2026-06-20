@@ -46,6 +46,14 @@ layer, so this file only re-opens the named sublayers). It wires
 `framed-control/*` for sizing, `label/*` for typography — and uses `text-box`
 to trim the label's line-box leading for optical centring.
 
+On `:focus-visible` (keyboard focus only) the button draws the **shared
+two-layer focus ring** — a `--primitiv-surface-default` gap band then the
+`--primitiv-focus-ring` brand ring, stacked as `box-shadow`s so the ring follows
+the button's own `border-radius` and stays concentric at every size. It is the
+same ring every framed control shows; restyle it system-wide by overriding the
+`--primitiv-focus-ring`, `--primitiv-focus-ring-width` and
+`--primitiv-focus-ring-offset` tokens (not a per-component knob).
+
 **It is yours to edit.** The stable surface is the *contract* (classes,
 `data-*`, custom-property names), not these values (RFC 0006 Principle 2 — names
 are stable, values are not). Requires the token layer (`primitiv tokens`) for

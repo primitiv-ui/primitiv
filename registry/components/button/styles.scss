@@ -11,8 +11,9 @@
  * primitiv.states. The sublayer order is declared once in the shared token
  * layer (primitiv.tokens.css); this file only re-opens the named sublayers.
  *
- * Requires the token layer (`primitiv tokens`) for the --primitiv-action-* and
- * --primitiv-framed-control-* custom properties it resolves.
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-action-*,
+ * --primitiv-framed-control-*, --primitiv-focus-ring-* and --primitiv-surface-*
+ * custom properties it resolves.
  */
 
 @layer primitiv.base {
@@ -185,6 +186,21 @@
 }
 
 @layer primitiv.states {
+  /* Focus — the shared two-layer ring, identical on every framed control. Two
+     stacked box-shadows so the ring follows the control's own radius and stays
+     concentric at every size (no per-size radius token needed): a surface-
+     coloured gap band, then the brand ring just outside it. :focus-visible keeps
+     it to keyboard focus. The ring is a system concern — restyle it by overriding
+     the --primitiv-focus-ring* / --primitiv-surface-default tokens globally, not
+     via a per-component knob. */
+  .primitiv-button:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
   /* Disabled is intent-neutral so it reads the same on every variant; the
      states layer sits above variants, so it always wins (RFC 0008 §2.3). */
   .primitiv-button[data-disabled] {

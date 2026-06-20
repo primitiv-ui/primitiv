@@ -156,6 +156,27 @@ fn the_committed_switch_wrapper_is_the_generated_form_of_its_contract() {
     );
 }
 
+/// Drift guard: the committed `registry/components/checkbox/checkbox.tsx` is exactly
+/// the generated form of its contract — a decorative-slot compound (the indicator)
+/// that *also* carries a `size` modifier, so the auto-rendered part and the
+/// distributive omit appear together.
+#[test]
+fn the_committed_checkbox_wrapper_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/checkbox/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_wrapper(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/components/checkbox/checkbox.tsx"
+        ))
+    );
+}
+
 /// Drift guard: the committed `registry/components/tabs/tabs.tsx` is exactly the
 /// generated form of its contract — the structural, consumer-composed proof (D56).
 #[test]

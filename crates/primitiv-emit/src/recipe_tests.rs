@@ -159,3 +159,23 @@ fn the_committed_switch_recipe_is_the_generated_form_of_its_contract() {
         ))
     );
 }
+
+/// Drift guard: the committed `registry/components/checkbox/checkbox.recipe.ts` is
+/// exactly the generated form of its contract — the state-driven, size-modified
+/// framed control (the Switch shape plus a `size` axis).
+#[test]
+fn the_committed_checkbox_recipe_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/checkbox/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_recipe(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/components/checkbox/checkbox.recipe.ts"
+        ))
+    );
+}

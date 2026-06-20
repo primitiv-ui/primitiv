@@ -7,15 +7,22 @@
  * --primitiv-checkbox-* custom properties), not these values (RFC 0006
  * Principle 2 — names are stable, values are not).
  *
+ * The root is a <label> that *is* the visible box and wraps a real, hidden
+ * native <input type="checkbox">. The input is the focusable, form-participating
+ * control, and its native :checked / :indeterminate states drive the look
+ * (correct through a form reset, which fires no React event). The tri-state mark
+ * is a tick by default and a bar when indeterminate.
+ *
  * Structure follows RFC 0008: per-component API tokens + the resting look live
  * in primitiv.base, size modifiers in primitiv.variants, checked / indeterminate
- * / disabled styling in primitiv.states. The sublayer order is declared once in
- * the shared token layer (primitiv.tokens.css).
+ * / focus / disabled styling in primitiv.states. The sublayer order is declared
+ * once in the shared token layer (primitiv.tokens.css).
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-action-*,
  * --primitiv-surface-*, --primitiv-border-*, --primitiv-border-width-*,
- * --primitiv-space-*, --primitiv-opacity-*, --primitiv-focus-ring-* and
- * --primitiv-checkbox-* custom properties it resolves.
+ * --primitiv-space-*, --primitiv-opacity-*, --primitiv-color-transparent,
+ * --primitiv-focus-ring-* and --primitiv-checkbox-* custom properties it
+ * resolves.
  */
 
 @layer primitiv.base {
@@ -52,16 +59,34 @@
       border-color 120ms ease;
   }
 
-  /* The indicator is the mark itself — the headless layer mounts it only while
-     checked or indeterminate, so its presence alone means "draw a mark". A
-     mark-size square filled with the current colour and clipped to a tick; the
-     indeterminate state below re-clips the same square to a bar. */
+  /* The real native input — erased with appearance:none and a transparent fill,
+     but laid over the whole box so it stays the focusable, clickable hit target.
+     It is the single source of truth: every visual state keys off its :checked /
+     :indeterminate / :focus-visible / :disabled below. */
+  .primitiv-checkbox > input {
+    appearance: none;
+    position: absolute;
+    inset: var(--primitiv-space-space-0);
+    margin: var(--primitiv-space-space-0);
+    inline-size: 100%;
+    block-size: 100%;
+    border: var(--primitiv-border-width-0);
+    border-radius: var(--primitiv-checkbox-radius);
+    background: var(--primitiv-color-transparent);
+    cursor: inherit;
+  }
+
+  /* The indicator is the mark itself — always in the DOM, scaled to nothing
+     until the input is checked or indeterminate (see the states layer), so the
+     reveal can animate. A mark-size square filled with the current colour and
+     clipped to a tick; the indeterminate state below re-clips it to a bar. */
   .primitiv-checkbox__indicator {
-    display: block;
     inline-size: var(--primitiv-checkbox-mark-size);
     block-size: var(--primitiv-checkbox-mark-size);
     background: currentColor;
     clip-path: polygon(40% 68%, 12% 40%, 0% 52%, 40% 92%, 100% 22%, 88% 10%);
+    scale: 0;
+    transition: scale 120ms ease;
   }
 }
 
@@ -96,24 +121,31 @@
 }
 
 @layer primitiv.states {
-  /* Checked and indeterminate both fill the box with the primary action colour;
-     the indicator carries the mark shape (a tick by default, a bar when mixed). */
-  .primitiv-checkbox[data-state="checked"],
-  .primitiv-checkbox[data-state="indeterminate"] {
+  /* Checked and indeterminate both fill the box with the primary action colour.
+     Keyed off the input's native :checked / :indeterminate, not the data-state
+     mirror, so the look survives a form reset (which fires no React event). */
+  .primitiv-checkbox:has(> input:checked),
+  .primitiv-checkbox:has(> input:indeterminate) {
     border-color: var(--primitiv-checkbox-border-color-checked);
     background: var(--primitiv-checkbox-bg-checked);
   }
 
-  .primitiv-checkbox__indicator[data-state="indeterminate"] {
+  /* Reveal the mark in either marked state; re-clip it to a bar when mixed. */
+  .primitiv-checkbox > input:checked ~ .primitiv-checkbox__indicator,
+  .primitiv-checkbox > input:indeterminate ~ .primitiv-checkbox__indicator {
+    scale: 1;
+  }
+  .primitiv-checkbox > input:indeterminate ~ .primitiv-checkbox__indicator {
     clip-path: polygon(0% 38%, 100% 38%, 100% 62%, 0% 62%);
   }
 
   /* Focus — the shared two-layer ring, identical on every framed control. Two
      stacked box-shadows follow the box's own radius: a surface-coloured gap band,
      then the brand ring just outside it. :focus-visible keeps it to keyboard
-     focus. Restyle it by overriding the --primitiv-focus-ring* /
-     --primitiv-surface-default tokens globally, not via a per-component knob. */
-  .primitiv-checkbox:focus-visible {
+     focus; :has lifts it from the hidden input onto the visible box. Restyle it
+     by overriding the --primitiv-focus-ring* / --primitiv-surface-default tokens
+     globally, not via a per-component knob. */
+  .primitiv-checkbox:has(> input:focus-visible) {
     outline: none;
     box-shadow:
       0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
@@ -121,7 +153,9 @@
         var(--primitiv-focus-ring);
   }
 
-  /* Disabled is state-neutral so it reads the same checked or unchecked. */
+  /* Disabled is state-neutral so it reads the same checked or unchecked. The
+     data-disabled hook is a reliable prop mirror (unlike checked, disabled is
+     never changed behind React's back), so it drives this rule directly. */
   .primitiv-checkbox[data-disabled] {
     opacity: var(--primitiv-opacity-50);
     cursor: not-allowed;

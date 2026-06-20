@@ -5,7 +5,7 @@
   "description": "A tri-state checkbox — an independent on/off (or mixed) form selection.",
   "docs": "https://primitiv-ui.dev/docs/components/checkbox",
   "root": {
-    "element": "button",
+    "element": "label",
     "class": "primitiv-checkbox"
   },
   "parts": [

@@ -45,9 +45,11 @@ export function CheckboxExample() {
           <Checkbox.Root
             id="cb-accept-terms"
             className="cb-example__box"
+            name="terms"
+            value="accepted"
             defaultChecked
           >
-            <Checkbox.Indicator>
+            <Checkbox.Indicator className="cb-example__indicator">
               <Check className="cb-example__indicator-icon" />
             </Checkbox.Indicator>
           </Checkbox.Root>
@@ -70,7 +72,7 @@ export function CheckboxExample() {
             checked={allState}
             onCheckedChange={handleAllChange}
           >
-            <Checkbox.Indicator>
+            <Checkbox.Indicator className="cb-example__indicator">
               {allState === "indeterminate" ? (
                 <Minus className="cb-example__indicator-icon" />
               ) : (
@@ -96,7 +98,7 @@ export function CheckboxExample() {
                 checked={options[key]}
                 onCheckedChange={() => toggleOption(key)}
               >
-                <Checkbox.Indicator>
+                <Checkbox.Indicator className="cb-example__indicator">
                   <Check className="cb-example__indicator-icon" />
                 </Checkbox.Indicator>
               </Checkbox.Root>
@@ -115,7 +117,7 @@ export function CheckboxExample() {
             defaultChecked
             disabled
           >
-            <Checkbox.Indicator>
+            <Checkbox.Indicator className="cb-example__indicator">
               <Check className="cb-example__indicator-icon" />
             </Checkbox.Indicator>
           </Checkbox.Root>

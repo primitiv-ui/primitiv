@@ -4,39 +4,34 @@ import userEvent from "@testing-library/user-event";
 import { Checkbox } from "../Checkbox";
 
 describe("Checkbox indeterminate state", () => {
-  it('exposes aria-checked="mixed" when defaultChecked is "indeterminate"', () => {
+  it('marks the input partially-checked (aria mixed) when defaultChecked is "indeterminate"', () => {
     // Arrange & Act
-    render(
-      <Checkbox.Root
-        defaultChecked="indeterminate"
-        aria-label="Accept terms"
-      />,
-    );
-    const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
+    render(<Checkbox.Root defaultChecked="indeterminate" aria-label="Accept terms" />);
 
     // Assert
-    expect(checkbox).toHaveAttribute("aria-checked", "mixed");
+    expect(
+      screen.getByRole("checkbox", { name: "Accept terms" }),
+    ).toBePartiallyChecked();
   });
 
-  it('sets data-state="indeterminate" on the root in indeterminate mode', () => {
+  it('sets data-state="indeterminate" on the box in indeterminate mode', () => {
     // Arrange & Act
-    render(
-      <Checkbox.Root
-        defaultChecked="indeterminate"
-        aria-label="Accept terms"
-      />,
+    const { container } = render(
+      <Checkbox.Root defaultChecked="indeterminate" aria-label="Accept terms" />,
     );
-    const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
 
     // Assert
-    expect(checkbox).toHaveAttribute("data-state", "indeterminate");
+    expect(container.querySelector("label")).toHaveAttribute(
+      "data-state",
+      "indeterminate",
+    );
   });
 
   it("resolves to checked=true on the first click (WAI-ARIA tri-state convention)", async () => {
     // Arrange
     const user = userEvent.setup();
     const onCheckedChange = vi.fn();
-    render(
+    const { container } = render(
       <Checkbox.Root
         defaultChecked="indeterminate"
         onCheckedChange={onCheckedChange}
@@ -50,33 +45,32 @@ describe("Checkbox indeterminate state", () => {
 
     // Assert
     expect(onCheckedChange).toHaveBeenCalledWith(true);
-    expect(checkbox).toHaveAttribute("aria-checked", "true");
-    expect(checkbox).toHaveAttribute("data-state", "checked");
+    expect(checkbox).toBeChecked();
+    expect(checkbox).not.toBePartiallyChecked();
+    expect(container.querySelector("label")).toHaveAttribute(
+      "data-state",
+      "checked",
+    );
   });
 
   it('honours controlled checked="indeterminate" across re-renders', () => {
     // Arrange
-    const { rerender } = render(
-      <Checkbox.Root
-        checked={false}
-        onCheckedChange={() => {}}
-        aria-label="Accept terms"
-      />,
+    const { container, rerender } = render(
+      <Checkbox.Root checked={false} onCheckedChange={() => {}} aria-label="Accept terms" />,
     );
     const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
-    expect(checkbox).toHaveAttribute("aria-checked", "false");
+    expect(checkbox).not.toBeChecked();
 
     // Act
     rerender(
-      <Checkbox.Root
-        checked="indeterminate"
-        onCheckedChange={() => {}}
-        aria-label="Accept terms"
-      />,
+      <Checkbox.Root checked="indeterminate" onCheckedChange={() => {}} aria-label="Accept terms" />,
     );
 
     // Assert
-    expect(checkbox).toHaveAttribute("aria-checked", "mixed");
-    expect(checkbox).toHaveAttribute("data-state", "indeterminate");
+    expect(checkbox).toBePartiallyChecked();
+    expect(container.querySelector("label")).toHaveAttribute(
+      "data-state",
+      "indeterminate",
+    );
   });
 });

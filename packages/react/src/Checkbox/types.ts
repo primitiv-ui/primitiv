@@ -1,47 +1,51 @@
-import { ComponentProps, ReactNode, Ref } from "react";
+import { ChangeEventHandler, ComponentProps, ReactNode, Ref } from "react";
 
 /** The checked value of a checkbox — `true`, `false`, or `"indeterminate"` (the tri-state). */
 export type CheckedState = boolean | "indeterminate";
 
 /**
- * Props for {@link Checkbox.Indicator} — all `<span>` attributes plus
- * `forceMount` (keep mounted while unchecked for exit animations) and the
- * `asChild` escape hatch.
+ * Props for {@link Checkbox.Indicator} — the decorative mark. All `<span>`
+ * attributes plus the `asChild` escape hatch. The indicator is always mounted;
+ * its visibility is a CSS concern, revealed off the input's native `:checked` /
+ * `:indeterminate` state.
  */
 export type CheckboxIndicatorProps = ComponentProps<"span"> & {
   children?: ReactNode;
-  forceMount?: boolean;
   asChild?: boolean;
 };
 
 /**
  * Shared base for both {@link CheckboxRootProps} variants — the native
- * `<button>` attributes (minus the ones the component owns) plus the
- * `asChild` escape hatch and a typed `ref`.
+ * `<input type="checkbox">` attributes (minus the ones the component owns) plus
+ * the `onCheckedChange` convenience callback. `className` / `style` here style
+ * the **box** (the visible control), not the hidden input; everything else
+ * spreads onto the input, because semantically the Root *is* the checkbox.
  */
 export type CheckboxRootBaseProps = Omit<
-  ComponentProps<"button">,
-  "type" | "role" | "aria-checked" | "defaultChecked"
+  ComponentProps<"input">,
+  "type" | "checked" | "defaultChecked"
 > & {
-  asChild?: boolean;
-  ref?: Ref<HTMLButtonElement>;
+  /** Fired with the new boolean checked value on every user toggle. */
+  onCheckedChange?: (checked: boolean) => void;
+  children?: ReactNode;
+  /** Forwarded to the underlying native `<input type="checkbox">`. */
+  ref?: Ref<HTMLInputElement>;
 };
 
 /**
  * Uncontrolled variant of {@link CheckboxRootProps}: the component owns the
- * checked value. Pass `defaultChecked` (or omit it); `onCheckedChange` is
- * optional and `checked` is forbidden.
+ * checked value. Pass `defaultChecked` (or omit it); `checked` is forbidden.
+ * `defaultChecked` may be `"indeterminate"` for a mixed-on-mount checkbox.
  */
 export type CheckboxRootUncontrolledProps = CheckboxRootBaseProps & {
   defaultChecked?: CheckedState;
   checked?: never;
-  onCheckedChange?: (checked: boolean) => void;
 };
 
 /**
- * Controlled variant of {@link CheckboxRootProps}: the parent owns the
- * checked value. Pass `checked` and `onCheckedChange` together;
- * `defaultChecked` is forbidden.
+ * Controlled variant of {@link CheckboxRootProps}: the parent owns the checked
+ * value. Pass `checked` and `onCheckedChange` together; `defaultChecked` is
+ * forbidden.
  */
 export type CheckboxRootControlledProps = CheckboxRootBaseProps & {
   defaultChecked?: never;
@@ -58,3 +62,6 @@ export type CheckboxRootControlledProps = CheckboxRootBaseProps & {
 export type CheckboxRootProps =
   | CheckboxRootUncontrolledProps
   | CheckboxRootControlledProps;
+
+/** Internal: the native `onChange` shape the Root composes with its own. */
+export type CheckboxChangeHandler = ChangeEventHandler<HTMLInputElement>;

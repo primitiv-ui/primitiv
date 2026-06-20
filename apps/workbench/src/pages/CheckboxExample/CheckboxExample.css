@@ -38,6 +38,7 @@
 }
 
 .cb-example__box {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -50,13 +51,30 @@
   color: white;
   cursor: pointer;
 
-  &[data-state="checked"],
-  &[data-state="indeterminate"] {
+  /* The real native input, erased but laid over the box as the hit/focus
+     target — the source of truth for every visual state below. */
+  & > input {
+    appearance: none;
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    border: 0;
+    border-radius: 0.25rem;
+    background: transparent;
+    cursor: inherit;
+  }
+
+  /* Fill / focus key off the input's native state via :has, so the look stays
+     correct through a form reset (which fires no React event). */
+  &:has(> input:checked),
+  &:has(> input:indeterminate) {
     background: #6366f1;
     border-color: #6366f1;
   }
 
-  &:focus-visible {
+  &:has(> input:focus-visible) {
     outline: 2px solid #6366f1;
     outline-offset: 2px;
   }
@@ -65,6 +83,18 @@
     opacity: 0.4;
     cursor: not-allowed;
   }
+}
+
+/* The indicator is always mounted; reveal it only when checked/indeterminate. */
+.cb-example__indicator {
+  display: inline-flex;
+  scale: 0;
+  transition: scale 120ms ease;
+}
+
+.cb-example__box > input:checked ~ .cb-example__indicator,
+.cb-example__box > input:indeterminate ~ .cb-example__indicator {
+  scale: 1;
 }
 
 .cb-example__indicator-icon {

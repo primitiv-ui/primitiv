@@ -51,12 +51,15 @@ export function InputExample() {
         <div className="in-example__row">
           <div className="in-example__field-group">
             <span className="in-example__caption">default</span>
-            <Input className="primitiv-input" placeholder="Ada Lovelace" />
+            <Input
+              className={`primitiv-input primitiv-input--${size}`}
+              placeholder="Ada Lovelace"
+            />
           </div>
           <div className="in-example__field-group">
             <span className="in-example__caption">invalid</span>
             <Input
-              className="primitiv-input"
+              className={`primitiv-input primitiv-input--${size}`}
               aria-invalid
               defaultValue="not-an-email"
               aria-label="Invalid input"
@@ -65,13 +68,17 @@ export function InputExample() {
           <div className="in-example__field-group">
             <span className="in-example__caption">disabled</span>
             <Input
-              className="primitiv-input"
+              className={`primitiv-input primitiv-input--${size}`}
               disabled
               defaultValue="Read-only value"
               aria-label="Disabled input"
             />
           </div>
         </div>
+        <p className="in-example__description in-example__hint">
+          These honour the size picker below, so toggling it rescales the hero
+          row too.
+        </p>
       </section>
 
       <section className="in-example__section">
@@ -101,6 +108,11 @@ export function InputExample() {
           scope. Density is ambient — set on any ancestor — and the{" "}
           <code>framed-control/*</code> and <code>body/*</code> tokens resolve to
           the matching scale (RFC 0009). Pick a size to rescale them all.
+        </p>
+        <p className="in-example__description in-example__hint">
+          Density steps the frame at every level (height, padding) but only
+          nudges the body text down at <code>dense</code> — the other three
+          densities share the same readable size by design.
         </p>
 
         <RadioGroup.Root

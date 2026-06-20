@@ -21,6 +21,7 @@ export * from "./MillerColumns/index.ts";
 export * from "./Modal/index.ts";
 export * from "./Portal/index.ts";
 export * from "./Progress/index.ts";
+export * from "./Radio/index.ts";
 export * from "./RadioCard/index.ts";
 export * from "./RadioGroup/index.ts";
 export * from "./Select/index.ts";

@@ -101,6 +101,7 @@ semantics that CSS alone cannot provide.
 - [ ] One-Time Password Field
 - [ ] Password Input
 - [ ] Pin Input
+- [x] Radio
 - [x] Radio Group
 - [x] Radio Card
 - [ ] Rating
@@ -216,6 +217,7 @@ component now has a workbench example:
 - [x] Input
 - [x] Input Group
 - [x] Portal
+- [x] Radio
 - [x] Radio Group
 - [x] Skip Nav
 - [x] Status

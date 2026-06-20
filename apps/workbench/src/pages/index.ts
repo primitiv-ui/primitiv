@@ -22,6 +22,7 @@ export * from "./MillerColumnsExample";
 export * from "./ModalExample";
 export * from "./PortalExample";
 export * from "./ProgressExample";
+export * from "./RadioExample";
 export * from "./RadioCardExample";
 export * from "./RadioGroupExample";
 export * from "./SelectExample";

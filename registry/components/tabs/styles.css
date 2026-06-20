@@ -21,7 +21,8 @@
  * Horizontal orientation only for v1; vertical (data-orientation="vertical") is a
  * deferred fast-follow. Requires the token layer (`primitiv tokens`) for the
  * --primitiv-action-*, --primitiv-surface-*, --primitiv-content-*,
- * --primitiv-framed-control-*, --primitiv-focus-ring-*, --primitiv-label-*,
+ * --primitiv-framed-control-*, --primitiv-focus-ring-*, --primitiv-border-width-*,
+ * --primitiv-radii-*, --primitiv-size-*, --primitiv-opacity-*, --primitiv-label-*,
  * --primitiv-body-* and --primitiv-panel-* custom properties it resolves.
  */
 
@@ -78,7 +79,7 @@
     overflow: visible;
     background: var(--primitiv-tabs-list-bg);
     border: var(--primitiv-tabs-trigger-border-width) solid var(--primitiv-tabs-list-border-color);
-    border-block-end: 0;
+    border-block-end: var(--primitiv-border-width-0);
     border-start-start-radius: var(--primitiv-tabs-list-radius);
     border-start-end-radius: var(--primitiv-tabs-list-radius);
   }
@@ -99,8 +100,8 @@
        border would miter at 45° against the divider and clip its top corner. No
        trailing border: the divider lives on the next trigger's leading edge. */
     border: var(--primitiv-tabs-trigger-border-width) solid var(--primitiv-tabs-trigger-bg);
-    border-block: 0;
-    border-inline-end: 0;
+    border-block: var(--primitiv-border-width-0);
+    border-inline-end: var(--primitiv-border-width-0);
     background: var(--primitiv-tabs-trigger-bg);
     color: var(--primitiv-tabs-trigger-fg);
     font-family: var(--primitiv-tabs-trigger-font-family);
@@ -141,8 +142,8 @@
      1px stroke family as the triggers so the junction reads as one frame. */
   .primitiv-tabs__panel {
     border: var(--primitiv-tabs-panel-border-width) solid var(--primitiv-tabs-panel-border-color);
-    border-start-start-radius: 0;
-    border-start-end-radius: 0;
+    border-start-start-radius: var(--primitiv-radii-0);
+    border-start-end-radius: var(--primitiv-radii-0);
     border-end-start-radius: var(--primitiv-tabs-panel-radius);
     border-end-end-radius: var(--primitiv-tabs-panel-radius);
     padding-block: var(--primitiv-tabs-panel-padding-block);
@@ -154,7 +155,7 @@
     font-weight: var(--primitiv-tabs-panel-font-weight);
     line-height: var(--primitiv-tabs-panel-line-height);
     /* Substance when empty; the headless `hidden` attribute governs visibility. */
-    min-block-size: 80px;
+    min-block-size: var(--primitiv-size-size-80);
   }
 }
 
@@ -334,7 +335,7 @@
 
   /* Disabled is state-neutral so it reads the same active or inactive. */
   .primitiv-tabs__trigger[data-disabled] {
-    opacity: 0.5;
+    opacity: var(--primitiv-opacity-50);
     cursor: not-allowed;
   }
 }

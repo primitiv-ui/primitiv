@@ -13,8 +13,9 @@
  * token layer (primitiv.tokens.css).
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-action-*,
- * --primitiv-surface-*, --primitiv-border-*, --primitiv-focus-ring-* and
- * --primitiv-switch-* custom properties it resolves.
+ * --primitiv-surface-*, --primitiv-border-*, --primitiv-border-width-*,
+ * --primitiv-radii-*, --primitiv-space-*, --primitiv-opacity-*,
+ * --primitiv-focus-ring-* and --primitiv-switch-* custom properties it resolves.
  */
 
 @layer primitiv.base {
@@ -26,11 +27,11 @@
     --primitiv-switch-track-bg-checked: var(--primitiv-action-primary-default);
     --primitiv-switch-track-width: var(--primitiv-switch-md-track-width);
     --primitiv-switch-track-height: var(--primitiv-switch-md-track-height);
-    --primitiv-switch-track-radius: 9999px;
+    --primitiv-switch-track-radius: var(--primitiv-radii-full);
     --primitiv-switch-thumb-bg: var(--primitiv-surface-default);
     --primitiv-switch-thumb-size: var(--primitiv-switch-md-thumb-size);
     --primitiv-switch-thumb-margin: var(--primitiv-switch-md-thumb-margin);
-    --primitiv-switch-thumb-radius: 9999px;
+    --primitiv-switch-thumb-radius: var(--primitiv-radii-full);
 
     position: relative;
     display: inline-flex;
@@ -38,8 +39,8 @@
     align-items: center;
     inline-size: var(--primitiv-switch-track-width);
     block-size: var(--primitiv-switch-track-height);
-    padding: 0;
-    border: 0;
+    padding: var(--primitiv-space-space-0);
+    border: var(--primitiv-border-width-0);
     border-radius: var(--primitiv-switch-track-radius);
     background: var(--primitiv-switch-track-bg);
     cursor: pointer;
@@ -121,7 +122,7 @@
 
   /* Disabled is state-neutral so it reads the same checked or unchecked. */
   .primitiv-switch[data-disabled] {
-    opacity: 0.5;
+    opacity: var(--primitiv-opacity-50);
     cursor: not-allowed;
   }
 }

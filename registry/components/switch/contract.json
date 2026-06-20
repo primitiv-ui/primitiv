@@ -35,10 +35,10 @@
     { "name": "--primitiv-switch-track-bg-checked", "defaultsTo": "var(--primitiv-action-primary-default)" },
     { "name": "--primitiv-switch-track-width", "defaultsTo": "var(--primitiv-switch-md-track-width)" },
     { "name": "--primitiv-switch-track-height", "defaultsTo": "var(--primitiv-switch-md-track-height)" },
-    { "name": "--primitiv-switch-track-radius", "defaultsTo": "9999px" },
+    { "name": "--primitiv-switch-track-radius", "defaultsTo": "var(--primitiv-radii-full)" },
     { "name": "--primitiv-switch-thumb-bg", "defaultsTo": "var(--primitiv-surface-default)" },
     { "name": "--primitiv-switch-thumb-size", "defaultsTo": "var(--primitiv-switch-md-thumb-size)" },
     { "name": "--primitiv-switch-thumb-margin", "defaultsTo": "var(--primitiv-switch-md-thumb-margin)" },
-    { "name": "--primitiv-switch-thumb-radius", "defaultsTo": "9999px" }
+    { "name": "--primitiv-switch-thumb-radius", "defaultsTo": "var(--primitiv-radii-full)" }
   ]
 }

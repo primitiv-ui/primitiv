@@ -2,6 +2,23 @@ import "@testing-library/jest-dom/vitest";
 import { afterEach } from "vitest";
 import { cleanup } from "@testing-library/react";
 
+// jsdom ships no canvas backend, so `ImageData` is undefined. The picker's
+// blit helper constructs one; provide a minimal stand-in (real browsers and
+// the workbench build have the genuine global).
+if (typeof globalThis.ImageData === "undefined") {
+  class ImageDataPolyfill {
+    data: Uint8ClampedArray;
+    width: number;
+    height: number;
+    constructor(data: Uint8ClampedArray, width: number, height: number) {
+      this.data = data;
+      this.width = width;
+      this.height = height;
+    }
+  }
+  globalThis.ImageData = ImageDataPolyfill as unknown as typeof ImageData;
+}
+
 afterEach(() => {
   cleanup();
 });

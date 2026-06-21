@@ -15,12 +15,20 @@ on:
     branches: [main]
     paths:
       - 'crates/**'
+      # The primitiv-emit drift guards read the committed registry artifacts
+      # (contract.json + the generated .tsx), so a registry-only change must
+      # re-run this workflow or hand-drift slips through untested.
+      - 'registry/**'
       - 'Cargo.toml'
       - 'Cargo.lock'
       - '.github/workflows/rust.yml'
   pull_request:
     paths:
       - 'crates/**'
+      # The primitiv-emit drift guards read the committed registry artifacts
+      # (contract.json + the generated .tsx), so a registry-only change must
+      # re-run this workflow or hand-drift slips through untested.
+      - 'registry/**'
       - 'Cargo.toml'
       - 'Cargo.lock'
       - '.github/workflows/rust.yml'

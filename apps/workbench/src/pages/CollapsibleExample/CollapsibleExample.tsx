@@ -45,7 +45,7 @@ export function CollapsibleExample() {
                 id="include-greyscale"
                 className="checkbox"
               >
-                <Checkbox.Indicator className="checkbox__indicator" forceMount>
+                <Checkbox.Indicator className="checkbox__indicator">
                   ✓
                 </Checkbox.Indicator>
               </Checkbox.Root>

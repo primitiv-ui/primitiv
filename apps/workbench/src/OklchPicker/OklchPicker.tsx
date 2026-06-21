@@ -14,7 +14,7 @@ import { LcChart } from "./LcChart";
 import { HueSlider } from "./HueSlider";
 import { useGamutPaint } from "./useGamutPaint";
 import { formatColor, parseColor } from "./color";
-import { C_MAX } from "./geometry";
+import { CHANNELS, clampChannel, roundChannel } from "./channels";
 import type { OklchValue } from "./types";
 
 import "./OklchPicker.css";
@@ -42,22 +42,37 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
 
   const formatted = formatColor(value);
 
-  // The text field echoes the engine's canonical string and only resets when
-  // the colour actually changes (a drag, a slider, or a numeric edit) — so an
-  // in-progress, not-yet-valid entry isn't clobbered by a re-render.
+  // The text field echoes the engine's canonical string, but never clobbers an
+  // edit in progress: while the field is focused the user's text stands (even as
+  // a valid entry flows back through `onChange` and changes the value), and it
+  // only resyncs to the canonical form on blur or when the value changes from
+  // elsewhere (a drag, a slider, a numeric edit). oklch.com behaves the same —
+  // the representation you are typing into is not rewritten under your cursor.
   const [text, setText] = useState(formatted.oklch);
   const [invalid, setInvalid] = useState(false);
+  const focused = useRef(false);
   useEffect(() => {
+    if (focused.current) return;
     setText(formatted.oklch);
     setInvalid(false);
   }, [formatted.oklch]);
+
+  const handleFocus = () => {
+    focused.current = true;
+  };
+
+  const handleBlur = () => {
+    focused.current = false;
+    setText(formatted.oklch);
+    setInvalid(false);
+  };
 
   const setChannel =
     (channel: keyof OklchValue) =>
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const next = event.target.valueAsNumber;
       if (Number.isNaN(next)) return;
-      onChange({ ...value, [channel]: next });
+      onChange({ ...value, [channel]: clampChannel(channel, next) });
     };
 
   const handleText = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,10 +110,10 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
           <Field.Label>Lightness</Field.Label>
           <Input
             type="number"
-            min={0}
-            max={1}
-            step={0.001}
-            value={value.l}
+            min={CHANNELS.l.min}
+            max={CHANNELS.l.max}
+            step={CHANNELS.l.step}
+            value={roundChannel("l", value.l)}
             onChange={setChannel("l")}
           />
         </Field.Root>
@@ -106,10 +121,10 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
           <Field.Label>Chroma</Field.Label>
           <Input
             type="number"
-            min={0}
-            max={C_MAX}
-            step={0.001}
-            value={value.c}
+            min={CHANNELS.c.min}
+            max={CHANNELS.c.max}
+            step={CHANNELS.c.step}
+            value={roundChannel("c", value.c)}
             onChange={setChannel("c")}
           />
         </Field.Root>
@@ -117,10 +132,10 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
           <Field.Label>Hue</Field.Label>
           <Input
             type="number"
-            min={0}
-            max={360}
-            step={0.1}
-            value={value.h}
+            min={CHANNELS.h.min}
+            max={CHANNELS.h.max}
+            step={CHANNELS.h.step}
+            value={roundChannel("h", value.h)}
             onChange={setChannel("h")}
           />
         </Field.Root>
@@ -128,7 +143,13 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
 
       <Field.Root className="oklch-picker__text" invalid={invalid}>
         <Field.Label>Hex or OKLCH</Field.Label>
-        <Input value={text} onChange={handleText} spellCheck={false} />
+        <Input
+          value={text}
+          onChange={handleText}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          spellCheck={false}
+        />
         <Field.ErrorText>Not a recognised colour</Field.ErrorText>
       </Field.Root>
     </div>

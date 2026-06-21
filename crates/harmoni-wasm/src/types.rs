@@ -36,6 +36,35 @@ impl From<TintMode> for core::TintMode {
     }
 }
 
+/// Mirror of `core::api::Gamut` — the display gamut a picker chart renders
+/// against (RFC 0010 §7). Carries the Tsify derives so it crosses the wasm
+/// boundary as the picker's sRGB/P3 toggle value.
+#[derive(Tsify, Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Default)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub enum Gamut {
+    #[default]
+    Srgb,
+    DisplayP3,
+}
+
+impl From<core::api::Gamut> for Gamut {
+    fn from(value: core::api::Gamut) -> Self {
+        match value {
+            core::api::Gamut::Srgb => Gamut::Srgb,
+            core::api::Gamut::DisplayP3 => Gamut::DisplayP3,
+        }
+    }
+}
+
+impl From<Gamut> for core::api::Gamut {
+    fn from(value: Gamut) -> Self {
+        match value {
+            Gamut::Srgb => core::api::Gamut::Srgb,
+            Gamut::DisplayP3 => core::api::Gamut::DisplayP3,
+        }
+    }
+}
+
 #[derive(Tsify, Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct OklchTriple {
@@ -336,6 +365,26 @@ mod tests {
 
         let core_again: core::TintMode = wasm_value.into();
         assert_eq!(core_again, core::TintMode::Achromatic);
+    }
+
+    #[test]
+    fn gamut_srgb_round_trips_through_conversions() {
+        let core_value = core::api::Gamut::Srgb;
+        let wasm_value: Gamut = core_value.into();
+        assert_eq!(wasm_value, Gamut::Srgb);
+
+        let core_again: core::api::Gamut = wasm_value.into();
+        assert_eq!(core_again, core::api::Gamut::Srgb);
+    }
+
+    #[test]
+    fn gamut_display_p3_round_trips_through_conversions() {
+        let core_value = core::api::Gamut::DisplayP3;
+        let wasm_value: Gamut = core_value.into();
+        assert_eq!(wasm_value, Gamut::DisplayP3);
+
+        let core_again: core::api::Gamut = wasm_value.into();
+        assert_eq!(core_again, core::api::Gamut::DisplayP3);
     }
 
     #[test]

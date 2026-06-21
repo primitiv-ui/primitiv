@@ -17,7 +17,6 @@
   gap: var(--primitiv-space-space-16);
   padding: var(--primitiv-space-space-16);
   width: max-content;
-  background: var(--primitiv-surface-raised);
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
   border-radius: var(--primitiv-container-md-radius);
   color: var(--primitiv-content-primary);
@@ -82,18 +81,6 @@
   overflow: hidden;
   touch-action: none;
   cursor: crosshair;
-  /* A checkerboard reads transparency (out-of-gamut pixels) without a token. */
-  background-image:
-    linear-gradient(45deg, var(--primitiv-surface-subtle) 25%, transparent 25%),
-    linear-gradient(-45deg, var(--primitiv-surface-subtle) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, var(--primitiv-surface-subtle) 75%),
-    linear-gradient(-45deg, transparent 75%, var(--primitiv-surface-subtle) 75%);
-  background-size: var(--primitiv-space-space-12) var(--primitiv-space-space-12);
-  background-position:
-    0 0,
-    0 calc(var(--primitiv-space-space-12) / 2),
-    calc(var(--primitiv-space-space-12) / 2) calc(var(--primitiv-space-space-12) / -2),
-    calc(var(--primitiv-space-space-12) / -2) 0;
 }
 
 .lc-chart:focus-visible {
@@ -154,19 +141,6 @@
   height: 100%;
   border-radius: var(--primitiv-container-sm-radius);
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
-  /* The same checkerboard the pad uses reads the transparent (out-of-gamut)
-     ends of each track without a token. */
-  background-image:
-    linear-gradient(45deg, var(--primitiv-surface-subtle) 25%, transparent 25%),
-    linear-gradient(-45deg, var(--primitiv-surface-subtle) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, var(--primitiv-surface-subtle) 75%),
-    linear-gradient(-45deg, transparent 75%, var(--primitiv-surface-subtle) 75%);
-  background-size: var(--primitiv-space-space-12) var(--primitiv-space-space-12);
-  background-position:
-    0 0,
-    0 calc(var(--primitiv-space-space-12) / 2),
-    calc(var(--primitiv-space-space-12) / 2) calc(var(--primitiv-space-space-12) / -2),
-    calc(var(--primitiv-space-space-12) / -2) 0;
 }
 
 .axis-slider__track {

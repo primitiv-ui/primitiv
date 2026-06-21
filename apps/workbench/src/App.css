@@ -120,7 +120,7 @@ body {
 
 .neutral-pickers {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 1.5rem;
   margin-block-end: 1rem;
 
@@ -130,6 +130,16 @@ body {
     gap: 0.5rem;
     color: oklch(1 0 0);
   }
+}
+
+.neutral-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.neutral-picker__label {
+  color: oklch(1 0 0);
 }
 
 .neutral-tint {

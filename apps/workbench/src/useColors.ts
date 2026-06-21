@@ -100,6 +100,18 @@ export function useColors() {
     setNeutralBlack(e.target.value);
   };
 
+  // Reseed the white/black neutral anchors from any CSS colour string the engine
+  // understands (the OKLCH picker feeds an `oklch(L C H)` string — RFC 0010 §6).
+  // The tint blend above is unchanged: it layers the brand hue onto whatever
+  // anchors are set, so adopting the picker for the anchors keeps the tint.
+  const handleNeutralWhiteValueChange = (seed: string) => {
+    setNeutralWhite(seed);
+  };
+
+  const handleNeutralBlackValueChange = (seed: string) => {
+    setNeutralBlack(seed);
+  };
+
   const handleUseAsTint = (key: ColorKey) => {
     const source = colors[key].palette?.swatches[5];
     if (!source) return;
@@ -214,6 +226,8 @@ export function useColors() {
     tintStrength,
     handleNeutralWhiteChange,
     handleNeutralBlackChange,
+    handleNeutralWhiteValueChange,
+    handleNeutralBlackValueChange,
     handleUseAsTint,
     handleTintStrengthChange,
     handleRemoveTint,

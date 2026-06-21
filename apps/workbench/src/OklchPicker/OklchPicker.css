@@ -6,8 +6,9 @@
  * its parts are styled here against the Slider contract (data-orientation /
  * positional inline styles).
  *
- * Selectors are scoped under .oklch-picker / .lc-chart / .hue-slider to avoid
- * the global-CSS bleed the workbench bundles into one sheet (workbench-examples).
+ * Selectors are scoped under .oklch-picker / .lc-chart / .axis-slider /
+ * .gamut-toggle to avoid the global-CSS bleed the workbench bundles into one
+ * sheet (workbench-examples).
  */
 
 .oklch-picker {
@@ -27,6 +28,49 @@
   display: flex;
   flex-direction: column;
   gap: var(--primitiv-space-space-12);
+}
+
+.oklch-picker__toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.oklch-picker__sliders {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-12);
+}
+
+/* sRGB / P3 gamut toggle (ToggleGroup contract: data-state on/off) ---------- */
+
+.gamut-toggle {
+  display: inline-flex;
+  gap: var(--primitiv-border-width-1);
+  padding: var(--primitiv-border-width-1);
+  background: var(--primitiv-surface-subtle);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+  border-radius: var(--primitiv-container-sm-radius);
+}
+
+.gamut-toggle__item {
+  padding: var(--primitiv-space-space-4) var(--primitiv-space-space-12);
+  border: none;
+  border-radius: var(--primitiv-container-sm-radius);
+  background: transparent;
+  color: var(--primitiv-content-secondary);
+  font: inherit;
+  font-size: var(--primitiv-body-sm-font-size);
+  cursor: pointer;
+}
+
+.gamut-toggle__item[data-state="on"] {
+  background: var(--primitiv-action-primary-default);
+  color: var(--primitiv-content-on-action);
+}
+
+.gamut-toggle__item:focus-visible {
+  outline: var(--primitiv-focus-ring-width) solid var(--primitiv-border-focus);
+  outline-offset: var(--primitiv-focus-ring-offset);
 }
 
 /* L×C pad ------------------------------------------------------------------ */
@@ -76,6 +120,12 @@
   opacity: var(--primitiv-active-opacity);
 }
 
+/* The P3 boundary is dashed so the band between it and the solid sRGB curve
+   reads as the sRGB→P3 extended region (RFC 0010 §7). */
+.lc-chart__boundary--extended {
+  stroke-dasharray: var(--primitiv-space-space-4) var(--primitiv-space-space-4);
+}
+
 .lc-chart__cursor {
   position: absolute;
   width: var(--primitiv-space-space-16);
@@ -87,9 +137,9 @@
   pointer-events: none;
 }
 
-/* Hue slider --------------------------------------------------------------- */
+/* Painted axis sliders (L / C / H) ----------------------------------------- */
 
-.hue-slider {
+.axis-slider {
   position: relative;
   display: flex;
   align-items: center;
@@ -97,22 +147,35 @@
   height: var(--primitiv-space-space-20);
 }
 
-.hue-slider__strip {
+.axis-slider__strip {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   border-radius: var(--primitiv-container-sm-radius);
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
+  /* The same checkerboard the pad uses reads the transparent (out-of-gamut)
+     ends of each track without a token. */
+  background-image:
+    linear-gradient(45deg, var(--primitiv-surface-subtle) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--primitiv-surface-subtle) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--primitiv-surface-subtle) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--primitiv-surface-subtle) 75%);
+  background-size: var(--primitiv-space-space-12) var(--primitiv-space-space-12);
+  background-position:
+    0 0,
+    0 calc(var(--primitiv-space-space-12) / 2),
+    calc(var(--primitiv-space-space-12) / 2) calc(var(--primitiv-space-space-12) / -2),
+    calc(var(--primitiv-space-space-12) / -2) 0;
 }
 
-.hue-slider__track {
+.axis-slider__track {
   position: relative;
   flex: 1;
   height: 100%;
 }
 
-.hue-slider__thumb {
+.axis-slider__thumb {
   width: var(--primitiv-space-space-20);
   height: var(--primitiv-space-space-20);
   border-radius: 50%;
@@ -122,7 +185,7 @@
   translate: -50% 0;
 }
 
-.hue-slider__thumb:focus-visible {
+.axis-slider__thumb:focus-visible {
   outline: var(--primitiv-focus-ring-width) solid var(--primitiv-border-focus);
   outline-offset: var(--primitiv-focus-ring-offset);
 }

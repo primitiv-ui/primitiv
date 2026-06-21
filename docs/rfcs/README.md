@@ -61,3 +61,15 @@ Read **0004 → 0005 → 0006** in order; each builds on the one before. **0008*
 constrains the *shape* of 0006's emitted CSS (layers + token scoping) and **0009**
 the *mode scopes* it emits; both are read alongside 0006. **0007** is the
 build/test strategy for 0005–0006 and applies once implementation starts.
+
+## Input & tooling
+
+| # | Title | Status |
+|---|---|---|
+| [0010](0010-oklch-color-picker.md) | OKLCH colour picker | Draft |
+
+- **0010** — the OKLCH-first, oklch.com-style colour picker that replaces the
+  hex input: paint-backed Lightness×Chroma and Hue charts with a live gamut
+  boundary, rendered from a new Rust/wasm gamut API (one colour engine, no JS
+  twin), shipped sRGB-first with Display-P3 as a fast-follow, built in the
+  workbench then ported to the plugin.

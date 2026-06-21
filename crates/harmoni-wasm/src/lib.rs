@@ -188,3 +188,25 @@ pub fn tint_neutrals(
     .map(Into::into)
     .map_err(to_js_error)
 }
+
+/// The maximum in-sRGB-gamut chroma for an OkLCH lightness and hue — the
+/// boundary curve the OKLCH picker overlays on its charts (RFC 0010).
+#[wasm_bindgen]
+pub fn max_in_gamut_chroma(lightness: f32, hue: f32) -> f32 {
+    api::max_in_gamut_chroma(lightness, hue)
+}
+
+/// Paints the OkLCH lightness×chroma plane for a fixed hue as a flat RGBA
+/// buffer (`width * height * 4` bytes, row-major) the canvas blits straight
+/// into `ImageData`. Out-of-gamut pixels are transparent (RFC 0010 §3).
+#[wasm_bindgen]
+pub fn paint_lc_plane(hue: f32, width: usize, height: usize, c_max: f32) -> Vec<u8> {
+    api::paint_lc_plane(hue, width, height, c_max)
+}
+
+/// Paints the hue spectrum at a fixed lightness and chroma as a flat RGBA
+/// buffer (`width * 4` bytes) for the picker's hue slider (RFC 0010 §3).
+#[wasm_bindgen]
+pub fn paint_hue_strip(lightness: f32, chroma: f32, width: usize) -> Vec<u8> {
+    api::paint_hue_strip(lightness, chroma, width)
+}

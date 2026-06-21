@@ -145,6 +145,55 @@ mod lightness_strip {
     }
 }
 
+mod chroma_strip {
+    use super::*;
+
+    #[test]
+    fn buffer_is_four_bytes_per_pixel() {
+        let strip = paint_chroma_strip(0.65, 240.0, 4, 0.4, Gamut::Srgb);
+        assert_eq!(strip.len(), 4 * 4);
+    }
+
+    #[test]
+    fn in_gamut_pixels_carry_their_colour_at_full_alpha() {
+        // The leftmost columns are near-grey (low chroma) and always in gamut.
+        let (l, h, width, c_max) = (0.65, 240.0, 8, 0.4);
+        let strip = paint_chroma_strip(l, h, width, c_max, Gamut::Srgb);
+        let px = 0;
+        let c = (px as f32 + 0.5) / width as f32 * c_max;
+        let rgb = oklch_to_rgb(Oklch::new(l, c, h));
+        let i = px * 4;
+        assert_eq!(strip[i], to_byte(rgb.r));
+        assert_eq!(strip[i + 1], to_byte(rgb.g));
+        assert_eq!(strip[i + 2], to_byte(rgb.b));
+        assert_eq!(strip[i + 3], 255);
+    }
+
+    #[test]
+    fn out_of_gamut_pixels_are_transparent() {
+        // Near-white lightness has a tiny chroma boundary, so the high-chroma
+        // right edge of the sweep is out of gamut.
+        let (l, h, width, c_max) = (0.99, 240.0, 4, 0.4);
+        let strip = paint_chroma_strip(l, h, width, c_max, Gamut::Srgb);
+        let px = width - 1;
+        let i = px * 4;
+        assert_eq!(&strip[i..i + 4], &[0, 0, 0, 0]);
+    }
+
+    #[test]
+    fn display_p3_keeps_more_chroma_in_gamut_than_srgb() {
+        let (l, h, width, c_max) = (0.65, 142.0, 64, 0.4);
+        let srgb = paint_chroma_strip(l, h, width, c_max, Gamut::Srgb);
+        let p3 = paint_chroma_strip(l, h, width, c_max, Gamut::DisplayP3);
+        assert!(
+            opaque_pixels(&p3) > opaque_pixels(&srgb),
+            "P3 opaque {} should exceed sRGB opaque {}",
+            opaque_pixels(&p3),
+            opaque_pixels(&srgb),
+        );
+    }
+}
+
 mod lc_plane {
     use super::*;
 

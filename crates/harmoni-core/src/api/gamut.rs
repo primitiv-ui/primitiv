@@ -110,6 +110,28 @@ pub fn paint_hue_strip(l: f32, c: f32, width: usize, gamut: Gamut) -> Vec<u8> {
     buffer
 }
 
+/// Paints the lightness sweep at a fixed chroma and hue, as a flat RGBA buffer
+/// of `width * 4` bytes — the painted track behind the picker's L slider.
+/// Columns map lightness `0.0..1.0` left→right, sampled at pixel centres;
+/// in-`gamut` pixels carry their colour at full alpha, out-of-gamut ones are
+/// transparent. The boundary shifts with `c`/`h`, so the slider repaints as the
+/// other axes move (RFC 0010 §2).
+pub fn paint_lightness_strip(c: f32, h: f32, width: usize, gamut: Gamut) -> Vec<u8> {
+    let mut buffer = vec![0u8; width * 4];
+    for px in 0..width {
+        let lightness = (px as f32 + 0.5) / width as f32;
+        if c <= max_in_gamut_chroma(lightness, h, gamut) {
+            let rgb = paint_color(Oklch::new(lightness, c, h), gamut);
+            let i = px * 4;
+            buffer[i] = to_byte(rgb.r);
+            buffer[i + 1] = to_byte(rgb.g);
+            buffer[i + 2] = to_byte(rgb.b);
+            buffer[i + 3] = 255;
+        }
+    }
+    buffer
+}
+
 /// Paints the OkLCH lightness×chroma plane for a fixed hue, as a flat RGBA
 /// buffer of `width * height * 4` bytes (row-major, 4 bytes per pixel). Columns
 /// map lightness `0.0..1.0` left→right; rows map chroma `c_max..0.0`

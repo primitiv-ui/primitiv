@@ -1,6 +1,12 @@
 import { describe, it, expect } from "vitest";
 
-import { clamp, pointerToLc, lcToPoint, C_MAX } from "../geometry";
+import {
+  clamp,
+  pointerToLc,
+  lcToPoint,
+  pointerEventToLc,
+  C_MAX,
+} from "../geometry";
 
 describe("clamp", () => {
   it("returns the value when inside the range", () => {
@@ -66,5 +72,16 @@ describe("lcToPoint", () => {
 
     expect(x).toBeCloseTo(100);
     expect(y).toBeCloseTo(0);
+  });
+});
+
+describe("pointerEventToLc", () => {
+  it("subtracts the chart's origin before mapping client coordinates", () => {
+    const rect = { left: 30, top: 50, width: 100, height: 200 };
+
+    const { l, c } = pointerEventToLc(80, 150, rect, C_MAX);
+
+    expect(l).toBeCloseTo(0.5);
+    expect(c).toBeCloseTo(C_MAX / 2);
   });
 });

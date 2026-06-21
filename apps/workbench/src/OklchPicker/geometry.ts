@@ -30,6 +30,25 @@ export function pointerToLc(
 }
 
 /**
+ * Maps a pointer event's client coordinates to an OkLCH `(l, c)` using the
+ * chart element's bounding rect as the origin and extent.
+ */
+export function pointerEventToLc(
+  clientX: number,
+  clientY: number,
+  rect: { left: number; top: number; width: number; height: number },
+  cMax: number,
+): { l: number; c: number } {
+  return pointerToLc(
+    clientX - rect.left,
+    clientY - rect.top,
+    rect.width,
+    rect.height,
+    cMax,
+  );
+}
+
+/**
  * The inverse of {@link pointerToLc}: the cursor point for an OkLCH `(l, c)`
  * within a `width`×`height` chart.
  */

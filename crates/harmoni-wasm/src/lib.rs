@@ -210,3 +210,24 @@ pub fn paint_lc_plane(hue: f32, width: usize, height: usize, c_max: f32) -> Vec<
 pub fn paint_hue_strip(lightness: f32, chroma: f32, width: usize) -> Vec<u8> {
     api::paint_hue_strip(lightness, chroma, width)
 }
+
+/// Parses any CSS colour string (`#rrggbb`, `oklch(L C H)`, `rgb(...)`, a
+/// named colour, …) into the OkLCH triple the picker's hex⇄oklch text field
+/// round-trips through — `{ l, c, h }` plus the `hex`/`rgb`/`oklch` renderings
+/// (RFC 0010 §4). Parsing crosses into the one Rust engine; no JS colour
+/// library is involved (Principle 1). Errors on an unparseable string.
+#[wasm_bindgen]
+pub fn parse_color(input: &str) -> Result<types::OklchTriple, JsError> {
+    let oklch = ColorInput::Css(input.to_string())
+        .to_oklch()
+        .map_err(to_js_error)?;
+    Ok(types::oklch_triple(oklch))
+}
+
+/// Renders an OkLCH `{ l, c, h }` triple back into the engine's canonical
+/// `hex`/`rgb`/`oklch` strings, so the picker formats its current value through
+/// the same source of truth it parses with (RFC 0010 §4).
+#[wasm_bindgen]
+pub fn describe_oklch(l: f32, c: f32, h: f32) -> types::OklchTriple {
+    types::oklch_triple(palette::Oklch::new(l, c, h))
+}

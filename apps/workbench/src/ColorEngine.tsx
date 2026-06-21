@@ -1,8 +1,15 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Switch, Tabs } from "@primitiv-ui/react";
 
 import { Palette as ColorPalette } from "./Palette";
 import { useColors } from "./useColors";
+import {
+  OklchPicker,
+  parseColor,
+  formatColor,
+  type OklchValue,
+} from "./OklchPicker";
+import type { ColorKey } from "./types";
 import { Fragment } from "react/jsx-runtime";
 
 type CurveEditorProps = {
@@ -50,6 +57,7 @@ function CurveEditor({ curve, onCurveChange, className }: CurveEditorProps) {
 
 export function ColorEngine() {
   const {
+    wasmReady,
     greyscalePalette,
     neutralWhite,
     neutralBlack,
@@ -60,7 +68,7 @@ export function ColorEngine() {
     handleUseAsTint,
     handleTintStrengthChange,
     handleRemoveTint,
-    handleColorChange,
+    handleColorValueChange,
     colors,
     handleLightPaddingChange,
     handleDarkPaddingChange,
@@ -72,6 +80,32 @@ export function ColorEngine() {
   } = useColors();
 
   const [darkHidden, setDarkHidden] = useState<Set<string>>(new Set());
+
+  // The OKLCH picker is controlled, so ColorEngine owns each brand colour's
+  // { l, c, h } — seeded from the default seeds once the engine can parse them,
+  // then driven by the picker (RFC 0010 §6). It can't be read back from a
+  // generated swatch: the generator forces each swatch's lightness to the curve.
+  const [brand, setBrand] = useState<Partial<Record<ColorKey, OklchValue>>>({});
+
+  useEffect(() => {
+    if (!wasmReady) return;
+
+    setBrand((prev) => {
+      const next = { ...prev };
+      for (const key of STANDARD_KEYS) {
+        if (!next[key]) {
+          const parsed = parseColor(colors[key].hex);
+          if (parsed) next[key] = parsed;
+        }
+      }
+      return next;
+    });
+  }, [wasmReady, STANDARD_KEYS, colors]);
+
+  const handleBrandChange = (key: ColorKey) => (value: OklchValue) => {
+    setBrand((prev) => ({ ...prev, [key]: value }));
+    handleColorValueChange(key, formatColor(value).oklch);
+  };
 
   const toggleDark = (key: string) => (checked: boolean) => {
     setDarkHidden((prev) => {
@@ -137,18 +171,20 @@ export function ColorEngine() {
         </div>
 
         {STANDARD_KEYS.map((key) => {
-          const { hex, palette, darkPalette, lightPadding, darkPadding } =
+          const { palette, darkPalette, lightPadding, darkPadding } =
             colors[key];
+          const brandValue = brand[key];
 
           return (
             <Fragment key={key}>
               <p className="palette__label">{key}</p>
               <div className="palette__input">
-                <input
-                  type="color"
-                  onChange={handleColorChange(key)}
-                  value={hex}
-                />
+                {brandValue && (
+                  <OklchPicker
+                    value={brandValue}
+                    onChange={handleBrandChange(key)}
+                  />
+                )}
                 <button type="button" onClick={() => handleUseAsTint(key)}>
                   Use as neutral tint
                 </button>

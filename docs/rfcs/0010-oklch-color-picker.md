@@ -282,8 +282,42 @@ and sign-off — explicitly **not** done here.
   in/out-of-gamut paint arms, the quantiser); confirm with the gate when the
   tool is available.
 
-### Phase 2 — next session
+### Phase 2 — workbench `OklchPicker` ✅ (landed)
 
-Build the workbench `OklchPicker` per §4–§6. Start by running
-`pnpm run build:wasm`, then compose `Slider`/`Input`/`Field`, the bespoke
-`LcChart` canvas, and the engine-painted hue slider.
+The controlled, portable picker of §4–§6 is built at
+`apps/workbench/src/OklchPicker/` and wired into the Color engine page. The
+full picker vitest suite is green at **100% lines / branches / functions /
+statements** (51 tests), scoped via a new `vitest.config.ts` in the workbench.
+
+- **wasm boundary extended.** `parse_color(input) -> OklchTriple` and
+  `describe_oklch(l, c, h) -> OklchTriple` expose the engine's existing
+  `ColorInput::to_oklch` / `oklch_to_hex` / `format_oklch` for the hex⇄oklch
+  text field — no JS colour library (Principle 1). The `OklchTriple` mirror
+  already carried `{ l, c, h, hex, rgb, oklch }`, so no core change was needed;
+  `pnpm run build:wasm` regenerated the `.d.ts`.
+- **Pure logic, strict TDD.** `geometry` (pixel↔value mapping + clamping),
+  `boundary` (the engine-swept sRGB curve as an SVG polyline), `repaint`
+  (per-chart gating), `color` (wasm parse/format bridge) and `paint`
+  (`ImageData` blit) are each driven red→green. `useGamutPaint` gates each
+  chart's batched paint on the axis that moved and coalesces onto a single rAF,
+  folding a cancelled paint into the next frame.
+- **Components.** `LcChart` is the bespoke 2-D pad (boundary overlay + cursor +
+  gamut-clamped pointer drag over the engine-painted plane); `HueSlider`
+  composes the headless `Slider` over an engine-painted hue-strip canvas;
+  `OklchPicker` orchestrates them with the `Field`/`Input` rows, controlled by
+  `{ l, c, h }` / `onChange`. Chrome wears `--primitiv-*` tokens; the oklch.com
+  MIT attribution is carried in the directory (§8).
+- **Wiring.** `ColorEngine` replaces each brand `<input type="color">` with an
+  `OklchPicker`, owning the `{ l, c, h }` (the generator forces swatch lightness
+  to the curve, so it can't be read back from a swatch) and feeding changes into
+  the existing `useColors` flow as an `oklch()` string (1c skipped, as decided).
+
+**Verification.** `pnpm run build:wasm` ran (a prebuilt `wasm-pack` binary was
+fetched into the environment) and the new functions appear in the generated
+`.d.ts`; the picker is covered by vitest and `tsc --noEmit`. The workbench dev
+server is not run here (sandbox-gotchas), so the visual check in a real browser
+is left to the human.
+
+### Phase 4 — Display-P3, and Phase 5 — plugin port
+
+Unchanged from §7 / §9 — out of scope for Phase 2.

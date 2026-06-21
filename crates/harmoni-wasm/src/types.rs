@@ -47,7 +47,7 @@ pub struct OklchTriple {
     pub oklch: String,
 }
 
-fn oklch_triple(color: palette::Oklch) -> OklchTriple {
+pub fn oklch_triple(color: palette::Oklch) -> OklchTriple {
     OklchTriple {
         l: color.l,
         c: color.chroma,

@@ -124,6 +124,16 @@ export function useColors() {
       }));
     };
 
+  // Reseed a brand colour from any CSS colour string the engine understands
+  // (the OKLCH picker feeds an `oklch(L C H)` string — RFC 0010 §6). The seed
+  // is stored on `hex`; `generate_palette_pair` parses it via csscolorparser.
+  const handleColorValueChange = (key: ColorKey, seed: string) => {
+    setColors((prev) => ({
+      ...prev,
+      [key]: regeneratePair({ ...prev[key], hex: seed }),
+    }));
+  };
+
   const handleLightPaddingChange =
     (key: ColorKey) => (e: ChangeEvent<HTMLInputElement>) => {
       const lightPadding = parseFloat(e.target.value) / 100;
@@ -196,6 +206,7 @@ export function useColors() {
   };
 
   return {
+    wasmReady,
     greyscalePalette,
     neutralWhite,
     neutralBlack,
@@ -207,6 +218,7 @@ export function useColors() {
     handleTintStrengthChange,
     handleRemoveTint,
     handleColorChange,
+    handleColorValueChange,
     colors,
     handleLightPaddingChange,
     handleDarkPaddingChange,

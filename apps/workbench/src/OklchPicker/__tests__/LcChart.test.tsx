@@ -99,4 +99,62 @@ describe("LcChart", () => {
 
     expect(onChange).not.toHaveBeenCalled();
   });
+
+  it("is focusable so keyboard users can reach the pad", () => {
+    const { pad } = renderChart();
+
+    expect(pad).toHaveAttribute("tabindex", "0");
+  });
+
+  it("announces the current value in its accessible name", () => {
+    const { pad } = renderChart();
+
+    // VALUE = { l: 0.6, c: 0.15 }
+    expect(pad.getAttribute("aria-label")).toMatch(/0\.60.*0\.150/);
+  });
+
+  it("nudges lightness up on ArrowRight, gamut-clamping chroma", () => {
+    const { onChange, pad } = renderChart();
+
+    fireEvent.keyDown(pad, { key: "ArrowRight" });
+
+    const arg = onChange.mock.calls.at(-1)![0];
+    expect(arg.l).toBeCloseTo(0.605);
+    expect(arg.c).toBeCloseTo(0.15);
+  });
+
+  it("nudges chroma up on ArrowUp", () => {
+    const { onChange, pad } = renderChart();
+
+    fireEvent.keyDown(pad, { key: "ArrowUp" });
+
+    const arg = onChange.mock.calls.at(-1)![0];
+    expect(arg.l).toBeCloseTo(0.6);
+    expect(arg.c).toBeCloseTo(0.152);
+  });
+
+  it("uses the coarse step when Shift is held", () => {
+    const { onChange, pad } = renderChart();
+
+    fireEvent.keyDown(pad, { key: "ArrowRight", shiftKey: true });
+
+    expect(onChange.mock.calls.at(-1)![0].l).toBeCloseTo(0.65);
+  });
+
+  it("clamps a keyboard nudge to the in-gamut boundary", () => {
+    maxChromaMock.mockReturnValue(0.1);
+    const { onChange, pad } = renderChart();
+
+    fireEvent.keyDown(pad, { key: "ArrowUp" });
+
+    expect(onChange.mock.calls.at(-1)![0].c).toBeCloseTo(0.1);
+  });
+
+  it("ignores a non-arrow key without emitting", () => {
+    const { onChange, pad } = renderChart();
+
+    fireEvent.keyDown(pad, { key: "Enter" });
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
 });

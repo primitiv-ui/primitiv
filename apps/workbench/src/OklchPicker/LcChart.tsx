@@ -5,11 +5,16 @@
 // drags to a gamut-clamped (l, c) via the pure geometry helpers, emitting
 // `onChange`. Canvas drawing stays out of here — only an engine blit touches it.
 
-import { useRef, type PointerEvent, type RefObject } from "react";
+import {
+  useRef,
+  type KeyboardEvent,
+  type PointerEvent,
+  type RefObject,
+} from "react";
 
 import { max_in_gamut_chroma } from "harmoni-wasm";
 
-import { C_MAX, pointerEventToLc, lcToPoint } from "./geometry";
+import { C_MAX, pointerEventToLc, lcToPoint, nudgeLc } from "./geometry";
 import { boundaryPoints } from "./boundary";
 import type { OklchValue } from "./types";
 
@@ -33,10 +38,23 @@ export function LcChart({
 }: LcChartProps) {
   const dragging = useRef(false);
 
+  // Both pointer drags and arrow nudges land here: clamp chroma to the engine's
+  // in-gamut boundary at the resulting (l, h) before emitting (Principle 1).
+  const emitLc = (l: number, c: number) => {
+    onChange({ l, c: Math.min(c, max_in_gamut_chroma(l, value.h)) });
+  };
+
   const emit = (event: PointerEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
     const { l, c } = pointerEventToLc(event.clientX, event.clientY, rect, C_MAX);
-    onChange({ l, c: Math.min(c, max_in_gamut_chroma(l, value.h)) });
+    emitLc(l, c);
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const next = nudgeLc(value.l, value.c, event.key, event.shiftKey, C_MAX);
+    if (!next) return;
+    event.preventDefault();
+    emitLc(next.l, next.c);
   };
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
@@ -61,11 +79,15 @@ export function LcChart({
     <div
       className="lc-chart"
       role="group"
-      aria-label="Lightness and chroma"
+      tabIndex={0}
+      aria-label={`Lightness and chroma. Lightness ${value.l.toFixed(
+        2,
+      )}, chroma ${value.c.toFixed(3)}. Arrow keys adjust, hold Shift for larger steps.`}
       style={{ width, height }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
+      onKeyDown={handleKeyDown}
     >
       <canvas
         ref={planeRef}

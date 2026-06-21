@@ -52,6 +52,11 @@
     calc(var(--primitiv-space-space-12) / -2) 0;
 }
 
+.lc-chart:focus-visible {
+  outline: var(--primitiv-focus-ring-width) solid var(--primitiv-border-focus);
+  outline-offset: var(--primitiv-focus-ring-offset);
+}
+
 .lc-chart__plane,
 .lc-chart__overlay {
   position: absolute;

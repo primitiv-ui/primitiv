@@ -318,6 +318,62 @@ fetched into the environment) and the new functions appear in the generated
 server is not run here (sandbox-gotchas), so the visual check in a real browser
 is left to the human.
 
+### Phase 3 — picker hardening / a11y / numeric UX ✅ (landed; one human pass outstanding)
+
+The quality pass that makes the workbench picker production-ready before P3 and
+the plugin port. The picker vitest suite is green at **100% lines / branches /
+functions / statements** (77 tests across the workbench harness); `tsc --noEmit`
+and `eslint` are clean.
+
+- **Keyboard + a11y for the bespoke L×C pad.** The pad is now focusable
+  (`tabIndex=0`) with a visible `:focus-visible` ring, and arrow keys nudge
+  `(l, c)` — `←/→` lightness, `↑/↓` chroma — gamut-clamped through the engine
+  exactly like a pointer drag, with **Shift** for a coarse step. The nudge maths
+  is a pure `nudgeLc` in `geometry.ts` (every arm + the non-arrow `null` driven
+  by a test); the pad's accessible name announces the live value
+  (`"Lightness and chroma. Lightness 0.60, chroma 0.150. …"`).
+  **Decision:** chosen over react-aria-style *paired hidden range inputs*. Two
+  visually-hidden sliders would give true per-axis `aria-valuenow`, but they add
+  a heavier DOM to carry into the Phase 5 plugin port, and the accessible
+  **L/C/H number fields already provide per-axis keyboard + ARIA entry** — so
+  the pad's keyboard support is a sighted-keyboard enhancement layered on that
+  SR-friendly path, not the sole a11y story.
+- **Numeric-field UX.** A new pure `channels.ts` models each field's range,
+  display precision, and spinner step. Typed values **clamp into the channel
+  range** (L `[0,1]`, C `[0,c_max]`, H `[0,360]`); engine floats are **rounded
+  for display** (L/C 3 dp, H 1 dp); steps are sane (L `0.01`, C `0.005`, H `1`).
+  Clamping is to *range, not gamut* on purpose — a valid-range value outside the
+  sRGB gamut is kept so the chart cursor can sit beyond the boundary and show the
+  colour is unreachable; the **pad** clamps to gamut on interaction, the numeric
+  fields do not.
+- **Text-field softening (the §5/item-5 rough edge).** The hex⇄oklch field no
+  longer rewrites itself to the canonical `oklch(…)` string mid-edit: while
+  focused the user's text stands (even as a valid entry flows back through
+  `onChange`), and it resyncs to canonical only on **blur** or when the value
+  changes from elsewhere. This matches oklch.com, which never rewrites the
+  representation you are actively typing into.
+- **§6 decision — neutrals adopt the picker.** The Color engine page's neutral
+  white/black anchors now use `OklchPicker` in place of the `<input type=color>`
+  hex swatches. The brand-hue **tint is fully retained**: it is an *orthogonal*
+  blend applied in `useColors` (`tint_neutrals` layered on whatever anchors are
+  set), independent of how the anchors are entered. Rationale for adopting
+  rather than deferring: the real neutral design move is a subtle warm/cool
+  off-white/off-black — a tiny chroma offset along a chosen hue — which is
+  exactly what the L×C view surfaces and hex hides. The only caveat is that pure
+  `oklch(1 0 h)` / `oklch(0 0 h)` are degenerate at the pad's chroma-0 edge
+  (hue is inert until you move off it), which is acceptable.
+
+**Verification.** `wasm-pack` was unavailable in the sandbox; the prebuilt
+binary from `sandbox-gotchas` was fetched, `pnpm run build:wasm` ran, and the
+gamut/colour functions are present in the generated `.d.ts`. Unlike Phases 1–2,
+the **workbench dev server *does* run in this environment** (`pnpm run dev`,
+`http://localhost:5173/`, ColorEngine at `/`), so the human can view the picker
+live. The one thing this phase could **not** do in-sandbox is the **real-browser
+visual QA pass** — Playwright's browser download is blocked and no system
+Chromium is present — so confirming the gamut boundary curve, the out-of-gamut
+checkerboard, cursor/thumb alignment, the hue-strip track, and the token chrome
+under the design system is the **remaining human pass**.
+
 ### Phase 4 — Display-P3, and Phase 5 — plugin port
 
-Unchanged from §7 / §9 — out of scope for Phase 2.
+Unchanged from §7 / §9 — out of scope for Phase 3.

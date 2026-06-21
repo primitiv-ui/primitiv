@@ -63,8 +63,8 @@ export function ColorEngine() {
     neutralBlack,
     tintSource,
     tintStrength,
-    handleNeutralWhiteChange,
-    handleNeutralBlackChange,
+    handleNeutralWhiteValueChange,
+    handleNeutralBlackValueChange,
     handleUseAsTint,
     handleTintStrengthChange,
     handleRemoveTint,
@@ -102,6 +102,29 @@ export function ColorEngine() {
     });
   }, [wasmReady, STANDARD_KEYS, colors]);
 
+  // The neutral white/black anchors adopt the same OKLCH picker (RFC 0010 §6):
+  // ColorEngine owns each anchor's { l, c, h }, seeded once from the current
+  // neutral string, then driven by the picker. The tint is unaffected — it is an
+  // orthogonal blend in useColors layered on whatever anchors these set.
+  const [neutralWhiteValue, setNeutralWhiteValue] = useState<OklchValue>();
+  const [neutralBlackValue, setNeutralBlackValue] = useState<OklchValue>();
+
+  useEffect(() => {
+    if (!wasmReady) return;
+    setNeutralWhiteValue((prev) => prev ?? parseColor(neutralWhite) ?? undefined);
+    setNeutralBlackValue((prev) => prev ?? parseColor(neutralBlack) ?? undefined);
+  }, [wasmReady, neutralWhite, neutralBlack]);
+
+  const handleNeutralWhitePick = (value: OklchValue) => {
+    setNeutralWhiteValue(value);
+    handleNeutralWhiteValueChange(formatColor(value).oklch);
+  };
+
+  const handleNeutralBlackPick = (value: OklchValue) => {
+    setNeutralBlackValue(value);
+    handleNeutralBlackValueChange(formatColor(value).oklch);
+  };
+
   const handleBrandChange = (key: ColorKey) => (value: OklchValue) => {
     setBrand((prev) => ({ ...prev, [key]: value }));
     handleColorValueChange(key, formatColor(value).oklch);
@@ -125,22 +148,24 @@ export function ColorEngine() {
       <div className="palettes-grid">
         <p className="palette__label">Neutral</p>
         <div className="neutral-pickers">
-          <label>
-            White
-            <input
-              type="color"
-              value={neutralWhite}
-              onChange={handleNeutralWhiteChange}
-            />
-          </label>
-          <label>
-            Black
-            <input
-              type="color"
-              value={neutralBlack}
-              onChange={handleNeutralBlackChange}
-            />
-          </label>
+          <div className="neutral-picker">
+            <span className="neutral-picker__label">White</span>
+            {neutralWhiteValue && (
+              <OklchPicker
+                value={neutralWhiteValue}
+                onChange={handleNeutralWhitePick}
+              />
+            )}
+          </div>
+          <div className="neutral-picker">
+            <span className="neutral-picker__label">Black</span>
+            {neutralBlackValue && (
+              <OklchPicker
+                value={neutralBlackValue}
+                onChange={handleNeutralBlackPick}
+              />
+            )}
+          </div>
           {tintSource && (
             <div className="neutral-tint">
               <span

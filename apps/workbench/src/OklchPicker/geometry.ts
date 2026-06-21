@@ -7,6 +7,15 @@
 /** The chroma ceiling the L×C plane is painted and measured against. */
 export const C_MAX = 0.4;
 
+/** Fine arrow-key step for lightness (`0..1`) on the L×C pad. */
+export const LIGHTNESS_STEP = 0.005;
+/** Coarse (Shift) arrow-key step for lightness on the L×C pad. */
+export const LIGHTNESS_COARSE_STEP = 0.05;
+/** Fine arrow-key step for chroma (`0..c_max`) on the L×C pad. */
+export const CHROMA_STEP = 0.002;
+/** Coarse (Shift) arrow-key step for chroma on the L×C pad. */
+export const CHROMA_COARSE_STEP = 0.02;
+
 /** Clamps `value` into the inclusive `[min, max]` range. */
 export function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
@@ -46,6 +55,37 @@ export function pointerEventToLc(
     rect.height,
     cMax,
   );
+}
+
+/**
+ * Nudges an OkLCH `(l, c)` for an arrow keypress on the L×C pad: `ArrowLeft` /
+ * `ArrowRight` step lightness, `ArrowUp` / `ArrowDown` step chroma, `coarse`
+ * (the Shift modifier) swaps the fine step for the coarse one. The result is
+ * clamped into `[0, 1]` / `[0, cMax]`; the gamut clamp is applied separately by
+ * the caller (the engine owns the boundary, Principle 1). Returns `null` for a
+ * non-arrow key so the handler leaves other keys alone.
+ */
+export function nudgeLc(
+  l: number,
+  c: number,
+  key: string,
+  coarse: boolean,
+  cMax: number,
+): { l: number; c: number } | null {
+  const lStep = coarse ? LIGHTNESS_COARSE_STEP : LIGHTNESS_STEP;
+  const cStep = coarse ? CHROMA_COARSE_STEP : CHROMA_STEP;
+  switch (key) {
+    case "ArrowRight":
+      return { l: clamp(l + lStep, 0, 1), c };
+    case "ArrowLeft":
+      return { l: clamp(l - lStep, 0, 1), c };
+    case "ArrowUp":
+      return { l, c: clamp(c + cStep, 0, cMax) };
+    case "ArrowDown":
+      return { l, c: clamp(c - cStep, 0, cMax) };
+    default:
+      return null;
+  }
 }
 
 /**

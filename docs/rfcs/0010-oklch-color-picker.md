@@ -374,6 +374,76 @@ Chromium is present — so confirming the gamut boundary curve, the out-of-gamut
 checkerboard, cursor/thumb alignment, the hue-strip track, and the token chrome
 under the design system is the **remaining human pass**.
 
-### Phase 4 — Display-P3, and Phase 5 — plugin port
+### Phase 4 — Display-P3 (+ painted axis sliders) ✅ (landed; one human pass outstanding)
 
-Unchanged from §7 / §9 — out of scope for Phase 3.
+The additive wide-gamut layer of §7, plus the painted 1-D L/C sliders §4 marked
+optional — pulled into this phase to bring the picker to the full oklch.com
+editing model (minus alpha, which isn't in Harmoni's opaque OkLCH model). The
+workspace is green (`cargo test --workspace`, modulo a **pre-existing,
+unrelated** `primitiv-emit` button-wrapper golden that also fails on `main` in
+this sandbox) and the picker vitest suite is **100% lines / branches / functions
+/ statements** (94 tests).
+
+**Engine (`harmoni-core`, strict TDD, 100% regions/functions/lines via
+`cargo llvm-cov`):**
+- **`color::p3`** — a `DisplayP3` RGB standard (DCI-P3 primaries, D65, sRGB
+  transfer) defined through the `palette` crate's custom-primaries support, and
+  `oklch_to_p3_rgb`. The RGB↔XYZ matrices are **derived from the primaries** (the
+  default `None`) rather than hard-coded: an explicit matrix would shadow
+  `red`/`green`/`blue` into dead code and fail the functions gate. Validated
+  against the canonical sRGB-red-in-P3 value `(0.9175, 0.2003, 0.1386)`.
+- **`api::gamut::Gamut`** (`Srgb` | `DisplayP3`) threaded through a now
+  gamut-aware `max_in_gamut_chroma` and the painters. `paint_lc_plane` /
+  `paint_hue_strip` paint up to the chosen gamut's boundary and blit **P3
+  coordinates in P3 mode** (for a `display-p3` canvas), and two new fixed-axis
+  painters — **`paint_lightness_strip`** and **`paint_chroma_strip`** — back the
+  L and C slider tracks.
+- **wasm:** a `Gamut` mirror enum (round-trip tested like `TintMode`) and the
+  `gamut` parameter exposed on every painter wrapper; `paint_lightness_strip` /
+  `paint_chroma_strip` added. `pnpm run build:wasm` regenerated the `.d.ts`
+  (`Gamut = "Srgb" | "DisplayP3"`; all `paint_*` take `gamut`).
+
+**Picker (`apps/workbench/src/OklchPicker/`, controlled + portable):**
+- **`paint`** blits onto a `display-p3` context and tags each `ImageData` with
+  its buffer's colour space, so an sRGB buffer displays unchanged while a P3
+  buffer keeps its wide colours instead of clamping on `putImageData`.
+- **`repaint` / `useGamutPaint`** now gate **four** charts (plane + hue /
+  lightness / chroma strips) on the axis that moved, with the **gamut as a fifth
+  axis** that repaints everything — so each painted track shifts in relation to
+  the others as you drag (the oklch.com model: you read the gamut range live).
+- **`boundary` / `LcChart`** sweep a chosen gamut; the pad clamps the
+  pointer/keyboard to the **active** gamut and draws the **sRGB boundary (solid)
+  plus the P3 boundary (dashed)** in P3 mode, the band between marking the
+  sRGB→P3 extended region.
+- **`AxisSlider`** — one generic painted slider composing the headless `Slider`,
+  used for all three axes (it **replaced** the single-purpose `HueSlider`).
+- **`GamutToggle`** — the sRGB/P3 control composing the headless `ToggleGroup`
+  (single-select, never deselecting to none); no registry sheet exists, so it is
+  styled against the contract with `--primitiv-*` tokens.
+- **`OklchPicker`** owns the gamut as **internal view state** (not part of the
+  controlled `{ l, c, h }` value — Harmoni's model is opaque OkLCH), keeping the
+  `value`/`onChange` contract and Phase-5 portability intact.
+
+**Decisions taken during the build:**
+- **1-D L/C sliders: added now**, per the §4-optional triage — the user wants
+  the full oklch.com editing experience (three distinct painted axis charts, each
+  updating against the others). Not a follow-up.
+- **No alpha** — out of Harmoni's colour model; deliberately omitted.
+- **P3-faithful bytes on a `display-p3` canvas**, rather than sRGB-clamped paint
+  — otherwise the extended band would show nothing new on a P3 display.
+- **Transparent out-of-gamut** retained from Phase 1 (a checkerboard reads it),
+  now applied per-gamut and on the new slider tracks too.
+
+**Verification.** `cargo test --workspace` (less the pre-existing emit golden),
+`cargo llvm-cov` 100% on `color/p3.rs` + `api/gamut.rs`, `pnpm run build:wasm`
+with the new signatures confirmed in the `.d.ts`, picker vitest at 100%,
+`tsc --noEmit` + `eslint` + the workbench production build (`tsc -b && vite
+build`) all clean, and the dev server runs (`http://localhost:5173/`). The
+**real-browser visual QA pass remains the human's** (no browser in the sandbox):
+the P3 boundary curve and the dashed extended-band marker, the `display-p3`
+canvas fidelity of the extended colours, the three painted slider tracks, and the
+toggle chrome under the design system.
+
+### Phase 5 — plugin port
+
+Unchanged from §9 — out of scope for Phase 4.

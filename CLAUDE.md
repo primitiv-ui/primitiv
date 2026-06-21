@@ -164,9 +164,18 @@ source of truth for when a skill applies.
   nudging + focus ring + live aria-label, numeric-field clamp/round/steps
   (`channels.ts`), text-field soften-on-focus, and the §6 decision (neutral
   white/black anchors adopt the picker; the brand-hue tint is retained as an
-  orthogonal blend). The **real-browser visual QA pass is the one outstanding
-  item** (no browser in the sandbox). Display-P3 (Phase 4) and the plugin port
-  (Phase 5) follow. See RFC 0010 §10.
+  orthogonal blend). **Phase 4 (Display-P3 + painted axis sliders) is landed** —
+  a `DisplayP3` colour space + `oklch_to_p3_rgb` in `harmoni-core`, a `Gamut`
+  enum threaded through `max_in_gamut_chroma` and the painters (which blit P3
+  coordinates in P3 mode), plus `paint_lightness_strip` / `paint_chroma_strip`
+  for the new L/C tracks; on the picker side a `display-p3` canvas blit, four-
+  chart + gamut repaint gating, dual sRGB/P3 boundary curves on the pad, a
+  generic painted `AxisSlider` (replacing `HueSlider`) for all three axes, and a
+  `GamutToggle` composing the headless `ToggleGroup`. Gamut is **internal picker
+  view state**, so the controlled `{ l, c, h }` contract is unchanged. Alpha is
+  deliberately out (opaque OkLCH). The **real-browser visual QA pass is the one
+  outstanding item** (no browser in the sandbox). The plugin port (Phase 5)
+  follows. See RFC 0010 §10.
 
 ## Useful commands
 

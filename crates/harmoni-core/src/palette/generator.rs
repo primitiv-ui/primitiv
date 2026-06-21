@@ -121,6 +121,12 @@ pub const TARGET_LIGHTNESS_DARK: [f32; 10] =
 
 /// Binary search for the maximum chroma that stays within the sRGB gamut
 /// for a given OkLCH lightness and hue.
+///
+/// Note: this uses the *clamped* `into_color`, so the predicate effectively
+/// always passes and it returns the `hi` ceiling. Generated palettes depend on
+/// this behaviour (the term cancels in the chroma-ratio scaling), so it is left
+/// unchanged. The OKLCH picker needs a genuine boundary and uses its own
+/// unclamped `api::gamut::max_in_gamut_chroma` instead (RFC 0010 §3).
 pub fn max_in_gamut_chroma(lightness: f32, hue: f32) -> f32 {
     let mut lo: f32 = 0.0;
     let mut hi: f32 = 0.4;

@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 
 import { Switch } from "../Switch";
 
@@ -10,11 +10,11 @@ import { Switch } from "../Switch";
  * Auto-verification of the Switch styling contract (RFC 0004 §3.4 / D15). The
  * `data-*` half of `registry/components/switch/contract.json` is *derived from and
  * asserted against the rendered headless component* so it can never drift from
- * what the component actually emits. Switch is the state-driven proof (no
- * modifiers): its surface is `data-state="checked" | "unchecked"` (always
- * present) plus `data-disabled=""` when disabled. The authored half (root
- * class, parts, custom properties) is a styling convention the headless layer
- * does not emit and is checked by the generator drift-guards instead.
+ * what the component actually emits. The switch's `data-*` surface lives on the
+ * **track** (the styled root) — `data-state="checked" | "unchecked"` (always
+ * present) plus `data-disabled=""` when disabled. The authored half (classes,
+ * parts, custom properties) is a styling convention the headless layer does not
+ * emit and is checked by the generator drift-guards instead.
  */
 const contractPath = resolve(
   dirname(fileURLToPath(import.meta.url)),
@@ -22,6 +22,13 @@ const contractPath = resolve(
 );
 
 const contract = JSON.parse(readFileSync(contractPath, "utf8"));
+
+/** The wrapper element is the contracted styling root. */
+function rootOf(container: HTMLElement): HTMLElement {
+  const root = container.querySelector("label");
+  if (!root) throw new Error("expected a Switch wrapper element");
+  return root;
+}
 
 /** Every `data-*` attribute name present on an element. */
 function dataAttributeNames(element: Element): string[] {
@@ -37,7 +44,6 @@ describe("Switch styling contract", () => {
   );
 
   it("declares every data-* attribute as auto-verified against the component", () => {
-    // The Switch has no authored data-* surface; the whole contract is derived.
     expect(autoAttributes).toHaveLength(contract.dataAttributes.length);
   });
 
@@ -51,8 +57,8 @@ describe("Switch styling contract", () => {
         <Switch.Thumb />
       </Switch.Root>,
     ]) {
-      const { unmount } = render(ui);
-      for (const name of dataAttributeNames(screen.getByRole("switch"))) {
+      const { container, unmount } = render(ui);
+      for (const name of dataAttributeNames(rootOf(container))) {
         emitted.add(name);
       }
       unmount();
@@ -70,7 +76,7 @@ describe("Switch styling contract", () => {
     );
 
     for (const entry of stateEntries) {
-      const { unmount } = render(
+      const { container, unmount } = render(
         <Switch.Root
           checked={entry.value === "checked"}
           onCheckedChange={() => {}}
@@ -79,7 +85,7 @@ describe("Switch styling contract", () => {
           <Switch.Thumb />
         </Switch.Root>,
       );
-      expect(screen.getByRole("switch")).toHaveAttribute("data-state", entry.value);
+      expect(rootOf(container)).toHaveAttribute("data-state", entry.value);
       unmount();
     }
   });
@@ -89,21 +95,20 @@ describe("Switch styling contract", () => {
       (attribute: { name: string }) => attribute.name === "data-disabled",
     );
 
-    render(
+    const { container } = render(
       <Switch.Root disabled aria-label="x">
         <Switch.Thumb />
       </Switch.Root>,
     );
-    expect(screen.getByRole("switch")).toHaveAttribute(entry.name, entry.value);
+    expect(rootOf(container)).toHaveAttribute(entry.name, entry.value);
   });
 
   it("omits data-disabled when the documented condition does not hold", () => {
-    render(
+    const { container } = render(
       <Switch.Root aria-label="x">
         <Switch.Thumb />
       </Switch.Root>,
     );
-
-    expect(screen.getByRole("switch")).not.toHaveAttribute("data-disabled");
+    expect(rootOf(container)).not.toHaveAttribute("data-disabled");
   });
 });

@@ -7,15 +7,22 @@
  * properties), not these values (RFC 0006 Principle 2 — names are stable,
  * values are not).
  *
+ * The root is a <label> that *is* the visible track and wraps a real, hidden
+ * native <input type="checkbox" role="switch">. The input is the focusable,
+ * form-participating control, and its native :checked state slides the thumb
+ * and recolours the track (correct through a form reset, which fires no React
+ * event).
+ *
  * Structure follows RFC 0008: per-component API tokens + the resting look live
- * in primitiv.base, size modifiers in primitiv.variants, checked/disabled
- * styling in primitiv.states. The sublayer order is declared once in the shared
- * token layer (primitiv.tokens.css).
+ * in primitiv.base, size modifiers in primitiv.variants, checked / focus /
+ * disabled styling in primitiv.states. The sublayer order is declared once in
+ * the shared token layer (primitiv.tokens.css).
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-action-*,
  * --primitiv-surface-*, --primitiv-border-*, --primitiv-border-width-*,
  * --primitiv-radii-*, --primitiv-space-*, --primitiv-opacity-*,
- * --primitiv-focus-ring-* and --primitiv-switch-* custom properties it resolves.
+ * --primitiv-color-transparent, --primitiv-focus-ring-* and --primitiv-switch-*
+ * custom properties it resolves.
  */
 
 @layer primitiv.base {
@@ -45,6 +52,23 @@
     background: var(--primitiv-switch-track-bg);
     cursor: pointer;
     transition: background-color 120ms ease;
+  }
+
+  /* The real native input — erased with appearance:none and a transparent fill,
+     but laid over the whole track so it stays the focusable, clickable hit
+     target. It is the single source of truth: the track colour, thumb position
+     and focus ring all key off its :checked / :focus-visible / :disabled. */
+  .primitiv-switch > input {
+    appearance: none;
+    position: absolute;
+    inset: var(--primitiv-space-space-0);
+    margin: var(--primitiv-space-space-0);
+    inline-size: 100%;
+    block-size: 100%;
+    border: var(--primitiv-border-width-0);
+    border-radius: var(--primitiv-switch-track-radius);
+    background: var(--primitiv-color-transparent);
+    cursor: inherit;
   }
 
   .primitiv-switch__thumb {
@@ -95,12 +119,13 @@
 
 @layer primitiv.states {
   /* Checked — the track adopts the primary action colour and the thumb slides
-     to the trailing edge. The travel is the free space: the track width minus
-     the thumb minus a margin at each end. */
-  .primitiv-switch[data-state="checked"] {
+     to the trailing edge. Keyed off the input's native :checked, not the
+     data-state mirror, so the look survives a form reset. The travel is the free
+     space: the track width minus the thumb minus a margin at each end. */
+  .primitiv-switch:has(> input:checked) {
     background: var(--primitiv-switch-track-bg-checked);
   }
-  .primitiv-switch__thumb[data-state="checked"] {
+  .primitiv-switch > input:checked ~ .primitiv-switch__thumb {
     translate: calc(
       var(--primitiv-switch-track-width) - var(--primitiv-switch-thumb-size) -
         (2 * var(--primitiv-switch-thumb-margin))
@@ -110,9 +135,10 @@
   /* Focus — the shared two-layer ring, identical on every framed control. Two
      stacked box-shadows follow the track's own pill radius: a surface-coloured
      gap band, then the brand ring just outside it. :focus-visible keeps it to
-     keyboard focus. Restyle it by overriding the --primitiv-focus-ring* /
-     --primitiv-surface-default tokens globally, not via a per-component knob. */
-  .primitiv-switch:focus-visible {
+     keyboard focus; :has lifts it from the hidden input onto the visible track.
+     Restyle it by overriding the --primitiv-focus-ring* / --primitiv-surface-default
+     tokens globally, not via a per-component knob. */
+  .primitiv-switch:has(> input:focus-visible) {
     outline: none;
     box-shadow:
       0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
@@ -120,7 +146,9 @@
         var(--primitiv-focus-ring);
   }
 
-  /* Disabled is state-neutral so it reads the same checked or unchecked. */
+  /* Disabled is state-neutral so it reads the same checked or unchecked. The
+     data-disabled hook is a reliable prop mirror (unlike checked, disabled is
+     never changed behind React's back), so it drives this rule directly. */
   .primitiv-switch[data-disabled] {
     opacity: var(--primitiv-opacity-50);
     cursor: not-allowed;

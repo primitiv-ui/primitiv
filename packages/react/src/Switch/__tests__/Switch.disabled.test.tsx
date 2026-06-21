@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { Switch } from "../Switch";
 
 describe("Switch disabled", () => {
-  it("sets the native disabled attribute", () => {
+  it("sets the native disabled attribute on the input", () => {
     // Arrange & Act
     render(<Switch.Root aria-label="Enable notifications" disabled />);
 
@@ -14,27 +14,25 @@ describe("Switch disabled", () => {
     ).toBeDisabled();
   });
 
-  it('sets data-disabled="" when disabled', () => {
+  it('sets data-disabled="" on the track when disabled', () => {
     // Arrange & Act
-    render(<Switch.Root aria-label="Enable notifications" disabled />);
+    const { container } = render(
+      <Switch.Root aria-label="Enable notifications" disabled />,
+    );
 
     // Assert
-    expect(
-      screen.getByRole("switch", { name: "Enable notifications" }),
-    ).toHaveAttribute("data-disabled", "");
+    expect(container.querySelector("label")).toHaveAttribute("data-disabled", "");
   });
 
   it("does not set data-disabled when not disabled", () => {
     // Arrange & Act
-    render(<Switch.Root aria-label="Enable notifications" />);
+    const { container } = render(<Switch.Root aria-label="Enable notifications" />);
 
     // Assert
-    expect(
-      screen.getByRole("switch", { name: "Enable notifications" }),
-    ).not.toHaveAttribute("data-disabled");
+    expect(container.querySelector("label")).not.toHaveAttribute("data-disabled");
   });
 
-  it("does not toggle and does not call onCheckedChange when clicked while disabled", async () => {
+  it("does not toggle or call onCheckedChange when clicked while disabled", async () => {
     // Arrange
     const user = userEvent.setup();
     const onCheckedChange = vi.fn();
@@ -45,16 +43,13 @@ describe("Switch disabled", () => {
         onCheckedChange={onCheckedChange}
       />,
     );
+    const sw = screen.getByRole("switch", { name: "Enable notifications" });
 
     // Act
-    await user.click(
-      screen.getByRole("switch", { name: "Enable notifications" }),
-    );
+    await user.click(sw);
 
     // Assert
     expect(onCheckedChange).not.toHaveBeenCalled();
-    expect(
-      screen.getByRole("switch", { name: "Enable notifications" }),
-    ).toHaveAttribute("aria-checked", "false");
+    expect(sw).not.toBeChecked();
   });
 });

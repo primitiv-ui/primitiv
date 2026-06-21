@@ -3,8 +3,10 @@ import { createStrictContext } from "../utils/index.ts";
 
 /** Value shared from `Switch.Root` to `Switch.Thumb` through context. */
 export type SwitchContextValue = {
-  /** Whether the switch is currently checked. */
+  /** Whether the switch is currently checked (best-effort mirror of the input). */
   checked: boolean;
+  /** Whether the switch is disabled, for the `data-disabled` hook. */
+  disabled: boolean;
 };
 
 const switchContextPair = createStrictContext<SwitchContextValue>(

@@ -165,12 +165,27 @@
   cursor: pointer;
   transition: background 150ms ease;
 
-  &:focus-visible {
+  /* The real native input, erased but laid over the track as the hit/focus
+     target — every visual state below keys off its native :checked. */
+  & > input {
+    appearance: none;
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    border: 0;
+    border-radius: 9999px;
+    background: transparent;
+    cursor: inherit;
+  }
+
+  &:has(> input:focus-visible) {
     outline: 2px solid #6366f1;
     outline-offset: 2px;
   }
 
-  &[data-state="checked"] {
+  &:has(> input:checked) {
     background: #6366f1;
   }
 
@@ -192,10 +207,10 @@
   align-items: center;
   justify-content: center;
   transition: translate 150ms ease;
+}
 
-  &[data-state="checked"] {
-    translate: 1.25rem 0;
-  }
+.sw-track > input:checked ~ .sw-thumb {
+  translate: 1.25rem 0;
 }
 
 .sw-thumb__icon {
@@ -204,6 +219,6 @@
   transition: opacity 150ms ease;
 }
 
-.sw-thumb[data-state="checked"] .sw-thumb__icon {
+.sw-track > input:checked ~ .sw-thumb .sw-thumb__icon {
   opacity: 1;
 }

@@ -11,41 +11,40 @@ describe("Switch uncontrolled state", () => {
     // Assert
     expect(
       screen.getByRole("switch", { name: "Enable notifications" }),
-    ).toHaveAttribute("aria-checked", "false");
+    ).not.toBeChecked();
   });
 
   it("starts checked when defaultChecked={true}", () => {
     // Arrange & Act
-    render(<Switch.Root aria-label="Enable notifications" defaultChecked />);
+    const { container } = render(
+      <Switch.Root aria-label="Enable notifications" defaultChecked />,
+    );
 
     // Assert
     expect(
       screen.getByRole("switch", { name: "Enable notifications" }),
-    ).toHaveAttribute("aria-checked", "true");
-  });
-
-  it('sets data-state="checked" when defaultChecked={true}', () => {
-    // Arrange & Act
-    render(<Switch.Root aria-label="Enable notifications" defaultChecked />);
-
-    // Assert
-    expect(
-      screen.getByRole("switch", { name: "Enable notifications" }),
-    ).toHaveAttribute("data-state", "checked");
+    ).toBeChecked();
+    expect(container.querySelector("label")).toHaveAttribute(
+      "data-state",
+      "checked",
+    );
   });
 
   it("toggles to checked on first click", async () => {
     // Arrange
     const user = userEvent.setup();
-    render(<Switch.Root aria-label="Enable notifications" />);
+    const { container } = render(<Switch.Root aria-label="Enable notifications" />);
     const sw = screen.getByRole("switch", { name: "Enable notifications" });
 
     // Act
     await user.click(sw);
 
     // Assert
-    expect(sw).toHaveAttribute("aria-checked", "true");
-    expect(sw).toHaveAttribute("data-state", "checked");
+    expect(sw).toBeChecked();
+    expect(container.querySelector("label")).toHaveAttribute(
+      "data-state",
+      "checked",
+    );
   });
 
   it("toggles back to unchecked on second click", async () => {
@@ -58,8 +57,7 @@ describe("Switch uncontrolled state", () => {
     await user.click(sw);
 
     // Assert
-    expect(sw).toHaveAttribute("aria-checked", "false");
-    expect(sw).toHaveAttribute("data-state", "unchecked");
+    expect(sw).not.toBeChecked();
   });
 
   it("fires onCheckedChange with the new value on each toggle", async () => {
@@ -67,10 +65,7 @@ describe("Switch uncontrolled state", () => {
     const user = userEvent.setup();
     const onCheckedChange = vi.fn();
     render(
-      <Switch.Root
-        aria-label="Enable notifications"
-        onCheckedChange={onCheckedChange}
-      />,
+      <Switch.Root aria-label="Enable notifications" onCheckedChange={onCheckedChange} />,
     );
 
     // Act
@@ -79,5 +74,45 @@ describe("Switch uncontrolled state", () => {
     // Assert
     expect(onCheckedChange).toHaveBeenCalledOnce();
     expect(onCheckedChange).toHaveBeenCalledWith(true);
+  });
+
+  it("composes a consumer onChange, running it before the internal handler", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const order: string[] = [];
+    const onChange = vi.fn(() => order.push("consumer"));
+    const onCheckedChange = vi.fn(() => order.push("internal"));
+    render(
+      <Switch.Root
+        aria-label="Enable notifications"
+        onChange={onChange}
+        onCheckedChange={onCheckedChange}
+      />,
+    );
+
+    // Act
+    await user.click(screen.getByRole("switch", { name: "Enable notifications" }));
+
+    // Assert
+    expect(order).toEqual(["consumer", "internal"]);
+  });
+
+  it("lets a consumer onChange veto the internal handler via preventDefault", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const onCheckedChange = vi.fn();
+    render(
+      <Switch.Root
+        aria-label="Enable notifications"
+        onChange={(event) => event.preventDefault()}
+        onCheckedChange={onCheckedChange}
+      />,
+    );
+
+    // Act
+    await user.click(screen.getByRole("switch", { name: "Enable notifications" }));
+
+    // Assert
+    expect(onCheckedChange).not.toHaveBeenCalled();
   });
 });

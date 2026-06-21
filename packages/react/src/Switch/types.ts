@@ -1,19 +1,26 @@
-import { ButtonHTMLAttributes, ComponentProps, ReactNode, Ref } from "react";
+import { ChangeEventHandler, ComponentProps, ReactNode, Ref } from "react";
 
-/** Props common to both controlled and uncontrolled `Switch.Root` modes. */
+/**
+ * Props common to both controlled and uncontrolled `Switch.Root` modes — the
+ * native `<input type="checkbox">` attributes (minus the ones the component
+ * owns). `className` / `style` style the **track** (the visible control), not
+ * the hidden input; everything else spreads onto the input, because
+ * semantically the Root *is* the switch.
+ */
 export type SwitchRootBaseProps = Omit<
-  ButtonHTMLAttributes<HTMLButtonElement>,
-  "type" | "role" | "aria-checked"
+  ComponentProps<"input">,
+  "type" | "role" | "checked" | "defaultChecked"
 > & {
-  /** Render the child element instead of the default `<button>`. */
-  asChild?: boolean;
-  /** Ref to the rendered `<button>` element. */
-  ref?: Ref<HTMLButtonElement>;
+  /** Optional content (typically `Switch.Thumb`). */
+  children?: ReactNode;
+  /** Ref to the underlying native `<input>` element. */
+  ref?: Ref<HTMLInputElement>;
 };
 
 /**
- * Props for `Switch.Root` in uncontrolled mode — the component owns the checked
- * state. Pass `defaultChecked` to set the initial value; `checked` is forbidden.
+ * Props for `Switch.Root` in uncontrolled mode — the **browser** owns the
+ * checked state. Pass `defaultChecked` to set the initial value; `checked` is
+ * forbidden.
  */
 export type SwitchRootUncontrolledProps = SwitchRootBaseProps & {
   /** Initial checked state when uncontrolled. */
@@ -56,3 +63,6 @@ export type SwitchThumbProps = ComponentProps<"span"> & {
   /** Render the child element instead of the default `<span>`. */
   asChild?: boolean;
 };
+
+/** Internal: the native `onChange` shape the Root composes with its own. */
+export type SwitchChangeHandler = ChangeEventHandler<HTMLInputElement>;

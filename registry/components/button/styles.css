@@ -49,13 +49,6 @@
     font-size: var(--primitiv-button-font-size);
     font-weight: var(--primitiv-button-font-weight);
     line-height: var(--primitiv-button-line-height);
-    /* Trim the line-box leading to the cap height so the label optically
-       centres within the control frame regardless of the font's metrics. The
-       longhands (not the `text-box` shorthand) for the widest engine support —
-       Safari ships `text-box-trim`/`text-box-edge` ahead of the shorthand, and
-       where unsupported this no-ops and `line-height` governs. */
-    text-box-trim: trim-both;
-    text-box-edge: cap alphabetic;
     cursor: pointer;
     transition:
       background-color 120ms ease,
@@ -66,6 +59,15 @@
   .primitiv-button svg {
     inline-size: var(--primitiv-button-icon-size);
     block-size: var(--primitiv-button-icon-size);
+  }
+
+  /* text-box-trim must be applied to the element directly wrapping the text
+     node — not the flex container — for engines to honour it. The registry
+     component wraps string/number children in this span automatically so
+     consumers never need to do it by hand. */
+  .primitiv-button__label {
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
   }
 }
 

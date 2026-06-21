@@ -6,7 +6,7 @@
  * generated recipe — the primary DX (RFC 0004 §3.5 / D51).
  */
 import { Button as ButtonPrimitive } from "@primitiv-ui/react";
-import { type ComponentPropsWithRef } from "react";
+import { Children, type ComponentPropsWithRef, type ReactNode } from "react";
 import { button } from "./button.recipe";
 
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
@@ -40,6 +40,18 @@ export type ButtonProps = DistributiveOmit<ComponentPropsWithRef<typeof ButtonPr
   size?: "xs" | "sm" | "md" | "lg" | "xl";
 };
 
-export function Button({ variant, size, className, ...props }: ButtonProps) {
-  return <ButtonPrimitive className={[button({ variant, size }), className].filter(Boolean).join(" ")} {...props} />;
+function wrapTextNodes(children: ReactNode): ReactNode {
+  return Children.map(children, (child) =>
+    typeof child === "string" || typeof child === "number"
+      ? <span className="primitiv-button__label">{child}</span>
+      : child,
+  );
+}
+
+export function Button({ variant, size, className, children, ...props }: ButtonProps) {
+  return (
+    <ButtonPrimitive className={[button({ variant, size }), className].filter(Boolean).join(" ")} {...props}>
+      {wrapTextNodes(children)}
+    </ButtonPrimitive>
+  );
 }

@@ -55,10 +55,12 @@ export function CheckboxExample() {
         <p className="cb-example__description">
           The headless <code>Checkbox</code> — a real hidden{" "}
           <code>&lt;input type="checkbox"&gt;</code> in a{" "}
-          <code>.primitiv-checkbox</code> box — with the registry classes
-          applied. The tick (or mixed bar) shows off the input's native{" "}
-          <code>:checked</code> / <code>:indeterminate</code>;{" "}
-          <code>data-disabled</code> styles itself.
+          <code>.primitiv-checkbox</code> row — with the registry classes
+          applied. Children become the inline{" "}
+          <code>.primitiv-checkbox__label</code>; the tick (or mixed bar) shows
+          off the input's native <code>:checked</code> /{" "}
+          <code>:indeterminate</code>; <code>data-disabled</code> dims the whole
+          row.
         </p>
 
         <div className="cb-example__contract-row">
@@ -74,16 +76,12 @@ export function CheckboxExample() {
               props: { defaultChecked: true, disabled: true },
             },
           ].map(({ caption, props }) => (
-            <div key={caption} className="cb-example__labeled">
-              <Checkbox.Root
-                className="primitiv-checkbox"
-                aria-label={`Checkbox — ${caption}`}
-                {...props}
-              >
+            <Checkbox.Root key={caption} className="primitiv-checkbox" {...props}>
+              <span className="primitiv-checkbox__control">
                 <Checkbox.Indicator className="primitiv-checkbox__indicator" />
-              </Checkbox.Root>
-              <small className="cb-example__caption">{caption}</small>
-            </div>
+              </span>
+              <span className="primitiv-checkbox__label">{caption}</span>
+            </Checkbox.Root>
           ))}
         </div>
       </section>
@@ -92,8 +90,9 @@ export function CheckboxExample() {
         <h3 className="cb-example__section-title">Size & density</h3>
         <p className="cb-example__description">
           The <code>size</code> modifier re-points the box, radius and mark
-          tokens, and density is ambient via <code>data-density</code> — so the
-          whole control scales together (RFC 0009). Pick a size to apply the{" "}
+          tokens, the control↔label gap and the label type slot, and density is
+          ambient via <code>data-density</code> — so the whole control and its
+          label scale together (RFC 0009). Pick a size to apply the{" "}
           <code>--{size}</code> modifier to every row below.
         </p>
 
@@ -126,23 +125,29 @@ export function CheckboxExample() {
             <div className="cb-example__contract-row">
               <Checkbox.Root
                 className={`primitiv-checkbox primitiv-checkbox--${size}`}
-                aria-label={`Checkbox off — ${density} ${size}`}
               >
-                <Checkbox.Indicator className="primitiv-checkbox__indicator" />
+                <span className="primitiv-checkbox__control">
+                  <Checkbox.Indicator className="primitiv-checkbox__indicator" />
+                </span>
+                <span className="primitiv-checkbox__label">Off</span>
               </Checkbox.Root>
               <Checkbox.Root
                 className={`primitiv-checkbox primitiv-checkbox--${size}`}
-                aria-label={`Checkbox on — ${density} ${size}`}
                 defaultChecked
               >
-                <Checkbox.Indicator className="primitiv-checkbox__indicator" />
+                <span className="primitiv-checkbox__control">
+                  <Checkbox.Indicator className="primitiv-checkbox__indicator" />
+                </span>
+                <span className="primitiv-checkbox__label">On</span>
               </Checkbox.Root>
               <Checkbox.Root
                 className={`primitiv-checkbox primitiv-checkbox--${size}`}
-                aria-label={`Checkbox mixed — ${density} ${size}`}
                 defaultChecked="indeterminate"
               >
-                <Checkbox.Indicator className="primitiv-checkbox__indicator" />
+                <span className="primitiv-checkbox__control">
+                  <Checkbox.Indicator className="primitiv-checkbox__indicator" />
+                </span>
+                <span className="primitiv-checkbox__label">Mixed</span>
               </Checkbox.Root>
             </div>
           </div>

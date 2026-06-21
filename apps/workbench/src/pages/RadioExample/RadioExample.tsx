@@ -36,9 +36,10 @@ export function RadioExample() {
         <p className="radio-ex__description">
           The headless <code>Radio</code> — a real hidden{" "}
           <code>&lt;input type="radio"&gt;</code> in a{" "}
-          <code>.primitiv-radio</code> box — with the registry classes applied.
-          The dot and ring show off the input's native <code>:checked</code>;{" "}
-          <code>data-disabled</code> styles itself.
+          <code>.primitiv-radio</code> row — with the registry classes applied.
+          Children become the inline <code>.primitiv-radio__label</code>; the dot
+          and ring show off the input's native <code>:checked</code>;{" "}
+          <code>data-disabled</code> dims the whole row.
         </p>
 
         <div className="radio-ex__contract-row">
@@ -51,16 +52,12 @@ export function RadioExample() {
               props: { defaultChecked: true, disabled: true },
             },
           ].map(({ caption, props }) => (
-            <div key={caption} className="radio-ex__labeled">
-              <Radio.Root
-                className="primitiv-radio"
-                aria-label={`Radio — ${caption}`}
-                {...props}
-              >
+            <Radio.Root key={caption} className="primitiv-radio" {...props}>
+              <span className="primitiv-radio__control">
                 <Radio.Indicator className="primitiv-radio__indicator" />
-              </Radio.Root>
-              <small className="radio-ex__caption">{caption}</small>
-            </div>
+              </span>
+              <span className="primitiv-radio__label">{caption}</span>
+            </Radio.Root>
           ))}
         </div>
       </section>
@@ -69,10 +66,11 @@ export function RadioExample() {
         <h3 className="radio-ex__section-title">Size & density</h3>
         <p className="radio-ex__description">
           The <code>size</code> modifier re-points the box-size token (the radius
-          stays a full circle, the dot half the box), and density is ambient via{" "}
-          <code>data-density</code> — so the box, ring and dot scale together
-          (RFC 0009). Pick a size to apply the <code>--{size}</code> modifier to
-          every row below.
+          stays a full circle, the dot half the box), the control↔label gap and
+          the label type slot, and density is ambient via{" "}
+          <code>data-density</code> — so the box, dot, gap and label scale
+          together (RFC 0009). Pick a size to apply the <code>--{size}</code>{" "}
+          modifier to every row below.
         </p>
 
         <RadioGroup.Root
@@ -106,18 +104,20 @@ export function RadioExample() {
           >
             <span className="radio-ex__density-label">{density}</span>
             <div className="radio-ex__contract-row">
-              <Radio.Root
-                className={`primitiv-radio primitiv-radio--${size}`}
-                aria-label={`Radio off — ${density} ${size}`}
-              >
-                <Radio.Indicator className="primitiv-radio__indicator" />
+              <Radio.Root className={`primitiv-radio primitiv-radio--${size}`}>
+                <span className="primitiv-radio__control">
+                  <Radio.Indicator className="primitiv-radio__indicator" />
+                </span>
+                <span className="primitiv-radio__label">Off</span>
               </Radio.Root>
               <Radio.Root
                 className={`primitiv-radio primitiv-radio--${size}`}
-                aria-label={`Radio on — ${density} ${size}`}
                 defaultChecked
               >
-                <Radio.Indicator className="primitiv-radio__indicator" />
+                <span className="primitiv-radio__control">
+                  <Radio.Indicator className="primitiv-radio__indicator" />
+                </span>
+                <span className="primitiv-radio__label">On</span>
               </Radio.Root>
             </div>
           </div>

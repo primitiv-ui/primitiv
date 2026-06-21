@@ -93,18 +93,6 @@
   gap: 1.5rem;
 }
 
-.radio-ex__labeled {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.radio-ex__caption {
-  font-size: 0.75rem;
-  color: #6b7280;
-}
-
 .radio-ex__density {
   display: flex;
   align-items: center;

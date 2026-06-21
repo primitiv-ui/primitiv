@@ -1,6 +1,6 @@
 {
   "name": "@primitiv-ui/icons",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "exports": "./src/index.ts",
   "license": "MIT",
   "compilerOptions": {

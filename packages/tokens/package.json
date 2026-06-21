@@ -1,6 +1,6 @@
 {
   "name": "@primitiv-ui/tokens",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "description": "The DTCG-conformant design-token layer for the Primitiv ecosystem, plus helpers that transform Figma variable exports into DTCG JSON.",
   "type": "module",
   "main": "src/index.ts",

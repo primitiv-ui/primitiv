@@ -670,6 +670,12 @@
           "$type": "number",
           "$value": "{radii.6}"
         }
+      },
+      "xl": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        }
       }
     },
     "nav-item": {
@@ -1997,6 +2003,12 @@
         "radius": {
           "$type": "number",
           "$value": "{radii.4}"
+        }
+      },
+      "xl": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
         }
       }
     },
@@ -3326,6 +3338,12 @@
           "$type": "number",
           "$value": "{radii.8}"
         }
+      },
+      "xl": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        }
       }
     },
     "nav-item": {
@@ -4653,6 +4671,12 @@
         "radius": {
           "$type": "number",
           "$value": "{radii.4}"
+        }
+      },
+      "xl": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
         }
       }
     },

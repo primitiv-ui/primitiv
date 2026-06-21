@@ -154,6 +154,31 @@ pub fn paint_chroma_strip(l: f32, h: f32, width: usize, c_max: f32, gamut: Gamut
     buffer
 }
 
+/// Paints the OkLCH lightness×hue plane for a fixed chroma — the picker's
+/// Chroma chart — as a flat RGBA buffer of `width * height * 4` bytes (row-major,
+/// 4 bytes per pixel). Columns map hue `0..360` left→right; rows map lightness
+/// `1.0..0.0` top→bottom, so the lightest colours sit along the top. Pixels are
+/// sampled at their centres; out-of-`gamut` pixels are transparent. The boundary
+/// depends on `(lightness, hue)`, so it is found per pixel (RFC 0010 §2).
+pub fn paint_lh_plane(c: f32, width: usize, height: usize, gamut: Gamut) -> Vec<u8> {
+    let mut buffer = vec![0u8; width * height * 4];
+    for px in 0..width {
+        let hue = (px as f32 + 0.5) / width as f32 * 360.0;
+        for py in 0..height {
+            let lightness = 1.0 - (py as f32 + 0.5) / height as f32;
+            if c <= max_in_gamut_chroma(lightness, hue, gamut) {
+                let rgb = paint_color(Oklch::new(lightness, c, hue), gamut);
+                let i = (py * width + px) * 4;
+                buffer[i] = to_byte(rgb.r);
+                buffer[i + 1] = to_byte(rgb.g);
+                buffer[i + 2] = to_byte(rgb.b);
+                buffer[i + 3] = 255;
+            }
+        }
+    }
+    buffer
+}
+
 /// Paints the OkLCH chroma×hue plane for a fixed lightness — the picker's
 /// Lightness chart — as a flat RGBA buffer of `width * height * 4` bytes
 /// (row-major, 4 bytes per pixel). Columns map hue `0..360` left→right; rows map

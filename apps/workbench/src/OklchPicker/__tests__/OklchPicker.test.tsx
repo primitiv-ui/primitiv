@@ -9,6 +9,8 @@ import {
   max_in_gamut_chroma,
   paint_lc_plane,
   paint_hue_strip,
+  paint_lightness_strip,
+  paint_chroma_strip,
   describe_oklch,
   parse_color,
 } from "harmoni-wasm";
@@ -17,6 +19,8 @@ vi.mock("harmoni-wasm", () => ({
   max_in_gamut_chroma: vi.fn(),
   paint_lc_plane: vi.fn(),
   paint_hue_strip: vi.fn(),
+  paint_lightness_strip: vi.fn(),
+  paint_chroma_strip: vi.fn(),
   describe_oklch: vi.fn(),
   parse_color: vi.fn(),
 }));
@@ -50,6 +54,8 @@ beforeEach(() => {
   vi.mocked(max_in_gamut_chroma).mockReturnValue(0.3);
   vi.mocked(paint_lc_plane).mockReturnValue(new Uint8Array());
   vi.mocked(paint_hue_strip).mockReturnValue(new Uint8Array());
+  vi.mocked(paint_lightness_strip).mockReturnValue(new Uint8Array());
+  vi.mocked(paint_chroma_strip).mockReturnValue(new Uint8Array());
   vi.mocked(describe_oklch).mockReturnValue(triple());
   vi.mocked(parse_color).mockReturnValue(triple());
 });
@@ -201,13 +207,44 @@ describe("OklchPicker", () => {
     );
   });
 
-  it("merges a hue change, preserving lightness and chroma", async () => {
+  it("merges a hue change from the hue slider, preserving lightness and chroma", async () => {
     const user = userEvent.setup();
     const { onChange } = renderPicker();
 
-    screen.getByRole("slider").focus();
+    screen.getByRole("slider", { name: "Hue" }).focus();
     await user.keyboard("{ArrowRight}");
 
     expect(onChange).toHaveBeenCalledWith({ l: 0.6, c: 0.15, h: 251 });
+  });
+
+  it("merges a lightness change from the lightness slider", async () => {
+    const user = userEvent.setup();
+    const { onChange } = renderPicker();
+
+    screen.getByRole("slider", { name: "Lightness" }).focus();
+    await user.keyboard("{ArrowRight}");
+
+    expect(onChange).toHaveBeenCalledWith({ l: 0.61, c: 0.15, h: 250 });
+  });
+
+  it("merges a chroma change from the chroma slider", async () => {
+    const user = userEvent.setup();
+    const { onChange } = renderPicker();
+
+    screen.getByRole("slider", { name: "Chroma" }).focus();
+    await user.keyboard("{ArrowRight}");
+
+    expect(onChange).toHaveBeenCalledWith({ l: 0.6, c: 0.155, h: 250 });
+  });
+
+  it("draws the P3 extended boundary once the gamut toggle is switched", async () => {
+    const user = userEvent.setup();
+    renderPicker();
+    const pad = screen.getByRole("group", { name: /lightness.*chroma/i });
+    expect(pad.querySelectorAll("polyline")).toHaveLength(1);
+
+    await user.click(screen.getByRole("button", { name: "P3" }));
+
+    expect(pad.querySelectorAll("polyline")).toHaveLength(2);
   });
 });

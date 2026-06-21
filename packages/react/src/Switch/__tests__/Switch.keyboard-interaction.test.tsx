@@ -15,10 +15,10 @@ describe("Switch keyboard interaction", () => {
     await user.keyboard(" ");
 
     // Assert
-    expect(sw).toHaveAttribute("aria-checked", "true");
+    expect(sw).toBeChecked();
   });
 
-  it("toggles on Enter key", async () => {
+  it("does not toggle on Enter (native checkbox semantics)", async () => {
     // Arrange
     const user = userEvent.setup();
     render(<Switch.Root aria-label="Enable notifications" />);
@@ -29,7 +29,7 @@ describe("Switch keyboard interaction", () => {
     await user.keyboard("{Enter}");
 
     // Assert
-    expect(sw).toHaveAttribute("aria-checked", "true");
+    expect(sw).not.toBeChecked();
   });
 
   it("does not toggle on Space when disabled", async () => {
@@ -51,6 +51,6 @@ describe("Switch keyboard interaction", () => {
 
     // Assert
     expect(onCheckedChange).not.toHaveBeenCalled();
-    expect(sw).toHaveAttribute("aria-checked", "false");
+    expect(sw).not.toBeChecked();
   });
 });

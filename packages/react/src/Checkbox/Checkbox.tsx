@@ -1,10 +1,10 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type { ReactElement } from "react";
 
-import { Slot, composeEventHandlers } from "../Slot/index.ts";
+import { Slot, composeRefs } from "../Slot/index.ts";
 
 import { CheckboxContext } from "./CheckboxContext";
-import { useCheckboxContext, useCheckboxRoot } from "./hooks/index.ts";
+import { useCheckboxContext, useCheckboxInput } from "./hooks/index.ts";
 import {
   CheckboxIndicatorProps,
   CheckboxRootProps,
@@ -17,104 +17,105 @@ function dataStateOf(checked: CheckedState) {
 }
 
 /**
- * The root of a Checkbox — a native `<button role="checkbox">` that
- * owns the tri-state checked value and provides
- * {@link CheckboxContext | `CheckboxContext`} to descendant
- * {@link CheckboxIndicator | `Checkbox.Indicator`}s.
+ * The root of a Checkbox — a `<label>` that is itself the **visible, styled
+ * box** and wraps a **real, visually-hidden `<input type="checkbox">`** (the
+ * focusable, form-participating control) plus the decorative
+ * {@link CheckboxIndicator | `Checkbox.Indicator`} mark. It provides
+ * {@link CheckboxContext | `CheckboxContext`} to the indicator.
+ *
+ * Because the underlying element is a genuine native checkbox, it behaves like
+ * one: it submits its `value` under `name` with an enclosing form, resets with
+ * the form, and gets keyboard activation and focus for free. The tri-state
+ * `"indeterminate"` is the platform's own: it is applied via the input's
+ * `.indeterminate` DOM property, so the browser exposes `aria-checked="mixed"`
+ * and the `:indeterminate` pseudo-class for styling.
+ *
+ * Props routing: `className` / `style` style the **box** (the `<label>` you
+ * see — the input is hidden); every other prop (`name`, `value`, `id`,
+ * `aria-*`, `required`, `disabled`, `ref`, …) spreads onto the input, because
+ * semantically the Root *is* the checkbox.
  *
  * Supports two state modes, statically discriminated at the type level:
  *
  * - **Uncontrolled** — pass
- *   {@link CheckboxRootProps.defaultChecked | `defaultChecked`} (or omit
- *   for unchecked-on-mount). The component owns the value internally.
+ *   {@link CheckboxRootProps.defaultChecked | `defaultChecked`} (or omit). It
+ *   may be `"indeterminate"` for a mixed-on-mount checkbox.
  * - **Controlled** — pass
  *   {@link CheckboxRootProps.checked | `checked`} *and*
- *   {@link CheckboxRootProps.onCheckedChange | `onCheckedChange`}
- *   together. The parent owns the value; the component defers every
- *   change back through the callback.
- *
- * Both `checked` and `defaultChecked` accept `boolean | "indeterminate"`.
- * Clicking an indeterminate checkbox resolves it to `true` per the
- * WAI-ARIA tri-state convention, then flips boolean on subsequent clicks.
- *
- * **ARIA.** `role="checkbox"` and `aria-checked` are set automatically;
- * `aria-checked="mixed"` represents the indeterminate state.
+ *   {@link CheckboxRootProps.onCheckedChange | `onCheckedChange`} together.
+ *   Clicking a mixed checkbox resolves it to `true`.
  *
  * **Styling hooks.** `data-state="checked" | "unchecked" | "indeterminate"`
- * on the root, plus `data-disabled=""` when disabled.
- *
- * **`asChild` prop.** Pass `asChild` to render any consumer-supplied
- * element (e.g. `<li role="menuitemcheckbox">` for menu composition)
- * with the checkbox's ARIA attributes, data-state, composed onClick, and
- * ref merged in. The native `<button>` is dropped; consumers who want
- * keyboard activation on a non-button element are responsible for
- * providing it.
+ * and `data-disabled=""` on the box (and `data-state` on the indicator). These
+ * mirror the input, but shipped CSS keys the mark off the input's native
+ * `:checked` / `:indeterminate` instead; `data-state` is a convenience mirror.
  *
  * @example Uncontrolled
  * ```tsx
- * <Checkbox.Root defaultChecked aria-label="Accept terms">
- *   <Checkbox.Indicator>
- *     <CheckIcon />
- *   </Checkbox.Indicator>
+ * <Checkbox.Root name="terms" value="accepted" defaultChecked aria-label="Accept terms">
+ *   <Checkbox.Indicator />
  * </Checkbox.Root>
  * ```
  *
- * @example Controlled
+ * @example Controlled tri-state
  * ```tsx
- * const [checked, setChecked] = useState<CheckedState>(false);
+ * const [checked, setChecked] = useState<CheckedState>("indeterminate");
  *
  * <Checkbox.Root checked={checked} onCheckedChange={setChecked} aria-label="…">
- *   <Checkbox.Indicator>
- *     <CheckIcon />
- *   </Checkbox.Indicator>
- * </Checkbox.Root>
- * ```
- *
- * @example Composed into a menu item via `asChild`
- * ```tsx
- * <Checkbox.Root asChild aria-label="Show hidden files">
- *   <li role="menuitemcheckbox">Show hidden files</li>
+ *   <Checkbox.Indicator />
  * </Checkbox.Root>
  * ```
  */
 export function CheckboxRoot(props: CheckboxRootProps): ReactElement {
   const {
-    defaultChecked,
-    checked,
-    onCheckedChange,
-    onClick,
-    disabled,
-    asChild = false,
+    className,
+    style,
     children,
-    ...rest
-  } = props;
-  const { checked: isChecked, toggle } = useCheckboxRoot({
     defaultChecked,
     checked,
     onCheckedChange,
-  });
-  const contextValue = useMemo(() => ({ checked: isChecked }), [isChecked]);
-  const rootProps = {
-    ...rest,
-    role: "checkbox" as const,
-    "aria-checked":
-      isChecked === "indeterminate"
-        ? ("mixed" as const)
-        : (isChecked as boolean),
-    "data-state": dataStateOf(isChecked),
-    "data-disabled": disabled ? "" : undefined,
+    onChange,
     disabled,
-    onClick: composeEventHandlers(onClick, toggle),
-  };
+    ref,
+    ...inputRest
+  } = props;
+  const {
+    checked: value,
+    handleChange,
+    inputStateProps,
+  } = useCheckboxInput({ defaultChecked, checked, onCheckedChange, onChange });
+
+  // `indeterminate` is a DOM property with no JSX attribute, so it is applied
+  // imperatively whenever the resolved tri-state value changes. The input is
+  // rendered unconditionally, so the ref is always set here.
+  const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    inputRef.current!.indeterminate = value === "indeterminate";
+  }, [value]);
+  const composedRef = ref ? composeRefs(inputRef, ref) : inputRef;
+
+  const contextValue = useMemo(
+    () => ({ checked: value, disabled: Boolean(disabled) }),
+    [value, disabled],
+  );
   return (
     <CheckboxContext.Provider value={contextValue}>
-      {asChild ? (
-        <Slot {...rootProps}>{children}</Slot>
-      ) : (
-        <button type="button" {...rootProps}>
-          {children}
-        </button>
-      )}
+      <label
+        className={className}
+        style={style}
+        data-state={dataStateOf(value)}
+        data-disabled={disabled ? "" : undefined}
+      >
+        <input
+          type="checkbox"
+          ref={composedRef}
+          disabled={disabled}
+          {...inputRest}
+          {...inputStateProps}
+          onChange={handleChange}
+        />
+        {children}
+      </label>
     </CheckboxContext.Provider>
   );
 }
@@ -123,32 +124,19 @@ export function CheckboxRoot(props: CheckboxRootProps): ReactElement {
 CheckboxRoot.displayName = "CheckboxRoot";
 
 /**
- * A decorative `<span aria-hidden="true">` that renders its children
- * only while the parent {@link CheckboxRoot | `Checkbox.Root`} is
- * **checked** or **indeterminate** — never when unchecked. The
- * checkbox's accessible state is already conveyed by `aria-checked`
- * on the root, so the indicator is purely visual.
+ * The decorative mark — a `<span>` that is **always mounted**, sitting inside
+ * the {@link CheckboxRoot | `Checkbox.Root`} box. Its visibility and shape (a
+ * tick when checked, a bar when indeterminate) are a pure CSS concern, revealed
+ * off the input's native `:checked` / `:indeterminate` state. The checkbox's
+ * accessible state is conveyed by the native input, so the mark is purely
+ * visual.
  *
  * **Styling hook.** Mirrors the root's
- * `data-state="checked" | "unchecked" | "indeterminate"` so the same
- * CSS rules can target both.
+ * `data-state="checked" | "unchecked" | "indeterminate"`.
  *
- * **`asChild` prop.** Pass `asChild` to render the consumer's own
- * element (typically an `<svg>` tick icon) as the indicator itself,
- * with `aria-hidden` and `data-state` merged onto that element rather
- * than a wrapper.
- *
- * **`forceMount` prop.** Pass `forceMount` to keep the indicator in
- * the DOM while unchecked so a CSS exit animation can play against
- * `data-state="unchecked"`. Consumers who use `forceMount` own the
- * exit lifecycle themselves.
- *
- * @example Default span wrapper
- * ```tsx
- * <Checkbox.Indicator>
- *   <CheckIcon />
- * </Checkbox.Indicator>
- * ```
+ * **`asChild` prop.** Pass `asChild` to render the consumer's own element
+ * (typically an `<svg>` tick) as the indicator itself, with `data-state`
+ * merged onto that element rather than a wrapper.
  *
  * @example Icon as the indicator via `asChild`
  * ```tsx
@@ -157,24 +145,14 @@ CheckboxRoot.displayName = "CheckboxRoot";
  * </Checkbox.Indicator>
  * ```
  *
- * @example Force-mounted for exit animation
- * ```tsx
- * <Checkbox.Indicator forceMount>
- *   <CheckIcon />
- * </Checkbox.Indicator>
- * ```
- *
  * @throws if rendered outside a `Checkbox.Root`.
  */
 export function CheckboxIndicator({
   children,
-  forceMount,
   asChild = false,
   ...rest
-}: CheckboxIndicatorProps): ReactElement | null {
+}: CheckboxIndicatorProps): ReactElement {
   const { checked } = useCheckboxContext();
-  const isVisible = checked !== false;
-  if (!isVisible && !forceMount) return null;
   const indicatorProps = {
     ...rest,
     "aria-hidden": "true" as const,
@@ -196,31 +174,29 @@ export type TCheckboxCompound = typeof CheckboxRoot & {
 };
 
 /**
- * Headless, accessible **Checkbox** — a compound component built on a
- * native `<button role="checkbox">` that implements the
- * [WAI-ARIA Checkbox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/)
- * including the tri-state ("mixed") variant. Zero styles ship.
+ * Headless, accessible **Checkbox** — a compound component built on a **real,
+ * visually-hidden native `<input type="checkbox">`**, including the platform's
+ * own tri-state (`indeterminate` → `aria-checked="mixed"`). Unlike a button
+ * dressed up with `role="checkbox"`, it participates in native forms. Zero
+ * styles ship.
  *
- * `Checkbox` is both callable (an alias of {@link CheckboxRoot | `Checkbox.Root`})
- * and carries its sub-components as static properties. Prefer the
- * namespaced form in application code for readability and grep-ability.
+ * `Checkbox` is both callable (an alias of
+ * {@link CheckboxRoot | `Checkbox.Root`}) and carries its sub-components as
+ * static properties.
  *
- * - {@link CheckboxRoot | `Checkbox.Root`} — state owner, context provider, toggle button.
- * - {@link CheckboxIndicator | `Checkbox.Indicator`} — decorative tick, conditional on checked state.
+ * - {@link CheckboxRoot | `Checkbox.Root`} — the styled box: label + hidden input, state owner, context provider.
+ * - {@link CheckboxIndicator | `Checkbox.Indicator`} — the decorative mark.
  *
  * @example Minimal usage
  * ```tsx
  * import { Checkbox } from "@primitiv-ui/react";
  *
- * <Checkbox.Root aria-label="Accept terms">
- *   <Checkbox.Indicator>
- *     <CheckIcon />
- *   </Checkbox.Indicator>
+ * <Checkbox.Root name="terms" value="accepted" aria-label="Accept terms">
+ *   <Checkbox.Indicator />
  * </Checkbox.Root>;
  * ```
  *
  * @see {@link CheckboxRoot} for state modes and tri-state semantics.
- * @see {@link CheckboxIndicator} for the mount gate and animation hooks.
  */
 const CheckboxCompound: TCheckboxCompound = Object.assign(CheckboxRoot, {
   Root: CheckboxRoot,

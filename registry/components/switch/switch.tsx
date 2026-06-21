@@ -12,7 +12,7 @@ import { switchRecipe } from "./switch.recipe";
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
 
 /**
- * An on/off toggle — an immediate binary action, not a form selection.
+ * An on/off toggle — a native switch input for an immediate binary setting.
  *
  * @see https://primitiv-ui.dev/docs/components/switch
  */

@@ -1,10 +1,12 @@
 # `checkbox` — registry entry
 
 The artefacts `primitiv add checkbox` resolves and copies into a consumer repo.
-Checkbox is a **tri-state framed control**: it shares the Switch shape — a
-`data-state`-driven `<button>` root with one decorative **part** (the indicator)
-— and adds back the `size` modifier axis, so the auto-rendered part and the
+Checkbox is a **tri-state framed control**: a `<label>` box root wrapping a
+**real, hidden native `<input type="checkbox">`**, with one decorative **part**
+(the indicator) and the `size` modifier axis, so the auto-rendered part and the
 size-variant recipe appear together in the *same* `primitiv-emit` generators.
+Being a native input, it participates in forms and exposes the platform's own
+`:indeterminate` for the mixed state.
 
 ## Files
 
@@ -26,11 +28,14 @@ A **hybrid** document with two halves and two sources of truth (D15):
 
 - **`dataAttributes`** — `source: "auto"`. Derived from and **asserted against
   the rendered headless `Checkbox`** by a drift-guard test
-  (`packages/react/src/Checkbox/__tests__/Checkbox.contract.test.tsx`). Checkbox
+  (`packages/react/src/Checkbox/__tests__/Checkbox.contract.test.tsx`). The box
   emits `data-state` — `"checked"`, `"unchecked"` or `"indeterminate"`, always
-  present — plus `data-disabled` (empty value, when `disabled`).
+  present — plus `data-disabled` (empty value, when `disabled`). (`data-state` is
+  a best-effort mirror; the stylesheet keys the *marked* look off the input's
+  native `:checked` / `:indeterminate` instead.)
 - **`root` / `parts` / `modifiers` / `customProperties`** — authored. The
-  `.primitiv-checkbox` root class, the `primitiv-checkbox__indicator` **part** (a
+  `.primitiv-checkbox` root class (the `<label>` box), the
+  `primitiv-checkbox__indicator` **part** (a
   decorative slot, named BEM-style off the root, D14), the `size` modifier axis,
   and the `--primitiv-checkbox-*` custom-property API.
 
@@ -46,12 +51,18 @@ Structured per RFC 0008 — the per-component API tokens + resting look in
 `--primitiv-checkbox-*` to the synced theme tokens — `checkbox/*` for the box and
 mark anatomy, `action/*` + `surface/*` + `border/*` for colour.
 
-The **indicator is the mark itself**: the headless layer mounts it only while
-checked or indeterminate, so a `mark-size` square filled with the current colour
-and `clip-path`-clipped to a tick is the whole indicator. The indeterminate state
-re-clips the same square to a bar. On `:focus-visible` the box draws the **shared
-two-layer focus ring** every framed control shows; restyle it system-wide by
-overriding the `--primitiv-focus-ring*` and `--primitiv-surface-default` tokens.
+The **indicator is the mark itself**: a `mark-size` square filled with the
+current colour and `clip-path`-clipped to a tick, always in the DOM but
+`scale: 0` until the input is checked or indeterminate, when
+`.primitiv-checkbox > input:checked ~ .primitiv-checkbox__indicator` (and the
+`:indeterminate` sibling, which re-clips to a bar) scales it to `1`. Keying the
+fill and reveal off the input's **native `:checked` / `:indeterminate`** rather
+than the `data-state` mirror keeps the look correct through a form reset. The
+hidden input is laid over the whole box (`appearance: none`, transparent) so it
+stays the hit/focus target; on `:focus-visible` the box draws the **shared
+two-layer focus ring** via `:has(> input:focus-visible)`. Restyle it system-wide
+by overriding the `--primitiv-focus-ring*` and `--primitiv-surface-default`
+tokens.
 
 **It is yours to edit.** The stable surface is the *contract* (classes, `data-*`,
 custom-property names), not these values (RFC 0006 Principle 2 — names are stable,

@@ -28,15 +28,19 @@ A **hybrid** document with two halves and two sources of truth (D15):
 - **`dataAttributes`** — `source: "auto"`. Derived from and **asserted against
   the rendered headless `Switch`** by a drift-guard test
   (`packages/react/src/Switch/__tests__/Switch.contract.test.tsx`), so it can
-  never drift from what the component emits. Switch emits `data-state` —
+  never drift from what the component emits. The track emits `data-state` —
   `"checked"` or `"unchecked"`, always present — plus `data-disabled` (empty
-  value, when `disabled`).
+  value, when `disabled`). (`data-state` is a best-effort mirror; the stylesheet
+  keys the on/off look off the hidden input's native `:checked` instead.)
 - **`root` / `parts` / `customProperties`** — authored. These are styling
   conventions the headless layer does not emit: the `.primitiv-switch` root
-  class, the `primitiv-switch__thumb` **part** (a decorative slot, named
-  BEM-style off the root, D14), and the `--primitiv-switch-*` custom-property
-  API. There are **no `modifiers`** — Switch has no visual `variant` axis, which
-  is exactly what makes it the generality proof.
+  class (the `<label>` track, wrapping a real hidden native
+  `<input type="checkbox" role="switch">`), the `primitiv-switch__thumb` **part**
+  (a decorative slot, named
+  BEM-style off the root, D14), the `size` modifier axis, and the
+  `--primitiv-switch-*` custom-property API. Switch's distinguishing trait is
+  that it is **state-driven** (`data-state`, no `variant`/`intent` colour axis),
+  which is what makes it the generators' state proof.
 
 `parts` is what tells the wrapper generator this is a **compound with a
 decorative slot**: instead of a single self-closing element, the wrapper renders
@@ -47,12 +51,16 @@ separate concern, not modelled here.)
 ## The default theme (`styles.css`)
 
 Structured per RFC 0008 — the per-component API tokens + resting look in
-`primitiv.base`, the `data-state` / `data-disabled` styling in `primitiv.states`
-(the sublayer order is declared once in the shared token layer, so this file only
-re-opens the named sublayers). There is **no `primitiv.variants` layer** — Switch
-has no modifiers. It wires `--primitiv-switch-*` to the synced theme tokens —
+`primitiv.base`, the `size` re-pointing in `primitiv.variants`, and the checked /
+focus / `data-disabled` styling in `primitiv.states` (the sublayer order is
+declared once in the shared token layer, so this file only re-opens the named
+sublayers). It wires `--primitiv-switch-*` to the synced theme tokens —
 `switch/*` for the track/thumb anatomy, `action/*` + `surface/*` + `border/*` for
-colour — and the checked thumb travel is a `calc()` over the same anatomy knobs
+colour. The hidden
+input is laid over the whole track (`appearance: none`, transparent) so it stays
+the hit/focus target, and the **on/off look keys off its native `:checked`** (and
+`:focus-visible` via `:has`) rather than the `data-state` mirror, so it survives a
+form reset. The checked thumb travel is a `calc()` over the same anatomy knobs
 (track width minus thumb minus a margin at each end), so a re-sized track stays
 consistent.
 

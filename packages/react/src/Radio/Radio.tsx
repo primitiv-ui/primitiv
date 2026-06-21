@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import type { ReactElement } from "react";
 
-import { Slot, composeEventHandlers } from "../Slot/index.ts";
+import { Slot } from "../Slot/index.ts";
 
 import { RadioContext } from "./RadioContext";
 import { useRadioContext, useRadioRoot } from "./hooks/index.ts";
@@ -12,52 +12,54 @@ function dataStateOf(checked: boolean) {
 }
 
 /**
- * The root of a Radio — a native `<button role="radio">` that owns a
- * single boolean selected value and provides
- * {@link RadioContext | `RadioContext`} to descendant
- * {@link RadioIndicator | `Radio.Indicator`}s.
+ * The root of a Radio — a `<label>` that is itself the **visible, styled box**
+ * and wraps a **real, visually-hidden `<input type="radio">`** (the focusable,
+ * form-participating control) plus the decorative
+ * {@link RadioIndicator | `Radio.Indicator`} dot. It provides
+ * {@link RadioContext | `RadioContext`} to the indicator.
  *
- * Unlike a checkbox, selection is **one-way**: clicking an unselected
- * radio selects it, but clicking the already-selected radio is a no-op —
- * a lone radio never toggles itself off. De-selection happens when a
- * sibling is chosen, which is the grouping consumer's concern. For a
- * managed set with roving-tabindex keyboard navigation, reach for
- * `RadioGroup` instead; `Radio` is the standalone control for when you
- * own the grouping (e.g. a native form `name`, or a bespoke layout).
+ * Because the underlying element is a genuine native radio, it behaves like
+ * one: siblings sharing a `name` form a **native radio group** (the browser
+ * deselects the others when one is chosen — no JS required), it submits with
+ * an enclosing form, resets with it, and gets keyboard activation and focus
+ * for free. This is the standalone primitive for "I own the grouping via
+ * `name`, or I'm a single opt-in". For a managed set with roving-tabindex
+ * arrow-key navigation, reach for `RadioGroup` instead.
+ *
+ * Props routing: `className` / `style` style the **box** (the `<label>` you
+ * see — the input is hidden); every other prop (`name`, `value`, `id`,
+ * `aria-*`, `required`, `disabled`, `ref`, …) spreads onto the input, because
+ * semantically the Root *is* the radio.
  *
  * Supports two state modes, statically discriminated at the type level:
  *
  * - **Uncontrolled** — pass
- *   {@link RadioRootProps.defaultChecked | `defaultChecked`} (or omit for
- *   unselected-on-mount). The component owns the value internally.
+ *   {@link RadioRootProps.defaultChecked | `defaultChecked`} (or omit). The
+ *   **browser** owns the value, so native `name`-grouping just works.
  * - **Controlled** — pass {@link RadioRootProps.checked | `checked`} *and*
- *   {@link RadioRootProps.onCheckedChange | `onCheckedChange`} together.
- *   The parent owns the value; the component defers selection back through
- *   the callback.
+ *   {@link RadioRootProps.onCheckedChange | `onCheckedChange`} together. The
+ *   parent owns the value and the grouping.
  *
- * **ARIA.** `role="radio"` and `aria-checked` are set automatically.
+ * **Styling hooks.** `data-state="checked" | "unchecked"` and
+ * `data-disabled=""` on the box (and `data-state` on the indicator). These
+ * mirror the input but can lag a silent native deselect, so shipped CSS keys
+ * visibility off the input's native `:checked` / `:has()` selectors;
+ * `data-state` is a convenience mirror.
  *
- * **Styling hooks.** `data-state="checked" | "unchecked"` on the root,
- * plus `data-disabled=""` when disabled.
- *
- * **`asChild` prop.** Pass `asChild` to render any consumer-supplied
- * element (e.g. `<li role="menuitemradio">` for menu composition) with
- * the radio's ARIA attributes, data-state, composed onClick, and ref
- * merged in. The native `<button>` is dropped; consumers who want keyboard
- * activation on a non-button element are responsible for providing it.
- *
- * @example Uncontrolled
+ * @example Native group (the browser owns selection)
  * ```tsx
- * <Radio.Root defaultChecked aria-label="Compact">
+ * <Radio.Root name="density" value="compact" defaultChecked aria-label="Compact">
  *   <Radio.Indicator />
  * </Radio.Root>
  * ```
  *
- * @example Controlled (consumer owns the group)
+ * @example Controlled
  * ```tsx
  * const [value, setValue] = useState("comfortable");
  *
  * <Radio.Root
+ *   name="density"
+ *   value="compact"
  *   checked={value === "compact"}
  *   onCheckedChange={() => setValue("compact")}
  *   aria-label="Compact"
@@ -68,39 +70,44 @@ function dataStateOf(checked: boolean) {
  */
 export function RadioRoot(props: RadioRootProps): ReactElement {
   const {
-    defaultChecked,
-    checked,
-    onCheckedChange,
-    onClick,
-    disabled,
-    asChild = false,
+    className,
+    style,
     children,
-    ...rest
-  } = props;
-  const { checked: isChecked, select } = useRadioRoot({
     defaultChecked,
     checked,
     onCheckedChange,
-  });
-  const contextValue = useMemo(() => ({ checked: isChecked }), [isChecked]);
-  const rootProps = {
-    ...rest,
-    role: "radio" as const,
-    "aria-checked": isChecked,
-    "data-state": dataStateOf(isChecked),
-    "data-disabled": disabled ? "" : undefined,
+    onChange,
     disabled,
-    onClick: composeEventHandlers(onClick, select),
-  };
+    ref,
+    ...inputRest
+  } = props;
+  const {
+    checked: isChecked,
+    handleChange,
+    inputStateProps,
+  } = useRadioRoot({ defaultChecked, checked, onCheckedChange, onChange });
+  const contextValue = useMemo(
+    () => ({ checked: isChecked, disabled: Boolean(disabled) }),
+    [isChecked, disabled],
+  );
   return (
     <RadioContext.Provider value={contextValue}>
-      {asChild ? (
-        <Slot {...rootProps}>{children}</Slot>
-      ) : (
-        <button type="button" {...rootProps}>
-          {children}
-        </button>
-      )}
+      <label
+        className={className}
+        style={style}
+        data-state={dataStateOf(isChecked)}
+        data-disabled={disabled ? "" : undefined}
+      >
+        <input
+          type="radio"
+          ref={ref}
+          disabled={disabled}
+          {...inputRest}
+          {...inputStateProps}
+          onChange={handleChange}
+        />
+        {children}
+      </label>
     </RadioContext.Provider>
   );
 }
@@ -109,32 +116,18 @@ export function RadioRoot(props: RadioRootProps): ReactElement {
 RadioRoot.displayName = "RadioRoot";
 
 /**
- * A decorative `<span aria-hidden="true">` that renders its children only
- * while the parent {@link RadioRoot | `Radio.Root`} is **selected** —
- * typically the filled dot inside a radio control. The radio's accessible
- * state is already conveyed by `aria-checked` on the root, so the indicator
- * is purely visual.
+ * The decorative dot — a `<span>` that is **always mounted**, sitting inside
+ * the {@link RadioRoot | `Radio.Root`} box. Its visibility is a pure CSS
+ * concern, driven off the input's native `:checked` state, so it stays correct
+ * even when the browser silently deselects a grouped sibling (an event React
+ * never sees). The radio's accessible state is conveyed by the native input,
+ * so the dot is purely visual.
  *
- * **Styling hook.** Mirrors the root's
- * `data-state="checked" | "unchecked"` so the same CSS rule can target
- * both.
+ * **Styling hook.** Mirrors the root's `data-state="checked" | "unchecked"`.
  *
  * **`asChild` prop.** Pass `asChild` to render the consumer's own element
- * (typically an `<svg>` dot) as the indicator itself, with `aria-hidden`
- * and `data-state` merged onto that element rather than a wrapper.
- *
- * **`forceMount` prop.** Pass `forceMount` to keep the indicator in the
- * DOM while unchecked so a CSS exit animation can play against
- * `data-state="unchecked"`. Consumers who use `forceMount` own the exit
- * lifecycle themselves.
- *
- * @example Default span wrapper
- * ```tsx
- * <Radio.Root aria-label="Compact">
- *   <Radio.Indicator />
- *   Compact
- * </Radio.Root>
- * ```
+ * (typically an `<svg>` dot) as the indicator itself, with `data-state` merged
+ * onto that element rather than a wrapper.
  *
  * @example Dot as the indicator via `asChild`
  * ```tsx
@@ -147,12 +140,10 @@ RadioRoot.displayName = "RadioRoot";
  */
 export function RadioIndicator({
   children,
-  forceMount,
   asChild = false,
   ...rest
-}: RadioIndicatorProps): ReactElement | null {
+}: RadioIndicatorProps): ReactElement {
   const { checked } = useRadioContext();
-  if (!checked && !forceMount) return null;
   const indicatorProps = {
     ...rest,
     "aria-hidden": "true" as const,
@@ -174,33 +165,31 @@ export type TRadioCompound = typeof RadioRoot & {
 };
 
 /**
- * Headless, accessible **Radio** — a standalone compound component built
- * on a native `<button role="radio">` that implements the single-selection
- * half of the
- * [WAI-ARIA Radio pattern](https://www.w3.org/WAI/ARIA/apg/patterns/radio/).
- * Zero styles ship.
+ * Headless, accessible **Radio** — a standalone compound component built on a
+ * **real, visually-hidden native `<input type="radio">`**. Unlike a button
+ * dressed up with `role="radio"`, it participates in native forms and groups
+ * by `name` the way the platform intends. Zero styles ship.
  *
- * `Radio` is the lone control for when you own the grouping; for a managed
- * set with roving-tabindex keyboard navigation use `RadioGroup`.
+ * `Radio` is the lone control for when you own the grouping (via a native
+ * `name`, or a single opt-in); for a managed set with roving-tabindex
+ * keyboard navigation use `RadioGroup`.
  *
- * `Radio` is both callable (an alias of {@link RadioRoot | `Radio.Root`})
- * and carries its sub-components as static properties. Prefer the
- * namespaced form in application code for readability and grep-ability.
+ * `Radio` is both callable (an alias of {@link RadioRoot | `Radio.Root`}) and
+ * carries its sub-components as static properties.
  *
- * - {@link RadioRoot | `Radio.Root`} — state owner, context provider, select button.
- * - {@link RadioIndicator | `Radio.Indicator`} — decorative dot, conditional on selected state.
+ * - {@link RadioRoot | `Radio.Root`} — the styled box: label + hidden input, state owner, context provider.
+ * - {@link RadioIndicator | `Radio.Indicator`} — the decorative dot.
  *
  * @example Minimal usage
  * ```tsx
  * import { Radio } from "@primitiv-ui/react";
  *
- * <Radio.Root aria-label="Compact">
+ * <Radio.Root name="plan" value="free" aria-label="Free">
  *   <Radio.Indicator />
  * </Radio.Root>;
  * ```
  *
- * @see {@link RadioRoot} for state modes and one-way selection semantics.
- * @see {@link RadioIndicator} for the mount gate and animation hooks.
+ * @see {@link RadioRoot} for state modes and native-grouping semantics.
  */
 const RadioCompound: TRadioCompound = Object.assign(RadioRoot, {
   Root: RadioRoot,

@@ -37,7 +37,87 @@
   font-size: 0.9375rem;
 }
 
+/* Size picker (applies the .primitiv-checkbox--<size> modifier). */
+.cb-example__sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block-end: 1.25rem;
+  padding: 0;
+}
+
+.cb-example__size-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border: 1px solid #ccc;
+  border-radius: 0.375rem;
+  background: white;
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.cb-example__size-option[data-state="checked"] {
+  border-color: #111;
+}
+
+.cb-example__size-ring {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+  border: 1px solid #999;
+  border-radius: 50%;
+}
+
+.cb-example__size-dot {
+  inline-size: 0.375rem;
+  block-size: 0.375rem;
+  border-radius: 50%;
+  background: #111;
+}
+
+.cb-example__size-dot[data-state="unchecked"] {
+  opacity: 0;
+}
+
+/* Contract-styled preview rows (the registry `.primitiv-checkbox` surface). */
+.cb-example__contract-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.cb-example__labeled {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cb-example__caption {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.cb-example__density {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-block-end: 0.75rem;
+}
+
+.cb-example__density-label {
+  inline-size: 7rem;
+  font-size: 0.8125rem;
+  color: #6b7280;
+}
+
 .cb-example__box {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -50,13 +130,30 @@
   color: white;
   cursor: pointer;
 
-  &[data-state="checked"],
-  &[data-state="indeterminate"] {
+  /* The real native input, erased but laid over the box as the hit/focus
+     target — the source of truth for every visual state below. */
+  & > input {
+    appearance: none;
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    border: 0;
+    border-radius: 0.25rem;
+    background: transparent;
+    cursor: inherit;
+  }
+
+  /* Fill / focus key off the input's native state via :has, so the look stays
+     correct through a form reset (which fires no React event). */
+  &:has(> input:checked),
+  &:has(> input:indeterminate) {
     background: #6366f1;
     border-color: #6366f1;
   }
 
-  &:focus-visible {
+  &:has(> input:focus-visible) {
     outline: 2px solid #6366f1;
     outline-offset: 2px;
   }
@@ -65,6 +162,18 @@
     opacity: 0.4;
     cursor: not-allowed;
   }
+}
+
+/* The indicator is always mounted; reveal it only when checked/indeterminate. */
+.cb-example__indicator {
+  display: inline-flex;
+  scale: 0;
+  transition: scale 120ms ease;
+}
+
+.cb-example__box > input:checked ~ .cb-example__indicator,
+.cb-example__box > input:indeterminate ~ .cb-example__indicator {
+  scale: 1;
 }
 
 .cb-example__indicator-icon {

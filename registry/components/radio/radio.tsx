@@ -12,7 +12,7 @@ import { radio } from "./radio.recipe";
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
 
 /**
- * A single radio control — a one-way on selection you group yourself.
+ * A single native radio input you group yourself with a shared `name`.
  *
  * @see https://primitiv-ui.dev/docs/components/radio
  */

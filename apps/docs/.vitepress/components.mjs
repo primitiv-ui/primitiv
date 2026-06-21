@@ -30,6 +30,7 @@ export const reactComponents = [
   { name: "Fieldset", group: "Forms" },
   { name: "Input", group: "Forms" },
   { name: "InputGroup", group: "Forms" },
+  { name: "Radio", group: "Forms" },
   { name: "RadioGroup", group: "Forms" },
   { name: "RadioCard", group: "Forms" },
   { name: "Select", group: "Forms" },

@@ -6,18 +6,18 @@ import { Switch } from "../Switch";
 describe("Switch controlled state", () => {
   it("reflects checked={true}", () => {
     // Arrange & Act
-    render(
-      <Switch.Root
-        aria-label="Enable notifications"
-        checked
-        onCheckedChange={() => {}}
-      />,
+    const { container } = render(
+      <Switch.Root aria-label="Enable notifications" checked onCheckedChange={() => {}} />,
     );
 
     // Assert
     expect(
       screen.getByRole("switch", { name: "Enable notifications" }),
-    ).toHaveAttribute("aria-checked", "true");
+    ).toBeChecked();
+    expect(container.querySelector("label")).toHaveAttribute(
+      "data-state",
+      "checked",
+    );
   });
 
   it("reflects checked={false}", () => {
@@ -33,7 +33,7 @@ describe("Switch controlled state", () => {
     // Assert
     expect(
       screen.getByRole("switch", { name: "Enable notifications" }),
-    ).toHaveAttribute("aria-checked", "false");
+    ).not.toBeChecked();
   });
 
   it("fires onCheckedChange with the next value when clicked", async () => {
@@ -49,9 +49,7 @@ describe("Switch controlled state", () => {
     );
 
     // Act
-    await user.click(
-      screen.getByRole("switch", { name: "Enable notifications" }),
-    );
+    await user.click(screen.getByRole("switch", { name: "Enable notifications" }));
 
     // Assert
     expect(onCheckedChange).toHaveBeenCalledOnce();
@@ -74,6 +72,6 @@ describe("Switch controlled state", () => {
     await user.click(sw);
 
     // Assert — controlled value not updated
-    expect(sw).toHaveAttribute("aria-checked", "false");
+    expect(sw).not.toBeChecked();
   });
 });

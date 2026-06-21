@@ -3,7 +3,7 @@
   "components": {
     "button": {
       "version": "0.1.0",
-      "dependsOn": { "packages": ["@primitiv-ui/react"], "tokens": true, "components": [] },
+      "dependsOn": { "packages": [{ "name": "@primitiv-ui/react", "version": "^0.1.0" }], "tokens": true, "components": [] },
       "styles": {
         "packages": ["class-variance-authority"],
         "react": ["button.recipe.ts", "button.tsx"],
@@ -17,7 +17,7 @@
     },
     "field": {
       "version": "0.1.0",
-      "dependsOn": { "packages": ["@primitiv-ui/react"], "tokens": true, "components": [] },
+      "dependsOn": { "packages": [{ "name": "@primitiv-ui/react", "version": "^0.1.0" }], "tokens": true, "components": [] },
       "styles": {
         "packages": ["class-variance-authority"],
         "react": ["field.recipe.ts", "field.tsx"],
@@ -31,7 +31,7 @@
     },
     "input": {
       "version": "0.1.0",
-      "dependsOn": { "packages": ["@primitiv-ui/react"], "tokens": true, "components": [] },
+      "dependsOn": { "packages": [{ "name": "@primitiv-ui/react", "version": "^0.1.0" }], "tokens": true, "components": [] },
       "styles": {
         "packages": ["class-variance-authority"],
         "react": ["input.recipe.ts", "input.tsx"],
@@ -45,7 +45,7 @@
     },
     "input-group": {
       "version": "0.1.0",
-      "dependsOn": { "packages": ["@primitiv-ui/react"], "tokens": true, "components": ["input"] },
+      "dependsOn": { "packages": [{ "name": "@primitiv-ui/react", "version": "^0.1.0" }], "tokens": true, "components": ["input"] },
       "styles": {
         "packages": ["class-variance-authority"],
         "react": ["input-group.recipe.ts", "input-group.tsx"],
@@ -59,7 +59,7 @@
     },
     "switch": {
       "version": "0.1.0",
-      "dependsOn": { "packages": ["@primitiv-ui/react"], "tokens": true, "components": [] },
+      "dependsOn": { "packages": [{ "name": "@primitiv-ui/react", "version": "^0.1.0" }], "tokens": true, "components": [] },
       "styles": {
         "packages": ["class-variance-authority"],
         "react": ["switch.recipe.ts", "switch.tsx"],
@@ -73,7 +73,7 @@
     },
     "checkbox": {
       "version": "0.1.0",
-      "dependsOn": { "packages": ["@primitiv-ui/react"], "tokens": true, "components": [] },
+      "dependsOn": { "packages": [{ "name": "@primitiv-ui/react", "version": "^0.1.0" }], "tokens": true, "components": [] },
       "styles": {
         "packages": ["class-variance-authority"],
         "react": ["checkbox.recipe.ts", "checkbox.tsx"],
@@ -87,7 +87,7 @@
     },
     "radio": {
       "version": "0.1.0",
-      "dependsOn": { "packages": ["@primitiv-ui/react"], "tokens": true, "components": [] },
+      "dependsOn": { "packages": [{ "name": "@primitiv-ui/react", "version": "^0.1.0" }], "tokens": true, "components": [] },
       "styles": {
         "packages": ["class-variance-authority"],
         "react": ["radio.recipe.ts", "radio.tsx"],
@@ -101,7 +101,7 @@
     },
     "tabs": {
       "version": "0.1.0",
-      "dependsOn": { "packages": ["@primitiv-ui/react"], "tokens": true, "components": [] },
+      "dependsOn": { "packages": [{ "name": "@primitiv-ui/react", "version": "^0.1.0" }], "tokens": true, "components": [] },
       "styles": {
         "packages": ["class-variance-authority"],
         "react": ["tabs.recipe.ts", "tabs.tsx"],

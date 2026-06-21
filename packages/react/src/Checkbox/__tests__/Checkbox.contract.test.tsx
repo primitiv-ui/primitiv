@@ -2,19 +2,21 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 
 import { Checkbox } from "../Checkbox";
+import { CheckedState } from "../types";
 
 /**
  * Auto-verification of the Checkbox styling contract (RFC 0004 §3.4 / D15). The
  * `data-*` half of `registry/components/checkbox/contract.json` is *derived from
  * and asserted against the rendered headless component* so it can never drift
- * from what the component actually emits. Checkbox is tri-state: its surface is
- * `data-state="checked" | "unchecked" | "indeterminate"` (always present) plus
- * `data-disabled=""` when disabled. The authored half (root class, parts, custom
- * properties) is a styling convention the headless layer does not emit and is
- * checked by the generator drift-guards instead.
+ * from what the component actually emits. The checkbox's `data-*` surface lives
+ * on the **wrapper box** (the styled root) — `data-state="checked" |
+ * "unchecked" | "indeterminate"` (always present) plus `data-disabled=""` when
+ * disabled. The authored half (classes, parts, custom properties) is a styling
+ * convention the headless layer does not emit and is checked by the generator
+ * drift-guards instead.
  */
 const contractPath = resolve(
   dirname(fileURLToPath(import.meta.url)),
@@ -22,6 +24,13 @@ const contractPath = resolve(
 );
 
 const contract = JSON.parse(readFileSync(contractPath, "utf8"));
+
+/** The wrapper element is the contracted styling root. */
+function rootOf(container: HTMLElement): HTMLElement {
+  const root = container.querySelector("label");
+  if (!root) throw new Error("expected a Checkbox wrapper element");
+  return root;
+}
 
 /** Every `data-*` attribute name present on an element. */
 function dataAttributeNames(element: Element): string[] {
@@ -37,30 +46,23 @@ describe("Checkbox styling contract", () => {
   );
 
   it("declares every data-* attribute as auto-verified against the component", () => {
-    // The Checkbox has no authored data-* surface; the whole contract is derived.
     expect(autoAttributes).toHaveLength(contract.dataAttributes.length);
   });
 
   it("emits exactly the contracted data-* attribute names across its states", () => {
     const emitted = new Set<string>();
     for (const ui of [
-      <Checkbox.Root key="checked" checked onCheckedChange={() => {}} aria-label="x">
-        <Checkbox.Indicator />
-      </Checkbox.Root>,
+      <Checkbox.Root key="checked" checked onCheckedChange={() => {}} aria-label="x" />,
       <Checkbox.Root
         key="indeterminate"
         checked="indeterminate"
         onCheckedChange={() => {}}
         aria-label="x"
-      >
-        <Checkbox.Indicator />
-      </Checkbox.Root>,
-      <Checkbox.Root key="disabled" disabled aria-label="x">
-        <Checkbox.Indicator />
-      </Checkbox.Root>,
+      />,
+      <Checkbox.Root key="disabled" disabled aria-label="x" />,
     ]) {
-      const { unmount } = render(ui);
-      for (const name of dataAttributeNames(screen.getByRole("checkbox"))) {
+      const { container, unmount } = render(ui);
+      for (const name of dataAttributeNames(rootOf(container))) {
         emitted.add(name);
       }
       unmount();
@@ -78,16 +80,12 @@ describe("Checkbox styling contract", () => {
     );
 
     for (const entry of stateEntries) {
-      const checked =
-        entry.value === "indeterminate"
-          ? ("indeterminate" as const)
-          : entry.value === "checked";
-      const { unmount } = render(
-        <Checkbox.Root checked={checked} onCheckedChange={() => {}} aria-label="x">
-          <Checkbox.Indicator />
-        </Checkbox.Root>,
+      const checked: CheckedState =
+        entry.value === "indeterminate" ? "indeterminate" : entry.value === "checked";
+      const { container, unmount } = render(
+        <Checkbox.Root checked={checked} onCheckedChange={() => {}} aria-label="x" />,
       );
-      expect(screen.getByRole("checkbox")).toHaveAttribute("data-state", entry.value);
+      expect(rootOf(container)).toHaveAttribute("data-state", entry.value);
       unmount();
     }
   });
@@ -97,21 +95,12 @@ describe("Checkbox styling contract", () => {
       (attribute: { name: string }) => attribute.name === "data-disabled",
     );
 
-    render(
-      <Checkbox.Root disabled aria-label="x">
-        <Checkbox.Indicator />
-      </Checkbox.Root>,
-    );
-    expect(screen.getByRole("checkbox")).toHaveAttribute(entry.name, entry.value);
+    const { container } = render(<Checkbox.Root disabled aria-label="x" />);
+    expect(rootOf(container)).toHaveAttribute(entry.name, entry.value);
   });
 
   it("omits data-disabled when the documented condition does not hold", () => {
-    render(
-      <Checkbox.Root aria-label="x">
-        <Checkbox.Indicator />
-      </Checkbox.Root>,
-    );
-
-    expect(screen.getByRole("checkbox")).not.toHaveAttribute("data-disabled");
+    const { container } = render(<Checkbox.Root aria-label="x" />);
+    expect(rootOf(container)).not.toHaveAttribute("data-disabled");
   });
 });

@@ -111,7 +111,8 @@ pattern (child handler runs first, then the trigger's):
 
 Both `data-state` (`"active"` | `"inactive"`) and
 `data-orientation` (`"horizontal"` | `"vertical"`) are available on
-every rendered element.
+every rendered element. `Tabs.Trigger` also sets `data-disabled=""`
+when disabled (omitted otherwise), matching the rest of the library.
 
 ## Workbench example
 

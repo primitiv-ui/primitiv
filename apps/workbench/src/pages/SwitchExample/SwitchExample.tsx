@@ -55,12 +55,11 @@ export function SwitchExample() {
           Default theme — styling contract
         </h3>
         <p className="sw-example__description">
-          The headless <code>Switch</code> with the registry{" "}
-          <code>.primitiv-switch</code> / <code>.primitiv-switch__thumb</code>{" "}
-          classes applied. Switch is the state-driven proof — no visual
-          modifiers; the track colour swaps and the thumb slides off{" "}
-          <code>data-state</code> alone, and <code>data-disabled</code> styles
-          itself.
+          The headless <code>Switch</code> — a real hidden checkbox input with{" "}
+          <code>role="switch"</code> in a <code>.primitiv-switch</code> track —
+          with the registry classes applied. The track colour swaps and the
+          thumb slides off the input's native <code>:checked</code>, and{" "}
+          <code>data-disabled</code> styles itself.
         </p>
 
         <div className="sw-example__contract-row">
@@ -153,7 +152,7 @@ export function SwitchExample() {
           State is owned by each switch. Toggle freely.
         </p>
         <div className="sw-example__list">
-          <label className="sw-row">
+          <div className="sw-row">
             <span className="sw-row__text">
               <span className="sw-row__label">Dark mode</span>
               <span className="sw-row__description">
@@ -165,9 +164,9 @@ export function SwitchExample() {
                 <Check size={10} className="sw-thumb__icon" />
               </Switch.Thumb>
             </Switch.Root>
-          </label>
+          </div>
 
-          <label className="sw-row">
+          <div className="sw-row">
             <span className="sw-row__text">
               <span className="sw-row__label">Compact layout</span>
               <span className="sw-row__description">
@@ -183,7 +182,7 @@ export function SwitchExample() {
                 <Check size={10} className="sw-thumb__icon" />
               </Switch.Thumb>
             </Switch.Root>
-          </label>
+          </div>
         </div>
       </section>
 
@@ -195,7 +194,7 @@ export function SwitchExample() {
             Dark mode is <strong>{darkMode ? "on" : "off"}</strong>.
           </span>
         </p>
-        <label className="sw-row">
+        <div className="sw-row">
           <span className="sw-row__text">
             <span className="sw-row__label">Dark mode</span>
             <span className="sw-row__description">
@@ -212,7 +211,7 @@ export function SwitchExample() {
               <Check size={10} className="sw-thumb__icon" />
             </Switch.Thumb>
           </Switch.Root>
-        </label>
+        </div>
       </section>
 
       <section className="sw-example__section">
@@ -222,7 +221,7 @@ export function SwitchExample() {
         </p>
         <div className="sw-example__list">
           {FEATURES.map(({ key, label, description }) => (
-            <label key={key} className="sw-row">
+            <div key={key} className="sw-row">
               <span className="sw-row__text">
                 <span className="sw-row__label">{label}</span>
                 <span className="sw-row__description">{description}</span>
@@ -239,7 +238,7 @@ export function SwitchExample() {
                   <Check size={10} className="sw-thumb__icon" />
                 </Switch.Thumb>
               </Switch.Root>
-            </label>
+            </div>
           ))}
         </div>
       </section>
@@ -247,7 +246,7 @@ export function SwitchExample() {
       <section className="sw-example__section">
         <h3 className="sw-example__section-title">Disabled</h3>
         <div className="sw-example__list">
-          <label className="sw-row">
+          <div className="sw-row">
             <span className="sw-row__text">
               <span className="sw-row__label">Locked feature (off)</span>
               <span className="sw-row__description">
@@ -263,9 +262,9 @@ export function SwitchExample() {
                 <Check size={10} className="sw-thumb__icon" />
               </Switch.Thumb>
             </Switch.Root>
-          </label>
+          </div>
 
-          <label className="sw-row">
+          <div className="sw-row">
             <span className="sw-row__text">
               <span className="sw-row__label">Required feature (on)</span>
               <span className="sw-row__description">Always enabled</span>
@@ -280,7 +279,7 @@ export function SwitchExample() {
                 <Check size={10} className="sw-thumb__icon" />
               </Switch.Thumb>
             </Switch.Root>
-          </label>
+          </div>
         </div>
       </section>
     </div>

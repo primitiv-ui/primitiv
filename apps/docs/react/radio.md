@@ -1,3 +1,7 @@
+---
+title: Radio
+---
+
 # Radio
 
 A headless, accessible, **standalone** radio control built on a **real native
@@ -158,3 +162,9 @@ delegates rendering to its single child element and merges its `aria-hidden`,
   cursor: not-allowed;
 }
 ```
+
+## Workbench example
+
+Open the interactive version in the [workbench](/workbench/#/radio). Its source:
+
+<<< ../../../apps/workbench/src/pages/RadioExample/RadioExample.tsx

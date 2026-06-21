@@ -6,12 +6,16 @@ import { Checkbox } from "../Checkbox";
 describe("Checkbox uncontrolled state", () => {
   it("starts checked when defaultChecked is true", () => {
     // Arrange & Act
-    render(<Checkbox.Root defaultChecked aria-label="Accept terms" />);
-    const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
+    const { container } = render(
+      <Checkbox.Root defaultChecked aria-label="Accept terms" />,
+    );
 
     // Assert
-    expect(checkbox).toHaveAttribute("aria-checked", "true");
-    expect(checkbox).toHaveAttribute("data-state", "checked");
+    expect(screen.getByRole("checkbox", { name: "Accept terms" })).toBeChecked();
+    expect(container.querySelector("label")).toHaveAttribute(
+      "data-state",
+      "checked",
+    );
   });
 
   it("toggles on click from unchecked to checked", async () => {
@@ -24,8 +28,7 @@ describe("Checkbox uncontrolled state", () => {
     await user.click(checkbox);
 
     // Assert
-    expect(checkbox).toHaveAttribute("aria-checked", "true");
-    expect(checkbox).toHaveAttribute("data-state", "checked");
+    expect(checkbox).toBeChecked();
   });
 
   it("toggles on click from checked to unchecked", async () => {
@@ -33,15 +36,13 @@ describe("Checkbox uncontrolled state", () => {
     const user = userEvent.setup();
     render(<Checkbox.Root defaultChecked aria-label="Accept terms" />);
     const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
-    // Precondition: defaultChecked really did initialise as checked.
-    expect(checkbox).toHaveAttribute("aria-checked", "true");
+    expect(checkbox).toBeChecked();
 
     // Act
     await user.click(checkbox);
 
     // Assert
-    expect(checkbox).toHaveAttribute("aria-checked", "false");
-    expect(checkbox).toHaveAttribute("data-state", "unchecked");
+    expect(checkbox).not.toBeChecked();
   });
 
   it("calls onCheckedChange with the new boolean value", async () => {
@@ -49,10 +50,7 @@ describe("Checkbox uncontrolled state", () => {
     const user = userEvent.setup();
     const onCheckedChange = vi.fn();
     render(
-      <Checkbox.Root
-        onCheckedChange={onCheckedChange}
-        aria-label="Accept terms"
-      />,
+      <Checkbox.Root onCheckedChange={onCheckedChange} aria-label="Accept terms" />,
     );
     const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
 
@@ -65,15 +63,15 @@ describe("Checkbox uncontrolled state", () => {
     expect(onCheckedChange).toHaveBeenNthCalledWith(2, false);
   });
 
-  it("composes the consumer's onClick with the internal toggle (consumer runs first)", async () => {
+  it("composes a consumer onChange, running it before the internal handler", async () => {
     // Arrange
     const user = userEvent.setup();
     const order: string[] = [];
-    const onClick = vi.fn(() => order.push("consumer"));
+    const onChange = vi.fn(() => order.push("consumer"));
     const onCheckedChange = vi.fn(() => order.push("internal"));
     render(
       <Checkbox.Root
-        onClick={onClick}
+        onChange={onChange}
         onCheckedChange={onCheckedChange}
         aria-label="Accept terms"
       />,
@@ -86,4 +84,22 @@ describe("Checkbox uncontrolled state", () => {
     expect(order).toEqual(["consumer", "internal"]);
   });
 
+  it("lets a consumer onChange veto the internal handler via preventDefault", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const onCheckedChange = vi.fn();
+    render(
+      <Checkbox.Root
+        onChange={(event) => event.preventDefault()}
+        onCheckedChange={onCheckedChange}
+        aria-label="Accept terms"
+      />,
+    );
+
+    // Act
+    await user.click(screen.getByRole("checkbox", { name: "Accept terms" }));
+
+    // Assert
+    expect(onCheckedChange).not.toHaveBeenCalled();
+  });
 });

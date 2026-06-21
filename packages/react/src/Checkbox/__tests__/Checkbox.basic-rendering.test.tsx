@@ -1,41 +1,79 @@
+import { createRef } from "react";
 import { render, screen } from "@testing-library/react";
 
 import { Checkbox } from "../Checkbox";
 
 describe("Checkbox basic rendering", () => {
-  it('renders a <button> with role="checkbox"', () => {
+  it("renders a real native <input type=checkbox> as the control", () => {
     // Arrange & Act
     render(<Checkbox.Root aria-label="Accept terms" />);
     const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
 
     // Assert
-    expect(checkbox.tagName).toBe("BUTTON");
+    expect(checkbox.tagName).toBe("INPUT");
+    expect(checkbox).toHaveAttribute("type", "checkbox");
   });
 
-  it('defaults aria-checked to "false"', () => {
+  it("wraps the input in a <label> so the visible box is clickable", () => {
     // Arrange & Act
     render(<Checkbox.Root aria-label="Accept terms" />);
-    const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
 
     // Assert
-    expect(checkbox).toHaveAttribute("aria-checked", "false");
+    expect(
+      screen.getByRole("checkbox", { name: "Accept terms" }).closest("label"),
+    ).not.toBeNull();
   });
 
-  it('defaults type="button" so the checkbox never submits an enclosing form', () => {
+  it("is unchecked by default", () => {
     // Arrange & Act
     render(<Checkbox.Root aria-label="Accept terms" />);
-    const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
 
     // Assert
-    expect(checkbox).toHaveAttribute("type", "button");
+    expect(screen.getByRole("checkbox", { name: "Accept terms" })).not.toBeChecked();
   });
 
-  it('sets data-state="unchecked" on the root when unchecked', () => {
+  it("forwards native input attributes (name, value, id) to the input", () => {
     // Arrange & Act
-    render(<Checkbox.Root aria-label="Accept terms" />);
+    render(
+      <Checkbox.Root id="c1" name="terms" value="accepted" aria-label="Accept terms" />,
+    );
     const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
 
     // Assert
-    expect(checkbox).toHaveAttribute("data-state", "unchecked");
+    expect(checkbox).toHaveAttribute("id", "c1");
+    expect(checkbox).toHaveAttribute("name", "terms");
+    expect(checkbox).toHaveAttribute("value", "accepted");
+  });
+
+  it("applies className to the box, not the hidden input", () => {
+    // Arrange & Act
+    render(<Checkbox.Root className="box" aria-label="Accept terms" />);
+    const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
+
+    // Assert
+    expect(checkbox).not.toHaveClass("box");
+    expect(checkbox.closest("label")).toHaveClass("box");
+  });
+
+  it("forwards a ref to the underlying input", () => {
+    // Arrange
+    const ref = createRef<HTMLInputElement>();
+
+    // Act
+    render(<Checkbox.Root ref={ref} aria-label="Accept terms" />);
+
+    // Assert
+    expect(ref.current).toBe(screen.getByRole("checkbox", { name: "Accept terms" }));
+  });
+
+  it('sets data-state="unchecked" on the box when unchecked', () => {
+    // Arrange & Act
+    const { container } = render(<Checkbox.Root aria-label="Accept terms" />);
+
+    // Assert
+    expect(container.querySelector("label")).toHaveAttribute(
+      "data-state",
+      "unchecked",
+    );
   });
 });

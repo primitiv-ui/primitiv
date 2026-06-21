@@ -7,8 +7,8 @@ title: Tokens
 The DTCG-conformant token layer that sits between the Figma source of
 truth and any downstream consumer.
 
-Internal-only — this package is not published. It is the destination
-the `primitiv-sync-figma-plugin` writes to, and the source any future
+Published to npm and JSR as `@primitiv-ui/tokens`. It is the destination
+the `primitiv-sync-figma-plugin` writes to, and the source any downstream
 token transformer (e.g. CSS variables, Tailwind config) reads from.
 
 ## Layout

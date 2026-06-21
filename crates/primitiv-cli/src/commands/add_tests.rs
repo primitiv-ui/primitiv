@@ -82,6 +82,17 @@ const WITH_PACKAGES: &[u8] = br##"{
   }
 }"##;
 
+/// A registry whose `button` **pins** the headless package to a version range —
+/// the version safeguard (RFC 0005 §4.4): `add` must install `name@range` so a
+/// consumer is never left on a `@primitiv-ui/react` too old to carry the
+/// component's exports.
+const WITH_PINNED_PACKAGE: &[u8] = br##"{
+  "version": "0.1.0",
+  "components": {
+    "button": { "version": "0.1.0", "dependsOn": { "packages": [{ "name": "@primitiv-ui/react", "version": "^0.1.0" }] } }
+  }
+}"##;
+
 /// A registry whose `button` declares a CSS stylesheet to copy (RFC 0005 §6.2),
 /// so the style-copy path has something to fetch.
 const WITH_STYLES: &[u8] = br##"{
@@ -728,6 +739,74 @@ fn installs_the_packages_with_the_detected_manager() {
             ],
             Path::new("project").to_path_buf(),
         )]
+    );
+}
+
+#[test]
+fn installs_the_pinned_version_when_a_component_declares_one() {
+    let fs = InMemoryFs::new();
+    fs.set_current_dir(Path::new("project"));
+    fs.write(Path::new("project/pnpm-lock.yaml"), b"").unwrap();
+    let registry = InMemoryRegistry::new(WITH_PINNED_PACKAGE);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    // The safeguard: the install spec carries the pinned range, so the package
+    // manager resolves a `@primitiv-ui/react` new enough for the component.
+    assert_eq!(
+        runner.calls(),
+        vec![(
+            "pnpm".to_string(),
+            vec!["add".to_string(), "@primitiv-ui/react@^0.1.0".to_string()],
+            Path::new("project").to_path_buf(),
+        )]
+    );
+}
+
+#[test]
+fn lists_the_pinned_install_spec_in_the_plan() {
+    let fs = InMemoryFs::new();
+    let registry = InMemoryRegistry::new(WITH_PINNED_PACKAGE);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button"]),
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    // The plan shows the pinned spec, so a consumer sees exactly what `add`
+    // will install.
+    assert_eq!(
+        String::from_utf8(output.captured()).unwrap(),
+        "Resolved 1 component to add:\n  button  0.1.0\n\n\
+         Packages to ensure:\n  @primitiv-ui/react@^0.1.0\n",
     );
 }
 

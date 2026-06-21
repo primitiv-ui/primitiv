@@ -4,103 +4,80 @@ import userEvent from "@testing-library/user-event";
 import { Checkbox } from "../Checkbox";
 
 describe("Checkbox.Indicator", () => {
-  it("does not render its children when the checkbox is unchecked", () => {
+  it("is always mounted, regardless of checked state", () => {
+    // Arrange & Act — unchecked, yet the mark is in the DOM (CSS hides it).
+    render(
+      <Checkbox.Root aria-label="Accept terms">
+        <Checkbox.Indicator data-testid="mark" />
+      </Checkbox.Root>,
+    );
+
+    // Assert
+    expect(screen.getByTestId("mark")).toBeInTheDocument();
+  });
+
+  it("is decorative, carrying aria-hidden", () => {
     // Arrange & Act
     render(
       <Checkbox.Root aria-label="Accept terms">
-        <Checkbox.Indicator>tick</Checkbox.Indicator>
+        <Checkbox.Indicator data-testid="mark" />
       </Checkbox.Root>,
     );
 
     // Assert
-    expect(screen.queryByText("tick")).not.toBeInTheDocument();
+    expect(screen.getByTestId("mark")).toHaveAttribute("aria-hidden", "true");
   });
 
-  it("renders its children when the checkbox is checked", () => {
-    // Arrange & Act
-    render(
-      <Checkbox.Root defaultChecked aria-label="Accept terms">
-        <Checkbox.Indicator>tick</Checkbox.Indicator>
-      </Checkbox.Root>,
-    );
-
-    // Assert
-    expect(screen.getByText("tick")).toBeInTheDocument();
-  });
-
-  it("renders its children when the checkbox is indeterminate", () => {
-    // Arrange & Act
-    render(
-      <Checkbox.Root defaultChecked="indeterminate" aria-label="Accept terms">
-        <Checkbox.Indicator>tick</Checkbox.Indicator>
-      </Checkbox.Root>,
-    );
-
-    // Assert
-    expect(screen.getByText("tick")).toBeInTheDocument();
-  });
-
-  it("mounts and unmounts in response to toggling", async () => {
+  it("mirrors the checkbox's data-state for CSS to key off", async () => {
     // Arrange
     const user = userEvent.setup();
     render(
       <Checkbox.Root aria-label="Accept terms">
-        <Checkbox.Indicator>tick</Checkbox.Indicator>
+        <Checkbox.Indicator data-testid="mark" />
       </Checkbox.Root>,
     );
-    expect(screen.queryByText("tick")).not.toBeInTheDocument();
+    const mark = screen.getByTestId("mark");
+    expect(mark).toHaveAttribute("data-state", "unchecked");
 
     // Act
     await user.click(screen.getByRole("checkbox", { name: "Accept terms" }));
 
     // Assert
-    expect(screen.getByText("tick")).toBeInTheDocument();
+    expect(mark).toHaveAttribute("data-state", "checked");
   });
 
-  it('carries aria-hidden="true" since it is decorative', () => {
-    // Arrange & Act
-    render(
-      <Checkbox.Root defaultChecked aria-label="Accept terms">
-        <Checkbox.Indicator data-testid="indicator">tick</Checkbox.Indicator>
-      </Checkbox.Root>,
-    );
-
-    // Assert
-    expect(screen.getByTestId("indicator")).toHaveAttribute(
-      "aria-hidden",
-      "true",
-    );
-  });
-
-  it("mirrors the checkbox's data-state on the indicator", () => {
+  it("mirrors the indeterminate data-state", () => {
     // Arrange & Act
     render(
       <Checkbox.Root defaultChecked="indeterminate" aria-label="Accept terms">
-        <Checkbox.Indicator data-testid="indicator">tick</Checkbox.Indicator>
+        <Checkbox.Indicator data-testid="mark" />
       </Checkbox.Root>,
     );
 
     // Assert
-    expect(screen.getByTestId("indicator")).toHaveAttribute(
+    expect(screen.getByTestId("mark")).toHaveAttribute(
       "data-state",
       "indeterminate",
     );
   });
 
-  it("stays in the DOM while unchecked when forceMount is set", () => {
+  it("delegates to the consumer's element (e.g. an svg tick) via asChild", () => {
     // Arrange & Act
     render(
-      <Checkbox.Root aria-label="Accept terms">
-        <Checkbox.Indicator forceMount data-testid="indicator">
-          tick
+      <Checkbox.Root defaultChecked aria-label="Accept terms">
+        <Checkbox.Indicator asChild>
+          <svg data-testid="tick" viewBox="0 0 10 10">
+            <path d="M1 5l3 3 5-7" />
+          </svg>
         </Checkbox.Indicator>
       </Checkbox.Root>,
     );
-    const indicator = screen.getByTestId("indicator");
+    const tick = screen.getByTestId("tick");
 
     // Assert
-    expect(indicator).toBeInTheDocument();
-    expect(indicator).toHaveAttribute("data-state", "unchecked");
+    expect(tick.tagName.toLowerCase()).toBe("svg");
+    expect(tick).toHaveAttribute("aria-hidden", "true");
+    expect(tick).toHaveAttribute("data-state", "checked");
   });
 
   it("throws when rendered outside Checkbox.Root", () => {
@@ -108,9 +85,7 @@ describe("Checkbox.Indicator", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
 
     // Assert
-    expect(() =>
-      render(<Checkbox.Indicator>tick</Checkbox.Indicator>),
-    ).toThrow();
+    expect(() => render(<Checkbox.Indicator />)).toThrow();
 
     error.mockRestore();
   });

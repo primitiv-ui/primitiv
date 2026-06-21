@@ -7,14 +7,12 @@ describe("Radio uncontrolled state", () => {
   it("starts checked when defaultChecked is true", () => {
     // Arrange & Act
     render(<Radio.Root defaultChecked aria-label="Compact" />);
-    const radio = screen.getByRole("radio", { name: "Compact" });
 
     // Assert
-    expect(radio).toHaveAttribute("aria-checked", "true");
-    expect(radio).toHaveAttribute("data-state", "checked");
+    expect(screen.getByRole("radio", { name: "Compact" })).toBeChecked();
   });
 
-  it("selects on click from unchecked to checked", async () => {
+  it("checks on click", async () => {
     // Arrange
     const user = userEvent.setup();
     render(<Radio.Root aria-label="Compact" />);
@@ -24,57 +22,47 @@ describe("Radio uncontrolled state", () => {
     await user.click(radio);
 
     // Assert
-    expect(radio).toHaveAttribute("aria-checked", "true");
-    expect(radio).toHaveAttribute("data-state", "checked");
+    expect(radio).toBeChecked();
   });
 
-  it("is a no-op when an already-selected radio is clicked (no toggle-off)", async () => {
-    // Arrange
-    const user = userEvent.setup();
-    const onCheckedChange = vi.fn();
-    render(
-      <Radio.Root
-        defaultChecked
-        onCheckedChange={onCheckedChange}
-        aria-label="Compact"
-      />,
-    );
-    const radio = screen.getByRole("radio", { name: "Compact" });
-
-    // Act
-    await user.click(radio);
-
-    // Assert: stays checked and the callback never fires for a re-select.
-    expect(radio).toHaveAttribute("aria-checked", "true");
-    expect(radio).toHaveAttribute("data-state", "checked");
-    expect(onCheckedChange).not.toHaveBeenCalled();
-  });
-
-  it("calls onCheckedChange with true the first time it is selected", async () => {
+  it("calls onCheckedChange with true when it becomes selected", async () => {
     // Arrange
     const user = userEvent.setup();
     const onCheckedChange = vi.fn();
     render(<Radio.Root onCheckedChange={onCheckedChange} aria-label="Compact" />);
-    const radio = screen.getByRole("radio", { name: "Compact" });
 
     // Act
-    await user.click(radio);
-    await user.click(radio);
+    await user.click(screen.getByRole("radio", { name: "Compact" }));
 
-    // Assert: selection is one-way, so the second click is swallowed.
+    // Assert
     expect(onCheckedChange).toHaveBeenCalledTimes(1);
     expect(onCheckedChange).toHaveBeenCalledWith(true);
   });
 
-  it("composes the consumer's onClick with the internal select (consumer runs first)", async () => {
+  it("updates the data-state mirror on the wrapper when selected", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const { container } = render(<Radio.Root aria-label="Compact" />);
+
+    // Act
+    await user.click(screen.getByRole("radio", { name: "Compact" }));
+
+    // Assert
+    expect(container.querySelector("label")).toHaveAttribute(
+      "data-state",
+      "checked",
+    );
+  });
+
+  it("composes a consumer onChange, running it before the internal handler", async () => {
     // Arrange
     const user = userEvent.setup();
     const order: string[] = [];
-    const onClick = vi.fn(() => order.push("consumer"));
+    const onChange = vi.fn(() => order.push("consumer"));
     const onCheckedChange = vi.fn(() => order.push("internal"));
     render(
       <Radio.Root
-        onClick={onClick}
+        onChange={onChange}
         onCheckedChange={onCheckedChange}
         aria-label="Compact"
       />,
@@ -85,5 +73,24 @@ describe("Radio uncontrolled state", () => {
 
     // Assert
     expect(order).toEqual(["consumer", "internal"]);
+  });
+
+  it("lets a consumer onChange veto the internal handler via preventDefault", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const onCheckedChange = vi.fn();
+    render(
+      <Radio.Root
+        onChange={(event) => event.preventDefault()}
+        onCheckedChange={onCheckedChange}
+        aria-label="Compact"
+      />,
+    );
+
+    // Act
+    await user.click(screen.getByRole("radio", { name: "Compact" }));
+
+    // Assert
+    expect(onCheckedChange).not.toHaveBeenCalled();
   });
 });

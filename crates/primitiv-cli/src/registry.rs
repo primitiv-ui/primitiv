@@ -91,7 +91,58 @@ pub struct DependsOn {
     #[serde(default)]
     pub components: Vec<String>,
     #[serde(default)]
-    pub packages: Vec<String>,
+    pub packages: Vec<PackageDep>,
+}
+
+/// A package a component depends on (RFC 0005 §6.2) — the npm name plus an
+/// optional version range. The range is the **version safeguard**: `add`
+/// installs `name@range`, so a consumer adding a component is never left on a
+/// `@primitiv-ui/react` too old to carry that component's exports (the skew that
+/// shipped a "has no exported member" error). Deserializes from either a bare
+/// string (`"@primitiv-ui/react"` → no pin) or an object
+/// (`{ "name": …, "version": "^0.1.0" }`), so existing string entries still parse.
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+#[serde(from = "PackageDepRepr")]
+pub struct PackageDep {
+    pub name: String,
+    pub version: Option<String>,
+}
+
+impl PackageDep {
+    /// The package-manager install spec: `name@version` when a version range is
+    /// declared, otherwise the bare `name` (install the latest).
+    pub fn spec(&self) -> String {
+        match &self.version {
+            Some(version) => format!("{}@{version}", self.name),
+            None => self.name.clone(),
+        }
+    }
+}
+
+/// The on-the-wire shape a [`PackageDep`] deserializes from — a bare name string
+/// or a `{ name, version }` object — collapsed into `PackageDep` by the `From`
+/// impl below (the `#[serde(from)]` seam).
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum PackageDepRepr {
+    Name(String),
+    Detailed {
+        name: String,
+        #[serde(default)]
+        version: Option<String>,
+    },
+}
+
+impl From<PackageDepRepr> for PackageDep {
+    fn from(repr: PackageDepRepr) -> Self {
+        match repr {
+            PackageDepRepr::Name(name) => PackageDep {
+                name,
+                version: None,
+            },
+            PackageDepRepr::Detailed { name, version } => PackageDep { name, version },
+        }
+    }
 }
 
 impl RegistryIndex {

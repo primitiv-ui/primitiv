@@ -12,7 +12,7 @@ import { switchRecipe } from "./switch.recipe";
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
 
 /**
- * An on/off toggle — a native switch input for an immediate binary setting.
+ * An on/off toggle with an optional inline label — a native switch input for an immediate binary setting.
  *
  * @see https://primitiv-ui.dev/docs/components/switch
  */
@@ -30,10 +30,13 @@ export type SwitchProps = DistributiveOmit<ComponentPropsWithRef<typeof SwitchPr
   size?: "xs" | "sm" | "md" | "lg" | "xl";
 };
 
-export function Switch({ size, className, ...props }: SwitchProps) {
+export function Switch({ size, className, children, ...props }: SwitchProps) {
   return (
     <SwitchPrimitive.Root className={[switchRecipe({ size }), className].filter(Boolean).join(" ")} {...props}>
-      <SwitchPrimitive.Thumb className="primitiv-switch__thumb" />
+      <span className="primitiv-switch__control">
+        <SwitchPrimitive.Thumb className="primitiv-switch__thumb" />
+      </span>
+      {children != null && <span className="primitiv-switch__label">{children}</span>}
     </SwitchPrimitive.Root>
   );
 }

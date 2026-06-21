@@ -25,6 +25,7 @@ workbench example).
 - [Fieldset](/react/fieldset)
 - [Input](/react/input)
 - [InputGroup](/react/input-group)
+- [Radio](/react/radio)
 - [RadioGroup](/react/radio-group)
 - [RadioCard](/react/radio-card)
 - [Select](/react/select)

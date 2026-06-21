@@ -4,15 +4,15 @@ title: Switch
 
 # Switch
 
-Headless, accessible **Switch** — a compound component implementing the
-[WAI-ARIA Switch pattern](https://www.w3.org/WAI/ARIA/apg/patterns/switch/)
-on a native `<button role="switch">`. Semantically represents an immediate
-on/off action (as opposed to a selection choice). Zero styles ship.
+Headless, accessible **Switch** — a compound component built on a **real,
+visually-hidden native `<input type="checkbox" role="switch">`**. Semantically
+represents an immediate on/off action (as opposed to a selection choice), and —
+being a genuine native input — participates in forms. Zero styles ship.
 
 ```tsx
 import { Switch } from "@primitiv-ui/react";
 
-<Switch.Root defaultChecked aria-label="Enable notifications">
+<Switch.Root name="notify" value="on" defaultChecked aria-label="Enable notifications">
   <Switch.Thumb />
 </Switch.Root>
 ```
@@ -21,18 +21,23 @@ import { Switch } from "@primitiv-ui/react";
 
 | Export | Element | ARIA / data hooks | `asChild` |
 |--------|---------|------------------|-----------|
-| `Switch.Root` | `<button>` | `role="switch"`, `aria-checked`, `data-state`, `data-disabled` | yes |
+| `Switch.Root` | `<label>` + hidden `<input>` | input is `role="switch"`; `data-state`, `data-disabled` on the label | — |
 | `Switch.Thumb` | `<span>` | `aria-hidden="true"`, `data-state` | yes |
+
+`Switch.Root`'s `className` / `style` style the **track** (the `<label>` you
+see). Every other prop spreads onto the hidden `<input>`, because semantically
+the Root *is* the switch: pass `name`, `value`, `id`, `required`, `aria-*`,
+`ref`, etc. straight to `Switch.Root`.
 
 ## State modes
 
 ### Uncontrolled
 
-Pass `defaultChecked` (or omit for unchecked on mount). The component owns
-the value internally.
+Pass `defaultChecked` (or omit for off on mount). The **browser** owns the
+value, so the switch participates in forms and resets.
 
 ```tsx
-<Switch.Root defaultChecked aria-label="Enable dark mode">
+<Switch.Root name="dark" value="on" defaultChecked aria-label="Enable dark mode">
   <Switch.Thumb />
 </Switch.Root>
 ```
@@ -49,18 +54,24 @@ const [enabled, setEnabled] = useState(false);
 </Switch.Root>
 ```
 
+> **`data-state` is a best-effort mirror.** Drive the *visual* on/off look off
+> the input's native `:checked` (and `:has(> input:checked)` on the track), as
+> the shipped registry stylesheet does — it stays correct through a form reset,
+> which fires no React event.
+
 ## Keyboard interaction
 
 | Key | Behaviour |
 |-----|-----------|
-| `Space` | Toggle the switch (native `<button>` behaviour) |
-| `Enter` | Toggle the switch (native `<button>` behaviour) |
+| `Space` | Toggle the switch (native checkbox behaviour) |
 | `Tab` | Move focus to or from the switch |
+
+`Enter` does **not** toggle — a checkbox-based control responds to `Space` only.
 
 ## Disabled
 
 Pass `disabled` on the Root. The native attribute suppresses clicks and removes
-the switch from the focus ring. `data-disabled=""` is set for CSS targeting.
+the switch from the focus ring. `data-disabled=""` is set on the track for CSS.
 
 ```tsx
 <Switch.Root aria-label="Enable feature" disabled>
@@ -68,61 +79,55 @@ the switch from the focus ring. `data-disabled=""` is set for CSS targeting.
 </Switch.Root>
 ```
 
+## Size
+
+The styled surface installed by `primitiv add switch` exposes a `size` prop.
+The default is `md` (`xs` · `sm` · `md` · `lg` · `xl`).
+
+```tsx
+<Switch size="sm" aria-label="Enable notifications" />
+```
+
 ## The Thumb
 
-`Switch.Thumb` is **always mounted** — unlike `Checkbox.Indicator`, it never
-conditionally unmounts. Its visual position (left for off, right for on) is
-driven entirely by CSS targeting `data-state`. This gives consumers a real DOM
-node to animate with `transition` or Web Animations, rather than being
-constrained to pseudo-elements.
+`Switch.Thumb` is **always mounted**. Its visual position (off → on) should be
+driven by CSS keyed off the input's native `:checked` (a sibling selector), so
+it stays correct through a form reset. It gives consumers a real DOM node to
+animate with `transition` or Web Animations.
 
-```scss
-.switch-root {
+```css
+.switch {
   position: relative;
-  width: 2.75rem;
-  height: 1.5rem;
-  border-radius: 9999px;
-  background: #d1d5db;
-  transition: background 120ms ease;
-
-  &[data-state="checked"] {
-    background: #6366f1;
-  }
 }
-
-.switch-thumb {
-  position: absolute;
-  top: 0.125rem;
-  left: 0.125rem;
-  width: 1.25rem;
-  height: 1.25rem;
-  border-radius: 50%;
-  background: white;
+.switch:has(> input:checked) {
+  background: #6366f1;
+}
+.switch__thumb {
   transition: translate 120ms ease;
-
-  &[data-state="checked"] {
-    translate: 1.25rem 0;
-  }
+}
+.switch > input:checked ~ .switch__thumb {
+  translate: 1.25rem 0;
 }
 ```
 
 ## `asChild` composition
 
-Both sub-components accept `asChild`. The library's ARIA attributes,
-`data-state`, event handlers, and ref are merged onto the consumer's element.
+`Switch.Thumb` accepts `asChild`: the library's `aria-hidden`, `data-state`, and
+ref are merged onto the consumer's element.
 
 ```tsx
-<Switch.Root asChild aria-label="Enable notifications">
-  <div role="switch">…</div>
-</Switch.Root>
+<Switch.Thumb asChild>
+  <span className="my-thumb" />
+</Switch.Thumb>
 ```
 
 ## Styling hooks
 
 | Attribute | Values | Set on |
 |-----------|--------|--------|
-| `data-state` | `"checked"` \| `"unchecked"` | `Switch.Root`, `Switch.Thumb` |
-| `data-disabled` | `""` (present when disabled) | `Switch.Root` |
+| `data-state` | `"checked"` \| `"unchecked"` | `Switch.Root` (track), `Switch.Thumb` |
+| `data-disabled` | `""` (present when disabled) | `Switch.Root` (track) |
+| `:checked` / `:focus-visible` / `:disabled` | native | the hidden `<input>` |
 
 ## Workbench example
 

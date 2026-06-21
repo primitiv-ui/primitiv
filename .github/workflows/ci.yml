@@ -49,3 +49,10 @@ jobs:
 
       - name: Type-check registry wrappers
         run: pnpm qa:registry-types
+
+      # Type-check and build the workbench (tsc -b && vite build). The doc-site
+      # deploy (deploy-docs.yml) is manual-only, so without this a broken
+      # workbench build — a type error in an example page or the OKLCH picker —
+      # only surfaces at deploy time, not on the PR.
+      - name: Build workbench
+        run: pnpm --filter workbench build

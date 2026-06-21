@@ -1,0 +1,141 @@
+/*
+ * Chrome for the OKLCH picker (RFC 0010 §4, Principle 4). Layout, surfaces,
+ * borders, radii and the Slider styling all wear --primitiv-* tokens (loaded
+ * via primitiv-tokens.css). The chart *paint* is engine colour data and is
+ * exempt — it is the subject, not the chrome. Slider has no registry sheet, so
+ * its parts are styled here against the Slider contract (data-orientation /
+ * positional inline styles).
+ *
+ * Selectors are scoped under .oklch-picker / .lc-chart / .hue-slider to avoid
+ * the global-CSS bleed the workbench bundles into one sheet (workbench-examples).
+ */
+
+.oklch-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-16);
+  padding: var(--primitiv-space-space-16);
+  width: max-content;
+  background: var(--primitiv-surface-raised);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+  border-radius: var(--primitiv-container-md-radius);
+  color: var(--primitiv-content-primary);
+  font-family: var(--primitiv-body-md-font-family);
+}
+
+.oklch-picker__charts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-12);
+}
+
+/* L×C pad ------------------------------------------------------------------ */
+
+.lc-chart {
+  position: relative;
+  border-radius: var(--primitiv-container-sm-radius);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
+  overflow: hidden;
+  touch-action: none;
+  cursor: crosshair;
+  /* A checkerboard reads transparency (out-of-gamut pixels) without a token. */
+  background-image:
+    linear-gradient(45deg, var(--primitiv-surface-subtle) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--primitiv-surface-subtle) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--primitiv-surface-subtle) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--primitiv-surface-subtle) 75%);
+  background-size: var(--primitiv-space-space-12) var(--primitiv-space-space-12);
+  background-position:
+    0 0,
+    0 calc(var(--primitiv-space-space-12) / 2),
+    calc(var(--primitiv-space-space-12) / 2) calc(var(--primitiv-space-space-12) / -2),
+    calc(var(--primitiv-space-space-12) / -2) 0;
+}
+
+.lc-chart__plane,
+.lc-chart__overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.lc-chart__overlay {
+  pointer-events: none;
+}
+
+.lc-chart__boundary {
+  fill: none;
+  stroke: var(--primitiv-color-absolute-white);
+  stroke-width: var(--primitiv-border-width-1);
+  opacity: var(--primitiv-active-opacity);
+}
+
+.lc-chart__cursor {
+  position: absolute;
+  width: var(--primitiv-space-space-16);
+  height: var(--primitiv-space-space-16);
+  border-radius: 50%;
+  border: var(--primitiv-border-width-2) solid var(--primitiv-color-absolute-white);
+  box-shadow: 0 0 0 var(--primitiv-border-width-1) var(--primitiv-color-absolute-black);
+  translate: -50% -50%;
+  pointer-events: none;
+}
+
+/* Hue slider --------------------------------------------------------------- */
+
+.hue-slider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: var(--primitiv-space-space-20);
+}
+
+.hue-slider__strip {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--primitiv-container-sm-radius);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
+}
+
+.hue-slider__track {
+  position: relative;
+  flex: 1;
+  height: 100%;
+}
+
+.hue-slider__thumb {
+  width: var(--primitiv-space-space-20);
+  height: var(--primitiv-space-space-20);
+  border-radius: 50%;
+  background: var(--primitiv-surface-default);
+  border: var(--primitiv-border-width-2) solid var(--primitiv-color-absolute-white);
+  box-shadow: 0 0 0 var(--primitiv-border-width-1) var(--primitiv-color-absolute-black);
+  translate: -50% 0;
+}
+
+.hue-slider__thumb:focus-visible {
+  outline: var(--primitiv-focus-ring-width) solid var(--primitiv-border-focus);
+  outline-offset: var(--primitiv-focus-ring-offset);
+}
+
+/* Numeric + text fields ---------------------------------------------------- */
+
+.oklch-picker__fields {
+  display: flex;
+  gap: var(--primitiv-space-space-8);
+}
+
+.oklch-picker__field {
+  flex: 1;
+  min-width: 0;
+}
+
+.oklch-picker__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-4);
+}

@@ -194,6 +194,76 @@ mod chroma_strip {
     }
 }
 
+mod ch_plane {
+    use super::*;
+
+    #[test]
+    fn buffer_is_four_bytes_per_pixel() {
+        let plane = paint_ch_plane(0.65, 4, 4, 0.4, Gamut::Srgb);
+        assert_eq!(plane.len(), 4 * 4 * 4);
+    }
+
+    #[test]
+    fn in_gamut_pixels_carry_their_srgb_colour_at_full_alpha() {
+        // c_max = 0 → every pixel is a grey (chroma 0), always in gamut; the
+        // column carries the hue for its x and the fixed lightness.
+        let (width, height, l) = (4usize, 4usize, 0.65);
+        let plane = paint_ch_plane(l, width, height, 0.0, Gamut::Srgb);
+
+        for (idx, alpha) in plane.iter().skip(3).step_by(4).enumerate() {
+            assert_eq!(*alpha, 255, "pixel {idx} should be opaque");
+        }
+
+        let (px, py) = (2usize, 1usize);
+        let hue = (px as f32 + 0.5) / width as f32 * 360.0;
+        let rgb = oklch_to_rgb(Oklch::new(l, 0.0, hue));
+        let i = (py * width + px) * 4;
+        assert_eq!(plane[i], to_byte(rgb.r));
+        assert_eq!(plane[i + 1], to_byte(rgb.g));
+        assert_eq!(plane[i + 2], to_byte(rgb.b));
+    }
+
+    #[test]
+    fn out_of_gamut_pixels_are_transparent() {
+        // Top row (highest chroma) at a near-white lightness is far outside the
+        // sRGB gamut at every hue, so it must be transparent.
+        let (width, height) = (4usize, 4usize);
+        let plane = paint_ch_plane(0.99, width, height, 0.4, Gamut::Srgb);
+        let (px, py) = (1usize, 0usize);
+        let i = (py * width + px) * 4;
+        assert_eq!(&plane[i..i + 4], &[0, 0, 0, 0]);
+    }
+
+    #[test]
+    fn display_p3_paints_more_of_the_plane_than_srgb() {
+        // The wider P3 boundary admits chroma rows sRGB leaves transparent.
+        let (width, height, l) = (32usize, 32usize, 0.65);
+        let srgb = paint_ch_plane(l, width, height, 0.4, Gamut::Srgb);
+        let p3 = paint_ch_plane(l, width, height, 0.4, Gamut::DisplayP3);
+        assert!(
+            opaque_pixels(&p3) > opaque_pixels(&srgb),
+            "P3 opaque {} should exceed sRGB opaque {}",
+            opaque_pixels(&p3),
+            opaque_pixels(&srgb),
+        );
+    }
+
+    #[test]
+    fn display_p3_pixels_carry_their_p3_colour() {
+        // c_max = 0 → grey pixels in gamut everywhere; the P3 plane blits
+        // Display-P3 coordinates for them.
+        let (width, height, l) = (4usize, 4usize, 0.65);
+        let plane = paint_ch_plane(l, width, height, 0.0, Gamut::DisplayP3);
+        let (px, py) = (2usize, 1usize);
+        let hue = (px as f32 + 0.5) / width as f32 * 360.0;
+        let rgb = oklch_to_p3_rgb(Oklch::new(l, 0.0, hue));
+        let i = (py * width + px) * 4;
+        assert_eq!(plane[i], to_byte(rgb.r));
+        assert_eq!(plane[i + 1], to_byte(rgb.g));
+        assert_eq!(plane[i + 2], to_byte(rgb.b));
+    }
+}
+
 mod lc_plane {
     use super::*;
 

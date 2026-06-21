@@ -13,7 +13,7 @@ pub mod neutral;
 
 pub use audit::audit_contrast;
 pub use gamut::{
-    max_in_gamut_chroma, paint_chroma_strip, paint_hue_strip, paint_lc_plane,
+    max_in_gamut_chroma, paint_ch_plane, paint_chroma_strip, paint_hue_strip, paint_lc_plane,
     paint_lightness_strip, Gamut,
 };
 pub use generate::{

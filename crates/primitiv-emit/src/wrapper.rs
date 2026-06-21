@@ -20,12 +20,20 @@ pub fn emit_wrapper(contract: &Contract) -> String {
 
     let binding = recipe_binding(&contract.name);
     let pascal = pascal_case(&contract.name);
+    // The text-child label-wrapping is a single-element-only convenience (Button).
+    let wrap_text = contract.wrap_text_children && contract.parts.is_empty();
 
     let mut out = header(&contract.name, &pascal);
     out.push_str(&format!(
         "import {{ {pascal} as {pascal}Primitive }} from \"@primitiv-ui/react\";\n"
     ));
-    out.push_str("import { type ComponentPropsWithRef } from \"react\";\n");
+    if wrap_text {
+        out.push_str(
+            "import { Children, type ComponentPropsWithRef, type ReactNode } from \"react\";\n",
+        );
+    } else {
+        out.push_str("import { type ComponentPropsWithRef } from \"react\";\n");
+    }
     out.push_str(&format!("import {{ {binding} }} from \"./{}.recipe\";\n\n", contract.name));
 
     emit_distributive_omit_helper(&mut out, contract);
@@ -47,15 +55,30 @@ pub fn emit_wrapper(contract: &Contract) -> String {
         contract.docs.as_deref(),
     );
 
-    let (destructure, recipe_call) = destructure_and_call(&binding, &contract.modifiers, contract.label);
+    if wrap_text {
+        emit_wrap_text_helper(&mut out, &contract.root.class);
+    }
+
+    let (destructure, recipe_call) =
+        destructure_and_call(&binding, &contract.modifiers, contract.label || wrap_text);
     out.push_str(&format!(
         "export function {pascal}({{ {destructure} }}: {pascal}Props) {{\n"
     ));
     let class_expr = format!("[{recipe_call}, className].filter(Boolean).join(\" \")");
     if contract.parts.is_empty() {
-        out.push_str(&format!(
-            "  return <{pascal}Primitive className={{{class_expr}}} {{...props}} />;\n"
-        ));
+        if wrap_text {
+            // The styled element wraps text children in a `…__label` span via the
+            // `wrapTextNodes` helper, so it renders an open/close tag.
+            out.push_str(&format!(
+                "  return (\n    <{pascal}Primitive className={{{class_expr}}} {{...props}}>\n"
+            ));
+            out.push_str("      {wrapTextNodes(children)}\n");
+            out.push_str(&format!("    </{pascal}Primitive>\n  );\n"));
+        } else {
+            out.push_str(&format!(
+                "  return <{pascal}Primitive className={{{class_expr}}} {{...props}} />;\n"
+            ));
+        }
     } else if contract.label {
         // A framed control with an inline label: the parts nest inside a
         // `…__control` box, and a `…__label` span carries the wrapper's
@@ -188,6 +211,22 @@ fn emit_distributive_omit_helper(out: &mut String, contract: &Contract) {
             "type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;\n\n",
         );
     }
+}
+
+/// The `wrapTextNodes` helper for a text-wrapping single-element wrapper: it maps
+/// string/number children into a `…__label` span (so `text-box-trim` sits on the
+/// label, not the flex box) and passes element children — icons — through
+/// untouched, leaving the icon↔label gap intact.
+fn emit_wrap_text_helper(out: &mut String, root_class: &str) {
+    out.push_str("function wrapTextNodes(children: ReactNode): ReactNode {\n");
+    out.push_str("  return Children.map(children, (child) =>\n");
+    out.push_str("    typeof child === \"string\" || typeof child === \"number\"\n");
+    out.push_str(&format!(
+        "      ? <span className=\"{root_class}__label\">{{child}}</span>\n"
+    ));
+    out.push_str("      : child,\n");
+    out.push_str("  );\n");
+    out.push_str("}\n\n");
 }
 
 /// The component-level JSDoc: the contract description, plus a `@see` line when

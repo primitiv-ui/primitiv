@@ -11,11 +11,12 @@ const maxChromaMock = vi.mocked(max_in_gamut_chroma);
 
 const VALUE = { l: 0.6, c: 0.15, h: 250 };
 
-function renderChart(onChange = vi.fn()) {
+function renderChart(onChange = vi.fn(), gamut: "Srgb" | "DisplayP3" = "Srgb") {
   const planeRef = createRef<HTMLCanvasElement>();
   render(
     <LcChart
       value={VALUE}
+      gamut={gamut}
       onChange={onChange}
       planeRef={planeRef}
       width={100}
@@ -45,6 +46,26 @@ describe("LcChart", () => {
     const polyline = pad.querySelector("polyline");
 
     expect(polyline?.getAttribute("points")).toMatch(/^0,50/);
+  });
+
+  it("draws only the sRGB boundary in sRGB mode", () => {
+    const { pad } = renderChart();
+
+    expect(pad.querySelectorAll("polyline")).toHaveLength(1);
+  });
+
+  it("draws a second boundary curve for the extended band in P3 mode", () => {
+    const { pad } = renderChart(vi.fn(), "DisplayP3");
+
+    expect(pad.querySelectorAll("polyline")).toHaveLength(2);
+  });
+
+  it("clamps the pointer against the active gamut boundary", () => {
+    const { pad } = renderChart(vi.fn(), "DisplayP3");
+
+    fireEvent.pointerDown(pad, { clientX: 50, clientY: 100, pointerId: 1 });
+
+    expect(maxChromaMock).toHaveBeenCalledWith(0.5, 250, "DisplayP3");
   });
 
   it("positions the cursor at the current value", () => {

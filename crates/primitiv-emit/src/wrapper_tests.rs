@@ -257,3 +257,40 @@ fn omits_the_distributive_helper_when_there_are_no_modifiers() {
 
     assert!(!wrapper.contains("DistributiveOmit"));
 }
+
+/// A single-element contract can opt into wrapping its text children in a
+/// `…__label` span (so `text-box-trim` can sit on the label, not the flex box).
+/// The wrapper then imports `Children` / `ReactNode`, emits the `wrapTextNodes`
+/// helper, destructures `children`, and renders `{wrapTextNodes(children)}`.
+#[test]
+fn wraps_text_children_in_a_label_span_when_the_contract_opts_in() {
+    let json = br#"{
+        "name": "button",
+        "description": "A clickable action.",
+        "root": { "element": "button", "class": "primitiv-button" },
+        "wrapTextChildren": true
+    }"#;
+    let wrapper = emit_wrapper(&Contract::parse(json).unwrap());
+
+    assert!(wrapper.contains(
+        "import { Children, type ComponentPropsWithRef, type ReactNode } from \"react\";",
+    ));
+    assert!(wrapper.contains("function wrapTextNodes(children: ReactNode): ReactNode {"));
+    assert!(wrapper.contains("<span className=\"primitiv-button__label\">{child}</span>"));
+    assert!(wrapper.contains("{wrapTextNodes(children)}"));
+    assert!(wrapper.contains("className, children, ...props"));
+}
+
+/// Without the opt-in, a single-element wrapper stays self-closing with no helper.
+#[test]
+fn omits_the_text_wrapping_helper_by_default() {
+    let json = br#"{
+        "name": "button",
+        "description": "A clickable action.",
+        "root": { "element": "button", "class": "primitiv-button" }
+    }"#;
+    let wrapper = emit_wrapper(&Contract::parse(json).unwrap());
+
+    assert!(!wrapper.contains("wrapTextNodes"));
+    assert!(wrapper.contains("{...props} />;"));
+}

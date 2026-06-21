@@ -16,13 +16,14 @@ import { max_in_gamut_chroma } from "harmoni-wasm";
 
 import { C_MAX, pointerEventToLc, lcToPoint, nudgeLc } from "./geometry";
 import { boundaryPoints } from "./boundary";
-import type { OklchValue } from "./types";
+import type { Gamut, OklchValue } from "./types";
 
 /** Lightness samples taken across the boundary curve — smooth without overdraw. */
 const BOUNDARY_SAMPLES = 64;
 
 export type LcChartProps = {
   value: OklchValue;
+  gamut: Gamut;
   onChange: (next: { l: number; c: number }) => void;
   planeRef: RefObject<HTMLCanvasElement | null>;
   width: number;
@@ -31,6 +32,7 @@ export type LcChartProps = {
 
 export function LcChart({
   value,
+  gamut,
   onChange,
   planeRef,
   width,
@@ -39,9 +41,10 @@ export function LcChart({
   const dragging = useRef(false);
 
   // Both pointer drags and arrow nudges land here: clamp chroma to the engine's
-  // in-gamut boundary at the resulting (l, h) before emitting (Principle 1).
+  // in-gamut boundary for the active gamut at the resulting (l, h) before
+  // emitting (Principle 1) — so P3 mode lets the cursor reach the wider band.
   const emitLc = (l: number, c: number) => {
-    onChange({ l, c: Math.min(c, max_in_gamut_chroma(l, value.h)) });
+    onChange({ l, c: Math.min(c, max_in_gamut_chroma(l, value.h, gamut)) });
   };
 
   const emit = (event: PointerEvent<HTMLDivElement>) => {
@@ -75,6 +78,22 @@ export function LcChart({
 
   const cursor = lcToPoint(value.l, value.c, width, height, C_MAX);
 
+  // The sRGB boundary is always drawn as the inner reference; in P3 mode the
+  // wider P3 boundary is drawn too, so the region between the curves reads as
+  // the sRGB→P3 extended band (RFC 0010 §7).
+  const srgbBoundary = boundaryPoints(
+    value.h,
+    width,
+    height,
+    C_MAX,
+    BOUNDARY_SAMPLES,
+    "Srgb",
+  );
+  const extendedBoundary =
+    gamut === "Srgb"
+      ? null
+      : boundaryPoints(value.h, width, height, C_MAX, BOUNDARY_SAMPLES, gamut);
+
   return (
     <div
       className="lc-chart"
@@ -101,9 +120,15 @@ export function LcChart({
         preserveAspectRatio="none"
         aria-hidden="true"
       >
+        {extendedBoundary && (
+          <polyline
+            className="lc-chart__boundary lc-chart__boundary--extended"
+            points={extendedBoundary}
+          />
+        )}
         <polyline
-          className="lc-chart__boundary"
-          points={boundaryPoints(value.h, width, height, C_MAX, BOUNDARY_SAMPLES)}
+          className="lc-chart__boundary lc-chart__boundary--srgb"
+          points={srgbBoundary}
         />
       </svg>
       <div

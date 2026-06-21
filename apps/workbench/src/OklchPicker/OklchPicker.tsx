@@ -11,11 +11,12 @@ import { useEffect, useRef, useState } from "react";
 import { Field, Input } from "@primitiv-ui/react";
 
 import { LcChart } from "./LcChart";
-import { HueSlider } from "./HueSlider";
+import { AxisSlider } from "./AxisSlider";
+import { GamutToggle } from "./GamutToggle";
 import { useGamutPaint } from "./useGamutPaint";
 import { formatColor, parseColor } from "./color";
 import { CHANNELS, clampChannel, roundChannel } from "./channels";
-import type { OklchValue } from "./types";
+import type { Gamut, OklchValue } from "./types";
 
 import "./OklchPicker.css";
 
@@ -29,12 +30,22 @@ export type OklchPickerProps = {
 
 export function OklchPicker({ value, onChange }: OklchPickerProps) {
   const planeRef = useRef<HTMLCanvasElement>(null);
-  const stripRef = useRef<HTMLCanvasElement>(null);
+  const hueStripRef = useRef<HTMLCanvasElement>(null);
+  const lightnessStripRef = useRef<HTMLCanvasElement>(null);
+  const chromaStripRef = useRef<HTMLCanvasElement>(null);
+
+  // The gamut is the picker's own view state, not part of the controlled colour
+  // value (Harmoni's model is opaque OkLCH) — so it stays internal and the
+  // value/onChange contract is unchanged, keeping the picker portable.
+  const [gamut, setGamut] = useState<Gamut>("Srgb");
 
   useGamutPaint({
     value,
+    gamut,
     planeRef,
-    stripRef,
+    hueStripRef,
+    lightnessStripRef,
+    chromaStripRef,
     planeWidth: PLANE_SIZE,
     planeHeight: PLANE_SIZE,
     stripWidth: STRIP_WIDTH,
@@ -90,19 +101,52 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
   return (
     <div className="oklch-picker">
       <div className="oklch-picker__charts">
+        <div className="oklch-picker__toolbar">
+          <GamutToggle gamut={gamut} onChange={setGamut} />
+        </div>
         <LcChart
           value={value}
+          gamut={gamut}
           onChange={({ l, c }) => onChange({ ...value, l, c })}
           planeRef={planeRef}
           width={PLANE_SIZE}
           height={PLANE_SIZE}
         />
-        <HueSlider
-          hue={value.h}
-          onChange={(h) => onChange({ ...value, h })}
-          stripRef={stripRef}
-          width={STRIP_WIDTH}
-        />
+        <div className="oklch-picker__sliders">
+          <AxisSlider
+            label="Lightness"
+            modifier="lightness"
+            value={value.l}
+            min={CHANNELS.l.min}
+            max={CHANNELS.l.max}
+            step={CHANNELS.l.step}
+            onChange={(l) => onChange({ ...value, l })}
+            stripRef={lightnessStripRef}
+            width={STRIP_WIDTH}
+          />
+          <AxisSlider
+            label="Chroma"
+            modifier="chroma"
+            value={value.c}
+            min={CHANNELS.c.min}
+            max={CHANNELS.c.max}
+            step={CHANNELS.c.step}
+            onChange={(c) => onChange({ ...value, c })}
+            stripRef={chromaStripRef}
+            width={STRIP_WIDTH}
+          />
+          <AxisSlider
+            label="Hue"
+            modifier="hue"
+            value={value.h}
+            min={CHANNELS.h.min}
+            max={CHANNELS.h.max}
+            step={CHANNELS.h.step}
+            onChange={(h) => onChange({ ...value, h })}
+            stripRef={hueStripRef}
+            width={STRIP_WIDTH}
+          />
+        </div>
       </div>
 
       <div className="oklch-picker__fields">

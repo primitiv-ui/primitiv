@@ -154,6 +154,14 @@ source of truth for when a skill applies.
   --dry-run`). Publishing mechanics, the no-slow-types rules, and the
   lockstep-version-bump gotcha live in `RELEASING.md` (§5–6); the live checklist
   is `docs/transfer-and-next-steps.md`.
+- **RFC 0010 (OKLCH colour picker) — Phases 1–2 landed.** The Rust/wasm gamut
+  API (`max_in_gamut_chroma`, `paint_lc_plane`, `paint_hue_strip`, plus the
+  `parse_color` / `describe_oklch` colour bridge) and the controlled workbench
+  picker at `apps/workbench/src/OklchPicker/` (now driving the brand colours on
+  the Color engine page). The picker is pure-TDD at 100% via a workbench vitest
+  harness (`apps/workbench/vitest.config.ts`, wasm + canvas mocked). Phase 3
+  (picker hardening / a11y / visual QA) is the next gap; Display-P3 (Phase 4)
+  and the plugin port (Phase 5) follow. See RFC 0010 §10.
 
 ## Useful commands
 

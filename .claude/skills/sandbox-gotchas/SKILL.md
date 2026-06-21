@@ -31,10 +31,23 @@ Option 2 is only worth it if wasm-pack isn't available — see next.
 ## `wasm-pack` may not be installed
 
 If `pnpm run build:wasm` fails with "wasm-pack: command not found",
-the sandbox doesn't have the tool. You can't regenerate the `.d.ts`
-without it. The current structs are field-for-field identical
-post-Step A, so the output *should* be byte-equivalent — but verify
-manually when wasm-pack is available.
+the tool isn't on PATH. `cargo`/`rustc` usually *are* present, so in
+the **remote (cloud) environment** you can drop in a prebuilt binary
+without a slow `cargo install`:
+
+```sh
+curl -sSL -o /tmp/wp.tar.gz \
+  https://github.com/rustwasm/wasm-pack/releases/download/v0.13.1/wasm-pack-v0.13.1-x86_64-unknown-linux-musl.tar.gz
+tar -xzf /tmp/wp.tar.gz -C /tmp
+cp /tmp/wasm-pack-*/wasm-pack "$(dirname "$(which cargo)")"/   # e.g. /root/.cargo/bin
+pnpm run build:wasm
+```
+
+That worked for RFC 0010 Phase 2 (the gamut painters + `parse_color` /
+`describe_oklch` landed in the generated `.d.ts`). If you genuinely
+can't get the binary, you can't regenerate `pkg/*.d.ts`; the structs
+are field-for-field identical post-Step A, so the output *should* be
+byte-equivalent — but verify when wasm-pack is available.
 
 ## `build:core` pnpm script is broken
 
@@ -70,6 +83,21 @@ the `workbench-examples` skill rules (scoped CSS, router wiring).
 The human always manually checks the workbench in a real browser
 afterwards — say so in your summary and leave the visual check to
 them.
+
+The workbench now also has a **vitest harness** (added for the RFC 0010
+OKLCH picker): `apps/workbench/vitest.config.ts` + `vitest.setup.ts`,
+coverage **scoped to `src/OklchPicker/**`** at 100%. wasm and canvas are
+mocked (the setup polyfills `ImageData` and pointer capture for jsdom),
+so picker *logic* is testable headlessly even though the app won't
+render:
+
+```sh
+pnpm --filter workbench exec vitest run src/OklchPicker   # scoped
+pnpm --filter workbench qa:units                          # + coverage
+```
+
+The rest of the workbench is deliberately untested; keep new coverage
+scoped rather than widening the gate to the whole app.
 
 ## Don't run filesystem-scope commands from `/`
 

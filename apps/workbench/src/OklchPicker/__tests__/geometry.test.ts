@@ -5,6 +5,11 @@ import {
   pointerToLc,
   lcToPoint,
   pointerEventToLc,
+  nudgeLc,
+  LIGHTNESS_STEP,
+  LIGHTNESS_COARSE_STEP,
+  CHROMA_STEP,
+  CHROMA_COARSE_STEP,
   C_MAX,
 } from "../geometry";
 
@@ -83,5 +88,59 @@ describe("pointerEventToLc", () => {
 
     expect(l).toBeCloseTo(0.5);
     expect(c).toBeCloseTo(C_MAX / 2);
+  });
+});
+
+describe("nudgeLc", () => {
+  it("steps lightness up on ArrowRight, leaving chroma untouched", () => {
+    const next = nudgeLc(0.5, 0.1, "ArrowRight", false, C_MAX);
+
+    expect(next).toEqual({ l: 0.5 + LIGHTNESS_STEP, c: 0.1 });
+  });
+
+  it("steps lightness down on ArrowLeft", () => {
+    const next = nudgeLc(0.5, 0.1, "ArrowLeft", false, C_MAX);
+
+    expect(next).toEqual({ l: 0.5 - LIGHTNESS_STEP, c: 0.1 });
+  });
+
+  it("steps chroma up on ArrowUp, leaving lightness untouched", () => {
+    const next = nudgeLc(0.5, 0.1, "ArrowUp", false, C_MAX);
+
+    expect(next).toEqual({ l: 0.5, c: 0.1 + CHROMA_STEP });
+  });
+
+  it("steps chroma down on ArrowDown", () => {
+    const next = nudgeLc(0.5, 0.1, "ArrowDown", false, C_MAX);
+
+    expect(next).toEqual({ l: 0.5, c: 0.1 - CHROMA_STEP });
+  });
+
+  it("uses the coarse step when the shift flag is set", () => {
+    expect(nudgeLc(0.5, 0.1, "ArrowRight", true, C_MAX)).toEqual({
+      l: 0.5 + LIGHTNESS_COARSE_STEP,
+      c: 0.1,
+    });
+    expect(nudgeLc(0.5, 0.1, "ArrowUp", true, C_MAX)).toEqual({
+      l: 0.5,
+      c: 0.1 + CHROMA_COARSE_STEP,
+    });
+  });
+
+  it("clamps lightness into [0, 1] at the edges", () => {
+    expect(nudgeLc(1, 0.1, "ArrowRight", false, C_MAX)).toEqual({ l: 1, c: 0.1 });
+    expect(nudgeLc(0, 0.1, "ArrowLeft", false, C_MAX)).toEqual({ l: 0, c: 0.1 });
+  });
+
+  it("clamps chroma into [0, cMax] at the edges", () => {
+    expect(nudgeLc(0.5, C_MAX, "ArrowUp", false, C_MAX)).toEqual({
+      l: 0.5,
+      c: C_MAX,
+    });
+    expect(nudgeLc(0.5, 0, "ArrowDown", false, C_MAX)).toEqual({ l: 0.5, c: 0 });
+  });
+
+  it("returns null for a key that is not an arrow", () => {
+    expect(nudgeLc(0.5, 0.1, "Enter", false, C_MAX)).toBeNull();
   });
 });

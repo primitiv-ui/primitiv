@@ -12,7 +12,7 @@
 > `workbench-examples` (the build-first surface).
 > **Prior art:** Evil Martians' [oklch.com](https://oklch.com)
 > (`evilmartians/oklch-picker`, **MIT**) — the *interaction model* is adapted,
-> not the code (§7).
+> not the code (§8).
 
 ---
 
@@ -95,6 +95,16 @@ The picker ships complete on the sRGB gamut Harmoni already computes. P3 is a
 strictly additive layer — a second boundary curve, an extended-band paint, and
 a toggle — landed without reworking the v1 surface.
 
+### Principle 6 — Compose the design system, don't reinvent its controls
+
+Every standard control the picker needs — sliders, numeric fields, labelled
+form rows, the gamut toggle — already exists as an accessible headless
+component in `@primitiv-ui/react`, on which both apps already depend. We
+compose those (with their keyboard handling, ARIA, and `data-*` contract) and
+spend custom code only on what the system does *not* have: the canvas paint and
+the 2D L×C control. Reuse is the default; a bespoke control is a justified
+exception.
+
 ---
 
 ## 2. The interaction model
@@ -150,15 +160,32 @@ call, not a blocker.
 After any `.d.ts`-affecting change, rebuild with `pnpm run build:wasm` and
 confirm the new functions appear in the generated types.
 
-## 4. Component decomposition (workbench)
+## 4. Reusing the design-system headless components
+
+Both apps already depend on `@primitiv-ui/react`, so reuse adds no dependency.
+The mapping from picker control to existing headless component (Principle 6):
+
+| Picker control | Reuse | Registry stylesheet? |
+|---|---|---|
+| Hue slider (and optional 1D L / C sliders) | **`Slider`** — `Root`/`Track`/`Range`/`Thumb`, `orientation`, `min`/`max`/`step`, `value`/`onValueChange`; gives keyboard, ARIA `aria-valuenow`, and `data-orientation`/`data-disabled` for free | **No** — author the picker's own CSS against the Slider contract, with `--primitiv-*` tokens, painting the track from engine data |
+| L / C / H numeric fields | **`Input`** wrapped in **`Field`** (label + a11y wiring); **`InputGroup`** where a unit/affix helps | **Yes** — `registry/components/{input,input-group,field}/styles.css` |
+| hex ⇄ oklch text field | **`Input`** (+ `Field`); parse/format via wasm, never a JS parser (Principle 1) | **Yes** (as above) |
+| sRGB / P3 gamut toggle (§7) | **`Toggle`** or **`ToggleGroup`** | check at build time; style against contract if absent |
+
+Custom code is confined to what the system lacks: the canvas **paint** and the
+**2D L×C control** (the headless `Slider` is 1-D only).
+
+## 5. Component decomposition (workbench)
 
 A self-contained directory, e.g. `apps/workbench/src/OklchPicker/`:
 
-- `OklchPicker.tsx` — orchestrates `value`/`onChange`, lays out charts + inputs,
-  wears the design-system tokens (Principle 4).
-- `LcChart.tsx` — blits `paint_lc_plane`, overlays the boundary curve, draws
-  and drags the cursor (pixel → (l, c) mapping with clamping).
-- `HueSlider.tsx` — blits `paint_hue_strip`, cursor + drag → `onChange({ h })`.
+- `OklchPicker.tsx` — orchestrates `value`/`onChange`, lays out the charts and
+  the reused `Field`/`Input` rows, wears the design-system tokens (Principle 4).
+- `LcChart.tsx` — the bespoke 2D control: blits `paint_lc_plane`, overlays the
+  boundary curve, draws and drags the cursor (pixel → (l, c) mapping with
+  clamping). No headless analogue exists for a 2-D pad.
+- `HueSlider.tsx` — composes `Slider` (Principle 6): paints the track from
+  `paint_hue_strip`, with `Slider.Thumb` as the cursor → `onChange({ h })`.
 - `useGamutPaint.ts` — owns the repaint-gating and `requestAnimationFrame`
   coalescing of §2.
 
@@ -167,7 +194,7 @@ mapping, clamping to `[0,1]` / `[0,360]` / `0..c_max`, value↔string
 round-trips, and repaint-gating decisions. Canvas/`getContext` is mocked; no
 pixel assertions.
 
-## 5. Wiring into the Color engine page
+## 6. Wiring into the Color engine page
 
 `apps/workbench/src/ColorEngine.tsx` swaps its brand `<input type="color">` for
 `OklchPicker`, feeding the value into the existing `useColors` flow
@@ -176,7 +203,7 @@ or a formatted `oklch()` string. The live palette swatches regenerate as the
 user drags. Whether the neutral white/black inputs also adopt the picker is a
 build-time call.
 
-## 6. Display-P3 (fast-follow, same RFC)
+## 7. Display-P3 (fast-follow, same RFC)
 
 Additive on §3: a P3 variant of `max_in_gamut_chroma` (a Display-P3 RGB
 standard defined via the `palette` crate's custom-primaries support), a `gamut`
@@ -184,7 +211,7 @@ parameter on the painters so a P3 boundary curve and the sRGB→P3 "extended"
 band can be drawn distinctly, and an sRGB/P3 toggle in the picker. Same strict
 TDD and 100% gate. No change to the v1 surface.
 
-## 7. Prior art & attribution
+## 8. Prior art & attribution
 
 The interaction model — paint-backed L×C plane + hue strip with a live gamut
 boundary — is adapted from Evil Martians' oklch.com
@@ -194,7 +221,7 @@ maths, `three`/`delaunator` for the 3D model) differs from ours by design: our
 maths is in Rust (Principle 1) and we render 2D charts, not the 3D gamut solid.
 MIT attribution is carried in the picker directory.
 
-## 8. Trajectory: port to the plugin
+## 9. Trajectory: port to the plugin
 
 Once proven in the workbench, the `OklchPicker/` directory lifts into
 `apps/harmoni-figma-plugin/src/ui/`, replacing the hex inputs at

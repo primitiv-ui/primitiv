@@ -98,6 +98,33 @@ pub(crate) const DEMO_VIEW: &str = r#"{
   ]
 }"#;
 
+/// Labelled framed-control synthetic contract — the generality proof for the
+/// inline-label decorative-slot shape (Radio/Checkbox/Switch without being any
+/// of them, D54). `label: true` nests the parts inside a `…__control` box and
+/// appends a `…__label` span fed by `children`; the `size` modifier proves the
+/// children destructure rides alongside the variant props.
+pub(crate) const DEMO_LABELLED: &str = r#"{
+  "name": "demo-labelled",
+  "description": "A demo labelled control.",
+  "docs": "https://example.test/demo-labelled",
+  "label": true,
+  "root": { "element": "label", "class": "primitiv-demo-labelled" },
+  "parts": [
+    { "name": "indicator", "class": "primitiv-demo-labelled__indicator" }
+  ],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Control size.",
+      "options": [
+        { "name": "sm", "class": "primitiv-demo-labelled--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-demo-labelled--md", "description": "Medium." }
+      ]
+    }
+  ]
+}"#;
+
 /// Sparse synthetic contract — single-word name, no docs, one group with no
 /// `prop` (so the group key is the prop).
 pub(crate) const BARE: &str = r#"{

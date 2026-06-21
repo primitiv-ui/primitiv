@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
 
 import { Check } from "@primitiv-ui/icons";
 import { RadioGroup, Switch } from "@primitiv-ui/react";
@@ -35,17 +35,6 @@ export function SwitchExample() {
   });
   const [size, setSize] = useState("md");
 
-  // Switch has no size *modifier* — it re-sizes by re-pointing its
-  // `--primitiv-switch-*` anatomy knobs at the chosen size slot (the same knob
-  // seam a consumer overrides). The slot is still density-scoped, so this
-  // composes with the `[data-density]` rows below.
-  const sizeVars = {
-    "--primitiv-switch-track-width": `var(--primitiv-switch-${size}-track-width)`,
-    "--primitiv-switch-track-height": `var(--primitiv-switch-${size}-track-height)`,
-    "--primitiv-switch-thumb-size": `var(--primitiv-switch-${size}-thumb-size)`,
-    "--primitiv-switch-thumb-margin": `var(--primitiv-switch-${size}-thumb-margin)`,
-  } as CSSProperties;
-
   return (
     <div className="sw-example">
       <h2 className="sw-example__title">Switch</h2>
@@ -56,10 +45,11 @@ export function SwitchExample() {
         </h3>
         <p className="sw-example__description">
           The headless <code>Switch</code> — a real hidden checkbox input with{" "}
-          <code>role="switch"</code> in a <code>.primitiv-switch</code> track —
-          with the registry classes applied. The track colour swaps and the
+          <code>role="switch"</code> in a <code>.primitiv-switch</code> row — with
+          the registry classes applied. Children become the inline{" "}
+          <code>.primitiv-switch__label</code>; the track colour swaps and the
           thumb slides off the input's native <code>:checked</code>, and{" "}
-          <code>data-disabled</code> styles itself.
+          <code>data-disabled</code> dims the whole row.
         </p>
 
         <div className="sw-example__contract-row">
@@ -72,27 +62,25 @@ export function SwitchExample() {
               props: { defaultChecked: true, disabled: true },
             },
           ].map(({ caption, props }) => (
-            <div key={caption} className="sw-example__labeled">
-              <Switch.Root
-                className="primitiv-switch"
-                aria-label={`Switch — ${caption}`}
-                {...props}
-              >
+            <Switch.Root key={caption} className="primitiv-switch" {...props}>
+              <span className="primitiv-switch__control">
                 <Switch.Thumb className="primitiv-switch__thumb" />
-              </Switch.Root>
-              <small className="sw-example__caption">{caption}</small>
-            </div>
+              </span>
+              <span className="primitiv-switch__label">{caption}</span>
+            </Switch.Root>
           ))}
         </div>
       </section>
 
       <section className="sw-example__section">
-        <h3 className="sw-example__section-title">Density</h3>
+        <h3 className="sw-example__section-title">Size & density</h3>
         <p className="sw-example__description">
           The same contract-styled switch under each <code>data-density</code>{" "}
-          scope. Density is ambient — set on any ancestor — and the{" "}
-          <code>switch/*</code> anatomy tokens resolve to the matching scale (RFC
-          0009). Pick a size to re-point the anatomy knobs and rescale them all.
+          scope. The <code>size</code> modifier re-points the track/thumb anatomy,
+          the control↔label gap and the label type slot; density is ambient — set
+          on any ancestor — and the <code>switch/*</code> anatomy tokens resolve
+          to the matching scale (RFC 0009). Pick a size to apply the{" "}
+          <code>--{size}</code> modifier to every row below.
         </p>
 
         <RadioGroup.Root
@@ -126,20 +114,20 @@ export function SwitchExample() {
           >
             <span className="sw-example__density-label">{density}</span>
             <div className="sw-example__contract-row">
-              <Switch.Root
-                className="primitiv-switch"
-                style={sizeVars}
-                aria-label={`Switch off — ${density} ${size}`}
-              >
-                <Switch.Thumb className="primitiv-switch__thumb" />
+              <Switch.Root className={`primitiv-switch primitiv-switch--${size}`}>
+                <span className="primitiv-switch__control">
+                  <Switch.Thumb className="primitiv-switch__thumb" />
+                </span>
+                <span className="primitiv-switch__label">Off</span>
               </Switch.Root>
               <Switch.Root
-                className="primitiv-switch"
-                style={sizeVars}
-                aria-label={`Switch on — ${density} ${size}`}
+                className={`primitiv-switch primitiv-switch--${size}`}
                 defaultChecked
               >
-                <Switch.Thumb className="primitiv-switch__thumb" />
+                <span className="primitiv-switch__control">
+                  <Switch.Thumb className="primitiv-switch__thumb" />
+                </span>
+                <span className="primitiv-switch__label">On</span>
               </Switch.Root>
             </div>
           </div>

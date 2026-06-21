@@ -12,7 +12,7 @@ import { radio } from "./radio.recipe";
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
 
 /**
- * A single native radio input you group yourself with a shared `name`.
+ * A single native radio input with an optional inline label, grouped with a shared `name`.
  *
  * @see https://primitiv-ui.dev/docs/components/radio
  */
@@ -30,10 +30,13 @@ export type RadioProps = DistributiveOmit<ComponentPropsWithRef<typeof RadioPrim
   size?: "xs" | "sm" | "md" | "lg" | "xl";
 };
 
-export function Radio({ size, className, ...props }: RadioProps) {
+export function Radio({ size, className, children, ...props }: RadioProps) {
   return (
     <RadioPrimitive.Root className={[radio({ size }), className].filter(Boolean).join(" ")} {...props}>
-      <RadioPrimitive.Indicator className="primitiv-radio__indicator" />
+      <span className="primitiv-radio__control">
+        <RadioPrimitive.Indicator className="primitiv-radio__indicator" />
+      </span>
+      {children != null && <span className="primitiv-radio__label">{children}</span>}
     </RadioPrimitive.Root>
   );
 }

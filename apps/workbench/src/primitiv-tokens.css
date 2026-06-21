@@ -535,6 +535,7 @@
     --primitiv-label-control-sm-padding-block: var(--primitiv-space-space-2);
     --primitiv-label-control-sm-padding-inline: var(--primitiv-space-space-6);
     --primitiv-label-control-sm-radius: var(--primitiv-radii-2);
+    --primitiv-label-control-xl-gap: var(--primitiv-space-space-8);
     --primitiv-label-control-xs-gap: var(--primitiv-space-space-2);
     --primitiv-label-control-xs-icon-size: var(--primitiv-size-size-10);
     --primitiv-label-control-xs-padding-block: var(--primitiv-space-space-2);
@@ -830,6 +831,7 @@
     --primitiv-label-control-sm-padding-block: var(--primitiv-space-space-2);
     --primitiv-label-control-sm-padding-inline: var(--primitiv-space-space-4);
     --primitiv-label-control-sm-radius: var(--primitiv-radii-2);
+    --primitiv-label-control-xl-gap: var(--primitiv-space-space-6);
     --primitiv-label-control-xs-gap: var(--primitiv-space-space-1);
     --primitiv-label-control-xs-icon-size: var(--primitiv-size-size-8);
     --primitiv-label-control-xs-padding-block: var(--primitiv-space-space-1);
@@ -1125,6 +1127,7 @@
     --primitiv-label-control-sm-padding-block: var(--primitiv-space-space-1);
     --primitiv-label-control-sm-padding-inline: var(--primitiv-space-space-3);
     --primitiv-label-control-sm-radius: var(--primitiv-radii-2);
+    --primitiv-label-control-xl-gap: var(--primitiv-space-space-4);
     --primitiv-label-control-xs-gap: var(--primitiv-space-space-1);
     --primitiv-label-control-xs-icon-size: var(--primitiv-size-size-8);
     --primitiv-label-control-xs-padding-block: var(--primitiv-space-space-1);
@@ -1420,6 +1423,7 @@
     --primitiv-label-control-sm-padding-block: var(--primitiv-space-space-4);
     --primitiv-label-control-sm-padding-inline: var(--primitiv-space-space-8);
     --primitiv-label-control-sm-radius: var(--primitiv-radii-4);
+    --primitiv-label-control-xl-gap: var(--primitiv-space-space-12);
     --primitiv-label-control-xs-gap: var(--primitiv-space-space-3);
     --primitiv-label-control-xs-icon-size: var(--primitiv-size-size-12);
     --primitiv-label-control-xs-padding-block: var(--primitiv-space-space-3);

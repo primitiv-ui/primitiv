@@ -35,6 +35,14 @@ pub struct Contract {
     /// The visual modifier groups, in authored order.
     #[serde(default)]
     pub modifiers: Vec<ModifierGroup>,
+    /// Whether the decorative-slot wrapper is a *framed control with an inline
+    /// label*: a flex row that nests its parts inside a `…__control` box and
+    /// appends a `…__label` span carrying the wrapper's `children` (Radio,
+    /// Checkbox, Switch). `false` (the default) keeps the flat decorative-slot
+    /// render (Switch's thumb-only shape). Only consulted when [`parts`](Self::parts)
+    /// is non-empty.
+    #[serde(default)]
+    pub label: bool,
 }
 
 /// One structural, consumer-composed subcomponent of a compound (`Tabs.List`).

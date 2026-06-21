@@ -8,11 +8,17 @@ modifier axis — but drops the indeterminate state, so it exercises the *same*
 
 It styles the standalone headless `Radio` (`Radio.Root` + `Radio.Indicator`),
 whose root is a `<label>` wrapping a **real, visually-hidden native
-`<input type="radio">`**. That makes it a genuine form control: siblings sharing
-a `name` form a native radio group (the browser enforces single-selection), and
-it submits with an enclosing form. For a managed set with roving-tabindex
-keyboard navigation, the headless `RadioGroup` is the primitive; this styled
-surface is the lone native control you group yourself with `name`.
+`<input type="radio">`**. The wrapper lays the root out as a **flex row**: the
+hidden input, a `primitiv-radio__control` box holding the dot, and — when you
+pass children — a `primitiv-radio__label` span beside it, so
+`<Radio>Subscribe</Radio>` renders the label inline with the control. With no
+children the row is just the box, so an `aria-label`-only radio still works.
+
+That makes it a genuine form control: siblings sharing a `name` form a native
+radio group (the browser enforces single-selection), and it submits with an
+enclosing form. For a managed set with roving-tabindex keyboard navigation, the
+headless `RadioGroup` is the primitive; this styled surface is the lone native
+control you group yourself with `name`.
 
 ## Files
 
@@ -40,10 +46,14 @@ A **hybrid** document with two halves and two sources of truth (D15):
   is a best-effort mirror; the stylesheet keys the *checked* look off the input's
   native `:checked` instead — see below.)
 - **`root` / `parts` / `modifiers` / `customProperties`** — authored. The
-  `.primitiv-radio` root class (the `<label>` box), the
+  `.primitiv-radio` root class (the `<label>` row), the
   `primitiv-radio__indicator` **part** (a decorative slot, named BEM-style off
-  the root, D14), the `size` modifier axis, and the `--primitiv-radio-*`
-  custom-property API.
+  the root, D14), and — emitted by the wrapper's `label: true` shape — the
+  `primitiv-radio__control` box (which holds the indicator) and the
+  `primitiv-radio__label` span (which holds the children). Plus the `size`
+  modifier axis and the `--primitiv-radio-*` custom-property API (including the
+  `--primitiv-radio-gap` control↔label gap and the `--primitiv-radio-label-*`
+  type knobs).
 
 ## The default theme (`styles.css`)
 
@@ -56,21 +66,24 @@ size, density-aware), with the radius and dot derived from it, plus `action/*` +
 
 The **indicator is the dot**: a `dot-size` circle filled with the current
 colour, always in the DOM but `scale: 0` until the input is checked, when
-`.primitiv-radio > input:checked ~ .primitiv-radio__indicator` scales it to `1`.
-Keying the reveal — and the highlighted ring via `.primitiv-radio:has(>
-input:checked)` — off the input's **native `:checked`** rather than the
-`data-state` mirror is deliberate: when the browser silently deselects a grouped
-sibling (an event React never sees), the CSS stays correct. **Unlike the
-checkbox, the box stays light when selected** — the brand colour shows only as
-the centred dot and a highlighted ring, the convention that keeps a radio
-visually distinct from a checkbox. The hidden input is laid over the whole box
-(`appearance: none`, transparent) so it stays the hit/focus target; on
-`:focus-visible` the box draws the **shared two-layer focus ring** via
-`:has(> input:focus-visible)`. The `size` axis (with ambient `[data-density]`)
-re-points only the box size for each slot — the radius (always a full circle,
+`.primitiv-radio > input:checked ~ .primitiv-radio__control .primitiv-radio__indicator`
+scales it to `1`. Keying the reveal — and the highlighted ring via
+`.primitiv-radio > input:checked ~ .primitiv-radio__control` — off the input's
+**native `:checked`** rather than the `data-state` mirror is deliberate: when the
+browser silently deselects a grouped sibling (an event React never sees), the CSS
+stays correct. **Unlike the checkbox, the box stays light when selected** — the
+brand colour shows only as the centred dot and a highlighted ring, the convention
+that keeps a radio visually distinct from a checkbox. The input is **visually
+hidden** (the canonical sr-only clip) rather than overlaid — the `<label>` row is
+itself the hit target — and on `:focus-visible` the **shared two-layer focus
+ring** is drawn on the box via the sibling combinator
+`> input:focus-visible ~ .primitiv-radio__control`. The `size` axis (with ambient
+`[data-density]`) re-points the box size, the `--primitiv-radio-gap` and the
+label type slot for each size — the radius (always a full circle,
 `--primitiv-radii-full`) and the dot (half the box,
-`calc(var(--primitiv-radio-size) / 2)`) derive from it, so they scale with size
-and density automatically.
+`calc(var(--primitiv-radio-size) / 2)`) derive from `--primitiv-radio-size`, so
+they scale with size and density automatically. The `__label` text rides the
+shared `--primitiv-label-*` scale, so it tracks size and density with the box.
 
 **It is yours to edit.** The stable surface is the *contract* (classes, `data-*`,
 custom-property names), not these values (RFC 0006 Principle 2 — names are stable,
@@ -96,9 +109,11 @@ The primary DX is the wrapper — a single `<Radio size>` over the headless
   function over the root class and the `size` variants, defaulting to `md`.
 - **`radio.tsx`** — the wrapper. The `size` prop is `DistributiveOmit`-stripped
   from the headless props before the variant union is intersected in (so it can't
-  collapse to `never`); the body renders `<RadioPrimitive.Root>` and auto-fills
-  the indicator slot, so a consumer writes `<Radio checked onCheckedChange={…} />`
-  and the dot comes for free.
+  collapse to `never`); the body renders `<RadioPrimitive.Root>`, nests the
+  indicator inside the `__control` box, and appends a `__label` span fed by
+  `children` (omitted when there are none). A consumer writes
+  `<Radio name="plan" value="pro">Pro</Radio>` and the dot, box and label all
+  come for free.
 
 Drift guards in `crates/primitiv-emit/src/{recipe,wrapper}_tests.rs` assert each
 committed artifact equals the generator's output for the committed contract.

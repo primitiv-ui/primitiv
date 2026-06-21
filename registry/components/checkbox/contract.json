@@ -2,8 +2,9 @@
   "$schema": "https://primitiv-ui.dev/schema/contract.json",
   "name": "checkbox",
   "version": "0.1.0",
-  "description": "A tri-state checkbox — an independent on/off (or mixed) form selection.",
+  "description": "A tri-state checkbox with an optional inline label — an independent on/off (or mixed) form selection.",
   "docs": "https://primitiv-ui.dev/docs/components/checkbox",
+  "label": true,
   "root": {
     "element": "label",
     "class": "primitiv-checkbox"
@@ -40,6 +41,12 @@
     { "name": "--primitiv-checkbox-mark-color", "defaultsTo": "var(--primitiv-action-primary-foreground-default)" },
     { "name": "--primitiv-checkbox-size", "defaultsTo": "var(--primitiv-checkbox-md-box-size)" },
     { "name": "--primitiv-checkbox-radius", "defaultsTo": "var(--primitiv-checkbox-md-box-radius)" },
-    { "name": "--primitiv-checkbox-mark-size", "defaultsTo": "var(--primitiv-checkbox-md-mark-size)" }
+    { "name": "--primitiv-checkbox-mark-size", "defaultsTo": "var(--primitiv-checkbox-md-mark-size)" },
+    { "name": "--primitiv-checkbox-gap", "defaultsTo": "var(--primitiv-label-control-md-gap)" },
+    { "name": "--primitiv-checkbox-label-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-checkbox-label-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
+    { "name": "--primitiv-checkbox-label-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },
+    { "name": "--primitiv-checkbox-label-font-weight", "defaultsTo": "var(--primitiv-label-md-font-weight)" },
+    { "name": "--primitiv-checkbox-label-line-height", "defaultsTo": "var(--primitiv-label-md-line-height)" }
   ]
 }

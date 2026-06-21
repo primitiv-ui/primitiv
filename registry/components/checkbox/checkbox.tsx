@@ -12,7 +12,7 @@ import { checkbox } from "./checkbox.recipe";
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
 
 /**
- * A tri-state checkbox — an independent on/off (or mixed) form selection.
+ * A tri-state checkbox with an optional inline label — an independent on/off (or mixed) form selection.
  *
  * @see https://primitiv-ui.dev/docs/components/checkbox
  */
@@ -30,10 +30,13 @@ export type CheckboxProps = DistributiveOmit<ComponentPropsWithRef<typeof Checkb
   size?: "xs" | "sm" | "md" | "lg" | "xl";
 };
 
-export function Checkbox({ size, className, ...props }: CheckboxProps) {
+export function Checkbox({ size, className, children, ...props }: CheckboxProps) {
   return (
     <CheckboxPrimitive.Root className={[checkbox({ size }), className].filter(Boolean).join(" ")} {...props}>
-      <CheckboxPrimitive.Indicator className="primitiv-checkbox__indicator" />
+      <span className="primitiv-checkbox__control">
+        <CheckboxPrimitive.Indicator className="primitiv-checkbox__indicator" />
+      </span>
+      {children != null && <span className="primitiv-checkbox__label">{children}</span>}
     </CheckboxPrimitive.Root>
   );
 }

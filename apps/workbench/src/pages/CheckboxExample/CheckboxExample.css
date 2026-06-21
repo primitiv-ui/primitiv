@@ -91,18 +91,6 @@
   gap: 1.5rem;
 }
 
-.cb-example__labeled {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.cb-example__caption {
-  font-size: 0.75rem;
-  color: #6b7280;
-}
-
 .cb-example__density {
   display: flex;
   align-items: center;

@@ -1,7 +1,7 @@
 use pretty_assertions::assert_eq;
 
 use crate::contract::Contract;
-use crate::contract_fixtures::{BARE, DEMO_BOX, DEMO_TOGGLE, DEMO_VIEW};
+use crate::contract_fixtures::{BARE, DEMO_BOX, DEMO_LABELLED, DEMO_TOGGLE, DEMO_VIEW};
 use crate::wrapper::emit_wrapper;
 
 #[test]
@@ -54,6 +54,22 @@ fn generates_a_compound_auto_rendering_wrapper_for_a_no_modifier_parts_contract(
         include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/tests/golden/demo-toggle.wrapper.tsx"
+        ))
+    );
+}
+
+/// The inline-label decorative-slot shape (`label: true`): the parts nest inside
+/// a `…__control` box, a `…__label` span carrying `children` is appended, and
+/// `children` joins the destructure alongside the `size` variant prop (D54).
+#[test]
+fn generates_a_framed_control_with_inline_label_for_a_labelled_parts_contract() {
+    let contract = Contract::parse(DEMO_LABELLED.as_bytes()).unwrap();
+
+    assert_eq!(
+        emit_wrapper(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/demo-labelled.wrapper.tsx"
         ))
     );
 }

@@ -47,7 +47,7 @@ pub fn emit_wrapper(contract: &Contract) -> String {
         contract.docs.as_deref(),
     );
 
-    let (destructure, recipe_call) = destructure_and_call(&binding, &contract.modifiers);
+    let (destructure, recipe_call) = destructure_and_call(&binding, &contract.modifiers, contract.label);
     out.push_str(&format!(
         "export function {pascal}({{ {destructure} }}: {pascal}Props) {{\n"
     ));
@@ -56,6 +56,30 @@ pub fn emit_wrapper(contract: &Contract) -> String {
         out.push_str(&format!(
             "  return <{pascal}Primitive className={{{class_expr}}} {{...props}} />;\n"
         ));
+    } else if contract.label {
+        // A framed control with an inline label: the parts nest inside a
+        // `…__control` box, and a `…__label` span carries the wrapper's
+        // `children` — omitted when there are none, so the bare box still works.
+        out.push_str(&format!(
+            "  return (\n    <{pascal}Primitive.Root className={{{class_expr}}} {{...props}}>\n"
+        ));
+        out.push_str(&format!(
+            "      <span className=\"{}__control\">\n",
+            contract.root.class
+        ));
+        for part in &contract.parts {
+            out.push_str(&format!(
+                "        <{pascal}Primitive.{} className=\"{}\" />\n",
+                pascal_case(&part.name),
+                part.class
+            ));
+        }
+        out.push_str("      </span>\n");
+        out.push_str(&format!(
+            "      {{children != null && <span className=\"{}__label\">{{children}}</span>}}\n",
+            contract.root.class
+        ));
+        out.push_str(&format!("    </{pascal}Primitive.Root>\n  );\n"));
     } else {
         // A compound with decorative slots: render the Root and fill each slot
         // with its part class so the consumer writes a single self-closing tag.
@@ -245,7 +269,7 @@ fn emit_part_function(
     primitive: &str,
     modifiers: &[ModifierGroup],
 ) {
-    let (destructure, recipe_call) = destructure_and_call(binding, modifiers);
+    let (destructure, recipe_call) = destructure_and_call(binding, modifiers, false);
     let class_expr = format!("[{recipe_call}, className].filter(Boolean).join(\" \")");
     out.push_str(&format!(
         "export function {styled}({{ {destructure} }}: {styled}Props) {{\n"
@@ -258,18 +282,29 @@ fn emit_part_function(
 
 /// The function's parameter destructure and recipe call for a set of modifiers:
 /// `("className, ...props", "recipe()")` with none, otherwise the variant props
-/// are pulled out and passed to the recipe.
-fn destructure_and_call(binding: &str, modifiers: &[ModifierGroup]) -> (String, String) {
+/// are pulled out and passed to the recipe. When `children` is set (the
+/// inline-label shape), it is pulled out of the rest before the `…props` spread
+/// so the label span can render it without it leaking back onto the element.
+fn destructure_and_call(
+    binding: &str,
+    modifiers: &[ModifierGroup],
+    children: bool,
+) -> (String, String) {
     let props = modifiers
         .iter()
         .map(|group| group.prop())
         .collect::<Vec<_>>()
         .join(", ");
+    let tail = if children {
+        "children, ...props"
+    } else {
+        "...props"
+    };
     if props.is_empty() {
-        ("className, ...props".to_string(), format!("{binding}()"))
+        (format!("className, {tail}"), format!("{binding}()"))
     } else {
         (
-            format!("{props}, className, ...props"),
+            format!("{props}, className, {tail}"),
             format!("{binding}({{ {props} }})"),
         )
     }

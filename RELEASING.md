@@ -202,6 +202,26 @@ these by hand across multiple commits:
 > must match the platform package versions. The script updates both the
 > wrapper's `"version"` and the five dependency pins in one go.
 
+### Registry peer-version pin (the `add` version safeguard)
+
+Each component in `registry/registry.json` pins the headless package it
+depends on to a version range — `dependsOn.packages` carries
+`{ "name": "@primitiv-ui/react", "version": "^0.1.0" }`. `primitiv add`
+installs `name@range`, so a consumer adding a component is **never left on a
+`@primitiv-ui/react` too old to carry that component's exports** (the
+version-skew that surfaced a `has no exported member 'Radio'` error). The
+range floor resolves to the latest matching release, upgrading a stuck
+consumer.
+
+`^0.1.0` covers the whole `0.1.x` line, so it does **not** need bumping for a
+`0.1.x` release — `add` already pulls the newest `0.1.x`. It **does** need a
+manual edit when the published line moves (a `0.2.0` / `1.0.0` release): change
+every `"version": "^0.1.0"` in `registry/registry.json` to the new line, in the
+same release commit. (`bump-version.mjs` deliberately leaves it alone, since
+the range is line-stable within a minor series.) Like any registry change,
+it only reaches consumers once the CLI binary is rebuilt — see the
+embedded-registry gotcha below.
+
 ### CLI embedded-registry gotcha
 
 The `primitiv` CLI binary embeds every file in `registry/components/` at

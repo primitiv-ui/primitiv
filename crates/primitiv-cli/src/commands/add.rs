@@ -628,8 +628,9 @@ fn ensure_packages(
         return Ok(());
     }
     let manager = PackageManager::detect(fs, dir);
+    let specs: Vec<&str> = packages.iter().map(String::as_str).collect();
     runner
-        .run(manager.program(), &manager.install_args(&packages), dir)
+        .run(manager.program(), &manager.install_args(&specs), dir)
         .map_err(|error| {
             CliError::Install(format!(
                 "failed to install {} with {}: {error}",
@@ -738,13 +739,17 @@ fn json_array(items: Vec<String>) -> String {
     }
 }
 
-/// The deduplicated, sorted union of the npm packages the resolved components
-/// declare — the headless libraries `add` ensures are installed (RFC 0005 §4.4).
-fn packages<'a>(index: &'a RegistryIndex, resolved: &[String]) -> Vec<&'a str> {
+/// The deduplicated, sorted union of the npm **install specs** the resolved
+/// components declare — the headless libraries `add` ensures are installed (RFC
+/// 0005 §4.4). Each declared package becomes its [`PackageDep::spec`]
+/// (`name@range` when the component pins a version, bare `name` otherwise), so a
+/// component that requires a minimum `@primitiv-ui/react` drives the install to a
+/// version new enough to carry its exports (the version safeguard).
+fn packages(index: &RegistryIndex, resolved: &[String]) -> Vec<String> {
     resolved
         .iter()
         .flat_map(|name| index.components[name].depends_on.packages.iter())
-        .map(String::as_str)
+        .map(crate::registry::PackageDep::spec)
         .collect::<BTreeSet<_>>()
         .into_iter()
         .collect()

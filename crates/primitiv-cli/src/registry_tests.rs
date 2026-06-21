@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use pretty_assertions::assert_eq;
 
 use crate::format::Format;
-use crate::registry::{ComponentEntry, DependsOn, RegistryIndex, Styles};
+use crate::registry::{ComponentEntry, DependsOn, PackageDep, RegistryIndex, Styles};
 
 /// A registry index as `registry.json` carries it (RFC 0005 §6.2) — `button`
 /// carries a `contract` field (the consumer API spec) while `switch` omits it.
@@ -94,14 +94,67 @@ fn parses_each_components_npm_package_dependencies() {
 
     let index = RegistryIndex::parse(INDEX).unwrap();
 
+    // A bare string package entry parses with no version pin.
     assert_eq!(
         index.components["button"].depends_on.packages,
-        vec!["@primitiv-ui/react".to_string()]
+        vec![PackageDep {
+            name: "@primitiv-ui/react".to_string(),
+            version: None,
+        }]
     );
     // A component with no `dependsOn` defaults to an empty package list.
     assert_eq!(
         index.components["icon"].depends_on.packages,
-        Vec::<String>::new()
+        Vec::<PackageDep>::new()
+    );
+}
+
+#[test]
+fn parses_a_versioned_npm_package_dependency_alongside_a_bare_one() {
+    const INDEX: &[u8] = br##"{
+  "version": "0.1.0",
+  "components": {
+    "button": { "version": "0.1.0", "dependsOn": { "packages": [
+      { "name": "@primitiv-ui/react", "version": "^0.1.0" },
+      "class-variance-authority"
+    ] } }
+  }
+}"##;
+
+    let index = RegistryIndex::parse(INDEX).unwrap();
+
+    assert_eq!(
+        index.components["button"].depends_on.packages,
+        vec![
+            PackageDep {
+                name: "@primitiv-ui/react".to_string(),
+                version: Some("^0.1.0".to_string()),
+            },
+            PackageDep {
+                name: "class-variance-authority".to_string(),
+                version: None,
+            },
+        ]
+    );
+}
+
+#[test]
+fn package_dep_spec_pins_a_version_when_declared_and_is_bare_otherwise() {
+    assert_eq!(
+        PackageDep {
+            name: "@primitiv-ui/react".to_string(),
+            version: Some("^0.1.0".to_string()),
+        }
+        .spec(),
+        "@primitiv-ui/react@^0.1.0"
+    );
+    assert_eq!(
+        PackageDep {
+            name: "class-variance-authority".to_string(),
+            version: None,
+        }
+        .spec(),
+        "class-variance-authority"
     );
 }
 

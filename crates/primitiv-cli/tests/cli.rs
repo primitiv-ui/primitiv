@@ -150,7 +150,9 @@ fn add_json_emits_the_structured_plan() {
         .success()
         .stdout(predicate::str::contains("\"components\""))
         .stdout(predicate::str::contains("\"name\": \"button\""))
-        .stdout(predicate::str::contains("\"@primitiv-ui/react\""));
+        // The package list carries the pinned install spec (the version
+        // safeguard), not a bare name.
+        .stdout(predicate::str::contains("\"@primitiv-ui/react@^0.1.0\""));
 }
 
 #[test]

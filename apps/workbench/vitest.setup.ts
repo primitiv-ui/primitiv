@@ -19,6 +19,17 @@ if (typeof globalThis.ImageData === "undefined") {
   globalThis.ImageData = ImageDataPolyfill as unknown as typeof ImageData;
 }
 
+// jsdom does not implement pointer capture; the L×C pad calls it on drag.
+for (const method of [
+  "setPointerCapture",
+  "releasePointerCapture",
+  "hasPointerCapture",
+] as const) {
+  if (typeof Element.prototype[method] === "undefined") {
+    Element.prototype[method] = () => {};
+  }
+}
+
 afterEach(() => {
   cleanup();
 });

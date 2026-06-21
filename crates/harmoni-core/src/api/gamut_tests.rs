@@ -7,6 +7,27 @@ fn to_byte(channel: f32) -> u8 {
     (channel * 255.0).round() as u8
 }
 
+mod max_chroma {
+    use super::*;
+
+    #[test]
+    fn srgb_returns_a_sensible_in_range_boundary() {
+        // A mid-lightness green: in gamut at low chroma, out beyond the boundary,
+        // which must land strictly inside the search window (0, 0.4).
+        let boundary = max_in_gamut_chroma(0.65, 142.0, Gamut::Srgb);
+        assert!(boundary > 0.0 && boundary < 0.4, "boundary: {boundary}");
+    }
+
+    #[test]
+    fn display_p3_extends_the_srgb_boundary_for_a_saturated_green() {
+        // Display-P3's wider primaries admit more chroma than sRGB at the same
+        // lightness and hue — the whole point of the wide-gamut mode.
+        let srgb = max_in_gamut_chroma(0.65, 142.0, Gamut::Srgb);
+        let p3 = max_in_gamut_chroma(0.65, 142.0, Gamut::DisplayP3);
+        assert!(p3 > srgb, "expected P3 {p3} > sRGB {srgb}");
+    }
+}
+
 mod hue_strip {
     use super::*;
 

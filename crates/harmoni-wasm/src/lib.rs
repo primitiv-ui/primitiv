@@ -193,7 +193,7 @@ pub fn tint_neutrals(
 /// boundary curve the OKLCH picker overlays on its charts (RFC 0010).
 #[wasm_bindgen]
 pub fn max_in_gamut_chroma(lightness: f32, hue: f32) -> f32 {
-    api::max_in_gamut_chroma(lightness, hue)
+    api::max_in_gamut_chroma(lightness, hue, api::Gamut::Srgb)
 }
 
 /// Paints the OkLCH lightness×chroma plane for a fixed hue as a flat RGBA

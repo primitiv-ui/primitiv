@@ -7,34 +7,64 @@
 //! of truth (RFC 0010 §1, Principle 1).
 
 use palette::convert::IntoColorUnclamped;
+use palette::encoding::Linear;
+use palette::rgb::Rgb;
 use palette::{LinSrgb, Oklch};
 
 use crate::color::output::oklch_to_rgb;
+use crate::color::p3::DisplayP3;
 
-/// The maximum chroma that keeps an OkLCH lightness and hue inside the sRGB
-/// gamut — the boundary curve the picker overlays, and the cutoff its painters
-/// use to mark out-of-gamut pixels.
+/// The display gamut a picker chart is rendered against (RFC 0010 §7). sRGB is
+/// the v1 default; Display-P3 is the additive wide-gamut mode.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Gamut {
+    /// The standard sRGB gamut Harmoni computes everywhere else.
+    Srgb,
+    /// The wider Display-P3 gamut (`crate::color::p3::DisplayP3`).
+    DisplayP3,
+}
+
+/// Whether a linear-RGB triple sits inside its unit cube, with a small epsilon
+/// absorbing floating-point error at the faces.
+fn linear_in_gamut(red: f32, green: f32, blue: f32) -> bool {
+    (-0.001..=1.001).contains(&red)
+        && (-0.001..=1.001).contains(&green)
+        && (-0.001..=1.001).contains(&blue)
+}
+
+/// Whether an OkLCH `(lightness, chroma, hue)` is inside the given `gamut`,
+/// tested on the **unclamped** linear channels: the clamped conversion the
+/// renderer uses snaps every channel into range, which would hide every
+/// out-of-gamut colour.
+fn in_gamut(lightness: f32, chroma: f32, hue: f32, gamut: Gamut) -> bool {
+    let color = Oklch::new(lightness, chroma, hue);
+    match gamut {
+        Gamut::Srgb => {
+            let rgb: LinSrgb = color.into_color_unclamped();
+            linear_in_gamut(rgb.red, rgb.green, rgb.blue)
+        }
+        Gamut::DisplayP3 => {
+            let rgb: Rgb<Linear<DisplayP3>> = color.into_color_unclamped();
+            linear_in_gamut(rgb.red, rgb.green, rgb.blue)
+        }
+    }
+}
+
+/// The maximum chroma that keeps an OkLCH lightness and hue inside `gamut` — the
+/// boundary curve the picker overlays, and the cutoff its painters use to mark
+/// out-of-gamut pixels.
 ///
-/// Binary search over chroma testing the **unclamped** linear-sRGB channels:
-/// the clamped conversion the renderer uses snaps every channel into range,
-/// which would hide every out-of-gamut colour. This is deliberately separate
-/// from `palette::generator::max_in_gamut_chroma`, whose clamped form the
-/// generated palettes depend on (RFC 0010 §3).
-pub fn max_in_gamut_chroma(lightness: f32, hue: f32) -> f32 {
+/// Binary search over chroma testing the unclamped linear channels (see
+/// [`in_gamut`]). This is deliberately separate from
+/// `palette::generator::max_in_gamut_chroma`, whose clamped form the generated
+/// palettes depend on (RFC 0010 §3).
+pub fn max_in_gamut_chroma(lightness: f32, hue: f32, gamut: Gamut) -> f32 {
     let mut lo: f32 = 0.0;
     let mut hi: f32 = 0.4;
 
     for _ in 0..20 {
         let mid = (lo + hi) / 2.0;
-        let srgb: LinSrgb = Oklch::new(lightness, mid, hue).into_color_unclamped();
-
-        if srgb.red >= -0.001
-            && srgb.red <= 1.001
-            && srgb.green >= -0.001
-            && srgb.green <= 1.001
-            && srgb.blue >= -0.001
-            && srgb.blue <= 1.001
-        {
+        if in_gamut(lightness, mid, hue, gamut) {
             lo = mid;
         } else {
             hi = mid;
@@ -58,7 +88,7 @@ pub fn paint_hue_strip(l: f32, c: f32, width: usize) -> Vec<u8> {
     let mut buffer = vec![0u8; width * 4];
     for px in 0..width {
         let hue = (px as f32 + 0.5) / width as f32 * 360.0;
-        if c <= max_in_gamut_chroma(l, hue) {
+        if c <= max_in_gamut_chroma(l, hue, Gamut::Srgb) {
             let rgb = oklch_to_rgb(Oklch::new(l, c, hue));
             let i = px * 4;
             buffer[i] = to_byte(rgb.r);
@@ -81,7 +111,7 @@ pub fn paint_lc_plane(hue: f32, width: usize, height: usize, c_max: f32) -> Vec<
         let lightness = (px as f32 + 0.5) / width as f32;
         // Hue is fixed across the plane, so the boundary depends only on the
         // column's lightness — compute it once per column, not per pixel.
-        let max_chroma = max_in_gamut_chroma(lightness, hue);
+        let max_chroma = max_in_gamut_chroma(lightness, hue, Gamut::Srgb);
         for py in 0..height {
             let chroma = c_max * (1.0 - (py as f32 + 0.5) / height as f32);
             if chroma <= max_chroma {

@@ -232,3 +232,58 @@ either shipped as a layer or aliased to Figma theme vars. The existing
 `oklchToRgba` + postMessage apply path is unchanged. If workbench/plugin
 duplication later bites, a shared internal package is the escape hatch — out of
 scope here per the build-first → port decision.
+
+---
+
+## 10. Implementation progress
+
+### Phase 1 — Rust/wasm gamut API ✅ (landed)
+
+The engine side of §3 is complete and the full workspace is green
+(`cargo test --workspace`: harmoni-core 98, harmoni-wasm 12, primitiv-cli
+353 + e2e — no regressions).
+
+- **`api::gamut::paint_lc_plane(hue, width, height, c_max)`** and
+  **`paint_hue_strip(l, c, width)`** — flat RGBA `Vec<u8>` buffers, row-major,
+  4 bytes/pixel, pixels sampled at their centres. **Out-of-gamut pixels are
+  transparent** (four zero bytes) — the decision left open in §2 is settled as
+  *transparent* for v1 (a muted band can be layered later if needed).
+- **`api::gamut::max_in_gamut_chroma(l, hue)`** — the boundary primitive,
+  re-exported through `api` and wrapped in wasm.
+- Thin `#[wasm_bindgen]` wrappers for all three in `harmoni-wasm/src/lib.rs`
+  (untested on host, matching the existing wrapper pattern; the logic is fully
+  covered in harmoni-core).
+
+**Discovery — the generator's gamut helper is clamped (and load-bearing).**
+`palette::generator::max_in_gamut_chroma` uses the *clamped* `into_color`, which
+snaps every channel into range, so its in-gamut predicate always passes and it
+returns the search ceiling (~0.4). It is not actually a gamut boundary. It is
+nonetheless **load-bearing**: the constant cancels in the chroma-ratio scaling,
+so generated palettes look right, and *correcting it changes palette output*
+(it broke the `primitiv-cli` theme-pipeline golden tests). So the picker does
+**not** reuse it — `api::gamut::max_in_gamut_chroma` is a separate, correct,
+**unclamped** binary search (Principle 1 is still honoured: one engine, in
+Rust). A genuine fix to the generator's gamut scaling is a worthwhile but
+*output-changing* follow-up that needs its own RFC item, golden-file updates,
+and sign-off — explicitly **not** done here.
+
+**Decisions taken during the build:**
+- **1c skipped.** No `generate_palette_pair_oklch`; the existing
+  `generate_palette_pair` already accepts an `oklch(L C H)` string, so Phase 2
+  formats the value into that. Revisit only if the string round-trip bites.
+- **wasm pkg not regenerated here.** `wasm-pack` is unavailable in the dev
+  sandbox (`sandbox-gotchas`), so `crates/harmoni-wasm/pkg/*.d.ts` was not
+  rebuilt. The Rust source is correct and committed; **Phase 2 must run
+  `pnpm run build:wasm`** (on a machine with `wasm-pack`) before the new
+  functions are callable from the workbench, then confirm they appear in the
+  generated `.d.ts`.
+- **Coverage not machine-verified here** — `cargo-llvm-cov` is absent from the
+  sandbox. Tests drive every branch of the new code (both gamut arms, both
+  in/out-of-gamut paint arms, the quantiser); confirm with the gate when the
+  tool is available.
+
+### Phase 2 — next session
+
+Build the workbench `OklchPicker` per §4–§6. Start by running
+`pnpm run build:wasm`, then compose `Slider`/`Input`/`Field`, the bespoke
+`LcChart` canvas, and the engine-painted hue slider.

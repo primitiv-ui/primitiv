@@ -8,6 +8,7 @@
     "element": "button",
     "class": "primitiv-button"
   },
+  "wrapTextChildren": true,
   "dataAttributes": [
     {
       "name": "data-disabled",

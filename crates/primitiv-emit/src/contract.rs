@@ -43,6 +43,13 @@ pub struct Contract {
     /// is non-empty.
     #[serde(default)]
     pub label: bool,
+    /// Whether a *single-element* wrapper wraps its string/number children in a
+    /// `…__label` span (element children — icons — pass through unwrapped). This
+    /// lets `text-box-trim` sit on the label text rather than the flex container
+    /// (Button). `false` (the default) keeps the plain self-closing render. Only
+    /// consulted when [`parts`](Self::parts) is empty.
+    #[serde(default, rename = "wrapTextChildren")]
+    pub wrap_text_children: bool,
 }
 
 /// One structural, consumer-composed subcomponent of a compound (`Tabs.List`).

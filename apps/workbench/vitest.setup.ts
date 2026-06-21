@@ -10,10 +10,17 @@ if (typeof globalThis.ImageData === "undefined") {
     data: Uint8ClampedArray;
     width: number;
     height: number;
-    constructor(data: Uint8ClampedArray, width: number, height: number) {
+    colorSpace: PredefinedColorSpace;
+    constructor(
+      data: Uint8ClampedArray,
+      width: number,
+      height: number,
+      settings?: ImageDataSettings,
+    ) {
       this.data = data;
       this.width = width;
       this.height = height;
+      this.colorSpace = settings?.colorSpace ?? "srgb";
     }
   }
   globalThis.ImageData = ImageDataPolyfill as unknown as typeof ImageData;

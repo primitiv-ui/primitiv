@@ -32,4 +32,31 @@ describe("blitBuffer", () => {
     expect(dx).toBe(0);
     expect(dy).toBe(0);
   });
+
+  it("requests a display-p3 context so wide-gamut buffers are not clamped", () => {
+    const getContext = vi.fn().mockReturnValue({ putImageData: vi.fn() });
+    const canvas = { getContext } as unknown as HTMLCanvasElement;
+
+    blitBuffer(canvas, new Uint8Array(4), 1, 1);
+
+    expect(getContext).toHaveBeenCalledWith("2d", { colorSpace: "display-p3" });
+  });
+
+  it("defaults the ImageData to the srgb colour space", () => {
+    const putImageData = vi.fn();
+    const canvas = fakeCanvas({ putImageData });
+
+    blitBuffer(canvas, new Uint8Array(4), 1, 1);
+
+    expect(putImageData.mock.calls[0][0].colorSpace).toBe("srgb");
+  });
+
+  it("tags the ImageData with the requested colour space", () => {
+    const putImageData = vi.fn();
+    const canvas = fakeCanvas({ putImageData });
+
+    blitBuffer(canvas, new Uint8Array(4), 1, 1, "display-p3");
+
+    expect(putImageData.mock.calls[0][0].colorSpace).toBe("display-p3");
+  });
 });

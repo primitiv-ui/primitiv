@@ -7,7 +7,7 @@
 // conversion crosses into the one Rust engine (Principle 1); the chrome wears
 // --primitiv-* tokens (Principle 4).
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Field, Input } from "@primitiv-ui/react";
 
 import { PlaneChart, type PlaneAxisSpec } from "./PlaneChart";
@@ -16,7 +16,11 @@ import { GamutToggle } from "./GamutToggle";
 import { useGamutPaint } from "./useGamutPaint";
 import { useElementSize } from "./useElementSize";
 import { renderDimensions } from "./resolution";
-import { boundaryPoints } from "./boundary";
+import {
+  boundaryPoints,
+  chromaBoundaryPoints,
+  hueBoundaryPoints,
+} from "./boundary";
 import { formatColor, parseColor } from "./color";
 import { CHANNELS, clampChannel, roundChannel } from "./channels";
 import {
@@ -33,8 +37,15 @@ import "./OklchPicker.css";
 /** The charts' width:height ratio — a wide landscape plane, like oklch.com. */
 const CHART_ASPECT = 2;
 
-/** Lightness samples taken across a boundary curve — smooth without overdraw. */
+/** Samples taken across a boundary curve — smooth without overdraw. */
 const BOUNDARY_SAMPLES = 64;
+
+/** Lightness samples per hue used to locate the Hue chart's lightness limits. */
+const HUE_BOUNDARY_LSTEPS = 32;
+
+const SRGB_BOUNDARY_CLASS = "plane-chart__boundary plane-chart__boundary--srgb";
+const EXTENDED_BOUNDARY_CLASS =
+  "plane-chart__boundary plane-chart__boundary--extended";
 
 // Plotted-axis descriptors shared by the three charts (RFC 0010 §2): the Hue
 // chart plots L×C, the Lightness chart H×C, the Chroma chart H×L.
@@ -109,23 +120,60 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
 
   const formatted = formatColor(value);
 
-  // The Lightness chart (the L×C ramp) draws the gamut boundary as a clean curve:
-  // always the sRGB curve, plus the wider gamut's curve in P3 mode so the band
-  // between them reads as the extended region.
+  // Each chart draws its gamut boundary as a clean curve — always the sRGB curve,
+  // plus the wider gamut's curve in P3 mode so the band between them reads as the
+  // extended region. The Hue chart has two limits (upper/lower lightness) per
+  // gamut; its sweep is the heaviest, so it is memoised on its inputs.
   const lightnessBoundaries = [
     {
-      className: "plane-chart__boundary plane-chart__boundary--srgb",
+      className: SRGB_BOUNDARY_CLASS,
       points: boundaryPoints(value.h, render.width, render.height, C_MAX, BOUNDARY_SAMPLES, "Srgb"),
     },
     ...(gamut === "Srgb"
       ? []
       : [
           {
-            className: "plane-chart__boundary plane-chart__boundary--extended",
+            className: EXTENDED_BOUNDARY_CLASS,
             points: boundaryPoints(value.h, render.width, render.height, C_MAX, BOUNDARY_SAMPLES, gamut),
           },
         ]),
   ];
+
+  const chromaBoundaries = [
+    {
+      className: SRGB_BOUNDARY_CLASS,
+      points: chromaBoundaryPoints(value.l, render.width, render.height, C_MAX, BOUNDARY_SAMPLES, "Srgb"),
+    },
+    ...(gamut === "Srgb"
+      ? []
+      : [
+          {
+            className: EXTENDED_BOUNDARY_CLASS,
+            points: chromaBoundaryPoints(value.l, render.width, render.height, C_MAX, BOUNDARY_SAMPLES, gamut),
+          },
+        ]),
+  ];
+
+  const hueBoundaries = useMemo(() => {
+    const curves = (g: Gamut, className: string) => {
+      const { upper, lower } = hueBoundaryPoints(
+        value.c,
+        render.width,
+        render.height,
+        BOUNDARY_SAMPLES,
+        g,
+        HUE_BOUNDARY_LSTEPS,
+      );
+      return [
+        { className, points: upper },
+        { className, points: lower },
+      ];
+    };
+    return [
+      ...curves("Srgb", SRGB_BOUNDARY_CLASS),
+      ...(gamut === "Srgb" ? [] : curves(gamut, EXTENDED_BOUNDARY_CLASS)),
+    ];
+  }, [value.c, render.width, render.height, gamut]);
 
   // The text field echoes the engine's canonical string, but never clobbers an
   // edit in progress: while the field is focused the user's text stands (even as
@@ -240,6 +288,7 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
               planeRef={lightnessPlaneRef}
               width={render.width}
               height={render.height}
+              boundaries={chromaBoundaries}
             />
             <AxisSlider
               label="Chroma"
@@ -275,6 +324,7 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
               planeRef={chromaPlaneRef}
               width={render.width}
               height={render.height}
+              boundaries={hueBoundaries}
             />
             <AxisSlider
               label="Hue"

@@ -346,6 +346,40 @@ describe("OklchPicker", () => {
     expect(canvas.height).toBe(600);
   });
 
+  it("draws gamut boundary curves on the Chroma and Hue charts", () => {
+    renderPicker();
+
+    // Chroma chart: one max-chroma curve; Hue chart: upper + lower lightness limits.
+    expect(
+      screen
+        .getByRole("group", { name: /hue and chroma/i })
+        .querySelectorAll("polyline"),
+    ).toHaveLength(1);
+    expect(
+      screen
+        .getByRole("group", { name: /hue and lightness/i })
+        .querySelectorAll("polyline"),
+    ).toHaveLength(2);
+  });
+
+  it("adds the P3 boundary curves on the Chroma and Hue charts", async () => {
+    const user = userEvent.setup();
+    renderPicker();
+
+    await user.click(screen.getByRole("button", { name: "P3" }));
+
+    expect(
+      screen
+        .getByRole("group", { name: /hue and chroma/i })
+        .querySelectorAll("polyline"),
+    ).toHaveLength(2);
+    expect(
+      screen
+        .getByRole("group", { name: /hue and lightness/i })
+        .querySelectorAll("polyline"),
+    ).toHaveLength(4);
+  });
+
   it("draws the P3 extended boundary once the gamut toggle is switched", async () => {
     const user = userEvent.setup();
     renderPicker();

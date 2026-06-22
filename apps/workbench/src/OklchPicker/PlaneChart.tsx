@@ -160,9 +160,9 @@ export function PlaneChart({
         preserveAspectRatio="none"
         aria-hidden="true"
       >
-        {boundaries?.map((boundary) => (
+        {boundaries?.map((boundary, index) => (
           <polyline
-            key={boundary.className}
+            key={index}
             className={boundary.className}
             points={boundary.points}
           />

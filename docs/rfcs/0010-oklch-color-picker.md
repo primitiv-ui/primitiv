@@ -559,6 +559,30 @@ statements** (107 tests).
 crisper, wider charts is the human's** (no browser in the sandbox), on top of the
 still-outstanding Phase 3/4/4b visual passes.
 
+### Phase 4b follow-up 2 — chart layout + axis labels ✅ (landed)
+
+A second round of human visual feedback on the wider charts: the per-chart title +
+number field should sit **above** each chart (title in white), the charts should run
+**Lightness → Chroma → Hue** top to bottom, and the charts were missing the
+oklch.com axis labels that ride the guide lines. Strict TDD, picker vitest at **100%
+lines / branches / functions / statements** (110 tests).
+
+- **Layout.** Each column now stacks `[title + number field] → chart → painted
+  slider`. The separate bottom number-field row is gone; each channel's field moved
+  into its chart's header (`.oklch-picker__axis-field` / `--axis-title`, white). The
+  column order is the oklch.com order, Lightness (hue×chroma) / Chroma (hue×lightness)
+  / Hue (lightness×chroma).
+- **Axis labels.** `PlaneChart` now renders an L/C/H label on each guide line (the
+  uppercased *plotted* channel — e.g. the Lightness chart shows H on the vertical
+  guide and C on the horizontal), positioned by percentage so it follows the cursor —
+  matching `evilmartians/oklch-picker`'s `chart_line` + `chart_label` markup. The
+  guide lines now use `mix-blend-mode: difference` so they stay legible over any
+  painted colour.
+
+**Verification.** Picker vitest at 100%, `tsc --noEmit` + the workbench production
+build (`vite build`) clean. The **real-browser visual QA is the human's** (no browser
+in the sandbox).
+
 ### Phase 5 — plugin port
 
 Unchanged from §9 — out of scope for Phase 4b. **Two early decisions are

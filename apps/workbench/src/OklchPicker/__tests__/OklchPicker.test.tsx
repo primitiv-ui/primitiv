@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { useState } from "react";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { render, screen, fireEvent, act, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { OklchPicker } from "../OklchPicker";
@@ -79,6 +79,26 @@ describe("OklchPicker", () => {
       ...document.querySelectorAll(".oklch-picker__axis-title"),
     ].map((el) => el.textContent);
     expect(titles).toEqual(["Lightness", "Chroma", "Hue"]);
+  });
+
+  it("pairs each channel title with oklch.com's chart plane for that channel", () => {
+    renderPicker();
+
+    // oklch.com: the Lightness chart is the L×C ramp, Chroma is hue×chroma,
+    // Hue is hue×lightness — each titled by the channel its slider drives.
+    const cases: [string, RegExp][] = [
+      ["Lightness", /lightness and chroma/i],
+      ["Chroma", /hue and chroma/i],
+      ["Hue", /hue and lightness/i],
+    ];
+    for (const [title, chartName] of cases) {
+      const axis = screen
+        .getByRole("spinbutton", { name: title })
+        .closest(".oklch-picker__axis") as HTMLElement;
+      expect(within(axis).getByRole("group").getAttribute("aria-label")).toMatch(
+        chartName,
+      );
+    }
   });
 
   it("places each axis title and input above its chart", () => {

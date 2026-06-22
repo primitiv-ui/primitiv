@@ -109,9 +109,10 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
 
   const formatted = formatColor(value);
 
-  // The Hue chart's gamut boundary: always the sRGB curve, plus the wider gamut's
-  // curve in P3 mode so the band between them reads as the extended region.
-  const hueBoundaries = [
+  // The Lightness chart (the L×C ramp) draws the gamut boundary as a clean curve:
+  // always the sRGB curve, plus the wider gamut's curve in P3 mode so the band
+  // between them reads as the extended region.
+  const lightnessBoundaries = [
     {
       className: "plane-chart__boundary plane-chart__boundary--srgb",
       points: boundaryPoints(value.h, render.width, render.height, C_MAX, BOUNDARY_SAMPLES, "Srgb"),
@@ -198,11 +199,12 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
             <PlaneChart
               value={value}
               gamut={gamut}
-              axes={{ x: H_AXIS, y: C_AXIS }}
+              axes={{ x: L_AXIS, y: C_AXIS }}
               onChange={onChange}
-              planeRef={lightnessPlaneRef}
+              planeRef={planeRef}
               width={render.width}
               height={render.height}
+              boundaries={lightnessBoundaries}
             />
             <AxisSlider
               label="Lightness"
@@ -233,9 +235,9 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
             <PlaneChart
               value={value}
               gamut={gamut}
-              axes={{ x: H_AXIS, y: L_AXIS }}
+              axes={{ x: H_AXIS, y: C_AXIS }}
               onChange={onChange}
-              planeRef={chromaPlaneRef}
+              planeRef={lightnessPlaneRef}
               width={render.width}
               height={render.height}
             />
@@ -268,12 +270,11 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
             <PlaneChart
               value={value}
               gamut={gamut}
-              axes={{ x: L_AXIS, y: C_AXIS }}
+              axes={{ x: H_AXIS, y: L_AXIS }}
               onChange={onChange}
-              planeRef={planeRef}
+              planeRef={chromaPlaneRef}
               width={render.width}
               height={render.height}
-              boundaries={hueBoundaries}
             />
             <AxisSlider
               label="Hue"

@@ -127,7 +127,11 @@ export function PlaneChart({
 
   const xVal = value[xAxis.channel];
   const yVal = value[yAxis.channel];
-  const cursor = axesToPoint(xVal, yVal, width, height, xAxis.max, yAxis.max);
+  // Guide lines live in the SVG's viewBox space (width×height, stretched to the
+  // chart); the cursor is a positioned element, so it is placed as a percentage
+  // and tracks the responsive display size without re-measuring.
+  const guide = axesToPoint(xVal, yVal, width, height, xAxis.max, yAxis.max);
+  const cursor = axesToPoint(xVal, yVal, 100, 100, xAxis.max, yAxis.max);
 
   return (
     <div
@@ -139,7 +143,6 @@ export function PlaneChart({
       )}, ${yAxis.name} ${yVal.toFixed(
         yAxis.precision,
       )}. Arrow keys adjust, hold Shift for larger steps.`}
-      style={{ width, height }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -169,23 +172,23 @@ export function PlaneChart({
             axis line up (the oklch.com net). */}
         <line
           className="plane-chart__guide"
-          x1={cursor.x}
+          x1={guide.x}
           y1={0}
-          x2={cursor.x}
+          x2={guide.x}
           y2={height}
         />
         <line
           className="plane-chart__guide"
           x1={0}
-          y1={cursor.y}
+          y1={guide.y}
           x2={width}
-          y2={cursor.y}
+          y2={guide.y}
         />
       </svg>
       <div
         className="plane-chart__cursor"
         aria-hidden="true"
-        style={{ left: cursor.x, top: cursor.y }}
+        style={{ left: `${cursor.x}%`, top: `${cursor.y}%` }}
       />
     </div>
   );

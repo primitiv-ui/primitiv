@@ -123,12 +123,20 @@ describe("PlaneChart", () => {
     expect(maxChromaMock).toHaveBeenCalledWith(0.5, 250, "DisplayP3");
   });
 
-  it("positions the cursor at the current value", () => {
+  it("positions the cursor at the current value as a percentage so it tracks the responsive size", () => {
     const { pad } = renderChart();
     const cursor = pad.querySelector(".plane-chart__cursor") as HTMLElement;
 
-    expect(cursor.style.left).toBe("60px");
-    expect(cursor.style.top).toBe("125px");
+    // l 0.6 → 60%; c 0.15 of c_max 0.4 → (1 - 0.375) = 62.5%.
+    expect(cursor.style.left).toBe("60%");
+    expect(cursor.style.top).toBe("62.5%");
+  });
+
+  it("does not fix its own pixel size, leaving the responsive CSS to size it", () => {
+    const { pad } = renderChart();
+
+    expect(pad.style.width).toBe("");
+    expect(pad.style.height).toBe("");
   });
 
   it("merges the gamut-clamped value on pointer down, preserving the fixed axis", () => {

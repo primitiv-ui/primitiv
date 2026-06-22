@@ -16,7 +16,11 @@
   flex-direction: column;
   gap: var(--primitiv-space-space-16);
   padding: var(--primitiv-space-space-16);
-  width: max-content;
+  /* Responsive: fill the host container, but stay usable in a narrow panel and
+     not sprawl in a wide one (RFC 0010 §5, the responsive-charts pass). */
+  width: 100%;
+  min-width: 18rem;
+  max-width: 32rem;
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
   border-radius: var(--primitiv-container-md-radius);
   color: var(--primitiv-content-primary);
@@ -34,10 +38,11 @@
   justify-content: flex-end;
 }
 
-/* The three-chart net: chart-over-slider columns, wrapping on narrow widths. */
+/* The three-chart net: each chart-over-slider stacks in a single responsive
+   column (matching oklch.com), so all three share one measured width. */
 .oklch-picker__axes {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--primitiv-space-space-16);
 }
 
@@ -45,6 +50,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--primitiv-space-space-12);
+  width: 100%;
 }
 
 /* sRGB / P3 gamut toggle (ToggleGroup contract: data-state on/off) ---------- */
@@ -83,6 +89,9 @@
 
 .plane-chart {
   position: relative;
+  /* Wide landscape charts that fill the column at a fixed 2:1 ratio. */
+  width: 100%;
+  aspect-ratio: 2 / 1;
   border-radius: var(--primitiv-container-sm-radius);
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
   overflow: hidden;

@@ -1,9 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { useState } from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { OklchPicker } from "../OklchPicker";
+import { triggerResize } from "./resizeObserverMock";
 import type { OklchValue } from "../types";
 import {
   max_in_gamut_chroma,
@@ -64,6 +65,10 @@ beforeEach(() => {
   vi.mocked(paint_chroma_strip).mockReturnValue(new Uint8Array());
   vi.mocked(describe_oklch).mockReturnValue(triple());
   vi.mocked(parse_color).mockReturnValue(triple());
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
 });
 
 describe("OklchPicker", () => {
@@ -256,6 +261,47 @@ describe("OklchPicker", () => {
     await user.keyboard("{ArrowRight}");
 
     expect(onChange).toHaveBeenCalledWith({ l: 0.6, c: 0.155, h: 250 });
+  });
+
+  it("paints the charts at the device-pixel-scaled measured size", () => {
+    vi.stubGlobal("devicePixelRatio", 2);
+    vi.stubGlobal("requestAnimationFrame", (cb: () => void) => {
+      cb();
+      return 0;
+    });
+    renderPicker();
+
+    // A 600px-wide container → 600×300 charts (2:1), ×2 dpr → a 1200×600 buffer.
+    act(() => triggerResize(600, 0));
+
+    expect(paint_lc_plane).toHaveBeenCalledWith(250, 1200, 600, expect.any(Number), "Srgb");
+    expect(paint_hue_strip).toHaveBeenCalledWith(0.6, 0.15, 1200, "Srgb");
+  });
+
+  it("falls back to a 1:1 backing store when devicePixelRatio is unavailable", () => {
+    vi.stubGlobal("devicePixelRatio", 0);
+    vi.stubGlobal("requestAnimationFrame", (cb: () => void) => {
+      cb();
+      return 0;
+    });
+    renderPicker();
+
+    act(() => triggerResize(600, 0));
+
+    expect(paint_lc_plane).toHaveBeenCalledWith(250, 600, 300, expect.any(Number), "Srgb");
+  });
+
+  it("sizes the chart canvas backing store to the scaled measured size", () => {
+    vi.stubGlobal("devicePixelRatio", 2);
+    renderPicker();
+
+    act(() => triggerResize(600, 0));
+
+    const canvas = document.querySelector(
+      ".plane-chart__plane",
+    ) as HTMLCanvasElement;
+    expect(canvas.width).toBe(1200);
+    expect(canvas.height).toBe(600);
   });
 
   it("draws the P3 extended boundary once the gamut toggle is switched", async () => {

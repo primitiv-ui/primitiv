@@ -532,4 +532,13 @@ guide lines, cursor alignment, and the token chrome under the design system.
 
 ### Phase 5 — plugin port
 
-Unchanged from §9 — out of scope for Phase 4b.
+Unchanged from §9 — out of scope for Phase 4b. **Two early decisions are
+pre-settled with the human** (so the next session doesn't re-open them):
+
+- **Chrome tokens: ship the `--primitiv-*` token layer into the plugin** (rather
+  than aliasing to Figma's theme vars). Keeps the picker identical to the
+  workbench and needs no per-token mapping; Figma light/dark adaptation can be a
+  later polish.
+- **Copy `apps/workbench/src/OklchPicker/` into the plugin** (rather than
+  extracting a shared internal package now). Get it working first; wrap the
+  duplication into a shared package as a follow-up.

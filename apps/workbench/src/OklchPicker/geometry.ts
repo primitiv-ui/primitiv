@@ -4,9 +4,6 @@
 // the engine painters). These helpers map a pointer position to a `(x, y)` axis
 // pair and back to a cursor point, with clamping into range. No colour maths
 // lives here — the gamut boundary is applied separately via the engine.
-//
-// The L×C-specific wrappers below pin the generic helpers to the Hue chart's
-// axes (x = lightness `0..1`, y = chroma `0..c_max`).
 
 /** The chroma ceiling the chroma axis is painted and measured against. */
 export const C_MAX = 0.4;
@@ -116,61 +113,4 @@ export function axesToPoint(
   yMax: number,
 ): { x: number; y: number } {
   return { x: (x / xMax) * width, y: (1 - y / yMax) * height };
-}
-
-/** Maps a pointer offset to an L×C pair (the Hue chart: x = l, y = c). */
-export function pointerToLc(
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  cMax: number,
-): { l: number; c: number } {
-  const { x: l, y: c } = pointToAxes(x, y, width, height, 1, cMax);
-  return { l, c };
-}
-
-/** Maps a pointer event's client coordinates to an L×C pair. */
-export function pointerEventToLc(
-  clientX: number,
-  clientY: number,
-  rect: { left: number; top: number; width: number; height: number },
-  cMax: number,
-): { l: number; c: number } {
-  const { x: l, y: c } = pointerEventToAxes(clientX, clientY, rect, 1, cMax);
-  return { l, c };
-}
-
-/** Nudges an L×C pair: arrows step lightness (x) and chroma (y). */
-export function nudgeLc(
-  l: number,
-  c: number,
-  key: string,
-  coarse: boolean,
-  cMax: number,
-): { l: number; c: number } | null {
-  const next = nudgeAxes(
-    l,
-    c,
-    key,
-    coarse,
-    {
-      x: { fine: LIGHTNESS_STEP, coarse: LIGHTNESS_COARSE_STEP },
-      y: { fine: CHROMA_STEP, coarse: CHROMA_COARSE_STEP },
-    },
-    1,
-    cMax,
-  );
-  return next && { l: next.x, c: next.y };
-}
-
-/** The cursor point for an L×C pair within a `width`×`height` chart. */
-export function lcToPoint(
-  l: number,
-  c: number,
-  width: number,
-  height: number,
-  cMax: number,
-): { x: number; y: number } {
-  return axesToPoint(l, c, width, height, 1, cMax);
 }

@@ -34,7 +34,14 @@
   justify-content: flex-end;
 }
 
-.oklch-picker__sliders {
+/* The three-chart net: chart-over-slider columns, wrapping on narrow widths. */
+.oklch-picker__axes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--primitiv-space-space-16);
+}
+
+.oklch-picker__axis {
   display: flex;
   flex-direction: column;
   gap: var(--primitiv-space-space-12);

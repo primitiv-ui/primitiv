@@ -530,6 +530,35 @@ picker vitest at 100%, `tsc -b` + `eslint` + the workbench production build
 orientation, the transparent OKLCH holes on the new charts, the shared crosshair
 guide lines, cursor alignment, and the token chrome under the design system.
 
+### Phase 4b follow-up — wider, responsive, higher-resolution charts ✅ (landed)
+
+Human visual feedback on the merged workbench picker: the charts read lower-
+resolution than oklch.com (fuzzy curves), and they were square where oklch.com is
+a wide landscape. Both addressed in the workbench picker (so the Phase 5 port
+inherits them), strict TDD, picker vitest at **100% lines / branches / functions /
+statements** (115 tests).
+
+- **Resolution.** The canvas backing store was painted at its CSS pixel size, so it
+  upscaled (blurry) on HiDPI displays. A new pure `renderDimensions(w, h, dpr)`
+  scales the painted buffer by `devicePixelRatio` (floored at 1), and the picker
+  paints every canvas at that size — pixel-crisp on retina.
+- **Wider + responsive.** The three charts are now a fixed **2:1 landscape** that
+  fills its container, stacked in a single column (matching oklch.com, which stacks
+  its charts). A new `useElementSize` ResizeObserver hook measures the column and
+  the canvases repaint at the measured size on resize; the plane cursor is placed by
+  percentage and the SVG guide lines/boundary live in the stretched viewBox, so the
+  overlay tracks the fluid size without re-measuring. The repaint gate gained the
+  chart size as a fifth "axis" (a resize re-renders every chart). The picker box is
+  `width:100%` with a sensible min/max so it stays usable in a narrow Figma panel and
+  doesn't sprawl on the docs site.
+- **Contract unchanged.** Still `{ l, c, h }` in / `onChange` out with the gamut as
+  internal view state — Phase-5 portability intact.
+
+**Verification.** Picker vitest at 100%, `tsc -b` + the workbench production build
+(`vite build`) clean (`pnpm run build:wasm` ran). The **real-browser visual QA of the
+crisper, wider charts is the human's** (no browser in the sandbox), on top of the
+still-outstanding Phase 3/4/4b visual passes.
+
 ### Phase 5 — plugin port
 
 Unchanged from §9 — out of scope for Phase 4b. **Two early decisions are

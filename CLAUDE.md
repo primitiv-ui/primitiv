@@ -184,8 +184,12 @@ source of truth for when a skill applies.
   against the `evilmartians/oklch-picker` source (the task's prose had it
   vertical) and confirmed with the human; the painted 1-D sliders stay (chart +
   slider per axis, per oklch.com). The **real-browser visual QA pass is the one
-  outstanding item** (no browser in the sandbox). The plugin port (Phase 5)
-  follows. See RFC 0010 §10.
+  outstanding item** (no browser in the sandbox). A **Phase 4b follow-up** then
+  landed on human feedback: the charts are now a wider **2:1 landscape** that
+  fills its container responsively (a `useElementSize` ResizeObserver hook +
+  single stacked column, like oklch.com) and paint at **`devicePixelRatio`-scaled
+  resolution** (`renderDimensions`) so they're crisp on HiDPI — the `{ l, c, h }`
+  contract is unchanged. The plugin port (Phase 5) follows. See RFC 0010 §10.
 
 ## Useful commands
 

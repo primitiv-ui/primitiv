@@ -139,6 +139,23 @@ describe("PlaneChart", () => {
     expect(pad.style.height).toBe("");
   });
 
+  it("labels each guide line with its plotted channel, following the cursor", () => {
+    const { pad } = renderChart();
+    const xLabel = pad.querySelector(
+      ".plane-chart__axis-label--x",
+    ) as HTMLElement;
+    const yLabel = pad.querySelector(
+      ".plane-chart__axis-label--y",
+    ) as HTMLElement;
+
+    // Hue chart axes: x = lightness → "L" follows the vertical line at 60%;
+    // y = chroma → "C" follows the horizontal line at 62.5%.
+    expect(xLabel).toHaveTextContent("L");
+    expect(xLabel.style.left).toBe("60%");
+    expect(yLabel).toHaveTextContent("C");
+    expect(yLabel.style.top).toBe("62.5%");
+  });
+
   it("merges the gamut-clamped value on pointer down, preserving the fixed axis", () => {
     const { onChange, pad } = renderChart();
 

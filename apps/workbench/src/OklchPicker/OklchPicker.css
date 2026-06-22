@@ -129,11 +129,34 @@
   stroke-dasharray: var(--primitiv-space-space-4) var(--primitiv-space-space-4);
 }
 
-/* Shared crosshair guide lines that link charts sharing an axis (the net). */
+/* Shared crosshair guide lines that link charts sharing an axis (the net).
+   A difference blend keeps them legible over any painted colour, like oklch.com. */
 .plane-chart__guide {
   stroke: var(--primitiv-color-absolute-white);
   stroke-width: var(--primitiv-border-width-1);
-  opacity: var(--primitiv-disabled-opacity);
+  mix-blend-mode: difference;
+}
+
+/* Channel labels (L / C / H) riding the guide lines, following the cursor. */
+.plane-chart__axis-label {
+  position: absolute;
+  color: var(--primitiv-color-absolute-white);
+  font-size: var(--primitiv-body-sm-font-size);
+  line-height: 1;
+  text-transform: uppercase;
+  text-shadow: 0 0 var(--primitiv-border-width-2) var(--primitiv-color-absolute-black);
+  pointer-events: none;
+  user-select: none;
+}
+
+.plane-chart__axis-label--x {
+  bottom: var(--primitiv-space-space-4);
+  translate: -50% 0;
+}
+
+.plane-chart__axis-label--y {
+  left: var(--primitiv-space-space-4);
+  translate: 0 -50%;
 }
 
 .plane-chart__cursor {

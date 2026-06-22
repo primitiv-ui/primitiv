@@ -51,9 +51,9 @@ const P3_BOUNDARY = {
 };
 
 function renderChart(
-  props: Partial<Parameters<typeof PlaneChart>[0]> = {},
+  props: Partial<Omit<Parameters<typeof PlaneChart>[0], "onChange">> = {},
 ) {
-  const onChange = props.onChange ?? vi.fn();
+  const onChange = vi.fn();
   const planeRef = createRef<HTMLCanvasElement>();
   const axes = props.axes ?? HUE_CHART;
   render(

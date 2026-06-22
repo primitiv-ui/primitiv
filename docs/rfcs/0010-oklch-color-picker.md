@@ -561,8 +561,8 @@ still-outstanding Phase 3/4/4b visual passes.
 
 ### Phase 4b follow-up 2 — chart layout, channel mapping + axis labels ✅ (landed)
 
-Two rounds of human visual feedback on the wider charts. Strict TDD, picker vitest at
-**100% lines / branches / functions / statements** (111 tests).
+Three rounds of human visual feedback on the wider charts. Strict TDD, picker vitest
+at **100% lines / branches / functions / statements** (118 tests).
 
 - **Layout.** Each column now stacks `[title + number field] → chart → painted
   slider`; the separate bottom number-field row is gone, each channel's field moved
@@ -582,10 +582,19 @@ Two rounds of human visual feedback on the wider charts. Strict TDD, picker vite
   overlaps the selection dot — matching `evilmartians/oklch-picker`'s `chart_line` +
   `chart_label`. Guide lines use `mix-blend-mode: difference` to stay legible over any
   paint; the canvas clips its own rounded corners now the box no longer hides overflow.
+- **Boundary curves on every chart.** Previously only the Lightness chart drew a clean
+  gamut-boundary curve. `boundary.ts` gained `chromaBoundaryPoints` (the max-chroma
+  curve swept over hue, for the Chroma chart) and `hueBoundaryPoints` (the upper/lower
+  lightness limits at the fixed chroma — per hue, the lightness window that holds that
+  chroma, found by sampling `max_in_gamut_chroma` and interpolating the crossings,
+  pinching to the peak where the chroma is unreachable — for the Hue chart). Each chart
+  now overlays its sRGB curve plus the P3 curve in P3 mode (the Hue chart has an upper
+  and a lower curve per gamut). The Hue sweep is the heaviest, so it is memoised on its
+  inputs.
 
-**Verification.** Picker vitest at 100%, `tsc --noEmit` + the workbench production
-build (`vite build`) clean. The **real-browser visual QA is the human's** (no browser
-in the sandbox).
+**Verification.** Picker vitest at 100%, `tsc --noEmit` + `eslint` + the workbench
+production build (`vite build`) clean. The **real-browser visual QA is the human's** (no
+browser in the sandbox).
 
 ### Phase 5 — plugin port
 

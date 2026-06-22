@@ -110,22 +110,46 @@ exception.
 ## 2. The interaction model
 
 Adapted from oklch.com: the colour is chosen across paint-backed charts that
-update live and show the gamut boundary in place.
+update live and show the gamut boundary in place. oklch.com renders the OKLCH
+solid as a **net of three linked 2D charts**, each plotting a different axis
+pair and holding the third axis fixed, all reacting live to any change. We mirror
+that net (minus alpha and Rec2020 — RFC §0.1), each chart sitting above the
+painted 1-D slider for the axis it holds fixed:
 
-- **L×C plane** — a `<canvas>` for the current hue: x = lightness `0..1`,
-  y = chroma `0..c_max`. The in-gamut region is painted with the actual colour
-  at each (L, C, H); out-of-gamut pixels are marked (style TBD in build —
-  transparent or a muted band, matching oklch.com's readability). The sRGB
-  gamut boundary is overlaid as a curve; the current colour sits at a draggable
-  cursor. Dragging emits `onChange({ l, c })`.
-- **Hue strip** — a `<canvas>` for hue `0..360` at the current (L, C), with the
-  same out-of-gamut marking and a draggable cursor → `onChange({ h })`.
+- **Hue chart** — a `<canvas>` at the current **hue**: x = lightness `0..1`,
+  y = chroma `c_max..0` (high chroma at the top). The in-gamut region is painted
+  with the actual colour at each (L, C, H); out-of-gamut pixels are transparent
+  (the OKLCH "holes" — settled in build, §10). The sRGB gamut boundary is
+  overlaid as a curve (plus the P3 curve in P3 mode). Repaints when **H** changes.
+- **Lightness chart** — a `<canvas>` at the current **lightness**: x = hue
+  `0..360`, y = chroma `c_max..0`. Repaints when **L** changes.
+- **Chroma chart** — a `<canvas>` at the current **chroma**: x = hue `0..360`,
+  y = lightness `1..0`. Repaints when **C** changes.
+
+  > **Axis orientation (verified against the live site / `evilmartians/oklch-picker`
+  > source, not assumed):** **hue is the horizontal axis** on the two hue charts;
+  > chroma is always vertical; lightness is horizontal on the Hue chart and
+  > vertical on the Chroma chart. So the Hue chart's `paintCL`, the Lightness
+  > chart's `paintCH`, and the Chroma chart's `paintLH` (oklch.com's own function
+  > names) are mirrored by `paint_lc_plane`, `paint_ch_plane`, `paint_lh_plane`.
+
+  The current colour sits at a draggable, gamut-clamped cursor on each chart, and
+  each chart draws **shared crosshair guide lines** through its cursor: charts
+  that share a plotted axis line up (the Hue & Lightness charts share a horizontal
+  current-chroma line; the Lightness & Chroma charts share a vertical current-hue
+  line; the Hue & Chroma charts share a current-lightness line). Dragging or
+  arrow-nudging a chart emits the full `onChange({ l, c, h })`, clamping chroma to
+  the gamut only on the charts that plot it.
+- **Painted 1-D sliders** — one per axis (L / C / H), a `<canvas>` track painted
+  with that axis's sweep at the current value of the others, with a headless
+  `Slider` thumb → `onChange`.
 - **Numeric + text inputs** — L / C / H number fields and a hex⇄oklch text
   field. The text field round-trips through the engine (parse via wasm), never
   a JS parser, per Principle 1.
 
-Repaint gating (Principle 2): the plane repaints only when **H** changes; the
-hue strip repaints only when **L or C** change; cursor moves are cheap overlay
+Repaint gating (Principle 2): each chart repaints only when the axis it holds
+fixed (or the gamut) changes; each slider track only when one of its two fixed
+axes (or the gamut) changes; cursor and guide-line moves are cheap overlay
 redraws. Repaints coalesce on `requestAnimationFrame`.
 
 ## 3. The wasm gamut API
@@ -179,15 +203,26 @@ Custom code is confined to what the system lacks: the canvas **paint** and the
 
 A self-contained directory, e.g. `apps/workbench/src/OklchPicker/`:
 
-- `OklchPicker.tsx` — orchestrates `value`/`onChange`, lays out the charts and
-  the reused `Field`/`Input` rows, wears the design-system tokens (Principle 4).
-- `LcChart.tsx` — the bespoke 2D control: blits `paint_lc_plane`, overlays the
-  boundary curve, draws and drags the cursor (pixel → (l, c) mapping with
-  clamping). No headless analogue exists for a 2-D pad.
-- `HueSlider.tsx` — composes `Slider` (Principle 6): paints the track from
-  `paint_hue_strip`, with `Slider.Thumb` as the cursor → `onChange({ h })`.
+- `OklchPicker.tsx` — orchestrates `value`/`onChange`, lays out the three charts
+  (each above its slider) and the reused `Field`/`Input` rows, wears the
+  design-system tokens (Principle 4). Owns the gamut as internal view state.
+- `PlaneChart.tsx` — the **reusable** bespoke 2D control (generalised from the
+  original `LcChart`): given two plotted axes + the fixed third, it blits the
+  externally-painted plane canvas, overlays any boundary polylines and the shared
+  crosshair guide lines, and maps pointer drags / arrow nudges to a gamut-clamped
+  value (clamping chroma only when chroma is a plotted axis). All three charts —
+  Hue (L×C), Lightness (H×C), Chroma (H×L) — are instances of it. No headless
+  analogue exists for a 2-D pad.
+- `AxisSlider.tsx` — composes `Slider` (Principle 6): paints the track from
+  `paint_{hue,lightness,chroma}_strip`, with `Slider.Thumb` as the cursor →
+  `onChange`. One generic control backs all three axes.
+- `GamutToggle.tsx` — the sRGB/P3 toggle composing the headless `ToggleGroup`.
+- `geometry.ts` — the pure, axis-generic pixel↔value mapping (`pointToAxes` /
+  `axesToPoint` / `nudgeAxes`) every chart shares.
+- `boundary.ts` — sweeps `max_in_gamut_chroma` into the Hue chart's boundary
+  polyline (sRGB, plus the P3 curve in P3 mode).
 - `useGamutPaint.ts` — owns the repaint-gating and `requestAnimationFrame`
-  coalescing of §2.
+  coalescing of §2, driving the three plane canvases + three slider tracks.
 
 **Tests (vitest, `react-test-conventions`):** the pure logic — pixel→value
 mapping, clamping to `[0,1]` / `[0,360]` / `0..c_max`, value↔string
@@ -444,6 +479,66 @@ the P3 boundary curve and the dashed extended-band marker, the `display-p3`
 canvas fidelity of the extended colours, the three painted slider tracks, and the
 toggle chrome under the design system.
 
+### Phase 4b — the three-chart net ✅ (landed; one human pass outstanding)
+
+The two missing charts of the oklch.com net, bringing the editor to full parity
+(minus alpha / Rec2020). The workspace is green (`cargo test --workspace`) and the
+picker vitest suite is **100% lines / branches / functions / statements** (93
+tests).
+
+**Axis-orientation verification.** The task's prose guessed hue on the *vertical*
+axis of the new charts; reading the `evilmartians/oklch-picker` source
+(`view/chart/paint.ts` — `paintCL` / `paintCH` / `paintLH`) showed hue is
+**horizontal**, chroma always vertical, lightness horizontal on the Hue chart and
+vertical on the Chroma chart. We build the verified orientation (confirmed with the
+human), so `paint_ch_plane` paints hue×chroma and `paint_lh_plane` hue×lightness.
+
+**Engine (`harmoni-core` + `harmoni-wasm`, strict TDD, `api/gamut.rs` at 100%
+regions/functions/lines via `cargo llvm-cov`):**
+- **`paint_ch_plane(l, w, h, c_max, gamut)`** — the Lightness chart: hue (x) ×
+  chroma (y) at a fixed lightness, boundary found once per column.
+- **`paint_lh_plane(c, w, h, gamut)`** — the Chroma chart: hue (x) × lightness (y)
+  at a fixed chroma, boundary found per pixel. Both transparent out of gamut, P3-
+  aware like the existing painters. Thin wasm wrappers added; `pnpm run build:wasm`
+  regenerated the `.d.ts` with both signatures.
+
+**Picker (`apps/workbench/src/OklchPicker/`, controlled + portable):**
+- **`PlaneChart`** generalises the bespoke `LcChart` (now retired): it takes its
+  two plotted axes + the fixed third, an externally-painted canvas, optional
+  boundary polylines, a gamut-clamped draggable cursor (chroma clamped only when
+  plotted), arrow-key a11y, and shared crosshair guide lines that link charts
+  sharing an axis. `geometry.ts` gained axis-generic `pointToAxes` / `axesToPoint`
+  / `nudgeAxes`; the old L×C-specific helpers were removed.
+- **`repaint` / `useGamutPaint`** now gate **six** canvases (three charts + three
+  slider tracks): each chart on the axis it holds fixed, each strip on its two
+  fixed axes, all on the gamut.
+- **`OklchPicker`** lays the three charts each above its matching slider (Lightness
+  chart over the L slider, …) in a wrapping row; the `{ l, c, h }` / `onChange`
+  contract and the internal-gamut-view-state decision are unchanged, so Phase-5
+  portability is intact.
+
+**Decision taken during the build:** the painted 1-D slider **tracks stay** (chart
++ slider per axis), matching oklch.com, rather than the charts subsuming them
+(confirmed with the human).
+
+**Verification.** `cargo test --workspace`, `cargo llvm-cov -p harmoni-core` 100%
+on `api/gamut.rs`, `pnpm run build:wasm` with both new signatures in the `.d.ts`,
+picker vitest at 100%, `tsc -b` + `eslint` + the workbench production build
+(`tsc -b && vite build`) all clean. The dev server runs
+(`http://localhost:5173/`). The **real-browser visual QA pass remains the human's**
+(no browser in the sandbox): the three painted planes, the hue-horizontal
+orientation, the transparent OKLCH holes on the new charts, the shared crosshair
+guide lines, cursor alignment, and the token chrome under the design system.
+
 ### Phase 5 — plugin port
 
-Unchanged from §9 — out of scope for Phase 4.
+Unchanged from §9 — out of scope for Phase 4b. **Two early decisions are
+pre-settled with the human** (so the next session doesn't re-open them):
+
+- **Chrome tokens: ship the `--primitiv-*` token layer into the plugin** (rather
+  than aliasing to Figma's theme vars). Keeps the picker identical to the
+  workbench and needs no per-token mapping; Figma light/dark adaptation can be a
+  later polish.
+- **Copy `apps/workbench/src/OklchPicker/` into the plugin** (rather than
+  extracting a shared internal package now). Get it working first; wrap the
+  duplication into a shared package as a follow-up.

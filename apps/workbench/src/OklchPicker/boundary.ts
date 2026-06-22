@@ -6,7 +6,7 @@
 
 import { max_in_gamut_chroma } from "harmoni-wasm";
 
-import { clamp, lcToPoint } from "./geometry";
+import { clamp, axesToPoint } from "./geometry";
 import type { Gamut } from "./types";
 
 /**
@@ -27,7 +27,7 @@ export function boundaryPoints(
   for (let i = 0; i < samples; i += 1) {
     const l = i / (samples - 1);
     const c = clamp(max_in_gamut_chroma(l, h, gamut), 0, cMax);
-    const { x, y } = lcToPoint(l, c, width, height, cMax);
+    const { x, y } = axesToPoint(l, c, width, height, 1, cMax);
     points.push(`${x},${y}`);
   }
   return points.join(" ");

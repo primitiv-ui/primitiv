@@ -1,27 +1,65 @@
 // The OKLCH colour picker (RFC 0010 §5) — a self-contained, controlled
 // component: `value` in, `onChange` out, no internal source of truth, so the
-// directory lifts into the plugin unchanged (Principle 3). It owns the two
-// canvas refs and drives `useGamutPaint`, lays out the bespoke LcChart and the
-// Slider-backed HueSlider, and composes the design system's Field/Input rows
-// for the L/C/H numbers and the hex⇄oklch text field. Every colour conversion
-// crosses into the one Rust engine (Principle 1); the chrome wears --primitiv-*
-// tokens (Principle 4).
+// directory lifts into the plugin unchanged (Principle 3). It owns the canvas
+// refs and drives `useGamutPaint`, lays out the three reusable PlaneCharts and
+// their Slider-backed AxisSliders, and composes the design system's Field/Input
+// rows for the L/C/H numbers and the hex⇄oklch text field. Every colour
+// conversion crosses into the one Rust engine (Principle 1); the chrome wears
+// --primitiv-* tokens (Principle 4).
 
 import { useEffect, useRef, useState } from "react";
 import { Field, Input } from "@primitiv-ui/react";
 
-import { LcChart } from "./LcChart";
+import { PlaneChart, type PlaneAxisSpec } from "./PlaneChart";
 import { AxisSlider } from "./AxisSlider";
 import { GamutToggle } from "./GamutToggle";
 import { useGamutPaint } from "./useGamutPaint";
+import { boundaryPoints } from "./boundary";
 import { formatColor, parseColor } from "./color";
 import { CHANNELS, clampChannel, roundChannel } from "./channels";
+import {
+  C_MAX,
+  LIGHTNESS_STEP,
+  LIGHTNESS_COARSE_STEP,
+  CHROMA_STEP,
+  CHROMA_COARSE_STEP,
+} from "./geometry";
 import type { Gamut, OklchValue } from "./types";
 
 import "./OklchPicker.css";
 
-const PLANE_SIZE = 280;
-const STRIP_WIDTH = 280;
+const PLANE_SIZE = 220;
+const STRIP_WIDTH = 220;
+
+/** Lightness samples taken across a boundary curve — smooth without overdraw. */
+const BOUNDARY_SAMPLES = 64;
+
+// Plotted-axis descriptors shared by the three charts (RFC 0010 §2): the Hue
+// chart plots L×C, the Lightness chart H×C, the Chroma chart H×L.
+const L_AXIS: PlaneAxisSpec = {
+  channel: "l",
+  name: "Lightness",
+  max: CHANNELS.l.max,
+  step: LIGHTNESS_STEP,
+  coarseStep: LIGHTNESS_COARSE_STEP,
+  precision: 2,
+};
+const C_AXIS: PlaneAxisSpec = {
+  channel: "c",
+  name: "Chroma",
+  max: C_MAX,
+  step: CHROMA_STEP,
+  coarseStep: CHROMA_COARSE_STEP,
+  precision: 3,
+};
+const H_AXIS: PlaneAxisSpec = {
+  channel: "h",
+  name: "Hue",
+  max: CHANNELS.h.max,
+  step: 1,
+  coarseStep: 10,
+  precision: 0,
+};
 
 export type OklchPickerProps = {
   value: OklchValue;
@@ -30,6 +68,8 @@ export type OklchPickerProps = {
 
 export function OklchPicker({ value, onChange }: OklchPickerProps) {
   const planeRef = useRef<HTMLCanvasElement>(null);
+  const lightnessPlaneRef = useRef<HTMLCanvasElement>(null);
+  const chromaPlaneRef = useRef<HTMLCanvasElement>(null);
   const hueStripRef = useRef<HTMLCanvasElement>(null);
   const lightnessStripRef = useRef<HTMLCanvasElement>(null);
   const chromaStripRef = useRef<HTMLCanvasElement>(null);
@@ -43,6 +83,8 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
     value,
     gamut,
     planeRef,
+    lightnessPlaneRef,
+    chromaPlaneRef,
     hueStripRef,
     lightnessStripRef,
     chromaStripRef,
@@ -52,6 +94,23 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
   });
 
   const formatted = formatColor(value);
+
+  // The Hue chart's gamut boundary: always the sRGB curve, plus the wider gamut's
+  // curve in P3 mode so the band between them reads as the extended region.
+  const hueBoundaries = [
+    {
+      className: "plane-chart__boundary plane-chart__boundary--srgb",
+      points: boundaryPoints(value.h, PLANE_SIZE, PLANE_SIZE, C_MAX, BOUNDARY_SAMPLES, "Srgb"),
+    },
+    ...(gamut === "Srgb"
+      ? []
+      : [
+          {
+            className: "plane-chart__boundary plane-chart__boundary--extended",
+            points: boundaryPoints(value.h, PLANE_SIZE, PLANE_SIZE, C_MAX, BOUNDARY_SAMPLES, gamut),
+          },
+        ]),
+  ];
 
   // The text field echoes the engine's canonical string, but never clobbers an
   // edit in progress: while the field is focused the user's text stands (even as
@@ -104,48 +163,77 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
         <div className="oklch-picker__toolbar">
           <GamutToggle gamut={gamut} onChange={setGamut} />
         </div>
-        <LcChart
-          value={value}
-          gamut={gamut}
-          onChange={({ l, c }) => onChange({ ...value, l, c })}
-          planeRef={planeRef}
-          width={PLANE_SIZE}
-          height={PLANE_SIZE}
-        />
-        <div className="oklch-picker__sliders">
-          <AxisSlider
-            label="Lightness"
-            modifier="lightness"
-            value={value.l}
-            min={CHANNELS.l.min}
-            max={CHANNELS.l.max}
-            step={CHANNELS.l.step}
-            onChange={(l) => onChange({ ...value, l })}
-            stripRef={lightnessStripRef}
-            width={STRIP_WIDTH}
-          />
-          <AxisSlider
-            label="Chroma"
-            modifier="chroma"
-            value={value.c}
-            min={CHANNELS.c.min}
-            max={CHANNELS.c.max}
-            step={CHANNELS.c.step}
-            onChange={(c) => onChange({ ...value, c })}
-            stripRef={chromaStripRef}
-            width={STRIP_WIDTH}
-          />
-          <AxisSlider
-            label="Hue"
-            modifier="hue"
-            value={value.h}
-            min={CHANNELS.h.min}
-            max={CHANNELS.h.max}
-            step={CHANNELS.h.step}
-            onChange={(h) => onChange({ ...value, h })}
-            stripRef={hueStripRef}
-            width={STRIP_WIDTH}
-          />
+        {/* The three-chart "net": each chart holds one axis fixed and sits above
+            the slider for that axis (the Lightness chart over the L slider, …),
+            so moving a slider repaints the chart it pins (RFC 0010 §2, §5). */}
+        <div className="oklch-picker__axes">
+          <div className="oklch-picker__axis">
+            <PlaneChart
+              value={value}
+              gamut={gamut}
+              axes={{ x: H_AXIS, y: C_AXIS }}
+              onChange={onChange}
+              planeRef={lightnessPlaneRef}
+              width={PLANE_SIZE}
+              height={PLANE_SIZE}
+            />
+            <AxisSlider
+              label="Lightness"
+              modifier="lightness"
+              value={value.l}
+              min={CHANNELS.l.min}
+              max={CHANNELS.l.max}
+              step={CHANNELS.l.step}
+              onChange={(l) => onChange({ ...value, l })}
+              stripRef={lightnessStripRef}
+              width={STRIP_WIDTH}
+            />
+          </div>
+          <div className="oklch-picker__axis">
+            <PlaneChart
+              value={value}
+              gamut={gamut}
+              axes={{ x: H_AXIS, y: L_AXIS }}
+              onChange={onChange}
+              planeRef={chromaPlaneRef}
+              width={PLANE_SIZE}
+              height={PLANE_SIZE}
+            />
+            <AxisSlider
+              label="Chroma"
+              modifier="chroma"
+              value={value.c}
+              min={CHANNELS.c.min}
+              max={CHANNELS.c.max}
+              step={CHANNELS.c.step}
+              onChange={(c) => onChange({ ...value, c })}
+              stripRef={chromaStripRef}
+              width={STRIP_WIDTH}
+            />
+          </div>
+          <div className="oklch-picker__axis">
+            <PlaneChart
+              value={value}
+              gamut={gamut}
+              axes={{ x: L_AXIS, y: C_AXIS }}
+              onChange={onChange}
+              planeRef={planeRef}
+              width={PLANE_SIZE}
+              height={PLANE_SIZE}
+              boundaries={hueBoundaries}
+            />
+            <AxisSlider
+              label="Hue"
+              modifier="hue"
+              value={value.h}
+              min={CHANNELS.h.min}
+              max={CHANNELS.h.max}
+              step={CHANNELS.h.step}
+              onChange={(h) => onChange({ ...value, h })}
+              stripRef={hueStripRef}
+              width={STRIP_WIDTH}
+            />
+          </div>
         </div>
       </div>
 

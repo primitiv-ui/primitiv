@@ -13,8 +13,8 @@ pub mod neutral;
 
 pub use audit::audit_contrast;
 pub use gamut::{
-    max_in_gamut_chroma, paint_chroma_strip, paint_hue_strip, paint_lc_plane,
-    paint_lightness_strip, Gamut,
+    max_in_gamut_chroma, paint_ch_plane, paint_chroma_strip, paint_hue_strip, paint_lc_plane,
+    paint_lh_plane, paint_lightness_strip, Gamut,
 };
 pub use generate::{
     generate, generate_brand_pair, generate_pair, generate_with_lightness, generate_with_options,

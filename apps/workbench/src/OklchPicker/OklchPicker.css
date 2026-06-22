@@ -6,7 +6,7 @@
  * its parts are styled here against the Slider contract (data-orientation /
  * positional inline styles).
  *
- * Selectors are scoped under .oklch-picker / .lc-chart / .axis-slider /
+ * Selectors are scoped under .oklch-picker / .plane-chart / .axis-slider /
  * .gamut-toggle to avoid the global-CSS bleed the workbench bundles into one
  * sheet (workbench-examples).
  */
@@ -34,7 +34,14 @@
   justify-content: flex-end;
 }
 
-.oklch-picker__sliders {
+/* The three-chart net: chart-over-slider columns, wrapping on narrow widths. */
+.oklch-picker__axes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--primitiv-space-space-16);
+}
+
+.oklch-picker__axis {
   display: flex;
   flex-direction: column;
   gap: var(--primitiv-space-space-12);
@@ -72,9 +79,9 @@
   outline-offset: var(--primitiv-focus-ring-offset);
 }
 
-/* L×C pad ------------------------------------------------------------------ */
+/* 2D plane charts (Hue / Lightness / Chroma) ------------------------------- */
 
-.lc-chart {
+.plane-chart {
   position: relative;
   border-radius: var(--primitiv-container-sm-radius);
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
@@ -83,24 +90,24 @@
   cursor: crosshair;
 }
 
-.lc-chart:focus-visible {
+.plane-chart:focus-visible {
   outline: var(--primitiv-focus-ring-width) solid var(--primitiv-border-focus);
   outline-offset: var(--primitiv-focus-ring-offset);
 }
 
-.lc-chart__plane,
-.lc-chart__overlay {
+.plane-chart__plane,
+.plane-chart__overlay {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
 }
 
-.lc-chart__overlay {
+.plane-chart__overlay {
   pointer-events: none;
 }
 
-.lc-chart__boundary {
+.plane-chart__boundary {
   fill: none;
   stroke: var(--primitiv-color-absolute-white);
   stroke-width: var(--primitiv-border-width-1);
@@ -109,11 +116,18 @@
 
 /* The P3 boundary is dashed so the band between it and the solid sRGB curve
    reads as the sRGB→P3 extended region (RFC 0010 §7). */
-.lc-chart__boundary--extended {
+.plane-chart__boundary--extended {
   stroke-dasharray: var(--primitiv-space-space-4) var(--primitiv-space-space-4);
 }
 
-.lc-chart__cursor {
+/* Shared crosshair guide lines that link charts sharing an axis (the net). */
+.plane-chart__guide {
+  stroke: var(--primitiv-color-absolute-white);
+  stroke-width: var(--primitiv-border-width-1);
+  opacity: var(--primitiv-disabled-opacity);
+}
+
+.plane-chart__cursor {
   position: absolute;
   width: var(--primitiv-space-space-16);
   height: var(--primitiv-space-space-16);

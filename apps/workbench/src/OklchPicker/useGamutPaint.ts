@@ -11,6 +11,8 @@ import { useEffect, useRef, type RefObject } from "react";
 
 import {
   paint_lc_plane,
+  paint_ch_plane,
+  paint_lh_plane,
   paint_hue_strip,
   paint_lightness_strip,
   paint_chroma_strip,
@@ -28,6 +30,8 @@ export type UseGamutPaintArgs = {
   value: OklchValue;
   gamut: Gamut;
   planeRef: RefObject<HTMLCanvasElement | null>;
+  lightnessPlaneRef: RefObject<HTMLCanvasElement | null>;
+  chromaPlaneRef: RefObject<HTMLCanvasElement | null>;
   hueStripRef: RefObject<HTMLCanvasElement | null>;
   lightnessStripRef: RefObject<HTMLCanvasElement | null>;
   chromaStripRef: RefObject<HTMLCanvasElement | null>;
@@ -40,6 +44,8 @@ export function useGamutPaint({
   value,
   gamut,
   planeRef,
+  lightnessPlaneRef,
+  chromaPlaneRef,
   hueStripRef,
   lightnessStripRef,
   chromaStripRef,
@@ -53,6 +59,8 @@ export function useGamutPaint({
     const targets = repaintTargets(prevRef.current, { value, gamut });
     if (
       !targets.plane &&
+      !targets.lightnessPlane &&
+      !targets.chromaPlane &&
       !targets.hueStrip &&
       !targets.lightnessStrip &&
       !targets.chromaStrip
@@ -69,6 +77,24 @@ export function useGamutPaint({
         blitBuffer(
           planeRef.current,
           paint_lc_plane(h, planeWidth, planeHeight, C_MAX, gamut),
+          planeWidth,
+          planeHeight,
+          colorSpace,
+        );
+      }
+      if (targets.lightnessPlane) {
+        blitBuffer(
+          lightnessPlaneRef.current,
+          paint_ch_plane(l, planeWidth, planeHeight, C_MAX, gamut),
+          planeWidth,
+          planeHeight,
+          colorSpace,
+        );
+      }
+      if (targets.chromaPlane) {
+        blitBuffer(
+          chromaPlaneRef.current,
+          paint_lh_plane(c, planeWidth, planeHeight, gamut),
           planeWidth,
           planeHeight,
           colorSpace,
@@ -109,6 +135,8 @@ export function useGamutPaint({
     value,
     gamut,
     planeRef,
+    lightnessPlaneRef,
+    chromaPlaneRef,
     hueStripRef,
     lightnessStripRef,
     chromaStripRef,

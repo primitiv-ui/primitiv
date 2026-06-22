@@ -8,6 +8,8 @@ import type { OklchValue } from "../types";
 import {
   max_in_gamut_chroma,
   paint_lc_plane,
+  paint_ch_plane,
+  paint_lh_plane,
   paint_hue_strip,
   paint_lightness_strip,
   paint_chroma_strip,
@@ -18,6 +20,8 @@ import {
 vi.mock("harmoni-wasm", () => ({
   max_in_gamut_chroma: vi.fn(),
   paint_lc_plane: vi.fn(),
+  paint_ch_plane: vi.fn(),
+  paint_lh_plane: vi.fn(),
   paint_hue_strip: vi.fn(),
   paint_lightness_strip: vi.fn(),
   paint_chroma_strip: vi.fn(),
@@ -53,6 +57,8 @@ beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(max_in_gamut_chroma).mockReturnValue(0.3);
   vi.mocked(paint_lc_plane).mockReturnValue(new Uint8Array());
+  vi.mocked(paint_ch_plane).mockReturnValue(new Uint8Array());
+  vi.mocked(paint_lh_plane).mockReturnValue(new Uint8Array());
   vi.mocked(paint_hue_strip).mockReturnValue(new Uint8Array());
   vi.mocked(paint_lightness_strip).mockReturnValue(new Uint8Array());
   vi.mocked(paint_chroma_strip).mockReturnValue(new Uint8Array());
@@ -61,6 +67,21 @@ beforeEach(() => {
 });
 
 describe("OklchPicker", () => {
+  it("renders the three linked charts of the oklch.com net", () => {
+    renderPicker();
+
+    // Hue chart (L×C), Lightness chart (Hue×Chroma), Chroma chart (Hue×Lightness).
+    expect(
+      screen.getByRole("group", { name: /lightness and chroma/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("group", { name: /hue and chroma/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("group", { name: /hue and lightness/i }),
+    ).toBeInTheDocument();
+  });
+
   it("shows the value's formatted string in the text field", () => {
     renderPicker();
 

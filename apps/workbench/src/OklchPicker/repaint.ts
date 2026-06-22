@@ -5,7 +5,9 @@
 // editing model). The gamut is a fifth axis: changing it re-renders every chart
 // against the new boundary.
 //
-//   - plane (L×C at the current hue)    → repaints when H changes
+//   - plane: Hue chart (L×C at the current H)  → repaints when H changes
+//   - lightnessPlane: Lightness chart (H×C at L) → repaints when L changes
+//   - chromaPlane: Chroma chart (H×L at C)       → repaints when C changes
 //   - hue strip (at the current L, C)   → repaints when L or C changes
 //   - lightness strip (at the current C, H) → repaints when C or H changes
 //   - chroma strip (at the current L, H)    → repaints when L or H changes
@@ -18,6 +20,8 @@ export type PaintState = { value: OklchValue; gamut: Gamut };
 /** Which charts must repaint for a transition from `prev` to `next`. */
 export type RepaintTargets = {
   plane: boolean;
+  lightnessPlane: boolean;
+  chromaPlane: boolean;
   hueStrip: boolean;
   lightnessStrip: boolean;
   chromaStrip: boolean;
@@ -34,6 +38,8 @@ export function repaintTargets(
   if (prev === null) {
     return {
       plane: true,
+      lightnessPlane: true,
+      chromaPlane: true,
       hueStrip: true,
       lightnessStrip: true,
       chromaStrip: true,
@@ -47,6 +53,8 @@ export function repaintTargets(
 
   return {
     plane: gamutChanged || hChanged,
+    lightnessPlane: gamutChanged || lChanged,
+    chromaPlane: gamutChanged || cChanged,
     hueStrip: gamutChanged || lChanged || cChanged,
     lightnessStrip: gamutChanged || cChanged || hChanged,
     chromaStrip: gamutChanged || lChanged || hChanged,

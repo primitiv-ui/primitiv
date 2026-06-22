@@ -1,19 +1,20 @@
-// Pure pixel↔value geometry for the L×C pad (RFC 0010 §5). The canvas paints
-// lightness 0..1 left→right and chroma c_max..0 top→bottom (matching the
-// `paint_lc_plane` buffer); these helpers map a pointer position to an OkLCH
-// (l, c) and back to a cursor point, with clamping into range. No colour maths
+// Pure pixel↔value geometry for the picker's plane charts (RFC 0010 §5). A plane
+// chart plots two OkLCH axes: the x value runs `0..xMax` left→right and the y
+// value runs `0..yMax` bottom→top (so the larger value sits at the top, matching
+// the engine painters). These helpers map a pointer position to a `(x, y)` axis
+// pair and back to a cursor point, with clamping into range. No colour maths
 // lives here — the gamut boundary is applied separately via the engine.
 
-/** The chroma ceiling the L×C plane is painted and measured against. */
+/** The chroma ceiling the chroma axis is painted and measured against. */
 export const C_MAX = 0.4;
 
-/** Fine arrow-key step for lightness (`0..1`) on the L×C pad. */
+/** Fine arrow-key step for lightness (`0..1`) on a plane chart. */
 export const LIGHTNESS_STEP = 0.005;
-/** Coarse (Shift) arrow-key step for lightness on the L×C pad. */
+/** Coarse (Shift) arrow-key step for lightness on a plane chart. */
 export const LIGHTNESS_COARSE_STEP = 0.05;
-/** Fine arrow-key step for chroma (`0..c_max`) on the L×C pad. */
+/** Fine arrow-key step for chroma (`0..c_max`) on a plane chart. */
 export const CHROMA_STEP = 0.002;
-/** Coarse (Shift) arrow-key step for chroma on the L×C pad. */
+/** Coarse (Shift) arrow-key step for chroma on a plane chart. */
 export const CHROMA_COARSE_STEP = 0.02;
 
 /** Clamps `value` into the inclusive `[min, max]` range. */
@@ -22,84 +23,94 @@ export function clamp(value: number, min: number, max: number): number {
 }
 
 /**
- * Maps a pointer offset within a `width`×`height` chart to an OkLCH `(l, c)`.
- * `x` runs lightness `0..1` left→right; `y` runs chroma `cMax..0` top→bottom.
- * Drags beyond the edges clamp into range.
+ * Maps a pointer offset within a `width`×`height` chart to a plane `(x, y)` axis
+ * pair. `x` runs `0..xMax` left→right; `y` runs `0..yMax` bottom→top. Drags
+ * beyond the edges clamp into range.
  */
-export function pointerToLc(
-  x: number,
-  y: number,
+export function pointToAxes(
+  px: number,
+  py: number,
   width: number,
   height: number,
-  cMax: number,
-): { l: number; c: number } {
-  const l = clamp(x / width, 0, 1);
-  const c = clamp((1 - y / height) * cMax, 0, cMax);
-  return { l, c };
+  xMax: number,
+  yMax: number,
+): { x: number; y: number } {
+  const x = clamp(px / width, 0, 1) * xMax;
+  const y = clamp(1 - py / height, 0, 1) * yMax;
+  return { x, y };
 }
 
 /**
- * Maps a pointer event's client coordinates to an OkLCH `(l, c)` using the
- * chart element's bounding rect as the origin and extent.
+ * Maps a pointer event's client coordinates to a plane `(x, y)` axis pair using
+ * the chart element's bounding rect as the origin and extent.
  */
-export function pointerEventToLc(
+export function pointerEventToAxes(
   clientX: number,
   clientY: number,
   rect: { left: number; top: number; width: number; height: number },
-  cMax: number,
-): { l: number; c: number } {
-  return pointerToLc(
+  xMax: number,
+  yMax: number,
+): { x: number; y: number } {
+  return pointToAxes(
     clientX - rect.left,
     clientY - rect.top,
     rect.width,
     rect.height,
-    cMax,
+    xMax,
+    yMax,
   );
 }
 
+/** Fine and coarse arrow-key steps for a plane chart's two plotted axes. */
+export type AxisSteps = {
+  x: { fine: number; coarse: number };
+  y: { fine: number; coarse: number };
+};
+
 /**
- * Nudges an OkLCH `(l, c)` for an arrow keypress on the L×C pad: `ArrowLeft` /
- * `ArrowRight` step lightness, `ArrowUp` / `ArrowDown` step chroma, `coarse`
- * (the Shift modifier) swaps the fine step for the coarse one. The result is
- * clamped into `[0, 1]` / `[0, cMax]`; the gamut clamp is applied separately by
- * the caller (the engine owns the boundary, Principle 1). Returns `null` for a
- * non-arrow key so the handler leaves other keys alone.
+ * Nudges a plane `(x, y)` axis pair for an arrow keypress: `ArrowLeft` /
+ * `ArrowRight` step `x`, `ArrowUp` / `ArrowDown` step `y`, `coarse` (the Shift
+ * modifier) swaps each axis's fine step for its coarse one. The result is
+ * clamped into `[0, xMax]` / `[0, yMax]`; any gamut clamp is applied separately
+ * by the caller (the engine owns the boundary, Principle 1). Returns `null` for
+ * a non-arrow key so the handler leaves other keys alone.
  */
-export function nudgeLc(
-  l: number,
-  c: number,
+export function nudgeAxes(
+  x: number,
+  y: number,
   key: string,
   coarse: boolean,
-  cMax: number,
-): { l: number; c: number } | null {
-  const lStep = coarse ? LIGHTNESS_COARSE_STEP : LIGHTNESS_STEP;
-  const cStep = coarse ? CHROMA_COARSE_STEP : CHROMA_STEP;
+  steps: AxisSteps,
+  xMax: number,
+  yMax: number,
+): { x: number; y: number } | null {
+  const xStep = coarse ? steps.x.coarse : steps.x.fine;
+  const yStep = coarse ? steps.y.coarse : steps.y.fine;
   switch (key) {
     case "ArrowRight":
-      return { l: clamp(l + lStep, 0, 1), c };
+      return { x: clamp(x + xStep, 0, xMax), y };
     case "ArrowLeft":
-      return { l: clamp(l - lStep, 0, 1), c };
+      return { x: clamp(x - xStep, 0, xMax), y };
     case "ArrowUp":
-      return { l, c: clamp(c + cStep, 0, cMax) };
+      return { x, y: clamp(y + yStep, 0, yMax) };
     case "ArrowDown":
-      return { l, c: clamp(c - cStep, 0, cMax) };
+      return { x, y: clamp(y - yStep, 0, yMax) };
     default:
       return null;
   }
 }
 
 /**
- * The inverse of {@link pointerToLc}: the cursor point for an OkLCH `(l, c)`
- * within a `width`×`height` chart.
+ * The inverse of {@link pointToAxes}: the cursor point for a plane `(x, y)` axis
+ * pair within a `width`×`height` chart.
  */
-export function lcToPoint(
-  l: number,
-  c: number,
+export function axesToPoint(
+  x: number,
+  y: number,
   width: number,
   height: number,
-  cMax: number,
+  xMax: number,
+  yMax: number,
 ): { x: number; y: number } {
-  const x = l * width;
-  const y = (1 - c / cMax) * height;
-  return { x, y };
+  return { x: (x / xMax) * width, y: (1 - y / yMax) * height };
 }

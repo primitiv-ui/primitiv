@@ -5,6 +5,8 @@ import { useGamutPaint } from "../useGamutPaint";
 import { blitBuffer } from "../paint";
 import {
   paint_lc_plane,
+  paint_ch_plane,
+  paint_lh_plane,
   paint_hue_strip,
   paint_lightness_strip,
   paint_chroma_strip,
@@ -14,6 +16,8 @@ import type { Gamut, OklchValue } from "../types";
 
 vi.mock("harmoni-wasm", () => ({
   paint_lc_plane: vi.fn(),
+  paint_ch_plane: vi.fn(),
+  paint_lh_plane: vi.fn(),
   paint_hue_strip: vi.fn(),
   paint_lightness_strip: vi.fn(),
   paint_chroma_strip: vi.fn(),
@@ -21,12 +25,16 @@ vi.mock("harmoni-wasm", () => ({
 vi.mock("../paint", () => ({ blitBuffer: vi.fn() }));
 
 const planeMock = vi.mocked(paint_lc_plane);
+const chPlaneMock = vi.mocked(paint_ch_plane);
+const lhPlaneMock = vi.mocked(paint_lh_plane);
 const hueMock = vi.mocked(paint_hue_strip);
 const lightMock = vi.mocked(paint_lightness_strip);
 const chromaMock = vi.mocked(paint_chroma_strip);
 const blitMock = vi.mocked(blitBuffer);
 
 const planeRef = { current: "plane" as unknown as HTMLCanvasElement };
+const lightnessPlaneRef = { current: "lplane" as unknown as HTMLCanvasElement };
+const chromaPlaneRef = { current: "cplane" as unknown as HTMLCanvasElement };
 const hueRef = { current: "hue" as unknown as HTMLCanvasElement };
 const lightRef = { current: "light" as unknown as HTMLCanvasElement };
 const chromaRef = { current: "chroma" as unknown as HTMLCanvasElement };
@@ -47,6 +55,8 @@ function setup(value: OklchValue, gamut: Gamut = "Srgb") {
         value: props.value,
         gamut: props.gamut,
         planeRef,
+        lightnessPlaneRef,
+        chromaPlaneRef,
         hueStripRef: hueRef,
         lightnessStripRef: lightRef,
         chromaStripRef: chromaRef,
@@ -81,14 +91,29 @@ describe("useGamutPaint", () => {
     flushFrame();
 
     expect(planeMock).toHaveBeenCalledWith(250, 100, 200, C_MAX, "Srgb");
+    expect(chPlaneMock).toHaveBeenCalledWith(0.6, 100, 200, C_MAX, "Srgb");
+    expect(lhPlaneMock).toHaveBeenCalledWith(0.15, 100, 200, "Srgb");
     expect(hueMock).toHaveBeenCalledWith(0.6, 0.15, 360, "Srgb");
     expect(lightMock).toHaveBeenCalledWith(0.15, 250, 360, "Srgb");
     expect(chromaMock).toHaveBeenCalledWith(0.6, 250, 360, C_MAX, "Srgb");
     expect(blitMock).toHaveBeenCalledWith(planeRef.current, undefined, 100, 200, "srgb");
-    expect(blitMock).toHaveBeenCalledWith(hueRef.current, undefined, 360, 1, "srgb");
+    expect(blitMock).toHaveBeenCalledWith(
+      lightnessPlaneRef.current,
+      undefined,
+      100,
+      200,
+      "srgb",
+    );
+    expect(blitMock).toHaveBeenCalledWith(
+      chromaPlaneRef.current,
+      undefined,
+      100,
+      200,
+      "srgb",
+    );
   });
 
-  it("repaints the plane and L/C strips, not the hue strip, when the hue changes", () => {
+  it("repaints the Hue chart and L/C strips, not the others, when the hue changes", () => {
     const { rerender } = setup({ l: 0.6, c: 0.15, h: 250 });
     flushFrame();
     vi.clearAllMocks();
@@ -99,10 +124,12 @@ describe("useGamutPaint", () => {
     expect(planeMock).toHaveBeenCalledOnce();
     expect(lightMock).toHaveBeenCalledOnce();
     expect(chromaMock).toHaveBeenCalledOnce();
+    expect(chPlaneMock).not.toHaveBeenCalled();
+    expect(lhPlaneMock).not.toHaveBeenCalled();
     expect(hueMock).not.toHaveBeenCalled();
   });
 
-  it("repaints the hue and chroma strips, not the plane or L strip, when the lightness changes", () => {
+  it("repaints the Lightness chart, hue and chroma strips when the lightness changes", () => {
     const { rerender } = setup({ l: 0.6, c: 0.15, h: 250 });
     flushFrame();
     vi.clearAllMocks();
@@ -110,13 +137,15 @@ describe("useGamutPaint", () => {
     rerender({ value: { l: 0.3, c: 0.15, h: 250 }, gamut: "Srgb" });
     flushFrame();
 
+    expect(chPlaneMock).toHaveBeenCalledOnce();
     expect(hueMock).toHaveBeenCalledOnce();
     expect(chromaMock).toHaveBeenCalledOnce();
     expect(planeMock).not.toHaveBeenCalled();
+    expect(lhPlaneMock).not.toHaveBeenCalled();
     expect(lightMock).not.toHaveBeenCalled();
   });
 
-  it("repaints the hue and lightness strips, not the plane or C strip, when the chroma changes", () => {
+  it("repaints the Chroma chart, hue and lightness strips when the chroma changes", () => {
     const { rerender } = setup({ l: 0.6, c: 0.15, h: 250 });
     flushFrame();
     vi.clearAllMocks();
@@ -124,9 +153,11 @@ describe("useGamutPaint", () => {
     rerender({ value: { l: 0.6, c: 0.05, h: 250 }, gamut: "Srgb" });
     flushFrame();
 
+    expect(lhPlaneMock).toHaveBeenCalledOnce();
     expect(hueMock).toHaveBeenCalledOnce();
     expect(lightMock).toHaveBeenCalledOnce();
     expect(planeMock).not.toHaveBeenCalled();
+    expect(chPlaneMock).not.toHaveBeenCalled();
     expect(chromaMock).not.toHaveBeenCalled();
   });
 
@@ -139,6 +170,8 @@ describe("useGamutPaint", () => {
     flushFrame();
 
     expect(planeMock).toHaveBeenCalledWith(250, 100, 200, C_MAX, "DisplayP3");
+    expect(chPlaneMock).toHaveBeenCalledWith(0.6, 100, 200, C_MAX, "DisplayP3");
+    expect(lhPlaneMock).toHaveBeenCalledWith(0.15, 100, 200, "DisplayP3");
     expect(blitMock).toHaveBeenCalledWith(planeRef.current, undefined, 100, 200, "display-p3");
     expect(blitMock).toHaveBeenCalledWith(chromaRef.current, undefined, 360, 1, "display-p3");
   });
@@ -167,6 +200,6 @@ describe("useGamutPaint", () => {
     flushFrame();
 
     expect(planeMock).toHaveBeenCalledWith(120, 100, 200, C_MAX, "Srgb");
-    expect(hueMock).toHaveBeenCalledWith(0.3, 0.15, 360, "Srgb");
+    expect(chPlaneMock).toHaveBeenCalledWith(0.3, 100, 200, C_MAX, "Srgb");
   });
 });

@@ -98,7 +98,7 @@ pub fn paint_hue_strip(l: f32, c: f32, width: usize, gamut: Gamut) -> Vec<u8> {
     let mut buffer = vec![0u8; width * 4];
     for px in 0..width {
         let hue = (px as f32 + 0.5) / width as f32 * 360.0;
-        if c <= max_in_gamut_chroma(l, hue, gamut) {
+        if in_gamut(l, c, hue, gamut) {
             let rgb = paint_color(Oklch::new(l, c, hue), gamut);
             let i = px * 4;
             buffer[i] = to_byte(rgb.r);
@@ -120,7 +120,7 @@ pub fn paint_lightness_strip(c: f32, h: f32, width: usize, gamut: Gamut) -> Vec<
     let mut buffer = vec![0u8; width * 4];
     for px in 0..width {
         let lightness = (px as f32 + 0.5) / width as f32;
-        if c <= max_in_gamut_chroma(lightness, h, gamut) {
+        if in_gamut(lightness, c, h, gamut) {
             let rgb = paint_color(Oklch::new(lightness, c, h), gamut);
             let i = px * 4;
             buffer[i] = to_byte(rgb.r);
@@ -158,15 +158,16 @@ pub fn paint_chroma_strip(l: f32, h: f32, width: usize, c_max: f32, gamut: Gamut
 /// Chroma chart — as a flat RGBA buffer of `width * height * 4` bytes (row-major,
 /// 4 bytes per pixel). Columns map hue `0..360` left→right; rows map lightness
 /// `1.0..0.0` top→bottom, so the lightest colours sit along the top. Pixels are
-/// sampled at their centres; out-of-`gamut` pixels are transparent. The boundary
-/// depends on `(lightness, hue)`, so it is found per pixel (RFC 0010 §2).
+/// sampled at their centres; out-of-`gamut` pixels are transparent. Each pixel is
+/// tested directly with [`in_gamut`] — one conversion, not a per-pixel chroma
+/// search — so this plane is no costlier than the others (RFC 0010 §2).
 pub fn paint_lh_plane(c: f32, width: usize, height: usize, gamut: Gamut) -> Vec<u8> {
     let mut buffer = vec![0u8; width * height * 4];
     for px in 0..width {
         let hue = (px as f32 + 0.5) / width as f32 * 360.0;
         for py in 0..height {
             let lightness = 1.0 - (py as f32 + 0.5) / height as f32;
-            if c <= max_in_gamut_chroma(lightness, hue, gamut) {
+            if in_gamut(lightness, c, hue, gamut) {
                 let rgb = paint_color(Oklch::new(lightness, c, hue), gamut);
                 let i = (py * width + px) * 4;
                 buffer[i] = to_byte(rgb.r);

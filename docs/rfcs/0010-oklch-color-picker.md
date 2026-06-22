@@ -591,6 +591,18 @@ at **100% lines / branches / functions / statements** (118 tests).
   now overlays its sRGB curve plus the P3 curve in P3 mode (the Hue chart has an upper
   and a lower curve per gamut). The Hue sweep is the heaviest, so it is memoised on its
   inputs.
+- **Performance.** Human feedback that the picker lagged a little in use. oklch.com
+  stays smooth by painting in a **Web-Worker pool** (off the main thread); rather than
+  take that on (it can't be browser-verified in the sandbox and complicates the Phase 5
+  plugin port — a plugin UI is a single inlined iframe), two quality-preserving wins
+  landed first: **(1)** `paint_lh_plane` and the two per-pixel slider strips tested
+  `c <= max_in_gamut_chroma(…)` — a 20-iteration chroma binary search *per pixel*;
+  swapping in the equivalent single `in_gamut(l, c, h)` call is pixel-identical and ~20×
+  cheaper (the Hue chart was the worst offender, repainting on every chroma drag).
+  **(2)** the per-chart boundary sweeps are memoised so a drag of one channel no longer
+  re-sweeps the others. A paint-resolution cap (painting the gradient at ~1× and leaning
+  on the now-vector overlays for crispness) and/or the worker remain in reserve if more
+  is needed.
 
 **Verification.** Picker vitest at 100%, `tsc --noEmit` + `eslint` + the workbench
 production build (`vite build`) clean. The **real-browser visual QA is the human's** (no

@@ -124,35 +124,44 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
   // plus the wider gamut's curve in P3 mode so the band between them reads as the
   // extended region. The Hue chart has two limits (upper/lower lightness) per
   // gamut; its sweep is the heaviest, so it is memoised on its inputs.
-  const lightnessBoundaries = [
-    {
-      className: SRGB_BOUNDARY_CLASS,
-      points: boundaryPoints(value.h, render.width, render.height, C_MAX, BOUNDARY_SAMPLES, "Srgb"),
-    },
-    ...(gamut === "Srgb"
-      ? []
-      : [
-          {
-            className: EXTENDED_BOUNDARY_CLASS,
-            points: boundaryPoints(value.h, render.width, render.height, C_MAX, BOUNDARY_SAMPLES, gamut),
-          },
-        ]),
-  ];
+  // Each boundary set only changes with the axis it sweeps (and the gamut/size),
+  // so memoise on those inputs — a drag of one channel then leaves the other two
+  // charts' curves untouched instead of re-sweeping the engine every frame.
+  const lightnessBoundaries = useMemo(
+    () => [
+      {
+        className: SRGB_BOUNDARY_CLASS,
+        points: boundaryPoints(value.h, render.width, render.height, C_MAX, BOUNDARY_SAMPLES, "Srgb"),
+      },
+      ...(gamut === "Srgb"
+        ? []
+        : [
+            {
+              className: EXTENDED_BOUNDARY_CLASS,
+              points: boundaryPoints(value.h, render.width, render.height, C_MAX, BOUNDARY_SAMPLES, gamut),
+            },
+          ]),
+    ],
+    [value.h, render.width, render.height, gamut],
+  );
 
-  const chromaBoundaries = [
-    {
-      className: SRGB_BOUNDARY_CLASS,
-      points: chromaBoundaryPoints(value.l, render.width, render.height, C_MAX, BOUNDARY_SAMPLES, "Srgb"),
-    },
-    ...(gamut === "Srgb"
-      ? []
-      : [
-          {
-            className: EXTENDED_BOUNDARY_CLASS,
-            points: chromaBoundaryPoints(value.l, render.width, render.height, C_MAX, BOUNDARY_SAMPLES, gamut),
-          },
-        ]),
-  ];
+  const chromaBoundaries = useMemo(
+    () => [
+      {
+        className: SRGB_BOUNDARY_CLASS,
+        points: chromaBoundaryPoints(value.l, render.width, render.height, C_MAX, BOUNDARY_SAMPLES, "Srgb"),
+      },
+      ...(gamut === "Srgb"
+        ? []
+        : [
+            {
+              className: EXTENDED_BOUNDARY_CLASS,
+              points: chromaBoundaryPoints(value.l, render.width, render.height, C_MAX, BOUNDARY_SAMPLES, gamut),
+            },
+          ]),
+    ],
+    [value.l, render.width, render.height, gamut],
+  );
 
   const hueBoundaries = useMemo(() => {
     const curves = (g: Gamut, className: string) => {

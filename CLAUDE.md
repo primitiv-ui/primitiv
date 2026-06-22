@@ -189,11 +189,13 @@ source of truth for when a skill applies.
   fills its container responsively (a `useElementSize` ResizeObserver hook +
   single stacked column, like oklch.com) and paint at **`devicePixelRatio`-scaled
   resolution** (`renderDimensions`) so they're crisp on HiDPI — the `{ l, c, h }`
-  contract is unchanged. A **second follow-up** then reordered the charts to
-  **Lightness → Chroma → Hue**, moved each channel's white title + number field
-  **above** its chart, and added the oklch.com **L/C/H axis labels** that ride the
-  (difference-blended) guide lines. The plugin port (Phase 5) follows. See RFC
-  0010 §10.
+  contract is unchanged. A **second follow-up** then reworked the layout to match
+  oklch.com: charts ordered **Lightness → Chroma → Hue** with each channel's white
+  title + number field **above** its chart, the title/slider/field re-paired with
+  the correct plane (**Lightness = L×C ramp**, Chroma = hue×C, Hue = hue×L — they
+  were crossed), and **L/C/H axis labels** that ride the (difference-blended) guide
+  lines and sit just outside the plotting box. The plugin port (Phase 5) follows.
+  See RFC 0010 §10.
 
 ## Useful commands
 

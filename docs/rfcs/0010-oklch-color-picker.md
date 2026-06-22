@@ -559,25 +559,29 @@ statements** (107 tests).
 crisper, wider charts is the human's** (no browser in the sandbox), on top of the
 still-outstanding Phase 3/4/4b visual passes.
 
-### Phase 4b follow-up 2 — chart layout + axis labels ✅ (landed)
+### Phase 4b follow-up 2 — chart layout, channel mapping + axis labels ✅ (landed)
 
-A second round of human visual feedback on the wider charts: the per-chart title +
-number field should sit **above** each chart (title in white), the charts should run
-**Lightness → Chroma → Hue** top to bottom, and the charts were missing the
-oklch.com axis labels that ride the guide lines. Strict TDD, picker vitest at **100%
-lines / branches / functions / statements** (110 tests).
+Two rounds of human visual feedback on the wider charts. Strict TDD, picker vitest at
+**100% lines / branches / functions / statements** (111 tests).
 
 - **Layout.** Each column now stacks `[title + number field] → chart → painted
-  slider`. The separate bottom number-field row is gone; each channel's field moved
-  into its chart's header (`.oklch-picker__axis-field` / `--axis-title`, white). The
-  column order is the oklch.com order, Lightness (hue×chroma) / Chroma (hue×lightness)
-  / Hue (lightness×chroma).
-- **Axis labels.** `PlaneChart` now renders an L/C/H label on each guide line (the
-  uppercased *plotted* channel — e.g. the Lightness chart shows H on the vertical
-  guide and C on the horizontal), positioned by percentage so it follows the cursor —
-  matching `evilmartians/oklch-picker`'s `chart_line` + `chart_label` markup. The
-  guide lines now use `mix-blend-mode: difference` so they stay legible over any
-  painted colour.
+  slider`; the separate bottom number-field row is gone, each channel's field moved
+  into its chart's header (`.oklch-picker__axis-field` / `--axis-title`, white). Charts
+  run **Lightness → Chroma → Hue** top to bottom.
+- **Channel↔plane mapping fixed.** The titles were paired with the wrong planes — the
+  L×C ramp (which oklch.com titles *Lightness*) was sitting under the Hue title. Now
+  each title/slider/number field pairs with oklch.com's plane for that channel:
+  **Lightness = L×C** (ramp, fixed hue, the boundary-curve chart), **Chroma = hue×C**
+  (fixed lightness), **Hue = hue×L** (fixed chroma). Verified against the live site +
+  the human's screenshots. The painters/refs and repaint gate were already correct;
+  only the JSX column pairing changed.
+- **Axis labels.** `PlaneChart` renders an L/C/H label on each guide line (the
+  uppercased *plotted* channel — e.g. the Lightness chart shows L on the vertical
+  guide, C on the horizontal), positioned by percentage so it follows the cursor and
+  seated in a gutter **just outside** the plotting box (x below, y left) so it never
+  overlaps the selection dot — matching `evilmartians/oklch-picker`'s `chart_line` +
+  `chart_label`. Guide lines use `mix-blend-mode: difference` to stay legible over any
+  paint; the canvas clips its own rounded corners now the box no longer hides overflow.
 
 **Verification.** Picker vitest at 100%, `tsc --noEmit` + the workbench production
 build (`vite build`) clean. The **real-browser visual QA is the human's** (no browser

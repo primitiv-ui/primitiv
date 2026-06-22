@@ -586,11 +586,11 @@ at **100% lines / branches / functions / statements** (118 tests).
   gamut-boundary curve. `boundary.ts` gained `chromaBoundaryPoints` (the max-chroma
   curve swept over hue, for the Chroma chart) and `hueBoundaryPoints` (the upper/lower
   lightness limits at the fixed chroma — per hue, the lightness window that holds that
-  chroma, found by sampling `max_in_gamut_chroma` and interpolating the crossings,
-  pinching to the peak where the chroma is unreachable — for the Hue chart). Each chart
-  now overlays its sRGB curve plus the P3 curve in P3 mode (the Hue chart has an upper
-  and a lower curve per gamut). The Hue sweep is the heaviest, so it is memoised on its
-  inputs.
+  chroma, found by sampling `max_in_gamut_chroma` and interpolating the crossings — for
+  the Hue chart). At high chroma the in-gamut hues fragment into bands, so the Hue
+  curves are returned as **broken segments** (a polyline each), not one line spiking
+  across the gaps. Each chart overlays its sRGB curve plus the P3 curve in P3 mode. The
+  Hue sweep is the heaviest, so it is memoised on its inputs.
 - **Performance.** Human feedback that the picker lagged a little in use. oklch.com
   stays smooth by painting in a **Web-Worker pool** (off the main thread); rather than
   take that on (it can't be browser-verified in the sandbox and complicates the Phase 5
@@ -600,9 +600,11 @@ at **100% lines / branches / functions / statements** (118 tests).
   swapping in the equivalent single `in_gamut(l, c, h)` call is pixel-identical and ~20×
   cheaper (the Hue chart was the worst offender, repainting on every chroma drag).
   **(2)** the per-chart boundary sweeps are memoised so a drag of one channel no longer
-  re-sweeps the others. A paint-resolution cap (painting the gradient at ~1× and leaning
-  on the now-vector overlays for crispness) and/or the worker remain in reserve if more
-  is needed.
+  re-sweeps the others. After a first QA still showed some lag/flicker, **(3)** a
+  paint-resolution cap landed (`MAX_PAINT_DPR`, default 1): the gradient planes paint at
+  ~1× instead of devicePixelRatio — far fewer per-pixel conversions and steadier frame
+  pacing — with crispness carried by the now-vector overlays (boundary curves, guide
+  lines, cursor, labels). The Web-Worker pool remains the escape hatch if more is needed.
 
 **Verification.** Picker vitest at 100%, `tsc --noEmit` + `eslint` + the workbench
 production build (`vite build`) clean. The **real-browser visual QA is the human's** (no

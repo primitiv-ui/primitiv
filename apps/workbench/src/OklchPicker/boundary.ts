@@ -59,10 +59,12 @@ export function chromaBoundaryPoints(
 /**
  * The Hue chart's boundary curves: at the fixed chroma `c`, the lightness window
  * `[low, high]` that can hold that chroma is found per hue (each hue's max chroma
- * rises then falls with lightness), giving an `upper` and a `lower` polyline
- * across hue `0..360`. Where the chroma is unreachable the limits pinch to the
- * peak lightness; `c <= 0` spans the whole range. `lSteps` lightness samples per
- * hue locate each crossing (refined by linear interpolation).
+ * rises then falls with lightness), giving an `upper` and a `lower` curve across
+ * hue `0..360`. At high chroma the in-gamut hues fragment into bands, so each
+ * curve is returned as an array of polyline **segments**, broken wherever the
+ * chroma is unreachable (no continuous line is drawn across the gap). `c <= 0`
+ * spans the whole range. `lSteps` lightness samples per hue locate each crossing
+ * (refined by linear interpolation).
  */
 export function hueBoundaryPoints(
   c: number,
@@ -71,16 +73,34 @@ export function hueBoundaryPoints(
   samples: number,
   gamut: Gamut,
   lSteps: number,
-): { upper: string; lower: string } {
+): { upper: string[]; lower: string[] } {
   const upper: string[] = [];
   const lower: string[] = [];
+  let upperSegment: string[] = [];
+  let lowerSegment: string[] = [];
+
+  const flush = () => {
+    if (upperSegment.length) {
+      upper.push(upperSegment.join(" "));
+      lower.push(lowerSegment.join(" "));
+      upperSegment = [];
+      lowerSegment = [];
+    }
+  };
+
   for (let i = 0; i < samples; i += 1) {
     const hue = (i / (samples - 1)) * 360;
-    const { low, high } = lightnessWindow(c, hue, gamut, lSteps);
-    upper.push(point(hue, high, width, height));
-    lower.push(point(hue, low, width, height));
+    const window = lightnessWindow(c, hue, gamut, lSteps);
+    if (window === null) {
+      flush();
+      continue;
+    }
+    upperSegment.push(point(hue, window.high, width, height));
+    lowerSegment.push(point(hue, window.low, width, height));
   }
-  return { upper: upper.join(" "), lower: lower.join(" ") };
+  flush();
+
+  return { upper, lower };
 }
 
 /** Maps a (hue, lightness) pair to a Hue-chart point string (hue x, lightness y). */
@@ -89,36 +109,34 @@ function point(hue: number, l: number, width: number, height: number): string {
   return `${x},${y}`;
 }
 
-/** The lightness range `[low, high]` that can hold chroma `c` at `hue`. */
+/**
+ * The lightness range `[low, high]` that can hold chroma `c` at `hue`, or `null`
+ * when the chroma is unreachable at any lightness (the band has a gap there).
+ */
 function lightnessWindow(
   c: number,
   hue: number,
   gamut: Gamut,
   steps: number,
-): { low: number; high: number } {
+): { low: number; high: number } | null {
   if (c <= 0) return { low: 0, high: 1 };
 
   let prevL = 0;
   let prevM = max_in_gamut_chroma(0, hue, gamut);
-  let bestL = 0;
-  let bestM = prevM;
-  let low: number | null = null;
+  let low: number | null = prevM >= c ? 0 : null;
   let high: number | null = null;
 
   for (let i = 1; i <= steps; i += 1) {
     const l = i / steps;
     const m = max_in_gamut_chroma(l, hue, gamut);
-    if (m > bestM) {
-      bestM = m;
-      bestL = l;
-    }
     if (prevM < c && m >= c) low = interpolate(prevL, prevM, l, m, c);
     if (prevM >= c && m < c) high = interpolate(prevL, prevM, l, m, c);
     prevL = l;
     prevM = m;
   }
+  if (high === null && prevM >= c) high = 1;
 
-  if (low === null || high === null) return { low: bestL, high: bestL };
+  if (low === null || high === null) return null;
   return { low, high };
 }
 

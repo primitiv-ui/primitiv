@@ -37,6 +37,10 @@ import "./OklchPicker.css";
 /** The charts' width:height ratio — a wide landscape plane, like oklch.com. */
 const CHART_ASPECT = 2;
 
+/** Cap on the paint backing-store scale: paint planes at ~1× for speed (the
+ *  vector overlays carry the crispness), tunable up for a sharper gradient. */
+const MAX_PAINT_DPR = 1;
+
 /** Samples taken across a boundary curve — smooth without overdraw. */
 const BOUNDARY_SAMPLES = 64;
 
@@ -93,11 +97,14 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
   const [gamut, setGamut] = useState<Gamut>("Srgb");
 
   // The charts fill their container at a fixed aspect ratio; measure that width
-  // and paint the canvases at the measured size scaled by devicePixelRatio, so
-  // they stay sharp on HiDPI displays and re-render when the container resizes.
+  // and paint the canvases at the measured size. The painted planes are smooth
+  // gradients whose crispness now comes from the vector overlays (boundary curves,
+  // guide lines, cursor, labels), so the gradient is painted at ~1× rather than
+  // full devicePixelRatio — far fewer per-pixel conversions, keeping drags smooth.
+  // Raise MAX_PAINT_DPR to trade speed back for a sharper gradient fill.
   const axesRef = useRef<HTMLDivElement>(null);
   const { width: measuredWidth } = useElementSize(axesRef);
-  const dpr = window.devicePixelRatio || 1;
+  const dpr = Math.min(window.devicePixelRatio || 1, MAX_PAINT_DPR);
   const render = renderDimensions(
     measuredWidth,
     measuredWidth / CHART_ASPECT,
@@ -173,10 +180,8 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
         g,
         HUE_BOUNDARY_LSTEPS,
       );
-      return [
-        { className, points: upper },
-        { className, points: lower },
-      ];
+      // Each curve is a list of broken segments at high chroma — one polyline each.
+      return [...upper, ...lower].map((points) => ({ className, points }));
     };
     return [
       ...curves("Srgb", SRGB_BOUNDARY_CLASS),

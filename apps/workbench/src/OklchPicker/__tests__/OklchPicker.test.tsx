@@ -305,7 +305,7 @@ describe("OklchPicker", () => {
     expect(onChange).toHaveBeenCalledWith({ l: 0.6, c: 0.155, h: 250 });
   });
 
-  it("paints the charts at the device-pixel-scaled measured size", () => {
+  it("caps the paint backing store at 1x even on a HiDPI display", () => {
     vi.stubGlobal("devicePixelRatio", 2);
     vi.stubGlobal("requestAnimationFrame", (cb: () => void) => {
       cb();
@@ -313,11 +313,12 @@ describe("OklchPicker", () => {
     });
     renderPicker();
 
-    // A 600px-wide container → 600×300 charts (2:1), ×2 dpr → a 1200×600 buffer.
+    // A 600px-wide container → 600×300 charts (2:1); the dpr is capped to 1, so
+    // the buffer stays 600×300 rather than scaling to 1200×600.
     act(() => triggerResize(600, 0));
 
-    expect(paint_lc_plane).toHaveBeenCalledWith(250, 1200, 600, expect.any(Number), "Srgb");
-    expect(paint_hue_strip).toHaveBeenCalledWith(0.6, 0.15, 1200, "Srgb");
+    expect(paint_lc_plane).toHaveBeenCalledWith(250, 600, 300, expect.any(Number), "Srgb");
+    expect(paint_hue_strip).toHaveBeenCalledWith(0.6, 0.15, 600, "Srgb");
   });
 
   it("falls back to a 1:1 backing store when devicePixelRatio is unavailable", () => {
@@ -333,7 +334,7 @@ describe("OklchPicker", () => {
     expect(paint_lc_plane).toHaveBeenCalledWith(250, 600, 300, expect.any(Number), "Srgb");
   });
 
-  it("sizes the chart canvas backing store to the scaled measured size", () => {
+  it("sizes the chart canvas backing store to the capped measured size", () => {
     vi.stubGlobal("devicePixelRatio", 2);
     renderPicker();
 
@@ -342,8 +343,8 @@ describe("OklchPicker", () => {
     const canvas = document.querySelector(
       ".plane-chart__plane",
     ) as HTMLCanvasElement;
-    expect(canvas.width).toBe(1200);
-    expect(canvas.height).toBe(600);
+    expect(canvas.width).toBe(600);
+    expect(canvas.height).toBe(300);
   });
 
   it("draws gamut boundary curves on the Chroma and Hue charts", () => {

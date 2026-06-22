@@ -536,7 +536,7 @@ Human visual feedback on the merged workbench picker: the charts read lower-
 resolution than oklch.com (fuzzy curves), and they were square where oklch.com is
 a wide landscape. Both addressed in the workbench picker (so the Phase 5 port
 inherits them), strict TDD, picker vitest at **100% lines / branches / functions /
-statements** (115 tests).
+statements** (107 tests).
 
 - **Resolution.** The canvas backing store was painted at its CSS pixel size, so it
   upscaled (blurry) on HiDPI displays. A new pure `renderDimensions(w, h, dpr)`

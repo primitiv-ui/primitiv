@@ -51,6 +51,9 @@
   flex-direction: column;
   gap: var(--primitiv-space-space-12);
   width: 100%;
+  box-sizing: border-box;
+  /* A left gutter for the y-axis label that sits outside the chart (oklch.com). */
+  padding-left: var(--primitiv-space-space-16);
 }
 
 /* sRGB / P3 gamut toggle (ToggleGroup contract: data-state on/off) ---------- */
@@ -94,7 +97,10 @@
   aspect-ratio: 2 / 1;
   border-radius: var(--primitiv-container-sm-radius);
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
-  overflow: hidden;
+  /* Visible so the cursor and the axis labels can sit outside the plotting box
+     (the canvas clips itself via its own radius); a bottom gutter holds the
+     x-axis label clear of the slider (oklch.com). */
+  margin-bottom: var(--primitiv-space-space-8);
   touch-action: none;
   cursor: crosshair;
 }
@@ -110,10 +116,13 @@
   inset: 0;
   width: 100%;
   height: 100%;
+  /* The chart box no longer clips, so the painted plane rounds its own corners. */
+  border-radius: var(--primitiv-container-sm-radius);
 }
 
 .plane-chart__overlay {
   pointer-events: none;
+  overflow: hidden;
 }
 
 .plane-chart__boundary {
@@ -149,14 +158,16 @@
   user-select: none;
 }
 
+/* The x label sits just below the chart, the y label just left of it, both
+   centred on their guide line and clear of the selection dot (oklch.com). */
 .plane-chart__axis-label--x {
-  bottom: var(--primitiv-space-space-4);
-  translate: -50% 0;
+  top: 100%;
+  translate: -50% var(--primitiv-space-space-4);
 }
 
 .plane-chart__axis-label--y {
-  left: var(--primitiv-space-space-4);
-  translate: 0 -50%;
+  right: 100%;
+  translate: calc(-1 * var(--primitiv-space-space-4)) -50%;
 }
 
 .plane-chart__cursor {

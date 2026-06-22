@@ -2,6 +2,12 @@ import "@testing-library/jest-dom/vitest";
 import { afterEach } from "vitest";
 import { cleanup } from "@testing-library/react";
 
+import { installResizeObserverMock } from "./src/OklchPicker/__tests__/resizeObserverMock";
+
+// jsdom ships no ResizeObserver and no layout; the picker measures its charts
+// with one, so install a controllable stand-in (driven by `triggerResize`).
+installResizeObserverMock();
+
 // jsdom ships no canvas backend, so `ImageData` is undefined. The picker's
 // blit helper constructs one; provide a minimal stand-in (real browsers and
 // the workbench build have the genuine global).

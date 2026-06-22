@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createRef } from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 
-import { LcChart } from "../LcChart";
+import { PlaneChart, type PlaneAxisSpec } from "../PlaneChart";
 import { max_in_gamut_chroma } from "harmoni-wasm";
 
 vi.mock("harmoni-wasm", () => ({ max_in_gamut_chroma: vi.fn() }));
@@ -11,19 +11,65 @@ const maxChromaMock = vi.mocked(max_in_gamut_chroma);
 
 const VALUE = { l: 0.6, c: 0.15, h: 250 };
 
-function renderChart(onChange = vi.fn(), gamut: "Srgb" | "DisplayP3" = "Srgb") {
+// The Hue chart's axes: x = lightness, y = chroma (chroma is plotted → clamped).
+const LIGHTNESS_AXIS: PlaneAxisSpec = {
+  channel: "l",
+  name: "Lightness",
+  max: 1,
+  step: 0.005,
+  coarseStep: 0.05,
+  precision: 2,
+};
+const CHROMA_AXIS: PlaneAxisSpec = {
+  channel: "c",
+  name: "Chroma",
+  max: 0.4,
+  step: 0.002,
+  coarseStep: 0.02,
+  precision: 3,
+};
+const HUE_AXIS: PlaneAxisSpec = {
+  channel: "h",
+  name: "Hue",
+  max: 360,
+  step: 1,
+  coarseStep: 10,
+  precision: 0,
+};
+
+const HUE_CHART = { x: LIGHTNESS_AXIS, y: CHROMA_AXIS };
+// The Chroma chart's axes: x = hue, y = lightness (chroma is fixed → not clamped).
+const CHROMA_CHART = { x: HUE_AXIS, y: LIGHTNESS_AXIS };
+
+const SRGB_BOUNDARY = {
+  className: "plane-chart__boundary plane-chart__boundary--srgb",
+  points: "0,50 100,10",
+};
+const P3_BOUNDARY = {
+  className: "plane-chart__boundary plane-chart__boundary--extended",
+  points: "0,40 100,0",
+};
+
+function renderChart(
+  props: Partial<Parameters<typeof PlaneChart>[0]> = {},
+) {
+  const onChange = props.onChange ?? vi.fn();
   const planeRef = createRef<HTMLCanvasElement>();
+  const axes = props.axes ?? HUE_CHART;
   render(
-    <LcChart
+    <PlaneChart
       value={VALUE}
-      gamut={gamut}
+      gamut="Srgb"
+      axes={axes}
       onChange={onChange}
       planeRef={planeRef}
       width={100}
       height={200}
+      {...props}
     />,
   );
-  const pad = screen.getByRole("group", { name: /lightness.*chroma/i });
+  const name = new RegExp(`${axes.x.name}.*${axes.y.name}`, "i");
+  const pad = screen.getByRole("group", { name });
   pad.getBoundingClientRect = () =>
     ({ left: 0, top: 0, width: 100, height: 200 }) as DOMRect;
   return { onChange, planeRef, pad };
@@ -34,34 +80,43 @@ beforeEach(() => {
   maxChromaMock.mockReturnValue(0.3);
 });
 
-describe("LcChart", () => {
+describe("PlaneChart", () => {
   it("attaches the plane canvas to the supplied ref", () => {
     const { planeRef } = renderChart();
 
     expect(planeRef.current).toBeInstanceOf(HTMLCanvasElement);
   });
 
-  it("draws the gamut boundary polyline from the engine sweep", () => {
-    const { pad } = renderChart();
+  it("renders the supplied gamut-boundary polylines", () => {
+    const { pad } = renderChart({ boundaries: [SRGB_BOUNDARY] });
     const polyline = pad.querySelector("polyline");
 
-    expect(polyline?.getAttribute("points")).toMatch(/^0,50/);
+    expect(polyline?.getAttribute("points")).toBe("0,50 100,10");
   });
 
-  it("draws only the sRGB boundary in sRGB mode", () => {
+  it("renders no boundary polyline when none is supplied", () => {
     const { pad } = renderChart();
 
-    expect(pad.querySelectorAll("polyline")).toHaveLength(1);
+    expect(pad.querySelectorAll("polyline")).toHaveLength(0);
   });
 
-  it("draws a second boundary curve for the extended band in P3 mode", () => {
-    const { pad } = renderChart(vi.fn(), "DisplayP3");
+  it("renders one boundary for sRGB and two for the P3 extended band", () => {
+    const { pad } = renderChart({ boundaries: [SRGB_BOUNDARY, P3_BOUNDARY] });
 
     expect(pad.querySelectorAll("polyline")).toHaveLength(2);
   });
 
+  it("draws the shared crosshair guide lines through the cursor", () => {
+    const { pad } = renderChart();
+    const guides = pad.querySelectorAll(".plane-chart__guide");
+
+    // l 0.6 → x 60; c 0.15 → y 125.
+    expect(guides[0].getAttribute("x1")).toBe("60");
+    expect(guides[1].getAttribute("y1")).toBe("125");
+  });
+
   it("clamps the pointer against the active gamut boundary", () => {
-    const { pad } = renderChart(vi.fn(), "DisplayP3");
+    const { pad } = renderChart({ gamut: "DisplayP3" });
 
     fireEvent.pointerDown(pad, { clientX: 50, clientY: 100, pointerId: 1 });
 
@@ -70,18 +125,18 @@ describe("LcChart", () => {
 
   it("positions the cursor at the current value", () => {
     const { pad } = renderChart();
-    const cursor = pad.querySelector(".lc-chart__cursor") as HTMLElement;
+    const cursor = pad.querySelector(".plane-chart__cursor") as HTMLElement;
 
     expect(cursor.style.left).toBe("60px");
     expect(cursor.style.top).toBe("125px");
   });
 
-  it("emits the gamut-clamped value on pointer down", () => {
+  it("merges the gamut-clamped value on pointer down, preserving the fixed axis", () => {
     const { onChange, pad } = renderChart();
 
     fireEvent.pointerDown(pad, { clientX: 50, clientY: 100, pointerId: 1 });
 
-    expect(onChange).toHaveBeenCalledWith({ l: 0.5, c: 0.2 });
+    expect(onChange).toHaveBeenCalledWith({ l: 0.5, c: 0.2, h: 250 });
   });
 
   it("clamps chroma to the in-gamut boundary when the pointer exceeds it", () => {
@@ -89,7 +144,16 @@ describe("LcChart", () => {
 
     fireEvent.pointerDown(pad, { clientX: 100, clientY: 0, pointerId: 1 });
 
-    expect(onChange).toHaveBeenCalledWith({ l: 1, c: 0.3 });
+    expect(onChange).toHaveBeenCalledWith({ l: 1, c: 0.3, h: 250 });
+  });
+
+  it("does not clamp chroma on a chart that holds chroma fixed", () => {
+    const { onChange, pad } = renderChart({ axes: CHROMA_CHART });
+
+    fireEvent.pointerDown(pad, { clientX: 50, clientY: 100, pointerId: 1 });
+
+    expect(maxChromaMock).not.toHaveBeenCalled();
+    expect(onChange).toHaveBeenCalledWith({ l: 0.5, c: 0.15, h: 180 });
   });
 
   it("emits while dragging after a pointer down", () => {
@@ -99,7 +163,7 @@ describe("LcChart", () => {
     onChange.mockClear();
     fireEvent.pointerMove(pad, { clientX: 50, clientY: 100, pointerId: 1 });
 
-    expect(onChange).toHaveBeenCalledWith({ l: 0.5, c: 0.2 });
+    expect(onChange).toHaveBeenCalledWith({ l: 0.5, c: 0.2, h: 250 });
   });
 
   it("does not emit on a pointer move without a preceding pointer down", () => {
@@ -121,20 +185,20 @@ describe("LcChart", () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
-  it("is focusable so keyboard users can reach the pad", () => {
+  it("is focusable so keyboard users can reach the chart", () => {
     const { pad } = renderChart();
 
     expect(pad).toHaveAttribute("tabindex", "0");
   });
 
-  it("announces the current value in its accessible name", () => {
+  it("announces the two plotted axes and their values in its accessible name", () => {
     const { pad } = renderChart();
 
-    // VALUE = { l: 0.6, c: 0.15 }
+    expect(pad.getAttribute("aria-label")).toMatch(/lightness.*chroma/i);
     expect(pad.getAttribute("aria-label")).toMatch(/0\.60.*0\.150/);
   });
 
-  it("nudges lightness up on ArrowRight, gamut-clamping chroma", () => {
+  it("nudges the x axis up on ArrowRight, gamut-clamping chroma", () => {
     const { onChange, pad } = renderChart();
 
     fireEvent.keyDown(pad, { key: "ArrowRight" });
@@ -144,7 +208,7 @@ describe("LcChart", () => {
     expect(arg.c).toBeCloseTo(0.15);
   });
 
-  it("nudges chroma up on ArrowUp", () => {
+  it("nudges the y axis up on ArrowUp", () => {
     const { onChange, pad } = renderChart();
 
     fireEvent.keyDown(pad, { key: "ArrowUp" });

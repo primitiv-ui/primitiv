@@ -1,27 +1,57 @@
 // The OKLCH colour picker (RFC 0010 §5) — a self-contained, controlled
 // component: `value` in, `onChange` out, no internal source of truth, so the
-// directory lifts into the plugin unchanged (Principle 3). It owns the two
-// canvas refs and drives `useGamutPaint`, lays out the bespoke LcChart and the
-// Slider-backed HueSlider, and composes the design system's Field/Input rows
-// for the L/C/H numbers and the hex⇄oklch text field. Every colour conversion
-// crosses into the one Rust engine (Principle 1); the chrome wears --primitiv-*
-// tokens (Principle 4).
+// directory lifts into the plugin unchanged (Principle 3). It owns the canvas
+// refs and drives `useGamutPaint`, lays out the three reusable PlaneCharts and
+// their Slider-backed AxisSliders, and composes the design system's Field/Input
+// rows for the L/C/H numbers and the hex⇄oklch text field. Every colour
+// conversion crosses into the one Rust engine (Principle 1); the chrome wears
+// --primitiv-* tokens (Principle 4).
 
 import { useEffect, useRef, useState } from "react";
 import { Field, Input } from "@primitiv-ui/react";
 
-import { LcChart } from "./LcChart";
+import { PlaneChart, type PlaneAxisSpec } from "./PlaneChart";
 import { AxisSlider } from "./AxisSlider";
 import { GamutToggle } from "./GamutToggle";
 import { useGamutPaint } from "./useGamutPaint";
+import { boundaryPoints } from "./boundary";
 import { formatColor, parseColor } from "./color";
 import { CHANNELS, clampChannel, roundChannel } from "./channels";
+import {
+  C_MAX,
+  LIGHTNESS_STEP,
+  LIGHTNESS_COARSE_STEP,
+  CHROMA_STEP,
+  CHROMA_COARSE_STEP,
+} from "./geometry";
 import type { Gamut, OklchValue } from "./types";
 
 import "./OklchPicker.css";
 
 const PLANE_SIZE = 280;
 const STRIP_WIDTH = 280;
+
+/** Lightness samples taken across a boundary curve — smooth without overdraw. */
+const BOUNDARY_SAMPLES = 64;
+
+// Plotted-axis descriptors shared by the three charts (RFC 0010 §2): the Hue
+// chart plots L×C, the Lightness chart H×C, the Chroma chart H×L.
+const L_AXIS: PlaneAxisSpec = {
+  channel: "l",
+  name: "Lightness",
+  max: CHANNELS.l.max,
+  step: LIGHTNESS_STEP,
+  coarseStep: LIGHTNESS_COARSE_STEP,
+  precision: 2,
+};
+const C_AXIS: PlaneAxisSpec = {
+  channel: "c",
+  name: "Chroma",
+  max: C_MAX,
+  step: CHROMA_STEP,
+  coarseStep: CHROMA_COARSE_STEP,
+  precision: 3,
+};
 
 export type OklchPickerProps = {
   value: OklchValue;
@@ -52,6 +82,23 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
   });
 
   const formatted = formatColor(value);
+
+  // The Hue chart's gamut boundary: always the sRGB curve, plus the wider gamut's
+  // curve in P3 mode so the band between them reads as the extended region.
+  const hueBoundaries = [
+    {
+      className: "plane-chart__boundary plane-chart__boundary--srgb",
+      points: boundaryPoints(value.h, PLANE_SIZE, PLANE_SIZE, C_MAX, BOUNDARY_SAMPLES, "Srgb"),
+    },
+    ...(gamut === "Srgb"
+      ? []
+      : [
+          {
+            className: "plane-chart__boundary plane-chart__boundary--extended",
+            points: boundaryPoints(value.h, PLANE_SIZE, PLANE_SIZE, C_MAX, BOUNDARY_SAMPLES, gamut),
+          },
+        ]),
+  ];
 
   // The text field echoes the engine's canonical string, but never clobbers an
   // edit in progress: while the field is focused the user's text stands (even as
@@ -104,13 +151,15 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
         <div className="oklch-picker__toolbar">
           <GamutToggle gamut={gamut} onChange={setGamut} />
         </div>
-        <LcChart
+        <PlaneChart
           value={value}
           gamut={gamut}
-          onChange={({ l, c }) => onChange({ ...value, l, c })}
+          axes={{ x: L_AXIS, y: C_AXIS }}
+          onChange={onChange}
           planeRef={planeRef}
           width={PLANE_SIZE}
           height={PLANE_SIZE}
+          boundaries={hueBoundaries}
         />
         <div className="oklch-picker__sliders">
           <AxisSlider

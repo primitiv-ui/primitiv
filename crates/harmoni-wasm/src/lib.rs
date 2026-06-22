@@ -212,6 +212,30 @@ pub fn paint_lc_plane(
     api::paint_lc_plane(hue, width, height, c_max, gamut.into())
 }
 
+/// Paints the OkLCH chroma×hue plane for a fixed lightness as a flat RGBA buffer
+/// (`width * height * 4` bytes, row-major) — the picker's Lightness chart. Hue
+/// runs left→right, chroma top→bottom; out-of-gamut pixels are transparent
+/// (RFC 0010 §3, §7).
+#[wasm_bindgen]
+pub fn paint_ch_plane(
+    lightness: f32,
+    width: usize,
+    height: usize,
+    c_max: f32,
+    gamut: types::Gamut,
+) -> Vec<u8> {
+    api::paint_ch_plane(lightness, width, height, c_max, gamut.into())
+}
+
+/// Paints the OkLCH lightness×hue plane for a fixed chroma as a flat RGBA buffer
+/// (`width * height * 4` bytes, row-major) — the picker's Chroma chart. Hue runs
+/// left→right, lightness top→bottom; out-of-gamut pixels are transparent
+/// (RFC 0010 §3, §7).
+#[wasm_bindgen]
+pub fn paint_lh_plane(chroma: f32, width: usize, height: usize, gamut: types::Gamut) -> Vec<u8> {
+    api::paint_lh_plane(chroma, width, height, gamut.into())
+}
+
 /// Paints the hue spectrum at a fixed lightness and chroma against `gamut` as a
 /// flat RGBA buffer (`width * 4` bytes) for the picker's hue slider track
 /// (RFC 0010 §3, §7).

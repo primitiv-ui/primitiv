@@ -173,7 +173,17 @@ source of truth for when a skill applies.
   generic painted `AxisSlider` (replacing `HueSlider`) for all three axes, and a
   `GamutToggle` composing the headless `ToggleGroup`. Gamut is **internal picker
   view state**, so the controlled `{ l, c, h }` contract is unchanged. Alpha is
-  deliberately out (opaque OkLCH). The **real-browser visual QA pass is the one
+  deliberately out (opaque OkLCH). **Phase 4b (the three-chart net) is landed** —
+  the full oklch.com editor: `paint_ch_plane` (hue×chroma at fixed L, the Lightness
+  chart) and `paint_lh_plane` (hue×lightness at fixed C, the Chroma chart) join
+  `paint_lc_plane` (the Hue chart); the bespoke `LcChart` is generalised into a
+  reusable **`PlaneChart`** (axis-generic `geometry.ts`, gamut-clamped cursor,
+  shared crosshair guide lines), `useGamutPaint`/`repaint` now drive **six**
+  canvases (3 charts + 3 slider tracks), and `OklchPicker` lays each chart above
+  its matching slider. **Hue is the horizontal axis** on the new charts — verified
+  against the `evilmartians/oklch-picker` source (the task's prose had it
+  vertical) and confirmed with the human; the painted 1-D sliders stay (chart +
+  slider per axis, per oklch.com). The **real-browser visual QA pass is the one
   outstanding item** (no browser in the sandbox). The plugin port (Phase 5)
   follows. See RFC 0010 §10.
 

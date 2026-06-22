@@ -14,6 +14,8 @@ import { PlaneChart, type PlaneAxisSpec } from "./PlaneChart";
 import { AxisSlider } from "./AxisSlider";
 import { GamutToggle } from "./GamutToggle";
 import { useGamutPaint } from "./useGamutPaint";
+import { useElementSize } from "./useElementSize";
+import { renderDimensions } from "./resolution";
 import { boundaryPoints } from "./boundary";
 import { formatColor, parseColor } from "./color";
 import { CHANNELS, clampChannel, roundChannel } from "./channels";
@@ -28,8 +30,8 @@ import type { Gamut, OklchValue } from "./types";
 
 import "./OklchPicker.css";
 
-const PLANE_SIZE = 220;
-const STRIP_WIDTH = 220;
+/** The charts' width:height ratio — a wide landscape plane, like oklch.com. */
+const CHART_ASPECT = 2;
 
 /** Lightness samples taken across a boundary curve — smooth without overdraw. */
 const BOUNDARY_SAMPLES = 64;
@@ -79,6 +81,18 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
   // value/onChange contract is unchanged, keeping the picker portable.
   const [gamut, setGamut] = useState<Gamut>("Srgb");
 
+  // The charts fill their container at a fixed aspect ratio; measure that width
+  // and paint the canvases at the measured size scaled by devicePixelRatio, so
+  // they stay sharp on HiDPI displays and re-render when the container resizes.
+  const axesRef = useRef<HTMLDivElement>(null);
+  const { width: measuredWidth } = useElementSize(axesRef);
+  const dpr = window.devicePixelRatio || 1;
+  const render = renderDimensions(
+    measuredWidth,
+    measuredWidth / CHART_ASPECT,
+    dpr,
+  );
+
   useGamutPaint({
     value,
     gamut,
@@ -88,9 +102,9 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
     hueStripRef,
     lightnessStripRef,
     chromaStripRef,
-    planeWidth: PLANE_SIZE,
-    planeHeight: PLANE_SIZE,
-    stripWidth: STRIP_WIDTH,
+    planeWidth: render.width,
+    planeHeight: render.height,
+    stripWidth: render.width,
   });
 
   const formatted = formatColor(value);
@@ -100,14 +114,14 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
   const hueBoundaries = [
     {
       className: "plane-chart__boundary plane-chart__boundary--srgb",
-      points: boundaryPoints(value.h, PLANE_SIZE, PLANE_SIZE, C_MAX, BOUNDARY_SAMPLES, "Srgb"),
+      points: boundaryPoints(value.h, render.width, render.height, C_MAX, BOUNDARY_SAMPLES, "Srgb"),
     },
     ...(gamut === "Srgb"
       ? []
       : [
           {
             className: "plane-chart__boundary plane-chart__boundary--extended",
-            points: boundaryPoints(value.h, PLANE_SIZE, PLANE_SIZE, C_MAX, BOUNDARY_SAMPLES, gamut),
+            points: boundaryPoints(value.h, render.width, render.height, C_MAX, BOUNDARY_SAMPLES, gamut),
           },
         ]),
   ];
@@ -166,7 +180,7 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
         {/* The three-chart "net": each chart holds one axis fixed and sits above
             the slider for that axis (the Lightness chart over the L slider, …),
             so moving a slider repaints the chart it pins (RFC 0010 §2, §5). */}
-        <div className="oklch-picker__axes">
+        <div className="oklch-picker__axes" ref={axesRef}>
           <div className="oklch-picker__axis">
             <PlaneChart
               value={value}
@@ -174,8 +188,8 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
               axes={{ x: H_AXIS, y: C_AXIS }}
               onChange={onChange}
               planeRef={lightnessPlaneRef}
-              width={PLANE_SIZE}
-              height={PLANE_SIZE}
+              width={render.width}
+              height={render.height}
             />
             <AxisSlider
               label="Lightness"
@@ -186,7 +200,7 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
               step={CHANNELS.l.step}
               onChange={(l) => onChange({ ...value, l })}
               stripRef={lightnessStripRef}
-              width={STRIP_WIDTH}
+              width={render.width}
             />
           </div>
           <div className="oklch-picker__axis">
@@ -196,8 +210,8 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
               axes={{ x: H_AXIS, y: L_AXIS }}
               onChange={onChange}
               planeRef={chromaPlaneRef}
-              width={PLANE_SIZE}
-              height={PLANE_SIZE}
+              width={render.width}
+              height={render.height}
             />
             <AxisSlider
               label="Chroma"
@@ -208,7 +222,7 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
               step={CHANNELS.c.step}
               onChange={(c) => onChange({ ...value, c })}
               stripRef={chromaStripRef}
-              width={STRIP_WIDTH}
+              width={render.width}
             />
           </div>
           <div className="oklch-picker__axis">
@@ -218,8 +232,8 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
               axes={{ x: L_AXIS, y: C_AXIS }}
               onChange={onChange}
               planeRef={planeRef}
-              width={PLANE_SIZE}
-              height={PLANE_SIZE}
+              width={render.width}
+              height={render.height}
               boundaries={hueBoundaries}
             />
             <AxisSlider
@@ -231,7 +245,7 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
               step={CHANNELS.h.step}
               onChange={(h) => onChange({ ...value, h })}
               stripRef={hueStripRef}
-              width={STRIP_WIDTH}
+              width={render.width}
             />
           </div>
         </div>

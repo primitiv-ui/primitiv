@@ -177,11 +177,24 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
         <div className="oklch-picker__toolbar">
           <GamutToggle gamut={gamut} onChange={setGamut} />
         </div>
-        {/* The three-chart "net": each chart holds one axis fixed and sits above
-            the slider for that axis (the Lightness chart over the L slider, …),
-            so moving a slider repaints the chart it pins (RFC 0010 §2, §5). */}
+        {/* The three-chart net, top→bottom Lightness, Chroma, Hue (oklch.com's
+            order). Each column carries its channel's title + number field above
+            the chart it pins (RFC 0010 §2, §5) and its painted slider below. */}
         <div className="oklch-picker__axes" ref={axesRef}>
           <div className="oklch-picker__axis">
+            <Field.Root className="oklch-picker__axis-field">
+              <Field.Label className="oklch-picker__axis-title">
+                Lightness
+              </Field.Label>
+              <Input
+                type="number"
+                min={CHANNELS.l.min}
+                max={CHANNELS.l.max}
+                step={CHANNELS.l.step}
+                value={roundChannel("l", value.l)}
+                onChange={setChannel("l")}
+              />
+            </Field.Root>
             <PlaneChart
               value={value}
               gamut={gamut}
@@ -204,6 +217,19 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
             />
           </div>
           <div className="oklch-picker__axis">
+            <Field.Root className="oklch-picker__axis-field">
+              <Field.Label className="oklch-picker__axis-title">
+                Chroma
+              </Field.Label>
+              <Input
+                type="number"
+                min={CHANNELS.c.min}
+                max={CHANNELS.c.max}
+                step={CHANNELS.c.step}
+                value={roundChannel("c", value.c)}
+                onChange={setChannel("c")}
+              />
+            </Field.Root>
             <PlaneChart
               value={value}
               gamut={gamut}
@@ -226,6 +252,19 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
             />
           </div>
           <div className="oklch-picker__axis">
+            <Field.Root className="oklch-picker__axis-field">
+              <Field.Label className="oklch-picker__axis-title">
+                Hue
+              </Field.Label>
+              <Input
+                type="number"
+                min={CHANNELS.h.min}
+                max={CHANNELS.h.max}
+                step={CHANNELS.h.step}
+                value={roundChannel("h", value.h)}
+                onChange={setChannel("h")}
+              />
+            </Field.Root>
             <PlaneChart
               value={value}
               gamut={gamut}
@@ -249,42 +288,6 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
             />
           </div>
         </div>
-      </div>
-
-      <div className="oklch-picker__fields">
-        <Field.Root className="oklch-picker__field">
-          <Field.Label>Lightness</Field.Label>
-          <Input
-            type="number"
-            min={CHANNELS.l.min}
-            max={CHANNELS.l.max}
-            step={CHANNELS.l.step}
-            value={roundChannel("l", value.l)}
-            onChange={setChannel("l")}
-          />
-        </Field.Root>
-        <Field.Root className="oklch-picker__field">
-          <Field.Label>Chroma</Field.Label>
-          <Input
-            type="number"
-            min={CHANNELS.c.min}
-            max={CHANNELS.c.max}
-            step={CHANNELS.c.step}
-            value={roundChannel("c", value.c)}
-            onChange={setChannel("c")}
-          />
-        </Field.Root>
-        <Field.Root className="oklch-picker__field">
-          <Field.Label>Hue</Field.Label>
-          <Input
-            type="number"
-            min={CHANNELS.h.min}
-            max={CHANNELS.h.max}
-            step={CHANNELS.h.step}
-            value={roundChannel("h", value.h)}
-            onChange={setChannel("h")}
-          />
-        </Field.Root>
       </div>
 
       <Field.Root className="oklch-picker__text" invalid={invalid}>

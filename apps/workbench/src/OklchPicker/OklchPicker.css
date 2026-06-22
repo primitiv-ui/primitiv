@@ -210,17 +210,26 @@
   outline-offset: var(--primitiv-focus-ring-offset);
 }
 
-/* Numeric + text fields ---------------------------------------------------- */
+/* Per-chart title + number field, sitting above each chart ----------------- */
 
-.oklch-picker__fields {
+.oklch-picker__axis-field {
   display: flex;
+  align-items: center;
   gap: var(--primitiv-space-space-8);
 }
 
-.oklch-picker__field {
+/* White so the title reads on the dark chart chrome; the number field grows. */
+.oklch-picker__axis-title {
+  color: var(--primitiv-color-absolute-white);
+  font-size: var(--primitiv-body-sm-font-size);
+}
+
+.oklch-picker__axis-field input {
   flex: 1;
   min-width: 0;
 }
+
+/* Hex / OKLCH text field --------------------------------------------------- */
 
 .oklch-picker__text {
   display: flex;

@@ -72,6 +72,28 @@ afterEach(() => {
 });
 
 describe("OklchPicker", () => {
+  it("orders the charts Lightness, Chroma, Hue from top to bottom", () => {
+    renderPicker();
+
+    const titles = [
+      ...document.querySelectorAll(".oklch-picker__axis-title"),
+    ].map((el) => el.textContent);
+    expect(titles).toEqual(["Lightness", "Chroma", "Hue"]);
+  });
+
+  it("places each axis title and input above its chart", () => {
+    renderPicker();
+
+    const input = screen.getByRole("spinbutton", { name: "Lightness" });
+    const axis = input.closest(".oklch-picker__axis");
+    const chart = axis?.querySelector('[role="group"]');
+    expect(chart).toBeInTheDocument();
+    expect(
+      input.compareDocumentPosition(chart!) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
   it("renders the three linked charts of the oklch.com net", () => {
     renderPicker();
 

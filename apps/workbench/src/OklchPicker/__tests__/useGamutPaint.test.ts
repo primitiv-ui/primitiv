@@ -176,6 +176,39 @@ describe("useGamutPaint", () => {
     expect(blitMock).toHaveBeenCalledWith(chromaRef.current, undefined, 360, 1, "display-p3");
   });
 
+  it("repaints every chart when the chart size changes", () => {
+    const value = { l: 0.6, c: 0.15, h: 250 };
+    const { rerender } = renderHook(
+      (props: { planeWidth: number; planeHeight: number }) =>
+        useGamutPaint({
+          value,
+          gamut: "Srgb",
+          planeRef,
+          lightnessPlaneRef,
+          chromaPlaneRef,
+          hueStripRef: hueRef,
+          lightnessStripRef: lightRef,
+          chromaStripRef: chromaRef,
+          planeWidth: props.planeWidth,
+          planeHeight: props.planeHeight,
+          stripWidth: props.planeWidth,
+        }),
+      { initialProps: { planeWidth: 100, planeHeight: 200 } },
+    );
+    flushFrame();
+    vi.clearAllMocks();
+
+    rerender({ planeWidth: 600, planeHeight: 300 });
+    flushFrame();
+
+    expect(planeMock).toHaveBeenCalledWith(250, 600, 300, C_MAX, "Srgb");
+    expect(chPlaneMock).toHaveBeenCalledOnce();
+    expect(lhPlaneMock).toHaveBeenCalledOnce();
+    expect(hueMock).toHaveBeenCalledOnce();
+    expect(lightMock).toHaveBeenCalledOnce();
+    expect(chromaMock).toHaveBeenCalledOnce();
+  });
+
   it("schedules no frame when nothing changes", () => {
     const { rerender } = setup({ l: 0.6, c: 0.15, h: 250 });
     flushFrame();

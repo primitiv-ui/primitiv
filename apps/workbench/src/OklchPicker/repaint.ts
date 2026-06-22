@@ -14,8 +14,14 @@
 
 import type { Gamut, OklchValue } from "./types";
 
-/** A picker render's full chart inputs: the colour plus the active gamut. */
-export type PaintState = { value: OklchValue; gamut: Gamut };
+/** The charts' shared backing-store size (plane width×height; strip width = width). */
+export type ChartSize = { width: number; height: number };
+
+/**
+ * A picker render's full chart inputs: the colour, the active gamut, and the
+ * charts' backing-store size (a resize re-renders every chart at the new size).
+ */
+export type PaintState = { value: OklchValue; gamut: Gamut; size: ChartSize };
 
 /** Which charts must repaint for a transition from `prev` to `next`. */
 export type RepaintTargets = {
@@ -46,17 +52,22 @@ export function repaintTargets(
     };
   }
 
-  const gamutChanged = prev.gamut !== next.gamut;
+  const sizeChanged =
+    prev.size.width !== next.size.width ||
+    prev.size.height !== next.size.height;
+  // A gamut or size change re-renders every chart; otherwise each repaints only
+  // for the axis it depends on.
+  const all = prev.gamut !== next.gamut || sizeChanged;
   const lChanged = prev.value.l !== next.value.l;
   const cChanged = prev.value.c !== next.value.c;
   const hChanged = prev.value.h !== next.value.h;
 
   return {
-    plane: gamutChanged || hChanged,
-    lightnessPlane: gamutChanged || lChanged,
-    chromaPlane: gamutChanged || cChanged,
-    hueStrip: gamutChanged || lChanged || cChanged,
-    lightnessStrip: gamutChanged || cChanged || hChanged,
-    chromaStrip: gamutChanged || lChanged || hChanged,
+    plane: all || hChanged,
+    lightnessPlane: all || lChanged,
+    chromaPlane: all || cChanged,
+    hueStrip: all || lChanged || cChanged,
+    lightnessStrip: all || cChanged || hChanged,
+    chromaStrip: all || lChanged || hChanged,
   };
 }

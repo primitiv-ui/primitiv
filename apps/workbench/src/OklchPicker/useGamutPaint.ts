@@ -56,7 +56,8 @@ export function useGamutPaint({
   const prevRef = useRef<PaintState | null>(null);
 
   useEffect(() => {
-    const targets = repaintTargets(prevRef.current, { value, gamut });
+    const size = { width: planeWidth, height: planeHeight };
+    const targets = repaintTargets(prevRef.current, { value, gamut, size });
     if (
       !targets.plane &&
       !targets.lightnessPlane &&
@@ -127,7 +128,7 @@ export function useGamutPaint({
           colorSpace,
         );
       }
-      prevRef.current = { value, gamut };
+      prevRef.current = { value, gamut, size };
     });
 
     return () => cancelAnimationFrame(id);

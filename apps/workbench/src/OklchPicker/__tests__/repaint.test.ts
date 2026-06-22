@@ -4,7 +4,7 @@ import { repaintTargets } from "../repaint";
 import type { OklchValue } from "../types";
 
 const value: OklchValue = { l: 0.6, c: 0.15, h: 250 };
-const base = { value, gamut: "Srgb" as const };
+const base = { value, gamut: "Srgb" as const, size: { width: 600, height: 300 } };
 
 describe("repaintTargets", () => {
   it("repaints nothing when neither the value nor the gamut changes", () => {
@@ -59,6 +59,19 @@ describe("repaintTargets", () => {
 
   it("repaints every chart when the gamut changes", () => {
     expect(repaintTargets(base, { ...base, gamut: "DisplayP3" })).toEqual({
+      plane: true,
+      lightnessPlane: true,
+      chromaPlane: true,
+      hueStrip: true,
+      lightnessStrip: true,
+      chromaStrip: true,
+    });
+  });
+
+  it("repaints every chart when the chart size changes", () => {
+    expect(
+      repaintTargets(base, { ...base, size: { width: 800, height: 400 } }),
+    ).toEqual({
       plane: true,
       lightnessPlane: true,
       chromaPlane: true,

@@ -67,9 +67,16 @@ build/test strategy for 0005–0006 and applies once implementation starts.
 | # | Title | Status |
 |---|---|---|
 | [0010](0010-oklch-color-picker.md) | OKLCH colour picker | Draft |
+| [0011](0011-duotone-neutral-ramps.md) | Duotone neutral ramps | Draft |
 
 - **0010** — the OKLCH-first, oklch.com-style colour picker that replaces the
   hex input: paint-backed Lightness×Chroma and Hue charts with a live gamut
   boundary, rendered from a new Rust/wasm gamut API (one colour engine, no JS
   twin), shipped sRGB-first with Display-P3 as a fast-follow, built in the
   workbench then ported to the plugin.
+- **0011** — duotone neutral ramps: two tint anchors (a highlight governing the
+  light end, a shadow governing the dark end) with shortest-arc hue + optional
+  mid-tone chroma-bow interpolation across the scale, generalising the
+  single-hue neutral tint (which becomes the equal-hue, zero-bow special case).
+  Adopts Leonardo's perceptual key-colour interpolation, constrained to the
+  two-anchor neutral case.

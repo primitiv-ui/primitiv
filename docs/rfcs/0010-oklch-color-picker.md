@@ -559,6 +559,87 @@ statements** (107 tests).
 crisper, wider charts is the human's** (no browser in the sandbox), on top of the
 still-outstanding Phase 3/4/4b visual passes.
 
+### Phase 4b follow-up 2 — chart layout, channel mapping + axis labels ✅ (landed)
+
+Three rounds of human visual feedback on the wider charts. Strict TDD, picker vitest
+at **100% lines / branches / functions / statements** (118 tests).
+
+- **Layout.** Each column now stacks `[title + number field] → chart → painted
+  slider`; the separate bottom number-field row is gone, each channel's field moved
+  into its chart's header (`.oklch-picker__axis-field` / `--axis-title`, white). Charts
+  run **Lightness → Chroma → Hue** top to bottom.
+- **Channel↔plane mapping fixed.** The titles were paired with the wrong planes — the
+  L×C ramp (which oklch.com titles *Lightness*) was sitting under the Hue title. Now
+  each title/slider/number field pairs with oklch.com's plane for that channel:
+  **Lightness = L×C** (ramp, fixed hue, the boundary-curve chart), **Chroma = hue×C**
+  (fixed lightness), **Hue = hue×L** (fixed chroma). Verified against the live site +
+  the human's screenshots. The painters/refs and repaint gate were already correct;
+  only the JSX column pairing changed.
+- **Axis labels.** `PlaneChart` renders an L/C/H label on each guide line (the
+  uppercased *plotted* channel — e.g. the Lightness chart shows L on the vertical
+  guide, C on the horizontal), positioned by percentage so it follows the cursor and
+  seated in a gutter **just outside** the plotting box (x below, y left) so it never
+  overlaps the selection dot — matching `evilmartians/oklch-picker`'s `chart_line` +
+  `chart_label`. Guide lines use `mix-blend-mode: difference` to stay legible over any
+  paint; the canvas clips its own rounded corners now the box no longer hides overflow.
+- **Boundary curves on every chart.** Previously only the Lightness chart drew a clean
+  gamut-boundary curve. `boundary.ts` gained `chromaBoundaryPoints` (the max-chroma
+  curve swept over hue, for the Chroma chart) and `hueBoundaryPoints` (the upper/lower
+  lightness limits at the fixed chroma — per hue, the lightness window that holds that
+  chroma, found by sampling `max_in_gamut_chroma` and interpolating the crossings — for
+  the Hue chart). At high chroma the in-gamut hues fragment into bands, so the Hue
+  curves are returned as **broken segments** (a polyline each), not one line spiking
+  across the gaps. The per-hue band is taken **around the peak-chroma lightness** and
+  expanded to its edges, which ignores a *detached* near-black in-gamut sliver (the
+  engine's `-0.001..1.001` tolerance reads near-black-with-chroma as in gamut at very
+  low lightness) that otherwise spiked the lower bound to the bottom — while still
+  keeping a band that runs genuinely into the dark. Each chart overlays its sRGB curve
+  plus the P3 curve in P3 mode. The Hue sweep is the heaviest, so it is memoised.
+- **Performance.** Human feedback that the picker lagged a little in use. oklch.com
+  stays smooth by painting in a **Web-Worker pool** (off the main thread); rather than
+  take that on (it can't be browser-verified in the sandbox and complicates the Phase 5
+  plugin port — a plugin UI is a single inlined iframe), two quality-preserving wins
+  landed first: **(1)** `paint_lh_plane` and the two per-pixel slider strips tested
+  `c <= max_in_gamut_chroma(…)` — a 20-iteration chroma binary search *per pixel*;
+  swapping in the equivalent single `in_gamut(l, c, h)` call is pixel-identical and ~20×
+  cheaper (the Hue chart was the worst offender, repainting on every chroma drag).
+  **(2)** the per-chart boundary sweeps are memoised so a drag of one channel no longer
+  re-sweeps the others. After a first QA still showed some lag/flicker, **(3)** a
+  paint-resolution cap landed (`MAX_PAINT_DPR`, default 1): the gradient planes paint at
+  ~1× instead of devicePixelRatio — far fewer per-pixel conversions and steadier frame
+  pacing — with crispness carried by the now-vector overlays (boundary curves, guide
+  lines, cursor, labels). The Web-Worker pool remains the escape hatch if more is needed.
+
+**Verification.** Picker vitest at 100%, `tsc --noEmit` + `eslint` + the workbench
+production build (`vite build`) clean. The **real-browser visual QA is the human's** (no
+browser in the sandbox).
+
+### Phase 4b follow-up 3 — Hue-chart spikes fixed at the engine root ✅ (landed)
+
+Two earlier JS attempts (segment the boundary; take the band around the peak-chroma
+lightness) failed to clear the spike lines the Hue chart drew at its bottom edge across
+the cyan/teal hues. The root cause was upstream in the engine, not the boundary maths:
+`api/gamut.rs`'s `linear_in_gamut` used an absolute `±1e-3` tolerance. Near black every
+linear channel is tiny, so a chromatic dark whose limiting channel is only *slightly*
+negative (e.g. `oklch(0.05 0.135 180)` → linear red `-0.00082`) still sat inside `±1e-3`
+and read as **in gamut**. `max_in_gamut_chroma` therefore reported a spurious near-black
+chroma bump (hue 180: `0.17` at L≈0.05 vs a genuine `0.156` peak), and the per-hue
+"band around the peak" latched onto that false bump — a band pinned to `L=[0, 0.066]`,
+i.e. the spike.
+
+Tightening the tolerance to float-conversion scale (`1e-5`) collapses the gamut to the
+black point as it should: hue 180's near-black chroma drops `0.17 → 0.01`, the Hue-chart
+bands across hues 160–210 become genuine mid-lightness windows (e.g. `[0.55, 0.92]` at
+180) instead of bottom-edge slivers, and **every genuine boundary is unchanged** — at the
+real gamut surface the limiting channel crosses zero steeply, so the tolerance barely
+moves it (mid/high-L max chroma is pixel-identical across `1e-3`/`1e-4`/`1e-5`/`0`). The
+fix is one source of truth: it also removes the faint near-black colour sliver the
+gradient painters drew there, and flows to the plugin through the shared wasm. `gamut.rs`
+held at 100% (regions/functions/lines); picker vitest still 100% (121 tests).
+
+**Verification.** As above — the **real-browser visual QA is the human's** (no browser in
+the sandbox); awaiting a redeploy QA to confirm the spikes are visually gone.
+
 ### Phase 5 — plugin port
 
 Unchanged from §9 — out of scope for Phase 4b. **Two early decisions are

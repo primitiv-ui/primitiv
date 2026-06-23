@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { useState } from "react";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { render, screen, fireEvent, act, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { OklchPicker } from "../OklchPicker";
@@ -72,6 +72,48 @@ afterEach(() => {
 });
 
 describe("OklchPicker", () => {
+  it("orders the charts Lightness, Chroma, Hue from top to bottom", () => {
+    renderPicker();
+
+    const titles = [
+      ...document.querySelectorAll(".oklch-picker__axis-title"),
+    ].map((el) => el.textContent);
+    expect(titles).toEqual(["Lightness", "Chroma", "Hue"]);
+  });
+
+  it("pairs each channel title with oklch.com's chart plane for that channel", () => {
+    renderPicker();
+
+    // oklch.com: the Lightness chart is the L×C ramp, Chroma is hue×chroma,
+    // Hue is hue×lightness — each titled by the channel its slider drives.
+    const cases: [string, RegExp][] = [
+      ["Lightness", /lightness and chroma/i],
+      ["Chroma", /hue and chroma/i],
+      ["Hue", /hue and lightness/i],
+    ];
+    for (const [title, chartName] of cases) {
+      const axis = screen
+        .getByRole("spinbutton", { name: title })
+        .closest(".oklch-picker__axis") as HTMLElement;
+      expect(within(axis).getByRole("group").getAttribute("aria-label")).toMatch(
+        chartName,
+      );
+    }
+  });
+
+  it("places each axis title and input above its chart", () => {
+    renderPicker();
+
+    const input = screen.getByRole("spinbutton", { name: "Lightness" });
+    const axis = input.closest(".oklch-picker__axis");
+    const chart = axis?.querySelector('[role="group"]');
+    expect(chart).toBeInTheDocument();
+    expect(
+      input.compareDocumentPosition(chart!) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
   it("renders the three linked charts of the oklch.com net", () => {
     renderPicker();
 
@@ -263,7 +305,7 @@ describe("OklchPicker", () => {
     expect(onChange).toHaveBeenCalledWith({ l: 0.6, c: 0.155, h: 250 });
   });
 
-  it("paints the charts at the device-pixel-scaled measured size", () => {
+  it("caps the paint backing store at 1x even on a HiDPI display", () => {
     vi.stubGlobal("devicePixelRatio", 2);
     vi.stubGlobal("requestAnimationFrame", (cb: () => void) => {
       cb();
@@ -271,11 +313,12 @@ describe("OklchPicker", () => {
     });
     renderPicker();
 
-    // A 600px-wide container → 600×300 charts (2:1), ×2 dpr → a 1200×600 buffer.
+    // A 600px-wide container → 600×300 charts (2:1); the dpr is capped to 1, so
+    // the buffer stays 600×300 rather than scaling to 1200×600.
     act(() => triggerResize(600, 0));
 
-    expect(paint_lc_plane).toHaveBeenCalledWith(250, 1200, 600, expect.any(Number), "Srgb");
-    expect(paint_hue_strip).toHaveBeenCalledWith(0.6, 0.15, 1200, "Srgb");
+    expect(paint_lc_plane).toHaveBeenCalledWith(250, 600, 300, expect.any(Number), "Srgb");
+    expect(paint_hue_strip).toHaveBeenCalledWith(0.6, 0.15, 600, "Srgb");
   });
 
   it("falls back to a 1:1 backing store when devicePixelRatio is unavailable", () => {
@@ -291,7 +334,7 @@ describe("OklchPicker", () => {
     expect(paint_lc_plane).toHaveBeenCalledWith(250, 600, 300, expect.any(Number), "Srgb");
   });
 
-  it("sizes the chart canvas backing store to the scaled measured size", () => {
+  it("sizes the chart canvas backing store to the capped measured size", () => {
     vi.stubGlobal("devicePixelRatio", 2);
     renderPicker();
 
@@ -300,8 +343,105 @@ describe("OklchPicker", () => {
     const canvas = document.querySelector(
       ".plane-chart__plane",
     ) as HTMLCanvasElement;
-    expect(canvas.width).toBe(1200);
-    expect(canvas.height).toBe(600);
+    expect(canvas.width).toBe(600);
+    expect(canvas.height).toBe(300);
+  });
+
+  it("stacks the charts in a column by default (no row modifier)", () => {
+    renderPicker();
+
+    expect(document.querySelector(".oklch-picker")).not.toHaveClass(
+      "oklch-picker--row",
+    );
+  });
+
+  it("marks the picker with a row modifier when laid out in a row", () => {
+    render(<OklchPicker value={VALUE} onChange={vi.fn()} layout="row" />);
+
+    expect(document.querySelector(".oklch-picker")).toHaveClass(
+      "oklch-picker--row",
+    );
+  });
+
+  it("paints the row charts square from each column's narrower width", () => {
+    // In a row the three columns split the width, so each chart is measured at
+    // its own (narrower) size and painted square rather than the stacked 2:1.
+    vi.stubGlobal("requestAnimationFrame", (cb: () => void) => {
+      cb();
+      return 0;
+    });
+    render(<OklchPicker value={VALUE} onChange={vi.fn()} layout="row" />);
+
+    act(() => triggerResize(190, 0));
+
+    expect(paint_lc_plane).toHaveBeenCalledWith(
+      expect.any(Number),
+      190,
+      190,
+      expect.any(Number),
+      "Srgb",
+    );
+  });
+
+  it("sizes the chart backing store to an explicit chartAspect", () => {
+    // chartAspect overrides the layout default so the aspect can be tuned: at 2,
+    // a 200px-wide chart paints 200×100 (height = width / aspect).
+    vi.stubGlobal("requestAnimationFrame", (cb: () => void) => {
+      cb();
+      return 0;
+    });
+    render(
+      <OklchPicker
+        value={VALUE}
+        onChange={vi.fn()}
+        layout="row"
+        chartAspect={2}
+      />,
+    );
+
+    act(() => triggerResize(200, 0));
+
+    expect(paint_lc_plane).toHaveBeenCalledWith(
+      expect.any(Number),
+      200,
+      100,
+      expect.any(Number),
+      "Srgb",
+    );
+  });
+
+  it("draws gamut boundary curves on the Chroma and Hue charts", () => {
+    renderPicker();
+
+    // Chroma chart: one max-chroma curve; Hue chart: upper + lower lightness limits.
+    expect(
+      screen
+        .getByRole("group", { name: /hue and chroma/i })
+        .querySelectorAll("polyline"),
+    ).toHaveLength(1);
+    expect(
+      screen
+        .getByRole("group", { name: /hue and lightness/i })
+        .querySelectorAll("polyline"),
+    ).toHaveLength(2);
+  });
+
+  it("adds the P3 boundary curves on the Chroma and Hue charts", async () => {
+    const user = userEvent.setup();
+    renderPicker();
+
+    await user.click(screen.getByRole("button", { name: "P3" }));
+
+    expect(
+      screen
+        .getByRole("group", { name: /hue and chroma/i })
+        .querySelectorAll("polyline"),
+    ).toHaveLength(2);
+    expect(
+      screen
+        .getByRole("group", { name: /hue and lightness/i })
+        .querySelectorAll("polyline"),
+    ).toHaveLength(4);
   });
 
   it("draws the P3 extended boundary once the gamut toggle is switched", async () => {

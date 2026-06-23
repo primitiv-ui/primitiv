@@ -16,11 +16,10 @@
   flex-direction: column;
   gap: var(--primitiv-space-space-16);
   padding: var(--primitiv-space-space-16);
-  /* Responsive: fill the host container, but stay usable in a narrow panel and
-     not sprawl in a wide one (RFC 0010 §5, the responsive-charts pass). */
+  /* Responsive: fill the host container, but stay usable in a narrow panel
+     (RFC 0010 §5, the responsive-charts pass). The host caps the width. */
   width: 100%;
   min-width: 18rem;
-  max-width: 32rem;
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
   border-radius: var(--primitiv-container-md-radius);
   color: var(--primitiv-content-primary);
@@ -51,6 +50,29 @@
   flex-direction: column;
   gap: var(--primitiv-space-space-12);
   width: 100%;
+  box-sizing: border-box;
+  /* A left gutter for the y-axis label that sits outside the chart (oklch.com). */
+  padding-left: var(--primitiv-space-space-16);
+}
+
+/* Row layout (RFC 0010 §9): the three columns sit side by side and share the
+   width equally, so each chart paints square at its narrower per-column size —
+   a compact form for the Figma plugin. The picker measures one column, so the
+   `flex: 1` columns must hold an equal, content-agnostic width (`min-width: 0`).
+   The label gutter shrinks to claw back chart width at the smaller size. */
+.oklch-picker--row .oklch-picker__axes {
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.oklch-picker--row .oklch-picker__axis {
+  flex: 1;
+  min-width: 0;
+  padding-left: var(--primitiv-space-space-8);
+}
+
+.oklch-picker--row .plane-chart {
+  aspect-ratio: var(--oklch-chart-aspect, 1 / 1);
 }
 
 /* sRGB / P3 gamut toggle (ToggleGroup contract: data-state on/off) ---------- */
@@ -89,12 +111,17 @@
 
 .plane-chart {
   position: relative;
-  /* Wide landscape charts that fill the column at a fixed 2:1 ratio. */
+  /* Wide landscape charts that fill the column at a 2:1 ratio by default; the
+     picker overrides --oklch-chart-aspect (and the matching JS backing store)
+     when chartAspect is set. */
   width: 100%;
-  aspect-ratio: 2 / 1;
+  aspect-ratio: var(--oklch-chart-aspect, 2 / 1);
   border-radius: var(--primitiv-container-sm-radius);
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
-  overflow: hidden;
+  /* Visible so the cursor and the axis labels can sit outside the plotting box
+     (the canvas clips itself via its own radius); a bottom gutter holds the
+     x-axis label clear of the slider (oklch.com). */
+  margin-bottom: var(--primitiv-space-space-8);
   touch-action: none;
   cursor: crosshair;
 }
@@ -110,10 +137,13 @@
   inset: 0;
   width: 100%;
   height: 100%;
+  /* The chart box no longer clips, so the painted plane rounds its own corners. */
+  border-radius: var(--primitiv-container-sm-radius);
 }
 
 .plane-chart__overlay {
   pointer-events: none;
+  overflow: hidden;
 }
 
 .plane-chart__boundary {
@@ -129,11 +159,36 @@
   stroke-dasharray: var(--primitiv-space-space-4) var(--primitiv-space-space-4);
 }
 
-/* Shared crosshair guide lines that link charts sharing an axis (the net). */
+/* Shared crosshair guide lines that link charts sharing an axis (the net).
+   A difference blend keeps them legible over any painted colour, like oklch.com. */
 .plane-chart__guide {
   stroke: var(--primitiv-color-absolute-white);
   stroke-width: var(--primitiv-border-width-1);
-  opacity: var(--primitiv-disabled-opacity);
+  mix-blend-mode: difference;
+}
+
+/* Channel labels (L / C / H) riding the guide lines, following the cursor. */
+.plane-chart__axis-label {
+  position: absolute;
+  color: var(--primitiv-color-absolute-white);
+  font-size: var(--primitiv-body-sm-font-size);
+  line-height: 1;
+  text-transform: uppercase;
+  text-shadow: 0 0 var(--primitiv-border-width-2) var(--primitiv-color-absolute-black);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* The x label sits just below the chart, the y label just left of it, both
+   centred on their guide line and clear of the selection dot (oklch.com). */
+.plane-chart__axis-label--x {
+  top: 100%;
+  translate: -50% var(--primitiv-space-space-4);
+}
+
+.plane-chart__axis-label--y {
+  right: 100%;
+  translate: calc(-1 * var(--primitiv-space-space-4)) -50%;
 }
 
 .plane-chart__cursor {
@@ -148,6 +203,12 @@
 }
 
 /* Painted axis sliders (L / C / H) ----------------------------------------- */
+
+/* Standalone lightness slider (white/black anchors) — fills its host so the
+   painted track measures the full available width. */
+.lightness-slider {
+  width: 100%;
+}
 
 .axis-slider {
   position: relative;
@@ -187,17 +248,26 @@
   outline-offset: var(--primitiv-focus-ring-offset);
 }
 
-/* Numeric + text fields ---------------------------------------------------- */
+/* Per-chart title + number field, sitting above each chart ----------------- */
 
-.oklch-picker__fields {
+.oklch-picker__axis-field {
   display: flex;
+  align-items: center;
   gap: var(--primitiv-space-space-8);
 }
 
-.oklch-picker__field {
+/* White so the title reads on the dark chart chrome; the number field grows. */
+.oklch-picker__axis-title {
+  color: var(--primitiv-color-absolute-white);
+  font-size: var(--primitiv-body-sm-font-size);
+}
+
+.oklch-picker__axis-field input {
   flex: 1;
   min-width: 0;
 }
+
+/* Hex / OKLCH text field --------------------------------------------------- */
 
 .oklch-picker__text {
   display: flex;

@@ -189,7 +189,21 @@ source of truth for when a skill applies.
   fills its container responsively (a `useElementSize` ResizeObserver hook +
   single stacked column, like oklch.com) and paint at **`devicePixelRatio`-scaled
   resolution** (`renderDimensions`) so they're crisp on HiDPI — the `{ l, c, h }`
-  contract is unchanged. The plugin port (Phase 5) follows. See RFC 0010 §10.
+  contract is unchanged. A **second follow-up** then reworked the layout to match
+  oklch.com: charts ordered **Lightness → Chroma → Hue** with each channel's white
+  title + number field **above** its chart, the title/slider/field re-paired with
+  the correct plane (**Lightness = L×C ramp**, Chroma = hue×C, Hue = hue×L — they
+  were crossed), and **L/C/H axis labels** that ride the (difference-blended) guide
+  lines and sit just outside the plotting box. A **third follow-up** then fixed the
+  Hue-chart bottom-edge spikes at their engine root: `api/gamut.rs`'s
+  `linear_in_gamut` tolerance was loosened (`±1e-3`) enough to admit out-of-gamut
+  near-black colours, so `max_in_gamut_chroma` reported a spurious near-black chroma
+  bump that the boundary's peak-band latched onto; tightening it to float scale
+  (`1e-5`) collapses the gamut to the black point, killing the spikes while leaving
+  every genuine boundary pixel-identical (and removing the faint near-black gradient
+  sliver too — one source of truth, shared with the plugin via wasm). The plugin port
+  (Phase 5) follows.
+  See RFC 0010 §10.
 
 ## Useful commands
 

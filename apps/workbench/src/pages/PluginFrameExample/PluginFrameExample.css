@@ -1,0 +1,424 @@
+/* Plugin frame sandbox. Every selector is prefixed `pf-`: App.tsx bundles every
+   example's CSS into one global sheet, so a bare element/attribute selector would
+   leak onto other pages (see the workbench-examples skill).
+
+   The chrome inside the frame mirrors the real plugin's ColorEngine, but styled
+   with the Primitiv design-system tokens (`--primitiv-*`) rather than the
+   plugin's literal Figma-theme fallbacks — so it stays consistent with the rest
+   of the system and themes light/dark for free. Only genuine non-token values
+   remain literal (ch sizing, a circular radius, optical letter-spacing). */
+
+.pf-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-16);
+  padding: var(--primitiv-space-space-16);
+}
+
+.pf-page__head {
+  /* A readable measure for the intro copy (not a spacing token). */
+  max-width: 48rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-8);
+}
+
+.pf-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--primitiv-space-space-16);
+}
+
+.pf-width-control {
+  display: inline-flex;
+  gap: var(--primitiv-space-space-4);
+}
+
+.pf-aspect-control {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--primitiv-space-space-8);
+  color: var(--primitiv-content-secondary);
+  font-size: var(--primitiv-body-sm-font-size);
+}
+
+.pf-aspect-control__slider {
+  width: var(--primitiv-space-space-200);
+}
+
+/* ─── System Slider (plain, non-painted) ────────────────────────────────── */
+
+.pf-slider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: var(--primitiv-space-space-20);
+  touch-action: none;
+}
+
+.pf-slider[data-disabled] {
+  opacity: 0.5;
+}
+
+.pf-slider__track {
+  position: relative;
+  flex: 1;
+  height: var(--primitiv-space-space-6);
+  border-radius: 9999px;
+  background: var(--primitiv-surface-subtle);
+}
+
+.pf-slider__range {
+  position: absolute;
+  height: 100%;
+  border-radius: 9999px;
+  background: var(--primitiv-action-primary-default);
+}
+
+.pf-slider__thumb {
+  width: var(--primitiv-space-space-16);
+  height: var(--primitiv-space-space-16);
+  border-radius: 50%;
+  background: var(--primitiv-surface-default);
+  border: var(--primitiv-border-width-2) solid
+    var(--primitiv-action-primary-default);
+  translate: -50% 0;
+}
+
+.pf-slider__thumb:focus-visible {
+  outline: var(--primitiv-focus-ring-width) solid var(--primitiv-border-focus);
+  outline-offset: var(--primitiv-focus-ring-offset);
+}
+
+/* The frame: the real plugin window size. The body scrolls like the iframe and
+   wears the system surface so it reads like the plugin and themes with the site. */
+.pf-frame {
+  box-sizing: border-box;
+  border: var(--primitiv-border-width-2) solid var(--primitiv-border-default);
+  border-radius: var(--primitiv-container-md-radius);
+  overflow: hidden;
+  box-shadow: 0 var(--primitiv-space-space-8) var(--primitiv-space-space-24)
+    rgb(0 0 0 / 0.25);
+}
+
+.pf-frame__body {
+  height: 100%;
+  overflow-y: auto;
+  background: var(--primitiv-surface-default);
+  color: var(--primitiv-content-primary);
+  font-family: var(--primitiv-body-md-font-family);
+  font-size: var(--primitiv-body-md-font-size);
+}
+
+/* ─── Color Engine ──────────────────────────────────────────────────────── */
+
+.pf-color-engine {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-12);
+  padding: var(--primitiv-space-space-16);
+}
+
+.pf-color-engine h1 {
+  margin: 0;
+  font-family: var(--primitiv-heading-h6-font-family);
+  font-size: var(--primitiv-heading-h6-font-size);
+  font-weight: var(--primitiv-heading-h6-font-weight);
+}
+
+.pf-color-engine > section > div > p,
+.pf-color-engine__inputs > p {
+  margin: 0 0 var(--primitiv-space-space-4);
+  font-size: var(--primitiv-body-sm-font-size);
+  font-weight: var(--primitiv-font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--primitiv-content-secondary);
+}
+
+.pf-color-engine__inputs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-16);
+}
+
+.pf-color-engine__palettes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-8);
+}
+
+.pf-color-engine__palettes > div {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Palette rows ──────────────────────────────────────────────────────── */
+
+.pf-palette__steps {
+  display: flex;
+  width: 100%;
+}
+
+.pf-palette__swatch {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.pf-palette__swatch-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: var(--primitiv-space-space-80);
+}
+
+.pf-palette__swatch-inner p {
+  color: inherit;
+  font-size: var(--primitiv-body-xs-font-size);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pf-palette__swatch--step {
+  font-size: var(--primitiv-body-xs-font-size);
+  text-align: center;
+  margin: var(--primitiv-space-space-2) 0 0;
+}
+
+/* ─── Lightness-curve editor (per-swatch vertical sliders) ───────────────── */
+
+.pf-curve {
+  display: flex;
+  width: 100%;
+  height: var(--primitiv-space-space-80);
+  margin-top: var(--primitiv-space-space-4);
+}
+
+.pf-curve__col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
+.pf-curve-slider {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.pf-curve-slider__track {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  background: var(--primitiv-color-absolute-white);
+  overflow: hidden;
+}
+
+/* The fill below the thumb line is that swatch's own colour (set inline). The
+   vertical extent is positioned by the Slider; width spans the column. */
+.pf-curve-slider__range {
+  position: absolute;
+  width: 100%;
+}
+
+/* The thumb is a thin horizontal line spanning the column at the step's
+   lightness, centred on its value. */
+.pf-curve-slider__thumb {
+  width: 100%;
+  height: var(--primitiv-border-width-2);
+  background: var(--primitiv-content-primary);
+  translate: 0 50%;
+  cursor: ns-resize;
+}
+
+.pf-curve-slider__thumb:focus-visible {
+  outline: var(--primitiv-focus-ring-width) solid var(--primitiv-border-focus);
+  outline-offset: var(--primitiv-focus-ring-offset);
+}
+
+/* ─── Ramp padding overlay (two horizontal lines on the curve) ───────────── */
+
+.pf-curve-wrap {
+  position: relative;
+}
+
+/* Click-through overlay so the column sliders below stay draggable; only the
+   two lines capture the pointer. */
+.pf-padding {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pf-padding__line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: var(--primitiv-space-space-12);
+  pointer-events: auto;
+  cursor: ns-resize;
+}
+
+/* The thin rule is a pseudo-element so only it difference-blends (reading over
+   the white track and the painted fills); the handles stay un-blended outside. */
+.pf-padding__line::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--primitiv-border-width-2);
+  transform: translateY(-50%);
+  background: var(--primitiv-color-absolute-white);
+  mix-blend-mode: difference;
+}
+
+.pf-padding__line--dark {
+  transform: translateY(-50%);
+}
+
+.pf-padding__line--light {
+  transform: translateY(50%);
+}
+
+.pf-padding__line:focus-visible {
+  outline: none;
+}
+
+.pf-padding__line:focus-visible .pf-padding__handle {
+  outline: var(--primitiv-focus-ring-width) solid var(--primitiv-border-focus);
+  outline-offset: var(--primitiv-focus-ring-offset);
+}
+
+/* The knobs ride the line just outside the chart (like the picker's axis labels
+   sit just outside the plotting box): dark to the left, light to the right. */
+.pf-padding__handle {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: var(--primitiv-space-space-12);
+  height: var(--primitiv-space-space-12);
+  border-radius: 50%;
+  /* Same visibility treatment as the picker's slider thumbs: a white border and
+     a thin black outer ring so the knob reads on any background. */
+  background: var(--primitiv-surface-default);
+  border: var(--primitiv-border-width-2) solid var(--primitiv-color-absolute-white);
+  box-shadow: 0 0 0 var(--primitiv-border-width-1) var(--primitiv-color-absolute-black);
+}
+
+.pf-padding__handle--start {
+  right: 100%;
+  margin-right: var(--primitiv-space-space-2);
+}
+
+.pf-padding__handle--end {
+  left: 100%;
+  margin-left: var(--primitiv-space-space-2);
+}
+
+/* ─── White / black lightness anchors ───────────────────────────────────── */
+
+.pf-anchors {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-8);
+}
+
+.pf-anchor {
+  display: grid;
+  grid-template-columns: 3.5rem auto 1fr 3ch;
+  align-items: center;
+  gap: var(--primitiv-space-space-8);
+}
+
+.pf-anchor__label {
+  color: var(--primitiv-content-secondary);
+}
+
+.pf-anchor__swatch,
+.pf-brand__swatch {
+  width: var(--primitiv-space-space-16);
+  height: var(--primitiv-space-space-16);
+  border-radius: var(--primitiv-container-sm-radius);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+}
+
+.pf-anchor__value {
+  font-variant-numeric: tabular-nums;
+  color: var(--primitiv-content-secondary);
+}
+
+/* ─── Brand ─────────────────────────────────────────────────────────────── */
+
+.pf-brand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-8);
+}
+
+.pf-brand__head {
+  display: flex;
+  align-items: center;
+  gap: var(--primitiv-space-space-8);
+}
+
+.pf-brand__label {
+  color: var(--primitiv-content-secondary);
+  font-size: var(--primitiv-body-sm-font-size);
+  font-weight: var(--primitiv-font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pf-brand__hex {
+  color: var(--primitiv-content-secondary);
+}
+
+/* The picker carries its own bordered chrome; on the plugin surface drop the
+   border so it sits flush with the other inputs. */
+.pf-brand .oklch-picker {
+  border: none;
+  padding: 0;
+}
+
+.pf-neutral-tint {
+  display: flex;
+  align-items: center;
+  gap: var(--primitiv-space-space-8);
+}
+
+.pf-neutral-tint__label {
+  color: var(--primitiv-content-secondary);
+  white-space: nowrap;
+}
+
+.pf-neutral-tint .pf-slider {
+  flex: 1;
+}
+
+.pf-neutral-tint__swatch {
+  display: inline-block;
+  width: var(--primitiv-space-space-16);
+  height: var(--primitiv-space-space-16);
+  border-radius: 50%;
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+  flex-shrink: 0;
+}
+
+/* The contract-styled Button sits at the start of its column, not stretched. */
+.pf-brand .primitiv-button {
+  align-self: flex-start;
+}

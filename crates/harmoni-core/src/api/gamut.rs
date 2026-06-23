@@ -26,10 +26,19 @@ pub enum Gamut {
 
 /// Whether a linear-RGB triple sits inside its unit cube, with a small epsilon
 /// absorbing floating-point error at the faces.
+///
+/// The epsilon is held at float-conversion scale (`1e-5`). A looser tolerance
+/// (the old `1e-3`) is ~100× the genuine round-trip error and admits *out-of-
+/// gamut* near-black colours: their linear channels are all tiny, so a chromatic
+/// dark whose limiting channel is only slightly negative still sits within an
+/// absolute `±1e-3`. That spurious near-black chroma spiked the picker's Hue-
+/// chart boundary at the bottom edge; tightening it collapses the gamut to the
+/// black point as it should, while every genuine boundary is unchanged — the
+/// limiting channel crosses zero steeply there (RFC 0010 §10).
 fn linear_in_gamut(red: f32, green: f32, blue: f32) -> bool {
-    (-0.001..=1.001).contains(&red)
-        && (-0.001..=1.001).contains(&green)
-        && (-0.001..=1.001).contains(&blue)
+    (-1e-5..=1.000_01).contains(&red)
+        && (-1e-5..=1.000_01).contains(&green)
+        && (-1e-5..=1.000_01).contains(&blue)
 }
 
 /// Whether an OkLCH `(lightness, chroma, hue)` is inside the given `gamut`,
@@ -98,7 +107,7 @@ pub fn paint_hue_strip(l: f32, c: f32, width: usize, gamut: Gamut) -> Vec<u8> {
     let mut buffer = vec![0u8; width * 4];
     for px in 0..width {
         let hue = (px as f32 + 0.5) / width as f32 * 360.0;
-        if c <= max_in_gamut_chroma(l, hue, gamut) {
+        if in_gamut(l, c, hue, gamut) {
             let rgb = paint_color(Oklch::new(l, c, hue), gamut);
             let i = px * 4;
             buffer[i] = to_byte(rgb.r);
@@ -120,7 +129,7 @@ pub fn paint_lightness_strip(c: f32, h: f32, width: usize, gamut: Gamut) -> Vec<
     let mut buffer = vec![0u8; width * 4];
     for px in 0..width {
         let lightness = (px as f32 + 0.5) / width as f32;
-        if c <= max_in_gamut_chroma(lightness, h, gamut) {
+        if in_gamut(lightness, c, h, gamut) {
             let rgb = paint_color(Oklch::new(lightness, c, h), gamut);
             let i = px * 4;
             buffer[i] = to_byte(rgb.r);
@@ -158,15 +167,16 @@ pub fn paint_chroma_strip(l: f32, h: f32, width: usize, c_max: f32, gamut: Gamut
 /// Chroma chart — as a flat RGBA buffer of `width * height * 4` bytes (row-major,
 /// 4 bytes per pixel). Columns map hue `0..360` left→right; rows map lightness
 /// `1.0..0.0` top→bottom, so the lightest colours sit along the top. Pixels are
-/// sampled at their centres; out-of-`gamut` pixels are transparent. The boundary
-/// depends on `(lightness, hue)`, so it is found per pixel (RFC 0010 §2).
+/// sampled at their centres; out-of-`gamut` pixels are transparent. Each pixel is
+/// tested directly with [`in_gamut`] — one conversion, not a per-pixel chroma
+/// search — so this plane is no costlier than the others (RFC 0010 §2).
 pub fn paint_lh_plane(c: f32, width: usize, height: usize, gamut: Gamut) -> Vec<u8> {
     let mut buffer = vec![0u8; width * height * 4];
     for px in 0..width {
         let hue = (px as f32 + 0.5) / width as f32 * 360.0;
         for py in 0..height {
             let lightness = 1.0 - (py as f32 + 0.5) / height as f32;
-            if c <= max_in_gamut_chroma(lightness, hue, gamut) {
+            if in_gamut(lightness, c, hue, gamut) {
                 let rgb = paint_color(Oklch::new(lightness, c, hue), gamut);
                 let i = (py * width + px) * 4;
                 buffer[i] = to_byte(rgb.r);

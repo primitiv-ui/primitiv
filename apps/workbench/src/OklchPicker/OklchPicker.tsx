@@ -7,7 +7,7 @@
 // conversion crosses into the one Rust engine (Principle 1); the chrome wears
 // --primitiv-* tokens (Principle 4).
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Field, Input } from "@primitiv-ui/react";
 
 import { PlaneChart, type PlaneAxisSpec } from "./PlaneChart";
@@ -16,7 +16,11 @@ import { GamutToggle } from "./GamutToggle";
 import { useGamutPaint } from "./useGamutPaint";
 import { useElementSize } from "./useElementSize";
 import { renderDimensions } from "./resolution";
-import { boundaryPoints } from "./boundary";
+import {
+  boundaryPoints,
+  chromaBoundaryPoints,
+  hueBoundaryPoints,
+} from "./boundary";
 import { formatColor, parseColor } from "./color";
 import { CHANNELS, clampChannel, roundChannel } from "./channels";
 import {
@@ -30,11 +34,25 @@ import type { Gamut, OklchValue } from "./types";
 
 import "./OklchPicker.css";
 
-/** The charts' width:height ratio — a wide landscape plane, like oklch.com. */
+/** The charts' width:height ratio. Stacked, they are wide landscape planes like
+ *  oklch.com; in a row the three columns split the width, so each is painted
+ *  square to keep usable height at the narrower per-column size. */
 const CHART_ASPECT = 2;
+const ROW_CHART_ASPECT = 1;
 
-/** Lightness samples taken across a boundary curve — smooth without overdraw. */
+/** Cap on the paint backing-store scale: paint planes at ~1× for speed (the
+ *  vector overlays carry the crispness), tunable up for a sharper gradient. */
+const MAX_PAINT_DPR = 1;
+
+/** Samples taken across a boundary curve — smooth without overdraw. */
 const BOUNDARY_SAMPLES = 64;
+
+/** Lightness samples per hue used to locate the Hue chart's lightness limits. */
+const HUE_BOUNDARY_LSTEPS = 32;
+
+const SRGB_BOUNDARY_CLASS = "plane-chart__boundary plane-chart__boundary--srgb";
+const EXTENDED_BOUNDARY_CLASS =
+  "plane-chart__boundary plane-chart__boundary--extended";
 
 // Plotted-axis descriptors shared by the three charts (RFC 0010 §2): the Hue
 // chart plots L×C, the Lightness chart H×C, the Chroma chart H×L.
@@ -66,9 +84,30 @@ const H_AXIS: PlaneAxisSpec = {
 export type OklchPickerProps = {
   value: OklchValue;
   onChange: (value: OklchValue) => void;
+  /**
+   * How the three chart-over-slider columns are arranged. `"stacked"` (default)
+   * is the full-width oklch.com column; `"row"` lays the columns side by side —
+   * a compact form for narrow surfaces like the Figma plugin (RFC 0010 §9), at
+   * the cost of smaller, squarer charts (precision carried by the sliders and
+   * number fields).
+   */
+  layout?: "stacked" | "row";
+  /**
+   * The charts' width:height ratio, overriding the per-layout default (stacked
+   * 2, row 1). Drives both the canvas backing-store size and the displayed box,
+   * so the painted gradient and overlays stay in step — the aspect can't be
+   * tuned from CSS alone (the bitmap is sized in JS). Mainly for tuning the
+   * compact plugin layout.
+   */
+  chartAspect?: number;
 };
 
-export function OklchPicker({ value, onChange }: OklchPickerProps) {
+export function OklchPicker({
+  value,
+  onChange,
+  layout = "stacked",
+  chartAspect,
+}: OklchPickerProps) {
   const planeRef = useRef<HTMLCanvasElement>(null);
   const lightnessPlaneRef = useRef<HTMLCanvasElement>(null);
   const chromaPlaneRef = useRef<HTMLCanvasElement>(null);
@@ -82,16 +121,20 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
   const [gamut, setGamut] = useState<Gamut>("Srgb");
 
   // The charts fill their container at a fixed aspect ratio; measure that width
-  // and paint the canvases at the measured size scaled by devicePixelRatio, so
-  // they stay sharp on HiDPI displays and re-render when the container resizes.
-  const axesRef = useRef<HTMLDivElement>(null);
-  const { width: measuredWidth } = useElementSize(axesRef);
-  const dpr = window.devicePixelRatio || 1;
-  const render = renderDimensions(
-    measuredWidth,
-    measuredWidth / CHART_ASPECT,
-    dpr,
-  );
+  // and paint the canvases at the measured size. The painted planes are smooth
+  // gradients whose crispness now comes from the vector overlays (boundary curves,
+  // guide lines, cursor, labels), so the gradient is painted at ~1× rather than
+  // full devicePixelRatio — far fewer per-pixel conversions, keeping drags smooth.
+  // Raise MAX_PAINT_DPR to trade speed back for a sharper gradient fill.
+  // Measure one chart column rather than the whole axes wrapper: in a row the
+  // columns split the width, so a column's width is each chart's real width
+  // (stacked, the column is full width — unchanged). All three columns share it.
+  const chartColumnRef = useRef<HTMLDivElement>(null);
+  const { width: measuredWidth } = useElementSize(chartColumnRef);
+  const aspect =
+    chartAspect ?? (layout === "row" ? ROW_CHART_ASPECT : CHART_ASPECT);
+  const dpr = Math.min(window.devicePixelRatio || 1, MAX_PAINT_DPR);
+  const render = renderDimensions(measuredWidth, measuredWidth / aspect, dpr);
 
   useGamutPaint({
     value,
@@ -109,22 +152,67 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
 
   const formatted = formatColor(value);
 
-  // The Hue chart's gamut boundary: always the sRGB curve, plus the wider gamut's
-  // curve in P3 mode so the band between them reads as the extended region.
-  const hueBoundaries = [
-    {
-      className: "plane-chart__boundary plane-chart__boundary--srgb",
-      points: boundaryPoints(value.h, render.width, render.height, C_MAX, BOUNDARY_SAMPLES, "Srgb"),
-    },
-    ...(gamut === "Srgb"
-      ? []
-      : [
-          {
-            className: "plane-chart__boundary plane-chart__boundary--extended",
-            points: boundaryPoints(value.h, render.width, render.height, C_MAX, BOUNDARY_SAMPLES, gamut),
-          },
-        ]),
-  ];
+  // Each chart draws its gamut boundary as a clean curve — always the sRGB curve,
+  // plus the wider gamut's curve in P3 mode so the band between them reads as the
+  // extended region. The Hue chart has two limits (upper/lower lightness) per
+  // gamut; its sweep is the heaviest, so it is memoised on its inputs.
+  // Each boundary set only changes with the axis it sweeps (and the gamut/size),
+  // so memoise on those inputs — a drag of one channel then leaves the other two
+  // charts' curves untouched instead of re-sweeping the engine every frame.
+  const lightnessBoundaries = useMemo(
+    () => [
+      {
+        className: SRGB_BOUNDARY_CLASS,
+        points: boundaryPoints(value.h, render.width, render.height, C_MAX, BOUNDARY_SAMPLES, "Srgb"),
+      },
+      ...(gamut === "Srgb"
+        ? []
+        : [
+            {
+              className: EXTENDED_BOUNDARY_CLASS,
+              points: boundaryPoints(value.h, render.width, render.height, C_MAX, BOUNDARY_SAMPLES, gamut),
+            },
+          ]),
+    ],
+    [value.h, render.width, render.height, gamut],
+  );
+
+  const chromaBoundaries = useMemo(
+    () => [
+      {
+        className: SRGB_BOUNDARY_CLASS,
+        points: chromaBoundaryPoints(value.l, render.width, render.height, C_MAX, BOUNDARY_SAMPLES, "Srgb"),
+      },
+      ...(gamut === "Srgb"
+        ? []
+        : [
+            {
+              className: EXTENDED_BOUNDARY_CLASS,
+              points: chromaBoundaryPoints(value.l, render.width, render.height, C_MAX, BOUNDARY_SAMPLES, gamut),
+            },
+          ]),
+    ],
+    [value.l, render.width, render.height, gamut],
+  );
+
+  const hueBoundaries = useMemo(() => {
+    const curves = (g: Gamut, className: string) => {
+      const { upper, lower } = hueBoundaryPoints(
+        value.c,
+        render.width,
+        render.height,
+        BOUNDARY_SAMPLES,
+        g,
+        HUE_BOUNDARY_LSTEPS,
+      );
+      // Each curve is a list of broken segments at high chroma — one polyline each.
+      return [...upper, ...lower].map((points) => ({ className, points }));
+    };
+    return [
+      ...curves("Srgb", SRGB_BOUNDARY_CLASS),
+      ...(gamut === "Srgb" ? [] : curves(gamut, EXTENDED_BOUNDARY_CLASS)),
+    ];
+  }, [value.c, render.width, render.height, gamut]);
 
   // The text field echoes the engine's canonical string, but never clobbers an
   // edit in progress: while the field is focused the user's text stands (even as
@@ -172,24 +260,47 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
   };
 
   return (
-    <div className="oklch-picker">
+    <div
+      className={
+        layout === "row" ? "oklch-picker oklch-picker--row" : "oklch-picker"
+      }
+      style={
+        chartAspect == null
+          ? undefined
+          : ({ "--oklch-chart-aspect": String(chartAspect) } as React.CSSProperties)
+      }
+    >
       <div className="oklch-picker__charts">
         <div className="oklch-picker__toolbar">
           <GamutToggle gamut={gamut} onChange={setGamut} />
         </div>
-        {/* The three-chart "net": each chart holds one axis fixed and sits above
-            the slider for that axis (the Lightness chart over the L slider, …),
-            so moving a slider repaints the chart it pins (RFC 0010 §2, §5). */}
-        <div className="oklch-picker__axes" ref={axesRef}>
-          <div className="oklch-picker__axis">
+        {/* The three-chart net, top→bottom Lightness, Chroma, Hue (oklch.com's
+            order). Each column carries its channel's title + number field above
+            the chart it pins (RFC 0010 §2, §5) and its painted slider below. */}
+        <div className="oklch-picker__axes">
+          <div className="oklch-picker__axis" ref={chartColumnRef}>
+            <Field.Root className="oklch-picker__axis-field">
+              <Field.Label className="oklch-picker__axis-title">
+                Lightness
+              </Field.Label>
+              <Input
+                type="number"
+                min={CHANNELS.l.min}
+                max={CHANNELS.l.max}
+                step={CHANNELS.l.step}
+                value={roundChannel("l", value.l)}
+                onChange={setChannel("l")}
+              />
+            </Field.Root>
             <PlaneChart
               value={value}
               gamut={gamut}
-              axes={{ x: H_AXIS, y: C_AXIS }}
+              axes={{ x: L_AXIS, y: C_AXIS }}
               onChange={onChange}
-              planeRef={lightnessPlaneRef}
+              planeRef={planeRef}
               width={render.width}
               height={render.height}
+              boundaries={lightnessBoundaries}
             />
             <AxisSlider
               label="Lightness"
@@ -204,14 +315,28 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
             />
           </div>
           <div className="oklch-picker__axis">
+            <Field.Root className="oklch-picker__axis-field">
+              <Field.Label className="oklch-picker__axis-title">
+                Chroma
+              </Field.Label>
+              <Input
+                type="number"
+                min={CHANNELS.c.min}
+                max={CHANNELS.c.max}
+                step={CHANNELS.c.step}
+                value={roundChannel("c", value.c)}
+                onChange={setChannel("c")}
+              />
+            </Field.Root>
             <PlaneChart
               value={value}
               gamut={gamut}
-              axes={{ x: H_AXIS, y: L_AXIS }}
+              axes={{ x: H_AXIS, y: C_AXIS }}
               onChange={onChange}
-              planeRef={chromaPlaneRef}
+              planeRef={lightnessPlaneRef}
               width={render.width}
               height={render.height}
+              boundaries={chromaBoundaries}
             />
             <AxisSlider
               label="Chroma"
@@ -226,12 +351,25 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
             />
           </div>
           <div className="oklch-picker__axis">
+            <Field.Root className="oklch-picker__axis-field">
+              <Field.Label className="oklch-picker__axis-title">
+                Hue
+              </Field.Label>
+              <Input
+                type="number"
+                min={CHANNELS.h.min}
+                max={CHANNELS.h.max}
+                step={CHANNELS.h.step}
+                value={roundChannel("h", value.h)}
+                onChange={setChannel("h")}
+              />
+            </Field.Root>
             <PlaneChart
               value={value}
               gamut={gamut}
-              axes={{ x: L_AXIS, y: C_AXIS }}
+              axes={{ x: H_AXIS, y: L_AXIS }}
               onChange={onChange}
-              planeRef={planeRef}
+              planeRef={chromaPlaneRef}
               width={render.width}
               height={render.height}
               boundaries={hueBoundaries}
@@ -249,42 +387,6 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
             />
           </div>
         </div>
-      </div>
-
-      <div className="oklch-picker__fields">
-        <Field.Root className="oklch-picker__field">
-          <Field.Label>Lightness</Field.Label>
-          <Input
-            type="number"
-            min={CHANNELS.l.min}
-            max={CHANNELS.l.max}
-            step={CHANNELS.l.step}
-            value={roundChannel("l", value.l)}
-            onChange={setChannel("l")}
-          />
-        </Field.Root>
-        <Field.Root className="oklch-picker__field">
-          <Field.Label>Chroma</Field.Label>
-          <Input
-            type="number"
-            min={CHANNELS.c.min}
-            max={CHANNELS.c.max}
-            step={CHANNELS.c.step}
-            value={roundChannel("c", value.c)}
-            onChange={setChannel("c")}
-          />
-        </Field.Root>
-        <Field.Root className="oklch-picker__field">
-          <Field.Label>Hue</Field.Label>
-          <Input
-            type="number"
-            min={CHANNELS.h.min}
-            max={CHANNELS.h.max}
-            step={CHANNELS.h.step}
-            value={roundChannel("h", value.h)}
-            onChange={setChannel("h")}
-          />
-        </Field.Root>
       </div>
 
       <Field.Root className="oklch-picker__text" invalid={invalid}>

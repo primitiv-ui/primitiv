@@ -160,9 +160,9 @@ export function PlaneChart({
         preserveAspectRatio="none"
         aria-hidden="true"
       >
-        {boundaries?.map((boundary) => (
+        {boundaries?.map((boundary, index) => (
           <polyline
-            key={boundary.className}
+            key={index}
             className={boundary.className}
             points={boundary.points}
           />
@@ -190,6 +190,22 @@ export function PlaneChart({
         aria-hidden="true"
         style={{ left: `${cursor.x}%`, top: `${cursor.y}%` }}
       />
+      {/* Channel labels (L / C / H) that ride each guide line and follow the
+          cursor, marking which axis each line measures (the oklch.com charts). */}
+      <div
+        className="plane-chart__axis-label plane-chart__axis-label--x"
+        aria-hidden="true"
+        style={{ left: `${cursor.x}%` }}
+      >
+        {xAxis.channel.toUpperCase()}
+      </div>
+      <div
+        className="plane-chart__axis-label plane-chart__axis-label--y"
+        aria-hidden="true"
+        style={{ top: `${cursor.y}%` }}
+      >
+        {yAxis.channel.toUpperCase()}
+      </div>
     </div>
   );
 }

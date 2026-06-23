@@ -204,6 +204,12 @@
 
 /* Painted axis sliders (L / C / H) ----------------------------------------- */
 
+/* Standalone lightness slider (white/black anchors) — fills its host so the
+   painted track measures the full available width. */
+.lightness-slider {
+  width: 100%;
+}
+
 .axis-slider {
   position: relative;
   display: flex;

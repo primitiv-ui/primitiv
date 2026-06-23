@@ -1,8 +1,12 @@
 /* Plugin frame sandbox. Every selector is prefixed `pf-`: App.tsx bundles every
    example's CSS into one global sheet, so a bare element/attribute selector would
-   leak onto other pages (see the workbench-examples skill). The chrome inside the
-   frame is ported from apps/harmoni-figma-plugin/src/ui/index.scss so it reads
-   like the real plugin (the plugin's Figma theme falls back to these values). */
+   leak onto other pages (see the workbench-examples skill).
+
+   The chrome inside the frame mirrors the real plugin's ColorEngine, but styled
+   with the Primitiv design-system tokens (`--primitiv-*`) rather than the
+   plugin's literal Figma-theme fallbacks — so it stays consistent with the rest
+   of the system and themes light/dark for free. Only genuine non-token values
+   remain literal (ch sizing, a circular radius, optical letter-spacing). */
 
 .pf-page {
   display: flex;
@@ -12,6 +16,7 @@
 }
 
 .pf-page__head {
+  /* A readable measure for the intro copy (not a spacing token). */
   max-width: 48rem;
   display: flex;
   flex-direction: column;
@@ -55,7 +60,7 @@
 }
 
 /* The frame: the real plugin window size. The body scrolls like the iframe and
-   wears the plugin's own light surface so it reads like the real plugin. */
+   wears the system surface so it reads like the plugin and themes with the site. */
 .pf-frame {
   box-sizing: border-box;
   border: var(--primitiv-border-width-2) solid var(--primitiv-border-default);
@@ -68,46 +73,48 @@
 .pf-frame__body {
   height: 100%;
   overflow-y: auto;
-  background: #ffffff;
-  color: #1e1e1e;
-  font-family: system-ui, sans-serif;
-  font-size: 12px;
+  background: var(--primitiv-surface-default);
+  color: var(--primitiv-content-primary);
+  font-family: var(--primitiv-body-md-font-family);
+  font-size: var(--primitiv-body-md-font-size);
 }
 
-/* ─── Color Engine (ported) ─────────────────────────────────────────────── */
+/* ─── Color Engine ──────────────────────────────────────────────────────── */
 
 .pf-color-engine {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 16px;
+  gap: var(--primitiv-space-space-12);
+  padding: var(--primitiv-space-space-16);
 }
 
 .pf-color-engine h1 {
   margin: 0;
-  font-size: 15px;
+  font-family: var(--primitiv-heading-h6-font-family);
+  font-size: var(--primitiv-heading-h6-font-size);
+  font-weight: var(--primitiv-heading-h6-font-weight);
 }
 
 .pf-color-engine > section > div > p,
 .pf-color-engine__inputs > p {
-  margin: 0 0 4px;
-  font-size: 11px;
-  font-weight: 600;
+  margin: 0 0 var(--primitiv-space-space-4);
+  font-size: var(--primitiv-body-sm-font-size);
+  font-weight: var(--primitiv-font-weight-medium);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #666666;
+  color: var(--primitiv-content-secondary);
 }
 
 .pf-color-engine__inputs {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--primitiv-space-space-16);
 }
 
 .pf-color-engine__palettes {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--primitiv-space-space-8);
 }
 
 .pf-color-engine__palettes > div {
@@ -117,16 +124,16 @@
 
 .pf-color-engine__padding-row {
   display: flex;
-  gap: 8px;
-  margin-top: 4px;
+  gap: var(--primitiv-space-space-8);
+  margin-top: var(--primitiv-space-space-4);
 }
 
 .pf-color-engine__padding-label {
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
+  gap: var(--primitiv-space-space-4);
+  font-size: var(--primitiv-body-md-font-size);
 }
 
 .pf-color-engine__padding-label input[type="range"] {
@@ -140,7 +147,7 @@
   flex-shrink: 0;
 }
 
-/* ─── Palette rows (ported) ─────────────────────────────────────────────── */
+/* ─── Palette rows ──────────────────────────────────────────────────────── */
 
 .pf-palette__steps {
   display: flex;
@@ -161,12 +168,12 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 80px;
+  height: var(--primitiv-space-space-80);
 }
 
 .pf-palette__swatch-inner p {
   color: inherit;
-  font-size: 10px;
+  font-size: var(--primitiv-body-xs-font-size);
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -174,9 +181,9 @@
 }
 
 .pf-palette__swatch--step {
-  font-size: 10px;
+  font-size: var(--primitiv-body-xs-font-size);
   text-align: center;
-  margin: 2px 0 0;
+  margin: var(--primitiv-space-space-2) 0 0;
 }
 
 /* ─── White / black lightness anchors ───────────────────────────────────── */
@@ -184,31 +191,31 @@
 .pf-anchors {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--primitiv-space-space-8);
 }
 
 .pf-anchor {
   display: grid;
   grid-template-columns: 3.5rem auto 1fr 3ch;
   align-items: center;
-  gap: 8px;
+  gap: var(--primitiv-space-space-8);
 }
 
 .pf-anchor__label {
-  color: #666666;
+  color: var(--primitiv-content-secondary);
 }
 
 .pf-anchor__swatch,
 .pf-brand__swatch {
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
-  border: 1px solid #e5e5e5;
+  width: var(--primitiv-space-space-16);
+  height: var(--primitiv-space-space-16);
+  border-radius: var(--primitiv-container-sm-radius);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
 }
 
 .pf-anchor__value {
   font-variant-numeric: tabular-nums;
-  color: #666666;
+  color: var(--primitiv-content-secondary);
 }
 
 /* ─── Brand ─────────────────────────────────────────────────────────────── */
@@ -216,29 +223,29 @@
 .pf-brand {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--primitiv-space-space-8);
 }
 
 .pf-brand__head {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--primitiv-space-space-8);
 }
 
 .pf-brand__label {
-  color: #666666;
-  font-size: 11px;
-  font-weight: 600;
+  color: var(--primitiv-content-secondary);
+  font-size: var(--primitiv-body-sm-font-size);
+  font-weight: var(--primitiv-font-weight-medium);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
 .pf-brand__hex {
-  color: #666666;
+  color: var(--primitiv-content-secondary);
 }
 
-/* The picker inside the plugin frame wears its own dark chrome by default; on
-   the light plugin surface, drop its border so it sits flush like the inputs. */
+/* The picker carries its own bordered chrome; on the plugin surface drop the
+   border so it sits flush with the other inputs. */
 .pf-brand .oklch-picker {
   border: none;
   padding: 0;
@@ -247,25 +254,25 @@
 .pf-neutral-tint {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--primitiv-space-space-8);
 }
 
 .pf-neutral-tint__swatch {
   display: inline-block;
-  width: 16px;
-  height: 16px;
+  width: var(--primitiv-space-space-16);
+  height: var(--primitiv-space-space-16);
   border-radius: 50%;
-  border: 1px solid #e5e5e5;
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
   flex-shrink: 0;
 }
 
 .pf-btn {
   align-self: flex-start;
-  padding: 6px 12px;
-  border: 1px solid #e5e5e5;
-  border-radius: 6px;
-  background: #f5f5f5;
-  color: #1e1e1e;
+  padding: var(--primitiv-space-space-6) var(--primitiv-space-space-12);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+  border-radius: var(--primitiv-container-sm-radius);
+  background: var(--primitiv-surface-subtle);
+  color: var(--primitiv-content-primary);
   font: inherit;
   cursor: pointer;
 }

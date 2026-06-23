@@ -109,8 +109,8 @@
 <table>
 <tr><th>Token</th><th>Family</th><th>Weights available</th><th>Role</th></tr>
 <tr><td><code>font-family.heading</code></td><td><b>Khand</b> (condensed)</td><td>Regular 400 · Medium 500 · SemiBold 600</td><td>Headings, labels, overline, display, button text</td></tr>
-<tr><td><code>font-family.text</code></td><td><b>Asta Sans</b></td><td>Regular 400 only</td><td>Body, descriptive copy, sub-labels, input value text</td></tr>
-<tr><td colspan="4" class="small">No monospace face exists — see §8. Never use Inter; it is not in the system.</td></tr>
+<tr><td><code>font-family.text</code></td><td><b>Asta Sans</b></td><td>Regular 400 · Bold 700 <span class="small">(weight primitive exists; see note)</span></td><td>Body, descriptive copy, sub-labels, input value text</td></tr>
+<tr><td colspan="4" class="small">Primitives define weights up to <code>font-weight.bold</code> (700), but the <code>font-style</code> string tokens cover only Regular / Medium / SemiBold — add <code>font-style.bold</code> = "Bold" to bind body bold cleanly. No monospace face exists — see §8. Never use Inter; it is not in the system.</td></tr>
 </table>
 
 <!-- ============================================================ -->
@@ -305,7 +305,7 @@
     <tr><td>Quote text</td><td>font / fill</td><td><code>body/lg/*</code> italic · <code>content/secondary</code></td></tr>
     <tr><td>Citation</td><td>font / fill</td><td><code>body/sm/*</code> · <code>content/muted</code></td></tr>
   </table>
-  <div class="callout">Asta Sans only ships Regular — no native italic. Use a synthetic slant or skip italic and lean on the accent bar + indentation for the quote signal. Decide and document.</div>
+  <div class="callout">Confirm whether Asta Sans ships an italic style. If it doesn't, skip italic and lean on the accent bar + indentation for the quote signal. Decide and document.</div>
 </div>
 
 <div class="card">
@@ -413,8 +413,8 @@
 
 <table>
 <tr><th>Element</th><th>Build as</th><th>Treatment / token</th></tr>
-<tr><td><code>&lt;strong&gt;</code> bold</td><td>char style</td><td>Asta Sans has no bold → switch to <b>Khand SemiBold</b> inline, or accept synthetic bold. Decide.</td></tr>
-<tr><td><code>&lt;em&gt;</code> italic</td><td>char style</td><td>No native italic in either face → synthetic slant or alternative emphasis. Decide.</td></tr>
+<tr><td><code>&lt;strong&gt;</code> bold</td><td>char style</td><td>Asta Sans ships a <b>Bold</b> weight — bind it directly. Add a <code>font-style.bold</code> = "Bold" string token (only Regular/Medium/SemiBold exist today) so the binding is on-system.</td></tr>
+<tr><td><code>&lt;em&gt;</code> italic</td><td>char style</td><td>Confirm whether Asta Sans ships an italic style. If yes, bind it; if not, use a synthetic slant or a non-italic emphasis convention.</td></tr>
 <tr><td><code>&lt;mark&gt;</code> highlight</td><td>span</td><td>Background tint — needs a highlight token (warning/brand tint at low chroma). <span class="pill newtok">new</span></td></tr>
 <tr><td><code>&lt;del&gt;</code></td><td>char style</td><td>Strikethrough + <code>content/muted</code></td></tr>
 <tr><td><code>&lt;ins&gt;</code></td><td>char style</td><td>Underline + <code>content/primary</code></td></tr>
@@ -458,7 +458,7 @@
   <li><b>Add a <code>font-family.mono</code> primitive</b> — pick a face (e.g. a libre mono), add the variable to <code>Primitives</code>, back it up via the sync plugin, and bind code nodes to it. <b>Recommended</b> — keeps code elements on-system.</li>
   <li><b>Defer code components</b> until the mono face is chosen, and build the non-code elements first.</li>
 </ul>
-<p class="small">Same caveat for <b>true bold</b> (<code>&lt;strong&gt;</code>) and <b>italic</b> (<code>&lt;em&gt;</code>): Asta Sans ships Regular only. Bold can borrow Khand SemiBold; italic needs a synthetic slant or a non-italic emphasis convention. Decide and document in each component's description.</p>
+<p class="small"><b>Bold &amp; italic:</b> Asta Sans ships a <b>Bold</b> weight, so <code>&lt;strong&gt;</code> binds on-system — just add a <code>font-style.bold</code> = "Bold" string token (the weight primitive <code>font-weight.bold</code> = 700 already exists; only the style strings stop at SemiBold). <b>Italic</b> (<code>&lt;em&gt;</code>) is unconfirmed — check whether the family ships an italic style and bind it if so; otherwise use a synthetic slant or a non-italic emphasis convention. Document the choice in each component's description.</p>
 
 <!-- ============================================================ -->
 <h2 class="section" id="master">9 · Master checklist — one glance</h2>

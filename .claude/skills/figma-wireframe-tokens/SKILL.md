@@ -34,8 +34,20 @@ These are the repo copy. The Figma variables are the live source of truth, but t
 | Token                  | Weight | Khand style | Asta Sans style |
 | ---------------------- | ------ | ----------- | --------------- |
 | `font-weight.regular`  | 400    | Regular     | Regular         |
-| `font-weight.medium`   | 500    | Medium      | —               |
-| `font-weight.semibold` | 600    | SemiBold    | —               |
+| `font-weight.medium`   | 500    | Medium      | Medium          |
+| `font-weight.semibold` | 600    | SemiBold    | SemiBold        |
+| `font-weight.bold`     | 700    | Bold        | Bold            |
+
+> **Asta Sans is a weight-only variable font** (42dot) shipping Light 300 →
+> ExtraBold 800, with **no italic** axis or styles. The Medium / SemiBold / Bold
+> entries above were previously marked "—" for Asta Sans; that was wrong — they
+> are available. Two follow-ons when using bold or italic body text:
+> - The `font-weight` primitives top out at `bold` (700) and the `font-style`
+>   *string* tokens currently cover only Regular / Medium / SemiBold. To bind
+>   body **bold** on-system, add a `font-style.bold` = "Bold" string token first.
+> - There is **no italic** in either face. For `<em>`-style emphasis use a
+>   synthetic slant or a non-italic convention (weight / colour shift) — never
+>   assume an italic style exists to load.
 
 ### Semantic role → font mapping
 

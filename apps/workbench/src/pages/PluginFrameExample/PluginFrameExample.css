@@ -1,0 +1,214 @@
+/* Plugin frame sandbox. Every selector is prefixed `pf-`: App.tsx bundles every
+   example's CSS into one global sheet, so a bare element/attribute selector would
+   leak onto other pages (see the workbench-examples skill). */
+
+.pf-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-16);
+  padding: var(--primitiv-space-space-16);
+}
+
+.pf-page__head {
+  max-width: 48rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-8);
+}
+
+.pf-width-control {
+  display: inline-flex;
+  gap: var(--primitiv-space-space-4);
+}
+
+.pf-width-control__btn {
+  padding: var(--primitiv-space-space-4) var(--primitiv-space-space-12);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
+  border-radius: var(--primitiv-container-sm-radius);
+  background: var(--primitiv-surface-subtle);
+  color: var(--primitiv-content-secondary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.pf-width-control__btn--active {
+  background: var(--primitiv-action-primary-default);
+  color: var(--primitiv-content-on-action);
+  border-color: var(--primitiv-action-primary-default);
+}
+
+/* The frame: the real plugin window size. The body scrolls like the iframe. */
+.pf-frame {
+  box-sizing: border-box;
+  border: var(--primitiv-border-width-2) solid var(--primitiv-border-default);
+  border-radius: var(--primitiv-container-md-radius);
+  background: var(--primitiv-surface-default);
+  overflow: hidden;
+  box-shadow: 0 var(--primitiv-space-space-8) var(--primitiv-space-space-24)
+    rgb(0 0 0 / 0.25);
+}
+
+.pf-frame__body {
+  height: 100%;
+  overflow-y: auto;
+  padding: var(--primitiv-space-space-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-16);
+}
+
+.pf-frame__title {
+  margin: 0;
+  font-size: var(--primitiv-heading-sm-font-size);
+}
+
+.pf-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-8);
+}
+
+.pf-section__head {
+  display: flex;
+  align-items: center;
+  gap: var(--primitiv-space-space-8);
+}
+
+.pf-section__title {
+  font-weight: var(--primitiv-body-md-font-weight-strong, 600);
+  color: var(--primitiv-content-primary);
+}
+
+/* White / black lightness anchors --------------------------------------- */
+
+.pf-anchors {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-8);
+}
+
+.pf-anchor {
+  display: grid;
+  grid-template-columns: 3.5rem auto 1fr 3ch;
+  align-items: center;
+  gap: var(--primitiv-space-space-8);
+}
+
+.pf-anchor__label {
+  color: var(--primitiv-content-secondary);
+}
+
+.pf-anchor__swatch {
+  width: var(--primitiv-space-space-20);
+  height: var(--primitiv-space-space-20);
+  border-radius: var(--primitiv-container-sm-radius);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+}
+
+.pf-anchor__slider {
+  width: 100%;
+}
+
+.pf-anchor__value {
+  font-variant-numeric: tabular-nums;
+  color: var(--primitiv-content-secondary);
+}
+
+/* Brand swatch + hex readout -------------------------------------------- */
+
+.pf-brand-swatch {
+  width: var(--primitiv-space-space-20);
+  height: var(--primitiv-space-space-20);
+  border-radius: var(--primitiv-container-sm-radius);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+}
+
+.pf-brand-hex {
+  color: var(--primitiv-content-secondary);
+}
+
+.pf-loading {
+  margin: 0;
+  color: var(--primitiv-content-secondary);
+}
+
+/* Placeholder ramps ----------------------------------------------------- */
+
+.pf-ramp-row {
+  display: flex;
+  align-items: center;
+  gap: var(--primitiv-space-space-8);
+}
+
+.pf-ramp-row__label {
+  width: 3rem;
+  color: var(--primitiv-content-secondary);
+  font-size: var(--primitiv-body-sm-font-size);
+}
+
+.pf-ramp {
+  display: flex;
+  flex: 1;
+  height: var(--primitiv-space-space-32, 2rem);
+  border-radius: var(--primitiv-container-sm-radius);
+  overflow: hidden;
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+}
+
+.pf-ramp__step {
+  flex: 1;
+}
+
+/* Actions --------------------------------------------------------------- */
+
+.pf-actions {
+  gap: var(--primitiv-space-space-12);
+}
+
+.pf-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-4);
+  color: var(--primitiv-content-secondary);
+}
+
+.pf-text-input {
+  padding: var(--primitiv-space-space-8);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
+  border-radius: var(--primitiv-container-sm-radius);
+  background: var(--primitiv-surface-subtle);
+  color: var(--primitiv-content-primary);
+  font: inherit;
+}
+
+.pf-check {
+  display: flex;
+  align-items: center;
+  gap: var(--primitiv-space-space-8);
+  color: var(--primitiv-content-secondary);
+}
+
+.pf-actions__buttons {
+  display: flex;
+  gap: var(--primitiv-space-space-8);
+}
+
+.pf-btn {
+  padding: var(--primitiv-space-space-8) var(--primitiv-space-space-16);
+  border-radius: var(--primitiv-container-sm-radius);
+  border: var(--primitiv-border-width-1) solid transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.pf-btn--primary {
+  background: var(--primitiv-action-primary-default);
+  color: var(--primitiv-content-on-action);
+}
+
+.pf-btn--ghost {
+  background: var(--primitiv-surface-subtle);
+  color: var(--primitiv-content-secondary);
+  border-color: var(--primitiv-border-default);
+  align-self: flex-start;
+}

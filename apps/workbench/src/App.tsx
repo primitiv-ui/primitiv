@@ -25,6 +25,7 @@ import {
   InputGroupExample,
   MillerColumnsExample,
   ModalExample,
+  PluginFrameExample,
   PortalExample,
   ProgressExample,
   RadioExample,
@@ -131,7 +132,10 @@ const navGroups: { title: string; links: NavLink[] }[] = [
   },
   {
     title: "Showcase",
-    links: [{ to: "/design-system-test", label: "Design System Test" }],
+    links: [
+      { to: "/design-system-test", label: "Design System Test" },
+      { to: "/plugin-frame", label: "Plugin Frame" },
+    ],
   },
 ];
 
@@ -233,6 +237,7 @@ function App() {
           <Route path="/input-group" element={<InputGroupExample />} />
           <Route path="/miller-columns" element={<MillerColumnsExample />} />
           <Route path="/modal" element={<ModalExample />} />
+          <Route path="/plugin-frame" element={<PluginFrameExample />} />
           <Route path="/portal" element={<PortalExample />} />
           <Route path="/progress" element={<ProgressExample />} />
           <Route path="/radio" element={<RadioExample />} />

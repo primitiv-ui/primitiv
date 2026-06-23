@@ -268,42 +268,61 @@
   left: 0;
   right: 0;
   height: var(--primitiv-space-space-12);
-  display: flex;
-  align-items: center;
   pointer-events: auto;
   cursor: ns-resize;
-  /* A thin rule centred in the hit area; difference-blended so it reads over
-     both the white track and the painted fills below. */
-  background-image: linear-gradient(
-    var(--primitiv-color-absolute-white),
-    var(--primitiv-color-absolute-white)
-  );
-  background-size: 100% var(--primitiv-border-width-2);
-  background-position: center;
-  background-repeat: no-repeat;
+}
+
+/* The thin rule is a pseudo-element so only it difference-blends (reading over
+   the white track and the painted fills); the handles stay un-blended outside. */
+.pf-padding__line::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--primitiv-border-width-2);
+  transform: translateY(-50%);
+  background: var(--primitiv-color-absolute-white);
   mix-blend-mode: difference;
 }
 
 .pf-padding__line--dark {
   transform: translateY(-50%);
-  justify-content: flex-start;
 }
 
 .pf-padding__line--light {
   transform: translateY(50%);
-  justify-content: flex-end;
 }
 
 .pf-padding__line:focus-visible {
+  outline: none;
+}
+
+.pf-padding__line:focus-visible .pf-padding__handle {
   outline: var(--primitiv-focus-ring-width) solid var(--primitiv-border-focus);
   outline-offset: var(--primitiv-focus-ring-offset);
 }
 
+/* The knobs ride the line just outside the chart (like the picker's axis labels
+   sit just outside the plotting box): dark to the left, light to the right. */
 .pf-padding__handle {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
   width: var(--primitiv-space-space-12);
   height: var(--primitiv-space-space-12);
   border-radius: 50%;
-  background: var(--primitiv-color-absolute-white);
+  background: var(--primitiv-content-primary);
+}
+
+.pf-padding__handle--start {
+  right: 100%;
+  margin-right: var(--primitiv-space-space-2);
+}
+
+.pf-padding__handle--end {
+  left: 100%;
+  margin-left: var(--primitiv-space-space-2);
 }
 
 /* ─── White / black lightness anchors ───────────────────────────────────── */

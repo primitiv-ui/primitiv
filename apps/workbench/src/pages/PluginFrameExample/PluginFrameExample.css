@@ -312,7 +312,11 @@
   width: var(--primitiv-space-space-12);
   height: var(--primitiv-space-space-12);
   border-radius: 50%;
-  background: var(--primitiv-content-primary);
+  /* Same visibility treatment as the picker's slider thumbs: a white border and
+     a thin black outer ring so the knob reads on any background. */
+  background: var(--primitiv-surface-default);
+  border: var(--primitiv-border-width-2) solid var(--primitiv-color-absolute-white);
+  box-shadow: 0 0 0 var(--primitiv-border-width-1) var(--primitiv-color-absolute-black);
 }
 
 .pf-padding__handle--start {

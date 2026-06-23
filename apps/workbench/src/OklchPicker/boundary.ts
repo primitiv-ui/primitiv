@@ -114,10 +114,10 @@ function point(hue: number, l: number, width: number, height: number): string {
  * when the chroma is unreachable at any lightness (the band has a gap there).
  *
  * The band taken is the one **around the peak-chroma lightness**, expanded out to
- * its in-gamut edges. This deliberately ignores a *detached* in-gamut sliver near
- * black (at very low lightness the engine's tolerance can read a near-black colour
- * as holding chroma), which otherwise spikes the lower bound to the bottom — while
- * still keeping a band that genuinely runs contiguously into the dark.
+ * its in-gamut edges. The engine's gamut now collapses cleanly to the black point
+ * (its near-black tolerance was tightened, RFC 0010 §10), so the max-chroma curve
+ * is unimodal and this is simply its genuine window; anchoring on the peak also
+ * keeps the band robust to any residual non-monotonicity near the dark edge.
  */
 function lightnessWindow(
   c: number,

@@ -614,6 +614,32 @@ at **100% lines / branches / functions / statements** (118 tests).
 production build (`vite build`) clean. The **real-browser visual QA is the human's** (no
 browser in the sandbox).
 
+### Phase 4b follow-up 3 — Hue-chart spikes fixed at the engine root ✅ (landed)
+
+Two earlier JS attempts (segment the boundary; take the band around the peak-chroma
+lightness) failed to clear the spike lines the Hue chart drew at its bottom edge across
+the cyan/teal hues. The root cause was upstream in the engine, not the boundary maths:
+`api/gamut.rs`'s `linear_in_gamut` used an absolute `±1e-3` tolerance. Near black every
+linear channel is tiny, so a chromatic dark whose limiting channel is only *slightly*
+negative (e.g. `oklch(0.05 0.135 180)` → linear red `-0.00082`) still sat inside `±1e-3`
+and read as **in gamut**. `max_in_gamut_chroma` therefore reported a spurious near-black
+chroma bump (hue 180: `0.17` at L≈0.05 vs a genuine `0.156` peak), and the per-hue
+"band around the peak" latched onto that false bump — a band pinned to `L=[0, 0.066]`,
+i.e. the spike.
+
+Tightening the tolerance to float-conversion scale (`1e-5`) collapses the gamut to the
+black point as it should: hue 180's near-black chroma drops `0.17 → 0.01`, the Hue-chart
+bands across hues 160–210 become genuine mid-lightness windows (e.g. `[0.55, 0.92]` at
+180) instead of bottom-edge slivers, and **every genuine boundary is unchanged** — at the
+real gamut surface the limiting channel crosses zero steeply, so the tolerance barely
+moves it (mid/high-L max chroma is pixel-identical across `1e-3`/`1e-4`/`1e-5`/`0`). The
+fix is one source of truth: it also removes the faint near-black colour sliver the
+gradient painters drew there, and flows to the plugin through the shared wasm. `gamut.rs`
+held at 100% (regions/functions/lines); picker vitest still 100% (121 tests).
+
+**Verification.** As above — the **real-browser visual QA is the human's** (no browser in
+the sandbox); awaiting a redeploy QA to confirm the spikes are visually gone.
+
 ### Phase 5 — plugin port
 
 Unchanged from §9 — out of scope for Phase 4b. **Two early decisions are

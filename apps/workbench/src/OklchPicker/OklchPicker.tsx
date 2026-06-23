@@ -92,12 +92,21 @@ export type OklchPickerProps = {
    * number fields).
    */
   layout?: "stacked" | "row";
+  /**
+   * The charts' width:height ratio, overriding the per-layout default (stacked
+   * 2, row 1). Drives both the canvas backing-store size and the displayed box,
+   * so the painted gradient and overlays stay in step — the aspect can't be
+   * tuned from CSS alone (the bitmap is sized in JS). Mainly for tuning the
+   * compact plugin layout.
+   */
+  chartAspect?: number;
 };
 
 export function OklchPicker({
   value,
   onChange,
   layout = "stacked",
+  chartAspect,
 }: OklchPickerProps) {
   const planeRef = useRef<HTMLCanvasElement>(null);
   const lightnessPlaneRef = useRef<HTMLCanvasElement>(null);
@@ -122,13 +131,10 @@ export function OklchPicker({
   // (stacked, the column is full width — unchanged). All three columns share it.
   const chartColumnRef = useRef<HTMLDivElement>(null);
   const { width: measuredWidth } = useElementSize(chartColumnRef);
-  const chartAspect = layout === "row" ? ROW_CHART_ASPECT : CHART_ASPECT;
+  const aspect =
+    chartAspect ?? (layout === "row" ? ROW_CHART_ASPECT : CHART_ASPECT);
   const dpr = Math.min(window.devicePixelRatio || 1, MAX_PAINT_DPR);
-  const render = renderDimensions(
-    measuredWidth,
-    measuredWidth / chartAspect,
-    dpr,
-  );
+  const render = renderDimensions(measuredWidth, measuredWidth / aspect, dpr);
 
   useGamutPaint({
     value,
@@ -257,6 +263,11 @@ export function OklchPicker({
     <div
       className={
         layout === "row" ? "oklch-picker oklch-picker--row" : "oklch-picker"
+      }
+      style={
+        chartAspect == null
+          ? undefined
+          : ({ "--oklch-chart-aspect": String(chartAspect) } as React.CSSProperties)
       }
     >
       <div className="oklch-picker__charts">

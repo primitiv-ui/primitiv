@@ -383,6 +383,33 @@ describe("OklchPicker", () => {
     );
   });
 
+  it("sizes the chart backing store to an explicit chartAspect", () => {
+    // chartAspect overrides the layout default so the aspect can be tuned: at 2,
+    // a 200px-wide chart paints 200×100 (height = width / aspect).
+    vi.stubGlobal("requestAnimationFrame", (cb: () => void) => {
+      cb();
+      return 0;
+    });
+    render(
+      <OklchPicker
+        value={VALUE}
+        onChange={vi.fn()}
+        layout="row"
+        chartAspect={2}
+      />,
+    );
+
+    act(() => triggerResize(200, 0));
+
+    expect(paint_lc_plane).toHaveBeenCalledWith(
+      expect.any(Number),
+      200,
+      100,
+      expect.any(Number),
+      "Srgb",
+    );
+  });
+
   it("draws gamut boundary curves on the Chroma and Hue charts", () => {
     renderPicker();
 

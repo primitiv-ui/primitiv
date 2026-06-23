@@ -16,11 +16,10 @@
   flex-direction: column;
   gap: var(--primitiv-space-space-16);
   padding: var(--primitiv-space-space-16);
-  /* Responsive: fill the host container, but stay usable in a narrow panel and
-     not sprawl in a wide one (RFC 0010 §5, the responsive-charts pass). */
+  /* Responsive: fill the host container, but stay usable in a narrow panel
+     (RFC 0010 §5, the responsive-charts pass). The host caps the width. */
   width: 100%;
   min-width: 18rem;
-  max-width: 32rem;
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
   border-radius: var(--primitiv-container-md-radius);
   color: var(--primitiv-content-primary);
@@ -73,7 +72,7 @@
 }
 
 .oklch-picker--row .plane-chart {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: var(--oklch-chart-aspect, 1 / 1);
 }
 
 /* sRGB / P3 gamut toggle (ToggleGroup contract: data-state on/off) ---------- */
@@ -112,9 +111,11 @@
 
 .plane-chart {
   position: relative;
-  /* Wide landscape charts that fill the column at a fixed 2:1 ratio. */
+  /* Wide landscape charts that fill the column at a 2:1 ratio by default; the
+     picker overrides --oklch-chart-aspect (and the matching JS backing store)
+     when chartAspect is set. */
   width: 100%;
-  aspect-ratio: 2 / 1;
+  aspect-ratio: var(--oklch-chart-aspect, 2 / 1);
   border-radius: var(--primitiv-container-sm-radius);
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
   /* Visible so the cursor and the axis labels can sit outside the plotting box

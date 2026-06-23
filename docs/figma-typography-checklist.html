@@ -482,7 +482,7 @@
 <tr><td>16</td><td>Figure + figcaption</td><td>Component</td><td><span class="pill build">Build</span></td><td>—</td></tr>
 <tr><td>17</td><td>Divider / hr</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>divider/*</code></td></tr>
 <tr><td>18</td><td>kbd</td><td>Component</td><td><span class="pill build">Build</span></td><td>mono (§8)</td></tr>
-<tr><td>19</td><td>strong</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
+<tr><td>19</td><td>strong</td><td>Char style</td><td><span class="pill build">Build</span></td><td><code>font-style.bold</code></td></tr>
 <tr><td>20</td><td>em</td><td>Char style</td><td><span class="pill build">Build</span></td><td>italic? (decide)</td></tr>
 <tr><td>21</td><td>mark / highlight</td><td>Span</td><td><span class="pill build">Build</span></td><td>highlight tint</td></tr>
 <tr><td>22</td><td>del</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
@@ -493,7 +493,7 @@
 <tr><td>27</td><td>q (inline quote)</td><td>Span</td><td><span class="pill build">Build</span></td><td>—</td></tr>
 </table>
 
-<p class="small" style="margin-top:10pt;">Suggested order: <b>(a)</b> decide the three open questions — monospace face, bold/italic strategy, link-visited token; <b>(b)</b> add the missing text styles + char styles (cheap); <b>(c)</b> build Link → List → Description list → Blockquote → Table → Code → the rest; <b>(d)</b> create the <code>list/* · quote/* · code/* · table/* · divider/*</code> namespaces as each component needs them; <b>(e)</b> write each component's description (the mandatory last step). Remember: inside every component, bind the four type fields inline — never a text style.</p>
+<p class="small" style="margin-top:10pt;">Suggested order: <b>(a)</b> resolve the open questions — monospace face, italic style, link-visited token (bold is settled: add a <code>font-style.bold</code> token and bind Asta Sans Bold); <b>(b)</b> add the missing text styles + char styles (cheap); <b>(c)</b> build Link → List → Description list → Blockquote → Table → Code → the rest; <b>(d)</b> create the <code>list/* · quote/* · code/* · table/* · divider/*</code> namespaces as each component needs them; <b>(e)</b> write each component's description (the mandatory last step). Remember: inside every component, bind the four type fields inline — never a text style.</p>
 
 </body>
 </html>

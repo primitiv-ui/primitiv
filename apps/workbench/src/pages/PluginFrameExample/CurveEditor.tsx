@@ -29,12 +29,15 @@ export function CurveEditor({ palette, curve, onChange, label }: CurveEditorProp
           <Slider.Root
             className="pf-curve-slider"
             orientation="vertical"
-            aria-label={`${label} ${stepLabel(index)} lightness`}
+            aria-label={`${label} ${stepLabel(index)}`}
             min={0}
             max={1}
             step={0.01}
-            value={[curve[index] ?? 0]}
-            onValueChange={([next]) => onChange(index, next)}
+            // Driven by darkness (1 − lightness) so the thumb rises and the
+            // colour fill below it grows for darker steps — the ascending Supa
+            // curve, with the fill staying below the line (bottom-anchored Range).
+            value={[1 - (curve[index] ?? 0)]}
+            onValueChange={([next]) => onChange(index, 1 - next)}
           >
             <Slider.Track className="pf-curve-slider__track">
               <Slider.Range

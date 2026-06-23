@@ -20,6 +20,7 @@ import {
 import { usePluginColors } from "./usePluginColors";
 import { PluginPalette } from "./PluginPalette";
 import { CurveEditor } from "./CurveEditor";
+import { RampPadding } from "./RampPadding";
 
 // The canonical Button default theme from the registry (as `primitiv add button`
 // copies it), resolving against the app token layer — styles the .primitiv-button
@@ -203,70 +204,48 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
         <div>
           <p>Brand — light</p>
           <PluginPalette palette={brand.lightPalette} />
-          <CurveEditor
-            palette={brand.lightPalette}
-            curve={brand.lightnessArray}
-            onChange={setLightCurve}
-            label="Brand light"
-          />
-          <div className="pf-color-engine__padding-row">
-            <div className="pf-color-engine__padding-label">
-              <span className="pf-color-engine__padding-value">
-                {((brand.lightRampPaddingLeft ?? 0) * 100).toFixed(0)}%
-              </span>
-              <FractionSlider
-                label="Light ramp left padding"
-                value={brand.lightRampPaddingLeft ?? 0}
-                max={brand.lightPalette?.max_recommended_light_padding ?? 0}
-                onChange={setLightRampPaddingLeft}
+          <div className="pf-curve-wrap">
+            <CurveEditor
+              palette={brand.lightPalette}
+              curve={brand.lightnessArray}
+              onChange={setLightCurve}
+              label="Brand light"
+            />
+            {brand.lightPalette && (
+              <RampPadding
+                label="Brand light"
+                lightPadding={brand.lightRampPaddingLeft ?? 0}
+                darkPadding={brand.lightRampPaddingRight ?? 0}
+                maxLight={brand.lightPalette.max_recommended_light_padding ?? 0}
+                maxDark={brand.lightPalette.max_recommended_dark_padding ?? 0}
+                onLightChange={setLightRampPaddingLeft}
+                onDarkChange={setLightRampPaddingRight}
               />
-            </div>
-            <div className="pf-color-engine__padding-label">
-              <FractionSlider
-                label="Light ramp right padding"
-                value={brand.lightRampPaddingRight ?? 0}
-                max={brand.lightPalette?.max_recommended_dark_padding ?? 0}
-                onChange={setLightRampPaddingRight}
-              />
-              <span className="pf-color-engine__padding-value">
-                {((brand.lightRampPaddingRight ?? 0) * 100).toFixed(0)}%
-              </span>
-            </div>
+            )}
           </div>
         </div>
 
         <div>
           <p>Brand — dark</p>
           <PluginPalette palette={brand.darkPalette} />
-          <CurveEditor
-            palette={brand.darkPalette}
-            curve={brand.darkLightnessArray}
-            onChange={setDarkCurve}
-            label="Brand dark"
-          />
-          <div className="pf-color-engine__padding-row">
-            <div className="pf-color-engine__padding-label">
-              <span className="pf-color-engine__padding-value">
-                {((brand.darkRampPaddingLeft ?? 0) * 100).toFixed(0)}%
-              </span>
-              <FractionSlider
-                label="Dark ramp left padding"
-                value={brand.darkRampPaddingLeft ?? 0}
-                max={brand.darkPalette?.max_recommended_light_padding ?? 0}
-                onChange={setDarkRampPaddingLeft}
+          <div className="pf-curve-wrap">
+            <CurveEditor
+              palette={brand.darkPalette}
+              curve={brand.darkLightnessArray}
+              onChange={setDarkCurve}
+              label="Brand dark"
+            />
+            {brand.darkPalette && (
+              <RampPadding
+                label="Brand dark"
+                lightPadding={brand.darkRampPaddingLeft ?? 0}
+                darkPadding={brand.darkRampPaddingRight ?? 0}
+                maxLight={brand.darkPalette.max_recommended_light_padding ?? 0}
+                maxDark={brand.darkPalette.max_recommended_dark_padding ?? 0}
+                onLightChange={setDarkRampPaddingLeft}
+                onDarkChange={setDarkRampPaddingRight}
               />
-            </div>
-            <div className="pf-color-engine__padding-label">
-              <FractionSlider
-                label="Dark ramp right padding"
-                value={brand.darkRampPaddingRight ?? 0}
-                max={brand.darkPalette?.max_recommended_dark_padding ?? 0}
-                onChange={setDarkRampPaddingRight}
-              />
-              <span className="pf-color-engine__padding-value">
-                {((brand.darkRampPaddingRight ?? 0) * 100).toFixed(0)}%
-              </span>
-            </div>
+            )}
           </div>
         </div>
       </section>

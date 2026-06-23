@@ -155,31 +155,6 @@
   flex-direction: column;
 }
 
-.pf-color-engine__padding-row {
-  display: flex;
-  gap: var(--primitiv-space-space-8);
-  margin-top: var(--primitiv-space-space-4);
-}
-
-.pf-color-engine__padding-label {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: var(--primitiv-space-space-4);
-  font-size: var(--primitiv-body-md-font-size);
-}
-
-.pf-color-engine__padding-label .pf-slider {
-  flex: 1;
-  min-width: 0;
-}
-
-.pf-color-engine__padding-value {
-  font-variant-numeric: tabular-nums;
-  min-width: 2.5ch;
-  flex-shrink: 0;
-}
-
 /* ─── Palette rows ──────────────────────────────────────────────────────── */
 
 .pf-palette__steps {
@@ -248,8 +223,7 @@
   position: relative;
   flex: 1;
   width: 100%;
-  background: var(--primitiv-surface-subtle);
-  border-right: var(--primitiv-border-width-1) solid var(--primitiv-surface-default);
+  background: var(--primitiv-color-absolute-white);
   overflow: hidden;
 }
 
@@ -273,6 +247,63 @@
 .pf-curve-slider__thumb:focus-visible {
   outline: var(--primitiv-focus-ring-width) solid var(--primitiv-border-focus);
   outline-offset: var(--primitiv-focus-ring-offset);
+}
+
+/* ─── Ramp padding overlay (two horizontal lines on the curve) ───────────── */
+
+.pf-curve-wrap {
+  position: relative;
+}
+
+/* Click-through overlay so the column sliders below stay draggable; only the
+   two lines capture the pointer. */
+.pf-padding {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pf-padding__line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: var(--primitiv-space-space-12);
+  display: flex;
+  align-items: center;
+  pointer-events: auto;
+  cursor: ns-resize;
+  /* A thin rule centred in the hit area; difference-blended so it reads over
+     both the white track and the painted fills below. */
+  background-image: linear-gradient(
+    var(--primitiv-color-absolute-white),
+    var(--primitiv-color-absolute-white)
+  );
+  background-size: 100% var(--primitiv-border-width-2);
+  background-position: center;
+  background-repeat: no-repeat;
+  mix-blend-mode: difference;
+}
+
+.pf-padding__line--dark {
+  transform: translateY(-50%);
+  justify-content: flex-start;
+}
+
+.pf-padding__line--light {
+  transform: translateY(50%);
+  justify-content: flex-end;
+}
+
+.pf-padding__line:focus-visible {
+  outline: var(--primitiv-focus-ring-width) solid var(--primitiv-border-focus);
+  outline-offset: var(--primitiv-focus-ring-offset);
+}
+
+.pf-padding__handle {
+  width: var(--primitiv-space-space-12);
+  height: var(--primitiv-space-space-12);
+  border-radius: 50%;
+  background: var(--primitiv-color-absolute-white);
 }
 
 /* ─── White / black lightness anchors ───────────────────────────────────── */

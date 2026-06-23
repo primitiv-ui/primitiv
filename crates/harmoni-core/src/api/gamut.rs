@@ -26,10 +26,19 @@ pub enum Gamut {
 
 /// Whether a linear-RGB triple sits inside its unit cube, with a small epsilon
 /// absorbing floating-point error at the faces.
+///
+/// The epsilon is held at float-conversion scale (`1e-5`). A looser tolerance
+/// (the old `1e-3`) is ~100× the genuine round-trip error and admits *out-of-
+/// gamut* near-black colours: their linear channels are all tiny, so a chromatic
+/// dark whose limiting channel is only slightly negative still sits within an
+/// absolute `±1e-3`. That spurious near-black chroma spiked the picker's Hue-
+/// chart boundary at the bottom edge; tightening it collapses the gamut to the
+/// black point as it should, while every genuine boundary is unchanged — the
+/// limiting channel crosses zero steeply there (RFC 0010 §10).
 fn linear_in_gamut(red: f32, green: f32, blue: f32) -> bool {
-    (-0.001..=1.001).contains(&red)
-        && (-0.001..=1.001).contains(&green)
-        && (-0.001..=1.001).contains(&blue)
+    (-1e-5..=1.000_01).contains(&red)
+        && (-1e-5..=1.000_01).contains(&green)
+        && (-1e-5..=1.000_01).contains(&blue)
 }
 
 /// Whether an OkLCH `(lightness, chroma, hue)` is inside the given `gamut`,

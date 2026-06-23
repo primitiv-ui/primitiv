@@ -19,6 +19,7 @@ import {
 
 import { usePluginColors } from "./usePluginColors";
 import { PluginPalette } from "./PluginPalette";
+import { CurveEditor } from "./CurveEditor";
 
 // The canonical Button default theme from the registry (as `primitiv add button`
 // copies it), resolving against the app token layer — styles the .primitiv-button
@@ -73,6 +74,8 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
     setNeutralWhite,
     setNeutralBlack,
     setBrandHex,
+    setLightCurve,
+    setDarkCurve,
     setTintStrength,
     handleUseAsTint,
     handleRemoveTint,
@@ -200,6 +203,12 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
         <div>
           <p>Brand — light</p>
           <PluginPalette palette={brand.lightPalette} />
+          <CurveEditor
+            palette={brand.lightPalette}
+            curve={brand.lightnessArray}
+            onChange={setLightCurve}
+            label="Brand light"
+          />
           <div className="pf-color-engine__padding-row">
             <div className="pf-color-engine__padding-label">
               <span className="pf-color-engine__padding-value">
@@ -229,6 +238,12 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
         <div>
           <p>Brand — dark</p>
           <PluginPalette palette={brand.darkPalette} />
+          <CurveEditor
+            palette={brand.darkPalette}
+            curve={brand.darkLightnessArray}
+            onChange={setDarkCurve}
+            label="Brand dark"
+          />
           <div className="pf-color-engine__padding-row">
             <div className="pf-color-engine__padding-label">
               <span className="pf-color-engine__padding-value">

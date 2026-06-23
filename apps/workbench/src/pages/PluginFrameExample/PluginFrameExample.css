@@ -219,6 +219,62 @@
   margin: var(--primitiv-space-space-2) 0 0;
 }
 
+/* ─── Lightness-curve editor (per-swatch vertical sliders) ───────────────── */
+
+.pf-curve {
+  display: flex;
+  width: 100%;
+  height: var(--primitiv-space-space-80);
+  margin-top: var(--primitiv-space-space-4);
+}
+
+.pf-curve__col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
+.pf-curve-slider {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.pf-curve-slider__track {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  background: var(--primitiv-surface-subtle);
+  border-right: var(--primitiv-border-width-1) solid var(--primitiv-surface-default);
+  overflow: hidden;
+}
+
+/* The fill below the thumb line is that swatch's own colour (set inline). The
+   vertical extent is positioned by the Slider; width spans the column. */
+.pf-curve-slider__range {
+  position: absolute;
+  width: 100%;
+}
+
+/* The thumb is a thin horizontal line spanning the column at the step's
+   lightness, centred on its value. */
+.pf-curve-slider__thumb {
+  width: 100%;
+  height: var(--primitiv-border-width-2);
+  background: var(--primitiv-content-primary);
+  translate: 0 50%;
+  cursor: ns-resize;
+}
+
+.pf-curve-slider__thumb:focus-visible {
+  outline: var(--primitiv-focus-ring-width) solid var(--primitiv-border-focus);
+  outline-offset: var(--primitiv-focus-ring-offset);
+}
+
 /* ─── White / black lightness anchors ───────────────────────────────────── */
 
 .pf-anchors {

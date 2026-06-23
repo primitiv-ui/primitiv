@@ -98,6 +98,25 @@ export function usePluginColors() {
     setBrand((prev) => regenerateBrand({ ...prev, hex }));
   };
 
+  // Per-swatch lightness-curve edits (the Supa-style column sliders): replace one
+  // entry of the light (or dark) lightness array and regenerate. The light ramp
+  // is driven by `lightnessArray`, the dark ramp by `darkLightnessArray`.
+  const setLightCurve = (index: number, value: number) => {
+    setBrand((prev) => {
+      const array = [...(prev.lightnessArray ?? DEFAULT_LIGHTNESS)];
+      array[index] = value;
+      return regenerateBrand({ ...prev, lightnessArray: array });
+    });
+  };
+
+  const setDarkCurve = (index: number, value: number) => {
+    setBrand((prev) => {
+      const array = [...(prev.darkLightnessArray ?? DEFAULT_DARK_LIGHTNESS)];
+      array[index] = value;
+      return regenerateBrand({ ...prev, darkLightnessArray: array });
+    });
+  };
+
   const handleUseAsTint = () => {
     const source = brand.lightPalette?.swatches[5];
     if (!source) return;
@@ -138,6 +157,8 @@ export function usePluginColors() {
     setNeutralWhite,
     setNeutralBlack,
     setBrandHex,
+    setLightCurve,
+    setDarkCurve,
     setTintStrength,
     handleUseAsTint,
     handleRemoveTint,

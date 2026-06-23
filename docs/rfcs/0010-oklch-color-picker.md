@@ -589,8 +589,12 @@ at **100% lines / branches / functions / statements** (118 tests).
   chroma, found by sampling `max_in_gamut_chroma` and interpolating the crossings — for
   the Hue chart). At high chroma the in-gamut hues fragment into bands, so the Hue
   curves are returned as **broken segments** (a polyline each), not one line spiking
-  across the gaps. Each chart overlays its sRGB curve plus the P3 curve in P3 mode. The
-  Hue sweep is the heaviest, so it is memoised on its inputs.
+  across the gaps. The per-hue band is taken **around the peak-chroma lightness** and
+  expanded to its edges, which ignores a *detached* near-black in-gamut sliver (the
+  engine's `-0.001..1.001` tolerance reads near-black-with-chroma as in gamut at very
+  low lightness) that otherwise spiked the lower bound to the bottom — while still
+  keeping a band that runs genuinely into the dark. Each chart overlays its sRGB curve
+  plus the P3 curve in P3 mode. The Hue sweep is the heaviest, so it is memoised.
 - **Performance.** Human feedback that the picker lagged a little in use. oklch.com
   stays smooth by painting in a **Web-Worker pool** (off the main thread); rather than
   take that on (it can't be browser-verified in the sandbox and complicates the Phase 5

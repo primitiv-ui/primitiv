@@ -1,6 +1,8 @@
 /* Plugin frame sandbox. Every selector is prefixed `pf-`: App.tsx bundles every
    example's CSS into one global sheet, so a bare element/attribute selector would
-   leak onto other pages (see the workbench-examples skill). */
+   leak onto other pages (see the workbench-examples skill). The chrome inside the
+   frame is ported from apps/harmoni-figma-plugin/src/ui/index.scss so it reads
+   like the real plugin (the plugin's Figma theme falls back to these values). */
 
 .pf-page {
   display: flex;
@@ -28,14 +30,6 @@
   gap: var(--primitiv-space-space-4);
 }
 
-.pf-aspect-control {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--primitiv-space-space-8);
-  color: var(--primitiv-content-secondary);
-  font-size: var(--primitiv-body-sm-font-size);
-}
-
 .pf-width-control__btn {
   padding: var(--primitiv-space-space-4) var(--primitiv-space-space-12);
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
@@ -52,12 +46,20 @@
   border-color: var(--primitiv-action-primary-default);
 }
 
-/* The frame: the real plugin window size. The body scrolls like the iframe. */
+.pf-aspect-control {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--primitiv-space-space-8);
+  color: var(--primitiv-content-secondary);
+  font-size: var(--primitiv-body-sm-font-size);
+}
+
+/* The frame: the real plugin window size. The body scrolls like the iframe and
+   wears the plugin's own light surface so it reads like the real plugin. */
 .pf-frame {
   box-sizing: border-box;
   border: var(--primitiv-border-width-2) solid var(--primitiv-border-default);
   border-radius: var(--primitiv-container-md-radius);
-  background: var(--primitiv-surface-default);
   overflow: hidden;
   box-shadow: 0 var(--primitiv-space-space-8) var(--primitiv-space-space-24)
     rgb(0 0 0 / 0.25);
@@ -66,160 +68,209 @@
 .pf-frame__body {
   height: 100%;
   overflow-y: auto;
-  padding: var(--primitiv-space-space-16);
-  display: flex;
-  flex-direction: column;
-  gap: var(--primitiv-space-space-16);
+  background: #ffffff;
+  color: #1e1e1e;
+  font-family: system-ui, sans-serif;
+  font-size: 12px;
 }
 
-.pf-frame__title {
+/* ─── Color Engine (ported) ─────────────────────────────────────────────── */
+
+.pf-color-engine {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+.pf-color-engine h1 {
   margin: 0;
-  font-size: var(--primitiv-heading-sm-font-size);
+  font-size: 15px;
 }
 
-.pf-section {
+.pf-color-engine > section > div > p,
+.pf-color-engine__inputs > p {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #666666;
+}
+
+.pf-color-engine__inputs {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-8);
+  gap: 16px;
 }
 
-.pf-section__head {
+.pf-color-engine__palettes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pf-color-engine__palettes > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.pf-color-engine__padding-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.pf-color-engine__padding-label {
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: var(--primitiv-space-space-8);
+  gap: 4px;
+  font-size: 12px;
 }
 
-.pf-section__title {
-  font-weight: var(--primitiv-body-md-font-weight-strong, 600);
-  color: var(--primitiv-content-primary);
+.pf-color-engine__padding-label input[type="range"] {
+  flex: 1;
+  min-width: 0;
 }
 
-/* White / black lightness anchors --------------------------------------- */
+.pf-color-engine__padding-value {
+  font-variant-numeric: tabular-nums;
+  min-width: 2.5ch;
+  flex-shrink: 0;
+}
+
+/* ─── Palette rows (ported) ─────────────────────────────────────────────── */
+
+.pf-palette__steps {
+  display: flex;
+  width: 100%;
+}
+
+.pf-palette__swatch {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.pf-palette__swatch-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 80px;
+}
+
+.pf-palette__swatch-inner p {
+  color: inherit;
+  font-size: 10px;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pf-palette__swatch--step {
+  font-size: 10px;
+  text-align: center;
+  margin: 2px 0 0;
+}
+
+/* ─── White / black lightness anchors ───────────────────────────────────── */
 
 .pf-anchors {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-8);
+  gap: 8px;
 }
 
 .pf-anchor {
   display: grid;
   grid-template-columns: 3.5rem auto 1fr 3ch;
   align-items: center;
-  gap: var(--primitiv-space-space-8);
+  gap: 8px;
 }
 
 .pf-anchor__label {
-  color: var(--primitiv-content-secondary);
+  color: #666666;
 }
 
-.pf-anchor__swatch {
-  width: var(--primitiv-space-space-20);
-  height: var(--primitiv-space-space-20);
-  border-radius: var(--primitiv-container-sm-radius);
-  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+.pf-anchor__swatch,
+.pf-brand__swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid #e5e5e5;
 }
 
 .pf-anchor__value {
   font-variant-numeric: tabular-nums;
-  color: var(--primitiv-content-secondary);
+  color: #666666;
 }
 
-/* Brand swatch + hex readout -------------------------------------------- */
+/* ─── Brand ─────────────────────────────────────────────────────────────── */
 
-.pf-brand-swatch {
-  width: var(--primitiv-space-space-20);
-  height: var(--primitiv-space-space-20);
-  border-radius: var(--primitiv-container-sm-radius);
-  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
-}
-
-.pf-brand-hex {
-  color: var(--primitiv-content-secondary);
-}
-
-.pf-loading {
-  margin: 0;
-  color: var(--primitiv-content-secondary);
-}
-
-/* Placeholder ramps ----------------------------------------------------- */
-
-.pf-ramp-row {
-  display: flex;
-  align-items: center;
-  gap: var(--primitiv-space-space-8);
-}
-
-.pf-ramp-row__label {
-  width: 3rem;
-  color: var(--primitiv-content-secondary);
-  font-size: var(--primitiv-body-sm-font-size);
-}
-
-.pf-ramp {
-  display: flex;
-  flex: 1;
-  height: var(--primitiv-space-space-32, 2rem);
-  border-radius: var(--primitiv-container-sm-radius);
-  overflow: hidden;
-  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
-}
-
-.pf-ramp__step {
-  flex: 1;
-}
-
-/* Actions --------------------------------------------------------------- */
-
-.pf-actions {
-  gap: var(--primitiv-space-space-12);
-}
-
-.pf-field {
+.pf-brand {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-4);
-  color: var(--primitiv-content-secondary);
+  gap: 8px;
 }
 
-.pf-text-input {
-  padding: var(--primitiv-space-space-8);
-  border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
-  border-radius: var(--primitiv-container-sm-radius);
-  background: var(--primitiv-surface-subtle);
-  color: var(--primitiv-content-primary);
-  font: inherit;
-}
-
-.pf-check {
+.pf-brand__head {
   display: flex;
   align-items: center;
-  gap: var(--primitiv-space-space-8);
-  color: var(--primitiv-content-secondary);
+  gap: 8px;
 }
 
-.pf-actions__buttons {
+.pf-brand__label {
+  color: #666666;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pf-brand__hex {
+  color: #666666;
+}
+
+/* The picker inside the plugin frame wears its own dark chrome by default; on
+   the light plugin surface, drop its border so it sits flush like the inputs. */
+.pf-brand .oklch-picker {
+  border: none;
+  padding: 0;
+}
+
+.pf-neutral-tint {
   display: flex;
-  gap: var(--primitiv-space-space-8);
+  align-items: center;
+  gap: 8px;
+}
+
+.pf-neutral-tint__swatch {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid #e5e5e5;
+  flex-shrink: 0;
 }
 
 .pf-btn {
-  padding: var(--primitiv-space-space-8) var(--primitiv-space-space-16);
-  border-radius: var(--primitiv-container-sm-radius);
-  border: var(--primitiv-border-width-1) solid transparent;
+  align-self: flex-start;
+  padding: 6px 12px;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  background: #f5f5f5;
+  color: #1e1e1e;
   font: inherit;
   cursor: pointer;
 }
 
-.pf-btn--primary {
-  background: var(--primitiv-action-primary-default);
-  color: var(--primitiv-content-on-action);
-}
-
-.pf-btn--ghost {
-  background: var(--primitiv-surface-subtle);
-  color: var(--primitiv-content-secondary);
-  border-color: var(--primitiv-border-default);
-  align-self: flex-start;
+.pf-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

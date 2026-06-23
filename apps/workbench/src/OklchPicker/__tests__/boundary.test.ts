@@ -101,6 +101,20 @@ describe("hueBoundaryPoints", () => {
     expect(lower).toHaveLength(2);
   });
 
+  it("ignores a detached near-black sliver, taking the band around the peak", () => {
+    // In gamut at l=0 (a near-black sliver), out across a dead zone, then the
+    // real band 0.4..0.6 around the peak at 0.5 — the lower bound must not spike
+    // to 0 but sit at the real band's foot.
+    const profile = [0.2, 0, 0, 0, 0.2, 0.3, 0.2, 0, 0, 0, 0];
+    maxChromaMock.mockImplementation((l: number) => profile[Math.round(l * 10)]);
+
+    const { upper, lower } = hueBoundaryPoints(0.15, 100, 200, 2, "Srgb", 10);
+
+    // band foot ~0.375 → y 125; band head ~0.625 → y 75 (not 0 from the sliver).
+    expect(lower).toEqual(["0,125 100,125"]);
+    expect(upper).toEqual(["0,75 100,75"]);
+  });
+
   it("keeps an edge that is already in gamut as the limit", () => {
     maxChromaMock.mockReturnValue(0.3);
 

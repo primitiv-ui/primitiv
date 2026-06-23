@@ -112,6 +112,12 @@ function point(hue: number, l: number, width: number, height: number): string {
 /**
  * The lightness range `[low, high]` that can hold chroma `c` at `hue`, or `null`
  * when the chroma is unreachable at any lightness (the band has a gap there).
+ *
+ * The band taken is the one **around the peak-chroma lightness**, expanded out to
+ * its in-gamut edges. This deliberately ignores a *detached* in-gamut sliver near
+ * black (at very low lightness the engine's tolerance can read a near-black colour
+ * as holding chroma), which otherwise spikes the lower bound to the bottom — while
+ * still keeping a band that genuinely runs contiguously into the dark.
  */
 function lightnessWindow(
   c: number,
@@ -121,22 +127,23 @@ function lightnessWindow(
 ): { low: number; high: number } | null {
   if (c <= 0) return { low: 0, high: 1 };
 
-  let prevL = 0;
-  let prevM = max_in_gamut_chroma(0, hue, gamut);
-  let low: number | null = prevM >= c ? 0 : null;
-  let high: number | null = null;
-
-  for (let i = 1; i <= steps; i += 1) {
-    const l = i / steps;
-    const m = max_in_gamut_chroma(l, hue, gamut);
-    if (prevM < c && m >= c) low = interpolate(prevL, prevM, l, m, c);
-    if (prevM >= c && m < c) high = interpolate(prevL, prevM, l, m, c);
-    prevL = l;
-    prevM = m;
+  const chroma: number[] = [];
+  let peak = 0;
+  for (let i = 0; i <= steps; i += 1) {
+    chroma[i] = max_in_gamut_chroma(i / steps, hue, gamut);
+    if (chroma[i] > chroma[peak]) peak = i;
   }
-  if (high === null && prevM >= c) high = 1;
+  if (chroma[peak] < c) return null;
 
-  if (low === null || high === null) return null;
+  let lo = peak;
+  while (lo > 0 && chroma[lo - 1] >= c) lo -= 1;
+  let hi = peak;
+  while (hi < steps && chroma[hi + 1] >= c) hi += 1;
+
+  const low =
+    lo === 0 ? 0 : interpolate((lo - 1) / steps, chroma[lo - 1], lo / steps, chroma[lo], c);
+  const high =
+    hi === steps ? 1 : interpolate(hi / steps, chroma[hi], (hi + 1) / steps, chroma[hi + 1], c);
   return { low, high };
 }
 

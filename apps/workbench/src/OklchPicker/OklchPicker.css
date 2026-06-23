@@ -56,6 +56,26 @@
   padding-left: var(--primitiv-space-space-16);
 }
 
+/* Row layout (RFC 0010 §9): the three columns sit side by side and share the
+   width equally, so each chart paints square at its narrower per-column size —
+   a compact form for the Figma plugin. The picker measures one column, so the
+   `flex: 1` columns must hold an equal, content-agnostic width (`min-width: 0`).
+   The label gutter shrinks to claw back chart width at the smaller size. */
+.oklch-picker--row .oklch-picker__axes {
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.oklch-picker--row .oklch-picker__axis {
+  flex: 1;
+  min-width: 0;
+  padding-left: var(--primitiv-space-space-8);
+}
+
+.oklch-picker--row .plane-chart {
+  aspect-ratio: 1 / 1;
+}
+
 /* sRGB / P3 gamut toggle (ToggleGroup contract: data-state on/off) ---------- */
 
 .gamut-toggle {

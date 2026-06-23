@@ -34,8 +34,11 @@ import type { Gamut, OklchValue } from "./types";
 
 import "./OklchPicker.css";
 
-/** The charts' width:height ratio — a wide landscape plane, like oklch.com. */
+/** The charts' width:height ratio. Stacked, they are wide landscape planes like
+ *  oklch.com; in a row the three columns split the width, so each is painted
+ *  square to keep usable height at the narrower per-column size. */
 const CHART_ASPECT = 2;
+const ROW_CHART_ASPECT = 1;
 
 /** Cap on the paint backing-store scale: paint planes at ~1× for speed (the
  *  vector overlays carry the crispness), tunable up for a sharper gradient. */
@@ -81,9 +84,21 @@ const H_AXIS: PlaneAxisSpec = {
 export type OklchPickerProps = {
   value: OklchValue;
   onChange: (value: OklchValue) => void;
+  /**
+   * How the three chart-over-slider columns are arranged. `"stacked"` (default)
+   * is the full-width oklch.com column; `"row"` lays the columns side by side —
+   * a compact form for narrow surfaces like the Figma plugin (RFC 0010 §9), at
+   * the cost of smaller, squarer charts (precision carried by the sliders and
+   * number fields).
+   */
+  layout?: "stacked" | "row";
 };
 
-export function OklchPicker({ value, onChange }: OklchPickerProps) {
+export function OklchPicker({
+  value,
+  onChange,
+  layout = "stacked",
+}: OklchPickerProps) {
   const planeRef = useRef<HTMLCanvasElement>(null);
   const lightnessPlaneRef = useRef<HTMLCanvasElement>(null);
   const chromaPlaneRef = useRef<HTMLCanvasElement>(null);
@@ -102,12 +117,16 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
   // guide lines, cursor, labels), so the gradient is painted at ~1× rather than
   // full devicePixelRatio — far fewer per-pixel conversions, keeping drags smooth.
   // Raise MAX_PAINT_DPR to trade speed back for a sharper gradient fill.
-  const axesRef = useRef<HTMLDivElement>(null);
-  const { width: measuredWidth } = useElementSize(axesRef);
+  // Measure one chart column rather than the whole axes wrapper: in a row the
+  // columns split the width, so a column's width is each chart's real width
+  // (stacked, the column is full width — unchanged). All three columns share it.
+  const chartColumnRef = useRef<HTMLDivElement>(null);
+  const { width: measuredWidth } = useElementSize(chartColumnRef);
+  const chartAspect = layout === "row" ? ROW_CHART_ASPECT : CHART_ASPECT;
   const dpr = Math.min(window.devicePixelRatio || 1, MAX_PAINT_DPR);
   const render = renderDimensions(
     measuredWidth,
-    measuredWidth / CHART_ASPECT,
+    measuredWidth / chartAspect,
     dpr,
   );
 
@@ -235,7 +254,11 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
   };
 
   return (
-    <div className="oklch-picker">
+    <div
+      className={
+        layout === "row" ? "oklch-picker oklch-picker--row" : "oklch-picker"
+      }
+    >
       <div className="oklch-picker__charts">
         <div className="oklch-picker__toolbar">
           <GamutToggle gamut={gamut} onChange={setGamut} />
@@ -243,8 +266,8 @@ export function OklchPicker({ value, onChange }: OklchPickerProps) {
         {/* The three-chart net, top→bottom Lightness, Chroma, Hue (oklch.com's
             order). Each column carries its channel's title + number field above
             the chart it pins (RFC 0010 §2, §5) and its painted slider below. */}
-        <div className="oklch-picker__axes" ref={axesRef}>
-          <div className="oklch-picker__axis">
+        <div className="oklch-picker__axes">
+          <div className="oklch-picker__axis" ref={chartColumnRef}>
             <Field.Root className="oklch-picker__axis-field">
               <Field.Label className="oklch-picker__axis-title">
                 Lightness

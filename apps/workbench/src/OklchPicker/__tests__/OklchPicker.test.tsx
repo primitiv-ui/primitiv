@@ -347,6 +347,42 @@ describe("OklchPicker", () => {
     expect(canvas.height).toBe(300);
   });
 
+  it("stacks the charts in a column by default (no row modifier)", () => {
+    renderPicker();
+
+    expect(document.querySelector(".oklch-picker")).not.toHaveClass(
+      "oklch-picker--row",
+    );
+  });
+
+  it("marks the picker with a row modifier when laid out in a row", () => {
+    render(<OklchPicker value={VALUE} onChange={vi.fn()} layout="row" />);
+
+    expect(document.querySelector(".oklch-picker")).toHaveClass(
+      "oklch-picker--row",
+    );
+  });
+
+  it("paints the row charts square from each column's narrower width", () => {
+    // In a row the three columns split the width, so each chart is measured at
+    // its own (narrower) size and painted square rather than the stacked 2:1.
+    vi.stubGlobal("requestAnimationFrame", (cb: () => void) => {
+      cb();
+      return 0;
+    });
+    render(<OklchPicker value={VALUE} onChange={vi.fn()} layout="row" />);
+
+    act(() => triggerResize(190, 0));
+
+    expect(paint_lc_plane).toHaveBeenCalledWith(
+      expect.any(Number),
+      190,
+      190,
+      expect.any(Number),
+      "Srgb",
+    );
+  });
+
   it("draws gamut boundary curves on the Chroma and Hue charts", () => {
     renderPicker();
 

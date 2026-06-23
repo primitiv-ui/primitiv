@@ -69,7 +69,7 @@ export function RampPadding({
   };
 
   const nudge =
-    (kind: "light" | "dark", value: number, max: number, onChange: (v: number) => void) =>
+    (value: number, max: number, onChange: (v: number) => void) =>
     (event: React.KeyboardEvent) => {
       const delta =
         event.key === "ArrowUp" ? KEY_STEP : event.key === "ArrowDown" ? -KEY_STEP : 0;
@@ -94,7 +94,7 @@ export function RampPadding({
         onPointerDown={handlePointerDown("dark")}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        onKeyDown={nudge("dark", darkPadding, maxDark, onDarkChange)}
+        onKeyDown={nudge(darkPadding, maxDark, onDarkChange)}
       >
         <span className="pf-padding__handle pf-padding__handle--start" />
       </div>
@@ -111,7 +111,7 @@ export function RampPadding({
         onPointerDown={handlePointerDown("light")}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        onKeyDown={nudge("light", lightPadding, maxLight, onLightChange)}
+        onKeyDown={nudge(lightPadding, maxLight, onLightChange)}
       >
         <span className="pf-padding__handle pf-padding__handle--end" />
       </div>

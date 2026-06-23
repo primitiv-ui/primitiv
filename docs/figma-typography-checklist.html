@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Primitiv — Web Typography & Text Elements Build Checklist</title>
+<style>
+  @page {
+    size: A4;
+    margin: 16mm 14mm 18mm 14mm;
+    @bottom-center { content: "Primitiv — Typography & Text Elements"; font: 8pt "Helvetica", sans-serif; color: #8f8f8f; }
+    @bottom-right  { content: counter(page) " / " counter(pages); font: 8pt "Helvetica", sans-serif; color: #8f8f8f; }
+  }
+  * { box-sizing: border-box; }
+  html { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #222; font-size: 9.4pt; line-height: 1.45; }
+  body { margin: 0; }
+  h1 { font-size: 26pt; line-height: 1.1; margin: 0 0 4pt; letter-spacing: -0.4pt; }
+  h2 { font-size: 15pt; margin: 0 0 6pt; padding-bottom: 4pt; border-bottom: 2px solid #222; letter-spacing: -0.2pt; }
+  h3 { font-size: 12pt; margin: 14pt 0 4pt; color: #111; }
+  h4 { font-size: 10pt; margin: 10pt 0 3pt; color: #3b3b3b; text-transform: uppercase; letter-spacing: 0.6pt; }
+  p { margin: 0 0 6pt; }
+  code, .mono { font-family: "DejaVu Sans Mono", "Courier New", monospace; font-size: 8.4pt; background: #f1f1f1; padding: 0.5pt 3pt; border-radius: 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 4pt 0 10pt; font-size: 8.4pt; }
+  th, td { border: 1px solid #d9d9d9; padding: 3.5pt 5pt; text-align: left; vertical-align: top; }
+  th { background: #f3f3f3; font-weight: 700; }
+  tr { break-inside: avoid; }
+  .lead { font-size: 11pt; color: #3b3b3b; line-height: 1.5; }
+  .section { break-before: page; }
+  .card { border: 1px solid #d0d0d0; border-radius: 6px; padding: 9pt 11pt; margin: 0 0 11pt; break-inside: avoid; }
+  .card h3 { margin-top: 0; display: flex; justify-content: space-between; align-items: baseline; }
+  .pill { font-size: 7.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5pt; padding: 1.5pt 6pt; border-radius: 10px; white-space: nowrap; }
+  .pill.comp { background: #1f5cff; color: #fff; }
+  .pill.style { background: #0a7d4b; color: #fff; }
+  .pill.mark { background: #8a5a00; color: #fff; }
+  .pill.exists { background: #e6f5ec; color: #0a7d4b; border: 1px solid #0a7d4b; }
+  .pill.build { background: #fdecec; color: #c0392b; border: 1px solid #c0392b; }
+  .pill.newtok { background: #fff4e0; color: #8a5a00; border: 1px solid #8a5a00; }
+  .meta { font-size: 8pt; color: #8f8f8f; margin: -2pt 0 6pt; }
+  ul.tight { margin: 2pt 0 6pt; padding-left: 16pt; }
+  ul.tight li { margin: 1pt 0; }
+  .callout { background: #fbf7ec; border-left: 3px solid #c79a2b; padding: 6pt 9pt; margin: 6pt 0; border-radius: 0 4px 4px 0; font-size: 8.6pt; }
+  .danger { background: #fdf1f1; border-left-color: #c0392b; }
+  .swatch { display: inline-block; width: 9pt; height: 9pt; border-radius: 2px; border: 1px solid #00000022; vertical-align: -1px; margin-right: 3pt; }
+  .toc { columns: 2; column-gap: 18pt; font-size: 9pt; }
+  .toc a { color: #1f5cff; text-decoration: none; }
+  .small { font-size: 8pt; color: #8f8f8f; }
+  .legend span { margin-right: 12pt; font-size: 8.2pt; }
+</style>
+</head>
+<body>
+
+<h1>Web Typography &amp; Text Elements</h1>
+<p class="lead">A build checklist for the Primitiv Figma library. Every web content element you need, what it's made of, which existing tokens it binds to, and which need a new namespace. Drag this into Figma as a reference board.</p>
+<p class="small">Generated from <code>packages/tokens/src/*.json</code> (the repo copy of the live Figma variables). Values shown are the resolved primitives at the time of generation. Branch <code>claude/figma-typography-planning-cbohph</code>.</p>
+
+<div class="legend" style="margin:8pt 0;">
+  <span><span class="pill comp">Component</span> stateful / composed</span>
+  <span><span class="pill style">Text style</span> exists, just confirm colour</span>
+  <span><span class="pill mark">Inline mark</span> character style / span</span>
+  <span><span class="pill exists">Exists</span></span>
+  <span><span class="pill build">Needs building</span></span>
+  <span><span class="pill newtok">New token namespace</span></span>
+</div>
+
+<h2 style="margin-top:10pt;">Contents</h2>
+<div class="toc">
+  1. The model — two layers, one rule<br>
+  2. Reference: the type scale (per density)<br>
+  3. Reference: semantic colour (light / dark)<br>
+  4. Block prose — text styles<br>
+  5. Structured content — components<br>
+  6. Inline / text-level — marks<br>
+  7. New token namespaces to create<br>
+  8. The monospace gap<br>
+  9. Master checklist (one-glance)
+</div>
+
+<!-- ============================================================ -->
+<h2 class="section" id="model">1 · The model — two layers, one rule</h2>
+
+<p>Typography in Primitiv is already solved at the <b>variable</b> level. Building web elements is mostly <b>composition + colour</b>, not inventing type scales.</p>
+
+<table>
+<tr><th style="width:22%">Layer</th><th>What it does</th><th>You touch it when…</th></tr>
+<tr><td><b>Context collection</b><br><span class="small">4 modes: Dense · Compact · Comfortable · Spacious</span></td>
+    <td>Holds every <b>size</b> decision: <code>heading/*</code>, <code>body/*</code>, <code>label/*</code>, <code>display/*</code>, <code>overline/*</code>, plus all spacing/anatomy. The active value is chosen by the <b>frame's density mode override</b>.</td>
+    <td>Binding font size / line-height / spacing. Adding a new structural namespace (lists, tables…).</td></tr>
+<tr><td><b>Intent collection</b><br><span class="small">2 modes: Light · Dark</span></td>
+    <td>Holds every <b>colour</b> decision: <code>content/*</code>, <code>surface/*</code>, <code>border/*</code>, <code>action/*</code>. Light/Dark inversion is automatic via the palette's own modes.</td>
+    <td>Binding any fill, stroke, or text colour.</td></tr>
+</table>
+
+<h3>The two-collection rule</h3>
+<p><b>Context for size &amp; spacing. Intent (content / surface / border / action) for colour.</b> Bind to those and both density switching and light/dark theming work for free via frame mode overrides — no rebinding, no dark values to author.</p>
+
+<div class="callout danger">
+  <b>The one gotcha that breaks everything — text styles silently kill density.</b>
+  A Figma <code>TextStyle</code> has no <code>setExplicitVariableModeForCollection</code>, so it always resolves at the collection's <b>default mode (Compact)</b> regardless of the frame's density override.
+  <ul class="tight" style="margin-top:4pt;">
+    <li><b>Loose document text</b> (a heading dropped into a density-overridden page frame) → a text style is fine; it picks up the frame's density.</li>
+    <li><b>Inside a reusable component</b> → <b>never apply a text style.</b> Bind <code>font-family</code>, <code>font-style</code>, <code>font-size</code>, <code>line-height</code> <b>inline</b> via <code>node.setBoundVariable</code>. If any of the four is missing from <code>boundVariables</code>, that node is unbound and won't respond to density.</li>
+  </ul>
+</div>
+
+<div class="callout">
+  <b>Density is frame-owned.</b> Never set an explicit Context mode override on a component <i>variant</i> — it locks instances to one density and breaks the consumer's frame-level switching.
+</div>
+
+<h3>Font families &amp; weights (the whole set)</h3>
+<table>
+<tr><th>Token</th><th>Family</th><th>Weights available</th><th>Role</th></tr>
+<tr><td><code>font-family.heading</code></td><td><b>Khand</b> (condensed)</td><td>Regular 400 · Medium 500 · SemiBold 600</td><td>Headings, labels, overline, display, button text</td></tr>
+<tr><td><code>font-family.text</code></td><td><b>Asta Sans</b></td><td>Regular 400 only</td><td>Body, descriptive copy, sub-labels, input value text</td></tr>
+<tr><td colspan="4" class="small">No monospace face exists — see §8. Never use Inter; it is not in the system.</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2 class="section" id="scale">2 · Reference — the type scale per density</h2>
+<p class="small">Each cell is <b>font-size / line-height</b> in px. The role's family/weight is constant across densities. These are the variables your elements bind to; the column is selected by the frame's Context mode.</p>
+
+<h4>heading/h1–h6 &nbsp;·&nbsp; Khand SemiBold</h4>
+<table>
+<tr><th>Slot</th><th>Dense</th><th>Compact <span class="small">(default)</span></th><th>Comfortable</th><th>Spacious</th></tr>
+<tr><td><code>heading/h1</code></td><td>18 / 24</td><td>32 / 40</td><td>48 / 56</td><td>88 / 96</td></tr>
+<tr><td><code>heading/h2</code></td><td>17 / 20</td><td>28 / 36</td><td>40 / 48</td><td>68 / 76</td></tr>
+<tr><td><code>heading/h3</code></td><td>16 / 20</td><td>26 / 36</td><td>32 / 40</td><td>52 / 60</td></tr>
+<tr><td><code>heading/h4</code></td><td>15 / 20</td><td>22 / 32</td><td>28 / 36</td><td>36 / 44</td></tr>
+<tr><td><code>heading/h5</code></td><td>14 / 16</td><td>20 / 28</td><td>24 / 32</td><td>28 / 40</td></tr>
+<tr><td><code>heading/h6</code></td><td>13 / 16</td><td>18 / 28</td><td>20 / 28</td><td>20 / 32</td></tr>
+</table>
+
+<h4>body/xs–xl &nbsp;·&nbsp; Asta Sans Regular</h4>
+<table>
+<tr><th>Slot</th><th>Dense</th><th>Compact</th><th>Comfortable</th><th>Spacious</th></tr>
+<tr><td><code>body/xs</code></td><td>10 / 12</td><td>12 / 16</td><td>12 / 16</td><td>12 / 20</td></tr>
+<tr><td><code>body/sm</code></td><td>11 / 14</td><td>14 / 20</td><td>14 / 20</td><td>14 / 24</td></tr>
+<tr><td><code>body/md</code></td><td>12 / 16</td><td>16 / 24</td><td>16 / 24</td><td>16 / 28</td></tr>
+<tr><td><code>body/lg</code></td><td>13 / 16</td><td>18 / 28</td><td>20 / 32</td><td>22 / 36</td></tr>
+<tr><td><code>body/xl</code></td><td>14 / 20</td><td>20 / 32</td><td>22 / 36</td><td>24 / 40</td></tr>
+</table>
+
+<h4>label/xs–xl &nbsp;·&nbsp; Khand SemiBold &nbsp;<span class="small">(interactive-control labels; the contrast face vs body)</span></h4>
+<table>
+<tr><th>Slot</th><th>Dense</th><th>Compact</th><th>Comfortable</th><th>Spacious</th></tr>
+<tr><td><code>label/xs</code></td><td>10 / 12</td><td>12 / 16</td><td>13 / 20</td><td>14 / 20</td></tr>
+<tr><td><code>label/sm</code></td><td>11 / 14</td><td>14 / 20</td><td>16 / 24</td><td>18 / 28</td></tr>
+<tr><td><code>label/md</code></td><td>12 / 16</td><td>16 / 24</td><td>18 / 28</td><td>20 / 32</td></tr>
+<tr><td><code>label/lg</code></td><td>13 / 16</td><td>18 / 28</td><td>20 / 32</td><td>22 / 36</td></tr>
+<tr><td><code>label/xl</code></td><td>14 / 20</td><td>20 / 32</td><td>22 / 36</td><td>24 / 40</td></tr>
+</table>
+
+<h4>display/lg–xl · Khand Medium &nbsp;&nbsp;&nbsp; overline · Khand Medium, uppercase</h4>
+<table>
+<tr><th>Slot</th><th>Dense</th><th>Compact</th><th>Comfortable</th><th>Spacious</th></tr>
+<tr><td><code>display/lg</code></td><td>20 / 24</td><td>36 / 44</td><td>56 / 64</td><td>120 / 128</td></tr>
+<tr><td><code>display/xl</code></td><td>22 / 28</td><td>40 / 48</td><td>68 / 76</td><td>160 / 168</td></tr>
+<tr><td><code>overline</code></td><td>10 / 12</td><td>12 / 16</td><td>12 / 16</td><td>12 / 20</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2 class="section" id="colour">3 · Reference — semantic colour (light / dark)</h2>
+<p class="small">Bind text/fill/stroke to these — never to raw <code>neutral/*</code>. The same alias serves both modes; the palette's Light/Dark modes do the inversion. Aliases below; resolve hex in Figma.</p>
+
+<h4>content/* — text &amp; icon colour</h4>
+<table>
+<tr><th>Token</th><th>Light alias</th><th>Dark alias</th><th>Use for</th></tr>
+<tr><td><code>content/primary</code></td><td>neutral/900</td><td>neutral/50</td><td>Headings, body, default text</td></tr>
+<tr><td><code>content/secondary</code></td><td>neutral/700</td><td>neutral/200</td><td>Lead text, list markers, captions-with-weight</td></tr>
+<tr><td><code>content/muted</code></td><td>neutral/500</td><td>neutral/400</td><td>Captions, helper, fine print, <code>&lt;small&gt;</code></td></tr>
+<tr><td><code>content/disabled</code></td><td>neutral/400</td><td>neutral/500</td><td>Disabled text</td></tr>
+<tr><td><code>content/error</code></td><td>danger/500</td><td>danger/500</td><td>Error text, required mark</td></tr>
+<tr><td><code>content/inverse</code></td><td>color/white</td><td>color/white</td><td>Text on a dark/inverse surface</td></tr>
+<tr><td><code>content/on-action</code></td><td>absolute-white</td><td>absolute-white</td><td>Text on a coloured action fill</td></tr>
+</table>
+
+<h4>surface/* · border/* · action/link/*</h4>
+<table>
+<tr><th>Token</th><th>Light</th><th>Dark</th><th>Use for</th></tr>
+<tr><td><code>surface/default</code></td><td>absolute-white</td><td>(palette)</td><td>Page / card background</td></tr>
+<tr><td><code>surface/subtle</code></td><td>neutral/100</td><td>neutral/800</td><td>Inline code bg, code block bg, zebra rows</td></tr>
+<tr><td><code>surface/raised</code></td><td>neutral/50</td><td>(palette)</td><td>Table header bg, callout bg</td></tr>
+<tr><td><code>border/subtle</code></td><td>neutral/200</td><td>(palette)</td><td>Dividers, table cell borders, code outline</td></tr>
+<tr><td><code>border/default</code></td><td>neutral/300</td><td>(palette)</td><td>Default control borders</td></tr>
+<tr><td><code>border/strong</code></td><td>neutral/500</td><td>(palette)</td><td>Blockquote accent bar</td></tr>
+<tr><td><code>border/focus</code> · <code>focus/ring</code></td><td>brand/500</td><td>brand/500</td><td>Focus ring on links/controls</td></tr>
+<tr><td><code>action/link/foreground/default</code></td><td>brand/500</td><td>brand/500</td><td>Link — resting</td></tr>
+<tr><td><code>action/link/foreground/hover</code></td><td>brand/600</td><td>brand/300</td><td>Link — hover</td></tr>
+<tr><td><code>action/link/foreground/active</code></td><td>brand/700</td><td>brand/200</td><td>Link — active/pressed</td></tr>
+<tr><td><code>action/link/foreground/disabled</code></td><td>brand/500 + 50% opacity</td><td>brand/500 + 50%</td><td>Link — disabled (opacity on the node)</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2 class="section" id="prose">4 · Block prose — text styles <span class="pill style" style="font-size:8pt;">Text style</span></h2>
+<p>These ride entirely on existing variables. No components needed — confirm the colour pairing and (for new roles) add the text style. Drop into density-overridden page frames; they respond to density automatically.</p>
+
+<table>
+<tr><th>Element</th><th>Status</th><th>Type variable</th><th>Colour</th><th>Notes</th></tr>
+<tr><td>Display / hero</td><td><span class="pill exists">Exists</span></td><td><code>display/lg–xl</code></td><td><code>content/primary</code></td><td>Marketing hero only; Khand Medium.</td></tr>
+<tr><td>Headings h1–h6</td><td><span class="pill exists">Exists</span></td><td><code>heading/h1–h6</code></td><td><code>content/primary</code></td><td>Map HTML level → slot 1:1.</td></tr>
+<tr><td>Paragraph / body</td><td><span class="pill exists">Exists</span></td><td><code>body/md</code></td><td><code>content/primary</code></td><td>Default running text.</td></tr>
+<tr><td>Lead / intro paragraph</td><td><span class="pill build">Add style</span></td><td><code>body/lg</code> or <code>xl</code></td><td><code>content/secondary</code></td><td>First paragraph of an article.</td></tr>
+<tr><td>Caption / helper / fine print</td><td><span class="pill build">Add style</span></td><td><code>body/xs</code></td><td><code>content/muted</code></td><td>Below media, form helper.</td></tr>
+<tr><td>Overline / eyebrow</td><td><span class="pill exists">Exists</span></td><td><code>overline</code></td><td><code>content/secondary</code></td><td>Uppercase, +letter-spacing.</td></tr>
+<tr><td><code>&lt;address&gt;</code></td><td><span class="pill build">Add style</span></td><td><code>body/sm</code> italic</td><td><code>content/secondary</code></td><td>Contact block.</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2 class="section" id="components">5 · Structured content — components</h2>
+<p>The real build work. Each carries spacing/border/fill decisions beyond pure type, so each is a component with inline-bound typography. Per-element anatomy below.</p>
+
+<div class="card">
+  <h3>Link <span><span class="pill comp">Component</span> <span class="pill build">Build</span></span></h3>
+  <p class="meta">The only stateful inline element. An in-flow text link — distinct from the Button "link variant" (which is a button that looks like a link).</p>
+  <h4>Parts</h4>
+  <ul class="tight">
+    <li><b>Label</b> — text node. Inherits the surrounding body size (don't fix a size; bind to the same <code>body/*</code> as context, default <code>body/md</code>).</li>
+    <li><b>Underline</b> — text-decoration (or a 1px bottom border for offset control).</li>
+    <li><b>Leading / trailing icon</b> (optional) — e.g. external-link glyph; size to body cap-height.</li>
+    <li><b>Focus ring</b> — reuse the framed-control 2-frame ring or an outline on focus.</li>
+  </ul>
+  <h4>Variants / properties</h4>
+  <ul class="tight">
+    <li><b>State</b> (variant): default · hover · active · visited · focus · disabled</li>
+    <li><b>Tone</b> (variant): default · muted (<code>content/secondary</code>) · inverse (on dark)</li>
+    <li><b>Icon</b> (boolean/instance-swap): none · leading · trailing</li>
+    <li><b>Underline</b> (boolean): always · hover-only</li>
+  </ul>
+  <h4>Token bindings</h4>
+  <table>
+    <tr><th>Part</th><th>Property</th><th>Token</th></tr>
+    <tr><td>Label</td><td>font (inline)</td><td><code>body/{size}/*</code></td></tr>
+    <tr><td>Label / underline</td><td>fill</td><td><code>action/link/foreground/{state}</code></td></tr>
+    <tr><td>Disabled</td><td>opacity</td><td>50% on the node (token stays default)</td></tr>
+    <tr><td>Visited</td><td>fill</td><td><code>brand/700</code> (or dedicated <code>action/link/visited</code> if added)</td></tr>
+    <tr><td>Focus ring</td><td>stroke</td><td><code>focus/ring</code></td></tr>
+  </table>
+  <div class="callout">Visited has no token today. Either reuse <code>active</code>'s <code>brand/700</code> or add <code>action/link/foreground/visited</code>. Decide before building.</div>
+</div>
+
+<div class="card">
+  <h3>List + List Item <span><span class="pill comp">Component</span> <span class="pill build">Build</span> <span class="pill newtok">list/*</span></span></h3>
+  <p class="meta">Unordered &amp; ordered. Build as two components: a <b>List</b> container (vertical auto-layout) holding <b>List Item</b> instances.</p>
+  <h4>Parts</h4>
+  <ul class="tight">
+    <li><b>List</b> — vertical auto-layout; item gap = <code>list/item-gap</code>; left padding = <code>list/indent</code>.</li>
+    <li><b>List Item</b> — horizontal auto-layout: Marker + Content.</li>
+    <li><b>Marker</b> — bullet glyph (disc/circle/square) or number/letter text; fill <code>content/secondary</code>.</li>
+    <li><b>Content</b> — body text; may itself contain a nested List (recursion → indent compounds).</li>
+  </ul>
+  <h4>Variants / properties</h4>
+  <ul class="tight">
+    <li><b>Type</b>: unordered · ordered</li>
+    <li><b>Marker style</b>: disc · circle · square · decimal · lower-alpha · lower-roman</li>
+    <li><b>Item</b>: leaf · has-nested · with-icon-marker (e.g. check for task lists)</li>
+  </ul>
+  <h4>Token bindings</h4>
+  <table>
+    <tr><th>Part</th><th>Property</th><th>Token</th></tr>
+    <tr><td>Content</td><td>font (inline)</td><td><code>body/md/*</code></td></tr>
+    <tr><td>Content</td><td>fill</td><td><code>content/primary</code></td></tr>
+    <tr><td>Marker</td><td>fill</td><td><code>content/secondary</code></td></tr>
+    <tr><td>List</td><td>item gap</td><td><code>list/item-gap</code> (new)</td></tr>
+    <tr><td>List</td><td>indent (padding-left)</td><td><code>list/indent</code> (new)</td></tr>
+    <tr><td>List Item</td><td>marker→content gap</td><td><code>list/marker-gap</code> (new)</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>Description List (dl / dt / dd) <span><span class="pill comp">Component</span> <span class="pill build">Build</span></span></h3>
+  <p class="meta">Easy to forget, very common (glossaries, key/value, metadata).</p>
+  <h4>Parts</h4>
+  <ul class="tight">
+    <li><b>Pair</b> — term + definition group.</li>
+    <li><b>Term (dt)</b> — <code>label/sm</code> (Khand SemiBold) or body semibold; <code>content/primary</code>.</li>
+    <li><b>Definition (dd)</b> — <code>body/md</code>; <code>content/secondary</code>.</li>
+  </ul>
+  <h4>Variants</h4>
+  <ul class="tight"><li><b>Layout</b>: stacked (term above) · inline two-column (term left, definition right)</li></ul>
+  <h4>Bindings</h4>
+  <table>
+    <tr><th>Part</th><th>Token</th></tr>
+    <tr><td>Term font</td><td><code>label/sm/*</code> (face contrast does the hierarchy)</td></tr>
+    <tr><td>Term fill</td><td><code>content/primary</code></td></tr>
+    <tr><td>Definition font</td><td><code>body/md/*</code></td></tr>
+    <tr><td>Definition fill</td><td><code>content/secondary</code></td></tr>
+    <tr><td>Pair gap / row gap</td><td><code>space-4</code> / <code>space-12</code> (or <code>list/*</code>)</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>Blockquote <span><span class="pill comp">Component</span> <span class="pill build">Build</span> <span class="pill newtok">quote/*</span></span></h3>
+  <h4>Parts</h4>
+  <ul class="tight">
+    <li><b>Container</b> — left accent bar + inline padding.</li>
+    <li><b>Quote text</b> — <code>body/lg</code>, italic, <code>content/secondary</code>.</li>
+    <li><b>Citation / footer</b> (optional) — <code>body/sm</code>, <code>content/muted</code>, "— Name".</li>
+  </ul>
+  <h4>Variants</h4>
+  <ul class="tight"><li><b>Citation</b>: with · without</li><li><b>Tone</b>: default (neutral bar) · accent (brand bar)</li></ul>
+  <h4>Bindings</h4>
+  <table>
+    <tr><th>Part</th><th>Property</th><th>Token</th></tr>
+    <tr><td>Accent bar</td><td>stroke / fill</td><td><code>border/strong</code> (default) · <code>border/focus</code>=brand (accent)</td></tr>
+    <tr><td>Bar width</td><td>border-width</td><td><code>border-width/2</code> or <code>/3</code></td></tr>
+    <tr><td>Container</td><td>padding-inline</td><td><code>quote/padding-inline</code> (new) → <code>space-16/20/24</code></td></tr>
+    <tr><td>Quote text</td><td>font / fill</td><td><code>body/lg/*</code> italic · <code>content/secondary</code></td></tr>
+    <tr><td>Citation</td><td>font / fill</td><td><code>body/sm/*</code> · <code>content/muted</code></td></tr>
+  </table>
+  <div class="callout">Asta Sans only ships Regular — no native italic. Use a synthetic slant or skip italic and lean on the accent bar + indentation for the quote signal. Decide and document.</div>
+</div>
+
+<div class="card">
+  <h3>Pull quote <span><span class="pill comp">Component</span> <span class="pill build">Build</span></span></h3>
+  <p class="meta">A large decorative quote, not the same as blockquote. Often centred, no attribution, big type.</p>
+  <table>
+    <tr><th>Part</th><th>Token</th></tr>
+    <tr><td>Quote text</td><td><code>heading/h4</code> or <code>display/lg</code> · <code>content/primary</code></td></tr>
+    <tr><td>Quotation marks</td><td>decorative, <code>content/muted</code> at large size</td></tr>
+    <tr><td>Block margin</td><td><code>space-32</code> / <code>space-48</code></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>Inline code &nbsp;<code class="mono">&lt;code&gt;</code> <span><span class="pill comp">Component</span> <span class="pill build">Build</span> <span class="pill newtok">mono?</span></span></h3>
+  <h4>Parts</h4>
+  <ul class="tight"><li><b>Span</b> — text with a tinted box: bg + inline padding + small radius + subtle border.</li></ul>
+  <table>
+    <tr><th>Property</th><th>Token</th></tr>
+    <tr><td>Font</td><td><b>monospace — does not exist yet (§8)</b></td></tr>
+    <tr><td>Size</td><td>~0.9em of surrounding body</td></tr>
+    <tr><td>Text fill</td><td><code>content/primary</code></td></tr>
+    <tr><td>Background</td><td><code>surface/subtle</code></td></tr>
+    <tr><td>Border</td><td><code>border/subtle</code> (1px, optional)</td></tr>
+    <tr><td>Padding-inline</td><td><code>space-4</code></td></tr>
+    <tr><td>Radius</td><td><code>radii/4</code></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>Code block &nbsp;<code class="mono">&lt;pre&gt;</code> <span><span class="pill comp">Component</span> <span class="pill build">Build</span> <span class="pill newtok">code/* · mono</span></span></h3>
+  <h4>Parts</h4>
+  <ul class="tight">
+    <li><b>Container</b> — surface fill, radius, padding, horizontal scroll.</li>
+    <li><b>Header</b> (optional) — filename label + Copy button (instance-swap the Button).</li>
+    <li><b>Line numbers</b> (optional) — gutter, <code>content/muted</code>.</li>
+    <li><b>Code text</b> — monospace; syntax colours out of scope (use a token set later).</li>
+  </ul>
+  <table>
+    <tr><th>Part</th><th>Property</th><th>Token</th></tr>
+    <tr><td>Container</td><td>fill</td><td><code>surface/subtle</code> (or <code>surface/inverse</code> for dark code)</td></tr>
+    <tr><td>Container</td><td>border</td><td><code>border/subtle</code></td></tr>
+    <tr><td>Container</td><td>radius</td><td><code>radii/8</code></td></tr>
+    <tr><td>Container</td><td>padding</td><td><code>code/padding</code> (new) → <code>space-12/16</code></td></tr>
+    <tr><td>Code text</td><td>font</td><td><b>monospace (§8)</b> · fill <code>content/primary</code></td></tr>
+    <tr><td>Gutter</td><td>fill</td><td><code>content/muted</code></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>Table <span><span class="pill comp">Component</span> <span class="pill build">Build</span> <span class="pill newtok">table/*</span></span></h3>
+  <p class="meta">The heavyweight. Build from atomic Cell components composed into Rows, composed into a Table.</p>
+  <h4>Parts</h4>
+  <ul class="tight">
+    <li><b>Header cell (th)</b> — <code>label/sm</code> or <code>body/sm</code> semibold, <code>content/secondary</code>, on <code>surface/raised</code>.</li>
+    <li><b>Body cell (td)</b> — <code>body/sm</code>, <code>content/primary</code>.</li>
+    <li><b>Row</b> — horizontal auto-layout of cells; bottom border <code>border/subtle</code>.</li>
+    <li><b>Caption</b> — <code>body/sm</code>, <code>content/muted</code>, above/below.</li>
+  </ul>
+  <h4>Variants / properties</h4>
+  <ul class="tight">
+    <li><b>Style</b>: bordered · borderless · zebra (alt rows on <code>surface/subtle</code>)</li>
+    <li><b>Cell align</b>: start · center · end (numeric → end)</li>
+    <li><b>Row state</b>: default · hover · selected</li>
+    <li>Density flows from the frame's Context mode like everything else.</li>
+  </ul>
+  <h4>Bindings</h4>
+  <table>
+    <tr><th>Part</th><th>Property</th><th>Token</th></tr>
+    <tr><td>Header text</td><td>font / fill</td><td><code>label/sm/*</code> · <code>content/secondary</code></td></tr>
+    <tr><td>Body text</td><td>font / fill</td><td><code>body/sm/*</code> · <code>content/primary</code></td></tr>
+    <tr><td>Header bg</td><td>fill</td><td><code>surface/raised</code></td></tr>
+    <tr><td>Row border</td><td>stroke</td><td><code>border/subtle</code></td></tr>
+    <tr><td>Cell padding-x / y</td><td>padding</td><td><code>table/cell-padding-x</code> / <code>-y</code> (new)</td></tr>
+    <tr><td>Zebra row</td><td>fill</td><td><code>surface/subtle</code></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>Figure + figcaption <span><span class="pill comp">Component</span> <span class="pill build">Build</span></span></h3>
+  <table>
+    <tr><th>Part</th><th>Token</th></tr>
+    <tr><td>Media slot</td><td>fill <code>surface/subtle</code> placeholder · radius <code>radii/8</code></td></tr>
+    <tr><td>Caption font / fill</td><td><code>body/sm/*</code> · <code>content/muted</code></td></tr>
+    <tr><td>Media→caption gap</td><td><code>space-8</code></td></tr>
+  </table>
+  <p class="small">Variants: caption position (below · overlay), align (start · center).</p>
+</div>
+
+<div class="card">
+  <h3>Divider &nbsp;<code class="mono">&lt;hr&gt;</code> <span><span class="pill comp">Component</span> <span class="pill build">Build</span> <span class="pill newtok">divider/*</span></span></h3>
+  <table>
+    <tr><th>Part</th><th>Property</th><th>Token</th></tr>
+    <tr><td>Line</td><td>stroke</td><td><code>border/subtle</code></td></tr>
+    <tr><td>Line</td><td>thickness</td><td><code>border-width/1</code></td></tr>
+    <tr><td>Block margin</td><td>spacing</td><td><code>divider/margin-block</code> (new) → <code>space-16/24/32</code></td></tr>
+    <tr><td>Label (optional)</td><td>font / fill</td><td><code>overline</code> · <code>content/muted</code></td></tr>
+  </table>
+  <p class="small">Variants: orientation (horizontal · vertical), with-label (none · centred).</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 class="section" id="marks">6 · Inline / text-level — marks <span class="pill mark" style="font-size:8pt;">Inline mark</span></h2>
+<p>Mostly character styles or simple span treatments — a weight/style swap or a colour/background. Fast to define; easy to overlook precisely because they're small.</p>
+
+<table>
+<tr><th>Element</th><th>Build as</th><th>Treatment / token</th></tr>
+<tr><td><code>&lt;strong&gt;</code> bold</td><td>char style</td><td>Asta Sans has no bold → switch to <b>Khand SemiBold</b> inline, or accept synthetic bold. Decide.</td></tr>
+<tr><td><code>&lt;em&gt;</code> italic</td><td>char style</td><td>No native italic in either face → synthetic slant or alternative emphasis. Decide.</td></tr>
+<tr><td><code>&lt;mark&gt;</code> highlight</td><td>span</td><td>Background tint — needs a highlight token (warning/brand tint at low chroma). <span class="pill newtok">new</span></td></tr>
+<tr><td><code>&lt;del&gt;</code></td><td>char style</td><td>Strikethrough + <code>content/muted</code></td></tr>
+<tr><td><code>&lt;ins&gt;</code></td><td>char style</td><td>Underline + <code>content/primary</code></td></tr>
+<tr><td><code>&lt;sub&gt;</code> / <code>&lt;sup&gt;</code></td><td>char style</td><td>~0.75em + baseline shift</td></tr>
+<tr><td><code>&lt;abbr&gt;</code></td><td>char style</td><td>Dotted underline, <code>content/secondary</code></td></tr>
+<tr><td><code>&lt;small&gt;</code></td><td>text style</td><td><code>body/xs</code> · <code>content/muted</code></td></tr>
+<tr><td><code>&lt;q&gt;</code> inline quote</td><td>span</td><td>Curly quotes around <code>content/secondary</code></td></tr>
+<tr><td><code>&lt;kbd&gt;</code></td><td>component</td><td>Boxed key: monospace (§8) on <code>surface/raised</code>, <code>border/default</code>, <code>radii/4</code>, <code>space-4</code> pad</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2 class="section" id="newtokens">7 · New token namespaces to create</h2>
+<p>Follow the established <code>dropdown/*</code> precedent: a component-specific namespace <b>inside the Context collection</b>, each value <b>aliasing an existing <code>space-*</code> primitive</b>, set per density mode. Process: <i>figma-variable-architecture</i> SKILL → "Adding a new framed-control property". Proposed alias values below (tune to taste before creating).</p>
+
+<table>
+<tr><th>New token</th><th>Dense</th><th>Compact</th><th>Comfort.</th><th>Spacious</th><th>Derivation</th></tr>
+<tr><td><code>list/item-gap</code></td><td>space-2</td><td>space-4</td><td>space-8</td><td>space-12</td><td>Tracks <code>framed-control/gap</code> growth</td></tr>
+<tr><td><code>list/marker-gap</code></td><td>space-4</td><td>space-8</td><td>space-8</td><td>space-12</td><td>Marker→content breathing room</td></tr>
+<tr><td><code>list/indent</code></td><td>space-16</td><td>space-24</td><td>space-28</td><td>space-32</td><td>~2× <code>padding-inline/md</code></td></tr>
+<tr><td><code>quote/padding-inline</code></td><td>space-12</td><td>space-16</td><td>space-20</td><td>space-24</td><td>Indent of the quote body</td></tr>
+<tr><td><code>code/padding</code></td><td>space-8</td><td>space-12</td><td>space-16</td><td>space-16</td><td>Pre block inner padding</td></tr>
+<tr><td><code>table/cell-padding-x</code></td><td>space-8</td><td>space-12</td><td>space-16</td><td>space-20</td><td>= <code>framed-control/md/padding-inline</code></td></tr>
+<tr><td><code>table/cell-padding-y</code></td><td>space-4</td><td>space-8</td><td>space-12</td><td>space-12</td><td>~½ the x value</td></tr>
+<tr><td><code>divider/margin-block</code></td><td>space-12</td><td>space-16</td><td>space-24</td><td>space-32</td><td>Vertical rhythm around rules</td></tr>
+</table>
+
+<div class="callout">
+  <b>Rule of thumb for any element with no token:</b>
+  <ol class="tight" style="margin-top:3pt;">
+    <li><b>Type</b> → reuse <code>body/*</code> or <code>heading/*</code> (never a new font scale).</li>
+    <li><b>Colour</b> → reuse <code>content/*</code> · <code>surface/*</code> · <code>border/*</code> · <code>action/*</code>.</li>
+    <li><b>Spacing</b> → if one <code>space-*</code> primitive fits, bind it directly. If it must <b>scale with density</b>, add a <code>&lt;element&gt;/*</code> namespace in Context, one alias per mode (the <code>dropdown/*</code> pattern).</li>
+    <li>Only mint a brand-new <b>primitive</b> if no scale value fits — for typographic web elements, essentially never (the exception: monospace, §8).</li>
+  </ol>
+</div>
+
+<!-- ============================================================ -->
+<h2 class="section" id="mono">8 · The monospace gap</h2>
+<p>The system has exactly two faces — <b>Khand</b> (condensed display/label) and <b>Asta Sans</b> (body). <b>Neither is monospace.</b> Every code-bearing element (<code>inline code</code>, <code>code block</code>, <code>&lt;kbd&gt;</code>, <code>&lt;samp&gt;</code>, <code>&lt;var&gt;</code>) needs a fixed-width face. This is a real decision to make <i>before</i> building those components:</p>
+<ul class="tight">
+  <li><b>Add a <code>font-family.mono</code> primitive</b> — pick a face (e.g. a libre mono), add the variable to <code>Primitives</code>, back it up via the sync plugin, and bind code nodes to it. <b>Recommended</b> — keeps code elements on-system.</li>
+  <li><b>Defer code components</b> until the mono face is chosen, and build the non-code elements first.</li>
+</ul>
+<p class="small">Same caveat for <b>true bold</b> (<code>&lt;strong&gt;</code>) and <b>italic</b> (<code>&lt;em&gt;</code>): Asta Sans ships Regular only. Bold can borrow Khand SemiBold; italic needs a synthetic slant or a non-italic emphasis convention. Decide and document in each component's description.</p>
+
+<!-- ============================================================ -->
+<h2 class="section" id="master">9 · Master checklist — one glance</h2>
+<table>
+<tr><th>#</th><th>Element</th><th>Build</th><th>Status</th><th>New tokens?</th></tr>
+<tr><td>1</td><td>Display / hero</td><td>Text style</td><td><span class="pill exists">Exists</span></td><td>—</td></tr>
+<tr><td>2</td><td>Headings h1–h6</td><td>Text style</td><td><span class="pill exists">Exists</span></td><td>—</td></tr>
+<tr><td>3</td><td>Paragraph / body</td><td>Text style</td><td><span class="pill exists">Exists</span></td><td>—</td></tr>
+<tr><td>4</td><td>Lead paragraph</td><td>Text style</td><td><span class="pill build">Add</span></td><td>—</td></tr>
+<tr><td>5</td><td>Caption / helper</td><td>Text style</td><td><span class="pill build">Add</span></td><td>—</td></tr>
+<tr><td>6</td><td>Overline / eyebrow</td><td>Text style</td><td><span class="pill exists">Exists</span></td><td>—</td></tr>
+<tr><td>7</td><td>Address</td><td>Text style</td><td><span class="pill build">Add</span></td><td>—</td></tr>
+<tr><td>8</td><td>Link</td><td>Component</td><td><span class="pill build">Build</span></td><td>visited? (decide)</td></tr>
+<tr><td>9</td><td>List + List Item</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>list/*</code></td></tr>
+<tr><td>10</td><td>Description list</td><td>Component</td><td><span class="pill build">Build</span></td><td>—</td></tr>
+<tr><td>11</td><td>Blockquote</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>quote/*</code></td></tr>
+<tr><td>12</td><td>Pull quote</td><td>Component</td><td><span class="pill build">Build</span></td><td>—</td></tr>
+<tr><td>13</td><td>Inline code</td><td>Component</td><td><span class="pill build">Build</span></td><td>mono (§8)</td></tr>
+<tr><td>14</td><td>Code block</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>code/*</code> · mono</td></tr>
+<tr><td>15</td><td>Table</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>table/*</code></td></tr>
+<tr><td>16</td><td>Figure + figcaption</td><td>Component</td><td><span class="pill build">Build</span></td><td>—</td></tr>
+<tr><td>17</td><td>Divider / hr</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>divider/*</code></td></tr>
+<tr><td>18</td><td>kbd</td><td>Component</td><td><span class="pill build">Build</span></td><td>mono (§8)</td></tr>
+<tr><td>19</td><td>strong</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
+<tr><td>20</td><td>em</td><td>Char style</td><td><span class="pill build">Build</span></td><td>italic? (decide)</td></tr>
+<tr><td>21</td><td>mark / highlight</td><td>Span</td><td><span class="pill build">Build</span></td><td>highlight tint</td></tr>
+<tr><td>22</td><td>del</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
+<tr><td>23</td><td>ins</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
+<tr><td>24</td><td>sub / sup</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
+<tr><td>25</td><td>abbr</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
+<tr><td>26</td><td>small</td><td>Text style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
+<tr><td>27</td><td>q (inline quote)</td><td>Span</td><td><span class="pill build">Build</span></td><td>—</td></tr>
+</table>
+
+<p class="small" style="margin-top:10pt;">Suggested order: <b>(a)</b> decide the three open questions — monospace face, bold/italic strategy, link-visited token; <b>(b)</b> add the missing text styles + char styles (cheap); <b>(c)</b> build Link → List → Description list → Blockquote → Table → Code → the rest; <b>(d)</b> create the <code>list/* · quote/* · code/* · table/* · divider/*</code> namespaces as each component needs them; <b>(e)</b> write each component's description (the mandatory last step). Remember: inside every component, bind the four type fields inline — never a text style.</p>
+
+</body>
+</html>

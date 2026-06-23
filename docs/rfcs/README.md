@@ -68,6 +68,7 @@ build/test strategy for 0005–0006 and applies once implementation starts.
 |---|---|---|
 | [0010](0010-oklch-color-picker.md) | OKLCH colour picker | Draft |
 | [0011](0011-duotone-neutral-ramps.md) | Duotone neutral ramps | Draft |
+| [0012](0012-spacing-and-flow-rhythm.md) | Spacing & flow rhythm | Draft — under active discussion |
 
 - **0010** — the OKLCH-first, oklch.com-style colour picker that replaces the
   hex input: paint-backed Lightness×Chroma and Hue charts with a live gamut
@@ -80,3 +81,9 @@ build/test strategy for 0005–0006 and applies once implementation starts.
   single-hue neutral tint (which becomes the equal-hue, zero-bow special case).
   Adopts Leonardo's perceptual key-colour interpolation, constrained to the
   two-anchor neutral case.
+- **0012** — spacing & flow rhythm: margins between content blocks are owned by
+  an ambient, opt-in *flow context* (`.primitiv-flow`), not by the elements —
+  the architectural sibling of `data-density`. A one-directional owl rule
+  (`> * + *`, `margin-block-start`) drives a density-scoped `flow/*` token scale
+  so rhythm densifies in lockstep with type and control anatomy; `gap` stays the
+  tool for component-internal spacing. Under active discussion — §8 forks open.

@@ -8,9 +8,12 @@
 
 import { useState } from "react";
 
+import { Button, Slider } from "@primitiv-ui/react";
+
 import { PluginColorEngine } from "./PluginColorEngine";
 
 import "./PluginFrameExample.css";
+import "../../../../../registry/components/button/styles.css";
 
 const FRAME_WIDTHS = [600, 640, 720, 800] as const;
 const FRAME_HEIGHT = 800;
@@ -32,32 +35,36 @@ export function PluginFrameExample() {
         <div className="pf-controls">
           <div className="pf-width-control" role="group" aria-label="Frame width">
             {FRAME_WIDTHS.map((w) => (
-              <button
+              <Button
                 key={w}
                 type="button"
-                className={
-                  w === frameWidth
-                    ? "pf-width-control__btn pf-width-control__btn--active"
-                    : "pf-width-control__btn"
-                }
+                className={`primitiv-button primitiv-button--${
+                  w === frameWidth ? "primary" : "secondary"
+                } primitiv-button--sm`}
                 aria-pressed={w === frameWidth}
                 onClick={() => setFrameWidth(w)}
               >
                 {w}px
-              </button>
+              </Button>
             ))}
           </div>
-          <label className="pf-aspect-control">
-            Chart aspect {chartAspect.toFixed(2)}
-            <input
-              type="range"
+          <div className="pf-aspect-control">
+            <span>Chart aspect {chartAspect.toFixed(2)}</span>
+            <Slider.Root
+              className="pf-slider pf-aspect-control__slider"
+              aria-label="Chart aspect"
               min={0.5}
               max={2.5}
               step={0.05}
-              value={chartAspect}
-              onChange={(e) => setChartAspect(e.target.valueAsNumber)}
-            />
-          </label>
+              value={[chartAspect]}
+              onValueChange={([next]) => setChartAspect(next)}
+            >
+              <Slider.Track className="pf-slider__track">
+                <Slider.Range className="pf-slider__range" />
+              </Slider.Track>
+              <Slider.Thumb className="pf-slider__thumb" />
+            </Slider.Root>
+          </div>
         </div>
       </header>
 

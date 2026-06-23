@@ -35,28 +35,61 @@
   gap: var(--primitiv-space-space-4);
 }
 
-.pf-width-control__btn {
-  padding: var(--primitiv-space-space-4) var(--primitiv-space-space-12);
-  border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
-  border-radius: var(--primitiv-container-sm-radius);
-  background: var(--primitiv-surface-subtle);
-  color: var(--primitiv-content-secondary);
-  font: inherit;
-  cursor: pointer;
-}
-
-.pf-width-control__btn--active {
-  background: var(--primitiv-action-primary-default);
-  color: var(--primitiv-content-on-action);
-  border-color: var(--primitiv-action-primary-default);
-}
-
 .pf-aspect-control {
   display: inline-flex;
   align-items: center;
   gap: var(--primitiv-space-space-8);
   color: var(--primitiv-content-secondary);
   font-size: var(--primitiv-body-sm-font-size);
+}
+
+.pf-aspect-control__slider {
+  width: var(--primitiv-space-space-200);
+}
+
+/* ─── System Slider (plain, non-painted) ────────────────────────────────── */
+
+.pf-slider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: var(--primitiv-space-space-20);
+  touch-action: none;
+}
+
+.pf-slider[data-disabled] {
+  opacity: 0.5;
+}
+
+.pf-slider__track {
+  position: relative;
+  flex: 1;
+  height: var(--primitiv-space-space-6);
+  border-radius: 9999px;
+  background: var(--primitiv-surface-subtle);
+}
+
+.pf-slider__range {
+  position: absolute;
+  height: 100%;
+  border-radius: 9999px;
+  background: var(--primitiv-action-primary-default);
+}
+
+.pf-slider__thumb {
+  width: var(--primitiv-space-space-16);
+  height: var(--primitiv-space-space-16);
+  border-radius: 50%;
+  background: var(--primitiv-surface-default);
+  border: var(--primitiv-border-width-2) solid
+    var(--primitiv-action-primary-default);
+  translate: -50% 0;
+}
+
+.pf-slider__thumb:focus-visible {
+  outline: var(--primitiv-focus-ring-width) solid var(--primitiv-border-focus);
+  outline-offset: var(--primitiv-focus-ring-offset);
 }
 
 /* The frame: the real plugin window size. The body scrolls like the iframe and
@@ -136,7 +169,7 @@
   font-size: var(--primitiv-body-md-font-size);
 }
 
-.pf-color-engine__padding-label input[type="range"] {
+.pf-color-engine__padding-label .pf-slider {
   flex: 1;
   min-width: 0;
 }
@@ -257,6 +290,15 @@
   gap: var(--primitiv-space-space-8);
 }
 
+.pf-neutral-tint__label {
+  color: var(--primitiv-content-secondary);
+  white-space: nowrap;
+}
+
+.pf-neutral-tint .pf-slider {
+  flex: 1;
+}
+
 .pf-neutral-tint__swatch {
   display: inline-block;
   width: var(--primitiv-space-space-16);
@@ -266,18 +308,7 @@
   flex-shrink: 0;
 }
 
-.pf-btn {
+/* The contract-styled Button sits at the start of its column, not stretched. */
+.pf-brand .primitiv-button {
   align-self: flex-start;
-  padding: var(--primitiv-space-space-6) var(--primitiv-space-space-12);
-  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
-  border-radius: var(--primitiv-container-sm-radius);
-  background: var(--primitiv-surface-subtle);
-  color: var(--primitiv-content-primary);
-  font: inherit;
-  cursor: pointer;
-}
-
-.pf-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }

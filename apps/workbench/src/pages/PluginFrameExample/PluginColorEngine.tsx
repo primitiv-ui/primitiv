@@ -7,6 +7,8 @@
 
 import { useEffect, useState } from "react";
 
+import { Button, Slider } from "@primitiv-ui/react";
+
 import {
   OklchPicker,
   LightnessSlider,
@@ -17,6 +19,43 @@ import {
 
 import { usePluginColors } from "./usePluginColors";
 import { PluginPalette } from "./PluginPalette";
+
+// The canonical Button default theme from the registry (as `primitiv add button`
+// copies it), resolving against the app token layer — styles the .primitiv-button
+// contract classes used below.
+import "../../../../../registry/components/button/styles.css";
+
+const TINT_BUTTON_CLASS = "primitiv-button primitiv-button--secondary primitiv-button--sm";
+
+// A plain (unpainted) system Slider over a 0..1 fraction, shown as 0..100.
+function FractionSlider({
+  label,
+  value,
+  max,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  max: number;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <Slider.Root
+      className="pf-slider"
+      aria-label={label}
+      min={0}
+      max={Math.max(1, max * 100)}
+      step={1}
+      value={[value * 100]}
+      onValueChange={([next]) => onChange(next / 100)}
+    >
+      <Slider.Track className="pf-slider__track">
+        <Slider.Range className="pf-slider__range" />
+      </Slider.Track>
+      <Slider.Thumb className="pf-slider__thumb" />
+    </Slider.Root>
+  );
+}
 
 export type PluginColorEngineProps = {
   /** Chart aspect forwarded to the brand picker (tuned in the sandbox header). */
@@ -116,34 +155,34 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
               chartAspect={chartAspect}
             />
           )}
-          <button
+          <Button
             type="button"
-            className="pf-btn"
+            className={TINT_BUTTON_CLASS}
             onClick={handleUseAsTint}
             disabled={!brand.lightPalette}
           >
             Use brand as neutral tint
-          </button>
+          </Button>
           {tintSource && (
             <div className="pf-neutral-tint">
               <span
                 className="pf-neutral-tint__swatch"
                 style={{ background: tintSource }}
               />
-              <label>
-                Tint strength
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  step={1}
-                  value={tintStrength * 100}
-                  onChange={(e) => setTintStrength(e.target.valueAsNumber / 100)}
-                />
-              </label>
-              <button type="button" className="pf-btn" onClick={handleRemoveTint}>
+              <span className="pf-neutral-tint__label">Tint strength</span>
+              <FractionSlider
+                label="Tint strength"
+                value={tintStrength}
+                max={1}
+                onChange={setTintStrength}
+              />
+              <Button
+                type="button"
+                className={TINT_BUTTON_CLASS}
+                onClick={handleRemoveTint}
+              >
                 Remove tint
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -162,32 +201,28 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
           <p>Brand — light</p>
           <PluginPalette palette={brand.lightPalette} />
           <div className="pf-color-engine__padding-row">
-            <label className="pf-color-engine__padding-label">
+            <div className="pf-color-engine__padding-label">
               <span className="pf-color-engine__padding-value">
                 {((brand.lightRampPaddingLeft ?? 0) * 100).toFixed(0)}%
               </span>
-              <input
-                type="range"
-                min={0}
-                max={(brand.lightPalette?.max_recommended_light_padding ?? 0) * 100}
-                step={1}
-                value={(brand.lightRampPaddingLeft ?? 0) * 100}
-                onChange={(e) => setLightRampPaddingLeft(e.target.valueAsNumber / 100)}
+              <FractionSlider
+                label="Light ramp left padding"
+                value={brand.lightRampPaddingLeft ?? 0}
+                max={brand.lightPalette?.max_recommended_light_padding ?? 0}
+                onChange={setLightRampPaddingLeft}
               />
-            </label>
-            <label className="pf-color-engine__padding-label">
-              <input
-                type="range"
-                min={0}
-                max={(brand.lightPalette?.max_recommended_dark_padding ?? 0) * 100}
-                step={1}
-                value={(brand.lightRampPaddingRight ?? 0) * 100}
-                onChange={(e) => setLightRampPaddingRight(e.target.valueAsNumber / 100)}
+            </div>
+            <div className="pf-color-engine__padding-label">
+              <FractionSlider
+                label="Light ramp right padding"
+                value={brand.lightRampPaddingRight ?? 0}
+                max={brand.lightPalette?.max_recommended_dark_padding ?? 0}
+                onChange={setLightRampPaddingRight}
               />
               <span className="pf-color-engine__padding-value">
                 {((brand.lightRampPaddingRight ?? 0) * 100).toFixed(0)}%
               </span>
-            </label>
+            </div>
           </div>
         </div>
 
@@ -195,32 +230,28 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
           <p>Brand — dark</p>
           <PluginPalette palette={brand.darkPalette} />
           <div className="pf-color-engine__padding-row">
-            <label className="pf-color-engine__padding-label">
+            <div className="pf-color-engine__padding-label">
               <span className="pf-color-engine__padding-value">
                 {((brand.darkRampPaddingLeft ?? 0) * 100).toFixed(0)}%
               </span>
-              <input
-                type="range"
-                min={0}
-                max={(brand.darkPalette?.max_recommended_light_padding ?? 0) * 100}
-                step={1}
-                value={(brand.darkRampPaddingLeft ?? 0) * 100}
-                onChange={(e) => setDarkRampPaddingLeft(e.target.valueAsNumber / 100)}
+              <FractionSlider
+                label="Dark ramp left padding"
+                value={brand.darkRampPaddingLeft ?? 0}
+                max={brand.darkPalette?.max_recommended_light_padding ?? 0}
+                onChange={setDarkRampPaddingLeft}
               />
-            </label>
-            <label className="pf-color-engine__padding-label">
-              <input
-                type="range"
-                min={0}
-                max={(brand.darkPalette?.max_recommended_dark_padding ?? 0) * 100}
-                step={1}
-                value={(brand.darkRampPaddingRight ?? 0) * 100}
-                onChange={(e) => setDarkRampPaddingRight(e.target.valueAsNumber / 100)}
+            </div>
+            <div className="pf-color-engine__padding-label">
+              <FractionSlider
+                label="Dark ramp right padding"
+                value={brand.darkRampPaddingRight ?? 0}
+                max={brand.darkPalette?.max_recommended_dark_padding ?? 0}
+                onChange={setDarkRampPaddingRight}
               />
               <span className="pf-color-engine__padding-value">
                 {((brand.darkRampPaddingRight ?? 0) * 100).toFixed(0)}%
               </span>
-            </label>
+            </div>
           </div>
         </div>
       </section>

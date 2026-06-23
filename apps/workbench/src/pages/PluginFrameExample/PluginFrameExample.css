@@ -16,9 +16,24 @@
   gap: var(--primitiv-space-space-8);
 }
 
+.pf-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--primitiv-space-space-16);
+}
+
 .pf-width-control {
   display: inline-flex;
   gap: var(--primitiv-space-space-4);
+}
+
+.pf-aspect-control {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--primitiv-space-space-8);
+  color: var(--primitiv-content-secondary);
+  font-size: var(--primitiv-body-sm-font-size);
 }
 
 .pf-width-control__btn {
@@ -103,10 +118,6 @@
   height: var(--primitiv-space-space-20);
   border-radius: var(--primitiv-container-sm-radius);
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
-}
-
-.pf-anchor__slider {
-  width: 100%;
 }
 
 .pf-anchor__value {

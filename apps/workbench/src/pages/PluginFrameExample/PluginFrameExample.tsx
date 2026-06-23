@@ -16,6 +16,7 @@ import init from "harmoni-wasm";
 
 import {
   OklchPicker,
+  LightnessSlider,
   parseColor,
   formatColor,
   type OklchValue,
@@ -64,9 +65,9 @@ function PlaceholderRamp({ light, dark }: { light: string; dark: string }) {
   );
 }
 
-// The white/black anchor control — a single lightness slider with a grey swatch
-// (chroma fixed at 0). The painted lightness track is a follow-up; a plain range
-// conveys the control and its height for the layout mock.
+// The white/black anchor control — a single painted lightness slider (chroma
+// fixed at 0, a neutral ramp) with a grey swatch, sharing the LCH sliders' look
+// (painted track + white thumb). Colour comes from the brand-hue tint, not here.
 function LightnessAnchor({
   label,
   value,
@@ -77,28 +78,21 @@ function LightnessAnchor({
   onChange: (l: number) => void;
 }) {
   return (
-    <label className="pf-anchor">
+    <div className="pf-anchor">
       <span className="pf-anchor__label">{label}</span>
       <span
         className="pf-anchor__swatch"
         style={{ background: `oklch(${value} 0 0)` }}
       />
-      <input
-        className="pf-anchor__slider"
-        type="range"
-        min={0}
-        max={1}
-        step={0.01}
-        value={value}
-        onChange={(e) => onChange(e.target.valueAsNumber)}
-      />
+      <LightnessSlider value={value} onChange={onChange} label={label} />
       <span className="pf-anchor__value">{value.toFixed(2)}</span>
-    </label>
+    </div>
   );
 }
 
 export function PluginFrameExample() {
   const [frameWidth, setFrameWidth] = useState<number>(640);
+  const [chartAspect, setChartAspect] = useState<number>(1);
   const [ready, setReady] = useState(false);
 
   const [brand, setBrand] = useState<OklchValue>();
@@ -130,22 +124,35 @@ export function PluginFrameExample() {
           lightness-only anchors (the tint adds colour). Adjust the frame width
           to feel out the row charts.
         </p>
-        <div className="pf-width-control" role="group" aria-label="Frame width">
-          {FRAME_WIDTHS.map((w) => (
-            <button
-              key={w}
-              type="button"
-              className={
-                w === frameWidth
-                  ? "pf-width-control__btn pf-width-control__btn--active"
-                  : "pf-width-control__btn"
-              }
-              aria-pressed={w === frameWidth}
-              onClick={() => setFrameWidth(w)}
-            >
-              {w}px
-            </button>
-          ))}
+        <div className="pf-controls">
+          <div className="pf-width-control" role="group" aria-label="Frame width">
+            {FRAME_WIDTHS.map((w) => (
+              <button
+                key={w}
+                type="button"
+                className={
+                  w === frameWidth
+                    ? "pf-width-control__btn pf-width-control__btn--active"
+                    : "pf-width-control__btn"
+                }
+                aria-pressed={w === frameWidth}
+                onClick={() => setFrameWidth(w)}
+              >
+                {w}px
+              </button>
+            ))}
+          </div>
+          <label className="pf-aspect-control">
+            Chart aspect {chartAspect.toFixed(2)}
+            <input
+              type="range"
+              min={0.5}
+              max={2.5}
+              step={0.05}
+              value={chartAspect}
+              onChange={(e) => setChartAspect(e.target.valueAsNumber)}
+            />
+          </label>
         </div>
       </header>
 
@@ -174,7 +181,12 @@ export function PluginFrameExample() {
               <code className="pf-brand-hex">{brandHex}</code>
             </div>
             {brand ? (
-              <OklchPicker value={brand} onChange={setBrand} layout="row" />
+              <OklchPicker
+                value={brand}
+                onChange={setBrand}
+                layout="row"
+                chartAspect={chartAspect}
+              />
             ) : (
               <p className="pf-loading">Starting engine…</p>
             )}

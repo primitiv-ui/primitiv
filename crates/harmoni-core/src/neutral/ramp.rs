@@ -13,8 +13,19 @@ pub enum TintMode {
 
 const STEPS: [u16; 10] = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
 
+/// Interpolate a hue from `from` to `to` along the **shortest arc** in degrees.
+/// Crossing the 0°/360° seam (e.g. 350° → 10°) rotates the short way (+20°
+/// through 0°) rather than the long way (−340° through 180°).
+fn lerp_hue_shortest(from: f32, to: f32, t: f32) -> f32 {
+    let delta = ((to - from + 540.0) % 360.0) - 180.0;
+    // Normalise to the (−180, 180] range `OklabHue::into_degrees` returns, so
+    // the equal-hue case is bit-identical to the old single-hue ramp.
+    ((from + delta * t + 180.0).rem_euclid(360.0)) - 180.0
+}
+
 pub fn generate_neutral_ramp(soft_white: Oklch, soft_black: Oklch, tint: TintMode) -> Palette {
-    let hue = soft_white.hue.into_degrees();
+    let white_hue = soft_white.hue.into_degrees();
+    let black_hue = soft_black.hue.into_degrees();
     let last = STEPS.len() - 1;
     let curve_span = TARGET_LIGHTNESS[0] - TARGET_LIGHTNESS[last];
     let apply_tint = |c: f32| match tint {
@@ -26,13 +37,14 @@ pub fn generate_neutral_ramp(soft_white: Oklch, soft_black: Oklch, tint: TintMod
         .enumerate()
         .map(|(i, &step)| {
             if i == 0 {
-                SwatchStep::from_label(soft_white.l, apply_tint(soft_white.chroma), hue, step)
+                SwatchStep::from_label(soft_white.l, apply_tint(soft_white.chroma), white_hue, step)
             } else if i == last {
-                SwatchStep::from_label(soft_black.l, apply_tint(soft_black.chroma), hue, step)
+                SwatchStep::from_label(soft_black.l, apply_tint(soft_black.chroma), black_hue, step)
             } else {
                 let fraction = (TARGET_LIGHTNESS[0] - TARGET_LIGHTNESS[i]) / curve_span;
                 let l = soft_white.l + (soft_black.l - soft_white.l) * fraction;
                 let c = soft_white.chroma + (soft_black.chroma - soft_white.chroma) * fraction;
+                let hue = lerp_hue_shortest(white_hue, black_hue, fraction);
                 SwatchStep::from_label(l, apply_tint(c), hue, step)
             }
         })

@@ -78,6 +78,37 @@ fn should_interpolate_chroma_between_endpoints_in_inherit_tint_mode() {
 }
 
 #[test]
+fn should_interpolate_hue_along_the_shortest_arc_across_the_zero_degree_seam() {
+    // Highlight hue 350°, shadow hue 10°: the shortest arc is +20° through the
+    // 0°/360° seam, not -340° the long way round through 180°. The mid-tone
+    // must therefore land near the seam, not near 180°.
+    let soft_white = Oklch::new(0.975, 0.006, 350.0);
+    let soft_black = Oklch::new(0.10, 0.00375, 10.0);
+
+    let palette = generate_neutral_ramp(soft_white, soft_black, TintMode::Inherit);
+
+    let mid = &palette.swatches[5];
+    // Signed offset from 0° so 359.9 and 0.1 both read as "near the seam".
+    let signed = ((mid.h + 180.0) % 360.0) - 180.0;
+    assert!(
+        signed.abs() < 1.0,
+        "mid-tone hue {} should sit near the 0°/360° seam, not the long way round",
+        mid.h
+    );
+}
+
+#[test]
+fn should_pin_endpoint_hues_to_the_respective_anchors_when_they_differ() {
+    let soft_white = Oklch::new(0.975, 0.006, 350.0);
+    let soft_black = Oklch::new(0.10, 0.00375, 10.0);
+
+    let palette = generate_neutral_ramp(soft_white, soft_black, TintMode::Inherit);
+
+    assert_eq!(palette.swatches[0].h, soft_white.hue.into_degrees());
+    assert_eq!(palette.swatches[9].h, soft_black.hue.into_degrees());
+}
+
+#[test]
 fn should_use_step_50_as_the_harmonious_light_foreground_for_step_900() {
     use crate::palette::generator::SwatchLabel;
     let soft_white = palette::Oklch::new(0.95, 0.02, 240.0);

@@ -88,9 +88,11 @@ export function usePluginColors() {
 
     setEffectiveWhite(white);
     setEffectiveBlack(black);
-    setNeutralPalette(generate_neutral_ramp(white, black, "Inherit" as TintMode));
+    setNeutralPalette(
+      generate_neutral_ramp(white, black, "Inherit" as TintMode, 0),
+    );
     setNeutralDarkPalette(
-      generate_neutral_ramp(black, white, "Inherit" as TintMode),
+      generate_neutral_ramp(black, white, "Inherit" as TintMode, 0),
     );
   }, [wasmReady, neutralWhite, neutralBlack, tintSource, tintStrength]);
 

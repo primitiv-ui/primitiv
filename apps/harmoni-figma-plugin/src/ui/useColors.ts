@@ -3,7 +3,7 @@ import {
   type TintMode,
   generate_neutral_ramp,
   generate_palette_pair,
-  tint_neutrals,
+  tint_neutrals_duotone,
 } from "harmoni-wasm";
 import { useState, useEffect, ChangeEvent } from "react";
 import { initEngine } from "./engine";
@@ -41,7 +41,17 @@ export function useColors() {
   const [effectiveWhite, setEffectiveWhite] = useState("#ffffff");
   const [effectiveBlack, setEffectiveBlack] = useState("#000000");
   const [tintSource, setTintSource] = useState<string | null>(null);
+  const [tintSourceLch, setTintSourceLch] = useState<{
+    l: number;
+    c: number;
+    h: number;
+  } | null>(null);
   const [tintStrength, setTintStrength] = useState(0.5);
+  // Bipolar hue spread in degrees (RFC 0011 Option B): 0 reproduces the
+  // monotone tint; positive values fan the highlight and shadow anchors apart.
+  const [tintSpread, setTintSpread] = useState(0);
+  // Mid-tone chroma bow in [0, 1]: 0 keeps chroma a straight lerp.
+  const [bow, setBow] = useState(0);
   const [neutralPalette, setNeutralPalette] = useState<Palette>();
   const [neutralDarkPalette, setNeutralDarkPalette] = useState<Palette>();
   const [brand, setBrand] = useState<BrandConfig>({ hex: DEFAULT_BRAND_HEX });
@@ -61,17 +71,35 @@ export function useColors() {
     let white = neutralWhite;
     let black = neutralBlack;
 
-    if (tintSource) {
-      const tinted = tint_neutrals(neutralWhite, neutralBlack, tintSource, tintStrength);
+    if (tintSource && tintSourceLch) {
+      const { l, c, h } = tintSourceLch;
+      const highlight = `oklch(${l} ${c} ${h + tintSpread})`;
+      const shadow = `oklch(${l} ${c} ${h - tintSpread})`;
+      const tinted = tint_neutrals_duotone(
+        neutralWhite,
+        neutralBlack,
+        highlight,
+        shadow,
+        tintStrength,
+      );
       white = tinted.white.oklch;
       black = tinted.black.oklch;
     }
 
     setEffectiveWhite(white);
     setEffectiveBlack(black);
-    setNeutralPalette(generate_neutral_ramp(white, black, "Inherit" as TintMode));
-    setNeutralDarkPalette(generate_neutral_ramp(black, white, "Inherit" as TintMode));
-  }, [wasmReady, neutralWhite, neutralBlack, tintSource, tintStrength]);
+    setNeutralPalette(generate_neutral_ramp(white, black, "Inherit" as TintMode, bow));
+    setNeutralDarkPalette(generate_neutral_ramp(black, white, "Inherit" as TintMode, bow));
+  }, [
+    wasmReady,
+    neutralWhite,
+    neutralBlack,
+    tintSource,
+    tintSourceLch,
+    tintStrength,
+    tintSpread,
+    bow,
+  ]);
 
   const handleNeutralWhiteChange = (e: ChangeEvent<HTMLInputElement>) => {
     setNeutralWhite(e.target.value);
@@ -89,14 +117,24 @@ export function useColors() {
     const source = brand.lightPalette?.swatches[5];
     if (!source) return;
     setTintSource(source.oklch);
+    setTintSourceLch({ l: source.l, c: source.c, h: source.h });
   };
 
   const handleTintStrengthChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTintStrength(parseFloat(e.target.value) / 100);
   };
 
+  const handleTintSpreadChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setTintSpread(parseFloat(e.target.value));
+  };
+
+  const handleBowChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setBow(parseFloat(e.target.value) / 100);
+  };
+
   const handleRemoveTint = () => {
     setTintSource(null);
+    setTintSourceLch(null);
   };
 
   const handleLightRampPaddingLeft = (e: ChangeEvent<HTMLInputElement>) => {
@@ -127,6 +165,8 @@ export function useColors() {
     effectiveBlack,
     tintSource,
     tintStrength,
+    tintSpread,
+    bow,
     neutralPalette,
     neutralDarkPalette,
     brand,
@@ -135,6 +175,8 @@ export function useColors() {
     handleBrandChange,
     handleUseAsTint,
     handleTintStrengthChange,
+    handleTintSpreadChange,
+    handleBowChange,
     handleRemoveTint,
     handleLightRampPaddingLeft,
     handleLightRampPaddingRight,

@@ -2,6 +2,12 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ColorEngine } from './ColorEngine'
 
+const { colorsState } = vi.hoisted(() => ({
+  colorsState: {
+    overrides: {} as Record<string, unknown>,
+  },
+}))
+
 vi.mock('./useColors', () => ({
   useColors: () => ({
     wasmReady: true,
@@ -11,6 +17,8 @@ vi.mock('./useColors', () => ({
     effectiveBlack: '#000000',
     tintSource: null,
     tintStrength: 0,
+    tintSpread: 0,
+    bow: 0,
     neutralPalette: undefined,
     neutralDarkPalette: undefined,
     brand: {
@@ -34,13 +42,53 @@ vi.mock('./useColors', () => ({
     handleBrandChange: vi.fn(),
     handleUseAsTint: vi.fn(),
     handleTintStrengthChange: vi.fn(),
+    handleTintSpreadChange: vi.fn(),
+    handleBowChange: vi.fn(),
     handleRemoveTint: vi.fn(),
     handleLightRampPaddingLeft: vi.fn(),
     handleLightRampPaddingRight: vi.fn(),
     handleDarkRampPaddingLeft: vi.fn(),
     handleDarkRampPaddingRight: vi.fn(),
+    ...colorsState.overrides,
   }),
 }))
+
+describe('ColorEngine duotone spread', () => {
+  beforeEach(() => {
+    HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
+      fillStyle: '',
+      fillRect: vi.fn(),
+      getImageData: vi.fn().mockReturnValue({ data: [255, 0, 0, 255] }),
+    }) as unknown as typeof HTMLCanvasElement.prototype.getContext
+  })
+
+  afterEach(() => {
+    colorsState.overrides = {}
+  })
+
+  it('hides the duotone spread slider until a tint source is set', () => {
+    colorsState.overrides = { tintSource: null }
+    render(<ColorEngine />)
+
+    expect(screen.queryByRole('slider', { name: /spread/i })).toBeNull()
+  })
+
+  it('exposes a keyboard-reachable bipolar spread slider once tinted', async () => {
+    colorsState.overrides = { tintSource: 'oklch(50% 0.2 30)', tintSpread: 15 }
+    const user = userEvent.setup()
+    render(<ColorEngine />)
+
+    // Tab through white, black, brand, the use-as-tint button and the tint
+    // strength slider to land on the spread slider — sixth in the tab order.
+    for (let i = 0; i < 6; i++) await user.tab()
+
+    const spread = screen.getByRole('slider', { name: /spread/i })
+    expect(spread).toHaveFocus()
+    expect(spread).toHaveAttribute('min', '-30')
+    expect(spread).toHaveAttribute('max', '30')
+    expect(spread).toHaveValue('15')
+  })
+})
 
 describe('ColorEngine ramp name', () => {
   beforeEach(() => {

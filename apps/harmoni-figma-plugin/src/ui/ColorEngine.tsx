@@ -32,6 +32,8 @@ export function ColorEngine() {
     neutralBlack,
     tintSource,
     tintStrength,
+    tintSpread,
+    bow,
     neutralPalette,
     neutralDarkPalette,
     brand,
@@ -40,6 +42,8 @@ export function ColorEngine() {
     handleBrandChange,
     handleUseAsTint,
     handleTintStrengthChange,
+    handleTintSpreadChange,
+    handleBowChange,
     handleRemoveTint,
     handleLightRampPaddingLeft,
     handleLightRampPaddingRight,
@@ -126,6 +130,28 @@ export function ColorEngine() {
                 step={1}
                 value={tintStrength * 100}
                 onChange={handleTintStrengthChange}
+              />
+            </label>
+            <label>
+              Spread
+              <input
+                type="range"
+                min={-30}
+                max={30}
+                step={1}
+                value={tintSpread}
+                onChange={handleTintSpreadChange}
+              />
+            </label>
+            <label>
+              Bow
+              <input
+                type="range"
+                min={0}
+                max={100}
+                step={1}
+                value={bow * 100}
+                onChange={handleBowChange}
               />
             </label>
             <button type="button" onClick={handleRemoveTint}>

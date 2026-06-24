@@ -80,3 +80,16 @@ build/test strategy for 0005–0006 and applies once implementation starts.
   single-hue neutral tint (which becomes the equal-hue, zero-bow special case).
   Adopts Leonardo's perceptual key-colour interpolation, constrained to the
   two-anchor neutral case.
+
+## Figma library
+
+| # | Title | Status |
+|---|---|---|
+| [0012](0012-figma-web-typography-build.md) | Figma web typography build | In progress |
+
+- **0012** — building the 27-element web typography library in Figma: text
+  styles and components for every HTML prose element, covering all three
+  density modes and bound to Intent tokens throughout. Records the conventions
+  (inline font binding, fill binding, component naming), the decisions taken
+  (D1 mono deferred, D2 strong=SemiBold, D3 em=synthetic slant, D4 visited
+  token added, D6 Link 3×5×6 variants), and the build checklist status.

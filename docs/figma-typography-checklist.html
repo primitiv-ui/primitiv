@@ -109,7 +109,7 @@
 <table>
 <tr><th>Token</th><th>Family</th><th>Weights available</th><th>Role</th></tr>
 <tr><td><code>font-family.heading</code></td><td><b>Khand</b> (condensed)</td><td>Regular 400 · Medium 500 · SemiBold 600</td><td>Headings, labels, overline, display, button text</td></tr>
-<tr><td><code>font-family.text</code></td><td><b>Asta Sans</b></td><td>Regular 400 only</td><td>Body, descriptive copy, sub-labels, input value text</td></tr>
+<tr><td><code>font-family.text</code></td><td><b>Asta Sans</b></td><td>Regular 400 · Medium 500 · SemiBold 600 · Bold 700</td><td>Body, descriptive copy, sub-labels, input value text</td></tr>
 <tr><td colspan="4" class="small">No monospace face exists — see §8. Never use Inter; it is not in the system.</td></tr>
 </table>
 
@@ -230,10 +230,10 @@
     <tr><td>Label</td><td>font (inline)</td><td><code>body/{size}/*</code></td></tr>
     <tr><td>Label / underline</td><td>fill</td><td><code>action/link/foreground/{state}</code></td></tr>
     <tr><td>Disabled</td><td>opacity</td><td>50% on the node (token stays default)</td></tr>
-    <tr><td>Visited</td><td>fill</td><td><code>brand/700</code> (or dedicated <code>action/link/visited</code> if added)</td></tr>
+    <tr><td>Visited</td><td>fill</td><td><code>action/link/foreground/visited</code> → brand/700 (Light) · brand/300 (Dark)</td></tr>
     <tr><td>Focus ring</td><td>stroke</td><td><code>focus/ring</code></td></tr>
   </table>
-  <div class="callout">Visited has no token today. Either reuse <code>active</code>'s <code>brand/700</code> or add <code>action/link/foreground/visited</code>. Decide before building.</div>
+  <div class="callout"><strong>Decided.</strong> <code>action/link/foreground/visited</code> is now a formal Intent token (VariableID 581:6050): brand/700 Light, brand/300 Dark. All 15 visited variants in the Link component are bound to it.</div>
 </div>
 
 <div class="card">
@@ -467,11 +467,11 @@
 <tr><td>1</td><td>Display / hero</td><td>Text style</td><td><span class="pill exists">Exists</span></td><td>—</td></tr>
 <tr><td>2</td><td>Headings h1–h6</td><td>Text style</td><td><span class="pill exists">Exists</span></td><td>—</td></tr>
 <tr><td>3</td><td>Paragraph / body</td><td>Text style</td><td><span class="pill exists">Exists</span></td><td>—</td></tr>
-<tr><td>4</td><td>Lead paragraph</td><td>Text style</td><td><span class="pill build">Add</span></td><td>—</td></tr>
-<tr><td>5</td><td>Caption / helper</td><td>Text style</td><td><span class="pill build">Add</span></td><td>—</td></tr>
+<tr><td>4</td><td>Lead paragraph</td><td>Text style</td><td><span class="pill exists">Done</span></td><td>—</td></tr>
+<tr><td>5</td><td>Caption / helper</td><td>Text style</td><td><span class="pill exists">Done</span></td><td>—</td></tr>
 <tr><td>6</td><td>Overline / eyebrow</td><td>Text style</td><td><span class="pill exists">Exists</span></td><td>—</td></tr>
-<tr><td>7</td><td>Address</td><td>Text style</td><td><span class="pill build">Add</span></td><td>—</td></tr>
-<tr><td>8</td><td>Link</td><td>Component</td><td><span class="pill build">Build</span></td><td>visited? (decide)</td></tr>
+<tr><td>7</td><td>Address</td><td>Text style</td><td><span class="pill exists">Done</span></td><td>—</td></tr>
+<tr><td>8</td><td>Link</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>action/link/foreground/visited</code> ✓</td></tr>
 <tr><td>9</td><td>List + List Item</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>list/*</code></td></tr>
 <tr><td>10</td><td>Description list</td><td>Component</td><td><span class="pill build">Build</span></td><td>—</td></tr>
 <tr><td>11</td><td>Blockquote</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>quote/*</code></td></tr>
@@ -483,7 +483,7 @@
 <tr><td>17</td><td>Divider / hr</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>divider/*</code></td></tr>
 <tr><td>18</td><td>kbd</td><td>Component</td><td><span class="pill build">Build</span></td><td>mono (§8)</td></tr>
 <tr><td>19</td><td>strong</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
-<tr><td>20</td><td>em</td><td>Char style</td><td><span class="pill build">Build</span></td><td>italic? (decide)</td></tr>
+<tr><td>20</td><td>em</td><td>Char style</td><td><span class="pill build">Build</span></td><td>synthetic slant (no italic in system)</td></tr>
 <tr><td>21</td><td>mark / highlight</td><td>Span</td><td><span class="pill build">Build</span></td><td>highlight tint</td></tr>
 <tr><td>22</td><td>del</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
 <tr><td>23</td><td>ins</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>

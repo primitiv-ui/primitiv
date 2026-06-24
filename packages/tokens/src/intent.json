@@ -156,6 +156,10 @@
           "disabled": {
             "$type": "color",
             "$value": "{color.brand.500}"
+          },
+          "visited": {
+            "$type": "color",
+            "$value": "{color.brand.700}"
           }
         }
       }
@@ -210,6 +214,14 @@
       "error": {
         "$type": "color",
         "$value": "{color.danger.500}"
+      }
+    },
+    "list": {
+      "marker": {
+        "foreground": {
+          "$type": "color",
+          "$value": "{color.neutral.700}"
+        }
       }
     },
     "border": {
@@ -398,6 +410,10 @@
           "disabled": {
             "$type": "color",
             "$value": "{color.brand.500}"
+          },
+          "visited": {
+            "$type": "color",
+            "$value": "{color.brand.300}"
           }
         }
       }
@@ -452,6 +468,14 @@
       "error": {
         "$type": "color",
         "$value": "{color.danger.500}"
+      }
+    },
+    "list": {
+      "marker": {
+        "foreground": {
+          "$type": "color",
+          "$value": "{color.neutral.200}"
+        }
       }
     },
     "border": {

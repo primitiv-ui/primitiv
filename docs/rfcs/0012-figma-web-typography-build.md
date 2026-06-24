@@ -45,7 +45,8 @@ The full 27-item checklist lives at
 | 6 | Overline / eyebrow | Text style | Exists |
 | 7 | Address | Text style | Done |
 | 8 | Link | Component | Done |
-| 9–27 | List · Blockquote · Code · Table · kbd · char styles · … | Various | To build |
+| 9 | List + List Item | Component | Done |
+| 10–27 | Description list · Blockquote · Code · Table · kbd · char styles · … | Various | To build |
 
 ---
 
@@ -183,13 +184,40 @@ AUTO is set overrides the mode back to FIXED, collapsing the frame to a fixed
 height. Correct order: `resize(w, h)` → `layoutMode = "VERTICAL"` →
 `primaryAxisSizingMode = "AUTO"` → `counterAxisSizingMode = "FIXED"`.
 
+### D9 — ListItem component: 2 × 5 × 2 = 20 variants
+
+New Intent token: `list/marker/foreground` (VariableID: `582:6294`) → alias to
+`content/secondary` in both Light and Dark modes.
+
+The ListItem component set covers:
+
+- **Type** (2): `unordered` (bullet `•`), `ordered` (number `1.`)
+- **Sizes** (5): `xs`, `sm`, `md`, `lg`, `xl`
+- **States** (2): `default`, `disabled`
+
+Token mapping:
+
+| Part | Token |
+|------|-------|
+| Marker | `list/marker/foreground` (→ `content/secondary`) |
+| Text | `content/primary` |
+| Disabled | `opacity = 0.5` on component frame |
+| Density | `body/{size}/{font-family · font-size · font-style · line-height}` |
+
+`createVariable` requires the collection node (not the ID string) in incremental
+mode — `figma.variables.createVariable(name, collectionNode, type)`.
+
+After `combineAsVariants`, the ComponentSetNode does not auto-expand when children
+are repositioned. Call `set.resize(maxX + pad, maxY + pad)` after manually placing
+all children to avoid the set collapsing to a single-variant footprint.
+
 ---
 
 ## 4. Next steps
 
-Work through checklist items 9–27 in order. Priority path:
+Work through checklist items 10–27 in order. Priority path:
 
-1. **List + List Item** (9) — the most common prose component after Link.
+1. **Description list** (10) — `dt`/`dd` pair; no new tokens expected.
 2. **Blockquote** (11) — needs `quote/*` tokens before building.
 3. **Inline code / Code block** (13–14) — blocked on D1 (mono face decision).
 4. **Character styles** (19–27) — mostly fast wins once the faces are confirmed.

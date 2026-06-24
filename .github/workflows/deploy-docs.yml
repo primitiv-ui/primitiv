@@ -52,11 +52,12 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       # Sub-path base + hash router so the SPA works under /primitiv/workbench/
-      # and deep links survive a hard refresh on GitHub Pages.
+      # and deep links survive a hard refresh on GitHub Pages. The sub-path
+      # base also switches the app to the hash router (see apps/workbench/src/
+      # main.tsx), so no separate flag is needed.
       - name: Build workbench
         env:
           WORKBENCH_BASE: /primitiv/workbench/
-          VITE_HASH_ROUTER: "true"
         run: pnpm --filter workbench build
 
       - name: Build docs

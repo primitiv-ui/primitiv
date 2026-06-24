@@ -11,6 +11,17 @@ pub enum TintMode {
     Achromatic,
 }
 
+/// Shaping parameters for [`generate_neutral_ramp`]. A struct (rather than a
+/// trailing argument) so further shaping knobs can land without churning every
+/// call site or the wasm signature.
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct RampOptions {
+    /// Mid-tone chroma bow in `[0, 1]`. `0` keeps chroma a straight lerp between
+    /// the anchors (the monotone default); a positive bow crests chroma through
+    /// the mid-tones via a `4t(1−t)` parabola that is zero at both endpoints.
+    pub bow: f32,
+}
+
 const STEPS: [u16; 10] = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
 
 /// Interpolate a hue from `from` to `to` along the **shortest arc** in degrees.
@@ -23,7 +34,14 @@ fn lerp_hue_shortest(from: f32, to: f32, t: f32) -> f32 {
     ((from + delta * t + 180.0).rem_euclid(360.0)) - 180.0
 }
 
-pub fn generate_neutral_ramp(soft_white: Oklch, soft_black: Oklch, tint: TintMode) -> Palette {
+pub fn generate_neutral_ramp(
+    soft_white: Oklch,
+    soft_black: Oklch,
+    tint: TintMode,
+    options: RampOptions,
+) -> Palette {
+    let bow = options.bow;
+    let peak = soft_white.chroma.max(soft_black.chroma);
     let white_hue = soft_white.hue.into_degrees();
     let black_hue = soft_black.hue.into_degrees();
     let last = STEPS.len() - 1;
@@ -43,7 +61,12 @@ pub fn generate_neutral_ramp(soft_white: Oklch, soft_black: Oklch, tint: TintMod
             } else {
                 let fraction = (TARGET_LIGHTNESS[0] - TARGET_LIGHTNESS[i]) / curve_span;
                 let l = soft_white.l + (soft_black.l - soft_white.l) * fraction;
-                let c = soft_white.chroma + (soft_black.chroma - soft_white.chroma) * fraction;
+                let linear_c =
+                    soft_white.chroma + (soft_black.chroma - soft_white.chroma) * fraction;
+                // `4t(1−t)` is 0 at both anchors and 1 at the mid-tone, so the
+                // bow crests chroma through the middle without moving endpoints.
+                let crest = 4.0 * fraction * (1.0 - fraction);
+                let c = linear_c + bow * peak * crest;
                 let hue = lerp_hue_shortest(white_hue, black_hue, fraction);
                 SwatchStep::from_label(l, apply_tint(c), hue, step)
             }

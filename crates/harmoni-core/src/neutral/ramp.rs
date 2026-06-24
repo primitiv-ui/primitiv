@@ -40,7 +40,7 @@ pub fn generate_neutral_ramp(
     tint: TintMode,
     options: RampOptions,
 ) -> Palette {
-    let bow = options.bow;
+    let bow = options.bow.clamp(0.0, 1.0);
     let peak = soft_white.chroma.max(soft_black.chroma);
     let white_hue = soft_white.hue.into_degrees();
     let black_hue = soft_black.hue.into_degrees();

@@ -138,6 +138,38 @@ fn should_crest_mid_tone_chroma_above_the_linear_lerp_when_bow_is_positive() {
 }
 
 #[test]
+fn should_clamp_bow_to_the_unit_range() {
+    let soft_white = Oklch::new(0.975, 0.02, 240.0);
+    let soft_black = Oklch::new(0.10, 0.008, 240.0);
+
+    let at_one = generate_neutral_ramp(
+        soft_white,
+        soft_black,
+        TintMode::Inherit,
+        RampOptions { bow: 1.0 },
+    );
+    let above_one = generate_neutral_ramp(
+        soft_white,
+        soft_black,
+        TintMode::Inherit,
+        RampOptions { bow: 5.0 },
+    );
+    let at_zero =
+        generate_neutral_ramp(soft_white, soft_black, TintMode::Inherit, RampOptions::default());
+    let below_zero = generate_neutral_ramp(
+        soft_white,
+        soft_black,
+        TintMode::Inherit,
+        RampOptions { bow: -2.0 },
+    );
+
+    for i in 0..10 {
+        assert_eq!(above_one.swatches[i].c, at_one.swatches[i].c);
+        assert_eq!(below_zero.swatches[i].c, at_zero.swatches[i].c);
+    }
+}
+
+#[test]
 fn should_pin_endpoint_hues_to_the_respective_anchors_when_they_differ() {
     let soft_white = Oklch::new(0.975, 0.006, 350.0);
     let soft_black = Oklch::new(0.10, 0.00375, 10.0);

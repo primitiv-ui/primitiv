@@ -185,7 +185,7 @@ AUTO is set overrides the mode back to FIXED, collapsing the frame to a fixed
 height. Correct order: `resize(w, h)` → `layoutMode = "VERTICAL"` →
 `primaryAxisSizingMode = "AUTO"` → `counterAxisSizingMode = "FIXED"`.
 
-### D9 — List + ListItem components: 2 × 5 × 2 = 20 variants + 2 List container variants
+### D9 — List + ListItem components: 2 × 5 × 2 = 20 variants + 20 List container variants (Indent × Type × Size)
 
 New Intent token: `list/marker/foreground` (VariableID: `582:6294`) → alias to
 `content/secondary` in both Light and Dark modes.
@@ -195,9 +195,9 @@ the Context collection and bound to the components:
 
 | Token | Dense | Compact | Comfortable | Spacious | Bound to |
 |-------|-------|---------|-------------|----------|----------|
-| `list/item-gap` (VariableID: `586:7247`) | `space-2` | `space-4` | `space-8` | `space-12` | List `itemSpacing` |
+| `list/item-gap` (VariableID: `586:7247`) | `space-2` | `space-4` | `space-8` | `space-12` | List `itemSpacing` (all variants) |
 | `list/marker-gap` (VariableID: `586:7248`) | `space-4` | `space-8` | `space-8` | `space-12` | ListItem `itemSpacing` |
-| `list/indent` (VariableID: `586:7249`) | `space-16` | `space-24` | `space-28` | `space-32` | List `paddingLeft` |
+| `list/indent` (VariableID: `586:7249`) | `space-16` | `space-24` | `space-28` | `space-32` | List `paddingLeft` (`Indent=true` variants only) |
 
 The ListItem component set covers:
 
@@ -216,6 +216,11 @@ Token mapping:
 | Item gap | `list/item-gap` (Context collection, density-scaled) |
 | Marker → content gap | `list/marker-gap` (Context collection, density-scaled) |
 | Left indent | `list/indent` (Context collection, density-scaled) |
+
+The List container set covers **Indent × Type × Size = 2 × 2 × 5 = 20 variants**:
+`Indent=true` variants apply `list/indent` as `paddingLeft`; `Indent=false` variants
+set `paddingLeft = 0` for flush/inline contexts where the browser or a parent supplies
+the indentation. Both still bind `itemSpacing` to `list/item-gap`.
 
 `createVariable` requires the collection node (not the ID string) in incremental
 mode — `figma.variables.createVariable(name, collectionNode, type)`.

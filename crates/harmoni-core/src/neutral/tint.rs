@@ -8,12 +8,9 @@ pub fn tint_neutrals(
     source: Oklch,
     strength: f32,
 ) -> SoftNeutrals {
-    let strength = strength.clamp(0.0, 1.0);
-    let hue = source.hue.into_degrees();
-    SoftNeutrals {
-        white: Oklch::new(white.l, source.chroma * 0.08 * strength, hue),
-        black: Oklch::new(black.l, source.chroma * 0.05 * strength, hue),
-    }
+    // The single-source tint is the degenerate duotone where both anchors share
+    // the one source (RFC 0011, Principle 2).
+    tint_neutrals_duotone(white, black, source, source, strength)
 }
 
 /// Layer two independent tint anchors onto already-chosen white/black ends — a

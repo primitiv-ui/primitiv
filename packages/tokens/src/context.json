@@ -1345,6 +1345,12 @@
         "$type": "number",
         "$value": "{space.space-28}"
       }
+    },
+    "quote": {
+      "padding-inline": {
+        "$type": "number",
+        "$value": "{space.space-20}"
+      }
     }
   },
   "compact": {
@@ -2692,6 +2698,12 @@
       "indent": {
         "$type": "number",
         "$value": "{space.space-24}"
+      }
+    },
+    "quote": {
+      "padding-inline": {
+        "$type": "number",
+        "$value": "{space.space-16}"
       }
     }
   },
@@ -4041,6 +4053,12 @@
         "$type": "number",
         "$value": "{space.space-32}"
       }
+    },
+    "quote": {
+      "padding-inline": {
+        "$type": "number",
+        "$value": "{space.space-24}"
+      }
     }
   },
   "dense": {
@@ -5388,6 +5406,12 @@
       "indent": {
         "$type": "number",
         "$value": "{space.space-16}"
+      }
+    },
+    "quote": {
+      "padding-inline": {
+        "$type": "number",
+        "$value": "{space.space-12}"
       }
     }
   }

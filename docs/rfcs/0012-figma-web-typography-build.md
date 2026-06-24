@@ -47,7 +47,8 @@ The full 27-item checklist lives at
 | 8 | Link | Component | Done |
 | 9 | List + List Item | Component | Done |
 | 10 | Description list | Component | Done |
-| 11–27 | Blockquote · Code · Table · kbd · char styles · … | Various | To build |
+| 11 | Blockquote | Component | Done |
+| 12–27 | Pull quote · Code · Table · kbd · char styles · … | Various | To build |
 
 ---
 
@@ -267,13 +268,43 @@ binds `fontStyle` to the fixed `font-style/semibold` primitive (not the
 modes while size and family still scale. `<dd>` uses all four body token bindings.
 The `<dd>` indent is a 16 px `paddingLeft` wrapper frame (not leading spaces).
 
+### D12 — Blockquote: left-stroke bar, no separate bar frame
+
+Blockquote (2 × 2 = 4 variants: Tone × Citation) uses a 3px left stroke on the component
+frame itself as the accent bar rather than a nested child frame. A separate bar child with
+`layoutSizingVertical = 'FILL'` inside a `HUG`-height parent creates a circular dependency in
+Figma's auto-layout (FILL cannot resolve when the parent HUGs). Left stroke avoids this entirely
+— the stroke always matches the component's full rendered height.
+
+New Context token: `quote/padding-inline` (VariableID: `586:8355`) — the indent between the bar
+and the quote text.
+
+| Token | Dense | Compact | Comfortable | Spacious |
+|-------|-------|---------|-------------|----------|
+| `quote/padding-inline` | `space-12` | `space-16` | `space-20` | `space-24` |
+
+Token bindings:
+
+| Part | Token |
+|------|-------|
+| Accent bar (default) | `border/strong` |
+| Accent bar (accent) | `border/focus` (brand) |
+| Quote text fill | `content/secondary` |
+| Citation text fill | `content/muted` |
+| Quote font | `body/lg/{fontFamily · fontSize · lineHeight · fontStyle}` |
+| Citation font | `body/sm/{fontFamily · fontSize · lineHeight · fontStyle}` |
+| Padding-inline | `quote/padding-inline` (Context, density-scaled) |
+
+No native italic available in Asta Sans — the accent bar + indentation provide the quote
+signal. See D3.
+
 ---
 
 ## 4. Next steps
 
-Work through checklist items 11–27 in order. Priority path:
+Work through checklist items 12–27 in order. Priority path:
 
-1. **Blockquote** (11) — needs `quote/*` tokens before building.
-2. **Blockquote** (11) — needs `quote/*` tokens before building.
-3. **Inline code / Code block** (13–14) — blocked on D1 (mono face decision).
+1. **Pull quote** (12) — no new tokens needed; uses heading/display scale.
+2. **Inline code / Code block** (13–14) — blocked on D1 (mono face decision).
+3. **Table** (15) — needs `table/*` tokens before building.
 4. **Character styles** (19–27) — mostly fast wins once the faces are confirmed.

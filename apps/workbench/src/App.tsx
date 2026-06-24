@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { Routes, Route, Link, useLocation } from "react-router-dom";
+import { Routes, Route, Link, Navigate, useLocation } from "react-router-dom";
 
-import { ColorEngine } from "./ColorEngine";
 import {
   AccessibleIconExample,
   AccordionExample,
@@ -132,10 +131,7 @@ const navGroups: { title: string; links: NavLink[] }[] = [
   },
   {
     title: "Showcase",
-    links: [
-      { to: "/design-system-test", label: "Design System Test" },
-      { to: "/plugin-frame", label: "Plugin Frame" },
-    ],
+    links: [{ to: "/design-system-test", label: "Design System Test" }],
   },
 ];
 
@@ -186,7 +182,7 @@ function App() {
         className={isMenuOpen ? "sidebar sidebar--open" : "sidebar"}
       >
         <Link className="sidebar__home" to="/">
-          Color Engine
+          Plugin Frame
         </Link>
         {navGroups.map((group) => (
           <div className="sidebar__group" key={group.title}>
@@ -205,7 +201,7 @@ function App() {
       </aside>
       <main className={containerClasses}>
         <Routes>
-          <Route path="/" element={<ColorEngine />} />
+          <Route path="/" element={<PluginFrameExample />} />
           <Route
             path="/accessible-icon"
             element={<AccessibleIconExample />}
@@ -237,7 +233,6 @@ function App() {
           <Route path="/input-group" element={<InputGroupExample />} />
           <Route path="/miller-columns" element={<MillerColumnsExample />} />
           <Route path="/modal" element={<ModalExample />} />
-          <Route path="/plugin-frame" element={<PluginFrameExample />} />
           <Route path="/portal" element={<PortalExample />} />
           <Route path="/progress" element={<ProgressExample />} />
           <Route path="/radio" element={<RadioExample />} />
@@ -259,6 +254,9 @@ function App() {
             path="/visually-hidden"
             element={<VisuallyHiddenExample />}
           />
+          {/* The plugin frame is the home page now; bounce stale links
+              (e.g. the old /plugin-frame deep link) back to it. */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
     </div>

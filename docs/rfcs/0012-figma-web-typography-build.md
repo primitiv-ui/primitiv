@@ -46,7 +46,8 @@ The full 27-item checklist lives at
 | 7 | Address | Text style | Done |
 | 8 | Link | Component | Done |
 | 9 | List + List Item | Component | Done |
-| 10–27 | Description list · Blockquote · Code · Table · kbd · char styles · … | Various | To build |
+| 10 | Description list | Component | Done |
+| 11–27 | Blockquote · Code · Table · kbd · char styles · … | Various | To build |
 
 ---
 
@@ -211,13 +212,31 @@ After `combineAsVariants`, the ComponentSetNode does not auto-expand when childr
 are repositioned. Call `set.resize(maxX + pad, maxY + pad)` after manually placing
 all children to avoid the set collapsing to a single-variant footprint.
 
+### D10 — DescriptionList component: 5 size variants, no new tokens
+
+`<dl>` is implemented as a **DescriptionList** compound component — one `<dt>` +
+one `<dd>` stacked in a vertical auto-layout. Designers compose multiple instances
+to form a full description list. No new Intent tokens: both text nodes use
+`content/primary`.
+
+| Part | Font style | Token |
+|------|-----------|-------|
+| `<dt>` | Asta Sans **SemiBold** (fixed — `font-style/semibold`) | `content/primary` |
+| `<dd>` | Asta Sans Regular (from `body/{size}/font-style`) | `content/primary` |
+
+`<dt>` binds `fontFamily`, `fontSize`, `lineHeight` to the Context body tokens but
+binds `fontStyle` to the fixed `font-style/semibold` primitive (not the
+`body/{size}/font-style` alias) — that way it stays SemiBold across all density
+modes while size and family still scale. `<dd>` uses all four body token bindings.
+The `<dd>` indent is a 16 px `paddingLeft` wrapper frame (not leading spaces).
+
 ---
 
 ## 4. Next steps
 
-Work through checklist items 10–27 in order. Priority path:
+Work through checklist items 11–27 in order. Priority path:
 
-1. **Description list** (10) — `dt`/`dd` pair; no new tokens expected.
+1. **Blockquote** (11) — needs `quote/*` tokens before building.
 2. **Blockquote** (11) — needs `quote/*` tokens before building.
 3. **Inline code / Code block** (13–14) — blocked on D1 (mono face decision).
 4. **Character styles** (19–27) — mostly fast wins once the faces are confirmed.

@@ -28,12 +28,15 @@ api::generate_with_lightness(ColorInput, [f32; 10], GenerateOptions)
     -> Result<Palette, ColorInputError>
 
 // Neutral / greyscale ramps
-api::generate_neutral_ramp(white: ColorInput, black: ColorInput, TintMode)
-    -> Result<Palette, ColorInputError>
+api::generate_neutral_ramp(white: ColorInput, black: ColorInput, TintMode,
+    RampOptions) -> Result<Palette, ColorInputError>
 api::derive_soft_neutrals(brand: ColorInput, softness: f32)
     -> Result<SoftNeutrals, ColorInputError>
 api::tint_neutrals(white: ColorInput, black: ColorInput,
     source: ColorInput, strength: f32)
+    -> Result<SoftNeutrals, ColorInputError>
+api::tint_neutrals_duotone(white: ColorInput, black: ColorInput,
+    highlight: ColorInput, shadow: ColorInput, strength: f32)
     -> Result<SoftNeutrals, ColorInputError>
 
 // Contrast audit

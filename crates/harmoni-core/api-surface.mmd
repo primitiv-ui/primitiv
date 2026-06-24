@@ -11,9 +11,10 @@ classDiagram
         +generate_with_options(ColorInput, GenerateOptions) Palette
         +generate_with_lightness(ColorInput, Curve, GenerateOptions) Palette
         +generate_pair(ColorInput, Curve, Curve, GenerateOptions) PaletteSet
-        +generate_neutral_ramp(ColorInput, ColorInput, TintMode) Palette
+        +generate_neutral_ramp(ColorInput, ColorInput, TintMode, RampOptions) Palette
         +derive_soft_neutrals(ColorInput, f32) SoftNeutrals
         +tint_neutrals(ColorInput, ColorInput, ColorInput, f32) SoftNeutrals
+        +tint_neutrals_duotone(ColorInput, ColorInput, ColorInput, ColorInput, f32) SoftNeutrals
         +audit_contrast(ColorInput, ColorInput) ContrastResult
     }
     class WasmApi {
@@ -22,9 +23,10 @@ classDiagram
         +generate_palette_with_lightness(hex, Curve, padL, padR) Palette
         +generate_palette_with_light_padding(hex, padL) Palette
         +generate_palette_pair(hex, Curve, Curve, padL, padR) PaletteSet
-        +generate_neutral_ramp(white, black, TintMode) Palette
+        +generate_neutral_ramp(white, black, TintMode, bow) Palette
         +derive_soft_neutrals(brand, softness) SoftNeutrals
         +tint_neutrals(white, black, source, strength) SoftNeutrals
+        +tint_neutrals_duotone(white, black, highlight, shadow, strength) SoftNeutrals
         +get_contrast_rating(bg, fg) ContrastResult
     }
     class ColorInput {

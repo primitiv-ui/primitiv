@@ -222,6 +222,13 @@ The List container set covers **Indent × Type × Size = 2 × 2 × 5 = 20 varian
 set `paddingLeft = 0` for flush/inline contexts where the browser or a parent supplies
 the indentation. Both still bind `itemSpacing` to `list/item-gap`.
 
+Each List variant has 8 item slots (`Item 1`–`Item 8`). Items 1–4 are always visible;
+items 5–8 are hidden by default via boolean component properties (`Show Item 5`–`Show Item 8`,
+default `false`). In Figma auto-layout, property-bound hidden nodes collapse to zero height
+so the component stays compact until a slot is toggled on. DescriptionList similarly
+exposes 4 term/detail pairs with `Show pair 3` and `Show pair 4` boolean properties
+controlling the third and fourth pairs.
+
 `createVariable` requires the collection node (not the ID string) in incremental
 mode — `figma.variables.createVariable(name, collectionNode, type)`.
 

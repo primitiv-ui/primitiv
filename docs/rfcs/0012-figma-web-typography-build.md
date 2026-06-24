@@ -190,6 +190,15 @@ height. Correct order: `resize(w, h)` → `layoutMode = "VERTICAL"` →
 New Intent token: `list/marker/foreground` (VariableID: `582:6294`) → alias to
 `content/secondary` in both Light and Dark modes.
 
+New Context (density-scaling) tokens — three `list/*` spacing variables added to
+the Context collection and bound to the components:
+
+| Token | Dense | Compact | Comfortable | Spacious | Bound to |
+|-------|-------|---------|-------------|----------|----------|
+| `list/item-gap` (VariableID: `586:7247`) | `space-2` | `space-4` | `space-8` | `space-12` | List `itemSpacing` |
+| `list/marker-gap` (VariableID: `586:7248`) | `space-4` | `space-8` | `space-8` | `space-12` | ListItem `itemSpacing` |
+| `list/indent` (VariableID: `586:7249`) | `space-16` | `space-24` | `space-28` | `space-32` | List `paddingLeft` |
+
 The ListItem component set covers:
 
 - **Type** (2): `unordered` (bullet `•`), `ordered` (number `1.`)
@@ -204,6 +213,9 @@ Token mapping:
 | Text | `content/primary` |
 | Disabled | `opacity = 0.5` on component frame |
 | Density | `body/{size}/{font-family · font-size · font-style · line-height}` |
+| Item gap | `list/item-gap` (Context collection, density-scaled) |
+| Marker → content gap | `list/marker-gap` (Context collection, density-scaled) |
+| Left indent | `list/indent` (Context collection, density-scaled) |
 
 `createVariable` requires the collection node (not the ID string) in incremental
 mode — `figma.variables.createVariable(name, collectionNode, type)`.

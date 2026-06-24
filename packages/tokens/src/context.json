@@ -1331,6 +1331,20 @@
           "$value": "{space.space-16}"
         }
       }
+    },
+    "list": {
+      "item-gap": {
+        "$type": "number",
+        "$value": "{space.space-8}"
+      },
+      "marker-gap": {
+        "$type": "number",
+        "$value": "{space.space-8}"
+      },
+      "indent": {
+        "$type": "number",
+        "$value": "{space.space-28}"
+      }
     }
   },
   "compact": {
@@ -2664,6 +2678,20 @@
           "$type": "number",
           "$value": "{space.space-12}"
         }
+      }
+    },
+    "list": {
+      "item-gap": {
+        "$type": "number",
+        "$value": "{space.space-4}"
+      },
+      "marker-gap": {
+        "$type": "number",
+        "$value": "{space.space-8}"
+      },
+      "indent": {
+        "$type": "number",
+        "$value": "{space.space-24}"
       }
     }
   },
@@ -3999,6 +4027,20 @@
           "$value": "{space.space-20}"
         }
       }
+    },
+    "list": {
+      "item-gap": {
+        "$type": "number",
+        "$value": "{space.space-12}"
+      },
+      "marker-gap": {
+        "$type": "number",
+        "$value": "{space.space-12}"
+      },
+      "indent": {
+        "$type": "number",
+        "$value": "{space.space-32}"
+      }
     }
   },
   "dense": {
@@ -5332,6 +5374,20 @@
           "$type": "number",
           "$value": "{space.space-8}"
         }
+      }
+    },
+    "list": {
+      "item-gap": {
+        "$type": "number",
+        "$value": "{space.space-2}"
+      },
+      "marker-gap": {
+        "$type": "number",
+        "$value": "{space.space-4}"
+      },
+      "indent": {
+        "$type": "number",
+        "$value": "{space.space-16}"
       }
     }
   }

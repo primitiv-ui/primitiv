@@ -20,7 +20,9 @@ pub use generate::{
     generate, generate_brand_pair, generate_pair, generate_with_lightness, generate_with_options,
     GenerateOptions, PaletteSet,
 };
-pub use neutral::{derive_soft_neutrals, generate_neutral_ramp, tint_neutrals};
+pub use neutral::{
+    derive_soft_neutrals, generate_neutral_ramp, tint_neutrals, tint_neutrals_duotone,
+};
 
 #[cfg(test)]
 mod audit_tests;

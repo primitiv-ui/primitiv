@@ -156,6 +156,7 @@ pub fn generate_neutral_ramp(
         ColorInput::Css(white.to_string()),
         ColorInput::Css(black.to_string()),
         tint.into(),
+        harmoni_core::RampOptions::default(),
     )
     .map_err(to_js_error)?;
 

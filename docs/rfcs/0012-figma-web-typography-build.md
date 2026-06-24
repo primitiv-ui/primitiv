@@ -185,7 +185,7 @@ AUTO is set overrides the mode back to FIXED, collapsing the frame to a fixed
 height. Correct order: `resize(w, h)` → `layoutMode = "VERTICAL"` →
 `primaryAxisSizingMode = "AUTO"` → `counterAxisSizingMode = "FIXED"`.
 
-### D9 — ListItem component: 2 × 5 × 2 = 20 variants
+### D9 — List + ListItem components: 2 × 5 × 2 = 20 variants + 2 List container variants
 
 New Intent token: `list/marker/foreground` (VariableID: `582:6294`) → alias to
 `content/secondary` in both Light and Dark modes.
@@ -211,6 +211,19 @@ mode — `figma.variables.createVariable(name, collectionNode, type)`.
 After `combineAsVariants`, the ComponentSetNode does not auto-expand when children
 are repositioned. Call `set.resize(maxX + pad, maxY + pad)` after manually placing
 all children to avoid the set collapsing to a single-variant footprint.
+
+### D11 — `addComponentProperty` INSTANCE_SWAP is restricted to published-library components
+
+`ComponentNode.addComponentProperty('name', 'INSTANCE_SWAP', componentKey)` throws
+"Property value is incompatible with component property type" when `componentKey`
+belongs to a component that has **not** been published to a team library. TEXT and
+BOOLEAN properties are unaffected — only INSTANCE_SWAP fails on local components.
+
+Impact: the `List` component's item slots are exposed as **named nested instances**
+(`Item 1` · `Item 2` · `Item 3` · `Item 4`) rather than explicit INSTANCE_SWAP
+component properties. In Figma, any nested component instance is implicitly
+overridable via right-click → Swap instance. Once the file is published to a
+library, INSTANCE_SWAP properties can be added retroactively.
 
 ### D10 — DescriptionList component: 5 size variants, no new tokens
 

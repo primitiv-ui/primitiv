@@ -151,12 +151,13 @@ pub fn generate_neutral_ramp(
     white: &str,
     black: &str,
     tint: types::TintMode,
+    bow: f32,
 ) -> Result<Palette, JsError> {
     let palette_data = api::generate_neutral_ramp(
         ColorInput::Css(white.to_string()),
         ColorInput::Css(black.to_string()),
         tint.into(),
-        harmoni_core::RampOptions::default(),
+        harmoni_core::RampOptions { bow },
     )
     .map_err(to_js_error)?;
 
@@ -184,6 +185,25 @@ pub fn tint_neutrals(
         ColorInput::Css(white.to_string()),
         ColorInput::Css(black.to_string()),
         ColorInput::Css(source.to_string()),
+        strength,
+    )
+    .map(Into::into)
+    .map_err(to_js_error)
+}
+
+#[wasm_bindgen]
+pub fn tint_neutrals_duotone(
+    white: &str,
+    black: &str,
+    highlight: &str,
+    shadow: &str,
+    strength: f32,
+) -> Result<types::SoftNeutrals, JsError> {
+    api::tint_neutrals_duotone(
+        ColorInput::Css(white.to_string()),
+        ColorInput::Css(black.to_string()),
+        ColorInput::Css(highlight.to_string()),
+        ColorInput::Css(shadow.to_string()),
         strength,
     )
     .map(Into::into)

@@ -59,6 +59,33 @@ function FractionSlider({
   );
 }
 
+// A bipolar degree slider centred on 0 — the Option B hue spread, fanning the
+// one tint source into a warm highlight and a cool shadow anchor.
+function SpreadSlider({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <Slider.Root
+      className="pf-slider"
+      aria-label="Spread"
+      min={-30}
+      max={30}
+      step={1}
+      value={[value]}
+      onValueChange={([next]) => onChange(next)}
+    >
+      <Slider.Track className="pf-slider__track">
+        <Slider.Range className="pf-slider__range" />
+      </Slider.Track>
+      <Slider.Thumb className="pf-slider__thumb" />
+    </Slider.Root>
+  );
+}
+
 export type PluginColorEngineProps = {
   /** Chart aspect forwarded to the brand picker (tuned in the sandbox header). */
   chartAspect: number;
@@ -69,6 +96,8 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
     wasmReady,
     tintSource,
     tintStrength,
+    tintSpread,
+    bow,
     neutralPalette,
     neutralDarkPalette,
     brand,
@@ -78,6 +107,8 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
     setLightCurve,
     setDarkCurve,
     setTintStrength,
+    setTintSpread,
+    setBow,
     handleUseAsTint,
     handleRemoveTint,
     setLightRampPaddingLeft,
@@ -179,6 +210,15 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
                 value={tintStrength}
                 max={1}
                 onChange={setTintStrength}
+              />
+              <span className="pf-neutral-tint__label">Spread</span>
+              <SpreadSlider value={tintSpread} onChange={setTintSpread} />
+              <span className="pf-neutral-tint__label">Bow</span>
+              <FractionSlider
+                label="Bow"
+                value={bow}
+                max={1}
+                onChange={setBow}
               />
               <Button
                 type="button"

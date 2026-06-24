@@ -4,7 +4,7 @@ import init, {
   Swatch,
   generate_neutral_ramp,
   generate_palette_pair,
-  tint_neutrals_duotone,
+  tint_neutrals,
 } from "harmoni-wasm";
 import { useState, useEffect, ChangeEvent } from "react";
 import type { ColorConfig, ColorKey, ColorMap } from "./types";
@@ -44,17 +44,7 @@ export function useColors() {
   const [neutralWhite, setNeutralWhite] = useState("#ffffff");
   const [neutralBlack, setNeutralBlack] = useState("#000000");
   const [tintSource, setTintSource] = useState<string | null>(null);
-  const [tintSourceLch, setTintSourceLch] = useState<{
-    l: number;
-    c: number;
-    h: number;
-  } | null>(null);
   const [tintStrength, setTintStrength] = useState(0.5);
-  // Bipolar hue spread in degrees (Option B): 0 reproduces the monotone tint,
-  // positive values fan the highlight and shadow anchors apart symmetrically.
-  const [tintSpread, setTintSpread] = useState(0);
-  // Mid-tone chroma bow in [0, 1]: 0 keeps chroma a straight lerp.
-  const [bow, setBow] = useState(0);
   const [colors, setColors] = useState<ColorMap>(DEFAULT_COLORS);
 
   useEffect(() => {
@@ -79,24 +69,18 @@ export function useColors() {
   // changes, keeping the two pickers and the ramp in sync. When a tint
   // source is set, the endpoints are tinted first — their lightness is
   // kept, the source hue is layered on — so removing the tint snaps the
-  // ramp straight back to the plain white/black the user chose. The spread
-  // fans the one source hue into a warm highlight and a cool shadow anchor
-  // (RFC 0011 Option B); spread 0 collapses both back onto the source.
+  // ramp straight back to the plain white/black the user chose.
   useEffect(() => {
     if (!wasmReady) return;
 
     let white = neutralWhite;
     let black = neutralBlack;
 
-    if (tintSource && tintSourceLch) {
-      const { l, c, h } = tintSourceLch;
-      const highlight = `oklch(${l} ${c} ${h + tintSpread})`;
-      const shadow = `oklch(${l} ${c} ${h - tintSpread})`;
-      const tinted = tint_neutrals_duotone(
+    if (tintSource) {
+      const tinted = tint_neutrals(
         neutralWhite,
         neutralBlack,
-        highlight,
-        shadow,
+        tintSource,
         tintStrength,
       );
       white = tinted.white.oklch;
@@ -104,18 +88,9 @@ export function useColors() {
     }
 
     setGreyscalePalette(
-      generate_neutral_ramp(white, black, "Inherit" as TintMode, bow),
+      generate_neutral_ramp(white, black, "Inherit" as TintMode, 0),
     );
-  }, [
-    wasmReady,
-    neutralWhite,
-    neutralBlack,
-    tintSource,
-    tintSourceLch,
-    tintStrength,
-    tintSpread,
-    bow,
-  ]);
+  }, [wasmReady, neutralWhite, neutralBlack, tintSource, tintStrength]);
 
   const handleNeutralWhiteChange = (e: ChangeEvent<HTMLInputElement>) => {
     setNeutralWhite(e.target.value);
@@ -141,24 +116,14 @@ export function useColors() {
     const source = colors[key].palette?.swatches[5];
     if (!source) return;
     setTintSource(source.oklch);
-    setTintSourceLch({ l: source.l, c: source.c, h: source.h });
   };
 
   const handleTintStrengthChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTintStrength(parseFloat(e.target.value) / 100);
   };
 
-  const handleTintSpreadChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setTintSpread(parseFloat(e.target.value));
-  };
-
-  const handleBowChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setBow(parseFloat(e.target.value) / 100);
-  };
-
   const handleRemoveTint = () => {
     setTintSource(null);
-    setTintSourceLch(null);
   };
 
   const handleColorChange =
@@ -259,16 +224,12 @@ export function useColors() {
     neutralBlack,
     tintSource,
     tintStrength,
-    tintSpread,
-    bow,
     handleNeutralWhiteChange,
     handleNeutralBlackChange,
     handleNeutralWhiteValueChange,
     handleNeutralBlackValueChange,
     handleUseAsTint,
     handleTintStrengthChange,
-    handleTintSpreadChange,
-    handleBowChange,
     handleRemoveTint,
     handleColorChange,
     handleColorValueChange,

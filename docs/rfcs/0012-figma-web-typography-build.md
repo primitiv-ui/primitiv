@@ -270,11 +270,14 @@ The `<dd>` indent is a 16 px `paddingLeft` wrapper frame (not leading spaces).
 
 ### D12 — Blockquote: left-stroke bar, no separate bar frame
 
-Blockquote (2 × 2 = 4 variants: Tone × Citation) uses a 3px left stroke on the component
-frame itself as the accent bar rather than a nested child frame. A separate bar child with
-`layoutSizingVertical = 'FILL'` inside a `HUG`-height parent creates a circular dependency in
-Figma's auto-layout (FILL cannot resolve when the parent HUGs). Left stroke avoids this entirely
-— the stroke always matches the component's full rendered height.
+Blockquote (2 × 2 × 5 = 20 variants: Tone × Citation × Size) uses a 3px left stroke on the
+component frame itself as the accent bar rather than a nested child frame. A separate bar child
+with `layoutSizingVertical = 'FILL'` inside a `HUG`-height parent creates a circular dependency
+in Figma's auto-layout (FILL cannot resolve when the parent HUGs). Left stroke avoids this
+entirely — the stroke always matches the component's full rendered height.
+
+Size axis maps to `body/{size}` Context tokens for both the Quote and Citation text nodes —
+same pattern as List and DescriptionList.
 
 New Context token: `quote/padding-inline` (VariableID: `586:8355`) — the indent between the bar
 and the quote text.

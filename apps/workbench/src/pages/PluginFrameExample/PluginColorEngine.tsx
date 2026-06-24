@@ -151,7 +151,12 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
 
       {!wasmReady && <p>Starting engine…</p>}
 
-      <section className="pf-color-engine__inputs">
+      {/* Gate the engine body on wasmReady: the painted LightnessSliders call
+          into wasm on mount, so rendering them before init() resolves throws
+          and blanks the page (this is now the cold-load home route). */}
+      {wasmReady && (
+        <>
+          <section className="pf-color-engine__inputs">
         <div className="pf-anchors">
           <div className="pf-anchor">
             <span className="pf-anchor__label">White</span>
@@ -288,7 +293,9 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
             )}
           </div>
         </div>
-      </section>
+          </section>
+        </>
+      )}
     </div>
   );
 }

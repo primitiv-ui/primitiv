@@ -95,6 +95,7 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
   const {
     wasmReady,
     tintSource,
+    tintSourceLch,
     tintStrength,
     tintSpread,
     bow,
@@ -144,6 +145,15 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
     setBlackL(l);
     setNeutralBlack(`oklch(${l} 0 0)`);
   };
+
+  // Live preview of the two anchors the spread fans the one source into: the
+  // highlight (light end) and shadow (dark end), the source hue ± spread.
+  const highlightPreview = tintSourceLch
+    ? `oklch(${tintSourceLch.l} ${tintSourceLch.c} ${tintSourceLch.h + tintSpread})`
+    : undefined;
+  const shadowPreview = tintSourceLch
+    ? `oklch(${tintSourceLch.l} ${tintSourceLch.c} ${tintSourceLch.h - tintSpread})`
+    : undefined;
 
   return (
     <div className="pf-color-engine">
@@ -205,26 +215,78 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
           </Button>
           {tintSource && (
             <div className="pf-neutral-tint">
-              <span
-                className="pf-neutral-tint__swatch"
-                style={{ background: tintSource }}
-              />
-              <span className="pf-neutral-tint__label">Tint strength</span>
-              <FractionSlider
-                label="Tint strength"
-                value={tintStrength}
-                max={1}
-                onChange={setTintStrength}
-              />
-              <span className="pf-neutral-tint__label">Spread</span>
-              <SpreadSlider value={tintSpread} onChange={setTintSpread} />
-              <span className="pf-neutral-tint__label">Bow</span>
-              <FractionSlider
-                label="Bow"
-                value={bow}
-                max={1}
-                onChange={setBow}
-              />
+              <div className="pf-neutral-tint__head">
+                <span
+                  className="pf-neutral-tint__swatch"
+                  style={{ background: tintSource }}
+                />
+                <span className="pf-neutral-tint__title">Neutral tint</span>
+              </div>
+
+              <div className="pf-tint-control">
+                <div className="pf-tint-control__row">
+                  <span className="pf-tint-control__label">Strength</span>
+                  <span className="pf-tint-control__value">
+                    {Math.round(tintStrength * 100)}%
+                  </span>
+                </div>
+                <FractionSlider
+                  label="Tint strength"
+                  value={tintStrength}
+                  max={1}
+                  onChange={setTintStrength}
+                />
+                <p className="pf-tint-control__hint">
+                  How strongly the brand hue colours the neutrals.
+                </p>
+              </div>
+
+              <div className="pf-tint-control">
+                <div className="pf-tint-control__row">
+                  <span className="pf-tint-control__label">Spread</span>
+                  <span className="pf-tint-control__value">
+                    {tintSpread > 0 ? `+${tintSpread}` : tintSpread}°
+                  </span>
+                </div>
+                <div className="pf-tint-control__spread">
+                  <span
+                    className="pf-tint-control__chip"
+                    style={{ background: highlightPreview }}
+                    title="Highlight — the light end"
+                  />
+                  <SpreadSlider value={tintSpread} onChange={setTintSpread} />
+                  <span
+                    className="pf-tint-control__chip"
+                    style={{ background: shadowPreview }}
+                    title="Shadow — the dark end"
+                  />
+                </div>
+                <p className="pf-tint-control__hint">
+                  Fans the tint into two hues — a highlight for the light end and a
+                  shadow for the dark (e.g. warm highlights, cool shadows). 0° keeps
+                  a single hue.
+                </p>
+              </div>
+
+              <div className="pf-tint-control">
+                <div className="pf-tint-control__row">
+                  <span className="pf-tint-control__label">Bow</span>
+                  <span className="pf-tint-control__value">
+                    {Math.round(bow * 100)}%
+                  </span>
+                </div>
+                <FractionSlider
+                  label="Bow"
+                  value={bow}
+                  max={1}
+                  onChange={setBow}
+                />
+                <p className="pf-tint-control__hint">
+                  Crests the tint through the mid-tones; the light and dark ends
+                  stay put.
+                </p>
+              </div>
+
               <Button
                 type="button"
                 className={TINT_BUTTON_CLASS}

@@ -396,17 +396,22 @@
 
 .pf-neutral-tint {
   display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-12);
+}
+
+.pf-neutral-tint__head {
+  display: flex;
   align-items: center;
   gap: var(--primitiv-space-space-8);
 }
 
-.pf-neutral-tint__label {
+.pf-neutral-tint__title {
   color: var(--primitiv-content-secondary);
-  white-space: nowrap;
-}
-
-.pf-neutral-tint .pf-slider {
-  flex: 1;
+  font-size: var(--primitiv-body-sm-font-size);
+  font-weight: var(--primitiv-font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .pf-neutral-tint__swatch {
@@ -416,6 +421,58 @@
   border-radius: 50%;
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
   flex-shrink: 0;
+}
+
+/* One labelled knob: header row (name + live value), the slider, a one-line
+   description of what it does. */
+.pf-tint-control {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-4);
+}
+
+.pf-tint-control__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.pf-tint-control__label {
+  color: var(--primitiv-content-primary);
+  font-weight: var(--primitiv-font-weight-medium);
+}
+
+.pf-tint-control__value {
+  color: var(--primitiv-content-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.pf-tint-control__hint {
+  margin: 0;
+  color: var(--primitiv-content-secondary);
+  font-size: var(--primitiv-body-sm-font-size);
+  line-height: var(--primitiv-body-sm-line-height);
+}
+
+/* The spread slider flanked by its highlight (light end) and shadow (dark end)
+   preview chips, so the duotone split it produces is visible at a glance. */
+.pf-tint-control__spread {
+  display: flex;
+  align-items: center;
+  gap: var(--primitiv-space-space-8);
+}
+
+.pf-tint-control__chip {
+  display: inline-block;
+  width: var(--primitiv-space-space-16);
+  height: var(--primitiv-space-space-16);
+  border-radius: 50%;
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+  flex-shrink: 0;
+}
+
+.pf-neutral-tint .pf-slider {
+  flex: 1;
 }
 
 /* The contract-styled Button sits at the start of its column, not stretched. */

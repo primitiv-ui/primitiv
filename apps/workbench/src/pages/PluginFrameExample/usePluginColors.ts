@@ -177,6 +177,7 @@ export function usePluginColors() {
     effectiveWhite,
     effectiveBlack,
     tintSource,
+    tintSourceLch,
     tintStrength,
     tintSpread,
     bow,

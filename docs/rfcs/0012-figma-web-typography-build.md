@@ -103,12 +103,12 @@ to Intent tokens. Spacers that visually separate sections use `opacity = 0`
 
 ## 3. Decisions
 
-### D1 — Monospace deferred
+### D1 — Monospace deferred → resolved (see D14)
 
-No monospace face is in the Primitiv type system yet. Components requiring
+~~No monospace face is in the Primitiv type system yet. Components requiring
 mono (`<code>`, `<kbd>`, inline code) are blocked until a face is chosen and
-added to the font-family tokens. See `§8` of the checklist for the open
-discussion.
+added to the font-family tokens.~~ **Resolved:** the face is **JetBrains Mono**
+and the `font-family/mono` token now exists. See **D14**.
 
 ### D2 — `<strong>` = Asta Sans SemiBold
 
@@ -372,12 +372,51 @@ The Pull quote page ships a **"Pull Quote Grid Labels"** group (column headers
 xs/sm/md/lg/xl; WITH/WITHOUT row labels) and a **"Pull Quote Example"** frame
 (2 rows × 4 density columns: Light + Dark, Dense/Compact/Comfortable/Spacious).
 
+### D14 — Code face: JetBrains Mono via `font-family/mono` (+ deferred fallback)
+
+The monospace face (resolving **D1**) is **JetBrains Mono**, chosen over Roboto
+Mono in an in-context comparison on the **Inline code** page (both rendered
+against Khand headings + Asta Sans body). The token is named **`font-family/mono`**
+— deliberately generic, not `code`: the same face serves `<code>`, `<pre>`,
+`<kbd>`, `<samp>`, tabular figures, diff views, etc.
+
+Landed now:
+
+- Figma variable **`font-family/mono`** = `JetBrains Mono` in the **Primitives**
+  collection (`VariableID:601:9479`, mode "Value").
+- `packages/tokens/src/primitives.json` → `font-family.mono` = `"JetBrains Mono"`
+  (bare family name, matching `heading`/`text`).
+- A testbed frame **`Inline Code — Testbed`** on the Inline code page (overline →
+  h3 → body paragraphs with inline-code spans → code block), with the code
+  block's `fontFamily` bound to `font-family/mono`.
+
+**Deferred to the emitter / new-typography session** (the variable must hold a
+single resolvable family name for Figma binding, so the fallback stack cannot
+live in the variable value — it is an emit-time concern):
+
+1. **Monospace fallback stack** when the emitter renders `font-family/mono`:
+   ```css
+   --primitiv-font-family-mono:
+     "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono",
+     Menlo, Consolas, "Liberation Mono", monospace;
+   ```
+   `heading`/`text` currently emit bare (`Khand` / `Asta Sans`) with **no**
+   fallback either — give them a `…, sans-serif` stack in the same pass.
+   (Today the emitter does not emit any `--primitiv-font-family-*` layer; that
+   whole typography layer is part of this upcoming session.)
+2. **Load the webfont**: add JetBrains Mono to the Google Fonts `<link>`s
+   (`apps/workbench/index.html`, `apps/docs/.vitepress/config.ts`,
+   `apps/harmoni-figma-plugin/index.html`) so users don't depend on a local
+   install. JetBrains Mono is on Google Fonts.
+
 ---
 
 ## 4. Next steps
 
 Work through checklist items 13–27 in order. Priority path:
 
-1. **Inline code / Code block** (13–14) — blocked on D1 (mono face decision).
+1. **Inline code / Code block** (13–14) — unblocked: mono face chosen
+   (`font-family/mono` = JetBrains Mono, **D14**). Fallback stack + webfont
+   `<link>` are deferred to the emitter / new-typography session.
 2. **Table** (15) — needs `table/*` tokens before building.
 3. **Character styles** (19–27) — mostly fast wins once the faces are confirmed.

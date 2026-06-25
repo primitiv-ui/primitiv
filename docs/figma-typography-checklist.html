@@ -110,7 +110,8 @@
 <tr><th>Token</th><th>Family</th><th>Weights available</th><th>Role</th></tr>
 <tr><td><code>font-family.heading</code></td><td><b>Khand</b> (condensed)</td><td>Regular 400 · Medium 500 · SemiBold 600</td><td>Headings, labels, overline, display, button text</td></tr>
 <tr><td><code>font-family.text</code></td><td><b>Asta Sans</b></td><td>Regular 400 · Medium 500 · SemiBold 600 · Bold 700</td><td>Body, descriptive copy, sub-labels, input value text</td></tr>
-<tr><td colspan="4" class="small">No monospace face exists — see §8. Never use Inter; it is not in the system.</td></tr>
+<tr><td><code>font-family.mono</code></td><td><b>JetBrains Mono</b></td><td>Regular 400 (Medium/Bold available)</td><td>Inline code, code block, <code>&lt;kbd&gt;</code>, <code>&lt;samp&gt;</code>, <code>&lt;var&gt;</code>, tabular figures</td></tr>
+<tr><td colspan="4" class="small">Mono fallback stack + webfont loading deferred to the emitter session (§8, RFC 0012 D14). Never use Inter; it is not in the system.</td></tr>
 </table>
 
 <!-- ============================================================ -->
@@ -335,12 +336,12 @@
 </div>
 
 <div class="card">
-  <h3>Inline code &nbsp;<code class="mono">&lt;code&gt;</code> <span><span class="pill comp">Component</span> <span class="pill build">Build</span> <span class="pill newtok">mono?</span></span></h3>
+  <h3>Inline code &nbsp;<code class="mono">&lt;code&gt;</code> <span><span class="pill comp">Component</span> <span class="pill build">Build</span></span></h3>
   <h4>Parts</h4>
   <ul class="tight"><li><b>Span</b> — text with a tinted box: bg + inline padding + small radius + subtle border.</li></ul>
   <table>
     <tr><th>Property</th><th>Token</th></tr>
-    <tr><td>Font</td><td><b>monospace — does not exist yet (§8)</b></td></tr>
+    <tr><td>Font</td><td><code>font-family.mono</code> (JetBrains Mono)</td></tr>
     <tr><td>Size</td><td>~0.9em of surrounding body</td></tr>
     <tr><td>Text fill</td><td><code>content/primary</code></td></tr>
     <tr><td>Background</td><td><code>surface/subtle</code></td></tr>
@@ -351,7 +352,7 @@
 </div>
 
 <div class="card">
-  <h3>Code block &nbsp;<code class="mono">&lt;pre&gt;</code> <span><span class="pill comp">Component</span> <span class="pill build">Build</span> <span class="pill newtok">code/* · mono</span></span></h3>
+  <h3>Code block &nbsp;<code class="mono">&lt;pre&gt;</code> <span><span class="pill comp">Component</span> <span class="pill build">Build</span> <span class="pill newtok">code/*</span></span></h3>
   <h4>Parts</h4>
   <ul class="tight">
     <li><b>Container</b> — surface fill, radius, padding, horizontal scroll.</li>
@@ -365,7 +366,7 @@
     <tr><td>Container</td><td>border</td><td><code>border/subtle</code></td></tr>
     <tr><td>Container</td><td>radius</td><td><code>radii/8</code></td></tr>
     <tr><td>Container</td><td>padding</td><td><code>code/padding</code> (new) → <code>space-12/16</code></td></tr>
-    <tr><td>Code text</td><td>font</td><td><b>monospace (§8)</b> · fill <code>content/primary</code></td></tr>
+    <tr><td>Code text</td><td>font</td><td><code>font-family.mono</code> (JetBrains Mono) · fill <code>content/primary</code></td></tr>
     <tr><td>Gutter</td><td>fill</td><td><code>content/muted</code></td></tr>
   </table>
 </div>
@@ -437,7 +438,7 @@
 <tr><td><code>&lt;abbr&gt;</code></td><td>char style</td><td>Dotted underline, <code>content/secondary</code></td></tr>
 <tr><td><code>&lt;small&gt;</code></td><td>text style</td><td><code>body/xs</code> · <code>content/muted</code></td></tr>
 <tr><td><code>&lt;q&gt;</code> inline quote</td><td>span</td><td>Curly quotes around <code>content/secondary</code></td></tr>
-<tr><td><code>&lt;kbd&gt;</code></td><td>component</td><td>Boxed key: monospace (§8) on <code>surface/raised</code>, <code>border/default</code>, <code>radii/4</code>, <code>space-4</code> pad</td></tr>
+<tr><td><code>&lt;kbd&gt;</code></td><td>component</td><td>Boxed key: <code>font-family.mono</code> on <code>surface/raised</code>, <code>border/default</code>, <code>radii/4</code>, <code>space-4</code> pad</td></tr>
 </table>
 
 <!-- ============================================================ -->
@@ -463,16 +464,16 @@
     <li><b>Type</b> → reuse <code>body/*</code> or <code>heading/*</code> (never a new font scale).</li>
     <li><b>Colour</b> → reuse <code>content/*</code> · <code>surface/*</code> · <code>border/*</code> · <code>action/*</code>.</li>
     <li><b>Spacing</b> → if one <code>space-*</code> primitive fits, bind it directly. If it must <b>scale with density</b>, add a <code>&lt;element&gt;/*</code> namespace in Context, one alias per mode (the <code>dropdown/*</code> pattern).</li>
-    <li>Only mint a brand-new <b>primitive</b> if no scale value fits — for typographic web elements, essentially never (the exception: monospace, §8).</li>
+    <li>Only mint a brand-new <b>primitive</b> if no scale value fits — for typographic web elements, essentially never (the one such exception, monospace, is now landed: <code>font-family.mono</code>, §8).</li>
   </ol>
 </div>
 
 <!-- ============================================================ -->
-<h2 class="section" id="mono">8 · The monospace gap</h2>
-<p>The system has exactly two faces — <b>Khand</b> (condensed display/label) and <b>Asta Sans</b> (body). <b>Neither is monospace.</b> Every code-bearing element (<code>inline code</code>, <code>code block</code>, <code>&lt;kbd&gt;</code>, <code>&lt;samp&gt;</code>, <code>&lt;var&gt;</code>) needs a fixed-width face. This is a real decision to make <i>before</i> building those components:</p>
+<h2 class="section" id="mono">8 · The monospace gap <span class="pill exists" style="font-size:8pt;">Resolved</span></h2>
+<p><b>Resolved.</b> The system now has three faces — <b>Khand</b> (condensed display/label), <b>Asta Sans</b> (body) and <b>JetBrains Mono</b> (code). Every code-bearing element (<code>inline code</code>, <code>code block</code>, <code>&lt;kbd&gt;</code>, <code>&lt;samp&gt;</code>, <code>&lt;var&gt;</code>) binds to the new <code>font-family.mono</code> primitive.</p>
 <ul class="tight">
-  <li><b>Add a <code>font-family.mono</code> primitive</b> — pick a face (e.g. a libre mono), add the variable to <code>Primitives</code>, back it up via the sync plugin, and bind code nodes to it. <b>Recommended</b> — keeps code elements on-system.</li>
-  <li><b>Defer code components</b> until the mono face is chosen, and build the non-code elements first.</li>
+  <li><b><code>font-family.mono</code> = JetBrains Mono</b> — chosen over Roboto Mono in an in-context comparison on the Inline code page. Variable added to <code>Primitives</code> (<code>VariableID:601:9479</code>); <code>packages/tokens/src/primitives.json</code> updated. Bind code nodes to it inline. See RFC 0012 <b>D14</b>.</li>
+  <li><b>Deferred to the emitter / new-typography session:</b> the CSS monospace <b>fallback stack</b> (the variable holds a single family name for Figma binding, so the stack is emit-time — <code>heading</code>/<code>text</code> need <code>sans-serif</code> fallbacks too), and adding JetBrains Mono to the Google Fonts <code>&lt;link&gt;</code>s.</li>
 </ul>
 <p class="small">Same caveat for <b>true bold</b> (<code>&lt;strong&gt;</code>) and <b>italic</b> (<code>&lt;em&gt;</code>): Asta Sans ships Regular only. Bold can borrow Khand SemiBold; italic needs a synthetic slant or a non-italic emphasis convention. Decide and document in each component's description.</p>
 
@@ -509,7 +510,7 @@
 <tr><td>27</td><td>q (inline quote)</td><td>Span</td><td><span class="pill build">Build</span></td><td>—</td></tr>
 </table>
 
-<p class="small" style="margin-top:10pt;">Suggested order: <b>(a)</b> decide the three open questions — monospace face, bold/italic strategy, link-visited token; <b>(b)</b> add the missing text styles + char styles (cheap); <b>(c)</b> build Link → List → Description list → Blockquote → Table → Code → the rest; <b>(d)</b> create the <code>list/* · quote/* · code/* · table/* · divider/*</code> namespaces as each component needs them; <b>(e)</b> write each component's description (the mandatory last step). Remember: inside every component, bind the four type fields inline — never a text style.</p>
+<p class="small" style="margin-top:10pt;">Suggested order: <b>(a)</b> decide the remaining open questions — bold/italic strategy, link-visited token (monospace face is now decided: <code>font-family.mono</code> = JetBrains Mono); <b>(b)</b> add the missing text styles + char styles (cheap); <b>(c)</b> build Link → List → Description list → Blockquote → Table → Code → the rest; <b>(d)</b> create the <code>list/* · quote/* · code/* · table/* · divider/*</code> namespaces as each component needs them; <b>(e)</b> write each component's description (the mandatory last step). Remember: inside every component, bind the four type fields inline — never a text style.</p>
 
 </body>
 </html>

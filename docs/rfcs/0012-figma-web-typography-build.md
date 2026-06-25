@@ -48,7 +48,8 @@ The full 27-item checklist lives at
 | 9 | List + List Item | Component | Done |
 | 10 | Description list | Component | Done |
 | 11 | Blockquote | Component | Done |
-| 12–27 | Pull quote · Code · Table · kbd · char styles · … | Various | To build |
+| 12 | Pull quote | Component | Done |
+| 13–27 | Code · Table · kbd · char styles · … | Various | To build |
 
 ---
 
@@ -327,13 +328,56 @@ labels — Khand SemiBold 11px, `content/primary` / `content/secondary`) and a
 showing Dense/Compact/Comfortable/Spacious via `setExplicitVariableModeForCollection`
 on the row for intent and on the cell for context density).
 
+### D13 — Pull quote: heading scale + decorative mark, no new tokens
+
+Pull quote (2 × 5 = 10 variants: Marks × Size) is a large centred editorial quote —
+no left accent bar, no attribution, distinct from Blockquote.
+
+Size axis maps to `heading/{h5→h1}` (xs→xl) Context tokens, Khand SemiBold,
+centre-aligned at 480px fixed width.
+
+The decorative mark (Marks=with only) is a **separate `Pull Quote / Mark`
+subcomponent**, not a live font glyph and not a hand-drawn vector. The Khand `"`
+glyph looked poor and bespoke beziers kept reading as a blob/flame, so the mark
+is the opening-quote glyph **`“` (U+201C) from Hoefler Text Black, outlined to a
+vector** and recoloured `content/muted` — picked by the human from a five-font
+comparison. The set has 5 `Size` variants (mark heights xs 18 · sm 22 · md 28 ·
+lg 32 · xl 38), each a single flattened vector; `Marks=with` variants embed an
+instance of the matching size as `children[0]`.
+
+No new tokens — the quote text rides the existing `heading/*` Context scale and
+the mark is a one-off outlined glyph filled from `content/muted`.
+
+| Part | Token |
+|------|-------|
+| Quote text (xs→xl) | `heading/h5…h1` Context · `content/primary` |
+| Decorative mark (`Pull Quote / Mark`) | outlined Hoefler Text Black `“` · `content/muted` (Marks=with only) |
+| Mark→quote gap | fixed per size — xs/sm: 8px · md: 12px · lg: 16px · xl: 20px |
+
+Heading variable IDs (VariableCollectionId:369:31958):
+
+| Size | Slot | fontFamily | fontSize | lineHeight | fontStyle |
+|------|------|-----------|---------|-----------|----------|
+| xs | h5 | `VariableID:369:32024` | `VariableID:369:32026` | `VariableID:369:32027` | `VariableID:369:32028` |
+| sm | h4 | `VariableID:369:32019` | `VariableID:369:32021` | `VariableID:369:32022` | `VariableID:369:32023` |
+| md | h3 | `VariableID:369:32014` | `VariableID:369:32016` | `VariableID:369:32017` | `VariableID:369:32018` |
+| lg | h2 | `VariableID:369:32009` | `VariableID:369:32011` | `VariableID:369:32012` | `VariableID:369:32013` |
+| xl | h1 | `VariableID:369:32004` | `VariableID:369:32006` | `VariableID:369:32007` | `VariableID:369:32008` |
+
+The decorative mark uses no typography variables — it is an outlined
+Hoefler Text Black `“` glyph (see `Pull Quote / Mark` above), filled from
+`content/muted`.
+
+The Pull quote page ships a **"Pull Quote Grid Labels"** group (column headers
+xs/sm/md/lg/xl; WITH/WITHOUT row labels) and a **"Pull Quote Example"** frame
+(2 rows × 4 density columns: Light + Dark, Dense/Compact/Comfortable/Spacious).
+
 ---
 
 ## 4. Next steps
 
-Work through checklist items 12–27 in order. Priority path:
+Work through checklist items 13–27 in order. Priority path:
 
-1. **Pull quote** (12) — no new tokens needed; uses heading/display scale.
-2. **Inline code / Code block** (13–14) — blocked on D1 (mono face decision).
-3. **Table** (15) — needs `table/*` tokens before building.
-4. **Character styles** (19–27) — mostly fast wins once the faces are confirmed.
+1. **Inline code / Code block** (13–14) — blocked on D1 (mono face decision).
+2. **Table** (15) — needs `table/*` tokens before building.
+3. **Character styles** (19–27) — mostly fast wins once the faces are confirmed.

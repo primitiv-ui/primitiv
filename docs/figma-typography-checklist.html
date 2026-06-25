@@ -315,14 +315,23 @@
 </div>
 
 <div class="card">
-  <h3>Pull quote <span><span class="pill comp">Component</span> <span class="pill build">Build</span></span></h3>
-  <p class="meta">A large decorative quote, not the same as blockquote. Often centred, no attribution, big type.</p>
+  <h3>Pull quote <span><span class="pill comp">Component</span> <span class="pill exists">Done</span></span></h3>
+  <p class="meta">Large decorative centred quote. No left accent bar, no attribution. Rides the heading scale. 2 × 5 = 10 variants: Marks × Size.</p>
+  <h4>Variant axes</h4>
+  <ul class="tight">
+    <li><b>Marks=with</b> — a <code>Pull Quote / Mark</code> subcomponent instance (outlined Hoefler Text Black <code>&ldquo;</code> glyph, content/muted) above the quote text</li>
+    <li><b>Marks=without</b> — quote text only</li>
+    <li><b>Size=xs/sm/md/lg/xl</b> → <code>heading/h5…h1</code> Context tokens, Khand SemiBold</li>
+  </ul>
+  <h4>Token bindings</h4>
   <table>
-    <tr><th>Part</th><th>Token</th></tr>
-    <tr><td>Quote text</td><td><code>heading/h4</code> or <code>display/lg</code> · <code>content/primary</code></td></tr>
-    <tr><td>Quotation marks</td><td>decorative, <code>content/muted</code> at large size</td></tr>
-    <tr><td>Block margin</td><td><code>space-32</code> / <code>space-48</code></td></tr>
+    <tr><th>Part</th><th>Token</th><th>Notes</th></tr>
+    <tr><td>Quote text</td><td><code>heading/{h5→h1}</code> (xs→xl) · <code>content/primary</code></td><td>Khand SemiBold, 480px fixed width, centred</td></tr>
+    <tr><td>Decorative mark</td><td>outlined Hoefler Text Black <code>&ldquo;</code> · <code>content/muted</code></td><td><code>Pull Quote / Mark</code> set, 5 Size variants (H 18/22/28/32/38); Marks=with only</td></tr>
+    <tr><td>Mark→quote gap</td><td>fixed per size (no new token)</td><td>xs/sm: 8px · md: 12px · lg: 16px · xl: 20px</td></tr>
   </table>
+  <p>No new tokens — the quote text rides the existing <code>heading/*</code> Context scale; the mark is a one-off outlined glyph filled from <code>content/muted</code>.</p>
+  <div class="callout"><b>Delivered.</b> Decorative mark redesigned as the <code>Pull Quote / Mark</code> subcomponent (outlined Hoefler Text Black <code>&ldquo;</code>) after the Khand font glyph and bespoke-bezier attempts were rejected. Grid labels + Light/Dark density example frame on the Pull quote page. RFC D13 records the build decisions.</div>
 </div>
 
 <div class="card">
@@ -482,7 +491,7 @@
 <tr><td>9</td><td>List + List Item</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>list/marker/foreground</code> ✓</td></tr>
 <tr><td>10</td><td>Description list</td><td>Component</td><td><span class="pill exists">Done</span></td><td>—</td></tr>
 <tr><td>11</td><td>Blockquote</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>quote/padding-inline</code> ✓ · <code>quote/body-gap/{xs–xl}</code> ✓</td></tr>
-<tr><td>12</td><td>Pull quote</td><td>Component</td><td><span class="pill build">Build</span></td><td>—</td></tr>
+<tr><td>12</td><td>Pull quote</td><td>Component</td><td><span class="pill exists">Done</span></td><td>—</td></tr>
 <tr><td>13</td><td>Inline code</td><td>Component</td><td><span class="pill build">Build</span></td><td>mono (§8)</td></tr>
 <tr><td>14</td><td>Code block</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>code/*</code> · mono</td></tr>
 <tr><td>15</td><td>Table</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>table/*</code></td></tr>

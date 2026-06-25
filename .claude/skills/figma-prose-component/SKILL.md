@@ -561,3 +561,80 @@ THEMES.forEach((theme, i) => {
   black in Dark mode — no hardcoded hex values needed.
 - Row labels are TEXT nodes on the page (not inside the frame), positioned after
   the frame is fully built so sizes are accurate.
+
+---
+
+## 10. Pull Quote layout pattern
+
+Pull quote: centred heading-scale quote with optional decorative mark. No left
+bar, no attribution. 2 × 5 = 10 variants: **Marks × Size**.
+
+```
+PullQuote (VERTICAL auto-layout, FIXED 480px, HUG height, padding 24px all)
+  [Mark]  INSTANCE of `Pull Quote / Mark` (matching Size); Marks=with only
+  Quote   TEXT, heading/{h1–h5}, content/primary, textAlignHorizontal=CENTER, FILL width
+```
+
+Size → heading slot mapping:
+
+| Size | Slot | fontFamily ID | fontSize ID | lineHeight ID | fontStyle ID |
+|------|------|--------------|------------|--------------|-------------|
+| xs | h5 | `VariableID:369:32024` | `369:32026` | `369:32027` | `369:32028` |
+| sm | h4 | `VariableID:369:32019` | `369:32021` | `369:32022` | `369:32023` |
+| md | h3 | `VariableID:369:32014` | `369:32016` | `369:32017` | `369:32018` |
+| lg | h2 | `VariableID:369:32009` | `369:32011` | `369:32012` | `369:32013` |
+| xl | h1 | `VariableID:369:32004` | `369:32006` | `369:32007` | `369:32008` |
+
+### Decorative mark — `Pull Quote / Mark` subcomponent
+
+The mark is **not** a live font glyph (Khand's `"` looked poor) and **not**
+hand-rolled beziers (every attempt drifted into a blob/flame). It is the
+opening-quote glyph **`“` (U+201C) from Hoefler Text Black**, outlined to a
+vector and recoloured — a refined, real typographic quote chosen by the human
+from a five-font comparison (Playfair Display Black, Hoefler Text Black, Georgia
+Bold, Lora Bold, PT Serif Bold).
+
+Separate component set `Pull Quote / Mark` with 5 `Size` variants. Each variant
+holds a single flattened `VECTOR` (named `mark`), fill bound to `content/muted`.
+Build per variant:
+
+```js
+const t = figma.createText();
+t.fontName = { family: "Hoefler Text", style: "Black" };
+t.fontSize = 200;                 // large for a crisp outline
+t.characters = "“";               // U+201C, renders as the paired 66 quote
+comp.appendChild(t);
+const flat = figma.flatten([t], comp);
+flat.rescale(H / flat.height);    // H = mark height for the size (below)
+flat.fills = [{ type:'SOLID', color:{r:0,g:0,b:0},
+  boundVariables:{ color: figma.variables.createVariableAlias(mutedVar) } }];
+comp.resize(Math.round(flat.width), Math.round(flat.height));
+```
+
+Mark height `H` per size (frame width follows the ~1.18:1 glyph aspect):
+
+| Size | xs | sm | md | lg | xl |
+|------|----|----|----|----|----|
+| H    | 18 | 22 | 28 | 32 | 38 |
+
+The `Marks=with` variants embed an **instance** of the matching mark size as
+`children[0]`, so editing the mark set propagates to every Pull Quote. (Gotcha:
+the set lives on the **Pull quote** page named `Pull Quote / Mark` — if stray
+keystrokes land on it while selected in Figma it gets silently renamed; find it
+by its 5 `Size=` children, not only by name.)
+
+display/lg: `369:32034` / `369:32036` / `369:32037` / `369:32038`
+
+Mark→quote `itemSpacing` (hardcoded, not a variable — not a density concern):
+
+| xs | sm | md | lg | xl |
+|----|----|----|----|----|
+| 8px | 8px | 12px | 16px | 20px |
+
+For the Marks=without variants, set `comp.itemSpacing = 0` and omit the Mark
+node entirely — each variant is a separate `ComponentNode` in the set.
+
+Grid layout: 2 rows (with / without) × 5 columns (xs/sm/md/lg/xl). Grid labels
+group: column headers xs…xl above; row labels WITH / WITHOUT to the left.
+Example frame: Light + Dark × Dense/Compact/Comfortable/Spacious (representative
+variant: `Marks=with, Size=md`).

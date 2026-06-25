@@ -79,6 +79,21 @@ export function usePluginColors() {
     setBrand((prev) => regenerateBrand(prev));
   }, [wasmReady]);
 
+  // While a tint is active, keep it locked to the brand's mid swatch, so editing
+  // the brand colour re-tints the neutrals live rather than leaving a stale hue.
+  // "Remove tint" breaks the link; re-applying re-captures the current brand.
+  useEffect(() => {
+    if (!tintSource) return;
+    const source = brand.lightPalette?.swatches[5];
+    if (!source) return;
+    setTintSource(source.oklch);
+    setTintSourceLch({ l: source.l, c: source.c, h: source.h });
+    // Depend on the brand palette only: when it regenerates we re-read its mid
+    // swatch. Re-reading the same colour sets identical state (a no-op), so this
+    // can't loop.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [brand.lightPalette]);
+
   useEffect(() => {
     if (!wasmReady) return;
 

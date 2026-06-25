@@ -33,7 +33,7 @@ future plugin / code-gen work).
 The full 27-item checklist lives at
 [`../figma-typography-checklist.html`](../figma-typography-checklist.html).
 
-**Status at 2026-06-24:**
+**Status at 2026-06-25:**
 
 | # | Element | Type | Status |
 |---|---------|------|--------|
@@ -49,7 +49,8 @@ The full 27-item checklist lives at
 | 10 | Description list | Component | Done |
 | 11 | Blockquote | Component | Done |
 | 12 | Pull quote | Component | Done |
-| 13–27 | Code · Table · kbd · char styles · … | Various | To build |
+| 13 | Inline code | Component | Done |
+| 14–27 | Code block · Table · kbd · char styles · … | Various | To build |
 
 ---
 
@@ -409,14 +410,47 @@ live in the variable value — it is an emit-time concern):
    `apps/harmoni-figma-plugin/index.html`) so users don't depend on a local
    install. JetBrains Mono is on Google Fonts.
 
+### D15 — Inline code: Size-axis chip, snug 130% line-height, no new tokens
+
+Inline code (`<code>`) is a **leaf** chip, not a list-like component — the slot
+strategy (§1–2 of the prose-component skill) does not apply. The set `Inline Code`
+lives on the **Inline code** page with **5 `Size` variants** (xs–xl).
+
+Type bindings (per variant):
+
+- `fontFamily` → **`font-family/mono`** primitive (`VariableID:601:9479`, JetBrains Mono);
+- `fontSize` + `fontStyle` → **`body/{size}`** Context tokens (density-aware, matches surrounding text);
+- `lineHeight` → **fixed 130%** (not bound). Body's 150% read pill-like standalone; 100%
+  clipped descenders; **130%** clears them with a snug box and still scales with the
+  density-bound `fontSize`.
+- text fill → `content/primary`.
+
+Box: `surface/subtle` fill, `border/subtle` 1px inside stroke, `radii/4` (all four
+corners), padding `space-4` (inline) / `space-2` (block). Border was optional in the
+checklist; included for definition on the subtle fill.
+
+| Size | fontSize | fontStyle |
+|------|----------|-----------|
+| xs | `VariableID:369:31986` | `VariableID:369:31988` |
+| sm | `VariableID:369:31991` | `VariableID:369:31993` |
+| md | `VariableID:369:31996` | `VariableID:369:31998` |
+| lg | `VariableID:369:32001` | `VariableID:369:32003` |
+| xl | `VariableID:393:5554`  | `VariableID:393:5552`  |
+
+**No new Context/Intent tokens** — reuses `body/*` + existing primitives; the only new
+token (`font-family/mono`) landed in **D14**. Ships with an `Inline Code Grid Labels`
+group (xs–xl headers) and an `Inline Code Example` frame (Light + Dark × four
+densities, representative `Size=md`).
+
 ---
 
 ## 4. Next steps
 
 Work through checklist items 13–27 in order. Priority path:
 
-1. **Inline code / Code block** (13–14) — unblocked: mono face chosen
-   (`font-family/mono` = JetBrains Mono, **D14**). Fallback stack + webfont
-   `<link>` are deferred to the emitter / new-typography session.
+1. **Inline code** (13) — **done** (**D15**). **Code block** (14) next — reuses
+   `font-family/mono`; needs `code/*` tokens (padding, maybe block line-height).
+   Mono fallback stack + webfont `<link>` remain deferred to the emitter /
+   new-typography session.
 2. **Table** (15) — needs `table/*` tokens before building.
 3. **Character styles** (19–27) — mostly fast wins once the faces are confirmed.

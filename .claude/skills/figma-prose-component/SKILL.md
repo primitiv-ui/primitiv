@@ -638,3 +638,42 @@ Grid layout: 2 rows (with / without) × 5 columns (xs/sm/md/lg/xl). Grid labels
 group: column headers xs…xl above; row labels WITH / WITHOUT to the left.
 Example frame: Light + Dark × Dense/Compact/Comfortable/Spacious (representative
 variant: `Marks=with, Size=md`).
+
+## 11. Inline code / leaf-chip pattern
+
+Inline code (`<code>`), and later `<kbd>` / `<samp>`, are **leaf chips**, not
+list-like components: a single styled text node in a tinted box. The slot
+strategy (§1–2) and the 8-item rule do **not** apply. Single `Size` axis
+(xs–xl); each variant is a HORIZONTAL auto-layout, HUG × HUG, centred.
+
+```
+InlineCode/Size=md  (HORIZONTAL auto-layout, HUG × HUG, items centred)
+  paddingLeft/Right → space/space-4   ·  paddingTop/Bottom → space/space-2
+  4 corner radii → radii/4
+  fills → surface/subtle  ·  strokes → border/subtle (1px, INSIDE)
+  Code text (TEXT):
+    fontFamily → font-family/mono primitive (VariableID:601:9479)
+    fontSize + fontStyle → body/{size} Context (density-aware)
+    lineHeight → fixed 130% (PERCENT, NOT bound)
+    fill → content/primary
+```
+
+**Type sourcing — the one wrinkle.** `fontFamily` binds to the **mono
+primitive** (in the Primitives collection), while `fontSize`/`fontStyle` bind to
+**`body/{size}`** (Context collection). Mixed-collection binding on one text
+node is fine — there is no `code/{size}` Context typography namespace yet (that
+arrives with the emitter / new-typography session).
+
+**Line-height is the design call (D15).** Do NOT bind `lineHeight` to
+`body/{size}/line-height` — body's 150% makes a standalone chip read pill-like.
+100% clips JetBrains Mono descenders (`g`/`j`/`p`). **130%** clears descenders,
+gives a snug box, and — set as a PERCENT (not a fixed px) — still scales with the
+density-bound `fontSize`. Unbind first if a body line-height was set earlier:
+`t.setBoundVariable('lineHeight', null); t.lineHeight = { unit:'PERCENT', value:130 }`.
+
+Build the 5 components, then `figma.combineAsVariants(variants, page)` and lay
+them out in a single row (left→right, vertically centred on the tallest). Grid
+labels: just column headers xs…xl (no rotated section / per-row labels — single
+axis). Example frame: the standard Light + Dark × four-density grid,
+representative `Size=md`. No new Context/Intent tokens to back up — it reuses
+`body/*` + existing primitives + `font-family/mono`.

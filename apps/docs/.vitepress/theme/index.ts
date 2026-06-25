@@ -7,6 +7,22 @@ const theme: Theme = {
   enhanceApp() {
     if (typeof window === "undefined") return;
 
+    // Reload safety net. A hard refresh of a *path-based* workbench deep link
+    // (e.g. /primitiv/workbench/plugin-frame) has no file on GitHub Pages and
+    // falls through to this docs 404.html. Bounce it into the workbench's hash
+    // route so the SPA restores the page instead of showing the VitePress 404.
+    // (Hash deep links never reach here — their path is always /workbench/.)
+    const workbenchRoot = `${import.meta.env.BASE_URL}workbench/`;
+    const { pathname, search } = window.location;
+    if (
+      pathname.startsWith(workbenchRoot) &&
+      pathname.length > workbenchRoot.length
+    ) {
+      const route = pathname.slice(workbenchRoot.length);
+      window.location.replace(`${workbenchRoot}#/${route}${search}`);
+      return;
+    }
+
     // The bundled workbench (/primitiv/workbench/) is a separate static app, not
     // a VitePress route. VitePress's router intercepts every same-origin link on
     // a window capture-phase listener and would render its own 404 — UNLESS the

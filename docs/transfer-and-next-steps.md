@@ -578,6 +578,20 @@ nothing extra to do — the contract drives it; just keep convenience props as t
 - A first-class CSS Modules emit (RFC 0006 §10.6) — post-v1; no longer blocked.
 - `DensityProvider` ergonomics + responsive-density emit shape (RFC 0009 §8.1–8.2)
   — post-v1.
+- **Duotone neutral ramps (RFC 0011) — engine landed; plugin rebuild deferred.**
+  The colour maths is done in `harmoni-core` / `harmoni-wasm` at 100% (shortest-arc
+  hue interpolation across the ramp + a mid-tone chroma `bow` carried on a
+  `RampOptions` struct — O1 — and `tint_neutrals_duotone` for the two-anchor blend;
+  monotone is the equal-anchor / `bow = 0` special case). The **workbench
+  plugin-frame page** (`apps/workbench/src/pages/PluginFrameExample/`) is the single
+  iteration surface and ships **Option B** (O2: one source + a bipolar spread slider
+  + a bow slider, with live highlight/shadow preview chips). The **actual
+  `apps/harmoni-figma-plugin` is deliberately deferred**: once the feature set is
+  locked in the workbench, the plugin is **rebuilt from scratch with strong
+  ports-&-adapters architecture and strict TDD** (mirroring the `primitiv-cli`
+  seam). Its current spread/bow controls + `ColorEngine.test.tsx` are **disposable
+  scaffolding**, not maintained in lockstep — the engine crates are the durable
+  `{ l, c, h }` / `Palette` contract the rebuild consumes.
 - **Component-level JSDoc on the generated styled wrappers (future session).**
   Today the generator emits a JSDoc block (the contract `description` + `@see`)
   on the `export type …Props`, and **per-prop** JSDoc already flows through on

@@ -10,11 +10,14 @@ import "./index.css";
 // styles.css, which resolves against these.
 import "./primitiv-tokens.css";
 
-// The GitHub Pages build (VITE_HASH_ROUTER=true) uses a hash router so deep
-// links survive a hard refresh — GitHub Pages only serves one root 404.html
-// (the docs site's), so it can't fall back to the workbench's index.html for
-// path-based SPA routes. Dev keeps clean BrowserRouter URLs.
-const useHashRouter = import.meta.env.VITE_HASH_ROUTER === "true";
+// Any sub-path deploy (the GitHub Pages build serves the app from
+// /primitiv/workbench/ via WORKBENCH_BASE) uses a hash router so deep links
+// survive a hard refresh — GitHub Pages only serves one root 404.html (the docs
+// site's), so it can't fall back to the workbench's index.html for path-based
+// SPA routes. Keying off BASE_URL — which vite.config derives from WORKBENCH_BASE
+// at build time — rather than a separate flag means the sub-path deploy always
+// gets hash routing. Dev (base "/") keeps clean BrowserRouter URLs.
+const useHashRouter = import.meta.env.BASE_URL !== "/";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

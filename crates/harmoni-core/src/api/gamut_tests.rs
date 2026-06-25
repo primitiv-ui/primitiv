@@ -121,7 +121,7 @@ mod lightness_strip {
 
     #[test]
     fn buffer_is_four_bytes_per_pixel() {
-        let strip = paint_lightness_strip(0.05, 240.0, 4, Gamut::Srgb);
+        let strip = paint_lightness_strip(0.05, 240.0, 4, Gamut::Srgb, 0.0, 1.0);
         assert_eq!(strip.len(), 4 * 4);
     }
 
@@ -130,7 +130,7 @@ mod lightness_strip {
         // Low chroma → in gamut across the lightness sweep; a mid column should
         // carry the colour for its lightness at the fixed (c, h).
         let (c, h, width) = (0.03, 240.0, 8);
-        let strip = paint_lightness_strip(c, h, width, Gamut::Srgb);
+        let strip = paint_lightness_strip(c, h, width, Gamut::Srgb, 0.0, 1.0);
         let px = 4;
         let l = (px as f32 + 0.5) / width as f32;
         let rgb = oklch_to_rgb(Oklch::new(l, c, h));
@@ -142,17 +142,35 @@ mod lightness_strip {
     }
 
     #[test]
+    fn maps_columns_across_the_given_lightness_subrange() {
+        // A clamped slider (e.g. the near-white anchor) paints only its range, so
+        // the track stays truthful: column k samples l_min + frac * (l_max-l_min).
+        let (c, h, width) = (0.0, 240.0, 8);
+        let (l_min, l_max) = (0.8, 1.0);
+        let strip = paint_lightness_strip(c, h, width, Gamut::Srgb, l_min, l_max);
+
+        let px = 4;
+        let l = l_min + (px as f32 + 0.5) / width as f32 * (l_max - l_min);
+        let rgb = oklch_to_rgb(Oklch::new(l, c, h));
+        let i = px * 4;
+        assert_eq!(strip[i], to_byte(rgb.r));
+        assert_eq!(strip[i + 1], to_byte(rgb.g));
+        assert_eq!(strip[i + 2], to_byte(rgb.b));
+        assert_eq!(strip[i + 3], 255);
+    }
+
+    #[test]
     fn out_of_gamut_pixels_are_transparent() {
         // Chroma 0.5 exceeds the boundary (capped at 0.4) at every lightness.
-        let strip = paint_lightness_strip(0.5, 240.0, 4, Gamut::Srgb);
+        let strip = paint_lightness_strip(0.5, 240.0, 4, Gamut::Srgb, 0.0, 1.0);
         assert!(strip.iter().all(|&b| b == 0));
     }
 
     #[test]
     fn display_p3_keeps_more_lightnesses_in_gamut_than_srgb() {
         let (c, h, width) = (0.2, 142.0, 64);
-        let srgb = paint_lightness_strip(c, h, width, Gamut::Srgb);
-        let p3 = paint_lightness_strip(c, h, width, Gamut::DisplayP3);
+        let srgb = paint_lightness_strip(c, h, width, Gamut::Srgb, 0.0, 1.0);
+        let p3 = paint_lightness_strip(c, h, width, Gamut::DisplayP3, 0.0, 1.0);
         assert!(
             opaque_pixels(&p3) > opaque_pixels(&srgb),
             "P3 opaque {} should exceed sRGB opaque {}",

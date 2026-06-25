@@ -27,8 +27,18 @@ describe("LightnessSlider", () => {
 
     act(() => triggerResize(300, 0));
 
-    // Default chroma 0 / hue 0 → a neutral black→white ramp, in sRGB.
-    expect(paint_lightness_strip).toHaveBeenCalledWith(0, 0, 300, "Srgb");
+    // Default chroma 0 / hue 0 → a neutral black→white ramp, in sRGB, full range.
+    expect(paint_lightness_strip).toHaveBeenCalledWith(0, 0, 300, "Srgb", 0, 1);
+  });
+
+  it("clamps the painted track to an explicit min/max range", () => {
+    render(<LightnessSlider value={0.95} onChange={vi.fn()} min={0.85} max={1} />);
+
+    act(() => triggerResize(200, 0));
+
+    // The floored white anchor paints only its own range, so the thumb and the
+    // gradient agree (no unreachable dark values on the track).
+    expect(paint_lightness_strip).toHaveBeenCalledWith(0, 0, 200, "Srgb", 0.85, 1);
   });
 
   it("repaints the track for an explicit chroma, hue and gamut", () => {
@@ -44,7 +54,14 @@ describe("LightnessSlider", () => {
 
     act(() => triggerResize(256, 0));
 
-    expect(paint_lightness_strip).toHaveBeenCalledWith(0.1, 120, 256, "DisplayP3");
+    expect(paint_lightness_strip).toHaveBeenCalledWith(
+      0.1,
+      120,
+      256,
+      "DisplayP3",
+      0,
+      1,
+    );
   });
 
   it("forwards the thumb's value through onChange", () => {

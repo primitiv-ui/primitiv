@@ -43,22 +43,30 @@ from two lightness curves.
 ## Neutral / greyscale ramps
 
 ```rust
-api::generate_neutral_ramp(white: ColorInput, black: ColorInput, TintMode)
-    -> Result<Palette, ColorInputError>
+api::generate_neutral_ramp(white: ColorInput, black: ColorInput, TintMode,
+    RampOptions) -> Result<Palette, ColorInputError>
 
 api::derive_soft_neutrals(brand: ColorInput, softness: f32)
     -> Result<SoftNeutrals, ColorInputError>
 
 api::tint_neutrals(white: ColorInput, black: ColorInput,
     source: ColorInput, strength: f32) -> Result<SoftNeutrals, ColorInputError>
+
+api::tint_neutrals_duotone(white: ColorInput, black: ColorInput,
+    highlight: ColorInput, shadow: ColorInput, strength: f32)
+    -> Result<SoftNeutrals, ColorInputError>
 ```
 
 `generate_neutral_ramp` interpolates a 10-step ramp between a soft white and
-soft black along the perceptual lightness curve. `TintMode` is `Inherit`
-(mid-steps inherit the endpoints' chroma) or `Achromatic` (chroma forced to
-zero). `derive_soft_neutrals` produces soft black/white primitives from a brand
-colour; `tint_neutrals` layers a brand hue onto already-chosen white/black while
-preserving their lightness.
+soft black along the perceptual lightness curve, interpolating hue shortest-arc
+between the endpoints; `RampOptions { bow }` adds an optional mid-tone chroma
+crest (`bow = 0` keeps chroma linear). `TintMode` is `Inherit` (mid-steps
+inherit the endpoints' chroma) or `Achromatic` (chroma forced to zero).
+`derive_soft_neutrals` produces soft black/white primitives from a brand colour;
+`tint_neutrals` layers a brand hue onto already-chosen white/black while
+preserving their lightness, and `tint_neutrals_duotone` does the same from two
+independent anchors — a highlight governing the white end and a shadow the black
+end (RFC 0011) — collapsing to `tint_neutrals` when the anchors coincide.
 
 ## Contrast audit
 

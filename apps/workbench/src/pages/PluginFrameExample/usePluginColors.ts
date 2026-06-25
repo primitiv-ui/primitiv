@@ -10,7 +10,7 @@ import {
   type TintMode,
   generate_neutral_ramp,
   generate_palette_pair,
-  tint_neutrals,
+  tint_neutrals_duotone,
 } from "harmoni-wasm";
 import init from "harmoni-wasm";
 import { useState, useEffect } from "react";
@@ -55,7 +55,17 @@ export function usePluginColors() {
   const [effectiveWhite, setEffectiveWhite] = useState("#ffffff");
   const [effectiveBlack, setEffectiveBlack] = useState("#000000");
   const [tintSource, setTintSource] = useState<string | null>(null);
+  const [tintSourceLch, setTintSourceLch] = useState<{
+    l: number;
+    c: number;
+    h: number;
+  } | null>(null);
   const [tintStrength, setTintStrength] = useState(0.5);
+  // Bipolar hue spread in degrees (RFC 0011 Option B): 0 reproduces the
+  // monotone tint; positive values fan the highlight and shadow anchors apart.
+  const [tintSpread, setTintSpread] = useState(0);
+  // Mid-tone chroma bow in [0, 1]: 0 keeps chroma a straight lerp.
+  const [bow, setBow] = useState(0);
   const [neutralPalette, setNeutralPalette] = useState<Palette>();
   const [neutralDarkPalette, setNeutralDarkPalette] = useState<Palette>();
   const [brand, setBrand] = useState<BrandConfig>({ hex: DEFAULT_BRAND_HEX });
@@ -69,17 +79,36 @@ export function usePluginColors() {
     setBrand((prev) => regenerateBrand(prev));
   }, [wasmReady]);
 
+  // While a tint is active, keep it locked to the brand's mid swatch, so editing
+  // the brand colour re-tints the neutrals live rather than leaving a stale hue.
+  // "Remove tint" breaks the link; re-applying re-captures the current brand.
+  useEffect(() => {
+    if (!tintSource) return;
+    const source = brand.lightPalette?.swatches[5];
+    if (!source) return;
+    setTintSource(source.oklch);
+    setTintSourceLch({ l: source.l, c: source.c, h: source.h });
+    // Depend on the brand palette only: when it regenerates we re-read its mid
+    // swatch. Re-reading the same colour sets identical state (a no-op), so this
+    // can't loop.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [brand.lightPalette]);
+
   useEffect(() => {
     if (!wasmReady) return;
 
     let white = neutralWhite;
     let black = neutralBlack;
 
-    if (tintSource) {
-      const tinted = tint_neutrals(
+    if (tintSource && tintSourceLch) {
+      const { l, c, h } = tintSourceLch;
+      const highlight = `oklch(${l} ${c} ${h + tintSpread})`;
+      const shadow = `oklch(${l} ${c} ${h - tintSpread})`;
+      const tinted = tint_neutrals_duotone(
         neutralWhite,
         neutralBlack,
-        tintSource,
+        highlight,
+        shadow,
         tintStrength,
       );
       white = tinted.white.oklch;
@@ -88,11 +117,22 @@ export function usePluginColors() {
 
     setEffectiveWhite(white);
     setEffectiveBlack(black);
-    setNeutralPalette(generate_neutral_ramp(white, black, "Inherit" as TintMode));
-    setNeutralDarkPalette(
-      generate_neutral_ramp(black, white, "Inherit" as TintMode),
+    setNeutralPalette(
+      generate_neutral_ramp(white, black, "Inherit" as TintMode, bow),
     );
-  }, [wasmReady, neutralWhite, neutralBlack, tintSource, tintStrength]);
+    setNeutralDarkPalette(
+      generate_neutral_ramp(black, white, "Inherit" as TintMode, bow),
+    );
+  }, [
+    wasmReady,
+    neutralWhite,
+    neutralBlack,
+    tintSource,
+    tintSourceLch,
+    tintStrength,
+    tintSpread,
+    bow,
+  ]);
 
   const setBrandHex = (hex: string) => {
     setBrand((prev) => regenerateBrand({ ...prev, hex }));
@@ -121,10 +161,12 @@ export function usePluginColors() {
     const source = brand.lightPalette?.swatches[5];
     if (!source) return;
     setTintSource(source.oklch);
+    setTintSourceLch({ l: source.l, c: source.c, h: source.h });
   };
 
   const handleRemoveTint = () => {
     setTintSource(null);
+    setTintSourceLch(null);
   };
 
   const setLightRampPaddingLeft = (lightRampPaddingLeft: number) => {
@@ -150,7 +192,10 @@ export function usePluginColors() {
     effectiveWhite,
     effectiveBlack,
     tintSource,
+    tintSourceLch,
     tintStrength,
+    tintSpread,
+    bow,
     neutralPalette,
     neutralDarkPalette,
     brand,
@@ -160,6 +205,8 @@ export function usePluginColors() {
     setLightCurve,
     setDarkCurve,
     setTintStrength,
+    setTintSpread,
+    setBow,
     handleUseAsTint,
     handleRemoveTint,
     setLightRampPaddingLeft,

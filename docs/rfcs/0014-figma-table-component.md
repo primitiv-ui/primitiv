@@ -158,8 +158,11 @@ Section=body,   State=selected
 **= 6 variants.** Plus a **`Bottom Border`** boolean (default `true`) — the
 horizontal rule, turned off for `Borders=none` (§3.5).
 
-Structure: HORIZONTAL auto-layout, FILL width, HUG height, `itemSpacing = 0`
-(cells abut). Fills per State (§5.2). `head`/`footer` carry stronger rules:
+Row has **no `Size` axis** — it is a container, not a sized control. Its height
+follows the cells it holds; size comes from the nested Cell / Header Cell
+instances (§6.1). Structure: HORIZONTAL auto-layout, FILL width, HUG height,
+`itemSpacing = 0` (cells abut). Fills per State (§5.2). `head`/`footer` carry
+stronger rules:
 `head` → bottom stroke `border/strong`; `footer` → top stroke `border/strong`;
 `body` → bottom stroke `border/subtle` via the `Bottom Border` boolean.
 
@@ -167,11 +170,13 @@ Structure: HORIZONTAL auto-layout, FILL width, HUG height, `itemSpacing = 0`
 
 | Axis | Values | Drives |
 | --- | --- | --- |
+| `Size` | `xs · sm · md · lg · xl` | the `Size` of every nested Header Cell / Cell instance |
 | `Borders` | `none · horizontal · grid` | the nested rows'/cells' border booleans |
 
-**= 3 variants** (fixed at **Size = md**; D2). Each variant is a full composed
-demo table; the `Borders` axis flips the nested instances' `Bottom Border`
-(rows) and `Right Border` (cells) booleans:
+**= 5 × 3 = 15 variants** (D2). Each variant is a full composed demo table. The
+`Size` axis composes the matching-size sub-component variants (§6.1); the
+`Borders` axis flips the nested instances' `Bottom Border` (rows) and
+`Right Border` (cells) booleans:
 
 | Borders | Row `Bottom Border` | Cell `Right Border` |
 | --- | --- | --- |
@@ -288,23 +293,38 @@ Record `VariableID`s here after creation.
 
 ## 6. Top-level Table composition (D2)
 
-**Decision: the top-level Table is a full demo table, fixed at Size = md**, with
-`Borders` (§3.4) as its only variant axis. Other sizes come from swapping the
-nested Cell/Header-Cell/Row instances to a different `Size` — building a full
-`Size × Borders` grid of composed tables (15 large tables) is not worth the
-weight when the sub-components already carry the size axis. (If a future session
-disagrees, the alternative is a `Size × Borders` = 15-variant top-level set.)
+**Decision: the top-level Table carries the full `Size` (xs–xl) × `Borders`
+(none/horizontal/grid) = 15-variant grid.** A true drop-in at every size,
+consistent with the rest of the library — and a designer rescales a dropped-in
+table with a single `Size` property change.
 
 Structure (VERTICAL auto-layout, HUG, `itemSpacing = 0`):
 
 ```
-Table (Borders axis; Size=md fixed)
+Table (Size × Borders axes)
   ├─ Caption        text node — Show Caption bool; Caption Side = top|bottom
   ├─ Head           Row instance (Section=head)        — 4 Header Cells
   ├─ Row 1 … Row 4  Row instances (Section=body)       — 4 Cells each (always visible)
   ├─ Row 5 … Row 8  Row instances (Section=body)       — Show Row 5–8 booleans
   └─ Footer         Row instance (Section=footer)      — Show Footer bool
 ```
+
+### 6.1 How the `Size` axis composes
+
+Row is size-agnostic (§3.3), so size lives on the leaf cells. Each top-level
+`Size` variant is the **same composition** with every nested Header Cell / Cell
+instance's `Size` property set to that size — `Size=lg` Table → all cells
+`Size=lg`. Because `Size` is a *variant* axis on the Table, switching a placed
+instance's `Size` property swaps the whole subtree to the matching-size variant
+in one move (Figma variant switching cascades to the baked-in nested overrides);
+the consumer does not touch individual cells. No per-size token rebinding is
+needed — each Cell `Size` variant already binds its own `body/{size}` type
+tokens, so setting the nested instance's `Size` is enough.
+
+Build economics: build the `Size=md` × 3 `Borders` tables first, then **clone
+per size** and retarget the nested cells' `Size` property (and re-verify the
+border booleans). 15 composed tables is the heaviest part of this build —
+script it.
 
 - **Column count: 4** in the demo (a balanced, legible default). Designers add
   columns by pasting cells into each row.
@@ -319,7 +339,7 @@ Table (Borders axis; Size=md fixed)
   flips them back to `default` if unwanted.
 - **`Show Row 5–8`** collapse to zero height when off (the prose 8-slot rule).
 - The top-level Table is the **default instance** target — `insertChild(0, …)`
-  the `Borders=horizontal` variant so it's the one Figma offers first.
+  the `Size=md, Borders=horizontal` variant so it's the one Figma offers first.
 
 **ScrollArea** is documented only: wrap the Table in a frame with horizontal
 overflow for narrow viewports (it is an inline-style `<div>` in React, nothing
@@ -343,7 +363,8 @@ One `"<Set> Grid Labels"` group per set (Khand SemiBold 11px,
   `NONE / SORTABLE / ASC / DESC` sort labels.
 - **Table / Row** — labels for the 6 sparse variants (`HEAD`, `FOOTER`,
   `BODY · DEFAULT/STRIPED/HOVER/SELECTED`).
-- **Table** — `NONE / HORIZONTAL / GRID` border labels.
+- **Table** — column headers `xs…xl`; rotated `NONE / HORIZONTAL / GRID` border
+  bands.
 
 ### 7.2 Light + Dark example frame
 
@@ -351,7 +372,7 @@ A `"Table Example"` frame below the sets: two rows (**LIGHT** / **DARK**) × fou
 density columns (**Dense / Compact / Comfortable / Spacious**). Intent mode set
 on each row, Context mode on each cell, both via
 `setExplicitVariableModeForCollection` (the collection *object*, not the id).
-Representative instance: the top-level **Table**, `Borders=horizontal`, with a
+Representative instance: the top-level **Table**, `Size=md, Borders=horizontal`, with a
 couple of striped body rows and the footer shown — so the frame demonstrates
 header underline, zebra, rules, and density scaling at a glance.
 
@@ -365,10 +386,13 @@ Four sets: **Table / Cell**, **Table / Header Cell**, **Table / Row**, **Table**
 Monolithic (cells not reusable, fixed columns) and leaf-only (no drop-in table)
 both rejected. See §1.
 
-### D2 — Top-level Table is Size=md, `Borders` is its only axis
-A full `Size × Borders` grid of composed tables (15) is not worth the weight;
-the sub-components carry the size axis and a designer swaps nested instances for
-other sizes. See §6.
+### D2 — Top-level Table carries full Size × Borders (15 variants)
+The top-level Table is built at every size so a dropped-in table rescales with a
+single `Size` property change (the variant switch cascades to the nested cells).
+Each `Size` variant composes the matching-size Cell / Header Cell variants; **Row
+is size-agnostic** — a container whose height follows its cells. More build
+effort than an md-only set (15 composed tables — script the clone-per-size), but
+a true drop-in at every size, consistent with the rest of the library. See §6.
 
 ### D3 — Cell padding scales by density only (not Size)
 Mirrors `code/padding`. The `Size` axis changes type; padding is a density
@@ -424,9 +448,11 @@ Build bottom-up so each set exists before the thing that nests it:
    boolean; sort Icon instances. Grid labels. (Clone-and-rebind across Size.)
 4. **Table / Row** — 6 sparse variants (Section × State) + `Bottom Border`
    boolean; nests Cell / Header-Cell instances. Grid labels.
-5. **Table** (top-level) — 3 `Borders` variants at Size=md; caption + head + 8
+5. **Table** (top-level) — 15 variants (Size × Borders); caption + head + 8
    body rows (Show Row 5–8) + footer (Show Footer) + Show Caption / Caption
-   Side; nests Row instances and wires their border booleans. Grid labels.
+   Side; nests Row instances, sets each nested cell's `Size`, and wires the
+   border booleans. Build the md × 3 first, then clone per size and retarget the
+   nested cells' `Size` property (§6.1). Grid labels.
 6. **Table Example** frame — Light/Dark × four densities (§7.2).
 7. **Descriptions** — write the `.description` on all four sets
    (`figma-component-descriptions`): what it is, axes & values, booleans,

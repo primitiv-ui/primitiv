@@ -268,8 +268,15 @@ pub fn paint_hue_strip(lightness: f32, chroma: f32, width: usize, gamut: types::
 /// Paints the lightness sweep at a fixed chroma and hue against `gamut` as a flat
 /// RGBA buffer (`width * 4` bytes) for the picker's L slider track (RFC 0010 §7).
 #[wasm_bindgen]
-pub fn paint_lightness_strip(chroma: f32, hue: f32, width: usize, gamut: types::Gamut) -> Vec<u8> {
-    api::paint_lightness_strip(chroma, hue, width, gamut.into())
+pub fn paint_lightness_strip(
+    chroma: f32,
+    hue: f32,
+    width: usize,
+    gamut: types::Gamut,
+    l_min: f32,
+    l_max: f32,
+) -> Vec<u8> {
+    api::paint_lightness_strip(chroma, hue, width, gamut.into(), l_min, l_max)
 }
 
 /// Paints the chroma sweep at a fixed lightness and hue against `gamut` as a flat

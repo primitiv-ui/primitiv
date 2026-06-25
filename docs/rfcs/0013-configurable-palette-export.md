@@ -212,6 +212,17 @@ last-used config + presets via plugin storage (`figma.clientStorage` /
 reload or a new session restores the user's setup. The author's personal
 convention is simply the preset they save and keep selected.
 
+### 4.5 Mock up in Figma first
+
+Before any of this is built, the flow — destination browser, naming editor with
+its live preview, mode mapping, presets — should be **wireframed in Figma** to
+settle the layout and the step-by-step UX (what's one screen vs. a disclosure,
+where "create new" lives, how the preview sits next to the template fields). The
+author can launch a **Figma-console-mcp** session from their machine and drive
+the mock-ups with one-shot console scripts (see the `figma-console-scripts`
+skill); the wireframes then become the reference the workbench UI is built
+against. Settle O1 (MillerColumns vs Tree) on the mock-up, not in code.
+
 ## 5. Architecture & build
 
 - **Pure core** (`exportConfig.ts` + `resolve.ts`) — the `ExportConfig` type and

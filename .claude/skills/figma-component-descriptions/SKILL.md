@@ -697,6 +697,86 @@ Notes: no icon slots; height fixed per size/density (textarea/{size}/min-height 
   Grid layout: Filled as major axis (empty | filled) × State sub-columns, unlike Input which uses State as major axis.
 ```
 
+### Table / Cell — `604:9802`
+
+```
+Table data cell (<td>) — a single body cell; the leaf of the Table family.
+
+Type: surface component (table leaf — nested in Table / Row)
+
+Axes: Size xs|sm|md|lg|xl · Align start|center|end
+
+Tokens: text → content/primary; typography → body/{size}/* (Asta Sans Regular)
+        padding → table/cell/padding-inline (L/R) · table/cell/padding-block (T/B) (Context)
+        right border → border/subtle (1px, absolute, right edge)
+
+Properties: Text (TEXT "Cell") · Right Border (BOOL false)
+
+Density: Context mode override on parent frame
+Pairs with: Table / Row (parent), Table / Header Cell, Table (top-level)
+Notes: Align drives primaryAxisAlignItems + text alignment (end = numeric columns). Text surfaces on the parent Table instance panel. colSpan/rowSpan are data-structure props with no Figma signature — resize/merge an instance. Set layoutSizingHorizontal=FILL when placed in a Row.
+```
+
+### Table / Header Cell — `604:9991`
+
+```
+Table header cell (<th>) — a column header with an optional sort affordance.
+
+Type: surface component (table leaf — nested in a Table / Row, Section=head)
+
+Axes: Size xs|sm|md|lg|xl · Align start|center|end · Sort none|sortable|ascending|descending
+
+Tokens: text → content/primary; typography → body/{size}/* but fontStyle → font-style/semibold (SemiBold at every density)
+        padding → table/cell/padding-inline · table/cell/padding-block (shared with Cell)
+        sort icon → Icon instance, end-aligned, sized ~0.8x label type (xs10 sm11 md13 lg16 xl18): sortable=sort/content-muted · ascending=chevron-up · descending=chevron-down (content/primary)
+
+Properties: Text (TEXT "Header") · Right Border (BOOL false)
+
+Density: Context mode override on parent frame
+Pairs with: Table / Row (Section=head), Table / Cell, Icon
+Notes: Sort is design guidance only — the headless React Table ships NO sort logic / no data-state; consumers wire aria-sort + a button in <th>. Label takes FILL width and aligns per Align (start/center/end); the sort icon is ALWAYS pinned to the cell end (right edge), subordinate to the type.
+```
+
+### Table / Row — `604:10228`
+
+```
+Table row (<tr>) — a horizontal band of cells; expresses thead/tbody/tfoot via the Section axis.
+
+Type: non-framed composition (nests Cell / Header Cell instances; itemSpacing 0)
+
+Axes: Section head|body|footer · State default|striped|hover|selected
+  Sparse — head & footer only at State=default; striped/hover/selected for body only.
+
+Tokens: fill → striped: table/row/stripe · hover: table/row/hover · selected: table/row/selected (default: none)
+        rule → head: border/strong bottom · footer: border/strong top · body: border/subtle bottom
+
+Properties: Bottom Border (BOOL true) — horizontal rule (top rule for footer); off for Borders=none
+
+Density: Context mode override on parent frame (via nested cells)
+Pairs with: Table (parent), Table / Cell, Table / Header Cell
+Notes: NO Size axis — height follows the nested cells. State=hover/selected are Figma design guidance only — React emits no data-state. Set layoutSizingHorizontal=FILL when placed in a Table.
+```
+
+### Table — `605:13524`
+
+```
+Composed data table (<table>) — a drop-in 4-column demo grid with header, body, optional footer and caption.
+
+Type: non-framed composition (VERTICAL stack of Table / Row instances; FIXED 640px, HUG height)
+
+Axes: Size xs|sm|md|lg|xl · Borders none|horizontal|grid
+  Size sets every nested cell's Size (variant switch cascades). Borders flips nested booleans —
+  none: all off · horizontal: Row Bottom Border on · grid: Bottom Border + Cell Right Border on.
+
+Tokens: resolve through nested Row / Cell / Header Cell (table/row/*, table/cell/*, border/*, body/{size}/*).
+
+Properties: Show Caption (BOOL false) · Show Footer (BOOL false) · Show Row 5 (BOOL false) · Show Row 6 (BOOL false) · Show Row 7 (BOOL false) · Show Row 8 (BOOL false)
+
+Density: Context mode override on parent frame
+Pairs with: Table / Row, Table / Cell, Table / Header Cell
+Notes: rows 1-4 always visible; 5-8 collapse when off (8-slot rule). Body rows alternate default/striped. Caption is a bottom node (body/sm, content/muted) — React captionSide="bottom"; for a top caption drag the layer above Head (no Caption Side axis — D2 fixes 15 Size×Borders variants). ScrollArea = a documented wrapping frame with horizontal overflow (nothing to bind). Sort indicators and hover/selected row states are design guidance only — the headless Table is static.
+```
+
 ---
 
 ## Definition of done checklist

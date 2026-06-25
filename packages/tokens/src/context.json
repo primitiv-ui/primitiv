@@ -1394,6 +1394,18 @@
         "lg": { "$type": "number", "$value": "{space.space-12}" },
         "xl": { "$type": "number", "$value": "{space.space-16}" }
       }
+    },
+    "table": {
+      "cell": {
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        }
+      }
     }
   },
   "compact": {
@@ -2790,6 +2802,18 @@
         "md": { "$type": "number", "$value": "{space.space-8}" },
         "lg": { "$type": "number", "$value": "{space.space-12}" },
         "xl": { "$type": "number", "$value": "{space.space-16}" }
+      }
+    },
+    "table": {
+      "cell": {
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        }
       }
     }
   },
@@ -4188,6 +4212,18 @@
         "lg": { "$type": "number", "$value": "{space.space-12}" },
         "xl": { "$type": "number", "$value": "{space.space-16}" }
       }
+    },
+    "table": {
+      "cell": {
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        }
+      }
     }
   },
   "dense": {
@@ -5584,6 +5620,18 @@
         "md": { "$type": "number", "$value": "{space.space-8}" },
         "lg": { "$type": "number", "$value": "{space.space-12}" },
         "xl": { "$type": "number", "$value": "{space.space-16}" }
+      }
+    },
+    "table": {
+      "cell": {
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
       }
     }
   }

@@ -373,32 +373,25 @@
 </div>
 
 <div class="card">
-  <h3>Table <span><span class="pill comp">Component</span> <span class="pill build">Build</span> <span class="pill newtok">table/*</span></span></h3>
-  <p class="meta">The heavyweight. Build from atomic Cell components composed into Rows, composed into a Table.</p>
-  <h4>Parts</h4>
+  <h3>Table <span><span class="pill comp">Component</span> <span class="pill exists">Done</span> <span class="pill newtok">table/*</span></span></h3>
+  <p class="meta">The heavyweight — the one genuinely 2-D prose component. Built as a composed family: atomic <b>Cell</b> / <b>Header Cell</b> leaves → <b>Row</b> → a pre-composed top-level <b>Table</b>. Four component sets on the Table page. See RFC 0014.</p>
+  <h4>Parts (4 sets)</h4>
   <ul class="tight">
-    <li><b>Header cell (th)</b> — <code>label/sm</code> or <code>body/sm</code> semibold, <code>content/secondary</code>, on <code>surface/raised</code>.</li>
-    <li><b>Body cell (td)</b> — <code>body/sm</code>, <code>content/primary</code>.</li>
-    <li><b>Row</b> — horizontal auto-layout of cells; bottom border <code>border/subtle</code>.</li>
-    <li><b>Caption</b> — <code>body/sm</code>, <code>content/muted</code>, above/below.</li>
-  </ul>
-  <h4>Variants / properties</h4>
-  <ul class="tight">
-    <li><b>Style</b>: bordered · borderless · zebra (alt rows on <code>surface/subtle</code>)</li>
-    <li><b>Cell align</b>: start · center · end (numeric → end)</li>
-    <li><b>Row state</b>: default · hover · selected</li>
-    <li>Density flows from the frame's Context mode like everything else.</li>
+    <li><b>Table / Cell</b> <code class="mono">&lt;td&gt;</code> — 15 variants: Size xs–xl × Align start·center·end. <code>body/{size}</code> · <code>content/primary</code>. Props: <code>Text</code> (TEXT) · <code>Right Border</code> (bool).</li>
+    <li><b>Table / Header Cell</b> <code class="mono">&lt;th&gt;</code> — 60 variants: Size × Align × Sort none·sortable·ascending·descending. SemiBold via <code>font-style/semibold</code>; sort Icon end-pinned and sized below the label type.</li>
+    <li><b>Table / Row</b> <code class="mono">&lt;tr&gt;</code> — 6 sparse variants: Section head·body·footer × State default·striped·hover·selected. Prop: <code>Bottom Border</code> (bool).</li>
+    <li><b>Table</b> <code class="mono">&lt;table&gt;</code> — 15 variants: Size xs–xl × Borders none·horizontal·grid. Caption + head + 8 body rows (Show Row 5–8) + footer (Show Footer) + Show Caption.</li>
   </ul>
   <h4>Bindings</h4>
   <table>
     <tr><th>Part</th><th>Property</th><th>Token</th></tr>
-    <tr><td>Header text</td><td>font / fill</td><td><code>label/sm/*</code> · <code>content/secondary</code></td></tr>
-    <tr><td>Body text</td><td>font / fill</td><td><code>body/sm/*</code> · <code>content/primary</code></td></tr>
-    <tr><td>Header bg</td><td>fill</td><td><code>surface/raised</code></td></tr>
-    <tr><td>Row border</td><td>stroke</td><td><code>border/subtle</code></td></tr>
-    <tr><td>Cell padding-x / y</td><td>padding</td><td><code>table/cell-padding-x</code> / <code>-y</code> (new)</td></tr>
-    <tr><td>Zebra row</td><td>fill</td><td><code>surface/subtle</code></td></tr>
+    <tr><td>Body / header text</td><td>type / fill</td><td><code>body/{size}/*</code> · <code>content/primary</code> (header adds <code>font-style/semibold</code>)</td></tr>
+    <tr><td>Cell padding</td><td>padding</td><td><code>table/cell/padding-inline</code> · <code>table/cell/padding-block</code> (Context, density-aware)</td></tr>
+    <tr><td>Rules</td><td>stroke</td><td><code>border/subtle</code> (body / grid) · <code>border/strong</code> (header underline · footer top)</td></tr>
+    <tr><td>Row state fills</td><td>fill</td><td><code>table/row/stripe</code> · <code>table/row/hover</code> · <code>table/row/selected</code> (Intent)</td></tr>
+    <tr><td>Sort indicator</td><td>icon</td><td>Icon: sortable→<code>sort</code> (muted) · asc→<code>chevron-up</code> · desc→<code>chevron-down</code> (primary)</td></tr>
   </table>
+  <div class="callout"><b>Delivered.</b> Four sets (Cell 15 · Header Cell 60 · Row 6 · Table 15) with grid labels, plus the Light/Dark × density example and an extra Size×Density demo (Light + Dark), on the Table page. New <code>table/cell/padding-*</code> (Context) + <code>table/row/*</code> (Intent) tokens, backed up to <code>context.json</code>/<code>intent.json</code>. Sort indicators and hover/selected row states are <b>design-guidance only</b> — the headless React Table is a static layout component (no sort logic / no <code>data-state</code>). See RFC 0014 <b>§11</b> for node IDs and decisions.</div>
 </div>
 
 <div class="card">
@@ -455,8 +448,9 @@
 <tr><td><code>quote/body-gap/{xs–xl}</code> ✓</td><td colspan="4">4 / 4 / 8 / 12 / 16 px — same in all density modes (size-axis gap, not density-scaled)</td><td>Quote↔citation breathing room — created, backed up</td></tr>
 <tr><td><code>code/padding</code> ✓</td><td>space-12</td><td>space-12</td><td>space-16</td><td>space-16</td><td>Pre block inner padding — created, backed up</td></tr>
 <tr><td><code>code/{size}/line-height</code> ✓</td><td colspan="4">snug ~1.2–1.33× font-size per size/density (aliases line-height primitives; added <code>line-height/18</code>)</td><td>Inline code line-height (block uses body) — created, backed up</td></tr>
-<tr><td><code>table/cell-padding-x</code></td><td>space-8</td><td>space-12</td><td>space-16</td><td>space-20</td><td>= <code>framed-control/md/padding-inline</code></td></tr>
-<tr><td><code>table/cell-padding-y</code></td><td>space-4</td><td>space-8</td><td>space-12</td><td>space-12</td><td>~½ the x value</td></tr>
+<tr><td><code>table/cell/padding-inline</code> ✓</td><td>space-8</td><td>space-12</td><td>space-16</td><td>space-20</td><td>Cell L/R padding — created, backed up</td></tr>
+<tr><td><code>table/cell/padding-block</code> ✓</td><td>space-4</td><td>space-8</td><td>space-12</td><td>space-16</td><td>Cell T/B padding — created, backed up</td></tr>
+<tr><td><code>table/row/{stripe,hover,selected}</code> ✓</td><td colspan="4">Intent (Light/Dark): neutral/50·900 · neutral/100·800 · brand/100·900</td><td>Row state fills — created, backed up</td></tr>
 <tr><td><code>divider/margin-block</code></td><td>space-12</td><td>space-16</td><td>space-24</td><td>space-32</td><td>Vertical rhythm around rules</td></tr>
 </table>
 
@@ -497,7 +491,7 @@
 <tr><td>12</td><td>Pull quote</td><td>Component</td><td><span class="pill exists">Done</span></td><td>—</td></tr>
 <tr><td>13</td><td>Inline code</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>font-family.mono</code>; snug 130% line-height</td></tr>
 <tr><td>14</td><td>Code block</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>code/padding</code> · <code>code/{size}/line-height</code></td></tr>
-<tr><td>15</td><td>Table</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>table/*</code></td></tr>
+<tr><td>15</td><td>Table</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>table/cell/padding-*</code> ✓ · <code>table/row/*</code> ✓</td></tr>
 <tr><td>16</td><td>Figure + figcaption</td><td>Component</td><td><span class="pill build">Build</span></td><td>—</td></tr>
 <tr><td>17</td><td>Divider / hr</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>divider/*</code></td></tr>
 <tr><td>18</td><td>kbd</td><td>Component</td><td><span class="pill build">Build</span></td><td>mono (§8)</td></tr>

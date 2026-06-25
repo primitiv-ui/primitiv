@@ -224,6 +224,22 @@
         }
       }
     },
+    "table": {
+      "row": {
+        "stripe": {
+          "$type": "color",
+          "$value": "{color.neutral.50}"
+        },
+        "hover": {
+          "$type": "color",
+          "$value": "{color.neutral.100}"
+        },
+        "selected": {
+          "$type": "color",
+          "$value": "{color.brand.100}"
+        }
+      }
+    },
     "border": {
       "subtle": {
         "$type": "color",
@@ -475,6 +491,22 @@
         "foreground": {
           "$type": "color",
           "$value": "{color.neutral.200}"
+        }
+      }
+    },
+    "table": {
+      "row": {
+        "stripe": {
+          "$type": "color",
+          "$value": "{color.neutral.900}"
+        },
+        "hover": {
+          "$type": "color",
+          "$value": "{color.neutral.800}"
+        },
+        "selected": {
+          "$type": "color",
+          "$value": "{color.brand.900}"
         }
       }
     },

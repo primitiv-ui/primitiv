@@ -1,6 +1,6 @@
 # RFC 0014 — Figma Table component build
 
-> **Status:** Draft
+> **Status:** Implemented (build landed 2026-06-25 — see §11)
 > **Author:** simonrevill
 > **Date:** 2026-06-25
 > **Seeds from:** the 2026-06-25 Table planning session.
@@ -285,8 +285,14 @@ Bound to `paddingLeft`/`paddingRight` and `paddingTop`/`paddingBottom` on both
 **Cell** and **Header Cell** (header reuses the same padding for now — if the
 build wants taller headers later, add `table/header/padding-block`; deferred,
 see §9). Back both up to `packages/tokens/src/context.json` under `table/cell`
-in all four density mode sections. Record the resulting `VariableID`s here after
-creation.
+in all four density mode sections.
+
+**Created `VariableID`s** (Context collection `VariableCollectionId:369:31958`):
+
+| Token | `VariableID` |
+| --- | --- |
+| `table/cell/padding-inline` | `VariableID:604:9767` |
+| `table/cell/padding-block` | `VariableID:604:9768` |
 
 ### 5.2 Intent collection — `table/*` (light/dark)
 
@@ -307,7 +313,17 @@ brand tint; text on a selected row stays `content/primary` (the tints are light
 enough to keep contrast — verify in the example pass). Back all three up to
 `packages/tokens/src/intent.json` in both `light` and `dark`, in deterministic
 order (after the `list` block, before `border`, to match the transform).
-Record `VariableID`s here after creation.
+
+**Created `VariableID`s** (Intent collection `VariableCollectionId:346:4407`).
+Following the established `surface/raised` pattern, each mode aliases a distinct
+palette step (Light → low step, Dark → high step) resolved against the Light
+palette; the example frames switch only the Intent mode:
+
+| Token | `VariableID` | Light alias | Dark alias |
+| --- | --- | --- | --- |
+| `table/row/stripe` | `VariableID:604:9769` | `color/neutral/50` | `color/neutral/900` |
+| `table/row/hover` | `VariableID:604:9770` | `color/neutral/100` | `color/neutral/800` |
+| `table/row/selected` | `VariableID:604:9771` | `color/brand/100` | `color/brand/900` |
 
 ### 5.3 Reused (no new token)
 
@@ -444,11 +460,13 @@ responsibility, documented in the description. See §4.
 Row/Cell variant counts. Rules reuse `border/subtle`; the header underline /
 footer top rule reuse `border/strong` — no new border token. See §3.5, §5.3.
 
-### D6 — `Align` is `start·end` only; `center` via instance override
-The dominant real need is right-aligning numeric columns; `center` is rare in
-data tables and not worth doubling-again the Cell/Header-Cell variant counts.
-Designers override `primaryAxisAlignItems` on an instance for the odd centred
-column. See §3.1.
+### D6 — `Align` is `start·center·end` (REVISED at build — center is a variant)
+Originally `start·end` only, with `center` left to an instance override. **At
+build time (2026-06-25) the human asked for a first-class `center` variant on
+both Cell and Header Cell**, so `Align=center` is now a real axis value. This
+makes Cell **5 × 3 = 15** variants and Header Cell **5 × 3 × 4 = 60** (see §11).
+`center` drives `primaryAxisAlignItems=CENTER` + `textAlign=CENTER` (Header: the
+label still FILLs and centres while the sort icon stays end-pinned, §11).
 
 ### D7 — Row `State` includes Figma-only `hover`/`selected`
 The visual-treatment axes the design wants (striping, hover, selected) exceed
@@ -516,4 +534,57 @@ Build bottom-up so each set exists before the thing that nests it:
 - **INSTANCE_SWAP slots** — once the file is published to a team library, the
   Row/Cell nested instances can gain explicit INSTANCE_SWAP properties (blocked
   on local components today — RFC 0012 D11).
+
+---
+
+## 11. Build outcome (landed 2026-06-25)
+
+All four sets, both grid-label groups per set, and the Light/Dark example frame
+live on the **Table** page. Node IDs:
+
+| Set | Node ID | Variants |
+| --- | --- | --- |
+| Table / Cell | `604:9802` | 15 (Size × Align) |
+| Table / Header Cell | `604:9991` | 60 (Size × Align × Sort) |
+| Table / Row | `604:10228` | 6 (sparse Section × State) |
+| Table (top-level) | `605:13524` | 15 (Size × Borders) |
+
+Tokens created — Context `table/cell/padding-inline` `VariableID:604:9767`,
+`padding-block` `604:9768`; Intent `table/row/stripe` `604:9769`, `hover`
+`604:9770`, `selected` `604:9771` (backed up to `context.json` / `intent.json`).
+
+**Deviations from the draft, all confirmed during the build:**
+
+- **`Align=center` is a variant axis** on Cell and Header Cell (D6 revised —
+  human request). Cell 15, Header Cell 60.
+- **Sort icon = end-pinned + subordinate size.** The header label takes FILL
+  width and aligns per `Align`; the sort Icon is **always pinned to the cell end
+  (right edge)** — the common data-table header pattern — not interleaved with
+  the label. It is sized to **~0.8× the label type** (`xs10 sm11 md13 lg16 xl18`),
+  *not* the Icon set's native `size=` variant (which ran larger than the type).
+  The icon is fixed-size (does not track density); it is tuned for the default
+  Comfortable density shown in the grids.
+- **Caption: `Show Caption` boolean only, bottom-placed.** D2 fixes the set at
+  the 15 Size × Borders variants, so `Caption Side` is **not** a third axis (that
+  would make 30) and a boolean can't reorder a child. The caption is a single
+  bottom node (matching React `captionSide="bottom"`); a top caption is a manual
+  layer reorder, documented in the Table description.
+- **Right/Bottom borders are visibility-bound divider rectangles** (absolute,
+  edge-pinned, STRETCH constraints), since a Figma BOOLEAN property toggles a
+  node's `visible`, not a stroke weight. The top-level `Borders` axis sets these
+  nested booleans per D5.
+
+**Extra artifact (human request):** beyond the §7.2 Light/Dark example, a
+**`Table Size × Density`** frame was added — Dense/Compact/Comfortable/Spacious
+**columns** × xs–xl **rows**, each cell a full Table instance (Borders=horizontal,
+**un-striped** per request) — so size scaling and density scaling read together in
+one matrix. The §7.2 Light/Dark example keeps its alternating stripe per the RFC.
+
+**Verification (per §5.2 / §10):** dark-mode row striping is **subtle** —
+`table/row/stripe`'s dark alias `color/neutral/900` resolves very close to the
+black `surface/default` (exactly mirroring `surface/raised`, by design). It is
+visible on inspection but low-contrast in dark; if stronger dark striping is
+wanted later, retune the dark alias (e.g. `neutral/800`) — deferred, not a build
+defect. The throwaway-instance test (all booleans toggled on at `Size=lg,
+Borders=grid`) confirmed caption, footer, and rows 5–8 all surface correctly.
 ```

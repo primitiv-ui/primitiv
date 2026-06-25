@@ -32,7 +32,7 @@ const TINT_BUTTON_CLASS = "primitiv-button primitiv-button--secondary primitiv-b
 // Below this lightness a "white" anchor stops reading as white, so the white
 // slider is floored here (thumb + painted track clamp together). Black keeps
 // the full 0..1 range.
-const WHITE_LIGHTNESS_FLOOR = 0.85;
+const WHITE_LIGHTNESS_FLOOR = 0.8;
 
 // A plain (unpainted) system Slider over a 0..1 fraction, shown as 0..100.
 function FractionSlider({

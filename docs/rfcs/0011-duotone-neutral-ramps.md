@@ -222,6 +222,23 @@ norm. Sequence:
 
 ## 8. Status
 
-Draft. Engine cycles 1–3 are the substance; the rest is plumbing and one UI
-control. O1 (bow arg vs struct) and O2 (UI Option B vs A) are the two things to
-settle before the wasm signature and the plugin layout are frozen.
+Implemented (engine + workbench UI). The engine cycles 1–3 landed in
+`harmoni-core` / `harmoni-wasm` at 100% (shortest-arc hue interpolation, the
+mid-tone chroma bow, and `tint_neutrals_duotone`), threaded through `api::neutral`
+and the wasm boundary.
+
+Both open questions are resolved:
+
+- **O1 → a `RampOptions` struct.** `bow` rides on `RampOptions` (not a trailing
+  arg), so further shaping params can land without churning the call sites or the
+  wasm signature.
+- **O2 → Option B, in the workbench.** The bipolar spread slider (one source →
+  highlight/shadow anchors) plus a bow slider ship on the **workbench plugin-frame
+  page** (`apps/workbench/src/pages/PluginFrameExample/`), with live
+  highlight/shadow preview chips. Spread 0 / bow 0 reproduces the monotone tint.
+
+**Plugin deferred — rebuild, don't patch.** All further iteration happens on the
+workbench plugin-frame page until the feature set is locked; the real
+`apps/harmoni-figma-plugin` is then **rebuilt from scratch with ports & adapters
++ strict TDD**. The plugin's current spread/bow controls are disposable
+scaffolding — the engine crates are the durable contract the rebuild consumes.

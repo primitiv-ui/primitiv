@@ -50,7 +50,8 @@ The full 27-item checklist lives at
 | 11 | Blockquote | Component | Done |
 | 12 | Pull quote | Component | Done |
 | 13 | Inline code | Component | Done |
-| 14–27 | Code block · Table · kbd · char styles · … | Various | To build |
+| 14 | Code block | Component | Done |
+| 15–27 | Table · kbd · char styles · … | Various | To build |
 
 ---
 
@@ -410,7 +411,7 @@ live in the variable value — it is an emit-time concern):
    `apps/harmoni-figma-plugin/index.html`) so users don't depend on a local
    install. JetBrains Mono is on Google Fonts.
 
-### D15 — Inline code: Size-axis chip, snug 130% line-height, no new tokens
+### D15 — Inline code: Size-axis chip, snug line-height (tokenised in D16)
 
 Inline code (`<code>`) is a **leaf** chip, not a list-like component — the slot
 strategy (§1–2 of the prose-component skill) does not apply. The set `Inline Code`
@@ -420,9 +421,9 @@ Type bindings (per variant):
 
 - `fontFamily` → **`font-family/mono`** primitive (`VariableID:601:9479`, JetBrains Mono);
 - `fontSize` + `fontStyle` → **`body/{size}`** Context tokens (density-aware, matches surrounding text);
-- `lineHeight` → **fixed 130%** (a literal PERCENT, **not** a variable — interim,
-  see below). Body's 150% read pill-like standalone; 100% clipped descenders; **130%**
-  clears them with a snug box and still scales with the density-bound `fontSize`.
+- `lineHeight` → **`code/{size}/line-height`** Context token (density-aware, snug
+  ~1.2–1.33×). Originally a literal 130% (body's 150% read pill-like; 100% clipped
+  descenders); tokenised in **D16** when the `code/*` namespace was designed.
 - text fill → `content/primary`.
 
 Box: `surface/subtle` fill, `border/subtle` 1px inside stroke, `radii/4` (all four
@@ -437,34 +438,64 @@ checklist; included for definition on the subtle fill.
 | lg | `VariableID:369:32001` | `VariableID:369:32003` |
 | xl | `VariableID:393:5554`  | `VariableID:393:5552`  |
 
-**No new Context/Intent tokens** — reuses `body/*` + existing primitives; the only new
-token (`font-family/mono`) landed in **D14**. Ships with an `Inline Code Grid Labels`
-group (xs–xl headers) and an `Inline Code Example` frame (Light + Dark × four
-densities, representative `Size=md`).
+Type tokens reuse `body/*` + the `font-family/mono` primitive (**D14**); the
+`lineHeight` is the new `code/{size}/line-height` token added in **D16**. Ships with an
+`Inline Code Grid Labels` group (xs–xl headers) and an `Inline Code Example` frame
+(Light + Dark × four densities, representative `Size=md`).
 
-**Deferred — `code/*` line-height (do with Code block).** The 130% line-height is a
-deliberate interim literal, to be replaced by a density-aware `code/{size}/line-height`
-Context token when the `code/*` namespace is designed (alongside `code/padding` and the
-Code block's own line-height). The catch found here: the line-height **primitive scale is
-coarse** (12, 14, 16, 20, 24, 28, 32 … — no 17/18), so a tokenised version can only alias
-the nearest primitive, quantising the snug ratio. Nearest-to-1.3× per size (Comfortable):
-xs→16 (1.33), sm→20 (1.43), md→20 (1.25 ≈ approved), lg→24 (1.20), xl→28 (1.27). The
-uniform 1.3 only exists as the current literal. The code/* session decides: accept the
-quantised aliases, or add a `line-height/18` primitive for a tighter uniform fit. Inline
-and block code may share one line-height token or diverge (block tends looser for
-multi-line readability).
+### D16 — Code block + the `code/*` namespace
+
+Code block (`<pre>`) on the **Code Block** page. **5 `Size` variants** (xs–xl); the
+optional header and gutter are **boolean properties**, not variants (prose-component
+skill §1).
+
+```
+CodeBlock (VERTICAL, FIXED 440 default, HUG height, radii/8, surface/subtle, border/subtle 1px, clip)
+  ├─ Header   (Show Header bool)  — filename (mono, content/secondary) · Copy Icon Button; bottom border/subtle
+  └─ Code area (padding code/padding)
+       ├─ Gutter (Show Line Numbers bool) — line #s, mono, content/muted, right-aligned
+       └─ Code   — mono, content/primary, single colour (syntax highlighting is the consuming tool's job)
+```
+
+- **Type**: code + gutter + filename `fontFamily` → `font-family/mono`; `fontSize`/`fontStyle`
+  → `body/{size}`; code/gutter `lineHeight` → `body/{size}/line-height` (block uses the body
+  1.5 for multi-line readability — *not* the snug inline value). Header (filename + Icon
+  Button) scales with `Size`.
+- **Copy**: an **Icon Button** (`secondary`, size-matched) with the `copy` icon. On click the
+  consuming implementation swaps the icon to `check` as success feedback — runtime only, not a
+  Figma state.
+- **Box**: `surface/subtle`, `border/subtle` 1px, `radii/8`, padding **`code/padding`**.
+- Booleans collapse cleanly to zero height in auto-layout when off.
+
+**New `code/*` tokens** (Context, density-aware; this is the namespace deferred from D15):
+
+| Token | Dense | Compact | Comfortable | Spacious |
+|-------|-------|---------|-------------|----------|
+| `code/padding` (`VariableID:601:9534`) | space-12 | space-12 | space-16 | space-16 |
+| `code/{size}/line-height` | — | — | — | — |
+
+`code/{size}/line-height` (`VariableID:602:9760`–`602:9764`, xs→xl) aliases the nearest
+line-height primitive to **1.3× the font-size** per density — the snug inline-code value,
+**replacing D15's literal 130%** (Inline Code is repointed to it). To keep the ratio
+consistent across the coarse primitive scale, **`line-height/18`** was added as a primitive
+(`VariableID:602:9765`; `primitives.json`), pulling every size into **1.2–1.33×** (without it
+`sm` was forced to 1.43). Block code deliberately stays on `body/{size}/line-height`, so the
+single `code/{size}/line-height` token serves inline only.
+
+All `code/*` tokens are backed up to `packages/tokens/src/context.json`; `line-height/18` to
+`primitives.json`. Ships with a `Code Block Grid Labels` group and a `Code Block Example`
+frame (Light + Dark × four densities, representative `Size=md`).
 
 ---
 
 ## 4. Next steps
 
-Work through checklist items 13–27 in order. Priority path:
+Work through checklist items 15–27 in order. Priority path:
 
-1. **Inline code** (13) — **done** (**D15**). **Code block** (14) next — reuses
-   `font-family/mono`; design the `code/*` namespace here: `code/padding`,
-   `code/{size}/line-height` (inline + block — replaces Inline code's interim
-   literal 130%; mind the coarse line-height primitive scale, see D15). Mono
-   fallback stack + webfont `<link>` remain deferred to the emitter /
-   new-typography session.
+1. **Inline code** (13, **D15**) and **Code block** (14, **D16**) — **done**. The
+   `code/*` namespace (`code/padding`, `code/{size}/line-height`) and the
+   `line-height/18` primitive are landed; Inline code's literal 130% is now
+   tokenised. Mono fallback stack + webfont `<link>` remain deferred to the
+   emitter / new-typography session (**D14**).
 2. **Table** (15) — needs `table/*` tokens before building.
 3. **Character styles** (19–27) — mostly fast wins once the faces are confirmed.

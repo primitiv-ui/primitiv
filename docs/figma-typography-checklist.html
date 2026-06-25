@@ -343,7 +343,7 @@
     <tr><th>Property</th><th>Token</th></tr>
     <tr><td>Font family</td><td><code>font-family.mono</code> (JetBrains Mono)</td></tr>
     <tr><td>Size / style</td><td><code>body/{size}</code> font-size + font-style (5 Size variants xs–xl, density-aware)</td></tr>
-    <tr><td>Line-height</td><td>fixed <b>130%</b> — snug box; body 150% read pill-like, 100% clipped descenders. <b>Interim literal</b> → becomes <code>code/{size}/line-height</code> in the <code>code/*</code> session (coarse LH primitive scale; see RFC D15)</td></tr>
+    <tr><td>Line-height</td><td><code>code/{size}/line-height</code> (Context, density-aware, snug ~1.2–1.33×) — snug box; body 150% read pill-like. Tokenised in the <code>code/*</code> session (added <code>line-height/18</code> primitive); see RFC D16</td></tr>
     <tr><td>Text fill</td><td><code>content/primary</code></td></tr>
     <tr><td>Background</td><td><code>surface/subtle</code></td></tr>
     <tr><td>Border</td><td><code>border/subtle</code> (1px inside)</td></tr>
@@ -354,23 +354,22 @@
 </div>
 
 <div class="card">
-  <h3>Code block &nbsp;<code class="mono">&lt;pre&gt;</code> <span><span class="pill comp">Component</span> <span class="pill build">Build</span> <span class="pill newtok">code/*</span></span></h3>
+  <h3>Code block &nbsp;<code class="mono">&lt;pre&gt;</code> <span><span class="pill comp">Component</span> <span class="pill exists">Done</span> <span class="pill newtok">code/*</span></span></h3>
   <h4>Parts</h4>
   <ul class="tight">
-    <li><b>Container</b> — surface fill, radius, padding, horizontal scroll.</li>
-    <li><b>Header</b> (optional) — filename label + Copy button (instance-swap the Button).</li>
-    <li><b>Line numbers</b> (optional) — gutter, <code>content/muted</code>.</li>
-    <li><b>Code text</b> — monospace; syntax colours out of scope (use a token set later).</li>
+    <li><b>Container</b> — surface fill, radius, <code>code/padding</code>, clipped. 5 Size variants (xs–xl).</li>
+    <li><b>Header</b> (<code>Show Header</code> bool) — filename (mono, <code>content/secondary</code>) + Copy <b>Icon Button</b> (secondary, size-matched, <code>copy</code> icon → swaps to <code>check</code> on click at runtime). Scales with Size.</li>
+    <li><b>Line numbers</b> (<code>Show Line Numbers</code> bool) — gutter, mono, <code>content/muted</code>, right-aligned.</li>
+    <li><b>Code text</b> — <code>font-family.mono</code>, single colour (syntax highlighting is the consuming tool's job).</li>
   </ul>
   <table>
     <tr><th>Part</th><th>Property</th><th>Token</th></tr>
-    <tr><td>Container</td><td>fill</td><td><code>surface/subtle</code> (or <code>surface/inverse</code> for dark code)</td></tr>
-    <tr><td>Container</td><td>border</td><td><code>border/subtle</code></td></tr>
-    <tr><td>Container</td><td>radius</td><td><code>radii/8</code></td></tr>
-    <tr><td>Container</td><td>padding</td><td><code>code/padding</code> (new) → <code>space-12/16</code></td></tr>
-    <tr><td>Code text</td><td>font</td><td><code>font-family.mono</code> (JetBrains Mono) · fill <code>content/primary</code></td></tr>
-    <tr><td>Gutter</td><td>fill</td><td><code>content/muted</code></td></tr>
+    <tr><td>Container</td><td>fill / border / radius</td><td><code>surface/subtle</code> · <code>border/subtle</code> 1px · <code>radii/8</code></td></tr>
+    <tr><td>Container</td><td>padding</td><td><code>code/padding</code> (Context, density-aware: 12/12/16/16)</td></tr>
+    <tr><td>Code + gutter</td><td>type</td><td><code>font-family.mono</code> · <code>body/{size}</code> size/style/line-height (block uses body 1.5 for readability)</td></tr>
+    <tr><td>Code / gutter fill</td><td>—</td><td><code>content/primary</code> / <code>content/muted</code></td></tr>
   </table>
+  <div class="callout"><b>Delivered.</b> <code>Code Block</code> set (5 Size variants, Show Header / Show Line Numbers booleans), grid labels + Light/Dark × density example on the Code Block page. New <code>code/padding</code> + <code>code/{size}/line-height</code> tokens (the latter also retro-tokenises Inline code's line-height; <code>line-height/18</code> primitive added). See RFC 0012 <b>D16</b>.</div>
 </div>
 
 <div class="card">
@@ -454,7 +453,8 @@
 <tr><td><code>list/indent</code></td><td>space-16</td><td>space-24</td><td>space-28</td><td>space-32</td><td>~2× <code>padding-inline/md</code></td></tr>
 <tr><td><code>quote/padding-inline</code> ✓</td><td>space-12</td><td>space-16</td><td>space-20</td><td>space-24</td><td>Indent of the quote body — created, backed up</td></tr>
 <tr><td><code>quote/body-gap/{xs–xl}</code> ✓</td><td colspan="4">4 / 4 / 8 / 12 / 16 px — same in all density modes (size-axis gap, not density-scaled)</td><td>Quote↔citation breathing room — created, backed up</td></tr>
-<tr><td><code>code/padding</code></td><td>space-8</td><td>space-12</td><td>space-16</td><td>space-16</td><td>Pre block inner padding</td></tr>
+<tr><td><code>code/padding</code> ✓</td><td>space-12</td><td>space-12</td><td>space-16</td><td>space-16</td><td>Pre block inner padding — created, backed up</td></tr>
+<tr><td><code>code/{size}/line-height</code> ✓</td><td colspan="4">snug ~1.2–1.33× font-size per size/density (aliases line-height primitives; added <code>line-height/18</code>)</td><td>Inline code line-height (block uses body) — created, backed up</td></tr>
 <tr><td><code>table/cell-padding-x</code></td><td>space-8</td><td>space-12</td><td>space-16</td><td>space-20</td><td>= <code>framed-control/md/padding-inline</code></td></tr>
 <tr><td><code>table/cell-padding-y</code></td><td>space-4</td><td>space-8</td><td>space-12</td><td>space-12</td><td>~½ the x value</td></tr>
 <tr><td><code>divider/margin-block</code></td><td>space-12</td><td>space-16</td><td>space-24</td><td>space-32</td><td>Vertical rhythm around rules</td></tr>
@@ -496,7 +496,7 @@
 <tr><td>11</td><td>Blockquote</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>quote/padding-inline</code> ✓ · <code>quote/body-gap/{xs–xl}</code> ✓</td></tr>
 <tr><td>12</td><td>Pull quote</td><td>Component</td><td><span class="pill exists">Done</span></td><td>—</td></tr>
 <tr><td>13</td><td>Inline code</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>font-family.mono</code>; snug 130% line-height</td></tr>
-<tr><td>14</td><td>Code block</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>code/*</code> · mono</td></tr>
+<tr><td>14</td><td>Code block</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>code/padding</code> · <code>code/{size}/line-height</code></td></tr>
 <tr><td>15</td><td>Table</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>table/*</code></td></tr>
 <tr><td>16</td><td>Figure + figcaption</td><td>Component</td><td><span class="pill build">Build</span></td><td>—</td></tr>
 <tr><td>17</td><td>Divider / hr</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>divider/*</code></td></tr>

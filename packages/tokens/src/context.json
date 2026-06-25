@@ -1,5 +1,41 @@
 {
   "comfortable": {
+    "code": {
+      "padding": {
+        "$type": "number",
+        "$value": "{space.space-16}"
+      },
+      "xs": {
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.16}"
+        }
+      },
+      "sm": {
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.18}"
+        }
+      },
+      "md": {
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.20}"
+        }
+      },
+      "lg": {
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.24}"
+        }
+      },
+      "xl": {
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.28}"
+        }
+      }
+    },
     "label": {
       "xs": {
         "font-family": {
@@ -1361,6 +1397,42 @@
     }
   },
   "compact": {
+    "code": {
+      "padding": {
+        "$type": "number",
+        "$value": "{space.space-12}"
+      },
+      "xs": {
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.16}"
+        }
+      },
+      "sm": {
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.18}"
+        }
+      },
+      "md": {
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.20}"
+        }
+      },
+      "lg": {
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.24}"
+        }
+      },
+      "xl": {
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.24}"
+        }
+      }
+    },
     "label": {
       "xs": {
         "font-family": {
@@ -2722,6 +2794,42 @@
     }
   },
   "spacious": {
+    "code": {
+      "padding": {
+        "$type": "number",
+        "$value": "{space.space-16}"
+      },
+      "xs": {
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.16}"
+        }
+      },
+      "sm": {
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.18}"
+        }
+      },
+      "md": {
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.20}"
+        }
+      },
+      "lg": {
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.28}"
+        }
+      },
+      "xl": {
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.32}"
+        }
+      }
+    },
     "label": {
       "xs": {
         "font-family": {
@@ -4083,6 +4191,42 @@
     }
   },
   "dense": {
+    "code": {
+      "padding": {
+        "$type": "number",
+        "$value": "{space.space-12}"
+      },
+      "xs": {
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.12}"
+        }
+      },
+      "sm": {
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.14}"
+        }
+      },
+      "md": {
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.16}"
+        }
+      },
+      "lg": {
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.16}"
+        }
+      },
+      "xl": {
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.18}"
+        }
+      }
+    },
     "label": {
       "xs": {
         "font-family": {

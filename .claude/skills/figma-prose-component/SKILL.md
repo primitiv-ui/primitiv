@@ -671,6 +671,13 @@ gives a snug box, and — set as a PERCENT (not a fixed px) — still scales wit
 density-bound `fontSize`. Unbind first if a body line-height was set earlier:
 `t.setBoundVariable('lineHeight', null); t.lineHeight = { unit:'PERCENT', value:130 }`.
 
+This 130% is a **deliberate interim literal**, not a token: the line-height
+primitive scale is coarse (12/14/16/20/24…, no 17/18), so a tokenised
+`code/{size}/line-height` can only alias the nearest primitive and quantises the
+ratio (1.2–1.43). The `code/*` namespace — `code/{size}/line-height` (inline +
+block) and `code/padding` — is designed as a set when Code block is built; the
+literal is replaced then. See RFC 0012 D15.
+
 Build the 5 components, then `figma.combineAsVariants(variants, page)` and lay
 them out in a single row (left→right, vertically centred on the tallest). Grid
 labels: just column headers xs…xl (no rotated section / per-row labels — single

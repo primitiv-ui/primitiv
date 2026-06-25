@@ -420,9 +420,9 @@ Type bindings (per variant):
 
 - `fontFamily` → **`font-family/mono`** primitive (`VariableID:601:9479`, JetBrains Mono);
 - `fontSize` + `fontStyle` → **`body/{size}`** Context tokens (density-aware, matches surrounding text);
-- `lineHeight` → **fixed 130%** (not bound). Body's 150% read pill-like standalone; 100%
-  clipped descenders; **130%** clears them with a snug box and still scales with the
-  density-bound `fontSize`.
+- `lineHeight` → **fixed 130%** (a literal PERCENT, **not** a variable — interim,
+  see below). Body's 150% read pill-like standalone; 100% clipped descenders; **130%**
+  clears them with a snug box and still scales with the density-bound `fontSize`.
 - text fill → `content/primary`.
 
 Box: `surface/subtle` fill, `border/subtle` 1px inside stroke, `radii/4` (all four
@@ -442,6 +442,18 @@ token (`font-family/mono`) landed in **D14**. Ships with an `Inline Code Grid La
 group (xs–xl headers) and an `Inline Code Example` frame (Light + Dark × four
 densities, representative `Size=md`).
 
+**Deferred — `code/*` line-height (do with Code block).** The 130% line-height is a
+deliberate interim literal, to be replaced by a density-aware `code/{size}/line-height`
+Context token when the `code/*` namespace is designed (alongside `code/padding` and the
+Code block's own line-height). The catch found here: the line-height **primitive scale is
+coarse** (12, 14, 16, 20, 24, 28, 32 … — no 17/18), so a tokenised version can only alias
+the nearest primitive, quantising the snug ratio. Nearest-to-1.3× per size (Comfortable):
+xs→16 (1.33), sm→20 (1.43), md→20 (1.25 ≈ approved), lg→24 (1.20), xl→28 (1.27). The
+uniform 1.3 only exists as the current literal. The code/* session decides: accept the
+quantised aliases, or add a `line-height/18` primitive for a tighter uniform fit. Inline
+and block code may share one line-height token or diverge (block tends looser for
+multi-line readability).
+
 ---
 
 ## 4. Next steps
@@ -449,8 +461,10 @@ densities, representative `Size=md`).
 Work through checklist items 13–27 in order. Priority path:
 
 1. **Inline code** (13) — **done** (**D15**). **Code block** (14) next — reuses
-   `font-family/mono`; needs `code/*` tokens (padding, maybe block line-height).
-   Mono fallback stack + webfont `<link>` remain deferred to the emitter /
+   `font-family/mono`; design the `code/*` namespace here: `code/padding`,
+   `code/{size}/line-height` (inline + block — replaces Inline code's interim
+   literal 130%; mind the coarse line-height primitive scale, see D15). Mono
+   fallback stack + webfont `<link>` remain deferred to the emitter /
    new-typography session.
 2. **Table** (15) — needs `table/*` tokens before building.
 3. **Character styles** (19–27) — mostly fast wins once the faces are confirmed.

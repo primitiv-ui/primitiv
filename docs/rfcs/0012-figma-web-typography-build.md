@@ -277,7 +277,10 @@ in Figma's auto-layout (FILL cannot resolve when the parent HUGs). Left stroke a
 entirely — the stroke always matches the component's full rendered height.
 
 Size axis maps to `body/{size}` Context tokens for both the Quote and Citation text nodes —
-same pattern as List and DescriptionList.
+same pattern as List and DescriptionList. Both text nodes bind to the same size axis (e.g.
+Size=lg → both Quote and Citation use `body/lg`). Do **not** use a fixed `body/sm` for
+the citation — it was accidentally used in the first build for the `lg` variants and had
+to be corrected.
 
 New Context token: `quote/padding-inline` (VariableID: `586:8355`) — the indent between the bar
 and the quote text.
@@ -297,9 +300,32 @@ Token bindings:
 | Quote font | `body/lg/{fontFamily · fontSize · lineHeight · fontStyle}` |
 | Citation font | `body/sm/{fontFamily · fontSize · lineHeight · fontStyle}` |
 | Padding-inline | `quote/padding-inline` (Context, density-scaled) |
+| Quote↔Citation gap | fixed per Size axis (not density-scaled) |
+
+The `itemSpacing` between quote and citation is bound to `quote/body-gap/{size}` Context
+variables — one per size. Values are **constant across all density modes** because the
+gap is a typographic proportion of the size axis, not a density concern.
+
+| Size | Token | Value | VariableID |
+|------|-------|-------|-----------|
+| xs | `quote/body-gap/xs` | `space-4` (4px) | `VariableID:588:8720` |
+| sm | `quote/body-gap/sm` | `space-4` (4px) | `VariableID:588:8721` |
+| md | `quote/body-gap/md` | `space-8` (8px) | `VariableID:588:8722` |
+| lg | `quote/body-gap/lg` | `space-12` (12px) | `VariableID:588:8723` |
+| xl | `quote/body-gap/xl` | `space-16` (16px) | `VariableID:588:8724` |
+
+Backed up in `packages/tokens/src/context.json` under `quote/body-gap/{size}` in all four
+density mode sections (same values in each — density does not vary the gap).
 
 No native italic available in Asta Sans — the accent bar + indentation provide the quote
 signal. See D3.
+
+The Blockquote page also ships a **"Blockquote Grid Labels"** group (column headers
+xs/sm/md/lg/xl above the set; rotated DEFAULT/ACCENT tone labels; WITH/WITHOUT citation
+labels — Khand SemiBold 11px, `content/primary` / `content/secondary`) and a
+**"Blockquote Example"** frame (2 rows × 4 density columns: Light + Dark theme, each
+showing Dense/Compact/Comfortable/Spacious via `setExplicitVariableModeForCollection`
+on the row for intent and on the cell for context density).
 
 ---
 

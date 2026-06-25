@@ -10,6 +10,16 @@ DescriptionList, Blockquote, Table, Figure, Divider, and similar. These
 components differ from framed controls (Button, Input) in that their primary
 concern is **flexible content slots** rather than interaction states.
 
+## Definition of done — every prose component page
+
+A component page is not done until all five of these exist:
+
+1. **Component set** — variants in a named grid, all token-bound, description field set.
+2. **Minimum slots** — 8 item slots (items 1–4 always visible, 5–8 behind boolean properties). See §2.
+3. **Grid labels** — `"ComponentName Grid Labels"` group: column headers above each size column, rotated tone/type section labels, per-row citation/state labels. Khand SemiBold 11px. See §6b.
+4. **Light + Dark example frame** — `"ComponentName Example"` frame below the set: two rows (LIGHT / DARK) × four density columns (Dense / Compact / Comfortable / Spacious), intent mode on each row, context mode on each cell. See §9.
+5. **Tokens backed up** — every new Figma variable written back to `packages/tokens/src/context.json` (Context) or `intent.json` (Intent), and the RFC D-section updated with variable IDs.
+
 ---
 
 ## 1. Slot strategy — INSTANCE_SWAP vs boolean visibility
@@ -180,10 +190,35 @@ Blockquote (vertical auto-layout, FIXED width, HUG height)
   strokeLeftWeight = 3  ← accent bar (not a child frame)
   strokes → border/strong (default) | border/focus (accent)
   paddingLeft → quote/padding-inline (Context variable)
-  Quote text (FILL, body/lg, content/secondary)
-  Citation text (FILL, body/sm, content/muted, textAlignHorizontal='RIGHT')
+  itemSpacing — fixed per Size axis (4/4/8/12/16 for xs/sm/md/lg/xl)
+  Quote text (FILL, body/{size}, content/secondary)
+  Citation text (FILL, body/{size}, content/muted, textAlignHorizontal='RIGHT')
     — visible=false when Citation=without
 ```
+
+**Quote/citation gap** scales with Size, not density. Bind `itemSpacing` to a
+`quote/body-gap/{size}` Context variable on each variant (constant value across all
+density modes — set the same value for every mode when creating the variable):
+
+```js
+const allVars = await figma.variables.getLocalVariablesAsync();
+const gapVar = allVars.find(v => v.name === 'quote/body-gap/lg');
+variant.setBoundVariable('itemSpacing', gapVar);
+```
+
+Variable IDs (VariableCollectionId:369:31958):
+
+| Variable | Value | ID |
+|----------|-------|-----|
+| `quote/body-gap/xs` | 4px | `VariableID:588:8720` |
+| `quote/body-gap/sm` | 4px | `VariableID:588:8721` |
+| `quote/body-gap/md` | 8px | `VariableID:588:8722` |
+| `quote/body-gap/lg` | 12px | `VariableID:588:8723` |
+| `quote/body-gap/xl` | 16px | `VariableID:588:8724` |
+
+Both Quote and Citation bind to `body/{size}` — the same scale. Do **not** use a
+fixed `body/sm` for the citation across all sizes; it was a bug in the first
+Blockquote build.
 
 **Why stroke instead of a child bar frame:** A child frame with
 `layoutSizingVertical = 'FILL'` in a `HUG`-height parent creates a circular
@@ -273,6 +308,73 @@ not auto-expand.
 
 ---
 
+## 6b. Grid labels for component sets (REQUIRED)
+
+Every component set ships with a "Grid Labels" group on the page. Labels use
+Khand SemiBold 11px, colour bound to `content/primary` (or `/secondary` for
+secondary labels).
+
+```js
+await figma.loadFontAsync({ family: "Khand", style: "SemiBold" });
+const allVars = await figma.variables.getLocalVariablesAsync();
+const contentPrimary   = allVars.find(v => v.id === 'VariableID:346:4435');
+const contentSecondary = allVars.find(v => v.id === 'VariableID:346:4436');
+
+const labelNodes = [];
+
+function makeLabel(chars, x, y, color, rotateClockwise90) {
+  const t = figma.createText();
+  t.fontName = { family: 'Khand', style: 'SemiBold' };
+  t.fontSize = 11;
+  t.characters = chars;
+  t.fills = [{ type: 'SOLID', color: { r:0,g:0,b:0 }, boundVariables: { color: figma.variables.createVariableAlias(color) } }];
+  figma.currentPage.appendChild(t);
+  if (rotateClockwise90) t.rotation = -90;  // -90° = 90° clockwise; text reads bottom-to-top
+  t.x = x; t.y = y;
+  labelNodes.push(t);
+  return t;
+}
+
+const SET_X = set.x, SET_Y = set.y, COL_W = 320, GAP = 24, PAD = 24;
+
+// Column headers — centred above each column
+COLS.forEach((col, i) => {
+  const lbl = makeLabel(col.name, 0, 0, contentPrimary);
+  lbl.x = SET_X + PAD + i * (COL_W + GAP) + (COL_W - lbl.width) / 2;
+  lbl.y = SET_Y - 24;
+});
+
+// Rotated section labels (e.g. TONE spanning multiple rows)
+// For -90° CW rotation: text renders top→bottom (reads L→R when tilted right).
+// After rotation, place y = midY + textNode.width / 2  (width becomes visual height).
+TONE_SPANS.forEach(span => {
+  const lbl = makeLabel(span.label, 0, 0, contentPrimary, true);
+  const midY = SET_Y + (span.topY + span.bottomY) / 2;
+  lbl.x = SET_X - 108;
+  lbl.y = midY + lbl.width / 2;
+});
+
+// Per-row labels (horizontal, secondary colour)
+ROWS.forEach(row => {
+  const lbl = makeLabel(row.label, 0, 0, contentSecondary);
+  lbl.x = SET_X - 72;
+  lbl.y = SET_Y + row.y + (row.h - lbl.height) / 2;
+});
+
+// Group — MUST pass a non-empty array
+const group = figma.group(labelNodes, figma.currentPage);
+group.name = 'ComponentName Grid Labels';
+```
+
+**Critical:** `figma.group([], page)` throws "must be an array of at least one
+node". Always collect nodes into an array first, then call `group(nodes, page)`.
+
+The rotated label `y` formula (`midY + lbl.width / 2`) accounts for Figma's
+rotation pivot: after `-90°` rotation the original text WIDTH becomes the visual
+HEIGHT, so centring requires half the original width as the vertical offset.
+
+---
+
 ## 7. Token bindings for content components
 
 ### Spacing (Context collection — density-scaling)
@@ -345,3 +447,117 @@ Every component set gets a `.description` string documenting:
 ```js
 bqSet.description = 'Blockquote with left accent bar.\n\nVariants:\n• Tone=default — neutral bar (border/strong)\n• Tone=accent — brand bar (border/focus)\n• Citation=with/without\n\nQuote: body/lg, content/secondary. Citation: body/sm, content/muted, end-aligned.';
 ```
+
+---
+
+## 9. Light + Dark example frame (REQUIRED)
+
+Every component page ships with a "ComponentName Example" frame below the
+component set. Two rows — Light and Dark — each showing four density columns
+(Dense / Compact / Comfortable / Spacious). Row labels sit to the left.
+
+```js
+// Resolve collections and modes
+const collections = await figma.variables.getLocalVariableCollectionsAsync();
+const allVars     = await figma.variables.getLocalVariablesAsync();
+
+const surfaceDefaultVar = allVars.find(v => v.id === 'VariableID:346:4430');
+const contentPrimaryVar = allVars.find(v => v.id === 'VariableID:346:4435');
+
+// Intent collection (surface/default lives here — VariableCollectionId:346:...)
+const intentCollection = collections.find(c => c.id === surfaceDefaultVar.variableCollectionId);
+const lightModeId = intentCollection.modes.find(m => m.name.toLowerCase().includes('light'))?.modeId;
+const darkModeId  = intentCollection.modes.find(m => m.name.toLowerCase().includes('dark'))?.modeId;
+
+// Context / density collection
+const contextCollection  = collections.find(c => c.id === 'VariableCollectionId:369:31958');
+const denseModeId        = contextCollection.modes.find(m => m.name.toLowerCase() === 'dense')?.modeId;
+const compactModeId      = contextCollection.modes.find(m => m.name.toLowerCase() === 'compact')?.modeId;
+const comfortableModeId  = contextCollection.modes.find(m => m.name.toLowerCase() === 'comfortable')?.modeId;
+const spaciousModeId     = contextCollection.modes.find(m => m.name.toLowerCase() === 'spacious')?.modeId;
+
+const INNER_PAD = 24, GAP = 24;
+const DENSITIES = [
+  { label: 'Dense',       modeId: denseModeId },
+  { label: 'Compact',     modeId: compactModeId },
+  { label: 'Comfortable', modeId: comfortableModeId },
+  { label: 'Spacious',    modeId: spaciousModeId },
+];
+const THEMES = [
+  { label: 'LIGHT', intentModeId: lightModeId },
+  { label: 'DARK',  intentModeId: darkModeId  },
+];
+
+// Representative component variant (e.g. Tone=default, Citation=with, Size=md)
+const representative = compSet.children.find(v =>
+  v.name.includes('Size=md') && v.name.includes('Citation=with') && v.name.includes('Tone=default')
+);
+
+// Outer frame
+const exFrame = figma.createFrame();
+exFrame.name = 'ComponentName Example';
+exFrame.layoutMode = 'VERTICAL';
+exFrame.primaryAxisSizingMode = 'AUTO'; exFrame.counterAxisSizingMode = 'AUTO';
+exFrame.paddingTop = INNER_PAD; exFrame.paddingBottom = INNER_PAD;
+exFrame.paddingLeft = INNER_PAD; exFrame.paddingRight = INNER_PAD;
+exFrame.itemSpacing = GAP;
+exFrame.fills = [];
+figma.currentPage.appendChild(exFrame);
+
+for (const theme of THEMES) {
+  const row = figma.createFrame();
+  row.name = theme.label;
+  row.layoutMode = 'HORIZONTAL';
+  row.primaryAxisSizingMode = 'AUTO'; row.counterAxisSizingMode = 'AUTO';
+  row.paddingTop = INNER_PAD; row.paddingBottom = INNER_PAD;
+  row.paddingLeft = INNER_PAD; row.paddingRight = INNER_PAD;
+  row.itemSpacing = GAP;
+  row.fills = [{
+    type: 'SOLID', color: { r:0,g:0,b:0 },
+    boundVariables: { color: figma.variables.createVariableAlias(surfaceDefaultVar) }
+  }];
+  // Intent mode on the row → surface/default resolves to white (Light) or black (Dark)
+  row.setExplicitVariableModeForCollection(intentCollection, theme.intentModeId);
+  exFrame.appendChild(row);
+
+  for (const density of DENSITIES) {
+    const cell = figma.createFrame();
+    cell.name = density.label;
+    cell.layoutMode = 'VERTICAL';
+    cell.primaryAxisSizingMode = 'AUTO'; cell.counterAxisSizingMode = 'AUTO';
+    cell.fills = [];
+    row.appendChild(cell);
+    cell.appendChild(representative.createInstance());
+    // Context mode on the cell → body/md tokens resolve to density-appropriate values
+    cell.setExplicitVariableModeForCollection(contextCollection, density.modeId);
+  }
+}
+
+// Position below the set with gap
+exFrame.x = compSet.x;
+exFrame.y = compSet.y + compSet.height + 100;
+
+// Row labels to the left
+const rows = exFrame.children;
+THEMES.forEach((theme, i) => {
+  const row = rows[i];
+  const t = figma.createText();
+  t.fontName = { family: 'Khand', style: 'SemiBold' }; t.fontSize = 11;
+  t.characters = theme.label;
+  t.fills = [{ type:'SOLID', color:{r:0,g:0,b:0}, boundVariables:{ color: figma.variables.createVariableAlias(contentPrimaryVar) } }];
+  figma.currentPage.appendChild(t);
+  t.x = exFrame.x - t.width - 12;
+  t.y = exFrame.y + INNER_PAD + row.y + (row.height - t.height) / 2;
+});
+```
+
+**Notes:**
+- `setExplicitVariableModeForCollection(collection, modeId)` requires the
+  **VariableCollection object** (not the ID string). Resolve it from a known
+  variable's `.variableCollectionId` or search `getLocalVariableCollectionsAsync()`.
+- Intent mode goes on the **row** (Light/Dark rows each set their own theme).
+  Context mode goes on the **cell** (each density cell overrides context separately).
+- The `surface/default` fill token on the row resolves to white in Light mode and
+  black in Dark mode — no hardcoded hex values needed.
+- Row labels are TEXT nodes on the page (not inside the frame), positioned after
+  the frame is fully built so sizes are accurate.

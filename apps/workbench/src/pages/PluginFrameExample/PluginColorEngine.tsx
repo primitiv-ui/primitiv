@@ -29,6 +29,11 @@ import "../../../../../registry/components/button/styles.css";
 
 const TINT_BUTTON_CLASS = "primitiv-button primitiv-button--secondary primitiv-button--sm";
 
+// Below this lightness a "white" anchor stops reading as white, so the white
+// slider is floored here (thumb + painted track clamp together). Black keeps
+// the full 0..1 range.
+const WHITE_LIGHTNESS_FLOOR = 0.85;
+
 // A plain (unpainted) system Slider over a 0..1 fraction, shown as 0..100.
 function FractionSlider({
   label,
@@ -174,7 +179,12 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
               className="pf-anchor__swatch"
               style={{ background: `oklch(${whiteL} 0 0)` }}
             />
-            <LightnessSlider value={whiteL} onChange={handleWhitePick} label="White" />
+            <LightnessSlider
+              value={whiteL}
+              onChange={handleWhitePick}
+              min={WHITE_LIGHTNESS_FLOOR}
+              label="White"
+            />
             <span className="pf-anchor__value">{whiteL.toFixed(2)}</span>
           </div>
           <div className="pf-anchor">

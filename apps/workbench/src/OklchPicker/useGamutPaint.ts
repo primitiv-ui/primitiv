@@ -113,7 +113,7 @@ export function useGamutPaint({
       if (targets.lightnessStrip) {
         blitBuffer(
           lightnessStripRef.current,
-          paint_lightness_strip(c, h, stripWidth, gamut),
+          paint_lightness_strip(c, h, stripWidth, gamut, 0, 1),
           stripWidth,
           STRIP_HEIGHT,
           colorSpace,

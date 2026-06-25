@@ -235,6 +235,10 @@
     "text": {
       "$type": "string",
       "$value": "Asta Sans"
+    },
+    "mono": {
+      "$type": "string",
+      "$value": "JetBrains Mono"
     }
   },
   "font-weight": {
@@ -377,6 +381,10 @@
     "16": {
       "$type": "number",
       "$value": 16
+    },
+    "18": {
+      "$type": "number",
+      "$value": 18
     },
     "20": {
       "$type": "number",

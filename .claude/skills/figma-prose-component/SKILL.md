@@ -561,3 +561,167 @@ THEMES.forEach((theme, i) => {
   black in Dark mode — no hardcoded hex values needed.
 - Row labels are TEXT nodes on the page (not inside the frame), positioned after
   the frame is fully built so sizes are accurate.
+
+---
+
+## 10. Pull Quote layout pattern
+
+Pull quote: centred heading-scale quote with optional decorative mark. No left
+bar, no attribution. 2 × 5 = 10 variants: **Marks × Size**.
+
+```
+PullQuote (VERTICAL auto-layout, FIXED 480px, HUG height, padding 24px all)
+  [Mark]  INSTANCE of `Pull Quote / Mark` (matching Size); Marks=with only
+  Quote   TEXT, heading/{h1–h5}, content/primary, textAlignHorizontal=CENTER, FILL width
+```
+
+Size → heading slot mapping:
+
+| Size | Slot | fontFamily ID | fontSize ID | lineHeight ID | fontStyle ID |
+|------|------|--------------|------------|--------------|-------------|
+| xs | h5 | `VariableID:369:32024` | `369:32026` | `369:32027` | `369:32028` |
+| sm | h4 | `VariableID:369:32019` | `369:32021` | `369:32022` | `369:32023` |
+| md | h3 | `VariableID:369:32014` | `369:32016` | `369:32017` | `369:32018` |
+| lg | h2 | `VariableID:369:32009` | `369:32011` | `369:32012` | `369:32013` |
+| xl | h1 | `VariableID:369:32004` | `369:32006` | `369:32007` | `369:32008` |
+
+### Decorative mark — `Pull Quote / Mark` subcomponent
+
+The mark is **not** a live font glyph (Khand's `"` looked poor) and **not**
+hand-rolled beziers (every attempt drifted into a blob/flame). It is the
+opening-quote glyph **`“` (U+201C) from Hoefler Text Black**, outlined to a
+vector and recoloured — a refined, real typographic quote chosen by the human
+from a five-font comparison (Playfair Display Black, Hoefler Text Black, Georgia
+Bold, Lora Bold, PT Serif Bold).
+
+Separate component set `Pull Quote / Mark` with 5 `Size` variants. Each variant
+holds a single flattened `VECTOR` (named `mark`), fill bound to `content/muted`.
+Build per variant:
+
+```js
+const t = figma.createText();
+t.fontName = { family: "Hoefler Text", style: "Black" };
+t.fontSize = 200;                 // large for a crisp outline
+t.characters = "“";               // U+201C, renders as the paired 66 quote
+comp.appendChild(t);
+const flat = figma.flatten([t], comp);
+flat.rescale(H / flat.height);    // H = mark height for the size (below)
+flat.fills = [{ type:'SOLID', color:{r:0,g:0,b:0},
+  boundVariables:{ color: figma.variables.createVariableAlias(mutedVar) } }];
+comp.resize(Math.round(flat.width), Math.round(flat.height));
+```
+
+Mark height `H` per size (frame width follows the ~1.18:1 glyph aspect):
+
+| Size | xs | sm | md | lg | xl |
+|------|----|----|----|----|----|
+| H    | 18 | 22 | 28 | 32 | 38 |
+
+The `Marks=with` variants embed an **instance** of the matching mark size as
+`children[0]`, so editing the mark set propagates to every Pull Quote. (Gotcha:
+the set lives on the **Pull quote** page named `Pull Quote / Mark` — if stray
+keystrokes land on it while selected in Figma it gets silently renamed; find it
+by its 5 `Size=` children, not only by name.)
+
+display/lg: `369:32034` / `369:32036` / `369:32037` / `369:32038`
+
+Mark→quote `itemSpacing` (hardcoded, not a variable — not a density concern):
+
+| xs | sm | md | lg | xl |
+|----|----|----|----|----|
+| 8px | 8px | 12px | 16px | 20px |
+
+For the Marks=without variants, set `comp.itemSpacing = 0` and omit the Mark
+node entirely — each variant is a separate `ComponentNode` in the set.
+
+Grid layout: 2 rows (with / without) × 5 columns (xs/sm/md/lg/xl). Grid labels
+group: column headers xs…xl above; row labels WITH / WITHOUT to the left.
+Example frame: Light + Dark × Dense/Compact/Comfortable/Spacious (representative
+variant: `Marks=with, Size=md`).
+
+## 11. Inline code / leaf-chip pattern
+
+Inline code (`<code>`), and later `<kbd>` / `<samp>`, are **leaf chips**, not
+list-like components: a single styled text node in a tinted box. The slot
+strategy (§1–2) and the 8-item rule do **not** apply. Single `Size` axis
+(xs–xl); each variant is a HORIZONTAL auto-layout, HUG × HUG, centred.
+
+```
+InlineCode/Size=md  (HORIZONTAL auto-layout, HUG × HUG, items centred)
+  paddingLeft/Right → space/space-4   ·  paddingTop/Bottom → space/space-2
+  4 corner radii → radii/4
+  fills → surface/subtle  ·  strokes → border/subtle (1px, INSIDE)
+  Code text (TEXT):
+    fontFamily → font-family/mono primitive (VariableID:601:9479)
+    fontSize + fontStyle → body/{size} Context (density-aware)
+    lineHeight → fixed 130% (PERCENT, NOT bound)
+    fill → content/primary
+```
+
+**Type sourcing — the one wrinkle.** `fontFamily` binds to the **mono
+primitive** (in the Primitives collection), while `fontSize`/`fontStyle` bind to
+**`body/{size}`** (Context collection). Mixed-collection binding on one text
+node is fine — there is no `code/{size}` Context typography namespace yet (that
+arrives with the emitter / new-typography session).
+
+**Line-height is the design call (D15).** Do NOT bind `lineHeight` to
+`body/{size}/line-height` — body's 150% makes a standalone chip read pill-like.
+100% clips JetBrains Mono descenders (`g`/`j`/`p`). **130%** clears descenders,
+gives a snug box, and — set as a PERCENT (not a fixed px) — still scales with the
+density-bound `fontSize`. Unbind first if a body line-height was set earlier:
+`t.setBoundVariable('lineHeight', null); t.lineHeight = { unit:'PERCENT', value:130 }`.
+
+The 130% literal was **tokenised** in the Code block session (D16): inline code's
+`lineHeight` now binds to **`code/{size}/line-height`** (Context, density-aware),
+which aliases the nearest line-height primitive to 1.3× the font-size. The
+primitive scale was coarse (no 17/18), so **`line-height/18` was added** as a
+primitive, pulling every size into a consistent 1.2–1.33×. Block code does *not*
+use this — it stays on `body/{size}/line-height` (looser, for multi-line
+readability). See RFC 0012 D16.
+
+Build the 5 components, then `figma.combineAsVariants(variants, page)` and lay
+them out in a single row (left→right, vertically centred on the tallest). Grid
+labels: just column headers xs…xl (no rotated section / per-row labels — single
+axis). Example frame: the standard Light + Dark × four-density grid,
+representative `Size=md`. No new Context/Intent tokens to back up — it reuses
+`body/*` + existing primitives + `font-family/mono`.
+
+## 12. Code block pattern
+
+Code block (`<pre>`) — a monospace container with an optional header and gutter.
+5 `Size` variants (xs–xl); the header and gutter are **boolean visibility
+properties** (`Show Header`, `Show Line Numbers`), not variant axes. Single-
+colour code text — syntax highlighting is the consuming tool's job, not Figma's.
+
+```
+CodeBlock/Size=md  (VERTICAL, FIXED ~440 default, HUG height, clip)
+  radii/8 · fills surface/subtle · strokes border/subtle 1px INSIDE
+  Header  (HORIZONTAL, FILL, SPACE_BETWEEN, padding code/padding × space-8)
+    bottom border: border/subtle (strokeBottomWeight=1, others 0)
+    Filename  (mono, body/{size}, content/secondary)
+    Copy      (Icon Button instance — secondary, size-matched, `copy` icon)
+  Code area  (HORIZONTAL, FILL, counterAxisAlignItems=MIN, padding code/padding, itemSpacing code/padding)
+    Gutter (named "Gutter")  — mono, body/{size}, content/muted, textAlignHorizontal=RIGHT
+    Code   (named "Code", FILL) — mono, body/{size}, content/primary
+```
+
+Key points:
+
+- **Gutter + Code must share `fontSize` + `lineHeight`** (both `body/{size}`) so
+  line numbers align with code rows. Block line-height is `body/{size}/line-height`
+  (the body 1.5 — readable for multi-line), *not* the snug inline `code/*` value.
+- **Header scales with Size**: bind the filename to `body/{size}` and use an Icon
+  Button of the matching `Size`, with the size-matched `copy` icon variant. The
+  copy→check swap on click is runtime behaviour (React/tooling), not a Figma state.
+- **Copy = Icon Button** (`secondary`), `setProperties({ "Icon#…": <copyIconNodeId> })`.
+  Find `icon=copy, size=<n>` node IDs in the Icon set.
+- **Booleans after `combineAsVariants`**: `set.addComponentProperty('Show Header',
+  'BOOLEAN', true)` → bind each variant's `Header` and `Gutter` via
+  `node.componentPropertyReferences = { visible: propKey }` (node must already be in
+  the set). Hidden nodes collapse to zero height in auto-layout.
+- **New `code/*` tokens** (Context, density-aware): `code/padding` (12/12/16/16) and
+  `code/{size}/line-height` (inline-code snug value; block reuses body). Back both up
+  to `context.json`; `line-height/18` to `primitives.json`. See RFC 0012 D16.
+
+Grid: single row of 5 fixed-width variants. Grid labels: column headers xs…xl.
+Example frame: standard Light + Dark × four-density grid, representative `Size=md`.

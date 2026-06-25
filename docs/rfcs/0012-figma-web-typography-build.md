@@ -33,7 +33,7 @@ future plugin / code-gen work).
 The full 27-item checklist lives at
 [`../figma-typography-checklist.html`](../figma-typography-checklist.html).
 
-**Status at 2026-06-24:**
+**Status at 2026-06-25:**
 
 | # | Element | Type | Status |
 |---|---------|------|--------|
@@ -48,7 +48,10 @@ The full 27-item checklist lives at
 | 9 | List + List Item | Component | Done |
 | 10 | Description list | Component | Done |
 | 11 | Blockquote | Component | Done |
-| 12–27 | Pull quote · Code · Table · kbd · char styles · … | Various | To build |
+| 12 | Pull quote | Component | Done |
+| 13 | Inline code | Component | Done |
+| 14 | Code block | Component | Done |
+| 15–27 | Table · kbd · char styles · … | Various | To build |
 
 ---
 
@@ -102,12 +105,12 @@ to Intent tokens. Spacers that visually separate sections use `opacity = 0`
 
 ## 3. Decisions
 
-### D1 — Monospace deferred
+### D1 — Monospace deferred → resolved (see D14)
 
-No monospace face is in the Primitiv type system yet. Components requiring
+~~No monospace face is in the Primitiv type system yet. Components requiring
 mono (`<code>`, `<kbd>`, inline code) are blocked until a face is chosen and
-added to the font-family tokens. See `§8` of the checklist for the open
-discussion.
+added to the font-family tokens.~~ **Resolved:** the face is **JetBrains Mono**
+and the `font-family/mono` token now exists. See **D14**.
 
 ### D2 — `<strong>` = Asta Sans SemiBold
 
@@ -327,13 +330,172 @@ labels — Khand SemiBold 11px, `content/primary` / `content/secondary`) and a
 showing Dense/Compact/Comfortable/Spacious via `setExplicitVariableModeForCollection`
 on the row for intent and on the cell for context density).
 
+### D13 — Pull quote: heading scale + decorative mark, no new tokens
+
+Pull quote (2 × 5 = 10 variants: Marks × Size) is a large centred editorial quote —
+no left accent bar, no attribution, distinct from Blockquote.
+
+Size axis maps to `heading/{h5→h1}` (xs→xl) Context tokens, Khand SemiBold,
+centre-aligned at 480px fixed width.
+
+The decorative mark (Marks=with only) is a **separate `Pull Quote / Mark`
+subcomponent**, not a live font glyph and not a hand-drawn vector. The Khand `"`
+glyph looked poor and bespoke beziers kept reading as a blob/flame, so the mark
+is the opening-quote glyph **`“` (U+201C) from Hoefler Text Black, outlined to a
+vector** and recoloured `content/muted` — picked by the human from a five-font
+comparison. The set has 5 `Size` variants (mark heights xs 18 · sm 22 · md 28 ·
+lg 32 · xl 38), each a single flattened vector; `Marks=with` variants embed an
+instance of the matching size as `children[0]`.
+
+No new tokens — the quote text rides the existing `heading/*` Context scale and
+the mark is a one-off outlined glyph filled from `content/muted`.
+
+| Part | Token |
+|------|-------|
+| Quote text (xs→xl) | `heading/h5…h1` Context · `content/primary` |
+| Decorative mark (`Pull Quote / Mark`) | outlined Hoefler Text Black `“` · `content/muted` (Marks=with only) |
+| Mark→quote gap | fixed per size — xs/sm: 8px · md: 12px · lg: 16px · xl: 20px |
+
+Heading variable IDs (VariableCollectionId:369:31958):
+
+| Size | Slot | fontFamily | fontSize | lineHeight | fontStyle |
+|------|------|-----------|---------|-----------|----------|
+| xs | h5 | `VariableID:369:32024` | `VariableID:369:32026` | `VariableID:369:32027` | `VariableID:369:32028` |
+| sm | h4 | `VariableID:369:32019` | `VariableID:369:32021` | `VariableID:369:32022` | `VariableID:369:32023` |
+| md | h3 | `VariableID:369:32014` | `VariableID:369:32016` | `VariableID:369:32017` | `VariableID:369:32018` |
+| lg | h2 | `VariableID:369:32009` | `VariableID:369:32011` | `VariableID:369:32012` | `VariableID:369:32013` |
+| xl | h1 | `VariableID:369:32004` | `VariableID:369:32006` | `VariableID:369:32007` | `VariableID:369:32008` |
+
+The decorative mark uses no typography variables — it is an outlined
+Hoefler Text Black `“` glyph (see `Pull Quote / Mark` above), filled from
+`content/muted`.
+
+The Pull quote page ships a **"Pull Quote Grid Labels"** group (column headers
+xs/sm/md/lg/xl; WITH/WITHOUT row labels) and a **"Pull Quote Example"** frame
+(2 rows × 4 density columns: Light + Dark, Dense/Compact/Comfortable/Spacious).
+
+### D14 — Code face: JetBrains Mono via `font-family/mono` (+ deferred fallback)
+
+The monospace face (resolving **D1**) is **JetBrains Mono**, chosen over Roboto
+Mono in an in-context comparison on the **Inline code** page (both rendered
+against Khand headings + Asta Sans body). The token is named **`font-family/mono`**
+— deliberately generic, not `code`: the same face serves `<code>`, `<pre>`,
+`<kbd>`, `<samp>`, tabular figures, diff views, etc.
+
+Landed now:
+
+- Figma variable **`font-family/mono`** = `JetBrains Mono` in the **Primitives**
+  collection (`VariableID:601:9479`, mode "Value").
+- `packages/tokens/src/primitives.json` → `font-family.mono` = `"JetBrains Mono"`
+  (bare family name, matching `heading`/`text`).
+- A testbed frame **`Inline Code — Testbed`** on the Inline code page (overline →
+  h3 → body paragraphs with inline-code spans → code block), with the code
+  block's `fontFamily` bound to `font-family/mono`.
+
+**Deferred to the emitter / new-typography session** (the variable must hold a
+single resolvable family name for Figma binding, so the fallback stack cannot
+live in the variable value — it is an emit-time concern):
+
+1. **Monospace fallback stack** when the emitter renders `font-family/mono`:
+   ```css
+   --primitiv-font-family-mono:
+     "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono",
+     Menlo, Consolas, "Liberation Mono", monospace;
+   ```
+   `heading`/`text` currently emit bare (`Khand` / `Asta Sans`) with **no**
+   fallback either — give them a `…, sans-serif` stack in the same pass.
+   (Today the emitter does not emit any `--primitiv-font-family-*` layer; that
+   whole typography layer is part of this upcoming session.)
+2. **Load the webfont**: add JetBrains Mono to the Google Fonts `<link>`s
+   (`apps/workbench/index.html`, `apps/docs/.vitepress/config.ts`,
+   `apps/harmoni-figma-plugin/index.html`) so users don't depend on a local
+   install. JetBrains Mono is on Google Fonts.
+
+### D15 — Inline code: Size-axis chip, snug line-height (tokenised in D16)
+
+Inline code (`<code>`) is a **leaf** chip, not a list-like component — the slot
+strategy (§1–2 of the prose-component skill) does not apply. The set `Inline Code`
+lives on the **Inline code** page with **5 `Size` variants** (xs–xl).
+
+Type bindings (per variant):
+
+- `fontFamily` → **`font-family/mono`** primitive (`VariableID:601:9479`, JetBrains Mono);
+- `fontSize` + `fontStyle` → **`body/{size}`** Context tokens (density-aware, matches surrounding text);
+- `lineHeight` → **`code/{size}/line-height`** Context token (density-aware, snug
+  ~1.2–1.33×). Originally a literal 130% (body's 150% read pill-like; 100% clipped
+  descenders); tokenised in **D16** when the `code/*` namespace was designed.
+- text fill → `content/primary`.
+
+Box: `surface/subtle` fill, `border/subtle` 1px inside stroke, `radii/4` (all four
+corners), padding `space-4` (inline) / `space-2` (block). Border was optional in the
+checklist; included for definition on the subtle fill.
+
+| Size | fontSize | fontStyle |
+|------|----------|-----------|
+| xs | `VariableID:369:31986` | `VariableID:369:31988` |
+| sm | `VariableID:369:31991` | `VariableID:369:31993` |
+| md | `VariableID:369:31996` | `VariableID:369:31998` |
+| lg | `VariableID:369:32001` | `VariableID:369:32003` |
+| xl | `VariableID:393:5554`  | `VariableID:393:5552`  |
+
+Type tokens reuse `body/*` + the `font-family/mono` primitive (**D14**); the
+`lineHeight` is the new `code/{size}/line-height` token added in **D16**. Ships with an
+`Inline Code Grid Labels` group (xs–xl headers) and an `Inline Code Example` frame
+(Light + Dark × four densities, representative `Size=md`).
+
+### D16 — Code block + the `code/*` namespace
+
+Code block (`<pre>`) on the **Code Block** page. **5 `Size` variants** (xs–xl); the
+optional header and gutter are **boolean properties**, not variants (prose-component
+skill §1).
+
+```
+CodeBlock (VERTICAL, FIXED 440 default, HUG height, radii/8, surface/subtle, border/subtle 1px, clip)
+  ├─ Header   (Show Header bool)  — filename (mono, content/secondary) · Copy Icon Button; bottom border/subtle
+  └─ Code area (padding code/padding)
+       ├─ Gutter (Show Line Numbers bool) — line #s, mono, content/muted, right-aligned
+       └─ Code   — mono, content/primary, single colour (syntax highlighting is the consuming tool's job)
+```
+
+- **Type**: code + gutter + filename `fontFamily` → `font-family/mono`; `fontSize`/`fontStyle`
+  → `body/{size}`; code/gutter `lineHeight` → `body/{size}/line-height` (block uses the body
+  1.5 for multi-line readability — *not* the snug inline value). Header (filename + Icon
+  Button) scales with `Size`.
+- **Copy**: an **Icon Button** (`secondary`, size-matched) with the `copy` icon. On click the
+  consuming implementation swaps the icon to `check` as success feedback — runtime only, not a
+  Figma state.
+- **Box**: `surface/subtle`, `border/subtle` 1px, `radii/8`, padding **`code/padding`**.
+- Booleans collapse cleanly to zero height in auto-layout when off.
+
+**New `code/*` tokens** (Context, density-aware; this is the namespace deferred from D15):
+
+| Token | Dense | Compact | Comfortable | Spacious |
+|-------|-------|---------|-------------|----------|
+| `code/padding` (`VariableID:601:9534`) | space-12 | space-12 | space-16 | space-16 |
+| `code/{size}/line-height` | — | — | — | — |
+
+`code/{size}/line-height` (`VariableID:602:9760`–`602:9764`, xs→xl) aliases the nearest
+line-height primitive to **1.3× the font-size** per density — the snug inline-code value,
+**replacing D15's literal 130%** (Inline Code is repointed to it). To keep the ratio
+consistent across the coarse primitive scale, **`line-height/18`** was added as a primitive
+(`VariableID:602:9765`; `primitives.json`), pulling every size into **1.2–1.33×** (without it
+`sm` was forced to 1.43). Block code deliberately stays on `body/{size}/line-height`, so the
+single `code/{size}/line-height` token serves inline only.
+
+All `code/*` tokens are backed up to `packages/tokens/src/context.json`; `line-height/18` to
+`primitives.json`. Ships with a `Code Block Grid Labels` group and a `Code Block Example`
+frame (Light + Dark × four densities, representative `Size=md`).
+
 ---
 
 ## 4. Next steps
 
-Work through checklist items 12–27 in order. Priority path:
+Work through checklist items 15–27 in order. Priority path:
 
-1. **Pull quote** (12) — no new tokens needed; uses heading/display scale.
-2. **Inline code / Code block** (13–14) — blocked on D1 (mono face decision).
-3. **Table** (15) — needs `table/*` tokens before building.
-4. **Character styles** (19–27) — mostly fast wins once the faces are confirmed.
+1. **Inline code** (13, **D15**) and **Code block** (14, **D16**) — **done**. The
+   `code/*` namespace (`code/padding`, `code/{size}/line-height`) and the
+   `line-height/18` primitive are landed; Inline code's literal 130% is now
+   tokenised. Mono fallback stack + webfont `<link>` remain deferred to the
+   emitter / new-typography session (**D14**).
+2. **Table** (15) — needs `table/*` tokens before building.
+3. **Character styles** (19–27) — mostly fast wins once the faces are confirmed.

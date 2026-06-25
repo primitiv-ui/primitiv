@@ -67,7 +67,8 @@ build/test strategy for 0005–0006 and applies once implementation starts.
 | # | Title | Status |
 |---|---|---|
 | [0010](0010-oklch-color-picker.md) | OKLCH colour picker | Draft |
-| [0011](0011-duotone-neutral-ramps.md) | Duotone neutral ramps | Draft |
+| [0011](0011-duotone-neutral-ramps.md) | Duotone neutral ramps | Implemented (engine + workbench UI) |
+| [0013](0013-configurable-palette-export.md) | Configurable palette export (destination & naming) | Draft |
 
 - **0010** — the OKLCH-first, oklch.com-style colour picker that replaces the
   hex input: paint-backed Lightness×Chroma and Hue charts with a live gamut
@@ -80,6 +81,13 @@ build/test strategy for 0005–0006 and applies once implementation starts.
   single-hue neutral tint (which becomes the equal-hue, zero-bow special case).
   Adopts Leonardo's perceptual key-colour interpolation, constrained to the
   two-anchor neutral case.
+- **0013** — configurable palette export: the plugin's hardcoded destination
+  (`Primitives / Palette`, Light/Dark, `color/…`) becomes a serializable
+  `ExportConfig` the user drives — choosing the target collection + group
+  location (browsed with MillerColumns / Tree) and a naming convention with a
+  live preview — resolved by a pure, fully-tested function behind a
+  `VariableStore` port. Built workbench-first against a fake store; today's
+  behaviour is the default preset. Works for the author and the end user alike.
 
 ## Figma library
 

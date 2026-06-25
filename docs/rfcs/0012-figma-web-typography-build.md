@@ -51,7 +51,8 @@ The full 27-item checklist lives at
 | 12 | Pull quote | Component | Done |
 | 13 | Inline code | Component | Done |
 | 14 | Code block | Component | Done |
-| 15–27 | Table · kbd · char styles · … | Various | To build |
+| 15 | Table | Component | Planned — see [RFC 0014](0014-figma-table-component.md) |
+| 16–27 | kbd · char styles · … | Various | To build |
 
 ---
 
@@ -497,5 +498,8 @@ Work through checklist items 15–27 in order. Priority path:
    `line-height/18` primitive are landed; Inline code's literal 130% is now
    tokenised. Mono fallback stack + webfont `<link>` remain deferred to the
    emitter / new-typography session (**D14**).
-2. **Table** (15) — needs `table/*` tokens before building.
+2. **Table** (15) — planned in full in **[RFC 0014](0014-figma-table-component.md)**:
+   the composed Cell / Header Cell / Row family + top-level Table, the sort
+   variant axis, and the new `table/*` Context + Intent tokens to create before
+   building.
 3. **Character styles** (19–27) — mostly fast wins once the faces are confirmed.

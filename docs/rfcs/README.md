@@ -96,6 +96,7 @@ build/test strategy for 0005–0006 and applies once implementation starts.
 | # | Title | Status |
 |---|---|---|
 | [0012](0012-figma-web-typography-build.md) | Figma web typography build | In progress |
+| [0014](0014-figma-table-component.md) | Figma Table component build | Draft |
 
 - **0012** — building the 27-element web typography library in Figma: text
   styles and components for every HTML prose element, covering all three
@@ -103,3 +104,9 @@ build/test strategy for 0005–0006 and applies once implementation starts.
   (inline font binding, fill binding, component naming), the decisions taken
   (D1 mono deferred, D2 strong=SemiBold, D3 em=synthetic slant, D4 visited
   token added, D6 Link 3×5×6 variants), and the build checklist status.
+- **0014** — building the Figma **Table** (typography checklist #15, the one
+  2-D prose component): a composed family (Cell · Header Cell · Row) plus a
+  pre-composed top-level Table, sort as a Header-Cell variant axis, striping /
+  borders / alignment / row-state treatments, and the new `table/*` Context
+  (cell padding) and Intent (row-state fills) tokens. The build plan a future
+  session executes.

@@ -287,25 +287,31 @@
 </div>
 
 <div class="card">
-  <h3>Blockquote <span><span class="pill comp">Component</span> <span class="pill build">Build</span> <span class="pill newtok">quote/*</span></span></h3>
+  <h3>Blockquote <span><span class="pill comp">Component</span> <span class="pill exists">Done</span> <span class="pill newtok">quote/*</span></span></h3>
+  <p class="meta">2 × 2 × 5 = 20 variants: Tone × Citation × Size. Left accent bar = 3 px left stroke on the component frame (not a child frame — avoids FILL-in-HUG circular dependency). No italic: the bar + indentation are the quote signal.</p>
   <h4>Parts</h4>
   <ul class="tight">
-    <li><b>Container</b> — left accent bar + inline padding.</li>
-    <li><b>Quote text</b> — <code>body/lg</code>, italic, <code>content/secondary</code>.</li>
-    <li><b>Citation / footer</b> (optional) — <code>body/sm</code>, <code>content/muted</code>, "— Name".</li>
+    <li><b>Container</b> — vertical auto-layout, FIXED 320 px wide, HUG height. Left stroke = accent bar.</li>
+    <li><b>Quote text</b> — <code>body/{size}</code>, <code>content/secondary</code>. Both quote and citation bind to the <em>same</em> size slot.</li>
+    <li><b>Citation / footer</b> (optional, Citation=with) — <code>body/{size}</code>, <code>content/muted</code>, end-aligned ("— Name").</li>
   </ul>
   <h4>Variants</h4>
-  <ul class="tight"><li><b>Citation</b>: with · without</li><li><b>Tone</b>: default (neutral bar) · accent (brand bar)</li></ul>
+  <ul class="tight">
+    <li><b>Tone</b>: default (neutral bar, <code>border/strong</code>) · accent (brand bar, <code>border/focus</code>)</li>
+    <li><b>Citation</b>: with · without</li>
+    <li><b>Size</b>: xs · sm · md · lg · xl → maps to <code>body/{size}</code> Context tokens</li>
+  </ul>
   <h4>Bindings</h4>
   <table>
     <tr><th>Part</th><th>Property</th><th>Token</th></tr>
-    <tr><td>Accent bar</td><td>stroke / fill</td><td><code>border/strong</code> (default) · <code>border/focus</code>=brand (accent)</td></tr>
-    <tr><td>Bar width</td><td>border-width</td><td><code>border-width/2</code> or <code>/3</code></td></tr>
-    <tr><td>Container</td><td>padding-inline</td><td><code>quote/padding-inline</code> (new) → <code>space-16/20/24</code></td></tr>
-    <tr><td>Quote text</td><td>font / fill</td><td><code>body/lg/*</code> italic · <code>content/secondary</code></td></tr>
-    <tr><td>Citation</td><td>font / fill</td><td><code>body/sm/*</code> · <code>content/muted</code></td></tr>
+    <tr><td>Accent bar (default)</td><td>left stroke</td><td><code>border/strong</code></td></tr>
+    <tr><td>Accent bar (accent)</td><td>left stroke</td><td><code>border/focus</code> (brand)</td></tr>
+    <tr><td>Container</td><td>padding-inline</td><td><code>quote/padding-inline</code> ✓ → Dense 12 · Compact 16 · Comfortable 20 · Spacious 24</td></tr>
+    <tr><td>Quote↔citation gap</td><td>item-spacing</td><td><code>quote/body-gap/{size}</code> ✓ → xs/sm 4 · md 8 · lg 12 · xl 16 px (constant across densities)</td></tr>
+    <tr><td>Quote text</td><td>font / fill</td><td><code>body/{size}/*</code> · <code>content/secondary</code></td></tr>
+    <tr><td>Citation</td><td>font / fill</td><td><code>body/{size}/*</code> · <code>content/muted</code>, end-aligned</td></tr>
   </table>
-  <div class="callout">Asta Sans only ships Regular — no native italic. Use a synthetic slant or skip italic and lean on the accent bar + indentation for the quote signal. Decide and document.</div>
+  <div class="callout"><b>Delivered.</b> Grid labels + Light/Dark density example frame on the Blockquote page. Tokens backed up in <code>context.json</code>. RFC D12 records all variable IDs.</div>
 </div>
 
 <div class="card">
@@ -434,7 +440,8 @@
 <tr><td><code>list/item-gap</code></td><td>space-2</td><td>space-4</td><td>space-8</td><td>space-12</td><td>Tracks <code>framed-control/gap</code> growth</td></tr>
 <tr><td><code>list/marker-gap</code></td><td>space-4</td><td>space-8</td><td>space-8</td><td>space-12</td><td>Marker→content breathing room</td></tr>
 <tr><td><code>list/indent</code></td><td>space-16</td><td>space-24</td><td>space-28</td><td>space-32</td><td>~2× <code>padding-inline/md</code></td></tr>
-<tr><td><code>quote/padding-inline</code></td><td>space-12</td><td>space-16</td><td>space-20</td><td>space-24</td><td>Indent of the quote body</td></tr>
+<tr><td><code>quote/padding-inline</code> ✓</td><td>space-12</td><td>space-16</td><td>space-20</td><td>space-24</td><td>Indent of the quote body — created, backed up</td></tr>
+<tr><td><code>quote/body-gap/{xs–xl}</code> ✓</td><td colspan="4">4 / 4 / 8 / 12 / 16 px — same in all density modes (size-axis gap, not density-scaled)</td><td>Quote↔citation breathing room — created, backed up</td></tr>
 <tr><td><code>code/padding</code></td><td>space-8</td><td>space-12</td><td>space-16</td><td>space-16</td><td>Pre block inner padding</td></tr>
 <tr><td><code>table/cell-padding-x</code></td><td>space-8</td><td>space-12</td><td>space-16</td><td>space-20</td><td>= <code>framed-control/md/padding-inline</code></td></tr>
 <tr><td><code>table/cell-padding-y</code></td><td>space-4</td><td>space-8</td><td>space-12</td><td>space-12</td><td>~½ the x value</td></tr>
@@ -474,7 +481,7 @@
 <tr><td>8</td><td>Link</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>action/link/foreground/visited</code> ✓</td></tr>
 <tr><td>9</td><td>List + List Item</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>list/marker/foreground</code> ✓</td></tr>
 <tr><td>10</td><td>Description list</td><td>Component</td><td><span class="pill exists">Done</span></td><td>—</td></tr>
-<tr><td>11</td><td>Blockquote</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>quote/*</code></td></tr>
+<tr><td>11</td><td>Blockquote</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>quote/padding-inline</code> ✓ · <code>quote/body-gap/{xs–xl}</code> ✓</td></tr>
 <tr><td>12</td><td>Pull quote</td><td>Component</td><td><span class="pill build">Build</span></td><td>—</td></tr>
 <tr><td>13</td><td>Inline code</td><td>Component</td><td><span class="pill build">Build</span></td><td>mono (§8)</td></tr>
 <tr><td>14</td><td>Code block</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>code/*</code> · mono</td></tr>

@@ -51,7 +51,7 @@ The full 27-item checklist lives at
 | 12 | Pull quote | Component | Done |
 | 13 | Inline code | Component | Done |
 | 14 | Code block | Component | Done |
-| 15 | Table | Component | Planned — see [RFC 0014](0014-figma-table-component.md) |
+| 15 | Table | Component | Done — see [RFC 0014](0014-figma-table-component.md) |
 | 16–27 | kbd · char styles · … | Various | To build |
 
 ---

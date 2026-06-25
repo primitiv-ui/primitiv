@@ -63,7 +63,7 @@ not visual components and do not need a Figma design.
 | Slider | ✓ | 392:5196 (track), 392:4353 (thumb) |
 | Status | — | |
 | Switch | ✓ | 315:5884 |
-| Table | — | |
+| Table | ✓ | 605:13524 (Table), 604:9802 (Cell), 604:9991 (Header Cell), 604:10228 (Row) |
 | Tabs | ✓ | 425:5528 (Trigger), 425:5539 (Panel) |
 | Textarea | ✓ | 439:14511 |
 | Toggle | ✓ | 385:1418 |

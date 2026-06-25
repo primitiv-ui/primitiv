@@ -112,9 +112,11 @@ resizing/spanning instances. Figma axes capture only what changes the rendering.
 | `Size` | `xs · sm · md · lg · xl` | `body/{size}` type tokens on the text node |
 | `Align` | `start · end` | `primaryAxisAlignItems` + text alignment |
 
-**= 5 × 2 = 10 variants.** Plus one boolean property **`Right Border`**
-(default `false`) — the vertical rule for grid mode (§3.5, D5). `center`
-alignment is omitted as an axis (D6) and left to an instance override.
+**= 5 × 2 = 10 variants.** Plus two component properties: a **`Text`** TEXT
+property bound to the cell's text node `characters` (§3.6, D9) and a
+**`Right Border`** boolean (default `false`) — the vertical rule for grid mode
+(§3.5, D5). `center` alignment is omitted as an axis (D6) and left to an
+instance override.
 
 Structure: HORIZONTAL auto-layout, HUG height, FILL width when placed in a row;
 padding bound to `table/cell/padding-*` (Context, §5.1). Text node: `body/{size}`,
@@ -128,7 +130,9 @@ padding bound to `table/cell/padding-*` (Context, §5.1). Text node: `body/{size
 | `Align` | `start · end` | label + sort-icon group alignment |
 | `Sort` | `none · sortable · ascending · descending` | the sort affordance (§4) |
 
-**= 5 × 2 × 4 = 40 variants.** Plus the **`Right Border`** boolean (grid mode).
+**= 5 × 2 × 4 = 40 variants.** Plus a **`Text`** TEXT property bound to the
+label node `characters` (§3.6, D9) and the **`Right Border`** boolean (grid
+mode).
 
 Structure: HORIZONTAL auto-layout (label + sort icon), HUG height, FILL width.
 Header text is **SemiBold** — bind `fontFamily`/`fontSize`/`lineHeight` to
@@ -199,6 +203,32 @@ booleans on every nested instance per the table above. Horizontal rules are the
 row's bottom stroke; vertical rules are each cell's right stroke. The header's
 emphasised underline (`border/strong`) is intrinsic to `Section=head` and is
 present in `horizontal` and `grid`.
+
+### 3.6 Editable text (TEXT property) (D9)
+
+Both **Cell** and **Header Cell** expose their text node as a **`Text` TEXT
+component property** so a designer edits the instance label from the properties
+panel without entering the instance. Without it, populating a table means
+double-clicking into every nested cell — unworkable at table scale.
+
+Mechanics (a per-variant binding, like the `Show Item N` booleans):
+
+```js
+// On each component (variant) in the set, after it is in the set:
+const key = variant.addComponentProperty('Text', 'TEXT', 'Cell');  // default value
+textNode.componentPropertyReferences = { characters: key };         // bind characters
+```
+
+The reference must be set **after** the node is a child of the component, and
+the property is added **per variant** with the **same name** so Figma unifies it
+across the set into a single `Text` field. Give a sensible default (`"Cell"` /
+`"Header"`).
+
+**Surfacing through the top-level Table:** a nested instance's TEXT property
+appears on the parent Table instance's panel automatically (grouped under each
+nested cell), so a designer fills the whole table from the top-level instance —
+no need to select individual cells. This is the main reason `Text` is a real
+component property and not just a free text node.
 
 ---
 
@@ -433,6 +463,13 @@ future session doesn't try to "sync" them back into the headless package. See
 `table/row/selected` (brand/100·900). Dedicated names (not reusing
 `surface/raised`/`subtle`) so striping is independently themeable. See §5.2.
 
+### D9 — Cell + Header Cell expose an editable `Text` property
+Both leaf cells carry a `Text` TEXT component property bound to their text
+node's `characters`, so designers populate cells from the instance panel (and
+from the top-level Table, where nested cell text surfaces automatically) instead
+of double-clicking into each instance. Added per variant with the same name so
+it unifies across the set. See §3.6.
+
 ---
 
 ## 9. Build order & checklist
@@ -442,10 +479,11 @@ Build bottom-up so each set exists before the thing that nests it:
 1. **Tokens first.** Create the two Context `table/cell/padding-*` and three
    Intent `table/row/*` variables (async API, all four / both modes). Back up to
    `context.json` + `intent.json`. Record VariableIDs in §5.
-2. **Table / Cell** — 10 variants (Size × Align) + `Right Border` boolean. Grid
-   labels.
-3. **Table / Header Cell** — 40 variants (Size × Align × Sort) + `Right Border`
-   boolean; sort Icon instances. Grid labels. (Clone-and-rebind across Size.)
+2. **Table / Cell** — 10 variants (Size × Align) + `Text` TEXT property + `Right
+   Border` boolean. Grid labels.
+3. **Table / Header Cell** — 40 variants (Size × Align × Sort) + `Text` TEXT
+   property + `Right Border` boolean; sort Icon instances. Grid labels.
+   (Clone-and-rebind across Size.)
 4. **Table / Row** — 6 sparse variants (Section × State) + `Bottom Border`
    boolean; nests Cell / Header-Cell instances. Grid labels.
 5. **Table** (top-level) — 15 variants (Size × Borders); caption + head + 8
@@ -455,9 +493,9 @@ Build bottom-up so each set exists before the thing that nests it:
    nested cells' `Size` property (§6.1). Grid labels.
 6. **Table Example** frame — Light/Dark × four densities (§7.2).
 7. **Descriptions** — write the `.description` on all four sets
-   (`figma-component-descriptions`): what it is, axes & values, booleans,
-   token bindings, the ScrollArea note, and the **sort/hover/selected =
-   design-guidance-only** caveat (D4, D7).
+   (`figma-component-descriptions`): what it is, axes & values, the `Text` TEXT
+   property (Cell / Header Cell), booleans, token bindings, the ScrollArea note,
+   and the **sort/hover/selected = design-guidance-only** caveat (D4, D7).
 8. **Close out** — back up any remaining variables; update RFC 0012's checklist
    row #15 to **Done**; tick the Table box in `ROADMAP.md` if listed; fill the
    VariableID tables in §5.

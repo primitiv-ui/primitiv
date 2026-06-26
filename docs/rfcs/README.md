@@ -33,6 +33,7 @@ live in [`../consumption-design.md`](../consumption-design.md).
 | [0007](0007-cli-development-and-test-strategy.md) | CLI development & test strategy | Draft |
 | [0008](0008-css-architecture-cascade-layers-and-token-scoping.md) | CSS architecture: cascade layers & token scoping | Draft |
 | [0009](0009-mode-scoping-theme-and-density.md) | Mode scoping: theme & density as inheritable attributes | Draft |
+| [0016](0016-spacing-and-flow-rhythm.md) | Spacing & flow rhythm | Draft — counter-proposal to the landed base-styles block margins |
 
 - **0004** — the foundation: the hybrid model (versioned headless packages +
   opt-in copy-in styles) and the four-part styling contract (root class +
@@ -57,6 +58,16 @@ live in [`../consumption-design.md`](../consumption-design.md).
   formats, with responsive (container-query) density designed-in as a deferred
   follow-on.
 
+- **0016** — spacing & flow rhythm: a **counter-proposal** to the global
+  block margins the `prose-base-styles` work landed in `primitiv.reset`
+  (RFC 0008 D60). Argues inter-block rhythm should be owned by an opt-in *flow
+  context* (`.primitiv-flow`), not by collapsing element margins — a
+  one-directional owl (`> * + *`, `margin-block-start`) over a density-scoped
+  `flow/*` scale, eliminating margin-collapse non-determinism and first/last
+  bleed; element *typography* and inline marks stay in `reset` untouched. Ships
+  two registry surfaces (the class + an `asChild` `<Prose>`); `gap` stays the
+  tool for component-internal spacing.
+
 Read **0004 → 0005 → 0006** in order; each builds on the one before. **0008**
 constrains the *shape* of 0006's emitted CSS (layers + token scoping) and **0009**
 the *mode scopes* it emits; both are read alongside 0006. **0007** is the
@@ -67,8 +78,8 @@ build/test strategy for 0005–0006 and applies once implementation starts.
 | # | Title | Status |
 |---|---|---|
 | [0010](0010-oklch-color-picker.md) | OKLCH colour picker | Draft |
-| [0011](0011-duotone-neutral-ramps.md) | Duotone neutral ramps | Draft |
-| [0012](0012-spacing-and-flow-rhythm.md) | Spacing & flow rhythm | Draft — model settled; scale values open |
+| [0011](0011-duotone-neutral-ramps.md) | Duotone neutral ramps | Implemented (engine + workbench UI) |
+| [0013](0013-configurable-palette-export.md) | Configurable palette export (variables & canvas swatches) | Draft |
 
 - **0010** — the OKLCH-first, oklch.com-style colour picker that replaces the
   hex input: paint-backed Lightness×Chroma and Hue charts with a live gamut
@@ -81,13 +92,39 @@ build/test strategy for 0005–0006 and applies once implementation starts.
   single-hue neutral tint (which becomes the equal-hue, zero-bow special case).
   Adopts Leonardo's perceptual key-colour interpolation, constrained to the
   two-anchor neutral case.
-- **0012** — spacing & flow rhythm: margins between content blocks are owned by
-  an ambient, opt-in *flow context* (`.primitiv-flow`), not by the elements —
-  the architectural sibling of `data-density`. A one-directional owl rule
-  (`> * + *`, `margin-block-start`) drives a density-scoped `flow/*` token scale
-  so rhythm densifies in lockstep with type and control anatomy; `gap` stays the
-  tool for component-internal spacing. Ships two surfaces from the **registry**
-  (not the headless package) — the `.primitiv-flow` class and an `asChild`
-  `<Prose>` wrapper, since Prose carries zero behaviour. Model settled (D51–D62);
-  only the flow-scale step count + per-density values stay open, pending layout
-  validation.
+- **0013** — configurable palette export with **two outputs** from one
+  serializable `ExportConfig`: **Figma variables** (choose the target collection +
+  group location — browsed with MillerColumns / Tree — and a naming convention
+  with a live preview; today's `Primitives / Palette` + `color/…` is the default
+  preset) and **canvas swatches** (configure orientation, shape, gap, step
+  labels, a11y contrast badges, … and generate the sheet onto the current page via
+  a button or drag-and-drop). Pure `resolve` / `planSwatches` cores behind
+  `VariableStore` / `CanvasRenderer` ports; built workbench-first with a live HTML
+  preview. Works for the author and the end user alike.
+
+## Figma library
+
+| # | Title | Status |
+|---|---|---|
+| [0012](0012-figma-web-typography-build.md) | Figma web typography build | In progress |
+| [0014](0014-figma-table-component.md) | Figma Table component build | Implemented |
+| [0015](0015-figma-figure-figcaption-component.md) | Figma Figure + Figcaption component build | Accepted |
+
+- **0012** — building the 27-element web typography library in Figma: text
+  styles and components for every HTML prose element, covering all three
+  density modes and bound to Intent tokens throughout. Records the conventions
+  (inline font binding, fill binding, component naming), the decisions taken
+  (D1 mono deferred, D2 strong=SemiBold, D3 em=synthetic slant, D4 visited
+  token added, D6 Link 3×5×6 variants), and the build checklist status.
+- **0014** — building the Figma **Table** (typography checklist #15, the one
+  2-D prose component): a composed family (Cell · Header Cell · Row) plus a
+  pre-composed top-level Table, sort as a Header-Cell variant axis, striping /
+  borders / alignment / row-state treatments, and the new `table/*` Context
+  (cell padding) and Intent (row-state fills) tokens. The build plan a future
+  session executes.
+- **0015** — building the Figma **Figure + Figcaption** (typography checklist
+  #16): a Figcaption leaf set (Size × Align × Tone) + a composed top-level Figure
+  (Size × Caption Position — below · above · overlay), the overlay position
+  composing the Figcaption `Tone=overlay` variant (the `inverse` token pair), and
+  one new `figure/caption-gap` Context token. Figma-only — there is no headless
+  React `Figure`.

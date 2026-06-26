@@ -1,10 +1,12 @@
 use crate::token::Token;
 
 /// The `@layer primitiv.*` sublayer-order declaration, emitted once at the top
-/// of the shared token file so the precedence `tokens → theme → base →
+/// of the shared token file so the precedence `reset → tokens → theme → base →
 /// variants → states` is fixed regardless of later import order (RFC 0008 §2.1).
+/// `reset` is the lowest sublayer — the opt-in base element styles live there so
+/// a consumer (and Primitiv's own component classes) override them at will.
 const SUBLAYER_DECLARATION: &str =
-    "@layer primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;";
+    "@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;";
 
 /// A block of theme tokens under one or more selectors — a single mode scope in
 /// the `primitiv.tokens` layer (RFC 0009 §2.2). The default mode shares the

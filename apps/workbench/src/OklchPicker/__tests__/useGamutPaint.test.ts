@@ -94,7 +94,7 @@ describe("useGamutPaint", () => {
     expect(chPlaneMock).toHaveBeenCalledWith(0.6, 100, 200, C_MAX, "Srgb");
     expect(lhPlaneMock).toHaveBeenCalledWith(0.15, 100, 200, "Srgb");
     expect(hueMock).toHaveBeenCalledWith(0.6, 0.15, 360, "Srgb");
-    expect(lightMock).toHaveBeenCalledWith(0.15, 250, 360, "Srgb");
+    expect(lightMock).toHaveBeenCalledWith(0.15, 250, 360, "Srgb", 0, 1);
     expect(chromaMock).toHaveBeenCalledWith(0.6, 250, 360, C_MAX, "Srgb");
     expect(blitMock).toHaveBeenCalledWith(planeRef.current, undefined, 100, 200, "srgb");
     expect(blitMock).toHaveBeenCalledWith(

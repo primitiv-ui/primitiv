@@ -106,14 +106,20 @@ later imported. Anything **outside** the `primitiv` layer — the consumer's own
 CSS — wins over everything inside it, by the cascade-layer rule that unlayered
 styles outrank layered ones.
 
-> **Reserved:** `primitiv.reset` is reserved as the lowest sublayer for a future
-> opt-in reset; v1 ships no global reset (the components are headless), so it is
-> named here only to keep the order stable if one is added.
+> **`primitiv.reset` — now populated (reversal of D49, see §7/§8).** Originally
+> reserved-but-empty (the components are headless), the lowest sublayer now carries
+> the **base element stylesheet**: tokenised bare-element styles (`p`, `h1`–`h6`,
+> `strong`, `blockquote`, `code`, `table`, the inline marks, …) for prose and
+> typographic marks. It is the lowest sublayer precisely so a consumer rule — or any
+> Primitiv component class in `base`/`variants`/`states` — overrides it at near-zero
+> cost. Shipped as a foundation file written next to the token layer by `primitiv
+> tokens` / `primitiv init` and pulled in via `@import` (RFC 0006 §4).
 
 ### 2.2 What lives in each sublayer
 
 | Sublayer | Contents | Example |
 |---|---|---|
+| `reset` | the global **base element stylesheet** — tokenised bare-element prose & inline-mark styles (reversal of D49) | `blockquote { border-inline-start: var(--primitiv-border-width-3) solid var(--primitiv-border-strong) }` |
 | `tokens` | shared theme-token defaults + dark-mode token overrides (§5) | `:root { --primitiv-color-primary: … }` |
 | `theme` | `primitiv theme --brand` overrides (§5) | `:root { --primitiv-color-primary: <derived> }` |
 | `base` | a component's base rule **and its per-component API tokens** (§3.2) | `.primitiv-button { --primitiv-button-bg: var(--primitiv-color-primary); background: var(--primitiv-button-bg) }` |
@@ -319,10 +325,18 @@ that one design, not a per-format reinvention.
 
 ## 7. Open questions
 
-1. ~~**Reset layer.**~~ **Resolved (D49):** `primitiv.reset` is **reserved but
-   empty** in v1 — the components are headless and a reset is the consumer's
-   concern. The sublayer name is declared so the order stays stable if one is
-   ever added.
+1. ~~**Reset layer.**~~ **Resolved (D49), then reversed (D60):** D49 left
+   `primitiv.reset` **reserved but empty** in v1 — the components are headless and a
+   reset is the consumer's concern. That reversed once **prose & inline-mark
+   typography** landed in Figma: those are the most basic semantic elements (`p`,
+   `strong`, `blockquote`, `code`, `table`, the inline marks, …), and styling them
+   as **bare element selectors in the lowest sublayer** lets a consumer override any
+   one at near-zero cost — strictly better DX than opt-in classes for primitives.
+   So `primitiv.reset` is now **populated** by the base element stylesheet, shipped
+   as a foundation file (written next to the token layer by `primitiv tokens` /
+   `init`, pulled in via `@import`). This is a deliberately narrow reset — semantic
+   prose, not a Normalize/Reset-style blanket — and still the lowest precedence, so
+   component classes and consumer rules both win trivially (D60).
 2. ~~**Anonymous vs named nested layers.**~~ **Resolved (D49):** every
    per-component stylesheet **re-opens the named layer** (`@layer primitiv.base
    { … }`) — re-opening is safe and order-stable, and copy-in files are imported
@@ -346,3 +360,4 @@ that one design, not a per-format reinvention.
 | 4 | Token output is **two-tier**: shared theme tokens (`--primitiv-<token-path>`) emitted once in `primitiv.tokens`; per-component API tokens (`--primitiv-<component>-<part>`) ship inside each component stylesheet (`primitiv.base`), so partial installs carry only added components | D36 |
 | 5 | **Reject** subsetting the shared theme-token file for v1 (breaks `theme`/consistency, negligible size win, names are the contract) | D37 |
 | 6 | Shared theme-token emit is **idempotent** (write-once, refreshed under existing rules); `primitiv theme` overrides occupy the `primitiv.theme` sublayer → a separate file beats base tokens by layer order, recommending the resolution of RFC 0006 §10.4 | D38 |
+| 7 | **Reverse D49**: `primitiv.reset` is **populated**, not empty — the global **base element stylesheet** (tokenised bare-element prose & inline-mark styles) lives in the lowest sublayer, shipped as a foundation file by `primitiv tokens` / `init` and `@import`ed by the token layer. A narrow semantic-prose reset, still lowest precedence (§2.1, §7.1) | D60 |

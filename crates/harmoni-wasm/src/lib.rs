@@ -151,11 +151,13 @@ pub fn generate_neutral_ramp(
     white: &str,
     black: &str,
     tint: types::TintMode,
+    bow: f32,
 ) -> Result<Palette, JsError> {
     let palette_data = api::generate_neutral_ramp(
         ColorInput::Css(white.to_string()),
         ColorInput::Css(black.to_string()),
         tint.into(),
+        harmoni_core::RampOptions { bow },
     )
     .map_err(to_js_error)?;
 
@@ -183,6 +185,25 @@ pub fn tint_neutrals(
         ColorInput::Css(white.to_string()),
         ColorInput::Css(black.to_string()),
         ColorInput::Css(source.to_string()),
+        strength,
+    )
+    .map(Into::into)
+    .map_err(to_js_error)
+}
+
+#[wasm_bindgen]
+pub fn tint_neutrals_duotone(
+    white: &str,
+    black: &str,
+    highlight: &str,
+    shadow: &str,
+    strength: f32,
+) -> Result<types::SoftNeutrals, JsError> {
+    api::tint_neutrals_duotone(
+        ColorInput::Css(white.to_string()),
+        ColorInput::Css(black.to_string()),
+        ColorInput::Css(highlight.to_string()),
+        ColorInput::Css(shadow.to_string()),
         strength,
     )
     .map(Into::into)
@@ -247,8 +268,15 @@ pub fn paint_hue_strip(lightness: f32, chroma: f32, width: usize, gamut: types::
 /// Paints the lightness sweep at a fixed chroma and hue against `gamut` as a flat
 /// RGBA buffer (`width * 4` bytes) for the picker's L slider track (RFC 0010 §7).
 #[wasm_bindgen]
-pub fn paint_lightness_strip(chroma: f32, hue: f32, width: usize, gamut: types::Gamut) -> Vec<u8> {
-    api::paint_lightness_strip(chroma, hue, width, gamut.into())
+pub fn paint_lightness_strip(
+    chroma: f32,
+    hue: f32,
+    width: usize,
+    gamut: types::Gamut,
+    l_min: f32,
+    l_max: f32,
+) -> Vec<u8> {
+    api::paint_lightness_strip(chroma, hue, width, gamut.into(), l_min, l_max)
 }
 
 /// Paints the chroma sweep at a fixed lightness and hue against `gamut` as a flat

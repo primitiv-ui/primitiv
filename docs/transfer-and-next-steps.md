@@ -486,6 +486,38 @@ this. `size` is the root prop, `justify` the list prop; `Position` is structural
 CSS (`:first-child`/`:last-child`), not a prop. **Further structural compounds
 (Accordion-style, Menu-style) are now routine application of this mechanism.**
 
+**Prose & inline-mark typography parity — landed (the `prose-base-styles` branch).**
+Bringing the CLI / registry / emitted CSS to parity with the Figma prose & inline
+marks (PR #206), in three parts:
+
+- **The base element stylesheet (reverses D49 → D60).** `primitiv.reset`, previously
+  reserved-but-empty, now carries a global **base element stylesheet**: tokenised
+  **bare element selectors** (`p`, `h1`–`h6`, `ul/ol/li`, `dl`, `blockquote`, `hr`,
+  `figure`, `code`, `pre`, `kbd`, `a`, `table`, and the inline marks
+  `strong/em/mark/del/ins/abbr/small/sub/sup/q`) for prose and typographic marks.
+  Bare selectors in the lowest sublayer so a consumer (or any component class) wins
+  trivially. Authored in `crates/primitiv-emit/assets/base.{css,scss}`, exposed as
+  `primitiv_emit::{BASE_CSS, BASE_SCSS}` (RFC 0008 §2.1/§7/§8 updated).
+- **Distributed via `tokens` / `init`.** `tokens` now writes a sibling
+  `primitiv-base.{css,scss}` next to the token layer and **prepends `@import
+  "./primitiv-base.<ext>";`** to it (CSS/Tailwind share the `.css`, SCSS the `.scss`
+  mirror); stdout inlines the base layer. `init` inherits it (it delegates to
+  `tokens`). Driven RED→GREEN with unit + on-disk e2e tests; coverage gate holds at
+  100%.
+- **Styled Table + Divider registry entries.** Both already existed headless in
+  `@primitiv-ui/react`; this adds their styled surfaces.
+  `registry/components/{table,divider}/{contract.json, styles.css, styles.scss,
+  *.recipe.ts, *.tsx, README.md}` are committed and drift-guarded, both are in
+  `registry.json` + the `EmbeddedRegistry`, and each has a `data-*` contract guard in
+  `packages/react`. **Divider** is a single element styling off `aria-orientation`
+  (no class modifier). **Table** is a structural compound (root + 8 part wrappers)
+  with an `--xs…--xl` type-scale modifier; cell padding stays density-driven via the
+  `table/cell/padding-*` Context tokens (size ≠ density), with hover (auto) and
+  `aria-selected` row hooks. No CLI/emit *logic* changed for these (D54 holds — they
+  are registry data + drift guards only). Outstanding on the branch: real-browser
+  visual QA and the workbench example pages (the base-stylesheet preview + Table /
+  Divider pages).
+
 **Generated props are `type` intersections, never `interface extends` (D57).**
 The wrapper generator's variant-prop branch emitted `interface XProps extends
 XPrimitiveProps`. That is a hard TypeScript error (TS2312) whenever the primitive's
@@ -578,6 +610,20 @@ nothing extra to do — the contract drives it; just keep convenience props as t
 - A first-class CSS Modules emit (RFC 0006 §10.6) — post-v1; no longer blocked.
 - `DensityProvider` ergonomics + responsive-density emit shape (RFC 0009 §8.1–8.2)
   — post-v1.
+- **Duotone neutral ramps (RFC 0011) — engine landed; plugin rebuild deferred.**
+  The colour maths is done in `harmoni-core` / `harmoni-wasm` at 100% (shortest-arc
+  hue interpolation across the ramp + a mid-tone chroma `bow` carried on a
+  `RampOptions` struct — O1 — and `tint_neutrals_duotone` for the two-anchor blend;
+  monotone is the equal-anchor / `bow = 0` special case). The **workbench
+  plugin-frame page** (`apps/workbench/src/pages/PluginFrameExample/`) is the single
+  iteration surface and ships **Option B** (O2: one source + a bipolar spread slider
+  + a bow slider, with live highlight/shadow preview chips). The **actual
+  `apps/harmoni-figma-plugin` is deliberately deferred**: once the feature set is
+  locked in the workbench, the plugin is **rebuilt from scratch with strong
+  ports-&-adapters architecture and strict TDD** (mirroring the `primitiv-cli`
+  seam). Its current spread/bow controls + `ColorEngine.test.tsx` are **disposable
+  scaffolding**, not maintained in lockstep — the engine crates are the durable
+  `{ l, c, h }` / `Palette` contract the rebuild consumes.
 - **Component-level JSDoc on the generated styled wrappers (future session).**
   Today the generator emits a JSDoc block (the contract `description` + `@see`)
   on the `export type …Props`, and **per-prop** JSDoc already flows through on

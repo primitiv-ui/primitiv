@@ -43,11 +43,15 @@ generate_palette_pair(
 
 generate_palette_with_light_padding(hex: string, light_padding: number): Palette
 
-generate_neutral_ramp(white: string, black: string, tint: TintMode): Palette
+generate_neutral_ramp(white: string, black: string, tint: TintMode, bow: number): Palette
 
 derive_soft_neutrals(brand: string, softness: number): SoftNeutrals
 
 tint_neutrals(white: string, black: string, source: string, strength: number): SoftNeutrals
+
+tint_neutrals_duotone(
+  white: string, black: string, highlight: string, shadow: string, strength: number,
+): SoftNeutrals
 
 get_contrast_rating(bg: string, fg: string): ContrastResult
 ```
@@ -93,7 +97,8 @@ type Rgb = { r: number; g: number; b: number };
 
 ## A real example
 
-The workbench drives the engine through a small hook. Its source shows
-initialisation, generating a light/dark pair, and tinting neutrals end to end:
+The workbench's plugin-frame sandbox drives the engine through a small hook. Its
+source shows initialisation, generating a light/dark pair, and tinting neutrals
+(duotone) end to end:
 
-<<< ../../../apps/workbench/src/useColors.ts
+<<< ../../../apps/workbench/src/pages/PluginFrameExample/usePluginColors.ts

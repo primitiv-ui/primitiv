@@ -1,6 +1,6 @@
 use crate::color::input::{ColorInput, ColorInputError};
 use crate::neutral::derive::{self, SoftNeutrals};
-use crate::neutral::ramp::{self, TintMode};
+use crate::neutral::ramp::{self, RampOptions, TintMode};
 use crate::neutral::tint;
 use crate::palette::generator::Palette;
 
@@ -8,10 +8,33 @@ pub fn generate_neutral_ramp(
     white: ColorInput,
     black: ColorInput,
     tint: TintMode,
+    options: RampOptions,
 ) -> Result<Palette, ColorInputError> {
     let soft_white = white.to_oklch()?;
     let soft_black = black.to_oklch()?;
-    Ok(ramp::generate_neutral_ramp(soft_white, soft_black, tint))
+    Ok(ramp::generate_neutral_ramp(
+        soft_white, soft_black, tint, options,
+    ))
+}
+
+pub fn tint_neutrals_duotone(
+    white: ColorInput,
+    black: ColorInput,
+    highlight: ColorInput,
+    shadow: ColorInput,
+    strength: f32,
+) -> Result<SoftNeutrals, ColorInputError> {
+    let white_oklch = white.to_oklch()?;
+    let black_oklch = black.to_oklch()?;
+    let highlight_oklch = highlight.to_oklch()?;
+    let shadow_oklch = shadow.to_oklch()?;
+    Ok(tint::tint_neutrals_duotone(
+        white_oklch,
+        black_oklch,
+        highlight_oklch,
+        shadow_oklch,
+        strength,
+    ))
 }
 
 pub fn derive_soft_neutrals(

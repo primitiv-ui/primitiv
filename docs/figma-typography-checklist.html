@@ -51,6 +51,7 @@
 <h1>Web Typography &amp; Text Elements</h1>
 <p class="lead">A build checklist for the Primitiv Figma library. Every web content element you need, what it's made of, which existing tokens it binds to, and which need a new namespace. Drag this into Figma as a reference board.</p>
 <p class="small">Generated from <code>packages/tokens/src/*.json</code> (the repo copy of the live Figma variables). Values shown are the resolved primitives at the time of generation. Branch <code>claude/figma-typography-planning-cbohph</code>.</p>
+<p class="small"><b>Web / CLI parity — landed (branch <code>prose-base-styles</code>).</b> The block prose &amp; inline marks here ship as a tokenised <b>base element stylesheet</b> in <code>@layer primitiv.reset</code> (<code>crates/primitiv-emit/assets/base.css</code>), distributed by <code>primitiv tokens</code>/<code>init</code> as a <code>primitiv-base.css</code> sibling the token layer <code>@import</code>s (RFC 0008 §7, D60). <b>Table</b> and <b>Divider</b> also gained styled <code>registry/components/*</code> entries (<code>primitiv add table</code>/<code>divider</code>). See <code>docs/prose-base-styles-plan.md</code> and <code>docs/transfer-and-next-steps.md</code>.</p>
 
 <div class="legend" style="margin:8pt 0;">
   <span><span class="pill comp">Component</span> stateful / composed</span>
@@ -109,8 +110,9 @@
 <table>
 <tr><th>Token</th><th>Family</th><th>Weights available</th><th>Role</th></tr>
 <tr><td><code>font-family.heading</code></td><td><b>Khand</b> (condensed)</td><td>Regular 400 · Medium 500 · SemiBold 600</td><td>Headings, labels, overline, display, button text</td></tr>
-<tr><td><code>font-family.text</code></td><td><b>Asta Sans</b></td><td>Regular 400 only</td><td>Body, descriptive copy, sub-labels, input value text</td></tr>
-<tr><td colspan="4" class="small">No monospace face exists — see §8. Never use Inter; it is not in the system.</td></tr>
+<tr><td><code>font-family.text</code></td><td><b>Asta Sans</b></td><td>Regular 400 · Medium 500 · SemiBold 600 · Bold 700</td><td>Body, descriptive copy, sub-labels, input value text</td></tr>
+<tr><td><code>font-family.mono</code></td><td><b>JetBrains Mono</b></td><td>Regular 400 (Medium/Bold available)</td><td>Inline code, code block, <code>&lt;kbd&gt;</code>, <code>&lt;samp&gt;</code>, <code>&lt;var&gt;</code>, tabular figures</td></tr>
+<tr><td colspan="4" class="small">Mono fallback stack + webfont loading deferred to the emitter session (§8, RFC 0012 D14). Never use Inter; it is not in the system.</td></tr>
 </table>
 
 <!-- ============================================================ -->
@@ -197,10 +199,10 @@
 <tr><td>Display / hero</td><td><span class="pill exists">Exists</span></td><td><code>display/lg–xl</code></td><td><code>content/primary</code></td><td>Marketing hero only; Khand Medium.</td></tr>
 <tr><td>Headings h1–h6</td><td><span class="pill exists">Exists</span></td><td><code>heading/h1–h6</code></td><td><code>content/primary</code></td><td>Map HTML level → slot 1:1.</td></tr>
 <tr><td>Paragraph / body</td><td><span class="pill exists">Exists</span></td><td><code>body/md</code></td><td><code>content/primary</code></td><td>Default running text.</td></tr>
-<tr><td>Lead / intro paragraph</td><td><span class="pill build">Add style</span></td><td><code>body/lg</code> or <code>xl</code></td><td><code>content/secondary</code></td><td>First paragraph of an article.</td></tr>
-<tr><td>Caption / helper / fine print</td><td><span class="pill build">Add style</span></td><td><code>body/xs</code></td><td><code>content/muted</code></td><td>Below media, form helper.</td></tr>
+<tr><td>Lead / intro paragraph</td><td><span class="pill exists">Done</span></td><td><code>body/lg</code> or <code>xl</code></td><td><code>content/secondary</code></td><td>First paragraph of an article.</td></tr>
+<tr><td>Caption / helper / fine print</td><td><span class="pill exists">Done</span></td><td><code>body/xs</code></td><td><code>content/muted</code></td><td>Below media, form helper.</td></tr>
 <tr><td>Overline / eyebrow</td><td><span class="pill exists">Exists</span></td><td><code>overline</code></td><td><code>content/secondary</code></td><td>Uppercase, +letter-spacing.</td></tr>
-<tr><td><code>&lt;address&gt;</code></td><td><span class="pill build">Add style</span></td><td><code>body/sm</code> italic</td><td><code>content/secondary</code></td><td>Contact block.</td></tr>
+<tr><td><code>&lt;address&gt;</code></td><td><span class="pill exists">Done</span></td><td><code>body/sm</code> italic</td><td><code>content/secondary</code></td><td>Contact block.</td></tr>
 </table>
 
 <!-- ============================================================ -->
@@ -230,10 +232,10 @@
     <tr><td>Label</td><td>font (inline)</td><td><code>body/{size}/*</code></td></tr>
     <tr><td>Label / underline</td><td>fill</td><td><code>action/link/foreground/{state}</code></td></tr>
     <tr><td>Disabled</td><td>opacity</td><td>50% on the node (token stays default)</td></tr>
-    <tr><td>Visited</td><td>fill</td><td><code>brand/700</code> (or dedicated <code>action/link/visited</code> if added)</td></tr>
+    <tr><td>Visited</td><td>fill</td><td><code>action/link/foreground/visited</code> → brand/700 (Light) · brand/300 (Dark)</td></tr>
     <tr><td>Focus ring</td><td>stroke</td><td><code>focus/ring</code></td></tr>
   </table>
-  <div class="callout">Visited has no token today. Either reuse <code>active</code>'s <code>brand/700</code> or add <code>action/link/foreground/visited</code>. Decide before building.</div>
+  <div class="callout"><strong>Decided.</strong> <code>action/link/foreground/visited</code> is now a formal Intent token (VariableID 581:6050): brand/700 Light, brand/300 Dark. All 15 visited variants in the Link component are bound to it.</div>
 </div>
 
 <div class="card">
@@ -287,116 +289,125 @@
 </div>
 
 <div class="card">
-  <h3>Blockquote <span><span class="pill comp">Component</span> <span class="pill build">Build</span> <span class="pill newtok">quote/*</span></span></h3>
+  <h3>Blockquote <span><span class="pill comp">Component</span> <span class="pill exists">Done</span> <span class="pill newtok">quote/*</span></span></h3>
+  <p class="meta">2 × 2 × 5 = 20 variants: Tone × Citation × Size. Left accent bar = 3 px left stroke on the component frame (not a child frame — avoids FILL-in-HUG circular dependency). No italic: the bar + indentation are the quote signal.</p>
   <h4>Parts</h4>
   <ul class="tight">
-    <li><b>Container</b> — left accent bar + inline padding.</li>
-    <li><b>Quote text</b> — <code>body/lg</code>, italic, <code>content/secondary</code>.</li>
-    <li><b>Citation / footer</b> (optional) — <code>body/sm</code>, <code>content/muted</code>, "— Name".</li>
+    <li><b>Container</b> — vertical auto-layout, FIXED 320 px wide, HUG height. Left stroke = accent bar.</li>
+    <li><b>Quote text</b> — <code>body/{size}</code>, <code>content/secondary</code>. Both quote and citation bind to the <em>same</em> size slot.</li>
+    <li><b>Citation / footer</b> (optional, Citation=with) — <code>body/{size}</code>, <code>content/muted</code>, end-aligned ("— Name").</li>
   </ul>
   <h4>Variants</h4>
-  <ul class="tight"><li><b>Citation</b>: with · without</li><li><b>Tone</b>: default (neutral bar) · accent (brand bar)</li></ul>
+  <ul class="tight">
+    <li><b>Tone</b>: default (neutral bar, <code>border/strong</code>) · accent (brand bar, <code>border/focus</code>)</li>
+    <li><b>Citation</b>: with · without</li>
+    <li><b>Size</b>: xs · sm · md · lg · xl → maps to <code>body/{size}</code> Context tokens</li>
+  </ul>
   <h4>Bindings</h4>
   <table>
     <tr><th>Part</th><th>Property</th><th>Token</th></tr>
-    <tr><td>Accent bar</td><td>stroke / fill</td><td><code>border/strong</code> (default) · <code>border/focus</code>=brand (accent)</td></tr>
-    <tr><td>Bar width</td><td>border-width</td><td><code>border-width/2</code> or <code>/3</code></td></tr>
-    <tr><td>Container</td><td>padding-inline</td><td><code>quote/padding-inline</code> (new) → <code>space-16/20/24</code></td></tr>
-    <tr><td>Quote text</td><td>font / fill</td><td><code>body/lg/*</code> italic · <code>content/secondary</code></td></tr>
-    <tr><td>Citation</td><td>font / fill</td><td><code>body/sm/*</code> · <code>content/muted</code></td></tr>
+    <tr><td>Accent bar (default)</td><td>left stroke</td><td><code>border/strong</code></td></tr>
+    <tr><td>Accent bar (accent)</td><td>left stroke</td><td><code>border/focus</code> (brand)</td></tr>
+    <tr><td>Container</td><td>padding-inline</td><td><code>quote/padding-inline</code> ✓ → Dense 12 · Compact 16 · Comfortable 20 · Spacious 24</td></tr>
+    <tr><td>Quote↔citation gap</td><td>item-spacing</td><td><code>quote/body-gap/{size}</code> ✓ → xs/sm 4 · md 8 · lg 12 · xl 16 px (constant across densities)</td></tr>
+    <tr><td>Quote text</td><td>font / fill</td><td><code>body/{size}/*</code> · <code>content/secondary</code></td></tr>
+    <tr><td>Citation</td><td>font / fill</td><td><code>body/{size}/*</code> · <code>content/muted</code>, end-aligned</td></tr>
   </table>
-  <div class="callout">Asta Sans only ships Regular — no native italic. Use a synthetic slant or skip italic and lean on the accent bar + indentation for the quote signal. Decide and document.</div>
+  <div class="callout"><b>Delivered.</b> Grid labels + Light/Dark density example frame on the Blockquote page. Tokens backed up in <code>context.json</code>. RFC D12 records all variable IDs.</div>
 </div>
 
 <div class="card">
-  <h3>Pull quote <span><span class="pill comp">Component</span> <span class="pill build">Build</span></span></h3>
-  <p class="meta">A large decorative quote, not the same as blockquote. Often centred, no attribution, big type.</p>
+  <h3>Pull quote <span><span class="pill comp">Component</span> <span class="pill exists">Done</span></span></h3>
+  <p class="meta">Large decorative centred quote. No left accent bar, no attribution. Rides the heading scale. 2 × 5 = 10 variants: Marks × Size.</p>
+  <h4>Variant axes</h4>
+  <ul class="tight">
+    <li><b>Marks=with</b> — a <code>Pull Quote / Mark</code> subcomponent instance (outlined Hoefler Text Black <code>&ldquo;</code> glyph, content/muted) above the quote text</li>
+    <li><b>Marks=without</b> — quote text only</li>
+    <li><b>Size=xs/sm/md/lg/xl</b> → <code>heading/h5…h1</code> Context tokens, Khand SemiBold</li>
+  </ul>
+  <h4>Token bindings</h4>
   <table>
-    <tr><th>Part</th><th>Token</th></tr>
-    <tr><td>Quote text</td><td><code>heading/h4</code> or <code>display/lg</code> · <code>content/primary</code></td></tr>
-    <tr><td>Quotation marks</td><td>decorative, <code>content/muted</code> at large size</td></tr>
-    <tr><td>Block margin</td><td><code>space-32</code> / <code>space-48</code></td></tr>
+    <tr><th>Part</th><th>Token</th><th>Notes</th></tr>
+    <tr><td>Quote text</td><td><code>heading/{h5→h1}</code> (xs→xl) · <code>content/primary</code></td><td>Khand SemiBold, 480px fixed width, centred</td></tr>
+    <tr><td>Decorative mark</td><td>outlined Hoefler Text Black <code>&ldquo;</code> · <code>content/muted</code></td><td><code>Pull Quote / Mark</code> set, 5 Size variants (H 18/22/28/32/38); Marks=with only</td></tr>
+    <tr><td>Mark→quote gap</td><td>fixed per size (no new token)</td><td>xs/sm: 8px · md: 12px · lg: 16px · xl: 20px</td></tr>
   </table>
+  <p>No new tokens — the quote text rides the existing <code>heading/*</code> Context scale; the mark is a one-off outlined glyph filled from <code>content/muted</code>.</p>
+  <div class="callout"><b>Delivered.</b> Decorative mark redesigned as the <code>Pull Quote / Mark</code> subcomponent (outlined Hoefler Text Black <code>&ldquo;</code>) after the Khand font glyph and bespoke-bezier attempts were rejected. Grid labels + Light/Dark density example frame on the Pull quote page. RFC D13 records the build decisions.</div>
 </div>
 
 <div class="card">
-  <h3>Inline code &nbsp;<code class="mono">&lt;code&gt;</code> <span><span class="pill comp">Component</span> <span class="pill build">Build</span> <span class="pill newtok">mono?</span></span></h3>
+  <h3>Inline code &nbsp;<code class="mono">&lt;code&gt;</code> <span><span class="pill comp">Component</span> <span class="pill exists">Done</span></span></h3>
   <h4>Parts</h4>
   <ul class="tight"><li><b>Span</b> — text with a tinted box: bg + inline padding + small radius + subtle border.</li></ul>
   <table>
     <tr><th>Property</th><th>Token</th></tr>
-    <tr><td>Font</td><td><b>monospace — does not exist yet (§8)</b></td></tr>
-    <tr><td>Size</td><td>~0.9em of surrounding body</td></tr>
+    <tr><td>Font family</td><td><code>font-family.mono</code> (JetBrains Mono)</td></tr>
+    <tr><td>Size / style</td><td><code>body/{size}</code> font-size + font-style (5 Size variants xs–xl, density-aware)</td></tr>
+    <tr><td>Line-height</td><td><code>code/{size}/line-height</code> (Context, density-aware, snug ~1.2–1.33×) — snug box; body 150% read pill-like. Tokenised in the <code>code/*</code> session (added <code>line-height/18</code> primitive); see RFC D16</td></tr>
     <tr><td>Text fill</td><td><code>content/primary</code></td></tr>
     <tr><td>Background</td><td><code>surface/subtle</code></td></tr>
-    <tr><td>Border</td><td><code>border/subtle</code> (1px, optional)</td></tr>
-    <tr><td>Padding-inline</td><td><code>space-4</code></td></tr>
+    <tr><td>Border</td><td><code>border/subtle</code> (1px inside)</td></tr>
+    <tr><td>Padding</td><td><code>space-4</code> inline · <code>space-2</code> block</td></tr>
     <tr><td>Radius</td><td><code>radii/4</code></td></tr>
   </table>
+  <div class="callout"><b>Delivered.</b> <code>Inline Code</code> set (5 Size variants), grid labels + Light/Dark × density example frame on the Inline code page. No new tokens beyond <code>font-family.mono</code> (D14). See RFC 0012 <b>D15</b>.</div>
 </div>
 
 <div class="card">
-  <h3>Code block &nbsp;<code class="mono">&lt;pre&gt;</code> <span><span class="pill comp">Component</span> <span class="pill build">Build</span> <span class="pill newtok">code/* · mono</span></span></h3>
+  <h3>Code block &nbsp;<code class="mono">&lt;pre&gt;</code> <span><span class="pill comp">Component</span> <span class="pill exists">Done</span> <span class="pill newtok">code/*</span></span></h3>
   <h4>Parts</h4>
   <ul class="tight">
-    <li><b>Container</b> — surface fill, radius, padding, horizontal scroll.</li>
-    <li><b>Header</b> (optional) — filename label + Copy button (instance-swap the Button).</li>
-    <li><b>Line numbers</b> (optional) — gutter, <code>content/muted</code>.</li>
-    <li><b>Code text</b> — monospace; syntax colours out of scope (use a token set later).</li>
+    <li><b>Container</b> — surface fill, radius, <code>code/padding</code>, clipped. 5 Size variants (xs–xl).</li>
+    <li><b>Header</b> (<code>Show Header</code> bool) — filename (mono, <code>content/secondary</code>) + Copy <b>Icon Button</b> (secondary, size-matched, <code>copy</code> icon → swaps to <code>check</code> on click at runtime). Scales with Size.</li>
+    <li><b>Line numbers</b> (<code>Show Line Numbers</code> bool) — gutter, mono, <code>content/muted</code>, right-aligned.</li>
+    <li><b>Code text</b> — <code>font-family.mono</code>, single colour (syntax highlighting is the consuming tool's job).</li>
   </ul>
   <table>
     <tr><th>Part</th><th>Property</th><th>Token</th></tr>
-    <tr><td>Container</td><td>fill</td><td><code>surface/subtle</code> (or <code>surface/inverse</code> for dark code)</td></tr>
-    <tr><td>Container</td><td>border</td><td><code>border/subtle</code></td></tr>
-    <tr><td>Container</td><td>radius</td><td><code>radii/8</code></td></tr>
-    <tr><td>Container</td><td>padding</td><td><code>code/padding</code> (new) → <code>space-12/16</code></td></tr>
-    <tr><td>Code text</td><td>font</td><td><b>monospace (§8)</b> · fill <code>content/primary</code></td></tr>
-    <tr><td>Gutter</td><td>fill</td><td><code>content/muted</code></td></tr>
+    <tr><td>Container</td><td>fill / border / radius</td><td><code>surface/subtle</code> · <code>border/subtle</code> 1px · <code>radii/8</code></td></tr>
+    <tr><td>Container</td><td>padding</td><td><code>code/padding</code> (Context, density-aware: 12/12/16/16)</td></tr>
+    <tr><td>Code + gutter</td><td>type</td><td><code>font-family.mono</code> · <code>body/{size}</code> size/style/line-height (block uses body 1.5 for readability)</td></tr>
+    <tr><td>Code / gutter fill</td><td>—</td><td><code>content/primary</code> / <code>content/muted</code></td></tr>
   </table>
+  <div class="callout"><b>Delivered.</b> <code>Code Block</code> set (5 Size variants, Show Header / Show Line Numbers booleans), grid labels + Light/Dark × density example on the Code Block page. New <code>code/padding</code> + <code>code/{size}/line-height</code> tokens (the latter also retro-tokenises Inline code's line-height; <code>line-height/18</code> primitive added). See RFC 0012 <b>D16</b>.</div>
 </div>
 
 <div class="card">
-  <h3>Table <span><span class="pill comp">Component</span> <span class="pill build">Build</span> <span class="pill newtok">table/*</span></span></h3>
-  <p class="meta">The heavyweight. Build from atomic Cell components composed into Rows, composed into a Table.</p>
-  <h4>Parts</h4>
+  <h3>Table <span><span class="pill comp">Component</span> <span class="pill exists">Done</span> <span class="pill newtok">table/*</span></span></h3>
+  <p class="meta">The heavyweight — the one genuinely 2-D prose component. Built as a composed family: atomic <b>Cell</b> / <b>Header Cell</b> leaves → <b>Row</b> → a pre-composed top-level <b>Table</b>. Four component sets on the Table page. See RFC 0014.</p>
+  <h4>Parts (4 sets)</h4>
   <ul class="tight">
-    <li><b>Header cell (th)</b> — <code>label/sm</code> or <code>body/sm</code> semibold, <code>content/secondary</code>, on <code>surface/raised</code>.</li>
-    <li><b>Body cell (td)</b> — <code>body/sm</code>, <code>content/primary</code>.</li>
-    <li><b>Row</b> — horizontal auto-layout of cells; bottom border <code>border/subtle</code>.</li>
-    <li><b>Caption</b> — <code>body/sm</code>, <code>content/muted</code>, above/below.</li>
-  </ul>
-  <h4>Variants / properties</h4>
-  <ul class="tight">
-    <li><b>Style</b>: bordered · borderless · zebra (alt rows on <code>surface/subtle</code>)</li>
-    <li><b>Cell align</b>: start · center · end (numeric → end)</li>
-    <li><b>Row state</b>: default · hover · selected</li>
-    <li>Density flows from the frame's Context mode like everything else.</li>
+    <li><b>Table / Cell</b> <code class="mono">&lt;td&gt;</code> — 15 variants: Size xs–xl × Align start·center·end. <code>body/{size}</code> · <code>content/primary</code>. Props: <code>Text</code> (TEXT) · <code>Right Border</code> (bool).</li>
+    <li><b>Table / Header Cell</b> <code class="mono">&lt;th&gt;</code> — 60 variants: Size × Align × Sort none·sortable·ascending·descending. SemiBold via <code>font-style/semibold</code>; sort Icon end-pinned and sized below the label type.</li>
+    <li><b>Table / Row</b> <code class="mono">&lt;tr&gt;</code> — 6 sparse variants: Section head·body·footer × State default·striped·hover·selected. Prop: <code>Bottom Border</code> (bool).</li>
+    <li><b>Table</b> <code class="mono">&lt;table&gt;</code> — 15 variants: Size xs–xl × Borders none·horizontal·grid. Caption + head + 8 body rows (Show Row 5–8) + footer (Show Footer) + Show Caption.</li>
   </ul>
   <h4>Bindings</h4>
   <table>
     <tr><th>Part</th><th>Property</th><th>Token</th></tr>
-    <tr><td>Header text</td><td>font / fill</td><td><code>label/sm/*</code> · <code>content/secondary</code></td></tr>
-    <tr><td>Body text</td><td>font / fill</td><td><code>body/sm/*</code> · <code>content/primary</code></td></tr>
-    <tr><td>Header bg</td><td>fill</td><td><code>surface/raised</code></td></tr>
-    <tr><td>Row border</td><td>stroke</td><td><code>border/subtle</code></td></tr>
-    <tr><td>Cell padding-x / y</td><td>padding</td><td><code>table/cell-padding-x</code> / <code>-y</code> (new)</td></tr>
-    <tr><td>Zebra row</td><td>fill</td><td><code>surface/subtle</code></td></tr>
+    <tr><td>Body / header text</td><td>type / fill</td><td><code>body/{size}/*</code> · <code>content/primary</code> (header adds <code>font-style/semibold</code>)</td></tr>
+    <tr><td>Cell padding</td><td>padding</td><td><code>table/cell/padding-inline</code> · <code>table/cell/padding-block</code> (Context, density-aware)</td></tr>
+    <tr><td>Rules</td><td>stroke</td><td><code>border/subtle</code> (body / grid) · <code>border/strong</code> (header underline · footer top)</td></tr>
+    <tr><td>Row state fills</td><td>fill</td><td><code>table/row/stripe</code> · <code>table/row/hover</code> · <code>table/row/selected</code> (Intent)</td></tr>
+    <tr><td>Sort indicator</td><td>icon</td><td>Icon: sortable→<code>sort</code> (muted) · asc→<code>chevron-up</code> · desc→<code>chevron-down</code> (primary)</td></tr>
   </table>
+  <div class="callout"><b>Delivered.</b> Four sets (Cell 15 · Header Cell 60 · Row 6 · Table 15) with grid labels, plus the Light/Dark × density example and an extra Size×Density demo (Light + Dark), on the Table page. New <code>table/cell/padding-*</code> (Context) + <code>table/row/*</code> (Intent) tokens, backed up to <code>context.json</code>/<code>intent.json</code>. Sort indicators and hover/selected row states are <b>design-guidance only</b> — the headless React Table is a static layout component (no sort logic / no <code>data-state</code>). See RFC 0014 <b>§11</b> for node IDs and decisions. <b>Update 2026-06-26:</b> nested cells are now <code>isExposedInstance</code>-exposed and positionally named (<code>Head → Header 1–4</code>, <code>Row N → Cell 1–4</code>), so a dropped-in Table's cell text is editable from the top-level instance panel — the original build had not exposed them (RFC 0014 §11).</div>
 </div>
 
 <div class="card">
-  <h3>Figure + figcaption <span><span class="pill comp">Component</span> <span class="pill build">Build</span></span></h3>
+  <h3>Figure + figcaption <span><span class="pill comp">Component</span> <span class="pill exists">Done</span> <span class="pill newtok">figure/*</span></span></h3>
   <table>
     <tr><th>Part</th><th>Token</th></tr>
     <tr><td>Media slot</td><td>fill <code>surface/subtle</code> placeholder · radius <code>radii/8</code></td></tr>
     <tr><td>Caption font / fill</td><td><code>body/sm/*</code> · <code>content/muted</code></td></tr>
     <tr><td>Media→caption gap</td><td><code>space-8</code></td></tr>
   </table>
-  <p class="small">Variants: caption position (below · overlay), align (start · center).</p>
+  <p class="small">Two sets (RFC 0015): <b>Figcaption</b> Size xs–xl × Align start·center·end × Tone default·overlay (30); <b>Figure</b> Size xs–xl × Caption Position below·above·overlay (15) + Show Caption. Overlay composes the Figcaption Tone=overlay variant (inverse token pair); new <code>figure/caption-gap</code> Context token.</p>
 </div>
 
 <div class="card">
-  <h3>Divider &nbsp;<code class="mono">&lt;hr&gt;</code> <span><span class="pill comp">Component</span> <span class="pill build">Build</span> <span class="pill newtok">divider/*</span></span></h3>
+  <h3>Divider &nbsp;<code class="mono">&lt;hr&gt;</code> <span><span class="pill comp">Component</span> <span class="pill exists">Done</span> <span class="pill newtok">divider/*</span></span></h3>
   <table>
     <tr><th>Part</th><th>Property</th><th>Token</th></tr>
     <tr><td>Line</td><td>stroke</td><td><code>border/subtle</code></td></tr>
@@ -413,8 +424,8 @@
 
 <table>
 <tr><th>Element</th><th>Build as</th><th>Treatment / token</th></tr>
-<tr><td><code>&lt;strong&gt;</code> bold</td><td>char style</td><td>Asta Sans has no bold → switch to <b>Khand SemiBold</b> inline, or accept synthetic bold. Decide.</td></tr>
-<tr><td><code>&lt;em&gt;</code> italic</td><td>char style</td><td>No native italic in either face → synthetic slant or alternative emphasis. Decide.</td></tr>
+<tr><td><code>&lt;strong&gt;</code> bold</td><td>text style</td><td><span class="pill exists">Done</span> Asta Sans now ships <b>Bold</b> — strong stays in-family (Khand-SemiBold plan dropped). Text styles <code>{Density} / Inline / Strong / {size}</code>.</td></tr>
+<tr><td><code>&lt;em&gt;</code> italic</td><td>component</td><td><span class="pill exists">Done</span> No native italic → <b>synthetic ~10° oblique</b> (relativeTransform skew). A component, not a text style, since a skew can't live in a TextStyle.</td></tr>
 <tr><td><code>&lt;mark&gt;</code> highlight</td><td>span</td><td>Background tint — needs a highlight token (warning/brand tint at low chroma). <span class="pill newtok">new</span></td></tr>
 <tr><td><code>&lt;del&gt;</code></td><td>char style</td><td>Strikethrough + <code>content/muted</code></td></tr>
 <tr><td><code>&lt;ins&gt;</code></td><td>char style</td><td>Underline + <code>content/primary</code></td></tr>
@@ -422,7 +433,7 @@
 <tr><td><code>&lt;abbr&gt;</code></td><td>char style</td><td>Dotted underline, <code>content/secondary</code></td></tr>
 <tr><td><code>&lt;small&gt;</code></td><td>text style</td><td><code>body/xs</code> · <code>content/muted</code></td></tr>
 <tr><td><code>&lt;q&gt;</code> inline quote</td><td>span</td><td>Curly quotes around <code>content/secondary</code></td></tr>
-<tr><td><code>&lt;kbd&gt;</code></td><td>component</td><td>Boxed key: monospace (§8) on <code>surface/raised</code>, <code>border/default</code>, <code>radii/4</code>, <code>space-4</code> pad</td></tr>
+<tr><td><code>&lt;kbd&gt;</code></td><td>component</td><td>Boxed key: <code>font-family.mono</code> on <code>surface/raised</code>, <code>border/default</code>, <code>radii/4</code>, <code>space-4</code> pad</td></tr>
 </table>
 
 <!-- ============================================================ -->
@@ -434,10 +445,13 @@
 <tr><td><code>list/item-gap</code></td><td>space-2</td><td>space-4</td><td>space-8</td><td>space-12</td><td>Tracks <code>framed-control/gap</code> growth</td></tr>
 <tr><td><code>list/marker-gap</code></td><td>space-4</td><td>space-8</td><td>space-8</td><td>space-12</td><td>Marker→content breathing room</td></tr>
 <tr><td><code>list/indent</code></td><td>space-16</td><td>space-24</td><td>space-28</td><td>space-32</td><td>~2× <code>padding-inline/md</code></td></tr>
-<tr><td><code>quote/padding-inline</code></td><td>space-12</td><td>space-16</td><td>space-20</td><td>space-24</td><td>Indent of the quote body</td></tr>
-<tr><td><code>code/padding</code></td><td>space-8</td><td>space-12</td><td>space-16</td><td>space-16</td><td>Pre block inner padding</td></tr>
-<tr><td><code>table/cell-padding-x</code></td><td>space-8</td><td>space-12</td><td>space-16</td><td>space-20</td><td>= <code>framed-control/md/padding-inline</code></td></tr>
-<tr><td><code>table/cell-padding-y</code></td><td>space-4</td><td>space-8</td><td>space-12</td><td>space-12</td><td>~½ the x value</td></tr>
+<tr><td><code>quote/padding-inline</code> ✓</td><td>space-12</td><td>space-16</td><td>space-20</td><td>space-24</td><td>Indent of the quote body — created, backed up</td></tr>
+<tr><td><code>quote/body-gap/{xs–xl}</code> ✓</td><td colspan="4">4 / 4 / 8 / 12 / 16 px — same in all density modes (size-axis gap, not density-scaled)</td><td>Quote↔citation breathing room — created, backed up</td></tr>
+<tr><td><code>code/padding</code> ✓</td><td>space-12</td><td>space-12</td><td>space-16</td><td>space-16</td><td>Pre block inner padding — created, backed up</td></tr>
+<tr><td><code>code/{size}/line-height</code> ✓</td><td colspan="4">snug ~1.2–1.33× font-size per size/density (aliases line-height primitives; added <code>line-height/18</code>)</td><td>Inline code line-height (block uses body) — created, backed up</td></tr>
+<tr><td><code>table/cell/padding-inline</code> ✓</td><td>space-8</td><td>space-12</td><td>space-16</td><td>space-20</td><td>Cell L/R padding — created, backed up</td></tr>
+<tr><td><code>table/cell/padding-block</code> ✓</td><td>space-4</td><td>space-8</td><td>space-12</td><td>space-16</td><td>Cell T/B padding — created, backed up</td></tr>
+<tr><td><code>table/row/{stripe,hover,selected}</code> ✓</td><td colspan="4">Intent (Light/Dark): neutral/50·900 · neutral/100·800 · brand/100·900</td><td>Row state fills — created, backed up</td></tr>
 <tr><td><code>divider/margin-block</code></td><td>space-12</td><td>space-16</td><td>space-24</td><td>space-32</td><td>Vertical rhythm around rules</td></tr>
 </table>
 
@@ -447,18 +461,18 @@
     <li><b>Type</b> → reuse <code>body/*</code> or <code>heading/*</code> (never a new font scale).</li>
     <li><b>Colour</b> → reuse <code>content/*</code> · <code>surface/*</code> · <code>border/*</code> · <code>action/*</code>.</li>
     <li><b>Spacing</b> → if one <code>space-*</code> primitive fits, bind it directly. If it must <b>scale with density</b>, add a <code>&lt;element&gt;/*</code> namespace in Context, one alias per mode (the <code>dropdown/*</code> pattern).</li>
-    <li>Only mint a brand-new <b>primitive</b> if no scale value fits — for typographic web elements, essentially never (the exception: monospace, §8).</li>
+    <li>Only mint a brand-new <b>primitive</b> if no scale value fits — for typographic web elements, essentially never (the one such exception, monospace, is now landed: <code>font-family.mono</code>, §8).</li>
   </ol>
 </div>
 
 <!-- ============================================================ -->
-<h2 class="section" id="mono">8 · The monospace gap</h2>
-<p>The system has exactly two faces — <b>Khand</b> (condensed display/label) and <b>Asta Sans</b> (body). <b>Neither is monospace.</b> Every code-bearing element (<code>inline code</code>, <code>code block</code>, <code>&lt;kbd&gt;</code>, <code>&lt;samp&gt;</code>, <code>&lt;var&gt;</code>) needs a fixed-width face. This is a real decision to make <i>before</i> building those components:</p>
+<h2 class="section" id="mono">8 · The monospace gap <span class="pill exists" style="font-size:8pt;">Resolved</span></h2>
+<p><b>Resolved.</b> The system now has three faces — <b>Khand</b> (condensed display/label), <b>Asta Sans</b> (body) and <b>JetBrains Mono</b> (code). Every code-bearing element (<code>inline code</code>, <code>code block</code>, <code>&lt;kbd&gt;</code>, <code>&lt;samp&gt;</code>, <code>&lt;var&gt;</code>) binds to the new <code>font-family.mono</code> primitive.</p>
 <ul class="tight">
-  <li><b>Add a <code>font-family.mono</code> primitive</b> — pick a face (e.g. a libre mono), add the variable to <code>Primitives</code>, back it up via the sync plugin, and bind code nodes to it. <b>Recommended</b> — keeps code elements on-system.</li>
-  <li><b>Defer code components</b> until the mono face is chosen, and build the non-code elements first.</li>
+  <li><b><code>font-family.mono</code> = JetBrains Mono</b> — chosen over Roboto Mono in an in-context comparison on the Inline code page. Variable added to <code>Primitives</code> (<code>VariableID:601:9479</code>); <code>packages/tokens/src/primitives.json</code> updated. Bind code nodes to it inline. See RFC 0012 <b>D14</b>.</li>
+  <li><b>Deferred to the emitter / new-typography session:</b> the CSS monospace <b>fallback stack</b> (the variable holds a single family name for Figma binding, so the stack is emit-time — <code>heading</code>/<code>text</code> need <code>sans-serif</code> fallbacks too), and adding JetBrains Mono to the Google Fonts <code>&lt;link&gt;</code>s.</li>
 </ul>
-<p class="small">Same caveat for <b>true bold</b> (<code>&lt;strong&gt;</code>) and <b>italic</b> (<code>&lt;em&gt;</code>): Asta Sans ships Regular only. Bold can borrow Khand SemiBold; italic needs a synthetic slant or a non-italic emphasis convention. Decide and document in each component's description.</p>
+<p class="small"><span class="pill exists">Resolved.</span> <b>Bold</b> (<code>&lt;strong&gt;</code>): Asta Sans now ships <b>Bold</b> in Figma, so strong is a true in-family bold text style — the Khand-SemiBold borrow is no longer needed. <b>Italic</b> (<code>&lt;em&gt;</code>): no native italic, so em is a <b>synthetic ~10° oblique</b> built as a component (the skew is a node transform, not a text-style property). Both documented in their Figma descriptions.</p>
 
 <!-- ============================================================ -->
 <h2 class="section" id="master">9 · Master checklist — one glance</h2>
@@ -467,33 +481,35 @@
 <tr><td>1</td><td>Display / hero</td><td>Text style</td><td><span class="pill exists">Exists</span></td><td>—</td></tr>
 <tr><td>2</td><td>Headings h1–h6</td><td>Text style</td><td><span class="pill exists">Exists</span></td><td>—</td></tr>
 <tr><td>3</td><td>Paragraph / body</td><td>Text style</td><td><span class="pill exists">Exists</span></td><td>—</td></tr>
-<tr><td>4</td><td>Lead paragraph</td><td>Text style</td><td><span class="pill build">Add</span></td><td>—</td></tr>
-<tr><td>5</td><td>Caption / helper</td><td>Text style</td><td><span class="pill build">Add</span></td><td>—</td></tr>
+<tr><td>4</td><td>Lead paragraph</td><td>Text style</td><td><span class="pill exists">Done</span></td><td>—</td></tr>
+<tr><td>5</td><td>Caption / helper</td><td>Text style</td><td><span class="pill exists">Done</span></td><td>—</td></tr>
 <tr><td>6</td><td>Overline / eyebrow</td><td>Text style</td><td><span class="pill exists">Exists</span></td><td>—</td></tr>
-<tr><td>7</td><td>Address</td><td>Text style</td><td><span class="pill build">Add</span></td><td>—</td></tr>
-<tr><td>8</td><td>Link</td><td>Component</td><td><span class="pill build">Build</span></td><td>visited? (decide)</td></tr>
-<tr><td>9</td><td>List + List Item</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>list/*</code></td></tr>
-<tr><td>10</td><td>Description list</td><td>Component</td><td><span class="pill build">Build</span></td><td>—</td></tr>
-<tr><td>11</td><td>Blockquote</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>quote/*</code></td></tr>
-<tr><td>12</td><td>Pull quote</td><td>Component</td><td><span class="pill build">Build</span></td><td>—</td></tr>
-<tr><td>13</td><td>Inline code</td><td>Component</td><td><span class="pill build">Build</span></td><td>mono (§8)</td></tr>
-<tr><td>14</td><td>Code block</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>code/*</code> · mono</td></tr>
-<tr><td>15</td><td>Table</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>table/*</code></td></tr>
-<tr><td>16</td><td>Figure + figcaption</td><td>Component</td><td><span class="pill build">Build</span></td><td>—</td></tr>
-<tr><td>17</td><td>Divider / hr</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>divider/*</code></td></tr>
-<tr><td>18</td><td>kbd</td><td>Component</td><td><span class="pill build">Build</span></td><td>mono (§8)</td></tr>
-<tr><td>19</td><td>strong</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
-<tr><td>20</td><td>em</td><td>Char style</td><td><span class="pill build">Build</span></td><td>italic? (decide)</td></tr>
-<tr><td>21</td><td>mark / highlight</td><td>Span</td><td><span class="pill build">Build</span></td><td>highlight tint</td></tr>
-<tr><td>22</td><td>del</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
-<tr><td>23</td><td>ins</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
-<tr><td>24</td><td>sub / sup</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
-<tr><td>25</td><td>abbr</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
-<tr><td>26</td><td>small</td><td>Text style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
-<tr><td>27</td><td>q (inline quote)</td><td>Span</td><td><span class="pill build">Build</span></td><td>—</td></tr>
+<tr><td>7</td><td>Address</td><td>Text style</td><td><span class="pill exists">Done</span></td><td>—</td></tr>
+<tr><td>8</td><td>Link</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>action/link/foreground/visited</code> ✓</td></tr>
+<tr><td>9</td><td>List + List Item</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>list/marker/foreground</code> ✓</td></tr>
+<tr><td>10</td><td>Description list</td><td>Component</td><td><span class="pill exists">Done</span></td><td>—</td></tr>
+<tr><td>11</td><td>Blockquote</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>quote/padding-inline</code> ✓ · <code>quote/body-gap/{xs–xl}</code> ✓</td></tr>
+<tr><td>12</td><td>Pull quote</td><td>Component</td><td><span class="pill exists">Done</span></td><td>—</td></tr>
+<tr><td>13</td><td>Inline code</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>font-family.mono</code>; snug 130% line-height</td></tr>
+<tr><td>14</td><td>Code block</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>code/padding</code> · <code>code/{size}/line-height</code></td></tr>
+<tr><td>15</td><td>Table</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>table/cell/padding-*</code> ✓ · <code>table/row/*</code> ✓</td></tr>
+<tr><td>16</td><td>Figure + figcaption</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>figure/caption-gap</code> ✓</td></tr>
+<tr><td>17</td><td>Divider / hr</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>divider/margin-block</code> ✓</td></tr>
+<tr><td>18</td><td>kbd</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>surface/raised</code> · <code>border/default</code> · mono (§8)</td></tr>
+<tr><td>19</td><td>strong</td><td>Text style</td><td><span class="pill exists">Done</span></td><td>Asta Sans <b>Bold</b> (Asta now ships Bold — Khand-SemiBold plan dropped). <code>{Density} / Inline / Strong / {size}</code></td></tr>
+<tr><td>20</td><td>em</td><td>Component</td><td><span class="pill exists">Done</span></td><td>synthetic ~10° oblique (skew is a node transform, not a text-style prop → component)</td></tr>
+<tr><td>21</td><td>mark / highlight</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>highlight/background</code> ✓ — Intent, brand/100 (L) · brand/800 (D); no yellow in palette</td></tr>
+<tr><td>22</td><td>del</td><td>Text style</td><td><span class="pill exists">Done</span></td><td>strikethrough; apply <code>content/muted</code> fill to run</td></tr>
+<tr><td>23</td><td>ins</td><td>Text style</td><td><span class="pill exists">Done</span></td><td>underline; <code>content/primary</code></td></tr>
+<tr><td>24</td><td>sub / sup</td><td>Component</td><td><span class="pill exists">Done</span></td><td>Position×Size; one-down script aligned top/bottom (no baseline-shift prop → component)</td></tr>
+<tr><td>25</td><td>abbr</td><td>Text style</td><td><span class="pill exists">Done</span></td><td><b>dotted</b> underline (textDecorationStyle); <code>content/secondary</code></td></tr>
+<tr><td>26</td><td>small</td><td>Text style</td><td><span class="pill exists">Done</span></td><td>one size step down (floored at xs); <code>content/muted</code></td></tr>
+<tr><td>27</td><td>q (inline quote)</td><td>Span</td><td><span class="pill exists">Done</span></td><td>demo page only — typographically = body + <code>content/secondary</code> + curly “ ”; no separate style</td></tr>
 </table>
 
-<p class="small" style="margin-top:10pt;">Suggested order: <b>(a)</b> decide the three open questions — monospace face, bold/italic strategy, link-visited token; <b>(b)</b> add the missing text styles + char styles (cheap); <b>(c)</b> build Link → List → Description list → Blockquote → Table → Code → the rest; <b>(d)</b> create the <code>list/* · quote/* · code/* · table/* · divider/*</code> namespaces as each component needs them; <b>(e)</b> write each component's description (the mandatory last step). Remember: inside every component, bind the four type fields inline — never a text style.</p>
+<p class="small" style="margin-top:10pt;"><span class="pill exists">All landed.</span> Items 1–27 complete. The inline marks split by Figma capability: <b>strong · del · ins · abbr · small</b> are <b>text styles</b> (<code>{Density} / Inline / {Mark} / {size}</code>, colour applied via Intent variable on the run); <b>em · mark · sub/sup</b> are <b>components</b> (slant / background / baseline-shift can't live in a TextStyle); <b>q</b> is a documented demo (body + <code>content/secondary</code> + curly quotes — no distinct typography). New token: <code>highlight/background</code> (Intent). Each has its own page with a specimen + Light/Dark × density example.</p>
+
+<p class="small" style="margin-top:10pt;">Original suggested order (historical): <b>(a)</b> decide the remaining open questions — bold/italic strategy, link-visited token (monospace face is now decided: <code>font-family.mono</code> = JetBrains Mono); <b>(b)</b> add the missing text styles + char styles (cheap); <b>(c)</b> build Link → List → Description list → Blockquote → Table → Code → the rest; <b>(d)</b> create the <code>list/* · quote/* · code/* · table/* · divider/*</code> namespaces as each component needs them; <b>(e)</b> write each component's description (the mandatory last step). Remember: inside every component, bind the four type fields inline — never a text style.</p>
 
 </body>
 </html>

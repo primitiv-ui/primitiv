@@ -142,6 +142,22 @@ fn add_dry_run_reports_the_resolved_plan_without_installing() {
 }
 
 #[test]
+fn add_all_resolves_every_embedded_component() {
+    // `--all` adds every component the embedded registry carries — the reinstall
+    // shortcut. `--dry-run` keeps it from shelling out to a package manager.
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .args(["add", "--all", "--dry-run"])
+        .assert()
+        .success()
+        // The 8 framed controls + the two new prose entries (table, divider).
+        .stdout(predicate::str::contains("Resolved 10 components to add:"))
+        .stdout(predicate::str::contains("button"))
+        .stdout(predicate::str::contains("table"))
+        .stdout(predicate::str::contains("divider"));
+}
+
+#[test]
 fn add_json_emits_the_structured_plan() {
     Command::cargo_bin("primitiv")
         .unwrap()
@@ -299,6 +315,25 @@ fn tokens_streams_the_layer_to_stdout_when_config_less() {
         .assert()
         .success()
         .stdout(predicate::str::contains("@layer primitiv.tokens"));
+}
+
+#[test]
+fn tokens_writes_the_base_companion_next_to_the_token_layer() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .args(["tokens", "--format", "css", "--out", "tokens.css"])
+        .assert()
+        .success();
+
+    // The token layer imports its sibling base element stylesheet, which carries
+    // the prose & inline-mark styles in @layer primitiv.reset.
+    dir.child("tokens.css")
+        .assert(predicate::str::contains("@import \"./primitiv-base.css\";"));
+    dir.child("primitiv-base.css")
+        .assert(predicate::str::contains("@layer primitiv.reset {"));
 }
 
 #[test]

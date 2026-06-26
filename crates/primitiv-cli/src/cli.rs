@@ -44,9 +44,10 @@ pub fn parse(args: &[String]) -> Result<Command, CliError> {
     }
 }
 
-/// Parse `add <component...> [--json] [--dry-run] [--styles-only | --no-styles]
+/// Parse `add <component...> | --all [--json] [--dry-run] [--styles-only | --no-styles]
 /// [--format <fmt>] [--path <dir>] [--force] [--no-wiring]` — one or more
-/// component names, at least one required (RFC 0005 §2.2), with `--json`
+/// component names (at least one required, RFC 0005 §2.2) **or** `--all` to add
+/// every component the registry carries; the two are mutually exclusive. With `--json`
 /// selecting the structured plan for agents (§6.5) and `--dry-run` reporting the
 /// plan without touching anything (§5). `--styles-only` copies the styled surface
 /// without installing the headless package (§4.1 step 2); `--no-styles` installs
@@ -60,6 +61,7 @@ pub fn parse(args: &[String]) -> Result<Command, CliError> {
 /// flags are order-free; any other `--`-prefixed argument is unexpected.
 fn parse_add(args: &[String]) -> Result<Command, CliError> {
     let mut components = Vec::new();
+    let mut all = false;
     let mut json = false;
     let mut dry_run = false;
     let mut styles_only = false;
@@ -72,6 +74,7 @@ fn parse_add(args: &[String]) -> Result<Command, CliError> {
     let mut rest = args.iter();
     while let Some(arg) = rest.next() {
         match arg.as_str() {
+            "--all" => all = true,
             "--json" => json = true,
             "--dry-run" => dry_run = true,
             "--styles-only" => styles_only = true,
@@ -87,8 +90,13 @@ fn parse_add(args: &[String]) -> Result<Command, CliError> {
             other => components.push(other.to_string()),
         }
     }
-    if components.is_empty() {
-        return Err(usage("add requires at least one component"));
+    if components.is_empty() && !all {
+        return Err(usage("add requires at least one component (or --all)"));
+    }
+    if all && !components.is_empty() {
+        return Err(usage(
+            "add cannot combine --all with explicit component names",
+        ));
     }
     if styles_only && no_styles {
         return Err(usage(
@@ -97,6 +105,7 @@ fn parse_add(args: &[String]) -> Result<Command, CliError> {
     }
     Ok(Command::Add(AddOptions {
         components,
+        all,
         json,
         dry_run,
         styles_only,

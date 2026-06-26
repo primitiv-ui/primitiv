@@ -27,6 +27,12 @@ export type LightnessSliderProps = {
   hue?: number;
   /** Gamut the track is painted against (default sRGB). */
   gamut?: Gamut;
+  /** Lowest selectable lightness (default `CHANNELS.l.min`). Clamps the thumb
+   *  and the painted track together, so the gradient never shows a value the
+   *  thumb can't reach — e.g. a near-white anchor floored above mid-grey. */
+  min?: number;
+  /** Highest selectable lightness (default `CHANNELS.l.max`). */
+  max?: number;
   /** Accessible name for the slider (default `"Lightness"`). */
   label?: string;
 };
@@ -37,6 +43,8 @@ export function LightnessSlider({
   chroma = 0,
   hue = 0,
   gamut = "Srgb",
+  min = CHANNELS.l.min,
+  max = CHANNELS.l.max,
   label = "Lightness",
 }: LightnessSliderProps) {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -49,12 +57,12 @@ export function LightnessSlider({
       gamut === "DisplayP3" ? "display-p3" : "srgb";
     blitBuffer(
       stripRef.current,
-      paint_lightness_strip(chroma, hue, stripWidth, gamut),
+      paint_lightness_strip(chroma, hue, stripWidth, gamut, min, max),
       stripWidth,
       1,
       colorSpace,
     );
-  }, [chroma, hue, gamut, stripWidth]);
+  }, [chroma, hue, gamut, stripWidth, min, max]);
 
   return (
     <div ref={wrapRef} className="lightness-slider">
@@ -62,8 +70,8 @@ export function LightnessSlider({
         label={label}
         modifier="lightness"
         value={value}
-        min={CHANNELS.l.min}
-        max={CHANNELS.l.max}
+        min={min}
+        max={max}
         step={CHANNELS.l.step}
         onChange={onChange}
         stripRef={stripRef}

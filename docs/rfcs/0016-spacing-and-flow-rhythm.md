@@ -1,10 +1,12 @@
 # RFC 0016 — Spacing & flow rhythm
 
-> **Status:** Draft — **counter-proposal.** Argues to revise work already landed
-> on `main` (RFC 0008 D60 / the base element stylesheet, `crates/primitiv-emit/
-> assets/base.{css,scss}`): it proposes **removing the global block-level
-> margins** that work put in `primitiv.reset` and re-homing inter-block rhythm in
-> an opt-in flow context. Not yet accepted; supersedes nothing until it is.
+> **Status:** Draft — **counter-proposal, design accepted by the maintainer
+> (2026-06-26).** The decision is **no default margins.** The global block-level
+> margins the prose-base-styles work put in `primitiv.reset` (RFC 0008 D60) are to
+> be **reverted**, and inter-block rhythm becomes **opt-in** (the `.primitiv-flow`
+> class / `<Prose>`). The §6 global-owl compromise is **rejected** — a global owl
+> is still a default. Implementation (the emit revert + the registry `prose` entry)
+> is pending; this RFC supersedes the block-margin half of D60 once that lands.
 > **Author:** simonrevill, with architectural review
 > **Date:** 2026-06-23 (rebased onto the landed prose-base-styles work, 2026-06-26)
 > **Seeds from:** the 2026-06-23 spacing-strategy discussion (this session),
@@ -56,9 +58,11 @@ an **opt-in flow context**:
    landed model: **margin-collapse non-determinism** and **first/last-child bleed**
    (§1.2).
 
-The honest cost — a real one — is that **zero-markup prose loses its default
-spacing** (it gains it back with one class on the article). §1.3 weighs that
-trade-off; it is the crux of whether this RFC should be accepted.
+The honest cost — accepted deliberately — is that **bare prose has no default
+inter-block spacing.** That is the point, not a regression: with no defaults to
+fight, a consumer has three clean paths — **wrap** a region in `.primitiv-flow` /
+`<Prose>` for system rhythm, **write their own** margins, or **mix** the two
+(§4.1). §1.3 records the rationale.
 
 ## 0.1 Scope
 
@@ -121,11 +125,11 @@ A third, softer argument: element-owned margins **scatter rhythm decisions acros
 selectors** (each element hard-codes which `space-*` it takes), where a `flow/*`
 semantic scale (§3) centralises them as named roles.
 
-### 1.3 The cost — and why it's acceptable
+### 1.3 The accepted trade-off — no default margins
 
-Removing the global block margins means **bare prose with no flow wrapper has no
-inter-block spacing.** This is the real price, and the strongest argument *for*
-keeping the landed approach. Three reasons it is acceptable:
+Removing the global block margins means **bare prose has no inter-block spacing
+until a consumer asks for it.** This is the maintainer's decision (2026-06-26),
+deliberate rather than a regression. Three reasons it holds up:
 
 - **Typography still lands for free.** The revert is surgical (§1.4): bare `p`,
   `h1–h6`, and the inline marks keep their global font/colour styling. Unstyled
@@ -140,13 +144,11 @@ keeping the landed approach. Three reasons it is acceptable:
   explicit, predictable one is the system's standing bias (cf. RFC 0009 choosing
   explicit `data-*` scopes over implicit `prefers-*`).
 
-> **If the team values zero-markup rhythm more than determinism, the counter-
-> proposal should be rejected and D60 left standing.** That is the decision §8
-> puts up for acceptance. An intermediate exists (§6): emit the owl globally under
-> a low-specificity `:where(:not(.primitiv-flow *))` default so zero-markup prose
-> keeps rhythm *via the owl* (deterministic) rather than via collapsing margins —
-> capturing most of the benefit without the regression. It is offered as the
-> compromise position.
+> **Decided: no defaults — including no global owl.** The §6 global-owl
+> compromise (a low-specificity global default) was considered and **rejected**:
+> any global rhythm, even a deterministic owl, is still a default the consumer did
+> not opt into. The flexibility the maintainer wants comes precisely from shipping
+> *nothing* by default — the three composable paths in §4.1.
 
 ### 1.4 Surgical scope — what is reverted vs kept
 
@@ -204,7 +206,7 @@ The single-direction "lobotomised owl" is chosen deliberately:
   padding owns its edges (the §1.2 fix).
 - **Logical-property native.** `margin-block-start` inherits the system's
   `padding-inline` writing-mode/RTL discipline — vertical and RTL modes work with
-  no second ruleset (and subsume any "horizontal rhythm," §6).
+  no second ruleset (and subsume any "horizontal rhythm" — §9/D75).
 - **Low specificity, overridable.** A single child-combinator class; a consumer's
   unlayered rule beats it outright (RFC 0008 §2.5).
 
@@ -303,13 +305,26 @@ engine. (The landed approach already gets this via tokens; the difference is the
 
 ## 4. The consumer API
 
-### 4.1 One class, any subtree
+### 4.1 Spacing is opt-in — three composable paths
+
+Because nothing carries a default outer margin, the consumer chooses how to space
+content, and the three approaches compose freely — this *is* the flexibility the
+no-defaults stance buys:
+
+1. **Wrap for system rhythm** — put `.primitiv-flow` (or `<Prose>`) on a region;
+   its direct children get the density-scoped, role-tuned rhythm.
+2. **Write your own** — author margins / `gap` directly; there are no Primitiv
+   defaults to override or fight.
+3. **Mix both** — flow for prose regions, hand-authored spacing elsewhere, in the
+   same document. With no defaults in play, the two never collide.
+
+Within the wrap path:
 
 - **Prose region:** `<article class="primitiv-flow">` — every direct child is
   rhythm-spaced.
 - **Card body:** `<div class="primitiv-flow">` around stacked contents.
-- **Override locally:** set `--primitiv-flow-normal` on any ancestor (inheritance,
-  RFC 0009 §2.3).
+- **Override a flow value locally:** set `--primitiv-flow-normal` on any ancestor
+  (inheritance, RFC 0009 §2.3).
 - **Beat it entirely:** an unlayered consumer rule wins with no `!important`.
 
 ### 4.2 Two surfaces ship from the **registry**, not the headless package
@@ -357,10 +372,10 @@ across the RFC 0006 formats with no per-format reinvention, as density does:
 
 ---
 
-## 6. The compromise position (global owl)
+## 6. Considered and rejected — the global-owl compromise
 
-If zero-markup rhythm must be preserved, the owl can be emitted **globally** at low
-specificity instead of (or in addition to) the opt-in class:
+To preserve zero-markup rhythm, the owl *could* be emitted **globally** at low
+specificity instead of behind the opt-in class:
 
 ```css
 @layer primitiv.reset {
@@ -370,12 +385,12 @@ specificity instead of (or in addition to) the opt-in class:
 }
 ```
 
-This keeps the §1.2 determinism win (one-directional, no collapse, no bleed) while
-restoring zero-markup spacing — strictly better than the landed collapsing margins,
-at the cost of the "opt-in, never global" purity. **Recommended fallback** if the
-acceptance vote (§8) favours zero-markup rhythm: adopt the *owl mechanism*
-globally even if the *opt-in container* is rejected. The mechanism is the load-
-bearing improvement; the opt-in is the preference.
+It would keep the §1.2 determinism win (one-directional, no collapse, no bleed)
+while restoring zero-markup spacing — strictly better than the landed collapsing
+margins. **Rejected (2026-06-26):** it is still a *default* the consumer did not
+opt into, and the decision is no defaults at all. Documented here as the road not
+taken; the load-bearing improvement (the owl mechanism) is retained, but only
+inside the opt-in flow context, never globally.
 
 ---
 
@@ -390,14 +405,11 @@ bearing improvement; the opt-in is the preference.
 
 ## 8. Open questions
 
-1. **Acceptance — revert the landed block margins?** This is the load-bearing
-   question, because tested code already ships the other way (RFC 0008 D60). Three
-   outcomes: **(a)** accept the opt-in flow model and revert the `reset` block
-   margins (§1.4); **(b)** reject and keep D60 as-is; **(c)** take the compromise
-   (§6) — adopt the owl *mechanism* globally, keeping zero-markup rhythm but losing
-   the collapse/bleed defects. The author's lean: **(a)**, fallback **(c)**;
-   plain (b) keeps a known determinism hazard.
-2. **Flow-scale step count and per-density values.** The four-step set
+> **Acceptance is settled (2026-06-26): outcome (a)** — no default margins; revert
+> the `reset` block margins (§1.4); rhythm is opt-in. The §6 global-owl compromise
+> was rejected. One value-question remains.
+
+1. **Flow-scale step count and per-density values.** The four-step set
    (`tight · normal · section · region`) is the working proposal; whether `region`
    collapses into `section`, and the exact `space-*` aliases per density, are to be
    validated against an article, a form, and a card body. Seed values come from the
@@ -407,21 +419,21 @@ bearing improvement; the opt-in is the preference.
 
 ## 9. Decision record
 
-> **Proposed, not ratified** — this is a counter-proposal; every entry is
-> contingent on the §8.1 acceptance outcome. Decision IDs start at **D66** to avoid
-> collision with the landed work (D60 is the reset reversal this RFC contends with;
-> D1–D55, D60, D65 are otherwise taken).
+> **Design accepted (2026-06-26); implementation pending.** Outcome (a) — **no
+> default margins** — is settled; the entries below stand. Decision IDs start at
+> **D66** to avoid collision with the landed work (D60 is the reset reversal this
+> RFC contends with; D1–D55, D60, D65 are otherwise taken).
 
 | # | Decision (proposed) | Maps to |
 |---|---|---|
 | 1 | **Revert, surgically.** Remove the global outer `margin-block`/`margin-inline` declarations the prose-base-styles work put on block elements in `primitiv.reset` (RFC 0008 D60); **keep** element typography, inline marks, inner spacing, and the existing one-directional `li + li` gap | D66 |
 | 2 | **Why:** element-owned two-directional `margin-block` carries two intrinsic defects the lowest-layer placement does not fix — **margin-collapse non-determinism** (nesting-dependent) and **first/last-child bleed**; the one-directional owl removes both by construction | D67 |
 | 3 | **Three spacing kinds, three mechanisms:** component-internal = `gap`; content-flow rhythm = a one-directional owl on a flow context; a bare block has no outer margin | D68 |
-| 4 | Flow rhythm is an **opt-in container context** (`.primitiv-flow`), the sibling of `data-density` — applied by descent, no element cooperation, no JS; opt-in, **not** global (modulo the §6 compromise) | D69 |
+| 4 | **No default margins.** Flow rhythm is an **opt-in container context** (`.primitiv-flow`), the sibling of `data-density` — applied by descent, no element cooperation, no JS; opt-in, **never** global | D69 |
 | 5 | The mechanism is the **single-direction owl** (`> * + *`, `margin-block-start`): no collapse, no bleed, logical-property, low-specificity; ships in `primitiv.base`, above the kept typography in `reset` | D70 |
 | 6 | The rhythm scale is a **`flow/*` namespace in the Context collection** (the `dropdown/*` precedent) → density-neutral `--primitiv-flow-*` in `primitiv.tokens`, densifying with `[data-density]`; seed values taken from the landed stylesheet for a near-neutral revert | D71 |
 | 7 | **Fixed token scale; runtime type-derivation rejected** (`em`/`lh` floats off the `space-*` grid, saves no authoring, harder to override); proportionality-to-heading-size via **discrete heading-role steps** | D72 |
 | 8 | The role→step **mapping is shipped, opinionated, and overridable** (heading asymmetry + discrete proportionality; targets semantic children; `:where()` + token keeps it sovereign) | D73 |
 | 9 | **Both surfaces ship from the registry — not the headless package:** the `.primitiv-flow` class and an `asChild` `<Prose>` wrapper are a copy-in registry component (`primitiv add prose`); `<Prose>` has zero behaviour; `@primitiv-ui/react` is unchanged | D74 |
 | 10 | **No separate horizontal-rhythm model** — inline spacing is `gap`/`padding-inline`; the logical `margin-block-start` rotates to horizontal under vertical writing modes | D75 |
-| 11 | **Compromise fallback (if §8.1 favours zero-markup rhythm):** adopt the owl *mechanism* globally at low specificity (§6) rather than reverting to collapsing margins — the mechanism is the improvement; the opt-in container is the preference | D76 |
+| 11 | **Rejected — no global default, including a global owl.** The §6 compromise (a low-specificity global owl) is declined: any global rhythm is still a default. Flexibility comes instead from three composable paths — wrap (`.primitiv-flow`/`<Prose>`), write your own margins, or mix the two (§4.1) | D76 |

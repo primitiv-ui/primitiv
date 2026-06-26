@@ -46,6 +46,16 @@ Practical behaviour:
   The density in the style name is the *intended* use context, not an enforced
   mode. (`Body / xl` per density added 2026-05-31 alongside the `body/xl/*`
   variables — Body now runs xs–xl like Label.)
+- **Inline mark text styles** (added 2026-06-26): `{Density} / Inline / {Strong|Del|Ins|Abbr|Small} / {xs–xl}`
+  — the character-level marks that map cleanly to typography. Strong = Asta Sans
+  Bold (fontStyle left unbound to hold the weight; family/size/line-height bound to
+  `body/{size}`). Del = strikethrough, Ins = underline, Abbr = dotted underline
+  (`textDecorationStyle = 'DOTTED'` — supported on TextStyle). Small binds
+  `body/{down(size)}` (one step smaller, floored at xs). **Colour is not stored in
+  a text style** — apply the Intent fill to the run separately (del/small →
+  content/muted, abbr → content/secondary, ins/strong → content/primary). The
+  other marks (em = slant, mark = background, sub/sup = baseline) can't be text
+  styles and are components instead.
 
 **Critical: all 76 text styles bind to the same underlying variables.**
 `Dense / Label / md` and `Comfortable / Label / md` both bind their `fontSize`

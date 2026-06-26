@@ -423,8 +423,8 @@
 
 <table>
 <tr><th>Element</th><th>Build as</th><th>Treatment / token</th></tr>
-<tr><td><code>&lt;strong&gt;</code> bold</td><td>char style</td><td>Asta Sans has no bold → switch to <b>Khand SemiBold</b> inline, or accept synthetic bold. Decide.</td></tr>
-<tr><td><code>&lt;em&gt;</code> italic</td><td>char style</td><td>No native italic in either face → synthetic slant or alternative emphasis. Decide.</td></tr>
+<tr><td><code>&lt;strong&gt;</code> bold</td><td>text style</td><td><span class="pill exists">Done</span> Asta Sans now ships <b>Bold</b> — strong stays in-family (Khand-SemiBold plan dropped). Text styles <code>{Density} / Inline / Strong / {size}</code>.</td></tr>
+<tr><td><code>&lt;em&gt;</code> italic</td><td>component</td><td><span class="pill exists">Done</span> No native italic → <b>synthetic ~10° oblique</b> (relativeTransform skew). A component, not a text style, since a skew can't live in a TextStyle.</td></tr>
 <tr><td><code>&lt;mark&gt;</code> highlight</td><td>span</td><td>Background tint — needs a highlight token (warning/brand tint at low chroma). <span class="pill newtok">new</span></td></tr>
 <tr><td><code>&lt;del&gt;</code></td><td>char style</td><td>Strikethrough + <code>content/muted</code></td></tr>
 <tr><td><code>&lt;ins&gt;</code></td><td>char style</td><td>Underline + <code>content/primary</code></td></tr>
@@ -471,7 +471,7 @@
   <li><b><code>font-family.mono</code> = JetBrains Mono</b> — chosen over Roboto Mono in an in-context comparison on the Inline code page. Variable added to <code>Primitives</code> (<code>VariableID:601:9479</code>); <code>packages/tokens/src/primitives.json</code> updated. Bind code nodes to it inline. See RFC 0012 <b>D14</b>.</li>
   <li><b>Deferred to the emitter / new-typography session:</b> the CSS monospace <b>fallback stack</b> (the variable holds a single family name for Figma binding, so the stack is emit-time — <code>heading</code>/<code>text</code> need <code>sans-serif</code> fallbacks too), and adding JetBrains Mono to the Google Fonts <code>&lt;link&gt;</code>s.</li>
 </ul>
-<p class="small">Same caveat for <b>true bold</b> (<code>&lt;strong&gt;</code>) and <b>italic</b> (<code>&lt;em&gt;</code>): Asta Sans ships Regular only. Bold can borrow Khand SemiBold; italic needs a synthetic slant or a non-italic emphasis convention. Decide and document in each component's description.</p>
+<p class="small"><span class="pill exists">Resolved.</span> <b>Bold</b> (<code>&lt;strong&gt;</code>): Asta Sans now ships <b>Bold</b> in Figma, so strong is a true in-family bold text style — the Khand-SemiBold borrow is no longer needed. <b>Italic</b> (<code>&lt;em&gt;</code>): no native italic, so em is a <b>synthetic ~10° oblique</b> built as a component (the skew is a node transform, not a text-style property). Both documented in their Figma descriptions.</p>
 
 <!-- ============================================================ -->
 <h2 class="section" id="master">9 · Master checklist — one glance</h2>
@@ -494,19 +494,21 @@
 <tr><td>15</td><td>Table</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>table/cell/padding-*</code> ✓ · <code>table/row/*</code> ✓</td></tr>
 <tr><td>16</td><td>Figure + figcaption</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>figure/caption-gap</code> ✓</td></tr>
 <tr><td>17</td><td>Divider / hr</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>divider/margin-block</code> ✓</td></tr>
-<tr><td>18</td><td>kbd</td><td>Component</td><td><span class="pill build">Build</span></td><td>mono (§8)</td></tr>
-<tr><td>19</td><td>strong</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
-<tr><td>20</td><td>em</td><td>Char style</td><td><span class="pill build">Build</span></td><td>synthetic slant (no italic in system)</td></tr>
-<tr><td>21</td><td>mark / highlight</td><td>Span</td><td><span class="pill build">Build</span></td><td>highlight tint</td></tr>
-<tr><td>22</td><td>del</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
-<tr><td>23</td><td>ins</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
-<tr><td>24</td><td>sub / sup</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
-<tr><td>25</td><td>abbr</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
-<tr><td>26</td><td>small</td><td>Text style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
-<tr><td>27</td><td>q (inline quote)</td><td>Span</td><td><span class="pill build">Build</span></td><td>—</td></tr>
+<tr><td>18</td><td>kbd</td><td>Component</td><td><span class="pill exists">Done</span></td><td>mono (§8)</td></tr>
+<tr><td>19</td><td>strong</td><td>Text style</td><td><span class="pill exists">Done</span></td><td>Asta Sans <b>Bold</b> (Asta now ships Bold — Khand-SemiBold plan dropped). <code>{Density} / Inline / Strong / {size}</code></td></tr>
+<tr><td>20</td><td>em</td><td>Component</td><td><span class="pill exists">Done</span></td><td>synthetic ~10° oblique (skew is a node transform, not a text-style prop → component)</td></tr>
+<tr><td>21</td><td>mark / highlight</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>highlight/background</code> ✓ — Intent, brand/100 (L) · brand/800 (D); no yellow in palette</td></tr>
+<tr><td>22</td><td>del</td><td>Text style</td><td><span class="pill exists">Done</span></td><td>strikethrough; apply <code>content/muted</code> fill to run</td></tr>
+<tr><td>23</td><td>ins</td><td>Text style</td><td><span class="pill exists">Done</span></td><td>underline; <code>content/primary</code></td></tr>
+<tr><td>24</td><td>sub / sup</td><td>Component</td><td><span class="pill exists">Done</span></td><td>Position×Size; one-down script aligned top/bottom (no baseline-shift prop → component)</td></tr>
+<tr><td>25</td><td>abbr</td><td>Text style</td><td><span class="pill exists">Done</span></td><td><b>dotted</b> underline (textDecorationStyle); <code>content/secondary</code></td></tr>
+<tr><td>26</td><td>small</td><td>Text style</td><td><span class="pill exists">Done</span></td><td>one size step down (floored at xs); <code>content/muted</code></td></tr>
+<tr><td>27</td><td>q (inline quote)</td><td>Span</td><td><span class="pill exists">Done</span></td><td>demo page only — typographically = body + <code>content/secondary</code> + curly “ ”; no separate style</td></tr>
 </table>
 
-<p class="small" style="margin-top:10pt;">Suggested order: <b>(a)</b> decide the remaining open questions — bold/italic strategy, link-visited token (monospace face is now decided: <code>font-family.mono</code> = JetBrains Mono); <b>(b)</b> add the missing text styles + char styles (cheap); <b>(c)</b> build Link → List → Description list → Blockquote → Table → Code → the rest; <b>(d)</b> create the <code>list/* · quote/* · code/* · table/* · divider/*</code> namespaces as each component needs them; <b>(e)</b> write each component's description (the mandatory last step). Remember: inside every component, bind the four type fields inline — never a text style.</p>
+<p class="small" style="margin-top:10pt;"><span class="pill exists">All landed.</span> Items 1–27 complete. The inline marks split by Figma capability: <b>strong · del · ins · abbr · small</b> are <b>text styles</b> (<code>{Density} / Inline / {Mark} / {size}</code>, colour applied via Intent variable on the run); <b>em · mark · sub/sup</b> are <b>components</b> (slant / background / baseline-shift can't live in a TextStyle); <b>q</b> is a documented demo (body + <code>content/secondary</code> + curly quotes — no distinct typography). New token: <code>highlight/background</code> (Intent). Each has its own page with a specimen + Light/Dark × density example.</p>
+
+<p class="small" style="margin-top:10pt;">Original suggested order (historical): <b>(a)</b> decide the remaining open questions — bold/italic strategy, link-visited token (monospace face is now decided: <code>font-family.mono</code> = JetBrains Mono); <b>(b)</b> add the missing text styles + char styles (cheap); <b>(c)</b> build Link → List → Description list → Blockquote → Table → Code → the rest; <b>(d)</b> create the <code>list/* · quote/* · code/* · table/* · divider/*</code> namespaces as each component needs them; <b>(e)</b> write each component's description (the mandatory last step). Remember: inside every component, bind the four type fields inline — never a text style.</p>
 
 </body>
 </html>

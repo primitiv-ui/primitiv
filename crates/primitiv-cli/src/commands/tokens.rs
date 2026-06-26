@@ -1,6 +1,8 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
-use primitiv_emit::{emit_tailwind_tokens, emit_tokens_css, emit_tokens_scss, TokenSources};
+use primitiv_emit::{
+    emit_tailwind_tokens, emit_tokens_css, emit_tokens_scss, TokenSources, BASE_CSS, BASE_SCSS,
+};
 use serde_json::Value;
 
 use crate::config::try_resolve;
@@ -64,14 +66,34 @@ pub fn tokens(
         Format::Scss => emit_tokens_scss(&sources),
         Format::Tailwind => emit_tailwind_tokens(&sources),
     };
-    match out {
-        Some(path) => fs.write(path, rendered.as_bytes())?,
-        None => match config {
-            Some(config) => fs.write(Path::new(&config.tokens.path), rendered.as_bytes())?,
-            None => output.write_stdout(rendered.as_bytes())?,
-        },
+    let (base_name, base_styles) = base_companion(format);
+    let target = out
+        .map(Path::to_path_buf)
+        .or_else(|| config.as_ref().map(|config| PathBuf::from(&config.tokens.path)));
+    match target {
+        // A file destination: the base element styles ship as a sibling the token
+        // layer imports, so the foundation is one `@import` away (RFC 0008 §7). The
+        // import leads the file — CSS requires `@import` before any other rule.
+        Some(path) => {
+            fs.write(&path.with_file_name(base_name), base_styles.as_bytes())?;
+            let imported = format!("@import \"./{base_name}\";\n\n{rendered}");
+            fs.write(&path, imported.as_bytes())?;
+        }
+        // No file to host a sibling: inline the base layer after the tokens so the
+        // streamed foundation stays self-contained.
+        None => output.write_stdout(format!("{rendered}\n{base_styles}").as_bytes())?,
     }
     Ok(())
+}
+
+/// The base element stylesheet companion for a format: its sibling filename and
+/// embedded contents. CSS and Tailwind share the canonical CSS sheet; SCSS takes
+/// the byte-identical `.scss` mirror so a Sass pipeline imports a partial.
+fn base_companion(format: Format) -> (&'static str, &'static str) {
+    match format {
+        Format::Css | Format::Tailwind => ("primitiv-base.css", BASE_CSS),
+        Format::Scss => ("primitiv-base.scss", BASE_SCSS),
+    }
 }
 
 /// Parse one embedded DTCG document. The input is compiled into the binary and

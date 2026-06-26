@@ -79,6 +79,79 @@ fn writes_the_token_layer_as_a_tailwind_preset_when_the_format_is_tailwind() {
 }
 
 #[test]
+fn writes_a_companion_base_stylesheet_imported_by_the_token_layer() {
+    let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
+    let out = Path::new("src/styles/primitiv/tokens.css");
+
+    tokens(&fs, &stdout, Some(Format::Css), Some(out)).unwrap();
+
+    // The base element styles ship as a sibling file the token layer imports, so
+    // the foundation is one @import away (RFC 0008 §7).
+    let base = String::from_utf8(
+        fs.read(Path::new("src/styles/primitiv/primitiv-base.css")).unwrap(),
+    )
+    .unwrap();
+    assert!(base.contains("transform: skewX(-10deg)"));
+    // The import leads the token file (CSS requires @import before other rules).
+    let main = String::from_utf8(fs.read(out).unwrap()).unwrap();
+    assert!(main.starts_with("@import \"./primitiv-base.css\";"));
+}
+
+#[test]
+fn writes_the_base_companion_as_scss_for_the_scss_format() {
+    let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
+    let out = Path::new("src/styles/primitiv/tokens.scss");
+
+    tokens(&fs, &stdout, Some(Format::Scss), Some(out)).unwrap();
+
+    // SCSS gets the .scss mirror so a Sass pipeline imports a partial.
+    assert!(fs.exists(Path::new("src/styles/primitiv/primitiv-base.scss")));
+    let main = String::from_utf8(fs.read(out).unwrap()).unwrap();
+    assert!(main.starts_with("@import \"./primitiv-base.scss\";"));
+}
+
+#[test]
+fn writes_the_css_base_companion_for_the_tailwind_format() {
+    let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
+    let out = Path::new("src/styles/primitiv/tokens.css");
+
+    tokens(&fs, &stdout, Some(Format::Tailwind), Some(out)).unwrap();
+
+    // Tailwind shares the canonical CSS sheet; the import precedes the @theme block.
+    assert!(fs.exists(Path::new("src/styles/primitiv/primitiv-base.css")));
+    let main = String::from_utf8(fs.read(out).unwrap()).unwrap();
+    assert!(main.starts_with("@import \"./primitiv-base.css\";"));
+}
+
+#[test]
+fn inlines_the_base_layer_when_streaming_to_stdout() {
+    let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
+    fs.set_current_dir(Path::new("project"));
+
+    // No file to host a sibling, so the streamed foundation carries the base inline.
+    tokens(&fs, &stdout, Some(Format::Css), None).unwrap();
+
+    let streamed = String::from_utf8(stdout.captured()).unwrap();
+    assert!(streamed.contains("transform: skewX(-10deg)"));
+}
+
+#[test]
+fn surfaces_a_base_companion_write_failure() {
+    let fs = InMemoryFs::new();
+    let stdout = InMemoryOutput::new();
+    let out = Path::new("src/styles/primitiv/tokens.css");
+    fs.fail_writes_to(Path::new("src/styles/primitiv/primitiv-base.css"));
+
+    let err = tokens(&fs, &stdout, Some(Format::Css), Some(out)).unwrap_err();
+
+    assert!(matches!(err, CliError::Io(_)));
+}
+
+#[test]
 fn falls_back_to_the_config_path_when_out_is_omitted() {
     let fs = InMemoryFs::new();
     let stdout = InMemoryOutput::new();

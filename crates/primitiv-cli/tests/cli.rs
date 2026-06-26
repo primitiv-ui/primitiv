@@ -302,6 +302,25 @@ fn tokens_streams_the_layer_to_stdout_when_config_less() {
 }
 
 #[test]
+fn tokens_writes_the_base_companion_next_to_the_token_layer() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .args(["tokens", "--format", "css", "--out", "tokens.css"])
+        .assert()
+        .success();
+
+    // The token layer imports its sibling base element stylesheet, which carries
+    // the prose & inline-mark styles in @layer primitiv.reset.
+    dir.child("tokens.css")
+        .assert(predicate::str::contains("@import \"./primitiv-base.css\";"));
+    dir.child("primitiv-base.css")
+        .assert(predicate::str::contains("@layer primitiv.reset {"));
+}
+
+#[test]
 fn add_tailwind_project_prints_wiring_snippet_in_non_interactive_mode() {
     // The binary is never a TTY under assert_cmd, so interactive=false. For a
     // Tailwind-format project that print the wiring snippet to stdout after copy.

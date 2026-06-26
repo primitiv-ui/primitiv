@@ -1,4 +1,5 @@
 pub mod alias;
+pub mod base;
 pub mod component;
 pub mod contract;
 pub mod css;
@@ -14,6 +15,7 @@ pub mod value;
 pub mod wrapper;
 
 pub use alias::link_aliases;
+pub use base::{BASE_CSS, BASE_SCSS};
 pub use component::{emit_component_css, Component};
 pub use contract::Contract;
 pub use css::{emit_css, emit_theme_css};

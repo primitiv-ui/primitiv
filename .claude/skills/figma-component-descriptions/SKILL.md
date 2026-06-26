@@ -777,6 +777,28 @@ Pairs with: Table / Row, Table / Cell, Table / Header Cell
 Notes: rows 1-4 always visible; 5-8 collapse when off (8-slot rule). Body rows alternate default/striped. Caption is a bottom node (body/sm, content/muted) — React captionSide="bottom"; for a top caption drag the layer above Head (no Caption Side axis — D2 fixes 15 Size×Borders variants). ScrollArea = a documented wrapping frame with horizontal overflow (nothing to bind). Sort indicators and hover/selected row states are design guidance only — the headless Table is static.
 ```
 
+### Kbd — `612:35198`
+
+```
+Kbd (<kbd>) — a raised monospace key cap for keyboard input within prose; the raised-surface sibling of Inline Code.
+
+Type: surface component (leaf chip)
+
+Axes: Size xs|sm|md|lg|xl
+
+Tokens: fill   surface/raised
+        stroke border/default (1px INSIDE)
+        radius radii/4
+        padding space-4 (inline) · space-2 (block)
+        text   content/primary; fontFamily → font-family/mono; fontSize/fontStyle → body/{size}; lineHeight → code/{size}/line-height
+
+Properties: Key (TEXT "Esc") — the key label, editable from the panel
+
+Density: Context mode override on parent frame (body/* + code/* scale across all 4 modes)
+Pairs with: Inline Code (tinted code-span sibling), prose body text
+Notes: distinct from Inline Code (surface/subtle + border/subtle) — the raised surface + stronger border read as a physical key. Leaf chip — the slot strategy / 8-item rule do not apply. Single Size axis; the Key label is a TEXT property (mirrors Inline Code's Code property).
+```
+
 ---
 
 ## Definition of done checklist

@@ -1,12 +1,23 @@
 # RFC 0016 — Spacing & flow rhythm
 
-> **Status:** Draft — **counter-proposal, design accepted by the maintainer
-> (2026-06-26).** The decision is **no default margins.** The global block-level
-> margins the prose-base-styles work put in `primitiv.reset` (RFC 0008 D60) are to
-> be **reverted**, and inter-block rhythm becomes **opt-in** (the `.primitiv-flow`
-> class / `<Prose>`). The §6 global-owl compromise is **rejected** — a global owl
-> is still a default. Implementation (the emit revert + the registry `prose` entry)
-> is pending; this RFC supersedes the block-margin half of D60 once that lands.
+> **Status:** **Implemented (2026-06-26).** The decision is **no default
+> margins.** The global block-level margins the prose-base-styles work put in
+> `primitiv.reset` (RFC 0008 D60) are **reverted** (zeroed, so no UA margins
+> return), and inter-block rhythm is now **opt-in** (the `.primitiv-flow` class /
+> `<Prose>`). The §6 global-owl compromise is **rejected** — a global owl is still
+> a default. This RFC supersedes the block-margin half of D60.
+>
+> **What landed:** (1) the base block margins zeroed in `primitiv.reset`
+> (`crates/primitiv-emit/assets/base.{css,scss}`, D66); (2) the `flow/*` scale in
+> the Context collection (`packages/tokens/src/context.json`, D71) emitting
+> density-scoped `--primitiv-flow-*`; (3) the `prose` registry component
+> (`registry/components/prose/`, `primitiv add prose`, D74) — the `.primitiv-flow`
+> owl + role overrides in `@layer primitiv.base` and an `asChild` `<Prose>` wrapper
+> over the newly-exported `Slot`. **Follow-ups:** the `flow/*` **Figma** Context
+> variables still need creating + a re-sync (the repo backup leads here, §7); and
+> rhythm inherits **RFC 0009 §5 responsive (container-query) density** for free
+> when that lands — no breakpoint scale exists yet, so viewport responsiveness is
+> deferred to it (§8).
 > **Author:** simonrevill, with architectural review
 > **Date:** 2026-06-23 (rebased onto the landed prose-base-styles work, 2026-06-26)
 > **Seeds from:** the 2026-06-23 spacing-strategy discussion (this session),
@@ -407,21 +418,29 @@ inside the opt-in flow context, never globally.
 
 > **Acceptance is settled (2026-06-26): outcome (a)** — no default margins; revert
 > the `reset` block margins (§1.4); rhythm is opt-in. The §6 global-owl compromise
-> was rejected. One value-question remains.
+> was rejected. The value-question below is now **resolved**.
 
-1. **Flow-scale step count and per-density values.** The four-step set
-   (`tight · normal · section · region`) is the working proposal; whether `region`
-   collapses into `section`, and the exact `space-*` aliases per density, are to be
-   validated against an article, a form, and a card body. Seed values come from the
-   landed stylesheet (§3.1) so a wrapped-prose revert is visually near-neutral.
+1. **Flow-scale step count and per-density values — resolved.** All **four**
+   steps are kept (`region` reads as a deliberate hierarchy above `h1`/`h2` vs
+   `section` above `h3`/`h4`). Validated against an article, a form, and a card
+   body in a throwaway Vite harness rendering the real type system, then scaled up
+   one step from the first seeds on review. The landed `space-*` aliases per
+   density:
+
+   | flow token | dense | compact | comfortable | spacious |
+   |---|---|---|---|---|
+   | `tight`   | space-8  | space-10 | space-12 | space-16 |
+   | `normal`  | space-12 | space-16 | space-20 | space-28 |
+   | `section` | space-16 | space-24 | space-32 | space-40 |
+   | `region`  | space-24 | space-32 | space-48 | space-56 |
 
 ---
 
 ## 9. Decision record
 
-> **Design accepted (2026-06-26); implementation pending.** Outcome (a) — **no
-> default margins** — is settled; the entries below stand. Decision IDs start at
-> **D66** to avoid collision with the landed work (D60 is the reset reversal this
+> **Design accepted and implemented (2026-06-26).** Outcome (a) — **no default
+> margins** — is settled and shipped; the entries below stand. Decision IDs start
+> at **D66** to avoid collision with the landed work (D60 is the reset reversal this
 > RFC contends with; D1–D55, D60, D65 are otherwise taken).
 
 | # | Decision (proposed) | Maps to |

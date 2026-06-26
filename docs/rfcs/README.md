@@ -33,7 +33,7 @@ live in [`../consumption-design.md`](../consumption-design.md).
 | [0007](0007-cli-development-and-test-strategy.md) | CLI development & test strategy | Draft |
 | [0008](0008-css-architecture-cascade-layers-and-token-scoping.md) | CSS architecture: cascade layers & token scoping | Draft |
 | [0009](0009-mode-scoping-theme-and-density.md) | Mode scoping: theme & density as inheritable attributes | Draft |
-| [0016](0016-spacing-and-flow-rhythm.md) | Spacing & flow rhythm | Draft — accepted (no default margins); reverts landed block margins |
+| [0016](0016-spacing-and-flow-rhythm.md) | Spacing & flow rhythm | Implemented — no default margins; opt-in `.primitiv-flow` / `<Prose>` |
 
 - **0004** — the foundation: the hybrid model (versioned headless packages +
   opt-in copy-in styles) and the four-part styling contract (root class +

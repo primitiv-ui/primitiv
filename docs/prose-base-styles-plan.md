@@ -90,6 +90,14 @@ via `[data-theme]` (already in the token layer).
 
 1. ~~Verify the reset-layer cycle~~ — **done** (see Progress).
 2. Regenerate `apps/workbench/src/primitiv-tokens.css` (highlight + mono parity).
+   **Still deferred** — and now snagged on step 4: re-running `primitiv tokens
+   --out apps/workbench/src/primitiv-tokens.css` would also write a
+   `primitiv-base.css` sibling and prepend its `@import`, leaking the global base
+   element styles onto every workbench page (the global-CSS-leak gotcha) — unverified
+   without a browser, and CLAUDE.md says leave the workbench alone. The staleness is
+   convenience-copy-only; real consumers get the live tokens from the emitter's
+   embedded DTCG. Revisit deliberately (regen tokens-only, or adopt the base layer in
+   the workbench and visually QA it).
 3. ~~**Author the base element stylesheet**~~ — **done**
    (`crates/primitiv-emit/assets/base.{css,scss}`); the original spec follows. Inline marks
    (strong, em→synthetic oblique via `transform`, mark→`--primitiv-highlight-background`,
@@ -116,9 +124,12 @@ via `[data-theme]` (already in the token layer).
    Generated recipe (base-only `cva`)/wrapper + derived SCSS, wired in and
    drift-guarded the same way; the `packages/react` guard pins `aria-orientation`
    as the styling hook.
-7. **Docs/RFC** — RFC 0008 §7 (reset now populated/declared),
-   `docs/transfer-and-next-steps.md`, `packages/react/README.md` components table,
-   cross-ref from `docs/figma-typography-checklist.html`.
+7. ~~**Docs/RFC**~~ — **done.** RFC 0008 updated (§2.1 reserved note → populated,
+   §2.2 sublayer table gains a `reset` row, §7.1 records the D49→**D60** reversal,
+   §8 decision row 7); `docs/transfer-and-next-steps.md` gains a "Prose & inline-mark
+   typography parity" entry; `docs/figma-typography-checklist.html` gains a Web/CLI
+   parity banner. `packages/react/README.md` already lists Table + Divider (existing
+   headless components — no change needed).
 
 ## Gotchas
 

@@ -199,3 +199,22 @@ fn the_committed_radio_recipe_is_the_generated_form_of_its_contract() {
         ))
     );
 }
+
+/// Drift guard: the committed `registry/components/divider/divider.recipe.ts` is
+/// exactly the generated form of its contract.
+#[test]
+fn the_committed_divider_recipe_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/divider/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_recipe(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/components/divider/divider.recipe.ts"
+        ))
+    );
+}

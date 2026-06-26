@@ -112,6 +112,20 @@
         }
       },
       "contract": "contract.json"
+    },
+    "divider": {
+      "version": "0.1.0",
+      "dependsOn": { "packages": [{ "name": "@primitiv-ui/react", "version": "^0.1.0" }], "tokens": true, "components": [] },
+      "styles": {
+        "packages": ["class-variance-authority"],
+        "react": ["divider.recipe.ts", "divider.tsx"],
+        "formats": {
+          "css": ["styles.css"],
+          "scss": ["styles.scss"],
+          "tailwind": ["styles.css"]
+        }
+      },
+      "contract": "contract.json"
     }
   }
 }

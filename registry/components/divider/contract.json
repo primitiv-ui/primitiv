@@ -1,0 +1,18 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "divider",
+  "version": "0.1.0",
+  "description": "A separator between content sections — a `<span role=\"separator\">` whose `aria-orientation` drives a horizontal or vertical rule.",
+  "docs": "https://primitiv-ui.dev/docs/components/divider",
+  "root": {
+    "element": "span",
+    "class": "primitiv-divider"
+  },
+  "dataAttributes": [],
+  "modifiers": [],
+  "customProperties": [
+    { "name": "--primitiv-divider-color", "defaultsTo": "var(--primitiv-border-subtle)" },
+    { "name": "--primitiv-divider-thickness", "defaultsTo": "var(--primitiv-border-width-1)" },
+    { "name": "--primitiv-divider-spacing", "defaultsTo": "var(--primitiv-space-space-16)" }
+  ]
+}

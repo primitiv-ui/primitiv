@@ -68,7 +68,7 @@ build/test strategy for 0005–0006 and applies once implementation starts.
 |---|---|---|
 | [0010](0010-oklch-color-picker.md) | OKLCH colour picker | Draft |
 | [0011](0011-duotone-neutral-ramps.md) | Duotone neutral ramps | Draft |
-| [0012](0012-spacing-and-flow-rhythm.md) | Spacing & flow rhythm | Draft — under active discussion |
+| [0012](0012-spacing-and-flow-rhythm.md) | Spacing & flow rhythm | Draft — model settled; scale values open |
 
 - **0010** — the OKLCH-first, oklch.com-style colour picker that replaces the
   hex input: paint-backed Lightness×Chroma and Hue charts with a live gamut
@@ -86,4 +86,6 @@ build/test strategy for 0005–0006 and applies once implementation starts.
   the architectural sibling of `data-density`. A one-directional owl rule
   (`> * + *`, `margin-block-start`) drives a density-scoped `flow/*` token scale
   so rhythm densifies in lockstep with type and control anatomy; `gap` stays the
-  tool for component-internal spacing. Under active discussion — §8 forks open.
+  tool for component-internal spacing. Ships two surfaces — the `.primitiv-flow`
+  class and a `<Prose>` component. Model settled (D51–D62); only the flow-scale
+  step count + per-density values stay open, pending layout validation.

@@ -1,7 +1,7 @@
 # RFC 0012 — Spacing & flow rhythm
 
-> **Status:** Draft — under active discussion (the model below is the
-> recommendation, not a settled decision; §8 holds the open forks).
+> **Status:** Draft — model settled (§9, D51–D62); one open question remains —
+> the flow-scale step count + per-density values, pending layout validation (§8).
 > **Author:** simonrevill, with architectural review
 > **Date:** 2026-06-23
 > **Seeds from:** the 2026-06-23 spacing-strategy discussion (this session),
@@ -165,19 +165,36 @@ Different block roles get different leading space, still inside the flow context
 
 ```css
 @layer primitiv.base {
-  .primitiv-flow > :where(h2, h3, h4) {
-    margin-block-start: var(--primitiv-flow-section);  /* more air before headings */
-  }
-  .primitiv-flow > :where(hr) {
-    margin-block: var(--primitiv-flow-section);         /* dividers own their breathing room */
-  }
+  /* discrete proportionality: larger headings get more leading air */
+  .primitiv-flow > * + :where(h1, h2) { margin-block-start: var(--primitiv-flow-region); }
+  .primitiv-flow > * + :where(h3, h4) { margin-block-start: var(--primitiv-flow-section); }
+
+  /* heading asymmetry: tight space *below* a heading binds it to its content */
+  .primitiv-flow > :where(h1, h2, h3, h4) + * { margin-block-start: var(--primitiv-flow-tight); }
+
+  /* self-contained blocks own their breathing room */
+  .primitiv-flow > hr { margin-block: var(--primitiv-flow-region); }
 }
 ```
 
-`:where()` keeps these at zero specificity so the override surface stays flat and
-consumer-overridable. The *set* of roles and which flow step each maps to is a
-content-design decision captured per-element in the component descriptions, not
-hard-coded numbers — every value is a `--primitiv-flow-*` token.
+Two of these rules carry the design expertise that makes the system worth having:
+
+- **Heading asymmetry** — a heading takes large space *above* (`section`/`region`)
+  and tight space *below* (`tight`), so it binds visually to the content it
+  introduces instead of floating midway between two blocks. With the
+  one-directional owl this is just "the element *after* a heading gets `tight`."
+- **Discrete proportionality** — `h1`/`h2` pull `region`, `h3`/`h4` pull `section`,
+  so larger headings get more leading air *without* any `em`/`lh` derivation
+  (§8/D59). The `* +` prefix means a first-child heading gets `0` — no leading
+  bleed.
+
+`:where()` keeps every rule at zero specificity so the override surface stays flat
+and consumer-overridable, and each value is a `--primitiv-flow-*` token — retune
+the *value* via the token or the *rule* via unlayered CSS. These role rules target
+**semantic children** (`h1`–`h6`, `hr`, `ul`/`ol`), exactly as Tailwind
+Typography's `.prose` does; a consumer who wraps each block in a `<div>` falls back
+to flat `normal` rhythm (uniform, not broken). The mapping is shipped, opinionated,
+and overridable — not handed to the consumer to rebuild (§9/D61).
 
 ---
 
@@ -190,17 +207,24 @@ is a component-style namespace **inside the Context collection**, each value
 aliasing an existing `space-*` primitive, **set per density mode**. A small named
 scale — not a per-element sprawl:
 
-| Flow token | Role | Aliases (illustrative — tune per density) |
-|---|---|---|
-| `flow/tight` | dense lists, related lines | `space-*` (small) |
-| `flow/normal` | default paragraph→paragraph | `space-*` (medium) |
-| `flow/loose` | relaxed body / lead-in | `space-*` (medium-large) |
-| `flow/section` | before a heading, around a divider | `space-*` (large) |
+Four steps, named by the **relationship** they express (not a t-shirt size) — so
+the name self-documents the mapping and resists misuse, matching the system's
+semantic-naming house style (`content/primary`, `surface/raised`, never `grey-2`):
 
-> The illustrative values are intentionally omitted here — they live in Figma's
-> Context collection per density mode and flow through DTCG unchanged, exactly
-> like the type scale and `framed-control/*`. §8.1 holds the fixed-vs-derived
-> question for how those numbers are chosen.
+| Flow token | Relationship | Default role mapping (§2.5) |
+|---|---|---|
+| `flow/tight` | intra-cluster | list items, `dl` pairs, the element immediately *after* a heading |
+| `flow/normal` | default block rhythm | paragraph → paragraph (the base `> * + *`) |
+| `flow/section` | new sub-section | before `h3`/`h4` |
+| `flow/region` | major break | before `h1`/`h2`, around `hr`, pull quotes |
+
+> The per-density values are intentionally omitted — they live in Figma's Context
+> collection per density mode and flow through DTCG unchanged, exactly like the
+> type scale and `framed-control/*`. Whether `region` earns its place beside
+> `section` (collapse to three?) and the exact `space-*` alias each step takes per
+> density are the one **remaining open question** (§8), to be validated against
+> real layouts rather than fixed here. The *fixed-scale* decision itself — and the
+> rejection of runtime type-derivation — is settled (§9/D59).
 
 ### 3.2 Density scoping — rhythm densifies with the page
 
@@ -264,9 +288,27 @@ reframes them:
 
 Like density, flow propagates through the cascade from a wrapper the consumer
 already controls. The headless components inside need not forward, accept, or be
-aware of a flow prop. A `<Flow>` / `<Prose>` React convenience is possible but
-**not load-bearing** — the bare class is the floor (mirrors RFC 0009 §3.2's
-`DensityProvider` stance). §8.2 holds that question.
+aware of a flow prop.
+
+### 4.3 Two surfaces ship in v1 — the class *and* `<Prose>`
+
+Unlike RFC 0009's deferred `DensityProvider`, flow ships **both** surfaces from
+v1:
+
+- **`.primitiv-flow`** — the bare class: the floor and the contract. No JS, every
+  format, any element the consumer controls. A non-React consumer reaches for this
+  directly.
+- **`<Prose>`** (`@primitiv-ui/react`) — a headless layout primitive that renders a
+  flow container. It applies `primitiv-flow` and supports `asChild` (Slot, per
+  `react-component-patterns`) so it can be any semantic element
+  (`<article>`, `<section>`, `<main>`). It is *sugar over the class* — every
+  behaviour is reproducible with the class alone — but it ships now because prose
+  regions are common enough to earn an ergonomic, semantic component.
+
+The component is **not load-bearing**: the class remains the underlying contract.
+Because `<Prose>` is a new component in `packages/react`, it carries the full
+definition-of-done (test, JSDoc, README, components-table row, workbench example,
+roadmap tick) — that build follows this RFC via the standard new-component path.
 
 ---
 
@@ -300,7 +342,7 @@ reinvention, exactly as density does (RFC 0009 §4):
 ## 7. What this RFC does not cover
 
 - The per-density **values** of the `flow/*` scale — Figma Context collection /
-  `figma-variable-architecture`; §8.1 frames how they're chosen.
+  `figma-variable-architecture`; §8 frames how they're chosen.
 - Component-**internal** `gap` values — those stay per-component (`list/*`,
   `framed-control/*`) and are unchanged here.
 - The **emitter** that produces the scoped output — RFC 0006.
@@ -309,38 +351,37 @@ reinvention, exactly as density does (RFC 0009 §4):
 
 ---
 
-## 8. Open questions  *(actively under discussion — none settled)*
+## 8. Open questions
 
-1. **Fixed flow scale vs. type-derived rhythm.** v1-pragmatic: a small named
-   `flow/*` scale aliasing `space-*` per density, hand-authored like the type
-   scale. Purist follow-on: *derive* each rhythm value from the following
-   element's line-height / font-size so type and rhythm are mathematically locked
-   (the relationship of responsive-density to attribute-density in RFC 0009 §5).
-   Leaning fixed-scale-first; derived as a documented follow-on.
-2. **`<Flow>` / `<Prose>` React component, or class + docs only?** The bare
-   `.primitiv-flow` class is the floor either way (§4.2). Whether
-   `@primitiv-ui/react` ships an ergonomic wrapper is the same shape as RFC 0009
-   §8.1's `DensityProvider` question — likely deferred to the same post-v1
-   ergonomics pass.
-3. **How many flow steps, and their names.** `tight / normal / loose / section`
-   is a starting proposal (§3.1). The real count and naming should fall out of
-   designing 2–3 real prose layouts (article, form, card) against it — to be
-   validated, not fixed here.
-4. **Role-to-step mapping.** Which block roles get `section` vs `normal` leading
-   space (§2.5), and whether that mapping is part of the emitted flow stylesheet
-   or left entirely to the consumer's content design. Ties to Q3.
-5. **Horizontal rhythm.** This RFC is vertical-only (`margin-block-start`).
-   Whether an inline-axis analogue is ever needed (it usually is not — inline
-   spacing is `gap` or inner padding) is left open and currently presumed **no**.
+The first-draft forks are resolved (§9, D58–D62); **one** genuinely open question
+remains.
+
+1. **Flow-scale step count and per-density values.** The four-step semantic set —
+   `flow/tight · normal · section · region` (§3.1) — is the working proposal, but
+   two things stay open: whether `region` is distinct enough from `section` to
+   earn its place (collapse to three?), and the exact `space-*` alias each step
+   takes per density. Both are to be **validated against real layouts** — an
+   article, a form, and a card body — not fixed in the abstract. The *naming
+   convention* (semantic, by relationship), the *role-mapping shape* (§2.5: heading
+   asymmetry + discrete proportionality), and the *fixed-scale* decision are all
+   settled; only the count and the numbers are open.
+
+Resolved and recorded in §9: fixed-vs-derived (D59 — fixed, derivation rejected),
+the `<Prose>` component (D60 — ships in v1 alongside the class), role-mapping
+ownership (D61 — shipped/opinionated/overridable), opt-in-vs-global (D58 — opt-in),
+and horizontal rhythm (D62 — none needed; the logical property covers vertical
+writing modes).
 
 ---
 
 ## 9. Decision record
 
-> **Provisional** — recorded as the current recommendation to give the model a
-> stable reference surface; *not* ratified. Entries may change as §8 resolves.
+> Settled across the 2026-06-23 discussion. D51–D57 fix the model; D58–D62 close
+> the first-draft open questions. The single remaining open item (flow-scale step
+> count + per-density values, §8) does not change any decision below — it only
+> fills in numbers.
 
-| # | Decision (provisional) | Maps to |
+| # | Decision | Maps to |
 |---|---|---|
 | 1 | Inter-sibling spacing is a **container concern, not an element one**; elements ship with **zero intrinsic outer margin**; default element margins are rejected (collapse non-determinism + cascade-sovereignty cost) | D51 |
 | 2 | **Three spacing kinds, three mechanisms:** component-internal = `gap`; content-flow rhythm = a one-directional owl rule on a **flow context**; bare element = none | D52 |
@@ -349,5 +390,10 @@ reinvention, exactly as density does (RFC 0009 §4):
 | 5 | The rhythm scale is a **`flow/*` namespace in the Context collection** (the `dropdown/*` precedent), one alias per density mode → emits density-neutral `--primitiv-flow-*` in `primitiv.tokens`, so rhythm densifies with `data-density` automatically | D55 |
 | 6 | **System owns the values, consumer owns the placement:** the flow scale + its density tracking are a system consistency guarantee; where flow applies and any per-subtree override are the consumer's (custom-property API + cascade sovereignty) | D56 |
 | 7 | The checklist's per-element block margins are **reframed**: between-sibling spacing comes from the flow context; only genuinely *inner* element spacing (quote indent, code padding) stays element-local; self-contained "needs outer margin" blocks become flow **roles** | D57 |
+| 8 | **Opt-in, never global:** there is no global flow default (consistent with RFC 0008's reserved-empty `primitiv.reset`); `.primitiv-flow` is applied deliberately. A *component* may opt its own stacked content in — that is not a *global* default | D58 |
+| 9 | **Fixed token scale; runtime type-derivation rejected** — `em`/`lh`-derived rhythm floats off the `space-*` grid, saves no authoring (heading asymmetry/proportionality must be authored regardless), and is harder to override than a token. Proportionality-to-heading-size is captured by **discrete heading-role steps**, not derivation | D59 |
+| 10 | **Both surfaces ship in v1:** the `.primitiv-flow` class (floor/contract) **and** a `<Prose>` headless component (`asChild`-polymorphic sugar over it) — unlike RFC 0009's deferred provider | D60 |
+| 11 | The role→step **mapping is shipped, opinionated, and overridable** (encodes heading asymmetry + discrete proportionality; targets semantic children; `:where()` + token keeps it sovereign) — not handed to the consumer to rebuild | D61 |
+| 12 | **No separate horizontal-rhythm model** — inline spacing is `gap` / `padding-inline`; the logical `margin-block-start` already rotates to horizontal under vertical writing modes | D62 |
 </content>
 </invoke>

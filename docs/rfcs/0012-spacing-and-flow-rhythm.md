@@ -300,7 +300,15 @@ Flow ships **both** surfaces, and — unlike RFC 0009's planned `DensityProvider
   rule and role mapping are the registry component's *styled surface*
   (`styles.css` / `styles.scss`, every value tokenised to `--primitiv-flow-*` per
   `registry-stylesheet-conventions`). Framework-agnostic — a plain-HTML, SCSS, or
-  Tailwind consumer uses the class directly.
+  Tailwind consumer uses the class directly. A consumer who wants **only the
+  styles** runs `primitiv add prose --styles-only` (RFC 0004 §4, the Dev 3
+  profile): they get `styles.{css,scss}` and no `prose.tsx`. And because
+  `.primitiv-flow` is a *context class the consumer applies to their own markup*
+  — not an identity class some component must emit — it is the **cleanest
+  styles-only case in the registry**: there is no behaviour or emitted contract to
+  miss, unlike the best-effort reach onto a non-Primitiv component (RFC 0004 §5).
+  Its one dependency is the `flow/*` tokens, which the shared token layer always
+  carries (§3.2).
 - **`<Prose>`** — the registry component's *React surface* (`prose.tsx`): a thin
   wrapper that applies `primitiv-flow` and supports `asChild` (Slot, per
   `react-component-patterns`) so it renders any semantic element

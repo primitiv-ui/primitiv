@@ -52,7 +52,9 @@ The full 27-item checklist lives at
 | 13 | Inline code | Component | Done |
 | 14 | Code block | Component | Done |
 | 15 | Table | Component | Done — see [RFC 0014](0014-figma-table-component.md) |
-| 16–27 | kbd · char styles · … | Various | To build |
+| 16 | Figure + figcaption | Component | Done — see [RFC 0015](0015-figma-figure-figcaption-component.md) |
+| 17 | Divider / hr | Component | Done |
+| 18–27 | kbd · char styles · … | Various | To build |
 
 ---
 

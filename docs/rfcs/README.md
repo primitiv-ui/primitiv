@@ -96,7 +96,8 @@ build/test strategy for 0005–0006 and applies once implementation starts.
 | # | Title | Status |
 |---|---|---|
 | [0012](0012-figma-web-typography-build.md) | Figma web typography build | In progress |
-| [0014](0014-figma-table-component.md) | Figma Table component build | Draft |
+| [0014](0014-figma-table-component.md) | Figma Table component build | Implemented |
+| [0015](0015-figma-figure-figcaption-component.md) | Figma Figure + Figcaption component build | Accepted |
 
 - **0012** — building the 27-element web typography library in Figma: text
   styles and components for every HTML prose element, covering all three
@@ -110,3 +111,9 @@ build/test strategy for 0005–0006 and applies once implementation starts.
   borders / alignment / row-state treatments, and the new `table/*` Context
   (cell padding) and Intent (row-state fills) tokens. The build plan a future
   session executes.
+- **0015** — building the Figma **Figure + Figcaption** (typography checklist
+  #16): a Figcaption leaf set (Size × Align × Tone) + a composed top-level Figure
+  (Size × Caption Position — below · above · overlay), the overlay position
+  composing the Figcaption `Tone=overlay` variant (the `inverse` token pair), and
+  one new `figure/caption-gap` Context token. Figma-only — there is no headless
+  React `Figure`.

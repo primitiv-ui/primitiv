@@ -220,7 +220,7 @@
       "marker": {
         "foreground": {
           "$type": "color",
-          "$value": "{color.neutral.700}"
+          "$value": "{content.secondary}"
         }
       }
     },
@@ -490,7 +490,7 @@
       "marker": {
         "foreground": {
           "$type": "color",
-          "$value": "{color.neutral.200}"
+          "$value": "{content.secondary}"
         }
       }
     },

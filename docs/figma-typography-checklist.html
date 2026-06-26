@@ -391,22 +391,22 @@
     <tr><td>Row state fills</td><td>fill</td><td><code>table/row/stripe</code> · <code>table/row/hover</code> · <code>table/row/selected</code> (Intent)</td></tr>
     <tr><td>Sort indicator</td><td>icon</td><td>Icon: sortable→<code>sort</code> (muted) · asc→<code>chevron-up</code> · desc→<code>chevron-down</code> (primary)</td></tr>
   </table>
-  <div class="callout"><b>Delivered.</b> Four sets (Cell 15 · Header Cell 60 · Row 6 · Table 15) with grid labels, plus the Light/Dark × density example and an extra Size×Density demo (Light + Dark), on the Table page. New <code>table/cell/padding-*</code> (Context) + <code>table/row/*</code> (Intent) tokens, backed up to <code>context.json</code>/<code>intent.json</code>. Sort indicators and hover/selected row states are <b>design-guidance only</b> — the headless React Table is a static layout component (no sort logic / no <code>data-state</code>). See RFC 0014 <b>§11</b> for node IDs and decisions.</div>
+  <div class="callout"><b>Delivered.</b> Four sets (Cell 15 · Header Cell 60 · Row 6 · Table 15) with grid labels, plus the Light/Dark × density example and an extra Size×Density demo (Light + Dark), on the Table page. New <code>table/cell/padding-*</code> (Context) + <code>table/row/*</code> (Intent) tokens, backed up to <code>context.json</code>/<code>intent.json</code>. Sort indicators and hover/selected row states are <b>design-guidance only</b> — the headless React Table is a static layout component (no sort logic / no <code>data-state</code>). See RFC 0014 <b>§11</b> for node IDs and decisions. <b>Update 2026-06-26:</b> nested cells are now <code>isExposedInstance</code>-exposed and positionally named (<code>Head → Header 1–4</code>, <code>Row N → Cell 1–4</code>), so a dropped-in Table's cell text is editable from the top-level instance panel — the original build had not exposed them (RFC 0014 §11).</div>
 </div>
 
 <div class="card">
-  <h3>Figure + figcaption <span><span class="pill comp">Component</span> <span class="pill build">Build</span></span></h3>
+  <h3>Figure + figcaption <span><span class="pill comp">Component</span> <span class="pill exists">Done</span> <span class="pill newtok">figure/*</span></span></h3>
   <table>
     <tr><th>Part</th><th>Token</th></tr>
     <tr><td>Media slot</td><td>fill <code>surface/subtle</code> placeholder · radius <code>radii/8</code></td></tr>
     <tr><td>Caption font / fill</td><td><code>body/sm/*</code> · <code>content/muted</code></td></tr>
     <tr><td>Media→caption gap</td><td><code>space-8</code></td></tr>
   </table>
-  <p class="small">Variants: caption position (below · overlay), align (start · center).</p>
+  <p class="small">Two sets (RFC 0015): <b>Figcaption</b> Size xs–xl × Align start·center·end × Tone default·overlay (30); <b>Figure</b> Size xs–xl × Caption Position below·above·overlay (15) + Show Caption. Overlay composes the Figcaption Tone=overlay variant (inverse token pair); new <code>figure/caption-gap</code> Context token.</p>
 </div>
 
 <div class="card">
-  <h3>Divider &nbsp;<code class="mono">&lt;hr&gt;</code> <span><span class="pill comp">Component</span> <span class="pill build">Build</span> <span class="pill newtok">divider/*</span></span></h3>
+  <h3>Divider &nbsp;<code class="mono">&lt;hr&gt;</code> <span><span class="pill comp">Component</span> <span class="pill exists">Done</span> <span class="pill newtok">divider/*</span></span></h3>
   <table>
     <tr><th>Part</th><th>Property</th><th>Token</th></tr>
     <tr><td>Line</td><td>stroke</td><td><code>border/subtle</code></td></tr>
@@ -492,8 +492,8 @@
 <tr><td>13</td><td>Inline code</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>font-family.mono</code>; snug 130% line-height</td></tr>
 <tr><td>14</td><td>Code block</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>code/padding</code> · <code>code/{size}/line-height</code></td></tr>
 <tr><td>15</td><td>Table</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>table/cell/padding-*</code> ✓ · <code>table/row/*</code> ✓</td></tr>
-<tr><td>16</td><td>Figure + figcaption</td><td>Component</td><td><span class="pill build">Build</span></td><td>—</td></tr>
-<tr><td>17</td><td>Divider / hr</td><td>Component</td><td><span class="pill build">Build</span></td><td><code>divider/*</code></td></tr>
+<tr><td>16</td><td>Figure + figcaption</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>figure/caption-gap</code> ✓</td></tr>
+<tr><td>17</td><td>Divider / hr</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>divider/margin-block</code> ✓</td></tr>
 <tr><td>18</td><td>kbd</td><td>Component</td><td><span class="pill build">Build</span></td><td>mono (§8)</td></tr>
 <tr><td>19</td><td>strong</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>
 <tr><td>20</td><td>em</td><td>Char style</td><td><span class="pill build">Build</span></td><td>synthetic slant (no italic in system)</td></tr>

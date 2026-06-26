@@ -22,6 +22,10 @@ use crate::wiring;
 #[derive(Debug, Default, PartialEq)]
 pub struct AddOptions {
     pub components: Vec<String>,
+    /// Add **every** component the registry carries instead of a named list
+    /// (RFC 0005 §2.2). Mutually exclusive with explicit `components` (enforced by
+    /// the parser); the requested set is then the registry index's keys.
+    pub all: bool,
     pub json: bool,
     pub dry_run: bool,
     /// Copy the styled surface but skip installing the headless package (RFC
@@ -128,6 +132,7 @@ pub fn add(
 ) -> Result<(), CliError> {
     let AddOptions {
         components,
+        all,
         json,
         dry_run,
         styles_only,
@@ -159,7 +164,17 @@ pub fn add(
         .index()
         .map_err(|error| CliError::Registry(error.to_string()))?;
     let index = RegistryIndex::parse(&index)?;
-    let resolved = resolve(&index, components)?;
+    // `--all` requests every component the registry carries; otherwise the named
+    // list. `resolve` then folds in transitive component dependencies (which
+    // `--all` already contains) and sorts the set.
+    let every;
+    let requested: &[String] = if *all {
+        every = index.components.keys().cloned().collect::<Vec<_>>();
+        &every
+    } else {
+        components
+    };
+    let resolved = resolve(&index, requested)?;
     // Compute the per-file classification for the dry-run report. Both the human
     // ("Refresh plan:") and JSON ("files" array) outputs consume it.
     // - `None` when not dry-running (JSON omits the "files" key entirely).

@@ -497,6 +497,36 @@ fn reports_several_resolved_components_sorted_and_aligned() {
 }
 
 #[test]
+fn all_resolves_every_component_in_the_registry() {
+    let fs = InMemoryFs::new();
+    let registry = InMemoryRegistry::new(FLAT);
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    // `--all` with no named components resolves the whole registry index.
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            all: true,
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    assert_eq!(
+        String::from_utf8(output.captured()).unwrap(),
+        "Resolved 2 components to add:\n  button  0.1.0\n  switch  0.2.0\n",
+    );
+}
+
+#[test]
 fn pulls_in_transitive_component_dependencies() {
     let fs = InMemoryFs::new();
     let registry = InMemoryRegistry::new(WITH_DEPS);

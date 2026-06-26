@@ -292,6 +292,29 @@ fn rejects_add_with_no_components() {
 }
 
 #[test]
+fn parses_add_all_with_no_component_names() {
+    // `--all` stands in for an explicit list — no component names are required.
+    let command = parse(&args(&["add", "--all"])).unwrap();
+
+    assert_eq!(
+        command,
+        Command::Add(AddOptions {
+            all: true,
+            ..Default::default()
+        })
+    );
+}
+
+#[test]
+fn rejects_add_combining_all_with_component_names() {
+    // `--all` is the whole registry; naming components alongside it is ambiguous.
+    assert!(matches!(
+        parse(&args(&["add", "--all", "button"])).unwrap_err(),
+        CliError::Usage(_)
+    ));
+}
+
+#[test]
 fn rejects_an_unexpected_flag_to_add() {
     assert!(matches!(
         parse(&args(&["add", "button", "--soon"])).unwrap_err(),

@@ -142,6 +142,7 @@ deferred post-v1; for now, bring your own app via `create-vite` /
 ```sh
 primitiv init                      # scaffold primitiv.json (interactive)
 primitiv add <component...>        # ensure package + (opt-in) copy styles
+primitiv add --all                 # …for every component the registry carries
 primitiv tokens [--format <fmt>]   # emit the token layer in a format
 primitiv theme --brand <hex>       # Harmoni palette → theme token overrides
 primitiv list [--json]             # registry components + install state
@@ -167,8 +168,10 @@ in an **existing** project; a from-scratch generator is deferred (§1.5.5), and
 ### 2.2 `add`
 
 The core flow (§4). Ensures the headless package, optionally copies styles per
-config, resolves transitive deps, and offers any project wiring. Flags:
-`--styles-only` (Dev 3 — copy styles, don't touch the package),
+config, resolves transitive deps, and offers any project wiring. Takes one or
+more component names, **or** `--all` to add every component the registry carries
+(the two are mutually exclusive) — the reinstall shortcut after re-scaffolding.
+Flags: `--styles-only` (Dev 3 — copy styles, don't touch the package),
 `--no-styles` (headless only), `--format <fmt>` (override the config default for
 this run), `--path <dir>`, `--force` (overwrite without prompting).
 

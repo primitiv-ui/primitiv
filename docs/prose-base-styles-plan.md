@@ -59,20 +59,29 @@ via `[data-theme]` (already in the token layer).
 
 ## Progress
 
-- [x] **Reset layer activated (emit change) — UNVERIFIED (no Rust toolchain on
-  the authoring machine).** `crates/primitiv-emit/src/css.rs` `SUBLAYER_DECLARATION`
-  now leads with `primitiv.reset`; the 6 token goldens
+- [x] **Reset layer activated (emit change) — VERIFIED.** `crates/primitiv-emit/src/css.rs`
+  `SUBLAYER_DECLARATION` now leads with `primitiv.reset`; the 6 token goldens
   (`crates/primitiv-emit/tests/golden/{tokens,theme-modes,token-pipeline}.{css,scss}`)
   and the CLI assertions in `crates/primitiv-cli/src/commands/tokens_tests.rs`
-  were updated to match (RED→GREEN done as edits; **run `cargo test --workspace`
-  to confirm**, then the coverage gate per `rust-cli-test-conventions`).
+  were updated to match. Confirmed green: `cargo test --workspace` (75 passing)
+  and the coverage gate (`cargo llvm-cov --workspace --exclude harmoni-core
+  --exclude harmoni-wasm --fail-under-lines/regions/functions 100`) both pass.
+- [x] **Base element stylesheet authored** (step 3) at
+  `crates/primitiv-emit/assets/base.{css,scss}` — bare-element styles for the
+  inline marks + block prose in `@layer primitiv.reset`, fully tokenised (all 76
+  `var(--primitiv-*)` references resolve against the emitted token layer; SCSS
+  mirror is byte-identical, the base layer defining no `$primitiv-*` aliases).
+  The `font-style` Figma token (Regular/SemiBold) is intentionally not bound —
+  it carries the Figma style *name*, not a CSS `font-style`; CSS uses
+  `font-weight` per the registry convention. `list/marker-gap` is unbound (no
+  native-marker CSS property). **Not yet distributed** — see step 4.
 
 ## Remaining (tasks)
 
-1. Verify the reset-layer cycle (`cargo test --workspace` + `cargo llvm-cov …
-   --fail-under-lines/regions/functions 100`).
+1. ~~Verify the reset-layer cycle~~ — **done** (see Progress).
 2. Regenerate `apps/workbench/src/primitiv-tokens.css` (highlight + mono parity).
-3. **Author the base element stylesheet** — inline marks
+3. ~~**Author the base element stylesheet**~~ — **done**
+   (`crates/primitiv-emit/assets/base.{css,scss}`); the original spec follows. Inline marks
    (strong, em→synthetic oblique via `transform`, mark→`--primitiv-highlight-background`,
    del→strikethrough+muted, ins→underline, abbr→dotted underline+secondary,
    small→one-step-down+muted, sub/sup→native baseline + smaller, q→curly quotes

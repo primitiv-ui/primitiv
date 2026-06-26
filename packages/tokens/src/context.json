@@ -1406,6 +1406,12 @@
           "$value": "{space.space-12}"
         }
       }
+    },
+    "figure": {
+      "caption-gap": {
+        "$type": "number",
+        "$value": "{space.space-12}"
+      }
     }
   },
   "compact": {
@@ -2814,6 +2820,12 @@
           "$type": "number",
           "$value": "{space.space-8}"
         }
+      }
+    },
+    "figure": {
+      "caption-gap": {
+        "$type": "number",
+        "$value": "{space.space-8}"
       }
     }
   },
@@ -4224,6 +4236,12 @@
           "$value": "{space.space-16}"
         }
       }
+    },
+    "figure": {
+      "caption-gap": {
+        "$type": "number",
+        "$value": "{space.space-16}"
+      }
     }
   },
   "dense": {
@@ -5632,6 +5650,12 @@
           "$type": "number",
           "$value": "{space.space-4}"
         }
+      }
+    },
+    "figure": {
+      "caption-gap": {
+        "$type": "number",
+        "$value": "{space.space-4}"
       }
     }
   }

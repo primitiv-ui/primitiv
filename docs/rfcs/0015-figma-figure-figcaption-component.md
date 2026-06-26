@@ -1,6 +1,6 @@
 # RFC 0015 — Figma Figure + Figcaption component build
 
-> **Status:** Accepted (build in progress 2026-06-26)
+> **Status:** Implemented (build landed 2026-06-26 — see §10)
 > **Author:** simonrevill
 > **Date:** 2026-06-26
 > **Seeds from:** the 2026-06-26 Figure planning session (decisions taken live).
@@ -273,7 +273,37 @@ set; not an INSTANCE_SWAP slot until the file is published (RFC 0012 D11). See �
 
 ---
 
-## 10. Build outcome
+## 10. Build outcome (landed 2026-06-26)
 
-_(filled after the build — set node IDs, the created `figure/caption-gap`
-VariableID, and any confirmed deviations from this draft.)_
+Both sets, both grid-label groups, and the Light/Dark example frame live on the
+**Figure & Figcaption** page. Node IDs:
+
+| Set / artifact | Node ID | Variants |
+| --- | --- | --- |
+| Figcaption | `606:32739` | 15 (Size × Align) |
+| Figure | `607:32844` | 15 (Size × Caption Position) |
+| Figure Example frame | `607:32854` | Light/Dark × four densities |
+
+Token created — Context `figure/caption-gap` `VariableID:606:32708` (Dense
+`space-4` · Compact `space-8` · Comfortable `space-12` · Spacious `space-16`),
+backed up to `packages/tokens/src/context.json` under `figure` in all four
+density modes (after the `table` group, matching variable creation order).
+
+**Deviations from the draft, all minor:**
+
+- **Overlay scrim is solid at 90% opacity** (a hint of media shows through),
+  bound to `surface/inverse`; the caption text overrides to `content/inverse`.
+  Both flip as a pair per theme, verified in the example frame (Light = dark bar
+  + light text; Dark = light bar + dark text).
+- **The §7.2 example frame stacks a `below` *and* an `overlay` Figure per cell**
+  (rather than a separate overlay example), so the inverse-pair flip and the
+  density-scaled gap both read in one Light/Dark × four-density grid.
+- **Media placeholder height is a fixed 180px** at 320px figure width (a ~16:9
+  block); it is content, not a token-driven dimension — the consumer resizes.
+- The `image` glyph is the Icon set's `image` variant, recoloured to
+  `content/muted`.
+
+**Sandbox note:** `@primitiv-ui/tokens` tests were not run in the build sandbox
+(no `node_modules` — the wasm install gate). The `figure` group is structurally
+identical to the existing `table`/`quote`/`list` groups and the JSON validates;
+run `pnpm --filter @primitiv-ui/tokens qa:units` in CI to confirm.

@@ -395,14 +395,14 @@
 </div>
 
 <div class="card">
-  <h3>Figure + figcaption <span><span class="pill comp">Component</span> <span class="pill build">Build</span></span></h3>
+  <h3>Figure + figcaption <span><span class="pill comp">Component</span> <span class="pill exists">Done</span> <span class="pill newtok">figure/*</span></span></h3>
   <table>
     <tr><th>Part</th><th>Token</th></tr>
     <tr><td>Media slot</td><td>fill <code>surface/subtle</code> placeholder · radius <code>radii/8</code></td></tr>
     <tr><td>Caption font / fill</td><td><code>body/sm/*</code> · <code>content/muted</code></td></tr>
     <tr><td>Media→caption gap</td><td><code>space-8</code></td></tr>
   </table>
-  <p class="small">Variants: caption position (below · overlay), align (start · center).</p>
+  <p class="small">Two sets (RFC 0015): <b>Figcaption</b> Size xs–xl × Align start·center·end (15); <b>Figure</b> Size xs–xl × Caption Position below·above·overlay (15) + Show Caption. Overlay uses the inverse token pair; new <code>figure/caption-gap</code> Context token.</p>
 </div>
 
 <div class="card">
@@ -492,7 +492,7 @@
 <tr><td>13</td><td>Inline code</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>font-family.mono</code>; snug 130% line-height</td></tr>
 <tr><td>14</td><td>Code block</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>code/padding</code> · <code>code/{size}/line-height</code></td></tr>
 <tr><td>15</td><td>Table</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>table/cell/padding-*</code> ✓ · <code>table/row/*</code> ✓</td></tr>
-<tr><td>16</td><td>Figure + figcaption</td><td>Component</td><td><span class="pill build">Build</span></td><td>—</td></tr>
+<tr><td>16</td><td>Figure + figcaption</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>figure/caption-gap</code> ✓</td></tr>
 <tr><td>17</td><td>Divider / hr</td><td>Component</td><td><span class="pill exists">Done</span></td><td><code>divider/margin-block</code> ✓</td></tr>
 <tr><td>18</td><td>kbd</td><td>Component</td><td><span class="pill build">Build</span></td><td>mono (§8)</td></tr>
 <tr><td>19</td><td>strong</td><td>Char style</td><td><span class="pill build">Build</span></td><td>—</td></tr>

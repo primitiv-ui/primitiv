@@ -54,7 +54,8 @@ The full 27-item checklist lives at
 | 15 | Table | Component | Done — see [RFC 0014](0014-figma-table-component.md) |
 | 16 | Figure + figcaption | Component | Done — see [RFC 0015](0015-figma-figure-figcaption-component.md) |
 | 17 | Divider / hr | Component | Done |
-| 18–27 | kbd · char styles · … | Various | To build |
+| 18 | kbd | Component | Done |
+| 19–27 | char styles · … | Various | To build |
 
 ---
 
@@ -446,6 +447,9 @@ Type tokens reuse `body/*` + the `font-family/mono` primitive (**D14**); the
 `Inline Code Grid Labels` group (xs–xl headers) and an `Inline Code Example` frame
 (Light + Dark × four densities, representative `Size=md`).
 
+The code span is a **`Code` TEXT property** (default `"useState"`) bound to every
+variant's text node, so the span is editable from the panel (added alongside D17/Kbd).
+
 ### D16 — Code block + the `code/*` namespace
 
 Code block (`<pre>`) on the **Code Block** page. **5 `Size` variants** (xs–xl); the
@@ -489,11 +493,34 @@ All `code/*` tokens are backed up to `packages/tokens/src/context.json`; `line-h
 `primitives.json`. Ships with a `Code Block Grid Labels` group and a `Code Block Example`
 frame (Light + Dark × four densities, representative `Size=md`).
 
+### D17 — Kbd: the raised-key sibling of inline code
+
+`<kbd>` is a **leaf chip** like inline code (the slot strategy / 8-item rule do not
+apply) — a single mono text node in a box, one `Size` axis (xs–xl), the key label a
+**`Key` TEXT property** (default `"Esc"`) bound to every variant. Inline Code gained the
+same treatment (a `Code` TEXT property) in this session, so both leaf chips expose their
+text from the panel.
+
+The one deliberate divergence is the box treatment, so it reads as a **physical key cap**
+rather than a tinted code span:
+
+| | Fill | Stroke |
+|---|------|--------|
+| Inline code | `surface/subtle` | `border/subtle` |
+| **Kbd** | **`surface/raised`** (`VariableID:346:4432`) | **`border/default`** (`VariableID:346:4442`) |
+
+Everything else is shared: `radii/4`, padding space-4 (inline) / space-2 (block), text
+`fontFamily` → `font-family/mono`, `fontSize`/`fontStyle` → `body/{size}`, `lineHeight` →
+`code/{size}/line-height`, fill `content/primary`. **No new variables** — Kbd binds only
+to existing Intent/Context tokens, so nothing to back up to the token JSON. Ships with a
+`Kbd Grid Labels` group (xs–xl headers) and a `Kbd Example` frame (Light + Dark × four
+densities, representative `Size=md`).
+
 ---
 
 ## 4. Next steps
 
-Work through checklist items 15–27 in order. Priority path:
+Work through checklist items 19–27 in order. Priority path:
 
 1. **Inline code** (13, **D15**) and **Code block** (14, **D16**) — **done**. The
    `code/*` namespace (`code/padding`, `code/{size}/line-height`) and the

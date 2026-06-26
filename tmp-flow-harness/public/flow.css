@@ -6,31 +6,32 @@
  */
 
 @layer primitiv.tokens {
-  /* default = comfortable */
+  /* default = comfortable. Scaled up one step from the first seeds for more
+     generous rhythm; monotonic within each density and across the four. */
   :root,
   [data-density="comfortable"] {
-    --primitiv-flow-tight: var(--primitiv-space-space-8);
+    --primitiv-flow-tight: var(--primitiv-space-space-12);
+    --primitiv-flow-normal: var(--primitiv-space-space-20);
+    --primitiv-flow-section: var(--primitiv-space-space-32);
+    --primitiv-flow-region: var(--primitiv-space-space-48);
+  }
+  [data-density="compact"] {
+    --primitiv-flow-tight: var(--primitiv-space-space-10);
     --primitiv-flow-normal: var(--primitiv-space-space-16);
     --primitiv-flow-section: var(--primitiv-space-space-24);
     --primitiv-flow-region: var(--primitiv-space-space-32);
   }
-  [data-density="compact"] {
+  [data-density="dense"] {
     --primitiv-flow-tight: var(--primitiv-space-space-8);
     --primitiv-flow-normal: var(--primitiv-space-space-12);
     --primitiv-flow-section: var(--primitiv-space-space-16);
     --primitiv-flow-region: var(--primitiv-space-space-24);
   }
-  [data-density="dense"] {
-    --primitiv-flow-tight: var(--primitiv-space-space-4);
-    --primitiv-flow-normal: var(--primitiv-space-space-8);
-    --primitiv-flow-section: var(--primitiv-space-space-12);
-    --primitiv-flow-region: var(--primitiv-space-space-16);
-  }
   [data-density="spacious"] {
-    --primitiv-flow-tight: var(--primitiv-space-space-12);
-    --primitiv-flow-normal: var(--primitiv-space-space-24);
-    --primitiv-flow-section: var(--primitiv-space-space-32);
-    --primitiv-flow-region: var(--primitiv-space-space-48);
+    --primitiv-flow-tight: var(--primitiv-space-space-16);
+    --primitiv-flow-normal: var(--primitiv-space-space-28);
+    --primitiv-flow-section: var(--primitiv-space-space-40);
+    --primitiv-flow-region: var(--primitiv-space-space-56);
   }
 }
 

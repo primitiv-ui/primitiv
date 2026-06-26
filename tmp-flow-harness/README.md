@@ -32,7 +32,7 @@ D66, so no inter-block spacing). Right panel = the same markup inside
 
 | token | dense | compact | comfortable | spacious |
 |-------|-------|---------|-------------|----------|
-| `flow/tight`   | space-4  | space-8  | space-8  | space-12 |
-| `flow/normal`  | space-8  | space-12 | space-16 | space-24 |
-| `flow/section` | space-12 | space-16 | space-24 | space-32 |
-| `flow/region`  | space-16 | space-24 | space-32 | space-48 |
+| `flow/tight`   | space-8  | space-10 | space-12 | space-16 |
+| `flow/normal`  | space-12 | space-16 | space-20 | space-28 |
+| `flow/section` | space-16 | space-24 | space-32 | space-40 |
+| `flow/region`  | space-24 | space-32 | space-48 | space-56 |

@@ -295,6 +295,24 @@ clone.findOne(n => n.type === 'TEXT').componentPropertyReferences =
 instance's custom **name** and layout-sizing overrides — re-apply `name` and
 `layoutSizingHorizontal = 'FILL'` after calling it.)
 
+### Nested instance properties don't bubble up unless exposed
+
+For a composed component (a Figure nesting a Figcaption, a Table nesting Cells),
+the nested instance's `Text` / variant properties do **not** appear on the
+top-level instance's panel automatically — you must set
+`nested.isExposedInstance = true` on the instance inside each variant. After
+that, the parent instance lists it under `instance.exposedInstances` (not in the
+parent's own `componentProperties` dict) and the UI shows a section per exposed
+instance. Two rules that make it clean:
+
+- **Same name across variants** — give the exposed nested instance an identical
+  name in every variant (e.g. always "Caption Text"), so the panel shows one
+  stable section instead of a different one per variant.
+- **Exposure is all-or-nothing** — exposing surfaces *all* the nested props
+  (Text + every VARIANT axis), so a nested `Size`/`Tone` that the parent's own
+  axis is meant to drive becomes independently editable. Accept it (it's the only
+  way to surface the editable `Text`) and note it in the description.
+
 ---
 
 ## 6. Grid layout for component sets

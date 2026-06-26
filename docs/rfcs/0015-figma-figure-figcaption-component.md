@@ -105,10 +105,12 @@ position composes a real `Tone=overlay` variant (D4).
 toggles the nested Figcaption's `visible`; when off, the figure is media-only and
 collapses to the media height.
 
-Figure has no `Align` axis (D2) — caption alignment lives on Figcaption. Figure's
-nested caption defaults to `Align=start`; `center`/`end` is an instance override
-(a documented one-property change on the nested caption). This keeps Figure at 15
-rather than 45 variants.
+Figure has no `Align` axis (D2) — caption alignment lives on Figcaption. The
+nested caption is **exposed** on the Figure instance (named "Caption Text"), so
+its `Text`, `Align`, `Size`, and `Tone` are editable from the parent panel
+without entering the instance; the caption defaults to `Align=start` and
+`center`/`end` is a one-property change on that exposed section. Keeping `Align`
+off Figure as a variant axis avoids a 45-variant matrix.
 
 The `Size` axis composes the matching-size Figcaption variant: a `Size=lg` Figure
 nests the `Size=lg` Figcaption, so switching a placed instance's `Size` cascades
@@ -316,6 +318,15 @@ density modes (after the `table` group, matching variable creation order).
   bound to `surface/inverse`. Both scrim and the `Tone=overlay` caption flip as a
   pair per theme, verified in the example frame (Light = dark bar + light text;
   Dark = light bar + dark text).
+- **The nested caption is exposed (`isExposedInstance = true`)** on all 15 Figure
+  variants and renamed to a consistent **"Caption Text"**, so its `Text` (plus
+  `Align`/`Size`/`Tone`) surfaces on the top-level Figure instance panel under a
+  "Caption Text" section — without this, D9's "edit the caption from the parent
+  instance" did not actually hold (the property existed on the set but never
+  bubbled up). Exposure is all-or-nothing in Figma, so caption `Size`/`Tone` also
+  appear; they are normally driven by the Figure variant and should only be
+  overridden deliberately. `Show Caption` remains bound (binding is by key, so the
+  rename is safe).
 - **The §7.2 example frame stacks a `below` *and* an `overlay` Figure per cell**
   (rather than a separate overlay example), so the inverse-pair flip and the
   density-scaled gap both read in one Light/Dark × four-density grid.

@@ -1,0 +1,60 @@
+/*
+ * THROWAWAY harness stylesheet — prototypes RFC 0016 flow rhythm.
+ * Seed --primitiv-flow-* values per density (to be moved into context.json once
+ * the values are agreed) + the opt-in owl + role overrides in @layer primitiv.base.
+ * Not shipped; delete with tmp-flow-harness/.
+ */
+
+@layer primitiv.tokens {
+  /* default = comfortable */
+  :root,
+  [data-density="comfortable"] {
+    --primitiv-flow-tight: var(--primitiv-space-space-8);
+    --primitiv-flow-normal: var(--primitiv-space-space-16);
+    --primitiv-flow-section: var(--primitiv-space-space-24);
+    --primitiv-flow-region: var(--primitiv-space-space-32);
+  }
+  [data-density="compact"] {
+    --primitiv-flow-tight: var(--primitiv-space-space-8);
+    --primitiv-flow-normal: var(--primitiv-space-space-12);
+    --primitiv-flow-section: var(--primitiv-space-space-16);
+    --primitiv-flow-region: var(--primitiv-space-space-24);
+  }
+  [data-density="dense"] {
+    --primitiv-flow-tight: var(--primitiv-space-space-4);
+    --primitiv-flow-normal: var(--primitiv-space-space-8);
+    --primitiv-flow-section: var(--primitiv-space-space-12);
+    --primitiv-flow-region: var(--primitiv-space-space-16);
+  }
+  [data-density="spacious"] {
+    --primitiv-flow-tight: var(--primitiv-space-space-12);
+    --primitiv-flow-normal: var(--primitiv-space-space-24);
+    --primitiv-flow-section: var(--primitiv-space-space-32);
+    --primitiv-flow-region: var(--primitiv-space-space-48);
+  }
+}
+
+@layer primitiv.base {
+  /* Default sibling rhythm — the one-directional owl. */
+  .primitiv-flow > * + * {
+    margin-block-start: var(--primitiv-flow-normal);
+  }
+
+  /* Discrete proportionality: larger headings get more leading air. */
+  .primitiv-flow > * + :where(h1, h2) {
+    margin-block-start: var(--primitiv-flow-region);
+  }
+  .primitiv-flow > * + :where(h3, h4) {
+    margin-block-start: var(--primitiv-flow-section);
+  }
+
+  /* Heading asymmetry: tight space *below* a heading binds it to its content. */
+  .primitiv-flow > :where(h1, h2, h3, h4) + * {
+    margin-block-start: var(--primitiv-flow-tight);
+  }
+
+  /* Self-contained blocks own their breathing room. */
+  .primitiv-flow > hr {
+    margin-block: var(--primitiv-flow-region);
+  }
+}

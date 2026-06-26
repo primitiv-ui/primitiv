@@ -51,6 +51,7 @@
 <h1>Web Typography &amp; Text Elements</h1>
 <p class="lead">A build checklist for the Primitiv Figma library. Every web content element you need, what it's made of, which existing tokens it binds to, and which need a new namespace. Drag this into Figma as a reference board.</p>
 <p class="small">Generated from <code>packages/tokens/src/*.json</code> (the repo copy of the live Figma variables). Values shown are the resolved primitives at the time of generation. Branch <code>claude/figma-typography-planning-cbohph</code>.</p>
+<p class="small"><b>Web / CLI parity — landed (branch <code>prose-base-styles</code>).</b> The block prose &amp; inline marks here ship as a tokenised <b>base element stylesheet</b> in <code>@layer primitiv.reset</code> (<code>crates/primitiv-emit/assets/base.css</code>), distributed by <code>primitiv tokens</code>/<code>init</code> as a <code>primitiv-base.css</code> sibling the token layer <code>@import</code>s (RFC 0008 §7, D60). <b>Table</b> and <b>Divider</b> also gained styled <code>registry/components/*</code> entries (<code>primitiv add table</code>/<code>divider</code>). See <code>docs/prose-base-styles-plan.md</code> and <code>docs/transfer-and-next-steps.md</code>.</p>
 
 <div class="legend" style="margin:8pt 0;">
   <span><span class="pill comp">Component</span> stateful / composed</span>

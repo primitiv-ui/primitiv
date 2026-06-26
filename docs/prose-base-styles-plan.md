@@ -102,10 +102,20 @@ via `[data-theme]` (already in the token layer).
    mirror.
 4. ~~**Distribute** it via `tokens`/`init`~~ — **done** (sibling
    `primitiv-base.{css,scss}` + `@import`; stdout inlines; see Progress).
-5. **Table** registry entry — contract + styles.css/scss + generated recipe/wrapper
-   (structural compound, like Tabs), add to `registry.json` + `EmbeddedRegistry`
-   `include_str!`, contract `data-*` drift guard.
-6. **Divider** registry entry — same, simpler (orientation modifier).
+5. ~~**Table** registry entry~~ — **done** (`registry/components/table/`). Structural
+   compound mirroring the headless `Table`: root + 8 part wrappers, an `--xs…--xl`
+   **size** (type-scale) modifier, density-driven cell padding via the
+   `table/cell/padding-*` Context tokens, raised header band, hover (auto) +
+   `aria-selected` selected row hooks. Generated recipe/wrapper + derived SCSS,
+   wired into `registry.json` + `EmbeddedRegistry`, drift-guarded in
+   `primitiv-emit` (recipe/wrapper/scss) and a `data-*` guard in `packages/react`
+   (the headless table is static → asserts no `data-*` on any part).
+6. ~~**Divider** registry entry~~ — **done** (`registry/components/divider/`). Single
+   element, no modifiers; the horizontal/vertical split rides the
+   `aria-orientation` attribute the headless component sets (no class modifier).
+   Generated recipe (base-only `cva`)/wrapper + derived SCSS, wired in and
+   drift-guarded the same way; the `packages/react` guard pins `aria-orientation`
+   as the styling hook.
 7. **Docs/RFC** — RFC 0008 §7 (reset now populated/declared),
    `docs/transfer-and-next-steps.md`, `packages/react/README.md` components table,
    cross-ref from `docs/figma-typography-checklist.html`.

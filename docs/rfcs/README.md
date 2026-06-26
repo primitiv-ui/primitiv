@@ -33,6 +33,7 @@ live in [`../consumption-design.md`](../consumption-design.md).
 | [0007](0007-cli-development-and-test-strategy.md) | CLI development & test strategy | Draft |
 | [0008](0008-css-architecture-cascade-layers-and-token-scoping.md) | CSS architecture: cascade layers & token scoping | Draft |
 | [0009](0009-mode-scoping-theme-and-density.md) | Mode scoping: theme & density as inheritable attributes | Draft |
+| [0016](0016-spacing-and-flow-rhythm.md) | Spacing & flow rhythm | Draft — accepted (no default margins); reverts landed block margins |
 
 - **0004** — the foundation: the hybrid model (versioned headless packages +
   opt-in copy-in styles) and the four-part styling contract (root class +
@@ -56,6 +57,16 @@ live in [`../consumption-design.md`](../consumption-design.md).
   page/frame/child inheritance on the web, working across the cascade-based
   formats, with responsive (container-query) density designed-in as a deferred
   follow-on.
+
+- **0016** — spacing & flow rhythm: a **counter-proposal** to the global
+  block margins the `prose-base-styles` work landed in `primitiv.reset`
+  (RFC 0008 D60). Argues inter-block rhythm should be owned by an opt-in *flow
+  context* (`.primitiv-flow`), not by collapsing element margins — a
+  one-directional owl (`> * + *`, `margin-block-start`) over a density-scoped
+  `flow/*` scale, eliminating margin-collapse non-determinism and first/last
+  bleed; element *typography* and inline marks stay in `reset` untouched. Ships
+  two registry surfaces (the class + an `asChild` `<Prose>`); `gap` stays the
+  tool for component-internal spacing.
 
 Read **0004 → 0005 → 0006** in order; each builds on the one before. **0008**
 constrains the *shape* of 0006's emitted CSS (layers + token scoping) and **0009**

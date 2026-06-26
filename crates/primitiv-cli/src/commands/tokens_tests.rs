@@ -41,7 +41,7 @@ fn writes_the_design_system_token_layer_as_css() {
     let written = String::from_utf8(fs.read(out).unwrap()).unwrap();
     // The cascade-layer declaration (RFC 0008) heads the file.
     assert!(written.contains(
-        "@layer primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;"
+        "@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;"
     ));
     // A real primitive routed into the base :root block (space-4 = 4px → 0.25rem).
     assert!(written.contains("--primitiv-space-space-4: 0.25rem;"));
@@ -60,7 +60,7 @@ fn writes_the_token_layer_as_scss_when_the_format_is_scss() {
 
     let written = String::from_utf8(fs.read(out).unwrap()).unwrap();
     // The SCSS surface is the canonical CSS plus resolving $primitiv-* variables.
-    assert!(written.contains("@layer primitiv.tokens"));
+    assert!(written.contains("@layer primitiv.reset"));
     assert!(written.contains("$primitiv-space-space-4: var(--primitiv-space-space-4);"));
 }
 
@@ -90,7 +90,7 @@ fn falls_back_to_the_config_path_when_out_is_omitted() {
     // Written to the config's tokens.path, resolved by walking up from the cwd.
     let written =
         String::from_utf8(fs.read(Path::new("src/styles/from-config.css")).unwrap()).unwrap();
-    assert!(written.contains("@layer primitiv.tokens"));
+    assert!(written.contains("@layer primitiv.reset"));
 }
 
 #[test]
@@ -119,7 +119,7 @@ fn defaults_the_format_to_css_when_omitted_and_no_config_exists() {
     tokens(&fs, &stdout, None, Some(out)).unwrap();
 
     let written = String::from_utf8(fs.read(out).unwrap()).unwrap();
-    assert!(written.contains("@layer primitiv.tokens"));
+    assert!(written.contains("@layer primitiv.reset"));
     assert!(written.contains("--primitiv-space-space-4: 0.25rem;"));
 }
 
@@ -133,7 +133,7 @@ fn streams_to_stdout_when_neither_out_nor_a_config_is_present() {
     tokens(&fs, &stdout, Some(Format::Css), None).unwrap();
 
     let streamed = String::from_utf8(stdout.captured()).unwrap();
-    assert!(streamed.contains("@layer primitiv.tokens"));
+    assert!(streamed.contains("@layer primitiv.reset"));
     assert!(streamed.contains("--primitiv-space-space-4: 0.25rem;"));
     // Nothing was written to disk.
     assert!(!fs.exists(Path::new("project/tokens.css")));

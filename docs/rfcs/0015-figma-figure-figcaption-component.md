@@ -304,7 +304,11 @@ density modes (after the `table` group, matching variable creation order).
   Figure overlay composes, replacing the original instance fill override (D4). The
   Figcaption grid lays the two tones as side-by-side blocks; the set background is
   transparent and a page-level `surface/inverse` rect backs the overlay block so
-  its light text is legible.
+  its light text is legible. **Gotcha:** the `Tone=overlay` variants were built by
+  `clone()`-ing the default-tone variants, and `clone()` **drops descendant
+  `componentPropertyReferences`** — the cloned text nodes lost their `Text`
+  property binding and had to be re-bound (`{ characters: 'Text#606:436' }`) so the
+  editable Text property works on the overlay caption too.
 - **Overlay scrim hugs the caption** (≈40–60px / 22–33% of the 180px media across
   xs–xl) — an early build bug pinned it to a fixed 100px (56%); fixed by setting
   the scrim `layoutSizingVertical = 'HUG'` and re-pinning `vertical: MAX`.

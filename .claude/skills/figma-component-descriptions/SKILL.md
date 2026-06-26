@@ -799,6 +799,66 @@ Pairs with: Inline Code (tinted code-span sibling), prose body text
 Notes: distinct from Inline Code (surface/subtle + border/subtle) — the raised surface + stronger border read as a physical key. Leaf chip — the slot strategy / 8-item rule do not apply. Single Size axis; the Key label is a TEXT property (mirrors Inline Code's Code property).
 ```
 
+### Em — `613:35644`
+
+```
+Em (<em>) — stress emphasis as a synthetic ~10° oblique slant (Asta Sans ships no italic).
+
+Type: surface component (inline mark — leaf chip)
+
+Axes: Size xs|sm|md|lg|xl
+
+Tokens: family/size/line-height/style → body/{size}/* (Asta Sans Regular, density-aware)
+        fill → content/primary
+        transform → ~10° shear via relativeTransform (Figma normalises to a clean oblique)
+
+Properties: Text (TEXT "emphasis")
+
+Density: Context mode override on parent frame
+Pairs with: Strong (bold emphasis), prose body text
+Notes: COMPONENT not text style — a skew is a node transform, not a TextStyle property. Slant carries ~1.5% vertical compression (cos 10°), visually negligible. The character-level marks strong/del/ins/abbr/small are instead text styles ({Density} / Inline / {Mark} / {size}).
+```
+
+### Mark — `612:35492`
+
+```
+Mark (<mark>) — highlighted text on a brand-tint background, as if marked with a highlighter.
+
+Type: surface component (inline span with background)
+
+Axes: Size xs|sm|md|lg|xl
+
+Tokens: fill (background) → highlight/background (Intent — brand/100 Light · brand/800 Dark)
+        text fill → content/primary
+        family/size/line-height/style → body/{size}/* (Asta Sans Regular, density-aware)
+        padding → space-4 (inline) · space-2 (block); radius → radii/2
+
+Properties: Text (TEXT "highlighted")
+
+Density: Context mode override on parent frame
+Pairs with: prose body text
+Notes: the palette has no yellow, so the highlight is a brand tint (highlight/background, a NEW Intent token) rather than classic highlighter yellow — kept on-palette. content/primary stays legible on both tints.
+```
+
+### Sub & Sup — `613:35711`
+
+```
+Sub & Sup (<sub> / <sup>) — subscript and superscript scripts beside a base character.
+
+Type: surface component (inline mark)
+
+Axes: Position sub|sup · Size xs|sm|md|lg|xl (10 variants)
+
+Tokens: base → body/{size}/* ; script → body/{down(size)}/* (xs→xs, sm→xs, md→sm, lg→md, xl→lg — one step smaller, density-aware)
+        fill → content/primary
+        offset → HUG row, counterAxisAlignItems MIN (sup, script rides top) / MAX (sub, script sits bottom)
+
+Properties: Base (TEXT "X") · Script (TEXT "2")
+
+Density: Context mode override on parent frame
+Notes: COMPONENT not text style — Figma has no baseline-shift property, so the offset is faked by aligning a one-size-smaller script to the top (sup) or bottom (sub) of the base in an auto-layout row.
+```
+
 ---
 
 ## Definition of done checklist

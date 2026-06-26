@@ -240,6 +240,12 @@
         }
       }
     },
+    "highlight": {
+      "background": {
+        "$type": "color",
+        "$value": "{color.brand.100}"
+      }
+    },
     "border": {
       "subtle": {
         "$type": "color",
@@ -508,6 +514,12 @@
           "$type": "color",
           "$value": "{color.brand.900}"
         }
+      }
+    },
+    "highlight": {
+      "background": {
+        "$type": "color",
+        "$value": "{color.brand.800}"
       }
     },
     "border": {

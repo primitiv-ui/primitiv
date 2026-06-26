@@ -74,7 +74,17 @@ via `[data-theme]` (already in the token layer).
   The `font-style` Figma token (Regular/SemiBold) is intentionally not bound —
   it carries the Figma style *name*, not a CSS `font-style`; CSS uses
   `font-weight` per the registry convention. `list/marker-gap` is unbound (no
-  native-marker CSS property). **Not yet distributed** — see step 4.
+  native-marker CSS property).
+- [x] **Distributed via `tokens` / `init`** (step 4). The base sheet is embedded
+  in `primitiv-emit` (`base::{BASE_CSS, BASE_SCSS}`, from `assets/base.{css,scss}`).
+  `tokens` now writes a **sibling `primitiv-base.{css,scss}`** next to the token
+  layer and **prepends `@import "./primitiv-base.<ext>";`** to it (the import leads
+  the file, as CSS requires); CSS/Tailwind share the `.css` sheet, SCSS takes the
+  `.scss` mirror. With no file target the base layer is **inlined after the tokens
+  on stdout** so the stream stays self-contained. `init` inherits this for free
+  (it delegates to `tokens`). Driven RED→GREEN with unit tests
+  (`tokens_tests.rs`) + an on-disk e2e (`tests/cli.rs`); `cargo test --workspace`
+  green and the coverage gate holds at 100% lines/regions/functions.
 
 ## Remaining (tasks)
 
@@ -90,7 +100,8 @@ via `[data-theme]` (already in the token layer).
    kbd, a, table defaults), all tokenised (no magic numbers — see
    `registry-stylesheet-conventions`), in `@layer primitiv.reset`. CSS + SCSS
    mirror.
-4. **Distribute** it via `tokens`/`init` (TDD, golden, 100% coverage).
+4. ~~**Distribute** it via `tokens`/`init`~~ — **done** (sibling
+   `primitiv-base.{css,scss}` + `@import`; stdout inlines; see Progress).
 5. **Table** registry entry — contract + styles.css/scss + generated recipe/wrapper
    (structural compound, like Tabs), add to `registry.json` + `EmbeddedRegistry`
    `include_str!`, contract `data-*` drift guard.

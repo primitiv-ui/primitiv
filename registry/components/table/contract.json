@@ -1,0 +1,50 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "table",
+  "version": "0.1.0",
+  "description": "An accessible data table — a compound of standard HTML table elements (`<table>`, `<thead>`, `<tbody>`, `<tr>`, `<th>`, `<td>`, `<caption>`) with a tokenised default theme.",
+  "docs": "https://primitiv-ui.dev/docs/components/table",
+  "root": {
+    "element": "table",
+    "class": "primitiv-table",
+    "component": "Root"
+  },
+  "dataAttributes": [],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Type scale for the whole table; `data-density` scales cell padding further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-table--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-table--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-table--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-table--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-table--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "subcomponents": [
+    { "name": "head", "component": "Head", "element": "thead", "class": "primitiv-table__head", "dataAttributes": [] },
+    { "name": "body", "component": "Body", "element": "tbody", "class": "primitiv-table__body", "dataAttributes": [] },
+    { "name": "footer", "component": "Footer", "element": "tfoot", "class": "primitiv-table__footer", "dataAttributes": [] },
+    { "name": "row", "component": "Row", "element": "tr", "class": "primitiv-table__row", "dataAttributes": [] },
+    { "name": "header", "component": "Header", "element": "th", "class": "primitiv-table__header", "dataAttributes": [] },
+    { "name": "cell", "component": "Cell", "element": "td", "class": "primitiv-table__cell", "dataAttributes": [] },
+    { "name": "scroll-area", "component": "ScrollArea", "element": "div", "class": "primitiv-table__scroll-area", "dataAttributes": [] },
+    { "name": "caption", "component": "Caption", "element": "caption", "class": "primitiv-table__caption", "dataAttributes": [] }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-table-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
+    { "name": "--primitiv-table-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-table-font-weight", "defaultsTo": "var(--primitiv-body-md-font-weight)" },
+    { "name": "--primitiv-table-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" },
+    { "name": "--primitiv-table-foreground", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-table-rule-color", "defaultsTo": "var(--primitiv-border-subtle)" },
+    { "name": "--primitiv-table-header-foreground", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-table-header-weight", "defaultsTo": "var(--primitiv-font-weight-semibold)" },
+    { "name": "--primitiv-table-header-bg", "defaultsTo": "var(--primitiv-surface-raised)" },
+    { "name": "--primitiv-table-header-rule-color", "defaultsTo": "var(--primitiv-border-strong)" },
+    { "name": "--primitiv-table-caption-foreground", "defaultsTo": "var(--primitiv-content-muted)" }
+  ]
+}

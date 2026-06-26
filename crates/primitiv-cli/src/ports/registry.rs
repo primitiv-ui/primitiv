@@ -98,6 +98,11 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("divider", "divider.recipe.ts"),
     registry_file!("divider", "divider.tsx"),
     registry_file!("divider", "contract.json"),
+    registry_file!("table", "styles.css"),
+    registry_file!("table", "styles.scss"),
+    registry_file!("table", "table.recipe.ts"),
+    registry_file!("table", "table.tsx"),
+    registry_file!("table", "contract.json"),
 ];
 
 impl Registry for EmbeddedRegistry {

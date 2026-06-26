@@ -125,18 +125,20 @@
 
   /* ===== Block prose ===== */
 
-  /* Paragraph: the default running text. Bottom margin only, so stacked
-     paragraphs space evenly without a leading gap. */
+  /* Paragraph: the default running text. No outer margin — inter-block rhythm is
+     opt-in via the flow context (.primitiv-flow / <Prose>), so a bare paragraph
+     carries no default spacing. The UA margin is zeroed, not dropped (RFC 0016 D66). */
   p {
     font-family: var(--primitiv-body-md-font-family);
     font-size: var(--primitiv-body-md-font-size);
     font-weight: var(--primitiv-body-md-font-weight);
     line-height: var(--primitiv-body-md-line-height);
     color: var(--primitiv-content-primary);
-    margin-block: var(--primitiv-space-space-0) var(--primitiv-space-space-16);
+    margin-block: var(--primitiv-space-space-0);
   }
 
-  /* Headings: HTML level maps 1:1 to the heading scale slot. */
+  /* Headings: HTML level maps 1:1 to the heading scale slot. No outer margin —
+     heading rhythm and its asymmetry are owned by the flow context (RFC 0016 D66). */
   h1,
   h2,
   h3,
@@ -144,7 +146,7 @@
   h5,
   h6 {
     color: var(--primitiv-content-primary);
-    margin-block: var(--primitiv-space-space-24) var(--primitiv-space-space-8);
+    margin-block: var(--primitiv-space-space-0);
   }
 
   h1 {
@@ -199,7 +201,7 @@
     line-height: var(--primitiv-body-md-line-height);
     color: var(--primitiv-content-primary);
     padding-inline-start: var(--primitiv-list-indent);
-    margin-block: var(--primitiv-space-space-0) var(--primitiv-space-space-16);
+    margin-block: var(--primitiv-space-space-0);
   }
 
   /* Inter-item rhythm on the gap between items, never above the first. */
@@ -212,7 +214,12 @@
   }
 
   /* Description list: term in the label face (contrast does the hierarchy),
-     definition in secondary body, indented under its term. */
+     definition in secondary body, indented under its term. The container's UA
+     block margin is zeroed; flow rhythm is opt-in (RFC 0016 D66). */
+  dl {
+    margin-block: var(--primitiv-space-space-0);
+  }
+
   dt {
     font-family: var(--primitiv-label-sm-font-family);
     font-size: var(--primitiv-label-sm-font-size);
@@ -221,6 +228,8 @@
     color: var(--primitiv-content-primary);
   }
 
+  /* The inline indent under the term is structural (parallel to the list indent),
+     so it stays; only the outer block margin is dropped. */
   dd {
     font-family: var(--primitiv-body-md-font-family);
     font-size: var(--primitiv-body-md-font-size);
@@ -228,7 +237,6 @@
     line-height: var(--primitiv-body-md-line-height);
     color: var(--primitiv-content-secondary);
     margin-inline-start: var(--primitiv-list-indent);
-    margin-block-end: var(--primitiv-space-space-12);
   }
 
   /* Blockquote: a left accent bar plus indent is the quote signal (no italic). */
@@ -241,23 +249,24 @@
     border-inline-start: var(--primitiv-border-width-3) solid var(--primitiv-border-strong);
     padding-inline-start: var(--primitiv-quote-padding-inline);
     margin-inline: var(--primitiv-space-space-0);
-    margin-block: var(--primitiv-space-space-16);
+    margin-block: var(--primitiv-space-space-0);
   }
 
   /* Horizontal rule: a single subtle line drawn as a background fill, the
-     default border zeroed through the border-width token. */
+     default border zeroed through the border-width token. Outer margin zeroed —
+     the flow context spaces it (RFC 0016 D66). */
   hr {
     block-size: var(--primitiv-border-width-1);
     background-color: var(--primitiv-border-subtle);
     border-width: var(--primitiv-border-width-0);
     margin-inline: var(--primitiv-space-space-0);
-    margin-block: var(--primitiv-space-space-24);
+    margin-block: var(--primitiv-space-space-0);
   }
 
-  /* Figure: reset the UA inline margin; caption sits below the media. */
+  /* Figure: zero the UA inline + block margins; caption sits below the media. */
   figure {
     margin-inline: var(--primitiv-space-space-0);
-    margin-block: var(--primitiv-space-space-16);
+    margin-block: var(--primitiv-space-space-0);
   }
 
   figcaption {
@@ -292,7 +301,7 @@
     border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
     border-radius: var(--primitiv-radii-8);
     padding: var(--primitiv-code-padding);
-    margin-block: var(--primitiv-space-space-16);
+    margin-block: var(--primitiv-space-space-0);
     overflow: auto;
   }
 

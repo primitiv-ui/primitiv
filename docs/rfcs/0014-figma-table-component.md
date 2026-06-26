@@ -484,9 +484,17 @@ future session doesn't try to "sync" them back into the headless package. See
 ### D9 — Cell + Header Cell expose an editable `Text` property
 Both leaf cells carry a `Text` TEXT component property bound to their text
 node's `characters`, so designers populate cells from the instance panel (and
-from the top-level Table, where nested cell text surfaces automatically) instead
-of double-clicking into each instance. Added per variant with the same name so
-it unifies across the set. See §3.6.
+from the top-level Table) instead of double-clicking into each instance. Added
+per variant with the same name so it unifies across the set. See §3.6.
+
+**Correction (2026-06-26):** the original build claimed the cell `Text`
+"surfaces automatically" on the top-level Table — it does **not**. Nested
+instance properties only bubble up when the nested instance has
+`isExposedInstance = true`, which the build never set. Fixed in a follow-up (see
+§11) by exposing the Cell/Header-Cell instances inside the Row set **and** the
+Row instances inside the Table set (exposure is per-level), and giving every
+nested cell a positional name (`Header 1–4`, `Cell 1–4`) so the exposed panel is
+navigable.
 
 ---
 
@@ -587,4 +595,17 @@ visible on inspection but low-contrast in dark; if stronger dark striping is
 wanted later, retune the dark alias (e.g. `neutral/800`) — deferred, not a build
 defect. The throwaway-instance test (all booleans toggled on at `Size=lg,
 Borders=grid`) confirmed caption, footer, and rows 5–8 all surface correctly.
+
+**Post-build update (2026-06-26) — nested cell `Text` now actually surfaces (D9).**
+The original build did not expose the nested instances, so D9's "populate from
+the top-level Table" never worked — the cells' `Text` stayed buried. Fixed by
+setting `isExposedInstance = true` on the Cell/Header-Cell instances in the
+**Table / Row** set (24) and on the Row instances in the **Table** set (150),
+and naming every nested cell positionally (`Header 1–4` in the head row, `Cell
+1–4` elsewhere; 600 renames across the 15 variants) so the exposed panel reads
+as `Head → Header 1–4`, `Row N → Cell 1–4`, `Footer → Cell 1–4`. Verified by
+editing a cell's `Text` on a throwaway top-level instance. (Figma exposure is
+per-level and all-or-nothing — caption `Align`/`Size`/`Sort` surface alongside
+`Text`; see the `figma-prose-component` skill "Nested instance properties don't
+bubble up unless exposed".)
 ```

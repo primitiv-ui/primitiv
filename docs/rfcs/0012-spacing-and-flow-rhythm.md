@@ -290,25 +290,40 @@ Like density, flow propagates through the cascade from a wrapper the consumer
 already controls. The headless components inside need not forward, accept, or be
 aware of a flow prop.
 
-### 4.3 Two surfaces ship in v1 — the class *and* `<Prose>`
+### 4.3 Two surfaces ship in v1 — both from the **registry**, not the headless package
 
-Unlike RFC 0009's deferred `DensityProvider`, flow ships **both** surfaces from
-v1:
+Flow ships **both** surfaces, and — unlike RFC 0009's planned `DensityProvider` —
+**both live in the copy-in registry (`primitiv add prose`), not in the headless
+`@primitiv-ui/react` package:**
 
-- **`.primitiv-flow`** — the bare class: the floor and the contract. No JS, every
-  format, any element the consumer controls. A non-React consumer reaches for this
-  directly.
-- **`<Prose>`** (`@primitiv-ui/react`) — a headless layout primitive that renders a
-  flow container. It applies `primitiv-flow` and supports `asChild` (Slot, per
-  `react-component-patterns`) so it can be any semantic element
-  (`<article>`, `<section>`, `<main>`). It is *sugar over the class* — every
-  behaviour is reproducible with the class alone — but it ships now because prose
-  regions are common enough to earn an ergonomic, semantic component.
+- **`.primitiv-flow`** — the bare CSS class: the floor and the contract. The owl
+  rule and role mapping are the registry component's *styled surface*
+  (`styles.css` / `styles.scss`, every value tokenised to `--primitiv-flow-*` per
+  `registry-stylesheet-conventions`). Framework-agnostic — a plain-HTML, SCSS, or
+  Tailwind consumer uses the class directly.
+- **`<Prose>`** — the registry component's *React surface* (`prose.tsx`): a thin
+  wrapper that applies `primitiv-flow` and supports `asChild` (Slot, per
+  `react-component-patterns`) so it renders any semantic element
+  (`<article>`, `<section>`, `<main>`), and self-imports its stylesheet (the `add`
+  wiring, CLAUDE.md). It is *sugar over the class* — every behaviour is
+  reproducible with the class alone.
 
-The component is **not load-bearing**: the class remains the underlying contract.
-Because `<Prose>` is a new component in `packages/react`, it carries the full
-definition-of-done (test, JSDoc, README, components-table row, workbench example,
-roadmap tick) — that build follows this RFC via the standard new-component path.
+**Why the registry and not the headless package.** `@primitiv-ui/react` is the
+*behaviour* layer (roving tabindex, controllable state, collections). `<Prose>`
+has **zero behaviour** — it applies a class and nothing more — so it belongs with
+the styled copy-in surface, beside Button / Field / Tabs, not in the headless
+logic package. Housing it in the registry also keeps the flow *CSS* (which the
+bare class needs) and the *wrapper* in one installable unit: `primitiv add prose`
+yields `prose.tsx` + `styles.{css,scss}` + `contract.json` + `README.md` — the
+standard registry shape. The `flow/*` **tokens** stay in the shared token layer
+(`primitiv tokens`, §3.2), so they are present for the class regardless of which
+components are installed.
+
+The component is **not load-bearing** (the class is the contract), and as a
+registry component it follows the **registry** build path
+(`registry-stylesheet-conventions`: synced `styles.css` / `styles.scss` /
+`contract.json` + README, then a CLI rebuild to surface it — CLAUDE.md's
+"Embedded registry gotcha"), *not* the `packages/react` new-component cycle.
 
 ---
 
@@ -367,7 +382,8 @@ remains.
    settled; only the count and the numbers are open.
 
 Resolved and recorded in §9: fixed-vs-derived (D59 — fixed, derivation rejected),
-the `<Prose>` component (D60 — ships in v1 alongside the class), role-mapping
+the `<Prose>` component (D60 — ships in v1 as a registry copy-in, not in the
+headless package), role-mapping
 ownership (D61 — shipped/opinionated/overridable), opt-in-vs-global (D58 — opt-in),
 and horizontal rhythm (D62 — none needed; the logical property covers vertical
 writing modes).
@@ -392,7 +408,7 @@ writing modes).
 | 7 | The checklist's per-element block margins are **reframed**: between-sibling spacing comes from the flow context; only genuinely *inner* element spacing (quote indent, code padding) stays element-local; self-contained "needs outer margin" blocks become flow **roles** | D57 |
 | 8 | **Opt-in, never global:** there is no global flow default (consistent with RFC 0008's reserved-empty `primitiv.reset`); `.primitiv-flow` is applied deliberately. A *component* may opt its own stacked content in — that is not a *global* default | D58 |
 | 9 | **Fixed token scale; runtime type-derivation rejected** — `em`/`lh`-derived rhythm floats off the `space-*` grid, saves no authoring (heading asymmetry/proportionality must be authored regardless), and is harder to override than a token. Proportionality-to-heading-size is captured by **discrete heading-role steps**, not derivation | D59 |
-| 10 | **Both surfaces ship in v1:** the `.primitiv-flow` class (floor/contract) **and** a `<Prose>` headless component (`asChild`-polymorphic sugar over it) — unlike RFC 0009's deferred provider | D60 |
+| 10 | **Both surfaces ship in v1 from the registry — not the headless package:** the `.primitiv-flow` class and a `<Prose>` `asChild` wrapper are a copy-in registry component (`primitiv add prose`), because `<Prose>` has zero behaviour and belongs with the styled surface; `@primitiv-ui/react` is unchanged | D60 |
 | 11 | The role→step **mapping is shipped, opinionated, and overridable** (encodes heading asymmetry + discrete proportionality; targets semantic children; `:where()` + token keeps it sovereign) — not handed to the consumer to rebuild | D61 |
 | 12 | **No separate horizontal-rhythm model** — inline spacing is `gap` / `padding-inline`; the logical `margin-block-start` already rotates to horizontal under vertical writing modes | D62 |
 </content>

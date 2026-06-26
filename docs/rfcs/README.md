@@ -86,6 +86,8 @@ build/test strategy for 0005–0006 and applies once implementation starts.
   the architectural sibling of `data-density`. A one-directional owl rule
   (`> * + *`, `margin-block-start`) drives a density-scoped `flow/*` token scale
   so rhythm densifies in lockstep with type and control anatomy; `gap` stays the
-  tool for component-internal spacing. Ships two surfaces — the `.primitiv-flow`
-  class and a `<Prose>` component. Model settled (D51–D62); only the flow-scale
-  step count + per-density values stay open, pending layout validation.
+  tool for component-internal spacing. Ships two surfaces from the **registry**
+  (not the headless package) — the `.primitiv-flow` class and an `asChild`
+  `<Prose>` wrapper, since Prose carries zero behaviour. Model settled (D51–D62);
+  only the flow-scale step count + per-density values stay open, pending layout
+  validation.

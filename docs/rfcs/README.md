@@ -112,7 +112,8 @@ build/test strategy for 0005–0006 and applies once implementation starts.
   (cell padding) and Intent (row-state fills) tokens. The build plan a future
   session executes.
 - **0015** — building the Figma **Figure + Figcaption** (typography checklist
-  #16): a Figcaption leaf set (Size × Align) + a composed top-level Figure
-  (Size × Caption Position — below · above · overlay), the overlay scrim using
-  the `inverse` token pair, and one new `figure/caption-gap` Context token.
-  Figma-only — there is no headless React `Figure`.
+  #16): a Figcaption leaf set (Size × Align × Tone) + a composed top-level Figure
+  (Size × Caption Position — below · above · overlay), the overlay position
+  composing the Figcaption `Tone=overlay` variant (the `inverse` token pair), and
+  one new `figure/caption-gap` Context token. Figma-only — there is no headless
+  React `Figure`.

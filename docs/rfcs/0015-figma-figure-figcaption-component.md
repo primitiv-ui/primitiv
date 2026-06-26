@@ -81,14 +81,18 @@ only:
 | --- | --- | --- |
 | `Size` | `xs · sm · md · lg · xl` | `body/{size}` type tokens on the text node |
 | `Align` | `start · center · end` | `textAlignHorizontal` + FILL text alignment |
+| `Tone` | `default · overlay` | text fill — `content/muted` (default) vs `content/inverse` (overlay) |
 
-**= 5 × 3 = 15 variants.** Plus a **`Text`** TEXT component property bound to the
-caption text node's `characters` (default `"Figure caption"`), so a designer
+**= 5 × 3 × 2 = 30 variants.** Plus a **`Text`** TEXT component property bound to
+the caption text node's `characters` (default `"Figure caption"`), so a designer
 edits the label from the panel and — crucially — from the parent **Figure**
 instance, where the nested caption's `Text` surfaces automatically (RFC 0014 D9).
 
 Structure: a single TEXT node, FILL width, HUG height. `body/{size}` type,
-`content/muted` fill, Asta Sans Regular. `textAlignHorizontal` follows `Align`.
+Asta Sans Regular. `textAlignHorizontal` follows `Align`. Fill follows `Tone`:
+`content/muted` (default) or `content/inverse` (overlay). `Tone` is a
+first-class variant — **not** an instance fill override — so Figure's overlay
+position composes a real `Tone=overlay` variant (D4).
 
 ### 3.2 Figure (`<figure>`)
 
@@ -137,11 +141,11 @@ pair**, which always inverts together against the current theme:
 | Dark | light `#d3dae3` | dark `#141414` |
 
 Both are readable in both themes and stay fully tokenised — no hardcoded black.
-In `overlay` only, the nested Figcaption instance's text fill is overridden to
-`content/inverse` (the leaf's own default stays `content/muted` for below/above),
-and the caption bar gets a `surface/inverse` fill with inner padding bound to
-`figure/caption-gap` / `space` (see §5). The scrim is **solid** for v1; a
-translucent / gradient scrim is deferred (§9).
+The caption text colour is carried by the Figcaption **`Tone=overlay`** variant
+(`content/inverse`), composed directly by Figure's overlay position — **not** an
+instance fill override (D4). The caption bar gets a `surface/inverse` fill, hugs
+the caption height, and is pinned to the media's bottom edge. The scrim is
+**solid** (90% opacity) for v1; a translucent / gradient scrim is deferred (§9).
 
 ---
 
@@ -244,11 +248,15 @@ Three positions on Figure (× Size = 15). `below`/`above` are auto-layout
 ordering; `overlay` is an absolutely-positioned scrim bar over the media bottom.
 (Human choice, 2026-06-26.)
 
-### D4 — Overlay uses the `inverse` token pair
+### D4 — Overlay uses the `inverse` token pair, carried by a Figcaption `Tone` variant
 Scrim `surface/inverse` + caption text `content/inverse` invert together, so the
 overlay bar is readable and fully tokenised in both themes (no hardcoded black).
-The leaf Figcaption keeps `content/muted`; overlay overrides the nested
-instance's text fill. See §4.
+The caption colour is a first-class Figcaption **`Tone=overlay`** variant
+(default tone stays `content/muted`), which Figure's overlay position composes
+directly — **not** an instance fill override. (Revised at build on human review:
+the original override was fragile and hid the treatment from the Figcaption set;
+a `Tone` axis — mirroring Blockquote — exposes it and makes the composition
+explicit.) See §3.1, §4.
 
 ### D5 — `figure/caption-gap` scales by density
 One new Context token (4/8/12/16 across Dense→Spacious), aliasing `space/*`.
@@ -280,7 +288,7 @@ Both sets, both grid-label groups, and the Light/Dark example frame live on the
 
 | Set / artifact | Node ID | Variants |
 | --- | --- | --- |
-| Figcaption | `606:32739` | 15 (Size × Align) |
+| Figcaption | `606:32739` | 30 (Size × Align × Tone) |
 | Figure | `607:32844` | 15 (Size × Caption Position) |
 | Figure Example frame | `607:32854` | Light/Dark × four densities |
 
@@ -289,12 +297,21 @@ Token created — Context `figure/caption-gap` `VariableID:606:32708` (Dense
 backed up to `packages/tokens/src/context.json` under `figure` in all four
 density modes (after the `table` group, matching variable creation order).
 
-**Deviations from the draft, all minor:**
+**Deviations from the draft, all confirmed on human review:**
 
+- **Figcaption gained a `Tone` axis** (`default · overlay`) — 30 variants, not 15.
+  The overlay caption colour (`content/inverse`) is now a first-class variant the
+  Figure overlay composes, replacing the original instance fill override (D4). The
+  Figcaption grid lays the two tones as side-by-side blocks; the set background is
+  transparent and a page-level `surface/inverse` rect backs the overlay block so
+  its light text is legible.
+- **Overlay scrim hugs the caption** (≈40–60px / 22–33% of the 180px media across
+  xs–xl) — an early build bug pinned it to a fixed 100px (56%); fixed by setting
+  the scrim `layoutSizingVertical = 'HUG'` and re-pinning `vertical: MAX`.
 - **Overlay scrim is solid at 90% opacity** (a hint of media shows through),
-  bound to `surface/inverse`; the caption text overrides to `content/inverse`.
-  Both flip as a pair per theme, verified in the example frame (Light = dark bar
-  + light text; Dark = light bar + dark text).
+  bound to `surface/inverse`. Both scrim and the `Tone=overlay` caption flip as a
+  pair per theme, verified in the example frame (Light = dark bar + light text;
+  Dark = light bar + dark text).
 - **The §7.2 example frame stacks a `below` *and* an `overlay` Figure per cell**
   (rather than a separate overlay example), so the inverse-pair flip and the
   density-scaled gap both read in one Light/Dark × four-density grid.

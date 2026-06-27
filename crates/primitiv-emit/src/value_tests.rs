@@ -24,3 +24,9 @@ fn emits_opacity_as_a_unitless_ratio() {
 fn emits_other_categories_as_the_unitless_number() {
     assert_eq!(format_number("font-weight", 400.0), "400");
 }
+
+#[test]
+fn emits_duration_as_milliseconds() {
+    assert_eq!(format_number("duration", 150.0), "150ms");
+    assert_eq!(format_number("duration", 0.0), "0ms");
+}

@@ -17,11 +17,14 @@ const LENGTH_CATEGORIES: &[&str] = &[
 ///
 /// - length categories (`space`, `size`, `radii`, `font-size`, `line-height`,
 ///   `border-width`, `letter-spacing`) → `rem` at a 16px base (`8` → `0.5rem`);
+/// - `duration` → CSS time in `ms` (`150` → `150ms`);
 /// - `opacity` → a unitless `0–1` ratio (`80` → `0.8`);
 /// - everything else (e.g. `font-weight`) → the unitless number (`400`).
 pub fn format_number(category: &str, value: f64) -> String {
     if LENGTH_CATEGORIES.contains(&category) {
         format!("{}rem", trim(value / 16.0))
+    } else if category == "duration" {
+        format!("{}ms", trim(value))
     } else if category == "opacity" {
         trim(value / 100.0)
     } else {

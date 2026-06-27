@@ -479,6 +479,41 @@ describe('figmaVarsToDtcg', () => {
     })
   })
 
+  it('merges two modes that collapse to the same top-level key', () => {
+    // Mode names are lowercased before they become keys, so 'Light' and 'light'
+    // both target intent.light. The second merge must reuse the existing group
+    // rather than recreate it — exercising the "key already present" path.
+    const DUP_MODE_COLL: FigmaCollection = {
+      id: 'cdup',
+      name: 'Intent',
+      modes: [
+        { modeId: 'mL', name: 'Light' },
+        { modeId: 'ml', name: 'light' },
+      ],
+      defaultModeId: 'mL',
+    }
+    const result = figmaVarsToDtcg(
+      [DUP_MODE_COLL],
+      [
+        {
+          id: 'v1',
+          name: 'action/primary/default',
+          resolvedType: 'COLOR',
+          variableCollectionId: 'cdup',
+          valuesByMode: {
+            mL: { r: 0, g: 0, b: 0, a: 1 },
+            ml: { r: 1, g: 1, b: 1, a: 1 },
+          },
+        },
+      ],
+    )
+
+    // The later 'light' mode wins, proving its merge landed in the existing key.
+    expect(result.intent.light).toEqual({
+      action: { primary: { default: { $type: 'color', $value: '#ffffff' } } },
+    })
+  })
+
   it('routes Primitives / Foreground per-mode into foreground, resolving aliases', () => {
     const result = figmaVarsToDtcg(
       [FOREGROUND_COLL],

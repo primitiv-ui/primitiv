@@ -47,6 +47,16 @@ jobs:
       - name: Test libraries
         run: pnpm -r --filter "@primitiv-ui/react" --filter "@primitiv-ui/icons" --filter "@primitiv-ui/tokens" qa:units
 
+      # Type-check the library sources AND their tests. vitest runs through
+      # esbuild, which strips types without checking them, so a type error in a
+      # component or its test otherwise slips through the suite. The tokens
+      # package already self-checks via its own `lint` script.
+      - name: Type-check libraries
+        run: |
+          pnpm --filter @primitiv-ui/react typecheck
+          pnpm --filter @primitiv-ui/icons typecheck
+          pnpm --filter @primitiv-ui/tokens lint
+
       - name: Type-check registry wrappers
         run: pnpm qa:registry-types
 

@@ -124,4 +124,29 @@ describe("ContextMenu.RadioGroup + ContextMenu.RadioItem", () => {
     // Assert
     expect(onValueChange).not.toHaveBeenCalled();
   });
+
+  it("highlights a RadioItem on pointer enter and clears it on pointer leave", () => {
+    // Arrange
+    render(
+      <ContextMenu.Root defaultOpen>
+        <ContextMenu.Trigger>Area</ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <ContextMenu.RadioGroup defaultValue="light">
+            <ContextMenu.RadioItem value="light">Light</ContextMenu.RadioItem>
+          </ContextMenu.RadioGroup>
+        </ContextMenu.Content>
+      </ContextMenu.Root>,
+    );
+    const item = screen.getByRole("menuitemradio", {
+      name: "Light",
+      hidden: true,
+    });
+
+    // Act & Assert — enter highlights, leave clears it.
+    fireEvent.mouseEnter(item);
+    expect(item).toHaveAttribute("data-highlighted");
+
+    fireEvent.mouseLeave(item);
+    expect(item).not.toHaveAttribute("data-highlighted");
+  });
 });

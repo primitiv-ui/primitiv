@@ -142,4 +142,27 @@ describe("ContextMenu.CheckboxItem", () => {
     expect(onCheckedChange).not.toHaveBeenCalled();
     expect(item).toHaveAttribute("aria-disabled", "true");
   });
+
+  it("highlights on pointer enter and clears the highlight on pointer leave", () => {
+    // Arrange
+    render(
+      <ContextMenu.Root defaultOpen>
+        <ContextMenu.Trigger>Area</ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <ContextMenu.CheckboxItem>Show grid</ContextMenu.CheckboxItem>
+        </ContextMenu.Content>
+      </ContextMenu.Root>,
+    );
+    const item = screen.getByRole("menuitemcheckbox", {
+      name: "Show grid",
+      hidden: true,
+    });
+
+    // Act & Assert — enter highlights, leave clears it.
+    fireEvent.mouseEnter(item);
+    expect(item).toHaveAttribute("data-highlighted");
+
+    fireEvent.mouseLeave(item);
+    expect(item).not.toHaveAttribute("data-highlighted");
+  });
 });

@@ -22,7 +22,8 @@
   "scripts": {
     "qa": "pnpm qa:units",
     "qa:units": "vitest run --coverage",
-    "qa:units:watch": "vitest --coverage"
+    "qa:units:watch": "vitest --coverage",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "peerDependencies": {
     "@types/react": "^18.0.0 || ^19.0.0",

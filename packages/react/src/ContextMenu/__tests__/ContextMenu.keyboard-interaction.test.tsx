@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { ContextMenu } from "../ContextMenu";
@@ -168,5 +168,60 @@ describe("ContextMenu keyboard interaction", () => {
     expect(
       screen.getByRole("menuitem", { name: "Delete", hidden: true }),
     ).toHaveFocus();
+  });
+
+  it("ArrowUp from a middle item moves to the previous item", async () => {
+    // Arrange — drives the non-wrapping branch (currentIndex - 1).
+    const user = userEvent.setup();
+    renderMenu();
+    await user.keyboard("{ArrowDown}");
+    expect(
+      screen.getByRole("menuitem", { name: "Duplicate", hidden: true }),
+    ).toHaveFocus();
+
+    // Act
+    await user.keyboard("{ArrowUp}");
+
+    // Assert
+    expect(
+      screen.getByRole("menuitem", { name: "Rename", hidden: true }),
+    ).toHaveFocus();
+  });
+
+  it("ignores arrow keys when the menu has no items", () => {
+    // Arrange — an empty Content has nothing to focus, so activeElement is the
+    // body, exercising the no-popover-scope fallback and the empty-items guard.
+    render(
+      <ContextMenu.Root defaultOpen>
+        <ContextMenu.Trigger>Area</ContextMenu.Trigger>
+        <ContextMenu.Content />
+      </ContextMenu.Root>,
+    );
+    const menu = screen.getByRole("menu", { hidden: true });
+
+    // Act + Assert — no throw, menu stays open.
+    expect(() => fireEvent.keyDown(menu, { key: "ArrowDown" })).not.toThrow();
+    expect(menu).toBeInTheDocument();
+  });
+
+  it("Enter does nothing when no item is focused", () => {
+    // Arrange — blur the auto-focused first item so currentIndex resolves to -1.
+    const onSelect = vi.fn();
+    render(
+      <ContextMenu.Root defaultOpen>
+        <ContextMenu.Trigger>Area</ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <ContextMenu.Item onSelect={onSelect}>Rename</ContextMenu.Item>
+        </ContextMenu.Content>
+      </ContextMenu.Root>,
+    );
+    const menu = screen.getByRole("menu", { hidden: true });
+    (document.activeElement as HTMLElement | null)?.blur();
+
+    // Act
+    fireEvent.keyDown(menu, { key: "Enter" });
+
+    // Assert — nothing was activated.
+    expect(onSelect).not.toHaveBeenCalled();
   });
 });

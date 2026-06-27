@@ -128,12 +128,13 @@ export function figmaVarsToDtcg(
   const foreground  = collections.find((c) => c.name === 'Primitives / Foreground')
   const intent      = collections.find((c) => c.name === 'Intent')
   const context     = collections.find((c) => c.name === 'Context')
-  const singleMode  = collections.filter(
-    (c) => c.name === 'Primitives' || c.name === 'Interaction',
-  )
+  const singleMode  = collections.filter((c) => c.name in SINGLE_MODE_FILES)
 
   const routes = new Map<string, Routing>(
-    singleMode.map((c) => [c.id, routeCollection(c.name)]),
+    singleMode.map((c) => [
+      c.id,
+      { file: SINGLE_MODE_FILES[c.name], prefix: [] },
+    ]),
   )
 
   // All variables are addressable by their natural name path — no collection prefix.
@@ -200,10 +201,14 @@ export function figmaVarsToDtcg(
   return files
 }
 
-function routeCollection(name: string): Routing {
-  if (name === 'Primitives')   return { file: 'primitives',   prefix: [] }
-  if (name === 'Interaction')  return { file: 'interaction',  prefix: [] }
-  throw new Error(`Unrecognised collection name: "${name}"`)
+/**
+ * Single-mode collection names mapped to their output file. The keys are the
+ * single source of truth for both the `singleMode` filter and the routing
+ * lookup, so the two can never drift apart.
+ */
+const SINGLE_MODE_FILES: Record<string, keyof DtcgFiles> = {
+  Primitives: 'primitives',
+  Interaction: 'interaction',
 }
 
 function mergeIntoPrefix(

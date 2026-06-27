@@ -355,6 +355,27 @@ describe('App', () => {
       )
     })
 
+    it('bootstraps the context chosen in the dropdown', async () => {
+      const postMessage = vi.spyOn(window.parent, 'postMessage')
+      render(<App />)
+
+      // Switch the dropdown off its default before triggering the bootstrap.
+      await userEvent.selectOptions(screen.getByRole('combobox'), 'dense')
+      await userEvent.click(
+        screen.getByRole('button', { name: /Bootstrap context/i }),
+      )
+
+      expect(postMessage).toHaveBeenLastCalledWith(
+        {
+          pluginMessage: {
+            type: 'bootstrap-context-request',
+            context: 'dense',
+          },
+        },
+        '*',
+      )
+    })
+
     it('shows a summary of the bootstrap result when it arrives', async () => {
       render(<App />)
 
@@ -571,6 +592,30 @@ describe('App', () => {
         await screen.findByText(/Bootstrapped Intent/i),
       ).toBeInTheDocument()
       expect(screen.getByText(/46 updated/)).toBeInTheDocument()
+    })
+
+    it('lists warnings returned with the bootstrap intent result', async () => {
+      render(<App />)
+
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            pluginMessage: {
+              type: 'bootstrap-intent-result',
+              result: {
+                collection: 'updated',
+                variablesCreated: 0,
+                variablesUpdated: 45,
+                warnings: ['Primitive "intent/danger" missing — skipped'],
+              },
+            },
+          },
+        }),
+      )
+
+      expect(
+        await screen.findByText(/intent\/danger/),
+      ).toBeInTheDocument()
     })
 
     it('shows the error message when a bootstrap-intent-error arrives', async () => {

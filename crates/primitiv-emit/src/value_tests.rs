@@ -1,4 +1,4 @@
-use crate::value::{format_cubic_bezier, format_number};
+use crate::value::{format_cubic_bezier, format_number, format_shadow, ShadowLayer};
 
 #[test]
 fn emits_length_categories_as_rem_against_a_16px_base() {
@@ -37,4 +37,34 @@ fn formats_four_control_points_as_a_css_cubic_bezier() {
         format_cubic_bezier(&[0.4, 0.0, 0.2, 1.0]),
         "cubic-bezier(0.4, 0, 0.2, 1)"
     );
+}
+
+#[test]
+fn formats_shadow_layers_as_a_comma_joined_box_shadow() {
+    let layers = vec![
+        ShadowLayer {
+            offset_x: "0".into(),
+            offset_y: "1px".into(),
+            blur: "2px".into(),
+            spread: "0".into(),
+            color: "rgba(0,0,0,0.08)".into(),
+        },
+        ShadowLayer {
+            offset_x: "0".into(),
+            offset_y: "2px".into(),
+            blur: "4px".into(),
+            spread: "0".into(),
+            color: "rgba(0,0,0,0.04)".into(),
+        },
+    ];
+
+    assert_eq!(
+        format_shadow(&layers),
+        "0 1px 2px 0 rgba(0,0,0,0.08), 0 2px 4px 0 rgba(0,0,0,0.04)"
+    );
+}
+
+#[test]
+fn formats_an_empty_shadow_as_none() {
+    assert_eq!(format_shadow(&[]), "none");
 }

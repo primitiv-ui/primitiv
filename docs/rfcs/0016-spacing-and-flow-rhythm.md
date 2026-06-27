@@ -447,6 +447,20 @@ inside the opt-in flow context, never globally.
    | `section` | space-16 | space-24 | space-32 | space-40 |
    | `region`  | space-24 | space-32 | space-48 | space-56 |
 
+> **Future refinement — the `spacious` tier reads as under-scaled (noted
+> 2026-06-27).** Surfaced while building the three-density marketing/article
+> specimens in Figma (Layout Test 2). The `compact → comfortable` step jumps the
+> `region` gap by **+16** (32→48), but `comfortable → spacious` only by **+8**
+> (48→56), so `spacious` does not breathe noticeably more than `comfortable` —
+> contrary to what the name implies. The whole `spacious` column is compressed
+> against the tier below it (`tight` +4, the rest +8). Worth revisiting whether
+> `spacious` should widen — candidate values floated: `tight` space-20, `normal`
+> space-40, `section` space-56, `region` space-80 — so the four density modes feel
+> evenly spaced apart. Deferred: it is a system-wide token change that re-syncs to
+> both Figma (`flow/*`) and web (`--primitiv-flow-*`), and may want a parallel look
+> at whether the jumps should be more dramatic across *all* densities, not just the
+> top tier.
+
 ---
 
 ## 9. Decision record

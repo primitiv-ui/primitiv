@@ -10,6 +10,10 @@ DescriptionList, Blockquote, Table, Figure, Divider, and similar. These
 components differ from framed controls (Button, Input) in that their primary
 concern is **flexible content slots** rather than interaction states.
 
+> **Arranging** these blocks into a page/article/specimen with correct spacing
+> *between* them (the Figma counterpart of the web's `.primitiv-flow` rhythm) is a
+> separate concern — see the **`figma-prose-layout`** skill.
+
 ## Definition of done — every prose component page
 
 A component page is not done until all five of these exist:

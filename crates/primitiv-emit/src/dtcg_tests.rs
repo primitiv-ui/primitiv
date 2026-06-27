@@ -111,10 +111,76 @@ fn skips_a_cubic_bezier_leaf_without_exactly_four_control_points() {
 }
 
 #[test]
-fn skips_leaves_whose_value_is_neither_text_nor_a_number() {
+fn flattens_a_single_layer_shadow_object_into_a_box_shadow() {
     let dtcg = json!({
         "shadow": {
-            "sm": { "$type": "shadow", "$value": { "offsetX": 0 } }
+            "1": { "$type": "shadow", "$value": {
+                "offsetX": "0", "offsetY": "1px", "blur": "2px", "spread": "0",
+                "color": "rgba(0,0,0,0.08)"
+            } }
+        }
+    });
+
+    assert_eq!(
+        tokens_from_dtcg(&dtcg),
+        vec![Token::new(&["shadow", "1"], "0 1px 2px 0 rgba(0,0,0,0.08)")]
+    );
+}
+
+#[test]
+fn flattens_a_multi_layer_shadow_array_into_a_box_shadow() {
+    let dtcg = json!({
+        "shadow": {
+            "2": { "$type": "shadow", "$value": [
+                { "offsetX": "0", "offsetY": "1px", "blur": "2px", "spread": "0",
+                  "color": "rgba(0,0,0,0.08)" },
+                { "offsetX": "0", "offsetY": "2px", "blur": "4px", "spread": "0",
+                  "color": "rgba(0,0,0,0.04)" }
+            ] }
+        }
+    });
+
+    assert_eq!(
+        tokens_from_dtcg(&dtcg),
+        vec![Token::new(
+            &["shadow", "2"],
+            "0 1px 2px 0 rgba(0,0,0,0.08), 0 2px 4px 0 rgba(0,0,0,0.04)"
+        )]
+    );
+}
+
+#[test]
+fn flattens_an_empty_shadow_array_into_the_none_keyword() {
+    let dtcg = json!({
+        "elevation": {
+            "flat": { "$type": "shadow", "$value": [] }
+        }
+    });
+
+    assert_eq!(
+        tokens_from_dtcg(&dtcg),
+        vec![Token::new(&["elevation", "flat"], "none")]
+    );
+}
+
+#[test]
+fn skips_a_shadow_layer_missing_a_required_component() {
+    let dtcg = json!({
+        "shadow": {
+            "1": { "$type": "shadow", "$value": {
+                "offsetX": "0", "offsetY": "1px", "blur": "2px", "spread": "0"
+            } }
+        }
+    });
+
+    assert_eq!(tokens_from_dtcg(&dtcg), Vec::<Token>::new());
+}
+
+#[test]
+fn skips_an_unsupported_composite_leaf() {
+    let dtcg = json!({
+        "gradient": {
+            "brand": { "$type": "gradient", "$value": { "stops": [] } }
         }
     });
 

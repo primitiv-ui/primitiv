@@ -128,6 +128,47 @@ describe("ContextMenu mouse interaction", () => {
     expect(item).not.toHaveAttribute("data-highlighted");
   });
 
+  it("keeps the menu open when the click lands on the trigger itself", async () => {
+    // The outside-click dismissal must exempt the trigger so a click within it
+    // does not immediately re-close a just-opened menu.
+    const user = userEvent.setup();
+    const onOpenChange = vi.fn();
+    render(
+      <ContextMenu.Root defaultOpen onOpenChange={onOpenChange}>
+        <ContextMenu.Trigger>Area</ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <ContextMenu.Item>Rename</ContextMenu.Item>
+        </ContextMenu.Content>
+      </ContextMenu.Root>,
+    );
+
+    // Act
+    await user.click(screen.getByText("Area"));
+
+    // Assert — the trigger-contained click did not request a close.
+    expect(onOpenChange).not.toHaveBeenCalledWith(false);
+  });
+
+  it("keeps the menu open when the click lands inside the content popover", async () => {
+    // A click on the menu surface (but not an item) must not dismiss it.
+    const user = userEvent.setup();
+    const onOpenChange = vi.fn();
+    render(
+      <ContextMenu.Root defaultOpen onOpenChange={onOpenChange}>
+        <ContextMenu.Trigger>Area</ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <ContextMenu.Item>Rename</ContextMenu.Item>
+        </ContextMenu.Content>
+      </ContextMenu.Root>,
+    );
+
+    // Act
+    await user.click(screen.getByRole("menu", { hidden: true }));
+
+    // Assert
+    expect(onOpenChange).not.toHaveBeenCalledWith(false);
+  });
+
   it("closes the menu when the user clicks outside both the trigger and the content", async () => {
     // Arrange
     const user = userEvent.setup();

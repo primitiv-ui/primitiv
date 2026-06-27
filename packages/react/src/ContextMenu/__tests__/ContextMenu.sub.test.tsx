@@ -259,4 +259,149 @@ describe("ContextMenu.Sub", () => {
     // Assert
     expect(subTrigger).toHaveAttribute("aria-expanded", "false");
   });
+
+  it("opens the sub-menu when the SubTrigger is clicked", () => {
+    // Arrange
+    render(
+      <ContextMenu.Root defaultOpen>
+        <ContextMenu.Trigger>Area</ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <ContextMenu.Sub>
+            <ContextMenu.SubTrigger>More</ContextMenu.SubTrigger>
+            <ContextMenu.SubContent>
+              <ContextMenu.Item>Nested</ContextMenu.Item>
+            </ContextMenu.SubContent>
+          </ContextMenu.Sub>
+        </ContextMenu.Content>
+      </ContextMenu.Root>,
+    );
+    const subTrigger = screen.getByRole("menuitem", {
+      name: "More",
+      hidden: true,
+    });
+
+    // Act
+    fireEvent.click(subTrigger);
+
+    // Assert
+    expect(subTrigger).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("does not open on click when the SubTrigger is disabled", () => {
+    // Arrange
+    render(
+      <ContextMenu.Root defaultOpen>
+        <ContextMenu.Trigger>Area</ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <ContextMenu.Sub>
+            <ContextMenu.SubTrigger disabled>More</ContextMenu.SubTrigger>
+            <ContextMenu.SubContent>
+              <ContextMenu.Item>Nested</ContextMenu.Item>
+            </ContextMenu.SubContent>
+          </ContextMenu.Sub>
+        </ContextMenu.Content>
+      </ContextMenu.Root>,
+    );
+    const subTrigger = screen.getByRole("menuitem", {
+      name: "More",
+      hidden: true,
+    });
+
+    // Act
+    fireEvent.click(subTrigger);
+
+    // Assert
+    expect(subTrigger).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("ignores the open arrow key when the SubTrigger is disabled", () => {
+    // Arrange
+    render(
+      <ContextMenu.Root defaultOpen>
+        <ContextMenu.Trigger>Area</ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <ContextMenu.Sub>
+            <ContextMenu.SubTrigger disabled>More</ContextMenu.SubTrigger>
+            <ContextMenu.SubContent>
+              <ContextMenu.Item>Nested</ContextMenu.Item>
+            </ContextMenu.SubContent>
+          </ContextMenu.Sub>
+        </ContextMenu.Content>
+      </ContextMenu.Root>,
+    );
+    const subTrigger = screen.getByRole("menuitem", {
+      name: "More",
+      hidden: true,
+    });
+
+    // Act
+    fireEvent.keyDown(subTrigger, { key: "ArrowRight" });
+
+    // Assert
+    expect(subTrigger).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("closes an already-open sibling sub when a second sub opens via click", () => {
+    // The hover path closes the prior sub up front via closeSiblingSub; opening
+    // by click skips that, so the sub's own registration effect must supplant
+    // the previously registered sibling instead.
+    render(
+      <ContextMenu.Root defaultOpen>
+        <ContextMenu.Trigger>Area</ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <ContextMenu.Sub>
+            <ContextMenu.SubTrigger>Share</ContextMenu.SubTrigger>
+            <ContextMenu.SubContent>
+              <ContextMenu.Item>Email</ContextMenu.Item>
+            </ContextMenu.SubContent>
+          </ContextMenu.Sub>
+          <ContextMenu.Sub>
+            <ContextMenu.SubTrigger>Move to</ContextMenu.SubTrigger>
+            <ContextMenu.SubContent>
+              <ContextMenu.Item>Trash</ContextMenu.Item>
+            </ContextMenu.SubContent>
+          </ContextMenu.Sub>
+        </ContextMenu.Content>
+      </ContextMenu.Root>,
+    );
+    const a = screen.getByRole("menuitem", { name: "Share", hidden: true });
+    const b = screen.getByRole("menuitem", { name: "Move to", hidden: true });
+
+    // Act — click opens A, then clicking B must supplant A.
+    fireEvent.click(a);
+    expect(a).toHaveAttribute("aria-expanded", "true");
+    fireEvent.click(b);
+
+    // Assert
+    expect(a).toHaveAttribute("aria-expanded", "false");
+    expect(b).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("leaves the sub-menu open when a non-close key is pressed inside the SubContent", () => {
+    // Arrange
+    render(
+      <ContextMenu.Root defaultOpen>
+        <ContextMenu.Trigger>Area</ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <ContextMenu.Sub defaultOpen>
+            <ContextMenu.SubTrigger>More</ContextMenu.SubTrigger>
+            <ContextMenu.SubContent>
+              <ContextMenu.Item>Nested</ContextMenu.Item>
+            </ContextMenu.SubContent>
+          </ContextMenu.Sub>
+        </ContextMenu.Content>
+      </ContextMenu.Root>,
+    );
+    const subTrigger = screen.getByRole("menuitem", {
+      name: "More",
+      hidden: true,
+    });
+    const [, subMenu] = screen.getAllByRole("menu", { hidden: true });
+
+    // Act — a key other than the close (inline-backward) key must be ignored.
+    fireEvent.keyDown(subMenu, { key: "ArrowDown" });
+
+    // Assert
+    expect(subTrigger).toHaveAttribute("aria-expanded", "true");
+  });
 });

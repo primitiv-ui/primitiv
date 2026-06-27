@@ -259,4 +259,47 @@ describe('handleUiMessage', () => {
       message: 'Primitives / Palette collection not found',
     })
   })
+
+  it('stringifies a non-Error thrown by the context action', async () => {
+    const figmaMock = createFigmaMock()
+    vi.stubGlobal('figma', figmaMock)
+    vi.mocked(bootstrapContext).mockRejectedValueOnce('plain string failure')
+
+    await handleUiMessage({
+      type: 'bootstrap-context-request',
+      context: 'comfortable',
+    })
+
+    expect(figmaMock.ui.postMessage).toHaveBeenCalledWith({
+      type: 'bootstrap-context-error',
+      context: 'comfortable',
+      message: 'plain string failure',
+    })
+  })
+
+  it('stringifies a non-Error thrown by the interaction action', async () => {
+    const figmaMock = createFigmaMock()
+    vi.stubGlobal('figma', figmaMock)
+    vi.mocked(bootstrapInteraction).mockRejectedValueOnce('plain string failure')
+
+    await handleUiMessage({ type: 'bootstrap-interaction-request' })
+
+    expect(figmaMock.ui.postMessage).toHaveBeenCalledWith({
+      type: 'bootstrap-interaction-error',
+      message: 'plain string failure',
+    })
+  })
+
+  it('stringifies a non-Error thrown by the intent action', async () => {
+    const figmaMock = createFigmaMock()
+    vi.stubGlobal('figma', figmaMock)
+    vi.mocked(bootstrapIntent).mockRejectedValueOnce('plain string failure')
+
+    await handleUiMessage({ type: 'bootstrap-intent-request' })
+
+    expect(figmaMock.ui.postMessage).toHaveBeenCalledWith({
+      type: 'bootstrap-intent-error',
+      message: 'plain string failure',
+    })
+  })
 })

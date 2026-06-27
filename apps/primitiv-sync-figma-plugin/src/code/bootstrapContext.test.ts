@@ -215,4 +215,46 @@ describe('bootstrapContext (comfortable)', () => {
       warnings: [],
     })
   })
+
+  it('counts variables and text styles as updated when they already exist', async () => {
+    const { collection, vars } = buildPrimitives()
+    const existingCollection = {
+      id: 'CTX',
+      name: 'Context',
+      modes: [{ modeId: 'c:comfortable', name: 'Comfortable' }],
+      defaultModeId: 'c:comfortable',
+      variableIds: [],
+      renameMode: vi.fn(),
+      addMode: vi.fn(),
+    } as unknown as VariableCollection
+    const spec = CONTEXT_SPECS.comfortable
+
+    // Pre-seed the Context collection with a variable for every spec leaf and a
+    // text style for every spec style, so findOrCreate reports them as reused.
+    const existingVars = spec.variables.map((v) => ({
+      id: `CTX-${v.name}`,
+      name: v.name,
+      resolvedType: v.type,
+      variableCollectionId: 'CTX',
+      valuesByMode: {},
+      setValueForMode: vi.fn(),
+    })) as unknown as PrimVar[]
+    const figmaMock = stubFigma({
+      collections: [collection, existingCollection],
+      variables: [...vars, ...existingVars],
+    })
+    figmaMock.getLocalTextStylesAsync.mockResolvedValue(
+      spec.textStyles.map((s) => ({
+        name: s.name,
+        setBoundVariable: vi.fn(),
+      })),
+    )
+
+    const result = await bootstrapContext({ context: 'comfortable' })
+
+    expect(result.variablesCreated).toBe(0)
+    expect(result.variablesUpdated).toBe(spec.variables.length)
+    expect(result.textStylesCreated).toBe(0)
+    expect(result.textStylesUpdated).toBe(spec.textStyles.length)
+  })
 })

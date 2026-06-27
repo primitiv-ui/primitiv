@@ -272,17 +272,14 @@ Type: non-framed composition
 
 Axes: Count 2|3|4|5 · Size xs|sm|md|lg|xl
 
-Tokens: individual Toggles inherit action/primary/* (on) · action/secondary/* (off); sizing → framed-control/{size}/*
+Tokens: nested Toggles inherit action/primary/* (on) · action/secondary/* (off); sizing → framed-control/{size}/*
 
-Properties: Item 1 · Label (TEXT "Item 1") · Item 1 · Leading Icon (BOOL false)
-            Item 2 · Label (TEXT "Item 2") · Item 2 · Leading Icon (BOOL false)
-            Item 3 · Label (TEXT "Item 3") · Item 3 · Leading Icon (BOOL false)
-            Item 4 · Label (TEXT "Item 4") · Item 4 · Leading Icon (BOOL false)
-            Item 5 · Label (TEXT "Item 5") · Item 5 · Leading Icon (BOOL false)
+Properties: Count · Size only. Per-item Label and Leading Icon are NOT exposed at the group level — edit each item on its nested Item (Toggle) instance: deep-select an Item, then set its Label / Leading Icon in the panel. The on/off (selected) state is that Item's State variant (on|off).
 
 Density: Context mode override on parent frame
-Pairs with: Toggle (nested — Position=start|middle|end set automatically by group)
-Notes: all 5 item property slots are always exposed; Count controls how many are visible. Item slots beyond Count are hidden but still present.
+Pairs with: Toggle (nested — Position=standalone|start|middle|end set automatically by the group)
+Notes: Count controls how many items are visible; slots beyond Count are hidden but still present.
+Composite-set limitation: a parent "Item N · …" property does NOT forward to the nested Toggle. Figma's nested-instance exposure is UI-only, also surfaces Size/State/Interaction/Position, and must be repeated per variant — so it is deliberately not wired. (Ten orphaned, non-functional "Item N · Label/Leading Icon" props were removed 2026-06-27 to stop them silently failing.) Edit the nested Item directly instead.
 ```
 
 ### Dropdown/Item — `401:18180`

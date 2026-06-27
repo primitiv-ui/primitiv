@@ -414,35 +414,31 @@ adapters, hand-authored golden files, 100% coverage):
     - Bump all package `version` fields from `0.1.0` when ready to ship, if needed.
     - **Prerequisites:** the org transfer (above) and the `REGISTRY_REPO` const update should land first, since the published binary fetches the version-pinned registry from the transferred repo.
 
-## 🎞️ Motion tokens → Figma sync — pending (do at the computer)
+## 🎞️ Motion tokens — landed (code-only DTCG, not Figma-synced)
 
-Motion duration + easing tokens are **landed in code** (`packages/tokens/src/`,
-emitter support, registry adoption) but **not yet mirrored into Figma**. The
-repo is the source of truth today; Figma must catch up so the two don't drift.
-The sync stack only exports **Figma → code**, so this is a manual create-in-Figma
-step (a console script per the `figma-console-scripts` skill, or by hand),
-followed by a normal backup to confirm the round-trip. Detail in the
-`figma-token-sync` skill (§ *Value emission* now covers motion).
+The full motion scale — durations (`0…1000` ms), the four `cubic-bezier` easings,
+and the semantic `motion.duration` / `motion.easing` layer — lives in
+`packages/tokens/src/motion.json`, a **code-only DTCG document**: hand-authored,
+emitted into the token layer like the other base files, but with **no Figma
+collection behind it**. Adopted across the registry stylesheets + the headless
+component README animation examples.
 
-**Durations — clean round-trip.** Create as `FLOAT` variables in the
-`Primitives` collection under a `duration/*` group (`duration/0 … duration/1000`,
-values in **ms** as plain numbers: `75`, `150`, …). Add the semantic layer as
-`FLOAT` **aliases** in the `Interaction` collection: `motion/duration/feedback →
-duration/75`, `control → duration/150`, `expand → duration/200`, `overlay →
-duration/300`. These export back as `$type: number` exactly as hand-authored —
-no transform change needed (the emitter adds the `ms` unit from the `duration`
-category).
+**Why code-only (decision).** Figma variables are only FLOAT/STRING/COLOR/BOOLEAN,
+so a `cubicBezier` easing has no Figma type and can't round-trip. Durations
+*could* be FLOAT vars, but a Figma duration variable can't be bound to any
+animation property — it would be documentary-only and a drift risk — so the whole
+motion scale is kept code-side rather than split across the Figma boundary. This
+also establishes the pattern for **any token Figma can't represent**: give it its
+own DTCG file outside the sync's five-file write-set.
 
-**Easings — settled: not Figma-synced.** Figma has no `cubicBezier` variable
-type (vars are FLOAT/STRING/COLOR/BOOLEAN only), so easings do **not** round-trip.
-They live as static custom properties in the hand-authored base stylesheet
-(`crates/primitiv-emit/assets/base.{css,scss}`) — `--primitiv-easing-*` plus the
-semantic `--primitiv-motion-easing-*` — which ships as the base companion the
-token layer imports, and which the token sync never overwrites. So **only the
-durations above go into Figma**; nothing to create there for easings. (If easings
-ever need a Figma presence, the only option is `STRING` vars holding the CSS
-`cubic-bezier(…)` string — at which point they would move back into the DTCG and
-the emitter's string passthrough would carry them.)
+**The mechanism that makes it safe.** The token sync overwrites exactly the five
+files it pulls from Figma (`primitives`, `palette`, `intent`, `context`,
+`interaction`). `motion.json` is a sixth file the sync never writes, so a backup
+can't wipe it — the reason easings/durations live here and not in `primitives.json`
+/ `interaction.json` (which a backup *would* clobber). The CLI embeds it as a
+mode-independent base source alongside `primitives` + `interaction`. If motion ever
+needs a Figma presence, easings would have to become `STRING` vars holding the CSS
+`cubic-bezier(…)` string (carried by the emitter's string passthrough).
 
 ## ❓ Open questions
 

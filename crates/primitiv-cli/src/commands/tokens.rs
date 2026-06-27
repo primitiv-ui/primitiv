@@ -15,11 +15,16 @@ use crate::ports::output::Output;
 // `tokens` can emit the base layer with no project input. Routing mirrors the
 // figma-token-sync collection table (RFC 0006 §4): the single-mode `primitives`
 // and `interaction` form the mode-independent base; `palette` and `intent`
-// carry the theme axis; `context` carries the density axis.
+// carry the theme axis; `context` carries the density axis. `motion` is also a
+// mode-independent base document, but unlike the others it is **code-only** — it
+// has no Figma collection (easing curves have no Figma variable type), so it
+// sits outside the token sync's five-file write-set and is never overwritten.
 const PRIMITIVES: &str =
     include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/primitives.json"));
 const INTERACTION: &str =
     include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/interaction.json"));
+const MOTION: &str =
+    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/motion.json"));
 const PALETTE: &str =
     include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/palette.json"));
 const INTENT: &str =
@@ -53,7 +58,7 @@ pub fn tokens(
     let format = format
         .or_else(|| config.as_ref().map(|config| config.tokens.format))
         .unwrap_or(Format::Css);
-    let base = [parse(PRIMITIVES), parse(INTERACTION)];
+    let base = [parse(PRIMITIVES), parse(INTERACTION), parse(MOTION)];
     let theme = [parse(PALETTE), parse(INTENT)];
     let density = [parse(CONTEXT)];
     let sources = TokenSources {

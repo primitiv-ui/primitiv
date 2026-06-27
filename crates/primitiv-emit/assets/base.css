@@ -16,16 +16,7 @@
  * Every value that maps to a design token is written as that token's custom
  * property (no magic numbers — RFC 0006 Principle 2). The few literals left are
  * CSS mechanics with no token home: the synthetic-oblique skew angle, the
- * sub/sup size ratio, the easing `cubic-bezier()` curves (see below), and
- * decoration/keyword values (`solid`, `underline`, …).
- *
- * This file is also the **home of the motion easing custom properties**
- * (`--primitiv-easing-*` and the semantic `--primitiv-motion-easing-*`). Unlike
- * the rest of the motion scale, easings are not DTCG tokens: Figma variables are
- * only FLOAT/STRING/COLOR/BOOLEAN, so a `cubic-bezier()` curve has no Figma type
- * and cannot round-trip through the token sync. They live here as static
- * foundational constants instead; motion **durations** remain DTCG tokens in the
- * generated token layer.
+ * sub/sup size ratio, and decoration/keyword values (`solid`, `underline`, …).
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-body-*,
  * --primitiv-heading-*, --primitiv-label-*, --primitiv-content-*,
@@ -37,23 +28,6 @@
  */
 
 @layer primitiv.reset {
-  /* ===== Motion easings =====
-     The cubic-bezier timing functions (Tailwind's set). Defined here rather than
-     in the DTCG token layer because Figma has no easing variable type — see the
-     file header. The primitive curves carry the raw cubic-bezier(); the semantic
-     names map an interaction role to one of them. Durations are DTCG tokens
-     (--primitiv-duration-* / --primitiv-motion-duration-*) in the token layer. */
-  :root {
-    --primitiv-easing-linear: cubic-bezier(0, 0, 1, 1);
-    --primitiv-easing-in: cubic-bezier(0.4, 0, 1, 1);
-    --primitiv-easing-out: cubic-bezier(0, 0, 0.2, 1);
-    --primitiv-easing-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-    --primitiv-motion-easing-default: var(--primitiv-easing-in-out);
-    --primitiv-motion-easing-enter: var(--primitiv-easing-out);
-    --primitiv-motion-easing-exit: var(--primitiv-easing-in);
-    --primitiv-motion-easing-linear: var(--primitiv-easing-linear);
-  }
-
   /* ===== Inline / text-level marks ===== */
 
   /* Bold stays in-family (Asta Sans now ships Bold). */

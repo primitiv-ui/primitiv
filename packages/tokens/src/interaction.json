@@ -28,5 +28,43 @@
         "$value": "{border-width.2}"
       }
     }
+  },
+  "motion": {
+    "duration": {
+      "feedback": {
+        "$type": "number",
+        "$value": "{duration.75}"
+      },
+      "control": {
+        "$type": "number",
+        "$value": "{duration.150}"
+      },
+      "expand": {
+        "$type": "number",
+        "$value": "{duration.200}"
+      },
+      "overlay": {
+        "$type": "number",
+        "$value": "{duration.300}"
+      }
+    },
+    "easing": {
+      "default": {
+        "$type": "cubicBezier",
+        "$value": "{easing.in-out}"
+      },
+      "enter": {
+        "$type": "cubicBezier",
+        "$value": "{easing.out}"
+      },
+      "exit": {
+        "$type": "cubicBezier",
+        "$value": "{easing.in}"
+      },
+      "linear": {
+        "$type": "cubicBezier",
+        "$value": "{easing.linear}"
+      }
+    }
   }
 }

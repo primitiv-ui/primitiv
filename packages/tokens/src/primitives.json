@@ -628,5 +628,61 @@
       "$type": "string",
       "$value": "Regular"
     }
+  },
+  "duration": {
+    "0": {
+      "$type": "number",
+      "$value": 0
+    },
+    "75": {
+      "$type": "number",
+      "$value": 75
+    },
+    "100": {
+      "$type": "number",
+      "$value": 100
+    },
+    "150": {
+      "$type": "number",
+      "$value": 150
+    },
+    "200": {
+      "$type": "number",
+      "$value": 200
+    },
+    "300": {
+      "$type": "number",
+      "$value": 300
+    },
+    "500": {
+      "$type": "number",
+      "$value": 500
+    },
+    "700": {
+      "$type": "number",
+      "$value": 700
+    },
+    "1000": {
+      "$type": "number",
+      "$value": 1000
+    }
+  },
+  "easing": {
+    "linear": {
+      "$type": "cubicBezier",
+      "$value": [0, 0, 1, 1]
+    },
+    "in": {
+      "$type": "cubicBezier",
+      "$value": [0.4, 0, 1, 1]
+    },
+    "out": {
+      "$type": "cubicBezier",
+      "$value": [0, 0, 0.2, 1]
+    },
+    "in-out": {
+      "$type": "cubicBezier",
+      "$value": [0.4, 0, 0.2, 1]
+    }
   }
 }

@@ -319,6 +319,30 @@ fn tokens_streams_the_layer_to_stdout_when_config_less() {
 }
 
 #[test]
+fn tokens_emits_the_motion_duration_and_easing_layer() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    // The motion primitives (ms durations, cubic-bezier easings) and the semantic
+    // motion aliases resolve end-to-end through the embedded DTCG into the layer.
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .args(["tokens", "--format", "css"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("--primitiv-duration-150: 150ms;"))
+        .stdout(predicate::str::contains(
+            "--primitiv-easing-in-out: cubic-bezier(0.4, 0, 0.2, 1);",
+        ))
+        .stdout(predicate::str::contains(
+            "--primitiv-motion-duration-control: var(--primitiv-duration-150);",
+        ))
+        .stdout(predicate::str::contains(
+            "--primitiv-motion-easing-default: var(--primitiv-easing-in-out);",
+        ));
+}
+
+#[test]
 fn tokens_writes_the_base_companion_next_to_the_token_layer() {
     let dir = assert_fs::TempDir::new().unwrap();
 

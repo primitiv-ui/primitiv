@@ -139,6 +139,20 @@ A `Context` variable aliasing `space/8` from `Primitives` becomes
 Aliases (`{ type: 'VARIABLE_ALIAS', id }`) become DTCG reference
 strings of the form `{group.sub.name}`.
 
+**Motion tokens.** Durations are plain `FLOAT` variables (`duration/150`
+→ `$type: number`, value `150`); the CLI emitter adds the `ms` unit from
+the `duration` path category, so nothing special is needed here or in the
+transform. **Easing curves have no Figma variable type** — Figma only has
+`FLOAT`/`STRING`/`COLOR`/`BOOLEAN`. The code authors easings as DTCG
+`$type: cubicBezier` arrays (`[0.4, 0, 0.2, 1]`), which the emitter renders
+to `cubic-bezier(…)`. Two ways to reconcile with Figma (decision tracked in
+`docs/transfer-and-next-steps.md` § *Motion tokens → Figma sync*):
+keep easings **code-authored only** (recommended — exclude them from the
+backup like `PALETTE_CONSTANTS`), or store them as `STRING` vars holding the
+CSS `cubic-bezier(…)` string (round-trips, but rewrites the authored array
+form to a string `$value`). The `cubicBezier` array branch is the same
+composite-value path the future shadow/elevation tokens reuse.
+
 ## The HTTP sync server
 
 `packages/tokens/src/server.ts` is a thin `node:http` listener:

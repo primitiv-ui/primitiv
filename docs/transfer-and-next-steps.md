@@ -414,6 +414,42 @@ adapters, hand-authored golden files, 100% coverage):
     - Bump all package `version` fields from `0.1.0` when ready to ship, if needed.
     - **Prerequisites:** the org transfer (above) and the `REGISTRY_REPO` const update should land first, since the published binary fetches the version-pinned registry from the transferred repo.
 
+## 🎞️ Motion tokens → Figma sync — pending (do at the computer)
+
+Motion duration + easing tokens are **landed in code** (`packages/tokens/src/`,
+emitter support, registry adoption) but **not yet mirrored into Figma**. The
+repo is the source of truth today; Figma must catch up so the two don't drift.
+The sync stack only exports **Figma → code**, so this is a manual create-in-Figma
+step (a console script per the `figma-console-scripts` skill, or by hand),
+followed by a normal backup to confirm the round-trip. Detail in the
+`figma-token-sync` skill (§ *Value emission* now covers motion).
+
+**Durations — clean round-trip.** Create as `FLOAT` variables in the
+`Primitives` collection under a `duration/*` group (`duration/0 … duration/1000`,
+values in **ms** as plain numbers: `75`, `150`, …). Add the semantic layer as
+`FLOAT` **aliases** in the `Interaction` collection: `motion/duration/feedback →
+duration/75`, `control → duration/150`, `expand → duration/200`, `overlay →
+duration/300`. These export back as `$type: number` exactly as hand-authored —
+no transform change needed (the emitter adds the `ms` unit from the `duration`
+category).
+
+**Easings — decision required (Figma has no `cubicBezier` type).** Pick one:
+- **(Recommended) Keep easings code-authored.** Leave `easing/*` and
+  `motion/easing/*` out of Figma — like the `PALETTE_CONSTANTS` exclusion, they
+  are developer primitives with no Figma editing UX, and this preserves the
+  canonical `$type: cubicBezier` array form. If you do this, **exclude
+  `easing*`/`motion/easing*` from the backup** (or never create them in Figma) so
+  a sync doesn't try to round-trip them.
+- **STRING round-trip.** Create easings as `STRING` variables holding the CSS
+  string (`cubic-bezier(0.4, 0, 0.2, 1)`). The emitter passes strings through
+  verbatim so they still work, **but a backup will rewrite the authored
+  `primitives.json` easings from the `cubicBezier` array form to `string` form.**
+  Accept that flip, or extend `dtcg.ts` to convert STRING ⇄ `cubicBezier`.
+
+The `cubicBezier` array support already in the emitter is the same composite-value
+seam the **elevation/shadow** tokens will need next — keep it regardless of which
+easing path is chosen.
+
 ## ❓ Open questions
 
 **Cleared before the build (2026-06-10, D45–D49)** — the pre-build open questions

@@ -666,23 +666,5 @@
       "$type": "number",
       "$value": 1000
     }
-  },
-  "easing": {
-    "linear": {
-      "$type": "cubicBezier",
-      "$value": [0, 0, 1, 1]
-    },
-    "in": {
-      "$type": "cubicBezier",
-      "$value": [0.4, 0, 1, 1]
-    },
-    "out": {
-      "$type": "cubicBezier",
-      "$value": [0, 0, 0.2, 1]
-    },
-    "in-out": {
-      "$type": "cubicBezier",
-      "$value": [0.4, 0, 0.2, 1]
-    }
   }
 }

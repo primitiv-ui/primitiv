@@ -32,15 +32,6 @@ pub fn format_number(category: &str, value: f64) -> String {
     }
 }
 
-/// Format a DTCG `cubicBezier` value — four control points `[x1, y1, x2, y2]`
-/// (RFC 0006 §4) — as a CSS `cubic-bezier()` timing function, each point
-/// `trim`med so `1.0` → `1`. The single point of composite-value emit the
-/// shadow tokens will reuse.
-pub fn format_cubic_bezier(points: &[f64]) -> String {
-    let rendered: Vec<String> = points.iter().map(|point| trim(*point)).collect();
-    format!("cubic-bezier({})", rendered.join(", "))
-}
-
 /// Render a number with at most four decimal places, dropping trailing zeros
 /// (and a bare trailing dot) so `1.0` → `1` and `0.5000` → `0.5`. Four places
 /// is exact for any integer ÷ 16 and rounds away Figma's float noise.

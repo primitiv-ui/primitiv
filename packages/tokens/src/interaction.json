@@ -47,24 +47,6 @@
         "$type": "number",
         "$value": "{duration.300}"
       }
-    },
-    "easing": {
-      "default": {
-        "$type": "cubicBezier",
-        "$value": "{easing.in-out}"
-      },
-      "enter": {
-        "$type": "cubicBezier",
-        "$value": "{easing.out}"
-      },
-      "exit": {
-        "$type": "cubicBezier",
-        "$value": "{easing.in}"
-      },
-      "linear": {
-        "$type": "cubicBezier",
-        "$value": "{easing.linear}"
-      }
     }
   }
 }

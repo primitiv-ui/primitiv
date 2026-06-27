@@ -143,15 +143,12 @@ strings of the form `{group.sub.name}`.
 → `$type: number`, value `150`); the CLI emitter adds the `ms` unit from
 the `duration` path category, so nothing special is needed here or in the
 transform. **Easing curves have no Figma variable type** — Figma only has
-`FLOAT`/`STRING`/`COLOR`/`BOOLEAN`. The code authors easings as DTCG
-`$type: cubicBezier` arrays (`[0.4, 0, 0.2, 1]`), which the emitter renders
-to `cubic-bezier(…)`. Two ways to reconcile with Figma (decision tracked in
-`docs/transfer-and-next-steps.md` § *Motion tokens → Figma sync*):
-keep easings **code-authored only** (recommended — exclude them from the
-backup like `PALETTE_CONSTANTS`), or store them as `STRING` vars holding the
-CSS `cubic-bezier(…)` string (round-trips, but rewrites the authored array
-form to a string `$value`). The `cubicBezier` array branch is the same
-composite-value path the future shadow/elevation tokens reuse.
+`FLOAT`/`STRING`/`COLOR`/`BOOLEAN` — so they are **not** DTCG tokens and are
+**not** synced. They live as static custom properties in the base stylesheet
+(`crates/primitiv-emit/assets/base.{css,scss}`): `--primitiv-easing-*` and the
+semantic `--primitiv-motion-easing-*`. Don't add `easing`/`motion.easing` to any
+DTCG file — a backup would not produce them, and the durations alias only
+duration primitives, never easings.
 
 ## The HTTP sync server
 

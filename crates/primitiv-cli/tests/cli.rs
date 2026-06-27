@@ -319,11 +319,12 @@ fn tokens_streams_the_layer_to_stdout_when_config_less() {
 }
 
 #[test]
-fn tokens_emits_the_motion_duration_and_easing_layer() {
+fn tokens_emits_motion_durations_in_the_layer_and_easings_in_the_base() {
     let dir = assert_fs::TempDir::new().unwrap();
 
-    // The motion primitives (ms durations, cubic-bezier easings) and the semantic
-    // motion aliases resolve end-to-end through the embedded DTCG into the layer.
+    // Durations are DTCG tokens (ms in the token layer); easings have no Figma
+    // type so they ship as static custom properties in the base companion, which
+    // the config-less command streams after the layer. Both resolve end-to-end.
     Command::cargo_bin("primitiv")
         .unwrap()
         .current_dir(dir.path())
@@ -332,10 +333,10 @@ fn tokens_emits_the_motion_duration_and_easing_layer() {
         .success()
         .stdout(predicate::str::contains("--primitiv-duration-150: 150ms;"))
         .stdout(predicate::str::contains(
-            "--primitiv-easing-in-out: cubic-bezier(0.4, 0, 0.2, 1);",
+            "--primitiv-motion-duration-control: var(--primitiv-duration-150);",
         ))
         .stdout(predicate::str::contains(
-            "--primitiv-motion-duration-control: var(--primitiv-duration-150);",
+            "--primitiv-easing-in-out: cubic-bezier(0.4, 0, 0.2, 1);",
         ))
         .stdout(predicate::str::contains(
             "--primitiv-motion-easing-default: var(--primitiv-easing-in-out);",

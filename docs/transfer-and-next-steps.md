@@ -433,22 +433,16 @@ duration/300`. These export back as `$type: number` exactly as hand-authored —
 no transform change needed (the emitter adds the `ms` unit from the `duration`
 category).
 
-**Easings — decision required (Figma has no `cubicBezier` type).** Pick one:
-- **(Recommended) Keep easings code-authored.** Leave `easing/*` and
-  `motion/easing/*` out of Figma — like the `PALETTE_CONSTANTS` exclusion, they
-  are developer primitives with no Figma editing UX, and this preserves the
-  canonical `$type: cubicBezier` array form. If you do this, **exclude
-  `easing*`/`motion/easing*` from the backup** (or never create them in Figma) so
-  a sync doesn't try to round-trip them.
-- **STRING round-trip.** Create easings as `STRING` variables holding the CSS
-  string (`cubic-bezier(0.4, 0, 0.2, 1)`). The emitter passes strings through
-  verbatim so they still work, **but a backup will rewrite the authored
-  `primitives.json` easings from the `cubicBezier` array form to `string` form.**
-  Accept that flip, or extend `dtcg.ts` to convert STRING ⇄ `cubicBezier`.
-
-The `cubicBezier` array support already in the emitter is the same composite-value
-seam the **elevation/shadow** tokens will need next — keep it regardless of which
-easing path is chosen.
+**Easings — settled: not Figma-synced.** Figma has no `cubicBezier` variable
+type (vars are FLOAT/STRING/COLOR/BOOLEAN only), so easings do **not** round-trip.
+They live as static custom properties in the hand-authored base stylesheet
+(`crates/primitiv-emit/assets/base.{css,scss}`) — `--primitiv-easing-*` plus the
+semantic `--primitiv-motion-easing-*` — which ships as the base companion the
+token layer imports, and which the token sync never overwrites. So **only the
+durations above go into Figma**; nothing to create there for easings. (If easings
+ever need a Figma presence, the only option is `STRING` vars holding the CSS
+`cubic-bezier(…)` string — at which point they would move back into the DTCG and
+the emitter's string passthrough would carry them.)
 
 ## ❓ Open questions
 

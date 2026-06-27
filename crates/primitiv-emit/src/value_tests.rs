@@ -1,4 +1,4 @@
-use crate::value::{format_cubic_bezier, format_number};
+use crate::value::format_number;
 
 #[test]
 fn emits_length_categories_as_rem_against_a_16px_base() {
@@ -29,12 +29,4 @@ fn emits_other_categories_as_the_unitless_number() {
 fn emits_duration_as_milliseconds() {
     assert_eq!(format_number("duration", 150.0), "150ms");
     assert_eq!(format_number("duration", 0.0), "0ms");
-}
-
-#[test]
-fn formats_four_control_points_as_a_css_cubic_bezier() {
-    assert_eq!(
-        format_cubic_bezier(&[0.4, 0.0, 0.2, 1.0]),
-        "cubic-bezier(0.4, 0, 0.2, 1)"
-    );
 }

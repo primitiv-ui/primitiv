@@ -22,7 +22,7 @@
  * Requires the token layer (`primitiv tokens`) for the --primitiv-surface-*,
  * --primitiv-content-*, --primitiv-border-*, --primitiv-framed-control-*,
  * --primitiv-body-*, --primitiv-focus-ring-*, --primitiv-space-*,
- * --primitiv-color-* and --primitiv-opacity-* custom properties it resolves.
+ * --primitiv-color-*, --primitiv-opacity-* and --primitiv-motion-* custom properties it resolves.
  */
 
 @layer primitiv.base {
@@ -62,7 +62,7 @@
     font-size: var(--primitiv-input-group-font-size);
     font-weight: var(--primitiv-input-group-font-weight);
     line-height: var(--primitiv-input-group-line-height);
-    transition: border-color 120ms ease;
+    transition: border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   /* The wrapped Input surrenders its frame to the group: the group draws the

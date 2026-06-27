@@ -26,7 +26,7 @@
  * --primitiv-surface-*, --primitiv-content-*, --primitiv-border-*,
  * --primitiv-border-width-*, --primitiv-space-*, --primitiv-opacity-*,
  * --primitiv-label-*, --primitiv-label-control-*, --primitiv-focus-ring-* and
- * --primitiv-checkbox-* custom properties it resolves.
+ * --primitiv-checkbox-* and --primitiv-motion-* custom properties it resolves.
  */
 
 @layer primitiv.base {
@@ -96,8 +96,8 @@
     background: var(--primitiv-checkbox-bg);
     color: var(--primitiv-checkbox-mark-color);
     transition:
-      background-color 120ms ease,
-      border-color 120ms ease;
+      background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   /* The indicator is the mark itself — always in the DOM, scaled to nothing
@@ -110,7 +110,7 @@
     background: currentColor;
     clip-path: polygon(40% 68%, 12% 40%, 0% 52%, 40% 92%, 100% 22%, 88% 10%);
     scale: 0;
-    transition: scale 120ms ease;
+    transition: scale var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   /* The label is the inline text beside the box, on the shared label type scale

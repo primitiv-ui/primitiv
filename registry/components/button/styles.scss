@@ -13,7 +13,7 @@
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-action-*,
  * --primitiv-framed-control-*, --primitiv-focus-ring-*, --primitiv-surface-*,
- * --primitiv-opacity-* and --primitiv-color-* custom properties it resolves.
+ * --primitiv-opacity-*, --primitiv-color-* and --primitiv-motion-* custom properties it resolves.
  */
 
 @layer primitiv.base {
@@ -51,9 +51,9 @@
     line-height: var(--primitiv-button-line-height);
     cursor: pointer;
     transition:
-      background-color 120ms ease,
-      border-color 120ms ease,
-      color 120ms ease;
+      background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   .primitiv-button svg {

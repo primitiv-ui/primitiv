@@ -114,6 +114,21 @@ jobs:
       - name: Test libraries
         run: pnpm -r --filter "@primitiv-ui/react" --filter "@primitiv-ui/icons" --filter "@primitiv-ui/tokens" qa:units
 
+      # Preflight: validate JSR publishability (slow-types check) for every
+      # library BEFORE any npm publish runs. npm versions are immutable, so a
+      # JSR-only failure after npm has published leaves the registries skewed
+      # (npm ahead of JSR). Running the dry-run first means a slow-types error
+      # aborts the whole job with nothing published — both registries always move
+      # together. (A bare `Slot` export shipped without an explicit type and broke
+      # the JSR step at 0.1.20 exactly this way.)
+      - name: Preflight — JSR slow-types check (before any npm publish)
+        run: |
+          for pkg in packages/react packages/icons packages/tokens; do
+            echo "::group::jsr publish --dry-run $pkg"
+            (cd "$pkg" && npx jsr publish --dry-run)
+            echo "::endgroup::"
+          done
+
       - name: Update npm
         run: npm install -g npm@latest
 

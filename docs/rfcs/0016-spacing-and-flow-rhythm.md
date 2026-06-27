@@ -411,6 +411,12 @@ inside the opt-in flow context, never globally.
   spacing — **kept as-is** (§1.4).
 - The per-density flow *values* — Figma Context collection / `figma-variable-architecture`.
 - The **emitter** mechanics — RFC 0006.
+- **Figma layout translation.** The web owl has no Figma equivalent (auto-layout
+  `itemSpacing` is uniform per frame), so prose spacing translates *structurally*:
+  bind gaps/spacers to the same `flow/*` variables and express heading asymmetry
+  through nested frames. The operational playbook is the **`figma-prose-layout`**
+  skill; the parity bar is "web = runtime truth, Figma = design intent, agree at
+  the token level."
 
 ---
 

@@ -250,7 +250,7 @@ the component's):
 ```css
 /* Open state on the menu panel */
 [role="menu"][data-popover-open] {
-  animation: fade-in 120ms ease-out;
+  animation: fade-in var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-enter);
 }
 
 /* Highlighted item — pointer focus */

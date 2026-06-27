@@ -183,8 +183,8 @@ subtree stays in the DOM while closed so a CSS animation can play on
 ```
 
 ```css
-[data-state="open"]  { animation: fade-in  120ms ease-out; }
-[data-state="closed"] { animation: fade-out 80ms  ease-in forwards; }
+[data-state="open"]  { animation: fade-in var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-enter); }
+[data-state="closed"] { animation: fade-out var(--primitiv-motion-duration-feedback) var(--primitiv-motion-easing-exit) forwards; }
 ```
 
 ## `asChild` composition

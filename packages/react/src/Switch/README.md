@@ -99,7 +99,7 @@ animate with `transition` or Web Animations.
   background: #6366f1;
 }
 .switch__thumb {
-  transition: translate 120ms ease;
+  transition: translate var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
 }
 .switch > input:checked ~ .switch__thumb {
   translate: 1.25rem 0;

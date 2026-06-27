@@ -29,4 +29,22 @@ describe("Select placeholder", () => {
     const select = screen.getByRole("combobox") as HTMLSelectElement;
     expect(select.value).toBe("");
   });
+
+  it("ignores non-element children when scanning for a placeholder", () => {
+    // Arrange & Act — a bare text node sits among the options (e.g. stray
+    // whitespace or a conditional that resolved to a string). The placeholder
+    // scan must skip it rather than treat it as a candidate.
+    const { container } = render(
+      <Select.Root>
+        {"  "}
+        <Select.Option value="apple">Apple</Select.Option>
+      </Select.Root>,
+    );
+
+    // Assert — with no placeholder present, no empty-value default is inferred,
+    // so the browser falls back to the first real option.
+    expect(container.querySelector("option[hidden]")).toBeNull();
+    const select = screen.getByRole("combobox") as HTMLSelectElement;
+    expect(select.value).toBe("apple");
+  });
 });

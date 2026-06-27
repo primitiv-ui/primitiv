@@ -20,6 +20,9 @@ import {
   cloneElement,
   Children,
   RefObject,
+  type ForwardRefExoticComponent,
+  type PropsWithoutRef,
+  type RefAttributes,
 } from "react";
 import { SlotProps } from "./types";
 import { AnyProps, PossibleRef } from "../types";
@@ -137,7 +140,9 @@ function mergeProps(slotProps: AnyProps, childProps: AnyProps): AnyProps {
  * return <button {...buttonProps}>{children}</button>;
  * ```
  */
-export const Slot = forwardRef<HTMLElement, SlotProps>(
+export const Slot: ForwardRefExoticComponent<
+  PropsWithoutRef<SlotProps> & RefAttributes<HTMLElement>
+> = forwardRef<HTMLElement, SlotProps>(
   ({ children, ...slotProps }, forwardedRef) => {
     if (Children.count(children) !== 1 || !isValidElement(children)) {
       throw new Error("Slot requires exactly one React element child.");

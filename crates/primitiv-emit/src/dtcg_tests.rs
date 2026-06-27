@@ -73,6 +73,44 @@ fn formats_numeric_leaves_by_their_category() {
 }
 
 #[test]
+fn flattens_a_cubic_bezier_leaf_into_a_css_easing_function() {
+    let dtcg = json!({
+        "easing": {
+            "in-out": { "$type": "cubicBezier", "$value": [0.4, 0.0, 0.2, 1.0] }
+        }
+    });
+
+    let tokens = tokens_from_dtcg(&dtcg);
+
+    assert_eq!(
+        tokens,
+        vec![Token::new(&["easing", "in-out"], "cubic-bezier(0.4, 0, 0.2, 1)")]
+    );
+}
+
+#[test]
+fn skips_a_cubic_bezier_leaf_whose_value_is_not_an_array() {
+    let dtcg = json!({
+        "easing": {
+            "broken": { "$type": "cubicBezier", "$value": { "x1": 0.4 } }
+        }
+    });
+
+    assert_eq!(tokens_from_dtcg(&dtcg), Vec::<Token>::new());
+}
+
+#[test]
+fn skips_a_cubic_bezier_leaf_without_exactly_four_control_points() {
+    let dtcg = json!({
+        "easing": {
+            "broken": { "$type": "cubicBezier", "$value": [0.4, 0.0, 0.2] }
+        }
+    });
+
+    assert_eq!(tokens_from_dtcg(&dtcg), Vec::<Token>::new());
+}
+
+#[test]
 fn skips_leaves_whose_value_is_neither_text_nor_a_number() {
     let dtcg = json!({
         "shadow": {

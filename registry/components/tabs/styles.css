@@ -23,7 +23,7 @@
  * --primitiv-action-*, --primitiv-surface-*, --primitiv-content-*,
  * --primitiv-framed-control-*, --primitiv-focus-ring-*, --primitiv-border-width-*,
  * --primitiv-radii-*, --primitiv-size-*, --primitiv-opacity-*, --primitiv-label-*,
- * --primitiv-body-* and --primitiv-panel-* custom properties it resolves.
+ * --primitiv-body-*, --primitiv-panel-* and --primitiv-motion-* custom properties it resolves.
  */
 
 @layer primitiv.base {
@@ -115,9 +115,9 @@
     text-box-edge: cap alphabetic;
     cursor: pointer;
     transition:
-      background-color 120ms ease,
-      border-color 120ms ease,
-      color 120ms ease;
+      background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   .primitiv-tabs__trigger svg {

@@ -31,7 +31,7 @@
  * --primitiv-surface-*, --primitiv-content-*, --primitiv-border-*,
  * --primitiv-border-width-*, --primitiv-radii-*, --primitiv-space-*,
  * --primitiv-opacity-*, --primitiv-label-*, --primitiv-label-control-*,
- * --primitiv-focus-ring-* and --primitiv-radio-* custom properties it resolves.
+ * --primitiv-focus-ring-*, --primitiv-radio-* and --primitiv-motion-* custom properties it resolves.
  */
 
 @layer primitiv.base {
@@ -99,7 +99,7 @@
     border-radius: var(--primitiv-radio-radius);
     background: var(--primitiv-radio-bg);
     color: var(--primitiv-radio-dot-color);
-    transition: border-color 120ms ease;
+    transition: border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   /* The indicator is the dot — always in the DOM, scaled to nothing until the
@@ -112,7 +112,7 @@
     border-radius: var(--primitiv-radii-full);
     background: currentColor;
     scale: 0;
-    transition: scale 120ms ease;
+    transition: scale var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   /* The label is the inline text beside the box, on the shared label type scale

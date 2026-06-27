@@ -252,7 +252,7 @@ ARIA attributes, event handlers, and ref onto a caller-supplied child:
 ```css
 /* Open state on the menu panel */
 [role="menu"][data-state="open"] {
-  animation: fade-in 120ms ease-out;
+  animation: fade-in var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-enter);
 }
 
 /* Highlighted item — pointer focus */

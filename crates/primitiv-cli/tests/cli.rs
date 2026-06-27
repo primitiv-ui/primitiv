@@ -319,6 +319,31 @@ fn tokens_streams_the_layer_to_stdout_when_config_less() {
 }
 
 #[test]
+fn tokens_emits_the_code_only_motion_layer() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    // The whole motion scale lives in the code-only motion.json DTCG document
+    // (durations as ms, easings as cubic-bezier, plus the semantic aliases) and
+    // resolves end-to-end into the token layer — no Figma collection involved.
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .args(["tokens", "--format", "css"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("--primitiv-duration-150: 150ms;"))
+        .stdout(predicate::str::contains(
+            "--primitiv-easing-in-out: cubic-bezier(0.4, 0, 0.2, 1);",
+        ))
+        .stdout(predicate::str::contains(
+            "--primitiv-motion-duration-control: var(--primitiv-duration-150);",
+        ))
+        .stdout(predicate::str::contains(
+            "--primitiv-motion-easing-default: var(--primitiv-easing-in-out);",
+        ));
+}
+
+#[test]
 fn tokens_writes_the_base_companion_next_to_the_token_layer() {
     let dir = assert_fs::TempDir::new().unwrap();
 

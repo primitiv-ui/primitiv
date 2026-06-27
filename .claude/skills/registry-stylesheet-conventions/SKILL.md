@@ -40,8 +40,11 @@ firmed up.
 
 ## Genuine exceptions — leave as literals
 
-- **No token exists.** Transition durations (`120ms`) have no motion/duration
-  token family yet (a candidate for future work). Leave literal until one exists.
+- **No token exists.** Tokenize against an existing family; only leave a literal
+  when there is genuinely no token for the value. Motion now has one: transitions
+  and animations use `var(--primitiv-motion-duration-*)` (`feedback`/`control`/
+  `expand`/`overlay`) and `var(--primitiv-motion-easing-*)`
+  (`default`/`enter`/`exit`/`linear`) — never a raw `120ms ease`.
 - **Non-design CSS mechanics**, which carry no theming intent: `outline: none`,
   `flex-shrink: 0`, `z-index: 1`, and the `box-shadow` geometry zeros
   (`0 0 0 …`) in the focus ring.

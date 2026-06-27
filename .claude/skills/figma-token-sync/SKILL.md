@@ -139,6 +139,19 @@ A `Context` variable aliasing `space/8` from `Primitives` becomes
 Aliases (`{ type: 'VARIABLE_ALIAS', id }`) become DTCG reference
 strings of the form `{group.sub.name}`.
 
+**Motion tokens are code-only.** The whole motion scale — `duration/*`,
+`easing/*`, and the semantic `motion.*` layer — lives in
+`packages/tokens/src/motion.json`, which has **no Figma collection** and is
+**never produced by a backup**. Figma variables are only
+`FLOAT`/`STRING`/`COLOR`/`BOOLEAN`, so a `cubicBezier` easing has no Figma type;
+durations could be FLOAT but can't drive anything in Figma, so the whole scale is
+kept code-side rather than split. `motion.json` is a sixth DTCG file outside this
+sync's five-file write-set — that is exactly what keeps it safe from being
+overwritten. **Do not add a `Motion` collection to the routing tables** below or
+author motion variables in Figma; it would defeat the point. (Durations emit `ms`
+from the `duration` path category in the CLI emitter; easings emit via the
+`cubicBezier` → `cubic-bezier()` path.)
+
 ## The HTTP sync server
 
 `packages/tokens/src/server.ts` is a thin `node:http` listener:

@@ -159,10 +159,10 @@ animation can play against `data-state="unchecked"`:
 
 ```css
 [data-state="checked"] {
-  animation: dot-in 120ms ease-out;
+  animation: dot-in var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-enter);
 }
 [data-state="unchecked"] {
-  animation: dot-out 100ms ease-in forwards;
+  animation: dot-out var(--primitiv-motion-duration-feedback) var(--primitiv-motion-easing-exit) forwards;
 }
 ```
 

@@ -414,6 +414,32 @@ adapters, hand-authored golden files, 100% coverage):
     - Bump all package `version` fields from `0.1.0` when ready to ship, if needed.
     - **Prerequisites:** the org transfer (above) and the `REGISTRY_REPO` const update should land first, since the published binary fetches the version-pinned registry from the transferred repo.
 
+## 🎞️ Motion tokens — landed (code-only DTCG, not Figma-synced)
+
+The full motion scale — durations (`0…1000` ms), the four `cubic-bezier` easings,
+and the semantic `motion.duration` / `motion.easing` layer — lives in
+`packages/tokens/src/motion.json`, a **code-only DTCG document**: hand-authored,
+emitted into the token layer like the other base files, but with **no Figma
+collection behind it**. Adopted across the registry stylesheets + the headless
+component README animation examples.
+
+**Why code-only (decision).** Figma variables are only FLOAT/STRING/COLOR/BOOLEAN,
+so a `cubicBezier` easing has no Figma type and can't round-trip. Durations
+*could* be FLOAT vars, but a Figma duration variable can't be bound to any
+animation property — it would be documentary-only and a drift risk — so the whole
+motion scale is kept code-side rather than split across the Figma boundary. This
+also establishes the pattern for **any token Figma can't represent**: give it its
+own DTCG file outside the sync's five-file write-set.
+
+**The mechanism that makes it safe.** The token sync overwrites exactly the five
+files it pulls from Figma (`primitives`, `palette`, `intent`, `context`,
+`interaction`). `motion.json` is a sixth file the sync never writes, so a backup
+can't wipe it — the reason easings/durations live here and not in `primitives.json`
+/ `interaction.json` (which a backup *would* clobber). The CLI embeds it as a
+mode-independent base source alongside `primitives` + `interaction`. If motion ever
+needs a Figma presence, easings would have to become `STRING` vars holding the CSS
+`cubic-bezier(…)` string (carried by the emitter's string passthrough).
+
 ## ❓ Open questions
 
 **Cleared before the build (2026-06-10, D45–D49)** — the pre-build open questions

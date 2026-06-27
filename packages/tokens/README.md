@@ -17,6 +17,7 @@ token transformer (e.g. CSS variables, Tailwind config) reads from.
 | `src/index.ts` | Public entry; re-exports the transform, the server, and types |
 | `src/*.test.ts` | Vitest unit tests, 100% coverage |
 | `src/{primitives,palette,intent,context,interaction}.json` | DTCG output written by the sync server. **Committed** — these files are the repo's source of truth for downstream transformers. |
+| `src/motion.json` | **Code-only** DTCG (motion durations + easing curves + the semantic `motion.*` layer). Hand-authored, *not* a sync target — Figma has no `cubicBezier` variable type, so motion can't round-trip. Sits outside the five-file write-set, so a backup never touches it. |
 
 ## Backing up tokens (end-to-end)
 

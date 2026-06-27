@@ -168,10 +168,10 @@ animation can play against the `data-state="closed"` attribute:
 
 ```css
 [data-state="open"] {
-  animation: fade-in 150ms ease-out;
+  animation: fade-in var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-enter);
 }
 [data-state="closed"] {
-  animation: fade-out 120ms ease-in forwards;
+  animation: fade-out var(--primitiv-motion-duration-feedback) var(--primitiv-motion-easing-exit) forwards;
 }
 ```
 

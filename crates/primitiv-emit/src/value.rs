@@ -17,16 +17,27 @@ const LENGTH_CATEGORIES: &[&str] = &[
 ///
 /// - length categories (`space`, `size`, `radii`, `font-size`, `line-height`,
 ///   `border-width`, `letter-spacing`) → `rem` at a 16px base (`8` → `0.5rem`);
+/// - `duration` → CSS time in `ms` (`150` → `150ms`);
 /// - `opacity` → a unitless `0–1` ratio (`80` → `0.8`);
 /// - everything else (e.g. `font-weight`) → the unitless number (`400`).
 pub fn format_number(category: &str, value: f64) -> String {
     if LENGTH_CATEGORIES.contains(&category) {
         format!("{}rem", trim(value / 16.0))
+    } else if category == "duration" {
+        format!("{}ms", trim(value))
     } else if category == "opacity" {
         trim(value / 100.0)
     } else {
         trim(value)
     }
+}
+
+/// Format a DTCG `cubicBezier` value — four control points `[x1, y1, x2, y2]`
+/// (RFC 0006 §4) — as a CSS `cubic-bezier()` timing function, each point
+/// `trim`med so `1.0` → `1`.
+pub fn format_cubic_bezier(points: &[f64]) -> String {
+    let rendered: Vec<String> = points.iter().map(|point| trim(*point)).collect();
+    format!("cubic-bezier({})", rendered.join(", "))
 }
 
 /// Render a number with at most four decimal places, dropping trailing zeros

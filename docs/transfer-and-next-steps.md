@@ -529,7 +529,8 @@ A counter-proposal to the block margins the prose-base-styles work put in
 - **`flow/*` Context scale (D71).** `tight/normal/section/region` added to all four
   density modes in `packages/tokens/src/context.json`, each aliasing a `space-*`
   primitive, so the emitter produces density-scoped `--primitiv-flow-*`. The Figma
-  Context variables still need creating + a re-sync (the repo backup leads here).
+  Context variables are **synced** (2026-06-27), so web and Figma share the scale;
+  arranging prose in Figma is the `figma-prose-layout` skill.
 - **The `prose` registry component (D74).** `registry/components/prose/` —
   `.primitiv-flow` (a one-directional owl `> * + *` + heading-asymmetry role
   overrides, `@layer primitiv.base`) and a hand-authored `asChild` `<Prose>` wrapper.

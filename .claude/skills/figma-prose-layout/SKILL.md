@@ -31,11 +31,19 @@ layer: the **`flow/*` Context variables** and the **density modes**. Bind every
 gap (and spacer height) to a `flow/*` variable, and density resolves through the
 Context collection's modes exactly like `[data-density]` on the web.
 
-> **Precondition:** the `flow/*` variables must exist in the Figma **Context
-> collection** (`VariableCollectionId:369:31958`). They are created by the token
-> sync (`figma-token-sync`); until then the resolve-by-name below returns
-> `undefined`. Resolve by **name**, never by a hard-coded ID (IDs are assigned at
-> sync time).
+> **Status:** the `flow/*` variables are **synced** to the Figma **Context
+> collection** (`VariableCollectionId:369:31958`, 2026-06-27). Resolve them by
+> **name** as shown below — robust to a re-sync that reassigns IDs (prefer this to
+> a hard-coded VariableID). To pin the concrete IDs (e.g. for a build script), dump
+> them once:
+>
+> ```js
+> const vars = await figma.variables.getLocalVariablesAsync();
+> console.log(vars.filter(v => v.name.startsWith('flow/')).map(v => `${v.name}  ${v.id}`).join('\n'));
+> ```
+>
+> If a name resolves to `undefined`, the sync hasn't reached this file — re-run it
+> (`figma-token-sync`).
 
 ## 2. The flow scale (design intent — RFC 0016)
 
@@ -162,8 +170,9 @@ For a Light/Dark × four-density specimen, follow the example-frame recipe in
 
 ## 8. Gotchas
 
-- **`flow/*` must be synced first** (§1). Resolve by name; if `undefined`, the
-  sync hasn't run — stop and create them (`figma-token-sync`).
+- **Resolve `flow/*` by name** (§1) — they are synced, but a re-sync can reassign
+  IDs, so a hard-coded VariableID is fragile. If a name resolves to `undefined`,
+  the sync hasn't reached this file — re-run it (`figma-token-sync`).
 - **D7 / D8 ordering** (shared with every auto-layout build): `resize()` **before**
   `layoutSizingVertical = 'HUG'`; use `layoutSizingHorizontal/Vertical`, never
   `primaryAxisSizingMode = 'HUG'`; set `FILL` only **after** `appendChild`.

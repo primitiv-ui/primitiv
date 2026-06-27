@@ -13,11 +13,12 @@
 > density-scoped `--primitiv-flow-*`; (3) the `prose` registry component
 > (`registry/components/prose/`, `primitiv add prose`, D74) — the `.primitiv-flow`
 > owl + role overrides in `@layer primitiv.base` and an `asChild` `<Prose>` wrapper
-> over the newly-exported `Slot`. **Follow-ups:** the `flow/*` **Figma** Context
-> variables still need creating + a re-sync (the repo backup leads here, §7); and
-> rhythm inherits **RFC 0009 §5 responsive (container-query) density** for free
-> when that lands — no breakpoint scale exists yet, so viewport responsiveness is
-> deferred to it (§8).
+> over the newly-exported `Slot`. The `flow/*` **Figma** Context variables are now
+> **synced** (2026-06-27), so web and Figma share the scale; laying prose out in
+> Figma is the **`figma-prose-layout`** skill (§7). **Remaining follow-up:** rhythm
+> inherits **RFC 0009 §5 responsive (container-query) density** for free when that
+> lands — no breakpoint scale exists yet, so viewport responsiveness is deferred to
+> it (§8).
 > **Author:** simonrevill, with architectural review
 > **Date:** 2026-06-23 (rebased onto the landed prose-base-styles work, 2026-06-26)
 > **Seeds from:** the 2026-06-23 spacing-strategy discussion (this session),
@@ -286,6 +287,12 @@ system's semantic-naming house style — `content/primary`, never `grey-2`):
 > layouts. The seed values can be taken straight from the landed stylesheet
 > (`normal` = `space-16`, the heading steps from `24`/`8`), so the revert is
 > visually near-neutral for wrapped prose.
+
+> **Synced to Figma (2026-06-27).** All four `flow/*` variables now exist in the
+> Context collection (`VariableCollectionId:369:31958`), keeping web and Figma on
+> one scale. Resolve them **by name** in Figma scripts (robust to a re-sync that
+> reassigns IDs) — see the `figma-prose-layout` skill; the §8 table is the
+> authoritative per-density value set, kept four-step.
 
 ### 3.2 Density scoping — rhythm densifies with the page
 

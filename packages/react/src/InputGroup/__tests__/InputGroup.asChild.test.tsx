@@ -76,8 +76,9 @@ describe("InputGroup asChild composition", () => {
   });
 
   it("forwards a ref through Slot on the Root", () => {
-    // Arrange
-    const ref = createRef<HTMLLabelElement>();
+    // Arrange: Root types its ref as HTMLDivElement (its default element); the
+    // asChild <label> still receives it, which the identity assertion confirms.
+    const ref = createRef<HTMLDivElement>();
 
     // Act
     render(

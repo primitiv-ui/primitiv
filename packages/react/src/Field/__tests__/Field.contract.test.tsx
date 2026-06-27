@@ -49,7 +49,11 @@ describe("Field styling contract", () => {
 
   it("emits exactly the contracted data-* attribute names across its states", () => {
     const emitted = new Set<string>();
-    for (const props of [{}, { invalid: true, disabled: true, required: true }]) {
+    const states: Record<string, boolean>[] = [
+      {},
+      { invalid: true, disabled: true, required: true },
+    ];
+    for (const props of states) {
       for (const name of dataAttributeNames(renderRoot(props))) {
         emitted.add(name);
       }

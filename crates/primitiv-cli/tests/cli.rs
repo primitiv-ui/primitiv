@@ -150,11 +150,12 @@ fn add_all_resolves_every_embedded_component() {
         .args(["add", "--all", "--dry-run"])
         .assert()
         .success()
-        // The 8 framed controls + the two new prose entries (table, divider).
-        .stdout(predicate::str::contains("Resolved 10 components to add:"))
+        // The 8 framed controls + the three prose entries (table, divider, prose).
+        .stdout(predicate::str::contains("Resolved 11 components to add:"))
         .stdout(predicate::str::contains("button"))
         .stdout(predicate::str::contains("table"))
-        .stdout(predicate::str::contains("divider"));
+        .stdout(predicate::str::contains("divider"))
+        .stdout(predicate::str::contains("prose"));
 }
 
 #[test]

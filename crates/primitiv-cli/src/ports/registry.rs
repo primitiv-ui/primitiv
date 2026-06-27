@@ -103,6 +103,11 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("table", "table.recipe.ts"),
     registry_file!("table", "table.tsx"),
     registry_file!("table", "contract.json"),
+    registry_file!("prose", "styles.css"),
+    registry_file!("prose", "styles.scss"),
+    registry_file!("prose", "prose.recipe.ts"),
+    registry_file!("prose", "prose.tsx"),
+    registry_file!("prose", "contract.json"),
 ];
 
 impl Registry for EmbeddedRegistry {

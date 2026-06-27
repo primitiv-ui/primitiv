@@ -336,7 +336,11 @@ that one design, not a per-format reinvention.
    as a foundation file (written next to the token layer by `primitiv tokens` /
    `init`, pulled in via `@import`). This is a deliberately narrow reset — semantic
    prose, not a Normalize/Reset-style blanket — and still the lowest precedence, so
-   component classes and consumer rules both win trivially (D60).
+   component classes and consumer rules both win trivially (D60). **Amended by RFC
+   0016 (D66):** the block-element *outer margins* D60 put here were a default
+   nobody opted into; they are now **zeroed** (no UA margins return) and inter-block
+   rhythm is opt-in via `.primitiv-flow` / `<Prose>` in `primitiv.base`. The
+   element *typography* and inline marks stay in `reset` exactly as above.
 2. ~~**Anonymous vs named nested layers.**~~ **Resolved (D49):** every
    per-component stylesheet **re-opens the named layer** (`@layer primitiv.base
    { … }`) — re-opening is safe and order-stable, and copy-in files are imported

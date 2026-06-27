@@ -1,5 +1,23 @@
 {
   "comfortable": {
+    "flow": {
+      "tight": {
+        "$type": "number",
+        "$value": "{space.space-12}"
+      },
+      "normal": {
+        "$type": "number",
+        "$value": "{space.space-20}"
+      },
+      "section": {
+        "$type": "number",
+        "$value": "{space.space-32}"
+      },
+      "region": {
+        "$type": "number",
+        "$value": "{space.space-48}"
+      }
+    },
     "code": {
       "padding": {
         "$type": "number",
@@ -1617,6 +1635,24 @@
     }
   },
   "compact": {
+    "flow": {
+      "tight": {
+        "$type": "number",
+        "$value": "{space.space-10}"
+      },
+      "normal": {
+        "$type": "number",
+        "$value": "{space.space-16}"
+      },
+      "section": {
+        "$type": "number",
+        "$value": "{space.space-24}"
+      },
+      "region": {
+        "$type": "number",
+        "$value": "{space.space-32}"
+      }
+    },
     "code": {
       "padding": {
         "$type": "number",
@@ -3234,6 +3270,24 @@
     }
   },
   "spacious": {
+    "flow": {
+      "tight": {
+        "$type": "number",
+        "$value": "{space.space-16}"
+      },
+      "normal": {
+        "$type": "number",
+        "$value": "{space.space-28}"
+      },
+      "section": {
+        "$type": "number",
+        "$value": "{space.space-40}"
+      },
+      "region": {
+        "$type": "number",
+        "$value": "{space.space-56}"
+      }
+    },
     "code": {
       "padding": {
         "$type": "number",
@@ -4851,6 +4905,24 @@
     }
   },
   "dense": {
+    "flow": {
+      "tight": {
+        "$type": "number",
+        "$value": "{space.space-8}"
+      },
+      "normal": {
+        "$type": "number",
+        "$value": "{space.space-12}"
+      },
+      "section": {
+        "$type": "number",
+        "$value": "{space.space-16}"
+      },
+      "region": {
+        "$type": "number",
+        "$value": "{space.space-24}"
+      }
+    },
     "code": {
       "padding": {
         "$type": "number",

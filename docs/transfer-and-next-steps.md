@@ -518,6 +518,29 @@ marks (PR #206), in three parts:
   visual QA and the workbench example pages (the base-stylesheet preview + Table /
   Divider pages).
 
+**Spacing & flow rhythm — landed (RFC 0016, the `prose-headless-components` branch).**
+A counter-proposal to the block margins the prose-base-styles work put in
+`primitiv.reset`: **no default margins**, rhythm is **opt-in**. Three parts:
+- **Base margins zeroed (D66).** Every outer block `margin-block`/`margin-inline`
+  in `crates/primitiv-emit/assets/base.{css,scss}` is set to a tokenised zero (not
+  deleted — there is no upstream reset, so deleting would let UA margins back in).
+  Element typography, inline marks, inner spacing, the `li + li` owl and the `dd`
+  indent all stay.
+- **`flow/*` Context scale (D71).** `tight/normal/section/region` added to all four
+  density modes in `packages/tokens/src/context.json`, each aliasing a `space-*`
+  primitive, so the emitter produces density-scoped `--primitiv-flow-*`. The Figma
+  Context variables still need creating + a re-sync (the repo backup leads here).
+- **The `prose` registry component (D74).** `registry/components/prose/` —
+  `.primitiv-flow` (a one-directional owl `> * + *` + heading-asymmetry role
+  overrides, `@layer primitiv.base`) and a hand-authored `asChild` `<Prose>` wrapper.
+  **First registry component with no headless counterpart** — `<Prose>` has zero
+  behaviour, so it ships entirely from the registry; the only `@primitiv-ui/react`
+  change is **exporting the existing `Slot`** so the wrapper can compose consumer
+  elements. Wired into `registry.json` + the embedded registry; `prose.tsx` is
+  type-checked by `qa:registry-types` (no drift guard — it is not generated).
+  Responsiveness is deferred to RFC 0009 §5 container-query density, which the
+  `flow/*` tokens inherit for free (no breakpoint scale exists yet).
+
 **Generated props are `type` intersections, never `interface extends` (D57).**
 The wrapper generator's variant-prop branch emitted `interface XProps extends
 XPrimitiveProps`. That is a hard TypeScript error (TS2312) whenever the primitive's

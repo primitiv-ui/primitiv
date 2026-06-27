@@ -15,6 +15,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
+      thresholds: { lines: 100, branches: 100, functions: 100, statements: 100 },
       include: ["src/OklchPicker/**/*.{ts,tsx}"],
       exclude: [
         "src/OklchPicker/**/*.test.{ts,tsx}",

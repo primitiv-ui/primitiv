@@ -19,12 +19,19 @@ use crate::ports::output::Output;
 // mode-independent base document, but unlike the others it is **code-only** — it
 // has no Figma collection (easing curves have no Figma variable type), so it
 // sits outside the token sync's five-file write-set and is never overwritten.
+// `elevation` is also a mode-independent base document (RFC 0017): its three
+// `shadow.color.*` primitives back a Figma `Elevation` COLOR collection, while
+// the layered `shadow.*` box-shadows and the semantic `elevation.*` roles are
+// code-only composites (Figma has no shadow variable type — effect styles are
+// their Figma form).
 const PRIMITIVES: &str =
     include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/primitives.json"));
 const INTERACTION: &str =
     include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/interaction.json"));
 const MOTION: &str =
     include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/motion.json"));
+const ELEVATION: &str =
+    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/elevation.json"));
 const PALETTE: &str =
     include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../packages/tokens/src/palette.json"));
 const INTENT: &str =
@@ -58,7 +65,7 @@ pub fn tokens(
     let format = format
         .or_else(|| config.as_ref().map(|config| config.tokens.format))
         .unwrap_or(Format::Css);
-    let base = [parse(PRIMITIVES), parse(INTERACTION), parse(MOTION)];
+    let base = [parse(PRIMITIVES), parse(INTERACTION), parse(MOTION), parse(ELEVATION)];
     let theme = [parse(PALETTE), parse(INTENT)];
     let density = [parse(CONTEXT)];
     let sources = TokenSources {

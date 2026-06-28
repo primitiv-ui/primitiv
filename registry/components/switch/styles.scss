@@ -25,7 +25,8 @@
  * --primitiv-surface-*, --primitiv-content-*, --primitiv-border-*,
  * --primitiv-border-width-*, --primitiv-radii-*, --primitiv-space-*,
  * --primitiv-opacity-*, --primitiv-label-*, --primitiv-label-control-*,
- * --primitiv-focus-ring-*, --primitiv-switch-* and --primitiv-motion-* custom properties it resolves.
+ * --primitiv-focus-ring-*, --primitiv-switch-*, --primitiv-motion-* and
+ * --primitiv-shadow-* custom properties it resolves.
  */
 
 @layer primitiv.base {
@@ -42,6 +43,7 @@
     --primitiv-switch-thumb-size: var(--primitiv-switch-md-thumb-size);
     --primitiv-switch-thumb-margin: var(--primitiv-switch-md-thumb-margin);
     --primitiv-switch-thumb-radius: var(--primitiv-radii-full);
+    --primitiv-switch-thumb-shadow: var(--primitiv-shadow-1);
     --primitiv-switch-gap: var(--primitiv-label-control-md-gap);
     --primitiv-switch-label-color: var(--primitiv-content-primary);
     --primitiv-switch-label-font-family: var(--primitiv-label-md-font-family);
@@ -102,6 +104,7 @@
     block-size: var(--primitiv-switch-thumb-size);
     border-radius: var(--primitiv-switch-thumb-radius);
     background: var(--primitiv-switch-thumb-bg);
+    box-shadow: var(--primitiv-switch-thumb-shadow);
     transition: translate var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
@@ -216,6 +219,7 @@ $primitiv-switch-thumb-bg: var(--primitiv-switch-thumb-bg);
 $primitiv-switch-thumb-size: var(--primitiv-switch-thumb-size);
 $primitiv-switch-thumb-margin: var(--primitiv-switch-thumb-margin);
 $primitiv-switch-thumb-radius: var(--primitiv-switch-thumb-radius);
+$primitiv-switch-thumb-shadow: var(--primitiv-switch-thumb-shadow);
 $primitiv-switch-gap: var(--primitiv-switch-gap);
 $primitiv-switch-label-color: var(--primitiv-switch-label-color);
 $primitiv-switch-label-font-family: var(--primitiv-switch-label-font-family);

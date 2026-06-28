@@ -13,7 +13,8 @@
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-action-*,
  * --primitiv-framed-control-*, --primitiv-focus-ring-*, --primitiv-surface-*,
- * --primitiv-opacity-*, --primitiv-color-* and --primitiv-motion-* custom properties it resolves.
+ * --primitiv-opacity-*, --primitiv-color-*, --primitiv-motion-* and
+ * --primitiv-elevation-* custom properties it resolves.
  */
 
 @layer primitiv.base {
@@ -34,6 +35,7 @@
     --primitiv-button-font-size: var(--primitiv-label-md-font-size);
     --primitiv-button-font-weight: var(--primitiv-label-md-font-weight);
     --primitiv-button-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-button-shadow: var(--primitiv-elevation-flat);
 
     display: inline-flex;
     align-items: center;
@@ -45,6 +47,7 @@
     border-radius: var(--primitiv-button-radius);
     background: var(--primitiv-button-bg);
     color: var(--primitiv-button-fg);
+    box-shadow: var(--primitiv-button-shadow);
     font-family: var(--primitiv-button-font-family);
     font-size: var(--primitiv-button-font-size);
     font-weight: var(--primitiv-button-font-weight);
@@ -53,6 +56,7 @@
     transition:
       background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
       border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
       color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
@@ -126,6 +130,16 @@
   }
   .primitiv-button--link:active {
     --primitiv-button-fg: var(--primitiv-action-link-foreground-active);
+  }
+
+  /* Elevation — every framed intent lifts to the `raised` rung on hover; the
+     frameless link variant stays flat. The lift transitions via the button's
+     --primitiv-motion-* tokens (the box-shadow is in the base rule's transition). */
+  .primitiv-button:hover {
+    --primitiv-button-shadow: var(--primitiv-elevation-raised);
+  }
+  .primitiv-button--link:hover {
+    --primitiv-button-shadow: var(--primitiv-elevation-flat);
   }
 
   /* Size — re-points the framed-control knobs to the chosen slot. Density stays

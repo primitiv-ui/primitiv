@@ -34,8 +34,10 @@ Context collection's modes exactly like `[data-density]` on the web.
 > **Status:** the `flow/*` variables are **synced** to the Figma **Context
 > collection** (`VariableCollectionId:369:31958`, 2026-06-27). Resolve them by
 > **name** as shown below — robust to a re-sync that reassigns IDs (prefer this to
-> a hard-coded VariableID). To pin the concrete IDs (e.g. for a build script), dump
-> them once:
+> a hard-coded VariableID). The concrete IDs are backed up in
+> `figma-variable-architecture/references/resolved-values.md` ("Context `flow/*`
+> variable IDs", dumped 2026-06-27). To re-pin them (e.g. for a build script), dump
+> them again:
 >
 > ```js
 > const vars = await figma.variables.getLocalVariablesAsync();

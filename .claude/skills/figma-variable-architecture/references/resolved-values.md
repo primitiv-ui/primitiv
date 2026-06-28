@@ -121,3 +121,21 @@ The collection holds all 218 variables for all densities. Variables alias into
 > exist and will be deleted in a future cleanup step. All component sets
 > (Button, Switch, Checkbox) were migrated to the unified `Context` collection
 > on 2026-05-29.
+
+## Context `flow/*` variable IDs
+
+The prose flow-rhythm scale (RFC 0016) lives in the unified `Context`
+collection (`VariableCollectionId:369:31958`), all `FLOAT`, resolved per
+density mode. Concrete IDs dumped 2026-06-27:
+
+| `flow/*` | VariableID |
+| --- | --- |
+| `flow/tight`   | `VariableID:631:36004` |
+| `flow/normal`  | `VariableID:631:36005` |
+| `flow/section` | `VariableID:631:36006` |
+| `flow/region`  | `VariableID:631:36007` |
+
+> **Prefer name resolution.** These IDs are pinned for build scripts, but a
+> re-sync can reassign them — resolve `flow/*` by name at runtime (see the
+> `figma-prose-layout` skill §1) and treat this table as a snapshot, not a
+> contract.

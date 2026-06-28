@@ -13,6 +13,7 @@ export * from "./DesignSystemTestExample";
 export * from "./DirectionProviderExample";
 export * from "./DividerExample";
 export * from "./DropdownExample";
+export * from "./ElevationExample";
 export * from "./EmptyStateExample";
 export * from "./FieldExample";
 export * from "./FieldsetExample";

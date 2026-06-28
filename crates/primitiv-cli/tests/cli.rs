@@ -344,6 +344,33 @@ fn tokens_emits_the_code_only_motion_layer() {
 }
 
 #[test]
+fn tokens_emits_the_elevation_layer() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    // The two-tier elevation scale (elevation.json): the shadow-colour primitives,
+    // the layered shadow.* box-shadows (geometry aliasing the space scale), and
+    // the semantic elevation.* roles aliasing them — flat resolving to none.
+    Command::cargo_bin("primitiv")
+        .unwrap()
+        .current_dir(dir.path())
+        .args(["tokens", "--format", "css"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "--primitiv-shadow-color-strong: #00000014;",
+        ))
+        .stdout(predicate::str::contains(
+            "--primitiv-shadow-1: var(--primitiv-space-space-0) var(--primitiv-space-space-1) \
+             var(--primitiv-space-space-2) var(--primitiv-space-space-0) \
+             var(--primitiv-shadow-color-strong);",
+        ))
+        .stdout(predicate::str::contains("--primitiv-elevation-flat: none;"))
+        .stdout(predicate::str::contains(
+            "--primitiv-elevation-modal: var(--primitiv-shadow-5);",
+        ));
+}
+
+#[test]
 fn tokens_writes_the_base_companion_next_to_the_token_layer() {
     let dir = assert_fs::TempDir::new().unwrap();
 

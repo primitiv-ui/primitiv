@@ -17,6 +17,7 @@ import {
   DirectionProviderExample,
   DividerExample,
   DropdownExample,
+  ElevationExample,
   EmptyStateExample,
   FieldExample,
   FieldsetExample,
@@ -130,6 +131,10 @@ const navGroups: { title: string; links: NavLink[] }[] = [
     ],
   },
   {
+    title: "Foundations",
+    links: [{ to: "/elevation", label: "Elevation" }],
+  },
+  {
     title: "Showcase",
     links: [{ to: "/design-system-test", label: "Design System Test" }],
   },
@@ -226,6 +231,7 @@ function App() {
           />
           <Route path="/divider" element={<DividerExample />} />
           <Route path="/dropdown" element={<DropdownExample />} />
+          <Route path="/elevation" element={<ElevationExample />} />
           <Route path="/empty-state" element={<EmptyStateExample />} />
           <Route path="/field" element={<FieldExample />} />
           <Route path="/fieldset" element={<FieldsetExample />} />

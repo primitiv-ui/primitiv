@@ -56,6 +56,7 @@
     { "name": "--primitiv-button-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
     { "name": "--primitiv-button-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },
     { "name": "--primitiv-button-font-weight", "defaultsTo": "var(--primitiv-label-md-font-weight)" },
-    { "name": "--primitiv-button-line-height", "defaultsTo": "var(--primitiv-label-md-line-height)" }
+    { "name": "--primitiv-button-line-height", "defaultsTo": "var(--primitiv-label-md-line-height)" },
+    { "name": "--primitiv-button-shadow", "defaultsTo": "var(--primitiv-elevation-flat)" }
   ]
 }

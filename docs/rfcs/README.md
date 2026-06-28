@@ -10,6 +10,7 @@ status, summary, and decision record; this page is the index.
 | [0001](0001-token-architecture.md) | Primitiv Token Architecture | Draft |
 | [0002](0002-harmoni-to-intent-to-plugin.md) | Harmoni → Intent → Plugin | Phase B complete; Phase C in progress |
 | [0003](0003-dynamic-foreground-wiring.md) | Dynamic foreground wiring | Implemented (engine + sync-plugin + DTCG) |
+| [0017](0017-elevation-and-shadow-tokens.md) | Elevation & shadow tokens | Draft — in progress |
 
 - **0001** — the six-pattern layered token stack (primitives → intent → role →
   anatomy → interaction → component), the contexts model, and the Button worked
@@ -18,6 +19,15 @@ status, summary, and decision record; this page is the index.
   Figma plugin.
 - **0003** — letting the engine's computed, contrast-correct foreground flow all
   the way through instead of being replaced by a static guess.
+- **0017** — elevation & shadow tokens: a two-tier system mirroring motion — a
+  primitive `shadow.*` ramp (multi-layered box-shadows built with the
+  smoothshadows methodology + 3 shared shadow colours) and a semantic
+  `elevation.*` depth hierarchy (`flat / raised / overlay / floating / modal`).
+  Adds a DTCG `shadow` composite to the emitter, reuses `space.*` for geometry so
+  only 3 new COLOR variables hit Figma (geometry binds to existing space vars;
+  effect styles are elevation's Figma form), and adopts it on Button (hover lift)
+  + Switch (thumb). Applying the effect styles to existing Figma components — direct
+  or behind a Boolean component property — is a documented follow-up session (§7).
 
 ## Consumption layer
 

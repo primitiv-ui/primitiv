@@ -32,6 +32,37 @@ pub fn format_number(category: &str, value: f64) -> String {
     }
 }
 
+/// One layer of a DTCG `shadow` composite (RFC 0006 §4, RFC 0017 §4) — the five
+/// box-shadow components, each pre-formatted as a CSS string (a `var()` alias or
+/// a literal). Assembled by the DTCG flattener; rendered by [`format_shadow`].
+pub struct ShadowLayer {
+    pub offset_x: String,
+    pub offset_y: String,
+    pub blur: String,
+    pub spread: String,
+    pub color: String,
+}
+
+/// Render a DTCG `shadow` composite's layers as a CSS `box-shadow` value — each
+/// layer in CSS order (`offset-x offset-y blur spread color`), layers joined with
+/// `, `. An **empty** layer list renders the `none` keyword, the declarative
+/// no-elevation rung (`elevation-flat`, RFC 0017 §4 D5).
+pub fn format_shadow(layers: &[ShadowLayer]) -> String {
+    if layers.is_empty() {
+        return "none".to_string();
+    }
+    layers
+        .iter()
+        .map(|layer| {
+            format!(
+                "{} {} {} {} {}",
+                layer.offset_x, layer.offset_y, layer.blur, layer.spread, layer.color
+            )
+        })
+        .collect::<Vec<_>>()
+        .join(", ")
+}
+
 /// Format a DTCG `cubicBezier` value — four control points `[x1, y1, x2, y2]`
 /// (RFC 0006 §4) — as a CSS `cubic-bezier()` timing function, each point
 /// `trim`med so `1.0` → `1`.

@@ -1,7 +1,7 @@
 use serde_json::{Map, Value};
 
 use crate::token::Token;
-use crate::value::{format_cubic_bezier, format_number};
+use crate::value::{format_cubic_bezier, format_number, format_shadow, ShadowLayer};
 
 /// Flatten a DTCG token tree into resolved [`Token`]s (RFC 0006 §3–4).
 ///
@@ -10,8 +10,9 @@ use crate::value::{format_cubic_bezier, format_number};
 /// are formatted by category (`format_number`); a `cubicBezier` leaf's
 /// four-point array becomes a CSS `cubic-bezier()` function. Group nodes
 /// recurse; `$`-prefixed metadata keys (`$type`, `$description`) are skipped.
-/// Leaves whose `$value` is any other composite (e.g. shadow/gradient tokens)
-/// are not yet supported and are skipped.
+/// A `shadow` leaf's layer(s) become a CSS `box-shadow` (`shadow_layers`); any
+/// other composite (e.g. gradient/typography tokens) is not yet supported and
+/// is skipped.
 pub fn tokens_from_dtcg(root: &Value) -> Vec<Token> {
     let mut tokens = Vec::new();
     let mut path = Vec::new();
@@ -61,6 +62,11 @@ fn collect(map: &Map<String, Value>, path: &mut Vec<String>, out: &mut Vec<Token
                     path: path.clone(),
                     value: format_cubic_bezier(&points),
                 });
+            } else if let Some(layers) = shadow_layers(child, value) {
+                out.push(Token {
+                    path: path.clone(),
+                    value: format_shadow(&layers),
+                });
             }
         } else if let Some(child_map) = child.as_object() {
             collect(child_map, path, out);
@@ -79,4 +85,39 @@ fn cubic_bezier_points(leaf: &Value, value: &Value) -> Option<Vec<f64>> {
     }
     let points: Vec<f64> = value.as_array()?.iter().filter_map(Value::as_f64).collect();
     (points.len() == 4).then_some(points)
+}
+
+/// The [`ShadowLayer`]s of a `shadow` leaf, or `None` for any other leaf or a
+/// malformed shadow (RFC 0006 §4, RFC 0017 §4). Gated on the sibling `$type` so
+/// no other array/object composite is mistaken for a shadow. A `$value` array is
+/// the layered form (one box-shadow per element, the smoothshadows stack); an
+/// **empty** array yields zero layers — the `none` keyword. A bare object is a
+/// single layer. A layer missing any component fails the whole token (`?`), so a
+/// malformed shadow is skipped rather than half-emitted.
+fn shadow_layers(leaf: &Value, value: &Value) -> Option<Vec<ShadowLayer>> {
+    if leaf.get("$type").and_then(Value::as_str) != Some("shadow") {
+        return None;
+    }
+    match value {
+        Value::Array(items) => items.iter().map(shadow_layer).collect(),
+        layer => shadow_layer(layer).map(|layer| vec![layer]),
+    }
+}
+
+/// One shadow layer's five box-shadow components, each a CSS string (a `{…}`
+/// alias resolved later by [`crate::alias::link_aliases`], or a literal). `None`
+/// if any component is missing or non-string.
+fn shadow_layer(layer: &Value) -> Option<ShadowLayer> {
+    let parts: Option<Vec<String>> = ["offsetX", "offsetY", "blur", "spread", "color"]
+        .iter()
+        .map(|key| layer.get(*key).and_then(Value::as_str).map(str::to_string))
+        .collect();
+    let parts = parts?;
+    Some(ShadowLayer {
+        offset_x: parts[0].clone(),
+        offset_y: parts[1].clone(),
+        blur: parts[2].clone(),
+        spread: parts[3].clone(),
+        color: parts[4].clone(),
+    })
 }

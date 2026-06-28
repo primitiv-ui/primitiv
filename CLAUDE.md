@@ -204,7 +204,7 @@ source of truth for when a skill applies.
   sliver too — one source of truth, shared with the plugin via wasm). The plugin port
   (Phase 5) follows.
   See RFC 0010 §10.
-- **RFC 0017 (elevation / shadow tokens) — web side landed; Figma pending.** A
+- **RFC 0017 (elevation / shadow tokens) — landed (web + Figma).** A
   two-tier system mirroring motion: a primitive `shadow.*` ramp (multi-layered
   box-shadows, smoothshadows method, + 3 shared `shadow.color.*` alphas) and a
   semantic `elevation.*` depth hierarchy (`flat/raised/overlay/floating/modal`),
@@ -214,11 +214,15 @@ source of truth for when a skill applies.
   aliases the existing `space.*` scale, so only the 3 colours are new; colour is
   `absolute-black`-based so it doesn't invert in dark mode (single shared scale,
   v1). Adopted on Button (flat→raised hover lift) and the Switch thumb
-  (`shadow.1`); workbench specimen at `/elevation`. **Outstanding (next session):**
-  the Figma side — an `Elevation` COLOR collection (`elevationSpec` +
-  `bootstrapElevation` + `dtcg.ts` routing) and 6 effect styles via a console
-  script; then the **deferred** job of applying those effect styles to existing
-  Figma components (direct or a Boolean component prop). See RFC 0017 §5–7 and
+  (`shadow.1`); workbench specimen at `/elevation` (with a light/dark toggle).
+  **Figma side built 2026-06-28 via the writable Figma-console bridge (NOT the
+  sync plugin — D8):** an `Elevation` COLOR collection (3 `shadow/color/*`) + the
+  **full effect-style set (10)** — raw `shadow/1…5` *and* semantic
+  `elevation/flat…modal`, every layer bound to `space/*` + `shadow/color/*`. Baked
+  in (model 1) on the 15 Button hover variants (link excluded) and all 40 Switch
+  thumbs; both component descriptions updated. **Next:** apply elevation to the
+  remaining Figma sets with hardcoded shadows — Modal (`elevation/modal`),
+  Dropdown/Panel (`elevation/overlay`). See RFC 0017 §5–7 + D8 and
   `docs/transfer-and-next-steps.md`.
 
 ## Useful commands

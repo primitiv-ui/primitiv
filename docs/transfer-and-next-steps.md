@@ -440,7 +440,7 @@ mode-independent base source alongside `primitives` + `interaction`. If motion e
 needs a Figma presence, easings would have to become `STRING` vars holding the CSS
 `cubic-bezier(…)` string (carried by the emitter's string passthrough).
 
-## 🛋️ Elevation / shadow tokens — landed (web), Figma pending (RFC 0017)
+## 🛋️ Elevation / shadow tokens — landed (web + Figma) (RFC 0017)
 
 The two-tier elevation system — a primitive `shadow.*` ramp (multi-layered
 box-shadows built with the smoothshadows methodology + 3 shared `shadow.color.*`
@@ -460,25 +460,33 @@ code-only; their Figma form is **effect styles**. Only the 3 `shadow.color.*`
 alphas are real Figma variables. Colour is based on `absolute-black` (not the
 neutral palette) so it doesn't invert in dark mode — single shared scale for v1.
 
-**Figma work — NOT yet done (needs the sync plugin run in Figma desktop; the
-in-session Figma MCP is read-only):**
+**Figma work — DONE (2026-06-28).** Built directly through the **writable
+Figma-console bridge** (`figma_execute`), not the sync plugin: RFC §5's premise
+("the in-session Figma MCP is read-only") no longer holds, and the sync plugin is
+being retired in favour of backing variables up as-you-go. So **no `elevationSpec.ts`
+/ `bootstrapElevation.ts` were written** — the deviation is logged in RFC 0017 D8.
 
-- [ ] **`Elevation` COLOR collection** — author `elevationSpec.ts` +
-  `bootstrapElevation` in `apps/primitiv-sync-figma-plugin` (mirror
-  `interactionSpec` / `bootstrapInteraction`), the 3 `shadow/color/*` variables.
-  Route the new collection in `packages/tokens/src/dtcg.ts` (single-mode, prefix
-  `shadow/color`) + extend `dtcg.test.ts` so it round-trips into `elevation.json`.
-- [ ] **6 effect styles** (`elevation/flat…modal`) — a console script
-  (`figma-console-scripts`) creating multi-layer drop-shadows whose geometry binds
-  to existing `space/*` vars and colour to the new `shadow/color/*` vars. Save as a
-  repo artefact.
+- [x] **`Elevation` COLOR collection** — 3 `shadow/color/{strong,medium,soft}`
+  variables (black at ~8/6/4%), created via the bridge.
+- [x] **Effect styles — the full set (10), not just 6.** The raw ramp
+  `shadow/1…shadow/5` *and* the semantic `elevation/{flat,raised,overlay,floating,modal}`,
+  every layer's `offsetX/offsetY/radius/spread` bound to `space/*` and colour to
+  `shadow/color/*`. The full ramp was authored (not the 6 in §5) so the Switch
+  thumb can reference a named `shadow/1` style and so Figma mirrors the token system
+  exactly. `elevation/*` duplicate the matching `shadow/*` layer stacks (Figma styles
+  can't alias each other).
+- [x] **Applied (baked-in, RFC §7 model 1)** — `elevation/raised` on the 15 Button
+  hover variants (primary/secondary/danger × 5 sizes; link's 5 left flat);
+  `shadow/1` on the `Thumb` frame in all 40 Switch variants. Button + Switch
+  component descriptions updated (live + `figma-component-descriptions` skill).
 
-**Deferred to a separate session (RFC 0017 §7) — applying the effect styles to
-existing Figma component sets:** decide per component between baking the style in
-directly vs. exposing a **Boolean component property** (`Shadow`/`Elevated`) so a
-consumer toggles it. Candidate set is the depth hierarchy; prioritise components
-that exist as Figma sets today, add overlay/modal applications as those components
-are built. Update each set's component description afterward.
+**Next session — apply elevation to the remaining Figma sets (RFC 0017 §7).**
+The strongest consumers already exist as Figma sets with **hardcoded shadows
+pending elevation tokens**: **Modal** (`435:10250`, → `elevation/modal`) and
+**Dropdown/Panel** (`402:18499`, → `elevation/overlay`) — migrate those first to
+the new effect styles. Cards/raised surfaces are the candidates for the **Boolean
+component property** model (`Shadow`/`Elevated`) rather than baking in. Update each
+set's component description afterward.
 
 ## ❓ Open questions
 

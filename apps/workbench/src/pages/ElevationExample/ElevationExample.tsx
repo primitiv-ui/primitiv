@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import "./ElevationExample.css";
 
 /** The semantic depth hierarchy (RFC 0017 §1) — the role tokens a consumer
@@ -25,9 +27,23 @@ const ramp: { token: string; size: string }[] = [
  * box-shadow inline so each surfaces its own token without per-card CSS.
  */
 export function ElevationExample() {
+  // Local theme override so the shadows can be inspected on both surfaces. The
+  // `[data-theme]` token selectors cascade from any element, so setting it on
+  // this wrapper re-themes the whole specimen independently of the app shell.
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
   return (
-    <div className="elev-example">
-      <h2 className="elev-example__title">Elevation</h2>
+    <div className="elev-example" data-theme={theme}>
+      <div className="elev-example__header">
+        <h2 className="elev-example__title">Elevation</h2>
+        <button
+          type="button"
+          className="elev-example__theme-toggle"
+          onClick={() => setTheme((t) => (t === "light" ? "dark" : "light"))}
+        >
+          {theme === "light" ? "Switch to dark" : "Switch to light"}
+        </button>
+      </div>
 
       <section className="elev-example__section">
         <h3 className="elev-example__section-title">Semantic roles</h3>

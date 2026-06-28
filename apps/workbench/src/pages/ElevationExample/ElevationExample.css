@@ -3,6 +3,28 @@
 
 .elev-example {
   padding: var(--primitiv-space-space-24);
+  /* Paint the wrapper's own surface so the locally-toggled theme reads behind
+     the cards, instead of falling through to the app shell's background. */
+  background: var(--primitiv-surface-default);
+}
+
+.elev-example__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--primitiv-space-space-16);
+}
+
+.elev-example__theme-toggle {
+  padding: var(--primitiv-space-space-8) var(--primitiv-space-space-16);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
+  border-radius: var(--primitiv-radii-3);
+  background: var(--primitiv-surface-raised);
+  color: var(--primitiv-content-primary);
+  font-family: var(--primitiv-label-md-font-family);
+  font-size: var(--primitiv-label-md-font-size);
+  font-weight: var(--primitiv-label-md-font-weight);
+  cursor: pointer;
 }
 
 .elev-example__title {

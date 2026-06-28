@@ -204,6 +204,22 @@ source of truth for when a skill applies.
   sliver too — one source of truth, shared with the plugin via wasm). The plugin port
   (Phase 5) follows.
   See RFC 0010 §10.
+- **RFC 0017 (elevation / shadow tokens) — web side landed; Figma pending.** A
+  two-tier system mirroring motion: a primitive `shadow.*` ramp (multi-layered
+  box-shadows, smoothshadows method, + 3 shared `shadow.color.*` alphas) and a
+  semantic `elevation.*` depth hierarchy (`flat/raised/overlay/floating/modal`),
+  in code-only `packages/tokens/src/elevation.json`. The emitter gained a DTCG
+  **`shadow` composite** (`value.rs::format_shadow`, `dtcg.rs::shadow_layers`, and
+  a generalised `alias.rs::link_aliases` resolving every embedded `{…}`). Geometry
+  aliases the existing `space.*` scale, so only the 3 colours are new; colour is
+  `absolute-black`-based so it doesn't invert in dark mode (single shared scale,
+  v1). Adopted on Button (flat→raised hover lift) and the Switch thumb
+  (`shadow.1`); workbench specimen at `/elevation`. **Outstanding (next session):**
+  the Figma side — an `Elevation` COLOR collection (`elevationSpec` +
+  `bootstrapElevation` + `dtcg.ts` routing) and 6 effect styles via a console
+  script; then the **deferred** job of applying those effect styles to existing
+  Figma components (direct or a Boolean component prop). See RFC 0017 §5–7 and
+  `docs/transfer-and-next-steps.md`.
 
 ## Useful commands
 

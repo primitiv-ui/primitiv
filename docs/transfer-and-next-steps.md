@@ -440,6 +440,46 @@ mode-independent base source alongside `primitives` + `interaction`. If motion e
 needs a Figma presence, easings would have to become `STRING` vars holding the CSS
 `cubic-bezier(…)` string (carried by the emitter's string passthrough).
 
+## 🛋️ Elevation / shadow tokens — landed (web), Figma pending (RFC 0017)
+
+The two-tier elevation system — a primitive `shadow.*` ramp (multi-layered
+box-shadows built with the smoothshadows methodology + 3 shared `shadow.color.*`
+alphas) and a semantic `elevation.*` depth hierarchy
+(`flat / raised / overlay / floating / modal`) — lives in
+`packages/tokens/src/elevation.json`, a code-only base DTCG document embedded by
+the CLI alongside `primitives` / `interaction` / `motion`. The emitter gained a
+DTCG **`shadow` composite** (`value.rs::format_shadow`, `dtcg.rs::shadow_layers`,
+and a generalised `alias.rs::link_aliases` that resolves *every* embedded `{…}`).
+Geometry **aliases the existing `space.*` scale**, so shadows emit in `rem` and
+only the 3 colours are new. Adopted on **Button** (flat→raised hover lift) and the
+**Switch thumb** (`shadow.1`). Workbench specimen at `/elevation`.
+
+**Why mostly code-only (same pattern as motion).** Figma has no composite-shadow
+variable type, so the layered `shadow.*` / semantic `elevation.*` composites are
+code-only; their Figma form is **effect styles**. Only the 3 `shadow.color.*`
+alphas are real Figma variables. Colour is based on `absolute-black` (not the
+neutral palette) so it doesn't invert in dark mode — single shared scale for v1.
+
+**Figma work — NOT yet done (needs the sync plugin run in Figma desktop; the
+in-session Figma MCP is read-only):**
+
+- [ ] **`Elevation` COLOR collection** — author `elevationSpec.ts` +
+  `bootstrapElevation` in `apps/primitiv-sync-figma-plugin` (mirror
+  `interactionSpec` / `bootstrapInteraction`), the 3 `shadow/color/*` variables.
+  Route the new collection in `packages/tokens/src/dtcg.ts` (single-mode, prefix
+  `shadow/color`) + extend `dtcg.test.ts` so it round-trips into `elevation.json`.
+- [ ] **6 effect styles** (`elevation/flat…modal`) — a console script
+  (`figma-console-scripts`) creating multi-layer drop-shadows whose geometry binds
+  to existing `space/*` vars and colour to the new `shadow/color/*` vars. Save as a
+  repo artefact.
+
+**Deferred to a separate session (RFC 0017 §7) — applying the effect styles to
+existing Figma component sets:** decide per component between baking the style in
+directly vs. exposing a **Boolean component property** (`Shadow`/`Elevated`) so a
+consumer toggles it. Candidate set is the depth hierarchy; prioritise components
+that exist as Figma sets today, add overlay/modal applications as those components
+are built. Update each set's component description afterward.
+
 ## ❓ Open questions
 
 **Cleared before the build (2026-06-10, D45–D49)** — the pre-build open questions

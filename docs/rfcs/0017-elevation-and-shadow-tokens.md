@@ -1,8 +1,10 @@
 # RFC 0017 — Elevation & shadow tokens
 
-> **Status:** **Draft (2026-06-27).** Designed in the 2026-06-27 elevation
-> discussion, following the motion (duration/easing) token work. Implementation
-> in progress on `claude/elevation-shadow-tokens-9x30rp`.
+> **Status:** **Landed (2026-06-28).** Web side merged (#218); Figma variables +
+> effect styles built and applied to Button + Switch this session. Remaining
+> §7 work (Modal, Dropdown, and future overlay/floating consumers) is tracked in
+> `docs/transfer-and-next-steps.md`. Designed in the 2026-06-27 elevation
+> discussion, following the motion (duration/easing) token work.
 >
 > **Author:** simonrevill, with architectural design
 > **Date:** 2026-06-27
@@ -179,19 +181,21 @@ alongside `PRIMITIVES` / `INTERACTION` / `MOTION`) and into the `base` array of
 
 ## 5. Figma
 
-### Variables — `bootstrapElevation`
+> **As built (2026-06-28) — see D8.** The plan below assumed a read-only
+> in-session Figma MCP, so it routed variable creation through the sync plugin.
+> A **writable** Figma-console bridge is now available, and the sync plugin is
+> being retired, so the variables *and* the effect styles were created **directly
+> via the bridge** — no `elevationSpec.ts` / `bootstrapElevation.ts` / console
+> script were written. The shapes below still describe the result; only the
+> mechanism changed.
 
-The 3 COLOR variables are created the same way the Interaction variables are —
-a pure spec + a bootstrap action in the **sync plugin** (`figma-token-sync`),
-**not** by hand and **not** via the read-only Figma MCP:
+### Variables
 
-- `apps/primitiv-sync-figma-plugin/src/code/elevationSpec.ts` — pure data
-  (mirrors `interactionSpec.ts`): three `COLOR` variables
-  `shadow/color/{strong,medium,soft}` in a new **`Elevation`** collection.
-- `bootstrapElevation.ts` + the message wiring (mirrors `bootstrapInteraction`).
-- Route the `Elevation` collection in `packages/tokens/src/dtcg.ts` so it
-  round-trips through Export tokens into `elevation.json` (single-mode, path
-  prefix `shadow/color`). Update the routing tables + `dtcg.test.ts` fixtures.
+A new **`Elevation`** COLOR collection holds three `COLOR` variables
+`shadow/color/{strong,medium,soft}` (black at ~8/6/4% alpha). *(Original plan: a
+pure `elevationSpec.ts` + a `bootstrapElevation` action in the sync plugin,
+mirroring `interactionSpec` / `bootstrapInteraction`, with the collection routed
+in `packages/tokens/src/dtcg.ts`.)*
 
 The geometry binds to the **existing** `space/*` Primitives variables — nothing
 new there. The semantic `elevation.*` composites stay **code-only** in Figma
@@ -200,15 +204,14 @@ new there. The semantic `elevation.*` composites stay **code-only** in Figma
 
 ### Effect styles
 
-Six effect styles (`elevation/flat … elevation/modal`), each a stack of
-drop-shadow layers whose X/Y/blur/spread bind to `space/*` and whose colour
-binds to the new `shadow/color/*` variables. Authored via a one-shot
-**console script** saved as a repo artefact (`figma-console-scripts`), since
-effect styles are not variables and cannot be created by the bootstrap path.
-
-**Execution note:** the Figma MCP available in-session is **read-only**
-(`get_figma_data`, `download_figma_images`). The spec, bootstrap, and console
-script are authored and committed here; a human runs them in Figma desktop.
+The **full set (10)** was authored: the raw ramp `shadow/1 … shadow/5` *and* the
+semantic `elevation/{flat,raised,overlay,floating,modal}` — each a stack of
+drop-shadow layers whose offsetX/offsetY/blur/spread bind to `space/*` and whose
+colour binds to the new `shadow/color/*` variables. *(The RFC originally scoped
+six `elevation/*` styles; the raw ramp was added so the Switch thumb can reference
+a named `shadow/1` style and Figma mirrors the token system exactly — see D8.)*
+`elevation/*` duplicate the matching `shadow/*` layer stacks, since Figma effect
+styles cannot alias one another. `elevation/flat` is a no-shadow style.
 
 ## 6. Component adoption (this RFC)
 
@@ -234,12 +237,19 @@ An elevation example page under `apps/workbench/src/pages` showing every rung on
 cards/surfaces, so the values can be QA'd in a real browser (the sandbox has no
 browser) and tuned against smoothshadows.com side-by-side.
 
-## 7. Deferred — applying effect styles to existing Figma components (next session)
+## 7. Applying effect styles to existing Figma components
 
-**This is a separate session's job, documented here per the 2026-06-27
-decision.** Once the `elevation/*` effect styles exist (§5), they must be
-**applied to the existing Figma component sets** that should carry elevation.
-Two integration models, to be decided when the work starts:
+**Started 2026-06-28.** Button and Switch are done (baked-in, model 1):
+`elevation/raised` on the 15 Button hover variants (primary/secondary/danger ×
+5 sizes; link's 5 stay flat) and `shadow/1` on the `Thumb` frame across all 40
+Switch variants, with both component descriptions updated. The strongest
+remaining consumers already exist as Figma sets carrying **hardcoded shadows
+pending these tokens** — **Modal** (→ `elevation/modal`) and **Dropdown/Panel**
+(→ `elevation/overlay`) — and are the next to migrate; cards/raised surfaces are
+the candidates for the Boolean-property model. Tracked in
+`docs/transfer-and-next-steps.md`.
+
+The two integration models, chosen per component:
 
 1. **Baked in** — apply the effect style directly to the component frame (e.g.
    Button always carries `elevation/raised` on hover-state variants). Simplest,
@@ -278,4 +288,13 @@ today, and add the overlay/modal applications as those components are built.
   3 colours; effect styles are authored via a console script.
 - **D7 — Applying effect styles to existing Figma components is deferred** to a
   separate session (§7), to be integrated either directly or behind a Boolean
-  component property.
+  component property. *(Started 2026-06-28: Button + Switch done, baked-in.)*
+- **D8 — Figma side built via the writable bridge, not the sync plugin
+  (2026-06-28).** §5 assumed a read-only in-session Figma MCP and routed variable
+  creation through an `elevationSpec` + `bootstrapElevation` sync-plugin action. A
+  writable Figma-console bridge is now available and the sync plugin is being
+  retired, so the `Elevation` collection, the 3 colours, and **all 10 effect
+  styles** were created directly via the bridge — no spec/bootstrap/console-script
+  files. The **full `shadow/*` ramp** was authored alongside the six `elevation/*`
+  styles (the RFC scoped only the six) so the Switch thumb references a named
+  `shadow/1` style and Figma mirrors the token system one-to-one.

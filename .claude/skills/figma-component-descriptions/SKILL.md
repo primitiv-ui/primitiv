@@ -104,11 +104,13 @@ Axes: Variant primary|secondary|danger|link · Size xs|sm|md|lg|xl · State defa
 
 Tokens: fill/stroke/fg → action/{variant}/* per state
         sizing → framed-control/{size}/height|padding-inline|gap|radius
+        elevation → elevation/raised effect style on State=hover (framed variants only)
 
 Properties: Label (TEXT "Button text") · Leading Icon (BOOL true) · Leading Icon Instance (SWAP) · Trailing Icon (BOOL true) · Trailing Icon Instance (SWAP)
 
 Density: Context mode override on parent frame
-Notes: link variant has no fill or stroke; focus ring is brand teal on all variants; disabled uses action/*/disabled tokens
+Notes: link variant has no fill or stroke; focus ring is brand teal on all variants; disabled uses action/*/disabled tokens.
+  Elevation (RFC 0017) — primary/secondary/danger lift to the elevation/raised effect style on hover; the resting state is flat (no shadow) and the frameless link variant stays flat on hover too. Mirrors the web: box-shadow transitions via the motion tokens.
 ```
 
 ### Switch — `315:5884`
@@ -122,11 +124,13 @@ Axes: Size xs|sm|md|lg|xl · State unchecked|checked · Interaction default|hove
 
 Tokens: track fill → action/secondary/* (unchecked) · action/primary/* (checked)
         sizing → switch/{size}/track-width|track-height|thumb-size|thumb-margin (Context collection)
+        thumb shadow → shadow/1 effect style (all variants)
 
 Properties: Focus ring (BOOL false)
 
 Density: Context mode override on parent frame
-Notes: thumb position driven by paddingLeft/Right on auto-layout track; focus ring is circular (radius 9999); disabled uses 50% frame opacity
+Notes: thumb position driven by paddingLeft/Right on auto-layout track; focus ring is circular (radius 9999); disabled uses 50% frame opacity.
+  Elevation (RFC 0017) — the Thumb carries the raw shadow/1 (xs hairline) effect style in every state to lift it off the track; this is the one place the primitive shadow ramp is used directly rather than a semantic elevation role.
 ```
 
 ### Checkbox — `369:30652`

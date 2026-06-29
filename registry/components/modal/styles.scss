@@ -156,16 +156,38 @@
 }
 
 @layer primitiv.states {
-  /* Enter transitions — the dialog and its backdrop fade/scale in on open. Keyed
-     off the data-state the headless component sets; uses the shared overlay
-     motion tokens so it matches every other layered surface. */
+  /* Enter / exit — the dialog scales + fades, the backdrop fades. Keyed off the
+     data-state the headless component sets; both phases are token-driven (the
+     shared overlay duration + the enter / exit easings) so they match every other
+     layered surface. The exit phase plays only when the subtree is kept mounted
+     via Modal.Portal / Modal.Overlay `forceMount` (otherwise it unmounts at once);
+     `forwards` holds the closed frame for that hand-off window. */
   .primitiv-modal[data-state="open"] {
     animation: primitiv-modal-in var(--primitiv-motion-duration-overlay)
       var(--primitiv-motion-easing-enter);
   }
-  .primitiv-modal[data-state="open"]::backdrop {
+  .primitiv-modal[data-state="closed"] {
+    animation: primitiv-modal-out var(--primitiv-motion-duration-overlay)
+      var(--primitiv-motion-easing-exit) forwards;
+  }
+  .primitiv-modal[data-state="open"]::backdrop,
+  .primitiv-modal__overlay[data-state="open"] {
     animation: primitiv-modal-backdrop-in var(--primitiv-motion-duration-overlay)
       var(--primitiv-motion-easing-enter);
+  }
+  .primitiv-modal[data-state="closed"]::backdrop,
+  .primitiv-modal__overlay[data-state="closed"] {
+    animation: primitiv-modal-backdrop-out var(--primitiv-motion-duration-overlay)
+      var(--primitiv-motion-easing-exit) forwards;
+  }
+
+  /* Honour reduced-motion: drop the enter / exit animations entirely. */
+  @media (prefers-reduced-motion: reduce) {
+    .primitiv-modal,
+    .primitiv-modal::backdrop,
+    .primitiv-modal__overlay {
+      animation: none;
+    }
   }
 
   /* Focus — the shared two-layer ring on the close affordance, identical to
@@ -195,6 +217,19 @@
 
 @keyframes primitiv-modal-backdrop-in {
   from {
+    opacity: 0;
+  }
+}
+
+@keyframes primitiv-modal-out {
+  to {
+    opacity: 0;
+    scale: 0.97;
+  }
+}
+
+@keyframes primitiv-modal-backdrop-out {
+  to {
     opacity: 0;
   }
 }

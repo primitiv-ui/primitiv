@@ -51,8 +51,15 @@ its `size` modifier (`sm` / `md` / `lg` / `xl`) and `data-state` hook, the
 A fixed-width surface — `surface/default` fill, the `elevation/modal` shadow,
 `modal/*` padding/gap/radius — centred by the native `<dialog>`'s user-agent
 positioning. Structured per RFC 0008: the per-component API tokens + resting look
-in `primitiv.base`, the `size` modifiers in `primitiv.variants`, the open-state
-enter animation + close-button focus ring + disabled styling in `primitiv.states`.
+in `primitiv.base`, the `size` modifiers in `primitiv.variants`, the enter / exit
+animations + close-button focus ring + disabled styling in `primitiv.states`.
+
+Both animation phases are **token-driven**: the dialog scales + fades and the
+backdrop fades, keyed off the `data-state` (`open` / `closed`) the headless layer
+sets, using the shared `--primitiv-motion-duration-overlay` with
+`--primitiv-motion-easing-enter` / `-exit`. The **exit** phase only plays when the
+subtree is kept mounted via `Modal.Portal` / `Modal.Overlay` `forceMount`
+(otherwise it unmounts immediately); `prefers-reduced-motion: reduce` drops both.
 
 Two Modal-specific notes:
 

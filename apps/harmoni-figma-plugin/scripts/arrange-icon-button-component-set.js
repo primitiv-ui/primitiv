@@ -3,7 +3,7 @@
  * Run via figma_execute by replacing the findOne lookup with getNodeByIdAsync.
  *
  * Set ID: 433:8386
- * Grid: md first, then xs sm lg xl (rows) × primary/secondary/danger/link × 5 states (cols)
+ * Grid: md first, then xs sm lg xl (rows) × primary/secondary/danger/ghost/link × 5 states (cols)
  * EDGE_PAD = 24 (keeps focus-ring overflow inside set bounds)
  *
  * After running: sweep all State=focus variants and resize ring frames to
@@ -18,7 +18,7 @@ const GAP_ROW = 24;
 const GROUP_GAP = 48;
 
 const SIZES = ['md', 'xs', 'sm', 'lg', 'xl'];
-const VARIANTS = ['primary', 'secondary', 'danger', 'link'];
+const VARIANTS = ['primary', 'secondary', 'danger', 'ghost', 'link'];
 const STATES = ['default', 'hover', 'active', 'focus', 'disabled'];
 
 (async () => {

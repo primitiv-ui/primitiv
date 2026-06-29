@@ -96,11 +96,11 @@ built or significantly changed.
 ### Button — `347:14161`
 
 ```
-Interactive action trigger; four visual intents and five interaction states.
+Interactive action trigger; five visual intents and five interaction states.
 
 Type: framed-control
 
-Axes: Variant primary|secondary|danger|link · Size xs|sm|md|lg|xl · State default|hover|active|focus|disabled
+Axes: Variant primary|secondary|danger|ghost|link · Size xs|sm|md|lg|xl · State default|hover|active|focus|disabled
 
 Tokens: fill/stroke/fg → action/{variant}/* per state
         sizing → framed-control/{size}/height|padding-inline|gap|radius
@@ -110,7 +110,8 @@ Properties: Label (TEXT "Button text") · Leading Icon (BOOL true) · Leading Ic
 
 Density: Context mode override on parent frame
 Notes: link variant has no fill or stroke; focus ring is brand teal on all variants; disabled uses action/*/disabled tokens.
-  Elevation (RFC 0017) — primary/secondary/danger lift to the elevation/raised effect style on hover; the resting state is flat (no shadow) and the frameless link variant stays flat on hover too. Mirrors the web: box-shadow transitions via the motion tokens.
+  ghost variant: frameless (transparent fill + border) reusing action/secondary/* — neutral foreground, secondary hover/active background tint, no hover lift; for low-emphasis and close/dismiss actions.
+  Elevation (RFC 0017) — primary/secondary/danger lift to the elevation/raised effect style on hover; the resting state is flat (no shadow), and the frameless ghost and link variants stay flat on hover too. Mirrors the web: box-shadow transitions via the motion tokens.
 ```
 
 ### Switch — `315:5884`
@@ -561,7 +562,7 @@ Square icon-only framed control; use when the action is self-evident from the ic
 
 Type: framed-control
 
-Axes: Variant primary|secondary|danger|link · Size xs|sm|md|lg|xl · State default|hover|active|focus|disabled
+Axes: Variant primary|secondary|danger|ghost|link · Size xs|sm|md|lg|xl · State default|hover|active|focus|disabled
 
 Tokens: fill/stroke/fg → action/{variant}/* per state (same families as Button)
         sizing → framed-control/{size}/height bound to BOTH width and height (always square)
@@ -571,9 +572,10 @@ Tokens: fill/stroke/fg → action/{variant}/* per state (same families as Button
 Properties: Icon (SWAP — grid icon default; swap to any glyph from the icon set)
 
 Density: Context mode override on parent frame
-Pairs with: Button (when a label is needed), Modal.Close, Toolbar, ActionBar
+Pairs with: Button (when a label is needed), Modal.Close (uses the ghost variant), Toolbar, ActionBar
 Notes: width = height = framed-control/{size}/height — always square, no padding-inline binding needed.
   link variant: no fill or stroke; disabled link uses 50% root opacity.
+  ghost variant: frameless (transparent fill + border) reusing action/secondary/* — icon foreground neutral, secondary hover/active background tint; the close-affordance default (Modal.Close).
   Focus ring: two-frame anatomy (focus-ring-gap + focus-ring); ring dimensions = comp.width+4/+8, re-swept after arrange to fix constraint offset computed against initial resize(32,32). STRETCH constraints maintain correct offsets across density modes after the sweep.
 ```
 

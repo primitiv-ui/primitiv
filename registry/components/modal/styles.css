@@ -34,6 +34,12 @@
  * --primitiv-motion-* custom properties it resolves.
  */
 
+@layer primitiv.reset {
+  .primitiv-modal {
+    padding: 0;
+  }
+}
+
 @layer primitiv.base {
   .primitiv-modal {
     /* Per-component API — the themable knobs, defaulting to the md size. The

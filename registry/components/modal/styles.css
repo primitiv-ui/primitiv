@@ -65,6 +65,7 @@
 
     display: flex;
     flex-direction: column;
+    padding: 0; /* reset UA <dialog> default — regions own their own padding */
     inline-size: var(--primitiv-modal-width);
     max-inline-size: 100%;
     border: var(--primitiv-modal-border-width) solid var(--primitiv-modal-border-color);

@@ -31,7 +31,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           # A PAT (contents:write) owned by a maintainer who can bypass branch
           # protection on `main`. The default GITHUB_TOKEN / github-actions[bot]
@@ -40,7 +40,7 @@ jobs:
           # RELEASING.md §5.
           token: ${{ secrets.RELEASE_TOKEN }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
 

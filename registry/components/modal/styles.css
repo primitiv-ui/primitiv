@@ -1,0 +1,235 @@
+/*
+ * Modal — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add modal`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-modal dialog + __overlay /
+ * __title / __description / __close parts, the --sm…--xl size modifiers, the
+ * data-state hook, and the --primitiv-modal-* custom properties), not these
+ * values (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look live
+ * in primitiv.base, the size modifiers in primitiv.variants, the open/closed +
+ * focus + disabled styling in primitiv.states. The sublayer order is declared
+ * once in the shared token layer (primitiv.tokens.css); this file only re-opens
+ * the named sublayers.
+ *
+ * The backdrop is styled in two places: the native top-layer `::backdrop` (the
+ * dim a `showModal()` dialog actually paints) and the optional decorative
+ * `.primitiv-modal__overlay` sibling (the animation/escape-hatch surface). Both
+ * resolve the same `--primitiv-modal-scrim` token (→ the shared `scrim` theme
+ * token). The `modal/*` sizing tokens alias the rem-based `space/*` and `radii/*`
+ * primitives (density-scaled), so they carry units and are used directly.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-surface-*,
+ * --primitiv-content-*, --primitiv-scrim, --primitiv-elevation-*,
+ * --primitiv-modal-*, --primitiv-label-*, --primitiv-body-*,
+ * --primitiv-focus-ring-*, --primitiv-opacity-* and --primitiv-motion-* custom
+ * properties it resolves.
+ */
+
+@layer primitiv.base {
+  .primitiv-modal {
+    /* Per-component API — the themable knobs, defaulting to the md size. The
+       size modifiers re-point the sizing knobs; consumers can override any one
+       without touching the rule. Width has no token family (the Figma sizes are
+       hardcoded too), so it is an intentional fixed literal. */
+    --primitiv-modal-surface: var(--primitiv-surface-default);
+    --primitiv-modal-fg: var(--primitiv-content-primary);
+    --primitiv-modal-shadow: var(--primitiv-elevation-modal);
+    --primitiv-modal-scrim: var(--primitiv-scrim);
+    --primitiv-modal-radius: var(--primitiv-modal-md-radius);
+    --primitiv-modal-padding-inline: var(--primitiv-modal-md-padding-inline);
+    --primitiv-modal-padding-block: var(--primitiv-modal-md-padding-block);
+    --primitiv-modal-gap: var(--primitiv-modal-md-gap);
+    --primitiv-modal-width: 32.5rem;
+    --primitiv-modal-title-color: var(--primitiv-content-primary);
+    --primitiv-modal-title-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-modal-title-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-modal-title-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-modal-title-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-modal-description-color: var(--primitiv-content-secondary);
+    --primitiv-modal-description-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-modal-description-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-modal-description-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-modal-description-line-height: var(--primitiv-body-sm-line-height);
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--primitiv-modal-gap);
+    inline-size: var(--primitiv-modal-width);
+    max-inline-size: 100%;
+    padding: var(--primitiv-modal-padding-block) var(--primitiv-modal-padding-inline);
+    border: none;
+    border-radius: var(--primitiv-modal-radius);
+    background: var(--primitiv-modal-surface);
+    color: var(--primitiv-modal-fg);
+    box-shadow: var(--primitiv-modal-shadow);
+  }
+
+  .primitiv-modal::backdrop {
+    background: var(--primitiv-modal-scrim);
+  }
+
+  /* The decorative overlay sibling — the animation / custom-backdrop surface.
+     The native ::backdrop sits above it in the top layer, so this is not a
+     click-outside event target (that is wired on the dialog itself). */
+  .primitiv-modal__overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--primitiv-modal-scrim);
+  }
+
+  .primitiv-modal__title {
+    margin: 0;
+    color: var(--primitiv-modal-title-color);
+    font-family: var(--primitiv-modal-title-font-family);
+    font-size: var(--primitiv-modal-title-font-size);
+    font-weight: var(--primitiv-modal-title-font-weight);
+    line-height: var(--primitiv-modal-title-line-height);
+  }
+
+  .primitiv-modal__description {
+    margin: 0;
+    color: var(--primitiv-modal-description-color);
+    font-family: var(--primitiv-modal-description-font-family);
+    font-size: var(--primitiv-modal-description-font-size);
+    font-weight: var(--primitiv-modal-description-font-weight);
+    line-height: var(--primitiv-modal-description-line-height);
+  }
+
+  /* Close — a frameless affordance pinned to the top-inline-end corner, anchored
+     to the dialog's padding box. Composed `asChild` with an icon button in most
+     apps; this resting style is the bare-<button> fallback. */
+  .primitiv-modal__close {
+    position: absolute;
+    inset-block-start: var(--primitiv-modal-padding-block);
+    inset-inline-end: var(--primitiv-modal-padding-inline);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: var(--primitiv-modal-radius);
+    background: var(--primitiv-color-transparent);
+    color: var(--primitiv-content-secondary);
+    cursor: pointer;
+  }
+
+  .primitiv-modal__close:hover {
+    color: var(--primitiv-content-primary);
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the modal sizing knobs to the chosen slot and sets the
+     fixed inline-size. Density stays ambient via [data-density] on the token
+     values themselves (RFC 0009). The width literals mirror the Figma sizes
+     (sm 360 · md 520 · lg 640 · xl 800) and are intentionally not token-driven. */
+  .primitiv-modal--sm {
+    --primitiv-modal-radius: var(--primitiv-modal-sm-radius);
+    --primitiv-modal-padding-inline: var(--primitiv-modal-sm-padding-inline);
+    --primitiv-modal-padding-block: var(--primitiv-modal-sm-padding-block);
+    --primitiv-modal-gap: var(--primitiv-modal-sm-gap);
+    --primitiv-modal-width: 22.5rem;
+  }
+  .primitiv-modal--md {
+    --primitiv-modal-radius: var(--primitiv-modal-md-radius);
+    --primitiv-modal-padding-inline: var(--primitiv-modal-md-padding-inline);
+    --primitiv-modal-padding-block: var(--primitiv-modal-md-padding-block);
+    --primitiv-modal-gap: var(--primitiv-modal-md-gap);
+    --primitiv-modal-width: 32.5rem;
+  }
+  .primitiv-modal--lg {
+    --primitiv-modal-radius: var(--primitiv-modal-lg-radius);
+    --primitiv-modal-padding-inline: var(--primitiv-modal-lg-padding-inline);
+    --primitiv-modal-padding-block: var(--primitiv-modal-lg-padding-block);
+    --primitiv-modal-gap: var(--primitiv-modal-lg-gap);
+    --primitiv-modal-width: 40rem;
+  }
+  .primitiv-modal--xl {
+    --primitiv-modal-radius: var(--primitiv-modal-xl-radius);
+    --primitiv-modal-padding-inline: var(--primitiv-modal-xl-padding-inline);
+    --primitiv-modal-padding-block: var(--primitiv-modal-xl-padding-block);
+    --primitiv-modal-gap: var(--primitiv-modal-xl-gap);
+    --primitiv-modal-width: 50rem;
+  }
+}
+
+@layer primitiv.states {
+  /* Enter / exit — the dialog scales + fades, the backdrop fades. Keyed off the
+     data-state the headless component sets; both phases are token-driven (the
+     shared overlay duration + the enter / exit easings) so they match every other
+     layered surface. The exit phase plays only when the subtree is kept mounted
+     via Modal.Portal / Modal.Overlay `forceMount` (otherwise it unmounts at once);
+     `forwards` holds the closed frame for that hand-off window. */
+  .primitiv-modal[data-state="open"] {
+    animation: primitiv-modal-in var(--primitiv-motion-duration-overlay)
+      var(--primitiv-motion-easing-enter);
+  }
+  .primitiv-modal[data-state="closed"] {
+    animation: primitiv-modal-out var(--primitiv-motion-duration-overlay)
+      var(--primitiv-motion-easing-exit) forwards;
+  }
+  .primitiv-modal[data-state="open"]::backdrop,
+  .primitiv-modal__overlay[data-state="open"] {
+    animation: primitiv-modal-backdrop-in var(--primitiv-motion-duration-overlay)
+      var(--primitiv-motion-easing-enter);
+  }
+  .primitiv-modal[data-state="closed"]::backdrop,
+  .primitiv-modal__overlay[data-state="closed"] {
+    animation: primitiv-modal-backdrop-out var(--primitiv-motion-duration-overlay)
+      var(--primitiv-motion-easing-exit) forwards;
+  }
+
+  /* Honour reduced-motion: drop the enter / exit animations entirely. */
+  @media (prefers-reduced-motion: reduce) {
+    .primitiv-modal,
+    .primitiv-modal::backdrop,
+    .primitiv-modal__overlay {
+      animation: none;
+    }
+  }
+
+  /* Focus — the shared two-layer ring on the close affordance, identical to
+     every framed control: a surface-coloured gap band then the brand ring just
+     outside it. Restyle globally via the --primitiv-focus-ring* tokens. */
+  .primitiv-modal__close:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  .primitiv-modal__close[data-disabled],
+  .primitiv-modal__close:disabled {
+    opacity: var(--primitiv-opacity-50);
+    cursor: not-allowed;
+  }
+}
+
+@keyframes primitiv-modal-in {
+  from {
+    opacity: 0;
+    scale: 0.97;
+  }
+}
+
+@keyframes primitiv-modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes primitiv-modal-out {
+  to {
+    opacity: 0;
+    scale: 0.97;
+  }
+}
+
+@keyframes primitiv-modal-backdrop-out {
+  to {
+    opacity: 0;
+  }
+}

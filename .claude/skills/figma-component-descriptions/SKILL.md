@@ -593,7 +593,7 @@ Tokens: fill → surface/default (Intent Light mode set on Modal page)
         title → label/md/* Khand SemiBold; color → content/primary
         description → body/sm/* Asta Sans Regular; color → content/secondary
         sizing → modal/{size}/radius|padding-inline|padding-block|gap (Context collection)
-        shadow → hardcoded y=8 blur=24 rgba(0,0,0,0.16) — pending elevation/* tokens
+        shadow → elevation/modal effect style (RFC 0017)
 
 Fixed widths: sm=360px · md=520px · lg=640px · xl=800px (hardcoded, not token-driven)
 
@@ -601,12 +601,14 @@ Properties: Title (TEXT "Dialog title") · Description (TEXT "Supporting descrip
 
 Density: Context mode override on parent frame (modal/* tokens scale across Dense/Compact/Comfortable/Spacious)
 Pairs with: Modal/Header · Modal/Body · Modal/Footer (parallel sub-component documentation sets)
+            Modal/Backdrop (the dim scrim placed full-bleed behind the dialog)
             Icon Button xs/secondary (close), Button md/primary + md/secondary (footer)
 Notes: no intent axis; no focus ring — display surface; open/close is Portal/Overlay concern in React.
   Footer buttons right-aligned; labels "Cancel"/"Confirm" with icons off.
   Close button is Icon Button Size=xs, Variant=secondary.
   Direct-frame-children (not nested instances) — API blocks componentPropertyReferences on instance sublayers.
-  Shadow hardcoded until elevation/* tokens exist. Light mode set explicitly on Modal page for surface/default.
+  Shadow → elevation/modal effect style (RFC 0017); was a hardcoded y=8 blur=24 rgba(0,0,0,0.16) drop shadow before the elevation styles landed. Light mode set explicitly on Modal page for surface/default.
+  Backdrop — the dimmed page behind an open modal is the separate Modal/Backdrop component (scrim token); the Modal Example frames show the composed stack.
 ```
 
 ### Modal/Header — `435:9450`
@@ -674,6 +676,24 @@ Density: Context mode override on parent frame (modal/* padding/gap tokens scale
 Pairs with: Modal, Modal/Header, Modal/Body
 Notes: primaryAxisAlignItems=MAX (right-aligned). Use Size matching the parent Modal's Size.
   Button labels are static — replace instances for different action labels.
+```
+
+### Modal/Backdrop — `659:41299`
+
+```
+Dim page scrim rendered behind a Modal dialog — the backdrop layer of the modal anatomy.
+
+Type: surface component (overlay backdrop)
+
+Single variant — no axes.
+
+Tokens: fill → scrim (Intent — absolute-black @ 0.5α, identical Light/Dark so it never inverts; mirrors shadow/color/*)
+
+Properties: (none)
+
+Density: not density-sensitive (full-bleed dim layer)
+Pairs with: Modal (placed behind, full-bleed, dialog centred on top). Mirrors React's Modal.Overlay div + the native <dialog> ::backdrop, both styled from the scrim token.
+Notes: full-bleed scrim — resize to fill the viewport / containing frame (STRETCH constraints). The alpha lives in the scrim variable itself (paint opacity stays 1), so the dim is theme-token-driven, not a hardcoded fill opacity. See the Modal Example frames for the composed stack (backdrop + dialog).
 ```
 
 ### Textarea — `439:14511`

@@ -1463,73 +1463,73 @@
       "sm": {
         "radius": {
           "$type": "number",
-          "$value": 8
+          "$value": "{radii.8}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": 16
+          "$value": "{space.space-16}"
         },
         "padding-block": {
           "$type": "number",
-          "$value": 10
+          "$value": "{space.space-10}"
         },
         "gap": {
           "$type": "number",
-          "$value": 10
+          "$value": "{space.space-10}"
         }
       },
       "md": {
         "radius": {
           "$type": "number",
-          "$value": 10
+          "$value": "{radii.10}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": 20
+          "$value": "{space.space-20}"
         },
         "padding-block": {
           "$type": "number",
-          "$value": 12
+          "$value": "{space.space-12}"
         },
         "gap": {
           "$type": "number",
-          "$value": 12
+          "$value": "{space.space-12}"
         }
       },
       "lg": {
         "radius": {
           "$type": "number",
-          "$value": 12
+          "$value": "{radii.12}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": 24
+          "$value": "{space.space-24}"
         },
         "padding-block": {
           "$type": "number",
-          "$value": 14
+          "$value": "{space.space-14}"
         },
         "gap": {
           "$type": "number",
-          "$value": 14
+          "$value": "{space.space-14}"
         }
       },
       "xl": {
         "radius": {
           "$type": "number",
-          "$value": 16
+          "$value": "{radii.16}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": 28
+          "$value": "{space.space-28}"
         },
         "padding-block": {
           "$type": "number",
-          "$value": 16
+          "$value": "{space.space-16}"
         },
         "gap": {
           "$type": "number",
-          "$value": 16
+          "$value": "{space.space-16}"
         }
       },
       "border-width": {
@@ -3098,73 +3098,73 @@
       "sm": {
         "radius": {
           "$type": "number",
-          "$value": 6
+          "$value": "{radii.6}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": 14
+          "$value": "{space.space-14}"
         },
         "padding-block": {
           "$type": "number",
-          "$value": 8
+          "$value": "{space.space-8}"
         },
         "gap": {
           "$type": "number",
-          "$value": 8
+          "$value": "{space.space-8}"
         }
       },
       "md": {
         "radius": {
           "$type": "number",
-          "$value": 8
+          "$value": "{radii.8}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": 16
+          "$value": "{space.space-16}"
         },
         "padding-block": {
           "$type": "number",
-          "$value": 10
+          "$value": "{space.space-10}"
         },
         "gap": {
           "$type": "number",
-          "$value": 10
+          "$value": "{space.space-10}"
         }
       },
       "lg": {
         "radius": {
           "$type": "number",
-          "$value": 10
+          "$value": "{radii.10}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": 20
+          "$value": "{space.space-20}"
         },
         "padding-block": {
           "$type": "number",
-          "$value": 10
+          "$value": "{space.space-10}"
         },
         "gap": {
           "$type": "number",
-          "$value": 12
+          "$value": "{space.space-12}"
         }
       },
       "xl": {
         "radius": {
           "$type": "number",
-          "$value": 12
+          "$value": "{radii.12}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": 24
+          "$value": "{space.space-24}"
         },
         "padding-block": {
           "$type": "number",
-          "$value": 12
+          "$value": "{space.space-12}"
         },
         "gap": {
           "$type": "number",
-          "$value": 12
+          "$value": "{space.space-12}"
         }
       },
       "border-width": {
@@ -4733,73 +4733,73 @@
       "sm": {
         "radius": {
           "$type": "number",
-          "$value": 10
+          "$value": "{radii.10}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": 20
+          "$value": "{space.space-20}"
         },
         "padding-block": {
           "$type": "number",
-          "$value": 12
+          "$value": "{space.space-12}"
         },
         "gap": {
           "$type": "number",
-          "$value": 12
+          "$value": "{space.space-12}"
         }
       },
       "md": {
         "radius": {
           "$type": "number",
-          "$value": 12
+          "$value": "{radii.12}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": 24
+          "$value": "{space.space-24}"
         },
         "padding-block": {
           "$type": "number",
-          "$value": 14
+          "$value": "{space.space-14}"
         },
         "gap": {
           "$type": "number",
-          "$value": 16
+          "$value": "{space.space-16}"
         }
       },
       "lg": {
         "radius": {
           "$type": "number",
-          "$value": 16
+          "$value": "{radii.16}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": 28
+          "$value": "{space.space-28}"
         },
         "padding-block": {
           "$type": "number",
-          "$value": 16
+          "$value": "{space.space-16}"
         },
         "gap": {
           "$type": "number",
-          "$value": 18
+          "$value": "{space.space-16}"
         }
       },
       "xl": {
         "radius": {
           "$type": "number",
-          "$value": 20
+          "$value": "{radii.20}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": 32
+          "$value": "{space.space-32}"
         },
         "padding-block": {
           "$type": "number",
-          "$value": 20
+          "$value": "{space.space-20}"
         },
         "gap": {
           "$type": "number",
-          "$value": 20
+          "$value": "{space.space-20}"
         }
       },
       "border-width": {
@@ -6368,73 +6368,73 @@
       "sm": {
         "radius": {
           "$type": "number",
-          "$value": 4
+          "$value": "{radii.4}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": 12
+          "$value": "{space.space-12}"
         },
         "padding-block": {
           "$type": "number",
-          "$value": 6
+          "$value": "{space.space-6}"
         },
         "gap": {
           "$type": "number",
-          "$value": 6
+          "$value": "{space.space-6}"
         }
       },
       "md": {
         "radius": {
           "$type": "number",
-          "$value": 6
+          "$value": "{radii.6}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": 14
+          "$value": "{space.space-14}"
         },
         "padding-block": {
           "$type": "number",
-          "$value": 8
+          "$value": "{space.space-8}"
         },
         "gap": {
           "$type": "number",
-          "$value": 8
+          "$value": "{space.space-8}"
         }
       },
       "lg": {
         "radius": {
           "$type": "number",
-          "$value": 8
+          "$value": "{radii.8}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": 16
+          "$value": "{space.space-16}"
         },
         "padding-block": {
           "$type": "number",
-          "$value": 8
+          "$value": "{space.space-8}"
         },
         "gap": {
           "$type": "number",
-          "$value": 8
+          "$value": "{space.space-8}"
         }
       },
       "xl": {
         "radius": {
           "$type": "number",
-          "$value": 10
+          "$value": "{radii.10}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": 20
+          "$value": "{space.space-20}"
         },
         "padding-block": {
           "$type": "number",
-          "$value": 10
+          "$value": "{space.space-10}"
         },
         "gap": {
           "$type": "number",
-          "$value": 10
+          "$value": "{space.space-10}"
         }
       },
       "border-width": {

@@ -289,6 +289,7 @@
     --primitiv-focus-ring: var(--primitiv-color-brand-500);
     --primitiv-highlight-background: var(--primitiv-color-brand-100);
     --primitiv-list-marker-foreground: var(--primitiv-content-secondary);
+    --primitiv-scrim: #00000080;
     --primitiv-surface-default: var(--primitiv-color-absolute-white);
     --primitiv-surface-inverse: var(--primitiv-color-neutral-800);
     --primitiv-surface-overlay: var(--primitiv-color-neutral-900);
@@ -384,6 +385,7 @@
     --primitiv-focus-ring: var(--primitiv-color-brand-500);
     --primitiv-highlight-background: var(--primitiv-color-brand-800);
     --primitiv-list-marker-foreground: var(--primitiv-content-secondary);
+    --primitiv-scrim: #00000080;
     --primitiv-surface-default: var(--primitiv-color-black);
     --primitiv-surface-inverse: var(--primitiv-color-neutral-100);
     --primitiv-surface-overlay: var(--primitiv-color-neutral-50);

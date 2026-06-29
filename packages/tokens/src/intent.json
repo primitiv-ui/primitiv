@@ -186,6 +186,10 @@
         "$value": "{color.neutral.800}"
       }
     },
+    "scrim": {
+      "$type": "color",
+      "$value": "#00000080"
+    },
     "content": {
       "primary": {
         "$type": "color",
@@ -461,6 +465,10 @@
         "$type": "color",
         "$value": "{color.neutral.100}"
       }
+    },
+    "scrim": {
+      "$type": "color",
+      "$value": "#00000080"
     },
     "content": {
       "primary": {

@@ -480,13 +480,33 @@ being retired in favour of backing variables up as-you-go. So **no `elevationSpe
   `shadow/1` on the `Thumb` frame in all 40 Switch variants. Button + Switch
   component descriptions updated (live + `figma-component-descriptions` skill).
 
-**Next session — apply elevation to the remaining Figma sets (RFC 0017 §7).**
-The strongest consumers already exist as Figma sets with **hardcoded shadows
-pending elevation tokens**: **Modal** (`435:10250`, → `elevation/modal`) and
-**Dropdown/Panel** (`402:18499`, → `elevation/overlay`) — migrate those first to
-the new effect styles. Cards/raised surfaces are the candidates for the **Boolean
-component property** model (`Shadow`/`Elevated`) rather than baking in. Update each
-set's component description afterward.
+**Modal → `elevation/modal` — DONE (2026-06-29).** All 4 `Modal` variants
+(`435:10250`) + the Modal Example instances rebound from the hardcoded
+`y=8 blur=24 rgba(0,0,0,0.16)` drop shadow to the `elevation/modal` effect style.
+Component description updated.
+
+**Next session — apply elevation to the remaining Figma set (RFC 0017 §7).**
+**Dropdown/Panel** (`402:18499`, → `elevation/overlay`) still carries a hardcoded
+shadow — migrate it to the effect style. Cards/raised surfaces are the candidates
+for the **Boolean component property** model (`Shadow`/`Elevated`) rather than
+baking in. Update each set's component description afterward.
+
+## 🌫️ Scrim token — landed (2026-06-29); hardcoded alpha is a stopgap
+
+Adding the Modal backdrop (React `Modal.Overlay` + the `<dialog>` `::backdrop`)
+needed a dim page-scrim colour, so a **`scrim` semantic token** was added to the
+**Intent** collection (`intent.json` light + dark, and the Figma Intent
+collection, `VariableID:659:41297`). It's consumed by the new **`Modal/Backdrop`**
+Figma component and will back the registry Modal stylesheet's `::backdrop` / overlay.
+
+**Deferred — the value is a hardcoded hex alpha (`#00000080`, ~0.5α black), not a
+token alias.** Same stopgap as the `shadow.color.*` alphas: it's `absolute-black`
+based (so it doesn't invert in dark mode) and identical in both Intent modes, but
+the alpha is baked into the literal because **there is no alpha-channel neutral
+ramp to alias yet**. When alpha-bearing neutral ramps exist (a palette/primitive
+with per-step alpha), revisit `scrim` *and* `shadow.color.*` together to alias a
+real ramp step instead of carrying raw `#rrggbbaa` literals. Until then the literal
+is the only option and is consistent with the existing elevation-colour precedent.
 
 ## ❓ Open questions
 

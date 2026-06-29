@@ -1313,52 +1313,254 @@
       }
     },
     "dropdown": {
-      "item": {
-        "height": {
-          "$type": "number",
-          "$value": "{size.size-40}"
+      "xs": {
+        "item": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-24}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-8}"
+          },
+          "gap": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          },
+          "icon-size": {
+            "$type": "number",
+            "$value": "{size.size-12}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.2}"
+          }
         },
-        "padding-inline": {
-          "$type": "number",
-          "$value": "{space.space-16}"
+        "label": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-16}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-8}"
+          }
         },
-        "gap": {
-          "$type": "number",
-          "$value": "{space.space-8}"
+        "separator": {
+          "spacing": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          }
         },
-        "icon-size": {
-          "$type": "number",
-          "$value": "{size.size-16}"
-        },
-        "radius": {
-          "$type": "number",
-          "$value": "{radii.4}"
+        "panel": {
+          "padding-block": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          }
         }
       },
-      "label": {
-        "height": {
-          "$type": "number",
-          "$value": "{size.size-28}"
+      "sm": {
+        "item": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-32}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-12}"
+          },
+          "gap": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          },
+          "icon-size": {
+            "$type": "number",
+            "$value": "{size.size-14}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.2}"
+          }
         },
-        "padding-inline": {
-          "$type": "number",
-          "$value": "{space.space-16}"
+        "label": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-24}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-12}"
+          }
+        },
+        "separator": {
+          "spacing": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          }
+        },
+        "panel": {
+          "padding-block": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          }
         }
       },
-      "separator": {
-        "spacing": {
-          "$type": "number",
-          "$value": "{space.space-8}"
+      "md": {
+        "item": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-40}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-16}"
+          },
+          "gap": {
+            "$type": "number",
+            "$value": "{space.space-8}"
+          },
+          "icon-size": {
+            "$type": "number",
+            "$value": "{size.size-16}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          }
+        },
+        "label": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-28}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-16}"
+          }
+        },
+        "separator": {
+          "spacing": {
+            "$type": "number",
+            "$value": "{space.space-8}"
+          }
+        },
+        "panel": {
+          "padding-block": {
+            "$type": "number",
+            "$value": "{space.space-8}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          }
         }
       },
-      "panel": {
-        "padding-block": {
-          "$type": "number",
-          "$value": "{space.space-8}"
+      "lg": {
+        "item": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-48}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-20}"
+          },
+          "gap": {
+            "$type": "number",
+            "$value": "{space.space-8}"
+          },
+          "icon-size": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          }
         },
-        "radius": {
-          "$type": "number",
-          "$value": "{radii.8}"
+        "label": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-32}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-20}"
+          }
+        },
+        "separator": {
+          "spacing": {
+            "$type": "number",
+            "$value": "{space.space-8}"
+          }
+        },
+        "panel": {
+          "padding-block": {
+            "$type": "number",
+            "$value": "{space.space-8}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.10}"
+          }
+        }
+      },
+      "xl": {
+        "item": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-56}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-24}"
+          },
+          "gap": {
+            "$type": "number",
+            "$value": "{space.space-12}"
+          },
+          "icon-size": {
+            "$type": "number",
+            "$value": "{size.size-24}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          }
+        },
+        "label": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-40}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-24}"
+          }
+        },
+        "separator": {
+          "spacing": {
+            "$type": "number",
+            "$value": "{space.space-10}"
+          }
+        },
+        "panel": {
+          "padding-block": {
+            "$type": "number",
+            "$value": "{space.space-10}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.12}"
+          }
         }
       }
     },
@@ -1406,11 +1608,26 @@
         "$value": "{space.space-20}"
       },
       "body-gap": {
-        "xs": { "$type": "number", "$value": "{space.space-4}" },
-        "sm": { "$type": "number", "$value": "{space.space-4}" },
-        "md": { "$type": "number", "$value": "{space.space-8}" },
-        "lg": { "$type": "number", "$value": "{space.space-12}" },
-        "xl": { "$type": "number", "$value": "{space.space-16}" }
+        "xs": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "sm": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "md": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "lg": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "xl": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        }
       }
     },
     "table": {
@@ -2948,52 +3165,254 @@
       }
     },
     "dropdown": {
-      "item": {
-        "height": {
-          "$type": "number",
-          "$value": "{size.size-32}"
+      "xs": {
+        "item": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-6}"
+          },
+          "gap": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          },
+          "icon-size": {
+            "$type": "number",
+            "$value": "{size.size-12}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.2}"
+          }
         },
-        "padding-inline": {
-          "$type": "number",
-          "$value": "{space.space-12}"
+        "label": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-16}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-6}"
+          }
         },
-        "gap": {
-          "$type": "number",
-          "$value": "{space.space-8}"
+        "separator": {
+          "spacing": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          }
         },
-        "icon-size": {
-          "$type": "number",
-          "$value": "{size.size-16}"
-        },
-        "radius": {
-          "$type": "number",
-          "$value": "{radii.4}"
+        "panel": {
+          "padding-block": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          }
         }
       },
-      "label": {
-        "height": {
-          "$type": "number",
-          "$value": "{size.size-24}"
+      "sm": {
+        "item": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-28}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-10}"
+          },
+          "gap": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          },
+          "icon-size": {
+            "$type": "number",
+            "$value": "{size.size-14}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.2}"
+          }
         },
-        "padding-inline": {
-          "$type": "number",
-          "$value": "{space.space-12}"
+        "label": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-10}"
+          }
+        },
+        "separator": {
+          "spacing": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          }
+        },
+        "panel": {
+          "padding-block": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          }
         }
       },
-      "separator": {
-        "spacing": {
-          "$type": "number",
-          "$value": "{space.space-4}"
+      "md": {
+        "item": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-32}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-12}"
+          },
+          "gap": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          },
+          "icon-size": {
+            "$type": "number",
+            "$value": "{size.size-16}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          }
+        },
+        "label": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-24}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-12}"
+          }
+        },
+        "separator": {
+          "spacing": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          }
+        },
+        "panel": {
+          "padding-block": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          }
         }
       },
-      "panel": {
-        "padding-block": {
-          "$type": "number",
-          "$value": "{space.space-4}"
+      "lg": {
+        "item": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-40}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-16}"
+          },
+          "gap": {
+            "$type": "number",
+            "$value": "{space.space-6}"
+          },
+          "icon-size": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          }
         },
-        "radius": {
-          "$type": "number",
-          "$value": "{radii.8}"
+        "label": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-28}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-16}"
+          }
+        },
+        "separator": {
+          "spacing": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          }
+        },
+        "panel": {
+          "padding-block": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          }
+        }
+      },
+      "xl": {
+        "item": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-48}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-20}"
+          },
+          "gap": {
+            "$type": "number",
+            "$value": "{space.space-8}"
+          },
+          "icon-size": {
+            "$type": "number",
+            "$value": "{size.size-24}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          }
+        },
+        "label": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-32}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-20}"
+          }
+        },
+        "separator": {
+          "spacing": {
+            "$type": "number",
+            "$value": "{space.space-8}"
+          }
+        },
+        "panel": {
+          "padding-block": {
+            "$type": "number",
+            "$value": "{space.space-8}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.10}"
+          }
         }
       }
     },
@@ -3041,11 +3460,26 @@
         "$value": "{space.space-16}"
       },
       "body-gap": {
-        "xs": { "$type": "number", "$value": "{space.space-4}" },
-        "sm": { "$type": "number", "$value": "{space.space-4}" },
-        "md": { "$type": "number", "$value": "{space.space-8}" },
-        "lg": { "$type": "number", "$value": "{space.space-12}" },
-        "xl": { "$type": "number", "$value": "{space.space-16}" }
+        "xs": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "sm": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "md": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "lg": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "xl": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        }
       }
     },
     "table": {
@@ -4583,52 +5017,254 @@
       }
     },
     "dropdown": {
-      "item": {
-        "height": {
-          "$type": "number",
-          "$value": "{size.size-48}"
+      "xs": {
+        "item": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-28}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-10}"
+          },
+          "gap": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          },
+          "icon-size": {
+            "$type": "number",
+            "$value": "{size.size-14}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.2}"
+          }
         },
-        "padding-inline": {
-          "$type": "number",
-          "$value": "{space.space-20}"
+        "label": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-10}"
+          }
         },
-        "gap": {
-          "$type": "number",
-          "$value": "{space.space-8}"
+        "separator": {
+          "spacing": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          }
         },
-        "icon-size": {
-          "$type": "number",
-          "$value": "{size.size-20}"
-        },
-        "radius": {
-          "$type": "number",
-          "$value": "{radii.6}"
+        "panel": {
+          "padding-block": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          }
         }
       },
-      "label": {
-        "height": {
-          "$type": "number",
-          "$value": "{size.size-32}"
+      "sm": {
+        "item": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-40}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-14}"
+          },
+          "gap": {
+            "$type": "number",
+            "$value": "{space.space-6}"
+          },
+          "icon-size": {
+            "$type": "number",
+            "$value": "{size.size-16}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          }
         },
-        "padding-inline": {
-          "$type": "number",
-          "$value": "{space.space-20}"
+        "label": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-28}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-14}"
+          }
+        },
+        "separator": {
+          "spacing": {
+            "$type": "number",
+            "$value": "{space.space-8}"
+          }
+        },
+        "panel": {
+          "padding-block": {
+            "$type": "number",
+            "$value": "{space.space-8}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          }
         }
       },
-      "separator": {
-        "spacing": {
-          "$type": "number",
-          "$value": "{space.space-8}"
+      "md": {
+        "item": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-48}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-20}"
+          },
+          "gap": {
+            "$type": "number",
+            "$value": "{space.space-8}"
+          },
+          "icon-size": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          }
+        },
+        "label": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-32}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-20}"
+          }
+        },
+        "separator": {
+          "spacing": {
+            "$type": "number",
+            "$value": "{space.space-8}"
+          }
+        },
+        "panel": {
+          "padding-block": {
+            "$type": "number",
+            "$value": "{space.space-12}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.12}"
+          }
         }
       },
-      "panel": {
-        "padding-block": {
-          "$type": "number",
-          "$value": "{space.space-12}"
+      "lg": {
+        "item": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-56}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-28}"
+          },
+          "gap": {
+            "$type": "number",
+            "$value": "{space.space-10}"
+          },
+          "icon-size": {
+            "$type": "number",
+            "$value": "{size.size-24}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          }
         },
-        "radius": {
-          "$type": "number",
-          "$value": "{radii.12}"
+        "label": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-40}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-28}"
+          }
+        },
+        "separator": {
+          "spacing": {
+            "$type": "number",
+            "$value": "{space.space-10}"
+          }
+        },
+        "panel": {
+          "padding-block": {
+            "$type": "number",
+            "$value": "{space.space-14}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.12}"
+          }
+        }
+      },
+      "xl": {
+        "item": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-68}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-32}"
+          },
+          "gap": {
+            "$type": "number",
+            "$value": "{space.space-12}"
+          },
+          "icon-size": {
+            "$type": "number",
+            "$value": "{size.size-28}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          }
+        },
+        "label": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-48}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-32}"
+          }
+        },
+        "separator": {
+          "spacing": {
+            "$type": "number",
+            "$value": "{space.space-12}"
+          }
+        },
+        "panel": {
+          "padding-block": {
+            "$type": "number",
+            "$value": "{space.space-16}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.16}"
+          }
         }
       }
     },
@@ -4676,11 +5312,26 @@
         "$value": "{space.space-24}"
       },
       "body-gap": {
-        "xs": { "$type": "number", "$value": "{space.space-4}" },
-        "sm": { "$type": "number", "$value": "{space.space-4}" },
-        "md": { "$type": "number", "$value": "{space.space-8}" },
-        "lg": { "$type": "number", "$value": "{space.space-12}" },
-        "xl": { "$type": "number", "$value": "{space.space-16}" }
+        "xs": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "sm": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "md": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "lg": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "xl": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        }
       }
     },
     "table": {
@@ -6218,52 +6869,254 @@
       }
     },
     "dropdown": {
-      "item": {
-        "height": {
-          "$type": "number",
-          "$value": "{size.size-24}"
+      "xs": {
+        "item": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-16}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          },
+          "gap": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          },
+          "icon-size": {
+            "$type": "number",
+            "$value": "{size.size-10}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.2}"
+          }
         },
-        "padding-inline": {
-          "$type": "number",
-          "$value": "{space.space-8}"
+        "label": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-16}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          }
         },
-        "gap": {
-          "$type": "number",
-          "$value": "{space.space-4}"
+        "separator": {
+          "spacing": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          }
         },
-        "icon-size": {
-          "$type": "number",
-          "$value": "{size.size-14}"
-        },
-        "radius": {
-          "$type": "number",
-          "$value": "{radii.2}"
+        "panel": {
+          "padding-block": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          }
         }
       },
-      "label": {
-        "height": {
-          "$type": "number",
-          "$value": "{size.size-20}"
+      "sm": {
+        "item": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-6}"
+          },
+          "gap": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          },
+          "icon-size": {
+            "$type": "number",
+            "$value": "{size.size-12}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.2}"
+          }
         },
-        "padding-inline": {
-          "$type": "number",
-          "$value": "{space.space-8}"
+        "label": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-16}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-6}"
+          }
+        },
+        "separator": {
+          "spacing": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          }
+        },
+        "panel": {
+          "padding-block": {
+            "$type": "number",
+            "$value": "{space.space-2}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          }
         }
       },
-      "separator": {
-        "spacing": {
-          "$type": "number",
-          "$value": "{space.space-4}"
+      "md": {
+        "item": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-24}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-8}"
+          },
+          "gap": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          },
+          "icon-size": {
+            "$type": "number",
+            "$value": "{size.size-14}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.2}"
+          }
+        },
+        "label": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-8}"
+          }
+        },
+        "separator": {
+          "spacing": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          }
+        },
+        "panel": {
+          "padding-block": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          }
         }
       },
-      "panel": {
-        "padding-block": {
-          "$type": "number",
-          "$value": "{space.space-4}"
+      "lg": {
+        "item": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-32}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-12}"
+          },
+          "gap": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          },
+          "icon-size": {
+            "$type": "number",
+            "$value": "{size.size-16}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.2}"
+          }
         },
-        "radius": {
-          "$type": "number",
-          "$value": "{radii.6}"
+        "label": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-24}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-12}"
+          }
+        },
+        "separator": {
+          "spacing": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          }
+        },
+        "panel": {
+          "padding-block": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.6}"
+          }
+        }
+      },
+      "xl": {
+        "item": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-40}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-16}"
+          },
+          "gap": {
+            "$type": "number",
+            "$value": "{space.space-6}"
+          },
+          "icon-size": {
+            "$type": "number",
+            "$value": "{size.size-20}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.4}"
+          }
+        },
+        "label": {
+          "height": {
+            "$type": "number",
+            "$value": "{size.size-28}"
+          },
+          "padding-inline": {
+            "$type": "number",
+            "$value": "{space.space-16}"
+          }
+        },
+        "separator": {
+          "spacing": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          }
+        },
+        "panel": {
+          "padding-block": {
+            "$type": "number",
+            "$value": "{space.space-4}"
+          },
+          "radius": {
+            "$type": "number",
+            "$value": "{radii.8}"
+          }
         }
       }
     },
@@ -6311,11 +7164,26 @@
         "$value": "{space.space-12}"
       },
       "body-gap": {
-        "xs": { "$type": "number", "$value": "{space.space-4}" },
-        "sm": { "$type": "number", "$value": "{space.space-4}" },
-        "md": { "$type": "number", "$value": "{space.space-8}" },
-        "lg": { "$type": "number", "$value": "{space.space-12}" },
-        "xl": { "$type": "number", "$value": "{space.space-16}" }
+        "xs": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "sm": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "md": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "lg": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "xl": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        }
       }
     },
     "table": {

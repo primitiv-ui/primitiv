@@ -6,7 +6,7 @@
  *
  * Grid structure:
  *   Rows    → Size (md first, then xs sm lg xl)
- *   Columns → Variant group (primary / secondary / link / danger)
+ *   Columns → Variant group (primary / secondary / ghost / link / danger)
  *               × State (default / hover / active / focus / disabled)
  *
  * Density is no longer a grid dimension — it is controlled by the containing
@@ -14,7 +14,7 @@
  * variants at whatever density the canvas default mode resolves to (Comfortable).
  *
  * Property names and values are lowercase and match the live set exactly:
- *   Variant = primary | secondary | link | danger
+ *   Variant = primary | secondary | ghost | link | danger
  *   Size    = md | xs | sm | lg | xl
  *   State   = default | hover | active | focus | disabled
  *
@@ -33,7 +33,7 @@
   const PROP = { size: "Size", variant: "Variant", state: "State" };
 
   const SIZE_ORDER    = ["md", "xs", "sm", "lg", "xl"];
-  const VARIANT_ORDER = ["primary", "secondary", "link", "danger"];
+  const VARIANT_ORDER = ["primary", "secondary", "ghost", "link", "danger"];
   const STATE_ORDER   = ["default", "hover", "active", "focus", "disabled"];
 
   const GAP_STATE   = 16;

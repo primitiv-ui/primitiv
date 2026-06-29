@@ -175,6 +175,29 @@ adapters, hand-authored golden files, 100% coverage):
     `SwitchExample` gained a contract-styled section + density row, and the shared
     token layer moved up to `apps/workbench/src/primitiv-tokens.css` (imported once
     in `main.tsx`).
+  - **Modal landed — the first *bespoke* registry wrapper (2026-06-29).** Modal
+    is the D53 escape-hatch proof: its `modal.tsx` is **hand-authored, not
+    generated**, because `Modal.Root` (a no-DOM provider) and `Modal.Portal` take
+    no `className`, which the className-on-every-part generator can't express.
+    `registry/components/modal/{contract.json,styles.css,styles.scss,
+    modal.recipe.ts,modal.tsx,README.md}` are committed, the manifest
+    (`registry.json`) + embedded-file list (`ports/registry.rs`) + the `add --all`
+    e2e count (11→12) updated. Styles the dialog surface (`elevation/modal` +
+    `modal/*` sizing) and the backdrop in two places — the native `::backdrop` and
+    the optional `.primitiv-modal__overlay` — both on the new `scrim` token. There
+    is **no `primitiv-emit` drift guard** for a bespoke wrapper; `qa:registry-types`
+    is the gate. **Token fix done alongside:** the `modal/*` Context variables were
+    raw floats (emitting unitless numbers, unusable as CSS lengths); they were
+    rebound to **alias the `space/*` / `radii/*` primitives per density mode** (like
+    `framed-control/*`), so they emit `var(--primitiv-{space,radii}-*)` (rem,
+    density-scaled, unit-bearing) and the stylesheet uses them directly — no `px`,
+    no `calc`. Done in Figma + `context.json` + the emitted layer; resolved values
+    are unchanged except the lone off-scale spacious `lg` gap (18 → 16, rounded to
+    the nearest `space` step). **Future fast-follow (deferred):** generalise a `passthrough` part
+    capability in `primitiv-emit` (a class-less forwarder for provider/portal
+    parts) so a Modal-shaped compound could be generated rather than hand-authored
+    — every future compound with a provider/portal would benefit (D53's
+    "extend the schema once" path).
 - [x] **The CLI** (RFC 0005) — `init` / `add` / `tokens` / `theme` / `list`, `primitiv.json`, the static registry, refresh + wiring behaviour. **Done — the command surface is v1 feature-complete** (interactive `init` + `--yes`; `add` resolve→install→styled+React surface+`contract.json`→lock refresh/`--force`/overwrite-keep→project wiring; `tokens`; `theme`; `list` with the installed column; embedded / local-dir / HTTPS registry adapters behind one port).
   - **Started.** The hand-rolled arg parser, the `theme` command (CSS / SCSS /
     Tailwind via `--format`), the `FileSystem` port (+ `InMemoryFs` fake) and the

@@ -119,11 +119,30 @@
     --primitiv-button-border-color: var(--primitiv-action-danger-border-active);
   }
 
-  /* Link — no frame; text-coloured only. */
+  /* Ghost — secondary's neutral palette without the frame: transparent fill
+     and border at rest, then the secondary hover/active background tints in.
+     The border-color goes transparent (the border-width is kept) so ghost stays
+     pixel-aligned with the framed intents — no layout shift when swapping. */
+  .primitiv-button--ghost {
+    --primitiv-button-bg: var(--primitiv-color-transparent);
+    --primitiv-button-border-color: var(--primitiv-color-transparent);
+    --primitiv-button-fg: var(--primitiv-action-secondary-foreground-default);
+  }
+  .primitiv-button--ghost:hover {
+    --primitiv-button-bg: var(--primitiv-action-secondary-hover);
+  }
+  .primitiv-button--ghost:active {
+    --primitiv-button-bg: var(--primitiv-action-secondary-active);
+  }
+
+  /* Link — no frame; text-coloured and underlined so it reads as a link without
+     relying on colour alone (WCAG 1.4.1). `underline` is a CSS keyword with no
+     token home, like `solid` elsewhere. */
   .primitiv-button--link {
     --primitiv-button-bg: var(--primitiv-color-transparent);
     --primitiv-button-border-color: var(--primitiv-color-transparent);
     --primitiv-button-fg: var(--primitiv-action-link-foreground-default);
+    text-decoration: underline;
   }
   .primitiv-button--link:hover {
     --primitiv-button-fg: var(--primitiv-action-link-foreground-hover);
@@ -133,12 +152,14 @@
   }
 
   /* Elevation — every framed intent lifts to the `raised` rung on hover; the
-     frameless link variant stays flat. The lift transitions via the button's
-     --primitiv-motion-* tokens (the box-shadow is in the base rule's transition). */
+     frameless link and ghost variants stay flat (no border to lift, so a shadow
+     would float). The lift transitions via the button's --primitiv-motion-*
+     tokens (the box-shadow is in the base rule's transition). */
   .primitiv-button:hover {
     --primitiv-button-shadow: var(--primitiv-elevation-raised);
   }
-  .primitiv-button--link:hover {
+  .primitiv-button--link:hover,
+  .primitiv-button--ghost:hover {
     --primitiv-button-shadow: var(--primitiv-elevation-flat);
   }
 

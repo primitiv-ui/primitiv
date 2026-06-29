@@ -22,11 +22,12 @@ export type ButtonProps = DistributiveOmit<ComponentPropsWithRef<typeof ButtonPr
    * - `primary` — High-emphasis primary action.
    * - `secondary` — Medium-emphasis secondary action.
    * - `danger` — Destructive action — delete, remove.
+   * - `ghost` — Low-emphasis action; no frame, tints on hover.
    * - `link` — Reads as a link; no frame.
    * @default "primary"
    * @see https://primitiv-ui.dev/docs/components/button
    */
-  variant?: "primary" | "secondary" | "danger" | "link";
+  variant?: "primary" | "secondary" | "danger" | "ghost" | "link";
   /**
    * Control size; `data-density` scales each size further.
    * - `xs` — Extra small.

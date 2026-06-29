@@ -27,6 +27,7 @@
         { "name": "primary", "class": "primitiv-button--primary", "description": "High-emphasis primary action." },
         { "name": "secondary", "class": "primitiv-button--secondary", "description": "Medium-emphasis secondary action." },
         { "name": "danger", "class": "primitiv-button--danger", "description": "Destructive action — delete, remove." },
+        { "name": "ghost", "class": "primitiv-button--ghost", "description": "Low-emphasis action; no frame, tints on hover." },
         { "name": "link", "class": "primitiv-button--link", "description": "Reads as a link; no frame." }
       ]
     },

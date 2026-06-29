@@ -13,6 +13,7 @@ export const button = cva("primitiv-button", {
       primary: "primitiv-button--primary",
       secondary: "primitiv-button--secondary",
       danger: "primitiv-button--danger",
+      ghost: "primitiv-button--ghost",
       link: "primitiv-button--link",
     },
     size: {

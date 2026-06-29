@@ -10,7 +10,7 @@ import "./ButtonExample.css";
 // against the app-level Primitiv token layer (imported once in main.tsx).
 import "../../../../../registry/components/button/styles.css";
 
-const INTENTS = ["primary", "secondary", "danger", "link"] as const;
+const INTENTS = ["primary", "secondary", "danger", "ghost", "link"] as const;
 const SIZES = ["xs", "sm", "md", "lg", "xl"] as const;
 const DENSITIES = ["dense", "compact", "comfortable", "spacious"] as const;
 

@@ -3,9 +3,16 @@
  *
  * Copied into the consumer repo by `primitiv add modal`. It is yours to edit:
  * the stable surface is the contract (the .primitiv-modal dialog + __overlay /
- * __title / __description / __close parts, the --sm…--xl size modifiers, the
- * data-state hook, and the --primitiv-modal-* custom properties), not these
- * values (RFC 0006 Principle 2 — names are stable, values are not).
+ * __header / __body / __footer / __title / __description / __close parts, the
+ * --sm…--xl size modifiers, the data-state hook, and the --primitiv-modal-*
+ * custom properties), not these values (RFC 0006 Principle 2 — names are stable,
+ * values are not).
+ *
+ * Anatomy mirrors the Figma design: the dialog is a vertical stack of three
+ * regions — __header (title + close, divided below), __body (description +
+ * content), __footer (right-aligned actions, divided above). Each region owns its
+ * padding so the header/footer dividers run full-bleed to the dialog edge; the
+ * root carries no inner padding or gap.
  *
  * Structure follows RFC 0008: per-component API tokens + the resting look live
  * in primitiv.base, the size modifiers in primitiv.variants, the open/closed +
@@ -21,10 +28,10 @@
  * primitives (density-scaled), so they carry units and are used directly.
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-surface-*,
- * --primitiv-content-*, --primitiv-scrim, --primitiv-elevation-*,
- * --primitiv-modal-*, --primitiv-label-*, --primitiv-body-*,
- * --primitiv-focus-ring-*, --primitiv-opacity-* and --primitiv-motion-* custom
- * properties it resolves.
+ * --primitiv-content-*, --primitiv-border-*, --primitiv-scrim,
+ * --primitiv-elevation-*, --primitiv-modal-*, --primitiv-label-*,
+ * --primitiv-body-*, --primitiv-focus-ring-*, --primitiv-opacity-* and
+ * --primitiv-motion-* custom properties it resolves.
  */
 
 @layer primitiv.base {
@@ -42,6 +49,9 @@
     --primitiv-modal-padding-block: var(--primitiv-modal-md-padding-block);
     --primitiv-modal-gap: var(--primitiv-modal-md-gap);
     --primitiv-modal-width: 32.5rem;
+    --primitiv-modal-border-width: var(--primitiv-border-width-1);
+    --primitiv-modal-border-color: var(--primitiv-border-default);
+    --primitiv-modal-divider-color: var(--primitiv-border-subtle);
     --primitiv-modal-title-color: var(--primitiv-content-primary);
     --primitiv-modal-title-font-family: var(--primitiv-label-md-font-family);
     --primitiv-modal-title-font-size: var(--primitiv-label-md-font-size);
@@ -53,14 +63,11 @@
     --primitiv-modal-description-font-weight: var(--primitiv-body-sm-font-weight);
     --primitiv-modal-description-line-height: var(--primitiv-body-sm-line-height);
 
-    position: relative;
     display: flex;
     flex-direction: column;
-    gap: var(--primitiv-modal-gap);
     inline-size: var(--primitiv-modal-width);
     max-inline-size: 100%;
-    padding: var(--primitiv-modal-padding-block) var(--primitiv-modal-padding-inline);
-    border: none;
+    border: var(--primitiv-modal-border-width) solid var(--primitiv-modal-border-color);
     border-radius: var(--primitiv-modal-radius);
     background: var(--primitiv-modal-surface);
     color: var(--primitiv-modal-fg);
@@ -69,6 +76,35 @@
 
   .primitiv-modal::backdrop {
     background: var(--primitiv-modal-scrim);
+  }
+
+  /* The three stacked regions. Each owns its padding so the header/footer
+     dividers run full-bleed to the dialog edge; the root has none. Padding / gap
+     resolve the size-scoped --primitiv-modal-* knobs (re-pointed by the size
+     modifier on the root and inherited down), so they track size and density. */
+  .primitiv-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--primitiv-modal-gap);
+    padding: var(--primitiv-modal-padding-block) var(--primitiv-modal-padding-inline);
+    border-block-end: var(--primitiv-modal-border-width) solid var(--primitiv-modal-divider-color);
+  }
+
+  .primitiv-modal__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--primitiv-modal-gap);
+    padding: var(--primitiv-modal-padding-block) var(--primitiv-modal-padding-inline);
+  }
+
+  .primitiv-modal__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--primitiv-modal-gap);
+    padding: var(--primitiv-modal-padding-block) var(--primitiv-modal-padding-inline);
+    border-block-start: var(--primitiv-modal-border-width) solid var(--primitiv-modal-divider-color);
   }
 
   /* The decorative overlay sibling — the animation / custom-backdrop surface.
@@ -98,18 +134,15 @@
     line-height: var(--primitiv-modal-description-line-height);
   }
 
-  /* Close — a frameless affordance pinned to the top-inline-end corner, anchored
-     to the dialog's padding box. Composed `asChild` with an icon button in most
-     apps; this resting style is the bare-<button> fallback. */
+  /* Close — a frameless affordance living at the inline-end of the header row.
+     The canonical composition wraps a ghost Button with a Close icon (`asChild`),
+     sized one step below the dialog (sm→xs · md→sm · lg→md · xl→lg); this resting
+     style is the bare-<button> fallback when no Button is composed in. */
   .primitiv-modal__close {
-    position: absolute;
-    inset-block-start: var(--primitiv-modal-padding-block);
-    inset-inline-end: var(--primitiv-modal-padding-inline);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border: none;
-    border-radius: var(--primitiv-modal-radius);
     background: var(--primitiv-color-transparent);
     color: var(--primitiv-content-secondary);
     cursor: pointer;

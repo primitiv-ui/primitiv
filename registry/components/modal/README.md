@@ -17,7 +17,7 @@ that styles the parts which accept a class and forwards the rest unchanged.
 | `styles.css` | **authored** | The canonical default theme (the enclosed visual design). |
 | `styles.scss` | **authored** | The canonical CSS plus the trailing `$primitiv-modal-*` alias block (kept byte-identical in body to `styles.css`). |
 | `modal.recipe.ts` | **authored** | One `cva` per styled part — generator-shaped, but hand-maintained alongside the wrapper. |
-| `modal.tsx` | **authored (bespoke)** | The styled wrappers — `Modal` / `ModalTrigger` / `ModalPortal` / `ModalOverlay` / `ModalContent` / `ModalTitle` / `ModalDescription` / `ModalClose`. |
+| `modal.tsx` | **authored (bespoke)** | The styled wrappers — `Modal` / `ModalTrigger` / `ModalPortal` / `ModalOverlay` / `ModalContent` / `ModalHeader` / `ModalBody` / `ModalFooter` / `ModalTitle` / `ModalDescription` / `ModalClose`. |
 
 Because the wrapper is bespoke, there is **no `primitiv-emit` drift-guard** for
 Modal's `.tsx` / `.recipe.ts` / `.scss` (those guards pin the *generated*
@@ -42,17 +42,21 @@ absolute-black ~0.5α that does not invert in dark mode):
 
 Documents the authored styling surface: the `.primitiv-modal` dialog root with
 its `size` modifier (`sm` / `md` / `lg` / `xl`) and `data-state` hook, the
-`__overlay` / `__title` / `__description` / `__close` BEM parts, and the
+`__header` / `__body` / `__footer` region parts (the divided three-region anatomy)
+and the `__overlay` / `__title` / `__description` / `__close` BEM parts, and the
 `--primitiv-modal-*` custom-property API. The pass-through parts (`Root`,
 `Trigger`, `Portal`) carry no class and so are absent from the styled surface.
 
 ## The default theme (`styles.css`)
 
-A fixed-width surface — `surface/default` fill, the `elevation/modal` shadow,
-`modal/*` padding/gap/radius — centred by the native `<dialog>`'s user-agent
-positioning. Structured per RFC 0008: the per-component API tokens + resting look
-in `primitiv.base`, the `size` modifiers in `primitiv.variants`, the enter / exit
-animations + close-button focus ring + disabled styling in `primitiv.states`.
+A fixed-width surface — `surface/default` fill, a `border/default` hairline, the
+`elevation/modal` shadow, `modal/*` radius — centred by the native `<dialog>`'s
+user-agent positioning. The dialog is a vertical stack of three regions, each
+owning its `modal/*` padding so the `border/subtle` dividers (header bottom,
+footer top) run full-bleed; the root carries no inner padding. Structured per RFC
+0008: the per-component API tokens + resting look in `primitiv.base`, the `size`
+modifiers in `primitiv.variants`, the enter / exit animations + close-button focus
+ring + disabled styling in `primitiv.states`.
 
 Both animation phases are **token-driven**: the dialog scales + fades and the
 backdrop fades, keyed off the `data-state` (`open` / `closed`) the headless layer
@@ -88,25 +92,53 @@ import {
   Modal,
   ModalTrigger,
   ModalPortal,
-  ModalOverlay,
   ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
   ModalTitle,
   ModalDescription,
   ModalClose,
 } from "@/components/ui/modal";
+import { Button } from "@/components/ui/button";
+import { Close } from "@primitiv-ui/icons";
 
 <Modal>
-  <ModalTrigger>Open</ModalTrigger>
+  <ModalTrigger asChild>
+    <Button>Open</Button>
+  </ModalTrigger>
   <ModalPortal>
     <ModalContent size="md">
-      <ModalTitle>Payment</ModalTitle>
-      <ModalDescription>Enter your card details.</ModalDescription>
-      {/* body */}
-      <ModalClose>Cancel</ModalClose>
+      <ModalHeader>
+        <ModalTitle>Payment</ModalTitle>
+        <ModalClose asChild>
+          <Button variant="ghost" size="sm" aria-label="Close">
+            <Close />
+          </Button>
+        </ModalClose>
+      </ModalHeader>
+      <ModalBody>
+        <ModalDescription>Enter your card details.</ModalDescription>
+        {/* form fields */}
+      </ModalBody>
+      <ModalFooter>
+        <ModalClose asChild>
+          <Button variant="secondary">Cancel</Button>
+        </ModalClose>
+        <Button variant="primary">Confirm</Button>
+      </ModalFooter>
     </ModalContent>
   </ModalPortal>
 </Modal>;
 ```
+
+This mirrors the Figma anatomy: a divided **header** (title + close), a **body**
+(description + content), and a right-aligned **footer** (dismiss + confirm). The
+close is a ghost `Button` wrapping a `Close` icon via `ModalClose asChild` (React
+has no `IconButton`), sized one step below the dialog so it stays subordinate to
+the title — **`sm → xs`, `md → sm`, `lg → md`, `xl → lg`**. The footer's dismiss
+action is the same `ModalClose asChild` pattern around a `secondary` `Button`. Drop
+any region you don't need (a confirmation dialog can omit `ModalBody`).
 
 `ModalOverlay` is optional — the native `::backdrop` already dims the page. Add it
 only when you want a CSS-animated or custom-styled backdrop layer. Scroll-lock is

@@ -29,6 +29,18 @@ export const modalOverlay = cva("primitiv-modal__overlay");
 
 export type ModalOverlayVariants = VariantProps<typeof modalOverlay>;
 
+export const modalHeader = cva("primitiv-modal__header");
+
+export type ModalHeaderVariants = VariantProps<typeof modalHeader>;
+
+export const modalBody = cva("primitiv-modal__body");
+
+export type ModalBodyVariants = VariantProps<typeof modalBody>;
+
+export const modalFooter = cva("primitiv-modal__footer");
+
+export type ModalFooterVariants = VariantProps<typeof modalFooter>;
+
 export const modalTitle = cva("primitiv-modal__title");
 
 export type ModalTitleVariants = VariantProps<typeof modalTitle>;

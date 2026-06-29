@@ -38,6 +38,24 @@
       ]
     },
     {
+      "name": "header",
+      "component": "Header",
+      "element": "div",
+      "class": "primitiv-modal__header"
+    },
+    {
+      "name": "body",
+      "component": "Body",
+      "element": "div",
+      "class": "primitiv-modal__body"
+    },
+    {
+      "name": "footer",
+      "component": "Footer",
+      "element": "div",
+      "class": "primitiv-modal__footer"
+    },
+    {
       "name": "title",
       "component": "Title",
       "element": "h2",
@@ -66,6 +84,9 @@
     { "name": "--primitiv-modal-padding-block", "defaultsTo": "var(--primitiv-modal-md-padding-block)" },
     { "name": "--primitiv-modal-gap", "defaultsTo": "var(--primitiv-modal-md-gap)" },
     { "name": "--primitiv-modal-width", "defaultsTo": "32.5rem" },
+    { "name": "--primitiv-modal-border-width", "defaultsTo": "var(--primitiv-border-width-1)" },
+    { "name": "--primitiv-modal-border-color", "defaultsTo": "var(--primitiv-border-default)" },
+    { "name": "--primitiv-modal-divider-color", "defaultsTo": "var(--primitiv-border-subtle)" },
     { "name": "--primitiv-modal-title-color", "defaultsTo": "var(--primitiv-content-primary)" },
     { "name": "--primitiv-modal-title-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
     { "name": "--primitiv-modal-title-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },

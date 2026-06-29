@@ -47,6 +47,12 @@ import { Modal } from "@primitiv-ui/react";
 </Modal.Root>;
 ```
 
+This headless layer is structure-only. The **styled distribution** (`primitiv add
+modal`) composes these primitives into the full Figma anatomy — a divided
+header / body / footer, and an icon-button close (a ghost `Button` + `Close` icon
+via `Modal.Close asChild`, sized one step below the dialog). See that package's
+README for the canonical composed example; nothing below changes.
+
 ## Sub-components
 
 | Export              | Element           | Notes                                                                                                                                          |

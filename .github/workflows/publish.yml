@@ -43,7 +43,7 @@ jobs:
           - { os: windows-latest,   target: x86_64-pc-windows-msvc,     npm-target: win32-x64       }
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -68,7 +68,7 @@ jobs:
           fi
 
       - name: Upload binary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: cli-${{ matrix.npm-target }}
           path: staging/
@@ -83,13 +83,13 @@ jobs:
       contents: read
       id-token: write   # npm Trusted Publishing + JSR OIDC
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: pnpm/action-setup@v4
         with:
           version: 10
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
           cache: pnpm
@@ -134,7 +134,7 @@ jobs:
 
       # Download all five CLI binaries from the build-cli matrix jobs.
       - name: Download CLI binaries
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: cli-*
           path: /tmp/cli-artifacts

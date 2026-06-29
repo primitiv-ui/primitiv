@@ -149,7 +149,6 @@
   }
 
   .primitiv-modal__close:hover {
-    background: var(--primitiv-action-secondary-hover);
     color: var(--primitiv-content-primary);
   }
 }

@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from "react";
 
-import { Button, Slider } from "@primitiv-ui/react";
+import { Button, Slider, Switch } from "@primitiv-ui/react";
 
 import {
   OklchPicker,
@@ -19,8 +19,18 @@ import {
 
 import { usePluginColors } from "./usePluginColors";
 import { PluginPalette } from "./PluginPalette";
+import { PluginAlphaStrip } from "./PluginAlphaStrip";
 import { CurveEditor } from "./CurveEditor";
 import { RampPadding } from "./RampPadding";
+
+// Switch registry default theme — styles the .primitiv-switch contract classes
+// used for the "Show alpha" toggle (as `primitiv add switch` copies it).
+import "../../../../../registry/components/switch/styles.css";
+
+// Neutral alpha ramps tint with the ramp's veil colour (its dark/light end,
+// step 900 = index 9); brand alpha ramps tint with the brand mid-swatch.
+const NEUTRAL_ALPHA_ANCHOR = 9;
+const BRAND_ALPHA_ANCHOR = 5;
 
 // The canonical Button default theme from the registry (as `primitiv add button`
 // copies it), resolving against the app token layer — styles the .primitiv-button
@@ -130,6 +140,9 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
   const [brandValue, setBrandValue] = useState<OklchValue>();
   const [whiteL, setWhiteL] = useState(1);
   const [blackL, setBlackL] = useState(0);
+  // Alpha ramps are a pure derivation of the same anchors (no controls), so they
+  // stay in sync for free. Off by default to keep the narrow (600px) view short.
+  const [showAlpha, setShowAlpha] = useState(false);
 
   useEffect(() => {
     if (!wasmReady) return;
@@ -314,17 +327,42 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
       </section>
 
       <section className="pf-color-engine__palettes">
+        <div className="pf-palettes__head">
+          <Switch.Root
+            className="primitiv-switch"
+            checked={showAlpha}
+            onCheckedChange={setShowAlpha}
+            aria-label="Show alpha ramps"
+          >
+            <span className="primitiv-switch__control">
+              <Switch.Thumb className="primitiv-switch__thumb" />
+            </span>
+            <span className="primitiv-switch__label">Show alpha</span>
+          </Switch.Root>
+        </div>
         <div>
           <p>Neutral — light</p>
           <PluginPalette palette={neutralPalette} />
+          {showAlpha && (
+            <PluginAlphaStrip palette={neutralPalette} anchorIndex={NEUTRAL_ALPHA_ANCHOR} />
+          )}
         </div>
         <div>
           <p>Neutral — dark</p>
           <PluginPalette palette={neutralDarkPalette} />
+          {showAlpha && (
+            <PluginAlphaStrip
+              palette={neutralDarkPalette}
+              anchorIndex={NEUTRAL_ALPHA_ANCHOR}
+            />
+          )}
         </div>
         <div>
           <p>Brand — light</p>
           <PluginPalette palette={brand.lightPalette} />
+          {showAlpha && (
+            <PluginAlphaStrip palette={brand.lightPalette} anchorIndex={BRAND_ALPHA_ANCHOR} />
+          )}
           <div className="pf-curve-wrap">
             <CurveEditor
               palette={brand.lightPalette}
@@ -349,6 +387,9 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
         <div>
           <p>Brand — dark</p>
           <PluginPalette palette={brand.darkPalette} />
+          {showAlpha && (
+            <PluginAlphaStrip palette={brand.darkPalette} anchorIndex={BRAND_ALPHA_ANCHOR} />
+          )}
           <div className="pf-curve-wrap">
             <CurveEditor
               palette={brand.darkPalette}

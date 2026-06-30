@@ -15,6 +15,6 @@ import { IconBase } from '../IconBase.tsx'
  */
 export const Maximize = (props: IconProps): ReactElement => (
   <IconBase {...props}>
-    <path d="M3.25 3.25H9v1.5H4.75V9h-1.5zm17.5 0H15v1.5h4.25V9h1.5zm0 17.5H15v-1.5h4.25V15h1.5zm-17.5 0H9v-1.5H4.75V15h-1.5z"/>
+    <path d="M3.25 3.25H9v1.5H4.75V9h-1.5ZM20.75 9h-1.5V4.75H15v-1.5h5.75Zm0 11.75H15v-1.5h4.25V15h1.5ZM3.25 15h1.5v4.25H9v1.5H3.25ZM4.28 3.22l6.5 6.5-1.06 1.06-6.5-6.5Zm16.5 1.06-6.5 6.5-1.06-1.06 6.5-6.5Zm-1.06 16.5-6.5-6.5 1.06-1.06 6.5 6.5Zm-16.5-1.06 6.5-6.5 1.06 1.06-6.5 6.5Z"/>
   </IconBase>
 )

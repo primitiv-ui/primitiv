@@ -1334,6 +1334,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.2}"
+          },
+          "font-size": {
+            "$type": "number",
+            "$value": "{font-size.11}"
+          },
+          "line-height": {
+            "$type": "number",
+            "$value": "{line-height.14}"
           }
         },
         "label": {
@@ -1384,6 +1392,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.2}"
+          },
+          "font-size": {
+            "$type": "number",
+            "$value": "{font-size.13}"
+          },
+          "line-height": {
+            "$type": "number",
+            "$value": "{line-height.16}"
           }
         },
         "label": {
@@ -1434,6 +1450,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.4}"
+          },
+          "font-size": {
+            "$type": "number",
+            "$value": "{font-size.14}"
+          },
+          "line-height": {
+            "$type": "number",
+            "$value": "{line-height.20}"
           }
         },
         "label": {
@@ -1484,6 +1508,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.6}"
+          },
+          "font-size": {
+            "$type": "number",
+            "$value": "{font-size.15}"
+          },
+          "line-height": {
+            "$type": "number",
+            "$value": "{line-height.20}"
           }
         },
         "label": {
@@ -1534,6 +1566,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.6}"
+          },
+          "font-size": {
+            "$type": "number",
+            "$value": "{font-size.16}"
+          },
+          "line-height": {
+            "$type": "number",
+            "$value": "{line-height.24}"
           }
         },
         "label": {
@@ -3186,6 +3226,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.2}"
+          },
+          "font-size": {
+            "$type": "number",
+            "$value": "{font-size.11}"
+          },
+          "line-height": {
+            "$type": "number",
+            "$value": "{line-height.14}"
           }
         },
         "label": {
@@ -3236,6 +3284,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.2}"
+          },
+          "font-size": {
+            "$type": "number",
+            "$value": "{font-size.13}"
+          },
+          "line-height": {
+            "$type": "number",
+            "$value": "{line-height.16}"
           }
         },
         "label": {
@@ -3286,6 +3342,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.4}"
+          },
+          "font-size": {
+            "$type": "number",
+            "$value": "{font-size.14}"
+          },
+          "line-height": {
+            "$type": "number",
+            "$value": "{line-height.20}"
           }
         },
         "label": {
@@ -3336,6 +3400,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.4}"
+          },
+          "font-size": {
+            "$type": "number",
+            "$value": "{font-size.15}"
+          },
+          "line-height": {
+            "$type": "number",
+            "$value": "{line-height.20}"
           }
         },
         "label": {
@@ -3386,6 +3458,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.6}"
+          },
+          "font-size": {
+            "$type": "number",
+            "$value": "{font-size.16}"
+          },
+          "line-height": {
+            "$type": "number",
+            "$value": "{line-height.24}"
           }
         },
         "label": {
@@ -5038,6 +5118,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.2}"
+          },
+          "font-size": {
+            "$type": "number",
+            "$value": "{font-size.11}"
+          },
+          "line-height": {
+            "$type": "number",
+            "$value": "{line-height.14}"
           }
         },
         "label": {
@@ -5088,6 +5176,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.4}"
+          },
+          "font-size": {
+            "$type": "number",
+            "$value": "{font-size.13}"
+          },
+          "line-height": {
+            "$type": "number",
+            "$value": "{line-height.16}"
           }
         },
         "label": {
@@ -5138,6 +5234,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.6}"
+          },
+          "font-size": {
+            "$type": "number",
+            "$value": "{font-size.14}"
+          },
+          "line-height": {
+            "$type": "number",
+            "$value": "{line-height.20}"
           }
         },
         "label": {
@@ -5188,6 +5292,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.6}"
+          },
+          "font-size": {
+            "$type": "number",
+            "$value": "{font-size.15}"
+          },
+          "line-height": {
+            "$type": "number",
+            "$value": "{line-height.20}"
           }
         },
         "label": {
@@ -5238,6 +5350,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.8}"
+          },
+          "font-size": {
+            "$type": "number",
+            "$value": "{font-size.16}"
+          },
+          "line-height": {
+            "$type": "number",
+            "$value": "{line-height.24}"
           }
         },
         "label": {
@@ -6890,6 +7010,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.2}"
+          },
+          "font-size": {
+            "$type": "number",
+            "$value": "{font-size.11}"
+          },
+          "line-height": {
+            "$type": "number",
+            "$value": "{line-height.14}"
           }
         },
         "label": {
@@ -6940,6 +7068,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.2}"
+          },
+          "font-size": {
+            "$type": "number",
+            "$value": "{font-size.13}"
+          },
+          "line-height": {
+            "$type": "number",
+            "$value": "{line-height.16}"
           }
         },
         "label": {
@@ -6990,6 +7126,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.2}"
+          },
+          "font-size": {
+            "$type": "number",
+            "$value": "{font-size.14}"
+          },
+          "line-height": {
+            "$type": "number",
+            "$value": "{line-height.20}"
           }
         },
         "label": {
@@ -7040,6 +7184,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.2}"
+          },
+          "font-size": {
+            "$type": "number",
+            "$value": "{font-size.15}"
+          },
+          "line-height": {
+            "$type": "number",
+            "$value": "{line-height.20}"
           }
         },
         "label": {
@@ -7090,6 +7242,14 @@
           "radius": {
             "$type": "number",
             "$value": "{radii.4}"
+          },
+          "font-size": {
+            "$type": "number",
+            "$value": "{font-size.16}"
+          },
+          "line-height": {
+            "$type": "number",
+            "$value": "{line-height.24}"
           }
         },
         "label": {

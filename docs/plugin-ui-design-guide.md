@@ -48,6 +48,7 @@ What the reference already nails down (do not redesign these):
 | "Use brand as neutral tint" + Strength / Spread / Bow | `Button`, `Slider`, preview chips | same (`pf-neutral-tint`) |
 | Four palette rows (neutral L/D, brand L/D) | `PluginPalette` / `PluginSwatch` | same (`pf-color-engine__palettes`) |
 | Per-ramp curve editor + ramp padding | `CurveEditor`, `RampPadding` | same (`pf-curve-wrap`) |
+| Alpha ramps (per-ramp, engine-backed) | `PluginAlphaStrip` + an "Alpha" `Switch` per ramp header | same (`pf-alpha-strip`, `pf-palette-head`) — see §1.1 |
 
 The replica ends right where the export section begins — its
 `PluginColorEngine` carries the note *"Export-to-Figma is omitted."* That
@@ -66,6 +67,43 @@ omission is the work this guide covers, plus the layout-mode feature.
   `overflow: hidden`), body is `.pf-frame__body` (`overflow-y: auto`,
   `--primitiv-surface-default`). The expand feature changes `.pf-frame`'s
   width — see §2.
+
+### 1.1 Alpha ramps (settled)
+
+Each palette row can reveal an **alpha companion** beneath it — the engine's
+`generate_alpha_ramp` output rendered on a checkerboard so transparency reads
+(`PluginAlphaStrip`). The design, as landed:
+
+- **Path A — a monochrome veil.** One anchor colour held constant across all
+  ten steps (50→900) while opacity climbs a fixed low-biased curve
+  (`3, 6, 10, 14, 20, 30, 42, 55, 72, 92%`). The curve is baked once in
+  `harmoni-core` (`alpha::ramp::ALPHA_CURVE`) — the single source of truth for
+  the plugin, the emitted tokens, and Figma. The Radix-style solve-for-match
+  "graded scale" is Path B, deliberately deferred.
+- **Anchors.** Neutral ramps tint with their veil colour — the dark end in
+  light mode, the light end in dark mode (step 900 / index 9). Brand ramps tint
+  with the brand's identity mid-swatch (index 5).
+- **Neutral needs two ramps, brand needs one.** The neutral light/dark veils
+  genuinely differ (black vs white); under Path A the brand light/dark
+  mid-swatches are the same colour, so brand-alpha is a single
+  mode-independent ramp.
+- **Gated per ramp.** An "Alpha" `Switch` in each ramp header reveals its
+  strip. In the real plugin this same per-ramp switch is the natural gate for
+  whether each alpha variant is generated/written — the Switch-gated-output
+  pattern §4 uses for the export section.
+- **In sync for free.** The strip derives its anchor from the (already-tinted)
+  palette, so any anchor / brand / tint / bow change re-paints the alpha ramp
+  in the same pass, and the tint's hue and chroma flow into the veil. When the
+  real plugin calls the engine, derive from the *effective* (tinted) anchors,
+  not the raw picker inputs.
+
+**Checkerboard.** Keep it **theme-relative**, not a fixed grey — two close
+tones derived from the current surface (`--primitiv-surface-default` +
+`--primitiv-border-subtle`), so it stays calm and honest in both the plugin's
+light and dark modes. A fixed white/grey checker would glare in dark mode and
+misrepresent how a translucent veil composites over a dark surface. Low
+internal contrast reveals transparency better than a translucent pattern,
+without competing with the colour on top.
 
 ---
 

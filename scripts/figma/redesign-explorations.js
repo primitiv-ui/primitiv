@@ -197,6 +197,10 @@
   function accItem(container, label, open, body) {
     const item = af('VERTICAL'); item.name = open ? 'item · open' : 'item'; item.itemSpacing = 0;
     strokeCol(item, 'border/subtle'); item.strokeWeight = 0; item.strokeTopWeight = 0; item.strokeLeftWeight = 0; item.strokeRightWeight = 0; item.strokeBottomWeight = 1;
+    // padding-inline keeps the title + chevron (and the open panel) off the edge;
+    // the divider stays full-bleed because the stroke rides the frame border, not the padding box.
+    if (!bindNum(item, 'paddingLeft', 'framed-control/md/padding-inline')) item.paddingLeft = PADX;
+    if (!bindNum(item, 'paddingRight', 'framed-control/md/padding-inline')) item.paddingRight = PADX;
     container.appendChild(item); sizeH(item, 'FILL');
     const trig = af('HORIZONTAL'); trig.name = 'trigger'; trig.primaryAxisAlignItems = 'SPACE_BETWEEN'; trig.counterAxisAlignItems = 'CENTER'; trig.paddingTop = trig.paddingBottom = 18;
     item.appendChild(trig); sizeH(trig, 'FILL');

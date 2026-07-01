@@ -58,6 +58,25 @@ muted appearance.
 | `border/*` | `subtle/default/strong → neutral steps`, `focus → color/brand/500`, `invalid → color/danger/500` |
 | `focus/ring` | `color/brand/500` |
 
+## Recessed track + selected thumb — `surface/sunken`, `surface/selected`, `content/on-selected`
+
+Added 2026-07-01 for the ToggleGroup redesign (inset track + floating thumb); a
+reusable pattern for any "recessed well with a raised selected chip" (segmented
+controls, selected list rows, …).
+
+| Token | Light | Dark | Role |
+| ----- | ----- | ---- | ---- |
+| `surface/sunken` | `color/neutral/100` | `color/neutral/800` | Recessed well/track — grey in light, **dark** in dark. Deeper than `surface/default`; sits below a raised chip. |
+| `surface/selected` | `color/absolute-white` | `color/neutral/50` | The raised selected chip. **Light in BOTH themes** (resolved via the Light palette) so it lifts off the sunken track in either mode. |
+| `content/on-selected` | `color/neutral/900` | `color/neutral/900` | Text/icon on `surface/selected`. **Soft-dark in BOTH themes** so it stays legible on the always-light chip. |
+
+**Why a dedicated pair (not `surface/default` + `content/primary`):** the chip
+must be light in *both* themes, but `surface/default` is `color/black` in dark
+(the thumb would vanish), and `content/primary` flips to light in dark (label
+would vanish on a light chip). Remember these values resolve through the **Light
+palette** (see the theming rule in `SKILL.md`) — a `neutral/50` alias in a
+Dark-Intent slot is the *light* `[229]`, not `[18]`.
+
 ## Non-action controls use surface / border / content (not `action/*`)
 
 `action/*` tokens are for **buttons** (intent-coloured fills). Form-input controls

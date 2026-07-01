@@ -1,0 +1,72 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "toggle-group",
+  "version": "0.1.0",
+  "description": "A segmented control — a recessed pill track holding borderless items; single- or multi-select. Pressed items lift into a raised thumb.",
+  "docs": "https://primitiv-ui.dev/docs/components/toggle-group",
+  "root": {
+    "element": "div",
+    "class": "primitiv-toggle-group",
+    "component": "Root",
+    "dataAttributes": [
+      { "name": "data-orientation", "value": "horizontal", "when": "horizontal", "source": "auto" },
+      { "name": "data-orientation", "value": "vertical", "when": "vertical", "source": "auto" }
+    ]
+  },
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Control size for the whole widget; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-toggle-group--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-toggle-group--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-toggle-group--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-toggle-group--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-toggle-group--xl", "description": "Extra large." }
+      ]
+    },
+    {
+      "name": "justify",
+      "default": "content",
+      "description": "Whether items size to their content or share the track width equally.",
+      "options": [
+        { "name": "content", "class": "", "description": "Items size to their content — e.g. a B / I / U formatting toolbar (the default)." },
+        { "name": "justified", "class": "primitiv-toggle-group--justified", "description": "Items share the track width equally — a true segmented control (e.g. Day / Week / Month)." }
+      ]
+    }
+  ],
+  "subcomponents": [
+    {
+      "name": "item",
+      "component": "Item",
+      "element": "button",
+      "class": "primitiv-toggle-group__item",
+      "dataAttributes": [
+        { "name": "data-state", "value": "on", "when": "pressed", "source": "auto" },
+        { "name": "data-state", "value": "off", "when": "not pressed", "source": "auto" },
+        { "name": "data-disabled", "value": "", "when": "disabled", "source": "auto" }
+      ]
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-toggle-group-item-height", "defaultsTo": "var(--primitiv-framed-control-md-height)" },
+    { "name": "--primitiv-toggle-group-item-padding-inline", "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)" },
+    { "name": "--primitiv-toggle-group-item-gap", "defaultsTo": "var(--primitiv-framed-control-md-gap)" },
+    { "name": "--primitiv-toggle-group-item-icon-size", "defaultsTo": "var(--primitiv-framed-control-md-icon-size)" },
+    { "name": "--primitiv-toggle-group-radius", "defaultsTo": "var(--primitiv-radii-full)" },
+    { "name": "--primitiv-toggle-group-track-inset", "defaultsTo": "var(--primitiv-toggle-group-track-padding)" },
+    { "name": "--primitiv-toggle-group-track-bg", "defaultsTo": "var(--primitiv-surface-sunken)" },
+    { "name": "--primitiv-toggle-group-item-bg", "defaultsTo": "transparent" },
+    { "name": "--primitiv-toggle-group-item-fg", "defaultsTo": "var(--primitiv-content-secondary)" },
+    { "name": "--primitiv-toggle-group-item-bg-on", "defaultsTo": "var(--primitiv-surface-selected)" },
+    { "name": "--primitiv-toggle-group-item-fg-on", "defaultsTo": "var(--primitiv-content-on-selected)" },
+    { "name": "--primitiv-toggle-group-item-fg-hover", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-toggle-group-item-shadow", "defaultsTo": "0 0 0 0 transparent" },
+    { "name": "--primitiv-toggle-group-item-shadow-on", "defaultsTo": "var(--primitiv-shadow-1)" },
+    { "name": "--primitiv-toggle-group-item-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
+    { "name": "--primitiv-toggle-group-item-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },
+    { "name": "--primitiv-toggle-group-item-font-weight", "defaultsTo": "var(--primitiv-label-md-font-weight)" },
+    { "name": "--primitiv-toggle-group-item-line-height", "defaultsTo": "var(--primitiv-label-md-line-height)" }
+  ]
+}

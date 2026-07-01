@@ -184,6 +184,14 @@
       "inverse": {
         "$type": "color",
         "$value": "{color.neutral.800}"
+      },
+      "sunken": {
+        "$type": "color",
+        "$value": "{color.neutral.100}"
+      },
+      "selected": {
+        "$type": "color",
+        "$value": "{color.absolute-white}"
       }
     },
     "scrim": {
@@ -214,6 +222,10 @@
       "on-action": {
         "$type": "color",
         "$value": "{color.absolute-white}"
+      },
+      "on-selected": {
+        "$type": "color",
+        "$value": "{color.neutral.900}"
       },
       "error": {
         "$type": "color",
@@ -464,6 +476,14 @@
       "inverse": {
         "$type": "color",
         "$value": "{color.neutral.100}"
+      },
+      "sunken": {
+        "$type": "color",
+        "$value": "{color.neutral.800}"
+      },
+      "selected": {
+        "$type": "color",
+        "$value": "{color.neutral.50}"
       }
     },
     "scrim": {
@@ -494,6 +514,10 @@
       "on-action": {
         "$type": "color",
         "$value": "{color.absolute-white}"
+      },
+      "on-selected": {
+        "$type": "color",
+        "$value": "{color.neutral.900}"
       },
       "error": {
         "$type": "color",

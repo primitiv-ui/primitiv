@@ -81,6 +81,39 @@ page.name = "My New Page";
 figma.currentPage = page;   // switches the canvas to this page
 ```
 
+## Loading pages — required before reaching another page's nodes
+
+Modern files run under the **dynamic-page** API: only `figma.currentPage` is
+loaded up front. Any call that reaches a node or page *other than* the current
+one — `figma.getNodeByIdAsync(id)` for a node on another page,
+`page.findOne(...)` / `page.findAll(...)` on a non-current page, or reading
+`someOtherPage.children` — needs the pages loaded first, or it returns `null`
+(and silently falls back to whatever default you coded). Call
+`figma.loadAllPagesAsync()` once, near the top of the IIFE, guarded so it's a
+no-op on older files:
+
+```js
+(async function () {
+  // Dynamic-page API: nodes on other pages aren't reachable until loaded.
+  if (typeof figma.loadAllPagesAsync === "function") {
+    try { await figma.loadAllPagesAsync(); } catch (e) {}
+  }
+  // ... now getNodeByIdAsync() / cross-page findOne() resolve correctly
+})().catch(err => console.error(err.message));
+```
+
+The symptom when you forget it: a read that "should" find a live node (e.g.
+sampling a font or a bound variable off an existing component on another page)
+comes back empty and your script quietly uses its fallback instead. This bit
+the ToggleGroup/Tabs/Accordion redesign script — see
+`scripts/figma/redesign-explorations.js`.
+
+Prefer the **async** node/variable APIs throughout (`getNodeByIdAsync`,
+`getVariableByIdAsync`, `getVariableCollectionByIdAsync`,
+`getLocalVariablesAsync`, `setEffectStyleIdAsync`) — the sync variants
+(`getNodeById`, `getVariableById`, …) are deprecated under dynamic-page and
+throw or warn. They're all Promises, so they only work inside the async IIFE.
+
 ## Process: generating a wireframe script from scratch
 
 Follow this order every time — skipping steps leads to misaligned elements
@@ -188,3 +221,7 @@ self-contained — paste and run any of them independently.
   `createFrame()`.
 - **Strokes default to empty** (`[]`) on new shapes — always assign both
   `node.strokes` and `node.strokeWeight` together.
+- **Reaching another page returns `null` until pages are loaded.** Call
+  `await figma.loadAllPagesAsync()` (guarded) at the top of the IIFE before any
+  `getNodeByIdAsync` / cross-page `findOne` — see "Loading pages" above. Use the
+  async node/variable APIs, not the deprecated sync ones.

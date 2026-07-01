@@ -50,3 +50,18 @@ pub fn format_oklch(color: Oklch) -> String {
         round(color.hue.into_degrees())
     )
 }
+
+/// Renders an OkLCH colour with an alpha channel as a CSS
+/// `oklch(L C H / a)` string, every component (alpha included) rounded to
+/// four decimal places. The `/ a` slash-alpha form is how alpha ramps carry
+/// their opacity into a stylesheet.
+pub fn format_oklch_alpha(color: Oklch, alpha: f32) -> String {
+    let round = |value: f32| (value * 10_000.0).round() / 10_000.0;
+    format!(
+        "oklch({} {} {} / {})",
+        round(color.l),
+        round(color.chroma),
+        round(color.hue.into_degrees()),
+        round(alpha)
+    )
+}

@@ -71,7 +71,9 @@ All other [SVG element attributes](https://developer.mozilla.org/en-US/docs/Web/
 | [Link](src/icons/Link.tsx) | `import { Link } from "@primitiv-ui/icons"` |
 | [List](src/icons/List.tsx) | `import { List } from "@primitiv-ui/icons"` |
 | [Mail](src/icons/Mail.tsx) | `import { Mail } from "@primitiv-ui/icons"` |
+| [Maximize](src/icons/Maximize.tsx) | `import { Maximize } from "@primitiv-ui/icons"` |
 | [Menu](src/icons/Menu.tsx) | `import { Menu } from "@primitiv-ui/icons"` |
+| [Minimize](src/icons/Minimize.tsx) | `import { Minimize } from "@primitiv-ui/icons"` |
 | [Minus](src/icons/Minus.tsx) | `import { Minus } from "@primitiv-ui/icons"` |
 | [Moon](src/icons/Moon.tsx) | `import { Moon } from "@primitiv-ui/icons"` |
 | [Plus](src/icons/Plus.tsx) | `import { Plus } from "@primitiv-ui/icons"` |

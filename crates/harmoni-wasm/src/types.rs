@@ -259,6 +259,44 @@ impl From<core::Palette> for Palette {
     }
 }
 
+#[derive(Tsify, PartialEq, Debug, Clone, Serialize, Deserialize)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub struct AlphaSwatch {
+    pub l: f32,
+    pub c: f32,
+    pub h: f32,
+    pub alpha: f32,
+    pub step: u16,
+    pub oklch: String,
+}
+
+impl From<core::AlphaSwatch> for AlphaSwatch {
+    fn from(value: core::AlphaSwatch) -> Self {
+        AlphaSwatch {
+            l: value.l,
+            c: value.c,
+            h: value.h,
+            alpha: value.alpha,
+            step: value.step,
+            oklch: value.oklch,
+        }
+    }
+}
+
+#[derive(Tsify, PartialEq, Debug, Clone, Serialize, Deserialize)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub struct AlphaRamp {
+    pub swatches: Vec<AlphaSwatch>,
+}
+
+impl From<Vec<core::AlphaSwatch>> for AlphaRamp {
+    fn from(value: Vec<core::AlphaSwatch>) -> Self {
+        AlphaRamp {
+            swatches: value.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
 #[derive(Tsify, Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct PaletteSet {
@@ -427,6 +465,35 @@ mod tests {
         let expected_dark: Palette = core_set.dark.into();
         assert_eq!(wasm_set.light, expected_light);
         assert_eq!(wasm_set.dark, expected_dark);
+    }
+
+    #[test]
+    fn alpha_swatch_converts_from_core_preserving_all_fields() {
+        let core_ramp = core::api::generate_alpha_ramp(core::ColorInput::Css(
+            "oklch(0.2 0.03 260)".to_string(),
+        ))
+        .expect("valid anchor should produce a ramp");
+        let core_swatch = core_ramp[0].clone();
+        let wasm_swatch: AlphaSwatch = core_swatch.clone().into();
+
+        assert_eq!(wasm_swatch.l, core_swatch.l);
+        assert_eq!(wasm_swatch.c, core_swatch.c);
+        assert_eq!(wasm_swatch.h, core_swatch.h);
+        assert_eq!(wasm_swatch.alpha, core_swatch.alpha);
+        assert_eq!(wasm_swatch.step, core_swatch.step);
+        assert_eq!(wasm_swatch.oklch, core_swatch.oklch);
+    }
+
+    #[test]
+    fn alpha_ramp_converts_from_a_core_swatch_vec() {
+        let core_ramp = core::api::generate_alpha_ramp(core::ColorInput::Css(
+            "oklch(0.2 0.03 260)".to_string(),
+        ))
+        .expect("valid anchor should produce a ramp");
+        let wasm_ramp: AlphaRamp = core_ramp.clone().into();
+
+        assert_eq!(wasm_ramp.swatches.len(), core_ramp.len());
+        assert_eq!(wasm_ramp.swatches[9].alpha, core_ramp[9].alpha);
     }
 
     #[test]

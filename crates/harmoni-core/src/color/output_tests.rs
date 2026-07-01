@@ -1,5 +1,5 @@
 use super::input::ColorInput;
-use super::output::{format_oklch, oklch_to_hex, oklch_to_rgb, Rgb};
+use super::output::{format_oklch, format_oklch_alpha, oklch_to_hex, oklch_to_rgb, Rgb};
 use palette::Oklch;
 
 // Ground-truth OkLCH values for well-known sRGB colors come from the
@@ -84,5 +84,21 @@ fn format_oklch_rounds_components_to_four_decimal_places() {
     assert_eq!(
         format_oklch(Oklch::new(0.6279012, 0.2577891, 29.234567)),
         "oklch(0.6279 0.2578 29.2346)"
+    );
+}
+
+#[test]
+fn format_oklch_alpha_appends_the_alpha_channel() {
+    assert_eq!(
+        format_oklch_alpha(Oklch::new(0.55, 0.12, 30.0), 0.3),
+        "oklch(0.55 0.12 30 / 0.3)"
+    );
+}
+
+#[test]
+fn format_oklch_alpha_rounds_every_component_including_alpha() {
+    assert_eq!(
+        format_oklch_alpha(Oklch::new(0.6279012, 0.2577891, 29.234567), 0.123456),
+        "oklch(0.6279 0.2578 29.2346 / 0.1235)"
     );
 }

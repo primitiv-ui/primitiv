@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from "react";
 
-import { Button, Slider } from "@primitiv-ui/react";
+import { Button, Slider, Switch } from "@primitiv-ui/react";
 
 import {
   OklchPicker,
@@ -19,8 +19,18 @@ import {
 
 import { usePluginColors } from "./usePluginColors";
 import { PluginPalette } from "./PluginPalette";
+import { PluginAlphaStrip } from "./PluginAlphaStrip";
 import { CurveEditor } from "./CurveEditor";
 import { RampPadding } from "./RampPadding";
+
+// Switch registry default theme — styles the .primitiv-switch contract classes
+// used for the "Show alpha" toggle (as `primitiv add switch` copies it).
+import "../../../../../registry/components/switch/styles.css";
+
+// Neutral alpha ramps tint with the ramp's veil colour (its dark/light end,
+// step 900 = index 9); brand alpha ramps tint with the brand mid-swatch.
+const NEUTRAL_ALPHA_ANCHOR = 9;
+const BRAND_ALPHA_ANCHOR = 5;
 
 // The canonical Button default theme from the registry (as `primitiv add button`
 // copies it), resolving against the app token layer — styles the .primitiv-button
@@ -91,6 +101,33 @@ function SpreadSlider({
   );
 }
 
+// Per-ramp alpha toggle — a labelled Switch that reveals a ramp's alpha strip.
+// In the real plugin this same per-ramp switch gates whether the alpha variant
+// is generated/written, not just previewed.
+function AlphaToggle({
+  checked,
+  onCheckedChange,
+  label,
+}: {
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+  label: string;
+}) {
+  return (
+    <Switch.Root
+      className="primitiv-switch pf-alpha-toggle"
+      checked={checked}
+      onCheckedChange={onCheckedChange}
+      aria-label={label}
+    >
+      <span className="primitiv-switch__control">
+        <Switch.Thumb className="primitiv-switch__thumb" />
+      </span>
+      <span className="primitiv-switch__label">Alpha</span>
+    </Switch.Root>
+  );
+}
+
 export type PluginColorEngineProps = {
   /** Chart aspect forwarded to the brand picker (tuned in the sandbox header). */
   chartAspect: number;
@@ -130,6 +167,15 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
   const [brandValue, setBrandValue] = useState<OklchValue>();
   const [whiteL, setWhiteL] = useState(1);
   const [blackL, setBlackL] = useState(0);
+  // Alpha ramps are a pure derivation of the same anchors (no controls), so they
+  // stay in sync for free. Gated per ramp — in the real plugin this same switch
+  // would decide whether each alpha variant is generated/written, not just
+  // previewed. Off by default to keep the narrow (600px) view short.
+  const [neutralLightAlpha, setNeutralLightAlpha] = useState(false);
+  const [neutralDarkAlpha, setNeutralDarkAlpha] = useState(false);
+  // Brand-alpha is a single mode-independent ramp — under Path A the light and
+  // dark mid-swatches (both L≈0.55) are the same colour, so one ramp serves both.
+  const [brandAlpha, setBrandAlpha] = useState(false);
 
   useEffect(() => {
     if (!wasmReady) return;
@@ -315,16 +361,49 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
 
       <section className="pf-color-engine__palettes">
         <div>
-          <p>Neutral — light</p>
+          <div className="pf-palette-head">
+            <p>Neutral — light</p>
+            <AlphaToggle
+              checked={neutralLightAlpha}
+              onCheckedChange={setNeutralLightAlpha}
+              label="Show neutral light alpha ramp"
+            />
+          </div>
           <PluginPalette palette={neutralPalette} />
+          {neutralLightAlpha && (
+            <PluginAlphaStrip palette={neutralPalette} anchorIndex={NEUTRAL_ALPHA_ANCHOR} />
+          )}
         </div>
         <div>
-          <p>Neutral — dark</p>
+          <div className="pf-palette-head">
+            <p>Neutral — dark</p>
+            <AlphaToggle
+              checked={neutralDarkAlpha}
+              onCheckedChange={setNeutralDarkAlpha}
+              label="Show neutral dark alpha ramp"
+            />
+          </div>
           <PluginPalette palette={neutralDarkPalette} />
+          {neutralDarkAlpha && (
+            <PluginAlphaStrip
+              palette={neutralDarkPalette}
+              anchorIndex={NEUTRAL_ALPHA_ANCHOR}
+            />
+          )}
         </div>
         <div>
-          <p>Brand — light</p>
+          <div className="pf-palette-head">
+            <p>Brand — light</p>
+            <AlphaToggle
+              checked={brandAlpha}
+              onCheckedChange={setBrandAlpha}
+              label="Show brand alpha ramp"
+            />
+          </div>
           <PluginPalette palette={brand.lightPalette} />
+          {brandAlpha && (
+            <PluginAlphaStrip palette={brand.lightPalette} anchorIndex={BRAND_ALPHA_ANCHOR} />
+          )}
           <div className="pf-curve-wrap">
             <CurveEditor
               palette={brand.lightPalette}

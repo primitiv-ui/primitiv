@@ -6,11 +6,13 @@
 // know about palette::Oklch directly; the gamut helpers (RFC 0010) work in
 // raw OkLCH numbers because they render a chart axis, not a chosen colour.
 
+pub mod alpha;
 pub mod audit;
 pub mod gamut;
 pub mod generate;
 pub mod neutral;
 
+pub use alpha::generate_alpha_ramp;
 pub use audit::audit_contrast;
 pub use gamut::{
     max_in_gamut_chroma, paint_ch_plane, paint_chroma_strip, paint_hue_strip, paint_lc_plane,
@@ -24,6 +26,8 @@ pub use neutral::{
     derive_soft_neutrals, generate_neutral_ramp, tint_neutrals, tint_neutrals_duotone,
 };
 
+#[cfg(test)]
+mod alpha_tests;
 #[cfg(test)]
 mod audit_tests;
 #[cfg(test)]

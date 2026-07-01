@@ -164,6 +164,17 @@ pub fn generate_neutral_ramp(
     palette_to_js(palette_data)
 }
 
+/// Builds an alpha ramp from a single anchor colour (Path A): the anchor held
+/// constant across ten steps while opacity climbs the shared curve. Neutral
+/// ramps pass their veil colour (soft-black in light, soft-white in dark);
+/// brand ramps pass the brand's identity swatch.
+#[wasm_bindgen]
+pub fn generate_alpha_ramp(anchor: &str) -> Result<types::AlphaRamp, JsError> {
+    api::generate_alpha_ramp(ColorInput::Css(anchor.to_string()))
+        .map(Into::into)
+        .map_err(to_js_error)
+}
+
 #[wasm_bindgen]
 pub fn derive_soft_neutrals(
     brand: &str,

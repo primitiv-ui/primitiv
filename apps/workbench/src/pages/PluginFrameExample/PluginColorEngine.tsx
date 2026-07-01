@@ -173,8 +173,9 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
   // previewed. Off by default to keep the narrow (600px) view short.
   const [neutralLightAlpha, setNeutralLightAlpha] = useState(false);
   const [neutralDarkAlpha, setNeutralDarkAlpha] = useState(false);
-  const [brandLightAlpha, setBrandLightAlpha] = useState(false);
-  const [brandDarkAlpha, setBrandDarkAlpha] = useState(false);
+  // Brand-alpha is a single mode-independent ramp — under Path A the light and
+  // dark mid-swatches (both L≈0.55) are the same colour, so one ramp serves both.
+  const [brandAlpha, setBrandAlpha] = useState(false);
 
   useEffect(() => {
     if (!wasmReady) return;
@@ -394,13 +395,13 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
           <div className="pf-palette-head">
             <p>Brand — light</p>
             <AlphaToggle
-              checked={brandLightAlpha}
-              onCheckedChange={setBrandLightAlpha}
-              label="Show brand light alpha ramp"
+              checked={brandAlpha}
+              onCheckedChange={setBrandAlpha}
+              label="Show brand alpha ramp"
             />
           </div>
           <PluginPalette palette={brand.lightPalette} />
-          {brandLightAlpha && (
+          {brandAlpha && (
             <PluginAlphaStrip palette={brand.lightPalette} anchorIndex={BRAND_ALPHA_ANCHOR} />
           )}
           <div className="pf-curve-wrap">
@@ -425,18 +426,8 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
         </div>
 
         <div>
-          <div className="pf-palette-head">
-            <p>Brand — dark</p>
-            <AlphaToggle
-              checked={brandDarkAlpha}
-              onCheckedChange={setBrandDarkAlpha}
-              label="Show brand dark alpha ramp"
-            />
-          </div>
+          <p>Brand — dark</p>
           <PluginPalette palette={brand.darkPalette} />
-          {brandDarkAlpha && (
-            <PluginAlphaStrip palette={brand.darkPalette} anchorIndex={BRAND_ALPHA_ANCHOR} />
-          )}
           <div className="pf-curve-wrap">
             <CurveEditor
               palette={brand.darkPalette}

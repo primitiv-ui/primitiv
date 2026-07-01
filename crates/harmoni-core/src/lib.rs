@@ -1,9 +1,11 @@
+pub mod alpha;
 pub mod api;
 pub mod audit;
 pub mod color;
 pub mod neutral;
 pub mod palette;
 
+pub use alpha::ramp::{generate_alpha_ramp, AlphaSwatch, ALPHA_CURVE};
 pub use audit::contrast::ContrastResult;
 pub use audit::foreground::ForegroundSource;
 pub use color::input::{ColorInput, ColorInputError};

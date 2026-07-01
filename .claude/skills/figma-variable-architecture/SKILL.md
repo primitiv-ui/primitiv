@@ -38,10 +38,30 @@ requires two modes (Light and Dark) while all other Primitives are
 mode-agnostic. Merging them would force every spacing and radius variable into
 a two-mode collection unnecessarily.
 
-**`Intent`** has two modes — **Light** and **Dark**. Both modes alias the same
-`Primitives / Palette` variable names; the palette's own Light/Dark modes
-provide the colour inversion automatically. Frame-level mode overrides on both
-`Intent` and `Primitives / Palette` together control the active theme.
+**`Intent`** has two modes — **Light** and **Dark** — and the two modes alias
+**different** `Primitives / Palette` steps (e.g. `surface/default` → `absolute-white`
+in Light, `color/black` in Dark; `content/primary` → `neutral/900` in Light,
+`neutral/50` in Dark).
+
+**The active theme is driven by the `Intent` mode override ALONE — leave
+`Primitives / Palette` in its `Light` mode.** The Intent Dark aliases are chosen so
+that, resolved through the **Light** palette, they already produce dark-theme
+colours (`content/primary` → `neutral/50` → `[229]` light text on a
+`color/black` `[20]` page). This is the single most common theming mistake:
+
+> **Do NOT also set `Primitives / Palette` to Dark.** The palette ramp is a
+> *palindrome* across its own modes (`neutral/50` Light `[229]` == `neutral/900`
+> Dark `[229]`), so overriding the palette to Dark **double-inverts** — a Dark-Intent
+> alias to `neutral/50` then resolves to `[18]` and your body text goes near-black,
+> recessed surfaces collide with the text sitting on them, and the whole dark
+> theme reads as broken-but-not-obviously-so. Verified 2026-07-01 while building the
+> ToggleGroup dark demo. The `Primitives / Palette` **Dark** mode exists for a
+> genuinely different Harmoni-generated dark *ramp*, not for standard light/dark
+> theming.
+
+Frame-level mode overrides on `Intent` control the active theme; a demo that
+shows both themes sets `Intent=Light` on one frame and `Intent=Dark` on the
+other, both keeping `Palette=Light`.
 
 The `Context` collection has 4 modes: **Dense**, **Compact**, **Comfortable**,
 **Spacious**. Frame-level mode overrides let any frame switch density without

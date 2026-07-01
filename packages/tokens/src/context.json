@@ -1,5 +1,31 @@
 {
   "comfortable": {
+    "toggle-group": {
+      "track-padding": {
+        "$type": "number",
+        "$value": "{space.space-3}"
+      }
+    },
+    "tabs": {
+      "gap": {
+        "$type": "number",
+        "$value": "{space.space-20}"
+      },
+      "indicator-thickness": {
+        "$type": "number",
+        "$value": "{border-width.2}"
+      }
+    },
+    "accordion": {
+      "trigger-padding-block": {
+        "$type": "number",
+        "$value": "{space.space-16}"
+      },
+      "panel-padding-block-end": {
+        "$type": "number",
+        "$value": "{space.space-20}"
+      }
+    },
     "flow": {
       "tight": {
         "$type": "number",
@@ -1892,6 +1918,32 @@
     }
   },
   "compact": {
+    "toggle-group": {
+      "track-padding": {
+        "$type": "number",
+        "$value": "{space.space-2}"
+      }
+    },
+    "tabs": {
+      "gap": {
+        "$type": "number",
+        "$value": "{space.space-16}"
+      },
+      "indicator-thickness": {
+        "$type": "number",
+        "$value": "{border-width.2}"
+      }
+    },
+    "accordion": {
+      "trigger-padding-block": {
+        "$type": "number",
+        "$value": "{space.space-14}"
+      },
+      "panel-padding-block-end": {
+        "$type": "number",
+        "$value": "{space.space-16}"
+      }
+    },
     "flow": {
       "tight": {
         "$type": "number",
@@ -3784,6 +3836,32 @@
     }
   },
   "spacious": {
+    "toggle-group": {
+      "track-padding": {
+        "$type": "number",
+        "$value": "{space.space-4}"
+      }
+    },
+    "tabs": {
+      "gap": {
+        "$type": "number",
+        "$value": "{space.space-24}"
+      },
+      "indicator-thickness": {
+        "$type": "number",
+        "$value": "{border-width.2}"
+      }
+    },
+    "accordion": {
+      "trigger-padding-block": {
+        "$type": "number",
+        "$value": "{space.space-20}"
+      },
+      "panel-padding-block-end": {
+        "$type": "number",
+        "$value": "{space.space-24}"
+      }
+    },
     "flow": {
       "tight": {
         "$type": "number",
@@ -5676,6 +5754,32 @@
     }
   },
   "dense": {
+    "toggle-group": {
+      "track-padding": {
+        "$type": "number",
+        "$value": "{space.space-2}"
+      }
+    },
+    "tabs": {
+      "gap": {
+        "$type": "number",
+        "$value": "{space.space-12}"
+      },
+      "indicator-thickness": {
+        "$type": "number",
+        "$value": "{border-width.2}"
+      }
+    },
+    "accordion": {
+      "trigger-padding-block": {
+        "$type": "number",
+        "$value": "{space.space-12}"
+      },
+      "panel-padding-block-end": {
+        "$type": "number",
+        "$value": "{space.space-12}"
+      }
+    },
     "flow": {
       "tight": {
         "$type": "number",

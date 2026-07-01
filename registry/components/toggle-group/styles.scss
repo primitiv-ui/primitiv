@@ -10,8 +10,10 @@
  *
  * The redesign — "inset track + floating thumb" (replacing the welded
  * button-group strip): the root is a RECESSED PILL TRACK (surface-sunken) that
- * carries plain labels; a pressed item becomes a raised pill (surface-default +
- * shadow-1) inset from the track by the track padding. No segment borders, no
+ * carries plain labels; a pressed item becomes a raised pill (surface-selected +
+ * shadow-1, with the content-on-selected label) inset from the track by the track
+ * padding. surface-selected / content-on-selected are light-in-both-themes so the
+ * thumb lifts off the (dark-in-dark) track and its label stays legible. No segment borders, no
  * dividers, no primary-fill block. Single-select shows one thumb; multiple-select
  * shows a thumb per pressed item. The slide between positions is a motion
  * nicety handled by the transition — the selected look itself is pure per-item
@@ -53,8 +55,8 @@
     --primitiv-toggle-group-item-bg: transparent;
     --primitiv-toggle-group-item-fg: var(--primitiv-content-secondary);
     /* On-state targets, re-pointed by the states layer. */
-    --primitiv-toggle-group-item-bg-on: var(--primitiv-surface-default);
-    --primitiv-toggle-group-item-fg-on: var(--primitiv-content-primary);
+    --primitiv-toggle-group-item-bg-on: var(--primitiv-surface-selected);
+    --primitiv-toggle-group-item-fg-on: var(--primitiv-content-on-selected);
     --primitiv-toggle-group-item-fg-hover: var(--primitiv-content-primary);
     /* A transparent placeholder shadow (not `none`) so the item can always carry
        a valid box-shadow layer that the on-state and the focus ring compose with. */
@@ -180,9 +182,9 @@
 }
 
 @layer primitiv.states {
-  /* On — the pressed item becomes the raised thumb: surface-coloured pill,
-     primary label, and the shadow-1 lift. The states layer sits above base +
-     variants, so it always wins (RFC 0008 §2.3). */
+  /* On — the pressed item becomes the raised thumb: a surface-selected pill,
+     content-on-selected label, and the shadow-1 lift. The states layer sits above
+     base + variants, so it always wins (RFC 0008 §2.3). */
   .primitiv-toggle-group__item[data-state="on"] {
     --primitiv-toggle-group-item-bg: var(--primitiv-toggle-group-item-bg-on);
     --primitiv-toggle-group-item-fg: var(--primitiv-toggle-group-item-fg-on);

@@ -248,43 +248,52 @@ Pairs with: Slider (always used together — overlay thumb on track)
 Notes: wrap in a thumb-rail auto-layout inside Slider to keep thumb centred across densities
 ```
 
-### Toggle — `385:1418`
+### Toggle — removed 2026-07-01
 
-```
-Binary pressed-state button with group-position awareness for pill selectors.
-
-Type: framed-control
-
-Axes: Size md|xs|sm|lg|xl · State on|off · Interaction default|hover|active|focus|disabled · Position standalone|start|middle|end
-
-Tokens: off → action/secondary/* (neutral fill/border/fg)
-        on  → action/primary/* (brand fill/border/white fg)
-        sizing → framed-control/{size}/*
-
-Properties: Label (TEXT "Toggle") · Leading Icon (BOOL true) · Leading Icon Instance (SWAP)
-
-Density: Context mode override on parent frame
-Pairs with: Toggle Group (Position=start|middle|end for grouped pill selectors)
-Notes: Position controls corner-radius clamping at group edges; standalone has full radius on all corners
-```
+The standalone Toggle Figma component set (and its `Toggle` page) was **deleted**.
+The ToggleGroup redesign decoupled from it (it now uses a dedicated `ToggleGroup
+Item`, not the shared Toggle), and the old Toggle styling was superseded by the
+workbench reference. The React / registry Toggle component is unaffected —
+rebuild a Figma spec from the workbench if one is needed again.
 
 ### Toggle Group — `389:3372`
 
 ```
-Horizontal group of Toggle buttons for mutually-exclusive or multi-select pill navigation.
+Segmented control — a recessed pill track holding borderless item thumbs; single-select shows one raised thumb, multi-select a thumb per pressed item. Redesigned 2026-07-01 from the welded button-group strip to an inset track + floating thumb.
 
-Type: non-framed composition
+Type: non-framed composition (the track)
 
 Axes: Count 2|3|4|5 · Size xs|sm|md|lg|xl
 
-Tokens: nested Toggles inherit action/primary/* (on) · action/secondary/* (off); sizing → framed-control/{size}/*
+Tokens: track fill → surface/sunken; padding + gap → toggle-group/track-padding (Context); radius → radii/full (pill)
+        nested items → ToggleGroup Item (borderless pill; surface/selected + shadow/1 when on); sizing → framed-control/{size}/* via the items
 
-Properties: Count · Size only. Per-item Label and Leading Icon are NOT exposed at the group level — edit each item on its nested Item (Toggle) instance: deep-select an Item, then set its Label / Leading Icon in the panel. The on/off (selected) state is that Item's State variant (on|off).
+Properties: Count · Size only. Per-item text is edited on each nested ToggleGroup Item instance (its Label TEXT property); the selected item is that item's State variant (on|off). No group-level passthrough props.
 
 Density: Context mode override on parent frame
-Pairs with: Toggle (nested — Position=standalone|start|middle|end set automatically by the group)
-Notes: Count controls how many items are visible; slots beyond Count are hidden but still present.
-Composite-set limitation: a parent "Item N · …" property does NOT forward to the nested Toggle. Figma's nested-instance exposure is UI-only, also surfaces Size/State/Interaction/Position, and must be repeated per variant — so it is deliberately not wired. (Ten orphaned, non-functional "Item N · Label/Leading Icon" props were removed 2026-06-27 to stop them silently failing.) Edit the nested Item directly instead.
+Pairs with: ToggleGroup Item (nested — the track holds Count of them)
+Notes: items are independent pills — no Position axis; the group owns the track + radius. The standalone Toggle component was decoupled and deleted 2026-07-01 — do not reuse it here. Motion (thumb slide) is a web concern; the set shows resting states.
+```
+
+### ToggleGroup Item — `733:239`
+
+```
+Borderless pill segment for a ToggleGroup track; becomes the raised thumb when pressed.
+
+Type: framed-control (borderless — no stroke; the group owns the track surface)
+
+Axes: Size xs|sm|md|lg|xl · State off|on · Interaction default|hover|focus|disabled
+
+Tokens: off → transparent fill, content/secondary label (hover → content/primary)
+        on  → surface/selected fill + shadow/1 effect style, content/on-selected label
+        sizing → framed-control/{size}/height|padding-inline|gap; radius → radii/full (pill); typography → label/{size}/*
+        focus ring → focus/ring + focus/ring/width at radii/full
+
+Properties: Label (TEXT "Week")
+
+Density: Context mode override on parent frame
+Pairs with: Toggle Group (nested — the track holds Count of these)
+Notes: no borders/dividers and no Position axis (pills are independent); no distinct 'active' interaction (matches the redesign CSS). surface/selected + content/on-selected are light-in-both-themes so the thumb + label read on the (dark-in-dark) track. Focus ring is the standard 2-frame anatomy at pill radius with STRETCH constraints. Leading-icon slot deferred.
 ```
 
 ### Dropdown/Item — `401:18180`

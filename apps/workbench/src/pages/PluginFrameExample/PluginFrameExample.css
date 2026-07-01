@@ -196,9 +196,16 @@
 
 /* ─── Alpha ramps (throwaway preview) ────────────────────────────────────── */
 
-.pf-palettes__head {
-  align-items: flex-start;
-  margin-bottom: var(--primitiv-space-space-4);
+.pf-palette-head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--primitiv-space-space-8);
+}
+
+.pf-alpha-toggle {
+  flex: none;
 }
 
 .pf-alpha-strip {

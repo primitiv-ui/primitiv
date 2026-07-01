@@ -101,6 +101,33 @@ function SpreadSlider({
   );
 }
 
+// Per-ramp alpha toggle — a labelled Switch that reveals a ramp's alpha strip.
+// In the real plugin this same per-ramp switch gates whether the alpha variant
+// is generated/written, not just previewed.
+function AlphaToggle({
+  checked,
+  onCheckedChange,
+  label,
+}: {
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+  label: string;
+}) {
+  return (
+    <Switch.Root
+      className="primitiv-switch pf-alpha-toggle"
+      checked={checked}
+      onCheckedChange={onCheckedChange}
+      aria-label={label}
+    >
+      <span className="primitiv-switch__control">
+        <Switch.Thumb className="primitiv-switch__thumb" />
+      </span>
+      <span className="primitiv-switch__label">Alpha</span>
+    </Switch.Root>
+  );
+}
+
 export type PluginColorEngineProps = {
   /** Chart aspect forwarded to the brand picker (tuned in the sandbox header). */
   chartAspect: number;
@@ -141,8 +168,13 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
   const [whiteL, setWhiteL] = useState(1);
   const [blackL, setBlackL] = useState(0);
   // Alpha ramps are a pure derivation of the same anchors (no controls), so they
-  // stay in sync for free. Off by default to keep the narrow (600px) view short.
-  const [showAlpha, setShowAlpha] = useState(false);
+  // stay in sync for free. Gated per ramp — in the real plugin this same switch
+  // would decide whether each alpha variant is generated/written, not just
+  // previewed. Off by default to keep the narrow (600px) view short.
+  const [neutralLightAlpha, setNeutralLightAlpha] = useState(false);
+  const [neutralDarkAlpha, setNeutralDarkAlpha] = useState(false);
+  const [brandLightAlpha, setBrandLightAlpha] = useState(false);
+  const [brandDarkAlpha, setBrandDarkAlpha] = useState(false);
 
   useEffect(() => {
     if (!wasmReady) return;
@@ -327,30 +359,31 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
       </section>
 
       <section className="pf-color-engine__palettes">
-        <div className="pf-palettes__head">
-          <Switch.Root
-            className="primitiv-switch"
-            checked={showAlpha}
-            onCheckedChange={setShowAlpha}
-            aria-label="Show alpha ramps"
-          >
-            <span className="primitiv-switch__control">
-              <Switch.Thumb className="primitiv-switch__thumb" />
-            </span>
-            <span className="primitiv-switch__label">Show alpha</span>
-          </Switch.Root>
-        </div>
         <div>
-          <p>Neutral — light</p>
+          <div className="pf-palette-head">
+            <p>Neutral — light</p>
+            <AlphaToggle
+              checked={neutralLightAlpha}
+              onCheckedChange={setNeutralLightAlpha}
+              label="Show neutral light alpha ramp"
+            />
+          </div>
           <PluginPalette palette={neutralPalette} />
-          {showAlpha && (
+          {neutralLightAlpha && (
             <PluginAlphaStrip palette={neutralPalette} anchorIndex={NEUTRAL_ALPHA_ANCHOR} />
           )}
         </div>
         <div>
-          <p>Neutral — dark</p>
+          <div className="pf-palette-head">
+            <p>Neutral — dark</p>
+            <AlphaToggle
+              checked={neutralDarkAlpha}
+              onCheckedChange={setNeutralDarkAlpha}
+              label="Show neutral dark alpha ramp"
+            />
+          </div>
           <PluginPalette palette={neutralDarkPalette} />
-          {showAlpha && (
+          {neutralDarkAlpha && (
             <PluginAlphaStrip
               palette={neutralDarkPalette}
               anchorIndex={NEUTRAL_ALPHA_ANCHOR}
@@ -358,9 +391,16 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
           )}
         </div>
         <div>
-          <p>Brand — light</p>
+          <div className="pf-palette-head">
+            <p>Brand — light</p>
+            <AlphaToggle
+              checked={brandLightAlpha}
+              onCheckedChange={setBrandLightAlpha}
+              label="Show brand light alpha ramp"
+            />
+          </div>
           <PluginPalette palette={brand.lightPalette} />
-          {showAlpha && (
+          {brandLightAlpha && (
             <PluginAlphaStrip palette={brand.lightPalette} anchorIndex={BRAND_ALPHA_ANCHOR} />
           )}
           <div className="pf-curve-wrap">
@@ -385,9 +425,16 @@ export function PluginColorEngine({ chartAspect }: PluginColorEngineProps) {
         </div>
 
         <div>
-          <p>Brand — dark</p>
+          <div className="pf-palette-head">
+            <p>Brand — dark</p>
+            <AlphaToggle
+              checked={brandDarkAlpha}
+              onCheckedChange={setBrandDarkAlpha}
+              label="Show brand dark alpha ramp"
+            />
+          </div>
           <PluginPalette palette={brand.darkPalette} />
-          {showAlpha && (
+          {brandDarkAlpha && (
             <PluginAlphaStrip palette={brand.darkPalette} anchorIndex={BRAND_ALPHA_ANCHOR} />
           )}
           <div className="pf-curve-wrap">

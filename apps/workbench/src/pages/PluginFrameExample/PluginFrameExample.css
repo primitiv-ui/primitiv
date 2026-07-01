@@ -196,9 +196,16 @@
 
 /* ─── Alpha ramps (throwaway preview) ────────────────────────────────────── */
 
-.pf-palettes__head {
-  align-items: flex-start;
-  margin-bottom: var(--primitiv-space-space-4);
+.pf-palette-head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--primitiv-space-space-8);
+}
+
+.pf-alpha-toggle {
+  flex: none;
 }
 
 .pf-alpha-strip {
@@ -227,8 +234,8 @@
     linear-gradient(-45deg, var(--primitiv-border-subtle) 25%, transparent 25%),
     linear-gradient(45deg, transparent 75%, var(--primitiv-border-subtle) 75%),
     linear-gradient(-45deg, transparent 75%, var(--primitiv-border-subtle) 75%);
-  background-size: 10px 10px;
-  background-position: 0 0, 0 5px, 5px -5px, -5px 0;
+  background-size: 22px 22px;
+  background-position: 0 0, 0 11px, 11px -11px, -11px 0;
 }
 
 .pf-alpha-strip__fill {

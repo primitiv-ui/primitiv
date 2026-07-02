@@ -1,0 +1,36 @@
+{
+  "name": "kitchen-sink",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "primitiv": "primitiv",
+    "update": "pnpm update @primitiv-ui/react @primitiv-ui/icons primitiv-ui && pnpm exec primitiv add --all --force && pnpm exec primitiv tokens"
+  },
+  "dependencies": {
+    "@primitiv-ui/icons": "^0.1.0",
+    "@primitiv-ui/react": "^0.1.27",
+    "class-variance-authority": "^0.7.1",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.13.0",
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^9.13.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.14",
+    "globals": "^15.11.0",
+    "primitiv-ui": "^0.1.0",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.58.2",
+    "vite": "^8.0.8"
+  }
+}

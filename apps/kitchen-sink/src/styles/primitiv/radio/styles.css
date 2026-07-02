@@ -1,0 +1,202 @@
+/*
+ * Radio — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add radio`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-radio root + __control /
+ * __indicator / __label parts, the data-state="checked|unchecked" hooks, and
+ * the --primitiv-radio-* custom properties), not these values (RFC 0006
+ * Principle 2 — names are stable, values are not).
+ *
+ * The root is a <label> laid out as a flex row: a real, hidden native
+ * <input type="radio">, the visible __control box, and an optional __label
+ * span fed by the wrapper's children. With no children the row is just the
+ * box, so an aria-labelled radio still renders correctly.
+ *
+ * The input is the focusable, form-participating control: siblings sharing a
+ * `name` form a native radio group, so the browser — not JS — enforces
+ * single-selection. Because a native deselect of a sibling fires no React
+ * event, the checked look is driven off the input's own :checked /
+ * :focus-visible selectors (which stay correct), not off the data-state mirror.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look live
+ * in primitiv.base, size modifiers in primitiv.variants, checked / focus /
+ * disabled styling in primitiv.states. The sublayer order is declared once in
+ * the shared token layer (primitiv.tokens.css).
+ *
+ * Unlike the checkbox, the radio box stays light when selected — the brand
+ * colour shows as a centred dot and a highlighted ring, the convention that
+ * keeps a radio visually distinct from a checkbox.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-action-*,
+ * --primitiv-surface-*, --primitiv-content-*, --primitiv-border-*,
+ * --primitiv-border-width-*, --primitiv-radii-*, --primitiv-space-*,
+ * --primitiv-opacity-*, --primitiv-label-*, --primitiv-label-control-*,
+ * --primitiv-focus-ring-*, --primitiv-radio-* and --primitiv-motion-* custom properties it resolves.
+ */
+
+@layer primitiv.base {
+  .primitiv-radio {
+    /* Per-component API — the themable knobs, defaulting to the md box size and
+       the md label scale. The radius is a full circle and the dot is half the
+       box, both derived from --primitiv-radio-size, so size and density scale
+       them together. The states layer below re-points the checked border;
+       consumers can override any one without touching the rule. */
+    --primitiv-radio-bg: var(--primitiv-surface-default);
+    --primitiv-radio-border-color: var(--primitiv-border-strong);
+    --primitiv-radio-border-color-checked: var(--primitiv-action-primary-default);
+    --primitiv-radio-border-width: var(--primitiv-border-width-1);
+    --primitiv-radio-dot-color: var(--primitiv-action-primary-default);
+    --primitiv-radio-size: var(--primitiv-radio-md-box-size);
+    --primitiv-radio-radius: var(--primitiv-radii-full);
+    --primitiv-radio-dot-size: calc(var(--primitiv-radio-size) / 2);
+    --primitiv-radio-gap: var(--primitiv-label-control-md-gap);
+    --primitiv-radio-label-color: var(--primitiv-content-primary);
+    --primitiv-radio-label-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-radio-label-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-radio-label-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-radio-label-line-height: var(--primitiv-label-md-line-height);
+
+    /* The root is the flex row: the control box and the optional label, laid
+       out with the size-aware gap and vertically centred. The whole row is the
+       <label>, so a click anywhere toggles the hidden input. */
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--primitiv-radio-gap);
+    cursor: pointer;
+  }
+
+  /* The real native input — visually hidden (the canonical sr-only clip) but
+     kept in the DOM as the focusable, form-participating control. The <label>
+     root forwards clicks to it; every visual state keys off its :checked /
+     :focus-visible / :disabled below. The 1px clip rectangle is a functional
+     screen-reader mechanic, not a themable dimension, so it stays literal. */
+  .primitiv-radio > input {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: var(--primitiv-space-space-0);
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: var(--primitiv-border-width-0);
+  }
+
+  /* The control is the visible box: a fixed-size circle that holds the dot,
+     bordered and filled, centring its indicator with flex. The size moves here
+     from the root so the box scales independently of the label beside it. */
+  .primitiv-radio__control {
+    box-sizing: border-box;
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-radio-size);
+    block-size: var(--primitiv-radio-size);
+    border: var(--primitiv-radio-border-width) solid var(--primitiv-radio-border-color);
+    border-radius: var(--primitiv-radio-radius);
+    background: var(--primitiv-radio-bg);
+    color: var(--primitiv-radio-dot-color);
+    transition: border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  /* The indicator is the dot — always in the DOM, scaled to nothing until the
+     input is checked (see the states layer), so the reveal can animate. A
+     dot-size circle filled with the current colour, centred in the box by the
+     flex container above. */
+  .primitiv-radio__indicator {
+    inline-size: var(--primitiv-radio-dot-size);
+    block-size: var(--primitiv-radio-dot-size);
+    border-radius: var(--primitiv-radii-full);
+    background: currentColor;
+    scale: 0;
+    transition: scale var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  /* The label is the inline text beside the box, on the shared label type scale
+     so it tracks size and density with the control. Omitted from the DOM when
+     the radio has no children. */
+  .primitiv-radio__label {
+    color: var(--primitiv-radio-label-color);
+    font-family: var(--primitiv-radio-label-font-family);
+    font-size: var(--primitiv-radio-label-font-size);
+    font-weight: var(--primitiv-radio-label-font-weight);
+    line-height: var(--primitiv-radio-label-line-height);
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the box size, the control↔label gap and the label type
+     slot for each size; the radius (always a full circle) and the dot (half the
+     box) derive from --primitiv-radio-size, so density stays ambient via
+     [data-density] on the token values (RFC 0009). */
+  .primitiv-radio--xs {
+    --primitiv-radio-size: var(--primitiv-radio-xs-box-size);
+    --primitiv-radio-gap: var(--primitiv-label-control-xs-gap);
+    --primitiv-radio-label-font-size: var(--primitiv-label-xs-font-size);
+    --primitiv-radio-label-line-height: var(--primitiv-label-xs-line-height);
+  }
+  .primitiv-radio--sm {
+    --primitiv-radio-size: var(--primitiv-radio-sm-box-size);
+    --primitiv-radio-gap: var(--primitiv-label-control-sm-gap);
+    --primitiv-radio-label-font-size: var(--primitiv-label-sm-font-size);
+    --primitiv-radio-label-line-height: var(--primitiv-label-sm-line-height);
+  }
+  .primitiv-radio--md {
+    --primitiv-radio-size: var(--primitiv-radio-md-box-size);
+    --primitiv-radio-gap: var(--primitiv-label-control-md-gap);
+    --primitiv-radio-label-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-radio-label-line-height: var(--primitiv-label-md-line-height);
+  }
+  .primitiv-radio--lg {
+    --primitiv-radio-size: var(--primitiv-radio-lg-box-size);
+    --primitiv-radio-gap: var(--primitiv-label-control-lg-gap);
+    --primitiv-radio-label-font-size: var(--primitiv-label-lg-font-size);
+    --primitiv-radio-label-line-height: var(--primitiv-label-lg-line-height);
+  }
+  .primitiv-radio--xl {
+    --primitiv-radio-size: var(--primitiv-radio-xl-box-size);
+    --primitiv-radio-gap: var(--primitiv-label-control-xl-gap);
+    --primitiv-radio-label-font-size: var(--primitiv-label-xl-font-size);
+    --primitiv-radio-label-line-height: var(--primitiv-label-xl-line-height);
+  }
+}
+
+@layer primitiv.states {
+  /* Selected highlights the ring and reveals the dot. Both key off the input's
+     native :checked, not the data-state mirror, so a sibling the browser
+     silently deselects loses its dot and ring correctly (no stale React state).
+     The box itself stays light — the brand colour shows only as the dot and
+     ring, the radio convention. */
+  .primitiv-radio > input:checked ~ .primitiv-radio__control {
+    border-color: var(--primitiv-radio-border-color-checked);
+  }
+  .primitiv-radio > input:checked ~ .primitiv-radio__control .primitiv-radio__indicator {
+    scale: 1;
+  }
+
+  /* Focus — the shared two-layer ring, identical on every framed control. Two
+     stacked box-shadows follow the box's own radius: a surface-coloured gap band,
+     then the brand ring just outside it. :focus-visible keeps it to keyboard
+     focus; the sibling combinator lifts it from the hidden input onto the visible
+     box. Restyle it by overriding the --primitiv-focus-ring* /
+     --primitiv-surface-default tokens globally, not via a per-component knob. */
+  .primitiv-radio > input:focus-visible ~ .primitiv-radio__control {
+    outline: none;
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Disabled is state-neutral so it reads the same checked or unchecked, and
+     dims the whole row (box and label together). The data-disabled hook is a
+     reliable prop mirror (unlike checked, disabled is never changed behind
+     React's back), so it drives this rule directly. */
+  .primitiv-radio[data-disabled] {
+    opacity: var(--primitiv-opacity-50);
+    cursor: not-allowed;
+  }
+}

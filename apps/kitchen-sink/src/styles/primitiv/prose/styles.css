@@ -1,0 +1,48 @@
+/*
+ * Prose — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add prose`. It is yours to edit:
+ * the stable surface is the contract (the `.primitiv-flow` context class and the
+ * --primitiv-flow-* rhythm tokens), not these rules (RFC 0006 Principle 2 — names
+ * are stable, values are not).
+ *
+ * The model (RFC 0016): inter-block rhythm is opt-in. Drop `.primitiv-flow`
+ * (or <Prose>) on a region and every *direct* child gets density-scoped vertical
+ * spacing via a one-directional owl (`> * + *`, margin-block-start only) — no
+ * margin collapse, no first/last-child bleed, and nothing leaks into a nested
+ * container. Role overrides give variable rhythm: large air above headings,
+ * tight space below them (heading asymmetry).
+ *
+ * All rhythm lives in primitiv.base, above the bare-element typography in
+ * primitiv.reset, so the owl wins over the zeroed element margins. The values are
+ * the --primitiv-flow-* tokens from the token layer (`primitiv tokens`), which
+ * densify with [data-density]. Requires the token layer for the
+ * --primitiv-flow-tight, --primitiv-flow-normal, --primitiv-flow-section and
+ * --primitiv-flow-region custom properties it resolves.
+ */
+
+@layer primitiv.base {
+  /* Default sibling rhythm — the one-directional owl. */
+  .primitiv-flow > * + * {
+    margin-block-start: var(--primitiv-flow-normal);
+  }
+
+  /* Discrete proportionality: larger headings get more leading air. */
+  .primitiv-flow > * + :where(h1, h2) {
+    margin-block-start: var(--primitiv-flow-region);
+  }
+
+  .primitiv-flow > * + :where(h3, h4) {
+    margin-block-start: var(--primitiv-flow-section);
+  }
+
+  /* Heading asymmetry: tight space *below* a heading binds it to its content. */
+  .primitiv-flow > :where(h1, h2, h3, h4) + * {
+    margin-block-start: var(--primitiv-flow-tight);
+  }
+
+  /* Self-contained blocks (a rule) own their breathing room on both sides. */
+  .primitiv-flow > hr {
+    margin-block: var(--primitiv-flow-region);
+  }
+}

@@ -1,0 +1,215 @@
+/*
+ * Checkbox — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add checkbox`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-checkbox root + __control /
+ * __indicator / __label parts, the data-state="checked|unchecked|indeterminate"
+ * hooks, and the --primitiv-checkbox-* custom properties), not these values
+ * (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * The root is a <label> laid out as a flex row: a real, hidden native
+ * <input type="checkbox">, the visible __control box, and an optional __label
+ * span fed by the wrapper's children. With no children the row is just the box,
+ * so an aria-labelled checkbox still renders correctly.
+ *
+ * The input is the focusable, form-participating control, and its native
+ * :checked / :indeterminate states drive the look (correct through a form reset,
+ * which fires no React event). The tri-state mark is a tick by default and a bar
+ * when indeterminate.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look live
+ * in primitiv.base, size modifiers in primitiv.variants, checked / indeterminate
+ * / focus / disabled styling in primitiv.states. The sublayer order is declared
+ * once in the shared token layer (primitiv.tokens.css).
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-action-*,
+ * --primitiv-surface-*, --primitiv-content-*, --primitiv-border-*,
+ * --primitiv-border-width-*, --primitiv-space-*, --primitiv-opacity-*,
+ * --primitiv-label-*, --primitiv-label-control-*, --primitiv-focus-ring-* and
+ * --primitiv-checkbox-* and --primitiv-motion-* custom properties it resolves.
+ */
+
+@layer primitiv.base {
+  .primitiv-checkbox {
+    /* Per-component API — the themable knobs, defaulting to the md size, the md
+       label scale and the resting (unchecked) box. The states layer below
+       re-points the colour knobs; consumers can override any one without
+       touching the rule. */
+    --primitiv-checkbox-bg: var(--primitiv-surface-default);
+    --primitiv-checkbox-bg-checked: var(--primitiv-action-primary-default);
+    --primitiv-checkbox-border-color: var(--primitiv-border-strong);
+    --primitiv-checkbox-border-color-checked: var(--primitiv-action-primary-default);
+    --primitiv-checkbox-border-width: var(--primitiv-border-width-1);
+    --primitiv-checkbox-mark-color: var(--primitiv-action-primary-foreground-default);
+    --primitiv-checkbox-size: var(--primitiv-checkbox-md-box-size);
+    --primitiv-checkbox-radius: var(--primitiv-checkbox-md-box-radius);
+    --primitiv-checkbox-mark-size: var(--primitiv-checkbox-md-mark-size);
+    --primitiv-checkbox-gap: var(--primitiv-label-control-md-gap);
+    --primitiv-checkbox-label-color: var(--primitiv-content-primary);
+    --primitiv-checkbox-label-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-checkbox-label-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-checkbox-label-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-checkbox-label-line-height: var(--primitiv-label-md-line-height);
+
+    /* The root is the flex row: the control box and the optional label, laid
+       out with the size-aware gap and vertically centred. The whole row is the
+       <label>, so a click anywhere toggles the hidden input. */
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--primitiv-checkbox-gap);
+    cursor: pointer;
+  }
+
+  /* The real native input — visually hidden (the canonical sr-only clip) but
+     kept in the DOM as the focusable, form-participating control. The <label>
+     root forwards clicks to it; every visual state keys off its :checked /
+     :indeterminate / :focus-visible / :disabled below. The 1px clip rectangle
+     is a functional screen-reader mechanic, not a themable dimension, so it
+     stays literal. */
+  .primitiv-checkbox > input {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: var(--primitiv-space-space-0);
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: var(--primitiv-border-width-0);
+  }
+
+  /* The control is the visible box: a fixed-size square that holds the mark,
+     bordered and filled, centring its indicator with flex. The size moves here
+     from the root so the box scales independently of the label beside it. */
+  .primitiv-checkbox__control {
+    box-sizing: border-box;
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-checkbox-size);
+    block-size: var(--primitiv-checkbox-size);
+    border: var(--primitiv-checkbox-border-width) solid var(--primitiv-checkbox-border-color);
+    border-radius: var(--primitiv-checkbox-radius);
+    background: var(--primitiv-checkbox-bg);
+    color: var(--primitiv-checkbox-mark-color);
+    transition:
+      background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  /* The indicator is the mark itself — always in the DOM, scaled to nothing
+     until the input is checked or indeterminate (see the states layer), so the
+     reveal can animate. A mark-size square filled with the current colour and
+     clipped to a tick; the indeterminate state below re-clips it to a bar. */
+  .primitiv-checkbox__indicator {
+    inline-size: var(--primitiv-checkbox-mark-size);
+    block-size: var(--primitiv-checkbox-mark-size);
+    background: currentColor;
+    clip-path: polygon(40% 68%, 12% 40%, 0% 52%, 40% 92%, 100% 22%, 88% 10%);
+    scale: 0;
+    transition: scale var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  /* The label is the inline text beside the box, on the shared label type scale
+     so it tracks size and density with the control. Omitted from the DOM when
+     the checkbox has no children. */
+  .primitiv-checkbox__label {
+    color: var(--primitiv-checkbox-label-color);
+    font-family: var(--primitiv-checkbox-label-font-family);
+    font-size: var(--primitiv-checkbox-label-font-size);
+    font-weight: var(--primitiv-checkbox-label-font-weight);
+    line-height: var(--primitiv-checkbox-label-line-height);
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the box anatomy knobs, the control↔label gap and the label
+     type slot for each size. Density stays ambient via [data-density] on the
+     token values themselves (RFC 0009). */
+  .primitiv-checkbox--xs {
+    --primitiv-checkbox-size: var(--primitiv-checkbox-xs-box-size);
+    --primitiv-checkbox-radius: var(--primitiv-checkbox-xs-box-radius);
+    --primitiv-checkbox-mark-size: var(--primitiv-checkbox-xs-mark-size);
+    --primitiv-checkbox-gap: var(--primitiv-label-control-xs-gap);
+    --primitiv-checkbox-label-font-size: var(--primitiv-label-xs-font-size);
+    --primitiv-checkbox-label-line-height: var(--primitiv-label-xs-line-height);
+  }
+  .primitiv-checkbox--sm {
+    --primitiv-checkbox-size: var(--primitiv-checkbox-sm-box-size);
+    --primitiv-checkbox-radius: var(--primitiv-checkbox-sm-box-radius);
+    --primitiv-checkbox-mark-size: var(--primitiv-checkbox-sm-mark-size);
+    --primitiv-checkbox-gap: var(--primitiv-label-control-sm-gap);
+    --primitiv-checkbox-label-font-size: var(--primitiv-label-sm-font-size);
+    --primitiv-checkbox-label-line-height: var(--primitiv-label-sm-line-height);
+  }
+  .primitiv-checkbox--md {
+    --primitiv-checkbox-size: var(--primitiv-checkbox-md-box-size);
+    --primitiv-checkbox-radius: var(--primitiv-checkbox-md-box-radius);
+    --primitiv-checkbox-mark-size: var(--primitiv-checkbox-md-mark-size);
+    --primitiv-checkbox-gap: var(--primitiv-label-control-md-gap);
+    --primitiv-checkbox-label-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-checkbox-label-line-height: var(--primitiv-label-md-line-height);
+  }
+  .primitiv-checkbox--lg {
+    --primitiv-checkbox-size: var(--primitiv-checkbox-lg-box-size);
+    --primitiv-checkbox-radius: var(--primitiv-checkbox-lg-box-radius);
+    --primitiv-checkbox-mark-size: var(--primitiv-checkbox-lg-mark-size);
+    --primitiv-checkbox-gap: var(--primitiv-label-control-lg-gap);
+    --primitiv-checkbox-label-font-size: var(--primitiv-label-lg-font-size);
+    --primitiv-checkbox-label-line-height: var(--primitiv-label-lg-line-height);
+  }
+  .primitiv-checkbox--xl {
+    --primitiv-checkbox-size: var(--primitiv-checkbox-xl-box-size);
+    --primitiv-checkbox-radius: var(--primitiv-checkbox-xl-box-radius);
+    --primitiv-checkbox-mark-size: var(--primitiv-checkbox-xl-mark-size);
+    --primitiv-checkbox-gap: var(--primitiv-label-control-xl-gap);
+    --primitiv-checkbox-label-font-size: var(--primitiv-label-xl-font-size);
+    --primitiv-checkbox-label-line-height: var(--primitiv-label-xl-line-height);
+  }
+}
+
+@layer primitiv.states {
+  /* Checked and indeterminate both fill the box with the primary action colour.
+     Keyed off the input's native :checked / :indeterminate, not the data-state
+     mirror, so the look survives a form reset (which fires no React event). */
+  .primitiv-checkbox > input:checked ~ .primitiv-checkbox__control,
+  .primitiv-checkbox > input:indeterminate ~ .primitiv-checkbox__control {
+    border-color: var(--primitiv-checkbox-border-color-checked);
+    background: var(--primitiv-checkbox-bg-checked);
+  }
+
+  /* Reveal the mark in either marked state; re-clip it to a bar when mixed. */
+  .primitiv-checkbox > input:checked ~ .primitiv-checkbox__control .primitiv-checkbox__indicator,
+  .primitiv-checkbox > input:indeterminate ~ .primitiv-checkbox__control .primitiv-checkbox__indicator {
+    scale: 1;
+  }
+  .primitiv-checkbox > input:indeterminate ~ .primitiv-checkbox__control .primitiv-checkbox__indicator {
+    clip-path: polygon(0% 38%, 100% 38%, 100% 62%, 0% 62%);
+  }
+
+  /* Focus — the shared two-layer ring, identical on every framed control. Two
+     stacked box-shadows follow the box's own radius: a surface-coloured gap band,
+     then the brand ring just outside it. :focus-visible keeps it to keyboard
+     focus; the sibling combinator lifts it from the hidden input onto the visible
+     box. Restyle it by overriding the --primitiv-focus-ring* /
+     --primitiv-surface-default tokens globally, not via a per-component knob. */
+  .primitiv-checkbox > input:focus-visible ~ .primitiv-checkbox__control {
+    outline: none;
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Disabled is state-neutral so it reads the same checked or unchecked, and
+     dims the whole row (box and label together). The data-disabled hook is a
+     reliable prop mirror (unlike checked, disabled is never changed behind
+     React's back), so it drives this rule directly. */
+  .primitiv-checkbox[data-disabled] {
+    opacity: var(--primitiv-opacity-50);
+    cursor: not-allowed;
+  }
+}

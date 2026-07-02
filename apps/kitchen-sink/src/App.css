@@ -1,0 +1,62 @@
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  background: var(--primitiv-surface-default);
+  color: var(--primitiv-content-primary);
+}
+
+.kitchen-sink {
+  max-width: 960px;
+  margin-inline: auto;
+  padding: var(--primitiv-space-space-32) var(--primitiv-space-space-16) var(--primitiv-space-space-140);
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-48);
+}
+
+.kitchen-sink__controls {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--primitiv-space-space-24);
+  padding: var(--primitiv-space-space-12) var(--primitiv-space-space-16);
+  margin-inline: calc(var(--primitiv-space-space-16) * -1);
+  background: var(--primitiv-surface-raised);
+  border-bottom: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+}
+
+.kitchen-sink__control {
+  display: flex;
+  align-items: center;
+  gap: var(--primitiv-space-space-8);
+}
+
+.kitchen-sink__control-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--primitiv-content-secondary);
+}
+
+.kitchen-sink__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-16);
+}
+
+.kitchen-sink__section-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--primitiv-space-space-16);
+}
+
+.kitchen-sink__section-body--column {
+  flex-direction: column;
+  align-items: stretch;
+}

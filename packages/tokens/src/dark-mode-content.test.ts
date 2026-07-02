@@ -16,14 +16,12 @@ function resolveRef(mode: Mode, ref: string): string {
   return resolveRef(mode, node.$value as string)
 }
 
-function contentColor(mode: Mode, role: string): string {
-  const node = (intent as Record<Mode, { content: Record<string, DtcgNode> }>)[mode].content[role]
-  return resolveRef(mode, node.$value as string)
-}
-
-function surfaceColor(mode: Mode, role: string): string {
-  const node = (intent as Record<Mode, { surface: Record<string, DtcgNode> }>)[mode].surface[role]
-  return resolveRef(mode, node.$value as string)
+/** Resolve a slash-separated Intent token (`"surface/raised"`) to its hex colour in `mode`. */
+function intentColor(mode: Mode, token: string): string {
+  let node: DtcgNode = (intent as Record<Mode, DtcgNode>)[mode]
+  for (const key of token.split('/')) node = node[key] as DtcgNode
+  const value = node.$value as string
+  return value.startsWith('{') ? resolveRef(mode, value) : value
 }
 
 /** WCAG relative luminance (sRGB, 0-1). */
@@ -44,20 +42,71 @@ function contrastRatio(a: string, b: string): number {
   return (lighter + 0.05) / (darker + 0.05)
 }
 
-// Regression guard for the swapped-index bug: `content.primary` and
-// `content.secondary` were aliased to the mirror-opposite neutral step in
-// dark mode (`neutral.50`/`neutral.200`), but the dark neutral ramp is
-// *already* the light ramp inverted (`dark.neutral.50 === light.neutral.900`),
-// so the swap doubly inverted and landed both modes on the same near-black
-// hex — invisible text on a dark background.
-describe.each(['primary', 'secondary'] as const)('content/%s', (role) => {
+// Regression guard for the swapped-index bug (verified against the Figma
+// Intent collection, which always resolves color/neutral/* through the
+// Light-mode ramp — Dark-mode Intent variables pick a *different* neutral
+// step, not a different ramp). Our codebase instead carries a separately
+// generated Dark ramp that is already the Light ramp's near-mirror
+// (`dark.neutral.50 ≈ light.neutral.900`), so reproducing the same visual
+// role in Dark mode means picking the same or a hex-nearest step in *our*
+// Dark ramp — not re-swapping the index a second time. Several tokens were
+// swapped a second time, cancelling the intended flip and landing both
+// modes on the same (or a same-toned) colour.
+describe.each(['content/primary', 'content/secondary'] as const)('%s', (token) => {
   it('resolves to a different colour in light vs dark mode', () => {
-    expect(contentColor('light', role)).not.toBe(contentColor('dark', role))
+    expect(intentColor('light', token)).not.toBe(intentColor('dark', token))
   })
 
   it('meets WCAG AA (4.5:1) against surface/default in both modes', () => {
     for (const mode of ['light', 'dark'] as const) {
-      const ratio = contrastRatio(contentColor(mode, role), surfaceColor(mode, 'default'))
+      const ratio = contrastRatio(intentColor(mode, token), intentColor(mode, 'surface/default'))
+      expect(ratio).toBeGreaterThanOrEqual(4.5)
+    }
+  })
+})
+
+// Surfaces and borders that are supposed to track the theme (paler in light,
+// darker in dark) rather than stay fixed.
+describe.each([
+  'surface/subtle',
+  'surface/raised',
+  'surface/overlay',
+  'surface/inverse',
+  'surface/sunken',
+  'border/subtle',
+  'border/default',
+  'table/row/stripe',
+  'table/row/hover',
+  'action/secondary/default',
+  'action/secondary/hover',
+  'action/secondary/active',
+  'action/secondary/disabled',
+  'action/secondary/foreground/default',
+  'action/secondary/border/default',
+  'action/secondary/border/hover',
+  'action/secondary/border/disabled',
+] as const)('%s', (token) => {
+  it('resolves to a different colour in light vs dark mode', () => {
+    expect(intentColor('light', token)).not.toBe(intentColor('dark', token))
+  })
+})
+
+// `surface/selected` (the ToggleGroup thumb) and `content/on-selected` (its
+// label) are the deliberate exception: RFC 0017 requires them to read as
+// light-surface-with-dark-label in *both* themes, so the thumb keeps lifting
+// off a track that itself goes dark in dark mode. A near-1 contrast ratio
+// between the two modes confirms neither one flipped.
+describe('surface/selected and content/on-selected', () => {
+  it('stay visually consistent (not flipped) between light and dark mode', () => {
+    for (const token of ['surface/selected', 'content/on-selected'] as const) {
+      const ratio = contrastRatio(intentColor('light', token), intentColor('dark', token))
+      expect(ratio).toBeLessThan(1.25)
+    }
+  })
+
+  it('content/on-selected meets WCAG AA (4.5:1) against surface/selected in both modes', () => {
+    for (const mode of ['light', 'dark'] as const) {
+      const ratio = contrastRatio(intentColor(mode, 'content/on-selected'), intentColor(mode, 'surface/selected'))
       expect(ratio).toBeGreaterThanOrEqual(4.5)
     }
   })

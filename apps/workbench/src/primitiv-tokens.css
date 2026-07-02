@@ -405,7 +405,6 @@
   }
   :root,
   [data-density="comfortable"] {
-    --primitiv-accordion-panel-padding-block-end: var(--primitiv-space-space-20);
     --primitiv-accordion-trigger-padding-block: var(--primitiv-space-space-16);
     --primitiv-avatar-radius-full: var(--primitiv-radii-full);
     --primitiv-avatar-radius-lg: var(--primitiv-framed-control-lg-radius);
@@ -816,7 +815,6 @@
     --primitiv-toggle-group-track-padding: var(--primitiv-space-space-3);
   }
   [data-density="compact"] {
-    --primitiv-accordion-panel-padding-block-end: var(--primitiv-space-space-16);
     --primitiv-accordion-trigger-padding-block: var(--primitiv-space-space-14);
     --primitiv-avatar-radius-full: var(--primitiv-radii-full);
     --primitiv-avatar-radius-lg: var(--primitiv-framed-control-lg-radius);
@@ -1227,7 +1225,6 @@
     --primitiv-toggle-group-track-padding: var(--primitiv-space-space-2);
   }
   [data-density="dense"] {
-    --primitiv-accordion-panel-padding-block-end: var(--primitiv-space-space-12);
     --primitiv-accordion-trigger-padding-block: var(--primitiv-space-space-12);
     --primitiv-avatar-radius-full: var(--primitiv-radii-full);
     --primitiv-avatar-radius-lg: var(--primitiv-framed-control-lg-radius);
@@ -1638,7 +1635,6 @@
     --primitiv-toggle-group-track-padding: var(--primitiv-space-space-2);
   }
   [data-density="spacious"] {
-    --primitiv-accordion-panel-padding-block-end: var(--primitiv-space-space-24);
     --primitiv-accordion-trigger-padding-block: var(--primitiv-space-space-20);
     --primitiv-avatar-radius-full: var(--primitiv-radii-full);
     --primitiv-avatar-radius-lg: var(--primitiv-framed-control-lg-radius);

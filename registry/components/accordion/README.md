@@ -30,9 +30,10 @@ dropped entirely: a frameless row has no corners to clamp and no seams to hide).
 A HUG-height trigger row (content + `accordion/trigger-padding-block`, not a
 fixed `framed-control/{size}/height` slot) pairs the label with a chevron that
 rotates 180° on `data-state="open"`. The revealed content is frameless but
-padded only at its trailing edge (`accordion/panel-padding-block-end`), so it
-reads as breathing room before the next item's hairline rather than a boxed
-continuation of the trigger.
+padded on both block edges via the **shared** `panel/padding/block` +
+`panel/padding/inline` tokens — the same family Tabs' panel uses — so the two
+stay visually consistent (Tabs and Accordion are the only two components with
+a "revealed content area" shape).
 
 Structured per RFC 0008 — per-component API tokens + resting look in
 `primitiv.base`, the `size` modifier in `primitiv.variants`, the
@@ -40,10 +41,12 @@ Structured per RFC 0008 — per-component API tokens + resting look in
 It wires `--primitiv-accordion-*` to **semantic tokens only**:
 `framed-control/{size}/*` for the trigger's inline sizing, `border/subtle` for
 the hairline, `content/primary` (trigger label) + `content/secondary` (content
-copy), `label/{size}/*` + `body/{size}/*` for type. The two density-scaled
-padding-block tokens (`accordion/trigger-padding-block`,
-`accordion/panel-padding-block-end`) are consumed directly, not re-exposed as
-`--primitiv-accordion-*` overrides — they're shared Context tokens, not
+copy), `label/{size}/*` + `body/{size}/*` for type,
+`--primitiv-accordion-content-padding-block` / `-padding-inline` (defaulting
+to `panel/padding/block` / `panel/padding/inline`) for the content padding.
+The trigger's own density-scaled padding-block token
+(`accordion/trigger-padding-block`) is consumed directly, not re-exposed as a
+`--primitiv-accordion-*` override — it's a shared Context token, not
 component-owned API (mirrors how Table consumes `--primitiv-table-cell-padding-block`).
 
 ## Notes

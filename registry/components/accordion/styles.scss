@@ -49,6 +49,8 @@
     --primitiv-accordion-trigger-font-size: var(--primitiv-label-md-font-size);
     --primitiv-accordion-trigger-font-weight: var(--primitiv-label-md-font-weight);
     --primitiv-accordion-trigger-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-accordion-content-padding-block: var(--primitiv-panel-padding-block);
+    --primitiv-accordion-content-padding-inline: var(--primitiv-panel-padding-inline);
     --primitiv-accordion-content-fg: var(--primitiv-content-secondary);
     --primitiv-accordion-content-font-family: var(--primitiv-body-md-font-family);
     --primitiv-accordion-content-font-size: var(--primitiv-body-md-font-size);
@@ -127,14 +129,13 @@
     block-size: 100%;
   }
 
-  /* The content — frameless, flush against the trigger's own hairline
-     above; padded only at the trailing edge so it reads as breathing room
-     before the next item's hairline, not a boxed continuation of the
-     trigger. padding-inline reuses the trigger's own knob so the copy lines
-     up under the label above it. */
+  /* The content — frameless, padded on both block edges (the shared
+     panel/padding/* tokens — the same family Tabs' panel uses, not the
+     trigger's own size-sliced inline padding, so the two stay in sync
+     independent of size). */
   .primitiv-accordion__content {
-    padding-block-end: var(--primitiv-accordion-panel-padding-block-end);
-    padding-inline: var(--primitiv-accordion-trigger-padding-inline);
+    padding-block: var(--primitiv-accordion-content-padding-block);
+    padding-inline: var(--primitiv-accordion-content-padding-inline);
     color: var(--primitiv-accordion-content-fg);
     font-family: var(--primitiv-accordion-content-font-family);
     font-size: var(--primitiv-accordion-content-font-size);
@@ -261,6 +262,8 @@ $primitiv-accordion-trigger-font-family: var(--primitiv-accordion-trigger-font-f
 $primitiv-accordion-trigger-font-size: var(--primitiv-accordion-trigger-font-size);
 $primitiv-accordion-trigger-font-weight: var(--primitiv-accordion-trigger-font-weight);
 $primitiv-accordion-trigger-line-height: var(--primitiv-accordion-trigger-line-height);
+$primitiv-accordion-content-padding-block: var(--primitiv-accordion-content-padding-block);
+$primitiv-accordion-content-padding-inline: var(--primitiv-accordion-content-padding-inline);
 $primitiv-accordion-content-fg: var(--primitiv-accordion-content-fg);
 $primitiv-accordion-content-font-family: var(--primitiv-accordion-content-font-family);
 $primitiv-accordion-content-font-size: var(--primitiv-accordion-content-font-size);

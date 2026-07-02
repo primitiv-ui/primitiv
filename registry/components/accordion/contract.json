@@ -88,6 +88,8 @@
     { "name": "--primitiv-accordion-trigger-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },
     { "name": "--primitiv-accordion-trigger-font-weight", "defaultsTo": "var(--primitiv-label-md-font-weight)" },
     { "name": "--primitiv-accordion-trigger-line-height", "defaultsTo": "var(--primitiv-label-md-line-height)" },
+    { "name": "--primitiv-accordion-content-padding-block", "defaultsTo": "var(--primitiv-panel-padding-block)" },
+    { "name": "--primitiv-accordion-content-padding-inline", "defaultsTo": "var(--primitiv-panel-padding-inline)" },
     { "name": "--primitiv-accordion-content-fg", "defaultsTo": "var(--primitiv-content-secondary)" },
     { "name": "--primitiv-accordion-content-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
     { "name": "--primitiv-accordion-content-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },

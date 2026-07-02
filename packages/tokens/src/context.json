@@ -20,10 +20,6 @@
       "trigger-padding-block": {
         "$type": "number",
         "$value": "{space.space-16}"
-      },
-      "panel-padding-block-end": {
-        "$type": "number",
-        "$value": "{space.space-20}"
       }
     },
     "flow": {
@@ -1938,10 +1934,6 @@
       "trigger-padding-block": {
         "$type": "number",
         "$value": "{space.space-14}"
-      },
-      "panel-padding-block-end": {
-        "$type": "number",
-        "$value": "{space.space-16}"
       }
     },
     "flow": {
@@ -3856,10 +3848,6 @@
       "trigger-padding-block": {
         "$type": "number",
         "$value": "{space.space-20}"
-      },
-      "panel-padding-block-end": {
-        "$type": "number",
-        "$value": "{space.space-24}"
       }
     },
     "flow": {
@@ -5772,10 +5760,6 @@
     },
     "accordion": {
       "trigger-padding-block": {
-        "$type": "number",
-        "$value": "{space.space-12}"
-      },
-      "panel-padding-block-end": {
         "$type": "number",
         "$value": "{space.space-12}"
       }

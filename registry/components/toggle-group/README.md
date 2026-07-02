@@ -57,3 +57,10 @@ legible in both. This is why the on-state does **not** reuse `surface/default`
   there is no measurement/JS. The slide between positions is the CSS transition.
 - **Focus** composes the shared two-layer ring over the item's own shadow, with
   the ring's gap layer keyed to the track colour so it reads on the recessed track.
+- **Label trim.** `ToggleGroupItem` wraps string/number children in a
+  `.primitiv-toggle-group__item-label` span (via the contract's per-part
+  `wrapTextChildren`, mirroring Button's `__label`); element children — icons —
+  pass through unwrapped. `text-box-trim` / `text-box-edge` live on that span,
+  not the item's flex container, so engines honour the trim and the label
+  optically centres regardless of the font's metrics (a no-op where
+  unsupported).

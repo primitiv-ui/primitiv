@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@primitiv-ui/icons": "^0.1.0",
-    "@primitiv-ui/react": "^0.1.27",
+    "@primitiv-ui/react": "^0.1.0",
     "class-variance-authority": "^0.7.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"

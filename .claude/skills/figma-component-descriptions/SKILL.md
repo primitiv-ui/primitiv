@@ -20,6 +20,15 @@ style applied instead looks correct in the panel but silently ignores density
 mode overrides. If any text node is missing bindings, fix it first — then write
 the description.
 
+**Pre-description check — vertical trim on button/pill shapes.** If the
+component reads as a button or pill (Button, ToggleGroup Item, Tabs/Trigger,
+and future siblings), verify its label TEXT node has vertical trim applied
+(`text-box-edge: cap alphabetic` + `text-box-trim: trim-both` in the Dev Mode
+code snippet). The registry CSS for these components already trims the label
+span (see the `registry-stylesheet-conventions` skill) — an untrimmed Figma
+node drifts from what code renders. Fix it before writing the description; see
+`figma-framed-control-component` → step 1 "Label text" for the full rule.
+
 ---
 
 ## Schema

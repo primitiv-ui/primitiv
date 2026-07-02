@@ -547,10 +547,15 @@ fn planned_files(
                 });
             }
             if let Some(ref contract) = index.components[name].contract {
+                // Every component's registry entry names this file `contract.json`
+                // (the source layout namespaces it by directory), but the flat
+                // components directory has no such namespacing — prefix it with
+                // the component name so `add --all` doesn't collide N contracts
+                // onto one path, each overwriting the last.
                 files.push(PlannedFile {
                     name: name.clone(),
                     file: contract.clone(),
-                    dest: components_dir.join(contract),
+                    dest: components_dir.join(format!("{name}.{contract}")),
                     dir: components_dir.clone(),
                     styles_import: None,
                 });

@@ -224,6 +224,22 @@ const WITH_CONTRACT: &[u8] = br##"{
   }
 }"##;
 
+const WITH_TWO_CONTRACTS: &[u8] = br##"{
+  "version": "0.1.0",
+  "components": {
+    "button": {
+      "version": "0.1.0",
+      "contract": "contract.json",
+      "styles": { "formats": { "css": ["styles.css"] }, "react": ["button.recipe.ts", "button.tsx"] }
+    },
+    "switch": {
+      "version": "0.1.0",
+      "contract": "contract.json",
+      "styles": { "formats": { "css": ["styles.css"] }, "react": ["switch.recipe.ts", "switch.tsx"] }
+    }
+  }
+}"##;
+
 /// Turn string literals into the owned component list the command takes.
 fn names(parts: &[&str]) -> Vec<String> {
     parts.iter().map(|part| part.to_string()).collect()
@@ -1281,11 +1297,59 @@ fn copies_the_contract_into_the_components_directory() {
     )
     .unwrap();
 
-    // contract.json lands flat in the alias-resolved components directory,
-    // co-located with the recipe and wrapper.
+    // The contract lands flat in the alias-resolved components directory,
+    // co-located with the recipe and wrapper, prefixed with the component name
+    // so it can't collide with another component's contract.
     assert_eq!(
-        fs.read(Path::new("src/components/contract.json")).unwrap(),
+        fs.read(Path::new("src/components/button.contract.json")).unwrap(),
         b"{\"name\":\"button\"}"
+    );
+}
+
+#[test]
+fn keeps_every_components_contract_distinct_when_adding_several_at_once() {
+    // Regression test: every registry entry names its contract file
+    // `contract.json` (namespaced by source directory), so before the
+    // name-prefixed destination, `add --all` copied every one of them to the
+    // same flat `src/components/contract.json` path — each component's write
+    // silently overwriting the last, leaving only one contract on disk.
+    let fs = InMemoryFs::new();
+    fs.write(Path::new("primitiv.json"), CONFIG).unwrap();
+    fs.write(Path::new("tsconfig.json"), TSCONFIG).unwrap();
+    let registry = InMemoryRegistry::new(WITH_TWO_CONTRACTS)
+        .with_file("button", "styles.css", b".primitiv-button{}")
+        .with_file("button", "button.recipe.ts", b"export const button = cva();")
+        .with_file("button", "button.tsx", b"export function Button() {}")
+        .with_file("button", "contract.json", b"{\"name\":\"button\"}")
+        .with_file("switch", "styles.css", b".primitiv-switch{}")
+        .with_file("switch", "switch.recipe.ts", b"export const switchRecipe = cva();")
+        .with_file("switch", "switch.tsx", b"export function Switch() {}")
+        .with_file("switch", "contract.json", b"{\"name\":\"switch\"}");
+    let output = InMemoryOutput::new();
+    let runner = InMemoryProcessRunner::new();
+    let prompt = InMemoryPrompt::new(Decision::Keep);
+
+    add(
+        &fs,
+        &registry,
+        &output,
+        &runner,
+        &prompt,
+        false,
+        &AddOptions {
+            components: names(&["button", "switch"]),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    assert_eq!(
+        fs.read(Path::new("src/components/button.contract.json")).unwrap(),
+        b"{\"name\":\"button\"}"
+    );
+    assert_eq!(
+        fs.read(Path::new("src/components/switch.contract.json")).unwrap(),
+        b"{\"name\":\"switch\"}"
     );
 }
 

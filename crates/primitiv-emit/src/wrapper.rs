@@ -131,6 +131,9 @@ pub fn emit_wrapper(contract: &Contract) -> String {
 fn emit_structural_wrapper(contract: &Contract) -> String {
     let pascal = pascal_case(&contract.name);
     let root_component = contract.root.component.as_deref().unwrap_or("Root");
+    // Text-child label-wrapping can also be opted into per structural subcomponent
+    // (ToggleGroup.Item), independent of the single-element-only `wrap_text_children`.
+    let any_wrap_text = contract.subcomponents.iter().any(|sub| sub.wrap_text_children);
 
     let mut out = header(&contract.name, &pascal);
 
@@ -139,7 +142,13 @@ fn emit_structural_wrapper(contract: &Contract) -> String {
     out.push_str(&format!(
         "import {{ {pascal} as {pascal}Primitive }} from \"@primitiv-ui/react\";\n"
     ));
-    out.push_str("import { type ComponentPropsWithRef } from \"react\";\n");
+    if any_wrap_text {
+        out.push_str(
+            "import { Children, type ComponentPropsWithRef, type ReactNode } from \"react\";\n",
+        );
+    } else {
+        out.push_str("import { type ComponentPropsWithRef } from \"react\";\n");
+    }
 
     let bindings = std::iter::once(recipe_binding(&contract.name))
         .chain(
@@ -170,6 +179,7 @@ fn emit_structural_wrapper(contract: &Contract) -> String {
         root_component,
         &pascal,
         &contract.modifiers,
+        false,
     );
 
     // Each structural subcomponent — a thin wrapper, separated by a blank line.
@@ -183,6 +193,9 @@ fn emit_structural_wrapper(contract: &Contract) -> String {
             &sub.modifiers,
             contract.docs.as_deref(),
         );
+        if sub.wrap_text_children {
+            emit_structural_wrap_text_helper(&mut out, &sub_pascal, &sub.class);
+        }
         emit_part_function(
             &mut out,
             &sub_pascal,
@@ -190,6 +203,7 @@ fn emit_structural_wrapper(contract: &Contract) -> String {
             &sub.component,
             &pascal,
             &sub.modifiers,
+            sub.wrap_text_children,
         );
     }
     out
@@ -300,6 +314,10 @@ fn emit_props(
 
 /// One part's function component: destructure the variant props + `className`,
 /// merge the recipe class, and forward the rest to `{Primitive}.{Component}`.
+/// When `wrap_text` is set (the part opted into `wrapTextChildren`), `children`
+/// joins the destructure and the part renders an open/close tag whose content is
+/// run through the part's own `wrap{Styled}TextNodes` helper instead of a bare
+/// self-closing tag.
 fn emit_part_function(
     out: &mut String,
     styled: &str,
@@ -307,16 +325,46 @@ fn emit_part_function(
     component: &str,
     primitive: &str,
     modifiers: &[ModifierGroup],
+    wrap_text: bool,
 ) {
-    let (destructure, recipe_call) = destructure_and_call(binding, modifiers, false);
+    let (destructure, recipe_call) = destructure_and_call(binding, modifiers, wrap_text);
     let class_expr = format!("[{recipe_call}, className].filter(Boolean).join(\" \")");
     out.push_str(&format!(
         "export function {styled}({{ {destructure} }}: {styled}Props) {{\n"
     ));
-    out.push_str(&format!(
-        "  return <{primitive}Primitive.{component} className={{{class_expr}}} {{...props}} />;\n"
-    ));
+    if wrap_text {
+        out.push_str(&format!(
+            "  return (\n    <{primitive}Primitive.{component} className={{{class_expr}}} {{...props}}>\n"
+        ));
+        out.push_str(&format!("      {{wrap{styled}TextNodes(children)}}\n"));
+        out.push_str(&format!(
+            "    </{primitive}Primitive.{component}>\n  );\n"
+        ));
+    } else {
+        out.push_str(&format!(
+            "  return <{primitive}Primitive.{component} className={{{class_expr}}} {{...props}} />;\n"
+        ));
+    }
     out.push_str("}\n");
+}
+
+/// The `wrap{Sub}TextNodes` helper for a text-wrapping structural subcomponent:
+/// mirrors [`emit_wrap_text_helper`] but is named per subcomponent so multiple
+/// structural parts can each opt in without colliding, and wraps into a
+/// `{sub_class}-label` span (a BEM element already ends in `__part`, so `-label`
+/// reads as a sibling qualifier rather than nesting another `__`).
+fn emit_structural_wrap_text_helper(out: &mut String, sub_pascal: &str, sub_class: &str) {
+    out.push_str(&format!(
+        "function wrap{sub_pascal}TextNodes(children: ReactNode): ReactNode {{\n"
+    ));
+    out.push_str("  return Children.map(children, (child) =>\n");
+    out.push_str("    typeof child === \"string\" || typeof child === \"number\"\n");
+    out.push_str(&format!(
+        "      ? <span className=\"{sub_class}-label\">{{child}}</span>\n"
+    ));
+    out.push_str("      : child,\n");
+    out.push_str("  );\n");
+    out.push_str("}\n\n");
 }
 
 /// The function's parameter destructure and recipe call for a set of modifiers:

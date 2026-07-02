@@ -42,6 +42,7 @@
       "component": "Item",
       "element": "button",
       "class": "primitiv-toggle-group__item",
+      "wrapTextChildren": true,
       "dataAttributes": [
         { "name": "data-state", "value": "on", "when": "pressed", "source": "auto" },
         { "name": "data-state", "value": "off", "when": "not pressed", "source": "auto" },

@@ -125,6 +125,25 @@ pub(crate) const DEMO_LABELLED: &str = r#"{
   ]
 }"#;
 
+/// Structural synthetic contract with a text-wrapping subcomponent — the
+/// generality proof for a structural part that wraps its string/number
+/// children in a `{class}-label` span (ToggleGroup.Item's shape without being
+/// ToggleGroup, D54). Exercises the wrapper's per-part `wrapTextChildren` opt-in.
+pub(crate) const DEMO_STRIP: &str = r#"{
+  "name": "demo-strip",
+  "description": "A demo segmented strip.",
+  "root": { "element": "div", "class": "primitiv-demo-strip", "component": "Root" },
+  "subcomponents": [
+    {
+      "name": "item",
+      "component": "Item",
+      "element": "button",
+      "class": "primitiv-demo-strip__item",
+      "wrapTextChildren": true
+    }
+  ]
+}"#;
+
 /// Sparse synthetic contract — single-word name, no docs, one group with no
 /// `prop` (so the group key is the prop).
 pub(crate) const BARE: &str = r#"{

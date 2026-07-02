@@ -101,10 +101,6 @@
     font-size: var(--primitiv-toggle-group-item-font-size);
     font-weight: var(--primitiv-toggle-group-item-font-weight);
     line-height: var(--primitiv-toggle-group-item-line-height);
-    /* Trim the line-box leading to the cap height so the label optically centres
-       within the pill regardless of the font's metrics (a no-op where unsupported). */
-    text-box-trim: trim-both;
-    text-box-edge: cap alphabetic;
     cursor: pointer;
     transition:
       background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
@@ -115,6 +111,15 @@
   .primitiv-toggle-group__item svg {
     inline-size: var(--primitiv-toggle-group-item-icon-size);
     block-size: var(--primitiv-toggle-group-item-icon-size);
+  }
+
+  /* text-box-trim must be applied to the element directly wrapping the text
+     node — not the flex container — for engines to honour it. The registry
+     component wraps string/number children in this span automatically so
+     consumers never need to do it by hand (mirrors Button's __label). */
+  .primitiv-toggle-group__item-label {
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
   }
 }
 

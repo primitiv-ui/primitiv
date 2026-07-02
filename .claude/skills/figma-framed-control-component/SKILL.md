@@ -69,7 +69,18 @@ the `figma-variable-architecture` anatomy table:
   `action/{variant}/foreground/default`.
 - **Label text**: fill → `action/{variant}/foreground/default`;
   `fontSize/fontStyle/fontFamily/lineHeight` → `label/{size}/*` (these come
-  back as **arrays** in `boundVariables`).
+  back as **arrays** in `boundVariables`). **Vertical trim**: on any control
+  whose shape reads as a **button or pill** (Button, ToggleGroup Item,
+  Tabs/Trigger, Icon Button's label if it grows one), set the label text
+  node's vertical trim property (Figma's "Trim vertical padding" —
+  `text-box-edge: cap alphabetic` + `text-box-trim: trim-both` in Dev Mode
+  code) so the glyph box hugs the cap-to-baseline height instead of the
+  font's full line box. This is a code-parity requirement, not cosmetic: the
+  registry CSS mirrors it on the label span (see the
+  `registry-stylesheet-conventions` skill's `text-box-trim` section), and a
+  design/code mismatch here is exactly what the ToggleGroupItem sync (2026-07)
+  caught. Non-button/pill controls (Input, Select, Field) don't need it —
+  their text isn't flex-centred against a fixed-height pill.
 - **link** variant: no root fill/stroke; foregrounds → `action/link/*`;
   disabled handled by 50 % frame opacity.
 - **focus** state: two extra ring frames — see the focus-ring recipe in
@@ -220,5 +231,12 @@ re-reading Figma.
   variables — never via a text style. Verify with `node.boundVariables`: all four
   fields must be present. Any unbound field is a density bug — the text will silently
   ignore frame mode overrides and always render at Compact values.
+- **Text vertical trim (button/pill shapes only)**: for a control that reads
+  as a button or pill, confirm the label TEXT node has vertical trim applied
+  (check the Dev Mode code snippet or the node's text properties for
+  `text-box-edge` / `text-box-trim`). If it's missing, the label sits
+  optically off-centre against the registry CSS, which already trims —
+  Figma and code drift apart exactly like the ToggleGroupItem case this
+  checklist item was added for.
 - **Gotcha sweep**: re-read `references/gotchas.md` and check each item that
   applies to what you just built.

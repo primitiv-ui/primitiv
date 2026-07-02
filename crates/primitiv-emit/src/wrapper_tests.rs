@@ -1,7 +1,7 @@
 use pretty_assertions::assert_eq;
 
 use crate::contract::Contract;
-use crate::contract_fixtures::{BARE, DEMO_BOX, DEMO_LABELLED, DEMO_TOGGLE, DEMO_VIEW};
+use crate::contract_fixtures::{BARE, DEMO_BOX, DEMO_LABELLED, DEMO_STRIP, DEMO_TOGGLE, DEMO_VIEW};
 use crate::wrapper::emit_wrapper;
 
 #[test]
@@ -295,6 +295,32 @@ fn omits_the_text_wrapping_helper_by_default() {
     assert!(wrapper.contains("{...props} />;"));
 }
 
+/// A structural subcomponent can independently opt into wrapping its text
+/// children in a `{class}-label` span (ToggleGroup.Item), distinct from the
+/// single-element `wrapTextChildren` — the import switches to `Children` /
+/// `ReactNode`, a `wrap{Sub}TextNodes` helper is emitted for that part only, and
+/// only that part's function destructures `children` and renders open/close.
+#[test]
+fn wraps_text_children_in_a_label_span_for_a_structural_subcomponent_when_it_opts_in() {
+    let contract = Contract::parse(DEMO_STRIP.as_bytes()).unwrap();
+    let wrapper = emit_wrapper(&contract);
+
+    assert!(wrapper.contains(
+        "import { Children, type ComponentPropsWithRef, type ReactNode } from \"react\";",
+    ));
+    assert!(wrapper.contains("function wrapDemoStripItemTextNodes(children: ReactNode): ReactNode {"));
+    assert!(wrapper.contains("<span className=\"primitiv-demo-strip__item-label\">{child}</span>"));
+    assert!(wrapper.contains(
+        "export function DemoStripItem({ className, children, ...props }: DemoStripItemProps) {",
+    ));
+    assert!(wrapper.contains("{wrapDemoStripItemTextNodes(children)}"));
+    // The root part has no opt-in, so it stays self-closing with no `children`.
+    assert!(wrapper.contains(
+        "export function DemoStrip({ className, ...props }: DemoStripProps) {",
+    ));
+    assert!(wrapper.contains("{...props} />;"));
+}
+
 /// Drift guard: the committed `registry/components/divider/divider.tsx` is exactly
 /// the generated form of its contract.
 #[test]
@@ -329,6 +355,27 @@ fn the_committed_table_wrapper_is_the_generated_form_of_its_contract() {
         include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/../../registry/components/table/table.tsx"
+        ))
+    );
+}
+
+/// Drift guard: the committed `registry/components/toggle-group/toggle-group.tsx`
+/// is exactly the generated form of its contract — a structural compound whose
+/// `item` subcomponent opts into `wrapTextChildren`, proving the per-part
+/// text-wrapping helper alongside a modifier-bearing root (`size` / `justify`).
+#[test]
+fn the_committed_toggle_group_wrapper_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/toggle-group/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_wrapper(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/components/toggle-group/toggle-group.tsx"
         ))
     );
 }

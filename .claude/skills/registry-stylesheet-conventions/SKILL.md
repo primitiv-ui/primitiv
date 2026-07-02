@@ -56,6 +56,51 @@ exists (and its exact emitted name) against the generated token layer — run
 `primitiv tokens` or grep `apps/workbench/src/primitiv-tokens.css` — rather than
 guessing; the path-doubling above is one reason the name isn't always obvious.
 
+## `text-box-trim` on button/pill-shaped labels
+
+Any framed control whose visual shape reads as a **button or pill** — Button,
+ToggleGroupItem, Tabs/Trigger, Icon Button's label (if it grows one), and any
+future sibling — must trim its label's line-box leading so the text optically
+centres regardless of the font's metrics:
+
+```css
+text-box-trim: trim-both;
+text-box-edge: cap alphabetic;
+```
+
+**These two properties must be applied to the element directly wrapping the
+text node, never the flex container** — engines don't honour `text-box-trim`
+on a box with siblings (an icon + text row). Two shapes exist:
+
+- **Single-element component (Button):** the contract's top-level
+  `wrapTextChildren: true` opts a single-element wrapper into rendering a
+  `…__label` span around string/number children (element children — icons —
+  pass through unwrapped). `text-box-trim`/`text-box-edge` then target
+  `.primitiv-{name}__label`.
+- **Structural subcomponent (ToggleGroup.Item):** set `wrapTextChildren: true`
+  on that subcomponent's own entry in `contract.json`'s `subcomponents` array.
+  The generator (`crates/primitiv-emit/src/wrapper.rs`) emits a
+  `wrap{Sub}TextNodes` helper scoped to that one part, wrapping into a
+  `{part-class}-label` span (e.g. `.primitiv-toggle-group__item-label`) — not
+  `__label` again, to avoid a doubled BEM element on a class that's already
+  `__item`.
+
+Both shapes are driven entirely by `contract.json` + the generator — never
+hand-add the wrapping span or the trim properties without going through
+`wrapTextChildren`, or the committed `.tsx` drifts from what
+`emit_wrapper(&contract)` produces and the drift-guard test in
+`crates/primitiv-emit/src/wrapper_tests.rs` fails.
+
+`text-box-trim`/`text-box-edge` are the one deliberate exception to "tokenize
+every literal" above — there is no token family for them (like the motion
+literals), so they stay hardcoded keyword values in `primitiv.base`.
+
+**Known gap:** `registry/components/tabs/styles.css`'s `.primitiv-tabs__trigger`
+still applies the trim directly to its flex container rather than a label span
+— pre-dates this convention being written down. Fix it the same way as
+ToggleGroup.Item if you're in that file for another reason; it isn't wired to
+`wrapTextChildren` yet.
+
 ## When you touch a stylesheet
 
 - Keep the **CSS and SCSS bodies byte-identical** (the `.scss` is the `.css` plus

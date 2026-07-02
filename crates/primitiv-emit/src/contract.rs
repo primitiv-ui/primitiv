@@ -68,6 +68,14 @@ pub struct Subcomponent {
     /// visual variants (a trigger).
     #[serde(default)]
     pub modifiers: Vec<ModifierGroup>,
+    /// Whether this subcomponent wraps its string/number children in a
+    /// `{class}-label` span (element children — icons — pass through unwrapped),
+    /// so `text-box-trim` can sit on the label rather than the flex part
+    /// (ToggleGroup.Item). Mirrors [`Contract::wrap_text_children`] but scoped to
+    /// one structural part. `false` (the default) keeps the plain self-closing
+    /// render.
+    #[serde(default, rename = "wrapTextChildren")]
+    pub wrap_text_children: bool,
 }
 
 /// One decorative slot part — its sub-component name (`thumb` → `Switch.Thumb`)

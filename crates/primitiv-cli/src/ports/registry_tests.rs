@@ -64,6 +64,36 @@ fn embedded_registry_serves_the_structural_compound_files() {
 }
 
 #[test]
+fn embedded_registry_serves_every_file_every_component_declares() {
+    // `INDEX` embeds `registry.json` directly, so it never drifts; `FILES` is a
+    // hand-maintained list a new component's entry must also join (RFC 0005
+    // §6.1). Accordion and ToggleGroup shipped in `registry.json` with no
+    // matching `FILES` entries, so `add --all` resolved them into the plan but
+    // failed to fetch their bytes. This walks every declared file for every
+    // component and asserts the embed actually carries it.
+    let index = RegistryIndex::parse(&EmbeddedRegistry.index().unwrap()).unwrap();
+
+    for (name, entry) in &index.components {
+        let mut files: Vec<&str> = Vec::new();
+        files.extend(entry.styles.formats.css.iter().map(String::as_str));
+        files.extend(entry.styles.formats.scss.iter().map(String::as_str));
+        files.extend(entry.styles.formats.tailwind.iter().map(String::as_str));
+        files.extend(entry.styles.react.iter().map(String::as_str));
+        if let Some(contract) = &entry.contract {
+            files.push(contract);
+        }
+        for file in files {
+            EmbeddedRegistry.file(name, file).unwrap_or_else(|error| {
+                panic!(
+                    "registry.json declares {name}/{file} but the binary has \
+                     no embedded bytes for it: {error}"
+                )
+            });
+        }
+    }
+}
+
+#[test]
 fn embedded_registry_serves_the_field_files() {
     // Field is a structural, no-modifier compound — its baked-in surface carries
     // the per-part wrappers `primitiv add field` resolves against the binary.

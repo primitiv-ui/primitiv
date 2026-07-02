@@ -12,7 +12,7 @@ slot, Tabs is a **root plus structural subcomponents** (`List` / `Trigger` /
 | File | Authored? | Role |
 |---|---|---|
 | `contract.json` | **authored** | The styling contract (RFC 0004 §3.4) — the single API source the recipe + wrapper are generated from. |
-| `styles.css` | **authored** | The canonical default theme (the enclosed visual design). |
+| `styles.css` | **authored** | The canonical default theme (the sliding ink-bar visual design). |
 | `styles.scss` | generated | The canonical CSS re-expressed for SCSS consumers (from `styles.css`). |
 | `tabs.recipe.ts` | generated | One `cva` per styled part (from `contract.json`). |
 | `tabs.tsx` | generated | The styled wrappers — `Tabs` / `TabsList` / `TabsTrigger` / `TabsContent` (from `contract.json`). |
@@ -42,32 +42,43 @@ A **hybrid** document with two halves and two sources of truth (D15):
 instead of one element (Button) or an auto-rendered subtree (Switch), the styled
 surface is N thin per-part wrappers the consumer composes themselves (D56). Each
 subcomponent carries its own BEM class and optional per-part modifiers — which is
-why `justify` lives on the `list`, not the root. **`Position`** (which corners
-round at the strip's edges) is *not* a prop: it is derived structurally in CSS
-from DOM order (`:first-child` / `:last-child`), so the consumer just drops
-triggers in and the edges clamp themselves.
+why `justify` lives on the `list`, not the root. `trigger` opts into
+`wrapTextChildren` so `text-box-trim` targets the label span rather than the
+trigger's own flex container (the same fix ToggleGroupItem got). **`Position`**
+(which corners round, which divider seam is drawn) no longer exists: a frameless
+design has no corners to clamp and no seams to hide, so it was dropped entirely
+rather than kept as a structural no-op.
 
 ## The default theme (`styles.css`)
 
-The **enclosed** style: triggers are framed controls forming a connected strip —
-`action/primary` when active, `action/secondary` when inactive — with the panel
-butting flush below, sharing the trigger's 1px stroke family so the junction
-reads as one frame. Structured per RFC 0008 — the per-component API tokens +
-resting look in `primitiv.base`, the `justify` / `size` modifiers in
-`primitiv.variants`, the `data-state` / `:hover` / `data-disabled` styling in
-`primitiv.states`. It wires `--primitiv-tabs-*` to **semantic tokens only** —
-`framed-control/*` for sizing, `action/*` + `surface/*` + `content/*` for colour,
+The **sliding ink-bar underline** style (redesigned 2026-07-02, replacing the
+enclosed/bordered strip): plain text triggers sit on a single shared baseline
+hairline drawn once on `.primitiv-tabs__list` (`border-block-end`, `border/subtle`
+— not per-trigger). Every trigger — active or not — carries its own 2px ink-bar as
+an absolutely positioned `::after` pseudo-element spanning the trigger's full
+width; it is `transparent` at rest and re-points to `action/primary` only under
+`[data-state="active"]`. That mirrors ToggleGroup's own documented precedent for
+its shadow: no shared/measured indicator, pure per-item state, so switching the
+active tab is zero layout shift and needs no JS. The panel is frameless but keeps
+its own `panel/padding/*` inset, so the list and the panel need **no gap between
+them** — the panel's padding-block *is* the breathing room (the `tabs/gap` Context
+token is intentionally unused here to avoid double-counting that space).
+
+Structured per RFC 0008 — the per-component API tokens + resting look in
+`primitiv.base`, the `justify` / `size` modifiers in `primitiv.variants`, the
+`data-state` / `:hover` / `data-disabled` styling in `primitiv.states`. It wires
+`--primitiv-tabs-*` to **semantic tokens only** — `framed-control/*` for sizing,
+`content/*` + `action/primary` for colour, `border/subtle` for the baseline,
 `label/*` + `body/*` for type, `panel/padding/*` for the panel inset.
 
 On `:focus-visible` (keyboard focus only) the focused trigger draws the **shared
 two-layer focus ring** — the same surface-gap + brand-ring `box-shadow` Button and
-Switch use. To let that *outset* ring show, the list runs `overflow: visible`
-rather than clipping its triggers; the two corner triggers round their own outer
-top corner per `justify` instead (a stretched tablist, where the strip groups to
-one side — see the prototype note in the stylesheet for the shrink-to-content
-caveat). The focused trigger lifts above its neighbours and the panel so the ring
-isn't overdrawn. Restyle the ring system-wide via the `--primitiv-focus-ring`,
-`--primitiv-focus-ring-width` and `--primitiv-focus-ring-offset` tokens.
+Switch use. Neither the trigger nor the ring carries a border-radius (nothing
+rounds in this design), so the ring reads square with no radius token to
+re-point. The focused trigger lifts above its neighbours and the list's baseline
+so the ring isn't overdrawn. Restyle the ring system-wide via the
+`--primitiv-focus-ring`, `--primitiv-focus-ring-width` and
+`--primitiv-focus-ring-offset` tokens.
 
 **It is yours to edit.** The stable surface is the *contract* (classes, `data-*`,
 custom-property names), not these values (RFC 0006 Principle 2). Horizontal

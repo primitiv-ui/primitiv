@@ -168,6 +168,34 @@
         }
       },
       "contract": "contract.json"
+    },
+    "toggle-group": {
+      "version": "0.1.0",
+      "dependsOn": { "packages": [{ "name": "@primitiv-ui/react", "version": "^0.1.0" }], "tokens": true, "components": [] },
+      "styles": {
+        "packages": ["class-variance-authority"],
+        "react": ["toggle-group.recipe.ts", "toggle-group.tsx"],
+        "formats": {
+          "css": ["styles.css"],
+          "scss": ["styles.scss"],
+          "tailwind": ["styles.css"]
+        }
+      },
+      "contract": "contract.json"
+    },
+    "accordion": {
+      "version": "0.1.0",
+      "dependsOn": { "packages": [{ "name": "@primitiv-ui/react", "version": "^0.1.0" }], "tokens": true, "components": [] },
+      "styles": {
+        "packages": ["class-variance-authority"],
+        "react": ["accordion.recipe.ts", "accordion.tsx"],
+        "formats": {
+          "css": ["styles.css"],
+          "scss": ["styles.scss"],
+          "tailwind": ["styles.css"]
+        }
+      },
+      "contract": "contract.json"
     }
   }
 }

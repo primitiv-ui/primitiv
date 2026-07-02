@@ -83,6 +83,26 @@ fn the_committed_tabs_recipe_is_the_generated_form_of_its_contract() {
     );
 }
 
+/// Drift guard: the committed `registry/components/accordion/accordion.recipe.ts`
+/// is exactly the generated form of its contract — a five-subcomponent
+/// structural compound whose only variant axis (`size`) lives on the root.
+#[test]
+fn the_committed_accordion_recipe_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/accordion/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_recipe(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/components/accordion/accordion.recipe.ts"
+        ))
+    );
+}
+
 /// Drift guard: the committed `registry/components/input/input.recipe.ts` is exactly
 /// the generated form of its contract — the size-only text-field proof.
 #[test]

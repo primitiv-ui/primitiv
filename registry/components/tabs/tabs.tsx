@@ -6,7 +6,7 @@
  * generated recipe — the primary DX (RFC 0004 §3.5 / D51).
  */
 import { Tabs as TabsPrimitive } from "@primitiv-ui/react";
-import { type ComponentPropsWithRef } from "react";
+import { Children, type ComponentPropsWithRef, type ReactNode } from "react";
 import { tabs, tabsList, tabsTrigger, tabsContent } from "./tabs.recipe";
 
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
@@ -52,8 +52,20 @@ export function TabsList({ justify, className, ...props }: TabsListProps) {
 
 export type TabsTriggerProps = ComponentPropsWithRef<typeof TabsPrimitive.Trigger>;
 
-export function TabsTrigger({ className, ...props }: TabsTriggerProps) {
-  return <TabsPrimitive.Trigger className={[tabsTrigger(), className].filter(Boolean).join(" ")} {...props} />;
+function wrapTabsTriggerTextNodes(children: ReactNode): ReactNode {
+  return Children.map(children, (child) =>
+    typeof child === "string" || typeof child === "number"
+      ? <span className="primitiv-tabs__trigger-label">{child}</span>
+      : child,
+  );
+}
+
+export function TabsTrigger({ className, children, ...props }: TabsTriggerProps) {
+  return (
+    <TabsPrimitive.Trigger className={[tabsTrigger(), className].filter(Boolean).join(" ")} {...props}>
+      {wrapTabsTriggerTextNodes(children)}
+    </TabsPrimitive.Trigger>
+  );
 }
 
 export type TabsContentProps = ComponentPropsWithRef<typeof TabsPrimitive.Content>;

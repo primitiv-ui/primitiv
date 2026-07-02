@@ -379,3 +379,25 @@ fn the_committed_toggle_group_wrapper_is_the_generated_form_of_its_contract() {
         ))
     );
 }
+
+/// Drift guard: the committed `registry/components/accordion/accordion.tsx` is
+/// exactly the generated form of its contract — a five-subcomponent structural
+/// compound (item / header / trigger / content / trigger-icon) whose `trigger`
+/// opts into `wrapTextChildren`, proving a kebab-case multi-word subcomponent
+/// name (`trigger-icon`) round-trips through the PascalCase/camelCase naming.
+#[test]
+fn the_committed_accordion_wrapper_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/accordion/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_wrapper(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/components/accordion/accordion.tsx"
+        ))
+    );
+}

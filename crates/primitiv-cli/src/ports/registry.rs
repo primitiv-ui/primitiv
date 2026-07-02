@@ -113,6 +113,16 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("modal", "modal.recipe.ts"),
     registry_file!("modal", "modal.tsx"),
     registry_file!("modal", "contract.json"),
+    registry_file!("toggle-group", "styles.css"),
+    registry_file!("toggle-group", "styles.scss"),
+    registry_file!("toggle-group", "toggle-group.recipe.ts"),
+    registry_file!("toggle-group", "toggle-group.tsx"),
+    registry_file!("toggle-group", "contract.json"),
+    registry_file!("accordion", "styles.css"),
+    registry_file!("accordion", "styles.scss"),
+    registry_file!("accordion", "accordion.recipe.ts"),
+    registry_file!("accordion", "accordion.tsx"),
+    registry_file!("accordion", "contract.json"),
 ];
 
 impl Registry for EmbeddedRegistry {

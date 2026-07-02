@@ -891,7 +891,7 @@ Type: surface component (chart control — Harmoni plugin)
 
 Axes: Parameter Lightness|Chroma|Hue · Gamut sRGB|P3
 
-Tokens: plate fill → surface/sunken; plate stroke → border/subtle @ framed-control/border-width; plate radius → container/sm/radius
+Tokens: plate fill → surface/default; plate stroke → border/subtle @ framed-control/border-width; plate radius → container/sm/radius
         guide lines → color/absolute-white @ 1px, blend mode DIFFERENCE (legible over any colour)
         boundary curves (P3 variants) → color/absolute-white @ 75% · solid = sRGB limit · dashed [4,4] = P3 limit
         labels → label/sm/* (Khand SemiBold) · fill content/primary
@@ -901,7 +901,7 @@ Tokens: plate fill → surface/sunken; plate stroke → border/subtle @ framed-c
 Properties: (none — cursor position is structural; move Guide · x, Guide · y and the Crosshair together)
 
 Density: Context mode override on parent frame (labels, radius, border width)
-Theme: Primitives / Palette mode override on parent frame — Palette ONLY. Do not also flip Intent: surface/sunken aliases different neutral steps per Intent mode and double-inverts back to light.
+Theme: Primitives / Palette mode override on parent frame — Palette ONLY. Do not also flip Intent: surface/* tokens alias different neutral steps per Intent mode and double-invert back to light.
 Pairs with: Harmoni OKLCH Crosshair (thumb), Harmoni Slider (1-D axis), Harmoni LCH Input (number fields)
 Notes: root 232×160; plate 216×144 (3:2 — matches workbench chartAspect 1.5) inset by 16px label gutters (left + bottom).
   Planes: Lightness = L×C at fixed hue · Chroma = H×C at fixed lightness · Hue = H×L at fixed chroma. X label rides the vertical guide in the bottom gutter; Y label rides the horizontal guide in the left gutter.

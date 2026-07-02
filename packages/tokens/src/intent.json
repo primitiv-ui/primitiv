@@ -493,11 +493,11 @@
     "content": {
       "primary": {
         "$type": "color",
-        "$value": "{color.neutral.50}"
+        "$value": "{color.neutral.900}"
       },
       "secondary": {
         "$type": "color",
-        "$value": "{color.neutral.200}"
+        "$value": "{color.neutral.700}"
       },
       "muted": {
         "$type": "color",

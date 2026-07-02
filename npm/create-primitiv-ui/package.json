@@ -1,6 +1,6 @@
 {
   "name": "create-primitiv-ui",
-  "version": "0.1.25",
+  "version": "0.1.26",
   "description": "Set up Primitiv UI in an existing Vite or Next.js project. Use with: pnpm create primitiv-ui",
   "keywords": [
     "primitiv",

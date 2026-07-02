@@ -378,8 +378,8 @@
     --primitiv-content-muted: var(--primitiv-color-neutral-500);
     --primitiv-content-on-action: var(--primitiv-color-absolute-white);
     --primitiv-content-on-selected: var(--primitiv-color-neutral-900);
-    --primitiv-content-primary: var(--primitiv-color-neutral-50);
-    --primitiv-content-secondary: var(--primitiv-color-neutral-200);
+    --primitiv-content-primary: var(--primitiv-color-neutral-900);
+    --primitiv-content-secondary: var(--primitiv-color-neutral-700);
     --primitiv-focus-ring: var(--primitiv-color-brand-500);
     --primitiv-highlight-background: var(--primitiv-color-brand-800);
     --primitiv-list-marker-foreground: var(--primitiv-content-secondary);

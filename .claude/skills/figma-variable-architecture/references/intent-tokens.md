@@ -3,9 +3,21 @@
 Collection: `Intent` — two modes: **Light** and **Dark**.
 
 Action tokens encode colour decisions for interactive controls by intent. All
-aliases point into `Primitives / Palette` by variable name; the palette's own
-Light/Dark modes resolve the actual colour value. Both Intent modes use
-identical alias targets — the palette modes handle the colour difference.
+aliases point into `Primitives / Palette` by variable name. **This "identical
+alias targets" statement only holds for `action/primary` and `action/danger`** —
+their targets are the `brand/500` / `danger/500`-anchored steps, which are
+themselves mode-invariant (`color/brand/500` is the same hex in Light and
+Dark), so pointing both Intent modes at the same step legitimately produces the
+same colour either way, no per-mode choice needed.
+
+**Every other token in this file that resolves through the `neutral` ramp —
+`action/secondary/*`, `surface/*`, `content/*`, `border/*`, `table/row/*` — is
+the opposite: Light and Dark deliberately alias *different* neutral steps**,
+because unlike `brand/500`/`danger/500`, no single neutral step is
+mode-invariant. See the corrected tables below and, if you're porting one of
+these into `packages/tokens/src/intent.json`, the code-side gotcha in the
+`figma-token-sync` skill — **do not copy Figma's Dark-mode step number
+verbatim into `intent.json`'s `dark` section; it needs translating.**
 
 **Important:** `action/*/foreground/default` and `content/on-action` alias
 `color/absolute-white` (#FFFFFF), **not** `color/white` and not
@@ -27,13 +39,30 @@ Filled-button intents (primary, secondary, danger) each have three groups:
 
 ## Palette alias targets
 
+`primary` and `danger` alias the **same** brand/danger step in both Intent
+modes (the step itself is mode-invariant):
+
 | Intent | default bg | hover bg | active bg | disabled bg | foreground/default |
 | ------ | ---------- | -------- | --------- | ----------- | ------------------ |
 | primary | `color/brand/500` | `color/brand/600` | `color/brand/700` | `color/brand/200` | `color/absolute-white` |
-| secondary | `color/neutral/100` | `color/neutral/200` | `color/neutral/300` | `color/neutral/50` | `color/neutral/900` |
 | danger | `color/danger/500` | `color/danger/600` | `color/danger/700` | `color/danger/200` | `color/absolute-white` |
 
-Secondary border: `neutral/300` default → `neutral/400` hover → `neutral/500` active → `neutral/200` disabled.
+`secondary` aliases the **neutral** ramp, so Light and Dark alias *different*
+steps (verified against the live Figma Intent collection 2026-07-02):
+
+| Token | Light | Dark |
+| ----- | ----- | ---- |
+| `action/secondary/default` | `neutral/100` | `neutral/800` |
+| `action/secondary/hover` | `neutral/200` | `neutral/700` |
+| `action/secondary/active` | `neutral/300` | `neutral/600` |
+| `action/secondary/disabled` | `neutral/50` | `neutral/900` |
+| `action/secondary/foreground/default` | `neutral/900` | `neutral/50` |
+| `action/secondary/foreground/disabled` | `neutral/400` | `neutral/500` |
+| `action/secondary/border/default` | `neutral/300` | `neutral/700` |
+| `action/secondary/border/hover` | `neutral/400` | `neutral/600` |
+| `action/secondary/border/active` | `neutral/500` | `neutral/500` |
+| `action/secondary/border/disabled` | `neutral/200` | `neutral/800` |
+
 Primary and danger borders mirror their background alias at each state.
 
 ## The link variant
@@ -51,12 +80,32 @@ muted appearance.
 
 ## Other intent groups
 
-| Group | Notable tokens |
-| ----- | -------------- |
-| `surface/*` | `default/raised → color/neutral/50`, `overlay → color/neutral/900`, `inverse → color/neutral/800` |
-| `content/*` | `primary → color/neutral/900`, `secondary · muted · disabled → neutral steps`, `error → color/danger/500`, `on-action → color/absolute-white`, `inverse → color/white` |
-| `border/*` | `subtle/default/strong → neutral steps`, `focus → color/brand/500`, `invalid → color/danger/500` |
-| `focus/ring` | `color/brand/500` |
+`surface/default` aliases `color/absolute-white` (Light) / `color/black`
+(Dark) — a mode-invariant anchor pair, no per-mode step choice. Everything
+else below aliases the neutral ramp, so — like `action/secondary/*` above —
+Light and Dark alias **different** steps (verified against the live Figma
+Intent collection 2026-07-02):
+
+| Token | Light | Dark |
+| ----- | ----- | ---- |
+| `surface/subtle` | `neutral/100` | `neutral/800` |
+| `surface/raised` | `neutral/50` | `neutral/900` |
+| `surface/overlay` | `neutral/900` | `neutral/50` |
+| `surface/inverse` | `neutral/800` | `neutral/100` |
+| `content/primary` | `neutral/900` | `neutral/50` |
+| `content/secondary` | `neutral/700` | `neutral/200` |
+| `content/muted` | `neutral/500` | `neutral/500` |
+| `content/disabled` | `neutral/400` | `neutral/500` |
+| `border/subtle` | `neutral/200` | `neutral/700` |
+| `border/default` | `neutral/300` | `neutral/600` |
+| `border/strong` | `neutral/500` | `neutral/500` |
+| `table/row/stripe` | `neutral/50` | `neutral/900` |
+| `table/row/hover` | `neutral/100` | `neutral/800` |
+
+`content/error → color/danger/500`, `on-action → color/absolute-white`,
+`inverse → color/white` (all mode-invariant anchors, identical both modes).
+`border/focus → color/brand/500`, `border/invalid → color/danger/500`,
+`focus/ring → color/brand/500` — also invariant anchors.
 
 ## Recessed track + selected thumb — `surface/sunken`, `surface/selected`, `content/on-selected`
 

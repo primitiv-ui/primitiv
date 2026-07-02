@@ -166,6 +166,54 @@ The plugin's network manifest (`manifest.json`) allows
 `http://localhost:4477`. Don't widen that list further unless a new
 transport is genuinely needed.
 
+## The Dark-mode neutral-alias translation (do not skip this)
+
+Figma's `Intent` collection and our CSS emitter resolve cross-collection
+`neutral/*` aliases through **two different mechanisms**, and porting a value
+from one to the other without translating it silently reproduces the
+double-invert bug described in `figma-variable-architecture`'s theming rule —
+except this time in code, not on the canvas (fixed 2026-07-02 across
+`content/primary`, `content/secondary`, `surface/subtle`, `surface/raised`,
+`surface/overlay`, `surface/inverse`, `surface/sunken`, `border/subtle`,
+`border/default`, `table/row/stripe`, `table/row/hover`, and the whole
+`action/secondary/*` family — see `packages/tokens/src/dark-mode-content.test.ts`).
+
+- **Figma always resolves these aliases through `Primitives / Palette`'s
+  *Light* mode**, regardless of which Intent mode you're looking at (per
+  `figma-variable-architecture`'s `SKILL.md`). A Dark-Intent variable that
+  aliases `neutral/50` is *not* pulling the Dark ramp's step 50 — it's Light's
+  step 50, chosen specifically because it looks right for dark mode.
+- **Our CSS emitter does not work that way.** `crates/primitiv-emit`'s
+  `link_aliases` (`alias.rs`) turns `{color.neutral.50}` into
+  `var(--primitiv-color-neutral-50)` — a bare reference, not a resolved value.
+  `pipeline.rs`'s `ordered_modes` then merges every source document's tokens
+  **by matching mode name** into one scope, so inside `[data-theme="dark"]`,
+  that `var()` picks up whatever `palette.json`'s own `"dark"` section defines
+  for `neutral.50` — a **separately Harmoni-generated dark ramp**, not Light's.
+  (`packages/tokens/src/palette.json`'s `"dark"` section is real and correct —
+  confirmed byte-identical to Figma's own `Primitives / Palette` Dark mode —
+  it's just resolved differently than Figma resolves it.)
+- **The consequence:** copying Figma's Dark-mode alias step number verbatim
+  into `packages/tokens/src/intent.json`'s `"dark"` section is wrong. Our dark
+  ramp is *approximately* Light's ramp mirrored (`dark.neutral.50 ≈
+  light.neutral.900`, exact at the 50/900 extremes, a close approximation
+  elsewhere), so the step that reproduces the *same visual result* in our
+  emitter is **the nearest step in our own dark ramp to
+  `lightRamp[figmaDarkStep]`** — empirically close to `950 − figmaDarkStep`,
+  but compute it by actual hex distance, don't just subtract:
+  ```py
+  # given our own (confirmed Figma-synced) palette.json, per neutral step:
+  target = light_ramp[figma_dark_alias_step]
+  our_dark_step = min(steps, key=lambda s: color_distance(dark_ramp[s], target))
+  ```
+- **`packages/tokens/src/dark-mode-content.test.ts`** is the regression guard:
+  it asserts each theme-relative token differs between light/dark and meets
+  WCAG AA against its paired surface, and that the two deliberately
+  mode-invariant tokens (`surface/selected`, `content/on-selected` — see
+  `figma-variable-architecture`'s intent-tokens reference) stay visually
+  consistent instead. **Any new Intent token that aliases `neutral/*` should
+  get a case added here**, not just a value added to `intent.json`.
+
 ## When to extend / when not to
 
 Add to this stack when:

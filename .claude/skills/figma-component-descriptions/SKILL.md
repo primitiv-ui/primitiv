@@ -885,14 +885,15 @@ Notes: COMPONENT not text style — Figma has no baseline-shift property, so the
 ### Harmoni OKLCH Picker — `708:47245`
 
 ```
-2-D OKLCH plane picker for the Harmoni plugin — a chart plate with a painted gamut silhouette, crosshair guides and a draggable thumb; one variant per plotted plane (the third channel is held fixed).
+2-D OKLCH plane picker for the Harmoni plugin — a chart plate with a painted gamut silhouette, crosshair guides and a draggable thumb; one variant per plotted plane (the third channel is held fixed) × colour gamut.
 
 Type: surface component (chart control — Harmoni plugin)
 
-Axes: Parameter Lightness|Chroma|Hue
+Axes: Parameter Lightness|Chroma|Hue · Gamut sRGB|P3
 
 Tokens: plate fill → surface/sunken; plate stroke → border/subtle @ framed-control/border-width; plate radius → container/sm/radius
         guide lines → color/absolute-white @ 1px, blend mode DIFFERENCE (legible over any colour)
+        boundary curves (P3 variants) → color/absolute-white @ 75% · solid = sRGB limit · dashed [4,4] = P3 limit
         labels → label/sm/* (Khand SemiBold) · fill content/primary
         thumb → nested Harmoni OKLCH Crosshair instance
         gradients → hardcoded engine data (gamut silhouette vectors — the subject, not chrome; exempt from the token rule)
@@ -904,7 +905,8 @@ Theme: Primitives / Palette mode override on parent frame — Palette ONLY. Do n
 Pairs with: Harmoni OKLCH Crosshair (thumb), Harmoni Slider (1-D axis), Harmoni LCH Input (number fields)
 Notes: root 232×160; plate 216×144 (3:2 — matches workbench chartAspect 1.5) inset by 16px label gutters (left + bottom).
   Planes: Lightness = L×C at fixed hue · Chroma = H×C at fixed lightness · Hue = H×L at fixed chroma. X label rides the vertical guide in the bottom gutter; Y label rides the horizontal guide in the left gutter.
-  Scaling rig: plate STRETCH; silhouette SCALE; guides are SCALE-positioned frames holding STRETCH 1px lines (stay crisp); thumb + labels SCALE — free resize to any size/aspect keeps the anatomy coherent.
+  Gamut=sRGB paints to the sRGB boundary with a clean edge (no curves). Gamut=P3 expands the painted gamut ~14% (chroma-anchored at C=0 for L×C and H×C; centred for H×L), dashes its edge, and overlays the solid sRGB curve — the band between is the extended region (workbench RFC 0010 §7 treatment).
+  Scaling rig: plate STRETCH; silhouette + boundary curves SCALE; guides are SCALE-positioned frames holding STRETCH 1px lines (stay crisp); thumb + labels SCALE — free resize to any size/aspect keeps the anatomy coherent.
   Default cursor sits at the brand point oklch(0.556 0.192 259.9°).
 ```
 

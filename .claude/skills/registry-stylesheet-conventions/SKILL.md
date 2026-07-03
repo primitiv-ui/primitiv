@@ -130,26 +130,29 @@ ships with the ring transition from day one. The ring geometry/colour stay
 system tokens (`--primitiv-focus-ring*` / `--primitiv-surface-default`), never a
 per-component knob.
 
-## Animating open/close — grid row + `data-state` padding
+## Animating open/close — grid row + clipped padded body
 
 To reveal/hide a panel at its natural height with no `max-height` guess and no
-JS measurement (Accordion.Content; any future disclosure surface):
+JS measurement (Accordion.Content; any future disclosure surface). It is **three
+nested elements**:
 
-- The headless part must be **force-mounted** so it stays in the DOM when closed
-  and exposes `data-state="open" | "closed"` — otherwise `hidden` removes it and
-  nothing can animate.
-- Make the panel a single-row grid and transition `grid-template-rows` between
-  `0fr` (closed) and `1fr` (open). Wrap the children in one inner element with
-  `overflow: hidden; min-height: 0` — the single grid item that clips the copy
-  as the row collapses.
-- **Padding gotcha (the one that bites):** the grid row only collapses the
+- **Panel** — the force-mounted headless part. A single-row grid transitioning
+  `grid-template-rows` between `0fr` (closed) and `1fr` (open). Force-mount is
+  required so it stays in the DOM when closed and exposes `data-state` —
+  otherwise `hidden` removes it and nothing can animate.
+- **Clip** — one wrapper div with `overflow: hidden; min-height: 0`: the single
+  grid item the row collapses, clipping the body as it shrinks. **No padding.**
+- **Body** — a second wrapper *inside* the clip; the panel padding lives here.
+
+- **The padding gotcha (the one that bites):** the grid row only collapses the
   item's *content* box, and an element's own `overflow` never clips its own
-  padding — so a resting `padding-block` leaves a strip holding a closed item
-  open, and moving `overflow` onto the grid container does **not** fix it. Rest
-  `padding-block` at `var(--primitiv-space-space-0)` and re-apply the real
-  padding only on `[data-state="open"]`, transitioned in lockstep with the row.
-  `padding-inline` is orthogonal to the vertical collapse and stays constant.
-- Flip the inner to `visibility: hidden` when closed (transitioned, so it stays
+  padding. So `padding-block` on the collapsing item — or on the grid container —
+  sits outside the row and **floors** how far it can shrink, leaving a strip that
+  holds a closed item open. Moving `overflow` onto the container does *not* fix
+  it; animating the padding to `0` closes fully but makes the copy visibly shift.
+  Put the padding one level down, on the body *inside* the clip, so it is clipped
+  away with the row: **constant, un-animated padding that still closes to zero.**
+- Flip the clip to `visibility: hidden` when closed (transitioned, so it stays
   visible through the close then switches) so collapsed content leaves the tab
   order and the a11y tree.
 - Guard the whole thing under `@media (prefers-reduced-motion: reduce)` with
@@ -157,7 +160,8 @@ JS measurement (Accordion.Content; any future disclosure surface):
 - Expose the timing as `--primitiv-<name>-*-transition-duration` / `-easing`
   knobs (defaulting to a `motion/*` token) and register them in `contract.json`.
 
-`registry/components/accordion/styles.css` is the reference implementation.
+`registry/components/accordion/styles.css` + `accordion.tsx` are the reference
+implementation.
 
 ## When you touch a stylesheet
 

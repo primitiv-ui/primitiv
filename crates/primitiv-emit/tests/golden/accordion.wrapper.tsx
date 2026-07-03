@@ -1,16 +1,9 @@
 /*
- * Accordion — styled wrapper, generated from contract.json with one
- * HAND-AUTHORED deviation (bespoke escape hatch, RFC 0004 D53).
+ * Accordion — styled wrapper, generated from contract.json.
  *
+ * Do not edit by hand: change registry/components/accordion/contract.json and regenerate.
  * A typed props surface over the headless @primitiv-ui/react component + the
- * generated recipe — the primary DX (RFC 0004 §3.5 / D51). Every part follows
- * the generated shape except AccordionContent: to drive the display:grid
- * open/close transition (styles.css), it force-mounts the panel (so it is never
- * `hidden` and can animate) and wraps its children in a
- * `.primitiv-accordion__content-inner` clip element — the grid item whose
- * overflow the row-track animates over. `forceMount` is therefore not exposed
- * as a prop (it is always on). Keep this file, contract.json, and the
- * stylesheet in sync by hand.
+ * generated recipe — the primary DX (RFC 0004 §3.5 / D51).
  */
 import { Accordion as AccordionPrimitive } from "@primitiv-ui/react";
 import { Children, type ComponentPropsWithRef, type ReactNode } from "react";
@@ -71,14 +64,10 @@ export function AccordionTrigger({ className, children, ...props }: AccordionTri
   );
 }
 
-export type AccordionContentProps = DistributiveOmit<ComponentPropsWithRef<typeof AccordionPrimitive.Content>, "forceMount">;
+export type AccordionContentProps = ComponentPropsWithRef<typeof AccordionPrimitive.Content>;
 
-export function AccordionContent({ className, children, ...props }: AccordionContentProps) {
-  return (
-    <AccordionPrimitive.Content className={[accordionContent(), className].filter(Boolean).join(" ")} {...props} forceMount>
-      <div className="primitiv-accordion__content-inner">{children}</div>
-    </AccordionPrimitive.Content>
-  );
+export function AccordionContent({ className, ...props }: AccordionContentProps) {
+  return <AccordionPrimitive.Content className={[accordionContent(), className].filter(Boolean).join(" ")} {...props} />;
 }
 
 export type AccordionTriggerIconProps = ComponentPropsWithRef<typeof AccordionPrimitive.TriggerIcon>;

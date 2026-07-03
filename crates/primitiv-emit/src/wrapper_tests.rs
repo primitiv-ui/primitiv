@@ -380,13 +380,22 @@ fn the_committed_toggle_group_wrapper_is_the_generated_form_of_its_contract() {
     );
 }
 
-/// Drift guard: the committed `registry/components/accordion/accordion.tsx` is
-/// exactly the generated form of its contract — a five-subcomponent structural
+/// Generator guard for the accordion contract — a five-subcomponent structural
 /// compound (item / header / trigger / content / trigger-icon) whose `trigger`
 /// opts into `wrapTextChildren`, proving a kebab-case multi-word subcomponent
 /// name (`trigger-icon`) round-trips through the PascalCase/camelCase naming.
+///
+/// Unlike the other committed wrappers, this asserts against a golden of the
+/// *pure generated form* rather than the committed
+/// `registry/components/accordion/accordion.tsx`, because that file is
+/// hand-tuned: `AccordionContent` force-mounts the panel and wraps its children
+/// in a `.primitiv-accordion__content-inner` clip element to drive the
+/// display:grid open/close transition (a bespoke escape hatch, RFC 0004 D53,
+/// like Modal — which for the same reason has no committed-wrapper drift test).
+/// The generator still runs on the real contract here, so its naming branches
+/// stay covered; the committed wrapper is guarded by `check-registry-types.mjs`.
 #[test]
-fn the_committed_accordion_wrapper_is_the_generated_form_of_its_contract() {
+fn the_accordion_contract_generates_its_expected_wrapper_form() {
     let contract = Contract::parse(include_bytes!(concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/../../registry/components/accordion/contract.json"
@@ -397,7 +406,7 @@ fn the_committed_accordion_wrapper_is_the_generated_form_of_its_contract() {
         emit_wrapper(&contract),
         include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/../../registry/components/accordion/accordion.tsx"
+            "/tests/golden/accordion.wrapper.tsx"
         ))
     );
 }

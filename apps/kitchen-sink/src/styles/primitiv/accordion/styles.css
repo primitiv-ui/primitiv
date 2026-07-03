@@ -14,9 +14,12 @@
  * Position-derived exception for the visually-last row, unlike the enclosed
  * strip pattern Tabs used to share. A generous HUG-height trigger row pairs
  * the label with a chevron that rotates 180° on data-state="open"; the
- * revealed content is frameless but padded at its trailing edge only, so it
- * reads as breathing room before the next row's hairline rather than a boxed
- * continuation of the trigger.
+ * revealed content is frameless but padded on both block edges, so it reads as
+ * breathing room before the next row's hairline rather than a boxed
+ * continuation of the trigger. The panel opens and closes with a display:grid
+ * row-track transition (0fr↔1fr) in lockstep with the chevron — it animates to
+ * the content's exact height with no max-height guess, driven by the same
+ * motion-duration-control the chevron uses.
  *
  * Structure follows RFC 0008: per-component API tokens + the resting look
  * live in primitiv.base, the `size` modifier in primitiv.variants, the
@@ -62,6 +65,8 @@
     --primitiv-accordion-content-font-size: var(--primitiv-body-md-font-size);
     --primitiv-accordion-content-font-weight: var(--primitiv-body-md-font-weight);
     --primitiv-accordion-content-line-height: var(--primitiv-body-md-line-height);
+    --primitiv-accordion-content-transition-duration: var(--primitiv-motion-duration-control);
+    --primitiv-accordion-content-transition-easing: var(--primitiv-motion-easing-default);
 
     display: flex;
     flex-direction: column;
@@ -135,18 +140,44 @@
     block-size: 100%;
   }
 
-  /* The content — frameless, padded on both block edges (the shared
-     panel/padding/* tokens — the same family Tabs' panel uses, not the
-     trigger's own size-sliced inline padding, so the two stay in sync
-     independent of size). */
+  /* The content — a display:grid collapse container. The panel is force-mounted
+     (the wrapper passes forceMount, so it is never `hidden`), which lets it
+     animate: the row track transitions between 0fr (closed) and 1fr (open), so
+     the panel opens to its content's exact height and closes back to nothing
+     over the transition duration — no fixed max-height guess, no JS
+     measurement. The inner wrapper does the clipping; type/colour stay here and
+     inherit down. */
   .primitiv-accordion__content {
-    padding-block: var(--primitiv-accordion-content-padding-block);
-    padding-inline: var(--primitiv-accordion-content-padding-inline);
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows
+      var(--primitiv-accordion-content-transition-duration)
+      var(--primitiv-accordion-content-transition-easing);
     color: var(--primitiv-accordion-content-fg);
     font-family: var(--primitiv-accordion-content-font-family);
     font-size: var(--primitiv-accordion-content-font-size);
     font-weight: var(--primitiv-accordion-content-font-weight);
     line-height: var(--primitiv-accordion-content-line-height);
+  }
+
+  /* The clip wrapper — a grid item in the animated row. min-height:0 lets it
+     shrink below its content height so the 0fr track can win; overflow:hidden
+     clips the copy (and its padding) during the collapse. Padding lives here,
+     not on the grid container, so it collapses with the row rather than holding
+     the container open. The shared panel/padding/* tokens are the same family
+     Tabs' panel uses, so the two stay in sync independent of size. visibility
+     flips to hidden at the end of the close (it transitions, so it stays
+     visible for the whole animation, then switches) so collapsed content is
+     removed from the tab order and the accessibility tree. */
+  .primitiv-accordion__content-inner {
+    overflow: hidden;
+    min-height: 0;
+    padding-block: var(--primitiv-accordion-content-padding-block);
+    padding-inline: var(--primitiv-accordion-content-padding-inline);
+    visibility: hidden;
+    transition: visibility
+      var(--primitiv-accordion-content-transition-duration)
+      var(--primitiv-accordion-content-transition-easing);
   }
 }
 
@@ -228,6 +259,27 @@
      item is open or closed, unlike Tabs' active/inactive colour swap). */
   .primitiv-accordion__trigger-icon[data-state="open"] {
     --primitiv-accordion-trigger-icon-rotation: 180deg;
+  }
+
+  /* Open — the row track grows to the content's intrinsic height (1fr resolves
+     to max-content in a single-row grid), and the clip wrapper becomes visible.
+     Closing reverses both, and the reduced grid track drives the collapse. */
+  .primitiv-accordion__content[data-state="open"] {
+    grid-template-rows: 1fr;
+  }
+
+  .primitiv-accordion__content[data-state="open"] .primitiv-accordion__content-inner {
+    visibility: visible;
+  }
+
+  /* Honour reduced-motion: keep the open/close (and the chevron flip)
+     instantaneous. */
+  @media (prefers-reduced-motion: reduce) {
+    .primitiv-accordion__content,
+    .primitiv-accordion__content-inner,
+    .primitiv-accordion__trigger-icon {
+      transition: none;
+    }
   }
 
   /* Focus — the shared two-layer focus ring. Nothing in this design rounds

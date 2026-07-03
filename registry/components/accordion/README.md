@@ -14,11 +14,12 @@ content region.
 | `styles.css` | **authored** | The canonical default theme (hairline rows, no boxes). |
 | `styles.scss` | generated | The canonical CSS re-expressed for SCSS consumers (from `styles.css`). |
 | `accordion.recipe.ts` | generated | One `cva` per styled part (from `contract.json`). |
-| `accordion.tsx` | generated | The styled wrappers — `Accordion` / `AccordionItem` / `AccordionHeader` / `AccordionTrigger` / `AccordionContent` / `AccordionTriggerIcon` (from `contract.json`). |
+| `accordion.tsx` | generated (`Content` hand-tuned) | The styled wrappers — `Accordion` / `AccordionItem` / `AccordionHeader` / `AccordionTrigger` / `AccordionContent` / `AccordionTriggerIcon` (from `contract.json`). `AccordionContent` deviates by hand: it force-mounts the panel and wraps its children in a `.primitiv-accordion__content-inner` clip element so the grid open/close transition can animate. |
 
 Only `contract.json` (the API) and `styles.css` (the design) are **authored**;
-the SCSS form, recipe and wrapper are **generated** and pinned to their source by
-drift-guard tests.
+the SCSS form and recipe are **generated** and pinned to their source by
+drift-guard tests. `accordion.tsx` is generated too, save for the one
+hand-tuned `AccordionContent` deviation noted above.
 
 ## The default theme (`styles.css`)
 
@@ -35,6 +36,21 @@ padded on both block edges via the **shared** `panel/padding/block` +
 stay visually consistent (Tabs and Accordion are the only two components with
 a "revealed content area" shape).
 
+The panel **animates open and closed** with the CSS `display: grid`
+row-track technique: `.primitiv-accordion__content` is a single-row grid whose
+`grid-template-rows` transitions between `0fr` (closed) and `1fr` (open), and an
+inner `.primitiv-accordion__content-inner` wrapper (`overflow: hidden;
+min-height: 0`) clips the copy as the row collapses. This opens the panel to its
+content's **exact height** with no `max-height` guess and no JS measurement, and
+closes it back over the transition duration. Timing is
+`--primitiv-accordion-content-transition-duration` /
+`-transition-easing`, defaulting to `motion/duration/control` +
+`motion/easing/default` so the panel moves in lockstep with the chevron; both
+are dropped under `prefers-reduced-motion: reduce`. Because the panel is
+**force-mounted** to animate (it is never `hidden`), the inner wrapper flips to
+`visibility: hidden` at the end of the close so collapsed content stays out of
+the tab order and the accessibility tree.
+
 Structured per RFC 0008 — per-component API tokens + resting look in
 `primitiv.base`, the `size` modifier in `primitiv.variants`, the
 `data-state` / `:focus-visible` / `data-disabled` styling in `primitiv.states`.
@@ -43,7 +59,10 @@ It wires `--primitiv-accordion-*` to **semantic tokens only**:
 the hairline, `content/primary` (trigger label) + `content/secondary` (content
 copy), `label/{size}/*` + `body/{size}/*` for type,
 `--primitiv-accordion-content-padding-block` / `-padding-inline` (defaulting
-to `panel/padding/block` / `panel/padding/inline`) for the content padding.
+to `panel/padding/block` / `panel/padding/inline`) for the content padding, and
+`--primitiv-accordion-content-transition-duration` / `-transition-easing`
+(defaulting to `motion/duration/control` / `motion/easing/default`) for the
+open/close animation.
 The trigger's own density-scaled padding-block token
 (`accordion/trigger-padding-block`) is consumed directly, not re-exposed as a
 `--primitiv-accordion-*` override — it's a shared Context token, not

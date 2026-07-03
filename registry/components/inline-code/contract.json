@@ -1,0 +1,38 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "inline-code",
+  "version": "0.1.0",
+  "description": "Inline code — a `<code>` fragment set in the mono face on a tinted, hairline-bordered chip. Sized xs–xl so a snippet tracks the surrounding text; `data-density` scales each size further.",
+  "docs": "https://primitiv-ui.dev/docs/components/inline-code",
+  "root": {
+    "element": "code",
+    "class": "primitiv-inline-code"
+  },
+  "dataAttributes": [],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Snippet size; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-inline-code--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-inline-code--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-inline-code--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-inline-code--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-inline-code--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-inline-code-font-family", "defaultsTo": "var(--primitiv-font-family-mono)" },
+    { "name": "--primitiv-inline-code-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-inline-code-line-height", "defaultsTo": "var(--primitiv-code-md-line-height)" },
+    { "name": "--primitiv-inline-code-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-inline-code-background", "defaultsTo": "var(--primitiv-surface-subtle)" },
+    { "name": "--primitiv-inline-code-border-color", "defaultsTo": "var(--primitiv-border-subtle)" },
+    { "name": "--primitiv-inline-code-border-width", "defaultsTo": "var(--primitiv-border-width-1)" },
+    { "name": "--primitiv-inline-code-radius", "defaultsTo": "var(--primitiv-radii-4)" },
+    { "name": "--primitiv-inline-code-padding-inline", "defaultsTo": "var(--primitiv-space-space-4)" },
+    { "name": "--primitiv-inline-code-padding-block", "defaultsTo": "var(--primitiv-space-space-2)" }
+  ]
+}

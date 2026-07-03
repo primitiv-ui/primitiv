@@ -150,13 +150,14 @@ fn add_all_resolves_every_embedded_component() {
         .args(["add", "--all", "--dry-run"])
         .assert()
         .success()
-        // The 8 framed controls + the three prose entries (table, divider, prose)
-        // + the modal + toggle-group + accordion.
-        .stdout(predicate::str::contains("Resolved 14 components to add:"))
+        // The 8 framed controls + the four prose entries (table, divider, prose,
+        // inline-code) + the modal + toggle-group + accordion.
+        .stdout(predicate::str::contains("Resolved 15 components to add:"))
         .stdout(predicate::str::contains("button"))
         .stdout(predicate::str::contains("table"))
         .stdout(predicate::str::contains("divider"))
         .stdout(predicate::str::contains("prose"))
+        .stdout(predicate::str::contains("inline-code"))
         .stdout(predicate::str::contains("modal"))
         .stdout(predicate::str::contains("toggle-group"))
         .stdout(predicate::str::contains("accordion"));

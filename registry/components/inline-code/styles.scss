@@ -1,0 +1,91 @@
+/*
+ * Inline Code — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add inline-code`. It is yours to
+ * edit: the stable surface is the contract (the .primitiv-inline-code class, the
+ * --xs…--xl modifiers, and the --primitiv-inline-code-* custom properties), not
+ * these values (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look live
+ * in primitiv.base, size modifiers in primitiv.variants. Only the type scale
+ * (font-size + code line-height) re-points per size — the mono face, the tinted
+ * chip, the hairline border and the padding are shared, matching the Figma
+ * "Inline Code" set. This is the opt-in, sizeable counterpart to the bare
+ * <code> element style in primitiv.reset (which is fixed at md).
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-font-family-mono,
+ * --primitiv-body-*, --primitiv-code-*, --primitiv-content-*, --primitiv-surface-*,
+ * --primitiv-border-*, --primitiv-radii-* and --primitiv-space-* custom properties
+ * it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-inline-code {
+    /* Per-component API — the themable knobs, defaulting to the md size. The
+       variants layer below re-points only the type scale; consumers can override
+       any one without touching the rule. */
+    --primitiv-inline-code-font-family: var(--primitiv-font-family-mono);
+    --primitiv-inline-code-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-inline-code-line-height: var(--primitiv-code-md-line-height);
+    --primitiv-inline-code-color: var(--primitiv-content-primary);
+    --primitiv-inline-code-background: var(--primitiv-surface-subtle);
+    --primitiv-inline-code-border-color: var(--primitiv-border-subtle);
+    --primitiv-inline-code-border-width: var(--primitiv-border-width-1);
+    --primitiv-inline-code-radius: var(--primitiv-radii-4);
+    --primitiv-inline-code-padding-inline: var(--primitiv-space-space-4);
+    --primitiv-inline-code-padding-block: var(--primitiv-space-space-2);
+
+    font-family: var(--primitiv-inline-code-font-family);
+    font-size: var(--primitiv-inline-code-font-size);
+    line-height: var(--primitiv-inline-code-line-height);
+    color: var(--primitiv-inline-code-color);
+    background-color: var(--primitiv-inline-code-background);
+    border: var(--primitiv-inline-code-border-width) solid var(--primitiv-inline-code-border-color);
+    border-radius: var(--primitiv-inline-code-radius);
+    padding-inline: var(--primitiv-inline-code-padding-inline);
+    padding-block: var(--primitiv-inline-code-padding-block);
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the type scale to the chosen slot. Density stays ambient
+     via [data-density] on the token values themselves (RFC 0009). The chip,
+     border and padding are size-invariant, so only font-size + line-height move. */
+  .primitiv-inline-code--xs {
+    --primitiv-inline-code-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-inline-code-line-height: var(--primitiv-code-xs-line-height);
+  }
+  .primitiv-inline-code--sm {
+    --primitiv-inline-code-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-inline-code-line-height: var(--primitiv-code-sm-line-height);
+  }
+  .primitiv-inline-code--md {
+    --primitiv-inline-code-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-inline-code-line-height: var(--primitiv-code-md-line-height);
+  }
+  .primitiv-inline-code--lg {
+    --primitiv-inline-code-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-inline-code-line-height: var(--primitiv-code-lg-line-height);
+  }
+  .primitiv-inline-code--xl {
+    --primitiv-inline-code-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-inline-code-line-height: var(--primitiv-code-xl-line-height);
+  }
+}
+
+$primitiv-inline-code-font-family: var(--primitiv-inline-code-font-family);
+$primitiv-inline-code-font-size: var(--primitiv-inline-code-font-size);
+$primitiv-inline-code-line-height: var(--primitiv-inline-code-line-height);
+$primitiv-inline-code-color: var(--primitiv-inline-code-color);
+$primitiv-inline-code-background: var(--primitiv-inline-code-background);
+$primitiv-inline-code-border-color: var(--primitiv-inline-code-border-color);
+$primitiv-inline-code-border-width: var(--primitiv-inline-code-border-width);
+$primitiv-inline-code-radius: var(--primitiv-inline-code-radius);
+$primitiv-inline-code-padding-inline: var(--primitiv-inline-code-padding-inline);
+$primitiv-inline-code-padding-block: var(--primitiv-inline-code-padding-block);

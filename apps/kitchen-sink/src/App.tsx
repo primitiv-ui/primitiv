@@ -45,7 +45,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "./components";
-import { ChevronDown, Close, Moon, Search, Sun } from "@primitiv-ui/icons";
+import { ChevronDown, ChevronLeft, ChevronRight, Close, Moon, Search, Sun } from "@primitiv-ui/icons";
 import "./App.css";
 
 type Density = "dense" | "compact" | "comfortable" | "spacious";
@@ -137,7 +137,7 @@ export function App(): ReactElement {
 
       <Prose asChild>
         <article className="kitchen-sink__section">
-          <h1>Primitiv Kitchen Sink</h1>
+          <h1>Heading 1 - Primitiv Kitchen Sink</h1>
           <p>
             Every component the registry currently carries, installed exactly
             as a consumer would via <code>primitiv-ui</code>: <code>npm
@@ -147,7 +147,7 @@ export function App(): ReactElement {
             comes from <code>./components</code>, the styled surface the CLI
             copied in.
           </p>
-          <h2>Typography</h2>
+          <h2>Heading 2 - Typography</h2>
           <p>
             This paragraph, and the headings around it, are wrapped in{" "}
             <Prose asChild>
@@ -157,19 +157,19 @@ export function App(): ReactElement {
             <code>inline code</code> together. The flow rhythm gives tighter
             spacing below a heading than above it.
           </p>
-          <h3>An unordered list</h3>
+          <h3>Heading 3 - An unordered list</h3>
           <ul>
             <li>Hairline rows, no boxes</li>
             <li>Semantic tokens only</li>
             <li>Density scales every control further</li>
           </ul>
-          <h3>An ordered list</h3>
+          <h3>Heading 3 - An ordered list</h3>
           <ol>
             <li>Install the CLI</li>
             <li>Add every component</li>
             <li>Flip the switches above</li>
           </ol>
-          <h4>A blockquote</h4>
+          <h4>Heading 4 - A blockquote</h4>
           <blockquote>
             <p>The stable surface is the contract, not the values.</p>
           </blockquote>
@@ -181,19 +181,29 @@ export function App(): ReactElement {
 
       <Section title="Button">
         <Button variant="primary" size={size}>
+          <ChevronLeft />
           Primary
+          <ChevronRight />
         </Button>
         <Button variant="secondary" size={size}>
+          <ChevronLeft />
           Secondary
+          <ChevronRight />
         </Button>
         <Button variant="ghost" size={size}>
+          <ChevronLeft />
           Ghost
+          <ChevronRight />
         </Button>
         <Button variant="danger" size={size}>
+          <ChevronLeft />
           Danger
+          <ChevronRight />
         </Button>
         <Button variant="link" size={size}>
+          <ChevronLeft />
           Link
+          <ChevronRight />
         </Button>
       </Section>
 
@@ -220,8 +230,8 @@ export function App(): ReactElement {
       </Section>
 
       <Section title="Switch" column>
-        <Switch size={size} defaultChecked aria-label="Wi-Fi" />
-        <Switch size={size} aria-label="Bluetooth" />
+        <Switch size={size} defaultChecked>Wi-Fi</Switch>
+        <Switch size={size}>Bluetooth</Switch>
       </Section>
 
       <Section title="Divider" column>
@@ -234,7 +244,7 @@ export function App(): ReactElement {
         <Field>
           <FieldLabel>Email</FieldLabel>
           <Input type="email" size={size} placeholder="you@example.com" />
-          <FieldDescription>We won&apos;t share it.</FieldDescription>
+          <FieldDescription>We won't share it.</FieldDescription>
         </Field>
         <Field>
           <FieldLabel>Username</FieldLabel>
@@ -248,11 +258,11 @@ export function App(): ReactElement {
           <InputGroupLeadingAdornment>
             <Search aria-hidden="true" />
           </InputGroupLeadingAdornment>
-          <Input aria-label="Search" type="search" placeholder="Search…" />
+          <Input aria-label="Search" type="search" placeholder="Search..." />
           <InputGroupTrailingAdornment asChild>
-            <button type="button" aria-label="Clear">
+            <Button variant="ghost" size='xs' aria-label="Clear">
               <Close aria-hidden="true" />
-            </button>
+            </Button>
           </InputGroupTrailingAdornment>
         </InputGroup>
       </Section>
@@ -307,7 +317,7 @@ export function App(): ReactElement {
         </Accordion>
       </Section>
 
-      <Section title="Toggle Group" column>
+      <Section title="Toggle Group">
         <ToggleGroup type="single" defaultValue="left" aria-label="Alignment">
           <ToggleGroupItem value="left">Left</ToggleGroupItem>
           <ToggleGroupItem value="center">Center</ToggleGroupItem>
@@ -337,7 +347,7 @@ export function App(): ReactElement {
         </Table>
       </Section>
 
-      <Section title="Modal" column>
+      <Section title="Modal">
         <Modal>
           <ModalTrigger asChild>
             <Button variant="primary">Open modal</Button>

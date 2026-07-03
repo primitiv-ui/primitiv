@@ -1,0 +1,214 @@
+/*
+ * Code Block — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add code-block`. It is yours to
+ * edit: the stable surface is the contract (the .primitiv-code-block class, the
+ * --xs…--xl modifiers, the __header/__filename/__copy/__pre/__line/__ln parts,
+ * and the --primitiv-code-block-* / --primitiv-code-syntax-* custom properties),
+ * not these values (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look live
+ * in primitiv.base, size modifiers in primitiv.variants. The block uses the
+ * body type scale (a dedicated block reads at full size, unlike inline-code),
+ * and code/padding — density-scoped — for its air, matching the Figma
+ * "Code Block" set.
+ *
+ * Syntax colours are a code-only concern (no Figma variable): the seven
+ * --primitiv-code-syntax-* roles are defined here with a light set plus a
+ * [data-theme="dark"] override, and mapped onto Prism's token classes, so the
+ * highlighting re-colours through the cascade when the mode flips.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-font-family-mono,
+ * --primitiv-body-*, --primitiv-code-padding, --primitiv-content-*, --primitiv-surface-*,
+ * --primitiv-border-*, --primitiv-radii-* and --primitiv-space-* custom properties it
+ * resolves, plus the `button` component's stylesheet for the copy control.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-code-block {
+    /* Per-component API — the themable knobs, defaulting to the md size. The
+       variants layer re-points only the type scale; consumers can override any
+       one without touching the rule. */
+    --primitiv-code-block-background: var(--primitiv-surface-subtle);
+    --primitiv-code-block-color: var(--primitiv-content-primary);
+    --primitiv-code-block-border-color: var(--primitiv-border-subtle);
+    --primitiv-code-block-border-width: var(--primitiv-border-width-1);
+    --primitiv-code-block-radius: var(--primitiv-radii-8);
+    --primitiv-code-block-padding: var(--primitiv-code-padding);
+    --primitiv-code-block-header-padding-block: var(--primitiv-space-space-8);
+    --primitiv-code-block-font-family: var(--primitiv-font-family-mono);
+    --primitiv-code-block-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-code-block-line-height: var(--primitiv-body-md-line-height);
+    --primitiv-code-block-gutter-color: var(--primitiv-content-muted);
+    --primitiv-code-block-filename-color: var(--primitiv-content-secondary);
+
+    /* Syntax theme — light. The [data-theme="dark"] block below swaps the set. */
+    --primitiv-code-syntax-keyword: oklch(0.5 0.19 305);
+    --primitiv-code-syntax-function: oklch(0.52 0.17 258);
+    --primitiv-code-syntax-string: oklch(0.5 0.12 150);
+    --primitiv-code-syntax-property: oklch(0.54 0.16 25);
+    --primitiv-code-syntax-number: oklch(0.52 0.13 65);
+    --primitiv-code-syntax-comment: oklch(0.62 0.015 260);
+    --primitiv-code-syntax-punctuation: oklch(0.46 0.02 260);
+
+    display: flex;
+    flex-direction: column;
+    /* Clip the header rule + code corners to the outer radius. */
+    overflow: hidden;
+    background: var(--primitiv-code-block-background);
+    color: var(--primitiv-code-block-color);
+    border: var(--primitiv-code-block-border-width) solid var(--primitiv-code-block-border-color);
+    border-radius: var(--primitiv-code-block-radius);
+    font-family: var(--primitiv-code-block-font-family);
+    font-size: var(--primitiv-code-block-font-size);
+    line-height: var(--primitiv-code-block-line-height);
+  }
+
+  /* Header — a toolbar row: filename left, copy control right. */
+  .primitiv-code-block__header {
+    display: flex;
+    align-items: center;
+    gap: var(--primitiv-code-block-padding);
+    padding-block: var(--primitiv-code-block-header-padding-block);
+    padding-inline: var(--primitiv-code-block-padding);
+    border-block-end: var(--primitiv-code-block-border-width) solid var(--primitiv-code-block-border-color);
+  }
+
+  .primitiv-code-block__filename {
+    color: var(--primitiv-code-block-filename-color);
+  }
+
+  /* Copy control — right-aligned whether or not a filename is present. It wears
+     the Button component's secondary classes; only the placement is ours. */
+  .primitiv-code-block__copy {
+    margin-inline-start: auto;
+    flex: none;
+  }
+
+  /* The scroll surface. text-size-adjust stops iOS Safari inflating text in a
+     horizontally-overflowing block (which mis-sizes wrapped lines in portrait). */
+  .primitiv-code-block__pre {
+    margin-block: var(--primitiv-space-space-0);
+    padding: var(--primitiv-code-block-padding);
+    overflow-x: auto;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    tab-size: 2;
+  }
+
+  .primitiv-code-block__code {
+    display: block;
+  }
+
+  /* One row per source line. Without the gutter it's a plain block; with it, a
+     two-column grid (line number + content), gap on the code/padding scale. */
+  .primitiv-code-block__line {
+    display: block;
+  }
+
+  .primitiv-code-block__pre[data-line-numbers] .primitiv-code-block__line {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: var(--primitiv-code-block-padding);
+  }
+
+  .primitiv-code-block__ln {
+    color: var(--primitiv-code-block-gutter-color);
+    text-align: right;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* ===== Syntax theme → Prism token classes (light; dark overrides below) ===== */
+  .primitiv-code-block .token.keyword,
+  .primitiv-code-block .token.tag,
+  .primitiv-code-block .token.selector,
+  .primitiv-code-block .token.atrule,
+  .primitiv-code-block .token.important {
+    color: var(--primitiv-code-syntax-keyword);
+  }
+
+  .primitiv-code-block .token.function,
+  .primitiv-code-block .token.class-name,
+  .primitiv-code-block .token.function-variable {
+    color: var(--primitiv-code-syntax-function);
+  }
+
+  .primitiv-code-block .token.string,
+  .primitiv-code-block .token.char,
+  .primitiv-code-block .token.attr-value,
+  .primitiv-code-block .token.regex,
+  .primitiv-code-block .token.template-string {
+    color: var(--primitiv-code-syntax-string);
+  }
+
+  .primitiv-code-block .token.property,
+  .primitiv-code-block .token.attr-name,
+  .primitiv-code-block .token.variable,
+  .primitiv-code-block .token.constant,
+  .primitiv-code-block .token.symbol {
+    color: var(--primitiv-code-syntax-property);
+  }
+
+  .primitiv-code-block .token.number,
+  .primitiv-code-block .token.boolean,
+  .primitiv-code-block .token.unit {
+    color: var(--primitiv-code-syntax-number);
+  }
+
+  .primitiv-code-block .token.comment,
+  .primitiv-code-block .token.prolog,
+  .primitiv-code-block .token.doctype,
+  .primitiv-code-block .token.cdata {
+    color: var(--primitiv-code-syntax-comment);
+    font-style: italic;
+  }
+
+  .primitiv-code-block .token.punctuation,
+  .primitiv-code-block .token.operator {
+    color: var(--primitiv-code-syntax-punctuation);
+  }
+
+  /* Dark ground — the same seven roles, lifted in lightness and softened. */
+  [data-theme="dark"] .primitiv-code-block {
+    --primitiv-code-syntax-keyword: oklch(0.8 0.15 305);
+    --primitiv-code-syntax-function: oklch(0.78 0.13 258);
+    --primitiv-code-syntax-string: oklch(0.82 0.11 150);
+    --primitiv-code-syntax-property: oklch(0.8 0.13 25);
+    --primitiv-code-syntax-number: oklch(0.84 0.11 68);
+    --primitiv-code-syntax-comment: oklch(0.58 0.015 260);
+    --primitiv-code-syntax-punctuation: oklch(0.72 0.02 260);
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the body type scale to the chosen slot. Padding stays
+     ambient on the density-scoped code/padding (RFC 0009), so only the type
+     moves per size. */
+  .primitiv-code-block--xs {
+    --primitiv-code-block-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-code-block-line-height: var(--primitiv-body-xs-line-height);
+  }
+  .primitiv-code-block--sm {
+    --primitiv-code-block-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-code-block-line-height: var(--primitiv-body-sm-line-height);
+  }
+  .primitiv-code-block--md {
+    --primitiv-code-block-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-code-block-line-height: var(--primitiv-body-md-line-height);
+  }
+  .primitiv-code-block--lg {
+    --primitiv-code-block-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-code-block-line-height: var(--primitiv-body-lg-line-height);
+  }
+  .primitiv-code-block--xl {
+    --primitiv-code-block-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-code-block-line-height: var(--primitiv-body-xl-line-height);
+  }
+}

@@ -8,6 +8,7 @@ import {
   AccordionTriggerIcon,
   Button,
   Checkbox,
+  CodeBlock,
   Divider,
   Field,
   FieldLabel,
@@ -420,6 +421,24 @@ primitiv add --all`}</code>
             </TableRow>
           </TableBody>
         </Table>
+      </Section>
+
+      <Section title="Code Block" column>
+        <CodeBlock
+          size={size}
+          language="tsx"
+          filename="ramp.ts"
+          showLineNumbers
+          code={`import { generate } from "@primitiv-ui/harmoni";
+
+const STEPS = 11;
+
+export function ramp(hue: number, chroma = 0.12) {
+  return generate({ hue, chroma, steps: STEPS })
+    .filter((s) => s.inGamut)
+    .map((s) => s.hex);
+}`}
+        />
       </Section>
 
       <Section title="Modal">

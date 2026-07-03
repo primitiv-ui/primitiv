@@ -1,0 +1,47 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "code-block",
+  "version": "0.1.0",
+  "description": "A block of source code — a bordered, tinted surface with mono type, an optional filename/copy header, an optional line-number gutter, and Prism syntax highlighting themed from tokens. Sized xs–xl; `data-density` scales the padding.",
+  "docs": "https://primitiv-ui.dev/docs/components/code-block",
+  "root": {
+    "element": "div",
+    "class": "primitiv-code-block"
+  },
+  "dataAttributes": [],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Type size; `data-density` scales the padding further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-code-block--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-code-block--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-code-block--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-code-block--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-code-block--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-code-block-background", "defaultsTo": "var(--primitiv-surface-subtle)" },
+    { "name": "--primitiv-code-block-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-code-block-border-color", "defaultsTo": "var(--primitiv-border-subtle)" },
+    { "name": "--primitiv-code-block-border-width", "defaultsTo": "var(--primitiv-border-width-1)" },
+    { "name": "--primitiv-code-block-radius", "defaultsTo": "var(--primitiv-radii-8)" },
+    { "name": "--primitiv-code-block-padding", "defaultsTo": "var(--primitiv-code-padding)" },
+    { "name": "--primitiv-code-block-header-padding-block", "defaultsTo": "var(--primitiv-space-space-8)" },
+    { "name": "--primitiv-code-block-font-family", "defaultsTo": "var(--primitiv-font-family-mono)" },
+    { "name": "--primitiv-code-block-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-code-block-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" },
+    { "name": "--primitiv-code-block-gutter-color", "defaultsTo": "var(--primitiv-content-muted)" },
+    { "name": "--primitiv-code-block-filename-color", "defaultsTo": "var(--primitiv-content-secondary)" },
+    { "name": "--primitiv-code-syntax-keyword", "defaultsTo": "oklch(0.5 0.19 305)" },
+    { "name": "--primitiv-code-syntax-function", "defaultsTo": "oklch(0.52 0.17 258)" },
+    { "name": "--primitiv-code-syntax-string", "defaultsTo": "oklch(0.5 0.12 150)" },
+    { "name": "--primitiv-code-syntax-property", "defaultsTo": "oklch(0.54 0.16 25)" },
+    { "name": "--primitiv-code-syntax-number", "defaultsTo": "oklch(0.52 0.13 65)" },
+    { "name": "--primitiv-code-syntax-comment", "defaultsTo": "oklch(0.62 0.015 260)" },
+    { "name": "--primitiv-code-syntax-punctuation", "defaultsTo": "oklch(0.46 0.02 260)" }
+  ]
+}

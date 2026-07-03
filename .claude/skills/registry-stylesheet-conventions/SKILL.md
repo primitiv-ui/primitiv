@@ -1,6 +1,6 @@
 ---
 name: registry-stylesheet-conventions
-description: How to author the copied registry component stylesheets (registry/components/<name>/styles.css and its .scss mirror) — the no-magic-numbers rule (tokenize every literal that maps to a design token, including zeros), the genuine exceptions, how to find a token's emitted custom-property name, and the CSS/SCSS/contract sync checklist. TRIGGER when editing or auditing a registry component stylesheet, replacing a literal value with a token, hard-coding a value in styles.css/styles.scss, or adding a new registry component's theme. SKIP for headless packages/react component work, the Rust/token-emit engine, and Figma variable work.
+description: How to author the copied registry component stylesheets (registry/components/<name>/styles.css and its .scss mirror) — the no-magic-numbers rule (tokenize every literal that maps to a design token, including zeros), the genuine exceptions, how to find a token's emitted custom-property name, the animated focus-ring and open/close (grid-collapse) standards, and the CSS/SCSS/contract sync checklist. TRIGGER when editing or auditing a registry component stylesheet, replacing a literal value with a token, hard-coding a value in styles.css/styles.scss, adding a focus ring or an open/close panel animation, or adding a new registry component's theme. SKIP for headless packages/react component work, the Rust/token-emit engine, and Figma variable work.
 ---
 
 # Registry stylesheet conventions
@@ -100,6 +100,64 @@ still applies the trim directly to its flex container rather than a label span
 — pre-dates this convention being written down. Fix it the same way as
 ToggleGroup.Item if you're in that file for another reason; it isn't wired to
 `wrapTextChildren` yet.
+
+## Animated focus ring — transition `box-shadow`
+
+The two-layer focus ring is a `box-shadow` swapped in on `:focus-visible`
+(`0 0 0 offset surface, 0 0 0 offset+width ring`). **Every control that draws
+this ring must also list `box-shadow` in the `transition` on the same element
+that carries the ring**, so the ring interpolates in and out as focus moves
+between siblings instead of snapping:
+
+```css
+transition: box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+```
+
+- Use `motion-duration-control` + `motion-easing-default` — the pair Button
+  uses; the ring should feel identical system-wide.
+- **Append** to the element's existing `transition` list rather than replacing
+  it (most controls already transition `background-color` / `border-color` /
+  `color`); if the element had no transition (a bare trigger), add one.
+- The transition goes on the element the `:focus-visible` box-shadow targets —
+  for the input family that's the control itself; for checkbox / radio / switch
+  it's the `__control` reached via the sibling combinator (the ring's box-shadow
+  lands on `__control`, so the transition does too).
+- Controls with a **resting** box-shadow (Button's elevation, ToggleGroup's item
+  shadow) already list `box-shadow` in their transition — nothing to add.
+
+This is a system-wide standard, not per-component polish: a new framed control
+ships with the ring transition from day one. The ring geometry/colour stay
+system tokens (`--primitiv-focus-ring*` / `--primitiv-surface-default`), never a
+per-component knob.
+
+## Animating open/close — grid row + `data-state` padding
+
+To reveal/hide a panel at its natural height with no `max-height` guess and no
+JS measurement (Accordion.Content; any future disclosure surface):
+
+- The headless part must be **force-mounted** so it stays in the DOM when closed
+  and exposes `data-state="open" | "closed"` — otherwise `hidden` removes it and
+  nothing can animate.
+- Make the panel a single-row grid and transition `grid-template-rows` between
+  `0fr` (closed) and `1fr` (open). Wrap the children in one inner element with
+  `overflow: hidden; min-height: 0` — the single grid item that clips the copy
+  as the row collapses.
+- **Padding gotcha (the one that bites):** the grid row only collapses the
+  item's *content* box, and an element's own `overflow` never clips its own
+  padding — so a resting `padding-block` leaves a strip holding a closed item
+  open, and moving `overflow` onto the grid container does **not** fix it. Rest
+  `padding-block` at `var(--primitiv-space-space-0)` and re-apply the real
+  padding only on `[data-state="open"]`, transitioned in lockstep with the row.
+  `padding-inline` is orthogonal to the vertical collapse and stays constant.
+- Flip the inner to `visibility: hidden` when closed (transitioned, so it stays
+  visible through the close then switches) so collapsed content leaves the tab
+  order and the a11y tree.
+- Guard the whole thing under `@media (prefers-reduced-motion: reduce)` with
+  `transition: none`.
+- Expose the timing as `--primitiv-<name>-*-transition-duration` / `-easing`
+  knobs (defaulting to a `motion/*` token) and register them in `contract.json`.
+
+`registry/components/accordion/styles.css` is the reference implementation.
 
 ## When you touch a stylesheet
 

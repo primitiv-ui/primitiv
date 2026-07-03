@@ -1,12 +1,15 @@
 ---
-description: Start the Figma-bridge → tokens → registry sync loop — pair the Desktop Bridge, load the workflow skill, then edit a design token in Figma and flow it through to the emitted token layer and the registry styling.
-argument-hint: [what to change, e.g. "make inline-code padding density-sensitive"]
+description: Tweak a registry component's design end-to-end — pair the Figma Desktop Bridge, adjust the component's variables/tokens in Figma, then flow the change through the emitted token layer to the registry styling and the kitchen-sink. The whole Figma-to-code loop for a styling change.
+argument-hint: [component + change, e.g. "inline-code: make padding density-sensitive"]
 ---
 
-You are starting a **Figma-bridge token-sync session**: the loop that changes a
-design token (or a component's variable bindings) in Figma via the Desktop Bridge
-and flows it through to the emitted token layer and the registry styling. The
-kitchen-sink (`apps/kitchen-sink`) is the testbed; the human verifies it live.
+You are **tweaking a registry component's design**: adjusting a token, scale, or
+variable binding in Figma via the Desktop Bridge and flowing it through to the
+emitted token layer and the registry styling. Figma is the design source of
+truth; the kitchen-sink (`apps/kitchen-sink`) is the testbed; the human verifies
+it live. (To *build* a new component, use `/scaffold-component` or the
+`new-registry-component` skill instead — this command is for changing one that
+exists.)
 
 ## Steps
 
@@ -22,7 +25,7 @@ kitchen-sink (`apps/kitchen-sink`) is the testbed; the human verifies it live.
    Cloud Mode off/on; codes expire in ~5 min, so don't loop on a stale one.
 
 3. **Confirm the change** in one line: `$ARGUMENTS` if given, otherwise ask which
-   token/variable and the target values (per density/theme mode if relevant).
+   component/token and the target values (per density/theme mode if relevant).
    Colour/scale decisions are the human's — propose concrete values and confirm
    before writing.
 

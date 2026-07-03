@@ -380,17 +380,20 @@ primitiv add --all`}</code>
               </AccordionTrigger>
             </AccordionHeader>
             <AccordionContent>
-              <p>
-                Primitiv is a headless component library paired with a styled
-                surface you own outright. The behaviour — focus management,
-                keyboard navigation, ARIA wiring — lives in the headless layer,
-                while the look is a copied stylesheet you are free to re-theme.
-              </p>
-              <p>
-                Every value is a design token, so a single set of custom
-                properties re-skins the whole system across size, density and
-                colour mode.
-              </p>
+              <Prose>
+                <p>
+                  Primitiv is a headless component library paired with a styled
+                  surface you own outright. The behaviour — focus management,
+                  keyboard navigation, ARIA wiring — lives in the headless
+                  layer, while the look is a copied stylesheet you are free to
+                  re-theme.
+                </p>
+                <p>
+                  Every value is a design token, so a single set of custom
+                  properties re-skins the whole system across size, density and
+                  colour mode.
+                </p>
+              </Prose>
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-2">
@@ -403,20 +406,22 @@ primitiv add --all`}</code>
               </AccordionTrigger>
             </AccordionHeader>
             <AccordionContent>
-              <p>
-                Harmoni is the palette generation engine underneath Primitiv — a
-                Rust core compiled to WebAssembly that turns a brand colour into
-                a full, perceptually even ramp.
-              </p>
-              <p>
-                It handles light and dark modes, neutral and soft-neutral ramps,
-                brand-hue tinting, and an OKLCH picker for dialling in the exact
-                anchor colours — all from one input.
-              </p>
-              <p>
-                Because the panels above are different lengths, opening each one
-                animates the grid to its own natural height.
-              </p>
+              <Prose>
+                <p>
+                  Harmoni is the palette generation engine underneath Primitiv —
+                  a Rust core compiled to WebAssembly that turns a brand colour
+                  into a full, perceptually even ramp.
+                </p>
+                <p>
+                  It handles light and dark modes, neutral and soft-neutral
+                  ramps, brand-hue tinting, and an OKLCH picker for dialling in
+                  the exact anchor colours — all from one input.
+                </p>
+                <p>
+                  Because the panels above are different lengths, opening each
+                  one animates the grid to its own natural height.
+                </p>
+              </Prose>
             </AccordionContent>
           </AccordionItem>
         </Accordion>

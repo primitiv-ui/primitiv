@@ -3,6 +3,7 @@ export * from "./button";
 export * from "./checkbox";
 export * from "./divider";
 export * from "./field";
+export * from "./inline-code";
 export * from "./input";
 export * from "./input-group";
 export * from "./modal";

@@ -13,6 +13,7 @@ import {
   FieldLabel,
   FieldDescription,
   FieldErrorText,
+  InlineCode,
   Input,
   InputGroup,
   InputGroupLeadingAdornment,
@@ -175,6 +176,17 @@ export function App(): ReactElement {
             <kbd>K</kbd>, sample output <samp>Done.</samp>, a variable{" "}
             <var>x</var>, and a <time dateTime="2026-07-03">3 July 2026</time>{" "}
             timestamp.
+          </p>
+          <h3>Heading 3 - Inline code, sized</h3>
+          <p>
+            The bare <code>&lt;code&gt;</code> element above is fixed at the md
+            step. The <InlineCode>InlineCode</InlineCode> component adds a size
+            axis — these snippets{" "}
+            <InlineCode size={size}>npm create primitiv-ui</InlineCode>,{" "}
+            <InlineCode size={size}>useState</InlineCode> and{" "}
+            <InlineCode size={size}>--primitiv-flow-normal</InlineCode> track the
+            Size control above, and every size still densifies with the Density
+            control.
           </p>
           <h3>Heading 3 - An unordered list</h3>
           <ul>

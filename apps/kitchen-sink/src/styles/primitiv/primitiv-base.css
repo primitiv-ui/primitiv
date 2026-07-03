@@ -1,0 +1,366 @@
+/*
+ * Primitiv base element styles — the global typographic foundation.
+ *
+ * Shipped as part of the foundation (written alongside the token layer by
+ * `primitiv tokens` / `primitiv init`), not installed per-component. Unlike the
+ * registry component stylesheets, these are **bare element selectors** (`p`,
+ * `strong`, `blockquote`, …) rather than opt-in classes: they style the most
+ * basic semantic HTML so prose and inline marks look right with zero markup.
+ *
+ * Everything lives in `@layer primitiv.reset` — the lowest sublayer declared in
+ * the token file (`reset → tokens → theme → base → variants → states`). Lowest
+ * precedence means a consumer rule, or any Primitiv component class, overrides
+ * these at near-zero cost. This is the deliberate reversal of RFC 0008 D49's
+ * "no global reset" stance (see RFC 0008 §7).
+ *
+ * Every value that maps to a design token is written as that token's custom
+ * property (no magic numbers — RFC 0006 Principle 2). The few literals left are
+ * CSS mechanics with no token home: the synthetic-oblique skew angle, the
+ * sub/sup size ratio, and decoration/keyword values (`solid`, `underline`, …).
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-body-*,
+ * --primitiv-heading-*, --primitiv-label-*, --primitiv-content-*,
+ * --primitiv-surface-*, --primitiv-border-*, --primitiv-action-link-*,
+ * --primitiv-highlight-background, --primitiv-font-family-*, --primitiv-font-weight-*,
+ * --primitiv-space-space-*, --primitiv-radii-*, --primitiv-list-*, --primitiv-quote-*,
+ * --primitiv-code-*, --primitiv-table-* and --primitiv-figure-* custom properties
+ * it resolves.
+ */
+
+@layer primitiv.reset {
+  /* ===== Inline / text-level marks ===== */
+
+  /* Bold stays in-family (Asta Sans now ships Bold). */
+  strong,
+  b {
+    font-weight: var(--primitiv-font-weight-bold);
+  }
+
+  /* No native italic face: synthesise a ~10° oblique. A skew only takes on a
+     transformable box, so the mark becomes inline-block (matches the Figma
+     relativeTransform skew exactly). The angle has no token home. */
+  em,
+  i,
+  cite,
+  dfn {
+    display: inline-block;
+    font-style: normal;
+    transform: skewX(-10deg);
+  }
+
+  /* Highlight: a low-chroma tint behind primary text. */
+  mark {
+    background-color: var(--primitiv-highlight-background);
+    color: var(--primitiv-content-primary);
+  }
+
+  /* Deletion: struck through and muted. */
+  del,
+  s {
+    color: var(--primitiv-content-muted);
+    text-decoration-line: line-through;
+  }
+
+  /* Insertion: underlined, primary. */
+  ins,
+  u {
+    color: var(--primitiv-content-primary);
+    text-decoration-line: underline;
+  }
+
+  /* Abbreviation: dotted underline, secondary, help cursor. */
+  abbr {
+    color: var(--primitiv-content-secondary);
+    text-decoration-line: underline;
+    text-decoration-style: dotted;
+    cursor: help;
+  }
+
+  /* Small print: one step down, muted. */
+  small {
+    font-size: var(--primitiv-body-xs-font-size);
+    color: var(--primitiv-content-muted);
+  }
+
+  /* Subscript / superscript: smaller, on the native baseline shift. The 0.75em
+     size ratio is a typographic constant with no token. */
+  sub,
+  sup {
+    font-size: 0.75em;
+    line-height: 0;
+  }
+
+  sub {
+    vertical-align: sub;
+  }
+
+  sup {
+    vertical-align: super;
+  }
+
+  /* Inline quotation: curly quotes around secondary text. */
+  q {
+    color: var(--primitiv-content-secondary);
+    quotes: "\201C" "\201D" "\2018" "\2019";
+  }
+
+  q::before {
+    content: open-quote;
+  }
+
+  q::after {
+    content: close-quote;
+  }
+
+  /* Keyboard key: a boxed monospace chip. */
+  kbd {
+    font-family: var(--primitiv-font-family-mono);
+    color: var(--primitiv-content-primary);
+    background-color: var(--primitiv-surface-raised);
+    border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
+    border-radius: var(--primitiv-radii-4);
+    padding-inline: var(--primitiv-space-space-4);
+    padding-block: var(--primitiv-space-space-2);
+  }
+
+  /* ===== Block prose ===== */
+
+  /* Paragraph: the default running text. No outer margin — inter-block rhythm is
+     opt-in via the flow context (.primitiv-flow / <Prose>), so a bare paragraph
+     carries no default spacing. The UA margin is zeroed, not dropped (RFC 0016 D66). */
+  p {
+    font-family: var(--primitiv-body-md-font-family);
+    font-size: var(--primitiv-body-md-font-size);
+    font-weight: var(--primitiv-body-md-font-weight);
+    line-height: var(--primitiv-body-md-line-height);
+    color: var(--primitiv-content-primary);
+    margin-block: var(--primitiv-space-space-0);
+  }
+
+  /* Headings: HTML level maps 1:1 to the heading scale slot. No outer margin —
+     heading rhythm and its asymmetry are owned by the flow context (RFC 0016 D66). */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--primitiv-content-primary);
+    margin-block: var(--primitiv-space-space-0);
+  }
+
+  h1 {
+    font-family: var(--primitiv-heading-h1-font-family);
+    font-size: var(--primitiv-heading-h1-font-size);
+    font-weight: var(--primitiv-heading-h1-font-weight);
+    line-height: var(--primitiv-heading-h1-line-height);
+  }
+
+  h2 {
+    font-family: var(--primitiv-heading-h2-font-family);
+    font-size: var(--primitiv-heading-h2-font-size);
+    font-weight: var(--primitiv-heading-h2-font-weight);
+    line-height: var(--primitiv-heading-h2-line-height);
+  }
+
+  h3 {
+    font-family: var(--primitiv-heading-h3-font-family);
+    font-size: var(--primitiv-heading-h3-font-size);
+    font-weight: var(--primitiv-heading-h3-font-weight);
+    line-height: var(--primitiv-heading-h3-line-height);
+  }
+
+  h4 {
+    font-family: var(--primitiv-heading-h4-font-family);
+    font-size: var(--primitiv-heading-h4-font-size);
+    font-weight: var(--primitiv-heading-h4-font-weight);
+    line-height: var(--primitiv-heading-h4-line-height);
+  }
+
+  h5 {
+    font-family: var(--primitiv-heading-h5-font-family);
+    font-size: var(--primitiv-heading-h5-font-size);
+    font-weight: var(--primitiv-heading-h5-font-weight);
+    line-height: var(--primitiv-heading-h5-line-height);
+  }
+
+  h6 {
+    font-family: var(--primitiv-heading-h6-font-family);
+    font-size: var(--primitiv-heading-h6-font-size);
+    font-weight: var(--primitiv-heading-h6-font-weight);
+    line-height: var(--primitiv-heading-h6-line-height);
+  }
+
+  /* Lists: body text, indented, with a secondary-toned marker. The marker→content
+     gap (list/marker-gap) has no native-marker CSS property, so it is not bound. */
+  ul,
+  ol {
+    font-family: var(--primitiv-body-md-font-family);
+    font-size: var(--primitiv-body-md-font-size);
+    font-weight: var(--primitiv-body-md-font-weight);
+    line-height: var(--primitiv-body-md-line-height);
+    color: var(--primitiv-content-primary);
+    padding-inline-start: var(--primitiv-list-indent);
+    margin-block: var(--primitiv-space-space-0);
+  }
+
+  /* Inter-item rhythm on the gap between items, never above the first. */
+  li + li {
+    margin-block-start: var(--primitiv-list-item-gap);
+  }
+
+  li::marker {
+    color: var(--primitiv-list-marker-foreground);
+  }
+
+  /* Description list: term in the label face (contrast does the hierarchy),
+     definition in secondary body, indented under its term. The container's UA
+     block margin is zeroed; flow rhythm is opt-in (RFC 0016 D66). */
+  dl {
+    margin-block: var(--primitiv-space-space-0);
+  }
+
+  dt {
+    font-family: var(--primitiv-label-sm-font-family);
+    font-size: var(--primitiv-label-sm-font-size);
+    font-weight: var(--primitiv-label-sm-font-weight);
+    line-height: var(--primitiv-label-sm-line-height);
+    color: var(--primitiv-content-primary);
+  }
+
+  /* The inline indent under the term is structural (parallel to the list indent),
+     so it stays; only the outer block margin is dropped. */
+  dd {
+    font-family: var(--primitiv-body-md-font-family);
+    font-size: var(--primitiv-body-md-font-size);
+    font-weight: var(--primitiv-body-md-font-weight);
+    line-height: var(--primitiv-body-md-line-height);
+    color: var(--primitiv-content-secondary);
+    margin-inline-start: var(--primitiv-list-indent);
+  }
+
+  /* Blockquote: a left accent bar plus indent is the quote signal (no italic). */
+  blockquote {
+    font-family: var(--primitiv-body-md-font-family);
+    font-size: var(--primitiv-body-md-font-size);
+    font-weight: var(--primitiv-body-md-font-weight);
+    line-height: var(--primitiv-body-md-line-height);
+    color: var(--primitiv-content-secondary);
+    border-inline-start: var(--primitiv-border-width-3) solid var(--primitiv-border-strong);
+    padding-inline-start: var(--primitiv-quote-padding-inline);
+    margin-inline: var(--primitiv-space-space-0);
+    margin-block: var(--primitiv-space-space-0);
+  }
+
+  /* Horizontal rule: a single subtle line drawn as a background fill, the
+     default border zeroed through the border-width token. Outer margin zeroed —
+     the flow context spaces it (RFC 0016 D66). */
+  hr {
+    block-size: var(--primitiv-border-width-1);
+    background-color: var(--primitiv-border-subtle);
+    border-width: var(--primitiv-border-width-0);
+    margin-inline: var(--primitiv-space-space-0);
+    margin-block: var(--primitiv-space-space-0);
+  }
+
+  /* Figure: zero the UA inline + block margins; caption sits below the media. */
+  figure {
+    margin-inline: var(--primitiv-space-space-0);
+    margin-block: var(--primitiv-space-space-0);
+  }
+
+  figcaption {
+    font-family: var(--primitiv-body-sm-font-family);
+    font-size: var(--primitiv-body-sm-font-size);
+    font-weight: var(--primitiv-body-sm-font-weight);
+    line-height: var(--primitiv-body-sm-line-height);
+    color: var(--primitiv-content-muted);
+    margin-block-start: var(--primitiv-figure-caption-gap);
+  }
+
+  /* Inline code: a snug tinted box with a subtle outline. */
+  code {
+    font-family: var(--primitiv-font-family-mono);
+    font-size: var(--primitiv-body-md-font-size);
+    line-height: var(--primitiv-code-md-line-height);
+    color: var(--primitiv-content-primary);
+    background-color: var(--primitiv-surface-subtle);
+    border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+    border-radius: var(--primitiv-radii-4);
+    padding-inline: var(--primitiv-space-space-4);
+    padding-block: var(--primitiv-space-space-2);
+  }
+
+  /* Code block: the same surface, scrollable, body line-height for readability. */
+  pre {
+    font-family: var(--primitiv-font-family-mono);
+    font-size: var(--primitiv-body-md-font-size);
+    line-height: var(--primitiv-body-md-line-height);
+    color: var(--primitiv-content-primary);
+    background-color: var(--primitiv-surface-subtle);
+    border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+    border-radius: var(--primitiv-radii-8);
+    padding: var(--primitiv-code-padding);
+    margin-block: var(--primitiv-space-space-0);
+    overflow: auto;
+  }
+
+  /* Code nested in a block sheds the inline box — the <pre> already provides it. */
+  pre code {
+    background-color: var(--primitiv-color-transparent);
+    border-width: var(--primitiv-border-width-0);
+    border-radius: var(--primitiv-radii-0);
+    padding-inline: var(--primitiv-space-space-0);
+    padding-block: var(--primitiv-space-space-0);
+  }
+
+  /* Links: brand foreground across resting / visited / hover / active. */
+  a {
+    color: var(--primitiv-action-link-foreground-default);
+    text-decoration-line: underline;
+  }
+
+  a:visited {
+    color: var(--primitiv-action-link-foreground-visited);
+  }
+
+  a:hover {
+    color: var(--primitiv-action-link-foreground-hover);
+  }
+
+  a:active {
+    color: var(--primitiv-action-link-foreground-active);
+  }
+
+  /* Table: collapsed rules, body type, cells padded from the Context scale. */
+  table {
+    font-family: var(--primitiv-body-md-font-family);
+    font-size: var(--primitiv-body-md-font-size);
+    line-height: var(--primitiv-body-md-line-height);
+    color: var(--primitiv-content-primary);
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    padding-inline: var(--primitiv-table-cell-padding-inline);
+    padding-block: var(--primitiv-table-cell-padding-block);
+    text-align: start;
+    border-block-end: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+  }
+
+  /* Header cells carry the semibold face and a stronger underline rule. */
+  th {
+    font-weight: var(--primitiv-font-weight-semibold);
+    border-block-end: var(--primitiv-border-width-1) solid var(--primitiv-border-strong);
+  }
+
+  caption {
+    font-family: var(--primitiv-body-sm-font-family);
+    font-size: var(--primitiv-body-sm-font-size);
+    font-weight: var(--primitiv-body-sm-font-weight);
+    line-height: var(--primitiv-body-sm-line-height);
+    color: var(--primitiv-content-muted);
+    text-align: start;
+  }
+}

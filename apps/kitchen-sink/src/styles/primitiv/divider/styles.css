@@ -1,0 +1,49 @@
+/*
+ * Divider — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add divider`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-divider root, the
+ * aria-orientation hooks, and the --primitiv-divider-* custom properties), not
+ * these values (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * The look: a single subtle rule. `aria-orientation` (set by the headless
+ * component) chooses the axis — a full-width hairline that reserves block margin,
+ * or a full-height hairline that reserves inline margin and flows inline.
+ *
+ * Structure follows RFC 0008: the API tokens + the resting look live in
+ * primitiv.base, the orientation axis in primitiv.variants. The sublayer order is
+ * declared once in the shared token layer (primitiv.tokens.css); this file only
+ * re-opens the named sublayers. Requires the token layer (`primitiv tokens`) for
+ * the --primitiv-border-subtle, --primitiv-border-width-1 and
+ * --primitiv-space-space-16 custom properties it resolves.
+ */
+
+@layer primitiv.base {
+  .primitiv-divider {
+    /* Per-component API — the themable knobs. The line is painted as a
+       background fill so a <span> needs no border reset. */
+    --primitiv-divider-color: var(--primitiv-border-subtle);
+    --primitiv-divider-thickness: var(--primitiv-border-width-1);
+    --primitiv-divider-spacing: var(--primitiv-space-space-16);
+
+    display: block;
+    background-color: var(--primitiv-divider-color);
+  }
+}
+
+@layer primitiv.variants {
+  /* Horizontal: a full-width hairline that separates stacked blocks. */
+  .primitiv-divider[aria-orientation="horizontal"] {
+    inline-size: 100%;
+    block-size: var(--primitiv-divider-thickness);
+    margin-block: var(--primitiv-divider-spacing);
+  }
+
+  /* Vertical: a full-height hairline that flows inline between row items. */
+  .primitiv-divider[aria-orientation="vertical"] {
+    display: inline-block;
+    block-size: 100%;
+    inline-size: var(--primitiv-divider-thickness);
+    margin-inline: var(--primitiv-divider-spacing);
+  }
+}

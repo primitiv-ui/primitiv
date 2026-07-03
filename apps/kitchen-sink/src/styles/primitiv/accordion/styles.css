@@ -1,0 +1,252 @@
+/*
+ * Accordion — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add accordion`. It is yours to
+ * edit: the stable surface is the contract (the .primitiv-accordion root +
+ * __item / __header / __trigger / __content / __trigger-icon parts, the
+ * --xs…--xl modifier, the data-state / data-disabled / data-orientation
+ * hooks, and the --primitiv-accordion-* custom properties), not these values
+ * (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * The "hairline rows, no boxes" style: no container border, no per-item box,
+ * no panel frame. Every item is separated from the next by a single
+ * unconditional hairline (border/subtle) on its own bottom edge — there is no
+ * Position-derived exception for the visually-last row, unlike the enclosed
+ * strip pattern Tabs used to share. A generous HUG-height trigger row pairs
+ * the label with a chevron that rotates 180° on data-state="open"; the
+ * revealed content is frameless but padded at its trailing edge only, so it
+ * reads as breathing room before the next row's hairline rather than a boxed
+ * continuation of the trigger.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look
+ * live in primitiv.base, the `size` modifier in primitiv.variants, the
+ * data-state / :focus-visible / data-disabled styling in primitiv.states.
+ * The sublayer order is declared once in the shared token layer
+ * (primitiv.tokens.css); this file only re-opens the named sublayers.
+ *
+ * Vertical orientation only for v1; horizontal (data-orientation="horizontal")
+ * is a deferred fast-follow. Requires the token layer (`primitiv tokens`) for
+ * the --primitiv-content-*, --primitiv-border-*, --primitiv-framed-control-*,
+ * --primitiv-focus-ring-*, --primitiv-accordion-*, --primitiv-opacity-*,
+ * --primitiv-label-* and --primitiv-body-* custom properties it resolves.
+ */
+
+@layer primitiv.base {
+  .primitiv-accordion {
+    /* Per-component API — the themable knobs, defaulting to the md size and
+       the resting (closed) trigger. Size modifiers re-point the sizing
+       knobs; the states layer re-points the rotation knob. They inherit to
+       the parts below, so consumers can override any one on the root
+       without touching a rule. */
+    --primitiv-accordion-item-border-color: var(--primitiv-border-subtle);
+    --primitiv-accordion-item-border-width: var(--primitiv-border-width-1);
+    --primitiv-accordion-trigger-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-accordion-trigger-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-accordion-trigger-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-accordion-trigger-icon-rotation: 0deg;
+    --primitiv-accordion-trigger-fg: var(--primitiv-content-primary);
+    --primitiv-accordion-trigger-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-accordion-trigger-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-accordion-trigger-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-accordion-trigger-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-accordion-content-padding-block: var(--primitiv-panel-padding-block);
+    --primitiv-accordion-content-padding-inline: var(--primitiv-panel-padding-inline);
+    --primitiv-accordion-content-fg: var(--primitiv-content-secondary);
+    --primitiv-accordion-content-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-accordion-content-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-accordion-content-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-accordion-content-line-height: var(--primitiv-body-md-line-height);
+
+    display: flex;
+    flex-direction: column;
+  }
+
+  .primitiv-accordion[data-orientation="horizontal"] {
+    flex-direction: row;
+  }
+
+  /* An item — no box, no fill. A single hairline on the bottom edge,
+     unconditional on every item (no Position-derived exception). */
+  .primitiv-accordion__item {
+    border-block-end: var(--primitiv-accordion-item-border-width) solid
+      var(--primitiv-accordion-item-border-color);
+  }
+
+  /* The heading wrapper is a plain reset — the WAI-ARIA Accordion pattern
+     needs it for the document outline, not for any visual. */
+  .primitiv-accordion__header {
+    margin: 0;
+  }
+
+  /* The trigger — a HUG-height row (content + padding-block, not a fixed
+     framed-control/{size}/height slot like Tabs' trigger), label ↔ chevron
+     pushed to opposite ends. */
+  .primitiv-accordion__trigger {
+    display: flex;
+    inline-size: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--primitiv-accordion-trigger-gap);
+    padding-block: var(--primitiv-accordion-trigger-padding-block);
+    padding-inline: var(--primitiv-accordion-trigger-padding-inline);
+    border: none;
+    background: transparent;
+    color: var(--primitiv-accordion-trigger-fg);
+    font-family: var(--primitiv-accordion-trigger-font-family);
+    font-size: var(--primitiv-accordion-trigger-font-size);
+    font-weight: var(--primitiv-accordion-trigger-font-weight);
+    line-height: var(--primitiv-accordion-trigger-line-height);
+    text-align: start;
+    cursor: pointer;
+  }
+
+  /* text-box-trim must be applied to the element directly wrapping the text
+     node — not the flex container — for engines to honour it. The registry
+     component wraps string/number children in this span automatically so
+     consumers never need to do it by hand (mirrors ToggleGroupItem's
+     __item-label / Tabs' __trigger-label). */
+  .primitiv-accordion__trigger-label {
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+  }
+
+  /* The chevron wrapper — sized independently of the trigger's own
+     typography, rotated by the states layer on open. transform-origin stays
+     centred (the default) so the rotation reads in place. */
+  .primitiv-accordion__trigger-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-accordion-trigger-icon-size);
+    block-size: var(--primitiv-accordion-trigger-icon-size);
+    transform: rotate(var(--primitiv-accordion-trigger-icon-rotation));
+    transition: transform var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  .primitiv-accordion__trigger-icon svg {
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  /* The content — frameless, padded on both block edges (the shared
+     panel/padding/* tokens — the same family Tabs' panel uses, not the
+     trigger's own size-sliced inline padding, so the two stay in sync
+     independent of size). */
+  .primitiv-accordion__content {
+    padding-block: var(--primitiv-accordion-content-padding-block);
+    padding-inline: var(--primitiv-accordion-content-padding-inline);
+    color: var(--primitiv-accordion-content-fg);
+    font-family: var(--primitiv-accordion-content-font-family);
+    font-size: var(--primitiv-accordion-content-font-size);
+    font-weight: var(--primitiv-accordion-content-font-weight);
+    line-height: var(--primitiv-accordion-content-line-height);
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the framed-control + typography knobs to the chosen
+     slot. Density stays ambient via [data-density] on the token values
+     themselves (RFC 0009); the trigger/panel padding-block tokens are
+     density-scaled only (not size-sliced), so they don't re-point here. */
+  .primitiv-accordion--xs {
+    --primitiv-accordion-trigger-padding-inline: var(--primitiv-framed-control-xs-padding-inline);
+    --primitiv-accordion-trigger-gap: var(--primitiv-framed-control-xs-gap);
+    --primitiv-accordion-trigger-icon-size: var(--primitiv-framed-control-xs-icon-size);
+    --primitiv-accordion-trigger-font-family: var(--primitiv-label-xs-font-family);
+    --primitiv-accordion-trigger-font-size: var(--primitiv-label-xs-font-size);
+    --primitiv-accordion-trigger-font-weight: var(--primitiv-label-xs-font-weight);
+    --primitiv-accordion-trigger-line-height: var(--primitiv-label-xs-line-height);
+    --primitiv-accordion-content-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-accordion-content-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-accordion-content-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-accordion-content-line-height: var(--primitiv-body-xs-line-height);
+  }
+  .primitiv-accordion--sm {
+    --primitiv-accordion-trigger-padding-inline: var(--primitiv-framed-control-sm-padding-inline);
+    --primitiv-accordion-trigger-gap: var(--primitiv-framed-control-sm-gap);
+    --primitiv-accordion-trigger-icon-size: var(--primitiv-framed-control-sm-icon-size);
+    --primitiv-accordion-trigger-font-family: var(--primitiv-label-sm-font-family);
+    --primitiv-accordion-trigger-font-size: var(--primitiv-label-sm-font-size);
+    --primitiv-accordion-trigger-font-weight: var(--primitiv-label-sm-font-weight);
+    --primitiv-accordion-trigger-line-height: var(--primitiv-label-sm-line-height);
+    --primitiv-accordion-content-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-accordion-content-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-accordion-content-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-accordion-content-line-height: var(--primitiv-body-sm-line-height);
+  }
+  .primitiv-accordion--md {
+    --primitiv-accordion-trigger-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-accordion-trigger-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-accordion-trigger-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-accordion-trigger-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-accordion-trigger-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-accordion-trigger-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-accordion-trigger-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-accordion-content-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-accordion-content-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-accordion-content-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-accordion-content-line-height: var(--primitiv-body-md-line-height);
+  }
+  .primitiv-accordion--lg {
+    --primitiv-accordion-trigger-padding-inline: var(--primitiv-framed-control-lg-padding-inline);
+    --primitiv-accordion-trigger-gap: var(--primitiv-framed-control-lg-gap);
+    --primitiv-accordion-trigger-icon-size: var(--primitiv-framed-control-lg-icon-size);
+    --primitiv-accordion-trigger-font-family: var(--primitiv-label-lg-font-family);
+    --primitiv-accordion-trigger-font-size: var(--primitiv-label-lg-font-size);
+    --primitiv-accordion-trigger-font-weight: var(--primitiv-label-lg-font-weight);
+    --primitiv-accordion-trigger-line-height: var(--primitiv-label-lg-line-height);
+    --primitiv-accordion-content-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-accordion-content-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-accordion-content-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-accordion-content-line-height: var(--primitiv-body-lg-line-height);
+  }
+  .primitiv-accordion--xl {
+    --primitiv-accordion-trigger-padding-inline: var(--primitiv-framed-control-xl-padding-inline);
+    --primitiv-accordion-trigger-gap: var(--primitiv-framed-control-xl-gap);
+    --primitiv-accordion-trigger-icon-size: var(--primitiv-framed-control-xl-icon-size);
+    --primitiv-accordion-trigger-font-family: var(--primitiv-label-xl-font-family);
+    --primitiv-accordion-trigger-font-size: var(--primitiv-label-xl-font-size);
+    --primitiv-accordion-trigger-font-weight: var(--primitiv-label-xl-font-weight);
+    --primitiv-accordion-trigger-line-height: var(--primitiv-label-xl-line-height);
+    --primitiv-accordion-content-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-accordion-content-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-accordion-content-font-weight: var(--primitiv-body-xl-font-weight);
+    --primitiv-accordion-content-line-height: var(--primitiv-body-xl-line-height);
+  }
+}
+
+@layer primitiv.states {
+  /* Open — the chevron rotates 180°; the label keeps its resting colour (the
+     redesign exploration shows the same content/primary label whether the
+     item is open or closed, unlike Tabs' active/inactive colour swap). */
+  .primitiv-accordion__trigger-icon[data-state="open"] {
+    --primitiv-accordion-trigger-icon-rotation: 180deg;
+  }
+
+  /* Focus — the shared two-layer focus ring. Nothing in this design rounds
+     (no corners to clamp on a frameless row), so neither the trigger nor the
+     ring carries a border-radius — the ring reads square with no radius
+     token to re-point. :focus-visible keeps it to keyboard focus; restyle
+     it via the global --primitiv-focus-ring* / --primitiv-surface-default
+     tokens. */
+  .primitiv-accordion__trigger:focus-visible {
+    position: relative;
+    z-index: 1;
+    outline: none;
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Disabled dims the whole row (label + chevron + hairline together) rather
+     than muting only the label. Accordion.Trigger always renders
+     data-disabled (literal "true" / "false", unlike the presence-only
+     convention every other framed control uses), so the selector matches
+     the value rather than just the attribute's presence. */
+  .primitiv-accordion__trigger[data-disabled="true"] {
+    opacity: var(--primitiv-opacity-50);
+    cursor: not-allowed;
+  }
+}

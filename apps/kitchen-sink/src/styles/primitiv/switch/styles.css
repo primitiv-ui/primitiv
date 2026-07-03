@@ -1,0 +1,211 @@
+/*
+ * Switch — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add switch`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-switch root + __control /
+ * __thumb / __label parts, the data-state="checked" hooks, and the
+ * --primitiv-switch-* custom properties), not these values (RFC 0006
+ * Principle 2 — names are stable, values are not).
+ *
+ * The root is a <label> laid out as a flex row: a real, hidden native
+ * <input type="checkbox" role="switch">, the visible __control track, and an
+ * optional __label span fed by the wrapper's children. With no children the row
+ * is just the track, so an aria-labelled switch still renders correctly.
+ *
+ * The input is the focusable, form-participating control, and its native
+ * :checked state slides the thumb and recolours the track (correct through a
+ * form reset, which fires no React event).
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look live
+ * in primitiv.base, size modifiers in primitiv.variants, checked / focus /
+ * disabled styling in primitiv.states. The sublayer order is declared once in
+ * the shared token layer (primitiv.tokens.css).
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-action-*,
+ * --primitiv-surface-*, --primitiv-content-*, --primitiv-border-*,
+ * --primitiv-border-width-*, --primitiv-radii-*, --primitiv-space-*,
+ * --primitiv-opacity-*, --primitiv-label-*, --primitiv-label-control-*,
+ * --primitiv-focus-ring-*, --primitiv-switch-*, --primitiv-motion-* and
+ * --primitiv-shadow-* custom properties it resolves.
+ */
+
+@layer primitiv.base {
+  .primitiv-switch {
+    /* Per-component API — the themable knobs, defaulting to the md size, the md
+       label scale and the resting (unchecked) track. The states layer below
+       re-points them; consumers can override any one without touching the rule. */
+    --primitiv-switch-track-bg: var(--primitiv-border-strong);
+    --primitiv-switch-track-bg-checked: var(--primitiv-action-primary-default);
+    --primitiv-switch-track-width: var(--primitiv-switch-md-track-width);
+    --primitiv-switch-track-height: var(--primitiv-switch-md-track-height);
+    --primitiv-switch-track-radius: var(--primitiv-radii-full);
+    --primitiv-switch-thumb-bg: var(--primitiv-surface-default);
+    --primitiv-switch-thumb-size: var(--primitiv-switch-md-thumb-size);
+    --primitiv-switch-thumb-margin: var(--primitiv-switch-md-thumb-margin);
+    --primitiv-switch-thumb-radius: var(--primitiv-radii-full);
+    --primitiv-switch-thumb-shadow: var(--primitiv-shadow-1);
+    --primitiv-switch-gap: var(--primitiv-label-control-md-gap);
+    --primitiv-switch-label-color: var(--primitiv-content-primary);
+    --primitiv-switch-label-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-switch-label-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-switch-label-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-switch-label-line-height: var(--primitiv-label-md-line-height);
+
+    /* The root is the flex row: the control track and the optional label, laid
+       out with the size-aware gap and vertically centred. The whole row is the
+       <label>, so a click anywhere toggles the hidden input. */
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--primitiv-switch-gap);
+    cursor: pointer;
+  }
+
+  /* The real native input — visually hidden (the canonical sr-only clip) but
+     kept in the DOM as the focusable, form-participating control. The <label>
+     root forwards clicks to it; the track colour, thumb position and focus ring
+     all key off its :checked / :focus-visible / :disabled below. The 1px clip
+     rectangle is a functional screen-reader mechanic, not a themable dimension,
+     so it stays literal. */
+  .primitiv-switch > input {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: var(--primitiv-space-space-0);
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: var(--primitiv-border-width-0);
+  }
+
+  /* The control is the visible track: a pill the thumb slides within. It is the
+     positioning context for the absolutely-placed thumb, and the size moves here
+     from the root so the track scales independently of the label beside it. */
+  .primitiv-switch__control {
+    box-sizing: border-box;
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    inline-size: var(--primitiv-switch-track-width);
+    block-size: var(--primitiv-switch-track-height);
+    border: var(--primitiv-border-width-0);
+    border-radius: var(--primitiv-switch-track-radius);
+    background: var(--primitiv-switch-track-bg);
+    transition: background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  .primitiv-switch__thumb {
+    position: absolute;
+    inset-inline-start: var(--primitiv-switch-thumb-margin);
+    inline-size: var(--primitiv-switch-thumb-size);
+    block-size: var(--primitiv-switch-thumb-size);
+    border-radius: var(--primitiv-switch-thumb-radius);
+    background: var(--primitiv-switch-thumb-bg);
+    box-shadow: var(--primitiv-switch-thumb-shadow);
+    transition: translate var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  /* The label is the inline text beside the track, on the shared label type
+     scale so it tracks size and density with the control. Omitted from the DOM
+     when the switch has no children. */
+  .primitiv-switch__label {
+    color: var(--primitiv-switch-label-color);
+    font-family: var(--primitiv-switch-label-font-family);
+    font-size: var(--primitiv-switch-label-font-size);
+    font-weight: var(--primitiv-switch-label-font-weight);
+    line-height: var(--primitiv-switch-label-line-height);
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the track and thumb anatomy knobs, the control↔label gap
+     and the label type slot for each size. Density stays ambient via
+     [data-density] on the token values themselves (RFC 0009). */
+  .primitiv-switch--xs {
+    --primitiv-switch-track-width: var(--primitiv-switch-xs-track-width);
+    --primitiv-switch-track-height: var(--primitiv-switch-xs-track-height);
+    --primitiv-switch-thumb-size: var(--primitiv-switch-xs-thumb-size);
+    --primitiv-switch-thumb-margin: var(--primitiv-switch-xs-thumb-margin);
+    --primitiv-switch-gap: var(--primitiv-label-control-xs-gap);
+    --primitiv-switch-label-font-size: var(--primitiv-label-xs-font-size);
+    --primitiv-switch-label-line-height: var(--primitiv-label-xs-line-height);
+  }
+  .primitiv-switch--sm {
+    --primitiv-switch-track-width: var(--primitiv-switch-sm-track-width);
+    --primitiv-switch-track-height: var(--primitiv-switch-sm-track-height);
+    --primitiv-switch-thumb-size: var(--primitiv-switch-sm-thumb-size);
+    --primitiv-switch-thumb-margin: var(--primitiv-switch-sm-thumb-margin);
+    --primitiv-switch-gap: var(--primitiv-label-control-sm-gap);
+    --primitiv-switch-label-font-size: var(--primitiv-label-sm-font-size);
+    --primitiv-switch-label-line-height: var(--primitiv-label-sm-line-height);
+  }
+  .primitiv-switch--md {
+    --primitiv-switch-track-width: var(--primitiv-switch-md-track-width);
+    --primitiv-switch-track-height: var(--primitiv-switch-md-track-height);
+    --primitiv-switch-thumb-size: var(--primitiv-switch-md-thumb-size);
+    --primitiv-switch-thumb-margin: var(--primitiv-switch-md-thumb-margin);
+    --primitiv-switch-gap: var(--primitiv-label-control-md-gap);
+    --primitiv-switch-label-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-switch-label-line-height: var(--primitiv-label-md-line-height);
+  }
+  .primitiv-switch--lg {
+    --primitiv-switch-track-width: var(--primitiv-switch-lg-track-width);
+    --primitiv-switch-track-height: var(--primitiv-switch-lg-track-height);
+    --primitiv-switch-thumb-size: var(--primitiv-switch-lg-thumb-size);
+    --primitiv-switch-thumb-margin: var(--primitiv-switch-lg-thumb-margin);
+    --primitiv-switch-gap: var(--primitiv-label-control-lg-gap);
+    --primitiv-switch-label-font-size: var(--primitiv-label-lg-font-size);
+    --primitiv-switch-label-line-height: var(--primitiv-label-lg-line-height);
+  }
+  .primitiv-switch--xl {
+    --primitiv-switch-track-width: var(--primitiv-switch-xl-track-width);
+    --primitiv-switch-track-height: var(--primitiv-switch-xl-track-height);
+    --primitiv-switch-thumb-size: var(--primitiv-switch-xl-thumb-size);
+    --primitiv-switch-thumb-margin: var(--primitiv-switch-xl-thumb-margin);
+    --primitiv-switch-gap: var(--primitiv-label-control-xl-gap);
+    --primitiv-switch-label-font-size: var(--primitiv-label-xl-font-size);
+    --primitiv-switch-label-line-height: var(--primitiv-label-xl-line-height);
+  }
+}
+
+@layer primitiv.states {
+  /* Checked — the track adopts the primary action colour and the thumb slides
+     to the trailing edge. Keyed off the input's native :checked, not the
+     data-state mirror, so the look survives a form reset. The travel is the free
+     space: the track width minus the thumb minus a margin at each end. */
+  .primitiv-switch > input:checked ~ .primitiv-switch__control {
+    background: var(--primitiv-switch-track-bg-checked);
+  }
+  .primitiv-switch > input:checked ~ .primitiv-switch__control .primitiv-switch__thumb {
+    translate: calc(
+      var(--primitiv-switch-track-width) - var(--primitiv-switch-thumb-size) -
+        (2 * var(--primitiv-switch-thumb-margin))
+    );
+  }
+
+  /* Focus — the shared two-layer ring, identical on every framed control. Two
+     stacked box-shadows follow the track's own pill radius: a surface-coloured
+     gap band, then the brand ring just outside it. :focus-visible keeps it to
+     keyboard focus; the sibling combinator lifts it from the hidden input onto
+     the visible track. Restyle it by overriding the --primitiv-focus-ring* /
+     --primitiv-surface-default tokens globally, not via a per-component knob. */
+  .primitiv-switch > input:focus-visible ~ .primitiv-switch__control {
+    outline: none;
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Disabled is state-neutral so it reads the same checked or unchecked, and
+     dims the whole row (track and label together). The data-disabled hook is a
+     reliable prop mirror (unlike checked, disabled is never changed behind
+     React's back), so it drives this rule directly. */
+  .primitiv-switch[data-disabled] {
+    opacity: var(--primitiv-opacity-50);
+    cursor: not-allowed;
+  }
+}

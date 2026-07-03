@@ -1,4 +1,5 @@
 packages:
   - 'apps/*'
+  - '!apps/kitchen-sink'
   - 'packages/*'
   - 'crates/harmoni-wasm/pkg'

@@ -38,8 +38,9 @@ body {
 }
 
 .kitchen-sink__control-label {
-  font-size: 0.8125rem;
-  font-weight: 600;
+  font-family: var(--primitiv-label-xs-font-family);
+  font-size: var(--primitiv-label-xs-font-size);
+  font-weight: var(--primitiv-label-xs-font-weight);
   color: var(--primitiv-content-secondary);
 }
 

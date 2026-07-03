@@ -252,6 +252,19 @@
     margin-block: var(--primitiv-space-space-0);
   }
 
+  /* Contact address: upright secondary body text. The UA italic is dropped to
+     hold the no-native-italic model (obliques are synthesised, never native);
+     the outer block margin is zeroed so flow rhythm owns its spacing (D66). */
+  address {
+    font-family: var(--primitiv-body-md-font-family);
+    font-size: var(--primitiv-body-md-font-size);
+    font-weight: var(--primitiv-body-md-font-weight);
+    line-height: var(--primitiv-body-md-line-height);
+    color: var(--primitiv-content-secondary);
+    font-style: normal;
+    margin-block: var(--primitiv-space-space-0);
+  }
+
   /* Horizontal rule: a single subtle line drawn as a background fill, the
      default border zeroed through the border-width token. Outer margin zeroed —
      the flow context spaces it (RFC 0016 D66). */

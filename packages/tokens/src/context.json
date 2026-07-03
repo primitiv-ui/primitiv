@@ -45,6 +45,16 @@
         "$type": "number",
         "$value": "{space.space-16}"
       },
+      "inline": {
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
       "xs": {
         "font-size": {
           "$type": "number",
@@ -1978,6 +1988,16 @@
       "padding": {
         "$type": "number",
         "$value": "{space.space-12}"
+      },
+      "inline": {
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
       },
       "xs": {
         "font-size": {
@@ -3913,6 +3933,16 @@
         "$type": "number",
         "$value": "{space.space-16}"
       },
+      "inline": {
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
       "xs": {
         "font-size": {
           "$type": "number",
@@ -5846,6 +5876,16 @@
       "padding": {
         "$type": "number",
         "$value": "{space.space-12}"
+      },
+      "inline": {
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-1}"
+        }
       },
       "xs": {
         "font-size": {

@@ -38,8 +38,8 @@
     --primitiv-inline-code-border-color: var(--primitiv-border-subtle);
     --primitiv-inline-code-border-width: var(--primitiv-border-width-1);
     --primitiv-inline-code-radius: var(--primitiv-radii-4);
-    --primitiv-inline-code-padding-inline: var(--primitiv-space-space-4);
-    --primitiv-inline-code-padding-block: var(--primitiv-space-space-2);
+    --primitiv-inline-code-padding-inline: var(--primitiv-code-inline-padding-inline);
+    --primitiv-inline-code-padding-block: var(--primitiv-code-inline-padding-block);
 
     font-family: var(--primitiv-inline-code-font-family);
     font-size: var(--primitiv-inline-code-font-size);
@@ -55,8 +55,10 @@
 
 @layer primitiv.variants {
   /* Size — re-points the type scale to the chosen slot. Density stays ambient
-     via [data-density] on the token values themselves (RFC 0009). The chip,
-     border and padding are size-invariant, so only font-size + line-height move. */
+     via [data-density] on the token values themselves (RFC 0009): the font-size,
+     line-height and chip padding all densify without a size class. The chip
+     border and radius are size-invariant, so only font-size + line-height move
+     here. */
   .primitiv-inline-code--xs {
     --primitiv-inline-code-font-size: var(--primitiv-code-xs-font-size);
     --primitiv-inline-code-line-height: var(--primitiv-code-xs-line-height);

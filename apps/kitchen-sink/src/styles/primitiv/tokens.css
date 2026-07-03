@@ -459,6 +459,8 @@
     --primitiv-checkbox-xs-focus-ring-gap-radius: var(--primitiv-radii-4);
     --primitiv-checkbox-xs-focus-ring-radius: var(--primitiv-radii-6);
     --primitiv-checkbox-xs-mark-size: var(--primitiv-size-size-10);
+    --primitiv-code-inline-padding-block: var(--primitiv-space-space-2);
+    --primitiv-code-inline-padding-inline: var(--primitiv-space-space-4);
     --primitiv-code-lg-font-size: var(--primitiv-font-size-16);
     --primitiv-code-lg-line-height: var(--primitiv-line-height-24);
     --primitiv-code-md-font-size: var(--primitiv-font-size-13);
@@ -874,6 +876,8 @@
     --primitiv-checkbox-xs-focus-ring-gap-radius: var(--primitiv-radii-4);
     --primitiv-checkbox-xs-focus-ring-radius: var(--primitiv-radii-6);
     --primitiv-checkbox-xs-mark-size: var(--primitiv-size-size-8);
+    --primitiv-code-inline-padding-block: var(--primitiv-space-space-2);
+    --primitiv-code-inline-padding-inline: var(--primitiv-space-space-4);
     --primitiv-code-lg-font-size: var(--primitiv-font-size-14);
     --primitiv-code-lg-line-height: var(--primitiv-line-height-24);
     --primitiv-code-md-font-size: var(--primitiv-font-size-13);
@@ -1289,6 +1293,8 @@
     --primitiv-checkbox-xs-focus-ring-gap-radius: var(--primitiv-radii-4);
     --primitiv-checkbox-xs-focus-ring-radius: var(--primitiv-radii-6);
     --primitiv-checkbox-xs-mark-size: var(--primitiv-size-size-6);
+    --primitiv-code-inline-padding-block: var(--primitiv-space-space-1);
+    --primitiv-code-inline-padding-inline: var(--primitiv-space-space-3);
     --primitiv-code-lg-font-size: var(--primitiv-font-size-12);
     --primitiv-code-lg-line-height: var(--primitiv-line-height-16);
     --primitiv-code-md-font-size: var(--primitiv-font-size-11);
@@ -1704,6 +1710,8 @@
     --primitiv-checkbox-xs-focus-ring-gap-radius: var(--primitiv-radii-4);
     --primitiv-checkbox-xs-focus-ring-radius: var(--primitiv-radii-6);
     --primitiv-checkbox-xs-mark-size: var(--primitiv-size-size-10);
+    --primitiv-code-inline-padding-block: var(--primitiv-space-space-3);
+    --primitiv-code-inline-padding-inline: var(--primitiv-space-space-6);
     --primitiv-code-lg-font-size: var(--primitiv-font-size-18);
     --primitiv-code-lg-line-height: var(--primitiv-line-height-28);
     --primitiv-code-md-font-size: var(--primitiv-font-size-13);

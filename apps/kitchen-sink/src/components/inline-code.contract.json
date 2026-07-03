@@ -32,7 +32,7 @@
     { "name": "--primitiv-inline-code-border-color", "defaultsTo": "var(--primitiv-border-subtle)" },
     { "name": "--primitiv-inline-code-border-width", "defaultsTo": "var(--primitiv-border-width-1)" },
     { "name": "--primitiv-inline-code-radius", "defaultsTo": "var(--primitiv-radii-4)" },
-    { "name": "--primitiv-inline-code-padding-inline", "defaultsTo": "var(--primitiv-space-space-4)" },
-    { "name": "--primitiv-inline-code-padding-block", "defaultsTo": "var(--primitiv-space-space-2)" }
+    { "name": "--primitiv-inline-code-padding-inline", "defaultsTo": "var(--primitiv-code-inline-padding-inline)" },
+    { "name": "--primitiv-inline-code-padding-block", "defaultsTo": "var(--primitiv-code-inline-padding-block)" }
   ]
 }

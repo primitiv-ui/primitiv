@@ -58,7 +58,9 @@ by `scripts/check-registry-types.mjs` like every other registry wrapper.
 ## Tokens
 
 `inline-code` owns the `--primitiv-inline-code-*` knobs (defaulting to `md`) and
-consumes the shared `code/*` type scale plus `surface/subtle`, `border/subtle`,
-`radii/4` and `space/*` — all present whenever the token layer is. The
-`code/<size>/font-size` and `code/<size>/line-height` tokens are density-scoped
-in the token layer (RFC 0009).
+consumes the shared `code/*` type scale, the `code/inline/padding-*` chip
+padding, plus `surface/subtle`, `border/subtle` and `radii/4` — all present
+whenever the token layer is. The `code/<size>/font-size`,
+`code/<size>/line-height` and `code/inline/padding-{inline,block}` tokens are
+density-scoped in the token layer (RFC 0009), so the chip's type **and** padding
+densify with a `[data-density]` ancestor.

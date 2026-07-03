@@ -103,7 +103,8 @@
     color: var(--primitiv-checkbox-mark-color);
     transition:
       background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
-      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   /* The indicator is the mark itself — always in the DOM, scaled to nothing

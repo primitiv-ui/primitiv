@@ -58,7 +58,9 @@
     font-size: var(--primitiv-input-font-size);
     font-weight: var(--primitiv-input-font-weight);
     line-height: var(--primitiv-input-line-height);
-    transition: border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+    transition:
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   .primitiv-input::placeholder {

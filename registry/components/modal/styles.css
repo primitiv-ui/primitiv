@@ -158,6 +158,7 @@
     background: var(--primitiv-color-transparent);
     color: var(--primitiv-content-secondary);
     cursor: pointer;
+    transition: box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   .primitiv-modal__close:hover {

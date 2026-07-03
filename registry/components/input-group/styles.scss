@@ -68,7 +68,9 @@
     font-size: var(--primitiv-input-group-font-size);
     font-weight: var(--primitiv-input-group-font-weight);
     line-height: var(--primitiv-input-group-line-height);
-    transition: border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+    transition:
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   /* The wrapped Input surrenders its frame to the group: the group draws the

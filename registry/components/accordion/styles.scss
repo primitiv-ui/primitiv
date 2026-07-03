@@ -109,6 +109,7 @@
     line-height: var(--primitiv-accordion-trigger-line-height);
     text-align: start;
     cursor: pointer;
+    transition: box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   /* text-box-trim must be applied to the element directly wrapping the text

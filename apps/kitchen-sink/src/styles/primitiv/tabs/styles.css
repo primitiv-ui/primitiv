@@ -107,7 +107,9 @@
     font-weight: var(--primitiv-tabs-trigger-font-weight);
     line-height: var(--primitiv-tabs-trigger-line-height);
     cursor: pointer;
-    transition: color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+    transition:
+      color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   .primitiv-tabs__trigger::after {

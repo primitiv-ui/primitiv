@@ -105,7 +105,9 @@
     border-radius: var(--primitiv-radio-radius);
     background: var(--primitiv-radio-bg);
     color: var(--primitiv-radio-dot-color);
-    transition: border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+    transition:
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   /* The indicator is the dot — always in the DOM, scaled to nothing until the

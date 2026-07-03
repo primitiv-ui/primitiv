@@ -100,7 +100,9 @@
     border: var(--primitiv-border-width-0);
     border-radius: var(--primitiv-switch-track-radius);
     background: var(--primitiv-switch-track-bg);
-    transition: background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+    transition:
+      background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   .primitiv-switch__thumb {

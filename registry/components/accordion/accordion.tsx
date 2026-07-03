@@ -6,11 +6,13 @@
  * generated recipe — the primary DX (RFC 0004 §3.5 / D51). Every part follows
  * the generated shape except AccordionContent: to drive the display:grid
  * open/close transition (styles.css), it force-mounts the panel (so it is never
- * `hidden` and can animate) and wraps its children in a
- * `.primitiv-accordion__content-inner` clip element — the grid item whose
- * overflow the row-track animates over. `forceMount` is therefore not exposed
- * as a prop (it is always on). Keep this file, contract.json, and the
- * stylesheet in sync by hand.
+ * `hidden` and can animate) and wraps its children in two nested elements — a
+ * `.primitiv-accordion__content-inner` clip (the `overflow: hidden` grid item
+ * the row-track collapses) and a `.primitiv-accordion__content-body` inside it
+ * that carries the panel padding, so the padding is clipped away with the row
+ * rather than flooring the collapse. `forceMount` is therefore not exposed as a
+ * prop (it is always on). Keep this file, contract.json, and the stylesheet in
+ * sync by hand.
  */
 import { Accordion as AccordionPrimitive } from "@primitiv-ui/react";
 import { Children, type ComponentPropsWithRef, type ReactNode } from "react";
@@ -76,7 +78,9 @@ export type AccordionContentProps = DistributiveOmit<ComponentPropsWithRef<typeo
 export function AccordionContent({ className, children, ...props }: AccordionContentProps) {
   return (
     <AccordionPrimitive.Content className={[accordionContent(), className].filter(Boolean).join(" ")} {...props} forceMount>
-      <div className="primitiv-accordion__content-inner">{children}</div>
+      <div className="primitiv-accordion__content-inner">
+        <div className="primitiv-accordion__content-body">{children}</div>
+      </div>
     </AccordionPrimitive.Content>
   );
 }

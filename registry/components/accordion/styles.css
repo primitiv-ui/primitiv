@@ -160,32 +160,34 @@
     line-height: var(--primitiv-accordion-content-line-height);
   }
 
-  /* The clip target — the single grid item in the animated row. overflow:hidden
-     clips the copy as the row collapses; min-height:0 lets it shrink below its
-     content height so the 0fr track can win (without it the track floors at the
-     item's min-content and never fully closes). The block padding rests at 0 and
-     is re-applied only in the open state (states layer, below): the grid row
-     collapses the item's *content* box, but an element's own overflow never
-     clips its own padding, so any resting padding-block would leave a residual
-     strip holding a closed item open. Driving it off data-state — transitioned
-     in lockstep with the row — keeps a closed item truly zero-height.
-     padding-inline is orthogonal to the vertical collapse, so it stays constant.
-     The shared panel/padding/* tokens are the same family Tabs' panel uses, so
-     the two stay in sync independent of size. visibility flips to hidden at the
-     end of the close (it transitions, so it stays visible for the whole
-     animation, then switches) so collapsed content is removed from the tab order
-     and the accessibility tree. */
+  /* The clip — the single grid item in the animated row. overflow:hidden gives
+     it a zero block min-size so the 0fr track can collapse all the way, and
+     clips the body as the row shrinks; min-height:0 is belt-and-braces for the
+     same. It deliberately carries NO padding: padding on the collapsing item
+     (or on the grid container) sits outside the row's content box and floors how
+     far the row can shrink, so a padded item can never close to nothing — that
+     is why the padding lives one level down, on the body. visibility flips to
+     hidden at the end of the close (it transitions, so it stays visible for the
+     whole animation, then switches) so collapsed content is removed from the tab
+     order and the accessibility tree. */
   .primitiv-accordion__content-inner {
     overflow: hidden;
     min-height: 0;
-    padding-block: var(--primitiv-space-space-0);
-    padding-inline: var(--primitiv-accordion-content-padding-inline);
     visibility: hidden;
-    transition:
-      padding-block var(--primitiv-accordion-content-transition-duration)
-        var(--primitiv-accordion-content-transition-easing),
-      visibility var(--primitiv-accordion-content-transition-duration)
-        var(--primitiv-accordion-content-transition-easing);
+    transition: visibility
+      var(--primitiv-accordion-content-transition-duration)
+      var(--primitiv-accordion-content-transition-easing);
+  }
+
+  /* The body — the padded content, a level below the clip so its padding sits
+     inside the clipped region: it collapses away with the row instead of holding
+     the panel open, giving the panel constant, un-animated padding that still
+     closes to zero (no padding is added mid-open, so the copy never shifts). The
+     shared panel/padding/* tokens are the same family Tabs' panel uses, so the
+     two stay in sync independent of size. */
+  .primitiv-accordion__content-body {
+    padding-block: var(--primitiv-accordion-content-padding-block);
+    padding-inline: var(--primitiv-accordion-content-padding-inline);
   }
 }
 
@@ -270,16 +272,14 @@
   }
 
   /* Open — the row track grows to the content's intrinsic height (1fr resolves
-     to max-content in a single-row grid), the panel's block padding returns, and
-     the clip wrapper becomes visible. Closing reverses all three in lockstep;
-     the collapsing track *and* the vanishing padding-block together bring a
-     closed item to zero height. */
+     to max-content in a single-row grid) and the clip becomes visible. Closing
+     reverses both; the collapsing track clips the constant-padding body away to
+     nothing, so nothing but the row height animates. */
   .primitiv-accordion__content[data-state="open"] {
     grid-template-rows: 1fr;
   }
 
   .primitiv-accordion__content[data-state="open"] .primitiv-accordion__content-inner {
-    padding-block: var(--primitiv-accordion-content-padding-block);
     visibility: visible;
   }
 

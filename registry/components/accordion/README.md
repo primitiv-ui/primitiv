@@ -14,7 +14,7 @@ content region.
 | `styles.css` | **authored** | The canonical default theme (hairline rows, no boxes). |
 | `styles.scss` | generated | The canonical CSS re-expressed for SCSS consumers (from `styles.css`). |
 | `accordion.recipe.ts` | generated | One `cva` per styled part (from `contract.json`). |
-| `accordion.tsx` | generated (`Content` hand-tuned) | The styled wrappers — `Accordion` / `AccordionItem` / `AccordionHeader` / `AccordionTrigger` / `AccordionContent` / `AccordionTriggerIcon` (from `contract.json`). `AccordionContent` deviates by hand: it force-mounts the panel and wraps its children in a `.primitiv-accordion__content-inner` clip element so the grid open/close transition can animate. |
+| `accordion.tsx` | generated (`Content` hand-tuned) | The styled wrappers — `Accordion` / `AccordionItem` / `AccordionHeader` / `AccordionTrigger` / `AccordionContent` / `AccordionTriggerIcon` (from `contract.json`). `AccordionContent` deviates by hand: it force-mounts the panel and wraps its children in a `.primitiv-accordion__content-inner` clip plus a padded `.primitiv-accordion__content-body` so the grid open/close transition can animate. |
 
 Only `contract.json` (the API) and `styles.css` (the design) are **authored**;
 the SCSS form and recipe are **generated** and pinned to their source by
@@ -38,18 +38,19 @@ a "revealed content area" shape).
 
 The panel **animates open and closed** with the CSS `display: grid`
 row-track technique: `.primitiv-accordion__content` is a single-row grid whose
-`grid-template-rows` transitions between `0fr` (closed) and `1fr` (open); the
-inner `.primitiv-accordion__content-inner` wrapper carries `overflow: hidden` +
-`min-height: 0` so the `0fr` track fully collapses and the copy is clipped as it
-goes. The one catch worth calling out: the grid row only collapses the item's
-**content** box — its `padding-block` sits outside that, and an element's own
-`overflow` never clips its own padding, so a resting block padding leaves a
-residual strip holding a closed item open. So the block padding rests at `0` and
-is re-applied only on `[data-state="open"]` (the state the force-mounted panel
-exposes), transitioned in lockstep with the row; `padding-inline` is orthogonal
-to the collapse and stays constant. This opens the panel to its content's
-**exact height** with no `max-height` guess and no JS measurement, and closes it
-back — padding and all — over the transition duration. Timing is
+`grid-template-rows` transitions between `0fr` (closed) and `1fr` (open). It
+nests two elements: the `.primitiv-accordion__content-inner` clip (`overflow:
+hidden` + `min-height: 0`, so the `0fr` track collapses all the way and the copy
+is clipped as it goes) and, inside it, the padded
+`.primitiv-accordion__content-body`. The catch worth calling out: the grid row
+only collapses the item's **content** box, and an element's own `overflow` never
+clips its own padding — so any `padding-block` on the collapsing item (or on the
+grid container) sits outside the row and **floors** how far it can shrink,
+leaving a residual strip that keeps a closed item open. Putting the padding one
+level down, on the body *inside* the clip, means it is clipped away with the row
+instead: the panel keeps **constant, un-animated padding** (the copy never
+shifts as it opens) yet still closes to zero. This opens the panel to its
+content's **exact height** with no `max-height` guess and no JS measurement. Timing is
 `--primitiv-accordion-content-transition-duration` /
 `-transition-easing`, defaulting to `motion/duration/control` +
 `motion/easing/default` so the panel moves in lockstep with the chevron; both

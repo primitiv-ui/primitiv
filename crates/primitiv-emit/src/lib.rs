@@ -37,6 +37,8 @@ pub use value::format_number;
 #[cfg(test)]
 mod alias_tests;
 #[cfg(test)]
+mod base_tests;
+#[cfg(test)]
 mod component_tests;
 #[cfg(test)]
 mod contract_fixtures;

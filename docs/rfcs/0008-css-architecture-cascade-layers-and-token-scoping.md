@@ -97,14 +97,21 @@ modifier classes, state styling — lives inside a single top-level cascade laye
 named `primitiv`, subdivided into ordered sublayers:
 
 ```css
-@layer primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 ```
 
-The emitter declares this statement once (in the shared token output, §3.1) so
-the order is fixed regardless of the order in which component stylesheets are
-later imported. Anything **outside** the `primitiv` layer — the consumer's own
-CSS — wins over everything inside it, by the cascade-layer rule that unlayered
-styles outrank layered ones.
+This statement is declared at the top of **every** stylesheet Primitiv ships —
+the emitted token/base output *and* each copied component stylesheet — not just
+once in the token output. CSS fixes a layer's precedence by its **first
+appearance**, and a component stylesheet self-imports through its wrapper, so a
+bundler can emit it ahead of the token layer. If only the token output declared
+the order, that early component sheet would register `primitiv.base` before
+`primitiv.reset` and the reset's zeroed element margins would win — silently
+killing the `.primitiv-flow` rhythm (this actually bit the kitchen-sink app).
+Repeating the idempotent statement in every sheet fixes the order regardless of
+import or bundle order. Anything **outside** the `primitiv` layer — the
+consumer's own CSS — wins over everything inside it, by the cascade-layer rule
+that unlayered styles outrank layered ones.
 
 > **`primitiv.reset` — now populated (reversal of D49, see §7/§8).** Originally
 > reserved-but-empty (the components are headless), the lowest sublayer now carries

@@ -84,6 +84,21 @@ The human always manually checks the workbench in a real browser
 afterwards — say so in your summary and leave the visual check to
 them.
 
+## The `apps/kitchen-sink` app can't be built in the sandbox either
+
+It's an **isolated pnpm workspace** (excluded from the root workspace so it
+resolves the *published* packages, not local source — that's the point of it),
+so it has **no `node_modules`** here and `pnpm install` from inside it needs its
+own `pnpm-workspace.yaml` plus a real registry fetch. Don't try to build or run
+it. Verify kitchen-sink changes by other means — `node scripts/check-registry-types.mjs`
+for the copied wrappers, `cargo test` for the registry, and a quick script to
+confirm the barrel matches `update_barrel`'s sort — then leave the live check to
+the human. A **standalone HTML mock** rendered with Playwright (chromium at
+`/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell`,
+launch with that `executablePath` — the pinned version and old-headless default
+both fail) is the way to eyeball a stylesheet without the app. See the
+`new-registry-component` skill for the full hand-sync + verification flow.
+
 The workbench now also has a **vitest harness** (added for the RFC 0010
 OKLCH picker): `apps/workbench/vitest.config.ts` + `vitest.setup.ts`,
 coverage **scoped to `src/OklchPicker/**`** at 100%. wasm and canvas are

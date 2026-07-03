@@ -109,3 +109,32 @@ ToggleGroup.Item if you're in that file for another reason; it isn't wired to
   reference a **new token family**.
 - If the value is an API token's default (a `--primitiv-<component>-*` knob),
   mirror the change into `contract.json`'s `defaultsTo`.
+
+## Horizontally-scrolling code (`code-block`)
+
+Any block that scrolls sideways (the `<pre>` scroll surface) **must** pin
+`text-size-adjust`, or iOS Safari inflates the text in portrait — rescaling
+wrapped/indented lines a step so they look mis-sized (a real bug caught on
+device, invisible in landscape and on desktop):
+
+```css
+.primitiv-code-block__pre {
+  overflow-x: auto;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%; /* CSS mechanics — no token home, like the skew angle */
+}
+```
+
+## Syntax highlighting is a code-only theme
+
+`code-block` colours Prism's token classes (`.token.keyword`, `.token.string`,
+…) from seven **registry-only** `--primitiv-code-syntax-*` roles — there is no
+Figma variable for them (highlighting can't be expressed in Figma). Define them
+on `.primitiv-code-block` (light) with a `[data-theme="dark"] .primitiv-code-block`
+override, so the theme re-colours through the cascade when the mode flips. The
+`oklch(…)` literals here are the token *definitions* (their source of truth), so
+they are exempt from "tokenize every literal" — but everything else in the sheet
+still resolves from `var(--primitiv-…)`. The wrapper hands Prism an **empty
+theme** so only the class names land and our CSS wins (never Prism's inline
+styles, which wouldn't switch with the mode — the reason Prism was chosen over
+Shiki).

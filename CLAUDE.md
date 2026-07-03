@@ -117,6 +117,20 @@ source of truth for when a skill applies.
 - `packages/react` is the headless component library
   (`@primitiv-ui/react`). Component inventory lives at
   `.claude/skills/new-react-component/_generated/component-inventory.md`.
+- **Registry prose family extended** (kitchen-sink feedback session): the
+  hand-authored, primitive-less **`inline-code`** and **`code-block`** registry
+  components landed (see the `new-registry-component` skill — the end-to-end flow
+  for a copied surface: 6 files + `registry.json` + the embedded `FILES` list +
+  the `--all` roster test + the `add`-managed barrel + kitchen-sink hand-sync).
+  `inline-code` gained a dedicated **`code/*/font-size`** ramp (a notch below
+  body) and density-scoped **`code/inline/padding-*`** tokens (Figma + `context.json`);
+  `code-block` does Prism highlighting via `prism-react-renderer` themed from
+  registry-only **`--primitiv-code-syntax-*`** roles (light + `[data-theme=dark]`),
+  with an optional filename/copy header (the copy control reuses the
+  `button` component's secondary classes) and a line-number gutter. Also landed:
+  **every stylesheet now declares the `@layer` order up front** (RFC 0008 §3.1)
+  so a component sheet bundled before the token layer can't invert
+  reset↔base — guarded by a test over the embedded registry.
 - **The build phase has started** (live checklist:
   `docs/transfer-and-next-steps.md`). New crates: `crates/primitiv-cli`
   (the `FileSystem` port + in-memory fake) and `crates/primitiv-emit`

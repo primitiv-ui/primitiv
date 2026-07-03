@@ -146,11 +146,16 @@
      animate: the row track transitions between 0fr (closed) and 1fr (open), so
      the panel opens to its content's exact height and closes back to nothing
      over the transition duration — no fixed max-height guess, no JS
-     measurement. The inner wrapper does the clipping; type/colour stay here and
-     inherit down. */
+     measurement. overflow:hidden here (not on the inner wrapper) is what clips
+     the collapse: a grid container's height is the sum of its row tracks, so at
+     0fr it is zero and clips the padded inner wrapper away completely. An
+     element's own overflow never clips its own padding box, so the clip must
+     live on the parent — otherwise a closed item keeps the panel's padding
+     height. type/colour stay here and inherit down. */
   .primitiv-accordion__content {
     display: grid;
     grid-template-rows: 0fr;
+    overflow: hidden;
     transition: grid-template-rows
       var(--primitiv-accordion-content-transition-duration)
       var(--primitiv-accordion-content-transition-easing);
@@ -161,17 +166,17 @@
     line-height: var(--primitiv-accordion-content-line-height);
   }
 
-  /* The clip wrapper — a grid item in the animated row. min-height:0 lets it
-     shrink below its content height so the 0fr track can win; overflow:hidden
-     clips the copy (and its padding) during the collapse. Padding lives here,
-     not on the grid container, so it collapses with the row rather than holding
-     the container open. The shared panel/padding/* tokens are the same family
-     Tabs' panel uses, so the two stay in sync independent of size. visibility
-     flips to hidden at the end of the close (it transitions, so it stays
-     visible for the whole animation, then switches) so collapsed content is
-     removed from the tab order and the accessibility tree. */
+  /* The clip target — the single grid item in the animated row. min-height:0
+     lets it shrink below its content height so the 0fr track can win (without it
+     the track floors at the item's min-content and never fully closes). Padding
+     lives here rather than on the grid container so it sits inside the clipped
+     region and collapses with the row — the container's overflow:hidden hides it
+     when closed. The shared panel/padding/* tokens are the same family Tabs'
+     panel uses, so the two stay in sync independent of size. visibility flips to
+     hidden at the end of the close (it transitions, so it stays visible for the
+     whole animation, then switches) so collapsed content is removed from the tab
+     order and the accessibility tree. */
   .primitiv-accordion__content-inner {
-    overflow: hidden;
     min-height: 0;
     padding-block: var(--primitiv-accordion-content-padding-block);
     padding-inline: var(--primitiv-accordion-content-padding-inline);

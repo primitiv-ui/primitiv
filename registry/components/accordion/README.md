@@ -38,11 +38,15 @@ a "revealed content area" shape).
 
 The panel **animates open and closed** with the CSS `display: grid`
 row-track technique: `.primitiv-accordion__content` is a single-row grid whose
-`grid-template-rows` transitions between `0fr` (closed) and `1fr` (open), and an
-inner `.primitiv-accordion__content-inner` wrapper (`overflow: hidden;
-min-height: 0`) clips the copy as the row collapses. This opens the panel to its
-content's **exact height** with no `max-height` guess and no JS measurement, and
-closes it back over the transition duration. Timing is
+`grid-template-rows` transitions between `0fr` (closed) and `1fr` (open). It sets
+`overflow: hidden` **on the grid container** (whose height is the row track, so
+it is zero when closed), and the inner `.primitiv-accordion__content-inner`
+wrapper carries `min-height: 0` plus the panel padding so the `0fr` track can
+fully collapse and the padded copy is clipped away — the padding must live on the
+clipped inner, not on the container, or a closed item keeps the panel's padding
+height (an element's own `overflow` never clips its own padding box). This opens
+the panel to its content's **exact height** with no `max-height` guess and no JS
+measurement, and closes it back over the transition duration. Timing is
 `--primitiv-accordion-content-transition-duration` /
 `-transition-easing`, defaulting to `motion/duration/control` +
 `motion/easing/default` so the panel moves in lockstep with the chevron; both

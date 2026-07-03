@@ -1,1 +1,9 @@
 packages: []
+# This app's whole purpose is validating a release the moment it's published,
+# which is fundamentally incompatible with pnpm's minimumReleaseAge
+# supply-chain policy (a personal/org-level setting some pnpm configs enable
+# to refuse packages published too recently). A project-level override here
+# takes precedence over a user's global policy for this project only — it
+# does not weaken that policy anywhere else. See the README's "Fresh releases
+# and minimumReleaseAge" section.
+minimumReleaseAge: 0

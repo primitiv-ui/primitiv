@@ -36,6 +36,22 @@ independent workspace root and stop walking further up. With that in
 place, a plain `pnpm install` run from inside this directory works
 exactly as you'd expect anywhere else.
 
+## Fresh releases and `minimumReleaseAge`
+
+If `pnpm install` here fails with `ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION`,
+that's not a problem with the release — it's pnpm's supply-chain
+`minimumReleaseAge` policy (a personal or org-level setting some pnpm
+configs enable, refusing to install any package published too recently,
+as a guard against a freshly-compromised release). If you have that
+policy set globally, it will reject `primitiv-ui`/`@primitiv-ui/*` right
+after a release goes out, since they're brand new by definition.
+
+This app's whole purpose is validating a release the moment it publishes,
+which is fundamentally incompatible with "wait before trusting" — so
+`pnpm-workspace.yaml` sets `minimumReleaseAge: 0` here. A project-level
+setting takes precedence over your global one *for this project only*;
+it doesn't weaken the policy anywhere else you use pnpm.
+
 ## Updating to a new release
 
 ```sh

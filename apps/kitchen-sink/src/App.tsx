@@ -136,7 +136,7 @@ export function App(): ReactElement {
       </header>
 
       <Prose asChild>
-        <article className="kitchen-sink__section">
+        <article>
           <h1>Heading 1 - Primitiv Kitchen Sink</h1>
           <p>
             Every component the registry currently carries, installed exactly
@@ -155,7 +155,26 @@ export function App(): ReactElement {
             </Prose>{" "}
             just to show <strong>strong</strong>, <em>emphasis</em>, and{" "}
             <code>inline code</code> together. The flow rhythm gives tighter
-            spacing below a heading than above it.
+            spacing below a heading than above it. Nothing in this article sets
+            its own spacing — every gap comes from the <code>.primitiv-flow</code>{" "}
+            owl, so the rhythm is the demonstration.
+          </p>
+          <h3>Heading 3 - Inline text-level marks</h3>
+          <p>
+            Body copy threads a <a href="#inline">hyperlink</a> through{" "}
+            <strong>strong importance</strong> and <b>stylistically bold</b>{" "}
+            runs, <em>stressed emphasis</em> beside <i>alternate-voice italic</i>,
+            a <mark>highlighted phrase</mark>, tracked{" "}
+            <del>deleted</del> and <ins>inserted</ins> edits, an{" "}
+            <s>obsolete</s> price, an <u>annotated</u> span, an{" "}
+            <abbr title="Design Tokens Community Group">DTCG</abbr>{" "}
+            abbreviation, some <small>small print</small>, the formula
+            H<sub>2</sub>O next to E = mc<sup>2</sup>, an inline{" "}
+            <q>quotation with curly marks</q>, a <cite>Cited Work</cite>, a{" "}
+            <dfn>defined term</dfn>, the shortcut <kbd>Ctrl</kbd> +{" "}
+            <kbd>K</kbd>, sample output <samp>Done.</samp>, a variable{" "}
+            <var>x</var>, and a <time dateTime="2026-07-03">3 July 2026</time>{" "}
+            timestamp.
           </p>
           <h3>Heading 3 - An unordered list</h3>
           <ul>
@@ -169,10 +188,54 @@ export function App(): ReactElement {
             <li>Add every component</li>
             <li>Flip the switches above</li>
           </ol>
+          <h3>Heading 3 - A description list</h3>
+          <dl>
+            <dt>Primitiv</dt>
+            <dd>The product — the design system a consumer installs.</dd>
+            <dt>Harmoni</dt>
+            <dd>The palette-generation engine underneath it.</dd>
+          </dl>
+          <h3>Heading 3 - A code block</h3>
+          <pre>
+            <code>{`npm create primitiv-ui@latest
+cd my-app
+primitiv add --all`}</code>
+          </pre>
           <h4>Heading 4 - A blockquote</h4>
           <blockquote>
             <p>The stable surface is the contract, not the values.</p>
           </blockquote>
+          <h4>Heading 4 - A figure</h4>
+          <figure>
+            <svg
+              viewBox="0 0 320 120"
+              role="img"
+              aria-label="A stepped band of the current text colour"
+              style={{
+                display: "block",
+                inlineSize: "100%",
+                blockSize: "auto",
+                borderRadius: "var(--primitiv-radii-8)",
+              }}
+            >
+              <rect x="0" width="64" height="120" fill="currentColor" opacity="0.6" />
+              <rect x="64" width="64" height="120" fill="currentColor" opacity="0.45" />
+              <rect x="128" width="64" height="120" fill="currentColor" opacity="0.3" />
+              <rect x="192" width="64" height="120" fill="currentColor" opacity="0.18" />
+              <rect x="256" width="64" height="120" fill="currentColor" opacity="0.1" />
+            </svg>
+            <figcaption>
+              Figure 1 - the caption sits below its media in the muted body-sm
+              face.
+            </figcaption>
+          </figure>
+          <h4>Heading 4 - An address</h4>
+          <address>
+            Primitiv UI
+            <br />
+            Contact:{" "}
+            <a href="mailto:hello@primitiv-ui.dev">hello@primitiv-ui.dev</a>
+          </address>
           <hr />
           <h5>Heading level 5</h5>
           <h6>Heading level 6</h6>

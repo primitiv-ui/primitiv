@@ -1,0 +1,63 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "button",
+  "version": "0.1.0",
+  "description": "A clickable action — a button, or a link styled as one via `asChild`.",
+  "docs": "https://primitiv-ui.dev/docs/components/button",
+  "root": {
+    "element": "button",
+    "class": "primitiv-button"
+  },
+  "wrapTextChildren": true,
+  "dataAttributes": [
+    {
+      "name": "data-disabled",
+      "value": "",
+      "when": "disabled",
+      "source": "auto"
+    }
+  ],
+  "modifiers": [
+    {
+      "name": "intent",
+      "prop": "variant",
+      "default": "primary",
+      "description": "Visual intent / emphasis.",
+      "options": [
+        { "name": "primary", "class": "primitiv-button--primary", "description": "High-emphasis primary action." },
+        { "name": "secondary", "class": "primitiv-button--secondary", "description": "Medium-emphasis secondary action." },
+        { "name": "danger", "class": "primitiv-button--danger", "description": "Destructive action — delete, remove." },
+        { "name": "ghost", "class": "primitiv-button--ghost", "description": "Low-emphasis action; no frame, tints on hover." },
+        { "name": "link", "class": "primitiv-button--link", "description": "Reads as a link; no frame." }
+      ]
+    },
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Control size; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-button--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-button--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-button--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-button--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-button--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-button-bg", "defaultsTo": "var(--primitiv-action-primary-default)" },
+    { "name": "--primitiv-button-fg", "defaultsTo": "var(--primitiv-action-primary-foreground-default)" },
+    { "name": "--primitiv-button-border-color", "defaultsTo": "var(--primitiv-action-primary-border-default)" },
+    { "name": "--primitiv-button-border-width", "defaultsTo": "var(--primitiv-framed-control-border-width)" },
+    { "name": "--primitiv-button-radius", "defaultsTo": "var(--primitiv-framed-control-md-radius)" },
+    { "name": "--primitiv-button-height", "defaultsTo": "var(--primitiv-framed-control-md-height)" },
+    { "name": "--primitiv-button-padding-inline", "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)" },
+    { "name": "--primitiv-button-gap", "defaultsTo": "var(--primitiv-framed-control-md-gap)" },
+    { "name": "--primitiv-button-icon-size", "defaultsTo": "var(--primitiv-framed-control-md-icon-size)" },
+    { "name": "--primitiv-button-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
+    { "name": "--primitiv-button-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },
+    { "name": "--primitiv-button-font-weight", "defaultsTo": "var(--primitiv-label-md-font-weight)" },
+    { "name": "--primitiv-button-line-height", "defaultsTo": "var(--primitiv-label-md-line-height)" },
+    { "name": "--primitiv-button-shadow", "defaultsTo": "var(--primitiv-elevation-flat)" }
+  ]
+}

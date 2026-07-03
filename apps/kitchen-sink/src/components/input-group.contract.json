@@ -1,0 +1,61 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "input-group",
+  "version": "0.1.0",
+  "description": "A framed control with leading / trailing adornment slots — wraps an Input for icons, prefixes, clear buttons, and reveal toggles.",
+  "docs": "https://primitiv-ui.dev/docs/components/input-group",
+  "root": {
+    "element": "div",
+    "class": "primitiv-input-group",
+    "component": "Root"
+  },
+  "dataAttributes": [
+    { "name": "data-input-group", "value": "", "when": "always", "source": "auto" }
+  ],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Frame size; `data-density` scales each size further. Match the wrapped control's size.",
+      "options": [
+        { "name": "xs", "class": "primitiv-input-group--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-input-group--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-input-group--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-input-group--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-input-group--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "subcomponents": [
+    {
+      "name": "leading-adornment",
+      "component": "LeadingAdornment",
+      "element": "span",
+      "class": "primitiv-input-group__leading"
+    },
+    {
+      "name": "trailing-adornment",
+      "component": "TrailingAdornment",
+      "element": "span",
+      "class": "primitiv-input-group__trailing"
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-input-group-bg", "defaultsTo": "var(--primitiv-surface-default)" },
+    { "name": "--primitiv-input-group-fg", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-input-group-adornment-color", "defaultsTo": "var(--primitiv-content-muted)" },
+    { "name": "--primitiv-input-group-border-color", "defaultsTo": "var(--primitiv-border-default)" },
+    { "name": "--primitiv-input-group-border-color-focus", "defaultsTo": "var(--primitiv-border-focus)" },
+    { "name": "--primitiv-input-group-border-color-invalid", "defaultsTo": "var(--primitiv-border-invalid)" },
+    { "name": "--primitiv-input-group-border-width", "defaultsTo": "var(--primitiv-framed-control-border-width)" },
+    { "name": "--primitiv-input-group-radius", "defaultsTo": "var(--primitiv-framed-control-md-radius)" },
+    { "name": "--primitiv-input-group-height", "defaultsTo": "var(--primitiv-framed-control-md-height)" },
+    { "name": "--primitiv-input-group-padding-inline", "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)" },
+    { "name": "--primitiv-input-group-gap", "defaultsTo": "var(--primitiv-framed-control-md-gap)" },
+    { "name": "--primitiv-input-group-icon-size", "defaultsTo": "var(--primitiv-framed-control-md-icon-size)" },
+    { "name": "--primitiv-input-group-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
+    { "name": "--primitiv-input-group-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-input-group-font-weight", "defaultsTo": "var(--primitiv-body-md-font-weight)" },
+    { "name": "--primitiv-input-group-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" }
+  ]
+}

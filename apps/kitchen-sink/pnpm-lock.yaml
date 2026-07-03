@@ -9,11 +9,11 @@ importers:
   .:
     dependencies:
       '@primitiv-ui/icons':
-        specifier: ^0.1.0
-        version: 0.1.27(@types/react@19.2.17)(react@19.2.7)
+        specifier: ^0.1.28
+        version: 0.1.28(@types/react@19.2.17)(react@19.2.7)
       '@primitiv-ui/react':
         specifier: ^0.1.0
-        version: 0.1.27(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 0.1.28(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -52,8 +52,8 @@ importers:
         specifier: ^15.11.0
         version: 15.15.0
       primitiv-ui:
-        specifier: ^0.1.0
-        version: 0.1.27
+        specifier: ^0.1.28
+        version: 0.1.28
       typescript:
         specifier: ~6.0.2
         version: 6.0.3
@@ -142,39 +142,39 @@ packages:
   '@oxc-project/types@0.138.0':
     resolution: {integrity: sha512-1a7ZKmrRTCoN1XMZ4L0PyyqrMnrNlLyPuOkdSX2MZg7IiIGRUyurNhAm73ptDOraoBcIordsIGKNPKUzy3ZmfA==}
 
-  '@primitiv-ui/cli-darwin-arm64@0.1.27':
-    resolution: {integrity: sha512-Y+N/9CtEelN0+hFcim/9NsYI6UgBHRXFB5UXbAbRSdTln0sfU9wMWH98O3Jj3/b5KNHjxbEqf7pUBMiNLBSvLg==}
+  '@primitiv-ui/cli-darwin-arm64@0.1.28':
+    resolution: {integrity: sha512-47yR/nky1DWvCJFcy6kHnOMdH/7jc7PjR2JmCwlySFm9b8ZR4c0+s6ykTZm+GIbtM4u1eHj/NQrS4MFKF4IIoA==}
     cpu: [arm64]
     os: [darwin]
 
-  '@primitiv-ui/cli-darwin-x64@0.1.27':
-    resolution: {integrity: sha512-a5VCDWfeKSyq03+T7/B6aVVZDK2I8aoT4rWg6AiksvQBwhAVCO1MolPMgK2H5whCU4HkE4ut2WPcyFdAO3A6Og==}
+  '@primitiv-ui/cli-darwin-x64@0.1.28':
+    resolution: {integrity: sha512-sUixrm8xlt7inRpxTfbD4rvjvyDtl46p5Rs43OyDWMmFpTthKSD79jE55OxDxcOgaF8NJy5I4Rpqdy2kZxv7iQ==}
     cpu: [x64]
     os: [darwin]
 
-  '@primitiv-ui/cli-linux-arm64-gnu@0.1.27':
-    resolution: {integrity: sha512-tPgBqBM4hIZNoURjUWVujIJCQCLX+XFIIPohcyAA6YdiLlMNq+aKh3u1iOBIZPPyIPorXPiYq7vwVsUidP255g==}
+  '@primitiv-ui/cli-linux-arm64-gnu@0.1.28':
+    resolution: {integrity: sha512-WTt5qOEALTtRhyRz7Fd2JxO+gyLWu0RLKiJYPMXOXNcEDJyK4JEfLkAKo4qT22GhtaJ0EbAMGnFcSTe/nvxOhg==}
     cpu: [arm64]
     os: [linux]
 
-  '@primitiv-ui/cli-linux-x64-gnu@0.1.27':
-    resolution: {integrity: sha512-/il+xizwA4Nv3jtULlE48fALL+x0WT/Zd85zxKqSO5r2+zzDjKT/EsSNs9OY+vR7ds/qymgRDh6NUiIho7zxTg==}
+  '@primitiv-ui/cli-linux-x64-gnu@0.1.28':
+    resolution: {integrity: sha512-dzIwT6grs8OOUBy1viVBEcZTpqpJ+5dsL8+Bu3cfKGzNDHGDtP88H1+MdLG6Y/dcAiGDB2R3GbqapLmwEoJvCA==}
     cpu: [x64]
     os: [linux]
 
-  '@primitiv-ui/cli-win32-x64@0.1.27':
-    resolution: {integrity: sha512-4d33BK/EPVDpjkOtFWRiSZBER8hEccctLMk/L7ZzkZXbGFJk7IX+nztFZD26n2MPCX7dP3T+wUWyM4R/QR/uaw==}
+  '@primitiv-ui/cli-win32-x64@0.1.28':
+    resolution: {integrity: sha512-3dk+1LI+7lPvtiBDF645eRskkiaB3VNPonXTF1u00s/bVohBtb85o3V7FKixdE1fJGB4124HE6rDuZKdGixEpw==}
     cpu: [x64]
     os: [win32]
 
-  '@primitiv-ui/icons@0.1.27':
-    resolution: {integrity: sha512-FWmxffIBc0B5B0RmRsxlCk6HZx6bsBLYB/GttZ3vVxxDZJ8dkNVnAbru+K3HxNBCsE9cIdRefapv4NDdURkN5A==}
+  '@primitiv-ui/icons@0.1.28':
+    resolution: {integrity: sha512-a0Mjgyxeqr3uEfkcjm//tsfw63MIXEbv+mzr3cRItlCd3lo1wjGjTuV/wabS1fSvaa660901BaXO4HjFwrSB0A==}
     peerDependencies:
       '@types/react': ^18.0.0 || ^19.0.0
       react: ^18.0.0 || ^19.0.0
 
-  '@primitiv-ui/react@0.1.27':
-    resolution: {integrity: sha512-OJnZ+lBwsf9thfMXMR7Y4rRVnnh/RcTW81w1BzSdIFh19Jh9YzGGgUAj/8dTv4vbOxnQs3tBqLdkMOqeMNSreA==}
+  '@primitiv-ui/react@0.1.28':
+    resolution: {integrity: sha512-ZNSXqHk8SxqlURGXc0FHsVuj3SiV2ifftlznLL8ICHoEWnmApQwhIaj6k5pZg769DawGwCcW71AYXmEjt3JxmA==}
     peerDependencies:
       '@types/react': ^18.0.0 || ^19.0.0
       '@types/react-dom': ^18.0.0 || ^19.0.0
@@ -758,8 +758,8 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
 
-  primitiv-ui@0.1.27:
-    resolution: {integrity: sha512-qW3Jn7PNZums2YgL7jJDrq/beKjBOnr+YAA8rKKUHgG+AYt6o7wiWzsHbxWq6sGQ0nXY4XZHzuNQAhsKYBJOkg==}
+  primitiv-ui@0.1.28:
+    resolution: {integrity: sha512-Od/Hq+SDIaHra3EVJp8zZxn4Z5FaY6E/ci4o+s6hW6LDUDo/A6DHHVE1bKrX1gRNoMiNok2eii4ibPeOEWqijQ==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -993,27 +993,27 @@ snapshots:
 
   '@oxc-project/types@0.138.0': {}
 
-  '@primitiv-ui/cli-darwin-arm64@0.1.27':
+  '@primitiv-ui/cli-darwin-arm64@0.1.28':
     optional: true
 
-  '@primitiv-ui/cli-darwin-x64@0.1.27':
+  '@primitiv-ui/cli-darwin-x64@0.1.28':
     optional: true
 
-  '@primitiv-ui/cli-linux-arm64-gnu@0.1.27':
+  '@primitiv-ui/cli-linux-arm64-gnu@0.1.28':
     optional: true
 
-  '@primitiv-ui/cli-linux-x64-gnu@0.1.27':
+  '@primitiv-ui/cli-linux-x64-gnu@0.1.28':
     optional: true
 
-  '@primitiv-ui/cli-win32-x64@0.1.27':
+  '@primitiv-ui/cli-win32-x64@0.1.28':
     optional: true
 
-  '@primitiv-ui/icons@0.1.27(@types/react@19.2.17)(react@19.2.7)':
+  '@primitiv-ui/icons@0.1.28(@types/react@19.2.17)(react@19.2.7)':
     dependencies:
       '@types/react': 19.2.17
       react: 19.2.7
 
-  '@primitiv-ui/react@0.1.27(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@primitiv-ui/react@0.1.28(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
@@ -1519,13 +1519,13 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  primitiv-ui@0.1.27:
+  primitiv-ui@0.1.28:
     optionalDependencies:
-      '@primitiv-ui/cli-darwin-arm64': 0.1.27
-      '@primitiv-ui/cli-darwin-x64': 0.1.27
-      '@primitiv-ui/cli-linux-arm64-gnu': 0.1.27
-      '@primitiv-ui/cli-linux-x64-gnu': 0.1.27
-      '@primitiv-ui/cli-win32-x64': 0.1.27
+      '@primitiv-ui/cli-darwin-arm64': 0.1.28
+      '@primitiv-ui/cli-darwin-x64': 0.1.28
+      '@primitiv-ui/cli-linux-arm64-gnu': 0.1.28
+      '@primitiv-ui/cli-linux-x64-gnu': 0.1.28
+      '@primitiv-ui/cli-win32-x64': 0.1.28
 
   punycode@2.3.1: {}
 

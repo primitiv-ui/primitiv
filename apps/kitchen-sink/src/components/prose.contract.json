@@ -1,0 +1,19 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "prose",
+  "version": "0.1.0",
+  "description": "A flow-rhythm container — applies the `.primitiv-flow` context so every direct child gets density-scoped vertical spacing via a one-directional owl (RFC 0016). Zero behaviour; renders a semantic element, composing the consumer's own element via `asChild`.",
+  "docs": "https://primitiv-ui.dev/docs/components/prose",
+  "root": {
+    "element": "div",
+    "class": "primitiv-flow"
+  },
+  "dataAttributes": [],
+  "modifiers": [],
+  "customProperties": [
+    { "name": "--primitiv-flow-tight", "defaultsTo": "var(--primitiv-space-space-12)" },
+    { "name": "--primitiv-flow-normal", "defaultsTo": "var(--primitiv-space-space-20)" },
+    { "name": "--primitiv-flow-section", "defaultsTo": "var(--primitiv-space-space-32)" },
+    { "name": "--primitiv-flow-region", "defaultsTo": "var(--primitiv-space-space-48)" }
+  ]
+}

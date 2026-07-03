@@ -1,0 +1,52 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "switch",
+  "version": "0.1.0",
+  "description": "An on/off toggle with an optional inline label — a native switch input for an immediate binary setting.",
+  "docs": "https://primitiv-ui.dev/docs/components/switch",
+  "label": true,
+  "root": {
+    "element": "label",
+    "class": "primitiv-switch"
+  },
+  "parts": [
+    { "name": "thumb", "class": "primitiv-switch__thumb" }
+  ],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Control size; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-switch--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-switch--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-switch--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-switch--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-switch--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "dataAttributes": [
+    { "name": "data-state", "value": "checked", "when": "checked", "source": "auto" },
+    { "name": "data-state", "value": "unchecked", "when": "unchecked", "source": "auto" },
+    { "name": "data-disabled", "value": "", "when": "disabled", "source": "auto" }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-switch-track-bg", "defaultsTo": "var(--primitiv-border-strong)" },
+    { "name": "--primitiv-switch-track-bg-checked", "defaultsTo": "var(--primitiv-action-primary-default)" },
+    { "name": "--primitiv-switch-track-width", "defaultsTo": "var(--primitiv-switch-md-track-width)" },
+    { "name": "--primitiv-switch-track-height", "defaultsTo": "var(--primitiv-switch-md-track-height)" },
+    { "name": "--primitiv-switch-track-radius", "defaultsTo": "var(--primitiv-radii-full)" },
+    { "name": "--primitiv-switch-thumb-bg", "defaultsTo": "var(--primitiv-surface-default)" },
+    { "name": "--primitiv-switch-thumb-size", "defaultsTo": "var(--primitiv-switch-md-thumb-size)" },
+    { "name": "--primitiv-switch-thumb-margin", "defaultsTo": "var(--primitiv-switch-md-thumb-margin)" },
+    { "name": "--primitiv-switch-thumb-radius", "defaultsTo": "var(--primitiv-radii-full)" },
+    { "name": "--primitiv-switch-thumb-shadow", "defaultsTo": "var(--primitiv-shadow-1)" },
+    { "name": "--primitiv-switch-gap", "defaultsTo": "var(--primitiv-label-control-md-gap)" },
+    { "name": "--primitiv-switch-label-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-switch-label-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
+    { "name": "--primitiv-switch-label-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },
+    { "name": "--primitiv-switch-label-font-weight", "defaultsTo": "var(--primitiv-label-md-font-weight)" },
+    { "name": "--primitiv-switch-label-line-height", "defaultsTo": "var(--primitiv-label-md-line-height)" }
+  ]
+}

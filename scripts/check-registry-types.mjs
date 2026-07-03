@@ -50,6 +50,28 @@ try {
       `}\n`,
   );
 
+  // `code-block` highlights with prism-react-renderer. Stub its surface (not
+  // what we're checking) so the wrapper resolves — precise prop types, no broad
+  // index signature, so the JSX prop spreads still type-check.
+  writeFileSync(
+    join(workDir, "prism-stub.d.ts"),
+    `declare module "prism-react-renderer" {\n` +
+      `  import { CSSProperties, ReactElement, ReactNode } from "react";\n` +
+      `  export interface PrismTheme { plain: object; styles: unknown[]; }\n` +
+      `  export interface Token { types: string[]; content: string; }\n` +
+      `  export interface LineOutputProps { style?: CSSProperties; className?: string; }\n` +
+      `  export interface TokenOutputProps { style?: CSSProperties; className?: string; children?: ReactNode; }\n` +
+      `  export interface RenderProps {\n` +
+      `    className: string;\n` +
+      `    style: CSSProperties;\n` +
+      `    tokens: Token[][];\n` +
+      `    getLineProps: (input: { line: Token[]; className?: string }) => LineOutputProps;\n` +
+      `    getTokenProps: (input: { token: Token }) => TokenOutputProps;\n` +
+      `  }\n` +
+      `  export function Highlight(props: { theme?: PrismTheme; code: string; language: string; children: (props: RenderProps) => ReactNode }): ReactElement;\n` +
+      `}\n`,
+  );
+
   writeFileSync(
     join(workDir, "tsconfig.json"),
     JSON.stringify(
@@ -62,9 +84,15 @@ try {
           paths: {
             "@primitiv-ui/react": ["../src/index.ts"],
             "class-variance-authority": ["./cva-stub.d.ts"],
+            "prism-react-renderer": ["./prism-stub.d.ts"],
           },
         },
-        include: ["components/**/*.ts", "components/**/*.tsx", "cva-stub.d.ts"],
+        include: [
+          "components/**/*.ts",
+          "components/**/*.tsx",
+          "cva-stub.d.ts",
+          "prism-stub.d.ts",
+        ],
       },
       null,
       2,

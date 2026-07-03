@@ -169,6 +169,20 @@
       },
       "contract": "contract.json"
     },
+    "code-block": {
+      "version": "0.1.0",
+      "dependsOn": { "packages": [{ "name": "prism-react-renderer", "version": "^2.4.0" }], "tokens": true, "components": ["button"] },
+      "styles": {
+        "packages": ["class-variance-authority"],
+        "react": ["code-block.recipe.ts", "code-block.tsx"],
+        "formats": {
+          "css": ["styles.css"],
+          "scss": ["styles.scss"],
+          "tailwind": ["styles.css"]
+        }
+      },
+      "contract": "contract.json"
+    },
     "modal": {
       "version": "0.1.0",
       "dependsOn": { "packages": [{ "name": "@primitiv-ui/react", "version": "^0.1.0" }], "tokens": true, "components": [] },

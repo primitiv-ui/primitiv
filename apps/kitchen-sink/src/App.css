@@ -17,6 +17,10 @@ body {
   gap: var(--primitiv-space-space-48);
 }
 
+.kitchen-sink__logo {
+  width: 3.5rem;
+}
+
 .kitchen-sink__controls {
   position: sticky;
   top: 0;

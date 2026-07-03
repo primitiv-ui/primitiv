@@ -97,6 +97,11 @@ export function App(): ReactElement {
     <div className="kitchen-sink">
       <header className="kitchen-sink__controls">
         <div className="kitchen-sink__control">
+          <svg xmlns="http://www.w3.org/2000/svg" className="kitchen-sink__logo" viewBox="0 0 100 100">
+            <path fill="currentColor" d="M 11.00 77.50 L 16.99 67.14 L 22.97 77.50 Z
+                       M 19.91 62.08 L 29.04 46.28 L 47.08 77.50 L 28.82 77.50 Z
+                       M 31.96 41.22 L 50.00 10.00 L 89.00 77.50 L 52.92 77.50 Z"/>
+          </svg>
           <span className="kitchen-sink__control-label">Density</span>
           <ToggleGroup
             type="single"
@@ -130,6 +135,7 @@ export function App(): ReactElement {
         <div className="kitchen-sink__control">
           {dark ? <Moon aria-hidden="true" /> : <Sun aria-hidden="true" />}
           <Switch
+          size='sm'
             checked={dark}
             onCheckedChange={setDark}
             aria-label="Dark mode"
@@ -143,7 +149,7 @@ export function App(): ReactElement {
           <p>
             Every component the registry currently carries, installed exactly
             as a consumer would via <code>primitiv-ui</code>: <code>npm
-            create primitiv-ui</code>, then <code>primitiv add --all</code>,
+              create primitiv-ui</code>, then <code>primitiv add --all</code>,
             in CSS mode with the default settings. Nothing here imports{" "}
             <code>@primitiv-ui/react</code> directly — every component below
             comes from <code>./components</code>, the styled surface the CLI

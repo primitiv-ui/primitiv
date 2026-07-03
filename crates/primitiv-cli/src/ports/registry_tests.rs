@@ -246,3 +246,20 @@ fn https_registry_maps_a_non_2xx_status_to_an_error() {
 
     assert!(registry.file("button", "styles.css").is_err());
 }
+
+/// Every embedded component stylesheet must declare the sublayer order up front.
+/// A component sheet self-imports through its wrapper, so a bundler can emit it
+/// before the token layer; without the declaration CSS registers primitiv.base
+/// ahead of primitiv.reset (first-appearance wins) and the reset zeroes the flow
+/// margins (RFC 0008 §7). The guard keeps every current and future component
+/// stylesheet honest.
+#[test]
+fn every_embedded_component_stylesheet_declares_the_layer_order() {
+    const ORDER: &str = "@layer primitiv.reset, primitiv.tokens, primitiv.theme, \
+                         primitiv.base, primitiv.variants, primitiv.states;";
+    let index = RegistryIndex::parse(&EmbeddedRegistry.index().unwrap()).unwrap();
+    for name in index.components.keys() {
+        let css = String::from_utf8(EmbeddedRegistry.file(name, "styles.css").unwrap()).unwrap();
+        assert!(css.contains(ORDER), "{name}/styles.css must declare the @layer order");
+    }
+}

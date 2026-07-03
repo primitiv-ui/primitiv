@@ -29,6 +29,12 @@
  * --primitiv-checkbox-* and --primitiv-motion-* custom properties it resolves.
  */
 
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
 @layer primitiv.base {
   .primitiv-checkbox {
     /* Per-component API — the themable knobs, defaulting to the md size, the md

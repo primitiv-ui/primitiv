@@ -213,7 +213,7 @@ primitiv add --all`}</code>
               aria-label="A stepped band of the current text colour"
               style={{
                 display: "block",
-                inlineSize: "100%",
+                inlineSize: "50%",
                 blockSize: "auto",
                 borderRadius: "var(--primitiv-radii-8)",
               }}

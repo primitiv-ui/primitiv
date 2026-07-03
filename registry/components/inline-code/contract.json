@@ -25,7 +25,7 @@
   ],
   "customProperties": [
     { "name": "--primitiv-inline-code-font-family", "defaultsTo": "var(--primitiv-font-family-mono)" },
-    { "name": "--primitiv-inline-code-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-inline-code-font-size", "defaultsTo": "var(--primitiv-code-md-font-size)" },
     { "name": "--primitiv-inline-code-line-height", "defaultsTo": "var(--primitiv-code-md-line-height)" },
     { "name": "--primitiv-inline-code-color", "defaultsTo": "var(--primitiv-content-primary)" },
     { "name": "--primitiv-inline-code-background", "defaultsTo": "var(--primitiv-surface-subtle)" },

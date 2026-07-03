@@ -14,8 +14,10 @@ Sets a code fragment in the mono face on a tinted (`surface/subtle`),
 hairline-bordered (`border/subtle`) chip — the same chip as the bare `<code>`
 element style in `primitiv.reset`, but **opt-in and sizeable**. The bare element
 is fixed at `md`; this component adds an `xs`–`xl` `size` axis so a snippet can
-track the size of the text around it. Only the **type scale** moves per size
-(`body/<size>/font-size` + `code/<size>/line-height`); the chip, border and
+track the size of the text around it. Code has its own type ramp a notch below
+body, so a chip sits smaller than the text it's in. Only the **type scale**
+moves per size (`code/<size>/font-size` + `code/<size>/line-height`); the chip,
+border and
 padding are size-invariant. Every size still densifies via a `[data-density]`
 ancestor, because the size tokens are themselves density-scoped (RFC 0009).
 
@@ -56,7 +58,7 @@ by `scripts/check-registry-types.mjs` like every other registry wrapper.
 ## Tokens
 
 `inline-code` owns the `--primitiv-inline-code-*` knobs (defaulting to `md`) and
-consumes the shared `code/*` and `body/*` type scales plus `surface/subtle`,
-`border/subtle`, `radii/4` and `space/*` — all present whenever the token layer
-is. The `code/<size>/line-height` and `body/<size>/font-size` tokens are
-density-scoped in the token layer (RFC 0009).
+consumes the shared `code/*` type scale plus `surface/subtle`, `border/subtle`,
+`radii/4` and `space/*` — all present whenever the token layer is. The
+`code/<size>/font-size` and `code/<size>/line-height` tokens are density-scoped
+in the token layer (RFC 0009).

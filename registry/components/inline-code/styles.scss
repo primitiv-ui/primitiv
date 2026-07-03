@@ -14,7 +14,7 @@
  * <code> element style in primitiv.reset (which is fixed at md).
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-font-family-mono,
- * --primitiv-body-*, --primitiv-code-*, --primitiv-content-*, --primitiv-surface-*,
+ * --primitiv-code-*, --primitiv-content-*, --primitiv-surface-*,
  * --primitiv-border-*, --primitiv-radii-* and --primitiv-space-* custom properties
  * it resolves.
  */
@@ -31,7 +31,7 @@
        variants layer below re-points only the type scale; consumers can override
        any one without touching the rule. */
     --primitiv-inline-code-font-family: var(--primitiv-font-family-mono);
-    --primitiv-inline-code-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-inline-code-font-size: var(--primitiv-code-md-font-size);
     --primitiv-inline-code-line-height: var(--primitiv-code-md-line-height);
     --primitiv-inline-code-color: var(--primitiv-content-primary);
     --primitiv-inline-code-background: var(--primitiv-surface-subtle);
@@ -58,23 +58,23 @@
      via [data-density] on the token values themselves (RFC 0009). The chip,
      border and padding are size-invariant, so only font-size + line-height move. */
   .primitiv-inline-code--xs {
-    --primitiv-inline-code-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-inline-code-font-size: var(--primitiv-code-xs-font-size);
     --primitiv-inline-code-line-height: var(--primitiv-code-xs-line-height);
   }
   .primitiv-inline-code--sm {
-    --primitiv-inline-code-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-inline-code-font-size: var(--primitiv-code-sm-font-size);
     --primitiv-inline-code-line-height: var(--primitiv-code-sm-line-height);
   }
   .primitiv-inline-code--md {
-    --primitiv-inline-code-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-inline-code-font-size: var(--primitiv-code-md-font-size);
     --primitiv-inline-code-line-height: var(--primitiv-code-md-line-height);
   }
   .primitiv-inline-code--lg {
-    --primitiv-inline-code-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-inline-code-font-size: var(--primitiv-code-lg-font-size);
     --primitiv-inline-code-line-height: var(--primitiv-code-lg-line-height);
   }
   .primitiv-inline-code--xl {
-    --primitiv-inline-code-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-inline-code-font-size: var(--primitiv-code-xl-font-size);
     --primitiv-inline-code-line-height: var(--primitiv-code-xl-line-height);
   }
 }

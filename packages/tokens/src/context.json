@@ -952,6 +952,42 @@
       "xs": {
         "track-height": {
           "$type": "number",
+          "$value": "{size.size-14}"
+        },
+        "track-width": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "thumb-size": {
+          "$type": "number",
+          "$value": "{size.size-10}"
+        },
+        "thumb-margin": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "sm": {
+        "track-height": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
+        "track-width": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
+        "thumb-size": {
+          "$type": "number",
+          "$value": "{size.size-12}"
+        },
+        "thumb-margin": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "md": {
+        "track-height": {
+          "$type": "number",
           "$value": "{size.size-20}"
         },
         "track-width": {
@@ -967,7 +1003,7 @@
           "$value": "{space.space-2}"
         }
       },
-      "sm": {
+      "lg": {
         "track-height": {
           "$type": "number",
           "$value": "{size.size-24}"
@@ -985,7 +1021,7 @@
           "$value": "{space.space-2}"
         }
       },
-      "md": {
+      "xl": {
         "track-height": {
           "$type": "number",
           "$value": "{size.size-28}"
@@ -1001,42 +1037,6 @@
         "thumb-margin": {
           "$type": "number",
           "$value": "{space.space-2}"
-        }
-      },
-      "lg": {
-        "track-height": {
-          "$type": "number",
-          "$value": "{size.size-32}"
-        },
-        "track-width": {
-          "$type": "number",
-          "$value": "{size.size-56}"
-        },
-        "thumb-size": {
-          "$type": "number",
-          "$value": "{size.size-28}"
-        },
-        "thumb-margin": {
-          "$type": "number",
-          "$value": "{space.space-2}"
-        }
-      },
-      "xl": {
-        "track-height": {
-          "$type": "number",
-          "$value": "{size.size-40}"
-        },
-        "track-width": {
-          "$type": "number",
-          "$value": "{size.size-68}"
-        },
-        "thumb-size": {
-          "$type": "number",
-          "$value": "{size.size-32}"
-        },
-        "thumb-margin": {
-          "$type": "number",
-          "$value": "{space.space-4}"
         }
       }
     },
@@ -2928,6 +2928,42 @@
       "xs": {
         "track-height": {
           "$type": "number",
+          "$value": "{size.size-12}"
+        },
+        "track-width": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
+        "thumb-size": {
+          "$type": "number",
+          "$value": "{size.size-8}"
+        },
+        "thumb-margin": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "sm": {
+        "track-height": {
+          "$type": "number",
+          "$value": "{size.size-14}"
+        },
+        "track-width": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "thumb-size": {
+          "$type": "number",
+          "$value": "{size.size-10}"
+        },
+        "thumb-margin": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "md": {
+        "track-height": {
+          "$type": "number",
           "$value": "{size.size-16}"
         },
         "track-width": {
@@ -2943,7 +2979,7 @@
           "$value": "{space.space-2}"
         }
       },
-      "sm": {
+      "lg": {
         "track-height": {
           "$type": "number",
           "$value": "{size.size-20}"
@@ -2961,7 +2997,7 @@
           "$value": "{space.space-2}"
         }
       },
-      "md": {
+      "xl": {
         "track-height": {
           "$type": "number",
           "$value": "{size.size-24}"
@@ -2973,42 +3009,6 @@
         "thumb-size": {
           "$type": "number",
           "$value": "{size.size-20}"
-        },
-        "thumb-margin": {
-          "$type": "number",
-          "$value": "{space.space-2}"
-        }
-      },
-      "lg": {
-        "track-height": {
-          "$type": "number",
-          "$value": "{size.size-28}"
-        },
-        "track-width": {
-          "$type": "number",
-          "$value": "{size.size-48}"
-        },
-        "thumb-size": {
-          "$type": "number",
-          "$value": "{size.size-24}"
-        },
-        "thumb-margin": {
-          "$type": "number",
-          "$value": "{space.space-2}"
-        }
-      },
-      "xl": {
-        "track-height": {
-          "$type": "number",
-          "$value": "{size.size-32}"
-        },
-        "track-width": {
-          "$type": "number",
-          "$value": "{size.size-56}"
-        },
-        "thumb-size": {
-          "$type": "number",
-          "$value": "{size.size-28}"
         },
         "thumb-margin": {
           "$type": "number",
@@ -4904,6 +4904,42 @@
       "xs": {
         "track-height": {
           "$type": "number",
+          "$value": "{size.size-16}"
+        },
+        "track-width": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
+        "thumb-size": {
+          "$type": "number",
+          "$value": "{size.size-12}"
+        },
+        "thumb-margin": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "sm": {
+        "track-height": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
+        "track-width": {
+          "$type": "number",
+          "$value": "{size.size-32}"
+        },
+        "thumb-size": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
+        "thumb-margin": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "md": {
+        "track-height": {
+          "$type": "number",
           "$value": "{size.size-24}"
         },
         "track-width": {
@@ -4919,7 +4955,7 @@
           "$value": "{space.space-2}"
         }
       },
-      "sm": {
+      "lg": {
         "track-height": {
           "$type": "number",
           "$value": "{size.size-28}"
@@ -4937,7 +4973,7 @@
           "$value": "{space.space-2}"
         }
       },
-      "md": {
+      "xl": {
         "track-height": {
           "$type": "number",
           "$value": "{size.size-32}"
@@ -4953,42 +4989,6 @@
         "thumb-margin": {
           "$type": "number",
           "$value": "{space.space-2}"
-        }
-      },
-      "lg": {
-        "track-height": {
-          "$type": "number",
-          "$value": "{size.size-40}"
-        },
-        "track-width": {
-          "$type": "number",
-          "$value": "{size.size-68}"
-        },
-        "thumb-size": {
-          "$type": "number",
-          "$value": "{size.size-32}"
-        },
-        "thumb-margin": {
-          "$type": "number",
-          "$value": "{space.space-4}"
-        }
-      },
-      "xl": {
-        "track-height": {
-          "$type": "number",
-          "$value": "{size.size-48}"
-        },
-        "track-width": {
-          "$type": "number",
-          "$value": "{size.size-80}"
-        },
-        "thumb-size": {
-          "$type": "number",
-          "$value": "{size.size-40}"
-        },
-        "thumb-margin": {
-          "$type": "number",
-          "$value": "{space.space-4}"
         }
       }
     },
@@ -6880,6 +6880,24 @@
       "xs": {
         "track-height": {
           "$type": "number",
+          "$value": "{size.size-10}"
+        },
+        "track-width": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
+        "thumb-size": {
+          "$type": "number",
+          "$value": "{size.size-6}"
+        },
+        "thumb-margin": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "sm": {
+        "track-height": {
+          "$type": "number",
           "$value": "{size.size-12}"
         },
         "track-width": {
@@ -6895,7 +6913,25 @@
           "$value": "{space.space-2}"
         }
       },
-      "sm": {
+      "md": {
+        "track-height": {
+          "$type": "number",
+          "$value": "{size.size-14}"
+        },
+        "track-width": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "thumb-size": {
+          "$type": "number",
+          "$value": "{size.size-10}"
+        },
+        "thumb-margin": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "lg": {
         "track-height": {
           "$type": "number",
           "$value": "{size.size-16}"
@@ -6913,7 +6949,7 @@
           "$value": "{space.space-2}"
         }
       },
-      "md": {
+      "xl": {
         "track-height": {
           "$type": "number",
           "$value": "{size.size-20}"
@@ -6925,42 +6961,6 @@
         "thumb-size": {
           "$type": "number",
           "$value": "{size.size-16}"
-        },
-        "thumb-margin": {
-          "$type": "number",
-          "$value": "{space.space-2}"
-        }
-      },
-      "lg": {
-        "track-height": {
-          "$type": "number",
-          "$value": "{size.size-24}"
-        },
-        "track-width": {
-          "$type": "number",
-          "$value": "{size.size-40}"
-        },
-        "thumb-size": {
-          "$type": "number",
-          "$value": "{size.size-20}"
-        },
-        "thumb-margin": {
-          "$type": "number",
-          "$value": "{space.space-2}"
-        }
-      },
-      "xl": {
-        "track-height": {
-          "$type": "number",
-          "$value": "{size.size-28}"
-        },
-        "track-width": {
-          "$type": "number",
-          "$value": "{size.size-48}"
-        },
-        "thumb-size": {
-          "$type": "number",
-          "$value": "{size.size-24}"
         },
         "thumb-margin": {
           "$type": "number",

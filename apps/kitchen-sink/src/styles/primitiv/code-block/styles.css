@@ -108,7 +108,7 @@
     font-size: inherit;
     line-height: inherit;
     background-color: var(--primitiv-color-transparent);
-    border-width: var(--primitiv-border-width-0);
+    border: none;
     border-radius: var(--primitiv-radii-0);
   }
 

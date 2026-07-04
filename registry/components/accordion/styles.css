@@ -146,7 +146,11 @@
      animate: the row track transitions between 0fr (closed) and 1fr (open), so
      the panel opens to its content's exact height and closes back to nothing
      over the transition duration — no fixed max-height guess, no JS
-     measurement. type/colour stay here and inherit down. */
+     measurement. type/colour stay here and inherit down. (The grid + clip + body
+     structure is a portability stopgap for animating to content height; once
+     `interpolate-size: allow-keywords` reaches Baseline it can collapse to a
+     single-element `height: auto` transition — see the
+     registry-stylesheet-conventions skill.) */
   .primitiv-accordion__content {
     display: grid;
     grid-template-rows: 0fr;

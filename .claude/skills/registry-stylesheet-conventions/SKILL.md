@@ -163,6 +163,18 @@ nested elements**:
 `registry/components/accordion/styles.css` + `accordion.tsx` are the reference
 implementation.
 
+**On the horizon — `interpolate-size`.** The whole three-element dance exists
+only because CSS can't yet animate to `height: auto`. Once `interpolate-size:
+allow-keywords` (set on `:root`) has cross-browser support, a disclosure can
+`transition: height` from `0` to `auto` directly — folding the grid + clip back
+toward a single element (put the padding on an inner child, or `overflow: clip`
++ a padded body, so it still collapses cleanly). It generalises well past
+disclosures too: **any** open/close or size-to-content transition (menus,
+tooltips, toasts growing to fit) becomes a plain `height` / `width` transition.
+It's Chromium-only as of this writing, so the grid-row technique stays the
+portable default — but when Baseline covers `interpolate-size`, this is the
+simplification to reach for across the library.
+
 ## When you touch a stylesheet
 
 - Keep the **CSS and SCSS bodies byte-identical** (the `.scss` is the `.css` plus

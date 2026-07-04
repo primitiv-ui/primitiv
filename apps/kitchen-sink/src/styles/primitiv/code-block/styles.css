@@ -101,10 +101,23 @@
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
     tab-size: 2;
+    /* Shed the base `pre` element styling (which targets bare prose <pre>): the
+       surface + border + radius come from the .primitiv-code-block root, and the
+       type from the root's code/* scale. Without these the block's <pre> keeps a
+       non-scaling body-md font-size and a stray radii-8 corner. */
+    font-size: inherit;
+    line-height: inherit;
+    background-color: var(--primitiv-color-transparent);
+    border-width: var(--primitiv-border-width-0);
+    border-radius: var(--primitiv-radii-0);
   }
 
   .primitiv-code-block__code {
     display: block;
+    /* Same reason: the base `code` element rule would otherwise pin the code to
+       body-md instead of inheriting the root's code/* scale. */
+    font-size: inherit;
+    line-height: inherit;
   }
 
   /* One row per source line. Without the gutter it's a plain block; with it, a

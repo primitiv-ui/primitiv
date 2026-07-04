@@ -40,8 +40,8 @@ Structured per RFC 0008 — the per-component API tokens + the resting look in
 `primitiv.base`, the size modifiers in `primitiv.variants`, the hover/selected row
 styling in `primitiv.states` (the sublayer order is declared once in the shared
 token layer, so this file only re-opens the named sublayers). Collapsed rules,
-body type, a raised header band with a strong underline, subtle row rules, and a
-hover/selected row fill.
+body type, a header row set off by a strong underline (no fill band), subtle row
+rules, and a hover/selected row fill.
 
 **Size is the type axis only.** `--xs…--xl` re-point the `--primitiv-table-font-*`
 knobs to the matching `body/{size}` slot; **cell padding is density-driven** via

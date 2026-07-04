@@ -47,11 +47,35 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "./components";
-import { ChevronDown, ChevronLeft, ChevronRight, Close, Moon, Search, Sun } from "@primitiv-ui/icons";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Close, Moon, Search, Sort, Sun } from "@primitiv-ui/icons";
 import "./App.css";
 
 type Density = "dense" | "compact" | "comfortable" | "spacious";
 type Size = "xs" | "sm" | "md" | "lg" | "xl";
+
+type Release = { pkg: string; status: string; downloads: number; size: number };
+
+const RELEASES: Release[] = [
+  { pkg: "@primitiv-ui/react", status: "Stable", downloads: 128430, size: 84.2 },
+  { pkg: "@primitiv-ui/tokens", status: "Stable", downloads: 96210, size: 12.7 },
+  { pkg: "@primitiv-ui/icons", status: "Stable", downloads: 74880, size: 41.3 },
+  { pkg: "primitiv", status: "Beta", downloads: 18540, size: 5.1 },
+  { pkg: "@primitiv-ui/harmoni", status: "Alpha", downloads: 4320, size: 156.9 },
+];
+
+type Align = "start" | "center" | "end";
+
+const TABLE_COLUMNS: {
+  key: keyof Release;
+  label: string;
+  align: Align;
+  numeric?: boolean;
+}[] = [
+  { key: "pkg", label: "Package", align: "start" },
+  { key: "status", label: "Status", align: "center" },
+  { key: "downloads", label: "Downloads", align: "end", numeric: true },
+  { key: "size", label: "Size (kB)", align: "end", numeric: true },
+];
 
 function Section({
   title,
@@ -82,6 +106,25 @@ export function App(): ReactElement {
   const [density, setDensity] = useState<Density>("comfortable");
   const [size, setSize] = useState<Size>("md");
   const [dark, setDark] = useState(false);
+  const [sort, setSort] = useState<{ key: keyof Release; dir: "asc" | "desc" }>({
+    key: "downloads",
+    dir: "desc",
+  });
+
+  const sortedReleases = [...RELEASES].sort((a, b) => {
+    const av = a[sort.key];
+    const bv = b[sort.key];
+    const cmp =
+      typeof av === "number" && typeof bv === "number"
+        ? av - bv
+        : String(av).localeCompare(String(bv));
+    return sort.dir === "asc" ? cmp : -cmp;
+  });
+
+  const toggleSort = (key: keyof Release) =>
+    setSort((s) =>
+      s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" },
+    );
 
   useEffect(() => {
     document.documentElement.dataset.density = density;
@@ -446,22 +489,48 @@ primitiv add --all`}</code>
 
       <Section title="Table" column>
         <Table size={size}>
-          <TableCaption>Recent releases.</TableCaption>
+          <TableCaption>Package downloads this month — click a header to sort.</TableCaption>
           <TableHead>
             <TableRow>
-              <TableHeader>Version</TableHeader>
-              <TableHeader>Status</TableHeader>
+              {TABLE_COLUMNS.map((col) => {
+                const active = sort.key === col.key;
+                return (
+                  <TableHeader
+                    key={col.key}
+                    className={`ks-table__align-${col.align}`}
+                    aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
+                  >
+                    <button
+                      type="button"
+                      className="ks-table__sort"
+                      onClick={() => toggleSort(col.key)}
+                    >
+                      <span>{col.label}</span>
+                      {active ? (
+                        sort.dir === "asc" ? (
+                          <ChevronUp aria-hidden="true" />
+                        ) : (
+                          <ChevronDown aria-hidden="true" />
+                        )
+                      ) : (
+                        <Sort className="ks-table__sort-idle" aria-hidden="true" />
+                      )}
+                    </button>
+                  </TableHeader>
+                );
+              })}
             </TableRow>
           </TableHead>
           <TableBody>
-            <TableRow>
-              <TableCell>0.1.27</TableCell>
-              <TableCell>Published</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>0.1.26</TableCell>
-              <TableCell>Published</TableCell>
-            </TableRow>
+            {sortedReleases.map((r) => (
+              <TableRow key={r.pkg}>
+                {TABLE_COLUMNS.map((col) => (
+                  <TableCell key={col.key} className={`ks-table__align-${col.align}`}>
+                    {col.numeric ? (r[col.key] as number).toLocaleString() : r[col.key]}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </Section>

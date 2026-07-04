@@ -80,3 +80,39 @@ body {
 .kitchen-sink__controls > .primitiv-divider {
   --primitiv-divider-spacing: 0;
 }
+
+/* Table demo — per-column alignment. Unlayered, so these win over the table
+   stylesheet's layered `text-align: start` regardless of specificity. The header
+   cell aligns its inline-block sort button; the body cell aligns its text. */
+.ks-table__align-start {
+  text-align: start;
+}
+.ks-table__align-center {
+  text-align: center;
+}
+.ks-table__align-end {
+  text-align: end;
+}
+
+/* Bare header sort control — inherits the header type, adds a sort indicator. */
+.ks-table__sort {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--primitiv-space-space-4);
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.ks-table__sort:hover {
+  color: var(--primitiv-content-primary);
+}
+.ks-table__sort svg {
+  inline-size: 1em;
+  block-size: 1em;
+}
+.ks-table__sort-idle {
+  color: var(--primitiv-content-muted);
+}

@@ -43,7 +43,6 @@
     { "name": "--primitiv-table-rule-color", "defaultsTo": "var(--primitiv-border-subtle)" },
     { "name": "--primitiv-table-header-foreground", "defaultsTo": "var(--primitiv-content-primary)" },
     { "name": "--primitiv-table-header-weight", "defaultsTo": "var(--primitiv-font-weight-semibold)" },
-    { "name": "--primitiv-table-header-bg", "defaultsTo": "var(--primitiv-surface-raised)" },
     { "name": "--primitiv-table-header-rule-color", "defaultsTo": "var(--primitiv-border-strong)" },
     { "name": "--primitiv-table-caption-foreground", "defaultsTo": "var(--primitiv-content-muted)" }
   ]

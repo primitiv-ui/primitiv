@@ -7,8 +7,8 @@
  * --xs…--xl size modifiers, and the --primitiv-table-* custom properties), not
  * these values (RFC 0006 Principle 2 — names are stable, values are not).
  *
- * The look: collapsed rules, body type, a raised header band with a strong
- * underline, subtle row rules, and a hover/selected row fill. `Size` (xs–xl)
+ * The look: collapsed rules, body type, a header row set off by a strong
+ * underline (no fill), subtle row rules, and a hover/selected row fill. `Size` (xs–xl)
  * re-points the type scale only; cell padding is density-driven via the
  * table/cell/padding-* Context tokens, so it tracks `data-density` independently.
  *
@@ -44,7 +44,6 @@
     --primitiv-table-rule-color: var(--primitiv-border-subtle);
     --primitiv-table-header-foreground: var(--primitiv-content-primary);
     --primitiv-table-header-weight: var(--primitiv-font-weight-semibold);
-    --primitiv-table-header-bg: var(--primitiv-surface-raised);
     --primitiv-table-header-rule-color: var(--primitiv-border-strong);
     --primitiv-table-caption-foreground: var(--primitiv-content-muted);
 
@@ -71,9 +70,9 @@
     font-weight: var(--primitiv-table-header-weight);
   }
 
-  /* The header band: a raised fill and a stronger underline rule. */
+  /* The header row: set off by a stronger underline rule alone — no fill band
+     (the design distinguishes the header by the rule + semibold face). */
   .primitiv-table__head .primitiv-table__header {
-    background-color: var(--primitiv-table-header-bg);
     border-block-end: var(--primitiv-border-width-1) solid var(--primitiv-table-header-rule-color);
   }
 

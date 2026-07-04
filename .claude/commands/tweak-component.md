@@ -41,3 +41,18 @@ exists.)
    summary that the Figma variables were set via the bridge (they aren't in git).
 
 Keep setup terse — pair, confirm the change, then work.
+
+## Fast iteration — push first, full-check once
+
+When the human is verifying live in the kitchen-sink (dev server up) and has
+authorised it for the session, **push each visual iteration straight to `main`
+(or their branch) before running the full test + type-check suite.** The
+kitchen-sink render is the fast signal: push, let the human eyeball it, iterate
+on the styling from their feedback, and run the heavier gates —
+`cargo test -p primitiv-cli -p primitiv-emit`, `node scripts/check-registry-types.mjs`,
+css/scss parity — **once, after the look is confirmed**, not on every round. It
+keeps the agent↔human loop tight; the checks gate the *final* state, not each
+step. (Only push to `main` when the human has explicitly authorised it for the
+session; otherwise stay on the working branch. And still run the full suite
+before calling the change done — visual confirmation replaces per-iteration
+checks, it doesn't replace the final green.)

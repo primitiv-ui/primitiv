@@ -9,7 +9,8 @@
  *
  * Structure follows RFC 0008: per-component API tokens + the resting look live
  * in primitiv.base, size modifiers in primitiv.variants. The block uses the
- * body type scale (a dedicated block reads at full size, unlike inline-code),
+ * code type scale (shared with inline-code, so both code surfaces size the same
+ * across size and density — the code/* ramp is density-scoped, unlike body/*),
  * and code/padding — density-scoped — for its air, matching the Figma
  * "Code Block" set.
  *
@@ -19,7 +20,7 @@
  * highlighting re-colours through the cascade when the mode flips.
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-font-family-mono,
- * --primitiv-body-*, --primitiv-code-padding, --primitiv-content-*, --primitiv-surface-*,
+ * --primitiv-code-*, --primitiv-code-padding, --primitiv-content-*, --primitiv-surface-*,
  * --primitiv-border-*, --primitiv-radii-* and --primitiv-space-* custom properties it
  * resolves, plus the `button` component's stylesheet for the copy control.
  */
@@ -43,8 +44,8 @@
     --primitiv-code-block-padding: var(--primitiv-code-padding);
     --primitiv-code-block-header-padding-block: var(--primitiv-space-space-8);
     --primitiv-code-block-font-family: var(--primitiv-font-family-mono);
-    --primitiv-code-block-font-size: var(--primitiv-body-md-font-size);
-    --primitiv-code-block-line-height: var(--primitiv-body-md-line-height);
+    --primitiv-code-block-font-size: var(--primitiv-code-md-font-size);
+    --primitiv-code-block-line-height: var(--primitiv-code-md-line-height);
     --primitiv-code-block-gutter-color: var(--primitiv-content-muted);
     --primitiv-code-block-filename-color: var(--primitiv-content-secondary);
 
@@ -188,28 +189,28 @@
 }
 
 @layer primitiv.variants {
-  /* Size — re-points the body type scale to the chosen slot. Padding stays
+  /* Size — re-points the code type scale to the chosen slot. Padding stays
      ambient on the density-scoped code/padding (RFC 0009), so only the type
      moves per size. */
   .primitiv-code-block--xs {
-    --primitiv-code-block-font-size: var(--primitiv-body-xs-font-size);
-    --primitiv-code-block-line-height: var(--primitiv-body-xs-line-height);
+    --primitiv-code-block-font-size: var(--primitiv-code-xs-font-size);
+    --primitiv-code-block-line-height: var(--primitiv-code-xs-line-height);
   }
   .primitiv-code-block--sm {
-    --primitiv-code-block-font-size: var(--primitiv-body-sm-font-size);
-    --primitiv-code-block-line-height: var(--primitiv-body-sm-line-height);
+    --primitiv-code-block-font-size: var(--primitiv-code-sm-font-size);
+    --primitiv-code-block-line-height: var(--primitiv-code-sm-line-height);
   }
   .primitiv-code-block--md {
-    --primitiv-code-block-font-size: var(--primitiv-body-md-font-size);
-    --primitiv-code-block-line-height: var(--primitiv-body-md-line-height);
+    --primitiv-code-block-font-size: var(--primitiv-code-md-font-size);
+    --primitiv-code-block-line-height: var(--primitiv-code-md-line-height);
   }
   .primitiv-code-block--lg {
-    --primitiv-code-block-font-size: var(--primitiv-body-lg-font-size);
-    --primitiv-code-block-line-height: var(--primitiv-body-lg-line-height);
+    --primitiv-code-block-font-size: var(--primitiv-code-lg-font-size);
+    --primitiv-code-block-line-height: var(--primitiv-code-lg-line-height);
   }
   .primitiv-code-block--xl {
-    --primitiv-code-block-font-size: var(--primitiv-body-xl-font-size);
-    --primitiv-code-block-line-height: var(--primitiv-body-xl-line-height);
+    --primitiv-code-block-font-size: var(--primitiv-code-xl-font-size);
+    --primitiv-code-block-line-height: var(--primitiv-code-xl-line-height);
   }
 }
 

@@ -9,9 +9,10 @@ them it carries real behaviour (Prism highlighting + copy-to-clipboard), so the
 
 ## What it does
 
-A bordered, tinted (`surface/subtle`) surface with mono type on the **body**
-scale (a block reads at full size — `inline-code` is the squeezed one), padded
-on the density-scoped `code/padding`. Three optional parts:
+A bordered, tinted (`surface/subtle`) surface with mono type on the **`code/*`**
+scale (shared with `inline-code`, so both code surfaces size the same across size
+and density — that ramp is density-scoped, unlike `body/*`), padded on the
+density-scoped `code/padding`. Three optional parts:
 
 - **Header** — a filename plus a copy-to-clipboard control. Shown when a
   `filename` is given (or `showHeader`). The copy control wears the **Button**
@@ -66,5 +67,5 @@ wrappers, D53). It is type-checked in CI by `scripts/check-registry-types.mjs`.
 - **package** `prism-react-renderer` — the tokenizer (declared in the registry
   entry, installed by `add code-block`/`add --all`, nothing else).
 - **component** `button` — the copy control reuses its `--secondary` classes.
-- **tokens** — `font-family/mono`, `body/*`, `code/padding`, `surface/subtle`,
-  `content/*`, `border/subtle`, `radii/8`, `space/*`.
+- **tokens** — `font-family/mono`, `code/*` (font-size + line-height),
+  `code/padding`, `surface/subtle`, `content/*`, `border/subtle`, `radii/8`, `space/*`.

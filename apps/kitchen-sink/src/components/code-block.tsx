@@ -1,4 +1,3 @@
-import "../styles/primitiv/code-block/styles.css";
 /*
  * Code Block — styled wrapper.
  *
@@ -105,10 +104,12 @@ export function CodeBlock({
         </div>
       )}
       <Highlight theme={NO_INLINE_THEME} code={source} language={language}>
-        {({ className: preClassName, style, tokens, getLineProps, getTokenProps }) => (
+        {({ className: preClassName, tokens, getLineProps, getTokenProps }) => (
+          // No `style={style}` from Prism: the emptied theme returns {}, and
+          // dropping it guarantees Prism can never inline a font-size/background
+          // over the stylesheet (all sizing/colour comes from the CSS + tokens).
           <pre
             className={`primitiv-code-block__pre ${preClassName}`}
-            style={style}
             data-line-numbers={showLineNumbers ? "" : undefined}
           >
             <code className="primitiv-code-block__code">

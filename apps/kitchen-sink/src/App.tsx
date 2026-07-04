@@ -364,13 +364,13 @@ primitiv add --all`}</code>
       </Section>
 
       <Section title="Divider" column>
-        <p>Above the divider.</p>
+        <p>Above the horizontal divider.</p>
         <Divider />
-        <p>Below the divider.</p>
+        <p>Below the horizontal divider.</p>
         <div className="kitchen-sink__divider-row">
-          <span>Left</span>
+          <p>Left of the vertical divider</p>
           <Divider orientation="vertical" />
-          <span>Right</span>
+          <p>Right of the vertical divider</p>
         </div>
       </Section>
 

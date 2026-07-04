@@ -25,7 +25,7 @@
  * Requires the token layer (`primitiv tokens`) for the --primitiv-action-*,
  * --primitiv-surface-*, --primitiv-content-*, --primitiv-border-*,
  * --primitiv-border-width-*, --primitiv-space-*, --primitiv-opacity-*,
- * --primitiv-label-*, --primitiv-label-control-*, --primitiv-focus-ring-* and
+ * --primitiv-label-*, --primitiv-choice-control-*, --primitiv-focus-ring-* and
  * --primitiv-checkbox-* and --primitiv-motion-* custom properties it resolves.
  */
 
@@ -50,7 +50,7 @@
     --primitiv-checkbox-size: var(--primitiv-checkbox-md-box-size);
     --primitiv-checkbox-radius: var(--primitiv-checkbox-md-box-radius);
     --primitiv-checkbox-mark-size: var(--primitiv-checkbox-md-mark-size);
-    --primitiv-checkbox-gap: var(--primitiv-label-control-md-gap);
+    --primitiv-checkbox-gap: var(--primitiv-choice-control-md-gap);
     --primitiv-checkbox-label-color: var(--primitiv-content-primary);
     --primitiv-checkbox-label-font-family: var(--primitiv-label-md-font-family);
     --primitiv-checkbox-label-font-size: var(--primitiv-label-md-font-size);
@@ -129,6 +129,12 @@
     font-size: var(--primitiv-checkbox-label-font-size);
     font-weight: var(--primitiv-checkbox-label-font-weight);
     line-height: var(--primitiv-checkbox-label-line-height);
+    /* Trim the label's line box to its cap height so it optically centres
+       against the box instead of sitting low inside a taller line box — the
+       same vertical trim the Button label uses (must sit on the element
+       directly wrapping the text for engines to honour it). */
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
   }
 }
 
@@ -140,7 +146,7 @@
     --primitiv-checkbox-size: var(--primitiv-checkbox-xs-box-size);
     --primitiv-checkbox-radius: var(--primitiv-checkbox-xs-box-radius);
     --primitiv-checkbox-mark-size: var(--primitiv-checkbox-xs-mark-size);
-    --primitiv-checkbox-gap: var(--primitiv-label-control-xs-gap);
+    --primitiv-checkbox-gap: var(--primitiv-choice-control-xs-gap);
     --primitiv-checkbox-label-font-size: var(--primitiv-label-xs-font-size);
     --primitiv-checkbox-label-line-height: var(--primitiv-label-xs-line-height);
   }
@@ -148,7 +154,7 @@
     --primitiv-checkbox-size: var(--primitiv-checkbox-sm-box-size);
     --primitiv-checkbox-radius: var(--primitiv-checkbox-sm-box-radius);
     --primitiv-checkbox-mark-size: var(--primitiv-checkbox-sm-mark-size);
-    --primitiv-checkbox-gap: var(--primitiv-label-control-sm-gap);
+    --primitiv-checkbox-gap: var(--primitiv-choice-control-sm-gap);
     --primitiv-checkbox-label-font-size: var(--primitiv-label-sm-font-size);
     --primitiv-checkbox-label-line-height: var(--primitiv-label-sm-line-height);
   }
@@ -156,7 +162,7 @@
     --primitiv-checkbox-size: var(--primitiv-checkbox-md-box-size);
     --primitiv-checkbox-radius: var(--primitiv-checkbox-md-box-radius);
     --primitiv-checkbox-mark-size: var(--primitiv-checkbox-md-mark-size);
-    --primitiv-checkbox-gap: var(--primitiv-label-control-md-gap);
+    --primitiv-checkbox-gap: var(--primitiv-choice-control-md-gap);
     --primitiv-checkbox-label-font-size: var(--primitiv-label-md-font-size);
     --primitiv-checkbox-label-line-height: var(--primitiv-label-md-line-height);
   }
@@ -164,7 +170,7 @@
     --primitiv-checkbox-size: var(--primitiv-checkbox-lg-box-size);
     --primitiv-checkbox-radius: var(--primitiv-checkbox-lg-box-radius);
     --primitiv-checkbox-mark-size: var(--primitiv-checkbox-lg-mark-size);
-    --primitiv-checkbox-gap: var(--primitiv-label-control-lg-gap);
+    --primitiv-checkbox-gap: var(--primitiv-choice-control-lg-gap);
     --primitiv-checkbox-label-font-size: var(--primitiv-label-lg-font-size);
     --primitiv-checkbox-label-line-height: var(--primitiv-label-lg-line-height);
   }
@@ -172,7 +178,7 @@
     --primitiv-checkbox-size: var(--primitiv-checkbox-xl-box-size);
     --primitiv-checkbox-radius: var(--primitiv-checkbox-xl-box-radius);
     --primitiv-checkbox-mark-size: var(--primitiv-checkbox-xl-mark-size);
-    --primitiv-checkbox-gap: var(--primitiv-label-control-xl-gap);
+    --primitiv-checkbox-gap: var(--primitiv-choice-control-xl-gap);
     --primitiv-checkbox-label-font-size: var(--primitiv-label-xl-font-size);
     --primitiv-checkbox-label-line-height: var(--primitiv-label-xl-line-height);
   }

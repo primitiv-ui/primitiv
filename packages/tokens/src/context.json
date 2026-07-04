@@ -784,6 +784,38 @@
         }
       }
     },
+    "choice-control": {
+      "xs": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "sm": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        }
+      },
+      "md": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        }
+      },
+      "lg": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        }
+      },
+      "xl": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        }
+      }
+    },
     "nav-item": {
       "xs": {
         "height": {
@@ -2725,6 +2757,38 @@
         "gap": {
           "$type": "number",
           "$value": "{space.space-6}"
+        }
+      }
+    },
+    "choice-control": {
+      "xs": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "sm": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "md": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "lg": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        }
+      },
+      "xl": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
         }
       }
     },
@@ -4672,6 +4736,38 @@
         }
       }
     },
+    "choice-control": {
+      "xs": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "sm": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        }
+      },
+      "md": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        }
+      },
+      "lg": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        }
+      },
+      "xl": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-14}"
+        }
+      }
+    },
     "nav-item": {
       "xs": {
         "height": {
@@ -6613,6 +6709,38 @@
         "gap": {
           "$type": "number",
           "$value": "{space.space-4}"
+        }
+      }
+    },
+    "choice-control": {
+      "xs": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "sm": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "md": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "lg": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "xl": {
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
         }
       }
     },

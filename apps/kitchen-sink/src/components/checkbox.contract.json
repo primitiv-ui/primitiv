@@ -42,7 +42,7 @@
     { "name": "--primitiv-checkbox-size", "defaultsTo": "var(--primitiv-checkbox-md-box-size)" },
     { "name": "--primitiv-checkbox-radius", "defaultsTo": "var(--primitiv-checkbox-md-box-radius)" },
     { "name": "--primitiv-checkbox-mark-size", "defaultsTo": "var(--primitiv-checkbox-md-mark-size)" },
-    { "name": "--primitiv-checkbox-gap", "defaultsTo": "var(--primitiv-label-control-md-gap)" },
+    { "name": "--primitiv-checkbox-gap", "defaultsTo": "var(--primitiv-choice-control-md-gap)" },
     { "name": "--primitiv-checkbox-label-color", "defaultsTo": "var(--primitiv-content-primary)" },
     { "name": "--primitiv-checkbox-label-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
     { "name": "--primitiv-checkbox-label-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },

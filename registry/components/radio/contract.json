@@ -40,7 +40,7 @@
     { "name": "--primitiv-radio-size", "defaultsTo": "var(--primitiv-radio-md-box-size)" },
     { "name": "--primitiv-radio-radius", "defaultsTo": "var(--primitiv-radii-full)" },
     { "name": "--primitiv-radio-dot-size", "defaultsTo": "calc(var(--primitiv-radio-size) / 2)" },
-    { "name": "--primitiv-radio-gap", "defaultsTo": "var(--primitiv-label-control-md-gap)" },
+    { "name": "--primitiv-radio-gap", "defaultsTo": "var(--primitiv-choice-control-md-gap)" },
     { "name": "--primitiv-radio-label-color", "defaultsTo": "var(--primitiv-content-primary)" },
     { "name": "--primitiv-radio-label-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
     { "name": "--primitiv-radio-label-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },

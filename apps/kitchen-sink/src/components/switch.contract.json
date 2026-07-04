@@ -42,7 +42,7 @@
     { "name": "--primitiv-switch-thumb-margin", "defaultsTo": "var(--primitiv-switch-md-thumb-margin)" },
     { "name": "--primitiv-switch-thumb-radius", "defaultsTo": "var(--primitiv-radii-full)" },
     { "name": "--primitiv-switch-thumb-shadow", "defaultsTo": "var(--primitiv-shadow-1)" },
-    { "name": "--primitiv-switch-gap", "defaultsTo": "var(--primitiv-label-control-md-gap)" },
+    { "name": "--primitiv-switch-gap", "defaultsTo": "var(--primitiv-choice-control-md-gap)" },
     { "name": "--primitiv-switch-label-color", "defaultsTo": "var(--primitiv-content-primary)" },
     { "name": "--primitiv-switch-label-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
     { "name": "--primitiv-switch-label-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },

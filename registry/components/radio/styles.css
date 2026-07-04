@@ -30,7 +30,7 @@
  * Requires the token layer (`primitiv tokens`) for the --primitiv-action-*,
  * --primitiv-surface-*, --primitiv-content-*, --primitiv-border-*,
  * --primitiv-border-width-*, --primitiv-radii-*, --primitiv-space-*,
- * --primitiv-opacity-*, --primitiv-label-*, --primitiv-label-control-*,
+ * --primitiv-opacity-*, --primitiv-label-*, --primitiv-choice-control-*,
  * --primitiv-focus-ring-*, --primitiv-radio-* and --primitiv-motion-* custom properties it resolves.
  */
 
@@ -55,7 +55,7 @@
     --primitiv-radio-size: var(--primitiv-radio-md-box-size);
     --primitiv-radio-radius: var(--primitiv-radii-full);
     --primitiv-radio-dot-size: calc(var(--primitiv-radio-size) / 2);
-    --primitiv-radio-gap: var(--primitiv-label-control-md-gap);
+    --primitiv-radio-gap: var(--primitiv-choice-control-md-gap);
     --primitiv-radio-label-color: var(--primitiv-content-primary);
     --primitiv-radio-label-font-family: var(--primitiv-label-md-font-family);
     --primitiv-radio-label-font-size: var(--primitiv-label-md-font-size);
@@ -132,6 +132,12 @@
     font-size: var(--primitiv-radio-label-font-size);
     font-weight: var(--primitiv-radio-label-font-weight);
     line-height: var(--primitiv-radio-label-line-height);
+    /* Trim the label's line box to its cap height so it optically centres
+       against the box instead of sitting low inside a taller line box — the
+       same vertical trim the Button label uses (must sit on the element
+       directly wrapping the text for engines to honour it). */
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
   }
 }
 
@@ -142,31 +148,31 @@
      [data-density] on the token values (RFC 0009). */
   .primitiv-radio--xs {
     --primitiv-radio-size: var(--primitiv-radio-xs-box-size);
-    --primitiv-radio-gap: var(--primitiv-label-control-xs-gap);
+    --primitiv-radio-gap: var(--primitiv-choice-control-xs-gap);
     --primitiv-radio-label-font-size: var(--primitiv-label-xs-font-size);
     --primitiv-radio-label-line-height: var(--primitiv-label-xs-line-height);
   }
   .primitiv-radio--sm {
     --primitiv-radio-size: var(--primitiv-radio-sm-box-size);
-    --primitiv-radio-gap: var(--primitiv-label-control-sm-gap);
+    --primitiv-radio-gap: var(--primitiv-choice-control-sm-gap);
     --primitiv-radio-label-font-size: var(--primitiv-label-sm-font-size);
     --primitiv-radio-label-line-height: var(--primitiv-label-sm-line-height);
   }
   .primitiv-radio--md {
     --primitiv-radio-size: var(--primitiv-radio-md-box-size);
-    --primitiv-radio-gap: var(--primitiv-label-control-md-gap);
+    --primitiv-radio-gap: var(--primitiv-choice-control-md-gap);
     --primitiv-radio-label-font-size: var(--primitiv-label-md-font-size);
     --primitiv-radio-label-line-height: var(--primitiv-label-md-line-height);
   }
   .primitiv-radio--lg {
     --primitiv-radio-size: var(--primitiv-radio-lg-box-size);
-    --primitiv-radio-gap: var(--primitiv-label-control-lg-gap);
+    --primitiv-radio-gap: var(--primitiv-choice-control-lg-gap);
     --primitiv-radio-label-font-size: var(--primitiv-label-lg-font-size);
     --primitiv-radio-label-line-height: var(--primitiv-label-lg-line-height);
   }
   .primitiv-radio--xl {
     --primitiv-radio-size: var(--primitiv-radio-xl-box-size);
-    --primitiv-radio-gap: var(--primitiv-label-control-xl-gap);
+    --primitiv-radio-gap: var(--primitiv-choice-control-xl-gap);
     --primitiv-radio-label-font-size: var(--primitiv-label-xl-font-size);
     --primitiv-radio-label-line-height: var(--primitiv-label-xl-line-height);
   }

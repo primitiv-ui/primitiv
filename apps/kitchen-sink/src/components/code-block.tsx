@@ -1,3 +1,4 @@
+import "../styles/primitiv/code-block/styles.css";
 /*
  * Code Block — styled wrapper.
  *

@@ -320,6 +320,7 @@ primitiv add --all`}</code>
         <p>Above the divider.</p>
         <Divider />
         <p>Below the divider.</p>
+        <Divider orientation="vertical" />
       </Section>
 
       <Section title="Field" column>

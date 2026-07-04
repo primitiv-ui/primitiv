@@ -94,10 +94,6 @@
     min-inline-size: 0;
   }
 
-  .primitiv-input-group .primitiv-input:focus-visible {
-    box-shadow: none;
-  }
-
   /* Adornment slots — non-shrinking, vertically centred, dimmed relative to the
      typed text. Decorative glyphs inside take the frame's icon size. */
   .primitiv-input-group__leading,
@@ -185,6 +181,16 @@
       0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
       0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
         var(--primitiv-focus-ring);
+  }
+
+  /* The wrapped Input surrenders its own focus ring to the group's: on keyboard
+     focus only the group frame shows a ring, never a second ring hugging the
+     inner control. This must live in primitiv.states (not base) so it
+     out-cascades the Input's own :focus-visible ring — itself a states-layer
+     rule — because a base-layer suppression loses to it regardless of the extra
+     specificity (later layers win; RFC 0008 §2.3). */
+  .primitiv-input-group .primitiv-input:focus-visible {
+    box-shadow: none;
   }
 
   /* Invalid — the frame reads the wrapped control's `aria-invalid` directly, so

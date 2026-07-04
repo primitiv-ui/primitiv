@@ -66,3 +66,17 @@ body {
   flex-direction: column;
   align-items: stretch;
 }
+
+/* A flex row so a vertical Divider has a row height to stretch across. */
+.kitchen-sink__divider-row {
+  display: flex;
+  align-items: center;
+  gap: var(--primitiv-space-space-8);
+}
+
+/* The sticky header already spaces its groups with its own gap, so zero the
+   vertical dividers' built-in margin there (also shows the
+   --primitiv-divider-spacing knob). */
+.kitchen-sink__controls > .primitiv-divider {
+  --primitiv-divider-spacing: 0;
+}

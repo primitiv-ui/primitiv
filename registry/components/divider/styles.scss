@@ -45,10 +45,14 @@
     margin-block: var(--primitiv-divider-spacing);
   }
 
-  /* Vertical: a full-height hairline that flows inline between row items. */
+  /* Vertical: a full-height hairline that flows inline between row items. It
+     fills the height of its flex row via align-self: stretch — not block-size:
+     100%, which would need a definite parent height and collapse to 0 in an
+     auto-height container. Use it inside a flex row (a plain block/column gives
+     a vertical rule no height to span). */
   .primitiv-divider[aria-orientation="vertical"] {
     display: inline-block;
-    block-size: 100%;
+    align-self: stretch;
     inline-size: var(--primitiv-divider-thickness);
     margin-inline: var(--primitiv-divider-spacing);
   }

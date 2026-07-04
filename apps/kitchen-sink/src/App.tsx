@@ -116,6 +116,8 @@ export function App(): ReactElement {
           </ToggleGroup>
         </div>
 
+        <Divider orientation="vertical" />
+
         <div className="kitchen-sink__control">
           <span className="kitchen-sink__control-label">Size</span>
           <ToggleGroup
@@ -131,6 +133,8 @@ export function App(): ReactElement {
             <ToggleGroupItem value="xl">XL</ToggleGroupItem>
           </ToggleGroup>
         </div>
+
+        <Divider orientation="vertical" />
 
         <div className="kitchen-sink__control">
           {dark ? <Moon aria-hidden="true" /> : <Sun aria-hidden="true" />}
@@ -320,7 +324,11 @@ primitiv add --all`}</code>
         <p>Above the divider.</p>
         <Divider />
         <p>Below the divider.</p>
-        <Divider orientation="vertical" />
+        <div className="kitchen-sink__divider-row">
+          <span>Left</span>
+          <Divider orientation="vertical" />
+          <span>Right</span>
+        </div>
       </Section>
 
       <Section title="Field" column>

@@ -130,6 +130,18 @@ ships with the ring transition from day one. The ring geometry/colour stay
 system tokens (`--primitiv-focus-ring*` / `--primitiv-surface-default`), never a
 per-component knob.
 
+**Suppressing a nested control's ring in a composition.** When one component
+wraps another and draws a *single* ring on the outer frame (InputGroup around
+Input, via `:focus-within`), the inner control must surrender its own ring —
+`box-shadow: none` on `.wrapper .inner:focus-visible`. **Put that override in
+`@layer primitiv.states`, not `primitiv.base`.** The inner control's ring is a
+`:focus-visible` rule that itself lives in `primitiv.states`; a suppression in a
+lower layer (`base`) loses to it *no matter how specific the selector*, because
+later layers always win — the classic symptom is a second ring hugging the inner
+control on keyboard focus. Same layer + higher specificity is what actually hides
+it (`.primitiv-input-group .primitiv-input:focus-visible` beat
+`.primitiv-input:focus-visible` once both sit in `states`).
+
 ## Animating open/close — grid row + clipped padded body
 
 To reveal/hide a panel at its natural height with no `max-height` guess and no

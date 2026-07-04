@@ -94,8 +94,29 @@ Mode**, enters the code, Connect. **It expires in ~5 min** — re-pair freely.
   issue a **fresh** code and have them toggle Cloud Mode **off then on** first
   (a stale session won't accept a new code). Don't loop on the same code.
 
-The bridge runs with `documentAccess: dynamic-page`, so the **async** variable
-API is mandatory:
+### No-pair alternative — `use_figma` (official Figma MCP)
+
+When the human can't (re)pair the Desktop Bridge but can give you the **file
+URL**, the official Figma MCP's `use_figma` runs the **same Figma Plugin API**
+(`figma.getNodeByIdAsync`, `setBoundVariable`, `createVariable`, `node.description
+= …`, screenshots) — no pairing dance. Extract the `fileKey` from
+`https://figma.com/design/<fileKey>/<name>?node-id=…` and pass it on every call.
+The scripts below port over verbatim (paste into `use_figma`'s `code`). Proven on
+the 2026-07 switch focus-ring sweep + choice-control descriptions.
+
+- Runtime differences to watch: **`figma.loadAllPagesAsync()` is NOT supported**
+  here (pages are eagerly loaded) — drop it; `getNodeByIdAsync` reaches any page
+  and `node.description` / geometry writes persist cross-page (a
+  `setCurrentPageAsync` guard is harmless but not required).
+- **Screenshots:** use the `get_screenshot` tool (needs `fileKey` **and**
+  `nodeId`). In-sandbox `curl` to the returned `figma.com/api/mcp/asset/…` URL is
+  proxy-blocked (exit 56), so pass **`enableBase64Response: true`** to get the PNG
+  inline instead.
+- Load `/figma-use` (or the `skill://figma/figma-use/SKILL.md` resource) before
+  first use, per the tool's own guidance.
+
+The bridge (and `use_figma`) run with `documentAccess: dynamic-page`, so the
+**async** variable API is mandatory:
 
 ```js
 const colls = await figma.variables.getLocalVariableCollectionsAsync();

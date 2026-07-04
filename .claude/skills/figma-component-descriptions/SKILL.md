@@ -126,7 +126,7 @@ Notes: link variant has no fill or stroke; focus ring is brand teal on all varia
 ### Switch — `315:5884`
 
 ```
-Binary on/off toggle; thumb slides within a pill-shaped track.
+Binary on/off toggle — thumb slides within a pill-shaped track — with an optional inline label that scales with the control.
 
 Type: framed-control
 
@@ -135,30 +135,38 @@ Axes: Size xs|sm|md|lg|xl · State unchecked|checked · Interaction default|hove
 Tokens: track fill → action/secondary/* (unchecked) · action/primary/* (checked)
         sizing → switch/{size}/track-width|track-height|thumb-size|thumb-margin (Context collection)
         thumb shadow → shadow/1 effect style (all variants)
+        label → label/{size}/* (Khand SemiBold, cap-trimmed) · fill content/primary
+        control↔label gap → choice-control/{size}/gap (Context collection)
 
-Properties: Focus ring (BOOL false)
+Properties: Show label (BOOL true) · Label (TEXT "Label") · Focus ring (BOOL false)
 
 Density: Context mode override on parent frame
-Notes: thumb position driven by paddingLeft/Right on auto-layout track; focus ring is circular (radius 9999); disabled uses 50% frame opacity.
+Pairs with: Checkbox, Radio (shared choice-control gap + label scale; matched control height)
+Notes: root is a [Control, Label] auto-layout row — the track is the Control child (holds the thumb + focus rings). thumb position driven by primaryAxisAlignItems MIN + paddingLeft (unchecked) / MAX + paddingRight (checked) on the Control auto-layout; the Label is cap-height trimmed so it centres against the track. Show label toggles Label visibility.
+  Height (2026-07) — track-height now equals the checkbox/radio box-size at every size/density, with thumb + track-width scaled proportionally so the three choice controls share one height; the static focus-ring frames were swept to hug the smaller track (gap = track+4 @ −2, ring = track+8 @ −4).
+  focus ring is circular (radius 9999); disabled uses 50% frame opacity.
   Elevation (RFC 0017) — the Thumb carries the raw shadow/1 (xs hairline) effect style in every state to lift it off the track; this is the one place the primitive shadow ramp is used directly rather than a semantic elevation role.
 ```
 
 ### Checkbox — `369:30652`
 
 ```
-Three-state selection control — unchecked, checked, indeterminate.
+Three-state selection control — unchecked, checked, indeterminate — with an optional inline label that scales with the control.
 
 Type: framed-control
 
 Axes: Size xs|sm|md|lg|xl · State unchecked|checked|indeterminate · Interaction default|hover|focus|disabled
 
 Tokens: box fill → action/secondary/* (unchecked) · action/primary/* (checked/indeterminate)
-        sizing → checkbox/{size}/box-size|radius|icon-size (Context collection)
+        sizing → checkbox/{size}/box-size|box-radius|mark-size (Context collection)
+        label → label/{size}/* (Khand SemiBold, cap-trimmed) · fill content/primary
+        control↔label gap → choice-control/{size}/gap (Context collection)
 
-Properties: (none — all behaviour via Axes)
+Properties: Show label (BOOL true) · Label (TEXT "Label")
 
 Density: Context mode override on parent frame
-Notes: check/minus marks are Icon instances (check/minus glyph) with fill → action/primary/foreground/*
+Pairs with: Radio, Switch (shared choice-control gap + label scale), Field (wrapper), Dropdown/CheckboxItem (embeds the box)
+Notes: root is a [Control, Label] auto-layout row — the box is the Control child (holds the tick/minus Icon instances + focus rings); the Label is cap-height trimmed (leadingTrim CAP_HEIGHT) so it optically centres against the box. Show label toggles Label visibility; off = box-only. check/minus marks are Icon instances (fill → action/primary/foreground/*), auto-layout-centred in the Control so they stay centred across densities. Label + choice-control gap added 2026-07.
 ```
 
 ### Field — `394:7449`
@@ -205,7 +213,7 @@ Notes: icons default ON; glyph not scriptable via API (Expose is UI-only)
 ### Radio — `401:17958`
 
 ```
-Single-selection radio button; circular framed control.
+Single-selection radio button — circular framed control — with an optional inline label that scales with the control.
 
 Type: framed-control (circular — box-radius = box-size / 2)
 
@@ -213,11 +221,14 @@ Axes: Size md|xs|sm|lg|xl · State unchecked|checked · Interaction default|hove
 
 Tokens: circle fill → action/secondary/* (unchecked) · action/primary/* (checked)
         sizing → radio/{size}/box-size (Context collection)
+        label → label/{size}/* (Khand SemiBold, cap-trimmed) · fill content/primary
+        control↔label gap → choice-control/{size}/gap (Context collection)
 
-Properties: (none — all behaviour via Axes)
+Properties: Show label (BOOL true) · Label (TEXT "Label")
 
 Density: Context mode override on parent frame
-Notes: no indeterminate state (unlike Checkbox); use with a Radio Group for mutual exclusion
+Pairs with: Checkbox, Switch (shared choice-control gap + label scale); use with a Radio Group for mutual exclusion; Dropdown/RadioItem (embeds the circle)
+Notes: root is a [Control, Label] auto-layout row — the circle is the Control child (holds the dot + focus rings); the Label is cap-height trimmed so it centres against the circle. Show label toggles Label visibility. Dot is auto-layout-centred in the Control (density-responsive). No indeterminate state (unlike Checkbox). Label + choice-control gap added 2026-07.
 ```
 
 ### Slider — `392:5196`

@@ -12,7 +12,10 @@ recipe** live in the `figma-variable-architecture` skill — load it alongside
 this one and look values up there rather than duplicating them here.
 
 All work is driven through `mcp__figma-console__figma_execute` (Plugin API,
-async throughout). This is Figma-only experimental work — no TDD; verify
+async throughout) — or, when the Desktop Bridge can't be paired, the official
+Figma MCP's `use_figma` by `fileKey`, which runs the same Plugin API (see the
+no-pair note in `figma-bridge-token-sync`). This is Figma-only experimental
+work — no TDD; verify
 visually and positionally instead.
 
 Reference files — load the one you need, when you need it:

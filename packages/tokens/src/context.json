@@ -788,31 +788,31 @@
       "xs": {
         "gap": {
           "$type": "number",
-          "$value": "{space.space-3}"
+          "$value": "{space.space-4}"
         }
       },
       "sm": {
         "gap": {
           "$type": "number",
-          "$value": "{space.space-6}"
+          "$value": "{space.space-8}"
         }
       },
       "md": {
         "gap": {
           "$type": "number",
-          "$value": "{space.space-6}"
+          "$value": "{space.space-8}"
         }
       },
       "lg": {
         "gap": {
           "$type": "number",
-          "$value": "{space.space-8}"
+          "$value": "{space.space-10}"
         }
       },
       "xl": {
         "gap": {
           "$type": "number",
-          "$value": "{space.space-10}"
+          "$value": "{space.space-12}"
         }
       }
     },
@@ -2764,31 +2764,31 @@
       "xs": {
         "gap": {
           "$type": "number",
-          "$value": "{space.space-2}"
+          "$value": "{space.space-3}"
         }
       },
       "sm": {
         "gap": {
           "$type": "number",
-          "$value": "{space.space-4}"
+          "$value": "{space.space-6}"
         }
       },
       "md": {
         "gap": {
           "$type": "number",
-          "$value": "{space.space-4}"
+          "$value": "{space.space-6}"
         }
       },
       "lg": {
         "gap": {
           "$type": "number",
-          "$value": "{space.space-6}"
+          "$value": "{space.space-8}"
         }
       },
       "xl": {
         "gap": {
           "$type": "number",
-          "$value": "{space.space-8}"
+          "$value": "{space.space-10}"
         }
       }
     },
@@ -4740,31 +4740,31 @@
       "xs": {
         "gap": {
           "$type": "number",
-          "$value": "{space.space-4}"
+          "$value": "{space.space-6}"
         }
       },
       "sm": {
         "gap": {
           "$type": "number",
-          "$value": "{space.space-8}"
+          "$value": "{space.space-10}"
         }
       },
       "md": {
         "gap": {
           "$type": "number",
-          "$value": "{space.space-8}"
+          "$value": "{space.space-10}"
         }
       },
       "lg": {
         "gap": {
           "$type": "number",
-          "$value": "{space.space-12}"
+          "$value": "{space.space-14}"
         }
       },
       "xl": {
         "gap": {
           "$type": "number",
-          "$value": "{space.space-14}"
+          "$value": "{space.space-16}"
         }
       }
     },
@@ -6716,31 +6716,31 @@
       "xs": {
         "gap": {
           "$type": "number",
-          "$value": "{space.space-2}"
+          "$value": "{space.space-3}"
         }
       },
       "sm": {
         "gap": {
           "$type": "number",
-          "$value": "{space.space-3}"
+          "$value": "{space.space-4}"
         }
       },
       "md": {
         "gap": {
           "$type": "number",
-          "$value": "{space.space-4}"
+          "$value": "{space.space-6}"
         }
       },
       "lg": {
         "gap": {
           "$type": "number",
-          "$value": "{space.space-4}"
+          "$value": "{space.space-6}"
         }
       },
       "xl": {
         "gap": {
           "$type": "number",
-          "$value": "{space.space-6}"
+          "$value": "{space.space-8}"
         }
       }
     },

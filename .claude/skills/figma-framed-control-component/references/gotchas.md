@@ -65,3 +65,27 @@ Read this before any build or audit sweep. Geometry/auto-layout gotchas live in
   not teal — it is visually prominent. When in doubt, prefer the Select/Textarea
   pattern (ring-only) for large input controls where a coloured border would be
   distracting.
+- **Changing a control's dimensions leaves static focus-ring frames stale.** The
+  `focus-ring` / `focus-ring-gap` frames carry **fixed** width/height (they aren't
+  bound to the control's size vars), so when you retarget a control's size — e.g.
+  bringing the Switch `track-height`/`track-width` down to match the checkbox
+  box, or any box-size change — the track reflows (bound) but the ring frames stay
+  at their old size and float oversized around the smaller control. After ANY
+  size change, sweep the ring frames per variant and resize to hug the control:
+  `gap = (control.width+4) × (control.height+4)` at `(-2,-2)`,
+  `ring = (control.width+8) × (control.height+8)` at `(-4,-4)` (radius stays bound
+  to the pill/`*-focus-ring-radius`). Bit the Switch during the 2026-07 choice-
+  control height alignment — the token/variable change alone doesn't touch geometry.
+- **Wrapping a framed control into a label row: preserve the box's auto-layout, keep
+  the mark auto-positioned.** When you demote a control (box/track) to a `Control`
+  child of a new `[Control, Label]` row, copy the **original** frame's auto-layout
+  onto the Control (`HORIZONTAL`, `primaryAxisAlignItems`/`counterAxisAlignItems`,
+  padding, `FIXED`/`FIXED` sizing) — do NOT set `layoutMode: NONE`. The tick/dot/
+  thumb are **auto-layout-positioned** (the box centres them via `CENTER/CENTER`;
+  the switch thumb travels via `MIN`+left-pad / `MAX`+right-pad). Setting the
+  Control to `NONE` de-centres them (icon jumps to x=0), and the frame also
+  **hug-collapses to the mark's width** — so keep sizing `FIXED` and the size vars
+  bound. Resist "fixing" alignment by absolute-positioning the mark at hard-coded
+  centred coords: that breaks density (it won't re-centre when the box resizes per
+  mode). Leave the mark `AUTO` and let the Control's auto-layout centre it. Bit
+  Checkbox/Radio/Switch during the 2026-07 label build.

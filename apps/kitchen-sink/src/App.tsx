@@ -138,7 +138,7 @@ export function App(): ReactElement {
 
   return (
     <div className="kitchen-sink">
-      <header className="kitchen-sink__controls">
+      <header className="kitchen-sink__controls" data-density="dense">
         <div className="kitchen-sink__control">
           <svg xmlns="http://www.w3.org/2000/svg" className="kitchen-sink__logo" viewBox="0 0 100 100">
             <path fill="currentColor" d="M 11.00 77.50 L 16.99 67.14 L 22.97 77.50 Z

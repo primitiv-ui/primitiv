@@ -11,7 +11,7 @@ body {
 .kitchen-sink {
   max-width: 960px;
   margin-inline: auto;
-  padding: var(--primitiv-space-space-32) var(--primitiv-space-space-16) var(--primitiv-space-space-140);
+  padding: var(--primitiv-space-space-0) var(--primitiv-space-space-16) var(--primitiv-space-space-140);
   display: flex;
   flex-direction: column;
   gap: var(--primitiv-space-space-48);

@@ -524,12 +524,41 @@ Figma component and will back the registry Modal stylesheet's `::backdrop` / ove
 
 **Deferred — the value is a hardcoded hex alpha (`#00000080`, ~0.5α black), not a
 token alias.** Same stopgap as the `shadow.color.*` alphas: it's `absolute-black`
-based (so it doesn't invert in dark mode) and identical in both Intent modes, but
-the alpha is baked into the literal because **there is no alpha-channel neutral
-ramp to alias yet**. When alpha-bearing neutral ramps exist (a palette/primitive
-with per-step alpha), revisit `scrim` *and* `shadow.color.*` together to alias a
-real ramp step instead of carrying raw `#rrggbbaa` literals. Until then the literal
-is the only option and is consistent with the existing elevation-colour precedent.
+based (so it doesn't invert in dark mode) and identical in both Intent modes.
+**Update (2026-07-06): alpha-bearing neutral ramps now exist** — see the
+neutral-alpha section below — but they do **not** unblock this as-is: the
+`color.neutral-alpha.*` ramp anchors on the theme's *veil* (soft-black in light,
+soft-white in dark), so it deliberately **inverts** between modes, while `scrim`
+and `shadow.color.*` are deliberately theme-static. Aliasing them to the inverting
+ramp would change dark-mode behaviour; the revisit needs a decision first (e.g. an
+`absolute-black`-anchored alpha ramp as a second family). Until then the literals
+stand, consistent with the elevation-colour precedent.
+
+## 👻 Neutral alpha ramps + action.ghost state layer — landed (2026-07-06)
+
+The engine's Path-A alpha ramp (`generate_alpha_ramp`: one anchor colour across
+ten 50–900 steps while opacity climbs the shared `ALPHA_CURVE` 3%→92%) is now in
+the default token output. `palette.json` carries **`color.neutral-alpha.50–900`**
+in both themes as `#rrggbbaa` (anchor = the neutral ramp's index-9 veil: light
+`#121418`, dark `#e5ecf6`; alpha bytes use the sync plugin's `Math.round(a*255)`
+so a backup is a no-op). `intent.json` gained **`action.ghost.hover`** (α 0.10 →
+`neutral-alpha.200`) and **`action.ghost.active`** (α 0.14 → `neutral-alpha.300`),
+and the registry Button's ghost variant (plus the Modal close, whose
+`primitiv-modal__close` class must keep its transition list and hover fill in
+agreement with the ghost variant it's composed onto) binds them instead of the
+opaque `action/secondary/*` fills — the wash now composites over any surface.
+
+**Figma side (2026-07-06, via the writable bridge):** `color/neutral-alpha/50–900`
+in the Primitives / Palette collection (per-mode veil values matching the DTCG),
+`action/ghost/hover` + `action/ghost/active` in Intent, and all 20 ghost
+hover/active variants of **Button** and **Icon Button** rebound (descriptions
+updated). One modelling caveat, mirroring `scrim`: the file resolves the Palette
+collection through its **Light** mode even on dark frames (dark Intent variables
+step-swap instead), and no light-column step can express the dark theme's
+white veil — so the ghost Intent variables' **Dark mode carries the raw resolved
+RGBA** (`#e5ecf6` @ 0.10/0.14) rather than an alias. A sync-plugin backup would
+therefore write dark `action.ghost.*` as literals where the repo uses aliases —
+same acknowledged drift class as `scrim`.
 
 ## ❓ Open questions
 

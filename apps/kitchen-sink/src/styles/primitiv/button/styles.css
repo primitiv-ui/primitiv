@@ -125,20 +125,22 @@
     --primitiv-button-border-color: var(--primitiv-action-danger-border-active);
   }
 
-  /* Ghost — secondary's neutral palette without the frame: transparent fill
-     and border at rest, then the secondary hover/active background tints in.
-     The border-color goes transparent (the border-width is kept) so ghost stays
-     pixel-aligned with the framed intents — no layout shift when swapping. */
+  /* Ghost — no frame: transparent fill and border at rest, then the ghost
+     state layer (action/ghost/*, the neutral-alpha ramp) washes in on
+     hover/active, compositing over whatever surface sits beneath instead of
+     assuming the default one. The border-color goes transparent (the
+     border-width is kept) so ghost stays pixel-aligned with the framed
+     intents — no layout shift when swapping. */
   .primitiv-button--ghost {
     --primitiv-button-bg: var(--primitiv-color-transparent);
     --primitiv-button-border-color: var(--primitiv-color-transparent);
     --primitiv-button-fg: var(--primitiv-action-secondary-foreground-default);
   }
   .primitiv-button--ghost:hover {
-    --primitiv-button-bg: var(--primitiv-action-secondary-hover);
+    --primitiv-button-bg: var(--primitiv-action-ghost-hover);
   }
   .primitiv-button--ghost:active {
-    --primitiv-button-bg: var(--primitiv-action-secondary-active);
+    --primitiv-button-bg: var(--primitiv-action-ghost-active);
   }
 
   /* Link — no frame; text-coloured and underlined so it reads as a link without

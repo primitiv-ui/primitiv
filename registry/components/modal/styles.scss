@@ -143,7 +143,11 @@
   /* Close — a frameless affordance living at the inline-end of the header row.
      The canonical composition wraps a ghost Button with a Close icon (`asChild`),
      sized one step below the dialog (sm→xs · md→sm · lg→md · xl→lg); this resting
-     style is the bare-<button> fallback when no Button is composed in. */
+     style is the bare-<button> fallback when no Button is composed in. Because
+     `asChild` puts this class on the composed Button, every property here must
+     agree with the ghost variant: the transition list mirrors the button base
+     rule's (a narrower list would clobber it), and hover tints with the same
+     action/ghost state layer. */
   .primitiv-modal__close {
     display: inline-flex;
     align-items: center;
@@ -152,10 +156,15 @@
     background: var(--primitiv-color-transparent);
     color: var(--primitiv-content-secondary);
     cursor: pointer;
-    transition: box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+    transition:
+      background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   .primitiv-modal__close:hover {
+    background: var(--primitiv-action-ghost-hover);
     color: var(--primitiv-content-primary);
   }
 }

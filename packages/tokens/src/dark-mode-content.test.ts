@@ -65,6 +65,29 @@ describe.each(['content/primary', 'content/secondary'] as const)('%s', (token) =
   })
 })
 
+// The neutral alpha ramp (Path A): the mode's veil colour — the neutral ramp's
+// 900 end (soft-black in light, soft-white in dark) — held constant across all
+// ten steps while only the alpha byte climbs. Guards both the anchor (the rgb
+// part must be the veil, so the ramp inverts with the theme) and the curve
+// (strictly increasing opacity).
+describe('color/neutral-alpha ramp', () => {
+  const steps = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900'] as const
+
+  it.each(['light', 'dark'] as const)("%s mode anchors every step on the mode's veil colour", (mode) => {
+    const veil = resolveRef(mode, '{color.neutral.900}')
+    for (const step of steps) {
+      expect(resolveRef(mode, `{color.neutral-alpha.${step}}`).slice(0, 7)).toBe(veil)
+    }
+  })
+
+  it.each(['light', 'dark'] as const)('%s mode climbs a strictly increasing alpha curve', (mode) => {
+    const alphas = steps.map((step) => parseInt(resolveRef(mode, `{color.neutral-alpha.${step}}`).slice(7, 9), 16))
+    for (let i = 1; i < alphas.length; i++) {
+      expect(alphas[i]).toBeGreaterThan(alphas[i - 1])
+    }
+  })
+})
+
 // Surfaces and borders that are supposed to track the theme (paler in light,
 // darker in dark) rather than stay fixed.
 describe.each([
@@ -85,6 +108,8 @@ describe.each([
   'action/secondary/border/default',
   'action/secondary/border/hover',
   'action/secondary/border/disabled',
+  'action/ghost/hover',
+  'action/ghost/active',
 ] as const)('%s', (token) => {
   it('resolves to a different colour in light vs dark mode', () => {
     expect(intentColor('light', token)).not.toBe(intentColor('dark', token))

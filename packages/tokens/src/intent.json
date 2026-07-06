@@ -93,6 +93,16 @@
           }
         }
       },
+      "ghost": {
+        "hover": {
+          "$type": "color",
+          "$value": "{color.neutral-alpha.200}"
+        },
+        "active": {
+          "$type": "color",
+          "$value": "{color.neutral-alpha.300}"
+        }
+      },
       "danger": {
         "foreground": {
           "default": {
@@ -383,6 +393,16 @@
             "$type": "color",
             "$value": "{color.neutral.100}"
           }
+        }
+      },
+      "ghost": {
+        "hover": {
+          "$type": "color",
+          "$value": "{color.neutral-alpha.200}"
+        },
+        "active": {
+          "$type": "color",
+          "$value": "{color.neutral-alpha.300}"
         }
       },
       "danger": {

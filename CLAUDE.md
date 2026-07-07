@@ -225,9 +225,11 @@ source of truth for when a skill applies.
   `intent.json` aliasing its low steps, and the registry Button ghost variant
   (plus the Modal close, which composes it) bound to the new roles. Figma has
   the matching Palette + Intent variables and rebound Button / Icon Button
-  ghost variants; the ghost Intent variables' **Dark mode is a raw RGBA**
-  (scrim-style) because the file resolves the Palette collection through Light
-  mode on dark frames. Details + the scrim/shadow.color revisit caveat in
+  ghost variants. Because the file resolves the Palette collection through
+  Light mode on dark frames, a **mirror family `color.neutral-alpha-inverse.*`**
+  (each mode = the opposite theme's veil) exists for Figma's dark Intent
+  variables to alias — only primitives carry raw values; everything else is a
+  reference token. Details + the scrim/shadow.color revisit caveat in
   `docs/transfer-and-next-steps.md`.
 - **RFC 0017 (elevation / shadow tokens) — landed (web + Figma).** A
   two-tier system mirroring motion: a primitive `shadow.*` ramp (multi-layered

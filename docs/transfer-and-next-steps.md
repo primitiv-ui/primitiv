@@ -552,13 +552,17 @@ opaque `action/secondary/*` fills — the wash now composites over any surface.
 in the Primitives / Palette collection (per-mode veil values matching the DTCG),
 `action/ghost/hover` + `action/ghost/active` in Intent, and all 20 ghost
 hover/active variants of **Button** and **Icon Button** rebound (descriptions
-updated). One modelling caveat, mirroring `scrim`: the file resolves the Palette
-collection through its **Light** mode even on dark frames (dark Intent variables
-step-swap instead), and no light-column step can express the dark theme's
-white veil — so the ghost Intent variables' **Dark mode carries the raw resolved
-RGBA** (`#e5ecf6` @ 0.10/0.14) rather than an alias. A sync-plugin backup would
-therefore write dark `action.ghost.*` as literals where the repo uses aliases —
-same acknowledged drift class as `scrim`.
+updated). The file resolves the Palette collection through its **Light** mode even
+on dark frames (dark Intent variables step-swap instead), and no `neutral-alpha`
+light-column step can express the dark theme's white veil — so a **mirror family,
+`color/neutral-alpha-inverse/50–900`**, was added (2026-07-07; each mode = the
+*opposite* theme's veil: light `#e5ecf6`@α, dark `#121418`@α) and the ghost
+Intent variables' Dark modes alias its 200/300 steps. Everything below the
+primitives is a reference token — no raw values. Note the dark alias *paths*
+still differ between the repo (`{color.neutral-alpha.*}`, resolving through the
+dark ramp) and Figma (`neutral-alpha-inverse/*`, resolving through Light) while
+the resolved values agree exactly — the same idiom every dark Intent token
+already uses for the solid neutral ramp.
 
 ## ❓ Open questions
 

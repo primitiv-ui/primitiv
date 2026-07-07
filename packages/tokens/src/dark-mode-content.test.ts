@@ -86,6 +86,23 @@ describe('color/neutral-alpha ramp', () => {
       expect(alphas[i]).toBeGreaterThan(alphas[i - 1])
     }
   })
+
+  // The inverse companion: every step is the OTHER theme's neutral-alpha step,
+  // so each mode carries the opposite veil (soft-white in light, soft-black in
+  // dark). It exists for Figma's dark step-swap idiom — the file resolves the
+  // Palette collection through Light mode even on dark frames, so dark Intent
+  // variables alias neutral-alpha-inverse to reach the white veil — and the
+  // exact mirror keeps a variables backup a no-op.
+  it.each([
+    ['light', 'dark'],
+    ['dark', 'light'],
+  ] as const)("neutral-alpha-inverse in %s mode mirrors the %s mode's neutral-alpha ramp exactly", (mode, other) => {
+    for (const step of steps) {
+      expect(resolveRef(mode, `{color.neutral-alpha-inverse.${step}}`)).toBe(
+        resolveRef(other, `{color.neutral-alpha.${step}}`),
+      )
+    }
+  })
 })
 
 // Surfaces and borders that are supposed to track the theme (paler in light,

@@ -173,6 +173,10 @@
     background: var(--primitiv-action-ghost-hover);
     color: var(--primitiv-content-primary);
   }
+
+  .primitiv-modal__close:active {
+    background: var(--primitiv-action-ghost-active);
+  }
 }
 
 @layer primitiv.variants {

@@ -76,6 +76,8 @@ All other [SVG element attributes](https://developer.mozilla.org/en-US/docs/Web/
 | [Minimize](src/icons/Minimize.tsx) | `import { Minimize } from "@primitiv-ui/icons"` |
 | [Minus](src/icons/Minus.tsx) | `import { Minus } from "@primitiv-ui/icons"` |
 | [Moon](src/icons/Moon.tsx) | `import { Moon } from "@primitiv-ui/icons"` |
+| [Pause](src/icons/Pause.tsx) | `import { Pause } from "@primitiv-ui/icons"` |
+| [Play](src/icons/Play.tsx) | `import { Play } from "@primitiv-ui/icons"` |
 | [Plus](src/icons/Plus.tsx) | `import { Plus } from "@primitiv-ui/icons"` |
 | [Search](src/icons/Search.tsx) | `import { Search } from "@primitiv-ui/icons"` |
 | [Settings](src/icons/Settings.tsx) | `import { Settings } from "@primitiv-ui/icons"` |

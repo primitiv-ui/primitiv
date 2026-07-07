@@ -15,6 +15,6 @@ import { IconBase } from '../IconBase.tsx'
  */
 export const Play = (props: IconProps): ReactElement => (
   <IconBase {...props}>
-    <path fillRule="evenodd" d="M18.029 12 5.97 20.44V3.56zM7.47 17.56 15.414 12 7.47 6.44z" clipRule="evenodd"/>
+    <path fillRule="evenodd" d="M19.978 12 7.92 20.44V3.56zM9.42 17.56 17.362 12 9.42 6.44z" clipRule="evenodd"/>
   </IconBase>
 )

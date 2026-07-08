@@ -49,6 +49,18 @@ appended here:
   primitive (it is core to the design: `CarouselControl` up/down,
   `CarouselIndicators` vertical).
 
+- **2026-07-08 — Kitchen-sink dev-aliases the workspace source (QA of
+  unpublished headless changes).** The kitchen-sink is excluded from the pnpm
+  workspace and consumes the **published** `@primitiv-ui/react@^0.1.0`, so the
+  vertical variant — the first example needing a *new* headless capability
+  (`orientation`) — rendered as the horizontal fallback (no `data-orientation`
+  emitted). Iteration 1 "just worked" because horizontal was already published.
+  Fix (human choice): `vite.config.ts` + `tsconfig.app.json` `paths` alias
+  `@primitiv-ui/react` and `@primitiv-ui/icons` to `packages/*/src`, so example
+  pages exercise workspace source ahead of a publish. **Drop an alias once its
+  change ships to npm.** This also smooths every future variant that fills a
+  headless gap.
+
 ## Figma design reference
 
 Read from the Figma file **"Primitiv Design System" → "Carousel" page**

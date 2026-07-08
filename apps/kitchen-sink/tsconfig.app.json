@@ -13,6 +13,16 @@
     "moduleResolution": "Bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
+
+    // Mirror the vite.config dev aliases so tsc / the editor resolve the two
+    // packages under active development to the workspace source too (keeps
+    // unpublished headless changes — e.g. Carousel `orientation` — type-safe).
+    "baseUrl": ".",
+    "paths": {
+      "@primitiv-ui/react": ["../../packages/react/src/index.ts"],
+      "@primitiv-ui/icons": ["../../packages/icons/src/index.ts"]
+    },
+
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",

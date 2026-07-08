@@ -35,12 +35,14 @@ const SLIDES = [
 function BasicSingle({
   label,
   radius,
+  peek,
 }: {
   label: string;
   radius?: "md" | "none";
+  peek?: "none" | "sm" | "md" | "lg";
 }) {
   return (
-    <Carousel ariaLabel={label}>
+    <Carousel ariaLabel={label} peek={peek}>
       <CarouselViewport>
         {SLIDES.map((bg, i) => (
           <CarouselSlide key={i} radius={radius} style={{ background: bg }} />
@@ -69,9 +71,15 @@ function BasicSingle({
  * beside it (up-control, vertical dots, down-control). The whole thing is the
  * iteration-1 row rotated a quarter turn, driven by a single `orientation` prop.
  */
-function VerticalSingle({ label }: { label: string }) {
+function VerticalSingle({
+  label,
+  peek,
+}: {
+  label: string;
+  peek?: "none" | "sm" | "md" | "lg";
+}) {
   return (
-    <Carousel ariaLabel={label} orientation="vertical">
+    <Carousel ariaLabel={label} orientation="vertical" peek={peek}>
       <CarouselViewport>
         {SLIDES.map((bg, i) => (
           <CarouselSlide key={i} style={{ background: bg }} />
@@ -170,7 +178,7 @@ export function CarouselVertical() {
   return (
     <Example
       title={'Vertical — orientation="vertical"'}
-      note="The block-axis carousel: up/down controls and a column of dots beside a portrait viewport. ArrowDown/ArrowUp page it. The same layout under RTL puts the controls on the start (right) side — logical properties, no RTL-specific CSS."
+      note="The block-axis carousel: up/down controls and a column of dots beside a landscape viewport (one 16:9 slide, scroll down to the next). ArrowDown/ArrowUp page it. The same layout under RTL puts the controls on the start (right) side — logical properties, no RTL-specific CSS."
     >
       <div className="carousel-page__row">
         <div className="carousel-page__vertical">
@@ -178,6 +186,33 @@ export function CarouselVertical() {
         </div>
         <div className="carousel-page__vertical" dir="rtl">
           <VerticalSingle label="Featured products — vertical, right to left" />
+        </div>
+      </div>
+    </Example>
+  );
+}
+
+export function CarouselPeek() {
+  return (
+    <Example
+      title="Peek — reveal the adjacent slides"
+      note="A cross-cutting `peek` modifier (none · sm · md · lg) shows a sliver of the neighbouring slides on either side of the active one — and it composes with every other variant. It maps to the inline edges when horizontal and the block edges when vertical, so the same prop works in both orientations."
+    >
+      {/* Peek size ladder on the horizontal single-slide. */}
+      <div className="carousel-page__stack">
+        <BasicSingle label="Horizontal peek — small" peek="sm" />
+        <BasicSingle label="Horizontal peek — medium" peek="md" />
+        <BasicSingle label="Horizontal peek — large" peek="lg" />
+      </div>
+
+      {/* Peek composing with the other variants: vertical (block-axis peek) and
+          RTL (mirrors), side by side. */}
+      <div className="carousel-page__row">
+        <div className="carousel-page__vertical">
+          <VerticalSingle label="Vertical peek" peek="md" />
+        </div>
+        <div className="carousel-page__wide" dir="rtl">
+          <BasicSingle label="Peek under RTL" peek="md" />
         </div>
       </div>
     </Example>

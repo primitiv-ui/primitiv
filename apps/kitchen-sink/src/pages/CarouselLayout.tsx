@@ -11,6 +11,7 @@ const EXAMPLES: { to: string; label: string }[] = [
   { to: "rtl", label: "RTL" },
   { to: "square", label: "Square slides" },
   { to: "vertical", label: "Vertical" },
+  { to: "peek", label: "Peek" },
 ];
 
 export function CarouselLayout() {

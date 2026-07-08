@@ -27,6 +27,11 @@
   align-items: start;
 }
 
+.carousel-page__stack {
+  display: grid;
+  gap: 2rem;
+}
+
 .carousel-page__narrow {
   inline-size: 18rem;
 }

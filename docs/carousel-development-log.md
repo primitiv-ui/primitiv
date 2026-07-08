@@ -232,6 +232,38 @@ its peek as the documented target.
 placement-focused iteration (overlay / external-flank / on-top) or
 multi-slide-per-view.
 
+### Iteration 3 — Peek (cross-cutting option, awaiting human QA)
+
+**Registry surface (headless-free — pure CSS + a modifier).** The old
+`--primitiv-carousel-padding-inline` knob was renamed to the semantic
+**`--primitiv-carousel-peek`** and made cross-cutting: the base viewport pads
+the inline edges and sets a matching **`scroll-padding-inline`** so the active
+slide (still `flex: 0 0 100%`, now of the *content* box = viewport − 2×peek)
+snaps inside the padding and reveals a peek-wide sliver of each neighbour. The
+vertical viewport remaps peek to the **block** axis (`padding-block` +
+`scroll-padding-block`, inline padding zeroed). A root **`peek` modifier**
+(`none` default · `sm` `space-16` · `md` `space-32` · `lg` `space-48`) re-points
+the knob — so `<Carousel peek="md">` works in either orientation, and composes
+with every other variant. No headless change: `scrollIntoView` aligns start-to-
+start and the snap engine corrects to the padded snap position, exactly as the
+existing peek path always assumed.
+
+**Regenerated** (recipe/tsx now carry the `peek` root prop; styles.scss
+re-derived) + drift-green + kitchen-sink hand-synced. Registry README updated
+(scope, modifiers, viewport/slide bullets).
+
+**Built** (`CarouselPage.tsx`, `/carousel/peek`): a horizontal peek size ladder
+(sm/md/lg) + peek composing with the **vertical** and **RTL** variants side by
+side — peek shown in action across the other variants, per the request.
+
+**Gates green:** `cargo test -p primitiv-emit -p primitiv-cli`,
+`node scripts/check-registry-types.mjs`.
+
+**Figma lockstep: pending** human QA. Light — peek is a code-only knob/modifier
+(no carousel variable layer in Figma); the existing "Wide peek" / peek example
+cells already show the intent, so this is expected to be a verification pass like
+vertical. **Next:** placement-focused iteration (overlay / external-flank).
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".
@@ -241,12 +273,9 @@ Reorder as priorities shift; each is human-approved before it starts.
 
 - Basic responsive single-slide _(iteration 1 — done)_
 - Vertical orientation _(iteration 2 — awaiting QA of the landscape look)_
-- **Peek (cross-cutting option)** — a first-class `peek` knob/modifier that
-  reveals adjacent-slide slivers in **both** orientations (`padding-inline` +
-  slide sizing for horizontal, `padding-block` for vertical). The horizontal
-  half is seeded by `--primitiv-carousel-padding-inline`. Requested to apply
-  across all variations (2026-07-08); folds in the "Wide peek" / "Viewport
-  padding" matrix cells. **Deferred out of the vertical iteration on purpose.**
+- Peek (cross-cutting option) _(iteration 3 — awaiting QA)_ — the `peek`
+  modifier + `--primitiv-carousel-peek` knob; subsumes the "Wide peek" /
+  "Viewport padding" matrix cells.
 - Multi-slide-per-view (slidesPerPage, gap, peek)
 - Dots / indicators variations (below, overlaid, thumbnails)
 - Snapping (centred) — `snapAlign="center"`

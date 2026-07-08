@@ -8,6 +8,7 @@ import {
   CarouselRtl,
   CarouselSquare,
   CarouselVertical,
+  CarouselPeek,
 } from "./pages/CarouselPage";
 import "./Shell.css";
 
@@ -32,6 +33,7 @@ export function Shell() {
           <Route path="rtl" element={<CarouselRtl />} />
           <Route path="square" element={<CarouselSquare />} />
           <Route path="vertical" element={<CarouselVertical />} />
+          <Route path="peek" element={<CarouselPeek />} />
         </Route>
       </Routes>
     </>

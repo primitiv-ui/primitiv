@@ -35,12 +35,15 @@
     --primitiv-carousel-padding-inline: var(--primitiv-space-space-0);
     --primitiv-carousel-slide-aspect-ratio: 16 / 9;
     --primitiv-carousel-control-gap: var(--primitiv-space-space-16);
-    --primitiv-carousel-control-size: var(--primitiv-framed-control-md-height);
-    --primitiv-carousel-control-radius: var(--primitiv-framed-control-md-radius);
-    --primitiv-carousel-control-bg: var(--primitiv-surface-default);
-    --primitiv-carousel-control-fg: var(--primitiv-content-primary);
-    --primitiv-carousel-control-border-color: var(--primitiv-border-default);
-    --primitiv-carousel-control-border-width: var(--primitiv-border-width-1);
+    --primitiv-carousel-control-size: var(--primitiv-space-space-32);
+    /* 50% on a square control draws a circle — a shape, not a token value
+       (like the indicator dot below). The design uses circular controls. */
+    --primitiv-carousel-control-radius: 50%;
+    --primitiv-carousel-control-bg: var(--primitiv-action-secondary-default);
+    --primitiv-carousel-control-bg-hover: var(--primitiv-action-secondary-hover);
+    --primitiv-carousel-control-bg-active: var(--primitiv-action-secondary-active);
+    --primitiv-carousel-control-fg: var(--primitiv-action-secondary-foreground-default);
+    --primitiv-carousel-control-icon-size: var(--primitiv-space-space-16);
     --primitiv-carousel-indicator-gap: var(--primitiv-space-space-8);
     --primitiv-carousel-indicator-hit-area: var(--primitiv-space-space-48);
     --primitiv-carousel-indicator-size: var(--primitiv-space-space-8);
@@ -84,18 +87,25 @@
     -webkit-user-drag: none;
   }
 
-  /* Prev / next controls. Square, centred glyph, sized off the control knob. */
+  /* Prev / next controls. Circular, centred glyph, sized off the control knob;
+     the secondary-action fill matches the design's external-context control. */
   .primitiv-carousel__prev,
   .primitiv-carousel__next {
     display: inline-grid;
     place-items: center;
     inline-size: var(--primitiv-carousel-control-size);
     block-size: var(--primitiv-carousel-control-size);
-    border: var(--primitiv-carousel-control-border-width) solid var(--primitiv-carousel-control-border-color);
+    border: none;
     border-radius: var(--primitiv-carousel-control-radius);
     background: var(--primitiv-carousel-control-bg);
     color: var(--primitiv-carousel-control-fg);
     cursor: pointer;
+    transition: background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+  .primitiv-carousel__prev svg,
+  .primitiv-carousel__next svg {
+    inline-size: var(--primitiv-carousel-control-icon-size);
+    block-size: var(--primitiv-carousel-control-icon-size);
   }
 
   /* Indicator dots — centred row. */
@@ -122,6 +132,19 @@
     block-size: var(--primitiv-carousel-indicator-size);
     border-radius: 50%;
     background: var(--primitiv-carousel-indicator-color);
+  }
+}
+
+@layer primitiv.variants {
+  /* Control hover / active re-point the fill knob, matching the secondary-action
+     button so the two stay visually consistent. */
+  .primitiv-carousel__prev:hover,
+  .primitiv-carousel__next:hover {
+    --primitiv-carousel-control-bg: var(--primitiv-carousel-control-bg-hover);
+  }
+  .primitiv-carousel__prev:active,
+  .primitiv-carousel__next:active {
+    --primitiv-carousel-control-bg: var(--primitiv-carousel-control-bg-active);
   }
 }
 

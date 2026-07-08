@@ -212,7 +212,10 @@ the default theme.
 - Pattern references: `registry/components/tabs/` (compound analog),
   `apps/kitchen-sink/src/components/tabs.tsx`.
 - Log: `docs/carousel-development-log.md`.
-- Skills to load: `/tweak-component`, `new-registry-component`,
+- **Launcher: `/carousel-variant <name>`** (`.claude/commands/carousel-variant.md`)
+  → the `carousel-variant` **skill** (`.claude/skills/carousel-variant/SKILL.md`):
+  the per-variant playbook. Use it to start any variant after iteration 1.
+- Other skills to load: `/tweak-component`, `new-registry-component`,
   `registry-stylesheet-conventions`, `figma-bridge-token-sync`,
   `react-test-conventions`, `sandbox-gotchas`.
 

@@ -69,6 +69,14 @@ support: overlay (inset on the slide) · external-flank (outside, L/R) ·
 external-row (below) · on-top (above) · vertical (side). Likely a
 `placement` modifier group on the surface once iteration 1 proves the base.
 
+## How to start a variant (next sessions)
+
+Run **`/carousel-variant <name>`** (e.g. `/carousel-variant overlay`). It loads
+the `carousel-variant` skill + these docs, reads the Figma frame, builds the
+example route + evolves the registry surface, runs the gates, pushes to `main`,
+and stops for your QA (Figma lockstep stays after sign-off). Pick `<name>` from
+the backlog below.
+
 ## Iterations
 
 ### Iteration 0 — Setup (done)

@@ -35,10 +35,12 @@
     --primitiv-carousel-gap: var(--primitiv-space-space-16);
     --primitiv-carousel-padding-inline: var(--primitiv-space-space-0);
     --primitiv-carousel-slide-aspect-ratio: 16 / 9;
-    /* Portrait box the vertical viewport derives its height from (only read in
-       the [data-orientation="vertical"] layout). A ratio is a shape, not a
-       token value — like the slide ratio above. */
-    --primitiv-carousel-vertical-aspect-ratio: 3 / 4;
+    /* Landscape box the vertical viewport derives its height from (only read in
+       the [data-orientation="vertical"] layout): one 16:9 slide is shown and you
+       scroll down to the next, matching the design. Override to a portrait ratio
+       for a taller vertical track. A ratio is a shape, not a token value — like
+       the slide ratio above. */
+    --primitiv-carousel-vertical-aspect-ratio: 16 / 9;
     --primitiv-carousel-slide-radius: var(--primitiv-radii-12);
     --primitiv-carousel-block-gap: var(--primitiv-space-space-16);
     --primitiv-carousel-controls-gap: var(--primitiv-space-space-16);

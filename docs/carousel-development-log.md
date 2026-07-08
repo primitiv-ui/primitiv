@@ -193,9 +193,11 @@ Orientation section, keyboard table).
 **Registry surface evolved.** A `[data-orientation="vertical"]` block in
 `styles.css` (variants layer): the root becomes a two-column grid
 (`minmax(0,1fr) auto`) so the viewport sits beside a controls **column**;
-the viewport is a portrait scroll box (new
-**`--primitiv-carousel-vertical-aspect-ratio`** knob, `3 / 4`) snapping on
-the block axis; the slide's horizontal `aspect-ratio` stands down; the
+the viewport is a landscape scroll box (new
+**`--primitiv-carousel-vertical-aspect-ratio`** knob, `16 / 9` — one slide
+shown, scroll down to the next, matching the design; override for a portrait
+track) snapping on the block axis; the slide's horizontal `aspect-ratio`
+stands down; the
 `__controls` and `__indicator-group` flip to `flex-direction: column`. The
 grid columns follow writing direction, so RTL moves the controls to the
 start side with no extra CSS. Contract documents `data-orientation` (as
@@ -210,13 +212,25 @@ Gates green: `cargo test -p primitiv-emit -p primitiv-cli`,
 `node scripts/check-registry-types.mjs`, `pnpm --filter @primitiv-ui/react
 qa:units` (100% lines/branches/functions).
 
-**Figma lockstep: pending** human QA (Figma-last). When it happens: rebind
-the `CarouselControl` up/down + `CarouselIndicators` vertical variants and
-confirm the vertical viewport/aspect intent (no `--primitiv-carousel-*`
-variable layer exists — bindings only, per the 2026-07-08 finding).
+**Figma lockstep: done — verification pass, no writes needed** (2026-07-08,
+via the bridge). The vertical anatomy was already built correctly in the
+design: `CarouselControl` up/down (both contexts, 4 states each) match the
+prev/next external bindings exactly — 32×32 (`space/32`, id `369:32054`),
+fill `action/secondary/default` (`346:4418`), circular radius (`142:124`);
+`CarouselIndicators` `orientation=vertical` is `VERTICAL` layout with
+`itemSpacing 16` bound to `space/space-16` (`4:13`). No carousel
+`--primitiv-*` variable layer exists (bindings only, per the earlier
+finding), and the `3/4→16/9` viewport ratio is code-only — so there was
+nothing to write. The **real divergence was code-side**: the shipped
+vertical was portrait single-slide, but the design's `card: Vertical` cell
+is **landscape slides with top/bottom peek + side controls**. Reconciled by
+flipping the code default to landscape `16/9` (above); **peek deferred** to
+its own cross-cutting iteration (below). The Figma vertical example keeps
+its peek as the documented target.
 
-**Next:** human QA of `/carousel/vertical`. Then a placement-focused
-iteration (overlay / external-flank / on-top) or multi-slide-per-view.
+**Next:** human QA of the landscape `/carousel/vertical`. Then a
+placement-focused iteration (overlay / external-flank / on-top) or
+multi-slide-per-view.
 
 ## Backlog (examples still to build)
 
@@ -225,7 +239,14 @@ Reorder as priorities shift; each is human-approved before it starts.
 
 **Basic**
 
-- Basic responsive single-slide _(iteration 1 — in progress)_
+- Basic responsive single-slide _(iteration 1 — done)_
+- Vertical orientation _(iteration 2 — awaiting QA of the landscape look)_
+- **Peek (cross-cutting option)** — a first-class `peek` knob/modifier that
+  reveals adjacent-slide slivers in **both** orientations (`padding-inline` +
+  slide sizing for horizontal, `padding-block` for vertical). The horizontal
+  half is seeded by `--primitiv-carousel-padding-inline`. Requested to apply
+  across all variations (2026-07-08); folds in the "Wide peek" / "Viewport
+  padding" matrix cells. **Deferred out of the vertical iteration on purpose.**
 - Multi-slide-per-view (slidesPerPage, gap, peek)
 - Dots / indicators variations (below, overlaid, thumbnails)
 - Snapping (centred) — `snapAlign="center"`

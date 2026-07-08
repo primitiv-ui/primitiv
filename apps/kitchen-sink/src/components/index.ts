@@ -1,5 +1,6 @@
 export * from "./accordion";
 export * from "./button";
+export * from "./carousel";
 export * from "./checkbox";
 export * from "./code-block";
 export * from "./divider";

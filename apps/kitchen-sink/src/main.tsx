@@ -6,10 +6,10 @@ import { createRoot } from "react-dom/client";
 // register @layer primitiv.base before this statement is seen, ordering the
 // reset layer *after* base — which then zeroes the .primitiv-flow margins.
 import "./styles/primitiv/tokens.css";
-import { App } from "./App.tsx";
+import { Shell } from "./Shell.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
+    <Shell />
   </StrictMode>,
 );

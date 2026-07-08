@@ -71,23 +71,48 @@ external-row (below) · on-top (above) · vertical (side). Likely a
 
 ## Iterations
 
-### Iteration 0 — Setup (in progress)
+### Iteration 0 — Setup (done)
 
 - [x] Plan + log docs committed to the repo.
 - [x] Figma Carousel page read; anatomy + tokens recorded above.
-- [x] Registry surface seed: `contract.json` (7 parts, 16 knobs) +
-      tokenized `styles.css` (design-matched circular controls).
-- [ ] Generate `carousel.recipe.ts` / `carousel.tsx` / `styles.scss`
-      from the contract (`primitiv-emit`).
-- [ ] Registry drift tests (recipe/wrapper/scss) for carousel.
-- [ ] Register: `registry.json`, CLI `registry.rs`, `cli.rs` roster.
-- [ ] Dedicated Carousel page added to `apps/kitchen-sink` (routing).
-- [ ] Kitchen-sink hand-sync of the copied surface.
+- [x] Registry surface: `contract.json` (7 parts, 17 knobs, 1 slide
+      `radius` modifier) + tokenized `styles.css` (design-matched
+      circular controls).
+- [x] Generated `carousel.recipe.ts` / `carousel.tsx` / `styles.scss`
+      from the contract via `primitiv-emit` (throwaway example, deleted).
+- [x] Registry drift tests (recipe/wrapper/scss) for carousel — green.
+- [x] Registered: `registry.json`, CLI `registry.rs` FILES roster,
+      `cli.rs` `add --all` count (16 → 17) + `contains("carousel")`.
+- [x] Component `README.md` authored.
+- [x] Kitchen-sink hand-sync (`components/carousel.*`, barrel export,
+      `styles/primitiv/carousel/styles.css`).
+- [x] Dedicated Carousel page: dependency-free `#carousel` hash view
+      switch (`Shell.tsx`) → `pages/CarouselPage.tsx`.
 
-### Iteration 1 — Basic responsive single-slide (not started)
+Gates green: `cargo test -p primitiv-emit -p primitiv-cli`,
+`node scripts/check-registry-types.mjs`. Kitchen-sink can't build in the
+sandbox (no `node_modules`) — the human verifies live on `main`.
 
-_Spec: see the plan doc. Fill in on completion — knobs added, classes,
-modifiers, headless gaps, QA feedback, Figma-sync status._
+### Iteration 1 — Basic responsive single-slide (awaiting human QA)
+
+**Built** (`apps/kitchen-sink/src/pages/CarouselPage.tsx`, `#carousel`):
+the External-row + dots single-slide composition — circular external
+prev/next + dot row below the viewport — across a responsive matrix:
+default (fills container), narrow vs wide container side-by-side, RTL
+(`dir="rtl"`), and square slides (`radius="none"`). Gradients stand in
+for imagery.
+
+**Surface established:** `.primitiv-carousel` + `__viewport`/`__slide`/
+`__prev`/`__next`/`__indicator-group`/`__indicator`; 17 `--primitiv-carousel-*`
+knobs; slide `radius` modifier (`md`/`none`). Controls circular
+`action-secondary`; active dot `action-primary`; shared focus ring.
+
+**No headless gaps needed** this iteration (single-slide horizontal is
+fully supported by the primitive).
+
+**Next:** human visual + interaction QA → then Figma lockstep (write the
+`--primitiv-carousel-*` variables + fix the `CarouselSlide` radius) →
+then the **vertical** headless work (driven early, per the design).
 
 ## Backlog (examples still to build)
 

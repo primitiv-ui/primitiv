@@ -1,0 +1,50 @@
+/* Example-page CSS — every selector is scoped under .carousel-page so it can't
+ * leak onto other kitchen-sink content (the global-CSS-bundling gotcha). */
+
+.carousel-page {
+  display: grid;
+  gap: 2.5rem;
+  max-inline-size: 60rem;
+  margin-inline: auto;
+  padding: 2rem;
+}
+
+.carousel-page__note {
+  margin: 0;
+  color: var(--primitiv-content-secondary);
+}
+
+.carousel-page__specimen {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.carousel-page__specimen h2 {
+  margin: 0;
+  color: var(--primitiv-content-primary);
+}
+
+/* Compose the prev / dots / next into one centred row below the viewport — the
+ * "External-row" placement. Placement is consumer composition; the registry
+ * ships the parts, the consumer arranges them. */
+.carousel-page__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--primitiv-carousel-indicator-gap);
+}
+
+.carousel-page__row {
+  display: flex;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.carousel-page__narrow {
+  inline-size: 18rem;
+}
+
+.carousel-page__wide {
+  flex: 1;
+  min-inline-size: 0;
+}

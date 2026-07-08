@@ -1,39 +1,25 @@
-import { useSyncExternalStore } from "react";
+import { NavLink, Route, Routes } from "react-router-dom";
 
 import { App } from "./App";
 import { CarouselPage } from "./pages/CarouselPage";
 import "./Shell.css";
 
-// Dependency-free view switch: the kitchen-sink stays a single-page consumer
-// demo, but a component with a large example set (Carousel) gets its own page
-// off `#carousel`. No router — just the hash.
-function useHash(): string {
-  return useSyncExternalStore(
-    (onChange) => {
-      window.addEventListener("hashchange", onChange);
-      return () => window.removeEventListener("hashchange", onChange);
-    },
-    () => window.location.hash,
-    () => "",
-  );
-}
-
+// The kitchen-sink is a single-page consumer demo, but a component with a large
+// example set (Carousel) gets its own route. `NavLink` sets aria-current="page"
+// on the active link automatically, which Shell.css styles.
 export function Shell() {
-  const view = useHash() === "#carousel" ? "carousel" : "overview";
   return (
     <>
       <nav className="ks-nav">
-        <a href="#" aria-current={view === "overview" ? "page" : undefined}>
+        <NavLink to="/" end>
           Kitchen Sink
-        </a>
-        <a
-          href="#carousel"
-          aria-current={view === "carousel" ? "page" : undefined}
-        >
-          Carousel
-        </a>
+        </NavLink>
+        <NavLink to="/carousel">Carousel</NavLink>
       </nav>
-      {view === "carousel" ? <CarouselPage /> : <App />}
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path="/carousel" element={<CarouselPage />} />
+      </Routes>
     </>
   );
 }

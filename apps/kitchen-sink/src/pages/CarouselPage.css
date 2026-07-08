@@ -31,6 +31,13 @@
   inline-size: 18rem;
 }
 
+/* The vertical carousel is a portrait box, so it needs a bounded inline-size or
+ * its aspect-ratio would make it very tall on a wide page. */
+.carousel-page__vertical {
+  inline-size: 20rem;
+  max-inline-size: 100%;
+}
+
 .carousel-page__wide {
   flex: 1;
   min-inline-size: 0;

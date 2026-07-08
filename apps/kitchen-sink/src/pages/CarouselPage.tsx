@@ -1,6 +1,11 @@
 import type { ReactNode } from "react";
 
-import { ChevronLeft, ChevronRight } from "@primitiv-ui/icons";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  ChevronDown,
+} from "@primitiv-ui/icons";
 
 import {
   Carousel,
@@ -52,6 +57,37 @@ function BasicSingle({
         </CarouselIndicatorGroup>
         <CarouselNextTrigger aria-label="Next slide">
           <ChevronRight />
+        </CarouselNextTrigger>
+      </div>
+    </Carousel>
+  );
+}
+
+/**
+ * Vertical orientation — the "External-column beside" composition: the viewport
+ * scrolls on the block axis (up/down), with the controls stacked into a column
+ * beside it (up-control, vertical dots, down-control). The whole thing is the
+ * iteration-1 row rotated a quarter turn, driven by a single `orientation` prop.
+ */
+function VerticalSingle({ label }: { label: string }) {
+  return (
+    <Carousel ariaLabel={label} orientation="vertical">
+      <CarouselViewport>
+        {SLIDES.map((bg, i) => (
+          <CarouselSlide key={i} style={{ background: bg }} />
+        ))}
+      </CarouselViewport>
+      <div className="primitiv-carousel__controls">
+        <CarouselPreviousTrigger aria-label="Previous slide">
+          <ChevronUp />
+        </CarouselPreviousTrigger>
+        <CarouselIndicatorGroup label="Choose slide">
+          {SLIDES.map((_, i) => (
+            <CarouselIndicator key={i} index={i} />
+          ))}
+        </CarouselIndicatorGroup>
+        <CarouselNextTrigger aria-label="Next slide">
+          <ChevronDown />
         </CarouselNextTrigger>
       </div>
     </Carousel>
@@ -126,6 +162,24 @@ export function CarouselSquare() {
       note="The slide radius modifier squares off the default rounding via the CarouselSlide radius=“none” prop."
     >
       <BasicSingle label="Featured products — square" radius="none" />
+    </Example>
+  );
+}
+
+export function CarouselVertical() {
+  return (
+    <Example
+      title={'Vertical — orientation="vertical"'}
+      note="The block-axis carousel: up/down controls and a column of dots beside a portrait viewport. ArrowDown/ArrowUp page it. The same layout under RTL puts the controls on the start (right) side — logical properties, no RTL-specific CSS."
+    >
+      <div className="carousel-page__row">
+        <div className="carousel-page__vertical">
+          <VerticalSingle label="Featured products — vertical" />
+        </div>
+        <div className="carousel-page__vertical" dir="rtl">
+          <VerticalSingle label="Featured products — vertical, right to left" />
+        </div>
+      </div>
     </Example>
   );
 }

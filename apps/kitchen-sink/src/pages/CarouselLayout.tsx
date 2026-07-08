@@ -10,6 +10,7 @@ const EXAMPLES: { to: string; label: string }[] = [
   { to: "responsive", label: "Container adaptation" },
   { to: "rtl", label: "RTL" },
   { to: "square", label: "Square slides" },
+  { to: "vertical", label: "Vertical" },
 ];
 
 export function CarouselLayout() {

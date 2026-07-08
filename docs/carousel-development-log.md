@@ -496,6 +496,16 @@ README updated (scope, modifiers, viewport bullet).
 `node scripts/check-registry-types.mjs`. (No headless change — Carousel vitest not
 needed.)
 
+**QA round 1 (human):** the gutter was missing on the edge **opposite the
+controls** (in horizontal the viewport's block-start/top; in vertical the
+viewport's far inline edge, opposite the control column) — the first cut padded
+only the scroll axis, leaving the cross axis flush. **Fixed** — the root now frames
+**every edge** (`padding:` instead of the axis-specific `padding-inline` /
+`padding-block`; the vertical remap dropped since full padding covers both axes).
+The internal viewport↔controls spacing stays the block gap's job, so the gutter
+doesn't leak between them. Regenerated (scss + recipe/tsx JSDoc) + drift-green +
+hand-synced.
+
 **Figma lockstep: pending** human QA. Light — viewport padding is a code-only
 knob/modifier (no carousel `--primitiv-*` variable layer in Figma; bindings only),
 and the design's "Viewport padding (`space-16` gutter · scroll-padding)" cell

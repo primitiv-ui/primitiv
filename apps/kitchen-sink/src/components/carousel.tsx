@@ -29,7 +29,7 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    */
   peek?: "none" | "sm" | "md" | "lg";
   /**
-   * Inset the whole carousel from its container with an outer gutter (breathing room framing the viewport). Distinct from `peek`: padding is the outer gutter and never reveals neighbouring slides, whereas peek is the inner reveal — they stack, so with both set the edge inset is padding + peek while the neighbour reveal stays exactly peek. Follows the scroll axis (inline edges when horizontal, block edges when vertical).
+   * Inset the whole carousel from its container with an outer gutter (breathing room framing the viewport). Distinct from `peek`: padding is the outer gutter and never reveals neighbouring slides, whereas peek is the inner reveal — they stack, so with both set the edge inset is padding + peek while the neighbour reveal stays exactly peek. Frames every edge in both orientations (so the side opposite the controls is padded too); the internal viewport-to-controls spacing stays the block gap's job.
    * - `none` — No viewport padding — the carousel fills its container edge to edge (the default).
    * - `sm` — A small gutter.
    * - `md` — A medium gutter.

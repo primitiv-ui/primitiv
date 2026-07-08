@@ -62,8 +62,9 @@ so they can't fall out of sync.
   deliberately **distinct from peek**: `padding` pads the root and never reveals a
   neighbour, whereas peek lives on the viewport and reveals the neighbour slivers —
   so the two **stack** (with both set the edge inset is padding + peek while the
-  neighbour reveal stays exactly peek). Like peek it follows the scroll axis
-  (inline edges when horizontal, block edges when vertical). A root **`placement`**
+  neighbour reveal stays exactly peek). It frames **every edge** in both
+  orientations — including the one opposite the controls — while the internal
+  viewport-to-controls spacing stays the block gap's job. A root **`placement`**
   modifier (`row` default · `overlay`) chooses where the controls sit: `row`
   keeps prev / dots / next in a flow row below (composed in a `<CarouselControls>`
   wrapper), while `overlay` insets the controls on the imagery — prev/next
@@ -98,10 +99,10 @@ Structured per RFC 0008 — the per-component API knobs + resting look in
   syncs React state off `scrollsnapchange`. **Peek** pads the leading/trailing
   edges (inline or block per orientation) and sets a matching `scroll-padding` so
   the active slide snaps inside the padding, revealing the neighbours. The
-  **`padding`** modifier is separate — an outer gutter on the *root* (mapped to the
-  scroll axis, `box-sizing: border-box` so it stays inside the 100% inline-size),
-  which frames the whole component without revealing a neighbour, so it composes
-  with peek rather than adding to the reveal.
+  **`padding`** modifier is separate — an outer gutter on the *root* framing every
+  edge (`box-sizing: border-box` so it stays inside the 100% inline-size), which
+  frames the whole component without revealing a neighbour, so it composes with
+  peek rather than adding to the reveal.
 - **Slide** — a `flex-basis` of the viewport's *content* box divided by
   `--primitiv-carousel-slides-per-page` (minus the inter-slide gaps), so it is one
   per view by default and an equal share for a 2-/3-/4-up gallery; the % is of the

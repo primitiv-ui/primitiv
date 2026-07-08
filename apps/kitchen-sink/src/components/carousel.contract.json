@@ -9,6 +9,10 @@
     "class": "primitiv-carousel",
     "component": "Root"
   },
+  "dataAttributes": [
+    { "name": "data-orientation", "value": "horizontal", "when": "horizontal", "source": "auto" },
+    { "name": "data-orientation", "value": "vertical", "when": "vertical", "source": "auto" }
+  ],
   "subcomponents": [
     {
       "name": "viewport",
@@ -70,8 +74,10 @@
     { "name": "--primitiv-carousel-gap", "defaultsTo": "var(--primitiv-space-space-16)" },
     { "name": "--primitiv-carousel-padding-inline", "defaultsTo": "var(--primitiv-space-space-0)" },
     { "name": "--primitiv-carousel-slide-aspect-ratio", "defaultsTo": "16 / 9" },
+    { "name": "--primitiv-carousel-vertical-aspect-ratio", "defaultsTo": "3 / 4" },
     { "name": "--primitiv-carousel-slide-radius", "defaultsTo": "var(--primitiv-radii-12)" },
-    { "name": "--primitiv-carousel-control-gap", "defaultsTo": "var(--primitiv-space-space-16)" },
+    { "name": "--primitiv-carousel-block-gap", "defaultsTo": "var(--primitiv-space-space-16)" },
+    { "name": "--primitiv-carousel-controls-gap", "defaultsTo": "var(--primitiv-space-space-16)" },
     { "name": "--primitiv-carousel-control-size", "defaultsTo": "var(--primitiv-space-space-32)" },
     { "name": "--primitiv-carousel-control-radius", "defaultsTo": "50%" },
     { "name": "--primitiv-carousel-control-bg", "defaultsTo": "var(--primitiv-action-secondary-default)" },
@@ -79,8 +85,8 @@
     { "name": "--primitiv-carousel-control-bg-active", "defaultsTo": "var(--primitiv-action-secondary-active)" },
     { "name": "--primitiv-carousel-control-fg", "defaultsTo": "var(--primitiv-action-secondary-foreground-default)" },
     { "name": "--primitiv-carousel-control-icon-size", "defaultsTo": "var(--primitiv-space-space-16)" },
-    { "name": "--primitiv-carousel-indicator-gap", "defaultsTo": "var(--primitiv-space-space-8)" },
-    { "name": "--primitiv-carousel-indicator-hit-area", "defaultsTo": "var(--primitiv-space-space-48)" },
+    { "name": "--primitiv-carousel-indicator-gap", "defaultsTo": "var(--primitiv-space-space-0)" },
+    { "name": "--primitiv-carousel-indicator-hit-area", "defaultsTo": "var(--primitiv-space-space-24)" },
     { "name": "--primitiv-carousel-indicator-size", "defaultsTo": "var(--primitiv-space-space-8)" },
     { "name": "--primitiv-carousel-indicator-color", "defaultsTo": "var(--primitiv-border-strong)" },
     { "name": "--primitiv-carousel-indicator-color-active", "defaultsTo": "var(--primitiv-action-primary-default)" }

@@ -35,6 +35,10 @@
     --primitiv-carousel-gap: var(--primitiv-space-space-16);
     --primitiv-carousel-padding-inline: var(--primitiv-space-space-0);
     --primitiv-carousel-slide-aspect-ratio: 16 / 9;
+    /* Portrait box the vertical viewport derives its height from (only read in
+       the [data-orientation="vertical"] layout). A ratio is a shape, not a
+       token value — like the slide ratio above. */
+    --primitiv-carousel-vertical-aspect-ratio: 3 / 4;
     --primitiv-carousel-slide-radius: var(--primitiv-radii-12);
     --primitiv-carousel-block-gap: var(--primitiv-space-space-16);
     --primitiv-carousel-controls-gap: var(--primitiv-space-space-16);
@@ -151,6 +155,41 @@
 }
 
 @layer primitiv.variants {
+  /* Vertical orientation (headless `orientation="vertical"` → data-orientation).
+     The viewport scrolls on the block axis and the controls sit in a column
+     beside it (up / dots / down), mirroring the horizontal below-the-viewport
+     row rotated a quarter turn. The grid columns follow writing direction, so
+     the controls flip to the start side under RTL with no extra CSS. */
+  .primitiv-carousel[data-orientation="vertical"] {
+    grid-auto-flow: column;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  /* Column scroll track: a portrait box (height from the aspect knob), snapping
+     on the block axis. Physical overflow — the scroll axis is vertical in both
+     LTR and RTL, so it doesn't mirror. */
+  .primitiv-carousel[data-orientation="vertical"] .primitiv-carousel__viewport {
+    flex-direction: column;
+    aspect-ratio: var(--primitiv-carousel-vertical-aspect-ratio);
+    overflow-x: hidden;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    overscroll-behavior-y: contain;
+  }
+
+  /* Each slide fills the portrait viewport — flex-basis owns the block size, so
+     the horizontal slide aspect-ratio must stand down. */
+  .primitiv-carousel[data-orientation="vertical"] .primitiv-carousel__slide {
+    aspect-ratio: auto;
+  }
+
+  /* Controls stack into a column; the dot group runs vertically too. */
+  .primitiv-carousel[data-orientation="vertical"] .primitiv-carousel__controls,
+  .primitiv-carousel[data-orientation="vertical"] .primitiv-carousel__indicator-group {
+    flex-direction: column;
+  }
+
   /* Slide corner rounding — re-points the radius knob. `md` is the default
      (the base rule already rounds); `none` squares the slide off. */
   .primitiv-carousel__slide--radius-md {
@@ -204,6 +243,7 @@
 $primitiv-carousel-gap: var(--primitiv-carousel-gap);
 $primitiv-carousel-padding-inline: var(--primitiv-carousel-padding-inline);
 $primitiv-carousel-slide-aspect-ratio: var(--primitiv-carousel-slide-aspect-ratio);
+$primitiv-carousel-vertical-aspect-ratio: var(--primitiv-carousel-vertical-aspect-ratio);
 $primitiv-carousel-slide-radius: var(--primitiv-carousel-slide-radius);
 $primitiv-carousel-block-gap: var(--primitiv-carousel-block-gap);
 $primitiv-carousel-controls-gap: var(--primitiv-carousel-controls-gap);

@@ -87,18 +87,25 @@ export type CarouselRootPlayingStateProps =
 export type CarouselAutoplay = boolean | { delay: number };
 
 /**
- * Visual transition mode for the viewport.
+ * Visual transition mode for the viewport. The resolved value is
+ * published on the Root as `data-transition` so consumer CSS can switch
+ * the visual off a single hook.
  *
  * - `"slide"` (default) — relies on native CSS scroll-snap; the
  *   Viewport scrolls programmatically when the page changes and
  *   listens for `scrollsnapchange` to update React state when the
  *   user swipes.
- * - `"none"` — the Viewport installs no scroll wiring at all.
- *   Consumer CSS owns the visual transition (e.g. crossfade,
- *   dissolve) via the `data-state` hook on each slide, which still
- *   flips with the active page.
+ * - `"fade"` — installs no scroll wiring (like `"none"`), but names the
+ *   intent so a styled surface can ship a crossfade by default: stack
+ *   the slides and cross-fade opacity off the per-slide `data-state`
+ *   hook. Native swipe/drag and peek don't apply (there's no scroll);
+ *   controls, indicators, and keyboard paging still work.
+ * - `"none"` — the Viewport installs no scroll wiring at all, and the
+ *   styled surface ships no default visual: consumer CSS owns the
+ *   transition entirely via the `data-state` hook on each slide, which
+ *   still flips with the active page.
  */
-export type CarouselTransition = "slide" | "none";
+export type CarouselTransition = "slide" | "fade" | "none";
 
 /**
  * Scroll-snap alignment that the Viewport should target when

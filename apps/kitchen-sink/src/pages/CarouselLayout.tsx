@@ -13,6 +13,7 @@ const EXAMPLES: { to: string; label: string }[] = [
   { to: "vertical", label: "Vertical" },
   { to: "peek", label: "Peek" },
   { to: "overlay", label: "Overlay" },
+  { to: "fade", label: "Fade" },
 ];
 
 export function CarouselLayout() {

@@ -328,6 +328,51 @@ needed.)
 vs `content-inverse` decision above. **Next:** the remaining placements
 (external-flank / controls-on-top) or multi-slide-per-view.
 
+### Iteration 5 — Fade transition (awaiting human QA)
+
+**Headless gap filled (TDD, 100%).** The primitive already had a `transition`
+prop (`"slide" | "none"`) that gates all scroll wiring on `transition === "slide"`
+while still flipping the per-slide `data-state`. Two additions drove fade:
+- a named **`"fade"`** member on `CarouselTransition` (`"slide" | "fade" | "none"`)
+  — the JS gate is `!== "slide"`, so `"fade"` disables scroll wiring for free;
+  it exists to name the intent so the styled surface can ship a crossfade default;
+- a **`data-transition`** hook on the Root `<section>` (mirrors `data-orientation`)
+  publishing the resolved mode, so CSS switches the visual off one hook.
+Driven by two RED tests in `Carousel.transition-modes.test.tsx` (default
+`data-transition="slide"`; `="fade"` when set). JSDoc + component README updated
+(transition section rewritten around the `data-transition` hook + the fade CSS
+recipe). Full `qa:units` green at 100% lines/branches/functions/statements.
+
+**Registry surface (CSS keyed off the headless hook — no modifier).** Because
+`transition` is a **passthrough** Root prop (the wrapper omits only `peek` /
+`placement`), `<Carousel transition="fade">` reaches the headless Root directly —
+no contract modifier, no recipe/tsx change. Under `[data-transition="fade"]` the
+stylesheet stops the viewport scrolling (`display: grid`, gap/peek/overflow
+neutralised), stacks every slide in the one cell (`grid-area: 1 / 1`), and
+cross-fades the active slide in over the others off its `data-state` hook. The
+outgoing slide keeps `visibility: visible` (hittable/announced) until the opacity
+fade completes via a `visibility 0s … <fade-duration>` delay, then drops from the
+hit-test + a11y tree; the active override (states layer) clears that delay. Two
+new knobs — `--primitiv-carousel-fade-duration` (`motion-duration-overlay`) /
+`--primitiv-carousel-fade-easing` (`motion-easing-default`) — and the
+`data-transition` hook documented in the contract `dataAttributes`. Regenerated
+(scss re-derived; recipe/tsx byte-identical) + drift-green + kitchen-sink
+hand-synced (styles.css + contract).
+
+**Built** (`CarouselPage.tsx`, `/carousel/fade`): a crossfade with the row
+controls below, plus a crossfade composing with `placement="overlay"` — a
+hero-style fade carousel. (Kitchen-sink dev-alias already in place, so the new
+headless `"fade"` value + `data-transition` hook are live there.)
+
+**Gates green:** `cargo test -p primitiv-emit -p primitiv-cli`,
+`node scripts/check-registry-types.mjs`, `pnpm --filter @primitiv-ui/react
+qa:units` (100%).
+
+**Figma lockstep: pending** human QA. Light — fade is code-only (timing knobs +
+a data hook; no carousel variable layer in Figma). The design's
+`Crossfade / dissolve` intent maps directly. **Next:** the remaining placements
+(external-flank / controls-on-top) or multi-slide-per-view.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".
@@ -355,7 +400,9 @@ Reorder as priorities shift; each is human-approved before it starts.
 
 - Cover Flow (scroll-driven 3D, `--cf-*` playground)
 - Autoplay + play/pause
-- Crossfade / dissolve (`transition="none"`)
+- Crossfade / dissolve (`transition="fade"`) _(iteration 5 — awaiting QA)_ —
+  the `transition="fade"` value + `data-transition` hook + registry crossfade CSS;
+  dissolve is the same mechanism with different timing knobs.
 - Multi-step (slide + fade)
 - Variable-size slides
 - Programmatic control (imperative API, progress bar)
@@ -373,6 +420,9 @@ it (decision 4).
       `orientation="vertical"` switches the scroll axis, the `snapTargetBlock`
       sync, and the ArrowDown/ArrowUp keys; `data-orientation` on the Root is
       the styling hook.
+- [x] Fade transition + `data-transition` hook — **landed (iteration 5)**.
+      `transition="fade"` (a named non-slide mode) disables scroll wiring and
+      publishes `data-transition` on the Root; the registry crossfades off it.
 - [ ] Mouse-drag gesture (only native scroll today)
 - [ ] Explicit RTL tests (mirrors implicitly via logical properties;
       no dedicated coverage)

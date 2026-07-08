@@ -39,7 +39,8 @@ so they can't fall out of sync.
 
 - **`dataAttributes`** (`source: "auto"`) — the state hooks the headless layer
   emits: `data-state` (`"active"` / `"inactive"`) on the `slide` and `indicator`,
-  which the stylesheet styles (the active dot).
+  which the stylesheet styles (the active dot); `data-orientation` and
+  `data-transition` on the root (see the transition note below).
 - **`root` / `subcomponents` / `modifiers` / `customProperties`** — the authored
   styling conventions: the `.primitiv-carousel` root and the `__viewport` /
   `__slide` / `__controls` / `__prev` / `__next` / `__indicator-group` /
@@ -92,6 +93,18 @@ Structured per RFC 0008 — the per-component API knobs + resting look in
 - **Indicators** — a centred row; the button carries a 44×44-min hit area
   (WCAG 2.5.8) while the visible dot stays small via `::before`; the active dot
   re-points to `action-primary`.
+
+- **Transition (`data-transition`)** — the headless `transition` prop
+  (`slide` default · `fade` · `none`) publishes `data-transition` on the root.
+  Under `[data-transition="fade"]` the stylesheet stops the viewport scrolling,
+  stacks every slide in one grid cell, and cross-fades the active slide in over
+  the others off its `data-state` hook (timing from the
+  `--primitiv-carousel-fade-*` knobs — `motion-duration-overlay` /
+  `motion-easing-default` by default). `<Carousel transition="fade">` reaches the
+  headless Root directly (a passthrough prop — no modifier), so no extra wiring is
+  needed; swipe/drag and peek don't apply in fade mode (there's no scroll), but
+  controls, indicators, and keyboard paging still work. `none` behaves the same
+  behaviourally but ships no default visual — bring your own CSS.
 
 Focus draws the **shared two-layer ring** (surface gap + brand ring) on the
 tabbable viewport and the button parts, restyleable system-wide via the

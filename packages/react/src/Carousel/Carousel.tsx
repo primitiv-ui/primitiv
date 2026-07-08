@@ -133,6 +133,7 @@ export const CarouselRoot: ForwardRefExoticComponent<
       <section
         aria-roledescription="carousel"
         data-orientation={contextValue.orientation}
+        data-transition={contextValue.transition}
         className={className}
         {...(ariaLabel !== undefined && { "aria-label": ariaLabel })}
         {...(ariaLabelledBy !== undefined && {

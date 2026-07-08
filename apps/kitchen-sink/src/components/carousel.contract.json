@@ -11,7 +11,10 @@
   },
   "dataAttributes": [
     { "name": "data-orientation", "value": "horizontal", "when": "horizontal", "source": "auto" },
-    { "name": "data-orientation", "value": "vertical", "when": "vertical", "source": "auto" }
+    { "name": "data-orientation", "value": "vertical", "when": "vertical", "source": "auto" },
+    { "name": "data-transition", "value": "slide", "when": "slide", "source": "auto" },
+    { "name": "data-transition", "value": "fade", "when": "fade", "source": "auto" },
+    { "name": "data-transition", "value": "none", "when": "none", "source": "auto" }
   ],
   "modifiers": [
     {
@@ -122,6 +125,8 @@
     { "name": "--primitiv-carousel-overlay-indicator-color-active", "defaultsTo": "var(--primitiv-content-inverse)" },
     { "name": "--primitiv-carousel-overlay-pill-bg", "defaultsTo": "var(--primitiv-color-neutral-alpha-500)" },
     { "name": "--primitiv-carousel-overlay-pill-padding-inline", "defaultsTo": "var(--primitiv-space-space-12)" },
-    { "name": "--primitiv-carousel-overlay-pill-padding-block", "defaultsTo": "var(--primitiv-space-space-4)" }
+    { "name": "--primitiv-carousel-overlay-pill-padding-block", "defaultsTo": "var(--primitiv-space-space-4)" },
+    { "name": "--primitiv-carousel-fade-duration", "defaultsTo": "var(--primitiv-motion-duration-overlay)" },
+    { "name": "--primitiv-carousel-fade-easing", "defaultsTo": "var(--primitiv-motion-easing-default)" }
   ]
 }

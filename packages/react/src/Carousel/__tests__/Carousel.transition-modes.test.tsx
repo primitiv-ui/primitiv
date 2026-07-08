@@ -18,6 +18,34 @@ function fireScrollSnapChange(
 }
 
 describe("Carousel transition modes", () => {
+  it('should publish data-transition="slide" on the root by default (the CSS styling hook)', () => {
+    render(
+      <Carousel.Root ariaLabel="Featured products">
+        <Carousel.Viewport>
+          <Carousel.Slide />
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+
+    expect(
+      screen.getByRole("region", { name: "Featured products" }),
+    ).toHaveAttribute("data-transition", "slide");
+  });
+
+  it('should publish data-transition="fade" when transition="fade" so CSS can crossfade off the hook', () => {
+    render(
+      <Carousel.Root ariaLabel="Featured products" transition="fade">
+        <Carousel.Viewport>
+          <Carousel.Slide />
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+
+    expect(
+      screen.getByRole("region", { name: "Featured products" }),
+    ).toHaveAttribute("data-transition", "fade");
+  });
+
   it('should skip the programmatic scroll on page change when transition="none"', async () => {
     const user = userEvent.setup();
     render(

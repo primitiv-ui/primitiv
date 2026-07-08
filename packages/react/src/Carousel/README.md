@@ -383,25 +383,34 @@ scroll axis to exist — give the root or viewport an explicit
 ### Transition modes
 
 `Carousel.Root` accepts a `transition` prop that controls how the
-viewport handles slide changes visually.
+viewport handles slide changes visually. The resolved value is
+published on the Root as `data-transition` so consumer CSS can switch
+the visual off a single hook (mirroring `data-orientation`).
 
 - `transition="slide"` (default) — relies on native CSS scroll-snap.
   The Viewport scrolls programmatically when the page changes and
   listens for `scrollsnapchange` so user swipes update React state.
+- `transition="fade"` — installs no scroll wiring (like `"none"`), but
+  names the intent so a styled surface can ship a crossfade by default.
+  Native swipe/drag and peek don't apply (there's no scroll to swipe);
+  controls, indicators, and keyboard paging still work.
 - `transition="none"` — the Viewport installs no scroll wiring at
-  all. Consumer CSS owns the visual via the `data-state="active" |
-"inactive"` hook on each slide, which still flips with the active
-  page. This is the entry point for crossfade, dissolve, zoom, or
-  any CSS-only transition pattern:
+  all and no default visual is implied. Consumer CSS owns the visual
+  via the `data-state="active" | "inactive"` hook on each slide, which
+  still flips with the active page.
+
+Both `"fade"` and `"none"` are the entry point for crossfade, dissolve,
+zoom, or any CSS-only transition pattern — stack the slides and drive
+opacity/transform off `data-state`, keyed off the `data-transition`
+hook so the scroll-snap layout isn't affected:
 
 ```css
-[data-carousel-slide] {
-  position: absolute;
-  inset: 0;
+[data-transition="fade"] [data-carousel-slide] {
+  grid-area: 1 / 1; /* stack every slide in one cell */
   opacity: 0;
   transition: opacity 400ms;
 }
-[data-carousel-slide][data-state="active"] {
+[data-transition="fade"] [data-carousel-slide][data-state="active"] {
   opacity: 1;
 }
 ```

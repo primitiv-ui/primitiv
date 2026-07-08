@@ -36,13 +36,15 @@ function BasicSingle({
   label,
   radius,
   peek,
+  transition,
 }: {
   label: string;
   radius?: "md" | "none";
   peek?: "none" | "sm" | "md" | "lg";
+  transition?: "slide" | "fade";
 }) {
   return (
-    <Carousel ariaLabel={label} peek={peek}>
+    <Carousel ariaLabel={label} peek={peek} transition={transition}>
       <CarouselViewport>
         {SLIDES.map((bg, i) => (
           <CarouselSlide key={i} radius={radius} style={{ background: bg }} />
@@ -112,12 +114,19 @@ function VerticalSingle({
 function OverlaySingle({
   label,
   peek,
+  transition,
 }: {
   label: string;
   peek?: "none" | "sm" | "md" | "lg";
+  transition?: "slide" | "fade";
 }) {
   return (
-    <Carousel ariaLabel={label} placement="overlay" peek={peek}>
+    <Carousel
+      ariaLabel={label}
+      placement="overlay"
+      peek={peek}
+      transition={transition}
+    >
       <CarouselViewport>
         {SLIDES.map((bg, i) => (
           <CarouselSlide key={i} style={{ background: bg }} />
@@ -246,6 +255,24 @@ export function CarouselOverlay() {
           <OverlaySingle label="Featured products — overlay, right to left" />
         </div>
       </div>
+    </Example>
+  );
+}
+
+export function CarouselFade() {
+  return (
+    <Example
+      title={'Fade — transition="fade"'}
+      note="A crossfade instead of a scroll: the slides stack and the active one fades in over the others (off the headless data-transition hook). Native swipe/drag and peek don't apply — there's no scroll — but prev/next, the dots, and keyboard paging all still work. It composes with placement, so the second instance is a fade hero with the controls overlaid on the imagery."
+    >
+      {/* Crossfade with the controls in the row below. */}
+      <BasicSingle label="Featured products — crossfade" transition="fade" />
+
+      {/* Crossfade composing with overlay placement — a hero-style carousel. */}
+      <OverlaySingle
+        label="Featured products — crossfade hero"
+        transition="fade"
+      />
     </Example>
   );
 }

@@ -85,6 +85,10 @@
     --primitiv-carousel-overlay-pill-bg: var(--primitiv-color-neutral-alpha-500);
     --primitiv-carousel-overlay-pill-padding-inline: var(--primitiv-space-space-12);
     --primitiv-carousel-overlay-pill-padding-block: var(--primitiv-space-space-4);
+    /* Crossfade timing — read only under [data-transition="fade"], where the
+       slides stack and the active one fades in over the others. */
+    --primitiv-carousel-fade-duration: var(--primitiv-motion-duration-overlay);
+    --primitiv-carousel-fade-easing: var(--primitiv-motion-easing-default);
 
     /* Fill the container and stack the viewport above the controls row, spaced
        by the block gap. */
@@ -319,12 +323,59 @@
     background: var(--primitiv-carousel-overlay-pill-bg);
     border-radius: var(--primitiv-radii-full);
   }
+
+  /* Fade transition (headless `transition="fade"` → data-transition="fade").
+     The viewport stops scrolling and stacks every slide in one grid cell; the
+     active slide cross-fades in over the others off its data-state hook (the
+     active override lives in the states layer). Keyed off the data-transition
+     hook so the default `slide` scroll-snap layout is left untouched. */
+  .primitiv-carousel[data-transition="fade"] .primitiv-carousel__viewport {
+    display: grid;
+    /* One full-width column the stacked slides fill (minmax(0,…) lets them
+       shrink below intrinsic width — a grid shape, like the vertical layout). */
+    grid-template-columns: minmax(0, 1fr);
+    /* No scroll track — neutralise the snap / scroll / peek machinery. */
+    gap: var(--primitiv-space-space-0);
+    overflow: hidden;
+    padding-inline: var(--primitiv-space-space-0);
+    padding-block: var(--primitiv-space-space-0);
+  }
+
+  /* Every slide shares the single cell; only the active one is shown.
+     `visibility` is delayed by the fade duration so the outgoing slide stays
+     hittable/announced until it has finished fading out, then drops from the
+     hit-test + a11y tree (the active override clears the delay so the incoming
+     slide appears at once). */
+  .primitiv-carousel[data-transition="fade"] .primitiv-carousel__slide {
+    grid-area: 1 / 1;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity var(--primitiv-carousel-fade-duration) var(--primitiv-carousel-fade-easing),
+      /* 0s = flip visibility instantly, but delayed by the fade duration so the
+         outgoing slide stays visible/hittable until the opacity fade completes.
+         0s is "no animatable duration" — a logic value, not a themeable token. */
+        visibility 0s var(--primitiv-motion-easing-linear)
+        var(--primitiv-carousel-fade-duration);
+  }
 }
 
 @layer primitiv.states {
   /* Active dot. */
   .primitiv-carousel__indicator[data-state="active"]::before {
     background: var(--primitiv-carousel-indicator-color-active);
+  }
+
+  /* Fade transition: the active slide is the only visible one. Clearing the
+     visibility delay (0s all round) makes the incoming slide appear at once
+     while the outgoing one fades under it. */
+  .primitiv-carousel[data-transition="fade"]
+    .primitiv-carousel__slide[data-state="active"] {
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity var(--primitiv-carousel-fade-duration) var(--primitiv-carousel-fade-easing),
+      visibility 0s;
   }
 
   /* Focus — the shared two-layer ring, keyed to keyboard focus. The viewport is

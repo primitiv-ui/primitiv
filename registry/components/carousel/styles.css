@@ -38,6 +38,12 @@
        `peek` modifier re-points it; the viewport maps it to the axis that
        matches the orientation (inline for horizontal, block for vertical). */
     --primitiv-carousel-peek: var(--primitiv-space-space-0);
+    /* How many slides share the viewport at once. 1 = one slide fills it (the
+       default); higher counts divide the content box into equal shares. The
+       `slidesPerPage` modifier re-points it; the slide derives its flex-basis
+       from this and the gap. A count is a shape, not a token value — like the
+       aspect ratios below. */
+    --primitiv-carousel-slides-per-page: 1;
     --primitiv-carousel-slide-aspect-ratio: 16 / 9;
     /* Landscape box the vertical viewport derives its height from (only read in
        the [data-orientation="vertical"] layout): one 16:9 slide is shown and you
@@ -130,11 +136,18 @@
     display: none;
   }
 
-  /* One slide per view by default; it fills the viewport and keeps its ratio as
-     the container resizes (the Blossom approach). min-inline-size:0 lets a slide
-     shrink below its content's intrinsic width. */
+  /* Each slide takes an equal share of the viewport: the content box left after
+     the inter-slide gaps, divided by the slides-per-page count. With the default
+     count of 1 this is the full 100% (one slide per view). It fills its share and
+     keeps its ratio as the container resizes (the Blossom approach). The % is of
+     the viewport's *content* box, so peek padding narrows it and the neighbours
+     show through; min-inline-size:0 lets a slide shrink below its intrinsic width. */
   .primitiv-carousel__slide {
-    flex: 0 0 100%;
+    flex: 0 0
+      calc(
+        (100% - (var(--primitiv-carousel-slides-per-page) - 1) * var(--primitiv-carousel-gap)) /
+          var(--primitiv-carousel-slides-per-page)
+      );
     min-inline-size: 0;
     aspect-ratio: var(--primitiv-carousel-slide-aspect-ratio);
     border-radius: var(--primitiv-carousel-slide-radius);
@@ -247,6 +260,24 @@
   }
   .primitiv-carousel--peek-lg {
     --primitiv-carousel-peek: var(--primitiv-space-space-48);
+  }
+
+  /* Slides per page — re-points the count knob so several slides share the
+     viewport (a 2-/3-/4-up gallery). `1` is the default (one slide fills it).
+     The slide's flex-basis divides the content box into equal shares separated
+     by the gap, so it composes with peek and both orientations (the basis is on
+     the main axis either way). For any other count, set the knob directly. */
+  .primitiv-carousel--slides-1 {
+    --primitiv-carousel-slides-per-page: 1;
+  }
+  .primitiv-carousel--slides-2 {
+    --primitiv-carousel-slides-per-page: 2;
+  }
+  .primitiv-carousel--slides-3 {
+    --primitiv-carousel-slides-per-page: 3;
+  }
+  .primitiv-carousel--slides-4 {
+    --primitiv-carousel-slides-per-page: 4;
   }
 
   /* Slide corner rounding — re-points the radius knob. `md` is the default

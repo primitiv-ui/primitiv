@@ -61,6 +61,18 @@ appended here:
   change ships to npm.** This also smooths every future variant that fills a
   headless gap.
 
+- **2026-07-08 — Presentational subcomponents + `slidesPerPage` as a modifier
+  (iteration 6).** (a) A styling-only grouping part (the `__controls` row) ships as
+  a **generated `<CarouselControls>`** via a new emitter capability: a
+  `subcomponent` with no `component` renders its own host `element` (a bare styled
+  `<div>`), no headless backing — the behaviourless wrapper stays out of the
+  headless primitive but is still part of the copied surface. (b) `slidesPerPage`
+  is a **modifier** (not just a raw knob) with **numeric option names** (`1`–`4`):
+  safe because `check-registry-types.mjs` stubs `cva`, so the recipe's numeric
+  object keys never meet cva's generic inference — the wrapper's `"1" | … | "4"`
+  string union is the typed surface. The `--primitiv-carousel-slides-per-page` knob
+  stays exposed for arbitrary counts.
+
 ## Figma design reference
 
 Read from the Figma file **"Primitiv Design System" → "Carousel" page**
@@ -380,6 +392,60 @@ a data hook; no carousel variable layer in Figma). The design's
 `Crossfade / dissolve` intent maps directly. **Next:** the remaining placements
 (external-flank / controls-on-top) or multi-slide-per-view.
 
+### Iteration 6 — Multi-slide-per-view + CarouselControls part (awaiting human QA)
+
+**Registry surface (headless-free — pure CSS + a modifier).** A root
+**`slidesPerPage`** modifier (`1` default · `2` · `3` · `4`) re-points a new
+**`--primitiv-carousel-slides-per-page`** count knob. The slide's `flex: 0 0 100%`
+became `flex: 0 0 calc((100% - (N - 1) × gap) / N)` — each slide takes an equal
+share of the viewport's *content* box (so it composes with peek: the % is of the
+box minus 2×peek) minus the inter-slide gaps. With `N = 1` it reduces to the old
+`100%`, so the default is byte-unchanged behaviourally. The basis is on the **main
+axis**, so it works in **both** orientations for free (block-axis share when
+vertical). One snap point per slide is unchanged, so prev/next + dots advance by
+one (slidesPerMove = 1). For an arbitrary count, the knob is set directly (the
+modifier is the 1–4 convenience). **No headless change** — multi-slide is a slide
+layout concern the stylesheet owns (per the JS-vs-CSS table); the primitive
+already treats each slide as a snap target, so it's unaffected by the
+publish gotcha.
+
+**`slidesPerPage` as a modifier with numeric option keys is type-safe** because
+`check-registry-types.mjs` stubs `cva` as `(props?: Record<string, unknown>) =>
+string` — cva's real generic inference never runs, so the recipe's numeric object
+keys (`{ 1: …, 2: … }`, valid JS, runtime string keys) don't clash with the
+wrapper's explicit `"1" | "2" | "3" | "4"` string union. Confirmed green.
+
+**`__controls` promoted to a generated `<CarouselControls>` part** (the human's
+side note). It was a CSS-only wrapper `<div>` the example hand-wrote; it is now a
+**presentational subcomponent** — a new emitter capability: a `subcomponent` with
+no `component` renders its own host `element` (a bare styled `<div>`) with the part
+class and no headless backing (TDD in `primitiv-emit`, `contract.rs` +
+`wrapper.rs`, `DEMO_GROUPED` fixture + test; the `component` field is now
+`Option<String>`). The kitchen-sink examples compose `<CarouselControls>` instead
+of the raw div. This keeps the behaviourless grouping element out of the headless
+primitive (where it doesn't belong) while still shipping it as part of the copied
+surface. Reusable by any future grouping wrapper.
+
+**Built** (`CarouselPage.tsx`, `/carousel/multi`): a 2-/3-/4-up count ladder over a
+6-slide gallery, plus 2-up composing with `peek="sm"` and a 3-up RTL instance side
+by side.
+
+**Regenerated** (recipe/tsx carry the `slidesPerPage` prop + the `CarouselControls`
+part; styles.scss re-derived with the new `$…-slides-per-page` var) + drift-green +
+kitchen-sink hand-synced. Registry README updated (the `slidesPerPage` modifier, the
+slide flex-basis bullet, `<CarouselControls>` throughout).
+
+**Gates green:** `cargo test -p primitiv-emit -p primitiv-cli`,
+`node scripts/check-registry-types.mjs`. (No headless change — Carousel vitest not
+needed. `cargo-llvm-cov` isn't in the sandbox; the new emitter branch is covered by
+`DEMO_GROUPED` + the carousel drift tests — CI's Rust coverage gate confirms 100%.)
+
+**Figma lockstep: pending** human QA. Light — multi-slide is a code-only
+knob/modifier (no carousel `--primitiv-*` variable layer in Figma), and the design's
+"Slides Per Page (2-up)" cell already shows the intent, so this is expected to be a
+verification pass. **Next:** the remaining placements (external-flank /
+controls-on-top) or thumbnails.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".
@@ -392,7 +458,10 @@ Reorder as priorities shift; each is human-approved before it starts.
 - Peek (cross-cutting option) _(iteration 3 — awaiting QA)_ — the `peek`
   modifier + `--primitiv-carousel-peek` knob; subsumes the "Wide peek" /
   "Viewport padding" matrix cells.
-- Multi-slide-per-view (slidesPerPage, gap, peek)
+- Multi-slide-per-view _(iteration 6 — awaiting QA)_ — the `slidesPerPage`
+  modifier (`1` default · `2` · `3` · `4`) + `--primitiv-carousel-slides-per-page`
+  knob; each slide's flex-basis divides the content box into equal shares (minus
+  the gaps). Composes with peek and both orientations.
 - Placement: overlay _(iteration 4 — awaiting QA)_ — the `placement` modifier
   (`row` default · `overlay`); controls inset on the imagery, dots in a pill.
   Remaining placements (external-flank, controls-on-top) still to build.

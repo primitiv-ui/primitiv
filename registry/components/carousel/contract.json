@@ -31,10 +31,21 @@
     {
       "name": "placement",
       "default": "row",
-      "description": "Where the prev/next controls and indicator dots sit relative to the viewport. The default keeps them in a flow row below (compose them in a `.primitiv-carousel__controls` wrapper); `overlay` insets the controls on the slide for edge-to-edge imagery.",
+      "description": "Where the prev/next controls and indicator dots sit relative to the viewport. The default keeps them in a flow row below (compose them in a `<CarouselControls>` wrapper); `overlay` insets the controls on the slide for edge-to-edge imagery.",
       "options": [
         { "name": "row", "class": "primitiv-carousel--placement-row", "description": "Controls flow in a row below the viewport (the default)." },
         { "name": "overlay", "class": "primitiv-carousel--placement-overlay", "description": "Controls sit on the imagery — prev/next flanking the slide edges on a translucent scrim, dots in a pill overlaid at the bottom." }
+      ]
+    },
+    {
+      "name": "slidesPerPage",
+      "default": "1",
+      "description": "How many slides are visible per page. The default shows one slide filling the viewport; higher counts divide it into equal shares separated by the gap (a 2-/3-/4-up gallery). Composes with peek and both orientations. For an arbitrary count, set the `--primitiv-carousel-slides-per-page` knob directly.",
+      "options": [
+        { "name": "1", "class": "primitiv-carousel--slides-1", "description": "One slide fills the viewport (the default)." },
+        { "name": "2", "class": "primitiv-carousel--slides-2", "description": "Two slides per page." },
+        { "name": "3", "class": "primitiv-carousel--slides-3", "description": "Three slides per page." },
+        { "name": "4", "class": "primitiv-carousel--slides-4", "description": "Four slides per page." }
       ]
     }
   ],
@@ -103,6 +114,7 @@
   "customProperties": [
     { "name": "--primitiv-carousel-gap", "defaultsTo": "var(--primitiv-space-space-16)" },
     { "name": "--primitiv-carousel-peek", "defaultsTo": "var(--primitiv-space-space-0)" },
+    { "name": "--primitiv-carousel-slides-per-page", "defaultsTo": "1" },
     { "name": "--primitiv-carousel-slide-aspect-ratio", "defaultsTo": "16 / 9" },
     { "name": "--primitiv-carousel-vertical-aspect-ratio", "defaultsTo": "16 / 9" },
     { "name": "--primitiv-carousel-slide-radius", "defaultsTo": "var(--primitiv-radii-12)" },

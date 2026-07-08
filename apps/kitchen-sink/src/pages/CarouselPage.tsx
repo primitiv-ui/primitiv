@@ -28,6 +28,14 @@ const SLIDES = [
   "linear-gradient(135deg, #0ea5e9, #6366f1)",
 ];
 
+// A longer set for the multi-slide gallery, so a 2-/3-/4-up view still has
+// slides to scroll to.
+const MULTI_SLIDES = [
+  ...SLIDES,
+  "linear-gradient(135deg, #db2777, #f59e0b)",
+  "linear-gradient(135deg, #0d9488, #4f46e5)",
+];
+
 /**
  * Iteration 1 — the basic responsive single-slide composition: one slide per
  * view, circular external prev/next controls and dots sharing one row below
@@ -144,6 +152,45 @@ function OverlaySingle({
           <CarouselIndicator key={i} index={i} />
         ))}
       </CarouselIndicatorGroup>
+    </Carousel>
+  );
+}
+
+/**
+ * Multi-slide-per-view — a 2-/3-/4-up gallery: several slides share the viewport
+ * at once, each taking an equal share of the space (minus the inter-slide gap).
+ * Driven by a single `slidesPerPage` prop; still one snap point per slide, so
+ * prev/next and the dots advance by one. Uses the row-below controls.
+ */
+function MultiSlide({
+  label,
+  slidesPerPage,
+  peek,
+}: {
+  label: string;
+  slidesPerPage: "2" | "3" | "4";
+  peek?: "none" | "sm" | "md" | "lg";
+}) {
+  return (
+    <Carousel ariaLabel={label} slidesPerPage={slidesPerPage} peek={peek}>
+      <CarouselViewport>
+        {MULTI_SLIDES.map((bg, i) => (
+          <CarouselSlide key={i} style={{ background: bg }} />
+        ))}
+      </CarouselViewport>
+      <CarouselControls>
+        <CarouselPreviousTrigger aria-label="Previous slide">
+          <ChevronLeft />
+        </CarouselPreviousTrigger>
+        <CarouselIndicatorGroup label="Choose slide">
+          {MULTI_SLIDES.map((_, i) => (
+            <CarouselIndicator key={i} index={i} />
+          ))}
+        </CarouselIndicatorGroup>
+        <CarouselNextTrigger aria-label="Next slide">
+          <ChevronRight />
+        </CarouselNextTrigger>
+      </CarouselControls>
     </Carousel>
   );
 }
@@ -299,6 +346,32 @@ export function CarouselPeek() {
         </div>
         <div className="carousel-page__wide" dir="rtl">
           <BasicSingle label="Peek under RTL" peek="md" />
+        </div>
+      </div>
+    </Example>
+  );
+}
+
+export function CarouselMulti() {
+  return (
+    <Example
+      title="Multi-slide — slidesPerPage"
+      note="Several slides share the viewport at once (a 2-/3-/4-up gallery). Each takes an equal share of the space minus the inter-slide gap, and stays responsive — resize to watch the shares adapt. There's still one snap point per slide, so prev/next and the dots advance by one. It composes with peek (a sliver of the next page shows) and mirrors under RTL."
+    >
+      {/* Count ladder: 2-up, 3-up, 4-up. */}
+      <div className="carousel-page__stack">
+        <MultiSlide label="Two per page" slidesPerPage="2" />
+        <MultiSlide label="Three per page" slidesPerPage="3" />
+        <MultiSlide label="Four per page" slidesPerPage="4" />
+      </div>
+
+      {/* Multi-slide composing with peek, and under RTL, side by side. */}
+      <div className="carousel-page__row">
+        <div className="carousel-page__wide">
+          <MultiSlide label="Two per page with peek" slidesPerPage="2" peek="sm" />
+        </div>
+        <div className="carousel-page__wide" dir="rtl">
+          <MultiSlide label="Three per page, right to left" slidesPerPage="3" />
         </div>
       </div>
     </Example>

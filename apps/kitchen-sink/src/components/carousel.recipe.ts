@@ -19,10 +19,17 @@ export const carousel = cva("primitiv-carousel", {
       row: "primitiv-carousel--placement-row",
       overlay: "primitiv-carousel--placement-overlay",
     },
+    slidesPerPage: {
+      1: "primitiv-carousel--slides-1",
+      2: "primitiv-carousel--slides-2",
+      3: "primitiv-carousel--slides-3",
+      4: "primitiv-carousel--slides-4",
+    },
   },
   defaultVariants: {
     peek: "none",
     placement: "row",
+    slidesPerPage: "1",
   },
 });
 

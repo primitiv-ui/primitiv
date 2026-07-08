@@ -16,7 +16,7 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K>
  *
  * @see https://primitiv-ui.dev/docs/components/carousel
  */
-export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "placement"> & {
+export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "placement" | "slidesPerPage"> & {
   /**
    * Reveal a sliver of the adjacent slides on either side of the active one. Works in both orientations (inline edges when horizontal, block edges when vertical).
    * - `none` — No peek — the active slide fills the viewport (the default).
@@ -28,17 +28,27 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    */
   peek?: "none" | "sm" | "md" | "lg";
   /**
-   * Where the prev/next controls and indicator dots sit relative to the viewport. The default keeps them in a flow row below (compose them in a `.primitiv-carousel__controls` wrapper); `overlay` insets the controls on the slide for edge-to-edge imagery.
+   * Where the prev/next controls and indicator dots sit relative to the viewport. The default keeps them in a flow row below (compose them in a `<CarouselControls>` wrapper); `overlay` insets the controls on the slide for edge-to-edge imagery.
    * - `row` — Controls flow in a row below the viewport (the default).
    * - `overlay` — Controls sit on the imagery — prev/next flanking the slide edges on a translucent scrim, dots in a pill overlaid at the bottom.
    * @default "row"
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
   placement?: "row" | "overlay";
+  /**
+   * How many slides are visible per page. The default shows one slide filling the viewport; higher counts divide it into equal shares separated by the gap (a 2-/3-/4-up gallery). Composes with peek and both orientations. For an arbitrary count, set the `--primitiv-carousel-slides-per-page` knob directly.
+   * - `1` — One slide fills the viewport (the default).
+   * - `2` — Two slides per page.
+   * - `3` — Three slides per page.
+   * - `4` — Four slides per page.
+   * @default "1"
+   * @see https://primitiv-ui.dev/docs/components/carousel
+   */
+  slidesPerPage?: "1" | "2" | "3" | "4";
 };
 
-export function Carousel({ peek, placement, className, ...props }: CarouselProps) {
-  return <CarouselPrimitive.Root className={[carousel({ peek, placement }), className].filter(Boolean).join(" ")} {...props} />;
+export function Carousel({ peek, placement, slidesPerPage, className, ...props }: CarouselProps) {
+  return <CarouselPrimitive.Root className={[carousel({ peek, placement, slidesPerPage }), className].filter(Boolean).join(" ")} {...props} />;
 }
 
 export type CarouselViewportProps = ComponentPropsWithRef<typeof CarouselPrimitive.Viewport>;

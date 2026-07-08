@@ -62,7 +62,12 @@ so they can't fall out of sync.
   the dots in a pill along the bottom (no `<CarouselControls>` wrapper; the parts are
   direct children of the root, which becomes the positioning context). It
   re-points the shared control/indicator colour knobs to the on-imagery scrim
-  palette via the `--primitiv-carousel-overlay-*` knobs. The slide **`radius`**
+  palette via the `--primitiv-carousel-overlay-*` knobs. A root **`slidesPerPage`**
+  modifier (`1` default · `2` · `3` · `4`) re-points `--primitiv-carousel-slides-per-page`
+  so several slides share the viewport at once (a 2-/3-/4-up gallery); each slide's
+  flex-basis divides the content box into equal shares separated by the gap, so it
+  composes with peek and both orientations. For an arbitrary count, set the knob
+  directly. The slide **`radius`**
   modifier (`md` default · `none` squares the slide off) lives on the `slide`,
   not the root — which is why `CarouselSlide` gets the `radius` prop while
   `Carousel` gets `peek` and `placement`.
@@ -84,10 +89,12 @@ Structured per RFC 0008 — the per-component API knobs + resting look in
   syncs React state off `scrollsnapchange`. **Peek** pads the leading/trailing
   edges (inline or block per orientation) and sets a matching `scroll-padding` so
   the active slide snaps inside the padding, revealing the neighbours.
-- **Slide** — `flex: 0 0 100%` (one per view — of the viewport's *content* box,
-  so peek padding narrows it and the neighbours show through), `aspect-ratio` for
-  proportional sizing as the container resizes, rounded by default
-  (`--primitiv-radii-12`), `overflow: hidden` so slide imagery clips to the radius.
+- **Slide** — a `flex-basis` of the viewport's *content* box divided by
+  `--primitiv-carousel-slides-per-page` (minus the inter-slide gaps), so it is one
+  per view by default and an equal share for a 2-/3-/4-up gallery; the % is of the
+  content box, so peek padding narrows it and the neighbours show through.
+  `aspect-ratio` for proportional sizing as the container resizes, rounded by
+  default (`--primitiv-radii-12`), `overflow: hidden` so imagery clips to the radius.
 - **Controls** — **circular** (`50%`), `space-32` square, filled with
   `action-secondary` (matching the design's external-context control); hover /
   active re-point the fill knob.

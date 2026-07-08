@@ -12,6 +12,7 @@ const EXAMPLES: { to: string; label: string }[] = [
   { to: "square", label: "Square slides" },
   { to: "vertical", label: "Vertical" },
   { to: "peek", label: "Peek" },
+  { to: "multi", label: "Multi-slide" },
   { to: "overlay", label: "Overlay" },
   { to: "fade", label: "Fade" },
 ];

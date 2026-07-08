@@ -52,6 +52,11 @@ variants after it.
    lacks (**looping/infinite, vertical + `data-orientation`, mouse-drag, RTL** —
    see the log's tracker). Red → green → refactor in `packages/react`, 100%
    lines/branches/functions, per the repo's strict TDD rules. Then consume it.
+   ⚠️ **A `packages/react` change is NOT visible to the kitchen-sink by default**
+   — it consumes the *published* `@primitiv-ui/react`, not the workspace source
+   (see the Gotchas). Any variant needing a new headless capability must
+   dev-alias the kitchen-sink (or wait for a publish) or it silently renders the
+   old behaviour. Decide this up front, before building the example.
 6. **Hand-sync the kitchen-sink** copy of the surface (what `add` produces):
    `registry/components/carousel/{carousel.recipe.ts,contract.json}` →
    `apps/kitchen-sink/src/components/` (contract as `carousel.contract.json`);
@@ -72,6 +77,27 @@ variants after it.
 
 ## Gotchas (bite every session)
 
+- **The kitchen-sink consumes the PUBLISHED `@primitiv-ui/react`, not the
+  workspace source.** It is deliberately *excluded* from the pnpm workspace
+  (`'!apps/kitchen-sink'` in `pnpm-workspace.yaml`) and pins
+  `@primitiv-ui/react`/`@primitiv-ui/icons` at `^0.1.0` — **it is a real
+  consumer, by design** (that is the whole point of the surface). Consequence: a
+  `packages/react` **headless change does not reach the kitchen-sink** until that
+  package is published to npm. The new prop is silently dropped and its `data-*`
+  hook never appears — the tell is the raw prop leaking onto the DOM (e.g.
+  `orientation="vertical"` on the `<section>` **instead of** `data-orientation`),
+  so any CSS keyed off the hook never matches and the old (e.g. horizontal)
+  layout renders. This bit the **vertical** variant. Iteration 1 dodged it
+  because horizontal shipped in the published 0.1.0. **Catch this before building
+  a variant that fills a headless gap** — a registry-CSS-only variant is
+  unaffected.
+  - **Bridge for QA without publishing:** dev-alias `@primitiv-ui/react` +
+    `@primitiv-ui/icons` to `packages/*/src` in `apps/kitchen-sink/vite.config.ts`
+    **and** `tsconfig.app.json` `paths` (both — Vite for runtime, tsc for the
+    build/editor). **Restart the dev server** — Vite reads its config only at
+    startup, so HMR won't pick up a new alias. **Drop the alias once the change
+    ships to npm** so the surface goes back to exercising the real published
+    package. (Landed 2026-07-08; see the log's decisions.)
 - **The kitchen-sink can't build in the sandbox** (no `node_modules`) — the human
   verifies live on `main`. So author React/TS carefully: `noUnusedLocals` +
   `noUnusedParameters` are **strict** — drop every import that a change orphans.

@@ -323,6 +323,13 @@ re-derived) + drift-green + kitchen-sink hand-synced. Registry README updated
 `node scripts/check-registry-types.mjs`. (No headless change — Carousel vitest not
 needed.)
 
+**QA round 1 (human):** overlay controls approved. One fix — with `peek` set, the
+prev/next were inset only from the *viewport* edge, so they overlapped the peek
+gutter and part of the button sat off the slide. **Fixed** — the overlay control
+inset is now `calc(peek + overlay-control-inset)`, so the control follows the
+active slide's leading edge and keeps a comfortable gap from *its* edge at any
+peek value (peek=0 is unchanged). Regenerated + drift-green + hand-synced.
+
 **Figma lockstep: pending** human QA. It will be a verification pass (no carousel
 `--primitiv-*` variable layer exists — bindings only) plus the `absolute-white`
 vs `content-inverse` decision above. **Next:** the remaining placements

@@ -15,6 +15,7 @@ import type {
   CarouselContextValue,
   CarouselIds,
   CarouselImperativeApi,
+  CarouselOrientation,
   CarouselSnapAlign,
   CarouselTransition,
   CarouselTranslations,
@@ -76,6 +77,8 @@ type UseCarouselRootProps = {
   transition?: CarouselTransition;
   /** Scroll-snap alignment — see {@link CarouselSnapAlign}. */
   snapAlign?: CarouselSnapAlign;
+  /** Scroll/pagination axis — see {@link CarouselOrientation}. */
+  orientation?: CarouselOrientation;
 };
 
 /**
@@ -117,6 +120,7 @@ export function useCarouselRoot(
     ids = EMPTY_IDS,
     transition = "slide",
     snapAlign = "start",
+    orientation = "horizontal",
   }: UseCarouselRootProps = {},
   imperativeRef?: Ref<CarouselImperativeApi>,
 ) {
@@ -415,6 +419,7 @@ export function useCarouselRoot(
       ids,
       transition,
       snapAlign,
+      orientation,
       refreshTick,
       visibleSlideIndicesRef,
       setSlideInView,
@@ -441,6 +446,7 @@ export function useCarouselRoot(
       ids,
       transition,
       snapAlign,
+      orientation,
       refreshTick,
       setSlideInView,
     ],

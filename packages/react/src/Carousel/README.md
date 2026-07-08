@@ -341,6 +341,45 @@ The default is `"start"`; `snapAlign` picks the `inline` option passed
 to `scrollIntoView` (`"start"` or `"center"`), and the browser's CSS
 snap engine makes the final correction.
 
+### Orientation
+
+By default the carousel pages along the **inline (horizontal) axis**.
+Pass `orientation="vertical"` to page along the **block (vertical)
+axis** instead:
+
+```tsx
+<Carousel.Root ariaLabel="Featured products" orientation="vertical">
+  …
+</Carousel.Root>
+```
+
+`orientation` is behavioural, not cosmetic — the primitive ships no
+layout. It changes three things:
+
+- **Scroll axis.** Programmatic paging calls `scrollIntoView` with the
+  `block` option (mapped to `snapAlign`) and pins `inline: "nearest"`,
+  and the user-swipe sync reads `snapTargetBlock` off `scrollsnapchange`
+  instead of `snapTargetInline`.
+- **Keyboard.** The viewport pages on `ArrowDown` / `ArrowUp` (the
+  horizontal arrows go inert). See [Keyboard navigation](#keyboard-navigation).
+- **Styling hook.** The resolved value is published as
+  `data-orientation="horizontal" | "vertical"` on the rendered
+  `<section>`, so a single selector can switch your layout to a column
+  viewport with `scroll-snap-type: y mandatory`:
+
+```css
+[data-orientation="vertical"] [data-carousel-viewport] {
+  flex-direction: column;
+  overflow-block: auto;
+  overflow-inline: hidden;
+  scroll-snap-type: y mandatory;
+}
+```
+
+The vertical viewport needs a bounded block-size (a height) for the
+scroll axis to exist — give the root or viewport an explicit
+`block-size` / `aspect-ratio`.
+
 ### Transition modes
 
 `Carousel.Root` accepts a `transition` prop that controls how the
@@ -538,17 +577,20 @@ there's nowhere to navigate.
 rotation control without first tabbing through every slide's
 interactive content. With the Viewport focused:
 
-| Key          | Action                                          |
-| ------------ | ----------------------------------------------- |
-| `ArrowRight` | Advance by one page (same as `NextTrigger`)     |
-| `ArrowLeft`  | Retreat by one page (same as `PreviousTrigger`) |
-| `Home`       | Jump to the first page                          |
-| `End`        | Jump to the last page                           |
+| Key                   | Action                                          |
+| --------------------- | ----------------------------------------------- |
+| `ArrowRight` / `ArrowDown` | Advance by one page (same as `NextTrigger`)     |
+| `ArrowLeft` / `ArrowUp`    | Retreat by one page (same as `PreviousTrigger`) |
+| `Home`                | Jump to the first page                          |
+| `End`                 | Jump to the last page                           |
 
-Arrow keys clamp at the boundaries, mirroring the trigger buttons.
-Keypresses are only intercepted when the Viewport itself is the focus
-target — focus inside a slide (e.g. on a link or form control) keeps
-its native arrow-key semantics.
+The paging arrows follow the [orientation](#orientation): `ArrowRight` /
+`ArrowLeft` for the default horizontal axis, `ArrowDown` / `ArrowUp` when
+`orientation="vertical"` (the off-axis arrows go inert). `Home` / `End`
+work in both. Arrow keys clamp at the boundaries, mirroring the trigger
+buttons. Keypresses are only intercepted when the Viewport itself is the
+focus target — focus inside a slide (e.g. on a link or form control)
+keeps its native arrow-key semantics.
 
 ```tsx
 <Carousel.Root ariaLabel="Featured products">

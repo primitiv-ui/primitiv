@@ -116,6 +116,24 @@ export type CarouselTransition = "slide" | "none";
 export type CarouselSnapAlign = "start" | "center";
 
 /**
+ * Axis the carousel scrolls and paginates along.
+ *
+ * - `"horizontal"` (default) — slides lay out inline; the viewport
+ *   scroll-snaps on the inline (x) axis. `Carousel.NextTrigger` /
+ *   `Carousel.PreviousTrigger` and the viewport `ArrowRight` /
+ *   `ArrowLeft` keys advance / retreat.
+ * - `"vertical"` — slides lay out in the block direction; the viewport
+ *   scroll-snaps on the block (y) axis. The viewport `ArrowDown` /
+ *   `ArrowUp` keys advance / retreat instead (the horizontal arrows are
+ *   inert), and programmatic paging scrolls on the block axis.
+ *
+ * The resolved value is published on the Root as `data-orientation` so
+ * consumer CSS can switch layout (e.g. a column viewport with a
+ * `scroll-snap-type: y mandatory`) off a single hook.
+ */
+export type CarouselOrientation = "horizontal" | "vertical";
+
+/**
  * Pin DOM `id`s on the rendered sub-components for SSR / hydration
  * stability or for external `aria-controls` references. Any keys you
  * omit leave the corresponding element unidentified (or with whatever
@@ -191,6 +209,11 @@ export type CarouselRootProps = Omit<
      * `scroll-snap-align: center` on slides (e.g. Cover Flow layouts
      * where slides are narrower than the Viewport). */
     snapAlign?: CarouselSnapAlign;
+    /** Axis the carousel scrolls and paginates along — see
+     * {@link CarouselOrientation}. Defaults to `"horizontal"`. Switches
+     * the viewport scroll axis, the arrow-key bindings, and the
+     * `data-orientation` styling hook on the Root. */
+    orientation?: CarouselOrientation;
   };
 
 /**
@@ -262,6 +285,10 @@ export type CarouselContextValue = {
   transition: CarouselTransition;
   /** Resolved scroll-snap alignment (defaults to `"start"`). */
   snapAlign: CarouselSnapAlign;
+  /** Resolved scroll/pagination axis (defaults to `"horizontal"`).
+   * Drives the viewport scroll axis, the arrow-key bindings, and the
+   * `data-orientation` hook on the Root. */
+  orientation: CarouselOrientation;
   /** Bumped by `refresh()` to force the viewport's scroll-align
    * effect to re-run without a page change. */
   refreshTick: number;

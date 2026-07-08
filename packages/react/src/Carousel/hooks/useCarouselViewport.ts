@@ -51,6 +51,7 @@ export function useCarouselViewport() {
     canGoPrevious,
     transition,
     snapAlign,
+    orientation,
     refreshTick,
     visibleSlideIndicesRef,
     setSlideInView,
@@ -109,17 +110,19 @@ export function useCarouselViewport() {
     // mount, neither of which goes through next() / previous().
     isProgrammaticScrollRef.current = true;
 
-    // Native-first: delegate the horizontal scroll to the browser via
-    // scrollIntoView rather than computing scrollLeft ourselves. The
-    // consumer's `scroll-snap-align` then makes the final correction so
-    // we never fight the snap engine. `inline` maps to snapAlign;
-    // `block: "nearest"` keeps the page from scrolling vertically.
+    // Native-first: delegate the scroll to the browser via scrollIntoView
+    // rather than computing scrollLeft/scrollTop ourselves. The consumer's
+    // `scroll-snap-align` then makes the final correction so we never fight
+    // the snap engine. The scroll axis follows `orientation`: the paging
+    // axis maps to snapAlign, the cross axis is pinned to "nearest" so the
+    // page doesn't drift on the other axis.
     const targetEl = slidesRef.current!.get(firstSlideKey)!;
-    targetEl.scrollIntoView({
-      behavior: scrollBehavior,
-      inline: snapAlign === "center" ? "center" : "start",
-      block: "nearest",
-    });
+    const alignment = snapAlign === "center" ? "center" : "start";
+    targetEl.scrollIntoView(
+      orientation === "vertical"
+        ? { behavior: scrollBehavior, block: alignment, inline: "nearest" }
+        : { behavior: scrollBehavior, inline: alignment, block: "nearest" },
+    );
 
     // Clear the programmatic-scroll guard once the animation settles.
     // `scrollend` is the reliable signal in real browsers; the setTimeout
@@ -142,6 +145,7 @@ export function useCarouselViewport() {
   }, [
     transition,
     snapAlign,
+    orientation,
     currentPage,
     effectiveSlidesPerMove,
     slideKeys,
@@ -158,8 +162,16 @@ export function useCarouselViewport() {
     const viewport = internalRef.current!;
 
     const handler = (event: Event) => {
-      const target = (event as Event & { snapTargetInline?: Element })
-        .snapTargetInline;
+      // The snapped slide is reported on the axis the viewport scrolls:
+      // snapTargetBlock for a vertical carousel, snapTargetInline otherwise.
+      const snapEvent = event as Event & {
+        snapTargetInline?: Element;
+        snapTargetBlock?: Element;
+      };
+      const target =
+        orientation === "vertical"
+          ? snapEvent.snapTargetBlock
+          : snapEvent.snapTargetInline;
 
       // findIndex returns -1 when the snap target isn't one of our
       // registered slides — e.g. a consumer-wrapped element inside the
@@ -180,6 +192,7 @@ export function useCarouselViewport() {
     return () => viewport.removeEventListener("scrollsnapchange", handler);
   }, [
     transition,
+    orientation,
     slideKeys,
     slidesRef,
     effectiveSlidesPerMove,
@@ -269,10 +282,14 @@ export function useCarouselViewport() {
       // focus inside a slide (e.g. on a link or form control) keeps
       // its native arrow-key semantics.
       if (event.target !== event.currentTarget) return;
-      if (event.key === "ArrowRight") {
+      // The paging arrows follow the scroll axis: Down/Up for a vertical
+      // carousel, Right/Left otherwise. Home/End are axis-agnostic.
+      const forwardKey = orientation === "vertical" ? "ArrowDown" : "ArrowRight";
+      const backwardKey = orientation === "vertical" ? "ArrowUp" : "ArrowLeft";
+      if (event.key === forwardKey) {
         event.preventDefault();
         if (canGoNext) next();
-      } else if (event.key === "ArrowLeft") {
+      } else if (event.key === backwardKey) {
         event.preventDefault();
         if (canGoPrevious) previous();
       } else if (event.key === "Home") {
@@ -283,7 +300,7 @@ export function useCarouselViewport() {
         goTo(totalPages - 1);
       }
     },
-    [canGoNext, canGoPrevious, next, previous, goTo, totalPages],
+    [orientation, canGoNext, canGoPrevious, next, previous, goTo, totalPages],
   );
 
   return { viewportRef, onKeyDown };

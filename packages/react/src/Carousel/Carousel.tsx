@@ -42,6 +42,13 @@ import type {
  * The discriminated union on the props type rejects both-or-neither at
  * compile time.
  *
+ * **Orientation.** Pass `orientation="vertical"` to page along the block
+ * axis instead of the inline axis: the viewport scroll-snaps vertically,
+ * the viewport `ArrowDown` / `ArrowUp` keys advance / retreat (the
+ * horizontal arrows go inert), and the resolved value is published as
+ * `data-orientation` on the rendered `<section>` so consumer CSS can
+ * switch layout off a single hook. Defaults to `"horizontal"`.
+ *
  * Supports two **page-state modes**, statically discriminated at the type
  * level so only one of the two shapes is accepted by TypeScript:
  *
@@ -95,6 +102,7 @@ export const CarouselRoot: ForwardRefExoticComponent<
     ids,
     transition,
     snapAlign,
+    orientation,
     children,
     ...rest
   },
@@ -115,6 +123,7 @@ export const CarouselRoot: ForwardRefExoticComponent<
       ids,
       transition,
       snapAlign,
+      orientation,
     },
     imperativeRef,
   );
@@ -123,6 +132,7 @@ export const CarouselRoot: ForwardRefExoticComponent<
     <CarouselProvider value={contextValue}>
       <section
         aria-roledescription="carousel"
+        data-orientation={contextValue.orientation}
         className={className}
         {...(ariaLabel !== undefined && { "aria-label": ariaLabel })}
         {...(ariaLabelledBy !== undefined && {

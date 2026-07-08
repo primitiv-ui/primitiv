@@ -176,20 +176,32 @@ fn emit_structural_wrapper(contract: &Contract) -> String {
         &mut out,
         &pascal,
         &recipe_binding(&contract.name),
-        root_component,
-        &pascal,
+        &format!("{pascal}Primitive.{root_component}"),
         &contract.modifiers,
         false,
     );
 
-    // Each structural subcomponent — a thin wrapper, separated by a blank line.
+    // Each structural subcomponent — a thin wrapper, separated by a blank line. A
+    // headless-backed part derives its props (incl. ref) from `{Primitive}.{X}`
+    // and renders it; a *presentational* part (no `component`) derives them from
+    // its intrinsic host element and renders a bare `<element>`.
     for sub in &contract.subcomponents {
         let sub_pascal = subcomponent_pascal(&contract.name, &sub.name);
         out.push('\n');
+        let (props_source, tag) = match &sub.component {
+            Some(component) => (
+                format!("ComponentPropsWithRef<typeof {pascal}Primitive.{component}>"),
+                format!("{pascal}Primitive.{component}"),
+            ),
+            None => {
+                let element = sub.element.as_deref().unwrap_or("div");
+                (format!("ComponentPropsWithRef<\"{element}\">"), element.to_string())
+            }
+        };
         emit_props(
             &mut out,
             &sub_pascal,
-            &format!("ComponentPropsWithRef<typeof {pascal}Primitive.{}>", sub.component),
+            &props_source,
             &sub.modifiers,
             contract.docs.as_deref(),
         );
@@ -200,8 +212,7 @@ fn emit_structural_wrapper(contract: &Contract) -> String {
             &mut out,
             &sub_pascal,
             &subcomponent_binding(&contract.name, &sub.name),
-            &sub.component,
-            &pascal,
+            &tag,
             &sub.modifiers,
             sub.wrap_text_children,
         );
@@ -313,17 +324,17 @@ fn emit_props(
 }
 
 /// One part's function component: destructure the variant props + `className`,
-/// merge the recipe class, and forward the rest to `{Primitive}.{Component}`.
-/// When `wrap_text` is set (the part opted into `wrapTextChildren`), `children`
-/// joins the destructure and the part renders an open/close tag whose content is
-/// run through the part's own `wrap{Styled}TextNodes` helper instead of a bare
-/// self-closing tag.
+/// merge the recipe class, and forward the rest to `tag` — the rendered element,
+/// either a headless `{Primitive}.{Component}` or a bare host element (`div`) for
+/// a presentational part. When `wrap_text` is set (the part opted into
+/// `wrapTextChildren`), `children` joins the destructure and the part renders an
+/// open/close tag whose content is run through the part's own
+/// `wrap{Styled}TextNodes` helper instead of a bare self-closing tag.
 fn emit_part_function(
     out: &mut String,
     styled: &str,
     binding: &str,
-    component: &str,
-    primitive: &str,
+    tag: &str,
     modifiers: &[ModifierGroup],
     wrap_text: bool,
 ) {
@@ -334,15 +345,13 @@ fn emit_part_function(
     ));
     if wrap_text {
         out.push_str(&format!(
-            "  return (\n    <{primitive}Primitive.{component} className={{{class_expr}}} {{...props}}>\n"
+            "  return (\n    <{tag} className={{{class_expr}}} {{...props}}>\n"
         ));
         out.push_str(&format!("      {{wrap{styled}TextNodes(children)}}\n"));
-        out.push_str(&format!(
-            "    </{primitive}Primitive.{component}>\n  );\n"
-        ));
+        out.push_str(&format!("    </{tag}>\n  );\n"));
     } else {
         out.push_str(&format!(
-            "  return <{primitive}Primitive.{component} className={{{class_expr}}} {{...props}} />;\n"
+            "  return <{tag} className={{{class_expr}}} {{...props}} />;\n"
         ));
     }
     out.push_str("}\n");

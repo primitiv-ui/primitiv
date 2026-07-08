@@ -60,8 +60,18 @@ pub struct Contract {
 pub struct Subcomponent {
     /// The part key (`list`), kebab-case for multi-word names.
     pub name: String,
-    /// The headless sub-component this wraps (`List` → `Tabs.List`).
-    pub component: String,
+    /// The headless sub-component this wraps (`List` → `Tabs.List`), or `None` for
+    /// a **presentational** subcomponent — a styling-only grouping element that
+    /// renders a plain host [`element`](Self::element) with the part class and no
+    /// headless backing (the carousel's `__controls` row, which just groups the
+    /// prev / dots / next in a flow line). The consumer still composes it.
+    #[serde(default)]
+    pub component: Option<String>,
+    /// The host element a presentational subcomponent renders (`div`). Only
+    /// consulted when [`component`](Self::component) is `None`; a headless-backed
+    /// part renders `{Primitive}.{component}` and ignores this.
+    #[serde(default)]
+    pub element: Option<String>,
     /// The BEM part class the wrapper applies (`primitiv-tabs__list`).
     pub class: String,
     /// The part's own modifier groups, in authored order. Empty for a part with no

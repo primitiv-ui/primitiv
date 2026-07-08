@@ -1,7 +1,9 @@
 use pretty_assertions::assert_eq;
 
 use crate::contract::Contract;
-use crate::contract_fixtures::{BARE, DEMO_BOX, DEMO_LABELLED, DEMO_STRIP, DEMO_TOGGLE, DEMO_VIEW};
+use crate::contract_fixtures::{
+    BARE, DEMO_BOX, DEMO_GROUPED, DEMO_LABELLED, DEMO_STRIP, DEMO_TOGGLE, DEMO_VIEW,
+};
 use crate::wrapper::emit_wrapper;
 
 #[test]
@@ -339,6 +341,29 @@ fn wraps_text_children_in_a_label_span_for_a_structural_subcomponent_when_it_opt
         "export function DemoStrip({ className, ...props }: DemoStripProps) {",
     ));
     assert!(wrapper.contains("{...props} />;"));
+}
+
+/// A structural subcomponent with no `component` is *presentational*: a
+/// styling-only grouping element (the carousel's `__controls` row) that renders
+/// its own host `element` with the part class and no headless backing. Its props
+/// derive from the intrinsic element (`ComponentPropsWithRef<"div">`), not a
+/// `{Primitive}.{X}`, and it renders a bare `<div>` — never a headless part.
+#[test]
+fn generates_a_presentational_subcomponent_that_renders_its_host_element() {
+    let contract = Contract::parse(DEMO_GROUPED.as_bytes()).unwrap();
+    let wrapper = emit_wrapper(&contract);
+
+    assert!(wrapper.contains(
+        "export type DemoGroupedControlsProps = ComponentPropsWithRef<\"div\">;",
+    ));
+    assert!(wrapper.contains(
+        "export function DemoGroupedControls({ className, ...props }: DemoGroupedControlsProps) {",
+    ));
+    assert!(wrapper.contains(
+        "return <div className={[demoGroupedControls(), className].filter(Boolean).join(\" \")} {...props} />;",
+    ));
+    // A presentational part is never rendered as a headless primitive slot.
+    assert!(!wrapper.contains("DemoGroupedPrimitive.Controls"));
 }
 
 /// Drift guard: the committed `registry/components/divider/divider.tsx` is exactly

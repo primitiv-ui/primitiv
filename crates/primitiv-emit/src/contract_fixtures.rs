@@ -144,6 +144,24 @@ pub(crate) const DEMO_STRIP: &str = r#"{
   ]
 }"#;
 
+/// Structural synthetic contract with a *presentational* subcomponent — the
+/// generality proof for a styling-only grouping part that renders a plain host
+/// element (`div`) with the part class and no headless backing (the carousel's
+/// `__controls` row). The subcomponent carries no `component`, so the wrapper
+/// derives its props from the intrinsic element and renders a bare `<div>`.
+pub(crate) const DEMO_GROUPED: &str = r#"{
+  "name": "demo-grouped",
+  "description": "A demo compound with a presentational group.",
+  "root": { "element": "div", "class": "primitiv-demo-grouped", "component": "Root" },
+  "subcomponents": [
+    {
+      "name": "controls",
+      "element": "div",
+      "class": "primitiv-demo-grouped__controls"
+    }
+  ]
+}"#;
+
 /// Sparse synthetic contract — single-word name, no docs, one group with no
 /// `prop` (so the group key is the prop).
 pub(crate) const BARE: &str = r#"{

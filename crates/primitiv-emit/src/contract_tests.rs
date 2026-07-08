@@ -19,7 +19,7 @@ fn a_structural_contract_parses_its_subcomponents_and_their_modifiers() {
 
     // `bar` carries a per-part modifier group; `item` has none.
     let bar = &contract.subcomponents[0];
-    assert_eq!(bar.component, "Bar");
+    assert_eq!(bar.component.as_deref(), Some("Bar"));
     assert_eq!(bar.class, "primitiv-demo-view__bar");
     assert_eq!(bar.modifiers.len(), 1);
     assert_eq!(bar.modifiers[0].prop(), "align");

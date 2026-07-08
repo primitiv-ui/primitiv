@@ -7,7 +7,19 @@
  */
 import { cva, type VariantProps } from "class-variance-authority";
 
-export const carousel = cva("primitiv-carousel");
+export const carousel = cva("primitiv-carousel", {
+  variants: {
+    peek: {
+      none: "primitiv-carousel--peek-none",
+      sm: "primitiv-carousel--peek-sm",
+      md: "primitiv-carousel--peek-md",
+      lg: "primitiv-carousel--peek-lg",
+    },
+  },
+  defaultVariants: {
+    peek: "none",
+  },
+});
 
 export type CarouselVariants = VariantProps<typeof carousel>;
 

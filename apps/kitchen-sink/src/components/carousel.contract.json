@@ -13,6 +13,19 @@
     { "name": "data-orientation", "value": "horizontal", "when": "horizontal", "source": "auto" },
     { "name": "data-orientation", "value": "vertical", "when": "vertical", "source": "auto" }
   ],
+  "modifiers": [
+    {
+      "name": "peek",
+      "default": "none",
+      "description": "Reveal a sliver of the adjacent slides on either side of the active one. Works in both orientations (inline edges when horizontal, block edges when vertical).",
+      "options": [
+        { "name": "none", "class": "primitiv-carousel--peek-none", "description": "No peek — the active slide fills the viewport (the default)." },
+        { "name": "sm", "class": "primitiv-carousel--peek-sm", "description": "A small peek." },
+        { "name": "md", "class": "primitiv-carousel--peek-md", "description": "A medium peek." },
+        { "name": "lg", "class": "primitiv-carousel--peek-lg", "description": "A large peek." }
+      ]
+    }
+  ],
   "subcomponents": [
     {
       "name": "viewport",
@@ -72,7 +85,7 @@
   ],
   "customProperties": [
     { "name": "--primitiv-carousel-gap", "defaultsTo": "var(--primitiv-space-space-16)" },
-    { "name": "--primitiv-carousel-padding-inline", "defaultsTo": "var(--primitiv-space-space-0)" },
+    { "name": "--primitiv-carousel-peek", "defaultsTo": "var(--primitiv-space-space-0)" },
     { "name": "--primitiv-carousel-slide-aspect-ratio", "defaultsTo": "16 / 9" },
     { "name": "--primitiv-carousel-vertical-aspect-ratio", "defaultsTo": "16 / 9" },
     { "name": "--primitiv-carousel-slide-radius", "defaultsTo": "var(--primitiv-radii-12)" },

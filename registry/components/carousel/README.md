@@ -12,11 +12,12 @@ space and each slide holds its shape with `aspect-ratio`, so the carousel is
 responsive without media queries, and it mirrors under RTL because layout is
 expressed in logical properties.
 
-> **Scope (iteration 1).** This is the *basic responsive single-slide* surface:
-> one slide per view, circular external prev/next controls, and dot indicators.
-> Placement variants (overlay / flank / row / top), multi-slide, thumbnails,
-> autoplay, and **vertical orientation** land in later iterations (see
-> `docs/carousel-development-log.md`).
+> **Scope.** The single-slide surface plus two cross-cutting options landed so
+> far: **vertical orientation** (`orientation="vertical"` on the headless Root →
+> `data-orientation`, a column-scroll viewport with the controls in a column
+> beside it) and **peek** (the `peek` modifier — see below). Placement variants
+> (overlay / flank / row / top), multi-slide, thumbnails, and autoplay land in
+> later iterations (see `docs/carousel-development-log.md`).
 
 ## Files
 
@@ -41,17 +42,22 @@ so they can't fall out of sync.
 - **`root` / `subcomponents` / `modifiers` / `customProperties`** — the authored
   styling conventions: the `.primitiv-carousel` root and the `__viewport` /
   `__slide` / `__controls` / `__prev` / `__next` / `__indicator-group` /
-  `__indicator` BEM parts, the slide **`radius`** modifier (`md` default ·
-  `none` squares the slide off), and the `--primitiv-carousel-*` custom-property
-  API. `__controls` is a **CSS-only helper** — a plain wrapper `<div>` the
-  consumer puts prev / indicators / next in; it centres them and spaces the
-  buttons from the dots via `--primitiv-carousel-controls-gap` (distinct from the
-  tight dot-to-dot `--primitiv-carousel-indicator-gap`, and from the vertical
-  `--primitiv-carousel-block-gap` between the viewport and the row).
+  `__indicator` BEM parts, the modifiers, and the `--primitiv-carousel-*`
+  custom-property API. `__controls` is a **CSS-only helper** — a plain wrapper
+  `<div>` the consumer puts prev / indicators / next in; it centres them and
+  spaces the buttons from the dots via `--primitiv-carousel-controls-gap`
+  (distinct from the tight dot-to-dot `--primitiv-carousel-indicator-gap`, and
+  from the `--primitiv-carousel-block-gap` between the viewport and the controls).
+- **Modifiers.** A root **`peek`** modifier (`none` default · `sm` · `md` · `lg`)
+  re-points `--primitiv-carousel-peek` to reveal a sliver of the adjacent slides;
+  it works in **both** orientations (the viewport maps the peek to the inline
+  edges when horizontal, the block edges when vertical). The slide **`radius`**
+  modifier (`md` default · `none` squares the slide off) lives on the `slide`,
+  not the root — which is why `CarouselSlide` gets the `radius` prop while
+  `Carousel` gets `peek`.
 
 `subcomponents` marks this a **structural compound**: the styled surface is N thin
-per-part wrappers the consumer composes. The `radius` modifier lives on the
-`slide`, not the root — which is why `CarouselSlide` gets the `radius` prop.
+per-part wrappers the consumer composes.
 
 ## The default theme (`styles.css`)
 
@@ -60,12 +66,17 @@ Structured per RFC 0008 — the per-component API knobs + resting look in
 `primitiv.variants`, the active dot + focus ring + disabled controls in
 `primitiv.states`.
 
-- **Viewport** — a flex track with native horizontal scroll-snap
-  (`scroll-snap-type: x mandatory`), `overscroll-behavior-x: contain`, and hidden
-  scrollbars; the headless layer syncs React state off `scrollsnapchange`.
-- **Slide** — `flex: 0 0 100%` (one per view), `aspect-ratio` for proportional
-  sizing as the container resizes, rounded by default (`--primitiv-radii-12`),
-  `overflow: hidden` so slide imagery clips to the radius.
+- **Viewport** — a flex track with native scroll-snap (`x mandatory`, or
+  `y mandatory` under `data-orientation="vertical"`, where it becomes a column
+  with a landscape `aspect-ratio` and the controls sit beside it),
+  `overscroll-behavior` containment, and hidden scrollbars; the headless layer
+  syncs React state off `scrollsnapchange`. **Peek** pads the leading/trailing
+  edges (inline or block per orientation) and sets a matching `scroll-padding` so
+  the active slide snaps inside the padding, revealing the neighbours.
+- **Slide** — `flex: 0 0 100%` (one per view — of the viewport's *content* box,
+  so peek padding narrows it and the neighbours show through), `aspect-ratio` for
+  proportional sizing as the container resizes, rounded by default
+  (`--primitiv-radii-12`), `overflow: hidden` so slide imagery clips to the radius.
 - **Controls** — **circular** (`50%`), `space-32` square, filled with
   `action-secondary` (matching the design's external-context control); hover /
   active re-point the fill knob.

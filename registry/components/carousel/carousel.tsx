@@ -16,10 +16,21 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K>
  *
  * @see https://primitiv-ui.dev/docs/components/carousel
  */
-export type CarouselProps = ComponentPropsWithRef<typeof CarouselPrimitive.Root>;
+export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek"> & {
+  /**
+   * Reveal a sliver of the adjacent slides on either side of the active one. Works in both orientations (inline edges when horizontal, block edges when vertical).
+   * - `none` — No peek — the active slide fills the viewport (the default).
+   * - `sm` — A small peek.
+   * - `md` — A medium peek.
+   * - `lg` — A large peek.
+   * @default "none"
+   * @see https://primitiv-ui.dev/docs/components/carousel
+   */
+  peek?: "none" | "sm" | "md" | "lg";
+};
 
-export function Carousel({ className, ...props }: CarouselProps) {
-  return <CarouselPrimitive.Root className={[carousel(), className].filter(Boolean).join(" ")} {...props} />;
+export function Carousel({ peek, className, ...props }: CarouselProps) {
+  return <CarouselPrimitive.Root className={[carousel({ peek }), className].filter(Boolean).join(" ")} {...props} />;
 }
 
 export type CarouselViewportProps = ComponentPropsWithRef<typeof CarouselPrimitive.Viewport>;

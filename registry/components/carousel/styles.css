@@ -33,7 +33,11 @@
     /* Per-component API — the themable knobs. Consumers override any one
        without touching the rules below. */
     --primitiv-carousel-gap: var(--primitiv-space-space-16);
-    --primitiv-carousel-padding-inline: var(--primitiv-space-space-0);
+    /* Peek gutter — the sliver of the adjacent slides revealed on either side of
+       the active one. 0 = no peek (the active slide fills the viewport). The
+       `peek` modifier re-points it; the viewport maps it to the axis that
+       matches the orientation (inline for horizontal, block for vertical). */
+    --primitiv-carousel-peek: var(--primitiv-space-space-0);
     --primitiv-carousel-slide-aspect-ratio: 16 / 9;
     /* Landscape box the vertical viewport derives its height from (only read in
        the [data-orientation="vertical"] layout): one 16:9 slide is shown and you
@@ -81,7 +85,12 @@
   .primitiv-carousel__viewport {
     display: flex;
     gap: var(--primitiv-carousel-gap);
-    padding-inline: var(--primitiv-carousel-padding-inline);
+    /* Peek: pad the inline edges and snap-align inside that padding, so the
+       active slide (flex-basis 100% of the content box = viewport − 2×peek)
+       leaves a peek-wide sliver of each neighbour showing. scroll-padding keeps
+       programmatic + swipe nav landing on the padded snap position. */
+    padding-inline: var(--primitiv-carousel-peek);
+    scroll-padding-inline: var(--primitiv-carousel-peek);
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
@@ -178,6 +187,11 @@
     overflow-y: auto;
     scroll-snap-type: y mandatory;
     overscroll-behavior-y: contain;
+    /* Peek runs on the block axis when vertical — move it off inline. */
+    padding-inline: 0;
+    scroll-padding-inline: 0;
+    padding-block: var(--primitiv-carousel-peek);
+    scroll-padding-block: var(--primitiv-carousel-peek);
   }
 
   /* Each slide fills the portrait viewport — flex-basis owns the block size, so
@@ -190,6 +204,22 @@
   .primitiv-carousel[data-orientation="vertical"] .primitiv-carousel__controls,
   .primitiv-carousel[data-orientation="vertical"] .primitiv-carousel__indicator-group {
     flex-direction: column;
+  }
+
+  /* Peek — re-points the peek knob to reveal adjacent-slide slivers. Works in
+     both orientations (the viewport maps the knob to the right axis). `none` is
+     the default (no peek). */
+  .primitiv-carousel--peek-none {
+    --primitiv-carousel-peek: var(--primitiv-space-space-0);
+  }
+  .primitiv-carousel--peek-sm {
+    --primitiv-carousel-peek: var(--primitiv-space-space-16);
+  }
+  .primitiv-carousel--peek-md {
+    --primitiv-carousel-peek: var(--primitiv-space-space-32);
+  }
+  .primitiv-carousel--peek-lg {
+    --primitiv-carousel-peek: var(--primitiv-space-space-48);
   }
 
   /* Slide corner rounding — re-points the radius knob. `md` is the default

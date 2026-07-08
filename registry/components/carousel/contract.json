@@ -24,6 +24,15 @@
         { "name": "md", "class": "primitiv-carousel--peek-md", "description": "A medium peek." },
         { "name": "lg", "class": "primitiv-carousel--peek-lg", "description": "A large peek." }
       ]
+    },
+    {
+      "name": "placement",
+      "default": "row",
+      "description": "Where the prev/next controls and indicator dots sit relative to the viewport. The default keeps them in a flow row below (compose them in a `.primitiv-carousel__controls` wrapper); `overlay` insets the controls on the slide for edge-to-edge imagery.",
+      "options": [
+        { "name": "row", "class": "primitiv-carousel--placement-row", "description": "Controls flow in a row below the viewport (the default)." },
+        { "name": "overlay", "class": "primitiv-carousel--placement-overlay", "description": "Controls sit on the imagery — prev/next flanking the slide edges on a translucent scrim, dots in a pill overlaid at the bottom." }
+      ]
     }
   ],
   "subcomponents": [
@@ -102,6 +111,17 @@
     { "name": "--primitiv-carousel-indicator-hit-area", "defaultsTo": "var(--primitiv-space-space-24)" },
     { "name": "--primitiv-carousel-indicator-size", "defaultsTo": "var(--primitiv-space-space-8)" },
     { "name": "--primitiv-carousel-indicator-color", "defaultsTo": "var(--primitiv-border-strong)" },
-    { "name": "--primitiv-carousel-indicator-color-active", "defaultsTo": "var(--primitiv-action-primary-default)" }
+    { "name": "--primitiv-carousel-indicator-color-active", "defaultsTo": "var(--primitiv-action-primary-default)" },
+    { "name": "--primitiv-carousel-overlay-control-inset", "defaultsTo": "var(--primitiv-space-space-8)" },
+    { "name": "--primitiv-carousel-overlay-control-bg", "defaultsTo": "var(--primitiv-color-neutral-alpha-500)" },
+    { "name": "--primitiv-carousel-overlay-control-bg-hover", "defaultsTo": "var(--primitiv-color-neutral-alpha-600)" },
+    { "name": "--primitiv-carousel-overlay-control-bg-active", "defaultsTo": "var(--primitiv-color-neutral-alpha-700)" },
+    { "name": "--primitiv-carousel-overlay-control-fg", "defaultsTo": "var(--primitiv-content-inverse)" },
+    { "name": "--primitiv-carousel-overlay-indicator-inset", "defaultsTo": "var(--primitiv-space-space-8)" },
+    { "name": "--primitiv-carousel-overlay-indicator-color", "defaultsTo": "var(--primitiv-color-neutral-alpha-inverse-500)" },
+    { "name": "--primitiv-carousel-overlay-indicator-color-active", "defaultsTo": "var(--primitiv-content-inverse)" },
+    { "name": "--primitiv-carousel-overlay-pill-bg", "defaultsTo": "var(--primitiv-color-neutral-alpha-500)" },
+    { "name": "--primitiv-carousel-overlay-pill-padding-inline", "defaultsTo": "var(--primitiv-space-space-12)" },
+    { "name": "--primitiv-carousel-overlay-pill-padding-block", "defaultsTo": "var(--primitiv-space-space-4)" }
   ]
 }

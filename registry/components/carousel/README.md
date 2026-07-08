@@ -12,12 +12,13 @@ space and each slide holds its shape with `aspect-ratio`, so the carousel is
 responsive without media queries, and it mirrors under RTL because layout is
 expressed in logical properties.
 
-> **Scope.** The single-slide surface plus two cross-cutting options landed so
-> far: **vertical orientation** (`orientation="vertical"` on the headless Root →
+> **Scope.** The single-slide surface plus cross-cutting options landed so far:
+> **vertical orientation** (`orientation="vertical"` on the headless Root →
 > `data-orientation`, a column-scroll viewport with the controls in a column
-> beside it) and **peek** (the `peek` modifier — see below). Placement variants
-> (overlay / flank / row / top), multi-slide, thumbnails, and autoplay land in
-> later iterations (see `docs/carousel-development-log.md`).
+> beside it), **peek** (the `peek` modifier), and a **`placement`** modifier whose
+> `overlay` option insets the controls on the imagery (both — see below). The
+> remaining placements (external-flank, controls-on-top), multi-slide, thumbnails,
+> and autoplay land in later iterations (see `docs/carousel-development-log.md`).
 
 ## Files
 
@@ -51,10 +52,18 @@ so they can't fall out of sync.
 - **Modifiers.** A root **`peek`** modifier (`none` default · `sm` · `md` · `lg`)
   re-points `--primitiv-carousel-peek` to reveal a sliver of the adjacent slides;
   it works in **both** orientations (the viewport maps the peek to the inline
-  edges when horizontal, the block edges when vertical). The slide **`radius`**
+  edges when horizontal, the block edges when vertical). A root **`placement`**
+  modifier (`row` default · `overlay`) chooses where the controls sit: `row`
+  keeps prev / dots / next in a flow row below (composed in a `__controls`
+  wrapper), while `overlay` insets the controls on the imagery — prev/next
+  absolutely flanking the slide edges on a translucent `neutral-alpha` scrim and
+  the dots in a pill along the bottom (no `__controls` wrapper; the parts are
+  direct children of the root, which becomes the positioning context). It
+  re-points the shared control/indicator colour knobs to the on-imagery scrim
+  palette via the `--primitiv-carousel-overlay-*` knobs. The slide **`radius`**
   modifier (`md` default · `none` squares the slide off) lives on the `slide`,
   not the root — which is why `CarouselSlide` gets the `radius` prop while
-  `Carousel` gets `peek`.
+  `Carousel` gets `peek` and `placement`.
 
 `subcomponents` marks this a **structural compound**: the styled surface is N thin
 per-part wrappers the consumer composes.

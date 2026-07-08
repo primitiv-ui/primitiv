@@ -264,6 +264,70 @@ side — peek shown in action across the other variants, per the request.
 cells already show the intent, so this is expected to be a verification pass like
 vertical. **Next:** placement-focused iteration (overlay / external-flank).
 
+### Iteration 4 — Overlay placement (awaiting human QA)
+
+**Read the design live** (Desktop Bridge, 2026-07-08) — the Examples-frame cell
+`card: Overlay + dots` (`1033:25218`). Exact anatomy captured: viewport 320×144
+radius 12 with a peek sliver; **CarouselControl** 32×32 circular, **inset 8px**
+from the inline edges, vertically centred, fill `color/neutral-alpha/500`
+(`#1214184d`, dark @30%), glyph `color/absolute-white`; the bottom cluster is a
+**CarouselIndicators pill** (`neutral-alpha/500`, radius full, padding block 8 /
+inline 12, dots gap 16) **+ a CarouselAutoplayButton** (same scrim), grouped and
+**inset 8px** from the bottom. Dots: inactive `color/neutral-alpha-inverse/500`,
+active `color/absolute-white`.
+
+**Registry surface (headless-free — pure CSS + a modifier).** A root
+**`placement`** modifier (`row` default · `overlay`). `row` is the existing
+below-the-viewport flow layout (base; the class carries only `position: static`
+so the axis is explicit). `overlay` makes the root the positioning context and:
+prev/next go `position: absolute`, flanking the slide edges
+(`inset-inline-start`/`-end: --overlay-control-inset` = `space-8`) and vertically
+centred (`inset-block:0` + `margin-block:auto`); the indicator group becomes a
+bottom-centred pill (`inset-block-end: space-8`, `inset-inline:0` +
+`margin-inline:auto` + `inline-size:fit-content` — transform-free so it stays
+centred under RTL) with the scrim `background`, `radii-full`, and small padding.
+The modifier **re-points the shared control/indicator colour knobs** to a new
+`--primitiv-carousel-overlay-*` family (11 knobs): control bg = `neutral-alpha-500`
+(hover 600 / active 700), fg = `content-inverse`; pill bg = `neutral-alpha-500`;
+inactive dot = `neutral-alpha-inverse-500`, active dot = `content-inverse`. No new
+part classes — overlay reuses `__prev`/`__next`/`__indicator-group`. Logical
+properties throughout → RTL swaps the controls and keeps the pill centred with no
+RTL-specific CSS.
+
+**Naming.** `placement` option `external-row` → **`row`**: the recipe emitter
+doesn't quote cva variant keys, so a hyphenated option name emits invalid JS
+(`external-row: …`). Every existing modifier option is a single-word identifier;
+`placement="row"` / `"overlay"` keeps that and reads cleanly. (Future placements:
+`flank`, `top`.)
+
+**Theme divergence from Figma (for the lockstep).** The Figma pins light mode, so
+it binds the control glyph + active dot to **`absolute-white`** (fixed). Code uses
+the theme-adaptive **`content-inverse`** (white in light on the dark scrim, black
+in dark on the light scrim) so overlay stays legible in **both** themes — flagged
+as an open question to reconcile at the Figma lockstep.
+
+**Play/pause deferred.** The design's bottom cluster pairs the dots pill with a
+`CarouselAutoplayButton`. The headless primitive already supports play/pause +
+autoplay, but the registry surface doesn't expose a `PlayPauseTrigger` yet — that
+lands with the **Autoplay + play/pause** backlog item (the overlay CSS centres the
+pill alone; a bottom-cluster wrapper will group it with a play button then).
+
+**Regenerated** (recipe/tsx now carry the `placement` root prop; styles.scss
+re-derived) + drift-green + kitchen-sink hand-synced. Registry README updated
+(scope, modifiers).
+
+**Built** (`CarouselPage.tsx`, `/carousel/overlay`): the design cell (overlay +
+`peek="sm"`), plus edge-to-edge (no peek) and an RTL instance side by side.
+
+**Gates green:** `cargo test -p primitiv-emit -p primitiv-cli`,
+`node scripts/check-registry-types.mjs`. (No headless change — Carousel vitest not
+needed.)
+
+**Figma lockstep: pending** human QA. It will be a verification pass (no carousel
+`--primitiv-*` variable layer exists — bindings only) plus the `absolute-white`
+vs `content-inverse` decision above. **Next:** the remaining placements
+(external-flank / controls-on-top) or multi-slide-per-view.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".
@@ -277,7 +341,11 @@ Reorder as priorities shift; each is human-approved before it starts.
   modifier + `--primitiv-carousel-peek` knob; subsumes the "Wide peek" /
   "Viewport padding" matrix cells.
 - Multi-slide-per-view (slidesPerPage, gap, peek)
-- Dots / indicators variations (below, overlaid, thumbnails)
+- Placement: overlay _(iteration 4 — awaiting QA)_ — the `placement` modifier
+  (`row` default · `overlay`); controls inset on the imagery, dots in a pill.
+  Remaining placements (external-flank, controls-on-top) still to build.
+- Dots / indicators variations (below, overlaid _(overlay done, iteration 4)_,
+  thumbnails)
 - Snapping (centred) — `snapAlign="center"`
 - Right-to-left — needs explicit RTL confirmation/tests
 - Masonry — grid-based with complex snapping cells
@@ -314,7 +382,14 @@ it (decision 4).
 - ~~**Slide corner radius.**~~ **Resolved 2026-07-08:** round by default
   (`radii-12`) + a `radius` modifier to square it; update the Figma
   `CarouselSlide` (was `cornerRadius:0`) to match in the next lockstep pass.
-- **Overlay vs external control fill.** Iteration 1 uses the external
-  fill (`action-secondary`). The overlay context (`neutral-alpha-500`
-  @ 30%, for controls sitting on imagery) will land as a `placement`/
-  `context` modifier in a later placement-focused iteration.
+- ~~**Overlay vs external control fill.**~~ **Resolved 2026-07-08 (iteration 4):**
+  the overlay context landed as the root **`placement="overlay"`** modifier —
+  controls on a `neutral-alpha-500` scrim (glyph `content-inverse`), dots in a
+  `neutral-alpha-500` pill. `row` (external, `action-secondary`) stays the default.
+- **Overlay glyph/active-dot colour at the Figma lockstep.** Figma binds them to
+  `absolute-white` (it pins light mode); code uses the theme-adaptive
+  `content-inverse` so overlay stays legible in dark mode. Confirm the code
+  choice (and whether Figma should adopt a theme-adaptive equivalent) at lockstep.
+- **Overlay + autoplay pill grouping.** The design pairs the dots pill with a
+  play button in one bottom cluster. Play/pause is deferred to the autoplay
+  iteration; revisit the pill-vs-cluster centring (a bottom-cluster wrapper) then.

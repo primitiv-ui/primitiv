@@ -15,9 +15,14 @@ export const carousel = cva("primitiv-carousel", {
       md: "primitiv-carousel--peek-md",
       lg: "primitiv-carousel--peek-lg",
     },
+    placement: {
+      row: "primitiv-carousel--placement-row",
+      overlay: "primitiv-carousel--placement-overlay",
+    },
   },
   defaultVariants: {
     peek: "none",
+    placement: "row",
   },
 });
 

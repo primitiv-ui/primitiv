@@ -17,7 +17,7 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K>
  *
  * @see https://primitiv-ui.dev/docs/components/carousel
  */
-export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek"> & {
+export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "placement"> & {
   /**
    * Reveal a sliver of the adjacent slides on either side of the active one. Works in both orientations (inline edges when horizontal, block edges when vertical).
    * - `none` — No peek — the active slide fills the viewport (the default).
@@ -28,10 +28,18 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
   peek?: "none" | "sm" | "md" | "lg";
+  /**
+   * Where the prev/next controls and indicator dots sit relative to the viewport. The default keeps them in a flow row below (compose them in a `.primitiv-carousel__controls` wrapper); `overlay` insets the controls on the slide for edge-to-edge imagery.
+   * - `row` — Controls flow in a row below the viewport (the default).
+   * - `overlay` — Controls sit on the imagery — prev/next flanking the slide edges on a translucent scrim, dots in a pill overlaid at the bottom.
+   * @default "row"
+   * @see https://primitiv-ui.dev/docs/components/carousel
+   */
+  placement?: "row" | "overlay";
 };
 
-export function Carousel({ peek, className, ...props }: CarouselProps) {
-  return <CarouselPrimitive.Root className={[carousel({ peek }), className].filter(Boolean).join(" ")} {...props} />;
+export function Carousel({ peek, placement, className, ...props }: CarouselProps) {
+  return <CarouselPrimitive.Root className={[carousel({ peek, placement }), className].filter(Boolean).join(" ")} {...props} />;
 }
 
 export type CarouselViewportProps = ComponentPropsWithRef<typeof CarouselPrimitive.Viewport>;

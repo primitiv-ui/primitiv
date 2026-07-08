@@ -102,6 +102,42 @@ function VerticalSingle({
   );
 }
 
+/**
+ * Overlay placement — the "Overlay + dots" composition: the controls sit *on*
+ * the imagery. prev/next flank the slide edges on a translucent scrim and the
+ * dots ride in a pill along the bottom, so the slide runs edge to edge with no
+ * external control chrome. Driven by a single `placement="overlay"` prop; the
+ * parts are direct children of the Carousel (no `__controls` row wrapper).
+ */
+function OverlaySingle({
+  label,
+  peek,
+}: {
+  label: string;
+  peek?: "none" | "sm" | "md" | "lg";
+}) {
+  return (
+    <Carousel ariaLabel={label} placement="overlay" peek={peek}>
+      <CarouselViewport>
+        {SLIDES.map((bg, i) => (
+          <CarouselSlide key={i} style={{ background: bg }} />
+        ))}
+      </CarouselViewport>
+      <CarouselPreviousTrigger aria-label="Previous slide">
+        <ChevronLeft />
+      </CarouselPreviousTrigger>
+      <CarouselNextTrigger aria-label="Next slide">
+        <ChevronRight />
+      </CarouselNextTrigger>
+      <CarouselIndicatorGroup label="Choose slide">
+        {SLIDES.map((_, i) => (
+          <CarouselIndicator key={i} index={i} />
+        ))}
+      </CarouselIndicatorGroup>
+    </Carousel>
+  );
+}
+
 function Example({
   title,
   note,
@@ -186,6 +222,28 @@ export function CarouselVertical() {
         </div>
         <div className="carousel-page__vertical" dir="rtl">
           <VerticalSingle label="Featured products — vertical, right to left" />
+        </div>
+      </div>
+    </Example>
+  );
+}
+
+export function CarouselOverlay() {
+  return (
+    <Example
+      title={'Overlay — placement="overlay"'}
+      note="Controls sit on the imagery: circular prev/next flank the slide edges on a translucent scrim, and the dots ride in a pill along the bottom — so the slide runs edge to edge with no external chrome. The scrim + glyph are theme-adaptive, so they read on any photo in light or dark. It composes with peek, and under RTL the prev/next swap sides while the pill stays centred (logical properties, no RTL-specific CSS)."
+    >
+      {/* The design cell: overlay + a small peek. */}
+      <OverlaySingle label="Featured products — overlay with peek" peek="sm" />
+
+      {/* Edge-to-edge (no peek) vs the same under RTL, side by side. */}
+      <div className="carousel-page__row">
+        <div className="carousel-page__wide">
+          <OverlaySingle label="Featured products — overlay, edge to edge" />
+        </div>
+        <div className="carousel-page__wide" dir="rtl">
+          <OverlaySingle label="Featured products — overlay, right to left" />
         </div>
       </div>
     </Example>

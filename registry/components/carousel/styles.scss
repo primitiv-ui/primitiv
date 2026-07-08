@@ -63,6 +63,29 @@
     --primitiv-carousel-indicator-color: var(--primitiv-border-strong);
     --primitiv-carousel-indicator-color-active: var(--primitiv-action-primary-default);
 
+    /* Overlay-placement knobs — read only under `--placement-overlay`, where the
+       controls sit on the imagery. The scrim palette is the theme-adaptive
+       neutral-alpha ramp (a dark veil in light mode, a light veil in dark mode),
+       so a control reads on arbitrary photography in either theme; the glyph is
+       `content-inverse`, which inverts to match. */
+    --primitiv-carousel-overlay-control-inset: var(--primitiv-space-space-8);
+    --primitiv-carousel-overlay-control-bg: var(--primitiv-color-neutral-alpha-500);
+    --primitiv-carousel-overlay-control-bg-hover: var(--primitiv-color-neutral-alpha-600);
+    --primitiv-carousel-overlay-control-bg-active: var(--primitiv-color-neutral-alpha-700);
+    --primitiv-carousel-overlay-control-fg: var(--primitiv-content-inverse);
+    --primitiv-carousel-overlay-indicator-inset: var(--primitiv-space-space-8);
+    /* Dots on the scrim pill: inactive is a translucent inverse veil, active a
+       solid inverse (white on the light-mode dark scrim, black on the dark-mode
+       light scrim) — both read on the pill in either theme. The Figma binds the
+       active dot + glyph to absolute-white (it pins light mode); code uses the
+       theme-adaptive content-inverse so dark mode stays legible — reconcile at
+       the Figma lockstep. */
+    --primitiv-carousel-overlay-indicator-color: var(--primitiv-color-neutral-alpha-inverse-500);
+    --primitiv-carousel-overlay-indicator-color-active: var(--primitiv-content-inverse);
+    --primitiv-carousel-overlay-pill-bg: var(--primitiv-color-neutral-alpha-500);
+    --primitiv-carousel-overlay-pill-padding-inline: var(--primitiv-space-space-12);
+    --primitiv-carousel-overlay-pill-padding-block: var(--primitiv-space-space-4);
+
     /* Fill the container and stack the viewport above the controls row, spaced
        by the block gap. */
     display: grid;
@@ -241,6 +264,61 @@
   .primitiv-carousel__next:active {
     --primitiv-carousel-control-bg: var(--primitiv-carousel-control-bg-active);
   }
+
+  /* Placement — where the prev/next controls and dots sit relative to the
+     viewport. `external-row` (the default) flows them in a row below (composed
+     in a __controls wrapper); `overlay` insets them on the imagery. */
+  .primitiv-carousel--placement-row {
+    /* Controls flow below the viewport — the base layout, nothing to re-point.
+       Declared so the placement axis stays explicit if toggled dynamically. */
+    position: static;
+  }
+
+  /* Overlay: the root becomes the positioning context; prev/next flank the slide
+     edges on a translucent scrim and the dots sit in a pill along the bottom, all
+     over the imagery. Re-points the shared control/indicator colour knobs to the
+     on-imagery scrim palette; logical properties keep it mirrored under RTL. */
+  .primitiv-carousel--placement-overlay {
+    position: relative;
+    --primitiv-carousel-control-bg: var(--primitiv-carousel-overlay-control-bg);
+    --primitiv-carousel-control-bg-hover: var(--primitiv-carousel-overlay-control-bg-hover);
+    --primitiv-carousel-control-bg-active: var(--primitiv-carousel-overlay-control-bg-active);
+    --primitiv-carousel-control-fg: var(--primitiv-carousel-overlay-control-fg);
+    --primitiv-carousel-indicator-color: var(--primitiv-carousel-overlay-indicator-color);
+    --primitiv-carousel-indicator-color-active: var(--primitiv-carousel-overlay-indicator-color-active);
+  }
+
+  /* Prev / next inset on the slide, vertically centred (inset-block:0 + auto
+     block margins centre the fixed-height control). */
+  .primitiv-carousel--placement-overlay .primitiv-carousel__prev,
+  .primitiv-carousel--placement-overlay .primitiv-carousel__next {
+    position: absolute;
+    inset-block: 0;
+    margin-block: auto;
+    z-index: 1;
+  }
+  .primitiv-carousel--placement-overlay .primitiv-carousel__prev {
+    inset-inline-start: var(--primitiv-carousel-overlay-control-inset);
+  }
+  .primitiv-carousel--placement-overlay .primitiv-carousel__next {
+    inset-inline-end: var(--primitiv-carousel-overlay-control-inset);
+  }
+
+  /* Dots in a pill, centred along the bottom edge. inset-inline:0 + auto inline
+     margins + fit-content width centre the pill without a transform, so it stays
+     centred under RTL. */
+  .primitiv-carousel--placement-overlay .primitiv-carousel__indicator-group {
+    position: absolute;
+    inset-block-end: var(--primitiv-carousel-overlay-indicator-inset);
+    inset-inline: 0;
+    margin-inline: auto;
+    inline-size: fit-content;
+    z-index: 1;
+    padding-block: var(--primitiv-carousel-overlay-pill-padding-block);
+    padding-inline: var(--primitiv-carousel-overlay-pill-padding-inline);
+    background: var(--primitiv-carousel-overlay-pill-bg);
+    border-radius: var(--primitiv-radii-full);
+  }
 }
 
 @layer primitiv.states {
@@ -291,3 +369,14 @@ $primitiv-carousel-indicator-hit-area: var(--primitiv-carousel-indicator-hit-are
 $primitiv-carousel-indicator-size: var(--primitiv-carousel-indicator-size);
 $primitiv-carousel-indicator-color: var(--primitiv-carousel-indicator-color);
 $primitiv-carousel-indicator-color-active: var(--primitiv-carousel-indicator-color-active);
+$primitiv-carousel-overlay-control-inset: var(--primitiv-carousel-overlay-control-inset);
+$primitiv-carousel-overlay-control-bg: var(--primitiv-carousel-overlay-control-bg);
+$primitiv-carousel-overlay-control-bg-hover: var(--primitiv-carousel-overlay-control-bg-hover);
+$primitiv-carousel-overlay-control-bg-active: var(--primitiv-carousel-overlay-control-bg-active);
+$primitiv-carousel-overlay-control-fg: var(--primitiv-carousel-overlay-control-fg);
+$primitiv-carousel-overlay-indicator-inset: var(--primitiv-carousel-overlay-indicator-inset);
+$primitiv-carousel-overlay-indicator-color: var(--primitiv-carousel-overlay-indicator-color);
+$primitiv-carousel-overlay-indicator-color-active: var(--primitiv-carousel-overlay-indicator-color-active);
+$primitiv-carousel-overlay-pill-bg: var(--primitiv-carousel-overlay-pill-bg);
+$primitiv-carousel-overlay-pill-padding-inline: var(--primitiv-carousel-overlay-pill-padding-inline);
+$primitiv-carousel-overlay-pill-padding-block: var(--primitiv-carousel-overlay-pill-padding-block);

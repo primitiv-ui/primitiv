@@ -161,6 +161,51 @@ via the bridge; no variable collection needed — see the decisions entry).
 **Next:** the **vertical** headless work (driven early, per the design) — start
 it with `/carousel-variant vertical`.
 
+### Iteration 2 — Vertical orientation (awaiting human QA)
+
+**Headless gap filled (TDD, 100%).** Added an `orientation` prop
+(`"horizontal"` default · `"vertical"`) to the primitive
+(`Carousel.orientation.test.tsx`, 8 tests). It threads through
+`useCarouselRoot` → context and drives four things:
+- `data-orientation` published on the Root `<section>` (the styling hook).
+- The viewport scroll axis — `scrollIntoView` uses the `block` option
+  (mapped to `snapAlign`) with `inline: "nearest"` when vertical.
+- The user-swipe sync — reads `snapTargetBlock` off `scrollsnapchange`
+  instead of `snapTargetInline`.
+- Keyboard — the viewport pages on `ArrowDown` / `ArrowUp` (the
+  horizontal arrows go inert); `Home` / `End` unchanged.
+The `IntersectionObserver` page fallback is axis-agnostic (lowest visible
+index), so it needed no change. JSDoc + component README updated (new
+Orientation section, keyboard table).
+
+**Registry surface evolved.** A `[data-orientation="vertical"]` block in
+`styles.css` (variants layer): the root becomes a two-column grid
+(`minmax(0,1fr) auto`) so the viewport sits beside a controls **column**;
+the viewport is a portrait scroll box (new
+**`--primitiv-carousel-vertical-aspect-ratio`** knob, `3 / 4`) snapping on
+the block axis; the slide's horizontal `aspect-ratio` stands down; the
+`__controls` and `__indicator-group` flip to `flex-direction: column`. The
+grid columns follow writing direction, so RTL moves the controls to the
+start side with no extra CSS. Contract documents `data-orientation` (as
+Tabs does) + the new knob. Regenerated (recipe/tsx unchanged; styles.scss
+re-derived) + drift-green + kitchen-sink hand-synced (also fixed the
+stale contract copy left from the iteration-1 QA rounds).
+
+**Built** (`CarouselPage.tsx`, `/carousel/vertical`): the vertical
+"External-column beside" composition + a side-by-side RTL instance.
+
+Gates green: `cargo test -p primitiv-emit -p primitiv-cli`,
+`node scripts/check-registry-types.mjs`, `pnpm --filter @primitiv-ui/react
+qa:units` (100% lines/branches/functions).
+
+**Figma lockstep: pending** human QA (Figma-last). When it happens: rebind
+the `CarouselControl` up/down + `CarouselIndicators` vertical variants and
+confirm the vertical viewport/aspect intent (no `--primitiv-carousel-*`
+variable layer exists — bindings only, per the 2026-07-08 finding).
+
+**Next:** human QA of `/carousel/vertical`. Then a placement-focused
+iteration (overlay / external-flank / on-top) or multi-slide-per-view.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".
@@ -194,9 +239,10 @@ it (decision 4).
 
 - [ ] Looping / infinite (next/previous hard-clamp today; autoplay stops
       at last page)
-- [ ] Vertical orientation + `data-orientation` (not emitted at all today)
-      — **scheduled early** (immediately after the horizontal base), per the
-      2026-07-08 design answers
+- [x] Vertical orientation + `data-orientation` — **landed (iteration 2)**.
+      `orientation="vertical"` switches the scroll axis, the `snapTargetBlock`
+      sync, and the ArrowDown/ArrowUp keys; `data-orientation` on the Root is
+      the styling hook.
 - [ ] Mouse-drag gesture (only native scroll today)
 - [ ] Explicit RTL tests (mirrors implicitly via logical properties;
       no dedicated coverage)

@@ -45,8 +45,8 @@
     --primitiv-carousel-control-bg-active: var(--primitiv-action-secondary-active);
     --primitiv-carousel-control-fg: var(--primitiv-action-secondary-foreground-default);
     --primitiv-carousel-control-icon-size: var(--primitiv-space-space-16);
-    --primitiv-carousel-indicator-gap: var(--primitiv-space-space-8);
-    --primitiv-carousel-indicator-hit-area: var(--primitiv-space-space-48);
+    --primitiv-carousel-indicator-gap: var(--primitiv-space-space-0);
+    --primitiv-carousel-indicator-hit-area: var(--primitiv-space-space-24);
     --primitiv-carousel-indicator-size: var(--primitiv-space-space-8);
     --primitiv-carousel-indicator-color: var(--primitiv-border-strong);
     --primitiv-carousel-indicator-color-active: var(--primitiv-action-primary-default);

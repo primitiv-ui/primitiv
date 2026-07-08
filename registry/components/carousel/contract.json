@@ -79,8 +79,8 @@
     { "name": "--primitiv-carousel-control-bg-active", "defaultsTo": "var(--primitiv-action-secondary-active)" },
     { "name": "--primitiv-carousel-control-fg", "defaultsTo": "var(--primitiv-action-secondary-foreground-default)" },
     { "name": "--primitiv-carousel-control-icon-size", "defaultsTo": "var(--primitiv-space-space-16)" },
-    { "name": "--primitiv-carousel-indicator-gap", "defaultsTo": "var(--primitiv-space-space-8)" },
-    { "name": "--primitiv-carousel-indicator-hit-area", "defaultsTo": "var(--primitiv-space-space-48)" },
+    { "name": "--primitiv-carousel-indicator-gap", "defaultsTo": "var(--primitiv-space-space-0)" },
+    { "name": "--primitiv-carousel-indicator-hit-area", "defaultsTo": "var(--primitiv-space-space-24)" },
     { "name": "--primitiv-carousel-indicator-size", "defaultsTo": "var(--primitiv-space-space-8)" },
     { "name": "--primitiv-carousel-indicator-color", "defaultsTo": "var(--primitiv-border-strong)" },
     { "name": "--primitiv-carousel-indicator-color-active", "defaultsTo": "var(--primitiv-action-primary-default)" }

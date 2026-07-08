@@ -125,6 +125,12 @@ knobs; slide `radius` modifier (`md`/`none`). Controls circular
 **No headless gaps needed** this iteration (single-slide horizontal is
 fully supported by the primitive).
 
+**QA round 1 (human):** nested routes approved — keep the format. Dots read
+too far apart: the 8px dots sat in 48px hit buttons + an 8px gap (~56px pitch).
+**Fixed** — indicator hit-area 48→24 (`space-24`) and gap 8→0, so the pitch is
+now 24px (WCAG 2.5.8 AA floor) with the same small 8px dots. Registry default,
+regenerated + drift-green + hand-synced.
+
 **Next:** human visual + interaction QA → then Figma lockstep (write the
 `--primitiv-carousel-*` variables + fix the `CarouselSlide` radius) →
 then the **vertical** headless work (driven early, per the design).

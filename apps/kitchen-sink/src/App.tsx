@@ -570,12 +570,12 @@ export function ramp(hue: number, chroma = 0.12) {
                 </ModalClose>
               </ModalHeader>
               <ModalBody>
-                <ModalDescription>
-                  This dialog is portalled to <code>document.body</code>,
-                  which is why <code>data-theme</code> lives on{" "}
-                  <code>&lt;html&gt;</code> above, not on this page&apos;s
-                  wrapper.
-                </ModalDescription>
+                  <ModalDescription>
+                    This dialog is portalled to <InlineCode>document.body</InlineCode>,
+                    which is why <InlineCode>data-theme</InlineCode> lives on{" "}
+                    <InlineCode>&lt;html&gt;</InlineCode> above, not on this page&apos;s
+                    wrapper.
+                  </ModalDescription>
               </ModalBody>
               <ModalFooter>
                 <ModalClose asChild>

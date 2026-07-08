@@ -15,7 +15,8 @@ expressed in logical properties.
 > **Scope.** The single-slide surface plus cross-cutting options landed so far:
 > **vertical orientation** (`orientation="vertical"` on the headless Root →
 > `data-orientation`, a column-scroll viewport with the controls in a column
-> beside it), **peek** (the `peek` modifier), and a **`placement`** modifier whose
+> beside it), **peek** (the `peek` modifier), **viewport padding** (the `padding`
+> modifier — an outer gutter framing the carousel, distinct from peek), and a **`placement`** modifier whose
 > `overlay` option insets the controls on the imagery (both — see below). The
 > remaining placements (external-flank, controls-on-top), multi-slide, thumbnails,
 > and autoplay land in later iterations (see `docs/carousel-development-log.md`).
@@ -54,7 +55,15 @@ so they can't fall out of sync.
 - **Modifiers.** A root **`peek`** modifier (`none` default · `sm` · `md` · `lg`)
   re-points `--primitiv-carousel-peek` to reveal a sliver of the adjacent slides;
   it works in **both** orientations (the viewport maps the peek to the inline
-  edges when horizontal, the block edges when vertical). A root **`placement`**
+  edges when horizontal, the block edges when vertical). A root **`padding`**
+  modifier (`none` default · `sm` · `md` · `lg`) re-points
+  `--primitiv-carousel-viewport-padding` to inset the whole carousel from its
+  container with an outer gutter (breathing room framing the viewport). It is
+  deliberately **distinct from peek**: `padding` pads the root and never reveals a
+  neighbour, whereas peek lives on the viewport and reveals the neighbour slivers —
+  so the two **stack** (with both set the edge inset is padding + peek while the
+  neighbour reveal stays exactly peek). Like peek it follows the scroll axis
+  (inline edges when horizontal, block edges when vertical). A root **`placement`**
   modifier (`row` default · `overlay`) chooses where the controls sit: `row`
   keeps prev / dots / next in a flow row below (composed in a `<CarouselControls>`
   wrapper), while `overlay` insets the controls on the imagery — prev/next
@@ -70,7 +79,7 @@ so they can't fall out of sync.
   directly. The slide **`radius`**
   modifier (`md` default · `none` squares the slide off) lives on the `slide`,
   not the root — which is why `CarouselSlide` gets the `radius` prop while
-  `Carousel` gets `peek` and `placement`.
+  `Carousel` gets `peek`, `padding`, `placement` and `slidesPerPage`.
 
 `subcomponents` marks this a **structural compound**: the styled surface is N thin
 per-part wrappers the consumer composes.
@@ -88,7 +97,11 @@ Structured per RFC 0008 — the per-component API knobs + resting look in
   `overscroll-behavior` containment, and hidden scrollbars; the headless layer
   syncs React state off `scrollsnapchange`. **Peek** pads the leading/trailing
   edges (inline or block per orientation) and sets a matching `scroll-padding` so
-  the active slide snaps inside the padding, revealing the neighbours.
+  the active slide snaps inside the padding, revealing the neighbours. The
+  **`padding`** modifier is separate — an outer gutter on the *root* (mapped to the
+  scroll axis, `box-sizing: border-box` so it stays inside the 100% inline-size),
+  which frames the whole component without revealing a neighbour, so it composes
+  with peek rather than adding to the reveal.
 - **Slide** — a `flex-basis` of the viewport's *content* box divided by
   `--primitiv-carousel-slides-per-page` (minus the inter-slide gaps), so it is one
   per view by default and an equal share for a 2-/3-/4-up gallery; the % is of the

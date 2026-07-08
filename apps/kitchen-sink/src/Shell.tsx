@@ -9,6 +9,7 @@ import {
   CarouselSquare,
   CarouselVertical,
   CarouselPeek,
+  CarouselPadding,
   CarouselMulti,
   CarouselOverlay,
   CarouselFade,
@@ -37,6 +38,7 @@ export function Shell() {
           <Route path="square" element={<CarouselSquare />} />
           <Route path="vertical" element={<CarouselVertical />} />
           <Route path="peek" element={<CarouselPeek />} />
+          <Route path="padding" element={<CarouselPadding />} />
           <Route path="multi" element={<CarouselMulti />} />
           <Route path="overlay" element={<CarouselOverlay />} />
           <Route path="fade" element={<CarouselFade />} />

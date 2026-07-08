@@ -45,15 +45,22 @@ function BasicSingle({
   label,
   radius,
   peek,
+  padding,
   transition,
 }: {
   label: string;
   radius?: "md" | "none";
   peek?: "none" | "sm" | "md" | "lg";
+  padding?: "none" | "sm" | "md" | "lg";
   transition?: "slide" | "fade";
 }) {
   return (
-    <Carousel ariaLabel={label} peek={peek} transition={transition}>
+    <Carousel
+      ariaLabel={label}
+      peek={peek}
+      padding={padding}
+      transition={transition}
+    >
       <CarouselViewport>
         {SLIDES.map((bg, i) => (
           <CarouselSlide key={i} radius={radius} style={{ background: bg }} />
@@ -85,12 +92,19 @@ function BasicSingle({
 function VerticalSingle({
   label,
   peek,
+  padding,
 }: {
   label: string;
   peek?: "none" | "sm" | "md" | "lg";
+  padding?: "none" | "sm" | "md" | "lg";
 }) {
   return (
-    <Carousel ariaLabel={label} orientation="vertical" peek={peek}>
+    <Carousel
+      ariaLabel={label}
+      orientation="vertical"
+      peek={peek}
+      padding={padding}
+    >
       <CarouselViewport>
         {SLIDES.map((bg, i) => (
           <CarouselSlide key={i} style={{ background: bg }} />
@@ -346,6 +360,54 @@ export function CarouselPeek() {
         </div>
         <div className="carousel-page__wide" dir="rtl">
           <BasicSingle label="Peek under RTL" peek="md" />
+        </div>
+      </div>
+    </Example>
+  );
+}
+
+export function CarouselPadding() {
+  return (
+    <Example
+      title="Viewport padding — frame it in a gutter"
+      note="A cross-cutting `padding` modifier (none · sm · md · lg) insets the whole carousel from its container with an outer gutter — breathing room framing the viewport. Each carousel below sits in a tinted container so the gutter is visible as the surface between the container edge and the slide. It is deliberately distinct from peek: padding is the outer gutter (it never reveals a neighbour), peek is the inner reveal — they stack, so with both set the edge inset grows but the neighbour sliver stays exactly peek."
+    >
+      {/* Padding size ladder — each in a frame so the gutter reads. */}
+      <div className="carousel-page__stack">
+        <div className="carousel-page__frame">
+          <BasicSingle label="Viewport padding — small" padding="sm" />
+        </div>
+        <div className="carousel-page__frame">
+          <BasicSingle label="Viewport padding — medium" padding="md" />
+        </div>
+        <div className="carousel-page__frame">
+          <BasicSingle label="Viewport padding — large" padding="lg" />
+        </div>
+      </div>
+
+      {/* The composition the sizing question raised: padding + peek together.
+          The gutter frames the carousel while peek still reveals the neighbour
+          slivers — the two stack rather than fight. Alongside it, padding on the
+          vertical (block-axis gutter) and under RTL (mirrors). */}
+      <div className="carousel-page__row">
+        <div className="carousel-page__wide">
+          <div className="carousel-page__frame">
+            <BasicSingle
+              label="Padding + peek together"
+              padding="md"
+              peek="sm"
+            />
+          </div>
+        </div>
+        <div className="carousel-page__vertical">
+          <div className="carousel-page__frame">
+            <VerticalSingle label="Vertical padding" padding="md" />
+          </div>
+        </div>
+        <div className="carousel-page__wide" dir="rtl">
+          <div className="carousel-page__frame">
+            <BasicSingle label="Padding under RTL" padding="md" />
+          </div>
         </div>
       </div>
     </Example>

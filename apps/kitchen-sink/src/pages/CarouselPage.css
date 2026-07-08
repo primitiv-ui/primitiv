@@ -47,3 +47,11 @@
   flex: 1;
   min-inline-size: 0;
 }
+
+/* A tinted, bordered container so the viewport-padding gutter is legible: the
+ * breathing room shows as the container surface between its edge and the slide. */
+.carousel-page__frame {
+  background: var(--primitiv-surface-subtle);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+  border-radius: var(--primitiv-radii-8);
+}

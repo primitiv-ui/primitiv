@@ -15,6 +15,12 @@ export const carousel = cva("primitiv-carousel", {
       md: "primitiv-carousel--peek-md",
       lg: "primitiv-carousel--peek-lg",
     },
+    padding: {
+      none: "primitiv-carousel--padding-none",
+      sm: "primitiv-carousel--padding-sm",
+      md: "primitiv-carousel--padding-md",
+      lg: "primitiv-carousel--padding-lg",
+    },
     placement: {
       row: "primitiv-carousel--placement-row",
       overlay: "primitiv-carousel--placement-overlay",
@@ -28,6 +34,7 @@ export const carousel = cva("primitiv-carousel", {
   },
   defaultVariants: {
     peek: "none",
+    padding: "none",
     placement: "row",
     slidesPerPage: "1",
   },

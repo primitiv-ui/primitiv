@@ -29,6 +29,17 @@
       ]
     },
     {
+      "name": "padding",
+      "default": "none",
+      "description": "Inset the whole carousel from its container with an outer gutter (breathing room framing the viewport). Distinct from `peek`: padding is the outer gutter and never reveals neighbouring slides, whereas peek is the inner reveal — they stack, so with both set the edge inset is padding + peek while the neighbour reveal stays exactly peek. Follows the scroll axis (inline edges when horizontal, block edges when vertical).",
+      "options": [
+        { "name": "none", "class": "primitiv-carousel--padding-none", "description": "No viewport padding — the carousel fills its container edge to edge (the default)." },
+        { "name": "sm", "class": "primitiv-carousel--padding-sm", "description": "A small gutter." },
+        { "name": "md", "class": "primitiv-carousel--padding-md", "description": "A medium gutter." },
+        { "name": "lg", "class": "primitiv-carousel--padding-lg", "description": "A large gutter." }
+      ]
+    },
+    {
       "name": "placement",
       "default": "row",
       "description": "Where the prev/next controls and indicator dots sit relative to the viewport. The default keeps them in a flow row below (compose them in a `<CarouselControls>` wrapper); `overlay` insets the controls on the slide for edge-to-edge imagery.",
@@ -114,6 +125,7 @@
   "customProperties": [
     { "name": "--primitiv-carousel-gap", "defaultsTo": "var(--primitiv-space-space-16)" },
     { "name": "--primitiv-carousel-peek", "defaultsTo": "var(--primitiv-space-space-0)" },
+    { "name": "--primitiv-carousel-viewport-padding", "defaultsTo": "var(--primitiv-space-space-0)" },
     { "name": "--primitiv-carousel-slides-per-page", "defaultsTo": "1" },
     { "name": "--primitiv-carousel-slide-aspect-ratio", "defaultsTo": "16 / 9" },
     { "name": "--primitiv-carousel-vertical-aspect-ratio", "defaultsTo": "16 / 9" },

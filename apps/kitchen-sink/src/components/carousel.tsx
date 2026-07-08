@@ -17,7 +17,7 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K>
  *
  * @see https://primitiv-ui.dev/docs/components/carousel
  */
-export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "placement" | "slidesPerPage"> & {
+export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "padding" | "placement" | "slidesPerPage"> & {
   /**
    * Reveal a sliver of the adjacent slides on either side of the active one. Works in both orientations (inline edges when horizontal, block edges when vertical).
    * - `none` — No peek — the active slide fills the viewport (the default).
@@ -28,6 +28,16 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
   peek?: "none" | "sm" | "md" | "lg";
+  /**
+   * Inset the whole carousel from its container with an outer gutter (breathing room framing the viewport). Distinct from `peek`: padding is the outer gutter and never reveals neighbouring slides, whereas peek is the inner reveal — they stack, so with both set the edge inset is padding + peek while the neighbour reveal stays exactly peek. Follows the scroll axis (inline edges when horizontal, block edges when vertical).
+   * - `none` — No viewport padding — the carousel fills its container edge to edge (the default).
+   * - `sm` — A small gutter.
+   * - `md` — A medium gutter.
+   * - `lg` — A large gutter.
+   * @default "none"
+   * @see https://primitiv-ui.dev/docs/components/carousel
+   */
+  padding?: "none" | "sm" | "md" | "lg";
   /**
    * Where the prev/next controls and indicator dots sit relative to the viewport. The default keeps them in a flow row below (compose them in a `<CarouselControls>` wrapper); `overlay` insets the controls on the slide for edge-to-edge imagery.
    * - `row` — Controls flow in a row below the viewport (the default).
@@ -48,8 +58,8 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
   slidesPerPage?: "1" | "2" | "3" | "4";
 };
 
-export function Carousel({ peek, placement, slidesPerPage, className, ...props }: CarouselProps) {
-  return <CarouselPrimitive.Root className={[carousel({ peek, placement, slidesPerPage }), className].filter(Boolean).join(" ")} {...props} />;
+export function Carousel({ peek, padding, placement, slidesPerPage, className, ...props }: CarouselProps) {
+  return <CarouselPrimitive.Root className={[carousel({ peek, padding, placement, slidesPerPage }), className].filter(Boolean).join(" ")} {...props} />;
 }
 
 export type CarouselViewportProps = ComponentPropsWithRef<typeof CarouselPrimitive.Viewport>;

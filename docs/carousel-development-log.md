@@ -73,6 +73,25 @@ appended here:
   string union is the typed surface. The `--primitiv-carousel-slides-per-page` knob
   stays exposed for arbitrary counts.
 
+- **2026-07-08 — Viewport padding is the *outer* gutter, distinct from peek
+  (iteration 7).** The design/backlog's "Viewport padding" cell was folded into
+  peek in iteration 3, but the human re-raised it as its own axis and flagged the
+  composition with peek. Settled: **peek and viewport-padding are two different
+  gutters and they stack.** Peek lives on the **viewport** (`padding-inline` +
+  `scroll-padding-inline`) and *reveals* neighbour slivers — geometrically, a
+  snap-aligned slide narrower than the scrollport always shows its neighbours, so
+  any viewport scroll-padding is "more peek", never a neutral gutter. Viewport
+  padding therefore lives on the **root** (`padding-inline`, `box-sizing:
+  border-box` so it stays inside `inline-size:100%`), an outer frame that never
+  reveals a neighbour. With both set the edge inset is `padding + peek` while the
+  reveal stays exactly `peek` — the decoupling the human's question wanted. Scale
+  **mirrors peek** (`none`/`sm`/`md`/`lg` → space-0/16/32/48) so the two gutters
+  read as one t-shirt vocabulary (the human floated `xs` — matched peek's scale
+  instead for a single mental model; a bespoke value is a direct knob override).
+  Follows the scroll axis like peek (inline horizontal, block vertical). Pure CSS
+  + a `padding` modifier — **no headless change**, so the publish-gotcha doesn't
+  apply.
+
 ## Figma design reference
 
 Read from the Figma file **"Primitiv Design System" → "Carousel" page**
@@ -446,6 +465,46 @@ knob/modifier (no carousel `--primitiv-*` variable layer in Figma), and the desi
 verification pass. **Next:** the remaining placements (external-flank /
 controls-on-top) or thumbnails.
 
+### Iteration 7 — Viewport padding (awaiting human QA)
+
+**Registry surface (headless-free — pure CSS + a modifier).** A root **`padding`**
+modifier (`none` default · `sm` · `md` · `lg`) re-points a new
+**`--primitiv-carousel-viewport-padding`** knob. It pads the **root** (not the
+viewport) on the scroll axis — `padding-inline` for horizontal, remapped to
+`padding-block` under `[data-orientation="vertical"]` — with
+**`box-sizing: border-box`** added to the root so the gutter subtracts from
+`inline-size:100%` rather than overflowing the container. This is the **outer
+gutter** framing the whole carousel; it never reveals a neighbour (that stays
+peek's job on the viewport), so the two compose: edge inset = padding + peek,
+reveal = peek. Default `none` → byte-unchanged behaviour for every existing
+variant (padding-inline resolves to `space-0`; overlay's abs-positioned controls
+inset from the padded box, which is a no-op at 0). Scale mirrors peek's.
+
+**Built** (`CarouselPage.tsx`, `/carousel/padding`): a sm/md/lg size ladder, each
+in a **tinted, bordered `carousel-page__frame`** so the gutter reads as surface
+between the container edge and the slide; plus the **padding + peek** composition
+(the axis the human's question raised), a **vertical** (block-axis gutter) and an
+**RTL** instance side by side. `BasicSingle` / `VerticalSingle` gained a `padding`
+passthrough.
+
+**Regenerated** (recipe/tsx carry the `padding` root prop — omitted from the
+headless passthrough, so no DOM leak; styles.scss re-derived with the new
+`$…-viewport-padding` var) + drift-green + kitchen-sink hand-synced. Registry
+README updated (scope, modifiers, viewport bullet).
+
+**Gates green:** `cargo test -p primitiv-emit -p primitiv-cli` (364 + 20 + 105),
+`node scripts/check-registry-types.mjs`. (No headless change — Carousel vitest not
+needed.)
+
+**Figma lockstep: pending** human QA. Light — viewport padding is a code-only
+knob/modifier (no carousel `--primitiv-*` variable layer in Figma; bindings only),
+and the design's "Viewport padding (`space-16` gutter · scroll-padding)" cell
+already shows the intent, so this is expected to be a verification pass. One note
+for the lockstep: the Figma cell frames it as viewport `scroll-padding`; the code
+deliberately puts it on the **root** (outer gutter) so it composes with peek —
+reconcile the mental model there. **Next:** the remaining placements
+(external-flank / controls-on-top) or thumbnails.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".
@@ -456,8 +515,12 @@ Reorder as priorities shift; each is human-approved before it starts.
 - Basic responsive single-slide _(iteration 1 — done)_
 - Vertical orientation _(iteration 2 — awaiting QA of the landscape look)_
 - Peek (cross-cutting option) _(iteration 3 — awaiting QA)_ — the `peek`
-  modifier + `--primitiv-carousel-peek` knob; subsumes the "Wide peek" /
-  "Viewport padding" matrix cells.
+  modifier + `--primitiv-carousel-peek` knob; subsumes the "Wide peek" matrix cell.
+- Viewport padding (cross-cutting option) _(iteration 7 — awaiting QA)_ — the
+  `padding` modifier (`none` default · `sm` · `md` · `lg`) +
+  `--primitiv-carousel-viewport-padding` knob; an **outer** gutter on the root
+  (mapped to the scroll axis, `box-sizing: border-box`), distinct from peek and
+  composing with it. Subsumes the "Viewport padding" matrix cell.
 - Multi-slide-per-view _(iteration 6 — awaiting QA)_ — the `slidesPerPage`
   modifier (`1` default · `2` · `3` · `4`) + `--primitiv-carousel-slides-per-page`
   knob; each slide's flex-basis divides the content box into equal shares (minus

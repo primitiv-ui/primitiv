@@ -23,6 +23,19 @@ appended here:
   captured (see "Figma design reference" below). Corrected the seed:
   controls are **circular** (`radius 50%`), 32×32 (`space-32`), filled with
   **`action-secondary`** (not the square `surface-default` first drafted).
+- **2026-07-08 — Figma lockstep done (via the bridge; not in git).**
+  Key finding: **there is no per-component `--primitiv-carousel-*` variable
+  layer in Figma** — the carousel components bind directly to Primitives /
+  Intent variables (the code's knob indirection is code-only; e.g.
+  `CarouselControl` fill was already bound to `action/secondary/default`). So
+  the lockstep was binding-parity + value fixes, **not** a new collection.
+  Changes written: **`CarouselSlide`** cornerRadius `0 → 12` bound to `radii/12`
+  (all 3 ratio variants — fixes the design-time oversight); **`CarouselIndicators`**
+  `itemSpacing 8 → 16` bound to `space/space-16` (all 4 external/overlay ×
+  horizontal/vertical variants) → 24px pitch, matching the AA-floored code
+  (human chose design==ship over the tighter 16px mockup). `CarouselControl`
+  (32px circular, `action-secondary`, width bound) already matched — no change.
+  Optional future: a slide `radius=none` variant (not modelled in Figma).
 - **2026-07-08 — Iteration-1 design answers (human).**
   (a) **Slides round by default** at a medium radius
   (`--primitiv-carousel-slide-radius` → `var(--primitiv-radii-12)`), with a
@@ -142,9 +155,11 @@ controls-row gap. Kitchen-sink example now uses the registry class (dogfooding).
 Three distinct gaps now: `gap` (slide↔slide) · `block-gap` (viewport↔controls) ·
 `controls-gap` (prev↔dots↔next). Regenerated + drift-green + hand-synced.
 
-**Next:** human visual + interaction QA → then Figma lockstep (write the
-`--primitiv-carousel-*` variables + fix the `CarouselSlide` radius) →
-then the **vertical** headless work (driven early, per the design).
+**Figma lockstep: done** (2026-07-08 — slide radius + indicator pitch mirrored
+via the bridge; no variable collection needed — see the decisions entry).
+
+**Next:** the **vertical** headless work (driven early, per the design) — start
+it with `/carousel-variant vertical`.
 
 ## Backlog (examples still to build)
 

@@ -1,21 +1,20 @@
-/* All selectors scoped under .ks-nav — no global leak. */
+/* All selectors scoped under .ks-nav — no global leak. The page nav is a plain
+ * top bar (not sticky) so it never collides with each page's own sticky header
+ * (the kitchen-sink controls, or the carousel chrome bar). */
 .ks-nav {
-  position: sticky;
-  inset-block-start: 0;
-  z-index: 1;
   display: flex;
-  gap: 1rem;
-  padding: 0.75rem 2rem;
-  border-block-end: 1px solid var(--primitiv-border-subtle);
+  gap: var(--primitiv-space-space-16);
+  padding: var(--primitiv-space-space-12) var(--primitiv-space-space-16);
+  border-block-end: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
   background: var(--primitiv-surface-default);
 }
 
 .ks-nav a {
   color: var(--primitiv-content-secondary);
   text-decoration: none;
+  font-weight: 600;
 }
 
 .ks-nav a[aria-current="page"] {
   color: var(--primitiv-content-primary);
-  font-weight: 600;
 }

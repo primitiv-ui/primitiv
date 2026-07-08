@@ -86,10 +86,15 @@ external-row (below) · on-top (above) · vertical (side). Likely a
 - [x] Component `README.md` authored.
 - [x] Kitchen-sink hand-sync (`components/carousel.*`, barrel export,
       `styles/primitiv/carousel/styles.css`).
-- [x] Dedicated Carousel page: `react-router-dom` (`^7.14.1`, matching
-      the workbench) — `Shell.tsx` renders the nav + `<Routes>`
-      (`/` → App, `/carousel` → `pages/CarouselPage.tsx`), wrapped in
-      `<BrowserRouter>` in `main.tsx`.
+- [x] Dedicated Carousel section: `react-router-dom` (`^7.14.1`, matching
+      the workbench), `<BrowserRouter>` in `main.tsx`. `Shell.tsx` = the
+      page nav (`/` → App, `/carousel` → nested). `pages/CarouselLayout.tsx`
+      = a **left sidebar** of full-page example routes
+      (`default`/`responsive`/`rtl`/`square`, `index` → `default`) around
+      an `<Outlet/>`, with the reusable **`ChromeControls`** bar
+      (`chrome.tsx` — density/size/theme, applied on `<html>`) up top so
+      those checks are available while iterating. Each example is its own
+      route component in `pages/CarouselPage.tsx`.
 
 Gates green: `cargo test -p primitiv-emit -p primitiv-cli`,
 `node scripts/check-registry-types.mjs`. Kitchen-sink can't build in the

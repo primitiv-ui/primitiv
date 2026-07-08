@@ -1,0 +1,26 @@
+/* Scoped under .ks-chrome — the density / size / theme control bar. */
+.ks-chrome {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--primitiv-space-space-24);
+}
+
+.ks-chrome__group {
+  display: flex;
+  align-items: center;
+  gap: var(--primitiv-space-space-8);
+}
+
+.ks-chrome__label {
+  font-family: var(--primitiv-label-xs-font-family);
+  font-size: var(--primitiv-label-xs-font-size);
+  font-weight: var(--primitiv-label-xs-font-weight);
+  color: var(--primitiv-content-secondary);
+}
+
+/* The bar spaces its groups with its own gap, so zero the vertical dividers'
+   built-in spacing (also demonstrates the --primitiv-divider-spacing knob). */
+.ks-chrome > .primitiv-divider {
+  --primitiv-divider-spacing: 0;
+}

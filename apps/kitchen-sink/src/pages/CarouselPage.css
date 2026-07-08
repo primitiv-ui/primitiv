@@ -3,25 +3,18 @@
 
 .carousel-page {
   display: grid;
-  gap: 2.5rem;
-  max-inline-size: 60rem;
-  margin-inline: auto;
-  padding: 2rem;
+  gap: var(--primitiv-space-space-16);
+  max-inline-size: 64rem;
+}
+
+.carousel-page h1 {
+  margin: 0;
+  color: var(--primitiv-content-primary);
 }
 
 .carousel-page__note {
   margin: 0;
   color: var(--primitiv-content-secondary);
-}
-
-.carousel-page__specimen {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.carousel-page__specimen h2 {
-  margin: 0;
-  color: var(--primitiv-content-primary);
 }
 
 /* Compose the prev / dots / next into one centred row below the viewport — the

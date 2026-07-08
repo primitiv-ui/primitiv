@@ -1,12 +1,18 @@
-import { NavLink, Route, Routes } from "react-router-dom";
+import { NavLink, Navigate, Route, Routes } from "react-router-dom";
 
 import { App } from "./App";
-import { CarouselPage } from "./pages/CarouselPage";
+import { CarouselLayout } from "./pages/CarouselLayout";
+import {
+  CarouselDefault,
+  CarouselResponsive,
+  CarouselRtl,
+  CarouselSquare,
+} from "./pages/CarouselPage";
 import "./Shell.css";
 
 // The kitchen-sink is a single-page consumer demo, but a component with a large
-// example set (Carousel) gets its own route. `NavLink` sets aria-current="page"
-// on the active link automatically, which Shell.css styles.
+// example set (Carousel) gets its own nested section: a sidebar of full-page
+// examples under /carousel. `NavLink` sets aria-current="page" automatically.
 export function Shell() {
   return (
     <>
@@ -18,7 +24,13 @@ export function Shell() {
       </nav>
       <Routes>
         <Route path="/" element={<App />} />
-        <Route path="/carousel" element={<CarouselPage />} />
+        <Route path="/carousel" element={<CarouselLayout />}>
+          <Route index element={<Navigate to="default" replace />} />
+          <Route path="default" element={<CarouselDefault />} />
+          <Route path="responsive" element={<CarouselResponsive />} />
+          <Route path="rtl" element={<CarouselRtl />} />
+          <Route path="square" element={<CarouselSquare />} />
+        </Route>
       </Routes>
     </>
   );

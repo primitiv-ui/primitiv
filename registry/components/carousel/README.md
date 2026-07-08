@@ -45,20 +45,21 @@ so they can't fall out of sync.
   styling conventions: the `.primitiv-carousel` root and the `__viewport` /
   `__slide` / `__controls` / `__prev` / `__next` / `__indicator-group` /
   `__indicator` BEM parts, the modifiers, and the `--primitiv-carousel-*`
-  custom-property API. `__controls` is a **CSS-only helper** — a plain wrapper
-  `<div>` the consumer puts prev / indicators / next in; it centres them and
-  spaces the buttons from the dots via `--primitiv-carousel-controls-gap`
-  (distinct from the tight dot-to-dot `--primitiv-carousel-indicator-gap`, and
-  from the `--primitiv-carousel-block-gap` between the viewport and the controls).
+  custom-property API. `__controls` is a **presentational subcomponent** —
+  `<CarouselControls>`, a plain styled `<div>` (no headless backing) the consumer
+  puts prev / indicators / next in; it centres them and spaces the buttons from
+  the dots via `--primitiv-carousel-controls-gap` (distinct from the tight
+  dot-to-dot `--primitiv-carousel-indicator-gap`, and from the
+  `--primitiv-carousel-block-gap` between the viewport and the controls).
 - **Modifiers.** A root **`peek`** modifier (`none` default · `sm` · `md` · `lg`)
   re-points `--primitiv-carousel-peek` to reveal a sliver of the adjacent slides;
   it works in **both** orientations (the viewport maps the peek to the inline
   edges when horizontal, the block edges when vertical). A root **`placement`**
   modifier (`row` default · `overlay`) chooses where the controls sit: `row`
-  keeps prev / dots / next in a flow row below (composed in a `__controls`
+  keeps prev / dots / next in a flow row below (composed in a `<CarouselControls>`
   wrapper), while `overlay` insets the controls on the imagery — prev/next
   absolutely flanking the slide edges on a translucent `neutral-alpha` scrim and
-  the dots in a pill along the bottom (no `__controls` wrapper; the parts are
+  the dots in a pill along the bottom (no `<CarouselControls>` wrapper; the parts are
   direct children of the root, which becomes the positioning context). It
   re-points the shared control/indicator colour knobs to the on-imagery scrim
   palette via the `--primitiv-carousel-overlay-*` knobs. The slide **`radius`**
@@ -125,14 +126,14 @@ Flat, shadcn-shaped exports the consumer composes over the headless compound:
     <CarouselSlide><img src="/a.jpg" alt="…" /></CarouselSlide>
     <CarouselSlide radius="none"><img src="/b.jpg" alt="…" /></CarouselSlide>
   </CarouselViewport>
-  <div className="primitiv-carousel__controls">
+  <CarouselControls>
     <CarouselPreviousTrigger><ChevronLeft /></CarouselPreviousTrigger>
     <CarouselIndicatorGroup label="Choose slide">
       <CarouselIndicator index={0} />
       <CarouselIndicator index={1} />
     </CarouselIndicatorGroup>
     <CarouselNextTrigger><ChevronRight /></CarouselNextTrigger>
-  </div>
+  </CarouselControls>
 </Carousel>
 ```
 

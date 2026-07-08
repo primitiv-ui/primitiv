@@ -7,7 +7,7 @@
  */
 import { Carousel as CarouselPrimitive } from "@primitiv-ui/react";
 import { type ComponentPropsWithRef } from "react";
-import { carousel, carouselViewport, carouselSlide, carouselPreviousTrigger, carouselNextTrigger, carouselIndicatorGroup, carouselIndicator } from "./carousel.recipe";
+import { carousel, carouselViewport, carouselControls, carouselSlide, carouselPreviousTrigger, carouselNextTrigger, carouselIndicatorGroup, carouselIndicator } from "./carousel.recipe";
 
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
 
@@ -45,6 +45,12 @@ export type CarouselViewportProps = ComponentPropsWithRef<typeof CarouselPrimiti
 
 export function CarouselViewport({ className, ...props }: CarouselViewportProps) {
   return <CarouselPrimitive.Viewport className={[carouselViewport(), className].filter(Boolean).join(" ")} {...props} />;
+}
+
+export type CarouselControlsProps = ComponentPropsWithRef<"div">;
+
+export function CarouselControls({ className, ...props }: CarouselControlsProps) {
+  return <div className={[carouselControls(), className].filter(Boolean).join(" ")} {...props} />;
 }
 
 export type CarouselSlideProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Slide>, "radius"> & {

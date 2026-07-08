@@ -32,6 +32,10 @@ export const carouselViewport = cva("primitiv-carousel__viewport");
 
 export type CarouselViewportVariants = VariantProps<typeof carouselViewport>;
 
+export const carouselControls = cva("primitiv-carousel__controls");
+
+export type CarouselControlsVariants = VariantProps<typeof carouselControls>;
+
 export const carouselSlide = cva("primitiv-carousel__slide", {
   variants: {
     radius: {

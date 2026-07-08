@@ -10,6 +10,7 @@ import {
 import {
   Carousel,
   CarouselViewport,
+  CarouselControls,
   CarouselSlide,
   CarouselPreviousTrigger,
   CarouselNextTrigger,
@@ -50,7 +51,7 @@ function BasicSingle({
           <CarouselSlide key={i} radius={radius} style={{ background: bg }} />
         ))}
       </CarouselViewport>
-      <div className="primitiv-carousel__controls">
+      <CarouselControls>
         <CarouselPreviousTrigger aria-label="Previous slide">
           <ChevronLeft />
         </CarouselPreviousTrigger>
@@ -62,7 +63,7 @@ function BasicSingle({
         <CarouselNextTrigger aria-label="Next slide">
           <ChevronRight />
         </CarouselNextTrigger>
-      </div>
+      </CarouselControls>
     </Carousel>
   );
 }
@@ -87,7 +88,7 @@ function VerticalSingle({
           <CarouselSlide key={i} style={{ background: bg }} />
         ))}
       </CarouselViewport>
-      <div className="primitiv-carousel__controls">
+      <CarouselControls>
         <CarouselPreviousTrigger aria-label="Previous slide">
           <ChevronUp />
         </CarouselPreviousTrigger>
@@ -99,7 +100,7 @@ function VerticalSingle({
         <CarouselNextTrigger aria-label="Next slide">
           <ChevronDown />
         </CarouselNextTrigger>
-      </div>
+      </CarouselControls>
     </Carousel>
   );
 }

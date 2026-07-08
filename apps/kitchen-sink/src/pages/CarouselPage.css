@@ -17,9 +17,9 @@
   color: var(--primitiv-content-secondary);
 }
 
-/* The prev / dots / next row uses the registry's own .primitiv-carousel__controls
- * wrapper (centred, with the --primitiv-carousel-controls-gap knob), so nothing
- * to style here. */
+/* The prev / dots / next row uses the registry's own <CarouselControls> part
+ * (.primitiv-carousel__controls — centred, with the --primitiv-carousel-controls-gap
+ * knob), so nothing to style here. */
 
 .carousel-page__row {
   display: flex;

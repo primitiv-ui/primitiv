@@ -46,6 +46,11 @@
       "class": "primitiv-carousel__viewport"
     },
     {
+      "name": "controls",
+      "element": "div",
+      "class": "primitiv-carousel__controls"
+    },
+    {
       "name": "slide",
       "component": "Slide",
       "element": "div",

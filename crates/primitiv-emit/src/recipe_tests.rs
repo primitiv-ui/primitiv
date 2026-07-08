@@ -83,6 +83,26 @@ fn the_committed_tabs_recipe_is_the_generated_form_of_its_contract() {
     );
 }
 
+/// Drift guard: the committed `registry/components/carousel/carousel.recipe.ts`
+/// is exactly the generated form of its contract — a seven-part compound with a
+/// single slide `radius` modifier.
+#[test]
+fn the_committed_carousel_recipe_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/carousel/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_recipe(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/components/carousel/carousel.recipe.ts"
+        ))
+    );
+}
+
 /// Drift guard: the committed `registry/components/accordion/accordion.recipe.ts`
 /// is exactly the generated form of its contract — a five-subcomponent
 /// structural compound whose only variant axis (`size`) lives on the root.

@@ -232,6 +232,26 @@ fn the_committed_tabs_wrapper_is_the_generated_form_of_its_contract() {
     );
 }
 
+/// Drift guard: the committed `registry/components/carousel/carousel.tsx` is
+/// exactly the generated form of its contract — the seven-part compound whose
+/// slide carries a `radius` modifier omitted from the primitive props.
+#[test]
+fn the_committed_carousel_wrapper_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/carousel/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_wrapper(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/components/carousel/carousel.tsx"
+        ))
+    );
+}
+
 /// A styled wrapper owns its modifier prop names, so they must be omitted from
 /// the primitive props before the variant union is intersected in. Without it a
 /// modifier whose name shadows a native attribute (e.g. `size` on `<input>`,

@@ -1,0 +1,208 @@
+/*
+ * Carousel — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add carousel`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-carousel class, the part
+ * classes __viewport / __slide / __prev / __next / __indicator-group /
+ * __indicator, and the --primitiv-carousel-* custom properties), not these
+ * values (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * The component adapts to its container by default: the root fills its inline
+ * space and each slide holds its shape with aspect-ratio, so the carousel is
+ * responsive without media queries. Layout leans on native CSS scroll-snap and
+ * logical properties so it mirrors correctly under RTL.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the base rules live in
+ * primitiv.base, state styling (active dot, focus ring, disabled controls) in
+ * primitiv.states. The sublayer order is declared once in the shared token
+ * layer; this file only re-opens the named sublayers.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-space-*,
+ * --primitiv-framed-control-*, --primitiv-surface-*, --primitiv-content-*,
+ * --primitiv-border-*, --primitiv-action-* and --primitiv-focus-ring-* custom
+ * properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-carousel {
+    /* Per-component API — the themable knobs. Consumers override any one
+       without touching the rules below. */
+    --primitiv-carousel-gap: var(--primitiv-space-space-16);
+    --primitiv-carousel-padding-inline: var(--primitiv-space-space-0);
+    --primitiv-carousel-slide-aspect-ratio: 16 / 9;
+    --primitiv-carousel-slide-radius: var(--primitiv-radii-12);
+    --primitiv-carousel-control-gap: var(--primitiv-space-space-16);
+    --primitiv-carousel-control-size: var(--primitiv-space-space-32);
+    /* 50% on a square control draws a circle — a shape, not a token value
+       (like the indicator dot below). The design uses circular controls. */
+    --primitiv-carousel-control-radius: 50%;
+    --primitiv-carousel-control-bg: var(--primitiv-action-secondary-default);
+    --primitiv-carousel-control-bg-hover: var(--primitiv-action-secondary-hover);
+    --primitiv-carousel-control-bg-active: var(--primitiv-action-secondary-active);
+    --primitiv-carousel-control-fg: var(--primitiv-action-secondary-foreground-default);
+    --primitiv-carousel-control-icon-size: var(--primitiv-space-space-16);
+    --primitiv-carousel-indicator-gap: var(--primitiv-space-space-8);
+    --primitiv-carousel-indicator-hit-area: var(--primitiv-space-space-48);
+    --primitiv-carousel-indicator-size: var(--primitiv-space-space-8);
+    --primitiv-carousel-indicator-color: var(--primitiv-border-strong);
+    --primitiv-carousel-indicator-color-active: var(--primitiv-action-primary-default);
+
+    /* Fill the container and stack the viewport above the controls/indicator
+       row, spaced by the control gap. */
+    display: grid;
+    gap: var(--primitiv-carousel-control-gap);
+    inline-size: 100%;
+  }
+
+  /* The scroll-snap track. Native horizontal scroll owns the swipe; the headless
+     layer syncs React state off scrollsnapchange. */
+  .primitiv-carousel__viewport {
+    display: flex;
+    gap: var(--primitiv-carousel-gap);
+    padding-inline: var(--primitiv-carousel-padding-inline);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    /* Stop vertical page scroll rubber-banding into the carousel on touch. */
+    overscroll-behavior-x: contain;
+    /* Hide the native scrollbar while keeping scroll behaviour. */
+    scrollbar-width: none;
+  }
+  .primitiv-carousel__viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* One slide per view by default; it fills the viewport and keeps its ratio as
+     the container resizes (the Blossom approach). min-inline-size:0 lets a slide
+     shrink below its content's intrinsic width. */
+  .primitiv-carousel__slide {
+    flex: 0 0 100%;
+    min-inline-size: 0;
+    aspect-ratio: var(--primitiv-carousel-slide-aspect-ratio);
+    border-radius: var(--primitiv-carousel-slide-radius);
+    overflow: hidden;
+    scroll-snap-align: start;
+    /* Stop the OS grabbing images for drag/save mid-swipe. */
+    -webkit-user-drag: none;
+  }
+
+  /* Prev / next controls. Circular, centred glyph, sized off the control knob;
+     the secondary-action fill matches the design's external-context control. */
+  .primitiv-carousel__prev,
+  .primitiv-carousel__next {
+    display: inline-grid;
+    place-items: center;
+    inline-size: var(--primitiv-carousel-control-size);
+    block-size: var(--primitiv-carousel-control-size);
+    border: none;
+    border-radius: var(--primitiv-carousel-control-radius);
+    background: var(--primitiv-carousel-control-bg);
+    color: var(--primitiv-carousel-control-fg);
+    cursor: pointer;
+    transition: background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+  .primitiv-carousel__prev svg,
+  .primitiv-carousel__next svg {
+    inline-size: var(--primitiv-carousel-control-icon-size);
+    block-size: var(--primitiv-carousel-control-icon-size);
+  }
+
+  /* Indicator dots — centred row. */
+  .primitiv-carousel__indicator-group {
+    display: flex;
+    gap: var(--primitiv-carousel-indicator-gap);
+    justify-content: center;
+  }
+
+  /* WCAG 2.5.8: the button carries the larger hit area; the visible dot stays
+     small via ::before. */
+  .primitiv-carousel__indicator {
+    display: inline-grid;
+    place-items: center;
+    min-inline-size: var(--primitiv-carousel-indicator-hit-area);
+    min-block-size: var(--primitiv-carousel-indicator-hit-area);
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .primitiv-carousel__indicator::before {
+    content: "";
+    inline-size: var(--primitiv-carousel-indicator-size);
+    block-size: var(--primitiv-carousel-indicator-size);
+    border-radius: 50%;
+    background: var(--primitiv-carousel-indicator-color);
+  }
+}
+
+@layer primitiv.variants {
+  /* Slide corner rounding — re-points the radius knob. `md` is the default
+     (the base rule already rounds); `none` squares the slide off. */
+  .primitiv-carousel__slide--radius-md {
+    --primitiv-carousel-slide-radius: var(--primitiv-radii-12);
+  }
+  .primitiv-carousel__slide--radius-none {
+    --primitiv-carousel-slide-radius: var(--primitiv-radii-0);
+  }
+
+  /* Control hover / active re-point the fill knob, matching the secondary-action
+     button so the two stay visually consistent. */
+  .primitiv-carousel__prev:hover,
+  .primitiv-carousel__next:hover {
+    --primitiv-carousel-control-bg: var(--primitiv-carousel-control-bg-hover);
+  }
+  .primitiv-carousel__prev:active,
+  .primitiv-carousel__next:active {
+    --primitiv-carousel-control-bg: var(--primitiv-carousel-control-bg-active);
+  }
+}
+
+@layer primitiv.states {
+  /* Active dot. */
+  .primitiv-carousel__indicator[data-state="active"]::before {
+    background: var(--primitiv-carousel-indicator-color-active);
+  }
+
+  /* Focus — the shared two-layer ring, keyed to keyboard focus. The viewport is
+     tabbable (it is the rotation control); the prev/next and dots are buttons.
+     Restyle globally via the --primitiv-focus-ring* / --primitiv-surface-default
+     tokens, not a per-component knob. */
+  .primitiv-carousel__viewport:focus-visible,
+  .primitiv-carousel__prev:focus-visible,
+  .primitiv-carousel__next:focus-visible,
+  .primitiv-carousel__indicator:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Boundary-clamped controls (the headless layer sets `disabled`). */
+  .primitiv-carousel__prev:disabled,
+  .primitiv-carousel__next:disabled {
+    opacity: var(--primitiv-opacity-50);
+    cursor: not-allowed;
+  }
+}
+
+$primitiv-carousel-gap: var(--primitiv-carousel-gap);
+$primitiv-carousel-padding-inline: var(--primitiv-carousel-padding-inline);
+$primitiv-carousel-slide-aspect-ratio: var(--primitiv-carousel-slide-aspect-ratio);
+$primitiv-carousel-slide-radius: var(--primitiv-carousel-slide-radius);
+$primitiv-carousel-control-gap: var(--primitiv-carousel-control-gap);
+$primitiv-carousel-control-size: var(--primitiv-carousel-control-size);
+$primitiv-carousel-control-radius: var(--primitiv-carousel-control-radius);
+$primitiv-carousel-control-bg: var(--primitiv-carousel-control-bg);
+$primitiv-carousel-control-bg-hover: var(--primitiv-carousel-control-bg-hover);
+$primitiv-carousel-control-bg-active: var(--primitiv-carousel-control-bg-active);
+$primitiv-carousel-control-fg: var(--primitiv-carousel-control-fg);
+$primitiv-carousel-control-icon-size: var(--primitiv-carousel-control-icon-size);
+$primitiv-carousel-indicator-gap: var(--primitiv-carousel-indicator-gap);
+$primitiv-carousel-indicator-hit-area: var(--primitiv-carousel-indicator-hit-area);
+$primitiv-carousel-indicator-size: var(--primitiv-carousel-indicator-size);
+$primitiv-carousel-indicator-color: var(--primitiv-carousel-indicator-color);
+$primitiv-carousel-indicator-color-active: var(--primitiv-carousel-indicator-color-active);

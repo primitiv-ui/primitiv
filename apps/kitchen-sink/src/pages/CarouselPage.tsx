@@ -41,7 +41,7 @@ function BasicSingle({
           <CarouselSlide key={i} radius={radius} style={{ background: bg }} />
         ))}
       </CarouselViewport>
-      <div className="carousel-page__controls">
+      <div className="primitiv-carousel__controls">
         <CarouselPreviousTrigger aria-label="Previous slide">
           <ChevronLeft />
         </CarouselPreviousTrigger>

@@ -131,6 +131,17 @@ too far apart: the 8px dots sat in 48px hit buttons + an 8px gap (~56px pitch).
 now 24px (WCAG 2.5.8 AA floor) with the same small 8px dots. Registry default,
 regenerated + drift-green + hand-synced.
 
+**QA round 2 (human):** with the dot gap at 0, the prev/next buttons sat flush
+against the dots — needs a wrapper with its own gap. **Added** a
+`.primitiv-carousel__controls` CSS-only helper (a wrapper `<div>` the consumer
+puts prev / indicators / next in) with a dedicated
+`--primitiv-carousel-controls-gap` knob (`space-16`), separate from the tight
+dot-to-dot `indicator-gap`. Renamed the old root grid gap `control-gap` →
+`block-gap` (viewport↔controls, vertical) to disambiguate from the new
+controls-row gap. Kitchen-sink example now uses the registry class (dogfooding).
+Three distinct gaps now: `gap` (slide↔slide) · `block-gap` (viewport↔controls) ·
+`controls-gap` (prev↔dots↔next). Regenerated + drift-green + hand-synced.
+
 **Next:** human visual + interaction QA → then Figma lockstep (write the
 `--primitiv-carousel-*` variables + fix the `CarouselSlide` radius) →
 then the **vertical** headless work (driven early, per the design).

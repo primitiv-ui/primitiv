@@ -40,9 +40,14 @@ so they can't fall out of sync.
   which the stylesheet styles (the active dot).
 - **`root` / `subcomponents` / `modifiers` / `customProperties`** — the authored
   styling conventions: the `.primitiv-carousel` root and the `__viewport` /
-  `__slide` / `__prev` / `__next` / `__indicator-group` / `__indicator` BEM parts,
-  the slide **`radius`** modifier (`md` default · `none` squares the slide off),
-  and the `--primitiv-carousel-*` custom-property API.
+  `__slide` / `__controls` / `__prev` / `__next` / `__indicator-group` /
+  `__indicator` BEM parts, the slide **`radius`** modifier (`md` default ·
+  `none` squares the slide off), and the `--primitiv-carousel-*` custom-property
+  API. `__controls` is a **CSS-only helper** — a plain wrapper `<div>` the
+  consumer puts prev / indicators / next in; it centres them and spaces the
+  buttons from the dots via `--primitiv-carousel-controls-gap` (distinct from the
+  tight dot-to-dot `--primitiv-carousel-indicator-gap`, and from the vertical
+  `--primitiv-carousel-block-gap` between the viewport and the row).
 
 `subcomponents` marks this a **structural compound**: the styled surface is N thin
 per-part wrappers the consumer composes. The `radius` modifier lives on the
@@ -87,7 +92,7 @@ Flat, shadcn-shaped exports the consumer composes over the headless compound:
     <CarouselSlide><img src="/a.jpg" alt="…" /></CarouselSlide>
     <CarouselSlide radius="none"><img src="/b.jpg" alt="…" /></CarouselSlide>
   </CarouselViewport>
-  <div>
+  <div className="primitiv-carousel__controls">
     <CarouselPreviousTrigger><ChevronLeft /></CarouselPreviousTrigger>
     <CarouselIndicatorGroup label="Choose slide">
       <CarouselIndicator index={0} />

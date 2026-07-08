@@ -3,9 +3,10 @@
  *
  * Copied into the consumer repo by `primitiv add carousel`. It is yours to edit:
  * the stable surface is the contract (the .primitiv-carousel class, the part
- * classes __viewport / __slide / __prev / __next / __indicator-group /
- * __indicator, and the --primitiv-carousel-* custom properties), not these
- * values (RFC 0006 Principle 2 — names are stable, values are not).
+ * classes __viewport / __slide / __controls / __prev / __next /
+ * __indicator-group / __indicator, and the --primitiv-carousel-* custom
+ * properties), not these values (RFC 0006 Principle 2 — names are stable,
+ * values are not).
  *
  * The component adapts to its container by default: the root fills its inline
  * space and each slide holds its shape with aspect-ratio, so the carousel is
@@ -35,7 +36,8 @@
     --primitiv-carousel-padding-inline: var(--primitiv-space-space-0);
     --primitiv-carousel-slide-aspect-ratio: 16 / 9;
     --primitiv-carousel-slide-radius: var(--primitiv-radii-12);
-    --primitiv-carousel-control-gap: var(--primitiv-space-space-16);
+    --primitiv-carousel-block-gap: var(--primitiv-space-space-16);
+    --primitiv-carousel-controls-gap: var(--primitiv-space-space-16);
     --primitiv-carousel-control-size: var(--primitiv-space-space-32);
     /* 50% on a square control draws a circle — a shape, not a token value
        (like the indicator dot below). The design uses circular controls. */
@@ -51,11 +53,21 @@
     --primitiv-carousel-indicator-color: var(--primitiv-border-strong);
     --primitiv-carousel-indicator-color-active: var(--primitiv-action-primary-default);
 
-    /* Fill the container and stack the viewport above the controls/indicator
-       row, spaced by the control gap. */
+    /* Fill the container and stack the viewport above the controls row, spaced
+       by the block gap. */
     display: grid;
-    gap: var(--primitiv-carousel-control-gap);
+    gap: var(--primitiv-carousel-block-gap);
     inline-size: 100%;
+  }
+
+  /* Controls row — the wrapper a consumer puts prev / indicators / next in.
+     Centres them and spaces the buttons from the indicator group via its own
+     gap knob, distinct from the tight dot-to-dot indicator gap. */
+  .primitiv-carousel__controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--primitiv-carousel-controls-gap);
   }
 
   /* The scroll-snap track. Native horizontal scroll owns the swipe; the headless
@@ -193,7 +205,8 @@ $primitiv-carousel-gap: var(--primitiv-carousel-gap);
 $primitiv-carousel-padding-inline: var(--primitiv-carousel-padding-inline);
 $primitiv-carousel-slide-aspect-ratio: var(--primitiv-carousel-slide-aspect-ratio);
 $primitiv-carousel-slide-radius: var(--primitiv-carousel-slide-radius);
-$primitiv-carousel-control-gap: var(--primitiv-carousel-control-gap);
+$primitiv-carousel-block-gap: var(--primitiv-carousel-block-gap);
+$primitiv-carousel-controls-gap: var(--primitiv-carousel-controls-gap);
 $primitiv-carousel-control-size: var(--primitiv-carousel-control-size);
 $primitiv-carousel-control-radius: var(--primitiv-carousel-control-radius);
 $primitiv-carousel-control-bg: var(--primitiv-carousel-control-bg);

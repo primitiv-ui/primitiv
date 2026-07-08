@@ -17,15 +17,9 @@
   color: var(--primitiv-content-secondary);
 }
 
-/* Compose the prev / dots / next into one centred row below the viewport — the
- * "External-row" placement. Placement is consumer composition; the registry
- * ships the parts, the consumer arranges them. */
-.carousel-page__controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--primitiv-carousel-indicator-gap);
-}
+/* The prev / dots / next row uses the registry's own .primitiv-carousel__controls
+ * wrapper (centred, with the --primitiv-carousel-controls-gap knob), so nothing
+ * to style here. */
 
 .carousel-page__row {
   display: flex;

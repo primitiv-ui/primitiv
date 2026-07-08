@@ -21,6 +21,17 @@
       "component": "Slide",
       "element": "div",
       "class": "primitiv-carousel__slide",
+      "modifiers": [
+        {
+          "name": "radius",
+          "default": "md",
+          "description": "Corner rounding of the slide.",
+          "options": [
+            { "name": "md", "class": "primitiv-carousel__slide--radius-md", "description": "Medium rounded corners (the default)." },
+            { "name": "none", "class": "primitiv-carousel__slide--radius-none", "description": "Sharp, un-rounded corners." }
+          ]
+        }
+      ],
       "dataAttributes": [
         { "name": "data-state", "value": "active", "when": "active", "source": "auto" },
         { "name": "data-state", "value": "inactive", "when": "inactive", "source": "auto" }
@@ -59,6 +70,7 @@
     { "name": "--primitiv-carousel-gap", "defaultsTo": "var(--primitiv-space-space-16)" },
     { "name": "--primitiv-carousel-padding-inline", "defaultsTo": "var(--primitiv-space-space-0)" },
     { "name": "--primitiv-carousel-slide-aspect-ratio", "defaultsTo": "16 / 9" },
+    { "name": "--primitiv-carousel-slide-radius", "defaultsTo": "var(--primitiv-radii-12)" },
     { "name": "--primitiv-carousel-control-gap", "defaultsTo": "var(--primitiv-space-space-16)" },
     { "name": "--primitiv-carousel-control-size", "defaultsTo": "var(--primitiv-space-space-32)" },
     { "name": "--primitiv-carousel-control-radius", "defaultsTo": "50%" },

@@ -23,6 +23,18 @@ appended here:
   captured (see "Figma design reference" below). Corrected the seed:
   controls are **circular** (`radius 50%`), 32×32 (`space-32`), filled with
   **`action-secondary`** (not the square `surface-default` first drafted).
+- **2026-07-08 — Iteration-1 design answers (human).**
+  (a) **Slides round by default** at a medium radius
+  (`--primitiv-carousel-slide-radius` → `var(--primitiv-radii-12)`), with a
+  slide **`radius` modifier** (`md` default · `none` squares it). The
+  `CarouselSlide` `cornerRadius:0` was a design-time oversight — **update
+  the Figma component to match** during the next bridge/lockstep pass.
+  (b) **Iteration-1 control layout = external-row below.**
+  (c) **Vertical orientation is driven early** — a conscious override of
+  locked decision 4 for the vertical case: after the horizontal base lands,
+  test-drive `data-orientation` + a vertical scroll axis into the headless
+  primitive (it is core to the design: `CarouselControl` up/down,
+  `CarouselIndicators` vertical).
 
 ## Figma design reference
 
@@ -111,18 +123,17 @@ it (decision 4).
 - [ ] Looping / infinite (next/previous hard-clamp today; autoplay stops
       at last page)
 - [ ] Vertical orientation + `data-orientation` (not emitted at all today)
+      — **scheduled early** (immediately after the horizontal base), per the
+      2026-07-08 design answers
 - [ ] Mouse-drag gesture (only native scroll today)
 - [ ] Explicit RTL tests (mirrors implicitly via logical properties;
       no dedicated coverage)
 
 ## Open questions (for the human)
 
-- **Slide corner radius.** The rendered Figma examples show rounded
-  slides, but the `CarouselSlide` base component is `cornerRadius: 0`
-  (rounding applied at instance/viewport level). Should the styled
-  default round the slides (add a `--primitiv-carousel-slide-radius`
-  knob, and to what token), or stay square by default and round per
-  example? Deferred to iteration-1 QA.
+- ~~**Slide corner radius.**~~ **Resolved 2026-07-08:** round by default
+  (`radii-12`) + a `radius` modifier to square it; update the Figma
+  `CarouselSlide` (was `cornerRadius:0`) to match in the next lockstep pass.
 - **Overlay vs external control fill.** Iteration 1 uses the external
   fill (`action-secondary`). The overlay context (`neutral-alpha-500`
   @ 30%, for controls sitting on imagery) will land as a `placement`/

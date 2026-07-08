@@ -34,6 +34,7 @@
     --primitiv-carousel-gap: var(--primitiv-space-space-16);
     --primitiv-carousel-padding-inline: var(--primitiv-space-space-0);
     --primitiv-carousel-slide-aspect-ratio: 16 / 9;
+    --primitiv-carousel-slide-radius: var(--primitiv-radii-12);
     --primitiv-carousel-control-gap: var(--primitiv-space-space-16);
     --primitiv-carousel-control-size: var(--primitiv-space-space-32);
     /* 50% on a square control draws a circle — a shape, not a token value
@@ -82,6 +83,8 @@
     flex: 0 0 100%;
     min-inline-size: 0;
     aspect-ratio: var(--primitiv-carousel-slide-aspect-ratio);
+    border-radius: var(--primitiv-carousel-slide-radius);
+    overflow: hidden;
     scroll-snap-align: start;
     /* Stop the OS grabbing images for drag/save mid-swipe. */
     -webkit-user-drag: none;
@@ -136,6 +139,15 @@
 }
 
 @layer primitiv.variants {
+  /* Slide corner rounding — re-points the radius knob. `md` is the default
+     (the base rule already rounds); `none` squares the slide off. */
+  .primitiv-carousel__slide--radius-md {
+    --primitiv-carousel-slide-radius: var(--primitiv-radii-12);
+  }
+  .primitiv-carousel__slide--radius-none {
+    --primitiv-carousel-slide-radius: var(--primitiv-radii-0);
+  }
+
   /* Control hover / active re-point the fill knob, matching the secondary-action
      button so the two stay visually consistent. */
   .primitiv-carousel__prev:hover,

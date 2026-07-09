@@ -193,6 +193,7 @@ function MultiSlide({
   slidesPerPage,
   slidesPerMove,
   peek,
+  padding,
   orientation,
 }: {
   label: string;

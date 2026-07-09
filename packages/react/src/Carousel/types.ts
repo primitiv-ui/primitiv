@@ -195,13 +195,22 @@ export type CarouselRootProps = Omit<
      * greater than `1`, slides are grouped into pages of that size for
      * navigation purposes: indicators auto-render per page, boundary
      * clamp moves to the last page, and `Carousel.NextTrigger` /
-     * `Carousel.PreviousTrigger` advance one page at a time. */
+     * `Carousel.PreviousTrigger` advance one page at a time. Coerced to an
+     * integer ≥ 1 — `0`, negative, fractional, and non-finite values are
+     * clamped (e.g. `2.5 → 2`, `0 → 1`) so the page maths never divides by
+     * zero. */
     slidesPerPage?: number;
     /** Number of slides advanced by `Carousel.NextTrigger` /
-     * `Carousel.PreviousTrigger`. `"auto"` (default) advances one
-     * full page at a time (= `slidesPerPage`); a number advances
-     * exactly that many slides per click and pages are computed so
-     * the visible window always stays full. */
+     * `Carousel.PreviousTrigger`. `"auto"` (default) advances one full page
+     * at a time (= `slidesPerPage`); a number advances exactly that many
+     * slides per click and pages are windowed so the visible window always
+     * stays full. A numeric move is coerced to an integer in
+     * `[1, slidesPerPage]` — it can neither drop below one nor skip past a
+     * page (which would orphan the slides in the gap) — and the **last page
+     * is end-aligned to the track end**, so every slide stays reachable even
+     * when the move doesn't divide the slide count evenly (e.g. 6 slides,
+     * `slidesPerPage={3}`, `slidesPerMove={2}` yields pages
+     * `[0,1,2] [2,3,4] [3,4,5]`). */
     slidesPerMove?: number | "auto";
     /** Override the default user-visible strings the component owns —
      * see {@link CarouselTranslations}. Useful for i18n. */
@@ -239,12 +248,26 @@ export type CarouselContextValue = {
   /** Ordered list of currently-mounted slide keys. The slide's index is
    * its position in this array; the array's length is the total. */
   slideKeys: string[];
-  /** Number of slides visible per page (default `1`). */
+  /** Number of slides visible per page — the consumer's `slidesPerPage`
+   * coerced to an integer ≥ 1 (0 / negative / non-finite → 1). */
   slidesPerPage: number;
   /** Resolved slides advanced per Prev/Next click — equal to
-   * `slidesPerPage` when the consumer left `slidesPerMove="auto"`,
-   * else the numeric value. */
+   * `slidesPerPage` when the consumer left `slidesPerMove="auto"`, else
+   * the numeric value coerced to an integer in `[1, slidesPerPage]` (a
+   * move can neither drop below one nor skip past a page). */
   effectiveSlidesPerMove: number;
+  /** Start slide index of the currently-active window. In `"auto"`
+   * (paged) mode this is `currentPage * slidesPerPage` (the last page may
+   * be partial); in numeric (windowed) mode the last page is end-aligned
+   * — clamped to `total − slidesPerPage` — so every slide stays reachable
+   * even when the move doesn't divide the track evenly. Drives the slide
+   * `data-state` window and the viewport scroll target. */
+  currentPageOffset: number;
+  /** Map a leading slide index (e.g. a user swipe's snap target) back to
+   * its page index, clamped into `[0, totalPages − 1]`. Paged mode groups
+   * by `slidesPerPage`; windowed mode inverts the move offset to the
+   * nearest window start. */
+  pageForSlideIndex: (slideIndex: number) => number;
   /** Live total page count — `ceil(total / slidesPerPage)` in `"auto"`
    * mode (partial last page allowed), else
    * `floor((total - slidesPerPage) / effectiveSlidesPerMove) + 1`

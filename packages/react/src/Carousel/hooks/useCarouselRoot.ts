@@ -32,6 +32,17 @@ const DEFAULT_TRANSLATIONS: Required<CarouselTranslations> = {
   stopSlideshow: "Stop automatic slide show",
 };
 
+/**
+ * Coerce a consumer-supplied layout count to a safe integer ≥ `min`. The
+ * slide count and `slidesPerPage` / `slidesPerMove` come from the consumer,
+ * so 0, negative, fractional, or non-finite values must degrade to a sane
+ * integer — otherwise the page maths divides by zero (Infinity pages → a
+ * thrown RangeError from the indicator map) or the carousel goes inert.
+ */
+function clampCount(n: number, min: number): number {
+  return Number.isFinite(n) ? Math.max(min, Math.floor(n)) : min;
+}
+
 function resolveAutoplay(autoplay: CarouselAutoplay | undefined): {
   enabled: boolean;
   delay: number;
@@ -132,21 +143,30 @@ export function useCarouselRoot(
   const isControlled = page !== undefined;
   const rawPage = isControlled ? (page as number) : internalPage;
   const total = slideKeys.length;
+  // Guard the layout counts (see clampCount). perPage is an integer ≥ 1; a
+  // numeric slidesPerMove is additionally clamped to ≤ perPage so a move can
+  // never skip past a page and orphan the slides in the gap. "auto" moves a
+  // full page.
+  const perPage = clampCount(slidesPerPage, 1);
+  const isWindowed = slidesPerMove !== "auto";
   const effectiveSlidesPerMove =
-    slidesPerMove === "auto" ? slidesPerPage : slidesPerMove;
-  // "auto" mode keeps the existing ceil(total / slidesPerPage) formula
-  // and accepts a partial last page; numeric mode uses
-  // floor((total - slidesPerPage) / slidesPerMove) + 1 so the active
-  // window is always full. Math.ceil(0 / N) === 0 so the empty-slide
-  // case still gives totalPages === 0.
+    slidesPerMove === "auto"
+      ? perPage
+      : Math.min(perPage, clampCount(slidesPerMove, 1));
+  // The last reachable window starts at `maxOffset` (the track end minus a
+  // full page). "auto" (paged) mode keeps non-overlapping page groups and
+  // accepts a partial last page — ceil(total / perPage). Numeric (windowed)
+  // mode end-aligns the last page — ceil(maxOffset / move) + 1 — so every
+  // slide is reachable even when the move doesn't divide the track evenly.
+  const maxOffset = Math.max(0, total - perPage);
   const totalPages =
     total === 0
       ? 0
-      : total <= slidesPerPage
+      : total <= perPage
         ? 1
-        : slidesPerMove === "auto"
-          ? Math.ceil(total / slidesPerPage)
-          : Math.floor((total - slidesPerPage) / effectiveSlidesPerMove) + 1;
+        : isWindowed
+          ? Math.ceil(maxOffset / effectiveSlidesPerMove) + 1
+          : Math.ceil(total / perPage);
 
   // In controlled mode an out-of-range page prop is a consumer error —
   // throw loudly so it surfaces during development rather than shipping
@@ -164,6 +184,29 @@ export function useCarouselRoot(
     !isControlled && totalPages > 0
       ? Math.max(0, Math.min(rawPage, totalPages - 1))
       : rawPage;
+
+  // Start slide index of the active window. Windowed mode end-aligns the
+  // last page (clamped to maxOffset) so the tail is reachable; paged mode
+  // keeps its partial last page (offset can sit past maxOffset).
+  const currentPageOffset = isWindowed
+    ? Math.min(currentPage * effectiveSlidesPerMove, maxOffset)
+    : currentPage * perPage;
+
+  // Inverse of the offset model: which page does a leading slide index
+  // belong to? Paged mode groups by perPage; windowed mode rounds the index
+  // to the nearest window start (the offsets are multiples of the move,
+  // with the last one end-aligned). The clamp keeps a tail slide on the
+  // last page (and yields 0 for the empty carousel, where totalPages − 1 is
+  // −1) — pageForSlideIndex is only called once slides exist.
+  const pageForSlideIndex = useCallback(
+    (slideIndex: number) => {
+      const raw = isWindowed
+        ? Math.round(slideIndex / effectiveSlidesPerMove)
+        : Math.floor(slideIndex / perPage);
+      return Math.max(0, Math.min(raw, totalPages - 1));
+    },
+    [isWindowed, effectiveSlidesPerMove, perPage, totalPages],
+  );
 
   const [internalPlaying, setInternalPlaying] = useState(defaultPlaying);
   const isPlayingControlled = playing !== undefined;
@@ -402,8 +445,10 @@ export function useCarouselRoot(
       registerSlide,
       slidesRef,
       slideKeys,
-      slidesPerPage,
+      slidesPerPage: perPage,
       effectiveSlidesPerMove,
+      currentPageOffset,
+      pageForSlideIndex,
       totalPages,
       currentPage,
       canGoNext,
@@ -429,8 +474,10 @@ export function useCarouselRoot(
       registerSlide,
       slidesRef,
       slideKeys,
-      slidesPerPage,
+      perPage,
       effectiveSlidesPerMove,
+      currentPageOffset,
+      pageForSlideIndex,
       totalPages,
       currentPage,
       canGoNext,

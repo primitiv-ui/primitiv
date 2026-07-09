@@ -41,7 +41,8 @@ export function useCarouselViewport() {
   const {
     slidesRef,
     slideKeys,
-    effectiveSlidesPerMove,
+    currentPageOffset,
+    pageForSlideIndex,
     totalPages,
     currentPage,
     goTo,
@@ -85,8 +86,7 @@ export function useCarouselViewport() {
     // transition="none" hands the visual to consumer CSS; we don't
     // touch viewport.scrollTo at all in that mode.
     if (transition !== "slide") return;
-    const firstSlideIndex = currentPage * effectiveSlidesPerMove;
-    const firstSlideKey = slideKeys[firstSlideIndex];
+    const firstSlideKey = slideKeys[currentPageOffset];
     // No slides registered yet, or page out of range: nothing to scroll to.
     if (!firstSlideKey) return;
 
@@ -146,8 +146,7 @@ export function useCarouselViewport() {
     transition,
     snapAlign,
     orientation,
-    currentPage,
-    effectiveSlidesPerMove,
+    currentPageOffset,
     slideKeys,
     slidesRef,
     refreshTick,
@@ -181,7 +180,7 @@ export function useCarouselViewport() {
       );
       if (slideIndex < 0) return;
 
-      const targetPage = Math.floor(slideIndex / effectiveSlidesPerMove);
+      const targetPage = pageForSlideIndex(slideIndex);
       if (targetPage !== currentPage) {
         isUserScrollRef.current = true;
         goTo(targetPage);
@@ -195,7 +194,7 @@ export function useCarouselViewport() {
     orientation,
     slideKeys,
     slidesRef,
-    effectiveSlidesPerMove,
+    pageForSlideIndex,
     currentPage,
     goTo,
   ]);
@@ -241,7 +240,7 @@ export function useCarouselViewport() {
         const visible = visibleSlideIndicesRef.current;
         if (visible.size === 0) return;
         const firstVisible = Math.min(...visible);
-        const targetPage = Math.floor(firstVisible / effectiveSlidesPerMove);
+        const targetPage = pageForSlideIndex(firstVisible);
         // Guard: if a programmatic scroll is in flight (e.g. user clicked
         // NextTrigger and the smooth-scroll animation hasn't settled), the
         // IO may still see the old slide as ≥0.6 visible. Calling goTo
@@ -263,7 +262,7 @@ export function useCarouselViewport() {
     transition,
     slideKeys,
     slidesRef,
-    effectiveSlidesPerMove,
+    pageForSlideIndex,
     currentPage,
     goTo,
     setSlideInView,

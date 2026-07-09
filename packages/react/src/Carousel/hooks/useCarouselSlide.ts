@@ -14,13 +14,8 @@ import { useCarouselContext } from "./useCarouselContext";
  * during a render pass driven by an external state change.
  */
 export function useCarouselSlide() {
-  const {
-    registerSlide,
-    slideKeys,
-    slidesPerPage,
-    effectiveSlidesPerMove,
-    currentPage,
-  } = useCarouselContext();
+  const { registerSlide, slideKeys, slidesPerPage, currentPageOffset } =
+    useCarouselContext();
   const slideKey = useId();
 
   const slideRef = useCallback(
@@ -32,13 +27,14 @@ export function useCarouselSlide() {
 
   const index = slideKeys.indexOf(slideKey);
   const total = slideKeys.length;
-  // The active "page" covers a window of slidesPerPage slides starting
-  // at pageOffset = currentPage * effectiveSlidesPerMove. With
-  // slidesPerMove="auto" this collapses to non-overlapping page-sized
-  // groups; with a numeric slidesPerMove the windows overlap.
-  const pageOffset = currentPage * effectiveSlidesPerMove;
+  // The active page covers a window of slidesPerPage slides starting at
+  // currentPageOffset (computed by the Root — non-overlapping page groups
+  // in "auto" mode, overlapping/end-aligned windows with a numeric
+  // slidesPerMove).
   const isActive =
-    index >= 0 && index >= pageOffset && index < pageOffset + slidesPerPage;
+    index >= 0 &&
+    index >= currentPageOffset &&
+    index < currentPageOffset + slidesPerPage;
   const state: "active" | "inactive" = isActive ? "active" : "inactive";
 
   return { slideRef, index, total, state };

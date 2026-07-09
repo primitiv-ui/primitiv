@@ -435,16 +435,18 @@ makes the final correction. Default `behavior` is `"smooth"`.
 
 The reverse path is also wired: when the user swipes the viewport,
 the browser fires `scrollsnapchange` with the snapped slide as the
-target. The Viewport listens for that event, computes
-`floor(slideIndex / slidesPerPage)`, and calls `goTo` so React state
-follows the user's scroll. `onPageChange` is only invoked when the
-page genuinely changes, so a snap that lands back on the active page
-doesn't dispatch a spurious callback.
+target. The Viewport listens for that event, maps the snapped slide
+back to its page (grouping by `slidesPerPage` in `"auto"` mode, or
+rounding to the nearest window start in numeric `slidesPerMove` mode,
+clamped so an end-aligned tail slide lands on the last page), and calls
+`goTo` so React state follows the user's scroll. `onPageChange` is only
+invoked when the page genuinely changes, so a snap that lands back on
+the active page doesn't dispatch a spurious callback.
 
 For browsers without `scrollsnapchange`, the same path runs against
 an `IntersectionObserver` (threshold 0.6) on each slide — when the
 observer fires, the lowest-index visible slide derives the active
-page via `floor(firstVisibleSlideIndex / slidesPerPage)`. This
+page via the same slide-index-to-page mapping. This
 page-drive is **only** a fallback: when `scrollsnapchange` is
 supported it is authoritative (it reports the precisely-snapped
 slide), so the observer stands down and does not also drive the page.
@@ -569,9 +571,23 @@ With `slidesPerPage=3`, `slidesPerMove=1`, and 5 slides, the active
 window slides one slide at a time — pages show `[0,1,2]`, `[1,2,3]`,
 `[2,3,4]`, so `Carousel.Indicators` renders 3 dots and the boundary
 clamp respects the last full window. The indicator count formula is
-`floor((total - slidesPerPage) / slidesPerMove) + 1` (vs.
+`ceil((total - slidesPerPage) / slidesPerMove) + 1` (vs.
 `ceil(total / slidesPerPage)` for `"auto"`), so the visible window
 always stays full in numeric mode.
+
+**The last window is end-aligned.** When the move doesn't divide the
+track evenly, the final page snaps to the track end rather than dropping
+the remainder — so every slide is always reachable. With
+`slidesPerPage={3}`, `slidesPerMove={2}`, and 6 slides the pages are
+`[0,1,2]`, `[2,3,4]`, `[3,4,5]` (the last shifts back by one to include
+slide 5) — never `[0,1,2]`, `[2,3,4]` with slide 5 orphaned.
+
+**Bounds are guarded.** `slidesPerPage` is coerced to an integer ≥ 1 and
+a numeric `slidesPerMove` to an integer in `[1, slidesPerPage]`, so a
+consumer passing `0`, a negative, a fraction, `NaN`, or a move larger
+than a page can never divide by zero, skip past a page (orphaning the
+slides in the gap), or make the carousel inert — it degrades to the
+nearest sane layout.
 
 ### Boundary behaviour
 

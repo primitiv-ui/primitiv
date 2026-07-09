@@ -502,6 +502,11 @@
     margin-block: auto;
     margin-inline: 0;
     block-size: fit-content;
+    /* The pill runs vertically now, so swap the horizontal pill's padding: the
+       generous axis becomes block (the column's ends), the tight axis inline (its
+       sides) — so the pill hugs the dot column instead of being ~2× too wide. */
+    padding-block: var(--primitiv-carousel-overlay-pill-padding-inline);
+    padding-inline: var(--primitiv-carousel-overlay-pill-padding-block);
   }
 
   /* Fade transition (headless `transition="fade"` → data-transition="fade").

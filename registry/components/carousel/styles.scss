@@ -404,19 +404,24 @@
     margin-block: auto;
     z-index: 1;
   }
-  /* Add the peek to the inset so the control sits on the active slide with a
-     comfortable gap from *its* edge — not over the peek gutter / neighbour
-     sliver. With peek=0 this is just the bare inset (the slide fills the
-     viewport); with peek>0 the slide's leading edge is `peek` inward, so the
-     control follows it. */
+  /* Inset the control past everything between the viewport edge and the active
+     slide's leading edge — the frame (border + viewport padding) and the peek
+     gutter — plus the control inset, so it sits *on the slide* with a comfortable
+     gap from its edge, not straddling the padded-track gutter. All the frame
+     terms are 0 when unset, so a plain overlay (no padding, no peek) reduces to
+     the bare control inset. */
   .primitiv-carousel--placement-overlay .primitiv-carousel__prev {
     inset-inline-start: calc(
-      var(--primitiv-carousel-peek) + var(--primitiv-carousel-overlay-control-inset)
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
     );
   }
   .primitiv-carousel--placement-overlay .primitiv-carousel__next {
     inset-inline-end: calc(
-      var(--primitiv-carousel-peek) + var(--primitiv-carousel-overlay-control-inset)
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
     );
   }
 
@@ -425,7 +430,13 @@
      centred under RTL. */
   .primitiv-carousel--placement-overlay .primitiv-carousel__indicator-group {
     position: absolute;
-    inset-block-end: var(--primitiv-carousel-overlay-indicator-inset);
+    /* Sit inside the slide's bottom edge — clear the frame (border + viewport
+       padding) on the block axis too, then the indicator inset. 0 when unset. */
+    inset-block-end: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) +
+        var(--primitiv-carousel-overlay-indicator-inset)
+    );
     inset-inline: 0;
     margin-inline: auto;
     inline-size: fit-content;

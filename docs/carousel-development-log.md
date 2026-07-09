@@ -554,6 +554,17 @@ default, so it lands on the overlay example too). Both are Figma-lockstep items
 (the overlay bump is a value change on the existing bindings; `surface` is a
 code-only knob/modifier).
 
+**QA round 5 (human) — overlay controls inside the padded track.** With `padding` +
+`placement="overlay"`, the prev/next and the dots pill were positioned from the
+**root** edge (`peek + control-inset`), but the slide is inset inside the viewport
+by the frame (border + viewport padding), so the controls straddled the padded-track
+gutter / slide edge (screenshot). Fixed: the overlay insets now clear the frame too —
+prev/next `inset-inline` and the pill `inset-block-end` add
+`viewport-border-width + viewport-padding` (the pill on block, prev/next on inline
+alongside the existing peek). Every added term is 0 when unset, so a plain overlay
+(no padding/peek) is byte-unchanged. CSS-only (no contract change; scss re-derived,
+drift-green).
+
 **Figma lockstep: pending** human QA. Light — viewport padding is code-only (no
 carousel `--primitiv-*` variable layer in Figma; bindings only). Reconcile the
 framed-track model (viewport surface/border/radius + inner padding) with the

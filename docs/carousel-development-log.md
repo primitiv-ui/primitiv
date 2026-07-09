@@ -961,6 +961,22 @@ rounded-rect tray (`radii-12`) with an even `thumbnail-gap` inset, matching the
 thumbnails' own corners. No contract change (reuses existing tokens/knobs); scss
 re-derived + drift-green + hand-synced; registry README's thumbnail bullet updated.
 
+**QA round 3 (human) — overlay dot tray overflow/collision (registry CSS only).**
+Same overflow class as the thumbnails, but dots **can't shrink** (fixed WCAG hit
+area) — with many slides the overlay dot tray overflowed the slide and, vertically,
+the tall pill collided with the up/down controls sharing the lane (screenshot).
+Human chose **wrap** (over scroll / few-slides-only): the overlay dot tray now caps
+to the slide (`max-inline-size` horizontal / `max-block-size` vertical — the vertical
+cap additionally clears the control size + a gap so the tray sits *between* the
+up/down controls) and `flex-wrap: wrap`s the dots onto a second row/column; the base
+group's `justify-content: center` centres each line (partial last row centred under
+the first, per the human) and `align-content: center` centres the lines block.
+Scoped to `.placement-overlay.indicators-dots` (row/flank dots already sit in a
+constrained bar/grid cell). Stress cells added to the page's Overlay section (dots
+many → wrap h+v, thumbnails many → shrink) via a `slides` passthrough on
+`OverlaySingle`/`ThumbnailSingle`. No contract change; scss re-derived + drift-green
++ hand-synced.
+
 **Figma lockstep: pending** human QA + a later dedicated build of the placement
 model in Figma (the current frame is conceptual). No carousel `--primitiv-*`
 variable layer exists (bindings only). **Next:** QA `/carousel/placement`; then

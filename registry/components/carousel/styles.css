@@ -823,6 +823,46 @@
     );
   }
 
+  /* Overlay + dots — dots can't shrink to fit (they carry a fixed WCAG hit area),
+     so on the overlay scrim a long dot run would overflow the slide and, vertically,
+     collide with the up/down controls that share the lane. Cap the tray to clear the
+     controls and let the dots **wrap** onto a second line within it: `flex-wrap`
+     plus the base group's `justify-content: center` centres each line (so a partial
+     last row/column sits centred under the first), and `align-content: center`
+     centres the block of lines. Horizontal wraps to a second row (cap the inline
+     axis, clearing the frame/peek/control inset); vertical wraps to a second column
+     (cap the block axis, additionally clearing the control size + a gap so the tray
+     sits between the up/down controls). Only overlay caps — row/flank dots sit in a
+     constrained bar/grid cell already. */
+  .primitiv-carousel--placement-overlay.primitiv-carousel--indicators-dots
+    .primitiv-carousel__indicator-group {
+    flex-wrap: wrap;
+    align-content: center;
+    max-inline-size: calc(
+      100% - 2 *
+        (
+          var(--primitiv-carousel-viewport-border-width) +
+            var(--primitiv-carousel-viewport-padding) +
+            var(--primitiv-carousel-peek) +
+            var(--primitiv-carousel-overlay-control-inset)
+        )
+    );
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--indicators-dots
+    .primitiv-carousel__indicator-group {
+    max-inline-size: none;
+    max-block-size: calc(
+      100% - 2 *
+        (
+          var(--primitiv-carousel-viewport-border-width) +
+            var(--primitiv-carousel-viewport-padding) +
+            var(--primitiv-carousel-peek) +
+            2 * var(--primitiv-carousel-overlay-control-inset) +
+            var(--primitiv-carousel-control-size)
+        )
+    );
+  }
+
   /* Fade transition (headless `transition="fade"` → data-transition="fade").
      The viewport stops scrolling and stacks every slide in one grid cell; the
      active slide cross-fades in over the others off its data-state hook (the

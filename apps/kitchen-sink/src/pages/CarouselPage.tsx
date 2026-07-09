@@ -174,6 +174,7 @@ function OverlaySingle({
   transition,
   orientation = 'horizontal',
   side,
+  slides = SLIDES,
 }: {
   label: string;
   ratio?: "square" | "standard" | "wide" | "ultrawide";
@@ -182,6 +183,7 @@ function OverlaySingle({
   transition?: "slide" | "fade";
   orientation?: "horizontal" | "vertical";
   side?: "before" | "after";
+  slides?: string[];
 }) {
   const Prev = orientation === "vertical" ? ChevronUp : ChevronLeft;
   const Next = orientation === "vertical" ? ChevronDown : ChevronRight;
@@ -196,7 +198,7 @@ function OverlaySingle({
       side={side}
     >
       <CarouselViewport>
-        {SLIDES.map((bg, i) => (
+        {slides.map((bg, i) => (
           <CarouselSlide key={i} ratio={ratio} style={{ background: bg }} />
         ))}
       </CarouselViewport>
@@ -207,7 +209,7 @@ function OverlaySingle({
         <Next />
       </CarouselNextTrigger>
       <CarouselIndicatorGroup label="Choose slide">
-        {SLIDES.map((_, i) => (
+        {slides.map((_, i) => (
           <CarouselIndicator key={i} index={i} />
         ))}
       </CarouselIndicatorGroup>
@@ -344,6 +346,7 @@ function ThumbnailSingle({
   showArrows = true,
   peek,
   side,
+  slides = SLIDES,
 }: {
   label: string;
   placement?: "external" | "overlay";
@@ -351,12 +354,13 @@ function ThumbnailSingle({
   showArrows?: boolean;
   peek?: "none" | "sm" | "md" | "lg";
   side?: "before" | "after";
+  slides?: string[];
 }) {
   const Prev = orientation === "vertical" ? ChevronUp : ChevronLeft;
   const Next = orientation === "vertical" ? ChevronDown : ChevronRight;
   const thumbnails = (
     <CarouselIndicatorGroup label="Choose slide">
-      {SLIDES.map((bg, i) => (
+      {slides.map((bg, i) => (
         <CarouselIndicator key={i} index={i}>
           <span style={{ background: bg }} />
         </CarouselIndicator>
@@ -373,7 +377,7 @@ function ThumbnailSingle({
       side={side}
     >
       <CarouselViewport>
-        {SLIDES.map((bg, i) => (
+        {slides.map((bg, i) => (
           <CarouselSlide key={i} style={{ background: bg }} />
         ))}
       </CarouselViewport>
@@ -1207,6 +1211,27 @@ export function CarouselPlacement() {
           dir="rtl"
         >
           <OverlaySingle label="overlay after rtl" />
+        </GridCell>
+        <GridCell
+          n={10}
+          title="dots · many (wrap)"
+          note="Many slides: dots can't shrink (fixed hit area), so the tray caps to the slide and the dots wrap to a second row, centred under the first, instead of overflowing."
+        >
+          <OverlaySingle label="overlay many dots" slides={GALLERY} />
+        </GridCell>
+        <GridCell
+          n={11}
+          title="vertical · dots · many (wrap)"
+          note="The case that collided before: the vertical dot lane caps to sit between the up/down controls and wraps to a second column, so it never overlaps them."
+        >
+          <OverlaySingle label="overlay vertical many dots" orientation="vertical" slides={GALLERY} />
+        </GridCell>
+        <GridCell
+          n={12}
+          title="thumbnails · many (shrink)"
+          note="Thumbnails do shrink: with many slides the strip caps to the slide and the thumbnails scale down to fit (like flank), inside the rounded-rect tray."
+        >
+          <ThumbnailSingle label="overlay many thumbnails" placement="overlay" slides={GALLERY} />
         </GridCell>
       </div>
 

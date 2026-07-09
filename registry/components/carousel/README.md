@@ -107,7 +107,11 @@ so they can't fall out of sync.
   centred, the down control at the bottom (the whole lane mirrors to inline-start
   under RTL). The insets clear the viewport-padding frame and the peek gutter on
   whichever axis is the scroll axis, so overlay sits on the slide in both
-  orientations, with or without `padding` / `peek`.
+  orientations, with or without `padding` / `peek`. Because the overlay indicator
+  tray is the one indicator context with a visible background, it is **capped to the
+  slide** so a long indicator run can't overflow the imagery (or, vertically,
+  collide with the up/down controls): dots (fixed hit area) **wrap** onto a second
+  row/column centred under the first, while thumbnails **shrink** to fit.
 
   For **`flank`**, the prev/next sit **outside** the viewport's two scroll-axis
   edges (left/right when horizontal, top/bottom when vertical) with the indicators

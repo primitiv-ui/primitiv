@@ -26,9 +26,22 @@ export const carousel = cva("primitiv-carousel", {
       subtle: "primitiv-carousel--surface-subtle",
     },
     placement: {
-      row: "primitiv-carousel--placement-row",
+      external: "primitiv-carousel--placement-external",
       overlay: "primitiv-carousel--placement-overlay",
       flank: "primitiv-carousel--placement-flank",
+    },
+    side: {
+      after: "primitiv-carousel--side-after",
+      before: "primitiv-carousel--side-before",
+    },
+    distribution: {
+      group: "primitiv-carousel--distribution-group",
+      stretch: "primitiv-carousel--distribution-stretch",
+    },
+    align: {
+      start: "primitiv-carousel--align-start",
+      center: "primitiv-carousel--align-center",
+      end: "primitiv-carousel--align-end",
     },
     indicators: {
       dots: "primitiv-carousel--indicators-dots",
@@ -39,7 +52,10 @@ export const carousel = cva("primitiv-carousel", {
     peek: "none",
     padding: "none",
     surface: "none",
-    placement: "row",
+    placement: "external",
+    side: "after",
+    distribution: "group",
+    align: "center",
     indicators: "dots",
   },
 });

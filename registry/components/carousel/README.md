@@ -16,13 +16,15 @@ expressed in logical properties.
 > **vertical orientation** (`orientation="vertical"` on the headless Root →
 > `data-orientation`, a column-scroll viewport with the controls in a column
 > beside it), **peek** (the `peek` modifier), **viewport padding** (the `padding`
-> modifier — a padded, framed viewport track), a **`placement`** modifier whose
-> `overlay` and `flank` options move the controls onto the imagery / outside the
-> viewport, an **`indicators`** modifier whose `thumbnails` option swaps the dots
-> for image thumbnails, and a slide **`ratio`** modifier (square / standard / wide
-> / ultrawide) for the slide aspect ratio (all — see below). The remaining
-> placement (controls-on-top), multi-slide, and autoplay land in later iterations
-> (see `docs/carousel-development-log.md`).
+> modifier — a padded, framed viewport track), a **composable control-placement
+> framework** — a **`placement`** family (`external` default · `overlay` · `flank`)
+> plus three shared layout axes, **`side`** (`before` / `after` — which cross-axis
+> edge), **`distribution`** (`group` / `stretch`) and **`align`** (`start` /
+> `center` / `end`), that compose on top of any family and orientation, an
+> **`indicators`** modifier whose `thumbnails` option swaps the dots for image
+> thumbnails, and a slide **`ratio`** modifier (square / standard / wide /
+> ultrawide) for the slide aspect ratio (all — see below). Multi-slide and autoplay
+> land in later iterations (see `docs/carousel-development-log.md`).
 
 ## Files
 
@@ -70,32 +72,50 @@ so they can't fall out of sync.
   **`surface`** modifier (`none` default · `subtle`, re-pointing
   `--primitiv-carousel-viewport-surface`) — `padding` alone is an outlined track,
   `padding` + `surface="subtle"` a filled one. `padding` `none` (the default) is a
-  bare, frameless scroll box. It maps to the scroll axis in either orientation. A
-  root **`placement`**
-  modifier (`row` default · `overlay` · `flank`) chooses where the controls sit:
-  `row`
-  keeps prev / dots / next in a flow row below (composed in a `<CarouselControls>`
-  wrapper), while `overlay` insets the controls on the imagery — prev/next
-  absolutely flanking the slide edges on a translucent `neutral-alpha` scrim and
-  the dots in a pill overlaid on the slide (no `<CarouselControls>` wrapper; the parts are
-  direct children of the root, which becomes the positioning context). It
-  re-points the shared control/indicator colour knobs to the on-imagery scrim
-  palette via the `--primitiv-carousel-overlay-*` knobs, and **composes with
-  `orientation`**: a vertical overlay puts every control in a lane on the
-  **inline-end** side — the up control at the top, the dots pill centred, the down
-  control at the bottom — so they don't sit over the middle of the imagery (the
-  whole lane mirrors to inline-start under RTL). The insets clear the
-  viewport-padding frame and the peek gutter on whichever axis is the scroll axis,
-  so overlay sits on the slide in both orientations, with or without `padding` /
-  `peek`. `flank` puts the prev/next **outside** the viewport's inline edges
-  (left/right) with the indicators centred in a row below — the "External-flank"
-  design cell. Like `overlay`, the parts are direct children of the root (no
-  `<CarouselControls>` wrapper): the root becomes a 3-column grid
-  (`prev | viewport | next`) with the indicators in a second row, and the logical
-  grid columns swap prev/next under RTL with no extra CSS. The controls keep the
-  default secondary-action fill (they're off the imagery). It composes with
-  `indicators="thumbnails"` (the External-flank + thumbnails cell), `peek`, and
-  the slide `ratio`; it is a horizontal-orientation placement. A root
+  bare, frameless scroll box. It maps to the scroll axis in either orientation.
+
+  **Control placement is a composable framework** — one **family** prop plus three
+  shared layout axes. The root **`placement`** modifier (`external` default ·
+  `overlay` · `flank`) picks the *structural family*: `external` groups prev /
+  dots / next into a single **bar** beside the viewport (composed in a
+  `<CarouselControls>` wrapper); `overlay` insets the controls on the imagery;
+  `flank` splits the prev/next onto the viewport's two scroll-axis edges. On top of
+  the family, three **shared control-layout axes** compose (learn them once — they
+  mean the same everywhere and degrade to a no-op where a family doesn't read
+  them): **`side`** (`after` default · `before`) — which cross-axis edge the
+  external bar (or the flank indicators) sits on, *orientation-relative* (`after` =
+  below when horizontal, the end/right side when vertical; `before` = above /
+  start), so it composes with `orientation` to reach all four physical edges and
+  mirrors under RTL; **`distribution`** (`group` default · `stretch`) — how the
+  external bar spreads its parts (`group` bunches them with a fixed gap; `stretch`
+  pushes prev/next to the extremes with the indicators centred, `space-between`
+  across the whole edge); and **`align`** (`start` · `center` default · `end`) —
+  where a *grouped* bar sits along its edge (moot under `stretch`). The defaults
+  (`external` · `after` · `group` · `center`) reproduce the classic controls-row
+  below. `distribution` / `align` are read only by the `external` family; `side` is
+  read by `external` and `flank`; `overlay` keeps its bottom dots pill this release.
+
+  For **`overlay`**, prev/next absolutely flank the slide edges on a translucent
+  `neutral-alpha` scrim and the dots ride a pill overlaid on the slide (no
+  `<CarouselControls>` wrapper; the parts are direct children of the root, which
+  becomes the positioning context). It re-points the shared control/indicator
+  colour knobs to the on-imagery scrim palette via the `--primitiv-carousel-overlay-*`
+  knobs, and **composes with `orientation`**: a vertical overlay puts every control
+  in a lane on the **inline-end** side — the up control at the top, the dots pill
+  centred, the down control at the bottom (the whole lane mirrors to inline-start
+  under RTL). The insets clear the viewport-padding frame and the peek gutter on
+  whichever axis is the scroll axis, so overlay sits on the slide in both
+  orientations, with or without `padding` / `peek`.
+
+  For **`flank`**, the prev/next sit **outside** the viewport's two scroll-axis
+  edges (left/right when horizontal, top/bottom when vertical) with the indicators
+  on a perpendicular side (`side` picks below/above when horizontal, right/left
+  when vertical). Like `overlay`, the parts are direct children of the root (no
+  `<CarouselControls>` wrapper): the root becomes a grid that places each part by
+  area, and the logical templates swap prev/next and the indicators under RTL with
+  no extra CSS. The controls keep the default secondary-action fill (they're off
+  the imagery). It composes with `indicators="thumbnails"` (the External-flank +
+  thumbnails cell), `peek`, the slide `ratio`, and **both orientations**. A root
   **`indicators`** modifier (`dots` default · `thumbnails`) chooses
   what the indicators look like: `dots` is the compact dot row, while `thumbnails`
   reshapes each indicator button into a rounded-rect image **thumbnail** — the
@@ -110,8 +130,9 @@ so they can't fall out of sync.
   modifier (`square` 1:1 · `standard` 4:3 · `wide` 16:9 default · `ultrawide`
   21:9, re-pointing `--primitiv-carousel-slide-aspect-ratio`) both live on the
   `slide`, not the root — which is why `CarouselSlide` gets the `radius` and
-  `ratio` props while `Carousel` gets `peek`, `padding`, `placement` and
-  `indicators`. (`ratio` is read in the horizontal layout; the vertical viewport
+  `ratio` props while `Carousel` gets `peek`, `padding`, `placement`, `side`,
+  `distribution`, `align` and `indicators`. (`ratio` is read in the horizontal
+  layout; the vertical viewport
   owns its own ratio, so the slide aspect stands down there.)
 - **Multi-slide (`slidesPerPage` / `slidesPerMove`).** These are **not**
   modifiers — they are **`styleProps`**: numeric props forwarded straight to the

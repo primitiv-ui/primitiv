@@ -16,7 +16,7 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K>
  *
  * @see https://primitiv-ui.dev/docs/components/carousel
  */
-export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "padding" | "surface" | "placement" | "indicators"> & {
+export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "padding" | "surface" | "placement" | "side" | "distribution" | "align" | "indicators"> & {
   /**
    * Reveal a sliver of the adjacent slides on either side of the active one. Works in both orientations (inline edges when horizontal, block edges when vertical).
    * - `none` — No peek — the active slide fills the viewport (the default).
@@ -46,14 +46,39 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    */
   surface?: "none" | "subtle";
   /**
-   * Where the prev/next controls and indicator dots sit relative to the viewport. The default keeps them in a flow row below (compose them in a `<CarouselControls>` wrapper); `overlay` insets the controls on the slide for edge-to-edge imagery; `flank` puts the prev/next outside the viewport's inline edges with the indicators in a row below (compose the parts as direct children of the root).
-   * - `row` — Controls flow in a row below the viewport (the default).
+   * The structural family the controls belong to — the one axis that changes how you compose the parts. `external` (the default) groups the prev/next + indicators into a single bar beside the viewport (compose them in a `<CarouselControls>` wrapper); its layout is refined by the composable `side` / `distribution` / `align` axes. `overlay` insets the controls on the slide for edge-to-edge imagery. `flank` splits the prev/next onto the viewport's two scroll-axis edges with the indicators on a perpendicular side (compose the parts as direct children of the root). The `side` / `distribution` / `align` axes compose on top of whichever family is chosen and degrade to a no-op where a family doesn't use them.
+   * - `external` — Prev/next + indicators sit together in a bar beside the viewport (the default). Compose them in a `<CarouselControls>` wrapper; refine the bar with `side` (which edge), `distribution` (bunch vs spread) and `align`.
    * - `overlay` — Controls sit on the imagery — prev/next flanking the slide edges on a translucent scrim, dots in a pill overlaid at the bottom.
-   * - `flank` — Controls flank the viewport — circular prev/next outside its inline edges (left/right), with the indicators centred in a row below. Compose the parts as direct children of the root (no `<CarouselControls>` wrapper — the grid places each part by area).
-   * @default "row"
+   * - `flank` — Prev/next split onto the viewport's two scroll-axis edges (left/right when horizontal, top/bottom when vertical) with the indicators on a perpendicular side (`side` picks which). Compose the parts as direct children of the root — the grid places each by area.
+   * @default "external"
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
-  placement?: "row" | "overlay" | "flank";
+  placement?: "external" | "overlay" | "flank";
+  /**
+   * Which cross-axis edge the external control bar (or, under `flank`, the indicators) sits on, relative to the scroll direction. `after` is the trailing edge (below the viewport when horizontal, the inline-end/right side when vertical); `before` is the leading edge (above / inline-start). Orientation-relative and RTL-safe — it composes with `orientation` to reach all four physical edges. Ignored by `overlay` (its dots pill keeps the bottom this release).
+   * - `after` — Trailing edge — below the viewport (horizontal) or the end/right side (vertical). The default.
+   * - `before` — Leading edge — above the viewport (horizontal) or the start/left side (vertical).
+   * @default "after"
+   * @see https://primitiv-ui.dev/docs/components/carousel
+   */
+  side?: "after" | "before";
+  /**
+   * How the external control bar spreads its parts along its edge. `group` (the default) bunches prev/indicators/next together with a fixed gap; `stretch` pushes prev and next to the two extremes with the indicators centred between them (space-between across the full edge). Only the `external` family reads this — `flank` and `overlay` ignore it.
+   * - `group` — Bunch prev/indicators/next together with a fixed gap, positioned by `align` (the default).
+   * - `stretch` — Push prev/next to the extremes with the indicators centred — the bar fills its edge (space-between).
+   * @default "group"
+   * @see https://primitiv-ui.dev/docs/components/carousel
+   */
+  distribution?: "group" | "stretch";
+  /**
+   * Where the grouped external control bar sits along its edge (only read under `distribution=group`; `stretch` fills the whole edge, so alignment is moot). `center` is the default; `start` / `end` pin the cluster to the leading / trailing end of the edge. Logical, so it mirrors under RTL and follows the scroll axis when vertical.
+   * - `start` — Pin the control cluster to the start of the edge (left / top, mirrored under RTL).
+   * - `center` — Centre the control cluster on the edge (the default).
+   * - `end` — Pin the control cluster to the end of the edge (right / bottom, mirrored under RTL).
+   * @default "center"
+   * @see https://primitiv-ui.dev/docs/components/carousel
+   */
+  align?: "start" | "center" | "end";
   /**
    * What the indicators look like. `dots` (the default) is the compact dot row; `thumbnails` swaps each indicator for a rounded-rect image thumbnail — the active one ringed in the primary colour, the classic gallery pattern. Supply the thumbnail content as children of each `<CarouselIndicator>` (an `<img>` or a background element).
    * - `dots` — Compact dots — one per page (the default).
@@ -64,10 +89,10 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
   indicators?: "dots" | "thumbnails";
 };
 
-export function Carousel({ peek, padding, surface, placement, indicators, slidesPerPage, className, style, ...props }: CarouselProps) {
+export function Carousel({ peek, padding, surface, placement, side, distribution, align, indicators, slidesPerPage, className, style, ...props }: CarouselProps) {
   return (
     <CarouselPrimitive.Root
-      className={[carousel({ peek, padding, surface, placement, indicators }), className].filter(Boolean).join(" ")}
+      className={[carousel({ peek, padding, surface, placement, side, distribution, align, indicators }), className].filter(Boolean).join(" ")}
       style={{ ...style, ...(slidesPerPage === undefined ? {} : { "--primitiv-carousel-slides-per-page": slidesPerPage }) } as CSSProperties}
       slidesPerPage={slidesPerPage}
       {...props}

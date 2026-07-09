@@ -50,12 +50,40 @@
     },
     {
       "name": "placement",
-      "default": "row",
-      "description": "Where the prev/next controls and indicator dots sit relative to the viewport. The default keeps them in a flow row below (compose them in a `<CarouselControls>` wrapper); `overlay` insets the controls on the slide for edge-to-edge imagery; `flank` puts the prev/next outside the viewport's inline edges with the indicators in a row below (compose the parts as direct children of the root).",
+      "default": "external",
+      "description": "The structural family the controls belong to — the one axis that changes how you compose the parts. `external` (the default) groups the prev/next + indicators into a single bar beside the viewport (compose them in a `<CarouselControls>` wrapper); its layout is refined by the composable `side` / `distribution` / `align` axes. `overlay` insets the controls on the slide for edge-to-edge imagery. `flank` splits the prev/next onto the viewport's two scroll-axis edges with the indicators on a perpendicular side (compose the parts as direct children of the root). The `side` / `distribution` / `align` axes compose on top of whichever family is chosen and degrade to a no-op where a family doesn't use them.",
       "options": [
-        { "name": "row", "class": "primitiv-carousel--placement-row", "description": "Controls flow in a row below the viewport (the default)." },
+        { "name": "external", "class": "primitiv-carousel--placement-external", "description": "Prev/next + indicators sit together in a bar beside the viewport (the default). Compose them in a `<CarouselControls>` wrapper; refine the bar with `side` (which edge), `distribution` (bunch vs spread) and `align`." },
         { "name": "overlay", "class": "primitiv-carousel--placement-overlay", "description": "Controls sit on the imagery — prev/next flanking the slide edges on a translucent scrim, dots in a pill overlaid at the bottom." },
-        { "name": "flank", "class": "primitiv-carousel--placement-flank", "description": "Controls flank the viewport — circular prev/next outside its inline edges (left/right), with the indicators centred in a row below. Compose the parts as direct children of the root (no `<CarouselControls>` wrapper — the grid places each part by area)." }
+        { "name": "flank", "class": "primitiv-carousel--placement-flank", "description": "Prev/next split onto the viewport's two scroll-axis edges (left/right when horizontal, top/bottom when vertical) with the indicators on a perpendicular side (`side` picks which). Compose the parts as direct children of the root — the grid places each by area." }
+      ]
+    },
+    {
+      "name": "side",
+      "default": "after",
+      "description": "Which cross-axis edge the external control bar (or, under `flank`, the indicators) sits on, relative to the scroll direction. `after` is the trailing edge (below the viewport when horizontal, the inline-end/right side when vertical); `before` is the leading edge (above / inline-start). Orientation-relative and RTL-safe — it composes with `orientation` to reach all four physical edges. Ignored by `overlay` (its dots pill keeps the bottom this release).",
+      "options": [
+        { "name": "after", "class": "primitiv-carousel--side-after", "description": "Trailing edge — below the viewport (horizontal) or the end/right side (vertical). The default." },
+        { "name": "before", "class": "primitiv-carousel--side-before", "description": "Leading edge — above the viewport (horizontal) or the start/left side (vertical)." }
+      ]
+    },
+    {
+      "name": "distribution",
+      "default": "group",
+      "description": "How the external control bar spreads its parts along its edge. `group` (the default) bunches prev/indicators/next together with a fixed gap; `stretch` pushes prev and next to the two extremes with the indicators centred between them (space-between across the full edge). Only the `external` family reads this — `flank` and `overlay` ignore it.",
+      "options": [
+        { "name": "group", "class": "primitiv-carousel--distribution-group", "description": "Bunch prev/indicators/next together with a fixed gap, positioned by `align` (the default)." },
+        { "name": "stretch", "class": "primitiv-carousel--distribution-stretch", "description": "Push prev/next to the extremes with the indicators centred — the bar fills its edge (space-between)." }
+      ]
+    },
+    {
+      "name": "align",
+      "default": "center",
+      "description": "Where the grouped external control bar sits along its edge (only read under `distribution=group`; `stretch` fills the whole edge, so alignment is moot). `center` is the default; `start` / `end` pin the cluster to the leading / trailing end of the edge. Logical, so it mirrors under RTL and follows the scroll axis when vertical.",
+      "options": [
+        { "name": "start", "class": "primitiv-carousel--align-start", "description": "Pin the control cluster to the start of the edge (left / top, mirrored under RTL)." },
+        { "name": "center", "class": "primitiv-carousel--align-center", "description": "Centre the control cluster on the edge (the default)." },
+        { "name": "end", "class": "primitiv-carousel--align-end", "description": "Pin the control cluster to the end of the edge (right / bottom, mirrored under RTL)." }
       ]
     },
     {

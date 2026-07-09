@@ -406,13 +406,77 @@
     --primitiv-carousel-control-bg: var(--primitiv-carousel-control-bg-active);
   }
 
-  /* Placement — where the prev/next controls and dots sit relative to the
-     viewport. `external-row` (the default) flows them in a row below (composed
-     in a __controls wrapper); `overlay` insets them on the imagery. */
-  .primitiv-carousel--placement-row {
-    /* Controls flow below the viewport — the base layout, nothing to re-point.
+  /* Placement — the structural family the controls belong to. `external` (the
+     default) groups prev/next + indicators into one bar beside the viewport
+     (composed in a __controls wrapper); `overlay` insets them on the imagery;
+     `flank` splits prev/next onto the viewport's two scroll-axis edges. The
+     composable `side` / `distribution` / `align` axes below refine `external`
+     (and `side` also picks the flank indicators' edge); each degrades to a
+     no-op where a family doesn't read it. */
+  .primitiv-carousel--placement-external {
+    /* The base grid already stacks viewport + control bar; nothing to re-point.
        Declared so the placement axis stays explicit if toggled dynamically. */
     position: static;
+  }
+
+  /* Side — which cross-axis edge the external bar (or the flank indicators) sits
+     on, relative to the scroll direction. `after` (the default) trails the
+     viewport; `before` leads it. Orientation-relative + logical, so it reaches
+     all four physical edges by composing with `orientation` and mirrors in RTL. */
+  .primitiv-carousel--side-after {
+    /* Trailing edge — the base layout already puts the bar after the viewport. */
+  }
+  /* Before: move the control bar ahead of the viewport. `order` re-places it in
+     the grid's source-order flow — the horizontal single-column stack (bar above)
+     and, with the column swap below, the vertical two-column layout (bar on the
+     start side). Only `external` has a __controls bar, so flank/overlay ignore it. */
+  .primitiv-carousel--side-before .primitiv-carousel__controls {
+    order: -1;
+  }
+
+  /* Distribution — how the external bar spreads prev/indicators/next along its
+     edge. `group` (default) bunches them; `stretch` pushes prev/next to the
+     extremes with the indicators centred (space-between across the full edge).
+     The bar is a flex row (horizontal) or column (vertical), so one
+     justify-content drives both axes. Only `external` has the bar — flank/overlay
+     ignore these. */
+  .primitiv-carousel--distribution-group .primitiv-carousel__controls {
+    /* Bunched — the base bar already gaps + centres the cluster; `align` moves it. */
+  }
+  .primitiv-carousel--distribution-stretch .primitiv-carousel__controls {
+    justify-content: space-between;
+  }
+  /* Vertical stretch needs the bar to span the viewport's height so up/down reach
+     its ends — the vertical root centres items, so opt this column into filling
+     the row. */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--distribution-stretch
+    .primitiv-carousel__controls {
+    align-self: stretch;
+  }
+
+  /* Align — where the *grouped* bar sits along its edge (moot under `stretch`,
+     which fills the edge). `center` is the base default; start/end pin the
+     cluster to the leading/trailing end. Scoped under `--distribution-group` so
+     `stretch` always wins regardless of source order. Logical → mirrors in RTL
+     and follows the scroll axis when vertical. */
+  .primitiv-carousel--distribution-group.primitiv-carousel--align-start
+    .primitiv-carousel__controls {
+    justify-content: flex-start;
+  }
+  .primitiv-carousel--distribution-group.primitiv-carousel--align-center
+    .primitiv-carousel__controls {
+    justify-content: center;
+  }
+  .primitiv-carousel--distribution-group.primitiv-carousel--align-end
+    .primitiv-carousel__controls {
+    justify-content: flex-end;
+  }
+
+  /* Vertical external + side=before: swap the two-column track so the control
+     bar's `auto` column leads and the viewport's 1fr trails (the `order: -1`
+     above moves the bar into that first column). */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--side-before {
+    grid-template-columns: auto minmax(0, 1fr);
   }
 
   /* Overlay: the root becomes the positioning context; prev/next flank the slide
@@ -547,22 +611,28 @@
     padding-inline: var(--primitiv-carousel-overlay-pill-padding-block);
   }
 
-  /* External-flank: the prev/next controls sit *outside* the viewport, flanking
-     its inline edges, with the indicators centred in a row below — the
-     "External-flank + dots/thumbnails" design cell. Unlike `row` (controls in a
-     wrapper below) and `overlay` (controls on the imagery), flank places the
-     parts directly on a 3-column grid — prev | viewport | next — with the
-     indicators in a second row under the viewport. Compose the parts as direct
-     children of the root (no `__controls` wrapper — the grid places each part by
-     area). The controls keep the default secondary-action fill (they're off the
-     imagery). The grid columns follow writing direction, so prev/next swap sides
-     under RTL with no extra CSS. Horizontal orientation. */
+  /* Flank: the prev/next controls sit *outside* the viewport, flanking its two
+     scroll-axis edges, with the indicators on a perpendicular side (`side` picks
+     which). Unlike `external` (controls in a __controls bar) and `overlay`
+     (controls on the imagery), flank places the parts directly on a grid by area.
+     Compose the parts as direct children of the root. The controls keep the
+     default secondary-action fill (they're off the imagery). Named grid areas +
+     logical templates → prev/next and the indicators swap sides under RTL with no
+     extra CSS. */
+
+  /* Horizontal flank: prev | viewport | next in a row, indicators centred in a
+     second row. `side=after` (default) puts the indicators below; `before` above. */
   .primitiv-carousel--placement-flank {
     grid-template-columns: auto minmax(0, 1fr) auto;
     grid-template-areas:
       "prev viewport next"
       ". indicators .";
     align-items: center;
+  }
+  .primitiv-carousel--placement-flank.primitiv-carousel--side-before {
+    grid-template-areas:
+      ". indicators ."
+      "prev viewport next";
   }
   .primitiv-carousel--placement-flank .primitiv-carousel__viewport {
     grid-area: viewport;
@@ -575,6 +645,38 @@
   }
   .primitiv-carousel--placement-flank .primitiv-carousel__indicator-group {
     grid-area: indicators;
+  }
+
+  /* Vertical flank: the scroll axis is the block axis, so prev/next become the
+     up/down controls flanking the viewport's top/bottom edges (centred over it),
+     and the indicators run as a column on a perpendicular *inline* side —
+     `after` (default) on the end/right, `before` on the start/left. Overrides the
+     vertical rule's column auto-flow with an explicit 2-D grid; higher specificity
+     (orientation attr + placement class) wins over the base vertical layout. */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-flank {
+    grid-auto-flow: row;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "prev      ."
+      "viewport  indicators"
+      "next      .";
+    align-items: center;
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-flank.primitiv-carousel--side-before {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      ".          prev"
+      "indicators viewport"
+      ".          next";
+  }
+  /* Centre the up/down controls horizontally over the viewport column (the
+     viewport itself fills its cell). */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-flank
+    .primitiv-carousel__prev,
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-flank
+    .primitiv-carousel__next {
+    justify-self: center;
   }
 
   /* Thumbnails — swap the dot indicators for rounded-rect image thumbnails (the

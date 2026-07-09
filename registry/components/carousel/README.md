@@ -93,7 +93,9 @@ so they can't fall out of sync.
   where a *grouped* bar sits along its edge (moot under `stretch`). The defaults
   (`external` · `after` · `group` · `center`) reproduce the classic controls-row
   below. `distribution` / `align` are read only by the `external` family; `side` is
-  read by `external` and `flank`; `overlay` keeps its bottom dots pill this release.
+  read by **all three** families — for `overlay` it moves the dots pill (top vs
+  bottom when horizontal) and, when vertical, the whole up/pill/down control lane
+  (inline-start vs inline-end).
 
   For **`overlay`**, prev/next absolutely flank the slide edges on a translucent
   `neutral-alpha` scrim and the dots ride a pill overlaid on the slide (no

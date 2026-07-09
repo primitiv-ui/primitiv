@@ -611,6 +611,46 @@
     padding-inline: var(--primitiv-carousel-overlay-pill-padding-block);
   }
 
+  /* Overlay + side — move the indicators (and, when vertical, the whole control
+     lane) to the chosen cross-axis edge. Horizontal: the dots pill rides the
+     bottom (after, the base) or the top (before); prev/next keep flanking the
+     slide's inline edges. Vertical: the up / pill / down lane rides the inline-end
+     (after) or inline-start (before) side. Logical → mirrors under RTL. The extra
+     --side-before class raises specificity over the base overlay + vertical-overlay
+     rules, so before wins; after needs no override (the base rules already do it). */
+  .primitiv-carousel--placement-overlay.primitiv-carousel--side-before
+    .primitiv-carousel__indicator-group {
+    inset-block-start: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) +
+        var(--primitiv-carousel-overlay-indicator-inset)
+    );
+    inset-block-end: auto;
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--side-before
+    .primitiv-carousel__prev,
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--side-before
+    .primitiv-carousel__next {
+    inset-inline-end: auto;
+    inset-inline-start: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--side-before
+    .primitiv-carousel__indicator-group {
+    /* Keep the pill block-centred (override the horizontal-before rule above) and
+       flip its inline lane to the start side. */
+    inset-block: 0;
+    inset-inline-end: auto;
+    inset-inline-start: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+  }
+
   /* Flank: the prev/next controls sit *outside* the viewport, flanking its two
      scroll-axis edges, with the indicators on a perpendicular side (`side` picks
      which). Unlike `external` (controls in a __controls bar) and `overlay`

@@ -55,9 +55,9 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    */
   placement?: "external" | "overlay" | "flank";
   /**
-   * Which cross-axis edge the external control bar (or, under `flank`, the indicators) sits on, relative to the scroll direction. `after` is the trailing edge (below the viewport when horizontal, the inline-end/right side when vertical); `before` is the leading edge (above / inline-start). Orientation-relative and RTL-safe — it composes with `orientation` to reach all four physical edges. Ignored by `overlay` (its dots pill keeps the bottom this release).
+   * Which cross-axis edge the controls sit on, relative to the scroll direction — the external bar, the flank indicators, or the overlay dots pill (+ its vertical control lane). `after` is the trailing edge (below the viewport when horizontal, the inline-end/right side when vertical); `before` is the leading edge (above / inline-start). Orientation-relative and RTL-safe — it composes with `orientation` to reach all four physical edges. Read by all three families.
    * - `after` — Trailing edge — below the viewport (horizontal) or the end/right side (vertical). The default.
-   * - `before` — Leading edge — above the viewport (horizontal) or the start/left side (vertical).
+   * - `before` — Leading edge — above the viewport (horizontal) or the start/left side (vertical). Under overlay it moves the dots pill (and, when vertical, the whole control lane) to the leading edge.
    * @default "after"
    * @see https://primitiv-ui.dev/docs/components/carousel
    */

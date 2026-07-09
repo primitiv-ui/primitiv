@@ -850,8 +850,20 @@
   }
   .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--indicators-dots
     .primitiv-carousel__indicator-group {
+    /* Flex column-wrap has a long-standing bug: the container's width won't grow to
+       contain wrapped columns, so the 2nd column collapses onto the 1st. Rotate the
+       flow with writing-mode so it's a *row*-wrap (whose cross-size expands
+       correctly): the dots still stack top→bottom and overflow into new columns
+       beside them, and the tray widens to hold them (the accepted trade-off). The
+       inherited `block-size: fit-content` becomes the *width* here, hugging the
+       columns. Physical `max-height` caps the flow axis (writing-mode doesn't flip
+       physical props) so the tray still sits between the up/down controls, and
+       physical auto margins keep it centred. */
+    writing-mode: vertical-lr;
+    flex-direction: row;
     max-inline-size: none;
-    max-block-size: calc(
+    max-block-size: none;
+    max-height: calc(
       100% - 2 *
         (
           var(--primitiv-carousel-viewport-border-width) +
@@ -861,6 +873,7 @@
             var(--primitiv-carousel-control-size)
         )
     );
+    margin: auto 0;
   }
 
   /* Fade transition (headless `transition="fade"` → data-transition="fade").

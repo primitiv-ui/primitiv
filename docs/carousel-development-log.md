@@ -975,7 +975,14 @@ Scoped to `.placement-overlay.indicators-dots` (row/flank dots already sit in a
 constrained bar/grid cell). Stress cells added to the page's Overlay section (dots
 many → wrap h+v, thumbnails many → shrink) via a `slides` passthrough on
 `OverlaySingle`/`ThumbnailSingle`. No contract change; scss re-derived + drift-green
-+ hand-synced.
++ hand-synced. **Round 3b:** the vertical wrapped dots didn't widen for the 2nd
+column (the well-known flex **column-wrap width-collapse** bug). Fixed by rotating
+that tray's flow with `writing-mode: vertical-lr` + `flex-direction: row` — a
+*row*-wrap (whose cross-size expands correctly), so the dots still stack top→bottom
+and overflow into new columns while the tray **widens to hold them**; physical
+`max-height` still caps it between the up/down controls and physical auto margins
+centre it (the inherited `block-size: fit-content` becomes the width, hugging the
+columns). Dots are symmetric so the writing-mode doesn't distort them.
 
 **Figma lockstep: pending** human QA + a later dedicated build of the placement
 model in Figma (the current frame is conceptual). No carousel `--primitiv-*`

@@ -19,6 +19,7 @@ const EXAMPLES: { to: string; label: string }[] = [
   { to: "thumbnails", label: "Thumbnails" },
   { to: "ratio", label: "Ratio" },
   { to: "flank", label: "External-flank" },
+  { to: "placement", label: "Control placement" },
 ];
 
 export function CarouselLayout() {

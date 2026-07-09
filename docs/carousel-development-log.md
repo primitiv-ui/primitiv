@@ -127,6 +127,35 @@ appended here:
   no example composes them). It's the designed home for the thumbnails variant
   ("External-flank + thumbnails"). No headless change.
 
+- **2026-07-09 — Control placement reworked into a composable framework (iteration
+  12).** Grounded in the human's new **"Control Placement Framework"** frame on the
+  Figma Carousel page (`1074:26198`, conceptual/illustrative — **no Figma lockstep
+  this session**). The flat `placement` enum was too coarse; the frame decomposes
+  external control placement into orthogonal axes. Landed model: `placement` is now
+  the **family** (`external` default — renamed from `row` · `overlay` · `flank`),
+  and **three shared control-layout axes compose on top of any family**: **`side`**
+  (`after` default · `before` — which cross-axis edge, orientation-relative so it
+  reaches all four physical edges by composing with `orientation`, RTL-safe),
+  **`distribution`** (`group` default · `stretch` = space-between across the edge),
+  **`align`** (`start` · `center` default · `end`, group-only). The whole external
+  family collapses to **one flex `__controls` bar** whose `justify-content` is
+  driven by distribution+align (space-between = stretch; flex-start/center/end =
+  grouped align) — elegant because space-between on the 3 items *is* stretch-to-fill,
+  and the same bar works in both orientations (row/column). **`flank` generalised**
+  to vertical (up/down flanking the block edges, indicator column on an inline side)
+  and to `side` (indicators before/after) via 2-D grid-areas per orientation×side —
+  this delivers **vertical-flank**, the combo deferred in iteration 11.
+  **`side=before` on external delivers controls-on-top** (and the vertical
+  start-side column). Defaults (`external·after·group·center`) reproduce the
+  iteration-1 row exactly (drift/gates green, no visual regression intended).
+  Axes **degrade to a no-op** where a family doesn't read them (distribution/align
+  are external-only; overlay keeps its bottom pill this round) — the composition
+  promise. **Preserved learnings** (explicit ask): the overlay control-to-slide-edge
+  inset calc (border+padding+peek+inset), the vertical indicator-group width/pill
+  fix, the framed-track padding/surface knobs, the WCAG dot hit-area — all
+  untouched. Pure registry CSS + 3 modifiers; **no headless change**, so the publish
+  gotcha doesn't apply (the dev-alias already covers the earlier headless work).
+
 ## Figma design reference
 
 Read from the Figma file **"Primitiv Design System" → "Carousel" page**
@@ -855,6 +884,54 @@ be a verification pass. **Next:** the thumbnails polish + placement-expansion
 session the human flagged (which will likely add vertical-flank and the
 controls-on-top placement), then autoplay / play-pause.
 
+### Iteration 12 — Control placement framework (awaiting human QA)
+
+**Paired with Figma from the start** — read the human's new **"Control Placement
+Framework"** frame (`1074:26198`) live via the Desktop Bridge. It's illustrative
+only (**no Figma lockstep this session**, by decision); it decomposes external
+control placement into orthogonal axes, which drove the model below.
+
+**Registry surface (headless-free — pure CSS + modifiers).** Reworked the flat
+`placement` enum into a **composable framework** (see the 2026-07-09 decision):
+`placement` renamed default `row` → **`external`** (family: `external`·`overlay`·
+`flank`), plus three **shared control-layout axes** that compose on top —
+**`side`** (`after` default · `before`), **`distribution`** (`group` default ·
+`stretch`), **`align`** (`start`·`center` default·`end`). The external family is
+now one flex `__controls` bar driven by `justify-content` (space-between = stretch;
+flex-start/center/flex-end = grouped align), working in both orientations; `side`
+swaps the bar to the leading edge via `order` + a vertical column-template swap.
+**`flank` generalised** to a 2-D grid per orientation×side — delivering
+**vertical-flank** (up/down on the block edges, indicator column on an inline side)
+and the indicators `before`/`after`. `overlay` unchanged (bottom pill; `side` a
+no-op for it this round). Defaults reproduce iteration 1 byte-for-byte.
+**Preserved** the overlay inset calc, the vertical pill/indicator-group fix, the
+padding/surface framed-track knobs, the WCAG hit-area — all untouched.
+
+**Built** (`CarouselPage.tsx`, `/carousel/placement`): a **24-cell numbered grid**
+covering every axis value and the required cross-compositions — external
+after×{group start/center/end, stretch}, external before×{group, stretch}, external
+vertical×{after group/stretch, before group}, flank {h after/before, v after/before},
+overlay {dots, vertical, thumbnails}, then compositions (stretch+peek, group+padding,
+stretch+square ratio, vertical+before+peek, stretch+RTL, flank+RTL, stretch+thumbnails,
+end+padding+peek). A `ThumbnailStretch` helper drives the thumbnail-stretch cell;
+`BasicSingle` / `VerticalSingle` / `FlankSingle` gained `side` / `distribution` /
+`align` (and `FlankSingle` an `orientation`) passthroughs. Route + sidebar entry
+("Control placement") wired.
+
+**Regenerated** (recipe/tsx carry the new `side`/`distribution`/`align` root props;
+styles.scss re-derived) + drift-green + kitchen-sink hand-synced. Registry README
+updated (scope + the placement-framework paragraph). Renamed `row`→`external`
+everywhere; swept for stale `placement-row` references (none).
+
+**Gates green:** `cargo test -p primitiv-emit -p primitiv-cli` (20 + 106),
+`node scripts/check-registry-types.mjs`. (No headless change — Carousel vitest not
+needed.)
+
+**Figma lockstep: pending** human QA + a later dedicated build of the placement
+model in Figma (the current frame is conceptual). No carousel `--primitiv-*`
+variable layer exists (bindings only). **Next:** QA `/carousel/placement`; then the
+overlay `side` (top pill), autoplay/play-pause, or the thumbnails polish.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".
@@ -877,12 +954,14 @@ Reorder as priorities shift; each is human-approved before it starts.
   end-aligns, counts are guarded, and the auto `<CarouselIndicators>` renders the
   right dot count. Golden edge-case grid at `/carousel/multi`. See iteration 8 +
   `docs/carousel-multi-slide-plan.md`.
-- Placement: overlay _(iteration 4 — awaiting QA)_ + external-flank
-  _(iteration 11 — awaiting QA)_ — the `placement` modifier (`row` default ·
-  `overlay` · `flank`); overlay insets the controls on the imagery (dots in a
-  pill), flank puts prev/next outside the viewport edges with indicators in a row
-  below. Remaining: controls-on-top, and vertical-flank (placement-expansion
-  follow-up).
+- Placement framework _(iterations 4/11, then reworked into a composable framework
+  in iteration 12 — awaiting QA)_ — `placement` is now the **family** (`external`
+  default · `overlay` · `flank`) with three shared composable axes **`side`**
+  (before/after), **`distribution`** (group/stretch), **`align`** (start/center/end).
+  This subsumes the old `row`, delivers **controls-on-top** (`side="before"`) and
+  **vertical-flank**, and composes across peek/padding/ratio/vertical/RTL/thumbnails.
+  24-cell grid at `/carousel/placement`. Remaining placement work: overlay honouring
+  `side` (top pill).
 - Dots / indicators variations (below, overlaid _(overlay done, iteration 4)_,
   thumbnails _(iteration 9 — human-approved, polish + Figma lockstep pending)_ —
   the `indicators` modifier (`dots` default · `thumbnails`); image thumbnails as

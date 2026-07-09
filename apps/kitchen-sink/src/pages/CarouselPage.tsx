@@ -154,6 +154,8 @@ function OverlaySingle({
   transition?: "slide" | "fade";
   orientation?: "horizontal" | "vertical";
 }) {
+  const Prev = orientation === "vertical" ? ChevronUp : ChevronLeft;
+  const Next = orientation === "vertical" ? ChevronDown : ChevronRight;
   return (
     <Carousel
       ariaLabel={label}
@@ -169,10 +171,10 @@ function OverlaySingle({
         ))}
       </CarouselViewport>
       <CarouselPreviousTrigger aria-label="Previous slide">
-        <ChevronLeft />
+        <Prev />
       </CarouselPreviousTrigger>
       <CarouselNextTrigger aria-label="Next slide">
-        <ChevronRight />
+        <Next />
       </CarouselNextTrigger>
       <CarouselIndicatorGroup label="Choose slide">
         {SLIDES.map((_, i) => (
@@ -333,12 +335,12 @@ export function CarouselOverlay() {
   return (
     <Example
       title={'Overlay — placement="overlay"'}
-      note="Controls sit on the imagery: circular prev/next flank the slide edges on a translucent scrim, and the dots ride in a pill along the bottom — so the slide runs edge to edge with no external chrome. The scrim + glyph are theme-adaptive, so they read on any photo in light or dark. It composes with peek, and under RTL the prev/next swap sides while the pill stays centred (logical properties, no RTL-specific CSS)."
+      note="Controls sit on the imagery: circular prev/next flank the slide edges on a translucent scrim, and the dots ride in a pill overlaid on the slide — so it runs edge to edge with no external chrome. The scrim + glyph are theme-adaptive, so they read on any photo in light or dark. It composes with peek, with RTL (prev/next swap sides, the pill stays centred), and with orientation — a vertical overlay rotates a quarter turn: up/down controls flank the top and bottom, the dots pill rides the end side."
     >
       {/* The design cell: overlay + a small peek. */}
       <OverlaySingle label="Featured products — overlay with peek" peek="sm" />
 
-      {/* Edge-to-edge (no peek) vs the same under RTL, side by side. */}
+      {/* Horizontal: edge-to-edge (no peek) vs the same under RTL, side by side. */}
       <div className="carousel-page__row">
         <div className="carousel-page__wide">
           <OverlaySingle label="Featured products — overlay, edge to edge" />
@@ -347,12 +349,21 @@ export function CarouselOverlay() {
           <OverlaySingle label="Featured products — overlay, right to left" />
         </div>
       </div>
+
+      {/* Vertical overlay: up/down controls on the top/bottom edges, dots pill on
+          the end side — and the same mirrored under RTL. */}
       <div className="carousel-page__row">
         <div className="carousel-page__wide">
-          <OverlaySingle label="Featured products — overlay, edge to edge" orientation="vertical" />
+          <OverlaySingle
+            label="Featured products — vertical overlay"
+            orientation="vertical"
+          />
         </div>
         <div className="carousel-page__wide" dir="rtl">
-          <OverlaySingle label="Featured products — overlay, right to left" orientation="vertical" />
+          <OverlaySingle
+            label="Featured products — vertical overlay, right to left"
+            orientation="vertical"
+          />
         </div>
       </div>
     </Example>

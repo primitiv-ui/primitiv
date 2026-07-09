@@ -554,6 +554,20 @@ default, so it lands on the overlay example too). Both are Figma-lockstep items
 (the overlay bump is a value change on the existing bindings; `surface` is a
 code-only knob/modifier).
 
+**QA round 6 (human) — vertical overlay.** The human added vertical overlay
+examples but the overlay positioning was horizontal-only, so the prev/next stayed
+on the left/right edges (with left/right chevrons) while only the dots pill went
+vertical (screenshot). Fixed: added
+`[data-orientation="vertical"].placement-overlay` rules that rotate the overlay a
+quarter turn — up/down controls flank the top/bottom edges (horizontally centred,
+inset off the block scroll axis so they clear the frame + block peek), the dots
+pill rides the inline-end side (vertically centred, inset off the inline cross
+axis). Higher specificity than the horizontal rules re-points each inset onto the
+swapped axis. Example `OverlaySingle` gained the up/down chevron swap (like
+`MultiSlide`) and a cleaned-up vertical-overlay row + note. CSS + example only
+(scss re-derived, drift-green); overlay now composes with orientation in both
+directions, with/without padding/peek.
+
 **QA round 5 (human) — overlay controls inside the padded track.** With `padding` +
 `placement="overlay"`, the prev/next and the dots pill were positioned from the
 **root** edge (`peek + control-inset`), but the slide is inset inside the viewport

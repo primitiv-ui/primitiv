@@ -73,10 +73,15 @@ so they can't fall out of sync.
   keeps prev / dots / next in a flow row below (composed in a `<CarouselControls>`
   wrapper), while `overlay` insets the controls on the imagery — prev/next
   absolutely flanking the slide edges on a translucent `neutral-alpha` scrim and
-  the dots in a pill along the bottom (no `<CarouselControls>` wrapper; the parts are
+  the dots in a pill overlaid on the slide (no `<CarouselControls>` wrapper; the parts are
   direct children of the root, which becomes the positioning context). It
   re-points the shared control/indicator colour knobs to the on-imagery scrim
-  palette via the `--primitiv-carousel-overlay-*` knobs. The slide **`radius`**
+  palette via the `--primitiv-carousel-overlay-*` knobs, and **composes with
+  `orientation`**: a vertical overlay rotates a quarter turn — the up/down controls
+  flank the top and bottom edges (horizontally centred) and the dots pill rides the
+  inline-end side (vertically centred). The insets clear the viewport-padding frame
+  and the peek gutter on whichever axis is the scroll axis, so overlay sits on the
+  slide in both orientations, with or without `padding` / `peek`. The slide **`radius`**
   modifier (`md` default · `none` squares the slide off) lives on the `slide`,
   not the root — which is why `CarouselSlide` gets the `radius` prop while
   `Carousel` gets `peek`, `padding` and `placement`.

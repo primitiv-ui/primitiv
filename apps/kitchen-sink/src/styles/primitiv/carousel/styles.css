@@ -447,6 +447,50 @@
     border-radius: var(--primitiv-radii-full);
   }
 
+  /* Vertical overlay: the scroll axis is the block axis, so the up/down controls
+     flank the top and bottom edges (horizontally centred) and the dots pill rides
+     the inline-end side (vertically centred) — the horizontal overlay rotated a
+     quarter turn. Higher specificity (orientation attr + placement class) than the
+     horizontal rules above, so it re-points each inset onto the swapped axis. */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay
+    .primitiv-carousel__prev,
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay
+    .primitiv-carousel__next {
+    inset-inline: 0;
+    inset-block: auto;
+    margin-inline: auto;
+    margin-block: 0;
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay
+    .primitiv-carousel__prev {
+    inset-block-start: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay
+    .primitiv-carousel__next {
+    inset-block-end: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay
+    .primitiv-carousel__indicator-group {
+    inset-block: 0;
+    inset-inline-start: auto;
+    inset-inline-end: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) +
+        var(--primitiv-carousel-overlay-indicator-inset)
+    );
+    margin-block: auto;
+    margin-inline: 0;
+    block-size: fit-content;
+  }
+
   /* Fade transition (headless `transition="fade"` → data-transition="fade").
      The viewport stops scrolling and stacks every slide in one grid cell; the
      active slide cross-fades in over the others off its data-state hook (the

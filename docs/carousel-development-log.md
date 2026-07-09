@@ -531,6 +531,14 @@ confirms whether the resting track reads as a clean frame vs. a peek. Regenerate
 (scss only; recipe/tsx byte-identical — the frame knobs are `customProperties`,
 not modifiers) + drift-green + hand-synced.
 
+**QA round 3 (human) — comprehensive grid.** Reworked `/carousel/padding` to the
+same **numbered 3-column grid** as the multi-slide page (the `GridCell` component
+and `.carousel-grid` CSS were generalised out of the multi page and shared). 12
+cells: the `none` baseline + the sm/md/lg size ladder, then compositions —
+peek-on-top (×2), square slides in a rounded track, overlay, 2-up, vertical, RTL,
+and a busy lg + 3-up + peek. `OverlaySingle` / `MultiSlide` gained a `padding`
+passthrough. Example-only (no registry/headless/emit change).
+
 **Figma lockstep: pending** human QA. Light — viewport padding is code-only (no
 carousel `--primitiv-*` variable layer in Figma; bindings only). Reconcile the
 framed-track model (viewport surface/border/radius + inner padding) with the

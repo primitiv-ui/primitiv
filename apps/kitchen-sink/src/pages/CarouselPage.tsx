@@ -141,10 +141,12 @@ function VerticalSingle({
 function OverlaySingle({
   label,
   peek,
+  padding,
   transition,
 }: {
   label: string;
   peek?: "none" | "sm" | "md" | "lg";
+  padding?: "none" | "sm" | "md" | "lg";
   transition?: "slide" | "fade";
 }) {
   return (
@@ -152,6 +154,7 @@ function OverlaySingle({
       ariaLabel={label}
       placement="overlay"
       peek={peek}
+      padding={padding}
       transition={transition}
     >
       <CarouselViewport>
@@ -197,6 +200,7 @@ function MultiSlide({
   slidesPerPage: number;
   slidesPerMove?: number;
   peek?: "none" | "sm" | "md" | "lg";
+  padding?: "none" | "sm" | "md" | "lg";
   orientation?: "horizontal" | "vertical";
 }) {
   const Prev = orientation === "vertical" ? ChevronUp : ChevronLeft;
@@ -207,6 +211,7 @@ function MultiSlide({
       slidesPerPage={slidesPerPage}
       slidesPerMove={slidesPerMove}
       peek={peek}
+      padding={padding}
       orientation={orientation}
     >
       <CarouselViewport>
@@ -387,39 +392,123 @@ export function CarouselPeek() {
 export function CarouselPadding() {
   return (
     <Example
-      title="Viewport padding — a framed, padded track"
-      note="A cross-cutting `padding` modifier (none · sm · md · lg) turns the viewport into a padded, framed track: the viewport itself gets a surface, a border and rounded corners, and the padding insets the slides inside it. The inter-slide gap is coupled to the padding so the resting track shows clean inset breathing room (no accidental peek). Add `peek` on top for a deliberate neighbour reveal within the track. It maps to the scroll axis in either orientation."
+      title="Viewport padding — the framed-track grid"
+      note="A cross-cutting `padding` modifier (none · sm · md · lg) turns the viewport into a padded, framed track: the viewport itself gets a surface, a border and rounded corners, and the padding insets the slides inside it. The gap is coupled to the padding so the resting track stays clean (no accidental peek). Each cell pins a size or a composition — check that the frame reads as a clean padded box (no neighbour leaking into the inline padding unless peek is set), that it scales, and that it composes with the other features."
     >
-      {/* Padding size ladder — the frame is on the viewport itself now. */}
-      <div className="carousel-page__stack">
-        <BasicSingle label="Viewport padding — small" padding="sm" />
-        <BasicSingle label="Viewport padding — medium" padding="md" />
-        <BasicSingle label="Viewport padding — large" padding="lg" />
-      </div>
+      <div className="carousel-grid">
+        <GridCell
+          n={1}
+          title="padding none (baseline)"
+          note="The default: a bare, frameless scroll box — no surface, border or inset. The contrast for the framed cells."
+        >
+          <BasicSingle label="Padding none" />
+        </GridCell>
 
-      {/* Composition: padding + peek together (the framed track shows a deliberate
-          neighbour sliver), padding on the vertical track, and under RTL. */}
-      <div className="carousel-page__row">
-        <div className="carousel-page__wide">
-          <BasicSingle label="Padding + peek together" padding="md" peek="sm" />
-        </div>
-        <div className="carousel-page__vertical">
-          <VerticalSingle label="Vertical padding" padding="md" />
-        </div>
-        <div className="carousel-page__wide" dir="rtl">
+        <GridCell
+          n={2}
+          title="padding sm"
+          note="A small padded, framed track. The slides sit inset from the border by space-16."
+        >
+          <BasicSingle label="Padding small" padding="sm" />
+        </GridCell>
+
+        <GridCell
+          n={3}
+          title="padding md"
+          note="Medium inset (space-32). Same frame, more breathing room around the slide."
+        >
+          <BasicSingle label="Padding medium" padding="md" />
+        </GridCell>
+
+        <GridCell
+          n={4}
+          title="padding lg"
+          note="Large inset (space-48) — the generous framed track."
+        >
+          <BasicSingle label="Padding large" padding="lg" />
+        </GridCell>
+
+        <GridCell
+          n={5}
+          title="padding md + peek sm"
+          note="Peek on top of the frame: a deliberate sliver of the neighbour shows inside the padded track (the gap coupling no longer fully hides it)."
+        >
+          <BasicSingle label="Padding + small peek" padding="md" peek="sm" />
+        </GridCell>
+
+        <GridCell
+          n={6}
+          title="padding lg + peek md"
+          note="A big frame with a generous peek — the two insets stack on the scroll axis."
+        >
+          <BasicSingle label="Large padding + medium peek" padding="lg" peek="md" />
+        </GridCell>
+
+        <GridCell
+          n={7}
+          title="padding md + square slides"
+          note="Slide radius none inside a rounded track: the frame stays rounded while the slides square off (radii are independent)."
+        >
+          <BasicSingle label="Padding + square slides" padding="md" radius="none" />
+        </GridCell>
+
+        <GridCell
+          n={8}
+          title="padding md + overlay"
+          note="A framed track with the controls overlaid on the imagery — prev/next on the scrim, dots in the bottom pill, inside the padded box."
+        >
+          <OverlaySingle label="Padding + overlay" padding="md" />
+        </GridCell>
+
+        <GridCell
+          n={9}
+          title="padding md + 2-up"
+          note="Multi-slide inside the frame: two slides share the padded track, the gap between them coupled to the padding."
+        >
+          <MultiSlide label="Padding + two per page" count={6} slidesPerPage={2} padding="md" />
+        </GridCell>
+
+        <GridCell
+          n={10}
+          title="padding md + vertical"
+          note="The framed track on the block axis: padding runs top/bottom (scroll) and left/right (frame inset), up/down controls beside it."
+        >
+          <VerticalSingle label="Padding + vertical" padding="md" />
+        </GridCell>
+
+        <GridCell
+          n={11}
+          title="padding md + RTL"
+          note="Mirrors under right-to-left — logical properties, no RTL-specific CSS. The frame + inset read identically."
+          dir="rtl"
+        >
           <BasicSingle label="Padding under RTL" padding="md" />
-        </div>
+        </GridCell>
+
+        <GridCell
+          n={12}
+          title="padding lg + 3-up + peek sm"
+          note="A busy composition: a large framed track, three slides per page, and a peek sliver of the next page — every inset feature at once."
+        >
+          <MultiSlide
+            label="Large padding, three per page, peek"
+            count={6}
+            slidesPerPage={3}
+            padding="lg"
+            peek="sm"
+          />
+        </GridCell>
       </div>
     </Example>
   );
 }
 
 /**
- * One numbered cell in the multi-slide edge-case grid: a numbered title above
- * the carousel and a short description below, so QA can tick each case off. The
- * `dir` opt lets a cell render right-to-left in place.
+ * One numbered cell in an example grid (multi-slide, viewport padding, …): a
+ * numbered title above the carousel and a short description below, so QA can
+ * tick each case off. The `dir` opt lets a cell render right-to-left in place.
  */
-function MultiCell({
+function GridCell({
   n,
   title,
   note,
@@ -433,12 +522,12 @@ function MultiCell({
   children: ReactNode;
 }) {
   return (
-    <section className="carousel-multi__cell" dir={dir}>
-      <h2 className="carousel-multi__title">
+    <section className="carousel-grid__cell" dir={dir}>
+      <h2 className="carousel-grid__title">
         {n}. {title}
       </h2>
       {children}
-      <p className="carousel-multi__note">{note}</p>
+      <p className="carousel-grid__note">{note}</p>
     </section>
   );
 }
@@ -449,105 +538,105 @@ export function CarouselMulti() {
       title="Multi-slide — the edge-case grid"
       note="slidesPerPage and slidesPerMove are forwarded to the headless page model, so the visible slide count, the indicator count, the boundary clamp and the active window all stay in lockstep — no dot-per-slide miscount. Dots come from the auto <CarouselIndicators>, which renders exactly one per page. Each cell below pins one case: check the dot count, that the ends disable at the true last page, and that every slide is reachable."
     >
-      <div className="carousel-multi__grid">
-        <MultiCell
+      <div className="carousel-grid">
+        <GridCell
           n={1}
           title="perPage 2 · auto · 6 slides"
           note="Clean paged gallery: non-overlapping pages, moves a full page at a time. 3 dots."
         >
           <MultiSlide label="Case 1" count={6} slidesPerPage={2} />
-        </MultiCell>
+        </GridCell>
 
-        <MultiCell
+        <GridCell
           n={2}
           title="perPage 2 · move 1 · 6 slides"
           note="Sliding window: overlapping pages, advances one slide per click. 5 dots."
         >
           <MultiSlide label="Case 2" count={6} slidesPerPage={2} slidesPerMove={1} />
-        </MultiCell>
+        </GridCell>
 
-        <MultiCell
+        <GridCell
           n={3}
           title="perPage 2 · auto · 5 slides"
           note="Odd count: the last page end-aligns to a full window [3,4] (no lonely single slide), so it snaps cleanly and stays in sync. 3 dots."
         >
           <MultiSlide label="Case 3" count={5} slidesPerPage={2} />
-        </MultiCell>
+        </GridCell>
 
-        <MultiCell
+        <GridCell
           n={4}
           title="perPage 3 · auto · 7 slides"
           note="Last page end-aligns to [4,5,6] (overlapping the one before by two) so two Next clicks reach it and the third dot activates — no desync. 3 dots."
         >
           <MultiSlide label="Case 4" count={7} slidesPerPage={3} />
-        </MultiCell>
+        </GridCell>
 
-        <MultiCell
+        <GridCell
           n={5}
           title="perPage 3 · move 1 · 5 slides"
           note="Overlapping windows one slide apart: [0,1,2] [1,2,3] [2,3,4]. 3 dots."
         >
           <MultiSlide label="Case 5" count={5} slidesPerPage={3} slidesPerMove={1} />
-        </MultiCell>
+        </GridCell>
 
-        <MultiCell
+        <GridCell
           n={6}
           title="perPage 3 · move 2 · 6 slides"
           note="Inexact move: the last window end-aligns to [3,4,5] so slide 6 stays reachable (not orphaned). 3 dots."
         >
           <MultiSlide label="Case 6" count={6} slidesPerPage={3} slidesPerMove={2} />
-        </MultiCell>
+        </GridCell>
 
-        <MultiCell
+        <GridCell
           n={7}
           title="perPage 2 · move 3 · 6 slides"
           note="Move is clamped to the page size, so windows stay contiguous — no skipped slides. Behaves as move 2. 3 dots."
         >
           <MultiSlide label="Case 7" count={6} slidesPerPage={2} slidesPerMove={3} />
-        </MultiCell>
+        </GridCell>
 
-        <MultiCell
+        <GridCell
           n={8}
           title="perPage 2 · 1 slide"
           note="Fewer slides than a page: one page, no navigation — prev/next disabled, one dot."
         >
           <MultiSlide label="Case 8" count={1} slidesPerPage={2} />
-        </MultiCell>
+        </GridCell>
 
-        <MultiCell
+        <GridCell
           n={9}
           title="perPage 4 · 3 slides"
           note="Fewer slides than a page again: one page, controls disabled, one dot."
         >
           <MultiSlide label="Case 9" count={3} slidesPerPage={4} />
-        </MultiCell>
+        </GridCell>
 
-        <MultiCell
+        <GridCell
           n={10}
           title="perPage 2 · 2 slides"
           note="Exactly one page: both slides fill the viewport, one dot, no navigation."
         >
           <MultiSlide label="Case 10" count={2} slidesPerPage={2} />
-        </MultiCell>
+        </GridCell>
 
-        <MultiCell
+        <GridCell
           n={11}
           title="perPage 2 · auto · 6 · peek sm"
           note="Composes with peek: a sliver of the next page shows past the current one. 3 dots."
         >
           <MultiSlide label="Case 11" count={6} slidesPerPage={2} peek="sm" />
-        </MultiCell>
+        </GridCell>
 
-        <MultiCell
+        <GridCell
           n={12}
           title="perPage 3 · auto · 7 · RTL"
           note="Mirrors under right-to-left — logical properties, no RTL-specific CSS. 3 dots."
           dir="rtl"
         >
           <MultiSlide label="Case 12" count={7} slidesPerPage={3} />
-        </MultiCell>
+        </GridCell>
 
-        <MultiCell
+        <GridCell
           n={13}
           title="perPage 2 · auto · 6 · vertical"
           note="Multi-slide on the block axis: two slides stacked per page, up/down controls, vertical dots. 3 dots."
@@ -558,7 +647,7 @@ export function CarouselMulti() {
             slidesPerPage={2}
             orientation="vertical"
           />
-        </MultiCell>
+        </GridCell>
       </div>
     </Example>
   );

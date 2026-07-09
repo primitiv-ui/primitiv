@@ -681,7 +681,7 @@ into one model.
 cells show the intent. **Next:** re-QA of `/carousel/multi`, the viewport-padding
 question (below), then the earlier awaiting-QA iterations.
 
-### Iteration 9 — Thumbnail indicators (awaiting human QA)
+### Iteration 9 — Thumbnail indicators (human-approved; polish pass pending)
 
 **Registry surface (headless-free — pure CSS + a modifier).** A root
 **`indicators`** modifier (`dots` default · `thumbnails`) re-points the indicator
@@ -734,14 +734,25 @@ re-derived) + drift-green + kitchen-sink hand-synced. Registry README updated
 `node scripts/check-registry-types.mjs`. (No headless change — Carousel vitest not
 needed.)
 
-**Figma lockstep: pending** human QA. The Figma `CarouselThumbnail(s)` part
-(active = blue ring `action-primary`, rounded-rect thumbs, bare/no-pill strip) is
-the design target; reconcile the exact thumbnail size / radius / ring width and
-the inactive-dim treatment (code adds an `opacity-60` dim + hover lift not
-specified in the reference) at the lockstep. No carousel `--primitiv-*` variable
-layer exists in Figma (bindings only), so this is expected to be a verification
-pass. **Next:** the remaining placements (external-flank / controls-on-top),
-autoplay, or re-QA of the earlier awaiting-QA iterations.
+**QA round 1 (human) — approved overall.** The `indicators="thumbnails"`
+approach, the composition with every placement/orientation, and the
+control-variant grid all signed off as "mostly great." A handful of fine-tuning
+items are deferred to a dedicated follow-up session (specifics TBD then) —
+treat the current knob values (thumbnail size, ring width, inactive dim) as
+provisional pending that pass, not as settled per the RFC 0006 stable-names
+convention yet.
+
+**Figma lockstep: pending** — deliberately held until after the deferred
+polish pass, so the bridge write happens once (not once now and again after
+fine-tuning). The Figma `CarouselThumbnail(s)` part (active = blue ring
+`action-primary`, rounded-rect thumbs, bare/no-pill strip) is the design
+target; reconcile the exact thumbnail size / radius / ring width and the
+inactive-dim treatment (code adds an `opacity-60` dim + hover lift not
+specified in the reference) once the code side is settled. No carousel
+`--primitiv-*` variable layer exists in Figma (bindings only), so this is
+expected to be a verification pass. **Next:** the thumbnails polish session,
+then the remaining placements (external-flank / controls-on-top), autoplay, or
+re-QA of the earlier awaiting-QA iterations.
 
 ## Backlog (examples still to build)
 
@@ -769,10 +780,10 @@ Reorder as priorities shift; each is human-approved before it starts.
   (`row` default · `overlay`); controls inset on the imagery, dots in a pill.
   Remaining placements (external-flank, controls-on-top) still to build.
 - Dots / indicators variations (below, overlaid _(overlay done, iteration 4)_,
-  thumbnails _(iteration 9 — awaiting QA)_ — the `indicators` modifier
-  (`dots` default · `thumbnails`); image thumbnails as the indicators, active one
-  ringed in `action-primary`. 2-column control-variant grid at
-  `/carousel/thumbnails`.)
+  thumbnails _(iteration 9 — human-approved, polish + Figma lockstep pending)_ —
+  the `indicators` modifier (`dots` default · `thumbnails`); image thumbnails as
+  the indicators, active one ringed in `action-primary`. 2-column
+  control-variant grid at `/carousel/thumbnails`.)
 - Snapping (centred) — `snapAlign="center"`
 - Right-to-left — needs explicit RTL confirmation/tests
 - Masonry — grid-based with complex snapping cells

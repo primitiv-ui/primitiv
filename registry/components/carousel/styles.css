@@ -547,6 +547,36 @@
     padding-inline: var(--primitiv-carousel-overlay-pill-padding-block);
   }
 
+  /* External-flank: the prev/next controls sit *outside* the viewport, flanking
+     its inline edges, with the indicators centred in a row below — the
+     "External-flank + dots/thumbnails" design cell. Unlike `row` (controls in a
+     wrapper below) and `overlay` (controls on the imagery), flank places the
+     parts directly on a 3-column grid — prev | viewport | next — with the
+     indicators in a second row under the viewport. Compose the parts as direct
+     children of the root (no `__controls` wrapper — the grid places each part by
+     area). The controls keep the default secondary-action fill (they're off the
+     imagery). The grid columns follow writing direction, so prev/next swap sides
+     under RTL with no extra CSS. Horizontal orientation. */
+  .primitiv-carousel--placement-flank {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "prev viewport next"
+      ". indicators .";
+    align-items: center;
+  }
+  .primitiv-carousel--placement-flank .primitiv-carousel__viewport {
+    grid-area: viewport;
+  }
+  .primitiv-carousel--placement-flank .primitiv-carousel__prev {
+    grid-area: prev;
+  }
+  .primitiv-carousel--placement-flank .primitiv-carousel__next {
+    grid-area: next;
+  }
+  .primitiv-carousel--placement-flank .primitiv-carousel__indicator-group {
+    grid-area: indicators;
+  }
+
   /* Thumbnails — swap the dot indicators for rounded-rect image thumbnails (the
      gallery pattern). The consumer supplies each thumbnail as children of a
      `<CarouselIndicator>` (an <img> or a background element). `dots` is the

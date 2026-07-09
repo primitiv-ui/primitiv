@@ -118,6 +118,14 @@ appended here:
   inline override. Values are ratio shapes (no new tokens); default `wide` is
   byte-equivalent to the prior base, so nothing regresses. Horizontal-only (the
   vertical viewport owns its ratio). No headless change.
+- **2026-07-09 — External-flank is a third `placement` option (iteration 11).**
+  `placement="flank"` (alongside `row`/`overlay`): prev/next outside the viewport
+  edges, indicators below, via a 3-column grid on direct children (grid-areas,
+  DOM-order-independent), reusing the default secondary control fill. Horizontal
+  only for now — vertical-flank deferred to the placement-expansion follow-up (the
+  vertical 2-col grid would fight flank's 3-col areas; not defensively scoped since
+  no example composes them). It's the designed home for the thumbnails variant
+  ("External-flank + thumbnails"). No headless change.
 
 ## Figma design reference
 
@@ -801,6 +809,52 @@ verification pass. **Next:** the thumbnails polish session, the remaining
 placements (external-flank / controls-on-top), autoplay, or re-QA of the earlier
 awaiting-QA iterations.
 
+### Iteration 11 — External-flank placement (awaiting human QA)
+
+**Registry surface (headless-free — pure CSS + a modifier).** Added a third
+**`placement`** option, **`flank`** (`row` default · `overlay` · `flank`): the
+prev/next controls sit *outside* the viewport's inline edges (left/right) with the
+indicators centred in a row below — the Figma "External-flank + dots/thumbnails"
+cell, and the designed home for the thumbnails variant (iteration 9). Unlike `row`
+(controls in a `<CarouselControls>` wrapper below) and like `overlay`, the parts
+are **direct children** of the root; `flank` turns the root into a 3-column grid
+(`grid-template-areas: "prev viewport next" / ". indicators ."`) and assigns each
+part to its area by class, so DOM order doesn't matter and the indicators centre
+in a second row under the viewport. The controls keep the default
+secondary-action fill (they're off the imagery, so no scrim re-point like
+overlay). Logical grid columns follow writing direction → prev/next swap sides
+under RTL with no extra CSS. Reuses the root `gap` (block-gap) for both the
+control↔viewport columns and the viewport↔indicators row. **No headless change** —
+placement is a layout concern the stylesheet owns. Composes with
+`indicators="thumbnails"` (the External-flank + thumbnails cell), `peek`, and the
+slide `ratio` for free.
+
+**Naming.** `flank` — single-word cva option (the recipe emitter doesn't quote
+keys), matching `row` / `overlay`. Horizontal orientation only for now (the
+grid-areas model is inline-axis); a **vertical + flank** combo is left to the
+placement-expansion follow-up (the vertical rule's 2-col grid would fight flank's
+3-col areas — not defensively scoped since no example composes them yet).
+
+**Built** (`CarouselPage.tsx`, `/carousel/flank`): a **2-column grid** — (1) flank
++ dots, (2) flank + thumbnails (the design cell), (3) flank + peek, (4) flank +
+square ratio, (5) flank + RTL, (6) flank + thumbnails + peek. A `FlankSingle`
+helper (ratio / peek / indicators dots|thumbnails) drives every cell.
+
+**Regenerated** (recipe/tsx carry the `flank` placement option; styles.scss
+re-derived) + drift-green + kitchen-sink hand-synced. Registry README updated
+(scope, the `flank` placement).
+
+**Gates green:** `cargo test -p primitiv-emit -p primitiv-cli` (364 + 20 + 106),
+`node scripts/check-registry-types.mjs`. (No headless change — Carousel vitest not
+needed.)
+
+**Figma lockstep: pending** human QA. Flank is code-only (no carousel
+`--primitiv-*` variable layer in Figma); the "External-flank + dots" and
+"External-flank + thumbnails" design cells show the intent, so this is expected to
+be a verification pass. **Next:** the thumbnails polish + placement-expansion
+session the human flagged (which will likely add vertical-flank and the
+controls-on-top placement), then autoplay / play-pause.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".
@@ -823,9 +877,12 @@ Reorder as priorities shift; each is human-approved before it starts.
   end-aligns, counts are guarded, and the auto `<CarouselIndicators>` renders the
   right dot count. Golden edge-case grid at `/carousel/multi`. See iteration 8 +
   `docs/carousel-multi-slide-plan.md`.
-- Placement: overlay _(iteration 4 — awaiting QA)_ — the `placement` modifier
-  (`row` default · `overlay`); controls inset on the imagery, dots in a pill.
-  Remaining placements (external-flank, controls-on-top) still to build.
+- Placement: overlay _(iteration 4 — awaiting QA)_ + external-flank
+  _(iteration 11 — awaiting QA)_ — the `placement` modifier (`row` default ·
+  `overlay` · `flank`); overlay insets the controls on the imagery (dots in a
+  pill), flank puts prev/next outside the viewport edges with indicators in a row
+  below. Remaining: controls-on-top, and vertical-flank (placement-expansion
+  follow-up).
 - Dots / indicators variations (below, overlaid _(overlay done, iteration 4)_,
   thumbnails _(iteration 9 — human-approved, polish + Figma lockstep pending)_ —
   the `indicators` modifier (`dots` default · `thumbnails`); image thumbnails as

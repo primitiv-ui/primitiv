@@ -195,6 +195,54 @@ function OverlaySingle({
 }
 
 /**
+ * External-flank placement — the "External-flank + dots/thumbnails" composition:
+ * circular prev/next sit *outside* the viewport's inline edges (left/right) with
+ * the indicators centred in a row below. Driven by `placement="flank"`; the parts
+ * are direct children of the root (no `__controls` wrapper — the grid places each
+ * by area), so prev/next swap sides under RTL for free. Indicators can be dots or
+ * thumbnails (the flank + thumbnails design cell).
+ */
+function FlankSingle({
+  label,
+  ratio,
+  peek,
+  indicators = "dots",
+}: {
+  label: string;
+  ratio?: "square" | "standard" | "wide" | "ultrawide";
+  peek?: "none" | "sm" | "md" | "lg";
+  indicators?: "dots" | "thumbnails";
+}) {
+  return (
+    <Carousel
+      ariaLabel={label}
+      placement="flank"
+      peek={peek}
+      indicators={indicators}
+    >
+      <CarouselViewport>
+        {SLIDES.map((bg, i) => (
+          <CarouselSlide key={i} ratio={ratio} style={{ background: bg }} />
+        ))}
+      </CarouselViewport>
+      <CarouselPreviousTrigger aria-label="Previous slide">
+        <ChevronLeft />
+      </CarouselPreviousTrigger>
+      <CarouselNextTrigger aria-label="Next slide">
+        <ChevronRight />
+      </CarouselNextTrigger>
+      <CarouselIndicatorGroup label="Choose slide">
+        {SLIDES.map((bg, i) => (
+          <CarouselIndicator key={i} index={i}>
+            {indicators === "thumbnails" ? <span style={{ background: bg }} /> : null}
+          </CarouselIndicator>
+        ))}
+      </CarouselIndicatorGroup>
+    </Carousel>
+  );
+}
+
+/**
  * Multi-slide-per-view — several slides share the viewport at once, each taking
  * an equal share of the space (minus the inter-slide gap). `slidesPerPage` and
  * `slidesPerMove` are forwarded to the headless page model (they drive the slide
@@ -917,6 +965,66 @@ export function CarouselRatio() {
           note="16:9 slide with the large peek — the wide counterpart, closing the square-vs-wide comparison across every peek size."
         >
           <BasicSingle label="Wide, peek lg" ratio="wide" peek="lg" />
+        </GridCell>
+      </div>
+    </Example>
+  );
+}
+
+export function CarouselFlank() {
+  return (
+    <Example
+      title='External-flank — placement="flank"'
+      note="The prev/next controls sit outside the viewport, flanking its inline edges (left/right), with the indicators centred in a row below — the External-flank design cell. The parts are direct children of the root (a 3-column grid: prev | viewport | next), so prev/next swap sides under RTL for free. It composes with dots or thumbnails (the External-flank + thumbnails cell), peek, and the slide ratio."
+    >
+      <div className="carousel-grid">
+        <GridCell
+          n={1}
+          title="Flank + dots"
+          note="The baseline: circular prev/next flanking the viewport, a dot row centred below. Click a control or dot to page."
+        >
+          <FlankSingle label="Flank — dots" />
+        </GridCell>
+
+        <GridCell
+          n={2}
+          title="Flank + thumbnails"
+          note="The External-flank + thumbnails design cell: the same flanking controls with a thumbnail strip below, active one ringed in the primary colour."
+        >
+          <FlankSingle label="Flank — thumbnails" indicators="thumbnails" />
+        </GridCell>
+
+        <GridCell
+          n={3}
+          title="Flank + peek sm"
+          note="Composes with peek: a sliver of the neighbouring slides shows in the viewport, the controls still flanking outside it."
+        >
+          <FlankSingle label="Flank — peek" peek="sm" />
+        </GridCell>
+
+        <GridCell
+          n={4}
+          title="Flank + square slides"
+          note="Composes with the slide ratio: 1:1 square slides between the flanking controls."
+        >
+          <FlankSingle label="Flank — square" ratio="square" />
+        </GridCell>
+
+        <GridCell
+          n={5}
+          title="Flank + RTL"
+          note="Mirrors under right-to-left — the grid columns follow writing direction, so prev/next swap sides with no RTL-specific CSS."
+          dir="rtl"
+        >
+          <FlankSingle label="Flank — right to left" />
+        </GridCell>
+
+        <GridCell
+          n={6}
+          title="Flank + thumbnails + peek"
+          note="A busy composition: flanking controls, a thumbnail strip below, and a peek sliver of the neighbours — every flank-compatible axis at once."
+        >
+          <FlankSingle label="Flank — thumbnails + peek" indicators="thumbnails" peek="sm" />
         </GridCell>
       </div>
     </Example>

@@ -28,6 +28,7 @@ export const carousel = cva("primitiv-carousel", {
     placement: {
       row: "primitiv-carousel--placement-row",
       overlay: "primitiv-carousel--placement-overlay",
+      flank: "primitiv-carousel--placement-flank",
     },
     indicators: {
       dots: "primitiv-carousel--indicators-dots",

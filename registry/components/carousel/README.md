@@ -17,12 +17,12 @@ expressed in logical properties.
 > `data-orientation`, a column-scroll viewport with the controls in a column
 > beside it), **peek** (the `peek` modifier), **viewport padding** (the `padding`
 > modifier — a padded, framed viewport track), a **`placement`** modifier whose
-> `overlay` option insets the controls on the imagery, an **`indicators`**
-> modifier whose `thumbnails` option swaps the dots for image thumbnails, and a
-> slide **`ratio`** modifier (square / standard / wide / ultrawide) for the slide
-> aspect ratio (all — see below). The remaining placements (external-flank,
-> controls-on-top), multi-slide, and autoplay land in later iterations (see
-> `docs/carousel-development-log.md`).
+> `overlay` and `flank` options move the controls onto the imagery / outside the
+> viewport, an **`indicators`** modifier whose `thumbnails` option swaps the dots
+> for image thumbnails, and a slide **`ratio`** modifier (square / standard / wide
+> / ultrawide) for the slide aspect ratio (all — see below). The remaining
+> placement (controls-on-top), multi-slide, and autoplay land in later iterations
+> (see `docs/carousel-development-log.md`).
 
 ## Files
 
@@ -72,7 +72,8 @@ so they can't fall out of sync.
   `padding` + `surface="subtle"` a filled one. `padding` `none` (the default) is a
   bare, frameless scroll box. It maps to the scroll axis in either orientation. A
   root **`placement`**
-  modifier (`row` default · `overlay`) chooses where the controls sit: `row`
+  modifier (`row` default · `overlay` · `flank`) chooses where the controls sit:
+  `row`
   keeps prev / dots / next in a flow row below (composed in a `<CarouselControls>`
   wrapper), while `overlay` insets the controls on the imagery — prev/next
   absolutely flanking the slide edges on a translucent `neutral-alpha` scrim and
@@ -86,7 +87,16 @@ so they can't fall out of sync.
   whole lane mirrors to inline-start under RTL). The insets clear the
   viewport-padding frame and the peek gutter on whichever axis is the scroll axis,
   so overlay sits on the slide in both orientations, with or without `padding` /
-  `peek`. A root **`indicators`** modifier (`dots` default · `thumbnails`) chooses
+  `peek`. `flank` puts the prev/next **outside** the viewport's inline edges
+  (left/right) with the indicators centred in a row below — the "External-flank"
+  design cell. Like `overlay`, the parts are direct children of the root (no
+  `<CarouselControls>` wrapper): the root becomes a 3-column grid
+  (`prev | viewport | next`) with the indicators in a second row, and the logical
+  grid columns swap prev/next under RTL with no extra CSS. The controls keep the
+  default secondary-action fill (they're off the imagery). It composes with
+  `indicators="thumbnails"` (the External-flank + thumbnails cell), `peek`, and
+  the slide `ratio`; it is a horizontal-orientation placement. A root
+  **`indicators`** modifier (`dots` default · `thumbnails`) chooses
   what the indicators look like: `dots` is the compact dot row, while `thumbnails`
   reshapes each indicator button into a rounded-rect image **thumbnail** — the
   gallery pattern — with the active one ringed in the primary colour (the rest

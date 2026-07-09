@@ -18,6 +18,7 @@ const EXAMPLES: { to: string; label: string }[] = [
   { to: "fade", label: "Fade" },
   { to: "thumbnails", label: "Thumbnails" },
   { to: "ratio", label: "Ratio" },
+  { to: "flank", label: "External-flank" },
 ];
 
 export function CarouselLayout() {

@@ -47,13 +47,14 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    */
   surface?: "none" | "subtle";
   /**
-   * Where the prev/next controls and indicator dots sit relative to the viewport. The default keeps them in a flow row below (compose them in a `<CarouselControls>` wrapper); `overlay` insets the controls on the slide for edge-to-edge imagery.
+   * Where the prev/next controls and indicator dots sit relative to the viewport. The default keeps them in a flow row below (compose them in a `<CarouselControls>` wrapper); `overlay` insets the controls on the slide for edge-to-edge imagery; `flank` puts the prev/next outside the viewport's inline edges with the indicators in a row below (compose the parts as direct children of the root).
    * - `row` — Controls flow in a row below the viewport (the default).
    * - `overlay` — Controls sit on the imagery — prev/next flanking the slide edges on a translucent scrim, dots in a pill overlaid at the bottom.
+   * - `flank` — Controls flank the viewport — circular prev/next outside its inline edges (left/right), with the indicators centred in a row below. Compose the parts as direct children of the root (no `<CarouselControls>` wrapper — the grid places each part by area).
    * @default "row"
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
-  placement?: "row" | "overlay";
+  placement?: "row" | "overlay" | "flank";
   /**
    * What the indicators look like. `dots` (the default) is the compact dot row; `thumbnails` swaps each indicator for a rounded-rect image thumbnail — the active one ringed in the primary colour, the classic gallery pattern. Supply the thumbnail content as children of each `<CarouselIndicator>` (an `<img>` or a background element).
    * - `dots` — Compact dots — one per page (the default).

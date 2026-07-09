@@ -16,7 +16,7 @@ expressed in logical properties.
 > **vertical orientation** (`orientation="vertical"` on the headless Root →
 > `data-orientation`, a column-scroll viewport with the controls in a column
 > beside it), **peek** (the `peek` modifier), **viewport padding** (the `padding`
-> modifier — an outer gutter framing the carousel, distinct from peek), and a **`placement`** modifier whose
+> modifier — a padded, framed viewport track), and a **`placement`** modifier whose
 > `overlay` option insets the controls on the imagery (both — see below). The
 > remaining placements (external-flank, controls-on-top), multi-slide, thumbnails,
 > and autoplay land in later iterations (see `docs/carousel-development-log.md`).
@@ -56,15 +56,16 @@ so they can't fall out of sync.
   re-points `--primitiv-carousel-peek` to reveal a sliver of the adjacent slides;
   it works in **both** orientations (the viewport maps the peek to the inline
   edges when horizontal, the block edges when vertical). A root **`padding`**
-  modifier (`none` default · `sm` · `md` · `lg`) re-points
-  `--primitiv-carousel-viewport-padding` to inset the whole carousel from its
-  container with an outer gutter (breathing room framing the viewport). It is
-  deliberately **distinct from peek**: `padding` pads the root and never reveals a
-  neighbour, whereas peek lives on the viewport and reveals the neighbour slivers —
-  so the two **stack** (with both set the edge inset is padding + peek while the
-  neighbour reveal stays exactly peek). It frames **every edge** in both
-  orientations — including the one opposite the controls — while the internal
-  viewport-to-controls spacing stays the block gap's job. A root **`placement`**
+  modifier (`none` default · `sm` · `md` · `lg`) makes the **viewport a padded,
+  framed track**: it re-points `--primitiv-carousel-viewport-padding` (inner inset
+  on every edge) *and* turns on the viewport frame knobs
+  (`--primitiv-carousel-viewport-surface` / `-border-width` / `-border-color` /
+  `-radius`), so the viewport draws a bordered, rounded, tinted box with the slides
+  inset inside it. The inter-slide gap is coupled to the padding so the resting
+  track shows clean inset breathing room, not an accidental peek; adding `peek` on
+  top reveals a neighbour sliver *within* the track. `none` (the default) is a bare,
+  frameless scroll box. It maps to the scroll axis in either orientation. A root
+  **`placement`**
   modifier (`row` default · `overlay`) chooses where the controls sit: `row`
   keeps prev / dots / next in a flow row below (composed in a `<CarouselControls>`
   wrapper), while `overlay` insets the controls on the imagery — prev/next
@@ -107,13 +108,15 @@ Structured per RFC 0008 — the per-component API knobs + resting look in
   `y mandatory` under `data-orientation="vertical"`, where it becomes a column
   with a landscape `aspect-ratio` and the controls sit beside it),
   `overscroll-behavior` containment, and hidden scrollbars; the headless layer
-  syncs React state off `scrollsnapchange`. **Peek** pads the leading/trailing
-  edges (inline or block per orientation) and sets a matching `scroll-padding` so
-  the active slide snaps inside the padding, revealing the neighbours. The
-  **`padding`** modifier is separate — an outer gutter on the *root* framing every
-  edge (`box-sizing: border-box` so it stays inside the 100% inline-size), which
-  frames the whole component without revealing a neighbour, so it composes with
-  peek rather than adding to the reveal.
+  syncs React state off `scrollsnapchange`. It is also the **framed box** — the
+  surface / border / radius knobs (off by default) draw the track and
+  `box-sizing: border-box` + `overflow` clip the scrolling slides to the rounded
+  corners. **Peek** pads the leading/trailing edges (inline or block per
+  orientation) and sets a matching `scroll-padding` so the active slide snaps
+  inside the padding, revealing the neighbours. **Viewport padding** adds to that
+  padding on the scroll axis (plus the cross axis for the frame inset) and turns on
+  the frame — a padded track — while coupling the gap so it doesn't itself reveal a
+  neighbour; the two compose (padding frames, peek reveals within).
 - **Slide** — a `flex-basis` of the viewport's *content* box divided by
   `--primitiv-carousel-slides-per-page` (minus the inter-slide gaps), so it is one
   per view by default and an equal share for a 2-/3-/4-up gallery; the % is of the

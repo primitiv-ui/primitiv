@@ -73,6 +73,13 @@ appended here:
   string union is the typed surface. The `--primitiv-carousel-slides-per-page` knob
   stays exposed for arbitrary counts.
 
+- **2026-07-09 — SUPERSEDED: viewport padding reworked from an outer-root gutter
+  into a framed viewport track (iteration 7, QA round 2).** The decision below
+  (padding on the root) was reverted on human QA — they wanted the frame + padding
+  **on the viewport itself**. Now `padding` pads the viewport and turns on viewport
+  surface/border/radius knobs (a padded, framed track), with the gap coupled so the
+  resting track doesn't peek. See the iteration-7 entry's "QA round 2". The note
+  below is kept for the rationale history.
 - **2026-07-08 — Viewport padding is the *outer* gutter, distinct from peek
   (iteration 7).** The design/backlog's "Viewport padding" cell was folded into
   peek in iteration 3, but the human re-raised it as its own axis and flagged the
@@ -506,13 +513,28 @@ The internal viewport↔controls spacing stays the block gap's job, so the gutte
 doesn't leak between them. Regenerated (scss + recipe/tsx JSDoc) + drift-green +
 hand-synced.
 
-**Figma lockstep: pending** human QA. Light — viewport padding is a code-only
-knob/modifier (no carousel `--primitiv-*` variable layer in Figma; bindings only),
-and the design's "Viewport padding (`space-16` gutter · scroll-padding)" cell
-already shows the intent, so this is expected to be a verification pass. One note
-for the lockstep: the Figma cell frames it as viewport `scroll-padding`; the code
-deliberately puts it on the **root** (outer gutter) so it composes with peek —
-reconcile the mental model there. **Next:** the remaining placements
+**QA round 2 (human) — reworked into a framed viewport track.** The human wanted
+the frame (surface/border/radius) and the padding **on the viewport itself**, not an
+outer gutter on the root with an example-only frame div, and questioned the
+root-padding choice. Reworked (human OK'd trying it, revert if it doesn't land):
+`padding` now pads the **viewport** (inline = peek + padding on the scroll axis,
+block/cross = padding for the frame inset; `box-sizing: border-box`, `overflow`
+clips to the radius) and **turns on the viewport frame** via new knobs
+(`--primitiv-carousel-viewport-surface` / `-border-width` / `-border-color` /
+`-radius`, all off by default). The `padding` sizes couple the inter-slide gap to
+the padding so the resting track shows clean inset breathing room (no accidental
+peek); `peek` on top reveals a neighbour within the track. The root gutter +
+`box-sizing` on the root and the `.carousel-page__frame` example wrapper are gone.
+**Caveat:** the clean-track gap coupling is reasoned, not browser-verified (no
+sandbox browser) — the inline neighbour-hide depends on `gap ≥ padding`; QA
+confirms whether the resting track reads as a clean frame vs. a peek. Regenerated
+(scss only; recipe/tsx byte-identical — the frame knobs are `customProperties`,
+not modifiers) + drift-green + hand-synced.
+
+**Figma lockstep: pending** human QA. Light — viewport padding is code-only (no
+carousel `--primitiv-*` variable layer in Figma; bindings only). Reconcile the
+framed-track model (viewport surface/border/radius + inner padding) with the
+design's "Viewport padding" cell at lockstep. **Next:** the remaining placements
 (external-flank / controls-on-top) or thumbnails.
 
 ### Iteration 8 — Multi-slide correctness (slidesPerPage / slidesPerMove) (awaiting human QA)

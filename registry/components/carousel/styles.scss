@@ -38,16 +38,23 @@
        `peek` modifier re-points it; the viewport maps it to the axis that
        matches the orientation (inline for horizontal, block for vertical). */
     --primitiv-carousel-peek: var(--primitiv-space-space-0);
-    /* Viewport padding — the outer gutter that frames the whole carousel,
-       insetting it from its container (breathing room around the viewport). It is
-       deliberately distinct from peek: peek lives on the viewport and reveals a
-       sliver of the neighbouring slides, whereas this pads the root and never
-       reveals a neighbour — so the two compose. With both set the edge inset is
-       padding + peek while the neighbour reveal stays exactly peek. 0 = no gutter.
-       The `padding` modifier re-points it; the root frames every edge (including
-       the one opposite the controls — the viewport↔controls spacing stays the
-       block-gap's job, so the gutter doesn't leak between them). */
+    /* Viewport padding — inner breathing room *inside the viewport*, so the
+       slides sit inset from the track edges. Paired with the viewport frame knobs
+       below (surface / border / radius), it renders the viewport as a padded,
+       framed track. 0 = no padding (the default; the viewport is a bare, frameless
+       scroll box). The `padding` modifier re-points it and turns the frame on. It
+       composes with peek on the scroll axis (peek narrows the slides further to
+       reveal the neighbours within the track); the `padding` sizes couple the
+       inter-slide gap so the resting track stays clean (no accidental peek). */
     --primitiv-carousel-viewport-padding: var(--primitiv-space-space-0);
+    /* Viewport frame — the surface, border and rounding of the scroll track. All
+       off by default (transparent surface, zero-width border, square) so a plain
+       carousel has no visible track; the `padding` modifier turns them on to draw
+       the framed box the padding insets the slides within. */
+    --primitiv-carousel-viewport-surface: transparent;
+    --primitiv-carousel-viewport-border-width: var(--primitiv-border-width-0);
+    --primitiv-carousel-viewport-border-color: transparent;
+    --primitiv-carousel-viewport-radius: var(--primitiv-radii-0);
     /* How many slides share the viewport at once. 1 = one slide fills it (the
        default); higher counts divide the content box into equal shares. The
        `slidesPerPage` prop sets this inline (the same number it hands the
@@ -109,15 +116,10 @@
     --primitiv-carousel-fade-easing: var(--primitiv-motion-easing-default);
 
     /* Fill the container and stack the viewport above the controls row, spaced
-       by the block gap. The outer gutter frames the whole component on every edge
-       — so the side opposite the controls is padded too — while the internal
-       viewport↔controls spacing stays the block-gap's job. border-box keeps the
-       gutter inside the 100% inline-size rather than overflowing the container. */
+       by the block gap. */
     display: grid;
     gap: var(--primitiv-carousel-block-gap);
-    box-sizing: border-box;
     inline-size: 100%;
-    padding: var(--primitiv-carousel-viewport-padding);
   }
 
   /* Controls row — the wrapper a consumer puts prev / indicators / next in.
@@ -131,17 +133,33 @@
   }
 
   /* The scroll-snap track. Native horizontal scroll owns the swipe; the headless
-     layer syncs React state off scrollsnapchange. */
+     layer syncs React state off scrollsnapchange. It is also the framed box: the
+     surface / border / radius knobs (off by default) draw the track, and the
+     viewport padding insets the slides inside it. border-box keeps the padding and
+     border within the 100% inline-size; overflow clips the scrolling slides to the
+     rounded corners. */
   .primitiv-carousel__viewport {
     display: flex;
+    box-sizing: border-box;
     gap: var(--primitiv-carousel-gap);
-    /* Peek: pad the inline edges and snap-align inside that padding, so the
-       active slide (flex-basis 100% of the content box = viewport − 2×peek)
-       leaves a peek-wide sliver of each neighbour showing. scroll-padding keeps
-       programmatic + swipe nav landing on the padded snap position. */
-    padding-inline: var(--primitiv-carousel-peek);
-    scroll-padding-inline: var(--primitiv-carousel-peek);
+    background: var(--primitiv-carousel-viewport-surface);
+    border: var(--primitiv-carousel-viewport-border-width) solid
+      var(--primitiv-carousel-viewport-border-color);
+    border-radius: var(--primitiv-carousel-viewport-radius);
+    /* Inline padding = peek + viewport padding (both inset the active slide on the
+       scroll axis; peek reveals the neighbours, the viewport padding frames the
+       track); block padding = viewport padding (pure top/bottom frame inset).
+       scroll-padding keeps programmatic + swipe nav landing on the padded snap
+       position. */
+    padding-inline: calc(
+      var(--primitiv-carousel-peek) + var(--primitiv-carousel-viewport-padding)
+    );
+    padding-block: var(--primitiv-carousel-viewport-padding);
+    scroll-padding-inline: calc(
+      var(--primitiv-carousel-peek) + var(--primitiv-carousel-viewport-padding)
+    );
     overflow-x: auto;
+    overflow-y: hidden;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     /* Stop vertical page scroll rubber-banding into the carousel on touch. */
@@ -237,8 +255,6 @@
     grid-auto-flow: column;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    /* The outer gutter frames every edge (base rule) — no axis remap needed; the
-       viewport↔controls column spacing stays the grid gap's job. */
   }
 
   /* Column scroll track: a portrait box (height from the aspect knob), snapping
@@ -251,11 +267,17 @@
     overflow-y: auto;
     scroll-snap-type: y mandatory;
     overscroll-behavior-y: contain;
-    /* Peek runs on the block axis when vertical — move it off inline. */
-    padding-inline: 0;
-    scroll-padding-inline: 0;
-    padding-block: var(--primitiv-carousel-peek);
-    scroll-padding-block: var(--primitiv-carousel-peek);
+    /* The scroll axis is the block axis when vertical, so peek + viewport padding
+       run on block, and the viewport padding's frame inset runs on inline (the
+       cross axis). Mirror of the horizontal base rule, axes swapped. */
+    padding-block: calc(
+      var(--primitiv-carousel-peek) + var(--primitiv-carousel-viewport-padding)
+    );
+    scroll-padding-block: calc(
+      var(--primitiv-carousel-peek) + var(--primitiv-carousel-viewport-padding)
+    );
+    padding-inline: var(--primitiv-carousel-viewport-padding);
+    scroll-padding-inline: var(--primitiv-space-space-0);
   }
 
   /* Each slide fills the portrait viewport — flex-basis owns the block size, so
@@ -286,10 +308,24 @@
     --primitiv-carousel-peek: var(--primitiv-space-space-48);
   }
 
-  /* Viewport padding — re-points the outer-gutter knob to frame the carousel with
-     breathing room from its container. Shares peek's t-shirt scale so the two
-     gutters read as one vocabulary; frames every edge in both orientations (so the
-     side opposite the controls is padded too). `none` is the default (no gutter). */
+  /* Viewport padding — makes the viewport a padded, framed track: it re-points the
+     padding knob (inner inset on every edge) AND turns on the viewport frame
+     (surface + border + rounded corners), so the padding reads as breathing room
+     inside a visible box. Shares peek's t-shirt scale. `none` is the default
+     (no padding, no frame — a bare scroll box). The frame knobs are shared across
+     the sizes; only the padding (and the coupled gap) grows. */
+  .primitiv-carousel--padding-sm,
+  .primitiv-carousel--padding-md,
+  .primitiv-carousel--padding-lg {
+    --primitiv-carousel-viewport-surface: var(--primitiv-surface-subtle);
+    --primitiv-carousel-viewport-border-width: var(--primitiv-border-width-1);
+    --primitiv-carousel-viewport-border-color: var(--primitiv-border-subtle);
+    --primitiv-carousel-viewport-radius: var(--primitiv-radii-12);
+    /* Couple the inter-slide gap to the padding so a neighbour slide sits exactly
+       at the framed edge — the resting track shows clean inset breathing room, not
+       an accidental peek. Add `peek` on top for a deliberate neighbour reveal. */
+    --primitiv-carousel-gap: var(--primitiv-carousel-viewport-padding);
+  }
   .primitiv-carousel--padding-none {
     --primitiv-carousel-viewport-padding: var(--primitiv-space-space-0);
   }
@@ -469,6 +505,10 @@
 $primitiv-carousel-gap: var(--primitiv-carousel-gap);
 $primitiv-carousel-peek: var(--primitiv-carousel-peek);
 $primitiv-carousel-viewport-padding: var(--primitiv-carousel-viewport-padding);
+$primitiv-carousel-viewport-surface: var(--primitiv-carousel-viewport-surface);
+$primitiv-carousel-viewport-border-width: var(--primitiv-carousel-viewport-border-width);
+$primitiv-carousel-viewport-border-color: var(--primitiv-carousel-viewport-border-color);
+$primitiv-carousel-viewport-radius: var(--primitiv-carousel-viewport-radius);
 $primitiv-carousel-slides-per-page: var(--primitiv-carousel-slides-per-page);
 $primitiv-carousel-slide-aspect-ratio: var(--primitiv-carousel-slide-aspect-ratio);
 $primitiv-carousel-vertical-aspect-ratio: var(--primitiv-carousel-vertical-aspect-ratio);

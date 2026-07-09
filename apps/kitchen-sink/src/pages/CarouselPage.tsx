@@ -387,45 +387,27 @@ export function CarouselPeek() {
 export function CarouselPadding() {
   return (
     <Example
-      title="Viewport padding — frame it in a gutter"
-      note="A cross-cutting `padding` modifier (none · sm · md · lg) insets the whole carousel from its container with an outer gutter — breathing room framing the viewport. Each carousel below sits in a tinted container so the gutter is visible as the surface between the container edge and the slide. It is deliberately distinct from peek: padding is the outer gutter (it never reveals a neighbour), peek is the inner reveal — they stack, so with both set the edge inset grows but the neighbour sliver stays exactly peek."
+      title="Viewport padding — a framed, padded track"
+      note="A cross-cutting `padding` modifier (none · sm · md · lg) turns the viewport into a padded, framed track: the viewport itself gets a surface, a border and rounded corners, and the padding insets the slides inside it. The inter-slide gap is coupled to the padding so the resting track shows clean inset breathing room (no accidental peek). Add `peek` on top for a deliberate neighbour reveal within the track. It maps to the scroll axis in either orientation."
     >
-      {/* Padding size ladder — each in a frame so the gutter reads. */}
+      {/* Padding size ladder — the frame is on the viewport itself now. */}
       <div className="carousel-page__stack">
-        <div className="carousel-page__frame">
-          <BasicSingle label="Viewport padding — small" padding="sm" />
-        </div>
-        <div className="carousel-page__frame">
-          <BasicSingle label="Viewport padding — medium" padding="md" />
-        </div>
-        <div className="carousel-page__frame">
-          <BasicSingle label="Viewport padding — large" padding="lg" />
-        </div>
+        <BasicSingle label="Viewport padding — small" padding="sm" />
+        <BasicSingle label="Viewport padding — medium" padding="md" />
+        <BasicSingle label="Viewport padding — large" padding="lg" />
       </div>
 
-      {/* The composition the sizing question raised: padding + peek together.
-          The gutter frames the carousel while peek still reveals the neighbour
-          slivers — the two stack rather than fight. Alongside it, padding on the
-          vertical (block-axis gutter) and under RTL (mirrors). */}
+      {/* Composition: padding + peek together (the framed track shows a deliberate
+          neighbour sliver), padding on the vertical track, and under RTL. */}
       <div className="carousel-page__row">
         <div className="carousel-page__wide">
-          <div className="carousel-page__frame">
-            <BasicSingle
-              label="Padding + peek together"
-              padding="md"
-              peek="sm"
-            />
-          </div>
+          <BasicSingle label="Padding + peek together" padding="md" peek="sm" />
         </div>
         <div className="carousel-page__vertical">
-          <div className="carousel-page__frame">
-            <VerticalSingle label="Vertical padding" padding="md" />
-          </div>
+          <VerticalSingle label="Vertical padding" padding="md" />
         </div>
         <div className="carousel-page__wide" dir="rtl">
-          <div className="carousel-page__frame">
-            <BasicSingle label="Padding under RTL" padding="md" />
-          </div>
+          <BasicSingle label="Padding under RTL" padding="md" />
         </div>
       </div>
     </Example>

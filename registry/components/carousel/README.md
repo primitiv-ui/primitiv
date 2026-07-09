@@ -72,18 +72,29 @@ so they can't fall out of sync.
   the dots in a pill along the bottom (no `<CarouselControls>` wrapper; the parts are
   direct children of the root, which becomes the positioning context). It
   re-points the shared control/indicator colour knobs to the on-imagery scrim
-  palette via the `--primitiv-carousel-overlay-*` knobs. A root **`slidesPerPage`**
-  modifier (`1` default · `2` · `3` · `4`) re-points `--primitiv-carousel-slides-per-page`
-  so several slides share the viewport at once (a 2-/3-/4-up gallery); each slide's
-  flex-basis divides the content box into equal shares separated by the gap, so it
-  composes with peek and both orientations. For an arbitrary count, set the knob
-  directly. The slide **`radius`**
+  palette via the `--primitiv-carousel-overlay-*` knobs. The slide **`radius`**
   modifier (`md` default · `none` squares the slide off) lives on the `slide`,
   not the root — which is why `CarouselSlide` gets the `radius` prop while
-  `Carousel` gets `peek`, `padding`, `placement` and `slidesPerPage`.
+  `Carousel` gets `peek`, `padding` and `placement`.
+- **Multi-slide (`slidesPerPage` / `slidesPerMove`).** These are **not**
+  modifiers — they are **`styleProps`**: numeric props forwarded straight to the
+  headless page model *and* written onto `--primitiv-carousel-slides-per-page`
+  inline, so **one number drives both** the slide flex-basis (the visible count)
+  and the headless maths (indicator count, boundary clamp, active window). This is
+  what keeps the dot count honest — a 6-slide carousel at `slidesPerPage={2}`
+  renders 3 page-dots (auto) or 5 (with `slidesPerMove={1}`), never 6. `slidesPerMove`
+  defaults to `"auto"` (advance a full page); a numeric value slides the window,
+  is clamped to `[1, slidesPerPage]`, and end-aligns the last page so no slide is
+  orphaned. Any count works (they're plain numbers). Pair them with the auto
+  **`<CarouselIndicators>`** (below) so the dot count follows the page model with
+  no per-slide wiring.
 
 `subcomponents` marks this a **structural compound**: the styled surface is N thin
-per-part wrappers the consumer composes.
+per-part wrappers the consumer composes. Two indicator surfaces ship: **`<CarouselIndicators>`**
+(auto — renders exactly one dot per *page*, the count-correct default for
+multi-slide) and the lower-level **`<CarouselIndicatorGroup>` + `<CarouselIndicator>`**
+(manual — for custom dot content). The default dot styling targets the group's
+child `<button>`s, so both surfaces are styled identically.
 
 ## The default theme (`styles.css`)
 
@@ -106,15 +117,19 @@ Structured per RFC 0008 — the per-component API knobs + resting look in
 - **Slide** — a `flex-basis` of the viewport's *content* box divided by
   `--primitiv-carousel-slides-per-page` (minus the inter-slide gaps), so it is one
   per view by default and an equal share for a 2-/3-/4-up gallery; the % is of the
-  content box, so peek padding narrows it and the neighbours show through.
+  content box, so peek padding narrows it and the neighbours show through. The
+  count comes from the `slidesPerPage` prop, which the wrapper writes onto that
+  custom property inline (the same number it hands the headless page model).
   `aspect-ratio` for proportional sizing as the container resizes, rounded by
   default (`--primitiv-radii-12`), `overflow: hidden` so imagery clips to the radius.
 - **Controls** — **circular** (`50%`), `space-32` square, filled with
   `action-secondary` (matching the design's external-context control); hover /
   active re-point the fill knob.
-- **Indicators** — a centred row; the button carries a 44×44-min hit area
+- **Indicators** — a centred row; each button carries a 44×44-min hit area
   (WCAG 2.5.8) while the visible dot stays small via `::before`; the active dot
-  re-points to `action-primary`.
+  re-points to `action-primary`. The rules target both the manual `__indicator`
+  part **and** the group's child `<button>`s, so the auto `<CarouselIndicators>`
+  dots (headless buttons with no part class) get the same styling.
 
 - **Transition (`data-transition`)** — the headless `transition` prop
   (`slide` default · `fade` · `none`) publishes `data-transition` on the root.

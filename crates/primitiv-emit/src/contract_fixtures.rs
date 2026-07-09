@@ -162,6 +162,31 @@ pub(crate) const DEMO_GROUPED: &str = r#"{
   ]
 }"#;
 
+/// Structural synthetic contract with a **style-prop** on the root and *no*
+/// modifiers — the generality proof for a root prop that maps a headless value
+/// onto a CSS custom property (the carousel's `slidesPerPage`, which the page
+/// model needs *and* the stylesheet reads) with no cva variant class alongside
+/// it: the style-prop stays in the props type, drives the custom property
+/// inline, and is re-forwarded to the primitive. The real carousel proves the
+/// with-modifiers case (its `peek` / `padding` / `placement` groups sit beside
+/// `slidesPerPage`); this fixture covers the modifier-less shape.
+pub(crate) const DEMO_STYLED: &str = r#"{
+  "name": "demo-styled",
+  "description": "A demo compound with a style-prop root.",
+  "root": { "element": "div", "class": "primitiv-demo-styled", "component": "Root" },
+  "styleProps": [
+    { "prop": "columns", "cssVar": "--primitiv-demo-styled-columns" }
+  ],
+  "subcomponents": [
+    {
+      "name": "item",
+      "component": "Item",
+      "element": "button",
+      "class": "primitiv-demo-styled__item"
+    }
+  ]
+}"#;
+
 /// Sparse synthetic contract — single-word name, no docs, one group with no
 /// `prop` (so the group key is the prop).
 pub(crate) const BARE: &str = r#"{

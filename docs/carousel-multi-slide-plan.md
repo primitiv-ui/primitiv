@@ -7,6 +7,12 @@
 > becomes the **golden reference** proving every edge case. Read this first
 > before resuming the multi-slide work.
 
+> **Status (2026-07-09): landed, awaiting human QA.** All three layers fixed —
+> headless hardening (commit `8b30295`), the `styleProps` emitter capability +
+> registry wiring, and the auto `<CarouselIndicators>` + golden edge-case grid at
+> `/carousel/multi`. Decisions D1–D3 below are LOCKED. See
+> `carousel-development-log.md` iteration 8. Remaining: human QA + Figma lockstep.
+
 ## TL;DR — three defects stacked on top of each other
 
 1. **Headless page-model bugs** (confirmed by the human from earlier workbench

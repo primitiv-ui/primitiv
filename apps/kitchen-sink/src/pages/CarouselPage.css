@@ -55,3 +55,30 @@
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
   border-radius: var(--primitiv-radii-8);
 }
+
+/* The multi-slide edge-case grid: small instances, three across (wide-desktop
+ * QA — responsiveness is proven elsewhere), each a numbered title + carousel +
+ * description so every case can be ticked off. */
+.carousel-multi__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2rem 1.5rem;
+}
+
+.carousel-multi__cell {
+  display: grid;
+  gap: var(--primitiv-space-space-8);
+  align-content: start;
+}
+
+.carousel-multi__title {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--primitiv-content-primary);
+}
+
+.carousel-multi__note {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--primitiv-content-secondary);
+}

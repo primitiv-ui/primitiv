@@ -47,18 +47,10 @@
         { "name": "row", "class": "primitiv-carousel--placement-row", "description": "Controls flow in a row below the viewport (the default)." },
         { "name": "overlay", "class": "primitiv-carousel--placement-overlay", "description": "Controls sit on the imagery — prev/next flanking the slide edges on a translucent scrim, dots in a pill overlaid at the bottom." }
       ]
-    },
-    {
-      "name": "slidesPerPage",
-      "default": "1",
-      "description": "How many slides are visible per page. The default shows one slide filling the viewport; higher counts divide it into equal shares separated by the gap (a 2-/3-/4-up gallery). Composes with peek and both orientations. For an arbitrary count, set the `--primitiv-carousel-slides-per-page` knob directly.",
-      "options": [
-        { "name": "1", "class": "primitiv-carousel--slides-1", "description": "One slide fills the viewport (the default)." },
-        { "name": "2", "class": "primitiv-carousel--slides-2", "description": "Two slides per page." },
-        { "name": "3", "class": "primitiv-carousel--slides-3", "description": "Three slides per page." },
-        { "name": "4", "class": "primitiv-carousel--slides-4", "description": "Four slides per page." }
-      ]
     }
+  ],
+  "styleProps": [
+    { "prop": "slidesPerPage", "cssVar": "--primitiv-carousel-slides-per-page" }
   ],
   "subcomponents": [
     {
@@ -120,6 +112,12 @@
         { "name": "data-state", "value": "active", "when": "active", "source": "auto" },
         { "name": "data-state", "value": "inactive", "when": "inactive", "source": "auto" }
       ]
+    },
+    {
+      "name": "indicators",
+      "component": "Indicators",
+      "element": "div",
+      "class": "primitiv-carousel__indicator-group"
     }
   ],
   "customProperties": [

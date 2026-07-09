@@ -2,7 +2,7 @@ use pretty_assertions::assert_eq;
 
 use crate::contract::Contract;
 use crate::contract_fixtures::{
-    BARE, DEMO_BOX, DEMO_GROUPED, DEMO_LABELLED, DEMO_STRIP, DEMO_TOGGLE, DEMO_VIEW,
+    BARE, DEMO_BOX, DEMO_GROUPED, DEMO_LABELLED, DEMO_STRIP, DEMO_STYLED, DEMO_TOGGLE, DEMO_VIEW,
 };
 use crate::wrapper::emit_wrapper;
 
@@ -364,6 +364,42 @@ fn generates_a_presentational_subcomponent_that_renders_its_host_element() {
     ));
     // A presentational part is never rendered as a headless primitive slot.
     assert!(!wrapper.contains("DemoGroupedPrimitive.Controls"));
+}
+
+/// A root style-prop maps a headless value onto a CSS custom property: the
+/// wrapper keeps the prop in its type (it flows from the primitive, not a cva
+/// class), destructures it alongside `style`, writes it onto the custom property
+/// inline (unset when `undefined`, so the stylesheet default applies), and
+/// re-forwards it to the primitive so the headless sees it too. This fixture has
+/// no modifiers, so the props type is a plain alias and the recipe call is
+/// argument-less — the real carousel proves the with-modifiers shape.
+#[test]
+fn generates_a_structural_root_that_drives_a_css_custom_property_from_a_prop() {
+    let contract = Contract::parse(DEMO_STYLED.as_bytes()).unwrap();
+    let wrapper = emit_wrapper(&contract);
+
+    // The CSSProperties cast type is imported alongside the prop-type import.
+    assert!(wrapper.contains(
+        "import { type ComponentPropsWithRef, type CSSProperties } from \"react\";",
+    ));
+    // No modifiers → the props type is a plain alias; the style-prop stays in it
+    // (it flows from the headless component and is re-forwarded).
+    assert!(wrapper.contains(
+        "export type DemoStyledProps = ComponentPropsWithRef<typeof DemoStyledPrimitive.Root>;",
+    ));
+    // The style-prop is destructured with `style`, drives the custom property
+    // inline, and is re-forwarded to the primitive; the recipe call takes no args.
+    assert!(wrapper.contains(
+        "export function DemoStyled({ columns, className, style, ...props }: DemoStyledProps) {",
+    ));
+    assert!(wrapper.contains(
+        "className={[demoStyled(), className].filter(Boolean).join(\" \")}",
+    ));
+    assert!(wrapper.contains(
+        "style={{ ...style, ...(columns === undefined ? {} : { \"--primitiv-demo-styled-columns\": columns }) } as CSSProperties}",
+    ));
+    assert!(wrapper.contains("columns={columns}"));
+    assert!(wrapper.contains("{...props}"));
 }
 
 /// Drift guard: the committed `registry/components/divider/divider.tsx` is exactly

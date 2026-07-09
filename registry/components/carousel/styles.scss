@@ -50,9 +50,11 @@
     --primitiv-carousel-viewport-padding: var(--primitiv-space-space-0);
     /* How many slides share the viewport at once. 1 = one slide fills it (the
        default); higher counts divide the content box into equal shares. The
-       `slidesPerPage` modifier re-points it; the slide derives its flex-basis
-       from this and the gap. A count is a shape, not a token value — like the
-       aspect ratios below. */
+       `slidesPerPage` prop sets this inline (the same number it hands the
+       headless page model, so the visible count and the indicator/navigation
+       maths stay in lockstep); the slide derives its flex-basis from it and the
+       gap. Override the knob directly for a CSS-only count. A count is a shape,
+       not a token value — like the aspect ratios below. */
     --primitiv-carousel-slides-per-page: 1;
     --primitiv-carousel-slide-aspect-ratio: 16 / 9;
     /* Landscape box the vertical viewport derives its height from (only read in
@@ -201,8 +203,12 @@
   }
 
   /* WCAG 2.5.8: the button carries the larger hit area; the visible dot stays
-     small via ::before. */
-  .primitiv-carousel__indicator {
+     small via ::before. Targets both the manual `__indicator` part and the
+     auto-rendered dots inside `Carousel.Indicators` (headless `<button>`s with
+     no part class), so the count-correct convenience is styled without the
+     consumer wiring one indicator per slide. */
+  .primitiv-carousel__indicator,
+  .primitiv-carousel__indicator-group > button {
     display: inline-grid;
     place-items: center;
     min-inline-size: var(--primitiv-carousel-indicator-hit-area);
@@ -211,7 +217,8 @@
     border: none;
     cursor: pointer;
   }
-  .primitiv-carousel__indicator::before {
+  .primitiv-carousel__indicator::before,
+  .primitiv-carousel__indicator-group > button::before {
     content: "";
     inline-size: var(--primitiv-carousel-indicator-size);
     block-size: var(--primitiv-carousel-indicator-size);
@@ -294,24 +301,6 @@
   }
   .primitiv-carousel--padding-lg {
     --primitiv-carousel-viewport-padding: var(--primitiv-space-space-48);
-  }
-
-  /* Slides per page — re-points the count knob so several slides share the
-     viewport (a 2-/3-/4-up gallery). `1` is the default (one slide fills it).
-     The slide's flex-basis divides the content box into equal shares separated
-     by the gap, so it composes with peek and both orientations (the basis is on
-     the main axis either way). For any other count, set the knob directly. */
-  .primitiv-carousel--slides-1 {
-    --primitiv-carousel-slides-per-page: 1;
-  }
-  .primitiv-carousel--slides-2 {
-    --primitiv-carousel-slides-per-page: 2;
-  }
-  .primitiv-carousel--slides-3 {
-    --primitiv-carousel-slides-per-page: 3;
-  }
-  .primitiv-carousel--slides-4 {
-    --primitiv-carousel-slides-per-page: 4;
   }
 
   /* Slide corner rounding — re-points the radius knob. `md` is the default
@@ -435,8 +424,9 @@
 }
 
 @layer primitiv.states {
-  /* Active dot. */
-  .primitiv-carousel__indicator[data-state="active"]::before {
+  /* Active dot (manual part + auto-rendered dot). */
+  .primitiv-carousel__indicator[data-state="active"]::before,
+  .primitiv-carousel__indicator-group > button[data-state="active"]::before {
     background: var(--primitiv-carousel-indicator-color-active);
   }
 
@@ -459,7 +449,8 @@
   .primitiv-carousel__viewport:focus-visible,
   .primitiv-carousel__prev:focus-visible,
   .primitiv-carousel__next:focus-visible,
-  .primitiv-carousel__indicator:focus-visible {
+  .primitiv-carousel__indicator:focus-visible,
+  .primitiv-carousel__indicator-group > button:focus-visible {
     outline: none;
     box-shadow:
       0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),

@@ -142,12 +142,21 @@ fn emit_structural_wrapper(contract: &Contract) -> String {
     out.push_str(&format!(
         "import {{ {pascal} as {pascal}Primitive }} from \"@primitiv-ui/react\";\n"
     ));
-    if any_wrap_text {
-        out.push_str(
-            "import { Children, type ComponentPropsWithRef, type ReactNode } from \"react\";\n",
-        );
+    // A style-prop root writes a CSS custom property inline, so it needs the
+    // `CSSProperties` cast type alongside the usual prop-type import.
+    let css = if contract.style_props.is_empty() {
+        ""
     } else {
-        out.push_str("import { type ComponentPropsWithRef } from \"react\";\n");
+        ", type CSSProperties"
+    };
+    if any_wrap_text {
+        out.push_str(&format!(
+            "import {{ Children, type ComponentPropsWithRef{css}, type ReactNode }} from \"react\";\n",
+        ));
+    } else {
+        out.push_str(&format!(
+            "import {{ type ComponentPropsWithRef{css} }} from \"react\";\n"
+        ));
     }
 
     let bindings = std::iter::once(recipe_binding(&contract.name))
@@ -172,14 +181,19 @@ fn emit_structural_wrapper(contract: &Contract) -> String {
         &contract.modifiers,
         contract.docs.as_deref(),
     );
-    emit_part_function(
-        &mut out,
-        &pascal,
-        &recipe_binding(&contract.name),
-        &format!("{pascal}Primitive.{root_component}"),
-        &contract.modifiers,
-        false,
-    );
+    let root_tag = format!("{pascal}Primitive.{root_component}");
+    if contract.style_props.is_empty() {
+        emit_part_function(
+            &mut out,
+            &pascal,
+            &recipe_binding(&contract.name),
+            &root_tag,
+            &contract.modifiers,
+            false,
+        );
+    } else {
+        emit_structural_root(&mut out, contract, &pascal, &root_tag);
+    }
 
     // Each structural subcomponent — a thin wrapper, separated by a blank line. A
     // headless-backed part derives its props (incl. ref) from `{Primitive}.{X}`
@@ -218,6 +232,63 @@ fn emit_structural_wrapper(contract: &Contract) -> String {
         );
     }
     out
+}
+
+/// A structural root that carries **style-props** (the carousel's
+/// `slidesPerPage`): it destructures the modifier props and the style-props,
+/// merges each style-prop's value onto its CSS custom property inline (leaving
+/// the property unset when the prop is `undefined`, so the stylesheet default
+/// applies), re-forwards the style-props to the primitive so the headless page
+/// model sees them too, and spreads the rest. A single prop thus drives both the
+/// behaviour and the layout.
+fn emit_structural_root(out: &mut String, contract: &Contract, pascal: &str, tag: &str) {
+    let binding = recipe_binding(&contract.name);
+    let mod_props: Vec<&str> = contract.modifiers.iter().map(|g| g.prop()).collect();
+    let style_props: Vec<&str> =
+        contract.style_props.iter().map(|sp| sp.prop.as_str()).collect();
+
+    let mut destructure: Vec<String> = Vec::new();
+    destructure.extend(mod_props.iter().map(|p| p.to_string()));
+    destructure.extend(style_props.iter().map(|p| p.to_string()));
+    destructure.push("className".to_string());
+    destructure.push("style".to_string());
+    destructure.push("...props".to_string());
+
+    let recipe_call = if mod_props.is_empty() {
+        format!("{binding}()")
+    } else {
+        format!("{binding}({{ {} }})", mod_props.join(", "))
+    };
+    let class_expr = format!("[{recipe_call}, className].filter(Boolean).join(\" \")");
+
+    let mut style_expr = String::from("{ ...style");
+    for sp in &contract.style_props {
+        style_expr.push_str(&format!(
+            ", ...({} === undefined ? {{}} : {{ \"{}\": {} }})",
+            sp.prop, sp.css_var, sp.prop
+        ));
+    }
+    style_expr.push_str(" } as CSSProperties");
+
+    let forwards = style_props
+        .iter()
+        .map(|p| format!("{p}={{{p}}}"))
+        .collect::<Vec<_>>()
+        .join(" ");
+
+    out.push_str(&format!(
+        "export function {pascal}({{ {} }}: {pascal}Props) {{\n",
+        destructure.join(", ")
+    ));
+    out.push_str("  return (\n");
+    out.push_str(&format!("    <{tag}\n"));
+    out.push_str(&format!("      className={{{class_expr}}}\n"));
+    out.push_str(&format!("      style={{{style_expr}}}\n"));
+    out.push_str(&format!("      {forwards}\n"));
+    out.push_str("      {...props}\n");
+    out.push_str("    />\n");
+    out.push_str("  );\n");
+    out.push_str("}\n");
 }
 
 /// Emit the `DistributiveOmit` helper `emit_props` relies on — but only when the

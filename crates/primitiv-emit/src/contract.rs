@@ -35,6 +35,15 @@ pub struct Contract {
     /// The visual modifier groups, in authored order.
     #[serde(default)]
     pub modifiers: Vec<ModifierGroup>,
+    /// Root props that map a headless value onto a CSS custom property (the
+    /// carousel's `slidesPerPage`, which the headless page model needs *and*
+    /// the stylesheet reads for the slide flex-basis). Unlike a modifier, a
+    /// style-prop is **not** a cva class: the wrapper keeps it in the props type
+    /// (it flows from the primitive), destructures it to set the custom property
+    /// inline, and re-forwards it to the primitive — so one prop drives both the
+    /// behaviour and the layout. Only consulted on a structural-compound root.
+    #[serde(default, rename = "styleProps")]
+    pub style_props: Vec<StyleProp>,
     /// Whether the decorative-slot wrapper is a *framed control with an inline
     /// label*: a flex row that nests its parts inside a `…__control` box and
     /// appends a `…__label` span carrying the wrapper's `children` (Radio,
@@ -86,6 +95,18 @@ pub struct Subcomponent {
     /// render.
     #[serde(default, rename = "wrapTextChildren")]
     pub wrap_text_children: bool,
+}
+
+/// One style-prop: a headless root prop whose value is written onto a CSS
+/// custom property (and forwarded to the primitive), so a single prop drives
+/// both behaviour and layout (`slidesPerPage`).
+#[derive(Debug, Deserialize)]
+pub struct StyleProp {
+    /// The headless root prop name (`slidesPerPage`).
+    pub prop: String,
+    /// The CSS custom property it sets (`--primitiv-carousel-slides-per-page`).
+    #[serde(rename = "cssVar")]
+    pub css_var: String,
 }
 
 /// One decorative slot part — its sub-component name (`thumb` → `Switch.Thumb`)

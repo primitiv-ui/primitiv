@@ -515,6 +515,70 @@ deliberately puts it on the **root** (outer gutter) so it composes with peek —
 reconcile the mental model there. **Next:** the remaining placements
 (external-flank / controls-on-top) or thumbnails.
 
+### Iteration 8 — Multi-slide correctness (slidesPerPage / slidesPerMove) (awaiting human QA)
+
+Full audit + plan: `docs/carousel-multi-slide-plan.md`. The human flagged a wrong
+indicator count and existing headless bugs; the fix spanned three layers.
+
+**Headless page model hardened (TDD, 100%).** The primitive already modelled
+`slidesPerPage` / `slidesPerMove`, but numeric mode had gaps. Fixed (pushed
+separately, commit `8b30295`): (1) **end-align the last windowed page** —
+`ceil((total − perPage) / move) + 1` with the offset clamped to `total − perPage`
+— so an inexact move (6 slides, perPage 3, move 2) no longer orphans the tail
+(`[0,1,2] [2,3,4] [3,4,5]`, not `… [2,3,4]`); (2) **clamp numeric `move` to
+`[1, perPage]`** so a move can't skip past a page; (3) **guard `perPage` / `move`
+to an integer ≥ 1** (0 / negative / NaN / fractional) so a bad count can't divide
+by zero (Infinity dots → RangeError) or go inert; (4) a `currentPageOffset` +
+`pageForSlideIndex` centralise the offset model so a **user swipe maps to the
+nearest window** (round, not floor) in numeric mode. New tests in
+`Carousel.slides-per-move.test.tsx` + `Carousel.multi-slide-bounds.test.tsx`;
+JSDoc + component README updated.
+
+**Registry split-brain fixed (decision D1 — numeric passthrough).** The wrapper
+was swallowing `slidesPerPage` (CSS-class only, never forwarded) so the headless
+still thought it was 1 → one dot per slide. New **`primitiv-emit` capability**:
+a contract **`styleProps`** entry (`{prop, cssVar}`) makes a root prop that (a)
+stays in the props type (it flows from the primitive), (b) drives a CSS custom
+property inline (`style={{…} as CSSProperties}`, unset when `undefined`), and (c)
+is re-forwarded to the primitive — so **one number drives both** the flex-basis
+and the headless page model. `slidesPerPage` moved from a capped `1`–`4` modifier
+to this styleProp (any count now); `slidesPerMove` needs no contract change (it
+already flows through `{...props}`). TDD in the emitter (`DEMO_STYLED` fixture +
+`wrapper_tests`, covering the no-modifier styleProp path; the carousel drift test
+covers the with-modifier path). `contract.rs` gained `StyleProp`; `wrapper.rs`
+gained `emit_structural_root` + the `CSSProperties` import branch.
+
+**Auto `<CarouselIndicators>` added.** The registry only exposed manual
+`IndicatorGroup` + `Indicator`, so examples hand-mapped one dot per slide (wrong
+for multi-slide). Added an `indicators` subcomponent → generated
+`<CarouselIndicators>` wrapping the headless auto-`Indicators` (renders exactly
+`totalPages` dots). The headless auto-dots carry no part class, so the indicator
+CSS now targets **`.primitiv-carousel__indicator-group > button`** as well as the
+`__indicator` class — both surfaces styled identically. The `--slides-N` modifier
+classes were removed (the count is set inline now).
+
+**Built** (`CarouselPage.tsx`, `/carousel/multi`): the **golden edge-case grid** —
+a 3-column, numbered, described matrix of 13 cases (clean paged; move-1 window;
+odd/partial last page; perPage 3 partials; move-1 overlap; **inexact-move
+end-align**; **move-clamp**; fewer-slides-than-a-page ×2; exactly one page; peek
+compose; RTL; vertical multi). Each cell states the expected dot count / disabled
+ends so QA can tick it off. Uses the auto `<CarouselIndicators>` throughout.
+
+**Regenerated** (recipe/tsx: `slidesPerPage` now forwarded + inline var,
+`CarouselIndicators` part; scss re-derived) + drift-green + kitchen-sink
+hand-synced. **Kitchen-sink dev-alias confirmed active**, so the unpublished
+headless hardening is live for QA. Registry + component READMEs updated.
+
+**Gates green:** `cargo test -p primitiv-emit -p primitiv-cli` (364 + 106),
+`node scripts/check-registry-types.mjs`, `pnpm --filter @primitiv-ui/react
+qa:units` (100% lines/branches/functions/statements, 1696 tests). Rust region
+coverage (emit styleProps branches) enforced by CI.
+
+**Figma lockstep: pending** human QA. Multi-slide is code-only (no carousel
+`--primitiv-*` variable layer); the design's "Slides Per Page" / "Slides Per Move"
+cells show the intent. **Next:** human QA of `/carousel/multi`, then the earlier
+awaiting-QA iterations, then remaining placements / thumbnails.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".
@@ -531,10 +595,12 @@ Reorder as priorities shift; each is human-approved before it starts.
   `--primitiv-carousel-viewport-padding` knob; an **outer** gutter on the root
   (mapped to the scroll axis, `box-sizing: border-box`), distinct from peek and
   composing with it. Subsumes the "Viewport padding" matrix cell.
-- Multi-slide-per-view _(iteration 6 — awaiting QA)_ — the `slidesPerPage`
-  modifier (`1` default · `2` · `3` · `4`) + `--primitiv-carousel-slides-per-page`
-  knob; each slide's flex-basis divides the content box into equal shares (minus
-  the gaps). Composes with peek and both orientations.
+- Multi-slide-per-view _(iteration 6, then corrected in iteration 8 — awaiting QA)_
+  — `slidesPerPage` / `slidesPerMove` are now numeric **styleProps** forwarded to
+  the headless page model (not capped modifiers), the last windowed page
+  end-aligns, counts are guarded, and the auto `<CarouselIndicators>` renders the
+  right dot count. Golden edge-case grid at `/carousel/multi`. See iteration 8 +
+  `docs/carousel-multi-slide-plan.md`.
 - Placement: overlay _(iteration 4 — awaiting QA)_ — the `placement` modifier
   (`row` default · `overlay`); controls inset on the imagery, dots in a pill.
   Remaining placements (external-flank, controls-on-top) still to build.

@@ -16,6 +16,7 @@ import {
   CarouselNextTrigger,
   CarouselIndicatorGroup,
   CarouselIndicator,
+  CarouselIndicators,
 } from "../components";
 import "./CarouselPage.css";
 
@@ -29,11 +30,14 @@ const SLIDES = [
 ];
 
 // A longer set for the multi-slide gallery, so a 2-/3-/4-up view still has
-// slides to scroll to.
-const MULTI_SLIDES = [
+// slides to scroll to. Long enough (8) that the edge-case grid can slice any
+// count it needs (1, 2, 3, 5, 6, 7).
+const GALLERY = [
   ...SLIDES,
   "linear-gradient(135deg, #db2777, #f59e0b)",
   "linear-gradient(135deg, #0d9488, #4f46e5)",
+  "linear-gradient(135deg, #9333ea, #06b6d4)",
+  "linear-gradient(135deg, #dc2626, #facc15)",
 ];
 
 /**
@@ -171,38 +175,52 @@ function OverlaySingle({
 }
 
 /**
- * Multi-slide-per-view — a 2-/3-/4-up gallery: several slides share the viewport
- * at once, each taking an equal share of the space (minus the inter-slide gap).
- * Driven by a single `slidesPerPage` prop; still one snap point per slide, so
- * prev/next and the dots advance by one. Uses the row-below controls.
+ * Multi-slide-per-view — several slides share the viewport at once, each taking
+ * an equal share of the space (minus the inter-slide gap). `slidesPerPage` and
+ * `slidesPerMove` are forwarded to the headless page model (they drive the slide
+ * width, the indicator count, the boundary clamp and the active window), and the
+ * dots come from the auto **`<CarouselIndicators>`** — it renders exactly
+ * `totalPages` of them, so the count is always correct without wiring one dot per
+ * slide. `count` slices the gallery so each edge case gets exactly the slide
+ * total it needs.
  */
 function MultiSlide({
   label,
+  count,
   slidesPerPage,
+  slidesPerMove,
   peek,
+  orientation,
 }: {
   label: string;
-  slidesPerPage: "2" | "3" | "4";
+  count: number;
+  slidesPerPage: number;
+  slidesPerMove?: number;
   peek?: "none" | "sm" | "md" | "lg";
+  orientation?: "horizontal" | "vertical";
 }) {
+  const Prev = orientation === "vertical" ? ChevronUp : ChevronLeft;
+  const Next = orientation === "vertical" ? ChevronDown : ChevronRight;
   return (
-    <Carousel ariaLabel={label} slidesPerPage={slidesPerPage} peek={peek}>
+    <Carousel
+      ariaLabel={label}
+      slidesPerPage={slidesPerPage}
+      slidesPerMove={slidesPerMove}
+      peek={peek}
+      orientation={orientation}
+    >
       <CarouselViewport>
-        {MULTI_SLIDES.map((bg, i) => (
+        {GALLERY.slice(0, count).map((bg, i) => (
           <CarouselSlide key={i} style={{ background: bg }} />
         ))}
       </CarouselViewport>
       <CarouselControls>
-        <CarouselPreviousTrigger aria-label="Previous slide">
-          <ChevronLeft />
+        <CarouselPreviousTrigger aria-label="Previous page">
+          <Prev />
         </CarouselPreviousTrigger>
-        <CarouselIndicatorGroup label="Choose slide">
-          {MULTI_SLIDES.map((_, i) => (
-            <CarouselIndicator key={i} index={i} />
-          ))}
-        </CarouselIndicatorGroup>
-        <CarouselNextTrigger aria-label="Next slide">
-          <ChevronRight />
+        <CarouselIndicators label="Choose page" />
+        <CarouselNextTrigger aria-label="Next page">
+          <Next />
         </CarouselNextTrigger>
       </CarouselControls>
     </Carousel>
@@ -414,27 +432,151 @@ export function CarouselPadding() {
   );
 }
 
+/**
+ * One numbered cell in the multi-slide edge-case grid: a numbered title above
+ * the carousel and a short description below, so QA can tick each case off. The
+ * `dir` opt lets a cell render right-to-left in place.
+ */
+function MultiCell({
+  n,
+  title,
+  note,
+  dir,
+  children,
+}: {
+  n: number;
+  title: string;
+  note: string;
+  dir?: "rtl";
+  children: ReactNode;
+}) {
+  return (
+    <section className="carousel-multi__cell" dir={dir}>
+      <h2 className="carousel-multi__title">
+        {n}. {title}
+      </h2>
+      {children}
+      <p className="carousel-multi__note">{note}</p>
+    </section>
+  );
+}
+
 export function CarouselMulti() {
   return (
     <Example
-      title="Multi-slide — slidesPerPage"
-      note="Several slides share the viewport at once (a 2-/3-/4-up gallery). Each takes an equal share of the space minus the inter-slide gap, and stays responsive — resize to watch the shares adapt. There's still one snap point per slide, so prev/next and the dots advance by one. It composes with peek (a sliver of the next page shows) and mirrors under RTL."
+      title="Multi-slide — the edge-case grid"
+      note="slidesPerPage and slidesPerMove are forwarded to the headless page model, so the visible slide count, the indicator count, the boundary clamp and the active window all stay in lockstep — no dot-per-slide miscount. Dots come from the auto <CarouselIndicators>, which renders exactly one per page. Each cell below pins one case: check the dot count, that the ends disable at the true last page, and that every slide is reachable."
     >
-      {/* Count ladder: 2-up, 3-up, 4-up. */}
-      <div className="carousel-page__stack">
-        <MultiSlide label="Two per page" slidesPerPage="2" />
-        <MultiSlide label="Three per page" slidesPerPage="3" />
-        <MultiSlide label="Four per page" slidesPerPage="4" />
-      </div>
+      <div className="carousel-multi__grid">
+        <MultiCell
+          n={1}
+          title="perPage 2 · auto · 6 slides"
+          note="Clean paged gallery: non-overlapping pages, moves a full page at a time. 3 dots."
+        >
+          <MultiSlide label="Case 1" count={6} slidesPerPage={2} />
+        </MultiCell>
 
-      {/* Multi-slide composing with peek, and under RTL, side by side. */}
-      <div className="carousel-page__row">
-        <div className="carousel-page__wide">
-          <MultiSlide label="Two per page with peek" slidesPerPage="2" peek="sm" />
-        </div>
-        <div className="carousel-page__wide" dir="rtl">
-          <MultiSlide label="Three per page, right to left" slidesPerPage="3" />
-        </div>
+        <MultiCell
+          n={2}
+          title="perPage 2 · move 1 · 6 slides"
+          note="Sliding window: overlapping pages, advances one slide per click. 5 dots."
+        >
+          <MultiSlide label="Case 2" count={6} slidesPerPage={2} slidesPerMove={1} />
+        </MultiCell>
+
+        <MultiCell
+          n={3}
+          title="perPage 2 · auto · 5 slides"
+          note="Odd count: the partial last page shows a single slide. 3 dots."
+        >
+          <MultiSlide label="Case 3" count={5} slidesPerPage={2} />
+        </MultiCell>
+
+        <MultiCell
+          n={4}
+          title="perPage 3 · auto · 7 slides"
+          note="Partial last page (one slide over two full pages). 3 dots."
+        >
+          <MultiSlide label="Case 4" count={7} slidesPerPage={3} />
+        </MultiCell>
+
+        <MultiCell
+          n={5}
+          title="perPage 3 · move 1 · 5 slides"
+          note="Overlapping windows one slide apart: [0,1,2] [1,2,3] [2,3,4]. 3 dots."
+        >
+          <MultiSlide label="Case 5" count={5} slidesPerPage={3} slidesPerMove={1} />
+        </MultiCell>
+
+        <MultiCell
+          n={6}
+          title="perPage 3 · move 2 · 6 slides"
+          note="Inexact move: the last window end-aligns to [3,4,5] so slide 6 stays reachable (not orphaned). 3 dots."
+        >
+          <MultiSlide label="Case 6" count={6} slidesPerPage={3} slidesPerMove={2} />
+        </MultiCell>
+
+        <MultiCell
+          n={7}
+          title="perPage 2 · move 3 · 6 slides"
+          note="Move is clamped to the page size, so windows stay contiguous — no skipped slides. Behaves as move 2. 3 dots."
+        >
+          <MultiSlide label="Case 7" count={6} slidesPerPage={2} slidesPerMove={3} />
+        </MultiCell>
+
+        <MultiCell
+          n={8}
+          title="perPage 2 · 1 slide"
+          note="Fewer slides than a page: one page, no navigation — prev/next disabled, one dot."
+        >
+          <MultiSlide label="Case 8" count={1} slidesPerPage={2} />
+        </MultiCell>
+
+        <MultiCell
+          n={9}
+          title="perPage 4 · 3 slides"
+          note="Fewer slides than a page again: one page, controls disabled, one dot."
+        >
+          <MultiSlide label="Case 9" count={3} slidesPerPage={4} />
+        </MultiCell>
+
+        <MultiCell
+          n={10}
+          title="perPage 2 · 2 slides"
+          note="Exactly one page: both slides fill the viewport, one dot, no navigation."
+        >
+          <MultiSlide label="Case 10" count={2} slidesPerPage={2} />
+        </MultiCell>
+
+        <MultiCell
+          n={11}
+          title="perPage 2 · auto · 6 · peek sm"
+          note="Composes with peek: a sliver of the next page shows past the current one. 3 dots."
+        >
+          <MultiSlide label="Case 11" count={6} slidesPerPage={2} peek="sm" />
+        </MultiCell>
+
+        <MultiCell
+          n={12}
+          title="perPage 3 · auto · 7 · RTL"
+          note="Mirrors under right-to-left — logical properties, no RTL-specific CSS. 3 dots."
+          dir="rtl"
+        >
+          <MultiSlide label="Case 12" count={7} slidesPerPage={3} />
+        </MultiCell>
+
+        <MultiCell
+          n={13}
+          title="perPage 2 · auto · 6 · vertical"
+          note="Multi-slide on the block axis: two slides stacked per page, up/down controls, vertical dots. 3 dots."
+        >
+          <MultiSlide
+            label="Case 13"
+            count={6}
+            slidesPerPage={2}
+            orientation="vertical"
+          />
+        </MultiCell>
       </div>
     </Example>
   );

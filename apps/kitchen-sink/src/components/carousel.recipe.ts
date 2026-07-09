@@ -25,18 +25,11 @@ export const carousel = cva("primitiv-carousel", {
       row: "primitiv-carousel--placement-row",
       overlay: "primitiv-carousel--placement-overlay",
     },
-    slidesPerPage: {
-      1: "primitiv-carousel--slides-1",
-      2: "primitiv-carousel--slides-2",
-      3: "primitiv-carousel--slides-3",
-      4: "primitiv-carousel--slides-4",
-    },
   },
   defaultVariants: {
     peek: "none",
     padding: "none",
     placement: "row",
-    slidesPerPage: "1",
   },
 });
 
@@ -79,3 +72,7 @@ export type CarouselIndicatorGroupVariants = VariantProps<typeof carouselIndicat
 export const carouselIndicator = cva("primitiv-carousel__indicator");
 
 export type CarouselIndicatorVariants = VariantProps<typeof carouselIndicator>;
+
+export const carouselIndicators = cva("primitiv-carousel__indicator-group");
+
+export type CarouselIndicatorsVariants = VariantProps<typeof carouselIndicators>;

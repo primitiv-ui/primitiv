@@ -932,6 +932,22 @@ everywhere; swept for stale `placement-row` references (none).
 `node scripts/check-registry-types.mjs`. (No headless change — Carousel vitest not
 needed.)
 
+**QA round 1 (human) — page-scroll bug (headless fix, all pages).** The human
+saw the page auto-scroll to the bottom on load and nudge down on every prev/next.
+Root cause: `useCarouselViewport`'s programmatic scroll effect called
+`targetEl.scrollIntoView()`, which walks **every** scrollable ancestor (incl. the
+page/window) — so each of the ~36 carousels scrolled itself into vertical view on
+mount (lowest wins → bottom) and every page change re-nudged. Fixed by scrolling
+the **viewport element itself** (`viewport.scrollTo` computed from the target
+slide's `getBoundingClientRect` delta + current scroll, snap engine finalises) —
+restoring the design the hook's own JSDoc already described. TDD: a RED test
+("scrolls the viewport, not the slide's ancestors") + rewrote the 7
+scrollIntoView-spying tests to assert `viewport.scrollTo` with real mocked
+geometry (start/centre math verified). `qa:units` green at 100%
+(lines/branches/functions/statements, 1699 tests). Headless, so it fixes **every**
+carousel on every page (the dev-alias carries it to the kitchen-sink). Carousel
+README's JS-vs-CSS table + scroll/reduced-motion/orientation sections updated.
+
 **Figma lockstep: pending** human QA + a later dedicated build of the placement
 model in Figma (the current frame is conceptual). No carousel `--primitiv-*`
 variable layer exists (bindings only). **Next:** QA `/carousel/placement`; then

@@ -93,7 +93,7 @@
        neutral-alpha ramp (a dark veil in light mode, a light veil in dark mode),
        so a control reads on arbitrary photography in either theme; the glyph is
        `content-inverse`, which inverts to match. */
-    --primitiv-carousel-overlay-control-inset: var(--primitiv-space-space-8);
+    --primitiv-carousel-overlay-control-inset: var(--primitiv-space-space-16);
     /* One step more opaque than the design's 500 base so the controls read more
        solidly on bright imagery (still a translucent scrim). */
     --primitiv-carousel-overlay-control-bg: var(--primitiv-color-neutral-alpha-600);

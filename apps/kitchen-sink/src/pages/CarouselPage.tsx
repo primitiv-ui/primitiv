@@ -146,11 +146,13 @@ function OverlaySingle({
   peek,
   padding,
   transition,
+  orientation = 'horizontal',
 }: {
   label: string;
   peek?: "none" | "sm" | "md" | "lg";
   padding?: "none" | "sm" | "md" | "lg";
   transition?: "slide" | "fade";
+  orientation?: "horizontal" | "vertical";
 }) {
   return (
     <Carousel
@@ -159,6 +161,7 @@ function OverlaySingle({
       peek={peek}
       padding={padding}
       transition={transition}
+      orientation={orientation}
     >
       <CarouselViewport>
         {SLIDES.map((bg, i) => (
@@ -342,6 +345,14 @@ export function CarouselOverlay() {
         </div>
         <div className="carousel-page__wide" dir="rtl">
           <OverlaySingle label="Featured products — overlay, right to left" />
+        </div>
+      </div>
+      <div className="carousel-page__row">
+        <div className="carousel-page__wide">
+          <OverlaySingle label="Featured products — overlay, edge to edge" orientation="vertical" />
+        </div>
+        <div className="carousel-page__wide" dir="rtl">
+          <OverlaySingle label="Featured products — overlay, right to left" orientation="vertical" />
         </div>
       </div>
     </Example>

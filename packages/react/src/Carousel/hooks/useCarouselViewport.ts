@@ -110,18 +110,34 @@ export function useCarouselViewport() {
     // mount, neither of which goes through next() / previous().
     isProgrammaticScrollRef.current = true;
 
-    // Native-first: delegate the scroll to the browser via scrollIntoView
-    // rather than computing scrollLeft/scrollTop ourselves. The consumer's
-    // `scroll-snap-align` then makes the final correction so we never fight
-    // the snap engine. The scroll axis follows `orientation`: the paging
-    // axis maps to snapAlign, the cross axis is pinned to "nearest" so the
-    // page doesn't drift on the other axis.
+    // Scroll the *viewport itself* — never `targetEl.scrollIntoView()`, which
+    // walks every scrollable ancestor (including the page/window) and so scrolls
+    // the whole document when the carousel is off-screen. We read the target
+    // slide's `getBoundingClientRect` relative to the viewport and add the delta
+    // to the current scroll offset (so the maths is correct mid-scroll), then let
+    // the consumer's `scroll-snap-align` make the final correction — we never
+    // fight the snap engine. The scroll axis follows `orientation`; the cross axis
+    // is untouched, so the viewport never drifts on the other axis. `start` aligns
+    // the slide's leading edge to the viewport's; `center` centres it.
     const targetEl = slidesRef.current!.get(firstSlideKey)!;
-    const alignment = snapAlign === "center" ? "center" : "start";
-    targetEl.scrollIntoView(
-      orientation === "vertical"
-        ? { behavior: scrollBehavior, block: alignment, inline: "nearest" }
-        : { behavior: scrollBehavior, inline: alignment, block: "nearest" },
+    const vertical = orientation === "vertical";
+    const viewportRect = viewport.getBoundingClientRect();
+    const targetRect = targetEl.getBoundingClientRect();
+    const currentScroll = vertical ? viewport.scrollTop : viewport.scrollLeft;
+    const delta = vertical
+      ? targetRect.top - viewportRect.top
+      : targetRect.left - viewportRect.left;
+    const centerOffset =
+      snapAlign === "center"
+        ? (vertical
+            ? viewport.clientHeight - targetRect.height
+            : viewport.clientWidth - targetRect.width) / 2
+        : 0;
+    const position = currentScroll + delta - centerOffset;
+    viewport.scrollTo(
+      vertical
+        ? { top: position, behavior: scrollBehavior }
+        : { left: position, behavior: scrollBehavior },
     );
 
     // Clear the programmatic-scroll guard once the animation settles.

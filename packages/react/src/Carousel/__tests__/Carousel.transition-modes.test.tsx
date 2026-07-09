@@ -58,10 +58,7 @@ describe("Carousel transition modes", () => {
       </Carousel.Root>,
     );
 
-    const scrollIntoViewSpy = vi.spyOn(
-      screen.getByTestId("slide-1"),
-      "scrollIntoView",
-    );
+    const scrollToSpy = vi.spyOn(screen.getByTestId("viewport"), "scrollTo");
 
     await user.click(screen.getByRole("button", { name: "Next" }));
 
@@ -71,7 +68,7 @@ describe("Carousel transition modes", () => {
       "data-state",
       "active",
     );
-    expect(scrollIntoViewSpy).not.toHaveBeenCalled();
+    expect(scrollToSpy).not.toHaveBeenCalled();
   });
 
   it('should ignore scrollsnapchange events on the viewport when transition="none"', () => {

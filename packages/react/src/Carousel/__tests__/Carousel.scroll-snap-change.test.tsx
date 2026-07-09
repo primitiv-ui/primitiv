@@ -149,13 +149,12 @@ describe("Carousel scroll sync (user-driven via scrollsnapchange)", () => {
     expect(onPageChange).toHaveBeenCalledWith(1);
   });
 
-  it("should not scroll the slide into view again after a user-driven scrollsnapchange", () => {
+  it("should not scroll the viewport again after a user-driven scrollsnapchange", () => {
     // Regression: when the user swipes, the browser's CSS scroll-snap
     // already positions the viewport. The scrollsnapchange event updates
     // React state, which re-runs the scroll effect. If the effect calls
-    // scrollIntoView here, two scroll animations fight and the result is
-    // janky. The scroll effect must be a no-op for user-initiated page
-    // changes.
+    // scrollTo here, two scroll animations fight and the result is janky.
+    // The scroll effect must be a no-op for user-initiated page changes.
     render(
       <Carousel.Root ariaLabel="Featured products">
         <Carousel.Viewport data-testid="viewport">
@@ -167,13 +166,10 @@ describe("Carousel scroll sync (user-driven via scrollsnapchange)", () => {
     );
 
     const viewport = screen.getByTestId("viewport");
-    const scrollIntoViewSpy = vi.spyOn(
-      screen.getByTestId("slide-1"),
-      "scrollIntoView",
-    );
+    const scrollToSpy = vi.spyOn(viewport, "scrollTo");
 
     fireScrollSnapChange(viewport, screen.getByTestId("slide-1"));
 
-    expect(scrollIntoViewSpy).not.toHaveBeenCalled();
+    expect(scrollToSpy).not.toHaveBeenCalled();
   });
 });

@@ -46,7 +46,7 @@ describe("Carousel orientation", () => {
   });
 
   describe("vertical scroll axis", () => {
-    it("should scroll the target slide into view on the block axis when vertical", async () => {
+    it("should scroll the viewport on the block axis (top) when vertical", async () => {
       const user = userEvent.setup();
       render(
         <Carousel.Root ariaLabel="Featured products" orientation="vertical">
@@ -58,21 +58,20 @@ describe("Carousel orientation", () => {
         </Carousel.Root>,
       );
 
-      const scrollIntoViewSpy = vi.spyOn(
+      // Vertical carousels scroll the viewport on the block axis: the target
+      // slide 360px below the viewport top drives a top-axis scrollTo.
+      const scrollToSpy = vi.spyOn(screen.getByTestId("viewport"), "scrollTo");
+      vi.spyOn(
         screen.getByTestId("slide-1"),
-        "scrollIntoView",
-      );
+        "getBoundingClientRect",
+      ).mockReturnValue({ left: 0, top: 360, width: 320, height: 180 } as DOMRect);
 
       await user.click(screen.getByRole("button", { name: "Next" }));
 
-      expect(scrollIntoViewSpy).toHaveBeenCalledWith({
-        behavior: "smooth",
-        block: "start",
-        inline: "nearest",
-      });
+      expect(scrollToSpy).toHaveBeenCalledWith({ top: 360, behavior: "smooth" });
     });
 
-    it("should scroll with block:'center' when vertical and snapAlign is 'center'", async () => {
+    it("should centre the target slide on the block axis when vertical and snapAlign is 'center'", async () => {
       const user = userEvent.setup();
       render(
         <Carousel.Root
@@ -88,16 +87,19 @@ describe("Carousel orientation", () => {
         </Carousel.Root>,
       );
 
-      const scrollIntoViewSpy = vi.spyOn(
+      // A 400-tall slide at block 400 in a 1000-tall viewport centres at
+      // 400 - (1000 - 400) / 2 = 100.
+      const viewport = screen.getByTestId("viewport");
+      Object.defineProperty(viewport, "clientHeight", { value: 1000, configurable: true });
+      const scrollToSpy = vi.spyOn(viewport, "scrollTo");
+      vi.spyOn(
         screen.getByTestId("slide-1"),
-        "scrollIntoView",
-      );
+        "getBoundingClientRect",
+      ).mockReturnValue({ left: 0, top: 400, width: 320, height: 400 } as DOMRect);
 
       await user.click(screen.getByRole("button", { name: "Next" }));
 
-      expect(scrollIntoViewSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ block: "center", inline: "nearest" }),
-      );
+      expect(scrollToSpy).toHaveBeenCalledWith({ top: 100, behavior: "smooth" });
     });
   });
 

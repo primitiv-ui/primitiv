@@ -67,8 +67,9 @@ auto-rotation tick.
 
 The component ships zero styles, but a few features sit on the line
 between JS and CSS. This table is the contract — the rule of thumb
-is that JS owns _what is the active page_ and _delegates the scroll to
-the browser_ (`scrollIntoView`), and CSS owns _what the user sees_:
+is that JS owns _what is the active page_ and _scrolls the viewport_
+(`viewport.scrollTo`, then the browser's CSS snap engine makes the final
+correction), and CSS owns _what the user sees_:
 
 | Feature                            | JS owns                                                  | CSS owns                                                                 |
 | ---------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------ |
@@ -76,9 +77,9 @@ the browser_ (`scrollIntoView`), and CSS owns _what the user sees_:
 | Boundary clamping                  | `canGoNext` / `canGoPrevious`, trigger `disabled`        | —                                                                        |
 | Crossfade / scale / dissolve       | `data-state="active"` flip on slides                     | `position: absolute`, `opacity` + `transition`                           |
 | Slide layout & widths              | —                                                        | `flex-basis` / `inline-size`, `gap`, `aspect-ratio`                      |
-| Peek of adjacent slides            | `snapAlign` → `scrollIntoView({ inline })`               | Viewport `padding-inline`, slide `flex-basis`, `scroll-snap-align`       |
+| Peek of adjacent slides            | `snapAlign` → viewport `scrollTo` alignment              | Viewport `padding-inline`, slide `flex-basis`, `scroll-snap-align`       |
 | Gap between slides                 | —                                                        | `gap` on the viewport (no `spacing` prop — pure CSS)                     |
-| Variable-size slides               | `scrollIntoView` on the target slide                     | Per-slide width / `aspect-ratio`, `scroll-snap-align`                    |
+| Variable-size slides               | viewport `scrollTo` the target slide's offset            | Per-slide width / `aspect-ratio`, `scroll-snap-align`                    |
 | Snap targeting                     | `snapAlign: "start" \| "center"` (Root only)             | `scroll-snap-type` on viewport, `scroll-snap-align` on each slide        |
 | Reduced motion                     | `behavior: "instant"`                                    | Optional `@media (prefers-reduced-motion: reduce)` on consumer animations |
 | Keyboard navigation                | Arrow / Home / End on focused viewport                   | `:focus-visible` on viewport                                             |
@@ -86,10 +87,15 @@ the browser_ (`scrollIntoView`), and CSS owns _what the user sees_:
 | Indicator state                    | `data-state` on `[data-carousel-indicator]`              | Visual: dot, bar, thumbnail, etc.                                        |
 
 The only JS prop on the visual side is `snapAlign`, and only because it
-picks the `inline` option passed to `scrollIntoView` (`"start"` or
-`"center"`) so the programmatic scroll lands where the browser's CSS
-snap engine will settle. Everything else is either a state knob (JS) or
-a visual rule (CSS), with no overlap.
+picks whether the viewport `scrollTo` aligns the target slide's leading
+edge (`"start"`) or centres it (`"center"`) so the programmatic scroll
+lands where the browser's CSS snap engine will settle. Everything else is
+either a state knob (JS) or a visual rule (CSS), with no overlap.
+
+The scroll is issued on the **viewport element itself** (`viewport.scrollTo`),
+never `element.scrollIntoView()` — the latter walks every scrollable
+ancestor (including the page/window) and would scroll the whole document
+when a carousel is off-screen.
 
 The `apps/workbench` workbench at `/carousel` ships worked recipes for
 each cell of the matrix (single / multi / multi-step × slide / fade)
@@ -286,7 +292,7 @@ carouselRef.current?.refresh();
 const { page, totalPages, value } = carouselRef.current!.getProgress();
 ```
 
-`refresh()` re-issues the viewport's `scrollIntoView` for the current
+`refresh()` re-issues the viewport's `scrollTo` for the current
 page — useful when external layout changes (window resize, container
 reflow, dynamic content) leave the scroll position misaligned with
 React state. `getProgress()` returns a normalised
@@ -337,9 +343,10 @@ position without the browser snapping-correcting after the scroll:
 ```
 
 Pair with `scroll-snap-align: center` on `Carousel.Slide` in your CSS.
-The default is `"start"`; `snapAlign` picks the `inline` option passed
-to `scrollIntoView` (`"start"` or `"center"`), and the browser's CSS
-snap engine makes the final correction.
+The default is `"start"`; `snapAlign` picks whether the viewport
+`scrollTo` aligns the target slide's leading edge (`"start"`) or centres
+it (`"center"`), and the browser's CSS snap engine makes the final
+correction.
 
 ### Orientation
 
@@ -356,8 +363,9 @@ axis** instead:
 `orientation` is behavioural, not cosmetic — the primitive ships no
 layout. It changes three things:
 
-- **Scroll axis.** Programmatic paging calls `scrollIntoView` with the
-  `block` option (mapped to `snapAlign`) and pins `inline: "nearest"`,
+- **Scroll axis.** Programmatic paging scrolls the viewport on the
+  `top` (block) axis instead of `left` (inline), leaving the cross axis
+  untouched,
   and the user-swipe sync reads `snapTargetBlock` off `scrollsnapchange`
   instead of `snapTargetInline`.
 - **Keyboard.** The viewport pages on `ArrowDown` / `ArrowUp` (the
@@ -417,7 +425,7 @@ hook so the scroll-snap layout isn't affected:
 
 ### Reduced motion
 
-The Viewport's programmatic `scrollIntoView` reads
+The Viewport's programmatic `scrollTo` reads
 `window.matchMedia("(prefers-reduced-motion: reduce)")` once on
 mount. When the user has reduced motion enabled at the OS level,
 page changes use `behavior: "instant"` instead of `"smooth"` so the
@@ -428,10 +436,12 @@ unaffected — the browser owns that animation.
 
 When the active page changes for any reason (`Carousel.NextTrigger` /
 `Carousel.PreviousTrigger` click, indicator click, autoplay tick),
-the viewport calls `scrollIntoView` on the first slide of the new page
-so the visual surface tracks React state. Because the browser owns the
-scroll, consumer CSS owns slide width and gap, and `scroll-snap-align`
-makes the final correction. Default `behavior` is `"smooth"`.
+the viewport `scrollTo`s to the first slide of the new page (by its
+measured offset — not `element.scrollIntoView()`, which would scroll the
+whole document when the carousel is off-screen) so the visual surface
+tracks React state. Consumer CSS owns slide width and gap, and
+`scroll-snap-align` makes the final correction. Default `behavior` is
+`"smooth"`.
 
 The reverse path is also wired: when the user swipes the viewport,
 the browser fires `scrollsnapchange` with the snapped slide as the

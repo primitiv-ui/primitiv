@@ -73,15 +73,12 @@ describe("Carousel imperative getProgress / refresh", () => {
       </Carousel.Root>,
     );
 
-    const scrollIntoViewSpy = vi.spyOn(
-      screen.getByTestId("slide-0"),
-      "scrollIntoView",
-    );
+    const scrollToSpy = vi.spyOn(screen.getByTestId("viewport"), "scrollTo");
 
     act(() => {
       ref.current!.refresh();
     });
 
-    expect(scrollIntoViewSpy).toHaveBeenCalled();
+    expect(scrollToSpy).toHaveBeenCalled();
   });
 });

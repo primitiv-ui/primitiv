@@ -22,7 +22,7 @@ describe("Carousel scroll sync respects prefers-reduced-motion", () => {
     delete window.matchMedia;
   });
 
-  it("should scroll into view with behavior='instant' when prefers-reduced-motion is reduce", async () => {
+  it("should scroll with behavior='instant' when prefers-reduced-motion is reduce", async () => {
     mockReducedMotion(true);
     const user = userEvent.setup();
     render(
@@ -35,14 +35,11 @@ describe("Carousel scroll sync respects prefers-reduced-motion", () => {
       </Carousel.Root>,
     );
 
-    const scrollIntoViewSpy = vi.spyOn(
-      screen.getByTestId("slide-1"),
-      "scrollIntoView",
-    );
+    const scrollToSpy = vi.spyOn(screen.getByTestId("viewport"), "scrollTo");
 
     await user.click(screen.getByRole("button", { name: "Next" }));
 
-    expect(scrollIntoViewSpy).toHaveBeenCalledWith(
+    expect(scrollToSpy).toHaveBeenCalledWith(
       expect.objectContaining({ behavior: "instant" }),
     );
   });

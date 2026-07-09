@@ -948,6 +948,19 @@ geometry (start/centre math verified). `qa:units` green at 100%
 carousel on every page (the dev-alias carries it to the kitchen-sink). Carousel
 README's JS-vs-CSS table + scroll/reduced-motion/orientation sections updated.
 
+**QA round 2 (human) — overlay thumbnail tray (registry CSS only).** Two fixes,
+both scoped to `.placement-overlay.indicators-thumbnails .__indicator-group` (the
+only context where the indicator group has a visible background): (1) **responsive
+overflow** — the overlay group was `inline-size: fit-content`, so a long thumbnail
+strip overflowed the imagery (flank adapts because its indicators sit in a
+`minmax(0,1fr)` grid column that constrains them). Capped the group to the slide
+(`max-inline-size` horizontal / `max-block-size` vertical, inset by the same terms
+the overlay controls clear) so the flex thumbnails shrink to fit like flank does.
+(2) **container shape** — reshaped the dots' full pill (`radii-full`) into a
+rounded-rect tray (`radii-12`) with an even `thumbnail-gap` inset, matching the
+thumbnails' own corners. No contract change (reuses existing tokens/knobs); scss
+re-derived + drift-green + hand-synced; registry README's thumbnail bullet updated.
+
 **Figma lockstep: pending** human QA + a later dedicated build of the placement
 model in Figma (the current frame is conceptual). No carousel `--primitiv-*`
 variable layer exists (bindings only). **Next:** QA `/carousel/placement`; then

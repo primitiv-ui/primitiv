@@ -127,7 +127,10 @@ so they can't fall out of sync.
   group gap to `--primitiv-carousel-thumbnail-gap` and sizes each frame off the
   `--primitiv-carousel-thumbnail-*` knobs. It composes with every placement and
   orientation — under `vertical` the thumbnails stack into a rail beside the
-  viewport, under `overlay` they ride the scrim pill. The slide **`radius`**
+  viewport, under `overlay` they ride a rounded-rect scrim tray (the dots' full
+  pill reshapes to match the thumbnail corners) that is capped to the slide so the
+  thumbnails shrink to fit responsively rather than overflowing the imagery. The
+  slide **`radius`**
   modifier (`md` default · `none` squares the slide off) and the slide **`ratio`**
   modifier (`square` 1:1 · `standard` 4:3 · `wide` 16:9 default · `ultrawide`
   21:9, re-pointing `--primitiv-carousel-slide-aspect-ratio`) both live on the

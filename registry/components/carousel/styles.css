@@ -785,6 +785,44 @@
     opacity: var(--primitiv-opacity-100);
   }
 
+  /* Overlay + thumbnails — the scrim container reshapes from the dots' full pill
+     into a rounded-rect frame that matches the thumbnails' own corners, with an
+     even inset equal to the thumbnail gap so the strip reads as one cohesive tray.
+     Crucially it is *capped to the slide* on the scroll axis (the flank grid
+     column constrains its thumbnails for free; the absolute overlay pill was
+     fit-content, so a long strip overflowed the imagery). The cap lets the flex
+     thumbnails shrink to fit — responsively, like flank — inset from the slide
+     edges by the same terms the overlay controls clear (all 0 when unset). */
+  .primitiv-carousel--placement-overlay.primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator-group {
+    border-radius: var(--primitiv-radii-12);
+    padding: var(--primitiv-carousel-thumbnail-gap);
+    max-inline-size: calc(
+      100% - 2 *
+        (
+          var(--primitiv-carousel-viewport-border-width) +
+            var(--primitiv-carousel-viewport-padding) +
+            var(--primitiv-carousel-peek) +
+            var(--primitiv-carousel-overlay-control-inset)
+        )
+    );
+  }
+  /* Vertical overlay thumbnails ride an inline-end/start lane, so the cap runs on
+     the block axis instead (the thumbnails shrink on their column's main axis). */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator-group {
+    max-inline-size: none;
+    max-block-size: calc(
+      100% - 2 *
+        (
+          var(--primitiv-carousel-viewport-border-width) +
+            var(--primitiv-carousel-viewport-padding) +
+            var(--primitiv-carousel-peek) +
+            var(--primitiv-carousel-overlay-control-inset)
+        )
+    );
+  }
+
   /* Fade transition (headless `transition="fade"` → data-transition="fade").
      The viewport stops scrolling and stacks every slide in one grid cell; the
      active slide cross-fades in over the others off its data-state hook (the

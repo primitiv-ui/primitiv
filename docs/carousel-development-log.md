@@ -111,6 +111,13 @@ appended here:
   thumbnails use the manual group — multi-slide + thumbnails is out of scope for
   the example grid. Inactive thumbnails are dimmed (`opacity-60`) + hover-lifted —
   a code addition to reconcile against the Figma reference at lockstep.
+- **2026-07-09 — Aspect ratio promoted from a bare knob to a slide `ratio`
+  modifier (iteration 10).** `--primitiv-carousel-slide-aspect-ratio` existed but
+  had no typed prop; made it a slide modifier (`square`/`standard`/`wide`/
+  `ultrawide`) mirroring `radius` so square-vs-wide is a first-class prop, not an
+  inline override. Values are ratio shapes (no new tokens); default `wide` is
+  byte-equivalent to the prior base, so nothing regresses. Horizontal-only (the
+  vertical viewport owns its ratio). No headless change.
 
 ## Figma design reference
 
@@ -753,6 +760,46 @@ specified in the reference) once the code side is settled. No carousel
 expected to be a verification pass. **Next:** the thumbnails polish session,
 then the remaining placements (external-flank / controls-on-top), autoplay, or
 re-QA of the earlier awaiting-QA iterations.
+
+### Iteration 10 — Slide aspect ratio (awaiting human QA)
+
+**Registry surface (headless-free — pure CSS + a modifier).** The slide aspect
+ratio was already a knob (`--primitiv-carousel-slide-aspect-ratio`, `16/9`) but
+had no typed modifier — so "square vs wide slides" was a raw inline override, not
+a first-class prop like `radius`/`peek`/`placement`/`indicators`. Promoted it to a
+slide **`ratio`** modifier (mirroring `radius`, also on the slide): `square` (1/1)
+· `standard` (4/3) · `wide` (16/9 default) · `ultrawide` (21/9), each re-pointing
+the existing knob. The values are ratio *shapes* (like the base aspect ratios and
+the circular control radius), not token values — no new knobs. Default `wide` is
+byte-equivalent to the prior base `16/9`, so every existing variant is unchanged.
+Read only in the horizontal layout (the vertical viewport owns its own ratio via
+`--primitiv-carousel-vertical-aspect-ratio`, and the vertical rule already stands
+the slide aspect down). **No headless change** — aspect ratio is a slide-layout
+concern the stylesheet owns (per the JS-vs-CSS table), so the publish gotcha
+doesn't apply. Composes with placement + peek for free (ratio is a slide concern,
+placement/peek are root concerns).
+
+**Built** (`CarouselPage.tsx`, `/carousel/ratio`): a **2-column grid** answering
+the "square group vs wide group" ask — the LEFT column is square (1:1), the RIGHT
+column is wide (16:9), paired row by row so each ratio is compared under a matching
+control/peek variant: outset (row) controls, overlay controls, and peek sm/md/lg
+(10 cells). `BasicSingle` and `OverlaySingle` gained a `ratio` passthrough to their
+slides.
+
+**Regenerated** (recipe/tsx carry the slide `ratio` prop alongside `radius`;
+styles.scss re-derived) + drift-green + kitchen-sink hand-synced. Registry README
+updated (scope, the `ratio` modifier).
+
+**Gates green:** `cargo test -p primitiv-emit -p primitiv-cli` (364 + 20 + 106),
+`node scripts/check-registry-types.mjs`. (No headless change — Carousel vitest not
+needed.)
+
+**Figma lockstep: pending** human QA. Ratio is code-only (no carousel
+`--primitiv-*` variable layer in Figma; the `CarouselSlide` set has ratio variants
+— 1:1, 16:9 — that already show the intent), so this is expected to be a
+verification pass. **Next:** the thumbnails polish session, the remaining
+placements (external-flank / controls-on-top), autoplay, or re-QA of the earlier
+awaiting-QA iterations.
 
 ## Backlog (examples still to build)
 

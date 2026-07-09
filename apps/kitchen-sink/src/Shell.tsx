@@ -14,6 +14,7 @@ import {
   CarouselOverlay,
   CarouselFade,
   CarouselThumbnails,
+  CarouselRatio,
 } from "./pages/CarouselPage";
 import "./Shell.css";
 
@@ -44,6 +45,7 @@ export function Shell() {
           <Route path="overlay" element={<CarouselOverlay />} />
           <Route path="fade" element={<CarouselFade />} />
           <Route path="thumbnails" element={<CarouselThumbnails />} />
+          <Route path="ratio" element={<CarouselRatio />} />
         </Route>
       </Routes>
     </>

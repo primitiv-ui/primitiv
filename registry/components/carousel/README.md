@@ -17,10 +17,11 @@ expressed in logical properties.
 > `data-orientation`, a column-scroll viewport with the controls in a column
 > beside it), **peek** (the `peek` modifier), **viewport padding** (the `padding`
 > modifier — a padded, framed viewport track), a **`placement`** modifier whose
-> `overlay` option insets the controls on the imagery, and an **`indicators`**
-> modifier whose `thumbnails` option swaps the dots for image thumbnails (both —
-> see below). The remaining placements (external-flank, controls-on-top),
-> multi-slide, and autoplay land in later iterations (see
+> `overlay` option insets the controls on the imagery, an **`indicators`**
+> modifier whose `thumbnails` option swaps the dots for image thumbnails, and a
+> slide **`ratio`** modifier (square / standard / wide / ultrawide) for the slide
+> aspect ratio (all — see below). The remaining placements (external-flank,
+> controls-on-top), multi-slide, and autoplay land in later iterations (see
 > `docs/carousel-development-log.md`).
 
 ## Files
@@ -95,9 +96,13 @@ so they can't fall out of sync.
   `--primitiv-carousel-thumbnail-*` knobs. It composes with every placement and
   orientation — under `vertical` the thumbnails stack into a rail beside the
   viewport, under `overlay` they ride the scrim pill. The slide **`radius`**
-  modifier (`md` default · `none` squares the slide off) lives on the `slide`,
-  not the root — which is why `CarouselSlide` gets the `radius` prop while
-  `Carousel` gets `peek`, `padding`, `placement` and `indicators`.
+  modifier (`md` default · `none` squares the slide off) and the slide **`ratio`**
+  modifier (`square` 1:1 · `standard` 4:3 · `wide` 16:9 default · `ultrawide`
+  21:9, re-pointing `--primitiv-carousel-slide-aspect-ratio`) both live on the
+  `slide`, not the root — which is why `CarouselSlide` gets the `radius` and
+  `ratio` props while `Carousel` gets `peek`, `padding`, `placement` and
+  `indicators`. (`ratio` is read in the horizontal layout; the vertical viewport
+  owns its own ratio, so the slide aspect stands down there.)
 - **Multi-slide (`slidesPerPage` / `slidesPerMove`).** These are **not**
   modifiers — they are **`styleProps`**: numeric props forwarded straight to the
   headless page model *and* written onto `--primitiv-carousel-slides-per-page`

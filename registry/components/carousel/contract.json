@@ -96,6 +96,17 @@
             { "name": "md", "class": "primitiv-carousel__slide--radius-md", "description": "Medium rounded corners (the default)." },
             { "name": "none", "class": "primitiv-carousel__slide--radius-none", "description": "Sharp, un-rounded corners." }
           ]
+        },
+        {
+          "name": "ratio",
+          "default": "wide",
+          "description": "The slide's aspect ratio (read in the horizontal orientation — the vertical viewport owns its own ratio via --primitiv-carousel-vertical-aspect-ratio). Re-points --primitiv-carousel-slide-aspect-ratio to a common media ratio; override the knob directly for a bespoke value.",
+          "options": [
+            { "name": "square", "class": "primitiv-carousel__slide--ratio-square", "description": "1:1 — a square slide." },
+            { "name": "standard", "class": "primitiv-carousel__slide--ratio-standard", "description": "4:3 — the classic photo ratio." },
+            { "name": "wide", "class": "primitiv-carousel__slide--ratio-wide", "description": "16:9 — widescreen (the default)." },
+            { "name": "ultrawide", "class": "primitiv-carousel__slide--ratio-ultrawide", "description": "21:9 — cinematic ultra-wide." }
+          ]
         }
       ],
       "dataAttributes": [

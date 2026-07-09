@@ -375,6 +375,26 @@
     --primitiv-carousel-slide-radius: var(--primitiv-radii-0);
   }
 
+  /* Slide aspect ratio — re-points the aspect-ratio knob to a common media ratio
+     (read only in the horizontal layout; the vertical viewport owns its own
+     ratio, so the slide aspect stands down there). The values are ratio *shapes*,
+     not token values — like the base slide/vertical aspect ratios and the
+     circular control radius. `wide` (16:9) is the default the base rule already
+     resolves; the modifier lets a consumer square the slide (1:1) or go
+     standard/cinematic without touching the knob. */
+  .primitiv-carousel__slide--ratio-square {
+    --primitiv-carousel-slide-aspect-ratio: 1 / 1;
+  }
+  .primitiv-carousel__slide--ratio-standard {
+    --primitiv-carousel-slide-aspect-ratio: 4 / 3;
+  }
+  .primitiv-carousel__slide--ratio-wide {
+    --primitiv-carousel-slide-aspect-ratio: 16 / 9;
+  }
+  .primitiv-carousel__slide--ratio-ultrawide {
+    --primitiv-carousel-slide-aspect-ratio: 21 / 9;
+  }
+
   /* Control hover / active re-point the fill knob, matching the secondary-action
      button so the two stay visually consistent. */
   .primitiv-carousel__prev:hover,

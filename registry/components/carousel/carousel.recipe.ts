@@ -59,9 +59,16 @@ export const carouselSlide = cva("primitiv-carousel__slide", {
       md: "primitiv-carousel__slide--radius-md",
       none: "primitiv-carousel__slide--radius-none",
     },
+    ratio: {
+      square: "primitiv-carousel__slide--ratio-square",
+      standard: "primitiv-carousel__slide--ratio-standard",
+      wide: "primitiv-carousel__slide--ratio-wide",
+      ultrawide: "primitiv-carousel__slide--ratio-ultrawide",
+    },
   },
   defaultVariants: {
     radius: "md",
+    ratio: "wide",
   },
 });
 

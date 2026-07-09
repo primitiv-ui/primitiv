@@ -48,6 +48,7 @@ const GALLERY = [
 function BasicSingle({
   label,
   radius,
+  ratio,
   peek,
   padding,
   surface,
@@ -55,6 +56,7 @@ function BasicSingle({
 }: {
   label: string;
   radius?: "md" | "none";
+  ratio?: "square" | "standard" | "wide" | "ultrawide";
   peek?: "none" | "sm" | "md" | "lg";
   padding?: "none" | "sm" | "md" | "lg";
   surface?: "none" | "subtle";
@@ -70,7 +72,12 @@ function BasicSingle({
     >
       <CarouselViewport>
         {SLIDES.map((bg, i) => (
-          <CarouselSlide key={i} radius={radius} style={{ background: bg }} />
+          <CarouselSlide
+            key={i}
+            radius={radius}
+            ratio={ratio}
+            style={{ background: bg }}
+          />
         ))}
       </CarouselViewport>
       <CarouselControls>
@@ -143,12 +150,14 @@ function VerticalSingle({
  */
 function OverlaySingle({
   label,
+  ratio,
   peek,
   padding,
   transition,
   orientation = 'horizontal',
 }: {
   label: string;
+  ratio?: "square" | "standard" | "wide" | "ultrawide";
   peek?: "none" | "sm" | "md" | "lg";
   padding?: "none" | "sm" | "md" | "lg";
   transition?: "slide" | "fade";
@@ -167,7 +176,7 @@ function OverlaySingle({
     >
       <CarouselViewport>
         {SLIDES.map((bg, i) => (
-          <CarouselSlide key={i} style={{ background: bg }} />
+          <CarouselSlide key={i} ratio={ratio} style={{ background: bg }} />
         ))}
       </CarouselViewport>
       <CarouselPreviousTrigger aria-label="Previous slide">
@@ -817,6 +826,97 @@ export function CarouselThumbnails() {
           note="Composes with peek: a sliver of the neighbouring slides shows in the viewport while the thumbnail strip navigates below — the two axes are independent."
         >
           <ThumbnailSingle label="Thumbnails — with peek" peek="sm" />
+        </GridCell>
+      </div>
+    </Example>
+  );
+}
+
+export function CarouselRatio() {
+  return (
+    <Example
+      title="Aspect ratio — square vs wide slides"
+      note="The slide `ratio` modifier (square 1:1 · standard 4:3 · wide 16:9 default · ultrawide 21:9) re-points --primitiv-carousel-slide-aspect-ratio, so a slide keeps its ratio while filling its share of the container — no fixed pixel sizes. The grid pairs the two most distinct ratios row by row: the LEFT column is square (1:1), the RIGHT column is wide (16:9), each row a matching control/peek variant so you can compare the ratio in isolation. It composes with placement (outset row vs overlay) and peek for free — ratio is a slide concern, placement/peek are root concerns."
+    >
+      <div className="carousel-grid">
+        <GridCell
+          n={1}
+          title="Square · outset controls"
+          note="1:1 slide, controls in the row below (outset — outside the imagery). The baseline square."
+        >
+          <BasicSingle label="Square, controls below" ratio="square" />
+        </GridCell>
+
+        <GridCell
+          n={2}
+          title="Wide · outset controls"
+          note="16:9 slide, controls in the row below. The baseline wide — the same composition as cell 1, only the ratio differs."
+        >
+          <BasicSingle label="Wide, controls below" ratio="wide" />
+        </GridCell>
+
+        <GridCell
+          n={3}
+          title="Square · overlay controls"
+          note="1:1 slide with the controls overlaid on the imagery — prev/next on the scrim, dots in the bottom pill."
+        >
+          <OverlaySingle label="Square, overlay" ratio="square" />
+        </GridCell>
+
+        <GridCell
+          n={4}
+          title="Wide · overlay controls"
+          note="16:9 slide, overlay controls. The wide counterpart to cell 3 — overlay insets ride the slide edges regardless of ratio."
+        >
+          <OverlaySingle label="Wide, overlay" ratio="wide" />
+        </GridCell>
+
+        <GridCell
+          n={5}
+          title="Square · outset · peek sm"
+          note="1:1 slide with a small peek — a sliver of the square neighbours shows past the active slide."
+        >
+          <BasicSingle label="Square, peek sm" ratio="square" peek="sm" />
+        </GridCell>
+
+        <GridCell
+          n={6}
+          title="Wide · outset · peek sm"
+          note="16:9 slide with the same small peek — the reveal is the same gutter, the neighbour just a wider sliver."
+        >
+          <BasicSingle label="Wide, peek sm" ratio="wide" peek="sm" />
+        </GridCell>
+
+        <GridCell
+          n={7}
+          title="Square · overlay · peek md"
+          note="1:1 slide, overlay controls, and a medium peek — the overlay insets clear the peek gutter so prev/next stay on the active slide."
+        >
+          <OverlaySingle label="Square, overlay, peek md" ratio="square" peek="md" />
+        </GridCell>
+
+        <GridCell
+          n={8}
+          title="Wide · overlay · peek md"
+          note="16:9 slide, overlay controls, medium peek — the wide counterpart to cell 7."
+        >
+          <OverlaySingle label="Wide, overlay, peek md" ratio="wide" peek="md" />
+        </GridCell>
+
+        <GridCell
+          n={9}
+          title="Square · outset · peek lg"
+          note="1:1 slide with a large peek — generous neighbour reveal on both sides of the square."
+        >
+          <BasicSingle label="Square, peek lg" ratio="square" peek="lg" />
+        </GridCell>
+
+        <GridCell
+          n={10}
+          title="Wide · outset · peek lg"
+          note="16:9 slide with the large peek — the wide counterpart, closing the square-vs-wide comparison across every peek size."
+        >
+          <BasicSingle label="Wide, peek lg" ratio="wide" peek="lg" />
         </GridCell>
       </div>
     </Example>

@@ -532,12 +532,27 @@ confirms whether the resting track reads as a clean frame vs. a peek. Regenerate
 not modifiers) + drift-green + hand-synced.
 
 **QA round 3 (human) — comprehensive grid.** Reworked `/carousel/padding` to the
-same **numbered 3-column grid** as the multi-slide page (the `GridCell` component
-and `.carousel-grid` CSS were generalised out of the multi page and shared). 12
-cells: the `none` baseline + the sm/md/lg size ladder, then compositions —
-peek-on-top (×2), square slides in a rounded track, overlay, 2-up, vertical, RTL,
-and a busy lg + 3-up + peek. `OverlaySingle` / `MultiSlide` gained a `padding`
-passthrough. Example-only (no registry/headless/emit change).
+same **numbered grid** as the multi-slide page (the `GridCell` component and
+`.carousel-grid` CSS were generalised out of the multi page and shared; the human
+then set the grid to 2 columns). 12 cells: the `none` baseline + the size ladder,
+then compositions — peek-on-top (×2), square slides in a rounded track, overlay,
+2-up, vertical, RTL, and a busy lg + 3-up + peek. `OverlaySingle` / `MultiSlide`
+gained a `padding` passthrough. Example-only.
+
+**QA round 4 (human) — surface opt-in.** The human liked the track fill but wanted
+it **opt-in**, not automatic with `padding`. Split the frame: `padding` now draws
+only the **outline** (border + radius) + the inset + gap coupling, and a new root
+**`surface`** modifier (`none` default · `subtle`) opts the background fill in
+(re-points `--primitiv-carousel-viewport-surface`). So `padding` alone = outlined
+track; `padding` + `surface="subtle"` = filled. Contract gained the `surface`
+modifier group (regenerated recipe/tsx + scss, drift-green); `BasicSingle` gained a
+`surface` passthrough and the grid shows both (cell 2 outlined, cells 3–4 filled).
+Also **bumped the overlay control/pill opacity one step** (`neutral-alpha` 500→600,
+hover 600→700, active 700→800, pill 500→600, inactive dot inverse-500→600) — the
+human found the overlay controls too transparent on bright imagery (registry
+default, so it lands on the overlay example too). Both are Figma-lockstep items
+(the overlay bump is a value change on the existing bindings; `surface` is a
+code-only knob/modifier).
 
 **Figma lockstep: pending** human QA. Light — viewport padding is code-only (no
 carousel `--primitiv-*` variable layer in Figma; bindings only). Reconcile the

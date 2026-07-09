@@ -16,7 +16,7 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K>
  *
  * @see https://primitiv-ui.dev/docs/components/carousel
  */
-export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "padding" | "placement"> & {
+export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "padding" | "surface" | "placement"> & {
   /**
    * Reveal a sliver of the adjacent slides on either side of the active one. Works in both orientations (inline edges when horizontal, block edges when vertical).
    * - `none` — No peek — the active slide fills the viewport (the default).
@@ -28,15 +28,23 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    */
   peek?: "none" | "sm" | "md" | "lg";
   /**
-   * Inset the whole carousel from its container with an outer gutter (breathing room framing the viewport). Distinct from `peek`: padding is the outer gutter and never reveals neighbouring slides, whereas peek is the inner reveal — they stack, so with both set the edge inset is padding + peek while the neighbour reveal stays exactly peek. Frames every edge in both orientations (so the side opposite the controls is padded too); the internal viewport-to-controls spacing stays the block gap's job.
-   * - `none` — No viewport padding — the carousel fills its container edge to edge (the default).
-   * - `sm` — A small gutter.
-   * - `md` — A medium gutter.
-   * - `lg` — A large gutter.
+   * Make the viewport a padded, framed track: pad the slides inward from the viewport edges and draw the track outline (border + rounded corners). The gap is coupled to the padding so the resting track doesn't itself reveal a neighbour; add `peek` for a deliberate reveal within the track. The background fill is opt-in via the `surface` modifier — padding alone renders an outlined track.
+   * - `none` — No viewport padding — a bare, frameless scroll box (the default).
+   * - `sm` — A small inset.
+   * - `md` — A medium inset.
+   * - `lg` — A large inset.
    * @default "none"
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
   padding?: "none" | "sm" | "md" | "lg";
+  /**
+   * Opt into the viewport track's background fill. Off by default (a framed track is just an outline); pairs with `padding` to render a filled, framed track.
+   * - `none` — No fill — the track is transparent (the default).
+   * - `subtle` — Fill the track with the subtle surface token.
+   * @default "none"
+   * @see https://primitiv-ui.dev/docs/components/carousel
+   */
+  surface?: "none" | "subtle";
   /**
    * Where the prev/next controls and indicator dots sit relative to the viewport. The default keeps them in a flow row below (compose them in a `<CarouselControls>` wrapper); `overlay` insets the controls on the slide for edge-to-edge imagery.
    * - `row` — Controls flow in a row below the viewport (the default).
@@ -47,10 +55,10 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
   placement?: "row" | "overlay";
 };
 
-export function Carousel({ peek, padding, placement, slidesPerPage, className, style, ...props }: CarouselProps) {
+export function Carousel({ peek, padding, surface, placement, slidesPerPage, className, style, ...props }: CarouselProps) {
   return (
     <CarouselPrimitive.Root
-      className={[carousel({ peek, padding, placement }), className].filter(Boolean).join(" ")}
+      className={[carousel({ peek, padding, surface, placement }), className].filter(Boolean).join(" ")}
       style={{ ...style, ...(slidesPerPage === undefined ? {} : { "--primitiv-carousel-slides-per-page": slidesPerPage }) } as CSSProperties}
       slidesPerPage={slidesPerPage}
       {...props}

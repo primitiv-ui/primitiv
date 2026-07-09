@@ -50,12 +50,14 @@ function BasicSingle({
   radius,
   peek,
   padding,
+  surface,
   transition,
 }: {
   label: string;
   radius?: "md" | "none";
   peek?: "none" | "sm" | "md" | "lg";
   padding?: "none" | "sm" | "md" | "lg";
+  surface?: "none" | "subtle";
   transition?: "slide" | "fade";
 }) {
   return (
@@ -63,6 +65,7 @@ function BasicSingle({
       ariaLabel={label}
       peek={peek}
       padding={padding}
+      surface={surface}
       transition={transition}
     >
       <CarouselViewport>
@@ -394,39 +397,39 @@ export function CarouselPadding() {
   return (
     <Example
       title="Viewport padding — the framed-track grid"
-      note="A cross-cutting `padding` modifier (none · sm · md · lg) turns the viewport into a padded, framed track: the viewport itself gets a surface, a border and rounded corners, and the padding insets the slides inside it. The gap is coupled to the padding so the resting track stays clean (no accidental peek). Each cell pins a size or a composition — check that the frame reads as a clean padded box (no neighbour leaking into the inline padding unless peek is set), that it scales, and that it composes with the other features."
+      note="A cross-cutting `padding` modifier (none · sm · md · lg) turns the viewport into a padded, framed track: it insets the slides and draws the track outline (border + rounded corners). The background fill is opt-in via the separate `surface` modifier (cells 3 & 4 below) — padding alone is an outlined track. The gap is coupled to the padding so the resting track stays clean (no accidental peek). Each cell pins a size, the surface opt-in, or a composition."
     >
       <div className="carousel-grid">
         <GridCell
           n={1}
           title="padding none (baseline)"
-          note="The default: a bare, frameless scroll box — no surface, border or inset. The contrast for the framed cells."
+          note="The default: a bare, frameless scroll box — no outline, fill or inset. The contrast for the framed cells."
         >
           <BasicSingle label="Padding none" />
         </GridCell>
 
         <GridCell
           n={2}
-          title="padding sm"
-          note="A small padded, framed track. The slides sit inset from the border by space-16."
+          title="padding sm (outlined)"
+          note="A small padded track — border + rounded corners, transparent fill. The slides sit inset from the outline by space-16."
         >
           <BasicSingle label="Padding small" padding="sm" />
         </GridCell>
 
         <GridCell
           n={3}
-          title="padding md"
-          note="Medium inset (space-32). Same frame, more breathing room around the slide."
+          title="padding md + surface subtle"
+          note="Opt into the fill: the `surface` modifier tints the track with the subtle surface token. Medium inset (space-32)."
         >
-          <BasicSingle label="Padding medium" padding="md" />
+          <BasicSingle label="Padding medium, filled" padding="md" surface="subtle" />
         </GridCell>
 
         <GridCell
           n={4}
-          title="padding lg"
-          note="Large inset (space-48) — the generous framed track."
+          title="padding lg + surface subtle"
+          note="The filled track at the large inset (space-48) — surface fill + generous breathing room."
         >
-          <BasicSingle label="Padding large" padding="lg" />
+          <BasicSingle label="Padding large, filled" padding="lg" surface="subtle" />
         </GridCell>
 
         <GridCell

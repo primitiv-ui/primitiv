@@ -58,14 +58,17 @@ so they can't fall out of sync.
   edges when horizontal, the block edges when vertical). A root **`padding`**
   modifier (`none` default · `sm` · `md` · `lg`) makes the **viewport a padded,
   framed track**: it re-points `--primitiv-carousel-viewport-padding` (inner inset
-  on every edge) *and* turns on the viewport frame knobs
-  (`--primitiv-carousel-viewport-surface` / `-border-width` / `-border-color` /
-  `-radius`), so the viewport draws a bordered, rounded, tinted box with the slides
-  inset inside it. The inter-slide gap is coupled to the padding so the resting
-  track shows clean inset breathing room, not an accidental peek; adding `peek` on
-  top reveals a neighbour sliver *within* the track. `none` (the default) is a bare,
-  frameless scroll box. It maps to the scroll axis in either orientation. A root
-  **`placement`**
+  on every edge) *and* draws the track **outline** (the
+  `--primitiv-carousel-viewport-border-width` / `-border-color` / `-radius` knobs),
+  so the viewport is a bordered, rounded box with the slides inset inside it. The
+  inter-slide gap is coupled to the padding so the resting track shows clean inset
+  breathing room, not an accidental peek; adding `peek` on top reveals a neighbour
+  sliver *within* the track. The background **fill is opt-in** via a separate root
+  **`surface`** modifier (`none` default · `subtle`, re-pointing
+  `--primitiv-carousel-viewport-surface`) — `padding` alone is an outlined track,
+  `padding` + `surface="subtle"` a filled one. `padding` `none` (the default) is a
+  bare, frameless scroll box. It maps to the scroll axis in either orientation. A
+  root **`placement`**
   modifier (`row` default · `overlay`) chooses where the controls sit: `row`
   keeps prev / dots / next in a flow row below (composed in a `<CarouselControls>`
   wrapper), while `overlay` insets the controls on the imagery — prev/next
@@ -114,9 +117,11 @@ Structured per RFC 0008 — the per-component API knobs + resting look in
   corners. **Peek** pads the leading/trailing edges (inline or block per
   orientation) and sets a matching `scroll-padding` so the active slide snaps
   inside the padding, revealing the neighbours. **Viewport padding** adds to that
-  padding on the scroll axis (plus the cross axis for the frame inset) and turns on
-  the frame — a padded track — while coupling the gap so it doesn't itself reveal a
-  neighbour; the two compose (padding frames, peek reveals within).
+  padding on the scroll axis (plus the cross axis for the frame inset) and draws the
+  track outline (border + radius) — a padded track — while coupling the gap so it
+  doesn't itself reveal a neighbour; the two compose (padding frames, peek reveals
+  within). The **`surface`** modifier opts the track's background fill in (off by
+  default, so a framed track is an outline until you add it).
 - **Slide** — a `flex-basis` of the viewport's *content* box divided by
   `--primitiv-carousel-slides-per-page` (minus the inter-slide gaps), so it is one
   per view by default and an equal share for a 2-/3-/4-up gallery; the % is of the

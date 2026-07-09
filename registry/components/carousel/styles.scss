@@ -94,9 +94,11 @@
        so a control reads on arbitrary photography in either theme; the glyph is
        `content-inverse`, which inverts to match. */
     --primitiv-carousel-overlay-control-inset: var(--primitiv-space-space-8);
-    --primitiv-carousel-overlay-control-bg: var(--primitiv-color-neutral-alpha-500);
-    --primitiv-carousel-overlay-control-bg-hover: var(--primitiv-color-neutral-alpha-600);
-    --primitiv-carousel-overlay-control-bg-active: var(--primitiv-color-neutral-alpha-700);
+    /* One step more opaque than the design's 500 base so the controls read more
+       solidly on bright imagery (still a translucent scrim). */
+    --primitiv-carousel-overlay-control-bg: var(--primitiv-color-neutral-alpha-600);
+    --primitiv-carousel-overlay-control-bg-hover: var(--primitiv-color-neutral-alpha-700);
+    --primitiv-carousel-overlay-control-bg-active: var(--primitiv-color-neutral-alpha-800);
     --primitiv-carousel-overlay-control-fg: var(--primitiv-content-inverse);
     --primitiv-carousel-overlay-indicator-inset: var(--primitiv-space-space-8);
     /* Dots on the scrim pill: inactive is a translucent inverse veil, active a
@@ -105,9 +107,9 @@
        active dot + glyph to absolute-white (it pins light mode); code uses the
        theme-adaptive content-inverse so dark mode stays legible — reconcile at
        the Figma lockstep. */
-    --primitiv-carousel-overlay-indicator-color: var(--primitiv-color-neutral-alpha-inverse-500);
+    --primitiv-carousel-overlay-indicator-color: var(--primitiv-color-neutral-alpha-inverse-600);
     --primitiv-carousel-overlay-indicator-color-active: var(--primitiv-content-inverse);
-    --primitiv-carousel-overlay-pill-bg: var(--primitiv-color-neutral-alpha-500);
+    --primitiv-carousel-overlay-pill-bg: var(--primitiv-color-neutral-alpha-600);
     --primitiv-carousel-overlay-pill-padding-inline: var(--primitiv-space-space-12);
     --primitiv-carousel-overlay-pill-padding-block: var(--primitiv-space-space-4);
     /* Crossfade timing — read only under [data-transition="fade"], where the
@@ -309,15 +311,16 @@
   }
 
   /* Viewport padding — makes the viewport a padded, framed track: it re-points the
-     padding knob (inner inset on every edge) AND turns on the viewport frame
-     (surface + border + rounded corners), so the padding reads as breathing room
-     inside a visible box. Shares peek's t-shirt scale. `none` is the default
-     (no padding, no frame — a bare scroll box). The frame knobs are shared across
-     the sizes; only the padding (and the coupled gap) grows. */
+     padding knob (inner inset on every edge) and turns on the track **outline**
+     (border + rounded corners), so the padding reads as breathing room inside a
+     visible box. The background **surface fill is opt-in** — add the `surface`
+     modifier for it (the border alone renders an outlined track). Shares peek's
+     t-shirt scale. `none` is the default (no padding, no frame — a bare scroll
+     box). The border/radius are shared across the sizes; only the padding (and the
+     coupled gap) grows. */
   .primitiv-carousel--padding-sm,
   .primitiv-carousel--padding-md,
   .primitiv-carousel--padding-lg {
-    --primitiv-carousel-viewport-surface: var(--primitiv-surface-subtle);
     --primitiv-carousel-viewport-border-width: var(--primitiv-border-width-1);
     --primitiv-carousel-viewport-border-color: var(--primitiv-border-subtle);
     --primitiv-carousel-viewport-radius: var(--primitiv-radii-12);
@@ -337,6 +340,16 @@
   }
   .primitiv-carousel--padding-lg {
     --primitiv-carousel-viewport-padding: var(--primitiv-space-space-48);
+  }
+
+  /* Viewport surface — opt into the track's background fill (off by default, so a
+     framed track is just an outline). `subtle` fills it with the subtle surface
+     token; pairs with `padding` (on its own it just tints the scroll box). */
+  .primitiv-carousel--surface-none {
+    --primitiv-carousel-viewport-surface: transparent;
+  }
+  .primitiv-carousel--surface-subtle {
+    --primitiv-carousel-viewport-surface: var(--primitiv-surface-subtle);
   }
 
   /* Slide corner rounding — re-points the radius knob. `md` is the default

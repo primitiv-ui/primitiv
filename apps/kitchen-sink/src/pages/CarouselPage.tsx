@@ -487,7 +487,7 @@ export function CarouselMulti() {
         <MultiCell
           n={3}
           title="perPage 2 · auto · 5 slides"
-          note="Odd count: the partial last page shows a single slide. 3 dots."
+          note="Odd count: the last page end-aligns to a full window [3,4] (no lonely single slide), so it snaps cleanly and stays in sync. 3 dots."
         >
           <MultiSlide label="Case 3" count={5} slidesPerPage={2} />
         </MultiCell>
@@ -495,7 +495,7 @@ export function CarouselMulti() {
         <MultiCell
           n={4}
           title="perPage 3 · auto · 7 slides"
-          note="Partial last page (one slide over two full pages). 3 dots."
+          note="Last page end-aligns to [4,5,6] (overlapping the one before by two) so two Next clicks reach it and the third dot activates — no desync. 3 dots."
         >
           <MultiSlide label="Case 4" count={7} slidesPerPage={3} />
         </MultiCell>

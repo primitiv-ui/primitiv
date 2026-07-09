@@ -574,10 +574,28 @@ headless hardening is live for QA. Registry + component READMEs updated.
 qa:units` (100% lines/branches/functions/statements, 1696 tests). Rust region
 coverage (emit styleProps branches) enforced by CI.
 
+**QA round 1 (human) — partial-last-page desync (examples 4 & 12).** In *auto*
+(paged) mode a total that isn't a whole number of pages left a **partial last
+page** (`perPage 3`, 7 slides → last page `[6]`). Its leading slide can't align to
+the viewport start (nothing follows it), so the browser clamped the programmatic
+scroll and `scrollsnapchange` snapped back to slide 4 → the active page desynced
+to page 1: two Next clicks looked like they reached the end but left the 2nd dot
+active, and Prev then jumped to page 0. **Fixed at the root: the last page now
+end-aligns in *both* modes** (unified offset model — `offset(i) =
+min(i·step, maxOffset)`, `totalPages = ceil(maxOffset/step)+1`), so every page is
+a full, cleanly-snapping window. The page *count* is unchanged (identical to
+`ceil(total/perPage)` for a full-page step); only the last page's offset shifts
+back (7 slides `perPage 3` → `[0,1,2] [3,4,5] [4,5,6]`). `pageForSlideIndex`
+became a nearest-offset scan (round/floor can't invert the end-aligned tail). TDD
+(updated the partial-last-page test + 2 new example-4 scenarios in
+`Carousel.slides-per-page.test.tsx`); 100% coverage; JSDoc + README updated. This
+also subsumes the earlier windowed-only end-align (iteration 8 / commit `8b30295`)
+into one model.
+
 **Figma lockstep: pending** human QA. Multi-slide is code-only (no carousel
 `--primitiv-*` variable layer); the design's "Slides Per Page" / "Slides Per Move"
-cells show the intent. **Next:** human QA of `/carousel/multi`, then the earlier
-awaiting-QA iterations, then remaining placements / thumbnails.
+cells show the intent. **Next:** re-QA of `/carousel/multi`, the viewport-padding
+question (below), then the earlier awaiting-QA iterations.
 
 ## Backlog (examples still to build)
 

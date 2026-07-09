@@ -36,7 +36,7 @@ describe("Carousel scroll sync (user-driven via scrollsnapchange)", () => {
     );
   });
 
-  it("should derive the page index from floor(slideIndex / slidesPerPage) when slidesPerPage > 1", () => {
+  it("should derive the page index from the nearest window start when slidesPerPage > 1", () => {
     render(
       <Carousel.Root ariaLabel="Featured products" slidesPerPage={2}>
         <Carousel.Viewport data-testid="viewport">
@@ -48,7 +48,7 @@ describe("Carousel scroll sync (user-driven via scrollsnapchange)", () => {
       </Carousel.Root>,
     );
 
-    // Snap target is slide 3 → page = floor(3/2) = 1.
+    // Snap target is slide 3; the nearest window start (offsets 0, 2) is page 1.
     fireScrollSnapChange(
       screen.getByTestId("viewport"),
       screen.getByTestId("slide-3"),

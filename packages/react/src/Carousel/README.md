@@ -542,8 +542,12 @@ With `slidesPerPage={3}` and 5 slides:
 
 - Total pages = `ceil(5 / 3) === 2`. `Carousel.Indicators` renders 2
   dots.
-- Page 0 contains slides 0–2; page 1 contains the remaining 3, 4 (a
-  partial last page).
+- Page 0 contains slides 0–2; page 1 **end-aligns** to slides 2–4 (a
+  full window flush with the track end, not a partial `[3,4]`). A
+  partial last page's leading slide can't align to the viewport start,
+  so it would snap to the previous slide and desync the active page —
+  end-aligning keeps every page a full, cleanly-snapping window (7
+  slides at `slidesPerPage={3}` → `[0,1,2] [3,4,5] [4,5,6]`).
 - Each slide on the active page emits `data-state="active"`; slides
   on other pages emit `"inactive"`.
 - `Carousel.NextTrigger` advances one page per click; the boundary

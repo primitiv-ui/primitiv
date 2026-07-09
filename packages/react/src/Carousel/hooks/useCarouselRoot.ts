@@ -148,25 +148,29 @@ export function useCarouselRoot(
   // never skip past a page and orphan the slides in the gap. "auto" moves a
   // full page.
   const perPage = clampCount(slidesPerPage, 1);
-  const isWindowed = slidesPerMove !== "auto";
+  // Slides advanced per page step: a full page in "auto" mode, else the numeric
+  // move clamped to ≤ perPage so a move can never skip past a page and orphan
+  // the slides in the gap.
   const effectiveSlidesPerMove =
     slidesPerMove === "auto"
       ? perPage
       : Math.min(perPage, clampCount(slidesPerMove, 1));
-  // The last reachable window starts at `maxOffset` (the track end minus a
-  // full page). "auto" (paged) mode keeps non-overlapping page groups and
-  // accepts a partial last page — ceil(total / perPage). Numeric (windowed)
-  // mode end-aligns the last page — ceil(maxOffset / move) + 1 — so every
-  // slide is reachable even when the move doesn't divide the track evenly.
+  // Pages step by `effectiveSlidesPerMove` from 0, and the **last page always
+  // end-aligns** to `maxOffset` (the track end minus a full page). This is the
+  // single offset model for both modes: it guarantees every page is a full
+  // window that can start-snap cleanly, so a total that isn't a whole number of
+  // pages can't leave a partial last page whose leading slide can't reach the
+  // viewport start (which desyncs the active page against the scroll). The
+  // formula is identical to `ceil(total / perPage)` when the step is a full
+  // page, so the page *count* is unchanged — only the last page's offset shifts
+  // back to keep its window full.
   const maxOffset = Math.max(0, total - perPage);
   const totalPages =
     total === 0
       ? 0
       : total <= perPage
         ? 1
-        : isWindowed
-          ? Math.ceil(maxOffset / effectiveSlidesPerMove) + 1
-          : Math.ceil(total / perPage);
+        : Math.ceil(maxOffset / effectiveSlidesPerMove) + 1;
 
   // In controlled mode an out-of-range page prop is a consumer error —
   // throw loudly so it surfaces during development rather than shipping
@@ -185,27 +189,34 @@ export function useCarouselRoot(
       ? Math.max(0, Math.min(rawPage, totalPages - 1))
       : rawPage;
 
-  // Start slide index of the active window. Windowed mode end-aligns the
-  // last page (clamped to maxOffset) so the tail is reachable; paged mode
-  // keeps its partial last page (offset can sit past maxOffset).
-  const currentPageOffset = isWindowed
-    ? Math.min(currentPage * effectiveSlidesPerMove, maxOffset)
-    : currentPage * perPage;
+  // Start slide index of the active window: step by move, but the last page
+  // end-aligns (clamped to maxOffset) so its window is always full.
+  const currentPageOffset = Math.min(
+    currentPage * effectiveSlidesPerMove,
+    maxOffset,
+  );
 
-  // Inverse of the offset model: which page does a leading slide index
-  // belong to? Paged mode groups by perPage; windowed mode rounds the index
-  // to the nearest window start (the offsets are multiples of the move,
-  // with the last one end-aligned). The clamp keeps a tail slide on the
-  // last page (and yields 0 for the empty carousel, where totalPages − 1 is
-  // −1) — pageForSlideIndex is only called once slides exist.
+  // Inverse of the offset model: which page does a leading slide index belong
+  // to? Because the last page end-aligns, the offsets aren't a clean multiple
+  // series (the final step is short), so round/floor can't invert them — pick
+  // the page whose start offset is nearest the slide. Ties favour the earlier
+  // page (`<`). Returns 0 for the empty carousel (the loop runs zero times) —
+  // pageForSlideIndex is only called once slides exist anyway.
   const pageForSlideIndex = useCallback(
     (slideIndex: number) => {
-      const raw = isWindowed
-        ? Math.round(slideIndex / effectiveSlidesPerMove)
-        : Math.floor(slideIndex / perPage);
-      return Math.max(0, Math.min(raw, totalPages - 1));
+      let best = 0;
+      let bestDistance = Infinity;
+      for (let page = 0; page < totalPages; page++) {
+        const offset = Math.min(page * effectiveSlidesPerMove, maxOffset);
+        const distance = Math.abs(offset - slideIndex);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          best = page;
+        }
+      }
+      return best;
     },
-    [isWindowed, effectiveSlidesPerMove, perPage, totalPages],
+    [effectiveSlidesPerMove, maxOffset, totalPages],
   );
 
   const [internalPlaying, setInternalPlaying] = useState(defaultPlaying);

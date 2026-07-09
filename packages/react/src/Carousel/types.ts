@@ -195,10 +195,15 @@ export type CarouselRootProps = Omit<
      * greater than `1`, slides are grouped into pages of that size for
      * navigation purposes: indicators auto-render per page, boundary
      * clamp moves to the last page, and `Carousel.NextTrigger` /
-     * `Carousel.PreviousTrigger` advance one page at a time. Coerced to an
-     * integer ≥ 1 — `0`, negative, fractional, and non-finite values are
-     * clamped (e.g. `2.5 → 2`, `0 → 1`) so the page maths never divides by
-     * zero. */
+     * `Carousel.PreviousTrigger` advance one page at a time. The **last
+     * page always end-aligns** (its window is full, flush with the track
+     * end) rather than leaving a partial page — a partial page's leading
+     * slide can't align to the viewport start, which desyncs the active
+     * page against the scroll. So 7 slides at `slidesPerPage={3}` are 3
+     * pages — `[0,1,2] [3,4,5] [4,5,6]` — the last shifted back by one to
+     * stay full. Coerced to an integer ≥ 1 — `0`, negative, fractional,
+     * and non-finite values are clamped (e.g. `2.5 → 2`, `0 → 1`) so the
+     * page maths never divides by zero. */
     slidesPerPage?: number;
     /** Number of slides advanced by `Carousel.NextTrigger` /
      * `Carousel.PreviousTrigger`. `"auto"` (default) advances one full page

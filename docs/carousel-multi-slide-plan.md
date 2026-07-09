@@ -125,10 +125,15 @@ None of B1–B4 has a failing test yet — each is a **new red test** to drive.
   modifier.
 - **D2 = default `slidesPerMove` stays `"auto"`** (move a full page). Examples
   show move=1 explicitly.
-- **D3 = harden all three.** End-align the last **windowed** page so every slide
-  is reachable; clamp numeric `move ≤ perPage` (no gap-skipping); guard
-  `perPage` / numeric `move` to `≥ 1` (integer, NaN→1). **Auto/paged mode keeps
-  its partial last page** — end-align is windowed-mode only.
+- **D3 = harden all three.** End-align the last page so every slide is reachable;
+  clamp numeric `move ≤ perPage` (no gap-skipping); guard `perPage` / numeric
+  `move` to `≥ 1` (integer, NaN→1).
+  - **Correction (QA round 1):** end-align applies to **both** modes, not just
+    windowed. A partial last page in *auto* mode can't start-snap either (its
+    leading slide has nothing after it), which desynced the active page against
+    the scroll (examples 4 & 12). The offset model is now unified —
+    `offset(i) = min(i·step, maxOffset)`, `totalPages = ceil(maxOffset/step)+1`,
+    `pageForSlideIndex` = nearest-offset scan — with the page count unchanged.
 
 ## Decisions to lock before coding (superseded — see LOCKED above)
 

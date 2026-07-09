@@ -16,6 +16,7 @@ const EXAMPLES: { to: string; label: string }[] = [
   { to: "multi", label: "Multi-slide" },
   { to: "overlay", label: "Overlay" },
   { to: "fade", label: "Fade" },
+  { to: "thumbnails", label: "Thumbnails" },
 ];
 
 export function CarouselLayout() {

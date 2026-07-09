@@ -16,10 +16,12 @@ expressed in logical properties.
 > **vertical orientation** (`orientation="vertical"` on the headless Root →
 > `data-orientation`, a column-scroll viewport with the controls in a column
 > beside it), **peek** (the `peek` modifier), **viewport padding** (the `padding`
-> modifier — a padded, framed viewport track), and a **`placement`** modifier whose
-> `overlay` option insets the controls on the imagery (both — see below). The
-> remaining placements (external-flank, controls-on-top), multi-slide, thumbnails,
-> and autoplay land in later iterations (see `docs/carousel-development-log.md`).
+> modifier — a padded, framed viewport track), a **`placement`** modifier whose
+> `overlay` option insets the controls on the imagery, and an **`indicators`**
+> modifier whose `thumbnails` option swaps the dots for image thumbnails (both —
+> see below). The remaining placements (external-flank, controls-on-top),
+> multi-slide, and autoplay land in later iterations (see
+> `docs/carousel-development-log.md`).
 
 ## Files
 
@@ -83,10 +85,19 @@ so they can't fall out of sync.
   whole lane mirrors to inline-start under RTL). The insets clear the
   viewport-padding frame and the peek gutter on whichever axis is the scroll axis,
   so overlay sits on the slide in both orientations, with or without `padding` /
-  `peek`. The slide **`radius`**
+  `peek`. A root **`indicators`** modifier (`dots` default · `thumbnails`) chooses
+  what the indicators look like: `dots` is the compact dot row, while `thumbnails`
+  reshapes each indicator button into a rounded-rect image **thumbnail** — the
+  gallery pattern — with the active one ringed in the primary colour (the rest
+  dimmed until hovered/active). Supply the thumbnail content as children of each
+  `<CarouselIndicator>` (an `<img>` or a background element); it re-points the
+  group gap to `--primitiv-carousel-thumbnail-gap` and sizes each frame off the
+  `--primitiv-carousel-thumbnail-*` knobs. It composes with every placement and
+  orientation — under `vertical` the thumbnails stack into a rail beside the
+  viewport, under `overlay` they ride the scrim pill. The slide **`radius`**
   modifier (`md` default · `none` squares the slide off) lives on the `slide`,
   not the root — which is why `CarouselSlide` gets the `radius` prop while
-  `Carousel` gets `peek`, `padding` and `placement`.
+  `Carousel` gets `peek`, `padding`, `placement` and `indicators`.
 - **Multi-slide (`slidesPerPage` / `slidesPerMove`).** These are **not**
   modifiers — they are **`styleProps`**: numeric props forwarded straight to the
   headless page model *and* written onto `--primitiv-carousel-slides-per-page`

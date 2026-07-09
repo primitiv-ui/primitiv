@@ -99,6 +99,19 @@ appended here:
   + a `padding` modifier — **no headless change**, so the publish-gotcha doesn't
   apply.
 
+- **2026-07-09 — Thumbnails are a root `indicators` modifier, not a placement
+  (iteration 9).** The axis is *what the indicators look like* (`dots` default ·
+  `thumbnails`), orthogonal to `placement` (*where the controls sit*), so it
+  composes with every placement/orientation. Thumbnail content is custom
+  `<CarouselIndicator>` children (no headless change; the primitive already renders
+  indicator children). Active ring = an **inset** `box-shadow` (over the clipped
+  image); a dedicated active-`:focus-visible` rule composes it with the outset
+  focus ring so a focused active thumbnail keeps both. The auto
+  `<CarouselIndicators>` can't carry thumbnails (bare buttons, no children), so
+  thumbnails use the manual group — multi-slide + thumbnails is out of scope for
+  the example grid. Inactive thumbnails are dimmed (`opacity-60`) + hover-lifted —
+  a code addition to reconcile against the Figma reference at lockstep.
+
 ## Figma design reference
 
 Read from the Figma file **"Primitiv Design System" → "Carousel" page**
@@ -668,6 +681,68 @@ into one model.
 cells show the intent. **Next:** re-QA of `/carousel/multi`, the viewport-padding
 question (below), then the earlier awaiting-QA iterations.
 
+### Iteration 9 — Thumbnail indicators (awaiting human QA)
+
+**Registry surface (headless-free — pure CSS + a modifier).** A root
+**`indicators`** modifier (`dots` default · `thumbnails`) re-points the indicator
+styling: `dots` is the existing compact dot row; `thumbnails` reshapes each
+indicator `<button>` into a rounded-rect image **thumbnail** (the gallery
+pattern) — the active one ringed in the primary colour, the rest dimmed until
+hovered/active. The consumer supplies the thumbnail content as children of each
+`<CarouselIndicator>` (an `<img>` or a background element; the headless
+`Indicator` already renders `children`, so no primitive change). Seven new knobs
+(`--primitiv-carousel-thumbnail-{inline-size,aspect-ratio,gap,radius,ring-width,
+ring-color,inactive-opacity}`): the thumbnail is `space-80` wide at the slide's
+`16/9` ratio, `radii-8` corners, an `action-primary` ring of `border-width-2`,
+and `opacity-60` when inactive. The modifier re-points `--primitiv-carousel-
+indicator-gap` to the thumbnail gap (the dot row sits flush at 0), suppresses the
+dot `::before`, and fills each frame with its child (`object-fit: cover`,
+`display: block` so a non-replaced gradient stand-in fills too). The active ring
+is an **inset** `box-shadow` (sits over the clipped image, follows the corners);
+a dedicated **active + `:focus-visible`** rule composes the inset ring with the
+two-layer outset focus ring so a focused active thumbnail keeps both (the active
+rule's specificity would otherwise swallow the focus ring). **No headless change**
+— thumbnails are custom indicator *content* + a styling modifier, so the publish
+gotcha doesn't apply (the modifier is a CSS class; the child content flows through
+the existing `Indicator`). Composes with every placement/orientation for free:
+under `vertical` the group already flips to a column (a thumbnail rail beside the
+viewport), under `overlay` the thumbnails ride the scrim pill.
+
+**Naming.** A root **`indicators`** modifier (`dots`/`thumbnails`), not a
+placement — the axis is *what the indicators look like*, orthogonal to *where the
+controls sit* (`placement`). Single-word cva option names (the recipe emitter
+doesn't quote keys). The prop `indicators` on the root coexists with the
+`<CarouselIndicators>` auto-dots part (different namespaces — a root prop vs an
+exported component). ⚠️ **The auto `<CarouselIndicators>` renders bare `<button>`s
+with no children**, so it can't carry thumbnail images — thumbnails use the manual
+`<CarouselIndicatorGroup>` + `<CarouselIndicator>` (one thumb per slide,
+`slidesPerPage={1}`); a multi-slide thumbnail cell would need per-*page* thumbs
+and was deliberately left out of the example grid.
+
+**Built** (`CarouselPage.tsx`, `/carousel/thumbnails`): a **2-column grid** of the
+control variants for QA — (1) default (prev / thumbnail strip / next below), (2)
+horizontal filmstrip (thumbnails as the sole nav, no arrows), (3) vertical
+(up / thumbnail rail / down beside), (4) overlay (controls + thumbnail pill on the
+imagery), (5) RTL, (6) with peek. A `ThumbnailSingle` helper (placement /
+orientation / showArrows / peek) drives every cell.
+
+**Regenerated** (recipe/tsx carry the `indicators` root prop; styles.scss
+re-derived) + drift-green + kitchen-sink hand-synced. Registry README updated
+(scope, the `indicators` modifier).
+
+**Gates green:** `cargo test -p primitiv-emit -p primitiv-cli` (106 + 20),
+`node scripts/check-registry-types.mjs`. (No headless change — Carousel vitest not
+needed.)
+
+**Figma lockstep: pending** human QA. The Figma `CarouselThumbnail(s)` part
+(active = blue ring `action-primary`, rounded-rect thumbs, bare/no-pill strip) is
+the design target; reconcile the exact thumbnail size / radius / ring width and
+the inactive-dim treatment (code adds an `opacity-60` dim + hover lift not
+specified in the reference) at the lockstep. No carousel `--primitiv-*` variable
+layer exists in Figma (bindings only), so this is expected to be a verification
+pass. **Next:** the remaining placements (external-flank / controls-on-top),
+autoplay, or re-QA of the earlier awaiting-QA iterations.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".
@@ -694,7 +769,10 @@ Reorder as priorities shift; each is human-approved before it starts.
   (`row` default · `overlay`); controls inset on the imagery, dots in a pill.
   Remaining placements (external-flank, controls-on-top) still to build.
 - Dots / indicators variations (below, overlaid _(overlay done, iteration 4)_,
-  thumbnails)
+  thumbnails _(iteration 9 — awaiting QA)_ — the `indicators` modifier
+  (`dots` default · `thumbnails`); image thumbnails as the indicators, active one
+  ringed in `action-primary`. 2-column control-variant grid at
+  `/carousel/thumbnails`.)
 - Snapping (centred) — `snapAlign="center"`
 - Right-to-left — needs explicit RTL confirmation/tests
 - Masonry — grid-based with complex snapping cells

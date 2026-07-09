@@ -29,12 +29,17 @@ export const carousel = cva("primitiv-carousel", {
       row: "primitiv-carousel--placement-row",
       overlay: "primitiv-carousel--placement-overlay",
     },
+    indicators: {
+      dots: "primitiv-carousel--indicators-dots",
+      thumbnails: "primitiv-carousel--indicators-thumbnails",
+    },
   },
   defaultVariants: {
     peek: "none",
     padding: "none",
     surface: "none",
     placement: "row",
+    indicators: "dots",
   },
 });
 

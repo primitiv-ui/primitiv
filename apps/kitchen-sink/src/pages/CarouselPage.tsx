@@ -241,6 +241,90 @@ function MultiSlide({
   );
 }
 
+/**
+ * Thumbnail indicators — the gallery pattern: each indicator is a rounded-rect
+ * image thumbnail instead of a dot, the active one ringed in the primary colour
+ * (`indicators="thumbnails"`). The thumbnail content is supplied as children of
+ * each `<CarouselIndicator>` — here a gradient stand-in mirroring the slide. It
+ * composes with every placement and orientation: `placement="overlay"` rides the
+ * thumbnails in the scrim pill on the imagery; `orientation="vertical"` stacks
+ * them into a rail beside the viewport; `showArrows={false}` makes the strip the
+ * sole navigation (a pure filmstrip).
+ */
+function ThumbnailSingle({
+  label,
+  placement,
+  orientation = "horizontal",
+  showArrows = true,
+  peek,
+}: {
+  label: string;
+  placement?: "row" | "overlay";
+  orientation?: "horizontal" | "vertical";
+  showArrows?: boolean;
+  peek?: "none" | "sm" | "md" | "lg";
+}) {
+  const Prev = orientation === "vertical" ? ChevronUp : ChevronLeft;
+  const Next = orientation === "vertical" ? ChevronDown : ChevronRight;
+  const thumbnails = (
+    <CarouselIndicatorGroup label="Choose slide">
+      {SLIDES.map((bg, i) => (
+        <CarouselIndicator key={i} index={i}>
+          <span style={{ background: bg }} />
+        </CarouselIndicator>
+      ))}
+    </CarouselIndicatorGroup>
+  );
+  return (
+    <Carousel
+      ariaLabel={label}
+      indicators="thumbnails"
+      placement={placement}
+      orientation={orientation}
+      peek={peek}
+    >
+      <CarouselViewport>
+        {SLIDES.map((bg, i) => (
+          <CarouselSlide key={i} style={{ background: bg }} />
+        ))}
+      </CarouselViewport>
+      {placement === "overlay" ? (
+        // Overlay: the controls + thumbnail pill sit directly on the imagery, so
+        // they are direct children (no __controls row wrapper).
+        <>
+          {showArrows && (
+            <>
+              <CarouselPreviousTrigger aria-label="Previous slide">
+                <Prev />
+              </CarouselPreviousTrigger>
+              <CarouselNextTrigger aria-label="Next slide">
+                <Next />
+              </CarouselNextTrigger>
+            </>
+          )}
+          {thumbnails}
+        </>
+      ) : (
+        // Row / vertical: prev / thumbnails / next flow in the __controls wrapper
+        // below (a column beside the viewport under vertical).
+        <CarouselControls>
+          {showArrows && (
+            <CarouselPreviousTrigger aria-label="Previous slide">
+              <Prev />
+            </CarouselPreviousTrigger>
+          )}
+          {thumbnails}
+          {showArrows && (
+            <CarouselNextTrigger aria-label="Next slide">
+              <Next />
+            </CarouselNextTrigger>
+          )}
+        </CarouselControls>
+      )}
+    </Carousel>
+  );
+}
+
 function Example({
   title,
   note,
@@ -673,6 +757,66 @@ export function CarouselMulti() {
             slidesPerPage={2}
             orientation="vertical"
           />
+        </GridCell>
+      </div>
+    </Example>
+  );
+}
+
+export function CarouselThumbnails() {
+  return (
+    <Example
+      title={'Thumbnails — indicators="thumbnails"'}
+      note="The gallery pattern: each indicator is a rounded-rect image thumbnail (a shrunk-down filmstrip) instead of a dot, and the active thumbnail is ringed in the primary colour. Supply the thumbnail content as children of each <CarouselIndicator> (an <img> or a background element — gradient stand-ins here, mirroring each slide). The modifier composes with every control placement and orientation; the grid below pins each control variant so QA can tick them off."
+    >
+      <div className="carousel-grid">
+        <GridCell
+          n={1}
+          title="Default — controls row below"
+          note="The standard gallery: prev / thumbnail strip / next share one row below the viewport. Click a thumbnail to jump; the active one carries the primary ring."
+        >
+          <ThumbnailSingle label="Thumbnails — default" />
+        </GridCell>
+
+        <GridCell
+          n={2}
+          title="Horizontal filmstrip — thumbnails only"
+          note="The thumbnail strip is the sole navigation (no prev/next) — a pure filmstrip. Keyboard users still page via the focused viewport (Arrow/Home/End)."
+        >
+          <ThumbnailSingle label="Thumbnails — filmstrip" showArrows={false} />
+        </GridCell>
+
+        <GridCell
+          n={3}
+          title='Vertical — orientation="vertical"'
+          note="The block-axis gallery: a landscape viewport with the up-control, a vertical thumbnail rail, and the down-control stacked in a column beside it. The thumbnails stack automatically (the group already flips to a column under vertical)."
+        >
+          <ThumbnailSingle label="Thumbnails — vertical" orientation="vertical" />
+        </GridCell>
+
+        <GridCell
+          n={4}
+          title='Overlay — placement="overlay"'
+          note="Controls on the imagery: circular prev/next flank the slide on a translucent scrim and the thumbnail strip rides the bottom pill — an edge-to-edge hero gallery with no external chrome."
+        >
+          <ThumbnailSingle label="Thumbnails — overlay" placement="overlay" />
+        </GridCell>
+
+        <GridCell
+          n={5}
+          title="RTL — mirrors"
+          note="The whole gallery mirrors under a right-to-left container — logical properties, no RTL-specific CSS. Prev/next swap sides; the thumbnail order follows the slides."
+          dir="rtl"
+        >
+          <ThumbnailSingle label="Thumbnails — right to left" />
+        </GridCell>
+
+        <GridCell
+          n={6}
+          title='With peek — peek="sm"'
+          note="Composes with peek: a sliver of the neighbouring slides shows in the viewport while the thumbnail strip navigates below — the two axes are independent."
+        >
+          <ThumbnailSingle label="Thumbnails — with peek" peek="sm" />
         </GridCell>
       </div>
     </Example>

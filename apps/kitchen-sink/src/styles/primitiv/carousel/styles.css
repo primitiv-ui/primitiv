@@ -88,6 +88,20 @@
     --primitiv-carousel-indicator-color: var(--primitiv-border-strong);
     --primitiv-carousel-indicator-color-active: var(--primitiv-action-primary-default);
 
+    /* Thumbnail-indicator knobs — read only under `--indicators-thumbnails`,
+       where each indicator is a rounded-rect image thumbnail rather than a dot
+       (the gallery pattern). The active thumbnail is ringed in the primary
+       colour; the rest are dimmed until hovered/active. The aspect ratio mirrors
+       the slide's by default so the strip reads as a shrunk-down filmstrip (a
+       shape, not a token value — like the slide ratio above). */
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-space-space-80);
+    --primitiv-carousel-thumbnail-aspect-ratio: 16 / 9;
+    --primitiv-carousel-thumbnail-gap: var(--primitiv-space-space-8);
+    --primitiv-carousel-thumbnail-radius: var(--primitiv-radii-8);
+    --primitiv-carousel-thumbnail-ring-width: var(--primitiv-border-width-2);
+    --primitiv-carousel-thumbnail-ring-color: var(--primitiv-action-primary-default);
+    --primitiv-carousel-thumbnail-inactive-opacity: var(--primitiv-opacity-60);
+
     /* Overlay-placement knobs — read only under `--placement-overlay`, where the
        controls sit on the imagery. The scrim palette is the theme-adaptive
        neutral-alpha ramp (a dark veil in light mode, a light veil in dark mode),
@@ -513,6 +527,72 @@
     padding-inline: var(--primitiv-carousel-overlay-pill-padding-block);
   }
 
+  /* Thumbnails — swap the dot indicators for rounded-rect image thumbnails (the
+     gallery pattern). The consumer supplies each thumbnail as children of a
+     `<CarouselIndicator>` (an <img> or a background element). `dots` is the
+     default (the base dot styling); `thumbnails` re-points the group gap to the
+     thumbnail gap and reshapes each indicator button into a thumbnail frame — the
+     active one ringed in the primary colour (states layer). It composes with
+     every placement and orientation: under vertical the group already flips to a
+     column, so the thumbnails stack into a rail; under overlay they ride the
+     scrim pill. */
+  .primitiv-carousel--indicators-dots {
+    /* Compact dots — the base styling already draws them, nothing to re-point.
+       Declared so the indicators axis stays explicit if toggled dynamically. */
+    --primitiv-carousel-indicator-gap: var(--primitiv-space-space-0);
+  }
+  .primitiv-carousel--indicators-thumbnails {
+    /* Real breathing room between the thumbnails (the dot row sits flush at 0). */
+    --primitiv-carousel-indicator-gap: var(--primitiv-carousel-thumbnail-gap);
+  }
+
+  /* Each indicator becomes a thumbnail frame: sized off the thumbnail knobs,
+     rounded, clipping its image to the corners, and dimmed until hovered/active.
+     The thumbnail is its own hit area (well past the 24px floor), so the dot's
+     square minimum stands down. Targets both the manual `__indicator` part and
+     the auto-rendered `__indicator-group > button`. */
+  .primitiv-carousel--indicators-thumbnails .primitiv-carousel__indicator,
+  .primitiv-carousel--indicators-thumbnails .primitiv-carousel__indicator-group > button {
+    inline-size: var(--primitiv-carousel-thumbnail-inline-size);
+    aspect-ratio: var(--primitiv-carousel-thumbnail-aspect-ratio);
+    min-inline-size: var(--primitiv-space-space-0);
+    min-block-size: var(--primitiv-space-space-0);
+    padding: var(--primitiv-space-space-0);
+    border-radius: var(--primitiv-carousel-thumbnail-radius);
+    overflow: hidden;
+    opacity: var(--primitiv-carousel-thumbnail-inactive-opacity);
+    transition:
+      opacity var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+  /* No dot for a thumbnail — suppress the base ::before. */
+  .primitiv-carousel--indicators-thumbnails .primitiv-carousel__indicator::before,
+  .primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator-group
+    > button::before {
+    display: none;
+  }
+  /* The thumbnail image (or background element) fills and rounds with the frame. */
+  .primitiv-carousel--indicators-thumbnails .primitiv-carousel__indicator > *,
+  .primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator-group
+    > button
+    > * {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+  }
+  /* Hover lifts an inactive thumbnail to full opacity (the active one is already
+     full — states layer). */
+  .primitiv-carousel--indicators-thumbnails .primitiv-carousel__indicator:hover,
+  .primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator-group
+    > button:hover {
+    opacity: var(--primitiv-opacity-100);
+  }
+
   /* Fade transition (headless `transition="fade"` → data-transition="fade").
      The viewport stops scrolling and stacks every slide in one grid cell; the
      active slide cross-fades in over the others off its data-state hook (the
@@ -554,6 +634,37 @@
   .primitiv-carousel__indicator[data-state="active"]::before,
   .primitiv-carousel__indicator-group > button[data-state="active"]::before {
     background: var(--primitiv-carousel-indicator-color-active);
+  }
+
+  /* Active thumbnail — full opacity + the primary-colour ring (inset so it sits
+     over the clipped image and follows the rounded corners). The dot's active
+     ::before rule above is inert here (the ::before is display:none). */
+  .primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator[data-state="active"],
+  .primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator-group
+    > button[data-state="active"] {
+    opacity: var(--primitiv-opacity-100);
+    box-shadow: inset 0 0 0 var(--primitiv-carousel-thumbnail-ring-width)
+      var(--primitiv-carousel-thumbnail-ring-color);
+  }
+
+  /* An active thumbnail that also has keyboard focus keeps both rings — the inset
+     primary ring (active) plus the two-layer focus ring (outset) — since the
+     active rule above would otherwise override the focus box-shadow. A focused
+     inactive thumbnail is handled by the shared focus-visible rule below. */
+  .primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator[data-state="active"]:focus-visible,
+  .primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator-group
+    > button[data-state="active"]:focus-visible {
+    outline: none;
+    box-shadow:
+      inset 0 0 0 var(--primitiv-carousel-thumbnail-ring-width)
+        var(--primitiv-carousel-thumbnail-ring-color),
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
   }
 
   /* Fade transition: the active slide is the only visible one. Clearing the

@@ -17,7 +17,7 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K>
  *
  * @see https://primitiv-ui.dev/docs/components/carousel
  */
-export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "padding" | "surface" | "placement"> & {
+export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "padding" | "surface" | "placement" | "indicators"> & {
   /**
    * Reveal a sliver of the adjacent slides on either side of the active one. Works in both orientations (inline edges when horizontal, block edges when vertical).
    * - `none` — No peek — the active slide fills the viewport (the default).
@@ -54,12 +54,20 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
   placement?: "row" | "overlay";
+  /**
+   * What the indicators look like. `dots` (the default) is the compact dot row; `thumbnails` swaps each indicator for a rounded-rect image thumbnail — the active one ringed in the primary colour, the classic gallery pattern. Supply the thumbnail content as children of each `<CarouselIndicator>` (an `<img>` or a background element).
+   * - `dots` — Compact dots — one per page (the default).
+   * - `thumbnails` — Image thumbnails — each indicator shows its slide's thumbnail, the active one ringed in the primary colour.
+   * @default "dots"
+   * @see https://primitiv-ui.dev/docs/components/carousel
+   */
+  indicators?: "dots" | "thumbnails";
 };
 
-export function Carousel({ peek, padding, surface, placement, slidesPerPage, className, style, ...props }: CarouselProps) {
+export function Carousel({ peek, padding, surface, placement, indicators, slidesPerPage, className, style, ...props }: CarouselProps) {
   return (
     <CarouselPrimitive.Root
-      className={[carousel({ peek, padding, surface, placement }), className].filter(Boolean).join(" ")}
+      className={[carousel({ peek, padding, surface, placement, indicators }), className].filter(Boolean).join(" ")}
       style={{ ...style, ...(slidesPerPage === undefined ? {} : { "--primitiv-carousel-slides-per-page": slidesPerPage }) } as CSSProperties}
       slidesPerPage={slidesPerPage}
       {...props}

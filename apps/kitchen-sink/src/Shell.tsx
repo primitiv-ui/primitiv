@@ -13,6 +13,7 @@ import {
   CarouselMulti,
   CarouselOverlay,
   CarouselFade,
+  CarouselThumbnails,
 } from "./pages/CarouselPage";
 import "./Shell.css";
 
@@ -42,6 +43,7 @@ export function Shell() {
           <Route path="multi" element={<CarouselMulti />} />
           <Route path="overlay" element={<CarouselOverlay />} />
           <Route path="fade" element={<CarouselFade />} />
+          <Route path="thumbnails" element={<CarouselThumbnails />} />
         </Route>
       </Routes>
     </>

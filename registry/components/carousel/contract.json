@@ -56,6 +56,15 @@
         { "name": "row", "class": "primitiv-carousel--placement-row", "description": "Controls flow in a row below the viewport (the default)." },
         { "name": "overlay", "class": "primitiv-carousel--placement-overlay", "description": "Controls sit on the imagery — prev/next flanking the slide edges on a translucent scrim, dots in a pill overlaid at the bottom." }
       ]
+    },
+    {
+      "name": "indicators",
+      "default": "dots",
+      "description": "What the indicators look like. `dots` (the default) is the compact dot row; `thumbnails` swaps each indicator for a rounded-rect image thumbnail — the active one ringed in the primary colour, the classic gallery pattern. Supply the thumbnail content as children of each `<CarouselIndicator>` (an `<img>` or a background element).",
+      "options": [
+        { "name": "dots", "class": "primitiv-carousel--indicators-dots", "description": "Compact dots — one per page (the default)." },
+        { "name": "thumbnails", "class": "primitiv-carousel--indicators-thumbnails", "description": "Image thumbnails — each indicator shows its slide's thumbnail, the active one ringed in the primary colour." }
+      ]
     }
   ],
   "styleProps": [
@@ -155,6 +164,13 @@
     { "name": "--primitiv-carousel-indicator-size", "defaultsTo": "var(--primitiv-space-space-8)" },
     { "name": "--primitiv-carousel-indicator-color", "defaultsTo": "var(--primitiv-border-strong)" },
     { "name": "--primitiv-carousel-indicator-color-active", "defaultsTo": "var(--primitiv-action-primary-default)" },
+    { "name": "--primitiv-carousel-thumbnail-inline-size", "defaultsTo": "var(--primitiv-space-space-80)" },
+    { "name": "--primitiv-carousel-thumbnail-aspect-ratio", "defaultsTo": "16 / 9" },
+    { "name": "--primitiv-carousel-thumbnail-gap", "defaultsTo": "var(--primitiv-space-space-8)" },
+    { "name": "--primitiv-carousel-thumbnail-radius", "defaultsTo": "var(--primitiv-radii-8)" },
+    { "name": "--primitiv-carousel-thumbnail-ring-width", "defaultsTo": "var(--primitiv-border-width-2)" },
+    { "name": "--primitiv-carousel-thumbnail-ring-color", "defaultsTo": "var(--primitiv-action-primary-default)" },
+    { "name": "--primitiv-carousel-thumbnail-inactive-opacity", "defaultsTo": "var(--primitiv-opacity-60)" },
     { "name": "--primitiv-carousel-overlay-control-inset", "defaultsTo": "var(--primitiv-space-space-8)" },
     { "name": "--primitiv-carousel-overlay-control-bg", "defaultsTo": "var(--primitiv-color-neutral-alpha-500)" },
     { "name": "--primitiv-carousel-overlay-control-bg-hover", "defaultsTo": "var(--primitiv-color-neutral-alpha-600)" },

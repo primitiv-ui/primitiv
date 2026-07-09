@@ -494,10 +494,14 @@
     .primitiv-carousel__indicator-group {
     inset-block: 0;
     inset-inline-start: auto;
+    /* Inset by the *control* inset (not the smaller indicator inset) so the pill
+       shares the up/down controls' edge distance — and because the pill is the same
+       width as a control (a dot's hit-area + the swapped padding ≈ the control
+       size), matching the inset centres all three on one vertical lane. */
     inset-inline-end: calc(
       var(--primitiv-carousel-viewport-border-width) +
         var(--primitiv-carousel-viewport-padding) +
-        var(--primitiv-carousel-overlay-indicator-inset)
+        var(--primitiv-carousel-overlay-control-inset)
     );
     margin-block: auto;
     margin-inline: 0;

@@ -173,6 +173,7 @@ function OverlaySingle({
   padding,
   transition,
   orientation = 'horizontal',
+  side,
 }: {
   label: string;
   ratio?: "square" | "standard" | "wide" | "ultrawide";
@@ -180,6 +181,7 @@ function OverlaySingle({
   padding?: "none" | "sm" | "md" | "lg";
   transition?: "slide" | "fade";
   orientation?: "horizontal" | "vertical";
+  side?: "before" | "after";
 }) {
   const Prev = orientation === "vertical" ? ChevronUp : ChevronLeft;
   const Next = orientation === "vertical" ? ChevronDown : ChevronRight;
@@ -191,6 +193,7 @@ function OverlaySingle({
       padding={padding}
       transition={transition}
       orientation={orientation}
+      side={side}
     >
       <CarouselViewport>
         {SLIDES.map((bg, i) => (
@@ -340,12 +343,14 @@ function ThumbnailSingle({
   orientation = "horizontal",
   showArrows = true,
   peek,
+  side,
 }: {
   label: string;
   placement?: "external" | "overlay";
   orientation?: "horizontal" | "vertical";
   showArrows?: boolean;
   peek?: "none" | "sm" | "md" | "lg";
+  side?: "before" | "after";
 }) {
   const Prev = orientation === "vertical" ? ChevronUp : ChevronLeft;
   const Next = orientation === "vertical" ? ChevronDown : ChevronRight;
@@ -365,6 +370,7 @@ function ThumbnailSingle({
       placement={placement}
       orientation={orientation}
       peek={peek}
+      side={side}
     >
       <CarouselViewport>
         {SLIDES.map((bg, i) => (
@@ -1001,224 +1007,281 @@ export function CarouselPlacement() {
   return (
     <Example
       title="Control placement — the composable framework"
-      note="Placement is four orthogonal props. `placement` picks the family (external · flank · overlay); the shared control-layout vocabulary composes on top: `side` (before/after — which cross-axis edge, orientation-relative), `distribution` (group vs stretch), and `align` (start/center/end for a grouped bar). Learn them once — they mean the same everywhere and degrade to a no-op where a family doesn't read them. Defaults (external · after · group · center) reproduce the classic row-below. Every cell below is one point in that space, then a run of compositions with peek / padding / ratio / vertical / RTL / thumbnails."
+      note="Placement is four orthogonal props. `placement` picks the family (external · overlay · flank); the shared control-layout vocabulary composes on top — `side` (before/after, orientation-relative), `distribution` (group/stretch) and `align` (start/center/end for a grouped bar). Learn them once — they mean the same everywhere and degrade to a no-op where a family doesn't read them. Below, every available combination grouped by family: all of external, then all of overlay, then all of flank — so the whole surface can be QA'd in one pass."
     >
+      {/* ============================ EXTERNAL ============================ */}
+      <h2 className="carousel-page__group">External — a control bar beside the viewport</h2>
       <div className="carousel-grid">
-        {/* ---- External · below (side=after) — distribution × align ---- */}
         <GridCell
           n={1}
-          title="External · after · group · center"
-          note="The default: prev/indicators/next bunched and centred in a bar below the viewport. The baseline every other cell varies from."
+          title="after · group · start"
+          note="Bar below, cluster pinned to the start (left) of the edge."
         >
-          <BasicSingle label="External after group center" />
+          <BasicSingle label="external after group start" align="start" />
         </GridCell>
-
         <GridCell
           n={2}
-          title="External · after · group · start"
-          note="Same bar, cluster pinned to the start (left) of the edge. `align=start`. Mirrors to the right under RTL (logical)."
+          title="after · group · center (default)"
+          note="The default surface: prev/dots/next bunched and centred below. Every other cell varies from this."
         >
-          <BasicSingle label="External after group start" align="start" />
+          <BasicSingle label="external after group center" />
         </GridCell>
-
         <GridCell
           n={3}
-          title="External · after · group · end"
-          note="Cluster pinned to the end (right) of the edge. `align=end`. The start/center/end trio is the grouped-bar alignment axis."
+          title="after · group · end"
+          note="Cluster pinned to the end (right) of the edge below the viewport."
         >
-          <BasicSingle label="External after group end" align="end" />
+          <BasicSingle label="external after group end" align="end" />
         </GridCell>
-
         <GridCell
           n={4}
-          title="External · after · stretch"
-          note="`distribution=stretch`: prev and next pushed to the two extremes, indicators centred between them (space-between fills the whole edge). Align is moot here."
+          title="after · stretch"
+          note="Prev/next to the two extremes, dots centred — space-between across the whole edge. Align is moot."
         >
-          <BasicSingle label="External after stretch" distribution="stretch" />
+          <BasicSingle label="external after stretch" distribution="stretch" />
         </GridCell>
-
-        {/* ---- External · above (side=before) ---- */}
         <GridCell
           n={5}
-          title="External · before · group · center"
-          note="`side=before` moves the whole bar above the viewport (the leading cross-axis edge). Same grouped/centred cluster, now on top."
+          title="before · group · start"
+          note="`side=before` moves the whole bar above the viewport; cluster at the start."
         >
-          <BasicSingle label="External before group center" side="before" />
+          <BasicSingle label="external before group start" side="before" align="start" />
         </GridCell>
-
         <GridCell
           n={6}
-          title="External · before · stretch"
-          note="Bar above, stretched — prev/next at the top corners, indicators centred. Side and distribution compose freely."
+          title="before · group · center"
+          note="Bar above, cluster centred."
         >
-          <BasicSingle label="External before stretch" side="before" distribution="stretch" />
+          <BasicSingle label="external before group center" side="before" />
         </GridCell>
-
-        {/* ---- External · vertical (bar becomes a column beside) ---- */}
         <GridCell
           n={7}
-          title="External · vertical · after · group"
-          note="Vertical scroll: the bar becomes a column on the end (right) side — up-control, dots, down-control. `side` now means right (after) vs left (before)."
+          title="before · group · end"
+          note="Bar above, cluster at the end (right)."
         >
-          <VerticalSingle label="External vertical after group" />
+          <BasicSingle label="external before group end" side="before" align="end" />
         </GridCell>
-
         <GridCell
           n={8}
-          title="External · vertical · after · stretch"
-          note="Vertical stretch: the control column fills the viewport's height — up at the top, down at the bottom, dots centred. The same space-between, on the block axis."
+          title="before · stretch"
+          note="Bar above, stretched — prev/next at the top corners, dots centred."
         >
-          <VerticalSingle label="External vertical after stretch" distribution="stretch" />
+          <BasicSingle label="external before stretch" side="before" distribution="stretch" />
         </GridCell>
-
         <GridCell
           n={9}
-          title="External · vertical · before · group"
-          note="`side=before` moves the control column to the start (left) side, mirrored under RTL. Orientation × side reaches all four physical edges from two values."
+          title="vertical · after · group"
+          note="Vertical scroll: the bar becomes a column on the end (right) side — up / dots / down."
         >
-          <VerticalSingle label="External vertical before group" side="before" />
+          <VerticalSingle label="external vertical after group" />
         </GridCell>
-
-        {/* ---- Flank family ---- */}
         <GridCell
           n={10}
-          title="Flank · after (indicators below)"
-          note="`placement=flank`: prev/next split onto the viewport's two inline edges, indicators on a perpendicular side — `after` puts them below."
+          title="vertical · after · stretch"
+          note="Vertical stretch: the control column fills the viewport height — up at the top, down at the bottom."
         >
-          <FlankSingle label="Flank after" />
+          <VerticalSingle label="external vertical after stretch" distribution="stretch" />
         </GridCell>
-
         <GridCell
           n={11}
-          title="Flank · before (indicators above)"
-          note="The same flank, `side=before` — the indicators move above the viewport. The prev/next stay on the scroll-axis edges."
+          title="vertical · before · group"
+          note="`side=before` moves the control column to the start (left) side, mirrored under RTL."
         >
-          <FlankSingle label="Flank before" side="before" />
+          <VerticalSingle label="external vertical before group" side="before" />
         </GridCell>
-
         <GridCell
           n={12}
-          title="Flank · vertical · after (indicators right)"
-          note="Vertical flank: prev/next become up/down flanking the top and bottom edges, the indicator column on the end (right) side. The combo the framework's last row proves out."
+          title="vertical · before · stretch"
+          note="Vertical column on the left, stretched to the viewport ends."
         >
-          <FlankSingle label="Flank vertical after" orientation="vertical" />
+          <VerticalSingle label="external vertical before stretch" side="before" distribution="stretch" />
         </GridCell>
-
         <GridCell
           n={13}
-          title="Flank · vertical · before (indicators left)"
-          note="Vertical flank with the indicator column on the start (left) side. Every side value composes with both orientations."
+          title="stretch + peek"
+          note="Distribution composes with peek: prev/next at the extremes while a sliver of the neighbours shows."
         >
-          <FlankSingle label="Flank vertical before" orientation="vertical" side="before" />
+          <BasicSingle label="external stretch peek" distribution="stretch" peek="sm" />
         </GridCell>
-
-        {/* ---- Overlay family ---- */}
         <GridCell
           n={14}
-          title="Overlay · dots"
-          note="`placement=overlay`: prev/next on a translucent scrim flanking the slide, dots in a bottom pill — edge-to-edge imagery, no external chrome. Overlay keeps the bottom pill this release (side is a no-op for it)."
+          title="group · start + padding"
+          note="Alignment over a padded, framed track — a root concern (placement) stacked on a viewport concern (padding)."
         >
-          <OverlaySingle label="Overlay dots" />
+          <BasicSingle label="external start padding" align="start" padding="sm" surface="subtle" />
         </GridCell>
-
         <GridCell
           n={15}
-          title="Overlay · vertical"
-          note="The vertical overlay: up/down controls flank the top/bottom edges and the dots pill rides the end side. The overlay family composes with orientation too."
+          title="stretch + square ratio"
+          note="Stretch over 1:1 slides — the slide `ratio` is orthogonal to the control layout."
         >
-          <OverlaySingle label="Overlay vertical" orientation="vertical" />
+          <BasicSingle label="external stretch square" distribution="stretch" ratio="square" />
         </GridCell>
-
         <GridCell
           n={16}
-          title="Overlay · thumbnails"
-          note="Overlay with the thumbnail strip riding the scrim pill — an edge-to-edge hero gallery. `indicators=thumbnails` composes with the overlay family."
+          title="vertical · before + peek"
+          note="Three axes at once: vertical orientation, side=before (left column), and a block-axis peek."
         >
-          <ThumbnailSingle label="Overlay thumbnails" placement="overlay" />
+          <VerticalSingle label="external vertical before peek" side="before" peek="sm" />
         </GridCell>
-
-        {/* ---- Compositions with the other axes ---- */}
         <GridCell
           n={17}
-          title="External · stretch + peek"
-          note="Distribution composes with peek: prev/next at the extremes while a sliver of the neighbouring slides shows in the viewport. Independent axes."
+          title="stretch + RTL"
+          note="Stretch under right-to-left — prev/next swap to the mirrored extremes, dots stay centred. Logical, no RTL CSS."
+          dir="rtl"
         >
-          <BasicSingle label="External stretch + peek" distribution="stretch" peek="sm" />
+          <BasicSingle label="external stretch rtl" distribution="stretch" />
         </GridCell>
-
         <GridCell
           n={18}
-          title="External · group start + padding"
-          note="The bar-alignment axis over a padded, framed track: `align=start` cluster below a bordered viewport. Placement is a root concern, padding a viewport concern — they stack."
+          title="stretch + thumbnails"
+          note="Stretch with a thumbnail filmstrip as the indicators — the control-layout vocabulary works with any indicator style."
         >
-          <BasicSingle label="External start + padding" align="start" padding="sm" surface="subtle" />
+          <ThumbnailStretch label="external stretch thumbnails" />
         </GridCell>
+      </div>
 
+      {/* ============================ OVERLAY ============================ */}
+      <h2 className="carousel-page__group">Overlay — controls on the imagery</h2>
+      <div className="carousel-grid">
         <GridCell
-          n={19}
-          title="External · stretch + square ratio"
-          note="Stretch over 1:1 square slides — the slide `ratio` (a slide concern) is orthogonal to the control layout (a root concern)."
+          n={1}
+          title="after · dots (pill bottom)"
+          note="The baseline: prev/next on a translucent scrim flanking the slide, dots in a pill at the bottom."
         >
-          <BasicSingle label="External stretch + square" distribution="stretch" ratio="square" />
+          <OverlaySingle label="overlay after dots" />
         </GridCell>
-
         <GridCell
-          n={20}
-          title="External · vertical · before + peek"
-          note="Three axes at once: vertical orientation, `side=before` (column on the left), and a block-axis peek. Every axis stays logical, so it all composes."
+          n={2}
+          title="before · dots (pill top)"
+          note="`side=before` moves the dots pill to the top edge; prev/next keep flanking the slide."
         >
-          <VerticalSingle label="External vertical before + peek" side="before" peek="sm" />
+          <OverlaySingle label="overlay before dots" side="before" />
         </GridCell>
-
         <GridCell
-          n={21}
-          title="External · stretch + RTL"
-          note="Stretch under right-to-left — prev/next swap to the mirrored extremes, indicators stay centred. Logical properties, no RTL-specific CSS."
+          n={3}
+          title="after · thumbnails"
+          note="The thumbnail strip rides the bottom scrim pill — an edge-to-edge hero gallery."
+        >
+          <ThumbnailSingle label="overlay after thumbnails" placement="overlay" />
+        </GridCell>
+        <GridCell
+          n={4}
+          title="before · thumbnails"
+          note="The thumbnail pill moved to the top edge with `side=before`."
+        >
+          <ThumbnailSingle label="overlay before thumbnails" placement="overlay" side="before" />
+        </GridCell>
+        <GridCell
+          n={5}
+          title="vertical · after (lane right)"
+          note="Vertical overlay: up/down flank the top/bottom edges and the dots pill rides the end (right) inline lane."
+        >
+          <OverlaySingle label="overlay vertical after" orientation="vertical" />
+        </GridCell>
+        <GridCell
+          n={6}
+          title="vertical · before (lane left)"
+          note="`side=before` flips the whole control lane (up / pill / down) to the start (left) inline side."
+        >
+          <OverlaySingle label="overlay vertical before" orientation="vertical" side="before" />
+        </GridCell>
+        <GridCell
+          n={7}
+          title="after + peek"
+          note="Overlay composing with peek: the prev/next insets clear the peek gutter so they stay on the active slide."
+        >
+          <OverlaySingle label="overlay after peek" peek="sm" />
+        </GridCell>
+        <GridCell
+          n={8}
+          title="after + padding (framed track)"
+          note="A framed padded track with the controls overlaid — the insets clear the border + padding so they sit on the slide, not the gutter."
+        >
+          <OverlaySingle label="overlay after padding" padding="md" />
+        </GridCell>
+        <GridCell
+          n={9}
+          title="after + RTL"
+          note="Mirrors under right-to-left — prev/next swap sides, the pill stays centred. Logical, no RTL CSS."
           dir="rtl"
         >
-          <BasicSingle label="External stretch RTL" distribution="stretch" />
+          <OverlaySingle label="overlay after rtl" />
         </GridCell>
+      </div>
 
+      {/* ============================ FLANK ============================ */}
+      <h2 className="carousel-page__group">Flank — prev/next split onto the scroll-axis edges</h2>
+      <div className="carousel-grid">
         <GridCell
-          n={22}
-          title="Flank · before + RTL"
-          note="Flank with indicators above, mirrored under RTL — prev/next swap sides with the writing direction, the indicator row follows the slides."
+          n={1}
+          title="after · dots (indicators below)"
+          note="Circular prev/next flanking the viewport's inline edges, a dot row centred below."
+        >
+          <FlankSingle label="flank after dots" />
+        </GridCell>
+        <GridCell
+          n={2}
+          title="before · dots (indicators above)"
+          note="`side=before` moves the indicator row above the viewport; prev/next stay on the edges."
+        >
+          <FlankSingle label="flank before dots" side="before" />
+        </GridCell>
+        <GridCell
+          n={3}
+          title="after · thumbnails"
+          note="The External-flank + thumbnails design cell: flanking controls, a thumbnail strip below."
+        >
+          <FlankSingle label="flank after thumbnails" indicators="thumbnails" />
+        </GridCell>
+        <GridCell
+          n={4}
+          title="before · thumbnails"
+          note="The thumbnail strip above the viewport with `side=before`."
+        >
+          <FlankSingle label="flank before thumbnails" indicators="thumbnails" side="before" />
+        </GridCell>
+        <GridCell
+          n={5}
+          title="vertical · after (indicators right)"
+          note="Vertical flank: prev/next become up/down flanking the top/bottom edges, the indicator column on the end (right) side."
+        >
+          <FlankSingle label="flank vertical after" orientation="vertical" />
+        </GridCell>
+        <GridCell
+          n={6}
+          title="vertical · before (indicators left)"
+          note="Vertical flank with the indicator column on the start (left) side."
+        >
+          <FlankSingle label="flank vertical before" orientation="vertical" side="before" />
+        </GridCell>
+        <GridCell
+          n={7}
+          title="after + peek"
+          note="Composes with peek: a sliver of the neighbours shows in the viewport, controls still flanking outside it."
+        >
+          <FlankSingle label="flank after peek" peek="sm" />
+        </GridCell>
+        <GridCell
+          n={8}
+          title="after + square ratio"
+          note="Composes with the slide ratio: 1:1 square slides between the flanking controls."
+        >
+          <FlankSingle label="flank after square" ratio="square" />
+        </GridCell>
+        <GridCell
+          n={9}
+          title="after + RTL"
+          note="Mirrors under right-to-left — the grid columns follow writing direction, so prev/next swap sides with no RTL CSS."
           dir="rtl"
         >
-          <FlankSingle label="Flank before RTL" side="before" />
-        </GridCell>
-
-        <GridCell
-          n={23}
-          title="External · stretch + thumbnails"
-          note="Stretch distribution with a thumbnail strip as the indicators: prev/next at the extremes, the filmstrip centred between them. The control-layout vocabulary works with any indicator style."
-        >
-          <ThumbnailStretch label="External stretch + thumbnails" />
-        </GridCell>
-
-        <GridCell
-          n={24}
-          title="External · after · group · end + padding + peek"
-          note="A busy composition: end-aligned grouped bar, a framed padded track, and a peek sliver — the alignment, padding, and peek axes all at once."
-        >
-          <BasicSingle
-            label="External end + padding + peek"
-            align="end"
-            padding="sm"
-            surface="subtle"
-            peek="sm"
-          />
+          <FlankSingle label="flank after rtl" />
         </GridCell>
       </div>
     </Example>
   );
 }
 
-/**
- * External bar with a thumbnail strip, stretched — prev / thumbnail filmstrip /
- * next spread across the edge (distribution="stretch"). Shows the shared
- * control-layout vocabulary composing with `indicators="thumbnails"`.
- */
 function ThumbnailStretch({ label }: { label: string }) {
   return (
     <Carousel ariaLabel={label} indicators="thumbnails" distribution="stretch">

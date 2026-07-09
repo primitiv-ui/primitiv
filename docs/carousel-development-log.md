@@ -902,21 +902,26 @@ flex-start/center/flex-end = grouped align), working in both orientations; `side
 swaps the bar to the leading edge via `order` + a vertical column-template swap.
 **`flank` generalised** to a 2-D grid per orientation×side — delivering
 **vertical-flank** (up/down on the block edges, indicator column on an inline side)
-and the indicators `before`/`after`. `overlay` unchanged (bottom pill; `side` a
-no-op for it this round). Defaults reproduce iteration 1 byte-for-byte.
+and the indicators `before`/`after`. **`overlay` now honours `side` too** (QA
+fold-in): horizontal moves the dots pill top (before) / bottom (after); vertical
+flips the whole up/pill/down control lane to the inline-start (before) / inline-end
+(after) side — so all three families read `side`. Defaults reproduce iteration 1
+byte-for-byte.
 **Preserved** the overlay inset calc, the vertical pill/indicator-group fix, the
 padding/surface framed-track knobs, the WCAG hit-area — all untouched.
 
-**Built** (`CarouselPage.tsx`, `/carousel/placement`): a **24-cell numbered grid**
-covering every axis value and the required cross-compositions — external
-after×{group start/center/end, stretch}, external before×{group, stretch}, external
-vertical×{after group/stretch, before group}, flank {h after/before, v after/before},
-overlay {dots, vertical, thumbnails}, then compositions (stretch+peek, group+padding,
-stretch+square ratio, vertical+before+peek, stretch+RTL, flank+RTL, stretch+thumbnails,
-end+padding+peek). A `ThumbnailStretch` helper drives the thumbnail-stretch cell;
-`BasicSingle` / `VerticalSingle` / `FlankSingle` gained `side` / `distribution` /
-`align` (and `FlankSingle` an `orientation`) passthroughs. Route + sidebar entry
-("Control placement") wired.
+**Built** (`CarouselPage.tsx`, `/carousel/placement`): the full combination set
+**grouped by family** (per QA request — External · Overlay · Flank, each a labelled
+`.carousel-page__group` heading + its own numbered grid, ~36 cells total) so the
+whole surface QAs in one pass. External (18): after/before × group{start/center/end}
++ stretch, in both orientations, then peek / padding / square-ratio / vertical+peek /
+RTL / thumbnail-stretch compositions. Overlay (9): after/before dots + thumbnails,
+vertical after/before, + peek / padding / RTL. Flank (9): after/before dots +
+thumbnails, vertical after/before, + peek / square-ratio / RTL. Helpers gained the
+axes: `BasicSingle`/`VerticalSingle` (`side`/`distribution`/`align`), `FlankSingle`
+(`side`/`orientation`), `OverlaySingle`/`ThumbnailSingle` (`side`); a `ThumbnailStretch`
+helper drives the thumbnail-stretch cell. Route + sidebar entry ("Control placement")
+wired.
 
 **Regenerated** (recipe/tsx carry the new `side`/`distribution`/`align` root props;
 styles.scss re-derived) + drift-green + kitchen-sink hand-synced. Registry README
@@ -929,8 +934,8 @@ needed.)
 
 **Figma lockstep: pending** human QA + a later dedicated build of the placement
 model in Figma (the current frame is conceptual). No carousel `--primitiv-*`
-variable layer exists (bindings only). **Next:** QA `/carousel/placement`; then the
-overlay `side` (top pill), autoplay/play-pause, or the thumbnails polish.
+variable layer exists (bindings only). **Next:** QA `/carousel/placement`; then
+autoplay/play-pause, or the thumbnails polish.
 
 ## Backlog (examples still to build)
 

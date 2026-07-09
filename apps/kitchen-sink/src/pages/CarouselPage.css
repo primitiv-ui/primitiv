@@ -48,6 +48,16 @@
   min-inline-size: 0;
 }
 
+/* Family group heading on the control-placement page — labels each block
+ * (External / Overlay / Flank) so the long QA page reads in sections. */
+.carousel-page__group {
+  margin: var(--primitiv-space-space-16) 0 0;
+  padding-block-end: var(--primitiv-space-space-8);
+  border-block-end: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+  color: var(--primitiv-content-primary);
+  font-size: 1.1rem;
+}
+
 /* Shared example grid (multi-slide edge cases, viewport-padding matrix, …):
  * small instances, three across (wide-desktop QA — responsiveness is proven
  * elsewhere), each a numbered title + carousel + description so every case can

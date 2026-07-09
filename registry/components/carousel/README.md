@@ -77,11 +77,13 @@ so they can't fall out of sync.
   direct children of the root, which becomes the positioning context). It
   re-points the shared control/indicator colour knobs to the on-imagery scrim
   palette via the `--primitiv-carousel-overlay-*` knobs, and **composes with
-  `orientation`**: a vertical overlay rotates a quarter turn — the up/down controls
-  flank the top and bottom edges (horizontally centred) and the dots pill rides the
-  inline-end side (vertically centred). The insets clear the viewport-padding frame
-  and the peek gutter on whichever axis is the scroll axis, so overlay sits on the
-  slide in both orientations, with or without `padding` / `peek`. The slide **`radius`**
+  `orientation`**: a vertical overlay puts every control in a lane on the
+  **inline-end** side — the up control at the top, the dots pill centred, the down
+  control at the bottom — so they don't sit over the middle of the imagery (the
+  whole lane mirrors to inline-start under RTL). The insets clear the
+  viewport-padding frame and the peek gutter on whichever axis is the scroll axis,
+  so overlay sits on the slide in both orientations, with or without `padding` /
+  `peek`. The slide **`radius`**
   modifier (`md` default · `none` squares the slide off) lives on the `slide`,
   not the root — which is why `CarouselSlide` gets the `radius` prop while
   `Carousel` gets `peek`, `padding` and `placement`.

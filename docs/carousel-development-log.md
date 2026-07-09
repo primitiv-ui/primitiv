@@ -554,19 +554,20 @@ default, so it lands on the overlay example too). Both are Figma-lockstep items
 (the overlay bump is a value change on the existing bindings; `surface` is a
 code-only knob/modifier).
 
-**QA round 6 (human) — vertical overlay.** The human added vertical overlay
-examples but the overlay positioning was horizontal-only, so the prev/next stayed
-on the left/right edges (with left/right chevrons) while only the dots pill went
-vertical (screenshot). Fixed: added
-`[data-orientation="vertical"].placement-overlay` rules that rotate the overlay a
-quarter turn — up/down controls flank the top/bottom edges (horizontally centred,
-inset off the block scroll axis so they clear the frame + block peek), the dots
-pill rides the inline-end side (vertically centred, inset off the inline cross
-axis). Higher specificity than the horizontal rules re-points each inset onto the
-swapped axis. Example `OverlaySingle` gained the up/down chevron swap (like
-`MultiSlide`) and a cleaned-up vertical-overlay row + note. CSS + example only
-(scss re-derived, drift-green); overlay now composes with orientation in both
-directions, with/without padding/peek.
+**QA round 6 (human) — vertical overlay (two passes).** The human added vertical
+overlay examples but the overlay positioning was horizontal-only, so the prev/next
+stayed on the left/right edges (with left/right chevrons) while only the dots pill
+went vertical (screenshot). Added `[data-orientation="vertical"].placement-overlay`
+rules + the `OverlaySingle` up/down chevron swap. **Round 6b (human):** first pass
+put up/down at top-*centre* / bottom-*centre* and the pill's inline inset let it
+overflow the slide's inline-end edge (screenshot). Reworked so **every control
+rides a lane on the inline-end side** — up at top, dots pill centred, down at
+bottom, each inset from the slide edge past the frame (border + viewport padding)
+and, for up/down, the block-axis peek. Added a **single-column grid** for
+vertical-overlay so the (absolute) controls' reserved column is dropped and the
+root is exactly the viewport, so the insets measure from the slide edge (this also
+killed the pill overflow). The whole lane mirrors to inline-start under RTL. CSS +
+example only (scss re-derived, drift-green).
 
 **QA round 5 (human) — overlay controls inside the padded track.** With `padding` +
 `placement="overlay"`, the prev/next and the dots pill were positioned from the

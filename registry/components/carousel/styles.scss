@@ -447,19 +447,30 @@
     border-radius: var(--primitiv-radii-full);
   }
 
-  /* Vertical overlay: the scroll axis is the block axis, so the up/down controls
-     flank the top and bottom edges (horizontally centred) and the dots pill rides
-     the inline-end side (vertically centred) — the horizontal overlay rotated a
-     quarter turn. Higher specificity (orientation attr + placement class) than the
-     horizontal rules above, so it re-points each inset onto the swapped axis. */
+  /* Vertical overlay: the scroll axis is the block axis, so every control rides a
+     lane on the **inline-end** side — the up control at the top, the dots pill
+     centred, the down control at the bottom — rather than flanking the imagery
+     centre. Logical properties mirror the whole lane to inline-start under RTL.
+     Each control clears the frame (border + viewport padding) on the inline axis;
+     the up/down controls additionally clear the scroll-axis peek on the block axis.
+     A single-column grid drops the reserved controls column (they're absolute now),
+     so the root is exactly the viewport and the insets measure from the slide edge.
+     Higher specificity (orientation attr + placement class) re-points the base
+     overlay rules onto the swapped axes. */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay
     .primitiv-carousel__prev,
   .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay
     .primitiv-carousel__next {
-    inset-inline: 0;
-    inset-block: auto;
-    margin-inline: auto;
-    margin-block: 0;
+    inset-inline-start: auto;
+    inset-inline-end: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+    margin: 0;
   }
   .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay
     .primitiv-carousel__prev {
@@ -468,9 +479,11 @@
         var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
         var(--primitiv-carousel-overlay-control-inset)
     );
+    inset-block-end: auto;
   }
   .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay
     .primitiv-carousel__next {
+    inset-block-start: auto;
     inset-block-end: calc(
       var(--primitiv-carousel-viewport-border-width) +
         var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +

@@ -1,6 +1,7 @@
 import { NavLink, Navigate, Route, Routes } from "react-router-dom";
 
 import { App } from "./App";
+import { CarouselBuilder } from "./pages/CarouselBuilder";
 import { CarouselLayout } from "./pages/CarouselLayout";
 import {
   CarouselDefault,
@@ -37,6 +38,7 @@ export function Shell() {
         <Route path="/" element={<App />} />
         <Route path="/carousel" element={<CarouselLayout />}>
           <Route index element={<Navigate to="default" replace />} />
+          <Route path="builder" element={<CarouselBuilder />} />
           <Route path="default" element={<CarouselDefault />} />
           <Route path="responsive" element={<CarouselResponsive />} />
           <Route path="rtl" element={<CarouselRtl />} />

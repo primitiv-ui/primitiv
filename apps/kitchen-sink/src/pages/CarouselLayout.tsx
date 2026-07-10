@@ -6,6 +6,7 @@ import "./CarouselLayout.css";
 // Each example is a full-page nested route; the sidebar switches between them.
 // New examples land here as we work through the backlog.
 const EXAMPLES: { to: string; label: string }[] = [
+  { to: "builder", label: "Builder" },
   { to: "default", label: "Default" },
   { to: "responsive", label: "Container adaptation" },
   { to: "rtl", label: "RTL" },

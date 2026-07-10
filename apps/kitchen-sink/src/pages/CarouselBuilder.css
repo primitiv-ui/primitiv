@@ -1,0 +1,169 @@
+/* Builder-page CSS — every selector is scoped under .carousel-builder so it
+ * can't leak onto other kitchen-sink content (the global-CSS-bundling gotcha). */
+
+.carousel-builder {
+  display: grid;
+  gap: var(--primitiv-space-space-16);
+  max-inline-size: 72rem;
+  margin-inline: auto;
+}
+
+.carousel-builder__intro {
+  display: flex;
+  gap: var(--primitiv-space-space-16);
+  align-items: start;
+  justify-content: space-between;
+}
+
+.carousel-builder__intro h1 {
+  margin: 0;
+  color: var(--primitiv-content-primary);
+}
+
+.carousel-builder__note {
+  margin: var(--primitiv-space-space-4) 0 0;
+  max-inline-size: 44rem;
+  color: var(--primitiv-content-secondary);
+}
+
+.carousel-builder__reset {
+  flex: none;
+  padding: var(--primitiv-space-space-8) var(--primitiv-space-space-16);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
+  border-radius: var(--primitiv-radii-8);
+  background: var(--primitiv-surface-default);
+  color: var(--primitiv-content-primary);
+  cursor: pointer;
+}
+
+.carousel-builder__reset:hover {
+  background: var(--primitiv-surface-subtle);
+}
+
+/* The two-column workbench: controls beside a live instance. Stacks on a narrow
+ * container so the page stays usable at any width. */
+.carousel-builder__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+  gap: var(--primitiv-space-space-32);
+  align-items: start;
+}
+
+@media (max-width: 48rem) {
+  .carousel-builder__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .carousel-builder__preview {
+    position: static;
+  }
+}
+
+.carousel-builder__controls {
+  display: grid;
+  gap: var(--primitiv-space-space-8);
+}
+
+/* Collapsible section — a bordered card whose trigger is a full-width header. */
+.carousel-builder__section {
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+  border-radius: var(--primitiv-radii-8);
+  overflow: clip;
+}
+
+.carousel-builder__section-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  inline-size: 100%;
+  padding: var(--primitiv-space-space-12) var(--primitiv-space-space-16);
+  border: 0;
+  background: var(--primitiv-surface-subtle);
+  color: var(--primitiv-content-primary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.carousel-builder__section-icon {
+  transition: transform var(--primitiv-motion-duration-overlay)
+    var(--primitiv-motion-easing-default);
+}
+
+/* TriggerIcon mirrors the panel's data-state, so the chevron flips when open. */
+.carousel-builder__section-trigger[data-state="open"] .carousel-builder__section-icon {
+  transform: rotate(180deg);
+}
+
+.carousel-builder__section-body {
+  display: grid;
+  gap: var(--primitiv-space-space-16);
+  padding: var(--primitiv-space-space-16);
+}
+
+.carousel-builder__field {
+  display: grid;
+  gap: var(--primitiv-space-space-8);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.carousel-builder__legend {
+  padding: 0;
+  color: var(--primitiv-content-secondary);
+  font-size: 0.85rem;
+}
+
+.carousel-builder__radios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--primitiv-space-space-8) var(--primitiv-space-space-16);
+}
+
+.carousel-builder__radio,
+.carousel-builder__check {
+  display: inline-flex;
+  gap: var(--primitiv-space-space-8);
+  align-items: center;
+  color: var(--primitiv-content-primary);
+  cursor: pointer;
+}
+
+.carousel-builder__range input[type="range"] {
+  inline-size: 100%;
+}
+
+/* The live preview follows the scroll so it stays in view while the controls
+ * scroll under it. */
+.carousel-builder__preview {
+  position: sticky;
+  inset-block-start: var(--primitiv-space-space-16);
+  display: grid;
+  gap: var(--primitiv-space-space-16);
+}
+
+/* Vertical carousels are portrait-ish; bound the stage so a tall aspect ratio
+ * can't make the instance dominate the page. */
+.carousel-builder__stage {
+  inline-size: 100%;
+  max-inline-size: 40rem;
+  margin-inline: auto;
+}
+
+.carousel-builder__thumb {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.carousel-builder__readout {
+  margin: 0;
+  padding: var(--primitiv-space-space-16);
+  border-radius: var(--primitiv-radii-8);
+  background: var(--primitiv-surface-subtle);
+  color: var(--primitiv-content-secondary);
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}

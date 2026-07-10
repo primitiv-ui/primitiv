@@ -1034,6 +1034,38 @@ modifier). **Gates green:** `cargo test -p primitiv-emit -p primitiv-cli`,
 **Figma lockstep: pending** human QA. Gap is code-only (no carousel `--primitiv-*`
 variable layer in Figma). **Next:** QA `/carousel/spacing` + `/carousel/placement`.
 
+### Builder — live composability sandbox (awaiting human QA)
+
+**A QA tool, not a registry variant** — no contract/styles/headless change, no
+regeneration, no Figma. A new nested route **`/carousel/builder`** (sidebar entry
+"Builder", pinned at the top): a centred **2-column grid** — controls on the left,
+one live `Carousel` instance on the right (`CarouselBuilder.tsx` +
+`CarouselBuilder.css`, scoped under `.carousel-builder`). The instance re-renders
+from a single `BuilderConfig` state object as the controls change, so the human can
+stress-test how the features *compose* and surface edge cases the per-feature
+example pages don't cover.
+
+**Controls = the headless `Collapsible`** (`@primitiv-ui/react`, dev-aliased), one
+section per concern, **each `defaultOpen`** (the requested shape); the TriggerIcon
+chevron flips off the trigger's `data-state`. Native `range`/`radio`/`checkbox`
+inputs drive state (a dev tool — robust, no dependency on styled form surfaces).
+Sections map **every** contract axis: **Layout** (`placement`, `orientation`,
+`side`, `distribution`, `align`, RTL) · **Slides** (slide count 1–8, `slidesPerPage`
+1–4, `ratio`, slide `radius`) · **Spacing & frame** (`gap`, `peek`, `padding`,
+`surface`) · **Indicators** (`dots`/`thumbnails`) · **Transition** (`slide`/`fade`).
+
+**The live carousel** branches composition by `placement` — `external` wraps
+prev/indicators/next in `<CarouselControls>`, `overlay`/`flank` render them as
+direct children (matching the example helpers) — swaps auto `<CarouselIndicators>`
+(dots, page-count-correct) vs a manual group of image thumbs (thumbnails), swaps the
+prev/next chevrons under vertical, and wraps in `dir="rtl"` when RTL. A **`<pre>`
+readout** echoes the active `<Carousel …>` props so a spotted bug reports its exact
+combination. A Reset button restores the iteration-1 defaults.
+
+**No gates run** — no Rust/registry/headless change (kitchen-sink can't build in the
+sandbox; the human verifies live). **Next:** human QA on `/carousel/builder` — drive
+combinations and feed back edge cases to fix.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

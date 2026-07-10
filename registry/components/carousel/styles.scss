@@ -681,19 +681,20 @@
 
   /* Horizontal flank: prev | viewport | next in a row, indicators centred in a
      second row. `side=after` (default) puts the indicators below; `before` above. */
-  .primitiv-carousel--placement-flank {
+  .primitiv-carousel--placement-flank:not(.primitiv-carousel--cluster-joined) {
     grid-template-columns: auto minmax(0, 1fr) auto;
     grid-template-areas:
       "prev viewport next"
       ". indicators .";
     align-items: center;
   }
-  .primitiv-carousel--placement-flank.primitiv-carousel--side-before {
+  .primitiv-carousel--placement-flank:not(.primitiv-carousel--cluster-joined).primitiv-carousel--side-before {
     grid-template-areas:
       ". indicators ."
       "prev viewport next";
   }
-  .primitiv-carousel--placement-flank .primitiv-carousel__viewport {
+  .primitiv-carousel--placement-flank:not(.primitiv-carousel--cluster-joined)
+    .primitiv-carousel__viewport {
     grid-area: viewport;
   }
   .primitiv-carousel--placement-flank .primitiv-carousel__prev {
@@ -712,7 +713,7 @@
      `after` (default) on the end/right, `before` on the start/left. Overrides the
      vertical rule's column auto-flow with an explicit 2-D grid; higher specificity
      (orientation attr + placement class) wins over the base vertical layout. */
-  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-flank {
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-flank:not(.primitiv-carousel--cluster-joined) {
     grid-auto-flow: row;
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-rows: auto minmax(0, 1fr) auto;
@@ -722,7 +723,7 @@
       "next      .";
     align-items: center;
   }
-  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-flank.primitiv-carousel--side-before {
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-flank:not(.primitiv-carousel--cluster-joined).primitiv-carousel--side-before {
     grid-template-columns: auto minmax(0, 1fr);
     grid-template-areas:
       ".          prev"
@@ -771,7 +772,7 @@
      edge clearance (frame + peek + control inset), so an aligned pill lines up with
      the prev/next controls. Scoped away from vertical overlay, where the pill shares
      the up/down lane. */
-  .primitiv-carousel--placement-overlay:not([data-orientation="vertical"]).primitiv-carousel--distribution-group.primitiv-carousel--align-start
+  .primitiv-carousel--placement-overlay:not([data-orientation="vertical"]):not(.primitiv-carousel--cluster-joined).primitiv-carousel--distribution-group.primitiv-carousel--align-start
     .primitiv-carousel__indicator-group {
     inset-inline-start: calc(
       var(--primitiv-carousel-viewport-border-width) +
@@ -781,7 +782,7 @@
     inset-inline-end: auto;
     margin-inline: 0;
   }
-  .primitiv-carousel--placement-overlay:not([data-orientation="vertical"]).primitiv-carousel--distribution-group.primitiv-carousel--align-end
+  .primitiv-carousel--placement-overlay:not([data-orientation="vertical"]):not(.primitiv-carousel--cluster-joined).primitiv-carousel--distribution-group.primitiv-carousel--align-end
     .primitiv-carousel__indicator-group {
     inset-inline-end: calc(
       var(--primitiv-carousel-viewport-border-width) +
@@ -791,7 +792,7 @@
     inset-inline-start: auto;
     margin-inline: 0;
   }
-  .primitiv-carousel--placement-overlay:not([data-orientation="vertical"]).primitiv-carousel--distribution-stretch
+  .primitiv-carousel--placement-overlay:not([data-orientation="vertical"]):not(.primitiv-carousel--cluster-joined).primitiv-carousel--distribution-stretch
     .primitiv-carousel__indicator-group {
     inset-inline: calc(
       var(--primitiv-carousel-viewport-border-width) +
@@ -801,6 +802,68 @@
     margin-inline: 0;
     inline-size: auto;
     justify-content: space-between;
+  }
+
+  /* ── Cluster: split vs joined (overlay + flank) ──
+     `split` (the default) is the family's native layout — overlay's prev/next flank
+     the slide edges with a separate dots pill; flank's prev/next sit on the
+     scroll-axis edges with the indicators on a perpendicular side. `joined` bundles
+     prev + indicators + next into the one `<CarouselControls>` bar so they travel
+     together, positioned by `side` / `distribution` / `align` exactly like the
+     external bar. (External is inherently joined; vertical overlay stays split — its
+     up/pill/down share one lane.) Compose the parts inside `<CarouselControls>` for
+     `joined`, as direct children for `split`.
+
+     Flank + joined needs no rules here — the flank grid above is disabled via
+     `:not(--cluster-joined)`, so the base (external) layout returns and the joined
+     bar stacks beside the viewport, driven by side / distribution / align. */
+  .primitiv-carousel--cluster-split {
+    /* The family's native split layout is the base — nothing to re-point. Declared
+       so the axis stays explicit if toggled dynamically. */
+    position: static;
+  }
+
+  /* Overlay + joined (horizontal): the __controls bar is overlaid on the slide,
+     spanning it (transparent — each part keeps its own scrim), so distribution /
+     align drive its justify-content via the shared __controls rules. Additive: the
+     inner parts are reset from the split-mode absolute positioning so they flow in
+     the bar. Vertical overlay stays split (its up/pill/down share one lane). */
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined:not([data-orientation="vertical"])
+    .primitiv-carousel__controls {
+    position: absolute;
+    inset-inline: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+    inset-block-end: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) +
+        var(--primitiv-carousel-overlay-indicator-inset)
+    );
+    z-index: 1;
+  }
+  /* side=before rides the bar on the top edge instead of the bottom. */
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined:not([data-orientation="vertical"]).primitiv-carousel--side-before
+    .primitiv-carousel__controls {
+    inset-block-start: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) +
+        var(--primitiv-carousel-overlay-indicator-inset)
+    );
+    inset-block-end: auto;
+  }
+  /* Reset the inner parts from split-mode absolute positioning so they flow in the
+     bar; each keeps its own scrim (circular prev/next, the dots pill). */
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined:not([data-orientation="vertical"])
+    .primitiv-carousel__prev,
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined:not([data-orientation="vertical"])
+    .primitiv-carousel__next,
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined:not([data-orientation="vertical"])
+    .primitiv-carousel__indicator-group {
+    position: static;
+    inset: auto;
+    margin: 0;
   }
 
   /* Thumbnails — swap the dot indicators for rounded-rect image thumbnails (the

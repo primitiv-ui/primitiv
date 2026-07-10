@@ -16,7 +16,7 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K>
  *
  * @see https://primitiv-ui.dev/docs/components/carousel
  */
-export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "gap" | "padding" | "surface" | "placement" | "side" | "distribution" | "align" | "indicators"> & {
+export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "gap" | "padding" | "surface" | "placement" | "side" | "distribution" | "align" | "cluster" | "indicators"> & {
   /**
    * Reveal a sliver of the adjacent slides on either side of the active one. Works in both orientations (inline edges when horizontal, block edges when vertical).
    * - `none` — No peek — the active slide fills the viewport (the default).
@@ -90,6 +90,14 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    */
   align?: "start" | "center" | "end";
   /**
+   * Whether the controls sit apart or travel together — read by `overlay` and `flank`. `split` (the default) is each family's native layout: overlay's prev/next flank the slide edges with a separate dots pill; flank's prev/next sit on the scroll-axis edges with the indicators on a perpendicular side. `joined` bundles prev + indicators + next into one `<CarouselControls>` bar that moves together, positioned by `side` / `distribution` / `align` exactly like the external bar — overlaid on the slide for overlay, beside the viewport for flank. Compose the parts inside `<CarouselControls>` for `joined`, as direct children for `split`. `external` is inherently joined (ignores this); vertical overlay stays split (its up/pill/down share one lane).
+   * - `split` — The family's native layout — prev/next at the structural edges, the indicators a separate cluster (the default).
+   * - `joined` — Bundle prev + indicators + next into one bar that moves together; compose them inside `<CarouselControls>`.
+   * @default "split"
+   * @see https://primitiv-ui.dev/docs/components/carousel
+   */
+  cluster?: "split" | "joined";
+  /**
    * What the indicators look like. `dots` (the default) is the compact dot row; `thumbnails` swaps each indicator for a rounded-rect image thumbnail — the active one ringed in the primary colour, the classic gallery pattern. Supply the thumbnail content as children of each `<CarouselIndicator>` (an `<img>` or a background element).
    * - `dots` — Compact dots — one per page (the default).
    * - `thumbnails` — Image thumbnails — each indicator shows its slide's thumbnail, the active one ringed in the primary colour.
@@ -99,10 +107,10 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
   indicators?: "dots" | "thumbnails";
 };
 
-export function Carousel({ peek, gap, padding, surface, placement, side, distribution, align, indicators, slidesPerPage, className, style, ...props }: CarouselProps) {
+export function Carousel({ peek, gap, padding, surface, placement, side, distribution, align, cluster, indicators, slidesPerPage, className, style, ...props }: CarouselProps) {
   return (
     <CarouselPrimitive.Root
-      className={[carousel({ peek, gap, padding, surface, placement, side, distribution, align, indicators }), className].filter(Boolean).join(" ")}
+      className={[carousel({ peek, gap, padding, surface, placement, side, distribution, align, cluster, indicators }), className].filter(Boolean).join(" ")}
       style={{ ...style, ...(slidesPerPage === undefined ? {} : { "--primitiv-carousel-slides-per-page": slidesPerPage }) } as CSSProperties}
       slidesPerPage={slidesPerPage}
       {...props}

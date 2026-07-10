@@ -1132,6 +1132,53 @@ needed.) **Figma lockstep: pending** (code-only; no carousel variable layer). **
 human QA of `/carousel/builder` — confirm align/distribution now respond in overlay +
 flank and are greyed where inert.
 
+### Builder QA #2 — `cluster` (split/joined) for overlay + flank (awaiting human QA)
+
+**The Builder's second find.** After QA #1 landed align/distribution on the overlay/flank
+*indicator* cluster, the human noted the prev/next stay pinned at the edges — and asked
+for one more level: choose whether, in overlay/flank, the controls stay **split** (the
+family's native layout) or **join** into one bar that moves together. Additive, and
+(human's call) applied to **both** overlay and flank even though joined-flank overlaps
+`external`.
+
+**New modifier `cluster`** (`split` default · `joined`), read by overlay + flank:
+- **split** — the family's native layout (unchanged): overlay's prev/next flank the slide
+  edges + separate dots pill; flank's prev/next on the scroll-axis edges + perpendicular
+  indicators.
+- **joined** — prev + indicators + next bundle into the one `<CarouselControls>` bar,
+  positioned by `side` / `distribution` / `align` exactly like the external bar. The bar
+  reuses the existing `.__controls` distribution/align rules for free.
+
+**CSS (pure registry, additive/low-risk).**
+- **Flank joined = the base (external) layout returns**: the flank grid rules are scoped
+  `:not(--cluster-joined)`, so with joined the viewport + the joined bar stack (horizontal)
+  or sit side-by-side (vertical), driven by side/distribution/align. *No new positioning
+  rules.*
+- **Overlay joined (horizontal)**: the `.__controls` bar is `position: absolute`, spans the
+  slide (transparent — each part keeps its own scrim), `side` puts it bottom/top; the inner
+  prev/next/indicator-group are *reset* from split's absolute positioning so they flow in
+  the bar (keeps split rules untouched → zero regression risk to split). The split-mode
+  overlay dist/align `.__indicator-group` rules from QA #1 are scoped `:not(--cluster-joined)`
+  so the bar owns positioning in joined.
+- **Vertical overlay stays split** (its up/pill/down share one lane, no wrapper to move them
+  as a unit) — the overlay-joined rules are scoped `:not([data-orientation="vertical"])`.
+- **Composition differs by mode**: `joined` composes the parts inside `<CarouselControls>`,
+  `split` as direct children. The Builder wires this automatically; documented for consumers.
+
+**Builder** gained the `cluster` control (greyed with a reason for `external` = "always
+joined" and vertical overlay = "split only"); `LiveCarousel` branches the composition
+(`useControlsBar = external || joined`) and passes the effective `cluster`.
+
+**Contract** gained the `cluster` modifier; regenerated recipe/tsx/scss (recipe changed this
+time — new cva variant) + drift-green + kitchen-sink hand-synced. Registry README's placement
+paragraph extended.
+
+**Gates green:** `cargo test -p primitiv-emit -p primitiv-cli` (106 + 20),
+`node scripts/check-registry-types.mjs`. (No headless change.) **Figma lockstep: pending**
+(code-only). **Next:** human QA on `/carousel/builder` — set overlay/flank + `cluster=joined`
+and confirm prev/next now move with the dots under align/distribution; check the control greys
+for external + vertical overlay.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

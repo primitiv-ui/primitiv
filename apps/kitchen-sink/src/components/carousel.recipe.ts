@@ -49,6 +49,10 @@ export const carousel = cva("primitiv-carousel", {
       center: "primitiv-carousel--align-center",
       end: "primitiv-carousel--align-end",
     },
+    cluster: {
+      split: "primitiv-carousel--cluster-split",
+      joined: "primitiv-carousel--cluster-joined",
+    },
     indicators: {
       dots: "primitiv-carousel--indicators-dots",
       thumbnails: "primitiv-carousel--indicators-thumbnails",
@@ -63,6 +67,7 @@ export const carousel = cva("primitiv-carousel", {
     side: "after",
     distribution: "group",
     align: "center",
+    cluster: "split",
     indicators: "dots",
   },
 });

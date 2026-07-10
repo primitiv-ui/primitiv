@@ -55,6 +55,7 @@ type Orientation = "horizontal" | "vertical";
 type Side = "after" | "before";
 type Distribution = "group" | "stretch";
 type Align = "start" | "center" | "end";
+type Cluster = "split" | "joined";
 type Ratio = "square" | "standard" | "wide" | "ultrawide";
 type Radius = "md" | "none";
 type Sizing = "none" | "sm" | "md" | "lg";
@@ -68,6 +69,7 @@ interface BuilderConfig {
   side: Side;
   distribution: Distribution;
   align: Align;
+  cluster: Cluster;
   rtl: boolean;
   slideCount: number;
   slidesPerPage: number;
@@ -89,6 +91,7 @@ const DEFAULT_CONFIG: BuilderConfig = {
   side: "after",
   distribution: "group",
   align: "center",
+  cluster: "split",
   rtl: false,
   slideCount: 4,
   slidesPerPage: 1,
@@ -233,7 +236,12 @@ function CheckField({
 function LiveCarousel({ config }: { config: BuilderConfig }) {
   const slides = GALLERY.slice(0, config.slideCount);
   const isVertical = config.orientation === "vertical";
-  const isExternal = config.placement === "external";
+  // `joined` bundles prev/indicators/next into the CarouselControls bar so they
+  // travel together. external always uses the bar; vertical overlay can't join
+  // (its up/pill/down share one lane), so it stays split.
+  const verticalOverlay = config.placement === "overlay" && isVertical;
+  const joined = config.cluster === "joined" && !verticalOverlay;
+  const useControlsBar = config.placement === "external" || joined;
 
   const prev = (
     <CarouselPreviousTrigger aria-label="Previous slide">
@@ -265,7 +273,7 @@ function LiveCarousel({ config }: { config: BuilderConfig }) {
       <CarouselIndicators label="Choose slide" />
     );
 
-  const controls = isExternal ? (
+  const controls = useControlsBar ? (
     <CarouselControls>
       {prev}
       {indicators}
@@ -291,6 +299,7 @@ function LiveCarousel({ config }: { config: BuilderConfig }) {
         side={config.side}
         distribution={config.distribution}
         align={config.align}
+        cluster={joined ? "joined" : "split"}
         peek={config.peek}
         padding={config.padding}
         surface={config.surface}
@@ -324,6 +333,7 @@ function describe(config: BuilderConfig): string {
     `side="${config.side}"`,
     `distribution="${config.distribution}"`,
     `align="${config.align}"`,
+    `cluster="${config.cluster}"`,
     `gap="${config.gap}"`,
     `peek="${config.peek}"`,
     `padding="${config.padding}"`,
@@ -361,6 +371,16 @@ export function CarouselBuilder() {
   const verticalOverlay =
     config.placement === "overlay" && config.orientation === "vertical";
   const alignDisabled = verticalOverlay || config.distribution === "stretch";
+
+  // cluster (split/joined) is read by flank and horizontal overlay; external is
+  // inherently joined and vertical overlay is split-only.
+  const clusterApplies =
+    config.placement === "flank" ||
+    (config.placement === "overlay" && !verticalOverlay);
+  const clusterNote =
+    config.placement === "external"
+      ? "external is always joined"
+      : "split only for vertical overlay";
 
   return (
     <article className="carousel-builder">
@@ -432,6 +452,15 @@ export function CarouselBuilder() {
                   ? "n/a for vertical overlay"
                   : "n/a when distribution=stretch"
               }
+            />
+            <RadioField
+              legend="cluster"
+              name="cluster"
+              value={config.cluster}
+              options={["split", "joined"] as const}
+              onChange={(value) => set("cluster", value)}
+              disabled={!clusterApplies}
+              note={clusterNote}
             />
             <CheckField
               label={'RTL (dir="rtl")'}

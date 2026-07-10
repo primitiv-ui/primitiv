@@ -105,7 +105,15 @@ so they can't fall out of sync.
   up/pill/down share a single lane so both axes are a no-op. **`side`** is likewise
   read by all three — for `overlay` it moves the dots pill (top vs bottom when
   horizontal) and, when vertical, the whole up/pill/down control lane (inline-start
-  vs inline-end).
+  vs inline-end). A **`cluster`** modifier (`split` default · `joined`) — read by
+  `overlay` and `flank` — chooses whether the controls sit apart (`split`: the
+  family's native layout, prev/next at the structural edges, indicators separate) or
+  bundle into **one `<CarouselControls>` bar** that travels together (`joined`:
+  overlaid on the slide for overlay, beside the viewport for flank, driven by
+  `side` / `distribution` / `align` like the external bar). **Compose the parts inside
+  `<CarouselControls>` for `joined`, as direct children for `split`.** `external` is
+  inherently joined (ignores it); vertical overlay stays split (its up/pill/down share
+  one lane).
 
   For **`overlay`**, prev/next absolutely flank the slide edges on a translucent
   `neutral-alpha` scrim and the dots ride a pill overlaid on the slide (no

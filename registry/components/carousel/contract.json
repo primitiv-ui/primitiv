@@ -98,6 +98,15 @@
       ]
     },
     {
+      "name": "cluster",
+      "default": "split",
+      "description": "Whether the controls sit apart or travel together — read by `overlay` and `flank`. `split` (the default) is each family's native layout: overlay's prev/next flank the slide edges with a separate dots pill; flank's prev/next sit on the scroll-axis edges with the indicators on a perpendicular side. `joined` bundles prev + indicators + next into one `<CarouselControls>` bar that moves together, positioned by `side` / `distribution` / `align` exactly like the external bar — overlaid on the slide for overlay, beside the viewport for flank. Compose the parts inside `<CarouselControls>` for `joined`, as direct children for `split`. `external` is inherently joined (ignores this); vertical overlay stays split (its up/pill/down share one lane).",
+      "options": [
+        { "name": "split", "class": "primitiv-carousel--cluster-split", "description": "The family's native layout — prev/next at the structural edges, the indicators a separate cluster (the default)." },
+        { "name": "joined", "class": "primitiv-carousel--cluster-joined", "description": "Bundle prev + indicators + next into one bar that moves together; compose them inside `<CarouselControls>`." }
+      ]
+    },
+    {
       "name": "indicators",
       "default": "dots",
       "description": "What the indicators look like. `dots` (the default) is the compact dot row; `thumbnails` swaps each indicator for a rounded-rect image thumbnail — the active one ringed in the primary colour, the classic gallery pattern. Supply the thumbnail content as children of each `<CarouselIndicator>` (an `<img>` or a background element).",

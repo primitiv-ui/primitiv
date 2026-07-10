@@ -976,13 +976,16 @@ constrained bar/grid cell). Stress cells added to the page's Overlay section (do
 many → wrap h+v, thumbnails many → shrink) via a `slides` passthrough on
 `OverlaySingle`/`ThumbnailSingle`. No contract change; scss re-derived + drift-green
 + hand-synced. **Round 3b:** the vertical wrapped dots didn't widen for the 2nd
-column (the well-known flex **column-wrap width-collapse** bug). Fixed by rotating
-that tray's flow with `writing-mode: vertical-lr` + `flex-direction: row` — a
-*row*-wrap (whose cross-size expands correctly), so the dots still stack top→bottom
-and overflow into new columns while the tray **widens to hold them**; physical
-`max-height` still caps it between the up/down controls and physical auto margins
-centre it (the inherited `block-size: fit-content` becomes the width, hugging the
-columns). Dots are symmetric so the writing-mode doesn't distort them.
+column (the well-known flex **column-wrap width-collapse** bug). First tried
+rotating the flow with `writing-mode: vertical-lr` — it widened correctly but
+**remapped the group's logical insets** (`inset-inline-end` → physical bottom), so
+the tray jumped to the wrong corner and lost its edge distance (QA caught it).
+**Round 3c fix: CSS Grid instead** — `grid-auto-flow: column` + `grid-template-rows:
+repeat(auto-fit, hit-area)` under the `max-block-size` cap: the row tracks auto-fit
+into the capped height and extra dots flow into a new column, the grid **widening to
+hold it** (grid has no column-wrap width bug); `auto-fit` collapses unused rows so a
+short run still hugs + centres. Grid needs no writing-mode, so the group's logical
+positioning (inline-end lane, RTL mirroring) stays intact.
 
 **Figma lockstep: pending** human QA + a later dedicated build of the placement
 model in Figma (the current frame is conceptual). No carousel `--primitiv-*`

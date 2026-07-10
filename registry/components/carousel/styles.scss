@@ -818,9 +818,9 @@
      `:not(--cluster-joined)`, so the base (external) layout returns and the joined
      bar stacks beside the viewport, driven by side / distribution / align. */
   .primitiv-carousel--cluster-split {
-    /* The family's native split layout is the base — nothing to re-point. Declared
-       so the axis stays explicit if toggled dynamically. */
-    position: static;
+    /* The family's native split layout is the base — nothing to re-point (and
+       nothing to declare: setting a property here would land on the root and could
+       override a placement rule, e.g. overlay's `position: relative`). */
   }
 
   /* Overlay + joined (horizontal): the __controls bar is overlaid on the slide,

@@ -982,12 +982,16 @@ rotating the flow with `writing-mode: vertical-lr` — it widened correctly but
 the tray jumped to the wrong corner and lost its edge distance (QA caught it).
 **Round 3c: CSS Grid** — fixed the positioning (no writing-mode remap) but
 `grid-auto-flow: column` greedily overfilled the first column to the cap, leaving a
-lopsided 6+2 stub (QA). **Round 3d fix: CSS multi-column** — `column-width: hit-area`
-+ the `max-block-size` cap: with the height capped the browser adds *balanced*
-columns as needed (dots stack as block-level `> button { display: grid }` items,
-`break-inside: avoid`). Balanced, widens to hold the columns, and — like grid — needs
-no writing-mode, so the group keeps its logical inline-end lane + RTL mirroring and
-`inline-size: fit-content` shrinks to the used columns.
+lopsided 6+2 stub (QA). **Round 3d: CSS multi-column** — balanced the columns
+(4+4) but its intrinsic width collapses to one column, so the 2nd column overflowed
+the tray + slide (QA). **Settled on CSS Grid (round 3c) as final:** grid's intrinsic
+width is the sum of its column tracks, so `inline-size: fit-content` grows to
+*contain* every column (the requirement); it fills greedily rather than balancing,
+but pure CSS can't do both without knowing the dot count, and in a real full-size
+vertical carousel the dots fit one column and never wrap — the greedy split only
+shows in the deliberately cramped demo cell. (A perfectly-balanced *and* contained
+layout would need a count-driven track count = a small JS/headless enhancement,
+deferred as not worth it for this niche combo.)
 
 **Figma lockstep: pending** human QA + a later dedicated build of the placement
 model in Figma (the current frame is conceptual). No carousel `--primitiv-*`

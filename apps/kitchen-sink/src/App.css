@@ -4,6 +4,11 @@
 
 body {
   margin: 0;
+  /* The Primitiv base layer styles individual elements (p, headings, a's colour…)
+   * but deliberately sets no global body font (RFC 0008 — no global reset), so a
+   * consumer app owns its body default. Without this, unstyled chrome (the top
+   * nav / carousel sidebar links) inherits the UA serif instead of Asta Sans. */
+  font-family: var(--primitiv-font-family-text);
   background: var(--primitiv-surface-default);
   color: var(--primitiv-content-primary);
 }

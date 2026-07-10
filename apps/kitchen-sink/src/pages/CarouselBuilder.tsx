@@ -6,9 +6,14 @@ import {
   ChevronUp,
   ChevronDown,
 } from "@primitiv-ui/icons";
-import { Collapsible } from "@primitiv-ui/react";
 
 import {
+  Accordion,
+  AccordionItem,
+  AccordionHeader,
+  AccordionTrigger,
+  AccordionContent,
+  AccordionTriggerIcon,
   Carousel,
   CarouselViewport,
   CarouselControls,
@@ -20,6 +25,17 @@ import {
   CarouselIndicators,
 } from "../components";
 import "./CarouselBuilder.css";
+
+// The controls-panel sections. Rendered as a single `multiple` Accordion, all
+// expanded by default (controlled value seeded with every id) so every control
+// is visible on load and the human collapses just what they're not tuning.
+const SECTIONS = [
+  "layout",
+  "slides",
+  "spacing",
+  "indicators",
+  "transition",
+] as const;
 
 // Gradients stand in for photography — the same stand-ins the example pages use.
 // Eight, so the slide-count slider can range 1–8.
@@ -88,22 +104,30 @@ const DEFAULT_CONFIG: BuilderConfig = {
 
 const SIZING: readonly Sizing[] = ["none", "sm", "md", "lg"];
 
-// A collapsible controls section — each is open by default (the requested shape),
-// so the whole surface is visible on load and the human collapses what they're
-// not tuning.
-function Section({ title, children }: { title: string; children: ReactNode }) {
+// One accordion section — a titled, independently-collapsible panel of controls.
+function Section({
+  value,
+  title,
+  children,
+}: {
+  value: string;
+  title: string;
+  children: ReactNode;
+}) {
   return (
-    <Collapsible.Root defaultOpen className="carousel-builder__section">
-      <Collapsible.Trigger className="carousel-builder__section-trigger">
-        <span>{title}</span>
-        <Collapsible.TriggerIcon>
-          <ChevronDown className="carousel-builder__section-icon" />
-        </Collapsible.TriggerIcon>
-      </Collapsible.Trigger>
-      <Collapsible.Content className="carousel-builder__section-body">
-        {children}
-      </Collapsible.Content>
-    </Collapsible.Root>
+    <AccordionItem value={value}>
+      <AccordionHeader>
+        <AccordionTrigger>
+          {title}
+          <AccordionTriggerIcon>
+            <ChevronDown aria-hidden="true" />
+          </AccordionTriggerIcon>
+        </AccordionTrigger>
+      </AccordionHeader>
+      <AccordionContent>
+        <div className="carousel-builder__section-body">{children}</div>
+      </AccordionContent>
+    </AccordionItem>
   );
 }
 
@@ -304,13 +328,16 @@ function describe(config: BuilderConfig): string {
 
 /**
  * The Builder — a live composability sandbox. Every carousel axis is a control
- * on the left (grouped into open-by-default Collapsible sections); a single
+ * on the left (grouped into open-by-default Accordion sections); a single
  * instance on the right re-renders as the controls change. It exists to QA how
  * the features compose and to surface edge cases the per-feature example pages
  * don't cover.
  */
 export function CarouselBuilder() {
   const [config, setConfig] = useState<BuilderConfig>(DEFAULT_CONFIG);
+  // Controlled accordion so every section can start expanded (uncontrolled only
+  // opens a single defaultValue); the human collapses individually from there.
+  const [openSections, setOpenSections] = useState<string[]>([...SECTIONS]);
 
   function set<K extends keyof BuilderConfig>(key: K, value: BuilderConfig[K]) {
     setConfig((current) => ({ ...current, [key]: value }));
@@ -338,7 +365,12 @@ export function CarouselBuilder() {
 
       <div className="carousel-builder__grid">
         <div className="carousel-builder__controls">
-          <Section title="Layout">
+          <Accordion
+            multiple
+            value={openSections}
+            onValueChange={setOpenSections}
+          >
+          <Section value="layout" title="Layout">
             <RadioField
               legend="placement"
               name="placement"
@@ -381,7 +413,7 @@ export function CarouselBuilder() {
             />
           </Section>
 
-          <Section title="Slides">
+          <Section value="slides" title="Slides">
             <RangeField
               label="slide count"
               min={1}
@@ -412,7 +444,7 @@ export function CarouselBuilder() {
             />
           </Section>
 
-          <Section title="Spacing & frame">
+          <Section value="spacing" title="Spacing & frame">
             <RadioField
               legend="gap"
               name="gap"
@@ -443,7 +475,7 @@ export function CarouselBuilder() {
             />
           </Section>
 
-          <Section title="Indicators">
+          <Section value="indicators" title="Indicators">
             <RadioField
               legend="indicators"
               name="indicators"
@@ -453,7 +485,7 @@ export function CarouselBuilder() {
             />
           </Section>
 
-          <Section title="Transition">
+          <Section value="transition" title="Transition">
             <RadioField
               legend="transition"
               name="transition"
@@ -462,6 +494,7 @@ export function CarouselBuilder() {
               onChange={(value) => set("transition", value)}
             />
           </Section>
+          </Accordion>
         </div>
 
         <div className="carousel-builder__preview">

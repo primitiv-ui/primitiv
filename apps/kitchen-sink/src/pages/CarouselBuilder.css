@@ -59,46 +59,15 @@
   }
 }
 
-.carousel-builder__controls {
-  display: grid;
-  gap: var(--primitiv-space-space-8);
-}
+/* The controls are a single styled Accordion (multiple, all open by default);
+ * its own stylesheet owns the row chrome, chevron flip and collapse animation. */
 
-/* Collapsible section — a bordered card whose trigger is a full-width header. */
-.carousel-builder__section {
-  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
-  border-radius: var(--primitiv-radii-8);
-  overflow: clip;
-}
-
-.carousel-builder__section-trigger {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  inline-size: 100%;
-  padding: var(--primitiv-space-space-12) var(--primitiv-space-space-16);
-  border: 0;
-  background: var(--primitiv-surface-subtle);
-  color: var(--primitiv-content-primary);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.carousel-builder__section-icon {
-  transition: transform var(--primitiv-motion-duration-overlay)
-    var(--primitiv-motion-easing-default);
-}
-
-/* TriggerIcon mirrors the panel's data-state, so the chevron flips when open. */
-.carousel-builder__section-trigger[data-state="open"] .carousel-builder__section-icon {
-  transform: rotate(180deg);
-}
-
+/* The grid layout for the controls inside an accordion panel — the styled
+ * AccordionContent already supplies the panel padding, so only the field rhythm
+ * lives here. */
 .carousel-builder__section-body {
   display: grid;
   gap: var(--primitiv-space-space-16);
-  padding: var(--primitiv-space-space-16);
 }
 
 .carousel-builder__field {

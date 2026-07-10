@@ -1036,23 +1036,31 @@ variable layer in Figma). **Next:** QA `/carousel/spacing` + `/carousel/placemen
 
 ### Builder — live composability sandbox (awaiting human QA)
 
-**A QA tool, not a registry variant** — no contract/styles/headless change, no
-regeneration, no Figma. A new nested route **`/carousel/builder`** (sidebar entry
-"Builder", pinned at the top): a centred **2-column grid** — controls on the left,
-one live `Carousel` instance on the right (`CarouselBuilder.tsx` +
+**A QA tool, not a registry variant.** A new nested route **`/carousel/builder`**
+(sidebar entry "Builder", pinned at the top): a centred **2-column grid** — controls
+on the left, one live `Carousel` instance on the right (`CarouselBuilder.tsx` +
 `CarouselBuilder.css`, scoped under `.carousel-builder`). The instance re-renders
 from a single `BuilderConfig` state object as the controls change, so the human can
 stress-test how the features *compose* and surface edge cases the per-feature
-example pages don't cover.
+example pages don't cover. **It has already earned its keep** — the dynamic
+slide-count control surfaced a real headless crash (see the IntersectionObserver fix
+below).
 
-**Controls = the headless `Collapsible`** (`@primitiv-ui/react`, dev-aliased), one
-section per concern, **each `defaultOpen`** (the requested shape); the TriggerIcon
-chevron flips off the trigger's `data-state`. Native `range`/`radio`/`checkbox`
-inputs drive state (a dev tool — robust, no dependency on styled form surfaces).
-Sections map **every** contract axis: **Layout** (`placement`, `orientation`,
-`side`, `distribution`, `align`, RTL) · **Slides** (slide count 1–8, `slidesPerPage`
-1–4, `ratio`, slide `radius`) · **Spacing & frame** (`gap`, `peek`, `padding`,
-`surface`) · **Indicators** (`dots`/`thumbnails`) · **Transition** (`slide`/`fade`).
+**Controls = the styled `Accordion`** (the kitchen-sink registry component) in
+**`multiple` mode, all sections open by default** (controlled `value` seeded with
+every section id — uncontrolled Accordion only opens one `defaultValue`). *First cut
+used the headless `Collapsible`, but its panels didn't collapse — a builder CSS bug,
+not the component: `.carousel-builder__section-body { display: grid }` (a class
+selector) overrode the browser's `[hidden] { display: none }`, so the
+`hidden`-attribute panel never hid. Switched to the styled Accordion on human
+request — it drives open/close via a grid-row transition on a force-mounted panel,
+so there's no `display`-override footgun, and it dogfoods a registry component.*
+Native `range`/`radio`/`checkbox` inputs drive state (a dev tool — robust, no
+dependency on styled form surfaces). Sections map **every** contract axis:
+**Layout** (`placement`, `orientation`, `side`, `distribution`, `align`, RTL) ·
+**Slides** (slide count 1–8, `slidesPerPage` 1–4, `ratio`, slide `radius`) ·
+**Spacing & frame** (`gap`, `peek`, `padding`, `surface`) · **Indicators**
+(`dots`/`thumbnails`) · **Transition** (`slide`/`fade`).
 
 **The live carousel** branches composition by `placement` — `external` wraps
 prev/indicators/next in `<CarouselControls>`, `overlay`/`flank` render them as
@@ -1062,8 +1070,26 @@ prev/next chevrons under vertical, and wraps in `dir="rtl"` when RTL. A **`<pre>
 readout** echoes the active `<Carousel …>` props so a spotted bug reports its exact
 combination. A Reset button restores the iteration-1 defaults.
 
-**No gates run** — no Rust/registry/headless change (kitchen-sink can't build in the
-sandbox; the human verifies live). **Next:** human QA on `/carousel/builder` — drive
+**Headless fix the Builder surfaced (TDD, 100%).** Dragging the slide-count control
+down (or pressing Reset from a larger count) crashed with `Failed to execute
+'observe' on 'IntersectionObserver': parameter 1 is not of type 'Element'`
+(`useCarouselViewport.ts`). Cause: the IO effect closes over `slideKeys` from its
+render but reads the live `slidesRef`; when the count drops **in the same commit that
+another effect dependency changes** (a Reset flips `transition`/`slidesPerPage` and
+drops the count at once), the effect re-runs with the pre-drop `slideKeys` while the
+removed slides have already left `slidesRef` in the mutation phase → `observe(undefined)`.
+The fixed-array example pages never change count, so none hit it. Fix: the observe
+setup loop now skips an orphaned key (`const el = slidesRef.current!.get(key); if
+(el) observer.observe(el)`) — the `registerSlide` that unmounted it schedules a fresh
+`slideKeys`, re-running the effect to observe the settled set. Driven by a RED test
+(`Carousel.dynamic-slides.test.tsx`) after making the jsdom IO mock faithfully throw
+on a non-Element (it previously swallowed it). `pnpm --filter @primitiv-ui/react
+qa:units` green at 100% (1700 tests). The dev-alias carries the fix to the
+kitchen-sink.
+
+**Gates:** `pnpm --filter @primitiv-ui/react qa:units` (100%). No Rust/registry/emit
+change, so those gates don't apply; the kitchen-sink page can't build in the sandbox
+(the human verifies live). **Next:** human QA on `/carousel/builder` — drive
 combinations and feed back edge cases to fix.
 
 ## Backlog (examples still to build)

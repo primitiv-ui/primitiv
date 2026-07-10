@@ -1,6 +1,7 @@
 import { NavLink, Navigate, Route, Routes } from "react-router-dom";
 
 import { App } from "./App";
+import { ChromeProvider, ChromeControls } from "./chrome";
 import { CarouselBuilder } from "./pages/CarouselBuilder";
 import { CarouselLayout } from "./pages/CarouselLayout";
 import {
@@ -25,9 +26,16 @@ import "./Shell.css";
 // The kitchen-sink is a single-page consumer demo, but a component with a large
 // example set (Carousel) gets its own nested section: a sidebar of full-page
 // examples under /carousel. `NavLink` sets aria-current="page" automatically.
+//
+// The density / size / theme controls live in one full-width sticky header at
+// the top of the shell (ChromeProvider owns the state), so they persist across
+// every route; the page nav sits just below it.
 export function Shell() {
   return (
-    <>
+    <ChromeProvider>
+      <header className="ks-header">
+        <ChromeControls />
+      </header>
       <nav className="ks-nav">
         <NavLink to="/" end>
           Kitchen Sink
@@ -56,6 +64,6 @@ export function Shell() {
           <Route path="spacing" element={<CarouselSpacing />} />
         </Route>
       </Routes>
-    </>
+    </ChromeProvider>
   );
 }

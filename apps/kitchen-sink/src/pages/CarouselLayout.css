@@ -1,15 +1,6 @@
-/* All selectors scoped under .carousel-layout — no global leak. */
-
-.carousel-layout__chrome {
-  position: sticky;
-  inset-block-start: 0;
-  z-index: 10;
-  display: flex;
-  justify-content: center;
-  padding: var(--primitiv-space-space-12) var(--primitiv-space-space-16);
-  background: var(--primitiv-surface-raised);
-  border-block-end: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
-}
+/* All selectors scoped under .carousel-layout — no global leak. The density /
+ * size / theme header is now global (in the app shell), so this layout starts at
+ * its body; the sidebar sticks below the global header. */
 
 .carousel-layout__body {
   display: grid;

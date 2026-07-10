@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import {
   Accordion,
   AccordionItem,
@@ -47,11 +47,9 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "./components";
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Close, Moon, Search, Sort, Sun } from "@primitiv-ui/icons";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Close, Search, Sort } from "@primitiv-ui/icons";
+import { useChrome } from "./chrome";
 import "./App.css";
-
-type Density = "dense" | "compact" | "comfortable" | "spacious";
-type Size = "xs" | "sm" | "md" | "lg" | "xl";
 
 type Release = { pkg: string; status: string; downloads: number; size: number };
 
@@ -103,9 +101,10 @@ function Section({
 }
 
 export function App(): ReactElement {
-  const [density, setDensity] = useState<Density>("comfortable");
-  const [size, setSize] = useState<Size>("md");
-  const [dark, setDark] = useState(false);
+  // Density and theme are ambient (applied on <html> by the shell's
+  // ChromeProvider); this page only needs `size`, which it threads as a prop to
+  // the components that expose a size axis.
+  const { size } = useChrome();
   const [sort, setSort] = useState<{ key: keyof Release; dir: "asc" | "desc" }>({
     key: "downloads",
     dir: "desc",
@@ -126,70 +125,8 @@ export function App(): ReactElement {
       s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" },
     );
 
-  useEffect(() => {
-    document.documentElement.dataset.density = density;
-  }, [density]);
-
-  useEffect(() => {
-    // Set on <html>, not a sub-region — anything portalled (Modal) mounts to
-    // document.body, outside a scope set on a lower element.
-    document.documentElement.dataset.theme = dark ? "dark" : "light";
-  }, [dark]);
-
   return (
     <div className="kitchen-sink">
-      <header className="kitchen-sink__controls" data-density="dense">
-        <div className="kitchen-sink__control">
-          <svg xmlns="http://www.w3.org/2000/svg" className="kitchen-sink__logo" viewBox="0 0 100 100">
-            <path fill="currentColor" d="M 11.00 77.50 L 16.99 67.14 L 22.97 77.50 Z
-                       M 19.91 62.08 L 29.04 46.28 L 47.08 77.50 L 28.82 77.50 Z
-                       M 31.96 41.22 L 50.00 10.00 L 89.00 77.50 L 52.92 77.50 Z"/>
-          </svg>
-          <span className="kitchen-sink__control-label">Density</span>
-          <ToggleGroup
-            type="single"
-            value={density}
-            onValueChange={(value) => value && setDensity(value as Density)}
-            aria-label="Density"
-          >
-            <ToggleGroupItem value="dense">Dense</ToggleGroupItem>
-            <ToggleGroupItem value="compact">Compact</ToggleGroupItem>
-            <ToggleGroupItem value="comfortable">Comfortable</ToggleGroupItem>
-            <ToggleGroupItem value="spacious">Spacious</ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-
-        <Divider orientation="vertical" />
-
-        <div className="kitchen-sink__control">
-          <span className="kitchen-sink__control-label">Size</span>
-          <ToggleGroup
-            type="single"
-            value={size}
-            onValueChange={(value) => value && setSize(value as Size)}
-            aria-label="Component size"
-          >
-            <ToggleGroupItem value="xs">XS</ToggleGroupItem>
-            <ToggleGroupItem value="sm">SM</ToggleGroupItem>
-            <ToggleGroupItem value="md">MD</ToggleGroupItem>
-            <ToggleGroupItem value="lg">LG</ToggleGroupItem>
-            <ToggleGroupItem value="xl">XL</ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-
-        <Divider orientation="vertical" />
-
-        <div className="kitchen-sink__control">
-          {dark ? <Moon aria-hidden="true" /> : <Sun aria-hidden="true" />}
-          <Switch
-          size='sm'
-            checked={dark}
-            onCheckedChange={setDark}
-            aria-label="Dark mode"
-          />
-        </div>
-      </header>
-
       <Prose asChild>
         <article>
           <h1>Heading 1 - Primitiv Kitchen Sink</h1>

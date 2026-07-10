@@ -16,42 +16,10 @@ body {
 .kitchen-sink {
   max-width: 960px;
   margin-inline: auto;
-  padding: var(--primitiv-space-space-0) var(--primitiv-space-space-16) var(--primitiv-space-space-140);
+  padding: var(--primitiv-space-space-48) var(--primitiv-space-space-16) var(--primitiv-space-space-140);
   display: flex;
   flex-direction: column;
   gap: var(--primitiv-space-space-48);
-}
-
-.kitchen-sink__logo {
-  width: 3.5rem;
-}
-
-.kitchen-sink__controls {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--primitiv-space-space-24);
-  padding: var(--primitiv-space-space-12) var(--primitiv-space-space-16);
-  margin-inline: calc(var(--primitiv-space-space-16) * -1);
-  background: var(--primitiv-surface-raised);
-  border-bottom: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
-}
-
-.kitchen-sink__control {
-  display: flex;
-  align-items: center;
-  gap: var(--primitiv-space-space-8);
-}
-
-.kitchen-sink__control-label {
-  font-family: var(--primitiv-label-xs-font-family);
-  font-size: var(--primitiv-label-xs-font-size);
-  font-weight: var(--primitiv-label-xs-font-weight);
-  color: var(--primitiv-content-secondary);
 }
 
 .kitchen-sink__section {

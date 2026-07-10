@@ -1,6 +1,20 @@
-/* All selectors scoped under .ks-nav — no global leak. The page nav is a plain
- * top bar (not sticky) so it never collides with each page's own sticky header
- * (the kitchen-sink controls, or the carousel chrome bar). */
+/* The global density / size / theme header — full-width, sticky at the top of
+ * every route (mirrors the look of the carousel chrome bar the design started
+ * from). Its content is centred to match the app's centred body. */
+.ks-header {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  padding: var(--primitiv-space-space-12) var(--primitiv-space-space-16);
+  background: var(--primitiv-surface-raised);
+  border-block-end: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+}
+
+/* The page nav sits directly below the sticky header. It stays a plain top bar
+ * (not sticky) so it never collides with each page's own sticky elements (the
+ * carousel sidebar). */
 .ks-nav {
   display: flex;
   gap: var(--primitiv-space-space-16);

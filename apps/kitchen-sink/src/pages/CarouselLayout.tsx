@@ -1,6 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
 
-import { ChromeControls } from "../chrome";
 import "./CarouselLayout.css";
 
 // Each example is a full-page nested route; the sidebar switches between them.
@@ -27,10 +26,6 @@ const EXAMPLES: { to: string; label: string }[] = [
 export function CarouselLayout() {
   return (
     <div className="carousel-layout">
-      <header className="carousel-layout__chrome">
-        <ChromeControls />
-      </header>
-
       <div className="carousel-layout__body">
         <aside className="carousel-layout__sidebar">
           <p className="carousel-layout__eyebrow">Carousel</p>

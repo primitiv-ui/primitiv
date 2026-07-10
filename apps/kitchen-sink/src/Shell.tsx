@@ -34,6 +34,20 @@ export function Shell() {
   return (
     <ChromeProvider>
       <header className="ks-header">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="ks-header__logo"
+          viewBox="0 0 100 100"
+          aria-label="Primitiv"
+          role="img"
+        >
+          <path
+            fill="currentColor"
+            d="M 11.00 77.50 L 16.99 67.14 L 22.97 77.50 Z
+               M 19.91 62.08 L 29.04 46.28 L 47.08 77.50 L 28.82 77.50 Z
+               M 31.96 41.22 L 50.00 10.00 L 89.00 77.50 L 52.92 77.50 Z"
+          />
+        </svg>
         <ChromeControls />
       </header>
       <nav className="ks-nav">

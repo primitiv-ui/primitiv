@@ -10,7 +10,8 @@
 
 .carousel-layout__sidebar {
   position: sticky;
-  inset-block-start: 4rem;
+  /* Flush below the global sticky header (its resting height). */
+  inset-block-start: 3.313rem;
   display: grid;
   gap: var(--primitiv-space-space-8);
   padding: var(--primitiv-space-space-16);

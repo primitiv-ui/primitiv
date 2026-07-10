@@ -5,11 +5,23 @@
   position: sticky;
   inset-block-start: 0;
   z-index: 20;
-  display: flex;
-  justify-content: center;
+  /* Three tracks: the brand at the start, the controls centred in the middle
+   * auto track (flanked by equal 1fr tracks), a balancing empty track at the
+   * end. */
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: var(--primitiv-space-space-16);
   padding: var(--primitiv-space-space-12) var(--primitiv-space-space-16);
   background: var(--primitiv-surface-raised);
   border-block-end: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+}
+
+.ks-header__logo {
+  justify-self: start;
+  inline-size: 2rem;
+  block-size: auto;
+  color: var(--primitiv-content-primary);
 }
 
 /* The page nav sits directly below the sticky header. It stays a plain top bar

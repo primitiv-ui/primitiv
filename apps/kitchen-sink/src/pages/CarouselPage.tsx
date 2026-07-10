@@ -56,6 +56,7 @@ function BasicSingle({
   side,
   distribution,
   align,
+  gap,
 }: {
   label: string;
   radius?: "md" | "none";
@@ -67,6 +68,7 @@ function BasicSingle({
   side?: "before" | "after";
   distribution?: "group" | "stretch";
   align?: "start" | "center" | "end";
+  gap?: "none" | "sm" | "md" | "lg";
 }) {
   return (
     <Carousel
@@ -78,6 +80,7 @@ function BasicSingle({
       side={side}
       distribution={distribution}
       align={align}
+      gap={gap}
     >
       <CarouselViewport>
         {SLIDES.map((bg, i) => (
@@ -291,6 +294,7 @@ function MultiSlide({
   peek,
   padding,
   orientation,
+  gap,
 }: {
   label: string;
   count: number;
@@ -299,6 +303,7 @@ function MultiSlide({
   peek?: "none" | "sm" | "md" | "lg";
   padding?: "none" | "sm" | "md" | "lg";
   orientation?: "horizontal" | "vertical";
+  gap?: "none" | "sm" | "md" | "lg";
 }) {
   const Prev = orientation === "vertical" ? ChevronUp : ChevronLeft;
   const Next = orientation === "vertical" ? ChevronDown : ChevronRight;
@@ -310,6 +315,7 @@ function MultiSlide({
       peek={peek}
       padding={padding}
       orientation={orientation}
+      gap={gap}
     >
       <CarouselViewport>
         {GALLERY.slice(0, count).map((bg, i) => (
@@ -1388,6 +1394,75 @@ export function CarouselFlank() {
           note="A busy composition: flanking controls, a thumbnail strip below, and a peek sliver of the neighbours — every flank-compatible axis at once."
         >
           <FlankSingle label="Flank — thumbnails + peek" indicators="thumbnails" peek="sm" />
+        </GridCell>
+      </div>
+    </Example>
+  );
+}
+
+export function CarouselSpacing() {
+  return (
+    <Example
+      title="Slide spacing — the inter-slide gap"
+      note="A cross-cutting `gap` modifier (none · sm · md · lg) sets the spacing between slides on a t-shirt scale, re-pointing --primitiv-carousel-gap to a spacing token (space-0 / 8 / 16 default / 32). The gap is only visible when more than one slide shares the viewport, so the ladder uses a 2-up view; it runs on the scroll axis (inline horizontal, block vertical) and composes with every other variant. One caveat: the `padding` modifier couples the gap to its inset for a clean framed track, so it overrides `gap` inside a padded track."
+    >
+      <div className="carousel-grid">
+        <GridCell
+          n={1}
+          title="gap none (flush)"
+          note="`gap=none` (space-0): the slides sit flush against each other, no channel between them."
+        >
+          <MultiSlide label="Gap none" count={6} slidesPerPage={2} gap="none" />
+        </GridCell>
+        <GridCell
+          n={2}
+          title="gap sm"
+          note="A small gap (space-8) — a tight channel between the two visible slides."
+        >
+          <MultiSlide label="Gap small" count={6} slidesPerPage={2} gap="sm" />
+        </GridCell>
+        <GridCell
+          n={3}
+          title="gap md (default)"
+          note="The default (space-16) — the spacing every other example uses. `gap=md` is byte-equivalent to the base."
+        >
+          <MultiSlide label="Gap medium" count={6} slidesPerPage={2} gap="md" />
+        </GridCell>
+        <GridCell
+          n={4}
+          title="gap lg"
+          note="A large gap (space-32) — a generous channel; the slide flex-basis shrinks to keep two per page."
+        >
+          <MultiSlide label="Gap large" count={6} slidesPerPage={2} gap="lg" />
+        </GridCell>
+        <GridCell
+          n={5}
+          title="gap lg + peek"
+          note="Composes with peek: the large inter-slide gap shows in the sliver of the next slide revealed past the active one (single-slide view)."
+        >
+          <BasicSingle label="Gap large + peek" gap="lg" peek="md" />
+        </GridCell>
+        <GridCell
+          n={6}
+          title="gap lg + 3-up"
+          note="Composes with multi-slide: three slides per page, each share recomputed from the content box minus the (now larger) gaps."
+        >
+          <MultiSlide label="Gap large, three up" count={6} slidesPerPage={3} gap="lg" />
+        </GridCell>
+        <GridCell
+          n={7}
+          title="gap lg + vertical"
+          note="On the block axis: the gap runs vertically between the stacked slides (two per page, vertical scroll)."
+        >
+          <MultiSlide label="Gap large, vertical" count={6} slidesPerPage={2} gap="lg" orientation="vertical" />
+        </GridCell>
+        <GridCell
+          n={8}
+          title="gap lg + RTL"
+          note="Mirrors under right-to-left — the gap is a logical inline spacing, so it needs no RTL-specific CSS."
+          dir="rtl"
+        >
+          <MultiSlide label="Gap large, RTL" count={6} slidesPerPage={2} gap="lg" />
         </GridCell>
       </div>
     </Example>

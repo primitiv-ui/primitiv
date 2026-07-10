@@ -989,6 +989,35 @@ model in Figma (the current frame is conceptual). No carousel `--primitiv-*`
 variable layer exists (bindings only). **Next:** QA `/carousel/placement`; then
 autoplay/play-pause, or the thumbnails polish.
 
+### Iteration 13 — Slide spacing (`gap` modifier) (awaiting human QA)
+
+**Registry surface (headless-free — pure CSS + a modifier).** A root **`gap`**
+modifier (`none` · `sm` · `md` default · `lg`) re-points the existing
+**`--primitiv-carousel-gap`** knob on a t-shirt scale (`space-0` / `8` / `16` / `32`),
+so the inter-slide spacing is a first-class prop, not a raw knob override. `md`
+(space-16) is byte-equivalent to the prior base, so nothing regresses. It runs on
+the scroll axis in **both** orientations (the viewport `gap` follows flex-direction)
+and composes with every variant — the slide flex-basis already subtracts the gap, so
+multi-slide recomputes automatically. **Placed before the `padding` rules in the
+sheet** so the framed-track gap coupling (padding sets `--gap` = its inset for a
+clean track) still wins when both are set — documented as the one composition where
+`gap` defers. **No headless change** (gap is a slide-layout concern the stylesheet
+owns), so the publish gotcha doesn't apply.
+
+**Built** (`CarouselPage.tsx`, `/carousel/spacing`): an 8-cell grid — the size
+ladder (none/sm/md/lg over a 2-up view, since the gap only shows with >1 slide
+visible), then compositions (gap+peek on a single slide, gap+3-up, gap+vertical
+block-axis, gap+RTL). `MultiSlide` / `BasicSingle` gained a `gap` passthrough. Route
++ sidebar entry ("Slide spacing") wired.
+
+**Regenerated** (recipe/tsx carry the `gap` root prop; styles.scss re-derived) +
+drift-green + kitchen-sink hand-synced. Registry README updated (scope + the `gap`
+modifier). **Gates green:** `cargo test -p primitiv-emit -p primitiv-cli`,
+`node scripts/check-registry-types.mjs`.
+
+**Figma lockstep: pending** human QA. Gap is code-only (no carousel `--primitiv-*`
+variable layer in Figma). **Next:** QA `/carousel/spacing` + `/carousel/placement`.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

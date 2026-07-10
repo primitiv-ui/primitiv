@@ -17,7 +17,7 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K>
  *
  * @see https://primitiv-ui.dev/docs/components/carousel
  */
-export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "padding" | "surface" | "placement" | "side" | "distribution" | "align" | "indicators"> & {
+export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "gap" | "padding" | "surface" | "placement" | "side" | "distribution" | "align" | "indicators"> & {
   /**
    * Reveal a sliver of the adjacent slides on either side of the active one. Works in both orientations (inline edges when horizontal, block edges when vertical).
    * - `none` — No peek — the active slide fills the viewport (the default).
@@ -28,6 +28,16 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
   peek?: "none" | "sm" | "md" | "lg";
+  /**
+   * The spacing between slides. A t-shirt scale re-pointing --primitiv-carousel-gap to a spacing token; `md` is the default. Works in both orientations (the gap runs on the scroll axis) and composes with every other variant. Note: the `padding` modifier couples the gap to its inset for a clean framed track, so it overrides this within a padded track.
+   * - `none` — No gap — the slides sit flush.
+   * - `sm` — A small gap.
+   * - `md` — A medium gap (the default).
+   * - `lg` — A large gap.
+   * @default "md"
+   * @see https://primitiv-ui.dev/docs/components/carousel
+   */
+  gap?: "none" | "sm" | "md" | "lg";
   /**
    * Make the viewport a padded, framed track: pad the slides inward from the viewport edges and draw the track outline (border + rounded corners). The gap is coupled to the padding so the resting track doesn't itself reveal a neighbour; add `peek` for a deliberate reveal within the track. The background fill is opt-in via the `surface` modifier — padding alone renders an outlined track.
    * - `none` — No viewport padding — a bare, frameless scroll box (the default).
@@ -90,10 +100,10 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
   indicators?: "dots" | "thumbnails";
 };
 
-export function Carousel({ peek, padding, surface, placement, side, distribution, align, indicators, slidesPerPage, className, style, ...props }: CarouselProps) {
+export function Carousel({ peek, gap, padding, surface, placement, side, distribution, align, indicators, slidesPerPage, className, style, ...props }: CarouselProps) {
   return (
     <CarouselPrimitive.Root
-      className={[carousel({ peek, padding, surface, placement, side, distribution, align, indicators }), className].filter(Boolean).join(" ")}
+      className={[carousel({ peek, gap, padding, surface, placement, side, distribution, align, indicators }), className].filter(Boolean).join(" ")}
       style={{ ...style, ...(slidesPerPage === undefined ? {} : { "--primitiv-carousel-slides-per-page": slidesPerPage }) } as CSSProperties}
       slidesPerPage={slidesPerPage}
       {...props}

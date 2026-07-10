@@ -324,6 +324,25 @@
     --primitiv-carousel-peek: var(--primitiv-space-space-48);
   }
 
+  /* Slide gap — re-points the inter-slide gap knob on a t-shirt scale. `md`
+     (space-16) is the default the base rule already resolves. Runs on the scroll
+     axis in both orientations and composes with every variant (the slide flex-basis
+     subtracts the gap, so multi-slide recomputes automatically). Declared *before*
+     the padding rules below so the framed-track gap coupling still wins when both
+     are set. */
+  .primitiv-carousel--gap-none {
+    --primitiv-carousel-gap: var(--primitiv-space-space-0);
+  }
+  .primitiv-carousel--gap-sm {
+    --primitiv-carousel-gap: var(--primitiv-space-space-8);
+  }
+  .primitiv-carousel--gap-md {
+    --primitiv-carousel-gap: var(--primitiv-space-space-16);
+  }
+  .primitiv-carousel--gap-lg {
+    --primitiv-carousel-gap: var(--primitiv-space-space-32);
+  }
+
   /* Viewport padding — makes the viewport a padded, framed track: it re-points the
      padding knob (inner inset on every edge) and turns on the track **outline**
      (border + rounded corners), so the padding reads as breathing room inside a

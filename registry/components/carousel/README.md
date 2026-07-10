@@ -15,7 +15,8 @@ expressed in logical properties.
 > **Scope.** The single-slide surface plus cross-cutting options landed so far:
 > **vertical orientation** (`orientation="vertical"` on the headless Root →
 > `data-orientation`, a column-scroll viewport with the controls in a column
-> beside it), **peek** (the `peek` modifier), **viewport padding** (the `padding`
+> beside it), **peek** (the `peek` modifier), **slide spacing** (the `gap` modifier
+> — the inter-slide gap on a t-shirt scale), **viewport padding** (the `padding`
 > modifier — a padded, framed viewport track), a **composable control-placement
 > framework** — a **`placement`** family (`external` default · `overlay` · `flank`)
 > plus three shared layout axes, **`side`** (`before` / `after` — which cross-axis
@@ -60,7 +61,13 @@ so they can't fall out of sync.
 - **Modifiers.** A root **`peek`** modifier (`none` default · `sm` · `md` · `lg`)
   re-points `--primitiv-carousel-peek` to reveal a sliver of the adjacent slides;
   it works in **both** orientations (the viewport maps the peek to the inline
-  edges when horizontal, the block edges when vertical). A root **`padding`**
+  edges when horizontal, the block edges when vertical). A root **`gap`** modifier
+  (`none` · `sm` · `md` default · `lg`) re-points `--primitiv-carousel-gap` — the
+  spacing between slides — on a t-shirt scale (`space-0` / `8` / `16` / `32`); it
+  runs on the scroll axis in either orientation and composes with everything (the
+  slide flex-basis subtracts the gap, so multi-slide recomputes automatically).
+  Note the `padding` modifier couples the gap to its inset for a clean framed track,
+  so it overrides `gap` inside a padded track. A root **`padding`**
   modifier (`none` default · `sm` · `md` · `lg`) makes the **viewport a padded,
   framed track**: it re-points `--primitiv-carousel-viewport-padding` (inner inset
   on every edge) *and* draws the track **outline** (the

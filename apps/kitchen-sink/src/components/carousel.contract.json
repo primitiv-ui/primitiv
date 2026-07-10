@@ -29,6 +29,17 @@
       ]
     },
     {
+      "name": "gap",
+      "default": "md",
+      "description": "The spacing between slides. A t-shirt scale re-pointing --primitiv-carousel-gap to a spacing token; `md` is the default. Works in both orientations (the gap runs on the scroll axis) and composes with every other variant. Note: the `padding` modifier couples the gap to its inset for a clean framed track, so it overrides this within a padded track.",
+      "options": [
+        { "name": "none", "class": "primitiv-carousel--gap-none", "description": "No gap — the slides sit flush." },
+        { "name": "sm", "class": "primitiv-carousel--gap-sm", "description": "A small gap." },
+        { "name": "md", "class": "primitiv-carousel--gap-md", "description": "A medium gap (the default)." },
+        { "name": "lg", "class": "primitiv-carousel--gap-lg", "description": "A large gap." }
+      ]
+    },
+    {
       "name": "padding",
       "default": "none",
       "description": "Make the viewport a padded, framed track: pad the slides inward from the viewport edges and draw the track outline (border + rounded corners). The gap is coupled to the padding so the resting track doesn't itself reveal a neighbour; add `peek` for a deliberate reveal within the track. The background fill is opt-in via the `surface` modifier — padding alone renders an outlined track.",

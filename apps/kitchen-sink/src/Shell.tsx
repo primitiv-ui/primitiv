@@ -17,6 +17,7 @@ import {
   CarouselRatio,
   CarouselFlank,
   CarouselPlacement,
+  CarouselSpacing,
 } from "./pages/CarouselPage";
 import "./Shell.css";
 
@@ -50,6 +51,7 @@ export function Shell() {
           <Route path="ratio" element={<CarouselRatio />} />
           <Route path="flank" element={<CarouselFlank />} />
           <Route path="placement" element={<CarouselPlacement />} />
+          <Route path="spacing" element={<CarouselSpacing />} />
         </Route>
       </Routes>
     </>

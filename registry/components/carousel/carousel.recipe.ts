@@ -15,6 +15,12 @@ export const carousel = cva("primitiv-carousel", {
       md: "primitiv-carousel--peek-md",
       lg: "primitiv-carousel--peek-lg",
     },
+    gap: {
+      none: "primitiv-carousel--gap-none",
+      sm: "primitiv-carousel--gap-sm",
+      md: "primitiv-carousel--gap-md",
+      lg: "primitiv-carousel--gap-lg",
+    },
     padding: {
       none: "primitiv-carousel--padding-none",
       sm: "primitiv-carousel--padding-sm",
@@ -50,6 +56,7 @@ export const carousel = cva("primitiv-carousel", {
   },
   defaultVariants: {
     peek: "none",
+    gap: "md",
     padding: "none",
     surface: "none",
     placement: "external",

@@ -234,11 +234,11 @@ export function useCarouselViewport() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        // Both lookups (slideKeys.findIndex → registered key, and the
-        // slidesRef get → element) are guaranteed to resolve: the
-        // observer only observes elements registered into slidesRef
-        // alongside their slideKey, and is disconnected on cleanup
-        // before slides can unmount.
+        // The live observer only observes elements still present in
+        // slidesRef (the setup loop skips orphaned keys), and a stale
+        // observer is disconnected on cleanup when the effect re-runs, so
+        // by the time a callback fires both lookups (slideKeys.findIndex →
+        // registered key, and the slidesRef get → element) resolve.
         for (const entry of entries) {
           const idx = slideKeys.findIndex(
             (key) => slidesRef.current!.get(key) === entry.target,
@@ -270,7 +270,14 @@ export function useCarouselViewport() {
     );
 
     for (const key of slideKeys) {
-      observer.observe(slidesRef.current!.get(key)!);
+      // A slide can unmount in the same commit that re-runs this effect — a
+      // dynamic slide-count drop removes its element from slidesRef during the
+      // mutation phase while this effect still closes over the pre-drop
+      // slideKeys. Skip the orphaned key; the registerSlide that unmounted it
+      // schedules a fresh slideKeys, re-running this effect to observe the
+      // settled set.
+      const element = slidesRef.current!.get(key);
+      if (element) observer.observe(element);
     }
 
     return () => observer.disconnect();

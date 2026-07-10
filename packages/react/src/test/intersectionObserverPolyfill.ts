@@ -41,6 +41,13 @@ export class MockIntersectionObserver {
   }
 
   observe(target: Element) {
+    // Mirror the browser: `observe` throws a TypeError when handed anything
+    // that is not an Element (e.g. `undefined` from a stale slide lookup).
+    if (!(target instanceof Element)) {
+      throw new TypeError(
+        "Failed to execute 'observe' on 'IntersectionObserver': parameter 1 is not of type 'Element'.",
+      );
+    }
     this.observed.add(target);
   }
   unobserve(target: Element) {

@@ -73,15 +73,15 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    */
   side?: "after" | "before";
   /**
-   * How the external control bar spreads its parts along its edge. `group` (the default) bunches prev/indicators/next together with a fixed gap; `stretch` pushes prev and next to the two extremes with the indicators centred between them (space-between across the full edge). Only the `external` family reads this — `flank` and `overlay` ignore it.
-   * - `group` — Bunch prev/indicators/next together with a fixed gap, positioned by `align` (the default).
-   * - `stretch` — Push prev/next to the extremes with the indicators centred — the bar fills its edge (space-between).
+   * How the controls spread along their edge. In `external` it drives the whole prev/indicators/next bar — `group` (the default) bunches them, `stretch` pushes prev/next to the extremes with the indicators centred (space-between). In `overlay` / `flank` it governs the indicator cluster instead (prev/next stay pinned to the family's edges) — `group` bunches the dots, `stretch` spreads them across the full edge. No-op for vertical overlay, where the controls share one lane.
+   * - `group` — Bunch the controls together with a fixed gap, positioned by `align` (the default).
+   * - `stretch` — Spread the controls across the full edge (space-between) — prev/next to the extremes in `external`, the indicator dots edge-to-edge in `overlay` / `flank`.
    * @default "group"
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
   distribution?: "group" | "stretch";
   /**
-   * Where the grouped external control bar sits along its edge (only read under `distribution=group`; `stretch` fills the whole edge, so alignment is moot). `center` is the default; `start` / `end` pin the cluster to the leading / trailing end of the edge. Logical, so it mirrors under RTL and follows the scroll axis when vertical.
+   * Where the grouped controls sit along their edge (only read under `distribution=group`; `stretch` fills the edge, so alignment is moot). `center` is the default; `start` / `end` pin the cluster to the leading / trailing end. Applies to the `external` bar and the `overlay` / `flank` indicator cluster (no-op for vertical overlay). Logical, so it mirrors under RTL and follows the scroll axis when vertical.
    * - `start` — Pin the control cluster to the start of the edge (left / top, mirrored under RTL).
    * - `center` — Centre the control cluster on the edge (the default).
    * - `end` — Pin the control cluster to the end of the edge (right / bottom, mirrored under RTL).

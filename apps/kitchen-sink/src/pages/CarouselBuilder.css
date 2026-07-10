@@ -84,6 +84,16 @@
   font-size: 0.85rem;
 }
 
+/* A field that's a no-op for the current combination — greyed, with the reason. */
+.carousel-builder__field:disabled {
+  opacity: 0.45;
+}
+
+.carousel-builder__na {
+  color: var(--primitiv-content-muted);
+  font-style: italic;
+}
+
 .carousel-builder__radios {
   display: flex;
   flex-wrap: wrap;

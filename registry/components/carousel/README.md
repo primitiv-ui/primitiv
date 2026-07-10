@@ -94,15 +94,18 @@ so they can't fall out of sync.
   below when horizontal, the end/right side when vertical; `before` = above /
   start), so it composes with `orientation` to reach all four physical edges and
   mirrors under RTL; **`distribution`** (`group` default · `stretch`) — how the
-  external bar spreads its parts (`group` bunches them with a fixed gap; `stretch`
-  pushes prev/next to the extremes with the indicators centred, `space-between`
-  across the whole edge); and **`align`** (`start` · `center` default · `end`) —
-  where a *grouped* bar sits along its edge (moot under `stretch`). The defaults
-  (`external` · `after` · `group` · `center`) reproduce the classic controls-row
-  below. `distribution` / `align` are read only by the `external` family; `side` is
-  read by **all three** families — for `overlay` it moves the dots pill (top vs
-  bottom when horizontal) and, when vertical, the whole up/pill/down control lane
-  (inline-start vs inline-end).
+  controls spread along their edge (`group` bunches them with a fixed gap; `stretch`
+  is `space-between` across the whole edge); and **`align`** (`start` · `center`
+  default · `end`) — where a *grouped* cluster sits along its edge (moot under
+  `stretch`). The defaults (`external` · `after` · `group` · `center`) reproduce the
+  classic controls-row below. All three families read **`distribution`** / **`align`**:
+  in `external` they drive the whole prev/indicators/next bar; in `overlay` / `flank`
+  they govern the **indicator cluster** (the dots pill / row — prev/next stay pinned
+  to the family's edges), the one exception being **vertical overlay**, where
+  up/pill/down share a single lane so both axes are a no-op. **`side`** is likewise
+  read by all three — for `overlay` it moves the dots pill (top vs bottom when
+  horizontal) and, when vertical, the whole up/pill/down control lane (inline-start
+  vs inline-end).
 
   For **`overlay`**, prev/next absolutely flank the slide edges on a translucent
   `neutral-alpha` scrim and the dots ride a pill overlaid on the slide (no

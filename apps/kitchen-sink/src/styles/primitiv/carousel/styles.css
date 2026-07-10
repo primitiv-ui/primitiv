@@ -738,6 +738,71 @@
     justify-self: center;
   }
 
+  /* ── Indicator-cluster align / distribution for overlay + flank ──
+     In `external` the align/distribution axes drive the whole prev/indicators/next
+     bar (above). In `overlay` and `flank` the prev/next are pinned to the family's
+     edges, so these axes instead govern the **indicator cluster**: `align` positions
+     it along its edge, `distribution=stretch` spreads it across the full edge (dots
+     space-between); prev/next stay put. `align=center` + `distribution=group` is the
+     base look, so only start/end/stretch override. Vertical overlay is the one
+     exception: up/pill/down share a single lane there, so the axes stay a no-op (the
+     Builder greys them out). */
+
+  /* Flank (both orientations): the indicator group fills its grid cell along the
+     edge, so its own justify-content positions the dots — the flex main-axis follows
+     orientation (row when horizontal, column when vertical), exactly like the
+     external bar. */
+  .primitiv-carousel--placement-flank.primitiv-carousel--distribution-group.primitiv-carousel--align-start
+    .primitiv-carousel__indicator-group {
+    justify-content: flex-start;
+  }
+  .primitiv-carousel--placement-flank.primitiv-carousel--distribution-group.primitiv-carousel--align-end
+    .primitiv-carousel__indicator-group {
+    justify-content: flex-end;
+  }
+  .primitiv-carousel--placement-flank.primitiv-carousel--distribution-stretch
+    .primitiv-carousel__indicator-group {
+    justify-content: space-between;
+  }
+
+  /* Horizontal overlay: the dots pill is absolutely positioned, so `align` moves it
+     along its edge via the inline insets and `distribution=stretch` spans it the full
+     slide width with the dots space-between. The edge inset matches the pill's own
+     edge clearance (frame + peek + control inset), so an aligned pill lines up with
+     the prev/next controls. Scoped away from vertical overlay, where the pill shares
+     the up/down lane. */
+  .primitiv-carousel--placement-overlay:not([data-orientation="vertical"]).primitiv-carousel--distribution-group.primitiv-carousel--align-start
+    .primitiv-carousel__indicator-group {
+    inset-inline-start: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+    inset-inline-end: auto;
+    margin-inline: 0;
+  }
+  .primitiv-carousel--placement-overlay:not([data-orientation="vertical"]).primitiv-carousel--distribution-group.primitiv-carousel--align-end
+    .primitiv-carousel__indicator-group {
+    inset-inline-end: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+    inset-inline-start: auto;
+    margin-inline: 0;
+  }
+  .primitiv-carousel--placement-overlay:not([data-orientation="vertical"]).primitiv-carousel--distribution-stretch
+    .primitiv-carousel__indicator-group {
+    inset-inline: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+    margin-inline: 0;
+    inline-size: auto;
+    justify-content: space-between;
+  }
+
   /* Thumbnails — swap the dot indicators for rounded-rect image thumbnails (the
      gallery pattern). The consumer supplies each thumbnail as children of a
      `<CarouselIndicator>` (an <img> or a background element). `dots` is the

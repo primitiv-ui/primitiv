@@ -1092,6 +1092,46 @@ change, so those gates don't apply; the kitchen-sink page can't build in the san
 (the human verifies live). **Next:** human QA on `/carousel/builder` — drive
 combinations and feed back edge cases to fix.
 
+### Builder QA #1 — distribution/align extended to overlay + flank (awaiting human QA)
+
+**The Builder's first find.** Toggling `distribution`/`align` in `overlay` or `flank`
+did nothing — every `distribution-*`/`align-*` rule targeted `.__controls`, the bar
+that only exists in `external` (iteration 12 scoped them external-only by design). The
+human wanted absolute composability, so we extended them — with the **indicator-cluster
+semantic** (see the reasoning in the session): prev/next are structurally pinned to
+each family's edges (that pinning *is* the family), so in overlay/flank the axes govern
+the **indicator cluster** instead, mirroring how they drive the whole bar in external.
+
+**Registry surface (headless-free — pure CSS + contract-doc update).**
+- **Flank** (both orientations, both sides): the indicator group fills its grid cell,
+  so its own `justify-content` positions the dots — the flex main-axis already follows
+  orientation (row/column), exactly like the external bar. `align` → `flex-start`/
+  `center`/`flex-end`; `distribution=stretch` → `space-between`. 3 rules.
+- **Overlay horizontal** (both sides): the pill is absolute, so `align` moves it via
+  `inset-inline-start`/`-end` (edge inset = the same frame + peek + control-inset the
+  pill already clears, so it lines up with prev/next) and `distribution=stretch` spans
+  it full-width with `space-between`. Scoped `:not([data-orientation="vertical"])`.
+- **Vertical overlay = the one no-op** (documented, not faked): up/pill/down share a
+  single inline-end lane with no wrapper to reposition them as a unit, so `align`/
+  `distribution` on the pill would collide with the up/down controls. Left inert.
+- Defaults (`group`·`center`) hit no override in either family, so nothing regresses.
+
+**Builder** greys the fields where an axis is a no-op: `align` under
+`distribution=stretch` (everywhere) and **both** under vertical overlay, each with a
+short reason in the legend (`<fieldset disabled>` + a muted italic note).
+
+**Contract descriptions** for `distribution`/`align` updated (they said "external
+only" — now false); regenerated `carousel.tsx` (JSDoc) + `styles.scss` (from the CSS)
+via the throwaway emit example, **recipe unchanged** (it embeds no descriptions) +
+drift-green + kitchen-sink hand-synced (styles.css, contract, tsx). Registry README's
+placement-framework paragraph rewritten.
+
+**Gates green:** `cargo test -p primitiv-emit -p primitiv-cli` (20 + 106),
+`node scripts/check-registry-types.mjs`. (No headless change — Carousel vitest not
+needed.) **Figma lockstep: pending** (code-only; no carousel variable layer). **Next:**
+human QA of `/carousel/builder` — confirm align/distribution now respond in overlay +
+flank and are greyed where inert.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

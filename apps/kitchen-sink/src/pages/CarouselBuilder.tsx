@@ -137,16 +137,27 @@ function RadioField<T extends string>({
   value,
   options,
   onChange,
+  disabled = false,
+  note,
 }: {
   legend: string;
   name: string;
   value: T;
   options: readonly T[];
   onChange: (value: T) => void;
+  // When an axis is a no-op for the current combination (e.g. align under
+  // distribution=stretch), the field is greyed out with a short reason.
+  disabled?: boolean;
+  note?: string;
 }) {
   return (
-    <fieldset className="carousel-builder__field">
-      <legend className="carousel-builder__legend">{legend}</legend>
+    <fieldset className="carousel-builder__field" disabled={disabled}>
+      <legend className="carousel-builder__legend">
+        {legend}
+        {disabled && note ? (
+          <span className="carousel-builder__na"> — {note}</span>
+        ) : null}
+      </legend>
       <div className="carousel-builder__radios">
         {options.map((option) => (
           <label key={option} className="carousel-builder__radio">
@@ -343,6 +354,14 @@ export function CarouselBuilder() {
     setConfig((current) => ({ ...current, [key]: value }));
   }
 
+  // distribution/align govern the external bar and the overlay/flank indicator
+  // cluster — except vertical overlay, where up/pill/down share one lane, so both
+  // are inert there. align is also moot under distribution=stretch (the cluster
+  // already fills its edge).
+  const verticalOverlay =
+    config.placement === "overlay" && config.orientation === "vertical";
+  const alignDisabled = verticalOverlay || config.distribution === "stretch";
+
   return (
     <article className="carousel-builder">
       <header className="carousel-builder__intro">
@@ -398,6 +417,8 @@ export function CarouselBuilder() {
               value={config.distribution}
               options={["group", "stretch"] as const}
               onChange={(value) => set("distribution", value)}
+              disabled={verticalOverlay}
+              note="n/a for vertical overlay"
             />
             <RadioField
               legend="align"
@@ -405,6 +426,12 @@ export function CarouselBuilder() {
               value={config.align}
               options={["start", "center", "end"] as const}
               onChange={(value) => set("align", value)}
+              disabled={alignDisabled}
+              note={
+                verticalOverlay
+                  ? "n/a for vertical overlay"
+                  : "n/a when distribution=stretch"
+              }
             />
             <CheckField
               label={'RTL (dir="rtl")'}

@@ -984,14 +984,21 @@ the tray jumped to the wrong corner and lost its edge distance (QA caught it).
 `grid-auto-flow: column` greedily overfilled the first column to the cap, leaving a
 lopsided 6+2 stub (QA). **Round 3d: CSS multi-column** — balanced the columns
 (4+4) but its intrinsic width collapses to one column, so the 2nd column overflowed
-the tray + slide (QA). **Settled on CSS Grid (round 3c) as final:** grid's intrinsic
-width is the sum of its column tracks, so `inline-size: fit-content` grows to
-*contain* every column (the requirement); it fills greedily rather than balancing,
-but pure CSS can't do both without knowing the dot count, and in a real full-size
-vertical carousel the dots fit one column and never wrap — the greedy split only
-shows in the deliberately cramped demo cell. (A perfectly-balanced *and* contained
-layout would need a count-driven track count = a small JS/headless enhancement,
-deferred as not worth it for this niche combo.)
+the tray + slide (QA). grid's intrinsic
+width contains the columns but `grid-auto-flow: column` filled greedily (6+2). **Round
+3e (final): `:has()` quantity queries.** The human asked for the balanced enhancement;
+it turned out to need no JS/attr at all. A `:has(> :nth-child(N))` quantity query reads
+the dot **count** structurally (`:has` is cross-browser since 2023) and sets an
+*explicit* grid column count (≥6 → 2 cols, ≥11 → 3, ≈5/col); grid's **row-major**
+auto-flow then **balances** the dots across those columns (8 → 4+4) and its intrinsic
+width grows to **contain** them. This is the combination neither greedy-grid (no
+balance) nor multicol (no width growth) could give — pure CSS, no writing-mode, so the
+logical inline-end lane + RTL mirroring stay intact. Trade-off: count-driven (fixed
+≈5/col threshold), not exact to the slide height, and the dot order is row-major (a
+compact block, not a single top-to-bottom list) — both fine for a secondary indicator.
+On `attr()`: reading `data-*` into a numeric layout value is CSS Values 5, Chrome-only
+(133+, 2025), not cross-browser — the portable fallback is a custom property via inline
+style, but `:has()` sidesteps needing a count from JS entirely.
 
 **Figma lockstep: pending** human QA + a later dedicated build of the placement
 model in Figma (the current frame is conceptual). No carousel `--primitiv-*`

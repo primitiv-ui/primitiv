@@ -869,25 +869,21 @@
   }
   .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--indicators-dots
     .primitiv-carousel__indicator-group {
-    /* Cap the dot lane between the up/down controls and, when the dots exceed that
-       height, flow them into extra columns — the grid **widening to contain them**
-       (its intrinsic width is the sum of the column tracks, so `inline-size:
-       fit-content` grows to hold every column; multicol balances but its width
-       collapses to one column and overflows; flex column-wrap won't grow the width
-       at all). `grid-auto-flow: column` fills top→bottom then wraps sideways;
-       `auto-fit` collapses the unused row tracks so a short dot run still hugs its
-       height and stays centred. No writing-mode, so the group keeps its logical
-       inline-end lane + RTL mirroring. (Grid fills greedily rather than balancing —
-       CSS can't do both without knowing the dot count — but in a real full-size
-       vertical carousel the dots fit one column and don't wrap; the split only shows
-       in this deliberately cramped demo cell.) */
+    /* When the dots exceed the lane height, balance them into extra columns — the
+       grid **widening to contain them** (its intrinsic width is the sum of its
+       column tracks, so `inline-size: fit-content` grows to hold every column;
+       multicol balances but its width collapses to one column and overflows, flex
+       column-wrap won't grow at all). Rather than measure the fit (CSS can't derive a
+       track count from a length), a `:has()` quantity query below reads the dot COUNT
+       and sets the column count; grid's row-major auto-flow then balances the dots
+       across those columns (8 → 4+4). It's count-driven, not height-exact — but that
+       is the case that matters (a short overlay slide with many dots), and the
+       `max-block-size` cap keeps a column between the up/down controls. Pure CSS, no
+       writing-mode, so the group keeps its logical inline-end lane + RTL mirroring. */
     display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: max-content;
-    grid-template-rows: repeat(
-      auto-fit,
-      var(--primitiv-carousel-indicator-hit-area)
-    );
+    grid-auto-flow: row;
+    grid-template-columns: max-content;
+    grid-auto-rows: var(--primitiv-carousel-indicator-hit-area);
     column-gap: var(--primitiv-space-space-4);
     row-gap: var(--primitiv-space-space-0);
     max-inline-size: none;
@@ -901,6 +897,17 @@
             var(--primitiv-carousel-control-size)
         )
     );
+  }
+  /* Quantity queries: read the dot count and add balanced columns (≈5 dots per
+     column). `:has(> :nth-child(N))` matches a group with at least N indicators; the
+     grid then balances the dots row-major across the columns and widens to fit. */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--indicators-dots
+    .primitiv-carousel__indicator-group:has(> :nth-child(6)) {
+    grid-template-columns: repeat(2, max-content);
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--indicators-dots
+    .primitiv-carousel__indicator-group:has(> :nth-child(11)) {
+    grid-template-columns: repeat(3, max-content);
   }
 
   /* Fade transition (headless `transition="fade"` → data-transition="fade").

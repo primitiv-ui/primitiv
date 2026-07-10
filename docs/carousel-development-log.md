@@ -980,12 +980,14 @@ column (the well-known flex **column-wrap width-collapse** bug). First tried
 rotating the flow with `writing-mode: vertical-lr` — it widened correctly but
 **remapped the group's logical insets** (`inset-inline-end` → physical bottom), so
 the tray jumped to the wrong corner and lost its edge distance (QA caught it).
-**Round 3c fix: CSS Grid instead** — `grid-auto-flow: column` + `grid-template-rows:
-repeat(auto-fit, hit-area)` under the `max-block-size` cap: the row tracks auto-fit
-into the capped height and extra dots flow into a new column, the grid **widening to
-hold it** (grid has no column-wrap width bug); `auto-fit` collapses unused rows so a
-short run still hugs + centres. Grid needs no writing-mode, so the group's logical
-positioning (inline-end lane, RTL mirroring) stays intact.
+**Round 3c: CSS Grid** — fixed the positioning (no writing-mode remap) but
+`grid-auto-flow: column` greedily overfilled the first column to the cap, leaving a
+lopsided 6+2 stub (QA). **Round 3d fix: CSS multi-column** — `column-width: hit-area`
++ the `max-block-size` cap: with the height capped the browser adds *balanced*
+columns as needed (dots stack as block-level `> button { display: grid }` items,
+`break-inside: avoid`). Balanced, widens to hold the columns, and — like grid — needs
+no writing-mode, so the group keeps its logical inline-end lane + RTL mirroring and
+`inline-size: fit-content` shrinks to the used columns.
 
 **Figma lockstep: pending** human QA + a later dedicated build of the placement
 model in Figma (the current frame is conceptual). No carousel `--primitiv-*`

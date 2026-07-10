@@ -869,24 +869,18 @@
   }
   .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--indicators-dots
     .primitiv-carousel__indicator-group {
-    /* Flex column-wrap can't grow the container width to hold wrapped columns (a
-       long-standing bug), so use grid: the row tracks auto-fit into the capped
-       height and extra dots flow into a new column, the grid widening to hold it.
-       `auto-fit` collapses the unused row tracks so a short dot run still hugs its
-       height and stays centred; `grid-auto-flow: column` fills top→bottom then wraps
-       sideways. Grid keeps the group's logical positioning intact (no writing-mode
-       remap), so the lane still rides the inline-end side and mirrors under RTL. The
-       inherited `inline-size: fit-content` widens with the columns; `max-block-size`
-       caps the height between the up/down controls; `margin-block: auto` centres it. */
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: max-content;
-    grid-template-rows: repeat(
-      auto-fit,
-      var(--primitiv-carousel-indicator-hit-area)
-    );
+    /* Cap the dot lane between the up/down controls and, when the dots exceed that
+       height, balance them into extra columns (the tray widening to hold them). CSS
+       multi-column does this cleanly: `column-width` sets the dot column and, with
+       the height capped, the browser adds *balanced* columns as needed — flex
+       column-wrap can't grow the container width (a long-standing bug) and an
+       auto-fit grid greedily overfills the first column, leaving a lopsided stub.
+       No writing-mode, so the group keeps its logical inline-end lane + RTL
+       mirroring; the inherited `inline-size: fit-content` shrinks to the used
+       columns and `margin-block: auto` centres the lane. */
+    display: block;
+    column-width: var(--primitiv-carousel-indicator-hit-area);
     column-gap: var(--primitiv-space-space-4);
-    row-gap: var(--primitiv-space-space-0);
     max-inline-size: none;
     max-block-size: calc(
       100% - 2 *
@@ -898,6 +892,14 @@
             var(--primitiv-carousel-control-size)
         )
     );
+  }
+  /* The dot buttons stack as block-level items in the column flow (kept whole across
+     the column break); place-items still centres each dot in its hit area. */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--indicators-dots
+    .primitiv-carousel__indicator-group
+    > button {
+    display: grid;
+    break-inside: avoid;
   }
 
   /* Fade transition (headless `transition="fade"` → data-transition="fade").

@@ -255,6 +255,8 @@
      consumer wiring one indicator per slide. */
   .primitiv-carousel__indicator,
   .primitiv-carousel__indicator-group > button {
+    /* Positioning context for the absolutely-centred dot below. */
+    position: relative;
     display: inline-grid;
     place-items: center;
     min-inline-size: var(--primitiv-carousel-indicator-hit-area);
@@ -266,6 +268,12 @@
   .primitiv-carousel__indicator::before,
   .primitiv-carousel__indicator-group > button::before {
     content: "";
+    /* Absolutely centred (inset:0 + margin:auto) so growing into the active pill
+       never changes the button footprint — otherwise the group's width would flex
+       mid-transition and wobble the prev/next controls. */
+    position: absolute;
+    inset: 0;
+    margin: auto;
     inline-size: var(--primitiv-carousel-indicator-size);
     block-size: var(--primitiv-carousel-indicator-size);
     /* radii-full is a circle on the square dot and a stadium once the active dot

@@ -1,3 +1,4 @@
+import { useEffect, useId } from "react";
 import type { ReactElement } from "react";
 
 import { composeEventHandlers } from "../Slot/index.ts";
@@ -11,7 +12,9 @@ import {
 import type {
   PopoverCloseProps,
   PopoverContentProps,
+  PopoverDescriptionProps,
   PopoverRootProps,
+  PopoverTitleProps,
   PopoverTriggerProps,
 } from "./types";
 
@@ -91,6 +94,50 @@ export function PopoverClose({
 /** @internal */
 PopoverClose.displayName = "PopoverClose";
 
+export function PopoverTitle({
+  children,
+  ...rest
+}: PopoverTitleProps): ReactElement {
+  const { registerTitle } = usePopoverContext();
+  const id = useId();
+
+  useEffect(() => {
+    registerTitle(id);
+    return () => registerTitle(undefined);
+  }, [registerTitle, id]);
+
+  return (
+    <h2 id={id} {...rest}>
+      {children}
+    </h2>
+  );
+}
+
+/** @internal */
+PopoverTitle.displayName = "PopoverTitle";
+
+export function PopoverDescription({
+  children,
+  ...rest
+}: PopoverDescriptionProps): ReactElement {
+  const { registerDescription } = usePopoverContext();
+  const id = useId();
+
+  useEffect(() => {
+    registerDescription(id);
+    return () => registerDescription(undefined);
+  }, [registerDescription, id]);
+
+  return (
+    <p id={id} {...rest}>
+      {children}
+    </p>
+  );
+}
+
+/** @internal */
+PopoverDescription.displayName = "PopoverDescription";
+
 /** Type of the {@link Popover} compound — the Root callable plus its sub-components. */
 type PopoverCompound = typeof PopoverRoot & {
   /** The root, owning open state and context. */
@@ -101,6 +148,10 @@ type PopoverCompound = typeof PopoverRoot & {
   Content: typeof PopoverContent;
   /** A button that closes the popover. */
   Close: typeof PopoverClose;
+  /** The popover's accessible name; auto-wires `aria-labelledby`. */
+  Title: typeof PopoverTitle;
+  /** The popover's accessible description; auto-wires `aria-describedby`. */
+  Description: typeof PopoverDescription;
 };
 
 const PopoverCompound: PopoverCompound = Object.assign(PopoverRoot, {
@@ -108,6 +159,8 @@ const PopoverCompound: PopoverCompound = Object.assign(PopoverRoot, {
   Trigger: PopoverTrigger,
   Content: PopoverContent,
   Close: PopoverClose,
+  Title: PopoverTitle,
+  Description: PopoverDescription,
 });
 
 PopoverCompound.displayName = "Popover";

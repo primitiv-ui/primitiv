@@ -9,7 +9,8 @@ type UsePopoverContentArgs = {
 };
 
 export function usePopoverContent({ onKeyDown }: UsePopoverContentArgs = {}) {
-  const { open, setOpen, contentId, triggerRef } = usePopoverContext();
+  const { open, setOpen, contentId, triggerRef, titleId, descriptionId } =
+    usePopoverContext();
   const contentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -72,6 +73,8 @@ export function usePopoverContent({ onKeyDown }: UsePopoverContentArgs = {}) {
     role: "dialog" as const,
     popover: "auto" as const,
     tabIndex: -1,
+    "aria-labelledby": titleId,
+    "aria-describedby": descriptionId,
     "data-state": (open ? "open" : "closed") as "open" | "closed",
     onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
   };

@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useId, useMemo, useRef } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { useControllableState } from "../../hooks/index.ts";
 import { PopoverContextValue } from "../types";
@@ -40,9 +47,37 @@ export function usePopoverRoot({
     [setOpenBase],
   );
 
+  const [titleId, setTitleId] = useState<string | undefined>(undefined);
+  const [descriptionId, setDescriptionId] = useState<string | undefined>(
+    undefined,
+  );
+  const registerTitle = useCallback((id: string | undefined) => {
+    setTitleId(id);
+  }, []);
+  const registerDescription = useCallback((id: string | undefined) => {
+    setDescriptionId(id);
+  }, []);
+
   const contextValue = useMemo<PopoverContextValue>(
-    () => ({ open, setOpen, triggerRef, contentId }),
-    [open, setOpen, contentId],
+    () => ({
+      open,
+      setOpen,
+      triggerRef,
+      contentId,
+      titleId,
+      descriptionId,
+      registerTitle,
+      registerDescription,
+    }),
+    [
+      open,
+      setOpen,
+      contentId,
+      titleId,
+      descriptionId,
+      registerTitle,
+      registerDescription,
+    ],
   );
 
   return { contextValue };

@@ -67,6 +67,22 @@ export type PopoverCloseProps = ComponentProps<"button"> & {
   asChild?: boolean;
 };
 
+/** Props for `Popover.Title`, the popover's accessible name. */
+export type PopoverTitleProps = ComponentProps<"h2"> & {
+  /** Title content. */
+  children?: ReactNode;
+  /** Render the child element instead of the default `<h2>`. */
+  asChild?: boolean;
+};
+
+/** Props for `Popover.Description`, the popover's accessible description. */
+export type PopoverDescriptionProps = ComponentProps<"p"> & {
+  /** Description content. */
+  children?: ReactNode;
+  /** Render the child element instead of the default `<p>`. */
+  asChild?: boolean;
+};
+
 /** Value shared through Popover context to all sub-components. */
 export type PopoverContextValue = {
   /** Whether the popover is currently open. */
@@ -77,4 +93,12 @@ export type PopoverContextValue = {
   triggerRef: RefObject<HTMLButtonElement | null>;
   /** Generated id of the content panel. */
   contentId: string;
+  /** Id of the rendered `Popover.Title`, or `undefined` when absent. */
+  titleId: string | undefined;
+  /** Id of the rendered `Popover.Description`, or `undefined` when absent. */
+  descriptionId: string | undefined;
+  /** Register (or clear) the title id for `aria-labelledby`. */
+  registerTitle: (id: string | undefined) => void;
+  /** Register (or clear) the description id for `aria-describedby`. */
+  registerDescription: (id: string | undefined) => void;
 };

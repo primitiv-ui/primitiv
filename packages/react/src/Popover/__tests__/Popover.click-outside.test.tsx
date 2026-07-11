@@ -91,6 +91,40 @@ describe("Popover light-dismiss", () => {
     expect(content).toHaveAttribute("data-state", "open");
   });
 
+  it("skips the document-click fallback when the native Popover API is present", async () => {
+    // Simulate a real browser (native light-dismiss + toggle event handle
+    // outside clicks). The document-click fallback must not run there — it
+    // would catch the click that opened the popover from an external control
+    // and re-close it. With the fallback gated out and no native light-dismiss
+    // in jsdom, an outside click leaves the popover open.
+    Object.defineProperty(HTMLElement.prototype, "popover", {
+      configurable: true,
+      get() {
+        return "auto";
+      },
+    });
+    try {
+      const user = userEvent.setup();
+      render(
+        <div>
+          <Popover.Root defaultOpen>
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Content data-testid="content">Content</Popover.Content>
+          </Popover.Root>
+          <button type="button">Outside</button>
+        </div>,
+      );
+      const content = screen.getByTestId("content");
+
+      await user.click(screen.getByRole("button", { name: "Outside" }));
+
+      expect(content).toHaveAttribute("data-state", "open");
+    } finally {
+      delete (HTMLElement.prototype as unknown as { popover?: unknown })
+        .popover;
+    }
+  });
+
   it("closes only once when the trigger itself is clicked to close (no double dismiss)", async () => {
     // Arrange
     const user = userEvent.setup();

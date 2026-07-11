@@ -52,14 +52,18 @@ export function usePopoverContent({
     return () => content.removeEventListener("toggle", handleToggle);
   }, [setOpen]);
 
-  // Close on clicks outside the popover (belt-and-suspenders for environments
-  // where the native toggle event is not dispatched on light-dismiss, e.g.
-  // jsdom). Attached only while open. Clicks on the trigger are ignored — the
-  // trigger's own onClick already decides open/close, and handling it here too
-  // would immediately re-close on the opening click. Clicks inside any
-  // [popover] are ignored so the content itself doesn't dismiss.
+  // Close on clicks outside the popover. This is only a fallback for
+  // environments WITHOUT the native Popover API (e.g. jsdom): a real browser
+  // already light-dismisses an `auto` popover on an outside click and fires the
+  // `toggle` event we sync above. Running this listener in a real browser is
+  // not just redundant — React 19 can flush this effect synchronously inside
+  // the very click that opened the popover from an external control, so the
+  // listener would catch that click and immediately re-close it. Gate it to
+  // non-native environments; `"popover" in HTMLElement.prototype` is true only
+  // where the native API (and its own light-dismiss) exists.
   useEffect(() => {
     if (!open) return;
+    if ("popover" in HTMLElement.prototype) return;
     const handleClick = (event: MouseEvent) => {
       const target = event.target as Element;
       if (triggerRef.current?.contains(target)) return;

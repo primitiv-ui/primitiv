@@ -1046,7 +1046,7 @@
      the slide and let the dots wrap onto a second row (flex-wrap; the base
      justify-content: center centres each line, align-content: center the block).
      Scoped to the horizontal split pill — joined dots sit in the sized bar, and the
-     vertical split pill runs on the block axis (its own overflow is a later concern). */
+     vertical split pill wraps into balanced columns via the grid rule below. */
   .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split:not([data-orientation="vertical"]).primitiv-carousel--indicators-dots
     .primitiv-carousel__indicator-group {
     flex-wrap: wrap;
@@ -1060,6 +1060,29 @@
             var(--primitiv-carousel-overlay-control-inset)
         )
     );
+  }
+
+  /* Overlay + dots (vertical split) — the mirror of the horizontal wrap. The
+     vertical viewport is landscape (short block axis), so a long dot column
+     overflows its top/bottom edges, and dots can't shrink (fixed WCAG hit area).
+     Flex column-wrap can't help here — it collapses the pill's inline width so the
+     wrapped columns overflow (the known column-wrap bug) — so switch the pill to a
+     grid and let `:has()` quantity queries add balanced columns as the count grows.
+     Grid's row-major auto-flow spreads the dots evenly (10 → 5+5) and the intrinsic
+     width grows to contain the extra columns, keeping the run within the slide
+     height and clear of the block-centred up/down controls. Count-driven (~5 dots
+     per column), the vertical analogue of the horizontal wrap being line-driven;
+     side-agnostic (the group's inline lane is placed by the side rules above). */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split.primitiv-carousel--indicators-dots
+    .primitiv-carousel__indicator-group:has(> :nth-child(6)) {
+    display: grid;
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, auto);
+    place-items: center;
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split.primitiv-carousel--indicators-dots
+    .primitiv-carousel__indicator-group:has(> :nth-child(11)) {
+    grid-template-columns: repeat(3, auto);
   }
 
   /* Fade transition (headless `transition="fade"` → data-transition="fade").

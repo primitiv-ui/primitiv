@@ -1227,8 +1227,8 @@ export function CarouselPlacement() {
         </GridCell>
         <GridCell
           n={11}
-          title="vertical · dots · many (wrap)"
-          note="The case that collided before: the vertical dot lane caps to sit between the up/down controls and wraps to a second column, so it never overlaps them."
+          title="vertical · dots · many (balanced columns)"
+          note="The case that overflowed before: the vertical dot lane switches to a balanced grid, spreading the dots across columns (8 → 4+4) so the run stays within the landscape slide's height and clear of the block-centred up/down controls."
         >
           <OverlaySingle label="overlay vertical many dots" orientation="vertical" slides={GALLERY} />
         </GridCell>

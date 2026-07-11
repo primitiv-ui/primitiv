@@ -1287,6 +1287,39 @@ append-only log/skill history keeps its "flank" references as the record of the 
 vertical-many-dots overflow still reference the retired shared-lane geometry), then the
 density / size cycle.
 
+### Overlay edge cases — vertical-many-dots overflow (awaiting human QA)
+
+**The one genuinely-unhandled overlay case, now handled (registry CSS only).** After
+the overlay-2×2 rework retired the old shared up/pill/down lane (and its `:has()`
+dot-balancing grid), the horizontal overlay dot tray already capped + wrapped, but the
+**vertical** overlay split dot pill had no overflow handling at all (the code even
+said so — "its own overflow is a later concern"). On the landscape vertical viewport a
+long dot column overflowed the slide's short block edges. Fix mirrors the horizontal
+wrap but must dodge the **flex column-wrap width-collapse bug** (a wrapped flex column
+doesn't widen for the extra columns — the exact bug that drove iteration 12's round
+3b–3e), so the vertical dot pill switches to a **grid** and a **`:has(> :nth-child(N))`
+quantity query** adds balanced columns as the count grows (≥6 → 2 cols, ≥11 → 3);
+grid's row-major auto-flow spreads the dots evenly (8 → 4+4) and its intrinsic width
+grows to contain them, keeping the run within the slide height and clear of the
+block-centred up/down controls. Count-driven (~5/col), side-agnostic. This is the same
+proven mechanism as the retired lane's balancer, re-applied to the new inline-end pill.
+
+**Thumbnails cap left as-is (intentional).** Re-checked against the new geometry: the
+overlay thumbnail cap already positions off the inline-end/start lane (not the old
+shared lane) and thumbnails **shrink** (flex, no fixed hit area), so the existing
+`max-inline-size` / `max-block-size` caps still bound them correctly — no shared-lane
+term to remove. Only the dots (fixed hit area, can't shrink) needed the new wrap.
+
+**Kitchen-sink.** The existing `/carousel/overlay` cell 11 ("vertical · dots · many")
+already renders 8 slides, so it now exercises the fix; its title/note updated to the
+balanced-column behaviour. The Builder also drives it (overlay · vertical · split ·
+dots · 8 slides). Regenerated `styles.scss` + drift-green + kitchen-sink synced.
+
+**Gates green:** `cargo test -p primitiv-emit` (106, drift), `node scripts/check-registry-types.mjs`.
+(No headless/contract change — recipe/tsx byte-identical.) **Next:** human QA of the
+vertical-many-dots wrap on `/carousel/overlay` (cell 11) + the Builder; then, on sign-off,
+the density / size cycle.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

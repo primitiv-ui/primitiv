@@ -1,7 +1,7 @@
 import { useEffect, useId } from "react";
-import type { ReactElement } from "react";
+import type { ReactElement, Ref } from "react";
 
-import { composeEventHandlers } from "../Slot/index.ts";
+import { Slot, composeEventHandlers } from "../Slot/index.ts";
 import { PopoverContext, usePopoverContext } from "./PopoverContext";
 import {
   usePopoverContent,
@@ -39,9 +39,14 @@ PopoverRoot.displayName = "PopoverRoot";
 
 export function PopoverTrigger<T extends HTMLElement = HTMLButtonElement>({
   children,
+  asChild = false,
   ...rest
 }: PopoverTriggerProps<T>): ReactElement {
-  const { triggerProps } = usePopoverTrigger(rest);
+  const { triggerProps } = usePopoverTrigger({ asChild, ...rest });
+
+  if (asChild) {
+    return <Slot {...triggerProps}>{children}</Slot>;
+  }
 
   return (
     <button type="button" {...triggerProps}>
@@ -56,9 +61,22 @@ PopoverTrigger.displayName = "PopoverTrigger";
 export function PopoverContent({
   children,
   onKeyDown,
+  asChild = false,
+  ref,
   ...rest
 }: PopoverContentProps): ReactElement {
-  const { contentProps } = usePopoverContent({ onKeyDown });
+  const { contentProps } = usePopoverContent({
+    onKeyDown,
+    ref: ref as Ref<HTMLDivElement>,
+  });
+
+  if (asChild) {
+    return (
+      <Slot {...rest} {...contentProps}>
+        {children}
+      </Slot>
+    );
+  }
 
   return (
     <div {...rest} {...contentProps}>
@@ -72,11 +90,16 @@ PopoverContent.displayName = "PopoverContent";
 
 export function PopoverAnchor({
   children,
+  asChild = false,
   ...rest
 }: PopoverAnchorProps): ReactElement {
   // Consume context so an Anchor rendered outside a Root throws, matching the
   // other sub-components. Positioning itself is a CSS (anchor-name) concern.
   usePopoverContext();
+
+  if (asChild) {
+    return <Slot {...rest}>{children}</Slot>;
+  }
 
   return <div {...rest}>{children}</div>;
 }
@@ -87,6 +110,7 @@ PopoverAnchor.displayName = "PopoverAnchor";
 export function PopoverClose({
   children,
   onClick,
+  asChild = false,
   ...rest
 }: PopoverCloseProps): ReactElement {
   const { setOpen, triggerRef } = usePopoverContext();
@@ -98,6 +122,10 @@ export function PopoverClose({
       triggerRef.current?.focus();
     }),
   };
+
+  if (asChild) {
+    return <Slot {...closeProps}>{children}</Slot>;
+  }
 
   return (
     <button type="button" {...closeProps}>
@@ -111,6 +139,7 @@ PopoverClose.displayName = "PopoverClose";
 
 export function PopoverTitle({
   children,
+  asChild = false,
   ...rest
 }: PopoverTitleProps): ReactElement {
   const { registerTitle } = usePopoverContext();
@@ -120,6 +149,14 @@ export function PopoverTitle({
     registerTitle(id);
     return () => registerTitle(undefined);
   }, [registerTitle, id]);
+
+  if (asChild) {
+    return (
+      <Slot id={id} {...rest}>
+        {children}
+      </Slot>
+    );
+  }
 
   return (
     <h2 id={id} {...rest}>
@@ -133,6 +170,7 @@ PopoverTitle.displayName = "PopoverTitle";
 
 export function PopoverDescription({
   children,
+  asChild = false,
   ...rest
 }: PopoverDescriptionProps): ReactElement {
   const { registerDescription } = usePopoverContext();
@@ -142,6 +180,14 @@ export function PopoverDescription({
     registerDescription(id);
     return () => registerDescription(undefined);
   }, [registerDescription, id]);
+
+  if (asChild) {
+    return (
+      <Slot id={id} {...rest}>
+        {children}
+      </Slot>
+    );
+  }
 
   return (
     <p id={id} {...rest}>

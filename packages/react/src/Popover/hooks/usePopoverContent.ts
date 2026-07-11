@@ -1,17 +1,28 @@
-import { KeyboardEvent, KeyboardEventHandler, useEffect, useRef } from "react";
+import {
+  KeyboardEvent,
+  KeyboardEventHandler,
+  Ref,
+  useEffect,
+  useRef,
+} from "react";
 
-import { composeEventHandlers } from "../../Slot/index.ts";
+import { composeEventHandlers, composeRefs } from "../../Slot/index.ts";
 import { FOCUSABLE_SELECTOR } from "../constants";
 import { usePopoverContext } from "../PopoverContext";
 
 type UsePopoverContentArgs = {
   onKeyDown?: KeyboardEventHandler<HTMLDivElement>;
+  ref?: Ref<HTMLDivElement>;
 };
 
-export function usePopoverContent({ onKeyDown }: UsePopoverContentArgs = {}) {
+export function usePopoverContent({
+  onKeyDown,
+  ref,
+}: UsePopoverContentArgs = {}) {
   const { open, setOpen, contentId, triggerRef, titleId, descriptionId } =
     usePopoverContext();
   const contentRef = useRef<HTMLDivElement | null>(null);
+  const composedRef = ref ? composeRefs(contentRef, ref) : contentRef;
 
   useEffect(() => {
     const content = contentRef.current!;
@@ -68,7 +79,7 @@ export function usePopoverContent({ onKeyDown }: UsePopoverContentArgs = {}) {
   };
 
   const contentProps = {
-    ref: contentRef,
+    ref: composedRef,
     id: contentId,
     role: "dialog" as const,
     popover: "auto" as const,

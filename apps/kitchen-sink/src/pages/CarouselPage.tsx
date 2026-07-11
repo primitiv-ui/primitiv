@@ -248,7 +248,8 @@ function FlankSingle({
   return (
     <Carousel
       ariaLabel={label}
-      placement="flank"
+      placement="external"
+      cluster="split"
       peek={peek}
       indicators={indicators}
       side={side}

@@ -81,39 +81,28 @@ so they can't fall out of sync.
   `padding` + `surface="subtle"` a filled one. `padding` `none` (the default) is a
   bare, frameless scroll box. It maps to the scroll axis in either orientation.
 
-  **Control placement is a composable framework** — one **family** prop plus three
-  shared layout axes. The root **`placement`** modifier (`external` default ·
-  `overlay` · `flank`) picks the *structural family*: `external` groups prev /
-  dots / next into a single **bar** beside the viewport (composed in a
-  `<CarouselControls>` wrapper); `overlay` insets the controls on the imagery;
-  `flank` splits the prev/next onto the viewport's two scroll-axis edges. On top of
-  the family, three **shared control-layout axes** compose (learn them once — they
-  mean the same everywhere and degrade to a no-op where a family doesn't read
-  them): **`side`** (`after` default · `before`) — which cross-axis edge the
-  external bar (or the flank indicators) sits on, *orientation-relative* (`after` =
-  below when horizontal, the end/right side when vertical; `before` = above /
-  start), so it composes with `orientation` to reach all four physical edges and
-  mirrors under RTL; **`distribution`** (`group` default · `stretch`) — how the
-  controls spread along their edge (`group` bunches them with a fixed gap; `stretch`
-  is `space-between` across the whole edge); and **`align`** (`start` · `center`
-  default · `end`) — where a *grouped* cluster sits along its edge (moot under
-  `stretch`). The defaults (`external` · `after` · `group` · `center`) reproduce the
-  classic controls-row below. All three families read **`distribution`** / **`align`**:
-  in `external` they drive the whole prev/indicators/next bar; in `overlay` / `flank`
-  they govern the **indicator cluster** (the dots pill / row — prev/next stay pinned
-  to the family's edges), the one exception being **vertical overlay**, where
-  up/pill/down share a single lane so both axes are a no-op. **`side`** is likewise
-  read by all three — for `overlay` it moves the dots pill (top vs bottom when
-  horizontal) and, when vertical, the whole up/pill/down control lane (inline-start
-  vs inline-end). A **`cluster`** modifier (`split` default · `joined`) — read by
-  `overlay` and `flank` — chooses whether the controls sit apart (`split`: the
-  family's native layout, prev/next at the structural edges, indicators separate) or
-  bundle into **one `<CarouselControls>` bar** that travels together (`joined`:
-  overlaid on the slide for overlay, beside the viewport for flank, driven by
-  `side` / `distribution` / `align` like the external bar). **Compose the parts inside
-  `<CarouselControls>` for `joined`, as direct children for `split`.** `external` is
-  inherently joined (ignores it); vertical overlay stays split (its up/pill/down share
-  one lane).
+  **Control placement is a composable 2×2 plus three shared layout axes.** Two
+  orthogonal root modifiers pick the structure: **`placement`** (`external` default ·
+  `overlay`) is purely *off vs on the imagery* — `external` keeps the controls in the
+  space around the viewport (a CSS grid places them in tracks), `overlay` insets them
+  on the slide (absolute); **`cluster`** (`split` default · `joined`) is how they're
+  *arranged* — `split` sends prev/next to the viewport's two scroll-axis edges
+  (flanking it) and leaves the indicators as a separate cluster, while `joined`
+  bundles prev + indicators + next into **one `<CarouselControls>` bar** that travels
+  together. Together they are the full matrix — external/overlay × split/joined. On
+  top, three **shared control-layout axes** compose (learn them once — they mean the
+  same everywhere): **`side`** (`after` default · `before`) — which cross-axis edge
+  the indicator cluster (or the joined bar) sits on, *orientation-relative* (`after` =
+  below when horizontal, the end/right side when vertical; `before` = above / start),
+  so it composes with `orientation` to reach all four physical edges and mirrors under
+  RTL; **`distribution`** (`group` default · `stretch`) — how the controls spread
+  along their edge (`group` bunches them with a fixed gap; `stretch` is `space-between`
+  across the whole edge); and **`align`** (`start` · `center` default · `end`) — where
+  a *grouped* cluster sits along its edge (moot under `stretch`). `distribution` /
+  `align` position the whole bar for `joined` and the indicator cluster for `split`;
+  the defaults (`external` · `split` · `after` · `group` · `center`) put prev/next
+  flanking the viewport with a centred dot row below. **Compose the parts inside
+  `<CarouselControls>` for `joined`, as direct children of the root for `split`.**
 
   For **`overlay`**, prev/next absolutely flank the slide edges on a translucent
   `neutral-alpha` scrim and the dots ride a pill overlaid on the slide (no

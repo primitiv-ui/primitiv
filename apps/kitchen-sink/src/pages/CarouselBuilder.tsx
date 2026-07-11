@@ -50,7 +50,7 @@ const GALLERY = [
   "linear-gradient(135deg, #dc2626, #facc15)",
 ];
 
-type Placement = "external" | "overlay" | "flank";
+type Placement = "external" | "overlay";
 type Orientation = "horizontal" | "vertical";
 type Side = "after" | "before";
 type Distribution = "group" | "stretch";
@@ -229,19 +229,21 @@ function CheckField({
   );
 }
 
-// The live instance. The composition branches on `placement`: `external` groups
-// prev / indicators / next inside a <CarouselControls> bar; `overlay` and `flank`
-// render them as direct children of the root (the grid / absolute layout places
-// them). Everything else is a straight prop passthrough.
+// The live instance. Composition branches on `cluster`: `joined` groups prev /
+// indicators / next inside a <CarouselControls> bar (for both external and
+// overlay); `split` renders them as direct children of the root (the grid / absolute
+// layout flanks prev/next and places the indicator cluster). Everything else is a
+// straight prop passthrough.
 function LiveCarousel({ config }: { config: BuilderConfig }) {
   const slides = GALLERY.slice(0, config.slideCount);
   const isVertical = config.orientation === "vertical";
   // `joined` bundles prev/indicators/next into the CarouselControls bar so they
-  // travel together. external always uses the bar; vertical overlay can't join
-  // (its up/pill/down share one lane), so it stays split.
+  // travel together; `split` flanks prev/next at the viewport edges with a separate
+  // indicator cluster. Vertical overlay can't join (its up/pill/down share one
+  // lane), so it stays split there.
   const verticalOverlay = config.placement === "overlay" && isVertical;
   const joined = config.cluster === "joined" && !verticalOverlay;
-  const useControlsBar = config.placement === "external" || joined;
+  const useControlsBar = joined;
 
   const prev = (
     <CarouselPreviousTrigger aria-label="Previous slide">
@@ -364,23 +366,17 @@ export function CarouselBuilder() {
     setConfig((current) => ({ ...current, [key]: value }));
   }
 
-  // distribution/align govern the external bar and the overlay/flank indicator
-  // cluster — except vertical overlay, where up/pill/down share one lane, so both
-  // are inert there. align is also moot under distribution=stretch (the cluster
-  // already fills its edge).
+  // distribution/align position the joined bar or the split indicator cluster —
+  // except vertical overlay, where up/pill/down share one lane, so both are inert
+  // there. align is also moot under distribution=stretch (the cluster fills its edge).
   const verticalOverlay =
     config.placement === "overlay" && config.orientation === "vertical";
   const alignDisabled = verticalOverlay || config.distribution === "stretch";
 
-  // cluster (split/joined) is read by flank and horizontal overlay; external is
-  // inherently joined and vertical overlay is split-only.
-  const clusterApplies =
-    config.placement === "flank" ||
-    (config.placement === "overlay" && !verticalOverlay);
-  const clusterNote =
-    config.placement === "external"
-      ? "external is always joined"
-      : "split only for vertical overlay";
+  // cluster (split/joined) is read by both placements, except vertical overlay,
+  // which is split-only (its up/pill/down share one lane).
+  const clusterApplies = !verticalOverlay;
+  const clusterNote = "split only for vertical overlay";
 
   return (
     <article className="carousel-builder">
@@ -414,7 +410,7 @@ export function CarouselBuilder() {
               legend="placement"
               name="placement"
               value={config.placement}
-              options={["external", "overlay", "flank"] as const}
+              options={["external", "overlay"] as const}
               onChange={(value) => set("placement", value)}
             />
             <RadioField

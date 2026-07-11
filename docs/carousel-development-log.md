@@ -1179,6 +1179,53 @@ paragraph extended.
 and confirm prev/next now move with the dots under align/distribution; check the control greys
 for external + vertical overlay.
 
+### Rearchitecture — placement is now a 2×2 (external/overlay × split/joined); flank retired (awaiting human QA)
+
+**The circular external-align bug forced a rethink; the human rebuilt the Figma
+"Control Placement Framework" frame comprehensively and confirmed a cleaner model.**
+Flank is **gone** — it was really just *external + split*. The new orthogonal model:
+
+- **`placement`** (`external` default · `overlay`) — purely **off vs on the imagery**.
+  `external` = controls in the space around the viewport (CSS grid, tracks); `overlay`
+  = absolute over the slide.
+- **`cluster`** (`split` default · `joined`) — how they're **arranged**, now read by
+  **both** placements. `split` flanks prev/next at the viewport's scroll-axis edges +
+  separate indicator cluster; `joined` = one `<CarouselControls>` bar.
+- `side` / `distribution` / `align` / `orientation` compose on top of the full 2×2.
+
+**CSS (grid, per the human's steer — flex justify-content was the flaky part).**
+- **External + split = the ex-flank grid** (renamed `.placement-flank` →
+  `.placement-external.cluster-split` throughout): prev/next in the scroll-axis edge
+  tracks, indicators in a cross-axis cell positioned by distribution/align. Deterministic
+  (the cell is a definite `1fr` track).
+- **External + joined** = the base stack (viewport + bar). The align fix that kept
+  failing: the joined bar is a grid item, so it now **fills its cell**
+  (`justify-self: stretch; align-self: stretch`) — that gives `justify-content` room to
+  move the cluster in *both* orientations (the determinism grid buys over a shrink-to-fit
+  flex bar; the old implicit `auto` column let the bar collapse).
+- **Overlay** unchanged this pass (already absolute split + joined). **Vertical overlay
+  stays the shared-lane behaviour** and is the one split/joined exception (greyed in the
+  Builder) — matching the frame's vertical-overlay to the up/down-flank + dots-on-side
+  model is the **known follow-up**.
+
+**Contract/emit**: `placement` dropped to `external`/`overlay`; `cluster`, `side`,
+`distribution`, `align` descriptions rewritten to the 2×2. Regenerated recipe/tsx/scss +
+drift-green + kitchen-sink hand-synced.
+
+**Kitchen-sink**: Builder placement is now external/overlay, `cluster` applies to both
+(`useControlsBar = joined`), greying simplified (cluster/align/distribution inert only
+for vertical overlay; align also under stretch). `FlankSingle` migrated to
+`placement="external" cluster="split"` (renders identically). **Cosmetic cleanup still
+owed**: the `/carousel/flank` example route + sidebar label + a few README example rows +
+some styles.css comments still say "flank" (they render external-split correctly — just
+mislabeled); to be swept in a follow-up.
+
+**Gates green:** `cargo test -p primitiv-emit -p primitiv-cli` (364 + 20 + 106),
+`node scripts/check-registry-types.mjs`. (No headless change.) **Next:** human QA of the
+new external grid on `/carousel/builder` — external × split/joined × side/distribution/
+align × orientation should now be deterministic; then the overlay-vertical + cosmetic
+cleanup pass, then density/size scaling (the human's next cycle).
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

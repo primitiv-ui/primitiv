@@ -56,32 +56,31 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    */
   surface?: "none" | "subtle";
   /**
-   * The structural family the controls belong to — the one axis that changes how you compose the parts. `external` (the default) groups the prev/next + indicators into a single bar beside the viewport (compose them in a `<CarouselControls>` wrapper); its layout is refined by the composable `side` / `distribution` / `align` axes. `overlay` insets the controls on the slide for edge-to-edge imagery. `flank` splits the prev/next onto the viewport's two scroll-axis edges with the indicators on a perpendicular side (compose the parts as direct children of the root). The `side` / `distribution` / `align` axes compose on top of whichever family is chosen and degrade to a no-op where a family doesn't use them.
-   * - `external` — Prev/next + indicators sit together in a bar beside the viewport (the default). Compose them in a `<CarouselControls>` wrapper; refine the bar with `side` (which edge), `distribution` (bunch vs spread) and `align`.
-   * - `overlay` — Controls sit on the imagery — prev/next flanking the slide edges on a translucent scrim, dots in a pill overlaid at the bottom.
-   * - `flank` — Prev/next split onto the viewport's two scroll-axis edges (left/right when horizontal, top/bottom when vertical) with the indicators on a perpendicular side (`side` picks which). Compose the parts as direct children of the root — the grid places each by area.
+   * Where the controls sit relative to the imagery — the one axis that is off-vs-on the slide. `external` (the default) keeps the controls off the imagery, in the space around the viewport. `overlay` insets them on the slide for edge-to-edge imagery. How the controls are *arranged* (one bar vs prev/next flanking the edges) is the orthogonal `cluster` axis; `side` / `distribution` / `align` / `orientation` then compose on top of both.
+   * - `external` — Controls off the imagery, in the space around the viewport (the default). A CSS grid places the parts in tracks beside the viewport.
+   * - `overlay` — Controls on the imagery — absolutely positioned over the slide on a translucent scrim, for edge-to-edge photography.
    * @default "external"
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
-  placement?: "external" | "overlay" | "flank";
+  placement?: "external" | "overlay";
   /**
-   * Which cross-axis edge the controls sit on, relative to the scroll direction — the external bar, the flank indicators, or the overlay dots pill (+ its vertical control lane). `after` is the trailing edge (below the viewport when horizontal, the inline-end/right side when vertical); `before` is the leading edge (above / inline-start). Orientation-relative and RTL-safe — it composes with `orientation` to reach all four physical edges. Read by all three families.
+   * Which cross-axis edge the indicator cluster (or the joined bar) sits on, relative to the scroll direction. `after` is the trailing edge (below the viewport when horizontal, the inline-end/right side when vertical); `before` is the leading edge (above / inline-start). Orientation-relative and RTL-safe — it composes with `orientation` to reach all four physical edges. Read by both placements and both clusters.
    * - `after` — Trailing edge — below the viewport (horizontal) or the end/right side (vertical). The default.
-   * - `before` — Leading edge — above the viewport (horizontal) or the start/left side (vertical). Under overlay it moves the dots pill (and, when vertical, the whole control lane) to the leading edge.
+   * - `before` — Leading edge — above the viewport (horizontal) or the start/left side (vertical).
    * @default "after"
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
   side?: "after" | "before";
   /**
-   * How the controls spread along their edge. In `external` it drives the whole prev/indicators/next bar — `group` (the default) bunches them, `stretch` pushes prev/next to the extremes with the indicators centred (space-between). In `overlay` / `flank` it governs the indicator cluster instead (prev/next stay pinned to the family's edges) — `group` bunches the dots, `stretch` spreads them across the full edge. No-op for vertical overlay, where the controls share one lane.
+   * How the controls spread along their edge. For `joined` it drives the whole prev/indicators/next bar — `group` (the default) bunches them, `stretch` pushes prev/next to the extremes with the indicators centred (space-between). For `split` it governs the indicator cluster (prev/next stay flanking the viewport edges) — `group` bunches the dots, `stretch` spreads them across the full edge. Applies to both placements.
    * - `group` — Bunch the controls together with a fixed gap, positioned by `align` (the default).
-   * - `stretch` — Spread the controls across the full edge (space-between) — prev/next to the extremes in `external`, the indicator dots edge-to-edge in `overlay` / `flank`.
+   * - `stretch` — Spread the controls across the full edge (space-between).
    * @default "group"
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
   distribution?: "group" | "stretch";
   /**
-   * Where the grouped controls sit along their edge (only read under `distribution=group`; `stretch` fills the edge, so alignment is moot). `center` is the default; `start` / `end` pin the cluster to the leading / trailing end. Applies to the `external` bar and the `overlay` / `flank` indicator cluster (no-op for vertical overlay). Logical, so it mirrors under RTL and follows the scroll axis when vertical.
+   * Where the grouped controls sit along their edge (only read under `distribution=group`; `stretch` fills the edge, so alignment is moot). `center` is the default; `start` / `end` pin the cluster to the leading / trailing end — the whole bar for `joined`, the indicator cluster for `split`. Applies to both placements. Logical, so it mirrors under RTL and follows the scroll axis when vertical.
    * - `start` — Pin the control cluster to the start of the edge (left / top, mirrored under RTL).
    * - `center` — Centre the control cluster on the edge (the default).
    * - `end` — Pin the control cluster to the end of the edge (right / bottom, mirrored under RTL).
@@ -90,8 +89,8 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    */
   align?: "start" | "center" | "end";
   /**
-   * Whether the controls sit apart or travel together — read by `overlay` and `flank`. `split` (the default) is each family's native layout: overlay's prev/next flank the slide edges with a separate dots pill; flank's prev/next sit on the scroll-axis edges with the indicators on a perpendicular side. `joined` bundles prev + indicators + next into one `<CarouselControls>` bar that moves together, positioned by `side` / `distribution` / `align` exactly like the external bar — overlaid on the slide for overlay, beside the viewport for flank. Compose the parts inside `<CarouselControls>` for `joined`, as direct children for `split`. `external` is inherently joined (ignores this); vertical overlay stays split (its up/pill/down share one lane).
-   * - `split` — The family's native layout — prev/next at the structural edges, the indicators a separate cluster (the default).
+   * How the controls are arranged — the orthogonal companion to `placement`, read by both `external` and `overlay`. `split` (the default) sends prev/next to the viewport's two scroll-axis edges (flanking it — left/right when horizontal, top/bottom when vertical) and leaves the indicators as a separate cluster positioned by `side` / `distribution` / `align`. `joined` bundles prev + indicators + next into one `<CarouselControls>` bar that travels together, positioned as a unit by `side` / `distribution` / `align`. Compose the parts inside `<CarouselControls>` for `joined`, as direct children of the root for `split`. Together with `placement` this is the full 2×2 — external/overlay × split/joined.
+   * - `split` — Prev/next flank the viewport's scroll-axis edges; the indicators are a separate cluster (the default). Compose the parts as direct children of the root.
    * - `joined` — Bundle prev + indicators + next into one bar that moves together; compose them inside `<CarouselControls>`.
    * @default "split"
    * @see https://primitiv-ui.dev/docs/components/carousel

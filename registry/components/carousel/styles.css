@@ -432,16 +432,15 @@
     --primitiv-carousel-control-bg: var(--primitiv-carousel-control-bg-active);
   }
 
-  /* Placement — the structural family the controls belong to. `external` (the
-     default) groups prev/next + indicators into one bar beside the viewport
-     (composed in a __controls wrapper); `overlay` insets them on the imagery;
-     `flank` splits prev/next onto the viewport's two scroll-axis edges. The
-     composable `side` / `distribution` / `align` axes below refine `external`
-     (and `side` also picks the flank indicators' edge); each degrades to a
-     no-op where a family doesn't read it. */
+  /* Placement — off vs on the imagery. `external` (the default) keeps the controls
+     in the space around the viewport (a grid places them in tracks); `overlay`
+     insets them on the slide (absolute). How the controls are *arranged* — one bar
+     vs prev/next flanking the viewport edges — is the orthogonal `cluster` axis;
+     `side` / `distribution` / `align` / `orientation` compose on top of both. */
   .primitiv-carousel--placement-external {
-    /* The base grid already stacks viewport + control bar; nothing to re-point.
-       Declared so the placement axis stays explicit if toggled dynamically. */
+    /* External + joined: the base grid already stacks viewport + the __controls bar
+       (external + split overrides it with the flanking grid below). Declared so the
+       placement axis stays explicit if toggled dynamically. */
     position: static;
   }
 
@@ -460,23 +459,26 @@
     order: -1;
   }
 
-  /* Distribution — how the external bar spreads prev/indicators/next along its
-     edge. `group` (default) bunches them; `stretch` pushes prev/next to the
-     extremes with the indicators centred (space-between across the full edge).
-     The bar is a flex row (horizontal) or column (vertical), so one
-     justify-content drives both axes. Only `external` has the bar — flank/overlay
-     ignore these. */
+  /* Distribution / align position the joined `<CarouselControls>` bar (external or
+     overlay). `group` (default) bunches the cluster — `align` then moves it;
+     `stretch` is space-between across the edge. The bar is a flex row (horizontal)
+     or column (vertical), so one justify-content drives both orientations. (For
+     `split` the same justify-content instead positions the separate indicator
+     cluster — see the split rules below.) */
   .primitiv-carousel--distribution-group .primitiv-carousel__controls {
     /* Bunched — the base bar already gaps + centres the cluster; `align` moves it. */
   }
   .primitiv-carousel--distribution-stretch .primitiv-carousel__controls {
     justify-content: space-between;
   }
-  /* Vertical stretch needs the bar to span the viewport's height so up/down reach
-     its ends — the vertical root centres items, so opt this column into filling
-     the row. */
-  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--distribution-stretch
+  /* The external joined bar is a grid item, so it must fill its cell for
+     justify-content to have room to move the cluster — this is the determinism grid
+     buys us over a shrink-to-fit flex bar. Fill both axes: the width in the
+     horizontal row, the height in the vertical column. The overlay joined bar is
+     absolute and already spans its edge, so it doesn't read this. */
+  .primitiv-carousel--placement-external.primitiv-carousel--cluster-joined
     .primitiv-carousel__controls {
+    justify-self: stretch;
     align-self: stretch;
   }
 
@@ -677,40 +679,39 @@
     );
   }
 
-  /* Flank: the prev/next controls sit *outside* the viewport, flanking its two
-     scroll-axis edges, with the indicators on a perpendicular side (`side` picks
-     which). Unlike `external` (controls in a __controls bar) and `overlay`
-     (controls on the imagery), flank places the parts directly on a grid by area.
-     Compose the parts as direct children of the root. The controls keep the
-     default secondary-action fill (they're off the imagery). Named grid areas +
-     logical templates → prev/next and the indicators swap sides under RTL with no
-     extra CSS. */
+  /* External + split: prev/next sit *outside* the viewport, flanking its two
+     scroll-axis edges, with the indicators as a separate cluster on a perpendicular
+     side (`side` picks which). Unlike `joined` (parts in a __controls bar), split
+     places the parts directly on a grid by area — compose them as direct children of
+     the root. The controls keep the default secondary-action fill (they're off the
+     imagery — that's what `external` means). Named grid areas + logical templates →
+     prev/next and the indicators swap sides under RTL with no extra CSS. */
 
-  /* Horizontal flank: prev | viewport | next in a row, indicators centred in a
-     second row. `side=after` (default) puts the indicators below; `before` above. */
-  .primitiv-carousel--placement-flank:not(.primitiv-carousel--cluster-joined) {
+  /* Horizontal: prev | viewport | next in a row, indicators as a cluster in a second
+     row. `side=after` (default) puts the indicators below; `before` above. */
+  .primitiv-carousel--placement-external.primitiv-carousel--cluster-split {
     grid-template-columns: auto minmax(0, 1fr) auto;
     grid-template-areas:
       "prev viewport next"
       ". indicators .";
     align-items: center;
   }
-  .primitiv-carousel--placement-flank:not(.primitiv-carousel--cluster-joined).primitiv-carousel--side-before {
+  .primitiv-carousel--placement-external.primitiv-carousel--cluster-split.primitiv-carousel--side-before {
     grid-template-areas:
       ". indicators ."
       "prev viewport next";
   }
-  .primitiv-carousel--placement-flank:not(.primitiv-carousel--cluster-joined)
+  .primitiv-carousel--placement-external.primitiv-carousel--cluster-split
     .primitiv-carousel__viewport {
     grid-area: viewport;
   }
-  .primitiv-carousel--placement-flank .primitiv-carousel__prev {
+  .primitiv-carousel--placement-external.primitiv-carousel--cluster-split .primitiv-carousel__prev {
     grid-area: prev;
   }
-  .primitiv-carousel--placement-flank .primitiv-carousel__next {
+  .primitiv-carousel--placement-external.primitiv-carousel--cluster-split .primitiv-carousel__next {
     grid-area: next;
   }
-  .primitiv-carousel--placement-flank .primitiv-carousel__indicator-group {
+  .primitiv-carousel--placement-external.primitiv-carousel--cluster-split .primitiv-carousel__indicator-group {
     grid-area: indicators;
   }
 
@@ -720,7 +721,7 @@
      `after` (default) on the end/right, `before` on the start/left. Overrides the
      vertical rule's column auto-flow with an explicit 2-D grid; higher specificity
      (orientation attr + placement class) wins over the base vertical layout. */
-  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-flank:not(.primitiv-carousel--cluster-joined) {
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-external.primitiv-carousel--cluster-split {
     grid-auto-flow: row;
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-rows: auto minmax(0, 1fr) auto;
@@ -730,7 +731,7 @@
       "next      .";
     align-items: center;
   }
-  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-flank:not(.primitiv-carousel--cluster-joined).primitiv-carousel--side-before {
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-external.primitiv-carousel--cluster-split.primitiv-carousel--side-before {
     grid-template-columns: auto minmax(0, 1fr);
     grid-template-areas:
       ".          prev"
@@ -739,9 +740,9 @@
   }
   /* Centre the up/down controls horizontally over the viewport column (the
      viewport itself fills its cell). */
-  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-flank
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-external.primitiv-carousel--cluster-split
     .primitiv-carousel__prev,
-  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-flank
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-external.primitiv-carousel--cluster-split
     .primitiv-carousel__next {
     justify-self: center;
   }
@@ -760,15 +761,15 @@
      edge, so its own justify-content positions the dots — the flex main-axis follows
      orientation (row when horizontal, column when vertical), exactly like the
      external bar. */
-  .primitiv-carousel--placement-flank.primitiv-carousel--distribution-group.primitiv-carousel--align-start
+  .primitiv-carousel--placement-external.primitiv-carousel--cluster-split.primitiv-carousel--distribution-group.primitiv-carousel--align-start
     .primitiv-carousel__indicator-group {
     justify-content: flex-start;
   }
-  .primitiv-carousel--placement-flank.primitiv-carousel--distribution-group.primitiv-carousel--align-end
+  .primitiv-carousel--placement-external.primitiv-carousel--cluster-split.primitiv-carousel--distribution-group.primitiv-carousel--align-end
     .primitiv-carousel__indicator-group {
     justify-content: flex-end;
   }
-  .primitiv-carousel--placement-flank.primitiv-carousel--distribution-stretch
+  .primitiv-carousel--placement-external.primitiv-carousel--cluster-split.primitiv-carousel--distribution-stretch
     .primitiv-carousel__indicator-group {
     justify-content: space-between;
   }

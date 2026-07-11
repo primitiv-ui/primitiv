@@ -34,7 +34,6 @@ export const carousel = cva("primitiv-carousel", {
     placement: {
       external: "primitiv-carousel--placement-external",
       overlay: "primitiv-carousel--placement-overlay",
-      flank: "primitiv-carousel--placement-flank",
     },
     side: {
       after: "primitiv-carousel--side-after",

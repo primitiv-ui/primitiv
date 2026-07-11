@@ -132,7 +132,7 @@ semantics that CSS alone cannot provide.
 - [x] Dropdown
 - [ ] Hover Card
 - [x] Modal
-- [ ] Popover
+- [x] Popover
 - [x] Tooltip
 
 ### Disclosure

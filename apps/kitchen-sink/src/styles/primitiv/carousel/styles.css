@@ -231,6 +231,9 @@
     flex: none;
     inline-size: var(--primitiv-carousel-control-size);
     block-size: var(--primitiv-carousel-control-size);
+    /* Reset the UA button padding — at small sizes/densities its inline 6px
+       squeezes the grid content box and knocks the glyph off centre. */
+    padding: var(--primitiv-space-space-0);
     border: none;
     border-radius: var(--primitiv-carousel-control-radius);
     background: var(--primitiv-carousel-control-bg);
@@ -240,6 +243,8 @@
   }
   .primitiv-carousel__prev svg,
   .primitiv-carousel__next svg {
+    /* block kills the inline-SVG baseline gap so the glyph sits dead-centre. */
+    display: block;
     inline-size: var(--primitiv-carousel-control-icon-size);
     block-size: var(--primitiv-carousel-control-icon-size);
   }

@@ -521,10 +521,13 @@
     --primitiv-carousel-indicator-color-active: var(--primitiv-carousel-overlay-indicator-color-active);
   }
 
-  /* Prev / next inset on the slide, vertically centred (inset-block:0 + auto
-     block margins centre the fixed-height control). */
-  .primitiv-carousel--placement-overlay .primitiv-carousel__prev,
-  .primitiv-carousel--placement-overlay .primitiv-carousel__next {
+  /* --- Overlay + split: prev/next flank the scroll-axis edges, dots on a cross side.
+     Scoped to `.cluster-split` so under `joined` the (nested) parts flow in the bar
+     untouched — no resets needed. Horizontal: prev/next on the inline edges,
+     block-centred (inset-block:0 + auto block margins centre the fixed-height
+     control). --- */
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split .primitiv-carousel__prev,
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split .primitiv-carousel__next {
     position: absolute;
     inset-block: 0;
     margin-block: auto;
@@ -536,14 +539,14 @@
      gap from its edge, not straddling the padded-track gutter. All the frame
      terms are 0 when unset, so a plain overlay (no padding, no peek) reduces to
      the bare control inset. */
-  .primitiv-carousel--placement-overlay .primitiv-carousel__prev {
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split .primitiv-carousel__prev {
     inset-inline-start: calc(
       var(--primitiv-carousel-viewport-border-width) +
         var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
         var(--primitiv-carousel-overlay-control-inset)
     );
   }
-  .primitiv-carousel--placement-overlay .primitiv-carousel__next {
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split .primitiv-carousel__next {
     inset-inline-end: calc(
       var(--primitiv-carousel-viewport-border-width) +
         var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
@@ -554,7 +557,7 @@
   /* Dots in a pill, centred along the bottom edge. inset-inline:0 + auto inline
      margins + fit-content width centre the pill without a transform, so it stays
      centred under RTL. */
-  .primitiv-carousel--placement-overlay .primitiv-carousel__indicator-group {
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split .primitiv-carousel__indicator-group {
     position: absolute;
     /* Sit inside the slide's bottom edge — clear the frame (border + viewport
        padding) on the block axis too, then the indicator inset. 0 when unset. */
@@ -573,80 +576,67 @@
     border-radius: var(--primitiv-radii-full);
   }
 
-  /* Vertical overlay: the scroll axis is the block axis, so every control rides a
-     lane on the **inline-end** side — the up control at the top, the dots pill
-     centred, the down control at the bottom — rather than flanking the imagery
-     centre. Logical properties mirror the whole lane to inline-start under RTL.
-     Each control clears the frame (border + viewport padding) on the inline axis;
-     the up/down controls additionally clear the scroll-axis peek on the block axis.
-     A single-column grid drops the reserved controls column (they're absolute now),
-     so the root is exactly the viewport and the insets measure from the slide edge.
-     Higher specificity (orientation attr + placement class) re-points the base
-     overlay rules onto the swapped axes. */
+  /* Vertical overlay: controls are absolute, so drop the reserved controls column —
+     the root is exactly the viewport and every inset measures from the slide edge. */
   .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay {
     grid-template-columns: minmax(0, 1fr);
   }
-  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay
+
+  /* Vertical split: up/down flank the block edges, centred inline over the slide; the
+     dots run as a column on the inline-end side (after). Resets the horizontal-split
+     block-centre onto inline-centre + block edges. */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split
     .primitiv-carousel__prev,
-  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split
     .primitiv-carousel__next {
-    inset-inline-start: auto;
-    inset-inline-end: calc(
-      var(--primitiv-carousel-viewport-border-width) +
-        var(--primitiv-carousel-viewport-padding) +
-        var(--primitiv-carousel-overlay-control-inset)
-    );
-    margin: 0;
+    inset-block: auto;
+    margin-block: 0;
+    inset-inline: 0;
+    margin-inline: auto;
   }
-  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split
     .primitiv-carousel__prev {
     inset-block-start: calc(
       var(--primitiv-carousel-viewport-border-width) +
         var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
         var(--primitiv-carousel-overlay-control-inset)
     );
-    inset-block-end: auto;
   }
-  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split
     .primitiv-carousel__next {
-    inset-block-start: auto;
     inset-block-end: calc(
       var(--primitiv-carousel-viewport-border-width) +
         var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
         var(--primitiv-carousel-overlay-control-inset)
     );
   }
-  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split
     .primitiv-carousel__indicator-group {
+    /* A compact pill, block-centred on the inline-end edge — the mirror of the
+       horizontal pill (block-centre + inline edge → inline-centre + block edge).
+       distribution/align then move it along the block axis via inset-block, exactly
+       as the horizontal pill moves along inline. */
     inset-block: 0;
+    margin-block: auto;
     inset-inline-start: auto;
-    /* Inset by the *control* inset (not the smaller indicator inset) so the pill
-       shares the up/down controls' edge distance — and because the pill is the same
-       width as a control (a dot's hit-area + the swapped padding ≈ the control
-       size), matching the inset centres all three on one vertical lane. */
     inset-inline-end: calc(
       var(--primitiv-carousel-viewport-border-width) +
         var(--primitiv-carousel-viewport-padding) +
-        var(--primitiv-carousel-overlay-control-inset)
+        var(--primitiv-carousel-overlay-indicator-inset)
     );
-    margin-block: auto;
     margin-inline: 0;
+    inline-size: fit-content;
     block-size: fit-content;
-    /* The pill runs vertically now, so swap the horizontal pill's padding: the
-       generous axis becomes block (the column's ends), the tight axis inline (its
-       sides) — so the pill hugs the dot column instead of being ~2× too wide. */
+    /* The pill runs vertically now — swap the horizontal pill's padding so it hugs
+       the dot column instead of being ~2× too wide. */
     padding-block: var(--primitiv-carousel-overlay-pill-padding-inline);
     padding-inline: var(--primitiv-carousel-overlay-pill-padding-block);
   }
 
-  /* Overlay + side — move the indicators (and, when vertical, the whole control
-     lane) to the chosen cross-axis edge. Horizontal: the dots pill rides the
-     bottom (after, the base) or the top (before); prev/next keep flanking the
-     slide's inline edges. Vertical: the up / pill / down lane rides the inline-end
-     (after) or inline-start (before) side. Logical → mirrors under RTL. The extra
-     --side-before class raises specificity over the base overlay + vertical-overlay
-     rules, so before wins; after needs no override (the base rules already do it). */
-  .primitiv-carousel--placement-overlay.primitiv-carousel--side-before
+  /* --- Overlay + split + side=before — move the dots cluster to the leading edge;
+     prev/next keep flanking the scroll-axis edges either way. --- */
+  /* Horizontal: dots pill to the top. */
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split.primitiv-carousel--side-before
     .primitiv-carousel__indicator-group {
     inset-block-start: calc(
       var(--primitiv-carousel-viewport-border-width) +
@@ -655,27 +645,15 @@
     );
     inset-block-end: auto;
   }
-  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--side-before
-    .primitiv-carousel__prev,
-  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--side-before
-    .primitiv-carousel__next {
-    inset-inline-end: auto;
-    inset-inline-start: calc(
-      var(--primitiv-carousel-viewport-border-width) +
-        var(--primitiv-carousel-viewport-padding) +
-        var(--primitiv-carousel-overlay-control-inset)
-    );
-  }
-  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--side-before
+  /* Vertical: dots column to the inline-start (the block-span from the base rule
+     holds — higher specificity — so only the inline lane flips). */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split.primitiv-carousel--side-before
     .primitiv-carousel__indicator-group {
-    /* Keep the pill block-centred (override the horizontal-before rule above) and
-       flip its inline lane to the start side. */
-    inset-block: 0;
     inset-inline-end: auto;
     inset-inline-start: calc(
       var(--primitiv-carousel-viewport-border-width) +
         var(--primitiv-carousel-viewport-padding) +
-        var(--primitiv-carousel-overlay-control-inset)
+        var(--primitiv-carousel-overlay-indicator-inset)
     );
   }
 
@@ -756,19 +734,16 @@
     align-self: stretch;
   }
 
-  /* ── Indicator-cluster align / distribution for overlay + flank ──
-     In `external` the align/distribution axes drive the whole prev/indicators/next
-     bar (above). In `overlay` and `flank` the prev/next are pinned to the family's
-     edges, so these axes instead govern the **indicator cluster**: `align` positions
-     it along its edge, `distribution=stretch` spreads it across the full edge (dots
-     space-between); prev/next stay put. `align=center` + `distribution=group` is the
-     base look, so only start/end/stretch override. Vertical overlay is the one
-     exception: up/pill/down share a single lane there, so the axes stay a no-op (the
-     Builder greys them out). */
+  /* ── Indicator-cluster align / distribution for split (external + overlay) ──
+     For `split` the prev/next flank the viewport edges, so these axes govern the
+     **indicator cluster**: `align` positions it along its edge, `distribution=stretch`
+     spreads it across the full edge (dots space-between). `align=center` +
+     `distribution=group` is the base look, so only start/end/stretch override. (For
+     `joined` the same axes drive the whole __controls bar — the shared bar rules.) */
 
-  /* Flank (both orientations): the indicator group fills its grid cell along the
-     edge, so its own justify-content positions the dots — the flex main-axis follows
-     orientation (row when horizontal, column when vertical), exactly like the
+  /* External + split (both orientations): the indicator group fills its grid cell
+     along the edge, so its own justify-content positions the dots — the flex main-axis
+     follows orientation (row when horizontal, column when vertical), exactly like the
      external bar. */
   .primitiv-carousel--placement-external.primitiv-carousel--cluster-split.primitiv-carousel--distribution-group.primitiv-carousel--align-start
     .primitiv-carousel__indicator-group {
@@ -789,7 +764,7 @@
      edge clearance (frame + peek + control inset), so an aligned pill lines up with
      the prev/next controls. Scoped away from vertical overlay, where the pill shares
      the up/down lane. */
-  .primitiv-carousel--placement-overlay:not([data-orientation="vertical"]):not(.primitiv-carousel--cluster-joined).primitiv-carousel--distribution-group.primitiv-carousel--align-start
+  .primitiv-carousel--placement-overlay:not([data-orientation="vertical"]).primitiv-carousel--cluster-split.primitiv-carousel--distribution-group.primitiv-carousel--align-start
     .primitiv-carousel__indicator-group {
     inset-inline-start: calc(
       var(--primitiv-carousel-viewport-border-width) +
@@ -799,7 +774,7 @@
     inset-inline-end: auto;
     margin-inline: 0;
   }
-  .primitiv-carousel--placement-overlay:not([data-orientation="vertical"]):not(.primitiv-carousel--cluster-joined).primitiv-carousel--distribution-group.primitiv-carousel--align-end
+  .primitiv-carousel--placement-overlay:not([data-orientation="vertical"]).primitiv-carousel--cluster-split.primitiv-carousel--distribution-group.primitiv-carousel--align-end
     .primitiv-carousel__indicator-group {
     inset-inline-end: calc(
       var(--primitiv-carousel-viewport-border-width) +
@@ -809,7 +784,7 @@
     inset-inline-start: auto;
     margin-inline: 0;
   }
-  .primitiv-carousel--placement-overlay:not([data-orientation="vertical"]):not(.primitiv-carousel--cluster-joined).primitiv-carousel--distribution-stretch
+  .primitiv-carousel--placement-overlay:not([data-orientation="vertical"]).primitiv-carousel--cluster-split.primitiv-carousel--distribution-stretch
     .primitiv-carousel__indicator-group {
     inset-inline: calc(
       var(--primitiv-carousel-viewport-border-width) +
@@ -821,30 +796,60 @@
     justify-content: space-between;
   }
 
-  /* ── Cluster: split vs joined (overlay + flank) ──
-     `split` (the default) is the family's native layout — overlay's prev/next flank
-     the slide edges with a separate dots pill; flank's prev/next sit on the
-     scroll-axis edges with the indicators on a perpendicular side. `joined` bundles
-     prev + indicators + next into the one `<CarouselControls>` bar so they travel
-     together, positioned by `side` / `distribution` / `align` exactly like the
-     external bar. (External is inherently joined; vertical overlay stays split — its
-     up/pill/down share one lane.) Compose the parts inside `<CarouselControls>` for
-     `joined`, as direct children for `split`.
-
-     Flank + joined needs no rules here — the flank grid above is disabled via
-     `:not(--cluster-joined)`, so the base (external) layout returns and the joined
-     bar stacks beside the viewport, driven by side / distribution / align. */
-  .primitiv-carousel--cluster-split {
-    /* The family's native split layout is the base — nothing to re-point (and
-       nothing to declare: setting a property here would land on the root and could
-       override a placement rule, e.g. overlay's `position: relative`). */
+  /* Vertical overlay split: the dots pill moves along the block axis via inset-block
+     (the mirror of horizontal's inset-inline). align lines the pill up with the
+     up/down controls (frame + peek + control inset); stretch spans the block edge and
+     spaces the dots between. */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split.primitiv-carousel--distribution-group.primitiv-carousel--align-start
+    .primitiv-carousel__indicator-group {
+    inset-block-start: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+    inset-block-end: auto;
+    margin-block: 0;
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split.primitiv-carousel--distribution-group.primitiv-carousel--align-end
+    .primitiv-carousel__indicator-group {
+    inset-block-end: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+    inset-block-start: auto;
+    margin-block: 0;
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split.primitiv-carousel--distribution-stretch
+    .primitiv-carousel__indicator-group {
+    inset-block: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+    margin-block: 0;
+    block-size: auto;
+    justify-content: space-between;
   }
 
-  /* Overlay + joined (horizontal): the __controls bar is overlaid on the slide,
-     spanning it (transparent — each part keeps its own scrim), so distribution /
-     align drive its justify-content via the shared __controls rules. Additive: the
-     inner parts are reset from the split-mode absolute positioning so they flow in
-     the bar. Vertical overlay stays split (its up/pill/down share one lane). */
+  /* ── Cluster: split vs joined ──
+     `split` (default) flanks prev/next on the viewport's scroll-axis edges with a
+     separate indicator cluster; `joined` bundles prev + indicators + next into the one
+     `<CarouselControls>` bar. For `external` the bar stacks beside the viewport and
+     split uses the flanking grid above; for `overlay` the bar is overlaid on the slide
+     and split positions the parts absolutely. Both split layouts are scoped to
+     `.cluster-split`, so joined's (nested) parts flow in the bar untouched — no resets.
+     Compose the parts inside `<CarouselControls>` for `joined`, as direct children of
+     the root for `split`. */
+  .primitiv-carousel--cluster-split {
+    /* The split layout is the base — nothing to re-point (and nothing to declare: a
+       property here would land on the root and could override a placement rule, e.g.
+       overlay's `position: relative`). */
+  }
+
+  /* Overlay + joined — the __controls bar is overlaid on the slide, spanning its edge
+     so distribution/align drive its justify-content (the shared __controls rules).
+     Horizontal: a bar on the block edge (bottom = after), full inline span. */
   .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined:not([data-orientation="vertical"])
     .primitiv-carousel__controls {
     position: absolute;
@@ -860,7 +865,6 @@
     );
     z-index: 1;
   }
-  /* side=before rides the bar on the top edge instead of the bottom. */
   .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined:not([data-orientation="vertical"]).primitiv-carousel--side-before
     .primitiv-carousel__controls {
     inset-block-start: calc(
@@ -870,17 +874,46 @@
     );
     inset-block-end: auto;
   }
-  /* Reset the inner parts from split-mode absolute positioning so they flow in the
-     bar; each keeps its own scrim (circular prev/next, the dots pill). */
-  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined:not([data-orientation="vertical"])
-    .primitiv-carousel__prev,
-  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined:not([data-orientation="vertical"])
-    .primitiv-carousel__next,
-  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined:not([data-orientation="vertical"])
+  /* Vertical: a bar on the inline edge (end = after), full block span so the shared
+     justify-content rules can move the up/dots/down cluster. */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined
+    .primitiv-carousel__controls {
+    position: absolute;
+    inset-block: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-overlay-control-inset)
+    );
+    inset-inline-start: auto;
+    inset-inline-end: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) +
+        var(--primitiv-carousel-overlay-indicator-inset)
+    );
+    z-index: 1;
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined.primitiv-carousel--side-before
+    .primitiv-carousel__controls {
+    inset-inline-end: auto;
+    inset-inline-start: calc(
+      var(--primitiv-carousel-viewport-border-width) +
+        var(--primitiv-carousel-viewport-padding) +
+        var(--primitiv-carousel-overlay-indicator-inset)
+    );
+  }
+  /* The dots keep their pill inside the joined bar — split's pill styling is scoped to
+     `.cluster-split`, so re-apply the appearance here (positioning is the bar's job). */
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined
     .primitiv-carousel__indicator-group {
-    position: static;
-    inset: auto;
-    margin: 0;
+    padding-block: var(--primitiv-carousel-overlay-pill-padding-block);
+    padding-inline: var(--primitiv-carousel-overlay-pill-padding-inline);
+    background: var(--primitiv-carousel-overlay-pill-bg);
+    border-radius: var(--primitiv-radii-full);
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined
+    .primitiv-carousel__indicator-group {
+    padding-block: var(--primitiv-carousel-overlay-pill-padding-inline);
+    padding-inline: var(--primitiv-carousel-overlay-pill-padding-block);
   }
 
   /* Thumbnails — swap the dot indicators for rounded-rect image thumbnails (the
@@ -987,18 +1020,13 @@
     );
   }
 
-  /* Overlay + dots — dots can't shrink to fit (they carry a fixed WCAG hit area),
-     so on the overlay scrim a long dot run would overflow the slide and, vertically,
-     collide with the up/down controls that share the lane. Cap the tray to clear the
-     controls and let the dots **wrap** onto a second line within it: `flex-wrap`
-     plus the base group's `justify-content: center` centres each line (so a partial
-     last row/column sits centred under the first), and `align-content: center`
-     centres the block of lines. Horizontal wraps to a second row (cap the inline
-     axis, clearing the frame/peek/control inset); vertical wraps to a second column
-     (cap the block axis, additionally clearing the control size + a gap so the tray
-     sits between the up/down controls). Only overlay caps — row/flank dots sit in a
-     constrained bar/grid cell already. */
-  .primitiv-carousel--placement-overlay.primitiv-carousel--indicators-dots
+  /* Overlay + dots (horizontal split) — dots can't shrink to fit (fixed WCAG hit
+     area), so a long dot run on the scrim would overflow the slide. Cap the pill to
+     the slide and let the dots wrap onto a second row (flex-wrap; the base
+     justify-content: center centres each line, align-content: center the block).
+     Scoped to the horizontal split pill — joined dots sit in the sized bar, and the
+     vertical split pill runs on the block axis (its own overflow is a later concern). */
+  .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split:not([data-orientation="vertical"]).primitiv-carousel--indicators-dots
     .primitiv-carousel__indicator-group {
     flex-wrap: wrap;
     align-content: center;
@@ -1011,48 +1039,6 @@
             var(--primitiv-carousel-overlay-control-inset)
         )
     );
-  }
-  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--indicators-dots
-    .primitiv-carousel__indicator-group {
-    /* When the dots exceed the lane height, balance them into extra columns — the
-       grid **widening to contain them** (its intrinsic width is the sum of its
-       column tracks, so `inline-size: fit-content` grows to hold every column;
-       multicol balances but its width collapses to one column and overflows, flex
-       column-wrap won't grow at all). Rather than measure the fit (CSS can't derive a
-       track count from a length), a `:has()` quantity query below reads the dot COUNT
-       and sets the column count; grid's row-major auto-flow then balances the dots
-       across those columns (8 → 4+4). It's count-driven, not height-exact — but that
-       is the case that matters (a short overlay slide with many dots), and the
-       `max-block-size` cap keeps a column between the up/down controls. Pure CSS, no
-       writing-mode, so the group keeps its logical inline-end lane + RTL mirroring. */
-    display: grid;
-    grid-auto-flow: row;
-    grid-template-columns: max-content;
-    grid-auto-rows: var(--primitiv-carousel-indicator-hit-area);
-    column-gap: var(--primitiv-space-space-4);
-    row-gap: var(--primitiv-space-space-0);
-    max-inline-size: none;
-    max-block-size: calc(
-      100% - 2 *
-        (
-          var(--primitiv-carousel-viewport-border-width) +
-            var(--primitiv-carousel-viewport-padding) +
-            var(--primitiv-carousel-peek) +
-            2 * var(--primitiv-carousel-overlay-control-inset) +
-            var(--primitiv-carousel-control-size)
-        )
-    );
-  }
-  /* Quantity queries: read the dot count and add balanced columns (≈5 dots per
-     column). `:has(> :nth-child(N))` matches a group with at least N indicators; the
-     grid then balances the dots row-major across the columns and widens to fit. */
-  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--indicators-dots
-    .primitiv-carousel__indicator-group:has(> :nth-child(6)) {
-    grid-template-columns: repeat(2, max-content);
-  }
-  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--indicators-dots
-    .primitiv-carousel__indicator-group:has(> :nth-child(11)) {
-    grid-template-columns: repeat(3, max-content);
   }
 
   /* Fade transition (headless `transition="fade"` → data-transition="fade").

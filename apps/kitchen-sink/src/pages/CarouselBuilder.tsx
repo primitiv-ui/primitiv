@@ -239,10 +239,8 @@ function LiveCarousel({ config }: { config: BuilderConfig }) {
   const isVertical = config.orientation === "vertical";
   // `joined` bundles prev/indicators/next into the CarouselControls bar so they
   // travel together; `split` flanks prev/next at the viewport edges with a separate
-  // indicator cluster. Vertical overlay can't join (its up/pill/down share one
-  // lane), so it stays split there.
-  const verticalOverlay = config.placement === "overlay" && isVertical;
-  const joined = config.cluster === "joined" && !verticalOverlay;
+  // indicator cluster. Applies uniformly across both placements and orientations.
+  const joined = config.cluster === "joined";
   const useControlsBar = joined;
 
   const prev = (
@@ -366,17 +364,10 @@ export function CarouselBuilder() {
     setConfig((current) => ({ ...current, [key]: value }));
   }
 
-  // distribution/align position the joined bar or the split indicator cluster —
-  // except vertical overlay, where up/pill/down share one lane, so both are inert
-  // there. align is also moot under distribution=stretch (the cluster fills its edge).
-  const verticalOverlay =
-    config.placement === "overlay" && config.orientation === "vertical";
-  const alignDisabled = verticalOverlay || config.distribution === "stretch";
-
-  // cluster (split/joined) is read by both placements, except vertical overlay,
-  // which is split-only (its up/pill/down share one lane).
-  const clusterApplies = !verticalOverlay;
-  const clusterNote = "split only for vertical overlay";
+  // Every axis composes across the full external/overlay × split/joined matrix in
+  // both orientations; the only inert case is align under distribution=stretch (the
+  // cluster already fills its edge, so alignment is moot).
+  const alignDisabled = config.distribution === "stretch";
 
   return (
     <article className="carousel-builder">
@@ -433,8 +424,6 @@ export function CarouselBuilder() {
               value={config.distribution}
               options={["group", "stretch"] as const}
               onChange={(value) => set("distribution", value)}
-              disabled={verticalOverlay}
-              note="n/a for vertical overlay"
             />
             <RadioField
               legend="align"
@@ -443,11 +432,7 @@ export function CarouselBuilder() {
               options={["start", "center", "end"] as const}
               onChange={(value) => set("align", value)}
               disabled={alignDisabled}
-              note={
-                verticalOverlay
-                  ? "n/a for vertical overlay"
-                  : "n/a when distribution=stretch"
-              }
+              note="n/a when distribution=stretch"
             />
             <RadioField
               legend="cluster"
@@ -455,8 +440,6 @@ export function CarouselBuilder() {
               value={config.cluster}
               options={["split", "joined"] as const}
               onChange={(value) => set("cluster", value)}
-              disabled={!clusterApplies}
-              note={clusterNote}
             />
             <CheckField
               label={'RTL (dir="rtl")'}

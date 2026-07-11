@@ -59,6 +59,18 @@ export type PopoverContentProps = ComponentProps<"div"> & {
   ref?: Ref<HTMLDivElement>;
 };
 
+/**
+ * Props for `Popover.Anchor`, an optional element the popover is positioned
+ * against instead of the trigger. Attach a CSS `anchor-name` to it and a
+ * matching `position-anchor` to `Popover.Content`.
+ */
+export type PopoverAnchorProps = ComponentProps<"div"> & {
+  /** Anchor content. */
+  children?: ReactNode;
+  /** Render the child element instead of the default `<div>`. */
+  asChild?: boolean;
+};
+
 /** Props for `Popover.Close`, the button that closes the popover. */
 export type PopoverCloseProps = ComponentProps<"button"> & {
   /** Close-button content (label, icon, etc.). */

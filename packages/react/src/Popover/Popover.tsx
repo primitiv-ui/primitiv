@@ -10,6 +10,7 @@ import {
 } from "./hooks/index.ts";
 
 import type {
+  PopoverAnchorProps,
   PopoverCloseProps,
   PopoverContentProps,
   PopoverDescriptionProps,
@@ -68,6 +69,20 @@ export function PopoverContent({
 
 /** @internal */
 PopoverContent.displayName = "PopoverContent";
+
+export function PopoverAnchor({
+  children,
+  ...rest
+}: PopoverAnchorProps): ReactElement {
+  // Consume context so an Anchor rendered outside a Root throws, matching the
+  // other sub-components. Positioning itself is a CSS (anchor-name) concern.
+  usePopoverContext();
+
+  return <div {...rest}>{children}</div>;
+}
+
+/** @internal */
+PopoverAnchor.displayName = "PopoverAnchor";
 
 export function PopoverClose({
   children,
@@ -144,6 +159,8 @@ type PopoverCompound = typeof PopoverRoot & {
   Root: typeof PopoverRoot;
   /** The button that toggles the popover. */
   Trigger: typeof PopoverTrigger;
+  /** An optional positioning reference used instead of the trigger. */
+  Anchor: typeof PopoverAnchor;
   /** The floating panel. */
   Content: typeof PopoverContent;
   /** A button that closes the popover. */
@@ -157,6 +174,7 @@ type PopoverCompound = typeof PopoverRoot & {
 const PopoverCompound: PopoverCompound = Object.assign(PopoverRoot, {
   Root: PopoverRoot,
   Trigger: PopoverTrigger,
+  Anchor: PopoverAnchor,
   Content: PopoverContent,
   Close: PopoverClose,
   Title: PopoverTitle,

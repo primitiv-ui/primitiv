@@ -3,6 +3,29 @@
 /* App.tsx bundles all example CSS into one global sheet, so a bare selector  */
 /* (or a bare [popover] / [data-state] one) would leak onto other pages.      */
 
+/* ── Page text ─────────────────────────────────────────────────────────── */
+/* The design system's base stylesheet colours bare <p>/<h*> with the         */
+/* light-theme --primitiv-content-* tokens (dark), which are unreadable on the */
+/* workbench's dark background. Re-assert legible colours on this page's own   */
+/* top-level text (direct children only, so the white panels keep their dark   */
+/* text). Unlayered rules win over the base sheet's @layer.                    */
+.pop-page > h2,
+.pop-page > h3 {
+  color: #fff;
+}
+
+.pop-page > p {
+  color: rgba(255, 255, 255, 0.87);
+}
+
+.pop-page > p code {
+  padding: 1px 5px;
+  color: #fff;
+  background: rgb(255 255 255 / 12%);
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
 /* ── Shared panel styling ──────────────────────────────────────────────── */
 /* Native popovers default to inset:0; margin:auto (viewport-centred). Clear  */
 /* the inset so CSS anchor positioning (position-area) can place the panel.   */

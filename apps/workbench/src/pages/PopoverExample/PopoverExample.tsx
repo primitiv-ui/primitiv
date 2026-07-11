@@ -8,7 +8,7 @@ export function PopoverExample() {
   const [open, setOpen] = useState(false);
 
   return (
-    <section>
+    <section className="pop-page">
       <h2>Popover</h2>
       <p>
         A non-modal dialog built on the native HTML Popover API. The browser

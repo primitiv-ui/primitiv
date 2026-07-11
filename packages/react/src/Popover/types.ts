@@ -59,6 +59,14 @@ export type PopoverContentProps = ComponentProps<"div"> & {
   ref?: Ref<HTMLDivElement>;
 };
 
+/** Props for `Popover.Close`, the button that closes the popover. */
+export type PopoverCloseProps = ComponentProps<"button"> & {
+  /** Close-button content (label, icon, etc.). */
+  children?: ReactNode;
+  /** Render the child element instead of the default `<button>`. */
+  asChild?: boolean;
+};
+
 /** Value shared through Popover context to all sub-components. */
 export type PopoverContextValue = {
   /** Whether the popover is currently open. */

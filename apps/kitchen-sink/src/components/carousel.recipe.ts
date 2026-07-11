@@ -56,6 +56,13 @@ export const carousel = cva("primitiv-carousel", {
       dots: "primitiv-carousel--indicators-dots",
       thumbnails: "primitiv-carousel--indicators-thumbnails",
     },
+    size: {
+      xs: "primitiv-carousel--size-xs",
+      sm: "primitiv-carousel--size-sm",
+      md: "primitiv-carousel--size-md",
+      lg: "primitiv-carousel--size-lg",
+      xl: "primitiv-carousel--size-xl",
+    },
   },
   defaultVariants: {
     peek: "none",
@@ -68,6 +75,7 @@ export const carousel = cva("primitiv-carousel", {
     align: "center",
     cluster: "split",
     indicators: "dots",
+    size: "md",
   },
 });
 

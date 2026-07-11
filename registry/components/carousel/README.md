@@ -152,6 +152,14 @@ so they can't fall out of sync.
   `distribution`, `align` and `indicators`. (`ratio` is read in the horizontal
   layout; the vertical viewport
   owns its own ratio, so the slide aspect stands down there.)
+- **Scaling (`size` + density).** A root **`size`** modifier (`xs` · `sm` · `md`
+  default · `lg` · `xl`) scales the **control chrome** while the viewport and slides
+  stay container-driven. The prev/next controls track the shared
+  `--primitiv-framed-control-{size}-*` ramp, so a carousel control matches a
+  same-size `Button` (its box grows 32→40 at `md`) and inherits that ramp's
+  per-density values — pick the slot with `size`, and the ambient `data-density`
+  shifts every slot. (The dots, active pill, thumbnails and chrome gaps join the
+  ramp in a later stage; today `size` scales the prev/next controls.)
 - **Multi-slide (`slidesPerPage` / `slidesPerMove`).** These are **not**
   modifiers — they are **`styleProps`**: numeric props forwarded straight to the
   headless page model *and* written onto `--primitiv-carousel-slides-per-page`

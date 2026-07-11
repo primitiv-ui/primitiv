@@ -1368,6 +1368,32 @@ the carousel is invariant today because its knobs point at raw primitives. Plan:
 
 **Figma lockstep: pending** (code-first per plan decision 2). **Next:** build Stage 1.
 
+#### Stage 1 — the mechanism (controls scale; registry-only, zero new tokens) — awaiting QA
+
+Landed the size+density mechanism end-to-end on the prev/next controls, with **no new
+DTCG tokens** — the win of reusing the framed-control ramp:
+- **Contract.** New root **`size`** modifier (`xs · sm · md` default `· lg · xl`). The
+  `control-size` / `control-icon-size` knob defaults re-pointed from raw primitives
+  (`space-32` / `space-16`) to `--primitiv-framed-control-md-{height,icon-size}`, so the
+  documented default = the `md` slot (button parity; the control grows 32→40 at `md`).
+- **styles.css.** A size-ramp block in the variants layer: each `--size-{slot}` re-points
+  `control-size` + `control-icon-size` to `framed-control-{slot}-{height,icon-size}`.
+  Those framed-control tokens are already density-scoped, so the control gains **density
+  response for free** — `size` picks the slot, `data-density` shifts it. Regenerated
+  recipe/tsx (new `size` cva variant + omitted-from-primitive prop) + scss + drift-green.
+- **Kitchen-sink.** `BasicSingle` gained a `size` passthrough; a new **`/carousel/size`**
+  route (sidebar "Size") shows the xs→xl ladder (flip the header Density to see every
+  cell shift). The **Builder** reads the ambient `useChrome().size` (the header toggle,
+  previously inert for carousel) and threads it to the live carousel + the `<pre>`
+  readout — matching how a real consumer sets `size` while density stays ambient.
+- **README** updated (the `size` + density scaling bullet).
+
+Global side-effect (intended, agreed): every carousel's prev/next control grows 32→40 at
+the default `md` — button parity. **Gates green:** `cargo test -p primitiv-emit` (106,
+drift), `check-registry-types.mjs`. (No headless change.) **Next:** human QA of
+`/carousel/size` + the header Size/Density toggles on the Builder; then Stage 2 (the
+bespoke dots/pill/thumbnail/chrome-gap ramp in `context.json` × 4 densities).
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

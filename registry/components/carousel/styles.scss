@@ -73,7 +73,10 @@
     --primitiv-carousel-slide-radius: var(--primitiv-radii-12);
     --primitiv-carousel-block-gap: var(--primitiv-space-space-16);
     --primitiv-carousel-controls-gap: var(--primitiv-space-space-16);
-    --primitiv-carousel-control-size: var(--primitiv-space-space-32);
+    /* The prev/next controls track the shared framed-control size ramp (so they
+       match a same-size Button and inherit its density scaling); `md` is the
+       default slot, re-pointed per slot by the size modifier in the variants layer. */
+    --primitiv-carousel-control-size: var(--primitiv-framed-control-md-height);
     /* 50% on a square control draws a circle — a shape, not a token value
        (like the indicator dot below). The design uses circular controls. */
     --primitiv-carousel-control-radius: 50%;
@@ -81,7 +84,7 @@
     --primitiv-carousel-control-bg-hover: var(--primitiv-action-secondary-hover);
     --primitiv-carousel-control-bg-active: var(--primitiv-action-secondary-active);
     --primitiv-carousel-control-fg: var(--primitiv-action-secondary-foreground-default);
-    --primitiv-carousel-control-icon-size: var(--primitiv-space-space-16);
+    --primitiv-carousel-control-icon-size: var(--primitiv-framed-control-md-icon-size);
     --primitiv-carousel-indicator-gap: var(--primitiv-space-space-0);
     --primitiv-carousel-indicator-hit-area: var(--primitiv-space-space-24);
     --primitiv-carousel-indicator-size: var(--primitiv-space-space-8);
@@ -292,6 +295,35 @@
 }
 
 @layer primitiv.variants {
+  /* Size — the control chrome scales on a t-shirt ramp so a carousel matches the
+     UI around it; the viewport/slides stay container-driven. The prev/next controls
+     track the shared framed-control ramp (control box = the Button height, chevron =
+     its icon size), so they match a same-size Button and inherit its per-density
+     values for free — `size` picks the slot, the ambient `data-density` shifts it.
+     `md` is the base default (set on the knobs above); the slots re-point per size.
+     Stage 1 scales the controls; the dots / active-pill / thumbnail / chrome-gap
+     ramp lands next. */
+  .primitiv-carousel--size-xs {
+    --primitiv-carousel-control-size: var(--primitiv-framed-control-xs-height);
+    --primitiv-carousel-control-icon-size: var(--primitiv-framed-control-xs-icon-size);
+  }
+  .primitiv-carousel--size-sm {
+    --primitiv-carousel-control-size: var(--primitiv-framed-control-sm-height);
+    --primitiv-carousel-control-icon-size: var(--primitiv-framed-control-sm-icon-size);
+  }
+  .primitiv-carousel--size-md {
+    --primitiv-carousel-control-size: var(--primitiv-framed-control-md-height);
+    --primitiv-carousel-control-icon-size: var(--primitiv-framed-control-md-icon-size);
+  }
+  .primitiv-carousel--size-lg {
+    --primitiv-carousel-control-size: var(--primitiv-framed-control-lg-height);
+    --primitiv-carousel-control-icon-size: var(--primitiv-framed-control-lg-icon-size);
+  }
+  .primitiv-carousel--size-xl {
+    --primitiv-carousel-control-size: var(--primitiv-framed-control-xl-height);
+    --primitiv-carousel-control-icon-size: var(--primitiv-framed-control-xl-icon-size);
+  }
+
   /* Vertical orientation (headless `orientation="vertical"` → data-orientation).
      The viewport scrolls on the block axis and the controls sit in a column
      beside it (up / dots / down), mirroring the horizontal below-the-viewport

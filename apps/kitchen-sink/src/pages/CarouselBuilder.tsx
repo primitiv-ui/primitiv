@@ -24,6 +24,7 @@ import {
   CarouselIndicator,
   CarouselIndicators,
 } from "../components";
+import { useChrome } from "../chrome";
 import "./CarouselBuilder.css";
 
 // The controls-panel sections. Rendered as a single `multiple` Accordion, all
@@ -50,6 +51,7 @@ const GALLERY = [
   "linear-gradient(135deg, #dc2626, #facc15)",
 ];
 
+type Size = "xs" | "sm" | "md" | "lg" | "xl";
 type Placement = "external" | "overlay";
 type Orientation = "horizontal" | "vertical";
 type Side = "after" | "before";
@@ -234,7 +236,13 @@ function CheckField({
 // overlay); `split` renders them as direct children of the root (the grid / absolute
 // layout flanks prev/next and places the indicator cluster). Everything else is a
 // straight prop passthrough.
-function LiveCarousel({ config }: { config: BuilderConfig }) {
+function LiveCarousel({
+  config,
+  size,
+}: {
+  config: BuilderConfig;
+  size: Size;
+}) {
   const slides = GALLERY.slice(0, config.slideCount);
   const isVertical = config.orientation === "vertical";
   // `joined` bundles prev/indicators/next into the CarouselControls bar so they
@@ -294,6 +302,7 @@ function LiveCarousel({ config }: { config: BuilderConfig }) {
     >
       <Carousel
         ariaLabel="Carousel builder preview"
+        size={size}
         orientation={config.orientation}
         placement={config.placement}
         side={config.side}
@@ -326,8 +335,9 @@ function LiveCarousel({ config }: { config: BuilderConfig }) {
 
 // A copy-pasteable echo of the active props, so a spotted bug reports the exact
 // combination that produced it.
-function describe(config: BuilderConfig): string {
+function describe(config: BuilderConfig, size: Size): string {
   const props: string[] = [
+    `size="${size}"`,
     `orientation="${config.orientation}"`,
     `placement="${config.placement}"`,
     `side="${config.side}"`,
@@ -359,6 +369,9 @@ export function CarouselBuilder() {
   // Controlled accordion so every section can start expanded (uncontrolled only
   // opens a single defaultValue); the human collapses individually from there.
   const [openSections, setOpenSections] = useState<string[]>([...SECTIONS]);
+  // `size` is ambient (the shared header toggle), threaded as a prop — the same
+  // way a real consumer sets it; `data-density` shifts every slot underneath it.
+  const { size } = useChrome();
 
   function set<K extends keyof BuilderConfig>(key: K, value: BuilderConfig[K]) {
     setConfig((current) => ({ ...current, [key]: value }));
@@ -533,8 +546,8 @@ export function CarouselBuilder() {
         </div>
 
         <div className="carousel-builder__preview">
-          <LiveCarousel config={config} />
-          <pre className="carousel-builder__readout">{describe(config)}</pre>
+          <LiveCarousel config={config} size={size} />
+          <pre className="carousel-builder__readout">{describe(config, size)}</pre>
         </div>
       </div>
     </article>

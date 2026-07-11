@@ -20,6 +20,7 @@ import {
   CarouselExternalSplit,
   CarouselPlacement,
   CarouselSpacing,
+  CarouselSize,
 } from "./pages/CarouselPage";
 import "./Shell.css";
 
@@ -76,6 +77,7 @@ export function Shell() {
           <Route path="external-split" element={<CarouselExternalSplit />} />
           <Route path="placement" element={<CarouselPlacement />} />
           <Route path="spacing" element={<CarouselSpacing />} />
+          <Route path="size" element={<CarouselSize />} />
         </Route>
       </Routes>
     </ChromeProvider>

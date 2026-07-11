@@ -21,6 +21,7 @@ const EXAMPLES: { to: string; label: string }[] = [
   { to: "external-split", label: "External-split" },
   { to: "placement", label: "Control placement" },
   { to: "spacing", label: "Slide spacing" },
+  { to: "size", label: "Size" },
 ];
 
 export function CarouselLayout() {

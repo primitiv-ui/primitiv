@@ -16,7 +16,7 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K>
  *
  * @see https://primitiv-ui.dev/docs/components/carousel
  */
-export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "gap" | "padding" | "surface" | "placement" | "side" | "distribution" | "align" | "cluster" | "indicators"> & {
+export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "gap" | "padding" | "surface" | "placement" | "side" | "distribution" | "align" | "cluster" | "indicators" | "size"> & {
   /**
    * Reveal a sliver of the adjacent slides on either side of the active one. Works in both orientations (inline edges when horizontal, block edges when vertical).
    * - `none` — No peek — the active slide fills the viewport (the default).
@@ -104,12 +104,23 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
   indicators?: "dots" | "thumbnails";
+  /**
+   * Scale of the control chrome — the prev/next controls, indicator dots and thumbnails — on a t-shirt ramp, so a carousel matches the density of the UI around it. The viewport and slides stay container-driven (they fill their space); only the controls scale. Composes with the ambient `data-density` (which shifts every slot): `size` picks the slot, density shifts it. The prev/next controls track the shared framed-control ramp, so they match a same-size Button.
+   * - `xs` — Extra small controls.
+   * - `sm` — Small controls.
+   * - `md` — Medium controls (the default).
+   * - `lg` — Large controls.
+   * - `xl` — Extra large controls.
+   * @default "md"
+   * @see https://primitiv-ui.dev/docs/components/carousel
+   */
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
 };
 
-export function Carousel({ peek, gap, padding, surface, placement, side, distribution, align, cluster, indicators, slidesPerPage, className, style, ...props }: CarouselProps) {
+export function Carousel({ peek, gap, padding, surface, placement, side, distribution, align, cluster, indicators, size, slidesPerPage, className, style, ...props }: CarouselProps) {
   return (
     <CarouselPrimitive.Root
-      className={[carousel({ peek, gap, padding, surface, placement, side, distribution, align, cluster, indicators }), className].filter(Boolean).join(" ")}
+      className={[carousel({ peek, gap, padding, surface, placement, side, distribution, align, cluster, indicators, size }), className].filter(Boolean).join(" ")}
       style={{ ...style, ...(slidesPerPage === undefined ? {} : { "--primitiv-carousel-slides-per-page": slidesPerPage }) } as CSSProperties}
       slidesPerPage={slidesPerPage}
       {...props}

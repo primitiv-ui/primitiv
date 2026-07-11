@@ -57,6 +57,7 @@ function BasicSingle({
   distribution,
   align,
   gap,
+  size,
 }: {
   label: string;
   radius?: "md" | "none";
@@ -69,10 +70,12 @@ function BasicSingle({
   distribution?: "group" | "stretch";
   align?: "start" | "center" | "end";
   gap?: "none" | "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
 }) {
   return (
     <Carousel
       ariaLabel={label}
+      size={size}
       peek={peek}
       padding={padding}
       surface={surface}
@@ -1395,6 +1398,31 @@ export function CarouselExternalSplit() {
         >
           <ExternalSplitSingle label="External-split — thumbnails + peek" indicators="thumbnails" peek="sm" />
         </GridCell>
+      </div>
+    </Example>
+  );
+}
+
+const SIZE_LADDER = [
+  { size: "xs", note: "Extra small — the smallest control slot." },
+  { size: "sm", note: "Small." },
+  { size: "md", note: "Medium — the default, matching a same-size Button (~40px)." },
+  { size: "lg", note: "Large." },
+  { size: "xl", note: "Extra large — the biggest control slot." },
+] as const;
+
+export function CarouselSize() {
+  return (
+    <Example
+      title="Size — the control chrome scales (Stage 1)"
+      note="A root `size` modifier (xs · sm · md default · lg · xl) scales the control chrome while the viewport and slides stay container-driven. Stage 1 scales the prev/next controls: they track the shared framed-control ramp, so a carousel control matches a same-size Button (the box grows 32→40 at md) and inherits its per-density values. Size composes with the ambient density — flip the header Density control and every cell shifts together; the header Size control drives the Builder. (Dots, active pill and thumbnails join the ramp in the next stage.)"
+    >
+      <div className="carousel-grid">
+        {SIZE_LADDER.map(({ size, note }, i) => (
+          <GridCell key={size} n={i + 1} title={`size="${size}"`} note={note}>
+            <BasicSingle label={`Size ${size}`} size={size} />
+          </GridCell>
+        ))}
       </div>
     </Example>
   );

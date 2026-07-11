@@ -113,6 +113,18 @@
         { "name": "dots", "class": "primitiv-carousel--indicators-dots", "description": "Compact dots — one per page (the default)." },
         { "name": "thumbnails", "class": "primitiv-carousel--indicators-thumbnails", "description": "Image thumbnails — each indicator shows its slide's thumbnail, the active one ringed in the primary colour." }
       ]
+    },
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Scale of the control chrome — the prev/next controls, indicator dots and thumbnails — on a t-shirt ramp, so a carousel matches the density of the UI around it. The viewport and slides stay container-driven (they fill their space); only the controls scale. Composes with the ambient `data-density` (which shifts every slot): `size` picks the slot, density shifts it. The prev/next controls track the shared framed-control ramp, so they match a same-size Button.",
+      "options": [
+        { "name": "xs", "class": "primitiv-carousel--size-xs", "description": "Extra small controls." },
+        { "name": "sm", "class": "primitiv-carousel--size-sm", "description": "Small controls." },
+        { "name": "md", "class": "primitiv-carousel--size-md", "description": "Medium controls (the default)." },
+        { "name": "lg", "class": "primitiv-carousel--size-lg", "description": "Large controls." },
+        { "name": "xl", "class": "primitiv-carousel--size-xl", "description": "Extra large controls." }
+      ]
     }
   ],
   "styleProps": [
@@ -211,13 +223,13 @@
     { "name": "--primitiv-carousel-slide-radius", "defaultsTo": "var(--primitiv-radii-12)" },
     { "name": "--primitiv-carousel-block-gap", "defaultsTo": "var(--primitiv-space-space-16)" },
     { "name": "--primitiv-carousel-controls-gap", "defaultsTo": "var(--primitiv-space-space-16)" },
-    { "name": "--primitiv-carousel-control-size", "defaultsTo": "var(--primitiv-space-space-32)" },
+    { "name": "--primitiv-carousel-control-size", "defaultsTo": "var(--primitiv-framed-control-md-height)" },
     { "name": "--primitiv-carousel-control-radius", "defaultsTo": "50%" },
     { "name": "--primitiv-carousel-control-bg", "defaultsTo": "var(--primitiv-action-secondary-default)" },
     { "name": "--primitiv-carousel-control-bg-hover", "defaultsTo": "var(--primitiv-action-secondary-hover)" },
     { "name": "--primitiv-carousel-control-bg-active", "defaultsTo": "var(--primitiv-action-secondary-active)" },
     { "name": "--primitiv-carousel-control-fg", "defaultsTo": "var(--primitiv-action-secondary-foreground-default)" },
-    { "name": "--primitiv-carousel-control-icon-size", "defaultsTo": "var(--primitiv-space-space-16)" },
+    { "name": "--primitiv-carousel-control-icon-size", "defaultsTo": "var(--primitiv-framed-control-md-icon-size)" },
     { "name": "--primitiv-carousel-indicator-gap", "defaultsTo": "var(--primitiv-space-space-0)" },
     { "name": "--primitiv-carousel-indicator-hit-area", "defaultsTo": "var(--primitiv-space-space-24)" },
     { "name": "--primitiv-carousel-indicator-size", "defaultsTo": "var(--primitiv-space-space-8)" },

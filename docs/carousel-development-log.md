@@ -1226,6 +1226,37 @@ new external grid on `/carousel/builder` — external × split/joined × side/di
 align × orientation should now be deterministic; then the overlay-vertical + cosmetic
 cleanup pass, then density/size scaling (the human's next cycle).
 
+### Overlay brought to the full 2×2 + active-dot pill (awaiting human QA)
+
+**Overlay now mirrors external across the whole matrix.** After external landed, overlay
+was rewritten so `split`/`joined` × orientation × side × distribution/align all work:
+- **All split positioning is scoped to `.cluster-split`**, so `joined`'s nested parts
+  flow in the `<CarouselControls>` bar untouched — the old reset hacks are gone.
+- **Vertical overlay was rebuilt** to the frame's model: `split` = up/down flank the
+  block edges (centred inline over the slide) with the dots as a compact pill on an
+  inline side (`side` picks end/start); `joined` = one up/dots/down bar on an inline
+  side, full block span. The old shared up/pill/down lane (and its `:has()` dot-balancing
+  grid) is retired.
+- **distribution/align work in both orientations**: the horizontal pill moves via
+  `inset-inline`, the vertical pill via `inset-block` (mirror); joined bars fill their
+  edge so the shared `.__controls` justify-content rules drive them.
+- Joined dots re-apply the pill appearance (split's pill is scoped away). Builder greying
+  simplified — the vertical-overlay no-op is gone; only `align` under `distribution=stretch`
+  is inert now.
+- **Deferred:** overlay + thumbnails cap and vertical-many-dots overflow (edge cases) still
+  reference the old lane geometry — a later polish pass.
+
+**Active dot → animated pill.** The active indicator now elongates into a stadium pill
+along the dot row's axis (inline when horizontal, block when vertical) via a new
+`--primitiv-carousel-indicator-size-active` knob (`space-24`), with a
+`motion-duration-control` transition on the size + colour. `radii-full` on the dot
+`::before` gives a circle when square and a stadium when elongated.
+
+**Gates green:** `cargo test -p primitiv-emit` (drift), `node scripts/check-registry-types.mjs`.
+Regenerated + kitchen-sink synced. Rebased onto the merged Popover work on `main`.
+**Next:** human QA of overlay (both orientations) + the active-dot pill; then the cosmetic
+`flank` sweep and the deferred overlay-thumbnail/overflow polish, before density/size.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

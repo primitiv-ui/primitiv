@@ -1320,6 +1320,54 @@ dots · 8 slides). Regenerated `styles.scss` + drift-green + kitchen-sink synced
 vertical-many-dots wrap on `/carousel/overlay` (cell 11) + the Builder; then, on sign-off,
 the density / size cycle.
 
+### Iteration 14 — Density & size scaling (agreed model + staged plan)
+
+**The milestone: make the carousel breathe with `data-density` (ambient) and a new
+`size` prop (xs–xl), while the viewport/slides stay container-driven.** Design agreed
+with the human (screenshot Q&A, decisions a / a / b-refined):
+
+1. **Axes = size + density.** A per-instance root `size` modifier (xs · sm · md
+   default · lg · xl) picks a slot; ambient `data-density` shifts every slot. Full
+   parity with button/checkbox/switch; the kitchen-sink `ChromeControls` size toggle
+   (inert until now) drives the carousel.
+2. **The whole control chrome scales as a unit** — prev/next **like the regular
+   buttons** (bind to the density-scoped `--primitiv-framed-control-{size}-*` ramp, so
+   the control grows 32→40 at `md`, chevron 16), dots **gently** (already small — a
+   shallow ramp, and the hit area stays **clamped ≥24px**, the WCAG 2.5.8 AA floor),
+   plus the active pill, thumbnails and the chrome gaps.
+3. **Content-composition modifiers keep their t-shirt steps but the resolved values
+   scale with density+size too** (peek / viewport-padding / inter-slide gap re-point off
+   raw primitives onto a size+density-scoped carousel spacing ramp). The *content
+   dimensions* (viewport/slide) stay container-driven; the *spacing steps* breathe.
+
+**What does NOT scale:** viewport/slide size (fill + aspect-ratio), slide radius (its
+own `radius` modifier). Orientation/RTL are axis-agnostic (logical props + the same
+tokens), so no new concern.
+
+**Token model.** Density-sensitivity in this system comes from *semantic* tokens that
+remap per density mode (`context.json` → the 4-mode Context collection → `tokens.css`);
+the carousel is invariant today because its knobs point at raw primitives. Plan:
+- **Control + chevron:** reuse `framed-control-{size}-{height,icon-size}` — **no new
+  DTCG tokens**, the size modifier just re-points the knob per slot (density free).
+- **Dots / active pill / thumbnails / chrome gap:** a small **bespoke carousel ramp**
+  — new `carousel.{xs..xl}.{dot-size,dot-hit-area,active-pill,thumbnail-size,chrome-gap}`
+  under each of the 4 density modes in `context.json`.
+- **Content spacing (peek/padding/gap steps):** a size+density-scoped carousel spacing
+  ramp the t-shirt modifiers re-point onto (exact steps settled in Stage 3).
+
+**Staged (each stage = its own commit(s), pushed for live QA before the next):**
+- **Stage 1 — the mechanism (registry-only, zero new tokens).** Add the `size` modifier
+  + re-point `--primitiv-carousel-control-size` / chevron to `framed-control-{size}-*`;
+  wire `ChromeControls` size into the carousel pages + Builder. Proves size+density
+  end-to-end on the buttons before authoring the matrices.
+- **Stage 2 — the bespoke chrome ramp** (dots gentle + ≥24 hit-area clamp, active pill,
+  thumbnails, chrome gap) in `context.json` × 4 densities, knobs re-pointed.
+- **Stage 3 — content spacing** (peek/padding/gap steps on the scaled ramp).
+- **Figma lockstep last**, after human sign-off — add the carousel size×density entries
+  to the Context collection (`figma-variable-architecture`).
+
+**Figma lockstep: pending** (code-first per plan decision 2). **Next:** build Stage 1.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

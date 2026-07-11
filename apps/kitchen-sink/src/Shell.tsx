@@ -17,7 +17,7 @@ import {
   CarouselFade,
   CarouselThumbnails,
   CarouselRatio,
-  CarouselFlank,
+  CarouselExternalSplit,
   CarouselPlacement,
   CarouselSpacing,
 } from "./pages/CarouselPage";
@@ -73,7 +73,7 @@ export function Shell() {
           <Route path="fade" element={<CarouselFade />} />
           <Route path="thumbnails" element={<CarouselThumbnails />} />
           <Route path="ratio" element={<CarouselRatio />} />
-          <Route path="flank" element={<CarouselFlank />} />
+          <Route path="external-split" element={<CarouselExternalSplit />} />
           <Route path="placement" element={<CarouselPlacement />} />
           <Route path="spacing" element={<CarouselSpacing />} />
         </Route>

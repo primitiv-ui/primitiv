@@ -48,8 +48,8 @@
   min-inline-size: 0;
 }
 
-/* Family group heading on the control-placement page — labels each block
- * (External / Overlay / Flank) so the long QA page reads in sections. */
+/* Section group heading on the control-placement page — labels each block
+ * (External / Overlay / External + split) so the long QA page reads in sections. */
 .carousel-page__group {
   margin: var(--primitiv-space-space-16) 0 0;
   padding-block-end: var(--primitiv-space-space-8);

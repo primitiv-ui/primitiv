@@ -139,7 +139,7 @@
        bar always spans the viewport's width — `align` / `distribution` then have
        room to position the cluster with justify-content. The `min` of 0 lets the
        scroll-container viewport shrink instead of forcing overflow. The vertical,
-       flank and vertical-overlay layouts set their own columns; horizontal overlay
+       external-split and vertical-overlay layouts set their own columns; horizontal overlay
        keeps this single full-width column (its controls are absolute). */
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -462,7 +462,7 @@
     position: static;
   }
 
-  /* Side — which cross-axis edge the external bar (or the flank indicators) sits
+  /* Side — which cross-axis edge the external bar (or the external-split indicators) sits
      on, relative to the scroll direction. `after` (the default) trails the
      viewport; `before` leads it. Orientation-relative + logical, so it reaches
      all four physical edges by composing with `orientation` and mirrors in RTL. */
@@ -472,7 +472,7 @@
   /* Before: move the control bar ahead of the viewport. `order` re-places it in
      the grid's source-order flow — the horizontal single-column stack (bar above)
      and, with the column swap below, the vertical two-column layout (bar on the
-     start side). Only `external` has a __controls bar, so flank/overlay ignore it. */
+     start side). Only the external joined bar reads it, so split/overlay ignore it. */
   .primitiv-carousel--side-before .primitiv-carousel__controls {
     order: -1;
   }
@@ -711,7 +711,7 @@
     grid-area: indicators;
   }
 
-  /* Vertical flank: the scroll axis is the block axis, so prev/next become the
+  /* Vertical external-split: the scroll axis is the block axis, so prev/next become the
      up/down controls flanking the viewport's top/bottom edges (centred over it),
      and the indicators run as a column on a perpendicular *inline* side —
      `after` (default) on the end/right, `before` on the start/left. Overrides the
@@ -1006,10 +1006,10 @@
   /* Overlay + thumbnails — the scrim container reshapes from the dots' full pill
      into a rounded-rect frame that matches the thumbnails' own corners, with an
      even inset equal to the thumbnail gap so the strip reads as one cohesive tray.
-     Crucially it is *capped to the slide* on the scroll axis (the flank grid
+     Crucially it is *capped to the slide* on the scroll axis (the external-split grid
      column constrains its thumbnails for free; the absolute overlay pill was
      fit-content, so a long strip overflowed the imagery). The cap lets the flex
-     thumbnails shrink to fit — responsively, like flank — inset from the slide
+     thumbnails shrink to fit — responsively, like external-split — inset from the slide
      edges by the same terms the overlay controls clear (all 0 when unset). */
   .primitiv-carousel--placement-overlay.primitiv-carousel--indicators-thumbnails
     .primitiv-carousel__indicator-group {

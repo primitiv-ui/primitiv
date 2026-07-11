@@ -18,10 +18,11 @@ expressed in logical properties.
 > beside it), **peek** (the `peek` modifier), **slide spacing** (the `gap` modifier
 > — the inter-slide gap on a t-shirt scale), **viewport padding** (the `padding`
 > modifier — a padded, framed viewport track), a **composable control-placement
-> framework** — a **`placement`** family (`external` default · `overlay` · `flank`)
-> plus three shared layout axes, **`side`** (`before` / `after` — which cross-axis
-> edge), **`distribution`** (`group` / `stretch`) and **`align`** (`start` /
-> `center` / `end`), that compose on top of any family and orientation, an
+> framework** — a **`placement`** axis (`external` default · `overlay`) crossed
+> with a **`cluster`** axis (`split` default · `joined`), plus three shared layout
+> axes, **`side`** (`before` / `after` — which cross-axis edge),
+> **`distribution`** (`group` / `stretch`) and **`align`** (`start` / `center` /
+> `end`), that compose on top of the 2×2 and orientation, an
 > **`indicators`** modifier whose `thumbnails` option swaps the dots for image
 > thumbnails, and a slide **`ratio`** modifier (square / standard / wide /
 > ultrawide) for the slide aspect ratio (all — see below). Multi-slide and autoplay
@@ -120,15 +121,16 @@ so they can't fall out of sync.
   collide with the up/down controls): dots (fixed hit area) **wrap** onto a second
   row/column centred under the first, while thumbnails **shrink** to fit.
 
-  For **`flank`**, the prev/next sit **outside** the viewport's two scroll-axis
-  edges (left/right when horizontal, top/bottom when vertical) with the indicators
-  on a perpendicular side (`side` picks below/above when horizontal, right/left
-  when vertical). Like `overlay`, the parts are direct children of the root (no
-  `<CarouselControls>` wrapper): the root becomes a grid that places each part by
-  area, and the logical templates swap prev/next and the indicators under RTL with
-  no extra CSS. The controls keep the default secondary-action fill (they're off
-  the imagery). It composes with `indicators="thumbnails"` (the External-flank +
-  thumbnails cell), `peek`, the slide `ratio`, and **both orientations**. A root
+  For **`external` + `split`**, the prev/next sit **outside** the viewport's two
+  scroll-axis edges (left/right when horizontal, top/bottom when vertical) with the
+  indicators on a perpendicular side (`side` picks below/above when horizontal,
+  right/left when vertical). Like `overlay`, the parts are direct children of the
+  root (no `<CarouselControls>` wrapper): the root becomes a grid that places each
+  part by area, and the logical templates swap prev/next and the indicators under
+  RTL with no extra CSS. The controls keep the default secondary-action fill
+  (they're off the imagery). It composes with `indicators="thumbnails"` (the
+  external-split + thumbnails cell), `peek`, the slide `ratio`, and **both
+  orientations**. A root
   **`indicators`** modifier (`dots` default · `thumbnails`) chooses
   what the indicators look like: `dots` is the compact dot row, while `thumbnails`
   reshapes each indicator button into a rounded-rect image **thumbnail** — the

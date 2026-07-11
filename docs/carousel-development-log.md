@@ -1257,6 +1257,36 @@ Regenerated + kitchen-sink synced. Rebased onto the merged Popover work on `main
 **Next:** human QA of overlay (both orientations) + the active-dot pill; then the cosmetic
 `flank` sweep and the deferred overlay-thumbnail/overflow polish, before density/size.
 
+### Cosmetic flank sweep — retired-noun relabel (awaiting human QA)
+
+**Pure relabel, no behaviour change.** Flank was retired in the rearchitecture (it
+was external + split); this sweep clears the leftover *`flank`-as-a-placement* labels
+so nothing implies flank is still an axis. The distinction that governed every edit:
+the **verb** "flank / flanking" (prev/next sitting at the viewport's edges) is correct
+English and was **kept**; only the retired **noun** was swept.
+
+- **Kitchen-sink route/nav.** `/carousel/flank` → **`/carousel/external-split`**
+  (`Shell.tsx` route + import), sidebar label "External-flank" → **"External-split"**
+  (`CarouselLayout.tsx`). The page component `CarouselFlank` → **`CarouselExternalSplit`**
+  and the helper `FlankSingle` → **`ExternalSplitSingle`** (both already rendered
+  `placement="external" cluster="split"` — the names were the only stale part). All
+  the section headings, cell titles, aria-labels and notes on `CarouselPage.tsx` (plus
+  the `CarouselPage.css` group-heading comment) reworded off the noun; the control-
+  placement page's intro note rewritten to the 2×2 (`placement` × `cluster`).
+- **Registry.** `styles.css` comments naming the old "flank" layout → "external-split"
+  (regenerated `styles.scss` from it — recipe/tsx byte-identical, contract untouched);
+  `README.md` header axis line + the "For `flank`" paragraph rewritten to
+  `external` + `split`. Kitchen-sink `styles.css` re-synced.
+
+Not swept (correct as-is): the verb "flank/flanking" throughout the CSS/README/TSX,
+`Shell.css`'s unrelated nav-grid comment, and `CarouselBuilder.tsx`'s verb usage. The
+append-only log/skill history keeps its "flank" references as the record of the retirement.
+
+**Gates green:** `cargo test -p primitiv-emit` (106, drift), `node scripts/check-registry-types.mjs`.
+(No headless/contract change.) **Next:** the deferred overlay edge cases (thumbnail cap +
+vertical-many-dots overflow still reference the retired shared-lane geometry), then the
+density / size cycle.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

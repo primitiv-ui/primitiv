@@ -221,14 +221,13 @@ function OverlaySingle({
 }
 
 /**
- * External-flank placement — the "External-flank + dots/thumbnails" composition:
- * circular prev/next sit *outside* the viewport's inline edges (left/right) with
- * the indicators centred in a row below. Driven by `placement="flank"`; the parts
- * are direct children of the root (no `__controls` wrapper — the grid places each
- * by area), so prev/next swap sides under RTL for free. Indicators can be dots or
- * thumbnails (the flank + thumbnails design cell).
+ * External + split placement — circular prev/next sit *outside* the viewport's
+ * inline edges (left/right) with the indicators centred in a row below. Driven by
+ * `placement="external" cluster="split"`; the parts are direct children of the
+ * root (no `__controls` wrapper — the grid places each by area), so prev/next swap
+ * sides under RTL for free. Indicators can be dots or thumbnails.
  */
-function FlankSingle({
+function ExternalSplitSingle({
   label,
   ratio,
   peek,
@@ -1018,7 +1017,7 @@ export function CarouselPlacement() {
   return (
     <Example
       title="Control placement — the composable framework"
-      note="Placement is four orthogonal props. `placement` picks the family (external · overlay · flank); the shared control-layout vocabulary composes on top — `side` (before/after, orientation-relative), `distribution` (group/stretch) and `align` (start/center/end for a grouped bar). Learn them once — they mean the same everywhere and degrade to a no-op where a family doesn't read them. Below, every available combination grouped by family: all of external, then all of overlay, then all of flank — so the whole surface can be QA'd in one pass."
+      note="Placement is a set of orthogonal props. `placement` picks external (off the imagery) or overlay (on it); `cluster` picks split (prev/next on the viewport's scroll-axis edges + a separate indicator cluster) or joined (one bar); the shared control-layout vocabulary composes on top — `side` (before/after, orientation-relative), `distribution` (group/stretch) and `align` (start/center/end for a grouped bar). Learn them once — they mean the same everywhere and degrade to a no-op where a placement doesn't read them. Below, every available combination grouped by section: all of external, then all of overlay, then external + split — so the whole surface can be QA'd in one pass."
     >
       {/* ============================ EXTERNAL ============================ */}
       <h2 className="carousel-page__group">External — a control bar beside the viewport</h2>
@@ -1236,70 +1235,70 @@ export function CarouselPlacement() {
         <GridCell
           n={12}
           title="thumbnails · many (shrink)"
-          note="Thumbnails do shrink: with many slides the strip caps to the slide and the thumbnails scale down to fit (like flank), inside the rounded-rect tray."
+          note="Thumbnails do shrink: with many slides the strip caps to the slide and the thumbnails scale down to fit (like external-split), inside the rounded-rect tray."
         >
           <ThumbnailSingle label="overlay many thumbnails" placement="overlay" slides={GALLERY} />
         </GridCell>
       </div>
 
-      {/* ============================ FLANK ============================ */}
-      <h2 className="carousel-page__group">Flank — prev/next split onto the scroll-axis edges</h2>
+      {/* ======================= EXTERNAL + SPLIT ======================= */}
+      <h2 className="carousel-page__group">External + split — prev/next on the scroll-axis edges</h2>
       <div className="carousel-grid">
         <GridCell
           n={1}
           title="after · dots (indicators below)"
           note="Circular prev/next flanking the viewport's inline edges, a dot row centred below."
         >
-          <FlankSingle label="flank after dots" />
+          <ExternalSplitSingle label="external-split after dots" />
         </GridCell>
         <GridCell
           n={2}
           title="before · dots (indicators above)"
           note="`side=before` moves the indicator row above the viewport; prev/next stay on the edges."
         >
-          <FlankSingle label="flank before dots" side="before" />
+          <ExternalSplitSingle label="external-split before dots" side="before" />
         </GridCell>
         <GridCell
           n={3}
           title="after · thumbnails"
-          note="The External-flank + thumbnails design cell: flanking controls, a thumbnail strip below."
+          note="The external-split + thumbnails design cell: flanking controls, a thumbnail strip below."
         >
-          <FlankSingle label="flank after thumbnails" indicators="thumbnails" />
+          <ExternalSplitSingle label="external-split after thumbnails" indicators="thumbnails" />
         </GridCell>
         <GridCell
           n={4}
           title="before · thumbnails"
           note="The thumbnail strip above the viewport with `side=before`."
         >
-          <FlankSingle label="flank before thumbnails" indicators="thumbnails" side="before" />
+          <ExternalSplitSingle label="external-split before thumbnails" indicators="thumbnails" side="before" />
         </GridCell>
         <GridCell
           n={5}
           title="vertical · after (indicators right)"
-          note="Vertical flank: prev/next become up/down flanking the top/bottom edges, the indicator column on the end (right) side."
+          note="Vertical external-split: prev/next become up/down flanking the top/bottom edges, the indicator column on the end (right) side."
         >
-          <FlankSingle label="flank vertical after" orientation="vertical" />
+          <ExternalSplitSingle label="external-split vertical after" orientation="vertical" />
         </GridCell>
         <GridCell
           n={6}
           title="vertical · before (indicators left)"
-          note="Vertical flank with the indicator column on the start (left) side."
+          note="Vertical external-split with the indicator column on the start (left) side."
         >
-          <FlankSingle label="flank vertical before" orientation="vertical" side="before" />
+          <ExternalSplitSingle label="external-split vertical before" orientation="vertical" side="before" />
         </GridCell>
         <GridCell
           n={7}
           title="after + peek"
           note="Composes with peek: a sliver of the neighbours shows in the viewport, controls still flanking outside it."
         >
-          <FlankSingle label="flank after peek" peek="sm" />
+          <ExternalSplitSingle label="external-split after peek" peek="sm" />
         </GridCell>
         <GridCell
           n={8}
           title="after + square ratio"
           note="Composes with the slide ratio: 1:1 square slides between the flanking controls."
         >
-          <FlankSingle label="flank after square" ratio="square" />
+          <ExternalSplitSingle label="external-split after square" ratio="square" />
         </GridCell>
         <GridCell
           n={9}
@@ -1307,7 +1306,7 @@ export function CarouselPlacement() {
           note="Mirrors under right-to-left — the grid columns follow writing direction, so prev/next swap sides with no RTL CSS."
           dir="rtl"
         >
-          <FlankSingle label="flank after rtl" />
+          <ExternalSplitSingle label="external-split after rtl" />
         </GridCell>
       </div>
     </Example>
@@ -1341,60 +1340,60 @@ function ThumbnailStretch({ label }: { label: string }) {
   );
 }
 
-export function CarouselFlank() {
+export function CarouselExternalSplit() {
   return (
     <Example
-      title='External-flank — placement="flank"'
-      note="The prev/next controls sit outside the viewport, flanking its inline edges (left/right), with the indicators centred in a row below — the External-flank design cell. The parts are direct children of the root (a 3-column grid: prev | viewport | next), so prev/next swap sides under RTL for free. It composes with dots or thumbnails (the External-flank + thumbnails cell), peek, and the slide ratio."
+      title='External + split — placement="external" cluster="split"'
+      note="The prev/next controls sit outside the viewport, flanking its inline edges (left/right), with the indicators centred in a row below — the external-split design cell. The parts are direct children of the root (a 3-column grid: prev | viewport | next), so prev/next swap sides under RTL for free. It composes with dots or thumbnails (the external-split + thumbnails cell), peek, and the slide ratio."
     >
       <div className="carousel-grid">
         <GridCell
           n={1}
-          title="Flank + dots"
+          title="External-split +dots"
           note="The baseline: circular prev/next flanking the viewport, a dot row centred below. Click a control or dot to page."
         >
-          <FlankSingle label="Flank — dots" />
+          <ExternalSplitSingle label="External-split — dots" />
         </GridCell>
 
         <GridCell
           n={2}
-          title="Flank + thumbnails"
-          note="The External-flank + thumbnails design cell: the same flanking controls with a thumbnail strip below, active one ringed in the primary colour."
+          title="External-split +thumbnails"
+          note="The external-split + thumbnails design cell: the same flanking controls with a thumbnail strip below, active one ringed in the primary colour."
         >
-          <FlankSingle label="Flank — thumbnails" indicators="thumbnails" />
+          <ExternalSplitSingle label="External-split — thumbnails" indicators="thumbnails" />
         </GridCell>
 
         <GridCell
           n={3}
-          title="Flank + peek sm"
+          title="External-split +peek sm"
           note="Composes with peek: a sliver of the neighbouring slides shows in the viewport, the controls still flanking outside it."
         >
-          <FlankSingle label="Flank — peek" peek="sm" />
+          <ExternalSplitSingle label="External-split — peek" peek="sm" />
         </GridCell>
 
         <GridCell
           n={4}
-          title="Flank + square slides"
+          title="External-split +square slides"
           note="Composes with the slide ratio: 1:1 square slides between the flanking controls."
         >
-          <FlankSingle label="Flank — square" ratio="square" />
+          <ExternalSplitSingle label="External-split — square" ratio="square" />
         </GridCell>
 
         <GridCell
           n={5}
-          title="Flank + RTL"
+          title="External-split +RTL"
           note="Mirrors under right-to-left — the grid columns follow writing direction, so prev/next swap sides with no RTL-specific CSS."
           dir="rtl"
         >
-          <FlankSingle label="Flank — right to left" />
+          <ExternalSplitSingle label="External-split — right to left" />
         </GridCell>
 
         <GridCell
           n={6}
-          title="Flank + thumbnails + peek"
-          note="A busy composition: flanking controls, a thumbnail strip below, and a peek sliver of the neighbours — every flank-compatible axis at once."
+          title="External-split +thumbnails + peek"
+          note="A busy composition: flanking controls, a thumbnail strip below, and a peek sliver of the neighbours — every external-split-compatible axis at once."
         >
-          <FlankSingle label="Flank — thumbnails + peek" indicators="thumbnails" peek="sm" />
+          <ExternalSplitSingle label="External-split — thumbnails + peek" indicators="thumbnails" peek="sm" />
         </GridCell>
       </div>
     </Example>

@@ -223,6 +223,9 @@
   .primitiv-carousel__next {
     display: inline-grid;
     place-items: center;
+    /* Fixed-size controls never flex — otherwise a tight joined bar would squash
+       them into ellipses instead of keeping their circle. */
+    flex: none;
     inline-size: var(--primitiv-carousel-control-size);
     block-size: var(--primitiv-carousel-control-size);
     border: none;
@@ -368,18 +371,13 @@
      visible box. The background **surface fill is opt-in** — add the `surface`
      modifier for it (the border alone renders an outlined track). Shares peek's
      t-shirt scale. `none` is the default (no padding, no frame — a bare scroll
-     box). The border/radius are shared across the sizes; only the padding (and the
-     coupled gap) grows. */
+     box). The border/radius are shared across the sizes; only the padding grows. */
   .primitiv-carousel--padding-sm,
   .primitiv-carousel--padding-md,
   .primitiv-carousel--padding-lg {
     --primitiv-carousel-viewport-border-width: var(--primitiv-border-width-1);
     --primitiv-carousel-viewport-border-color: var(--primitiv-border-subtle);
     --primitiv-carousel-viewport-radius: var(--primitiv-radii-12);
-    /* Couple the inter-slide gap to the padding so a neighbour slide sits exactly
-       at the framed edge — the resting track shows clean inset breathing room, not
-       an accidental peek. Add `peek` on top for a deliberate neighbour reveal. */
-    --primitiv-carousel-gap: var(--primitiv-carousel-viewport-padding);
   }
   .primitiv-carousel--padding-none {
     --primitiv-carousel-viewport-padding: var(--primitiv-space-space-0);
@@ -865,9 +863,11 @@
   .primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined:not([data-orientation="vertical"])
     .primitiv-carousel__controls {
     position: absolute;
+    /* Span the framed viewport edge (not minus peek — subtracting a large peek would
+       undersize the bar and squash / mis-order its flex items). */
     inset-inline: calc(
       var(--primitiv-carousel-viewport-border-width) +
-        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-viewport-padding) +
         var(--primitiv-carousel-overlay-control-inset)
     );
     inset-block-end: calc(
@@ -891,9 +891,10 @@
   .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-joined
     .primitiv-carousel__controls {
     position: absolute;
+    /* Span the framed viewport height (not minus peek — see the horizontal note). */
     inset-block: calc(
       var(--primitiv-carousel-viewport-border-width) +
-        var(--primitiv-carousel-viewport-padding) + var(--primitiv-carousel-peek) +
+        var(--primitiv-carousel-viewport-padding) +
         var(--primitiv-carousel-overlay-control-inset)
     );
     inset-inline-start: auto;

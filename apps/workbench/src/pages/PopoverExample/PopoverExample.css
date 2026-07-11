@@ -6,20 +6,26 @@
 /* ── Shared panel styling ──────────────────────────────────────────────── */
 /* Native popovers default to inset:0; margin:auto (viewport-centred). Clear  */
 /* the inset so CSS anchor positioning (position-area) can place the panel.   */
+/* Layout `display` lives on :popover-open only — setting it unconditionally  */
+/* would override the UA `[popover]:not(:popover-open){display:none}` rule    */
+/* and leave every panel visible while closed.                                */
 [class^="pop-"][class$="__content"] {
   position: fixed;
   inset: auto;
   margin: 0;
   min-width: 200px;
   padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
   background: #fff;
   color: #1a1a1a;
   border: 1px solid #d0d0d0;
   border-radius: 8px;
   box-shadow: 0 8px 24px rgb(0 0 0 / 12%);
+}
+
+[class^="pop-"][class$="__content"]:popover-open {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .pop__title {

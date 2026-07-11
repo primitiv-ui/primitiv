@@ -94,3 +94,13 @@ keeps working.
 
 - `data-state="open" | "closed"` on `Popover.Content`.
 - `aria-expanded` on the trigger tracks the same state.
+
+> **Gotcha — don't set `display` on the closed panel.** A closed popover is
+> hidden by the UA rule `[popover]:not(:popover-open) { display: none }`. An
+> author `display` (e.g. `display: flex` for layout) overrides it and leaves the
+> panel visible while closed. Put layout `display` behind `:popover-open`:
+>
+> ```css
+> .panel { padding: 12px; /* no display here */ }
+> .panel:popover-open { display: flex; flex-direction: column; gap: 8px; }
+> ```

@@ -62,6 +62,35 @@ describe("Popover basic rendering tests", () => {
     expect(content.id).not.toBe("");
   });
 
+  it("should render Popover.Content as a native-popover div with role='dialog'", () => {
+    // Arrange
+    render(
+      <Popover.Root>
+        <Popover.Trigger>Open</Popover.Trigger>
+        <Popover.Content>Content</Popover.Content>
+      </Popover.Root>,
+    );
+    const content = screen.getByRole("dialog", { hidden: true });
+
+    // Assert
+    expect(content.tagName).toBe("DIV");
+    expect(content).toHaveAttribute("popover", "auto");
+  });
+
+  it("should give Popover.Content data-state='closed' by default", () => {
+    // Arrange
+    render(
+      <Popover.Root>
+        <Popover.Trigger>Open</Popover.Trigger>
+        <Popover.Content data-testid="content">Content</Popover.Content>
+      </Popover.Root>,
+    );
+    const content = screen.getByTestId("content");
+
+    // Assert
+    expect(content).toHaveAttribute("data-state", "closed");
+  });
+
   it("should render no DOM element for Popover.Root itself", () => {
     // Arrange
     const { container } = render(

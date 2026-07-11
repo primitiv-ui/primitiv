@@ -49,12 +49,13 @@ PopoverTrigger.displayName = "PopoverTrigger";
 
 export function PopoverContent({
   children,
+  onKeyDown,
   ...rest
 }: PopoverContentProps): ReactElement {
-  const { contentProps } = usePopoverContent();
+  const { contentProps } = usePopoverContent({ onKeyDown });
 
   return (
-    <div {...contentProps} {...rest}>
+    <div {...rest} {...contentProps}>
       {children}
     </div>
   );

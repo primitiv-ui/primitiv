@@ -1,8 +1,13 @@
-import { useEffect, useRef } from "react";
+import { KeyboardEvent, KeyboardEventHandler, useEffect, useRef } from "react";
 
+import { composeEventHandlers } from "../../Slot/index.ts";
 import { usePopoverContext } from "../PopoverContext";
 
-export function usePopoverContent() {
+type UsePopoverContentArgs = {
+  onKeyDown?: KeyboardEventHandler<HTMLDivElement>;
+};
+
+export function usePopoverContent({ onKeyDown }: UsePopoverContentArgs = {}) {
   const { open, setOpen, contentId, triggerRef } = usePopoverContext();
   const contentRef = useRef<HTMLDivElement | null>(null);
 
@@ -48,12 +53,21 @@ export function usePopoverContent() {
     return () => document.removeEventListener("click", handleClick);
   }, [open, setOpen, triggerRef]);
 
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      setOpen(false);
+      triggerRef.current?.focus();
+    }
+  };
+
   const contentProps = {
     ref: contentRef,
     id: contentId,
     role: "dialog" as const,
     popover: "auto" as const,
     "data-state": (open ? "open" : "closed") as "open" | "closed",
+    onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
   };
 
   return { contentProps };

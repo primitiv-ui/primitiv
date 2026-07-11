@@ -125,6 +125,17 @@
         { "name": "lg", "class": "primitiv-carousel--size-lg", "description": "Large controls." },
         { "name": "xl", "class": "primitiv-carousel--size-xl", "description": "Extra large controls." }
       ]
+    },
+    {
+      "name": "ratio",
+      "default": "wide",
+      "description": "The carousel's aspect ratio (read in the horizontal orientation — the vertical viewport owns its own ratio via --primitiv-carousel-vertical-aspect-ratio). Re-points --primitiv-carousel-slide-aspect-ratio at the root, so it applies uniformly to every slide and the thumbnail indicators track it. Override the knob directly for a bespoke value. (Per-slide ratios are a later revisit.)",
+      "options": [
+        { "name": "square", "class": "primitiv-carousel--ratio-square", "description": "1:1 — a square slide." },
+        { "name": "standard", "class": "primitiv-carousel--ratio-standard", "description": "4:3 — the classic photo ratio." },
+        { "name": "wide", "class": "primitiv-carousel--ratio-wide", "description": "16:9 — widescreen (the default)." },
+        { "name": "ultrawide", "class": "primitiv-carousel--ratio-ultrawide", "description": "21:9 — cinematic ultra-wide." }
+      ]
     }
   ],
   "styleProps": [
@@ -155,17 +166,6 @@
           "options": [
             { "name": "md", "class": "primitiv-carousel__slide--radius-md", "description": "Medium rounded corners (the default)." },
             { "name": "none", "class": "primitiv-carousel__slide--radius-none", "description": "Sharp, un-rounded corners." }
-          ]
-        },
-        {
-          "name": "ratio",
-          "default": "wide",
-          "description": "The slide's aspect ratio (read in the horizontal orientation — the vertical viewport owns its own ratio via --primitiv-carousel-vertical-aspect-ratio). Re-points --primitiv-carousel-slide-aspect-ratio to a common media ratio; override the knob directly for a bespoke value.",
-          "options": [
-            { "name": "square", "class": "primitiv-carousel__slide--ratio-square", "description": "1:1 — a square slide." },
-            { "name": "standard", "class": "primitiv-carousel__slide--ratio-standard", "description": "4:3 — the classic photo ratio." },
-            { "name": "wide", "class": "primitiv-carousel__slide--ratio-wide", "description": "16:9 — widescreen (the default)." },
-            { "name": "ultrawide", "class": "primitiv-carousel__slide--ratio-ultrawide", "description": "21:9 — cinematic ultra-wide." }
           ]
         }
       ],
@@ -237,7 +237,7 @@
     { "name": "--primitiv-carousel-indicator-color", "defaultsTo": "var(--primitiv-border-strong)" },
     { "name": "--primitiv-carousel-indicator-color-active", "defaultsTo": "var(--primitiv-action-primary-default)" },
     { "name": "--primitiv-carousel-thumbnail-inline-size", "defaultsTo": "var(--primitiv-carousel-md-thumbnail-size)" },
-    { "name": "--primitiv-carousel-thumbnail-aspect-ratio", "defaultsTo": "16 / 9" },
+    { "name": "--primitiv-carousel-thumbnail-aspect-ratio", "defaultsTo": "var(--primitiv-carousel-slide-aspect-ratio)" },
     { "name": "--primitiv-carousel-thumbnail-gap", "defaultsTo": "var(--primitiv-space-space-8)" },
     { "name": "--primitiv-carousel-thumbnail-radius", "defaultsTo": "var(--primitiv-radii-8)" },
     { "name": "--primitiv-carousel-thumbnail-ring-width", "defaultsTo": "var(--primitiv-border-width-2)" },

@@ -84,13 +84,13 @@ function BasicSingle({
       distribution={distribution}
       align={align}
       gap={gap}
+      ratio={ratio}
     >
       <CarouselViewport>
         {SLIDES.map((bg, i) => (
           <CarouselSlide
             key={i}
             radius={radius}
-            ratio={ratio}
             style={{ background: bg }}
           />
         ))}
@@ -202,10 +202,11 @@ function OverlaySingle({
       transition={transition}
       orientation={orientation}
       side={side}
+      ratio={ratio}
     >
       <CarouselViewport>
         {slides.map((bg, i) => (
-          <CarouselSlide key={i} ratio={ratio} style={{ background: bg }} />
+          <CarouselSlide key={i} style={{ background: bg }} />
         ))}
       </CarouselViewport>
       <CarouselPreviousTrigger aria-label="Previous slide">
@@ -256,10 +257,11 @@ function ExternalSplitSingle({
       indicators={indicators}
       side={side}
       orientation={orientation}
+      ratio={ratio}
     >
       <CarouselViewport>
         {SLIDES.map((bg, i) => (
-          <CarouselSlide key={i} ratio={ratio} style={{ background: bg }} />
+          <CarouselSlide key={i} style={{ background: bg }} />
         ))}
       </CarouselViewport>
       <CarouselPreviousTrigger aria-label="Previous slide">

@@ -1990,7 +1990,7 @@
         },
         "thumbnail-size": {
           "$type": "number",
-          "$value": "{size.size-56}"
+          "$value": "{size.size-48}"
         },
         "chrome-gap": {
           "$type": "number",
@@ -2012,7 +2012,7 @@
         },
         "thumbnail-size": {
           "$type": "number",
-          "$value": "{size.size-68}"
+          "$value": "{size.size-56}"
         },
         "chrome-gap": {
           "$type": "number",
@@ -2034,7 +2034,7 @@
         },
         "thumbnail-size": {
           "$type": "number",
-          "$value": "{size.size-80}"
+          "$value": "{size.size-68}"
         },
         "chrome-gap": {
           "$type": "number",
@@ -2056,7 +2056,7 @@
         },
         "thumbnail-size": {
           "$type": "number",
-          "$value": "{size.size-116}"
+          "$value": "{size.size-80}"
         },
         "chrome-gap": {
           "$type": "number",
@@ -2078,7 +2078,7 @@
         },
         "thumbnail-size": {
           "$type": "number",
-          "$value": "{size.size-140}"
+          "$value": "{size.size-116}"
         },
         "chrome-gap": {
           "$type": "number",
@@ -4078,7 +4078,7 @@
         },
         "thumbnail-size": {
           "$type": "number",
-          "$value": "{size.size-48}"
+          "$value": "{size.size-40}"
         },
         "chrome-gap": {
           "$type": "number",
@@ -4100,7 +4100,7 @@
         },
         "thumbnail-size": {
           "$type": "number",
-          "$value": "{size.size-56}"
+          "$value": "{size.size-48}"
         },
         "chrome-gap": {
           "$type": "number",
@@ -4122,7 +4122,7 @@
         },
         "thumbnail-size": {
           "$type": "number",
-          "$value": "{size.size-68}"
+          "$value": "{size.size-56}"
         },
         "chrome-gap": {
           "$type": "number",
@@ -4144,7 +4144,7 @@
         },
         "thumbnail-size": {
           "$type": "number",
-          "$value": "{size.size-80}"
+          "$value": "{size.size-68}"
         },
         "chrome-gap": {
           "$type": "number",
@@ -4166,7 +4166,7 @@
         },
         "thumbnail-size": {
           "$type": "number",
-          "$value": "{size.size-116}"
+          "$value": "{size.size-80}"
         },
         "chrome-gap": {
           "$type": "number",
@@ -6166,7 +6166,7 @@
         },
         "thumbnail-size": {
           "$type": "number",
-          "$value": "{size.size-68}"
+          "$value": "{size.size-56}"
         },
         "chrome-gap": {
           "$type": "number",
@@ -6188,7 +6188,7 @@
         },
         "thumbnail-size": {
           "$type": "number",
-          "$value": "{size.size-80}"
+          "$value": "{size.size-68}"
         },
         "chrome-gap": {
           "$type": "number",
@@ -6210,7 +6210,7 @@
         },
         "thumbnail-size": {
           "$type": "number",
-          "$value": "{size.size-116}"
+          "$value": "{size.size-80}"
         },
         "chrome-gap": {
           "$type": "number",
@@ -6232,7 +6232,7 @@
         },
         "thumbnail-size": {
           "$type": "number",
-          "$value": "{size.size-140}"
+          "$value": "{size.size-116}"
         },
         "chrome-gap": {
           "$type": "number",
@@ -6254,7 +6254,7 @@
         },
         "thumbnail-size": {
           "$type": "number",
-          "$value": "{size.size-168}"
+          "$value": "{size.size-140}"
         },
         "chrome-gap": {
           "$type": "number",
@@ -8254,7 +8254,7 @@
         },
         "thumbnail-size": {
           "$type": "number",
-          "$value": "{size.size-40}"
+          "$value": "{size.size-32}"
         },
         "chrome-gap": {
           "$type": "number",
@@ -8276,7 +8276,7 @@
         },
         "thumbnail-size": {
           "$type": "number",
-          "$value": "{size.size-48}"
+          "$value": "{size.size-40}"
         },
         "chrome-gap": {
           "$type": "number",
@@ -8298,7 +8298,7 @@
         },
         "thumbnail-size": {
           "$type": "number",
-          "$value": "{size.size-56}"
+          "$value": "{size.size-48}"
         },
         "chrome-gap": {
           "$type": "number",
@@ -8320,7 +8320,7 @@
         },
         "thumbnail-size": {
           "$type": "number",
-          "$value": "{size.size-68}"
+          "$value": "{size.size-56}"
         },
         "chrome-gap": {
           "$type": "number",
@@ -8342,7 +8342,7 @@
         },
         "thumbnail-size": {
           "$type": "number",
-          "$value": "{size.size-80}"
+          "$value": "{size.size-68}"
         },
         "chrome-gap": {
           "$type": "number",

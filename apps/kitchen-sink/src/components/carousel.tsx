@@ -17,7 +17,7 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K>
  *
  * @see https://primitiv-ui.dev/docs/components/carousel
  */
-export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "gap" | "padding" | "surface" | "placement" | "side" | "distribution" | "align" | "cluster" | "indicators" | "size"> & {
+export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "gap" | "padding" | "surface" | "placement" | "side" | "distribution" | "align" | "cluster" | "indicators" | "size" | "ratio"> & {
   /**
    * Reveal a sliver of the adjacent slides on either side of the active one. Works in both orientations (inline edges when horizontal, block edges when vertical).
    * - `none` — No peek — the active slide fills the viewport (the default).
@@ -116,12 +116,22 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
   size?: "xs" | "sm" | "md" | "lg" | "xl";
+  /**
+   * The carousel's aspect ratio (read in the horizontal orientation — the vertical viewport owns its own ratio via --primitiv-carousel-vertical-aspect-ratio). Re-points --primitiv-carousel-slide-aspect-ratio at the root, so it applies uniformly to every slide and the thumbnail indicators track it. Override the knob directly for a bespoke value. (Per-slide ratios are a later revisit.)
+   * - `square` — 1:1 — a square slide.
+   * - `standard` — 4:3 — the classic photo ratio.
+   * - `wide` — 16:9 — widescreen (the default).
+   * - `ultrawide` — 21:9 — cinematic ultra-wide.
+   * @default "wide"
+   * @see https://primitiv-ui.dev/docs/components/carousel
+   */
+  ratio?: "square" | "standard" | "wide" | "ultrawide";
 };
 
-export function Carousel({ peek, gap, padding, surface, placement, side, distribution, align, cluster, indicators, size, slidesPerPage, className, style, ...props }: CarouselProps) {
+export function Carousel({ peek, gap, padding, surface, placement, side, distribution, align, cluster, indicators, size, ratio, slidesPerPage, className, style, ...props }: CarouselProps) {
   return (
     <CarouselPrimitive.Root
-      className={[carousel({ peek, gap, padding, surface, placement, side, distribution, align, cluster, indicators, size }), className].filter(Boolean).join(" ")}
+      className={[carousel({ peek, gap, padding, surface, placement, side, distribution, align, cluster, indicators, size, ratio }), className].filter(Boolean).join(" ")}
       style={{ ...style, ...(slidesPerPage === undefined ? {} : { "--primitiv-carousel-slides-per-page": slidesPerPage }) } as CSSProperties}
       slidesPerPage={slidesPerPage}
       {...props}
@@ -141,7 +151,7 @@ export function CarouselControls({ className, ...props }: CarouselControlsProps)
   return <div className={[carouselControls(), className].filter(Boolean).join(" ")} {...props} />;
 }
 
-export type CarouselSlideProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Slide>, "radius" | "ratio"> & {
+export type CarouselSlideProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Slide>, "radius"> & {
   /**
    * Corner rounding of the slide.
    * - `md` — Medium rounded corners (the default).
@@ -150,20 +160,10 @@ export type CarouselSlideProps = DistributiveOmit<ComponentPropsWithRef<typeof C
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
   radius?: "md" | "none";
-  /**
-   * The slide's aspect ratio (read in the horizontal orientation — the vertical viewport owns its own ratio via --primitiv-carousel-vertical-aspect-ratio). Re-points --primitiv-carousel-slide-aspect-ratio to a common media ratio; override the knob directly for a bespoke value.
-   * - `square` — 1:1 — a square slide.
-   * - `standard` — 4:3 — the classic photo ratio.
-   * - `wide` — 16:9 — widescreen (the default).
-   * - `ultrawide` — 21:9 — cinematic ultra-wide.
-   * @default "wide"
-   * @see https://primitiv-ui.dev/docs/components/carousel
-   */
-  ratio?: "square" | "standard" | "wide" | "ultrawide";
 };
 
-export function CarouselSlide({ radius, ratio, className, ...props }: CarouselSlideProps) {
-  return <CarouselPrimitive.Slide className={[carouselSlide({ radius, ratio }), className].filter(Boolean).join(" ")} {...props} />;
+export function CarouselSlide({ radius, className, ...props }: CarouselSlideProps) {
+  return <CarouselPrimitive.Slide className={[carouselSlide({ radius }), className].filter(Boolean).join(" ")} {...props} />;
 }
 
 export type CarouselPreviousTriggerProps = ComponentPropsWithRef<typeof CarouselPrimitive.PreviousTrigger>;

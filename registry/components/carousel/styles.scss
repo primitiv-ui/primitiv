@@ -99,11 +99,13 @@
     /* Thumbnail-indicator knobs — read only under `--indicators-thumbnails`,
        where each indicator is a rounded-rect image thumbnail rather than a dot
        (the gallery pattern). The active thumbnail is ringed in the primary
-       colour; the rest are dimmed until hovered/active. The aspect ratio mirrors
-       the slide's by default so the strip reads as a shrunk-down filmstrip (a
-       shape, not a token value — like the slide ratio above). */
+       colour; the rest are dimmed until hovered/active. The aspect ratio *tracks
+       the slide's* (via the shared `--primitiv-carousel-slide-aspect-ratio` knob),
+       so the strip reads as a shrunk-down filmstrip and reshapes with the carousel's
+       ratio — set the ratio on the root so it reaches both the slides and the
+       thumbnails (per-slide ratios are a later revisit). */
     --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-md-thumbnail-size);
-    --primitiv-carousel-thumbnail-aspect-ratio: 16 / 9;
+    --primitiv-carousel-thumbnail-aspect-ratio: var(--primitiv-carousel-slide-aspect-ratio);
     --primitiv-carousel-thumbnail-gap: var(--primitiv-space-space-8);
     --primitiv-carousel-thumbnail-radius: var(--primitiv-radii-8);
     --primitiv-carousel-thumbnail-ring-width: var(--primitiv-border-width-2);
@@ -489,23 +491,25 @@
     --primitiv-carousel-slide-radius: var(--primitiv-radii-0);
   }
 
-  /* Slide aspect ratio — re-points the aspect-ratio knob to a common media ratio
-     (read only in the horizontal layout; the vertical viewport owns its own
-     ratio, so the slide aspect stands down there). The values are ratio *shapes*,
-     not token values — like the base slide/vertical aspect ratios and the
-     circular control radius. `wide` (16:9) is the default the base rule already
-     resolves; the modifier lets a consumer square the slide (1:1) or go
-     standard/cinematic without touching the knob. */
-  .primitiv-carousel__slide--ratio-square {
+  /* Carousel aspect ratio — re-points the aspect-ratio knob at the *root* to a
+     common media ratio, so it applies uniformly to every slide (they inherit it)
+     and the thumbnail indicators track it (read only in the horizontal layout;
+     the vertical viewport owns its own ratio, so the slide aspect stands down
+     there). The values are ratio *shapes*, not token values — like the base
+     slide/vertical aspect ratios and the circular control radius. `wide` (16:9)
+     is the default the base rule already resolves; the modifier lets a consumer
+     square the carousel (1:1) or go standard/cinematic without touching the knob.
+     (Per-slide ratios are a later revisit.) */
+  .primitiv-carousel--ratio-square {
     --primitiv-carousel-slide-aspect-ratio: 1 / 1;
   }
-  .primitiv-carousel__slide--ratio-standard {
+  .primitiv-carousel--ratio-standard {
     --primitiv-carousel-slide-aspect-ratio: 4 / 3;
   }
-  .primitiv-carousel__slide--ratio-wide {
+  .primitiv-carousel--ratio-wide {
     --primitiv-carousel-slide-aspect-ratio: 16 / 9;
   }
-  .primitiv-carousel__slide--ratio-ultrawide {
+  .primitiv-carousel--ratio-ultrawide {
     --primitiv-carousel-slide-aspect-ratio: 21 / 9;
   }
 

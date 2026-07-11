@@ -1443,6 +1443,30 @@ modes). Token-only change (`context.json` → `tokens.css`), 5 cells; no registr
 change. Flag for QA: confirm the dense/compact indicator group now reads proportionate,
 and that sub-24 dot targets in dense are an acceptable compact-mode trade-off.
 
+**QA round 2 (human) — thumbnails + a Builder ratio bug.** Three items:
+- **Thumbnail size reined in.** The ramp topped out too large (comfortable lg/xl 116/140).
+  Shifted the whole `thumbnail-size` ramp down ~one notch on the (sparse) primitive ladder
+  (comfortable now 48/56/68/80/116; dense 32/40/48/56/68; etc.) — `md` 80→68, lg 116→80,
+  xl 140→116. Token-only (`context.json` → `tokens.css`, 20 cells).
+- **Thumbnail shape tracks the carousel ratio + `ratio` promoted to a root modifier.** The
+  thumbnail aspect-ratio was hardcoded `16/9` (its comment even claimed it "mirrors the
+  slide"); pointed it at `--primitiv-carousel-slide-aspect-ratio`. But `ratio` was a *slide*
+  modifier (per-slide, on `CarouselSlide`), so it couldn't reach the sibling thumbnails.
+  **Moved `ratio` from the slide to the root** (`--ratio-*` sets the aspect knob at the root,
+  slides inherit it, thumbnails track it) — the correct model for "uniform ratio now,
+  per-slide later" (the human's steer). Contract/CSS regenerated (recipe/tsx now carry
+  `ratio` on `<Carousel>`, dropped from `<CarouselSlide>`); example helpers + the Builder
+  migrated `<CarouselSlide ratio>` → `<Carousel ratio>`; drift-green + type-check.
+- **Builder ratio radios "not responding" = the vertical no-op.** Slide ratio is inert in
+  vertical (the vertical viewport owns its ratio), so clicking ratio changed nothing visible.
+  Greyed the ratio field out under vertical with a reason ("vertical viewport owns its ratio"),
+  matching the `align`-under-`stretch` pattern. If it was seen in *horizontal*, that's a
+  separate repro to chase.
+
+**Deferred (human musing):** whether the indicator-group *padding* (the overlay pill's inner
+padding + the dot gaps) should also scale from `md` across size/density — a candidate for
+Stage 3 (content spacing).
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

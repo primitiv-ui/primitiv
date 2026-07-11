@@ -313,6 +313,7 @@ function LiveCarousel({
         padding={config.padding}
         surface={config.surface}
         gap={config.gap}
+        ratio={config.ratio}
         indicators={config.indicators}
         transition={config.transition}
         slidesPerPage={config.slidesPerPage}
@@ -322,7 +323,6 @@ function LiveCarousel({
             <CarouselSlide
               key={index}
               radius={config.radius}
-              ratio={config.ratio}
               style={{ background }}
             />
           ))}
@@ -345,6 +345,7 @@ function describe(config: BuilderConfig, size: Size): string {
     `align="${config.align}"`,
     `cluster="${config.cluster}"`,
     `gap="${config.gap}"`,
+    `ratio="${config.ratio}"`,
     `peek="${config.peek}"`,
     `padding="${config.padding}"`,
     `surface="${config.surface}"`,
@@ -353,7 +354,7 @@ function describe(config: BuilderConfig, size: Size): string {
     `slidesPerPage={${config.slidesPerPage}}`,
   ];
   if (config.rtl) props.unshift(`dir="rtl"`);
-  const slide = `  <CarouselSlide radius="${config.radius}" ratio="${config.ratio}" /> × ${config.slideCount}`;
+  const slide = `  <CarouselSlide radius="${config.radius}" /> × ${config.slideCount}`;
   return `<Carousel\n  ${props.join("\n  ")}\n>\n${slide}\n</Carousel>`;
 }
 
@@ -482,6 +483,8 @@ export function CarouselBuilder() {
               value={config.ratio}
               options={["square", "standard", "wide", "ultrawide"] as const}
               onChange={(value) => set("ratio", value)}
+              disabled={config.orientation === "vertical"}
+              note="vertical viewport owns its ratio"
             />
             <RadioField
               legend="radius"

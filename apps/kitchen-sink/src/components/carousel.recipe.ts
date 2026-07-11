@@ -63,6 +63,12 @@ export const carousel = cva("primitiv-carousel", {
       lg: "primitiv-carousel--size-lg",
       xl: "primitiv-carousel--size-xl",
     },
+    ratio: {
+      square: "primitiv-carousel--ratio-square",
+      standard: "primitiv-carousel--ratio-standard",
+      wide: "primitiv-carousel--ratio-wide",
+      ultrawide: "primitiv-carousel--ratio-ultrawide",
+    },
   },
   defaultVariants: {
     peek: "none",
@@ -76,6 +82,7 @@ export const carousel = cva("primitiv-carousel", {
     cluster: "split",
     indicators: "dots",
     size: "md",
+    ratio: "wide",
   },
 });
 
@@ -95,16 +102,9 @@ export const carouselSlide = cva("primitiv-carousel__slide", {
       md: "primitiv-carousel__slide--radius-md",
       none: "primitiv-carousel__slide--radius-none",
     },
-    ratio: {
-      square: "primitiv-carousel__slide--ratio-square",
-      standard: "primitiv-carousel__slide--ratio-standard",
-      wide: "primitiv-carousel__slide--ratio-wide",
-      ultrawide: "primitiv-carousel__slide--ratio-ultrawide",
-    },
   },
   defaultVariants: {
     radius: "md",
-    ratio: "wide",
   },
 });
 

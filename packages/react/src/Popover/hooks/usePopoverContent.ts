@@ -1,6 +1,7 @@
 import { KeyboardEvent, KeyboardEventHandler, useEffect, useRef } from "react";
 
 import { composeEventHandlers } from "../../Slot/index.ts";
+import { FOCUSABLE_SELECTOR } from "../constants";
 import { usePopoverContext } from "../PopoverContext";
 
 type UsePopoverContentArgs = {
@@ -15,6 +16,10 @@ export function usePopoverContent({ onKeyDown }: UsePopoverContentArgs = {}) {
     const content = contentRef.current!;
     if (open) {
       content.showPopover();
+      // Move focus into the popover (WAI-ARIA non-modal dialog): the first
+      // focusable descendant, or the content itself (it carries tabIndex=-1).
+      const focusable = content.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
+      (focusable ?? content).focus();
     } else {
       try {
         content.hidePopover();
@@ -66,6 +71,7 @@ export function usePopoverContent({ onKeyDown }: UsePopoverContentArgs = {}) {
     id: contentId,
     role: "dialog" as const,
     popover: "auto" as const,
+    tabIndex: -1,
     "data-state": (open ? "open" : "closed") as "open" | "closed",
     onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
   };

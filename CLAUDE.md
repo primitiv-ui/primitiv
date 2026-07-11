@@ -42,9 +42,10 @@ split.
    for anything else.
 6. **Never open PRs unprompted.** "Update the PR description" /
    "create a new PR" are explicit; silence is not.
-7. **GitHub interactions go through MCP tools** (`mcp__github__*`),
-   not `gh` or the raw API. Scope is restricted to
-   `primitiv-ui/primitiv`.
+7. **GitHub interactions: prefer the MCP tools** (`mcp__github__*`)
+   when they're connected. When they aren't available in the session,
+   fall back to the `gh` CLI. Either way, stay scoped to
+   `primitiv-ui/primitiv` and never touch the raw API directly.
 
 ## Definition of done for any component change
 

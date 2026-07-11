@@ -1,0 +1,114 @@
+/* Popover example page.                                                      */
+/* Every selector is scoped to this page's own `pop-` / `pop__` classes —     */
+/* App.tsx bundles all example CSS into one global sheet, so a bare selector  */
+/* (or a bare [popover] / [data-state] one) would leak onto other pages.      */
+
+/* ── Shared panel styling ──────────────────────────────────────────────── */
+/* Native popovers default to inset:0; margin:auto (viewport-centred). Clear  */
+/* the inset so CSS anchor positioning (position-area) can place the panel.   */
+[class^="pop-"][class$="__content"] {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  min-width: 200px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #fff;
+  color: #1a1a1a;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 12%);
+}
+
+.pop__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.pop__description {
+  margin: 0;
+  font-size: 13px;
+  color: #555;
+}
+
+.pop__field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.pop__close {
+  align-self: flex-end;
+}
+
+/* ── 1. Basic ──────────────────────────────────────────────────────────── */
+.pop-basic__trigger {
+  anchor-name: --pop-basic;
+}
+
+.pop-basic__content {
+  position-anchor: --pop-basic;
+  position-area: bottom;
+  margin-top: 6px;
+}
+
+/* ── 2. Anchor ─────────────────────────────────────────────────────────── */
+.pop-anchor__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  anchor-name: --pop-anchor;
+}
+
+.pop-anchor__content {
+  position-anchor: --pop-anchor;
+  position-area: bottom span-right;
+  margin-top: 6px;
+}
+
+/* ── 3. Placement ──────────────────────────────────────────────────────── */
+.pop-side__trigger {
+  anchor-name: --pop-side;
+}
+
+.pop-side__content {
+  position-anchor: --pop-side;
+  position-area: right;
+  position-try-fallbacks: left;
+  margin-left: 6px;
+}
+
+/* ── 4. Controlled ─────────────────────────────────────────────────────── */
+.pop-controlled {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.pop-controlled__trigger {
+  anchor-name: --pop-controlled;
+}
+
+.pop-controlled__content {
+  position-anchor: --pop-controlled;
+  position-area: bottom;
+  margin-top: 6px;
+}
+
+/* ── 5. asChild ────────────────────────────────────────────────────────── */
+.pop-aschild__trigger {
+  anchor-name: --pop-aschild;
+}
+
+.pop-aschild__content {
+  position-anchor: --pop-aschild;
+  position-area: bottom;
+  margin-top: 6px;
+}

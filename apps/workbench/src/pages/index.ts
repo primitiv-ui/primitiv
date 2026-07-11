@@ -21,6 +21,7 @@ export * from "./InputExample";
 export * from "./InputGroupExample";
 export * from "./MillerColumnsExample";
 export * from "./ModalExample";
+export * from "./PopoverExample";
 export * from "./PluginFrameExample";
 export * from "./PortalExample";
 export * from "./ProgressExample";

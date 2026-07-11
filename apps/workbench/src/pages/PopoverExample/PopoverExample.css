@@ -51,6 +51,54 @@
   align-self: flex-end;
 }
 
+/* ── Controls ──────────────────────────────────────────────────────────── */
+/* The workbench forces a dark theme (light text on #242424). Give every     */
+/* interactive element an explicit, legible appearance so nothing falls back  */
+/* to a low-contrast UA default — the asChild <a> especially, which skips the */
+/* app's `a:not([class])` rule and would otherwise render dark link-blue on   */
+/* the dark page.                                                             */
+.pop-basic__trigger,
+.pop-side__trigger,
+.pop-controlled__trigger,
+.pop-controlled__toggle {
+  padding: 6px 14px;
+  font: inherit;
+  color: #1a1a1a;
+  background: #f3f4f6;
+  border: 1px solid #cbd0d6;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pop-basic__trigger:hover,
+.pop-side__trigger:hover,
+.pop-controlled__trigger:hover,
+.pop-controlled__toggle:hover {
+  background: #e5e7eb;
+}
+
+/* Buttons inside a panel (Close, and the raw "Set to maximum"). Scoped to    */
+/* the pop- prefix so it can't touch other pages' panels.                     */
+[class^="pop-"][class$="__content"] button {
+  padding: 6px 12px;
+  font: inherit;
+  color: #1a1a1a;
+  background: #f3f4f6;
+  border: 1px solid #cbd0d6;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+[class^="pop-"][class$="__content"] button:hover {
+  background: #e5e7eb;
+}
+
+.pop-aschild__trigger {
+  color: #a5b4fc;
+  cursor: pointer;
+  text-underline-offset: 2px;
+}
+
 /* ── 1. Basic ──────────────────────────────────────────────────────────── */
 .pop-basic__trigger {
   anchor-name: --pop-basic;
@@ -67,10 +115,34 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 2px;
-  border: 1px solid #d0d0d0;
+  padding: 2px 2px 2px 8px;
+  background: #fff;
+  border: 1px solid #cbd0d6;
   border-radius: 6px;
   anchor-name: --pop-anchor;
+}
+
+.pop-anchor__field input {
+  border: none;
+  padding: 4px 0;
+  font: inherit;
+  color: #1a1a1a;
+  background: transparent;
+  outline: none;
+}
+
+.pop-anchor__trigger {
+  padding: 4px 8px;
+  font: inherit;
+  color: #1a1a1a;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pop-anchor__trigger:hover {
+  background: #e5e7eb;
 }
 
 .pop-anchor__content {

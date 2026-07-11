@@ -85,6 +85,8 @@
     --primitiv-carousel-indicator-gap: var(--primitiv-space-space-0);
     --primitiv-carousel-indicator-hit-area: var(--primitiv-space-space-24);
     --primitiv-carousel-indicator-size: var(--primitiv-space-space-8);
+    /* The active dot elongates into a pill along the dot row's axis. */
+    --primitiv-carousel-indicator-size-active: var(--primitiv-space-space-24);
     --primitiv-carousel-indicator-color: var(--primitiv-border-strong);
     --primitiv-carousel-indicator-color-active: var(--primitiv-action-primary-default);
 
@@ -263,8 +265,18 @@
     content: "";
     inline-size: var(--primitiv-carousel-indicator-size);
     block-size: var(--primitiv-carousel-indicator-size);
-    border-radius: 50%;
+    /* radii-full is a circle on the square dot and a stadium once the active dot
+       elongates into a pill. */
+    border-radius: var(--primitiv-radii-full);
     background: var(--primitiv-carousel-indicator-color);
+    /* Animate the grow/shrink and the colour swap as the active dot changes. */
+    transition:
+      inline-size var(--primitiv-motion-duration-control)
+        var(--primitiv-motion-easing-default),
+      block-size var(--primitiv-motion-duration-control)
+        var(--primitiv-motion-easing-default),
+      background-color var(--primitiv-motion-duration-control)
+        var(--primitiv-motion-easing-default);
   }
 }
 
@@ -1078,10 +1090,21 @@
 }
 
 @layer primitiv.states {
-  /* Active dot (manual part + auto-rendered dot). */
+  /* Active dot (manual part + auto-rendered dot): colour swap + elongate into a pill
+     along the dot row's axis. Horizontal → wider (inline); the vertical override
+     below elongates on the block axis instead. */
   .primitiv-carousel__indicator[data-state="active"]::before,
   .primitiv-carousel__indicator-group > button[data-state="active"]::before {
+    inline-size: var(--primitiv-carousel-indicator-size-active);
     background: var(--primitiv-carousel-indicator-color-active);
+  }
+  .primitiv-carousel[data-orientation="vertical"]
+    .primitiv-carousel__indicator[data-state="active"]::before,
+  .primitiv-carousel[data-orientation="vertical"]
+    .primitiv-carousel__indicator-group
+    > button[data-state="active"]::before {
+    inline-size: var(--primitiv-carousel-indicator-size);
+    block-size: var(--primitiv-carousel-indicator-size-active);
   }
 
   /* Active thumbnail — full opacity + the primary-colour ring (inset so it sits

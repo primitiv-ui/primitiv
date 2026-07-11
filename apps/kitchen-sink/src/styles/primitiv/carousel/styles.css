@@ -746,6 +746,15 @@
     .primitiv-carousel__next {
     justify-self: center;
   }
+  /* The grid's `align-items: center` (above, to centre the up/down controls) would
+     leave the indicator column content-height, so its justify-content (the block
+     axis distribution/align run on when vertical) has no room. Stretch just the
+     indicator group to fill the tall cell so the dots can move. Horizontal doesn't
+     need this — there the group fills its 1fr cell on the inline axis. */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-external.primitiv-carousel--cluster-split
+    .primitiv-carousel__indicator-group {
+    align-self: stretch;
+  }
 
   /* ── Indicator-cluster align / distribution for overlay + flank ──
      In `external` the align/distribution axes drive the whole prev/indicators/next

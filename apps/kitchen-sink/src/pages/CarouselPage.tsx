@@ -1414,8 +1414,8 @@ const SIZE_LADDER = [
 export function CarouselSize() {
   return (
     <Example
-      title="Size — the control chrome scales (Stage 1)"
-      note="A root `size` modifier (xs · sm · md default · lg · xl) scales the control chrome while the viewport and slides stay container-driven. Stage 1 scales the prev/next controls: they track the shared framed-control ramp, so a carousel control matches a same-size Button (the box grows 32→40 at md) and inherits its per-density values. Size composes with the ambient density — flip the header Density control and every cell shifts together; the header Size control drives the Builder. (Dots, active pill and thumbnails join the ramp in the next stage.)"
+      title="Size — the control chrome scales"
+      note="A root `size` modifier (xs · sm · md default · lg · xl) scales the whole control chrome while the viewport and slides stay container-driven. The prev/next controls track the shared framed-control ramp (so a control matches a same-size Button — the box grows 32→40 at md); the dots, their WCAG hit area (floored ≥24), the active pill, the thumbnails and the chrome gaps track the bespoke carousel ramp — the dots deliberately gently, since they're already small. Size composes with the ambient density: flip the header Density control and every cell shifts together (a dense md pulls in as tight as a comfortable xs); the header Size control drives the Builder, where thumbnails at size are visible too."
     >
       <div className="carousel-grid">
         {SIZE_LADDER.map(({ size, note }, i) => (

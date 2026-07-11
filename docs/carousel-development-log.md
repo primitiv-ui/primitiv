@@ -1394,6 +1394,44 @@ drift), `check-registry-types.mjs`. (No headless change.) **Next:** human QA of
 `/carousel/size` + the header Size/Density toggles on the Builder; then Stage 2 (the
 bespoke dots/pill/thumbnail/chrome-gap ramp in `context.json` × 4 densities).
 
+#### Control glyph centring fix (QA follow-up, all sizes)
+
+Human QA of Stage 1 caught the prev/next chevron sitting off-centre at xs/dense. Cause:
+the control `<button>` never reset the UA padding (`1px 6px`), which squeezes the grid
+content box hard at small sizes, plus the inline-SVG baseline gap. Fixed: `padding: 0`
+on the control + `display: block` on its `svg`. (The human noted radio looks similar,
+but its control is a `<span>` with a `scale`-animated dot — a different mechanism, not
+the same root; left for a separate look.) Registry CSS only; regenerated + synced.
+
+#### Stage 2 — the bespoke chrome ramp (dots / pill / thumbnails / gaps) — awaiting QA
+
+The indicator group + gaps now scale with size **and** density, so the whole control
+cluster stays coherent next to the scaled controls.
+- **`context.json`** gained a `carousel` group in **all 4 density modes** — 5 size slots
+  × `{dot-size, dot-hit-area, active-pill, thumbnail-size, chrome-gap}` (100 emitted
+  `--primitiv-carousel-{slot}-*` tokens). Values: `md`/comfortable **exactly reproduces**
+  today's defaults (dot 8 / hit 24 / pill 24 / thumb 80 / gap 16), so no regression at the
+  default; density shifts the whole ramp ~1 step (compact −1, dense −2, spacious +1) —
+  mirroring the checkbox/framed-control cadence — with the **hit area floored at 24** (WCAG
+  2.5.8) in every cell and the **dots deliberately gentle** (barely shrink; they're already
+  small). `tokens.css` regenerated via the CLI (`primitiv tokens`, embeds context.json);
+  +100 lines, purely additive, CLI reproduces the prior file exactly.
+- **styles.css** re-points the 6 indicator/gap knobs (base `md` defaults + each `--size-*`
+  slot) to the `carousel-{slot}-*` ramp; contract `defaultsTo` updated to match. Regenerated
+  scss + drift-green (recipe/tsx byte-identical — customProperty defaults don't reach them).
+- **Kitchen-sink** `/carousel/size` note updated (the whole cluster scales now); thumbnails
+  at size are visible in the Builder (indicators=thumbnails + the header Size toggle).
+
+Proposed ramp values (comfortable base, mirrored across densities) — flagged for the
+human's eye: dots flat at 8 through xs–md then 10/12; thumbnails 56→68→80→116→140 (the
+top jumps because the primitive ladder is sparse up there — cap lg/xl on request).
+
+**Gates green:** `cargo test -p primitiv-emit` (106, drift) + `-p primitiv-cli` (364+20),
+`check-registry-types.mjs`. TS token tests use synthetic `context` fixtures, unaffected.
+**Next:** human QA of the indicator/thumbnail/gap ramp on `/carousel/size` + Builder
+(dots gentle enough? thumbnail top end OK?); then Stage 3 (content spacing steps —
+peek/padding/gap on the scaled ramp), then Figma lockstep.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

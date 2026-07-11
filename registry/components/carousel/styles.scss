@@ -71,8 +71,11 @@
        the slide ratio above. */
     --primitiv-carousel-vertical-aspect-ratio: 16 / 9;
     --primitiv-carousel-slide-radius: var(--primitiv-radii-12);
-    --primitiv-carousel-block-gap: var(--primitiv-space-space-16);
-    --primitiv-carousel-controls-gap: var(--primitiv-space-space-16);
+    /* The chrome gaps + the indicator/thumbnail dimensions track the carousel
+       size ramp (`carousel-{slot}-*`, density-scoped); `md` is the default slot,
+       re-pointed per slot by the size modifier in the variants layer. */
+    --primitiv-carousel-block-gap: var(--primitiv-carousel-md-chrome-gap);
+    --primitiv-carousel-controls-gap: var(--primitiv-carousel-md-chrome-gap);
     /* The prev/next controls track the shared framed-control size ramp (so they
        match a same-size Button and inherit its density scaling); `md` is the
        default slot, re-pointed per slot by the size modifier in the variants layer. */
@@ -86,10 +89,10 @@
     --primitiv-carousel-control-fg: var(--primitiv-action-secondary-foreground-default);
     --primitiv-carousel-control-icon-size: var(--primitiv-framed-control-md-icon-size);
     --primitiv-carousel-indicator-gap: var(--primitiv-space-space-0);
-    --primitiv-carousel-indicator-hit-area: var(--primitiv-space-space-24);
-    --primitiv-carousel-indicator-size: var(--primitiv-space-space-8);
+    --primitiv-carousel-indicator-hit-area: var(--primitiv-carousel-md-dot-hit-area);
+    --primitiv-carousel-indicator-size: var(--primitiv-carousel-md-dot-size);
     /* The active dot elongates into a pill along the dot row's axis. */
-    --primitiv-carousel-indicator-size-active: var(--primitiv-space-space-24);
+    --primitiv-carousel-indicator-size-active: var(--primitiv-carousel-md-active-pill);
     --primitiv-carousel-indicator-color: var(--primitiv-border-strong);
     --primitiv-carousel-indicator-color-active: var(--primitiv-action-primary-default);
 
@@ -99,7 +102,7 @@
        colour; the rest are dimmed until hovered/active. The aspect ratio mirrors
        the slide's by default so the strip reads as a shrunk-down filmstrip (a
        shape, not a token value — like the slide ratio above). */
-    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-space-space-80);
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-md-thumbnail-size);
     --primitiv-carousel-thumbnail-aspect-ratio: 16 / 9;
     --primitiv-carousel-thumbnail-gap: var(--primitiv-space-space-8);
     --primitiv-carousel-thumbnail-radius: var(--primitiv-radii-8);
@@ -300,33 +303,63 @@
 }
 
 @layer primitiv.variants {
-  /* Size — the control chrome scales on a t-shirt ramp so a carousel matches the
-     UI around it; the viewport/slides stay container-driven. The prev/next controls
-     track the shared framed-control ramp (control box = the Button height, chevron =
-     its icon size), so they match a same-size Button and inherit its per-density
-     values for free — `size` picks the slot, the ambient `data-density` shifts it.
-     `md` is the base default (set on the knobs above); the slots re-point per size.
-     Stage 1 scales the controls; the dots / active-pill / thumbnail / chrome-gap
-     ramp lands next. */
+  /* Size — the whole control chrome scales on a t-shirt ramp so a carousel matches
+     the UI around it; the viewport/slides stay container-driven. Each slot re-points:
+     the prev/next controls to the shared framed-control ramp (control box = the Button
+     height, chevron = its icon size) so they match a same-size Button; the dots, their
+     WCAG hit area (floored ≥24 in the token), the active pill, the thumbnails and the
+     chrome gaps to the bespoke density-scoped `carousel-{slot}-*` ramp. `size` picks
+     the slot, the ambient `data-density` shifts it. `md` is the base default (on the
+     knobs above); the dots ramp is deliberately gentle (they're already small). */
   .primitiv-carousel--size-xs {
     --primitiv-carousel-control-size: var(--primitiv-framed-control-xs-height);
     --primitiv-carousel-control-icon-size: var(--primitiv-framed-control-xs-icon-size);
+    --primitiv-carousel-indicator-size: var(--primitiv-carousel-xs-dot-size);
+    --primitiv-carousel-indicator-hit-area: var(--primitiv-carousel-xs-dot-hit-area);
+    --primitiv-carousel-indicator-size-active: var(--primitiv-carousel-xs-active-pill);
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-xs-thumbnail-size);
+    --primitiv-carousel-block-gap: var(--primitiv-carousel-xs-chrome-gap);
+    --primitiv-carousel-controls-gap: var(--primitiv-carousel-xs-chrome-gap);
   }
   .primitiv-carousel--size-sm {
     --primitiv-carousel-control-size: var(--primitiv-framed-control-sm-height);
     --primitiv-carousel-control-icon-size: var(--primitiv-framed-control-sm-icon-size);
+    --primitiv-carousel-indicator-size: var(--primitiv-carousel-sm-dot-size);
+    --primitiv-carousel-indicator-hit-area: var(--primitiv-carousel-sm-dot-hit-area);
+    --primitiv-carousel-indicator-size-active: var(--primitiv-carousel-sm-active-pill);
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-sm-thumbnail-size);
+    --primitiv-carousel-block-gap: var(--primitiv-carousel-sm-chrome-gap);
+    --primitiv-carousel-controls-gap: var(--primitiv-carousel-sm-chrome-gap);
   }
   .primitiv-carousel--size-md {
     --primitiv-carousel-control-size: var(--primitiv-framed-control-md-height);
     --primitiv-carousel-control-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-carousel-indicator-size: var(--primitiv-carousel-md-dot-size);
+    --primitiv-carousel-indicator-hit-area: var(--primitiv-carousel-md-dot-hit-area);
+    --primitiv-carousel-indicator-size-active: var(--primitiv-carousel-md-active-pill);
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-md-thumbnail-size);
+    --primitiv-carousel-block-gap: var(--primitiv-carousel-md-chrome-gap);
+    --primitiv-carousel-controls-gap: var(--primitiv-carousel-md-chrome-gap);
   }
   .primitiv-carousel--size-lg {
     --primitiv-carousel-control-size: var(--primitiv-framed-control-lg-height);
     --primitiv-carousel-control-icon-size: var(--primitiv-framed-control-lg-icon-size);
+    --primitiv-carousel-indicator-size: var(--primitiv-carousel-lg-dot-size);
+    --primitiv-carousel-indicator-hit-area: var(--primitiv-carousel-lg-dot-hit-area);
+    --primitiv-carousel-indicator-size-active: var(--primitiv-carousel-lg-active-pill);
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-lg-thumbnail-size);
+    --primitiv-carousel-block-gap: var(--primitiv-carousel-lg-chrome-gap);
+    --primitiv-carousel-controls-gap: var(--primitiv-carousel-lg-chrome-gap);
   }
   .primitiv-carousel--size-xl {
     --primitiv-carousel-control-size: var(--primitiv-framed-control-xl-height);
     --primitiv-carousel-control-icon-size: var(--primitiv-framed-control-xl-icon-size);
+    --primitiv-carousel-indicator-size: var(--primitiv-carousel-xl-dot-size);
+    --primitiv-carousel-indicator-hit-area: var(--primitiv-carousel-xl-dot-hit-area);
+    --primitiv-carousel-indicator-size-active: var(--primitiv-carousel-xl-active-pill);
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-xl-thumbnail-size);
+    --primitiv-carousel-block-gap: var(--primitiv-carousel-xl-chrome-gap);
+    --primitiv-carousel-controls-gap: var(--primitiv-carousel-xl-chrome-gap);
   }
 
   /* Vertical orientation (headless `orientation="vertical"` → data-orientation).

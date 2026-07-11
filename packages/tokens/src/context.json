@@ -1973,6 +1973,118 @@
           "$value": "{size.size-20}"
         }
       }
+    },
+    "carousel": {
+      "xs": {
+        "dot-size": {
+          "$type": "number",
+          "$value": "{size.size-8}"
+        },
+        "dot-hit-area": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "active-pill": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
+        "thumbnail-size": {
+          "$type": "number",
+          "$value": "{size.size-56}"
+        },
+        "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        }
+      },
+      "sm": {
+        "dot-size": {
+          "$type": "number",
+          "$value": "{size.size-8}"
+        },
+        "dot-hit-area": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "active-pill": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
+        "thumbnail-size": {
+          "$type": "number",
+          "$value": "{size.size-68}"
+        },
+        "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        }
+      },
+      "md": {
+        "dot-size": {
+          "$type": "number",
+          "$value": "{size.size-8}"
+        },
+        "dot-hit-area": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "active-pill": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "thumbnail-size": {
+          "$type": "number",
+          "$value": "{size.size-80}"
+        },
+        "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        }
+      },
+      "lg": {
+        "dot-size": {
+          "$type": "number",
+          "$value": "{size.size-10}"
+        },
+        "dot-hit-area": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
+        "active-pill": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
+        "thumbnail-size": {
+          "$type": "number",
+          "$value": "{size.size-116}"
+        },
+        "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        }
+      },
+      "xl": {
+        "dot-size": {
+          "$type": "number",
+          "$value": "{size.size-12}"
+        },
+        "dot-hit-area": {
+          "$type": "number",
+          "$value": "{size.size-32}"
+        },
+        "active-pill": {
+          "$type": "number",
+          "$value": "{size.size-32}"
+        },
+        "thumbnail-size": {
+          "$type": "number",
+          "$value": "{size.size-140}"
+        },
+        "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-24}"
+        }
+      }
     }
   },
   "compact": {
@@ -3947,6 +4059,118 @@
         "height": {
           "$type": "number",
           "$value": "{size.size-16}"
+        }
+      }
+    },
+    "carousel": {
+      "xs": {
+        "dot-size": {
+          "$type": "number",
+          "$value": "{size.size-8}"
+        },
+        "dot-hit-area": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "active-pill": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
+        "thumbnail-size": {
+          "$type": "number",
+          "$value": "{size.size-48}"
+        },
+        "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        }
+      },
+      "sm": {
+        "dot-size": {
+          "$type": "number",
+          "$value": "{size.size-8}"
+        },
+        "dot-hit-area": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "active-pill": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
+        "thumbnail-size": {
+          "$type": "number",
+          "$value": "{size.size-56}"
+        },
+        "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        }
+      },
+      "md": {
+        "dot-size": {
+          "$type": "number",
+          "$value": "{size.size-8}"
+        },
+        "dot-hit-area": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "active-pill": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
+        "thumbnail-size": {
+          "$type": "number",
+          "$value": "{size.size-68}"
+        },
+        "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        }
+      },
+      "lg": {
+        "dot-size": {
+          "$type": "number",
+          "$value": "{size.size-10}"
+        },
+        "dot-hit-area": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "active-pill": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "thumbnail-size": {
+          "$type": "number",
+          "$value": "{size.size-80}"
+        },
+        "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        }
+      },
+      "xl": {
+        "dot-size": {
+          "$type": "number",
+          "$value": "{size.size-12}"
+        },
+        "dot-hit-area": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
+        "active-pill": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
+        "thumbnail-size": {
+          "$type": "number",
+          "$value": "{size.size-116}"
+        },
+        "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-20}"
         }
       }
     }
@@ -5925,6 +6149,118 @@
           "$value": "{size.size-24}"
         }
       }
+    },
+    "carousel": {
+      "xs": {
+        "dot-size": {
+          "$type": "number",
+          "$value": "{size.size-10}"
+        },
+        "dot-hit-area": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
+        "active-pill": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "thumbnail-size": {
+          "$type": "number",
+          "$value": "{size.size-68}"
+        },
+        "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        }
+      },
+      "sm": {
+        "dot-size": {
+          "$type": "number",
+          "$value": "{size.size-10}"
+        },
+        "dot-hit-area": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
+        "active-pill": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "thumbnail-size": {
+          "$type": "number",
+          "$value": "{size.size-80}"
+        },
+        "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        }
+      },
+      "md": {
+        "dot-size": {
+          "$type": "number",
+          "$value": "{size.size-10}"
+        },
+        "dot-hit-area": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
+        "active-pill": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
+        "thumbnail-size": {
+          "$type": "number",
+          "$value": "{size.size-116}"
+        },
+        "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        }
+      },
+      "lg": {
+        "dot-size": {
+          "$type": "number",
+          "$value": "{size.size-12}"
+        },
+        "dot-hit-area": {
+          "$type": "number",
+          "$value": "{size.size-32}"
+        },
+        "active-pill": {
+          "$type": "number",
+          "$value": "{size.size-32}"
+        },
+        "thumbnail-size": {
+          "$type": "number",
+          "$value": "{size.size-140}"
+        },
+        "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-24}"
+        }
+      },
+      "xl": {
+        "dot-size": {
+          "$type": "number",
+          "$value": "{size.size-14}"
+        },
+        "dot-hit-area": {
+          "$type": "number",
+          "$value": "{size.size-40}"
+        },
+        "active-pill": {
+          "$type": "number",
+          "$value": "{size.size-40}"
+        },
+        "thumbnail-size": {
+          "$type": "number",
+          "$value": "{size.size-168}"
+        },
+        "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-28}"
+        }
+      }
     }
   },
   "dense": {
@@ -7899,6 +8235,118 @@
         "height": {
           "$type": "number",
           "$value": "{size.size-8}"
+        }
+      }
+    },
+    "carousel": {
+      "xs": {
+        "dot-size": {
+          "$type": "number",
+          "$value": "{size.size-6}"
+        },
+        "dot-hit-area": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "active-pill": {
+          "$type": "number",
+          "$value": "{size.size-14}"
+        },
+        "thumbnail-size": {
+          "$type": "number",
+          "$value": "{size.size-40}"
+        },
+        "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "sm": {
+        "dot-size": {
+          "$type": "number",
+          "$value": "{size.size-6}"
+        },
+        "dot-hit-area": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "active-pill": {
+          "$type": "number",
+          "$value": "{size.size-14}"
+        },
+        "thumbnail-size": {
+          "$type": "number",
+          "$value": "{size.size-48}"
+        },
+        "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        }
+      },
+      "md": {
+        "dot-size": {
+          "$type": "number",
+          "$value": "{size.size-6}"
+        },
+        "dot-hit-area": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "active-pill": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
+        "thumbnail-size": {
+          "$type": "number",
+          "$value": "{size.size-56}"
+        },
+        "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        }
+      },
+      "lg": {
+        "dot-size": {
+          "$type": "number",
+          "$value": "{size.size-8}"
+        },
+        "dot-hit-area": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "active-pill": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
+        "thumbnail-size": {
+          "$type": "number",
+          "$value": "{size.size-68}"
+        },
+        "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        }
+      },
+      "xl": {
+        "dot-size": {
+          "$type": "number",
+          "$value": "{size.size-10}"
+        },
+        "dot-hit-area": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "active-pill": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "thumbnail-size": {
+          "$type": "number",
+          "$value": "{size.size-80}"
+        },
+        "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-16}"
         }
       }
     }

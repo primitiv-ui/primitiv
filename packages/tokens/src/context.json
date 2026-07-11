@@ -4070,7 +4070,7 @@
         },
         "dot-hit-area": {
           "$type": "number",
-          "$value": "{size.size-24}"
+          "$value": "{size.size-20}"
         },
         "active-pill": {
           "$type": "number",
@@ -4092,7 +4092,7 @@
         },
         "dot-hit-area": {
           "$type": "number",
-          "$value": "{size.size-24}"
+          "$value": "{size.size-20}"
         },
         "active-pill": {
           "$type": "number",
@@ -8246,7 +8246,7 @@
         },
         "dot-hit-area": {
           "$type": "number",
-          "$value": "{size.size-24}"
+          "$value": "{size.size-16}"
         },
         "active-pill": {
           "$type": "number",
@@ -8268,7 +8268,7 @@
         },
         "dot-hit-area": {
           "$type": "number",
-          "$value": "{size.size-24}"
+          "$value": "{size.size-16}"
         },
         "active-pill": {
           "$type": "number",
@@ -8290,7 +8290,7 @@
         },
         "dot-hit-area": {
           "$type": "number",
-          "$value": "{size.size-24}"
+          "$value": "{size.size-20}"
         },
         "active-pill": {
           "$type": "number",

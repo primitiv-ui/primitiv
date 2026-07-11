@@ -937,7 +937,7 @@
     --primitiv-carousel-md-thumbnail-size: var(--primitiv-size-size-68);
     --primitiv-carousel-sm-active-pill: var(--primitiv-size-size-16);
     --primitiv-carousel-sm-chrome-gap: var(--primitiv-space-space-8);
-    --primitiv-carousel-sm-dot-hit-area: var(--primitiv-size-size-24);
+    --primitiv-carousel-sm-dot-hit-area: var(--primitiv-size-size-20);
     --primitiv-carousel-sm-dot-size: var(--primitiv-size-size-8);
     --primitiv-carousel-sm-thumbnail-size: var(--primitiv-size-size-56);
     --primitiv-carousel-xl-active-pill: var(--primitiv-size-size-28);
@@ -947,7 +947,7 @@
     --primitiv-carousel-xl-thumbnail-size: var(--primitiv-size-size-116);
     --primitiv-carousel-xs-active-pill: var(--primitiv-size-size-16);
     --primitiv-carousel-xs-chrome-gap: var(--primitiv-space-space-6);
-    --primitiv-carousel-xs-dot-hit-area: var(--primitiv-size-size-24);
+    --primitiv-carousel-xs-dot-hit-area: var(--primitiv-size-size-20);
     --primitiv-carousel-xs-dot-size: var(--primitiv-size-size-8);
     --primitiv-carousel-xs-thumbnail-size: var(--primitiv-size-size-48);
     --primitiv-checkbox-lg-box-radius: var(--primitiv-radii-4);
@@ -1379,12 +1379,12 @@
     --primitiv-carousel-lg-thumbnail-size: var(--primitiv-size-size-68);
     --primitiv-carousel-md-active-pill: var(--primitiv-size-size-16);
     --primitiv-carousel-md-chrome-gap: var(--primitiv-space-space-8);
-    --primitiv-carousel-md-dot-hit-area: var(--primitiv-size-size-24);
+    --primitiv-carousel-md-dot-hit-area: var(--primitiv-size-size-20);
     --primitiv-carousel-md-dot-size: var(--primitiv-size-size-6);
     --primitiv-carousel-md-thumbnail-size: var(--primitiv-size-size-56);
     --primitiv-carousel-sm-active-pill: var(--primitiv-size-size-14);
     --primitiv-carousel-sm-chrome-gap: var(--primitiv-space-space-6);
-    --primitiv-carousel-sm-dot-hit-area: var(--primitiv-size-size-24);
+    --primitiv-carousel-sm-dot-hit-area: var(--primitiv-size-size-16);
     --primitiv-carousel-sm-dot-size: var(--primitiv-size-size-6);
     --primitiv-carousel-sm-thumbnail-size: var(--primitiv-size-size-48);
     --primitiv-carousel-xl-active-pill: var(--primitiv-size-size-24);
@@ -1394,7 +1394,7 @@
     --primitiv-carousel-xl-thumbnail-size: var(--primitiv-size-size-80);
     --primitiv-carousel-xs-active-pill: var(--primitiv-size-size-14);
     --primitiv-carousel-xs-chrome-gap: var(--primitiv-space-space-4);
-    --primitiv-carousel-xs-dot-hit-area: var(--primitiv-size-size-24);
+    --primitiv-carousel-xs-dot-hit-area: var(--primitiv-size-size-16);
     --primitiv-carousel-xs-dot-size: var(--primitiv-size-size-6);
     --primitiv-carousel-xs-thumbnail-size: var(--primitiv-size-size-40);
     --primitiv-checkbox-lg-box-radius: var(--primitiv-radii-4);

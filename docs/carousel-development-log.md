@@ -1432,6 +1432,17 @@ top jumps because the primitive ladder is sparse up there — cap lg/xl on reque
 (dots gentle enough? thumbnail top end OK?); then Stage 3 (content spacing steps —
 peek/padding/gap on the scaled ramp), then Figma lockstep.
 
+**QA round 1 (human) — indicator group too big at dense/xs.** The dot **hit area** was
+floored at 24 (WCAG 2.5.8) in *every* density, so at dense/xs the dots' 24px hit-boxes
+stayed large while the prev/next controls shrank to 16 — the indicator group looked
+oversized (screenshot). Fix: relax the floor in the **compact/dense** modes only
+(dense dot-hit-area xs/sm 24→16, md 24→20; compact xs/sm 24→20), so the indicator
+buttons track the controls; **comfortable + spacious stay ≥24** (WCAG-safe at the
+default density — the sub-24 targets are the deliberate trade-off of the opt-in compact
+modes). Token-only change (`context.json` → `tokens.css`), 5 cells; no registry/CSS
+change. Flag for QA: confirm the dense/compact indicator group now reads proportionate,
+and that sub-24 dot targets in dense are an acceptable compact-mode trade-off.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

@@ -1498,3 +1498,183 @@ export function CarouselSpacing() {
     </Example>
   );
 }
+
+// A self-contained placeholder "photo" at a given intrinsic size — a labelled
+// gradient SVG data URI. Unlike a gradient *background*, this is a real replaced
+// <img> with its own intrinsic size/ratio, so it exercises the slide's object-fit
+// handling exactly as a raster photo would (a wide slide can't just make a
+// portrait source fill it). The label shows the source's own W×H so a cover-crop
+// or contain-letterbox is legible.
+function photo(w: number, h: number, from: string, to: string): string {
+  const svg =
+    `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}' viewBox='0 0 ${w} ${h}'>` +
+    `<defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>` +
+    `<stop offset='0' stop-color='${from}'/><stop offset='1' stop-color='${to}'/></linearGradient></defs>` +
+    `<rect width='${w}' height='${h}' fill='url(#g)'/>` +
+    `<rect x='6' y='6' width='${w - 12}' height='${h - 12}' fill='none' stroke='white' stroke-opacity='0.5' stroke-width='4' stroke-dasharray='12 10'/>` +
+    `<text x='${w / 2}' y='${h / 2}' fill='white' font-family='sans-serif' font-size='${Math.max(18, Math.min(w, h) / 6)}' font-weight='700' text-anchor='middle' dominant-baseline='middle'>${w}×${h}</text>` +
+    `</svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
+const PORTRAIT = photo(360, 640, "#1e3a8a", "#14b8a6");
+const LANDSCAPE = photo(640, 360, "#7c3aed", "#ec4899");
+const SQUARE = photo(500, 500, "#ea580c", "#16a34a");
+
+type ImageSlide = {
+  src: string;
+  fit?: "cover" | "contain";
+  objectPosition?: string;
+  caption?: string;
+  background?: string;
+};
+
+// Renders real <img> slides through the styled surface, so the slide's media
+// handling (fill + object-fit + object-position + the positioning context for a
+// caption overlay) is what's on show — not a gradient background.
+function ImageSingle({
+  label,
+  slides,
+  ratio,
+}: {
+  label: string;
+  slides: ImageSlide[];
+  ratio?: "square" | "standard" | "wide" | "ultrawide";
+}) {
+  return (
+    <Carousel ariaLabel={label} ratio={ratio}>
+      <CarouselViewport>
+        {slides.map((slide, i) => (
+          <CarouselSlide
+            key={i}
+            fit={slide.fit}
+            style={slide.background ? { background: slide.background } : undefined}
+          >
+            <img
+              src={slide.src}
+              alt=""
+              style={
+                slide.objectPosition
+                  ? { objectPosition: slide.objectPosition }
+                  : undefined
+              }
+            />
+            {slide.caption ? (
+              <div
+                style={{
+                  position: "absolute",
+                  insetInline: 0,
+                  insetBlockEnd: 0,
+                  padding: "10px 14px",
+                  background: "linear-gradient(transparent, rgba(0, 0, 0, 0.65))",
+                  color: "#fff",
+                  font: "600 14px/1.3 sans-serif",
+                }}
+              >
+                {slide.caption}
+              </div>
+            ) : null}
+          </CarouselSlide>
+        ))}
+      </CarouselViewport>
+      <CarouselControls>
+        <CarouselPreviousTrigger aria-label="Previous slide">
+          <ChevronLeft />
+        </CarouselPreviousTrigger>
+        <CarouselIndicatorGroup label="Choose slide">
+          {slides.map((_, i) => (
+            <CarouselIndicator key={i} index={i} />
+          ))}
+        </CarouselIndicatorGroup>
+        <CarouselNextTrigger aria-label="Next slide">
+          <ChevronRight />
+        </CarouselNextTrigger>
+      </CarouselControls>
+    </Carousel>
+  );
+}
+
+export function CarouselImages() {
+  return (
+    <Example
+      title="Images — real <img> slides"
+      note="The slide box is always sized by the layout (fill + aspect-ratio), but a real <img> is a replaced element with its own intrinsic size/ratio — so the surface stretches a direct media child to the box and object-fit decides how it conforms. `fit=cover` (default) fills and crops to keep the ratio; the `fit=contain` slide modifier fits the whole image and letterboxes it against the slide's own background. --primitiv-carousel-slide-object-position moves the crop's focal point. The slide is a positioning context, so a caption/overlay drops in with no wrapper. Consumer-side (by nature): the asset itself, srcset/sizes, loading/fetchpriority (eager the first slide for LCP), and alt text."
+    >
+      <div className="carousel-grid">
+        <GridCell
+          n={1}
+          title="fit=cover (default) — mixed sources"
+          note="Portrait, landscape and square sources page through one 16:9 slot. Each fills the slide and is cropped to keep its ratio — a uniform gallery from non-uniform assets, no per-image CSS."
+        >
+          <ImageSingle
+            label="Cover, mixed sources"
+            slides={[{ src: PORTRAIT }, { src: LANDSCAPE }, { src: SQUARE }]}
+          />
+        </GridCell>
+        <GridCell
+          n={2}
+          title="fit=contain — no crop"
+          note="The same sources with `fit=contain`: the whole image fits inside the slide, letterboxed against the slide background (set here to a neutral fill). Best for logos / art that must not be cut."
+        >
+          <ImageSingle
+            label="Contain, mixed sources"
+            slides={[
+              { src: PORTRAIT, fit: "contain", background: "#1c1f26" },
+              { src: LANDSCAPE, fit: "contain", background: "#1c1f26" },
+              { src: SQUARE, fit: "contain", background: "#1c1f26" },
+            ]}
+          />
+        </GridCell>
+        <GridCell
+          n={3}
+          title="object-position — focal point"
+          note="The same portrait cover-cropped at three focal points via object-position (top / center / bottom) — the consumer sets it per slide to control what a crop keeps."
+        >
+          <ImageSingle
+            label="Focal point"
+            slides={[
+              { src: PORTRAIT, objectPosition: "top" },
+              { src: PORTRAIT, objectPosition: "center" },
+              { src: PORTRAIT, objectPosition: "bottom" },
+            ]}
+          />
+        </GridCell>
+        <GridCell
+          n={4}
+          title="caption overlay"
+          note="The slide is position:relative, so an absolutely-positioned caption anchors to the slide box (and clips to its rounded corners) with no extra wrapper — the common hero pattern of text over imagery."
+        >
+          <ImageSingle
+            label="Captioned"
+            slides={[
+              { src: LANDSCAPE, caption: "Summer collection — up to 40% off" },
+              { src: SQUARE, caption: "New arrivals" },
+            ]}
+          />
+        </GridCell>
+        <GridCell
+          n={5}
+          title="images + ratio=square"
+          note="Composes with the root `ratio` modifier: the same sources cover-cropped to a 1:1 slot instead of 16:9. The media conforms to whatever shape the layout gives the slide."
+        >
+          <ImageSingle
+            label="Square ratio"
+            ratio="square"
+            slides={[{ src: LANDSCAPE }, { src: PORTRAIT }, { src: SQUARE }]}
+          />
+        </GridCell>
+        <GridCell
+          n={6}
+          title="images + RTL"
+          note="Right-to-left mirrors the controls and paging; the media handling is direction-agnostic."
+          dir="rtl"
+        >
+          <ImageSingle
+            label="RTL"
+            slides={[{ src: SQUARE }, { src: LANDSCAPE }, { src: PORTRAIT }]}
+          />
+        </GridCell>
+      </div>
+    </Example>
+  );
+}

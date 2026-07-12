@@ -84,6 +84,14 @@
        token value — like the slide ratio above. */
     --primitiv-carousel-vertical-aspect-ratio: var(--primitiv-carousel-slide-aspect-ratio);
     --primitiv-carousel-slide-radius: var(--primitiv-radii-12);
+    /* How a media child (img / picture / video) fills the slide box. `cover`
+       (default) fills + crops to keep the ratio; the `fit` slide modifier swaps it
+       to `contain`. `object-position` is the crop's focal point — a consumer sets it
+       per slide (e.g. `object-position: top`) to control what a cover-crop keeps.
+       Keyword values (a CSS shape, not a token — like the aspect ratios / control
+       radius above). */
+    --primitiv-carousel-slide-object-fit: cover;
+    --primitiv-carousel-slide-object-position: center;
     /* The chrome gaps + the indicator/thumbnail dimensions track the carousel
        size ramp (`carousel-{slot}-*`, density-scoped); `md` is the default slot,
        re-pointed per slot by the size modifier in the variants layer. */
@@ -244,8 +252,31 @@
     border-radius: var(--primitiv-carousel-slide-radius);
     overflow: hidden;
     scroll-snap-align: start;
+    /* Positioning context so a consumer can absolutely-position layered content
+       (a caption, a CTA, a gradient scrim) over the media without any extra
+       wrapper — it anchors to the slide box and clips to its rounded corners. */
+    position: relative;
     /* Stop the OS grabbing images for drag/save mid-swipe. */
     -webkit-user-drag: none;
+  }
+
+  /* Media children fill the slide box. The slide box is always correctly sized by
+     the layout (flex-basis + aspect-ratio), but a real <img> / <video> is a
+     replaced element with its own intrinsic size and ratio — left alone it renders
+     at that size, anchored top-left and clipped, not filling. So a *direct* media
+     child is stretched to the box and `object-fit` decides how it conforms: `cover`
+     (default) fills and crops, `contain` (via the `fit` modifier) letterboxes. A
+     <picture> is a wrapper, so its inner <img> is targeted too. Scoped to direct
+     media children so layered content (captions/overlays) is left untouched. */
+  .primitiv-carousel__slide > img,
+  .primitiv-carousel__slide > video,
+  .primitiv-carousel__slide > picture,
+  .primitiv-carousel__slide > picture > img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: var(--primitiv-carousel-slide-object-fit);
+    object-position: var(--primitiv-carousel-slide-object-position);
   }
 
   /* Prev / next controls. Circular, centred glyph, sized off the control knob;
@@ -549,6 +580,16 @@
   }
   .primitiv-carousel__slide--radius-none {
     --primitiv-carousel-slide-radius: var(--primitiv-radii-0);
+  }
+
+  /* Slide media fit — re-points the object-fit knob per slide. `cover` (default,
+     the base rule already sets it) fills + crops; `contain` fits the whole image
+     without cropping (letterboxed against the slide's own background). */
+  .primitiv-carousel__slide--fit-cover {
+    --primitiv-carousel-slide-object-fit: cover;
+  }
+  .primitiv-carousel__slide--fit-contain {
+    --primitiv-carousel-slide-object-fit: contain;
   }
 
   /* Carousel aspect ratio — re-points the aspect-ratio knob at the *root* to a

@@ -167,6 +167,15 @@
             { "name": "md", "class": "primitiv-carousel__slide--radius-md", "description": "Medium rounded corners (the default)." },
             { "name": "none", "class": "primitiv-carousel__slide--radius-none", "description": "Sharp, un-rounded corners." }
           ]
+        },
+        {
+          "name": "fit",
+          "default": "cover",
+          "description": "How a media child (an img / picture / video) conforms to the slide box. The slide box is always sized by the layout; this decides how a real image — which has its own intrinsic size and ratio — fills it.",
+          "options": [
+            { "name": "cover", "class": "primitiv-carousel__slide--fit-cover", "description": "Fill the slide and crop the overflow, preserving the image's aspect ratio (the default — best for photographic imagery). Set --primitiv-carousel-slide-object-position to move the focal point of the crop." },
+            { "name": "contain", "class": "primitiv-carousel__slide--fit-contain", "description": "Fit the whole image inside the slide without cropping, letterboxing any leftover space (best for logos / art that must not be cut). The letterbox shows the slide's own background — set one on the slide for a backdrop." }
+          ]
         }
       ],
       "dataAttributes": [
@@ -225,6 +234,8 @@
     { "name": "--primitiv-carousel-slide-aspect-ratio", "defaultsTo": "16 / 9" },
     { "name": "--primitiv-carousel-vertical-aspect-ratio", "defaultsTo": "var(--primitiv-carousel-slide-aspect-ratio)" },
     { "name": "--primitiv-carousel-slide-radius", "defaultsTo": "var(--primitiv-radii-12)" },
+    { "name": "--primitiv-carousel-slide-object-fit", "defaultsTo": "cover" },
+    { "name": "--primitiv-carousel-slide-object-position", "defaultsTo": "center" },
     { "name": "--primitiv-carousel-block-gap", "defaultsTo": "var(--primitiv-carousel-md-chrome-gap)" },
     { "name": "--primitiv-carousel-controls-gap", "defaultsTo": "var(--primitiv-carousel-md-chrome-gap)" },
     { "name": "--primitiv-carousel-control-size", "defaultsTo": "var(--primitiv-framed-control-md-height)" },

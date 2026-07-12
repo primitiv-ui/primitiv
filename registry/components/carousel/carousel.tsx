@@ -150,7 +150,7 @@ export function CarouselControls({ className, ...props }: CarouselControlsProps)
   return <div className={[carouselControls(), className].filter(Boolean).join(" ")} {...props} />;
 }
 
-export type CarouselSlideProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Slide>, "radius"> & {
+export type CarouselSlideProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Slide>, "radius" | "fit"> & {
   /**
    * Corner rounding of the slide.
    * - `md` — Medium rounded corners (the default).
@@ -159,10 +159,18 @@ export type CarouselSlideProps = DistributiveOmit<ComponentPropsWithRef<typeof C
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
   radius?: "md" | "none";
+  /**
+   * How a media child (an img / picture / video) conforms to the slide box. The slide box is always sized by the layout; this decides how a real image — which has its own intrinsic size and ratio — fills it.
+   * - `cover` — Fill the slide and crop the overflow, preserving the image's aspect ratio (the default — best for photographic imagery). Set --primitiv-carousel-slide-object-position to move the focal point of the crop.
+   * - `contain` — Fit the whole image inside the slide without cropping, letterboxing any leftover space (best for logos / art that must not be cut). The letterbox shows the slide's own background — set one on the slide for a backdrop.
+   * @default "cover"
+   * @see https://primitiv-ui.dev/docs/components/carousel
+   */
+  fit?: "cover" | "contain";
 };
 
-export function CarouselSlide({ radius, className, ...props }: CarouselSlideProps) {
-  return <CarouselPrimitive.Slide className={[carouselSlide({ radius }), className].filter(Boolean).join(" ")} {...props} />;
+export function CarouselSlide({ radius, fit, className, ...props }: CarouselSlideProps) {
+  return <CarouselPrimitive.Slide className={[carouselSlide({ radius, fit }), className].filter(Boolean).join(" ")} {...props} />;
 }
 
 export type CarouselPreviousTriggerProps = ComponentPropsWithRef<typeof CarouselPrimitive.PreviousTrigger>;

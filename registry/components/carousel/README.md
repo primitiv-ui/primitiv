@@ -221,6 +221,22 @@ Structured per RFC 0008 — the per-component API knobs + resting look in
   custom property inline (the same number it hands the headless page model).
   `aspect-ratio` for proportional sizing as the container resizes, rounded by
   default (`--primitiv-radii-12`), `overflow: hidden` so imagery clips to the radius.
+  It is also a **positioning context** (`position: relative`), so a caption / CTA /
+  scrim drops in as an absolutely-positioned child with no extra wrapper.
+- **Slide media (real `<img>` / `<picture>` / `<video>`).** The slide *box* is
+  always sized by the layout, but a real image is a replaced element with its own
+  intrinsic size and ratio — so a **direct media child** is stretched to fill the box
+  and `object-fit` decides how it conforms. A **`fit`** slide modifier picks it:
+  **`cover`** (default) fills and crops to keep the ratio (best for photography);
+  **`contain`** fits the whole image and letterboxes the remainder against the slide's
+  own background (best for logos / art that must not be cropped — set a background on
+  the slide for the letterbox). `--primitiv-carousel-slide-object-position` (default
+  `center`) is the crop's **focal point**, set per slide (e.g. `object-position: top`).
+  The rule targets `> img, > video, > picture (> img)` specifically, so layered
+  content (a caption sibling) is left untouched.
+  **Consumer's side** (by nature, not the surface's): supplying the asset itself,
+  `srcset` / `sizes` for responsive loading, `loading` / `fetchpriority` (eager the
+  first slide — it's usually the LCP element — and lazy the rest), and `alt` text.
 - **Controls** — **circular** (`50%`), `space-32` square, filled with
   `action-secondary` (matching the design's external-context control); hover /
   active re-point the fill knob.

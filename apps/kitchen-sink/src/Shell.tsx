@@ -21,6 +21,7 @@ import {
   CarouselPlacement,
   CarouselSpacing,
   CarouselSize,
+  CarouselImages,
 } from "./pages/CarouselPage";
 import "./Shell.css";
 
@@ -78,6 +79,7 @@ export function Shell() {
           <Route path="placement" element={<CarouselPlacement />} />
           <Route path="spacing" element={<CarouselSpacing />} />
           <Route path="size" element={<CarouselSize />} />
+          <Route path="images" element={<CarouselImages />} />
         </Route>
       </Routes>
     </ChromeProvider>

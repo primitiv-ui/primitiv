@@ -1566,6 +1566,49 @@ pill-padding size×density cells join the Context collection). **Next:** human Q
 `/carousel/builder` — drive peek/gap/padding at each size×density and confirm the spacing
 breathes sensibly (xl magnitudes OK? dense tight enough?), plus the two wrap-polish items.
 
+### Slide media — real `<img>` support + slide as positioning context (awaiting human QA)
+
+**The gap the human surfaced:** every example put "imagery" on as a CSS `background`,
+which fills its box by definition — masking that a real `<img>` (a replaced element
+with its own intrinsic size/ratio) does **not** conform to the slide box. The README's
+own canonical `<CarouselSlide><img/></CarouselSlide>` would render at intrinsic size,
+top-left anchored + clipped. Only *thumbnails* had an `object-fit` rule; slides had none.
+
+**Registry surface (headless-free — pure CSS + a slide modifier + 2 knobs).**
+- **Media fill.** A direct media child of the slide (`> img, > video, > picture, >
+  picture > img`) is stretched to the box (`inline/block-size: 100%`, `display: block`)
+  and `object-fit` / `object-position` decide how it conforms. Scoped to *direct media*
+  so layered content (captions) is untouched.
+- **`fit` slide modifier** (`cover` default · `contain`) re-points a new
+  `--primitiv-carousel-slide-object-fit` knob: cover fills + crops (keeps ratio),
+  contain fits the whole image + letterboxes against the slide's own background.
+- **`--primitiv-carousel-slide-object-position`** knob (default `center`) — the crop's
+  focal point, set per slide (`object-position: top`).
+- **Slide is now a positioning context** (`position: relative`, the human's explicit
+  call) so a caption / CTA / scrim anchors to the slide box (and clips to its corners)
+  with no wrapper — the hero pattern.
+- The line drawn: the surface owns *how media conforms to the box* (fill, cover/contain,
+  focal point) + the positioning context; the **consumer** owns the asset, `srcset`/
+  `sizes`, `loading`/`fetchpriority` (LCP: eager slide 1), and `alt` — documented in the
+  README's new "Slide media" bullet.
+
+**Verified in headless Chromium** (real intrinsic-size SVG data-URI `<img>`s): cover
+fills + crops portrait/landscape/square into a 16:9 slot; contain letterboxes on the
+slide bg; object-position top/center/bottom keeps the right band; a positioned caption
+anchors inside the slide (position:relative). Contract/CSS regenerated (recipe/tsx now
+carry the slide `fit` prop; scss re-derived) + drift-green + type-check + kitchen-sink
+hand-synced (styles.css, contract, recipe, tsx). New **`/carousel/images`** route
+(sidebar "Images") — a 6-cell grid: cover mixed sources, contain, object-position focal
+point, caption overlay, images + ratio=square, RTL — using an in-file `photo()` SVG
+placeholder helper (self-contained, no network) so it dogfoods real `<img>` slides.
+
+**Figma lockstep: pending** (code-only — no carousel `--primitiv-*` variable layer).
+**Next / proposed:** **variable-width slides** (the human raised Ark UI's model —
+content-sized slides of differing widths in one track). This is a distinct feature with
+a real design fork (opt-in mode? per-slide width? the page/indicator model assumes equal
+shares — it needs its own proposal + likely a headless look before building). Held for a
+green light. **Also QA:** `/carousel/images` (cover/contain/focal-point/caption).
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

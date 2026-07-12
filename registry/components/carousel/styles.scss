@@ -83,7 +83,13 @@
        vertical track's shape from the horizontal ratio. A ratio is a shape, not a
        token value — like the slide ratio above. */
     --primitiv-carousel-vertical-aspect-ratio: var(--primitiv-carousel-slide-aspect-ratio);
-    --primitiv-carousel-slide-radius: var(--primitiv-radii-12);
+    /* The carousel corner radius scales with size + ambient density
+       (`carousel-{slot}-radius`, density-scoped); `md` is the default slot,
+       re-pointed per slot by the size modifier. Both the slide corners and the
+       opt-in root-container (viewport track) rounding reference it, so they always
+       match. */
+    --primitiv-carousel-radius: var(--primitiv-carousel-md-radius);
+    --primitiv-carousel-slide-radius: var(--primitiv-carousel-radius);
     /* How a media child (img / picture / video) fills the slide box. `cover`
        (default) fills + crops to keep the ratio; the `fit` slide modifier swaps it
        to `contain`. `object-position` is the crop's focal point — a consumer sets it
@@ -383,6 +389,7 @@
     --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-xs-thumbnail-size);
     --primitiv-carousel-block-gap: var(--primitiv-carousel-xs-chrome-gap);
     --primitiv-carousel-controls-gap: var(--primitiv-carousel-xs-chrome-gap);
+    --primitiv-carousel-radius: var(--primitiv-carousel-xs-radius);
     --primitiv-carousel-content-space-1: var(--primitiv-carousel-xs-content-space-1);
     --primitiv-carousel-content-space-2: var(--primitiv-carousel-xs-content-space-2);
     --primitiv-carousel-content-space-3: var(--primitiv-carousel-xs-content-space-3);
@@ -399,6 +406,7 @@
     --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-sm-thumbnail-size);
     --primitiv-carousel-block-gap: var(--primitiv-carousel-sm-chrome-gap);
     --primitiv-carousel-controls-gap: var(--primitiv-carousel-sm-chrome-gap);
+    --primitiv-carousel-radius: var(--primitiv-carousel-sm-radius);
     --primitiv-carousel-content-space-1: var(--primitiv-carousel-sm-content-space-1);
     --primitiv-carousel-content-space-2: var(--primitiv-carousel-sm-content-space-2);
     --primitiv-carousel-content-space-3: var(--primitiv-carousel-sm-content-space-3);
@@ -415,6 +423,7 @@
     --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-md-thumbnail-size);
     --primitiv-carousel-block-gap: var(--primitiv-carousel-md-chrome-gap);
     --primitiv-carousel-controls-gap: var(--primitiv-carousel-md-chrome-gap);
+    --primitiv-carousel-radius: var(--primitiv-carousel-md-radius);
     --primitiv-carousel-content-space-1: var(--primitiv-carousel-md-content-space-1);
     --primitiv-carousel-content-space-2: var(--primitiv-carousel-md-content-space-2);
     --primitiv-carousel-content-space-3: var(--primitiv-carousel-md-content-space-3);
@@ -431,6 +440,7 @@
     --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-lg-thumbnail-size);
     --primitiv-carousel-block-gap: var(--primitiv-carousel-lg-chrome-gap);
     --primitiv-carousel-controls-gap: var(--primitiv-carousel-lg-chrome-gap);
+    --primitiv-carousel-radius: var(--primitiv-carousel-lg-radius);
     --primitiv-carousel-content-space-1: var(--primitiv-carousel-lg-content-space-1);
     --primitiv-carousel-content-space-2: var(--primitiv-carousel-lg-content-space-2);
     --primitiv-carousel-content-space-3: var(--primitiv-carousel-lg-content-space-3);
@@ -447,6 +457,7 @@
     --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-xl-thumbnail-size);
     --primitiv-carousel-block-gap: var(--primitiv-carousel-xl-chrome-gap);
     --primitiv-carousel-controls-gap: var(--primitiv-carousel-xl-chrome-gap);
+    --primitiv-carousel-radius: var(--primitiv-carousel-xl-radius);
     --primitiv-carousel-content-space-1: var(--primitiv-carousel-xl-content-space-1);
     --primitiv-carousel-content-space-2: var(--primitiv-carousel-xl-content-space-2);
     --primitiv-carousel-content-space-3: var(--primitiv-carousel-xl-content-space-3);
@@ -549,13 +560,15 @@
      visible box. The background **surface fill is opt-in** — add the `surface`
      modifier for it (the border alone renders an outlined track). Shares peek's
      t-shirt scale. `none` is the default (no padding, no frame — a bare scroll
-     box). The border/radius are shared across the sizes; only the padding grows. */
+     box). The border is shared across the sizes; the padding and the corner radius
+     grow with size/density (the radius via the shared scaled carousel radius, so a
+     padded track's corners match the slides). */
   .primitiv-carousel--padding-sm,
   .primitiv-carousel--padding-md,
   .primitiv-carousel--padding-lg {
     --primitiv-carousel-viewport-border-width: var(--primitiv-border-width-1);
     --primitiv-carousel-viewport-border-color: var(--primitiv-border-subtle);
-    --primitiv-carousel-viewport-radius: var(--primitiv-radii-12);
+    --primitiv-carousel-viewport-radius: var(--primitiv-carousel-radius);
   }
   .primitiv-carousel--padding-none {
     --primitiv-carousel-viewport-padding: var(--primitiv-space-space-0);
@@ -580,10 +593,21 @@
     --primitiv-carousel-viewport-surface: var(--primitiv-surface-subtle);
   }
 
+  /* Root container rounding — opt into rounding the viewport track (the scroll box
+     around the slides), independent of the `padding` frame. `md` rounds it to the
+     shared, size/density-scaled carousel radius, so the track corners match the
+     slide corners (the viewport already clips to its radius, so the slides are
+     clipped to the rounded track). `none` (the default) is a no-op — the track
+     stays at the base square corners, or keeps `padding`'s rounding if a framed
+     track is on — so it never fights the padding frame. */
+  .primitiv-carousel--radius-md {
+    --primitiv-carousel-viewport-radius: var(--primitiv-carousel-radius);
+  }
+
   /* Slide corner rounding — re-points the radius knob. `md` is the default
      (the base rule already rounds); `none` squares the slide off. */
   .primitiv-carousel__slide--radius-md {
-    --primitiv-carousel-slide-radius: var(--primitiv-radii-12);
+    --primitiv-carousel-slide-radius: var(--primitiv-carousel-radius);
   }
   .primitiv-carousel__slide--radius-none {
     --primitiv-carousel-slide-radius: var(--primitiv-radii-0);
@@ -1440,6 +1464,7 @@ $primitiv-carousel-viewport-radius: var(--primitiv-carousel-viewport-radius);
 $primitiv-carousel-slides-per-page: var(--primitiv-carousel-slides-per-page);
 $primitiv-carousel-slide-aspect-ratio: var(--primitiv-carousel-slide-aspect-ratio);
 $primitiv-carousel-vertical-aspect-ratio: var(--primitiv-carousel-vertical-aspect-ratio);
+$primitiv-carousel-radius: var(--primitiv-carousel-radius);
 $primitiv-carousel-slide-radius: var(--primitiv-carousel-slide-radius);
 $primitiv-carousel-slide-object-fit: var(--primitiv-carousel-slide-object-fit);
 $primitiv-carousel-slide-object-position: var(--primitiv-carousel-slide-object-position);

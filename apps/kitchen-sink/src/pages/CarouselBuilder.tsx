@@ -77,6 +77,7 @@ interface BuilderConfig {
   slidesPerPage: number;
   ratio: Ratio;
   radius: Radius;
+  containerRadius: Radius;
   gap: Sizing;
   peek: Sizing;
   padding: Sizing;
@@ -99,6 +100,7 @@ const DEFAULT_CONFIG: BuilderConfig = {
   slidesPerPage: 1,
   ratio: "wide",
   radius: "md",
+  containerRadius: "none",
   gap: "md",
   peek: "none",
   padding: "none",
@@ -312,6 +314,7 @@ function LiveCarousel({
         peek={config.peek}
         padding={config.padding}
         surface={config.surface}
+        radius={config.containerRadius}
         gap={config.gap}
         ratio={config.ratio}
         indicators={config.indicators}
@@ -349,6 +352,7 @@ function describe(config: BuilderConfig, size: Size): string {
     `peek="${config.peek}"`,
     `padding="${config.padding}"`,
     `surface="${config.surface}"`,
+    `radius="${config.containerRadius}"`,
     `indicators="${config.indicators}"`,
     `transition="${config.transition}"`,
     `slidesPerPage={${config.slidesPerPage}}`,
@@ -521,6 +525,13 @@ export function CarouselBuilder() {
               value={config.surface}
               options={["none", "subtle"] as const}
               onChange={(value) => set("surface", value)}
+            />
+            <RadioField
+              legend="radius (container)"
+              name="containerRadius"
+              value={config.containerRadius}
+              options={["none", "md"] as const}
+              onChange={(value) => set("containerRadius", value)}
             />
           </Section>
 

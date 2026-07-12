@@ -31,6 +31,10 @@ export const carousel = cva("primitiv-carousel", {
       none: "primitiv-carousel--surface-none",
       subtle: "primitiv-carousel--surface-subtle",
     },
+    radius: {
+      none: "primitiv-carousel--radius-none",
+      md: "primitiv-carousel--radius-md",
+    },
     placement: {
       external: "primitiv-carousel--placement-external",
       overlay: "primitiv-carousel--placement-overlay",
@@ -75,6 +79,7 @@ export const carousel = cva("primitiv-carousel", {
     gap: "md",
     padding: "none",
     surface: "none",
+    radius: "none",
     placement: "external",
     side: "after",
     distribution: "group",

@@ -16,7 +16,7 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K>
  *
  * @see https://primitiv-ui.dev/docs/components/carousel
  */
-export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "gap" | "padding" | "surface" | "placement" | "side" | "distribution" | "align" | "cluster" | "indicators" | "size" | "ratio"> & {
+export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "gap" | "padding" | "surface" | "radius" | "placement" | "side" | "distribution" | "align" | "cluster" | "indicators" | "size" | "ratio"> & {
   /**
    * Reveal a sliver of the adjacent slides on either side of the active one. Works in both orientations (inline edges when horizontal, block edges when vertical).
    * - `none` — No peek — the active slide fills the viewport (the default).
@@ -55,6 +55,14 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
   surface?: "none" | "subtle";
+  /**
+   * Opt into rounding the container (the viewport track around the slides), independent of the `padding` frame. Off by default (a square track); `md` rounds it to the shared, size/density-scaled carousel radius, so the track corners match the slide corners. (Distinct from the per-slide `radius` modifier, which rounds each slide; this rounds the track that clips them.)
+   * - `none` — Square track corners (the default).
+   * - `md` — Round the track to the scaled carousel radius, matching the slides.
+   * @default "none"
+   * @see https://primitiv-ui.dev/docs/components/carousel
+   */
+  radius?: "none" | "md";
   /**
    * Where the controls sit relative to the imagery — the one axis that is off-vs-on the slide. `external` (the default) keeps the controls off the imagery, in the space around the viewport. `overlay` insets them on the slide for edge-to-edge imagery. How the controls are *arranged* (one bar vs prev/next flanking the edges) is the orthogonal `cluster` axis; `side` / `distribution` / `align` / `orientation` then compose on top of both.
    * - `external` — Controls off the imagery, in the space around the viewport (the default). A CSS grid places the parts in tracks beside the viewport.
@@ -127,10 +135,10 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
   ratio?: "square" | "standard" | "wide" | "ultrawide";
 };
 
-export function Carousel({ peek, gap, padding, surface, placement, side, distribution, align, cluster, indicators, size, ratio, slidesPerPage, className, style, ...props }: CarouselProps) {
+export function Carousel({ peek, gap, padding, surface, radius, placement, side, distribution, align, cluster, indicators, size, ratio, slidesPerPage, className, style, ...props }: CarouselProps) {
   return (
     <CarouselPrimitive.Root
-      className={[carousel({ peek, gap, padding, surface, placement, side, distribution, align, cluster, indicators, size, ratio }), className].filter(Boolean).join(" ")}
+      className={[carousel({ peek, gap, padding, surface, radius, placement, side, distribution, align, cluster, indicators, size, ratio }), className].filter(Boolean).join(" ")}
       style={{ ...style, ...(slidesPerPage === undefined ? {} : { "--primitiv-carousel-slides-per-page": slidesPerPage }) } as CSSProperties}
       slidesPerPage={slidesPerPage}
       {...props}

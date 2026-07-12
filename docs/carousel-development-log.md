@@ -1603,6 +1603,32 @@ point, caption overlay, images + ratio=square, RTL — using an in-file `photo()
 placeholder helper (self-contained, no network) so it dogfoods real `<img>` slides.
 
 **Figma lockstep: pending** (code-only — no carousel `--primitiv-*` variable layer).
+
+#### Contain backdrop opt-in + size/density-scaled radius (awaiting human QA)
+
+Two human follow-ups on the media work:
+- **Contain letterbox backdrop is opt-in, not hardcoded.** A slide **`surface`** modifier
+  (`none` default · `subtle`) mirrors the root `surface` and fills the slide with the same
+  `--primitiv-surface-subtle` token — off by default so a cover image is never tinted, on to
+  back a `contain` letterbox. The images example's contain cells use it instead of a hardcoded
+  colour. Verified light + dark (theme-adaptive token).
+- **Radius joins the size/density scaling + an opt-in container radius** (approved model:
+  shared ramp + viewport-track rounding). New `carousel.{size}.radius` ramp × 4 density modes
+  (comfortable xs 8 / sm 10 / md 12 / lg 14 / xl 16 — **md = radii-12, today's value, no
+  regression**; density ±1 step, dense −2). A shared intermediate `--primitiv-carousel-radius`
+  (base = md slot, re-pointed per slot by the size modifier) is referenced by **both** the
+  slide corners (the slide `radius=md` modifier now points at it, so slides scale) **and** a
+  new root **`radius`** modifier (`none` default · `md`) that rounds the **viewport track**
+  (not the whole root — no focus-ring clipping), so the two always match. The `padding`
+  frame's radius also re-points to the scaled ramp for coherence. `radius=none` is a no-op
+  (doesn't fight `padding`'s rounding — verified a padded track still rounds by default).
+  Verified in headless Chromium: slide corners grow xs→xl; radius=none square track vs radius=md
+  rounded track (peek clipped by the rounded corner); padding-only still rounded. `context.json`
+  → `tokens.css` regenerated (+20 tokens); contract gained the root `radius` modifier + the
+  `--primitiv-carousel-radius` intermediate; recipe/tsx/scss regenerated + drift-green +
+  type-check + kitchen-sink synced. Builder gained a **`radius (container)`** control in the
+  Spacing & frame section + the `<pre>` echo.
+
 **Next / proposed:** **variable-width slides** (the human raised Ark UI's model —
 content-sized slides of differing widths in one track). This is a distinct feature with
 a real design fork (opt-in mode? per-slide width? the page/indicator model assumes equal

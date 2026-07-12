@@ -168,9 +168,17 @@ so they can't fall out of sync.
   shifts every slot. The **whole control chrome scales as a unit**: the dots, their
   WCAG hit area, the active pill, the thumbnails, the chrome gaps and the overlay
   pill's inner padding all track a bespoke density-scoped `carousel-{slot}-*` ramp,
-  and the **content-spacing steps** (`peek` / `gap` / `padding`) scale off the shared
-  content-space ramp above. Only the viewport/slide **dimensions** (fill +
-  aspect ratio) stay container-driven.
+  the **content-spacing steps** (`peek` / `gap` / `padding`) scale off the shared
+  content-space ramp above, and the **corner radius** (slides + the opt-in container
+  rounding) scales off a shared `carousel-{slot}-radius` ramp (`md` = `radii-12`). Only
+  the viewport/slide **dimensions** (fill + aspect ratio) stay container-driven.
+- **Container rounding (`radius`).** A root **`radius`** modifier (`none` default ·
+  `md`) opts into rounding the **viewport track** (the scroll box around the slides) to
+  the shared scaled radius, so its corners match the slides — independent of the
+  `padding` frame (which also rounds to the same scaled radius when on). It rounds the
+  track only, not the whole root, so the prev/next focus rings and overlay controls are
+  never clipped. Distinct from the per-slide `radius` modifier (which rounds each slide);
+  this rounds the track that clips them.
 - **Multi-slide (`slidesPerPage` / `slidesPerMove`).** These are **not**
   modifiers — they are **`styleProps`**: numeric props forwarded straight to the
   headless page model *and* written onto `--primitiv-carousel-slides-per-page`

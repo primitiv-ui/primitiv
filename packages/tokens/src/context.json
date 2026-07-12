@@ -2019,6 +2019,10 @@
         "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-8}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.8}"
         }
       },
       "sm": {
@@ -2065,6 +2069,10 @@
         "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-10}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.10}"
         }
       },
       "md": {
@@ -2111,6 +2119,10 @@
         "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-12}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.12}"
         }
       },
       "lg": {
@@ -2157,6 +2169,10 @@
         "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-14}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.14}"
         }
       },
       "xl": {
@@ -2203,6 +2219,10 @@
         "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-16}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.16}"
         }
       }
     }
@@ -4227,6 +4247,10 @@
         "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-6}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.6}"
         }
       },
       "sm": {
@@ -4273,6 +4297,10 @@
         "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-8}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.8}"
         }
       },
       "md": {
@@ -4319,6 +4347,10 @@
         "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-10}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.10}"
         }
       },
       "lg": {
@@ -4365,6 +4397,10 @@
         "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-12}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.12}"
         }
       },
       "xl": {
@@ -4411,6 +4447,10 @@
         "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-14}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.14}"
         }
       }
     }
@@ -6435,6 +6475,10 @@
         "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-10}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.10}"
         }
       },
       "sm": {
@@ -6481,6 +6525,10 @@
         "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-12}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.12}"
         }
       },
       "md": {
@@ -6527,6 +6575,10 @@
         "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-14}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.14}"
         }
       },
       "lg": {
@@ -6573,6 +6625,10 @@
         "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-16}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.16}"
         }
       },
       "xl": {
@@ -6619,6 +6675,10 @@
         "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-20}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.20}"
         }
       }
     }
@@ -8643,6 +8703,10 @@
         "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-4}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.4}"
         }
       },
       "sm": {
@@ -8689,6 +8753,10 @@
         "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-6}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.6}"
         }
       },
       "md": {
@@ -8735,6 +8803,10 @@
         "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-8}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.8}"
         }
       },
       "lg": {
@@ -8781,6 +8853,10 @@
         "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-10}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.10}"
         }
       },
       "xl": {
@@ -8827,6 +8903,10 @@
         "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-12}"
+        },
+        "radius": {
+          "$type": "number",
+          "$value": "{radii.12}"
         }
       }
     }

@@ -1135,17 +1135,20 @@
     flex-shrink: 0;
   }
   /* Vertical overlay thumbnails ride an inline-end/start lane (the group is a flex
-     column), so the tray caps on the block axis and wraps into a *second column*
-     when the strip outgrows the slide height. Flex column-wrap collapses the tray's
-     inline width (the known column-wrap bug — the wrapped column would overflow), so
-     mirror the dots' fix: switch to a grid capped at a few rows and let
-     `grid-auto-flow: column` add columns on its own, keeping the thumbnails in
-     sequential top→bottom order down each column. Triggered at 4+ thumbnails (≤3
-     stay a single column). */
+     column). Rather than cap the rows, the rail *fills* the lane's block extent so
+     the thumbnails stack down one tall column and only spill into a second column
+     when the strip genuinely outgrows the slide height — height-driven wrapping, no
+     fixed row cap forcing early columns on a tall slide. Filling the block axis is
+     also the desired filmstrip-rail look. The thumbnails hold their size
+     (flex-shrink:0 above) and centre in the rail; a long strip wraps via the shared
+     flex-wrap above. (The flex column-wrap width-collapse bug only bites once it
+     wraps to a second column — the rare over-full case; the common single-column
+     rail is unaffected.) */
   .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--indicators-thumbnails
     .primitiv-carousel__indicator-group {
     max-inline-size: none;
-    max-block-size: calc(
+    justify-content: center;
+    block-size: calc(
       100% - 2 *
         (
           var(--primitiv-carousel-viewport-border-width) +
@@ -1154,13 +1157,6 @@
             var(--primitiv-carousel-overlay-control-inset)
         )
     );
-  }
-  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--indicators-thumbnails
-    .primitiv-carousel__indicator-group:has(> :nth-child(4)) {
-    display: grid;
-    grid-auto-flow: column;
-    grid-template-rows: repeat(3, auto);
-    place-items: center;
   }
 
   /* Overlay + dots (horizontal split) — dots can't shrink to fit (fixed WCAG hit

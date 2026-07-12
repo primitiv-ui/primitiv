@@ -47,6 +47,17 @@
        reveal the neighbours within the track); the `padding` sizes couple the
        inter-slide gap so the resting track stays clean (no accidental peek). */
     --primitiv-carousel-viewport-padding: var(--primitiv-space-space-0);
+    /* Content-spacing ramp — a shared 4-rung scale that peek / viewport-padding /
+       inter-slide gap all draw from, so the three content gutters breathe together
+       with size + ambient density (the `carousel-{slot}-content-space-*` tokens are
+       density-scoped). `md` is the base slot, re-pointed per slot by the size
+       modifier in the variants layer; each gutter's t-shirt step picks a rung — gap
+       → 1/2/3, peek & padding → 2/3/4 — so peek/padding sit one rung above gap (as
+       they do today: peek `md` = 32 is gap `md` = 16 one step up). */
+    --primitiv-carousel-content-space-1: var(--primitiv-carousel-md-content-space-1);
+    --primitiv-carousel-content-space-2: var(--primitiv-carousel-md-content-space-2);
+    --primitiv-carousel-content-space-3: var(--primitiv-carousel-md-content-space-3);
+    --primitiv-carousel-content-space-4: var(--primitiv-carousel-md-content-space-4);
     /* Viewport frame — the surface, border and rounding of the scroll track. All
        off by default (transparent surface, zero-width border, square) so a plain
        carousel has no visible track; the `padding` modifier turns them on to draw
@@ -136,8 +147,11 @@
     --primitiv-carousel-overlay-indicator-color: var(--primitiv-color-neutral-alpha-inverse-600);
     --primitiv-carousel-overlay-indicator-color-active: var(--primitiv-content-inverse);
     --primitiv-carousel-overlay-pill-bg: var(--primitiv-color-neutral-alpha-600);
-    --primitiv-carousel-overlay-pill-padding-inline: var(--primitiv-space-space-12);
-    --primitiv-carousel-overlay-pill-padding-block: var(--primitiv-space-space-4);
+    /* The scrim pill's inner padding tracks the carousel size ramp
+       (`carousel-{slot}-pill-padding-*`, density-scoped); `md` is the default slot,
+       re-pointed per slot by the size modifier in the variants layer. */
+    --primitiv-carousel-overlay-pill-padding-inline: var(--primitiv-carousel-md-pill-padding-inline);
+    --primitiv-carousel-overlay-pill-padding-block: var(--primitiv-carousel-md-pill-padding-block);
     /* Crossfade timing — read only under [data-transition="fade"], where the
        slides stack and the active one fades in over the others. */
     --primitiv-carousel-fade-duration: var(--primitiv-motion-duration-overlay);
@@ -331,6 +345,12 @@
     --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-xs-thumbnail-size);
     --primitiv-carousel-block-gap: var(--primitiv-carousel-xs-chrome-gap);
     --primitiv-carousel-controls-gap: var(--primitiv-carousel-xs-chrome-gap);
+    --primitiv-carousel-content-space-1: var(--primitiv-carousel-xs-content-space-1);
+    --primitiv-carousel-content-space-2: var(--primitiv-carousel-xs-content-space-2);
+    --primitiv-carousel-content-space-3: var(--primitiv-carousel-xs-content-space-3);
+    --primitiv-carousel-content-space-4: var(--primitiv-carousel-xs-content-space-4);
+    --primitiv-carousel-overlay-pill-padding-inline: var(--primitiv-carousel-xs-pill-padding-inline);
+    --primitiv-carousel-overlay-pill-padding-block: var(--primitiv-carousel-xs-pill-padding-block);
   }
   .primitiv-carousel--size-sm {
     --primitiv-carousel-control-size: var(--primitiv-framed-control-sm-height);
@@ -341,6 +361,12 @@
     --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-sm-thumbnail-size);
     --primitiv-carousel-block-gap: var(--primitiv-carousel-sm-chrome-gap);
     --primitiv-carousel-controls-gap: var(--primitiv-carousel-sm-chrome-gap);
+    --primitiv-carousel-content-space-1: var(--primitiv-carousel-sm-content-space-1);
+    --primitiv-carousel-content-space-2: var(--primitiv-carousel-sm-content-space-2);
+    --primitiv-carousel-content-space-3: var(--primitiv-carousel-sm-content-space-3);
+    --primitiv-carousel-content-space-4: var(--primitiv-carousel-sm-content-space-4);
+    --primitiv-carousel-overlay-pill-padding-inline: var(--primitiv-carousel-sm-pill-padding-inline);
+    --primitiv-carousel-overlay-pill-padding-block: var(--primitiv-carousel-sm-pill-padding-block);
   }
   .primitiv-carousel--size-md {
     --primitiv-carousel-control-size: var(--primitiv-framed-control-md-height);
@@ -351,6 +377,12 @@
     --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-md-thumbnail-size);
     --primitiv-carousel-block-gap: var(--primitiv-carousel-md-chrome-gap);
     --primitiv-carousel-controls-gap: var(--primitiv-carousel-md-chrome-gap);
+    --primitiv-carousel-content-space-1: var(--primitiv-carousel-md-content-space-1);
+    --primitiv-carousel-content-space-2: var(--primitiv-carousel-md-content-space-2);
+    --primitiv-carousel-content-space-3: var(--primitiv-carousel-md-content-space-3);
+    --primitiv-carousel-content-space-4: var(--primitiv-carousel-md-content-space-4);
+    --primitiv-carousel-overlay-pill-padding-inline: var(--primitiv-carousel-md-pill-padding-inline);
+    --primitiv-carousel-overlay-pill-padding-block: var(--primitiv-carousel-md-pill-padding-block);
   }
   .primitiv-carousel--size-lg {
     --primitiv-carousel-control-size: var(--primitiv-framed-control-lg-height);
@@ -361,6 +393,12 @@
     --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-lg-thumbnail-size);
     --primitiv-carousel-block-gap: var(--primitiv-carousel-lg-chrome-gap);
     --primitiv-carousel-controls-gap: var(--primitiv-carousel-lg-chrome-gap);
+    --primitiv-carousel-content-space-1: var(--primitiv-carousel-lg-content-space-1);
+    --primitiv-carousel-content-space-2: var(--primitiv-carousel-lg-content-space-2);
+    --primitiv-carousel-content-space-3: var(--primitiv-carousel-lg-content-space-3);
+    --primitiv-carousel-content-space-4: var(--primitiv-carousel-lg-content-space-4);
+    --primitiv-carousel-overlay-pill-padding-inline: var(--primitiv-carousel-lg-pill-padding-inline);
+    --primitiv-carousel-overlay-pill-padding-block: var(--primitiv-carousel-lg-pill-padding-block);
   }
   .primitiv-carousel--size-xl {
     --primitiv-carousel-control-size: var(--primitiv-framed-control-xl-height);
@@ -371,6 +409,12 @@
     --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-xl-thumbnail-size);
     --primitiv-carousel-block-gap: var(--primitiv-carousel-xl-chrome-gap);
     --primitiv-carousel-controls-gap: var(--primitiv-carousel-xl-chrome-gap);
+    --primitiv-carousel-content-space-1: var(--primitiv-carousel-xl-content-space-1);
+    --primitiv-carousel-content-space-2: var(--primitiv-carousel-xl-content-space-2);
+    --primitiv-carousel-content-space-3: var(--primitiv-carousel-xl-content-space-3);
+    --primitiv-carousel-content-space-4: var(--primitiv-carousel-xl-content-space-4);
+    --primitiv-carousel-overlay-pill-padding-inline: var(--primitiv-carousel-xl-pill-padding-inline);
+    --primitiv-carousel-overlay-pill-padding-block: var(--primitiv-carousel-xl-pill-padding-block);
   }
 
   /* Vertical orientation (headless `orientation="vertical"` → data-orientation).
@@ -433,13 +477,13 @@
     --primitiv-carousel-peek: var(--primitiv-space-space-0);
   }
   .primitiv-carousel--peek-sm {
-    --primitiv-carousel-peek: var(--primitiv-space-space-16);
+    --primitiv-carousel-peek: var(--primitiv-carousel-content-space-2);
   }
   .primitiv-carousel--peek-md {
-    --primitiv-carousel-peek: var(--primitiv-space-space-32);
+    --primitiv-carousel-peek: var(--primitiv-carousel-content-space-3);
   }
   .primitiv-carousel--peek-lg {
-    --primitiv-carousel-peek: var(--primitiv-space-space-48);
+    --primitiv-carousel-peek: var(--primitiv-carousel-content-space-4);
   }
 
   /* Slide gap — re-points the inter-slide gap knob on a t-shirt scale. `md`
@@ -452,13 +496,13 @@
     --primitiv-carousel-gap: var(--primitiv-space-space-0);
   }
   .primitiv-carousel--gap-sm {
-    --primitiv-carousel-gap: var(--primitiv-space-space-8);
+    --primitiv-carousel-gap: var(--primitiv-carousel-content-space-1);
   }
   .primitiv-carousel--gap-md {
-    --primitiv-carousel-gap: var(--primitiv-space-space-16);
+    --primitiv-carousel-gap: var(--primitiv-carousel-content-space-2);
   }
   .primitiv-carousel--gap-lg {
-    --primitiv-carousel-gap: var(--primitiv-space-space-32);
+    --primitiv-carousel-gap: var(--primitiv-carousel-content-space-3);
   }
 
   /* Viewport padding — makes the viewport a padded, framed track: it re-points the
@@ -479,13 +523,13 @@
     --primitiv-carousel-viewport-padding: var(--primitiv-space-space-0);
   }
   .primitiv-carousel--padding-sm {
-    --primitiv-carousel-viewport-padding: var(--primitiv-space-space-16);
+    --primitiv-carousel-viewport-padding: var(--primitiv-carousel-content-space-2);
   }
   .primitiv-carousel--padding-md {
-    --primitiv-carousel-viewport-padding: var(--primitiv-space-space-32);
+    --primitiv-carousel-viewport-padding: var(--primitiv-carousel-content-space-3);
   }
   .primitiv-carousel--padding-lg {
-    --primitiv-carousel-viewport-padding: var(--primitiv-space-space-48);
+    --primitiv-carousel-viewport-padding: var(--primitiv-carousel-content-space-4);
   }
 
   /* Viewport surface — opt into the track's background fill (off by default, so a

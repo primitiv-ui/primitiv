@@ -1505,6 +1505,67 @@ to N slides tall and each slice comes out at the ratio (2 square slides → a 1:
 Chromium: vertical spp 1–3 square stack as squares, spp2 wide stacks as 16:9. Registry CSS
 only (scss re-derived, recipe/tsx byte-identical), drift-green.
 
+### Stage 3 — content spacing + indicator-wrap polish (awaiting human QA)
+
+The Stage 3 cycle of the density/size work. Two buckets: **A** — two indicator-wrap
+polish items (registry CSS only) done first as a warm-up; **B** — the main
+content-spacing scaling. Ramp model approved by the human up front (shared 4-rung
+ramp, gentle size scaling) before any token cells were authored.
+
+**A1 — vertical overlay dots wrap column-major.** The many-dots vertical overlay tray
+used a row-major `:has()` grid (`grid-auto-flow: row` + `repeat(2/3, auto)` columns), so
+the active dot alternated left↔right as you paged. Switched to `grid-auto-flow: column`
++ `grid-template-rows: repeat(5, auto)` (dropping the `:nth-child(11)` 3-col rule):
+dots now read sequentially top→bottom down each column, then wrap to the next. Verified
+in headless Chromium (8 dots → 5+3, active 3rd-from-top in col 1). Registry CSS only.
+
+**A2 — overlay thumbnails wrap instead of shrinking.** The overlay thumbnail tray capped
+to the slide and *shrank* the thumbnails to fit (a long strip got tiny, never wrapped).
+Now they hold their `thumbnail-inline-size` (`flex-shrink: 0`) and **wrap** — rows when
+horizontal (`flex-wrap: wrap` + `align-content: center`), columns when vertical. Threshold
+= hold-size-then-wrap (no shrink) for a cohesive gallery. **QA round 1 (human) — vertical
+rail should fill the vertical space.** The first vertical cut used a fixed 3-row grid cap,
+so 8 thumbnails on a tall slide forced 3 short columns (screenshot). Reworked to be
+**height-driven**: the rail now *fills* the lane's block extent (`block-size` = the
+inset-clearing calc) and wraps by height via flex column-wrap, so a tall slide stacks the
+thumbnails into **one** column and only spills to a second when the height genuinely can't
+fit them. Verified in headless Chromium (900px-wide/tall slide → 1 column of 8; 480px
+short slide → 2 columns of 5+3, both contained, no width-collapse). Registry CSS only.
+
+**B — content-spacing scaling (the main Stage 3 work).** `peek` / `viewport-padding` /
+inter-slide `gap` now breathe with `size` + ambient density, mirroring the control chrome
+— while the *content dimensions* (viewport/slide fill + aspect ratio) stay container-driven.
+- **Model (approved a/a):** a **shared 4-rung content-space ramp**, not three per-property
+  ramps. `carousel.{size}.content-space.{1..4}` in `context.json` × 4 density modes (80
+  cells); each gutter's t-shirt step picks a rung — **gap → 1/2/3, peek & padding → 2/3/4**
+  (peek/padding sit one rung above gap, matching today's peek `md`=32 = gap `md`=16 one step
+  up). md/comfortable ramp = `[8,16,32,48]`, so gap `8/16/32` and peek/padding `16/32/48`
+  **exactly reproduce today's steps** — zero regression at the default. Density shifts the
+  whole ramp ~1 space step (compact −1, dense −2, spacious +1), floored at `space-4`.
+- **Overlay pill inner padding** (the human's deferred musing) folded into the **existing
+  Stage 2 chrome ramp** as `carousel.{size}.pill-padding-{block,inline}` (md/comfortable =
+  4/12, today's values), scaling on the chrome cadence — it's chrome-level padding, kin to
+  `chrome-gap`, not a content gutter. The dot/thumbnail gaps already scale via `chrome-gap`.
+- **CSS wiring:** the base rule + each `--size-{slot}` rule publish `--primitiv-carousel-
+  content-space-1…4` (default = md slot; re-pointed per slot) and re-point the two pill-
+  padding knobs to the `carousel-{slot}-pill-padding-*` ramp; the `peek-*`/`gap-*`/`padding-*`
+  step modifiers pick a rung from those intermediate vars. Size class sets the ramp, step
+  class picks — density baked into the token, no combined `.size-x.gap-y` selectors.
+- `context.json` → `tokens.css` regenerated via the CLI (+120 tokens, additive); contract
+  `customProperties` gained the 4 cs rungs + the two pill-padding `defaultsTo` re-points;
+  regenerated scss + drift-green (recipe/tsx byte-identical — customProperty defaults don't
+  reach them) + kitchen-sink hand-synced. Verified in headless Chromium: md/comfortable
+  unchanged; spacing breathes across xs→xl and dense→spacious (padding/gap/peek grow
+  together, proportionately). README updated (peek/gap/padding scaling + the Stage-2/3
+  chrome-scaling paragraph).
+
+**Gates green:** `cargo test -p primitiv-emit -p primitiv-cli` (106 + 364 + 20),
+`node scripts/check-registry-types.mjs`. (No headless change.) **Figma lockstep: pending**
+(code-first per plan decision 2 — after human sign-off, the carousel content-space +
+pill-padding size×density cells join the Context collection). **Next:** human QA of
+`/carousel/builder` — drive peek/gap/padding at each size×density and confirm the spacing
+breathes sensibly (xl magnitudes OK? dense tight enough?), plus the two wrap-polish items.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

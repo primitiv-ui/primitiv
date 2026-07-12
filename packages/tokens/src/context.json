@@ -1995,6 +1995,30 @@
         "chrome-gap": {
           "$type": "number",
           "$value": "{space.space-8}"
+        },
+        "content-space-1": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "content-space-2": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "content-space-3": {
+          "$type": "number",
+          "$value": "{space.space-24}"
+        },
+        "content-space-4": {
+          "$type": "number",
+          "$value": "{space.space-40}"
+        },
+        "pill-padding-block": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        },
+        "pill-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
         }
       },
       "sm": {
@@ -2017,6 +2041,30 @@
         "chrome-gap": {
           "$type": "number",
           "$value": "{space.space-12}"
+        },
+        "content-space-1": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "content-space-2": {
+          "$type": "number",
+          "$value": "{space.space-14}"
+        },
+        "content-space-3": {
+          "$type": "number",
+          "$value": "{space.space-28}"
+        },
+        "content-space-4": {
+          "$type": "number",
+          "$value": "{space.space-40}"
+        },
+        "pill-padding-block": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "pill-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-10}"
         }
       },
       "md": {
@@ -2039,6 +2087,30 @@
         "chrome-gap": {
           "$type": "number",
           "$value": "{space.space-16}"
+        },
+        "content-space-1": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "content-space-2": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "content-space-3": {
+          "$type": "number",
+          "$value": "{space.space-32}"
+        },
+        "content-space-4": {
+          "$type": "number",
+          "$value": "{space.space-48}"
+        },
+        "pill-padding-block": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "pill-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-12}"
         }
       },
       "lg": {
@@ -2061,6 +2133,30 @@
         "chrome-gap": {
           "$type": "number",
           "$value": "{space.space-20}"
+        },
+        "content-space-1": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "content-space-2": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        },
+        "content-space-3": {
+          "$type": "number",
+          "$value": "{space.space-40}"
+        },
+        "content-space-4": {
+          "$type": "number",
+          "$value": "{space.space-56}"
+        },
+        "pill-padding-block": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "pill-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-14}"
         }
       },
       "xl": {
@@ -2083,6 +2179,30 @@
         "chrome-gap": {
           "$type": "number",
           "$value": "{space.space-24}"
+        },
+        "content-space-1": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "content-space-2": {
+          "$type": "number",
+          "$value": "{space.space-24}"
+        },
+        "content-space-3": {
+          "$type": "number",
+          "$value": "{space.space-48}"
+        },
+        "content-space-4": {
+          "$type": "number",
+          "$value": "{space.space-68}"
+        },
+        "pill-padding-block": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "pill-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-16}"
         }
       }
     }
@@ -4083,6 +4203,30 @@
         "chrome-gap": {
           "$type": "number",
           "$value": "{space.space-6}"
+        },
+        "content-space-1": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "content-space-2": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "content-space-3": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        },
+        "content-space-4": {
+          "$type": "number",
+          "$value": "{space.space-32}"
+        },
+        "pill-padding-block": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        },
+        "pill-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
         }
       },
       "sm": {
@@ -4103,6 +4247,30 @@
           "$value": "{size.size-48}"
         },
         "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "content-space-1": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "content-space-2": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "content-space-3": {
+          "$type": "number",
+          "$value": "{space.space-24}"
+        },
+        "content-space-4": {
+          "$type": "number",
+          "$value": "{space.space-32}"
+        },
+        "pill-padding-block": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        },
+        "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-8}"
         }
@@ -4127,6 +4295,30 @@
         "chrome-gap": {
           "$type": "number",
           "$value": "{space.space-12}"
+        },
+        "content-space-1": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "content-space-2": {
+          "$type": "number",
+          "$value": "{space.space-14}"
+        },
+        "content-space-3": {
+          "$type": "number",
+          "$value": "{space.space-28}"
+        },
+        "content-space-4": {
+          "$type": "number",
+          "$value": "{space.space-40}"
+        },
+        "pill-padding-block": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "pill-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-10}"
         }
       },
       "lg": {
@@ -4149,6 +4341,30 @@
         "chrome-gap": {
           "$type": "number",
           "$value": "{space.space-16}"
+        },
+        "content-space-1": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "content-space-2": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "content-space-3": {
+          "$type": "number",
+          "$value": "{space.space-32}"
+        },
+        "content-space-4": {
+          "$type": "number",
+          "$value": "{space.space-48}"
+        },
+        "pill-padding-block": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "pill-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-12}"
         }
       },
       "xl": {
@@ -4171,6 +4387,30 @@
         "chrome-gap": {
           "$type": "number",
           "$value": "{space.space-20}"
+        },
+        "content-space-1": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "content-space-2": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        },
+        "content-space-3": {
+          "$type": "number",
+          "$value": "{space.space-40}"
+        },
+        "content-space-4": {
+          "$type": "number",
+          "$value": "{space.space-56}"
+        },
+        "pill-padding-block": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "pill-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-14}"
         }
       }
     }
@@ -6171,6 +6411,30 @@
         "chrome-gap": {
           "$type": "number",
           "$value": "{space.space-12}"
+        },
+        "content-space-1": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "content-space-2": {
+          "$type": "number",
+          "$value": "{space.space-14}"
+        },
+        "content-space-3": {
+          "$type": "number",
+          "$value": "{space.space-28}"
+        },
+        "content-space-4": {
+          "$type": "number",
+          "$value": "{space.space-48}"
+        },
+        "pill-padding-block": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "pill-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-10}"
         }
       },
       "sm": {
@@ -6193,6 +6457,30 @@
         "chrome-gap": {
           "$type": "number",
           "$value": "{space.space-16}"
+        },
+        "content-space-1": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "content-space-2": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "content-space-3": {
+          "$type": "number",
+          "$value": "{space.space-32}"
+        },
+        "content-space-4": {
+          "$type": "number",
+          "$value": "{space.space-48}"
+        },
+        "pill-padding-block": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "pill-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-12}"
         }
       },
       "md": {
@@ -6215,6 +6503,30 @@
         "chrome-gap": {
           "$type": "number",
           "$value": "{space.space-20}"
+        },
+        "content-space-1": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "content-space-2": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        },
+        "content-space-3": {
+          "$type": "number",
+          "$value": "{space.space-40}"
+        },
+        "content-space-4": {
+          "$type": "number",
+          "$value": "{space.space-56}"
+        },
+        "pill-padding-block": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "pill-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-14}"
         }
       },
       "lg": {
@@ -6237,6 +6549,30 @@
         "chrome-gap": {
           "$type": "number",
           "$value": "{space.space-24}"
+        },
+        "content-space-1": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "content-space-2": {
+          "$type": "number",
+          "$value": "{space.space-24}"
+        },
+        "content-space-3": {
+          "$type": "number",
+          "$value": "{space.space-48}"
+        },
+        "content-space-4": {
+          "$type": "number",
+          "$value": "{space.space-68}"
+        },
+        "pill-padding-block": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "pill-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-16}"
         }
       },
       "xl": {
@@ -6259,6 +6595,30 @@
         "chrome-gap": {
           "$type": "number",
           "$value": "{space.space-28}"
+        },
+        "content-space-1": {
+          "$type": "number",
+          "$value": "{space.space-14}"
+        },
+        "content-space-2": {
+          "$type": "number",
+          "$value": "{space.space-28}"
+        },
+        "content-space-3": {
+          "$type": "number",
+          "$value": "{space.space-56}"
+        },
+        "content-space-4": {
+          "$type": "number",
+          "$value": "{space.space-80}"
+        },
+        "pill-padding-block": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "pill-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-20}"
         }
       }
     }
@@ -8259,6 +8619,30 @@
         "chrome-gap": {
           "$type": "number",
           "$value": "{space.space-4}"
+        },
+        "content-space-1": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "content-space-2": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "content-space-3": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "content-space-4": {
+          "$type": "number",
+          "$value": "{space.space-28}"
+        },
+        "pill-padding-block": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        },
+        "pill-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-4}"
         }
       },
       "sm": {
@@ -8279,6 +8663,30 @@
           "$value": "{size.size-40}"
         },
         "chrome-gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "content-space-1": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "content-space-2": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "content-space-3": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        },
+        "content-space-4": {
+          "$type": "number",
+          "$value": "{space.space-28}"
+        },
+        "pill-padding-block": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        },
+        "pill-padding-inline": {
           "$type": "number",
           "$value": "{space.space-6}"
         }
@@ -8303,6 +8711,30 @@
         "chrome-gap": {
           "$type": "number",
           "$value": "{space.space-8}"
+        },
+        "content-space-1": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "content-space-2": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "content-space-3": {
+          "$type": "number",
+          "$value": "{space.space-24}"
+        },
+        "content-space-4": {
+          "$type": "number",
+          "$value": "{space.space-32}"
+        },
+        "pill-padding-block": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        },
+        "pill-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
         }
       },
       "lg": {
@@ -8325,6 +8757,30 @@
         "chrome-gap": {
           "$type": "number",
           "$value": "{space.space-12}"
+        },
+        "content-space-1": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "content-space-2": {
+          "$type": "number",
+          "$value": "{space.space-14}"
+        },
+        "content-space-3": {
+          "$type": "number",
+          "$value": "{space.space-28}"
+        },
+        "content-space-4": {
+          "$type": "number",
+          "$value": "{space.space-40}"
+        },
+        "pill-padding-block": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "pill-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-10}"
         }
       },
       "xl": {
@@ -8347,6 +8803,30 @@
         "chrome-gap": {
           "$type": "number",
           "$value": "{space.space-16}"
+        },
+        "content-space-1": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "content-space-2": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "content-space-3": {
+          "$type": "number",
+          "$value": "{space.space-32}"
+        },
+        "content-space-4": {
+          "$type": "number",
+          "$value": "{space.space-48}"
+        },
+        "pill-padding-block": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "pill-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-12}"
         }
       }
     }

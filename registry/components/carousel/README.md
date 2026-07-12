@@ -64,9 +64,16 @@ so they can't fall out of sync.
   it works in **both** orientations (the viewport maps the peek to the inline
   edges when horizontal, the block edges when vertical). A root **`gap`** modifier
   (`none` · `sm` · `md` default · `lg`) re-points `--primitiv-carousel-gap` — the
-  spacing between slides — on a t-shirt scale (`space-0` / `8` / `16` / `32`); it
-  runs on the scroll axis in either orientation and composes with everything (the
-  slide flex-basis subtracts the gap, so multi-slide recomputes automatically).
+  spacing between slides — on a t-shirt scale; it runs on the scroll axis in either
+  orientation and composes with everything (the slide flex-basis subtracts the gap,
+  so multi-slide recomputes automatically). **`peek`, `gap` and `padding` all draw
+  from one shared content-spacing ramp** (`--primitiv-carousel-content-space-1…4`,
+  the density-scoped `carousel-{slot}-content-space-*` tokens), so their resolved
+  steps **breathe with `size` and ambient density** just like the control chrome —
+  `gap` picks rungs 1/2/3, `peek`/`padding` rungs 2/3/4 (peek sits one rung above
+  gap). At `size="md"` / comfortable the steps are unchanged (gap `8`/`16`/`32`,
+  peek/padding `16`/`32`/`48`); the *content dimensions* (viewport/slide fill,
+  aspect ratio) stay container-driven — only the spacing steps scale.
   Note the `padding` modifier couples the gap to its inset for a clean framed track,
   so it overrides `gap` inside a padded track. A root **`padding`**
   modifier (`none` default · `sm` · `md` · `lg`) makes the **viewport a padded,
@@ -158,8 +165,12 @@ so they can't fall out of sync.
   `--primitiv-framed-control-{size}-*` ramp, so a carousel control matches a
   same-size `Button` (its box grows 32→40 at `md`) and inherits that ramp's
   per-density values — pick the slot with `size`, and the ambient `data-density`
-  shifts every slot. (The dots, active pill, thumbnails and chrome gaps join the
-  ramp in a later stage; today `size` scales the prev/next controls.)
+  shifts every slot. The **whole control chrome scales as a unit**: the dots, their
+  WCAG hit area, the active pill, the thumbnails, the chrome gaps and the overlay
+  pill's inner padding all track a bespoke density-scoped `carousel-{slot}-*` ramp,
+  and the **content-spacing steps** (`peek` / `gap` / `padding`) scale off the shared
+  content-space ramp above. Only the viewport/slide **dimensions** (fill +
+  aspect ratio) stay container-driven.
 - **Multi-slide (`slidesPerPage` / `slidesPerMove`).** These are **not**
   modifiers — they are **`styleProps`**: numeric props forwarded straight to the
   headless page model *and* written onto `--primitiv-carousel-slides-per-page`

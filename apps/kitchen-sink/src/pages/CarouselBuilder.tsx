@@ -483,8 +483,6 @@ export function CarouselBuilder() {
               value={config.ratio}
               options={["square", "standard", "wide", "ultrawide"] as const}
               onChange={(value) => set("ratio", value)}
-              disabled={config.orientation === "vertical"}
-              note="vertical viewport owns its ratio"
             />
             <RadioField
               legend="radius"

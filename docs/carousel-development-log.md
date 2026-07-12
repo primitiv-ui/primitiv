@@ -1467,6 +1467,19 @@ and that sub-24 dot targets in dense are an acceptable compact-mode trade-off.
 padding + the dot gaps) should also scale from `md` across size/density — a candidate for
 Stage 3 (content spacing).
 
+**QA round 3 (human) — `ratio` now works in vertical too.** The human asked whether a vertical
+scroller with square slides was even possible. It was — but only via a *separate* knob: in
+vertical each slide fills the viewport (one per view), so the slide's own `aspect-ratio` stands
+down and the **viewport's** `--primitiv-carousel-vertical-aspect-ratio` (default landscape 16/9)
+governed the shape, and the `ratio` modifier (horizontal-only) never wired to it. Fixed the
+inconsistency: `--primitiv-carousel-vertical-aspect-ratio` now **defaults to
+`var(--primitiv-carousel-slide-aspect-ratio)`**, so the root `ratio` modifier shapes the slides
+in **both** orientations (square vertical slides, a widescreen vertical scroller, …), while the
+knob stays independently overridable to decouple the vertical track. Default `ratio=wide` keeps
+the vertical viewport at 16/9 — no regression. The Builder ratio grey-out (added in round 2 for
+the vertical no-op) is removed since ratio is now live there. Contract + CSS regenerated
+(recipe unchanged; tsx JSDoc + scss re-derived), drift + type-check green.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

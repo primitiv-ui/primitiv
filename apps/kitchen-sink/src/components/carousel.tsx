@@ -117,7 +117,7 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    */
   size?: "xs" | "sm" | "md" | "lg" | "xl";
   /**
-   * The carousel's aspect ratio (read in the horizontal orientation — the vertical viewport owns its own ratio via --primitiv-carousel-vertical-aspect-ratio). Re-points --primitiv-carousel-slide-aspect-ratio at the root, so it applies uniformly to every slide and the thumbnail indicators track it. Override the knob directly for a bespoke value. (Per-slide ratios are a later revisit.)
+   * The carousel's aspect ratio, applied uniformly to every slide (and tracked by the thumbnail indicators). Re-points --primitiv-carousel-slide-aspect-ratio at the root; the vertical viewport's shape defaults to the same knob, so `ratio` shapes the slides in both orientations (square vertical slides, a widescreen vertical scroller, …). Override the knob directly for a bespoke value. (Per-slide ratios are a later revisit.)
    * - `square` — 1:1 — a square slide.
    * - `standard` — 4:3 — the classic photo ratio.
    * - `wide` — 16:9 — widescreen (the default).

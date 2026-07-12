@@ -64,12 +64,14 @@
        not a token value — like the aspect ratios below. */
     --primitiv-carousel-slides-per-page: 1;
     --primitiv-carousel-slide-aspect-ratio: 16 / 9;
-    /* Landscape box the vertical viewport derives its height from (only read in
-       the [data-orientation="vertical"] layout): one 16:9 slide is shown and you
-       scroll down to the next, matching the design. Override to a portrait ratio
-       for a taller vertical track. A ratio is a shape, not a token value — like
-       the slide ratio above. */
-    --primitiv-carousel-vertical-aspect-ratio: 16 / 9;
+    /* The box the vertical viewport derives its height from (only read in the
+       [data-orientation="vertical"] layout): one slide is shown and you scroll
+       down to the next. Defaults to the shared `ratio` knob, so the `ratio`
+       modifier shapes the slides in *both* orientations (square vertical slides,
+       a widescreen vertical scroller, …); override it directly to decouple the
+       vertical track's shape from the horizontal ratio. A ratio is a shape, not a
+       token value — like the slide ratio above. */
+    --primitiv-carousel-vertical-aspect-ratio: var(--primitiv-carousel-slide-aspect-ratio);
     --primitiv-carousel-slide-radius: var(--primitiv-radii-12);
     /* The chrome gaps + the indicator/thumbnail dimensions track the carousel
        size ramp (`carousel-{slot}-*`, density-scoped); `md` is the default slot,

@@ -1480,6 +1480,20 @@ the vertical viewport at 16/9 — no regression. The Builder ratio grey-out (add
 the vertical no-op) is removed since ratio is now live there. Contract + CSS regenerated
 (recipe unchanged; tsx JSDoc + scss re-derived), drift + type-check green.
 
+**QA round 4 (human) — multi-slide didn't honour the ratio.** With `slidesPerPage > 1`,
+`ratio="square"` rendered a short landscape strip, not squares. Root cause (confirmed by
+rendering the real CSS in headless Chromium — the sandbox *does* have the Chromium binary
+even without Playwright): a flex item's default `min-block-size: auto` (min-content) blocks
+`aspect-ratio` from sizing the slide once several share the viewport — the flex line's cross
+size collapses. Single-slide dodged it (the full-width slide's aspect resolved). Fix: add the
+**symmetric partner to the existing `min-inline-size: 0` — `min-block-size: 0`** on the slide,
+so `aspect-ratio` drives the height. Verified via screenshots that spp 1–4 are now square and
+that single-slide, vertical (square + wide), and fade are all unregressed. Registry CSS only
+(scss re-derived, recipe/tsx byte-identical), drift-green. **Method note:** the
+`chrome-linux/chrome` binary under `/opt/pw-browsers` renders static HTML (the real
+tokens.css + carousel styles.css inlined) to a screenshot — a genuine visual check in-sandbox
+for pure-CSS behaviour, no dev server needed.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

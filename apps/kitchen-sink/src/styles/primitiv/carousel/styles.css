@@ -197,6 +197,11 @@
     align-items: center;
     justify-content: center;
     gap: var(--primitiv-carousel-controls-gap);
+    /* A grid item's default min-inline-size is its content's natural (unshrunk)
+       width — without this, a wide cluster (e.g. many thumbnails) just blows through
+       the bar's grid track instead of being constrained to it, so nothing downstream
+       (shrinking or wrapping) ever gets a chance to engage. */
+    min-inline-size: 0;
   }
 
   /* The scroll-snap track. Native horizontal scroll owns the swipe; the headless
@@ -1261,29 +1266,50 @@
     .primitiv-carousel__indicator {
     flex-shrink: 0;
   }
-  /* Vertical overlay thumbnails ride an inline-end/start lane (the group is a flex
-     column). Rather than cap the rows, the rail *fills* the lane's block extent so
-     the thumbnails stack down one tall column and only spill into a second column
-     when the strip genuinely outgrows the slide height — height-driven wrapping, no
-     fixed row cap forcing early columns on a tall slide. Filling the block axis is
-     also the desired filmstrip-rail look. The thumbnails hold their size
-     (flex-shrink:0 above) and centre in the rail; a long strip wraps via the shared
-     flex-wrap above. (The flex column-wrap width-collapse bug only bites once it
-     wraps to a second column — the rare over-full case; the common single-column
-     rail is unaffected.) */
+
+  /* Joined-bar thumbnails (external or overlay `cluster="joined"`) — the group sits
+     inside the `<CarouselControls>` flex row alongside prev/next, so it needs the
+     same hold-size-then-wrap treatment as the overlay tray above rather than
+     overflowing the bar (the bar's own min-inline-size:0, set on __controls, is
+     what lets it actually get squeezed down to its grid track first). */
+  .primitiv-carousel--indicators-thumbnails .primitiv-carousel__controls .primitiv-carousel__indicator-group {
+    flex-wrap: wrap;
+    justify-content: center;
+    min-inline-size: 0;
+  }
+  .primitiv-carousel--indicators-thumbnails .primitiv-carousel__controls .primitiv-carousel__indicator-group > button,
+  .primitiv-carousel--indicators-thumbnails .primitiv-carousel__controls .primitiv-carousel__indicator {
+    flex-shrink: 0;
+  }
+
+  /* Vertical overlay thumbnails ride an inline-end/start lane. The align rules above
+     (start/center/end) already size this box to its content (`block-size:
+     fit-content` on the base align-center rule) and position that box within the
+     lane, so a short strip must stay content-sized here — a forced-full-height box
+     would make every align choice look identical (nothing to distinguish start from
+     end when the box always spans the whole lane) and invites overflow the moment
+     real content is taller than the lane. Only the inline cap needs lifting (the
+     horizontal rule's max-inline-size doesn't apply on this axis). */
   .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--indicators-thumbnails
     .primitiv-carousel__indicator-group {
     max-inline-size: none;
-    justify-content: center;
-    block-size: calc(
-      100% - 2 *
-        (
-          var(--primitiv-carousel-viewport-border-width) +
-            var(--primitiv-carousel-viewport-padding) +
-            var(--primitiv-carousel-peek) +
-            var(--primitiv-carousel-overlay-control-inset)
-        )
-    );
+  }
+  /* A long strip switches to a grid and wraps into columns — flex column-wrap
+     collapses the inline width (the same known bug the vertical dots dodge), so
+     mirror their fix: grid capped at 4 rows (thumbnails are much bigger than dots, so
+     a shallower cap), grid-auto-flow: column adding columns on its own as the count
+     grows. Unlike flex's justify-content (which redistributes every item across the
+     *whole* shared main-axis space, centring a short trailing line), grid's default
+     auto-placement just fills cells top-to-bottom and leaves a short trailing
+     column's unused cells empty at the end — so it starts flush with the first
+     column for free, no extra alignment needed. Triggered at 5+ thumbnails (≤4 stay
+     a single content-sized column, sized/positioned by the align rules above). */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator-group:has(> :nth-child(5)) {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(4, auto);
+    place-items: center;
   }
 
   /* Overlay + dots (horizontal split) — dots can't shrink to fit (fixed WCAG hit

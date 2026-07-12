@@ -1706,6 +1706,57 @@ divs — matches 13 single-grid pages + Placement's 3 grouped sections) since th
 kitchen-sink can't build in this sandbox. **Next:** human QA — especially the Placement
 page's External section (18 cells), which should now visibly match its own notes.
 
+### Thumbnail overflow + align reversal + wrap-to-center (three bugs, one root pattern)
+
+**Human QA on three screenshots** surfaced three thumbnail bugs, all traced to the same
+family of missing CSS resets/an overspecified fix from an earlier session — registry CSS
+only, no contract change.
+
+1. **Joined-bar thumbnails overflow the carousel entirely** (Placement page "stretch +
+   thumbnails" cell). Root cause: `.primitiv-carousel__controls` (the `<CarouselControls>`
+   bar) never had `min-inline-size: 0` — a grid item's default min-inline-size is its
+   content's *unshrunk* width, so a wide thumbnail cluster just grows the bar straight
+   through its grid track instead of ever being constrained enough to wrap. Fixed by adding
+   `min-inline-size: 0` to the base `__controls` rule (a general robustness fix — dots never
+   hit this since they're tiny, but any wide content could) and a new hold-size-then-wrap
+   rule for `.--indicators-thumbnails .__controls .__indicator-group` (mirroring the
+   existing overlay-tray treatment: `flex-wrap: wrap` + `min-inline-size: 0` on the group,
+   `flex-shrink: 0` on each thumbnail). Verified in headless Chromium: 6 thumbnails in a
+   420px host now wrap 4+2 and stay fully contained (previously blew ~120px past the edge).
+
+2. **Vertical overlay split + thumbnails: `align="start"`/`"end"` had no visible effect
+   (and could read as "reversed"), plus overflow past the slide edge.** Root cause: a prior
+   session's "fill the vertical space" fix set `block-size: calc(100% - insets)` on the
+   thumbnail indicator-group — same specificity as, and later in the file than, the base
+   `align="center"` rule's `block-size: fit-content`, so it silently won by source order.
+   Forcing the box to ~100% of the lane made every align value look identical (nothing left
+   to distinguish start from end when the box already spans the whole lane) and let content
+   taller than that fixed box overflow visibly past the slide. Fixed by dropping the
+   `block-size`/`justify-content` overrides entirely — the base align rule's `fit-content`
+   sizing (already correct, already there) is what should govern this, not a competing
+   same-specificity rule. Verified in headless Chromium: a 3-thumbnail strip now pins flush
+   top/center/bottom distinctly per align value, fully contained.
+
+3. **Thumbnails wrap into columns fine, but a short trailing column centres instead of
+   starting at the top.** Same rule family: the vertical case relied on inherited
+   `flex-wrap` + `align-content: center`, plus the codebase's own documented "flex
+   column-wrap width-collapse bug" (why the vertical *dots* already use grid, not flex, to
+   wrap). Rebuilt the many-thumbnails case on the same proven grid pattern as the dots —
+   `display: grid; grid-auto-flow: column; grid-template-rows: repeat(4, auto)` (a
+   shallower cap than dots' 5, thumbnails being much bigger), triggered via the same
+   `:has(> :nth-child(5))` quantity-query mechanism. Grid's default auto-placement fills
+   cells top-to-bottom and leaves a short column's trailing cells empty — start-aligned for
+   free, no extra alignment property needed (unlike flex's justify-content, which
+   redistributes every item across the *whole* shared main-axis space). Verified: 7
+   thumbnails split 4+3, the second column's 3 items flush at the top, matching column 1's
+   first row.
+
+**Gates green:** `cargo test -p primitiv-emit` (106, drift) + `-p primitiv-cli` (364 + 20),
+`node scripts/check-registry-types.mjs`. (No headless/contract change — recipe/tsx
+byte-identical.) **Figma lockstep: pending** (code-only). **Next:** human re-QA of the
+three repro cells (Placement "stretch + thumbnails"; Builder vertical overlay split +
+thumbnails at each align value; a many-thumbnails vertical overlay wrap case).
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

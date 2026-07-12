@@ -1757,6 +1757,44 @@ byte-identical.) **Figma lockstep: pending** (code-only). **Next:** human re-QA 
 three repro cells (Placement "stretch + thumbnails"; Builder vertical overlay split +
 thumbnails at each align value; a many-thumbnails vertical overlay wrap case).
 
+### Thumbnail size scaled back (external + overlay, a compromise to try first)
+
+**Human follow-up:** wrapped thumbnails — especially vertical + overlay, where the tray
+sits directly on the slide — can obscure a meaningful chunk of the visible image; dots
+don't have this problem since they're much smaller. Proposed and approved: scale *both*
+ramps back rather than only overlay's, since overlay sitting on the image is the more
+acute case but external's filmstrip had room to shrink too — start with a shift-based
+compromise, revisit if it's not enough.
+
+- **`thumbnail-size` (external) shifted 1 notch down** the primitive size scale at every
+  slot × density (e.g. comfortable/md: 68→56; xs..xl `40/48/56/68/96`).
+- **New `overlay-thumbnail-size` ramp, shifted 2 notches down** from the *original*
+  values (e.g. comfortable/md: 68→48; xs..xl `32/40/48/56/80`) — a dedicated,
+  smaller-still ramp specifically for overlay, since it's the placement where a bigger
+  wrapped tray actually costs visible image, not just chrome space external can spare.
+- **CSS wiring:** the plain `--size-{slot}` rules keep re-pointing
+  `--primitiv-carousel-thumbnail-inline-size` to the (now-shifted) external
+  `carousel-{slot}-thumbnail-size` token — no rule changes needed there, the value just
+  got smaller. Five new compound rules (`--size-{slot}.--placement-overlay`, higher
+  specificity than the plain per-size rules) re-point the same knob to
+  `carousel-{slot}-overlay-thumbnail-size` when overlay is active, regardless of slot.
+  No contract/modifier change (same existing knob, just resolves differently by
+  context) — recipe/tsx untouched, only `context.json` → `tokens.css` (+20 cells) and
+  `styles.css`/`.scss`.
+- **Verified in headless Chromium:** external md now ~56px (was 68px); overlay md now
+  ~48px (was 68px, same as external before this session). The joined-bar wrap (fixed
+  last session) and the vertical-overlay wrap-to-start / align distinctness (also fixed
+  last session) both still hold with the new, smaller sizes — re-tested a 7-thumbnail
+  vertical-overlay wrap (4+3 split, second column still starts flush at the top) and the
+  joined-bar overflow case (still fully contained).
+
+**Gates green:** `cargo test -p primitiv-emit` (106, drift), `node
+scripts/check-registry-types.mjs`. (No headless/contract change.) **Figma lockstep:
+pending** (code-only — no carousel `--primitiv-*` variable layer in Figma yet). **Next:**
+human QA of the new sizes on `/carousel/thumbnails`, `/carousel/builder`, and the
+Placement page's overlay + thumbnails cells — confirmed as "a compromise to try first";
+if wrapped overlay thumbnails still obscure too much, both ramps can shift back further.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

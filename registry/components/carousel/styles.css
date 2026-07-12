@@ -471,6 +471,29 @@
     --primitiv-carousel-overlay-pill-padding-block: var(--primitiv-carousel-xl-pill-padding-block);
   }
 
+  /* Overlay thumbnails are smaller than external's at every slot — they sit *on* the
+     slide (an absolute tray), so a wrapped multi-column/row tray can meaningfully
+     obscure the image; external's filmstrip sits in its own chrome track, so it can
+     afford to stay bigger. Re-points the shared thumbnail-inline-size knob to the
+     dedicated `carousel-{slot}-overlay-thumbnail-size` ramp — a compound selector
+     (size + placement) so it wins over the plain per-size rules above regardless of
+     which is declared first. */
+  .primitiv-carousel--size-xs.primitiv-carousel--placement-overlay {
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-xs-overlay-thumbnail-size);
+  }
+  .primitiv-carousel--size-sm.primitiv-carousel--placement-overlay {
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-sm-overlay-thumbnail-size);
+  }
+  .primitiv-carousel--size-md.primitiv-carousel--placement-overlay {
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-md-overlay-thumbnail-size);
+  }
+  .primitiv-carousel--size-lg.primitiv-carousel--placement-overlay {
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-lg-overlay-thumbnail-size);
+  }
+  .primitiv-carousel--size-xl.primitiv-carousel--placement-overlay {
+    --primitiv-carousel-thumbnail-inline-size: var(--primitiv-carousel-xl-overlay-thumbnail-size);
+  }
+
   /* Vertical orientation (headless `orientation="vertical"` → data-orientation).
      The viewport scrolls on the block axis and the controls sit in a column
      beside it (up / dots / down), mirroring the horizontal below-the-viewport

@@ -125,8 +125,8 @@ so they can't fall out of sync.
   orientations, with or without `padding` / `peek`. Because the overlay indicator
   tray is the one indicator context with a visible background, it is **capped to the
   slide** so a long indicator run can't overflow the imagery (or, vertically,
-  collide with the up/down controls): dots (fixed hit area) **wrap** onto a second
-  row/column centred under the first, while thumbnails **shrink** to fit.
+  collide with the up/down controls): both dots (fixed hit area) and thumbnails
+  hold their set size and **wrap** onto further rows/columns rather than shrinking.
 
   For **`external` + `split`**, the prev/next sit **outside** the viewport's two
   scroll-axis edges (left/right when horizontal, top/bottom when vertical) with the
@@ -148,9 +148,13 @@ so they can't fall out of sync.
   `--primitiv-carousel-thumbnail-*` knobs. It composes with every placement and
   orientation — under `vertical` the thumbnails stack into a rail beside the
   viewport, under `overlay` they ride a rounded-rect scrim tray (the dots' full
-  pill reshapes to match the thumbnail corners) that is capped to the slide so the
-  thumbnails shrink to fit responsively rather than overflowing the imagery. The
-  slide **`radius`**
+  pill reshapes to match the thumbnail corners) that holds the thumbnails at their
+  set size and wraps onto further rows/columns rather than shrinking or overflowing
+  the imagery. **Overlay thumbnails are a size step smaller than external's at every
+  slot** (a dedicated `carousel-{slot}-overlay-thumbnail-size` ramp) — they sit
+  directly on the slide, so a wrapped multi-row/column tray can meaningfully obscure
+  the image; external's filmstrip sits in its own chrome track, so it can afford to
+  stay bigger. The slide **`radius`**
   modifier (`md` default · `none` squares the slide off) and the slide **`ratio`**
   modifier (`square` 1:1 · `standard` 4:3 · `wide` 16:9 default · `ultrawide`
   21:9, re-pointing `--primitiv-carousel-slide-aspect-ratio`) both live on the
@@ -166,8 +170,9 @@ so they can't fall out of sync.
   same-size `Button` (its box grows 32→40 at `md`) and inherits that ramp's
   per-density values — pick the slot with `size`, and the ambient `data-density`
   shifts every slot. The **whole control chrome scales as a unit**: the dots, their
-  WCAG hit area, the active pill, the thumbnails, the chrome gaps and the overlay
-  pill's inner padding all track a bespoke density-scoped `carousel-{slot}-*` ramp,
+  WCAG hit area, the active pill, the thumbnails (external and overlay on their own,
+  overlay-smaller ramp — see above), the chrome gaps and the overlay pill's inner
+  padding all track a bespoke density-scoped `carousel-{slot}-*` ramp,
   the **content-spacing steps** (`peek` / `gap` / `padding`) scale off the shared
   content-space ramp above, and the **corner radius** (slides + the opt-in container
   rounding) scales off a shared `carousel-{slot}-radius` ramp (`md` = `radii-12`). Only

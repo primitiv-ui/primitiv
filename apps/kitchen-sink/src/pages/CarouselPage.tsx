@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useContext } from "react";
 
 import {
   ChevronLeft,
@@ -6,6 +7,7 @@ import {
   ChevronUp,
   ChevronDown,
 } from "@primitiv-ui/icons";
+import { CarouselContext } from "@primitiv-ui/react";
 
 import {
   Carousel,
@@ -344,6 +346,38 @@ function MultiSlide({
 }
 
 /**
+ * One thumbnail per *slide*, grouped onto the *page* it belongs to. `<CarouselIndicator
+ * index={N}>` is page-indexed (clicking it calls `goTo(N)`; its active state is
+ * `N === currentPage`) — with `slidesPerPage > 1` several slides share a page, so each
+ * of their thumbnails needs `index={pageForSlideIndex(slideIndex)}`, not the raw slide
+ * index, or they'd silently target the wrong (or an out-of-range) page. Reading
+ * `pageForSlideIndex` off `CarouselContext` reuses the exact page-offset/end-alignment
+ * math the auto `<CarouselIndicators>` dots already use, so an uneven last group (e.g.
+ * 8 slides ÷ 3 per page → groups of 3/3/2) is handled identically — no separate logic.
+ * Must render as a descendant of `Carousel` (a plain child suffices; it doesn't need to
+ * be `<CarouselIndicatorGroup>`'s direct child) so the context is in scope.
+ */
+function ThumbnailIndicators({
+  slides,
+  label,
+}: {
+  slides: string[];
+  label: string;
+}) {
+  const ctx = useContext(CarouselContext);
+  const pageForSlideIndex = ctx?.pageForSlideIndex ?? ((i: number) => i);
+  return (
+    <CarouselIndicatorGroup label={label}>
+      {slides.map((bg, i) => (
+        <CarouselIndicator key={i} index={pageForSlideIndex(i)}>
+          <span style={{ background: bg }} />
+        </CarouselIndicator>
+      ))}
+    </CarouselIndicatorGroup>
+  );
+}
+
+/**
  * Thumbnail indicators — the gallery pattern: each indicator is a rounded-rect
  * image thumbnail instead of a dot, the active one ringed in the primary colour
  * (`indicators="thumbnails"`). The thumbnail content is supplied as children of
@@ -351,7 +385,9 @@ function MultiSlide({
  * composes with every placement and orientation: `placement="overlay"` rides the
  * thumbnails in the scrim pill on the imagery; `orientation="vertical"` stacks
  * them into a rail beside the viewport; `showArrows={false}` makes the strip the
- * sole navigation (a pure filmstrip).
+ * sole navigation (a pure filmstrip). With `slidesPerPage > 1`, several adjacent
+ * thumbnails share one page — they highlight and border together as a group (via
+ * `ThumbnailIndicators`) and clicking any one of them jumps to that shared page.
  */
 function ThumbnailSingle({
   label,
@@ -361,6 +397,7 @@ function ThumbnailSingle({
   peek,
   side,
   slides = SLIDES,
+  slidesPerPage = 1,
 }: {
   label: string;
   placement?: "external" | "overlay";
@@ -369,18 +406,11 @@ function ThumbnailSingle({
   peek?: "none" | "sm" | "md" | "lg";
   side?: "before" | "after";
   slides?: string[];
+  slidesPerPage?: number;
 }) {
   const Prev = orientation === "vertical" ? ChevronUp : ChevronLeft;
   const Next = orientation === "vertical" ? ChevronDown : ChevronRight;
-  const thumbnails = (
-    <CarouselIndicatorGroup label="Choose slide">
-      {slides.map((bg, i) => (
-        <CarouselIndicator key={i} index={i}>
-          <span style={{ background: bg }} />
-        </CarouselIndicator>
-      ))}
-    </CarouselIndicatorGroup>
-  );
+  const thumbnails = <ThumbnailIndicators slides={slides} label="Choose slide" />;
   return (
     <Carousel
       ariaLabel={label}
@@ -390,6 +420,7 @@ function ThumbnailSingle({
       orientation={orientation}
       peek={peek}
       side={side}
+      slidesPerPage={slidesPerPage}
     >
       <CarouselViewport>
         {slides.map((bg, i) => (
@@ -950,7 +981,7 @@ export function CarouselThumbnails() {
   return (
     <Example
       title={'Thumbnails — indicators="thumbnails"'}
-      note="The gallery pattern: each indicator is a rounded-rect image thumbnail (a shrunk-down filmstrip) instead of a dot, and the active thumbnail is ringed in the primary colour. Supply the thumbnail content as children of each <CarouselIndicator> (an <img> or a background element — gradient stand-ins here, mirroring each slide). The modifier composes with every control placement and orientation; the grid below pins each control variant so QA can tick them off."
+      note="The gallery pattern: each indicator is a rounded-rect image thumbnail (a shrunk-down filmstrip) instead of a dot, and the active thumbnail is ringed in the primary colour. Supply the thumbnail content as children of each <CarouselIndicator> (an <img> or a background element — gradient stand-ins here, mirroring each slide). The modifier composes with every control placement and orientation; the grid below pins each control variant so QA can tick them off. With slidesPerPage > 1 (cells 7-9), each page's thumbnails are grouped: they share the active ring + a border framing the whole group, and clicking any one of them jumps to that shared page — including an uneven last group, handled by the same page-offset math the auto dots already use."
       wide
     >
       <div className="carousel-grid">
@@ -1001,6 +1032,43 @@ export function CarouselThumbnails() {
           note="Composes with peek: a sliver of the neighbouring slides shows in the viewport while the thumbnail strip navigates below — the two axes are independent."
         >
           <ThumbnailSingle label="Thumbnails — with peek" peek="sm" />
+        </GridCell>
+
+        <GridCell
+          n={7}
+          title="slidesPerPage=2 — grouped, even split"
+          note="8 slides ÷ 2 per page = 4 clean pairs. Each pair's two thumbnails share one page: both ring + border together, and clicking either jumps to that pair. Prev/next advance a whole pair at a time."
+        >
+          <ThumbnailSingle
+            label="Thumbnails — grouped by 2"
+            slides={GALLERY}
+            slidesPerPage={2}
+          />
+        </GridCell>
+
+        <GridCell
+          n={8}
+          title="slidesPerPage=3 — grouped, uneven last page"
+          note="8 slides ÷ 3 per page = groups of 3 / 3 / 2 — the last page end-aligns (the same page-offset math the dots already use), so its group is 2 thumbnails, not 3. The group border adapts automatically: 3-wide, 3-wide, then 2-wide."
+        >
+          <ThumbnailSingle
+            label="Thumbnails — grouped by 3, uneven last"
+            slides={GALLERY}
+            slidesPerPage={3}
+          />
+        </GridCell>
+
+        <GridCell
+          n={9}
+          title="Vertical + slidesPerPage=2 — grouped"
+          note="The grouping composes with orientation for free (pageForSlideIndex doesn't care about axis) — the border rule swaps to frame each pair's left/right edges instead of top/bottom."
+        >
+          <ThumbnailSingle
+            label="Thumbnails — vertical, grouped by 2"
+            orientation="vertical"
+            slides={GALLERY}
+            slidesPerPage={2}
+          />
         </GridCell>
       </div>
     </Example>

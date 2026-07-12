@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useContext, useState, type ReactNode } from "react";
 
 import {
   ChevronLeft,
@@ -6,6 +6,7 @@ import {
   ChevronUp,
   ChevronDown,
 } from "@primitiv-ui/icons";
+import { CarouselContext } from "@primitiv-ui/react";
 
 import {
   Accordion,
@@ -233,6 +234,31 @@ function CheckField({
   );
 }
 
+// One thumbnail per *slide*, grouped onto the *page* it belongs to.
+// `<CarouselIndicator index={N}>` is page-indexed (goTo(N); active = N===currentPage),
+// so with slidesPerPage > 1 each slide's thumbnail needs `index={pageForSlideIndex
+// (slideIndex)}`, not the raw slide index, or several thumbnails would silently target
+// the wrong page. Reusing `pageForSlideIndex` off context means an uneven last group
+// is handled by the exact same math the auto dots already use — no separate logic.
+// Must render as a Carousel descendant (a plain child is enough) for the context read.
+function ThumbnailIndicators({
+  slides,
+}: {
+  slides: string[];
+}) {
+  const ctx = useContext(CarouselContext);
+  const pageForSlideIndex = ctx?.pageForSlideIndex ?? ((i: number) => i);
+  return (
+    <CarouselIndicatorGroup label="Choose slide">
+      {slides.map((background, index) => (
+        <CarouselIndicator key={index} index={pageForSlideIndex(index)}>
+          <span className="carousel-builder__thumb" style={{ background }} />
+        </CarouselIndicator>
+      ))}
+    </CarouselIndicatorGroup>
+  );
+}
+
 // The live instance. Composition branches on `cluster`: `joined` groups prev /
 // indicators / next inside a <CarouselControls> bar (for both external and
 // overlay); `split` renders them as direct children of the root (the grid / absolute
@@ -265,20 +291,12 @@ function LiveCarousel({
   );
 
   // Dots use the auto <CarouselIndicators> (one per *page*, correct across
-  // slidesPerPage). Thumbnails need per-slide children, so they use the manual
-  // group with an image thumb per slide.
+  // slidesPerPage for free). Thumbnails use ThumbnailIndicators — one per *slide*,
+  // each grouped onto its page via pageForSlideIndex, so slidesPerPage > 1 groups
+  // and highlights them together exactly like the dots do.
   const indicators =
     config.indicators === "thumbnails" ? (
-      <CarouselIndicatorGroup label="Choose slide">
-        {slides.map((background, index) => (
-          <CarouselIndicator key={index} index={index}>
-            <span
-              className="carousel-builder__thumb"
-              style={{ background }}
-            />
-          </CarouselIndicator>
-        ))}
-      </CarouselIndicatorGroup>
+      <ThumbnailIndicators slides={slides} />
     ) : (
       <CarouselIndicators label="Choose slide" />
     );

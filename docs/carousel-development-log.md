@@ -1836,6 +1836,80 @@ byte-identical.) **Figma lockstep: pending** (code-only). **Next:** human QA of 
 many-thumbnails vertical overlay case (confirm the scroll feels natural, the tray width
 reads as acceptably narrow now) on the Builder and `/carousel/thumbnails`.
 
+### Thumbnails + slidesPerPage > 1: page-grouped indicators + a group border
+
+**A previously-flagged gap, now closed.** The thumbnails iteration (iteration 9) noted
+"a multi-slide thumbnail cell would need per-*page* thumbs... deliberately left out of
+the example grid" and the Builder's own code comment admitted the same: dots use the
+auto `<CarouselIndicators>` (already page-aware), thumbnails were still per-*slide* with
+no example ever combining them with `slidesPerPage > 1`. The human asked for exactly
+this: thumbnails grouped by page, the group sharing active state, clickable as a unit,
+a border marking the group, and the uneven-last-page edge case handled.
+
+**Root-cause research first (no premature build).** Investigated the actual headless
+primitive before writing anything: `<CarouselIndicator index={N}>` is **already
+page-indexed, not slide-indexed** — `goTo(index)` and `isActive = index === currentPage`
+both operate on page numbers (`Carousel.tsx`). Every thumbnail example maps one
+indicator per *slide* using the raw slide index, which only "works" because
+`slidesPerPage` was always 1 in existing examples (page index === slide index in that
+case) — untested and silently wrong the moment `slidesPerPage > 1` is introduced. The
+primitive already exposes exactly the tool needed: `pageForSlideIndex(slideIndex)` on
+`CarouselContextValue` (public API via the exported `CarouselContext`), implementing the
+identical page-offset/end-alignment formula from the multi-slide iteration
+(`offset(page) = min(page × slidesPerMove, maxOffset)`, last page end-aligned). **This
+meant zero headless changes were needed** — purely a consumer-side (registry example)
+wiring fix.
+
+**The fix: `index={pageForSlideIndex(slideIndex)}` instead of the raw slide index.**
+Added a `ThumbnailIndicators` child component (in both `CarouselPage.tsx` and
+`CarouselBuilder.tsx` — it must render as a `Carousel` descendant to read
+`useContext(CarouselContext)`) that maps each slide's thumbnail through
+`pageForSlideIndex`. Multiple slides sharing a page now naturally share the same
+`index` value, so they already get `data-state="active"` together (the existing
+opacity/ring CSS needed no change) and clicking any of them calls `goTo()` with the
+same page number. The uneven-last-page case (e.g. 8 slides ÷ 3 per page → 3/3/2) is
+inherited for free, since it's the identical formula the dots already use.
+`ThumbnailSingle` gained a `slidesPerPage` prop (default 1, passed straight through to
+`<Carousel>`); the Builder's known-gap comment/code was replaced with the same pattern.
+
+**New CSS: a group border around the run of same-page thumbnails.** Each thumbnail
+keeps its own existing ring unchanged; this adds ONE continuous border framing the
+*whole run* on top of that, so a multi-slide page reads as a single unit. Built
+entirely from forward-looking selectors (CSS has no "preceding sibling" combinator): a
+"baseline" edge is drawn on every run member that shares it (e.g. every member with a
+*following* active sibling gets the inline-start edge), then cancelled on members that
+aren't actually at that edge (members that *also* have a *preceding* active sibling
+aren't the true start). **Caught and fixed a real specificity bug before shipping:**
+`:has(+ [data-state="active"])` and the plain adjacent-sibling form `A + B` don't carry
+equal specificity by accident (the `:has()` argument was a bare attribute selector,
+lighter than the sibling form's full compound), so a baseline/cancel pair for the same
+edge didn't reliably tie-break by declaration order — a 3+ member run's *middle*
+thumbnail kept a stray edge instead of none. Fixed by wrapping the relational lookups
+in `:where(...)` (zero specificity contribution), so every baseline/cancel pair ties
+exactly and the *later-declared* rule always wins for elements matching both. Verified
+in headless Chromium with runs of 2 and 3 in both orientations before trusting it
+(caught the bug this way, not by inspection). Vertical rails swap axes (inline shared,
+block is the run-boundary edge) via a higher-specificity `[data-orientation="vertical"]`
+override. `box-sizing: border-box` added to the base thumbnail rule so the new border
+never shifts a thumbnail's rendered footprint (no layout jank as group membership
+toggles). Logical properties throughout — RTL- and orientation-safe with no extra
+`:dir()` rules.
+
+**Built** (`/carousel/thumbnails`, 3 new cells): slidesPerPage=2 (4 clean pairs),
+slidesPerPage=3 with 8 slides (3/3/2 — the uneven-last-page case), and vertical +
+slidesPerPage=2 (confirming the axis-swapped border). Verified end-to-end in headless
+Chromium matching the exact 3/3/2 scenario: each page's group renders a correctly
+continuous border sized to its own group (3-wide, 3-wide, then 2-wide for the uneven
+last page) with no bleed between groups.
+
+**Gates green:** `cargo test -p primitiv-emit` (106, drift), `node
+scripts/check-registry-types.mjs`. (No contract/recipe/tsx change — pure CSS +
+kitchen-sink TSX; the kitchen-sink itself can't build in this sandbox, so structural
+balance-checked — brace/paren counts and `<GridCell>` open/close pairs — in place of a
+real compile.) **Figma lockstep: pending** (code-only). **Next:** human QA of the three
+new Thumbnails cells (7-9) and the Builder's `slidesPerPage` + `indicators="thumbnails"`
+combination.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

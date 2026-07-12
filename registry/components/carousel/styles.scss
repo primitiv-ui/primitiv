@@ -1214,11 +1214,16 @@
     min-block-size: var(--primitiv-space-space-0);
     padding: var(--primitiv-space-space-0);
     border-radius: var(--primitiv-carousel-thumbnail-radius);
+    /* A real border (the multi-slide-per-page group frame below) sits on the
+       border-box, not added on top of it, so a thumbnail's footprint never
+       shifts when its group-membership toggles the border on/off. */
+    box-sizing: border-box;
     overflow: hidden;
     opacity: var(--primitiv-carousel-thumbnail-inactive-opacity);
     transition:
       opacity var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
-      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
   /* No dot for a thumbnail — suppress the base ::before. */
   .primitiv-carousel--indicators-thumbnails .primitiv-carousel__indicator::before,
@@ -1468,6 +1473,96 @@
       0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
         var(--primitiv-focus-ring);
   }
+
+  /* Multi-slide-per-page group frame. When slidesPerPage > 1, several adjacent
+     thumbnails share one page (each gets `index={pageForSlideIndex(slideIndex)}`
+     from the consumer, so they already share `data-state="active"` — the ring above
+     already highlights each of them individually, no change needed there). This adds
+     ONE continuous border around the *whole run*, on top of each thumbnail's own
+     ring, so the group reads as a single current-page unit. A lone active thumbnail
+     (the common, slidesPerPage=1 case) never matches these selectors — `+` and
+     `:has(+ …)` both require a genuine second active sibling — so nothing changes
+     there.
+
+     Built from only forward-looking selectors (CSS has no "preceding sibling"
+     combinator): a "baseline" edge is drawn on every run member that shares it, then
+     cancelled on the members that aren't actually at that edge of the run. The
+     `:where(...)` wrappers neutralise the relational lookups' own specificity, so a
+     baseline/cancel pair for the same edge always ties on specificity and the one
+     declared *later* wins — without them, `:has(+ …)` and the adjacent-sibling form
+     carry different specificity by accident, and a 3+ member run's middle thumbnail
+     would keep a stray edge instead of none. Logical properties throughout keep this
+     RTL- and orientation-safe. */
+  .primitiv-carousel--indicators-thumbnails
+    :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"]:where(:has(+ [data-state="active"])),
+  .primitiv-carousel--indicators-thumbnails
+    :where(:is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"])
+    + :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"] {
+    /* Horizontal (row) runs: every member shares the top/bottom edge; only the
+       run's first/last member gets the outer inline edge (below). Vertical (column)
+       runs swap this — see the [data-orientation="vertical"] override. */
+    border-block: var(--primitiv-carousel-thumbnail-ring-width) solid var(--primitiv-carousel-thumbnail-ring-color);
+  }
+  /* Inline-start baseline — every member with a *following* active sibling (the
+     run's start + middle). */
+  .primitiv-carousel--indicators-thumbnails
+    :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"]:where(:has(+ [data-state="active"])) {
+    border-inline-start: var(--primitiv-carousel-thumbnail-ring-width) solid var(--primitiv-carousel-thumbnail-ring-color);
+  }
+  /* Inline-end baseline — every member with a *preceding* active sibling (middle +
+     end). */
+  .primitiv-carousel--indicators-thumbnails
+    :where(:is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"])
+    + :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"] {
+    border-inline-end: var(--primitiv-carousel-thumbnail-ring-width) solid var(--primitiv-carousel-thumbnail-ring-color);
+  }
+  /* Cancel inline-start on middle + end (they have a preceding active sibling, so
+     the run's start edge isn't theirs). Declared after the inline-start baseline so
+     it wins the (now-equal) specificity tie. */
+  .primitiv-carousel--indicators-thumbnails
+    :where(:is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"])
+    + :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"] {
+    border-inline-start: none;
+  }
+  /* Cancel inline-end on start + middle (they have a following active sibling, so
+     the run's end edge isn't theirs). Declared after the inline-end baseline. */
+  .primitiv-carousel--indicators-thumbnails
+    :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"]:where(:has(+ [data-state="active"])) {
+    border-inline-end: none;
+  }
+
+  /* Vertical thumbnail rails stack top-to-bottom, so a run's shared axis flips:
+     every member shares the *inline* edges (left/right), and only the run's
+     first/last member gets the outer *block* edge. Same baseline/cancel technique,
+     axes swapped; higher specificity (the orientation attribute) wins over the
+     horizontal rules above. */
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--indicators-thumbnails
+    :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"]:where(:has(+ [data-state="active"])),
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--indicators-thumbnails
+    :where(:is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"])
+    + :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"] {
+    border-block: none;
+    border-inline: var(--primitiv-carousel-thumbnail-ring-width) solid var(--primitiv-carousel-thumbnail-ring-color);
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--indicators-thumbnails
+    :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"]:where(:has(+ [data-state="active"])) {
+    border-block-start: var(--primitiv-carousel-thumbnail-ring-width) solid var(--primitiv-carousel-thumbnail-ring-color);
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--indicators-thumbnails
+    :where(:is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"])
+    + :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"] {
+    border-block-end: var(--primitiv-carousel-thumbnail-ring-width) solid var(--primitiv-carousel-thumbnail-ring-color);
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--indicators-thumbnails
+    :where(:is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"])
+    + :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"] {
+    border-block-start: none;
+  }
+  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--indicators-thumbnails
+    :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"]:where(:has(+ [data-state="active"])) {
+    border-block-end: none;
+  }
+
 
   /* Fade transition: the active slide is the only visible one. Clearing the
      visibility delay (0s all round) makes the incoming slide appear at once

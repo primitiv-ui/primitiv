@@ -158,7 +158,26 @@ so they can't fall out of sync.
   into a second column — width is the scarce axis there (a wrapped column visibly
   eats into the slide), so it stays a single column and **scrolls internally**
   instead, keeping the tray's footprint pinned to one thumbnail wide no matter the
-  count. The slide **`radius`**
+  count.
+
+- **Thumbnails + `slidesPerPage > 1` (grouped indicators).** `<CarouselIndicator
+  index={N}>` is **page**-indexed, not slide-indexed — clicking it calls `goTo(N)`
+  and its active state is `N === currentPage`. With one slide per page this is
+  invisible (slide index === page index); with `slidesPerPage > 1`, map each
+  slide's thumbnail through `pageForSlideIndex(slideIndex)` (read off
+  `CarouselContext`, the same page-offset/end-alignment math the auto
+  `<CarouselIndicators>` dots already use) instead of the raw slide index. Several
+  thumbnails then naturally share one `index` value, so they already highlight
+  together (the ring above needs no change) and clicking any one of them jumps to
+  their shared page. A CSS-only **group border** frames the whole run of
+  same-page thumbnails as one unit — built from `:has(+ …)`/adjacent-sibling
+  selectors (no JS, no new data attribute), continuous across the group and
+  absent entirely for a lone thumbnail (the `slidesPerPage=1` case, unchanged). An
+  uneven last page (e.g. 8 slides ÷ 3 per page → groups of 3/3/2) is handled for
+  free, since it's the identical page math the dots use. See
+  `apps/kitchen-sink/src/pages/CarouselPage.tsx`'s `ThumbnailIndicators` helper for
+  the reference wiring.
+- The slide **`radius`**
   modifier (`md` default · `none` squares the slide off) and the slide **`ratio`**
   modifier (`square` 1:1 · `standard` 4:3 · `wide` 16:9 default · `ultrawide`
   21:9, re-pointing `--primitiv-carousel-slide-aspect-ratio`) both live on the

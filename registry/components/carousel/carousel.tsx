@@ -150,7 +150,7 @@ export function CarouselControls({ className, ...props }: CarouselControlsProps)
   return <div className={[carouselControls(), className].filter(Boolean).join(" ")} {...props} />;
 }
 
-export type CarouselSlideProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Slide>, "radius" | "fit"> & {
+export type CarouselSlideProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Slide>, "radius" | "fit" | "surface"> & {
   /**
    * Corner rounding of the slide.
    * - `md` — Medium rounded corners (the default).
@@ -162,15 +162,23 @@ export type CarouselSlideProps = DistributiveOmit<ComponentPropsWithRef<typeof C
   /**
    * How a media child (an img / picture / video) conforms to the slide box. The slide box is always sized by the layout; this decides how a real image — which has its own intrinsic size and ratio — fills it.
    * - `cover` — Fill the slide and crop the overflow, preserving the image's aspect ratio (the default — best for photographic imagery). Set --primitiv-carousel-slide-object-position to move the focal point of the crop.
-   * - `contain` — Fit the whole image inside the slide without cropping, letterboxing any leftover space (best for logos / art that must not be cut). The letterbox shows the slide's own background — set one on the slide for a backdrop.
+   * - `contain` — Fit the whole image inside the slide without cropping, letterboxing any leftover space (best for logos / art that must not be cut). The letterbox shows the slide's own background — opt into one with the `surface` modifier.
    * @default "cover"
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
   fit?: "cover" | "contain";
+  /**
+   * Optional slide backdrop — the fill behind the media. Off by default (transparent), so a cover image or a slide with its own background is unaffected; opt in to give a `contain` letterbox (or a transparent image) a surface behind it. Mirrors the root `surface` modifier and uses the same token.
+   * - `none` — No backdrop — the slide background is transparent (the default).
+   * - `subtle` — Fill the slide with the subtle surface token (--primitiv-surface-subtle) — the backdrop for a contain letterbox, matching the root track's surface.
+   * @default "none"
+   * @see https://primitiv-ui.dev/docs/components/carousel
+   */
+  surface?: "none" | "subtle";
 };
 
-export function CarouselSlide({ radius, fit, className, ...props }: CarouselSlideProps) {
-  return <CarouselPrimitive.Slide className={[carouselSlide({ radius, fit }), className].filter(Boolean).join(" ")} {...props} />;
+export function CarouselSlide({ radius, fit, surface, className, ...props }: CarouselSlideProps) {
+  return <CarouselPrimitive.Slide className={[carouselSlide({ radius, fit, surface }), className].filter(Boolean).join(" ")} {...props} />;
 }
 
 export type CarouselPreviousTriggerProps = ComponentPropsWithRef<typeof CarouselPrimitive.PreviousTrigger>;

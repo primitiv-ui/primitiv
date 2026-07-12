@@ -228,9 +228,11 @@ Structured per RFC 0008 — the per-component API knobs + resting look in
   intrinsic size and ratio — so a **direct media child** is stretched to fill the box
   and `object-fit` decides how it conforms. A **`fit`** slide modifier picks it:
   **`cover`** (default) fills and crops to keep the ratio (best for photography);
-  **`contain`** fits the whole image and letterboxes the remainder against the slide's
-  own background (best for logos / art that must not be cropped — set a background on
-  the slide for the letterbox). `--primitiv-carousel-slide-object-position` (default
+  **`contain`** fits the whole image and letterboxes the remainder (best for logos /
+  art that must not be cropped). The letterbox backdrop is **opt-in** via a slide
+  **`surface`** modifier (`none` default · `subtle`), which fills the slide with the
+  same `--primitiv-surface-subtle` token as the root track — off by default so a cover
+  image is never tinted. `--primitiv-carousel-slide-object-position` (default
   `center`) is the crop's **focal point**, set per slide (e.g. `object-position: top`).
   The rule targets `> img, > video, > picture (> img)` specifically, so layered
   content (a caption sibling) is left untouched.

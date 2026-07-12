@@ -1526,7 +1526,7 @@ type ImageSlide = {
   fit?: "cover" | "contain";
   objectPosition?: string;
   caption?: string;
-  background?: string;
+  surface?: "subtle";
 };
 
 // Renders real <img> slides through the styled surface, so the slide's media
@@ -1545,11 +1545,7 @@ function ImageSingle({
     <Carousel ariaLabel={label} ratio={ratio}>
       <CarouselViewport>
         {slides.map((slide, i) => (
-          <CarouselSlide
-            key={i}
-            fit={slide.fit}
-            style={slide.background ? { background: slide.background } : undefined}
-          >
+          <CarouselSlide key={i} fit={slide.fit} surface={slide.surface}>
             <img
               src={slide.src}
               alt=""
@@ -1614,14 +1610,14 @@ export function CarouselImages() {
         <GridCell
           n={2}
           title="fit=contain — no crop"
-          note="The same sources with `fit=contain`: the whole image fits inside the slide, letterboxed against the slide background (set here to a neutral fill). Best for logos / art that must not be cut."
+          note="The same sources with `fit=contain`: the whole image fits inside the slide, letterboxed against an opt-in backdrop (the slide `surface=subtle` modifier — the same surface token as the root track). Best for logos / art that must not be cut."
         >
           <ImageSingle
             label="Contain, mixed sources"
             slides={[
-              { src: PORTRAIT, fit: "contain", background: "#1c1f26" },
-              { src: LANDSCAPE, fit: "contain", background: "#1c1f26" },
-              { src: SQUARE, fit: "contain", background: "#1c1f26" },
+              { src: PORTRAIT, fit: "contain", surface: "subtle" },
+              { src: LANDSCAPE, fit: "contain", surface: "subtle" },
+              { src: SQUARE, fit: "contain", surface: "subtle" },
             ]}
           />
         </GridCell>

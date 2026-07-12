@@ -174,7 +174,16 @@
           "description": "How a media child (an img / picture / video) conforms to the slide box. The slide box is always sized by the layout; this decides how a real image — which has its own intrinsic size and ratio — fills it.",
           "options": [
             { "name": "cover", "class": "primitiv-carousel__slide--fit-cover", "description": "Fill the slide and crop the overflow, preserving the image's aspect ratio (the default — best for photographic imagery). Set --primitiv-carousel-slide-object-position to move the focal point of the crop." },
-            { "name": "contain", "class": "primitiv-carousel__slide--fit-contain", "description": "Fit the whole image inside the slide without cropping, letterboxing any leftover space (best for logos / art that must not be cut). The letterbox shows the slide's own background — set one on the slide for a backdrop." }
+            { "name": "contain", "class": "primitiv-carousel__slide--fit-contain", "description": "Fit the whole image inside the slide without cropping, letterboxing any leftover space (best for logos / art that must not be cut). The letterbox shows the slide's own background — opt into one with the `surface` modifier." }
+          ]
+        },
+        {
+          "name": "surface",
+          "default": "none",
+          "description": "Optional slide backdrop — the fill behind the media. Off by default (transparent), so a cover image or a slide with its own background is unaffected; opt in to give a `contain` letterbox (or a transparent image) a surface behind it. Mirrors the root `surface` modifier and uses the same token.",
+          "options": [
+            { "name": "none", "class": "primitiv-carousel__slide--surface-none", "description": "No backdrop — the slide background is transparent (the default)." },
+            { "name": "subtle", "class": "primitiv-carousel__slide--surface-subtle", "description": "Fill the slide with the subtle surface token (--primitiv-surface-subtle) — the backdrop for a contain letterbox, matching the root track's surface." }
           ]
         }
       ],
@@ -236,6 +245,7 @@
     { "name": "--primitiv-carousel-slide-radius", "defaultsTo": "var(--primitiv-radii-12)" },
     { "name": "--primitiv-carousel-slide-object-fit", "defaultsTo": "cover" },
     { "name": "--primitiv-carousel-slide-object-position", "defaultsTo": "center" },
+    { "name": "--primitiv-carousel-slide-surface", "defaultsTo": "transparent" },
     { "name": "--primitiv-carousel-block-gap", "defaultsTo": "var(--primitiv-carousel-md-chrome-gap)" },
     { "name": "--primitiv-carousel-controls-gap", "defaultsTo": "var(--primitiv-carousel-md-chrome-gap)" },
     { "name": "--primitiv-carousel-control-size", "defaultsTo": "var(--primitiv-framed-control-md-height)" },

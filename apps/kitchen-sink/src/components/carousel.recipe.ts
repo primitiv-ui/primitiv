@@ -106,10 +106,15 @@ export const carouselSlide = cva("primitiv-carousel__slide", {
       cover: "primitiv-carousel__slide--fit-cover",
       contain: "primitiv-carousel__slide--fit-contain",
     },
+    surface: {
+      none: "primitiv-carousel__slide--surface-none",
+      subtle: "primitiv-carousel__slide--surface-subtle",
+    },
   },
   defaultVariants: {
     radius: "md",
     fit: "cover",
+    surface: "none",
   },
 });
 

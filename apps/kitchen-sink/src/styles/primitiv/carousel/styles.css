@@ -92,6 +92,10 @@
        radius above). */
     --primitiv-carousel-slide-object-fit: cover;
     --primitiv-carousel-slide-object-position: center;
+    /* Optional slide backdrop (the fill behind the media). Transparent by default
+       — opt in with the slide `surface` modifier to back a `contain` letterbox (or a
+       transparent image). Mirrors the root viewport surface, same token. */
+    --primitiv-carousel-slide-surface: transparent;
     /* The chrome gaps + the indicator/thumbnail dimensions track the carousel
        size ramp (`carousel-{slot}-*`, density-scoped); `md` is the default slot,
        re-pointed per slot by the size modifier in the variants layer. */
@@ -250,6 +254,9 @@
     min-block-size: 0;
     aspect-ratio: var(--primitiv-carousel-slide-aspect-ratio);
     border-radius: var(--primitiv-carousel-slide-radius);
+    /* Optional backdrop behind the media — transparent unless the `surface`
+       modifier opts it in (an inline `style` background still overrides it). */
+    background: var(--primitiv-carousel-slide-surface);
     overflow: hidden;
     scroll-snap-align: start;
     /* Positioning context so a consumer can absolutely-position layered content
@@ -590,6 +597,17 @@
   }
   .primitiv-carousel__slide--fit-contain {
     --primitiv-carousel-slide-object-fit: contain;
+  }
+
+  /* Slide backdrop — opt into a fill behind the media (off by default). `subtle`
+     uses the same surface token as the root track, so a contain letterbox reads as
+     a neutral backdrop; pairs with `fit="contain"` (on its own it just tints a
+     slide with no full-bleed media). */
+  .primitiv-carousel__slide--surface-none {
+    --primitiv-carousel-slide-surface: transparent;
+  }
+  .primitiv-carousel__slide--surface-subtle {
+    --primitiv-carousel-slide-surface: var(--primitiv-surface-subtle);
   }
 
   /* Carousel aspect ratio — re-points the aspect-ratio knob at the *root* to a

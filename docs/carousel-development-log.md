@@ -1494,6 +1494,17 @@ that single-slide, vertical (square + wide), and fade are all unregressed. Regis
 tokens.css + carousel styles.css inlined) to a screenshot — a genuine visual check in-sandbox
 for pure-CSS behaviour, no dev server needed.
 
+**QA round 5 (human) — vertical multi-slide ignored the ratio too.** `slidesPerPage=2` +
+`orientation=vertical` + `ratio=square` rendered two *wide* slices (screenshot). Different
+geometry from the horizontal fix: in vertical the slide's own aspect stands down and it
+fills a 1/N slice of the viewport *height*, while the viewport carried a fixed (per-slide)
+aspect — so a square viewport split into 2 gave 2:1 slices. Fix: the vertical viewport's
+aspect is now **`calc(--vertical-aspect-ratio / --slides-per-page)`**, so the track grows
+to N slides tall and each slice comes out at the ratio (2 square slides → a 1:2 track;
+`calc(ratio / 1)` for the single-slide default is unchanged). Verified via headless
+Chromium: vertical spp 1–3 square stack as squares, spp2 wide stacks as 16:9. Registry CSS
+only (scss re-derived, recipe/tsx byte-identical), drift-green.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

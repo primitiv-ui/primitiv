@@ -384,12 +384,19 @@
     align-items: center;
   }
 
-  /* Column scroll track: a portrait box (height from the aspect knob), snapping
-     on the block axis. Physical overflow — the scroll axis is vertical in both
-     LTR and RTL, so it doesn't mirror. */
+  /* Column scroll track snapping on the block axis. Physical overflow — the scroll
+     axis is vertical in both LTR and RTL, so it doesn't mirror. The viewport's shape
+     is the per-slide ratio *divided by slidesPerPage* on the block axis: unlike the
+     horizontal slide, the vertical slide's own aspect stands down (below) and it
+     fills a 1/N slice of the viewport height, so the viewport must be N slides tall
+     for each slice to come out at the ratio (e.g. 2 square slides → a 1:2 track).
+     `calc(ratio / 1)` for the single-slide default is just the ratio. */
   .primitiv-carousel[data-orientation="vertical"] .primitiv-carousel__viewport {
     flex-direction: column;
-    aspect-ratio: var(--primitiv-carousel-vertical-aspect-ratio);
+    aspect-ratio: calc(
+      var(--primitiv-carousel-vertical-aspect-ratio) /
+        var(--primitiv-carousel-slides-per-page)
+    );
     overflow-x: hidden;
     overflow-y: auto;
     scroll-snap-type: y mandatory;

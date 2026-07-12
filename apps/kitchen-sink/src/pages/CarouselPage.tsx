@@ -76,6 +76,7 @@ function BasicSingle({
     <Carousel
       ariaLabel={label}
       size={size}
+      cluster="joined"
       peek={peek}
       padding={padding}
       surface={surface}
@@ -137,6 +138,7 @@ function VerticalSingle({
     <Carousel
       ariaLabel={label}
       orientation="vertical"
+      cluster="joined"
       peek={peek}
       padding={padding}
       side={side}
@@ -315,6 +317,7 @@ function MultiSlide({
   return (
     <Carousel
       ariaLabel={label}
+      cluster="joined"
       slidesPerPage={slidesPerPage}
       slidesPerMove={slidesPerMove}
       peek={peek}
@@ -383,6 +386,7 @@ function ThumbnailSingle({
       ariaLabel={label}
       indicators="thumbnails"
       placement={placement}
+      cluster={placement === "overlay" ? undefined : "joined"}
       orientation={orientation}
       peek={peek}
       side={side}
@@ -1398,7 +1402,12 @@ export function CarouselPlacement() {
 
 function ThumbnailStretch({ label }: { label: string }) {
   return (
-    <Carousel ariaLabel={label} indicators="thumbnails" distribution="stretch">
+    <Carousel
+      ariaLabel={label}
+      indicators="thumbnails"
+      cluster="joined"
+      distribution="stretch"
+    >
       <CarouselViewport>
         {SLIDES.map((bg, i) => (
           <CarouselSlide key={i} style={{ background: bg }} />
@@ -1623,7 +1632,7 @@ function ImageSingle({
   ratio?: "square" | "standard" | "wide" | "ultrawide";
 }) {
   return (
-    <Carousel ariaLabel={label} ratio={ratio}>
+    <Carousel ariaLabel={label} cluster="joined" ratio={ratio}>
       <CarouselViewport>
         {slides.map((slide, i) => (
           <CarouselSlide key={i} fit={slide.fit} surface={slide.surface}>

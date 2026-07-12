@@ -1641,12 +1641,41 @@ green light. **Also QA:** `/carousel/images` (cover/contain/focal-point/caption)
 (most were already on the shared `.carousel-grid`, but at 2 columns; five pages —
 Responsive, Vertical, Overlay, Fade, Peek — still used older ad-hoc `__row`/`__stack`
 flex layouts predating that pattern); (2) "the carousel layouts aren't up to date with
-the Builder page" — clarified by the human as **controls sitting outside the main
-carousel layout, separate from the root/viewport**. (1) is resolved this pass; (2) is
-still open — a DOM/CSS audit of every helper found no case where a control renders
-outside the `<Carousel>` root (`primitiv-emit`-generated + hand-authored helpers all
-nest prev/next/indicators correctly), so the concrete repro is still needed from the
-human (a screenshot or the specific `/carousel/*` route) before it can be diagnosed.
+the Builder page" — clarified by the human as **controls sitting on the left, separate
+from the viewport/slides**. Both resolved this pass.
+
+**(2) Root cause found: a stale `cluster` default across six example helpers.** The
+"Rearchitecture" iteration made `cluster="split"` the *contract* default (prev/next flank
+the viewport edges, indicators as a separate cluster — not the original iteration-1
+"bar below" look, which is `cluster="joined"`). Six kitchen-sink helpers —
+`BasicSingle`, `VerticalSingle`, `MultiSlide`, `ThumbnailSingle` (its non-overlay
+branch), `ThumbnailStretch`, `ImageSingle` — predate that change: they still wrap
+prev/`CarouselIndicatorGroup`/next in `<CarouselControls>` (the DOM shape `joined`
+CSS expects) but never pass `cluster` explicitly, so they'd been silently rendering
+under the *default* `split` CSS ever since. Split's grid assigns `.__prev`/`.__next`/
+`.__indicator-group` to named grid areas **as direct children** — but here they're
+nested inside the `<CarouselControls>` div instead, so that div itself (untargeted by
+any grid-area) gets auto-placed by the grid into the first free cell: the "prev" area,
+on the left. The whole cluster (prev + dots + next, as one flex row) piles up to the
+left of a narrowed viewport — exactly the human's report. Confirmed against the
+Placement page's own "External" section: its cell notes ("bar below", "space-between
+across the whole edge") describe the *joined* bar behaviour verbatim — i.e. that whole
+18-cell section had been rendering broken since the rearchitecture, not just
+cosmetically off. The Builder was never affected — it already branches
+`useControlsBar = external || joined` and composes accordingly, which is why it looked
+"up to date" while the routes didn't.
+
+**Fix:** add `cluster="joined"` to the five helpers whose entire DOM is the wrapped
+shape (`BasicSingle`, `VerticalSingle`, `MultiSlide`, `ThumbnailStretch`, `ImageSingle`);
+`ThumbnailSingle` gets `cluster={placement === "overlay" ? undefined : "joined"}`
+since its overlay branch already renders unwrapped direct children — correctly matching
+the default `split` shape, so it must keep it. Verified with a before/after headless
+Chromium render (default classes `placement-external cluster-split` + wrapped DOM
+exactly reproduces the left-pile bug; `cluster-joined` produces the correct centred bar
+below the viewport). This restores the intended look across every page using these
+helpers — Default, RTL, Square, Responsive, Peek, Padding, Multi, Ratio, Spacing, Size,
+Images, Overlay/Fade's row cells, and (most visibly) all 18 "External" cells on the
+Placement page.
 
 **Grid: bumped to 4 columns + converted the remaining 5 pages.** `.carousel-grid`
 `grid-template-columns` `repeat(2, …)` → `repeat(4, …)` (with a `72rem`→2-col and
@@ -1669,12 +1698,13 @@ containing the original comparison row, not two independent cells. Dead CSS remo
 (`__stack`, `__vertical`, now unused; `__row`/`__narrow`/`__wide` kept — still used
 inside Responsive's single spanning cell).
 
-**No registry/contract/token change** — kitchen-sink example-page CSS/TSX only.
-Verified via headless Chromium (external-split at 4-up, ~88rem page) and a structural
-balance check (`<GridCell>`/`</GridCell>` 116/116, `<Example>`/`</Example>` 17/17,
-16 `carousel-grid` divs — matches 13 single-grid pages + Placement's 3 grouped
-sections) since the kitchen-sink can't build in this sandbox. **Next:** the human's
-repro for the controls-outside-layout issue.
+**No registry/contract/token change** — kitchen-sink example-page CSS/TSX only (both the
+grid work and the `cluster` fix). Verified via headless Chromium (external-split at
+4-up, ~88rem page; the cluster before/after) and a structural balance check
+(`<GridCell>`/`</GridCell>` 116/116, `<Example>`/`</Example>` 17/17, 16 `carousel-grid`
+divs — matches 13 single-grid pages + Placement's 3 grouped sections) since the
+kitchen-sink can't build in this sandbox. **Next:** human QA — especially the Placement
+page's External section (18 cells), which should now visibly match its own notes.
 
 ## Backlog (examples still to build)
 

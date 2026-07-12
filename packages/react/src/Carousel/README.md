@@ -24,7 +24,11 @@ aria-roledescription="slide">` and self-registers with the Root so each
   `"N of M"` (e.g. `"1 of 3"`); pass `ariaLabel` to override with a more
   meaningful description (e.g. `"Hand-picked for you"`). Emits
   `data-state="active" | "inactive"` tracking the active page, plus a
-  `data-carousel-slide` CSS hook.
+  `data-carousel-slide` CSS hook. Also emits `data-snap-start` on a
+  page's leading slide only (every slide, when `slidesPerPage` is 1) —
+  the hook consumer CSS should scope `scroll-snap-align` to, so an
+  interior slide of a multi-slide page is never a valid scroll-snap
+  resting position (see "Multi-slide snap targeting" below).
 - **`Carousel.NextTrigger`** — `<button>` that advances the active page
   by one. `disabled` at the last page, and whenever zero or one slides
   are registered. Consumer `onClick` runs before the navigation;
@@ -80,7 +84,7 @@ correction), and CSS owns _what the user sees_:
 | Peek of adjacent slides            | `snapAlign` → viewport `scrollTo` alignment              | Viewport `padding-inline`, slide `flex-basis`, `scroll-snap-align`       |
 | Gap between slides                 | —                                                        | `gap` on the viewport (no `spacing` prop — pure CSS)                     |
 | Variable-size slides               | viewport `scrollTo` the target slide's offset            | Per-slide width / `aspect-ratio`, `scroll-snap-align`                    |
-| Snap targeting                     | `snapAlign: "start" \| "center"` (Root only)             | `scroll-snap-type` on viewport, `scroll-snap-align` on each slide        |
+| Snap targeting                     | `snapAlign: "start" \| "center"` (Root only)             | `scroll-snap-type` on viewport, `scroll-snap-align` scoped to `[data-snap-start]` |
 | Reduced motion                     | `behavior: "instant"`                                    | Optional `@media (prefers-reduced-motion: reduce)` on consumer animations |
 | Keyboard navigation                | Arrow / Home / End on focused viewport                   | `:focus-visible` on viewport                                             |
 | Touch / swipe                      | Native scroll + `scrollsnapchange` to sync state         | `overscroll-behavior-x: contain`, `scrollbar-width: none`                |
@@ -846,9 +850,35 @@ and target the `data-carousel-*` attributes:
 For multi-slide pages (`slidesPerPage={3}`, etc.), tune the slide's
 `flex-basis` to share the viewport — e.g. `calc(100% / 3)` for three
 slides per page, plus a `gap` on the viewport for the inter-slide
-spacing. For a crossfade transition, use `transition="none"` on
+spacing. **Scope `scroll-snap-align` to `[data-snap-start]` instead of
+every `[data-carousel-slide]`** once `slidesPerPage > 1` — see
+"Multi-slide snap targeting" below; the recipe above is correct as-is
+for the single-slide-per-page default, where every slide carries the
+hook. For a crossfade transition, use `transition="none"` on
 `Carousel.Root` and style the slides absolute-positioned with an
 opacity transition keyed off `[data-carousel-slide][data-state="active"]`.
+
+### Multi-slide snap targeting
+
+When `slidesPerPage > 1`, only a page's *leading* slide is a valid
+scroll-snap resting position — an interior slide has no page of its
+own, so letting the browser's mandatory snap stop there leaves the
+viewport showing a straddled mix of two pages while `currentPage` (and
+any indicators driven from it) still claim a single clean page is
+active. This is easy to hit with incremental input — a mouse wheel
+notch or a drag release — that lands mid-page rather than jumping a
+full page at once. Scope `scroll-snap-align` to the `data-snap-start`
+hook (present only on each page's leading slide, and on every slide
+when `slidesPerPage` is 1) rather than applying it to every slide:
+
+```css
+[data-carousel-slide] {
+  flex: 0 0 calc(100% / 3); /* three slides per page, for example */
+}
+[data-carousel-slide][data-snap-start] {
+  scroll-snap-align: start;
+}
+```
 
 ### Cover Flow (scroll-driven 3D)
 

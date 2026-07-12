@@ -269,13 +269,23 @@
        modifier opts it in (an inline `style` background still overrides it). */
     background: var(--primitiv-carousel-slide-surface);
     overflow: hidden;
-    scroll-snap-align: start;
+    /* No snap by default — only a page's leading slide (data-snap-start,
+       published by the headless primitive) is a valid resting position.
+       Letting every slide snap (the old default) let mandatory scroll-snap
+       stop scroll on an interior slide of a multi-slide page: the viewport
+       shows a straddled mix of two pages while currentPage/the indicators
+       still claim a single clean page is active — the wheel/drag desync. At
+       slidesPerPage 1 every slide carries the hook, so this is a no-op there. */
+    scroll-snap-align: none;
     /* Positioning context so a consumer can absolutely-position layered content
        (a caption, a CTA, a gradient scrim) over the media without any extra
        wrapper — it anchors to the slide box and clips to its rounded corners. */
     position: relative;
     /* Stop the OS grabbing images for drag/save mid-swipe. */
     -webkit-user-drag: none;
+  }
+  .primitiv-carousel__slide[data-snap-start] {
+    scroll-snap-align: start;
   }
 
   /* Media children fill the slide box. The slide box is always correctly sized by

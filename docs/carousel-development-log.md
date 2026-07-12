@@ -1910,6 +1910,117 @@ real compile.) **Figma lockstep: pending** (code-only). **Next:** human QA of th
 new Thumbnails cells (7-9) and the Builder's `slidesPerPage` + `indicators="thumbnails"`
 combination.
 
+### Mouse input — click-and-drag scrolling, wheel translation, and a multi-slide snap-boundary fix
+
+**New workstream, four items from live QA.** Investigated item 3 (a reported
+desync bug) before building anything broadly, per plan — write-up below, then
+the fixes.
+
+**Root cause (item 3 — vertical + `slidesPerPage > 1` wheel desync).** Not a
+JS bug: a throwaway repro test confirmed `scrollsnapchange` → `pageForSlideIndex`
+is orientation-symmetric and already correct for any given snapped slide. The
+real bug was in `styles.css` — `scroll-snap-align: start` was applied to
+*every* slide unconditionally, so with `slidesPerPage > 1` the browser's
+mandatory snap could legitimately rest on an **interior** slide (not a page
+start). That state has no clean page mapping: the viewport shows a straddled
+mix of two pages while `currentPage`/the indicators still claim one. This is
+orientation-agnostic in principle — it's just that horizontal wheel did
+nothing at all before item 2 landed, and swipe/fling gestures usually have
+enough momentum to skip past interior slides, so nobody had exercised it via
+small, per-notch deltas before. It would have hit mouse-drag (item 1) and
+Magic Mouse trackpad swipes (item 4) identically once those existed, so the
+fix landed first, as a prerequisite.
+
+**Fix (headless + CSS).** `useCarouselSlide` now computes `isSnapStart` —
+whether a slide's index is exactly a page offset (`min(page ×
+effectiveSlidesPerMove, maxOffset)` for some page, the identical formula
+`pageForSlideIndex` inverts, so the two always agree) — and `Carousel.Slide`
+publishes it as a new **`data-snap-start`** hook (present on every slide at
+`slidesPerPage={1}`, only page-leading slides above that). The registry
+stylesheet now defaults `scroll-snap-align: none` and scopes `start` to
+`[data-snap-start]`. TDD in `packages/react` (`Carousel.slide-snap.test.tsx`,
+3 tests: default-all-start, clean multi-page, end-aligned uneven last page),
+100%. Registry CSS + SCSS mirror updated (no contract change — the hook is a
+data attribute, not a modifier) + kitchen-sink hand-synced. Both READMEs
+(headless + registry) updated.
+
+**Item 1 — mouse click-and-drag scrolling.** Confirmed with the human up
+front: 1:1 pointer tracking, no momentum/flick (release lets the existing
+`scroll-snap-type` settle, matching how touch/trackpad already work with zero
+custom code). `useCarouselViewport` gained pointer handlers on the Viewport:
+`onPointerDown` (mouse only, `transition === "slide"` only) records the start
+client position + start `scrollLeft`/`scrollTop`; `onPointerMove` computes the
+delta from that start point (not incrementally from the last move, avoiding
+drift) and only starts tracking once the delta clears a **4px movement
+threshold** — below it, nothing happens (no capture, no `preventDefault`), so
+a plain click on a link/button inside a slide still reaches it natively. Once
+past the threshold: `setPointerCapture`, a **`data-dragging`** hook set via
+`setAttribute` (imperative, not React state — no re-render needed), and
+`scrollLeft`/`scrollTop = startScroll - delta` every move. `onPointerUp`/
+`onPointerCancel` (same `endDrag` callback) release capture and clear the
+hook. A **`suppressNextClickRef`** + `onClickCapture` on the Viewport cancels
+the synthetic click browsers still fire at the release point after a real
+drag, so a link/button under the cursor doesn't fire post-drag. The
+`scrollLeft -= delta` formula is direction-mode-agnostic by construction (it's
+relative to a captured start value, not an absolute sign convention), so it's
+RTL-safe with no special-casing — dragging right always reveals content that
+was to the left, in both LTR and the now-standardized negative-scrollLeft RTL
+convention. Registry CSS: `cursor: grab` on the viewport, `cursor: grabbing` +
+`user-select: none` on `[data-dragging]`. `setPointerCapture`/
+`releasePointerCapture` are called via optional chaining (jsdom doesn't
+implement them — confirmed by a quick check — so tests exercise the capture
+call sites without needing a working implementation). TDD
+(`Carousel.mouse-drag.test.tsx`, 9 tests: sub-threshold no-op, 1:1 tracking
+horizontal + vertical, pointerup/pointercancel cleanup, a stray pointerup
+with no tracked drag, non-mouse pointer types ignored, click suppression
+after a real drag vs. a plain click), 100%.
+
+**Items 2 + 4 — horizontal mouse-wheel translation, trackpad/Magic-Mouse-safe.**
+Confirmed with the human: continuous 1:1 translation (not page-per-tick),
+matching the vertical-orientation baseline. A physical wheel's vertical
+notches (`deltaY`) already natively scroll a vertical carousel — nothing
+needed there (item 4's first half). On the default horizontal orientation, a
+plain vertical wheel notch does nothing today (browsers only auto-translate
+to horizontal scroll when Shift is held), so a new `wheel` listener on the
+Viewport (via `addEventListener(..., { passive: false })`, **not** the React
+`onWheel` prop — React registers wheel listeners as passive by default, which
+would silently no-op `preventDefault()` and let the page scroll vertically at
+the same time) translates `deltaY` into `scrollLeft` whenever `deltaX` is
+negligible (`< 0.5`). This is the item-4 guard: a trackpad/Magic Mouse
+horizontal swipe already produces real `deltaX` and already scrolls a
+horizontal viewport natively (the same mechanism as touch), so the handler
+stands down entirely (not even the deltaY component) the moment `deltaX` is
+real, never fighting it. `deltaY` is normalized to pixels first —
+`DOM_DELTA_LINE` (a physical wheel's typical mode) scales ×16,
+`DOM_DELTA_PAGE` scales by the viewport's `clientWidth` — so a physical
+wheel's larger, fewer ticks feel proportional to a trackpad's many small
+pixel-mode ones. Stands down when `transition !== "slide"` or the carousel is
+vertical. TDD (`Carousel.wheel.test.tsx`, 6 tests: horizontal translation +
+`preventDefault`, deltaX-present no-op, vertical no-op, DOM_DELTA_LINE scale,
+DOM_DELTA_PAGE scale, `transition="fade"` no-op), 100%.
+
+**No new example page.** All four items are Viewport-level behaviour that
+applies to every existing carousel instance automatically (not a new
+placement/modifier), so QA can drive click-drag and wheel on any existing
+`/carousel/*` page rather than a dedicated route.
+
+**Gates green:** `pnpm --filter @primitiv-ui/react qa:units` (100%
+statements/branches/functions/lines, 1765 tests), `cargo test -p primitiv-emit
+-p primitiv-cli` (106 + 20), `node scripts/check-registry-types.mjs`. Kitchen-
+sink dev-alias confirmed still active, so all three new headless capabilities
+(`data-snap-start`, `data-dragging`, the drag/wheel handlers) are live there
+without a publish. Both component READMEs updated (new "Mouse input" section
++ "Multi-slide snap targeting" section in the headless README; registry
+README's Viewport bullet + multi-slide bullet).
+
+**Figma lockstep: not applicable** — mouse input and the snap-boundary fix are
+pure interaction behaviour, no new visual/token surface. **Next:** human QA of
+click-drag + wheel scrolling across the existing example pages (try
+`/carousel/multi` and `/carousel/vertical` specifically for the item-3 fix —
+wheel/drag should now always land cleanly on a full page, never straddled),
+plus item 3's specific repro (vertical + `slidesPerPage > 1`, wheel-scroll
+slowly and confirm the indicators always track a clean page).
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".
@@ -1977,7 +2088,9 @@ it (decision 4).
 - [x] Fade transition + `data-transition` hook — **landed (iteration 5)**.
       `transition="fade"` (a named non-slide mode) disables scroll wiring and
       publishes `data-transition` on the Root; the registry crossfades off it.
-- [ ] Mouse-drag gesture (only native scroll today)
+- [x] Mouse-drag gesture — **landed (mouse input iteration)**. Pointer
+      handlers on the Viewport track the pointer 1:1 into scrollLeft/scrollTop
+      past a movement threshold; `data-dragging` is the styling hook.
 - [ ] Explicit RTL tests (mirrors implicitly via logical properties;
       no dedicated coverage)
 

@@ -171,7 +171,9 @@ CarouselRoot.displayName = "CarouselRoot";
  *
  * **Styling hooks.** `data-carousel-viewport` is set on the rendered
  * element. The component ships no styles — apply your own scroll-snap
- * recipe via this attribute.
+ * recipe via this attribute. `data-dragging` is additionally present
+ * for the duration of an active mouse drag (see below) — a `cursor:
+ * grab` / `grabbing` pairing is the natural use.
  *
  * **Keyboard navigation.** The Viewport is in the tab order
  * (`tabIndex={0}`) so keyboard users can reach the rotation control
@@ -188,6 +190,25 @@ CarouselRoot.displayName = "CarouselRoot";
  * target — focus inside a slide (e.g. on a link or form control) keeps
  * its native arrow-key semantics.
  *
+ * **Mouse click-and-drag.** Click and hold, then drag, and the viewport
+ * scrolls like a swipe: `scrollLeft`/`scrollTop` track the pointer 1:1
+ * (no momentum) once the drag clears a small movement threshold — below
+ * it, nothing happens, so a plain click on a link/button inside a slide
+ * still reaches it. Release lets `scroll-snap-type` settle to the
+ * nearest slide (the same `scrollsnapchange` sync a touch swipe already
+ * drives). A `data-dragging` attribute is set for the duration of an
+ * active drag. Only `pointerType === "mouse"` is handled — touch/pen
+ * already scroll natively.
+ *
+ * **Mouse-wheel scroll.** A physical wheel's vertical notches already
+ * scroll a `orientation="vertical"` carousel natively. On the default
+ * horizontal orientation, a plain vertical wheel notch (`deltaY`)
+ * translates into horizontal scroll — browsers only do this
+ * automatically when `Shift` is held. Stands down whenever `deltaX` is
+ * non-negligible, so a trackpad/Magic Mouse horizontal swipe (which
+ * already scrolls a horizontal viewport natively via `deltaX`) is never
+ * fought.
+ *
  * @example
  * ```tsx
  * <Carousel.Root ariaLabel="Featured products">
@@ -203,7 +224,15 @@ export function CarouselViewport({
   ...rest
 }: CarouselViewportProps): ReactElement {
   const { isAutoRotating, ids } = useCarouselContext();
-  const { viewportRef, onKeyDown } = useCarouselViewport();
+  const {
+    viewportRef,
+    onKeyDown,
+    onPointerDown,
+    onPointerMove,
+    onPointerUp,
+    onPointerCancel,
+    onClickCapture,
+  } = useCarouselViewport();
 
   return (
     <div
@@ -213,6 +242,11 @@ export function CarouselViewport({
       className={className}
       aria-live={isAutoRotating ? "off" : "polite"}
       onKeyDown={onKeyDown}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerCancel}
+      onClickCapture={onClickCapture}
       {...(ids.viewport !== undefined && { id: ids.viewport })}
       {...rest}
     >

@@ -245,7 +245,11 @@ Structured per RFC 0008 — the per-component API knobs + resting look in
   `y mandatory` under `data-orientation="vertical"`, where it becomes a column
   with a landscape `aspect-ratio` and the controls sit beside it),
   `overscroll-behavior` containment, and hidden scrollbars; the headless layer
-  syncs React state off `scrollsnapchange`. It is also the **framed box** — the
+  syncs React state off `scrollsnapchange`. `cursor: grab` invites
+  click-and-drag scrolling, swapping to `grabbing` (+ `user-select: none`)
+  while `[data-dragging]` is set (the headless layer flips it for the
+  duration of an active drag — pointer tracked 1:1, no momentum). It is also
+  the **framed box** — the
   surface / border / radius knobs (off by default) draw the track and
   `box-sizing: border-box` + `overflow` clip the scrolling slides to the rounded
   corners. **Peek** pads the leading/trailing edges (inline or block per

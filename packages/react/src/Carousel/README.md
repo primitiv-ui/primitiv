@@ -16,7 +16,14 @@ Currently exposes:
 - **`Carousel.Viewport`** — slide container, rendered as a `<div>` with
   a `data-carousel-viewport` attribute the recommended scroll-snap CSS
   targets. Must be rendered as a descendant of `Carousel.Root`; rendering
-  it elsewhere throws a descriptive error.
+  it elsewhere throws a descriptive error. Also owns mouse click-and-drag
+  scrolling — pointerdown/pointermove track the pointer 1:1 into
+  `scrollLeft`/`scrollTop` once past a small movement threshold (so a
+  link/button inside a slide still receives a plain click), flipping a
+  `data-dragging` styling hook for the duration; release lets the
+  existing `scroll-snap-type` settle to the nearest slide, and a
+  horizontal (non-`Shift`) mouse-wheel notch translates to horizontal
+  scroll — see "JS vs CSS responsibilities" below for both.
 - **`Carousel.Slide`** — an individual slide. Renders a `<div role="group"
 aria-roledescription="slide">` and self-registers with the Root so each
   slide knows its zero-based `data-index` and the live `data-total`
@@ -88,6 +95,8 @@ correction), and CSS owns _what the user sees_:
 | Reduced motion                     | `behavior: "instant"`                                    | Optional `@media (prefers-reduced-motion: reduce)` on consumer animations |
 | Keyboard navigation                | Arrow / Home / End on focused viewport                   | `:focus-visible` on viewport                                             |
 | Touch / swipe                      | Native scroll + `scrollsnapchange` to sync state         | `overscroll-behavior-x: contain`, `scrollbar-width: none`                |
+| Mouse click-and-drag               | `scrollLeft`/`scrollTop` set 1:1 from the pointer         | `cursor: grab`, `cursor: grabbing` on `[data-dragging]`                  |
+| Mouse-wheel scroll (horizontal)    | `deltaY` → `scrollLeft` when `deltaX` is negligible       | —                                                                        |
 | Indicator state                    | `data-state` on `[data-carousel-indicator]`              | Visual: dot, bar, thumbnail, etc.                                        |
 
 The only JS prop on the visual side is `snapAlign`, and only because it
@@ -650,6 +659,42 @@ keeps its native arrow-key semantics.
 Consumer-supplied `disabled={true}` on either trigger is honoured
 regardless of boundary state — useful for momentarily freezing
 navigation while another part of the UI takes over.
+
+### Mouse input
+
+Two mouse interactions ship on `Carousel.Viewport` alongside the native
+touch/trackpad scroll that already worked with zero custom code (the
+scroll-driven `scrollsnapchange` sync doesn't care how the viewport got
+scrolled):
+
+- **Click-and-drag.** Click and hold on the viewport, drag, and it
+  scrolls like a swipe: `scrollLeft`/`scrollTop` track the pointer 1:1
+  (no momentum/flick) once the drag clears a small movement threshold —
+  below the threshold nothing happens, so a plain click on a link or
+  button inside a slide still reaches it. Releasing the pointer lets the
+  existing `scroll-snap-type` settle to the nearest slide, exactly like a
+  touch swipe — no extra "scroll → state" wiring needed, the
+  `scrollsnapchange` sync already covers it. A `data-dragging` attribute
+  is set on the viewport for the duration of an active drag (see
+  "Recommended CSS" for the `cursor: grab` / `grabbing` pairing). Ignores
+  non-mouse pointer types (`touch`, `pen`) — native scroll already
+  handles those.
+- **Mouse-wheel scroll.** A physical wheel's vertical notches
+  (`deltaY`) already natively scroll a `orientation="vertical"`
+  carousel — nothing needed there. But browsers only auto-translate a
+  plain vertical wheel to horizontal scroll when `Shift` is held, so the
+  default horizontal orientation gets no scroll at all from a plain
+  wheel without help: the Viewport translates `deltaY` into `scrollLeft`
+  whenever `deltaX` is negligible. A trackpad or Magic Mouse horizontal
+  swipe already produces real `deltaX` and already scrolls a horizontal
+  viewport natively (the same mechanism as touch) — the translation
+  stands down whenever `deltaX` is non-negligible so it never fights
+  that. `deltaY` is normalized from `DOM_DELTA_LINE` / `DOM_DELTA_PAGE`
+  units to pixels first, so a physical wheel's larger, fewer ticks feel
+  proportional to a trackpad's many small pixel-mode ones.
+
+Both stand down when `transition` isn't `"slide"` (the viewport isn't a
+scrolling track in `"fade"` / `"none"` mode).
 
 ### Indicator dots (manual)
 

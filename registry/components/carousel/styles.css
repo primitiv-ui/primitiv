@@ -238,9 +238,19 @@
     overscroll-behavior-x: contain;
     /* Hide the native scrollbar while keeping scroll behaviour. */
     scrollbar-width: none;
+    /* Invites click-and-drag scrolling; the headless layer flips to
+       data-dragging for the duration of an active drag. */
+    cursor: grab;
   }
   .primitiv-carousel__viewport::-webkit-scrollbar {
     display: none;
+  }
+  /* Active drag (set by the headless layer once the pointer clears the
+     click-vs-drag threshold): the grabbing cursor + no text selection while
+     the pointer tracks across slide content. */
+  .primitiv-carousel__viewport[data-dragging] {
+    cursor: grabbing;
+    user-select: none;
   }
 
   /* Each slide takes an equal share of the viewport: the content box left after

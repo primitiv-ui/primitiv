@@ -1,6 +1,19 @@
-import { KeyboardEvent, useCallback, useEffect, useMemo, useRef } from "react";
+import {
+  KeyboardEvent,
+  MouseEvent,
+  PointerEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 
 import { useCarouselContext } from "./useCarouselContext";
+
+// A pointer movement below this many pixels (along the scroll axis) is
+// still a click, not a drag — so a link/button inside a slide keeps
+// working under the pointer that just tapped it.
+const DRAG_THRESHOLD_PX = 4;
 
 /**
  * Owns the Viewport-side scroll-state sync — bidirectional.
@@ -70,6 +83,92 @@ export function useCarouselViewport() {
   // it just stashes the node.
   const viewportRef = useCallback((node: HTMLDivElement | null) => {
     internalRef.current = node;
+  }, []);
+
+  // Mouse click-and-drag scrolling. Tracks the pointer 1:1 (no momentum) by
+  // writing scrollLeft/scrollTop directly during the drag; release lets the
+  // existing scroll-snap-type settle to the nearest slide, which the
+  // scrollsnapchange sync above already picks up for free — no extra "scroll
+  // → state" wiring needed here. `dragStateRef.current.dragging` only flips
+  // true once the pointer clears DRAG_THRESHOLD_PX, so a plain click (no
+  // capture, no preventDefault) still reaches a link/button under the
+  // pointer untouched. The delta is always computed against the *start*
+  // scroll position (not incrementally from the last move), and
+  // scrollLeft/scrollTop is direction-mode-agnostic — dragging right always
+  // reveals content that was to the left, in both LTR and the
+  // now-standardized negative-scrollLeft RTL convention — so no RTL
+  // special-casing is needed.
+  const dragStateRef = useRef<{
+    pointerId: number;
+    startClient: number;
+    startScroll: number;
+    dragging: boolean;
+  } | null>(null);
+  // Browsers still synthesize a click at the release point after a drag
+  // unless it's suppressed — set once a drag crosses the threshold, consumed
+  // (and cleared) by the next click, so a link/button under the release
+  // point doesn't fire.
+  const suppressNextClickRef = useRef(false);
+
+  const onPointerDown = useCallback(
+    (event: PointerEvent<HTMLDivElement>) => {
+      if (event.pointerType !== "mouse" || transition !== "slide") return;
+      // Guaranteed populated — this handler only ever fires as a React
+      // event on the very element viewportRef attached to.
+      const viewport = internalRef.current!;
+      const vertical = orientation === "vertical";
+      dragStateRef.current = {
+        pointerId: event.pointerId,
+        startClient: vertical ? event.clientY : event.clientX,
+        startScroll: vertical ? viewport.scrollTop : viewport.scrollLeft,
+        dragging: false,
+      };
+    },
+    [orientation, transition],
+  );
+
+  const onPointerMove = useCallback(
+    (event: PointerEvent<HTMLDivElement>) => {
+      const drag = dragStateRef.current;
+      if (!drag || event.pointerId !== drag.pointerId) return;
+      // Guaranteed populated (see onPointerDown).
+      const viewport = internalRef.current!;
+      const vertical = orientation === "vertical";
+      const clientPos = vertical ? event.clientY : event.clientX;
+      const delta = clientPos - drag.startClient;
+
+      if (!drag.dragging) {
+        if (Math.abs(delta) < DRAG_THRESHOLD_PX) return;
+        drag.dragging = true;
+        suppressNextClickRef.current = true;
+        viewport.setPointerCapture?.(drag.pointerId);
+        viewport.setAttribute("data-dragging", "");
+      }
+
+      event.preventDefault();
+      const nextScroll = drag.startScroll - delta;
+      if (vertical) viewport.scrollTop = nextScroll;
+      else viewport.scrollLeft = nextScroll;
+    },
+    [orientation],
+  );
+
+  const endDrag = useCallback(() => {
+    const drag = dragStateRef.current;
+    if (!drag) return;
+    if (drag.dragging) {
+      internalRef.current?.releasePointerCapture?.(drag.pointerId);
+      internalRef.current?.removeAttribute("data-dragging");
+    }
+    dragStateRef.current = null;
+  }, []);
+
+  const onClickCapture = useCallback((event: MouseEvent<HTMLDivElement>) => {
+    if (suppressNextClickRef.current) {
+      suppressNextClickRef.current = false;
+      event.preventDefault();
+      event.stopPropagation();
+    }
   }, []);
 
   // Read prefers-reduced-motion once on mount; choose scrollTo
@@ -168,6 +267,42 @@ export function useCarouselViewport() {
     refreshTick,
     scrollBehavior,
   ]);
+
+  // Horizontal mouse-wheel translation. A physical scroll wheel (vertical
+  // notches, deltaY only) already natively scrolls a vertically-scrollable
+  // container, so orientation="vertical" needs nothing here. But browsers
+  // only auto-translate a plain vertical wheel to horizontal scroll when
+  // Shift is held, so a horizontal (the default) carousel gets no scroll at
+  // all from a physical wheel without this. Registered via addEventListener
+  // (not the React onWheel prop) with { passive: false } — React attaches
+  // wheel listeners as passive by default, which would silently no-op
+  // preventDefault() and let the page scroll vertically at the same time.
+  // Deliberately stands down whenever deltaX is non-negligible: a trackpad
+  // or Magic Mouse horizontal swipe already produces real deltaX and already
+  // scrolls a horizontal viewport natively via the same mechanism as touch —
+  // this must never fight that, only fill the gap a plain vertical wheel
+  // leaves. deltaY is normalized from line/page units to pixels so a
+  // physical wheel's larger, fewer DOM_DELTA_LINE ticks feel proportional to
+  // a trackpad's many small DOM_DELTA_PIXEL ones.
+  useEffect(() => {
+    if (transition !== "slide" || orientation === "vertical") return;
+    const viewport = internalRef.current!;
+
+    const handler = (event: WheelEvent) => {
+      if (Math.abs(event.deltaX) > 0.5) return;
+      let deltaY = event.deltaY;
+      if (event.deltaMode === WheelEvent.DOM_DELTA_LINE) {
+        deltaY *= 16;
+      } else if (event.deltaMode === WheelEvent.DOM_DELTA_PAGE) {
+        deltaY *= viewport.clientWidth;
+      }
+      event.preventDefault();
+      viewport.scrollLeft += deltaY;
+    };
+
+    viewport.addEventListener("wheel", handler, { passive: false });
+    return () => viewport.removeEventListener("wheel", handler);
+  }, [transition, orientation]);
 
   // User-driven scroll → state. Listen for scrollsnapchange and update
   // currentPage from the snapped slide's index. The viewport ref is
@@ -325,5 +460,13 @@ export function useCarouselViewport() {
     [orientation, canGoNext, canGoPrevious, next, previous, goTo, totalPages],
   );
 
-  return { viewportRef, onKeyDown };
+  return {
+    viewportRef,
+    onKeyDown,
+    onPointerDown,
+    onPointerMove,
+    onPointerUp: endDrag,
+    onPointerCancel: endDrag,
+    onClickCapture,
+  };
 }

@@ -1635,6 +1635,47 @@ a real design fork (opt-in mode? per-slide width? the page/indicator model assum
 shares — it needs its own proposal + likely a headless look before building). Held for a
 green light. **Also QA:** `/carousel/images` (cover/contain/focal-point/caption).
 
+#### Example-page grid consistency (kitchen-sink only, awaiting human QA)
+
+**The human's two asks:** (1) a consistent 4-column grid across the example pages
+(most were already on the shared `.carousel-grid`, but at 2 columns; five pages —
+Responsive, Vertical, Overlay, Fade, Peek — still used older ad-hoc `__row`/`__stack`
+flex layouts predating that pattern); (2) "the carousel layouts aren't up to date with
+the Builder page" — clarified by the human as **controls sitting outside the main
+carousel layout, separate from the root/viewport**. (1) is resolved this pass; (2) is
+still open — a DOM/CSS audit of every helper found no case where a control renders
+outside the `<Carousel>` root (`primitiv-emit`-generated + hand-authored helpers all
+nest prev/next/indicators correctly), so the concrete repro is still needed from the
+human (a screenshot or the specific `/carousel/*` route) before it can be diagnosed.
+
+**Grid: bumped to 4 columns + converted the remaining 5 pages.** `.carousel-grid`
+`grid-template-columns` `repeat(2, …)` → `repeat(4, …)` (with a `72rem`→2-col and
+`40rem`→1-col responsive fallback, new — the old fixed 2-col had no narrow-viewport
+concession, and 4 columns need one). `Example` gained a `wide` boolean prop
+(`.carousel-page--wide`, `max-inline-size: 88rem` vs the default `64rem`) — applied to
+every one of the 14 grid-using pages so 4 columns have room (~21rem/cell at full width,
+verified in headless Chromium against the tightest case, external-split's 3-part
+prev/viewport/next cell). The 3 single-instance pages (Default/RTL/Square) are
+untouched per the human's call — a 1-cell 4-col grid would look broken.
+
+**Responsive, Vertical, Overlay, Fade, Peek** converted from `__row`/`__stack` flex
+wrappers to the standard `carousel-grid` + numbered `GridCell` shell, reusing each
+existing instance's `label`/inline comment as the cell title/note (no new example
+instances — same coverage, consistent shell). One nuance: `GridCell` gained a
+**`span="full"`** option (`grid-column: 1 / -1`) for **Responsive**'s narrow-vs-wide
+comparison — forcing two *different*-width containers into equal grid tracks would
+flatten the exact contrast the page demonstrates, so that page is one full-span cell
+containing the original comparison row, not two independent cells. Dead CSS removed
+(`__stack`, `__vertical`, now unused; `__row`/`__narrow`/`__wide` kept — still used
+inside Responsive's single spanning cell).
+
+**No registry/contract/token change** — kitchen-sink example-page CSS/TSX only.
+Verified via headless Chromium (external-split at 4-up, ~88rem page) and a structural
+balance check (`<GridCell>`/`</GridCell>` 116/116, `<Example>`/`</Example>` 17/17,
+16 `carousel-grid` divs — matches 13 single-grid pages + Placement's 3 grouped
+sections) since the kitchen-sink can't build in this sandbox. **Next:** the human's
+repro for the controls-outside-layout issue.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

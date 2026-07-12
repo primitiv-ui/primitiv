@@ -434,14 +434,19 @@ function Example({
   note,
   children,
   dir,
+  wide,
 }: {
   title: string;
   note: string;
   children: ReactNode;
   dir?: "rtl";
+  /** Widens the page shell for a carousel-grid page — four columns need more
+   * room than the default single/comparison-instance width. */
+  wide?: boolean;
 }) {
+  const className = wide ? "carousel-page carousel-page--wide" : "carousel-page";
   return (
-    <article className="carousel-page" dir={dir}>
+    <article className={className} dir={dir}>
       <h1>{title}</h1>
       <p className="carousel-page__note">{note}</p>
       {children}
@@ -465,14 +470,24 @@ export function CarouselResponsive() {
     <Example
       title="Container adaptation — narrow vs wide"
       note="The same carousel in a fixed-narrow column and a flexible-wide column, proving it adapts to whatever space it is given — no fixed dimensions."
+      wide
     >
-      <div className="carousel-page__row">
-        <div className="carousel-page__narrow">
-          <BasicSingle label="Featured products — narrow container" />
-        </div>
-        <div className="carousel-page__wide">
-          <BasicSingle label="Featured products — wide container" />
-        </div>
+      <div className="carousel-grid">
+        <GridCell
+          n={1}
+          title="Narrow vs wide container"
+          note="A comparison, so it spans the full grid rather than sitting in one equal-width column (which would flatten the very contrast it's showing). Left: a fixed 18rem column. Right: a flexible column that fills the rest. No CSS assumes a minimum or fixed width — the carousel fills whatever box it's given."
+          span="full"
+        >
+          <div className="carousel-page__row">
+            <div className="carousel-page__narrow">
+              <BasicSingle label="Featured products — narrow container" />
+            </div>
+            <div className="carousel-page__wide">
+              <BasicSingle label="Featured products — wide container" />
+            </div>
+          </div>
+        </GridCell>
       </div>
     </Example>
   );
@@ -506,14 +521,24 @@ export function CarouselVertical() {
     <Example
       title={'Vertical — orientation="vertical"'}
       note="The block-axis carousel: up/down controls and a column of dots beside a landscape viewport (one 16:9 slide, scroll down to the next). ArrowDown/ArrowUp page it. The same layout under RTL puts the controls on the start (right) side — logical properties, no RTL-specific CSS."
+      wide
     >
-      <div className="carousel-page__row">
-        <div className="carousel-page__vertical">
+      <div className="carousel-grid">
+        <GridCell
+          n={1}
+          title="Vertical"
+          note="Up/down controls beside a landscape viewport; ArrowDown/ArrowUp page it."
+        >
           <VerticalSingle label="Featured products — vertical" />
-        </div>
-        <div className="carousel-page__vertical" dir="rtl">
+        </GridCell>
+        <GridCell
+          n={2}
+          title="Vertical, RTL"
+          note="The same layout mirrored — logical properties put the controls on the start (right) side with no RTL-specific CSS."
+          dir="rtl"
+        >
           <VerticalSingle label="Featured products — vertical, right to left" />
-        </div>
+        </GridCell>
       </div>
     </Example>
   );
@@ -524,35 +549,52 @@ export function CarouselOverlay() {
     <Example
       title={'Overlay — placement="overlay"'}
       note="Controls sit on the imagery: circular prev/next flank the slide edges on a translucent scrim, and the dots ride in a pill overlaid on the slide — so it runs edge to edge with no external chrome. The scrim + glyph are theme-adaptive, so they read on any photo in light or dark. It composes with peek, with RTL (prev/next swap sides, the pill stays centred), and with orientation — a vertical overlay rotates a quarter turn: up/down controls flank the top and bottom, the dots pill rides the end side."
+      wide
     >
-      {/* The design cell: overlay + a small peek. */}
-      <OverlaySingle label="Featured products — overlay with peek" peek="sm" />
-
-      {/* Horizontal: edge-to-edge (no peek) vs the same under RTL, side by side. */}
-      <div className="carousel-page__row">
-        <div className="carousel-page__wide">
+      <div className="carousel-grid">
+        <GridCell
+          n={1}
+          title="Overlay + peek"
+          note="The design cell: a small peek reveals the neighbouring slides while the controls still ride the scrim."
+        >
+          <OverlaySingle label="Featured products — overlay with peek" peek="sm" />
+        </GridCell>
+        <GridCell
+          n={2}
+          title="Overlay, edge to edge"
+          note="No peek — the imagery runs flush to the container edges with no external chrome at all."
+        >
           <OverlaySingle label="Featured products — overlay, edge to edge" />
-        </div>
-        <div className="carousel-page__wide" dir="rtl">
+        </GridCell>
+        <GridCell
+          n={3}
+          title="Overlay, RTL"
+          note="Prev/next swap sides and the dots pill stays centred — logical properties, no RTL-specific CSS."
+          dir="rtl"
+        >
           <OverlaySingle label="Featured products — overlay, right to left" />
-        </div>
-      </div>
-
-      {/* Vertical overlay: up/down controls on the top/bottom edges, dots pill on
-          the end side — and the same mirrored under RTL. */}
-      <div className="carousel-page__row">
-        <div className="carousel-page__wide">
+        </GridCell>
+        <GridCell
+          n={4}
+          title="Vertical overlay"
+          note="A quarter turn: up/down controls flank the top and bottom edges, the dots pill rides the end side."
+        >
           <OverlaySingle
             label="Featured products — vertical overlay"
             orientation="vertical"
           />
-        </div>
-        <div className="carousel-page__wide" dir="rtl">
+        </GridCell>
+        <GridCell
+          n={5}
+          title="Vertical overlay, RTL"
+          note="The vertical layout mirrored — the dots pill moves to the start side."
+          dir="rtl"
+        >
           <OverlaySingle
             label="Featured products — vertical overlay, right to left"
             orientation="vertical"
           />
-        </div>
+        </GridCell>
       </div>
     </Example>
   );
@@ -563,15 +605,27 @@ export function CarouselFade() {
     <Example
       title={'Fade — transition="fade"'}
       note="A crossfade instead of a scroll: the slides stack and the active one fades in over the others (off the headless data-transition hook). Native swipe/drag and peek don't apply — there's no scroll — but prev/next, the dots, and keyboard paging all still work. It composes with placement, so the second instance is a fade hero with the controls overlaid on the imagery."
+      wide
     >
-      {/* Crossfade with the controls in the row below. */}
-      <BasicSingle label="Featured products — crossfade" transition="fade" />
-
-      {/* Crossfade composing with overlay placement — a hero-style carousel. */}
-      <OverlaySingle
-        label="Featured products — crossfade hero"
-        transition="fade"
-      />
+      <div className="carousel-grid">
+        <GridCell
+          n={1}
+          title="Crossfade"
+          note="Controls in the row below; prev/next, the dots, and keyboard paging all still work, but there's no scroll to swipe."
+        >
+          <BasicSingle label="Featured products — crossfade" transition="fade" />
+        </GridCell>
+        <GridCell
+          n={2}
+          title="Crossfade hero"
+          note="Composes with overlay placement — a hero-style carousel with the controls on the imagery."
+        >
+          <OverlaySingle
+            label="Featured products — crossfade hero"
+            transition="fade"
+          />
+        </GridCell>
+      </div>
     </Example>
   );
 }
@@ -581,23 +635,33 @@ export function CarouselPeek() {
     <Example
       title="Peek — reveal the adjacent slides"
       note="A cross-cutting `peek` modifier (none · sm · md · lg) shows a sliver of the neighbouring slides on either side of the active one — and it composes with every other variant. It maps to the inline edges when horizontal and the block edges when vertical, so the same prop works in both orientations."
+      wide
     >
-      {/* Peek size ladder on the horizontal single-slide. */}
-      <div className="carousel-page__stack">
-        <BasicSingle label="Horizontal peek — small" peek="sm" />
-        <BasicSingle label="Horizontal peek — medium" peek="md" />
-        <BasicSingle label="Horizontal peek — large" peek="lg" />
-      </div>
-
-      {/* Peek composing with the other variants: vertical (block-axis peek) and
-          RTL (mirrors), side by side. */}
-      <div className="carousel-page__row">
-        <div className="carousel-page__vertical">
+      <div className="carousel-grid">
+        <GridCell n={1} title="Peek small" note="A narrow sliver of each neighbour (space-16).">
+          <BasicSingle label="Horizontal peek — small" peek="sm" />
+        </GridCell>
+        <GridCell n={2} title="Peek medium" note="A more generous reveal (space-32).">
+          <BasicSingle label="Horizontal peek — medium" peek="md" />
+        </GridCell>
+        <GridCell n={3} title="Peek large" note="The widest step (space-48).">
+          <BasicSingle label="Horizontal peek — large" peek="lg" />
+        </GridCell>
+        <GridCell
+          n={4}
+          title="Vertical peek"
+          note="Maps to the block edges instead of inline — the same prop, the axis follows the orientation."
+        >
           <VerticalSingle label="Vertical peek" peek="md" />
-        </div>
-        <div className="carousel-page__wide" dir="rtl">
+        </GridCell>
+        <GridCell
+          n={5}
+          title="Peek, RTL"
+          note="Mirrors under right-to-left with no RTL-specific CSS."
+          dir="rtl"
+        >
           <BasicSingle label="Peek under RTL" peek="md" />
-        </div>
+        </GridCell>
       </div>
     </Example>
   );
@@ -608,6 +672,7 @@ export function CarouselPadding() {
     <Example
       title="Viewport padding — the framed-track grid"
       note="A cross-cutting `padding` modifier (none · sm · md · lg) turns the viewport into a padded, framed track: it insets the slides and draws the track outline (border + rounded corners). The background fill is opt-in via the separate `surface` modifier (cells 3 & 4 below) — padding alone is an outlined track. The gap is coupled to the padding so the resting track stays clean (no accidental peek). Each cell pins a size, the surface opt-in, or a composition."
+      wide
     >
       <div className="carousel-grid">
         <GridCell
@@ -727,16 +792,25 @@ function GridCell({
   title,
   note,
   dir,
+  span,
   children,
 }: {
   n: number;
   title: string;
   note: string;
   dir?: "rtl";
+  /** "full" spans every column — for a cell whose content is itself a
+   * comparison (e.g. two different container widths) that an equal-width
+   * grid track would flatten. */
+  span?: "full";
   children: ReactNode;
 }) {
+  const className =
+    span === "full"
+      ? "carousel-grid__cell carousel-grid__cell--full"
+      : "carousel-grid__cell";
   return (
-    <section className="carousel-grid__cell" dir={dir}>
+    <section className={className} dir={dir}>
       <h2 className="carousel-grid__title">
         {n}. {title}
       </h2>
@@ -751,6 +825,7 @@ export function CarouselMulti() {
     <Example
       title="Multi-slide — the edge-case grid"
       note="slidesPerPage and slidesPerMove are forwarded to the headless page model, so the visible slide count, the indicator count, the boundary clamp and the active window all stay in lockstep — no dot-per-slide miscount. Dots come from the auto <CarouselIndicators>, which renders exactly one per page. Each cell below pins one case: check the dot count, that the ends disable at the true last page, and that every slide is reachable."
+      wide
     >
       <div className="carousel-grid">
         <GridCell
@@ -872,6 +947,7 @@ export function CarouselThumbnails() {
     <Example
       title={'Thumbnails — indicators="thumbnails"'}
       note="The gallery pattern: each indicator is a rounded-rect image thumbnail (a shrunk-down filmstrip) instead of a dot, and the active thumbnail is ringed in the primary colour. Supply the thumbnail content as children of each <CarouselIndicator> (an <img> or a background element — gradient stand-ins here, mirroring each slide). The modifier composes with every control placement and orientation; the grid below pins each control variant so QA can tick them off."
+      wide
     >
       <div className="carousel-grid">
         <GridCell
@@ -932,6 +1008,7 @@ export function CarouselRatio() {
     <Example
       title="Aspect ratio — square vs wide slides"
       note="The slide `ratio` modifier (square 1:1 · standard 4:3 · wide 16:9 default · ultrawide 21:9) re-points --primitiv-carousel-slide-aspect-ratio, so a slide keeps its ratio while filling its share of the container — no fixed pixel sizes. The grid pairs the two most distinct ratios row by row: the LEFT column is square (1:1), the RIGHT column is wide (16:9), each row a matching control/peek variant so you can compare the ratio in isolation. It composes with placement (outset row vs overlay) and peek for free — ratio is a slide concern, placement/peek are root concerns."
+      wide
     >
       <div className="carousel-grid">
         <GridCell
@@ -1023,6 +1100,7 @@ export function CarouselPlacement() {
     <Example
       title="Control placement — the composable framework"
       note="Placement is a set of orthogonal props. `placement` picks external (off the imagery) or overlay (on it); `cluster` picks split (prev/next on the viewport's scroll-axis edges + a separate indicator cluster) or joined (one bar); the shared control-layout vocabulary composes on top — `side` (before/after, orientation-relative), `distribution` (group/stretch) and `align` (start/center/end for a grouped bar). Learn them once — they mean the same everywhere and degrade to a no-op where a placement doesn't read them. Below, every available combination grouped by section: all of external, then all of overlay, then external + split — so the whole surface can be QA'd in one pass."
+      wide
     >
       {/* ============================ EXTERNAL ============================ */}
       <h2 className="carousel-page__group">External — a control bar beside the viewport</h2>
@@ -1350,6 +1428,7 @@ export function CarouselExternalSplit() {
     <Example
       title='External + split — placement="external" cluster="split"'
       note="The prev/next controls sit outside the viewport, flanking its inline edges (left/right), with the indicators centred in a row below — the external-split design cell. The parts are direct children of the root (a 3-column grid: prev | viewport | next), so prev/next swap sides under RTL for free. It composes with dots or thumbnails (the external-split + thumbnails cell), peek, and the slide ratio."
+      wide
     >
       <div className="carousel-grid">
         <GridCell
@@ -1418,6 +1497,7 @@ export function CarouselSize() {
     <Example
       title="Size — the control chrome scales"
       note="A root `size` modifier (xs · sm · md default · lg · xl) scales the whole control chrome while the viewport and slides stay container-driven. The prev/next controls track the shared framed-control ramp (so a control matches a same-size Button — the box grows 32→40 at md); the dots, their WCAG hit area (floored ≥24), the active pill, the thumbnails and the chrome gaps track the bespoke carousel ramp — the dots deliberately gently, since they're already small. Size composes with the ambient density: flip the header Density control and every cell shifts together (a dense md pulls in as tight as a comfortable xs); the header Size control drives the Builder, where thumbnails at size are visible too."
+      wide
     >
       <div className="carousel-grid">
         {SIZE_LADDER.map(({ size, note }, i) => (
@@ -1435,6 +1515,7 @@ export function CarouselSpacing() {
     <Example
       title="Slide spacing — the inter-slide gap"
       note="A cross-cutting `gap` modifier (none · sm · md · lg) sets the spacing between slides on a t-shirt scale, re-pointing --primitiv-carousel-gap to a spacing token (space-0 / 8 / 16 default / 32). The gap is only visible when more than one slide shares the viewport, so the ladder uses a 2-up view; it runs on the scroll axis (inline horizontal, block vertical) and composes with every other variant. One caveat: the `padding` modifier couples the gap to its inset for a clean framed track, so it overrides `gap` inside a padded track."
+      wide
     >
       <div className="carousel-grid">
         <GridCell
@@ -1595,6 +1676,7 @@ export function CarouselImages() {
     <Example
       title="Images — real <img> slides"
       note="The slide box is always sized by the layout (fill + aspect-ratio), but a real <img> is a replaced element with its own intrinsic size/ratio — so the surface stretches a direct media child to the box and object-fit decides how it conforms. `fit=cover` (default) fills and crops to keep the ratio; the `fit=contain` slide modifier fits the whole image and letterboxes it against the slide's own background. --primitiv-carousel-slide-object-position moves the crop's focal point. The slide is a positioning context, so a caption/overlay drops in with no wrapper. Consumer-side (by nature): the asset itself, srcset/sizes, loading/fetchpriority (eager the first slide for LCP), and alt text."
+      wide
     >
       <div className="carousel-grid">
         <GridCell

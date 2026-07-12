@@ -7,6 +7,12 @@
   max-inline-size: 64rem;
 }
 
+/* Grid-heavy pages (every carousel-grid page) get more room — four columns
+ * need more width per cell than the default single/comparison-instance page. */
+.carousel-page--wide {
+  max-inline-size: 88rem;
+}
+
 .carousel-page h1 {
   margin: 0;
   color: var(--primitiv-content-primary);
@@ -21,26 +27,16 @@
  * (.primitiv-carousel__controls — centred, with the --primitiv-carousel-controls-gap
  * knob), so nothing to style here. */
 
+/* Used only by the Responsive page's full-span narrow-vs-wide comparison cell
+ * (every other page composes carousel-grid / GridCell instead). */
 .carousel-page__row {
   display: flex;
   gap: 1.5rem;
   align-items: start;
 }
 
-.carousel-page__stack {
-  display: grid;
-  gap: 2rem;
-}
-
 .carousel-page__narrow {
   inline-size: 18rem;
-}
-
-/* The vertical carousel is a portrait box, so it needs a bounded inline-size or
- * its aspect-ratio would make it very tall on a wide page. */
-.carousel-page__vertical {
-  inline-size: 20rem;
-  max-inline-size: 100%;
 }
 
 .carousel-page__wide {
@@ -58,20 +54,41 @@
   font-size: 1.1rem;
 }
 
-/* Shared example grid (multi-slide edge cases, viewport-padding matrix, …):
- * small instances, three across (wide-desktop QA — responsiveness is proven
- * elsewhere), each a numbered title + carousel + description so every case can
- * be ticked off. */
+/* Shared example grid — every carousel-grid page (multi-slide edge cases, the
+ * viewport-padding matrix, …) uses the same four-column layout: small
+ * instances, each a numbered title + carousel + description so every case can
+ * be ticked off. Steps down on narrower viewports (wide-desktop QA is the
+ * primary target — the component's own responsiveness is proven elsewhere,
+ * this is just so the grid itself doesn't get too cramped to use). */
 .carousel-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 2rem 1.5rem;
+}
+
+@media (max-width: 72rem) {
+  .carousel-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 40rem) {
+  .carousel-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .carousel-grid__cell {
   display: grid;
   gap: var(--primitiv-space-space-8);
   align-content: start;
+}
+
+/* A cell whose content is itself a comparison (e.g. two different container
+ * widths) — an equal-width grid track would flatten the very thing it's
+ * demonstrating, so it spans every column instead of taking one. */
+.carousel-grid__cell--full {
+  grid-column: 1 / -1;
 }
 
 .carousel-grid__title {

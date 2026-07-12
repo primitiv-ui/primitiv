@@ -1157,22 +1157,21 @@
      overflows its top/bottom edges, and dots can't shrink (fixed WCAG hit area).
      Flex column-wrap can't help here — it collapses the pill's inline width so the
      wrapped columns overflow (the known column-wrap bug) — so switch the pill to a
-     grid and let `:has()` quantity queries add balanced columns as the count grows.
-     Grid's row-major auto-flow spreads the dots evenly (10 → 5+5) and the intrinsic
-     width grows to contain the extra columns, keeping the run within the slide
-     height and clear of the block-centred up/down controls. Count-driven (~5 dots
-     per column), the vertical analogue of the horizontal wrap being line-driven;
-     side-agnostic (the group's inline lane is placed by the side rules above). */
+     grid capped at 5 rows and let `grid-auto-flow: column` add columns on its own
+     as the count grows. Column-major flow keeps the dots in **sequential** order —
+     top→bottom down each column, then wrap to the next — so the active dot advances
+     cleanly down a column instead of alternating left↔right (the row-major bug this
+     replaces). The grid's intrinsic width grows to contain the extra columns,
+     keeping the run within the slide height and clear of the block-centred up/down
+     controls. A short last column (e.g. 5+3) is fine — sequential order is the
+     point. Triggered at 6+ dots (≤5 stay a single flex column); side-agnostic (the
+     group's inline lane is placed by the side rules above). */
   .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split.primitiv-carousel--indicators-dots
     .primitiv-carousel__indicator-group:has(> :nth-child(6)) {
     display: grid;
-    grid-auto-flow: row;
-    grid-template-columns: repeat(2, auto);
+    grid-auto-flow: column;
+    grid-template-rows: repeat(5, auto);
     place-items: center;
-  }
-  .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--placement-overlay.primitiv-carousel--cluster-split.primitiv-carousel--indicators-dots
-    .primitiv-carousel__indicator-group:has(> :nth-child(11)) {
-    grid-template-columns: repeat(3, auto);
   }
 
   /* Fade transition (headless `transition="fade"` → data-transition="fade").

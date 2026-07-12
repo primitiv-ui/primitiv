@@ -147,14 +147,18 @@ so they can't fall out of sync.
   group gap to `--primitiv-carousel-thumbnail-gap` and sizes each frame off the
   `--primitiv-carousel-thumbnail-*` knobs. It composes with every placement and
   orientation — under `vertical` the thumbnails stack into a rail beside the
-  viewport, under `overlay` they ride a rounded-rect scrim tray (the dots' full
-  pill reshapes to match the thumbnail corners) that holds the thumbnails at their
-  set size and wraps onto further rows/columns rather than shrinking or overflowing
-  the imagery. **Overlay thumbnails are a size step smaller than external's at every
-  slot** (a dedicated `carousel-{slot}-overlay-thumbnail-size` ramp) — they sit
-  directly on the slide, so a wrapped multi-row/column tray can meaningfully obscure
+  viewport, under `overlay` they ride a rounded-rect scrim tray (the dots' full pill
+  reshapes to match the thumbnail corners) that holds the thumbnails at their set
+  size rather than shrinking. **Overlay thumbnails are a size step smaller than
+  external's at every slot** (a dedicated `carousel-{slot}-overlay-thumbnail-size`
+  ramp) — they sit directly on the slide, so a bigger tray can meaningfully obscure
   the image; external's filmstrip sits in its own chrome track, so it can afford to
-  stay bigger. The slide **`radius`**
+  stay bigger. A long **horizontal** overlay strip wraps onto further rows (capped
+  to the slide width); a long **vertical** overlay rail deliberately does *not* wrap
+  into a second column — width is the scarce axis there (a wrapped column visibly
+  eats into the slide), so it stays a single column and **scrolls internally**
+  instead, keeping the tray's footprint pinned to one thumbnail wide no matter the
+  count. The slide **`radius`**
   modifier (`md` default · `none` squares the slide off) and the slide **`ratio`**
   modifier (`square` 1:1 · `standard` 4:3 · `wide` 16:9 default · `ultrawide`
   21:9, re-pointing `--primitiv-carousel-slide-aspect-ratio`) both live on the

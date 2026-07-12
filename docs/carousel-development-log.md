@@ -1795,6 +1795,47 @@ human QA of the new sizes on `/carousel/thumbnails`, `/carousel/builder`, and th
 Placement page's overlay + thumbnails cells — confirmed as "a compromise to try first";
 if wrapped overlay thumbnails still obscure too much, both ramps can shift back further.
 
+### Vertical overlay thumbnails: single column + internal scroll (replaces column-wrap)
+
+**Human follow-up, with the actual numbers.** Even at the scaled-back size, a wrapped
+2-column overlay tray still measured ~29% of a 420px slide's width in a screenshot; the
+human asked to push further. Computed the diminishing-returns curve first (each further
+notch buys less, since the tray's ~24px fixed gap+padding becomes a *bigger* share of a
+*smaller* total): 48px→120px(28.6%), 40px→104px(24.8%), 32px→88px(21.0%) — and at 32px
+thumbnails are already getting too small to read as images, no better than dots but
+costing more room. Presented the real lever instead: the width problem only exists
+*because* the tray wraps to a 2nd column — a single column's width is one thumbnail +
+padding (~64px, 15% of the slide) **regardless of item count**. Proposed trading the
+2nd-column wrap for internal scroll (using the vertical axis, which the viewport already
+has, instead of spreading sideways); the human picked this over another size cut.
+
+**Implementation (registry CSS only, no contract change).** Removed the grid +
+`:has(:nth-child(5))` column-wrap mechanism entirely. The vertical-overlay-thumbnails
+rule now: `flex-wrap: nowrap` (overriding the shared horizontal rule's wrap, which would
+otherwise still try to start a 2nd column once content outgrows the cap — the same known
+flex-column-wrap bug the old grid fix was dodging), `max-block-size: calc(...)` (the
+same lane-height cap as before — content-sized up to that cap, so align start/center/end
+still work exactly as fixed last round), and `overflow-block: auto` so a strip taller
+than the cap scrolls internally instead of wrapping sideways or spilling past the slide.
+Scrollbar hidden (`scrollbar-width: none` + the `::-webkit-scrollbar` pseudo) to match
+the main viewport's chrome-free scroll convention — native touch/wheel/keyboard
+scrolling (and a focused thumbnail's native scroll-into-view) all still work with no JS.
+
+**Verified in headless Chromium:** a 10-thumbnail vertical overlay tray now renders at
+the *exact same width* as a 3-thumbnail one (previously the 10-thumbnail case would
+wrap to 2 columns and roughly double in width) — the excess scrolls, clipped top/bottom
+within the capped lane. Re-confirmed align start/center/end are still visually distinct
+and fully contained with the new single-column model.
+
+README updated (the vertical-overlay bullet now describes single-column + scroll,
+distinct from the horizontal overlay tray's row-wrap, which is unchanged).
+
+**Gates green:** `cargo test -p primitiv-emit` (106, drift), `node
+scripts/check-registry-types.mjs`. (No headless/contract change — recipe/tsx
+byte-identical.) **Figma lockstep: pending** (code-only). **Next:** human QA of a
+many-thumbnails vertical overlay case (confirm the scroll feels natural, the tray width
+reads as acceptably narrow now) on the Builder and `/carousel/thumbnails`.
+
 ## Backlog (examples still to build)
 
 Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".

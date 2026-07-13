@@ -2235,7 +2235,16 @@ explicit RTL (`dir`), `autoSize` + per-item
   under-threshold table — the reporter omits 100%-covered files); the
   full-package `qa:units` run is unreliable in this sandbox session (hangs/
   OOM-kills on the full ~1700-test suite) so wasn't re-confirmed end-to-end
-  this round — flag for a human/CI re-check.
+  this round — flag for a human/CI re-check. **Follow-up (human caught):**
+  the kitchen-sink **Builder** (`/carousel/builder`, "every carousel axis is
+  a control") hadn't been wired for the new prop — added an `allowMouseDrag`
+  `BuilderConfig` field (default `false`), a checkbox control in the Layout
+  section next to RTL, threaded to the live `<Carousel>` instance, and added
+  to the `<pre>` prop-echo (`describe()`, boolean-shorthand style like a
+  JSX prop written without `={true}`) only when true. Kitchen-sink-only,
+  no registry/contract change — structural balance-checked in place of a
+  real compile (braces/parens/`CheckField` count), per the sandbox
+  convention.
 - **Ark's `Control` is a headless anatomy part (`getControlProps()`); ours
   (`CarouselControls`) is registry-only, deliberately kept out of the
   headless primitive** (iteration 6 decision — "the behaviourless grouping

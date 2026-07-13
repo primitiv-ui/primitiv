@@ -74,6 +74,7 @@ interface BuilderConfig {
   align: Align;
   cluster: Cluster;
   rtl: boolean;
+  allowMouseDrag: boolean;
   slideCount: number;
   slidesPerPage: number;
   ratio: Ratio;
@@ -97,6 +98,7 @@ const DEFAULT_CONFIG: BuilderConfig = {
   align: "center",
   cluster: "split",
   rtl: false,
+  allowMouseDrag: false,
   slideCount: 4,
   slidesPerPage: 1,
   ratio: "wide",
@@ -338,6 +340,7 @@ function LiveCarousel({
         indicators={config.indicators}
         transition={config.transition}
         slidesPerPage={config.slidesPerPage}
+        allowMouseDrag={config.allowMouseDrag}
       >
         <CarouselViewport>
           {slides.map((background, index) => (
@@ -375,6 +378,7 @@ function describe(config: BuilderConfig, size: Size): string {
     `transition="${config.transition}"`,
     `slidesPerPage={${config.slidesPerPage}}`,
   ];
+  if (config.allowMouseDrag) props.push("allowMouseDrag");
   if (config.rtl) props.unshift(`dir="rtl"`);
   const slide = `  <CarouselSlide radius="${config.radius}" /> × ${config.slideCount}`;
   return `<Carousel\n  ${props.join("\n  ")}\n>\n${slide}\n</Carousel>`;
@@ -481,6 +485,11 @@ export function CarouselBuilder() {
               label={'RTL (dir="rtl")'}
               checked={config.rtl}
               onChange={(value) => set("rtl", value)}
+            />
+            <CheckField
+              label="allowMouseDrag (mouse click-and-drag scrolling)"
+              checked={config.allowMouseDrag}
+              onChange={(value) => set("allowMouseDrag", value)}
             />
           </Section>
 

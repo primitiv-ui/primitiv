@@ -148,6 +148,27 @@ export type CarouselSnapAlign = "start" | "center" | "end";
 export type CarouselSnapType = "mandatory" | "proximity";
 
 /**
+ * Payload passed to `Carousel.Root`'s `onDragStatusChange` on every
+ * mouse-drag status transition (only reachable when `allowMouseDrag` is
+ * `true`):
+ *
+ * - `"dragging.start"` — the pointer just crossed the click-vs-drag
+ *   movement threshold; a drag has begun.
+ * - `"dragging"` — a subsequent pointer move while already dragging.
+ * - `"dragging.end"` — the drag ended (`pointerup` or `pointercancel`).
+ *
+ * `page` is the live active page at the moment of the event; `isDragging`
+ * mirrors the imperative `isDragging()` snapshot at that moment (`true`
+ * for `"dragging.start"`/`"dragging"`, `false` for `"dragging.end"`).
+ * Matches Ark UI's `onDragStatusChange` shape.
+ */
+export type CarouselDragStatus = {
+  type: "dragging.start" | "dragging" | "dragging.end";
+  page: number;
+  isDragging: boolean;
+};
+
+/**
  * Axis the carousel scrolls and paginates along.
  *
  * - `"horizontal"` (default) — slides lay out inline; the viewport
@@ -269,6 +290,11 @@ export type CarouselRootProps = Omit<
      * Touch/pen scrolling is unaffected either way — that's native,
      * independent of this prop. */
     allowMouseDrag?: boolean;
+    /** Fires on every mouse-drag status transition — see
+     * {@link CarouselDragStatus}. Matches Ark UI's `onDragStatusChange`.
+     * No-op unless `allowMouseDrag` is `true` (a drag can't start
+     * otherwise). */
+    onDragStatusChange?: (status: CarouselDragStatus) => void;
     /** Visibility threshold(s) the `isInView` fallback's
      * `IntersectionObserver` uses — both as the observer's own `threshold`
      * option and (for an array, the highest value) the cutoff a slide's
@@ -390,6 +416,15 @@ export type CarouselContextValue = {
    * IntersectionObserver callback checks this flag before calling `goTo`
    * so that IO entries firing mid-animation cannot undo the navigation. */
   isProgrammaticScrollRef: RefObject<boolean>;
+  /** Live mouse-drag state (only ever `true` when `allowMouseDrag` is
+   * `true`). Mutated by the Viewport hook and read by the imperative
+   * `isDragging()`. */
+  isDraggingRef: RefObject<boolean>;
+  /** Used by the Viewport hook to record drag start/end transitions. */
+  setDragging: (value: boolean) => void;
+  /** The consumer's `onDragStatusChange`, if provided — called by the
+   * Viewport hook on every drag status transition. */
+  onDragStatusChange?: (status: CarouselDragStatus) => void;
 };
 
 /** Props for `Carousel.Viewport` — the scroll-snap slide container; accepts all native `<div>` props. */
@@ -493,6 +528,10 @@ export type CarouselImperativeApi = {
    * of `slidesPerMove`. Useful for a custom progress bar or indicator
    * that needs the raw offsets rather than just the page count. */
   getPageSnapPoints: () => number[];
+  /** Live snapshot of whether a mouse drag is currently in progress
+   * (`allowMouseDrag`-gated — always `false` when it's off). Mirrors
+   * Ark UI's `api.isDragging`; see also `onDragStatusChange`. */
+  isDragging: () => boolean;
 };
 
 /** Live progress snapshot reported by the carousel: the active page, the total page count, and a normalised `value` in `[0, 1]`. */

@@ -13,6 +13,7 @@ import {
 import type {
   CarouselAutoplay,
   CarouselContextValue,
+  CarouselDragStatus,
   CarouselIds,
   CarouselImperativeApi,
   CarouselOrientation,
@@ -93,6 +94,9 @@ type UseCarouselRootProps = {
   orientation?: CarouselOrientation;
   /** Opt-in mouse click-and-drag scrolling. */
   allowMouseDrag?: boolean;
+  /** Fires on every mouse-drag status transition — see
+   * {@link CarouselDragStatus}. */
+  onDragStatusChange?: (status: CarouselDragStatus) => void;
   /** IntersectionObserver visibility threshold(s) for the `isInView`
    * fallback. Defaults to `0.6`. */
   inViewThreshold?: number | number[];
@@ -142,6 +146,7 @@ export function useCarouselRoot(
     snapAlign = "start",
     orientation = "horizontal",
     allowMouseDrag = false,
+    onDragStatusChange,
     inViewThreshold = 0.6,
     snapType = "mandatory",
   }: UseCarouselRootProps = {},
@@ -444,6 +449,16 @@ export function useCarouselRoot(
     [],
   );
 
+  // Same ref-not-state reasoning as visibility tracking above: isDragging()
+  // is read on demand, and the Viewport hook's pointermove handler would
+  // otherwise re-render on every tick of a drag for no benefit (the DOM
+  // data-dragging hook already handles the visual).
+  const isDraggingRef = useRef(false);
+  const setDragging = useCallback((value: boolean) => {
+    isDraggingRef.current = value;
+  }, []);
+  const isDragging = useCallback(() => isDraggingRef.current, []);
+
   useImperativeHandle(
     imperativeRef,
     () => ({
@@ -456,6 +471,7 @@ export function useCarouselRoot(
       getProgress,
       isInView,
       getPageSnapPoints,
+      isDragging,
     }),
     [
       next,
@@ -467,6 +483,7 @@ export function useCarouselRoot(
       getProgress,
       isInView,
       getPageSnapPoints,
+      isDragging,
     ],
   );
 
@@ -512,12 +529,15 @@ export function useCarouselRoot(
       snapAlign,
       orientation,
       allowMouseDrag,
+      onDragStatusChange,
       inViewThreshold,
       snapType,
       refreshTick,
       visibleSlideIndicesRef,
       setSlideInView,
       isProgrammaticScrollRef,
+      isDraggingRef,
+      setDragging,
     }),
     [
       registerSlide,
@@ -544,10 +564,12 @@ export function useCarouselRoot(
       snapAlign,
       orientation,
       allowMouseDrag,
+      onDragStatusChange,
       inViewThreshold,
       snapType,
       refreshTick,
       setSlideInView,
+      setDragging,
     ],
   );
 

@@ -312,6 +312,7 @@ carouselRef.current?.pause();
 carouselRef.current?.refresh();
 const { page, totalPages, value } = carouselRef.current!.getProgress();
 const pageSnapPoints = carouselRef.current!.getPageSnapPoints();
+const isDragging = carouselRef.current!.isDragging();
 ```
 
 `refresh()` re-issues the viewport's `scrollTo` for the current
@@ -326,7 +327,10 @@ formula the carousel uses internally, including the end-aligned last
 page for multi-slide layouts whose total isn't a whole number of
 pages (see "Multi-slide pages and partial page advance" below).
 Useful for a custom progress bar or indicator built from the raw
-offsets instead of just the page count.
+offsets instead of just the page count. `isDragging()` is a live
+snapshot of whether a mouse drag is in progress (always `false`
+unless `allowMouseDrag` is set) — see "Drag status" below for the
+matching `onDragStatusChange` callback.
 
 Every method routes through the same internal state machine the
 trigger components use, so controlled-mode `onPageChange` /
@@ -778,6 +782,38 @@ scrolled):
 
 Both stand down when `transition` isn't `"slide"` (the viewport isn't a
 scrolling track in `"fade"` / `"none"` mode).
+
+### Drag status
+
+The `data-dragging` DOM hook above is enough for CSS, but a consumer
+reacting in JS — e.g. pausing a video in the active slide while the
+user drags — needs the imperative `isDragging()` and/or the
+`onDragStatusChange` callback (both only ever reachable when
+`allowMouseDrag` is `true`; matches Ark UI's `api.isDragging` /
+`onDragStatusChange`):
+
+```tsx
+const carouselRef = useRef<CarouselImperativeApi>(null);
+
+<Carousel.Root
+  ref={carouselRef}
+  ariaLabel="Featured products"
+  allowMouseDrag
+  onDragStatusChange={({ type, page, isDragging }) => {
+    // type: "dragging.start" | "dragging" | "dragging.end"
+  }}
+>
+  …
+</Carousel.Root>;
+
+carouselRef.current?.isDragging(); // live snapshot, read on demand
+```
+
+`onDragStatusChange` fires `"dragging.start"` the moment a drag crosses
+the click-vs-drag movement threshold, `"dragging"` on every subsequent
+pointer move while it's still active, and `"dragging.end"` on release
+(`pointerup` or `pointercancel`) — never for a plain click that never
+crossed the threshold. `page` is the live active page at that moment.
 
 ### Indicator dots (manual)
 

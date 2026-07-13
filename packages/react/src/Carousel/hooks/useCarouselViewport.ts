@@ -76,11 +76,13 @@ export function useCarouselViewport() {
     snapAlign,
     orientation,
     allowMouseDrag,
+    onDragStatusChange,
     inViewThreshold,
     refreshTick,
     visibleSlideIndicesRef,
     setSlideInView,
     isProgrammaticScrollRef,
+    setDragging,
   } = useCarouselContext();
   // The observer's own `threshold` option accepts a number or number[]
   // as-is; for the "in view" cutoff a single number is used directly, and
@@ -172,6 +174,18 @@ export function useCarouselViewport() {
         suppressNextClickRef.current = true;
         viewport.setPointerCapture?.(drag.pointerId);
         viewport.setAttribute("data-dragging", "");
+        setDragging(true);
+        onDragStatusChange?.({
+          type: "dragging.start",
+          page: currentPage,
+          isDragging: true,
+        });
+      } else {
+        onDragStatusChange?.({
+          type: "dragging",
+          page: currentPage,
+          isDragging: true,
+        });
       }
 
       event.preventDefault();
@@ -179,7 +193,7 @@ export function useCarouselViewport() {
       if (vertical) viewport.scrollTop = nextScroll;
       else viewport.scrollLeft = nextScroll;
     },
-    [orientation],
+    [orientation, currentPage, onDragStatusChange, setDragging],
   );
 
   const endDrag = useCallback(() => {
@@ -188,9 +202,15 @@ export function useCarouselViewport() {
     if (drag.dragging) {
       internalRef.current?.releasePointerCapture?.(drag.pointerId);
       internalRef.current?.removeAttribute("data-dragging");
+      setDragging(false);
+      onDragStatusChange?.({
+        type: "dragging.end",
+        page: currentPage,
+        isDragging: false,
+      });
     }
     dragStateRef.current = null;
-  }, []);
+  }, [currentPage, onDragStatusChange, setDragging]);
 
   const onClickCapture = useCallback((event: MouseEvent<HTMLDivElement>) => {
     if (suppressNextClickRef.current) {

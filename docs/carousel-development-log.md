@@ -2206,21 +2206,21 @@ every *example-backlog* axis above that's landed —
 (dots/thumbnails), `transition` (slide/fade) — as live controls, so it's the
 fastest way to re-verify how landed axes compose (all of them human-approved
 as of 2026-07-13 — see the QA status note above), not just the single-axis
-example page. It does **not** yet expose any of the remaining Ark UI
-API-level gaps below (per-call `instant`, slide-index scroll) — those
-aren't styling/composition axes, they're headless API surface, so they
-won't show up as Builder controls even once built; they stay tracked in
-the Ark UI section below.
+example page. It does **not** yet expose the remaining Ark UI API-level
+gap below (slide-index scroll) — that isn't a styling/composition axis,
+it's headless API surface, so it won't show up as a Builder control even
+once built; it stays tracked in the Ark UI section below.
 (`pageSnapPoints`, indicator `readOnly`, `inViewThreshold`, `snapType`,
-per-item `snapAlign`, drag status, the autoplay status callback, and
-`ProgressText` landed 2026-07-13 — see that section — and were never
-Builder-control candidates either, for the same reason (`ProgressText`
-has no variant axis of its own — it's a presence/absence composition
-choice, like `PlayPauseTrigger`, not a styling knob). `snapAlign`
-specifically: the Builder's would be a **root-level** default like the
-others, not a per-slide override, which needs individually-configurable
-slides the Builder's single uniform
-gallery doesn't have.)
+per-item `snapAlign`, drag status, the autoplay status callback,
+`ProgressText`, and the per-call `instant` override, all landed
+2026-07-13 — see that section — and were never Builder-control candidates
+either, for the same reason (`ProgressText` has no variant axis of its
+own — it's a presence/absence composition choice, like
+`PlayPauseTrigger`, not a styling knob; `instant` is a one-shot call-site
+argument, not a persistent prop). `snapAlign` specifically: the
+Builder's would be a **root-level** default like the others, not a
+per-slide override, which needs individually-configurable slides the
+Builder's single uniform gallery doesn't have.)
 
 ### Ark UI — gaps identified (read 2026-07-13)
 
@@ -2357,15 +2357,30 @@ explicit RTL (`dir`), `autoSize` + per-item
       anywhere (inside `<CarouselControls>`, standalone, …). Kitchen-sink
       hand-synced (`carousel.contract.json` / `.recipe.ts` / `.tsx` / the
       stylesheet).
-- [ ] **Per-call `instant` (skip-animation) override on imperative scroll
-      methods.** Every one of Ark's imperative methods —
-      `scrollToIndex(index, instant?)`, `scrollTo(page, instant?)`,
-      `scrollNext(instant?)`, `scrollPrev(instant?)` — takes an optional
-      `instant` boolean to bypass smooth scrolling for that one call. Ours
-      (`next`, `previous`, `goTo`) have no per-call override; the smooth-vs-
-      instant choice is only made once, globally, from
-      `prefers-reduced-motion` at mount. Useful for e.g. an instant jump on
-      initial deep-link vs. smooth for user-initiated navigation.
+- [x] **Per-call `instant` (skip-animation) override on imperative scroll
+      methods.** **Landed 2026-07-13.** `next`, `previous`, and `goTo` each
+      gained an optional trailing `instant?: boolean` parameter, matching
+      Ark's `scrollNext(instant?)` / `scrollPrev(instant?)` /
+      `scrollTo(page, instant?)` shape. Implementation: a new
+      `instantScrollRef` (a one-shot ref, not state — same pattern as
+      `isProgrammaticScrollRef`) set by every `next`/`previous`/`goTo` call
+      (`!!instant`, so a plain call always clears a stale `true` from a
+      prior instant call) and consumed — then reset to `false` — by the
+      Viewport hook's scroll effect the moment it reads it, right before
+      calling `viewport.scrollTo`, so the override can never leak into a
+      later page change that didn't request it (a user swipe, a subsequent
+      plain `next()`). When set, it takes priority over the resolved
+      `prefers-reduced-motion`-aware `scrollBehavior`. TDD in a new
+      `Carousel.instant-scroll.test.tsx` (5 tests: instant on each of the
+      three methods, one-shot consumption reverting to smooth on the very
+      next call, and the existing default-smooth behavior unaffected).
+      Headless-only — no registry/contract/CSS change, so no kitchen-sink
+      sync needed. JSDoc (`types.ts`) + the headless README's "Imperative
+      API" and "Reduced motion" sections updated. Gates green: scoped
+      `vitest run src/Carousel` (286 tests, Carousel files absent from the
+      v8 coverage under-threshold table = fully covered),
+      `node scripts/check-registry-types.mjs`, a scoped `tsc --noEmit` (no
+      Carousel-related errors; pre-existing unrelated sandbox noise only).
 - [ ] **Slide-index-level imperative scroll, distinct from page-level `goTo`.**
       Ark has both `scrollToIndex(index)` (slide granularity) and
       `scrollTo(page)` (page granularity) as two different methods. We only

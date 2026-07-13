@@ -476,19 +476,35 @@ invoked when the page genuinely changes, so a snap that lands back on
 the active page doesn't dispatch a spurious callback.
 
 For browsers without `scrollsnapchange`, the same path runs against
-an `IntersectionObserver` (threshold 0.6) on each slide — when the
-observer fires, the lowest-index visible slide derives the active
-page via the same slide-index-to-page mapping. This
-page-drive is **only** a fallback: when `scrollsnapchange` is
-supported it is authoritative (it reports the precisely-snapped
-slide), so the observer stands down and does not also drive the page.
-That matters for `snapAlign="center"` carousels with several slides
-visible at once (e.g. a cover flow) — the lowest-index-visible
-heuristic would otherwise track the *leftmost* visible slide rather
-than the centred one and fight `scrollsnapchange`. The observer still
-always feeds `Carousel.Root`'s imperative `isInView(slideIndex)` so
-consumers can lazy-load slide content based on actual visibility, not
-just the active-page index.
+an `IntersectionObserver` (threshold `0.6` by default — see
+`inViewThreshold` below) on each slide — when the observer fires, the
+lowest-index visible slide derives the active page via the same
+slide-index-to-page mapping. This page-drive is **only** a fallback:
+when `scrollsnapchange` is supported it is authoritative (it reports
+the precisely-snapped slide), so the observer stands down and does
+not also drive the page. That matters for `snapAlign="center"`
+carousels with several slides visible at once (e.g. a cover flow) —
+the lowest-index-visible heuristic would otherwise track the
+*leftmost* visible slide rather than the centred one and fight
+`scrollsnapchange`. The observer still always feeds `Carousel.Root`'s
+imperative `isInView(slideIndex)` so consumers can lazy-load slide
+content based on actual visibility, not just the active-page index.
+
+**`inViewThreshold`.** Pass a number or an array of numbers on
+`Carousel.Root` to override the default `0.6`:
+
+```tsx
+<Carousel.Root ariaLabel="Featured products" inViewThreshold={0.3}>
+```
+
+The value is passed straight through as the `IntersectionObserver`'s
+own `threshold` option. For the single "is this slide in view"
+boolean that `isInView` reports (and that the page-drive fallback
+above reads), a plain number is used directly as the cutoff; an array
+uses its **highest** value — the strictest crossing counts as
+genuinely in view, since multiple thresholds otherwise only exist to
+fire the observer's callback more often, not to change what "in view"
+means.
 
 ### Custom DOM ids
 

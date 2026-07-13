@@ -92,6 +92,9 @@ type UseCarouselRootProps = {
   orientation?: CarouselOrientation;
   /** Opt-in mouse click-and-drag scrolling. */
   allowMouseDrag?: boolean;
+  /** IntersectionObserver visibility threshold(s) for the `isInView`
+   * fallback. Defaults to `0.6`. */
+  inViewThreshold?: number | number[];
 };
 
 /**
@@ -135,6 +138,7 @@ export function useCarouselRoot(
     snapAlign = "start",
     orientation = "horizontal",
     allowMouseDrag = false,
+    inViewThreshold = 0.6,
   }: UseCarouselRootProps = {},
   imperativeRef?: Ref<CarouselImperativeApi>,
 ) {
@@ -503,6 +507,7 @@ export function useCarouselRoot(
       snapAlign,
       orientation,
       allowMouseDrag,
+      inViewThreshold,
       refreshTick,
       visibleSlideIndicesRef,
       setSlideInView,
@@ -533,6 +538,7 @@ export function useCarouselRoot(
       snapAlign,
       orientation,
       allowMouseDrag,
+      inViewThreshold,
       refreshTick,
       setSlideInView,
     ],

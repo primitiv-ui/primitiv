@@ -273,4 +273,92 @@ describe("Carousel IntersectionObserver fallback + isInView", () => {
       "inactive",
     );
   });
+
+  it("should pass 0.6 as the default threshold to the IntersectionObserver", () => {
+    render(
+      <Carousel.Root ariaLabel="Featured products">
+        <Carousel.Viewport>
+          <Carousel.Slide data-testid="slide-0" />
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+
+    expect(MockIntersectionObserver.latest!.options?.threshold).toBe(0.6);
+  });
+
+  it("should use a custom inViewThreshold as the observer's threshold option and isInView cutoff", () => {
+    const ref = {
+      current: null,
+    } as unknown as RefObject<CarouselImperativeApi>;
+    render(
+      <Carousel.Root
+        ref={ref}
+        ariaLabel="Featured products"
+        inViewThreshold={0.3}
+      >
+        <Carousel.Viewport>
+          <Carousel.Slide data-testid="slide-0" />
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+
+    const io = MockIntersectionObserver.latest!;
+    expect(io.options?.threshold).toBe(0.3);
+
+    // Below the default 0.6 but above the custom 0.3 — only in view under
+    // the custom threshold.
+    act(() => {
+      io.fire([
+        {
+          target: screen.getByTestId("slide-0"),
+          isIntersecting: true,
+          intersectionRatio: 0.4,
+        },
+      ]);
+    });
+
+    expect(ref.current!.isInView(0)).toBe(true);
+  });
+
+  it("should accept an array of thresholds, using the highest value as the isInView cutoff", () => {
+    const ref = {
+      current: null,
+    } as unknown as RefObject<CarouselImperativeApi>;
+    render(
+      <Carousel.Root
+        ref={ref}
+        ariaLabel="Featured products"
+        inViewThreshold={[0.2, 0.5, 0.8]}
+      >
+        <Carousel.Viewport>
+          <Carousel.Slide data-testid="slide-0" />
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+
+    const io = MockIntersectionObserver.latest!;
+    expect(io.options?.threshold).toEqual([0.2, 0.5, 0.8]);
+
+    act(() => {
+      io.fire([
+        {
+          target: screen.getByTestId("slide-0"),
+          isIntersecting: true,
+          intersectionRatio: 0.6,
+        },
+      ]);
+    });
+    expect(ref.current!.isInView(0)).toBe(false);
+
+    act(() => {
+      io.fire([
+        {
+          target: screen.getByTestId("slide-0"),
+          isIntersecting: true,
+          intersectionRatio: 0.9,
+        },
+      ]);
+    });
+    expect(ref.current!.isInView(0)).toBe(true);
+  });
 });

@@ -244,6 +244,12 @@ export type CarouselRootProps = Omit<
      * Touch/pen scrolling is unaffected either way — that's native,
      * independent of this prop. */
     allowMouseDrag?: boolean;
+    /** Visibility threshold(s) the `isInView` fallback's
+     * `IntersectionObserver` uses — both as the observer's own `threshold`
+     * option and (for an array, the highest value) the cutoff a slide's
+     * `intersectionRatio` must clear to count as "in view". Matches Ark
+     * UI's `inViewThreshold` shape. Defaults to `0.6`. */
+    inViewThreshold?: number | number[];
   };
 
 /**
@@ -336,6 +342,9 @@ export type CarouselContextValue = {
   /** Resolved mouse click-and-drag scrolling opt-in (defaults to
    * `false`). */
   allowMouseDrag: boolean;
+  /** Resolved `isInView` IntersectionObserver threshold(s) (defaults to
+   * `0.6`). */
+  inViewThreshold: number | number[];
   /** Bumped by `refresh()` to force the viewport's scroll-align
    * effect to re-run without a page change. */
   refreshTick: number;

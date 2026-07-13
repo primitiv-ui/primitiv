@@ -76,11 +76,19 @@ export function useCarouselViewport() {
     snapAlign,
     orientation,
     allowMouseDrag,
+    inViewThreshold,
     refreshTick,
     visibleSlideIndicesRef,
     setSlideInView,
     isProgrammaticScrollRef,
   } = useCarouselContext();
+  // The observer's own `threshold` option accepts a number or number[]
+  // as-is; for the "in view" cutoff a single number is used directly, and
+  // an array uses its highest value (the strictest crossing) — matching
+  // the single-boolean semantics `isInView`/the IO page-drive fallback need.
+  const inViewCutoff = Array.isArray(inViewThreshold)
+    ? Math.max(...inViewThreshold)
+    : inViewThreshold;
   const internalRef = useRef<HTMLDivElement>(null);
   // Set to true by the scrollsnapchange handler and the IntersectionObserver
   // callback before they call goTo(), so the scroll effect knows the page
@@ -373,8 +381,9 @@ export function useCarouselViewport() {
 
   // IntersectionObserver fallback for browsers without scrollsnapchange,
   // and the source of truth for isInView() on the imperative API. The
-  // observer fires whenever a slide crosses the 0.6 visibility
-  // threshold; the lowest-index visible slide derives the active page.
+  // observer fires whenever a slide crosses the inViewThreshold visibility
+  // threshold (0.6 by default); the lowest-index visible slide derives the
+  // active page.
   useEffect(() => {
     if (transition !== "slide") return;
 
@@ -401,7 +410,7 @@ export function useCarouselViewport() {
           );
           setSlideInView(
             idx,
-            entry.isIntersecting && entry.intersectionRatio >= 0.6,
+            entry.isIntersecting && entry.intersectionRatio >= inViewCutoff,
           );
         }
 
@@ -415,14 +424,14 @@ export function useCarouselViewport() {
         const targetPage = pageForSlideIndex(firstVisible);
         // Guard: if a programmatic scroll is in flight (e.g. user clicked
         // NextTrigger and the smooth-scroll animation hasn't settled), the
-        // IO may still see the old slide as ≥0.6 visible. Calling goTo
-        // here would undo the navigation, so skip until the flag clears.
+        // IO may still see the old slide as ≥ the cutoff visible. Calling
+        // goTo here would undo the navigation, so skip until the flag clears.
         if (targetPage !== currentPage && !isProgrammaticScrollRef.current) {
           isUserScrollRef.current = true;
           goTo(targetPage);
         }
       },
-      { threshold: 0.6 },
+      { threshold: inViewThreshold },
     );
 
     for (const key of slideKeys) {
@@ -446,6 +455,8 @@ export function useCarouselViewport() {
     goTo,
     setSlideInView,
     visibleSlideIndicesRef,
+    inViewThreshold,
+    inViewCutoff,
   ]);
 
   // Keyboard navigation per the WAI-ARIA Carousel pattern: arrow keys

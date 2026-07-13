@@ -104,6 +104,7 @@ export const CarouselRoot: ForwardRefExoticComponent<
     snapAlign,
     orientation,
     allowMouseDrag,
+    inViewThreshold,
     children,
     ...rest
   },
@@ -126,6 +127,7 @@ export const CarouselRoot: ForwardRefExoticComponent<
       snapAlign,
       orientation,
       allowMouseDrag,
+      inViewThreshold,
     },
     imperativeRef,
   );

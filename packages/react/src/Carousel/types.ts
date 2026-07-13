@@ -169,6 +169,31 @@ export type CarouselDragStatus = {
 };
 
 /**
+ * Payload passed to `Carousel.Root`'s `onAutoplayStatusChange` on every
+ * autoplay status transition (only reachable when `autoplay` is enabled):
+ *
+ * - `"autoplay.start"` — the timer just became active: autoplay is
+ *   enabled, `playing` is `true`, another page remains, and the timer
+ *   isn't suspended by hover/focus/touch.
+ * - `"autoplay"` — a scheduled tick fired and is about to advance the
+ *   page, while the timer stays active.
+ * - `"autoplay.stop"` — the timer stopped running, whether because
+ *   `playing` flipped `false`, the last page was reached, or
+ *   hover/focus/touch suspended it.
+ *
+ * Fires on every tick, not just play/pause toggles. `page` is the active
+ * page at the moment of the event; `isPlaying` mirrors whether the timer
+ * is running right after the event (`true` for `"autoplay.start"`/
+ * `"autoplay"`, `false` for `"autoplay.stop"`). Matches Ark UI's
+ * `onAutoplayStatusChange` shape.
+ */
+export type CarouselAutoplayStatus = {
+  type: "autoplay.start" | "autoplay" | "autoplay.stop";
+  page: number;
+  isPlaying: boolean;
+};
+
+/**
  * Axis the carousel scrolls and paginates along.
  *
  * - `"horizontal"` (default) — slides lay out inline; the viewport
@@ -295,6 +320,11 @@ export type CarouselRootProps = Omit<
      * No-op unless `allowMouseDrag` is `true` (a drag can't start
      * otherwise). */
     onDragStatusChange?: (status: CarouselDragStatus) => void;
+    /** Fires on every autoplay status transition — see
+     * {@link CarouselAutoplayStatus}. Matches Ark UI's
+     * `onAutoplayStatusChange`. Fires on every tick, not just play/pause
+     * toggles — useful for analytics. No-op unless `autoplay` is enabled. */
+    onAutoplayStatusChange?: (status: CarouselAutoplayStatus) => void;
     /** Visibility threshold(s) the `isInView` fallback's
      * `IntersectionObserver` uses — both as the observer's own `threshold`
      * option and (for an array, the highest value) the cutoff a slide's

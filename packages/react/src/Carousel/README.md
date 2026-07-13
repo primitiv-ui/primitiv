@@ -937,6 +937,35 @@ manual navigation is announced to assistive tech, and flips to
 The flip is reactive — pausing via `PlayPauseTrigger` returns the
 viewport to `"polite"` for the duration of the pause.
 
+### Autoplay status
+
+The `playing` flag and `data-state` on `PlayPauseTrigger` cover
+play/pause toggles, but a consumer reacting to the timer itself in JS
+— e.g. logging analytics on every autoplay rotation — needs the
+`onAutoplayStatusChange` callback (only ever reachable when
+`autoplay` is enabled; matches Ark UI's `onAutoplayStatusChange`):
+
+```tsx
+<Carousel.Root
+  ariaLabel="Featured products"
+  autoplay
+  defaultPlaying
+  onAutoplayStatusChange={({ type, page, isPlaying }) => {
+    // type: "autoplay.start" | "autoplay" | "autoplay.stop"
+  }}
+>
+  …
+</Carousel.Root>
+```
+
+`onAutoplayStatusChange` fires `"autoplay.start"` the moment the timer
+becomes active (autoplay enabled, `playing` true, another page
+remains, not suspended by hover/focus/touch), `"autoplay"` on every
+tick while it stays active, and `"autoplay.stop"` when the timer stops
+running — whether because `playing` flipped `false`, the last page was
+reached, or hover/focus/touch suspended it. `page` is the active page
+at that moment.
+
 ### Indicator dots (auto-rendered)
 
 For the common case of one dot per slide with auto-generated labels,

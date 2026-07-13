@@ -12,6 +12,7 @@ import {
 
 import type {
   CarouselAutoplay,
+  CarouselAutoplayStatus,
   CarouselContextValue,
   CarouselDragStatus,
   CarouselIds,
@@ -75,6 +76,9 @@ type UseCarouselRootProps = {
   onPlayingChange?: (playing: boolean) => void;
   /** Autoplay configuration — see {@link CarouselAutoplay}. */
   autoplay?: CarouselAutoplay;
+  /** Fires on every autoplay status transition — see
+   * {@link CarouselAutoplayStatus}. */
+  onAutoplayStatusChange?: (status: CarouselAutoplayStatus) => void;
   /** Number of slides visible per page. Defaults to `1`. */
   slidesPerPage?: number;
   /** Slides advanced per Prev/Next click — `"auto"` (default) is
@@ -138,6 +142,7 @@ export function useCarouselRoot(
     playing,
     onPlayingChange,
     autoplay,
+    onAutoplayStatusChange,
     slidesPerPage = 1,
     slidesPerMove = "auto",
     translations,
@@ -328,11 +333,40 @@ export function useCarouselRoot(
   // the last page.
   // The suspended flag pauses the timer while the user is hovering or
   // has focus inside the Root, per WCAG 2.2.2.
+  // isAutoplayRunningRef edge-triggers onAutoplayStatusChange's
+  // "autoplay.start"/"autoplay.stop" pair around a running session — the
+  // effect reruns on every page change (autoplayRunning stays true, so no
+  // duplicate "start"), and "autoplay" fires once per tick from inside the
+  // scheduled callback, right before next() advances the page.
+  const isAutoplayRunningRef = useRef(false);
   useEffect(() => {
-    if (!autoplayEnabled || !currentPlaying || !canGoNext || suspended) {
+    const eligible =
+      autoplayEnabled && currentPlaying && canGoNext && !suspended;
+    if (!eligible) {
+      if (isAutoplayRunningRef.current) {
+        isAutoplayRunningRef.current = false;
+        onAutoplayStatusChange?.({
+          type: "autoplay.stop",
+          page: currentPage,
+          isPlaying: false,
+        });
+      }
       return;
     }
+    if (!isAutoplayRunningRef.current) {
+      isAutoplayRunningRef.current = true;
+      onAutoplayStatusChange?.({
+        type: "autoplay.start",
+        page: currentPage,
+        isPlaying: true,
+      });
+    }
     const id = setTimeout(() => {
+      onAutoplayStatusChange?.({
+        type: "autoplay",
+        page: currentPage,
+        isPlaying: true,
+      });
       next();
     }, autoplayDelay);
     return () => clearTimeout(id);
@@ -343,6 +377,8 @@ export function useCarouselRoot(
     suspended,
     autoplayDelay,
     next,
+    currentPage,
+    onAutoplayStatusChange,
   ]);
 
   // Handlers spread onto the Root <section>. mouseEnter / mouseLeave

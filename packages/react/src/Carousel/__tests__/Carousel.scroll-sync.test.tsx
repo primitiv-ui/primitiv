@@ -192,3 +192,131 @@ describe("Carousel scroll sync (programmatic page change)", () => {
     expect(scrollToSpy).toHaveBeenCalledWith({ left: 400, behavior: "smooth" });
   });
 });
+
+describe("Carousel multi-slide page-span alignment", () => {
+  it("should centre the whole multi-slide page, not just its leading slide", async () => {
+    const user = userEvent.setup();
+    render(
+      <Carousel.Root
+        ariaLabel="Featured products"
+        slidesPerPage={2}
+        snapAlign="center"
+      >
+        <Carousel.Viewport data-testid="viewport">
+          <Carousel.Slide data-testid="slide-0" />
+          <Carousel.Slide data-testid="slide-1" />
+          <Carousel.Slide data-testid="slide-2" />
+          <Carousel.Slide data-testid="slide-3" />
+        </Carousel.Viewport>
+        <Carousel.NextTrigger>Next</Carousel.NextTrigger>
+      </Carousel.Root>,
+    );
+
+    // Page 1's window is [slide-2, slide-3]. The page spans 500 (slide-2's
+    // left) to 980 (slide-3's right) = 480 wide, in a 1000-wide viewport:
+    // 500 - (1000 - 480) / 2 = 500 - 260 = 240. Using only slide-2's own
+    // 240px width (the pre-fix bug) would instead leftover-space against a
+    // single slide and undershoot, leaving slide-3 clipped off the trailing
+    // edge.
+    const viewport = screen.getByTestId("viewport");
+    Object.defineProperty(viewport, "clientWidth", {
+      value: 1000,
+      configurable: true,
+    });
+    const scrollToSpy = vi.spyOn(viewport, "scrollTo");
+    vi.spyOn(
+      screen.getByTestId("slide-2"),
+      "getBoundingClientRect",
+    ).mockReturnValue({ left: 500, top: 0, width: 240, height: 180 } as DOMRect);
+    vi.spyOn(
+      screen.getByTestId("slide-3"),
+      "getBoundingClientRect",
+    ).mockReturnValue({ left: 740, top: 0, width: 240, height: 180 } as DOMRect);
+
+    await user.click(screen.getByRole("button", { name: "Next" }));
+
+    expect(scrollToSpy).toHaveBeenCalledWith({ left: 240, behavior: "smooth" });
+  });
+
+  it("should align the whole multi-slide page's trailing edge when snapAlign is 'end'", async () => {
+    const user = userEvent.setup();
+    render(
+      <Carousel.Root
+        ariaLabel="Featured products"
+        slidesPerPage={2}
+        snapAlign="end"
+      >
+        <Carousel.Viewport data-testid="viewport">
+          <Carousel.Slide data-testid="slide-0" />
+          <Carousel.Slide data-testid="slide-1" />
+          <Carousel.Slide data-testid="slide-2" />
+          <Carousel.Slide data-testid="slide-3" />
+        </Carousel.Viewport>
+        <Carousel.NextTrigger>Next</Carousel.NextTrigger>
+      </Carousel.Root>,
+    );
+
+    // Same 480-wide page as above; end-alignment uses the full leftover
+    // space (520) rather than halving it: 500 - 520 = -20.
+    const viewport = screen.getByTestId("viewport");
+    Object.defineProperty(viewport, "clientWidth", {
+      value: 1000,
+      configurable: true,
+    });
+    const scrollToSpy = vi.spyOn(viewport, "scrollTo");
+    vi.spyOn(
+      screen.getByTestId("slide-2"),
+      "getBoundingClientRect",
+    ).mockReturnValue({ left: 500, top: 0, width: 240, height: 180 } as DOMRect);
+    vi.spyOn(
+      screen.getByTestId("slide-3"),
+      "getBoundingClientRect",
+    ).mockReturnValue({ left: 740, top: 0, width: 240, height: 180 } as DOMRect);
+
+    await user.click(screen.getByRole("button", { name: "Next" }));
+
+    expect(scrollToSpy).toHaveBeenCalledWith({ left: -20, behavior: "smooth" });
+  });
+
+  it("should clamp the page span to the actual last slide when slidesPerPage exceeds the slide count", () => {
+    // This exercises the *initial-mount* scroll (there's only one page here,
+    // so nothing else would trigger a second effect run) — the rect mocks
+    // and the scrollTo spy both have to be in place before that first effect
+    // fires, so they're attached to the shared prototypes rather than to
+    // specific instances found only after render().
+    const scrollToSpy = vi
+      .spyOn(HTMLElement.prototype, "scrollTo")
+      .mockImplementation(() => {});
+    const rectsByTestId: Record<string, Partial<DOMRect>> = {
+      "slide-0": { left: 0, top: 0, width: 400, height: 180 },
+      "slide-1": { left: 400, top: 0, width: 400, height: 180 },
+    };
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
+      function (this: HTMLElement) {
+        const rect = rectsByTestId[this.dataset.testid ?? ""];
+        return { left: 0, top: 0, width: 0, height: 0, ...rect } as DOMRect;
+      },
+    );
+
+    render(
+      <Carousel.Root
+        ariaLabel="Featured products"
+        slidesPerPage={4}
+        snapAlign="center"
+      >
+        <Carousel.Viewport data-testid="viewport">
+          <Carousel.Slide data-testid="slide-0" />
+          <Carousel.Slide data-testid="slide-1" />
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+
+    // Only 2 slides exist for a configured slidesPerPage=4 — the naive last-
+    // member index (0 + 4 - 1 = 3) doesn't exist, so it must clamp to the
+    // real last slide (index 1) instead of looking up a nonexistent one
+    // (which would throw). Page span: slide-0's left (0) to slide-1's right
+    // (800) = 800 wide; the viewport's own clientWidth is unmocked (jsdom
+    // default 0): 0 - (0 - 800) / 2 = 400.
+    expect(scrollToSpy).toHaveBeenCalledWith({ left: 400, behavior: "smooth" });
+  });
+});

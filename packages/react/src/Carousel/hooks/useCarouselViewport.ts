@@ -64,6 +64,7 @@ export function useCarouselViewport() {
   const {
     slidesRef,
     slideKeys,
+    slidesPerPage,
     currentPageOffset,
     pageForSlideIndex,
     totalPages,
@@ -373,9 +374,30 @@ export function useCarouselViewport() {
     // value) stays a dependency below purely so this effect re-runs and
     // re-reads the DOM when it changes without an accompanying page change.
     const effectiveSnapAlign = targetEl.dataset.snapAlign;
+    // For center/end, the leftover space must be measured against the whole
+    // *page* (every slide sharing this page, edge to edge) rather than just
+    // the leading slide's own box — a multi-slide page's other members would
+    // otherwise be excluded from the alignment math entirely, undershooting
+    // the scroll and leaving the page's trailing slide(s) clipped off-screen.
+    // `start` doesn't depend on this (its alignOffset is always 0), but
+    // computing it unconditionally costs nothing and keeps the code path
+    // uniform. The last member's index is clamped to the actual slide count
+    // (slidesPerPage can exceed how many slides really exist).
+    const lastMemberIndex = Math.min(
+      currentPageOffset + slidesPerPage - 1,
+      slideKeys.length - 1,
+    );
+    const lastMemberEl = slidesRef.current!.get(slideKeys[lastMemberIndex])!;
+    const lastMemberRect = lastMemberEl.getBoundingClientRect();
+    // Computed as left/top + width/height, not the rect's own .right/.bottom
+    // — real DOMRects derive those the same way, but keeping the maths
+    // explicit here matches the plain-object rect fixtures used in tests.
+    const pageSpan = vertical
+      ? lastMemberRect.top + lastMemberRect.height - targetRect.top
+      : lastMemberRect.left + lastMemberRect.width - targetRect.left;
     const leftoverSpace = vertical
-      ? viewport.clientHeight - targetRect.height
-      : viewport.clientWidth - targetRect.width;
+      ? viewport.clientHeight - pageSpan
+      : viewport.clientWidth - pageSpan;
     const alignOffset =
       effectiveSnapAlign === "center"
         ? leftoverSpace / 2
@@ -416,6 +438,7 @@ export function useCarouselViewport() {
     snapAlign,
     orientation,
     currentPageOffset,
+    slidesPerPage,
     slideKeys,
     slidesRef,
     refreshTick,

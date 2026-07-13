@@ -431,6 +431,45 @@ describe("Carousel overscroll — mouse drag", () => {
     expect(onOverscrollStatusChange).not.toHaveBeenCalled();
     expect(viewport).not.toHaveAttribute("data-overscroll");
   });
+
+  it("should not fire overscroll.end on release when the drag never overscrolled", () => {
+    const onOverscrollStatusChange = vi.fn();
+    render(
+      <Carousel.Root
+        ariaLabel="Featured products"
+        defaultPage={1}
+        allowMouseDrag
+        onOverscrollStatusChange={onOverscrollStatusChange}
+      >
+        <Carousel.Viewport data-testid="viewport">
+          <Carousel.Slide data-testid="slide-0" />
+          <Carousel.Slide data-testid="slide-1" />
+          <Carousel.Slide data-testid="slide-2" />
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+    const viewport = screen.getByTestId("viewport");
+    Object.defineProperty(viewport, "scrollLeft", { value: 100, writable: true });
+
+    act(() => {
+      fireEvent.pointerDown(viewport, {
+        pointerType: "mouse",
+        pointerId: 1,
+        clientX: 200,
+        clientY: 0,
+      });
+      fireEvent.pointerMove(viewport, {
+        pointerType: "mouse",
+        pointerId: 1,
+        clientX: 240,
+        clientY: 0,
+      });
+      fireEvent.pointerUp(viewport, { pointerType: "mouse", pointerId: 1 });
+    });
+
+    expect(onOverscrollStatusChange).not.toHaveBeenCalled();
+    expect(viewport).not.toHaveAttribute("data-overscroll");
+  });
 });
 
 describe("Carousel imperative isOverscrolling", () => {

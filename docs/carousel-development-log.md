@@ -185,6 +185,27 @@ appended here:
   needed), plus a `data-overscroll` DOM hook and an `isOverscrolling()`
   imperative getter mirroring the existing `data-dragging`/`isDragging()`
   pair. See "Blossom — gaps identified" below for the landed writeup.
+- **2026-07-13 — Variable-width slides scope (Ark UI's `autoSize`).** Resolves
+  the design fork flagged when the idea was first raised (iteration 14's
+  "Next / proposed" note). **Scoped to `slidesPerPage={1}`** — the multi-slide
+  windowing math's flex-basis calc assumes every slide is an equal share,
+  which a content-driven width fundamentally breaks; composing the two axes
+  is unsupported (documented, not CSS-guarded). **Pure CSS, no headless
+  change** — re-read `useCarouselViewport.ts`'s scroll effect before
+  committing to this: it already measures the target slide's real
+  `getBoundingClientRect()` width, never an assumed percentage, so the
+  scroll-to-slide math was already width-agnostic. New root **`slideWidth`**
+  modifier (`equal` default · `content`): `content` flips the slide's
+  `flex: 0 0 <equal-share%>` to `flex: 0 0 auto` (intrinsic sizing) and resets
+  `aspect-ratio` to `auto` (not `none` — `none` isn't valid CSS for this
+  property; caught before it shipped) so the forced ratio doesn't fight the
+  intrinsic size, mirroring the existing vertical-orientation reset. A real
+  `<img>` slide should size to its own natural dimensions under this with no
+  extra CSS (a percentage-sized replaced element inside an auto-sized
+  ancestor falls back to intrinsic size, per the CSS sizing spec) — reasoned
+  from the spec, not confirmed in a real browser this session (no headless
+  browser available), flagged for human visual QA. See the iteration-14
+  sub-entry below for the full build writeup.
 
 ## Figma design reference
 
@@ -1666,7 +1687,98 @@ a real design fork (opt-in mode? per-slide width? the page/indicator model assum
 shares — it needs its own proposal + likely a headless look before building). Held for a
 green light. **Also QA:** `/carousel/images` (cover/contain/focal-point/caption).
 
-#### Example-page grid consistency (kitchen-sink only, human-approved)
+#### Variable-width slides (`slideWidth`) — built on branch, pending CI + merge
+
+**Green-lit 2026-07-13** (the human, after the overscroll gap landed). Resolves the
+design fork the note above flagged.
+
+**Design decision (see the Decisions log below for the full writeup).** Scoped to
+`slidesPerPage={1}` — the multi-slide flex-basis math assumes every slide is an equal
+share, which a content-driven width breaks, so composing the two is unsupported (a
+documented boundary, not guarded in CSS). Pure CSS, **no headless change**: the
+viewport's programmatic scroll already measures the target slide's real
+`getBoundingClientRect()` width rather than assuming a percentage, so it was already
+width-agnostic — confirmed by re-reading `useCarouselViewport.ts`'s scroll effect before
+touching anything.
+
+**Registry surface.** A new root **`slideWidth`** modifier (`equal` default ·
+`content`). `equal` is the existing behaviour (the base rule already resolves it,
+byte-unchanged). `content`:
+```css
+.primitiv-carousel--slide-width-content .primitiv-carousel__slide {
+  flex: 0 0 auto;
+  aspect-ratio: auto;
+}
+```
+`flex: 0 0 auto` switches the slide's flex-basis from the equal-share percentage to an
+intrinsic size (an image's natural dimensions, an explicit inline width, any
+natural-width content); `aspect-ratio: auto` resets the forced ratio so it doesn't fight
+that intrinsic size — the exact same reset the vertical-orientation rule already applies
+for the same reason (confirmed while writing this: `aspect-ratio: none` is **not valid
+CSS** — the property only accepts `auto | <ratio>` — a mistake caught before it shipped;
+`auto` is correct and is what actually landed). `@layer` ordering (variants after base)
+means the rule correctly overrides the *horizontal* base rule's `aspect-ratio: var(...)`
+without extra specificity; for vertical it's a no-op (both rules already resolve to
+`auto` there). No new custom property, so `styles.scss`'s `$`-var block needed no change —
+confirmed byte-identical to `styles.css` (mechanically hand-derived per
+`primitiv-emit::scss::emit_component_scss`, since no cargo in this sandbox).
+
+**Real `<img>` sizing — reasoned, not browser-verified.** The stylesheet has a
+pre-existing rule forcing a direct `<img>`/`<video>`/`<picture>` slide child to
+`inline-size: 100%; block-size: 100%` (for `object-fit` to work under `equal`). Under
+`content` mode the slide's own size becomes intrinsic (`flex: 0 0 auto`), so a
+percentage-sized `<img>` inside it is "a percentage against an indefinitely-sized
+ancestor" — per the CSS sizing spec, browsers resolve that by falling back to the
+image's *natural* intrinsic dimensions to establish the box, so a real `<img>` slide
+should size itself correctly with zero extra CSS. This is spec reasoning, not confirmed
+in a real browser (no headless browser available in this sandbox this session) —
+flagged explicitly for the human's visual QA pass, same caveat pattern as iteration 7
+round 2 and iteration 8's "reasoned, not browser-verified" notes.
+
+**Hand-regenerated** `carousel.recipe.ts` / `carousel.tsx` (no cargo in this sandbox —
+mirrored `crates/primitiv-emit/src/wrapper.rs` / `recipe.rs`'s exact output by hand, the
+same PR #240 precedent) + `styles.scss` (mechanically CSS-body-verbatim, confirmed
+byte-identical). **Because this touches `contract.json`'s `modifiers`, this landed on a
+feature branch (`carousel-variable-slide-width`) + PR, not `main`** — CI's
+`primitiv-emit` drift-guard tests verify the hand-regeneration byte-for-byte before
+merge (per the standing per-session instruction: registry Rust-generated file changes go
+through a branch/PR in this sandbox, mirroring PR #240's exact shape). Kitchen-sink
+hand-synced on the same branch (contract/recipe/tsx/styles.css — all four confirmed
+identical to the registry originals via `diff`).
+
+**Built** (`CarouselPage.tsx`, `/carousel/variable-width`, route `variable-width`): a
+7-cell grid — real `<img>` sources at their natural widths (portrait/landscape/square,
+the headline demo) vs. the same sources under `equal` for contrast; non-image content
+boxes with explicit inline widths (proving it isn't image-specific); `content` + peek;
+`content` + a per-slide `snapAlign="center"` override (composes with the existing
+per-slide override, per the "Images" page's own note); RTL; and a vertical instance
+(block-size driven by each image's natural height — content-sizing is orientation-
+agnostic since `flex-basis` governs whichever axis is the main axis).
+
+**Builder wired.** A `slideWidth` `RadioField` (`equal` / `content`) in the Slides
+section; a `WIDTHS` stand-in array gives the Builder's plain gradient slides an explicit
+width per index when `content` is picked (a gradient `<div>` has no intrinsic size of
+its own, so the preview needs *something* to size to). The composability truths this
+surfaces are made explicit rather than left as silent visual breaks: `ratio` and
+`slidesPerPage` both go inert under `slideWidth="content"` — greyed out via the same
+`disabled`/`note` convention `align`/`distribution=stretch` already uses (`RangeField`
+gained the same optional `disabled`/`note` props `RadioField` already had, for the
+`slidesPerPage` slider). `describe()`'s prop echo updated.
+
+**Gates:** `node scripts/check-registry-types.mjs` green (the registry wrapper
+type-checks against `@primitiv-ui/react`). `cargo test -p primitiv-emit -p primitiv-cli`
+**not run in this sandbox (no cargo)** — deferred to CI on the PR, per the standing
+instruction for this exact situation. The kitchen-sink itself can't build in this
+sandbox either (no `node_modules`) — authored carefully against `noUnusedLocals` /
+`noUnusedParameters`, and a brace/paren balance check passed on every touched file, per
+the established sandbox convention.
+
+**Figma lockstep: pending.** Code-only (no carousel `--primitiv-*` variable layer in
+Figma; `slideWidth` has no Figma composition-matrix cell either — this is an Ark-parity-
+driven addition, not a designed frame, so this is expected to stay a code-only knob/
+modifier, not a verification pass). **Next:** human QA of `/carousel/variable-width`
+(especially the real-`<img>` cells — the one genuinely unverified claim above) and the
+Builder's new control, then CI + merge of the PR.
 
 **The human's two asks:** (1) a consistent 4-column grid across the example pages
 (most were already on the shared `.carousel-grid`, but at 2 columns; five pages —
@@ -2209,7 +2321,10 @@ iteration 13), `size` (density/size scaling, iteration 14), `images` (real
   the `transition="fade"` value + `data-transition` hook + registry crossfade CSS;
   dissolve is the same mechanism with different timing knobs. Route `fade`.
 - Multi-step (slide + fade). **No route yet.**
-- Variable-size slides. **No route yet.**
+- Variable-size slides — the `slideWidth` modifier (`equal` default ·
+  `content`), scoped to `slidesPerPage={1}`. **Built on branch
+  `carousel-variable-slide-width`, pending CI + merge** — route
+  `variable-width` once merged. See iteration 14's sub-entry.
 - Programmatic control (imperative API, progress bar). **No route yet.**
 - Slideshow (parallax), Stories (3D + overscroll), Smart Stack,
   Cards, Flipbook, Timeline. **No routes yet.**

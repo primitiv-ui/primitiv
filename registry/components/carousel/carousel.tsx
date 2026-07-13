@@ -16,7 +16,7 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K>
  *
  * @see https://primitiv-ui.dev/docs/components/carousel
  */
-export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "gap" | "padding" | "surface" | "radius" | "placement" | "side" | "distribution" | "align" | "cluster" | "indicators" | "size" | "ratio"> & {
+export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "gap" | "padding" | "surface" | "radius" | "placement" | "side" | "distribution" | "align" | "cluster" | "indicators" | "size" | "ratio" | "slideWidth"> & {
   /**
    * Reveal a sliver of the adjacent slides on either side of the active one. Works in both orientations (inline edges when horizontal, block edges when vertical).
    * - `none` — No peek — the active slide fills the viewport (the default).
@@ -133,12 +133,20 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
   ratio?: "square" | "standard" | "wide" | "ultrawide";
+  /**
+   * How each slide's width (block size when vertical) is determined. `equal` (the default) shares the viewport's content box evenly across `slidesPerPage` slides, each holding its shape via the `ratio` aspect-ratio. `content` lets each slide size to its own content instead — an intrinsically-sized image, an explicit width on the slide, or any content with a natural size — so slides in one track can have genuinely different widths (Ark UI's `autoSize`). Scoped to `slidesPerPage=1`: the multi-slide windowing math assumes equal shares, which content-driven widths break.
+   * - `equal` — Every slide takes an equal share of the viewport and holds the `ratio` aspect-ratio (the default).
+   * - `content` — Each slide sizes to its own content — bring your own width (an intrinsically-sized image, an explicit inline width, a natural-width card). The `ratio` aspect-ratio stands down.
+   * @default "equal"
+   * @see https://primitiv-ui.dev/docs/components/carousel
+   */
+  slideWidth?: "equal" | "content";
 };
 
-export function Carousel({ peek, gap, padding, surface, radius, placement, side, distribution, align, cluster, indicators, size, ratio, slidesPerPage, className, style, ...props }: CarouselProps) {
+export function Carousel({ peek, gap, padding, surface, radius, placement, side, distribution, align, cluster, indicators, size, ratio, slideWidth, slidesPerPage, className, style, ...props }: CarouselProps) {
   return (
     <CarouselPrimitive.Root
-      className={[carousel({ peek, gap, padding, surface, radius, placement, side, distribution, align, cluster, indicators, size, ratio }), className].filter(Boolean).join(" ")}
+      className={[carousel({ peek, gap, padding, surface, radius, placement, side, distribution, align, cluster, indicators, size, ratio, slideWidth }), className].filter(Boolean).join(" ")}
       style={{ ...style, ...(slidesPerPage === undefined ? {} : { "--primitiv-carousel-slides-per-page": slidesPerPage }) } as CSSProperties}
       slidesPerPage={slidesPerPage}
       {...props}

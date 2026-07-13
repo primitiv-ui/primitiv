@@ -746,6 +746,24 @@
     --primitiv-carousel-slide-aspect-ratio: 21 / 9;
   }
 
+  /* Slide width — `equal` (the default, the base rule already resolves it) shares
+     the viewport evenly across slidesPerPage slides, each holding the `ratio`
+     aspect-ratio. `content` lets a slide size to its own content instead: the
+     flex-basis switches from the equal-share percentage to `auto` (an intrinsic
+     size — an image's natural dimensions, an explicit inline width, a
+     natural-width card) and the aspect-ratio resets to `auto` (no forced ratio)
+     so it doesn't fight that intrinsic size — the same reset the vertical
+     orientation rule above already applies, for the same reason. `@layer`
+     ordering (variants after base) means this correctly overrides the *horizontal*
+     base rule's `aspect-ratio: var(...)` too, without needing extra specificity.
+     Scoped to slidesPerPage=1 — the multi-slide flex-basis calc above assumes
+     equal shares, which a content-driven width breaks; composing the two is
+     unsupported. */
+  .primitiv-carousel--slide-width-content .primitiv-carousel__slide {
+    flex: 0 0 auto;
+    aspect-ratio: auto;
+  }
+
   /* Control hover / active re-point the fill knob, matching the secondary-action
      button so the two stay visually consistent. */
   .primitiv-carousel__prev:hover,

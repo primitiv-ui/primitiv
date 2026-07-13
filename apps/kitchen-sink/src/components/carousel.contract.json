@@ -145,6 +145,15 @@
         { "name": "wide", "class": "primitiv-carousel--ratio-wide", "description": "16:9 — widescreen (the default)." },
         { "name": "ultrawide", "class": "primitiv-carousel--ratio-ultrawide", "description": "21:9 — cinematic ultra-wide." }
       ]
+    },
+    {
+      "name": "slideWidth",
+      "default": "equal",
+      "description": "How each slide's width (block size when vertical) is determined. `equal` (the default) shares the viewport's content box evenly across `slidesPerPage` slides, each holding its shape via the `ratio` aspect-ratio. `content` lets each slide size to its own content instead — an intrinsically-sized image, an explicit width on the slide, or any content with a natural size — so slides in one track can have genuinely different widths (Ark UI's `autoSize`). Scoped to `slidesPerPage=1`: the multi-slide windowing math assumes equal shares, which content-driven widths break.",
+      "options": [
+        { "name": "equal", "class": "primitiv-carousel--slide-width-equal", "description": "Every slide takes an equal share of the viewport and holds the `ratio` aspect-ratio (the default)." },
+        { "name": "content", "class": "primitiv-carousel--slide-width-content", "description": "Each slide sizes to its own content — bring your own width (an intrinsically-sized image, an explicit inline width, a natural-width card). The `ratio` aspect-ratio stands down." }
+      ]
     }
   ],
   "styleProps": [

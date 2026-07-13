@@ -2110,3 +2110,137 @@ it (decision 4).
 - **Overlay + autoplay pill grouping.** The design pairs the dots pill with a
   play button in one bottom cluster. Play/pause is deferred to the autoplay
   iteration; revisit the pill-vs-cluster centring (a bottom-cluster wrapper) then.
+
+## Parity tracking — Ark UI and Blossom
+
+**Goal (stated 2026-07-13):** reach full feature parity with both Ark UI's
+Carousel and the Blossom Carousel, then look for opportunities to go beyond
+both — the aim is for Primitiv's Carousel to be the best on the web for React,
+not just equivalent. This section is the running gap list each is compared
+against; check items off as they land, the same way the "Headless gaps"
+tracker above works.
+
+### Ark UI — gaps identified (read 2026-07-13)
+
+Source: `chakra-ui/ark`'s
+[`carousel.mdx`](https://raw.githubusercontent.com/chakra-ui/ark/refs/heads/main/website/src/content/pages/components/carousel.mdx)
+(the docs page, fetched directly — doesn't inline props, only usage
+narrative) cross-referenced against the actual machine API in the
+`@zag-js/carousel@1.42.0` npm package (`carousel.types.d.ts` /
+`carousel.props.d.ts` — Ark's React bindings are a thin wrapper over the
+Zag.js state machine, so this is the authoritative prop/API surface). Already
+tracked in our own backlog/headless-gaps sections are cross-referenced, not
+repeated here.
+
+**Already tracked (no new entry needed):** `loop` (our "Looping / infinite"),
+`allowMouseDrag` (our mouse-drag gesture — **landed**, though see the design
+divergence flagged below), explicit RTL (`dir`), `autoSize` + per-item
+`snapAlign` (our "variable-width slides" backlog item, iteration 14 follow-up
+— note Ark's per-item `snapAlign` generalizes ours, see below).
+
+**New gaps (not yet tracked anywhere):**
+
+- [ ] **Per-item `snapAlign`, including an `"end"` value.** Ark's
+      `Carousel.Item` takes its own `snapAlign: "start" | "end" | "center"`
+      (default `"start"`), so a single carousel can mix alignments per slide.
+      We only have a **root**-level `snapAlign: "start" | "center"` — no
+      `"end"` at all, and no per-item override. Ties into the variable-width
+      slides work (autoSize-style layouts are the case where per-item
+      alignment matters most), but the `"end"` value is a gap even without
+      autoSize.
+- [ ] **Configurable IntersectionObserver threshold.** Ark's `inViewThreshold`
+      (`number | number[]`, default `0.6`) is a Root prop. We hardcode `0.6`
+      in the `IntersectionObserver` fallback (`useCarouselViewport.ts`) with
+      no override and no multi-threshold support.
+- [ ] **`snapType`: `"proximity"` vs `"mandatory"`.** Ark exposes the raw CSS
+      `scroll-snap-type` strictness as a prop (default `"mandatory"`,
+      matching ours) — we hardcode `mandatory` in the registry CSS with no
+      way to opt into the looser `proximity` behaviour (lets the user's
+      scroll settle wherever, only nudging toward a snap point instead of
+      forcing it — relevant for e.g. free-scrolling galleries).
+- [ ] **Drag status — imperative `isDragging` + a change callback.** Ark
+      exposes `api.isDragging` and an `onDragStatusChange` callback
+      (`{ type: "dragging.start" | "dragging" | "dragging.end", page,
+      isDragging }`). Our mouse-drag (just landed) only surfaces state via
+      the DOM `data-dragging` attribute — nothing on the imperative API or as
+      a React callback, so a consumer can't react to drag start/end in JS
+      (e.g. to pause a video in the active slide while dragging).
+- [ ] **Autoplay status callback.** Ark's `onAutoplayStatusChange`
+      (`{ type: "autoplay.start" | "autoplay" | "autoplay.stop", page,
+      isPlaying }`) fires on every autoplay tick, not just play/pause
+      toggles. We expose `playing` / `isAutoRotating` in context and
+      `data-state` on `PlayPauseTrigger`, but nothing fires per-tick.
+      Lower priority than the drag callback — mostly useful for analytics.
+- [ ] **Indicator `readOnly` prop.** Ark's `Carousel.Indicator` takes a
+      `readOnly` boolean (default `false`) for a non-interactive,
+      presentational-only dot — useful when indicators are a progress
+      display rather than a navigation control (e.g. paired with
+      `allowMouseDrag` as the sole navigation method). We have no equivalent;
+      every `Carousel.Indicator` is always a clickable button.
+- [ ] **A dedicated `ProgressText` part.** Ark ships `Carousel.ProgressText`
+      (anatomy part `progressText`) + a `translations.progressText` function
+      (`{ page, totalPages } => string`), a live-region progress announcement
+      component. We have the data (`getProgress()` on the imperative API,
+      identical `{ page, totalPages, value }` shape) but no rendered/
+      announced subcomponent — a consumer has to wire the announcement
+      themselves today.
+- [ ] **Per-call `instant` (skip-animation) override on imperative scroll
+      methods.** Every one of Ark's imperative methods —
+      `scrollToIndex(index, instant?)`, `scrollTo(page, instant?)`,
+      `scrollNext(instant?)`, `scrollPrev(instant?)` — takes an optional
+      `instant` boolean to bypass smooth scrolling for that one call. Ours
+      (`next`, `previous`, `goTo`) have no per-call override; the smooth-vs-
+      instant choice is only made once, globally, from
+      `prefers-reduced-motion` at mount. Useful for e.g. an instant jump on
+      initial deep-link vs. smooth for user-initiated navigation.
+- [ ] **Slide-index-level imperative scroll, distinct from page-level `goTo`.**
+      Ark has both `scrollToIndex(index)` (slide granularity) and
+      `scrollTo(page)` (page granularity) as two different methods. We only
+      have `goTo(page)` — no way to imperatively target a specific *slide*
+      index in a multi-slide carousel without computing the page yourself
+      (`pageForSlideIndex` is on context, not the public imperative API).
+- [ ] **`pageSnapPoints` exposed on the imperative API.** Ark's `api.
+      pageSnapPoints` is the array of page-start slide offsets — useful for a
+      custom progress bar or indicator implementation that needs the raw
+      offsets, not just the page count. We compute the equivalent internally
+      (the offset formula in `useCarouselRoot.ts`) but never expose it.
+
+**Design divergence to flag, not necessarily a gap:**
+
+- **`allowMouseDrag` is opt-in in Ark (default `false`); ours is
+  unconditionally on for every mouse pointer.** Worth a deliberate decision
+  in a future session rather than leaving it implicit: is always-on drag the
+  right default for a "zero styles, composable" headless primitive, or
+  should it be an explicit prop (matching every other opt-in capability we
+  have — `autoplay`, `orientation`, `transition`)? An unconditionally-on drag
+  could be a footgun for a consumer whose slide content has its own
+  drag-sensitive interaction (e.g. a nested carousel, a draggable card, a
+  canvas). No action taken yet — flagging for a decision, not assuming the
+  answer.
+- **Ark's `Control` is a headless anatomy part (`getControlProps()`); ours
+  (`CarouselControls`) is registry-only, deliberately kept out of the
+  headless primitive** (iteration 6 decision — "the behaviourless grouping
+  element ... doesn't belong" in the headless layer). Not a gap so much as a
+  different architectural choice already made deliberately; noting the
+  divergence for completeness, not proposing to revisit it.
+- **Ark requires an explicit `slideCount` prop** (its machine has no live DOM
+  slide registration, so it needs the count told to it, particularly for
+  SSR). We register slides from real mounted DOM nodes
+  (`useCarouselSlide`/`registerSlide`), which is strictly more capable
+  (dynamic add/remove already works, tested in `Carousel.dynamic-slides.test.tsx`)
+  — not a gap, a place we already exceed Ark.
+
+### Blossom — not yet cross-checked this session
+
+The human's read is that Blossom's feature set is already reflected in our
+backlog (plausible — the plan doc already leans on Blossom's `scroll-snap` +
+`aspect-ratio` approach and the backlog's example list — Masonry, Sticky
+Slides, Cover Flow, Slideshow/parallax, Stories, Smart Stack, Cards, Flipbook,
+Timeline — reads like it was seeded from Blossom's demo gallery). Attempted to
+fetch `blossom-carousel.com` directly this session to verify — **blocked**
+(the sandbox's network proxy only allows a fixed domain allowlist, and
+`blossom-carousel.com` returned a 403 through both direct `curl` and
+`WebFetch`, likely Cloudflare bot protection rather than the proxy itself).
+Needs either a pasted-in doc/feature list from the human (the same fallback
+used for Ark, had the raw MDX fetch not worked) or a future session with
+network access to that host, to actually verify vs. assume.

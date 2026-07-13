@@ -2206,21 +2206,21 @@ every *example-backlog* axis above that's landed —
 (dots/thumbnails), `transition` (slide/fade) — as live controls, so it's the
 fastest way to re-verify how landed axes compose (all of them human-approved
 as of 2026-07-13 — see the QA status note above), not just the single-axis
-example page. It does **not** yet expose the remaining Ark UI API-level
-gap below (slide-index scroll) — that isn't a styling/composition axis,
-it's headless API surface, so it won't show up as a Builder control even
-once built; it stays tracked in the Ark UI section below.
+example page. Every Ark UI API-level gap tracked below is now landed
 (`pageSnapPoints`, indicator `readOnly`, `inViewThreshold`, `snapType`,
 per-item `snapAlign`, drag status, the autoplay status callback,
-`ProgressText`, and the per-call `instant` override, all landed
-2026-07-13 — see that section — and were never Builder-control candidates
-either, for the same reason (`ProgressText` has no variant axis of its
-own — it's a presence/absence composition choice, like
-`PlayPauseTrigger`, not a styling knob; `instant` is a one-shot call-site
-argument, not a persistent prop). `snapAlign` specifically: the
-Builder's would be a **root-level** default like the others, not a
-per-slide override, which needs individually-configurable slides the
-Builder's single uniform gallery doesn't have.)
+`ProgressText`, the per-call `instant` override, and `scrollToIndex`, all
+2026-07-13), but **none of them were ever Builder-control candidates** —
+they're headless API surface / call-site arguments / presence-absence
+composition choices, not styling/composition axes, so they don't show up
+as Builder controls regardless (`ProgressText` has no variant axis of its
+own — it's a presence/absence choice, like `PlayPauseTrigger`, not a
+styling knob; `instant` is a one-shot call-site argument, not a
+persistent prop; `scrollToIndex` is an imperative method, not a prop at
+all). `snapAlign` specifically: the Builder's would be a **root-level**
+default like the others, not a per-slide override, which needs
+individually-configurable slides the Builder's single uniform gallery
+doesn't have. Only the Blossom overscroll gap (below) remains open.
 
 ### Ark UI — gaps identified (read 2026-07-13)
 
@@ -2381,12 +2381,25 @@ explicit RTL (`dir`), `autoSize` + per-item
       v8 coverage under-threshold table = fully covered),
       `node scripts/check-registry-types.mjs`, a scoped `tsc --noEmit` (no
       Carousel-related errors; pre-existing unrelated sandbox noise only).
-- [ ] **Slide-index-level imperative scroll, distinct from page-level `goTo`.**
-      Ark has both `scrollToIndex(index)` (slide granularity) and
-      `scrollTo(page)` (page granularity) as two different methods. We only
-      have `goTo(page)` — no way to imperatively target a specific *slide*
-      index in a multi-slide carousel without computing the page yourself
-      (`pageForSlideIndex` is on context, not the public imperative API).
+- [x] **Slide-index-level imperative scroll, distinct from page-level `goTo`.**
+      **Landed 2026-07-13.** Added `scrollToIndex(slideIndex, instant?)` to
+      `CarouselImperativeApi`, matching Ark's `scrollToIndex(index,
+      instant?)` alongside `scrollTo(page, instant?)` (`goTo`). Thin
+      wrapper — `goTo(pageForSlideIndex(slideIndex), instant)` — reusing
+      the existing internal `pageForSlideIndex` (already computed for
+      `Carousel.Indicator`'s click-to-jump) rather than duplicating the
+      page-mapping math, and the `instant` override from the per-call gap
+      above composes for free since it just defers to `goTo`. TDD in a new
+      `Carousel.scroll-to-index.test.tsx` (4 tests: direct single-slide
+      jump, mapping an interior multi-slide-page index to its *containing*
+      page's leading slide rather than treating it as its own page start,
+      the `instant` override, and controlled-mode `onPageChange` routing).
+      Headless-only — no registry/contract/CSS change. JSDoc (`types.ts`)
+      + the headless README's "Imperative API" section updated. Gates
+      green: scoped `vitest run src/Carousel` (290 tests, Carousel files
+      fully covered per the coverage-reporter-omission note above),
+      `node scripts/check-registry-types.mjs`, a scoped `tsc --noEmit` (no
+      Carousel-related errors).
 - [x] **`pageSnapPoints` exposed on the imperative API.** **Landed
       2026-07-13.** Added `getPageSnapPoints(): number[]` to
       `CarouselImperativeApi` — the same offset formula

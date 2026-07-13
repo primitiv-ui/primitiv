@@ -108,6 +108,26 @@ describe("Carousel translations", () => {
     ).toBeVisible();
   });
 
+  it("should override the ProgressText format via translations.progressText", () => {
+    render(
+      <Carousel.Root
+        ariaLabel="Featured products"
+        translations={{
+          progressText: ({ page, totalPages }) =>
+            `Page ${page + 1} sur ${totalPages}`,
+        }}
+      >
+        <Carousel.Viewport>
+          <Carousel.Slide />
+          <Carousel.Slide />
+        </Carousel.Viewport>
+        <Carousel.ProgressText />
+      </Carousel.Root>,
+    );
+
+    expect(screen.getByText("Page 1 sur 2")).toBeVisible();
+  });
+
   it("should fall back to defaults for any translation keys not specified", () => {
     render(
       <Carousel.Root
@@ -123,6 +143,7 @@ describe("Carousel translations", () => {
           <Carousel.Indicator index={0} />
         </Carousel.IndicatorGroup>
         <Carousel.PlayPauseTrigger />
+        <Carousel.ProgressText />
       </Carousel.Root>,
     );
 
@@ -135,6 +156,8 @@ describe("Carousel translations", () => {
     );
     // indicatorLabel default still applied
     expect(screen.getByRole("button", { name: "Slide 1" })).toBeVisible();
+    // progressText default still applied
+    expect(screen.getByText("1 of 2")).toBeVisible();
   });
 
   it("should apply translations.indicatorLabel to indicators auto-rendered by Carousel.Indicators", () => {

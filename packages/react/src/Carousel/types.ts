@@ -247,6 +247,10 @@ export type CarouselTranslations = {
   /** Accessible name for `Carousel.PlayPauseTrigger` while playing.
    * Default: `"Stop automatic slide show"`. */
   stopSlideshow?: string;
+  /** Format used for `Carousel.ProgressText`'s default rendered content.
+   * Receives the 0-indexed active `page` and the live `totalPages`.
+   * Default: `({ page, totalPages }) => "${page + 1} of ${totalPages}"`. */
+  progressText?: (params: { page: number; totalPages: number }) => string;
 };
 
 /** Props for `Carousel.Root` — the labelled `<section>` wrapping the whole widget; combines label, page-state, and playing-state shapes with autoplay, transition, and layout options. */
@@ -611,3 +615,9 @@ export type CarouselPlayPauseTriggerProps = Omit<
    * is not supported under `asChild`; pass a single element instead. */
   asChild?: boolean;
 };
+
+/**
+ * Props for `Carousel.ProgressText` — renders the live active-page
+ * progress as text; native `<span>` props. `children`, if provided,
+ * overrides the default `translations.progressText` content. */
+export type CarouselProgressTextProps = ComponentProps<"span">;

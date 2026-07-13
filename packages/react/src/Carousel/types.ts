@@ -435,6 +435,12 @@ export type CarouselImperativeApi = {
    * visible in the viewport (per IntersectionObserver, ≥ 60%
    * intersection). Useful for lazy-loading slide content. */
   isInView: (slideIndex: number) => boolean;
+  /** The leading slide index each page snaps to, one entry per page
+   * (length `totalPages`). The last entry is the end-aligned offset
+   * (see the multi-slide page model), not necessarily a clean multiple
+   * of `slidesPerMove`. Useful for a custom progress bar or indicator
+   * that needs the raw offsets rather than just the page count. */
+  getPageSnapPoints: () => number[];
 };
 
 /** Live progress snapshot reported by the carousel: the active page, the total page count, and a normalised `value` in `[0, 1]`. */

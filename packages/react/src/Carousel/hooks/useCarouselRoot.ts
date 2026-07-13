@@ -409,6 +409,18 @@ export function useCarouselRoot(
     [currentPage, totalPages],
   );
 
+  // The same offset formula `currentPageOffset` uses for the active page,
+  // computed for every page — the leading slide index each page snaps to.
+  // Exposed so a consumer can build a custom progress bar / indicator from
+  // the raw offsets instead of re-deriving the end-align math themselves.
+  const getPageSnapPoints = useCallback(
+    () =>
+      Array.from({ length: totalPages }, (_, page) =>
+        Math.min(page * effectiveSlidesPerMove, maxOffset),
+      ),
+    [totalPages, effectiveSlidesPerMove, maxOffset],
+  );
+
   // Visibility tracking is a ref (not state) because callers read on
   // demand via isInView() and the IO callback in useCarouselViewport
   // mutates many entries per tick — re-rendering on each addition
@@ -434,8 +446,19 @@ export function useCarouselRoot(
       refresh,
       getProgress,
       isInView,
+      getPageSnapPoints,
     }),
-    [next, previous, goTo, play, pause, refresh, getProgress, isInView],
+    [
+      next,
+      previous,
+      goTo,
+      play,
+      pause,
+      refresh,
+      getProgress,
+      isInView,
+      getPageSnapPoints,
+    ],
   );
 
   // Reset the user-initiated flag when the playing session ends, so a

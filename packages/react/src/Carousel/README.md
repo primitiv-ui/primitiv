@@ -304,6 +304,7 @@ carouselRef.current?.play();
 carouselRef.current?.pause();
 carouselRef.current?.refresh();
 const { page, totalPages, value } = carouselRef.current!.getProgress();
+const pageSnapPoints = carouselRef.current!.getPageSnapPoints();
 ```
 
 `refresh()` re-issues the viewport's `scrollTo` for the current
@@ -312,6 +313,13 @@ reflow, dynamic content) leave the scroll position misaligned with
 React state. `getProgress()` returns a normalised
 `value` in `[0, 1]` (`0` when there's at most one page) plus the
 live `page` and `totalPages`, intended for custom progress bars.
+`getPageSnapPoints()` returns the leading slide index each page snaps
+to (one entry per page, length `totalPages`) — the same offset
+formula the carousel uses internally, including the end-aligned last
+page for multi-slide layouts whose total isn't a whole number of
+pages (see "Multi-slide pages and partial page advance" below).
+Useful for a custom progress bar or indicator built from the raw
+offsets instead of just the page count.
 
 Every method routes through the same internal state machine the
 trigger components use, so controlled-mode `onPageChange` /

@@ -1294,9 +1294,17 @@
     min-block-size: var(--primitiv-space-space-0);
     padding: var(--primitiv-space-space-0);
     border-radius: var(--primitiv-carousel-thumbnail-radius);
-    /* A real border (the multi-slide-per-page group frame below) sits on the
-       border-box, not added on top of it, so a thumbnail's footprint never
-       shifts when its group-membership toggles the border on/off. */
+    /* A real border (this one and the multi-slide-per-page group frame below)
+       sits on the border-box, not added on top of it, so a thumbnail's
+       footprint never shifts when active/group state toggles a border on/off.
+       The active ring is a transparent-by-default border (see [data-state=
+       "active"] below) rather than an inset box-shadow: the thumbnail's own
+       content fills 100%/100% of this box with no padding, so a box-shadow
+       drawn at the same edge paints *under* that flush content and is almost
+       entirely occluded by it — a real border reserves its own width as
+       actual layout space the content can't paint over, whether or not it's
+       currently visible (transparent). */
+    border: var(--primitiv-carousel-thumbnail-ring-width) solid transparent;
     box-sizing: border-box;
     overflow: hidden;
     opacity: var(--primitiv-carousel-thumbnail-inactive-opacity);
@@ -1523,22 +1531,24 @@
     block-size: var(--primitiv-carousel-indicator-size-active);
   }
 
-  /* Active thumbnail — full opacity + the primary-colour ring (inset so it sits
-     over the clipped image and follows the rounded corners). The dot's active
-     ::before rule above is inert here (the ::before is display:none). */
+  /* Active thumbnail — full opacity + the primary-colour ring. Just a
+     border-color swap (the border itself — same width, transparent — is
+     already reserved on every thumbnail above), so the ring appears fully
+     around the frame instead of being painted under the flush 100%/100%
+     thumbnail content. The dot's active ::before rule above is inert here
+     (the ::before is display:none). */
   .primitiv-carousel--indicators-thumbnails
     .primitiv-carousel__indicator[data-state="active"],
   .primitiv-carousel--indicators-thumbnails
     .primitiv-carousel__indicator-group
     > button[data-state="active"] {
     opacity: var(--primitiv-opacity-100);
-    box-shadow: inset 0 0 0 var(--primitiv-carousel-thumbnail-ring-width)
-      var(--primitiv-carousel-thumbnail-ring-color);
+    border-color: var(--primitiv-carousel-thumbnail-ring-color);
   }
 
-  /* An active thumbnail that also has keyboard focus keeps both rings — the inset
-     primary ring (active) plus the two-layer focus ring (outset) — since the
-     active rule above would otherwise override the focus box-shadow. A focused
+  /* An active thumbnail that also has keyboard focus keeps both rings — the
+     primary ring (active, a real border) plus the two-layer focus ring
+     (outset box-shadow, unaffected by the border change above). A focused
      inactive thumbnail is handled by the shared focus-visible rule below. */
   .primitiv-carousel--indicators-thumbnails
     .primitiv-carousel__indicator[data-state="active"]:focus-visible,
@@ -1547,8 +1557,6 @@
     > button[data-state="active"]:focus-visible {
     outline: none;
     box-shadow:
-      inset 0 0 0 var(--primitiv-carousel-thumbnail-ring-width)
-        var(--primitiv-carousel-thumbnail-ring-color),
       0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
       0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
         var(--primitiv-focus-ring);

@@ -2207,12 +2207,12 @@ every *example-backlog* axis above that's landed —
 fastest way to re-verify how landed axes compose (all of them human-approved
 as of 2026-07-13 — see the QA status note above), not just the single-axis
 example page. It does **not** yet expose any of the remaining Ark UI
-API-level gaps below (per-item `snapAlign`, `snapType`, drag/autoplay status
-callbacks, `ProgressText`, per-call `instant`, slide-index scroll) — those
-aren't styling/composition axes, they're headless API surface, so they
-won't show up as Builder controls even once built; they stay tracked in the
-Ark UI section below. (`pageSnapPoints`, indicator `readOnly`, and
-`inViewThreshold` landed 2026-07-13 — see that section — and were never
+API-level gaps below (per-item `snapAlign`, drag/autoplay status callbacks,
+`ProgressText`, per-call `instant`, slide-index scroll) — those aren't
+styling/composition axes, they're headless API surface, so they won't show
+up as Builder controls even once built; they stay tracked in the Ark UI
+section below. (`pageSnapPoints`, indicator `readOnly`, `inViewThreshold`,
+and `snapType` landed 2026-07-13 — see that section — and were never
 Builder-control candidates either, for the same reason.)
 
 ### Ark UI — gaps identified (read 2026-07-13)
@@ -2257,12 +2257,20 @@ explicit RTL (`dir`), `autoSize` + per-item
       passthrough, a custom single threshold, and an array cutoff).
       Headless-only — no registry/contract/CSS change, so no kitchen-sink
       sync needed.
-- [ ] **`snapType`: `"proximity"` vs `"mandatory"`.** Ark exposes the raw CSS
-      `scroll-snap-type` strictness as a prop (default `"mandatory"`,
-      matching ours) — we hardcode `mandatory` in the registry CSS with no
-      way to opt into the looser `proximity` behaviour (lets the user's
-      scroll settle wherever, only nudging toward a snap point instead of
-      forcing it — relevant for e.g. free-scrolling galleries).
+- [x] **`snapType`: `"proximity"` vs `"mandatory"`.** **Landed 2026-07-13.**
+      Added `snapType?: "mandatory" | "proximity"` (default `"mandatory"`,
+      matching Ark) as a Root prop, published on `Carousel.Viewport` as
+      `data-snap-type`. Registry `styles.css`/`.scss` (+ kitchen-sink
+      hand-sync) gained `[data-snap-type="proximity"]` overrides for both
+      orientations (`x proximity` / `y proximity`, axis kept explicit so the
+      cross axis isn't reset by the shorthand's default). TDD in a new
+      `Carousel.snap-type.test.tsx` (2 tests: default + custom). Headless +
+      hand-mirrored CSS only — a plain data-attribute hook like
+      `orientation`/`transition`, not a `contract.json` modifier, so no Rust
+      involvement. Not wired into the kitchen-sink Builder — like
+      `snapAlign` before it, a behavioural-only prop with no visual
+      composition, so it's not a Builder-control candidate (see that note
+      below).
 - [ ] **Drag status — imperative `isDragging` + a change callback.** Ark
       exposes `api.isDragging` and an `onDragStatusChange` callback
       (`{ type: "dragging.start" | "dragging" | "dragging.end", page,

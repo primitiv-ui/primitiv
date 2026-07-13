@@ -1,5 +1,6 @@
 import { useCallback, useId } from "react";
 
+import type { CarouselSnapAlign } from "../types";
 import { useCarouselContext } from "./useCarouselContext";
 
 /**
@@ -12,8 +13,13 @@ import { useCarouselContext } from "./useCarouselContext";
  * a callback ref (rather than `useEffect`) keeps DOM-attachment and
  * registration in lockstep, which matters when slides mount or unmount
  * during a render pass driven by an external state change.
+ *
+ * `snapAlignOverride` is the slide's own `Carousel.Slide.snapAlign` prop
+ * (if set) — it wins over the root's resolved `snapAlign` for this one
+ * slide, but only when the slide is actually a valid snap-start position;
+ * see the `snapAlign` field below.
  */
-export function useCarouselSlide() {
+export function useCarouselSlide(snapAlignOverride?: CarouselSnapAlign) {
   const {
     registerSlide,
     slideKeys,
@@ -57,13 +63,18 @@ export function useCarouselSlide() {
     index >= 0 &&
     (index === maxOffset ||
       (index <= maxOffset && index % effectiveSlidesPerMove === 0));
-  // The *value* mirrors the resolved root snapAlign, not just a fixed
-  // "start" — so the native scroll-snap resting position agrees with where
-  // the programmatic scroll (Viewport's centerOffset maths) actually
+  // The *value* mirrors the resolved root snapAlign (or this slide's own
+  // override, if set), not just a fixed "start" — so the native scroll-snap
+  // resting position agrees with where the programmatic scroll (Viewport's
+  // centerOffset maths, which reads this same value off the DOM) actually
   // targets. Previously this was hardcoded to "start" regardless of
   // snapAlign, so a user's own swipe/wheel/drag would snap back to the
-  // slide's leading edge even under snapAlign="center".
-  const snapAlign = isSnapStart ? rootSnapAlign : undefined;
+  // slide's leading edge even under snapAlign="center". Gated on
+  // isSnapStart either way — an interior slide of a multi-slide page must
+  // never snap, even if it carries its own snapAlign override.
+  const snapAlign = isSnapStart
+    ? (snapAlignOverride ?? rootSnapAlign)
+    : undefined;
 
   return { slideRef, index, total, state, snapAlign };
 }

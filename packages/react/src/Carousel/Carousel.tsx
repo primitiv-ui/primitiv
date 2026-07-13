@@ -302,12 +302,14 @@ CarouselViewport.displayName = "CarouselViewport";
  *   recipe targets `[data-carousel-slide]`).
  * - `data-index="N"` — the slide's zero-based position in registration order.
  * - `data-total="N"` — the live total slide count.
- * - `data-snap-align="start" | "center"` — present only on a page's leading
- *   slide (every slide when `slidesPerPage` is 1), valued from the root's
- *   resolved `snapAlign`. The registry stylesheet scopes `scroll-snap-align`
- *   to this hook, both so an interior slide of a multi-slide page is never a
- *   valid scroll-snap resting position, and so the native resting position
- *   agrees with `snapAlign` rather than always being `"start"`.
+ * - `data-snap-align="start" | "center" | "end"` — present only on a page's
+ *   leading slide (every slide when `slidesPerPage` is 1), valued from this
+ *   slide's own {@link CarouselSlideProps.snapAlign | `snapAlign`} prop if
+ *   set, else the root's resolved `snapAlign`. The registry stylesheet
+ *   scopes `scroll-snap-align` to this hook, both so an interior slide of a
+ *   multi-slide page is never a valid scroll-snap resting position, and so
+ *   the native resting position agrees with `snapAlign` rather than always
+ *   being `"start"`.
  *
  * Must be rendered as a descendant of `Carousel.Root`; rendering it
  * elsewhere throws a descriptive error.
@@ -324,14 +326,21 @@ CarouselViewport.displayName = "CarouselViewport";
  * ```tsx
  * <Carousel.Slide ariaLabel="Hand-picked for you">…</Carousel.Slide>
  * ```
+ *
+ * @example Per-slide snap alignment (overrides the root default)
+ * ```tsx
+ * <Carousel.Slide snapAlign="end">…</Carousel.Slide>
+ * ```
  */
 export function CarouselSlide({
   className = "",
   ariaLabel,
+  snapAlign: snapAlignOverride,
   children,
   ...rest
 }: CarouselSlideProps): ReactElement {
-  const { slideRef, index, total, state, snapAlign } = useCarouselSlide();
+  const { slideRef, index, total, state, snapAlign } =
+    useCarouselSlide(snapAlignOverride);
   const { translations } = useCarouselContext();
   const autoLabel =
     index >= 0 && total > 0

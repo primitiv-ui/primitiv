@@ -33,13 +33,16 @@ aria-roledescription="slide">` and self-registers with the Root so each
   meaningful description (e.g. `"Hand-picked for you"`). Emits
   `data-state="active" | "inactive"` tracking the active page, plus a
   `data-carousel-slide` CSS hook. Also emits
-  `data-snap-align="start" | "center"` on a page's leading slide only
-  (every slide, when `slidesPerPage` is 1), valued from the root's
-  resolved `snapAlign` — the hook consumer CSS should scope
-  `scroll-snap-align` to, so an interior slide of a multi-slide page is
-  never a valid scroll-snap resting position, and the native resting
-  position agrees with `snapAlign` (see "Multi-slide snap targeting"
-  below).
+  `data-snap-align="start" | "center" | "end"` on a page's leading slide
+  only (every slide, when `slidesPerPage` is 1), valued from its own
+  `snapAlign` prop if set, else the root's resolved `snapAlign` — the hook
+  consumer CSS should scope `scroll-snap-align` to, so an interior slide of
+  a multi-slide page is never a valid scroll-snap resting position, and the
+  native resting position agrees with `snapAlign` (see "Multi-slide snap
+  targeting" below). Pass `snapAlign` directly on a `Carousel.Slide` to
+  override the root default for that one slide (e.g. a variable-width
+  layout where only some slides should centre — matches Ark UI's per-`Item`
+  `snapAlign`).
 - **`Carousel.NextTrigger`** — `<button>` that advances the active page
   by one. `disabled` at the last page, and whenever zero or one slides
   are registered. Consumer `onClick` runs before the navigation;
@@ -95,7 +98,7 @@ correction), and CSS owns _what the user sees_:
 | Peek of adjacent slides            | `snapAlign` → viewport `scrollTo` alignment              | Viewport `padding-inline`, slide `flex-basis`, `scroll-snap-align`       |
 | Gap between slides                 | —                                                        | `gap` on the viewport (no `spacing` prop — pure CSS)                     |
 | Variable-size slides               | viewport `scrollTo` the target slide's offset            | Per-slide width / `aspect-ratio`, `scroll-snap-align`                    |
-| Snap targeting                     | `snapAlign: "start" \| "center"` (Root only)             | `scroll-snap-type` on viewport, `scroll-snap-align` scoped to `[data-snap-align="start" \| "center"]` |
+| Snap targeting                     | `snapAlign: "start" \| "center" \| "end"` (Root default, overridable per-`Slide`) | `scroll-snap-type` on viewport, `scroll-snap-align` scoped to `[data-snap-align="start" \| "center" \| "end"]` |
 | Snap strictness                    | `snapType: "mandatory" \| "proximity"` (Root only)       | `scroll-snap-type` strictness scoped to `[data-snap-type="mandatory" \| "proximity"]` on the viewport |
 | Reduced motion                     | `behavior: "instant"`                                    | Optional `@media (prefers-reduced-motion: reduce)` on consumer animations |
 | Keyboard navigation                | Arrow / Home / End on focused viewport                   | `:focus-visible` on viewport                                             |
@@ -369,15 +372,36 @@ position without the browser snapping-correcting after the scroll:
 ```
 
 `Carousel.Slide` publishes the resolved value as
-`data-snap-align="start" | "center"` (on each valid resting slide — see
-"Multi-slide snap targeting" below), so pair it with
+`data-snap-align="start" | "center" | "end"` (on each valid resting slide —
+see "Multi-slide snap targeting" below), so pair it with
 `[data-snap-align="center"] { scroll-snap-align: center }` in your CSS
 rather than hardcoding `scroll-snap-align: center` — that way the
 native snap the user's own scroll settles into always agrees with
 `snapAlign`, not just the programmatic `scrollTo`. The default is
 `"start"`; `snapAlign` picks whether the viewport `scrollTo` aligns the
-target slide's leading edge (`"start"`) or centres it (`"center"`), and
-the browser's CSS snap engine makes the final correction.
+target slide's leading edge (`"start"`), centres it (`"center"`), or
+aligns its trailing edge (`"end"`), and the browser's CSS snap engine
+makes the final correction.
+
+**Per-slide override.** `Carousel.Slide` also accepts its own `snapAlign`,
+overriding the root default for just that slide — useful for a
+variable-width layout where only some slides should centre or end-align
+(matches Ark UI's per-`Item` `snapAlign`, which is where the `"end"` value
+comes from too — the root-level prop above has no Ark equivalent):
+
+```tsx
+<Carousel.Root ariaLabel="Gallery">
+  <Carousel.Viewport>
+    <Carousel.Slide>Regular, start-aligned</Carousel.Slide>
+    <Carousel.Slide snapAlign="center">This one centres</Carousel.Slide>
+  </Carousel.Viewport>
+</Carousel.Root>
+```
+
+The override only takes effect on a slide that's actually a valid
+scroll-snap resting position (a page's leading slide) — an interior slide
+of a multi-slide page never snaps, regardless of this prop (see "Multi-slide
+snap targeting" below).
 
 ### Snap strictness
 
@@ -996,10 +1020,12 @@ notch or a drag release — that lands mid-page rather than jumping a
 full page at once. Scope `scroll-snap-align` to the `data-snap-align`
 hook (present only on each page's leading slide, and on every slide
 when `slidesPerPage` is 1) rather than applying it to every slide. Its
-*value* mirrors the root's resolved `snapAlign` (`"start"` or
-`"center"`), so a user's own scroll (wheel/touch/drag) settles wherever
-the programmatic scroll already targets — style both values, not just
-`"start"`, if the consumer might set `snapAlign="center"`:
+*value* mirrors the root's resolved `snapAlign` — or the individual
+slide's own override (`Carousel.Slide`'s `snapAlign` prop), if it set
+one — so a user's own scroll (wheel/touch/drag) settles wherever the
+programmatic scroll already targets. Style all three values, not just
+`"start"`, if the consumer might set `snapAlign="center"` / `"end"` on
+the root or on individual slides:
 
 ```css
 [data-carousel-slide] {
@@ -1010,6 +1036,9 @@ the programmatic scroll already targets — style both values, not just
 }
 [data-carousel-slide][data-snap-align="center"] {
   scroll-snap-align: center;
+}
+[data-carousel-slide][data-snap-align="end"] {
+  scroll-snap-align: end;
 }
 ```
 

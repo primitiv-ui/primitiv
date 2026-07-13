@@ -307,15 +307,18 @@
     /* Stop the OS grabbing images for drag/save mid-swipe. */
     -webkit-user-drag: none;
   }
-  /* The value mirrors the resolved root snapAlign, so a user's own scroll
-     (wheel/touch/drag) settles wherever the programmatic scroll (the
-     Viewport's centerOffset maths) already targets — not always the
-     leading edge regardless of snapAlign. */
+  /* The value mirrors the resolved root snapAlign — or this slide's own
+     override (Carousel.Slide's `snapAlign` prop), if set — so a user's own
+     scroll (wheel/touch/drag) settles wherever the programmatic scroll
+     already targets, not always the leading edge regardless of snapAlign. */
   .primitiv-carousel__slide[data-snap-align="start"] {
     scroll-snap-align: start;
   }
   .primitiv-carousel__slide[data-snap-align="center"] {
     scroll-snap-align: center;
+  }
+  .primitiv-carousel__slide[data-snap-align="end"] {
+    scroll-snap-align: end;
   }
 
   /* Media children fill the slide box. The slide box is always correctly sized by

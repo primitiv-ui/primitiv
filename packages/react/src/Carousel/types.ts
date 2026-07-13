@@ -119,8 +119,17 @@ export type CarouselTransition = "slide" | "fade" | "none";
  *   `(viewportWidth − slideWidth) / 2`. Use this with
  *   `scroll-snap-align: center` in consumer CSS (e.g. Cover Flow
  *   layouts where slides are narrower than the Viewport).
+ * - `"end"` — scrolls so the first slide of the target page's
+ *   **trailing** edge aligns with the Viewport's trailing edge. The
+ *   target is offset inward by the full `viewportWidth − slideWidth`.
+ *   Use with `scroll-snap-align: end`.
+ *
+ * Settable on `Carousel.Root` (the default for every slide) and
+ * overridden per-slide via {@link CarouselSlideProps.snapAlign} — e.g. a
+ * variable-width layout where only some slides should centre. Matches
+ * Ark UI's per-`Item` `snapAlign`.
  */
-export type CarouselSnapAlign = "start" | "center";
+export type CarouselSnapAlign = "start" | "center" | "end";
 
 /**
  * `scroll-snap-type` strictness the Viewport scrolls with.
@@ -393,6 +402,13 @@ export type CarouselSlideProps = Omit<ComponentProps<"div">, "aria-label"> & {
    * (e.g. `"Hand-picked for you"`). When omitted, slides are labelled
    * with their live index and total in registration order. */
   ariaLabel?: string;
+  /** Override the root's {@link CarouselRootProps.snapAlign | `snapAlign`}
+   * for this slide only — e.g. a variable-width layout where only some
+   * slides should centre or end-align. Only takes effect on a slide
+   * that's a valid scroll-snap resting position (a page's leading
+   * slide); an interior slide of a multi-slide page never snaps,
+   * regardless of this prop. Matches Ark UI's per-`Item` `snapAlign`. */
+  snapAlign?: CarouselSnapAlign;
 };
 
 /** Props for `Carousel.NextTrigger` — the button that advances one page; native `<button>` props plus `asChild`. */

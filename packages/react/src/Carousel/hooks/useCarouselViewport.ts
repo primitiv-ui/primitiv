@@ -246,7 +246,8 @@ export function useCarouselViewport() {
     // the consumer's `scroll-snap-align` make the final correction — we never
     // fight the snap engine. The scroll axis follows `orientation`; the cross axis
     // is untouched, so the viewport never drifts on the other axis. `start` aligns
-    // the slide's leading edge to the viewport's; `center` centres it.
+    // the slide's leading edge to the viewport's; `center` centres it; `end`
+    // aligns its trailing edge.
     const targetEl = slidesRef.current!.get(firstSlideKey)!;
     const vertical = orientation === "vertical";
     const viewportRect = viewport.getBoundingClientRect();
@@ -255,13 +256,26 @@ export function useCarouselViewport() {
     const delta = vertical
       ? targetRect.top - viewportRect.top
       : targetRect.left - viewportRect.left;
-    const centerOffset =
-      snapAlign === "center"
-        ? (vertical
-            ? viewport.clientHeight - targetRect.height
-            : viewport.clientWidth - targetRect.width) / 2
-        : 0;
-    const position = currentScroll + delta - centerOffset;
+    // The target slide's own snapAlign (Carousel.Slide's `snapAlign` prop,
+    // already merged with the root default) is read off the DOM rather than
+    // context, since only the slide component knows whether it set a
+    // per-slide override. `Carousel.Slide` always publishes data-snap-align
+    // on a valid snap-start slide — the only kind `firstSlideKey` ever is
+    // (see useCarouselSlide's isSnapStart gate) — so this is never
+    // undefined in practice; no fallback needed. `snapAlign` (the root
+    // value) stays a dependency below purely so this effect re-runs and
+    // re-reads the DOM when it changes without an accompanying page change.
+    const effectiveSnapAlign = targetEl.dataset.snapAlign;
+    const leftoverSpace = vertical
+      ? viewport.clientHeight - targetRect.height
+      : viewport.clientWidth - targetRect.width;
+    const alignOffset =
+      effectiveSnapAlign === "center"
+        ? leftoverSpace / 2
+        : effectiveSnapAlign === "end"
+          ? leftoverSpace
+          : 0;
+    const position = currentScroll + delta - alignOffset;
     viewport.scrollTo(
       vertical
         ? { top: position, behavior: scrollBehavior }

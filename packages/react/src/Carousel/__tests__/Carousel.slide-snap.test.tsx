@@ -125,4 +125,48 @@ describe("Carousel slide snap-align hook", () => {
       "center",
     );
   });
+
+  it('should let a slide\'s own snapAlign override the root default, including "end"', () => {
+    render(
+      <Carousel.Root ariaLabel="Featured products">
+        <Carousel.Viewport>
+          <Carousel.Slide data-testid="slide-0" />
+          <Carousel.Slide data-testid="slide-1" snapAlign="end" />
+          <Carousel.Slide data-testid="slide-2" snapAlign="center" />
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+
+    expect(screen.getByTestId("slide-0")).toHaveAttribute(
+      "data-snap-align",
+      "start",
+    );
+    expect(screen.getByTestId("slide-1")).toHaveAttribute(
+      "data-snap-align",
+      "end",
+    );
+    expect(screen.getByTestId("slide-2")).toHaveAttribute(
+      "data-snap-align",
+      "center",
+    );
+  });
+
+  it("should not publish a per-slide snapAlign override on a slide that isn't a valid snap-start position", () => {
+    render(
+      <Carousel.Root ariaLabel="Featured products" slidesPerPage={2}>
+        <Carousel.Viewport>
+          <Carousel.Slide data-testid="slide-0" />
+          <Carousel.Slide data-testid="slide-1" snapAlign="end" />
+          <Carousel.Slide data-testid="slide-2" />
+          <Carousel.Slide data-testid="slide-3" />
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+
+    // slide-1 is an interior slide of page 0 (perPage 2) — no valid resting
+    // position, so its override must not leak into scroll-snap-align.
+    expect(screen.getByTestId("slide-1")).not.toHaveAttribute(
+      "data-snap-align",
+    );
+  });
 });

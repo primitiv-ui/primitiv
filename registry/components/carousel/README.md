@@ -221,14 +221,19 @@ so they can't fall out of sync.
   no per-slide wiring.
 - **Snap scoping (`data-snap-align`).** `scroll-snap-align` is **not** applied to
   every slide — only to a page's leading slide (the headless primitive publishes
-  `data-snap-align="start" | "center"` on it, mirroring the resolved root
-  `snapAlign`; every slide carries it at `slidesPerPage={1}`). An interior slide
-  of a multi-slide page has no page of its own, so letting the browser's
-  mandatory snap stop there would leave the viewport showing a straddled mix of
-  two pages while `currentPage`/the indicators still claim one clean page — the
-  desync a mouse-wheel notch or a drag release most readily exposes. Scoping the
-  CSS to the attribute's *value*, not just its presence, also means a user's own
-  scroll settles wherever `snapAlign` targets rather than always the leading edge.
+  `data-snap-align="start" | "center" | "end"` on it, mirroring the resolved
+  root `snapAlign`, or an individual slide's own `snapAlign` prop if it set one;
+  every slide carries it at `slidesPerPage={1}`). An interior slide of a
+  multi-slide page has no page of its own, so letting the browser's mandatory
+  snap stop there would leave the viewport showing a straddled mix of two pages
+  while `currentPage`/the indicators still claim one clean page — the desync a
+  mouse-wheel notch or a drag release most readily exposes. Scoping the CSS to
+  the attribute's *value*, not just its presence, also means a user's own
+  scroll settles wherever `snapAlign` targets rather than always the leading
+  edge. `<CarouselSlide snapAlign="center">` overrides the root default for
+  just that slide — e.g. a variable-width layout where only some slides should
+  centre or end-align — flowing straight through the wrapper's existing
+  passthrough type, no contract change.
 
 `subcomponents` marks this a **structural compound**: the styled surface is N thin
 per-part wrappers the consumer composes. Two indicator surfaces ship: **`<CarouselIndicators>`**

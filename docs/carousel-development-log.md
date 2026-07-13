@@ -2055,6 +2055,27 @@ it (decision 4).
       on the Viewport track the pointer 1:1 into scrollLeft/scrollTop past a
       movement threshold; `data-mouse-drag` is a persistent enabled hook,
       `data-dragging` is the transient active-drag hook.
+- [x] **Bug fix — `snapAlign="center"` native snap disagreed with the
+      programmatic scroll — landed 2026-07-13.** Discovered while
+      cross-checking the Ark parity gaps (per-item `snapAlign`): the JS
+      scroll math (`useCarouselViewport.ts`'s `centerOffset`) correctly
+      centred a slide for `next`/`previous`/`goTo`, but the CSS hook marking
+      a slide as a valid native snap-stop was hardcoded `data-snap-start` →
+      `scroll-snap-align: start` regardless of `snapAlign` — so a user's own
+      swipe/wheel/drag would settle at the *start* position, disagreeing
+      with the programmatic centre. Fixed by generalizing the hook:
+      `useCarouselSlide` now returns `snapAlign` (the resolved root value,
+      only on a page's valid leading slide — same gating as before), and
+      `Carousel.Slide` publishes `data-snap-align="start" | "center"`
+      instead of the old boolean `data-snap-start`. Registry `styles.css` +
+      `.scss` (+ kitchen-sink hand-sync) gained a second rule for
+      `[data-snap-align="center"]`. TDD in `Carousel.slide-snap.test.tsx`
+      (renamed describe block, existing assertions updated to check the
+      attribute's value, one new test for the `center` case). Headless +
+      hand-mirrored CSS only — no `contract.json`/Rust involvement (this
+      data attribute was never a `contract.json`-tracked field, and the
+      stylesheets are hand-maintained text, not Rust-generated), so nothing
+      blocked by the no-Rust-in-this-sandbox constraint.
 - [ ] Explicit RTL tests (mirrors implicitly via logical properties;
       no dedicated coverage)
 
@@ -2144,7 +2165,11 @@ distinct, still-genuinely-open item in most cases) and isn't implied by this.
   lockstep pending)_ — route `thumbnails`) — the `indicators` modifier (`dots`
   default · `thumbnails`); image thumbnails as the indicators, active one
   ringed in `action-primary`. 2-column control-variant grid.
-- Snapping (centred) — `snapAlign="center"`. **No route yet.**
+- Snapping (centred) — `snapAlign="center"`. **No example route yet**, but
+  the underlying primitive now correctly supports it end-to-end (a native
+  scroll-snap bug where the CSS hook disagreed with the programmatic centre
+  was fixed 2026-07-13 — see "Headless gaps" above); building the example
+  is the remaining work.
 - Right-to-left — route `rtl` exists as a dedicated example (and composes
   throughout the other example pages/the Builder), so the *example* is built;
   the remaining gap is headless **test** coverage, not the demo — see

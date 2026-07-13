@@ -13,7 +13,16 @@ import { useCarouselContext } from "./useCarouselContext";
 // A pointer movement below this many pixels (along the scroll axis) is
 // still a click, not a drag — so a link/button inside a slide keeps
 // working under the pointer that just tapped it.
-const DRAG_THRESHOLD_PX = 4;
+const DRAG_THRESHOLD_PX = 3;
+
+// Amplifies the pointer delta applied to scrollLeft/scrollTop during a
+// drag. A slide can be many hundreds of pixels wide, and a literal 1:1
+// ratio means dragging the slide's full width to move through it once —
+// far more physical movement than the gesture should cost. 2x means a
+// drag needs to cover only half the on-screen distance to produce the
+// same scroll, without introducing momentum (the multiplier only scales
+// the *tracked* delta; there's still no motion after release).
+const DRAG_SENSITIVITY = 2;
 
 /**
  * Owns the Viewport-side scroll-state sync — bidirectional.
@@ -89,8 +98,10 @@ export function useCarouselViewport() {
   // Mouse click-and-drag scrolling. Opt-in via `allowMouseDrag` (default
   // false) — an unconditionally-on drag could conflict with a consumer's own
   // drag-sensitive slide content (a nested carousel, a draggable card, a
-  // canvas). When enabled, tracks the pointer 1:1 (no momentum) by writing
-  // scrollLeft/scrollTop directly during the drag; release lets the
+  // canvas). When enabled, tracks the pointer at DRAG_SENSITIVITY× (no
+  // momentum — the multiplier only scales the tracked delta, motion still
+  // stops dead on release) by writing scrollLeft/scrollTop directly during
+  // the drag; release lets the
   // existing scroll-snap-type settle to the nearest slide, which the
   // scrollsnapchange sync above already picks up for free — no extra "scroll
   // → state" wiring needed here. `dragStateRef.current.dragging` only flips
@@ -156,7 +167,7 @@ export function useCarouselViewport() {
       }
 
       event.preventDefault();
-      const nextScroll = drag.startScroll - delta;
+      const nextScroll = drag.startScroll - delta * DRAG_SENSITIVITY;
       if (vertical) viewport.scrollTop = nextScroll;
       else viewport.scrollLeft = nextScroll;
     },

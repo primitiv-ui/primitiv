@@ -17,10 +17,11 @@ Currently exposes:
   a `data-carousel-viewport` attribute the recommended scroll-snap CSS
   targets. Must be rendered as a descendant of `Carousel.Root`; rendering
   it elsewhere throws a descriptive error. Also owns mouse click-and-drag
-  scrolling — pointerdown/pointermove track the pointer 1:1 into
-  `scrollLeft`/`scrollTop` once past a small movement threshold (so a
-  link/button inside a slide still receives a plain click), flipping a
-  `data-dragging` styling hook for the duration; release lets the
+  scrolling — pointerdown/pointermove track the pointer into
+  `scrollLeft`/`scrollTop` (amplified by a sensitivity multiplier) once
+  past a small movement threshold (so a link/button inside a slide still
+  receives a plain click), flipping a `data-dragging` styling hook for
+  the duration; release lets the
   existing `scroll-snap-type` settle to the nearest slide, and a
   horizontal (non-`Shift`) mouse-wheel notch translates to horizontal
   scroll — see "JS vs CSS responsibilities" below for both.
@@ -95,7 +96,7 @@ correction), and CSS owns _what the user sees_:
 | Reduced motion                     | `behavior: "instant"`                                    | Optional `@media (prefers-reduced-motion: reduce)` on consumer animations |
 | Keyboard navigation                | Arrow / Home / End on focused viewport                   | `:focus-visible` on viewport                                             |
 | Touch / swipe                      | Native scroll + `scrollsnapchange` to sync state         | `overscroll-behavior-x: contain`, `scrollbar-width: none`                |
-| Mouse click-and-drag (`allowMouseDrag`, off by default) | `scrollLeft`/`scrollTop` set 1:1 from the pointer | `cursor: grab`, `cursor: grabbing` on `[data-dragging]`      |
+| Mouse click-and-drag (`allowMouseDrag`, off by default) | `scrollLeft`/`scrollTop` set from the pointer delta × sensitivity | `cursor: grab`, `cursor: grabbing` on `[data-dragging]` |
 | Mouse-wheel scroll (horizontal)    | `deltaY` → `scrollLeft` when `deltaX` is negligible       | —                                                                        |
 | Indicator state                    | `data-state` on `[data-carousel-indicator]`              | Visual: dot, bar, thumbnail, etc.                                        |
 
@@ -672,8 +673,12 @@ scrolled):
   consumer's own drag-sensitive slide content — a nested carousel, a
   draggable card, a canvas). When enabled: click and hold on the viewport,
   drag, and it scrolls like a swipe — `scrollLeft`/`scrollTop` track the
-  pointer 1:1 (no momentum/flick) once the drag clears a small movement
-  threshold — below the threshold nothing happens, so a plain click on a
+  pointer, amplified by a 2× sensitivity multiplier so a full-slide
+  transition doesn't require dragging the slide's full on-screen width
+  (still no momentum/flick — the multiplier only scales the tracked
+  delta, motion stops dead on release) once the drag clears a small
+  (3px) movement threshold — below the threshold nothing happens, so a
+  plain click on a
   link or button inside a slide still reaches it. Releasing the pointer
   lets the existing `scroll-snap-type` settle to the nearest slide, exactly
   like a touch swipe — no extra "scroll → state" wiring needed, the

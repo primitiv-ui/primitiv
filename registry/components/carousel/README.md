@@ -251,7 +251,8 @@ Structured per RFC 0008 — the per-component API knobs + resting look in
   grab-cursor affordance would be misleading otherwise), swapping to
   `grabbing` (+ `user-select: none`) while `[data-dragging]` is set (the
   headless layer flips it for the duration of an active drag — pointer
-  tracked 1:1, no momentum). It is also the **framed box** — the
+  tracked at a 2× sensitivity multiplier, no momentum). It is also the
+  **framed box** — the
   surface / border / radius knobs (off by default) draw the track and
   `box-sizing: border-box` + `overflow` clip the scrolling slides to the rounded
   corners. **Peek** pads the leading/trailing edges (inline or block per

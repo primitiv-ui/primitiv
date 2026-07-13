@@ -3,13 +3,15 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import { Carousel } from "../index.ts";
 
 // Click-and-drag scrolling: pointerdown + pointermove sets scrollLeft/
-// scrollTop directly (1:1 with the pointer, no momentum), release lets the
-// existing CSS scroll-snap-type settle to the nearest slide (no new code
-// needed for that half — the scrollsnapchange sync already covers it). A
-// small movement threshold distinguishes a drag from a click so a link/
-// button inside a slide still works. Opt-in via `allowMouseDrag` (default
-// `false`) — an unconditionally-on drag could conflict with a consumer's
-// own drag-sensitive slide content.
+// scrollTop directly from the pointer delta, amplified by a sensitivity
+// multiplier (no momentum — the multiplier only scales the tracked delta,
+// there's still no motion after release), release lets the existing CSS
+// scroll-snap-type settle to the nearest slide (no new code needed for that
+// half — the scrollsnapchange sync already covers it). A small movement
+// threshold distinguishes a drag from a click so a link/button inside a
+// slide still works. Opt-in via `allowMouseDrag` (default `false`) — an
+// unconditionally-on drag could conflict with a consumer's own
+// drag-sensitive slide content.
 describe("Carousel mouse-drag styling hook (data-mouse-drag)", () => {
   it("should not publish data-mouse-drag when allowMouseDrag is omitted (default false)", () => {
     render(
@@ -146,7 +148,42 @@ describe("Carousel mouse-drag scrolling (allowMouseDrag enabled)", () => {
     expect(viewport).not.toHaveAttribute("data-dragging");
   });
 
-  it("should set scrollLeft to track the pointer 1:1 once past the movement threshold", () => {
+  it("should start tracking at a 3px movement (the lowered click-vs-drag threshold)", () => {
+    render(
+      <Carousel.Root ariaLabel="Featured products" allowMouseDrag>
+        <Carousel.Viewport data-testid="viewport">
+          <Carousel.Slide />
+          <Carousel.Slide />
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+    const viewport = screen.getByTestId("viewport");
+    Object.defineProperty(viewport, "scrollLeft", {
+      value: 100,
+      writable: true,
+    });
+
+    act(() => {
+      fireEvent.pointerDown(viewport, {
+        pointerType: "mouse",
+        pointerId: 1,
+        clientX: 200,
+        clientY: 0,
+      });
+      // Exactly 3px — the threshold is now 3, so this crosses it (2px, in
+      // the test above, still doesn't).
+      fireEvent.pointerMove(viewport, {
+        pointerType: "mouse",
+        pointerId: 1,
+        clientX: 203,
+        clientY: 0,
+      });
+    });
+
+    expect(viewport).toHaveAttribute("data-dragging", "");
+  });
+
+  it("should scroll faster than the raw pointer delta, amplified by the drag sensitivity multiplier", () => {
     render(
       <Carousel.Root ariaLabel="Featured products" allowMouseDrag>
         <Carousel.Viewport data-testid="viewport">
@@ -169,7 +206,9 @@ describe("Carousel mouse-drag scrolling (allowMouseDrag enabled)", () => {
         clientY: 0,
       });
       // Dragging the pointer 40px to the right reveals content to the
-      // left — scrollLeft decreases by the same amount.
+      // left — scrollLeft decreases by an amplified amount (2× the raw
+      // 40px delta), not the raw delta itself, so a full-slide transition
+      // doesn't require dragging the slide's full on-screen width.
       fireEvent.pointerMove(viewport, {
         pointerType: "mouse",
         pointerId: 1,
@@ -178,11 +217,11 @@ describe("Carousel mouse-drag scrolling (allowMouseDrag enabled)", () => {
       });
     });
 
-    expect(viewport.scrollLeft).toBe(60);
+    expect(viewport.scrollLeft).toBe(20);
     expect(viewport).toHaveAttribute("data-dragging", "");
   });
 
-  it("should set scrollTop instead of scrollLeft when the carousel is vertical", () => {
+  it("should set scrollTop instead of scrollLeft when the carousel is vertical, also amplified", () => {
     render(
       <Carousel.Root ariaLabel="Featured products" orientation="vertical" allowMouseDrag>
         <Carousel.Viewport data-testid="viewport">
@@ -193,7 +232,7 @@ describe("Carousel mouse-drag scrolling (allowMouseDrag enabled)", () => {
     );
     const viewport = screen.getByTestId("viewport");
     Object.defineProperty(viewport, "scrollTop", {
-      value: 50,
+      value: 100,
       writable: true,
     });
 
@@ -204,6 +243,7 @@ describe("Carousel mouse-drag scrolling (allowMouseDrag enabled)", () => {
         clientX: 0,
         clientY: 100,
       });
+      // 30px raw delta × 2 sensitivity = 60px of scroll.
       fireEvent.pointerMove(viewport, {
         pointerType: "mouse",
         pointerId: 1,
@@ -212,7 +252,7 @@ describe("Carousel mouse-drag scrolling (allowMouseDrag enabled)", () => {
       });
     });
 
-    expect(viewport.scrollTop).toBe(20);
+    expect(viewport.scrollTop).toBe(40);
   });
 
   it("should stop tracking and clear the dragging hook on pointerup", () => {
@@ -253,7 +293,7 @@ describe("Carousel mouse-drag scrolling (allowMouseDrag enabled)", () => {
       });
     });
 
-    expect(viewport.scrollLeft).toBe(60);
+    expect(viewport.scrollLeft).toBe(20);
     expect(viewport).not.toHaveAttribute("data-dragging");
   });
 

@@ -200,14 +200,15 @@ CarouselRoot.displayName = "CarouselRoot";
  * unconditionally-on drag could conflict with a consumer's own
  * drag-sensitive slide content). When enabled: click and hold, then drag,
  * and the viewport scrolls like a swipe: `scrollLeft`/`scrollTop` track
- * the pointer 1:1 (no momentum) once the drag clears a small movement
- * threshold — below it, nothing happens, so a plain click on a
- * link/button inside a slide still reaches it. Release lets
- * `scroll-snap-type` settle to the nearest slide (the same
- * `scrollsnapchange` sync a touch swipe already drives). A
- * `data-dragging` attribute is set for the duration of an active drag.
- * Only `pointerType === "mouse"` is handled — touch/pen already scroll
- * natively regardless of this prop.
+ * the pointer, amplified by a sensitivity multiplier (no momentum — the
+ * multiplier only scales the tracked delta, motion still stops dead on
+ * release), once the drag clears a small movement threshold — below it,
+ * nothing happens, so a plain click on a link/button inside a slide
+ * still reaches it. Release lets `scroll-snap-type` settle to the
+ * nearest slide (the same `scrollsnapchange` sync a touch swipe already
+ * drives). A `data-dragging` attribute is set for the duration of an
+ * active drag. Only `pointerType === "mouse"` is handled — touch/pen
+ * already scroll natively regardless of this prop.
  *
  * **Mouse-wheel scroll.** A physical wheel's vertical notches already
  * scroll a `orientation="vertical"` carousel natively. On the default

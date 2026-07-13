@@ -2272,3 +2272,51 @@ fetch `blossom-carousel.com` directly this session to verify — **blocked**
 Needs either a pasted-in doc/feature list from the human (the same fallback
 used for Ark, had the raw MDX fetch not worked) or a future session with
 network access to that host, to actually verify vs. assume.
+
+### Mouse-drag sensitivity (human QA follow-up)
+
+**Human feedback:** the just-landed click-and-drag felt unresponsive —
+"I have to drag quite a lot." Root cause: `scrollLeft`/`scrollTop` tracked the
+raw pointer delta literally 1:1, so a wide slide (often several hundred
+pixels) needed dragging its *full on-screen width* to scroll through one
+slide's worth of content — far more physical pointer travel than the gesture
+should cost, unlike a native touch swipe (which most OSes/browsers already
+apply their own acceleration to).
+
+**Fix.** Two tuned constants in `useCarouselViewport.ts`:
+- **`DRAG_SENSITIVITY = 2`** — the tracked pointer delta is multiplied by 2
+  before being applied to `scrollLeft`/`scrollTop`
+  (`nextScroll = startScroll - delta * DRAG_SENSITIVITY`), so a drag needs to
+  cover only half the on-screen distance to produce the same scroll. Still
+  **no momentum** — the multiplier only scales the delta computed on every
+  `pointermove` against the drag's start position; motion stops dead the
+  instant the pointer stops or releases, preserving the earlier human
+  decision (1:1-tracking-no-momentum) in spirit, just re-tuned in magnitude.
+- **`DRAG_THRESHOLD_PX` lowered `4 → 3`** — the click-vs-drag movement
+  threshold nudged down slightly too, so the drag registers a touch sooner
+  (a smaller contribution than the sensitivity multiplier, but asked for
+  explicitly).
+
+**TDD.** Updated `Carousel.mouse-drag.test.tsx`: the two drag-tracking tests
+(horizontal + vertical) now assert the 2×-amplified `scrollLeft`/`scrollTop`
+value instead of the raw delta (renamed to describe the amplification, with
+the maths spelled out in comments); the pointerup-cleanup test's final
+`scrollLeft` assertion updated to match; added a new test pinning the lowered
+3px threshold (2px still doesn't start a drag, 3px does). 14 tests total,
+green. A scoped `vitest run src/Carousel --coverage` confirms the Carousel
+files stay fully covered (absent from the v8 reporter's under-threshold
+table — the full-package `qa:units` run remains unreliable in this sandbox
+session, per the earlier note).
+
+**Docs.** Every "1:1" mention of the drag tracking (`Carousel.tsx` JSDoc, the
+headless README's Status list + JS/CSS table + "Mouse input" section, the
+registry README's Viewport bullet) reworded to describe the amplified
+tracking instead of a literal 1:1 ratio. No registry contract/CSS change —
+this is pure headless physics tuning, the `data-mouse-drag`/`data-dragging`
+hooks and the CSS scoped to them are unaffected.
+
+**Gates green:** `pnpm --filter @primitiv-ui/react exec vitest run
+src/Carousel` (240 tests), `cargo test -p primitiv-emit -p primitiv-cli`,
+`node scripts/check-registry-types.mjs`. **Next:** human re-QA of drag feel
+at 2× — if still not sensitive enough (or overshoots), `DRAG_SENSITIVITY` is
+a single named constant, easy to retune again.

@@ -2925,3 +2925,39 @@ failure — a `class-variance-authority` resolution issue, untouched by this
 session). Coverage on every touched file confirmed 100% lines/branches via
 the JSON/lcov reporter. Each fix landed as its own commit, pushed straight
 to `main` per this session's standing authorisation.
+
+**Follow-up, same session: thumbnail grouping was itself broken —
+`pageForSlideIndex` reused for the wrong job.** Immediately after the
+group-hover fix landed, human QA found it (and the pre-existing *active*
+grouping) shrinking a page's real member count: `slidesPerPage={4}` at 8
+slides gave the first group only 3 of its 4 thumbnails; `slidesPerPage={3}`
+at 7 slides gave the first group 2 of 3; `slidesPerPage={2}` at 7 slides
+(an uneven total) left one thumbnail an isolated group of one. All three
+traced to the same root cause: `ThumbnailIndicators` mapped each slide's
+thumbnail through `pageForSlideIndex(slideIndex)` for grouping, but that
+function resolves an index to its *nearest* page start — the correct tool
+for `goTo`/native-snap-target mapping (its actual, narrower purpose,
+already covered by its own tests), and *not* the same thing as "which
+page's real window `[offset, offset + slidesPerPage - 1]` contains this
+slide." The two disagree whenever a page's last member sits closer
+(index-distance-wise) to the *next* page's offset than to its own — true
+for any `slidesPerPage >= 3` regardless of divisibility, and also for
+`slidesPerPage=2` once the end-aligned last pages overlap (an uneven
+total). Confirmed this is pre-existing, not introduced this session — the
+`pageForSlideIndex`-for-grouping pattern predates it, and was simply never
+exercised at `slidesPerPage >= 3` or an uneven total until now.
+
+**Fix:** a new `pageContainingSlideIndex` helper (duplicated identically
+in both `CarouselBuilder.tsx` and `CarouselPage.tsx`'s
+`ThumbnailIndicators`, mirroring how the pattern already existed twice) —
+a plain window-containment loop over `0..totalPages-1` using primitives
+already exposed via context (`slidesPerPage`, `effectiveSlidesPerMove`,
+`maxOffset`, `totalPages` — the same four `useCarouselViewport.ts`'s new
+`scroll-margin` effect above already consumes), returning the *first* page
+whose window contains the index. This resolves the rare overlap case (the
+last two pages sharing a slide) by preferring the earlier page, so every
+slide's thumbnail belongs to exactly one group. `pageForSlideIndex` itself
+was left completely untouched — changing its semantics would risk
+regressing the `goTo`/native-snap-target behavior it's actually tested
+against. Zero headless change; the registry README's thumbnail-grouping
+guidance was corrected to describe (and warn against) this exact pitfall.

@@ -304,12 +304,40 @@ function CheckField({
   );
 }
 
+// pageForSlideIndex (off CarouselContext) resolves an arbitrary target index
+// to its *nearest* page start — the right tool for goTo/native-snap-target
+// mapping, which is all it's meant for. It's the wrong tool for "which page
+// does this slide's thumbnail visually belong to": a thumbnail's own slide
+// index is always a genuine member of exactly one page's rendered window
+// ([offset, offset + slidesPerPage - 1]), and "nearest offset" disagrees
+// with "which window actually contains me" as soon as a page's *last*
+// member sits closer to the *next* page's offset than its own (any
+// slidesPerPage >= 3), or once the end-aligned last pages overlap (an
+// uneven total) — both silently shrink a group's real member count (e.g.
+// slidesPerPage=4 with 8 slides gives page 0 only 3 members instead of 4).
+// This instead finds the first page whose real window contains the index,
+// resolving the rare overlap case (last two pages sharing a slide) by
+// preferring the earlier page, so every slide's thumbnail belongs to
+// exactly one group and an uneven last group is handled correctly rather
+// than by the (wrong, for this purpose) nearest-offset math.
+function pageContainingSlideIndex(
+  slideIndex: number,
+  slidesPerPage: number,
+  effectiveSlidesPerMove: number,
+  maxOffset: number,
+  totalPages: number,
+): number {
+  for (let page = 0; page < totalPages; page++) {
+    const offset = Math.min(page * effectiveSlidesPerMove, maxOffset);
+    if (slideIndex >= offset && slideIndex < offset + slidesPerPage) {
+      return page;
+    }
+  }
+  return totalPages - 1;
+}
+
 // One thumbnail per *slide*, grouped onto the *page* it belongs to.
-// `<CarouselIndicator index={N}>` is page-indexed (goTo(N); active = N===currentPage),
-// so with slidesPerPage > 1 each slide's thumbnail needs `index={pageForSlideIndex
-// (slideIndex)}`, not the raw slide index, or several thumbnails would silently target
-// the wrong page. Reusing `pageForSlideIndex` off context means an uneven last group
-// is handled by the exact same math the auto dots already use — no separate logic.
+// `<CarouselIndicator index={N}>` is page-indexed (goTo(N); active = N===currentPage).
 // Must render as a Carousel descendant (a plain child is enough) for the context read.
 function ThumbnailIndicators({
   slides,
@@ -321,21 +349,25 @@ function ThumbnailIndicators({
   pictures?: string[];
 }) {
   const ctx = useContext(CarouselContext);
-  const pageForSlideIndex = ctx?.pageForSlideIndex ?? ((i: number) => i);
   // Group hover: with slidesPerPage > 1, several thumbnails share one page
-  // (see the index={pageForSlideIndex(...)} note below) — hovering any one
-  // of them should read as hovering the whole group, not just that single
-  // thumbnail. CSS alone can't express this: :hover only ever applies to
-  // the literally-pointed-at element, and there's no selector that projects
-  // it onto an arbitrary-length run of siblings without hardcoding a max
-  // count. pageForSlideIndex already computes real group membership, so
-  // tracking "which page is currently hovered" here and marking every
-  // thumbnail that shares it stays correct for any slidesPerPage.
+  // (see pageContainingSlideIndex above) — hovering any one of them should
+  // read as hovering the whole group, not just that single thumbnail. CSS
+  // alone can't express this: :hover only ever applies to the literally-
+  // pointed-at element, and there's no selector that projects it onto an
+  // arbitrary-length run of siblings without hardcoding a max count.
   const [hoveredPage, setHoveredPage] = useState<number | null>(null);
   return (
     <CarouselIndicatorGroup label="Choose slide">
       {slides.map((background, index) => {
-        const page = pageForSlideIndex(index);
+        const page = ctx
+          ? pageContainingSlideIndex(
+              index,
+              ctx.slidesPerPage,
+              ctx.effectiveSlidesPerMove,
+              ctx.maxOffset,
+              ctx.totalPages,
+            )
+          : index;
         return (
           <CarouselIndicator
             key={index}
@@ -409,8 +441,8 @@ function LiveCarousel({
 
   // Dots use the auto <CarouselIndicators> (one per *page*, correct across
   // slidesPerPage for free). Thumbnails use ThumbnailIndicators — one per *slide*,
-  // each grouped onto its page via pageForSlideIndex, so slidesPerPage > 1 groups
-  // and highlights them together exactly like the dots do.
+  // each grouped onto its page via pageContainingSlideIndex, so slidesPerPage > 1
+  // groups and highlights them together exactly like the dots do.
   const indicators =
     config.indicators === "thumbnails" ? (
       <ThumbnailIndicators

@@ -167,32 +167,48 @@ so they can't fall out of sync.
   index={N}>` is **page**-indexed, not slide-indexed — clicking it calls `goTo(N)`
   and its active state is `N === currentPage`. With one slide per page this is
   invisible (slide index === page index); with `slidesPerPage > 1`, map each
-  slide's thumbnail through `pageForSlideIndex(slideIndex)` (read off
-  `CarouselContext`, the same page-offset/end-alignment math the auto
-  `<CarouselIndicators>` dots already use) instead of the raw slide index. Several
-  thumbnails then naturally share one `index` value, so they already highlight
-  together (the ring above needs no change) and clicking any one of them jumps to
-  their shared page. A CSS-only **group border** frames the whole run of
-  same-page thumbnails as one unit — built from `:has(+ …)`/adjacent-sibling
-  selectors (no JS, no new data attribute), continuous across the group and
-  absent entirely for a lone thumbnail (the `slidesPerPage=1` case, unchanged). An
-  uneven last page (e.g. 8 slides ÷ 3 per page → groups of 3/3/2) is handled for
-  free, since it's the identical page math the dots use. **Group hover** (hovering
-  any one member should visually lift the whole group, matching the group border
+  slide's thumbnail to its containing page instead of using the raw slide
+  index. **Don't reuse `pageForSlideIndex`** (read off `CarouselContext`) for
+  this despite the tempting name — it resolves an arbitrary target index to
+  its *nearest* page start (the right tool for `goTo`/native-snap-target
+  mapping, which is all it's meant for), and "nearest offset" silently
+  disagrees with "which page's window actually contains this slide" as soon
+  as a page's *last* member sits closer to the *next* page's offset than its
+  own (any `slidesPerPage >= 3`), or once the end-aligned last pages overlap
+  (an uneven total) — both shrink a group's real member count (found via
+  human QA: `slidesPerPage={4}` at 8 slides gave the first group only 3
+  members instead of 4). Instead, find the first page whose real window
+  `[offset, offset + slidesPerPage - 1]` contains the slide index (see
+  `pageContainingSlideIndex` in either kitchen-sink `ThumbnailIndicators`
+  helper below) — resolving the rare overlap case by preferring the earlier
+  page, so every slide's thumbnail belongs to exactly one group. Several
+  thumbnails then naturally share one `index` value, so they already
+  highlight together (the ring above needs no change) and clicking any one of
+  them jumps to their shared page. A CSS-only **group border** frames the
+  whole run of same-page thumbnails as one unit — built from
+  `:has(+ …)`/adjacent-sibling selectors (no JS, no new data attribute),
+  continuous across the group and absent entirely for a lone thumbnail (the
+  `slidesPerPage=1` case, unchanged); it's agnostic to *how* the shared
+  `index` value was computed, so it composes correctly with the corrected
+  mapping above with no changes of its own. **Group hover** (hovering any one
+  member should visually lift the whole group, matching the group border
   above) can't reuse that CSS-only trick — `:hover` only ever applies to the
   literally-pointed-at element, and no selector projects it onto an
-  arbitrary-length run of siblings the way `[data-state="active"]` naturally does
-  (every member of an active run already independently computes the identical
-  value; hover has no equivalent shared value to key off). So it needs a small
-  amount of consumer JS instead of a pure CSS rule: track "which page is
-  currently hovered" in the same component that wires `pageForSlideIndex`, and
-  toggle a `data-group-hover` attribute on every thumbnail that shares it — the
-  registry stylesheet just does `[data-group-hover] { opacity:
-  var(--primitiv-opacity-100) }`, the same treatment `:hover` already gets. This
-  is still zero headless change — `pageForSlideIndex` is already exposed via
-  context for exactly this. See
-  `apps/kitchen-sink/src/pages/CarouselPage.tsx`'s `ThumbnailIndicators` helper for
-  the reference wiring (both the page-index mapping and the group-hover state).
+  arbitrary-length run of siblings the way `[data-state="active"]` naturally
+  does (every member of an active run already independently computes the
+  identical value; hover has no equivalent shared value to key off). So it
+  needs a small amount of consumer JS instead of a pure CSS rule: track
+  "which page is currently hovered" in the same component that wires
+  `pageContainingSlideIndex`, and toggle a `data-group-hover` attribute on
+  every thumbnail that shares it — the registry stylesheet just does
+  `[data-group-hover] { opacity: var(--primitiv-opacity-100) }`, the same
+  treatment `:hover` already gets. This is still zero headless change — every
+  primitive `pageContainingSlideIndex` needs (`slidesPerPage`,
+  `effectiveSlidesPerMove`, `maxOffset`, `totalPages`) is already exposed via
+  context for exactly this. See either kitchen-sink `ThumbnailIndicators`
+  helper (`CarouselBuilder.tsx` or `CarouselPage.tsx`) for the reference
+  wiring (the page-index mapping, the group-hover state, and
+  `pageContainingSlideIndex` itself).
 - The slide **`radius`**
   modifier (`md` default · `none` squares the slide off) and the slide **`ratio`**
   modifier (`square` 1:1 · `standard` 4:3 · `wide` 16:9 default · `ultrawide`

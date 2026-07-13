@@ -345,15 +345,45 @@ function MultiSlide({
   );
 }
 
+// pageForSlideIndex (off CarouselContext) resolves an arbitrary target index
+// to its *nearest* page start — the right tool for goTo/native-snap-target
+// mapping, which is all it's meant for. It's the wrong tool for "which page
+// does this slide's thumbnail visually belong to": a thumbnail's own slide
+// index is always a genuine member of exactly one page's rendered window
+// ([offset, offset + slidesPerPage - 1]), and "nearest offset" disagrees
+// with "which window actually contains me" as soon as a page's *last*
+// member sits closer to the *next* page's offset than its own (any
+// slidesPerPage >= 3), or once the end-aligned last pages overlap (an
+// uneven total) — both silently shrink a group's real member count (e.g.
+// slidesPerPage=4 with 8 slides gave page 0 only 3 members instead of 4,
+// found via human QA). This instead finds the first page whose real window
+// contains the index, resolving the rare overlap case (last two pages
+// sharing a slide) by preferring the earlier page, so every slide's
+// thumbnail belongs to exactly one group.
+function pageContainingSlideIndex(
+  slideIndex: number,
+  slidesPerPage: number,
+  effectiveSlidesPerMove: number,
+  maxOffset: number,
+  totalPages: number,
+): number {
+  for (let page = 0; page < totalPages; page++) {
+    const offset = Math.min(page * effectiveSlidesPerMove, maxOffset);
+    if (slideIndex >= offset && slideIndex < offset + slidesPerPage) {
+      return page;
+    }
+  }
+  return totalPages - 1;
+}
+
 /**
  * One thumbnail per *slide*, grouped onto the *page* it belongs to. `<CarouselIndicator
  * index={N}>` is page-indexed (clicking it calls `goTo(N)`; its active state is
  * `N === currentPage`) — with `slidesPerPage > 1` several slides share a page, so each
- * of their thumbnails needs `index={pageForSlideIndex(slideIndex)}`, not the raw slide
- * index, or they'd silently target the wrong (or an out-of-range) page. Reading
- * `pageForSlideIndex` off `CarouselContext` reuses the exact page-offset/end-alignment
- * math the auto `<CarouselIndicators>` dots already use, so an uneven last group (e.g.
- * 8 slides ÷ 3 per page → groups of 3/3/2) is handled identically — no separate logic.
+ * of their thumbnails needs `index={pageContainingSlideIndex(slideIndex, ...)}`, not the
+ * raw slide index, or they'd silently target the wrong (or an out-of-range) page. An
+ * uneven last group (e.g. 8 slides ÷ 3 per page → groups of 3/3/2) is handled correctly
+ * by construction (see `pageContainingSlideIndex` above).
  * Must render as a descendant of `Carousel` (a plain child suffices; it doesn't need to
  * be `<CarouselIndicatorGroup>`'s direct child) so the context is in scope.
  *
@@ -372,19 +402,25 @@ function ThumbnailIndicators({
   label: string;
 }) {
   const ctx = useContext(CarouselContext);
-  const pageForSlideIndex = ctx?.pageForSlideIndex ?? ((i: number) => i);
   // Group hover: with slidesPerPage > 1, several thumbnails share one page —
   // hovering any one should read as hovering the whole group. CSS alone
   // can't express this (:hover only applies to the pointed-at element, with
   // no selector that projects it onto an arbitrary-length sibling run), so
   // "which page is currently hovered" is tracked here and every thumbnail
-  // sharing it is marked — reusing pageForSlideIndex keeps this correct for
-  // any slidesPerPage, the same way the border grouping below already is.
+  // sharing it is marked.
   const [hoveredPage, setHoveredPage] = useState<number | null>(null);
   return (
     <CarouselIndicatorGroup label={label}>
       {slides.map((bg, i) => {
-        const page = pageForSlideIndex(i);
+        const page = ctx
+          ? pageContainingSlideIndex(
+              i,
+              ctx.slidesPerPage,
+              ctx.effectiveSlidesPerMove,
+              ctx.maxOffset,
+              ctx.totalPages,
+            )
+          : i;
         return (
           <CarouselIndicator
             key={i}
@@ -1085,7 +1121,7 @@ export function CarouselThumbnails() {
         <GridCell
           n={9}
           title="Vertical + slidesPerPage=2 — grouped"
-          note="The grouping composes with orientation for free (pageForSlideIndex doesn't care about axis) — the border rule swaps to frame each pair's left/right edges instead of top/bottom."
+          note="The grouping composes with orientation for free (pageContainingSlideIndex doesn't care about axis) — the border rule swaps to frame each pair's left/right edges instead of top/bottom."
         >
           <ThumbnailSingle
             label="Thumbnails — vertical, grouped by 2"

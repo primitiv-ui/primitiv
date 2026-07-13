@@ -82,6 +82,7 @@ export function useCarouselViewport() {
     visibleSlideIndicesRef,
     setSlideInView,
     isProgrammaticScrollRef,
+    instantScrollRef,
     setDragging,
   } = useCarouselContext();
   // The observer's own `threshold` option accepts a number or number[]
@@ -296,10 +297,14 @@ export function useCarouselViewport() {
           ? leftoverSpace
           : 0;
     const position = currentScroll + delta - alignOffset;
+    // instantScrollRef is a one-shot override set by this specific next() /
+    // previous() / goTo() call — consumed (and cleared) immediately so it
+    // never leaks into a later page change that didn't request it (e.g. a
+    // user swipe or a subsequent plain next()).
+    const behavior = instantScrollRef.current ? "instant" : scrollBehavior;
+    instantScrollRef.current = false;
     viewport.scrollTo(
-      vertical
-        ? { top: position, behavior: scrollBehavior }
-        : { left: position, behavior: scrollBehavior },
+      vertical ? { top: position, behavior } : { left: position, behavior },
     );
 
     // Clear the programmatic-scroll guard once the animation settles.

@@ -315,6 +315,24 @@ const pageSnapPoints = carouselRef.current!.getPageSnapPoints();
 const isDragging = carouselRef.current!.isDragging();
 ```
 
+`next()`, `previous()`, and `goTo()` each take an optional trailing
+`instant` boolean (default `false`) that bypasses the resolved
+smooth/reduced-motion scroll for **just that one call** — matching Ark
+UI's `scrollNext(instant?)` / `scrollPrev(instant?)` /
+`scrollTo(page, instant?)`. Useful for e.g. an instant jump when
+restoring a remembered position on mount, followed by ordinary smooth
+navigation from then on:
+
+```tsx
+carouselRef.current?.goTo(rememberedPage, true); // instant, no animation
+carouselRef.current?.next(); // smooth, as usual
+```
+
+The override never outlives the single call it's passed to — a plain
+`next()` / `previous()` / `goTo()` right after always falls back to
+the normal resolved behavior (`prefers-reduced-motion`-aware smooth
+scrolling by default).
+
 `refresh()` re-issues the viewport's `scrollTo` for the current
 page — useful when external layout changes (window resize, container
 reflow, dynamic content) leave the scroll position misaligned with
@@ -509,7 +527,10 @@ The Viewport's programmatic `scrollTo` reads
 mount. When the user has reduced motion enabled at the OS level,
 page changes use `behavior: "instant"` instead of `"smooth"` so the
 carousel doesn't fight that preference. Touch-driven scrolling is
-unaffected — the browser owns that animation.
+unaffected — the browser owns that animation. The imperative API's
+per-call `instant` override (see "Imperative API" above) composes
+with this — it forces `"instant"` for one call regardless of the
+resolved preference, while every other call still follows it.
 
 ### Programmatic scroll sync
 

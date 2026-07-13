@@ -392,13 +392,17 @@ export type CarouselContextValue = {
   /** `true` when there is a backward navigation target. Drives the
    * `disabled` attribute on `Carousel.PreviousTrigger`. */
   canGoPrevious: boolean;
-  /** Advance the active page by one step. No-op when `!canGoNext`. */
-  next: () => void;
-  /** Retreat the active page by one step. No-op when `!canGoPrevious`. */
-  previous: () => void;
+  /** Advance the active page by one step. No-op when `!canGoNext`. Pass
+   * `instant` to bypass the resolved smooth/reduced-motion scroll for
+   * just this one call — see {@link CarouselImperativeApi.next}. */
+  next: (instant?: boolean) => void;
+  /** Retreat the active page by one step. No-op when `!canGoPrevious`.
+   * See {@link CarouselContextValue.next} for the `instant` override. */
+  previous: (instant?: boolean) => void;
   /** Jump directly to `target` (zero-based page index). Used by
-   * `Carousel.Indicator` to dispatch click-to-jump. */
-  goTo: (target: number) => void;
+   * `Carousel.Indicator` to dispatch click-to-jump. See
+   * {@link CarouselContextValue.next} for the `instant` override. */
+  goTo: (target: number, instant?: boolean) => void;
   /** Whether autoplay is currently in the "playing" state. */
   playing: boolean;
   /** Toggles `playing`. Used by `Carousel.PlayPauseTrigger`. */
@@ -450,6 +454,13 @@ export type CarouselContextValue = {
    * IntersectionObserver callback checks this flag before calling `goTo`
    * so that IO entries firing mid-animation cannot undo the navigation. */
   isProgrammaticScrollRef: RefObject<boolean>;
+  /** One-shot override of the resolved smooth/reduced-motion
+   * `scrollBehavior`, set by `next()` / `previous()` / `goTo()` on every
+   * call (`true` when their optional `instant` argument was passed,
+   * `false` otherwise) and consumed — then reset to `false` — by the
+   * Viewport hook's scroll effect on its very next run, so an instant
+   * jump never outlives the single call that requested it. */
+  instantScrollRef: RefObject<boolean>;
   /** Live mouse-drag state (only ever `true` when `allowMouseDrag` is
    * `true`). Mutated by the Viewport hook and read by the imperative
    * `isDragging()`. */
@@ -533,12 +544,19 @@ export type CarouselIndicatorProps = ComponentProps<"button"> & {
  * fire as if the user had clicked.
  */
 export type CarouselImperativeApi = {
-  /** Advance the active page by one. No-op on the last page. */
-  next: () => void;
-  /** Retreat the active page by one. No-op on the first page. */
-  previous: () => void;
-  /** Jump directly to `target` (zero-based page index). */
-  goTo: (target: number) => void;
+  /** Advance the active page by one. No-op on the last page. Pass
+   * `instant` (default `false`) to bypass the resolved smooth/
+   * reduced-motion scroll for just this one call — e.g. an instant
+   * jump on initial deep-link vs. smooth for user-initiated
+   * navigation. Matches Ark UI's `scrollNext(instant?)`. */
+  next: (instant?: boolean) => void;
+  /** Retreat the active page by one. No-op on the first page. See
+   * `next`'s `instant` parameter. Matches Ark UI's
+   * `scrollPrev(instant?)`. */
+  previous: (instant?: boolean) => void;
+  /** Jump directly to `target` (zero-based page index). See `next`'s
+   * `instant` parameter. Matches Ark UI's `scrollTo(page, instant?)`. */
+  goTo: (target: number, instant?: boolean) => void;
   /** Set `playing` to `true`. Dismisses the hover/focus pause for the
    * lifetime of the resulting playing session. */
   play: () => void;

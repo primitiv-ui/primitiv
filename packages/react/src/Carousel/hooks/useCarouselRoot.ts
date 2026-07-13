@@ -295,30 +295,45 @@ export function useCarouselRoot(
   // once the imperative API or autoplay land; they're added then.
   const isProgrammaticScrollRef = useRef(false);
 
-  const next = useCallback(() => {
-    if (currentPage >= totalPages - 1) return;
-    isProgrammaticScrollRef.current = true;
-    const target = currentPage + 1;
-    if (isControlled) {
-      onPageChange?.(target);
-    } else {
-      setInternalPage(target);
-    }
-  }, [currentPage, totalPages, isControlled, onPageChange]);
+  // One-shot override for the resolved smooth/reduced-motion scrollBehavior,
+  // consumed by the Viewport hook's scroll effect on the very next run and
+  // reset immediately after (see useCarouselViewport.ts) — so it never
+  // outlives the single call that requested it.
+  const instantScrollRef = useRef(false);
 
-  const previous = useCallback(() => {
-    if (currentPage <= 0) return;
-    isProgrammaticScrollRef.current = true;
-    const target = currentPage - 1;
-    if (isControlled) {
-      onPageChange?.(target);
-    } else {
-      setInternalPage(target);
-    }
-  }, [currentPage, isControlled, onPageChange]);
+  const next = useCallback(
+    (instant?: boolean) => {
+      if (currentPage >= totalPages - 1) return;
+      isProgrammaticScrollRef.current = true;
+      instantScrollRef.current = !!instant;
+      const target = currentPage + 1;
+      if (isControlled) {
+        onPageChange?.(target);
+      } else {
+        setInternalPage(target);
+      }
+    },
+    [currentPage, totalPages, isControlled, onPageChange],
+  );
+
+  const previous = useCallback(
+    (instant?: boolean) => {
+      if (currentPage <= 0) return;
+      isProgrammaticScrollRef.current = true;
+      instantScrollRef.current = !!instant;
+      const target = currentPage - 1;
+      if (isControlled) {
+        onPageChange?.(target);
+      } else {
+        setInternalPage(target);
+      }
+    },
+    [currentPage, isControlled, onPageChange],
+  );
 
   const goTo = useCallback(
-    (target: number) => {
+    (target: number, instant?: boolean) => {
+      instantScrollRef.current = !!instant;
       if (isControlled) {
         onPageChange?.(target);
       } else {
@@ -573,6 +588,7 @@ export function useCarouselRoot(
       visibleSlideIndicesRef,
       setSlideInView,
       isProgrammaticScrollRef,
+      instantScrollRef,
       isDraggingRef,
       setDragging,
     }),

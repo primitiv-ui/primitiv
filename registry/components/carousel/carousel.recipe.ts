@@ -73,6 +73,10 @@ export const carousel = cva("primitiv-carousel", {
       wide: "primitiv-carousel--ratio-wide",
       ultrawide: "primitiv-carousel--ratio-ultrawide",
     },
+    slideWidth: {
+      equal: "primitiv-carousel--slide-width-equal",
+      content: "primitiv-carousel--slide-width-content",
+    },
   },
   defaultVariants: {
     peek: "none",
@@ -88,6 +92,7 @@ export const carousel = cva("primitiv-carousel", {
     indicators: "dots",
     size: "md",
     ratio: "wide",
+    slideWidth: "equal",
   },
 });
 

@@ -25,8 +25,10 @@ expressed in logical properties.
 > **`distribution`** (`group` / `stretch`) and **`align`** (`start` / `center` /
 > `end`), that compose on top of the 2×2 and orientation, an
 > **`indicators`** modifier whose `thumbnails` option swaps the dots for image
-> thumbnails, and a slide **`ratio`** modifier (square / standard / wide /
-> ultrawide) for the slide aspect ratio (all — see below). Multi-slide and autoplay
+> thumbnails, a slide **`ratio`** modifier (square / standard / wide /
+> ultrawide) for the slide aspect ratio, and a **`slideWidth`** modifier
+> (`equal` default · `content`) for variable-width slides, scoped to
+> `slidesPerPage={1}` (all — see below). Multi-slide and autoplay
 > land in later iterations (see `docs/carousel-development-log.md`).
 
 ## Files
@@ -208,6 +210,23 @@ so they can't fall out of sync.
   track only, not the whole root, so the prev/next focus rings and overlay controls are
   never clipped. Distinct from the per-slide `radius` modifier (which rounds each slide);
   this rounds the track that clips them.
+- **Variable-width slides (`slideWidth`).** A root **`slideWidth`** modifier
+  (`equal` default · `content`) chooses how each slide's width (block size when
+  vertical) is determined. `equal` shares the viewport's content box evenly
+  across `slidesPerPage` slides, each holding the `ratio` aspect-ratio — the
+  behaviour every other example above assumes. `content` lets each slide size
+  to its own content instead: the flex-basis switches from the equal-share
+  percentage to `auto` and the `ratio` aspect-ratio stands down, so a slide's
+  width comes from whatever it naturally is — an intrinsically-sized `<img>`
+  (its natural dimensions), an explicit inline width on `<CarouselSlide>`, or
+  any content with a natural size — matching Ark UI's `autoSize`. Composes with
+  `<CarouselSlide snapAlign="center">` (above) for a variable-width layout where
+  only some slides should centre. **Scoped to `slidesPerPage={1}`** — the
+  multi-slide flex-basis calc (below) assumes every slide is an equal share, so
+  a content-driven width breaks that math; composing the two is unsupported.
+  No headless change: the viewport's programmatic scroll already measures the
+  target slide's real `getBoundingClientRect()` width rather than assuming a
+  percentage, so it's already width-agnostic.
 - **Multi-slide (`slidesPerPage` / `slidesPerMove`).** These are **not**
   modifiers — they are **`styleProps`**: numeric props forwarded straight to the
   headless page model *and* written onto `--primitiv-carousel-slides-per-page`

@@ -52,6 +52,12 @@ const GALLERY = [
   "linear-gradient(135deg, #dc2626, #facc15)",
 ];
 
+// Explicit per-slide widths for `slideWidth="content"` — a plain gradient
+// <div> has no intrinsic size of its own, so the preview needs a stand-in
+// width per slide to make the content-sizing axis visible at all. Unused
+// (and irrelevant) under the default `slideWidth="equal"`.
+const WIDTHS = [160, 300, 220, 340, 260, 380, 200, 320];
+
 type Size = "xs" | "sm" | "md" | "lg" | "xl";
 type Placement = "external" | "overlay";
 type Orientation = "horizontal" | "vertical";
@@ -60,6 +66,7 @@ type Distribution = "group" | "stretch";
 type Align = "start" | "center" | "end";
 type Cluster = "split" | "joined";
 type Ratio = "square" | "standard" | "wide" | "ultrawide";
+type SlideWidth = "equal" | "content";
 type Radius = "md" | "none";
 type Sizing = "none" | "sm" | "md" | "lg";
 type Surface = "none" | "subtle";
@@ -78,6 +85,7 @@ interface BuilderConfig {
   slideCount: number;
   slidesPerPage: number;
   ratio: Ratio;
+  slideWidth: SlideWidth;
   radius: Radius;
   containerRadius: Radius;
   gap: Sizing;
@@ -102,6 +110,7 @@ const DEFAULT_CONFIG: BuilderConfig = {
   slideCount: 4,
   slidesPerPage: 1,
   ratio: "wide",
+  slideWidth: "equal",
   radius: "md",
   containerRadius: "none",
   gap: "md",
@@ -192,23 +201,33 @@ function RangeField({
   max,
   value,
   onChange,
+  disabled = false,
+  note,
 }: {
   label: string;
   min: number;
   max: number;
   value: number;
   onChange: (value: number) => void;
+  // Mirrors RadioField's disabled+note: greys out an axis that's currently a
+  // no-op for the active combination, with a short reason.
+  disabled?: boolean;
+  note?: string;
 }) {
   return (
     <label className="carousel-builder__field carousel-builder__range">
       <span className="carousel-builder__legend">
         {label}: <strong>{value}</strong>
+        {disabled && note ? (
+          <span className="carousel-builder__na"> — {note}</span>
+        ) : null}
       </span>
       <input
         type="range"
         min={min}
         max={max}
         value={value}
+        disabled={disabled}
         onChange={(event) => onChange(Number(event.target.value))}
       />
     </label>
@@ -337,6 +356,7 @@ function LiveCarousel({
         radius={config.containerRadius}
         gap={config.gap}
         ratio={config.ratio}
+        slideWidth={config.slideWidth}
         indicators={config.indicators}
         transition={config.transition}
         slidesPerPage={config.slidesPerPage}
@@ -347,7 +367,14 @@ function LiveCarousel({
             <CarouselSlide
               key={index}
               radius={config.radius}
-              style={{ background }}
+              style={{
+                background,
+                ...(config.slideWidth === "content"
+                  ? isVertical
+                    ? { height: WIDTHS[index % WIDTHS.length] }
+                    : { width: WIDTHS[index % WIDTHS.length] }
+                  : {}),
+              }}
             />
           ))}
         </CarouselViewport>
@@ -370,6 +397,7 @@ function describe(config: BuilderConfig, size: Size): string {
     `cluster="${config.cluster}"`,
     `gap="${config.gap}"`,
     `ratio="${config.ratio}"`,
+    `slideWidth="${config.slideWidth}"`,
     `peek="${config.peek}"`,
     `padding="${config.padding}"`,
     `surface="${config.surface}"`,
@@ -408,6 +436,11 @@ export function CarouselBuilder() {
   // both orientations; the only inert case is align under distribution=stretch (the
   // cluster already fills its edge, so alignment is moot).
   const alignDisabled = config.distribution === "stretch";
+  // slideWidth="content" switches the slide flex-basis to auto and stands
+  // down the ratio aspect-ratio, and is scoped to slidesPerPage=1 (the
+  // multi-slide flex-basis math assumes equal shares) — both axes go inert
+  // under it, surfaced here rather than left as a silent visual break.
+  const contentSizing = config.slideWidth === "content";
 
   return (
     <article className="carousel-builder">
@@ -507,6 +540,8 @@ export function CarouselBuilder() {
               max={4}
               value={config.slidesPerPage}
               onChange={(value) => set("slidesPerPage", value)}
+              disabled={contentSizing}
+              note="n/a when slideWidth=content (assumes equal shares)"
             />
             <RadioField
               legend="ratio"
@@ -514,6 +549,8 @@ export function CarouselBuilder() {
               value={config.ratio}
               options={["square", "standard", "wide", "ultrawide"] as const}
               onChange={(value) => set("ratio", value)}
+              disabled={contentSizing}
+              note="n/a when slideWidth=content (aspect-ratio stands down)"
             />
             <RadioField
               legend="radius"
@@ -521,6 +558,13 @@ export function CarouselBuilder() {
               value={config.radius}
               options={["md", "none"] as const}
               onChange={(value) => set("radius", value)}
+            />
+            <RadioField
+              legend="slideWidth"
+              name="slideWidth"
+              value={config.slideWidth}
+              options={["equal", "content"] as const}
+              onChange={(value) => set("slideWidth", value)}
             />
           </Section>
 

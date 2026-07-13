@@ -23,6 +23,7 @@ const EXAMPLES: { to: string; label: string }[] = [
   { to: "spacing", label: "Slide spacing" },
   { to: "size", label: "Size" },
   { to: "images", label: "Images" },
+  { to: "variable-width", label: "Variable width" },
 ];
 
 export function CarouselLayout() {

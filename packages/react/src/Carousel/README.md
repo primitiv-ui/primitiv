@@ -95,7 +95,7 @@ correction), and CSS owns _what the user sees_:
 | Reduced motion                     | `behavior: "instant"`                                    | Optional `@media (prefers-reduced-motion: reduce)` on consumer animations |
 | Keyboard navigation                | Arrow / Home / End on focused viewport                   | `:focus-visible` on viewport                                             |
 | Touch / swipe                      | Native scroll + `scrollsnapchange` to sync state         | `overscroll-behavior-x: contain`, `scrollbar-width: none`                |
-| Mouse click-and-drag               | `scrollLeft`/`scrollTop` set 1:1 from the pointer         | `cursor: grab`, `cursor: grabbing` on `[data-dragging]`                  |
+| Mouse click-and-drag (`allowMouseDrag`, off by default) | `scrollLeft`/`scrollTop` set 1:1 from the pointer | `cursor: grab`, `cursor: grabbing` on `[data-dragging]`      |
 | Mouse-wheel scroll (horizontal)    | `deltaY` → `scrollLeft` when `deltaX` is negligible       | —                                                                        |
 | Indicator state                    | `data-state` on `[data-carousel-indicator]`              | Visual: dot, bar, thumbnail, etc.                                        |
 
@@ -667,17 +667,20 @@ touch/trackpad scroll that already worked with zero custom code (the
 scroll-driven `scrollsnapchange` sync doesn't care how the viewport got
 scrolled):
 
-- **Click-and-drag.** Click and hold on the viewport, drag, and it
-  scrolls like a swipe: `scrollLeft`/`scrollTop` track the pointer 1:1
-  (no momentum/flick) once the drag clears a small movement threshold —
-  below the threshold nothing happens, so a plain click on a link or
-  button inside a slide still reaches it. Releasing the pointer lets the
-  existing `scroll-snap-type` settle to the nearest slide, exactly like a
-  touch swipe — no extra "scroll → state" wiring needed, the
-  `scrollsnapchange` sync already covers it. A `data-dragging` attribute
-  is set on the viewport for the duration of an active drag (see
-  "Recommended CSS" for the `cursor: grab` / `grabbing` pairing). Ignores
-  non-mouse pointer types (`touch`, `pen`) — native scroll already
+- **Click-and-drag** — **opt-in** via `allowMouseDrag` on `Carousel.Root`
+  (default `false`; an unconditionally-on drag could conflict with a
+  consumer's own drag-sensitive slide content — a nested carousel, a
+  draggable card, a canvas). When enabled: click and hold on the viewport,
+  drag, and it scrolls like a swipe — `scrollLeft`/`scrollTop` track the
+  pointer 1:1 (no momentum/flick) once the drag clears a small movement
+  threshold — below the threshold nothing happens, so a plain click on a
+  link or button inside a slide still reaches it. Releasing the pointer
+  lets the existing `scroll-snap-type` settle to the nearest slide, exactly
+  like a touch swipe — no extra "scroll → state" wiring needed, the
+  `scrollsnapchange` sync already covers it. A `data-dragging` attribute is
+  set on the viewport for the duration of an active drag (see "Recommended
+  CSS" for the `cursor: grab` / `grabbing` pairing). Ignores non-mouse
+  pointer types (`touch`, `pen`) even when enabled — native scroll already
   handles those.
 - **Mouse-wheel scroll.** A physical wheel's vertical notches
   (`deltaY`) already natively scroll a `orientation="vertical"`

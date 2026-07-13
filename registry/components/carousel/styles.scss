@@ -238,12 +238,16 @@
     overscroll-behavior-x: contain;
     /* Hide the native scrollbar while keeping scroll behaviour. */
     scrollbar-width: none;
-    /* Invites click-and-drag scrolling; the headless layer flips to
-       data-dragging for the duration of an active drag. */
-    cursor: grab;
   }
   .primitiv-carousel__viewport::-webkit-scrollbar {
     display: none;
+  }
+  /* Mouse click-and-drag is opt-in (Carousel.Root's allowMouseDrag, off by
+     default) — data-mouse-drag is only present when it's enabled, so the
+     grab-cursor affordance never implies a capability that isn't actually
+     there. */
+  .primitiv-carousel__viewport[data-mouse-drag] {
+    cursor: grab;
   }
   /* Active drag (set by the headless layer once the pointer clears the
      click-vs-drag threshold): the grabbing cursor + no text selection while

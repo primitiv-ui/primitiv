@@ -7,11 +7,114 @@ import { Carousel } from "../index.ts";
 // existing CSS scroll-snap-type settle to the nearest slide (no new code
 // needed for that half — the scrollsnapchange sync already covers it). A
 // small movement threshold distinguishes a drag from a click so a link/
-// button inside a slide still works.
-describe("Carousel mouse-drag scrolling", () => {
-  it("should not move scrollLeft for a pointer movement under the threshold", () => {
+// button inside a slide still works. Opt-in via `allowMouseDrag` (default
+// `false`) — an unconditionally-on drag could conflict with a consumer's
+// own drag-sensitive slide content.
+describe("Carousel mouse-drag styling hook (data-mouse-drag)", () => {
+  it("should not publish data-mouse-drag when allowMouseDrag is omitted (default false)", () => {
     render(
       <Carousel.Root ariaLabel="Featured products">
+        <Carousel.Viewport data-testid="viewport">
+          <Carousel.Slide />
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+
+    expect(screen.getByTestId("viewport")).not.toHaveAttribute(
+      "data-mouse-drag",
+    );
+  });
+
+  it("should publish data-mouse-drag when allowMouseDrag is true, as a persistent hook distinct from the transient data-dragging", () => {
+    render(
+      <Carousel.Root ariaLabel="Featured products" allowMouseDrag>
+        <Carousel.Viewport data-testid="viewport">
+          <Carousel.Slide />
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+
+    expect(screen.getByTestId("viewport")).toHaveAttribute(
+      "data-mouse-drag",
+      "",
+    );
+  });
+});
+
+describe("Carousel mouse-drag scrolling (opt-in disabled)", () => {
+  it("should not move scrollLeft or set the dragging hook when allowMouseDrag is omitted (default false)", () => {
+    render(
+      <Carousel.Root ariaLabel="Featured products">
+        <Carousel.Viewport data-testid="viewport">
+          <Carousel.Slide />
+          <Carousel.Slide />
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+    const viewport = screen.getByTestId("viewport");
+    Object.defineProperty(viewport, "scrollLeft", {
+      value: 100,
+      writable: true,
+    });
+
+    act(() => {
+      fireEvent.pointerDown(viewport, {
+        pointerType: "mouse",
+        pointerId: 1,
+        clientX: 200,
+        clientY: 0,
+      });
+      fireEvent.pointerMove(viewport, {
+        pointerType: "mouse",
+        pointerId: 1,
+        clientX: 240,
+        clientY: 0,
+      });
+    });
+
+    expect(viewport.scrollLeft).toBe(100);
+    expect(viewport).not.toHaveAttribute("data-dragging");
+  });
+
+  it("should not move scrollLeft or set the dragging hook when allowMouseDrag is explicitly false", () => {
+    render(
+      <Carousel.Root ariaLabel="Featured products" allowMouseDrag={false}>
+        <Carousel.Viewport data-testid="viewport">
+          <Carousel.Slide />
+          <Carousel.Slide />
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+    const viewport = screen.getByTestId("viewport");
+    Object.defineProperty(viewport, "scrollLeft", {
+      value: 100,
+      writable: true,
+    });
+
+    act(() => {
+      fireEvent.pointerDown(viewport, {
+        pointerType: "mouse",
+        pointerId: 1,
+        clientX: 200,
+        clientY: 0,
+      });
+      fireEvent.pointerMove(viewport, {
+        pointerType: "mouse",
+        pointerId: 1,
+        clientX: 240,
+        clientY: 0,
+      });
+    });
+
+    expect(viewport.scrollLeft).toBe(100);
+    expect(viewport).not.toHaveAttribute("data-dragging");
+  });
+});
+
+describe("Carousel mouse-drag scrolling (allowMouseDrag enabled)", () => {
+  it("should not move scrollLeft for a pointer movement under the threshold", () => {
+    render(
+      <Carousel.Root ariaLabel="Featured products" allowMouseDrag>
         <Carousel.Viewport data-testid="viewport">
           <Carousel.Slide />
           <Carousel.Slide />
@@ -45,7 +148,7 @@ describe("Carousel mouse-drag scrolling", () => {
 
   it("should set scrollLeft to track the pointer 1:1 once past the movement threshold", () => {
     render(
-      <Carousel.Root ariaLabel="Featured products">
+      <Carousel.Root ariaLabel="Featured products" allowMouseDrag>
         <Carousel.Viewport data-testid="viewport">
           <Carousel.Slide />
           <Carousel.Slide />
@@ -81,7 +184,7 @@ describe("Carousel mouse-drag scrolling", () => {
 
   it("should set scrollTop instead of scrollLeft when the carousel is vertical", () => {
     render(
-      <Carousel.Root ariaLabel="Featured products" orientation="vertical">
+      <Carousel.Root ariaLabel="Featured products" orientation="vertical" allowMouseDrag>
         <Carousel.Viewport data-testid="viewport">
           <Carousel.Slide />
           <Carousel.Slide />
@@ -114,7 +217,7 @@ describe("Carousel mouse-drag scrolling", () => {
 
   it("should stop tracking and clear the dragging hook on pointerup", () => {
     render(
-      <Carousel.Root ariaLabel="Featured products">
+      <Carousel.Root ariaLabel="Featured products" allowMouseDrag>
         <Carousel.Viewport data-testid="viewport">
           <Carousel.Slide />
           <Carousel.Slide />
@@ -156,7 +259,7 @@ describe("Carousel mouse-drag scrolling", () => {
 
   it("should stop tracking and clear the dragging hook on pointercancel", () => {
     render(
-      <Carousel.Root ariaLabel="Featured products">
+      <Carousel.Root ariaLabel="Featured products" allowMouseDrag>
         <Carousel.Viewport data-testid="viewport">
           <Carousel.Slide />
           <Carousel.Slide />
@@ -193,7 +296,7 @@ describe("Carousel mouse-drag scrolling", () => {
 
   it("should no-op a pointerup with no preceding pointerdown-tracked drag", () => {
     render(
-      <Carousel.Root ariaLabel="Featured products">
+      <Carousel.Root ariaLabel="Featured products" allowMouseDrag>
         <Carousel.Viewport data-testid="viewport">
           <Carousel.Slide />
           <Carousel.Slide />
@@ -212,7 +315,7 @@ describe("Carousel mouse-drag scrolling", () => {
 
   it("should ignore non-mouse pointer types (native touch scroll already handles them)", () => {
     render(
-      <Carousel.Root ariaLabel="Featured products">
+      <Carousel.Root ariaLabel="Featured products" allowMouseDrag>
         <Carousel.Viewport data-testid="viewport">
           <Carousel.Slide />
           <Carousel.Slide />
@@ -247,7 +350,7 @@ describe("Carousel mouse-drag scrolling", () => {
   it("should suppress the click that follows a real drag, so a link under the pointer doesn't fire", () => {
     const onClick = vi.fn();
     render(
-      <Carousel.Root ariaLabel="Featured products">
+      <Carousel.Root ariaLabel="Featured products" allowMouseDrag>
         <Carousel.Viewport data-testid="viewport">
           <Carousel.Slide>
             <button type="button" onClick={onClick}>
@@ -289,7 +392,7 @@ describe("Carousel mouse-drag scrolling", () => {
   it("should not suppress a plain click that never crossed the drag threshold", async () => {
     const onClick = vi.fn();
     render(
-      <Carousel.Root ariaLabel="Featured products">
+      <Carousel.Root ariaLabel="Featured products" allowMouseDrag>
         <Carousel.Viewport data-testid="viewport">
           <Carousel.Slide>
             <button type="button" onClick={onClick}>

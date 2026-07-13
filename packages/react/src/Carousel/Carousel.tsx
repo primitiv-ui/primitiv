@@ -103,6 +103,7 @@ export const CarouselRoot: ForwardRefExoticComponent<
     transition,
     snapAlign,
     orientation,
+    allowMouseDrag,
     children,
     ...rest
   },
@@ -124,6 +125,7 @@ export const CarouselRoot: ForwardRefExoticComponent<
       transition,
       snapAlign,
       orientation,
+      allowMouseDrag,
     },
     imperativeRef,
   );
@@ -171,9 +173,12 @@ CarouselRoot.displayName = "CarouselRoot";
  *
  * **Styling hooks.** `data-carousel-viewport` is set on the rendered
  * element. The component ships no styles — apply your own scroll-snap
- * recipe via this attribute. `data-dragging` is additionally present
- * for the duration of an active mouse drag (see below) — a `cursor:
- * grab` / `grabbing` pairing is the natural use.
+ * recipe via this attribute. `data-mouse-drag` is present whenever
+ * `allowMouseDrag` is `true` (a persistent hook — the natural place for
+ * a `cursor: grab` affordance, since showing that cursor when dragging
+ * isn't actually enabled would be misleading); `data-dragging` is
+ * additionally present only for the duration of an active drag (see
+ * below) — pair it with `cursor: grabbing`.
  *
  * **Keyboard navigation.** The Viewport is in the tab order
  * (`tabIndex={0}`) so keyboard users can reach the rotation control
@@ -190,15 +195,19 @@ CarouselRoot.displayName = "CarouselRoot";
  * target — focus inside a slide (e.g. on a link or form control) keeps
  * its native arrow-key semantics.
  *
- * **Mouse click-and-drag.** Click and hold, then drag, and the viewport
- * scrolls like a swipe: `scrollLeft`/`scrollTop` track the pointer 1:1
- * (no momentum) once the drag clears a small movement threshold — below
- * it, nothing happens, so a plain click on a link/button inside a slide
- * still reaches it. Release lets `scroll-snap-type` settle to the
- * nearest slide (the same `scrollsnapchange` sync a touch swipe already
- * drives). A `data-dragging` attribute is set for the duration of an
- * active drag. Only `pointerType === "mouse"` is handled — touch/pen
- * already scroll natively.
+ * **Mouse click-and-drag** — opt-in via {@link CarouselRootProps.allowMouseDrag |
+ * `allowMouseDrag`} on `Carousel.Root` (default `false`; an
+ * unconditionally-on drag could conflict with a consumer's own
+ * drag-sensitive slide content). When enabled: click and hold, then drag,
+ * and the viewport scrolls like a swipe: `scrollLeft`/`scrollTop` track
+ * the pointer 1:1 (no momentum) once the drag clears a small movement
+ * threshold — below it, nothing happens, so a plain click on a
+ * link/button inside a slide still reaches it. Release lets
+ * `scroll-snap-type` settle to the nearest slide (the same
+ * `scrollsnapchange` sync a touch swipe already drives). A
+ * `data-dragging` attribute is set for the duration of an active drag.
+ * Only `pointerType === "mouse"` is handled — touch/pen already scroll
+ * natively regardless of this prop.
  *
  * **Mouse-wheel scroll.** A physical wheel's vertical notches already
  * scroll a `orientation="vertical"` carousel natively. On the default
@@ -223,7 +232,7 @@ export function CarouselViewport({
   children,
   ...rest
 }: CarouselViewportProps): ReactElement {
-  const { isAutoRotating, ids } = useCarouselContext();
+  const { isAutoRotating, ids, allowMouseDrag } = useCarouselContext();
   const {
     viewportRef,
     onKeyDown,
@@ -247,6 +256,7 @@ export function CarouselViewport({
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerCancel}
       onClickCapture={onClickCapture}
+      {...(allowMouseDrag && { "data-mouse-drag": "" })}
       {...(ids.viewport !== undefined && { id: ids.viewport })}
       {...rest}
     >

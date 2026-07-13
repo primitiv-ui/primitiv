@@ -90,6 +90,8 @@ type UseCarouselRootProps = {
   snapAlign?: CarouselSnapAlign;
   /** Scroll/pagination axis — see {@link CarouselOrientation}. */
   orientation?: CarouselOrientation;
+  /** Opt-in mouse click-and-drag scrolling. */
+  allowMouseDrag?: boolean;
 };
 
 /**
@@ -132,6 +134,7 @@ export function useCarouselRoot(
     transition = "slide",
     snapAlign = "start",
     orientation = "horizontal",
+    allowMouseDrag = false,
   }: UseCarouselRootProps = {},
   imperativeRef?: Ref<CarouselImperativeApi>,
 ) {
@@ -476,6 +479,7 @@ export function useCarouselRoot(
       transition,
       snapAlign,
       orientation,
+      allowMouseDrag,
       refreshTick,
       visibleSlideIndicesRef,
       setSlideInView,
@@ -505,6 +509,7 @@ export function useCarouselRoot(
       transition,
       snapAlign,
       orientation,
+      allowMouseDrag,
       refreshTick,
       setSlideInView,
     ],

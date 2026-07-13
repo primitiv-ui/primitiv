@@ -2088,9 +2088,11 @@ it (decision 4).
 - [x] Fade transition + `data-transition` hook — **landed (iteration 5)**.
       `transition="fade"` (a named non-slide mode) disables scroll wiring and
       publishes `data-transition` on the Root; the registry crossfades off it.
-- [x] Mouse-drag gesture — **landed (mouse input iteration)**. Pointer
-      handlers on the Viewport track the pointer 1:1 into scrollLeft/scrollTop
-      past a movement threshold; `data-dragging` is the styling hook.
+- [x] Mouse-drag gesture — **landed (mouse input iteration)**. Opt-in via
+      `allowMouseDrag` (default `false`, matching Ark UI). Pointer handlers
+      on the Viewport track the pointer 1:1 into scrollLeft/scrollTop past a
+      movement threshold; `data-mouse-drag` is a persistent enabled hook,
+      `data-dragging` is the transient active-drag hook.
 - [ ] Explicit RTL tests (mirrors implicitly via logical properties;
       no dedicated coverage)
 
@@ -2133,8 +2135,9 @@ tracked in our own backlog/headless-gaps sections are cross-referenced, not
 repeated here.
 
 **Already tracked (no new entry needed):** `loop` (our "Looping / infinite"),
-`allowMouseDrag` (our mouse-drag gesture — **landed**, though see the design
-divergence flagged below), explicit RTL (`dir`), `autoSize` + per-item
+`allowMouseDrag` (our mouse-drag gesture — **landed**, and now matches Ark's
+opt-in/default-off shape exactly, see the resolved divergence below),
+explicit RTL (`dir`), `autoSize` + per-item
 `snapAlign` (our "variable-width slides" backlog item, iteration 14 follow-up
 — note Ark's per-item `snapAlign` generalizes ours, see below).
 
@@ -2207,16 +2210,32 @@ divergence flagged below), explicit RTL (`dir`), `autoSize` + per-item
 
 **Design divergence to flag, not necessarily a gap:**
 
-- **`allowMouseDrag` is opt-in in Ark (default `false`); ours is
-  unconditionally on for every mouse pointer.** Worth a deliberate decision
-  in a future session rather than leaving it implicit: is always-on drag the
-  right default for a "zero styles, composable" headless primitive, or
-  should it be an explicit prop (matching every other opt-in capability we
-  have — `autoplay`, `orientation`, `transition`)? An unconditionally-on drag
-  could be a footgun for a consumer whose slide content has its own
-  drag-sensitive interaction (e.g. a nested carousel, a draggable card, a
-  canvas). No action taken yet — flagging for a decision, not assuming the
-  answer.
+- ~~**`allowMouseDrag` is opt-in in Ark (default `false`); ours is
+  unconditionally on for every mouse pointer.**~~ **Resolved 2026-07-13**
+  (same session, human decision): matched Ark — `allowMouseDrag` is now a
+  Root prop, default `false`. TDD in `packages/react`
+  (`Carousel.mouse-drag.test.tsx`, split into "opt-in disabled" / "enabled"
+  describe blocks + a new `data-mouse-drag` styling-hook describe block, 13
+  tests total). Threaded through `types.ts` (`CarouselRootProps` +
+  `CarouselContextValue`) → `useCarouselRoot.ts` (default `false`) →
+  `Carousel.tsx` (`CarouselRoot` passthrough) → `useCarouselViewport.ts`
+  (`onPointerDown` gates on it first, alongside the existing `pointerType`/
+  `transition` checks). No registry contract change — `allowMouseDrag` flows
+  through the wrapper's existing `ComponentPropsWithRef<typeof
+  CarouselPrimitive.Root>` passthrough type + `{...props}` spread
+  automatically, the same as `transition`/`snapAlign`/`orientation` already
+  do. **A second fix fell out of this:** the registry's `cursor: grab` was
+  unconditional on the viewport, which would have misleadingly invited a
+  drag that isn't enabled — added a persistent **`data-mouse-drag`** hook
+  (present only when `allowMouseDrag` is `true`, distinct from the
+  transient `data-dragging`) and scoped `cursor: grab` to it in `styles.css`
+  + `.scss` + kitchen-sink hand-sync. Both READMEs (headless + registry)
+  updated. Gates: 239 Carousel tests green; a scoped coverage run confirms
+  the Carousel files are fully covered (absent from the v8 reporter's
+  under-threshold table — the reporter omits 100%-covered files); the
+  full-package `qa:units` run is unreliable in this sandbox session (hangs/
+  OOM-kills on the full ~1700-test suite) so wasn't re-confirmed end-to-end
+  this round — flag for a human/CI re-check.
 - **Ark's `Control` is a headless anatomy part (`getControlProps()`); ours
   (`CarouselControls`) is registry-only, deliberately kept out of the
   headless primitive** (iteration 6 decision — "the behaviourless grouping

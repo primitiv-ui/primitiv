@@ -66,6 +66,7 @@ export function useCarouselViewport() {
     transition,
     snapAlign,
     orientation,
+    allowMouseDrag,
     refreshTick,
     visibleSlideIndicesRef,
     setSlideInView,
@@ -85,8 +86,11 @@ export function useCarouselViewport() {
     internalRef.current = node;
   }, []);
 
-  // Mouse click-and-drag scrolling. Tracks the pointer 1:1 (no momentum) by
-  // writing scrollLeft/scrollTop directly during the drag; release lets the
+  // Mouse click-and-drag scrolling. Opt-in via `allowMouseDrag` (default
+  // false) — an unconditionally-on drag could conflict with a consumer's own
+  // drag-sensitive slide content (a nested carousel, a draggable card, a
+  // canvas). When enabled, tracks the pointer 1:1 (no momentum) by writing
+  // scrollLeft/scrollTop directly during the drag; release lets the
   // existing scroll-snap-type settle to the nearest slide, which the
   // scrollsnapchange sync above already picks up for free — no extra "scroll
   // → state" wiring needed here. `dragStateRef.current.dragging` only flips
@@ -112,7 +116,13 @@ export function useCarouselViewport() {
 
   const onPointerDown = useCallback(
     (event: PointerEvent<HTMLDivElement>) => {
-      if (event.pointerType !== "mouse" || transition !== "slide") return;
+      if (
+        !allowMouseDrag ||
+        event.pointerType !== "mouse" ||
+        transition !== "slide"
+      ) {
+        return;
+      }
       // Guaranteed populated — this handler only ever fires as a React
       // event on the very element viewportRef attached to.
       const viewport = internalRef.current!;
@@ -124,7 +134,7 @@ export function useCarouselViewport() {
         dragging: false,
       };
     },
-    [orientation, transition],
+    [allowMouseDrag, orientation, transition],
   );
 
   const onPointerMove = useCallback(

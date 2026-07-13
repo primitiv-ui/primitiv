@@ -235,6 +235,15 @@ export type CarouselRootProps = Omit<
      * the viewport scroll axis, the arrow-key bindings, and the
      * `data-orientation` styling hook on the Root. */
     orientation?: CarouselOrientation;
+    /** Whether the Viewport supports mouse click-and-drag scrolling —
+     * the pointer tracks 1:1 into `scrollLeft`/`scrollTop` (no momentum)
+     * once past a small movement threshold, release lets the existing
+     * `scroll-snap-type` settle. Defaults to `false`: an unconditionally-on
+     * drag can conflict with a consumer's own drag-sensitive slide content
+     * (a nested carousel, a draggable card, a canvas), so it's opt-in.
+     * Touch/pen scrolling is unaffected either way — that's native,
+     * independent of this prop. */
+    allowMouseDrag?: boolean;
   };
 
 /**
@@ -324,6 +333,9 @@ export type CarouselContextValue = {
    * Drives the viewport scroll axis, the arrow-key bindings, and the
    * `data-orientation` hook on the Root. */
   orientation: CarouselOrientation;
+  /** Resolved mouse click-and-drag scrolling opt-in (defaults to
+   * `false`). */
+  allowMouseDrag: boolean;
   /** Bumped by `refresh()` to force the viewport's scroll-align
    * effect to re-run without a page change. */
   refreshTick: number;

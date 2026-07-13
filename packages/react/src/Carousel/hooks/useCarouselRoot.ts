@@ -343,6 +343,19 @@ export function useCarouselRoot(
     [isControlled, onPageChange],
   );
 
+  // Slide-granularity counterpart to page-granularity goTo — maps the
+  // target slide index to its containing page via pageForSlideIndex (a
+  // multi-slide page's interior slides aren't independently reachable,
+  // so this always lands on the page start closest to slideIndex) and
+  // defers to the same goTo the trigger components use. Matches Ark UI's
+  // scrollToIndex(index, instant?).
+  const scrollToIndex = useCallback(
+    (slideIndex: number, instant?: boolean) => {
+      goTo(pageForSlideIndex(slideIndex), instant);
+    },
+    [goTo, pageForSlideIndex],
+  );
+
   // Autoplay timer. Schedules a single setTimeout per active page; when
   // next() runs it bumps currentPage, which retriggers the effect with
   // a fresh timer. canGoNext gates the schedule so autoplay stops at
@@ -517,6 +530,7 @@ export function useCarouselRoot(
       next,
       previous,
       goTo,
+      scrollToIndex,
       play,
       pause,
       refresh,
@@ -529,6 +543,7 @@ export function useCarouselRoot(
       next,
       previous,
       goTo,
+      scrollToIndex,
       play,
       pause,
       refresh,

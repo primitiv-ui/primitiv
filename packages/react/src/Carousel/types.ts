@@ -557,6 +557,14 @@ export type CarouselImperativeApi = {
   /** Jump directly to `target` (zero-based page index). See `next`'s
    * `instant` parameter. Matches Ark UI's `scrollTo(page, instant?)`. */
   goTo: (target: number, instant?: boolean) => void;
+  /** Jump to the page containing the given zero-based **slide** index —
+   * slide granularity, distinct from `goTo`'s page granularity. In a
+   * multi-slide (`slidesPerPage > 1`) layout an interior slide isn't its
+   * own scroll-snap position, so this lands on that slide's *containing*
+   * page (the same mapping `Carousel.Indicator` uses internally). See
+   * `next`'s `instant` parameter. Matches Ark UI's
+   * `scrollToIndex(index, instant?)`. */
+  scrollToIndex: (slideIndex: number, instant?: boolean) => void;
   /** Set `playing` to `true`. Dismisses the hover/focus pause for the
    * lifetime of the resulting playing session. */
   play: () => void;

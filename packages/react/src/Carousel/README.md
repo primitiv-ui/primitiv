@@ -307,6 +307,7 @@ const carouselRef = useRef<CarouselImperativeApi>(null);
 carouselRef.current?.next();
 carouselRef.current?.previous();
 carouselRef.current?.goTo(2);
+carouselRef.current?.scrollToIndex(5);
 carouselRef.current?.play();
 carouselRef.current?.pause();
 carouselRef.current?.refresh();
@@ -332,6 +333,17 @@ The override never outlives the single call it's passed to — a plain
 `next()` / `previous()` / `goTo()` right after always falls back to
 the normal resolved behavior (`prefers-reduced-motion`-aware smooth
 scrolling by default).
+
+`scrollToIndex(slideIndex, instant?)` is the slide-granularity
+counterpart to `goTo`'s page granularity — matching Ark UI's
+`scrollToIndex(index, instant?)`. In a plain single-slide-per-page
+carousel the two are equivalent; the distinction matters once
+`slidesPerPage > 1`, where an interior slide of a page isn't itself a
+scroll-snap position — `scrollToIndex` maps the given slide index to
+its *containing* page (the same mapping `Carousel.Indicator` uses
+internally) rather than requiring you to compute the page yourself.
+It takes the same optional `instant` override as `next` / `previous` /
+`goTo`.
 
 `refresh()` re-issues the viewport's `scrollTo` for the current
 page — useful when external layout changes (window resize, container

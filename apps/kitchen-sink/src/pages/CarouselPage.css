@@ -44,6 +44,16 @@
   min-inline-size: 0;
 }
 
+/* Caps a full-span variable-width demo's own inline-size well below the grid
+ * container's — a carousel that fills a very wide "full" cell can end up
+ * wide enough to fit every content-sized slide at once with no overflow,
+ * which defeats the point (no scrolling, so no movement to see). Narrower
+ * than the sum of the demo's slide widths so a few show at once but there's
+ * still genuine room to page through the rest. */
+.carousel-page__constrain {
+  max-inline-size: 44rem;
+}
+
 /* Section group heading on the control-placement page — labels each block
  * (External / Overlay / External + split) so the long QA page reads in sections. */
 .carousel-page__group {
@@ -74,6 +84,19 @@
 
 @media (max-width: 40rem) {
   .carousel-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Variable-width slides need more room per cell than a fixed-ratio slide
+ * does — narrow content in a narrow grid column undercuts the very thing
+ * being demonstrated. Two columns instead of four (still one below 40rem). */
+.carousel-grid--roomy {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 60rem) {
+  .carousel-grid--roomy {
     grid-template-columns: minmax(0, 1fr);
   }
 }

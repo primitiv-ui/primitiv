@@ -1679,6 +1679,19 @@ const PORTRAIT = photo(360, 640, "#1e3a8a", "#14b8a6");
 const LANDSCAPE = photo(640, 360, "#7c3aed", "#ec4899");
 const SQUARE = photo(500, 500, "#ea580c", "#16a34a");
 
+// A same-height "product strip" of real images at six distinct widths — the
+// headline variable-width demo needs several *full* items visible in one
+// generous viewport (not just two sources compared), so the differing widths
+// read clearly against a uniform height, like a real product gallery.
+const PRODUCTS = [
+  photo(200, 280, "#1e3a8a", "#14b8a6"),
+  photo(340, 280, "#7c3aed", "#ec4899"),
+  photo(260, 280, "#ea580c", "#16a34a"),
+  photo(420, 280, "#0ea5e9", "#6366f1"),
+  photo(300, 280, "#db2777", "#f59e0b"),
+  photo(240, 280, "#0d9488", "#4f46e5"),
+];
+
 type ImageSlide = {
   src: string;
   fit?: "cover" | "contain";
@@ -1843,32 +1856,58 @@ const CARDS: VariableWidthCard[] = [
   { width: 420, label: "420px", tone: "#0d9488" },
 ];
 
-// Renders variable-width slides through the `slideWidth` modifier — either
-// real <img> sources (proving the content-sizing path against a genuine
-// replaced element, not a CSS background) or plain content boxes with an
-// explicit inline width (proving it isn't image-specific). `centerIndex`
-// composes the per-slide `snapAlign="center"` override (see the "Images"
-// page) onto one slide in the track.
+// Ark UI's own `autoSize` demo pattern: labels of visibly different lengths,
+// no explicit width at all — the slide's flex-basis:auto sizes it to fit its
+// own text + padding (max-content sizing), exactly like a normal inline-block
+// would. Distinct from CARDS above (an explicit inline width) — this is the
+// "bring no width, content decides" case, the more common real-world one.
+type NaturalCard = { label: string; tone: string };
+
+const NATURAL_CARDS: NaturalCard[] = [
+  { label: "XS", tone: "#1e3a8a" },
+  { label: "Small", tone: "#7c3aed" },
+  { label: "Medium Size", tone: "#ea580c" },
+  { label: "Large", tone: "#0d9488" },
+  { label: "Extra Large Item", tone: "#db2777" },
+  { label: "S", tone: "#0ea5e9" },
+];
+
+// Renders variable-width slides through the `slideWidth` modifier — real
+// <img> sources (proving the content-sizing path against a genuine replaced
+// element, not a CSS background), content-sized text cards with no explicit
+// width at all (Ark's own `autoSize` pattern — the slide's flex-basis:auto
+// sizes to its text + padding), or cards with an explicit inline width
+// (proving it isn't limited to natural content sizing either).
+// `centerIndex` composes the per-slide `snapAlign="center"` override (see
+// the "Images" page) onto one slide in an otherwise start-aligned track;
+// `snapAlign` sets the *root* default for every slide instead (the classic
+// "each active card centres in view" feel a variable-width carousel usually
+// wants — the scroll math measures each slide's real rendered width, so
+// centering already works regardless of how wide it turns out to be).
 function VariableWidthSingle({
   label,
   images,
+  natural,
   cards,
   slideWidth = "content",
   orientation,
   peek,
+  snapAlign,
   centerIndex,
 }: {
   label: string;
   images?: string[];
+  natural?: NaturalCard[];
   cards?: VariableWidthCard[];
   slideWidth?: "equal" | "content";
   orientation?: "horizontal" | "vertical";
   peek?: "none" | "sm" | "md" | "lg";
+  snapAlign?: "start" | "center" | "end";
   /** Overrides that one slide's snapAlign to "center", demonstrating the
    * per-slide override composing with a variable-width track. */
   centerIndex?: number;
 }) {
-  const count = images?.length ?? cards?.length ?? 0;
+  const count = images?.length ?? natural?.length ?? cards?.length ?? 0;
   const vertical = orientation === "vertical";
   return (
     <Carousel
@@ -1877,6 +1916,7 @@ function VariableWidthSingle({
       slideWidth={slideWidth}
       orientation={orientation}
       peek={peek}
+      snapAlign={snapAlign}
     >
       <CarouselViewport>
         {images?.map((src, i) => (
@@ -1885,6 +1925,24 @@ function VariableWidthSingle({
             snapAlign={i === centerIndex ? "center" : undefined}
           >
             <img src={src} alt="" />
+          </CarouselSlide>
+        ))}
+        {natural?.map((card, i) => (
+          <CarouselSlide
+            key={i}
+            snapAlign={i === centerIndex ? "center" : undefined}
+            style={{
+              background: card.tone,
+              padding: vertical ? "20px 28px" : "24px 32px",
+              whiteSpace: "nowrap",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#fff",
+              font: "700 16px/1 sans-serif",
+            }}
+          >
+            {card.label}
           </CarouselSlide>
         ))}
         {cards?.map((card, i) => (
@@ -1927,74 +1985,103 @@ export function CarouselVariableWidth() {
     <Example
       title="Variable-width slides — the slideWidth modifier"
       note={
-        'A root `slideWidth` modifier (`equal` default · `content`) chooses how each slide\'s width is determined. `equal` shares the viewport evenly (every other example on this page). `content` switches the slide flex-basis to `auto` and stands down the `ratio` aspect-ratio, so each slide sizes to its own content instead — an intrinsically-sized <img>, an explicit inline width, or any natural-width content (Ark UI\'s `autoSize`). Scoped to slidesPerPage={1}: the multi-slide flex-basis math assumes equal shares, which a content-driven width breaks. No headless change — the viewport\'s programmatic scroll already measures the target slide\'s real rendered width rather than assuming a percentage.'
+        'A root `slideWidth` modifier (`equal` default · `content`) chooses how each slide\'s width is determined. `equal` shares the viewport evenly (every other example on this page). `content` switches the slide flex-basis to `auto` and stands down the `ratio` aspect-ratio, so each slide sizes to its own content instead — an intrinsically-sized <img>, an explicit inline width, or (the most common case, and Ark UI\'s own `autoSize` demo pattern) plain text + padding with no explicit width at all. Seeing several full-width items at once — the compelling part of the effect — falls out for free from a generous container plus individually narrow slides; it needs no `slidesPerPage` (that axis groups N slides into one indivisible *page* for paging/indicator purposes, which assumes every slide is the same width — fundamentally incompatible with letting each one size itself, so the two axes don\'t combine). `snapAlign="center"` (root default below, or per-slide) already centres correctly whatever width a slide turns out to be — the scroll math measures each slide\'s real rendered width, never an assumed share.'
       }
       wide
     >
-      <div className="carousel-grid">
+      <div className="carousel-grid carousel-grid--roomy">
         <GridCell
           n={1}
-          title="content — real images, natural widths"
-          note="Portrait (360×640), landscape (640×360) and square (500×500) sources, each sized to its own intrinsic dimensions rather than cropped into a uniform slot — the slide box follows the image, not the other way round."
+          title="content — real product photos, several at once"
+          note="Six photos at six different widths (a uniform height, like a real product strip). A couple of full images show side by side at once with no cropping — a consequence of the individual widths vs. the viewport, not slidesPerPage — while the container stays narrow enough that there's still real content to page through. Centre-snapping (snapAlign=&quot;center&quot;, the root default here) keeps whichever card is active centred once a scroll settles."
+          span="full"
         >
-          <VariableWidthSingle
-            label="Natural image widths"
-            images={[PORTRAIT, LANDSCAPE, SQUARE]}
-            slideWidth="content"
-          />
+          <div className="carousel-page__constrain">
+            <VariableWidthSingle
+              label="Product photos, natural widths"
+              images={PRODUCTS}
+              slideWidth="content"
+              snapAlign="center"
+            />
+          </div>
         </GridCell>
 
         <GridCell
           n={2}
-          title="equal — the same images, for contrast"
-          note="The same three sources with slideWidth left at its default (`equal`): every slide takes the same share of the viewport and is cropped to fit — the behaviour the rest of this gallery assumes. Compare against cell 1."
+          title="content — text sized to itself (Ark UI's autoSize pattern)"
+          note={
+            'No image, no explicit width at all — each card is padding + a text label, and the slide\'s flex-basis:auto sizes it to fit exactly that (max-content sizing). Longer labels ("Medium Size", "Extra Large Item") are visibly wider than short ones ("XS", "S") with zero per-slide sizing code. Also centre-snapping.'
+          }
+          span="full"
+        >
+          <div className="carousel-page__constrain">
+            <VariableWidthSingle
+              label="Text cards, natural widths"
+              natural={NATURAL_CARDS}
+              snapAlign="center"
+            />
+          </div>
+        </GridCell>
+
+        <GridCell
+          n={3}
+          title="equal — the same photos, for contrast"
+          note="The same six sources with slideWidth left at its default (`equal`): every slide takes the same share of the viewport and is cropped to fit — the behaviour the rest of this gallery assumes. Compare against cell 1."
         >
           <VariableWidthSingle
-            label="Equal-share images"
-            images={[PORTRAIT, LANDSCAPE, SQUARE]}
+            label="Equal-share photos"
+            images={PRODUCTS}
             slideWidth="equal"
           />
         </GridCell>
 
         <GridCell
-          n={3}
-          title="content — non-image content"
-          note="Plain content boxes with an explicit inline width each (160 / 340 / 220 / 420px) — proving content-sizing isn't image-specific. Any content with a natural or explicit size works."
-        >
-          <VariableWidthSingle label="Card widths" cards={CARDS} />
-        </GridCell>
-
-        <GridCell
           n={4}
-          title="content + peek"
-          note="A peek reveals a sliver of the next differently-sized card past the active one — the peek gutter composes with variable widths exactly as it does with equal ones."
+          title="content — explicit inline width"
+          note="Plain content boxes with an explicit inline width each (160 / 340 / 220 / 420px), not a natural/intrinsic size — proving `content` mode also accepts a consumer-supplied width, not just intrinsic sizing."
         >
-          <VariableWidthSingle label="Cards with peek" cards={CARDS} peek="md" />
+          <VariableWidthSingle label="Explicit-width cards" cards={CARDS} />
         </GridCell>
 
         <GridCell
           n={5}
-          title="content + centred slide"
-          note="The third card overrides the root's default snapAlign to `center` for just that slide (Carousel.Slide's own snapAlign prop) — it settles centred in the viewport while the others still align to their leading edge."
+          title="content + peek"
+          note="A peek reveals a sliver of the next differently-sized card past the active one — the peek gutter composes with variable widths exactly as it does with equal ones."
         >
           <VariableWidthSingle
-            label="One centred card"
-            cards={CARDS}
-            centerIndex={2}
+            label="Cards with peek"
+            natural={NATURAL_CARDS}
+            peek="md"
           />
         </GridCell>
 
         <GridCell
           n={6}
-          title="content + RTL"
-          note="Right-to-left mirrors the controls and paging; each card keeps its own width regardless of direction."
-          dir="rtl"
+          title="content + one centred slide (start-aligned track)"
+          note="Here the root stays at the default snapAlign (start); only the third card overrides it to `center` for just itself (Carousel.Slide's own snapAlign prop) — it settles centred while its neighbours still align to their leading edge. Distinct from cells 1–2, where every slide centres."
         >
-          <VariableWidthSingle label="RTL cards" cards={CARDS} />
+          <VariableWidthSingle
+            label="One centred card"
+            natural={NATURAL_CARDS}
+            centerIndex={2}
+          />
         </GridCell>
 
         <GridCell
           n={7}
+          title="content + RTL"
+          note="Right-to-left mirrors the controls and paging; each card keeps its own width regardless of direction."
+          dir="rtl"
+        >
+          <VariableWidthSingle
+            label="RTL cards"
+            natural={NATURAL_CARDS}
+            snapAlign="center"
+          />
+        </GridCell>
+
+        <GridCell
+          n={8}
           title="content + vertical"
           note="The same three images, now block-sized to their own natural height in a vertical track — content-sizing is orientation-agnostic (flex-basis governs whichever axis is the main axis)."
         >
@@ -2002,6 +2089,7 @@ export function CarouselVariableWidth() {
             label="Vertical natural heights"
             images={[PORTRAIT, LANDSCAPE, SQUARE]}
             orientation="vertical"
+            snapAlign="center"
           />
         </GridCell>
       </div>

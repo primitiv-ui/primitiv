@@ -52,11 +52,31 @@ const GALLERY = [
   "linear-gradient(135deg, #dc2626, #facc15)",
 ];
 
-// Explicit per-slide widths for `slideWidth="content"` — a plain gradient
-// <div> has no intrinsic size of its own, so the preview needs a stand-in
-// width per slide to make the content-sizing axis visible at all. Unused
-// (and irrelevant) under the default `slideWidth="equal"`.
-const WIDTHS = [160, 300, 220, 340, 260, 380, 200, 320];
+// Real <img> sources for `slideWidth="content"` — a plain gradient <div> has
+// no intrinsic size of its own, so the preview needs actual replaced-element
+// content to demonstrate content-sizing against (the real headline use case,
+// per the "Variable width" example page). Same colour pairs as GALLERY, at
+// eight distinct width/height combinations so both orientations read clearly.
+function photo(w: number, h: number, from: string, to: string): string {
+  const svg =
+    `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}' viewBox='0 0 ${w} ${h}'>` +
+    `<defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>` +
+    `<stop offset='0' stop-color='${from}'/><stop offset='1' stop-color='${to}'/></linearGradient></defs>` +
+    `<rect width='${w}' height='${h}' fill='url(#g)'/>` +
+    `</svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
+const PHOTOS = [
+  photo(220, 300, "#1e3a8a", "#14b8a6"),
+  photo(380, 260, "#7c3aed", "#ec4899"),
+  photo(260, 340, "#ea580c", "#16a34a"),
+  photo(440, 240, "#0ea5e9", "#6366f1"),
+  photo(300, 300, "#db2777", "#f59e0b"),
+  photo(220, 380, "#0d9488", "#4f46e5"),
+  photo(400, 260, "#9333ea", "#06b6d4"),
+  photo(320, 320, "#dc2626", "#facc15"),
+];
 
 type Size = "xs" | "sm" | "md" | "lg" | "xl";
 type Placement = "external" | "overlay";
@@ -67,6 +87,7 @@ type Align = "start" | "center" | "end";
 type Cluster = "split" | "joined";
 type Ratio = "square" | "standard" | "wide" | "ultrawide";
 type SlideWidth = "equal" | "content";
+type SnapAlign = "start" | "center" | "end";
 type Radius = "md" | "none";
 type Sizing = "none" | "sm" | "md" | "lg";
 type Surface = "none" | "subtle";
@@ -86,6 +107,7 @@ interface BuilderConfig {
   slidesPerPage: number;
   ratio: Ratio;
   slideWidth: SlideWidth;
+  snapAlign: SnapAlign;
   radius: Radius;
   containerRadius: Radius;
   gap: Sizing;
@@ -111,6 +133,7 @@ const DEFAULT_CONFIG: BuilderConfig = {
   slidesPerPage: 1,
   ratio: "wide",
   slideWidth: "equal",
+  snapAlign: "start",
   radius: "md",
   containerRadius: "none",
   gap: "md",
@@ -357,26 +380,26 @@ function LiveCarousel({
         gap={config.gap}
         ratio={config.ratio}
         slideWidth={config.slideWidth}
+        snapAlign={config.snapAlign}
         indicators={config.indicators}
         transition={config.transition}
         slidesPerPage={config.slidesPerPage}
         allowMouseDrag={config.allowMouseDrag}
       >
         <CarouselViewport>
-          {slides.map((background, index) => (
-            <CarouselSlide
-              key={index}
-              radius={config.radius}
-              style={{
-                background,
-                ...(config.slideWidth === "content"
-                  ? isVertical
-                    ? { height: WIDTHS[index % WIDTHS.length] }
-                    : { width: WIDTHS[index % WIDTHS.length] }
-                  : {}),
-              }}
-            />
-          ))}
+          {config.slideWidth === "content"
+            ? slides.map((_, index) => (
+                <CarouselSlide key={index} radius={config.radius}>
+                  <img src={PHOTOS[index % PHOTOS.length]} alt="" />
+                </CarouselSlide>
+              ))
+            : slides.map((background, index) => (
+                <CarouselSlide
+                  key={index}
+                  radius={config.radius}
+                  style={{ background }}
+                />
+              ))}
         </CarouselViewport>
         {controls}
       </Carousel>
@@ -398,6 +421,7 @@ function describe(config: BuilderConfig, size: Size): string {
     `gap="${config.gap}"`,
     `ratio="${config.ratio}"`,
     `slideWidth="${config.slideWidth}"`,
+    `snapAlign="${config.snapAlign}"`,
     `peek="${config.peek}"`,
     `padding="${config.padding}"`,
     `surface="${config.surface}"`,
@@ -565,6 +589,13 @@ export function CarouselBuilder() {
               value={config.slideWidth}
               options={["equal", "content"] as const}
               onChange={(value) => set("slideWidth", value)}
+            />
+            <RadioField
+              legend="snapAlign"
+              name="snapAlign"
+              value={config.snapAlign}
+              options={["start", "center", "end"] as const}
+              onChange={(value) => set("snapAlign", value)}
             />
           </Section>
 

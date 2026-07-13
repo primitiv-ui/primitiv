@@ -801,7 +801,12 @@ scrolled):
   set on the viewport for the duration of an active drag (see "Recommended
   CSS" for the `cursor: grab` / `grabbing` pairing). Ignores non-mouse
   pointer types (`touch`, `pen`) even when enabled — native scroll already
-  handles those.
+  handles those. Also suppresses the browser's own native image/link drag
+  (the semi-transparent ghost that follows the cursor) on the viewport via
+  `preventDefault()` on `dragstart` — real `<img>`/`<a>` slide content is
+  natively draggable, and without this its native HTML5 drag would visually
+  compete with the custom pointer-drag above. Only active while
+  `allowMouseDrag` is on; native drag is left untouched otherwise.
 - **Mouse-wheel scroll.** A physical wheel's vertical notches
   (`deltaY`) already natively scroll a `orientation="vertical"`
   carousel — nothing needed there. But browsers only auto-translate a
@@ -1152,7 +1157,19 @@ and target the `data-carousel-*` attributes:
 [data-carousel-slide] {
   flex: 0 0 100%;
   scroll-snap-align: start;
-  /* Stop the OS picking up images for drag/save during a swipe. */
+}
+
+/* Stop the OS picking up an image for drag/save during a swipe. Repeated on
+   the media element itself, not just the slide wrapper — -webkit-user-drag
+   isn't inherited, so a real <img>'s own native drag-source eligibility is
+   unaffected by an ancestor's value. WebKit-only (no Firefox equivalent);
+   pair with `allowMouseDrag`, which also `preventDefault()`s the drag start
+   in JS for full cross-browser coverage. */
+[data-carousel-slide],
+[data-carousel-slide] > img,
+[data-carousel-slide] > video,
+[data-carousel-slide] > picture,
+[data-carousel-slide] > picture > img {
   -webkit-user-drag: none;
 }
 

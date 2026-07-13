@@ -459,3 +459,46 @@ describe("Carousel mouse-drag scrolling (allowMouseDrag enabled)", () => {
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("Carousel native image-drag suppression (onDragStart)", () => {
+  it("should prevent the browser's own image-drag ghost when allowMouseDrag is enabled", () => {
+    render(
+      <Carousel.Root ariaLabel="Featured products" allowMouseDrag>
+        <Carousel.Viewport data-testid="viewport">
+          <Carousel.Slide>
+            <img src="photo.jpg" alt="Slide photo" />
+          </Carousel.Slide>
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+
+    // Real <img>/<a> elements are natively draggable, and a dragstart on one
+    // bubbles up to the viewport, where our own handler lives — the browser's
+    // HTML5 drag (the semi-transparent ghost that follows the cursor) must
+    // never compete with the custom pointer-based drag-to-scroll. fireEvent
+    // returns dispatchEvent's result: false once preventDefault is called.
+    const dispatchResult = fireEvent.dragStart(
+      screen.getByRole("img", { name: "Slide photo" }),
+    );
+
+    expect(dispatchResult).toBe(false);
+  });
+
+  it("should leave native image drag alone when allowMouseDrag is omitted (default false)", () => {
+    render(
+      <Carousel.Root ariaLabel="Featured products">
+        <Carousel.Viewport data-testid="viewport">
+          <Carousel.Slide>
+            <img src="photo.jpg" alt="Slide photo" />
+          </Carousel.Slide>
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+
+    const dispatchResult = fireEvent.dragStart(
+      screen.getByRole("img", { name: "Slide photo" }),
+    );
+
+    expect(dispatchResult).toBe(true);
+  });
+});

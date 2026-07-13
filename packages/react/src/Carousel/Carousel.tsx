@@ -263,6 +263,7 @@ export function CarouselViewport({
   const {
     viewportRef,
     onKeyDown,
+    onDragStart,
     onPointerDown,
     onPointerMove,
     onPointerUp,
@@ -279,6 +280,7 @@ export function CarouselViewport({
       className={className}
       aria-live={isAutoRotating ? "off" : "polite"}
       onKeyDown={onKeyDown}
+      onDragStart={onDragStart}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}

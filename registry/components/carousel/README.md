@@ -290,7 +290,15 @@ Structured per RFC 0008 — the per-component API knobs + resting look in
   grab-cursor affordance would be misleading otherwise), swapping to
   `grabbing` (+ `user-select: none`) while `[data-dragging]` is set (the
   headless layer flips it for the duration of an active drag — pointer
-  tracked at a 2× sensitivity multiplier, no momentum). It is also the
+  tracked at a 2× sensitivity multiplier, no momentum). `user-select: none`
+  stops text selection during the drag, but a real `<img>`/`<a>` slide is
+  separately natively *draggable* — the headless layer also
+  `preventDefault()`s `dragstart` on the viewport under `allowMouseDrag`, so
+  the browser's own image/link drag ghost never competes with the pointer
+  drag; the stylesheet repeats `-webkit-user-drag: none` on direct media
+  children as WebKit-only defense-in-depth (no Firefox equivalent exists,
+  so the JS `preventDefault` is what actually covers every browser). It is
+  also the
   **framed box** — the
   surface / border / radius knobs (off by default) draw the track and
   `box-sizing: border-box` + `overflow` clip the scrolling slides to the rounded

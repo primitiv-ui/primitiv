@@ -333,7 +333,15 @@
      child is stretched to the box and `object-fit` decides how it conforms: `cover`
      (default) fills and crops, `contain` (via the `fit` modifier) letterboxes. A
      <picture> is a wrapper, so its inner <img> is targeted too. Scoped to direct
-     media children so layered content (captions/overlays) is left untouched. */
+     media children so layered content (captions/overlays) is left untouched.
+     `-webkit-user-drag: none` is repeated here (not just on the slide wrapper
+     above) because it isn't inherited — WebKit resolves an <img>'s own native
+     drag-source eligibility per-element regardless of an ancestor's value, so
+     the wrapper's copy alone doesn't stop a real image from firing the OS's
+     drag-ghost. This is still WebKit-only (no Firefox equivalent exists); the
+     actual cross-browser fix is the headless `onDragStart` handler
+     (useCarouselViewport.ts), which `preventDefault()`s under `allowMouseDrag`
+     — this CSS is defense-in-depth for the browsers it does cover. */
   .primitiv-carousel__slide > img,
   .primitiv-carousel__slide > video,
   .primitiv-carousel__slide > picture,
@@ -341,6 +349,7 @@
     display: block;
     inline-size: 100%;
     block-size: 100%;
+    -webkit-user-drag: none;
     object-fit: var(--primitiv-carousel-slide-object-fit);
     object-position: var(--primitiv-carousel-slide-object-position);
   }

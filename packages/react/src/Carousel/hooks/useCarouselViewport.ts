@@ -1,4 +1,5 @@
 import {
+  DragEvent,
   KeyboardEvent,
   MouseEvent,
   PointerEvent,
@@ -163,6 +164,20 @@ export function useCarouselViewport() {
       };
     },
     [allowMouseDrag, orientation, transition],
+  );
+
+  // A real <img>/<a> inside a slide is natively draggable, and starting a
+  // drag over one fires the browser's own HTML5 drag-and-drop (the
+  // semi-transparent ghost that follows the cursor) — which visually
+  // competes with the custom pointer-based drag-to-scroll below. Only
+  // suppressed when allowMouseDrag is opted into; a consumer who hasn't
+  // enabled our drag-to-scroll keeps native image/link dragging untouched.
+  const onDragStart = useCallback(
+    (event: DragEvent<HTMLDivElement>) => {
+      if (!allowMouseDrag) return;
+      event.preventDefault();
+    },
+    [allowMouseDrag],
   );
 
   const onPointerMove = useCallback(
@@ -664,6 +679,7 @@ export function useCarouselViewport() {
   return {
     viewportRef,
     onKeyDown,
+    onDragStart,
     onPointerDown,
     onPointerMove,
     onPointerUp: endDrag,

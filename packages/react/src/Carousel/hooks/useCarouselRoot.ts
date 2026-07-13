@@ -18,6 +18,7 @@ import type {
   CarouselIds,
   CarouselImperativeApi,
   CarouselOrientation,
+  CarouselOverscrollStatus,
   CarouselSnapAlign,
   CarouselSnapType,
   CarouselTransition,
@@ -102,6 +103,10 @@ type UseCarouselRootProps = {
   /** Fires on every mouse-drag status transition — see
    * {@link CarouselDragStatus}. */
   onDragStatusChange?: (status: CarouselDragStatus) => void;
+  /** Fires whenever the keyboard, wheel, or a mouse drag pushes against a
+   * boundary with nowhere further to go — see
+   * {@link CarouselOverscrollStatus}. */
+  onOverscrollStatusChange?: (status: CarouselOverscrollStatus) => void;
   /** IntersectionObserver visibility threshold(s) for the `isInView`
    * fallback. Defaults to `0.6`. */
   inViewThreshold?: number | number[];
@@ -153,6 +158,7 @@ export function useCarouselRoot(
     orientation = "horizontal",
     allowMouseDrag = false,
     onDragStatusChange,
+    onOverscrollStatusChange,
     inViewThreshold = 0.6,
     snapType = "mandatory",
   }: UseCarouselRootProps = {},
@@ -524,6 +530,16 @@ export function useCarouselRoot(
   }, []);
   const isDragging = useCallback(() => isDraggingRef.current, []);
 
+  // Same ref-not-state reasoning again: isOverscrolling() is read on
+  // demand, and set/cleared from inside the Viewport hook's pointermove
+  // handler on every tick of a drag-overscroll (the data-overscroll DOM
+  // hook already handles the visual).
+  const isOverscrollingRef = useRef(false);
+  const setOverscrolling = useCallback((value: boolean) => {
+    isOverscrollingRef.current = value;
+  }, []);
+  const isOverscrolling = useCallback(() => isOverscrollingRef.current, []);
+
   useImperativeHandle(
     imperativeRef,
     () => ({
@@ -538,6 +554,7 @@ export function useCarouselRoot(
       isInView,
       getPageSnapPoints,
       isDragging,
+      isOverscrolling,
     }),
     [
       next,
@@ -551,6 +568,7 @@ export function useCarouselRoot(
       isInView,
       getPageSnapPoints,
       isDragging,
+      isOverscrolling,
     ],
   );
 
@@ -597,6 +615,7 @@ export function useCarouselRoot(
       orientation,
       allowMouseDrag,
       onDragStatusChange,
+      onOverscrollStatusChange,
       inViewThreshold,
       snapType,
       refreshTick,
@@ -606,6 +625,8 @@ export function useCarouselRoot(
       instantScrollRef,
       isDraggingRef,
       setDragging,
+      isOverscrollingRef,
+      setOverscrolling,
     }),
     [
       registerSlide,
@@ -633,11 +654,13 @@ export function useCarouselRoot(
       orientation,
       allowMouseDrag,
       onDragStatusChange,
+      onOverscrollStatusChange,
       inViewThreshold,
       snapType,
       refreshTick,
       setSlideInView,
       setDragging,
+      setOverscrolling,
     ],
   );
 

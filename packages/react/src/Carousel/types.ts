@@ -169,6 +169,44 @@ export type CarouselDragStatus = {
 };
 
 /**
+ * Payload passed to `Carousel.Root`'s `onOverscrollStatusChange` whenever
+ * the user pushes against a boundary that has nowhere further to go —
+ * detected off the same `canGoNext` / `canGoPrevious` page-boundary truth
+ * the rest of the primitive already uses, from three input sources the
+ * carousel directly owns the physics for:
+ *
+ * - `"keyboard"` — the forward/backward arrow key pressed while already
+ *   at that boundary (`Home`/`End` are absolute jumps, not directional
+ *   pushes, so they never fire this).
+ * - `"wheel"` — the existing horizontal-desktop wheel-to-scroll
+ *   translation, blocked at a boundary.
+ * - `"drag"` — a mouse drag (`allowMouseDrag`) pushing past a boundary.
+ *
+ * `"keyboard"` and `"wheel"` are instantaneous taps with no meaningful
+ * distance — they always fire a single bare `"overscroll"` with
+ * `amount: 0`. `"drag"` is the one continuous, physically real case —
+ * it fires `"overscroll.start"` the moment the drag starts pushing past
+ * the boundary, `"overscroll"` on every subsequent move while still
+ * pushing (with the live `amount`, the drag delta past the boundary),
+ * and `"overscroll.end"` when the drag stops pushing past it (a reversal
+ * back within bounds, or the drag ending) — mirroring
+ * `CarouselDragStatus`'s shape. `page` is the active page at the moment
+ * of the event.
+ *
+ * Native touch/swipe overscroll (OS-level rubber-banding) is
+ * deliberately out of scope — that's browser-owned scroll physics with
+ * no JS hook to observe it from, consistent with the primitive's
+ * "native scroll is the source of truth" approach elsewhere.
+ */
+export type CarouselOverscrollStatus = {
+  type: "overscroll.start" | "overscroll" | "overscroll.end";
+  edge: "start" | "end";
+  source: "keyboard" | "wheel" | "drag";
+  amount: number;
+  page: number;
+};
+
+/**
  * Payload passed to `Carousel.Root`'s `onAutoplayStatusChange` on every
  * autoplay status transition (only reachable when `autoplay` is enabled):
  *
@@ -324,6 +362,10 @@ export type CarouselRootProps = Omit<
      * No-op unless `allowMouseDrag` is `true` (a drag can't start
      * otherwise). */
     onDragStatusChange?: (status: CarouselDragStatus) => void;
+    /** Fires whenever the user pushes against a boundary with nowhere
+     * further to go, from the keyboard, wheel, or a mouse drag — see
+     * {@link CarouselOverscrollStatus}. */
+    onOverscrollStatusChange?: (status: CarouselOverscrollStatus) => void;
     /** Fires on every autoplay status transition — see
      * {@link CarouselAutoplayStatus}. Matches Ark UI's
      * `onAutoplayStatusChange`. Fires on every tick, not just play/pause
@@ -470,6 +512,19 @@ export type CarouselContextValue = {
   /** The consumer's `onDragStatusChange`, if provided — called by the
    * Viewport hook on every drag status transition. */
   onDragStatusChange?: (status: CarouselDragStatus) => void;
+  /** Live mouse-drag overscroll state (only ever `true` mid-drag, when
+   * `allowMouseDrag` is `true` and the drag is currently pushing past a
+   * boundary). Mutated by the Viewport hook and read by the imperative
+   * `isOverscrolling()`. Keyboard/wheel overscroll taps never set this —
+   * they're instantaneous, not a sustained state. */
+  isOverscrollingRef: RefObject<boolean>;
+  /** Used by the Viewport hook to record drag-overscroll start/end
+   * transitions. */
+  setOverscrolling: (value: boolean) => void;
+  /** The consumer's `onOverscrollStatusChange`, if provided — called by
+   * the Viewport hook whenever the keyboard, wheel, or a mouse drag
+   * pushes against a boundary with nowhere further to go. */
+  onOverscrollStatusChange?: (status: CarouselOverscrollStatus) => void;
 };
 
 /** Props for `Carousel.Viewport` — the scroll-snap slide container; accepts all native `<div>` props. */
@@ -592,6 +647,12 @@ export type CarouselImperativeApi = {
    * (`allowMouseDrag`-gated — always `false` when it's off). Mirrors
    * Ark UI's `api.isDragging`; see also `onDragStatusChange`. */
   isDragging: () => boolean;
+  /** Live snapshot of whether a mouse drag is currently pushing past a
+   * boundary (`allowMouseDrag`-gated — always `false` when it's off, and
+   * never `true` for a keyboard/wheel overscroll tap, which is
+   * instantaneous rather than a sustained state). See
+   * `onOverscrollStatusChange`. */
+  isOverscrolling: () => boolean;
 };
 
 /** Live progress snapshot reported by the carousel: the active page, the total page count, and a normalised `value` in `[0, 1]`. */

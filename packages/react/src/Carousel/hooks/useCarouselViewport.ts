@@ -77,6 +77,7 @@ export function useCarouselViewport() {
     orientation,
     allowMouseDrag,
     onDragStatusChange,
+    onOverscrollStatusChange,
     inViewThreshold,
     refreshTick,
     visibleSlideIndicesRef,
@@ -84,6 +85,7 @@ export function useCarouselViewport() {
     isProgrammaticScrollRef,
     instantScrollRef,
     setDragging,
+    setOverscrolling,
   } = useCarouselContext();
   // The observer's own `threshold` option accepts a number or number[]
   // as-is; for the "in view" cutoff a single number is used directly, and
@@ -129,6 +131,9 @@ export function useCarouselViewport() {
     startClient: number;
     startScroll: number;
     dragging: boolean;
+    // Set while the drag is pushing past a boundary the carousel has
+    // already reached — see the overscroll detection in onPointerMove.
+    overscrollEdge: "start" | "end" | null;
   } | null>(null);
   // Browsers still synthesize a click at the release point after a drag
   // unless it's suppressed — set once a drag crosses the threshold, consumed
@@ -154,6 +159,7 @@ export function useCarouselViewport() {
         startClient: vertical ? event.clientY : event.clientX,
         startScroll: vertical ? viewport.scrollTop : viewport.scrollLeft,
         dragging: false,
+        overscrollEdge: null,
       };
     },
     [allowMouseDrag, orientation, transition],
@@ -189,12 +195,60 @@ export function useCarouselViewport() {
         });
       }
 
+      // Overscroll: dragging further past a boundary the carousel has
+      // already reached. Positive delta drags toward the start edge,
+      // negative delta toward the end edge — see the scrollLeft/scrollTop
+      // assignment below (the same convention the regular drag scroll
+      // uses). Only meaningful once the drag threshold is crossed
+      // (drag.dragging, asserted above).
+      const overscrollEdge =
+        delta > 0 && !canGoPrevious
+          ? "start"
+          : delta < 0 && !canGoNext
+            ? "end"
+            : null;
+      if (overscrollEdge) {
+        const amount = Math.abs(delta) * DRAG_SENSITIVITY;
+        const type = drag.overscrollEdge ? "overscroll" : "overscroll.start";
+        drag.overscrollEdge = overscrollEdge;
+        setOverscrolling(true);
+        viewport.setAttribute("data-overscroll", overscrollEdge);
+        onOverscrollStatusChange?.({
+          type,
+          edge: overscrollEdge,
+          source: "drag",
+          amount,
+          page: currentPage,
+        });
+      } else if (drag.overscrollEdge) {
+        const endedEdge = drag.overscrollEdge;
+        drag.overscrollEdge = null;
+        setOverscrolling(false);
+        viewport.removeAttribute("data-overscroll");
+        onOverscrollStatusChange?.({
+          type: "overscroll.end",
+          edge: endedEdge,
+          source: "drag",
+          amount: 0,
+          page: currentPage,
+        });
+      }
+
       event.preventDefault();
       const nextScroll = drag.startScroll - delta * DRAG_SENSITIVITY;
       if (vertical) viewport.scrollTop = nextScroll;
       else viewport.scrollLeft = nextScroll;
     },
-    [orientation, currentPage, onDragStatusChange, setDragging],
+    [
+      orientation,
+      currentPage,
+      onDragStatusChange,
+      setDragging,
+      canGoNext,
+      canGoPrevious,
+      onOverscrollStatusChange,
+      setOverscrolling,
+    ],
   );
 
   const endDrag = useCallback(() => {
@@ -209,9 +263,26 @@ export function useCarouselViewport() {
         page: currentPage,
         isDragging: false,
       });
+      if (drag.overscrollEdge) {
+        internalRef.current?.removeAttribute("data-overscroll");
+        setOverscrolling(false);
+        onOverscrollStatusChange?.({
+          type: "overscroll.end",
+          edge: drag.overscrollEdge,
+          source: "drag",
+          amount: 0,
+          page: currentPage,
+        });
+      }
     }
     dragStateRef.current = null;
-  }, [currentPage, onDragStatusChange, setDragging]);
+  }, [
+    currentPage,
+    onDragStatusChange,
+    setDragging,
+    onOverscrollStatusChange,
+    setOverscrolling,
+  ]);
 
   const onClickCapture = useCallback((event: MouseEvent<HTMLDivElement>) => {
     if (suppressNextClickRef.current) {
@@ -364,13 +435,42 @@ export function useCarouselViewport() {
       } else if (event.deltaMode === WheelEvent.DOM_DELTA_PAGE) {
         deltaY *= viewport.clientWidth;
       }
+
+      // Overscroll: a wheel notch pushing forward/backward while already
+      // at that boundary. A single discrete tick — no meaningful distance
+      // to report, unlike the continuous drag case.
+      if (deltaY > 0 && !canGoNext) {
+        onOverscrollStatusChange?.({
+          type: "overscroll",
+          edge: "end",
+          source: "wheel",
+          amount: 0,
+          page: currentPage,
+        });
+      } else if (deltaY < 0 && !canGoPrevious) {
+        onOverscrollStatusChange?.({
+          type: "overscroll",
+          edge: "start",
+          source: "wheel",
+          amount: 0,
+          page: currentPage,
+        });
+      }
+
       event.preventDefault();
       viewport.scrollLeft += deltaY;
     };
 
     viewport.addEventListener("wheel", handler, { passive: false });
     return () => viewport.removeEventListener("wheel", handler);
-  }, [transition, orientation]);
+  }, [
+    transition,
+    orientation,
+    canGoNext,
+    canGoPrevious,
+    currentPage,
+    onOverscrollStatusChange,
+  ]);
 
   // User-driven scroll → state. Listen for scrollsnapchange and update
   // currentPage from the snapped slide's index. The viewport ref is
@@ -516,10 +616,30 @@ export function useCarouselViewport() {
       const backwardKey = orientation === "vertical" ? "ArrowUp" : "ArrowLeft";
       if (event.key === forwardKey) {
         event.preventDefault();
-        if (canGoNext) next();
+        if (canGoNext) {
+          next();
+        } else {
+          onOverscrollStatusChange?.({
+            type: "overscroll",
+            edge: "end",
+            source: "keyboard",
+            amount: 0,
+            page: currentPage,
+          });
+        }
       } else if (event.key === backwardKey) {
         event.preventDefault();
-        if (canGoPrevious) previous();
+        if (canGoPrevious) {
+          previous();
+        } else {
+          onOverscrollStatusChange?.({
+            type: "overscroll",
+            edge: "start",
+            source: "keyboard",
+            amount: 0,
+            page: currentPage,
+          });
+        }
       } else if (event.key === "Home") {
         event.preventDefault();
         goTo(0);
@@ -528,7 +648,17 @@ export function useCarouselViewport() {
         goTo(totalPages - 1);
       }
     },
-    [orientation, canGoNext, canGoPrevious, next, previous, goTo, totalPages],
+    [
+      orientation,
+      canGoNext,
+      canGoPrevious,
+      next,
+      previous,
+      goTo,
+      totalPages,
+      currentPage,
+      onOverscrollStatusChange,
+    ],
   );
 
   return {

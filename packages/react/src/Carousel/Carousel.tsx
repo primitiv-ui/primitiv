@@ -107,6 +107,7 @@ export const CarouselRoot: ForwardRefExoticComponent<
     orientation,
     allowMouseDrag,
     onDragStatusChange,
+    onOverscrollStatusChange,
     inViewThreshold,
     snapType,
     children,
@@ -133,6 +134,7 @@ export const CarouselRoot: ForwardRefExoticComponent<
       orientation,
       allowMouseDrag,
       onDragStatusChange,
+      onOverscrollStatusChange,
       inViewThreshold,
       snapType,
     },
@@ -229,6 +231,18 @@ CarouselRoot.displayName = "CarouselRoot";
  * non-negligible, so a trackpad/Magic Mouse horizontal swipe (which
  * already scrolls a horizontal viewport natively via `deltaX`) is never
  * fought.
+ *
+ * **Overscroll.** Pushing against a boundary with nowhere further to go —
+ * via the keyboard, the wheel, or a mouse drag — fires the root's
+ * {@link CarouselRootProps.onOverscrollStatusChange | `onOverscrollStatusChange`}.
+ * A mouse drag past a boundary additionally sets a persistent
+ * `data-overscroll="start" | "end"` attribute on the Viewport for the
+ * duration (removed once the drag stops pushing past it, whether by
+ * reversing back within bounds or releasing) — the natural hook for a
+ * rubber-band resistance visual. Keyboard/wheel overscroll is a single
+ * instantaneous tap with no equivalent sustained DOM state. Native
+ * touch/swipe overscroll (OS-level rubber-banding) isn't covered — that's
+ * browser-owned scroll physics with no JS hook to observe it from.
  *
  * @example
  * ```tsx

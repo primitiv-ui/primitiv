@@ -105,6 +105,7 @@ correction), and CSS owns _what the user sees_:
 | Touch / swipe                      | Native scroll + `scrollsnapchange` to sync state         | `overscroll-behavior-x: contain`, `scrollbar-width: none`                |
 | Mouse click-and-drag (`allowMouseDrag`, off by default) | `scrollLeft`/`scrollTop` set from the pointer delta × sensitivity | `cursor: grab`, `cursor: grabbing` on `[data-dragging]` |
 | Mouse-wheel scroll (horizontal)    | `deltaY` → `scrollLeft` when `deltaX` is negligible       | —                                                                        |
+| Overscroll (keyboard / wheel / drag) | `onOverscrollStatusChange`, `isOverscrolling()` (drag only) | Optional resistance visual on `[data-overscroll="start" \| "end"]` (drag only) |
 | Indicator state                    | `data-state` on `[data-carousel-indicator]`              | Visual: dot, bar, thumbnail, etc.                                        |
 
 The only JS prop on the visual side is `snapAlign`, and only because it
@@ -849,6 +850,59 @@ the click-vs-drag movement threshold, `"dragging"` on every subsequent
 pointer move while it's still active, and `"dragging.end"` on release
 (`pointerup` or `pointercancel`) — never for a plain click that never
 crossed the threshold. `page` is the live active page at that moment.
+
+### Overscroll
+
+Pushing against a boundary with nowhere further to go — via the
+keyboard, the wheel, or a mouse drag — fires `Carousel.Root`'s
+`onOverscrollStatusChange`:
+
+```tsx
+<Carousel.Root
+  ariaLabel="Featured products"
+  allowMouseDrag
+  onOverscrollStatusChange={({ type, edge, source, amount, page }) => {
+    // type: "overscroll.start" | "overscroll" | "overscroll.end"
+    // edge: "start" | "end"
+    // source: "keyboard" | "wheel" | "drag"
+  }}
+>
+  …
+</Carousel.Root>;
+```
+
+Detection is driven by the same page-boundary truth
+(`canGoNext`/`canGoPrevious`) as everything else in the primitive, from
+three input sources the carousel already owns the physics for:
+
+- **Keyboard** — the forward/backward arrow key pressed while already
+  at that boundary. `Home`/`End` are absolute jumps, not directional
+  pushes, so they never fire this.
+- **Wheel** — the horizontal-desktop wheel-to-scroll translation (see
+  "Mouse input" above), blocked at a boundary.
+- **Mouse drag** — a drag (`allowMouseDrag`) pushing past a boundary.
+
+Keyboard and wheel are instantaneous taps with no meaningful distance —
+they always fire a single bare `"overscroll"` with `amount: 0`. Drag is
+the one continuous, physically real case: it fires `"overscroll.start"`
+the moment the drag starts pushing past the boundary, `"overscroll"` on
+every subsequent move while still pushing (with the live `amount`, the
+drag delta past the boundary), and `"overscroll.end"` when the drag
+stops pushing past it — either a reversal back within bounds mid-drag,
+or the drag ending — mirroring `onDragStatusChange`'s shape. A drag
+overscroll also sets a persistent `data-overscroll="start" | "end"`
+attribute on the Viewport for the same duration — a CSS hook for a
+rubber-band resistance visual, with no JS required. For the live
+imperative equivalent of `isDragging()`, `isOverscrolling()` reports
+whether a drag is currently pushing past a boundary (always `false` for
+a keyboard/wheel tap, which is instantaneous rather than a sustained
+state).
+
+**Native touch/swipe overscroll is out of scope.** OS-level rubber-
+banding when a touch swipe is dragged past a boundary is browser-owned
+scroll physics with no JS hook to observe it from — consistent with
+this primitive's "native scroll is the source of truth" approach
+elsewhere (see "Mouse input" above, and "Reduced motion").
 
 ### Indicator dots (manual)
 

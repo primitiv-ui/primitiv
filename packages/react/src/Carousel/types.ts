@@ -467,7 +467,7 @@ export type CarouselContextValue = {
   ids: CarouselIds;
   /** Resolved visual transition mode (defaults to `"slide"`). */
   transition: CarouselTransition;
-  /** Resolved scroll-snap alignment (defaults to `"start"`). */
+  /** Resolved scroll-snap alignment (defaults to `"center"`). */
   snapAlign: CarouselSnapAlign;
   /** Resolved scroll/pagination axis (defaults to `"horizontal"`).
    * Drives the viewport scroll axis, the arrow-key bindings, and the

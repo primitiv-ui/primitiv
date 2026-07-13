@@ -9,11 +9,11 @@ import { Carousel } from "../index.ts";
 // indicators still claim a single clean page is active (the mouse-wheel /
 // drag desync). data-snap-align is the CSS hook the registry stylesheet
 // scopes scroll-snap-align to — its *value* mirrors the resolved root
-// `snapAlign` ("start" default, "center"), so a user's native scroll snap
-// lands wherever the programmatic scroll targets, instead of always
-// snapping to "start" regardless of `snapAlign`.
+// `snapAlign` ("center" default, "start"/"end"), so a user's native scroll
+// snap lands wherever the programmatic scroll targets, instead of always
+// snapping to "center" regardless of `snapAlign`.
 describe("Carousel slide snap-align hook", () => {
-  it('should mark every slide data-snap-align="start" when slidesPerPage is 1 (default)', () => {
+  it('should mark every slide data-snap-align="center" when slidesPerPage is 1 (default)', () => {
     render(
       <Carousel.Root ariaLabel="Featured products">
         <Carousel.Viewport>
@@ -26,15 +26,15 @@ describe("Carousel slide snap-align hook", () => {
 
     expect(screen.getByTestId("slide-0")).toHaveAttribute(
       "data-snap-align",
-      "start",
+      "center",
     );
     expect(screen.getByTestId("slide-1")).toHaveAttribute(
       "data-snap-align",
-      "start",
+      "center",
     );
     expect(screen.getByTestId("slide-2")).toHaveAttribute(
       "data-snap-align",
-      "start",
+      "center",
     );
   });
 
@@ -52,14 +52,14 @@ describe("Carousel slide snap-align hook", () => {
 
     expect(screen.getByTestId("slide-0")).toHaveAttribute(
       "data-snap-align",
-      "start",
+      "center",
     );
     expect(screen.getByTestId("slide-1")).not.toHaveAttribute(
       "data-snap-align",
     );
     expect(screen.getByTestId("slide-2")).toHaveAttribute(
       "data-snap-align",
-      "start",
+      "center",
     );
     expect(screen.getByTestId("slide-3")).not.toHaveAttribute(
       "data-snap-align",
@@ -83,27 +83,27 @@ describe("Carousel slide snap-align hook", () => {
 
     expect(screen.getByTestId("slide-0")).toHaveAttribute(
       "data-snap-align",
-      "start",
+      "center",
     );
     expect(screen.getByTestId("slide-1")).not.toHaveAttribute(
       "data-snap-align",
     );
     expect(screen.getByTestId("slide-2")).toHaveAttribute(
       "data-snap-align",
-      "start",
+      "center",
     );
     expect(screen.getByTestId("slide-3")).toHaveAttribute(
       "data-snap-align",
-      "start",
+      "center",
     );
     expect(screen.getByTestId("slide-4")).not.toHaveAttribute(
       "data-snap-align",
     );
   });
 
-  it('should mark page-start slides data-snap-align="center" when the root snapAlign is "center"', () => {
+  it('should mark page-start slides data-snap-align="start" when the root snapAlign is "start"', () => {
     render(
-      <Carousel.Root ariaLabel="Featured products" snapAlign="center">
+      <Carousel.Root ariaLabel="Featured products" snapAlign="start">
         <Carousel.Viewport>
           <Carousel.Slide data-testid="slide-0" />
           <Carousel.Slide data-testid="slide-1" />
@@ -114,32 +114,32 @@ describe("Carousel slide snap-align hook", () => {
 
     expect(screen.getByTestId("slide-0")).toHaveAttribute(
       "data-snap-align",
-      "center",
+      "start",
     );
     expect(screen.getByTestId("slide-1")).toHaveAttribute(
       "data-snap-align",
-      "center",
+      "start",
     );
     expect(screen.getByTestId("slide-2")).toHaveAttribute(
       "data-snap-align",
-      "center",
+      "start",
     );
   });
 
-  it('should let a slide\'s own snapAlign override the root default, including "end"', () => {
+  it('should let a slide\'s own snapAlign override the root default, including "start" and "end"', () => {
     render(
       <Carousel.Root ariaLabel="Featured products">
         <Carousel.Viewport>
           <Carousel.Slide data-testid="slide-0" />
           <Carousel.Slide data-testid="slide-1" snapAlign="end" />
-          <Carousel.Slide data-testid="slide-2" snapAlign="center" />
+          <Carousel.Slide data-testid="slide-2" snapAlign="start" />
         </Carousel.Viewport>
       </Carousel.Root>,
     );
 
     expect(screen.getByTestId("slide-0")).toHaveAttribute(
       "data-snap-align",
-      "start",
+      "center",
     );
     expect(screen.getByTestId("slide-1")).toHaveAttribute(
       "data-snap-align",
@@ -147,7 +147,7 @@ describe("Carousel slide snap-align hook", () => {
     );
     expect(screen.getByTestId("slide-2")).toHaveAttribute(
       "data-snap-align",
-      "center",
+      "start",
     );
   });
 

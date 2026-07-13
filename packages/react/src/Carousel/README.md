@@ -395,15 +395,15 @@ asChild on a non-button still respects the boundary clamp.
 
 ### Snap alignment
 
-By default the Viewport scrolls so the **start (left) edge** of the
-target slide aligns with the start edge of the scroll container — matching
-`scroll-snap-align: start` in consumer CSS. For layouts where slides are
-narrower than the Viewport and centred (e.g. Cover Flow), set
-`snapAlign="center"` so programmatic navigation lands on the centred
-position without the browser snapping-correcting after the scroll:
+By default the Viewport scrolls so the target slide **centres** in the
+scroll container — matching `scroll-snap-align: center` in consumer CSS.
+For layouts where the leading (or trailing) edge should align instead —
+e.g. a classic edge-to-edge gallery — set `snapAlign="start"` (or
+`"end"`) so programmatic navigation lands on that position without the
+browser snap-correcting after the scroll:
 
 ```tsx
-<Carousel.Root ariaLabel="Gallery" snapAlign="center">
+<Carousel.Root ariaLabel="Gallery" snapAlign="start">
   …
 </Carousel.Root>
 ```
@@ -411,26 +411,26 @@ position without the browser snapping-correcting after the scroll:
 `Carousel.Slide` publishes the resolved value as
 `data-snap-align="start" | "center" | "end"` (on each valid resting slide —
 see "Multi-slide snap targeting" below), so pair it with
-`[data-snap-align="center"] { scroll-snap-align: center }` in your CSS
-rather than hardcoding `scroll-snap-align: center` — that way the
+`[data-snap-align="start"] { scroll-snap-align: start }` in your CSS
+rather than hardcoding `scroll-snap-align: start` — that way the
 native snap the user's own scroll settles into always agrees with
 `snapAlign`, not just the programmatic `scrollTo`. The default is
-`"start"`; `snapAlign` picks whether the viewport `scrollTo` aligns the
+`"center"`; `snapAlign` picks whether the viewport `scrollTo` aligns the
 target slide's leading edge (`"start"`), centres it (`"center"`), or
 aligns its trailing edge (`"end"`), and the browser's CSS snap engine
 makes the final correction.
 
 **Per-slide override.** `Carousel.Slide` also accepts its own `snapAlign`,
 overriding the root default for just that slide — useful for a
-variable-width layout where only some slides should centre or end-align
+variable-width layout where only some slides should start- or end-align
 (matches Ark UI's per-`Item` `snapAlign`, which is where the `"end"` value
 comes from too — the root-level prop above has no Ark equivalent):
 
 ```tsx
 <Carousel.Root ariaLabel="Gallery">
   <Carousel.Viewport>
-    <Carousel.Slide>Regular, start-aligned</Carousel.Slide>
-    <Carousel.Slide snapAlign="center">This one centres</Carousel.Slide>
+    <Carousel.Slide>Regular, centre-aligned</Carousel.Slide>
+    <Carousel.Slide snapAlign="start">This one aligns to its leading edge</Carousel.Slide>
   </Carousel.Viewport>
 </Carousel.Root>
 ```

@@ -1879,8 +1879,9 @@ const NATURAL_CARDS: NaturalCard[] = [
 // sizes to its text + padding), or cards with an explicit inline width
 // (proving it isn't limited to natural content sizing either).
 // `centerIndex` composes the per-slide `snapAlign="center"` override (see
-// the "Images" page) onto one slide in an otherwise start-aligned track;
-// `snapAlign` sets the *root* default for every slide instead (the classic
+// the "Images" page) onto one slide in an otherwise explicitly
+// start-aligned track (root `snapAlign="start"`, overriding the `center`
+// default); `snapAlign` sets the *root* default for every slide instead (the classic
 // "each active card centres in view" feel a variable-width carousel usually
 // wants — the scroll math measures each slide's real rendered width, so
 // centering already works regardless of how wide it turns out to be).
@@ -2058,11 +2059,12 @@ export function CarouselVariableWidth() {
         <GridCell
           n={6}
           title="content + one centred slide (start-aligned track)"
-          note="Here the root stays at the default snapAlign (start); only the third card overrides it to `center` for just itself (Carousel.Slide's own snapAlign prop) — it settles centred while its neighbours still align to their leading edge. Distinct from cells 1–2, where every slide centres."
+          note="Here the root is explicitly set to snapAlign=&quot;start&quot; (the previous default, now that `center` is); only the third card overrides it to `center` for just itself (Carousel.Slide's own snapAlign prop) — it settles centred while its neighbours still align to their leading edge. Distinct from cells 1–2, where every slide centres."
         >
           <VariableWidthSingle
             label="One centred card"
             natural={NATURAL_CARDS}
+            snapAlign="start"
             centerIndex={2}
           />
         </GridCell>

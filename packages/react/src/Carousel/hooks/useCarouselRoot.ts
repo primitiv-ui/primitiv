@@ -154,7 +154,7 @@ export function useCarouselRoot(
     translations,
     ids = EMPTY_IDS,
     transition = "slide",
-    snapAlign = "start",
+    snapAlign = "center",
     orientation = "horizontal",
     allowMouseDrag = false,
     onDragStatusChange,

@@ -133,7 +133,7 @@ const DEFAULT_CONFIG: BuilderConfig = {
   slidesPerPage: 1,
   ratio: "wide",
   slideWidth: "equal",
-  snapAlign: "start",
+  snapAlign: "center",
   radius: "md",
   containerRadius: "none",
   gap: "md",

@@ -50,7 +50,7 @@ describe("Carousel scroll sync (programmatic page change)", () => {
     expect(scrollToSpy).toHaveBeenCalled();
   });
 
-  it("should align the target slide's leading edge to the viewport on the inline axis by default (start)", async () => {
+  it("should centre the target slide in the viewport on the inline axis by default (center)", async () => {
     const user = userEvent.setup();
     render(
       <Carousel.Root ariaLabel="Featured products">
@@ -67,9 +67,10 @@ describe("Carousel scroll sync (programmatic page change)", () => {
       </Carousel.Root>,
     );
 
-    // The viewport sits at the origin; the target slide is 640px to its right.
-    // Start alignment scrolls the viewport by exactly that inline delta.
+    // The viewport sits at the origin, is 1000px wide, and the target slide
+    // is 320px wide, 640px to its right: 640 - (1000 - 320) / 2 = 300.
     const viewport = screen.getByTestId("viewport");
+    Object.defineProperty(viewport, "clientWidth", { value: 1000, configurable: true });
     const scrollToSpy = vi.spyOn(viewport, "scrollTo");
     vi.spyOn(screen.getByTestId("slide-2"), "getBoundingClientRect").mockReturnValue(
       { left: 640, top: 0, width: 320, height: 180 } as DOMRect,
@@ -77,13 +78,18 @@ describe("Carousel scroll sync (programmatic page change)", () => {
 
     await user.click(screen.getByRole("button", { name: "Slide 3" }));
 
-    expect(scrollToSpy).toHaveBeenCalledWith({ left: 640, behavior: "smooth" });
+    expect(scrollToSpy).toHaveBeenCalledWith({ left: 300, behavior: "smooth" });
   });
 
   it("should target the first slide of a multi-slide page", async () => {
     const user = userEvent.setup();
     render(
-      <Carousel.Root ariaLabel="Featured products" slidesPerPage={2}>
+      // snapAlign="start" isolates this test's concern (multi-slide page
+      // targeting: index = page * slidesPerPage) from the root's default
+      // alignment, which centre-aligns and would otherwise shift the
+      // expected scroll position for a reason unrelated to what this test
+      // is checking.
+      <Carousel.Root ariaLabel="Featured products" slidesPerPage={2} snapAlign="start">
         <Carousel.Viewport data-testid="viewport">
           <Carousel.Slide data-testid="slide-0" />
           <Carousel.Slide data-testid="slide-1" />
@@ -165,15 +171,15 @@ describe("Carousel scroll sync (programmatic page change)", () => {
       <Carousel.Root ariaLabel="Featured products">
         <Carousel.Viewport data-testid="viewport">
           <Carousel.Slide data-testid="slide-0" />
-          <Carousel.Slide data-testid="slide-1" snapAlign="center" />
+          <Carousel.Slide data-testid="slide-1" snapAlign="start" />
         </Carousel.Viewport>
         <Carousel.NextTrigger>Next</Carousel.NextTrigger>
       </Carousel.Root>,
     );
 
-    // Root default is "start", but slide-1 opts itself into "center":
-    // 400 - (1000 - 400) / 2 = 100 — the same maths as the root-level
-    // "center" test above, just driven by the per-slide prop instead.
+    // Root default is "center", but slide-1 opts itself into "start":
+    // 400 - 0 = 400 — the alignOffset-zero case, driven by the per-slide
+    // prop instead of the root value.
     const viewport = screen.getByTestId("viewport");
     Object.defineProperty(viewport, "clientWidth", { value: 1000, configurable: true });
     const scrollToSpy = vi.spyOn(viewport, "scrollTo");
@@ -183,6 +189,6 @@ describe("Carousel scroll sync (programmatic page change)", () => {
 
     await user.click(screen.getByRole("button", { name: "Next" }));
 
-    expect(scrollToSpy).toHaveBeenCalledWith({ left: 100, behavior: "smooth" });
+    expect(scrollToSpy).toHaveBeenCalledWith({ left: 400, behavior: "smooth" });
   });
 });

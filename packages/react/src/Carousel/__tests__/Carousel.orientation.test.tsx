@@ -49,7 +49,15 @@ describe("Carousel orientation", () => {
     it("should scroll the viewport on the block axis (top) when vertical", async () => {
       const user = userEvent.setup();
       render(
-        <Carousel.Root ariaLabel="Featured products" orientation="vertical">
+        // snapAlign="start" isolates this test's concern (block-axis vs.
+        // inline-axis scrolling) from the root's default alignment, which
+        // centre-aligns and would otherwise shift the expected scroll
+        // position for a reason unrelated to what this test is checking.
+        <Carousel.Root
+          ariaLabel="Featured products"
+          orientation="vertical"
+          snapAlign="start"
+        >
           <Carousel.Viewport data-testid="viewport">
             <Carousel.Slide data-testid="slide-0" />
             <Carousel.Slide data-testid="slide-1" />

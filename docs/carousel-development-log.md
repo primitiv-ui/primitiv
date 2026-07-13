@@ -2207,13 +2207,16 @@ every *example-backlog* axis above that's landed —
 fastest way to re-verify how landed axes compose (all of them human-approved
 as of 2026-07-13 — see the QA status note above), not just the single-axis
 example page. It does **not** yet expose any of the remaining Ark UI
-API-level gaps below (per-item `snapAlign`, drag/autoplay status callbacks,
-`ProgressText`, per-call `instant`, slide-index scroll) — those aren't
-styling/composition axes, they're headless API surface, so they won't show
-up as Builder controls even once built; they stay tracked in the Ark UI
-section below. (`pageSnapPoints`, indicator `readOnly`, `inViewThreshold`,
-and `snapType` landed 2026-07-13 — see that section — and were never
-Builder-control candidates either, for the same reason.)
+API-level gaps below (drag/autoplay status callbacks, `ProgressText`,
+per-call `instant`, slide-index scroll) — those aren't styling/composition
+axes, they're headless API surface, so they won't show up as Builder
+controls even once built; they stay tracked in the Ark UI section below.
+(`pageSnapPoints`, indicator `readOnly`, `inViewThreshold`, `snapType`, and
+per-item `snapAlign` landed 2026-07-13 — see that section — and were never
+Builder-control candidates either, for the same reason — the Builder's
+`snapAlign` would be a **root-level** default like the others, not a
+per-slide override, which needs individually-configurable slides the
+Builder's single uniform gallery doesn't have.)
 
 ### Ark UI — gaps identified (read 2026-07-13)
 
@@ -2236,14 +2239,24 @@ explicit RTL (`dir`), `autoSize` + per-item
 
 **New gaps (not yet tracked anywhere):**
 
-- [ ] **Per-item `snapAlign`, including an `"end"` value.** Ark's
-      `Carousel.Item` takes its own `snapAlign: "start" | "end" | "center"`
-      (default `"start"`), so a single carousel can mix alignments per slide.
-      We only have a **root**-level `snapAlign: "start" | "center"` — no
-      `"end"` at all, and no per-item override. Ties into the variable-width
-      slides work (autoSize-style layouts are the case where per-item
-      alignment matters most), but the `"end"` value is a gap even without
-      autoSize.
+- [x] **Per-item `snapAlign`, including an `"end"` value.** **Landed
+      2026-07-13.** `CarouselSnapAlign` gained `"end"` (aligns a slide's
+      trailing edge — `viewportSize − slideSize` offset, vs. `"center"`'s
+      half that and `"start"`'s zero); `Carousel.Slide` now accepts its own
+      `snapAlign`, overriding the root default for just that slide (only
+      when it's a valid snap-start position — an interior slide of a
+      multi-slide page still never snaps, override or not). The Viewport's
+      scroll maths reads the *effective* per-slide value straight off the
+      DOM (`targetEl.dataset.snapAlign` — `Carousel.Slide` already
+      publishes it) rather than threading new context/registration
+      plumbing through for a value only the slide component itself knows.
+      TDD in `Carousel.slide-snap.test.tsx` (override + gating on a
+      non-snap-start slide) and `Carousel.scroll-sync.test.tsx` (`"end"` at
+      root level, and a slide's override winning over a different root
+      default). Registry `styles.css`/`.scss` (+ kitchen-sink hand-sync)
+      gained the `"end"` CSS rule — no `contract.json`/Rust involvement,
+      `snapAlign` already flowed through the wrapper's existing
+      passthrough type.
 - [x] **Configurable IntersectionObserver threshold.** **Landed 2026-07-13.**
       Added `inViewThreshold?: number | number[]` (default `0.6`, matching
       Ark's shape) as a Root prop, threaded through context into

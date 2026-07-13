@@ -2805,3 +2805,123 @@ commit `2a66bb0f`, one test added, 305 Carousel tests green,
 reporter. The `carousel-variable-slide-width` branch (PR #241) doesn't
 touch `packages/react`, so it needed a merge from `main` to pick the fix up
 before its own CI would re-run clean — done in the same session.
+
+### Human QA sweep — default snapAlign, Builder gaps, native drag, multi-slide alignment (2026-07-13)
+
+A single QA session surfaced and fixed several independent issues, in order:
+
+**`snapAlign` default flipped `"start"` → `"center"`.** Centre-alignment is
+the more broadly useful default (the "active card centres in view" feel
+most consumers reach for). Changed in `useCarouselRoot.ts`, with every test
+pinned to the old default updated to assert `"center"` instead (or given an
+explicit `snapAlign="start"` where the test's actual concern was unrelated
+to alignment, e.g. multi-slide page targeting, axis selection) — plus the
+Builder's `DEFAULT_CONFIG`, both READMEs, and the `CarouselPage.tsx`
+start-vs-override demo (now explicit `snapAlign="start"` on the root, since
+it's no longer the ambient default).
+
+**Carousel Builder: stale `slidesPerPage` under `slideWidth="content"`.**
+The `slidesPerPage` control was disabled but not reset when `slideWidth`
+switched to `"content"` (unsupported at `slidesPerPage > 1`), so a value
+set earlier in `"equal"` mode kept flowing into the live instance,
+corrupting pagination/indicators. Fixed by clamping the *effective* value
+(not the stored config) to 1 under `slideWidth="content"`, so the control
+still remembers what the user had set for when they switch back.
+
+**Vertical + `slideWidth="content"`: the `ratio` control re-enabled.**
+Investigation found `ratio` still drives the vertical viewport's forced
+`aspect-ratio` even in content mode (only the *slide's* own aspect-ratio
+stands down) — the Builder previously disabled `ratio` there with a
+misleading "n/a" note. Now it stays live with a hint explaining why. The
+underlying CSS gap (the vertical viewport rule should itself stand down
+under `--slide-width-content`) is logged as an open question above —
+deferred, possibly a Figma-session decision (does the viewport auto-follow
+tallest/active slide? something else?).
+
+**Thumbnail active-ring occlusion fixed.** The ring was an `inset
+box-shadow` painted under the thumbnail's own flush 100%×100% content
+(nearly fully hidden except rounding slivers). Reserved the ring's width as
+a real, transparent-by-default `border` instead (already `box-sizing:
+border-box`, so zero footprint shift) — activation is just a
+`border-color` swap, which a pre-existing-but-unused `transition:
+border-color` in the base rule suggests was the original intent.
+
+**Native browser image/link drag suppressed under `allowMouseDrag`.** A
+real `<img>`/`<a>` slide is natively draggable; starting a drag over one
+fired the browser's own HTML5 drag (the ghost image), competing with the
+custom pointer-drag. The one existing `-webkit-user-drag: none` CSS rule
+was scoped to the slide *wrapper*, not the media element (the property
+isn't inherited, so it silently did nothing), and is WebKit-only regardless
+(no Firefox equivalent). Fixed cross-browser via a new `onDragStart`
+handler on the Viewport that `preventDefault()`s under `allowMouseDrag`
+(untouched otherwise); the CSS rule was also corrected to target the media
+element too, as WebKit-specific defense-in-depth.
+
+**Builder: a `content="pictures"` option.** Real photos from Lorem Picsum
+(randomised per-slide dimensions, computed once at load) as an alternative
+to the synthetic gradient/PHOTOS placeholders, composing with both
+`slideWidth` and `indicators="thumbnails"` — added specifically so genuine
+thumbnail rendering could be inspected (the active-ring fix above was
+verified against it).
+
+**Grouped-thumbnail hover.** With `slidesPerPage > 1`, several thumbnails
+already share one page and highlight together when *active* (a CSS-only
+`:has(+ …)`-adjacency trick, since every member independently computes the
+identical `data-state="active"` value via `pageForSlideIndex`). Hover can't
+reuse that trick — `:hover` only ever applies to the pointed-at element,
+and no CSS selector can project it onto an arbitrary-length sibling run
+the way a naturally-shared attribute value can (confirmed: no bounded-N
+enumeration precedent exists anywhere in the registry either, and one
+would need to hardcode a max `slidesPerPage` to work at all). Fixed with a
+small amount of consumer JS instead — the kitchen-sink `ThumbnailIndicators`
+pattern tracks "which page is hovered" (reusing the already-exposed
+`pageForSlideIndex`) and marks every thumbnail sharing it with
+`data-group-hover`, which the registry stylesheet treats identically to
+`:hover`. Zero headless change — any headless-only consumer can wire the
+identical pattern themselves.
+
+**`snapAlign="center"`/`"end"` + `slidesPerPage > 1`: centres/ends the
+leading slide only, not the whole page (found via human QA, confirmed a
+genuine gap — unlike `slideWidth="content"` + `slidesPerPage > 1`, this
+combination was never restricted or documented).** Root cause: the
+alignment math measured only the *leading slide's own box*, never the
+full page's span. Under `slideWidth="equal"`, any run of `slidesPerPage`
+equal-width slides always exactly fills the viewport by construction, so
+the correct offset for a full page is always ~0 regardless of
+start/center/end — the bug was undershooting by roughly half a slide's
+width, clipping the page's trailing member(s) off-screen. Two fixes,
+matching the two ways a page's scroll position gets set:
+- **Programmatic (`scrollTo`)** — `useCarouselViewport.ts`'s leftover-space
+  calc now measures from the leading slide's edge to the *actual last
+  member's* edge (clamped to the real slide count, so `slidesPerPage`
+  exceeding the total slide count doesn't look up a nonexistent slide).
+- **Native (swipe/wheel/touch)** — `scroll-snap-align` on one element can
+  only ever align *that* element's own box, so a JS fix to the scrollTo
+  path alone wouldn't hold once a user's own gesture let the browser's
+  native snap re-settle. Fixed by extending each page's leading slide's
+  `scroll-margin-inline-end`/`-block-end` out to its actual last member —
+  invisible, no layout effect, purely enlarging the native snap area — kept
+  live via a `ResizeObserver` on the viewport (equal-share slide sizes
+  derive from the viewport's own size) alongside the existing
+  page/slide-count triggers. No-op at `slidesPerPage=1`.
+
+A page-wrapper DOM element (grouping each page's slides under a synthetic
+container, mirroring how the group border frames them) was considered and
+rejected: it would restructure the slide-is-a-direct-flex-child model
+everything else depends on (refs, IntersectionObserver, a11y), essentially
+adding a new implicit surface, for a fix `scroll-margin` achieves without
+touching the DOM shape at all — consistent with the standing preference
+that the headless component do the heavy lifting rather than grow a new
+subcomponent, and that a non-registry consumer get full correctness for
+free (here, entirely for free — no registry CSS involved).
+
+Added a jsdom `ResizeObserver` polyfill (`src/test/resizeObserverPolyfill.ts`,
+`MockResizeObserver`) mirroring the existing `IntersectionObserver` one, since
+jsdom doesn't implement it.
+
+**Gates green:** 315 Carousel tests (up from 305), full `packages/react`
+suite 1839 passing (one pre-existing, unrelated `Switch.recipe.test.ts`
+failure — a `class-variance-authority` resolution issue, untouched by this
+session). Coverage on every touched file confirmed 100% lines/branches via
+the JSON/lcov reporter. Each fix landed as its own commit, pushed straight
+to `main` per this session's standing authorisation.

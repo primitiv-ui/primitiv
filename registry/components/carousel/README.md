@@ -266,7 +266,14 @@ so they can't fall out of sync.
   edge. `<CarouselSlide snapAlign="center">` overrides the root default for
   just that slide — e.g. a variable-width layout where only some slides should
   centre or end-align — flowing straight through the wrapper's existing
-  passthrough type, no contract change.
+  passthrough type, no contract change. **`snapAlign="center"`/`"end"` combined
+  with `slidesPerPage > 1`** centres/ends the *whole page*, not just its
+  leading slide — `scroll-snap-align` on one element only ever aligns that
+  element's own box, so the headless Viewport also sets a `scroll-margin`
+  extension (`-inline-end`/`-block-end`) on each page's leading slide, out to
+  the page's real last member, for both the programmatic scroll and the
+  browser's own native snap settling. No registry CSS or consumer wiring
+  needed — it composes automatically and is a no-op at `slidesPerPage={1}`.
 
 `subcomponents` marks this a **structural compound**: the styled surface is N thin
 per-part wrappers the consumer composes. Two indicator surfaces ship: **`<CarouselIndicators>`**

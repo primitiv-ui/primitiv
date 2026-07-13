@@ -1239,6 +1239,19 @@ the root or on individual slides:
 }
 ```
 
+**Centering/ending a multi-slide page, not just its leading slide.** A
+`scroll-snap-align` on a single element only ever aligns *that* element's
+own box — `scroll-snap-align: center` on the leading slide would centre
+just the leading slide, leaving the rest of a `slidesPerPage > 1` page
+clipped off the trailing edge, if that were the whole story. It isn't:
+the Viewport also sets `scroll-margin-inline-end` (`-block-end` when
+vertical) on each page's leading slide, extending its native snap area —
+invisibly, with no layout effect — out to the page's actual last member.
+So `scroll-snap-align: center`/`"end"` end up centering/ending the whole
+page, matching what the programmatic `scrollTo` already does. This is
+automatic and needs no consumer CSS; it's a no-op when `slidesPerPage` is
+1 (the leading slide already *is* the whole page).
+
 ### Cover Flow (scroll-driven 3D)
 
 A "cover flow" — narrow snap units with cards that tilt away in 3D

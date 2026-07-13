@@ -2373,20 +2373,74 @@ explicit RTL (`dir`), `autoSize` + per-item
   (dynamic add/remove already works, tested in `Carousel.dynamic-slides.test.tsx`)
   — not a gap, a place we already exceed Ark.
 
-### Blossom — not yet cross-checked this session
+### Blossom — gaps identified (cross-checked 2026-07-13)
 
-The human's read is that Blossom's feature set is already reflected in our
-backlog (plausible — the plan doc already leans on Blossom's `scroll-snap` +
-`aspect-ratio` approach and the backlog's example list — Masonry, Sticky
-Slides, Cover Flow, Slideshow/parallax, Stories, Smart Stack, Cards, Flipbook,
-Timeline — reads like it was seeded from Blossom's demo gallery). Attempted to
-fetch `blossom-carousel.com` directly this session to verify — **blocked**
-(the sandbox's network proxy only allows a fixed domain allowlist, and
-`blossom-carousel.com` returned a 403 through both direct `curl` and
-`WebFetch`, likely Cloudflare bot protection rather than the proxy itself).
-Needs either a pasted-in doc/feature list from the human (the same fallback
-used for Ark, had the raw MDX fetch not worked) or a future session with
-network access to that host, to actually verify vs. assume.
+Source: a capability inventory pasted in by the human (`blossom-carousel.com`
+is still unreachable from this sandbox — 403 through both `curl` and
+`WebFetch`, likely Cloudflare bot protection — so this is the same
+paste-in fallback used for Ark's docs page). Confirms the human's earlier
+read: the backlog was indeed seeded from Blossom's demo gallery, and almost
+every capability maps directly onto something already built or already
+tracked. Cross-referenced against the "Example backlog" above and the Ark
+section so nothing is duplicated.
+
+**Already tracked or already built (no new entry needed):** native
+scrolling + CSS Scroll Snap as the source of truth, scroll physics from the
+browser (our whole architecture, not a gap) · mouse/touch drag (landed —
+`allowMouseDrag` + native touch) · programmatic API (our imperative API:
+`next`/`previous`/`goTo`/`play`/`pause`/`refresh`/`getProgress`/`isInView`/
+`getPageSnapPoints`) · previous/next controls and pagination dots (iteration 1)
+· thumbnail navigation (iteration 9) · RTL support (the `rtl` route + logical
+properties throughout) · responsive layouts (container-adaptive by default,
+iteration 1) · accessible keyboard navigation (the WAI-ARIA APG arrow/Home/End
+bindings) · aspect-ratio slides (the `ratio` modifier, iteration 10) ·
+variable-width slides (our "Variable-size slides" backlog item, tied to Ark's
+per-item `snapAlign` gap above) · masonry, sticky slides, cover flow,
+slideshow/parallax, stories, smart stack, cards, flipbook, and timeline
+layouts (all already backlog items, Advanced list) · `position: sticky`
+support (subsumed by the sticky slides/cards backlog items — CSS `position:
+sticky` needs nothing from us to "support," it's a consumer stylesheet
+concern once the sticky example itself is built) · CSS-first configuration
+(our `--primitiv-carousel-*` custom-property layer is the same principle,
+implemented as a registry CSS API rather than Blossom's framework-agnostic
+core) · progressive enhancement / native scrolling preserved (the scroll-snap
+CSS already works independent of JS for the core scroll behaviour; only the
+enhancement layer — buttons, dots, keyboard — needs hydration, matching the
+philosophy already).
+
+**New gaps (not yet tracked anywhere):**
+
+- [ ] **Overscroll events/API.** Blossom exposes overscroll detection (e.g.
+      for a rubber-band boundary effect, or an overscroll-driven navigation
+      gesture). We have no equivalent — nothing on the imperative API or as a
+      callback fires when a user scrolls past a boundary. This is a genuine
+      prerequisite for the **Stories (3D + overscroll)** backlog item (our own
+      parenthetical already names "overscroll" as part of that example), not
+      just a documentation gap — Stories can't be built without deciding this
+      first.
+
+**Open questions raised by the inventory, not firm gaps:**
+
+- **"CSS Grid layouts" vs. our "Masonry" backlog item.** Blossom lists these
+  as two separate layout capabilities, but its example gallery only ships a
+  "Masonry" example (no separate "Grid" example) — ambiguous whether "CSS
+  Grid layouts" just means *how* masonry is built (CSS grid under the hood)
+  or a distinct, simpler 2D grid arrangement (e.g. a fixed grid of slides
+  rather than a single scrolling row). Resolve when Masonry is actually
+  built; not worth a separate backlog item speculatively.
+- **"Sticky cards" vs. "Sticky Slides."** Listed as a separate layout
+  capability, but the example gallery only has "Sticky Slides" (not "Sticky
+  Cards") alongside a separate "Cards" example — likely "sticky cards" means
+  applying the sticky-slide treatment to the Cards example specifically,
+  not a third backlog item. Fold into the **Cards** backlog item as a detail
+  to consider when it's built, rather than adding a new bullet.
+
+**Design divergence to flag, not a gap:**
+
+- **Framework integrations (Core, React, Vue, Svelte, Web Components).**
+  Blossom ships a framework-agnostic core plus per-framework bindings.
+  Primitiv is React-only by design across the whole design system, not just
+  Carousel — this is an intentional scope boundary, not something to close.
 
 ### Mouse-drag sensitivity (human QA follow-up)
 

@@ -2183,12 +2183,12 @@ fastest way to re-verify how landed axes compose (all of them human-approved
 as of 2026-07-13 — see the QA status note above), not just the single-axis
 example page. It does **not** yet expose any of the remaining Ark UI
 API-level gaps below (per-item `snapAlign`, `inViewThreshold`, `snapType`,
-drag/autoplay status callbacks, indicator `readOnly`, `ProgressText`,
-per-call `instant`, slide-index scroll) — those aren't styling/composition
-axes, they're headless API surface, so they won't show up as Builder
-controls even once built; they stay tracked in the Ark UI section below.
-(`pageSnapPoints` landed 2026-07-13 — see that section — and was never a
-Builder-control candidate either, for the same reason.)
+drag/autoplay status callbacks, `ProgressText`, per-call `instant`,
+slide-index scroll) — those aren't styling/composition axes, they're
+headless API surface, so they won't show up as Builder controls even once
+built; they stay tracked in the Ark UI section below. (`pageSnapPoints` and
+indicator `readOnly` landed 2026-07-13 — see that section — and were never
+Builder-control candidates either, for the same reason.)
 
 ### Ark UI — gaps identified (read 2026-07-13)
 
@@ -2242,12 +2242,18 @@ explicit RTL (`dir`), `autoSize` + per-item
       toggles. We expose `playing` / `isAutoRotating` in context and
       `data-state` on `PlayPauseTrigger`, but nothing fires per-tick.
       Lower priority than the drag callback — mostly useful for analytics.
-- [ ] **Indicator `readOnly` prop.** Ark's `Carousel.Indicator` takes a
-      `readOnly` boolean (default `false`) for a non-interactive,
-      presentational-only dot — useful when indicators are a progress
-      display rather than a navigation control (e.g. paired with
-      `allowMouseDrag` as the sole navigation method). We have no equivalent;
-      every `Carousel.Indicator` is always a clickable button.
+- [x] **Indicator `readOnly` prop.** **Landed 2026-07-13.** Added `readOnly`
+      to both `Carousel.Indicator` and `Carousel.Indicators` (forwarded to
+      every generated dot). Not a literal mirror of Ark's DOM output (no
+      network access to the `@zag-js/carousel` source this session to
+      confirm it exactly) — our own defensible design: a `readOnly`
+      indicator renders a `<span>` instead of `<button>` (no button
+      semantics), `aria-hidden="true"` (decorative, not announced), and no
+      longer calls `goTo` on click; `data-state` still tracks the active
+      page so existing CSS keeps working, and a consumer's own `onClick`
+      (if passed) still fires — only the internal navigation is suppressed.
+      TDD in `Carousel.indicators.test.tsx` (5 new tests). Headless-only —
+      no registry/contract/CSS change, so no kitchen-sink sync needed.
 - [ ] **A dedicated `ProgressText` part.** Ark ships `Carousel.ProgressText`
       (anatomy part `progressText`) + a `translations.progressText` function
       (`{ page, totalPages } => string`), a live-region progress announcement

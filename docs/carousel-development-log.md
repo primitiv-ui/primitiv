@@ -2739,3 +2739,50 @@ src/Carousel` (240 tests), `cargo test -p primitiv-emit -p primitiv-cli`,
 `node scripts/check-registry-types.mjs`. **Next:** human re-QA of drag feel
 at 2× — if still not sensitive enough (or overshoots), `DRAG_SENSITIVITY` is
 a single named constant, easy to retune again.
+
+### Coverage-verification methodology bug (caught by CI, fixed 2026-07-13)
+
+**What happened.** PR #241's CI (`packages/react qa:units`) failed:
+`useCarouselViewport.ts` at 99.2% branch coverage, a real gap that had been
+sitting on `main` since the overscroll feature landed earlier this session
+— not something the PR branch introduced (it never touches `packages/react`).
+
+**Root cause of the gap.** `endDrag`'s `if (drag.overscrollEdge)` branch
+(fired on `overscroll.end`) has an implicit `else` — "the drag ended and it
+was never overscrolling, do nothing." Every existing mouse-drag test starts
+at page 0 and drags toward the start edge (a small `clientX` increase) to
+exercise the basic drag-tracking math — which the overscroll detection
+added this session unavoidably classifies as an overscroll too (`delta > 0
+&& !canGoPrevious`, and `canGoPrevious` is always `false` at page 0). So by
+the time any existing test released the drag, `drag.overscrollEdge` was
+always truthy — the "never overscrolled" `else` path had no test exercising
+it at all. Fixed: a new test in `Carousel.overscroll.test.tsx` starts at
+`defaultPage={1}` (both `canGoNext`/`canGoPrevious` true) so the drag stays
+genuinely in-bounds, then releases — confirmed via the v8 JSON reporter
+(`coverage/coverage-final.json`, the `b` branch-hit map) that this closes
+the exact branch id that CI flagged, with no other regression.
+
+**Root cause of why this session's own verification missed it three times
+running** (after the instant-scroll, scrollToIndex, and overscroll cycles
+alike): the verification pattern used throughout this session —
+`grep -n "useCarouselRoot\|useCarouselViewport\|Carousel.tsx" <coverage
+output>` and treating no-match as "100%, absent from the under-threshold
+table" — has a blind spot. The v8/vitest text reporter **truncates long file
+paths** to fit its fixed-width column (e.g. `useCarouselViewport.ts`
+prints as `  ...elViewport.ts`), so a grep for the untruncated name silently
+finds nothing whether the file is at 100% *or* has a real gap. The false
+negative wasn't caught earlier because every prior scoped check happened to
+be genuinely 100% at the time; this is the first time it masked a real
+regression. **Fixed methodology, going forward:** grep a short, truncation-
+proof substring (e.g. `elViewport.ts`, `elRoot.ts`, matching the tail v8
+prints) — or better, parse `coverage/coverage-final.json`'s `b` map
+directly for `0`-hit entries in the touched file(s), which is exact and
+can't be fooled by column width. No more trusting an absence-of-match on a
+long filename.
+
+**Fixed directly on `main`** (headless-only, no registry/contract touch) —
+commit `2a66bb0f`, one test added, 305 Carousel tests green,
+`useCarouselViewport.ts` confirmed 0 uncovered branches via the JSON
+reporter. The `carousel-variable-slide-width` branch (PR #241) doesn't
+touch `packages/react`, so it needed a merge from `main` to pick the fix up
+before its own CI would re-run clean — done in the same session.

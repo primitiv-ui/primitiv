@@ -283,7 +283,7 @@
        modifier opts it in (an inline `style` background still overrides it). */
     background: var(--primitiv-carousel-slide-surface);
     overflow: hidden;
-    /* No snap by default — only a page's leading slide (data-snap-start,
+    /* No snap by default — only a page's leading slide (data-snap-align,
        published by the headless primitive) is a valid resting position.
        Letting every slide snap (the old default) let mandatory scroll-snap
        stop scroll on an interior slide of a multi-slide page: the viewport
@@ -298,8 +298,15 @@
     /* Stop the OS grabbing images for drag/save mid-swipe. */
     -webkit-user-drag: none;
   }
-  .primitiv-carousel__slide[data-snap-start] {
+  /* The value mirrors the resolved root snapAlign, so a user's own scroll
+     (wheel/touch/drag) settles wherever the programmatic scroll (the
+     Viewport's centerOffset maths) already targets — not always the
+     leading edge regardless of snapAlign. */
+  .primitiv-carousel__slide[data-snap-align="start"] {
     scroll-snap-align: start;
+  }
+  .primitiv-carousel__slide[data-snap-align="center"] {
+    scroll-snap-align: center;
   }
 
   /* Media children fill the slide box. The slide box is always correctly sized by

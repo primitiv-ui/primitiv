@@ -32,11 +32,14 @@ aria-roledescription="slide">` and self-registers with the Root so each
   `"N of M"` (e.g. `"1 of 3"`); pass `ariaLabel` to override with a more
   meaningful description (e.g. `"Hand-picked for you"`). Emits
   `data-state="active" | "inactive"` tracking the active page, plus a
-  `data-carousel-slide` CSS hook. Also emits `data-snap-start` on a
-  page's leading slide only (every slide, when `slidesPerPage` is 1) —
-  the hook consumer CSS should scope `scroll-snap-align` to, so an
-  interior slide of a multi-slide page is never a valid scroll-snap
-  resting position (see "Multi-slide snap targeting" below).
+  `data-carousel-slide` CSS hook. Also emits
+  `data-snap-align="start" | "center"` on a page's leading slide only
+  (every slide, when `slidesPerPage` is 1), valued from the root's
+  resolved `snapAlign` — the hook consumer CSS should scope
+  `scroll-snap-align` to, so an interior slide of a multi-slide page is
+  never a valid scroll-snap resting position, and the native resting
+  position agrees with `snapAlign` (see "Multi-slide snap targeting"
+  below).
 - **`Carousel.NextTrigger`** — `<button>` that advances the active page
   by one. `disabled` at the last page, and whenever zero or one slides
   are registered. Consumer `onClick` runs before the navigation;
@@ -92,7 +95,7 @@ correction), and CSS owns _what the user sees_:
 | Peek of adjacent slides            | `snapAlign` → viewport `scrollTo` alignment              | Viewport `padding-inline`, slide `flex-basis`, `scroll-snap-align`       |
 | Gap between slides                 | —                                                        | `gap` on the viewport (no `spacing` prop — pure CSS)                     |
 | Variable-size slides               | viewport `scrollTo` the target slide's offset            | Per-slide width / `aspect-ratio`, `scroll-snap-align`                    |
-| Snap targeting                     | `snapAlign: "start" \| "center"` (Root only)             | `scroll-snap-type` on viewport, `scroll-snap-align` scoped to `[data-snap-start]` |
+| Snap targeting                     | `snapAlign: "start" \| "center"` (Root only)             | `scroll-snap-type` on viewport, `scroll-snap-align` scoped to `[data-snap-align="start" \| "center"]` |
 | Reduced motion                     | `behavior: "instant"`                                    | Optional `@media (prefers-reduced-motion: reduce)` on consumer animations |
 | Keyboard navigation                | Arrow / Home / End on focused viewport                   | `:focus-visible` on viewport                                             |
 | Touch / swipe                      | Native scroll + `scrollsnapchange` to sync state         | `overscroll-behavior-x: contain`, `scrollbar-width: none`                |
@@ -364,11 +367,16 @@ position without the browser snapping-correcting after the scroll:
 </Carousel.Root>
 ```
 
-Pair with `scroll-snap-align: center` on `Carousel.Slide` in your CSS.
-The default is `"start"`; `snapAlign` picks whether the viewport
-`scrollTo` aligns the target slide's leading edge (`"start"`) or centres
-it (`"center"`), and the browser's CSS snap engine makes the final
-correction.
+`Carousel.Slide` publishes the resolved value as
+`data-snap-align="start" | "center"` (on each valid resting slide — see
+"Multi-slide snap targeting" below), so pair it with
+`[data-snap-align="center"] { scroll-snap-align: center }` in your CSS
+rather than hardcoding `scroll-snap-align: center` — that way the
+native snap the user's own scroll settles into always agrees with
+`snapAlign`, not just the programmatic `scrollTo`. The default is
+`"start"`; `snapAlign` picks whether the viewport `scrollTo` aligns the
+target slide's leading edge (`"start"`) or centres it (`"center"`), and
+the browser's CSS snap engine makes the final correction.
 
 ### Orientation
 
@@ -949,7 +957,7 @@ and target the `data-carousel-*` attributes:
 For multi-slide pages (`slidesPerPage={3}`, etc.), tune the slide's
 `flex-basis` to share the viewport — e.g. `calc(100% / 3)` for three
 slides per page, plus a `gap` on the viewport for the inter-slide
-spacing. **Scope `scroll-snap-align` to `[data-snap-start]` instead of
+spacing. **Scope `scroll-snap-align` to `[data-snap-align]` instead of
 every `[data-carousel-slide]`** once `slidesPerPage > 1` — see
 "Multi-slide snap targeting" below; the recipe above is correct as-is
 for the single-slide-per-page default, where every slide carries the
@@ -966,16 +974,23 @@ viewport showing a straddled mix of two pages while `currentPage` (and
 any indicators driven from it) still claim a single clean page is
 active. This is easy to hit with incremental input — a mouse wheel
 notch or a drag release — that lands mid-page rather than jumping a
-full page at once. Scope `scroll-snap-align` to the `data-snap-start`
+full page at once. Scope `scroll-snap-align` to the `data-snap-align`
 hook (present only on each page's leading slide, and on every slide
-when `slidesPerPage` is 1) rather than applying it to every slide:
+when `slidesPerPage` is 1) rather than applying it to every slide. Its
+*value* mirrors the root's resolved `snapAlign` (`"start"` or
+`"center"`), so a user's own scroll (wheel/touch/drag) settles wherever
+the programmatic scroll already targets — style both values, not just
+`"start"`, if the consumer might set `snapAlign="center"`:
 
 ```css
 [data-carousel-slide] {
   flex: 0 0 calc(100% / 3); /* three slides per page, for example */
 }
-[data-carousel-slide][data-snap-start] {
+[data-carousel-slide][data-snap-align="start"] {
   scroll-snap-align: start;
+}
+[data-carousel-slide][data-snap-align="center"] {
+  scroll-snap-align: center;
 }
 ```
 

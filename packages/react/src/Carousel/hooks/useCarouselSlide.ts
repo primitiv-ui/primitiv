@@ -20,6 +20,7 @@ export function useCarouselSlide() {
     slidesPerPage,
     currentPageOffset,
     effectiveSlidesPerMove,
+    snapAlign: rootSnapAlign,
   } = useCarouselContext();
   const slideKey = useId();
 
@@ -56,6 +57,13 @@ export function useCarouselSlide() {
     index >= 0 &&
     (index === maxOffset ||
       (index <= maxOffset && index % effectiveSlidesPerMove === 0));
+  // The *value* mirrors the resolved root snapAlign, not just a fixed
+  // "start" — so the native scroll-snap resting position agrees with where
+  // the programmatic scroll (Viewport's centerOffset maths) actually
+  // targets. Previously this was hardcoded to "start" regardless of
+  // snapAlign, so a user's own swipe/wheel/drag would snap back to the
+  // slide's leading edge even under snapAlign="center".
+  const snapAlign = isSnapStart ? rootSnapAlign : undefined;
 
-  return { slideRef, index, total, state, isSnapStart };
+  return { slideRef, index, total, state, snapAlign };
 }

@@ -296,10 +296,12 @@ CarouselViewport.displayName = "CarouselViewport";
  *   recipe targets `[data-carousel-slide]`).
  * - `data-index="N"` — the slide's zero-based position in registration order.
  * - `data-total="N"` — the live total slide count.
- * - `data-snap-start` — present only on a page's leading slide (every slide
- *   when `slidesPerPage` is 1). The registry stylesheet scopes
- *   `scroll-snap-align` to this hook so an interior slide of a multi-slide
- *   page is never a valid scroll-snap resting position.
+ * - `data-snap-align="start" | "center"` — present only on a page's leading
+ *   slide (every slide when `slidesPerPage` is 1), valued from the root's
+ *   resolved `snapAlign`. The registry stylesheet scopes `scroll-snap-align`
+ *   to this hook, both so an interior slide of a multi-slide page is never a
+ *   valid scroll-snap resting position, and so the native resting position
+ *   agrees with `snapAlign` rather than always being `"start"`.
  *
  * Must be rendered as a descendant of `Carousel.Root`; rendering it
  * elsewhere throws a descriptive error.
@@ -323,7 +325,7 @@ export function CarouselSlide({
   children,
   ...rest
 }: CarouselSlideProps): ReactElement {
-  const { slideRef, index, total, state, isSnapStart } = useCarouselSlide();
+  const { slideRef, index, total, state, snapAlign } = useCarouselSlide();
   const { translations } = useCarouselContext();
   const autoLabel =
     index >= 0 && total > 0
@@ -342,7 +344,7 @@ export function CarouselSlide({
       data-state={state}
       className={className}
       {...(label !== undefined && { "aria-label": label })}
-      {...(isSnapStart && { "data-snap-start": "" })}
+      {...(snapAlign !== undefined && { "data-snap-align": snapAlign })}
       {...rest}
     >
       {children}

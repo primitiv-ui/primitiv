@@ -322,21 +322,43 @@ function ThumbnailIndicators({
 }) {
   const ctx = useContext(CarouselContext);
   const pageForSlideIndex = ctx?.pageForSlideIndex ?? ((i: number) => i);
+  // Group hover: with slidesPerPage > 1, several thumbnails share one page
+  // (see the index={pageForSlideIndex(...)} note below) — hovering any one
+  // of them should read as hovering the whole group, not just that single
+  // thumbnail. CSS alone can't express this: :hover only ever applies to
+  // the literally-pointed-at element, and there's no selector that projects
+  // it onto an arbitrary-length run of siblings without hardcoding a max
+  // count. pageForSlideIndex already computes real group membership, so
+  // tracking "which page is currently hovered" here and marking every
+  // thumbnail that shares it stays correct for any slidesPerPage.
+  const [hoveredPage, setHoveredPage] = useState<number | null>(null);
   return (
     <CarouselIndicatorGroup label="Choose slide">
-      {slides.map((background, index) => (
-        <CarouselIndicator key={index} index={pageForSlideIndex(index)}>
-          {pictures ? (
-            <img
-              className="carousel-builder__thumb"
-              src={pictures[index % pictures.length]}
-              alt=""
-            />
-          ) : (
-            <span className="carousel-builder__thumb" style={{ background }} />
-          )}
-        </CarouselIndicator>
-      ))}
+      {slides.map((background, index) => {
+        const page = pageForSlideIndex(index);
+        return (
+          <CarouselIndicator
+            key={index}
+            index={page}
+            onMouseEnter={() => setHoveredPage(page)}
+            onMouseLeave={() => setHoveredPage(null)}
+            {...(hoveredPage === page && { "data-group-hover": "" })}
+          >
+            {pictures ? (
+              <img
+                className="carousel-builder__thumb"
+                src={pictures[index % pictures.length]}
+                alt=""
+              />
+            ) : (
+              <span
+                className="carousel-builder__thumb"
+                style={{ background }}
+              />
+            )}
+          </CarouselIndicator>
+        );
+      })}
     </CarouselIndicatorGroup>
   );
 }

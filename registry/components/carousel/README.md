@@ -177,9 +177,22 @@ so they can't fall out of sync.
   selectors (no JS, no new data attribute), continuous across the group and
   absent entirely for a lone thumbnail (the `slidesPerPage=1` case, unchanged). An
   uneven last page (e.g. 8 slides ÷ 3 per page → groups of 3/3/2) is handled for
-  free, since it's the identical page math the dots use. See
+  free, since it's the identical page math the dots use. **Group hover** (hovering
+  any one member should visually lift the whole group, matching the group border
+  above) can't reuse that CSS-only trick — `:hover` only ever applies to the
+  literally-pointed-at element, and no selector projects it onto an
+  arbitrary-length run of siblings the way `[data-state="active"]` naturally does
+  (every member of an active run already independently computes the identical
+  value; hover has no equivalent shared value to key off). So it needs a small
+  amount of consumer JS instead of a pure CSS rule: track "which page is
+  currently hovered" in the same component that wires `pageForSlideIndex`, and
+  toggle a `data-group-hover` attribute on every thumbnail that shares it — the
+  registry stylesheet just does `[data-group-hover] { opacity:
+  var(--primitiv-opacity-100) }`, the same treatment `:hover` already gets. This
+  is still zero headless change — `pageForSlideIndex` is already exposed via
+  context for exactly this. See
   `apps/kitchen-sink/src/pages/CarouselPage.tsx`'s `ThumbnailIndicators` helper for
-  the reference wiring.
+  the reference wiring (both the page-index mapping and the group-hover state).
 - The slide **`radius`**
   modifier (`md` default · `none` squares the slide off) and the slide **`ratio`**
   modifier (`square` 1:1 · `standard` 4:3 · `wide` 16:9 default · `ultrawide`

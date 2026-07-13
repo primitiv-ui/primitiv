@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 
 import {
   ChevronLeft,
@@ -356,6 +356,13 @@ function MultiSlide({
  * 8 slides ÷ 3 per page → groups of 3/3/2) is handled identically — no separate logic.
  * Must render as a descendant of `Carousel` (a plain child suffices; it doesn't need to
  * be `<CarouselIndicatorGroup>`'s direct child) so the context is in scope.
+ *
+ * Also tracks group hover: hovering any thumbnail in a shared-page group should
+ * lift the whole group, mirroring the CSS-only group border below — but hover
+ * has no equivalent to `data-state="active"`'s naturally-shared value for CSS
+ * to key off (`:hover` only ever applies to the pointed-at element), so this
+ * tracks `hoveredPage` here and marks every thumbnail sharing it with
+ * `data-group-hover`, which the registry stylesheet treats identically to `:hover`.
  */
 function ThumbnailIndicators({
   slides,
@@ -366,13 +373,30 @@ function ThumbnailIndicators({
 }) {
   const ctx = useContext(CarouselContext);
   const pageForSlideIndex = ctx?.pageForSlideIndex ?? ((i: number) => i);
+  // Group hover: with slidesPerPage > 1, several thumbnails share one page —
+  // hovering any one should read as hovering the whole group. CSS alone
+  // can't express this (:hover only applies to the pointed-at element, with
+  // no selector that projects it onto an arbitrary-length sibling run), so
+  // "which page is currently hovered" is tracked here and every thumbnail
+  // sharing it is marked — reusing pageForSlideIndex keeps this correct for
+  // any slidesPerPage, the same way the border grouping below already is.
+  const [hoveredPage, setHoveredPage] = useState<number | null>(null);
   return (
     <CarouselIndicatorGroup label={label}>
-      {slides.map((bg, i) => (
-        <CarouselIndicator key={i} index={pageForSlideIndex(i)}>
-          <span style={{ background: bg }} />
-        </CarouselIndicator>
-      ))}
+      {slides.map((bg, i) => {
+        const page = pageForSlideIndex(i);
+        return (
+          <CarouselIndicator
+            key={i}
+            index={page}
+            onMouseEnter={() => setHoveredPage(page)}
+            onMouseLeave={() => setHoveredPage(null)}
+            {...(hoveredPage === page && { "data-group-hover": "" })}
+          >
+            <span style={{ background: bg }} />
+          </CarouselIndicator>
+        );
+      })}
     </CarouselIndicatorGroup>
   );
 }

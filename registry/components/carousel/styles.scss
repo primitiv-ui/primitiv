@@ -1342,11 +1342,21 @@
     border-radius: inherit;
   }
   /* Hover lifts an inactive thumbnail to full opacity (the active one is already
-     full — states layer). */
+     full — states layer). `[data-group-hover]` is the consumer-set hook for
+     "hovering any member of my slidesPerPage>1 page group" — CSS can't derive
+     group membership from :hover alone (no selector projects it onto an
+     arbitrary-length sibling run), so the consumer's own composition tracks
+     it via the headless pageForSlideIndex and marks every sharing thumbnail;
+     see the registry README's thumbnail composition section. */
   .primitiv-carousel--indicators-thumbnails .primitiv-carousel__indicator:hover,
   .primitiv-carousel--indicators-thumbnails
     .primitiv-carousel__indicator-group
-    > button:hover {
+    > button:hover,
+  .primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator[data-group-hover],
+  .primitiv-carousel--indicators-thumbnails
+    .primitiv-carousel__indicator-group
+    > button[data-group-hover] {
     opacity: var(--primitiv-opacity-100);
   }
 

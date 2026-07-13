@@ -234,6 +234,12 @@
       "component": "Indicators",
       "element": "div",
       "class": "primitiv-carousel__indicator-group"
+    },
+    {
+      "name": "progress-text",
+      "component": "ProgressText",
+      "element": "span",
+      "class": "primitiv-carousel__progress-text"
     }
   ],
   "customProperties": [
@@ -271,6 +277,8 @@
     { "name": "--primitiv-carousel-indicator-size-active", "defaultsTo": "var(--primitiv-carousel-md-active-pill)" },
     { "name": "--primitiv-carousel-indicator-color", "defaultsTo": "var(--primitiv-border-strong)" },
     { "name": "--primitiv-carousel-indicator-color-active", "defaultsTo": "var(--primitiv-action-primary-default)" },
+    { "name": "--primitiv-carousel-progress-text-color", "defaultsTo": "var(--primitiv-content-secondary)" },
+    { "name": "--primitiv-carousel-progress-text-font-size", "defaultsTo": "var(--primitiv-body-sm-font-size)" },
     { "name": "--primitiv-carousel-thumbnail-inline-size", "defaultsTo": "var(--primitiv-carousel-md-thumbnail-size)" },
     { "name": "--primitiv-carousel-thumbnail-aspect-ratio", "defaultsTo": "var(--primitiv-carousel-slide-aspect-ratio)" },
     { "name": "--primitiv-carousel-thumbnail-gap", "defaultsTo": "var(--primitiv-space-space-8)" },

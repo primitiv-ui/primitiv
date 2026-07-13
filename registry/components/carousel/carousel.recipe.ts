@@ -144,3 +144,7 @@ export type CarouselIndicatorVariants = VariantProps<typeof carouselIndicator>;
 export const carouselIndicators = cva("primitiv-carousel__indicator-group");
 
 export type CarouselIndicatorsVariants = VariantProps<typeof carouselIndicators>;
+
+export const carouselProgressText = cva("primitiv-carousel__progress-text");
+
+export type CarouselProgressTextVariants = VariantProps<typeof carouselProgressText>;

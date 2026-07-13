@@ -2207,16 +2207,19 @@ every *example-backlog* axis above that's landed —
 fastest way to re-verify how landed axes compose (all of them human-approved
 as of 2026-07-13 — see the QA status note above), not just the single-axis
 example page. It does **not** yet expose any of the remaining Ark UI
-API-level gaps below (`ProgressText`, per-call `instant`, slide-index
-scroll) — those aren't styling/composition axes, they're headless API
-surface, so they won't show up as Builder controls even once built; they
-stay tracked in the Ark UI section below.
+API-level gaps below (per-call `instant`, slide-index scroll) — those
+aren't styling/composition axes, they're headless API surface, so they
+won't show up as Builder controls even once built; they stay tracked in
+the Ark UI section below.
 (`pageSnapPoints`, indicator `readOnly`, `inViewThreshold`, `snapType`,
-per-item `snapAlign`, drag status, and the autoplay status callback landed
-2026-07-13 — see that section — and were never Builder-control candidates
-either, for the same reason. `snapAlign` specifically: the Builder's would
-be a **root-level** default like the others, not a per-slide override,
-which needs individually-configurable slides the Builder's single uniform
+per-item `snapAlign`, drag status, the autoplay status callback, and
+`ProgressText` landed 2026-07-13 — see that section — and were never
+Builder-control candidates either, for the same reason (`ProgressText`
+has no variant axis of its own — it's a presence/absence composition
+choice, like `PlayPauseTrigger`, not a styling knob). `snapAlign`
+specifically: the Builder's would be a **root-level** default like the
+others, not a per-slide override, which needs individually-configurable
+slides the Builder's single uniform
 gallery doesn't have.)
 
 ### Ark UI — gaps identified (read 2026-07-13)
@@ -2324,9 +2327,10 @@ explicit RTL (`dir`), `autoSize` + per-item
       (if passed) still fires — only the internal navigation is suppressed.
       TDD in `Carousel.indicators.test.tsx` (5 new tests). Headless-only —
       no registry/contract/CSS change, so no kitchen-sink sync needed.
-- [ ] **A dedicated `ProgressText` part.** **Built 2026-07-13, on the
-      `carousel-progress-text` branch/PR pending CI + merge** (not yet on
-      `main` — see the note below on why). Added `Carousel.ProgressText` — a
+- [x] **A dedicated `ProgressText` part.** **Landed 2026-07-13** via PR #240
+      (`carousel-progress-text` branch — off `main` because it touches
+      Rust-generated registry files this sandbox can't verify with cargo; see
+      the note below on why). Added `Carousel.ProgressText` — a
       `<span>` rendering the live
       `"N of M"` active-page progress via a new `translations.progressText`
       format (`{ page, totalPages } => string`, 1-indexed default

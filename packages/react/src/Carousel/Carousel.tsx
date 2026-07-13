@@ -549,6 +549,15 @@ CarouselIndicatorGroup.displayName = "CarouselIndicatorGroup";
  * `aria-disabled="false"`. Both states also flip `data-state` between
  * `"active"` and `"inactive"` so consumer CSS can paint the active dot.
  *
+ * **`readOnly`.** When `true`, the indicator becomes a presentational-only
+ * progress dot instead of a navigation control: it renders a `<span>` (no
+ * button semantics), carries `aria-hidden="true"` (it's decorative, not
+ * announced), and clicking it no longer calls `goTo` — for a carousel whose
+ * only navigation is e.g. `allowMouseDrag`, where clickable dots would be a
+ * redundant/misleading control. It still tracks `data-state`, so CSS-driven
+ * progress display keeps working, and the consumer's own `onClick` (if
+ * passed) still fires — only the internal navigation is suppressed.
+ *
  * **Styling hooks.**
  * - `data-carousel-indicator` — CSS-targeting attribute.
  * - `data-state="active" | "inactive"` — tracks the current page.
@@ -559,12 +568,14 @@ CarouselIndicatorGroup.displayName = "CarouselIndicatorGroup";
  * @example
  * ```tsx
  * <Carousel.Indicator index={0} />
+ * <Carousel.Indicator index={0} readOnly />
  * ```
  */
 export function CarouselIndicator({
   className = "",
   index,
   onClick,
+  readOnly = false,
   asChild = false,
   children,
   ...rest
@@ -575,23 +586,31 @@ export function CarouselIndicator({
   const handleClick = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
       onClick?.(event);
-      goTo(index);
+      if (!readOnly) goTo(index);
     },
-    [goTo, index, onClick],
+    [goTo, index, onClick, readOnly],
   );
 
   const indicatorProps = {
     className,
-    "aria-label": translations.indicatorLabel({ index: index + 1 }),
-    "aria-disabled": isActive,
     "data-carousel-indicator": "",
     "data-state": isActive ? "active" : "inactive",
     onClick: handleClick,
+    ...(readOnly
+      ? { "aria-hidden": true }
+      : {
+          "aria-label": translations.indicatorLabel({ index: index + 1 }),
+          "aria-disabled": isActive,
+        }),
     ...rest,
   };
 
   if (asChild) {
     return <Slot {...indicatorProps}>{children}</Slot>;
+  }
+
+  if (readOnly) {
+    return <span {...indicatorProps}>{children}</span>;
   }
 
   return (
@@ -616,23 +635,28 @@ CarouselIndicator.displayName = "CarouselIndicator";
  * thumbnail previews on hover), drop down to
  * `Carousel.IndicatorGroup` + `Carousel.Indicator` instead.
  *
+ * `readOnly` forwards to every generated indicator — see
+ * `Carousel.Indicator`'s own `readOnly` doc.
+ *
  * Must be rendered as a descendant of `Carousel.Root`; rendering it
  * elsewhere throws a descriptive error.
  *
  * @example
  * ```tsx
  * <Carousel.Indicators label="Choose slide" />
+ * <Carousel.Indicators label="Progress" readOnly />
  * ```
  */
-export function CarouselIndicators(
-  props: CarouselIndicatorsProps,
-): ReactElement {
+export function CarouselIndicators({
+  readOnly,
+  ...props
+}: CarouselIndicatorsProps): ReactElement {
   const { totalPages } = useCarouselContext();
 
   return (
     <CarouselIndicatorGroup {...props}>
       {Array.from({ length: totalPages }, (_, index) => (
-        <CarouselIndicator key={index} index={index} />
+        <CarouselIndicator key={index} index={index} readOnly={readOnly} />
       ))}
     </CarouselIndicatorGroup>
   );

@@ -857,6 +857,28 @@ slide and the indicator row updates on the next render. For custom
 indicator content (thumbnails, numbers, mixed icons), drop down to
 the manual `IndicatorGroup` + `Indicator` API above.
 
+### Read-only (presentational) indicators
+
+Pass `readOnly` when the dots are a progress display rather than a
+navigation control — e.g. a carousel driven solely by
+[`allowMouseDrag`](#mouse-input), where clickable dots would be a
+redundant, confusing second way to navigate:
+
+```tsx
+<Carousel.Indicators label="Progress" readOnly />
+// or, on a manually-mapped dot:
+<Carousel.Indicator index={0} readOnly />
+```
+
+A `readOnly` indicator renders a `<span>` instead of a `<button>`
+(no button semantics), carries `aria-hidden="true"` (it's decorative
+and not announced to assistive tech), and no longer calls `goTo`
+when clicked. It still tracks `data-state="active" | "inactive"`, so
+the same CSS that paints a normal indicator keeps working. A
+consumer's own `onClick` on an individual `Indicator`, if passed,
+still fires — only the internal navigation is suppressed. On
+`Carousel.Indicators`, `readOnly` forwards to every generated dot.
+
 ## Recommended CSS
 
 The component ships zero styles. The recipe below is the minimum

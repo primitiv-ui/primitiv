@@ -251,6 +251,88 @@ describe("Carousel.Indicator", () => {
       "active",
     );
   });
+
+  it("should render a non-interactive element (not a button) when readOnly", () => {
+    const { container } = render(
+      <Carousel.Root ariaLabel="Featured products">
+        <Carousel.IndicatorGroup label="Choose slide">
+          <Carousel.Indicator index={0} readOnly />
+        </Carousel.IndicatorGroup>
+      </Carousel.Root>,
+    );
+
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    const dot = container.querySelector("[data-carousel-indicator]")!;
+    expect(dot.tagName).toBe("SPAN");
+    expect(dot).toHaveAttribute("aria-hidden", "true");
+  });
+
+  it("should still track the active page via data-state when readOnly", async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <Carousel.Root ariaLabel="Featured products">
+        <Carousel.Viewport>
+          <Carousel.Slide data-testid="slide-0" />
+          <Carousel.Slide data-testid="slide-1" />
+        </Carousel.Viewport>
+        <Carousel.NextTrigger>Next</Carousel.NextTrigger>
+        <Carousel.IndicatorGroup label="Choose slide">
+          <Carousel.Indicator index={0} readOnly />
+          <Carousel.Indicator index={1} readOnly />
+        </Carousel.IndicatorGroup>
+      </Carousel.Root>,
+    );
+
+    const dots = container.querySelectorAll("[data-carousel-indicator]");
+    expect(dots[0]).toHaveAttribute("data-state", "active");
+    expect(dots[1]).toHaveAttribute("data-state", "inactive");
+
+    await user.click(screen.getByRole("button", { name: "Next" }));
+
+    expect(dots[0]).toHaveAttribute("data-state", "inactive");
+    expect(dots[1]).toHaveAttribute("data-state", "active");
+  });
+
+  it("should not navigate when a readOnly indicator is clicked", async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <Carousel.Root ariaLabel="Featured products">
+        <Carousel.Viewport>
+          <Carousel.Slide data-testid="slide-0" />
+          <Carousel.Slide data-testid="slide-1" />
+        </Carousel.Viewport>
+        <Carousel.IndicatorGroup label="Choose slide">
+          <Carousel.Indicator index={0} readOnly />
+          <Carousel.Indicator index={1} readOnly />
+        </Carousel.IndicatorGroup>
+      </Carousel.Root>,
+    );
+
+    const dots = container.querySelectorAll("[data-carousel-indicator]");
+    await user.click(dots[1]);
+
+    expect(screen.getByTestId("slide-0")).toHaveAttribute(
+      "data-state",
+      "active",
+    );
+  });
+
+  it("should still invoke the consumer's onClick handler when readOnly", async () => {
+    const user = userEvent.setup();
+    const onClick = vi.fn();
+    const { container } = render(
+      <Carousel.Root ariaLabel="Featured products">
+        <Carousel.IndicatorGroup label="Choose slide">
+          <Carousel.Indicator index={0} readOnly onClick={onClick} />
+        </Carousel.IndicatorGroup>
+      </Carousel.Root>,
+    );
+
+    const dot = container.querySelector("[data-carousel-indicator]")!;
+    await user.click(dot);
+
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("Carousel.Indicators (auto-rendered)", () => {
@@ -395,6 +477,25 @@ describe("Carousel.Indicators (auto-rendered)", () => {
       "class",
       testClass,
     );
+  });
+
+  it("should forward readOnly to every auto-rendered indicator", () => {
+    const { container } = render(
+      <Carousel.Root ariaLabel="Featured products">
+        <Carousel.Viewport>
+          <Carousel.Slide />
+          <Carousel.Slide />
+        </Carousel.Viewport>
+        <Carousel.Indicators label="Choose slide" readOnly />
+      </Carousel.Root>,
+    );
+
+    expect(
+      screen.queryAllByRole("button", { name: /^Slide \d+$/ }),
+    ).toHaveLength(0);
+    expect(
+      container.querySelectorAll("[data-carousel-indicator]"),
+    ).toHaveLength(2);
   });
 });
 

@@ -398,6 +398,12 @@ export type CarouselIndicatorGroupProps = Omit<
 export type CarouselIndicatorProps = ComponentProps<"button"> & {
   /** Zero-based page this indicator targets. Clicking jumps to it. */
   index: number;
+  /** Renders a presentational-only `<span>` instead of a `<button>`:
+   * `aria-hidden="true"`, and clicking no longer calls `goTo`. Use for a
+   * progress display when navigation happens some other way (e.g. a
+   * carousel driven solely by `allowMouseDrag`). The consumer's own
+   * `onClick`, if passed, still fires. Default `false`. */
+  readOnly?: boolean;
   /** Render the child element instead of the default `<button>`.
    * Trigger props (onClick, aria-label, aria-disabled, data-state)
    * are merged onto the child via `Slot`. The child must accept a
@@ -464,7 +470,11 @@ export type CarouselIndicatorsProps = Omit<
   (
     | { label: string; ariaLabelledBy?: never }
     | { label?: never; ariaLabelledBy: string }
-  );
+  ) & {
+    /** Forwarded to every generated `Carousel.Indicator`. See
+     * `CarouselIndicatorProps.readOnly`. Default `false`. */
+    readOnly?: boolean;
+  };
 
 /**
  * Render-prop or static children supported by

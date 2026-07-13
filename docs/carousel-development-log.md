@@ -2181,12 +2181,14 @@ every *example-backlog* axis above that's landed —
 (dots/thumbnails), `transition` (slide/fade) — as live controls, so it's the
 fastest way to re-verify how landed axes compose (all of them human-approved
 as of 2026-07-13 — see the QA status note above), not just the single-axis
-example page. It does **not** yet expose any of the Ark UI API-level gaps below (per-item
-`snapAlign`, `inViewThreshold`, `snapType`, drag/autoplay status callbacks,
-indicator `readOnly`, `ProgressText`, per-call `instant`, slide-index scroll,
-`pageSnapPoints`) — those aren't styling/composition axes, they're headless
-API surface, so they won't show up as Builder controls even once built; they
-stay tracked in the Ark UI section below.
+example page. It does **not** yet expose any of the remaining Ark UI
+API-level gaps below (per-item `snapAlign`, `inViewThreshold`, `snapType`,
+drag/autoplay status callbacks, indicator `readOnly`, `ProgressText`,
+per-call `instant`, slide-index scroll) — those aren't styling/composition
+axes, they're headless API surface, so they won't show up as Builder
+controls even once built; they stay tracked in the Ark UI section below.
+(`pageSnapPoints` landed 2026-07-13 — see that section — and was never a
+Builder-control candidate either, for the same reason.)
 
 ### Ark UI — gaps identified (read 2026-07-13)
 
@@ -2268,11 +2270,18 @@ explicit RTL (`dir`), `autoSize` + per-item
       have `goTo(page)` — no way to imperatively target a specific *slide*
       index in a multi-slide carousel without computing the page yourself
       (`pageForSlideIndex` is on context, not the public imperative API).
-- [ ] **`pageSnapPoints` exposed on the imperative API.** Ark's `api.
-      pageSnapPoints` is the array of page-start slide offsets — useful for a
-      custom progress bar or indicator implementation that needs the raw
-      offsets, not just the page count. We compute the equivalent internally
-      (the offset formula in `useCarouselRoot.ts`) but never expose it.
+- [x] **`pageSnapPoints` exposed on the imperative API.** **Landed
+      2026-07-13.** Added `getPageSnapPoints(): number[]` to
+      `CarouselImperativeApi` — the same offset formula
+      `currentPageOffset` uses (`Math.min(page * effectiveSlidesPerMove,
+      maxOffset)`), computed for every page, including the end-aligned
+      last page. TDD in `Carousel.page-snap-points.test.tsx` (3 tests: no
+      multi-slide paging, an end-aligned last page, no slides registered).
+      Named `getPageSnapPoints()` (a function) rather than mirroring Ark's
+      plain `pageSnapPoints` property, to match this API's existing
+      `getProgress()` getter convention. Headless-only — no registry/
+      contract/CSS change, so no kitchen-sink sync needed (nothing
+      example-facing changed).
 
 **Design divergence to flag, not necessarily a gap:**
 

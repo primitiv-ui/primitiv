@@ -330,7 +330,9 @@ Useful for a custom progress bar or indicator built from the raw
 offsets instead of just the page count. `isDragging()` is a live
 snapshot of whether a mouse drag is in progress (always `false`
 unless `allowMouseDrag` is set) — see "Drag status" below for the
-matching `onDragStatusChange` callback.
+matching `onDragStatusChange` callback. For a ready-made rendered
+progress announcement instead of building one from `getProgress()`
+yourself, see "Progress text" below.
 
 Every method routes through the same internal state machine the
 trigger components use, so controlled-mode `onPageChange` /
@@ -965,6 +967,32 @@ tick while it stays active, and `"autoplay.stop"` when the timer stops
 running — whether because `playing` flipped `false`, the last page was
 reached, or hover/focus/touch suspended it. `page` is the active page
 at that moment.
+
+### Progress text
+
+`getProgress()` on the imperative API gives you the raw
+`{ page, totalPages, value }` data, but wiring an actual rendered
+announcement (`"1 of 3"`) yourself every time is boilerplate.
+`Carousel.ProgressText` renders it for you, formatted by
+`translations.progressText` (matches Ark UI's `Carousel.ProgressText`
+anatomy part):
+
+```tsx
+<Carousel.Root ariaLabel="Featured products">
+  <Carousel.Viewport>…</Carousel.Viewport>
+  <Carousel.ProgressText />
+</Carousel.Root>
+```
+
+Renders `"1 of 3"` by default (1-indexed, matching `slideLabel`); pass
+`translations={{ progressText: ({ page, totalPages }) => … }}` on the
+Root to customise the format, or `children` on `Carousel.ProgressText`
+itself to render something else entirely (an icon alongside the
+count, say) instead of the computed text. `Carousel.ProgressText`
+carries no ARIA wiring of its own — compose it inside your own live
+region if you want page changes announced; this mirrors Ark's
+unopinionated `progressText` part rather than duplicating the
+Viewport's own `aria-live` toggling (see "Autoplay timer" above).
 
 ### Indicator dots (auto-rendered)
 

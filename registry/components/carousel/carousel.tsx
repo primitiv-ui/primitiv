@@ -7,7 +7,7 @@
  */
 import { Carousel as CarouselPrimitive } from "@primitiv-ui/react";
 import { type ComponentPropsWithRef, type CSSProperties } from "react";
-import { carousel, carouselViewport, carouselControls, carouselSlide, carouselPreviousTrigger, carouselNextTrigger, carouselIndicatorGroup, carouselIndicator, carouselIndicators } from "./carousel.recipe";
+import { carousel, carouselViewport, carouselControls, carouselSlide, carouselPreviousTrigger, carouselNextTrigger, carouselIndicatorGroup, carouselIndicator, carouselIndicators, carouselProgressText } from "./carousel.recipe";
 
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
 
@@ -217,4 +217,10 @@ export type CarouselIndicatorsProps = ComponentPropsWithRef<typeof CarouselPrimi
 
 export function CarouselIndicators({ className, ...props }: CarouselIndicatorsProps) {
   return <CarouselPrimitive.Indicators className={[carouselIndicators(), className].filter(Boolean).join(" ")} {...props} />;
+}
+
+export type CarouselProgressTextProps = ComponentPropsWithRef<typeof CarouselPrimitive.ProgressText>;
+
+export function CarouselProgressText({ className, ...props }: CarouselProgressTextProps) {
+  return <CarouselPrimitive.ProgressText className={[carouselProgressText(), className].filter(Boolean).join(" ")} {...props} />;
 }

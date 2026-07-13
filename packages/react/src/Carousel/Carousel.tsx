@@ -25,6 +25,7 @@ import type {
   CarouselIndicatorProps,
   CarouselIndicatorsProps,
   CarouselPlayPauseTriggerProps,
+  CarouselProgressTextProps,
 } from "./types";
 
 /**
@@ -762,6 +763,41 @@ export function CarouselPlayPauseTrigger({
 /** @internal */
 CarouselPlayPauseTrigger.displayName = "CarouselPlayPauseTrigger";
 
+/**
+ * A `<span>` rendering the live active-page progress as text — `"1 of
+ * 3"` by default, via `translations.progressText`. Closes the gap
+ * between the imperative `getProgress()` data and an actual DOM node a
+ * consumer can drop in without wiring the announcement themselves.
+ *
+ * ```tsx
+ * <Carousel.ProgressText />
+ * ```
+ *
+ * Pass `children` to render custom content instead of the default
+ * translated text (e.g. an icon alongside the count) — the computed
+ * text is only used as a fallback.
+ *
+ * Must be rendered as a descendant of `Carousel.Root`; rendering it
+ * elsewhere throws a descriptive error (via the shared Carousel
+ * context guard).
+ */
+export function CarouselProgressText({
+  children,
+  ...rest
+}: CarouselProgressTextProps): ReactElement {
+  const { currentPage, totalPages, translations } = useCarouselContext();
+
+  return (
+    <span {...rest}>
+      {children ??
+        translations.progressText({ page: currentPage, totalPages })}
+    </span>
+  );
+}
+
+/** @internal */
+CarouselProgressText.displayName = "CarouselProgressText";
+
 /** Static-property shape of the compound {@link Carousel} export: the callable {@link CarouselRoot} plus its namespaced sub-components. */
 type CarouselCompound = typeof CarouselRoot & {
   Root: typeof CarouselRoot;
@@ -773,6 +809,7 @@ type CarouselCompound = typeof CarouselRoot & {
   Indicator: typeof CarouselIndicator;
   Indicators: typeof CarouselIndicators;
   PlayPauseTrigger: typeof CarouselPlayPauseTrigger;
+  ProgressText: typeof CarouselProgressText;
 };
 
 /**
@@ -825,6 +862,7 @@ const CarouselCompound: CarouselCompound = Object.assign(CarouselRoot, {
   Indicator: CarouselIndicator,
   Indicators: CarouselIndicators,
   PlayPauseTrigger: CarouselPlayPauseTrigger,
+  ProgressText: CarouselProgressText,
 });
 
 CarouselCompound.displayName = "Carousel";

@@ -3,9 +3,10 @@
 The artefacts `primitiv add carousel` resolves and copies into a consumer repo.
 Carousel is a **primitive-backed structural compound** (like `tabs`): a root plus
 consumer-composed subcomponents — `Viewport` / `Slide` / `PreviousTrigger` /
-`NextTrigger` / `IndicatorGroup` / `Indicator` — flowing through the *same*
-`primitiv-emit` generators, over the headless `@primitiv-ui/react` `Carousel`
-(native CSS scroll-snap, WAI-ARIA Carousel pattern).
+`NextTrigger` / `IndicatorGroup` / `Indicator` / `Indicators` / `ProgressText` —
+flowing through the *same* `primitiv-emit` generators, over the headless
+`@primitiv-ui/react` `Carousel` (native CSS scroll-snap, WAI-ARIA Carousel
+pattern).
 
 The styled surface is **container-adaptive by default**: the root fills its inline
 space and each slide holds its shape with `aspect-ratio`, so the carousel is
@@ -52,8 +53,8 @@ so they can't fall out of sync.
 - **`root` / `subcomponents` / `modifiers` / `customProperties`** — the authored
   styling conventions: the `.primitiv-carousel` root and the `__viewport` /
   `__slide` / `__controls` / `__prev` / `__next` / `__indicator-group` /
-  `__indicator` BEM parts, the modifiers, and the `--primitiv-carousel-*`
-  custom-property API. `__controls` is a **presentational subcomponent** —
+  `__indicator` / `__progress-text` BEM parts, the modifiers, and the
+  `--primitiv-carousel-*` custom-property API. `__controls` is a **presentational subcomponent** —
   `<CarouselControls>`, a plain styled `<div>` (no headless backing) the consumer
   puts prev / indicators / next in; it centres them and spaces the buttons from
   the dots via `--primitiv-carousel-controls-gap` (distinct from the tight
@@ -241,6 +242,12 @@ per-part wrappers the consumer composes. Two indicator surfaces ship: **`<Carous
 multi-slide) and the lower-level **`<CarouselIndicatorGroup>` + `<CarouselIndicator>`**
 (manual — for custom dot content). The default dot styling targets the group's
 child `<button>`s, so both surfaces are styled identically.
+- **`<CarouselProgressText>`** renders the live `"N of M"` active-page progress
+  as a plain caption (the `progressText` headless part) — muted
+  (`--primitiv-carousel-progress-text-color`, `content-secondary`) at a small
+  caption size (`--primitiv-carousel-progress-text-font-size`,
+  `body-sm-font-size`). It carries no layout of its own — drop it inside
+  `<CarouselControls>`, standalone, or wherever the design calls for it.
 
 ## The default theme (`styles.css`)
 
@@ -350,6 +357,7 @@ Flat, shadcn-shaped exports the consumer composes over the headless compound:
     </CarouselIndicatorGroup>
     <CarouselNextTrigger><ChevronRight /></CarouselNextTrigger>
   </CarouselControls>
+  <CarouselProgressText />
 </Carousel>
 ```
 

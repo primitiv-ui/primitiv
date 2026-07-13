@@ -126,6 +126,11 @@
     --primitiv-carousel-indicator-size-active: var(--primitiv-carousel-md-active-pill);
     --primitiv-carousel-indicator-color: var(--primitiv-border-strong);
     --primitiv-carousel-indicator-color-active: var(--primitiv-action-primary-default);
+    /* Progress text is a plain caption the consumer places anywhere (inside
+       the controls row, standalone, wherever) — no layout knobs of its own,
+       just typography, muted like a caption. */
+    --primitiv-carousel-progress-text-color: var(--primitiv-content-secondary);
+    --primitiv-carousel-progress-text-font-size: var(--primitiv-body-sm-font-size);
 
     /* Thumbnail-indicator knobs — read only under `--indicators-thumbnails`,
        where each indicator is a rounded-rect image thumbnail rather than a dot
@@ -416,6 +421,14 @@
         var(--primitiv-motion-easing-default),
       background-color var(--primitiv-motion-duration-control)
         var(--primitiv-motion-easing-default);
+  }
+
+  /* Progress text — a plain caption; the consumer places it wherever it
+     belongs (inside `__controls`, standalone, …), so this rule carries no
+     layout, only the muted caption typography. */
+  .primitiv-carousel__progress-text {
+    color: var(--primitiv-carousel-progress-text-color);
+    font-size: var(--primitiv-carousel-progress-text-font-size);
   }
 }
 

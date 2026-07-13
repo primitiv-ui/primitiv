@@ -33,6 +33,7 @@ const DEFAULT_TRANSLATIONS: Required<CarouselTranslations> = {
   indicatorLabel: ({ index }) => `Slide ${index}`,
   startSlideshow: "Start automatic slide show",
   stopSlideshow: "Stop automatic slide show",
+  progressText: ({ page, totalPages }) => `${page + 1} of ${totalPages}`,
 };
 
 /**

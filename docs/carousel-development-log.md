@@ -2207,17 +2207,17 @@ every *example-backlog* axis above that's landed —
 fastest way to re-verify how landed axes compose (all of them human-approved
 as of 2026-07-13 — see the QA status note above), not just the single-axis
 example page. It does **not** yet expose any of the remaining Ark UI
-API-level gaps below (the autoplay status callback, `ProgressText`,
-per-call `instant`, slide-index scroll) — those aren't styling/composition
-axes, they're headless API surface, so they won't show up as Builder
-controls even once built; they stay tracked in the Ark UI section below.
+API-level gaps below (`ProgressText`, per-call `instant`, slide-index
+scroll) — those aren't styling/composition axes, they're headless API
+surface, so they won't show up as Builder controls even once built; they
+stay tracked in the Ark UI section below.
 (`pageSnapPoints`, indicator `readOnly`, `inViewThreshold`, `snapType`,
-per-item `snapAlign`, and drag status landed 2026-07-13 — see that section
-— and were never Builder-control candidates either, for the same reason.
-`snapAlign` specifically: the Builder's would be a **root-level** default
-like the others, not a per-slide override, which needs
-individually-configurable slides the Builder's single uniform gallery
-doesn't have.)
+per-item `snapAlign`, drag status, and the autoplay status callback landed
+2026-07-13 — see that section — and were never Builder-control candidates
+either, for the same reason. `snapAlign` specifically: the Builder's would
+be a **root-level** default like the others, not a per-slide override,
+which needs individually-configurable slides the Builder's single uniform
+gallery doesn't have.)
 
 ### Ark UI — gaps identified (read 2026-07-13)
 
@@ -2298,12 +2298,20 @@ explicit RTL (`dir`), `autoSize` + per-item
       `pointerup`/`pointercancel`; never fires for a plain click that never
       crossed the threshold. TDD in a new `Carousel.drag-status.test.tsx`
       (10 tests). Headless-only — no registry/contract/CSS change.
-- [ ] **Autoplay status callback.** Ark's `onAutoplayStatusChange`
-      (`{ type: "autoplay.start" | "autoplay" | "autoplay.stop", page,
-      isPlaying }`) fires on every autoplay tick, not just play/pause
-      toggles. We expose `playing` / `isAutoRotating` in context and
-      `data-state` on `PlayPauseTrigger`, but nothing fires per-tick.
-      Lower priority than the drag callback — mostly useful for analytics.
+- [x] **Autoplay status callback.** **Landed 2026-07-13.** Added
+      `onAutoplayStatusChange` to `Carousel.Root`, firing
+      `{ type: "autoplay.start" | "autoplay" | "autoplay.stop", page,
+      isPlaying }` exactly as Ark shapes it — on every autoplay tick, not
+      just play/pause toggles. Hooked into the existing autoplay timer
+      effect (`useCarouselRoot.ts`): an `isAutoplayRunningRef` edge-triggers
+      `"autoplay.start"`/`"autoplay.stop"` around a running session (the
+      effect reruns on every page change without re-firing `"start"`), and
+      `"autoplay"` fires once per scheduled tick, right before `next()`
+      advances the page. Covers `playing` flipping false, the last page
+      being reached, and hover/focus/touch suspension as `"autoplay.stop"`
+      triggers, and resumption as a fresh `"autoplay.start"`. TDD in a new
+      `Carousel.autoplay-status.test.tsx` (8 tests). Headless-only — no
+      registry/contract/CSS change.
 - [x] **Indicator `readOnly` prop.** **Landed 2026-07-13.** Added `readOnly`
       to both `Carousel.Indicator` and `Carousel.Indicators` (forwarded to
       every generated dot). Not a literal mirror of Ark's DOM output (no

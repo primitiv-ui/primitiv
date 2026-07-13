@@ -303,6 +303,17 @@ function ThumbnailIndicators({
   );
 }
 
+// slideWidth="content" is scoped to a single slide per page — the multi-slide
+// flex-basis math assumes equal shares, which is incompatible with letting
+// each slide size itself. The `slidesPerPage` control stays disabled-but-
+// remembered (like `ratio`) so switching back to "equal" restores whatever
+// value the user had; this is what actually gets forwarded to the live
+// <Carousel> and the code echo, so a stale value from "equal" mode can't
+// silently corrupt content mode's pagination/indicators.
+function effectiveSlidesPerPage(config: BuilderConfig): number {
+  return config.slideWidth === "content" ? 1 : config.slidesPerPage;
+}
+
 // The live instance. Composition branches on `cluster`: `joined` groups prev /
 // indicators / next inside a <CarouselControls> bar (for both external and
 // overlay); `split` renders them as direct children of the root (the grid / absolute
@@ -383,7 +394,7 @@ function LiveCarousel({
         snapAlign={config.snapAlign}
         indicators={config.indicators}
         transition={config.transition}
-        slidesPerPage={config.slidesPerPage}
+        slidesPerPage={effectiveSlidesPerPage(config)}
         allowMouseDrag={config.allowMouseDrag}
       >
         <CarouselViewport>
@@ -428,7 +439,7 @@ function describe(config: BuilderConfig, size: Size): string {
     `radius="${config.containerRadius}"`,
     `indicators="${config.indicators}"`,
     `transition="${config.transition}"`,
-    `slidesPerPage={${config.slidesPerPage}}`,
+    `slidesPerPage={${effectiveSlidesPerPage(config)}}`,
   ];
   if (config.allowMouseDrag) props.push("allowMouseDrag");
   if (config.rtl) props.unshift(`dir="rtl"`);
@@ -565,7 +576,7 @@ export function CarouselBuilder() {
               value={config.slidesPerPage}
               onChange={(value) => set("slidesPerPage", value)}
               disabled={contentSizing}
-              note="n/a when slideWidth=content (assumes equal shares)"
+              note="forced to 1 when slideWidth=content (assumes equal shares)"
             />
             <RadioField
               legend="ratio"

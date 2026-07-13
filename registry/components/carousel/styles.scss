@@ -242,6 +242,15 @@
   .primitiv-carousel__viewport::-webkit-scrollbar {
     display: none;
   }
+  /* Looser scroll-snap: the browser only nudges toward a snap point near
+     where the scroll ends, rather than always forcing a rest on one — for a
+     free-scrolling feel (e.g. a gallery). data-snap-type mirrors the
+     resolved root `snapType` ("mandatory" default, set above; "proximity"
+     here). Axis stays explicit (x) so the cross axis isn't reset to the
+     `scroll-snap-type` shorthand's "both" default. */
+  .primitiv-carousel__viewport[data-snap-type="proximity"] {
+    scroll-snap-type: x proximity;
+  }
   /* Mouse click-and-drag is opt-in (Carousel.Root's allowMouseDrag, off by
      default) — data-mouse-drag is only present when it's enabled, so the
      grab-cursor affordance never implies a capability that isn't actually
@@ -564,6 +573,12 @@
     );
     padding-inline: var(--primitiv-carousel-viewport-padding);
     scroll-padding-inline: var(--primitiv-space-space-0);
+  }
+  /* Vertical mirror of the horizontal proximity override above — axis y
+     instead of x, same reasoning. */
+  .primitiv-carousel[data-orientation="vertical"]
+    .primitiv-carousel__viewport[data-snap-type="proximity"] {
+    scroll-snap-type: y proximity;
   }
 
   /* Each slide fills the portrait viewport — flex-basis owns the block size, so

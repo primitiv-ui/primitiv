@@ -17,6 +17,7 @@ import type {
   CarouselImperativeApi,
   CarouselOrientation,
   CarouselSnapAlign,
+  CarouselSnapType,
   CarouselTransition,
   CarouselTranslations,
 } from "../types";
@@ -95,6 +96,9 @@ type UseCarouselRootProps = {
   /** IntersectionObserver visibility threshold(s) for the `isInView`
    * fallback. Defaults to `0.6`. */
   inViewThreshold?: number | number[];
+  /** `scroll-snap-type` strictness — see {@link CarouselSnapType}.
+   * Defaults to `"mandatory"`. */
+  snapType?: CarouselSnapType;
 };
 
 /**
@@ -139,6 +143,7 @@ export function useCarouselRoot(
     orientation = "horizontal",
     allowMouseDrag = false,
     inViewThreshold = 0.6,
+    snapType = "mandatory",
   }: UseCarouselRootProps = {},
   imperativeRef?: Ref<CarouselImperativeApi>,
 ) {
@@ -508,6 +513,7 @@ export function useCarouselRoot(
       orientation,
       allowMouseDrag,
       inViewThreshold,
+      snapType,
       refreshTick,
       visibleSlideIndicesRef,
       setSlideInView,
@@ -539,6 +545,7 @@ export function useCarouselRoot(
       orientation,
       allowMouseDrag,
       inViewThreshold,
+      snapType,
       refreshTick,
       setSlideInView,
     ],

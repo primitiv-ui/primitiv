@@ -96,6 +96,7 @@ correction), and CSS owns _what the user sees_:
 | Gap between slides                 | —                                                        | `gap` on the viewport (no `spacing` prop — pure CSS)                     |
 | Variable-size slides               | viewport `scrollTo` the target slide's offset            | Per-slide width / `aspect-ratio`, `scroll-snap-align`                    |
 | Snap targeting                     | `snapAlign: "start" \| "center"` (Root only)             | `scroll-snap-type` on viewport, `scroll-snap-align` scoped to `[data-snap-align="start" \| "center"]` |
+| Snap strictness                    | `snapType: "mandatory" \| "proximity"` (Root only)       | `scroll-snap-type` strictness scoped to `[data-snap-type="mandatory" \| "proximity"]` on the viewport |
 | Reduced motion                     | `behavior: "instant"`                                    | Optional `@media (prefers-reduced-motion: reduce)` on consumer animations |
 | Keyboard navigation                | Arrow / Home / End on focused viewport                   | `:focus-visible` on viewport                                             |
 | Touch / swipe                      | Native scroll + `scrollsnapchange` to sync state         | `overscroll-behavior-x: contain`, `scrollbar-width: none`                |
@@ -377,6 +378,24 @@ native snap the user's own scroll settles into always agrees with
 `"start"`; `snapAlign` picks whether the viewport `scrollTo` aligns the
 target slide's leading edge (`"start"`) or centres it (`"center"`), and
 the browser's CSS snap engine makes the final correction.
+
+### Snap strictness
+
+`snapType` (default `"mandatory"`) is the raw `scroll-snap-type`
+strictness — pass `"proximity"` for a looser, free-scrolling feel where
+the browser only nudges toward a snap point near where the scroll
+ends, rather than always forcing a rest on one:
+
+```tsx
+<Carousel.Root ariaLabel="Gallery" snapType="proximity">
+  …
+</Carousel.Root>
+```
+
+`Carousel.Viewport` publishes the resolved value as
+`data-snap-type="mandatory" | "proximity"`; pair it with
+`[data-snap-type="proximity"] { scroll-snap-type: x proximity }` (`y`
+when `orientation="vertical"`) in your CSS. Matches Ark UI's `snapType`.
 
 ### Orientation
 

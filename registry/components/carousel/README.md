@@ -248,7 +248,12 @@ Structured per RFC 0008 — the per-component API knobs + resting look in
   `y mandatory` under `data-orientation="vertical"`, where it becomes a column
   with a landscape `aspect-ratio` and the controls sit beside it),
   `overscroll-behavior` containment, and hidden scrollbars; the headless layer
-  syncs React state off `scrollsnapchange`. Click-and-drag scrolling is
+  syncs React state off `scrollsnapchange`. Strictness is configurable — the
+  headless primitive's `snapType` prop (default `"mandatory"`) publishes
+  `data-snap-type`, and `[data-snap-type="proximity"]` loosens it to `x
+  proximity` / `y proximity` (axis-explicit, so the cross axis isn't reset by
+  the shorthand's default) for a free-scrolling feel instead of always
+  forcing a rest on a slide. Click-and-drag scrolling is
   **opt-in** (`<Carousel allowMouseDrag>`, off by default): `cursor: grab`
   only applies under `[data-mouse-drag]` (present only when enabled — a
   grab-cursor affordance would be misleading otherwise), swapping to

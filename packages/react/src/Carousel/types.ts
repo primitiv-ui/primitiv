@@ -123,6 +123,22 @@ export type CarouselTransition = "slide" | "fade" | "none";
 export type CarouselSnapAlign = "start" | "center";
 
 /**
+ * `scroll-snap-type` strictness the Viewport scrolls with.
+ *
+ * - `"mandatory"` (default) — the browser always rests on a snap point;
+ *   scrolling can't stop mid-way between slides.
+ * - `"proximity"` — the browser only nudges toward a snap point when the
+ *   scroll ends *near* one, otherwise leaving the scroll wherever it
+ *   stopped — for a looser, free-scrolling feel (e.g. a gallery where
+ *   forcing a rest on every slide feels too rigid).
+ *
+ * The resolved value is published on the Viewport as `data-snap-type` so
+ * consumer CSS can switch `scroll-snap-type`'s strictness off a single hook.
+ * Matches Ark UI's `snapType`.
+ */
+export type CarouselSnapType = "mandatory" | "proximity";
+
+/**
  * Axis the carousel scrolls and paginates along.
  *
  * - `"horizontal"` (default) — slides lay out inline; the viewport
@@ -250,6 +266,9 @@ export type CarouselRootProps = Omit<
      * `intersectionRatio` must clear to count as "in view". Matches Ark
      * UI's `inViewThreshold` shape. Defaults to `0.6`. */
     inViewThreshold?: number | number[];
+    /** `scroll-snap-type` strictness — see {@link CarouselSnapType}.
+     * Defaults to `"mandatory"`. */
+    snapType?: CarouselSnapType;
   };
 
 /**
@@ -345,6 +364,8 @@ export type CarouselContextValue = {
   /** Resolved `isInView` IntersectionObserver threshold(s) (defaults to
    * `0.6`). */
   inViewThreshold: number | number[];
+  /** Resolved `scroll-snap-type` strictness (defaults to `"mandatory"`). */
+  snapType: CarouselSnapType;
   /** Bumped by `refresh()` to force the viewport's scroll-align
    * effect to re-run without a page change. */
   refreshTick: number;

@@ -105,6 +105,7 @@ export const CarouselRoot: ForwardRefExoticComponent<
     orientation,
     allowMouseDrag,
     inViewThreshold,
+    snapType,
     children,
     ...rest
   },
@@ -128,6 +129,7 @@ export const CarouselRoot: ForwardRefExoticComponent<
       orientation,
       allowMouseDrag,
       inViewThreshold,
+      snapType,
     },
     imperativeRef,
   );
@@ -175,11 +177,13 @@ CarouselRoot.displayName = "CarouselRoot";
  *
  * **Styling hooks.** `data-carousel-viewport` is set on the rendered
  * element. The component ships no styles — apply your own scroll-snap
- * recipe via this attribute. `data-mouse-drag` is present whenever
- * `allowMouseDrag` is `true` (a persistent hook — the natural place for
- * a `cursor: grab` affordance, since showing that cursor when dragging
- * isn't actually enabled would be misleading); `data-dragging` is
- * additionally present only for the duration of an active drag (see
+ * recipe via this attribute. `data-snap-type="mandatory" | "proximity"`
+ * mirrors the resolved root {@link CarouselRootProps.snapType | `snapType`}
+ * — scope `scroll-snap-type`'s strictness to it. `data-mouse-drag` is
+ * present whenever `allowMouseDrag` is `true` (a persistent hook — the
+ * natural place for a `cursor: grab` affordance, since showing that cursor
+ * when dragging isn't actually enabled would be misleading); `data-dragging`
+ * is additionally present only for the duration of an active drag (see
  * below) — pair it with `cursor: grabbing`.
  *
  * **Keyboard navigation.** The Viewport is in the tab order
@@ -235,7 +239,8 @@ export function CarouselViewport({
   children,
   ...rest
 }: CarouselViewportProps): ReactElement {
-  const { isAutoRotating, ids, allowMouseDrag } = useCarouselContext();
+  const { isAutoRotating, ids, allowMouseDrag, snapType } =
+    useCarouselContext();
   const {
     viewportRef,
     onKeyDown,
@@ -250,6 +255,7 @@ export function CarouselViewport({
     <div
       ref={viewportRef}
       data-carousel-viewport=""
+      data-snap-type={snapType}
       tabIndex={0}
       className={className}
       aria-live={isAutoRotating ? "off" : "polite"}

@@ -156,6 +156,20 @@ appended here:
   untouched. Pure registry CSS + 3 modifiers; **no headless change**, so the publish
   gotcha doesn't apply (the dev-alias already covers the earlier headless work).
 
+- **2026-07-13 — Blanket QA approval for everything currently in the
+  kitchen-sink.** The human confirmed every route under `/carousel` in
+  `CarouselLayout.tsx`'s nav — every per-feature example page plus the
+  `builder` composability sandbox — is human-approved as shipped. Every
+  iteration heading below that previously read "(awaiting human QA)" has been
+  updated to "(human-approved)" to reflect this; the many in-body **"Next:**
+  human QA of …" pointers scattered through older iteration entries predate
+  this confirmation and are now historical rather than outstanding action
+  items — read them for narrative/implementation history, not current status.
+  **This does not clear Figma lockstep** — that stays tracked per iteration as
+  its own, still-genuinely-open item (see each entry's own "Figma lockstep:"
+  line) — QA approval and design-tool lockstep are separate gates. See also
+  the "QA status" note under Parity tracking → Example backlog.
+
 ## Figma design reference
 
 Read from the Figma file **"Primitiv Design System" → "Carousel" page**
@@ -228,7 +242,7 @@ Gates green: `cargo test -p primitiv-emit -p primitiv-cli`,
 `node scripts/check-registry-types.mjs`. Kitchen-sink can't build in the
 sandbox (no `node_modules`) — the human verifies live on `main`.
 
-### Iteration 1 — Basic responsive single-slide (awaiting human QA)
+### Iteration 1 — Basic responsive single-slide (human-approved)
 
 **Built** (`apps/kitchen-sink/src/pages/CarouselPage.tsx`, `#carousel`):
 the External-row + dots single-slide composition — circular external
@@ -268,7 +282,7 @@ via the bridge; no variable collection needed — see the decisions entry).
 **Next:** the **vertical** headless work (driven early, per the design) — start
 it with `/carousel-variant vertical`.
 
-### Iteration 2 — Vertical orientation (awaiting human QA)
+### Iteration 2 — Vertical orientation (human-approved)
 
 **Headless gap filled (TDD, 100%).** Added an `orientation` prop
 (`"horizontal"` default · `"vertical"`) to the primitive
@@ -327,7 +341,7 @@ its peek as the documented target.
 placement-focused iteration (overlay / external-flank / on-top) or
 multi-slide-per-view.
 
-### Iteration 3 — Peek (cross-cutting option, awaiting human QA)
+### Iteration 3 — Peek (cross-cutting option, human-approved)
 
 **Registry surface (headless-free — pure CSS + a modifier).** The old
 `--primitiv-carousel-padding-inline` knob was renamed to the semantic
@@ -354,12 +368,12 @@ side — peek shown in action across the other variants, per the request.
 **Gates green:** `cargo test -p primitiv-emit -p primitiv-cli`,
 `node scripts/check-registry-types.mjs`.
 
-**Figma lockstep: pending** human QA. Light — peek is a code-only knob/modifier
+**Figma lockstep: pending.** Light — peek is a code-only knob/modifier
 (no carousel variable layer in Figma); the existing "Wide peek" / peek example
 cells already show the intent, so this is expected to be a verification pass like
 vertical. **Next:** placement-focused iteration (overlay / external-flank).
 
-### Iteration 4 — Overlay placement (awaiting human QA)
+### Iteration 4 — Overlay placement (human-approved)
 
 **Read the design live** (Desktop Bridge, 2026-07-08) — the Examples-frame cell
 `card: Overlay + dots` (`1033:25218`). Exact anatomy captured: viewport 320×144
@@ -425,12 +439,12 @@ inset is now `calc(peek + overlay-control-inset)`, so the control follows the
 active slide's leading edge and keeps a comfortable gap from *its* edge at any
 peek value (peek=0 is unchanged). Regenerated + drift-green + hand-synced.
 
-**Figma lockstep: pending** human QA. It will be a verification pass (no carousel
+**Figma lockstep: pending.** It will be a verification pass (no carousel
 `--primitiv-*` variable layer exists — bindings only) plus the `absolute-white`
 vs `content-inverse` decision above. **Next:** the remaining placements
 (external-flank / controls-on-top) or multi-slide-per-view.
 
-### Iteration 5 — Fade transition (awaiting human QA)
+### Iteration 5 — Fade transition (human-approved)
 
 **Headless gap filled (TDD, 100%).** The primitive already had a `transition`
 prop (`"slide" | "none"`) that gates all scroll wiring on `transition === "slide"`
@@ -470,12 +484,12 @@ headless `"fade"` value + `data-transition` hook are live there.)
 `node scripts/check-registry-types.mjs`, `pnpm --filter @primitiv-ui/react
 qa:units` (100%).
 
-**Figma lockstep: pending** human QA. Light — fade is code-only (timing knobs +
+**Figma lockstep: pending.** Light — fade is code-only (timing knobs +
 a data hook; no carousel variable layer in Figma). The design's
 `Crossfade / dissolve` intent maps directly. **Next:** the remaining placements
 (external-flank / controls-on-top) or multi-slide-per-view.
 
-### Iteration 6 — Multi-slide-per-view + CarouselControls part (awaiting human QA)
+### Iteration 6 — Multi-slide-per-view + CarouselControls part (human-approved)
 
 **Registry surface (headless-free — pure CSS + a modifier).** A root
 **`slidesPerPage`** modifier (`1` default · `2` · `3` · `4`) re-points a new
@@ -523,13 +537,13 @@ slide flex-basis bullet, `<CarouselControls>` throughout).
 needed. `cargo-llvm-cov` isn't in the sandbox; the new emitter branch is covered by
 `DEMO_GROUPED` + the carousel drift tests — CI's Rust coverage gate confirms 100%.)
 
-**Figma lockstep: pending** human QA. Light — multi-slide is a code-only
+**Figma lockstep: pending.** Light — multi-slide is a code-only
 knob/modifier (no carousel `--primitiv-*` variable layer in Figma), and the design's
 "Slides Per Page (2-up)" cell already shows the intent, so this is expected to be a
 verification pass. **Next:** the remaining placements (external-flank /
 controls-on-top) or thumbnails.
 
-### Iteration 7 — Viewport padding (awaiting human QA)
+### Iteration 7 — Viewport padding (human-approved)
 
 **Registry surface (headless-free — pure CSS + a modifier).** A root **`padding`**
 modifier (`none` default · `sm` · `md` · `lg`) re-points a new
@@ -637,13 +651,13 @@ alongside the existing peek). Every added term is 0 when unset, so a plain overl
 (no padding/peek) is byte-unchanged. CSS-only (no contract change; scss re-derived,
 drift-green).
 
-**Figma lockstep: pending** human QA. Light — viewport padding is code-only (no
+**Figma lockstep: pending.** Light — viewport padding is code-only (no
 carousel `--primitiv-*` variable layer in Figma; bindings only). Reconcile the
 framed-track model (viewport surface/border/radius + inner padding) with the
 design's "Viewport padding" cell at lockstep. **Next:** the remaining placements
 (external-flank / controls-on-top) or thumbnails.
 
-### Iteration 8 — Multi-slide correctness (slidesPerPage / slidesPerMove) (awaiting human QA)
+### Iteration 8 — Multi-slide correctness (slidesPerPage / slidesPerMove) (human-approved)
 
 Full audit + plan: `docs/carousel-multi-slide-plan.md`. The human flagged a wrong
 indicator count and existing headless bugs; the fix spanned three layers.
@@ -720,10 +734,10 @@ became a nearest-offset scan (round/floor can't invert the end-aligned tail). TD
 also subsumes the earlier windowed-only end-align (iteration 8 / commit `8b30295`)
 into one model.
 
-**Figma lockstep: pending** human QA. Multi-slide is code-only (no carousel
+**Figma lockstep: pending.** Multi-slide is code-only (no carousel
 `--primitiv-*` variable layer); the design's "Slides Per Page" / "Slides Per Move"
-cells show the intent. **Next:** re-QA of `/carousel/multi`, the viewport-padding
-question (below), then the earlier awaiting-QA iterations.
+cells show the intent. **Next:** the viewport-padding question (below) — QA is
+now confirmed for everything shipped so far (2026-07-13).
 
 ### Iteration 9 — Thumbnail indicators (human-approved; polish pass pending)
 
@@ -795,10 +809,10 @@ inactive-dim treatment (code adds an `opacity-60` dim + hover lift not
 specified in the reference) once the code side is settled. No carousel
 `--primitiv-*` variable layer exists in Figma (bindings only), so this is
 expected to be a verification pass. **Next:** the thumbnails polish session,
-then the remaining placements (external-flank / controls-on-top), autoplay, or
-re-QA of the earlier awaiting-QA iterations.
+then the remaining placements (external-flank / controls-on-top), or autoplay
+— QA is now confirmed for everything shipped so far (2026-07-13).
 
-### Iteration 10 — Slide aspect ratio (awaiting human QA)
+### Iteration 10 — Slide aspect ratio (human-approved)
 
 **Registry surface (headless-free — pure CSS + a modifier).** The slide aspect
 ratio was already a knob (`--primitiv-carousel-slide-aspect-ratio`, `16/9`) but
@@ -831,14 +845,14 @@ updated (scope, the `ratio` modifier).
 `node scripts/check-registry-types.mjs`. (No headless change — Carousel vitest not
 needed.)
 
-**Figma lockstep: pending** human QA. Ratio is code-only (no carousel
+**Figma lockstep: pending.** Ratio is code-only (no carousel
 `--primitiv-*` variable layer in Figma; the `CarouselSlide` set has ratio variants
 — 1:1, 16:9 — that already show the intent), so this is expected to be a
 verification pass. **Next:** the thumbnails polish session, the remaining
-placements (external-flank / controls-on-top), autoplay, or re-QA of the earlier
-awaiting-QA iterations.
+placements (external-flank / controls-on-top), or autoplay — QA is now
+confirmed for everything shipped so far (2026-07-13).
 
-### Iteration 11 — External-flank placement (awaiting human QA)
+### Iteration 11 — External-flank placement (human-approved)
 
 **Registry surface (headless-free — pure CSS + a modifier).** Added a third
 **`placement`** option, **`flank`** (`row` default · `overlay` · `flank`): the
@@ -877,14 +891,14 @@ re-derived) + drift-green + kitchen-sink hand-synced. Registry README updated
 `node scripts/check-registry-types.mjs`. (No headless change — Carousel vitest not
 needed.)
 
-**Figma lockstep: pending** human QA. Flank is code-only (no carousel
+**Figma lockstep: pending.** Flank is code-only (no carousel
 `--primitiv-*` variable layer in Figma); the "External-flank + dots" and
 "External-flank + thumbnails" design cells show the intent, so this is expected to
 be a verification pass. **Next:** the thumbnails polish + placement-expansion
 session the human flagged (which will likely add vertical-flank and the
 controls-on-top placement), then autoplay / play-pause.
 
-### Iteration 12 — Control placement framework (awaiting human QA)
+### Iteration 12 — Control placement framework (human-approved)
 
 **Paired with Figma from the start** — read the human's new **"Control Placement
 Framework"** frame (`1074:26198`) live via the Desktop Bridge. It's illustrative
@@ -1000,12 +1014,13 @@ On `attr()`: reading `data-*` into a numeric layout value is CSS Values 5, Chrom
 (133+, 2025), not cross-browser — the portable fallback is a custom property via inline
 style, but `:has()` sidesteps needing a count from JS entirely.
 
-**Figma lockstep: pending** human QA + a later dedicated build of the placement
-model in Figma (the current frame is conceptual). No carousel `--primitiv-*`
-variable layer exists (bindings only). **Next:** QA `/carousel/placement`; then
+**Figma lockstep: pending** a later dedicated build of the placement model in
+Figma (the current frame is conceptual) — human QA is now confirmed
+(2026-07-13), so this dedicated Figma build is the only remaining gate. No
+carousel `--primitiv-*` variable layer exists (bindings only). **Next:**
 autoplay/play-pause, or the thumbnails polish.
 
-### Iteration 13 — Slide spacing (`gap` modifier) (awaiting human QA)
+### Iteration 13 — Slide spacing (`gap` modifier) (human-approved)
 
 **Registry surface (headless-free — pure CSS + a modifier).** A root **`gap`**
 modifier (`none` · `sm` · `md` default · `lg`) re-points the existing
@@ -1031,10 +1046,10 @@ drift-green + kitchen-sink hand-synced. Registry README updated (scope + the `ga
 modifier). **Gates green:** `cargo test -p primitiv-emit -p primitiv-cli`,
 `node scripts/check-registry-types.mjs`.
 
-**Figma lockstep: pending** human QA. Gap is code-only (no carousel `--primitiv-*`
+**Figma lockstep: pending.** Gap is code-only (no carousel `--primitiv-*`
 variable layer in Figma). **Next:** QA `/carousel/spacing` + `/carousel/placement`.
 
-### Builder — live composability sandbox (awaiting human QA)
+### Builder — live composability sandbox (human-approved)
 
 **A QA tool, not a registry variant.** A new nested route **`/carousel/builder`**
 (sidebar entry "Builder", pinned at the top): a centred **2-column grid** — controls
@@ -1092,7 +1107,7 @@ change, so those gates don't apply; the kitchen-sink page can't build in the san
 (the human verifies live). **Next:** human QA on `/carousel/builder` — drive
 combinations and feed back edge cases to fix.
 
-### Builder QA #1 — distribution/align extended to overlay + flank (awaiting human QA)
+### Builder QA #1 — distribution/align extended to overlay + flank (human-approved)
 
 **The Builder's first find.** Toggling `distribution`/`align` in `overlay` or `flank`
 did nothing — every `distribution-*`/`align-*` rule targeted `.__controls`, the bar
@@ -1132,7 +1147,7 @@ needed.) **Figma lockstep: pending** (code-only; no carousel variable layer). **
 human QA of `/carousel/builder` — confirm align/distribution now respond in overlay +
 flank and are greyed where inert.
 
-### Builder QA #2 — `cluster` (split/joined) for overlay + flank (awaiting human QA)
+### Builder QA #2 — `cluster` (split/joined) for overlay + flank (human-approved)
 
 **The Builder's second find.** After QA #1 landed align/distribution on the overlay/flank
 *indicator* cluster, the human noted the prev/next stay pinned at the edges — and asked
@@ -1179,7 +1194,7 @@ paragraph extended.
 and confirm prev/next now move with the dots under align/distribution; check the control greys
 for external + vertical overlay.
 
-### Rearchitecture — placement is now a 2×2 (external/overlay × split/joined); flank retired (awaiting human QA)
+### Rearchitecture — placement is now a 2×2 (external/overlay × split/joined); flank retired (human-approved)
 
 **The circular external-align bug forced a rethink; the human rebuilt the Figma
 "Control Placement Framework" frame comprehensively and confirmed a cleaner model.**
@@ -1226,7 +1241,7 @@ new external grid on `/carousel/builder` — external × split/joined × side/di
 align × orientation should now be deterministic; then the overlay-vertical + cosmetic
 cleanup pass, then density/size scaling (the human's next cycle).
 
-### Overlay brought to the full 2×2 + active-dot pill (awaiting human QA)
+### Overlay brought to the full 2×2 + active-dot pill (human-approved)
 
 **Overlay now mirrors external across the whole matrix.** After external landed, overlay
 was rewritten so `split`/`joined` × orientation × side × distribution/align all work:
@@ -1257,7 +1272,7 @@ Regenerated + kitchen-sink synced. Rebased onto the merged Popover work on `main
 **Next:** human QA of overlay (both orientations) + the active-dot pill; then the cosmetic
 `flank` sweep and the deferred overlay-thumbnail/overflow polish, before density/size.
 
-### Cosmetic flank sweep — retired-noun relabel (awaiting human QA)
+### Cosmetic flank sweep — retired-noun relabel (human-approved)
 
 **Pure relabel, no behaviour change.** Flank was retired in the rearchitecture (it
 was external + split); this sweep clears the leftover *`flank`-as-a-placement* labels
@@ -1287,7 +1302,7 @@ append-only log/skill history keeps its "flank" references as the record of the 
 vertical-many-dots overflow still reference the retired shared-lane geometry), then the
 density / size cycle.
 
-### Overlay edge cases — vertical-many-dots overflow (awaiting human QA)
+### Overlay edge cases — vertical-many-dots overflow (human-approved)
 
 **The one genuinely-unhandled overlay case, now handled (registry CSS only).** After
 the overlay-2×2 rework retired the old shared up/pill/down lane (and its `:has()`
@@ -1368,7 +1383,7 @@ the carousel is invariant today because its knobs point at raw primitives. Plan:
 
 **Figma lockstep: pending** (code-first per plan decision 2). **Next:** build Stage 1.
 
-#### Stage 1 — the mechanism (controls scale; registry-only, zero new tokens) — awaiting QA
+#### Stage 1 — the mechanism (controls scale; registry-only, zero new tokens) — human-approved
 
 Landed the size+density mechanism end-to-end on the prev/next controls, with **no new
 DTCG tokens** — the win of reusing the framed-control ramp:
@@ -1403,7 +1418,7 @@ on the control + `display: block` on its `svg`. (The human noted radio looks sim
 but its control is a `<span>` with a `scale`-animated dot — a different mechanism, not
 the same root; left for a separate look.) Registry CSS only; regenerated + synced.
 
-#### Stage 2 — the bespoke chrome ramp (dots / pill / thumbnails / gaps) — awaiting QA
+#### Stage 2 — the bespoke chrome ramp (dots / pill / thumbnails / gaps) — human-approved
 
 The indicator group + gaps now scale with size **and** density, so the whole control
 cluster stays coherent next to the scaled controls.
@@ -1505,7 +1520,7 @@ to N slides tall and each slice comes out at the ratio (2 square slides → a 1:
 Chromium: vertical spp 1–3 square stack as squares, spp2 wide stacks as 16:9. Registry CSS
 only (scss re-derived, recipe/tsx byte-identical), drift-green.
 
-### Stage 3 — content spacing + indicator-wrap polish (awaiting human QA)
+### Stage 3 — content spacing + indicator-wrap polish (human-approved)
 
 The Stage 3 cycle of the density/size work. Two buckets: **A** — two indicator-wrap
 polish items (registry CSS only) done first as a warm-up; **B** — the main
@@ -1566,7 +1581,7 @@ pill-padding size×density cells join the Context collection). **Next:** human Q
 `/carousel/builder` — drive peek/gap/padding at each size×density and confirm the spacing
 breathes sensibly (xl magnitudes OK? dense tight enough?), plus the two wrap-polish items.
 
-### Slide media — real `<img>` support + slide as positioning context (awaiting human QA)
+### Slide media — real `<img>` support + slide as positioning context (human-approved)
 
 **The gap the human surfaced:** every example put "imagery" on as a CSS `background`,
 which fills its box by definition — masking that a real `<img>` (a replaced element
@@ -1604,7 +1619,7 @@ placeholder helper (self-contained, no network) so it dogfoods real `<img>` slid
 
 **Figma lockstep: pending** (code-only — no carousel `--primitiv-*` variable layer).
 
-#### Contain backdrop opt-in + size/density-scaled radius (awaiting human QA)
+#### Contain backdrop opt-in + size/density-scaled radius (human-approved)
 
 Two human follow-ups on the media work:
 - **Contain letterbox backdrop is opt-in, not hardcoded.** A slide **`surface`** modifier
@@ -1635,7 +1650,7 @@ a real design fork (opt-in mode? per-slide width? the page/indicator model assum
 shares — it needs its own proposal + likely a headless look before building). Held for a
 green light. **Also QA:** `/carousel/images` (cover/contain/focal-point/caption).
 
-#### Example-page grid consistency (kitchen-sink only, awaiting human QA)
+#### Example-page grid consistency (kitchen-sink only, human-approved)
 
 **The human's two asks:** (1) a consistent 4-column grid across the example pages
 (most were already on the shared `.carousel-grid`, but at 2 columns; five pages —
@@ -2021,59 +2036,6 @@ wheel/drag should now always land cleanly on a full page, never straddled),
 plus item 3's specific repro (vertical + `slidesPerPage > 1`, wheel-scroll
 slowly and confirm the indicators always track a clean page).
 
-## Backlog (examples still to build)
-
-Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".
-Reorder as priorities shift; each is human-approved before it starts.
-
-**Basic**
-
-- Basic responsive single-slide _(iteration 1 — done)_
-- Vertical orientation _(iteration 2 — awaiting QA of the landscape look)_
-- Peek (cross-cutting option) _(iteration 3 — awaiting QA)_ — the `peek`
-  modifier + `--primitiv-carousel-peek` knob; subsumes the "Wide peek" matrix cell.
-- Viewport padding (cross-cutting option) _(iteration 7 — awaiting QA)_ — the
-  `padding` modifier (`none` default · `sm` · `md` · `lg`) +
-  `--primitiv-carousel-viewport-padding` knob; an **outer** gutter on the root
-  (mapped to the scroll axis, `box-sizing: border-box`), distinct from peek and
-  composing with it. Subsumes the "Viewport padding" matrix cell.
-- Multi-slide-per-view _(iteration 6, then corrected in iteration 8 — awaiting QA)_
-  — `slidesPerPage` / `slidesPerMove` are now numeric **styleProps** forwarded to
-  the headless page model (not capped modifiers), the last windowed page
-  end-aligns, counts are guarded, and the auto `<CarouselIndicators>` renders the
-  right dot count. Golden edge-case grid at `/carousel/multi`. See iteration 8 +
-  `docs/carousel-multi-slide-plan.md`.
-- Placement framework _(iterations 4/11, then reworked into a composable framework
-  in iteration 12 — awaiting QA)_ — `placement` is now the **family** (`external`
-  default · `overlay` · `flank`) with three shared composable axes **`side`**
-  (before/after), **`distribution`** (group/stretch), **`align`** (start/center/end).
-  This subsumes the old `row`, delivers **controls-on-top** (`side="before"`) and
-  **vertical-flank**, and composes across peek/padding/ratio/vertical/RTL/thumbnails.
-  24-cell grid at `/carousel/placement`. Remaining placement work: overlay honouring
-  `side` (top pill).
-- Dots / indicators variations (below, overlaid _(overlay done, iteration 4)_,
-  thumbnails _(iteration 9 — human-approved, polish + Figma lockstep pending)_ —
-  the `indicators` modifier (`dots` default · `thumbnails`); image thumbnails as
-  the indicators, active one ringed in `action-primary`. 2-column
-  control-variant grid at `/carousel/thumbnails`.)
-- Snapping (centred) — `snapAlign="center"`
-- Right-to-left — needs explicit RTL confirmation/tests
-- Masonry — grid-based with complex snapping cells
-- Sticky Slides — sticky labels/content inside slides
-
-**Advanced**
-
-- Cover Flow (scroll-driven 3D, `--cf-*` playground)
-- Autoplay + play/pause
-- Crossfade / dissolve (`transition="fade"`) _(iteration 5 — awaiting QA)_ —
-  the `transition="fade"` value + `data-transition` hook + registry crossfade CSS;
-  dissolve is the same mechanism with different timing knobs.
-- Multi-step (slide + fade)
-- Variable-size slides
-- Programmatic control (imperative API, progress bar)
-- Slideshow (parallax), Stories (3D + overscroll), Smart Stack,
-  Cards, Flipbook, Timeline
-
 ## Headless gaps (drive reactively, per example)
 
 Tracked so we know what's outstanding; only built when an example needs
@@ -2119,8 +2081,112 @@ it (decision 4).
 Carousel and the Blossom Carousel, then look for opportunities to go beyond
 both — the aim is for Primitiv's Carousel to be the best on the web for React,
 not just equivalent. This section is the running gap list each is compared
-against; check items off as they land, the same way the "Headless gaps"
-tracker above works.
+against, **including the example backlog below** — check items off as they
+land, the same way the "Headless gaps" tracker above works.
+
+### Example backlog — still to build (Blossom-seeded)
+
+Seeded from `ROADMAP.md` "Carousel example backlog (Blossom parity)".
+Reorder as priorities shift; each is human-approved before it starts. Folded
+in here (rather than kept as its own top-level section) so the example
+worklist and the Ark/Blossom feature-gap lists read as one parity picture.
+
+**Live reference:** the kitchen-sink's `/carousel` section is the source of
+truth for what's actually built, not this prose list — check it before
+trusting a bullet's status. `apps/kitchen-sink/src/pages/CarouselLayout.tsx`
+is a sidebar of full-page nested routes, one per landed example (wired in
+`Shell.tsx`'s route table); `apps/kitchen-sink/src/pages/CarouselBuilder.tsx`
+(route `builder`) is a live composability sandbox — every landed axis is a
+control on the left, a single instance re-renders live on the right, used to
+stress-test how features compose and to spot edge cases the per-feature pages
+don't cover (see its own note below). Bullets below are annotated with their
+route where one exists; a bullet with no route is genuinely still to build.
+
+**QA status (2026-07-13):** everything currently shipped in the kitchen-sink —
+every route in `CarouselLayout.tsx`'s nav, including `builder` — is
+human-approved. The per-iteration "awaiting QA" tags in the Iterations section
+above predate this confirmation; read them for implementation history, not
+current QA status. Figma lockstep is tracked separately per iteration (a
+distinct, still-genuinely-open item in most cases) and isn't implied by this.
+
+**Basic**
+
+- Basic responsive single-slide _(iteration 1 — done)_ — routes `default` /
+  `responsive`.
+- Vertical orientation _(iteration 2 — human-approved)_ — route `vertical`.
+- Peek (cross-cutting option) _(iteration 3 — human-approved)_ — the `peek`
+  modifier + `--primitiv-carousel-peek` knob; subsumes the "Wide peek" matrix
+  cell. Route `peek`.
+- Viewport padding (cross-cutting option) _(iteration 7 — human-approved)_ —
+  the `padding` modifier (`none` default · `sm` · `md` · `lg`) +
+  `--primitiv-carousel-viewport-padding` knob; an **outer** gutter on the root
+  (mapped to the scroll axis, `box-sizing: border-box`), distinct from peek and
+  composing with it. Subsumes the "Viewport padding" matrix cell. Route
+  `padding`.
+- Multi-slide-per-view _(iteration 6, then corrected in iteration 8 —
+  human-approved)_ — `slidesPerPage` / `slidesPerMove` are now numeric
+  **styleProps** forwarded to the headless page model (not capped modifiers),
+  the last windowed page end-aligns, counts are guarded, and the auto
+  `<CarouselIndicators>` renders the right dot count. Golden edge-case grid at
+  route `multi`. See iteration 8 + `docs/carousel-multi-slide-plan.md`.
+- Placement framework _(iterations 4/11, then reworked into a composable
+  framework in iteration 12, then rearchitected to a 2×2 with `flank`
+  retired — human-approved)_ — `placement` is the **family** (`external`
+  default · `overlay`) crossed with **`cluster`** (`split` default · `joined`),
+  plus **`side`** (before/after), **`distribution`** (group/stretch),
+  **`align`** (start/center/end). Delivers **controls-on-top**
+  (`side="before"`) and the old external-flank layout (now `cluster="split"`).
+  24-cell grid at route `placement`; the retired-noun "flank" example is now
+  route `external-split` (nav label "External-split"). Remaining placement
+  work: overlay honouring `side` (top pill).
+- Dots / indicators variations (below, overlaid _(overlay done, iteration 4)_ —
+  route `overlay`; thumbnails _(iteration 9 — human-approved, polish + Figma
+  lockstep pending)_ — route `thumbnails`) — the `indicators` modifier (`dots`
+  default · `thumbnails`); image thumbnails as the indicators, active one
+  ringed in `action-primary`. 2-column control-variant grid.
+- Snapping (centred) — `snapAlign="center"`. **No route yet.**
+- Right-to-left — route `rtl` exists as a dedicated example (and composes
+  throughout the other example pages/the Builder), so the *example* is built;
+  the remaining gap is headless **test** coverage, not the demo — see
+  "Explicit RTL tests" under Headless gaps above.
+- Masonry — grid-based with complex snapping cells. **No route yet.**
+- Sticky Slides — sticky labels/content inside slides. **No route yet.**
+
+Additional axes shipped beyond this seeded list, each with its own route but
+not originally a backlog bullet: `square` (square slides, iteration 1),
+`ratio` (aspect-ratio modifier, iteration 10), `spacing` (the `gap` modifier,
+iteration 13), `size` (density/size scaling, iteration 14), `images` (real
+`<img>` slide content).
+
+**Advanced**
+
+- Cover Flow (scroll-driven 3D, `--cf-*` playground). **No route yet.**
+- Autoplay + play/pause. The headless primitive already supports both
+  (`PlayPauseTrigger`, autoplay); **no example route yet** — that's the
+  remaining work.
+- Crossfade / dissolve (`transition="fade"`) _(iteration 5 — human-approved)_ —
+  the `transition="fade"` value + `data-transition` hook + registry crossfade CSS;
+  dissolve is the same mechanism with different timing knobs. Route `fade`.
+- Multi-step (slide + fade). **No route yet.**
+- Variable-size slides. **No route yet.**
+- Programmatic control (imperative API, progress bar). **No route yet.**
+- Slideshow (parallax), Stories (3D + overscroll), Smart Stack,
+  Cards, Flipbook, Timeline. **No routes yet.**
+
+**The Builder (route `builder`) as a parity tool.** It currently threads
+every *example-backlog* axis above that's landed —
+`placement`/`side`/`distribution`/`align`/`cluster`, `orientation`, `rtl`,
+`allowMouseDrag`, `slideCount`, `slidesPerPage`, `ratio`, `radius`
+(slide + container), `gap`, `peek`, `padding`, `surface`, `indicators`
+(dots/thumbnails), `transition` (slide/fade) — as live controls, so it's the
+fastest way to re-verify how landed axes compose (all of them human-approved
+as of 2026-07-13 — see the QA status note above), not just the single-axis
+example page. It does **not** yet expose any of the Ark UI API-level gaps below (per-item
+`snapAlign`, `inViewThreshold`, `snapType`, drag/autoplay status callbacks,
+indicator `readOnly`, `ProgressText`, per-call `instant`, slide-index scroll,
+`pageSnapPoints`) — those aren't styling/composition axes, they're headless
+API surface, so they won't show up as Builder controls even once built; they
+stay tracked in the Ark UI section below.
 
 ### Ark UI — gaps identified (read 2026-07-13)
 

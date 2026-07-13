@@ -2182,12 +2182,12 @@ every *example-backlog* axis above that's landed —
 fastest way to re-verify how landed axes compose (all of them human-approved
 as of 2026-07-13 — see the QA status note above), not just the single-axis
 example page. It does **not** yet expose any of the remaining Ark UI
-API-level gaps below (per-item `snapAlign`, `inViewThreshold`, `snapType`,
-drag/autoplay status callbacks, `ProgressText`, per-call `instant`,
-slide-index scroll) — those aren't styling/composition axes, they're
-headless API surface, so they won't show up as Builder controls even once
-built; they stay tracked in the Ark UI section below. (`pageSnapPoints` and
-indicator `readOnly` landed 2026-07-13 — see that section — and were never
+API-level gaps below (per-item `snapAlign`, `snapType`, drag/autoplay status
+callbacks, `ProgressText`, per-call `instant`, slide-index scroll) — those
+aren't styling/composition axes, they're headless API surface, so they
+won't show up as Builder controls even once built; they stay tracked in the
+Ark UI section below. (`pageSnapPoints`, indicator `readOnly`, and
+`inViewThreshold` landed 2026-07-13 — see that section — and were never
 Builder-control candidates either, for the same reason.)
 
 ### Ark UI — gaps identified (read 2026-07-13)
@@ -2219,10 +2219,19 @@ explicit RTL (`dir`), `autoSize` + per-item
       slides work (autoSize-style layouts are the case where per-item
       alignment matters most), but the `"end"` value is a gap even without
       autoSize.
-- [ ] **Configurable IntersectionObserver threshold.** Ark's `inViewThreshold`
-      (`number | number[]`, default `0.6`) is a Root prop. We hardcode `0.6`
-      in the `IntersectionObserver` fallback (`useCarouselViewport.ts`) with
-      no override and no multi-threshold support.
+- [x] **Configurable IntersectionObserver threshold.** **Landed 2026-07-13.**
+      Added `inViewThreshold?: number | number[]` (default `0.6`, matching
+      Ark's shape) as a Root prop, threaded through context into
+      `useCarouselViewport.ts`'s observer construction (`{ threshold:
+      inViewThreshold }`) and the `isInView` cutoff comparison. For the
+      single boolean `isInView`/the IO page-drive fallback need, a plain
+      number is used directly; an array uses its **highest** value as the
+      cutoff (a design decision — Ark's docs don't specify the array
+      semantics beyond the raw observer option). TDD in
+      `Carousel.intersection-observer.test.tsx` (3 new tests: default 0.6
+      passthrough, a custom single threshold, and an array cutoff).
+      Headless-only — no registry/contract/CSS change, so no kitchen-sink
+      sync needed.
 - [ ] **`snapType`: `"proximity"` vs `"mandatory"`.** Ark exposes the raw CSS
       `scroll-snap-type` strictness as a prop (default `"mandatory"`,
       matching ours) — we hardcode `mandatory` in the registry CSS with no

@@ -2324,13 +2324,35 @@ explicit RTL (`dir`), `autoSize` + per-item
       (if passed) still fires — only the internal navigation is suppressed.
       TDD in `Carousel.indicators.test.tsx` (5 new tests). Headless-only —
       no registry/contract/CSS change, so no kitchen-sink sync needed.
-- [ ] **A dedicated `ProgressText` part.** Ark ships `Carousel.ProgressText`
-      (anatomy part `progressText`) + a `translations.progressText` function
-      (`{ page, totalPages } => string`), a live-region progress announcement
-      component. We have the data (`getProgress()` on the imperative API,
-      identical `{ page, totalPages, value }` shape) but no rendered/
-      announced subcomponent — a consumer has to wire the announcement
-      themselves today.
+- [ ] **A dedicated `ProgressText` part.** **Built 2026-07-13, on the
+      `carousel-progress-text` branch/PR pending CI + merge** (not yet on
+      `main` — see the note below on why). Added `Carousel.ProgressText` — a
+      `<span>` rendering the live
+      `"N of M"` active-page progress via a new `translations.progressText`
+      format (`{ page, totalPages } => string`, 1-indexed default
+      `"${page + 1} of ${totalPages}"`, matching `slideLabel`'s convention).
+      `children`, if passed, overrides the computed text. Deliberately carries
+      **no ARIA wiring of its own** — Ark's `progressText` part is
+      unopinionated too (no network access this session to confirm the exact
+      DOM output, so this is our own defensible default, same caveat as
+      `readOnly`); compose it inside your own live region if you want page
+      changes announced, rather than doubling up on the Viewport's existing
+      `aria-live` toggling. TDD in a new `Carousel.progress-text.test.tsx` (5
+      tests) plus a `translations.progressText` override/fallback pair added
+      to `Carousel.translations.test.tsx`.
+      Threaded into the registry too (unlike every other gap this session,
+      which stayed headless-only): a new `progress-text` subcomponent in
+      `contract.json`, hand-regenerated `carousel.tsx` / `carousel.recipe.ts`
+      (no cargo in this sandbox, so done on the `carousel-progress-text`
+      branch/PR — `primitiv-emit`'s drift-guard tests in `rust.yml` verify the
+      hand-regeneration byte-for-byte before merge, rather than trusting it
+      unverified on `main`), and new muted-caption custom properties
+      (`--primitiv-carousel-progress-text-color` → `content-secondary`,
+      `--primitiv-carousel-progress-text-font-size` → `body-sm-font-size`) in
+      `styles.css`/`.scss` — no layout of its own, the consumer places it
+      anywhere (inside `<CarouselControls>`, standalone, …). Kitchen-sink
+      hand-synced (`carousel.contract.json` / `.recipe.ts` / `.tsx` / the
+      stylesheet).
 - [ ] **Per-call `instant` (skip-animation) override on imperative scroll
       methods.** Every one of Ark's imperative methods —
       `scrollToIndex(index, instant?)`, `scrollTo(page, instant?)`,

@@ -181,6 +181,7 @@ function RadioField<T extends string>({
   onChange,
   disabled = false,
   note,
+  hint,
 }: {
   legend: string;
   name: string;
@@ -191,6 +192,11 @@ function RadioField<T extends string>({
   // distribution=stretch), the field is greyed out with a short reason.
   disabled?: boolean;
   note?: string;
+  // Unlike `note` (only shown while `disabled`, to explain why), `hint` is an
+  // always-visible aside for an axis that's still live but has a non-obvious
+  // interaction worth flagging (e.g. ratio remaining active under
+  // slideWidth=content in vertical orientation).
+  hint?: string;
 }) {
   return (
     <fieldset className="carousel-builder__field" disabled={disabled}>
@@ -198,6 +204,9 @@ function RadioField<T extends string>({
         {legend}
         {disabled && note ? (
           <span className="carousel-builder__na"> — {note}</span>
+        ) : null}
+        {!disabled && hint ? (
+          <span className="carousel-builder__na"> — {hint}</span>
         ) : null}
       </legend>
       <div className="carousel-builder__radios">
@@ -472,10 +481,18 @@ export function CarouselBuilder() {
   // cluster already fills its edge, so alignment is moot).
   const alignDisabled = config.distribution === "stretch";
   // slideWidth="content" switches the slide flex-basis to auto and stands
-  // down the ratio aspect-ratio, and is scoped to slidesPerPage=1 (the
-  // multi-slide flex-basis math assumes equal shares) — both axes go inert
-  // under it, surfaced here rather than left as a silent visual break.
+  // down the *slide's* ratio aspect-ratio, and is scoped to slidesPerPage=1
+  // (the multi-slide flex-basis math assumes equal shares) — both axes go
+  // inert under it, surfaced here rather than left as a silent visual break.
   const contentSizing = config.slideWidth === "content";
+  // ...except in vertical mode: the vertical viewport still forces its own
+  // height from `ratio` (styles.css's vertical `__viewport` aspect-ratio
+  // rule isn't scoped to slideWidth), so `ratio` stays live there even
+  // though the slide's own aspect-ratio stands down. Tracked as a CSS gap
+  // to revisit — see docs/carousel-development-log.md.
+  const verticalContentRatioLive =
+    contentSizing && config.orientation === "vertical";
+  const ratioDisabled = contentSizing && !verticalContentRatioLive;
 
   return (
     <article className="carousel-builder">
@@ -584,8 +601,13 @@ export function CarouselBuilder() {
               value={config.ratio}
               options={["square", "standard", "wide", "ultrawide"] as const}
               onChange={(value) => set("ratio", value)}
-              disabled={contentSizing}
+              disabled={ratioDisabled}
               note="n/a when slideWidth=content (aspect-ratio stands down)"
+              hint={
+                verticalContentRatioLive
+                  ? "still drives the vertical viewport's forced height in content mode — the slide's own aspect-ratio stands down, the viewport's doesn't (tracked in the dev log)"
+                  : undefined
+              }
             />
             <RadioField
               legend="radius"

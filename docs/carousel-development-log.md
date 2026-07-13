@@ -2223,6 +2223,25 @@ it (decision 4).
 - **Overlay + autoplay pill grouping.** The design pairs the dots pill with a
   play button in one bottom cluster. Play/pause is deferred to the autoplay
   iteration; revisit the pill-vs-cluster centring (a bottom-cluster wrapper) then.
+- **Vertical viewport `aspect-ratio` doesn't stand down under
+  `slideWidth="content"` (found 2026-07-13, QA session).** The slide itself
+  correctly switches to content-driven block-sizing in vertical mode
+  (`.primitiv-carousel[data-orientation="vertical"] .primitiv-carousel__slide`
+  already sets `aspect-ratio: auto`), but the *containing viewport*
+  (`.primitiv-carousel[data-orientation="vertical"] .primitiv-carousel__viewport`,
+  `styles.css:571-576`) keeps an unconditional
+  `aspect-ratio: calc(vertical-aspect-ratio / slides-per-page)` regardless of
+  `slideWidth` — nothing stands it down the way the slide-level rule already
+  does at `styles.css:762-765` for `.primitiv-carousel--slide-width-content`.
+  So a content-sized slide in vertical mode still scrolls inside a
+  fixed-height window sized by `ratio`, not by the slide's actual rendered
+  height — a taller-than-ratio slide gets cropped, a shorter one leaves dead
+  space. The Carousel Builder's `ratio` control was updated to stay live (not
+  disabled) for this specific combination, with a hint noting the gap, so it
+  can be reproduced/inspected live. **Deferred** — the right fix likely needs
+  a design decision (does the vertical viewport auto-follow the tallest
+  slide? the active slide only? something else?), so revisit properly,
+  possibly in a Figma session, rather than patching the CSS ad hoc.
 
 ## Parity tracking — Ark UI and Blossom
 

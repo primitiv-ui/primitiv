@@ -169,6 +169,22 @@ appended here:
   its own, still-genuinely-open item (see each entry's own "Figma lockstep:"
   line) — QA approval and design-tool lockstep are separate gates. See also
   the "QA status" note under Parity tracking → Example backlog.
+- **2026-07-13 — Overscroll callback shape (Blossom gap).** Scope: cover the
+  three input sources the carousel already owns the physics for — keyboard,
+  wheel, and mouse drag — and explicitly exclude native touch/swipe (no JS
+  hook to observe OS-level rubber-banding from). Detection is
+  **page-boundary-driven** (`canGoNext`/`canGoPrevious`), not raw
+  scroll-pixel geometry — robust in both jsdom tests and real browsers, and
+  consistent with how the rest of the primitive already treats boundaries.
+  Keyboard and wheel are instantaneous taps (`amount: 0`, a single bare
+  `"overscroll"`); `Home`/`End` are absolute jumps, not directional pushes,
+  so they're excluded. Mouse drag is the one continuous, physically real
+  case — it gets the full `onDragStatusChange`-shaped `"overscroll.start" |
+  "overscroll" | "overscroll.end"` treatment with a live pixel `amount` (the
+  drag delta already computed for the regular drag-scroll, no new geometry
+  needed), plus a `data-overscroll` DOM hook and an `isOverscrolling()`
+  imperative getter mirroring the existing `data-dragging`/`isDragging()`
+  pair. See "Blossom — gaps identified" below for the landed writeup.
 
 ## Figma design reference
 
@@ -2500,14 +2516,43 @@ philosophy already).
 
 **New gaps (not yet tracked anywhere):**
 
-- [ ] **Overscroll events/API.** Blossom exposes overscroll detection (e.g.
-      for a rubber-band boundary effect, or an overscroll-driven navigation
-      gesture). We have no equivalent — nothing on the imperative API or as a
-      callback fires when a user scrolls past a boundary. This is a genuine
-      prerequisite for the **Stories (3D + overscroll)** backlog item (our own
-      parenthetical already names "overscroll" as part of that example), not
-      just a documentation gap — Stories can't be built without deciding this
-      first.
+- [x] **Overscroll events/API.** **Landed 2026-07-13.** Design decision (see
+      the Decisions log) + implementation. Added a new Root callback
+      `onOverscrollStatusChange` firing `{ type: "overscroll.start" |
+      "overscroll" | "overscroll.end", edge: "start" | "end", source:
+      "keyboard" | "wheel" | "drag", amount, page }`, detected off the same
+      `canGoNext`/`canGoPrevious` page-boundary truth the rest of the
+      primitive already uses, from three input sources the carousel directly
+      owns the physics for: **keyboard** (a blocked arrow key; `Home`/`End`
+      excluded — absolute jumps, not directional pushes), **wheel** (the
+      existing horizontal-desktop wheel-to-scroll translation, blocked at a
+      boundary), and **mouse drag** (`allowMouseDrag`, pushing past a
+      boundary). Keyboard/wheel are instantaneous taps — always a single bare
+      `"overscroll"`, `amount: 0`. Drag is the one continuous, physically real
+      case — `"overscroll.start"` → repeated `"overscroll"` (with the live
+      drag-delta `amount`) → `"overscroll.end"` (on a reversal back within
+      bounds, or the drag ending), mirroring `onDragStatusChange`'s shape
+      exactly. Paired with a new `isOverscrolling()` imperative getter
+      (mirrors `isDragging()`, drag-only) and a persistent
+      `data-overscroll="start" | "end"` DOM hook on the Viewport for the
+      drag case (mirrors `data-dragging`) — a CSS hook for a rubber-band
+      resistance visual with no JS required. **Native touch/swipe overscroll
+      is explicitly out of scope** — OS-level rubber-banding has no JS hook
+      to observe it from, consistent with the primitive's "native scroll is
+      the source of truth" philosophy elsewhere. This unblocks the **Stories
+      (3D + overscroll)** backlog item's prerequisite. TDD in a new
+      `Carousel.overscroll.test.tsx` (14 tests: keyboard edge start/end +
+      no-fire-when-not-blocked + Home/End excluded, wheel edge start/end +
+      no-fire-within-bounds, drag start→continue→end + mid-drag reversal +
+      pointerup release + the opposite edge + no-fire-within-bounds, and
+      `isOverscrolling()` true only during a drag-overscroll). Headless-only
+      — no registry/contract/CSS change, so no kitchen-sink sync needed.
+      JSDoc (`types.ts`, `Carousel.tsx`) + a new "Overscroll" README section
+      + the JS/CSS ownership table updated. Gates green: scoped `vitest run
+      src/Carousel` (304 tests, Carousel files fully covered per the
+      coverage-reporter-omission note above), `node
+      scripts/check-registry-types.mjs`, a scoped `tsc --noEmit` (no
+      Carousel-related errors).
 
 **Open questions raised by the inventory, not firm gaps:**
 

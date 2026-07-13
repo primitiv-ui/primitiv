@@ -65,6 +65,8 @@ export function useCarouselViewport() {
     slidesRef,
     slideKeys,
     slidesPerPage,
+    effectiveSlidesPerMove,
+    maxOffset,
     currentPageOffset,
     pageForSlideIndex,
     totalPages,
@@ -443,6 +445,69 @@ export function useCarouselViewport() {
     slidesRef,
     refreshTick,
     scrollBehavior,
+  ]);
+
+  // Keeps every page's leading slide `scroll-margin` extended out to its
+  // page's actual last member, so a user's own swipe/wheel/touch — settled
+  // entirely by the browser's native scroll-snap, never by the scrollTo
+  // effect above — also spans the whole page for center/end alignment
+  // instead of just the leading slide's own box (the same fix applied to
+  // the programmatic scroll, just expressed as a native snap-area
+  // extension rather than a scrollTo offset). A single slide-per-page
+  // carousel needs no extension at all, so this is a no-op there. Runs for
+  // every page up front (not just the current one), since a fast native
+  // fling under `mandatory` snapping can settle on a page the effect above
+  // never programmatically targeted.
+  useEffect(() => {
+    if (transition !== "slide" || slidesPerPage <= 1) return;
+    // Guaranteed populated — this effect only runs post-commit, and
+    // slidesRef.current is a plain useRef(new Map()) in useCarouselRoot,
+    // never null.
+    const viewport = internalRef.current!;
+    const vertical = orientation === "vertical";
+
+    const recomputeScrollMargins = () => {
+      const slides = slidesRef.current!;
+      for (let page = 0; page < totalPages; page++) {
+        const offset = Math.min(page * effectiveSlidesPerMove, maxOffset);
+        const lastIndex = Math.min(
+          offset + slidesPerPage - 1,
+          slideKeys.length - 1,
+        );
+        // Guaranteed populated — any key in slideKeys was just registered
+        // into slidesRef in lockstep by useCarouselRoot.registerSlide (see
+        // the scroll-position effect above).
+        const leadingEl = slides.get(slideKeys[offset])!;
+        const lastEl = slides.get(slideKeys[lastIndex])!;
+        const leadingRect = leadingEl.getBoundingClientRect();
+        const lastRect = lastEl.getBoundingClientRect();
+        // Computed as left/top + width/height (not .right/.bottom) to match
+        // the plain-object rect fixtures used in tests — real DOMRects
+        // derive those the same way.
+        const extra = vertical
+          ? lastRect.top + lastRect.height - (leadingRect.top + leadingRect.height)
+          : lastRect.left + lastRect.width - (leadingRect.left + leadingRect.width);
+        leadingEl.style.scrollMarginInlineEnd = vertical ? "" : `${extra}px`;
+        leadingEl.style.scrollMarginBlockEnd = vertical ? `${extra}px` : "";
+      }
+    };
+
+    recomputeScrollMargins();
+    // Equal-share slide sizes derive from the viewport's own width/height, so
+    // the px extension above must stay current across resizes, not just
+    // page/slide-count changes (which the effect already re-runs for).
+    const resizeObserver = new ResizeObserver(recomputeScrollMargins);
+    resizeObserver.observe(viewport);
+    return () => resizeObserver.disconnect();
+  }, [
+    transition,
+    orientation,
+    slidesPerPage,
+    effectiveSlidesPerMove,
+    maxOffset,
+    totalPages,
+    slideKeys,
+    slidesRef,
   ]);
 
   // Horizontal mouse-wheel translation. A physical scroll wheel (vertical

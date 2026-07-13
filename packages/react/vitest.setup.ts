@@ -8,12 +8,18 @@ import {
   installIntersectionObserverPolyfill,
   MockIntersectionObserver,
 } from './src/test/intersectionObserverPolyfill'
+import {
+  installResizeObserverPolyfill,
+  MockResizeObserver,
+} from './src/test/resizeObserverPolyfill'
 
 installPopoverPolyfill()
 installScrollPolyfill()
 installIntersectionObserverPolyfill()
+installResizeObserverPolyfill()
 
 afterEach(() => {
   cleanup()
   MockIntersectionObserver.reset()
+  MockResizeObserver.reset()
 })

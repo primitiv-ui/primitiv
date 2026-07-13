@@ -406,6 +406,13 @@ export type CarouselContextValue = {
    * the numeric value coerced to an integer in `[1, slidesPerPage]` (a
    * move can neither drop below one nor skip past a page). */
   effectiveSlidesPerMove: number;
+  /** Start slide index of the *last* page's window — `max(0, total -
+   * slidesPerPage)`. Every page's own offset is `min(page *
+   * effectiveSlidesPerMove, maxOffset)`; used to derive any page's window
+   * (not just the current one), e.g. the multi-slide `scroll-margin`
+   * extension that keeps native scroll-snap alignment consistent with the
+   * programmatic scroll for `slidesPerPage > 1`. */
+  maxOffset: number;
   /** Start slide index of the currently-active window. In `"auto"`
    * (paged) mode this is `currentPage * slidesPerPage` (the last page may
    * be partial); in numeric (windowed) mode the last page is end-aligned

@@ -78,6 +78,20 @@ const PHOTOS = [
   photo(320, 320, "#dc2626", "#facc15"),
 ];
 
+// Genuine photography (Lorem Picsum) for the `content="pictures"` option —
+// PHOTOS/GALLERY above are synthetic stand-ins that say nothing about how a
+// busy real image actually reads at slide or thumbnail size. Width/height
+// are individually randomised per slide via picsum's own `/{width}/{height}`
+// URL segments (computed once at module load, not per render, so images
+// don't refetch/flicker on every re-render), giving `slideWidth="content"`
+// genuine variable-width source material; the photo itself is left to
+// picsum's own per-request randomness (no seed).
+const PICTURES = Array.from({ length: GALLERY.length }, () => {
+  const width = 180 + Math.floor(Math.random() * 240); // 180–420
+  const height = 200 + Math.floor(Math.random() * 200); // 200–400
+  return `https://picsum.photos/${width}/${height}`;
+});
+
 type Size = "xs" | "sm" | "md" | "lg" | "xl";
 type Placement = "external" | "overlay";
 type Orientation = "horizontal" | "vertical";
@@ -92,6 +106,7 @@ type Radius = "md" | "none";
 type Sizing = "none" | "sm" | "md" | "lg";
 type Surface = "none" | "subtle";
 type Indicators = "dots" | "thumbnails";
+type SlideContent = "gradient" | "pictures";
 type Transition = "slide" | "fade";
 
 interface BuilderConfig {
@@ -115,6 +130,7 @@ interface BuilderConfig {
   padding: Sizing;
   surface: Surface;
   indicators: Indicators;
+  content: SlideContent;
   transition: Transition;
 }
 
@@ -141,6 +157,7 @@ const DEFAULT_CONFIG: BuilderConfig = {
   padding: "none",
   surface: "none",
   indicators: "dots",
+  content: "gradient",
   transition: "slide",
 };
 
@@ -296,8 +313,12 @@ function CheckField({
 // Must render as a Carousel descendant (a plain child is enough) for the context read.
 function ThumbnailIndicators({
   slides,
+  pictures,
 }: {
   slides: string[];
+  // Real photo URLs, one per slide — when set, the thumbnail mirrors the
+  // slide's actual picture instead of its gradient swatch (content="pictures").
+  pictures?: string[];
 }) {
   const ctx = useContext(CarouselContext);
   const pageForSlideIndex = ctx?.pageForSlideIndex ?? ((i: number) => i);
@@ -305,7 +326,15 @@ function ThumbnailIndicators({
     <CarouselIndicatorGroup label="Choose slide">
       {slides.map((background, index) => (
         <CarouselIndicator key={index} index={pageForSlideIndex(index)}>
-          <span className="carousel-builder__thumb" style={{ background }} />
+          {pictures ? (
+            <img
+              className="carousel-builder__thumb"
+              src={pictures[index % pictures.length]}
+              alt=""
+            />
+          ) : (
+            <span className="carousel-builder__thumb" style={{ background }} />
+          )}
         </CarouselIndicator>
       ))}
     </CarouselIndicatorGroup>
@@ -336,6 +365,8 @@ function LiveCarousel({
   size: Size;
 }) {
   const slides = GALLERY.slice(0, config.slideCount);
+  const usePictures = config.content === "pictures";
+  const pictures = PICTURES.slice(0, config.slideCount);
   const isVertical = config.orientation === "vertical";
   // `joined` bundles prev/indicators/next into the CarouselControls bar so they
   // travel together; `split` flanks prev/next at the viewport edges with a separate
@@ -360,7 +391,10 @@ function LiveCarousel({
   // and highlights them together exactly like the dots do.
   const indicators =
     config.indicators === "thumbnails" ? (
-      <ThumbnailIndicators slides={slides} />
+      <ThumbnailIndicators
+        slides={slides}
+        pictures={usePictures ? pictures : undefined}
+      />
     ) : (
       <CarouselIndicators label="Choose slide" />
     );
@@ -410,15 +444,26 @@ function LiveCarousel({
           {config.slideWidth === "content"
             ? slides.map((_, index) => (
                 <CarouselSlide key={index} radius={config.radius}>
-                  <img src={PHOTOS[index % PHOTOS.length]} alt="" />
+                  <img
+                    src={
+                      usePictures
+                        ? pictures[index % pictures.length]
+                        : PHOTOS[index % PHOTOS.length]
+                    }
+                    alt=""
+                  />
                 </CarouselSlide>
               ))
             : slides.map((background, index) => (
                 <CarouselSlide
                   key={index}
                   radius={config.radius}
-                  style={{ background }}
-                />
+                  style={usePictures ? undefined : { background }}
+                >
+                  {usePictures ? (
+                    <img src={pictures[index % pictures.length]} alt="" />
+                  ) : null}
+                </CarouselSlide>
               ))}
         </CarouselViewport>
         {controls}
@@ -677,6 +722,18 @@ export function CarouselBuilder() {
               value={config.indicators}
               options={["dots", "thumbnails"] as const}
               onChange={(value) => set("indicators", value)}
+            />
+            <RadioField
+              legend="content"
+              name="content"
+              value={config.content}
+              options={["gradient", "pictures"] as const}
+              onChange={(value) => set("content", value)}
+              hint={
+                config.content === "pictures"
+                  ? "real photos (Lorem Picsum), random dimensions per slide — composes with slideWidth and indicators=thumbnails"
+                  : undefined
+              }
             />
           </Section>
 

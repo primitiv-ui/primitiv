@@ -540,6 +540,29 @@ export function useCarouselRoot(
   }, []);
   const isOverscrolling = useCallback(() => isOverscrollingRef.current, []);
 
+  // Same ref-not-state reasoning again: getScrollProgress()/
+  // getSlideProgress() are read on demand, and the Viewport hook's
+  // scroll/resize recompute would otherwise re-render on every tick for
+  // no benefit (the --carousel-progress/--slide-progress CSS custom
+  // properties already handle the visual).
+  const scrollProgressRef = useRef(0);
+  const setScrollProgress = useCallback((value: number) => {
+    scrollProgressRef.current = value;
+  }, []);
+  const getScrollProgress = useCallback(() => scrollProgressRef.current, []);
+
+  const slideProgressRef = useRef<Map<number, number>>(new Map());
+  const setSlideProgress = useCallback(
+    (slideIndex: number, value: number) => {
+      slideProgressRef.current.set(slideIndex, value);
+    },
+    [],
+  );
+  const getSlideProgress = useCallback(
+    (slideIndex: number) => slideProgressRef.current.get(slideIndex) ?? 0,
+    [],
+  );
+
   useImperativeHandle(
     imperativeRef,
     () => ({
@@ -555,6 +578,8 @@ export function useCarouselRoot(
       getPageSnapPoints,
       isDragging,
       isOverscrolling,
+      getScrollProgress,
+      getSlideProgress,
     }),
     [
       next,
@@ -569,6 +594,8 @@ export function useCarouselRoot(
       getPageSnapPoints,
       isDragging,
       isOverscrolling,
+      getScrollProgress,
+      getSlideProgress,
     ],
   );
 
@@ -628,6 +655,8 @@ export function useCarouselRoot(
       setDragging,
       isOverscrollingRef,
       setOverscrolling,
+      setScrollProgress,
+      setSlideProgress,
     }),
     [
       registerSlide,
@@ -663,6 +692,8 @@ export function useCarouselRoot(
       setSlideInView,
       setDragging,
       setOverscrolling,
+      setScrollProgress,
+      setSlideProgress,
     ],
   );
 

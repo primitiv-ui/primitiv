@@ -25,6 +25,10 @@ const DRAG_THRESHOLD_PX = 3;
 // the *tracked* delta; there's still no motion after release).
 const DRAG_SENSITIVITY = 2;
 
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
 /**
  * Owns the Viewport-side scroll-state sync — bidirectional.
  *
@@ -90,6 +94,8 @@ export function useCarouselViewport() {
     instantScrollRef,
     setDragging,
     setOverscrolling,
+    setScrollProgress,
+    setSlideProgress,
   } = useCarouselContext();
   // The observer's own `threshold` option accepts a number or number[]
   // as-is; for the "in view" cutoff a single number is used directly, and
@@ -509,6 +515,41 @@ export function useCarouselViewport() {
     slideKeys,
     slidesRef,
   ]);
+
+  // Continuous scroll-progress signal — a live 0..1 global value plus a
+  // per-slide -1..1 center-distance, both mirrored onto CSS custom
+  // properties for real-time visual consumption without a React
+  // re-render. Unconditional (unlike the scroll-margin effect above,
+  // which is meaningless outside `transition: "slide"`) — progress
+  // should degrade gracefully to near-zero in `fade` mode rather than
+  // not exist at all.
+  useEffect(() => {
+    const viewport = internalRef.current!;
+    const vertical = orientation === "vertical";
+
+    const recomputeProgress = () => {
+      const maxScroll = vertical
+        ? viewport.scrollHeight - viewport.clientHeight
+        : viewport.scrollWidth - viewport.clientWidth;
+      const scrollPos = vertical ? viewport.scrollTop : viewport.scrollLeft;
+      // Math.abs, not the raw signed value — modern browsers standardize
+      // RTL scrollLeft on the "negative" convention (0 at the start, down
+      // to -maxScroll at the end), so this makes "distance travelled from
+      // the start" monotonic in both directions with no dir/
+      // getComputedStyle read, mirroring why the drag handler above needs
+      // no RTL special-casing either.
+      const scrollProgress =
+        maxScroll > 0 ? clamp(Math.abs(scrollPos) / maxScroll, 0, 1) : 0;
+      setScrollProgress(scrollProgress);
+      viewport.style.setProperty("--carousel-progress", String(scrollProgress));
+    };
+
+    recomputeProgress();
+    viewport.addEventListener("scroll", recomputeProgress, { passive: true });
+    return () => {
+      viewport.removeEventListener("scroll", recomputeProgress);
+    };
+  }, [orientation, setScrollProgress]);
 
   // Horizontal mouse-wheel translation. A physical scroll wheel (vertical
   // notches, deltaY only) already natively scrolls a vertically-scrollable

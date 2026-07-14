@@ -497,6 +497,13 @@ export type CarouselContextValue = {
   visibleSlideIndicesRef: RefObject<Set<number>>;
   /** Used by the Viewport hook to record visibility transitions. */
   setSlideInView: (slideIndex: number, inView: boolean) => void;
+  /** Used by the Viewport hook to report the live continuous scroll
+   * position, read on demand by the imperative `getScrollProgress()`. */
+  setScrollProgress: (value: number) => void;
+  /** Used by the Viewport hook to report a slide's live continuous
+   * center-distance, read on demand by the imperative
+   * `getSlideProgress()`. */
+  setSlideProgress: (slideIndex: number, value: number) => void;
   /** Set to `true` by `next()` and `previous()` the moment programmatic
    * navigation begins, and cleared by the Viewport hook once the scroll
    * animation settles (`scrollend` or a timeout fallback). The
@@ -660,6 +667,26 @@ export type CarouselImperativeApi = {
    * instantaneous rather than a sustained state). See
    * `onOverscrollStatusChange`. */
   isOverscrolling: () => boolean;
+  /** Continuous `[0, 1]` scroll position along the main axis — `0` at
+   * the start, `1` at the end, `0` when there's no overflow to scroll.
+   * Unlike `getProgress()`'s page-granular step function, this changes
+   * on every scroll tick (mirrored live onto the Viewport's
+   * `--carousel-progress` CSS custom property, rAF-batched, so a
+   * consumer can drive a progress bar from CSS alone without reading
+   * this at all). Robust under RTL without any `dir` check — RTL's
+   * standardized negative-`scrollLeft` convention is handled via
+   * `Math.abs`. */
+  getScrollProgress: () => number;
+  /** Continuous `[-1, 1]` signal for how far the slide at the zero-based
+   * index sits from the viewport's center along the main axis — `0` =
+   * centered, `±1` = the slide's center has reached the viewport edge
+   * (clamped beyond that). `0` for a never-registered/out-of-range
+   * index. Normalised by the *viewport's* half-extent, not the slide's
+   * own, so at `slidesPerPage > 1` a fully on-screen outer page member
+   * can already read a large magnitude — this is not equivalent to
+   * `isInView` flipping to `false`. Mirrored live onto that slide's
+   * `--slide-progress` CSS custom property, rAF-batched. */
+  getSlideProgress: (slideIndex: number) => number;
 };
 
 /** Live progress snapshot reported by the carousel: the active page, the total page count, and a normalised `value` in `[0, 1]`. */

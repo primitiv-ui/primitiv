@@ -107,6 +107,7 @@ correction), and CSS owns _what the user sees_:
 | Mouse-wheel scroll (horizontal)    | `deltaY` → `scrollLeft` when `deltaX` is negligible       | —                                                                        |
 | Overscroll (keyboard / wheel / drag) | `onOverscrollStatusChange`, `isOverscrolling()` (drag only) | Optional resistance visual on `[data-overscroll="start" \| "end"]` (drag only) |
 | Indicator state                    | `data-state` on `[data-carousel-indicator]`              | Visual: dot, bar, thumbnail, etc.                                        |
+| Continuous scroll progress         | `getScrollProgress()` / `getSlideProgress(index)`, rAF-batched | Reads `--carousel-progress` / `--slide-progress` for real-time effects, no re-render |
 
 The only JS prop on the visual side is `snapAlign`, and only because it
 picks whether the viewport `scrollTo` aligns the target slide's leading
@@ -315,6 +316,8 @@ carouselRef.current?.refresh();
 const { page, totalPages, value } = carouselRef.current!.getProgress();
 const pageSnapPoints = carouselRef.current!.getPageSnapPoints();
 const isDragging = carouselRef.current!.isDragging();
+const scrollProgress = carouselRef.current!.getScrollProgress(); // 0..1, continuous
+const slideProgress = carouselRef.current!.getSlideProgress(0); // -1..1, continuous
 ```
 
 `next()`, `previous()`, and `goTo()` each take an optional trailing
@@ -363,7 +366,10 @@ snapshot of whether a mouse drag is in progress (always `false`
 unless `allowMouseDrag` is set) — see "Drag status" below for the
 matching `onDragStatusChange` callback. For a ready-made rendered
 progress announcement instead of building one from `getProgress()`
-yourself, see "Progress text" below.
+yourself, see "Progress text" below. `getScrollProgress()` and
+`getSlideProgress(slideIndex)` are a *continuous* complement to
+`getProgress()`'s page-granular step function — see "Continuous scroll
+progress" below.
 
 Every method routes through the same internal state machine the
 trigger components use, so controlled-mode `onPageChange` /
@@ -908,6 +914,59 @@ banding when a touch swipe is dragged past a boundary is browser-owned
 scroll physics with no JS hook to observe it from — consistent with
 this primitive's "native scroll is the source of truth" approach
 elsewhere (see "Mouse input" above, and "Reduced motion").
+
+### Continuous scroll progress
+
+`getProgress()` and `isInView()` are both coarse — a page-granular step
+function and a threshold boolean, respectively. For a continuous signal
+(a parallax effect, a cover-flow-style scale/rotate, a custom progress
+bar that fills smoothly instead of stepping), `Carousel.Root` exposes
+two additional getters, each mirrored live onto a CSS custom property so
+a consumer's stylesheet can read them directly without touching
+JavaScript at all:
+
+```tsx
+carouselRef.current!.getScrollProgress(); // 0 (start) .. 1 (end)
+carouselRef.current!.getSlideProgress(0); // -1 .. 0 (centered) .. 1
+```
+
+```css
+/* on the Viewport */
+.my-progress-bar {
+  transform: scaleX(var(--carousel-progress));
+}
+
+/* on each Slide */
+.my-slide {
+  opacity: calc(1 - abs(var(--slide-progress)));
+}
+```
+
+`--carousel-progress` (on the Viewport) mirrors `getScrollProgress()` —
+how far the viewport has scrolled along its main axis, `0` at the start
+and `1` at the end (`0` when there's no overflow to scroll at all).
+`--slide-progress` (on each Slide) mirrors `getSlideProgress(index)` —
+`0` when that slide's center coincides with the viewport's center, `±1`
+when the slide's center has reached the viewport edge (clamped beyond
+that). Both recompute on every scroll tick and on viewport/slide resize,
+coalesced to at most once per animation frame so a fast native scroll
+never forces more than one layout read per frame.
+
+`getSlideProgress` is normalised by the **viewport's** half-extent, not
+the slide's own — at `slidesPerPage > 1` a page's outer members can
+already read a large magnitude (e.g. ~±0.67 at three-per-page) while
+still fully on-screen and settled. This is *not* the same signal as
+`isInView` flipping to `false`: `isInView` is an IntersectionObserver
+threshold crossing, while `getSlideProgress` is raw geometry — a slide
+can read a large `getSlideProgress` magnitude and still be fully
+`isInView`, or vice versa near a partial-visibility threshold.
+
+`getScrollProgress()` is robust under RTL with no `dir` check: modern
+browsers standardize RTL `scrollLeft` on the "negative" convention (`0`
+at the start, down to the negative of the max scroll at the end), so the
+implementation takes the absolute value before normalising — the same
+reasoning that lets the mouse-drag handler skip RTL special-casing (see
+"Mouse input" above).
 
 ### Indicator dots (manual)
 

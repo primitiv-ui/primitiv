@@ -4,7 +4,6 @@
 .carousel-builder {
   display: grid;
   gap: var(--primitiv-space-space-16);
-  max-inline-size: 72rem;
   margin-inline: auto;
 }
 
@@ -40,18 +39,44 @@
   background: var(--primitiv-surface-subtle);
 }
 
-/* The two-column workbench: controls beside a live instance. Stacks on a narrow
- * container so the page stays usable at any width. */
+/* The workbench: controls beside a live instance. The controls get two
+ * columns of their own (the accordion wraps into the second once the first
+ * fills up) so a wide monitor needs far less vertical scrolling to reach a
+ * given section; the preview keeps the remaining space. Stacks to a single
+ * column on a narrow container so the page stays usable at any width. */
 .carousel-builder__grid {
   display: grid;
-  grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 22rem)) minmax(0, 1fr);
   gap: var(--primitiv-space-space-32);
   align-items: start;
+}
+
+.carousel-builder__controls {
+  grid-column: span 2;
+  column-count: 2;
+  column-gap: var(--primitiv-space-space-32);
+}
+
+/* The Accordion root is a flex column by default, which can't fragment
+ * across multicol — switch it to block so its items are ordinary boxes the
+ * column layout above can wrap, and keep each item whole rather than split
+ * mid-row across the column break. */
+.carousel-builder__controls .primitiv-accordion {
+  display: block;
+}
+
+.carousel-builder__controls .primitiv-accordion__item {
+  break-inside: avoid;
 }
 
 @media (max-width: 48rem) {
   .carousel-builder__grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .carousel-builder__controls {
+    grid-column: span 1;
+    column-count: 1;
   }
 
   .carousel-builder__preview {

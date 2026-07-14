@@ -2347,8 +2347,13 @@ iteration 13), `size` (density/size scaling, iteration 14), `images` (real
 - Programmatic control (imperative API, progress bar) — **landed
   2026-07-14** alongside the continuous scroll-progress signal. Route
   `progress`. See the dedicated iteration entry below.
-- Slideshow (parallax), Stories (3D + overscroll), Smart Stack,
-  Cards, Flipbook, Timeline. **No routes yet.**
+- Slideshow (parallax) — a registry `effect="parallax"` modifier + a new
+  `<CarouselSlideContent>` presentational subcomponent, a native CSS
+  view-timeline (zero JavaScript) with a `--slide-progress`-driven CSS
+  fallback for browsers lacking `animation-timeline: view()` support. Route
+  `slideshow`. See the dedicated iteration entry below.
+- Stories (3D + overscroll), Smart Stack, Cards, Flipbook, Timeline. **No
+  routes yet.**
 
 **The Builder (route `builder`) as a parity tool.** It currently threads
 every *example-backlog* axis above that's landed —
@@ -2357,10 +2362,12 @@ every *example-backlog* axis above that's landed —
 (slide + container), `gap`, `peek`, `padding`, `surface`, `indicators`
 (dots/thumbnails), `transition` (slide/fade), **`showProgress`
 (continuous scroll-progress overlay, added 2026-07-14 — see its own
-iteration entry below)** — as live controls, so it's the fastest way to
-re-verify how landed axes compose (all of them human-approved as of
-2026-07-13 — see the QA status note above — except `showProgress`,
-pending QA), not just the single-axis example page. Every Ark UI
+iteration entry below)**, **`effect` (none/parallax, added 2026-07-14 —
+see the Slideshow iteration entry below)** — as live controls, so it's the
+fastest way to re-verify how landed axes compose (all of them
+human-approved as of 2026-07-13 — see the QA status note above — except
+`showProgress` and `effect`, pending QA), not just the single-axis example
+page. Every Ark UI
 API-level gap tracked below is now landed (`pageSnapPoints`, indicator
 `readOnly`, `inViewThreshold`, `snapType`, per-item `snapAlign`, drag
 status, the autoplay status callback, `ProgressText`, the per-call
@@ -3475,3 +3482,168 @@ registry/contract touch).
 **Next:** human QA — toggle "Show scroll progress" on in the Builder and
 confirm it composes cleanly with orientation, multi-slide, RTL, thumbnails,
 overlay, and fade (the whole point of adding it here).
+
+### Slideshow (parallax) — registry `effect` modifier + `<CarouselSlideContent>` (kitchen-sink `/carousel-variant slideshow`, awaiting human QA)
+
+The next Advanced-backlog item off the list above, replicating Blossom
+Carousel's own Slideshow example: a pure native CSS scroll-driven animation
+(`view-timeline` + `animation-timeline` + `animation-range`), zero
+JavaScript — genuinely different from the JS-computed `--carousel-progress`/
+`--slide-progress` signal that had just landed, though the two turned out to
+compose (see the fallback below). **No Figma cell** — same class as
+Cover Flow/"progress" (code-first, Advanced backlog), so the usual
+Figma-pairing step was skipped.
+
+**Two design forks put to the human ahead of implementation, both
+resolved:**
+
+- **Registry surface, not kitchen-sink-only** (unlike "progress", which
+  stayed kitchen-sink-only because its signal is headless-JS-owned with no
+  CSS surface of its own). This technique is *pure CSS with no headless
+  dependency at all* — the same shape as every other landed axis that
+  **did** get a registry home (`transition="fade"`, the `indicators`
+  modifier, `placement`, `peek`, `padding`, `slideWidth`) — so it landed as
+  real registry capability: a new **`effect`** root modifier (`none`
+  default · `parallax`) in `contract.json` + `styles.css`, plus a new
+  **`<CarouselSlideContent>`** presentational subcomponent (mirrors
+  `<CarouselControls>` from iteration 6 — a subcomponent with no
+  `component` field, so the generator emits its own bare styled `<div>`
+  with no headless backing) — the layer the animation actually targets,
+  distinct from `<CarouselSlide>` itself which owns the clipping
+  (`overflow: hidden`, already in place).
+- **Also add a `--slide-progress`-driven fallback for browsers without
+  `animation-timeline: view()` support**, rather than degrading to plain
+  static slides there. Current support (checked live): ~82–85% global,
+  Chrome/Edge/Safari ship it, **Firefox stable is still flag-gated** as of
+  writing (an Interop 2026 priority; on by default in Nightly). This turned
+  out to need **no new JavaScript at all**: `--slide-progress` is already
+  written continuously on every Slide by the "Continuous scroll-progress
+  signal" work (unconditionally, independent of any CSS technique reading
+  it), so the fallback is a second, plain CSS rule under
+  `@supports not (animation-timeline: view())` reading that existing
+  variable with the same `--primitiv-carousel-parallax-amount` knob and
+  direction — visually equivalent to the view-timeline path, zero JS of the
+  registry's own either way.
+
+**Built (registry).** `registry/components/carousel/contract.json` gained
+the `slide-content` subcomponent (`.primitiv-carousel__slide-content`) and
+the `effect` modifier group; `styles.css`/`.scss` (kept byte-identical
+per convention) gained: a base `__slide-content` rule (fills the slide
+exactly, 100% × 100%, with the same media object-fit/position treatment as
+a direct slide child); the `@supports (animation-timeline: view())` block
+(`view-timeline-name`/`-axis` on the slide, following the scroll axis like
+`peek`/`gap` — `inline` horizontal, `block` vertical — plus the
+`animation`/`animation-timeline`/`animation-range: cover` on
+`slide-content`, with an orientation override swapping the keyframes name);
+the `@supports not (...)` fallback block (the `--slide-progress` read); the
+two `@keyframes` (inline and block variants — a named-timeline reference
+can't be conditionally selected by a CSS selector, so the swap is via
+`animation-name` under `[data-orientation="vertical"]`, not a single
+shared keyframe); a `prefers-reduced-motion: reduce` override cancelling
+both branches (`animation: none; transform: none;`), a system-wide pattern
+already used by Modal/Accordion, newly applied here since parallax is
+scroll-linked decorative motion, unlike this component's otherwise
+un-reduced-motion-gated fade transition; and a new
+**`--primitiv-carousel-parallax-amount`** knob (`50%`, matching Blossom's
+own `±50%` keyframe exactly) — not tokenized (no design-token family fits
+"how far a technique's own geometry drifts relative to its box", the same
+class of exception as the motion-literal rule documents).
+
+**No local Rust access this session** (per the sandbox-gotchas skill —
+cargo/wasm-pack don't run here at all) — `carousel.recipe.ts`/`carousel.tsx`
+were hand-edited to the *exact* byte shape `emit_recipe`/`emit_wrapper`
+would produce (verified line-by-line against `recipe.rs`/`wrapper.rs`'s
+actual formatting logic — the `subcomponent_binding`/`subcomponent_pascal`
+naming, the `emit_structural_root` destructure/call order for the
+style-prop root, the presentational-subcomponent shape already proven by
+`<CarouselControls>`); `styles.scss`'s CSS body confirmed byte-identical to
+`styles.css` via `diff`, and the new `$primitiv-carousel-parallax-amount`
+alias appended matching `emit_component_scss`'s first-occurrence-order
+scan. The Rust drift-guard tests
+(`crates/primitiv-emit/src/{recipe,wrapper,scss}_tests.rs`) are relied on
+via CI to confirm this, per the standing sandbox limitation — flagged
+rather than claimed as locally verified.
+
+**Built (kitchen-sink).** `CarouselPage.tsx` (`SlideshowSingle` +
+`CarouselSlideshow`, route `slideshow`): a 4-cell numbered grid — default
+horizontal, vertical (proving the timeline axis follows orientation),
+RTL (proving the named timeline is direction-agnostic), and composing with
+`peek`. `CarouselLayout.tsx` gained the sidebar entry; `Shell.tsx` the
+route. Hand-synced the registry surface into
+`apps/kitchen-sink/src/components/` + `src/styles/primitiv/carousel/`
+exactly as `add` would install it.
+
+**QA round 1 (human, live in the browser) — no visible difference while
+scrolling.** Root cause: the first cut painted the slide's gradient
+directly on `<CarouselSlideContent>` (the layer that translates) with
+nothing behind it on `<CarouselSlide>` itself. Since `<CarouselSlideContent>`
+is sized exactly 100% × 100% of the slide (no oversize) and a CSS
+`transform` doesn't reflow layout, translating it by up to
+±`--primitiv-carousel-parallax-amount` moves its *painted* position past
+the slide's own edge on one side while uncovering the opposite side — and
+because the slide's own background was left `transparent`, that uncovered
+region revealed whatever sat behind the whole carousel (the page
+background), not a visible drift of the gradient itself. This is a
+real, generalizable gotcha for the technique (not scoped to the demo):
+**a full-bleed layer with no backdrop behind it will reveal a gap at the
+extremes unless it's deliberately oversized before translating.** **Fixed**
+by re-layering both the kitchen-sink example and the Builder's parallax
+composition: the gradient/photo backdrop moved to `<CarouselSlide>` itself
+(static, never transformed), with only a small, high-contrast foreground
+marker (a numeral) left inside `<CarouselSlideContent>` — since the content
+layer is otherwise transparent, the region a translate reveals just shows
+the identical, unmoving backdrop underneath, and the marker's visible
+shift across the slide is the parallax cue. Documented as a "layering
+gotcha" in the registry README's new `effect` bullet and in
+`SlideshowSingle`'s own JSDoc, so a consumer composing a real photo
+doesn't rediscover it blind — the honest fix for full-bleed photographic
+content is to give it its own backdrop (a blurred/darkened copy behind, or
+oversize the content layer and recalibrate the translate amount against
+its enlarged box) rather than assuming `<CarouselSlideContent>` alone is
+safe to fill edge-to-edge at the default 50% amount.
+
+**Builder wiring (human-requested, same session).** Added `effect: Effect`
+("none"/"parallax") to `BuilderConfig` (default `"none"`), forwarded as a
+real `Carousel` prop (unlike `showProgress`/`content`, which are
+Builder-only and excluded from `describe()`) — echoed in both
+`describe()`'s JSX output and the `state.json` panel, and given a
+`RadioField` in the existing "Transition" accordion section (alongside
+`transition`, the other scroll/animation-adjacent axis) rather than a new
+section. `LiveCarousel`'s slide rendering branches on `config.effect`:
+the gradient/photo backdrop stays exactly where it already was (on
+`<CarouselSlide>`), and only when `effect="parallax"` does the existing
+per-branch content (a numeral marker for the gradient case, the real
+`<img>` for the `content="pictures"`/`slideWidth="content"` cases) move
+inside a `<CarouselSlideContent>` wrapper — the default (`effect="none"`)
+path is byte-for-byte unchanged from before this session. **Known,
+accepted limitation, not fixed this round:** composing
+`effect="parallax"` with `content="pictures"` puts a real, opaque photo
+directly in `<CarouselSlideContent>` with no matching backdrop behind it
+(the Slide has no background set in that branch), so it can reveal a gap
+at the extremes exactly per the gotcha above — left as-is since the
+Builder is a stress-test sandbox whose job is to surface exactly this kind
+of composition edge case, not to guarantee every combination looks
+polished.
+
+**Registry README updated** — a new `effect` bullet (the mechanism, the
+`@supports` gate, the fallback, and the layering gotcha in full) in the
+Modifiers section, plus the subcomponent list and scope callout at the top
+of the file both gained `<CarouselSlideContent>`.
+
+**Gates:** `node scripts/check-registry-types.mjs` green (wrapper
+type-checks against the published `@primitiv-ui/react` — unaffected by this
+change anyway, since no headless prop changed). `cargo test -p
+primitiv-emit -p primitiv-cli` **relies on CI** this session (no local Rust
+access) — flagged above with the exact verification method used in place
+of a real run. `apps/kitchen-sink`'s local `tsc --noEmit` still hits the
+same pre-existing, unrelated `tsconfig.app.json` TS5101 `baseUrl` error
+documented in the "progress" iteration — verified types by hand (brace/paren
+balance checked programmatically; JSX attribute shapes cross-checked
+against existing patterns in the same files) rather than a real compile.
+
+**Next:** human re-QA of `/carousel/slideshow` after the backdrop/foreground
+re-layering fix (confirm the numeral visibly drifts during scroll in all
+four cells, and that the Builder's "effect" toggle composes cleanly with
+the other axes), then Figma lockstep is not applicable (code-only,
+design-divergent feature, same as "progress"). The remaining Advanced
+backlog (Stories, Smart Stack, Cards, Flipbook, Timeline) stays open.

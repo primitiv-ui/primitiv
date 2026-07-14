@@ -561,6 +561,14 @@ export function useCarouselViewport() {
       const slides = slidesRef.current!;
       slideKeys.forEach((key, index) => {
         const slideEl = slides.get(key);
+        // A slide can unmount in the same commit that re-runs this effect
+        // (orientation is one of its other dependencies) — the removed
+        // slide's ref callback deletes it from slidesRef synchronously
+        // during the mutation phase, while this effect's own closure still
+        // has the pre-drop slideKeys (its slideKeys update hasn't flushed
+        // a render yet). Skip the orphaned key; the next slideKeys change
+        // re-runs this effect against the settled set. Same race as the
+        // IntersectionObserver effect above.
         if (!slideEl) return;
         const slideRect = slideEl.getBoundingClientRect();
         const slideCenter = vertical

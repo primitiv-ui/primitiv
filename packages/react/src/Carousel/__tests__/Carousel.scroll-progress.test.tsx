@@ -429,6 +429,42 @@ describe("Carousel imperative getSlideProgress", () => {
 
     expect(disconnectSpy).toHaveBeenCalled();
   });
+
+  it("does not crash when the slide count shrinks in the same render that changes orientation", () => {
+    // Mirrors the IntersectionObserver regression in
+    // Carousel.dynamic-slides.test.tsx: a slide can unmount in the same
+    // commit that re-runs this effect (orientation is one of its other
+    // dependencies) — the removed slide's ref callback deletes it from
+    // slidesRef synchronously during the mutation phase, but slideKeys
+    // (state, updated via that same callback) hasn't flushed a new render
+    // yet, so this effect's own initial recompute() can still see the
+    // pre-drop slideKeys while slidesRef already reflects the drop.
+    function Harness({
+      count,
+      orientation,
+    }: {
+      count: number;
+      orientation: "horizontal" | "vertical";
+    }) {
+      return (
+        <Carousel.Root ariaLabel="Featured products" orientation={orientation}>
+          <Carousel.Viewport data-testid="viewport">
+            {Array.from({ length: count }, (_, index) => (
+              <Carousel.Slide key={index} data-testid={`slide-${index}`} />
+            ))}
+          </Carousel.Viewport>
+        </Carousel.Root>
+      );
+    }
+
+    const { rerender } = render(
+      <Harness count={4} orientation="horizontal" />,
+    );
+
+    expect(() =>
+      rerender(<Harness count={2} orientation="vertical" />),
+    ).not.toThrow();
+  });
 });
 
 describe("Carousel scroll-progress freshness across slide-set changes", () => {

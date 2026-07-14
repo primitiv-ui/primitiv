@@ -2340,7 +2340,7 @@ export function CarouselSlideshow() {
         <GridCell
           n={2}
           title="Vertical"
-          note="The view-timeline axis follows the scroll axis (block, not inline), so the drift runs up/down with the page."
+          note="The view-timeline axis follows the scroll axis — the physical y axis, not x — so the drift runs up/down with the page."
         >
           <SlideshowSingle
             label="Featured products — slideshow parallax, vertical"
@@ -2351,7 +2351,7 @@ export function CarouselSlideshow() {
         <GridCell
           n={3}
           title="RTL"
-          note="The named view-timeline is direction-agnostic — the physical scroll edges swap under RTL exactly like every other axis, no special-casing needed."
+          note="The view-timeline uses the physical x axis, not the logical inline one — inline flips which edge is 'start' under RTL, which mismatched this carousel's own physical scroll position and stuck the resting slide's content off-centre until fixed."
           dir="rtl"
         >
           <SlideshowSingle label="Featured products — slideshow parallax, RTL" />

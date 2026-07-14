@@ -806,22 +806,36 @@
      (Blossom Carousel's Slideshow example). Each slide names a view-timeline
      scoped to itself; its slide-content layer animates along that timeline as
      the slide crosses the viewport (animation-range: cover), so the content
-     drifts at a different rate than the scroll itself. The axis follows the
-     scroll direction, like peek/padding/gap (inline horizontal, block
-     vertical). Requires wrapping the slide's media in <CarouselSlideContent>
-     — the slide itself already clips via `overflow: hidden` (set above), so
-     the drifting content stays inside the slide box exactly like Blossom's
-     `.slide`/`.card` pair. Gated behind @supports so unsupporting browsers
-     (Firefox stable, as of writing — Interop 2026 priority) get no partial
-     rule at all, not a silently-broken one. */
+     drifts at a different rate than the scroll itself. Requires wrapping the
+     slide's media in <CarouselSlideContent> — the slide itself already clips
+     via `overflow: hidden` (set above), so the drifting content stays inside
+     the slide box exactly like Blossom's `.slide`/`.card` pair. Gated behind
+     @supports so unsupporting browsers (Firefox stable, as of writing —
+     Interop 2026 priority) get no partial rule at all, not a
+     silently-broken one.
+
+     The view-timeline axis is the **physical** `x`/`y` keyword, not the
+     logical `inline`/`block` one, even though it still follows the scroll
+     direction like peek/padding/gap (x horizontal, y vertical) — `inline`
+     is direction-relative (which edge is "start" flips under RTL), but this
+     carousel's own scroll container is physical (`overflow-x` /
+     `scroll-snap-type: x` above, not a logical equivalent), matching the
+     RTL handling `getScrollProgress()`/mouse-drag already rely on
+     elsewhere. Naming the timeline off the logical axis mismatched that
+     physical scroll position under RTL — the resting (centred) slide's
+     progress landed near an extreme instead of 50%, reported as the
+     drifting content stuck near its edge, not merely off-centre. Confirmed
+     live in-browser; fixed by switching to the physical keyword, which
+     needs no direction-based override at all (unlike the `[data-orientation
+     ="vertical"]` swap below, still needed since axis physically changes). */
   @supports (animation-timeline: view()) {
     .primitiv-carousel--effect-parallax .primitiv-carousel__slide {
       view-timeline-name: --primitiv-carousel-slide-timeline;
-      view-timeline-axis: inline;
+      view-timeline-axis: x;
     }
     .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--effect-parallax
       .primitiv-carousel__slide {
-      view-timeline-axis: block;
+      view-timeline-axis: y;
     }
     .primitiv-carousel--effect-parallax .primitiv-carousel__slide-content {
       animation: primitiv-carousel-parallax-inline linear both;

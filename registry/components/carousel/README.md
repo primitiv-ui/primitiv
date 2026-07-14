@@ -295,18 +295,22 @@ so they can't fall out of sync.
   no backdrop behind it directly in `<CarouselSlideContent>` will reveal a gap
   at the extremes instead. Composes with orientation (the timeline axis and
   the translate axis both follow it) and every other modifier for free — it's
-  just another root class. **RTL note:** the view-timeline axis must be the
-  **physical** `x`/`y` keyword, not the logical `inline`/`block` one, even
-  though this carousel's own scroll container is *also* physical
-  (`overflow-x` / `scroll-snap-type: x`, not a logical equivalent) — naming
-  the timeline off the logical axis instead mismatches that physical scroll
-  position under RTL (which edge is logical "start" flips, the physical
-  scroll position doesn't), landing the resting/centred slide's progress
-  near an extreme instead of 50% — confirmed live in-browser, not just
-  reasoned from the spec. The physical keyword needs no
-  `[data-orientation="vertical"]`-style direction override at all (unlike
-  the axis-follows-orientation swap, still needed since the axis physically
-  changes). No headless change.
+  just another root class. **RTL note:** the view-timeline axis is the
+  **physical** `x`/`y` keyword (following the scroll axis, like `peek`/`gap`),
+  but that is *not* what makes RTL work — Chromium resolves a **horizontal**
+  view-timeline's `cover` progress against the wrong scroll bounds in an RTL
+  scroller (true for both `x` and the logical `inline`, since the bug is the
+  cover-range resolution, not the axis keyword), landing the resting/centred
+  slide's progress at 0%/100% instead of 50% so its content sticks jammed to an
+  edge. So horizontal RTL **abandons the native timeline** and drives the drift
+  off the JS `--slide-progress` signal instead — the same physical,
+  direction-agnostic geometry the `@supports not` fallback uses, which is
+  correct by construction (0 when the slide is centred). This is scoped to
+  horizontal (`:not([data-orientation="vertical"])`); vertical is unaffected
+  (block scrolling doesn't flip under RTL) and keeps its native `y`-axis
+  timeline. The `prefers-reduced-motion` cancel carries a matching
+  higher-specificity selector so it still wins over that RTL override.
+  Confirmed live in-browser (Chromium). No headless change.
 - **Multi-slide (`slidesPerPage` / `slidesPerMove`).** These are **not**
   modifiers — they are **`styleProps`**: numeric props forwarded straight to the
   headless page model *and* written onto `--primitiv-carousel-slides-per-page`

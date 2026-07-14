@@ -3692,3 +3692,62 @@ contract/wrapper change). No headless change. Rust drift tests untouched
 marker now rests centred and drifts symmetrically during scroll, matching
 cells 1/2/4 — plus a general re-check of the flattened (no radius/gap)
 look across all four cells.
+
+**QA round 3 (human) — round-2 RTL fix was wrong; the physical axis didn't
+fix it either.** The human reported RTL "half worked — some numbers centred,
+some not." Reproduced the *real* behaviour in a headless Chromium (a
+standalone repro of the exact viewport/slide/slide-content markup driven by
+Playwright, since the kitchen-sink can't build in the sandbox — the browser
+binary is the pre-installed `chromium_headless_shell-1194`, pointed at via
+`executablePath`; the bundled Playwright's own download is stale): with
+`view-timeline-axis: x` (round 2's "fix"), **LTR centres every slide, but RTL
+centres none** — the visible slide's content sits at −50% for the first half
+of the track and +50% for the second half, never 0%. So round 2's claim
+("physical `x` fixes RTL, confirmed in-browser") was **false** — `x` is no
+better than `inline` here.
+
+**Real root cause (browser bug, not our axis choice).** Chromium resolves a
+**horizontal** view-timeline's `cover` progress against the wrong scroll
+bounds in an RTL scroller — the resting/centred slide lands at 0%/100%
+progress instead of 50%, so its content is stuck jammed against an edge. This
+is independent of the axis keyword (`x` and logical `inline` both fail); the
+bug is the cover-range resolution under RTL. Vertical (`y`) is unaffected —
+block scrolling doesn't flip under RTL. All verified numerically in the repro
+(anti-diagonal 0% pattern = each slide's timeline resolving from the opposite
+side).
+
+**Fix — horizontal RTL abandons the native timeline and reuses the JS
+`--slide-progress` fallback.** Inside `@supports (animation-timeline: view())`,
+a horizontal-scoped RTL override
+(`.primitiv-carousel--effect-parallax:not([data-orientation="vertical"])
+.primitiv-carousel__slide-content:dir(rtl)`) sets `animation: none` and drives
+the same `translateX(calc(var(--slide-progress,0) * amount))` the
+`@supports not` (Firefox) branch already uses. `--slide-progress` is written
+continuously by the primitive from **physical** `getBoundingClientRect`
+geometry (`(slideCenter − viewportCenter) / halfWidth`), so it's 0 exactly
+when the slide is centred — RTL-correct by construction, no headless change.
+LTR keeps the pure-native timeline; vertical RTL keeps its native `y` timeline
+(the `:not([data-orientation="vertical"])` scope). The
+`prefers-reduced-motion` cancel gained a **twin selector** at the same
+`:not()`+`:dir()` specificity so it still beats the RTL override (source order
+alone wouldn't — the override out-specifies the plain cancel). **Verified
+live in the repro:** LTR / RTL-horizontal / RTL-vertical all rest at 0%
+(centred), and under emulated `prefers-reduced-motion: reduce` the RTL
+transform resolves to `none` even mid-scroll.
+
+Registry `styles.css` + `styles.scss` (kept byte-identical, confirmed by
+`diff` and the `scss_tests` drift guard) + the kitchen-sink hand-sync all
+updated; the round-2 "physical axis fixes RTL" prose was corrected in the
+stylesheet comment, the component README's `effect` RTL note, and the RTL
+cell's own note. No `contract.json` change (the fix is inside the existing
+`effect` modifier's rule body).
+
+**Gates green (run locally — cargo *is* available this session, unlike the
+round-2 session):** `cargo test -p primitiv-emit` (364 + 106, incl.
+`the_committed_carousel_scss_is_the_derived_form_of_its_css`) +
+`-p primitiv-cli` (20), `node scripts/check-registry-types.mjs`. No headless
+change, so no Carousel vitest.
+
+**Next:** human re-QA of `/carousel/slideshow` cell 3 (RTL) once more —
+confirm every number rests centred and drifts symmetrically like cells 1/2/4,
+in a real RTL browser.

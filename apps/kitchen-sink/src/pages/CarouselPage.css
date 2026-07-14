@@ -125,3 +125,58 @@
   font-size: 0.8rem;
   color: var(--primitiv-content-secondary);
 }
+
+/* Continuous scroll-progress demo. Each slide reads its own --slide-progress
+ * (set directly on it by the headless primitive) — no cascade concerns, pure
+ * CSS. The squared term (rather than an abs()) keeps this working in every
+ * browser: it's always non-negative and gives the same "further from center
+ * = more faded/shrunk" falloff. */
+.carousel-page__progress-slide {
+  opacity: calc(
+    1 - (var(--slide-progress, 0) * var(--slide-progress, 0)) * 0.6
+  );
+  transform: scale(
+    calc(1 - (var(--slide-progress, 0) * var(--slide-progress, 0)) * 0.12)
+  );
+}
+
+.carousel-page__progress-demo {
+  display: grid;
+  gap: var(--primitiv-space-space-16);
+}
+
+/* Sits in the controls row alongside prev/dots/next — must be a real React
+ * descendant of Carousel.Root (it reads CarouselContext internally), so it
+ * lives inside <CarouselControls>, not the separate readout block below. */
+.carousel-page__progress-text {
+  margin-inline-start: var(--primitiv-space-space-8);
+}
+
+.carousel-page__progress-readout {
+  display: grid;
+  gap: var(--primitiv-space-space-8);
+}
+
+/* Driven imperatively (getScrollProgress()), not the --carousel-progress CSS
+ * var — this track sits outside the Viewport's own DOM subtree, and a custom
+ * property set on the Viewport doesn't cascade sideways to a sibling. */
+.carousel-page__progress-track {
+  position: relative;
+  block-size: var(--primitiv-space-space-4);
+  border-radius: var(--primitiv-radii-full);
+  background: var(--primitiv-surface-subtle);
+  overflow: hidden;
+}
+
+.carousel-page__progress-fill {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  background: var(--primitiv-action-primary-default);
+}
+
+.carousel-page__progress-values {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--primitiv-content-secondary);
+}

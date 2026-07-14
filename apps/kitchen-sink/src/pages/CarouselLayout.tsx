@@ -24,6 +24,7 @@ const EXAMPLES: { to: string; label: string }[] = [
   { to: "size", label: "Size" },
   { to: "images", label: "Images" },
   { to: "variable-width", label: "Variable width" },
+  { to: "progress", label: "Scroll progress" },
 ];
 
 export function CarouselLayout() {

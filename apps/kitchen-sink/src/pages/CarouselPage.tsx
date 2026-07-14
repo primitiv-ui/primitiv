@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 
 import {
   ChevronLeft,
@@ -8,6 +8,7 @@ import {
   ChevronDown,
 } from "@primitiv-ui/icons";
 import { CarouselContext } from "@primitiv-ui/react";
+import type { CarouselImperativeApi } from "@primitiv-ui/react";
 
 import {
   Carousel,
@@ -19,6 +20,7 @@ import {
   CarouselIndicatorGroup,
   CarouselIndicator,
   CarouselIndicators,
+  CarouselProgressText,
 } from "../components";
 import "./CarouselPage.css";
 
@@ -2155,6 +2157,91 @@ export function CarouselVariableWidth() {
           />
         </GridCell>
       </div>
+    </Example>
+  );
+}
+
+/**
+ * A single instance wired up two ways: pure CSS reading `--slide-progress`
+ * (each slide dims + shrinks slightly the further its center sits from the
+ * viewport's) needs no JS at all — the headless primitive already writes it.
+ * The bar below reads `getScrollProgress()` imperatively instead, because it
+ * lives *outside* the Viewport's own DOM subtree — `--carousel-progress` is
+ * set on the Viewport element, so it doesn't cascade sideways to a sibling;
+ * the imperative getter is the tool for exactly that case. A polling
+ * `requestAnimationFrame` loop (not a scroll listener) picks up resize-driven
+ * recomputes too, matching how the headless effect itself recomputes.
+ */
+function ProgressSingle({ label }: { label: string }) {
+  const carouselRef = useRef<CarouselImperativeApi>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [activeSlideProgress, setActiveSlideProgress] = useState(0);
+
+  useEffect(() => {
+    let frameId: number;
+    const tick = () => {
+      const api = carouselRef.current;
+      if (api) {
+        setScrollProgress(api.getScrollProgress());
+        setActiveSlideProgress(api.getSlideProgress(api.getProgress().page));
+      }
+      frameId = requestAnimationFrame(tick);
+    };
+    frameId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frameId);
+  }, []);
+
+  return (
+    <div className="carousel-page__progress-demo">
+      <Carousel ariaLabel={label} ref={carouselRef} cluster="joined">
+        <CarouselViewport>
+          {GALLERY.map((bg, i) => (
+            <CarouselSlide
+              key={i}
+              className="carousel-page__progress-slide"
+              style={{ background: bg }}
+            />
+          ))}
+        </CarouselViewport>
+        <CarouselControls>
+          <CarouselPreviousTrigger aria-label="Previous slide">
+            <ChevronLeft />
+          </CarouselPreviousTrigger>
+          <CarouselIndicatorGroup label="Choose slide">
+            {GALLERY.map((_, i) => (
+              <CarouselIndicator key={i} index={i} />
+            ))}
+          </CarouselIndicatorGroup>
+          <CarouselNextTrigger aria-label="Next slide">
+            <ChevronRight />
+          </CarouselNextTrigger>
+          <CarouselProgressText className="carousel-page__progress-text" />
+        </CarouselControls>
+      </Carousel>
+      <div className="carousel-page__progress-readout">
+        <div className="carousel-page__progress-track" aria-hidden="true">
+          <div
+            className="carousel-page__progress-fill"
+            style={{ inlineSize: `${scrollProgress * 100}%` }}
+          />
+        </div>
+        <p className="carousel-page__progress-values">
+          <code>getScrollProgress()</code> = {scrollProgress.toFixed(2)} ·{" "}
+          <code>getSlideProgress(active)</code> ={" "}
+          {activeSlideProgress.toFixed(2)}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export function CarouselProgress() {
+  return (
+    <Example
+      title="Continuous scroll progress"
+      note="getScrollProgress() (0..1) and getSlideProgress(index) (-1..0..1) are continuous signals, unlike the page-granular getProgress() / boolean isInView(). Both are mirrored live onto CSS custom properties — --carousel-progress on the Viewport, --slide-progress on each Slide — so a stylesheet can read them directly with no JS. Here every slide dims and shrinks slightly as it moves away from center (pure CSS, --slide-progress); the bar and the live numbers below read the same signal imperatively instead, since they sit outside the Viewport's own DOM subtree."
+    >
+      <ProgressSingle label="Featured products — scroll progress" />
     </Example>
   );
 }

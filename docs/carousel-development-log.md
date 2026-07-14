@@ -2344,7 +2344,9 @@ iteration 13), `size` (density/size scaling, iteration 14), `images` (real
   `content`), scoped to `slidesPerPage={1}`. **Built on branch
   `carousel-variable-slide-width`, pending CI + merge** — route
   `variable-width` once merged. See iteration 14's sub-entry.
-- Programmatic control (imperative API, progress bar). **No route yet.**
+- Programmatic control (imperative API, progress bar) — **landed
+  2026-07-14** alongside the continuous scroll-progress signal. Route
+  `progress`. See the dedicated iteration entry below.
 - Slideshow (parallax), Stories (3D + overscroll), Smart Stack,
   Cards, Flipbook, Timeline. **No routes yet.**
 
@@ -2753,9 +2755,10 @@ _Differentiators — what would make us best, not just complete:_
       `getSlideProgress(index)` (per-slide, `-1..1`) added, purely additive
       alongside the existing page-granular `getProgress()`/boolean `isInView`,
       surfaced both imperatively and as `--carousel-progress` /
-      `--slide-progress` CSS custom properties, rAF-batched. Headless-only —
-      no example route yet (a parallax/cover-flow showcase is natural next
-      work); unblocks most of the **Advanced** example backlog and the Cover
+      `--slide-progress` CSS custom properties, rAF-batched. Route `progress`
+      (**landed same day** — see its own iteration entry below); a full
+      parallax/cover-flow showcase is still natural future work; unblocks
+      most of the **Advanced** example backlog and the Cover
       Flow family whenever that example work starts. Loop and virtualization
       still build on the same plumbing.
 - [ ] **Headless virtualization.** Render only near-viewport slides (sized
@@ -3284,9 +3287,13 @@ first, then come back for this batch. Findings, so they aren't lost:
 Builder control:**
 - **Autoplay + play/pause** (`PlayPauseTrigger`, autoplay, `onAutoplayStatusChange`) —
   no route, no Builder control, no registry-surface usage at all.
-- **`Carousel.ProgressText`** ("N of M") — hand-synced into the registry
+- ~~**`Carousel.ProgressText`** ("N of M") — hand-synced into the registry
   surface files (`contract.json`/`recipe.ts`/`tsx`) but no example page
-  actually renders it.
+  actually renders it.~~ **Resolved 2026-07-14** — the `progress` route
+  (built the same day, see its own iteration entry) renders
+  `<CarouselProgressText>` in its controls row, a natural pairing since
+  both are "progress" themed. Picked up as a free side-effect of that
+  work, not a dedicated pass.
 - **Overscroll** (`data-overscroll`, `onOverscrollStatusChange`,
   `isOverscrolling`) — zero demo anywhere, not even in the stylesheet
   (only unrelated touch-scroll `overscroll-behavior` rules exist).
@@ -3313,9 +3320,103 @@ composed into 15+ other examples + Builder toggle), per-item `snapAlign`
 override (demonstrated in `variable-width`), reduced motion (inherently
 OS-driven, not a Builder-control candidate, never claimed as a gap).
 
-**Next:** work through the four "genuinely missing" items plus the two
-"partially behind" ones, most likely as small combined routes rather
-than one route each (e.g. autoplay/play-pause + `ProgressText` naturally
-pair in one bottom-cluster example; drag status + overscroll naturally
-pair with a mouse-drag route). Pick up with `/carousel-variant` once the
-progress example is done.
+**Next:** three "genuinely missing" items remain (`ProgressText` resolved
+above, as a free side-effect of the `progress` route) plus the two
+"partially behind" ones — most likely as small combined routes rather
+than one route each (e.g. autoplay/play-pause stands alone; drag status
++ overscroll naturally pair with a mouse-drag route). Pick up with
+`/carousel-variant` next.
+
+### Scroll progress example (kitchen-sink, `/carousel-variant progress`, awaiting human QA)
+
+The example-facing follow-up to the headless "Continuous scroll-progress
+signal" iteration above, built the same day. **No Figma cell for this** —
+unlike the Examples-frame matrix, "progress" isn't a design-seeded
+composition (same class as the Advanced backlog's Cover Flow item); it's
+a code-first showcase of a differentiator, so the usual Figma-pairing
+step was skipped and will only ever be a code-first feature, per the
+design divergence pattern already established for other pure-code
+capabilities in this log.
+
+**Built** (`apps/kitchen-sink/src/pages/CarouselPage.tsx`, `ProgressSingle`
++ `CarouselProgress`, route `progress`): one instance wired up two
+deliberately different ways, to teach the distinction:
+- **Pure CSS, no JS** — each slide dims and shrinks slightly the further
+  its center sits from the viewport's, via `.carousel-page__progress-slide`
+  reading `var(--slide-progress, 0)` directly (it's set right on that
+  element by the headless primitive, so no cascade concerns). Uses the
+  *square* of the value, not `abs()`, for universal browser support —
+  always non-negative, same "further from center → more faded/shrunk"
+  falloff, and avoids relying on a CSS function not yet universal as of
+  this session.
+- **Imperative, for the parts outside the Viewport's own DOM subtree** —
+  a slim progress-track bar and a live `getScrollProgress()` /
+  `getSlideProgress(active)` numeric readout, both below the carousel.
+  `--carousel-progress` is set on the *Viewport* element specifically, so
+  it doesn't cascade sideways to a sibling — the imperative getter is
+  the correct tool for exactly this case, not a workaround. Driven by a
+  polling `requestAnimationFrame` loop (not a raw `scroll` listener) so
+  it also picks up resize-driven recomputes, mirroring how the headless
+  effect itself recomputes on both scroll and resize.
+- **`<CarouselProgressText>`** in the controls row — the "N of M" part
+  landed in the registry surface back in the Ark-parity work but never
+  had an example page render it (see the audit above). A natural,
+  free pairing here since both are "progress" themed — not a dedicated
+  pass, just closing that gap as a side-effect.
+
+**QA round 1 (human, live in the browser) — `Component must be rendered
+as a child of Carousel.Root`.** The first cut placed `<CarouselProgressText>`
+in the external readout block, alongside the imperative bar/numbers —
+visually adjacent to the carousel but a React *sibling* of `<Carousel>`,
+not a descendant. `CarouselProgressText` reads `CarouselContext`
+internally (unlike the bar/numbers, which only need the imperative
+`ref` — no React tree relationship required), so it threw immediately on
+mount. **Fixed** by moving it inside `<CarouselControls>` (a genuine
+descendant of `Carousel.Root`), which also crystallized the demo's own
+teaching point more precisely: the CSS-var effects and `ProgressText`
+both need to live *inside* the component tree (context or DOM
+inheritance), while only the imperative getters can reach *outside* it
+(the ref, not the tree, is what carries the value out). A
+`margin-inline-start` on the moved part (`.carousel-page__progress-text`)
+keeps it from crowding the next-trigger button.
+
+**No registry/contract change** — `--carousel-progress`/`--slide-progress`
+are unprefixed, headless-primitive-owned custom properties (not the
+registry's `--primitiv-carousel-*` token namespace), so they're already
+available on any Carousel instance regardless of registry version; the
+example's own CSS (`CarouselPage.css`) references only existing,
+confirmed-real design tokens (`--primitiv-space-space-4`,
+`--primitiv-radii-full`, `--primitiv-action-primary-default`,
+`--primitiv-surface-subtle`) for the track/fill, no new ones needed. No
+`crates/primitiv-emit` regeneration, no drift tests, no hand-sync —
+this is the registry equivalent of "headless-only, no kitchen-sink sync
+needed" from the Ark-parity gaps: here it's "kitchen-sink-only, no
+registry/contract change needed."
+
+**Dev-alias confirmed active** (`apps/kitchen-sink/vite.config.ts` +
+`tsconfig.app.json` `paths`, both still pointing `@primitiv-ui/react` at
+`packages/react/src`) — required, since `getScrollProgress`/
+`getSlideProgress` and the CSS-var writes are brand-new, unpublished
+`packages/react` code; the kitchen-sink's pinned `^0.1.0` dependency
+would otherwise silently lack them entirely (the exact Gotcha this
+skill warns about).
+
+**Typecheck caveat.** `apps/kitchen-sink`'s local `tsc --noEmit` hit a
+pre-existing, unrelated environment issue this session (`tsconfig.app.json`'s
+`baseUrl` flagged as deprecated under whatever TypeScript version is
+locally installed — TS5101, a fatal config error that blocks the compiler
+before it reaches any source file, confirmed via `git status` to be a
+pre-existing config untouched by this change). Verified type-correctness
+by hand instead (ref/type shapes match every other imperative-API usage
+in `packages/react`'s own test suite exactly) — flagged for the human to
+confirm with their own local build alongside the usual live-browser check.
+
+**Gates green:** `node scripts/check-registry-types.mjs` (unaffected — no
+registry/contract touch), `pnpm --filter @primitiv-ui/react exec vitest
+run src/Carousel` (339 tests, unaffected — this is a kitchen-sink-only
+change).
+
+**Next:** human QA of `/carousel/progress` (check both the CSS-driven
+slide effect and the imperative bar/readout scroll smoothly together),
+then the remaining kitchen-sink demo-coverage gaps from the audit above
+(autoplay/play-pause, overscroll, drag status, mouse-drag, snapType).

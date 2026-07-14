@@ -23,6 +23,7 @@ import {
   CarouselSize,
   CarouselImages,
   CarouselVariableWidth,
+  CarouselProgress,
 } from "./pages/CarouselPage";
 import "./Shell.css";
 
@@ -82,6 +83,7 @@ export function Shell() {
           <Route path="size" element={<CarouselSize />} />
           <Route path="images" element={<CarouselImages />} />
           <Route path="variable-width" element={<CarouselVariableWidth />} />
+          <Route path="progress" element={<CarouselProgress />} />
         </Route>
       </Routes>
     </ChromeProvider>

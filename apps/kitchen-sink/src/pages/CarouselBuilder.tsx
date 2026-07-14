@@ -802,7 +802,7 @@ export function CarouselBuilder() {
 
         <div className="carousel-builder__preview">
           <LiveCarousel config={config} size={size} />
-          <CodeBlock code={describe(config, size)} language="tsx" showHeader />
+          <CodeBlock code={describe(config, size)} language="tsx" showHeader data-density="dense" />
         </div>
       </div>
     </article>

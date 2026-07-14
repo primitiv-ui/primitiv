@@ -151,3 +151,16 @@
   inline-size: 100%;
   block-size: 100%;
 }
+
+/* The JSX and JSON code echoes side by side; wraps to a stacked column once
+ * the preview column is too narrow to fit both at a readable width. */
+.carousel-builder__code-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--primitiv-space-space-16);
+}
+
+.carousel-builder__code-row > * {
+  flex: 1 1 16rem;
+  min-inline-size: 0;
+}

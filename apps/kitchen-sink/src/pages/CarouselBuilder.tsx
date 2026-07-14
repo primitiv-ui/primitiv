@@ -802,7 +802,22 @@ export function CarouselBuilder() {
 
         <div className="carousel-builder__preview">
           <LiveCarousel config={config} size={size} />
-          <CodeBlock code={describe(config, size)} language="tsx" showHeader data-density="dense" />
+          <div className="carousel-builder__code-row">
+            <CodeBlock
+              code={describe(config, size)}
+              language="tsx"
+              filename="carousel.tsx"
+              showHeader
+              data-density="dense"
+            />
+            <CodeBlock
+              code={JSON.stringify({ size, ...config }, null, 2)}
+              language="json"
+              filename="state.json"
+              showHeader
+              data-density="dense"
+            />
+          </div>
         </div>
       </div>
     </article>

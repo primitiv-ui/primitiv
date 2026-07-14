@@ -2747,20 +2747,17 @@ signal below).
 
 _Differentiators — what would make us best, not just complete:_
 
-- [ ] **Continuous scroll-progress signal (per-slide + global).** *Highest
-      leverage — recommended first.* Today `getProgress()` is page-granular
-      and `isInView` is a boolean. Expose instead a continuous global scroll
-      position **and** per-slide progress (`-1 → 0 → 1` as a slide passes
-      through centre), surfaced both imperatively *and* as a CSS custom
-      property on the viewport/slide (`--carousel-progress`,
-      `--slide-progress`). Mirrors Embla's `scrollProgress()` method +
-      `slidesInView` event (which reports `slidesEnterView` / `slidesLeftView`
-      deltas). Deeply on-brand — a continuous state signal CSS consumes — and
-      it single-handedly unblocks most of the **Advanced** example backlog
-      (Slideshow, Smart Stack, Stories, Cards, Flipbook, Timeline) in plain
-      JS, plus gives a progressive-enhancement path for the Cover Flow family
-      without `animation-timeline`. Loop and virtualization both build on the
-      same plumbing.
+- [x] **Continuous scroll-progress signal (per-slide + global).** **Landed
+      2026-07-14** (see the "Continuous scroll-progress signal" entry below
+      for the full build writeup). `getScrollProgress()` (global, `0..1`) and
+      `getSlideProgress(index)` (per-slide, `-1..1`) added, purely additive
+      alongside the existing page-granular `getProgress()`/boolean `isInView`,
+      surfaced both imperatively and as `--carousel-progress` /
+      `--slide-progress` CSS custom properties, rAF-batched. Headless-only —
+      no example route yet (a parallax/cover-flow showcase is natural next
+      work); unblocks most of the **Advanced** example backlog and the Cover
+      Flow family whenever that example work starts. Loop and virtualization
+      still build on the same plumbing.
 - [ ] **Headless virtualization.** Render only near-viewport slides (sized
       spacers preserve the measured offsets + native snap the whole
       architecture relies on). Swiper and Keen ship it; reviewers note Embla
@@ -3136,3 +3133,140 @@ producing an invalid negative value:
 `max(var(--primitiv-radii-0), calc(thumbnail-radius - ring-width))`. This
 fix stands regardless of the corner-squaring reversal above — it's an
 independent, still-needed correction.
+
+### Continuous scroll-progress signal (headless-only, human-approved)
+
+**Next item off the "wider field" backlog** (the human picked this over
+looping, an autoplay example route, and `dragFree`/momentum — the dev
+log's own recommended-first, highest-leverage item). Two design forks
+were put to the human ahead of implementation and resolved: (a) this
+feature over the alternatives, confirmed; (b) whether the scroll-driven
+recompute should be rAF-batched from the start — confirmed **yes**, to
+avoid a forced-layout-read-per-slide-per-scroll-tick anti-pattern,
+especially relevant for slide-heavy variants like thumbnails.
+
+**Headless gap filled (TDD, 100%).** Two new imperative getters, purely
+additive — `getProgress()` and `isInView()` are untouched, byte-for-byte:
+
+- **`getScrollProgress(): number`** — continuous `0..1` for how far the
+  Viewport has scrolled along its main axis (`0` when there's no
+  overflow to scroll). Computed off raw scroll geometry
+  (`scrollLeft`/`scrollWidth`/`clientWidth`, or the block-axis
+  equivalents when vertical), deliberately independent of the page/offset
+  math `getProgress()` uses. **RTL-safe with no `dir` check** — modern
+  browsers standardize RTL `scrollLeft` on the "negative" convention (`0`
+  at the start, down to `-maxScroll` at the end), so the formula takes
+  `Math.abs(scrollPos)` before normalising, making "distance travelled
+  from the start" monotonic in both directions. This mirrors the exact
+  reasoning already in `useCarouselViewport.ts` for why the mouse-drag
+  handler needs no RTL special-casing either — confirmed with a dedicated
+  test (mocked negative `scrollLeft`) rather than just flagging it as a
+  caveat, since the fix was cheap and the convention was already
+  established in this file.
+- **`getSlideProgress(slideIndex: number): number`** — continuous
+  `-1..0..1` for how far a slide's center sits from the viewport's
+  center, via `getBoundingClientRect` (the same idiom the multi-slide
+  `scroll-margin` fix already uses for its own geometry). `0` = centered;
+  `±1` = the slide's center has reached the viewport edge, clamped beyond
+  that. `0` for a never-registered/out-of-range index. **Documented
+  precisely, not just "±1 = off-screen":** normalised by the
+  **viewport's** half-extent, not the slide's own, so at
+  `slidesPerPage > 1` a fully on-screen outer page member can already
+  read a large magnitude (~±0.67 at three-per-page) — this is not the
+  same signal as `isInView` flipping to `false` (geometry vs. an
+  IntersectionObserver threshold crossing).
+
+Both values are also mirrored live onto CSS custom properties —
+**`--carousel-progress`** (Viewport) and **`--slide-progress`** (each
+Slide) — written imperatively via `style.setProperty`, unprefixed
+because this is a headless-primitive-owned DOM hook (like
+`data-dragging`/`data-overscroll`), not the registry's
+`--primitiv-carousel-*` token namespace. This is the first time this
+component writes a CSS custom property from JS (every prior imperative
+DOM write was a plain attribute via `setAttribute`, or a real — not
+custom — inline property, in the `scroll-margin` fix). No new
+callback/event: continuous values fire too often for the discrete-
+transition event pattern `onDragStatusChange`/`onOverscrollStatusChange`
+use — ref + on-demand getter + CSS-var mirror is the right shape,
+matching how `isInView`/`isDragging` already work.
+
+**Wiring.** One new `useEffect` in `useCarouselViewport.ts`, placed
+alongside the existing scroll-margin `ResizeObserver` effect but
+**unconditional** — no `transition !== "slide"` gate, a deliberate
+divergence, since progress should degrade gracefully in `fade` mode
+(near-zero/coincident values) rather than not exist. Attaches a passive
+native `scroll` listener (the first use of this event type in the
+component) plus a second `ResizeObserver` on the Viewport, both driving
+one shared `recomputeProgress` closure, rAF-batched via a `scheduleRecompute`
+wrapper (a plain closure-local `pendingFrame` variable, not a ref — it
+never needs to outlive one effect instance). The **initial synchronous
+call bypasses the rAF gate** so values are non-default before first
+paint, mirroring how the scroll-margin fix calls `recomputeScrollMargins()`
+once before `resizeObserver.observe(viewport)`. The effect's dependency
+array includes `slideKeys` (confirmed load-bearing by a dedicated
+red/green cycle — temporarily stripping it broke 8 of 21 tests, not just
+the one it was added for) so a slide-set change (`refresh()`-driven or a
+dynamic add/remove) recomputes immediately against the new index mapping
+rather than serving a stale cached value; per-slide values are looked up
+by iterating `slideKeys` **by index** (`slidesRef.current!.get(slideKeys[i])`),
+not `Map` iteration order (insertion order ≠ numeric index once slides
+are dynamically added/removed), and the per-slide store is rebuilt as a
+fresh `Map` each pass rather than mutated, so a shrunk slide count can't
+leave stale indices lingering. Only the two setters
+(`setScrollProgress`/`setSlideProgress`) cross into
+`CarouselContextValue` — the refs and the getters themselves stay
+entirely inside `useCarouselRoot.ts`, mirroring the existing
+`visibleSlideIndicesRef`/`setSlideInView`/`isInView` isolation exactly.
+
+**Test-infra fallout: two ResizeObservers on the same element broke an
+existing test's assumption.** With the new effect's `ResizeObserver`
+alongside the pre-existing scroll-margin one, `MockResizeObserver.latest`
+(the most-recently-constructed instance) stopped reliably referring to
+the scroll-margin fix's own observer in `slidesPerPage > 1` fixtures —
+`Carousel.scroll-margin.test.tsx`'s own resize-recompute test started
+failing. Fixed by adding a `MockResizeObserver.fireAll()` static (fires
+every constructed instance, regardless of which element it watches or
+when it was created) to the shared polyfill
+(`src/test/resizeObserverPolyfill.ts`) and switching both that
+pre-existing test and this feature's own ResizeObserver test to use it
+instead of `.latest?.fire()` — a small, well-justified addition to the
+shared test infrastructure now that a component can legitimately have
+more than one active observer on the same element.
+
+**rAF-batching TDD, driven honestly.** Two new tests specifically for
+the batching behaviour — coalescing two scroll events within one frame
+into a single `requestAnimationFrame` call, and cancelling a pending
+frame on unmount — were written and confirmed genuinely red (the
+existing per-tick-recompute tests stayed green throughout, since without
+batching a plain scroll event already recomputed synchronously). A third
+test (the slide-set-change freshness check, above) initially passed on
+first run against the already-correct `slideKeys` dependency — per this
+repo's pure-red-green rule, `slideKeys` was **temporarily stripped from
+the effect's dependency array** to confirm the test (and 7 others) went
+genuinely red, then restored to go green, rather than keeping a
+characterisation test that never failed.
+
+**Docs.** JSDoc on both new `CarouselImperativeApi`/`CarouselContextValue`
+fields in `types.ts`; a new "Continuous scroll progress" README section
+(CSS-var read example, the `slidesPerPage > 1` magnitude caveat, the
+`isInView`-is-a-different-signal clarification, the RTL handling note)
+plus a new "JS vs CSS responsibilities" table row and an Imperative API
+code-sample/prose update.
+
+**Built:** nothing example-facing — **headless-only, no registry/
+contract/CSS change, so no kitchen-sink sync needed**, matching how every
+other Ark-parity API-level gap landed (`scrollToIndex`, `getPageSnapPoints`,
+`onDragStatusChange`, etc.). A demonstrative example (a parallax or
+cover-flow showcase) is natural next work once the example-backlog
+placements are revisited, but is out of scope for this pass.
+
+**Gates green:** `pnpm --filter @primitiv-ui/react exec vitest run
+src/Carousel` (23 new scroll-progress tests + the full 338-test Carousel
+suite, no regressions), `getProgress()`/`isInView()`'s own test files
+confirmed byte-unchanged. Each TDD cycle landed as its own commit, pushed
+straight to `main` per this workstream's standing authorisation.
+`node scripts/check-registry-types.mjs` unaffected (no registry change).
+
+**Next:** virtualization, then loop, then `dragFree`/momentum — the dev
+log's own recommended sequence — or an example route demonstrating this
+signal (parallax/cover-flow), whichever the human prioritises next.

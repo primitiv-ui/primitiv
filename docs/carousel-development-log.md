@@ -2984,11 +2984,43 @@ selectors needed — same specificity/cascade tie-break already in place).
 Re-verified visually: a 3-member active run now renders as one seamless
 frame with square joins and rounded outer corners only.
 
-Also added `border-color` was already transitioning smoothly (a
-pre-existing declaration); extended the transition list to also cover the
-four corner-radius longhands so the new squaring un/re-rounds in step
-rather than snapping. The multi-slide group frame's own
+Also confirmed `border-color` was already transitioning smoothly (a
+pre-existing declaration) — the group frame's own
 `border-inline-start`/`-end`/`-block` appearing/disappearing (`none` ↔
-`solid`) can't be smoothed by any transition-list change — CSS cannot
-interpolate the `style` keyword — so that edge still snaps in; only the
-per-thumbnail ring and the corner-squaring animate.
+`solid`) can't be smoothed by any transition-list change regardless, since
+CSS cannot interpolate the `style` keyword.
+
+**Reverted, same session, on human feedback: corner-squaring undone —
+every thumbnail keeps full rounding always, even mid-group.** Shown a
+render of a 3-member active run, the corner-squaring above (each thumbnail
+rounded only on its outer edge, interior members fully square) read as
+"radii gone missing" rather than "one continuous frame" — asked directly,
+the human's preference is every thumbnail keeps its own full corner radius
+regardless of grouping, accepting a small visual gap at the seams between
+grouped members (the group's own `gap` gutter, not a border defect) over
+squared-off interior members. Reverted the `border-*-radius: 0` overrides
+and their transition-list entries from the previous fix, restoring the
+plain `border-inline-start`/`-end: none` cancellation with no radius
+override. The group frame concept itself (bordering same-page thumbnails
+as a unit) is unchanged — only the corner-squaring cosmetic layered on top
+of it is gone.
+
+**Separately, a real (and kept) fix found alongside this: the ring/content
+corner nesting was wrong on *every* thumbnail, grouped or not.** The same
+mock + `getComputedStyle` diagnosis approach turned up a second, distinct
+bug: the thumbnail's content (`.primitiv-carousel__indicator > *`) used
+`border-radius: inherit` — copying the frame's radius value verbatim onto
+a *smaller* box (the content sits inset by the reserved border width,
+`box-sizing: border-box`). Reusing the identical radius on a smaller box
+over-rounds it relative to the frame's own outer curve, so the two curves
+don't nest concentrically — leaving a small black wedge at all four
+corners between the border and the content, visible on any single
+thumbnail the moment its ring has a real colour (invisible before this
+session's ring fix, for the same reason the seam issue was: the ring used
+to be an occluded inset box-shadow). Fixed with the standard nested-corner
+formula — inner radius = outer radius − border width, `max()`-clamped to 0
+so it degrades gracefully at small radii/large ring widths instead of
+producing an invalid negative value:
+`max(var(--primitiv-radii-0), calc(thumbnail-radius - ring-width))`. This
+fix stands regardless of the corner-squaring reversal above — it's an
+independent, still-needed correction.

@@ -1317,22 +1317,15 @@
     box-sizing: border-box;
     overflow: hidden;
     opacity: var(--primitiv-carousel-thumbnail-inactive-opacity);
-    /* border-*-radius transitions smoothly alongside border-color (both are
-       interpolatable values — a length and a color), so the group frame's
-       corner-squaring un/re-rounds in step with the ring fading in/out. The
-       border-inline-start/-end/-block shorthands themselves aren't listed:
-       joining/leaving a multi-slide group flips border-style between "none"
-       and "solid", and CSS can't interpolate a style keyword — that edge
-       necessarily snaps in rather than fading, no transition list changes
-       this. */
+    /* Joining/leaving a multi-slide group flips border-inline-start/-end
+       between "none" and "solid" (border-style isn't interpolatable), so
+       that edge necessarily snaps in rather than fading — no transition
+       list change fixes that. border-color still transitions smoothly for
+       the plain active/inactive ring. */
     transition:
       opacity var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
       box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
-      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
-      border-start-start-radius var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
-      border-start-end-radius var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
-      border-end-start-radius var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
-      border-end-end-radius var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
   /* No dot for a thumbnail — suppress the base ::before. */
   .primitiv-carousel--indicators-thumbnails .primitiv-carousel__indicator::before,
@@ -1341,7 +1334,14 @@
     > button::before {
     display: none;
   }
-  /* The thumbnail image (or background element) fills and rounds with the frame. */
+  /* The thumbnail image (or background element) fills and rounds with the frame.
+     Its radius is the frame's own radius *inset by the reserved border width*,
+     not a flat `inherit` — the content sits on a box shrunk by the border (
+     box-sizing: border-box), so nesting concentrically with the frame's outer
+     curve needs the smaller inner radius; reusing the same radius value on
+     that smaller box over-rounds it, leaving a visible gap at each corner
+     between the border and the content once the border has a real colour
+     (max(...) guards the calc against going negative at very small radii). */
   .primitiv-carousel--indicators-thumbnails .primitiv-carousel__indicator > *,
   .primitiv-carousel--indicators-thumbnails
     .primitiv-carousel__indicator-group
@@ -1351,7 +1351,13 @@
     inline-size: 100%;
     block-size: 100%;
     object-fit: cover;
-    border-radius: inherit;
+    border-radius: max(
+      var(--primitiv-radii-0),
+      calc(
+        var(--primitiv-carousel-thumbnail-radius) -
+          var(--primitiv-carousel-thumbnail-ring-width)
+      )
+    );
   }
   /* Hover lifts an inactive thumbnail to full opacity (the active one is already
      full — states layer). `[data-group-hover]` is the consumer-set hook for
@@ -1637,27 +1643,17 @@
   }
   /* Cancel inline-start on middle + end (they have a preceding active sibling, so
      the run's start edge isn't theirs). Declared after the inline-start baseline so
-     it wins the (now-equal) specificity tie. Also squares the two inline-start
-     corners: each thumbnail keeps its own full border-radius (the base rule sets
-     it unconditionally), so without this a middle/end member's border-*-start
-     corners still curve away at the seam per their own independent radius even
-     though the straight edge there is genuinely border-style:none — reading as
-     a gap/notch rather than one continuous frame. */
+     it wins the (now-equal) specificity tie. */
   .primitiv-carousel--indicators-thumbnails
     :where(:is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"])
     + :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"] {
     border-inline-start: none;
-    border-start-start-radius: var(--primitiv-radii-0);
-    border-end-start-radius: var(--primitiv-radii-0);
   }
   /* Cancel inline-end on start + middle (they have a following active sibling, so
-     the run's end edge isn't theirs). Declared after the inline-end baseline.
-     Squares the two inline-end corners for the same reason as above. */
+     the run's end edge isn't theirs). Declared after the inline-end baseline. */
   .primitiv-carousel--indicators-thumbnails
     :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"]:where(:has(+ [data-state="active"])) {
     border-inline-end: none;
-    border-start-end-radius: var(--primitiv-radii-0);
-    border-end-end-radius: var(--primitiv-radii-0);
   }
 
   /* Vertical thumbnail rails stack top-to-bottom, so a run's shared axis flips:
@@ -1686,17 +1682,10 @@
     :where(:is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"])
     + :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"] {
     border-block-start: none;
-    /* Squares the two block-start corners — see the horizontal cancel rules'
-       comment above for why (each thumbnail's own border-radius otherwise
-       still curves away at the seam). */
-    border-start-start-radius: var(--primitiv-radii-0);
-    border-start-end-radius: var(--primitiv-radii-0);
   }
   .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--indicators-thumbnails
     :is(.primitiv-carousel__indicator, .primitiv-carousel__indicator-group > button)[data-state="active"]:where(:has(+ [data-state="active"])) {
     border-block-end: none;
-    border-end-start-radius: var(--primitiv-radii-0);
-    border-end-end-radius: var(--primitiv-radii-0);
   }
 
 

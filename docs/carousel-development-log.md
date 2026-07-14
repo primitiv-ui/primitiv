@@ -3420,3 +3420,51 @@ change).
 slide effect and the imperative bar/readout scroll smoothly together),
 then the remaining kitchen-sink demo-coverage gaps from the audit above
 (autoplay/play-pause, overscroll, drag status, mouse-drag, snapType).
+
+### Scroll progress added to the Builder (human-requested follow-up, awaiting QA)
+
+Human asked to add the just-shipped signal to the Builder (`/carousel/builder`)
+too, so it can be stress-tested against every other landed axis at once —
+exactly the Builder's stated purpose, and a stronger fit here than most of
+the Ark-parity gaps that were explicitly excluded as Builder-control
+candidates (those are behavioral-only with no visual composition;
+scroll-progress has a real one).
+
+**Added to `BuilderConfig`:** `showProgress: boolean` (default `false`) —
+Builder-only, like `content` (`SlideContent`), not a real `Carousel` prop,
+so it's deliberately **not** echoed in `describe()`'s JSX output (mirroring
+how `content` is already excluded there) — it does appear in the `state.json`
+panel since that block spreads the whole config. A `CheckField` in the
+Layout section, next to `allowMouseDrag`.
+
+**`LiveCarousel` changes:** a `carouselRef` + the same
+`getScrollProgress()`/`getSlideProgress()` polling `requestAnimationFrame`
+loop as the dedicated `progress` route, gated on `config.showProgress` (the
+effect early-returns when off, so the common case costs nothing extra).
+When on: every slide gets `.carousel-builder__slide--progress` (the same
+fade/scale-by-`--slide-progress` treatment, duplicated into
+`CarouselBuilder.css` under this file's own naming rather than reusing
+`CarouselPage.css`'s classes — each page's CSS stays self-contained, per
+the workbench-examples convention), `<CarouselProgressText>` rides inside
+whichever controls composition is active (`joined` bar or the `split`
+fragment) since it's a genuine `Carousel.Root` descendant, and the same
+imperative progress-track bar + live numeric readout renders below the
+stage.
+
+**No registry/contract change** — same reasoning as the dedicated route:
+the CSS vars are headless-owned, already available on any Carousel
+instance.
+
+**Typecheck caveat carried over** from the dedicated-route entry above —
+`apps/kitchen-sink`'s local `tsc` still hits the same pre-existing,
+unrelated `tsconfig.app.json` `baseUrl`/TS5101 issue, so this was verified
+by hand (identical ref/type shapes to the already-browser-confirmed
+`progress` route) plus a structural brace/paren/`CheckField`-count balance
+check, not a real compile.
+
+**Gates green:** `node scripts/check-registry-types.mjs` (unaffected — no
+registry/contract touch).
+
+**Next:** human QA — toggle "Show scroll progress" on in the Builder and
+confirm it composes cleanly with orientation, multi-slide, RTL, thumbnails,
+overlay, and fade (the whole point of adding it here).

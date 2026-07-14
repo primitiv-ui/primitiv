@@ -1,4 +1,10 @@
-import { useContext, useState, type ReactNode } from "react";
+import {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 
 import {
   ChevronLeft,
@@ -7,6 +13,7 @@ import {
   ChevronDown,
 } from "@primitiv-ui/icons";
 import { CarouselContext } from "@primitiv-ui/react";
+import type { CarouselImperativeApi } from "@primitiv-ui/react";
 
 import {
   Accordion,
@@ -24,6 +31,7 @@ import {
   CarouselIndicatorGroup,
   CarouselIndicator,
   CarouselIndicators,
+  CarouselProgressText,
   Checkbox,
   CodeBlock,
   Radio,
@@ -135,6 +143,12 @@ interface BuilderConfig {
   indicators: Indicators;
   content: SlideContent;
   transition: Transition;
+  // Builder-only — not a real Carousel prop (like `content`), so it's never
+  // echoed in describe()'s JSX. Overlays the continuous scroll-progress
+  // signal (--carousel-progress / --slide-progress) on the live instance so
+  // it can be stress-tested against every other axis here, the same way
+  // every other landed capability is.
+  showProgress: boolean;
 }
 
 // The defaults reproduce the iteration-1 baseline (external · after · group ·
@@ -162,6 +176,7 @@ const DEFAULT_CONFIG: BuilderConfig = {
   indicators: "dots",
   content: "gradient",
   transition: "slide",
+  showProgress: false,
 };
 
 const SIZING: readonly Sizing[] = ["none", "sm", "md", "lg"];
@@ -425,6 +440,28 @@ function LiveCarousel({
   const joined = config.cluster === "joined";
   const useControlsBar = joined;
 
+  // Continuous scroll-progress overlay (`showProgress`, a Builder-only toggle,
+  // not a real Carousel prop — see BuilderConfig). Only polls while enabled,
+  // so the common case (off) costs nothing.
+  const carouselRef = useRef<CarouselImperativeApi>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [activeSlideProgress, setActiveSlideProgress] = useState(0);
+
+  useEffect(() => {
+    if (!config.showProgress) return;
+    let frameId: number;
+    const tick = () => {
+      const api = carouselRef.current;
+      if (api) {
+        setScrollProgress(api.getScrollProgress());
+        setActiveSlideProgress(api.getSlideProgress(api.getProgress().page));
+      }
+      frameId = requestAnimationFrame(tick);
+    };
+    frameId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frameId);
+  }, [config.showProgress]);
+
   const prev = (
     <CarouselPreviousTrigger aria-label="Previous slide">
       {isVertical ? <ChevronUp /> : <ChevronLeft />}
@@ -450,17 +487,26 @@ function LiveCarousel({
       <CarouselIndicators label="Choose slide" />
     );
 
+  // Must be a Carousel.Root descendant (it reads CarouselContext internally),
+  // so it rides along inside whichever controls composition is active rather
+  // than the separate imperative readout below (which only needs the ref).
+  const progressText = config.showProgress ? (
+    <CarouselProgressText className="carousel-builder__progress-text" />
+  ) : null;
+
   const controls = useControlsBar ? (
     <CarouselControls>
       {prev}
       {indicators}
       {next}
+      {progressText}
     </CarouselControls>
   ) : (
     <>
       {prev}
       {indicators}
       {next}
+      {progressText}
     </>
   );
 
@@ -471,6 +517,7 @@ function LiveCarousel({
     >
       <Carousel
         ariaLabel="Carousel builder preview"
+        ref={carouselRef}
         size={size}
         orientation={config.orientation}
         placement={config.placement}
@@ -494,7 +541,15 @@ function LiveCarousel({
         <CarouselViewport>
           {config.slideWidth === "content"
             ? slides.map((_, index) => (
-                <CarouselSlide key={index} radius={config.radius}>
+                <CarouselSlide
+                  key={index}
+                  radius={config.radius}
+                  className={
+                    config.showProgress
+                      ? "carousel-builder__slide--progress"
+                      : undefined
+                  }
+                >
                   <img
                     src={
                       usePictures
@@ -509,6 +564,11 @@ function LiveCarousel({
                 <CarouselSlide
                   key={index}
                   radius={config.radius}
+                  className={
+                    config.showProgress
+                      ? "carousel-builder__slide--progress"
+                      : undefined
+                  }
                   style={usePictures ? undefined : { background }}
                 >
                   {usePictures ? (
@@ -519,6 +579,21 @@ function LiveCarousel({
         </CarouselViewport>
         {controls}
       </Carousel>
+      {config.showProgress ? (
+        <div className="carousel-builder__progress-readout">
+          <div className="carousel-builder__progress-track" aria-hidden="true">
+            <div
+              className="carousel-builder__progress-fill"
+              style={{ inlineSize: `${scrollProgress * 100}%` }}
+            />
+          </div>
+          <p className="carousel-builder__progress-values">
+            <code>getScrollProgress()</code> = {scrollProgress.toFixed(2)} ·{" "}
+            <code>getSlideProgress(active)</code> ={" "}
+            {activeSlideProgress.toFixed(2)}
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -671,6 +746,11 @@ export function CarouselBuilder() {
               label="allowMouseDrag (mouse click-and-drag scrolling)"
               checked={config.allowMouseDrag}
               onChange={(value) => set("allowMouseDrag", value)}
+            />
+            <CheckField
+              label="Show scroll progress (--carousel-progress / --slide-progress)"
+              checked={config.showProgress}
+              onChange={(value) => set("showProgress", value)}
             />
           </Section>
 

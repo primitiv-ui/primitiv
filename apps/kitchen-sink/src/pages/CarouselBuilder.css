@@ -164,3 +164,51 @@
   flex: 1 1 16rem;
   min-inline-size: 0;
 }
+
+/* Continuous scroll-progress overlay (the "Show scroll progress" toggle).
+ * Mirrors the dedicated /carousel/progress example's CSS 1:1, scoped to this
+ * file's own naming instead of reusing that page's classes (each page's CSS
+ * stays self-contained). The squared term (not abs()) keeps this working in
+ * every browser — always non-negative, same center-falloff effect. */
+.carousel-builder__slide--progress {
+  opacity: calc(
+    1 - (var(--slide-progress, 0) * var(--slide-progress, 0)) * 0.6
+  );
+  transform: scale(
+    calc(1 - (var(--slide-progress, 0) * var(--slide-progress, 0)) * 0.12)
+  );
+}
+
+.carousel-builder__progress-text {
+  margin-inline-start: var(--primitiv-space-space-8);
+}
+
+.carousel-builder__progress-readout {
+  display: grid;
+  gap: var(--primitiv-space-space-8);
+  margin-block-start: var(--primitiv-space-space-16);
+}
+
+/* Driven imperatively (getScrollProgress()), not the --carousel-progress CSS
+ * var — this track sits outside the Viewport's own DOM subtree, and a custom
+ * property set on the Viewport doesn't cascade sideways to a sibling. */
+.carousel-builder__progress-track {
+  position: relative;
+  block-size: var(--primitiv-space-space-4);
+  border-radius: var(--primitiv-radii-full);
+  background: var(--primitiv-surface-subtle);
+  overflow: hidden;
+}
+
+.carousel-builder__progress-fill {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  background: var(--primitiv-action-primary-default);
+}
+
+.carousel-builder__progress-values {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--primitiv-content-secondary);
+}

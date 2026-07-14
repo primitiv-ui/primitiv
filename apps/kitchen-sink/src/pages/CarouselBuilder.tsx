@@ -26,6 +26,7 @@ import {
   CarouselViewport,
   CarouselControls,
   CarouselSlide,
+  CarouselSlideContent,
   CarouselPreviousTrigger,
   CarouselNextTrigger,
   CarouselIndicatorGroup,
@@ -119,6 +120,7 @@ type Surface = "none" | "subtle";
 type Indicators = "dots" | "thumbnails";
 type SlideContent = "gradient" | "pictures";
 type Transition = "slide" | "fade";
+type Effect = "none" | "parallax";
 
 interface BuilderConfig {
   placement: Placement;
@@ -143,6 +145,7 @@ interface BuilderConfig {
   indicators: Indicators;
   content: SlideContent;
   transition: Transition;
+  effect: Effect;
   // Builder-only — not a real Carousel prop (like `content`), so it's never
   // echoed in describe()'s JSX. Overlays the continuous scroll-progress
   // signal (--carousel-progress / --slide-progress) on the live instance so
@@ -176,6 +179,7 @@ const DEFAULT_CONFIG: BuilderConfig = {
   indicators: "dots",
   content: "gradient",
   transition: "slide",
+  effect: "none",
   showProgress: false,
 };
 
@@ -535,21 +539,14 @@ function LiveCarousel({
         snapAlign={config.snapAlign}
         indicators={config.indicators}
         transition={config.transition}
+        effect={config.effect}
         slidesPerPage={effectiveSlidesPerPage(config)}
         allowMouseDrag={config.allowMouseDrag}
       >
         <CarouselViewport>
           {config.slideWidth === "content"
-            ? slides.map((_, index) => (
-                <CarouselSlide
-                  key={index}
-                  radius={config.radius}
-                  className={
-                    config.showProgress
-                      ? "carousel-builder__slide--progress"
-                      : undefined
-                  }
-                >
+            ? slides.map((_, index) => {
+                const media = (
                   <img
                     src={
                       usePictures
@@ -558,24 +555,62 @@ function LiveCarousel({
                     }
                     alt=""
                   />
-                </CarouselSlide>
-              ))
-            : slides.map((background, index) => (
-                <CarouselSlide
-                  key={index}
-                  radius={config.radius}
-                  className={
-                    config.showProgress
-                      ? "carousel-builder__slide--progress"
-                      : undefined
-                  }
-                  style={usePictures ? undefined : { background }}
-                >
-                  {usePictures ? (
-                    <img src={pictures[index % pictures.length]} alt="" />
-                  ) : null}
-                </CarouselSlide>
-              ))}
+                );
+                return (
+                  <CarouselSlide
+                    key={index}
+                    radius={config.radius}
+                    className={
+                      config.showProgress
+                        ? "carousel-builder__slide--progress"
+                        : undefined
+                    }
+                  >
+                    {config.effect === "parallax" ? (
+                      <CarouselSlideContent>{media}</CarouselSlideContent>
+                    ) : (
+                      media
+                    )}
+                  </CarouselSlide>
+                );
+              })
+            : slides.map((background, index) => {
+                // Parallax drifts <CarouselSlideContent>, so the backdrop
+                // stays on the Slide (already true here) and only a small
+                // marker rides the drifting layer — a full-bleed photo placed
+                // directly in CarouselSlideContent with no backdrop behind it
+                // would reveal empty space at the translated edge instead
+                // (see the kitchen-sink slideshow example's own note).
+                const isParallax = config.effect === "parallax";
+                return (
+                  <CarouselSlide
+                    key={index}
+                    radius={config.radius}
+                    className={
+                      config.showProgress
+                        ? "carousel-builder__slide--progress"
+                        : undefined
+                    }
+                    style={usePictures ? undefined : { background }}
+                  >
+                    {usePictures ? (
+                      isParallax ? (
+                        <CarouselSlideContent>
+                          <img src={pictures[index % pictures.length]} alt="" />
+                        </CarouselSlideContent>
+                      ) : (
+                        <img src={pictures[index % pictures.length]} alt="" />
+                      )
+                    ) : isParallax ? (
+                      <CarouselSlideContent className="carousel-builder__slide-content--parallax">
+                        <span className="carousel-builder__slide-marker">
+                          {index + 1}
+                        </span>
+                      </CarouselSlideContent>
+                    ) : null}
+                  </CarouselSlide>
+                );
+              })}
         </CarouselViewport>
         {controls}
       </Carousel>
@@ -619,6 +654,7 @@ function describe(config: BuilderConfig, size: Size): string {
     `radius="${config.containerRadius}"`,
     `indicators="${config.indicators}"`,
     `transition="${config.transition}"`,
+    `effect="${config.effect}"`,
     `slidesPerPage={${effectiveSlidesPerPage(config)}}`,
   ];
   if (config.allowMouseDrag) props.push("allowMouseDrag");
@@ -875,6 +911,18 @@ export function CarouselBuilder() {
               value={config.transition}
               options={["slide", "fade"] as const}
               onChange={(value) => set("transition", value)}
+            />
+            <RadioField
+              legend="effect"
+              name="effect"
+              value={config.effect}
+              options={["none", "parallax"] as const}
+              onChange={(value) => set("effect", value)}
+              hint={
+                config.effect === "parallax"
+                  ? "scroll-driven, zero-JS drift on each slide's content layer (a native view-timeline; falls back to --slide-progress where unsupported) — most visible mid-drag or on a slow scroll"
+                  : undefined
+              }
             />
           </Section>
           </Accordion>

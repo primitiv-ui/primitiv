@@ -183,6 +183,23 @@
   margin-inline-start: var(--primitiv-space-space-8);
 }
 
+/* effect="parallax" toggle. Mirrors the dedicated /carousel/slideshow
+ * example: the gradient backdrop stays on the Slide (already set via the
+ * `style` prop above), this content layer stays transparent everywhere but
+ * the marker, so the region a translate reveals past the slide's own edge
+ * just shows the matching backdrop underneath rather than an empty gap. */
+.carousel-builder__slide-content--parallax {
+  display: grid;
+  place-items: center;
+}
+
+.carousel-builder__slide-marker {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primitiv-content-inverse);
+  text-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
+}
+
 .carousel-builder__progress-readout {
   display: grid;
   gap: var(--primitiv-space-space-8);

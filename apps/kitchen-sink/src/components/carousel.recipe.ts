@@ -77,6 +77,10 @@ export const carousel = cva("primitiv-carousel", {
       equal: "primitiv-carousel--slide-width-equal",
       content: "primitiv-carousel--slide-width-content",
     },
+    effect: {
+      none: "primitiv-carousel--effect-none",
+      parallax: "primitiv-carousel--effect-parallax",
+    },
   },
   defaultVariants: {
     peek: "none",
@@ -93,6 +97,7 @@ export const carousel = cva("primitiv-carousel", {
     size: "md",
     ratio: "wide",
     slideWidth: "equal",
+    effect: "none",
   },
 });
 
@@ -129,6 +134,10 @@ export const carouselSlide = cva("primitiv-carousel__slide", {
 });
 
 export type CarouselSlideVariants = VariantProps<typeof carouselSlide>;
+
+export const carouselSlideContent = cva("primitiv-carousel__slide-content");
+
+export type CarouselSlideContentVariants = VariantProps<typeof carouselSlideContent>;
 
 export const carouselPreviousTrigger = cva("primitiv-carousel__prev");
 

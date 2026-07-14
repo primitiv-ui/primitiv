@@ -154,6 +154,15 @@
         { "name": "equal", "class": "primitiv-carousel--slide-width-equal", "description": "Every slide takes an equal share of the viewport and holds the `ratio` aspect-ratio (the default)." },
         { "name": "content", "class": "primitiv-carousel--slide-width-content", "description": "Each slide sizes to its own content — bring your own width (an intrinsically-sized image, an explicit inline width, a natural-width card). The `ratio` aspect-ratio stands down." }
       ]
+    },
+    {
+      "name": "effect",
+      "default": "none",
+      "description": "An opt-in scroll-driven visual effect for the slide content, layered on top of scroll-snap paging. `none` (the default) renders slides plain. `parallax` gives each slide's <CarouselSlideContent> a native, zero-JavaScript drift as the slide crosses the viewport (Blossom Carousel's Slideshow example) — a CSS view-timeline scoped to the slide drives the content's transform via animation-range: cover, following the scroll axis (inline horizontal, block vertical). Requires wrapping the slide's media in <CarouselSlideContent>. Browsers without animation-timeline: view() support fall back to reading the headless --slide-progress signal instead (an equivalent, continuously-updated drift with no extra JavaScript of our own), and the effect disables entirely under prefers-reduced-motion.",
+      "options": [
+        { "name": "none", "class": "primitiv-carousel--effect-none", "description": "Plain slides — no scroll-driven motion (the default)." },
+        { "name": "parallax", "class": "primitiv-carousel--effect-parallax", "description": "Each slide's <CarouselSlideContent> drifts against the scroll as the slide crosses the viewport." }
+      ]
     }
   ],
   "styleProps": [
@@ -209,6 +218,11 @@
         { "name": "data-state", "value": "active", "when": "active", "source": "auto" },
         { "name": "data-state", "value": "inactive", "when": "inactive", "source": "auto" }
       ]
+    },
+    {
+      "name": "slide-content",
+      "element": "div",
+      "class": "primitiv-carousel__slide-content"
     },
     {
       "name": "previous-trigger",
@@ -307,6 +321,7 @@
     { "name": "--primitiv-carousel-overlay-pill-padding-inline", "defaultsTo": "var(--primitiv-carousel-md-pill-padding-inline)" },
     { "name": "--primitiv-carousel-overlay-pill-padding-block", "defaultsTo": "var(--primitiv-carousel-md-pill-padding-block)" },
     { "name": "--primitiv-carousel-fade-duration", "defaultsTo": "var(--primitiv-motion-duration-overlay)" },
-    { "name": "--primitiv-carousel-fade-easing", "defaultsTo": "var(--primitiv-motion-easing-default)" }
+    { "name": "--primitiv-carousel-fade-easing", "defaultsTo": "var(--primitiv-motion-easing-default)" },
+    { "name": "--primitiv-carousel-parallax-amount", "defaultsTo": "50%" }
   ]
 }

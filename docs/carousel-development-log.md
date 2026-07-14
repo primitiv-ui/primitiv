@@ -2355,24 +2355,31 @@ every *example-backlog* axis above that's landed —
 `placement`/`side`/`distribution`/`align`/`cluster`, `orientation`, `rtl`,
 `allowMouseDrag`, `slideCount`, `slidesPerPage`, `ratio`, `radius`
 (slide + container), `gap`, `peek`, `padding`, `surface`, `indicators`
-(dots/thumbnails), `transition` (slide/fade) — as live controls, so it's the
-fastest way to re-verify how landed axes compose (all of them human-approved
-as of 2026-07-13 — see the QA status note above), not just the single-axis
-example page. Every Ark UI API-level gap tracked below is now landed
-(`pageSnapPoints`, indicator `readOnly`, `inViewThreshold`, `snapType`,
-per-item `snapAlign`, drag status, the autoplay status callback,
-`ProgressText`, the per-call `instant` override, and `scrollToIndex`, all
-2026-07-13), but **none of them were ever Builder-control candidates** —
-they're headless API surface / call-site arguments / presence-absence
+(dots/thumbnails), `transition` (slide/fade), **`showProgress`
+(continuous scroll-progress overlay, added 2026-07-14 — see its own
+iteration entry below)** — as live controls, so it's the fastest way to
+re-verify how landed axes compose (all of them human-approved as of
+2026-07-13 — see the QA status note above — except `showProgress`,
+pending QA), not just the single-axis example page. Every Ark UI
+API-level gap tracked below is now landed (`pageSnapPoints`, indicator
+`readOnly`, `inViewThreshold`, `snapType`, per-item `snapAlign`, drag
+status, the autoplay status callback, `ProgressText`, the per-call
+`instant` override, and `scrollToIndex`, all 2026-07-13), but **none of
+them were ever *independent* Builder-control candidates** — they're
+headless API surface / call-site arguments / presence-absence
 composition choices, not styling/composition axes, so they don't show up
-as Builder controls regardless (`ProgressText` has no variant axis of its
-own — it's a presence/absence choice, like `PlayPauseTrigger`, not a
-styling knob; `instant` is a one-shot call-site argument, not a
-persistent prop; `scrollToIndex` is an imperative method, not a prop at
-all). `snapAlign` specifically: the Builder's would be a **root-level**
-default like the others, not a per-slide override, which needs
-individually-configurable slides the Builder's single uniform gallery
-doesn't have. Only the Blossom overscroll gap (below) remains open.
+as their own Builder controls regardless (`instant` is a one-shot
+call-site argument, not a persistent prop; `scrollToIndex` is an
+imperative method, not a prop at all). `snapAlign` specifically: the
+Builder's would be a **root-level** default like the others, not a
+per-slide override, which needs individually-configurable slides the
+Builder's single uniform gallery doesn't have. `ProgressText` is the one
+partial exception, worth flagging precisely: it still has no variant
+axis of its own, but it **does** now render in the Builder — bundled
+under the `showProgress` toggle (2026-07-14) rather than as its own
+independent control, since it was a natural free pairing with the
+progress-overlay work rather than a dedicated pass. Only the Blossom
+overscroll gap (below) remains open.
 
 ### Ark UI — gaps identified (read 2026-07-13)
 

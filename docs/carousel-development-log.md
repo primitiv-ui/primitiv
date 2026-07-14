@@ -3270,3 +3270,52 @@ straight to `main` per this workstream's standing authorisation.
 **Next:** virtualization, then loop, then `dragFree`/momentum — the dev
 log's own recommended sequence — or an example route demonstrating this
 signal (parallax/cover-flow), whichever the human prioritises next.
+
+### Kitchen-sink demo-coverage audit (2026-07-14) — gaps to close after the progress example
+
+Prompted by "are there other missing routes? I think we might be behind."
+An audit cross-referenced every capability this log claims is landed
+against what's actually reachable in `apps/kitchen-sink` (a route, a
+Builder control, or composed into an existing example) — not just
+trusting route names. Human decision: finish the scroll-progress example
+first, then come back for this batch. Findings, so they aren't lost:
+
+**Genuinely missing — landed and tested, zero demo anywhere, not even a
+Builder control:**
+- **Autoplay + play/pause** (`PlayPauseTrigger`, autoplay, `onAutoplayStatusChange`) —
+  no route, no Builder control, no registry-surface usage at all.
+- **`Carousel.ProgressText`** ("N of M") — hand-synced into the registry
+  surface files (`contract.json`/`recipe.ts`/`tsx`) but no example page
+  actually renders it.
+- **Overscroll** (`data-overscroll`, `onOverscrollStatusChange`,
+  `isOverscrolling`) — zero demo anywhere, not even in the stylesheet
+  (only unrelated touch-scroll `overscroll-behavior` rules exist).
+- **Drag status** (`isDragging`, `onDragStatusChange`) — zero demo anywhere.
+
+**Partially behind:**
+- **Mouse click-and-drag** (`allowMouseDrag`) — only a Builder checkbox;
+  no dedicated route showcasing the drag-sensitivity tuning and native-
+  drag-suppression work that had its own QA rounds (see "Mouse-drag
+  sensitivity" and the Human QA sweep above).
+- **Snap strictness** (`snapType="proximity"`) — CSS shipped
+  (`[data-snap-type="proximity"]`, both orientations) but no TSX
+  anywhere ever sets the prop — dead code with no way to see it. The
+  log's own reasoning for excluding it from the Builder ("behavioural-
+  only, no visual composition") doesn't fully hold up — proximity vs.
+  mandatory snapping has a real, visually-distinguishable scroll feel.
+
+**Minor, not urgent:** `snapAlign` covers `"start"`/`"center"` (Builder +
+the `variable-width` route) but never demos `"end"` anywhere.
+
+**Confirmed fine, not behind:** loop/infinite (correctly unbuilt — an
+open headless gap, not a docs lag), explicit RTL (dedicated route +
+composed into 15+ other examples + Builder toggle), per-item `snapAlign`
+override (demonstrated in `variable-width`), reduced motion (inherently
+OS-driven, not a Builder-control candidate, never claimed as a gap).
+
+**Next:** work through the four "genuinely missing" items plus the two
+"partially behind" ones, most likely as small combined routes rather
+than one route each (e.g. autoplay/play-pause + `ProgressText` naturally
+pair in one bottom-cluster example; drag status + overscroll naturally
+pair with a mouse-drag route). Pick up with `/carousel-variant` once the
+progress example is done.

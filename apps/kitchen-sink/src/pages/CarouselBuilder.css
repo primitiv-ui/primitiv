@@ -151,14 +151,3 @@
   inline-size: 100%;
   block-size: 100%;
 }
-
-.carousel-builder__readout {
-  margin: 0;
-  padding: var(--primitiv-space-space-16);
-  border-radius: var(--primitiv-radii-8);
-  background: var(--primitiv-surface-subtle);
-  color: var(--primitiv-content-secondary);
-  font-size: 0.8rem;
-  white-space: pre-wrap;
-  overflow-x: auto;
-}

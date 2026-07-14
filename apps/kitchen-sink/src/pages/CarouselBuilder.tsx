@@ -25,6 +25,7 @@ import {
   CarouselIndicator,
   CarouselIndicators,
   Checkbox,
+  CodeBlock,
   Radio,
 } from "../components";
 import { useChrome } from "../chrome";
@@ -801,7 +802,7 @@ export function CarouselBuilder() {
 
         <div className="carousel-builder__preview">
           <LiveCarousel config={config} size={size} />
-          <pre className="carousel-builder__readout">{describe(config, size)}</pre>
+          <CodeBlock code={describe(config, size)} language="tsx" showHeader />
         </div>
       </div>
     </article>

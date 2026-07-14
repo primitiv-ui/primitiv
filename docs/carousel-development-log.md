@@ -2961,3 +2961,34 @@ was left completely untouched — changing its semantics would risk
 regressing the `goTo`/native-snap-target behavior it's actually tested
 against. Zero headless change; the registry README's thumbnail-grouping
 guidance was corrected to describe (and warn against) this exact pitfall.
+
+**Follow-up: the active-ring border fix from earlier this session still
+looked cut off once the thumbnail-grouping fix above made multi-slide
+groups render correctly.** Since a browser can't be driven interactively in
+this sandbox, diagnosed by building a standalone HTML mock against the real
+compiled `tokens.css` + `primitiv-base.css` + registry `styles.css` and
+screenshotting it with Chrome's `--headless=new --screenshot` CLI (no
+Playwright available locally) — confirmed visually, then confirmed the
+mechanism precisely by dumping `getComputedStyle()` border longhands into
+the page and reading them back via `--dump-dom`. The computed
+`border-inline-start`/`-end` cancellation was *already correct*
+(`border-*-style: none` on the right sides) — the bug was purely visual:
+each thumbnail keeps its own full `border-radius` (the base rule sets it
+unconditionally), so at a group seam the "kept" side's rounded corner still
+curves away per its own independent radius even though the "cancelled"
+side is genuinely borderless — reading as a gap/notch rather than one
+continuous frame. Fixed by squaring the two corners on each cancelled side
+(`border-start-start-radius`/`border-end-start-radius` etc., set to
+`var(--primitiv-radii-0)`) in the same cancel rule blocks (no new
+selectors needed — same specificity/cascade tie-break already in place).
+Re-verified visually: a 3-member active run now renders as one seamless
+frame with square joins and rounded outer corners only.
+
+Also added `border-color` was already transitioning smoothly (a
+pre-existing declaration); extended the transition list to also cover the
+four corner-radius longhands so the new squaring un/re-rounds in step
+rather than snapping. The multi-slide group frame's own
+`border-inline-start`/`-end`/`-block` appearing/disappearing (`none` ↔
+`solid`) can't be smoothed by any transition-list change — CSS cannot
+interpolate the `style` keyword — so that edge still snaps in; only the
+per-thumbnail ring and the corner-squaring animate.

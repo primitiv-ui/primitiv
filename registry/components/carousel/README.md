@@ -266,8 +266,10 @@ so they can't fall out of sync.
   default · `parallax`) gives each slide's content a native, zero-JavaScript
   drift as the slide crosses the viewport (Blossom Carousel's Slideshow
   example) — a CSS view-timeline named on the slide (`view-timeline-name` +
-  `-axis`, following the scroll axis like `peek`/`gap`) drives a
-  `translateX`/`Y` on **`<CarouselSlideContent>`** via `animation-range: cover`,
+  `-axis`, following the scroll axis like `peek`/`gap` — the **physical**
+  `x`/`y` keyword, not the logical `inline`/`block` one; see the RTL note
+  below) drives a `translateX`/`Y` on **`<CarouselSlideContent>`** via
+  `animation-range: cover`,
   swinging from `-var(--primitiv-carousel-parallax-amount)` (entering) through
   `0` (centred) to `+var(--primitiv-carousel-parallax-amount)` (exiting) — the
   whole rule set lives behind `@supports (animation-timeline: view())`, so
@@ -292,9 +294,19 @@ so they can't fall out of sync.
   underneath rather than empty space — putting full-bleed opaque content with
   no backdrop behind it directly in `<CarouselSlideContent>` will reveal a gap
   at the extremes instead. Composes with orientation (the timeline axis and
-  the translate axis both follow it), RTL (the named timeline is
-  direction-agnostic) and every other modifier for free — it's just another
-  root class. No headless change.
+  the translate axis both follow it) and every other modifier for free — it's
+  just another root class. **RTL note:** the view-timeline axis must be the
+  **physical** `x`/`y` keyword, not the logical `inline`/`block` one, even
+  though this carousel's own scroll container is *also* physical
+  (`overflow-x` / `scroll-snap-type: x`, not a logical equivalent) — naming
+  the timeline off the logical axis instead mismatches that physical scroll
+  position under RTL (which edge is logical "start" flips, the physical
+  scroll position doesn't), landing the resting/centred slide's progress
+  near an extreme instead of 50% — confirmed live in-browser, not just
+  reasoned from the spec. The physical keyword needs no
+  `[data-orientation="vertical"]`-style direction override at all (unlike
+  the axis-follows-orientation swap, still needed since the axis physically
+  changes). No headless change.
 - **Multi-slide (`slidesPerPage` / `slidesPerMove`).** These are **not**
   modifiers — they are **`styleProps`**: numeric props forwarded straight to the
   headless page model *and* written onto `--primitiv-carousel-slides-per-page`

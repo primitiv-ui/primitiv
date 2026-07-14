@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { TooltipProviderContextValue } from "../types";
 
@@ -28,6 +28,18 @@ export function useTooltipProvider({
       skipDelayTimerRef.current = null;
     }, skipDelayDuration);
   }, [skipDelayDuration]);
+
+  // The skip-delay reset is a raw `setTimeout`, so it outlives the
+  // component it was scheduled from unless explicitly cancelled — without
+  // this, an in-flight timer fires after unmount and can throw once its
+  // surrounding environment (e.g. a test's jsdom `window`) is gone.
+  useEffect(() => {
+    return () => {
+      if (skipDelayTimerRef.current !== null) {
+        clearTimeout(skipDelayTimerRef.current);
+      }
+    };
+  }, []);
 
   const contextValue: TooltipProviderContextValue = {
     delayDuration,

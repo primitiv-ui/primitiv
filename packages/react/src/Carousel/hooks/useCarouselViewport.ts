@@ -526,6 +526,14 @@ export function useCarouselViewport() {
   useEffect(() => {
     const viewport = internalRef.current!;
     const vertical = orientation === "vertical";
+    // Coalesces any number of scroll/resize signals within one animation
+    // frame into a single recompute — a native `scroll` event can fire many
+    // times per frame during momentum scrolling, and each recompute reads
+    // getBoundingClientRect() per slide (a forced-layout read), so batching
+    // avoids a textbook scroll-jank anti-pattern. `pendingFrame` is a plain
+    // closure variable, not a ref — it never needs to outlive this specific
+    // effect instance.
+    let pendingFrame: number | null = null;
 
     const recomputeProgress = () => {
       const maxScroll = vertical
@@ -567,13 +575,22 @@ export function useCarouselViewport() {
       });
     };
 
+    const scheduleRecompute = () => {
+      if (pendingFrame !== null) return;
+      pendingFrame = requestAnimationFrame(() => {
+        pendingFrame = null;
+        recomputeProgress();
+      });
+    };
+
     recomputeProgress();
-    viewport.addEventListener("scroll", recomputeProgress, { passive: true });
-    const resizeObserver = new ResizeObserver(recomputeProgress);
+    viewport.addEventListener("scroll", scheduleRecompute, { passive: true });
+    const resizeObserver = new ResizeObserver(scheduleRecompute);
     resizeObserver.observe(viewport);
     return () => {
-      viewport.removeEventListener("scroll", recomputeProgress);
+      viewport.removeEventListener("scroll", scheduleRecompute);
       resizeObserver.disconnect();
+      if (pendingFrame !== null) cancelAnimationFrame(pendingFrame);
     };
   }, [orientation, slideKeys, slidesRef, setScrollProgress, setSlideProgress]);
 

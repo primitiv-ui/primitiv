@@ -56,6 +56,37 @@ function mockVerticalScrollGeometry(
   });
 }
 
+// The scroll/resize-driven recompute is rAF-batched (the mount-time call
+// bypasses it, staying synchronous). Capture the scheduled callback instead
+// of letting real timers run it, so each test decides exactly when a
+// pending frame flushes.
+let pendingFrame: (() => void) | null = null;
+const cancelledFrameIds: number[] = [];
+const requestAnimationFrameSpy = vi.fn((cb: () => void) => {
+  pendingFrame = cb;
+  return 1;
+});
+
+function flushFrame() {
+  const cb = pendingFrame;
+  pendingFrame = null;
+  cb?.();
+}
+
+beforeEach(() => {
+  pendingFrame = null;
+  cancelledFrameIds.length = 0;
+  requestAnimationFrameSpy.mockClear();
+  vi.stubGlobal("requestAnimationFrame", requestAnimationFrameSpy);
+  vi.stubGlobal("cancelAnimationFrame", (id: number) => {
+    cancelledFrameIds.push(id);
+  });
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
 describe("Carousel imperative getScrollProgress", () => {
   it("returns 0 when there is no scrollable overflow", () => {
     const ref = createRef<CarouselImperativeApi>();
@@ -78,6 +109,9 @@ describe("Carousel imperative getScrollProgress", () => {
     act(() => {
       viewport.dispatchEvent(new Event("scroll"));
     });
+    act(() => {
+      flushFrame();
+    });
 
     // maxScroll = 900 - 300 = 600; 150 / 600 = 0.25
     expect(ref.current!.getScrollProgress()).toBe(0.25);
@@ -96,6 +130,9 @@ describe("Carousel imperative getScrollProgress", () => {
 
     act(() => {
       viewport.dispatchEvent(new Event("scroll"));
+    });
+    act(() => {
+      flushFrame();
     });
 
     // maxScroll = 500 - 200 = 300; 100 / 300 = 1/3
@@ -116,6 +153,9 @@ describe("Carousel imperative getScrollProgress", () => {
     act(() => {
       viewport.dispatchEvent(new Event("scroll"));
     });
+    act(() => {
+      flushFrame();
+    });
 
     expect(ref.current!.getScrollProgress()).toBe(0);
   });
@@ -133,6 +173,9 @@ describe("Carousel imperative getScrollProgress", () => {
 
     act(() => {
       viewport.dispatchEvent(new Event("scroll"));
+    });
+    act(() => {
+      flushFrame();
     });
 
     expect(ref.current!.getScrollProgress()).toBe(1);
@@ -152,6 +195,9 @@ describe("Carousel imperative getScrollProgress", () => {
     act(() => {
       viewport.dispatchEvent(new Event("scroll"));
     });
+    act(() => {
+      flushFrame();
+    });
 
     // maxScroll = 600; |-450| / 600 = 0.75
     expect(ref.current!.getScrollProgress()).toBe(0.75);
@@ -170,6 +216,9 @@ describe("Carousel imperative getScrollProgress", () => {
 
     act(() => {
       viewport.dispatchEvent(new Event("scroll"));
+    });
+    act(() => {
+      flushFrame();
     });
 
     expect(viewport.style.getPropertyValue("--carousel-progress")).toBe("0.5");
@@ -196,6 +245,39 @@ describe("Carousel imperative getScrollProgress", () => {
     unmount();
 
     expect(removeSpy).toHaveBeenCalledWith("scroll", expect.any(Function));
+  });
+});
+
+describe("Carousel scroll-progress rAF batching", () => {
+  it("coalesces multiple scroll events within one animation frame into a single recompute", () => {
+    const ref = createRef<CarouselImperativeApi>();
+    render(fixture(ref));
+    const viewport = screen.getByTestId("viewport");
+
+    // The mount-time call is synchronous (bypasses the rAF gate), so only
+    // scroll-driven scheduling should count here.
+    requestAnimationFrameSpy.mockClear();
+
+    act(() => {
+      viewport.dispatchEvent(new Event("scroll"));
+      viewport.dispatchEvent(new Event("scroll"));
+    });
+
+    expect(requestAnimationFrameSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("cancels a pending animation frame on unmount", () => {
+    const ref = createRef<CarouselImperativeApi>();
+    const { unmount } = render(fixture(ref));
+    const viewport = screen.getByTestId("viewport");
+
+    act(() => {
+      viewport.dispatchEvent(new Event("scroll"));
+    });
+
+    unmount();
+
+    expect(cancelledFrameIds).toEqual([1]);
   });
 });
 
@@ -330,6 +412,9 @@ describe("Carousel imperative getSlideProgress", () => {
 
     act(() => {
       MockResizeObserver.fireAll();
+    });
+    act(() => {
+      flushFrame();
     });
 
     expect(ref.current!.getSlideProgress(0)).toBeCloseTo(0.5);

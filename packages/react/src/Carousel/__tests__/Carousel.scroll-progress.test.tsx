@@ -345,3 +345,53 @@ describe("Carousel imperative getSlideProgress", () => {
     expect(disconnectSpy).toHaveBeenCalled();
   });
 });
+
+describe("Carousel scroll-progress freshness across slide-set changes", () => {
+  function mockRects(rectsByTestId: Record<string, Partial<DOMRect>>) {
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
+      function (this: HTMLElement) {
+        const rect = rectsByTestId[this.dataset.testid ?? ""];
+        return { left: 0, top: 0, width: 0, height: 0, ...rect } as DOMRect;
+      },
+    );
+  }
+
+  it("recomputes immediately when a leading slide is removed and every later slide's index shifts", () => {
+    // Without `slideKeys` in the effect's dependency array, removing
+    // slide-a would leave index 0's cached progress pinned to slide-a's
+    // stale value even though slide-b now occupies index 0 — this test
+    // fails silently (wrong number, not a crash) if that freshness fix
+    // regresses.
+    mockRects({
+      viewport: { left: 0, width: 300 },
+      "slide-a": { left: 0, width: 100 }, // center 50 -> progress -2/3
+      "slide-b": { left: 100, width: 100 }, // center 150 -> progress 0
+    });
+
+    const ref = createRef<CarouselImperativeApi>();
+    const { rerender } = render(
+      <Carousel.Root ariaLabel="Featured products" ref={ref}>
+        <Carousel.Viewport data-testid="viewport">
+          <Carousel.Slide data-testid="slide-a" />
+          <Carousel.Slide data-testid="slide-b" />
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+
+    expect(ref.current!.getSlideProgress(0)).toBeCloseTo(-2 / 3);
+    expect(ref.current!.getSlideProgress(1)).toBe(0);
+
+    rerender(
+      <Carousel.Root ariaLabel="Featured products" ref={ref}>
+        <Carousel.Viewport data-testid="viewport">
+          <Carousel.Slide data-testid="slide-b" />
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+
+    // slide-b is now index 0 — its own (unchanged) geometry still gives 0,
+    // proving the value was recomputed against the new mapping rather than
+    // left as slide-a's stale -2/3 at index 0.
+    expect(ref.current!.getSlideProgress(0)).toBe(0);
+  });
+});

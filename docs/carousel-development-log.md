@@ -3647,3 +3647,48 @@ four cells, and that the Builder's "effect" toggle composes cleanly with
 the other axes), then Figma lockstep is not applicable (code-only,
 design-divergent feature, same as "progress"). The remaining Advanced
 backlog (Stories, Smart Stack, Cards, Flipbook, Timeline) stays open.
+
+**QA round 2 (human, live in the browser) — settings + a real RTL bug.**
+Two asks: (a) flatten every cell — `radius="none"` on the root
+(container) and each `<CarouselSlide>`, and `gap="none"`, so the effect is
+judged on its own rather than competing visually with rounded corners/gaps.
+**Fixed** — added to `SlideshowSingle` uniformly (all four cells; the
+Builder's own defaults are untouched, out of scope for this ask). (b) The
+RTL cell's drifting number wasn't merely off-centre — a screenshot showed
+it clipped hard against one edge, roughly a full `--primitiv-carousel-
+parallax-amount` off from centre, meaning the *resting* (centred) slide's
+view-timeline progress wasn't landing anywhere near 50% under RTL. A first
+attempt (switching the marker's centering from grid `place-items` to
+flexbox) had no effect, confirming this was never a plain centering bug.
+
+**Root cause, confirmed live in-browser.** `view-timeline-axis` was set to
+the **logical** `inline` keyword (matching Blossom's own source and this
+component's general axis-follows-orientation convention for `peek`/`gap`/
+etc.). But `inline` is direction-relative — which physical edge counts as
+its "start" flips under RTL — while this carousel's own scroll container
+is deliberately **physical** (`overflow-x`, `scroll-snap-type: x`, not a
+logical equivalent; the RTL handling `getScrollProgress()` and the
+mouse-drag delta already rely on this exact distinction, documented in
+their own sections). Naming the timeline off the logical axis mismatched
+the element's actual physical scroll position under RTL, so the browser's
+computed cover-range progress for the centred slide landed near an extreme
+instead of 50%. **Fixed** by switching to the CSS spec's **physical** `x`/
+`y` axis keywords (`view-timeline-axis: x` horizontal, `: y` vertical via
+the existing `[data-orientation="vertical"]` override — that override
+stays, since the axis genuinely changes; RTL needed no override at all
+once on the physical keyword). This retracts the effect's own earlier
+"the named view-timeline is direction-agnostic, no special-casing needed"
+claim (README + the RTL cell's own note) — corrected in both, plus the
+Vertical cell's note (was worded around `block`/`inline`, now `y`/`x`).
+Registry `styles.css`/`.scss` (kept byte-identical) + the kitchen-sink
+hand-sync updated; no `contract.json` change (the fix is inside the
+existing `effect` modifier's rule body, not a new knob/option).
+
+**Gates:** `node scripts/check-registry-types.mjs` green (unaffected — no
+contract/wrapper change). No headless change. Rust drift tests untouched
+(no `contract.json` edit this round).
+
+**Next:** human re-QA of `/carousel/slideshow` cell 3 (RTL) — confirm the
+marker now rests centred and drifts symmetrically during scroll, matching
+cells 1/2/4 — plus a general re-check of the flattened (no radius/gap)
+look across all four cells.

@@ -815,19 +815,22 @@
      silently-broken one.
 
      The view-timeline axis is the **physical** `x`/`y` keyword, not the
-     logical `inline`/`block` one, even though it still follows the scroll
-     direction like peek/padding/gap (x horizontal, y vertical) — `inline`
-     is direction-relative (which edge is "start" flips under RTL), but this
-     carousel's own scroll container is physical (`overflow-x` /
-     `scroll-snap-type: x` above, not a logical equivalent), matching the
-     RTL handling `getScrollProgress()`/mouse-drag already rely on
-     elsewhere. Naming the timeline off the logical axis mismatched that
-     physical scroll position under RTL — the resting (centred) slide's
-     progress landed near an extreme instead of 50%, reported as the
-     drifting content stuck near its edge, not merely off-centre. Confirmed
-     live in-browser; fixed by switching to the physical keyword, which
-     needs no direction-based override at all (unlike the `[data-orientation
-     ="vertical"]` swap below, still needed since axis physically changes). */
+     logical `inline`/`block` one — it follows the scroll direction like
+     peek/padding/gap (x horizontal, y vertical), matching this carousel's
+     own physical scroll container (`overflow-x` / `scroll-snap-type: x`).
+
+     ⚠️ RTL horizontal is a special case handled below, NOT by the axis
+     keyword. Chromium resolves a horizontal view-timeline's `cover` progress
+     against the wrong scroll bounds in an RTL scroller (the resting, centred
+     slide lands at 0%/100% instead of 50%, so its content sticks jammed to
+     an edge) — and this is true for both `x` and the logical `inline`, since
+     the bug is in the cover-range resolution, not the axis. Rather than rely
+     on the broken native timeline there, horizontal RTL abandons it and
+     drives the drift off the JS `--slide-progress` signal (the same physical,
+     direction-agnostic geometry the @supports-not fallback uses — correct by
+     construction). Vertical is unaffected (block scrolling doesn't flip under
+     RTL), so only the `[data-orientation="vertical"]` axis swap is needed for
+     it. Both confirmed live in-browser. */
   @supports (animation-timeline: view()) {
     .primitiv-carousel--effect-parallax .primitiv-carousel__slide {
       view-timeline-name: --primitiv-carousel-slide-timeline;
@@ -845,6 +848,17 @@
     .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--effect-parallax
       .primitiv-carousel__slide-content {
       animation-name: primitiv-carousel-parallax-block;
+    }
+    /* Horizontal RTL: skip the (Chromium-broken) native timeline and drive the
+       drift off --slide-progress instead — see the note above. Scoped to
+       horizontal (`:not([data-orientation="vertical"])`) so vertical RTL keeps
+       its correct native y-axis timeline. */
+    .primitiv-carousel--effect-parallax:not([data-orientation="vertical"])
+      .primitiv-carousel__slide-content:dir(rtl) {
+      animation: none;
+      transform: translateX(
+        calc(var(--slide-progress, 0) * var(--primitiv-carousel-parallax-amount))
+      );
     }
   }
 
@@ -896,7 +910,12 @@
      later in this layer than both @supports blocks above, so it wins the tie
      (RFC 0008 §3.1). */
   @media (prefers-reduced-motion: reduce) {
-    .primitiv-carousel--effect-parallax .primitiv-carousel__slide-content {
+    /* The second selector matches the horizontal-RTL override's specificity
+       (it too carries `:not()` + `:dir()`), so reduced motion still cancels
+       that rule — source order alone wouldn't beat its higher specificity. */
+    .primitiv-carousel--effect-parallax .primitiv-carousel__slide-content,
+    .primitiv-carousel--effect-parallax:not([data-orientation="vertical"])
+      .primitiv-carousel__slide-content:dir(rtl) {
       animation: none;
       transform: none;
     }

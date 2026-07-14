@@ -7,7 +7,12 @@
  * viewport resizes, since equal-share slide widths derive from the
  * viewport's own size. Tests can grab the most-recently-constructed
  * instance via `MockResizeObserver.latest` and call `.fire()` to
- * simulate a resize on observed elements.
+ * simulate a resize on observed elements. When a component attaches
+ * more than one observer to the same element (e.g. the scroll-margin
+ * fix and the scroll-progress signal both observe the Viewport),
+ * `.latest` only reaches whichever was constructed last — use
+ * `MockResizeObserver.fireAll()` instead to simulate "a resize
+ * happened" without depending on construction order.
  */
 
 export class MockResizeObserver {
@@ -17,6 +22,11 @@ export class MockResizeObserver {
   }
   static reset() {
     MockResizeObserver.instances = [];
+  }
+  /** Test-only: fire every constructed observer, regardless of which
+   * element(s) it's watching or when it was created. */
+  static fireAll() {
+    MockResizeObserver.instances.forEach((observer) => observer.fire());
   }
 
   callback: ResizeObserverCallback;

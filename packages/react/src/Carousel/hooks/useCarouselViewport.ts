@@ -542,14 +542,40 @@ export function useCarouselViewport() {
         maxScroll > 0 ? clamp(Math.abs(scrollPos) / maxScroll, 0, 1) : 0;
       setScrollProgress(scrollProgress);
       viewport.style.setProperty("--carousel-progress", String(scrollProgress));
+
+      const viewportRect = viewport.getBoundingClientRect();
+      const viewportHalfSize = vertical
+        ? viewportRect.height / 2
+        : viewportRect.width / 2;
+      const viewportCenter = vertical
+        ? viewportRect.top + viewportHalfSize
+        : viewportRect.left + viewportHalfSize;
+      const slides = slidesRef.current!;
+      slideKeys.forEach((key, index) => {
+        const slideEl = slides.get(key);
+        if (!slideEl) return;
+        const slideRect = slideEl.getBoundingClientRect();
+        const slideCenter = vertical
+          ? slideRect.top + slideRect.height / 2
+          : slideRect.left + slideRect.width / 2;
+        const slideProgress =
+          viewportHalfSize > 0
+            ? clamp((slideCenter - viewportCenter) / viewportHalfSize, -1, 1)
+            : 0;
+        setSlideProgress(index, slideProgress);
+        slideEl.style.setProperty("--slide-progress", String(slideProgress));
+      });
     };
 
     recomputeProgress();
     viewport.addEventListener("scroll", recomputeProgress, { passive: true });
+    const resizeObserver = new ResizeObserver(recomputeProgress);
+    resizeObserver.observe(viewport);
     return () => {
       viewport.removeEventListener("scroll", recomputeProgress);
+      resizeObserver.disconnect();
     };
-  }, [orientation, setScrollProgress]);
+  }, [orientation, slideKeys, slidesRef, setScrollProgress, setSlideProgress]);
 
   // Horizontal mouse-wheel translation. A physical scroll wheel (vertical
   // notches, deltaY only) already natively scrolls a vertically-scrollable

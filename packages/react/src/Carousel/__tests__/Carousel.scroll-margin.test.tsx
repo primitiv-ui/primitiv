@@ -154,7 +154,10 @@ describe("Carousel multi-slide scroll-margin", () => {
     });
 
     act(() => {
-      MockResizeObserver.latest?.fire();
+      // fireAll(), not `.latest` — the scroll-progress signal now also
+      // observes the Viewport, so "latest" no longer reliably refers to
+      // this effect's own observer.
+      MockResizeObserver.fireAll();
     });
 
     expect(screen.getByTestId("slide-0").style.scrollMarginInlineEnd).toBe(

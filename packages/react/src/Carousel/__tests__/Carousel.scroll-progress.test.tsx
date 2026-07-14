@@ -1,6 +1,7 @@
 import { act, render, screen } from "@testing-library/react";
 import { createRef } from "react";
 
+import { MockResizeObserver } from "../../test/resizeObserverPolyfill";
 import { Carousel } from "../index.ts";
 import type { CarouselImperativeApi } from "../index.ts";
 
@@ -195,5 +196,152 @@ describe("Carousel imperative getScrollProgress", () => {
     unmount();
 
     expect(removeSpy).toHaveBeenCalledWith("scroll", expect.any(Function));
+  });
+});
+
+describe("Carousel imperative getSlideProgress", () => {
+  function mockRects(rectsByTestId: Record<string, Partial<DOMRect>>) {
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
+      function (this: HTMLElement) {
+        const rect = rectsByTestId[this.dataset.testid ?? ""];
+        return { left: 0, top: 0, width: 0, height: 0, ...rect } as DOMRect;
+      },
+    );
+  }
+
+  it("returns 0 for a never-registered/out-of-range index", () => {
+    const ref = createRef<CarouselImperativeApi>();
+    render(fixture(ref));
+
+    expect(ref.current!.getSlideProgress(99)).toBe(0);
+  });
+
+  it("returns 0 for a slide centered in the viewport", () => {
+    const ref = createRef<CarouselImperativeApi>();
+    mockRects({
+      viewport: { left: 0, width: 300 },
+      "slide-0": { left: 75, width: 150 },
+    });
+    render(fixture(ref));
+
+    expect(ref.current!.getSlideProgress(0)).toBe(0);
+  });
+
+  it("is negative when the slide's center sits before the viewport's center", () => {
+    const ref = createRef<CarouselImperativeApi>();
+    mockRects({
+      viewport: { left: 0, width: 300 },
+      "slide-0": { left: 0, width: 150 },
+    });
+    render(fixture(ref));
+
+    // slideCenter=75, viewportCenter=150, halfSize=150 -> (75-150)/150 = -0.5
+    expect(ref.current!.getSlideProgress(0)).toBeCloseTo(-0.5);
+  });
+
+  it("is positive when the slide's center sits after the viewport's center", () => {
+    const ref = createRef<CarouselImperativeApi>();
+    mockRects({
+      viewport: { left: 0, width: 300 },
+      "slide-0": { left: 150, width: 150 },
+    });
+    render(fixture(ref));
+
+    // slideCenter=225, viewportCenter=150, halfSize=150 -> (225-150)/150 = 0.5
+    expect(ref.current!.getSlideProgress(0)).toBeCloseTo(0.5);
+  });
+
+  it("clamps to -1/+1 at or beyond the viewport edge", () => {
+    const ref = createRef<CarouselImperativeApi>();
+    mockRects({
+      viewport: { left: 0, width: 300 },
+      "slide-0": { left: -1000, width: 150 },
+      "slide-1": { left: 1000, width: 150 },
+    });
+    render(fixture(ref));
+
+    expect(ref.current!.getSlideProgress(0)).toBe(-1);
+    expect(ref.current!.getSlideProgress(1)).toBe(1);
+  });
+
+  it("uses vertical geometry (top/height) when orientation is vertical", () => {
+    const ref = createRef<CarouselImperativeApi>();
+    mockRects({
+      viewport: { top: 0, height: 300 },
+      "slide-0": { top: 150, height: 150 },
+    });
+    render(fixture(ref, { orientation: "vertical" }));
+
+    // slideCenter=225, viewportCenter=150, halfSize=150 -> 0.5
+    expect(ref.current!.getSlideProgress(0)).toBeCloseTo(0.5);
+  });
+
+  it("returns 0 when the viewport's half-extent is 0 (defensive divide-by-zero guard)", () => {
+    const ref = createRef<CarouselImperativeApi>();
+    mockRects({
+      viewport: { left: 0, width: 0 },
+      "slide-0": { left: 50, width: 100 },
+    });
+    render(fixture(ref));
+
+    expect(ref.current!.getSlideProgress(0)).toBe(0);
+  });
+
+  it("mirrors each slide's value onto its own --slide-progress custom property", () => {
+    const ref = createRef<CarouselImperativeApi>();
+    mockRects({
+      viewport: { left: 0, width: 300 },
+      "slide-0": { left: 150, width: 150 },
+    });
+    render(fixture(ref));
+
+    expect(
+      screen.getByTestId("slide-0").style.getPropertyValue("--slide-progress"),
+    ).toBe("0.5");
+  });
+
+  it("computes slide progress once synchronously on mount, with no scroll/resize event", () => {
+    const ref = createRef<CarouselImperativeApi>();
+    mockRects({
+      viewport: { left: 0, width: 300 },
+      "slide-0": { left: 150, width: 150 },
+    });
+    render(fixture(ref));
+
+    expect(
+      screen.getByTestId("slide-0").style.getPropertyValue("--slide-progress"),
+    ).toBe("0.5");
+  });
+
+  it("recomputes both global and per-slide progress when the ResizeObserver fires, without a scroll event", () => {
+    const ref = createRef<CarouselImperativeApi>();
+    mockRects({
+      viewport: { left: 0, width: 300 },
+      "slide-0": { left: 75, width: 150 },
+    });
+    render(fixture(ref));
+
+    expect(ref.current!.getSlideProgress(0)).toBe(0);
+
+    mockRects({
+      viewport: { left: 0, width: 300 },
+      "slide-0": { left: 150, width: 150 },
+    });
+
+    act(() => {
+      MockResizeObserver.fireAll();
+    });
+
+    expect(ref.current!.getSlideProgress(0)).toBeCloseTo(0.5);
+  });
+
+  it("disconnects the ResizeObserver on unmount", () => {
+    const ref = createRef<CarouselImperativeApi>();
+    const { unmount } = render(fixture(ref));
+    const disconnectSpy = vi.spyOn(MockResizeObserver.latest!, "disconnect");
+
+    unmount();
+
+    expect(disconnectSpy).toHaveBeenCalled();
   });
 });

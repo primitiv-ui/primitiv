@@ -179,6 +179,12 @@
        slides stack and the active one fades in over the others. */
     --primitiv-carousel-fade-duration: var(--primitiv-motion-duration-overlay);
     --primitiv-carousel-fade-easing: var(--primitiv-motion-easing-default);
+    /* Slideshow-parallax drift — the max translate offset a slide's content
+       layer travels from entering to exiting the viewport, read only under
+       the `effect="parallax"` modifier (see primitiv.variants). Not a design
+       token: it's the technique's own geometry (how far the content shifts
+       relative to its own box), not a themeable value. */
+    --primitiv-carousel-parallax-amount: 50%;
 
     /* Fill the container and stack the viewport above the controls row, spaced
        by the block gap. The single column is an explicit full-width track
@@ -346,6 +352,29 @@
   .primitiv-carousel__slide > video,
   .primitiv-carousel__slide > picture,
   .primitiv-carousel__slide > picture > img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    -webkit-user-drag: none;
+    object-fit: var(--primitiv-carousel-slide-object-fit);
+    object-position: var(--primitiv-carousel-slide-object-position);
+  }
+
+  /* Optional inner content layer, sized to fill the slide box exactly like a
+     direct media child above. A plain positioning layer on its own (no
+     `effect` reads it yet); wrap a slide's media in it when a per-slide
+     content transform is needed independently of the slide box itself — the
+     `effect="parallax"` modifier below is the first consumer. Media inside
+     it gets the same object-fit/position treatment as a direct slide child. */
+  .primitiv-carousel__slide-content {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+  .primitiv-carousel__slide-content > img,
+  .primitiv-carousel__slide-content > video,
+  .primitiv-carousel__slide-content > picture,
+  .primitiv-carousel__slide-content > picture > img {
     display: block;
     inline-size: 100%;
     block-size: 100%;
@@ -771,6 +800,92 @@
   .primitiv-carousel--slide-width-content .primitiv-carousel__slide {
     flex: 0 0 auto;
     aspect-ratio: auto;
+  }
+
+  /* Slideshow parallax — a native, zero-JavaScript scroll-driven animation
+     (Blossom Carousel's Slideshow example). Each slide names a view-timeline
+     scoped to itself; its slide-content layer animates along that timeline as
+     the slide crosses the viewport (animation-range: cover), so the content
+     drifts at a different rate than the scroll itself. The axis follows the
+     scroll direction, like peek/padding/gap (inline horizontal, block
+     vertical). Requires wrapping the slide's media in <CarouselSlideContent>
+     — the slide itself already clips via `overflow: hidden` (set above), so
+     the drifting content stays inside the slide box exactly like Blossom's
+     `.slide`/`.card` pair. Gated behind @supports so unsupporting browsers
+     (Firefox stable, as of writing — Interop 2026 priority) get no partial
+     rule at all, not a silently-broken one. */
+  @supports (animation-timeline: view()) {
+    .primitiv-carousel--effect-parallax .primitiv-carousel__slide {
+      view-timeline-name: --primitiv-carousel-slide-timeline;
+      view-timeline-axis: inline;
+    }
+    .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--effect-parallax
+      .primitiv-carousel__slide {
+      view-timeline-axis: block;
+    }
+    .primitiv-carousel--effect-parallax .primitiv-carousel__slide-content {
+      animation: primitiv-carousel-parallax-inline linear both;
+      animation-timeline: --primitiv-carousel-slide-timeline;
+      animation-range: cover;
+    }
+    .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--effect-parallax
+      .primitiv-carousel__slide-content {
+      animation-name: primitiv-carousel-parallax-block;
+    }
+  }
+
+  /* Fallback for browsers without view-timeline support: read the headless
+     --slide-progress signal instead — a continuous, orientation-agnostic
+     -1..0..1 value the primitive already writes on every Slide regardless of
+     this CSS technique (see the Carousel README's "Continuous scroll
+     progress" section) — so the drift still reads correctly rather than only
+     working in some browsers. Both branches share the same
+     --primitiv-carousel-parallax-amount knob and the same direction (a slide
+     entering reads negative on both --slide-progress and the 0% keyframe
+     stop above), so the effect is visually equivalent either way. */
+  @supports not (animation-timeline: view()) {
+    .primitiv-carousel--effect-parallax .primitiv-carousel__slide-content {
+      transform: translateX(calc(var(--slide-progress, 0) * var(--primitiv-carousel-parallax-amount)));
+    }
+    .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--effect-parallax
+      .primitiv-carousel__slide-content {
+      transform: translateY(calc(var(--slide-progress, 0) * var(--primitiv-carousel-parallax-amount)));
+    }
+  }
+
+  @keyframes primitiv-carousel-parallax-inline {
+    0% {
+      transform: translateX(calc(var(--primitiv-carousel-parallax-amount) * -1));
+    }
+    50% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(var(--primitiv-carousel-parallax-amount));
+    }
+  }
+  @keyframes primitiv-carousel-parallax-block {
+    0% {
+      transform: translateY(calc(var(--primitiv-carousel-parallax-amount) * -1));
+    }
+    50% {
+      transform: translateY(0%);
+    }
+    100% {
+      transform: translateY(var(--primitiv-carousel-parallax-amount));
+    }
+  }
+
+  /* Parallax is a scroll-linked motion effect, not a discrete UI transition —
+     disable it entirely under reduced motion, in both the view-timeline and
+     the --slide-progress fallback branches. Same specificity + textually
+     later in this layer than both @supports blocks above, so it wins the tie
+     (RFC 0008 §3.1). */
+  @media (prefers-reduced-motion: reduce) {
+    .primitiv-carousel--effect-parallax .primitiv-carousel__slide-content {
+      animation: none;
+      transform: none;
+    }
   }
 
   /* Control hover / active re-point the fill knob, matching the secondary-action
@@ -1781,3 +1896,4 @@ $primitiv-carousel-overlay-pill-padding-inline: var(--primitiv-carousel-overlay-
 $primitiv-carousel-overlay-pill-padding-block: var(--primitiv-carousel-overlay-pill-padding-block);
 $primitiv-carousel-fade-duration: var(--primitiv-carousel-fade-duration);
 $primitiv-carousel-fade-easing: var(--primitiv-carousel-fade-easing);
+$primitiv-carousel-parallax-amount: var(--primitiv-carousel-parallax-amount);

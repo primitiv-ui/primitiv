@@ -2,8 +2,9 @@
 
 The artefacts `primitiv add carousel` resolves and copies into a consumer repo.
 Carousel is a **primitive-backed structural compound** (like `tabs`): a root plus
-consumer-composed subcomponents — `Viewport` / `Slide` / `PreviousTrigger` /
-`NextTrigger` / `IndicatorGroup` / `Indicator` / `Indicators` / `ProgressText` —
+consumer-composed subcomponents — `Viewport` / `Slide` / `SlideContent` /
+`PreviousTrigger` / `NextTrigger` / `IndicatorGroup` / `Indicator` /
+`Indicators` / `ProgressText` —
 flowing through the *same* `primitiv-emit` generators, over the headless
 `@primitiv-ui/react` `Carousel` (native CSS scroll-snap, WAI-ARIA Carousel
 pattern).
@@ -26,9 +27,11 @@ expressed in logical properties.
 > `end`), that compose on top of the 2×2 and orientation, an
 > **`indicators`** modifier whose `thumbnails` option swaps the dots for image
 > thumbnails, a slide **`ratio`** modifier (square / standard / wide /
-> ultrawide) for the slide aspect ratio, and a **`slideWidth`** modifier
+> ultrawide) for the slide aspect ratio, a **`slideWidth`** modifier
 > (`equal` default · `content`) for variable-width slides, scoped to
-> `slidesPerPage={1}` (all — see below). Multi-slide and autoplay
+> `slidesPerPage={1}`, and an **`effect`** modifier (`none` default ·
+> `parallax`) for a native, zero-JavaScript scroll-driven drift on
+> **`<CarouselSlideContent>`** (all — see below). Multi-slide and autoplay
 > land in later iterations (see `docs/carousel-development-log.md`).
 
 ## Files
@@ -54,13 +57,16 @@ so they can't fall out of sync.
   `data-transition` on the root (see the transition note below).
 - **`root` / `subcomponents` / `modifiers` / `customProperties`** — the authored
   styling conventions: the `.primitiv-carousel` root and the `__viewport` /
-  `__slide` / `__controls` / `__prev` / `__next` / `__indicator-group` /
-  `__indicator` / `__progress-text` BEM parts, the modifiers, and the
-  `--primitiv-carousel-*` custom-property API. `__controls` is a **presentational subcomponent** —
-  `<CarouselControls>`, a plain styled `<div>` (no headless backing) the consumer
-  puts prev / indicators / next in; it centres them and spaces the buttons from
-  the dots via `--primitiv-carousel-controls-gap` (distinct from the tight
-  dot-to-dot `--primitiv-carousel-indicator-gap`, and from the
+  `__slide` / `__slide-content` / `__controls` / `__prev` / `__next` /
+  `__indicator-group` / `__indicator` / `__progress-text` BEM parts, the
+  modifiers, and the `--primitiv-carousel-*` custom-property API.
+  `__controls` and `__slide-content` are both **presentational
+  subcomponents** — `<CarouselControls>` and `<CarouselSlideContent>`, plain
+  styled `<div>`s (no headless backing) the consumer composes; the former
+  puts prev / indicators / next in, the latter is the layer `effect="parallax"`
+  animates (see below). `__controls` centres its children and spaces the
+  buttons from the dots via `--primitiv-carousel-controls-gap` (distinct from
+  the tight dot-to-dot `--primitiv-carousel-indicator-gap`, and from the
   `--primitiv-carousel-block-gap` between the viewport and the controls).
 - **Modifiers.** A root **`peek`** modifier (`none` default · `sm` · `md` · `lg`)
   re-points `--primitiv-carousel-peek` to reveal a sliver of the adjacent slides;
@@ -256,6 +262,39 @@ so they can't fall out of sync.
   No headless change: the viewport's programmatic scroll already measures the
   target slide's real `getBoundingClientRect()` width rather than assuming a
   percentage, so it's already width-agnostic.
+- **Slideshow parallax (`effect`).** A root **`effect`** modifier (`none`
+  default · `parallax`) gives each slide's content a native, zero-JavaScript
+  drift as the slide crosses the viewport (Blossom Carousel's Slideshow
+  example) — a CSS view-timeline named on the slide (`view-timeline-name` +
+  `-axis`, following the scroll axis like `peek`/`gap`) drives a
+  `translateX`/`Y` on **`<CarouselSlideContent>`** via `animation-range: cover`,
+  swinging from `-var(--primitiv-carousel-parallax-amount)` (entering) through
+  `0` (centred) to `+var(--primitiv-carousel-parallax-amount)` (exiting) — the
+  whole rule set lives behind `@supports (animation-timeline: view())`, so
+  browsers without it (Firefox stable, as of writing — an Interop 2026
+  priority) get no partial rule at all. A second, unconditional
+  `@supports not (...)` block reads the headless `--slide-progress` signal
+  instead (already written continuously on every Slide by the "Continuous
+  scroll progress" feature, independent of this CSS technique) with the same
+  knob and direction, so the drift still renders everywhere with no extra
+  JavaScript of the registry's own. Disables entirely under
+  `prefers-reduced-motion: reduce`. **`<CarouselSlideContent>`** (a new
+  **presentational subcomponent**, styled the same way as `__controls` — a
+  plain `<div>` with no headless backing) is the layer the animation actually
+  targets, sized to fill the slide exactly (100% × 100%, no oversize) — the
+  slide itself keeps clipping it via the `overflow: hidden` already on
+  `.primitiv-carousel__slide`. **Layering gotcha:** because
+  `<CarouselSlideContent>` isn't oversized, a translate can move its edge past
+  the slide's own; put a **static backdrop on `<CarouselSlide>` itself** (e.g.
+  a background image/gradient) and keep only a smaller foreground layer inside
+  `<CarouselSlideContent>` (see the kitchen-sink `/carousel/slideshow`
+  example), so the region a translate reveals just shows the matching backdrop
+  underneath rather than empty space — putting full-bleed opaque content with
+  no backdrop behind it directly in `<CarouselSlideContent>` will reveal a gap
+  at the extremes instead. Composes with orientation (the timeline axis and
+  the translate axis both follow it), RTL (the named timeline is
+  direction-agnostic) and every other modifier for free — it's just another
+  root class. No headless change.
 - **Multi-slide (`slidesPerPage` / `slidesPerMove`).** These are **not**
   modifiers — they are **`styleProps`**: numeric props forwarded straight to the
   headless page model *and* written onto `--primitiv-carousel-slides-per-page`

@@ -7,7 +7,7 @@
  */
 import { Carousel as CarouselPrimitive } from "@primitiv-ui/react";
 import { type ComponentPropsWithRef, type CSSProperties } from "react";
-import { carousel, carouselViewport, carouselControls, carouselSlide, carouselPreviousTrigger, carouselNextTrigger, carouselIndicatorGroup, carouselIndicator, carouselIndicators, carouselProgressText } from "./carousel.recipe";
+import { carousel, carouselViewport, carouselControls, carouselSlide, carouselSlideContent, carouselPreviousTrigger, carouselNextTrigger, carouselIndicatorGroup, carouselIndicator, carouselIndicators, carouselProgressText } from "./carousel.recipe";
 
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
 
@@ -16,7 +16,7 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K>
  *
  * @see https://primitiv-ui.dev/docs/components/carousel
  */
-export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "gap" | "padding" | "surface" | "radius" | "placement" | "side" | "distribution" | "align" | "cluster" | "indicators" | "size" | "ratio" | "slideWidth"> & {
+export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "gap" | "padding" | "surface" | "radius" | "placement" | "side" | "distribution" | "align" | "cluster" | "indicators" | "size" | "ratio" | "slideWidth" | "effect"> & {
   /**
    * Reveal a sliver of the adjacent slides on either side of the active one. Works in both orientations (inline edges when horizontal, block edges when vertical).
    * - `none` — No peek — the active slide fills the viewport (the default).
@@ -141,12 +141,20 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
   slideWidth?: "equal" | "content";
+  /**
+   * An opt-in scroll-driven visual effect for the slide content, layered on top of scroll-snap paging. `none` (the default) renders slides plain. `parallax` gives each slide's <CarouselSlideContent> a native, zero-JavaScript drift as the slide crosses the viewport (Blossom Carousel's Slideshow example) — a CSS view-timeline scoped to the slide drives the content's transform via animation-range: cover, following the scroll axis (inline horizontal, block vertical). Requires wrapping the slide's media in <CarouselSlideContent>. Browsers without animation-timeline: view() support fall back to reading the headless --slide-progress signal instead (an equivalent, continuously-updated drift with no extra JavaScript of our own), and the effect disables entirely under prefers-reduced-motion.
+   * - `none` — Plain slides — no scroll-driven motion (the default).
+   * - `parallax` — Each slide's <CarouselSlideContent> drifts against the scroll as the slide crosses the viewport.
+   * @default "none"
+   * @see https://primitiv-ui.dev/docs/components/carousel
+   */
+  effect?: "none" | "parallax";
 };
 
-export function Carousel({ peek, gap, padding, surface, radius, placement, side, distribution, align, cluster, indicators, size, ratio, slideWidth, slidesPerPage, className, style, ...props }: CarouselProps) {
+export function Carousel({ peek, gap, padding, surface, radius, placement, side, distribution, align, cluster, indicators, size, ratio, slideWidth, effect, slidesPerPage, className, style, ...props }: CarouselProps) {
   return (
     <CarouselPrimitive.Root
-      className={[carousel({ peek, gap, padding, surface, radius, placement, side, distribution, align, cluster, indicators, size, ratio, slideWidth }), className].filter(Boolean).join(" ")}
+      className={[carousel({ peek, gap, padding, surface, radius, placement, side, distribution, align, cluster, indicators, size, ratio, slideWidth, effect }), className].filter(Boolean).join(" ")}
       style={{ ...style, ...(slidesPerPage === undefined ? {} : { "--primitiv-carousel-slides-per-page": slidesPerPage }) } as CSSProperties}
       slidesPerPage={slidesPerPage}
       {...props}
@@ -195,6 +203,12 @@ export type CarouselSlideProps = DistributiveOmit<ComponentPropsWithRef<typeof C
 
 export function CarouselSlide({ radius, fit, surface, className, ...props }: CarouselSlideProps) {
   return <CarouselPrimitive.Slide className={[carouselSlide({ radius, fit, surface }), className].filter(Boolean).join(" ")} {...props} />;
+}
+
+export type CarouselSlideContentProps = ComponentPropsWithRef<"div">;
+
+export function CarouselSlideContent({ className, ...props }: CarouselSlideContentProps) {
+  return <div className={[carouselSlideContent(), className].filter(Boolean).join(" ")} {...props} />;
 }
 
 export type CarouselPreviousTriggerProps = ComponentPropsWithRef<typeof CarouselPrimitive.PreviousTrigger>;

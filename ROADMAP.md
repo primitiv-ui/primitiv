@@ -260,3 +260,97 @@ plus our own transition variants. Status of each Blossom example
 Our own examples with no Blossom counterpart (not gaps): Single/Multi
 crossfade, Multi-step (slide + fade), Peek, Variable sizes, Autoplay,
 Programmatic.
+
+## Carousel capability backlog (beyond Ark/Blossom parity)
+
+The section above tracks *example pages*. This one tracks *component
+capabilities* against the wider React carousel field — Embla, Swiper,
+Keen, Splide, Ark — from a survey of their option/method/event/plugin
+surfaces (2026-07). It's the "go beyond parity" list: what would make
+this the best headless React carousel, not just a complete one.
+
+**Where we already lead** (so we don't regress it): the field's own
+comparisons peg accessibility and headless/zero-style as the two axes
+nobody wins together — Splide is a11y-first but styled; Embla/Swiper are
+headless but "require manual `role` / `aria-label` / keyboard / live-region
+work." We already ship Splide-grade a11y (viewport `aria-live` polite/off,
+auto slide labels, full WAI-ARIA APG pause semantics, `ProgressText`) *and*
+Embla-grade headlessness, plus drag / overscroll / autoplay **status
+telemetry** none of them expose. That combination is the moat; every item
+below must preserve it.
+
+Legend: ⭐ differentiator (makes us best) · 🎯 table stakes (a reason
+teams pick a competitor today) · 🧩 polish / niche.
+
+**Differentiators**
+
+- [ ] ⭐ **Scroll-progress signal** — a continuous global scroll position
+  *and* per-slide progress (`-1 → 0 → 1` through centre), surfaced both
+  imperatively and as a CSS custom property (`--slide-progress`,
+  `--carousel-progress`). Mirrors Embla's `scrollProgress()` + `slidesInView`
+  (with enter/leave deltas). Highest leverage: retires most of the Advanced
+  example backlog (Slideshow, Smart Stack, Stories, Cards, Flipbook,
+  Timeline) in JS *and* gives a progressive-enhancement path for the Cover
+  Flow family without `animation-timeline`. On-brand: a state signal CSS
+  consumes. **Recommended first — loop and virtualization both build on it.**
+- [ ] ⭐ **Headless virtualization** — render only near-viewport slides
+  (sized spacers preserve measured offsets + native snap). Swiper/Keen ship
+  it; reviewers note Embla makes you build it yourself. Nobody pairs real
+  virtualization with real a11y — highest moat.
+
+**Table stakes**
+
+- [ ] 🎯 **Loop / infinite** — Embla, Swiper, Keen, Ark all have it (Ark: a
+  plain `loop` boolean); we don't. Hard on native scroll-snap (needs slide
+  cloning or seamless mid-scroll repositioning) — deserves its own RFC.
+  Includes autoplay wrap-around / ping-pong direction (today autoplay stops
+  at the last page).
+- [ ] 🎯 **`dragFree` + momentum + `skipSnaps`** — Embla's signature feel:
+  inertial flick, optional non-snapping free scroll, skip-snaps on a vigorous
+  drag. Ours is deliberately momentum-less; this is the tactile gap.
+- [ ] 🎯 **Auto-resize + richer lifecycle events** — internal `ResizeObserver`
+  on viewport + slides that auto-re-aligns (Embla `watchResize` / `watchSlides`
+  auto-`reInit`), retiring the manual `refresh()` footgun; plus `onSettle` /
+  `onSelect` / `onSlidesInView` / `onReInit` to match Embla's event vocabulary
+  (today everything routes through `onPageChange`).
+- [ ] 🎯 **Responsive per-breakpoint options** — change `slidesPerPage` /
+  align / etc. per breakpoint from inside the component (Embla `breakpoints`,
+  Swiper responsive, Splide media-query options). Debatable for a headless lib
+  (could stay consumer/CSS-owned) — decide the boundary.
+- [ ] 🎯 **Continuous auto-scroll / marquee** — a ticker / logo-wall that
+  scrolls continuously rather than paging (Embla `AutoScroll`, Splide
+  `AutoScroll`). Distinct from our page-and-stop autoplay.
+- [ ] 🎯 **Auto-height** — viewport tracks the active slide's measured height
+  (Embla `AutoHeight`); natural companion to the ResizeObserver above.
+
+**Polish / niche**
+
+- [ ] 🧩 **Grid / multi-row paging** (masonry) — Swiper/Splide `grid`; also the
+  Masonry example above.
+- [ ] 🧩 **Pinch-to-zoom** lightbox gesture — Swiper `zoom`, as an opt-in part.
+- [ ] 🧩 **URL hash / history sync** helper — Swiper `hash-navigation` /
+  `history`; DIY-able today via controlled `page`, but no first-class part.
+- [ ] 🧩 **Headless lazy-load part** — mount slide children on near-viewport
+  (Splide/Swiper lazy); `isInView` exists but every consumer re-wires it.
+- [ ] 🧩 **a11y superset** — auto-wire `aria-controls` (indicators/triggers →
+  slide/viewport ids) instead of the manual `ids` bag; the WAI-ARIA APG
+  *tabbed* carousel variant (indicators `role="tab"`, slides `role="tabpanel"`)
+  for full-APG coverage; optional focus-follow to the newly-active slide.
+- [ ] 🧩 **Autoplay countdown / Stories progress** — per-tick progress value
+  for segmented Stories bars + hold-to-pause tap zones (not currently exposed).
+- [ ] 🧩 **Auto-pause media** in inactive slides (Splide `Video` behaviour).
+- [ ] 🧩 **RTL hardening + demo** — `dir` is nominally supported but the
+  `scrollLeft` sign flips per browser in RTL; needs an audit + tests (🟡 in the
+  example backlog above).
+
+Recommended sequence: scroll-progress signal → virtualization → loop →
+`dragFree`/momentum. Sources: Embla
+([options](https://www.embla-carousel.com/docs/api/options) ·
+[events](https://www.embla-carousel.com/docs/api/events) ·
+[plugins](https://www.embla-carousel.com/docs/api/plugins)), Swiper
+([API](https://swiperjs.com/swiper-api)), [Keen](https://keen-slider.io/docs),
+Splide ([options](https://splidejs.com/guides/options/) ·
+[extensions](https://splidejs.com/extensions/)),
+[Ark](https://ark-ui.com/docs/components/carousel), and the
+[Embla vs Swiper vs Splide 2026](https://www.pkgpulse.com/guides/embla-carousel-vs-swiper-vs-splide-2026)
+comparison.

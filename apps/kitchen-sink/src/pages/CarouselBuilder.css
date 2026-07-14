@@ -125,15 +125,6 @@
   gap: var(--primitiv-space-space-8) var(--primitiv-space-space-16);
 }
 
-.carousel-builder__radio,
-.carousel-builder__check {
-  display: inline-flex;
-  gap: var(--primitiv-space-space-8);
-  align-items: center;
-  color: var(--primitiv-content-primary);
-  cursor: pointer;
-}
-
 .carousel-builder__range input[type="range"] {
   inline-size: 100%;
 }

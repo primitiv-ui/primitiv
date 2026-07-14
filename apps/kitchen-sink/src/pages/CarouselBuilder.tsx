@@ -24,6 +24,8 @@ import {
   CarouselIndicatorGroup,
   CarouselIndicator,
   CarouselIndicators,
+  Checkbox,
+  Radio,
 } from "../components";
 import { useChrome } from "../chrome";
 import "./CarouselBuilder.css";
@@ -228,16 +230,15 @@ function RadioField<T extends string>({
       </legend>
       <div className="carousel-builder__radios">
         {options.map((option) => (
-          <label key={option} className="carousel-builder__radio">
-            <input
-              type="radio"
-              name={name}
-              value={option}
-              checked={value === option}
-              onChange={() => onChange(option)}
-            />
-            <span>{option}</span>
-          </label>
+          <Radio
+            key={option}
+            name={name}
+            value={option}
+            checked={value === option}
+            onCheckedChange={() => onChange(option)}
+          >
+            {option}
+          </Radio>
         ))}
       </div>
     </fieldset>
@@ -293,14 +294,9 @@ function CheckField({
   onChange: (value: boolean) => void;
 }) {
   return (
-    <label className="carousel-builder__check">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(event) => onChange(event.target.checked)}
-      />
-      <span>{label}</span>
-    </label>
+    <Checkbox checked={checked} onCheckedChange={onChange}>
+      {label}
+    </Checkbox>
   );
 }
 
@@ -614,7 +610,7 @@ export function CarouselBuilder() {
       </header>
 
       <div className="carousel-builder__grid">
-        <div className="carousel-builder__controls">
+        <div className="carousel-builder__controls" data-density="compact">
           <Accordion
             multiple
             value={openSections}

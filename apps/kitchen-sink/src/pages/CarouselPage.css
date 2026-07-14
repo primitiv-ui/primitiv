@@ -180,3 +180,20 @@
   font-size: 0.8rem;
   color: var(--primitiv-content-secondary);
 }
+
+/* Slideshow (parallax) demo. The gradient backdrop lives on the Slide itself
+ * (static); this content layer is the one that drifts via effect="parallax"
+ * — it stays transparent everywhere but the number, so the region a translate
+ * reveals past the slide's own edge just shows the matching static backdrop
+ * underneath rather than an empty gap (see the SlideshowSingle JSDoc). */
+.carousel-page__slideshow-content {
+  display: grid;
+  place-items: center;
+}
+
+.carousel-page__slideshow-label {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--primitiv-content-inverse);
+  text-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
+}

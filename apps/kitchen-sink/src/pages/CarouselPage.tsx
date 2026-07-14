@@ -15,6 +15,7 @@ import {
   CarouselViewport,
   CarouselControls,
   CarouselSlide,
+  CarouselSlideContent,
   CarouselPreviousTrigger,
   CarouselNextTrigger,
   CarouselIndicatorGroup,
@@ -2242,6 +2243,129 @@ export function CarouselProgress() {
       note="getScrollProgress() (0..1) and getSlideProgress(index) (-1..0..1) are continuous signals, unlike the page-granular getProgress() / boolean isInView(). Both are mirrored live onto CSS custom properties — --carousel-progress on the Viewport, --slide-progress on each Slide — so a stylesheet can read them directly with no JS. Here every slide dims and shrinks slightly as it moves away from center (pure CSS, --slide-progress); the bar and the live numbers below read the same signal imperatively instead, since they sit outside the Viewport's own DOM subtree."
     >
       <ProgressSingle label="Featured products — scroll progress" />
+    </Example>
+  );
+}
+
+/**
+ * Slideshow (parallax) — Blossom Carousel's Slideshow example, replicated
+ * against our markup: `effect="parallax"` gives each slide's
+ * <CarouselSlideContent> a native, zero-JavaScript drift as the slide crosses
+ * the viewport, via a CSS view-timeline scoped to the slide
+ * (animation-timeline: view(), animation-range: cover) — the registry
+ * stylesheet owns the whole technique, this component just opts in and wraps
+ * each slide's media in <CarouselSlideContent> (the layer the animation
+ * actually targets; the slide itself keeps clipping it via overflow: hidden).
+ * Browsers without view-timeline support (Firefox stable, as of writing) fall
+ * back to a CSS rule reading the headless --slide-progress signal instead —
+ * still zero JavaScript of this component's own, and the effect disables
+ * entirely under prefers-reduced-motion. Composes with orientation, RTL and
+ * peek for free, since the effect is just a modifier on the existing surface.
+ *
+ * The backdrop lives on the Slide itself (a static gradient), and only a
+ * small foreground marker sits inside <CarouselSlideContent> — the layer
+ * that actually drifts. <CarouselSlideContent> fills the slide box exactly
+ * (100% × 100%, no oversize), so a translate up to the full
+ * --primitiv-carousel-parallax-amount can move its edge past the slide's own
+ * — the transparent region that reveals just shows the matching backdrop
+ * underneath rather than a visible gap. Putting full-bleed opaque content
+ * (e.g. a cover photo with no backdrop behind it) directly in
+ * <CarouselSlideContent> would reveal empty space at that edge instead;
+ * either keep a same-scene backdrop behind it (as here) or size the content
+ * layer generously oversized before translating it that far.
+ */
+function SlideshowSingle({
+  label,
+  orientation = "horizontal",
+  peek,
+}: {
+  label: string;
+  orientation?: "horizontal" | "vertical";
+  peek?: "none" | "sm" | "md" | "lg";
+}) {
+  const Prev = orientation === "vertical" ? ChevronUp : ChevronLeft;
+  const Next = orientation === "vertical" ? ChevronDown : ChevronRight;
+  return (
+    <Carousel
+      ariaLabel={label}
+      cluster="joined"
+      effect="parallax"
+      orientation={orientation}
+      peek={peek}
+    >
+      <CarouselViewport>
+        {GALLERY.map((bg, i) => (
+          <CarouselSlide key={i} style={{ background: bg }}>
+            <CarouselSlideContent className="carousel-page__slideshow-content">
+              <span className="carousel-page__slideshow-label">{i + 1}</span>
+            </CarouselSlideContent>
+          </CarouselSlide>
+        ))}
+      </CarouselViewport>
+      <CarouselControls>
+        <CarouselPreviousTrigger aria-label="Previous slide">
+          <Prev />
+        </CarouselPreviousTrigger>
+        <CarouselIndicatorGroup label="Choose slide">
+          {GALLERY.map((_, i) => (
+            <CarouselIndicator key={i} index={i} />
+          ))}
+        </CarouselIndicatorGroup>
+        <CarouselNextTrigger aria-label="Next slide">
+          <Next />
+        </CarouselNextTrigger>
+      </CarouselControls>
+    </Carousel>
+  );
+}
+
+export function CarouselSlideshow() {
+  return (
+    <Example
+      title="Slideshow (parallax) — scroll-driven, zero JavaScript"
+      note="effect='parallax' drives each slide's content layer off a native CSS view-timeline (animation-timeline: view(), animation-range: cover) scoped to the slide — no scroll listener, no rAF loop. Requires wrapping the slide's media in <CarouselSlideContent>, the layer the animation targets (the slide itself clips it via overflow: hidden). Gated behind @supports (animation-timeline: view()); browsers without it (Firefox stable, as of writing) fall back to a CSS rule reading the existing --slide-progress signal instead, so the drift still renders everywhere with no extra JavaScript. Disables entirely under prefers-reduced-motion. Composes with orientation, RTL and peek like every other modifier."
+      wide
+    >
+      <div className="carousel-grid">
+        <GridCell
+          n={1}
+          title="Default — horizontal"
+          note="Each slide's content drifts as it crosses the viewport — most visible mid-drag or on a slow scroll/swipe."
+        >
+          <SlideshowSingle label="Featured products — slideshow parallax" />
+        </GridCell>
+
+        <GridCell
+          n={2}
+          title="Vertical"
+          note="The view-timeline axis follows the scroll axis (block, not inline), so the drift runs up/down with the page."
+        >
+          <SlideshowSingle
+            label="Featured products — slideshow parallax, vertical"
+            orientation="vertical"
+          />
+        </GridCell>
+
+        <GridCell
+          n={3}
+          title="RTL"
+          note="The named view-timeline is direction-agnostic — the physical scroll edges swap under RTL exactly like every other axis, no special-casing needed."
+          dir="rtl"
+        >
+          <SlideshowSingle label="Featured products — slideshow parallax, RTL" />
+        </GridCell>
+
+        <GridCell
+          n={4}
+          title="Composes with peek"
+          note="effect is just another modifier on the existing surface, so it composes with peek (or any other axis) with no extra wiring."
+        >
+          <SlideshowSingle
+            label="Featured products — slideshow parallax, peek"
+            peek="md"
+          />
+        </GridCell>
+      </div>
     </Example>
   );
 }

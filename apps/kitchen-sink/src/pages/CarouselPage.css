@@ -187,11 +187,15 @@
  * reveals past the slide's own edge just shows the matching static backdrop
  * underneath rather than an empty gap (see the SlideshowSingle JSDoc). */
 .carousel-page__slideshow-content {
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  block-size: 100%;
 }
 
 .carousel-page__slideshow-label {
+  text-align: center;
   font-size: 3rem;
   font-weight: 700;
   color: var(--primitiv-content-inverse);

@@ -2292,10 +2292,12 @@ function SlideshowSingle({
       effect="parallax"
       orientation={orientation}
       peek={peek}
+      radius="none"
+      gap="none"
     >
       <CarouselViewport>
         {GALLERY.map((bg, i) => (
-          <CarouselSlide key={i} style={{ background: bg }}>
+          <CarouselSlide key={i} radius="none" style={{ background: bg }}>
             <CarouselSlideContent className="carousel-page__slideshow-content">
               <span className="carousel-page__slideshow-label">{i + 1}</span>
             </CarouselSlideContent>

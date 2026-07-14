@@ -2351,7 +2351,7 @@ export function CarouselSlideshow() {
         <GridCell
           n={3}
           title="RTL"
-          note="The view-timeline uses the physical x axis, not the logical inline one — inline flips which edge is 'start' under RTL, which mismatched this carousel's own physical scroll position and stuck the resting slide's content off-centre until fixed."
+          note="Chromium computes a horizontal view-timeline's cover progress wrong in an RTL scroller (the resting slide lands at 0%/100%, not 50%), so horizontal RTL abandons the native timeline and drives the drift off the JS --slide-progress signal instead — the same physical, RTL-correct geometry the no-view-timeline fallback uses. Each number should now rest centred and drift symmetrically like cells 1/2/4."
           dir="rtl"
         >
           <SlideshowSingle label="Featured products — slideshow parallax, RTL" />

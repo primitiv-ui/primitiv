@@ -62,7 +62,7 @@ export function Shell() {
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/carousel" element={<CarouselLayout />}>
-          <Route index element={<Navigate to="default" replace />} />
+          <Route index element={<Navigate to="builder" replace />} />
           <Route path="builder" element={<CarouselBuilder />} />
           <Route path="default" element={<CarouselDefault />} />
           <Route path="responsive" element={<CarouselResponsive />} />

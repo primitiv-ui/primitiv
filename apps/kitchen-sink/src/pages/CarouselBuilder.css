@@ -46,7 +46,7 @@
  * column on a narrow container so the page stays usable at any width. */
 .carousel-builder__grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 22rem)) minmax(0, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 16rem)) minmax(0, 1fr);
   gap: var(--primitiv-space-space-32);
   align-items: start;
 }

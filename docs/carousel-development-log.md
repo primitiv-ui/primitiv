@@ -2334,6 +2334,14 @@ it (decision 4).
       QA (2026-07-15): forward + backward glide confirmed working after the
       scroll-behavior-suppression fix (the styled viewport's `scroll-behavior:
       smooth` was animating the teleport into a visible rewind — fixed).
+      **Builder integration (deferred, agreed 2026-07-15):** add a `loop` control
+      (`none`/`wrap`/`infinite`) to `CarouselBuilder.tsx` **after** multi-slide
+      infinite lands, so `infinite` composes with the builder's existing
+      `slidesPerPage` control instead of exposing the broken `infinite` +
+      `slidesPerPage>1` combo. (`wrap` already composes with any `slidesPerPage`
+      today, so it could go in earlier gated behind the builder's disabled-but-
+      hinted pattern — but cleaner to wire the whole control once infinite is
+      universal.)
       **Naming (2026-07-15):** the third mode was renamed `seamless` →
       **`infinite`** (human preference); earlier log prose calling it "seamless"
       is historical — the mode token is `"infinite"`.

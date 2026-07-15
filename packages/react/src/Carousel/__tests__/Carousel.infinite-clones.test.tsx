@@ -27,6 +27,25 @@ describe("Carousel infinite — clone buffer", () => {
     expect(container.querySelectorAll("[data-clone-of]")).toHaveLength(0);
   });
 
+  it("should render no clones when the transition is not slide (e.g. fade)", () => {
+    // fade stacks every slide in one grid cell with no scroll, so a clone
+    // buffer is meaningless there — it would just duplicate stacked slides.
+    const { container } = render(
+      <Carousel.Root
+        ariaLabel="Featured products"
+        loop="infinite"
+        transition="fade"
+      >
+        <Carousel.Viewport>
+          <Carousel.Slide data-testid="slide-0">Slide 0</Carousel.Slide>
+          <Carousel.Slide data-testid="slide-1">Slide 1</Carousel.Slide>
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+
+    expect(container.querySelectorAll("[data-clone-of]")).toHaveLength(0);
+  });
+
   it("should render a full-period clone buffer on each side under loop=infinite", () => {
     const { container } = renderCarousel("infinite", 3);
 

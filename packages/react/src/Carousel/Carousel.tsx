@@ -270,7 +270,7 @@ export function CarouselViewport({
   children,
   ...rest
 }: CarouselViewportProps): ReactElement {
-  const { isAutoRotating, ids, allowMouseDrag, snapType, loop } =
+  const { isAutoRotating, ids, allowMouseDrag, snapType, loop, transition } =
     useCarouselContext();
   const {
     viewportRef,
@@ -292,7 +292,13 @@ export function CarouselViewport({
   // `data-clone-of` with the real index they mirror. Fewer than two slides
   // can't form a loop, so no clones are rendered there.
   const realChildren = Children.toArray(children);
-  const cloneBuffer = loop === "infinite" && realChildren.length >= 2;
+  // Clones only make sense for the scrolling transition — fade/none stack the
+  // slides with no scroll axis to glide along, so a buffer would just render
+  // duplicate stacked slides.
+  const cloneBuffer =
+    loop === "infinite" &&
+    transition === "slide" &&
+    realChildren.length >= 2;
   const makeClones = (prefix: string) =>
     realChildren.map((child, index) =>
       isValidElement(child)

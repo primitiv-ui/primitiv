@@ -2490,6 +2490,43 @@ export function CarouselLoop() {
             allowMouseDrag
           />
         </GridCell>
+
+        <GridCell
+          n={9}
+          title="Infinite + peek"
+          note="A natural pairing: at rest the leading peek sliver is a clone of the previous (last) slide, so you see it coming in before the wrap — seamlessly. Glide or swipe across the end and confirm the peek stays continuous."
+        >
+          <BasicSingle
+            label="Featured products — infinite peek"
+            loop="infinite"
+            peek="md"
+            allowMouseDrag
+          />
+        </GridCell>
+
+        <GridCell
+          n={10}
+          title="Infinite + vertical"
+          note="The recentre and glide are axis-generic — up/down should wrap on the block axis with no rewind, just like horizontal. Drag vertically or use the up/down controls."
+        >
+          <VerticalSingle
+            label="Featured products — infinite vertical"
+            loop="infinite"
+          />
+        </GridCell>
+
+        <GridCell
+          n={11}
+          title="Infinite + RTL"
+          note="Logical properties throughout, so the wrap and glide follow writing direction — Next should still glide onward (leftward in RTL), never a rewind."
+          dir="rtl"
+        >
+          <BasicSingle
+            label="Featured products — infinite RTL"
+            loop="infinite"
+            allowMouseDrag
+          />
+        </GridCell>
       </div>
     </Example>
   );

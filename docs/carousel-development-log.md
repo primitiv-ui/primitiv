@@ -2320,6 +2320,20 @@ it (decision 4).
       feature-complete pending real-device QA** (the recentre/glide *feel* — hard
       flick, flick-storm at the seam, autoplay across the seam, VoiceOver — is the
       one remaining gate; jsdom can't exercise real scroll layout).
+      (5) **Composition step (single-slide) landed.** `fade`+`infinite` now guards
+      clone rendering on `transition === "slide"` (fade stacks slides, no scroll —
+      a buffer would just duplicate them). Single-slide infinite composes with
+      **peek / vertical / RTL** with no code change (the one-period teleport is
+      decoration-agnostic and the active slide ≈ viewport width keeps the
+      geometry-nearest recentre reliable) — demoed at `/carousel/loop` cells 9–11
+      for QA. **Known boundary:** the geometry-nearest recentre gets unreliable when
+      a slide is much narrower than the viewport (multi-slide, or center-aligned
+      tiny slides), so **multi-slide is the next increment** — and the place to swap
+      the heuristic for tracking the real snapped element (`scrollsnapchange`'s
+      `snapTargetInline`), which retro-hardens every composition. Recentre desktop
+      QA (2026-07-15): forward + backward glide confirmed working after the
+      scroll-behavior-suppression fix (the styled viewport's `scroll-behavior:
+      smooth` was animating the teleport into a visible rewind — fixed).
       **Naming (2026-07-15):** the third mode was renamed `seamless` →
       **`infinite`** (human preference); earlier log prose calling it "seamless"
       is historical — the mode token is `"infinite"`.

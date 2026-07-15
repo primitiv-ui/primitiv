@@ -408,16 +408,19 @@ export function CarouselSlide({
   const isClone = useContext(CarouselCloneContext);
   const { slideRef, index, total, state, snapAlign } =
     useCarouselSlide(snapAlignOverride);
-  const { translations } = useCarouselContext();
+  const { translations, snapAlign: rootSnapAlign } = useCarouselContext();
 
   // A clone is presentational only — the infinite loop's edge buffer.
   // It keeps `data-carousel-slide` so the layout CSS sizes it identically
-  // to a real slide, but it attaches no registration ref (so it never
-  // inflates the real slide count / indices / indicator dots / "x of n"
-  // label), is removed from the a11y tree (`aria-hidden` + `inert`) and
-  // the tab order (`tabIndex=-1`), and carries none of the
-  // index/total/state/label a real slide publishes — the `data-clone-of`
-  // it's cloned with (via the Viewport) rides through `...rest`.
+  // to a real slide, and carries `data-snap-align` (the resolved root
+  // alignment) so the scroll actually *settles* on a clone — that snap is
+  // what the Viewport's recentre catches on `scrollend` to teleport back to
+  // the real copy. But it attaches no registration ref (so it never inflates
+  // the real slide count / indices / indicator dots / "x of n" label), is
+  // removed from the a11y tree (`aria-hidden` + `inert`) and the tab order
+  // (`tabIndex=-1`), and carries none of the index/total/state/label a real
+  // slide publishes — the `data-clone-of` it's cloned with (via the Viewport)
+  // rides through `...rest`.
   if (isClone) {
     return (
       <div
@@ -425,6 +428,7 @@ export function CarouselSlide({
         aria-roledescription="slide"
         data-carousel-slide=""
         data-carousel-clone=""
+        data-snap-align={rootSnapAlign}
         aria-hidden="true"
         inert
         tabIndex={-1}

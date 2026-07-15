@@ -779,18 +779,24 @@ regardless of `loop`. The resolved mode is published as
 **`"wrap"` vs `"infinite"`.** Both share the same page model (the wrap
 arithmetic and never-disable boundaries). They differ only in the scroll
 visual: `"wrap"` smooth-scrolls the whole track back on a last→first wrap
-(a visible rewind, the same path `Home` takes), while `"infinite"` is
-building toward a continuous glide with no rewind via a cloned edge buffer
-plus a native-scroll recentre.
+(a visible rewind, the same path `Home` takes), while `"infinite"` renders
+a cloned edge buffer and recentres on `scrollend` so a native swipe / drag
+/ wheel across the seam glides on with no rewind.
 
-> **`"infinite"` is under construction.** The **clone edge buffer** is
-> landed — under `loop="infinite"` the Viewport renders a full-period copy
-> of the slides at each end (inert, `aria-hidden`, out of the tab order,
-> never counted), tagged `data-clone-of`. The **recentre** (the `scrollend`
-> teleport that makes the wrap invisible) and the forward-glide navigation
-> are the next increment. Until then, `"infinite"` shares `"wrap"`'s
-> navigation and additionally shows the clone buffer — prefer `"wrap"` for
-> production for now.
+Under `loop="infinite"` the Viewport renders a full-period copy of the
+slides at each end (inert, `aria-hidden`, out of the tab order, never
+counted, tagged `data-clone-of`). Each clone is a scroll-snap point, so a
+swipe settles on it; on `scrollend` the Viewport instantly teleports to the
+real slide it mirrors — an identical copy one period away — with
+`scroll-snap-type` suppressed for the jump, so the wrap is seamless.
+`scrollsnapchange` maps a clone snap-target to its real index, so the active
+page and indicators stay correct while scrolling through the buffer.
+
+> **In progress.** The **free-scroll** path (swipe / drag / wheel) glides
+> seamlessly. **Button / keyboard / autoplay** navigation still uses
+> `"wrap"`'s rewind at the ends for now — the forward-glide for those is the
+> next increment. The recentre geometry is verified for feel on real
+> devices (jsdom can't exercise real scroll layout).
 
 ### Keyboard navigation
 

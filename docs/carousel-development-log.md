@@ -2295,13 +2295,20 @@ it (decision 4).
       each end (`CarouselCloneContext` + a clone-aware `CarouselSlide` — inert,
       `aria-hidden`, `tabindex=-1`, `id` stripped, never registered, tagged
       `data-clone-of`), so clones never inflate the real count / indices /
-      indicators / "x of n". **Still pending (increment 2): the `scrollend`
-      recentre + forward-glide** — pure real-browser geometry
-      (`getBoundingClientRect`/`scrollLeft`/`scrollend`/peek/RTL/vertical) that
-      jsdom can't validate, so it's built with the human's real-device QA in the
-      loop (the mandatory iOS gate from the 2026-07-15 strategy entry). Until
-      then `"infinite"` shares `"wrap"`'s navigation and just shows the clone
-      buffer — docs steer production users to `"wrap"`.
+      indicators / "x of n". (3) **Increment 2a landed — free-scroll recentre.**
+      Clones now carry `data-snap-align` (so a swipe *settles* on a clone); a new
+      `useCarouselViewport` `scrollend` effect finds the nearest settled slide and,
+      if it's a clone, instantly teleports by the clone→real offset with
+      `scroll-snap-type` suppressed + restored next rAF (invisible — identical copy
+      one period away); `scrollsnapchange` maps a clone target to its real index so
+      the page/indicators track through the buffer. **So swipe / drag / wheel across
+      the seam glides seamlessly.** Control-flow TDD'd at 100% with per-instance
+      mocked geometry (`Carousel.infinite-recentre.test.tsx`, 7 tests) — the pixel
+      geometry is real-browser-only, verified for feel on device. **Still pending
+      (increment 2b): the forward-glide for button / keyboard / autoplay** (they
+      still use wrap's rewind at the ends) + the instant initial-position polish.
+      Kitchen-sink `/carousel/loop` cell 7 demos it (`allowMouseDrag` on, best on
+      touch).
       **Naming (2026-07-15):** the third mode was renamed `seamless` →
       **`infinite`** (human preference); earlier log prose calling it "seamless"
       is historical — the mode token is `"infinite"`.

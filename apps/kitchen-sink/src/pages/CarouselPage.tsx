@@ -65,6 +65,7 @@ function BasicSingle({
   size,
   loop,
   autoplay,
+  allowMouseDrag,
 }: {
   label: string;
   radius?: "md" | "none";
@@ -80,6 +81,7 @@ function BasicSingle({
   size?: "xs" | "sm" | "md" | "lg" | "xl";
   loop?: boolean | "wrap" | "infinite";
   autoplay?: boolean;
+  allowMouseDrag?: boolean;
 }) {
   return (
     <Carousel
@@ -98,6 +100,7 @@ function BasicSingle({
       loop={loop}
       autoplay={autoplay}
       defaultPlaying={autoplay}
+      allowMouseDrag={allowMouseDrag}
     >
       <CarouselViewport>
         {SLIDES.map((bg, i) => (
@@ -2461,6 +2464,18 @@ export function CarouselLoop() {
               </CarouselNextTrigger>
             </CarouselControls>
           </Carousel>
+        </GridCell>
+
+        <GridCell
+          n={7}
+          title="Infinite — continuous glide (swipe / drag)"
+          note="loop=&quot;infinite&quot; renders a clone buffer so swipe / drag / wheel across the end glides on with no rewind — best felt on a touch device (or drag with a mouse, enabled here). Increment 1 of infinite: the free-scroll recentre. The prev/next buttons and autoplay still rewind for now (the forward-glide is the next increment)."
+        >
+          <BasicSingle
+            label="Featured products — infinite"
+            loop="infinite"
+            allowMouseDrag
+          />
         </GridCell>
       </div>
     </Example>

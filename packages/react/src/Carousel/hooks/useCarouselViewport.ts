@@ -83,6 +83,7 @@ export function useCarouselViewport() {
     transition,
     snapAlign,
     orientation,
+    loop,
     allowMouseDrag,
     onDragStatusChange,
     onOverscrollStatusChange,
@@ -689,9 +690,17 @@ export function useCarouselViewport() {
       // findIndex returns -1 when the snap target isn't one of our
       // registered slides — e.g. a consumer-wrapped element inside the
       // viewport. Ignore those; only registered slides drive the page.
-      const slideIndex = slideKeys.findIndex(
+      let slideIndex = slideKeys.findIndex(
         (key) => slidesRef.current!.get(key) === target,
       );
+      // A clone in the infinite loop's edge buffer isn't registered, so it
+      // won't be found above — resolve it to the real index it mirrors
+      // (`data-clone-of`) so swiping into the buffer still tracks the right
+      // page; the scrollend recentre then teleports the pixels back.
+      if (slideIndex < 0) {
+        const cloneOf = (target as HTMLElement | undefined)?.dataset?.cloneOf;
+        if (cloneOf !== undefined) slideIndex = Number(cloneOf);
+      }
       if (slideIndex < 0) return;
 
       const targetPage = pageForSlideIndex(slideIndex);
@@ -712,6 +721,59 @@ export function useCarouselViewport() {
     currentPage,
     goTo,
   ]);
+
+  // Infinite-loop recentre. After the scroll settles (`scrollend`) on a clone
+  // in the edge buffer, instantly teleport to the real slide it mirrors — an
+  // identical copy exactly one period away — so a native swipe/drag/wheel
+  // across the seam reads as a continuous glide with no rewind. Only wired for
+  // loop === "infinite" (the clone buffer exists only then). `scroll-snap-type`
+  // is suppressed for the instant jump and restored on the next frame so the
+  // snap engine doesn't re-animate on top of it. The geometry is pixel-exact
+  // only in a real browser (jsdom reports zeroed layout), so this is
+  // control-flow-tested here and verified for feel on a real device.
+  useEffect(() => {
+    if (transition !== "slide" || loop !== "infinite") return;
+    const viewport = internalRef.current!;
+    const vertical = orientation === "vertical";
+    const edge = (el: HTMLElement) =>
+      vertical
+        ? el.getBoundingClientRect().top
+        : el.getBoundingClientRect().left;
+
+    const recentre = () => {
+      const slides =
+        viewport.querySelectorAll<HTMLElement>("[data-carousel-slide]");
+      if (slides.length === 0) return;
+      const viewportStart = edge(viewport);
+      // The settled snap is the slide (real or clone) whose leading edge is
+      // nearest the viewport's leading edge.
+      const nearest = Array.from(slides).reduce((best, el) =>
+        Math.abs(edge(el) - viewportStart) <
+        Math.abs(edge(best) - viewportStart)
+          ? el
+          : best,
+      );
+      // A real slide is already home; only a clone needs recentring.
+      const cloneOf = nearest.dataset.cloneOf;
+      if (cloneOf === undefined) return;
+      // Teleport by the clone→real offset so the real slide lands exactly
+      // where the clone was — same view, so the jump is invisible. The clone
+      // always mirrors a valid registered index (both come from the same
+      // children), so the lookup is guaranteed.
+      const realEl = slidesRef.current!.get(slideKeys[Number(cloneOf)])!;
+      const delta = edge(realEl) - edge(nearest);
+      const prevSnapType = viewport.style.scrollSnapType;
+      viewport.style.scrollSnapType = "none";
+      if (vertical) viewport.scrollTop += delta;
+      else viewport.scrollLeft += delta;
+      requestAnimationFrame(() => {
+        viewport.style.scrollSnapType = prevSnapType;
+      });
+    };
+
+    viewport.addEventListener("scrollend", recentre);
+    return () => viewport.removeEventListener("scrollend", recentre);
+  }, [transition, loop, orientation, slideKeys, slidesRef]);
 
   // IntersectionObserver fallback for browsers without scrollsnapchange,
   // and the source of truth for isInView() on the imperative API. The

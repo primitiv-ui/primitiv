@@ -1201,9 +1201,10 @@ anatomy part):
 </Carousel.Root>
 ```
 
-Renders `"1 of 3"` by default (1-indexed, matching `slideLabel`); pass
-`translations={{ progressText: ({ page, totalPages }) => … }}` on the
-Root to customise the format, or `children` on `Carousel.ProgressText`
+Renders `"1 of 3"` by default (1-indexed, matching `slideLabel`); pass a
+`progressText` formatter through `translations` (a
+`({ page, totalPages }) => …` function) on the Root to customise the
+format, or `children` on `Carousel.ProgressText`
 itself to render something else entirely (an icon alongside the
 count, say) instead of the computed text. `Carousel.ProgressText`
 carries no ARIA wiring of its own — compose it inside your own live

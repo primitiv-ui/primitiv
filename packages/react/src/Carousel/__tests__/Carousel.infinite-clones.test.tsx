@@ -101,6 +101,37 @@ describe("Carousel infinite — clone buffer", () => {
     expect(cloneIndices).toEqual(["0", "1", "2", "0", "1", "2"]);
   });
 
+  it("should make a single-slide carousel's clones all snap points", () => {
+    const { container } = renderCarousel("infinite", 3);
+
+    // slidesPerPage 1 → every slide is a page leader, so every clone snaps.
+    container.querySelectorAll("[data-clone-of]").forEach((clone) => {
+      expect(clone).toHaveAttribute("data-snap-align", "center");
+    });
+  });
+
+  it("should snap clones only on page-leading indices when slidesPerPage > 1", () => {
+    const { container } = render(
+      <Carousel.Root ariaLabel="Featured products" loop="infinite" slidesPerPage={2}>
+        <Carousel.Viewport>
+          <Carousel.Slide data-testid="slide-0">Slide 0</Carousel.Slide>
+          <Carousel.Slide data-testid="slide-1">Slide 1</Carousel.Slide>
+          <Carousel.Slide data-testid="slide-2">Slide 2</Carousel.Slide>
+          <Carousel.Slide data-testid="slide-3">Slide 3</Carousel.Slide>
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+
+    // Pages [0,1] and [2,3] → snap-start indices 0 and 2. A clone snaps iff
+    // its mirrored real slide leads a page.
+    const snaps = (index: number) =>
+      Array.from(container.querySelectorAll(`[data-clone-of="${index}"]`));
+    snaps(0).forEach((c) => expect(c).toHaveAttribute("data-snap-align"));
+    snaps(2).forEach((c) => expect(c).toHaveAttribute("data-snap-align"));
+    snaps(1).forEach((c) => expect(c).not.toHaveAttribute("data-snap-align"));
+    snaps(3).forEach((c) => expect(c).not.toHaveAttribute("data-snap-align"));
+  });
+
   it("should not render clones when there are too few slides to loop", () => {
     const { container } = renderCarousel("infinite", 1);
 

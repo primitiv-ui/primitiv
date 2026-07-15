@@ -2342,6 +2342,20 @@ it (decision 4).
       today, so it could go in earlier gated behind the builder's disabled-but-
       hinted pattern — but cleaner to wire the whole control once infinite is
       universal.)
+      (6) **Multi-slide infinite landed (2026-07-15).** Three sub-steps: **(a)**
+      the recentre now reads the browser's real `scrollsnapchange` target
+      (falling back to geometry before the first snap / without support) instead
+      of a geometry-nearest guess — robust to snapAlign/peek/padding and
+      multi-slide page-leading snaps, and it retro-hardens the single-slide
+      compositions. **(b)** the Viewport now sets `data-snap-align` on a clone
+      **only when its mirrored index leads a page** (mirrors `useCarouselSlide`'s
+      `isSnapStart`), so interior clones aren't snap points — the scroll settles on
+      the same positions in the buffer as in the real copy. **(c)** the glide's
+      page-span alignment measures against the matching **clone** of the page's
+      last member (not the real one a period away), so center/end alignment is
+      correct for a multi-slide glided page. Demoed at `/carousel/loop` cell 12
+      (2-up). TDD'd at 100% (multi-slide clone-snap + multi-slide glide tests). The
+      builder `loop` control (deferred note above) is now unblocked.
       **Naming (2026-07-15):** the third mode was renamed `seamless` →
       **`infinite`** (human preference); earlier log prose calling it "seamless"
       is historical — the mode token is `"infinite"`.

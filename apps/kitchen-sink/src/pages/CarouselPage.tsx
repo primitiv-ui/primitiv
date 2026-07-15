@@ -320,6 +320,8 @@ function MultiSlide({
   padding,
   orientation,
   gap,
+  loop,
+  allowMouseDrag,
 }: {
   label: string;
   count: number;
@@ -329,6 +331,8 @@ function MultiSlide({
   padding?: "none" | "sm" | "md" | "lg";
   orientation?: "horizontal" | "vertical";
   gap?: "none" | "sm" | "md" | "lg";
+  loop?: boolean | "wrap" | "infinite";
+  allowMouseDrag?: boolean;
 }) {
   const Prev = orientation === "vertical" ? ChevronUp : ChevronLeft;
   const Next = orientation === "vertical" ? ChevronDown : ChevronRight;
@@ -342,6 +346,8 @@ function MultiSlide({
       padding={padding}
       orientation={orientation}
       gap={gap}
+      loop={loop}
+      allowMouseDrag={allowMouseDrag}
     >
       <CarouselViewport>
         {GALLERY.slice(0, count).map((bg, i) => (
@@ -2523,6 +2529,20 @@ export function CarouselLoop() {
         >
           <BasicSingle
             label="Featured products — infinite RTL"
+            loop="infinite"
+            allowMouseDrag
+          />
+        </GridCell>
+
+        <GridCell
+          n={12}
+          title="Infinite + multi-slide (2-up)"
+          note="Multi-slide infinite: clones snap only on page-leading slides, and the recentre tracks the browser's real snap target, so paging (or swiping) past the last page glides onto the first page's window with no rewind. Next/Prev advance a whole page."
+        >
+          <MultiSlide
+            label="Featured products — infinite 2-up"
+            count={6}
+            slidesPerPage={2}
             loop="infinite"
             allowMouseDrag
           />

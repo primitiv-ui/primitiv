@@ -137,4 +137,49 @@ describe("Carousel infinite-loop glide", () => {
       expect.objectContaining({ behavior: "instant" }),
     );
   });
+
+  it("should glide a multi-slide wrap into the target page's leading clone", async () => {
+    const user = userEvent.setup();
+    // 4 slides, 2 per page → pages [0,1] and [2,3]. Start on the last page.
+    const result = render(
+      <Carousel.Root
+        ariaLabel="Featured products"
+        loop="infinite"
+        snapAlign="start"
+        slidesPerPage={2}
+        defaultPage={1}
+      >
+        <Carousel.Viewport data-testid="viewport">
+          <Carousel.Slide data-testid="slide-0" />
+          <Carousel.Slide data-testid="slide-1" />
+          <Carousel.Slide data-testid="slide-2" />
+          <Carousel.Slide data-testid="slide-3" />
+        </Carousel.Viewport>
+        <Carousel.NextTrigger>Next</Carousel.NextTrigger>
+      </Carousel.Root>,
+    );
+    const viewport = result.getByTestId("viewport");
+    // DOM: lead-0..3, real-0..3, trail-0..3. The forward wrap to page 0 must
+    // glide onto the *trailing* clone of slide 0 (the page-leading slide), not
+    // the real slide 0 (a rewind) or an interior clone.
+    const slideEls = Array.from(
+      result.container.querySelectorAll<HTMLElement>("[data-carousel-slide]"),
+    );
+    const real0 = slideEls[4];
+    const trail0 = slideEls[8];
+    const scrollTo = vi.spyOn(viewport, "scrollTo");
+    mockLefts(
+      new Map<Element, number>([
+        [viewport, 0],
+        [real0, -3000], // rewinding here would scroll far backward
+        [trail0, 2000], // the trailing clone of the page-leading slide 0
+      ]),
+    );
+
+    await user.click(result.getByRole("button", { name: "Next" }));
+
+    expect(scrollTo).toHaveBeenLastCalledWith(
+      expect.objectContaining({ left: 2000 }),
+    );
+  });
 });

@@ -270,8 +270,17 @@ export function CarouselViewport({
   children,
   ...rest
 }: CarouselViewportProps): ReactElement {
-  const { isAutoRotating, ids, allowMouseDrag, snapType, loop, transition } =
-    useCarouselContext();
+  const {
+    isAutoRotating,
+    ids,
+    allowMouseDrag,
+    snapType,
+    loop,
+    transition,
+    snapAlign,
+    slidesPerPage,
+    effectiveSlidesPerMove,
+  } = useCarouselContext();
   const {
     viewportRef,
     onKeyDown,
@@ -299,12 +308,22 @@ export function CarouselViewport({
     loop === "infinite" &&
     transition === "slide" &&
     realChildren.length >= 2;
+  // A clone must be a scroll-snap point exactly where its real counterpart is —
+  // i.e. only on a page-leading index — so the scroll settles on the same
+  // positions in the buffer as in the real copy (mirrors useCarouselSlide's
+  // `isSnapStart`, which the real slides use). Every slide leads its own page
+  // when slidesPerPage is 1.
+  const maxSnapOffset = Math.max(0, realChildren.length - slidesPerPage);
+  const isSnapStart = (index: number) =>
+    index === maxSnapOffset ||
+    (index <= maxSnapOffset && index % effectiveSlidesPerMove === 0);
   const makeClones = (prefix: string) =>
     realChildren.map((child, index) =>
       isValidElement(child)
         ? cloneElement(child as ReactElement<Record<string, unknown>>, {
             key: `${prefix}-${index}`,
             "data-clone-of": index,
+            "data-snap-align": isSnapStart(index) ? snapAlign : undefined,
             // Never duplicate a consumer `id` — two elements sharing an id
             // is invalid HTML and breaks `aria-controls`/label references.
             id: undefined,
@@ -414,19 +433,17 @@ export function CarouselSlide({
   const isClone = useContext(CarouselCloneContext);
   const { slideRef, index, total, state, snapAlign } =
     useCarouselSlide(snapAlignOverride);
-  const { translations, snapAlign: rootSnapAlign } = useCarouselContext();
+  const { translations } = useCarouselContext();
 
   // A clone is presentational only — the infinite loop's edge buffer.
-  // It keeps `data-carousel-slide` so the layout CSS sizes it identically
-  // to a real slide, and carries `data-snap-align` (the resolved root
-  // alignment) so the scroll actually *settles* on a clone — that snap is
-  // what the Viewport's recentre catches on `scrollend` to teleport back to
-  // the real copy. But it attaches no registration ref (so it never inflates
-  // the real slide count / indices / indicator dots / "x of n" label), is
-  // removed from the a11y tree (`aria-hidden` + `inert`) and the tab order
-  // (`tabIndex=-1`), and carries none of the index/total/state/label a real
-  // slide publishes — the `data-clone-of` it's cloned with (via the Viewport)
-  // rides through `...rest`.
+  // It keeps `data-carousel-slide` so the layout CSS sizes it identically to a
+  // real slide. The Viewport clones it with `data-clone-of` and, on a
+  // page-leading index, `data-snap-align` (so the scroll *settles* on a clone —
+  // the snap the recentre catches on `scrollend`); both ride through `...rest`.
+  // The clone attaches no registration ref (so it never inflates the real slide
+  // count / indices / indicator dots / "x of n" label), is removed from the
+  // a11y tree (`aria-hidden` + `inert`) and the tab order (`tabIndex=-1`), and
+  // publishes none of the index/total/state/label a real slide does.
   if (isClone) {
     return (
       <div
@@ -434,7 +451,6 @@ export function CarouselSlide({
         aria-roledescription="slide"
         data-carousel-slide=""
         data-carousel-clone=""
-        data-snap-align={rootSnapAlign}
         aria-hidden="true"
         inert
         tabIndex={-1}

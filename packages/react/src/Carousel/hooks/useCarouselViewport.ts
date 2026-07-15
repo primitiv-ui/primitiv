@@ -430,13 +430,24 @@ export function useCarouselViewport() {
       currentPageOffset + slidesPerPage - 1,
       slideKeys.length - 1,
     );
-    // When gliding into a clone the "page" is that single clone (infinite is
-    // single-slide-scoped), so measure the span against the clone itself —
-    // the real last-member slide is a full period away and would corrupt the
-    // center/end alignment.
-    const lastMemberEl = gliding
-      ? targetEl
-      : slidesRef.current!.get(slideKeys[lastMemberIndex])!;
+    // When gliding into the clone buffer the "page" is a run of clones, so
+    // measure the span against the matching clone of the page's last member
+    // (same buffer side as the leading clone) — the real last-member slide is a
+    // full period away and would corrupt the center/end alignment. With
+    // slidesPerPage 1 this clone is the same element as `targetEl`.
+    let lastMemberEl: HTMLDivElement;
+    if (gliding) {
+      const lastClones = viewport.querySelectorAll<HTMLDivElement>(
+        `[data-clone-of="${lastMemberIndex}"]`,
+      );
+      lastMemberEl = (
+        wrapDirection === "forward"
+          ? lastClones[lastClones.length - 1]
+          : lastClones[0]
+      )!;
+    } else {
+      lastMemberEl = slidesRef.current!.get(slideKeys[lastMemberIndex])!;
+    }
     const lastMemberRect = lastMemberEl.getBoundingClientRect();
     // Computed as left/top + width/height, not the rect's own .right/.bottom
     // — real DOMRects derive those the same way, but keeping the maths

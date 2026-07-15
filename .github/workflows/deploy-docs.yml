@@ -70,11 +70,17 @@ jobs:
         working-directory: apps/kitchen-sink
 
       # Sub-path base + hash router so the SPA works under
-      # /primitiv/kitchen-sink/ and deep links survive a hard refresh.
+      # /primitiv/kitchen-sink/ and deep links survive a hard refresh. Run
+      # `vite build` directly (not the package's `tsc -b && vite build`): the
+      # dev-alias resolves @primitiv-ui/react to the workspace *source*, and
+      # tsconfig.app.json is a `composite` project — composite rejects program
+      # files outside its `include` (TS6307), which those aliased source files
+      # are. The deploy just needs the bundle; the real type gates run on
+      # packages/react.
       - name: Build kitchen-sink
         env:
           KITCHEN_SINK_BASE: /primitiv/kitchen-sink/
-        run: pnpm build
+        run: pnpm exec vite build
         working-directory: apps/kitchen-sink
 
       - name: Build docs

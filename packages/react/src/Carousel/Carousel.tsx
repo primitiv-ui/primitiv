@@ -1,4 +1,12 @@
-import { forwardRef, MouseEvent, useCallback } from "react";
+import {
+  Children,
+  cloneElement,
+  forwardRef,
+  isValidElement,
+  MouseEvent,
+  useCallback,
+  useContext,
+} from "react";
 import type {
   ForwardRefExoticComponent,
   PropsWithoutRef,
@@ -7,6 +15,7 @@ import type {
 } from "react";
 
 import { Slot } from "../Slot/index.ts";
+import { CarouselCloneContext, CarouselCloneProvider } from "./CarouselCloneContext";
 import { CarouselProvider } from "./CarouselContext";
 import {
   useCarouselContext,
@@ -261,7 +270,7 @@ export function CarouselViewport({
   children,
   ...rest
 }: CarouselViewportProps): ReactElement {
-  const { isAutoRotating, ids, allowMouseDrag, snapType } =
+  const { isAutoRotating, ids, allowMouseDrag, snapType, loop } =
     useCarouselContext();
   const {
     viewportRef,
@@ -273,6 +282,29 @@ export function CarouselViewport({
     onPointerCancel,
     onClickCapture,
   } = useCarouselViewport();
+
+  // Seamless loop renders a full-period clone buffer at each end: one
+  // complete copy of the real slides leading, one trailing. A whole period
+  // (rather than a slide or two) guarantees any single native fling settles
+  // *inside* the buffer on a snap point, so the recentre teleport always
+  // has runway. Clones are marked via CarouselCloneProvider — each Slide
+  // beneath it skips registration and renders inert/aria-hidden — and tagged
+  // `data-clone-of` with the real index they mirror. Fewer than two slides
+  // can't form a loop, so no clones are rendered there.
+  const realChildren = Children.toArray(children);
+  const cloneBuffer = loop === "seamless" && realChildren.length >= 2;
+  const makeClones = (prefix: string) =>
+    realChildren.map((child, index) =>
+      isValidElement(child)
+        ? cloneElement(child as ReactElement<{ id?: string }>, {
+            key: `${prefix}-${index}`,
+            "data-clone-of": index,
+            // Never duplicate a consumer `id` — two elements sharing an id
+            // is invalid HTML and breaks `aria-controls`/label references.
+            id: undefined,
+          })
+        : child,
+    );
 
   return (
     <div
@@ -293,7 +325,17 @@ export function CarouselViewport({
       {...(ids.viewport !== undefined && { id: ids.viewport })}
       {...rest}
     >
+      {cloneBuffer && (
+        <CarouselCloneProvider value={true}>
+          {makeClones("clone-lead")}
+        </CarouselCloneProvider>
+      )}
       {children}
+      {cloneBuffer && (
+        <CarouselCloneProvider value={true}>
+          {makeClones("clone-trail")}
+        </CarouselCloneProvider>
+      )}
     </div>
   );
 }
@@ -363,9 +405,37 @@ export function CarouselSlide({
   children,
   ...rest
 }: CarouselSlideProps): ReactElement {
+  const isClone = useContext(CarouselCloneContext);
   const { slideRef, index, total, state, snapAlign } =
     useCarouselSlide(snapAlignOverride);
   const { translations } = useCarouselContext();
+
+  // A clone is presentational only — the seamless loop's edge buffer.
+  // It keeps `data-carousel-slide` so the layout CSS sizes it identically
+  // to a real slide, but it attaches no registration ref (so it never
+  // inflates the real slide count / indices / indicator dots / "x of n"
+  // label), is removed from the a11y tree (`aria-hidden` + `inert`) and
+  // the tab order (`tabIndex=-1`), and carries none of the
+  // index/total/state/label a real slide publishes — the `data-clone-of`
+  // it's cloned with (via the Viewport) rides through `...rest`.
+  if (isClone) {
+    return (
+      <div
+        role="group"
+        aria-roledescription="slide"
+        data-carousel-slide=""
+        data-carousel-clone=""
+        aria-hidden="true"
+        inert
+        tabIndex={-1}
+        className={className}
+        {...rest}
+      >
+        {children}
+      </div>
+    );
+  }
+
   const autoLabel =
     index >= 0 && total > 0
       ? translations.slideLabel({ index: index + 1, total })

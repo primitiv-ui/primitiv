@@ -17,6 +17,10 @@
     // Mirror the vite.config dev aliases so tsc / the editor resolve the two
     // packages under active development to the workspace source too (keeps
     // unpublished headless changes — e.g. Carousel `orientation` — type-safe).
+    // TypeScript 6.0 flags `baseUrl` as a deprecation *error* (TS5101); it still
+    // functions until 7.0 and `paths` resolve relative to it, so silence the
+    // deprecation per TS's own recommendation until we drop baseUrl.
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "@primitiv-ui/react": ["../../packages/react/src/index.ts"],

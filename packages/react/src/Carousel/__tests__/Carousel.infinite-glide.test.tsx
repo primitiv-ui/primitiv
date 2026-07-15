@@ -3,11 +3,13 @@ import userEvent from "@testing-library/user-event";
 
 import { Carousel } from "../index.ts";
 
-// The infinite forward/backward glide: a wrap (last↔first) via next()/previous()
-// scrolls into the *adjacent clone* (one step) rather than rewinding across the
-// whole track. Geometry is real-browser-only, so these drive the control flow
-// with per-instance mocked rects and assert which element the programmatic
-// scroll targets (its position), plus that the first infinite scroll is instant.
+// The infinite forward/backward glide uses *teleport-then-glide*: a wrap
+// (last↔first) via next()/previous() instantly jumps one period to the buffer
+// copy behind it, then smooth-scrolls to the *real* target — so it lands on the
+// real slide and a rapid follow-up click can't strand it on a clone and rewind.
+// Geometry is real-browser-only, so these drive the control flow with mocked
+// rects: they assert the one-period teleport (its sign) plus that the first
+// infinite scroll is instant.
 
 function mockLefts(map: Map<Element, number>) {
   vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
@@ -22,6 +24,18 @@ function mockLefts(map: Map<Element, number>) {
       } as unknown as DOMRect;
     },
   );
+}
+
+/** Make scrollLeft a real read/write property (jsdom leaves it 0). */
+function trackScroll(el: HTMLElement) {
+  let value = 0;
+  Object.defineProperty(el, "scrollLeft", {
+    configurable: true,
+    get: () => value,
+    set: (v: number) => {
+      value = v;
+    },
+  });
 }
 
 function renderInfinite(defaultPage: number) {
@@ -49,44 +63,47 @@ function renderInfinite(defaultPage: number) {
 }
 
 describe("Carousel infinite-loop glide", () => {
-  it("should glide forward into the trailing clone when Next wraps past the end", async () => {
+  it("should teleport back one period then glide to the real slide on a forward wrap", async () => {
     const user = userEvent.setup();
     const ctx = renderInfinite(1); // start on the last page
+    trackScroll(ctx.viewport);
     const scrollTo = vi.spyOn(ctx.viewport, "scrollTo");
+    // period = trailing-clone-0 − real-0 = 2000.
     mockLefts(
       new Map<Element, number>([
         [ctx.viewport, 0],
-        [ctx.real0, -1000], // rewinding here would scroll backward
-        [ctx.trail0, 1000], // the trailing clone is forward (to the right)
+        [ctx.real0, 0],
+        [ctx.trail0, 2000],
       ]),
     );
 
     await user.click(ctx.getByRole("button", { name: "Next" }));
 
-    // start alignment → position === target.left. Forward glide targets the
-    // trailing clone at +1000, not the real slide 0 at −1000.
-    expect(scrollTo).toHaveBeenLastCalledWith(
-      expect.objectContaining({ left: 1000 }),
-    );
+    // Jumped back exactly one period (invisible — an identical slide), so the
+    // subsequent glide to the real slide runs forward and lands on real.
+    expect(ctx.viewport.scrollLeft).toBe(-2000);
+    expect(scrollTo).toHaveBeenCalled();
   });
 
-  it("should glide backward into the leading clone when Previous wraps past the start", async () => {
+  it("should teleport forward one period then glide to the real slide on a backward wrap", async () => {
     const user = userEvent.setup();
     const ctx = renderInfinite(0); // start on the first page
+    trackScroll(ctx.viewport);
     const scrollTo = vi.spyOn(ctx.viewport, "scrollTo");
     mockLefts(
       new Map<Element, number>([
         [ctx.viewport, 0],
-        [ctx.real1, 1000], // rewinding here would scroll forward
-        [ctx.leadB, -1000], // the leading clone of slide 1 is backward
+        [ctx.real0, 0],
+        [ctx.trail0, 2000], // period = 2000
       ]),
     );
 
     await user.click(ctx.getByRole("button", { name: "Previous" }));
 
-    expect(scrollTo).toHaveBeenLastCalledWith(
-      expect.objectContaining({ left: -1000 }),
-    );
+    // A backward wrap jumps forward one period so the glide to the real target
+    // runs backward and lands on real.
+    expect(ctx.viewport.scrollLeft).toBe(2000);
+    expect(scrollTo).toHaveBeenCalled();
   });
 
   it("should target the real slide (no glide) for a normal Next that does not wrap", async () => {
@@ -138,7 +155,7 @@ describe("Carousel infinite-loop glide", () => {
     );
   });
 
-  it("should glide a multi-slide wrap into the target page's leading clone", async () => {
+  it("should teleport by one full period on a multi-slide wrap so the glide lands on the real page", async () => {
     const user = userEvent.setup();
     // 4 slides, 2 per page → pages [0,1] and [2,3]. Start on the last page.
     const result = render(
@@ -159,9 +176,9 @@ describe("Carousel infinite-loop glide", () => {
       </Carousel.Root>,
     );
     const viewport = result.getByTestId("viewport");
-    // DOM: lead-0..3, real-0..3, trail-0..3. The forward wrap to page 0 must
-    // glide onto the *trailing* clone of slide 0 (the page-leading slide), not
-    // the real slide 0 (a rewind) or an interior clone.
+    trackScroll(viewport);
+    // DOM: lead-0..3, real-0..3, trail-0..3. The period is one full copy
+    // (real-0 → its trailing clone), which spans all four slides.
     const slideEls = Array.from(
       result.container.querySelectorAll<HTMLElement>("[data-carousel-slide]"),
     );
@@ -171,15 +188,73 @@ describe("Carousel infinite-loop glide", () => {
     mockLefts(
       new Map<Element, number>([
         [viewport, 0],
-        [real0, -3000], // rewinding here would scroll far backward
-        [trail0, 2000], // the trailing clone of the page-leading slide 0
+        [real0, 0],
+        [trail0, 4000], // one full 4-slide period
       ]),
     );
 
     await user.click(result.getByRole("button", { name: "Next" }));
 
-    expect(scrollTo).toHaveBeenLastCalledWith(
-      expect.objectContaining({ left: 2000 }),
+    // Forward wrap → jump back one full period; the glide then lands on the
+    // real first page.
+    expect(viewport.scrollLeft).toBe(-4000);
+    expect(scrollTo).toHaveBeenCalled();
+  });
+
+  it("should teleport on the block axis for a vertical wrap", async () => {
+    const user = userEvent.setup();
+    const result = render(
+      <Carousel.Root
+        ariaLabel="Featured products"
+        loop="infinite"
+        snapAlign="start"
+        orientation="vertical"
+        defaultPage={1}
+      >
+        <Carousel.Viewport data-testid="viewport">
+          <Carousel.Slide data-testid="slide-0" />
+          <Carousel.Slide data-testid="slide-1" />
+        </Carousel.Viewport>
+        <Carousel.NextTrigger>Next</Carousel.NextTrigger>
+      </Carousel.Root>,
     );
+    const viewport = result.getByTestId("viewport");
+    let top = 0;
+    Object.defineProperty(viewport, "scrollTop", {
+      configurable: true,
+      get: () => top,
+      set: (v: number) => {
+        top = v;
+      },
+    });
+    const slideEls = Array.from(
+      result.container.querySelectorAll<HTMLElement>("[data-carousel-slide]"),
+    );
+    const real0 = slideEls[2];
+    const trail0 = slideEls[4];
+    // Vertical → the period is measured on the block (top) axis.
+    const tops = new Map<Element, number>([
+      [viewport, 0],
+      [real0, 0],
+      [trail0, 2000],
+    ]);
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
+      function (this: HTMLElement) {
+        return {
+          left: 0,
+          top: tops.get(this) ?? 0,
+          width: 0,
+          height: 0,
+          right: 0,
+          bottom: 0,
+        } as unknown as DOMRect;
+      },
+    );
+    const scrollTo = vi.spyOn(viewport, "scrollTo");
+
+    await user.click(result.getByRole("button", { name: "Next" }));
+
+    expect(viewport.scrollTop).toBe(-2000);
+    expect(scrollTo).toHaveBeenCalled();
   });
 });

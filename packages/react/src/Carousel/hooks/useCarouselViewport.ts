@@ -381,26 +381,43 @@ export function useCarouselViewport() {
     // is untouched, so the viewport never drifts on the other axis. `start` aligns
     // the slide's leading edge to the viewport's; `center` centres it; `end`
     // aligns its trailing edge.
-    // Under infinite, a wrap (last↔first) glides *forward* into the trailing
-    // clone (or *backward* into the leading clone) instead of rewinding across
-    // the whole track — the clone is the adjacent copy, so the scroll is one
-    // step, and the scrollend recentre then teleports to the real slide. The
-    // direction is a one-shot from next()/previous(), consumed here.
+    // Under infinite, a wrap (last↔first) uses *teleport-then-glide*: instantly
+    // jump one period to the buffer copy on the side we're leaving (invisible —
+    // it's an identical slide), then smooth-scroll the short way to the *real*
+    // target. Ending on the real slide — rather than gliding onto a clone and
+    // recentring on scrollend — means a rapid follow-up click can't interrupt a
+    // pending recentre and rewind. The direction is a one-shot from
+    // next()/previous(), consumed here.
     const wrapDirection = wrapDirectionRef.current;
     wrapDirectionRef.current = null;
     const gliding = loop === "infinite" && wrapDirection !== null;
-    let targetEl = slidesRef.current!.get(firstSlideKey)!;
-    if (gliding) {
-      // Two clones per real slide (leading + trailing, in DOM order); glide
-      // forward to the trailing one, backward to the leading one.
-      const clones = viewport.querySelectorAll<HTMLDivElement>(
-        `[data-clone-of="${currentPageOffset}"]`,
-      );
-      targetEl = (
-        wrapDirection === "forward" ? clones[clones.length - 1] : clones[0]
-      )!;
-    }
+    const targetEl = slidesRef.current!.get(firstSlideKey)!;
     const vertical = orientation === "vertical";
+    if (gliding) {
+      // One period = real slide 0 → its trailing clone (a full copy away). A
+      // forward wrap jumps *back* one period (into the leading copy) so the
+      // glide to the real target runs forward; a backward wrap jumps forward.
+      const real0 = slidesRef.current!.get(slideKeys[0])!;
+      const clonesOf0 = viewport.querySelectorAll<HTMLDivElement>(
+        '[data-clone-of="0"]',
+      );
+      const trailingClone0 = clonesOf0[clonesOf0.length - 1]!;
+      const measure = (el: HTMLElement) =>
+        vertical
+          ? el.getBoundingClientRect().top
+          : el.getBoundingClientRect().left;
+      const period = measure(trailingClone0) - measure(real0);
+      const teleport = wrapDirection === "forward" ? -period : period;
+      // Instant + snap/behaviour suppressed, so the jump doesn't animate.
+      const prevSnap = viewport.style.scrollSnapType;
+      const prevBehavior = viewport.style.scrollBehavior;
+      viewport.style.scrollSnapType = "none";
+      viewport.style.scrollBehavior = "auto";
+      if (vertical) viewport.scrollTop += teleport;
+      else viewport.scrollLeft += teleport;
+      viewport.style.scrollSnapType = prevSnap;
+      viewport.style.scrollBehavior = prevBehavior;
+    }
     const viewportRect = viewport.getBoundingClientRect();
     const targetRect = targetEl.getBoundingClientRect();
     const currentScroll = vertical ? viewport.scrollTop : viewport.scrollLeft;
@@ -430,24 +447,10 @@ export function useCarouselViewport() {
       currentPageOffset + slidesPerPage - 1,
       slideKeys.length - 1,
     );
-    // When gliding into the clone buffer the "page" is a run of clones, so
-    // measure the span against the matching clone of the page's last member
-    // (same buffer side as the leading clone) — the real last-member slide is a
-    // full period away and would corrupt the center/end alignment. With
-    // slidesPerPage 1 this clone is the same element as `targetEl`.
-    let lastMemberEl: HTMLDivElement;
-    if (gliding) {
-      const lastClones = viewport.querySelectorAll<HTMLDivElement>(
-        `[data-clone-of="${lastMemberIndex}"]`,
-      );
-      lastMemberEl = (
-        wrapDirection === "forward"
-          ? lastClones[lastClones.length - 1]
-          : lastClones[0]
-      )!;
-    } else {
-      lastMemberEl = slidesRef.current!.get(slideKeys[lastMemberIndex])!;
-    }
+    // The glide always lands on the real target page (teleport-then-glide), so
+    // the page span for center/end alignment measures against the real page's
+    // last member — no clone bookkeeping needed here.
+    const lastMemberEl = slidesRef.current!.get(slideKeys[lastMemberIndex])!;
     const lastMemberRect = lastMemberEl.getBoundingClientRect();
     // Computed as left/top + width/height, not the rect's own .right/.bottom
     // — real DOMRects derive those the same way, but keeping the maths

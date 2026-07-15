@@ -2356,6 +2356,20 @@ it (decision 4).
       correct for a multi-slide glided page. Demoed at `/carousel/loop` cell 12
       (2-up). TDD'd at 100% (multi-slide clone-snap + multi-slide glide tests). The
       builder `loop` control (deferred note above) is now unblocked.
+      (7) **Rapid-click rewind fixed — teleport-then-glide (2026-07-15, human QA).**
+      The human hit a rewind when clicking Next repeatedly fast. Cause: a button
+      wrap glided *onto* a clone and deferred the recentre to `scrollend`; a click
+      before scrollend left the viewport parked on the trailing clone, so the next
+      nav scrolled back toward the real middle copy (visible rewind). Fix: a wrap now
+      **teleports one period to the buffer copy *behind* it first** (instant,
+      invisible — an identical slide), **then smooth-scrolls to the *real* target**,
+      so every button wrap *ends on the real slide* — no pending recentre for a rapid
+      click to interrupt, and no drift (the teleport counteracts the glide each
+      cycle). Replaces the earlier glide-onto-a-clone + scrollend-recentre approach
+      for programmatic nav; the scrollend recentre now serves **free-scroll/swipe
+      only** (which the full-period buffer already gives runway for). Period is
+      measured real-slide-0 → its trailing clone (one full copy). Glide tests
+      reworked to assert the one-period teleport (fwd/bwd/multi-slide/vertical); 100%.
       **Naming (2026-07-15):** the third mode was renamed `seamless` →
       **`infinite`** (human preference); earlier log prose calling it "seamless"
       is historical — the mode token is `"infinite"`.

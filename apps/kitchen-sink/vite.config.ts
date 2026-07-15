@@ -16,6 +16,15 @@ export default defineConfig({
   base: process.env.KITCHEN_SINK_BASE ?? '/',
   plugins: [react()],
   resolve: {
+    // The @primitiv-ui/react alias points at the workspace *source*, which lives
+    // outside this app's install (the kitchen-sink is excluded from the pnpm
+    // workspace). Its `import "react"` therefore resolves upward to a *second*
+    // React copy (packages/react/node_modules in dev, the root workspace copy in
+    // CI) distinct from the app's own react — two React instances share no hook
+    // dispatcher, so every hook throws "Cannot read properties of null (reading
+    // 'useContext')" and the app white-pages. Dedupe collapses every react /
+    // react-dom request onto this app's single copy.
+    dedupe: ['react', 'react-dom'],
     alias: {
       '@primitiv-ui/react': fileURLToPath(
         new URL('../../packages/react/src/index.ts', import.meta.url),

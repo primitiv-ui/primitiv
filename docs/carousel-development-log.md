@@ -3965,3 +3965,36 @@ change, so no Carousel vitest.
 **Next:** human re-QA of `/carousel/slideshow` cell 3 (RTL) once more —
 confirm every number rests centred and drifts symmetrically like cells 1/2/4,
 in a real RTL browser.
+
+## Kitchen-sink deploy white-page — duplicate React (`resolve.dedupe`)
+
+The `/primitiv/kitchen-sink/` route built and deployed cleanly but rendered a
+**blank page** (empty `#root`) on device. Reproduced headlessly against the
+production `vite build` output (loaded the `dist` in Chromium): a single
+`PAGEERROR: Cannot read properties of null (reading 'useContext')` and
+`#root.innerHTML.length === 0` — the classic **two-React-copies null
+dispatcher**.
+
+**Root cause.** The kitchen-sink is excluded from the pnpm workspace
+(`'!apps/kitchen-sink'`) so it installs standalone with `--ignore-workspace`
+and owns its `node_modules/react`. But its Vite alias points
+`@primitiv-ui/react` at the workspace **source** (`packages/react/src`), which
+lives *outside* this install; that source's `import "react"` resolves *upward*
+to a **second** React copy — `packages/react/node_modules/react` in a dev tree,
+the root-workspace copy in the deploy job. Two React instances don't share a
+hook dispatcher, so the first hook the headless tree renders throws
+`useContext` of null and the whole app unmounts to blank. The workbench never
+hit this: it's *inside* the workspace, so pnpm gives it one deduped React.
+
+**Fix.** `resolve.dedupe: ['react', 'react-dom']` in
+`apps/kitchen-sink/vite.config.ts` — collapses every `react` / `react-dom`
+request (including the aliased source's) onto the app's single copy. After the
+change the headless probe renders (`#root` 31 KB, heading "Heading 1 - Primitiv
+Kitchen Sink", no page error) and the JS bundle shrinks ~9 KB as the duplicate
+React drops out. Base/router/asset paths were never the problem — orthogonal to
+this fix.
+
+**Verified** by building `KITCHEN_SINK_BASE=/ vite build` and loading the
+output in headless Chromium before/after: blank + `useContext`-null → mounted,
+no error. Deploy workflow rebuilds the kitchen-sink from source, so a re-run
+picks the fix up.

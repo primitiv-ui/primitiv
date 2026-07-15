@@ -106,6 +106,33 @@ describe("Carousel infinite-loop glide", () => {
     expect(scrollTo).toHaveBeenCalled();
   });
 
+  it("should hold scroll-snap suppressed across the wrap glide and restore it once the scroll settles", async () => {
+    const user = userEvent.setup();
+    const ctx = renderInfinite(1); // last page → forward wrap
+    trackScroll(ctx.viewport);
+    vi.spyOn(ctx.viewport, "scrollTo");
+    mockLefts(
+      new Map<Element, number>([
+        [ctx.viewport, 0],
+        [ctx.real0, 0],
+        [ctx.trail0, 2000],
+      ]),
+    );
+
+    await user.click(ctx.getByRole("button", { name: "Next" }));
+
+    // Snap stays OFF across the smooth glide: iOS Safari re-snaps to the nearest
+    // snap point the instant a `mandatory` snap-type is restored, and after the
+    // teleport into the clone buffer that nearest point is a *clone* — an
+    // immediate restore would yank the viewport onto it and strand the wrap
+    // (Next/Prev appear inert at the ends).
+    expect(ctx.viewport.style.scrollSnapType).toBe("none");
+
+    // Once the glide settles it's restored (a no-op on the real snap point).
+    ctx.viewport.dispatchEvent(new Event("scrollend"));
+    expect(ctx.viewport.style.scrollSnapType).toBe("");
+  });
+
   it("should target the real slide (no glide) for a normal Next that does not wrap", async () => {
     const user = userEvent.setup();
     const ctx = renderInfinite(0);

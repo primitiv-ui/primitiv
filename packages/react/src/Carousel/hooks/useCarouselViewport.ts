@@ -393,6 +393,10 @@ export function useCarouselViewport() {
     const gliding = loop === "infinite" && wrapDirection !== null;
     const targetEl = slidesRef.current!.get(firstSlideKey)!;
     const vertical = orientation === "vertical";
+    // A wrap glide suppresses scroll-snap for its teleport and keeps it
+    // suppressed across the smooth glide below; this restores it once the scroll
+    // settles. Null for every non-glide run (a normal step never touches snap).
+    let restoreSnapType: (() => void) | null = null;
     if (gliding) {
       // One period = real slide 0 → its trailing clone (a full copy away). A
       // forward wrap jumps *back* one period (into the leading copy) so the
@@ -415,8 +419,27 @@ export function useCarouselViewport() {
       viewport.style.scrollBehavior = "auto";
       if (vertical) viewport.scrollTop += teleport;
       else viewport.scrollLeft += teleport;
-      viewport.style.scrollSnapType = prevSnap;
+      // Restore only scroll-behavior (the glide below drives its own via
+      // scrollTo's option) but KEEP scroll-snap-type suppressed across that
+      // glide, restoring it only once the scroll settles (see clearFlag).
+      // iOS Safari re-snaps to the nearest snap point the instant a `mandatory`
+      // snap-type is restored — and right after the teleport that nearest point
+      // is a *clone* in the edge buffer, so an immediate restore yanks the
+      // viewport onto the clone and strands the wrap (Next/Prev look inert at
+      // the ends). Desktop is unaffected: the glide lands on the real snap
+      // point, so the deferred restore is a no-op. This is why a swipe wrap
+      // (which recentres onto a real slide) already worked while a button wrap
+      // did not.
       viewport.style.scrollBehavior = prevBehavior;
+      restoreSnapType = () => {
+        viewport.style.scrollSnapType = prevSnap;
+      };
+      // With snap suppressed the glide fires no `scrollsnapchange`, so the
+      // recentre effect's scrollend handler would otherwise act on a stale
+      // lastSnapTarget. Point it at the real slide we're gliding onto so that
+      // handler sees a real target and stands down — the glide already lands
+      // home, so no recentre is due.
+      lastSnapTargetRef.current = targetEl;
     }
     const viewportRect = viewport.getBoundingClientRect();
     const targetRect = targetEl.getBoundingClientRect();
@@ -491,6 +514,8 @@ export function useCarouselViewport() {
     // Re-clearing the flag is harmless, so no idempotency guard is needed.
     const clearFlag = () => {
       isProgrammaticScrollRef.current = false;
+      // Restore the snap-type held off across a wrap glide (no-op otherwise).
+      restoreSnapType?.();
     };
     viewport.addEventListener("scrollend", clearFlag, { once: true });
     const timeoutId = setTimeout(() => {

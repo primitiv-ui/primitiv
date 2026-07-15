@@ -4013,3 +4013,40 @@ grid already collapsed 4→2→1 col, so mobile now gets the full width. Verifie
 headless Chromium at 390px (folded → 390px main; open → drawer at x0 + backdrop;
 link tap → route changes and drawer closes) and 1200px (bar hidden, 14rem
 sidebar in-flow, main to its right) — no page errors.
+
+## Infinite wrap: buttons inert at the ends on iOS — hold snap through the glide
+
+On-device QA (iOS) of cell 7 (`loop="infinite"`, single-slide): **swipe** wrap
+works both ways at normal speed, but the **prev/next buttons** wouldn't navigate
+past the last slide / before the first. Reproduced in **neither** Chromium
+desktop nor Chromium mobile-emulation (both Blink drive the wrap 0→1→2→3→**0**
+perfectly), so it's **iOS WebKit-specific**.
+
+**Root cause.** A button wrap is *teleport-then-glide*: an instant `scrollLeft`
+jump one period into the clone buffer, then a smooth glide onto the real target.
+The teleport suppressed `scroll-snap-type` and **restored it immediately**, before
+the glide. iOS Safari re-snaps to the *nearest* snap point the instant a
+`mandatory` snap-type is restored — and right after the teleport that nearest
+point is a **clone**, so the restore yanked the viewport onto the clone and
+stranded the wrap (buttons look inert). This is exactly why a **swipe** wrap
+already worked: its recentre lands on a *real* slide, so restoring snap is a
+no-op. The button path lands mid-buffer, so it isn't.
+
+**Fix** (`useCarouselViewport.ts`). Keep `scroll-snap-type` suppressed across the
+whole glide and restore it only once the scroll settles (reusing the existing
+`scrollend` + 600 ms fallback that already clears the programmatic-scroll flag).
+Because the suppressed glide fires no `scrollsnapchange`, also point
+`lastSnapTargetRef` at the real target so the recentre effect's scrollend handler
+sees a real slide and stands down. Desktop/Blink is unaffected — the glide lands
+on the real snap point, so the deferred restore is a no-op (re-verified in
+Chromium: 0→1→2→3→0→1→2→3, unchanged). TDD: new glide test asserts snap stays
+`none` through the glide and is restored on `scrollend`.
+
+**Still open — bug 1 (fast-fling stops at the last slide, resumes after a
+pause).** The clone buffer is one period each side and the recentre only fires on
+`scrollend`; a hard iOS momentum fling can exhaust the buffer before `scrollend`
+lands, so it stops dead at the physical end until the fling settles and the
+teleport catches up. This is the fundamental scroll-momentum limit we flagged up
+front (Blossom's documented caveat) — mitigations (larger buffer, an early
+`scroll`-driven recentre that risks cancelling iOS momentum, or a non-scroll
+JS-driven track) all need real-device iteration; deferred pending a decision.

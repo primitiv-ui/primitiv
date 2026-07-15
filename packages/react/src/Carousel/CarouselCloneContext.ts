@@ -2,7 +2,7 @@ import { createContext, type Context, type Provider } from "react";
 
 /**
  * Marks the subtree it wraps as a **clone buffer** — the duplicate slides
- * the Viewport renders at each end for `loop="seamless"` so a native-scroll
+ * the Viewport renders at each end for `loop="infinite"` so a native-scroll
  * wrap has real content to glide onto before the recentre teleport.
  *
  * Defaults to `false` (a normal, registering slide). Set to `true` by

@@ -78,7 +78,7 @@ function BasicSingle({
   align?: "start" | "center" | "end";
   gap?: "none" | "sm" | "md" | "lg";
   size?: "xs" | "sm" | "md" | "lg" | "xl";
-  loop?: boolean | "wrap" | "seamless";
+  loop?: boolean | "wrap" | "infinite";
   autoplay?: boolean;
 }) {
   return (
@@ -146,7 +146,7 @@ function VerticalSingle({
   side?: "before" | "after";
   distribution?: "group" | "stretch";
   align?: "start" | "center" | "end";
-  loop?: boolean | "wrap" | "seamless";
+  loop?: boolean | "wrap" | "infinite";
 }) {
   return (
     <Carousel
@@ -2389,7 +2389,7 @@ export function CarouselSlideshow() {
  * first (and Previous on the first goes to the last), and an auto-rotating
  * carousel keeps cycling forever. This is *semantic* wrapping — the wrap
  * smooth-scrolls the whole track back (a visible rewind), the same path `Home`
- * takes; a seamless continuous glide is a separate, additive layer still to
+ * takes; a continuous infinite glide is a separate, additive layer still to
  * come. Check: the arrows stay enabled at both ends in every cell, and the
  * autoplay cell never stops.
  */
@@ -2397,7 +2397,7 @@ export function CarouselLoop() {
   return (
     <Example
       title="Loop — wrap-around navigation"
-      note="loop wraps Next/Previous and autoplay past the ends instead of clamping — the triggers never disable, Next on the last slide returns to the first, and autoplay keeps rotating. A single-page carousel has no wrap target, so its triggers still disable. This is semantic wrapping (the wrap smooth-scrolls the track back — a visible rewind); a seamless continuous loop is a separate layer to come."
+      note="loop wraps Next/Previous and autoplay past the ends instead of clamping — the triggers never disable, Next on the last slide returns to the first, and autoplay keeps rotating. A single-page carousel has no wrap target, so its triggers still disable. This is semantic wrapping (the wrap smooth-scrolls the track back — a visible rewind); a continuous infinite loop is a separate layer to come."
       wide
     >
       <div className="carousel-grid">

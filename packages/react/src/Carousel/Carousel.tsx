@@ -283,7 +283,7 @@ export function CarouselViewport({
     onClickCapture,
   } = useCarouselViewport();
 
-  // Seamless loop renders a full-period clone buffer at each end: one
+  // Infinite loop renders a full-period clone buffer at each end: one
   // complete copy of the real slides leading, one trailing. A whole period
   // (rather than a slide or two) guarantees any single native fling settles
   // *inside* the buffer on a snap point, so the recentre teleport always
@@ -292,7 +292,7 @@ export function CarouselViewport({
   // `data-clone-of` with the real index they mirror. Fewer than two slides
   // can't form a loop, so no clones are rendered there.
   const realChildren = Children.toArray(children);
-  const cloneBuffer = loop === "seamless" && realChildren.length >= 2;
+  const cloneBuffer = loop === "infinite" && realChildren.length >= 2;
   const makeClones = (prefix: string) =>
     realChildren.map((child, index) =>
       isValidElement(child)
@@ -410,7 +410,7 @@ export function CarouselSlide({
     useCarouselSlide(snapAlignOverride);
   const { translations } = useCarouselContext();
 
-  // A clone is presentational only — the seamless loop's edge buffer.
+  // A clone is presentational only — the infinite loop's edge buffer.
   // It keeps `data-carousel-slide` so the layout CSS sizes it identically
   // to a real slide, but it attaches no registration ref (so it never
   // inflates the real slide count / indices / indicator dots / "x of n"

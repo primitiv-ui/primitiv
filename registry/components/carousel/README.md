@@ -448,14 +448,14 @@ Structured per RFC 0008 — the per-component API knobs + resting look in
   controls, indicators, and keyboard paging still work. `none` behaves the same
   behaviourally but ships no default visual — bring your own CSS.
 - **Loop (`data-loop`)** — the headless `loop` prop (a mode selector:
-  `true`/`"wrap"` = semantic wrap · `"seamless"` = continuous infinite) wraps
+  `true`/`"wrap"` = semantic wrap · `"infinite"` = continuous infinite) wraps
   navigation past the ends instead of clamping: Next on the last page goes to
   the first, Previous on the first goes to the last, the triggers never disable
   at a boundary, and autoplay keeps rotating. It publishes
-  `data-loop="none" | "wrap" | "seamless"` on the root and, like `transition`,
+  `data-loop="none" | "wrap" | "infinite"` on the root and, like `transition`,
   reaches the headless Root directly (a passthrough prop — no modifier), so no
   extra wiring is needed. `"wrap"` smooth-scrolls the track back on a wrap (a
-  visible rewind); `"seamless"` is building toward a continuous glide — its
+  visible rewind); `"infinite"` is building toward a continuous glide — its
   cloned edge buffer is landed, the `scrollend` recentre is the next increment
   (prefer `"wrap"` for production until then).
 

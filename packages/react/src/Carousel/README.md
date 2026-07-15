@@ -753,14 +753,14 @@ is a **mode selector** — a boolean for ergonomics, or a named mode:
 ```tsx
 <Carousel.Root ariaLabel="Featured products" loop>            {/* = "wrap" */}
 <Carousel.Root ariaLabel="Featured products" loop="wrap">     {/* semantic wrap */}
-<Carousel.Root ariaLabel="Featured products" loop="seamless"> {/* continuous infinite */}
+<Carousel.Root ariaLabel="Featured products" loop="infinite"> {/* continuous infinite */}
 ```
 
 | `loop`                    | Resolved `data-loop` | Behaviour                                  |
 | ------------------------- | -------------------- | ------------------------------------------ |
 | omitted / `false`         | `"none"`             | Clamp at the ends (triggers disable).      |
 | `true` / `"wrap"`         | `"wrap"`             | Semantic wrap (visible rewind).            |
-| `"seamless"`              | `"seamless"`         | Continuous infinite (no rewind).           |
+| `"infinite"`              | `"infinite"`         | Continuous infinite (no rewind).           |
 
 In every wrapping mode:
 
@@ -773,22 +773,22 @@ In every wrapping mode:
 
 A single page has no wrap target, so the triggers stay `disabled`
 regardless of `loop`. The resolved mode is published as
-`data-loop="none" | "wrap" | "seamless"` on the Root (mirroring
+`data-loop="none" | "wrap" | "infinite"` on the Root (mirroring
 `data-orientation` / `data-transition`) for consumer CSS.
 
-**`"wrap"` vs `"seamless"`.** Both share the same page model (the wrap
+**`"wrap"` vs `"infinite"`.** Both share the same page model (the wrap
 arithmetic and never-disable boundaries). They differ only in the scroll
 visual: `"wrap"` smooth-scrolls the whole track back on a last→first wrap
-(a visible rewind, the same path `Home` takes), while `"seamless"` is
+(a visible rewind, the same path `Home` takes), while `"infinite"` is
 building toward a continuous glide with no rewind via a cloned edge buffer
 plus a native-scroll recentre.
 
-> **`"seamless"` is under construction.** The **clone edge buffer** is
-> landed — under `loop="seamless"` the Viewport renders a full-period copy
+> **`"infinite"` is under construction.** The **clone edge buffer** is
+> landed — under `loop="infinite"` the Viewport renders a full-period copy
 > of the slides at each end (inert, `aria-hidden`, out of the tab order,
 > never counted), tagged `data-clone-of`. The **recentre** (the `scrollend`
 > teleport that makes the wrap invisible) and the forward-glide navigation
-> are the next increment. Until then, `"seamless"` shares `"wrap"`'s
+> are the next increment. Until then, `"infinite"` shares `"wrap"`'s
 > navigation and additionally shows the clone buffer — prefer `"wrap"` for
 > production for now.
 

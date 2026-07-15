@@ -5,7 +5,7 @@ import { Carousel } from "../index.ts";
 
 function renderWithSlides(
   rootProps: {
-    loop?: boolean | "wrap" | "seamless";
+    loop?: boolean | "wrap" | "infinite";
     defaultPage?: number;
   } = {},
   count = 3,
@@ -48,18 +48,18 @@ describe("Carousel loop (semantic wrap)", () => {
     ).toHaveAttribute("data-loop", "wrap");
   });
 
-  it('should resolve loop="seamless" to data-loop="seamless"', () => {
-    renderWithSlides({ loop: "seamless" });
+  it('should resolve loop="infinite" to data-loop="infinite"', () => {
+    renderWithSlides({ loop: "infinite" });
 
     expect(
       screen.getByRole("region", { name: "Featured products" }),
-    ).toHaveAttribute("data-loop", "seamless");
+    ).toHaveAttribute("data-loop", "infinite");
   });
 
-  it("should share the wrap page model with seamless — Next stays enabled and wraps on the last page", async () => {
+  it("should share the wrap page model with infinite — Next stays enabled and wraps on the last page", async () => {
     const user = userEvent.setup();
     const { container } = renderWithSlides({
-      loop: "seamless",
+      loop: "infinite",
       defaultPage: 2,
     });
 
@@ -68,7 +68,7 @@ describe("Carousel loop (semantic wrap)", () => {
 
     await user.click(next);
 
-    // Seamless renders clones sharing the test id, so scope to the real
+    // Infinite renders clones sharing the test id, so scope to the real
     // slide (clones carry no data-state).
     const realSlide0 = container.querySelector(
       '[data-testid="slide-0"]:not([data-carousel-clone])',

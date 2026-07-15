@@ -3,7 +3,7 @@ import { render } from "@testing-library/react";
 import { Carousel } from "../index.ts";
 
 function renderCarousel(
-  loop: boolean | "wrap" | "seamless" | undefined,
+  loop: boolean | "wrap" | "infinite" | undefined,
   count = 3,
 ) {
   return render(
@@ -20,22 +20,22 @@ function renderCarousel(
   );
 }
 
-describe("Carousel seamless — clone buffer", () => {
-  it("should render no clones unless loop is seamless", () => {
+describe("Carousel infinite — clone buffer", () => {
+  it("should render no clones unless loop is infinite", () => {
     const { container } = renderCarousel("wrap");
 
     expect(container.querySelectorAll("[data-clone-of]")).toHaveLength(0);
   });
 
-  it("should render a full-period clone buffer on each side under loop=seamless", () => {
-    const { container } = renderCarousel("seamless", 3);
+  it("should render a full-period clone buffer on each side under loop=infinite", () => {
+    const { container } = renderCarousel("infinite", 3);
 
     // One complete copy of the real set leading, one trailing = 2 × count.
     expect(container.querySelectorAll("[data-clone-of]")).toHaveLength(6);
   });
 
   it("should keep the real slide count, indices and total unaffected by the clones", () => {
-    const { container } = renderCarousel("seamless", 3);
+    const { container } = renderCarousel("infinite", 3);
 
     // Real slides keep their contiguous 0..n-1 indices and a total of n,
     // never counting the clones. (The clones share the same test id, so
@@ -51,7 +51,7 @@ describe("Carousel seamless — clone buffer", () => {
   });
 
   it("should render exactly one indicator per real slide, ignoring clones", () => {
-    const { container } = renderCarousel("seamless", 3);
+    const { container } = renderCarousel("infinite", 3);
 
     // Auto Indicators render one dot per page (= per slide here); clones
     // must not inflate the count.
@@ -61,7 +61,7 @@ describe("Carousel seamless — clone buffer", () => {
   });
 
   it("should hide every clone from assistive tech and the tab order", () => {
-    const { container } = renderCarousel("seamless", 3);
+    const { container } = renderCarousel("infinite", 3);
 
     const clones = container.querySelectorAll("[data-clone-of]");
     clones.forEach((clone) => {
@@ -72,7 +72,7 @@ describe("Carousel seamless — clone buffer", () => {
   });
 
   it("should tag each clone with the real slide index it mirrors", () => {
-    const { container } = renderCarousel("seamless", 3);
+    const { container } = renderCarousel("infinite", 3);
 
     const cloneIndices = Array.from(
       container.querySelectorAll("[data-clone-of]"),
@@ -83,7 +83,7 @@ describe("Carousel seamless — clone buffer", () => {
   });
 
   it("should not render clones when there are too few slides to loop", () => {
-    const { container } = renderCarousel("seamless", 1);
+    const { container } = renderCarousel("infinite", 1);
 
     expect(container.querySelectorAll("[data-clone-of]")).toHaveLength(0);
   });
@@ -92,7 +92,7 @@ describe("Carousel seamless — clone buffer", () => {
     // A stray text node among the slides must not crash cloneElement — it
     // passes through the buffer as-is while the real slides still clone.
     const { container } = render(
-      <Carousel.Root ariaLabel="Featured products" loop="seamless">
+      <Carousel.Root ariaLabel="Featured products" loop="infinite">
         <Carousel.Viewport>
           <Carousel.Slide data-testid="slide-0">Slide 0</Carousel.Slide>
           <Carousel.Slide data-testid="slide-1">Slide 1</Carousel.Slide>

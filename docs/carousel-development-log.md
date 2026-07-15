@@ -2286,12 +2286,12 @@ iPhone-Safari device-QA gate for the momentum feel.
 Tracked so we know what's outstanding; only built when an example needs
 it (decision 4).
 
-- [~] Looping / infinite — **Phase C (semantic wrap) + the seamless clone
+- [~] Looping / infinite — **Phase C (semantic wrap) + the infinite clone
       buffer landed** (loop iteration, 2026-07-15). (1) `loop` is now a **mode
-      selector** (`boolean | "wrap" | "seamless"`, `true`→`"wrap"`) resolving to
-      `data-loop="none" | "wrap" | "seamless"` — so wrap stays a first-class
+      selector** (`boolean | "wrap" | "infinite"`, `true`→`"wrap"`) resolving to
+      `data-loop="none" | "wrap" | "infinite"` — so wrap stays a first-class
       configurable option (human request). (2) Phase A **increment 1** landed:
-      under `loop="seamless"` the Viewport renders a full-period clone copy at
+      under `loop="infinite"` the Viewport renders a full-period clone copy at
       each end (`CarouselCloneContext` + a clone-aware `CarouselSlide` — inert,
       `aria-hidden`, `tabindex=-1`, `id` stripped, never registered, tagged
       `data-clone-of`), so clones never inflate the real count / indices /
@@ -2300,8 +2300,11 @@ it (decision 4).
       (`getBoundingClientRect`/`scrollLeft`/`scrollend`/peek/RTL/vertical) that
       jsdom can't validate, so it's built with the human's real-device QA in the
       loop (the mandatory iOS gate from the 2026-07-15 strategy entry). Until
-      then `"seamless"` shares `"wrap"`'s navigation and just shows the clone
+      then `"infinite"` shares `"wrap"`'s navigation and just shows the clone
       buffer — docs steer production users to `"wrap"`.
+      **Naming (2026-07-15):** the third mode was renamed `seamless` →
+      **`infinite`** (human preference); earlier log prose calling it "seamless"
+      is historical — the mode token is `"infinite"`.
 - [x] Vertical orientation + `data-orientation` — **landed (iteration 2)**.
       `orientation="vertical"` switches the scroll axis, the `snapTargetBlock`
       sync, and the ArrowDown/ArrowUp keys; `data-orientation` on the Root is

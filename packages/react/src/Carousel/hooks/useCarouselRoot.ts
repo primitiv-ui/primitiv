@@ -101,7 +101,7 @@ type UseCarouselRootProps = {
   orientation?: CarouselOrientation;
   /** Wrap navigation around the ends instead of clamping — `boolean` for
    * ergonomics (`true` = `"wrap"`) or a named mode. Defaults to `false`. */
-  loop?: boolean | "wrap" | "seamless";
+  loop?: boolean | "wrap" | "infinite";
   /** Opt-in mouse click-and-drag scrolling. */
   allowMouseDrag?: boolean;
   /** Fires on every mouse-drag status transition — see
@@ -179,7 +179,7 @@ export function useCarouselRoot(
   const total = slideKeys.length;
   // Resolve the ergonomic boolean/named `loop` prop to a single mode.
   // `true` is sugar for `"wrap"`; `false`/omitted is `"none"`. `"wrap"` and
-  // `"seamless"` share the page model below (`looping`), differing only in
+  // `"infinite"` share the page model below (`looping`), differing only in
   // the scroll/clone layer the styled surface keys off `data-loop`.
   const loopMode: CarouselLoopMode =
     loop === true ? "wrap" : loop === false ? "none" : loop;

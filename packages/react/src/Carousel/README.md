@@ -747,13 +747,22 @@ there's nowhere to navigate.
 
 ### Loop (wrap-around navigation)
 
-Pass `loop` to make navigation wrap around instead of clamping:
+Pass `loop` to make navigation wrap around instead of clamping. `loop`
+is a **mode selector** — a boolean for ergonomics, or a named mode:
 
 ```tsx
-<Carousel.Root ariaLabel="Featured products" loop>
+<Carousel.Root ariaLabel="Featured products" loop>            {/* = "wrap" */}
+<Carousel.Root ariaLabel="Featured products" loop="wrap">     {/* semantic wrap */}
+<Carousel.Root ariaLabel="Featured products" loop="seamless"> {/* continuous infinite */}
 ```
 
-With `loop`:
+| `loop`                    | Resolved `data-loop` | Behaviour                                  |
+| ------------------------- | -------------------- | ------------------------------------------ |
+| omitted / `false`         | `"none"`             | Clamp at the ends (triggers disable).      |
+| `true` / `"wrap"`         | `"wrap"`             | Semantic wrap (visible rewind).            |
+| `"seamless"`              | `"seamless"`         | Continuous infinite (no rewind).           |
+
+In every wrapping mode:
 
 - `Carousel.NextTrigger` on the last page advances to the first;
   `Carousel.PreviousTrigger` on the first page retreats to the last.
@@ -763,14 +772,16 @@ With `loop`:
   the natural pairing for an auto-rotating hero.
 
 A single page has no wrap target, so the triggers stay `disabled`
-regardless of `loop`. The resolved value is published as
-`data-loop="true" | "false"` on the Root (mirroring `data-orientation`
-/ `data-transition`) for consumer CSS.
+regardless of `loop`. The resolved mode is published as
+`data-loop="none" | "wrap" | "seamless"` on the Root (mirroring
+`data-orientation` / `data-transition`) for consumer CSS.
 
-This is **semantic** wrapping: wrapping last→first smooth-scrolls the
-whole track back — a visible rewind, the same path `Home` takes — not a
-seamless continuous glide. (A seamless infinite loop, built from a cloned
-edge buffer plus a native-scroll recentre, is a separate additive layer.)
+**`"wrap"` vs `"seamless"`.** Both share the same page model (the wrap
+arithmetic and never-disable boundaries). They differ only in the scroll
+visual: `"wrap"` smooth-scrolls the whole track back on a last→first wrap
+(a visible rewind, the same path `Home` takes), while `"seamless"` adds a
+cloned edge buffer plus a native-scroll recentre so the wrap is a
+continuous glide with no rewind.
 
 ### Keyboard navigation
 

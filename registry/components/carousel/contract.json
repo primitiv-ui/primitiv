@@ -15,8 +15,9 @@
     { "name": "data-transition", "value": "slide", "when": "slide", "source": "auto" },
     { "name": "data-transition", "value": "fade", "when": "fade", "source": "auto" },
     { "name": "data-transition", "value": "none", "when": "none", "source": "auto" },
-    { "name": "data-loop", "value": "true", "when": "loop enabled", "source": "auto" },
-    { "name": "data-loop", "value": "false", "when": "loop disabled (default)", "source": "auto" }
+    { "name": "data-loop", "value": "none", "when": "loop disabled (default)", "source": "auto" },
+    { "name": "data-loop", "value": "wrap", "when": "loop / loop=\"wrap\" (semantic wrap)", "source": "auto" },
+    { "name": "data-loop", "value": "seamless", "when": "loop=\"seamless\" (continuous infinite)", "source": "auto" }
   ],
   "modifiers": [
     {

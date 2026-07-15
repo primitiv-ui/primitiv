@@ -78,7 +78,7 @@ function BasicSingle({
   align?: "start" | "center" | "end";
   gap?: "none" | "sm" | "md" | "lg";
   size?: "xs" | "sm" | "md" | "lg" | "xl";
-  loop?: boolean;
+  loop?: boolean | "wrap" | "seamless";
   autoplay?: boolean;
 }) {
   return (
@@ -146,7 +146,7 @@ function VerticalSingle({
   side?: "before" | "after";
   distribution?: "group" | "stretch";
   align?: "start" | "center" | "end";
-  loop?: boolean;
+  loop?: boolean | "wrap" | "seamless";
 }) {
   return (
     <Carousel

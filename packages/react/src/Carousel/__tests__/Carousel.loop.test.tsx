@@ -4,7 +4,10 @@ import userEvent from "@testing-library/user-event";
 import { Carousel } from "../index.ts";
 
 function renderWithSlides(
-  rootProps: { loop?: boolean; defaultPage?: number } = {},
+  rootProps: {
+    loop?: boolean | "wrap" | "seamless";
+    defaultPage?: number;
+  } = {},
   count = 3,
 ) {
   return render(
@@ -21,20 +24,51 @@ function renderWithSlides(
 }
 
 describe("Carousel loop (semantic wrap)", () => {
-  it("should publish data-loop on the Root when loop is enabled", () => {
+  it('should resolve the bare loop flag to data-loop="wrap" on the Root', () => {
     renderWithSlides({ loop: true });
 
     expect(
       screen.getByRole("region", { name: "Featured products" }),
-    ).toHaveAttribute("data-loop", "true");
+    ).toHaveAttribute("data-loop", "wrap");
   });
 
-  it('should publish data-loop="false" on the Root when loop is left off', () => {
+  it('should publish data-loop="none" on the Root when loop is left off', () => {
     renderWithSlides();
 
     expect(
       screen.getByRole("region", { name: "Featured products" }),
-    ).toHaveAttribute("data-loop", "false");
+    ).toHaveAttribute("data-loop", "none");
+  });
+
+  it('should resolve loop="wrap" to data-loop="wrap"', () => {
+    renderWithSlides({ loop: "wrap" });
+
+    expect(
+      screen.getByRole("region", { name: "Featured products" }),
+    ).toHaveAttribute("data-loop", "wrap");
+  });
+
+  it('should resolve loop="seamless" to data-loop="seamless"', () => {
+    renderWithSlides({ loop: "seamless" });
+
+    expect(
+      screen.getByRole("region", { name: "Featured products" }),
+    ).toHaveAttribute("data-loop", "seamless");
+  });
+
+  it("should share the wrap page model with seamless — Next stays enabled and wraps on the last page", async () => {
+    const user = userEvent.setup();
+    renderWithSlides({ loop: "seamless", defaultPage: 2 });
+
+    const next = screen.getByRole("button", { name: "Next" });
+    expect(next).not.toBeDisabled();
+
+    await user.click(next);
+
+    expect(screen.getByTestId("slide-0")).toHaveAttribute(
+      "data-state",
+      "active",
+    );
   });
 
   it("should keep Carousel.NextTrigger enabled on the last page when looping", () => {

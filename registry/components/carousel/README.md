@@ -447,6 +447,14 @@ Structured per RFC 0008 — the per-component API knobs + resting look in
   needed; swipe/drag and peek don't apply in fade mode (there's no scroll), but
   controls, indicators, and keyboard paging still work. `none` behaves the same
   behaviourally but ships no default visual — bring your own CSS.
+- **Loop (`data-loop`)** — the headless `loop` prop wraps navigation past the
+  ends instead of clamping: Next on the last page goes to the first, Previous on
+  the first goes to the last, the triggers never disable at a boundary, and
+  autoplay keeps rotating. It publishes `data-loop="true" | "false"` on the root
+  and, like `transition`, reaches the headless Root directly (a passthrough prop —
+  no modifier), so no extra wiring is needed. This is *semantic* wrapping (the
+  wrap smooth-scrolls the track back, a visible rewind); a seamless continuous
+  loop is a separate additive layer.
 
 Focus draws the **shared two-layer ring** (surface gap + brand ring) on the
 tabbable viewport and the button parts, restyleable system-wide via the

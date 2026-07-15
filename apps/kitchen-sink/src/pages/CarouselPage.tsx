@@ -63,6 +63,8 @@ function BasicSingle({
   align,
   gap,
   size,
+  loop,
+  autoplay,
 }: {
   label: string;
   radius?: "md" | "none";
@@ -76,6 +78,8 @@ function BasicSingle({
   align?: "start" | "center" | "end";
   gap?: "none" | "sm" | "md" | "lg";
   size?: "xs" | "sm" | "md" | "lg" | "xl";
+  loop?: boolean;
+  autoplay?: boolean;
 }) {
   return (
     <Carousel
@@ -91,6 +95,9 @@ function BasicSingle({
       align={align}
       gap={gap}
       ratio={ratio}
+      loop={loop}
+      autoplay={autoplay}
+      defaultPlaying={autoplay}
     >
       <CarouselViewport>
         {SLIDES.map((bg, i) => (
@@ -131,6 +138,7 @@ function VerticalSingle({
   side,
   distribution,
   align,
+  loop,
 }: {
   label: string;
   peek?: "none" | "sm" | "md" | "lg";
@@ -138,6 +146,7 @@ function VerticalSingle({
   side?: "before" | "after";
   distribution?: "group" | "stretch";
   align?: "start" | "center" | "end";
+  loop?: boolean;
 }) {
   return (
     <Carousel
@@ -149,6 +158,7 @@ function VerticalSingle({
       side={side}
       distribution={distribution}
       align={align}
+      loop={loop}
     >
       <CarouselViewport>
         {SLIDES.map((bg, i) => (
@@ -2366,6 +2376,91 @@ export function CarouselSlideshow() {
             label="Featured products — slideshow parallax, peek"
             peek="md"
           />
+        </GridCell>
+      </div>
+    </Example>
+  );
+}
+
+/**
+ * Loop — wrap-around navigation (Phase C, "no disabled ends"). The `loop` prop
+ * makes Next/Previous and autoplay wrap past the ends instead of clamping: the
+ * triggers never disable at a boundary, Next on the last slide returns to the
+ * first (and Previous on the first goes to the last), and an auto-rotating
+ * carousel keeps cycling forever. This is *semantic* wrapping — the wrap
+ * smooth-scrolls the whole track back (a visible rewind), the same path `Home`
+ * takes; a seamless continuous glide is a separate, additive layer still to
+ * come. Check: the arrows stay enabled at both ends in every cell, and the
+ * autoplay cell never stops.
+ */
+export function CarouselLoop() {
+  return (
+    <Example
+      title="Loop — wrap-around navigation"
+      note="loop wraps Next/Previous and autoplay past the ends instead of clamping — the triggers never disable, Next on the last slide returns to the first, and autoplay keeps rotating. A single-page carousel has no wrap target, so its triggers still disable. This is semantic wrapping (the wrap smooth-scrolls the track back — a visible rewind); a seamless continuous loop is a separate layer to come."
+      wide
+    >
+      <div className="carousel-grid">
+        <GridCell
+          n={1}
+          title="Default loop"
+          note="Click Next repeatedly: it never disables and returns to the first slide from the last (and Previous wraps the other way). Same as the default carousel otherwise."
+        >
+          <BasicSingle label="Featured products — loop" loop />
+        </GridCell>
+
+        <GridCell
+          n={2}
+          title="Loop + autoplay"
+          note="autoplay + loop = an endlessly rotating hero: without loop, autoplay stops at the last slide; with it, it keeps cycling. Hover or focus to pause (WCAG 2.2.2)."
+        >
+          <BasicSingle label="Featured products — loop autoplay" loop autoplay />
+        </GridCell>
+
+        <GridCell
+          n={3}
+          title="Loop + vertical"
+          note="Wrapping is orientation-agnostic — the up/down controls wrap on the block axis just as the horizontal ones do."
+        >
+          <VerticalSingle label="Featured products — loop vertical" loop />
+        </GridCell>
+
+        <GridCell
+          n={4}
+          title="Loop + RTL"
+          note="Logical navigation, so the wrap follows writing direction with no extra wiring."
+          dir="rtl"
+        >
+          <BasicSingle label="Featured products — loop RTL" loop />
+        </GridCell>
+
+        <GridCell
+          n={5}
+          title="Loop + peek"
+          note="loop is a headless passthrough, so it composes with every registry modifier — here a peek sliver reveals the wrap target as you approach the end."
+        >
+          <BasicSingle label="Featured products — loop peek" loop peek="md" />
+        </GridCell>
+
+        <GridCell
+          n={6}
+          title="Single slide — no wrap target"
+          note="With only one page there is nowhere to wrap, so both triggers stay disabled even with loop set — the guard against a pointless self-navigation."
+        >
+          <Carousel ariaLabel="Featured products — single loop" cluster="joined" loop>
+            <CarouselViewport>
+              <CarouselSlide style={{ background: SLIDES[0] }} />
+            </CarouselViewport>
+            <CarouselControls>
+              <CarouselPreviousTrigger aria-label="Previous slide">
+                <ChevronLeft />
+              </CarouselPreviousTrigger>
+              <CarouselIndicators label="Choose slide" />
+              <CarouselNextTrigger aria-label="Next slide">
+                <ChevronRight />
+              </CarouselNextTrigger>
+            </CarouselControls>
+          </Carousel>
         </GridCell>
       </div>
     </Example>

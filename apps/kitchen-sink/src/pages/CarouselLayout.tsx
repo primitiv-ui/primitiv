@@ -26,6 +26,7 @@ const EXAMPLES: { to: string; label: string }[] = [
   { to: "variable-width", label: "Variable width" },
   { to: "progress", label: "Scroll progress" },
   { to: "slideshow", label: "Slideshow (parallax)" },
+  { to: "loop", label: "Loop" },
 ];
 
 export function CarouselLayout() {

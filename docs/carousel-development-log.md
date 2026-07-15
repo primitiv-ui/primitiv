@@ -2229,13 +2229,69 @@ wheel/drag should now always land cleanly on a full page, never straddled),
 plus item 3's specific repro (vertical + `slidesPerPage > 1`, wheel-scroll
 slowly and confirm the indicators always track a clean page).
 
+### Iteration — Loop, Phase C (semantic wrap / "no disabled ends") (awaiting human QA)
+
+The loop variant, split into two phases (see the 2026-07-15 decision entry for
+the full rationale + the Phase A iOS-inertia strategy). **This is Phase C** —
+the cheap, robust, Figma-documented half; Phase A (seamless infinite) is
+designed and waits on Phase C's QA.
+
+**Headless gap filled (TDD, 100%).** A `loop?: boolean` root prop (default
+`false`). The end-clamp is localized to four spots in `useCarouselRoot`; under
+loop: `canGoNext = canGoPrevious = totalPages > 1` (both directions stay
+available while there's more than one page to wrap between — a single page has
+no wrap target, so the triggers still disable), `next` wraps
+`(currentPage + 1) % totalPages`, `previous` wraps
+`(currentPage - 1 + totalPages) % totalPages`. **Autoplay wraps for free** —
+its `eligible` gate reads `canGoNext`, which now stays true at the last page.
+`data-loop="true" | "false"` on the Root (mirrors `data-orientation` /
+`data-transition`, always present) is the styling hook. **No scroll-effect
+change** — wrapping last→first smooth-scrolls the whole track back (a visible
+rewind), the same path `Home`/`End` (`goTo`) already take; that *is* semantic
+wrapping. 8 new tests (`Carousel.loop.test.tsx`): `data-loop` true/false,
+triggers stay enabled at both ends, Next wraps last→first, Previous wraps
+first→last, single-page still disables, autoplay wraps past the last page.
+JSDoc (prop + context field) + headless README (new "Loop" section + keyboard
+note) updated.
+
+**Registry surface (headless-free — a passthrough prop, no modifier).** `loop`
+isn't in the wrapper's omit list, so `<Carousel loop>` reaches the headless Root
+directly (like `transition`); no recipe/tsx/scss change, no regeneration. Added
+`data-loop` (true/false) to the contract `dataAttributes` (documentary only — the
+emit gates confirm it doesn't feed generated output) + a registry-README bullet.
+Kitchen-sink contract hand-synced.
+
+**Built** (`CarouselPage.tsx`, `/carousel/loop`): a 6-cell grid — default loop,
+loop + autoplay (endless hero), loop + vertical, loop + RTL, loop + peek, and a
+single-slide cell proving the no-wrap-target guard still disables. `BasicSingle`
+gained `loop` + `autoplay` passthroughs; `VerticalSingle` gained `loop`. Sidebar
+entry + Shell route wired. **Kitchen-sink dev-alias confirmed still active**
+(vite + tsconfig), so the unpublished `loop` prop + `data-loop` hook are live for
+QA without a publish.
+
+**Gates green:** `pnpm --filter @primitiv-ui/react qa:units` (100%
+lines/branches/functions/statements, 1878 tests), `cargo test -p primitiv-emit
+-p primitiv-cli` (106 + cli), `node scripts/check-registry-types.mjs`.
+
+**Figma lockstep: pending** (light — `loop` is code-only behaviour + a data hook;
+the design's "Loop (no disabled ends)" cell is exactly this intent, so a
+verification pass). **Next:** human QA of `/carousel/loop` (confirm the arrows
+never disable at the ends, Next/Prev wrap, autoplay never stops, and the single
+cell still disables). **Then Phase A** (seamless infinite) per the locked
+strategy — it only adds the scroll-seamlessness layer on top and needs a real
+iPhone-Safari device-QA gate for the momentum feel.
+
 ## Headless gaps (drive reactively, per example)
 
 Tracked so we know what's outstanding; only built when an example needs
 it (decision 4).
 
-- [ ] Looping / infinite (next/previous hard-clamp today; autoplay stops
-      at last page)
+- [~] Looping / infinite — **Phase C (semantic wrap) landed** (loop iteration,
+      2026-07-15): `loop` prop wraps next/previous + autoplay past the ends, no
+      disabled boundaries, `data-loop` hook. **Phase A (seamless infinite —
+      cloned edge buffer + native-scroll recentre) is designed but not built**
+      (see the 2026-07-15 decision entry for the full iOS-inertia strategy);
+      it's gated on Phase C landing correctly in human QA first.
 - [x] Vertical orientation + `data-orientation` — **landed (iteration 2)**.
       `orientation="vertical"` switches the scroll axis, the `snapTargetBlock`
       sync, and the ArrowDown/ArrowUp keys; `data-orientation` on the Root is

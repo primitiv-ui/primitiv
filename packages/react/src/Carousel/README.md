@@ -745,6 +745,33 @@ The prev/next triggers clamp at the ends: `Carousel.PreviousTrigger` is
 are also `disabled` when zero or one slides are registered, since
 there's nowhere to navigate.
 
+### Loop (wrap-around navigation)
+
+Pass `loop` to make navigation wrap around instead of clamping:
+
+```tsx
+<Carousel.Root ariaLabel="Featured products" loop>
+```
+
+With `loop`:
+
+- `Carousel.NextTrigger` on the last page advances to the first;
+  `Carousel.PreviousTrigger` on the first page retreats to the last.
+- Neither trigger `disabled`s at a boundary (the arrow keys wrap too,
+  since they route through the same `next` / `previous`).
+- **Autoplay keeps rotating past the last page** rather than stopping —
+  the natural pairing for an auto-rotating hero.
+
+A single page has no wrap target, so the triggers stay `disabled`
+regardless of `loop`. The resolved value is published as
+`data-loop="true" | "false"` on the Root (mirroring `data-orientation`
+/ `data-transition`) for consumer CSS.
+
+This is **semantic** wrapping: wrapping last→first smooth-scrolls the
+whole track back — a visible rewind, the same path `Home` takes — not a
+seamless continuous glide. (A seamless infinite loop, built from a cloned
+edge buffer plus a native-scroll recentre, is a separate additive layer.)
+
 ### Keyboard navigation
 
 `Carousel.Viewport` is in the tab order so keyboard users can reach the
@@ -762,7 +789,8 @@ The paging arrows follow the [orientation](#orientation): `ArrowRight` /
 `ArrowLeft` for the default horizontal axis, `ArrowDown` / `ArrowUp` when
 `orientation="vertical"` (the off-axis arrows go inert). `Home` / `End`
 work in both. Arrow keys clamp at the boundaries, mirroring the trigger
-buttons. Keypresses are only intercepted when the Viewport itself is the
+buttons — or wrap around when [`loop`](#loop-wrap-around-navigation) is
+set. Keypresses are only intercepted when the Viewport itself is the
 focus target — focus inside a slide (e.g. on a link or form control)
 keeps its native arrow-key semantics.
 

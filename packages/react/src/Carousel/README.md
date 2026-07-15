@@ -792,11 +792,23 @@ real slide it mirrors — an identical copy one period away — with
 `scrollsnapchange` maps a clone snap-target to its real index, so the active
 page and indicators stay correct while scrolling through the buffer.
 
-> **In progress.** The **free-scroll** path (swipe / drag / wheel) glides
-> seamlessly. **Button / keyboard / autoplay** navigation still uses
-> `"wrap"`'s rewind at the ends for now — the forward-glide for those is the
-> next increment. The recentre geometry is verified for feel on real
-> devices (jsdom can't exercise real scroll layout).
+Both input paths glide seamlessly:
+
+- **Free-scroll** (swipe / drag / wheel) settles on a clone, then recentres.
+- **Button / keyboard / autoplay** — a wrap glides one step into the adjacent
+  clone (`next()` forward into the trailing clone, `previous()` backward into
+  the leading one) rather than rewinding across the whole track, then
+  recentres. The direction is captured at the call site (a 2-page carousel
+  can't infer it from indices), so `next` vs `previous` is always
+  unambiguous.
+
+The **first** infinite scroll is instant, so the viewport lands on the
+middle (real) copy without a pointless one-period slide on load.
+
+> The recentre and glide geometry is verified for *feel* on real devices —
+> jsdom reports zeroed scroll layout, so this ships control-flow-tested and
+> device-QA'd. `loop="infinite"` is currently scoped to a single slide per
+> page.
 
 ### Keyboard navigation
 

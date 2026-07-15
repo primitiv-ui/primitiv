@@ -93,6 +93,7 @@ export function useCarouselViewport() {
     setSlideInView,
     isProgrammaticScrollRef,
     instantScrollRef,
+    wrapDirectionRef,
     setDragging,
     setOverscrolling,
     setScrollProgress,
@@ -111,6 +112,13 @@ export function useCarouselViewport() {
   // change originated from a user scroll (CSS snap already positioned the
   // viewport) and must not call scrollTo() again.
   const isUserScrollRef = useRef(false);
+  // Tracks whether the infinite loop has done its one-shot initial
+  // positioning. The first infinite scroll jumps *instantly* to the real
+  // (middle) copy — the viewport starts scrolled to the leading clone, which
+  // is an identical copy of slide 0, so a smooth scroll to the real slide 0
+  // would animate one period between two identical views (a pointless slide
+  // on load). An instant jump makes it invisible.
+  const hasPositionedRef = useRef(false);
 
   // Callback ref so the consumer can compose their own ref with ours
   // via `composeRefs` later (cycle 22 introduces asChild). For now,
@@ -365,7 +373,25 @@ export function useCarouselViewport() {
     // is untouched, so the viewport never drifts on the other axis. `start` aligns
     // the slide's leading edge to the viewport's; `center` centres it; `end`
     // aligns its trailing edge.
-    const targetEl = slidesRef.current!.get(firstSlideKey)!;
+    // Under infinite, a wrap (last↔first) glides *forward* into the trailing
+    // clone (or *backward* into the leading clone) instead of rewinding across
+    // the whole track — the clone is the adjacent copy, so the scroll is one
+    // step, and the scrollend recentre then teleports to the real slide. The
+    // direction is a one-shot from next()/previous(), consumed here.
+    const wrapDirection = wrapDirectionRef.current;
+    wrapDirectionRef.current = null;
+    const gliding = loop === "infinite" && wrapDirection !== null;
+    let targetEl = slidesRef.current!.get(firstSlideKey)!;
+    if (gliding) {
+      // Two clones per real slide (leading + trailing, in DOM order); glide
+      // forward to the trailing one, backward to the leading one.
+      const clones = viewport.querySelectorAll<HTMLDivElement>(
+        `[data-clone-of="${currentPageOffset}"]`,
+      );
+      targetEl = (
+        wrapDirection === "forward" ? clones[clones.length - 1] : clones[0]
+      )!;
+    }
     const vertical = orientation === "vertical";
     const viewportRect = viewport.getBoundingClientRect();
     const targetRect = targetEl.getBoundingClientRect();
@@ -396,7 +422,13 @@ export function useCarouselViewport() {
       currentPageOffset + slidesPerPage - 1,
       slideKeys.length - 1,
     );
-    const lastMemberEl = slidesRef.current!.get(slideKeys[lastMemberIndex])!;
+    // When gliding into a clone the "page" is that single clone (infinite is
+    // single-slide-scoped), so measure the span against the clone itself —
+    // the real last-member slide is a full period away and would corrupt the
+    // center/end alignment.
+    const lastMemberEl = gliding
+      ? targetEl
+      : slidesRef.current!.get(slideKeys[lastMemberIndex])!;
     const lastMemberRect = lastMemberEl.getBoundingClientRect();
     // Computed as left/top + width/height, not the rect's own .right/.bottom
     // — real DOMRects derive those the same way, but keeping the maths
@@ -417,8 +449,13 @@ export function useCarouselViewport() {
     // instantScrollRef is a one-shot override set by this specific next() /
     // previous() / goTo() call — consumed (and cleared) immediately so it
     // never leaks into a later page change that didn't request it (e.g. a
-    // user swipe or a subsequent plain next()).
-    const behavior = instantScrollRef.current ? "instant" : scrollBehavior;
+    // user swipe or a subsequent plain next()). The infinite loop's *first*
+    // positioning is also instant (see hasPositionedRef) so it lands on the
+    // middle copy without a pointless one-period slide on load.
+    const infiniteInit = loop === "infinite" && !hasPositionedRef.current;
+    if (loop === "infinite") hasPositionedRef.current = true;
+    const behavior =
+      instantScrollRef.current || infiniteInit ? "instant" : scrollBehavior;
     instantScrollRef.current = false;
     viewport.scrollTo(
       vertical ? { top: position, behavior } : { left: position, behavior },
@@ -446,6 +483,7 @@ export function useCarouselViewport() {
     transition,
     snapAlign,
     orientation,
+    loop,
     currentPageOffset,
     slidesPerPage,
     slideKeys,

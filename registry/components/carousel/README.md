@@ -456,9 +456,9 @@ Structured per RFC 0008 — the per-component API knobs + resting look in
   reaches the headless Root directly (a passthrough prop — no modifier), so no
   extra wiring is needed. `"wrap"` smooth-scrolls the track back on a wrap (a
   visible rewind); `"infinite"` renders a cloned edge buffer and recentres on
-  `scrollend` so a native swipe / drag / wheel across the seam glides on with
-  no rewind (button / keyboard / autoplay still rewind for now — the
-  forward-glide for those is the next increment).
+  `scrollend` so both swipe / drag / wheel *and* button / keyboard / autoplay
+  glide one step into the adjacent clone with no rewind (single-slide-scoped;
+  geometry verified for feel on real devices).
 
 Focus draws the **shared two-layer ring** (surface gap + brand ring) on the
 tabbable viewport and the button parts, restyleable system-wide via the

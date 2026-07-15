@@ -2304,11 +2304,22 @@ it (decision 4).
       the page/indicators track through the buffer. **So swipe / drag / wheel across
       the seam glides seamlessly.** Control-flow TDD'd at 100% with per-instance
       mocked geometry (`Carousel.infinite-recentre.test.tsx`, 7 tests) — the pixel
-      geometry is real-browser-only, verified for feel on device. **Still pending
-      (increment 2b): the forward-glide for button / keyboard / autoplay** (they
-      still use wrap's rewind at the ends) + the instant initial-position polish.
-      Kitchen-sink `/carousel/loop` cell 7 demos it (`allowMouseDrag` on, best on
-      touch).
+      geometry is real-browser-only, verified for feel on device. (4) **Increment 2b
+      landed — forward/backward glide + instant init.** A one-shot
+      `wrapDirectionRef` set by `next()`/`previous()` at the source (a 2-page
+      carousel can't infer wrap-direction from indices, so it's captured where the
+      intent is known; `goTo` clears it) tells the scroll effect to glide one step
+      into the **adjacent clone** (forward → trailing, backward → leading) instead
+      of rewinding; the scrollend recentre then teleports to the real slide. So
+      **button / keyboard / autoplay** now glide too, matching free-scroll. The
+      **first** infinite scroll is instant (`hasPositionedRef`) so the viewport
+      lands on the middle copy with no one-period slide on load. Glided clones are
+      treated as their own single-slide page for center/end alignment. TDD'd at 100%
+      (`Carousel.infinite-glide.test.tsx`, 5 tests). Kitchen-sink `/carousel/loop`
+      cells 7 (glide) + 8 (infinite autoplay), `allowMouseDrag` on. **Infinite is now
+      feature-complete pending real-device QA** (the recentre/glide *feel* — hard
+      flick, flick-storm at the seam, autoplay across the seam, VoiceOver — is the
+      one remaining gate; jsdom can't exercise real scroll layout).
       **Naming (2026-07-15):** the third mode was renamed `seamless` →
       **`infinite`** (human preference); earlier log prose calling it "seamless"
       is historical — the mode token is `"infinite"`.

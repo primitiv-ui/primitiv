@@ -2468,12 +2468,25 @@ export function CarouselLoop() {
 
         <GridCell
           n={7}
-          title="Infinite — continuous glide (swipe / drag)"
-          note="loop=&quot;infinite&quot; renders a clone buffer so swipe / drag / wheel across the end glides on with no rewind — best felt on a touch device (or drag with a mouse, enabled here). Increment 1 of infinite: the free-scroll recentre. The prev/next buttons and autoplay still rewind for now (the forward-glide is the next increment)."
+          title="Infinite — continuous glide"
+          note="loop=&quot;infinite&quot; renders a clone buffer so a wrap glides one step onto the adjacent slide with no rewind — both swipe / drag / wheel (best felt on touch, or drag with a mouse here) and the prev/next buttons. Click Next past the last slide: it glides on to the first, not back. Watch the dots keep tracking. Single-slide-scoped; the recentre/glide feel is what needs real-device QA."
         >
           <BasicSingle
             label="Featured products — infinite"
             loop="infinite"
+            allowMouseDrag
+          />
+        </GridCell>
+
+        <GridCell
+          n={8}
+          title="Infinite + autoplay"
+          note="Autoplay rides the same forward-glide, so an infinite carousel auto-rotates forever with no rewind at the seam. Hover/focus to pause (WCAG 2.2.2)."
+        >
+          <BasicSingle
+            label="Featured products — infinite autoplay"
+            loop="infinite"
+            autoplay
             allowMouseDrag
           />
         </GridCell>

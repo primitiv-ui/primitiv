@@ -107,10 +107,25 @@ describe("Carousel infinite-loop recentre", () => {
     expect(viewport.scrollLeft).toBe(-1000);
   });
 
-  it("should suppress scroll-snap-type for the teleport and restore it next frame", () => {
+  it("should suppress snap-type AND smooth scroll-behavior for the teleport, restoring both next frame", () => {
     const { viewport, slides } = renderInfinite();
-    trackScroll(viewport, "scrollLeft");
     viewport.style.scrollSnapType = "x mandatory";
+    // The styled surface sets `scroll-behavior: smooth`; without suppressing
+    // it the scrollLeft write animates — the visible "rewind" bug. Capture
+    // the values at the moment of the write.
+    viewport.style.scrollBehavior = "smooth";
+    let behaviorAtWrite: string | undefined;
+    let snapAtWrite: string | undefined;
+    let value = 0;
+    Object.defineProperty(viewport, "scrollLeft", {
+      configurable: true,
+      get: () => value,
+      set: (v: number) => {
+        behaviorAtWrite = viewport.style.scrollBehavior;
+        snapAtWrite = viewport.style.scrollSnapType;
+        value = v;
+      },
+    });
     const [leadA, leadB, real0, real1, trail0, trail1] = slides;
     mockEdges(
       new Map<Element, number>([
@@ -127,7 +142,11 @@ describe("Carousel infinite-loop recentre", () => {
 
     fireScrollEnd(viewport);
 
-    // rAF is flushed synchronously in beforeEach, so by now it's restored.
+    // The jump happened with both suppressed (so it's instant, not animated)…
+    expect(behaviorAtWrite).toBe("auto");
+    expect(snapAtWrite).toBe("none");
+    // …and both are restored on the next frame (rAF flushed in beforeEach).
+    expect(viewport.style.scrollBehavior).toBe("smooth");
     expect(viewport.style.scrollSnapType).toBe("x mandatory");
   });
 

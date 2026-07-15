@@ -800,12 +800,21 @@ export function useCarouselViewport() {
       // children), so the lookup is guaranteed.
       const realEl = slidesRef.current!.get(slideKeys[Number(cloneOf)])!;
       const delta = edge(realEl) - edge(nearest);
+      // Suppress BOTH scroll-snap-type (so the snap engine doesn't re-animate
+      // on top of the jump) and scroll-behavior (the styled surface sets
+      // `scroll-behavior: smooth`, which would otherwise *animate* the
+      // scrollLeft/Top write — the exact "visible rewind" the teleport must
+      // avoid). Restored on the next frame; the target is a real snap point, so
+      // the restored snap is a no-op.
       const prevSnapType = viewport.style.scrollSnapType;
+      const prevBehavior = viewport.style.scrollBehavior;
       viewport.style.scrollSnapType = "none";
+      viewport.style.scrollBehavior = "auto";
       if (vertical) viewport.scrollTop += delta;
       else viewport.scrollLeft += delta;
       requestAnimationFrame(() => {
         viewport.style.scrollSnapType = prevSnapType;
+        viewport.style.scrollBehavior = prevBehavior;
       });
     };
 

@@ -348,6 +348,21 @@ export type CarouselRootProps = Omit<
      * the viewport scroll axis, the arrow-key bindings, and the
      * `data-orientation` styling hook on the Root. */
     orientation?: CarouselOrientation;
+    /** Whether navigation wraps around instead of clamping at the ends.
+     * Defaults to `false`. When `true`, `Carousel.NextTrigger` on the last
+     * page advances to the first, `Carousel.PreviousTrigger` on the first
+     * page retreats to the last, neither trigger disables at a boundary,
+     * and autoplay keeps rotating past the last page. Requires more than
+     * one page — a single-page carousel has no wrap target, so the triggers
+     * stay disabled regardless. The resolved value is published as the
+     * `data-loop` styling hook on the Root.
+     *
+     * This is *semantic* wrapping: wrapping last→first smooth-scrolls the
+     * whole track back (a visible rewind), the same path `Home`/`End`
+     * already take. A seamless, continuous infinite loop (cloned edge
+     * buffer + native-scroll recentre) is a separate, additive layer built
+     * on top of this. */
+    loop?: boolean;
     /** Whether the Viewport supports mouse click-and-drag scrolling —
      * the pointer tracks 1:1 into `scrollLeft`/`scrollTop` (no momentum)
      * once past a small movement threshold, release lets the existing
@@ -480,6 +495,11 @@ export type CarouselContextValue = {
    * Drives the viewport scroll axis, the arrow-key bindings, and the
    * `data-orientation` hook on the Root. */
   orientation: CarouselOrientation;
+  /** Resolved wrap-around navigation opt-in (defaults to `false`). Drives
+   * the boundary flags (`canGoNext`/`canGoPrevious` stay true past the
+   * ends when there is more than one page), the wrap arithmetic in
+   * `next`/`previous`, and the `data-loop` hook on the Root. */
+  loop: boolean;
   /** Resolved mouse click-and-drag scrolling opt-in (defaults to
    * `false`). */
   allowMouseDrag: boolean;

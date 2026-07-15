@@ -207,6 +207,71 @@ appended here:
   browser available), flagged for human visual QA. See the iteration-14
   sub-entry below for the full build writeup.
 
+- **2026-07-15 — Loop / infinite: two-phase strategy locked (C then A, same
+  session), with A's iOS-inertia problem solved *in advance*.** The variant is
+  split into two phases behind the loop concept, because seamless native-scroll
+  looping and "no dead ends" are genuinely different targets (research: every
+  seamless-loop lib — Embla, Swiper, Splide, Keen — gives up native scroll and
+  drives its own transform/rAF engine; native scroll-snap can only *teleport*,
+  and Blossom documents pure scroll-driven looping doesn't work). The prior
+  workbench "two extra slides at each end" attempt was never committed and is
+  not recoverable — only the concept was tracked. Diagnosis of why it failed:
+  too few clones (a single iOS flick blows through a 2-slide buffer before it
+  settles) **and** almost certainly teleporting on the wrong signal
+  (mid-scroll) instead of at rest.
+
+  **Phase C — semantic wrap ("no disabled ends"), the Figma-documented intent.**
+  A `loop?: boolean` root prop. The end-clamp is localized to four spots in
+  `useCarouselRoot` (`canGoNext`/`canGoPrevious` + the guards in `next`/
+  `previous`); under loop, `canGoNext = canGoPrevious = totalPages > 1`, `next`
+  wraps `(page + 1) % totalPages`, `previous` wraps `(page - 1 + totalPages) %
+  totalPages`. Autoplay wraps **for free** (its `eligible` gate reads
+  `canGoNext`, which now stays true at the last page). `data-loop` on the Root
+  is the styling hook (mirrors `data-orientation`/`data-transition`); prev/next
+  simply never disable (their `disabled` attr is driven by the boundary flags).
+  **No scroll-effect change** — wrapping last→first smooth-scrolls the whole
+  track back (a visible rewind glide), which is *exactly* what semantic wrap is,
+  and is the same path `Home`/`End` (goTo(0)/goTo(last)) already exercise. Pure
+  headless + a passthrough prop; unit-testable at 100% in jsdom.
+
+  **Phase A — seamless infinite, and how iOS momentum is handled.** The insight
+  that de-risks it: there are **two classes of navigation with two guarantees.**
+  (1) *JS-driven* — buttons, indicators, keyboard, wheel, our mouse-drag,
+  autoplay — the viewport is **at rest** at the moment of invocation, so we can
+  recentre deterministically with no inertia to fight. This covers the vast
+  majority of loop interactions on *all* platforms, iOS included (tapping Next
+  on an iPhone is this path, not the flick path), and is fully jsdom-testable.
+  (2) *Native touch flick* (iOS momentum) — the **only** path we can't
+  interrupt; writing `scrollLeft` mid-inertia is ignored or jumps on Safari.
+  Handle it with: **(a) a full-period clone buffer** — render a complete copy of
+  the set on each side (min `slidesPerPage + peek`, a whole set as the safe
+  default; replicate small sets to a floor, Embla's "not enough slides" guard),
+  so any single flick settles *inside* the buffer on a snap point; **(b) recentre
+  only at rest, on `scrollend`** (reusing the hook's existing settle-detection +
+  `setTimeout(600)` fallback, line 435), teleporting by exactly one period — a
+  pixel-identical view — under a `scroll-snap-type: none` window restored on the
+  **next rAF** (not a microtask, or Safari re-animates snap). The measured-offset
+  scroll effect already treats clones as real slides, so no offset math changes.
+  **Residual edge case + graceful degradation:** a rapid *uninterrupted*
+  flick-storm (no `scrollend` between flicks) can outrun any finite buffer on a
+  tiny set — mitigate with a ≥1-period buffer + small-set replication, and if the
+  true scroll boundary is ever hit first the flick just stops on real (cloned)
+  content and the next `scrollend` recentres — worst case one reposition frame,
+  never a blank/broken state (Swiper's `loopFix` has documented jumps too; this
+  is the accepted ceiling). **a11y correctness (the 2-slide attempt's likely
+  bug):** clones are `aria-hidden` + `inert` + `tabindex=-1`, excluded from the
+  live count and the "x of n" label (announced total stays the real n), with
+  consumer ids stripped/namespaced so there are no duplicate ids or
+  double-announced/tabbable slides. **Sandbox limit + QA gate:** jsdom has no
+  momentum/`scrollend` timing — unit-test the *logic* (period math, raw↔real
+  index map, recentre-on-simulated-`scrollend`, snap-suppression calls, clone
+  aria/inert) deterministically; the momentum *feel* is a **mandatory real
+  iPhone-Safari QA gate**: slow drag across the seam · a hard single flick at the
+  seam · a flick-storm at the seam · autoplay across the seam · a VoiceOver swipe
+  (total stays n, no duplicate slides). A sits *behind the same `loop` concept*
+  and only adds the scroll-seamlessness layer — C already settled the navigation
+  semantics, so A never re-litigates them.
+
 ## Figma design reference
 
 Read from the Figma file **"Primitiv Design System" → "Carousel" page**

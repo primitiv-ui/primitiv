@@ -105,6 +105,7 @@ export const CarouselRoot: ForwardRefExoticComponent<
     transition,
     snapAlign,
     orientation,
+    loop,
     allowMouseDrag,
     onDragStatusChange,
     onOverscrollStatusChange,
@@ -132,6 +133,7 @@ export const CarouselRoot: ForwardRefExoticComponent<
       transition,
       snapAlign,
       orientation,
+      loop,
       allowMouseDrag,
       onDragStatusChange,
       onOverscrollStatusChange,
@@ -147,6 +149,7 @@ export const CarouselRoot: ForwardRefExoticComponent<
         aria-roledescription="carousel"
         data-orientation={contextValue.orientation}
         data-transition={contextValue.transition}
+        data-loop={contextValue.loop}
         className={className}
         {...(ariaLabel !== undefined && { "aria-label": ariaLabel })}
         {...(ariaLabelledBy !== undefined && {

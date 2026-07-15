@@ -98,6 +98,9 @@ type UseCarouselRootProps = {
   snapAlign?: CarouselSnapAlign;
   /** Scroll/pagination axis — see {@link CarouselOrientation}. */
   orientation?: CarouselOrientation;
+  /** Wrap navigation around the ends instead of clamping. Defaults to
+   * `false`. */
+  loop?: boolean;
   /** Opt-in mouse click-and-drag scrolling. */
   allowMouseDrag?: boolean;
   /** Fires on every mouse-drag status transition — see
@@ -156,6 +159,7 @@ export function useCarouselRoot(
     transition = "slide",
     snapAlign = "center",
     orientation = "horizontal",
+    loop = false,
     allowMouseDrag = false,
     onDragStatusChange,
     onOverscrollStatusChange,
@@ -276,11 +280,17 @@ export function useCarouselRoot(
   const suspended =
     (hovered || focused || touchActive) && !userInitiatedPlayRef.current;
 
-  // Boundary derivation: navigation requires at least one page. The
-  // ends clamp at the last page (which, with slidesPerPage > 1, is
-  // generally before the last slide).
-  const canGoPrevious = totalPages > 0 && currentPage > 0;
-  const canGoNext = totalPages > 0 && currentPage < totalPages - 1;
+  // Boundary derivation: navigation requires at least one page. Without
+  // loop the ends clamp at the last page (which, with slidesPerPage > 1,
+  // is generally before the last slide). With loop, navigation wraps, so
+  // both directions stay available as long as there's more than one page
+  // to wrap between — a single page has no wrap target.
+  const canGoPrevious = loop
+    ? totalPages > 1
+    : totalPages > 0 && currentPage > 0;
+  const canGoNext = loop
+    ? totalPages > 1
+    : totalPages > 0 && currentPage < totalPages - 1;
 
   const registerSlide = useCallback(
     (key: string, element: HTMLDivElement | null) => {
@@ -309,32 +319,38 @@ export function useCarouselRoot(
 
   const next = useCallback(
     (instant?: boolean) => {
-      if (currentPage >= totalPages - 1) return;
+      // At the last page: clamp (no-op) normally, or wrap to the first when
+      // looping (provided there's more than one page to wrap between).
+      if (currentPage >= totalPages - 1 && !(loop && totalPages > 1)) return;
       isProgrammaticScrollRef.current = true;
       instantScrollRef.current = !!instant;
-      const target = currentPage + 1;
+      const target = loop ? (currentPage + 1) % totalPages : currentPage + 1;
       if (isControlled) {
         onPageChange?.(target);
       } else {
         setInternalPage(target);
       }
     },
-    [currentPage, totalPages, isControlled, onPageChange],
+    [currentPage, totalPages, loop, isControlled, onPageChange],
   );
 
   const previous = useCallback(
     (instant?: boolean) => {
-      if (currentPage <= 0) return;
+      // At the first page: clamp (no-op) normally, or wrap to the last when
+      // looping (provided there's more than one page to wrap between).
+      if (currentPage <= 0 && !(loop && totalPages > 1)) return;
       isProgrammaticScrollRef.current = true;
       instantScrollRef.current = !!instant;
-      const target = currentPage - 1;
+      const target = loop
+        ? (currentPage - 1 + totalPages) % totalPages
+        : currentPage - 1;
       if (isControlled) {
         onPageChange?.(target);
       } else {
         setInternalPage(target);
       }
     },
-    [currentPage, isControlled, onPageChange],
+    [currentPage, totalPages, loop, isControlled, onPageChange],
   );
 
   const goTo = useCallback(
@@ -641,6 +657,7 @@ export function useCarouselRoot(
       transition,
       snapAlign,
       orientation,
+      loop,
       allowMouseDrag,
       onDragStatusChange,
       onOverscrollStatusChange,
@@ -683,6 +700,7 @@ export function useCarouselRoot(
       transition,
       snapAlign,
       orientation,
+      loop,
       allowMouseDrag,
       onDragStatusChange,
       onOverscrollStatusChange,

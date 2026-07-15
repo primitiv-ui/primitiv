@@ -296,7 +296,7 @@ export function CarouselViewport({
   const makeClones = (prefix: string) =>
     realChildren.map((child, index) =>
       isValidElement(child)
-        ? cloneElement(child as ReactElement<{ id?: string }>, {
+        ? cloneElement(child as ReactElement<Record<string, unknown>>, {
             key: `${prefix}-${index}`,
             "data-clone-of": index,
             // Never duplicate a consumer `id` — two elements sharing an id

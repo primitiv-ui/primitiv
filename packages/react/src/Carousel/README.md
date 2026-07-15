@@ -779,9 +779,18 @@ regardless of `loop`. The resolved mode is published as
 **`"wrap"` vs `"seamless"`.** Both share the same page model (the wrap
 arithmetic and never-disable boundaries). They differ only in the scroll
 visual: `"wrap"` smooth-scrolls the whole track back on a last→first wrap
-(a visible rewind, the same path `Home` takes), while `"seamless"` adds a
-cloned edge buffer plus a native-scroll recentre so the wrap is a
-continuous glide with no rewind.
+(a visible rewind, the same path `Home` takes), while `"seamless"` is
+building toward a continuous glide with no rewind via a cloned edge buffer
+plus a native-scroll recentre.
+
+> **`"seamless"` is under construction.** The **clone edge buffer** is
+> landed — under `loop="seamless"` the Viewport renders a full-period copy
+> of the slides at each end (inert, `aria-hidden`, out of the tab order,
+> never counted), tagged `data-clone-of`. The **recentre** (the `scrollend`
+> teleport that makes the wrap invisible) and the forward-glide navigation
+> are the next increment. Until then, `"seamless"` shares `"wrap"`'s
+> navigation and additionally shows the clone buffer — prefer `"wrap"` for
+> production for now.
 
 ### Keyboard navigation
 

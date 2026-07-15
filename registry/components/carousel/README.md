@@ -455,8 +455,9 @@ Structured per RFC 0008 — the per-component API knobs + resting look in
   `data-loop="none" | "wrap" | "seamless"` on the root and, like `transition`,
   reaches the headless Root directly (a passthrough prop — no modifier), so no
   extra wiring is needed. `"wrap"` smooth-scrolls the track back on a wrap (a
-  visible rewind); `"seamless"` adds a cloned edge buffer + native-scroll
-  recentre for a continuous glide with no rewind.
+  visible rewind); `"seamless"` is building toward a continuous glide — its
+  cloned edge buffer is landed, the `scrollend` recentre is the next increment
+  (prefer `"wrap"` for production until then).
 
 Focus draws the **shared two-layer ring** (surface gap + brand ring) on the
 tabbable viewport and the button parts, restyleable system-wide via the

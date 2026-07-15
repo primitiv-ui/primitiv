@@ -2286,12 +2286,22 @@ iPhone-Safari device-QA gate for the momentum feel.
 Tracked so we know what's outstanding; only built when an example needs
 it (decision 4).
 
-- [~] Looping / infinite — **Phase C (semantic wrap) landed** (loop iteration,
-      2026-07-15): `loop` prop wraps next/previous + autoplay past the ends, no
-      disabled boundaries, `data-loop` hook. **Phase A (seamless infinite —
-      cloned edge buffer + native-scroll recentre) is designed but not built**
-      (see the 2026-07-15 decision entry for the full iOS-inertia strategy);
-      it's gated on Phase C landing correctly in human QA first.
+- [~] Looping / infinite — **Phase C (semantic wrap) + the seamless clone
+      buffer landed** (loop iteration, 2026-07-15). (1) `loop` is now a **mode
+      selector** (`boolean | "wrap" | "seamless"`, `true`→`"wrap"`) resolving to
+      `data-loop="none" | "wrap" | "seamless"` — so wrap stays a first-class
+      configurable option (human request). (2) Phase A **increment 1** landed:
+      under `loop="seamless"` the Viewport renders a full-period clone copy at
+      each end (`CarouselCloneContext` + a clone-aware `CarouselSlide` — inert,
+      `aria-hidden`, `tabindex=-1`, `id` stripped, never registered, tagged
+      `data-clone-of`), so clones never inflate the real count / indices /
+      indicators / "x of n". **Still pending (increment 2): the `scrollend`
+      recentre + forward-glide** — pure real-browser geometry
+      (`getBoundingClientRect`/`scrollLeft`/`scrollend`/peek/RTL/vertical) that
+      jsdom can't validate, so it's built with the human's real-device QA in the
+      loop (the mandatory iOS gate from the 2026-07-15 strategy entry). Until
+      then `"seamless"` shares `"wrap"`'s navigation and just shows the clone
+      buffer — docs steer production users to `"wrap"`.
 - [x] Vertical orientation + `data-orientation` — **landed (iteration 2)**.
       `orientation="vertical"` switches the scroll axis, the `snapTargetBlock`
       sync, and the ArrowDown/ArrowUp keys; `data-orientation` on the Root is

@@ -2,6 +2,13 @@
  * size / theme header is now global (in the app shell), so this layout starts at
  * its body; the sidebar sticks below the global header. */
 
+/* The mobile toggle bar + backdrop only exist below the fold breakpoint; on
+ * desktop they collapse to nothing and the sidebar stays an in-flow column. */
+.carousel-layout__bar,
+.carousel-layout__backdrop {
+  display: none;
+}
+
 .carousel-layout__body {
   display: grid;
   grid-template-columns: 14rem minmax(0, 1fr);
@@ -53,4 +60,97 @@
 .carousel-layout__main {
   min-inline-size: 0;
   padding: var(--primitiv-space-space-24);
+}
+
+/* --- Responsive: fold the examples sidebar into a drawer --------------------
+   At 48rem the 14rem sidebar starts crowding the demos, so it leaves the flow
+   and becomes a fixed slide-in drawer behind the toggle bar. Because the drawer
+   is viewport-fixed, the toggle bar's own position doesn't have to line up with
+   it — the bar just pins below the global header as a reachable open control. */
+.carousel-layout__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--primitiv-space-space-8);
+  padding: var(--primitiv-space-space-8) var(--primitiv-space-space-12);
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-default);
+  border-radius: var(--primitiv-radii-8);
+  background: var(--primitiv-surface-default);
+  color: var(--primitiv-content-primary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Three-line hamburger from one bar + two pseudo-element bars. */
+.carousel-layout__toggle-icon {
+  position: relative;
+  display: inline-block;
+  inline-size: 1.125rem;
+  block-size: var(--primitiv-border-width-2);
+  background: currentColor;
+}
+
+.carousel-layout__toggle-icon::before,
+.carousel-layout__toggle-icon::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  inline-size: 100%;
+  block-size: var(--primitiv-border-width-2);
+  background: currentColor;
+}
+
+.carousel-layout__toggle-icon::before {
+  inset-block-start: -0.3125rem;
+}
+
+.carousel-layout__toggle-icon::after {
+  inset-block-start: 0.3125rem;
+}
+
+@media (max-width: 48rem) {
+  /* Toggle bar pins below the global header as the drawer's open control. */
+  .carousel-layout__bar {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    padding: var(--primitiv-space-space-8) var(--primitiv-space-space-16);
+    background: var(--primitiv-surface-default);
+    border-block-end: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+  }
+
+  /* Single column — the sidebar track is gone (it's a fixed drawer now). */
+  .carousel-layout__body {
+    display: block;
+  }
+
+  .carousel-layout__sidebar {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: 60;
+    inline-size: 16rem;
+    max-inline-size: 85vw;
+    overflow-y: auto;
+    background: var(--primitiv-surface-raised);
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+
+  .carousel-layout__sidebar--open {
+    transform: none;
+  }
+
+  .carousel-layout__backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 55;
+    padding: 0;
+    border: none;
+    background: var(--primitiv-scrim);
+    cursor: default;
+  }
 }

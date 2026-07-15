@@ -3998,3 +3998,18 @@ this fix.
 output in headless Chromium before/after: blank + `useContext`-null → mounted,
 no error. Deploy workflow rebuilds the kitchen-sink from source, so a re-run
 picks the fix up.
+
+## Kitchen-sink responsive shell — foldable examples sidebar
+
+On a phone the `/carousel` layout's fixed **14rem** examples column swallowed
+the demos. Folded it into a slide-in **drawer** behind a toggle, mirroring the
+workbench sidebar (`CarouselLayout.tsx` + `.css`, tokenised — `--primitiv-scrim`
+backdrop, `surface-raised` drawer). Desktop is byte-for-byte unchanged (the bar
++ backdrop are `display:none`, sidebar stays the in-flow sticky column); below
+**48rem** the body goes single-column, the sidebar becomes `position:fixed`
+`translateX(-100%)` and slides in on the toggle, with a scrim backdrop and
+close-on-route-change (so tapping an example dismisses the drawer). The example
+grid already collapsed 4→2→1 col, so mobile now gets the full width. Verified in
+headless Chromium at 390px (folded → 390px main; open → drawer at x0 + backdrop;
+link tap → route changes and drawer closes) and 1200px (bar hidden, 14rem
+sidebar in-flow, main to its right) — no page errors.

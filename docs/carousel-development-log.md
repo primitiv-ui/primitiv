@@ -2370,6 +2370,18 @@ it (decision 4).
       only** (which the full-period buffer already gives runway for). Period is
       measured real-slide-0 → its trailing clone (one full copy). Glide tests
       reworked to assert the one-period teleport (fwd/bwd/multi-slide/vertical); 100%.
+      (8) **Kitchen-sink now deployable with the docs (2026-07-15) — phone QA path.**
+      The kitchen-sink builds as a **separate SPA served at `/primitiv/kitchen-sink/`**
+      inside the docs Pages deployment (mirrors the workbench at `/primitiv/workbench/`):
+      `KITCHEN_SINK_BASE` sets the Vite base + switches `main.tsx` to a HashRouter
+      (GH-Pages-safe deep links); `deploy-docs.yml` installs it standalone
+      (`pnpm install --ignore-workspace`, it's excluded from the workspace with its
+      own lockfile) and `cp`s its dist into `.vitepress/dist/kitchen-sink`. Being a
+      separate HTML document, there is **zero CSS interaction** with VitePress or the
+      workbench. The dev-alias means the deploy exercises the **current branch's**
+      headless code — so: trigger **Actions → "Deploy docs" → Run workflow** on the
+      branch, then QA on a phone at `/primitiv/kitchen-sink/#/carousel/loop`. Caveat:
+      the deploy overwrites the single Pages site, so re-deploy `main` afterwards.
       **Naming (2026-07-15):** the third mode was renamed `seamless` →
       **`infinite`** (human preference); earlier log prose calling it "seamless"
       is historical — the mode token is `"infinite"`.

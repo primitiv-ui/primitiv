@@ -9,6 +9,11 @@ import react from '@vitejs/plugin-react'
 // example pages can exercise headless changes that haven't been published yet
 // (e.g. Carousel `orientation`). Drop an alias once its change ships to npm.
 export default defineConfig({
+  // Dev stays at "/"; the GitHub Pages docs build sets KITCHEN_SINK_BASE so the
+  // app is served under the docs site at /primitiv/kitchen-sink/ (mirrors the
+  // workbench). The sub-path base also switches the app to a hash router (see
+  // src/main.tsx) so deep links survive a hard refresh on GitHub Pages.
+  base: process.env.KITCHEN_SINK_BASE ?? '/',
   plugins: [react()],
   resolve: {
     alias: {

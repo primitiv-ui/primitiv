@@ -119,6 +119,14 @@ export function useCarouselViewport() {
   // would animate one period between two identical views (a pointless slide
   // on load). An instant jump makes it invisible.
   const hasPositionedRef = useRef(false);
+  // The element the browser last snapped to (from `scrollsnapchange`) — the
+  // authoritative "what settled here" signal the infinite recentre uses,
+  // rather than re-deriving it from geometry. The browser accounts for
+  // snapAlign, peek, padding, and (for multi-slide) which page-leading slide
+  // is the snap point, so this is robust where a geometry-nearest guess isn't.
+  // Falls back to `null` (→ geometry) before the first snap event / on
+  // browsers without `scrollsnapchange`.
+  const lastSnapTargetRef = useRef<Element | null>(null);
 
   // Callback ref so the consumer can compose their own ref with ours
   // via `composeRefs` later (cycle 22 introduces asChild). For now,
@@ -724,6 +732,9 @@ export function useCarouselViewport() {
         orientation === "vertical"
           ? snapEvent.snapTargetBlock
           : snapEvent.snapTargetInline;
+      // Record the settled element for the infinite recentre (see the
+      // scrollend effect) — this is the authoritative snap position.
+      lastSnapTargetRef.current = target ?? null;
 
       // findIndex returns -1 when the snap target isn't one of our
       // registered slides — e.g. a consumer-wrapped element inside the
@@ -779,27 +790,31 @@ export function useCarouselViewport() {
         : el.getBoundingClientRect().left;
 
     const recentre = () => {
-      const slides =
-        viewport.querySelectorAll<HTMLElement>("[data-carousel-slide]");
-      if (slides.length === 0) return;
-      const viewportStart = edge(viewport);
-      // The settled snap is the slide (real or clone) whose leading edge is
-      // nearest the viewport's leading edge.
-      const nearest = Array.from(slides).reduce((best, el) =>
-        Math.abs(edge(el) - viewportStart) <
-        Math.abs(edge(best) - viewportStart)
-          ? el
-          : best,
-      );
+      // The authoritative settled element is the browser's own snap target;
+      // before the first `scrollsnapchange` (or without support) fall back to a
+      // geometry guess — the slide whose leading edge is nearest the viewport's.
+      let settled = lastSnapTargetRef.current as HTMLElement | null;
+      if (settled === null) {
+        const slides =
+          viewport.querySelectorAll<HTMLElement>("[data-carousel-slide]");
+        if (slides.length === 0) return;
+        const viewportStart = edge(viewport);
+        settled = Array.from(slides).reduce((best, el) =>
+          Math.abs(edge(el) - viewportStart) <
+          Math.abs(edge(best) - viewportStart)
+            ? el
+            : best,
+        );
+      }
       // A real slide is already home; only a clone needs recentring.
-      const cloneOf = nearest.dataset.cloneOf;
+      const cloneOf = settled.dataset.cloneOf;
       if (cloneOf === undefined) return;
       // Teleport by the clone→real offset so the real slide lands exactly
       // where the clone was — same view, so the jump is invisible. The clone
       // always mirrors a valid registered index (both come from the same
       // children), so the lookup is guaranteed.
       const realEl = slidesRef.current!.get(slideKeys[Number(cloneOf)])!;
-      const delta = edge(realEl) - edge(nearest);
+      const delta = edge(realEl) - edge(settled);
       // Suppress BOTH scroll-snap-type (so the snap engine doesn't re-animate
       // on top of the jump) and scroll-behavior (the styled surface sets
       // `scroll-behavior: smooth`, which would otherwise *animate* the

@@ -107,6 +107,38 @@ describe("Carousel infinite-loop recentre", () => {
     expect(viewport.scrollLeft).toBe(-1000);
   });
 
+  it("should prefer the browser's snap target over a geometry guess", () => {
+    const { viewport, slides } = renderInfinite();
+    trackScroll(viewport, "scrollLeft");
+    const [leadA, leadB, real0, real1, trail0, trail1] = slides;
+    // Geometry would pick a REAL slide as nearest (→ no-op), but the browser
+    // actually snapped to the trailing clone of slide 0. The recentre must
+    // trust the snap target, not the geometry guess.
+    mockEdges(
+      new Map<Element, number>([
+        [viewport, 0],
+        [real0, 0], // nearest by geometry (real → would no-op)
+        [trail0, 1000], // the real snap target (a clone)
+        [leadA, -2000],
+        [leadB, -1500],
+        [real1, 500],
+        [trail1, 1500],
+      ]),
+      "left",
+    );
+    const snap = new Event("scrollsnapchange");
+    Object.defineProperty(snap, "snapTargetInline", { value: trail0 });
+    act(() => {
+      viewport.dispatchEvent(snap);
+    });
+
+    fireScrollEnd(viewport);
+
+    // Teleported by trail0→real0 delta = 0 − 1000 = −1000 (used the clone snap
+    // target, not the geometry-nearest real slide, which would have no-opped).
+    expect(viewport.scrollLeft).toBe(-1000);
+  });
+
   it("should suppress snap-type AND smooth scroll-behavior for the teleport, restoring both next frame", () => {
     const { viewport, slides } = renderInfinite();
     viewport.style.scrollSnapType = "x mandatory";

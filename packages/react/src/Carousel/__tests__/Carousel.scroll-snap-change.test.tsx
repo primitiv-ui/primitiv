@@ -112,6 +112,31 @@ describe("Carousel scroll sync (user-driven via scrollsnapchange)", () => {
     expect(onPageChange).not.toHaveBeenCalled();
   });
 
+  it("should ignore a scrollsnapchange event that carries no snap target", () => {
+    const onPageChange = vi.fn();
+    render(
+      <Carousel.Root
+        ariaLabel="Featured products"
+        page={0}
+        onPageChange={onPageChange}
+      >
+        <Carousel.Viewport data-testid="viewport">
+          <Carousel.Slide data-testid="slide-0" />
+          <Carousel.Slide data-testid="slide-1" />
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+
+    const viewport = screen.getByTestId("viewport");
+    // A scrollsnapchange with no snapTargetInline (undefined) must be a safe
+    // no-op — no page change, no crash.
+    act(() => {
+      viewport.dispatchEvent(new Event("scrollsnapchange", { bubbles: false }));
+    });
+
+    expect(onPageChange).not.toHaveBeenCalled();
+  });
+
   it("should not invoke onPageChange when the snap target is on the already-active page, but should fire it when the page genuinely changes", () => {
     const onPageChange = vi.fn();
     function Parent() {

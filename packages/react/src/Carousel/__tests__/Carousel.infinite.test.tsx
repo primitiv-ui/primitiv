@@ -1,7 +1,35 @@
-import { render, act } from "@testing-library/react";
+import { render, act, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { Carousel } from "../index.ts";
+
+/**
+ * Dispatch a pointer event with a controlled `timeStamp` (jsdom's is not
+ * settable via fireEvent props) so drag velocity is deterministic. clientX and
+ * clientY both carry `client` so the same helper drives either axis.
+ */
+function pointer(
+  target: Element,
+  type: string,
+  {
+    client,
+    time = 0,
+    id = 1,
+    pointerType = "touch",
+  }: { client: number; time?: number; id?: number; pointerType?: string },
+) {
+  const event = new Event(type, { bubbles: true, cancelable: true });
+  Object.assign(event, {
+    clientX: client,
+    clientY: client,
+    pointerId: id,
+    pointerType,
+  });
+  Object.defineProperty(event, "timeStamp", { configurable: true, value: time });
+  act(() => {
+    fireEvent(target, event);
+  });
+}
 
 // The infinite transform engine (RFC 0018 / useCarouselLoop). Real geometry is
 // browser-only (jsdom lays nothing out), so these mock the layout the engine
@@ -68,6 +96,7 @@ function renderInfinite(
     snapAlign: "start" | "center" | "end";
     defaultPage: number;
     count: number;
+    allowMouseDrag: boolean;
   }> = {},
 ) {
   const {
@@ -76,6 +105,7 @@ function renderInfinite(
     snapAlign = "center",
     defaultPage = 0,
     count = 4,
+    allowMouseDrag = false,
   } = props;
   const result = render(
     <Carousel.Root
@@ -84,6 +114,7 @@ function renderInfinite(
       orientation={orientation}
       snapAlign={snapAlign}
       defaultPage={defaultPage}
+      allowMouseDrag={allowMouseDrag}
     >
       <Carousel.Viewport data-testid="viewport">
         {Array.from({ length: count }).map((_, i) => (
@@ -145,14 +176,27 @@ describe("Carousel infinite — transform engine", () => {
     expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
   });
 
-  it("gives an off-screen slide a wrapShift so a copy fills the seam", () => {
+  it("gives an off-screen slide a 2D wrapShift so a copy fills the seam", () => {
     const { getByTestId } = renderInfinite({ defaultPage: 3 });
 
     // At page 3 (offset −100) slide 3's flex position (300) would sit off the
     // right (track translate +100 → 400); a wrapShift of −trackLength (−400)
-    // pulls its copy back under the viewport — the clone-free seam fill.
+    // pulls its copy back under the viewport — the clone-free seam fill. It's a
+    // *2D* translate so the copy paints into the track's single compositor layer,
+    // not onto its own (an off-screen per-slide layer is the iOS white-flash).
     const slide3 = getByTestId("slide-3");
-    expect(slide3.style.transform).toBe("translate3d(-400px, 0px, 0px)");
+    expect(slide3.style.transform).toBe("translateX(-400px)");
+  });
+
+  it("leaves the on-screen slides untransformed so they ride the track layer", () => {
+    // The active slide (0) and the forward neighbour (1) don't wrap, so they carry
+    // no transform at all — they paint into the track's already-rasterised bitmap
+    // and are there before they glide into view (no per-slide layer to rasterise
+    // late). Only the far slides (2, 3) wrap to fill the seam.
+    const { getByTestId } = renderInfinite({ defaultPage: 0 });
+    expect(getByTestId("slide-0").style.transform).toBe("");
+    expect(getByTestId("slide-1").style.transform).toBe("");
+    expect(getByTestId("slide-3").style.transform).toBe("translateX(-400px)");
   });
 
   it("jumps instantly with no transition under reduced motion", async () => {
@@ -213,5 +257,170 @@ describe("Carousel infinite — transform engine", () => {
     const { getByRole, unmount } = renderInfinite();
     await user.click(getByRole("button", { name: "Next" }));
     expect(() => act(() => unmount())).not.toThrow();
+  });
+});
+
+describe("Carousel infinite — drag + fling", () => {
+  it("follows the pointer 1:1 while dragging, with no transition", () => {
+    const { track, getByTestId } = renderInfinite();
+    const viewport = getByTestId("viewport");
+
+    pointer(viewport, "pointerdown", { client: 200, time: 0 });
+    pointer(viewport, "pointermove", { client: 140, time: 100 });
+
+    // offset = startOffset(0) − (140 − 200) = 60 → track translate3d(align − 60).
+    // Dragging paints instantly (no transition) so the track tracks the finger.
+    expect(track!.style.transform).toBe("translate3d(-60px, 0px, 0px)");
+    expect(track!.style.transition).toBe("none");
+  });
+
+  it("settles back to the current slide when the drag stays under half a stride", () => {
+    const { track, getByTestId } = renderInfinite();
+    const viewport = getByTestId("viewport");
+
+    pointer(viewport, "pointerdown", { client: 200, time: 0 });
+    pointer(viewport, "pointermove", { client: 180, time: 100 });
+    // A second move at the same point zeroes the release velocity.
+    pointer(viewport, "pointermove", { client: 180, time: 200 });
+    pointer(viewport, "pointerup", { client: 180, time: 220 });
+
+    // offset 20, velocity 0 → snap to the nearest stride (0). Back home, animated.
+    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+    expect(track!.style.transition).toContain("transform");
+  });
+
+  it("advances a slide when the drag passes the half-stride point", () => {
+    const { track, getByTestId } = renderInfinite();
+    const viewport = getByTestId("viewport");
+
+    pointer(viewport, "pointerdown", { client: 200, time: 0 });
+    pointer(viewport, "pointermove", { client: 140, time: 100 });
+    pointer(viewport, "pointermove", { client: 140, time: 200 });
+    pointer(viewport, "pointerup", { client: 140, time: 220 });
+
+    // offset 60, velocity 0 → snaps forward to stride 100 (page 1).
+    expect(track!.style.transform).toBe("translate3d(-100px, 0px, 0px)");
+  });
+
+  it("flings forward when a quick flick carries the projected distance past half a stride", () => {
+    const { track, getByTestId } = renderInfinite();
+    const viewport = getByTestId("viewport");
+
+    // Truthy timestamps: React's SyntheticEvent does `nativeEvent.timeStamp ||
+    // Date.now()`, so a falsy 0 on the first event would be replaced by the real
+    // clock and skew the first elapsed — this gesture depends on real velocity.
+    pointer(viewport, "pointerdown", { client: 200, time: 1000 });
+    // Only 30px of travel (would settle home) but at 0.6px/ms.
+    pointer(viewport, "pointermove", { client: 170, time: 1050 });
+    pointer(viewport, "pointerup", { client: 170, time: 1050 });
+
+    // flingTarget(30, 0.6, 120, 100) = snap(30 + 72) = 100 → the flick advances.
+    expect(track!.style.transform).toBe("translate3d(-100px, 0px, 0px)");
+  });
+
+  it("treats a press that never crosses the threshold as a tap (no move, no glide)", () => {
+    const { track, getByTestId } = renderInfinite();
+    const viewport = getByTestId("viewport");
+
+    pointer(viewport, "pointerdown", { client: 200, time: 0 });
+    pointer(viewport, "pointermove", { client: 202, time: 50 }); // 2px < 3px
+    pointer(viewport, "pointerup", { client: 202, time: 60 });
+
+    // Never became a drag: the track stays put and no fling runs.
+    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+  });
+
+  it("ignores mouse drags unless allowMouseDrag is set", () => {
+    const { track, getByTestId } = renderInfinite({ allowMouseDrag: false });
+    const viewport = getByTestId("viewport");
+
+    pointer(viewport, "pointerdown", { client: 200, time: 0, pointerType: "mouse" });
+    pointer(viewport, "pointermove", { client: 120, time: 100, pointerType: "mouse" });
+    pointer(viewport, "pointerup", { client: 120, time: 120, pointerType: "mouse" });
+
+    // pointerdown bailed on the mouse gate, so no drag state was ever created.
+    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+  });
+
+  it("drags with the mouse when allowMouseDrag is set", () => {
+    const { track, getByTestId } = renderInfinite({ allowMouseDrag: true });
+    const viewport = getByTestId("viewport");
+
+    pointer(viewport, "pointerdown", { client: 200, time: 0, pointerType: "mouse" });
+    pointer(viewport, "pointermove", { client: 140, time: 100, pointerType: "mouse" });
+
+    expect(track!.style.transform).toBe("translate3d(-60px, 0px, 0px)");
+  });
+
+  it("drags along the block axis for a vertical loop", () => {
+    const { track, getByTestId } = renderInfinite({ orientation: "vertical" });
+    const viewport = getByTestId("viewport");
+
+    pointer(viewport, "pointerdown", { client: 200, time: 0 });
+    pointer(viewport, "pointermove", { client: 140, time: 100 });
+
+    // Vertical reads clientY (the helper sets both), so the block axis moves.
+    expect(track!.style.transform).toBe("translate3d(0px, -60px, 0px)");
+  });
+
+  it("skips the velocity update when two moves share a timestamp", () => {
+    const { track, getByTestId } = renderInfinite();
+    const viewport = getByTestId("viewport");
+
+    pointer(viewport, "pointerdown", { client: 200, time: 0 });
+    pointer(viewport, "pointermove", { client: 140, time: 100 });
+    // Same timestamp → elapsed 0 → velocity keeps its prior value, no divide.
+    pointer(viewport, "pointermove", { client: 100, time: 100 });
+
+    // The move still repositions (offset 100) even though velocity wasn't updated.
+    expect(track!.style.transform).toBe("translate3d(-100px, 0px, 0px)");
+  });
+
+  it("ignores pointer events from a second, different pointer", () => {
+    const { track, getByTestId } = renderInfinite();
+    const viewport = getByTestId("viewport");
+
+    pointer(viewport, "pointerdown", { client: 200, time: 0, id: 1 });
+    // A different pointerId must not steer or end the active drag.
+    pointer(viewport, "pointermove", { client: 500, time: 50, id: 2 });
+    pointer(viewport, "pointerup", { client: 500, time: 60, id: 2 });
+    // The original pointer still drives it.
+    pointer(viewport, "pointermove", { client: 140, time: 100, id: 1 });
+
+    expect(track!.style.transform).toBe("translate3d(-60px, 0px, 0px)");
+  });
+
+  it("ignores a move with no active drag", () => {
+    const { track, getByTestId } = renderInfinite();
+    const viewport = getByTestId("viewport");
+
+    // A move with no preceding pointerdown is a no-op (nothing to steer).
+    pointer(viewport, "pointermove", { client: 140, time: 100 });
+
+    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+  });
+
+  it("does not start a drag when there is nothing to loop", () => {
+    const { track, getByTestId } = renderInfinite({ count: 1 });
+    const viewport = getByTestId("viewport");
+
+    // measure() bails (count < 2), so pointerdown records no drag state.
+    pointer(viewport, "pointerdown", { client: 200, time: 0 });
+    pointer(viewport, "pointermove", { client: 140, time: 100 });
+
+    expect(track!.style.transform).toBe("");
+  });
+
+  it("ends a drag cleanly on pointercancel", () => {
+    const { track, getByTestId } = renderInfinite();
+    const viewport = getByTestId("viewport");
+
+    pointer(viewport, "pointerdown", { client: 200, time: 0 });
+    pointer(viewport, "pointermove", { client: 140, time: 100 });
+    pointer(viewport, "pointermove", { client: 140, time: 200 });
+    // Cancel resolves the fling the same way a release does.
+    pointer(viewport, "pointercancel", { client: 140, time: 220 });
+
+    expect(track!.style.transform).toBe("translate3d(-100px, 0px, 0px)");
   });
 });

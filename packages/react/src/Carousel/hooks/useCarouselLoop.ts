@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef } from "react";
+import { PointerEvent, useCallback, useEffect, useRef } from "react";
 
-import { shortestStep, wrapShift } from "../loopEngine.ts";
+import { flingTarget, shortestStep, wrapShift } from "../loopEngine.ts";
 import { useCarouselContext } from "./useCarouselContext";
 
 // The programmatic glide (button / keyboard / indicator / autoplay) is a CSS
@@ -8,6 +8,13 @@ import { useCarouselContext } from "./useCarouselContext";
 // per-frame JS repaint of the slides stutters. Ease-out gives the momentum feel.
 const GLIDE_DURATION_MS = 400;
 const GLIDE_EASE = "cubic-bezier(0.33, 1, 0.68, 1)";
+// Pointer travel (px, along the axis) before a press becomes a drag — below it
+// a tap still reaches a link/button inside a slide.
+const DRAG_THRESHOLD_PX = 3;
+// How far a fling carries past the release point: released velocity (px/ms) ×
+// this (ms) is the projected distance, then snapped to the nearest slide. Larger
+// = a flick travels further. Tuned for feel on device.
+const FLING_DECEL_MS = 120;
 
 /** Live track measurement the engine paints against. */
 type Geometry = {
@@ -27,10 +34,12 @@ type Geometry = {
  * `wrapShift` so copies fill the seam — seamless in both directions with no
  * native snap to fight (the thing that broke on iOS).
  *
- * This cycle covers **programmatic** navigation: whenever `currentPage` changes
- * (Prev/Next, keyboard, indicator, `goTo`, autoplay) the track glides the
- * **short way** to that page via a GPU-composited CSS transition, wrapping across
- * the ends with no rewind. Drag + fling momentum land in a later cycle.
+ * **Programmatic** navigation — whenever `currentPage` changes (Prev/Next,
+ * keyboard, indicator, `goTo`, autoplay) the track glides the **short way** to
+ * that page via a GPU-composited CSS transition, wrapping across the ends with no
+ * rewind. **Touch / mouse drag** — the track follows the pointer 1:1 (transition
+ * off), and on release a velocity-projected fling snaps to the nearest slide with
+ * the same glide, updating `currentPage` from where it lands.
  *
  * Geometry is read from layout (`offsetLeft`/`offsetTop`), so it's
  * transform-independent and correct under the live per-slide shifts; it is only
@@ -49,6 +58,9 @@ export function useCarouselLoop() {
     snapAlign,
     refreshTick,
     instantScrollRef,
+    goTo,
+    pageForSlideIndex,
+    allowMouseDrag,
   } = useCarouselContext();
 
   const isInfinite = loop === "infinite" && transition === "slide";
@@ -60,6 +72,17 @@ export function useCarouselLoop() {
   // The first positioning is instant — a glide from slide 0 to the initial page
   // on mount would be a pointless animation on load.
   const positionedRef = useRef(false);
+  // Live drag state: null when not dragging.
+  const dragRef = useRef<{
+    pointerId: number;
+    startClient: number;
+    startOffset: number;
+    lastClient: number;
+    lastTime: number;
+    velocity: number;
+    dragging: boolean;
+    geometry: Geometry;
+  } | null>(null);
 
   const trackCallbackRef = useCallback((node: HTMLDivElement | null) => {
     trackRef.current = node;
@@ -104,21 +127,28 @@ export function useCarouselLoop() {
   // layer.
   const paint = useCallback(
     (offset: number, g: Geometry, animate: boolean) => {
-      const translate = (value: number) =>
-        vertical
-          ? `translate3d(0px, ${value}px, 0px)`
-          : `translate3d(${value}px, 0px, 0px)`;
+      // The track is the one intentional compositor layer (translate3d + the
+      // sheet's backface-visibility): the glide animates its transform on the GPU.
       g.track.style.transition = animate
         ? `transform ${GLIDE_DURATION_MS}ms ${GLIDE_EASE}`
         : "none";
-      g.track.style.transform = translate(g.align - offset);
+      g.track.style.transform = vertical
+        ? `translate3d(0px, ${g.align - offset}px, 0px)`
+        : `translate3d(${g.align - offset}px, 0px, 0px)`;
       g.slides.forEach((slide, index) => {
         const shift = wrapShift(index * g.stride, offset, g.trackLength);
-        // Always a 3D transform, even at shift 0, so every slide sits on its own
-        // pre-rasterised compositor layer. iOS Safari otherwise leaves an
-        // off-screen slide unpainted and flashes it white for a frame as it
-        // transforms into view (the entering slide, on tap).
-        slide.style.transform = translate(shift);
+        // A slide is shifted only when it wraps to fill the seam, and with a *2D*
+        // translate so it paints INTO the track's layer rather than onto its own.
+        // An off-screen per-slide layer is exactly what iOS Safari leaves
+        // unrasterised — a white tile for the first frame it glides into view (the
+        // entering-slide flash). Interior slides carry no transform at all, so they
+        // ride the track's already-painted bitmap and are there before they enter.
+        slide.style.transform =
+          shift === 0
+            ? ""
+            : vertical
+              ? `translateY(${shift}px)`
+              : `translateX(${shift}px)`;
       });
     },
     [vertical],
@@ -163,5 +193,92 @@ export function useCarouselLoop() {
     instantScrollRef,
   ]);
 
-  return { trackRef: trackCallbackRef, isInfinite };
+  const axisClient = useCallback(
+    (event: PointerEvent) => (vertical ? event.clientY : event.clientX),
+    [vertical],
+  );
+
+  // Start a drag (these handlers are only wired for infinite — see dragHandlers).
+  // Touch drag is always on (there's no native scroll to fall back to); mouse
+  // drag stays opt-in via allowMouseDrag, like the scroll modes. Bails when
+  // there's nothing to loop.
+  const onPointerDown = useCallback(
+    (event: PointerEvent<HTMLDivElement>) => {
+      if (event.pointerType === "mouse" && !allowMouseDrag) return;
+      const geometry = measure();
+      if (!geometry) return;
+      const client = axisClient(event);
+      dragRef.current = {
+        pointerId: event.pointerId,
+        startClient: client,
+        startOffset: offsetRef.current,
+        lastClient: client,
+        lastTime: event.timeStamp,
+        velocity: 0,
+        dragging: false,
+        geometry,
+      };
+    },
+    [allowMouseDrag, measure, axisClient],
+  );
+
+  // Follow the pointer 1:1 (offset moves opposite the finger) with the transition
+  // off, tracking velocity for the release fling. Crossing the threshold captures
+  // the pointer so the gesture survives leaving the element, and marks it a drag
+  // so the synthesised click is suppressed.
+  const onPointerMove = useCallback(
+    (event: PointerEvent<HTMLDivElement>) => {
+      const drag = dragRef.current;
+      if (!drag || event.pointerId !== drag.pointerId) return;
+      const client = axisClient(event);
+      const elapsed = event.timeStamp - drag.lastTime;
+      if (elapsed > 0) {
+        drag.velocity = -(client - drag.lastClient) / elapsed;
+      }
+      drag.lastClient = client;
+      drag.lastTime = event.timeStamp;
+      if (!drag.dragging && Math.abs(client - drag.startClient) > DRAG_THRESHOLD_PX) {
+        drag.dragging = true;
+        event.currentTarget.setPointerCapture?.(drag.pointerId);
+      }
+      if (!drag.dragging) return;
+      offsetRef.current = drag.startOffset - (client - drag.startClient);
+      paint(offsetRef.current, drag.geometry, false);
+    },
+    [axisClient, paint],
+  );
+
+  // Release: project the fling to a resting offset, glide there, and sync the
+  // active page to where it lands (which the page effect then sees as a no-op).
+  const onPointerUp = useCallback(
+    (event: PointerEvent<HTMLDivElement>) => {
+      const drag = dragRef.current;
+      if (!drag || event.pointerId !== drag.pointerId) return;
+      dragRef.current = null;
+      if (!drag.dragging) return;
+      const g = drag.geometry;
+      const target = flingTarget(
+        offsetRef.current,
+        drag.velocity,
+        FLING_DECEL_MS,
+        g.stride,
+      );
+      glideTo(target, false, g);
+      const index =
+        (((Math.round(target / g.stride) % g.count) + g.count) % g.count);
+      goTo(pageForSlideIndex(index));
+    },
+    [glideTo, goTo, pageForSlideIndex],
+  );
+
+  const dragHandlers = isInfinite
+    ? {
+        onPointerDown,
+        onPointerMove,
+        onPointerUp,
+        onPointerCancel: onPointerUp,
+      }
+    : null;
+
+  return { trackRef: trackCallbackRef, isInfinite, dragHandlers };
 }

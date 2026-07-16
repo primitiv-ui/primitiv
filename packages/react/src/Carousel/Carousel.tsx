@@ -279,7 +279,16 @@ export function CarouselViewport({
   // fill the seam — seamless both ways with no clones and no native snap to
   // fight (the thing that broke on iOS). Every other mode renders the slides
   // straight into the scroll viewport as before.
-  const { trackRef, isInfinite } = useCarouselLoop();
+  const { trackRef, isInfinite, dragHandlers } = useCarouselLoop();
+  // Infinite is transform-driven, so its own pointer engine (drag → fling) owns
+  // the pointer events; the scroll-snap modes keep useCarouselViewport's
+  // mouse-drag handlers.
+  const pointerHandlers = dragHandlers ?? {
+    onPointerDown,
+    onPointerMove,
+    onPointerUp,
+    onPointerCancel,
+  };
 
   return (
     <div
@@ -291,10 +300,7 @@ export function CarouselViewport({
       aria-live={isAutoRotating ? "off" : "polite"}
       onKeyDown={onKeyDown}
       onDragStart={onDragStart}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onPointerCancel={onPointerCancel}
+      {...pointerHandlers}
       onClickCapture={onClickCapture}
       {...(allowMouseDrag && { "data-mouse-drag": "" })}
       {...(ids.viewport !== undefined && { id: ids.viewport })}

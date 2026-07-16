@@ -278,6 +278,15 @@
     display: block;
     overflow: hidden;
     scroll-snap-type: none;
+    /* The drag engine owns the scroll axis; the page still scrolls on the cross
+       axis (pan-y here, pan-x when vertical). Stop the finger/mouse dragging a
+       text selection instead of the track. */
+    touch-action: pan-y;
+    user-select: none;
+  }
+  .primitiv-carousel[data-loop="infinite"][data-orientation="vertical"]
+    .primitiv-carousel__viewport {
+    touch-action: pan-x;
   }
   .primitiv-carousel__track {
     display: flex;
@@ -297,11 +306,12 @@
     flex-direction: column;
     block-size: 100%;
   }
-  /* Same anti-flicker pin on the slides — they carry their own seam-fill
-     transform, so they're composited too. */
-  .primitiv-carousel[data-loop="infinite"] .primitiv-carousel__slide {
-    backface-visibility: hidden;
-  }
+  /* Slides are deliberately NOT promoted to their own compositor layers (no
+     per-slide backface-visibility, and the engine shifts a seam copy with a 2D
+     translate, never translate3d): they paint into the track's single layer. An
+     off-screen per-slide layer is what iOS Safari leaves unrasterised — a white
+     tile for the first frame it glides into view (the entering-slide flash). One
+     rasterised track bitmap means the incoming slide is painted before it enters. */
   /* Mouse click-and-drag is opt-in (Carousel.Root's allowMouseDrag, off by
      default) — data-mouse-drag is only present when it's enabled, so the
      grab-cursor affordance never implies a capability that isn't actually

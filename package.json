@@ -7,7 +7,7 @@
     "build:core": "pnpm --filter harmoni-core exec cargo build",
     "test:rust": "pnpm --filter \"harmoni-*\" exec cargo test",
     "test:e2e": "pnpm --filter workbench exec playwright test",
-    "test:e2e:kitchen-sink": "playwright test -c apps/kitchen-sink/playwright.config.ts",
+    "test:e2e:kitchen-sink": "cd apps/kitchen-sink && pnpm exec playwright test",
     "test:full": "pnpm test:rust && pnpm build:wasm && pnpm test:e2e",
     "dev": "pnpm --filter workbench dev",
     "docs:dev": "pnpm --filter @primitiv-ui/docs docs:dev",

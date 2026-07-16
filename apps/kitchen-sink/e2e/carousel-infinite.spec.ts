@@ -6,6 +6,10 @@ import { test, expect, type Locator, type Page } from "@playwright/test";
 // than stranding the viewport on a clone in the edge buffer. Run under `webkit`
 // / `mobile-safari` too (where installable) to catch the iOS-only snap quirks a
 // plain Chromium hides.
+//
+// The wrap is async (teleport → smooth glide → scrollend → recentre), so every
+// settle assertion *polls* via expect().toPass() rather than sleeping a guessed
+// duration — a fixed wait flakes across engines and under CI load.
 
 /** The cell 7 carousel root ("Infinite — continuous glide"). */
 function infiniteCell(page: Page): Locator {
@@ -55,20 +59,30 @@ async function activeRealIndex(cell: Locator): Promise<number> {
   return Number(await active.getAttribute("data-index"));
 }
 
+/**
+ * Wait until the loop has *settled* on real slide `index`: the active page
+ * tracks it AND the viewport centre rests on the real slide, never a clone.
+ * Polls because the wrap is a teleport → smooth glide → scrollend → recentre
+ * chain whose duration varies by engine and CI load.
+ */
+async function expectSettledOn(cell: Locator, index: number): Promise<void> {
+  await expect(async () => {
+    expect(await activeRealIndex(cell)).toBe(index);
+    const centered = await centeredSlide(cell);
+    expect(centered.isClone).toBe(false);
+    expect(centered.realIndex).toBe(index);
+  }).toPass({ timeout: 5_000 });
+}
+
 test.beforeEach(async ({ page }) => {
   await page.goto("/carousel/loop");
-  // Let the first infinite scroll position onto the real middle copy.
   await infiniteCell(page).locator(".primitiv-carousel__viewport").waitFor();
-  await page.waitForTimeout(300);
 });
 
 test("starts positioned on the real first slide, not a leading clone", async ({
   page,
 }) => {
-  const cell = infiniteCell(page);
-  const centered = await centeredSlide(cell);
-  expect(centered.realIndex).toBe(0);
-  expect(centered.isClone).toBe(false);
+  await expectSettledOn(infiniteCell(page), 0);
 });
 
 test("Next past the last slide wraps onto the REAL first slide", async ({
@@ -76,17 +90,12 @@ test("Next past the last slide wraps onto the REAL first slide", async ({
 }) => {
   const cell = infiniteCell(page);
   const next = cell.getByLabel("Next slide");
-  // 4 real slides: 0→1→2→3, then the 4th Next wraps 3→0.
-  for (let i = 0; i < 4; i++) {
+  // 4 real slides: 0→1→2→3, then the 4th Next wraps 3→0. Settle between clicks
+  // so each starts from a real resting position, like a user tapping through.
+  for (let target = 1; target <= 4; target++) {
     await next.click();
-    await page.waitForTimeout(600); // teleport-then-glide + scrollend recentre
+    await expectSettledOn(cell, target % 4);
   }
-  expect(await activeRealIndex(cell)).toBe(0);
-  const centered = await centeredSlide(cell);
-  expect(centered.realIndex).toBe(0);
-  // The crux of the iOS bug: after the wrap the viewport must rest on the REAL
-  // slide, never stranded on a clone in the buffer.
-  expect(centered.isClone).toBe(false);
 });
 
 test("Previous before the first slide wraps onto the REAL last slide", async ({
@@ -94,11 +103,9 @@ test("Previous before the first slide wraps onto the REAL last slide", async ({
 }) => {
   const cell = infiniteCell(page);
   await cell.getByLabel("Previous slide").click();
-  await page.waitForTimeout(600);
-  expect(await activeRealIndex(cell)).toBe(3);
-  const centered = await centeredSlide(cell);
-  expect(centered.realIndex).toBe(3);
-  expect(centered.isClone).toBe(false);
+  // The crux of the iOS bug: Previous from the first slide must land on the REAL
+  // last slide, never stranded on a clone in the buffer.
+  await expectSettledOn(cell, 3);
 });
 
 test("clicking all the way around returns to a real slide every step", async ({
@@ -110,10 +117,6 @@ test("clicking all the way around returns to a real slide every step", async ({
   // clone buffer as the active page cycles 0..3 twice).
   for (let step = 1; step <= 8; step++) {
     await next.click();
-    await page.waitForTimeout(600);
-    const centered = await centeredSlide(cell);
-    expect(centered.isClone, `step ${step} settled on a clone`).toBe(false);
-    expect(centered.realIndex).toBe(step % 4);
-    expect(await activeRealIndex(cell)).toBe(step % 4);
+    await expectSettledOn(cell, step % 4);
   }
 });

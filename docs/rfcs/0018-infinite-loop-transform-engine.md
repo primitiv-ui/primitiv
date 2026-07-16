@@ -1,6 +1,9 @@
 # RFC 0018 — Infinite carousel loop via a JS transform engine
 
-> **Status:** Draft (for review before implementation)
+> **Status:** Landed. Single-slide engine + drag/fling, then RTL, peek and
+> multi-slide under the engine (rollout steps 1–7, incl. the follow-up); iOS
+> entering-slide flash fixed by painting slides into the track's single layer.
+> Real-device QA on iOS Safari is the remaining verification.
 > **Author:** simonrevill, with architectural review
 > **Date:** 2026-07-16
 > **Seeds from:** the carousel loop-variant session — three iOS-specific fixes to
@@ -112,7 +115,11 @@ infinite first; add multi-slide/peek as a follow-up increment.
 4. Wheel; RTL; vertical.
 5. Autoplay across the seam; progress; reduced motion.
 6. Remove the dead clone-buffer/recentre code from the infinite path.
-7. *(Follow-up)* multi-slide, peek, padding under the engine.
+7. *(Follow-up — landed)* multi-slide, peek, padding under the engine: the engine
+   reads the stride sign as an axis `dir` (RTL mirrors), cancels the track's `base`
+   inset (peek/padding stays centred), and glides to the page's leading slide
+   index `currentPageOffset` (multi-slide advances a whole page; the inter-slide
+   gap returns via a `data-slides-per-page` track hook, one-up stays gapless).
 
 Each step is one red→green(-refactor) cycle with its docs (JSDoc, README, the
 components table already lists Carousel). The workbench/kitchen-sink loop cells

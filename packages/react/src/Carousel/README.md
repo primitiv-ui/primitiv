@@ -792,6 +792,28 @@ CSS `transform` transition, wrapping across the ends with no rewind; the first
 positioning is instant (no glide on load). `prefers-reduced-motion` sets the
 offset instantly with no transition.
 
+**Touch / mouse drag.** The track follows the pointer 1:1 (transition off), and
+on release a velocity-projected **fling** snaps to the nearest slide with the
+same glide, updating the active page from where it lands. Touch drag is always
+on (there's no native scroll to fall back to); mouse drag stays opt-in via
+`allowMouseDrag`. A tap under a small threshold still reaches a link / button
+inside a slide.
+
+**Direction, peek and multi-slide.** The engine is axis- and direction-generic:
+it reads the sign of the measured stride as the axis direction, so an **RTL**
+loop mirrors every move (no rewind), and it cancels the track's own inset so
+**peek** / viewport padding stays centred. **Multi-slide** (`slidesPerPage > 1`)
+glides to each page's leading slide, so Prev / Next advance a whole page and wrap
+cleanly; the inter-slide gap returns between the on-screen pair (single-slide
+stays gapless so the gap never flashes through the viewport mid-glide). The gap
+is scoped by the `data-slides-per-page` hook the engine sets on the track.
+
+Every slide paints into the **track's single compositor layer** (the seam copy
+uses a 2D translate, and slides are never individually promoted): an off-screen
+per-slide layer is what iOS Safari leaves unrasterised, flashing the entering
+slide white for one frame. One rasterised track bitmap keeps the incoming slide
+painted before it enters.
+
 This is what replaced the earlier native-scroll-snap + clone-buffer approach,
 which couldn't loop reliably on iOS Safari (the button rewind and fast-flick
 stall): driving the position in JS removes the native-snap dependency those
@@ -800,9 +822,6 @@ mercy.
 
 > The track geometry is browser-only (jsdom reports no layout), so it ships
 > unit-tested with mocked geometry, and real-browser tested in Playwright.
-> `loop="infinite"` is currently scoped to a single slide per page (multi-slide
-> and `peek` under the engine are a follow-up). Drag / fling momentum is a
-> further increment; button / keyboard / autoplay navigation is complete.
 
 ### Keyboard navigation
 

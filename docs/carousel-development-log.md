@@ -4166,3 +4166,41 @@ kitchen-sink (wrap settles on a real slide both ways, two full laps, no clones).
 **Still to come:** drag + fling momentum (the touch feel), then multi-slide /
 peek / RTL polish under the engine. Button / keyboard / indicator / autoplay
 navigation is complete and deployable for iPhone QA.
+
+---
+
+## 2026-07-16 — Infinite engine: iOS flash fix + drag/fling + RTL / peek / multi-slide
+
+Follow-on to the transform-engine rebuild, from real-iPhone QA feedback.
+
+- **iOS entering-slide flash (fixed).** The engine had been promoting *every*
+  slide to its own compositor layer (per-slide `translate3d` + `backface-visibility`).
+  iOS Safari won't rasterise a layer outside the viewport clip until the first
+  frame it scrolls in — so the incoming slide was a white tile for one frame.
+  Now slides paint into the **track's single layer**: interior slides carry no
+  transform; only the seam copy is shifted, with a **2D** translate so it stays
+  in the track bitmap. (The per-slide layering had been added while chasing the
+  *earlier* flash, which was really the inter-slide gap — it never helped this one.)
+- **Touch drag + fling momentum.** Pointer-follows-track 1:1 (transition off),
+  velocity-projected fling snaps to the nearest slide on release and syncs the
+  page. Touch always on; mouse gated by `allowMouseDrag`; sub-threshold press is
+  a tap. `flingTarget` reused from the pure engine.
+- **RTL.** The engine read a negative stride and bailed (`stride <= 0`), so RTL
+  infinite sat dead. Now it reads the stride **sign as an axis `dir`** and mirrors
+  the track translate, seam shift and drag delta.
+- **Peek.** The track's own inset inside the peek/viewport padding was ignored,
+  double-counting the peek and shoving the active slide off-centre. Now `measure()`
+  captures the first slide's `base` inset (viewport positioned so `offsetLeft` is
+  relative to it) and `paint()` subtracts it.
+- **Multi-slide.** The glide effect drove off `currentPage` (a page index) as if
+  it were a slide index — so 2-up advanced one slide, not a page. Now it targets
+  `currentPageOffset` (the page's leading slide index). The inter-slide gap returns
+  for multi-slide via a `data-slides-per-page` track hook; one-up stays gapless.
+
+**Verified:** 396 Carousel unit tests; `useCarouselLoop.ts` + `loopEngine.ts` +
+`Carousel.tsx` 100% (lines/branches/functions/statements); carousel scss drift
+guard green; `tsc` clean.
+
+**Still to come:** real-iOS-Safari QA of all six behaviours (the sandbox can't
+drive it); fling could snap to page boundaries for multi-slide (currently snaps
+to the nearest slide, then the page effect re-aligns).

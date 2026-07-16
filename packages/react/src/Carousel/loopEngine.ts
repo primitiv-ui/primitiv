@@ -52,6 +52,24 @@ export function normalizeOffset(offset: number, trackLength: number): number {
   return ((offset % trackLength) + trackLength) % trackLength;
 }
 
+/**
+ * The whole-`trackLength` nudge that moves a slide's **nearest copy** into view
+ * for a seamless loop — the clone-free fill. A slide's flex position is
+ * `baseLeft` and the track is translated by `-p`, so its raw on-screen position
+ * is `baseLeft - p`; this returns the multiple of `trackLength` to add so that
+ * position lands in `[-trackLength/2, trackLength/2)` (the copy nearest the
+ * current view). Non-positive `trackLength` degrades to 0.
+ */
+export function wrapShift(
+  baseLeft: number,
+  p: number,
+  trackLength: number,
+): number {
+  if (trackLength <= 0) return 0;
+  // `+ 0` normalises the `-0` that `-Math.round(0) * n` produces to `+0`.
+  return -Math.round((baseLeft - p) / trackLength) * trackLength + 0;
+}
+
 /** Clamp to the unit interval. */
 function clamp01(t: number): number {
   return t < 0 ? 0 : t > 1 ? 1 : t;

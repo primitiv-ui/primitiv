@@ -5,6 +5,7 @@ import {
   normalizeOffset,
   easeOut,
   tweenValue,
+  wrapShift,
 } from "../loopEngine.ts";
 
 // Pure positioning math for the infinite transform loop (RFC 0018). No DOM —
@@ -112,5 +113,30 @@ describe("loopEngine.tweenValue", () => {
 
   it("jumps straight to the end for a non-positive duration", () => {
     expect(tweenValue(100, 300, 0, 0)).toBe(300);
+  });
+});
+
+describe("loopEngine.wrapShift", () => {
+  // A slide's flex position is `baseLeft`; the track is translated by `-p`, so
+  // the slide's raw on-screen position is `baseLeft - p`. wrapShift returns the
+  // whole-track-length nudge (a multiple of trackLength) that moves the slide's
+  // *nearest copy* into view — the seamless-loop fill that replaces clones.
+  it("is zero when the slide is already the nearest copy", () => {
+    expect(wrapShift(0, 0, 400)).toBe(0);
+    expect(wrapShift(100, 120, 400)).toBe(0);
+  });
+
+  it("pulls a slide that has scrolled far off the start round to the end", () => {
+    // baseLeft 0, p 350 → on-screen −350; the copy at +50 (shift +400) is nearer.
+    expect(wrapShift(0, 350, 400)).toBe(400);
+  });
+
+  it("pushes a slide that is far ahead round to the start", () => {
+    // baseLeft 300, p −150 → on-screen 450; the copy at 50 (shift −400) is nearer.
+    expect(wrapShift(300, -150, 400)).toBe(-400);
+  });
+
+  it("returns 0 for a non-positive track length", () => {
+    expect(wrapShift(300, -150, 0)).toBe(0);
   });
 });

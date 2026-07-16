@@ -52,8 +52,10 @@ function defineGeometry() {
   const slideSize = function (this: HTMLElement) {
     return this.hasAttribute?.("data-carousel-slide") ? SLIDE : 0;
   };
+  // The engine measures the TRACK's own content box (peek/padding is the
+  // viewport's, kept out of the maths), so the harness sizes the track.
   const viewportSize = function (this: HTMLElement) {
-    return this.hasAttribute?.("data-carousel-viewport") ? VIEWPORT : 0;
+    return this.hasAttribute?.("data-carousel-track") ? VIEWPORT : 0;
   };
   for (const [prop, get] of [
     ["offsetLeft", indexPos],
@@ -226,6 +228,14 @@ describe("Carousel infinite — transform engine", () => {
     // 6 slides, 2 per page → pages lead at slide 0, 2, 4. Next must glide to the
     // next page's leading slide (index 2 = two strides), not one slide: the engine
     // has to drive off the page's leading slide index, not the page number.
+    // The track holds the whole 2-slide page (span = stride + slide = 200), so it's
+    // sized to 200 and the page rests flush (align 0) instead of one slide centred.
+    Object.defineProperty(HTMLElement.prototype, "clientWidth", {
+      configurable: true,
+      get(this: HTMLElement) {
+        return this.hasAttribute?.("data-carousel-track") ? 200 : 0;
+      },
+    });
     const user = userEvent.setup();
     const { track, getByRole } = renderInfinite({ count: 6, slidesPerPage: 2 });
 
@@ -264,11 +274,11 @@ describe("Carousel infinite — transform engine", () => {
   });
 
   it("offsets the track for start and end alignment", () => {
-    // Widen the viewport so alignment is visible: redefine clientWidth to 300.
+    // Widen the track so alignment is visible: redefine its clientWidth to 300.
     Object.defineProperty(HTMLElement.prototype, "clientWidth", {
       configurable: true,
       get(this: HTMLElement) {
-        return this.hasAttribute?.("data-carousel-viewport") ? 300 : 0;
+        return this.hasAttribute?.("data-carousel-track") ? 300 : 0;
       },
     });
     const start = renderInfinite({ snapAlign: "start" });
@@ -280,27 +290,22 @@ describe("Carousel infinite — transform engine", () => {
     expect(end.track!.style.transform).toBe("translate3d(200px, 0px, 0px)");
   });
 
-  it("centres the active slide under peek by subtracting the track inset", () => {
-    // Peek pads the viewport, so the track is inset and slide 0 sits at
-    // offsetLeft = the peek gutter (20), inside a viewport wider than the slide
-    // (140 vs 100). The engine must subtract that base inset or it double-counts
-    // the peek and shoves the active slide off-centre.
+  it("aligns against the track's own box, not the padded viewport (peek)", () => {
+    // Under peek the viewport is padded (clientWidth 140) and the track is inset +
+    // narrowed to the slide (100). The CSS already centres the track in the
+    // viewport, so the engine must align within the TRACK (100), not the padded
+    // viewport — else it double-counts the peek and shoves the slide off-centre.
     Object.defineProperty(HTMLElement.prototype, "clientWidth", {
       configurable: true,
       get(this: HTMLElement) {
-        return this.hasAttribute?.("data-carousel-viewport") ? 140 : 0;
-      },
-    });
-    Object.defineProperty(HTMLElement.prototype, "offsetLeft", {
-      configurable: true,
-      get(this: HTMLElement) {
-        const index = this.getAttribute?.("data-index");
-        return index != null ? 20 + Number(index) * STRIDE : 0;
+        if (this.hasAttribute?.("data-carousel-track")) return 100;
+        if (this.hasAttribute?.("data-carousel-viewport")) return 140;
+        return 0;
       },
     });
     const { track } = renderInfinite({ snapAlign: "center" });
-    // align = (140 − 100) / 2 = 20, base = 20 → the track rests at its natural
-    // inset (0), NOT shoved to +20. (Without the base subtraction it reads +20.)
+    // align = (track 100 − slide 100) / 2 = 0 → no shift. (Measuring the padded
+    // viewport 140 would read +20 and push the slide out of centre.)
     expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
   });
 

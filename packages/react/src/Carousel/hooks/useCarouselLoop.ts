@@ -29,11 +29,6 @@ type Geometry = {
   // shift and drag delta is multiplied by it, so the logical engine stays
   // direction-agnostic and only the physical paint mirrors.
   dir: number;
-  // The first slide's position inside the viewport (its natural layout inset).
-  // Non-zero under peek / viewport padding, where the track is inset from the
-  // viewport edge; subtracted from the track translate so the active slide stays
-  // centred instead of being shoved over by the padding.
-  base: number;
 };
 
 /**
@@ -62,6 +57,7 @@ export function useCarouselLoop() {
     slideKeys,
     slidesRef,
     currentPageOffset,
+    slidesPerPage,
     orientation,
     transition,
     loop,
@@ -120,20 +116,27 @@ export function useCarouselLoop() {
     const dir = rawStride < 0 ? -1 : 1;
     const stride = Math.abs(rawStride);
     const trackLength = stride * count;
-    const viewport = track.parentElement!;
-    const viewportSize = vertical ? viewport.clientHeight : viewport.clientWidth;
+    // Align against the TRACK's own content box, not the viewport's clientWidth.
+    // Under peek / viewport padding the track is inset and narrowed, and the CSS
+    // already centres it in the viewport (symmetric padding); measuring the track
+    // keeps the padding out of the maths so it isn't double-counted.
+    const trackSize = vertical ? track.clientHeight : track.clientWidth;
     const slideSize = size(slides[0]!);
-    // Where `offset === index * stride` should place the active slide, per its
+    // The active *page* spans slidesPerPage slides (+ the gaps between them):
+    // from the leading slide's edge to the last member's far edge. Centre/anchor
+    // the whole page, so a multi-slide page fills the track instead of one slide
+    // being centred with the rest overflowing.
+    const pageSpan = (slidesPerPage - 1) * stride + slideSize;
+    // Where `offset === index * stride` should place the active page, per its
     // snap alignment: flush to the start, centred, or flush to the end.
     const align =
       snapAlign === "center"
-        ? (viewportSize - slideSize) / 2
+        ? (trackSize - pageSpan) / 2
         : snapAlign === "end"
-          ? viewportSize - slideSize
+          ? trackSize - pageSpan
           : 0;
-    const base = pos(slides[0]!);
-    return { track, slides, count, stride, trackLength, align, dir, base };
-  }, [slideKeys, slidesRef, vertical, snapAlign]);
+    return { track, slides, count, stride, trackLength, align, dir };
+  }, [slideKeys, slidesRef, vertical, snapAlign, slidesPerPage]);
 
   // Position the track at `offset` against already-measured geometry. `animate`
   // drives the move as a GPU-composited CSS transition on the track (the smooth
@@ -149,9 +152,9 @@ export function useCarouselLoop() {
         ? `transform ${GLIDE_DURATION_MS}ms ${GLIDE_EASE}`
         : "none";
       // The physical inline translate mirrors under RTL (dir = −1); the block axis
-      // never mirrors, so vertical keeps dir = +1. `base` cancels the track's own
-      // layout inset (peek / viewport padding) so alignment isn't double-counted.
-      const trackShift = g.align - g.base - g.dir * offset;
+      // never mirrors, so vertical keeps dir = +1. The transform is relative to the
+      // track's natural (already peek-inset) layout position, so no inset term.
+      const trackShift = g.align - g.dir * offset;
       g.track.style.transform = vertical
         ? `translate3d(0px, ${trackShift}px, 0px)`
         : `translate3d(${trackShift}px, 0px, 0px)`;

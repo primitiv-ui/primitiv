@@ -278,10 +278,6 @@
     display: block;
     overflow: hidden;
     scroll-snap-type: none;
-    /* Positioning context so a slide's offsetLeft/Top is measured against the
-       viewport — the engine reads it as the track's inset (the peek / viewport
-       padding gutter) and cancels it so alignment isn't double-counted. */
-    position: relative;
     /* The drag engine owns the scroll axis; the page still scrolls on the cross
        axis (pan-y here, pan-x when vertical). Stop the finger/mouse dragging a
        text selection instead of the track. */

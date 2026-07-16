@@ -2475,7 +2475,7 @@ export function CarouselLoop() {
         <GridCell
           n={7}
           title="Infinite — continuous glide"
-          note="loop=&quot;infinite&quot; renders a clone buffer so a wrap glides one step onto the adjacent slide with no rewind — both swipe / drag / wheel (best felt on touch, or drag with a mouse here) and the prev/next buttons. Click Next past the last slide: it glides on to the first, not back. Watch the dots keep tracking. Single-slide-scoped; the recentre/glide feel is what needs real-device QA."
+          note="loop=&quot;infinite&quot; drives a JS transform track (no clones, no native scroll) so a wrap glides one step onto the adjacent slide with no rewind — GPU-composited for smoothness. Click Next / Prev past the ends: it glides on, never back. Watch the dots keep tracking. Buttons / keyboard / autoplay for now; touch-drag momentum is the next increment. Single-slide-scoped."
         >
           <BasicSingle
             label="Featured products — infinite"

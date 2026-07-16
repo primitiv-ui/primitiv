@@ -787,10 +787,10 @@ a **JS transform track** (`data-carousel-track`): the engine translates the
 track and shifts each slide's copy by a whole track-length so copies fill the
 seam — seamless in both directions with **no clones** and no native scroll-snap
 to fight (RFC 0018). A page change (Prev / Next, keyboard, indicator, `goTo`,
-autoplay) glides the track the **short way** to that page via an eased
-`requestAnimationFrame` tween, wrapping across the ends with no rewind; the
-first positioning is instant (no glide on load). `prefers-reduced-motion` sets
-the offset instantly with no tween.
+autoplay) glides the track the **short way** to that page via a GPU-composited
+CSS `transform` transition, wrapping across the ends with no rewind; the first
+positioning is instant (no glide on load). `prefers-reduced-motion` sets the
+offset instantly with no transition.
 
 This is what replaced the earlier native-scroll-snap + clone-buffer approach,
 which couldn't loop reliably on iOS Safari (the button rewind and fast-flick
@@ -799,7 +799,7 @@ bugs came from, and the momentum feel is tunable in JS rather than at the OS's
 mercy.
 
 > The track geometry is browser-only (jsdom reports no layout), so it ships
-> unit-tested with mocked geometry + rAF, and real-browser tested in Playwright.
+> unit-tested with mocked geometry, and real-browser tested in Playwright.
 > `loop="infinite"` is currently scoped to a single slide per page (multi-slide
 > and `peek` under the engine are a follow-up). Drag / fling momentum is a
 > further increment; button / keyboard / autoplay navigation is complete.

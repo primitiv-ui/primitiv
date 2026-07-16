@@ -3,8 +3,6 @@ import {
   snapTarget,
   flingTarget,
   normalizeOffset,
-  easeOut,
-  tweenValue,
   wrapShift,
 } from "../loopEngine.ts";
 
@@ -76,43 +74,6 @@ describe("loopEngine.normalizeOffset", () => {
 
   it("returns 0 for a non-positive track length", () => {
     expect(normalizeOffset(450, 0)).toBe(0);
-  });
-});
-
-describe("loopEngine.easeOut", () => {
-  it("pins the endpoints at 0 and 1", () => {
-    expect(easeOut(0)).toBe(0);
-    expect(easeOut(1)).toBe(1);
-  });
-
-  it("is past the half-way point by the midpoint (fast-out, gentle settle)", () => {
-    // Cubic ease-out at t=0.5 is 1 − 0.5³ = 0.875.
-    expect(easeOut(0.5)).toBeCloseTo(0.875, 5);
-  });
-
-  it("clamps input outside [0, 1]", () => {
-    expect(easeOut(-1)).toBe(0);
-    expect(easeOut(2)).toBe(1);
-  });
-});
-
-describe("loopEngine.tweenValue", () => {
-  it("is the start value at elapsed 0", () => {
-    expect(tweenValue(100, 300, 0, 200)).toBe(100);
-  });
-
-  it("reaches the end value once elapsed meets the duration", () => {
-    expect(tweenValue(100, 300, 200, 200)).toBe(300);
-    expect(tweenValue(100, 300, 999, 200)).toBe(300);
-  });
-
-  it("eases between the endpoints mid-tween", () => {
-    // t=0.5 → 0.875 of the way from 100 to 300 = 275.
-    expect(tweenValue(100, 300, 100, 200)).toBeCloseTo(275, 5);
-  });
-
-  it("jumps straight to the end for a non-positive duration", () => {
-    expect(tweenValue(100, 300, 0, 0)).toBe(300);
   });
 });
 

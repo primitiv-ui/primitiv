@@ -1,14 +1,13 @@
 import { useCallback, useEffect, useRef } from "react";
 
-import {
-  shortestStep,
-  tweenValue,
-  wrapShift,
-} from "../loopEngine.ts";
+import { shortestStep, wrapShift } from "../loopEngine.ts";
 import { useCarouselContext } from "./useCarouselContext";
 
-// Duration of a programmatic glide (button / keyboard / indicator / autoplay).
+// The programmatic glide (button / keyboard / indicator / autoplay) is a CSS
+// transition on the track — GPU-composited, so it's smooth on mobile where a
+// per-frame JS repaint of the slides stutters. Ease-out gives the momentum feel.
 const GLIDE_DURATION_MS = 400;
+const GLIDE_EASE = "cubic-bezier(0.33, 1, 0.68, 1)";
 
 /** Live track measurement the engine paints against. */
 type Geometry = {
@@ -30,14 +29,14 @@ type Geometry = {
  *
  * This cycle covers **programmatic** navigation: whenever `currentPage` changes
  * (Prev/Next, keyboard, indicator, `goTo`, autoplay) the track glides the
- * **short way** to that page via an eased `requestAnimationFrame` tween, wrapping
- * across the ends with no rewind. Drag + fling momentum land in a later cycle.
+ * **short way** to that page via a GPU-composited CSS transition, wrapping across
+ * the ends with no rewind. Drag + fling momentum land in a later cycle.
  *
  * Geometry is read from layout (`offsetLeft`/`offsetTop`), so it's
  * transform-independent and correct under the live per-slide shifts; it is only
  * meaningful in a real browser (jsdom reports zero), so the pixel behaviour is
  * exercised in Playwright while the control flow is unit-tested with mocked
- * geometry + rAF.
+ * geometry.
  */
 export function useCarouselLoop() {
   const {
@@ -55,10 +54,9 @@ export function useCarouselLoop() {
   const isInfinite = loop === "infinite" && transition === "slide";
   const vertical = orientation === "vertical";
   const trackRef = useRef<HTMLDivElement | null>(null);
-  // The continuous scroll position in track space (px). At rest it sits on an
-  // `index * stride` boundary; the tween animates it between boundaries.
+  // The scroll position in track space (px) — an `index * stride` boundary at
+  // rest; the CSS transition animates the track between boundaries.
   const offsetRef = useRef(0);
-  const frameRef = useRef<number | null>(null);
   // The first positioning is instant — a glide from slide 0 to the initial page
   // on mount would be a pointless animation on load.
   const positionedRef = useRef(false);
@@ -98,51 +96,38 @@ export function useCarouselLoop() {
     return { track, slides, count, stride, trackLength, align };
   }, [slideKeys, slidesRef, vertical, snapAlign]);
 
-  // Paint the track translate + per-slide wrap for a given offset against
-  // already-measured geometry (no re-measure — a glide's geometry is stable).
+  // Position the track at `offset` against already-measured geometry. `animate`
+  // drives the move as a GPU-composited CSS transition on the track (the smooth
+  // glide); the per-slide wrap shifts are set instantly (never transitioned —
+  // they only ever change while a slide is off-screen at the seam, so a copy
+  // repositions invisibly). A 3D translate keeps the track on its own compositor
+  // layer.
   const paint = useCallback(
-    (offset: number, g: Geometry) => {
-      const axis = vertical ? "Y" : "X";
-      g.track.style.transform = `translate${axis}(${g.align - offset}px)`;
+    (offset: number, g: Geometry, animate: boolean) => {
+      const translate = (value: number) =>
+        vertical
+          ? `translate3d(0px, ${value}px, 0px)`
+          : `translate3d(${value}px, 0px, 0px)`;
+      g.track.style.transition = animate
+        ? `transform ${GLIDE_DURATION_MS}ms ${GLIDE_EASE}`
+        : "none";
+      g.track.style.transform = translate(g.align - offset);
       g.slides.forEach((slide, index) => {
         const shift = wrapShift(index * g.stride, offset, g.trackLength);
-        slide.style.transform = shift === 0 ? "" : `translate${axis}(${shift}px)`;
+        slide.style.transform = shift === 0 ? "" : translate(shift);
       });
     },
     [vertical],
   );
 
-  // Animate the offset to `target`, or set it instantly (reduced motion, an
-  // `instant` nav, or a zero-distance move).
+  // Move the track to `target` — animated unless this is an `instant` nav, the
+  // first positioning, or the user prefers reduced motion.
   const glideTo = useCallback(
     (target: number, instant: boolean, g: Geometry) => {
-      if (frameRef.current !== null) {
-        cancelAnimationFrame(frameRef.current);
-        frameRef.current = null;
-      }
-      const start = offsetRef.current;
       const reduce = !!window.matchMedia?.("(prefers-reduced-motion: reduce)")
         ?.matches;
-      if (instant || reduce || start === target) {
-        offsetRef.current = target;
-        paint(target, g);
-        return;
-      }
-      const startedAt = performance.now();
-      const frame = (now: number) => {
-        const elapsed = now - startedAt;
-        if (elapsed >= GLIDE_DURATION_MS) {
-          offsetRef.current = target;
-          paint(target, g);
-          frameRef.current = null;
-          return;
-        }
-        const value = tweenValue(start, target, elapsed, GLIDE_DURATION_MS);
-        offsetRef.current = value;
-        paint(value, g);
-        frameRef.current = requestAnimationFrame(frame);
-      };
-      frameRef.current = requestAnimationFrame(frame);
+      offsetRef.current = target;
+      paint(target, g, !instant && !reduce);
     },
     [paint],
   );
@@ -173,14 +158,6 @@ export function useCarouselLoop() {
     glideTo,
     instantScrollRef,
   ]);
-
-  // Stop any in-flight animation frame on unmount.
-  useEffect(
-    () => () => {
-      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
-    },
-    [],
-  );
 
   return { trackRef: trackCallbackRef, isInfinite };
 }

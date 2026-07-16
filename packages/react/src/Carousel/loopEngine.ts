@@ -70,32 +70,3 @@ export function wrapShift(
   return -Math.round((baseLeft - p) / trackLength) * trackLength + 0;
 }
 
-/** Clamp to the unit interval. */
-function clamp01(t: number): number {
-  return t < 0 ? 0 : t > 1 ? 1 : t;
-}
-
-/**
- * Cubic ease-out — moves off fast and settles gently, the standard feel for a
- * programmatic carousel glide. Input is clamped to `[0, 1]`.
- */
-export function easeOut(t: number): number {
-  const c = clamp01(t);
-  return 1 - (1 - c) ** 3;
-}
-
-/**
- * Eased value of a tween from `start` to `end` at `elapsed` of `duration` ms.
- * Returns `start` at elapsed 0 and `end` once elapsed reaches the duration; a
- * non-positive `duration` jumps straight to `end` (used for reduced motion).
- */
-export function tweenValue(
-  start: number,
-  end: number,
-  elapsed: number,
-  duration: number,
-): number {
-  if (duration <= 0) return end;
-  const progress = easeOut(elapsed / duration);
-  return start + (end - start) * progress;
-}

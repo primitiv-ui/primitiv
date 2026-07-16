@@ -5,16 +5,13 @@ import { Carousel } from "../index.ts";
 
 // The infinite transform engine (RFC 0018 / useCarouselLoop). Real geometry is
 // browser-only (jsdom lays nothing out), so these mock the layout the engine
-// reads (offsetLeft/Top, offsetWidth/Height, clientWidth/Height) plus rAF +
-// performance.now to step the tween deterministically, and assert the resulting
-// track / per-slide transforms. Pixel behaviour is verified in Playwright.
+// reads (offsetLeft/Top, offsetWidth/Height, clientWidth/Height) and assert the
+// resulting track / per-slide transforms and the CSS transition that drives the
+// glide. Pixel behaviour and smoothness are verified in Playwright.
 
 const STRIDE = 100; // slide size + gap
 const SLIDE = 100;
 const VIEWPORT = 100; // → centre align offset 0, so transforms read cleanly
-
-let now = 0;
-let frames: FrameRequestCallback[] = [];
 
 function defineGeometry() {
   // A slide's layout position is its index × stride; every slide is SLIDE wide;
@@ -45,27 +42,7 @@ function defineGeometry() {
   }
 }
 
-/** Run all queued frames, advancing the clock by `dt` before each batch. */
-function flush(times = 20, dt = 30) {
-  act(() => {
-    for (let i = 0; i < times; i++) {
-      now += dt;
-      const batch = frames;
-      frames = [];
-      batch.forEach((cb) => cb(now));
-    }
-  });
-}
-
 beforeEach(() => {
-  now = 0;
-  frames = [];
-  vi.spyOn(performance, "now").mockImplementation(() => now);
-  vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => {
-    frames.push(cb);
-    return frames.length;
-  });
-  vi.stubGlobal("cancelAnimationFrame", () => {});
   defineGeometry();
 });
 
@@ -127,7 +104,6 @@ describe("Carousel infinite — transform engine", () => {
   it("wraps the slides in a track for infinite, and not for other modes", () => {
     const infinite = renderInfinite({ loop: "infinite" });
     expect(infinite.track).not.toBeNull();
-    // The real slides live inside the track.
     expect(
       infinite.track!.querySelectorAll("[data-carousel-slide]"),
     ).toHaveLength(4);
@@ -136,73 +112,67 @@ describe("Carousel infinite — transform engine", () => {
     expect(wrap.track).toBeNull();
   });
 
-  it("positions the track on the active page at rest (centre align → offset 0)", () => {
+  it("positions the track on the active page at rest, instantly (no glide on load)", () => {
     const { track } = renderInfinite({ snapAlign: "center" });
-    flush();
-    // align (VIEWPORT−SLIDE)/2 = 0, offset 0 → translateX(0).
-    expect(track!.style.transform).toBe("translateX(0px)");
+    // align (VIEWPORT−SLIDE)/2 = 0, offset 0 → translate3d(0). First paint is
+    // instant, so no transition.
+    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+    expect(track!.style.transition).toBe("none");
   });
 
-  it("glides forward one stride when Next advances a page", async () => {
+  it("glides forward one stride via a CSS transition when Next advances a page", async () => {
     const user = userEvent.setup();
     const { track, getByRole } = renderInfinite();
-    flush();
 
     await user.click(getByRole("button", { name: "Next" }));
-    flush();
 
-    // Page 0 → 1: offset 1×stride = 100 → translateX(align − 100) = −100.
-    expect(track!.style.transform).toBe("translateX(-100px)");
+    // Page 0 → 1: offset 1×stride = 100 → translate3d(align − 100) = −100, driven
+    // by a transform transition (the smooth, GPU-composited glide).
+    expect(track!.style.transform).toBe("translate3d(-100px, 0px, 0px)");
+    expect(track!.style.transition).toContain("transform");
   });
 
   it("wraps the SHORT way from the last page to the first (no rewind)", async () => {
     const user = userEvent.setup();
-    // 4 slides, start on the last. Next wraps 3 → 0 forward: offset advances by
-    // one stride (300 → 400), never back across the whole track.
+    // 4 slides, start on the last. slide 3 is one step *back* from slide 0, so it
+    // rests at offset −100 (translate3d(align − (−100)) = 100).
     const { track, getByRole } = renderInfinite({ defaultPage: 3 });
-    flush();
-    // The engine takes the short way: slide 3 is one step *back* from slide 0,
-    // so it rests at offset −100 (translateX(align − (−100)) = 100), not +300.
-    expect(track!.style.transform).toBe("translateX(100px)");
+    expect(track!.style.transform).toBe("translate3d(100px, 0px, 0px)");
 
     await user.click(getByRole("button", { name: "Next" }));
-    flush();
 
     // 3 → 0 is +1 forward: offset −100 → 0, a single step onward (no rewind).
-    expect(track!.style.transform).toBe("translateX(0px)");
+    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
   });
 
   it("gives an off-screen slide a wrapShift so a copy fills the seam", () => {
     const { getByTestId } = renderInfinite({ defaultPage: 3 });
-    flush();
 
     // At page 3 (offset −100) slide 3's flex position (300) would sit off the
     // right (track translate +100 → 400); a wrapShift of −trackLength (−400)
-    // pulls its copy back under the viewport (screen 0) — the clone-free seam.
+    // pulls its copy back under the viewport — the clone-free seam fill.
     const slide3 = getByTestId("slide-3");
-    expect(slide3.style.transform).toBe("translateX(-400px)");
+    expect(slide3.style.transform).toBe("translate3d(-400px, 0px, 0px)");
   });
 
-  it("jumps instantly with no tween under reduced motion", async () => {
+  it("jumps instantly with no transition under reduced motion", async () => {
     vi.stubGlobal("matchMedia", () => ({ matches: true }));
     const user = userEvent.setup();
     const { track, getByRole } = renderInfinite();
-    flush();
 
     await user.click(getByRole("button", { name: "Next" }));
-    // No frames needed — reduced motion sets the offset immediately.
-    expect(track!.style.transform).toBe("translateX(-100px)");
-    expect(frames).toHaveLength(0);
+
+    expect(track!.style.transform).toBe("translate3d(-100px, 0px, 0px)");
+    expect(track!.style.transition).toBe("none");
   });
 
   it("drives the block axis for a vertical infinite loop", async () => {
     const user = userEvent.setup();
     const { track, getByRole } = renderInfinite({ orientation: "vertical" });
-    flush();
-    await user.click(getByRole("button", { name: "Next" }));
-    flush();
 
-    expect(track!.style.transform).toBe("translateY(-100px)");
+    await user.click(getByRole("button", { name: "Next" }));
+
+    expect(track!.style.transform).toBe("translate3d(0px, -100px, 0px)");
   });
 
   it("offsets the track for start and end alignment", () => {
@@ -214,35 +184,18 @@ describe("Carousel infinite — transform engine", () => {
       },
     });
     const start = renderInfinite({ snapAlign: "start" });
-    flush();
-    // start align = 0 → translateX(0).
-    expect(start.track!.style.transform).toBe("translateX(0px)");
+    // start align = 0 → translate3d(0).
+    expect(start.track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
 
     const end = renderInfinite({ snapAlign: "end" });
-    flush();
-    // end align = viewport(300) − slide(100) = 200 → translateX(200).
-    expect(end.track!.style.transform).toBe("translateX(200px)");
+    // end align = viewport(300) − slide(100) = 200 → translate3d(200).
+    expect(end.track!.style.transform).toBe("translate3d(200px, 0px, 0px)");
   });
 
   it("does nothing when there are too few slides to loop", () => {
     const { track } = renderInfinite({ count: 1 });
-    flush();
     // measure() bails (count < 2) — the track renders but gets no transform.
     expect(track!.style.transform).toBe("");
-  });
-
-  it("cancels an in-flight glide when a new nav interrupts it", async () => {
-    const user = userEvent.setup();
-    const cancel = vi.fn();
-    vi.stubGlobal("cancelAnimationFrame", cancel);
-    const { getByRole } = renderInfinite();
-    flush();
-
-    await user.click(getByRole("button", { name: "Next" }));
-    // A frame is queued mid-glide; a second nav cancels it before starting anew.
-    await user.click(getByRole("button", { name: "Previous" }));
-
-    expect(cancel).toHaveBeenCalled();
   });
 
   it("does not loop when slides report a zero stride (not yet laid out)", () => {
@@ -252,19 +205,13 @@ describe("Carousel infinite — transform engine", () => {
       get: () => 0,
     });
     const { track } = renderInfinite();
-    flush();
     expect(track!.style.transform).toBe("");
   });
 
-  it("cancels an in-flight glide when the carousel unmounts", async () => {
+  it("re-homes the track without erroring when unmounted mid-interaction", async () => {
     const user = userEvent.setup();
-    const cancel = vi.fn();
-    vi.stubGlobal("cancelAnimationFrame", cancel);
     const { getByRole, unmount } = renderInfinite();
-    flush();
     await user.click(getByRole("button", { name: "Next" }));
-    // Mid-tween (frames still queued), unmount → the pending frame is cancelled.
-    act(() => unmount());
-    expect(cancel).toHaveBeenCalled();
+    expect(() => act(() => unmount())).not.toThrow();
   });
 });

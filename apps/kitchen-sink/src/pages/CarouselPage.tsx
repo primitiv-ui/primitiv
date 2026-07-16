@@ -66,6 +66,7 @@ function BasicSingle({
   loop,
   autoplay,
   allowMouseDrag,
+  linked,
 }: {
   label: string;
   radius?: "md" | "none";
@@ -82,6 +83,8 @@ function BasicSingle({
   loop?: boolean | "wrap" | "infinite";
   autoplay?: boolean;
   allowMouseDrag?: boolean;
+  /** Fill each slide with an anchor, so a tap reaches the link but a drag doesn't. */
+  linked?: boolean;
 }) {
   return (
     <Carousel
@@ -108,7 +111,18 @@ function BasicSingle({
             key={i}
             radius={radius}
             style={{ background: bg }}
-          />
+          >
+            {linked ? (
+              <a
+                href={`#slide-${i}`}
+                data-testid={`slide-link-${i}`}
+                aria-label={`Open slide ${i + 1}`}
+                className="carousel-slide-link"
+              >
+                Slide {i + 1}
+              </a>
+            ) : null}
+          </CarouselSlide>
         ))}
       </CarouselViewport>
       <CarouselControls>
@@ -2545,6 +2559,19 @@ export function CarouselLoop() {
             slidesPerPage={2}
             loop="infinite"
             allowMouseDrag
+          />
+        </GridCell>
+
+        <GridCell
+          n={13}
+          title="Infinite + linked slides"
+          note="Each slide is a link. A tap reaches the link (a slide can be a call-to-action); only a drag past the small threshold steers the track and suppresses the click, so a quick flick still navigates the slide it lands on rather than swallowing the tap."
+        >
+          <BasicSingle
+            label="Featured products — infinite linked"
+            loop="infinite"
+            allowMouseDrag
+            linked
           />
         </GridCell>
       </div>

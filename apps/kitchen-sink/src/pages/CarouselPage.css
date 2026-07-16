@@ -201,3 +201,19 @@
   color: var(--primitiv-content-inverse);
   text-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
 }
+
+/* Linked-slide fixture (loop cell 13). The anchor fills the slide so a tap
+ * anywhere on it navigates — the drag layer only swallows the click once the
+ * pointer crosses the drag threshold, so a genuine tap always reaches the link. */
+.carousel-slide-link {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primitiv-content-inverse);
+  text-decoration: none;
+  text-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
+}

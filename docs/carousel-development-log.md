@@ -4204,3 +4204,40 @@ guard green; `tsc` clean.
 **Still to come:** real-iOS-Safari QA of all six behaviours (the sandbox can't
 drive it); fling could snap to page boundaries for multi-slide (currently snaps
 to the nearest slide, then the page effect re-aligns).
+
+## 2026-07-16 (cont.) — Fling page-snap, RTL start/end align, drag/fling e2e
+
+Straight-to-main continuation (PR #242 already merged by the human). Three
+backlog items off the transform engine.
+
+- **Multi-slide fling → page boundaries (done).** `onPointerUp` snapped the fling
+  to the nearest *slide* (`g.stride`); with `slidesPerPage > 1` that could settle
+  mid-page, then the page effect jerked it to the page lead — a two-step. Now it
+  snaps to the **page stride** (`effectiveSlidesPerMove × stride`, read from
+  context), so a fling advances or holds a whole page in one glide. Single-slide
+  is unchanged (page stride = stride). Unit-driven: a 120px drag on a 2-up (past
+  the half-*page* point) now lands on offset 200, not slide 1.
+- **RTL start/end alignment (done).** The `align` term in `measure()` wasn't
+  dir-mirrored, so `snapAlign="start"|"end"` landed on the wrong edge under RTL
+  (only `center`, being symmetric, was safe — which is why prior RTL QA passed).
+  The engine ignores a slide's absolute position, so the align term is the only
+  place direction can be honoured: when the measured stride is negative, `start`
+  and `end` swap so the reading start stays the right edge. Anchored on the fact
+  that device-confirmed RTL *center* requires the leading edge to be 0, which
+  makes start/end provably swapped. **Still a device check** for pixel/feel —
+  the unit test pins the math against the mocked harness, not a real RTL browser.
+- **Drag/fling Playwright e2e (done).** New `apps/kitchen-sink/e2e/carousel-drag.spec.ts`
+  drives real mouse pointer input on cell 7 (`allowMouseDrag`) + a new **cell 13
+  "Infinite + linked slides"** (each slide an anchor): a slow drag past halfway
+  advances; a small drag settles back; a fast flick advances forward and settles
+  clean on a real slide; the end buttons still wrap with the drag layer on; a tap
+  on a linked slide reaches the link; a drag starting on a link steers the track
+  and suppresses the click. Assertions are velocity-robust (direction is
+  deterministic, exact fling magnitude isn't — momentum overshoot stays a device
+  check). Runs on the CI WebKit/Chromium job (`e2e-carousel.yml`); the sandbox has
+  no kitchen-sink `node_modules`, so **CI is the verifier** — specs typecheck
+  clean here but haven't been executed.
+
+**Verified:** 397 Carousel unit tests; `useCarouselLoop.ts` + `loopEngine.ts`
+100% (lines/branches/functions/statements, 78 branches); `tsc` clean for
+`packages/react` and the e2e specs.

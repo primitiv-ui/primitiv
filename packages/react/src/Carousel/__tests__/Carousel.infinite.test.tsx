@@ -290,6 +290,34 @@ describe("Carousel infinite — transform engine", () => {
     expect(end.track!.style.transform).toBe("translate3d(200px, 0px, 0px)");
   });
 
+  it("mirrors start/end alignment under RTL (reading start is the right edge)", () => {
+    // RTL: negative stride (dir −1) and a 300-wide track. The engine ignores a
+    // slide's absolute offsetLeft (only its sign/magnitude), so the align term must
+    // be dir-mirrored: reading "start" is the RIGHT edge (leading slide flush right,
+    // trackShift W−slide = 200) and "end" is the LEFT edge (trackShift 0) — the
+    // mirror of LTR. An unmirrored align swaps them.
+    Object.defineProperty(HTMLElement.prototype, "offsetLeft", {
+      configurable: true,
+      get(this: HTMLElement) {
+        const index = this.getAttribute?.("data-index");
+        return index != null ? -Number(index) * STRIDE : 0;
+      },
+    });
+    Object.defineProperty(HTMLElement.prototype, "clientWidth", {
+      configurable: true,
+      get(this: HTMLElement) {
+        return this.hasAttribute?.("data-carousel-track") ? 300 : 0;
+      },
+    });
+    const start = renderInfinite({ snapAlign: "start" });
+    // Reading start = right: leading slide flush right → translate3d(300 − 100).
+    expect(start.track!.style.transform).toBe("translate3d(200px, 0px, 0px)");
+
+    const end = renderInfinite({ snapAlign: "end" });
+    // Reading end = left: leading slide flush left → translate3d(0).
+    expect(end.track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+  });
+
   it("aligns against the track's own box, not the padded viewport (peek)", () => {
     // Under peek the viewport is padded (clientWidth 140) and the track is inset +
     // narrowed to the slide (100). The CSS already centres the track in the

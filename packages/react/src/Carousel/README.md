@@ -804,8 +804,10 @@ inside a slide.
 
 **Direction, peek and multi-slide.** The engine is axis- and direction-generic:
 it reads the sign of the measured stride as the axis direction, so an **RTL**
-loop mirrors every move (no rewind), and it cancels the track's own inset so
-**peek** / viewport padding stays centred. **Multi-slide** (`slidesPerPage > 1`)
+loop mirrors every move (no rewind) — including `snapAlign`, whose `start` / `end`
+swap so the reading start stays the right edge — and it cancels the track's own
+inset so **peek** / viewport padding stays centred. **Multi-slide**
+(`slidesPerPage > 1`)
 glides to each page's leading slide, so Prev / Next advance a whole page and wrap
 cleanly; the inter-slide gap returns between the on-screen pair (single-slide
 stays gapless so the gap never flashes through the viewport mid-glide). The gap

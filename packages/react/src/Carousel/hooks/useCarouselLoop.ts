@@ -131,11 +131,22 @@ export function useCarouselLoop() {
     // being centred with the rest overflowing.
     const pageSpan = (slidesPerPage - 1) * stride + slideSize;
     // Where `offset === index * stride` should place the active page, per its
-    // snap alignment: flush to the start, centred, or flush to the end.
+    // snap alignment: flush to the start, centred, or flush to the end. Under RTL
+    // (dir −1) the reading start is the RIGHT edge, so start/end swap — the engine
+    // ignores a slide's absolute position, so the align term is the only place the
+    // direction can be honoured. Centre is symmetric, so it's dir-agnostic.
+    const edgeAlign =
+      dir < 0
+        ? snapAlign === "start"
+          ? "end"
+          : snapAlign === "end"
+            ? "start"
+            : "center"
+        : snapAlign;
     const align =
-      snapAlign === "center"
+      edgeAlign === "center"
         ? (trackSize - pageSpan) / 2
-        : snapAlign === "end"
+        : edgeAlign === "end"
           ? trackSize - pageSpan
           : 0;
     return { track, slides, count, stride, trackLength, align, dir };

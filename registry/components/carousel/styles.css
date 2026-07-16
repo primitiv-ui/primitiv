@@ -290,10 +290,10 @@
   }
   .primitiv-carousel__track {
     display: flex;
-    /* No inter-slide gap at one-up: only one slide shows, so a gap would just
-       flash as a white strip scrolling through the viewport during the glide.
-       Multi-slide restores it below (the gap sits *between* on-screen slides
-       there, so it's wanted). */
+    /* No inter-slide gap by default: at plain one-up only one slide shows, so a
+       gap would just be a strip scrolling through the viewport during the glide.
+       Peek and multi-slide restore it below, where adjacent slides are actually
+       on screen and the gutter between them is wanted. */
     gap: 0;
     inline-size: 100%;
     /* The engine animates transform via a CSS transition (compositor-driven, so
@@ -307,10 +307,15 @@
     flex-direction: column;
     block-size: 100%;
   }
-  /* Multi-slide restores the inter-slide gap (single-slide keeps 0 above to avoid
-     the glide flash). The engine's measured stride includes it, so the seam wrap
-     stays aligned. */
-  .primitiv-carousel__track:not([data-slides-per-page="1"]) {
+  /* Restore the inter-slide gap where adjacent slides are actually on screen — a
+     multi-slide page, or the peeking neighbours — so they read as separated cards.
+     Plain single-slide (no peek) keeps 0 above: only one slide shows, so a gap
+     would just be a strip scrolling through the viewport mid-glide. The engine's
+     measured stride includes the gap, so the seam wrap stays aligned. */
+  .primitiv-carousel__track:not([data-slides-per-page="1"]),
+  .primitiv-carousel--peek-sm .primitiv-carousel__track,
+  .primitiv-carousel--peek-md .primitiv-carousel__track,
+  .primitiv-carousel--peek-lg .primitiv-carousel__track {
     gap: var(--primitiv-carousel-gap);
   }
   /* Slides are deliberately NOT promoted to their own compositor layers (no

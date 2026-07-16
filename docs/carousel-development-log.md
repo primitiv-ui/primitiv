@@ -4096,6 +4096,23 @@ webkit`) or in CI, where the download is allowed.
 inertia**, so the fast-fling overshoot (bug 1) is still not reproducible in any
 engine — real-device only.
 
+**Real-iPhone QA: buttons still rewind; Playwright can't catch it.** The CI
+WebKit run passed but a real iPhone *still rewinds* on the wrap buttons —
+demonstrating the hard ceiling: Playwright's `webkit` is desktop Linux WebKitGTK,
+not iOS Safari (different scroll-snap/programmatic-scroll impl), and no engine
+simulates touch momentum. So the WebKit pass is necessary-not-sufficient; the
+button rewind and fast-flick jank are iOS-Safari-only and can't be automated here
+(real-device cloud, e.g. BrowserStack, would be the only automation that reflects
+iPhone). Attempted a **blind iOS fix** for the button rewind:
+`useCarouselViewport.ts` now forces a layout flush (`void offsetWidth`) after
+setting `scroll-snap-type: none` and before the teleport write — the implicit
+read inside `scrollLeft +=` doesn't reliably apply the reset on iOS, so it
+re-snaps the teleport back and the smooth glide runs the whole track (the
+rewind). Desktop + Playwright Chromium/WebKit unaffected (verified). This is an
+iOS-runtime fix invisible to the test env, pending on-device QA. The fast-flick
+jank is untouched — that's the native-scroll-snap momentum limit, only a
+JS-transform infinite (Embla/Swiper approach) removes it.
+
 **First CI run pinned an old browser.** `@playwright/test` 1.46 pins Chromium
 build **1129** (~mid-2024), which *strands the wrap on a clone* — the wrap specs
 timed out on it in CI while **WebKit + mobile-safari passed** (the iOS-engine

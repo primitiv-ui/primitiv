@@ -427,8 +427,21 @@ export function useCarouselViewport() {
       const prevBehavior = viewport.style.scrollBehavior;
       viewport.style.scrollSnapType = "none";
       viewport.style.scrollBehavior = "auto";
+      // Force the `snap-type: none` reset to flush *before* the jump. The
+      // implicit layout read inside `scrollLeft +=` isn't enough on iOS Safari —
+      // it keeps mandatory snapping active for the write and re-snaps the
+      // teleport straight back, so the smooth glide below then animates from the
+      // un-teleported position across the whole track (the "rewind" seen on
+      // iPhone that desktop and Playwright's WebKit don't reproduce). Reading an
+      // offset property forces a full layout+style recalc, applying the reset.
+      void viewport.offsetWidth;
       if (vertical) viewport.scrollTop += teleport;
       else viewport.scrollLeft += teleport;
+      // Commit the teleport as the glide's starting position for the same
+      // reason — so the smooth scrollTo below runs the short way to the real
+      // target, not the full track from where iOS might otherwise still think it
+      // is.
+      void (vertical ? viewport.scrollTop : viewport.scrollLeft);
       // Restore only scroll-behavior (the glide below drives its own via
       // scrollTo's option) but KEEP scroll-snap-type suppressed across that
       // glide, restoring it only once the scroll settles (see clearFlag).

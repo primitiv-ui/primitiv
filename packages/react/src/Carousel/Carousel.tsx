@@ -262,7 +262,7 @@ export function CarouselViewport({
   children,
   ...rest
 }: CarouselViewportProps): ReactElement {
-  const { isAutoRotating, ids, allowMouseDrag, snapType } =
+  const { isAutoRotating, ids, allowMouseDrag, snapType, slidesPerPage } =
     useCarouselContext();
   const {
     viewportRef,
@@ -310,6 +310,7 @@ export function CarouselViewport({
         <div
           className="primitiv-carousel__track"
           data-carousel-track=""
+          data-slides-per-page={slidesPerPage}
           ref={trackRef}
         >
           {children}

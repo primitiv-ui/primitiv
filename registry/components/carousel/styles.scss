@@ -294,9 +294,10 @@
   }
   .primitiv-carousel__track {
     display: flex;
-    /* No inter-slide gap: infinite is single-slide, so a gap would flash as a
-       white strip between slides during the glide. (Multi-slide infinite, a
-       follow-up, will restore a per-page gap.) */
+    /* No inter-slide gap at one-up: only one slide shows, so a gap would just
+       flash as a white strip scrolling through the viewport during the glide.
+       Multi-slide restores it below (the gap sits *between* on-screen slides
+       there, so it's wanted). */
     gap: 0;
     inline-size: 100%;
     /* The engine animates transform via a CSS transition (compositor-driven, so
@@ -309,6 +310,12 @@
   .primitiv-carousel[data-orientation="vertical"] .primitiv-carousel__track {
     flex-direction: column;
     block-size: 100%;
+  }
+  /* Multi-slide restores the inter-slide gap (single-slide keeps 0 above to avoid
+     the glide flash). The engine's measured stride includes it, so the seam wrap
+     stays aligned. */
+  .primitiv-carousel__track:not([data-slides-per-page="1"]) {
+    gap: var(--primitiv-carousel-gap);
   }
   /* Slides are deliberately NOT promoted to their own compositor layers (no
      per-slide backface-visibility, and the engine shifts a seam copy with a 2D

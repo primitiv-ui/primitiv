@@ -61,7 +61,7 @@ export function useCarouselLoop() {
   const {
     slideKeys,
     slidesRef,
-    currentPage,
+    currentPageOffset,
     orientation,
     transition,
     loop,
@@ -188,10 +188,12 @@ export function useCarouselLoop() {
     [paint],
   );
 
-  // Drive the track to `currentPage` whenever it changes — the short way, so a
-  // wrap glides one step instead of rewinding. `refreshTick`/`slideKeys` re-runs
-  // re-home the track after a layout or slide-set change (a no-op glide when the
-  // page is unchanged).
+  // Drive the track to the active page whenever it changes — the short way, so a
+  // wrap glides one step instead of rewinding. Targets the page's **leading slide
+  // index** (`currentPageOffset`), not the page number: for multi-slide they
+  // differ (page 1 of a 2-up leads at slide 2), so a page move glides a whole page
+  // of strides. `refreshTick`/`slideKeys` re-runs re-home the track after a layout
+  // or slide-set change (a no-op glide when the page is unchanged).
   useEffect(() => {
     if (!isInfinite) return;
     const g = measure();
@@ -199,7 +201,7 @@ export function useCarouselLoop() {
     const logical =
       (((Math.round(offsetRef.current / g.stride) % g.count) + g.count) %
         g.count);
-    const step = shortestStep(logical, currentPage, g.count);
+    const step = shortestStep(logical, currentPageOffset, g.count);
     const target = offsetRef.current + step * g.stride;
     const instant = instantScrollRef.current || !positionedRef.current;
     instantScrollRef.current = false;
@@ -207,7 +209,7 @@ export function useCarouselLoop() {
     glideTo(target, instant, g);
   }, [
     isInfinite,
-    currentPage,
+    currentPageOffset,
     refreshTick,
     slideKeys,
     measure,

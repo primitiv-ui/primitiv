@@ -97,6 +97,7 @@ function renderInfinite(
     defaultPage: number;
     count: number;
     allowMouseDrag: boolean;
+    slidesPerPage: number;
   }> = {},
 ) {
   const {
@@ -106,6 +107,7 @@ function renderInfinite(
     defaultPage = 0,
     count = 4,
     allowMouseDrag = false,
+    slidesPerPage = 1,
   } = props;
   const result = render(
     <Carousel.Root
@@ -115,6 +117,7 @@ function renderInfinite(
       snapAlign={snapAlign}
       defaultPage={defaultPage}
       allowMouseDrag={allowMouseDrag}
+      slidesPerPage={slidesPerPage}
     >
       <Carousel.Viewport data-testid="viewport">
         {Array.from({ length: count }).map((_, i) => (
@@ -217,6 +220,21 @@ describe("Carousel infinite — transform engine", () => {
     await user.click(getByRole("button", { name: "Next" }));
 
     expect(track!.style.transform).toBe("translate3d(0px, -100px, 0px)");
+  });
+
+  it("advances a whole page (not one slide) for multi-slide infinite", async () => {
+    // 6 slides, 2 per page → pages lead at slide 0, 2, 4. Next must glide to the
+    // next page's leading slide (index 2 = two strides), not one slide: the engine
+    // has to drive off the page's leading slide index, not the page number.
+    const user = userEvent.setup();
+    const { track, getByRole } = renderInfinite({ count: 6, slidesPerPage: 2 });
+
+    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+
+    await user.click(getByRole("button", { name: "Next" }));
+
+    // Page 0 → 1: leading slide 0 → 2, a two-stride glide (a full page), not −100.
+    expect(track!.style.transform).toBe("translate3d(-200px, 0px, 0px)");
   });
 
   it("mirrors the inline direction under RTL (negative stride)", async () => {

@@ -2537,7 +2537,7 @@ export function CarouselLoop() {
         <GridCell
           n={12}
           title="Infinite + multi-slide (2-up)"
-          note="Multi-slide infinite: clones snap only on page-leading slides, and the recentre tracks the browser's real snap target, so paging (or swiping) past the last page glides onto the first page's window with no rewind. Next/Prev advance a whole page."
+          note="Multi-slide infinite: the transform engine glides to each page's leading slide, so Next/Prev advance a whole page (two strides) and paging past the last page wraps onto the first with no rewind. The inter-slide gap returns between the on-screen pair."
         >
           <MultiSlide
             label="Featured products — infinite 2-up"

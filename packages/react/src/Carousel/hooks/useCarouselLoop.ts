@@ -24,6 +24,11 @@ type Geometry = {
   stride: number;
   trackLength: number;
   align: number;
+  // +1 for a left-to-right / top-to-bottom axis, −1 for RTL (where the flex row
+  // reverses and slide positions run backwards). Every inline translate, seam
+  // shift and drag delta is multiplied by it, so the logical engine stays
+  // direction-agnostic and only the physical paint mirrors.
+  dir: number;
 };
 
 /**
@@ -102,8 +107,13 @@ export function useCarouselLoop() {
     const pos = (el: HTMLElement) => (vertical ? el.offsetTop : el.offsetLeft);
     const size = (el: HTMLElement) =>
       vertical ? el.offsetHeight : el.offsetWidth;
-    const stride = pos(slides[1]!) - pos(slides[0]!);
-    if (stride <= 0) return null;
+    // Signed gap between the first two slides. RTL lays the row out backwards, so
+    // it comes out negative — the sign is the axis direction, the magnitude the
+    // stride. Zero means the browser hasn't laid the track out yet (jsdom): bail.
+    const rawStride = pos(slides[1]!) - pos(slides[0]!);
+    if (rawStride === 0) return null;
+    const dir = rawStride < 0 ? -1 : 1;
+    const stride = Math.abs(rawStride);
     const trackLength = stride * count;
     const viewport = track.parentElement!;
     const viewportSize = vertical ? viewport.clientHeight : viewport.clientWidth;
@@ -116,7 +126,7 @@ export function useCarouselLoop() {
         : snapAlign === "end"
           ? viewportSize - slideSize
           : 0;
-    return { track, slides, count, stride, trackLength, align };
+    return { track, slides, count, stride, trackLength, align, dir };
   }, [slideKeys, slidesRef, vertical, snapAlign]);
 
   // Position the track at `offset` against already-measured geometry. `animate`
@@ -132,11 +142,16 @@ export function useCarouselLoop() {
       g.track.style.transition = animate
         ? `transform ${GLIDE_DURATION_MS}ms ${GLIDE_EASE}`
         : "none";
+      // The physical inline translate mirrors under RTL (dir = −1); the block axis
+      // never mirrors, so vertical keeps dir = +1.
+      const trackShift = g.align - g.dir * offset;
       g.track.style.transform = vertical
-        ? `translate3d(0px, ${g.align - offset}px, 0px)`
-        : `translate3d(${g.align - offset}px, 0px, 0px)`;
+        ? `translate3d(0px, ${trackShift}px, 0px)`
+        : `translate3d(${trackShift}px, 0px, 0px)`;
       g.slides.forEach((slide, index) => {
-        const shift = wrapShift(index * g.stride, offset, g.trackLength);
+        // The seam shift is computed in logical (positive-stride) space, then
+        // mirrored to the physical axis by dir.
+        const shift = g.dir * wrapShift(index * g.stride, offset, g.trackLength);
         // A slide is shifted only when it wraps to fill the seam, and with a *2D*
         // translate so it paints INTO the track's layer rather than onto its own.
         // An off-screen per-slide layer is exactly what iOS Safari leaves
@@ -231,9 +246,12 @@ export function useCarouselLoop() {
       const drag = dragRef.current;
       if (!drag || event.pointerId !== drag.pointerId) return;
       const client = axisClient(event);
+      const dir = drag.geometry.dir;
       const elapsed = event.timeStamp - drag.lastTime;
       if (elapsed > 0) {
-        drag.velocity = -(client - drag.lastClient) / elapsed;
+        // Logical-offset velocity: the physical finger delta mirrored by dir, so a
+        // fling projects the right way under RTL.
+        drag.velocity = (-dir * (client - drag.lastClient)) / elapsed;
       }
       drag.lastClient = client;
       drag.lastTime = event.timeStamp;
@@ -242,7 +260,8 @@ export function useCarouselLoop() {
         event.currentTarget.setPointerCapture?.(drag.pointerId);
       }
       if (!drag.dragging) return;
-      offsetRef.current = drag.startOffset - (client - drag.startClient);
+      // Offset follows the finger 1:1 in logical space (physical delta × dir).
+      offsetRef.current = drag.startOffset - dir * (client - drag.startClient);
       paint(offsetRef.current, drag.geometry, false);
     },
     [axisClient, paint],

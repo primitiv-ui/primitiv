@@ -219,6 +219,32 @@ describe("Carousel infinite — transform engine", () => {
     expect(track!.style.transform).toBe("translate3d(0px, -100px, 0px)");
   });
 
+  it("mirrors the inline direction under RTL (negative stride)", async () => {
+    // RTL reverses the flex row, so slide i's physical offsetLeft DECREASES with
+    // i (slide 0 is rightmost). The engine reads the negative stride as dir = −1
+    // rather than bailing, and mirrors every inline move.
+    Object.defineProperty(HTMLElement.prototype, "offsetLeft", {
+      configurable: true,
+      get(this: HTMLElement) {
+        const index = this.getAttribute?.("data-index");
+        return index != null ? -Number(index) * STRIDE : 0;
+      },
+    });
+    const user = userEvent.setup();
+    const { track, getByRole, getByTestId } = renderInfinite();
+
+    // Page 0 rests at 0 (align 0), same as LTR.
+    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+    // The far slide's seam copy is shifted the *opposite* way (dir × wrapShift).
+    expect(getByTestId("slide-3").style.transform).toBe("translateX(400px)");
+
+    await user.click(getByRole("button", { name: "Next" }));
+
+    // Next advances the inline-forward slide, which in RTL translates the track to
+    // the RIGHT (+100) — the mirror of LTR's −100, still one step, no rewind.
+    expect(track!.style.transform).toBe("translate3d(100px, 0px, 0px)");
+  });
+
   it("offsets the track for start and end alignment", () => {
     // Widen the viewport so alignment is visible: redefine clientWidth to 300.
     Object.defineProperty(HTMLElement.prototype, "clientWidth", {

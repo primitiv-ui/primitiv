@@ -4096,6 +4096,16 @@ webkit`) or in CI, where the download is allowed.
 inertia**, so the fast-fling overshoot (bug 1) is still not reproducible in any
 engine — real-device only.
 
+**First CI run pinned an old browser.** `@playwright/test` 1.46 pins Chromium
+build **1129** (~mid-2024), which *strands the wrap on a clone* — the wrap specs
+timed out on it in CI while **WebKit + mobile-safari passed** (the iOS-engine
+signal is positive) and local Chromium 1194 passed. Rather than chase a stale
+build no user ships, the kitchen-sink's `@playwright/test` is bumped to **1.61.1**
+so CI runs a modern Chromium + WebKit (matching reality and the already-green
+iOS engines). The settle assertions also now **poll** (`expect().toPass()`)
+instead of sleeping a fixed duration, so they're robust to engine/CI-speed
+differences.
+
 **CI job landed — `.github/workflows/e2e-carousel.yml`.** Since WebKit can't be
 downloaded in the dev sandbox, the iOS-engine signal comes from CI (GitHub
 runners allow the download). The job installs the kitchen-sink standalone (no

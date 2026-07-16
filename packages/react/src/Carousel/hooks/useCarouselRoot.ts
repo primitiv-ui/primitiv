@@ -325,15 +325,6 @@ export function useCarouselRoot(
   // outlives the single call that requested it.
   const instantScrollRef = useRef(false);
 
-  // One-shot signal that the *upcoming* page change is an infinite-loop wrap,
-  // and in which direction — set by next()/previous() at the source (where the
-  // intent is unambiguous; a 2-page carousel can't tell a wrap from a normal
-  // step by index alone). The Viewport's scroll effect reads it to glide
-  // *forward* into the trailing clone (or *backward* into the leading clone)
-  // instead of rewinding across the whole track, then consumes it. Cleared by
-  // goTo() (a direct jump never glides).
-  const wrapDirectionRef = useRef<"forward" | "backward" | null>(null);
-
   const next = useCallback(
     (instant?: boolean) => {
       // At the last page: clamp (no-op) normally, or wrap to the first when
@@ -344,8 +335,6 @@ export function useCarouselRoot(
       const target = looping
         ? (currentPage + 1) % totalPages
         : currentPage + 1;
-      // A next() that lands on an *earlier* page has wrapped past the end.
-      wrapDirectionRef.current = target < currentPage ? "forward" : null;
       if (isControlled) {
         onPageChange?.(target);
       } else {
@@ -365,8 +354,6 @@ export function useCarouselRoot(
       const target = looping
         ? (currentPage - 1 + totalPages) % totalPages
         : currentPage - 1;
-      // A previous() that lands on a *later* page has wrapped past the start.
-      wrapDirectionRef.current = target > currentPage ? "backward" : null;
       if (isControlled) {
         onPageChange?.(target);
       } else {
@@ -379,8 +366,6 @@ export function useCarouselRoot(
   const goTo = useCallback(
     (target: number, instant?: boolean) => {
       instantScrollRef.current = !!instant;
-      // A direct jump (indicator click, imperative goTo) never glides.
-      wrapDirectionRef.current = null;
       if (isControlled) {
         onPageChange?.(target);
       } else {
@@ -693,7 +678,6 @@ export function useCarouselRoot(
       setSlideInView,
       isProgrammaticScrollRef,
       instantScrollRef,
-      wrapDirectionRef,
       isDraggingRef,
       setDragging,
       isOverscrollingRef,

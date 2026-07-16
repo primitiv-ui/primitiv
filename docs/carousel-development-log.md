@@ -4134,3 +4134,35 @@ self-contained, `@playwright/test` is now a kitchen-sink devDep and
 `pnpm test:e2e` / `pnpm test:e2e:kitchen-sink` run it. Triggers: manual dispatch +
 PRs touching `Carousel/**` or `apps/kitchen-sink/**`. Next: widen the specs to the
 other loop cells (multi-slide, vertical, RTL, peek, autoplay-across-seam).
+
+## RFC 0018 landed (button/keyboard/programmatic): infinite on a JS transform engine
+
+Native scroll-snap + clone buffer couldn't loop reliably on iOS (button rewind,
+fast-flick stall, un-reproducible in Playwright WebKit). Reimplemented
+`loop="infinite"` on a **JS transform track** (`none`/`wrap` untouched):
+
+- **Pure engine core** (`loopEngine.ts`, 100%): `shortestStep` (wrap the short
+  way — the iPhone bug as a pure fn), `snapTarget`/`flingTarget`,
+  `normalizeOffset`, `easeOut`/`tweenValue`, `wrapShift` (the clone-free seam fill).
+- **Engine hook** (`useCarouselLoop.ts`): the viewport clips a translated
+  `[data-carousel-track]`; each slide gets a `wrapShift` so copies fill the seam.
+  A `currentPage` change glides the short way via an eased rAF tween; first
+  position instant; reduced-motion instant. Unit-tested with mocked geometry +
+  rAF (jsdom lays nothing out).
+- **Removed** the scroll-snap infinite machinery: clone buffer (`BUFFER_PERIODS`,
+  `makeClones`, `CarouselCloneContext`, the `Slide` clone branch), the
+  teleport-then-glide, the `scrollend` recentre, `wrapDirectionRef`, and the
+  clone→real snapchange map. `useCarouselViewport`'s scroll effects gate off for
+  infinite. Deleted the three infinite scroll-snap test files.
+- **Registry CSS** (`styles.css` + `.scss` mirror, drift-guarded; kitchen-sink
+  synced): `[data-loop="infinite"]` viewport → `overflow:hidden` + snap none;
+  `.primitiv-carousel__track` is the flex row (column when vertical).
+
+**Verified:** 387 Carousel unit tests, all Carousel files 100% (lines/branches/
+functions/statements); `tsc` clean; carousel scss drift guard green; the
+Playwright infinite specs pass **in real Chromium** against the rebuilt
+kitchen-sink (wrap settles on a real slide both ways, two full laps, no clones).
+
+**Still to come:** drag + fling momentum (the touch feel), then multi-slide /
+peek / RTL polish under the engine. Button / keyboard / indicator / autoplay
+navigation is complete and deployable for iPhone QA.

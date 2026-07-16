@@ -777,38 +777,32 @@ regardless of `loop`. The resolved mode is published as
 `data-orientation` / `data-transition`) for consumer CSS.
 
 **`"wrap"` vs `"infinite"`.** Both share the same page model (the wrap
-arithmetic and never-disable boundaries). They differ only in the scroll
-visual: `"wrap"` smooth-scrolls the whole track back on a last→first wrap
-(a visible rewind, the same path `Home` takes), while `"infinite"` renders
-a cloned edge buffer and recentres on `scrollend` so a native swipe / drag
-/ wheel across the seam glides on with no rewind.
+arithmetic and never-disable boundaries). They differ only in the visual:
+`"wrap"` smooth-scrolls the whole track back on a last→first wrap (a visible
+rewind, the same path `Home` takes), while `"infinite"` glides one step on
+with no rewind.
 
-Under `loop="infinite"` the Viewport renders a full-period copy of the
-slides at each end (inert, `aria-hidden`, out of the tab order, never
-counted, tagged `data-clone-of`). Each clone is a scroll-snap point, so a
-swipe settles on it; on `scrollend` the Viewport instantly teleports to the
-real slide it mirrors — an identical copy one period away — with
-`scroll-snap-type` suppressed for the jump, so the wrap is seamless.
-`scrollsnapchange` maps a clone snap-target to its real index, so the active
-page and indicators stay correct while scrolling through the buffer.
+Under `loop="infinite"` the Viewport is **not** a scroll container. It clips
+a **JS transform track** (`data-carousel-track`): the engine translates the
+track and shifts each slide's copy by a whole track-length so copies fill the
+seam — seamless in both directions with **no clones** and no native scroll-snap
+to fight (RFC 0018). A page change (Prev / Next, keyboard, indicator, `goTo`,
+autoplay) glides the track the **short way** to that page via an eased
+`requestAnimationFrame` tween, wrapping across the ends with no rewind; the
+first positioning is instant (no glide on load). `prefers-reduced-motion` sets
+the offset instantly with no tween.
 
-Both input paths glide seamlessly:
+This is what replaced the earlier native-scroll-snap + clone-buffer approach,
+which couldn't loop reliably on iOS Safari (the button rewind and fast-flick
+stall): driving the position in JS removes the native-snap dependency those
+bugs came from, and the momentum feel is tunable in JS rather than at the OS's
+mercy.
 
-- **Free-scroll** (swipe / drag / wheel) settles on a clone, then recentres.
-- **Button / keyboard / autoplay** — a wrap glides one step into the adjacent
-  clone (`next()` forward into the trailing clone, `previous()` backward into
-  the leading one) rather than rewinding across the whole track, then
-  recentres. The direction is captured at the call site (a 2-page carousel
-  can't infer it from indices), so `next` vs `previous` is always
-  unambiguous.
-
-The **first** infinite scroll is instant, so the viewport lands on the
-middle (real) copy without a pointless one-period slide on load.
-
-> The recentre and glide geometry is verified for *feel* on real devices —
-> jsdom reports zeroed scroll layout, so this ships control-flow-tested and
-> device-QA'd. `loop="infinite"` is currently scoped to a single slide per
-> page.
+> The track geometry is browser-only (jsdom reports no layout), so it ships
+> unit-tested with mocked geometry + rAF, and real-browser tested in Playwright.
+> `loop="infinite"` is currently scoped to a single slide per page (multi-slide
+> and `peek` under the engine are a follow-up). Drag / fling momentum is a
+> further increment; button / keyboard / autoplay navigation is complete.
 
 ### Keyboard navigation
 

@@ -68,12 +68,11 @@ describe("Carousel loop (semantic wrap)", () => {
 
     await user.click(next);
 
-    // Infinite renders clones sharing the test id, so scope to the real
-    // slide (clones carry no data-state).
-    const realSlide0 = container.querySelector(
-      '[data-testid="slide-0"]:not([data-carousel-clone])',
-    );
-    expect(realSlide0).toHaveAttribute("data-state", "active");
+    // Wrap and infinite share the same page model — Next on the last page sets
+    // the active page back to the first (the transform engine only changes how
+    // that page is presented, not the page state).
+    const slide0 = container.querySelector('[data-testid="slide-0"]');
+    expect(slide0).toHaveAttribute("data-state", "active");
   });
 
   it("should keep Carousel.NextTrigger enabled on the last page when looping", () => {

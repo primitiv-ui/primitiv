@@ -562,13 +562,6 @@ export type CarouselContextValue = {
    * Viewport hook's scroll effect on its very next run, so an instant
    * jump never outlives the single call that requested it. */
   instantScrollRef: RefObject<boolean>;
-  /** One-shot signal that the upcoming page change is an infinite-loop wrap
-   * and its direction (`"forward"` past the end · `"backward"` past the
-   * start · `null` for a normal step or a direct jump), set by `next()` /
-   * `previous()` and cleared by `goTo()`. The Viewport's scroll effect
-   * reads it to glide into the adjacent clone instead of rewinding, then
-   * consumes it. */
-  wrapDirectionRef: RefObject<"forward" | "backward" | null>;
   /** Live mouse-drag state (only ever `true` when `allowMouseDrag` is
    * `true`). Mutated by the Viewport hook and read by the imperative
    * `isDragging()`. */

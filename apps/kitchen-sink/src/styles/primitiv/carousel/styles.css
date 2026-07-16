@@ -262,6 +262,30 @@
   .primitiv-carousel__viewport[data-snap-type="proximity"] {
     scroll-snap-type: x proximity;
   }
+  /* Infinite loop (RFC 0018) is transform-driven, not scroll-driven: the
+     viewport clips a JS-translated track instead of scrolling. The engine
+     (useCarouselLoop) translates .primitiv-carousel__track every frame and shifts
+     each slide's copy to fill the seam — seamless both ways with no clones and no
+     native snap to fight (the thing that broke on iOS). The track is the flex row
+     the viewport itself was for the scroll modes; each slide keeps its
+     viewport-relative flex-basis because the track spans the viewport's inline
+     size and the slides overflow it, clipped here. Single-slide for now
+     (multi-slide / peek under the engine is a follow-up increment). */
+  .primitiv-carousel[data-loop="infinite"] .primitiv-carousel__viewport {
+    overflow: hidden;
+    scroll-snap-type: none;
+  }
+  .primitiv-carousel__track {
+    display: flex;
+    gap: var(--primitiv-carousel-gap);
+    inline-size: 100%;
+    /* The engine animates transform every frame — hint the compositor. */
+    will-change: transform;
+  }
+  .primitiv-carousel[data-orientation="vertical"] .primitiv-carousel__track {
+    flex-direction: column;
+    block-size: 100%;
+  }
   /* Mouse click-and-drag is opt-in (Carousel.Root's allowMouseDrag, off by
      default) — data-mouse-drag is only present when it's enabled, so the
      grab-cursor affordance never implies a capability that isn't actually

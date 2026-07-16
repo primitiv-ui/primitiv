@@ -1,12 +1,4 @@
-import {
-  Children,
-  cloneElement,
-  forwardRef,
-  isValidElement,
-  MouseEvent,
-  useCallback,
-  useContext,
-} from "react";
+import { forwardRef, MouseEvent, useCallback } from "react";
 import type {
   ForwardRefExoticComponent,
   PropsWithoutRef,
@@ -15,10 +7,10 @@ import type {
 } from "react";
 
 import { Slot } from "../Slot/index.ts";
-import { CarouselCloneContext, CarouselCloneProvider } from "./CarouselCloneContext";
 import { CarouselProvider } from "./CarouselContext";
 import {
   useCarouselContext,
+  useCarouselLoop,
   useCarouselRoot,
   useCarouselSlide,
   useCarouselViewport,
@@ -36,13 +28,6 @@ import type {
   CarouselPlayPauseTriggerProps,
   CarouselProgressTextProps,
 } from "./types";
-
-// Full-period clone copies rendered at EACH end of an infinite loop's buffer.
-// One period already lets a single native fling settle inside the buffer; extra
-// copies give a hard iOS momentum fling more runway before it hits the physical
-// scroll end (where it stalls until the scrollend recentre catches up). Tunable:
-// more copies = more fling headroom, at the cost of extra inert clone DOM.
-const BUFFER_PERIODS = 2;
 
 /**
  * The root of a Carousel widget. Renders a `<section>` with
@@ -277,17 +262,8 @@ export function CarouselViewport({
   children,
   ...rest
 }: CarouselViewportProps): ReactElement {
-  const {
-    isAutoRotating,
-    ids,
-    allowMouseDrag,
-    snapType,
-    loop,
-    transition,
-    snapAlign,
-    slidesPerPage,
-    effectiveSlidesPerMove,
-  } = useCarouselContext();
+  const { isAutoRotating, ids, allowMouseDrag, snapType } =
+    useCarouselContext();
   const {
     viewportRef,
     onKeyDown,
@@ -298,47 +274,12 @@ export function CarouselViewport({
     onPointerCancel,
     onClickCapture,
   } = useCarouselViewport();
-
-  // Infinite loop renders a clone buffer of BUFFER_PERIODS full-period copies at
-  // each end. A whole period (rather than a slide or two) guarantees any single
-  // native fling settles *inside* the buffer on a snap point, so the recentre
-  // teleport always has runway; the extra copies beyond the first give a hard
-  // iOS momentum fling more runway before it reaches the physical scroll end,
-  // where it would otherwise stop dead until the scrollend recentre catches up.
-  // Clones are marked via CarouselCloneProvider — each Slide beneath it skips
-  // registration and renders inert/aria-hidden — and tagged `data-clone-of` with
-  // the real index they mirror. Fewer than two slides can't form a loop, so no
-  // clones are rendered there.
-  const realChildren = Children.toArray(children);
-  // Clones only make sense for the scrolling transition — fade/none stack the
-  // slides with no scroll axis to glide along, so a buffer would just render
-  // duplicate stacked slides.
-  const cloneBuffer =
-    loop === "infinite" &&
-    transition === "slide" &&
-    realChildren.length >= 2;
-  // A clone must be a scroll-snap point exactly where its real counterpart is —
-  // i.e. only on a page-leading index — so the scroll settles on the same
-  // positions in the buffer as in the real copy (mirrors useCarouselSlide's
-  // `isSnapStart`, which the real slides use). Every slide leads its own page
-  // when slidesPerPage is 1.
-  const maxSnapOffset = Math.max(0, realChildren.length - slidesPerPage);
-  const isSnapStart = (index: number) =>
-    index === maxSnapOffset ||
-    (index <= maxSnapOffset && index % effectiveSlidesPerMove === 0);
-  const makeClones = (prefix: string) =>
-    realChildren.map((child, index) =>
-      isValidElement(child)
-        ? cloneElement(child as ReactElement<Record<string, unknown>>, {
-            key: `${prefix}-${index}`,
-            "data-clone-of": index,
-            "data-snap-align": isSnapStart(index) ? snapAlign : undefined,
-            // Never duplicate a consumer `id` — two elements sharing an id
-            // is invalid HTML and breaks `aria-controls`/label references.
-            id: undefined,
-          })
-        : child,
-    );
+  // Infinite loop swaps the native scroll-snap viewport for a JS transform track
+  // (RFC 0018): the engine translates the track and wraps each slide so copies
+  // fill the seam — seamless both ways with no clones and no native snap to
+  // fight (the thing that broke on iOS). Every other mode renders the slides
+  // straight into the scroll viewport as before.
+  const { trackRef, isInfinite } = useCarouselLoop();
 
   return (
     <div
@@ -359,20 +300,16 @@ export function CarouselViewport({
       {...(ids.viewport !== undefined && { id: ids.viewport })}
       {...rest}
     >
-      {cloneBuffer && (
-        <CarouselCloneProvider value={true}>
-          {Array.from({ length: BUFFER_PERIODS }, (_, period) =>
-            makeClones(`clone-lead-${period}`),
-          )}
-        </CarouselCloneProvider>
-      )}
-      {children}
-      {cloneBuffer && (
-        <CarouselCloneProvider value={true}>
-          {Array.from({ length: BUFFER_PERIODS }, (_, period) =>
-            makeClones(`clone-trail-${period}`),
-          )}
-        </CarouselCloneProvider>
+      {isInfinite ? (
+        <div
+          className="primitiv-carousel__track"
+          data-carousel-track=""
+          ref={trackRef}
+        >
+          {children}
+        </div>
+      ) : (
+        children
       )}
     </div>
   );
@@ -443,37 +380,9 @@ export function CarouselSlide({
   children,
   ...rest
 }: CarouselSlideProps): ReactElement {
-  const isClone = useContext(CarouselCloneContext);
   const { slideRef, index, total, state, snapAlign } =
     useCarouselSlide(snapAlignOverride);
   const { translations } = useCarouselContext();
-
-  // A clone is presentational only — the infinite loop's edge buffer.
-  // It keeps `data-carousel-slide` so the layout CSS sizes it identically to a
-  // real slide. The Viewport clones it with `data-clone-of` and, on a
-  // page-leading index, `data-snap-align` (so the scroll *settles* on a clone —
-  // the snap the recentre catches on `scrollend`); both ride through `...rest`.
-  // The clone attaches no registration ref (so it never inflates the real slide
-  // count / indices / indicator dots / "x of n" label), is removed from the
-  // a11y tree (`aria-hidden` + `inert`) and the tab order (`tabIndex=-1`), and
-  // publishes none of the index/total/state/label a real slide does.
-  if (isClone) {
-    return (
-      <div
-        role="group"
-        aria-roledescription="slide"
-        data-carousel-slide=""
-        data-carousel-clone=""
-        aria-hidden="true"
-        inert
-        tabIndex={-1}
-        className={className}
-        {...rest}
-      >
-        {children}
-      </div>
-    );
-  }
 
   const autoLabel =
     index >= 0 && total > 0

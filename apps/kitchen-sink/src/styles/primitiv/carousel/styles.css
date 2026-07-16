@@ -279,10 +279,11 @@
     display: flex;
     gap: var(--primitiv-carousel-gap);
     inline-size: 100%;
-    /* The engine animates transform — hint the compositor, and pin the backface
-       so iOS Safari doesn't flash the layer for a frame mid-transition (a WebKit
-       repaint flicker on composited transformed elements). */
-    will-change: transform;
+    /* The engine animates transform via a CSS transition (compositor-driven, so
+       no `will-change` needed — and `will-change: transform` COMBINED with a
+       transform transition makes iOS Safari re-snapshot the layer at transition
+       start, flashing the slide). Pin the backface too, the other WebKit
+       transformed-layer flicker guard. */
     backface-visibility: hidden;
   }
   .primitiv-carousel[data-orientation="vertical"] .primitiv-carousel__track {

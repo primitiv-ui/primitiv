@@ -4064,3 +4064,36 @@ Carousel.tsx + useCarouselViewport.ts stay at 100%. Re-verified in Chromium:
 wrap still cycles 0→1→2→3→0 and glides a single step. Mitigation, not a cure —
 a truly relentless flick can still out-run 2 periods; revisit depth or a
 non-scroll approach if QA demands it.
+
+## Playwright harness for the infinite loop (real-layout regression net)
+
+The jsdom unit tests mock *all* geometry ("verified for feel on a real device"),
+so the clone-buffer / teleport / recentre paths had no automated real-browser
+coverage. Stood up a Playwright PoC against the kitchen-sink loop page:
+`apps/kitchen-sink/playwright.config.ts` + `e2e/carousel-infinite.spec.ts`, run
+via `pnpm test:e2e:kitchen-sink` (root Playwright; the kitchen-sink is
+workspace-excluded). The webServer boots the kitchen-sink's own vite (base "/" →
+BrowserRouter, so `/carousel/loop` is a real deep link).
+
+Four specs on cell 7 (single-slide infinite, 4 slides) assert what jsdom can't —
+using real scroll-snap geometry, the viewport **settles on a real slide, never a
+clone**: initial position, Next-wrap onto real first, Prev-wrap onto real last,
+and two full laps landing real at every step. All green in Chromium.
+
+**Sandbox gotchas handled.** Pinned `@playwright/test` 1.46 wants Chromium build
+1129 but the sandbox ships 1194 (and Playwright's browser CDN is egress-blocked,
+so `playwright install` can't fetch the pinned one) — point `executablePath` at
+the pre-installed **headless-shell** binary (1.46 launches `--headless=old`,
+which full Chromium 1194 removed; headless-shell is the standalone old-headless
+impl). **WebKit** — iOS Safari's engine core, the one engine with a real chance
+of surfacing the iOS-only snap quirks — is **not installable here** (same egress
+block). The config registers `webkit` / `mobile-safari` projects **conditionally**
+(only when the browser is present or under CI), so a bare run passes on Chromium
+alone here while those projects light up on a dev machine (`npx playwright install
+webkit`) or in CI, where the download is allowed.
+
+**Boundary (unchanged):** no Playwright engine simulates touch **momentum/
+inertia**, so the fast-fling overshoot (bug 1) is still not reproducible in any
+engine — real-device only. Next: a CI job to run the WebKit projects for an
+automated iOS-engine signal, then widen the specs to the other loop cells
+(multi-slide, vertical, RTL, peek, autoplay-across-seam).

@@ -108,6 +108,27 @@ export type CarouselAutoplay = boolean | { delay: number };
 export type CarouselTransition = "slide" | "fade" | "none";
 
 /**
+ * Resolved wrap-around navigation mode — the value published as the
+ * `data-loop` styling hook on the Root. The consumer-facing `loop` prop
+ * accepts `boolean | "wrap" | "infinite"` and resolves to this:
+ *
+ * - `"none"` — navigation clamps at the ends (`loop` omitted / `false`).
+ * - `"wrap"` — *semantic* wrapping (`loop` / `loop={true}` / `loop="wrap"`):
+ *   Next/Previous and autoplay wrap past the ends, the triggers never
+ *   disable, but wrapping last→first smooth-scrolls the whole track back
+ *   (a visible rewind, the same path `Home`/`End` take).
+ * - `"infinite"` — continuous infinite (`loop="infinite"`): the same wrap
+ *   page model, plus a cloned edge buffer and a native-scroll recentre so
+ *   the wrap is a continuous glide with no visible rewind.
+ *
+ * Both `"wrap"` and `"infinite"` share the page model (the wrap
+ * arithmetic in `next`/`previous` and the never-disable boundaries);
+ * `"infinite"` layers the clone/scroll behaviour on top, keyed off the
+ * `data-loop="infinite"` hook.
+ */
+export type CarouselLoopMode = "none" | "wrap" | "infinite";
+
+/**
  * Scroll-snap alignment that the Viewport should target when
  * programmatically scrolling to a page.
  *
@@ -348,6 +369,23 @@ export type CarouselRootProps = Omit<
      * the viewport scroll axis, the arrow-key bindings, and the
      * `data-orientation` styling hook on the Root. */
     orientation?: CarouselOrientation;
+    /** Wrap-around navigation mode — see {@link CarouselLoopMode}.
+     * Defaults to `false` (`"none"`). Accepts a boolean for ergonomics or a
+     * named mode:
+     *
+     * - `false` / omitted → `"none"` (clamp at the ends).
+     * - `true` / `"wrap"` → `"wrap"` (semantic wrap: Next/Previous and
+     *   autoplay wrap past the ends and the triggers never disable, but the
+     *   wrap last→first smooth-scrolls the track back — a visible rewind).
+     * - `"infinite"` → continuous infinite: the same wrap page model plus a
+     *   cloned edge buffer and native-scroll recentre so the wrap is a
+     *   continuous glide with no rewind.
+     *
+     * All wrapping requires more than one page — a single-page carousel has
+     * no wrap target, so the triggers stay disabled regardless. The resolved
+     * mode is published as `data-loop="none" | "wrap" | "infinite"` on the
+     * Root. */
+    loop?: boolean | "wrap" | "infinite";
     /** Whether the Viewport supports mouse click-and-drag scrolling —
      * the pointer tracks 1:1 into `scrollLeft`/`scrollTop` (no momentum)
      * once past a small movement threshold, release lets the existing
@@ -480,6 +518,13 @@ export type CarouselContextValue = {
    * Drives the viewport scroll axis, the arrow-key bindings, and the
    * `data-orientation` hook on the Root. */
   orientation: CarouselOrientation;
+  /** Resolved wrap-around navigation mode (defaults to `"none"`) — see
+   * {@link CarouselLoopMode}. `"wrap"` and `"infinite"` both drive the
+   * boundary flags (`canGoNext`/`canGoPrevious` stay true past the ends
+   * when there is more than one page) and the wrap arithmetic in
+   * `next`/`previous`; `"infinite"` additionally signals the clone/scroll
+   * layer via the `data-loop` hook on the Root. */
+  loop: CarouselLoopMode;
   /** Resolved mouse click-and-drag scrolling opt-in (defaults to
    * `false`). */
   allowMouseDrag: boolean;

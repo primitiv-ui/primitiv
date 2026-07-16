@@ -14,7 +14,10 @@
     { "name": "data-orientation", "value": "vertical", "when": "vertical", "source": "auto" },
     { "name": "data-transition", "value": "slide", "when": "slide", "source": "auto" },
     { "name": "data-transition", "value": "fade", "when": "fade", "source": "auto" },
-    { "name": "data-transition", "value": "none", "when": "none", "source": "auto" }
+    { "name": "data-transition", "value": "none", "when": "none", "source": "auto" },
+    { "name": "data-loop", "value": "none", "when": "loop disabled (default)", "source": "auto" },
+    { "name": "data-loop", "value": "wrap", "when": "loop / loop=\"wrap\" (semantic wrap)", "source": "auto" },
+    { "name": "data-loop", "value": "infinite", "when": "loop=\"infinite\" (continuous infinite)", "source": "auto" }
   ],
   "modifiers": [
     {

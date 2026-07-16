@@ -207,6 +207,71 @@ appended here:
   browser available), flagged for human visual QA. See the iteration-14
   sub-entry below for the full build writeup.
 
+- **2026-07-15 — Loop / infinite: two-phase strategy locked (C then A, same
+  session), with A's iOS-inertia problem solved *in advance*.** The variant is
+  split into two phases behind the loop concept, because seamless native-scroll
+  looping and "no dead ends" are genuinely different targets (research: every
+  seamless-loop lib — Embla, Swiper, Splide, Keen — gives up native scroll and
+  drives its own transform/rAF engine; native scroll-snap can only *teleport*,
+  and Blossom documents pure scroll-driven looping doesn't work). The prior
+  workbench "two extra slides at each end" attempt was never committed and is
+  not recoverable — only the concept was tracked. Diagnosis of why it failed:
+  too few clones (a single iOS flick blows through a 2-slide buffer before it
+  settles) **and** almost certainly teleporting on the wrong signal
+  (mid-scroll) instead of at rest.
+
+  **Phase C — semantic wrap ("no disabled ends"), the Figma-documented intent.**
+  A `loop?: boolean` root prop. The end-clamp is localized to four spots in
+  `useCarouselRoot` (`canGoNext`/`canGoPrevious` + the guards in `next`/
+  `previous`); under loop, `canGoNext = canGoPrevious = totalPages > 1`, `next`
+  wraps `(page + 1) % totalPages`, `previous` wraps `(page - 1 + totalPages) %
+  totalPages`. Autoplay wraps **for free** (its `eligible` gate reads
+  `canGoNext`, which now stays true at the last page). `data-loop` on the Root
+  is the styling hook (mirrors `data-orientation`/`data-transition`); prev/next
+  simply never disable (their `disabled` attr is driven by the boundary flags).
+  **No scroll-effect change** — wrapping last→first smooth-scrolls the whole
+  track back (a visible rewind glide), which is *exactly* what semantic wrap is,
+  and is the same path `Home`/`End` (goTo(0)/goTo(last)) already exercise. Pure
+  headless + a passthrough prop; unit-testable at 100% in jsdom.
+
+  **Phase A — seamless infinite, and how iOS momentum is handled.** The insight
+  that de-risks it: there are **two classes of navigation with two guarantees.**
+  (1) *JS-driven* — buttons, indicators, keyboard, wheel, our mouse-drag,
+  autoplay — the viewport is **at rest** at the moment of invocation, so we can
+  recentre deterministically with no inertia to fight. This covers the vast
+  majority of loop interactions on *all* platforms, iOS included (tapping Next
+  on an iPhone is this path, not the flick path), and is fully jsdom-testable.
+  (2) *Native touch flick* (iOS momentum) — the **only** path we can't
+  interrupt; writing `scrollLeft` mid-inertia is ignored or jumps on Safari.
+  Handle it with: **(a) a full-period clone buffer** — render a complete copy of
+  the set on each side (min `slidesPerPage + peek`, a whole set as the safe
+  default; replicate small sets to a floor, Embla's "not enough slides" guard),
+  so any single flick settles *inside* the buffer on a snap point; **(b) recentre
+  only at rest, on `scrollend`** (reusing the hook's existing settle-detection +
+  `setTimeout(600)` fallback, line 435), teleporting by exactly one period — a
+  pixel-identical view — under a `scroll-snap-type: none` window restored on the
+  **next rAF** (not a microtask, or Safari re-animates snap). The measured-offset
+  scroll effect already treats clones as real slides, so no offset math changes.
+  **Residual edge case + graceful degradation:** a rapid *uninterrupted*
+  flick-storm (no `scrollend` between flicks) can outrun any finite buffer on a
+  tiny set — mitigate with a ≥1-period buffer + small-set replication, and if the
+  true scroll boundary is ever hit first the flick just stops on real (cloned)
+  content and the next `scrollend` recentres — worst case one reposition frame,
+  never a blank/broken state (Swiper's `loopFix` has documented jumps too; this
+  is the accepted ceiling). **a11y correctness (the 2-slide attempt's likely
+  bug):** clones are `aria-hidden` + `inert` + `tabindex=-1`, excluded from the
+  live count and the "x of n" label (announced total stays the real n), with
+  consumer ids stripped/namespaced so there are no duplicate ids or
+  double-announced/tabbable slides. **Sandbox limit + QA gate:** jsdom has no
+  momentum/`scrollend` timing — unit-test the *logic* (period math, raw↔real
+  index map, recentre-on-simulated-`scrollend`, snap-suppression calls, clone
+  aria/inert) deterministically; the momentum *feel* is a **mandatory real
+  iPhone-Safari QA gate**: slow drag across the seam · a hard single flick at the
+  seam · a flick-storm at the seam · autoplay across the seam · a VoiceOver swipe
+  (total stays n, no duplicate slides). A sits *behind the same `loop` concept*
+  and only adds the scroll-seamlessness layer — C already settled the navigation
+  semantics, so A never re-litigates them.
+
 ## Figma design reference
 
 Read from the Figma file **"Primitiv Design System" → "Carousel" page**
@@ -2164,13 +2229,162 @@ wheel/drag should now always land cleanly on a full page, never straddled),
 plus item 3's specific repro (vertical + `slidesPerPage > 1`, wheel-scroll
 slowly and confirm the indicators always track a clean page).
 
+### Iteration — Loop, Phase C (semantic wrap / "no disabled ends") (awaiting human QA)
+
+The loop variant, split into two phases (see the 2026-07-15 decision entry for
+the full rationale + the Phase A iOS-inertia strategy). **This is Phase C** —
+the cheap, robust, Figma-documented half; Phase A (seamless infinite) is
+designed and waits on Phase C's QA.
+
+**Headless gap filled (TDD, 100%).** A `loop?: boolean` root prop (default
+`false`). The end-clamp is localized to four spots in `useCarouselRoot`; under
+loop: `canGoNext = canGoPrevious = totalPages > 1` (both directions stay
+available while there's more than one page to wrap between — a single page has
+no wrap target, so the triggers still disable), `next` wraps
+`(currentPage + 1) % totalPages`, `previous` wraps
+`(currentPage - 1 + totalPages) % totalPages`. **Autoplay wraps for free** —
+its `eligible` gate reads `canGoNext`, which now stays true at the last page.
+`data-loop="true" | "false"` on the Root (mirrors `data-orientation` /
+`data-transition`, always present) is the styling hook. **No scroll-effect
+change** — wrapping last→first smooth-scrolls the whole track back (a visible
+rewind), the same path `Home`/`End` (`goTo`) already take; that *is* semantic
+wrapping. 8 new tests (`Carousel.loop.test.tsx`): `data-loop` true/false,
+triggers stay enabled at both ends, Next wraps last→first, Previous wraps
+first→last, single-page still disables, autoplay wraps past the last page.
+JSDoc (prop + context field) + headless README (new "Loop" section + keyboard
+note) updated.
+
+**Registry surface (headless-free — a passthrough prop, no modifier).** `loop`
+isn't in the wrapper's omit list, so `<Carousel loop>` reaches the headless Root
+directly (like `transition`); no recipe/tsx/scss change, no regeneration. Added
+`data-loop` (true/false) to the contract `dataAttributes` (documentary only — the
+emit gates confirm it doesn't feed generated output) + a registry-README bullet.
+Kitchen-sink contract hand-synced.
+
+**Built** (`CarouselPage.tsx`, `/carousel/loop`): a 6-cell grid — default loop,
+loop + autoplay (endless hero), loop + vertical, loop + RTL, loop + peek, and a
+single-slide cell proving the no-wrap-target guard still disables. `BasicSingle`
+gained `loop` + `autoplay` passthroughs; `VerticalSingle` gained `loop`. Sidebar
+entry + Shell route wired. **Kitchen-sink dev-alias confirmed still active**
+(vite + tsconfig), so the unpublished `loop` prop + `data-loop` hook are live for
+QA without a publish.
+
+**Gates green:** `pnpm --filter @primitiv-ui/react qa:units` (100%
+lines/branches/functions/statements, 1878 tests), `cargo test -p primitiv-emit
+-p primitiv-cli` (106 + cli), `node scripts/check-registry-types.mjs`.
+
+**Figma lockstep: pending** (light — `loop` is code-only behaviour + a data hook;
+the design's "Loop (no disabled ends)" cell is exactly this intent, so a
+verification pass). **Next:** human QA of `/carousel/loop` (confirm the arrows
+never disable at the ends, Next/Prev wrap, autoplay never stops, and the single
+cell still disables). **Then Phase A** (seamless infinite) per the locked
+strategy — it only adds the scroll-seamlessness layer on top and needs a real
+iPhone-Safari device-QA gate for the momentum feel.
+
 ## Headless gaps (drive reactively, per example)
 
 Tracked so we know what's outstanding; only built when an example needs
 it (decision 4).
 
-- [ ] Looping / infinite (next/previous hard-clamp today; autoplay stops
-      at last page)
+- [~] Looping / infinite — **Phase C (semantic wrap) + the infinite clone
+      buffer landed** (loop iteration, 2026-07-15). (1) `loop` is now a **mode
+      selector** (`boolean | "wrap" | "infinite"`, `true`→`"wrap"`) resolving to
+      `data-loop="none" | "wrap" | "infinite"` — so wrap stays a first-class
+      configurable option (human request). (2) Phase A **increment 1** landed:
+      under `loop="infinite"` the Viewport renders a full-period clone copy at
+      each end (`CarouselCloneContext` + a clone-aware `CarouselSlide` — inert,
+      `aria-hidden`, `tabindex=-1`, `id` stripped, never registered, tagged
+      `data-clone-of`), so clones never inflate the real count / indices /
+      indicators / "x of n". (3) **Increment 2a landed — free-scroll recentre.**
+      Clones now carry `data-snap-align` (so a swipe *settles* on a clone); a new
+      `useCarouselViewport` `scrollend` effect finds the nearest settled slide and,
+      if it's a clone, instantly teleports by the clone→real offset with
+      `scroll-snap-type` suppressed + restored next rAF (invisible — identical copy
+      one period away); `scrollsnapchange` maps a clone target to its real index so
+      the page/indicators track through the buffer. **So swipe / drag / wheel across
+      the seam glides seamlessly.** Control-flow TDD'd at 100% with per-instance
+      mocked geometry (`Carousel.infinite-recentre.test.tsx`, 7 tests) — the pixel
+      geometry is real-browser-only, verified for feel on device. (4) **Increment 2b
+      landed — forward/backward glide + instant init.** A one-shot
+      `wrapDirectionRef` set by `next()`/`previous()` at the source (a 2-page
+      carousel can't infer wrap-direction from indices, so it's captured where the
+      intent is known; `goTo` clears it) tells the scroll effect to glide one step
+      into the **adjacent clone** (forward → trailing, backward → leading) instead
+      of rewinding; the scrollend recentre then teleports to the real slide. So
+      **button / keyboard / autoplay** now glide too, matching free-scroll. The
+      **first** infinite scroll is instant (`hasPositionedRef`) so the viewport
+      lands on the middle copy with no one-period slide on load. Glided clones are
+      treated as their own single-slide page for center/end alignment. TDD'd at 100%
+      (`Carousel.infinite-glide.test.tsx`, 5 tests). Kitchen-sink `/carousel/loop`
+      cells 7 (glide) + 8 (infinite autoplay), `allowMouseDrag` on. **Infinite is now
+      feature-complete pending real-device QA** (the recentre/glide *feel* — hard
+      flick, flick-storm at the seam, autoplay across the seam, VoiceOver — is the
+      one remaining gate; jsdom can't exercise real scroll layout).
+      (5) **Composition step (single-slide) landed.** `fade`+`infinite` now guards
+      clone rendering on `transition === "slide"` (fade stacks slides, no scroll —
+      a buffer would just duplicate them). Single-slide infinite composes with
+      **peek / vertical / RTL** with no code change (the one-period teleport is
+      decoration-agnostic and the active slide ≈ viewport width keeps the
+      geometry-nearest recentre reliable) — demoed at `/carousel/loop` cells 9–11
+      for QA. **Known boundary:** the geometry-nearest recentre gets unreliable when
+      a slide is much narrower than the viewport (multi-slide, or center-aligned
+      tiny slides), so **multi-slide is the next increment** — and the place to swap
+      the heuristic for tracking the real snapped element (`scrollsnapchange`'s
+      `snapTargetInline`), which retro-hardens every composition. Recentre desktop
+      QA (2026-07-15): forward + backward glide confirmed working after the
+      scroll-behavior-suppression fix (the styled viewport's `scroll-behavior:
+      smooth` was animating the teleport into a visible rewind — fixed).
+      **Builder integration (deferred, agreed 2026-07-15):** add a `loop` control
+      (`none`/`wrap`/`infinite`) to `CarouselBuilder.tsx` **after** multi-slide
+      infinite lands, so `infinite` composes with the builder's existing
+      `slidesPerPage` control instead of exposing the broken `infinite` +
+      `slidesPerPage>1` combo. (`wrap` already composes with any `slidesPerPage`
+      today, so it could go in earlier gated behind the builder's disabled-but-
+      hinted pattern — but cleaner to wire the whole control once infinite is
+      universal.)
+      (6) **Multi-slide infinite landed (2026-07-15).** Three sub-steps: **(a)**
+      the recentre now reads the browser's real `scrollsnapchange` target
+      (falling back to geometry before the first snap / without support) instead
+      of a geometry-nearest guess — robust to snapAlign/peek/padding and
+      multi-slide page-leading snaps, and it retro-hardens the single-slide
+      compositions. **(b)** the Viewport now sets `data-snap-align` on a clone
+      **only when its mirrored index leads a page** (mirrors `useCarouselSlide`'s
+      `isSnapStart`), so interior clones aren't snap points — the scroll settles on
+      the same positions in the buffer as in the real copy. **(c)** the glide's
+      page-span alignment measures against the matching **clone** of the page's
+      last member (not the real one a period away), so center/end alignment is
+      correct for a multi-slide glided page. Demoed at `/carousel/loop` cell 12
+      (2-up). TDD'd at 100% (multi-slide clone-snap + multi-slide glide tests). The
+      builder `loop` control (deferred note above) is now unblocked.
+      (7) **Rapid-click rewind fixed — teleport-then-glide (2026-07-15, human QA).**
+      The human hit a rewind when clicking Next repeatedly fast. Cause: a button
+      wrap glided *onto* a clone and deferred the recentre to `scrollend`; a click
+      before scrollend left the viewport parked on the trailing clone, so the next
+      nav scrolled back toward the real middle copy (visible rewind). Fix: a wrap now
+      **teleports one period to the buffer copy *behind* it first** (instant,
+      invisible — an identical slide), **then smooth-scrolls to the *real* target**,
+      so every button wrap *ends on the real slide* — no pending recentre for a rapid
+      click to interrupt, and no drift (the teleport counteracts the glide each
+      cycle). Replaces the earlier glide-onto-a-clone + scrollend-recentre approach
+      for programmatic nav; the scrollend recentre now serves **free-scroll/swipe
+      only** (which the full-period buffer already gives runway for). Period is
+      measured real-slide-0 → its trailing clone (one full copy). Glide tests
+      reworked to assert the one-period teleport (fwd/bwd/multi-slide/vertical); 100%.
+      (8) **Kitchen-sink now deployable with the docs (2026-07-15) — phone QA path.**
+      The kitchen-sink builds as a **separate SPA served at `/primitiv/kitchen-sink/`**
+      inside the docs Pages deployment (mirrors the workbench at `/primitiv/workbench/`):
+      `KITCHEN_SINK_BASE` sets the Vite base + switches `main.tsx` to a HashRouter
+      (GH-Pages-safe deep links); `deploy-docs.yml` installs it standalone
+      (`pnpm install --ignore-workspace`, it's excluded from the workspace with its
+      own lockfile) and `cp`s its dist into `.vitepress/dist/kitchen-sink`. Being a
+      separate HTML document, there is **zero CSS interaction** with VitePress or the
+      workbench. The dev-alias means the deploy exercises the **current branch's**
+      headless code — so: trigger **Actions → "Deploy docs" → Run workflow** on the
+      branch, then QA on a phone at `/primitiv/kitchen-sink/#/carousel/loop`. Caveat:
+      the deploy overwrites the single Pages site, so re-deploy `main` afterwards.
+      **Naming (2026-07-15):** the third mode was renamed `seamless` →
+      **`infinite`** (human preference); earlier log prose calling it "seamless"
+      is historical — the mode token is `"infinite"`.
 - [x] Vertical orientation + `data-orientation` — **landed (iteration 2)**.
       `orientation="vertical"` switches the scroll axis, the `snapTargetBlock`
       sync, and the ArrowDown/ArrowUp keys; `data-orientation` on the Root is
@@ -3751,3 +3965,242 @@ change, so no Carousel vitest.
 **Next:** human re-QA of `/carousel/slideshow` cell 3 (RTL) once more —
 confirm every number rests centred and drifts symmetrically like cells 1/2/4,
 in a real RTL browser.
+
+## Kitchen-sink deploy white-page — duplicate React (`resolve.dedupe`)
+
+The `/primitiv/kitchen-sink/` route built and deployed cleanly but rendered a
+**blank page** (empty `#root`) on device. Reproduced headlessly against the
+production `vite build` output (loaded the `dist` in Chromium): a single
+`PAGEERROR: Cannot read properties of null (reading 'useContext')` and
+`#root.innerHTML.length === 0` — the classic **two-React-copies null
+dispatcher**.
+
+**Root cause.** The kitchen-sink is excluded from the pnpm workspace
+(`'!apps/kitchen-sink'`) so it installs standalone with `--ignore-workspace`
+and owns its `node_modules/react`. But its Vite alias points
+`@primitiv-ui/react` at the workspace **source** (`packages/react/src`), which
+lives *outside* this install; that source's `import "react"` resolves *upward*
+to a **second** React copy — `packages/react/node_modules/react` in a dev tree,
+the root-workspace copy in the deploy job. Two React instances don't share a
+hook dispatcher, so the first hook the headless tree renders throws
+`useContext` of null and the whole app unmounts to blank. The workbench never
+hit this: it's *inside* the workspace, so pnpm gives it one deduped React.
+
+**Fix.** `resolve.dedupe: ['react', 'react-dom']` in
+`apps/kitchen-sink/vite.config.ts` — collapses every `react` / `react-dom`
+request (including the aliased source's) onto the app's single copy. After the
+change the headless probe renders (`#root` 31 KB, heading "Heading 1 - Primitiv
+Kitchen Sink", no page error) and the JS bundle shrinks ~9 KB as the duplicate
+React drops out. Base/router/asset paths were never the problem — orthogonal to
+this fix.
+
+**Verified** by building `KITCHEN_SINK_BASE=/ vite build` and loading the
+output in headless Chromium before/after: blank + `useContext`-null → mounted,
+no error. Deploy workflow rebuilds the kitchen-sink from source, so a re-run
+picks the fix up.
+
+## Kitchen-sink responsive shell — foldable examples sidebar
+
+On a phone the `/carousel` layout's fixed **14rem** examples column swallowed
+the demos. Folded it into a slide-in **drawer** behind a toggle, mirroring the
+workbench sidebar (`CarouselLayout.tsx` + `.css`, tokenised — `--primitiv-scrim`
+backdrop, `surface-raised` drawer). Desktop is byte-for-byte unchanged (the bar
++ backdrop are `display:none`, sidebar stays the in-flow sticky column); below
+**48rem** the body goes single-column, the sidebar becomes `position:fixed`
+`translateX(-100%)` and slides in on the toggle, with a scrim backdrop and
+close-on-route-change (so tapping an example dismisses the drawer). The example
+grid already collapsed 4→2→1 col, so mobile now gets the full width. Verified in
+headless Chromium at 390px (folded → 390px main; open → drawer at x0 + backdrop;
+link tap → route changes and drawer closes) and 1200px (bar hidden, 14rem
+sidebar in-flow, main to its right) — no page errors.
+
+## Infinite wrap: buttons inert at the ends on iOS — hold snap through the glide
+
+On-device QA (iOS) of cell 7 (`loop="infinite"`, single-slide): **swipe** wrap
+works both ways at normal speed, but the **prev/next buttons** wouldn't navigate
+past the last slide / before the first. Reproduced in **neither** Chromium
+desktop nor Chromium mobile-emulation (both Blink drive the wrap 0→1→2→3→**0**
+perfectly), so it's **iOS WebKit-specific**.
+
+**Root cause.** A button wrap is *teleport-then-glide*: an instant `scrollLeft`
+jump one period into the clone buffer, then a smooth glide onto the real target.
+The teleport suppressed `scroll-snap-type` and **restored it immediately**, before
+the glide. iOS Safari re-snaps to the *nearest* snap point the instant a
+`mandatory` snap-type is restored — and right after the teleport that nearest
+point is a **clone**, so the restore yanked the viewport onto the clone and
+stranded the wrap (buttons look inert). This is exactly why a **swipe** wrap
+already worked: its recentre lands on a *real* slide, so restoring snap is a
+no-op. The button path lands mid-buffer, so it isn't.
+
+**Fix** (`useCarouselViewport.ts`). Keep `scroll-snap-type` suppressed across the
+whole glide and restore it only once the scroll settles (reusing the existing
+`scrollend` + 600 ms fallback that already clears the programmatic-scroll flag).
+Because the suppressed glide fires no `scrollsnapchange`, also point
+`lastSnapTargetRef` at the real target so the recentre effect's scrollend handler
+sees a real slide and stands down. Desktop/Blink is unaffected — the glide lands
+on the real snap point, so the deferred restore is a no-op (re-verified in
+Chromium: 0→1→2→3→0→1→2→3, unchanged). TDD: new glide test asserts snap stays
+`none` through the glide and is restored on `scrollend`.
+
+**Bug 1 (fast-fling stops at the last slide, resumes after a pause) — buffer
+deepened.** The clone buffer was one period each side and the recentre only fires
+on `scrollend`; a hard iOS momentum fling exhausts the buffer before `scrollend`
+lands, so it stops dead at the physical end until the fling settles and the
+teleport catches up. This is the fundamental scroll-momentum limit we flagged up
+front (Blossom's documented caveat) — of the options (larger buffer / early
+`scroll`-driven recentre that risks cancelling iOS momentum / non-scroll
+JS-driven track) we chose the **larger buffer** as the low-risk first mitigation.
+
+`BUFFER_PERIODS` (Carousel.tsx) now renders **2** full-period copies each side
+instead of 1, doubling the fling runway before the physical end. It's a single
+tunable constant — bump it if device QA shows fast flings still stall. Only the
+teleport's period measurement assumed one period: it now takes the **nearest
+trailing** clone of index 0 (`compareDocumentPosition` → first clone-of-0
+following the real slides) rather than the last, so one wrap still glides exactly
+one step regardless of depth. Initial-position and recentre are geometry-driven
+and depth-agnostic (no change). TDD across the clone-count, glide and recentre
+suites (all rewritten to resolve slide roles by DOM position, not fixed index);
+Carousel.tsx + useCarouselViewport.ts stay at 100%. Re-verified in Chromium:
+wrap still cycles 0→1→2→3→0 and glides a single step. Mitigation, not a cure —
+a truly relentless flick can still out-run 2 periods; revisit depth or a
+non-scroll approach if QA demands it.
+
+## Playwright harness for the infinite loop (real-layout regression net)
+
+The jsdom unit tests mock *all* geometry ("verified for feel on a real device"),
+so the clone-buffer / teleport / recentre paths had no automated real-browser
+coverage. Stood up a Playwright PoC against the kitchen-sink loop page:
+`apps/kitchen-sink/playwright.config.ts` + `e2e/carousel-infinite.spec.ts`, run
+via `pnpm test:e2e:kitchen-sink` (root Playwright; the kitchen-sink is
+workspace-excluded). The webServer boots the kitchen-sink's own vite (base "/" →
+BrowserRouter, so `/carousel/loop` is a real deep link).
+
+Four specs on cell 7 (single-slide infinite, 4 slides) assert what jsdom can't —
+using real scroll-snap geometry, the viewport **settles on a real slide, never a
+clone**: initial position, Next-wrap onto real first, Prev-wrap onto real last,
+and two full laps landing real at every step. All green in Chromium.
+
+**Sandbox gotchas handled.** Pinned `@playwright/test` 1.46 wants Chromium build
+1129 but the sandbox ships 1194 (and Playwright's browser CDN is egress-blocked,
+so `playwright install` can't fetch the pinned one) — point `executablePath` at
+the pre-installed **headless-shell** binary (1.46 launches `--headless=old`,
+which full Chromium 1194 removed; headless-shell is the standalone old-headless
+impl). **WebKit** — iOS Safari's engine core, the one engine with a real chance
+of surfacing the iOS-only snap quirks — is **not installable here** (same egress
+block). The config registers `webkit` / `mobile-safari` projects **conditionally**
+(only when the browser is present or under CI), so a bare run passes on Chromium
+alone here while those projects light up on a dev machine (`npx playwright install
+webkit`) or in CI, where the download is allowed.
+
+**Boundary (unchanged):** no Playwright engine simulates touch **momentum/
+inertia**, so the fast-fling overshoot (bug 1) is still not reproducible in any
+engine — real-device only.
+
+**Real-iPhone QA: buttons still rewind; Playwright can't catch it.** The CI
+WebKit run passed but a real iPhone *still rewinds* on the wrap buttons —
+demonstrating the hard ceiling: Playwright's `webkit` is desktop Linux WebKitGTK,
+not iOS Safari (different scroll-snap/programmatic-scroll impl), and no engine
+simulates touch momentum. So the WebKit pass is necessary-not-sufficient; the
+button rewind and fast-flick jank are iOS-Safari-only and can't be automated here
+(real-device cloud, e.g. BrowserStack, would be the only automation that reflects
+iPhone). Attempted a **blind iOS fix** for the button rewind:
+`useCarouselViewport.ts` now forces a layout flush (`void offsetWidth`) after
+setting `scroll-snap-type: none` and before the teleport write — the implicit
+read inside `scrollLeft +=` doesn't reliably apply the reset on iOS, so it
+re-snaps the teleport back and the smooth glide runs the whole track (the
+rewind). Desktop + Playwright Chromium/WebKit unaffected (verified). This is an
+iOS-runtime fix invisible to the test env, pending on-device QA. The fast-flick
+jank is untouched — that's the native-scroll-snap momentum limit, only a
+JS-transform infinite (Embla/Swiper approach) removes it.
+
+**First CI run pinned an old browser.** `@playwright/test` 1.46 pins Chromium
+build **1129** (~mid-2024), which *strands the wrap on a clone* — the wrap specs
+timed out on it in CI while **WebKit + mobile-safari passed** (the iOS-engine
+signal is positive) and local Chromium 1194 passed. Rather than chase a stale
+build no user ships, the kitchen-sink's `@playwright/test` is bumped to **1.61.1**
+so CI runs a modern Chromium + WebKit (matching reality and the already-green
+iOS engines). The settle assertions also now **poll** (`expect().toPass()`)
+instead of sleeping a fixed duration, so they're robust to engine/CI-speed
+differences.
+
+**CI job landed — `.github/workflows/e2e-carousel.yml`.** Since WebKit can't be
+downloaded in the dev sandbox, the iOS-engine signal comes from CI (GitHub
+runners allow the download). The job installs the kitchen-sink standalone (no
+wasm/workspace build needed for the headless Carousel), `playwright install
+--with-deps webkit chromium`, and runs the suite; `CI=true` registers the
+`webkit` / `mobile-safari` projects, so the specs run on iOS Safari's engine core
+and Chromium, uploading the HTML report as an artifact. To make the job
+self-contained, `@playwright/test` is now a kitchen-sink devDep and
+`pnpm test:e2e` / `pnpm test:e2e:kitchen-sink` run it. Triggers: manual dispatch +
+PRs touching `Carousel/**` or `apps/kitchen-sink/**`. Next: widen the specs to the
+other loop cells (multi-slide, vertical, RTL, peek, autoplay-across-seam).
+
+## RFC 0018 landed (button/keyboard/programmatic): infinite on a JS transform engine
+
+Native scroll-snap + clone buffer couldn't loop reliably on iOS (button rewind,
+fast-flick stall, un-reproducible in Playwright WebKit). Reimplemented
+`loop="infinite"` on a **JS transform track** (`none`/`wrap` untouched):
+
+- **Pure engine core** (`loopEngine.ts`, 100%): `shortestStep` (wrap the short
+  way — the iPhone bug as a pure fn), `snapTarget`/`flingTarget`,
+  `normalizeOffset`, `easeOut`/`tweenValue`, `wrapShift` (the clone-free seam fill).
+- **Engine hook** (`useCarouselLoop.ts`): the viewport clips a translated
+  `[data-carousel-track]`; each slide gets a `wrapShift` so copies fill the seam.
+  A `currentPage` change glides the short way via an eased rAF tween; first
+  position instant; reduced-motion instant. Unit-tested with mocked geometry +
+  rAF (jsdom lays nothing out).
+- **Removed** the scroll-snap infinite machinery: clone buffer (`BUFFER_PERIODS`,
+  `makeClones`, `CarouselCloneContext`, the `Slide` clone branch), the
+  teleport-then-glide, the `scrollend` recentre, `wrapDirectionRef`, and the
+  clone→real snapchange map. `useCarouselViewport`'s scroll effects gate off for
+  infinite. Deleted the three infinite scroll-snap test files.
+- **Registry CSS** (`styles.css` + `.scss` mirror, drift-guarded; kitchen-sink
+  synced): `[data-loop="infinite"]` viewport → `overflow:hidden` + snap none;
+  `.primitiv-carousel__track` is the flex row (column when vertical).
+
+**Verified:** 387 Carousel unit tests, all Carousel files 100% (lines/branches/
+functions/statements); `tsc` clean; carousel scss drift guard green; the
+Playwright infinite specs pass **in real Chromium** against the rebuilt
+kitchen-sink (wrap settles on a real slide both ways, two full laps, no clones).
+
+**Still to come:** drag + fling momentum (the touch feel), then multi-slide /
+peek / RTL polish under the engine. Button / keyboard / indicator / autoplay
+navigation is complete and deployable for iPhone QA.
+
+---
+
+## 2026-07-16 — Infinite engine: iOS flash fix + drag/fling + RTL / peek / multi-slide
+
+Follow-on to the transform-engine rebuild, from real-iPhone QA feedback.
+
+- **iOS entering-slide flash (fixed).** The engine had been promoting *every*
+  slide to its own compositor layer (per-slide `translate3d` + `backface-visibility`).
+  iOS Safari won't rasterise a layer outside the viewport clip until the first
+  frame it scrolls in — so the incoming slide was a white tile for one frame.
+  Now slides paint into the **track's single layer**: interior slides carry no
+  transform; only the seam copy is shifted, with a **2D** translate so it stays
+  in the track bitmap. (The per-slide layering had been added while chasing the
+  *earlier* flash, which was really the inter-slide gap — it never helped this one.)
+- **Touch drag + fling momentum.** Pointer-follows-track 1:1 (transition off),
+  velocity-projected fling snaps to the nearest slide on release and syncs the
+  page. Touch always on; mouse gated by `allowMouseDrag`; sub-threshold press is
+  a tap. `flingTarget` reused from the pure engine.
+- **RTL.** The engine read a negative stride and bailed (`stride <= 0`), so RTL
+  infinite sat dead. Now it reads the stride **sign as an axis `dir`** and mirrors
+  the track translate, seam shift and drag delta.
+- **Peek.** The track's own inset inside the peek/viewport padding was ignored,
+  double-counting the peek and shoving the active slide off-centre. Now `measure()`
+  captures the first slide's `base` inset (viewport positioned so `offsetLeft` is
+  relative to it) and `paint()` subtracts it.
+- **Multi-slide.** The glide effect drove off `currentPage` (a page index) as if
+  it were a slide index — so 2-up advanced one slide, not a page. Now it targets
+  `currentPageOffset` (the page's leading slide index). The inter-slide gap returns
+  for multi-slide via a `data-slides-per-page` track hook; one-up stays gapless.
+
+**Verified:** 396 Carousel unit tests; `useCarouselLoop.ts` + `loopEngine.ts` +
+`Carousel.tsx` 100% (lines/branches/functions/statements); carousel scss drift
+guard green; `tsc` clean.
+
+**Still to come:** real-iOS-Safari QA of all six behaviours (the sandbox can't
+drive it); fling could snap to page boundaries for multi-slide (currently snaps
+to the nearest slide, then the page effect re-aligns).

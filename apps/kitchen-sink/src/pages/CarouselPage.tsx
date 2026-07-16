@@ -63,6 +63,9 @@ function BasicSingle({
   align,
   gap,
   size,
+  loop,
+  autoplay,
+  allowMouseDrag,
 }: {
   label: string;
   radius?: "md" | "none";
@@ -76,6 +79,9 @@ function BasicSingle({
   align?: "start" | "center" | "end";
   gap?: "none" | "sm" | "md" | "lg";
   size?: "xs" | "sm" | "md" | "lg" | "xl";
+  loop?: boolean | "wrap" | "infinite";
+  autoplay?: boolean;
+  allowMouseDrag?: boolean;
 }) {
   return (
     <Carousel
@@ -91,6 +97,10 @@ function BasicSingle({
       align={align}
       gap={gap}
       ratio={ratio}
+      loop={loop}
+      autoplay={autoplay}
+      defaultPlaying={autoplay}
+      allowMouseDrag={allowMouseDrag}
     >
       <CarouselViewport>
         {SLIDES.map((bg, i) => (
@@ -131,6 +141,7 @@ function VerticalSingle({
   side,
   distribution,
   align,
+  loop,
 }: {
   label: string;
   peek?: "none" | "sm" | "md" | "lg";
@@ -138,6 +149,7 @@ function VerticalSingle({
   side?: "before" | "after";
   distribution?: "group" | "stretch";
   align?: "start" | "center" | "end";
+  loop?: boolean | "wrap" | "infinite";
 }) {
   return (
     <Carousel
@@ -149,6 +161,7 @@ function VerticalSingle({
       side={side}
       distribution={distribution}
       align={align}
+      loop={loop}
     >
       <CarouselViewport>
         {SLIDES.map((bg, i) => (
@@ -307,6 +320,8 @@ function MultiSlide({
   padding,
   orientation,
   gap,
+  loop,
+  allowMouseDrag,
 }: {
   label: string;
   count: number;
@@ -316,6 +331,8 @@ function MultiSlide({
   padding?: "none" | "sm" | "md" | "lg";
   orientation?: "horizontal" | "vertical";
   gap?: "none" | "sm" | "md" | "lg";
+  loop?: boolean | "wrap" | "infinite";
+  allowMouseDrag?: boolean;
 }) {
   const Prev = orientation === "vertical" ? ChevronUp : ChevronLeft;
   const Next = orientation === "vertical" ? ChevronDown : ChevronRight;
@@ -329,6 +346,8 @@ function MultiSlide({
       padding={padding}
       orientation={orientation}
       gap={gap}
+      loop={loop}
+      allowMouseDrag={allowMouseDrag}
     >
       <CarouselViewport>
         {GALLERY.slice(0, count).map((bg, i) => (
@@ -2365,6 +2384,167 @@ export function CarouselSlideshow() {
           <SlideshowSingle
             label="Featured products — slideshow parallax, peek"
             peek="md"
+          />
+        </GridCell>
+      </div>
+    </Example>
+  );
+}
+
+/**
+ * Loop — wrap-around navigation (Phase C, "no disabled ends"). The `loop` prop
+ * makes Next/Previous and autoplay wrap past the ends instead of clamping: the
+ * triggers never disable at a boundary, Next on the last slide returns to the
+ * first (and Previous on the first goes to the last), and an auto-rotating
+ * carousel keeps cycling forever. This is *semantic* wrapping — the wrap
+ * smooth-scrolls the whole track back (a visible rewind), the same path `Home`
+ * takes; a continuous infinite glide is a separate, additive layer still to
+ * come. Check: the arrows stay enabled at both ends in every cell, and the
+ * autoplay cell never stops.
+ */
+export function CarouselLoop() {
+  return (
+    <Example
+      title="Loop — wrap-around navigation"
+      note="loop wraps Next/Previous and autoplay past the ends instead of clamping — the triggers never disable, Next on the last slide returns to the first, and autoplay keeps rotating. A single-page carousel has no wrap target, so its triggers still disable. This is semantic wrapping (the wrap smooth-scrolls the track back — a visible rewind); a continuous infinite loop is a separate layer to come."
+      wide
+    >
+      <div className="carousel-grid">
+        <GridCell
+          n={1}
+          title="Default loop"
+          note="Click Next repeatedly: it never disables and returns to the first slide from the last (and Previous wraps the other way). Same as the default carousel otherwise."
+        >
+          <BasicSingle label="Featured products — loop" loop />
+        </GridCell>
+
+        <GridCell
+          n={2}
+          title="Loop + autoplay"
+          note="autoplay + loop = an endlessly rotating hero: without loop, autoplay stops at the last slide; with it, it keeps cycling. Hover or focus to pause (WCAG 2.2.2)."
+        >
+          <BasicSingle label="Featured products — loop autoplay" loop autoplay />
+        </GridCell>
+
+        <GridCell
+          n={3}
+          title="Loop + vertical"
+          note="Wrapping is orientation-agnostic — the up/down controls wrap on the block axis just as the horizontal ones do."
+        >
+          <VerticalSingle label="Featured products — loop vertical" loop />
+        </GridCell>
+
+        <GridCell
+          n={4}
+          title="Loop + RTL"
+          note="Logical navigation, so the wrap follows writing direction with no extra wiring."
+          dir="rtl"
+        >
+          <BasicSingle label="Featured products — loop RTL" loop />
+        </GridCell>
+
+        <GridCell
+          n={5}
+          title="Loop + peek"
+          note="loop is a headless passthrough, so it composes with every registry modifier — here a peek sliver reveals the wrap target as you approach the end."
+        >
+          <BasicSingle label="Featured products — loop peek" loop peek="md" />
+        </GridCell>
+
+        <GridCell
+          n={6}
+          title="Single slide — no wrap target"
+          note="With only one page there is nowhere to wrap, so both triggers stay disabled even with loop set — the guard against a pointless self-navigation."
+        >
+          <Carousel ariaLabel="Featured products — single loop" cluster="joined" loop>
+            <CarouselViewport>
+              <CarouselSlide style={{ background: SLIDES[0] }} />
+            </CarouselViewport>
+            <CarouselControls>
+              <CarouselPreviousTrigger aria-label="Previous slide">
+                <ChevronLeft />
+              </CarouselPreviousTrigger>
+              <CarouselIndicators label="Choose slide" />
+              <CarouselNextTrigger aria-label="Next slide">
+                <ChevronRight />
+              </CarouselNextTrigger>
+            </CarouselControls>
+          </Carousel>
+        </GridCell>
+
+        <GridCell
+          n={7}
+          title="Infinite — continuous glide"
+          note="loop=&quot;infinite&quot; drives a JS transform track (no clones, no native scroll) so a wrap glides one step onto the adjacent slide with no rewind — GPU-composited for smoothness. Click Next / Prev past the ends: it glides on, never back. Watch the dots keep tracking. Buttons / keyboard / autoplay for now; touch-drag momentum is the next increment. Single-slide-scoped."
+        >
+          <BasicSingle
+            label="Featured products — infinite"
+            loop="infinite"
+            allowMouseDrag
+          />
+        </GridCell>
+
+        <GridCell
+          n={8}
+          title="Infinite + autoplay"
+          note="Autoplay rides the same forward-glide, so an infinite carousel auto-rotates forever with no rewind at the seam. Hover/focus to pause (WCAG 2.2.2)."
+        >
+          <BasicSingle
+            label="Featured products — infinite autoplay"
+            loop="infinite"
+            autoplay
+            allowMouseDrag
+          />
+        </GridCell>
+
+        <GridCell
+          n={9}
+          title="Infinite + peek"
+          note="A natural pairing: at rest the peek gutters show the adjacent slides' seam copies (the previous/last on one side, the next on the other), so you see the wrap coming before it happens — seamlessly. Glide or swipe across the end and confirm the peek stays continuous."
+        >
+          <BasicSingle
+            label="Featured products — infinite peek"
+            loop="infinite"
+            peek="md"
+            allowMouseDrag
+          />
+        </GridCell>
+
+        <GridCell
+          n={10}
+          title="Infinite + vertical"
+          note="The recentre and glide are axis-generic — up/down should wrap on the block axis with no rewind, just like horizontal. Drag vertically or use the up/down controls."
+        >
+          <VerticalSingle
+            label="Featured products — infinite vertical"
+            loop="infinite"
+          />
+        </GridCell>
+
+        <GridCell
+          n={11}
+          title="Infinite + RTL"
+          note="Logical properties throughout, so the wrap and glide follow writing direction — Next should still glide onward (leftward in RTL), never a rewind."
+          dir="rtl"
+        >
+          <BasicSingle
+            label="Featured products — infinite RTL"
+            loop="infinite"
+            allowMouseDrag
+          />
+        </GridCell>
+
+        <GridCell
+          n={12}
+          title="Infinite + multi-slide (2-up)"
+          note="Multi-slide infinite: the transform engine glides to each page's leading slide, so Next/Prev advance a whole page (two strides) and paging past the last page wraps onto the first with no rewind. The inter-slide gap returns between the on-screen pair."
+        >
+          <MultiSlide
+            label="Featured products — infinite 2-up"
+            count={6}
+            slidesPerPage={2}
+            loop="infinite"
+            allowMouseDrag
           />
         </GridCell>
       </div>

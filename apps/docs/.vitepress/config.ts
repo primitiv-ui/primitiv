@@ -57,6 +57,8 @@ export default defineConfig({
       { text: "Harmoni", link: "/harmoni/" },
       // Lives in the same Pages deployment, served by the workbench build.
       { text: "Workbench", link: "/workbench/", target: "_self" },
+      // Same-deployment separate SPA (own HTML doc) — the registry QA surface.
+      { text: "Kitchen Sink", link: "/kitchen-sink/", target: "_self" },
     ],
     sidebar: {
       "/guide/": [

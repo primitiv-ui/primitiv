@@ -262,6 +262,68 @@
   .primitiv-carousel__viewport[data-snap-type="proximity"] {
     scroll-snap-type: x proximity;
   }
+  /* Infinite loop (RFC 0018) is transform-driven, not scroll-driven: the
+     viewport clips a JS-translated track instead of scrolling. The engine
+     (useCarouselLoop) translates .primitiv-carousel__track every frame and shifts
+     each slide's copy to fill the seam — seamless both ways with no clones and no
+     native snap to fight (the thing that broke on iOS). The track is the flex row
+     the viewport itself was for the scroll modes; each slide keeps its
+     viewport-relative flex-basis because the track spans the viewport's inline
+     size and the slides overflow it, clipped here. Single-slide for now
+     (multi-slide / peek under the engine is a follow-up increment). */
+  .primitiv-carousel[data-loop="infinite"] .primitiv-carousel__viewport {
+    /* Block, not flex: the track is the flex row now. As a flex *item* the track
+       mis-sized on iOS Safari (leaving white margins that flashed between slides
+       mid-glide); a block child sizes to `inline-size: 100%` deterministically. */
+    display: block;
+    overflow: hidden;
+    scroll-snap-type: none;
+    /* The drag engine owns the scroll axis; the page still scrolls on the cross
+       axis (pan-y here, pan-x when vertical). Stop the finger/mouse dragging a
+       text selection instead of the track. */
+    touch-action: pan-y;
+    user-select: none;
+  }
+  .primitiv-carousel[data-loop="infinite"][data-orientation="vertical"]
+    .primitiv-carousel__viewport {
+    touch-action: pan-x;
+  }
+  .primitiv-carousel__track {
+    display: flex;
+    /* No inter-slide gap by default: at plain one-up only one slide shows, so a
+       gap would just be a strip scrolling through the viewport during the glide.
+       Peek and multi-slide restore it below, where adjacent slides are actually
+       on screen and the gutter between them is wanted. */
+    gap: 0;
+    inline-size: 100%;
+    /* The engine animates transform via a CSS transition (compositor-driven, so
+       no `will-change` needed — and `will-change: transform` COMBINED with a
+       transform transition makes iOS Safari re-snapshot the layer at transition
+       start, flashing the slide). Pin the backface too, the other WebKit
+       transformed-layer flicker guard. */
+    backface-visibility: hidden;
+  }
+  .primitiv-carousel[data-orientation="vertical"] .primitiv-carousel__track {
+    flex-direction: column;
+    block-size: 100%;
+  }
+  /* Restore the inter-slide gap where adjacent slides are actually on screen — a
+     multi-slide page, or the peeking neighbours — so they read as separated cards.
+     Plain single-slide (no peek) keeps 0 above: only one slide shows, so a gap
+     would just be a strip scrolling through the viewport mid-glide. The engine's
+     measured stride includes the gap, so the seam wrap stays aligned. */
+  .primitiv-carousel__track:not([data-slides-per-page="1"]),
+  .primitiv-carousel--peek-sm .primitiv-carousel__track,
+  .primitiv-carousel--peek-md .primitiv-carousel__track,
+  .primitiv-carousel--peek-lg .primitiv-carousel__track {
+    gap: var(--primitiv-carousel-gap);
+  }
+  /* Slides are deliberately NOT promoted to their own compositor layers (no
+     per-slide backface-visibility, and the engine shifts a seam copy with a 2D
+     translate, never translate3d): they paint into the track's single layer. An
+     off-screen per-slide layer is what iOS Safari leaves unrasterised — a white
+     tile for the first frame it glides into view (the entering-slide flash). One
+     rasterised track bitmap means the incoming slide is painted before it enters. */
   /* Mouse click-and-drag is opt-in (Carousel.Root's allowMouseDrag, off by
      default) — data-mouse-drag is only present when it's enabled, so the
      grab-cursor affordance never implies a capability that isn't actually

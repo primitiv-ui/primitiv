@@ -83,6 +83,7 @@ export function useCarouselViewport() {
     transition,
     snapAlign,
     orientation,
+    loop,
     allowMouseDrag,
     onDragStatusChange,
     onOverscrollStatusChange,
@@ -328,8 +329,10 @@ export function useCarouselViewport() {
 
   useEffect(() => {
     // transition="none" hands the visual to consumer CSS; we don't
-    // touch viewport.scrollTo at all in that mode.
-    if (transition !== "slide") return;
+    // touch viewport.scrollTo at all in that mode. loop="infinite" is driven by
+    // the transform engine (useCarouselLoop), not native scroll — this effect
+    // stands down for it.
+    if (transition !== "slide" || loop === "infinite") return;
     const firstSlideKey = slideKeys[currentPageOffset];
     // No slides registered yet, or page out of range: nothing to scroll to.
     if (!firstSlideKey) return;
@@ -445,6 +448,7 @@ export function useCarouselViewport() {
     transition,
     snapAlign,
     orientation,
+    loop,
     currentPageOffset,
     slidesPerPage,
     slideKeys,
@@ -619,7 +623,13 @@ export function useCarouselViewport() {
   // physical wheel's larger, fewer DOM_DELTA_LINE ticks feel proportional to
   // a trackpad's many small DOM_DELTA_PIXEL ones.
   useEffect(() => {
-    if (transition !== "slide" || orientation === "vertical") return;
+    // Infinite is transform-driven, not a scroll container — no wheel-to-scroll.
+    if (
+      transition !== "slide" ||
+      orientation === "vertical" ||
+      loop === "infinite"
+    )
+      return;
     const viewport = internalRef.current!;
 
     const handler = (event: WheelEvent) => {
@@ -661,6 +671,7 @@ export function useCarouselViewport() {
   }, [
     transition,
     orientation,
+    loop,
     canGoNext,
     canGoPrevious,
     currentPage,
@@ -671,7 +682,9 @@ export function useCarouselViewport() {
   // currentPage from the snapped slide's index. The viewport ref is
   // guaranteed populated post-commit (callback ref runs first).
   useEffect(() => {
-    if (transition !== "slide") return;
+    // Infinite is transform-driven (useCarouselLoop) with no native scroll, so
+    // it emits no scrollsnapchange — this sync is for the scroll-snap modes.
+    if (transition !== "slide" || loop === "infinite") return;
     const viewport = internalRef.current!;
 
     const handler = (event: Event) => {
@@ -685,7 +698,6 @@ export function useCarouselViewport() {
         orientation === "vertical"
           ? snapEvent.snapTargetBlock
           : snapEvent.snapTargetInline;
-
       // findIndex returns -1 when the snap target isn't one of our
       // registered slides — e.g. a consumer-wrapped element inside the
       // viewport. Ignore those; only registered slides drive the page.
@@ -705,6 +717,7 @@ export function useCarouselViewport() {
     return () => viewport.removeEventListener("scrollsnapchange", handler);
   }, [
     transition,
+    loop,
     orientation,
     slideKeys,
     slidesRef,
@@ -749,8 +762,10 @@ export function useCarouselViewport() {
         }
 
         // isInView is updated above regardless; only the page-drive below
-        // is the fallback that scrollsnapchange supersedes.
-        if (supportsSnapEvents) return;
+        // is the fallback that scrollsnapchange supersedes. Infinite is
+        // transform-driven — its page never comes from viewport visibility — so
+        // the page-drive stands down there too (the isInView feed above stays).
+        if (supportsSnapEvents || loop === "infinite") return;
 
         const visible = visibleSlideIndicesRef.current;
         if (visible.size === 0) return;
@@ -782,6 +797,7 @@ export function useCarouselViewport() {
     return () => observer.disconnect();
   }, [
     transition,
+    loop,
     slideKeys,
     slidesRef,
     pageForSlideIndex,

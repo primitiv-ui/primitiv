@@ -10,6 +10,7 @@ import { Slot } from "../Slot/index.ts";
 import { CarouselProvider } from "./CarouselContext";
 import {
   useCarouselContext,
+  useCarouselLoop,
   useCarouselRoot,
   useCarouselSlide,
   useCarouselViewport,
@@ -105,6 +106,7 @@ export const CarouselRoot: ForwardRefExoticComponent<
     transition,
     snapAlign,
     orientation,
+    loop,
     allowMouseDrag,
     onDragStatusChange,
     onOverscrollStatusChange,
@@ -132,6 +134,7 @@ export const CarouselRoot: ForwardRefExoticComponent<
       transition,
       snapAlign,
       orientation,
+      loop,
       allowMouseDrag,
       onDragStatusChange,
       onOverscrollStatusChange,
@@ -147,6 +150,7 @@ export const CarouselRoot: ForwardRefExoticComponent<
         aria-roledescription="carousel"
         data-orientation={contextValue.orientation}
         data-transition={contextValue.transition}
+        data-loop={contextValue.loop}
         className={className}
         {...(ariaLabel !== undefined && { "aria-label": ariaLabel })}
         {...(ariaLabelledBy !== undefined && {
@@ -258,7 +262,7 @@ export function CarouselViewport({
   children,
   ...rest
 }: CarouselViewportProps): ReactElement {
-  const { isAutoRotating, ids, allowMouseDrag, snapType } =
+  const { isAutoRotating, ids, allowMouseDrag, snapType, slidesPerPage } =
     useCarouselContext();
   const {
     viewportRef,
@@ -270,6 +274,21 @@ export function CarouselViewport({
     onPointerCancel,
     onClickCapture,
   } = useCarouselViewport();
+  // Infinite loop swaps the native scroll-snap viewport for a JS transform track
+  // (RFC 0018): the engine translates the track and wraps each slide so copies
+  // fill the seam — seamless both ways with no clones and no native snap to
+  // fight (the thing that broke on iOS). Every other mode renders the slides
+  // straight into the scroll viewport as before.
+  const { trackRef, isInfinite, dragHandlers } = useCarouselLoop();
+  // Infinite is transform-driven, so its own pointer engine (drag → fling) owns
+  // the pointer events; the scroll-snap modes keep useCarouselViewport's
+  // mouse-drag handlers.
+  const pointerHandlers = dragHandlers ?? {
+    onPointerDown,
+    onPointerMove,
+    onPointerUp,
+    onPointerCancel,
+  };
 
   return (
     <div
@@ -281,16 +300,24 @@ export function CarouselViewport({
       aria-live={isAutoRotating ? "off" : "polite"}
       onKeyDown={onKeyDown}
       onDragStart={onDragStart}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onPointerCancel={onPointerCancel}
+      {...pointerHandlers}
       onClickCapture={onClickCapture}
       {...(allowMouseDrag && { "data-mouse-drag": "" })}
       {...(ids.viewport !== undefined && { id: ids.viewport })}
       {...rest}
     >
-      {children}
+      {isInfinite ? (
+        <div
+          className="primitiv-carousel__track"
+          data-carousel-track=""
+          data-slides-per-page={slidesPerPage}
+          ref={trackRef}
+        >
+          {children}
+        </div>
+      ) : (
+        children
+      )}
     </div>
   );
 }
@@ -363,6 +390,7 @@ export function CarouselSlide({
   const { slideRef, index, total, state, snapAlign } =
     useCarouselSlide(snapAlignOverride);
   const { translations } = useCarouselContext();
+
   const autoLabel =
     index >= 0 && total > 0
       ? translations.slideLabel({ index: index + 1, total })

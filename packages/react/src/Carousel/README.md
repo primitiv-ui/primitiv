@@ -745,6 +745,84 @@ The prev/next triggers clamp at the ends: `Carousel.PreviousTrigger` is
 are also `disabled` when zero or one slides are registered, since
 there's nowhere to navigate.
 
+### Loop (wrap-around navigation)
+
+Pass `loop` to make navigation wrap around instead of clamping. `loop`
+is a **mode selector** — a boolean for ergonomics, or a named mode:
+
+```tsx
+<Carousel.Root ariaLabel="Featured products" loop>            {/* = "wrap" */}
+<Carousel.Root ariaLabel="Featured products" loop="wrap">     {/* semantic wrap */}
+<Carousel.Root ariaLabel="Featured products" loop="infinite"> {/* continuous infinite */}
+```
+
+| `loop`                    | Resolved `data-loop` | Behaviour                                  |
+| ------------------------- | -------------------- | ------------------------------------------ |
+| omitted / `false`         | `"none"`             | Clamp at the ends (triggers disable).      |
+| `true` / `"wrap"`         | `"wrap"`             | Semantic wrap (visible rewind).            |
+| `"infinite"`              | `"infinite"`         | Continuous infinite (no rewind).           |
+
+In every wrapping mode:
+
+- `Carousel.NextTrigger` on the last page advances to the first;
+  `Carousel.PreviousTrigger` on the first page retreats to the last.
+- Neither trigger `disabled`s at a boundary (the arrow keys wrap too,
+  since they route through the same `next` / `previous`).
+- **Autoplay keeps rotating past the last page** rather than stopping —
+  the natural pairing for an auto-rotating hero.
+
+A single page has no wrap target, so the triggers stay `disabled`
+regardless of `loop`. The resolved mode is published as
+`data-loop="none" | "wrap" | "infinite"` on the Root (mirroring
+`data-orientation` / `data-transition`) for consumer CSS.
+
+**`"wrap"` vs `"infinite"`.** Both share the same page model (the wrap
+arithmetic and never-disable boundaries). They differ only in the visual:
+`"wrap"` smooth-scrolls the whole track back on a last→first wrap (a visible
+rewind, the same path `Home` takes), while `"infinite"` glides one step on
+with no rewind.
+
+Under `loop="infinite"` the Viewport is **not** a scroll container. It clips
+a **JS transform track** (`data-carousel-track`): the engine translates the
+track and shifts each slide's copy by a whole track-length so copies fill the
+seam — seamless in both directions with **no clones** and no native scroll-snap
+to fight (RFC 0018). A page change (Prev / Next, keyboard, indicator, `goTo`,
+autoplay) glides the track the **short way** to that page via a GPU-composited
+CSS `transform` transition, wrapping across the ends with no rewind; the first
+positioning is instant (no glide on load). `prefers-reduced-motion` sets the
+offset instantly with no transition.
+
+**Touch / mouse drag.** The track follows the pointer 1:1 (transition off), and
+on release a velocity-projected **fling** snaps to the nearest slide with the
+same glide, updating the active page from where it lands. Touch drag is always
+on (there's no native scroll to fall back to); mouse drag stays opt-in via
+`allowMouseDrag`. A tap under a small threshold still reaches a link / button
+inside a slide.
+
+**Direction, peek and multi-slide.** The engine is axis- and direction-generic:
+it reads the sign of the measured stride as the axis direction, so an **RTL**
+loop mirrors every move (no rewind), and it cancels the track's own inset so
+**peek** / viewport padding stays centred. **Multi-slide** (`slidesPerPage > 1`)
+glides to each page's leading slide, so Prev / Next advance a whole page and wrap
+cleanly; the inter-slide gap returns between the on-screen pair (single-slide
+stays gapless so the gap never flashes through the viewport mid-glide). The gap
+is scoped by the `data-slides-per-page` hook the engine sets on the track.
+
+Every slide paints into the **track's single compositor layer** (the seam copy
+uses a 2D translate, and slides are never individually promoted): an off-screen
+per-slide layer is what iOS Safari leaves unrasterised, flashing the entering
+slide white for one frame. One rasterised track bitmap keeps the incoming slide
+painted before it enters.
+
+This is what replaced the earlier native-scroll-snap + clone-buffer approach,
+which couldn't loop reliably on iOS Safari (the button rewind and fast-flick
+stall): driving the position in JS removes the native-snap dependency those
+bugs came from, and the momentum feel is tunable in JS rather than at the OS's
+mercy.
+
+> The track geometry is browser-only (jsdom reports no layout), so it ships
+> unit-tested with mocked geometry, and real-browser tested in Playwright.
+
 ### Keyboard navigation
 
 `Carousel.Viewport` is in the tab order so keyboard users can reach the
@@ -762,7 +840,8 @@ The paging arrows follow the [orientation](#orientation): `ArrowRight` /
 `ArrowLeft` for the default horizontal axis, `ArrowDown` / `ArrowUp` when
 `orientation="vertical"` (the off-axis arrows go inert). `Home` / `End`
 work in both. Arrow keys clamp at the boundaries, mirroring the trigger
-buttons. Keypresses are only intercepted when the Viewport itself is the
+buttons — or wrap around when [`loop`](#loop-wrap-around-navigation) is
+set. Keypresses are only intercepted when the Viewport itself is the
 focus target — focus inside a slide (e.g. on a link or form control)
 keeps its native arrow-key semantics.
 
@@ -1135,9 +1214,10 @@ anatomy part):
 </Carousel.Root>
 ```
 
-Renders `"1 of 3"` by default (1-indexed, matching `slideLabel`); pass
-`translations={{ progressText: ({ page, totalPages }) => … }}` on the
-Root to customise the format, or `children` on `Carousel.ProgressText`
+Renders `"1 of 3"` by default (1-indexed, matching `slideLabel`); pass a
+`progressText` formatter through `translations` (a
+`({ page, totalPages }) => …` function) on the Root to customise the
+format, or `children` on `Carousel.ProgressText`
 itself to render something else entirely (an icon alongside the
 count, say) instead of the computed text. `Carousel.ProgressText`
 carries no ARIA wiring of its own — compose it inside your own live

@@ -60,13 +60,39 @@ jobs:
           WORKBENCH_BASE: /primitiv/workbench/
         run: pnpm --filter workbench build
 
+      # The kitchen-sink is a real consumer, excluded from the pnpm workspace
+      # (it has its own lockfile), so it installs standalone with
+      # --ignore-workspace. Its Vite/tsconfig dev-aliases @primitiv-ui/react and
+      # /icons to the workspace source, so this build exercises the CURRENT
+      # branch's headless code — exactly what phone QA needs.
+      - name: Install kitchen-sink dependencies
+        run: pnpm install --ignore-workspace --no-frozen-lockfile
+        working-directory: apps/kitchen-sink
+
+      # Sub-path base + hash router so the SPA works under
+      # /primitiv/kitchen-sink/ and deep links survive a hard refresh. Run
+      # `vite build` directly (not the package's `tsc -b && vite build`): the
+      # dev-alias resolves @primitiv-ui/react to the workspace *source*, and
+      # tsconfig.app.json is a `composite` project — composite rejects program
+      # files outside its `include` (TS6307), which those aliased source files
+      # are. The deploy just needs the bundle; the real type gates run on
+      # packages/react.
+      - name: Build kitchen-sink
+        env:
+          KITCHEN_SINK_BASE: /primitiv/kitchen-sink/
+        run: pnpm exec vite build
+        working-directory: apps/kitchen-sink
+
       - name: Build docs
         run: pnpm --filter @primitiv-ui/docs docs:build
 
-      # Combine: the workbench is served from /workbench/ within the docs site.
+      # Combine: the workbench and kitchen-sink are served from their own
+      # sub-paths within the docs site — each is a separate SPA (its own HTML
+      # document), so there is no CSS interaction with VitePress or each other.
       - name: Assemble site
         run: |
           cp -r apps/workbench/dist apps/docs/.vitepress/dist/workbench
+          cp -r apps/kitchen-sink/dist apps/docs/.vitepress/dist/kitchen-sink
           touch apps/docs/.vitepress/dist/.nojekyll
 
       - name: Upload Pages artifact

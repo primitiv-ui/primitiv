@@ -29,6 +29,11 @@ type Geometry = {
   // shift and drag delta is multiplied by it, so the logical engine stays
   // direction-agnostic and only the physical paint mirrors.
   dir: number;
+  // The first slide's position inside the viewport (its natural layout inset).
+  // Non-zero under peek / viewport padding, where the track is inset from the
+  // viewport edge; subtracted from the track translate so the active slide stays
+  // centred instead of being shoved over by the padding.
+  base: number;
 };
 
 /**
@@ -126,7 +131,8 @@ export function useCarouselLoop() {
         : snapAlign === "end"
           ? viewportSize - slideSize
           : 0;
-    return { track, slides, count, stride, trackLength, align, dir };
+    const base = pos(slides[0]!);
+    return { track, slides, count, stride, trackLength, align, dir, base };
   }, [slideKeys, slidesRef, vertical, snapAlign]);
 
   // Position the track at `offset` against already-measured geometry. `animate`
@@ -143,8 +149,9 @@ export function useCarouselLoop() {
         ? `transform ${GLIDE_DURATION_MS}ms ${GLIDE_EASE}`
         : "none";
       // The physical inline translate mirrors under RTL (dir = −1); the block axis
-      // never mirrors, so vertical keeps dir = +1.
-      const trackShift = g.align - g.dir * offset;
+      // never mirrors, so vertical keeps dir = +1. `base` cancels the track's own
+      // layout inset (peek / viewport padding) so alignment isn't double-counted.
+      const trackShift = g.align - g.base - g.dir * offset;
       g.track.style.transform = vertical
         ? `translate3d(0px, ${trackShift}px, 0px)`
         : `translate3d(${trackShift}px, 0px, 0px)`;

@@ -2500,7 +2500,7 @@ export function CarouselLoop() {
         <GridCell
           n={9}
           title="Infinite + peek"
-          note="A natural pairing: at rest the leading peek sliver is a clone of the previous (last) slide, so you see it coming in before the wrap — seamlessly. Glide or swipe across the end and confirm the peek stays continuous."
+          note="A natural pairing: at rest the peek gutters show the adjacent slides' seam copies (the previous/last on one side, the next on the other), so you see the wrap coming before it happens — seamlessly. Glide or swipe across the end and confirm the peek stays continuous."
         >
           <BasicSingle
             label="Featured products — infinite peek"

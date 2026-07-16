@@ -262,6 +262,30 @@ describe("Carousel infinite — transform engine", () => {
     expect(end.track!.style.transform).toBe("translate3d(200px, 0px, 0px)");
   });
 
+  it("centres the active slide under peek by subtracting the track inset", () => {
+    // Peek pads the viewport, so the track is inset and slide 0 sits at
+    // offsetLeft = the peek gutter (20), inside a viewport wider than the slide
+    // (140 vs 100). The engine must subtract that base inset or it double-counts
+    // the peek and shoves the active slide off-centre.
+    Object.defineProperty(HTMLElement.prototype, "clientWidth", {
+      configurable: true,
+      get(this: HTMLElement) {
+        return this.hasAttribute?.("data-carousel-viewport") ? 140 : 0;
+      },
+    });
+    Object.defineProperty(HTMLElement.prototype, "offsetLeft", {
+      configurable: true,
+      get(this: HTMLElement) {
+        const index = this.getAttribute?.("data-index");
+        return index != null ? 20 + Number(index) * STRIDE : 0;
+      },
+    });
+    const { track } = renderInfinite({ snapAlign: "center" });
+    // align = (140 − 100) / 2 = 20, base = 20 → the track rests at its natural
+    // inset (0), NOT shoved to +20. (Without the base subtraction it reads +20.)
+    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+  });
+
   it("does nothing when there are too few slides to loop", () => {
     const { track } = renderInfinite({ count: 1 });
     // measure() bails (count < 2) — the track renders but gets no transform.

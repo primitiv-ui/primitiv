@@ -4094,6 +4094,16 @@ webkit`) or in CI, where the download is allowed.
 
 **Boundary (unchanged):** no Playwright engine simulates touch **momentum/
 inertia**, so the fast-fling overshoot (bug 1) is still not reproducible in any
-engine — real-device only. Next: a CI job to run the WebKit projects for an
-automated iOS-engine signal, then widen the specs to the other loop cells
-(multi-slide, vertical, RTL, peek, autoplay-across-seam).
+engine — real-device only.
+
+**CI job landed — `.github/workflows/e2e-carousel.yml`.** Since WebKit can't be
+downloaded in the dev sandbox, the iOS-engine signal comes from CI (GitHub
+runners allow the download). The job installs the kitchen-sink standalone (no
+wasm/workspace build needed for the headless Carousel), `playwright install
+--with-deps webkit chromium`, and runs the suite; `CI=true` registers the
+`webkit` / `mobile-safari` projects, so the specs run on iOS Safari's engine core
+and Chromium, uploading the HTML report as an artifact. To make the job
+self-contained, `@playwright/test` is now a kitchen-sink devDep and
+`pnpm test:e2e` / `pnpm test:e2e:kitchen-sink` run it. Triggers: manual dispatch +
+PRs touching `Carousel/**` or `apps/kitchen-sink/**`. Next: widen the specs to the
+other loop cells (multi-slide, vertical, RTL, peek, autoplay-across-seam).

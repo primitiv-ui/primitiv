@@ -114,7 +114,11 @@ export function useCarouselLoop() {
       g.track.style.transform = translate(g.align - offset);
       g.slides.forEach((slide, index) => {
         const shift = wrapShift(index * g.stride, offset, g.trackLength);
-        slide.style.transform = shift === 0 ? "" : translate(shift);
+        // Always a 3D transform, even at shift 0, so every slide sits on its own
+        // pre-rasterised compositor layer. iOS Safari otherwise leaves an
+        // off-screen slide unpainted and flashes it white for a frame as it
+        // transforms into view (the entering slide, on tap).
+        slide.style.transform = translate(shift);
       });
     },
     [vertical],

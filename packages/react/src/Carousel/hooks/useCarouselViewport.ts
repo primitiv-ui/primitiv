@@ -402,10 +402,20 @@ export function useCarouselViewport() {
       // forward wrap jumps *back* one period (into the leading copy) so the
       // glide to the real target runs forward; a backward wrap jumps forward.
       const real0 = slidesRef.current!.get(slideKeys[0])!;
-      const clonesOf0 = viewport.querySelectorAll<HTMLDivElement>(
-        '[data-clone-of="0"]',
+      const clonesOf0 = Array.from(
+        viewport.querySelectorAll<HTMLDivElement>('[data-clone-of="0"]'),
       );
-      const trailingClone0 = clonesOf0[clonesOf0.length - 1]!;
+      // The buffer is BUFFER_PERIODS copies deep, so slide 0 has several clones
+      // each side. One period is the distance to the *nearest trailing* copy —
+      // the first clone-of-0 that follows the real slide in DOM order. Taking the
+      // last clone would measure the whole buffer (BUFFER_PERIODS periods), not
+      // one. compareDocumentPosition keeps this a DOM-order test (robust under
+      // RTL, where the trailing copy sits physically left of the real slide).
+      const trailingClone0 = clonesOf0.find(
+        (clone) =>
+          real0.compareDocumentPosition(clone) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      )!;
       const measure = (el: HTMLElement) =>
         vertical
           ? el.getBoundingClientRect().top

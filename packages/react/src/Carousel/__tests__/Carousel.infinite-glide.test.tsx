@@ -38,6 +38,35 @@ function trackScroll(el: HTMLElement) {
   });
 }
 
+// The clone buffer is BUFFER_PERIODS copies deep at each end, so a real slide
+// has several clones per side. Resolve the roles by DOM position rather than a
+// fixed index so these tests stay correct for any buffer depth: the real slides
+// are the ones with no `data-clone-of`; the "nearest trailing" clone of an index
+// is the first clone-of-index that *follows* the real slides in DOM order (the
+// one exactly one period away, which the teleport measures); a "leading" clone
+// precedes them.
+function slideRoles(container: HTMLElement) {
+  const slides = Array.from(
+    container.querySelectorAll<HTMLElement>("[data-carousel-slide]"),
+  );
+  const reals = slides.filter((s) => !s.hasAttribute("data-clone-of"));
+  const firstTrailingCloneOf = (index: number) =>
+    slides.find(
+      (s) =>
+        s.getAttribute("data-clone-of") === String(index) &&
+        reals[0]!.compareDocumentPosition(s) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+    )!;
+  const firstLeadingCloneOf = (index: number) =>
+    slides.find(
+      (s) =>
+        s.getAttribute("data-clone-of") === String(index) &&
+        reals[0]!.compareDocumentPosition(s) &
+          Node.DOCUMENT_POSITION_PRECEDING,
+    )!;
+  return { reals, firstTrailingCloneOf, firstLeadingCloneOf };
+}
+
 function renderInfinite(defaultPage: number) {
   const result = render(
     <Carousel.Root
@@ -55,11 +84,18 @@ function renderInfinite(defaultPage: number) {
     </Carousel.Root>,
   );
   const viewport = result.getByTestId("viewport");
-  // DOM order: lead-0, lead-1, real-0, real-1, trail-0, trail-1.
-  const [leadA, leadB, real0, real1, trail0, trail1] = Array.from(
-    result.container.querySelectorAll<HTMLElement>("[data-carousel-slide]"),
+  const { reals, firstTrailingCloneOf, firstLeadingCloneOf } = slideRoles(
+    result.container,
   );
-  return { ...result, viewport, leadA, leadB, real0, real1, trail0, trail1 };
+  return {
+    ...result,
+    viewport,
+    leadA: firstLeadingCloneOf(0),
+    real0: reals[0]!,
+    real1: reals[1]!,
+    trail0: firstTrailingCloneOf(0),
+    trail1: firstTrailingCloneOf(1),
+  };
 }
 
 describe("Carousel infinite-loop glide", () => {
@@ -204,13 +240,12 @@ describe("Carousel infinite-loop glide", () => {
     );
     const viewport = result.getByTestId("viewport");
     trackScroll(viewport);
-    // DOM: lead-0..3, real-0..3, trail-0..3. The period is one full copy
-    // (real-0 → its trailing clone), which spans all four slides.
-    const slideEls = Array.from(
-      result.container.querySelectorAll<HTMLElement>("[data-carousel-slide]"),
-    );
-    const real0 = slideEls[4];
-    const trail0 = slideEls[8];
+    // The period is one full copy (real-0 → its nearest trailing clone), which
+    // spans all four slides — resolved by DOM role so it holds for any buffer
+    // depth.
+    const { reals, firstTrailingCloneOf } = slideRoles(result.container);
+    const real0 = reals[0]!;
+    const trail0 = firstTrailingCloneOf(0);
     const scrollTo = vi.spyOn(viewport, "scrollTo");
     mockLefts(
       new Map<Element, number>([
@@ -254,11 +289,9 @@ describe("Carousel infinite-loop glide", () => {
         top = v;
       },
     });
-    const slideEls = Array.from(
-      result.container.querySelectorAll<HTMLElement>("[data-carousel-slide]"),
-    );
-    const real0 = slideEls[2];
-    const trail0 = slideEls[4];
+    const { reals, firstTrailingCloneOf } = slideRoles(result.container);
+    const real0 = reals[0]!;
+    const trail0 = firstTrailingCloneOf(0);
     // Vertical → the period is measured on the block (top) axis.
     const tops = new Map<Element, number>([
       [viewport, 0],

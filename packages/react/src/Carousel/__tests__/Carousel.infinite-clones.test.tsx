@@ -46,11 +46,13 @@ describe("Carousel infinite — clone buffer", () => {
     expect(container.querySelectorAll("[data-clone-of]")).toHaveLength(0);
   });
 
-  it("should render a full-period clone buffer on each side under loop=infinite", () => {
+  it("should render a multi-period clone buffer on each side under loop=infinite", () => {
     const { container } = renderCarousel("infinite", 3);
 
-    // One complete copy of the real set leading, one trailing = 2 × count.
-    expect(container.querySelectorAll("[data-clone-of]")).toHaveLength(6);
+    // BUFFER_PERIODS (2) complete copies of the real set leading and trailing =
+    // 2 × BUFFER_PERIODS × count. The extra copies beyond one period give a hard
+    // momentum fling more runway before it hits the physical scroll end.
+    expect(container.querySelectorAll("[data-clone-of]")).toHaveLength(12);
   });
 
   it("should keep the real slide count, indices and total unaffected by the clones", () => {
@@ -97,8 +99,11 @@ describe("Carousel infinite — clone buffer", () => {
       container.querySelectorAll("[data-clone-of]"),
       (el) => el.getAttribute("data-clone-of"),
     );
-    // Leading copy 0,1,2 then trailing copy 0,1,2.
-    expect(cloneIndices).toEqual(["0", "1", "2", "0", "1", "2"]);
+    // BUFFER_PERIODS (2) leading copies 0,1,2 then 2 trailing copies 0,1,2.
+    expect(cloneIndices).toEqual([
+      "0", "1", "2", "0", "1", "2", // leading (2 copies)
+      "0", "1", "2", "0", "1", "2", // trailing (2 copies)
+    ]);
   });
 
   it("should make a single-slide carousel's clones all snap points", () => {
@@ -151,8 +156,8 @@ describe("Carousel infinite — clone buffer", () => {
       </Carousel.Root>,
     );
 
-    // Two real slide elements → two element clones per side (the text child
-    // is not an element, so it has no data-clone-of).
-    expect(container.querySelectorAll("[data-clone-of]")).toHaveLength(4);
+    // Two real slide elements → BUFFER_PERIODS (2) element clones per side (the
+    // text child is not an element, so it has no data-clone-of).
+    expect(container.querySelectorAll("[data-clone-of]")).toHaveLength(8);
   });
 });

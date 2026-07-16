@@ -41,6 +41,46 @@ function trackScroll(el: HTMLElement, prop: "scrollLeft" | "scrollTop") {
   });
 }
 
+// The clone buffer is BUFFER_PERIODS copies deep at each end, so resolve slide
+// roles by DOM position instead of a fixed index (keeps these tests correct for
+// any buffer depth): the real slides carry no `data-clone-of`; the "nearest
+// trailing" clone of an index is the first clone-of-index that follows the real
+// slides in DOM order (exactly one period away — the copy the recentre teleports
+// from).
+function slideRoles(container: HTMLElement) {
+  const slides = Array.from(
+    container.querySelectorAll<HTMLElement>("[data-carousel-slide]"),
+  );
+  const reals = slides.filter((s) => !s.hasAttribute("data-clone-of"));
+  const firstTrailingCloneOf = (index: number) =>
+    slides.find(
+      (s) =>
+        s.getAttribute("data-clone-of") === String(index) &&
+        reals[0]!.compareDocumentPosition(s) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+    )!;
+  return { slides, reals, firstTrailingCloneOf };
+}
+
+// Mock every slide's leading edge on `axis` by its DOM order, anchored so
+// `anchor` sits at 0 with a fixed 500px pitch. A whole period spans the real set
+// (two slides → 1000), so e.g. anchoring the trailing clone of 0 at 0 puts real
+// slide 0 at −1000 — the one-period offset the recentre teleports by.
+function mockEdgesAnchored(
+  container: HTMLElement,
+  viewport: HTMLElement,
+  anchor: HTMLElement,
+  axis: Axis,
+) {
+  const slides = Array.from(
+    container.querySelectorAll<HTMLElement>("[data-carousel-slide]"),
+  );
+  const anchorIndex = slides.indexOf(anchor);
+  const map = new Map<Element, number>([[viewport, 0]]);
+  slides.forEach((slide, i) => map.set(slide, (i - anchorIndex) * 500));
+  mockEdges(map, axis);
+}
+
 function renderInfinite(
   orientation: "horizontal" | "vertical" = "horizontal",
   loop: boolean | "wrap" | "infinite" = "infinite",
@@ -59,12 +99,16 @@ function renderInfinite(
     </Carousel.Root>,
   );
   const viewport = result.getByTestId("viewport");
-  // DOM order of the six slide elements: lead-0, lead-1, real-0, real-1,
-  // trail-0, trail-1 (a full clone copy either side of the two real slides).
-  const slides = Array.from(
-    result.container.querySelectorAll<HTMLElement>("[data-carousel-slide]"),
-  );
-  return { ...result, viewport, slides };
+  const { slides, reals, firstTrailingCloneOf } = slideRoles(result.container);
+  return {
+    ...result,
+    viewport,
+    slides,
+    real0: reals[0]!,
+    real1: reals[1]!,
+    trail0: firstTrailingCloneOf(0),
+    trail1: firstTrailingCloneOf(1),
+  };
 }
 
 function fireScrollEnd(viewport: HTMLElement) {
@@ -83,23 +127,11 @@ describe("Carousel infinite-loop recentre", () => {
   });
 
   it("should teleport by the clone→real offset when the scroll settles on a trailing clone", () => {
-    const { viewport, slides } = renderInfinite();
+    const { viewport, container, trail0 } = renderInfinite();
     trackScroll(viewport, "scrollLeft");
     // Scrolled so the trailing clone of slide 0 sits at the viewport start;
     // its real counterpart is one period (1000) to the left.
-    const [leadA, leadB, real0, real1, trail0, trail1] = slides;
-    mockEdges(
-      new Map<Element, number>([
-        [viewport, 0],
-        [leadA, -2000],
-        [leadB, -1500],
-        [real0, -1000],
-        [real1, -500],
-        [trail0, 0],
-        [trail1, 500],
-      ]),
-      "left",
-    );
+    mockEdgesAnchored(container, viewport, trail0, "left");
 
     fireScrollEnd(viewport);
 
@@ -108,24 +140,13 @@ describe("Carousel infinite-loop recentre", () => {
   });
 
   it("should prefer the browser's snap target over a geometry guess", () => {
-    const { viewport, slides } = renderInfinite();
+    const { viewport, container, real0, trail0 } = renderInfinite();
     trackScroll(viewport, "scrollLeft");
-    const [leadA, leadB, real0, real1, trail0, trail1] = slides;
     // Geometry would pick a REAL slide as nearest (→ no-op), but the browser
     // actually snapped to the trailing clone of slide 0. The recentre must
-    // trust the snap target, not the geometry guess.
-    mockEdges(
-      new Map<Element, number>([
-        [viewport, 0],
-        [real0, 0], // nearest by geometry (real → would no-op)
-        [trail0, 1000], // the real snap target (a clone)
-        [leadA, -2000],
-        [leadB, -1500],
-        [real1, 500],
-        [trail1, 1500],
-      ]),
-      "left",
-    );
+    // trust the snap target, not the geometry guess. Anchoring real0 at 0 makes
+    // it the geometry-nearest, with the trailing clone one period (1000) away.
+    mockEdgesAnchored(container, viewport, real0, "left");
     const snap = new Event("scrollsnapchange");
     Object.defineProperty(snap, "snapTargetInline", { value: trail0 });
     act(() => {
@@ -140,7 +161,7 @@ describe("Carousel infinite-loop recentre", () => {
   });
 
   it("should suppress snap-type AND smooth scroll-behavior for the teleport, restoring both next frame", () => {
-    const { viewport, slides } = renderInfinite();
+    const { viewport, container, trail0 } = renderInfinite();
     viewport.style.scrollSnapType = "x mandatory";
     // The styled surface sets `scroll-behavior: smooth`; without suppressing
     // it the scrollLeft write animates — the visible "rewind" bug. Capture
@@ -158,19 +179,7 @@ describe("Carousel infinite-loop recentre", () => {
         value = v;
       },
     });
-    const [leadA, leadB, real0, real1, trail0, trail1] = slides;
-    mockEdges(
-      new Map<Element, number>([
-        [viewport, 0],
-        [leadA, -2000],
-        [leadB, -1500],
-        [real0, -1000],
-        [real1, -500],
-        [trail0, 0],
-        [trail1, 500],
-      ]),
-      "left",
-    );
+    mockEdgesAnchored(container, viewport, trail0, "left");
 
     fireScrollEnd(viewport);
 
@@ -183,22 +192,10 @@ describe("Carousel infinite-loop recentre", () => {
   });
 
   it("should not teleport when the scroll settles on a real slide", () => {
-    const { viewport, slides } = renderInfinite();
+    const { viewport, container, real0 } = renderInfinite();
     trackScroll(viewport, "scrollLeft");
-    const [leadA, leadB, real0, real1, trail0, trail1] = slides;
     // real-0 is at the viewport start (home) — nothing to recentre.
-    mockEdges(
-      new Map<Element, number>([
-        [viewport, 0],
-        [leadA, -1000],
-        [leadB, -500],
-        [real0, 0],
-        [real1, 500],
-        [trail0, 1000],
-        [trail1, 1500],
-      ]),
-      "left",
-    );
+    mockEdgesAnchored(container, viewport, real0, "left");
 
     fireScrollEnd(viewport);
 
@@ -206,21 +203,9 @@ describe("Carousel infinite-loop recentre", () => {
   });
 
   it("should recentre on the block axis when the carousel is vertical", () => {
-    const { viewport, slides } = renderInfinite("vertical");
+    const { viewport, container, trail0 } = renderInfinite("vertical");
     trackScroll(viewport, "scrollTop");
-    const [leadA, leadB, real0, real1, trail0, trail1] = slides;
-    mockEdges(
-      new Map<Element, number>([
-        [viewport, 0],
-        [leadA, -2000],
-        [leadB, -1500],
-        [real0, -1000],
-        [real1, -500],
-        [trail0, 0],
-        [trail1, 500],
-      ]),
-      "top",
-    );
+    mockEdgesAnchored(container, viewport, trail0, "top");
 
     fireScrollEnd(viewport);
 
@@ -240,11 +225,10 @@ describe("Carousel infinite-loop recentre", () => {
   });
 
   it("should map a clone snap target to its real page so swiping into the buffer still tracks", () => {
-    const { viewport, slides, container } = renderInfinite();
+    const { viewport, trail1, container } = renderInfinite();
     // Snapping onto the trailing clone of slide 1 (data-clone-of="1") must
     // advance the active page to 1, so the real slide 1 becomes active even
     // though the pixels are showing the clone (the recentre then teleports).
-    const trail1 = slides[5];
     const event = new Event("scrollsnapchange");
     Object.defineProperty(event, "snapTargetInline", {
       value: trail1,

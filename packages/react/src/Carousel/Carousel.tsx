@@ -37,6 +37,13 @@ import type {
   CarouselProgressTextProps,
 } from "./types";
 
+// Full-period clone copies rendered at EACH end of an infinite loop's buffer.
+// One period already lets a single native fling settle inside the buffer; extra
+// copies give a hard iOS momentum fling more runway before it hits the physical
+// scroll end (where it stalls until the scrollend recentre catches up). Tunable:
+// more copies = more fling headroom, at the cost of extra inert clone DOM.
+const BUFFER_PERIODS = 2;
+
 /**
  * The root of a Carousel widget. Renders a `<section>` with
  * `aria-roledescription="carousel"` so assistive technology announces
@@ -292,14 +299,16 @@ export function CarouselViewport({
     onClickCapture,
   } = useCarouselViewport();
 
-  // Infinite loop renders a full-period clone buffer at each end: one
-  // complete copy of the real slides leading, one trailing. A whole period
-  // (rather than a slide or two) guarantees any single native fling settles
-  // *inside* the buffer on a snap point, so the recentre teleport always
-  // has runway. Clones are marked via CarouselCloneProvider — each Slide
-  // beneath it skips registration and renders inert/aria-hidden — and tagged
-  // `data-clone-of` with the real index they mirror. Fewer than two slides
-  // can't form a loop, so no clones are rendered there.
+  // Infinite loop renders a clone buffer of BUFFER_PERIODS full-period copies at
+  // each end. A whole period (rather than a slide or two) guarantees any single
+  // native fling settles *inside* the buffer on a snap point, so the recentre
+  // teleport always has runway; the extra copies beyond the first give a hard
+  // iOS momentum fling more runway before it reaches the physical scroll end,
+  // where it would otherwise stop dead until the scrollend recentre catches up.
+  // Clones are marked via CarouselCloneProvider — each Slide beneath it skips
+  // registration and renders inert/aria-hidden — and tagged `data-clone-of` with
+  // the real index they mirror. Fewer than two slides can't form a loop, so no
+  // clones are rendered there.
   const realChildren = Children.toArray(children);
   // Clones only make sense for the scrolling transition — fade/none stack the
   // slides with no scroll axis to glide along, so a buffer would just render
@@ -352,13 +361,17 @@ export function CarouselViewport({
     >
       {cloneBuffer && (
         <CarouselCloneProvider value={true}>
-          {makeClones("clone-lead")}
+          {Array.from({ length: BUFFER_PERIODS }, (_, period) =>
+            makeClones(`clone-lead-${period}`),
+          )}
         </CarouselCloneProvider>
       )}
       {children}
       {cloneBuffer && (
         <CarouselCloneProvider value={true}>
-          {makeClones("clone-trail")}
+          {Array.from({ length: BUFFER_PERIODS }, (_, period) =>
+            makeClones(`clone-trail-${period}`),
+          )}
         </CarouselCloneProvider>
       )}
     </div>

@@ -4042,11 +4042,25 @@ on the real snap point, so the deferred restore is a no-op (re-verified in
 Chromium: 0→1→2→3→0→1→2→3, unchanged). TDD: new glide test asserts snap stays
 `none` through the glide and is restored on `scrollend`.
 
-**Still open — bug 1 (fast-fling stops at the last slide, resumes after a
-pause).** The clone buffer is one period each side and the recentre only fires on
-`scrollend`; a hard iOS momentum fling can exhaust the buffer before `scrollend`
+**Bug 1 (fast-fling stops at the last slide, resumes after a pause) — buffer
+deepened.** The clone buffer was one period each side and the recentre only fires
+on `scrollend`; a hard iOS momentum fling exhausts the buffer before `scrollend`
 lands, so it stops dead at the physical end until the fling settles and the
 teleport catches up. This is the fundamental scroll-momentum limit we flagged up
-front (Blossom's documented caveat) — mitigations (larger buffer, an early
-`scroll`-driven recentre that risks cancelling iOS momentum, or a non-scroll
-JS-driven track) all need real-device iteration; deferred pending a decision.
+front (Blossom's documented caveat) — of the options (larger buffer / early
+`scroll`-driven recentre that risks cancelling iOS momentum / non-scroll
+JS-driven track) we chose the **larger buffer** as the low-risk first mitigation.
+
+`BUFFER_PERIODS` (Carousel.tsx) now renders **2** full-period copies each side
+instead of 1, doubling the fling runway before the physical end. It's a single
+tunable constant — bump it if device QA shows fast flings still stall. Only the
+teleport's period measurement assumed one period: it now takes the **nearest
+trailing** clone of index 0 (`compareDocumentPosition` → first clone-of-0
+following the real slides) rather than the last, so one wrap still glides exactly
+one step regardless of depth. Initial-position and recentre are geometry-driven
+and depth-agnostic (no change). TDD across the clone-count, glide and recentre
+suites (all rewritten to resolve slide roles by DOM position, not fixed index);
+Carousel.tsx + useCarouselViewport.ts stay at 100%. Re-verified in Chromium:
+wrap still cycles 0→1→2→3→0 and glides a single step. Mitigation, not a cure —
+a truly relentless flick can still out-run 2 periods; revisit depth or a
+non-scroll approach if QA demands it.

@@ -279,12 +279,20 @@
     display: flex;
     gap: var(--primitiv-carousel-gap);
     inline-size: 100%;
-    /* The engine animates transform every frame — hint the compositor. */
+    /* The engine animates transform — hint the compositor, and pin the backface
+       so iOS Safari doesn't flash the layer for a frame mid-transition (a WebKit
+       repaint flicker on composited transformed elements). */
     will-change: transform;
+    backface-visibility: hidden;
   }
   .primitiv-carousel[data-orientation="vertical"] .primitiv-carousel__track {
     flex-direction: column;
     block-size: 100%;
+  }
+  /* Same anti-flicker pin on the slides — they carry their own seam-fill
+     transform, so they're composited too. */
+  .primitiv-carousel[data-loop="infinite"] .primitiv-carousel__slide {
+    backface-visibility: hidden;
   }
   /* Mouse click-and-drag is opt-in (Carousel.Root's allowMouseDrag, off by
      default) — data-mouse-drag is only present when it's enabled, so the

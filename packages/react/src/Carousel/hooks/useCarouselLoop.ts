@@ -43,8 +43,10 @@ type Geometry = {
  * keyboard, indicator, `goTo`, autoplay) the track glides the **short way** to
  * that page via a GPU-composited CSS transition, wrapping across the ends with no
  * rewind. **Touch / mouse drag** — the track follows the pointer 1:1 (transition
- * off), and on release a velocity-projected fling snaps to the nearest slide with
- * the same glide, updating `currentPage` from where it lands.
+ * off), and on release a velocity-projected fling snaps to the nearest **page**
+ * boundary with the same glide, updating `currentPage` from where it lands. (For a
+ * multi-slide page the snap is a whole page, so a fling can't settle mid-page and
+ * get jerked to the page lead.)
  *
  * Geometry is read from layout (`offsetLeft`/`offsetTop`), so it's
  * transform-independent and correct under the live per-slide shifts; it is only
@@ -58,6 +60,7 @@ export function useCarouselLoop() {
     slidesRef,
     currentPageOffset,
     slidesPerPage,
+    effectiveSlidesPerMove,
     orientation,
     transition,
     loop,
@@ -288,18 +291,24 @@ export function useCarouselLoop() {
       dragRef.current = null;
       if (!drag.dragging) return;
       const g = drag.geometry;
+      // Snap to PAGE boundaries, not slide boundaries: a page advances
+      // `effectiveSlidesPerMove` slides, so its stride is that many. For a
+      // single-slide page this is just `g.stride`. Snapping to the slide instead
+      // lets a multi-slide fling settle mid-page, then the page effect jerks it to
+      // the page lead — the two-step this avoids.
+      const pageStride = g.stride * effectiveSlidesPerMove;
       const target = flingTarget(
         offsetRef.current,
         drag.velocity,
         FLING_DECEL_MS,
-        g.stride,
+        pageStride,
       );
       glideTo(target, false, g);
       const index =
         (((Math.round(target / g.stride) % g.count) + g.count) % g.count);
       goTo(pageForSlideIndex(index));
     },
-    [glideTo, goTo, pageForSlideIndex],
+    [glideTo, goTo, pageForSlideIndex, effectiveSlidesPerMove],
   );
 
   const dragHandlers = isInfinite

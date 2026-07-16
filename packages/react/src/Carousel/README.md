@@ -793,8 +793,11 @@ positioning is instant (no glide on load). `prefers-reduced-motion` sets the
 offset instantly with no transition.
 
 **Touch / mouse drag.** The track follows the pointer 1:1 (transition off), and
-on release a velocity-projected **fling** snaps to the nearest slide with the
-same glide, updating the active page from where it lands. Touch drag is always
+on release a velocity-projected **fling** snaps to the nearest **page** boundary
+with the same glide, updating the active page from where it lands. With
+`slidesPerPage > 1` the snap is a whole page, so a multi-slide fling advances (or
+holds) a full page rather than settling mid-page and being jerked to the page
+lead. Touch drag is always
 on (there's no native scroll to fall back to); mouse drag stays opt-in via
 `allowMouseDrag`. A tap under a small threshold still reaches a link / button
 inside a slide.

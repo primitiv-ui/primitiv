@@ -484,6 +484,31 @@ describe("Carousel infinite — drag + fling", () => {
     expect(track!.style.transform).toBe("");
   });
 
+  it("snaps a multi-slide fling to the nearest PAGE, not the nearest slide", () => {
+    // 6 slides, 2 per page → pages lead at slide 0, 2, 4 (page stride = 200). A
+    // drag of 120px is past the half-PAGE point (100) so it should advance a whole
+    // page to offset 200. Snapping to the nearest SLIDE instead lands on slide 1
+    // (offset 100) mid-page, whose page is 0, so the page effect then jerks back to
+    // offset 0 — the two-step this fixes.
+    Object.defineProperty(HTMLElement.prototype, "clientWidth", {
+      configurable: true,
+      get(this: HTMLElement) {
+        return this.hasAttribute?.("data-carousel-track") ? 200 : 0;
+      },
+    });
+    const { track, getByTestId } = renderInfinite({ count: 6, slidesPerPage: 2 });
+    const viewport = getByTestId("viewport");
+
+    pointer(viewport, "pointerdown", { client: 200, time: 0 });
+    pointer(viewport, "pointermove", { client: 80, time: 100 }); // offset 120
+    pointer(viewport, "pointermove", { client: 80, time: 200 }); // zero velocity
+    pointer(viewport, "pointerup", { client: 80, time: 220 });
+
+    // Page-snap → offset 200 (page 1 lead), a single glide. Slide-snap would land
+    // on offset 100 then bounce back to 0.
+    expect(track!.style.transform).toBe("translate3d(-200px, 0px, 0px)");
+  });
+
   it("ends a drag cleanly on pointercancel", () => {
     const { track, getByTestId } = renderInfinite();
     const viewport = getByTestId("viewport");

@@ -272,12 +272,19 @@
      size and the slides overflow it, clipped here. Single-slide for now
      (multi-slide / peek under the engine is a follow-up increment). */
   .primitiv-carousel[data-loop="infinite"] .primitiv-carousel__viewport {
+    /* Block, not flex: the track is the flex row now. As a flex *item* the track
+       mis-sized on iOS Safari (leaving white margins that flashed between slides
+       mid-glide); a block child sizes to `inline-size: 100%` deterministically. */
+    display: block;
     overflow: hidden;
     scroll-snap-type: none;
   }
   .primitiv-carousel__track {
     display: flex;
-    gap: var(--primitiv-carousel-gap);
+    /* No inter-slide gap: infinite is single-slide, so a gap would flash as a
+       white strip between slides during the glide. (Multi-slide infinite, a
+       follow-up, will restore a per-page gap.) */
+    gap: 0;
     inline-size: 100%;
     /* The engine animates transform via a CSS transition (compositor-driven, so
        no `will-change` needed — and `will-change: transform` COMBINED with a

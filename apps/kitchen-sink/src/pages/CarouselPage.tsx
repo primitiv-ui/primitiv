@@ -2466,15 +2466,17 @@ function LoopDebug({ cellTitle }: { cellTitle: string }) {
   return (
     <pre
       style={{
-        position: "sticky",
+        position: "fixed",
+        insetInline: 0,
         top: 0,
-        zIndex: 10,
+        zIndex: 99999,
         margin: 0,
         padding: "8px 12px",
         background: "#111",
         color: "#0f0",
         font: "12px/1.4 ui-monospace, monospace",
         whiteSpace: "pre-wrap",
+        pointerEvents: "none",
       }}
     >
       {lines.join("\n")}
@@ -2483,15 +2485,14 @@ function LoopDebug({ cellTitle }: { cellTitle: string }) {
 }
 
 export function CarouselLoop() {
-  const debug =
-    typeof window !== "undefined" && window.location.search.includes("debug");
+  // TEMP: always-on geometry readout while diagnosing the device-only sizing bug.
   return (
     <Example
       title="Loop — wrap-around navigation"
       note="loop wraps Next/Previous and autoplay past the ends instead of clamping — the triggers never disable, Next on the last slide returns to the first, and autoplay keeps rotating. A single-page carousel has no wrap target, so its triggers still disable. This is semantic wrapping (the wrap smooth-scrolls the track back — a visible rewind); a continuous infinite loop is a separate layer to come."
       wide
     >
-      {debug && <LoopDebug cellTitle="Infinite — continuous glide" />}
+      <LoopDebug cellTitle="Infinite — continuous glide" />
       <div className="carousel-grid">
         <GridCell
           n={1}

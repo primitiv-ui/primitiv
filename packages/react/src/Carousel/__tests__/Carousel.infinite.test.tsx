@@ -177,6 +177,24 @@ describe("Carousel infinite — transform engine", () => {
     expect(clone.hasAttribute("data-index")).toBe(false);
   });
 
+  it("subtracts the first real slide's position so the clone buffer is offset out", () => {
+    // In a real browser the leading clone buffer pushes real slide 0 to
+    // offsetLeft = bufferWidth (measured track-relative). Simulate that: real
+    // slides sit at (index + 4) × stride, so basePos = 400. The track transform
+    // must subtract it (align − basePos − offset) so real slide 0 still rests at
+    // `align`, not shoved off by the buffer.
+    Object.defineProperty(HTMLElement.prototype, "offsetLeft", {
+      configurable: true,
+      get(this: HTMLElement) {
+        const index = this.getAttribute?.("data-index");
+        return index != null ? (Number(index) + 4) * STRIDE : 0;
+      },
+    });
+    const { track } = renderInfinite({ snapAlign: "center" });
+    // align 0, basePos 400, offset 0 → translate3d(0 − 400 − 0) = −400.
+    expect(track!.style.transform).toBe("translate3d(-400px, 0px, 0px)");
+  });
+
   it("positions the track on the active page at rest, instantly (no glide on load)", () => {
     const { track } = renderInfinite({ snapAlign: "center" });
     // align (VIEWPORT−SLIDE)/2 = 0, offset 0 → translate3d(0). First paint is

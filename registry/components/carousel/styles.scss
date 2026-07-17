@@ -291,6 +291,12 @@
   }
   .primitiv-carousel__track {
     display: flex;
+    /* Positioned so a slide's offsetLeft/Top is measured relative to the TRACK,
+       not a far ancestor: the engine reads the first real slide's position to
+       anchor the clone strip, and needs it buffer-relative from the very first
+       measure — before the JS transform (which would itself make the track the
+       offsetParent) has run. */
+    position: relative;
     /* No inter-slide gap by default: at plain one-up only one slide shows, so a
        gap would just be a strip scrolling through the viewport during the glide.
        Peek and multi-slide restore it below, where adjacent slides are actually

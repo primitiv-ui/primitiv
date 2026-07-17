@@ -819,11 +819,13 @@ cleanly; the inter-slide gap returns between the on-screen pair (single-slide
 stays gapless so the gap never flashes through the viewport mid-glide). The gap
 is scoped by the `data-slides-per-page` hook the engine sets on the track.
 
-Every slide (real and clone) paints into the **track's single compositor layer**
-— slides are never individually transformed or promoted. An off-screen per-slide
-layer, or a slide moved discontinuously, is what iOS Safari leaves unrasterised,
-flashing white for a frame; a static, contiguous strip that only ever slides as a
-unit is content iOS pre-rasterises like any smooth scroll.
+No slide is ever individually transformed — the strip only ever slides as a unit,
+so there are no per-slide layers to flash. The track is **not** force-promoted to
+one permanent GPU layer either (2D `translate`, no `backface-visibility`): the
+clone strip is several viewports wide, and iOS Safari rasterises a large permanent
+layer in tiles on demand, blanking slides at rest until they fill in. Letting the
+browser composite the transition on the GPU but rasterise the visible region
+normally at rest — like native scroll — sidesteps that.
 
 This is the same transform + clone approach Embla and Swiper use. It replaced two
 earlier attempts that each flashed on iOS: a native-scroll-snap **clone buffer**

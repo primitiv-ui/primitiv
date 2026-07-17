@@ -303,12 +303,14 @@
        on screen and the gutter between them is wanted. */
     gap: 0;
     inline-size: 100%;
-    /* The engine animates transform via a CSS transition (compositor-driven, so
-       no `will-change` needed — and `will-change: transform` COMBINED with a
-       transform transition makes iOS Safari re-snapshot the layer at transition
-       start, flashing the slide). Pin the backface too, the other WebKit
-       transformed-layer flicker guard. */
-    backface-visibility: hidden;
+    /* Deliberately NOT force-promoted to a permanent GPU layer (no translate3d, no
+       backface-visibility, no will-change): the clone strip is several viewports
+       wide, and iOS Safari rasterises a large permanent layer in tiles on demand —
+       so a re-base that exposes fresh tiles leaves slides briefly blank at rest
+       until they fill in. A 2D translate lets the browser composite the transition
+       on the GPU but rasterise the visible region normally at rest, like native
+       scroll (there are no per-slide layers to flash — the strip never moves
+       internally). */
   }
   .primitiv-carousel[data-orientation="vertical"] .primitiv-carousel__track {
     flex-direction: column;

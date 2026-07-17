@@ -188,7 +188,7 @@ describe("Carousel infinite — transform engine", () => {
     const next = getByRole("button", { name: "Next" });
     for (let i = 0; i < 6; i++) await user.click(next);
     // 6 Nexts, re-based each glide: offset cycles 100,200,300,400→0,100,200 → −200.
-    expect(track!.style.transform).toBe("translate3d(-200px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(-200px, 0px)");
   });
 
   it("subtracts the first real slide's position so the clone buffer is offset out", () => {
@@ -205,15 +205,15 @@ describe("Carousel infinite — transform engine", () => {
       },
     });
     const { track } = renderInfinite({ snapAlign: "center" });
-    // align 0, basePos 400, offset 0 → translate3d(0 − 400 − 0) = −400.
-    expect(track!.style.transform).toBe("translate3d(-400px, 0px, 0px)");
+    // align 0, basePos 400, offset 0 → translate(0 − 400 − 0) = −400.
+    expect(track!.style.transform).toBe("translate(-400px, 0px)");
   });
 
   it("positions the track on the active page at rest, instantly (no glide on load)", () => {
     const { track } = renderInfinite({ snapAlign: "center" });
     // align (VIEWPORT−SLIDE)/2 = 0, offset 0 → translate3d(0). First paint is
     // instant, so no transition.
-    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(0px, 0px)");
     expect(track!.style.transition).toBe("none");
   });
 
@@ -225,7 +225,7 @@ describe("Carousel infinite — transform engine", () => {
 
     // Page 0 → 1: offset 1×stride = 100 → translate3d(align − 100) = −100, driven
     // by a transform transition (the smooth, GPU-composited glide).
-    expect(track!.style.transform).toBe("translate3d(-100px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(-100px, 0px)");
     expect(track!.style.transition).toContain("transform");
   });
 
@@ -234,19 +234,19 @@ describe("Carousel infinite — transform engine", () => {
     // 4 slides, start on the last. The re-base normalizes the mount to offset 300
     // (real slide 3 at its own position) → translate3d(−300).
     const { track, getByRole } = renderInfinite({ defaultPage: 3 });
-    expect(track!.style.transform).toBe("translate3d(-300px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(-300px, 0px)");
 
     await user.click(getByRole("button", { name: "Next" }));
 
     // 3 → 0 is +1 forward: offset 300 → 400 (onto the clone of slide 0), a single
     // step onward, not a rewind. The glide animates to the clone…
-    expect(track!.style.transform).toBe("translate3d(-400px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(-400px, 0px)");
     expect(track!.style.transition).toContain("transform");
 
     // …and once it settles the track re-bases by one period to the REAL slide 0
     // at the identical pixels (offset 0), instantly and invisibly.
     fireEnd(track!);
-    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(0px, 0px)");
     expect(track!.style.transition).toBe("none");
   });
 
@@ -289,9 +289,9 @@ describe("Carousel infinite — transform engine", () => {
     // Offset 100 is already within [0, 400): the settle is a no-op, the transform
     // stays put (and the transition flips to none on the instant no-op repaint…
     // which doesn't run — the guard returns early, so the transition is untouched).
-    expect(track!.style.transform).toBe("translate3d(-100px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(-100px, 0px)");
     fireEnd(track!);
-    expect(track!.style.transform).toBe("translate3d(-100px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(-100px, 0px)");
   });
 
   it("ignores a transitionend for a property other than transform", async () => {
@@ -300,13 +300,13 @@ describe("Carousel infinite — transform engine", () => {
     // transform settle to re-base. A non-transform transitionend must not re-base.
     const { track, getByRole } = renderInfinite({ defaultPage: 3 });
     await user.click(getByRole("button", { name: "Next" }));
-    expect(track!.style.transform).toBe("translate3d(-400px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(-400px, 0px)");
 
     fireEnd(track!, "opacity");
-    expect(track!.style.transform).toBe("translate3d(-400px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(-400px, 0px)");
     // The real transform settle still re-bases.
     fireEnd(track!, "transform");
-    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(0px, 0px)");
   });
 
   it("ignores a transform settle when there is nothing to measure", () => {
@@ -323,7 +323,7 @@ describe("Carousel infinite — transform engine", () => {
 
     await user.click(getByRole("button", { name: "Next" }));
 
-    expect(track!.style.transform).toBe("translate3d(-100px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(-100px, 0px)");
     expect(track!.style.transition).toBe("none");
   });
 
@@ -333,7 +333,7 @@ describe("Carousel infinite — transform engine", () => {
 
     await user.click(getByRole("button", { name: "Next" }));
 
-    expect(track!.style.transform).toBe("translate3d(0px, -100px, 0px)");
+    expect(track!.style.transform).toBe("translate(0px, -100px)");
   });
 
   it("advances a whole page (not one slide) for multi-slide infinite", async () => {
@@ -351,12 +351,12 @@ describe("Carousel infinite — transform engine", () => {
     const user = userEvent.setup();
     const { track, getByRole } = renderInfinite({ count: 6, slidesPerPage: 2 });
 
-    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(0px, 0px)");
 
     await user.click(getByRole("button", { name: "Next" }));
 
     // Page 0 → 1: leading slide 0 → 2, a two-stride glide (a full page), not −100.
-    expect(track!.style.transform).toBe("translate3d(-200px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(-200px, 0px)");
   });
 
   it("glides a multi-slide page back as a unit, no per-slide transform", async () => {
@@ -378,7 +378,7 @@ describe("Carousel infinite — transform engine", () => {
     await user.click(getByRole("button", { name: "Previous" })); // back to page 1
 
     // Page 2 → 1: the track glides back one page (offset 400 → 200)…
-    expect(track!.style.transform).toBe("translate3d(-200px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(-200px, 0px)");
     // …and no real slide carries a transform of its own.
     for (const slide of track!.querySelectorAll<HTMLElement>(
       "[data-carousel-slide][data-index]",
@@ -403,7 +403,7 @@ describe("Carousel infinite — transform engine", () => {
     await user.click(getByRole("button", { name: "Next" })); // page 1 (offset 400)
     await user.click(getByRole("button", { name: "Previous" })); // back to page 0
 
-    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(0px, 0px)");
     for (const slide of track!.querySelectorAll<HTMLElement>(
       "[data-carousel-slide][data-index]",
     )) {
@@ -426,13 +426,13 @@ describe("Carousel infinite — transform engine", () => {
     const { track, getByRole } = renderInfinite();
 
     // Page 0 rests at 0 (align 0), same as LTR.
-    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(0px, 0px)");
 
     await user.click(getByRole("button", { name: "Next" }));
 
     // Next advances the inline-forward slide, which in RTL translates the track to
     // the RIGHT (+100) — the mirror of LTR's −100, still one step, no rewind.
-    expect(track!.style.transform).toBe("translate3d(100px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(100px, 0px)");
   });
 
   it("offsets the track for start and end alignment", () => {
@@ -444,12 +444,12 @@ describe("Carousel infinite — transform engine", () => {
       },
     });
     const start = renderInfinite({ snapAlign: "start" });
-    // start align = 0 → translate3d(0).
-    expect(start.track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+    // start align = 0 → translate(0).
+    expect(start.track!.style.transform).toBe("translate(0px, 0px)");
 
     const end = renderInfinite({ snapAlign: "end" });
-    // end align = viewport(300) − slide(100) = 200 → translate3d(200).
-    expect(end.track!.style.transform).toBe("translate3d(200px, 0px, 0px)");
+    // end align = viewport(300) − slide(100) = 200 → translate(200).
+    expect(end.track!.style.transform).toBe("translate(200px, 0px)");
   });
 
   it("mirrors start/end alignment under RTL (reading start is the right edge)", () => {
@@ -472,12 +472,12 @@ describe("Carousel infinite — transform engine", () => {
       },
     });
     const start = renderInfinite({ snapAlign: "start" });
-    // Reading start = right: leading slide flush right → translate3d(300 − 100).
-    expect(start.track!.style.transform).toBe("translate3d(200px, 0px, 0px)");
+    // Reading start = right: leading slide flush right → translate(300 − 100).
+    expect(start.track!.style.transform).toBe("translate(200px, 0px)");
 
     const end = renderInfinite({ snapAlign: "end" });
-    // Reading end = left: leading slide flush left → translate3d(0).
-    expect(end.track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+    // Reading end = left: leading slide flush left → translate(0).
+    expect(end.track!.style.transform).toBe("translate(0px, 0px)");
   });
 
   it("aligns against the track's own box, not the padded viewport (peek)", () => {
@@ -496,7 +496,7 @@ describe("Carousel infinite — transform engine", () => {
     const { track } = renderInfinite({ snapAlign: "center" });
     // align = (track 100 − slide 100) / 2 = 0 → no shift. (Measuring the padded
     // viewport 140 would read +20 and push the slide out of centre.)
-    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(0px, 0px)");
   });
 
   it("does nothing when there are too few slides to loop", () => {
@@ -531,9 +531,9 @@ describe("Carousel infinite — drag + fling", () => {
     pointer(viewport, "pointerdown", { client: 200, time: 0 });
     pointer(viewport, "pointermove", { client: 140, time: 100 });
 
-    // offset = startOffset(0) − (140 − 200) = 60 → track translate3d(align − 60).
+    // offset = startOffset(0) − (140 − 200) = 60 → track translate(align − 60).
     // Dragging paints instantly (no transition) so the track tracks the finger.
-    expect(track!.style.transform).toBe("translate3d(-60px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(-60px, 0px)");
     expect(track!.style.transition).toBe("none");
   });
 
@@ -548,7 +548,7 @@ describe("Carousel infinite — drag + fling", () => {
     pointer(viewport, "pointerup", { client: 180, time: 220 });
 
     // offset 20, velocity 0 → snap to the nearest stride (0). Back home, animated.
-    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(0px, 0px)");
     expect(track!.style.transition).toContain("transform");
   });
 
@@ -562,7 +562,7 @@ describe("Carousel infinite — drag + fling", () => {
     pointer(viewport, "pointerup", { client: 140, time: 220 });
 
     // offset 60, velocity 0 → snaps forward to stride 100 (page 1).
-    expect(track!.style.transform).toBe("translate3d(-100px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(-100px, 0px)");
   });
 
   it("flings forward when a quick flick carries the projected distance past half a stride", () => {
@@ -578,7 +578,7 @@ describe("Carousel infinite — drag + fling", () => {
     pointer(viewport, "pointerup", { client: 170, time: 1050 });
 
     // flingTarget(30, 0.6, 120, 100) = snap(30 + 72) = 100 → the flick advances.
-    expect(track!.style.transform).toBe("translate3d(-100px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(-100px, 0px)");
   });
 
   it("treats a press that never crosses the threshold as a tap (no move, no glide)", () => {
@@ -590,7 +590,7 @@ describe("Carousel infinite — drag + fling", () => {
     pointer(viewport, "pointerup", { client: 202, time: 60 });
 
     // Never became a drag: the track stays put and no fling runs.
-    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(0px, 0px)");
   });
 
   it("ignores mouse drags unless allowMouseDrag is set", () => {
@@ -602,7 +602,7 @@ describe("Carousel infinite — drag + fling", () => {
     pointer(viewport, "pointerup", { client: 120, time: 120, pointerType: "mouse" });
 
     // pointerdown bailed on the mouse gate, so no drag state was ever created.
-    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(0px, 0px)");
   });
 
   it("drags with the mouse when allowMouseDrag is set", () => {
@@ -612,7 +612,7 @@ describe("Carousel infinite — drag + fling", () => {
     pointer(viewport, "pointerdown", { client: 200, time: 0, pointerType: "mouse" });
     pointer(viewport, "pointermove", { client: 140, time: 100, pointerType: "mouse" });
 
-    expect(track!.style.transform).toBe("translate3d(-60px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(-60px, 0px)");
   });
 
   it("drags along the block axis for a vertical loop", () => {
@@ -623,7 +623,7 @@ describe("Carousel infinite — drag + fling", () => {
     pointer(viewport, "pointermove", { client: 140, time: 100 });
 
     // Vertical reads clientY (the helper sets both), so the block axis moves.
-    expect(track!.style.transform).toBe("translate3d(0px, -60px, 0px)");
+    expect(track!.style.transform).toBe("translate(0px, -60px)");
   });
 
   it("skips the velocity update when two moves share a timestamp", () => {
@@ -636,7 +636,7 @@ describe("Carousel infinite — drag + fling", () => {
     pointer(viewport, "pointermove", { client: 100, time: 100 });
 
     // The move still repositions (offset 100) even though velocity wasn't updated.
-    expect(track!.style.transform).toBe("translate3d(-100px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(-100px, 0px)");
   });
 
   it("ignores pointer events from a second, different pointer", () => {
@@ -650,7 +650,7 @@ describe("Carousel infinite — drag + fling", () => {
     // The original pointer still drives it.
     pointer(viewport, "pointermove", { client: 140, time: 100, id: 1 });
 
-    expect(track!.style.transform).toBe("translate3d(-60px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(-60px, 0px)");
   });
 
   it("ignores a move with no active drag", () => {
@@ -660,7 +660,7 @@ describe("Carousel infinite — drag + fling", () => {
     // A move with no preceding pointerdown is a no-op (nothing to steer).
     pointer(viewport, "pointermove", { client: 140, time: 100 });
 
-    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(0px, 0px)");
   });
 
   it("does not start a drag when there is nothing to loop", () => {
@@ -696,7 +696,7 @@ describe("Carousel infinite — drag + fling", () => {
 
     // Page-snap → offset 200 (page 1 lead), a single glide. Slide-snap would land
     // on offset 100 then bounce back to 0.
-    expect(track!.style.transform).toBe("translate3d(-200px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(-200px, 0px)");
   });
 
   it("ends a drag cleanly on pointercancel", () => {
@@ -709,6 +709,6 @@ describe("Carousel infinite — drag + fling", () => {
     // Cancel resolves the fling the same way a release does.
     pointer(viewport, "pointercancel", { client: 140, time: 220 });
 
-    expect(track!.style.transform).toBe("translate3d(-100px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate(-100px, 0px)");
   });
 });

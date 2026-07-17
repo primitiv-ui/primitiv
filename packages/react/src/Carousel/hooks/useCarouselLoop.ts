@@ -176,11 +176,16 @@ export function useCarouselLoop() {
         ? `transform ${GLIDE_DURATION_MS}ms ${GLIDE_EASE}`
         : "none";
       // Place real slide 0 (at layout position basePos) at `align`, then carry the
-      // offset. dir mirrors the offset under RTL; the block axis never mirrors.
+      // offset. dir mirrors the offset under RTL; the block axis never mirrors. A 2D
+      // translate (not translate3d) so the wide clone strip isn't force-promoted to
+      // one permanent GPU layer — iOS rasterises such a layer in tiles on demand,
+      // blanking slides at rest until they fill in. The browser still composites the
+      // transition on the GPU; at rest it rasterises the visible region like native
+      // scroll (no per-slide layer to flash, since the strip never moves internally).
       const trackShift = g.align - g.basePos - g.dir * offset;
       g.track.style.transform = vertical
-        ? `translate3d(0px, ${trackShift}px, 0px)`
-        : `translate3d(${trackShift}px, 0px, 0px)`;
+        ? `translate(0px, ${trackShift}px)`
+        : `translate(${trackShift}px, 0px)`;
     },
     [vertical],
   );

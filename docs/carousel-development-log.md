@@ -4336,3 +4336,19 @@ Three device-reported issues after the clone-strip landing:
    would explain it and #1 fixes that; if a true white *flash* persists it points
    at iOS rendering of the clones (display:contents / rasterisation), which the
    sandbox can't reproduce — next investigation if it survives device QA.
+
+### 2026-07-17 (cont.) — Blank-at-rest on iOS: drop the forced single GPU layer
+
+Device QA (with the human's diagnostic answers: cut-off/blank **at rest**, and it
+**fills in by itself** after a moment) pinned the remaining flash to iOS tile
+rasterisation of a **large, force-promoted compositor layer**. The clone strip is
+several viewports wide; `translate3d` + `backface-visibility: hidden` pinned the
+whole thing onto one permanent GPU layer, which iOS rasterises in tiles on demand —
+so a re-base that exposes fresh tiles left slides briefly blank at rest until they
+filled in (worst on the wide 2-up/4-up tracks). Fix: **stop force-promoting the
+track** — 2D `translate` (not `translate3d`) and drop `backface-visibility`. The
+browser still GPU-composites the *transition*; at rest it rasterises only the
+visible region, like native scroll. This is safe now precisely because the clone
+strip has **no per-slide transforms** to flash (the reason the single layer was
+introduced for the old wrapShift engine no longer applies). Engine 100%, 401
+Carousel tests green, drift guard green, tsc clean. **Device QA pending.**

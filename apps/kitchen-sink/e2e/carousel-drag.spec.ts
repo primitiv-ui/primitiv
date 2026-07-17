@@ -105,6 +105,10 @@ async function dragViewport(
   { dx, steps, delay }: { dx: number; steps: number; delay: number },
 ): Promise<void> {
   const vp = c.locator(".primitiv-carousel__viewport");
+  // Raw page.mouse input (unlike .click()) does NOT auto-scroll its target into
+  // view, and the loop cells sit well below the fold — scroll first, or the press
+  // lands on empty space above the carousel and nothing drags.
+  await vp.scrollIntoViewIfNeeded();
   const box = (await vp.boundingBox())!;
   const startX = box.x + box.width / 2;
   const y = box.y + box.height / 2;

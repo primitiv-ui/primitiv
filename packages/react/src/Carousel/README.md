@@ -783,10 +783,16 @@ rewind, the same path `Home` takes), while `"infinite"` glides one step on
 with no rewind.
 
 Under `loop="infinite"` the Viewport is **not** a scroll container. It clips
-a **JS transform track** (`data-carousel-track`): the engine translates the
-track and shifts each slide's copy by a whole track-length so copies fill the
-seam — seamless in both directions with **no clones** and no native scroll-snap
-to fight (RFC 0018). A page change (Prev / Next, keyboard, indicator, `goTo`,
+a **JS transform track** (`data-carousel-track`) laid out as one contiguous,
+periodic strip: the real slides are flanked by a full period of `aria-hidden`,
+`inert` **clones** each side (`[clones] [real slides] [clones]`), so every seam
+is already-painted DOM. Navigation only ever translates the **whole track** — no
+slide moves relative to it — and when a glide carries past the last real slide
+onto a clone, the settle **re-bases** the track by exactly one period so the
+identical real slide sits at the same pixels. Because the strip is periodic, the
+re-base reveals nothing unrasterised and moves nothing (RFC 0018, clone-strip
+revision), which is what structurally removes the iOS seam flash a per-slide fill
+could never avoid. A page change (Prev / Next, keyboard, indicator, `goTo`,
 autoplay) glides the track the **short way** to that page via a GPU-composited
 CSS `transform` transition, wrapping across the ends with no rewind; the first
 positioning is instant (no glide on load). `prefers-reduced-motion` sets the
@@ -813,17 +819,18 @@ cleanly; the inter-slide gap returns between the on-screen pair (single-slide
 stays gapless so the gap never flashes through the viewport mid-glide). The gap
 is scoped by the `data-slides-per-page` hook the engine sets on the track.
 
-Every slide paints into the **track's single compositor layer** (the seam copy
-uses a 2D translate, and slides are never individually promoted): an off-screen
-per-slide layer is what iOS Safari leaves unrasterised, flashing the entering
-slide white for one frame. One rasterised track bitmap keeps the incoming slide
-painted before it enters.
+Every slide (real and clone) paints into the **track's single compositor layer**
+— slides are never individually transformed or promoted. An off-screen per-slide
+layer, or a slide moved discontinuously, is what iOS Safari leaves unrasterised,
+flashing white for a frame; a static, contiguous strip that only ever slides as a
+unit is content iOS pre-rasterises like any smooth scroll.
 
-This is what replaced the earlier native-scroll-snap + clone-buffer approach,
-which couldn't loop reliably on iOS Safari (the button rewind and fast-flick
-stall): driving the position in JS removes the native-snap dependency those
-bugs came from, and the momentum feel is tunable in JS rather than at the OS's
-mercy.
+This is the same transform + clone approach Embla and Swiper use. It replaced two
+earlier attempts that each flashed on iOS: a native-scroll-snap **clone buffer**
+(the native snap fought the teleport) and a clone-free per-slide `wrapShift` fill
+(individual slides teleported, which iOS can't pre-rasterise). Keeping the clones
+but driving them purely in JS — no native snap, no per-slide moves — removes both
+failure modes at once.
 
 > The track geometry is browser-only (jsdom reports no layout), so it ships
 > unit-tested with mocked geometry, and real-browser tested in Playwright.

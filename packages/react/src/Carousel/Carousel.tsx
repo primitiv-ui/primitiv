@@ -275,11 +275,13 @@ export function CarouselViewport({
     onClickCapture,
   } = useCarouselViewport();
   // Infinite loop swaps the native scroll-snap viewport for a JS transform track
-  // (RFC 0018): the engine translates the track and wraps each slide so copies
-  // fill the seam — seamless both ways with no clones and no native snap to
-  // fight (the thing that broke on iOS). Every other mode renders the slides
-  // straight into the scroll viewport as before.
-  const { trackRef, isInfinite, dragHandlers } = useCarouselLoop();
+  // (RFC 0018, clone-strip revision): the engine translates one contiguous track
+  // whose real slides are flanked by a full period of aria-hidden clones, so every
+  // seam is already-painted DOM and a settle-time re-base is invisible (no per-slide
+  // shifts, no native snap to fight — the two things that flashed on iOS). Every
+  // other mode renders the slides straight into the scroll viewport as before.
+  const { trackRef, headCloneRef, tailCloneRef, isInfinite, dragHandlers } =
+    useCarouselLoop();
   // Infinite is transform-driven, so its own pointer engine (drag → fling) owns
   // the pointer events; the scroll-snap modes keep useCarouselViewport's
   // mouse-drag handlers.
@@ -313,7 +315,22 @@ export function CarouselViewport({
           data-slides-per-page={slidesPerPage}
           ref={trackRef}
         >
+          {/* Clone buffers (a full period each side) — the engine fills these
+              display:contents holders with aria-hidden copies so the strip is
+              periodic and every seam is contiguous painted DOM. */}
+          <div
+            data-carousel-clones="head"
+            aria-hidden="true"
+            style={{ display: "contents" }}
+            ref={headCloneRef}
+          />
           {children}
+          <div
+            data-carousel-clones="tail"
+            aria-hidden="true"
+            style={{ display: "contents" }}
+            ref={tailCloneRef}
+          />
         </div>
       ) : (
         children

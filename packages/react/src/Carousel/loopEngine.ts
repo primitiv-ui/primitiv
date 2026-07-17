@@ -1,9 +1,9 @@
 // Pure positioning math for the infinite-loop transform engine (RFC 0018). No
 // DOM, no React — the interaction layer composes these to drive a translated
-// track: which way to wrap a page step, where a drag/fling settles, and how to
-// keep the continuous offset bounded so slides can reposition seamlessly at the
-// seam. Kept pure so the tricky logic is exhaustively unit-testable without a
-// browser (the thing that made the scroll-snap version un-iterable).
+// track: which way to step to a page the short way, where a drag/fling settles,
+// and how to bound the continuous offset into one period so the clone strip
+// re-bases seamlessly at the seam. Kept pure so the tricky logic is exhaustively
+// unit-testable without a browser (what made the scroll-snap version un-iterable).
 
 /**
  * Signed number of steps from slide `from` to slide `to` around a ring of
@@ -50,23 +50,5 @@ export function flingTarget(
 export function normalizeOffset(offset: number, trackLength: number): number {
   if (trackLength <= 0) return 0;
   return ((offset % trackLength) + trackLength) % trackLength;
-}
-
-/**
- * The whole-`trackLength` nudge that moves a slide's **nearest copy** into view
- * for a seamless loop — the clone-free fill. A slide's flex position is
- * `baseLeft` and the track is translated by `-p`, so its raw on-screen position
- * is `baseLeft - p`; this returns the multiple of `trackLength` to add so that
- * position lands in `[-trackLength/2, trackLength/2)` (the copy nearest the
- * current view). Non-positive `trackLength` degrades to 0.
- */
-export function wrapShift(
-  baseLeft: number,
-  p: number,
-  trackLength: number,
-): number {
-  if (trackLength <= 0) return 0;
-  // `+ 0` normalises the `-0` that `-Math.round(0) * n` produces to `+0`.
-  return -Math.round((baseLeft - p) / trackLength) * trackLength + 0;
 }
 

@@ -1,6 +1,6 @@
 import { PointerEvent, useCallback, useEffect, useRef } from "react";
 
-import { flingTarget, shortestStep, wrapShift } from "../loopEngine.ts";
+import { flingTarget, normalizeOffset, shortestStep } from "../loopEngine.ts";
 import { useCarouselContext } from "./useCarouselContext";
 
 // The programmatic glide (button / keyboard / indicator / autoplay) is a CSS
@@ -12,7 +12,7 @@ const GLIDE_EASE = "cubic-bezier(0.33, 1, 0.68, 1)";
 // a tap still reaches a link/button inside a slide.
 const DRAG_THRESHOLD_PX = 3;
 // How far a fling carries past the release point: released velocity (px/ms) ×
-// this (ms) is the projected distance, then snapped to the nearest slide. Larger
+// this (ms) is the projected distance, then snapped to a page boundary. Larger
 // = a flick travels further. Tuned for feel on device.
 const FLING_DECEL_MS = 120;
 
@@ -22,49 +22,54 @@ type Geometry = {
   slides: HTMLDivElement[];
   count: number;
   stride: number;
+  // One period: the length of the real-slide run. The clone buffers are a full
+  // period each side, so the strip is periodic with this length and a re-base by
+  // it shows pixel-identical content.
   trackLength: number;
-  // The visible page's logical span (leading edge → trailing slide's far edge).
-  // The wrap window centres on the swept band's midpoint plus pageSpan/2 (see
-  // paint), so a multi-slide page's trailing slide stays clear of the
-  // ±trackLength/2 seam antipode and isn't teleported mid-glide.
-  pageSpan: number;
+  // The measured layout position of the first REAL slide (past the leading clone
+  // buffer). Subtracting it places real slide 0 at `align`, so the constant
+  // buffer offset — and RTL, where the buffer sits on the other side — are handled
+  // by measurement rather than a hard-coded term.
+  basePos: number;
   align: number;
   // +1 for a left-to-right / top-to-bottom axis, −1 for RTL (where the flex row
-  // reverses and slide positions run backwards). Every inline translate, seam
-  // shift and drag delta is multiplied by it, so the logical engine stays
-  // direction-agnostic and only the physical paint mirrors.
+  // reverses and slide positions run backwards). The offset and drag delta are
+  // multiplied by it, so the logical engine stays direction-agnostic and only the
+  // physical paint mirrors.
   dir: number;
 };
 
 /**
- * The infinite-loop transform engine (RFC 0018). Active only for
- * `loop="infinite"` (+ `transition="slide"`); every other mode keeps the
- * native-scroll-snap {@link useCarouselViewport}. Instead of a scroll container
- * with a clone buffer, it drives a `translate`d **track** and gives each slide a
- * `wrapShift` so copies fill the seam — seamless in both directions with no
- * native snap to fight (the thing that broke on iOS).
+ * The infinite-loop transform engine (RFC 0018, clone-strip revision). Active
+ * only for `loop="infinite"` (+ `transition="slide"`); every other mode keeps the
+ * native-scroll-snap {@link useCarouselViewport}.
  *
- * **Programmatic** navigation — whenever `currentPage` changes (Prev/Next,
- * keyboard, indicator, `goTo`, autoplay) the track glides the **short way** to
- * that page via a GPU-composited CSS transition, wrapping across the ends with no
- * rewind. **Touch / mouse drag** — the track follows the pointer 1:1 (transition
- * off), and on release a velocity-projected fling snaps to the nearest **page**
- * boundary with the same glide, updating `currentPage` from where it lands. (For a
- * multi-slide page the snap is a whole page, so a fling can't settle mid-page and
- * get jerked to the page lead.)
+ * **Why clones.** The track is a static, contiguous strip —
+ * `[clones of every slide] [the real slides] [clones of every slide]` — laid out
+ * as one flex row on a single compositor layer. Navigation only ever translates
+ * the *whole track*; no slide ever moves relative to it. When a glide carries past
+ * the last real slide onto a clone, a settle-time **re-base** shifts the track by
+ * exactly one period so the identical real slide sits at the same pixels. Because
+ * the strip is periodic and every slide is already-painted DOM, the re-base
+ * reveals nothing unrasterised and nothing moves — structurally eliminating the
+ * iOS seam flash a per-slide `wrapShift` fill could never avoid (it moved slides
+ * discontinuously, which iOS can't pre-rasterise).
  *
- * Geometry is read from layout (`offsetLeft`/`offsetTop`), so it's
- * transform-independent and correct under the live per-slide shifts; it is only
- * meaningful in a real browser (jsdom reports zero), so the pixel behaviour is
- * exercised in Playwright while the control flow is unit-tested with mocked
- * geometry.
+ * **Programmatic** navigation glides the **short way** to the active page via a
+ * GPU-composited transition. **Touch / mouse drag** follows the pointer 1:1
+ * (transition off) and, on release, a velocity-projected fling snaps to the
+ * nearest **page** boundary. Drag paints at the normalized offset so it wraps
+ * within the one-period buffer no matter how far you drag.
+ *
+ * Geometry is read from layout (`offsetLeft`/`offsetTop`); it's only meaningful in
+ * a real browser (jsdom reports zero), so the pixel behaviour is exercised in
+ * Playwright while the control flow is unit-tested with mocked geometry.
  */
 export function useCarouselLoop() {
   const {
     slideKeys,
     slidesRef,
     currentPageOffset,
-    slidesPerPage,
     effectiveSlidesPerMove,
     orientation,
     transition,
@@ -80,8 +85,11 @@ export function useCarouselLoop() {
   const isInfinite = loop === "infinite" && transition === "slide";
   const vertical = orientation === "vertical";
   const trackRef = useRef<HTMLDivElement | null>(null);
-  // The scroll position in track space (px) — an `index * stride` boundary at
-  // rest; the CSS transition animates the track between boundaries.
+  const headCloneRef = useRef<HTMLDivElement | null>(null);
+  const tailCloneRef = useRef<HTMLDivElement | null>(null);
+  // The scroll position in real-slide space (px): 0 = real slide 0 at `align`.
+  // At rest it's a page boundary within [0, trackLength); a glide may carry it
+  // outside that range onto a clone, and the settle re-base brings it back.
   const offsetRef = useRef(0);
   // The first positioning is instant — a glide from slide 0 to the initial page
   // on mount would be a pointless animation on load.
@@ -101,16 +109,27 @@ export function useCarouselLoop() {
   const trackCallbackRef = useCallback((node: HTMLDivElement | null) => {
     trackRef.current = node;
   }, []);
+  const headCallbackRef = useCallback((node: HTMLDivElement | null) => {
+    headCloneRef.current = node;
+  }, []);
+  const tailCallbackRef = useCallback((node: HTMLDivElement | null) => {
+    tailCloneRef.current = node;
+  }, []);
+
+  const realSlides = useCallback(
+    () =>
+      slideKeys
+        .map((key) => slidesRef.current!.get(key))
+        .filter((el): el is HTMLDivElement => el != null),
+    [slideKeys, slidesRef],
+  );
 
   // Measure the track from live layout. Null when there's nothing to loop
   // (fewer than two slides) or the browser hasn't laid it out yet (jsdom
-  // reports a zero stride). `trackRef` is non-null here: this only runs from the
-  // effect below, which fires post-commit while `isInfinite` renders the track.
+  // reports a zero stride).
   const measure = useCallback((): Geometry | null => {
     const track = trackRef.current!;
-    const slides = slideKeys
-      .map((key) => slidesRef.current!.get(key))
-      .filter((el): el is HTMLDivElement => el != null);
+    const slides = realSlides();
     const count = slides.length;
     if (count < 2) return null;
     const pos = (el: HTMLElement) => (vertical ? el.offsetTop : el.offsetLeft);
@@ -124,22 +143,13 @@ export function useCarouselLoop() {
     const dir = rawStride < 0 ? -1 : 1;
     const stride = Math.abs(rawStride);
     const trackLength = stride * count;
-    // Align against the TRACK's own content box, not the viewport's clientWidth.
-    // Under peek / viewport padding the track is inset and narrowed, and the CSS
-    // already centres it in the viewport (symmetric padding); measuring the track
-    // keeps the padding out of the maths so it isn't double-counted.
+    const basePos = pos(slides[0]!);
     const trackSize = vertical ? track.clientHeight : track.clientWidth;
     const slideSize = size(slides[0]!);
-    // The active *page* spans slidesPerPage slides (+ the gaps between them):
-    // from the leading slide's edge to the last member's far edge. Centre/anchor
-    // the whole page, so a multi-slide page fills the track instead of one slide
-    // being centred with the rest overflowing.
-    const pageSpan = (slidesPerPage - 1) * stride + slideSize;
-    // Where `offset === index * stride` should place the active page, per its
-    // snap alignment: flush to the start, centred, or flush to the end. Under RTL
-    // (dir −1) the reading start is the RIGHT edge, so start/end swap — the engine
-    // ignores a slide's absolute position, so the align term is the only place the
-    // direction can be honoured. Centre is symmetric, so it's dir-agnostic.
+    // Where real slide 0 should rest, per its snap alignment. The active page can
+    // span several slides; `align` places the whole page. Under RTL (dir −1) the
+    // reading start is the RIGHT edge, so start/end swap; centre is symmetric.
+    const pageSpan = (effectiveSlidesPerMove - 1) * stride + slideSize;
     const edgeAlign =
       dir < 0
         ? snapAlign === "start"
@@ -154,82 +164,113 @@ export function useCarouselLoop() {
         : edgeAlign === "end"
           ? trackSize - pageSpan
           : 0;
-    return { track, slides, count, stride, trackLength, pageSpan, align, dir };
-  }, [slideKeys, slidesRef, vertical, snapAlign, slidesPerPage]);
+    return { track, slides, count, stride, trackLength, basePos, align, dir };
+  }, [realSlides, vertical, snapAlign, effectiveSlidesPerMove]);
 
-  // Position the track at `offset` against already-measured geometry. `animate`
-  // drives the move as a GPU-composited CSS transition on the track (the smooth
-  // glide); the per-slide wrap shifts are set instantly (never transitioned —
-  // they only ever change while a slide is off-screen at the seam, so a copy
-  // repositions invisibly). A 3D translate keeps the track on its own compositor
-  // layer.
+  // Translate the whole track to `offset`. `animate` runs it as a GPU-composited
+  // CSS transition (the smooth glide); otherwise it snaps. No per-slide transform
+  // — every slide (real and clone) rides the track's single bitmap.
   const paint = useCallback(
-    (offset: number, g: Geometry, animate: boolean, from: number = offset) => {
-      // The track is the one intentional compositor layer (translate3d + the
-      // sheet's backface-visibility): the glide animates its transform on the GPU.
+    (offset: number, g: Geometry, animate: boolean) => {
       g.track.style.transition = animate
         ? `transform ${GLIDE_DURATION_MS}ms ${GLIDE_EASE}`
         : "none";
-      // The physical inline translate mirrors under RTL (dir = −1); the block axis
-      // never mirrors, so vertical keeps dir = +1. The transform is relative to the
-      // track's natural (already peek-inset) layout position, so no inset term.
-      const trackShift = g.align - g.dir * offset;
+      // Place real slide 0 (at layout position basePos) at `align`, then carry the
+      // offset. dir mirrors the offset under RTL; the block axis never mirrors.
+      const trackShift = g.align - g.basePos - g.dir * offset;
       g.track.style.transform = vertical
         ? `translate3d(0px, ${trackShift}px, 0px)`
         : `translate3d(${trackShift}px, 0px, 0px)`;
-      // Centre the wrap window on the SWEPT band's midpoint — the midpoint of
-      // `from`→`offset`, plus half a page. Seam shifts are applied instantly (never
-      // transitioned), so during an animated glide a slide visible anywhere along
-      // the sweep must not have its copy flipped: it would teleport off-screen the
-      // moment the move starts. Centring on the swept band keeps every N-up page's
-      // slides clear of the ±trackLength/2 antipode across the whole move (centring
-      // on the target alone only covers narrow pages). For a drag or an instant
-      // jump `from === offset`, so this collapses to the page midpoint.
-      const windowCentre = (offset + from) / 2 + g.pageSpan / 2;
-      g.slides.forEach((slide, index) => {
-        // The seam shift is computed in logical (positive-stride) space, then
-        // mirrored to the physical axis by dir.
-        const shift =
-          g.dir * wrapShift(index * g.stride, windowCentre, g.trackLength);
-        // A slide is shifted only when it wraps to fill the seam, and with a *2D*
-        // translate so it paints INTO the track's layer rather than onto its own.
-        // An off-screen per-slide layer is exactly what iOS Safari leaves
-        // unrasterised — a white tile for the first frame it glides into view (the
-        // entering-slide flash). Interior slides carry no transform at all, so they
-        // ride the track's already-painted bitmap and are there before they enter.
-        slide.style.transform =
-          shift === 0
-            ? ""
-            : vertical
-              ? `translateY(${shift}px)`
-              : `translateX(${shift}px)`;
-      });
     },
     [vertical],
   );
 
-  // Move the track to `target` — animated unless this is an `instant` nav, the
-  // first positioning, or the user prefers reduced motion.
-  const glideTo = useCallback(
-    (target: number, instant: boolean, g: Geometry) => {
-      const reduce = !!window.matchMedia?.("(prefers-reduced-motion: reduce)")
-        ?.matches;
-      // The pre-glide position; the wrap window sweeps from here to `target`.
-      const from = offsetRef.current;
-      offsetRef.current = target;
-      const animate = !instant && !reduce;
-      // An instant jump has no sweep to cover, so centre on the target alone.
-      paint(target, g, animate, animate ? from : target);
+  // Bring `offsetRef` back into [0, trackLength) and repaint instantly. A period
+  // is a whole clone buffer, so the shown pixels are identical — invisible.
+  const rebase = useCallback(
+    (g: Geometry) => {
+      const normalized = normalizeOffset(offsetRef.current, g.trackLength);
+      if (normalized === offsetRef.current) return;
+      offsetRef.current = normalized;
+      paint(normalized, g, false);
     },
     [paint],
   );
 
+  // Move the track to `target` — animated unless this is an `instant` nav, the
+  // first positioning, or the user prefers reduced motion. An animated glide runs
+  // to the raw target (which may land on a clone) and re-bases on transitionend;
+  // an instant move re-bases up front so it never rests on a clone.
+  const glideTo = useCallback(
+    (target: number, instant: boolean, g: Geometry) => {
+      const reduce = !!window.matchMedia?.("(prefers-reduced-motion: reduce)")
+        ?.matches;
+      const animate = !instant && !reduce;
+      if (animate) {
+        offsetRef.current = target;
+        paint(target, g, true);
+      } else {
+        offsetRef.current = normalizeOffset(target, g.trackLength);
+        paint(offsetRef.current, g, false);
+      }
+    },
+    [paint],
+  );
+
+  // Rebuild the clone buffers whenever the slide set changes: a full period of
+  // aria-hidden, inert copies each side makes the strip periodic so every seam is
+  // contiguous already-painted DOM. Copies are presentational only — they carry no
+  // registration, index, or focusable state.
+  useEffect(() => {
+    if (!isInfinite) return;
+    // The holders render with the track in infinite mode, so they're mounted by
+    // the time this post-commit effect runs (same guarantee measure() relies on).
+    const head = headCloneRef.current!;
+    const tail = tailCloneRef.current!;
+    head.replaceChildren();
+    tail.replaceChildren();
+    const slides = realSlides();
+    if (slides.length < 2) return;
+    for (const holder of [head, tail]) {
+      for (const slide of slides) {
+        const clone = slide.cloneNode(true) as HTMLElement;
+        clone.setAttribute("aria-hidden", "true");
+        clone.setAttribute("inert", "");
+        clone.setAttribute("data-carousel-clone", "");
+        clone.removeAttribute("data-index");
+        clone.removeAttribute("data-state");
+        clone.style.transform = "";
+        // Strip every id in the copied subtree: a duplicate id is invalid HTML and
+        // would break `getElementById` / label associations against the real slide.
+        clone.removeAttribute("id");
+        for (const withId of clone.querySelectorAll("[id]"))
+          withId.removeAttribute("id");
+        holder.appendChild(clone);
+      }
+    }
+  }, [isInfinite, slideKeys, refreshTick, realSlides]);
+
+  // Re-base once a glide settles. jsdom runs no transitions, so this fires only in
+  // a real browser (tests dispatch a synthetic transitionend); it's idempotent, so
+  // an interrupted or spurious event is safe.
+  useEffect(() => {
+    if (!isInfinite) return;
+    // Mounted with the track in infinite mode (as measure() assumes).
+    const track = trackRef.current!;
+    const onEnd = (event: TransitionEvent) => {
+      if (event.propertyName !== "transform") return;
+      const g = measure();
+      if (g) rebase(g);
+    };
+    track.addEventListener("transitionend", onEnd);
+    return () => track.removeEventListener("transitionend", onEnd);
+  }, [isInfinite, measure, rebase]);
+
   // Drive the track to the active page whenever it changes — the short way, so a
-  // wrap glides one step instead of rewinding. Targets the page's **leading slide
-  // index** (`currentPageOffset`), not the page number: for multi-slide they
-  // differ (page 1 of a 2-up leads at slide 2), so a page move glides a whole page
-  // of strides. `refreshTick`/`slideKeys` re-runs re-home the track after a layout
-  // or slide-set change (a no-op glide when the page is unchanged).
+  // wrap glides one step onto the adjacent (clone) slide. Targets the page's
+  // **leading slide index** (`currentPageOffset`): for multi-slide a page move
+  // glides a whole page of strides. `refreshTick`/`slideKeys` re-home the track
+  // after a layout or slide-set change.
   useEffect(() => {
     if (!isInfinite) return;
     const g = measure();
@@ -260,8 +301,7 @@ export function useCarouselLoop() {
 
   // Start a drag (these handlers are only wired for infinite — see dragHandlers).
   // Touch drag is always on (there's no native scroll to fall back to); mouse
-  // drag stays opt-in via allowMouseDrag, like the scroll modes. Bails when
-  // there's nothing to loop.
+  // drag stays opt-in via allowMouseDrag. Bails when there's nothing to loop.
   const onPointerDown = useCallback(
     (event: PointerEvent<HTMLDivElement>) => {
       if (event.pointerType === "mouse" && !allowMouseDrag) return;
@@ -282,37 +322,39 @@ export function useCarouselLoop() {
     [allowMouseDrag, measure, axisClient],
   );
 
-  // Follow the pointer 1:1 (offset moves opposite the finger) with the transition
-  // off, tracking velocity for the release fling. Crossing the threshold captures
-  // the pointer so the gesture survives leaving the element, and marks it a drag
-  // so the synthesised click is suppressed.
+  // Follow the pointer 1:1 (offset moves opposite the finger), tracking velocity
+  // for the release fling. The painted offset is normalized so the track wraps
+  // within the one-period buffer however far the drag runs — invisibly, since a
+  // period shows identical content. Crossing the threshold captures the pointer
+  // and marks it a drag so the synthesised click is suppressed.
   const onPointerMove = useCallback(
     (event: PointerEvent<HTMLDivElement>) => {
       const drag = dragRef.current;
       if (!drag || event.pointerId !== drag.pointerId) return;
       const client = axisClient(event);
-      const dir = drag.geometry.dir;
+      const g = drag.geometry;
       const elapsed = event.timeStamp - drag.lastTime;
       if (elapsed > 0) {
-        // Logical-offset velocity: the physical finger delta mirrored by dir, so a
-        // fling projects the right way under RTL.
-        drag.velocity = (-dir * (client - drag.lastClient)) / elapsed;
+        drag.velocity = (-g.dir * (client - drag.lastClient)) / elapsed;
       }
       drag.lastClient = client;
       drag.lastTime = event.timeStamp;
-      if (!drag.dragging && Math.abs(client - drag.startClient) > DRAG_THRESHOLD_PX) {
+      if (
+        !drag.dragging &&
+        Math.abs(client - drag.startClient) > DRAG_THRESHOLD_PX
+      ) {
         drag.dragging = true;
         event.currentTarget.setPointerCapture?.(drag.pointerId);
       }
       if (!drag.dragging) return;
-      // Offset follows the finger 1:1 in logical space (physical delta × dir).
-      offsetRef.current = drag.startOffset - dir * (client - drag.startClient);
-      paint(offsetRef.current, drag.geometry, false);
+      const raw = drag.startOffset - g.dir * (client - drag.startClient);
+      offsetRef.current = normalizeOffset(raw, g.trackLength);
+      paint(offsetRef.current, g, false);
     },
     [axisClient, paint],
   );
 
-  // Release: project the fling to a resting offset, glide there, and sync the
+  // Release: project the fling to a page boundary, glide there, and sync the
   // active page to where it lands (which the page effect then sees as a no-op).
   const onPointerUp = useCallback(
     (event: PointerEvent<HTMLDivElement>) => {
@@ -321,11 +363,8 @@ export function useCarouselLoop() {
       dragRef.current = null;
       if (!drag.dragging) return;
       const g = drag.geometry;
-      // Snap to PAGE boundaries, not slide boundaries: a page advances
-      // `effectiveSlidesPerMove` slides, so its stride is that many. For a
-      // single-slide page this is just `g.stride`. Snapping to the slide instead
-      // lets a multi-slide fling settle mid-page, then the page effect jerks it to
-      // the page lead — the two-step this avoids.
+      // Snap to PAGE boundaries: a page advances `effectiveSlidesPerMove` slides.
+      // For a single-slide page this is just `g.stride`.
       const pageStride = g.stride * effectiveSlidesPerMove;
       const target = flingTarget(
         offsetRef.current,
@@ -350,5 +389,11 @@ export function useCarouselLoop() {
       }
     : null;
 
-  return { trackRef: trackCallbackRef, isInfinite, dragHandlers };
+  return {
+    trackRef: trackCallbackRef,
+    headCloneRef: headCallbackRef,
+    tailCloneRef: tailCallbackRef,
+    isInfinite,
+    dragHandlers,
+  };
 }

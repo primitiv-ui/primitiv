@@ -1,9 +1,16 @@
 # RFC 0018 — Infinite carousel loop via a JS transform engine
 
-> **Status:** Landed. Single-slide engine + drag/fling, then RTL, peek and
-> multi-slide under the engine (rollout steps 1–7, incl. the follow-up); iOS
-> entering-slide flash fixed by painting slides into the track's single layer.
-> Real-device QA on iOS Safari is the remaining verification.
+> **Status:** Landed, **clone-strip revision (2026-07-17).** The original §3 "no
+> clones" per-slide `wrapShift` fill still flashed on iOS at the seam (device QA of
+> plain single-slide cell 7): moving individual slides discontinuously is exactly
+> what iOS Safari can't pre-rasterise. Revised — and human-approved — to the
+> transform + **contiguous clone strip** model (as Embla/Swiper): `[a period of
+> clones] [real slides] [a period of clones]`, translate the **whole track** only,
+> and re-base by one period on settle (pixel-identical → invisible). This keeps the
+> JS-transform decision (no native snap) but reverses "no clones"; it structurally
+> removes the seam flash rather than mitigating it. `wrapShift` is deleted. See the
+> 2026-07-17 `docs/carousel-development-log.md` entry. Real-device QA on iOS Safari
+> is the remaining verification.
 > **Author:** simonrevill, with architectural review
 > **Date:** 2026-07-16
 > **Seeds from:** the carousel loop-variant session — three iOS-specific fixes to

@@ -4271,3 +4271,48 @@ down to the 2-page minimum. Regression-tested at 2-up and 4-up; provably a no-op
 for a single slide (a half-slide nudge that flips no on-screen copy — all existing
 single-slide seam assertions unchanged). Engine stays 100% (81 branches);
 **needs device re-QA on cell 12 (and ideally a 3-/4-up cell).**
+
+## 2026-07-17 — Infinite engine re-architected: contiguous clone strip (kills the iOS seam flash)
+
+Device QA kept surfacing "flashing / partially painted slides" at the seam — on
+cell 12 (2-up), cell 13 (linked single-slide) and, decisively, **cell 7** (plain
+single-slide, no link). Root cause is structural, not a bug: the `wrapShift` fill
+moved *individual slides* discontinuously (a seam copy teleports one period,
+applied instantly), and iOS Safari rasterises a compositor layer lazily and only
+near the viewport — so a slide jumping to a new position, or a track region
+scrolled in from off-screen, shows half-painted for a frame. No amount of window
+re-centring fixes that; the discontinuity is the cause.
+
+**Re-architected to the transform + clone-strip model (Embla/Swiper), human-
+approved.** The track is now a static, periodic strip: `[a full period of clones]
+[the real slides] [a full period of clones]`, clones `aria-hidden` + `inert` with
+their `id`s (and descendant ids) stripped. Navigation only ever translates the
+**whole track**; **no slide is ever individually transformed**. A glide that
+carries onto a clone re-bases by exactly one period on `transitionend` — pixel-
+identical content, so nothing re-rasterises and nothing moves (the flash cannot
+occur). Drag paints at the *normalized* offset, so it wraps within the one-period
+buffer however far it runs. `basePos` (measured first-real-slide position) makes
+the constant buffer offset and RTL fall out of measurement.
+
+- **Rendering:** two `display:contents` holder divs in the track
+  (`data-carousel-clones`), filled imperatively by the hook via `cloneNode` (the
+  slide registration / index model is untouched — clones are raw DOM, never
+  registered). `Carousel.tsx` adds the holders; `useCarouselLoop` owns them.
+- **Removed** `wrapShift` (and its unit tests) — dead under the new fill. Kept
+  `shortestStep` (short-way direction), `flingTarget` (page-snap), `normalizeOffset`
+  (the re-base).
+- **Tests:** infinite suite rewritten to the new model (clone DOM present +
+  aria-hidden/inert/id-stripped; whole-track transform, no per-slide transform;
+  re-base on a synthetic `transitionend`; the guards). `useCarouselLoop` +
+  `loopEngine` at 100% (lines/branches/functions/statements); 400 Carousel unit
+  tests green; `tsc` clean. The two e2e specs updated to detect
+  `data-carousel-clone` (was the never-present `data-clone-of`), so the real-
+  browser "settles on a real slide, never a clone" check now actually bites.
+- **No CSS change needed** — clones are `.primitiv-carousel__slide` flex items via
+  `display:contents`; `inert` makes them non-interactive.
+
+**Ceiling:** the flash being *gone* is a device call (no browser/iOS in the
+sandbox; jsdom does no layout). The unit tests pin the strip structure + re-base
+math; confidence that it's the right fix comes from removing the discontinuity
+that mechanically caused the flash, not from hiding it. **Needs device QA on cells
+7 / 12 / 13 / 14.**

@@ -2,14 +2,14 @@ import { test, expect, type Locator, type Page } from "@playwright/test";
 
 // Real-browser coverage for the Carousel `loop="infinite"` surface (kitchen-sink
 // cell 7 = single-slide, 4 real slides). These assert what jsdom can't: that a
-// wrap actually *settles on a real slide* with real scroll-snap geometry, rather
-// than stranding the viewport on a clone in the edge buffer. Run under `webkit`
-// / `mobile-safari` too (where installable) to catch the iOS-only snap quirks a
-// plain Chromium hides.
+// wrap actually *settles on a real slide* with real layout geometry, rather than
+// resting the viewport on a clone-strip copy. Run under `webkit` / `mobile-safari`
+// too (where installable) to catch the iOS-only rendering quirks a plain Chromium
+// hides.
 //
-// The wrap is async (teleport → smooth glide → scrollend → recentre), so every
-// settle assertion *polls* via expect().toPass() rather than sleeping a guessed
-// duration — a fixed wait flakes across engines and under CI load.
+// The wrap is async (glide → settle → re-base by one period onto the real slide),
+// so every settle assertion *polls* via expect().toPass() rather than sleeping a
+// guessed duration — a fixed wait flakes across engines and under CI load.
 
 /** The cell 7 carousel root ("Infinite — continuous glide"). */
 function infiniteCell(page: Page): Locator {
@@ -43,10 +43,12 @@ async function centeredSlide(
         best = slide;
       }
     }
-    const cloneOf = best?.getAttribute("data-clone-of");
+    // A clone-strip copy is tagged data-carousel-clone (its data-index stripped);
+    // a correct loop always re-bases so a REAL slide rests under the centre.
+    const isClone = best?.hasAttribute("data-carousel-clone") ?? false;
     return {
-      realIndex: Number(cloneOf ?? best?.getAttribute("data-index")),
-      isClone: cloneOf !== null && cloneOf !== undefined,
+      realIndex: Number(best?.getAttribute("data-index")),
+      isClone,
     };
   });
 }
@@ -54,7 +56,7 @@ async function centeredSlide(
 /** The zero-based index of the active REAL slide (React's currentPage). */
 async function activeRealIndex(cell: Locator): Promise<number> {
   const active = cell.locator(
-    '[data-carousel-slide][data-state="active"]:not([data-clone-of])',
+    '[data-carousel-slide][data-state="active"]:not([data-carousel-clone])',
   );
   return Number(await active.getAttribute("data-index"));
 }
@@ -62,8 +64,8 @@ async function activeRealIndex(cell: Locator): Promise<number> {
 /**
  * Wait until the loop has *settled* on real slide `index`: the active page
  * tracks it AND the viewport centre rests on the real slide, never a clone.
- * Polls because the wrap is a teleport → smooth glide → scrollend → recentre
- * chain whose duration varies by engine and CI load.
+ * Polls because the wrap is a glide → settle → re-base chain whose duration
+ * varies by engine and CI load.
  */
 async function expectSettledOn(cell: Locator, index: number): Promise<void> {
   await expect(async () => {

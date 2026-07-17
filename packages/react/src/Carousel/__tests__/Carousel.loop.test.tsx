@@ -70,8 +70,9 @@ describe("Carousel loop (semantic wrap)", () => {
 
     // Wrap and infinite share the same page model — Next on the last page sets
     // the active page back to the first (the transform engine only changes how
-    // that page is presented, not the page state).
-    const slide0 = container.querySelector('[data-testid="slide-0"]');
+    // that page is presented, not the page state). Scope to the REAL slide (the
+    // clone strip copies data-testid but strips data-index).
+    const slide0 = container.querySelector('[data-testid="slide-0"][data-index]');
     expect(slide0).toHaveAttribute("data-state", "active");
   });
 

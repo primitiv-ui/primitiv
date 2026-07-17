@@ -29,7 +29,7 @@ const linkedCell = (page: Page) => cell(page, "Infinite + linked slides");
 /** The zero-based index of the active REAL slide (React's currentPage). */
 async function activeRealIndex(c: Locator): Promise<number> {
   const active = c.locator(
-    '[data-carousel-slide][data-state="active"]:not([data-clone-of])',
+    '[data-carousel-slide][data-state="active"]:not([data-carousel-clone])',
   );
   return Number(await active.getAttribute("data-index"));
 }
@@ -59,10 +59,12 @@ async function centeredSlide(
         best = slide;
       }
     }
-    const cloneOf = best?.getAttribute("data-clone-of");
+    // A clone-strip copy is tagged data-carousel-clone (its data-index stripped);
+    // a correct loop re-bases so a REAL slide rests under the centre at settle.
+    const isClone = best?.hasAttribute("data-carousel-clone") ?? false;
     return {
-      realIndex: Number(cloneOf ?? best?.getAttribute("data-index")),
-      isClone: cloneOf !== null && cloneOf !== undefined,
+      realIndex: Number(best?.getAttribute("data-index")),
+      isClone,
       offset: bestDistance,
     };
   });

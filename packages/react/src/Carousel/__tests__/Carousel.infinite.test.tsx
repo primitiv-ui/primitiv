@@ -31,6 +31,19 @@ function pointer(
   });
 }
 
+/**
+ * Fire the track's `transitionend` (jsdom runs no transitions, so the glide
+ * settle that triggers the re-base is simulated). Carries `propertyName:
+ * "transform"` — the engine ignores any other property.
+ */
+function fireEnd(track: Element, propertyName = "transform") {
+  const event = new Event("transitionend", { bubbles: true });
+  Object.assign(event, { propertyName });
+  act(() => {
+    fireEvent(track, event);
+  });
+}
+
 // The infinite transform engine (RFC 0018 / useCarouselLoop). Real geometry is
 // browser-only (jsdom lays nothing out), so these mock the layout the engine
 // reads (offsetLeft/Top, offsetWidth/Height, clientWidth/Height) and assert the
@@ -137,15 +150,31 @@ function renderInfinite(
 }
 
 describe("Carousel infinite — transform engine", () => {
-  it("wraps the slides in a track for infinite, and not for other modes", () => {
+  it("wraps the real slides in a track for infinite, and not for other modes", () => {
     const infinite = renderInfinite({ loop: "infinite" });
     expect(infinite.track).not.toBeNull();
+    // The real slides carry a data-index (the clones have it stripped).
     expect(
-      infinite.track!.querySelectorAll("[data-carousel-slide]"),
+      infinite.track!.querySelectorAll("[data-carousel-slide][data-index]"),
     ).toHaveLength(4);
 
     const wrap = renderInfinite({ loop: "wrap" });
     expect(wrap.track).toBeNull();
+  });
+
+  it("flanks the real slides with a full period of aria-hidden, inert clones", () => {
+    const { track } = renderInfinite({ count: 4 });
+    const head = track!.querySelector('[data-carousel-clones="head"]')!;
+    const tail = track!.querySelector('[data-carousel-clones="tail"]')!;
+    // One period each side → a periodic strip whose every seam is painted DOM.
+    expect(head.children).toHaveLength(4);
+    expect(tail.children).toHaveLength(4);
+    const clone = head.children[0] as HTMLElement;
+    expect(clone.getAttribute("aria-hidden")).toBe("true");
+    expect(clone.hasAttribute("inert")).toBe(true);
+    expect(clone.hasAttribute("data-carousel-clone")).toBe(true);
+    // A clone is presentational only — no index/state that would double-count.
+    expect(clone.hasAttribute("data-index")).toBe(false);
   });
 
   it("positions the track on the active page at rest, instantly (no glide on load)", () => {
@@ -168,40 +197,91 @@ describe("Carousel infinite — transform engine", () => {
     expect(track!.style.transition).toContain("transform");
   });
 
-  it("wraps the SHORT way from the last page to the first (no rewind)", async () => {
+  it("wraps the SHORT way from the last page to the first, then re-bases", async () => {
     const user = userEvent.setup();
-    // 4 slides, start on the last. slide 3 is one step *back* from slide 0, so it
-    // rests at offset −100 (translate3d(align − (−100)) = 100).
+    // 4 slides, start on the last. The re-base normalizes the mount to offset 300
+    // (real slide 3 at its own position) → translate3d(−300).
     const { track, getByRole } = renderInfinite({ defaultPage: 3 });
-    expect(track!.style.transform).toBe("translate3d(100px, 0px, 0px)");
+    expect(track!.style.transform).toBe("translate3d(-300px, 0px, 0px)");
 
     await user.click(getByRole("button", { name: "Next" }));
 
-    // 3 → 0 is +1 forward: offset −100 → 0, a single step onward (no rewind).
+    // 3 → 0 is +1 forward: offset 300 → 400 (onto the clone of slide 0), a single
+    // step onward, not a rewind. The glide animates to the clone…
+    expect(track!.style.transform).toBe("translate3d(-400px, 0px, 0px)");
+    expect(track!.style.transition).toContain("transform");
+
+    // …and once it settles the track re-bases by one period to the REAL slide 0
+    // at the identical pixels (offset 0), instantly and invisibly.
+    fireEnd(track!);
+    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+    expect(track!.style.transition).toBe("none");
+  });
+
+  it("never gives a real slide its own transform (all ride the track layer)", () => {
+    // The seam is filled by clones, not by shifting individual slides, so no real
+    // slide ever carries a transform — the whole strip paints into the track's one
+    // compositor layer (an off-screen per-slide layer is the iOS white-flash).
+    const { track } = renderInfinite({ defaultPage: 0 });
+    const realSlides = track!.querySelectorAll<HTMLElement>(
+      "[data-carousel-slide][data-index]",
+    );
+    expect(realSlides).toHaveLength(4);
+    for (const slide of realSlides) expect(slide.style.transform).toBe("");
+  });
+
+  it("strips ids from the cloned subtree so no id is duplicated", () => {
+    const { container } = render(
+      <Carousel.Root ariaLabel="Featured" loop="infinite">
+        <Carousel.Viewport>
+          <Carousel.Slide>
+            <span id="deep-link">link</span>
+          </Carousel.Slide>
+          <Carousel.Slide />
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+    // The real subtree keeps its id; the clones (a full period each side) must not
+    // duplicate it — exactly one #deep-link in the whole tree.
+    expect(container.querySelectorAll("#deep-link")).toHaveLength(1);
+    const head = container.querySelector('[data-carousel-clones="head"]')!;
+    expect(head.querySelector("#deep-link")).toBeNull();
+    expect(head.querySelector("span")).not.toBeNull(); // content still cloned
+  });
+
+  it("re-bases only when the settled offset is out of the real range", async () => {
+    const user = userEvent.setup();
+    const { track, getByRole } = renderInfinite();
+
+    await user.click(getByRole("button", { name: "Next" }));
+    // Offset 100 is already within [0, 400): the settle is a no-op, the transform
+    // stays put (and the transition flips to none on the instant no-op repaint…
+    // which doesn't run — the guard returns early, so the transition is untouched).
+    expect(track!.style.transform).toBe("translate3d(-100px, 0px, 0px)");
+    fireEnd(track!);
+    expect(track!.style.transform).toBe("translate3d(-100px, 0px, 0px)");
+  });
+
+  it("ignores a transitionend for a property other than transform", async () => {
+    const user = userEvent.setup();
+    // defaultPage 3 rests at offset 300; Next glides to 400 (a clone) awaiting a
+    // transform settle to re-base. A non-transform transitionend must not re-base.
+    const { track, getByRole } = renderInfinite({ defaultPage: 3 });
+    await user.click(getByRole("button", { name: "Next" }));
+    expect(track!.style.transform).toBe("translate3d(-400px, 0px, 0px)");
+
+    fireEnd(track!, "opacity");
+    expect(track!.style.transform).toBe("translate3d(-400px, 0px, 0px)");
+    // The real transform settle still re-bases.
+    fireEnd(track!, "transform");
     expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
   });
 
-  it("gives an off-screen slide a 2D wrapShift so a copy fills the seam", () => {
-    const { getByTestId } = renderInfinite({ defaultPage: 3 });
-
-    // At page 3 (offset −100) slide 3's flex position (300) would sit off the
-    // right (track translate +100 → 400); a wrapShift of −trackLength (−400)
-    // pulls its copy back under the viewport — the clone-free seam fill. It's a
-    // *2D* translate so the copy paints into the track's single compositor layer,
-    // not onto its own (an off-screen per-slide layer is the iOS white-flash).
-    const slide3 = getByTestId("slide-3");
-    expect(slide3.style.transform).toBe("translateX(-400px)");
-  });
-
-  it("leaves the on-screen slides untransformed so they ride the track layer", () => {
-    // The active slide (0) and the forward neighbour (1) don't wrap, so they carry
-    // no transform at all — they paint into the track's already-rasterised bitmap
-    // and are there before they glide into view (no per-slide layer to rasterise
-    // late). Only the far slides (2, 3) wrap to fill the seam.
-    const { getByTestId } = renderInfinite({ defaultPage: 0 });
-    expect(getByTestId("slide-0").style.transform).toBe("");
-    expect(getByTestId("slide-1").style.transform).toBe("");
-    expect(getByTestId("slide-3").style.transform).toBe("translateX(-400px)");
+  it("ignores a transform settle when there is nothing to measure", () => {
+    // One slide → measure() bails, so a settle can't re-base (nothing to loop).
+    const { track } = renderInfinite({ count: 1 });
+    expect(() => fireEnd(track!)).not.toThrow();
+    expect(track!.style.transform).toBe("");
   });
 
   it("jumps instantly with no transition under reduced motion", async () => {
@@ -247,14 +327,11 @@ describe("Carousel infinite — transform engine", () => {
     expect(track!.style.transform).toBe("translate3d(-200px, 0px, 0px)");
   });
 
-  it("keeps the trailing slide in place when a multi-slide page glides back", async () => {
-    // Regression: 6 slides, 2-up. Page forward to the last page (0→1→2) so both
-    // slides 4 and 5 are on-screen, then Previous back to page 1. The trailing
-    // slide (5) sits near the ±trackLength/2 antipode, so centring the wrap window
-    // on the page's LEADING edge flips its nearest copy and — because seam shifts
-    // are applied instantly, never transitioned — teleports it off-screen the
-    // moment the glide starts ("the last slide disappears as the group moves").
-    // Centring on the page MIDPOINT keeps it in place to glide out normally.
+  it("glides a multi-slide page back as a unit, no per-slide transform", async () => {
+    // 6 slides, 2-up. Page forward to the last page then Previous back to page 1:
+    // the whole track glides as one unit (offset 400 → 200) and every real slide
+    // stays untransformed — the seam is filled by clones, so a trailing slide can
+    // never be yanked off-screen ("disappear as the group moves").
     Object.defineProperty(HTMLElement.prototype, "clientWidth", {
       configurable: true,
       get(this: HTMLElement) {
@@ -262,33 +339,26 @@ describe("Carousel infinite — transform engine", () => {
       },
     });
     const user = userEvent.setup();
-    const { track, getByRole, getByTestId } = renderInfinite({
-      count: 6,
-      slidesPerPage: 2,
-    });
+    const { track, getByRole } = renderInfinite({ count: 6, slidesPerPage: 2 });
 
     await user.click(getByRole("button", { name: "Next" })); // page 1 (offset 200)
     await user.click(getByRole("button", { name: "Next" })); // page 2 (offset 400)
-    // On the last page slide 5 is the on-screen trailing slide — untransformed.
-    expect(getByTestId("slide-5").style.transform).toBe("");
-
     await user.click(getByRole("button", { name: "Previous" })); // back to page 1
 
     // Page 2 → 1: the track glides back one page (offset 400 → 200)…
     expect(track!.style.transform).toBe("translate3d(-200px, 0px, 0px)");
-    // …and slide 5 stays put (glides out with the track) rather than being yanked
-    // to translateX(-600px) the instant the move begins.
-    expect(getByTestId("slide-5").style.transform).toBe("");
+    // …and no real slide carries a transform of its own.
+    for (const slide of track!.querySelectorAll<HTMLElement>(
+      "[data-carousel-slide][data-index]",
+    )) {
+      expect(slide.style.transform).toBe("");
+    }
   });
 
-  it("keeps the trailing slide in place for a wider N-up page glide (4-up)", async () => {
-    // Centring the wrap window on the target page alone isn't enough for a wider
-    // page: during an ANIMATED glide the visible slides sweep the whole move, so a
-    // slide visible at the START can still land past the ±trackLength/2 antipode
-    // of the TARGET centre. 9 slides, 4-up → a Previous from page 1 back to page 0
-    // is a full backward page whose outgoing trailing slide (7) is > trackLength/2
-    // from the target midpoint. The window must centre on the SWEPT band (from →
-    // to), not the target, so slide 7 glides out instead of teleporting.
+  it("glides a wide (4-up) page as a unit for any N-up count", async () => {
+    // 9 slides, 4-up. A full backward page (page 1 → 0) glides the whole track and
+    // leaves every real slide untransformed — the clone strip makes the wide-page
+    // seam contiguous, so there's no antipode a trailing slide could teleport past.
     Object.defineProperty(HTMLElement.prototype, "clientWidth", {
       configurable: true,
       get(this: HTMLElement) {
@@ -296,27 +366,23 @@ describe("Carousel infinite — transform engine", () => {
       },
     });
     const user = userEvent.setup();
-    const { track, getByRole, getByTestId } = renderInfinite({
-      count: 9,
-      slidesPerPage: 4,
-    });
+    const { track, getByRole } = renderInfinite({ count: 9, slidesPerPage: 4 });
 
     await user.click(getByRole("button", { name: "Next" })); // page 1 (offset 400)
-    // Slide 7 is the on-screen trailing slide of page 1 — untransformed.
-    expect(getByTestId("slide-7").style.transform).toBe("");
-
     await user.click(getByRole("button", { name: "Previous" })); // back to page 0
 
-    // Page 1 → 0: the track glides back one full page (offset 400 → 0)…
     expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
-    // …and slide 7 stays put rather than being yanked to translateX(-900px).
-    expect(getByTestId("slide-7").style.transform).toBe("");
+    for (const slide of track!.querySelectorAll<HTMLElement>(
+      "[data-carousel-slide][data-index]",
+    )) {
+      expect(slide.style.transform).toBe("");
+    }
   });
 
   it("mirrors the inline direction under RTL (negative stride)", async () => {
     // RTL reverses the flex row, so slide i's physical offsetLeft DECREASES with
     // i (slide 0 is rightmost). The engine reads the negative stride as dir = −1
-    // rather than bailing, and mirrors every inline move.
+    // rather than bailing, and mirrors the track translate.
     Object.defineProperty(HTMLElement.prototype, "offsetLeft", {
       configurable: true,
       get(this: HTMLElement) {
@@ -325,12 +391,10 @@ describe("Carousel infinite — transform engine", () => {
       },
     });
     const user = userEvent.setup();
-    const { track, getByRole, getByTestId } = renderInfinite();
+    const { track, getByRole } = renderInfinite();
 
     // Page 0 rests at 0 (align 0), same as LTR.
     expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
-    // The far slide's seam copy is shifted the *opposite* way (dir × wrapShift).
-    expect(getByTestId("slide-3").style.transform).toBe("translateX(400px)");
 
     await user.click(getByRole("button", { name: "Next" }));
 

@@ -281,6 +281,38 @@ describe("Carousel infinite — transform engine", () => {
     expect(getByTestId("slide-5").style.transform).toBe("");
   });
 
+  it("keeps the trailing slide in place for a wider N-up page glide (4-up)", async () => {
+    // Centring the wrap window on the target page alone isn't enough for a wider
+    // page: during an ANIMATED glide the visible slides sweep the whole move, so a
+    // slide visible at the START can still land past the ±trackLength/2 antipode
+    // of the TARGET centre. 9 slides, 4-up → a Previous from page 1 back to page 0
+    // is a full backward page whose outgoing trailing slide (7) is > trackLength/2
+    // from the target midpoint. The window must centre on the SWEPT band (from →
+    // to), not the target, so slide 7 glides out instead of teleporting.
+    Object.defineProperty(HTMLElement.prototype, "clientWidth", {
+      configurable: true,
+      get(this: HTMLElement) {
+        return this.hasAttribute?.("data-carousel-track") ? 400 : 0;
+      },
+    });
+    const user = userEvent.setup();
+    const { track, getByRole, getByTestId } = renderInfinite({
+      count: 9,
+      slidesPerPage: 4,
+    });
+
+    await user.click(getByRole("button", { name: "Next" })); // page 1 (offset 400)
+    // Slide 7 is the on-screen trailing slide of page 1 — untransformed.
+    expect(getByTestId("slide-7").style.transform).toBe("");
+
+    await user.click(getByRole("button", { name: "Previous" })); // back to page 0
+
+    // Page 1 → 0: the track glides back one full page (offset 400 → 0)…
+    expect(track!.style.transform).toBe("translate3d(0px, 0px, 0px)");
+    // …and slide 7 stays put rather than being yanked to translateX(-900px).
+    expect(getByTestId("slide-7").style.transform).toBe("");
+  });
+
   it("mirrors the inline direction under RTL (negative stride)", async () => {
     // RTL reverses the flex row, so slide i's physical offsetLeft DECREASES with
     // i (slide 0 is rightmost). The engine reads the negative stride as dir = −1

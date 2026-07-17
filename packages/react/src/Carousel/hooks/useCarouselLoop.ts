@@ -24,8 +24,8 @@ type Geometry = {
   stride: number;
   trackLength: number;
   // The visible page's logical span (leading edge → trailing slide's far edge).
-  // The wrap window centres on the page midpoint (offset + pageSpan/2), not its
-  // leading edge, so a multi-slide page's trailing slide stays clear of the
+  // The wrap window centres on the swept band's midpoint plus pageSpan/2 (see
+  // paint), so a multi-slide page's trailing slide stays clear of the
   // ±trackLength/2 seam antipode and isn't teleported mid-glide.
   pageSpan: number;
   align: number;
@@ -164,7 +164,7 @@ export function useCarouselLoop() {
   // repositions invisibly). A 3D translate keeps the track on its own compositor
   // layer.
   const paint = useCallback(
-    (offset: number, g: Geometry, animate: boolean) => {
+    (offset: number, g: Geometry, animate: boolean, from: number = offset) => {
       // The track is the one intentional compositor layer (translate3d + the
       // sheet's backface-visibility): the glide animates its transform on the GPU.
       g.track.style.transition = animate
@@ -177,13 +177,15 @@ export function useCarouselLoop() {
       g.track.style.transform = vertical
         ? `translate3d(0px, ${trackShift}px, 0px)`
         : `translate3d(${trackShift}px, 0px, 0px)`;
-      // Centre the wrap window on the visible page's midpoint, not its leading
-      // edge: a multi-slide page's trailing slide would otherwise sit at the
-      // ±trackLength/2 antipode and get its seam copy flipped — and applied
-      // instantly — the moment a page glide starts, teleporting it off-screen
-      // while still visible. For a single slide this is a half-slide nudge that
-      // changes no on-screen copy.
-      const windowCentre = offset + g.pageSpan / 2;
+      // Centre the wrap window on the SWEPT band's midpoint — the midpoint of
+      // `from`→`offset`, plus half a page. Seam shifts are applied instantly (never
+      // transitioned), so during an animated glide a slide visible anywhere along
+      // the sweep must not have its copy flipped: it would teleport off-screen the
+      // moment the move starts. Centring on the swept band keeps every N-up page's
+      // slides clear of the ±trackLength/2 antipode across the whole move (centring
+      // on the target alone only covers narrow pages). For a drag or an instant
+      // jump `from === offset`, so this collapses to the page midpoint.
+      const windowCentre = (offset + from) / 2 + g.pageSpan / 2;
       g.slides.forEach((slide, index) => {
         // The seam shift is computed in logical (positive-stride) space, then
         // mirrored to the physical axis by dir.
@@ -212,8 +214,12 @@ export function useCarouselLoop() {
     (target: number, instant: boolean, g: Geometry) => {
       const reduce = !!window.matchMedia?.("(prefers-reduced-motion: reduce)")
         ?.matches;
+      // The pre-glide position; the wrap window sweeps from here to `target`.
+      const from = offsetRef.current;
       offsetRef.current = target;
-      paint(target, g, !instant && !reduce);
+      const animate = !instant && !reduce;
+      // An instant jump has no sweep to cover, so centre on the target alone.
+      paint(target, g, animate, animate ? from : target);
     },
     [paint],
   );

@@ -4254,8 +4254,20 @@ For a 2-up page the trailing slide sits ~one stride from the leading edge, i.e.
 near the `±trackLength/2` seam antipode; a backward page glide flips its
 nearest-copy assignment, and because seam shifts are applied **instantly** (never
 transitioned, by design), the slide teleported off-screen the instant the glide
-began instead of gliding out. Fix: centre the wrap window on the **page midpoint**
-(`offset + pageSpan/2`, `pageSpan` threaded through `Geometry`), so visible slides
-stay clear of the antipode. Provably a no-op for a single slide (a half-slide
-nudge that flips no on-screen copy — all existing single-slide seam assertions
-unchanged). Engine stays 100%; **needs device re-QA on cell 12.**
+began instead of gliding out. Fix: centre the wrap window on the **swept band's
+midpoint** — the midpoint of the glide's `from`→`to` offsets, plus `pageSpan/2`
+(`pageSpan` + a `from` arg threaded through `Geometry` / `paint`; `glideTo` passes
+the pre-glide offset when animating, the target when instant). For a drag or an
+instant jump `from === to`, so it collapses to the page midpoint.
+
+**N-up generality (asked for explicitly).** Centring on the *target* page alone
+only covers narrow pages: for a full backward page glide (page k→k-1) the outgoing
+trailing slide is `(1.5N−1)·stride` from the target midpoint, so it crosses the
+`±trackLength/2` antipode whenever `T < 3N−2` (T = total slides, N = per page) — an
+empty band for N≤3 (why 2-up/6 was already safe) but real from N≥4 (smallest:
+**4-up, 9 slides**, a page 1→0 Previous teleports slide 7). Centring on the *swept*
+band instead keeps every visible slide clear across the whole move, for any N-up
+down to the 2-page minimum. Regression-tested at 2-up and 4-up; provably a no-op
+for a single slide (a half-slide nudge that flips no on-screen copy — all existing
+single-slide seam assertions unchanged). Engine stays 100% (81 branches);
+**needs device re-QA on cell 12 (and ideally a 3-/4-up cell).**

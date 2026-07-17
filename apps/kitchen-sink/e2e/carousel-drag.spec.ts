@@ -191,8 +191,11 @@ test("a tap on a linked slide reaches the link", async ({ page }) => {
   await c.locator(".primitiv-carousel__viewport").waitFor();
   await expectSettledOn(c, 0);
   // A tap (no pointer travel) is under the drag threshold, so the click is never
-  // suppressed and the slide's anchor navigates.
-  await c.getByTestId("slide-link-0").click();
+  // suppressed and the slide's anchor navigates. Scope to the REAL slide's link —
+  // the clone copies duplicate data-testid (their parent slide has no data-index).
+  await c
+    .locator('[data-carousel-slide][data-index] [data-testid="slide-link-0"]')
+    .click();
   await expect(page).toHaveURL(/#slide-0$/);
 });
 

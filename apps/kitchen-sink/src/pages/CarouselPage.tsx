@@ -35,14 +35,15 @@ const SLIDES = [
 ];
 
 // A longer set for the multi-slide gallery, so a 2-/3-/4-up view still has
-// slides to scroll to. Long enough (8) that the edge-case grid can slice any
-// count it needs (1, 2, 3, 5, 6, 7).
+// slides to scroll to. Long enough (9) that the edge-case grid can slice any
+// count it needs (1, 2, 3, 5, 6, 7) and a 4-up infinite loop has three full pages.
 const GALLERY = [
   ...SLIDES,
   "linear-gradient(135deg, #db2777, #f59e0b)",
   "linear-gradient(135deg, #0d9488, #4f46e5)",
   "linear-gradient(135deg, #9333ea, #06b6d4)",
   "linear-gradient(135deg, #dc2626, #facc15)",
+  "linear-gradient(135deg, #2563eb, #22d3ee)",
 ];
 
 /**
@@ -2572,6 +2573,20 @@ export function CarouselLoop() {
             loop="infinite"
             allowMouseDrag
             linked
+          />
+        </GridCell>
+
+        <GridCell
+          n={14}
+          title="Infinite + multi-slide (4-up)"
+          note="A wider N-up page (four slides, nine total, three pages). Page to the last page and back: the whole page glides as a unit and the trailing slide glides out with it — the seam copies follow the swept move, so no slide vanishes as the group shifts."
+        >
+          <MultiSlide
+            label="Featured products — infinite 4-up"
+            count={9}
+            slidesPerPage={4}
+            loop="infinite"
+            allowMouseDrag
           />
         </GridCell>
       </div>

@@ -23,6 +23,11 @@ type Geometry = {
   count: number;
   stride: number;
   trackLength: number;
+  // The visible page's logical span (leading edge → trailing slide's far edge).
+  // The wrap window centres on the page midpoint (offset + pageSpan/2), not its
+  // leading edge, so a multi-slide page's trailing slide stays clear of the
+  // ±trackLength/2 seam antipode and isn't teleported mid-glide.
+  pageSpan: number;
   align: number;
   // +1 for a left-to-right / top-to-bottom axis, −1 for RTL (where the flex row
   // reverses and slide positions run backwards). Every inline translate, seam
@@ -149,7 +154,7 @@ export function useCarouselLoop() {
         : edgeAlign === "end"
           ? trackSize - pageSpan
           : 0;
-    return { track, slides, count, stride, trackLength, align, dir };
+    return { track, slides, count, stride, trackLength, pageSpan, align, dir };
   }, [slideKeys, slidesRef, vertical, snapAlign, slidesPerPage]);
 
   // Position the track at `offset` against already-measured geometry. `animate`
@@ -172,10 +177,18 @@ export function useCarouselLoop() {
       g.track.style.transform = vertical
         ? `translate3d(0px, ${trackShift}px, 0px)`
         : `translate3d(${trackShift}px, 0px, 0px)`;
+      // Centre the wrap window on the visible page's midpoint, not its leading
+      // edge: a multi-slide page's trailing slide would otherwise sit at the
+      // ±trackLength/2 antipode and get its seam copy flipped — and applied
+      // instantly — the moment a page glide starts, teleporting it off-screen
+      // while still visible. For a single slide this is a half-slide nudge that
+      // changes no on-screen copy.
+      const windowCentre = offset + g.pageSpan / 2;
       g.slides.forEach((slide, index) => {
         // The seam shift is computed in logical (positive-stride) space, then
         // mirrored to the physical axis by dir.
-        const shift = g.dir * wrapShift(index * g.stride, offset, g.trackLength);
+        const shift =
+          g.dir * wrapShift(index * g.stride, windowCentre, g.trackLength);
         // A slide is shifted only when it wraps to fill the seam, and with a *2D*
         // translate so it paints INTO the track's layer rather than onto its own.
         // An off-screen per-slide layer is exactly what iOS Safari leaves

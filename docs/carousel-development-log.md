@@ -4240,4 +4240,22 @@ backlog items off the transform engine.
 
 **Verified:** 397 Carousel unit tests; `useCarouselLoop.ts` + `loopEngine.ts`
 100% (lines/branches/functions/statements, 78 branches); `tsc` clean for
-`packages/react` and the e2e specs.
+`packages/react` and the e2e specs. e2e run green on Chromium + WebKit +
+mobile-safari after a spec fix (`scrollIntoViewIfNeeded` before the raw-mouse
+drags — the loop cells sit below the fold and `page.mouse` doesn't auto-scroll
+like `.click()`).
+
+## 2026-07-17 — Multi-slide seam bug: trailing slide teleports on a backward page glide
+
+Device-reported (cell 12, 2-up): after paging to the last page, the first
+Previous made the trailing slide vanish "as the group moves". Root cause: `paint`
+centred each slide's `wrapShift` window on the page's **leading edge** (`offset`).
+For a 2-up page the trailing slide sits ~one stride from the leading edge, i.e.
+near the `±trackLength/2` seam antipode; a backward page glide flips its
+nearest-copy assignment, and because seam shifts are applied **instantly** (never
+transitioned, by design), the slide teleported off-screen the instant the glide
+began instead of gliding out. Fix: centre the wrap window on the **page midpoint**
+(`offset + pageSpan/2`, `pageSpan` threaded through `Geometry`), so visible slides
+stay clear of the antipode. Provably a no-op for a single slide (a half-slide
+nudge that flips no on-screen copy — all existing single-slide seam assertions
+unchanged). Engine stays 100%; **needs device re-QA on cell 12.**

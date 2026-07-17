@@ -247,6 +247,40 @@ describe("Carousel infinite — transform engine", () => {
     expect(track!.style.transform).toBe("translate3d(-200px, 0px, 0px)");
   });
 
+  it("keeps the trailing slide in place when a multi-slide page glides back", async () => {
+    // Regression: 6 slides, 2-up. Page forward to the last page (0→1→2) so both
+    // slides 4 and 5 are on-screen, then Previous back to page 1. The trailing
+    // slide (5) sits near the ±trackLength/2 antipode, so centring the wrap window
+    // on the page's LEADING edge flips its nearest copy and — because seam shifts
+    // are applied instantly, never transitioned — teleports it off-screen the
+    // moment the glide starts ("the last slide disappears as the group moves").
+    // Centring on the page MIDPOINT keeps it in place to glide out normally.
+    Object.defineProperty(HTMLElement.prototype, "clientWidth", {
+      configurable: true,
+      get(this: HTMLElement) {
+        return this.hasAttribute?.("data-carousel-track") ? 200 : 0;
+      },
+    });
+    const user = userEvent.setup();
+    const { track, getByRole, getByTestId } = renderInfinite({
+      count: 6,
+      slidesPerPage: 2,
+    });
+
+    await user.click(getByRole("button", { name: "Next" })); // page 1 (offset 200)
+    await user.click(getByRole("button", { name: "Next" })); // page 2 (offset 400)
+    // On the last page slide 5 is the on-screen trailing slide — untransformed.
+    expect(getByTestId("slide-5").style.transform).toBe("");
+
+    await user.click(getByRole("button", { name: "Previous" })); // back to page 1
+
+    // Page 2 → 1: the track glides back one page (offset 400 → 200)…
+    expect(track!.style.transform).toBe("translate3d(-200px, 0px, 0px)");
+    // …and slide 5 stays put (glides out with the track) rather than being yanked
+    // to translateX(-600px) the instant the move begins.
+    expect(getByTestId("slide-5").style.transform).toBe("");
+  });
+
   it("mirrors the inline direction under RTL (negative stride)", async () => {
     // RTL reverses the flex row, so slide i's physical offsetLeft DECREASES with
     // i (slide 0 is rightmost). The engine reads the negative stride as dir = −1

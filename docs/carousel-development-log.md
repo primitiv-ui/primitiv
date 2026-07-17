@@ -4407,3 +4407,19 @@ landing. Engine 100% (lines/branches/statements/functions), 40 infinite tests +
 full Carousel suite green, drift guard green, tsc clean. **Device QA pending on
 cells 12 / 14.** Debug scaffolding (LoopDebug + viewport outline) stays until
 confirmed.
+
+### 2026-07-17 (cont.) — Customisable glide speed + easing (infinite only)
+
+Now that the infinite loop drives its own JS transform transition, its speed and
+easing are ours to expose (native-scroll modes can't — the browser owns their
+timing). Mirroring the fade pair, added `--primitiv-carousel-glide-duration` /
+`--primitiv-carousel-glide-easing` (default: motion tokens — overlay 300ms +
+easing-enter/ease-out) plus `--glide-fast/medium/slow` preset modifier classes (a
+`glide` contract modifier → recipe/wrapper prop). The engine reads the two custom
+properties off the track and builds `transition: transform <dur> <ease>`, falling
+back to a built-in 300ms ease-out for the headless package with no stylesheet.
+Contract + regenerated recipe/wrapper + 3-way CSS + engine, all drift guards green,
+100% Carousel coverage, registry wrappers type-check. Builder page gained a **Loop**
+section (none/wrap/infinite + glide speed, the glide control hinted as infinite-only)
+so the loop + glide compose against every other axis live. Kitchen-sink surface copy
+synced.

@@ -81,6 +81,11 @@ export const carousel = cva("primitiv-carousel", {
       none: "primitiv-carousel--effect-none",
       parallax: "primitiv-carousel--effect-parallax",
     },
+    glide: {
+      fast: "primitiv-carousel--glide-fast",
+      medium: "primitiv-carousel--glide-medium",
+      slow: "primitiv-carousel--glide-slow",
+    },
   },
   defaultVariants: {
     peek: "none",
@@ -98,6 +103,7 @@ export const carousel = cva("primitiv-carousel", {
     ratio: "wide",
     slideWidth: "equal",
     effect: "none",
+    glide: "medium",
   },
 });
 

@@ -49,6 +49,7 @@ const SECTIONS = [
   "spacing",
   "indicators",
   "transition",
+  "loop",
 ] as const;
 
 // Gradients stand in for photography — the same stand-ins the example pages use.
@@ -121,6 +122,8 @@ type Indicators = "dots" | "thumbnails";
 type SlideContent = "gradient" | "pictures";
 type Transition = "slide" | "fade";
 type Effect = "none" | "parallax";
+type Loop = "none" | "wrap" | "infinite";
+type Glide = "fast" | "medium" | "slow";
 
 interface BuilderConfig {
   placement: Placement;
@@ -146,6 +149,8 @@ interface BuilderConfig {
   content: SlideContent;
   transition: Transition;
   effect: Effect;
+  loop: Loop;
+  glide: Glide;
   // Builder-only — not a real Carousel prop (like `content`), so it's never
   // echoed in describe()'s JSX. Overlays the continuous scroll-progress
   // signal (--carousel-progress / --slide-progress) on the live instance so
@@ -180,6 +185,8 @@ const DEFAULT_CONFIG: BuilderConfig = {
   content: "gradient",
   transition: "slide",
   effect: "none",
+  loop: "none",
+  glide: "medium",
   showProgress: false,
 };
 
@@ -540,6 +547,8 @@ function LiveCarousel({
         indicators={config.indicators}
         transition={config.transition}
         effect={config.effect}
+        loop={config.loop === "none" ? undefined : config.loop}
+        glide={config.glide}
         slidesPerPage={effectiveSlidesPerPage(config)}
         allowMouseDrag={config.allowMouseDrag}
       >
@@ -658,6 +667,10 @@ function describe(config: BuilderConfig, size: Size): string {
     `slidesPerPage={${effectiveSlidesPerPage(config)}}`,
   ];
   if (config.allowMouseDrag) props.push("allowMouseDrag");
+  if (config.loop !== "none") props.push(`loop="${config.loop}"`);
+  // The glide speed only reaches the infinite loop's JS transition — every other
+  // mode glides via native scroll — so only echo it there.
+  if (config.loop === "infinite") props.push(`glide="${config.glide}"`);
   if (config.rtl) props.unshift(`dir="rtl"`);
   const slide = `  <CarouselSlide radius="${config.radius}" /> × ${config.slideCount}`;
   return `<Carousel\n  ${props.join("\n  ")}\n>\n${slide}\n</Carousel>`;
@@ -922,6 +935,35 @@ export function CarouselBuilder() {
                 config.effect === "parallax"
                   ? "scroll-driven, zero-JS drift on each slide's content layer (a native view-timeline; falls back to --slide-progress where unsupported) — most visible mid-drag or on a slow scroll"
                   : undefined
+              }
+            />
+          </Section>
+
+          <Section value="loop" title="Loop">
+            <RadioField
+              legend="loop"
+              name="loop"
+              value={config.loop}
+              options={["none", "wrap", "infinite"] as const}
+              onChange={(value) => set("loop", value)}
+              hint={
+                config.loop === "infinite"
+                  ? "continuous JS-transform loop — glides one step onto the adjacent slide with no rewind"
+                  : config.loop === "wrap"
+                    ? "native scroll wraps past the ends (a visible rewind back to the other end)"
+                    : undefined
+              }
+            />
+            <RadioField
+              legend="glide"
+              name="glide"
+              value={config.glide}
+              options={["fast", "medium", "slow"] as const}
+              onChange={(value) => set("glide", value)}
+              hint={
+                config.loop === "infinite"
+                  ? "glide speed (200 / 300 / 500ms) — infinite only; other modes glide via native scroll, which the browser times"
+                  : "only affects loop=\"infinite\" (every other mode glides via native scroll)"
               }
             />
           </Section>

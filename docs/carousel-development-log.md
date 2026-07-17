@@ -4352,3 +4352,28 @@ visible region, like native scroll. This is safe now precisely because the clone
 strip has **no per-slide transforms** to flash (the reason the single layer was
 introduced for the old wrapShift engine no longer applies). Engine 100%, 401
 Carousel tests green, drift guard green, tsc clean. **Device QA pending.**
+
+### 2026-07-17 (cont.) — Windowing: paint only the on-screen slides
+
+Dropping the forced GPU layer fixed the blank-at-rest but left a **1-frame white
+on the entering edge at glide start** (the device diagnosis: sliding orange→magenta,
+only a *slice* of the incoming magenta is painted for one frame before it fills to
+the container edge). Root cause is the same wide surface: iOS rasterises it in
+tiles on demand, so a tile that scrolls in hasn't been painted yet. The temporary
+1px viewport outline + rAF debug readout proved the geometry is exact (viewport
+coverage gapless, WORST gap = 0) — it is paint lag, not positioning.
+
+Fix (the human's chosen "robust" option): **window the painted set** in the
+engine's `paint`. After translating the track, iterate every `[data-carousel-slide]`
+(real + clone) and set `visibility: hidden` on any slide whose span does **not**
+overlap the viewport across the whole glide sweep `[from, offset]` (plus a
+one-viewport margin each side); the rest get `visibility: ""`. A hidden slide is
+still laid out — measured, registered, interactive once shown — but paints nothing,
+so the composited surface stays ~one screen wide and iOS rasterises it eagerly. The
+window spans the **sweep** (so `paint` gained a `from` param, and `Geometry` a
+`trackSize`) so an entering slide is already painted before it arrives and a leaving
+one stays painted until it's gone. Contract unchanged (no slide model / index /
+count change). Engine 100% (lines/branches/statements/functions), 403 Carousel
+tests green, tsc clean. **Device QA pending** — cell 7 (and 12/13/14) on the phone;
+the sandbox has no real iOS Safari, so only the device can confirm the paint lag is
+gone. Debug scaffolding (LoopDebug + viewport outline) stays live until confirmed.

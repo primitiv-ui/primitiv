@@ -262,6 +262,26 @@ describe("Carousel infinite — transform engine", () => {
     for (const slide of realSlides) expect(slide.style.transform).toBe("");
   });
 
+  it("windows the painted set — hides slides far from the viewport at rest", () => {
+    // The clone strip is far wider than the screen; iOS rasterises a wide
+    // composited layer in tiles on demand, blanking the entering edge for a
+    // frame. Windowing paints only the on-screen slides (plus a viewport of
+    // slack) and `visibility: hidden`s the rest, so the composited surface is
+    // ~one screen wide — a hidden slide is still laid out (measured, registered,
+    // interactive when shown) but contributes nothing to rasterise.
+    const { track } = renderInfinite({ count: 4 });
+    const real = (i: number) =>
+      track!.querySelector<HTMLElement>(
+        `[data-carousel-slide][data-index="${i}"]`,
+      )!;
+    // At rest (offset 0, viewport 100) slide 0 is on-screen and slide 2 is
+    // within the one-viewport margin; slide 3 (three strides right) is beyond
+    // it → hidden.
+    expect(real(0).style.visibility).toBe("");
+    expect(real(2).style.visibility).toBe("");
+    expect(real(3).style.visibility).toBe("hidden");
+  });
+
   it("strips ids from the cloned subtree so no id is duplicated", () => {
     const { container } = render(
       <Carousel.Root ariaLabel="Featured" loop="infinite">

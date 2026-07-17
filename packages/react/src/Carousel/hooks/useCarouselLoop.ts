@@ -31,6 +31,9 @@ type Geometry = {
   // buffer offset — and RTL, where the buffer sits on the other side — are handled
   // by measurement rather than a hard-coded term.
   basePos: number;
+  // The track's own content-box size along the axis (one viewport). The window
+  // that decides which slides stay painted is measured against it.
+  trackSize: number;
   align: number;
   // +1 for a left-to-right / top-to-bottom axis, −1 for RTL (where the flex row
   // reverses and slide positions run backwards). The offset and drag delta are
@@ -164,14 +167,25 @@ export function useCarouselLoop() {
         : edgeAlign === "end"
           ? trackSize - pageSpan
           : 0;
-    return { track, slides, count, stride, trackLength, basePos, align, dir };
+    return {
+      track,
+      slides,
+      count,
+      stride,
+      trackLength,
+      basePos,
+      trackSize,
+      align,
+      dir,
+    };
   }, [realSlides, vertical, snapAlign, effectiveSlidesPerMove]);
 
-  // Translate the whole track to `offset`. `animate` runs it as a GPU-composited
-  // CSS transition (the smooth glide); otherwise it snaps. No per-slide transform
-  // — every slide (real and clone) rides the track's single bitmap.
+  // Translate the whole track from `from` to `offset`. `animate` runs it as a
+  // GPU-composited CSS transition (the smooth glide) that sweeps that range;
+  // otherwise it snaps (`from` === `offset`). No per-slide transform — every
+  // slide (real and clone) rides the track's single bitmap.
   const paint = useCallback(
-    (offset: number, g: Geometry, animate: boolean) => {
+    (offset: number, from: number, g: Geometry, animate: boolean) => {
       g.track.style.transition = animate
         ? `transform ${GLIDE_DURATION_MS}ms ${GLIDE_EASE}`
         : "none";
@@ -179,13 +193,33 @@ export function useCarouselLoop() {
       // offset. dir mirrors the offset under RTL; the block axis never mirrors. A 2D
       // translate (not translate3d) so the wide clone strip isn't force-promoted to
       // one permanent GPU layer — iOS rasterises such a layer in tiles on demand,
-      // blanking slides at rest until they fill in. The browser still composites the
-      // transition on the GPU; at rest it rasterises the visible region like native
-      // scroll (no per-slide layer to flash, since the strip never moves internally).
+      // blanking slides at rest until they fill in.
       const trackShift = g.align - g.basePos - g.dir * offset;
       g.track.style.transform = vertical
         ? `translate(0px, ${trackShift}px)`
         : `translate(${trackShift}px, 0px)`;
+      // Window the painted set. The strip is much wider than the screen, and iOS
+      // rasterises a wide composited surface in tiles on demand — the entering
+      // edge blanks for a frame. So paint only the slides on (or sweeping through,
+      // or within a viewport's slack of) the viewport and `visibility: hidden` the
+      // rest: a hidden slide is still laid out — measured, registered, interactive
+      // once shown — but contributes nothing to rasterise, keeping the surface
+      // ~one screen wide. The window covers the whole glide sweep [from, offset]
+      // so an entering slide is already painted before it arrives and a leaving one
+      // stays painted until it's gone.
+      const margin = g.trackSize;
+      for (const el of g.track.querySelectorAll<HTMLElement>(
+        "[data-carousel-slide]",
+      )) {
+        const p = vertical ? el.offsetTop : el.offsetLeft;
+        const sz = vertical ? el.offsetHeight : el.offsetWidth;
+        const edge = p + g.align - g.basePos;
+        const a = edge - g.dir * from;
+        const b = edge - g.dir * offset;
+        const near = Math.max(a, b) + sz >= -margin;
+        const far = Math.min(a, b) <= g.trackSize + margin;
+        el.style.visibility = near && far ? "" : "hidden";
+      }
     },
     [vertical],
   );
@@ -197,7 +231,7 @@ export function useCarouselLoop() {
       const normalized = normalizeOffset(offsetRef.current, g.trackLength);
       if (normalized === offsetRef.current) return;
       offsetRef.current = normalized;
-      paint(normalized, g, false);
+      paint(normalized, normalized, g, false);
     },
     [paint],
   );
@@ -226,11 +260,14 @@ export function useCarouselLoop() {
         ?.matches;
       const animate = !instant && !reduce;
       if (animate) {
+        // Sweep from where the track sits now to the target so the window covers
+        // every slide the glide passes over.
+        const from = offsetRef.current;
         offsetRef.current = target;
-        paint(target, g, true);
+        paint(target, from, g, true);
       } else {
         offsetRef.current = normalizeOffset(target, g.trackLength);
-        paint(offsetRef.current, g, false);
+        paint(offsetRef.current, offsetRef.current, g, false);
       }
     },
     [paint],
@@ -372,7 +409,7 @@ export function useCarouselLoop() {
       if (!drag.dragging) return;
       const raw = drag.startOffset - g.dir * (client - drag.startClient);
       offsetRef.current = normalizeOffset(raw, g.trackLength);
-      paint(offsetRef.current, g, false);
+      paint(offsetRef.current, offsetRef.current, g, false);
     },
     [axisClient, paint],
   );

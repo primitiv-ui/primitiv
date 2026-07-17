@@ -2417,13 +2417,81 @@ export function CarouselSlideshow() {
  * come. Check: the arrows stay enabled at both ends in every cell, and the
  * autoplay cell never stops.
  */
+/**
+ * Debug readout for the infinite-loop geometry — gated behind `?debug` in the URL
+ * so it never shows in normal QA. Reads the DOM of the named cell directly (no
+ * engine internals) and prints the numbers I need to diagnose a sizing/positioning
+ * bug from a device: viewport width, each real slide's width, the clone width, the
+ * measured stride, and the live track transform. Poll-refreshes so it tracks as you
+ * navigate. Remove once the loop geometry is confirmed on device.
+ */
+function LoopDebug({ cellTitle }: { cellTitle: string }) {
+  const [lines, setLines] = useState<string[]>([]);
+  useEffect(() => {
+    const read = () => {
+      const cell = Array.from(
+        document.querySelectorAll<HTMLElement>(".carousel-grid__cell"),
+      ).find((el) => el.textContent?.includes(cellTitle));
+      const vp = cell?.querySelector<HTMLElement>(".primitiv-carousel__viewport");
+      const track = cell?.querySelector<HTMLElement>(".primitiv-carousel__track");
+      if (!vp || !track) {
+        setLines(["(cell not found)"]);
+        return;
+      }
+      const reals = Array.from(
+        track.querySelectorAll<HTMLElement>("[data-carousel-slide][data-index]"),
+      );
+      const clone = track.querySelector<HTMLElement>("[data-carousel-clone]");
+      const vpRect = vp.getBoundingClientRect();
+      const r0 = reals[0]?.getBoundingClientRect();
+      const stride =
+        reals.length > 1
+          ? reals[1]!.offsetLeft - reals[0]!.offsetLeft
+          : NaN;
+      setLines([
+        `viewport clientWidth: ${vp.clientWidth}`,
+        `real slide count: ${reals.length}`,
+        `real slide[0] offsetWidth: ${reals[0]?.offsetWidth}`,
+        `real slide[0] rect: left ${r0 ? Math.round(r0.left - vpRect.left) : "?"}, width ${r0 ? Math.round(r0.width) : "?"}`,
+        `clone offsetWidth: ${clone?.offsetWidth ?? "(none)"}`,
+        `basePos (slide[0].offsetLeft): ${reals[0]?.offsetLeft}`,
+        `stride (slide1-slide0 offsetLeft): ${stride}`,
+        `track transform: ${track.style.transform || "(none)"}`,
+      ]);
+    };
+    read();
+    const id = window.setInterval(read, 400);
+    return () => window.clearInterval(id);
+  }, [cellTitle]);
+  return (
+    <pre
+      style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 10,
+        margin: 0,
+        padding: "8px 12px",
+        background: "#111",
+        color: "#0f0",
+        font: "12px/1.4 ui-monospace, monospace",
+        whiteSpace: "pre-wrap",
+      }}
+    >
+      {lines.join("\n")}
+    </pre>
+  );
+}
+
 export function CarouselLoop() {
+  const debug =
+    typeof window !== "undefined" && window.location.search.includes("debug");
   return (
     <Example
       title="Loop — wrap-around navigation"
       note="loop wraps Next/Previous and autoplay past the ends instead of clamping — the triggers never disable, Next on the last slide returns to the first, and autoplay keeps rotating. A single-page carousel has no wrap target, so its triggers still disable. This is semantic wrapping (the wrap smooth-scrolls the track back — a visible rewind); a continuous infinite loop is a separate layer to come."
       wide
     >
+      {debug && <LoopDebug cellTitle="Infinite — continuous glide" />}
       <div className="carousel-grid">
         <GridCell
           n={1}

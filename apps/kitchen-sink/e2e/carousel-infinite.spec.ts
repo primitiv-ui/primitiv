@@ -25,7 +25,7 @@ function infiniteCell(page: Page): Locator {
  */
 async function centeredSlide(
   cell: Locator,
-): Promise<{ realIndex: number; isClone: boolean }> {
+): Promise<{ realIndex: number; isClone: boolean; offset: number }> {
   return cell.evaluate((root) => {
     const vp = root.querySelector<HTMLElement>(".primitiv-carousel__viewport")!;
     const vpRect = vp.getBoundingClientRect();
@@ -49,6 +49,7 @@ async function centeredSlide(
     return {
       realIndex: Number(best?.getAttribute("data-index")),
       isClone,
+      offset: bestDistance,
     };
   });
 }
@@ -73,6 +74,8 @@ async function expectSettledOn(cell: Locator, index: number): Promise<void> {
     const centered = await centeredSlide(cell);
     expect(centered.isClone).toBe(false);
     expect(centered.realIndex).toBe(index);
+    // Dead-centre: catches a resting-offset drift the index check would miss.
+    expect(centered.offset).toBeLessThan(2);
   }).toPass({ timeout: 5_000 });
 }
 
@@ -121,4 +124,19 @@ test("clicking all the way around returns to a real slide every step", async ({
     await next.click();
     await expectSettledOn(cell, step % 4);
   }
+});
+
+test("rapid Next clicks stay rendered and settle on a real slide", async ({
+  page,
+}) => {
+  const cell = infiniteCell(page);
+  const next = cell.getByLabel("Next slide");
+  await expectSettledOn(cell, 0);
+  // Fire ten clicks WITHOUT waiting for each glide to settle — this retargets the
+  // transition before it ends, so the settle re-base never fires. The start-of-
+  // glide re-base must keep the offset within the clone buffer; otherwise the
+  // track translates off the painted strip and goes blank until you pause.
+  for (let i = 0; i < 10; i++) await next.click({ noWaitAfter: true });
+  // 10 Nexts from slide 0 on a 4-slide loop → slide 2, rendered dead-centre.
+  await expectSettledOn(cell, 2);
 });

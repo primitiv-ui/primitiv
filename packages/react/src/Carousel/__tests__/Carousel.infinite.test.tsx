@@ -177,6 +177,20 @@ describe("Carousel infinite — transform engine", () => {
     expect(clone.hasAttribute("data-index")).toBe(false);
   });
 
+  it("keeps the offset within one period under rapid navigation (no run-off)", async () => {
+    // Rapid Next clicks retarget the transition before it ends, so the settle
+    // re-base never fires; without a start-of-glide re-base the offset accumulates
+    // (+100 per click) and the track translates right off the one-period clone
+    // buffer into unpainted space — a blank until you pause. Six Nexts on a 4-slide
+    // loop must stay bounded to one period, not reach −600.
+    const user = userEvent.setup();
+    const { track, getByRole } = renderInfinite();
+    const next = getByRole("button", { name: "Next" });
+    for (let i = 0; i < 6; i++) await user.click(next);
+    // 6 Nexts, re-based each glide: offset cycles 100,200,300,400→0,100,200 → −200.
+    expect(track!.style.transform).toBe("translate3d(-200px, 0px, 0px)");
+  });
+
   it("subtracts the first real slide's position so the clone buffer is offset out", () => {
     // In a real browser the leading clone buffer pushes real slide 0 to
     // offsetLeft = bufferWidth (measured track-relative). Simulate that: real

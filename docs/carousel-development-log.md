@@ -4316,3 +4316,23 @@ sandbox; jsdom does no layout). The unit tests pin the strip structure + re-base
 math; confidence that it's the right fix comes from removing the discontinuity
 that mechanically caused the flash, not from hiding it. **Needs device QA on cells
 7 / 12 / 13 / 14.**
+
+### 2026-07-17 (cont.) — Clone-strip follow-ups from device QA
+
+Three device-reported issues after the clone-strip landing:
+
+1. **Blank on rapid Next/Prev (fixed).** Rapid clicks retarget the CSS transition
+   before it ends, so the `transitionend` re-base never fired and the offset
+   accumulated a stride per click — translating the track clean off the one-period
+   clone buffer into unpainted space (blank until you paused and a settle fired).
+   Fix: **re-base at the START of each glide** (`boundGlideStart` — normalize the
+   offset, instant repaint, forced reflow to commit before animating), so the
+   offset can never leave one period. Unit-driven (6 rapid Nexts held at −200, not
+   −600) + a real-browser rapid-Next e2e; `expectSettledOn` now also asserts
+   dead-centre (< 2px) so a resting drift can't slip through.
+2. **4-up pages drifting out of alignment (expected fixed via #1** — the same
+   offset accumulation; needs device re-confirm).
+3. **Cell 7 seam sliver / "flash" (partially addressed).** A resting-offset drift
+   would explain it and #1 fixes that; if a true white *flash* persists it points
+   at iOS rendering of the clones (display:contents / rasterisation), which the
+   sandbox can't reproduce — next investigation if it survives device QA.

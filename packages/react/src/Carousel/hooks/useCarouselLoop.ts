@@ -197,6 +197,20 @@ export function useCarouselLoop() {
     [paint],
   );
 
+  // Re-base BEFORE a glide, not only on settle. Rapid navigation retargets the
+  // transition before it ends, so `transitionend` never fires and the offset would
+  // otherwise accumulate a stride per step and translate the track clean off the
+  // one-period clone buffer into unpainted space (a blank until you pause). The
+  // forced reflow commits the instant re-base so the animated glide starts from the
+  // bounded position; the whole-period shift is invisible.
+  const boundGlideStart = useCallback(
+    (g: Geometry) => {
+      rebase(g);
+      void (vertical ? g.track.offsetHeight : g.track.offsetWidth);
+    },
+    [rebase, vertical],
+  );
+
   // Move the track to `target` — animated unless this is an `instant` nav, the
   // first positioning, or the user prefers reduced motion. An animated glide runs
   // to the raw target (which may land on a clone) and re-bases on transitionend;
@@ -275,6 +289,9 @@ export function useCarouselLoop() {
     if (!isInfinite) return;
     const g = measure();
     if (!g) return;
+    // Bound the offset first so rapid, transition-interrupting navigation can't
+    // accumulate it off the clone buffer.
+    boundGlideStart(g);
     const logical =
       (((Math.round(offsetRef.current / g.stride) % g.count) + g.count) %
         g.count);
@@ -291,6 +308,7 @@ export function useCarouselLoop() {
     slideKeys,
     measure,
     glideTo,
+    boundGlideStart,
     instantScrollRef,
   ]);
 

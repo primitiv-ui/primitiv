@@ -2493,6 +2493,10 @@ export function CarouselLoop() {
       wide
     >
       <LoopDebug cellTitle="Infinite — continuous glide" />
+      {/* TEMP diagnostic: outline the infinite viewport box so the slide↔viewport
+          boundary is visible. `outline` (not `border`) so it marks the exact box
+          edge with zero layout shift — a border would shrink the content by 1px. */}
+      <style>{`.primitiv-carousel[data-loop="infinite"] .primitiv-carousel__viewport { outline: 1px solid #000; outline-offset: -1px; }`}</style>
       <div className="carousel-grid">
         <GridCell
           n={1}

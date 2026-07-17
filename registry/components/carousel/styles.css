@@ -327,12 +327,20 @@
   .primitiv-carousel--peek-lg .primitiv-carousel__track {
     gap: var(--primitiv-carousel-gap);
   }
-  /* Slides are deliberately NOT promoted to their own compositor layers (no
-     per-slide backface-visibility) and are never individually transformed: every
-     slide (real and clone) paints into the track's single layer, which only ever
-     slides as a unit. An off-screen per-slide layer — or a slide moved
-     discontinuously — is what iOS Safari leaves unrasterised (a white tile for the
-     first frame it enters); one static, contiguous track bitmap has no such seam. */
+  /* Each infinite slide is promoted to its OWN compositor layer (translateZ(0))
+     so its rounded, overflow-clipped bitmap is rasterised up front — when the
+     track translates it into view it is already painted, with no iOS
+     entering-edge white. Safari otherwise rasterises each rounded/clipped slide's
+     clip layer lazily as it scrolls in (a white slice for the first frame). The
+     engine windows the painted set (far slides are visibility:hidden), so only a
+     handful of these layers are ever live — which is why per-slide promotion is
+     safe here, where force-promoting the whole viewports-wide track (one giant
+     tiled layer) blanked slides at rest. Slides are still never individually
+     *translated*: every slide rides the track, which only ever slides as a unit.
+     Scoped to loop="infinite" — native-scroll modes have no such seam. */
+  .primitiv-carousel[data-loop="infinite"] .primitiv-carousel__slide {
+    transform: translateZ(0);
+  }
   /* Mouse click-and-drag is opt-in (Carousel.Root's allowMouseDrag, off by
      default) — data-mouse-drag is only present when it's enabled, so the
      grab-cursor affordance never implies a capability that isn't actually

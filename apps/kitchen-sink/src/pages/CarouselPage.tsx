@@ -2502,8 +2502,17 @@ export function CarouselLoop() {
       <LoopDebug cellTitle="Infinite — continuous glide" />
       {/* TEMP diagnostic: outline the infinite viewport box so the slide↔viewport
           boundary is visible. `outline` (not `border`) so it marks the exact box
-          edge with zero layout shift — a border would shrink the content by 1px. */}
-      <style>{`.primitiv-carousel[data-loop="infinite"] .primitiv-carousel__viewport { outline: 1px solid #000; outline-offset: -1px; }`}</style>
+          edge with zero layout shift — a border would shrink the content by 1px.
+          TEMP experiment: give each infinite slide its OWN pre-rasterised GPU
+          layer (translateZ(0)) so its rounded, clipped bitmap is painted before it
+          scrolls in — testing whether the entering-edge white is per-slide
+          clip-layer / track-tile lazy raster. Windowing bounds how many such
+          layers are ever live, so this can't reintroduce the wide-track at-rest
+          blank. */}
+      <style>{`
+        .primitiv-carousel[data-loop="infinite"] .primitiv-carousel__viewport { outline: 1px solid #000; outline-offset: -1px; }
+        .primitiv-carousel[data-loop="infinite"] .primitiv-carousel__slide { transform: translateZ(0); }
+      `}</style>
       <div className="carousel-grid">
         <GridCell
           n={1}

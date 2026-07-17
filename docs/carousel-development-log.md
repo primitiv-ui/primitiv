@@ -4377,3 +4377,33 @@ count change). Engine 100% (lines/branches/statements/functions), 403 Carousel
 tests green, tsc clean. **Device QA pending** — cell 7 (and 12/13/14) on the phone;
 the sandbox has no real iOS Safari, so only the device can confirm the paint lag is
 gone. Debug scaffolding (LoopDebug + viewport outline) stays live until confirmed.
+
+### 2026-07-17 (cont.) — Device QA: flicker fixed (per-slide layer), multi-slide sub-pixel align
+
+Windowing alone did NOT clear the entering-edge white on device — the screenshot
+showed a full-height unpainted strip on the slide entering the viewport. Root cause
+found by looking at the CSS with fresh eyes: each `.primitiv-carousel__slide` has
+`border-radius` + `overflow: hidden`, and under the transformed track iOS Safari
+gives every rounded, clipped slide its **own clip layer that it rasterises lazily as
+it scrolls in** — windowing (a surface-width trick) can't touch a per-slide clipping
+cost. A cell-scoped experiment (`transform: translateZ(0)` per infinite slide,
+giving each slide a pre-rasterised layer that rides the track already painted)
+**fixed it on device** — the human confirmed "smooth with no flickering". Promoted
+into the shipped 3-way stylesheet, scoped to `[data-loop="infinite"]`. Windowing
+stays: it bounds how many per-slide layers are ever live, so this can't recreate the
+wide-track at-rest blank we killed earlier.
+
+Second device report: on multi-slide cells (12 = 2-up, 14 = 4-up) the page was a
+few px off — the leading slide clipped by the viewport's left edge, the trailing one
+short of the right. Cause: the engine measured with `offsetLeft`/`offsetWidth`,
+which round to whole pixels, and that rounding **accumulates over a page's several
+strides**. Fix: measure with `getBoundingClientRect` (sub-pixel), reading positions
+as **differences** (slide − slide, slide − track) so the track's live transform
+cancels and only the pure layout remains — same trick in `measure()` and the paint
+window. Test harness now mocks `getBoundingClientRect` (a `stdRect` helper with
+`trackSize`/`startFor` overrides replaces the old per-prop `offsetLeft`/`clientWidth`
+mocks); a fractional-geometry test (stride 273.5, last 2-up page) pins the exact
+landing. Engine 100% (lines/branches/statements/functions), 40 infinite tests +
+full Carousel suite green, drift guard green, tsc clean. **Device QA pending on
+cells 12 / 14.** Debug scaffolding (LoopDebug + viewport outline) stays until
+confirmed.

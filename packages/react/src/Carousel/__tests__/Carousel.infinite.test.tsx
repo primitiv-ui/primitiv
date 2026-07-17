@@ -83,6 +83,53 @@ function defineGeometry() {
       get,
     });
   }
+  // The engine measures via getBoundingClientRect (sub-pixel). Compose the same
+  // numbers into a rect: a slide starts at index × stride and is SLIDE big; the
+  // track starts at 0 and is VIEWPORT big (its own content box). jsdom applies no
+  // transform, so the mock is the pure layout the engine reads via differences.
+  stdRect();
+}
+
+// Install a getBoundingClientRect that derives left/top/width/height from a
+// per-element { start, size } (both axes share the numbers, as the offsets do).
+function defineRect(layout: (this: HTMLElement) => { start: number; size: number }) {
+  Object.defineProperty(HTMLElement.prototype, "getBoundingClientRect", {
+    configurable: true,
+    value: function (this: HTMLElement) {
+      const { start, size } = layout.call(this);
+      return {
+        left: start,
+        top: start,
+        right: start + size,
+        bottom: start + size,
+        width: size,
+        height: size,
+        x: start,
+        y: start,
+        toJSON() {},
+      } as DOMRect;
+    },
+  });
+}
+
+// The standard rect layout, with per-test overrides: the track is `trackSize`
+// wide, a slide is SLIDE, and a real slide (data-index) starts at `startFor(i)`
+// (default index × stride; negate for RTL, offset for the clone buffer, zero to
+// collapse the stride). Clones/other elements start at 0.
+function stdRect({
+  trackSize = VIEWPORT,
+  startFor = (i: number) => i * STRIDE,
+}: { trackSize?: number; startFor?: (index: number) => number } = {}) {
+  defineRect(function (this: HTMLElement) {
+    const raw = this.getAttribute?.("data-index");
+    const index = raw != null ? Number(raw) : null;
+    const isTrack = this.hasAttribute?.("data-carousel-track");
+    const isSlide = this.hasAttribute?.("data-carousel-slide");
+    return {
+      start: index != null ? startFor(index) : 0,
+      size: isTrack ? trackSize : isSlide ? SLIDE : 0,
+    };
+  });
 }
 
 beforeEach(() => {
@@ -99,6 +146,7 @@ afterEach(() => {
     "offsetHeight",
     "clientWidth",
     "clientHeight",
+    "getBoundingClientRect",
   ]) {
     delete (HTMLElement.prototype as unknown as Record<string, unknown>)[prop];
   }
@@ -197,13 +245,7 @@ describe("Carousel infinite — transform engine", () => {
     // slides sit at (index + 4) × stride, so basePos = 400. The track transform
     // must subtract it (align − basePos − offset) so real slide 0 still rests at
     // `align`, not shoved off by the buffer.
-    Object.defineProperty(HTMLElement.prototype, "offsetLeft", {
-      configurable: true,
-      get(this: HTMLElement) {
-        const index = this.getAttribute?.("data-index");
-        return index != null ? (Number(index) + 4) * STRIDE : 0;
-      },
-    });
+    stdRect({ startFor: (i) => (i + 4) * STRIDE });
     const { track } = renderInfinite({ snapAlign: "center" });
     // align 0, basePos 400, offset 0 → translate(0 − 400 − 0) = −400.
     expect(track!.style.transform).toBe("translate(-400px, 0px)");
@@ -362,12 +404,7 @@ describe("Carousel infinite — transform engine", () => {
     // has to drive off the page's leading slide index, not the page number.
     // The track holds the whole 2-slide page (span = stride + slide = 200), so it's
     // sized to 200 and the page rests flush (align 0) instead of one slide centred.
-    Object.defineProperty(HTMLElement.prototype, "clientWidth", {
-      configurable: true,
-      get(this: HTMLElement) {
-        return this.hasAttribute?.("data-carousel-track") ? 200 : 0;
-      },
-    });
+    stdRect({ trackSize: 200 });
     const user = userEvent.setup();
     const { track, getByRole } = renderInfinite({ count: 6, slidesPerPage: 2 });
 
@@ -384,12 +421,7 @@ describe("Carousel infinite — transform engine", () => {
     // the whole track glides as one unit (offset 400 → 200) and every real slide
     // stays untransformed — the seam is filled by clones, so a trailing slide can
     // never be yanked off-screen ("disappear as the group moves").
-    Object.defineProperty(HTMLElement.prototype, "clientWidth", {
-      configurable: true,
-      get(this: HTMLElement) {
-        return this.hasAttribute?.("data-carousel-track") ? 200 : 0;
-      },
-    });
+    stdRect({ trackSize: 200 });
     const user = userEvent.setup();
     const { track, getByRole } = renderInfinite({ count: 6, slidesPerPage: 2 });
 
@@ -411,12 +443,7 @@ describe("Carousel infinite — transform engine", () => {
     // 9 slides, 4-up. A full backward page (page 1 → 0) glides the whole track and
     // leaves every real slide untransformed — the clone strip makes the wide-page
     // seam contiguous, so there's no antipode a trailing slide could teleport past.
-    Object.defineProperty(HTMLElement.prototype, "clientWidth", {
-      configurable: true,
-      get(this: HTMLElement) {
-        return this.hasAttribute?.("data-carousel-track") ? 400 : 0;
-      },
-    });
+    stdRect({ trackSize: 400 });
     const user = userEvent.setup();
     const { track, getByRole } = renderInfinite({ count: 9, slidesPerPage: 4 });
 
@@ -431,17 +458,36 @@ describe("Carousel infinite — transform engine", () => {
     }
   });
 
+  it("lands a deep multi-slide page exactly (sub-pixel, no accumulated rounding)", () => {
+    // offsetLeft/Width round to whole pixels; over a page several strides in that
+    // rounding accumulates into a visible edge misalignment (one slide clipped by
+    // the viewport, a gap at the other edge — the multi-slide bug). Fractional
+    // geometry: slide 265.5 + gap 8 = stride 273.5, track 539 (a 2-up page). On the
+    // LAST page (leading slide 4) the track must land at exactly 4 × 273.5, which a
+    // whole-pixel stride (273 or 274) would miss by pixels.
+    defineRect(function (this: HTMLElement) {
+      const raw = this.getAttribute?.("data-index");
+      const isTrack = this.hasAttribute?.("data-carousel-track");
+      const isSlide = this.hasAttribute?.("data-carousel-slide");
+      return {
+        start: raw != null ? Number(raw) * 273.5 : 0,
+        size: isTrack ? 539 : isSlide ? 265.5 : 0,
+      };
+    });
+    const { track } = renderInfinite({
+      count: 6,
+      slidesPerPage: 2,
+      defaultPage: 2,
+    });
+    // align (539 − pageSpan 539)/2 = 0, basePos 0, offset 4 × 273.5 = 1094.
+    expect(track!.style.transform).toBe("translate(-1094px, 0px)");
+  });
+
   it("mirrors the inline direction under RTL (negative stride)", async () => {
     // RTL reverses the flex row, so slide i's physical offsetLeft DECREASES with
     // i (slide 0 is rightmost). The engine reads the negative stride as dir = −1
     // rather than bailing, and mirrors the track translate.
-    Object.defineProperty(HTMLElement.prototype, "offsetLeft", {
-      configurable: true,
-      get(this: HTMLElement) {
-        const index = this.getAttribute?.("data-index");
-        return index != null ? -Number(index) * STRIDE : 0;
-      },
-    });
+    stdRect({ startFor: (i) => -i * STRIDE });
     const user = userEvent.setup();
     const { track, getByRole } = renderInfinite();
 
@@ -457,12 +503,7 @@ describe("Carousel infinite — transform engine", () => {
 
   it("offsets the track for start and end alignment", () => {
     // Widen the track so alignment is visible: redefine its clientWidth to 300.
-    Object.defineProperty(HTMLElement.prototype, "clientWidth", {
-      configurable: true,
-      get(this: HTMLElement) {
-        return this.hasAttribute?.("data-carousel-track") ? 300 : 0;
-      },
-    });
+    stdRect({ trackSize: 300 });
     const start = renderInfinite({ snapAlign: "start" });
     // start align = 0 → translate(0).
     expect(start.track!.style.transform).toBe("translate(0px, 0px)");
@@ -478,19 +519,7 @@ describe("Carousel infinite — transform engine", () => {
     // be dir-mirrored: reading "start" is the RIGHT edge (leading slide flush right,
     // trackShift W−slide = 200) and "end" is the LEFT edge (trackShift 0) — the
     // mirror of LTR. An unmirrored align swaps them.
-    Object.defineProperty(HTMLElement.prototype, "offsetLeft", {
-      configurable: true,
-      get(this: HTMLElement) {
-        const index = this.getAttribute?.("data-index");
-        return index != null ? -Number(index) * STRIDE : 0;
-      },
-    });
-    Object.defineProperty(HTMLElement.prototype, "clientWidth", {
-      configurable: true,
-      get(this: HTMLElement) {
-        return this.hasAttribute?.("data-carousel-track") ? 300 : 0;
-      },
-    });
+    stdRect({ trackSize: 300, startFor: (i) => -i * STRIDE });
     const start = renderInfinite({ snapAlign: "start" });
     // Reading start = right: leading slide flush right → translate(300 − 100).
     expect(start.track!.style.transform).toBe("translate(200px, 0px)");
@@ -501,18 +530,11 @@ describe("Carousel infinite — transform engine", () => {
   });
 
   it("aligns against the track's own box, not the padded viewport (peek)", () => {
-    // Under peek the viewport is padded (clientWidth 140) and the track is inset +
-    // narrowed to the slide (100). The CSS already centres the track in the
-    // viewport, so the engine must align within the TRACK (100), not the padded
-    // viewport — else it double-counts the peek and shoves the slide off-centre.
-    Object.defineProperty(HTMLElement.prototype, "clientWidth", {
-      configurable: true,
-      get(this: HTMLElement) {
-        if (this.hasAttribute?.("data-carousel-track")) return 100;
-        if (this.hasAttribute?.("data-carousel-viewport")) return 140;
-        return 0;
-      },
-    });
+    // Under peek the viewport is padded and the track is inset + narrowed to the
+    // slide (100). The engine measures the TRACK's own rect, so it aligns within
+    // the track (100) and can't double-count the peek — it never reads the padded
+    // viewport box at all.
+    stdRect({ trackSize: 100 });
     const { track } = renderInfinite({ snapAlign: "center" });
     // align = (track 100 − slide 100) / 2 = 0 → no shift. (Measuring the padded
     // viewport 140 would read +20 and push the slide out of centre.)
@@ -527,10 +549,7 @@ describe("Carousel infinite — transform engine", () => {
 
   it("does not loop when slides report a zero stride (not yet laid out)", () => {
     // Collapse every slide onto position 0 → stride 0 → measure bails.
-    Object.defineProperty(HTMLElement.prototype, "offsetLeft", {
-      configurable: true,
-      get: () => 0,
-    });
+    stdRect({ startFor: () => 0 });
     const { track } = renderInfinite();
     expect(track!.style.transform).toBe("");
   });
@@ -700,12 +719,7 @@ describe("Carousel infinite — drag + fling", () => {
     // page to offset 200. Snapping to the nearest SLIDE instead lands on slide 1
     // (offset 100) mid-page, whose page is 0, so the page effect then jerks back to
     // offset 0 — the two-step this fixes.
-    Object.defineProperty(HTMLElement.prototype, "clientWidth", {
-      configurable: true,
-      get(this: HTMLElement) {
-        return this.hasAttribute?.("data-carousel-track") ? 200 : 0;
-      },
-    });
+    stdRect({ trackSize: 200 });
     const { track, getByTestId } = renderInfinite({ count: 6, slidesPerPage: 2 });
     const viewport = getByTestId("viewport");
 

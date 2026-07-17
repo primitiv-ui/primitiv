@@ -135,20 +135,28 @@ export function useCarouselLoop() {
     const slides = realSlides();
     const count = slides.length;
     if (count < 2) return null;
-    const pos = (el: HTMLElement) => (vertical ? el.offsetTop : el.offsetLeft);
-    const size = (el: HTMLElement) =>
-      vertical ? el.offsetHeight : el.offsetWidth;
+    // Measure with getBoundingClientRect, not offsetLeft/Width: the latter round
+    // to whole pixels, and on a multi-slide page that rounding accumulates over
+    // the page's several strides into a visible edge misalignment (a slide clipped
+    // at one viewport edge, a gap at the other). Every rect carries the track's
+    // current transform, so positions are read as DIFFERENCES (slide − slide,
+    // slide − track): the transform cancels, leaving the pure sub-pixel layout.
+    const start = (r: DOMRect) => (vertical ? r.top : r.left);
+    const extent = (r: DOMRect) => (vertical ? r.height : r.width);
+    const trackRect = track.getBoundingClientRect();
+    const r0 = slides[0]!.getBoundingClientRect();
+    const r1 = slides[1]!.getBoundingClientRect();
     // Signed gap between the first two slides. RTL lays the row out backwards, so
     // it comes out negative — the sign is the axis direction, the magnitude the
     // stride. Zero means the browser hasn't laid the track out yet (jsdom): bail.
-    const rawStride = pos(slides[1]!) - pos(slides[0]!);
+    const rawStride = start(r1) - start(r0);
     if (rawStride === 0) return null;
     const dir = rawStride < 0 ? -1 : 1;
     const stride = Math.abs(rawStride);
     const trackLength = stride * count;
-    const basePos = pos(slides[0]!);
-    const trackSize = vertical ? track.clientHeight : track.clientWidth;
-    const slideSize = size(slides[0]!);
+    const basePos = start(r0) - start(trackRect);
+    const trackSize = extent(trackRect);
+    const slideSize = extent(r0);
     // Where real slide 0 should rest, per its snap alignment. The active page can
     // span several slides; `align` places the whole page. Under RTL (dir −1) the
     // reading start is the RIGHT edge, so start/end swap; centre is symmetric.
@@ -208,11 +216,16 @@ export function useCarouselLoop() {
       // so an entering slide is already painted before it arrives and a leaving one
       // stays painted until it's gone.
       const margin = g.trackSize;
+      const trackRect = g.track.getBoundingClientRect();
+      const trackStart = vertical ? trackRect.top : trackRect.left;
       for (const el of g.track.querySelectorAll<HTMLElement>(
         "[data-carousel-slide]",
       )) {
-        const p = vertical ? el.offsetTop : el.offsetLeft;
-        const sz = vertical ? el.offsetHeight : el.offsetWidth;
+        // Layout position within the track, transform-cancelled (same trick as
+        // measure): the slide and the track carry the same live transform.
+        const r = el.getBoundingClientRect();
+        const p = (vertical ? r.top : r.left) - trackStart;
+        const sz = vertical ? r.height : r.width;
         const edge = p + g.align - g.basePos;
         const a = edge - g.dir * from;
         const b = edge - g.dir * offset;

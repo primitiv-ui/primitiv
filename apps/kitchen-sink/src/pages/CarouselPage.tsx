@@ -2427,8 +2427,11 @@ export function CarouselSlideshow() {
  */
 function LoopDebug({ cellTitle }: { cellTitle: string }) {
   const [lines, setLines] = useState<string[]>([]);
+  const worst = useRef({ left: 0, right: 0 });
   useEffect(() => {
+    let raf = 0;
     const read = () => {
+      raf = requestAnimationFrame(read);
       const cell = Array.from(
         document.querySelectorAll<HTMLElement>(".carousel-grid__cell"),
       ).find((el) => el.textContent?.includes(cellTitle));
@@ -2438,30 +2441,34 @@ function LoopDebug({ cellTitle }: { cellTitle: string }) {
         setLines(["(cell not found)"]);
         return;
       }
-      const reals = Array.from(
-        track.querySelectorAll<HTMLElement>("[data-carousel-slide][data-index]"),
-      );
-      const clone = track.querySelector<HTMLElement>("[data-carousel-clone]");
+      // Coverage: over EVERY slide (real + clone), the leftmost left edge and the
+      // rightmost right edge, relative to the viewport box. If leftmost > 0 there's
+      // an uncovered strip on the left; if rightmost < width, one on the right.
       const vpRect = vp.getBoundingClientRect();
-      const r0 = reals[0]?.getBoundingClientRect();
-      const stride =
-        reals.length > 1
-          ? reals[1]!.offsetLeft - reals[0]!.offsetLeft
-          : NaN;
+      const all = Array.from(
+        track.querySelectorAll<HTMLElement>("[data-carousel-slide]"),
+      );
+      let minLeft = Infinity;
+      let maxRight = -Infinity;
+      for (const el of all) {
+        const r = el.getBoundingClientRect();
+        minLeft = Math.min(minLeft, r.left - vpRect.left);
+        maxRight = Math.max(maxRight, r.right - vpRect.left);
+      }
+      const leftGap = Math.max(0, Math.round(minLeft));
+      const rightGap = Math.max(0, Math.round(vp.clientWidth - maxRight));
+      worst.current.left = Math.max(worst.current.left, leftGap);
+      worst.current.right = Math.max(worst.current.right, rightGap);
       setLines([
         `viewport clientWidth: ${vp.clientWidth}`,
-        `real slide count: ${reals.length}`,
-        `real slide[0] offsetWidth: ${reals[0]?.offsetWidth}`,
-        `real slide[0] rect: left ${r0 ? Math.round(r0.left - vpRect.left) : "?"}, width ${r0 ? Math.round(r0.width) : "?"}`,
-        `clone offsetWidth: ${clone?.offsetWidth ?? "(none)"}`,
-        `basePos (slide[0].offsetLeft): ${reals[0]?.offsetLeft}`,
-        `stride (slide1-slide0 offsetLeft): ${stride}`,
+        `coverage: left ${Math.round(minLeft)}  right ${Math.round(maxRight)}  (0..${vp.clientWidth})`,
+        `live gap: left ${leftGap}  right ${rightGap}`,
+        `WORST gap seen: left ${worst.current.left}  right ${worst.current.right}`,
         `track transform: ${track.style.transform || "(none)"}`,
       ]);
     };
-    read();
-    const id = window.setInterval(read, 400);
-    return () => window.clearInterval(id);
+    raf = requestAnimationFrame(read);
+    return () => cancelAnimationFrame(raf);
   }, [cellTitle]);
   return (
     <pre

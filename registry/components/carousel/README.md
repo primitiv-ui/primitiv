@@ -459,6 +459,16 @@ Structured per RFC 0008 — the per-component API knobs + resting look in
   `scrollend` so both swipe / drag / wheel *and* button / keyboard / autoplay
   glide one step into the adjacent clone with no rewind (single-slide-scoped;
   geometry verified for feel on real devices).
+- **Glide speed (`glide`)** — a root **`glide`** modifier (`medium` default ·
+  `fast` · `slow`) re-points `--primitiv-carousel-glide-duration` to a motion
+  duration token (`fast` 200ms · `medium` 300ms · `slow` 500ms) for the
+  **infinite** loop's glide. The engine reads that knob and
+  `--primitiv-carousel-glide-easing` (default `motion-easing-enter`, an ease-out
+  so the page flies in and settles) off the track and builds the transform
+  transition, so for a duration or easing outside the presets you re-point either
+  custom property directly (`.my-carousel { --primitiv-carousel-glide-easing:
+  linear; }`). **Infinite only** — every other mode glides via native scroll,
+  whose speed and easing the browser owns, so the knobs have no effect there.
 
 Focus draws the **shared two-layer ring** (surface gap + brand ring) on the
 tabbable viewport and the button parts, restyleable system-wide via the

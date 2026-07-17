@@ -271,6 +271,49 @@ describe("Carousel infinite — transform engine", () => {
     expect(track!.style.transition).toContain("transform");
   });
 
+  it("drives the glide with the CSS custom properties when they are set", () => {
+    // The engine reads --primitiv-carousel-glide-duration / -easing off the track
+    // (a consumer sets them via a --glide-* preset or their own CSS) and builds the
+    // transform transition from them, so glide timing and easing are customisable —
+    // only for the infinite loop, which owns its JS transition (native modes glide
+    // via browser scroll). Spy on getComputedStyle, delegating everything but the
+    // two glide props to the real one.
+    const real = window.getComputedStyle.bind(window);
+    vi.spyOn(window, "getComputedStyle").mockImplementation((el: Element) => {
+      const style = real(el);
+      return new Proxy(style, {
+        get(target, prop) {
+          if (prop === "getPropertyValue")
+            return (name: string) =>
+              name === "--primitiv-carousel-glide-duration"
+                ? "250ms"
+                : name === "--primitiv-carousel-glide-easing"
+                  ? "ease-in"
+                  : target.getPropertyValue(name);
+          const value = Reflect.get(target, prop);
+          return typeof value === "function" ? value.bind(target) : value;
+        },
+      }) as CSSStyleDeclaration;
+    });
+    const { track, getByRole } = renderInfinite();
+
+    fireEvent.click(getByRole("button", { name: "Next" }));
+
+    expect(track!.style.transition).toBe("transform 250ms ease-in");
+  });
+
+  it("defaults the glide to 300ms ease-out when no custom properties are set", () => {
+    // Fallback for the headless package with no registry stylesheet: the built-in
+    // glide matches the motion-token default the stylesheet would otherwise supply.
+    const { track, getByRole } = renderInfinite();
+
+    fireEvent.click(getByRole("button", { name: "Next" }));
+
+    expect(track!.style.transition).toBe(
+      "transform 300ms cubic-bezier(0, 0, 0.2, 1)",
+    );
+  });
+
   it("wraps the SHORT way from the last page to the first, then re-bases", async () => {
     const user = userEvent.setup();
     // 4 slides, start on the last. The re-base normalizes the mount to offset 300

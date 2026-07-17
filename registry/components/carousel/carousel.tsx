@@ -16,7 +16,7 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K>
  *
  * @see https://primitiv-ui.dev/docs/components/carousel
  */
-export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "gap" | "padding" | "surface" | "radius" | "placement" | "side" | "distribution" | "align" | "cluster" | "indicators" | "size" | "ratio" | "slideWidth" | "effect"> & {
+export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof CarouselPrimitive.Root>, "peek" | "gap" | "padding" | "surface" | "radius" | "placement" | "side" | "distribution" | "align" | "cluster" | "indicators" | "size" | "ratio" | "slideWidth" | "effect" | "glide"> & {
   /**
    * Reveal a sliver of the adjacent slides on either side of the active one. Works in both orientations (inline edges when horizontal, block edges when vertical).
    * - `none` — No peek — the active slide fills the viewport (the default).
@@ -149,12 +149,21 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
   effect?: "none" | "parallax";
+  /**
+   * How fast the infinite loop glides between pages (loop="infinite" only — every other mode uses native scroll). A preset re-points --primitiv-carousel-glide-duration to a motion duration token; the engine reads it, with --primitiv-carousel-glide-easing, off the track and drives the transform transition. `medium` is the default. For a duration or easing outside the presets, re-point either custom property directly.
+   * - `fast` — A quick glide (200ms).
+   * - `medium` — The default glide (300ms).
+   * - `slow` — A slow, unhurried glide (500ms).
+   * @default "medium"
+   * @see https://primitiv-ui.dev/docs/components/carousel
+   */
+  glide?: "fast" | "medium" | "slow";
 };
 
-export function Carousel({ peek, gap, padding, surface, radius, placement, side, distribution, align, cluster, indicators, size, ratio, slideWidth, effect, slidesPerPage, className, style, ...props }: CarouselProps) {
+export function Carousel({ peek, gap, padding, surface, radius, placement, side, distribution, align, cluster, indicators, size, ratio, slideWidth, effect, glide, slidesPerPage, className, style, ...props }: CarouselProps) {
   return (
     <CarouselPrimitive.Root
-      className={[carousel({ peek, gap, padding, surface, radius, placement, side, distribution, align, cluster, indicators, size, ratio, slideWidth, effect }), className].filter(Boolean).join(" ")}
+      className={[carousel({ peek, gap, padding, surface, radius, placement, side, distribution, align, cluster, indicators, size, ratio, slideWidth, effect, glide }), className].filter(Boolean).join(" ")}
       style={{ ...style, ...(slidesPerPage === undefined ? {} : { "--primitiv-carousel-slides-per-page": slidesPerPage }) } as CSSProperties}
       slidesPerPage={slidesPerPage}
       {...props}

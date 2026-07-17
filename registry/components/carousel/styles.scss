@@ -179,6 +179,14 @@
        slides stack and the active one fades in over the others. */
     --primitiv-carousel-fade-duration: var(--primitiv-motion-duration-overlay);
     --primitiv-carousel-fade-easing: var(--primitiv-motion-easing-default);
+    /* Glide timing — the infinite loop's JS transform transition (RFC 0018), read
+       only under loop="infinite" (every other mode uses native scroll, whose speed
+       and easing the browser owns). The engine reads these off the track and builds
+       `transition: transform <duration> <easing>`, so re-pointing either (or picking
+       a --glide-* preset) retunes the glide. Ease-out (enter) so the page flies in
+       and settles, like the momentum of a swipe. */
+    --primitiv-carousel-glide-duration: var(--primitiv-motion-duration-overlay);
+    --primitiv-carousel-glide-easing: var(--primitiv-motion-easing-enter);
     /* Slideshow-parallax drift — the max translate offset a slide's content
        layer travels from entering to exiting the viewport, read only under
        the `effect="parallax"` modifier (see primitiv.variants). Not a design
@@ -740,6 +748,21 @@
   }
   .primitiv-carousel--peek-lg {
     --primitiv-carousel-peek: var(--primitiv-carousel-content-space-4);
+  }
+
+  /* Glide speed — re-points the infinite loop's glide duration to a motion
+     duration token. `medium` (300ms) is the default the base rule already resolves;
+     fast/slow bracket it. Applies only under loop="infinite" (the JS transform
+     engine reads the knob); native-scroll modes ignore it. Easing stays on
+     --primitiv-carousel-glide-easing — re-point that for a different curve. */
+  .primitiv-carousel--glide-fast {
+    --primitiv-carousel-glide-duration: var(--primitiv-duration-200);
+  }
+  .primitiv-carousel--glide-medium {
+    --primitiv-carousel-glide-duration: var(--primitiv-duration-300);
+  }
+  .primitiv-carousel--glide-slow {
+    --primitiv-carousel-glide-duration: var(--primitiv-duration-500);
   }
 
   /* Slide gap — re-points the inter-slide gap knob on a t-shirt scale. `md`
@@ -2008,4 +2031,6 @@ $primitiv-carousel-overlay-pill-padding-inline: var(--primitiv-carousel-overlay-
 $primitiv-carousel-overlay-pill-padding-block: var(--primitiv-carousel-overlay-pill-padding-block);
 $primitiv-carousel-fade-duration: var(--primitiv-carousel-fade-duration);
 $primitiv-carousel-fade-easing: var(--primitiv-carousel-fade-easing);
+$primitiv-carousel-glide-duration: var(--primitiv-carousel-glide-duration);
+$primitiv-carousel-glide-easing: var(--primitiv-carousel-glide-easing);
 $primitiv-carousel-parallax-amount: var(--primitiv-carousel-parallax-amount);

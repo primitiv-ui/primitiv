@@ -798,6 +798,16 @@ CSS `transform` transition, wrapping across the ends with no rewind; the first
 positioning is instant (no glide on load). `prefers-reduced-motion` sets the
 offset instantly with no transition.
 
+The glide's **duration and easing** are read off the track from the
+`--primitiv-carousel-glide-duration` and `--primitiv-carousel-glide-easing` custom
+properties, so a consumer retunes the feel purely in CSS (the registry stylesheet
+defaults them to motion tokens and ships `--glide-fast/medium/slow` presets). With
+no stylesheet the engine falls back to a built-in `300ms` ease-out. Every slide is
+also promoted to its own compositor layer (`transform: translateZ(0)` in the
+registry sheet) so its rounded, clipped bitmap is painted before it scrolls in — no
+iOS entering-edge white — while the engine windows the painted set (far slides are
+`visibility: hidden`) to keep that layer count bounded.
+
 **Touch / mouse drag.** The track follows the pointer 1:1 (transition off), and
 on release a velocity-projected **fling** snaps to the nearest **page** boundary
 with the same glide, updating the active page from where it lands. With

@@ -5,9 +5,28 @@ import { useCarouselContext } from "./useCarouselContext";
 
 // The programmatic glide (button / keyboard / indicator / autoplay) is a CSS
 // transition on the track — GPU-composited, so it's smooth on mobile where a
-// per-frame JS repaint of the slides stutters. Ease-out gives the momentum feel.
-const GLIDE_DURATION_MS = 400;
-const GLIDE_EASE = "cubic-bezier(0.33, 1, 0.68, 1)";
+// per-frame JS repaint of the slides stutters. These are the fallback timing for
+// the headless package used with no registry stylesheet; the registry sheet's
+// --primitiv-carousel-glide-{duration,easing} (default: the same motion tokens,
+// re-pointable per --glide-* preset or by hand) override them. Ease-out gives the
+// momentum feel of a page flying in and settling.
+const GLIDE_DURATION = "300ms";
+const GLIDE_EASE = "cubic-bezier(0, 0, 0.2, 1)";
+
+// Build the glide's `transition` value, reading the duration/easing custom
+// properties off the track (a consumer retunes them via CSS) and falling back to
+// the built-in timing when they're unset. Only the infinite loop uses this — every
+// other mode glides via native scroll, whose speed/easing the browser owns.
+function glideTransition(track: HTMLElement): string {
+  const styles = getComputedStyle(track);
+  const duration =
+    styles.getPropertyValue("--primitiv-carousel-glide-duration").trim() ||
+    GLIDE_DURATION;
+  const easing =
+    styles.getPropertyValue("--primitiv-carousel-glide-easing").trim() ||
+    GLIDE_EASE;
+  return `transform ${duration} ${easing}`;
+}
 // Pointer travel (px, along the axis) before a press becomes a drag — below it
 // a tap still reaches a link/button inside a slide.
 const DRAG_THRESHOLD_PX = 3;
@@ -194,9 +213,7 @@ export function useCarouselLoop() {
   // slide (real and clone) rides the track's single bitmap.
   const paint = useCallback(
     (offset: number, from: number, g: Geometry, animate: boolean) => {
-      g.track.style.transition = animate
-        ? `transform ${GLIDE_DURATION_MS}ms ${GLIDE_EASE}`
-        : "none";
+      g.track.style.transition = animate ? glideTransition(g.track) : "none";
       // Place real slide 0 (at layout position basePos) at `align`, then carry the
       // offset. dir mirrors the offset under RTL; the block axis never mirrors. A 2D
       // translate (not translate3d) so the wide clone strip isn't force-promoted to

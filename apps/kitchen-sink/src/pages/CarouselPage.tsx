@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { useContext, useEffect, useRef, useState } from "react";
 
 import {
@@ -2437,10 +2437,13 @@ function CoverFlowSingle({
   label,
   orientation = "horizontal",
   images = false,
+  spread,
 }: {
   label: string;
   orientation?: "horizontal" | "vertical";
   images?: boolean;
+  /** Overlap amount (% of a slide) — sets --primitiv-carousel-coverflow-spread live. */
+  spread?: number;
 }) {
   const Prev = orientation === "vertical" ? ChevronUp : ChevronLeft;
   const Next = orientation === "vertical" ? ChevronDown : ChevronRight;
@@ -2453,8 +2456,15 @@ function CoverFlowSingle({
       effect="coverflow"
       orientation={orientation}
       peek="lg"
-      gap="lg"
+      gap="none"
       snapAlign="center"
+      style={
+        spread === undefined
+          ? undefined
+          : ({
+              "--primitiv-carousel-coverflow-spread": `${spread}%`,
+            } as CSSProperties)
+      }
     >
       <CarouselViewport>
         {items.map((item, i) => (
@@ -2490,29 +2500,57 @@ function CoverFlowSingle({
 }
 
 export function CarouselCoverFlow() {
+  // Live overlap control (RFC-less QA knob): drives
+  // --primitiv-carousel-coverflow-spread on every cell so the whole grid
+  // re-tunes as the slider moves — how far the neighbours slide toward the
+  // centre and overlap the flat card. 0 = neighbours sit at their scroll-snap
+  // positions; higher = tighter, more overlap.
+  const [spread, setSpread] = useState(40);
   return (
     <Example
       title="Cover Flow — scroll-driven 3D, zero JavaScript"
-      note="effect='coverflow' tilts each slide's <CarouselSlideContent> in 3D (rotateY + scale off a per-slide perspective) as it crosses the viewport — the iTunes Cover Flow look. Same engine as the Slideshow (parallax) example: a native CSS view-timeline scoped to the slide (animation-range: cover), with a --slide-progress fallback for browsers without view-timeline support, RTL/infinite handled the same way, and disabled under prefers-reduced-motion. Pair with peek (to reveal the tilting neighbours) and snapAlign='center'. Tune the look with the --primitiv-carousel-coverflow-{rotate,scale,perspective} knobs."
+      note="effect='coverflow' tilts each slide's <CarouselSlideContent> in 3D (rotateY + scale off a per-slide perspective) as it crosses the viewport — the iTunes Cover Flow look. Same engine as the Slideshow (parallax) example: a native CSS view-timeline scoped to the slide (animation-range: cover), with a --slide-progress fallback for browsers without view-timeline support, and disabled under prefers-reduced-motion. Pair with peek (to reveal the tilting neighbours) and snapAlign='center'. Tune the look with the --primitiv-carousel-coverflow-{spread,rotate,scale,perspective} knobs — the Overlap slider below drives `spread` live. (Infinite loop still needs its own tuning pass — use native scroll here.)"
       wide
     >
+      <div className="carousel-coverflow-controls">
+        <label className="carousel-coverflow-controls__field">
+          <span className="carousel-coverflow-controls__label">
+            Overlap (how close the slides sit / how much they overlap)
+          </span>
+          <span className="carousel-coverflow-controls__row">
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={1}
+              value={spread}
+              onChange={(e) => setSpread(e.currentTarget.valueAsNumber)}
+              aria-label="Cover Flow overlap amount"
+            />
+            <output className="carousel-coverflow-controls__value">
+              {spread}%
+            </output>
+          </span>
+        </label>
+      </div>
       <div className="carousel-grid">
         <GridCell
           n={1}
           title="Default — horizontal"
-          note="The centred card sits flat and forward; its neighbours (revealed by peek) tilt away. Scroll/swipe/drag and the tilt tracks continuously."
+          note="The centred card sits flat and forward; its neighbours (revealed by peek) tilt away and slide inward by the Overlap amount. Scroll/swipe/drag and the tilt tracks continuously."
         >
-          <CoverFlowSingle label="Featured products — cover flow" />
+          <CoverFlowSingle label="Featured products — cover flow" spread={spread} />
         </GridCell>
 
         <GridCell
           n={2}
           title="Vertical"
-          note="The view-timeline axis follows the scroll axis, so a vertical scroller tilts on the x axis (rotateX) — cards fan forward/back up the column."
+          note="The view-timeline axis follows the scroll axis, so a vertical scroller tilts on the x axis (rotateX) and the neighbours slide up/down toward the centre — cards fan forward/back up the column."
         >
           <CoverFlowSingle
             label="Featured products — cover flow, vertical"
             orientation="vertical"
+            spread={spread}
           />
         </GridCell>
 
@@ -2522,7 +2560,10 @@ export function CarouselCoverFlow() {
           note="Chromium mis-resolves a horizontal view-timeline's cover progress in an RTL scroller, so horizontal RTL drives the tilt off the RTL-correct --slide-progress signal instead (same as the parallax example). The centred card should rest flat and its neighbours tilt symmetrically."
           dir="rtl"
         >
-          <CoverFlowSingle label="Featured products — cover flow, RTL" />
+          <CoverFlowSingle
+            label="Featured products — cover flow, RTL"
+            spread={spread}
+          />
         </GridCell>
 
         <GridCell
@@ -2533,6 +2574,7 @@ export function CarouselCoverFlow() {
           <CoverFlowSingle
             label="Featured products — cover flow, photos"
             images
+            spread={spread}
           />
         </GridCell>
       </div>

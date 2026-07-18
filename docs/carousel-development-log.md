@@ -5245,3 +5245,34 @@ first cut against it:
 
 Gates re-run green (`cargo test -p primitiv-emit` drift). Kitchen-sink surface
 re-synced. Still awaiting the same human QA pass.
+
+### Cover Flow QA round 1 — overlap `spread` knob + live slider, tighter default
+
+Human QA (native scroll): the slides sat too far apart; asked for them much
+closer, plus a slider to configure how close / how much they overlap. (Infinite
+loop explicitly deferred — get native working first.)
+
+- **New knob `--primitiv-carousel-coverflow-spread`** (default `40%`) — Blossom's
+  `slide-cover` translateX, the part deliberately not ported in the first pass.
+  It's a `translateX` (horizontal) / `translateY` (vertical) that pulls each slide
+  *toward the centre* by `--slide-progress × spread` (positive crowds inward; `0`
+  = scroll-snap positions), added as the outermost term of the coverflow transform
+  in every branch — the two keyframes, the `--slide-progress` fallback (both
+  orientations), the horizontal-RTL override, and the infinite overrides — so all
+  paths stay consistent.
+- **Centred card lifted with `z-index`** on `[data-state="active"]`: cross-slide 3D
+  z-sorting isn't possible (each slide is its own perspective context — the scroll
+  container can't be preserve-3d), so 2D stacking keeps the flat, forward card on
+  top of the inward crowd rather than under it.
+- **Example tightened**: `gap="lg"` → `gap="none"`, and a **live "Overlap" range
+  slider** (0–100%) above the grid drives `--primitiv-carousel-coverflow-spread` on
+  every cell via inline style on `<Carousel>` (beats the `:where()` default). Lets
+  the human dial the closeness/overlap in-browser without a rebuild.
+- **Infinite**: the `[data-loop="infinite"]` override carries the same spread term
+  so it isn't left frozen, but it still needs its own dedicated tuning pass (the
+  JS-track geometry differs) — called out in the example note as native-only for
+  now.
+
+Regenerated scss (spread aliases + z-index rule), re-synced kitchen-sink. Gates
+green: `cargo test -p primitiv-emit` (drift) + `-p primitiv-cli`, `node
+scripts/check-registry-types.mjs`. Deploying for the next QA look.

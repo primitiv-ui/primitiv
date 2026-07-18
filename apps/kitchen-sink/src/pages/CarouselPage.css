@@ -220,6 +220,39 @@
   text-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
 }
 
+/* Live Overlap slider above the Cover Flow grid. */
+.carousel-coverflow-controls {
+  margin-block-end: var(--primitiv-space-space-16);
+}
+
+.carousel-coverflow-controls__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-4);
+  max-inline-size: 28rem;
+}
+
+.carousel-coverflow-controls__label {
+  font-size: var(--primitiv-body-sm-font-size);
+  color: var(--primitiv-content-secondary);
+}
+
+.carousel-coverflow-controls__row {
+  display: flex;
+  align-items: center;
+  gap: var(--primitiv-space-space-8);
+}
+
+.carousel-coverflow-controls__row input[type="range"] {
+  flex: 1;
+}
+
+.carousel-coverflow-controls__value {
+  min-inline-size: 3ch;
+  font-variant-numeric: tabular-nums;
+  color: var(--primitiv-content-primary);
+}
+
 /* Linked-slide fixture (loop cell 13). The anchor fills the slide so a tap
  * anywhere on it navigates — the drag layer only swallows the click once the
  * pointer crosses the drag threshold, so a genuine tap always reaches the link. */

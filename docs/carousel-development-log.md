@@ -4669,3 +4669,49 @@ the native scroll-progress test file's own zero-guard precedent). 100%
 Carousel coverage (statements/branches/functions/lines), tsc clean (react +
 kitchen-sink), 3-way CSS sync + drift guard green. **Device QA pending** on
 cell 16 vs. the plain Slideshow page.
+
+## Stale clones after a slide's content changes (not just its count)
+
+Human report: "when I switch between pictures and gradients, the latter is
+sometimes left in there... I'm scrolling through the pictures and I still see
+the gradient momentarily, then it quickly changes to a picture. The reverse
+is also true." Root cause: clones are built once via `slide.cloneNode(true)`
+and the rebuild effect's deps (`isInfinite`, `slideKeys`, `refreshTick`) only
+fire on structural change — count, order, identity. None of those change
+when a consumer swaps a slide's *content* under the same key (the kitchen-
+sink builder's gradient↔picture toggle sets `style={{ background }}` /
+swaps children on the same `<Carousel.Slide>`). So a clone keeps showing the
+OLD content indefinitely; crossing the loop seam then briefly paints the
+stale clone before the settle re-base swaps in the fresh real slide at the
+same pixels — exactly the reported flash.
+
+Fix (`useCarouselLoop.ts`): extracted the clone-building body into a
+`rebuildClones` callback (unchanged behaviour, now callable from two
+effects) and added a second effect that observes every real slide with a
+`MutationObserver` (`childList`, `subtree`, `attributes`, `characterData`)
+and calls `rebuildClones()` on a "meaningful" mutation. No extra rAF
+coalescing needed on top of it, unlike `useCarouselViewport`'s scroll-driven
+progress effect — a native `scroll` event doesn't self-batch, but a
+`MutationObserver` callback already batches every mutation from one
+synchronous commit into a single invocation. The callback filters out
+attribute mutations on `data-state`/`data-index` specifically: those flip on
+every navigation (the active slide's state), are stripped from clones
+anyway, and reacting to them would rebuild clones on every page change for
+no visible difference — including mid-glide, while a clone might be on
+screen, which is the exact flash class this engine exists to prevent.
+Everything else (style, class, children, text) still triggers a rebuild.
+
+Tests: one new RED test rendered an infinite carousel, asserted a clone's
+initial content, `rerender()`d the same slide keys/count with different
+content, and (after `await act(async () => { await Promise.resolve() })` to
+flush the MutationObserver's microtask callback) asserted the clone caught
+up. A defensive `if (!head || !tail) return` added during the first
+implementation attempt (reasoning: the observer callback is now reachable
+after unmount) turned out to be unreachable — React nulls the clone refs and
+runs the observer's own `disconnect()` cleanup synchronously within the same
+effect-flush pass that tears down the holders, so there's no window where
+`rebuildClones` runs with stale refs while the observer is still connected;
+removed in favour of non-null assertions, mirroring the same call earlier
+this session in `liveSlideProgress`. 100% Carousel
+coverage (statements/branches/functions/lines), tsc clean (react +
+kitchen-sink), 3-way CSS sync unaffected (JS-only fix).

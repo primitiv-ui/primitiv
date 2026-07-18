@@ -404,14 +404,17 @@ export function useCarouselLoop() {
     [paint, startProgressTicker, stopProgressTicker],
   );
 
-  // Rebuild the clone buffers whenever the slide set changes: a full period of
-  // aria-hidden, inert copies each side makes the strip periodic so every seam is
-  // contiguous already-painted DOM. Copies are presentational only — they carry no
-  // registration, index, or focusable state.
-  useEffect(() => {
-    if (!isInfinite) return;
-    // The holders render with the track in infinite mode, so they're mounted by
-    // the time this post-commit effect runs (same guarantee measure() relies on).
+  // Rebuild the clone buffers: a full period of aria-hidden, inert copies each
+  // side makes the strip periodic so every seam is contiguous already-painted
+  // DOM. Copies are presentational only — they carry no registration, index, or
+  // focusable state.
+  const rebuildClones = useCallback(() => {
+    // The holders render with the track in infinite mode, so they're mounted
+    // by the time this runs (same guarantee measure() relies on) — including
+    // when called from the mutation observer below, whose own cleanup
+    // (disconnect) tears down in the same synchronous effect-flush pass that
+    // unmounts the holders, so there's no window where this runs with stale
+    // refs.
     const head = headCloneRef.current!;
     const tail = tailCloneRef.current!;
     head.replaceChildren();
@@ -435,7 +438,58 @@ export function useCarouselLoop() {
         holder.appendChild(clone);
       }
     }
-  }, [isInfinite, slideKeys, refreshTick, realSlides]);
+  }, [realSlides]);
+
+  // Rebuild whenever the slide *set* changes (count, order, identity).
+  useEffect(() => {
+    if (!isInfinite) return;
+    rebuildClones();
+  }, [isInfinite, slideKeys, refreshTick, rebuildClones]);
+
+  // Also rebuild whenever a slide's own *content* changes underneath the same
+  // key — e.g. a consumer swapping a slide's children (an image for a
+  // gradient, text for a different caption) without touching the slide
+  // count/keys. The effect above doesn't see this (its deps are all
+  // structural), so a clone would otherwise keep showing stale content
+  // indefinitely: crossing the seam briefly shows the stale clone before the
+  // settle re-base swaps in the fresh real slide at the same pixels — a
+  // flash of old content that "quickly changes" to the new one. A
+  // MutationObserver on each real slide's subtree catches this regardless of
+  // *what* changed; no extra coalescing needed on top of it — the browser
+  // already batches every mutation from one synchronous commit into a single
+  // callback invocation (unlike a native 'scroll' event, which is why
+  // useCarouselViewport's own progress effect needs its own rAF batching).
+  useEffect(() => {
+    if (!isInfinite) return;
+    const slides = realSlides();
+    if (slides.length === 0) return;
+    // data-state/data-index churn every navigation (the leading slide's active
+    // state flips) — routine, and stripped from the clone anyway
+    // (rebuildClones removes both), so reacting to them would rebuild on every
+    // page change for no visible difference, including mid-glide while a
+    // clone might be on screen (the exact class of flash this whole engine
+    // exists to avoid). Everything else — a slide's own attributes (style, for
+    // a consumer that swaps a gradient via inline style), its children, or
+    // their text — genuinely can change the clone's content, so those still
+    // trigger a rebuild.
+    const observer = new MutationObserver((mutations) => {
+      const meaningful = mutations.some(
+        (m) =>
+          m.type !== "attributes" ||
+          (m.attributeName !== "data-state" && m.attributeName !== "data-index"),
+      );
+      if (meaningful) rebuildClones();
+    });
+    for (const slide of slides) {
+      observer.observe(slide, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        characterData: true,
+      });
+    }
+    return () => observer.disconnect();
+  }, [isInfinite, slideKeys, refreshTick, realSlides, rebuildClones]);
 
   // Re-base once a glide settles. jsdom runs no transitions, so this fires only in
   // a real browser (tests dispatch a synthetic transitionend); it's idempotent, so

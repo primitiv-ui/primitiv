@@ -233,6 +233,40 @@ describe("Carousel infinite — transform engine", () => {
     expect(clone.hasAttribute("data-index")).toBe(false);
   });
 
+  it("rebuilds clones when a slide's own content changes, not just its count", async () => {
+    // The builder toggles a slide's *content* (gradient <-> picture) without
+    // changing the slide count/keys — the clone-rebuild effect's deps
+    // (isInfinite, slideKeys, refreshTick) don't fire for that, so a stale
+    // clone kept showing the OLD content until something else happened to
+    // rebuild it. Crossing the seam then briefly shows the stale clone before
+    // the settle re-base swaps in the fresh real slide at the same pixels —
+    // "I still see the gradient momentarily, then it quickly changes to a
+    // picture." Same key, same count, only the children differ.
+    function App({ label }: { label: string }) {
+      return (
+        <Carousel.Root ariaLabel="Featured" loop="infinite">
+          <Carousel.Viewport>
+            {[0, 1, 2, 3].map((i) => (
+              <Carousel.Slide key={i}>{label}</Carousel.Slide>
+            ))}
+          </Carousel.Viewport>
+        </Carousel.Root>
+      );
+    }
+    const { container, rerender } = render(<App label="gradient" />);
+    const head = container.querySelector('[data-carousel-clones="head"]')!;
+    expect(head.children[0]!.textContent).toBe("gradient");
+
+    rerender(<App label="picture" />);
+    // MutationObserver callbacks fire as a microtask, not synchronously
+    // within rerender() — flush one before asserting the clone caught up.
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(head.children[0]!.textContent).toBe("picture");
+  });
+
   it("keeps the offset within one period under rapid navigation (no run-off)", async () => {
     // Rapid Next clicks retarget the transition before it ends, so the settle
     // re-base never fires; without a start-of-glide re-base the offset accumulates

@@ -117,6 +117,17 @@ export function useCarouselLoop() {
   // re-home to the current page without re-subscribing on every navigation.
   const currentPageOffsetRef = useRef(currentPageOffset);
   currentPageOffsetRef.current = currentPageOffset;
+  // The geometry the resize observer last acted on — lets it no-op a spurious
+  // fire (see the observer effect below) instead of unconditionally interrupting
+  // whatever the track is currently doing.
+  const lastResizeGeometryRef = useRef<{
+    stride: number;
+    align: number;
+    basePos: number;
+    trackSize: number;
+    dir: number;
+    count: number;
+  } | null>(null);
   // The first positioning is instant — a glide from slide 0 to the initial page
   // on mount would be a pointless animation on load.
   const positionedRef = useRef(false);
@@ -365,6 +376,18 @@ export function useCarouselLoop() {
     if (!isInfinite) return;
     const g = measure();
     if (!g) return;
+    // Keep the resize observer's baseline current, so even its guaranteed first
+    // fire (browsers report an element's size once right after `.observe()`, with
+    // no real change) has a snapshot to compare against and correctly no-ops
+    // instead of interrupting this navigation (see the observer effect below).
+    lastResizeGeometryRef.current = {
+      stride: g.stride,
+      align: g.align,
+      basePos: g.basePos,
+      trackSize: g.trackSize,
+      dir: g.dir,
+      count: g.count,
+    };
     // Bound the offset first so rapid, transition-interrupting navigation can't
     // accumulate it off the clone buffer.
     boundGlideStart(g);
@@ -404,6 +427,37 @@ export function useCarouselLoop() {
     const rehome = () => {
       const g = measure();
       if (!g) return;
+      // The browser fires a ResizeObserver callback once automatically right
+      // after `.observe()`, even when nothing has actually resized (it reports
+      // the initial size — real behaviour our test double doesn't replicate, so
+      // this only surfaces on a device). An unconditional rehome would then
+      // unconditionally interrupt whatever the track is doing: mid-glide, it'd
+      // kill the CSS transition, snap straight to the rest position, and collapse
+      // the paint window to a single point instead of the swept range — hiding
+      // the slide still mid-transition (the "current slide vanishes on Prev"
+      // report). Skip when the measured geometry hasn't actually changed; a
+      // *genuine* resize (a real one always changes at least one of these) still
+      // rehomes as before.
+      const last = lastResizeGeometryRef.current;
+      if (
+        last &&
+        last.stride === g.stride &&
+        last.align === g.align &&
+        last.basePos === g.basePos &&
+        last.trackSize === g.trackSize &&
+        last.dir === g.dir &&
+        last.count === g.count
+      ) {
+        return;
+      }
+      lastResizeGeometryRef.current = {
+        stride: g.stride,
+        align: g.align,
+        basePos: g.basePos,
+        trackSize: g.trackSize,
+        dir: g.dir,
+        count: g.count,
+      };
       offsetRef.current = normalizeOffset(
         currentPageOffsetRef.current * g.stride,
         g.trackLength,

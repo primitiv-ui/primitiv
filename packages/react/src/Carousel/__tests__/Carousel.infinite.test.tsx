@@ -621,6 +621,31 @@ describe("Carousel infinite — transform engine", () => {
     expect(track!.style.transform).toBe("translate(-300px, 0px)");
   });
 
+  it("ignores a spurious resize fire mid-glide instead of interrupting it", async () => {
+    // Real browsers fire a ResizeObserver callback once automatically right after
+    // `.observe()`, even with no actual size change (spec: report the initial
+    // size) — a mock only replicates on an explicit `.fireAll()`, but a device
+    // still gets this for free. An unconditional rehome would abort whatever the
+    // track is doing: mid-glide it kills the CSS transition, snaps to the rest
+    // position, and collapses the paint window to a point — hiding the slide
+    // still mid-transition ("current slide vanishes on Prev"). A same-geometry
+    // resize must be a no-op instead.
+    const user = userEvent.setup();
+    const { track, getByRole } = renderInfinite();
+
+    await user.click(getByRole("button", { name: "Next" }));
+    expect(track!.style.transform).toBe("translate(-100px, 0px)");
+    expect(track!.style.transition).toContain("transform");
+
+    act(() => {
+      MockResizeObserver.fireAll();
+    });
+
+    // The in-flight glide is untouched — not reset to the instant rest position.
+    expect(track!.style.transform).toBe("translate(-100px, 0px)");
+    expect(track!.style.transition).toContain("transform");
+  });
+
   it("does not throw when the loop mode switches at runtime (slides reparent)", () => {
     // Switching loop reparents the slides into / out of the transform track, so
     // they unmount + re-register in the same commit that re-runs the native-scroll

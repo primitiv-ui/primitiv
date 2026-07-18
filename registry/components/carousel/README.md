@@ -30,8 +30,9 @@ expressed in logical properties.
 > ultrawide) for the slide aspect ratio, a **`slideWidth`** modifier
 > (`equal` default · `content`) for variable-width slides, scoped to
 > `slidesPerPage={1}`, and an **`effect`** modifier (`none` default ·
-> `parallax`) for a native, zero-JavaScript scroll-driven drift on
-> **`<CarouselSlideContent>`** (all — see below). Multi-slide and autoplay
+> `parallax` · `coverflow`) for native, zero-JavaScript scroll-driven motion
+> on **`<CarouselSlideContent>`** — a parallax drift or a 3D Cover Flow tilt
+> (all — see below). Multi-slide and autoplay
 > land in later iterations (see `docs/carousel-development-log.md`).
 
 ## Files
@@ -63,8 +64,8 @@ so they can't fall out of sync.
   `__controls` and `__slide-content` are both **presentational
   subcomponents** — `<CarouselControls>` and `<CarouselSlideContent>`, plain
   styled `<div>`s (no headless backing) the consumer composes; the former
-  puts prev / indicators / next in, the latter is the layer `effect="parallax"`
-  animates (see below). `__controls` centres its children and spaces the
+  puts prev / indicators / next in, the latter is the layer
+  `effect="parallax"` / `"coverflow"` animates (see below). `__controls` centres its children and spaces the
   buttons from the dots via `--primitiv-carousel-controls-gap` (distinct from
   the tight dot-to-dot `--primitiv-carousel-indicator-gap`, and from the
   `--primitiv-carousel-block-gap` between the viewport and the controls).
@@ -326,6 +327,34 @@ so they can't fall out of sync.
   `--slide-progress` (this effect included); the imperative
   `getSlideProgress()` / `getScrollProgress()` getters do not follow — see
   the headless README's "Continuous scroll progress" section.
+- **Cover Flow (`effect="coverflow"`).** The third `effect` value gives each
+  slide's content a native, zero-JavaScript **3D tilt** as the slide crosses the
+  viewport — the iTunes/Apple "Cover Flow" look (Blossom Carousel's Cover Flow
+  example). It reuses the whole parallax scaffold — the same per-slide
+  view-timeline (`animation-range: cover`, physical `x`/`y` axis), the same
+  `@supports not (...)` fallback reading `--slide-progress`, the same horizontal-RTL
+  and `loop="infinite"` overrides, and the same `prefers-reduced-motion` cancel
+  (see the parallax bullet above for the rationale on each) — but drives a
+  **`rotateY` (horizontal) / `rotateX` (vertical) + `scale`** instead of a
+  translate, off a **`perspective`** set on the slide, so the centred slide sits
+  flat, forward and full-size while its neighbours rotate away. Unlike parallax
+  (which drifts *inside* the clipped slide box, a Ken-Burns pan), Cover Flow tilts
+  the **whole card**, so it targets `<CarouselSlideContent>` for a different reason:
+  the slide goes **`overflow: visible`** to let the tilted card escape its flat slot
+  and overlap its neighbours, and the rounding/clip moves onto the content layer
+  (which inherits `--primitiv-carousel-slide-radius`). Targeting the content layer
+  (not the slide) is also what keeps it safe under `loop="infinite"`: the engine
+  measures each slide's `getBoundingClientRect()`, which a transform on the slide
+  itself would corrupt — a child transform leaves the slide's own box and native
+  scroll-snap untouched. Three knobs tune the look (all technique geometry, not
+  design tokens): **`--primitiv-carousel-coverflow-rotate`** (edge tilt angle,
+  default `45deg`), **`--primitiv-carousel-coverflow-scale`** (how far an edge
+  slide shrinks, default `0.85`), and **`--primitiv-carousel-coverflow-perspective`**
+  (scene depth, default `1200px`). Best composed with **`peek`** (to reveal the
+  tilting neighbours) and **`snapAlign="center"`** (so the flat, forward card is the
+  one that rests centred) — both orthogonal, so they just compose. Requires wrapping
+  the slide's visual (a gradient/`<img>`) in `<CarouselSlideContent>`, the card that
+  tilts. See the kitchen-sink `/carousel/coverflow` example.
 - **Multi-slide (`slidesPerPage` / `slidesPerMove`).** These are **not**
   modifiers — they are **`styleProps`**: numeric props forwarded straight to the
   headless page model *and* written onto `--primitiv-carousel-slides-per-page`

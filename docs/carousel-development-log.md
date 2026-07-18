@@ -5276,3 +5276,19 @@ loop explicitly deferred — get native working first.)
 Regenerated scss (spread aliases + z-index rule), re-synced kitchen-sink. Gates
 green: `cargo test -p primitiv-emit` (drift) + `-p primitiv-cli`, `node
 scripts/check-registry-types.mjs`. Deploying for the next QA look.
+
+### Cover Flow QA round 2 — overlap (+ angle) sliders in the Builder
+
+Human liked the example-page overlap slider; asked for the same in the Builder,
+enabled only when `effect="coverflow"`. Added two coverflow-gated `RangeField`s in
+the Builder's "effect" section: **overlap** (0–100 → `--primitiv-carousel-coverflow-spread`)
+and, since the human floated it, **angle** (0–90 → `--primitiv-carousel-coverflow-rotate`)
+so they can judge whether an angle control earns its place. Both greyed out with a
+"coverflow only" note off `config.effect !== "coverflow"` (the existing RangeField
+disabled/note affordance). New `coverflowSpread` (40) / `coverflowRotate` (55)
+`BuilderConfig` fields, applied as inline CSS custom properties on the live
+`<Carousel>` only under coverflow — Builder-only tuning knobs, so not echoed in
+`describe()` (like `content` / `showProgress`). On the "multiple neighbours"
+observation: that's purely the `peek` amount (more peek → more neighbours visible),
+already a Builder axis — nothing else needed. Next: the infinite-loop coverflow
+pass. Kitchen-sink-only change; no registry/contract/CSS touched, so no regen/drift.

@@ -3,6 +3,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type CSSProperties,
   type ReactNode,
 } from "react";
 
@@ -158,6 +159,13 @@ interface BuilderConfig {
   effect: Effect;
   loop: Loop;
   glide: Glide;
+  // Cover Flow tuning — applied as inline CSS custom properties on the live
+  // instance (not Carousel props), only when effect="coverflow": the inward
+  // overlap crowd (--coverflow-spread, % of a slide) and the edge tilt angle
+  // (--coverflow-rotate, deg). Builder-only knobs, so they're not echoed in
+  // describe().
+  coverflowSpread: number;
+  coverflowRotate: number;
   // Builder-only — not a real Carousel prop (like `content`), so it's never
   // echoed in describe()'s JSX. Overlays the continuous scroll-progress
   // signal (--carousel-progress / --slide-progress) on the live instance so
@@ -194,6 +202,8 @@ const DEFAULT_CONFIG: BuilderConfig = {
   effect: "none",
   loop: "none",
   glide: "medium",
+  coverflowSpread: 40,
+  coverflowRotate: 55,
   showProgress: false,
 };
 
@@ -558,6 +568,14 @@ function LiveCarousel({
         glide={config.glide}
         slidesPerPage={effectiveSlidesPerPage(config)}
         allowMouseDrag={config.allowMouseDrag}
+        style={
+          config.effect === "coverflow"
+            ? ({
+                "--primitiv-carousel-coverflow-spread": `${config.coverflowSpread}%`,
+                "--primitiv-carousel-coverflow-rotate": `${config.coverflowRotate}deg`,
+              } as CSSProperties)
+            : undefined
+        }
       >
         <CarouselViewport>
           {config.slideWidth === "content"
@@ -959,6 +977,24 @@ export function CarouselBuilder() {
                     ? "scroll-driven 3D tilt on each slide's content layer (rotateY + scale off a per-slide perspective) — the iTunes Cover Flow look; best with peek + snapAlign=\"center\""
                     : undefined
               }
+            />
+            <RangeField
+              label="Cover Flow overlap"
+              min={0}
+              max={100}
+              value={config.coverflowSpread}
+              onChange={(value) => set("coverflowSpread", value)}
+              disabled={config.effect !== "coverflow"}
+              note="coverflow only"
+            />
+            <RangeField
+              label="Cover Flow angle"
+              min={0}
+              max={90}
+              value={config.coverflowRotate}
+              onChange={(value) => set("coverflowRotate", value)}
+              disabled={config.effect !== "coverflow"}
+              note="coverflow only"
             />
           </Section>
 

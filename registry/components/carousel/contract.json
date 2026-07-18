@@ -343,6 +343,7 @@
     { "name": "--primitiv-carousel-coverflow-perspective", "defaultsTo": "1200px" },
     { "name": "--primitiv-carousel-coverflow-rotate", "defaultsTo": "55deg" },
     { "name": "--primitiv-carousel-coverflow-scale", "defaultsTo": "0.85" },
-    { "name": "--primitiv-carousel-coverflow-spread", "defaultsTo": "40%" }
+    { "name": "--primitiv-carousel-coverflow-spread", "defaultsTo": "40%" },
+    { "name": "--primitiv-carousel-coverflow-card-width", "defaultsTo": "60%" }
   ]
 }

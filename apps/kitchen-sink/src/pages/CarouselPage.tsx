@@ -2439,6 +2439,7 @@ function CoverFlowSingle({
   images = false,
   spread,
   rotate,
+  cardWidth,
 }: {
   label: string;
   orientation?: "horizontal" | "vertical";
@@ -2447,6 +2448,8 @@ function CoverFlowSingle({
   spread?: number;
   /** Edge tilt angle (deg) — sets --primitiv-carousel-coverflow-rotate live. */
   rotate?: number;
+  /** Card width (% of viewport) — sets --primitiv-carousel-coverflow-card-width; smaller shows more neighbours. */
+  cardWidth?: number;
 }) {
   const Prev = orientation === "vertical" ? ChevronUp : ChevronLeft;
   const Next = orientation === "vertical" ? ChevronDown : ChevronRight;
@@ -2459,6 +2462,9 @@ function CoverFlowSingle({
     ...(rotate === undefined
       ? {}
       : { "--primitiv-carousel-coverflow-rotate": `${rotate}deg` }),
+    ...(cardWidth === undefined
+      ? {}
+      : { "--primitiv-carousel-coverflow-card-width": `${cardWidth}%` }),
   } as CSSProperties;
   return (
     <Carousel
@@ -2466,11 +2472,13 @@ function CoverFlowSingle({
       cluster="joined"
       effect="coverflow"
       orientation={orientation}
-      peek="lg"
+      peek="none"
       gap="none"
       snapAlign="center"
       style={
-        spread === undefined && rotate === undefined ? undefined : tuning
+        spread === undefined && rotate === undefined && cardWidth === undefined
+          ? undefined
+          : tuning
       }
     >
       <CarouselViewport>
@@ -2514,6 +2522,7 @@ export function CarouselCoverFlow() {
   // positions; higher = tighter, more overlap.
   const [spread, setSpread] = useState(40);
   const [rotate, setRotate] = useState(55);
+  const [cardWidth, setCardWidth] = useState(40);
   return (
     <Example
       title="Cover Flow — scroll-driven 3D, zero JavaScript"
@@ -2559,6 +2568,25 @@ export function CarouselCoverFlow() {
             </output>
           </span>
         </label>
+        <label className="carousel-coverflow-controls__field">
+          <span className="carousel-coverflow-controls__label">
+            Card width (smaller shows more neighbours either side)
+          </span>
+          <span className="carousel-coverflow-controls__row">
+            <input
+              type="range"
+              min={20}
+              max={100}
+              step={1}
+              value={cardWidth}
+              onChange={(e) => setCardWidth(e.currentTarget.valueAsNumber)}
+              aria-label="Cover Flow card width"
+            />
+            <output className="carousel-coverflow-controls__value">
+              {cardWidth}%
+            </output>
+          </span>
+        </label>
       </div>
       <div className="carousel-grid">
         <GridCell
@@ -2570,6 +2598,7 @@ export function CarouselCoverFlow() {
             label="Featured products — cover flow"
             spread={spread}
             rotate={rotate}
+            cardWidth={cardWidth}
           />
         </GridCell>
 
@@ -2583,6 +2612,7 @@ export function CarouselCoverFlow() {
             orientation="vertical"
             spread={spread}
             rotate={rotate}
+            cardWidth={cardWidth}
           />
         </GridCell>
 
@@ -2596,6 +2626,7 @@ export function CarouselCoverFlow() {
             label="Featured products — cover flow, RTL"
             spread={spread}
             rotate={rotate}
+            cardWidth={cardWidth}
           />
         </GridCell>
 
@@ -2609,6 +2640,7 @@ export function CarouselCoverFlow() {
             images
             spread={spread}
             rotate={rotate}
+            cardWidth={cardWidth}
           />
         </GridCell>
       </div>

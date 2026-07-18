@@ -5334,3 +5334,22 @@ check. Can't reproduce headless (no browser in the sandbox), so this is a best-e
 fix pending human verify on `/carousel/builder` (coverflow + ratio square/standard/
 ultrawide) and `/carousel/coverflow`. Regenerated scss, re-synced; `cargo test -p
 primitiv-emit` green.
+
+### Cover Flow QA round 4 — card-width control (see more neighbours), horizontal
+
+Human (on mobile) confirmed ratio now works; the remaining horizontal ask: with 8
+slides + peek + padding, only one neighbour shows either side — they expected more.
+Root cause is geometric, not mobile: `slidesPerPage=1` makes each card ~fill the
+viewport, so peek only ever reveals the immediate neighbour (Blossom shows many via
+small fixed-width cards in wide padding). Added a **card-width** lever:
+`--primitiv-carousel-coverflow-card-width` (default `60%`) overrides the coverflow
+slide's `flex-basis` (horizontal only, scoped `:not([data-orientation="vertical"])`),
+so a smaller value narrows the card and more neighbours sit either side (≈ `1 /
+card-width` visible); snapAlign="center" still centres the active card, and it
+composes with peek/padding. Exposed as a live **Card width** slider on both surfaces:
+the `/carousel/coverflow` example (third slider, default 40%, and the example dropped
+its `peek="lg"` → `peek="none"` since card-width now creates the neighbour gutter) and
+the Builder (coverflow-gated `RangeField`, `coverflowCardWidth` default 60). Registry
+knob + contract + README updated; scss regenerated + synced; `cargo test -p
+primitiv-emit` + `check-registry-types` green. Vertical card-narrowing deliberately
+left out (matches the ratio-fix scoping) pending a vertical pass. Awaiting human QA.

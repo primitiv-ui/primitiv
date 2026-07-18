@@ -217,6 +217,12 @@
     --primitiv-carousel-coverflow-rotate: 55deg;
     --primitiv-carousel-coverflow-scale: 0.85;
     --primitiv-carousel-coverflow-spread: 40%;
+    /* How wide each card is, as a fraction of the viewport, under coverflow. With
+       one slide per page a card would otherwise fill the viewport and only the
+       immediate neighbour could peek in; narrowing it (a smaller value) lets more
+       cards sit either side of the centred one — the number visible is roughly
+       `1 / card-width`. The centred card is still the one that snaps to centre. */
+    --primitiv-carousel-coverflow-card-width: 60%;
 
     /* Fill the container and stack the viewport above the controls row, spaced
        by the block gap. The single column is an explicit full-width track
@@ -1126,6 +1132,12 @@
     .primitiv-carousel__slide {
     aspect-ratio: auto;
     block-size: auto;
+    /* Narrow each card below the viewport so several neighbours sit either side of
+       the centred one (classic Cover Flow) — a card would otherwise fill the
+       viewport with one slide per page and only the immediate neighbour could
+       peek in. Composes with peek/padding (those still add their gutters) and with
+       snapAlign="center" (which centres the card). */
+    flex-basis: var(--primitiv-carousel-coverflow-card-width);
   }
   .primitiv-carousel--effect-coverflow:not([data-orientation="vertical"])
     .primitiv-carousel__slide-content {
@@ -2319,3 +2331,4 @@ $primitiv-carousel-coverflow-perspective: var(--primitiv-carousel-coverflow-pers
 $primitiv-carousel-coverflow-rotate: var(--primitiv-carousel-coverflow-rotate);
 $primitiv-carousel-coverflow-scale: var(--primitiv-carousel-coverflow-scale);
 $primitiv-carousel-coverflow-spread: var(--primitiv-carousel-coverflow-spread);
+$primitiv-carousel-coverflow-card-width: var(--primitiv-carousel-coverflow-card-width);

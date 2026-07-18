@@ -166,6 +166,7 @@ interface BuilderConfig {
   // describe().
   coverflowSpread: number;
   coverflowRotate: number;
+  coverflowCardWidth: number;
   // Builder-only — not a real Carousel prop (like `content`), so it's never
   // echoed in describe()'s JSX. Overlays the continuous scroll-progress
   // signal (--carousel-progress / --slide-progress) on the live instance so
@@ -204,6 +205,7 @@ const DEFAULT_CONFIG: BuilderConfig = {
   glide: "medium",
   coverflowSpread: 40,
   coverflowRotate: 55,
+  coverflowCardWidth: 60,
   showProgress: false,
 };
 
@@ -573,6 +575,7 @@ function LiveCarousel({
             ? ({
                 "--primitiv-carousel-coverflow-spread": `${config.coverflowSpread}%`,
                 "--primitiv-carousel-coverflow-rotate": `${config.coverflowRotate}deg`,
+                "--primitiv-carousel-coverflow-card-width": `${config.coverflowCardWidth}%`,
               } as CSSProperties)
             : undefined
         }
@@ -995,6 +998,15 @@ export function CarouselBuilder() {
               onChange={(value) => set("coverflowRotate", value)}
               disabled={config.effect !== "coverflow"}
               note="coverflow only"
+            />
+            <RangeField
+              label="Cover Flow card width"
+              min={20}
+              max={100}
+              value={config.coverflowCardWidth}
+              onChange={(value) => set("coverflowCardWidth", value)}
+              disabled={config.effect !== "coverflow"}
+              note="coverflow only — smaller shows more neighbours"
             />
           </Section>
 

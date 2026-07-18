@@ -354,9 +354,15 @@ so they can't fall out of sync.
   translateX — how far each neighbour slides *toward the centre* along the scroll
   axis as a fraction of its own size, so higher values pull the neighbours in and
   overlap them onto the centred card; default `40%`, `0` leaves them at their
-  scroll-snap positions), and **`--primitiv-carousel-coverflow-perspective`** (scene
-  depth, default `1200px`). The centred (active) slide is lifted with `z-index` so
-  the crowd overlaps behind it, not over it. Best composed with **`peek`** (to reveal the tilting neighbours) and
+  scroll-snap positions), **`--primitiv-carousel-coverflow-card-width`** (how wide
+  each card is as a fraction of the viewport, default `60%` — with one slide per
+  page a card would fill the viewport and only the immediate neighbour could peek
+  in, so narrowing it lets more cards sit either side of the centred one; the number
+  visible is roughly `1 / card-width`), and
+  **`--primitiv-carousel-coverflow-perspective`** (scene depth, default `1200px`).
+  The centred (active) slide is lifted with `z-index` so the crowd overlaps behind
+  it, not over it. The card-narrowing is **horizontal-only** for now (vertical
+  Cover Flow keeps its own slide shaping). Best composed with **`peek`** (to reveal the tilting neighbours) and
   **`snapAlign="center"`** (so the flat, forward card is the one that rests centred) —
   both orthogonal, so they just compose. Requires wrapping the slide's visual (a
   gradient/`<img>`) in `<CarouselSlideContent>`, the card that tilts. See the

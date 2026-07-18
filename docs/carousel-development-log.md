@@ -5202,3 +5202,46 @@ vertical tilts on the correct axis; RTL rests symmetric; and no cross-axis
 viewport clipping of the tilted cards. Figma lockstep is N/A (code-only,
 design-divergent, same as parallax/progress). Remaining Advanced backlog: Autoplay
 example, Multi-step, Stories, Smart Stack, Cards, Flipbook, Timeline.
+
+### Cover Flow follow-up — checked against Blossom's actual recipe (human-provided)
+
+The human pasted Blossom's published Cover Flow CSS (its `rotate-cover` /
+`slide-cover` keyframes, `view-timeline: --slide inline calc(50% - 140px)`,
+`animation-range: contain`, a `.slide`+`.card` two-layer split, `perspective:
+500px`) and asked whether infinite mode needs separate treatment. Reconciled the
+first cut against it:
+
+- **Already matched:** the rotateY sweep sign/shape (`-55° → 0 → 55°`), the
+  per-slide `view-timeline`, the inner-content-layer target for the rotate, and
+  per-slide `perspective`.
+- **Aligned this pass:** bumped **`--primitiv-carousel-coverflow-rotate` 45deg →
+  55deg** to match Blossom's `rotateY(±55deg)` exactly. (Knob; no structural change.)
+- **Deliberate, forced divergences (documented in the CSS + README):**
+  1. **`animation-range: cover`, not Blossom's `contain` + inset.** Blossom's
+     `contain`/inset is calibrated for 100px slides in a wide port; our slides fill
+     the viewport, so `contain` collapses to nothing. `cover`'s 50% mark is exactly
+     the snapAlign="center" rest position, so flat-at-rest lands correctly.
+  2. **Shrink the edges (`scale 0.85`), not grow the centre to `1.2`.** Growing the
+     centre past 100% would clip against the viewport's cross-axis (our slides are
+     full-bleed, unlike Blossom's tiny padded slides). Shrinking edges gives the
+     same ~1.2× centre-to-neighbour ratio with no clipping.
+  3. **Single content layer + never transform the slide.** Blossom splits `.slide`
+     (translateX/scale) from `.card` (rotateY) and oversizes the wrapper 200% for
+     overlap. We can't transform the *slide* at all — the infinite engine measures
+     each slide's `getBoundingClientRect()` — so everything rides
+     `<CarouselSlideContent>`; overlap comes from `peek` + the centre's relative
+     size, not an oversized wrapper.
+- **Infinite mode — the question — is already handled** (built in the first pass,
+  not new): `loop="infinite"` runs on the JS-transformed track with no native
+  scroll, so a `view-timeline` would freeze. The `[data-loop="infinite"]` override
+  abandons the timeline and reads `--slide-progress` (both orientations), which the
+  engine drives itself — the same shared signal parallax already made it maintain,
+  so no new engine work. Targeting the content layer (not the slide) is what keeps
+  the engine's slide measurements clean under infinite.
+- **Not adopted (offered as a live-QA follow-up):** Blossom's `slide-cover`
+  translateX (30% → 0 → -30%) inward-crowd. It's the part most coupled to Blossom's
+  tiny-slide geometry and shifts cards off their snap positions, so it's better
+  judged in the browser than added blind.
+
+Gates re-run green (`cargo test -p primitiv-emit` drift). Kitchen-sink surface
+re-synced. Still awaiting the same human QA pass.

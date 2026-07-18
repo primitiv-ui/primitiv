@@ -40,6 +40,15 @@ import {
 import { useChrome } from "../chrome";
 import "./CarouselBuilder.css";
 
+import photo1 from "../assets/carousel-photos/photo-1.jpg";
+import photo2 from "../assets/carousel-photos/photo-2.jpg";
+import photo3 from "../assets/carousel-photos/photo-3.jpg";
+import photo4 from "../assets/carousel-photos/photo-4.jpg";
+import photo5 from "../assets/carousel-photos/photo-5.jpg";
+import photo6 from "../assets/carousel-photos/photo-6.jpg";
+import photo7 from "../assets/carousel-photos/photo-7.jpg";
+import photo8 from "../assets/carousel-photos/photo-8.jpg";
+
 // The controls-panel sections. Rendered as a single `multiple` Accordion, all
 // expanded by default (controlled value seeded with every id) so every control
 // is visible on load and the human collapses just what they're not tuning.
@@ -91,19 +100,17 @@ const PHOTOS = [
   photo(320, 320, "#dc2626", "#facc15"),
 ];
 
-// Genuine photography (Lorem Picsum) for the `content="pictures"` option —
-// PHOTOS/GALLERY above are synthetic stand-ins that say nothing about how a
-// busy real image actually reads at slide or thumbnail size. Width/height
-// are individually randomised per slide via picsum's own `/{width}/{height}`
-// URL segments (computed once at module load, not per render, so images
-// don't refetch/flicker on every re-render), giving `slideWidth="content"`
-// genuine variable-width source material; the photo itself is left to
-// picsum's own per-request randomness (no seed).
-const PICTURES = Array.from({ length: GALLERY.length }, () => {
-  const width = 180 + Math.floor(Math.random() * 240); // 180–420
-  const height = 200 + Math.floor(Math.random() * 200); // 200–400
-  return `https://picsum.photos/${width}/${height}`;
-});
+// Busy, non-uniform imagery for the `content="pictures"` option — PHOTOS/GALLERY
+// above are synthetic stand-ins that say nothing about how a real, detailed image
+// actually reads at slide or thumbnail size (crop, parallax, `object-fit`, the
+// windowing/paint-lag work). Committed locally rather than fetched from a photo
+// API (this app used to pull Lorem Picsum at runtime): a live fetch made every
+// builder load network-dependent and non-deterministic — irrelevant latency and
+// randomness when debugging carousel behaviour, and a false lead more than once
+// (an image-load side effect looked like it might explain a bug that was actually
+// in the engine). Eight distinct, deliberately varied-aspect-ratio scenes so
+// `slideWidth="content"` still gets genuine variable-width material.
+const PICTURES = [photo1, photo2, photo3, photo4, photo5, photo6, photo7, photo8];
 
 type Size = "xs" | "sm" | "md" | "lg" | "xl";
 type Placement = "external" | "overlay";

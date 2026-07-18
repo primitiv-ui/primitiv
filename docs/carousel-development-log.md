@@ -4474,3 +4474,32 @@ the slides (React remounts them), which clears the windowing `visibility` for fr
 (verified). Single-slide `gap` changes resize no box → not observable; documented
 `refresh()` / self-correct-on-nav for that. Engine 100% coverage, 45 Carousel tests,
 tsc clean. Device QA pending. NOT deployed yet.
+
+### 2026-07-17 (cont.) — Builder pictures: local generated images (no more picsum)
+
+Second device report from the same batch: "current slide missing" on Prev was
+confirmed to be the resize-observer regression above (fixed there); separately,
+the human asked to stop depending on Lorem Picsum for the builder's pictures
+mode — a live fetch on every load is network-dependent and non-deterministic,
+and had already been a false lead once while debugging (an image-load side
+effect looked like it might explain a carousel bug that was actually in the
+engine). Tried to fetch real photos to commit instead; `picsum.photos` is
+blocked by this session's egress policy (403 policy denial, confirmed via the
+proxy status endpoint) — no network image source was reachable. Generated 8
+photo-ish raster images procedurally instead (`numpy`+`Pillow`, installed via
+pip — registry.npmjs.org/pypi.org are allowlisted even though picsum isn't):
+layered value-noise + sigmoid-feathered horizon bands (atmospheric-perspective
+style — hazy/light bands distant, saturated/dark near — instead of hard
+polygon silhouettes, which read as flat vector art on the first pass) for
+landscape scenes (sunset hills, ocean, night sky, desert dunes, golden-hour
+cliffs), plus continuous-noise textures (forest canopy, autumn foliage, marble)
+for the rest. Committed at `apps/kitchen-sink/src/assets/carousel-photos/
+photo-{1..8}.jpg` (~72KB total), each at a distinct width/height (matching the
+old picsum version's per-slide randomised dimensions, so `slideWidth="content"`
+still gets genuine variable-width material) and imported as ES modules (Vite
+asset pipeline, base-path-safe) into `CarouselBuilder.tsx`, replacing the
+runtime `PICTURES` URL generator. tsc clean; kitchen-sink can't be built in
+this sandbox (isolated workspace, no node_modules — expected, per
+`sandbox-gotchas`), so a real Vite bundle of the import wasn't verified here,
+just typechecked. Device QA pending on both the resize-observer fix and the
+new images (no network flicker, and does pictures + infinite still work).

@@ -792,11 +792,18 @@ onto a clone, the settle **re-bases** the track by exactly one period so the
 identical real slide sits at the same pixels. Because the strip is periodic, the
 re-base reveals nothing unrasterised and moves nothing (RFC 0018, clone-strip
 revision), which is what structurally removes the iOS seam flash a per-slide fill
-could never avoid. A page change (Prev / Next, keyboard, indicator, `goTo`,
-autoplay) glides the track the **short way** to that page via a GPU-composited
-CSS `transform` transition, wrapping across the ends with no rewind; the first
-positioning is instant (no glide on load). `prefers-reduced-motion` sets the
-offset instantly with no transition.
+could never avoid. Every page change glides the track via a GPU-composited CSS
+`transform` transition, but the **path differs by kind**: a *relative* step
+(Prev / Next, the arrow keys, autoplay) always takes the **short way** —
+continuing forward off the last slide onto the clone rather than rewinding
+across the whole strip — while a *direct jump to a specific page* (an
+indicator/thumbnail click, or `goTo()` / `scrollToIndex()`) takes the
+**literal** distance between the two slides instead, even when the ring's
+wrap would be shorter: picking the last indicator from the first visibly
+travels forward through every slide in between, matching the indicators' own
+reading order, rather than silently rewinding one step the other way around
+the ring. The first positioning is instant (no glide on load).
+`prefers-reduced-motion` sets the offset instantly with no transition.
 
 The glide's **duration and easing** are read off the track from the
 `--primitiv-carousel-glide-duration` and `--primitiv-carousel-glide-easing` custom

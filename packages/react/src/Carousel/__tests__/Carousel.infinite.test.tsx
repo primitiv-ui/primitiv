@@ -1,8 +1,10 @@
+import { createRef } from "react";
 import { render, act, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { MockResizeObserver } from "../../test/resizeObserverPolyfill";
 import { Carousel } from "../index.ts";
+import type { CarouselImperativeApi } from "../index.ts";
 
 /**
  * Dispatch a pointer event with a controlled `timeStamp` (jsdom's is not
@@ -180,6 +182,7 @@ function renderInfinite(
     count: number;
     allowMouseDrag: boolean;
     slidesPerPage: number;
+    apiRef: React.Ref<CarouselImperativeApi>;
   }> = {},
 ) {
   const {
@@ -190,9 +193,11 @@ function renderInfinite(
     count = 4,
     allowMouseDrag = false,
     slidesPerPage = 1,
+    apiRef,
   } = props;
   const result = render(
     <Carousel.Root
+      ref={apiRef}
       ariaLabel="Featured products"
       loop={loop}
       orientation={orientation}
@@ -509,6 +514,67 @@ describe("Carousel infinite — transform engine", () => {
     fireEnd(track!);
     expect(track!.style.transform).toBe("translate(0px, 0px)");
     expect(track!.style.transition).toBe("none");
+  });
+
+  it("travels the LITERAL way for a direct goTo jump, not the ring's wrap shortcut", () => {
+    // Clicking the LAST indicator/thumbnail from the first should visibly pass
+    // through every slide in between, matching the indicators' own reading
+    // order — unlike Next/Previous, a direct jump has no "wrap" to shortcut.
+    // 4 slides, start on the first (offset 0). shortestStep(0, 3, 4) would take
+    // the ring's short way (a single step BACKWARD, onto the tail clone); the
+    // literal distance is +3 forward instead.
+    const ref = createRef<CarouselImperativeApi>();
+    const { track } = renderInfinite({ apiRef: ref });
+    expect(track!.style.transform).toBe("translate(0px, 0px)");
+
+    act(() => {
+      ref.current!.goTo(3);
+    });
+
+    // offset 0 → 300 (real slide 3's own position): +3 forward, not the -1
+    // wrap shortcut (which would have read translate(100px, 0px)).
+    expect(track!.style.transform).toBe("translate(-300px, 0px)");
+  });
+
+  it("travels the LITERAL way in reverse too — last page back to the first", () => {
+    // The reverse of the above: starting on the last page and jumping to the
+    // first should travel BACKWARD through every slide, not take the +1
+    // wrap-forward shortcut onto the head clone.
+    const ref = createRef<CarouselImperativeApi>();
+    const { track } = renderInfinite({ apiRef: ref, defaultPage: 3 });
+    expect(track!.style.transform).toBe("translate(-300px, 0px)");
+
+    act(() => {
+      ref.current!.goTo(0);
+    });
+
+    // offset 300 → 0: -3 backward, not the +1 wrap shortcut (which would have
+    // read translate(-400px, 0px), the clone-of-0 pixel).
+    expect(track!.style.transform).toBe("translate(0px, 0px)");
+  });
+
+  it("still wraps the SHORT way for next()/previous(), even after a direct goTo", () => {
+    // The one-shot directJumpRef must not leak past the single navigation that
+    // set it — a goTo() followed by a plain Next should go straight back to
+    // using the wrap shortcut.
+    const ref = createRef<CarouselImperativeApi>();
+    const { track, getByRole } = renderInfinite({
+      apiRef: ref,
+      defaultPage: 3,
+    });
+    expect(track!.style.transform).toBe("translate(-300px, 0px)");
+
+    act(() => {
+      ref.current!.goTo(0);
+    });
+    expect(track!.style.transform).toBe("translate(0px, 0px)");
+    fireEnd(track!);
+
+    fireEvent.click(getByRole("button", { name: "Previous" }));
+
+    // 0 → 3 the short way is -1 (onto the tail clone at offset -100), not the
+    // literal -3 a leaked directJumpRef would have produced.
+    expect(track!.style.transform).toBe("translate(100px, 0px)");
   });
 
   it("never gives a real slide its own transform (all ride the track layer)", () => {

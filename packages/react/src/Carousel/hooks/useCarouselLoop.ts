@@ -144,6 +144,7 @@ export function useCarouselLoop() {
     snapAlign,
     refreshTick,
     instantScrollRef,
+    directJumpRef,
     goTo,
     pageForSlideIndex,
     allowMouseDrag,
@@ -574,7 +575,19 @@ export function useCarouselLoop() {
     const logical =
       ((Math.round(offsetRef.current / g.stride) % g.count) + g.count) %
       g.count;
-    const step = shortestStep(logical, currentPageOffset, g.count);
+    // A direct jump (goTo/scrollToIndex — most visibly an indicator/thumbnail
+    // click) takes the literal distance between the two real slide indices, not
+    // the ring's shortest wrap: both `logical` and `currentPageOffset` already
+    // live in the same unwrapped [0, count) slide-index space, so this is a
+    // plain subtraction, never the modular one shortestStep does for a relative
+    // next()/previous() step. That's what makes picking the last page from the
+    // first visibly travel forward through every slide in between, matching the
+    // indicators' own reading order, instead of silently taking the one-step-
+    // back route around the ring just because it's shorter.
+    const step = directJumpRef.current
+      ? currentPageOffset - logical
+      : shortestStep(logical, currentPageOffset, g.count);
+    directJumpRef.current = false;
     const target = offsetRef.current + step * g.stride;
     const instant = instantScrollRef.current || !positionedRef.current;
     instantScrollRef.current = false;

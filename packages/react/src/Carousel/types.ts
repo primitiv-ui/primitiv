@@ -562,6 +562,13 @@ export type CarouselContextValue = {
    * Viewport hook's scroll effect on its very next run, so an instant
    * jump never outlives the single call that requested it. */
   instantScrollRef: RefObject<boolean>;
+  /** One-shot hint for the infinite-loop engine, set to `true` by `goTo()` /
+   * `scrollToIndex()` (an absolute jump to a specific page — most visibly an
+   * indicator/thumbnail click) and to `false` by `next()` / `previous()` (a
+   * relative step, which should always take the loop's wrap shortcut).
+   * Consumed and reset by the engine's positioning effect on its very next
+   * run, so it never outlives the single navigation that requested it. */
+  directJumpRef: RefObject<boolean>;
   /** Live mouse-drag state (only ever `true` when `allowMouseDrag` is
    * `true`). Mutated by the Viewport hook and read by the imperative
    * `isDragging()`. */

@@ -4807,3 +4807,46 @@ regenerated via the throwaway-example convention, `.css` copied to
 kitchen-sink) and the same Playwright repro harness, re-run after the fix:
 `getComputedStyle` now reports an identical rendered height across every
 thumbnail regardless of its photo's natural aspect ratio.
+
+## Indicator/thumbnail jumps took the ring's wrap shortcut instead of the reading-order path
+
+Human report (a UX refinement, not a bug against a spec — "I want the
+ultimate experience"): "Say thumbnail 1 is selected — if I then select the
+last thumbnail, the carousel will simply slide left one slide. But to the
+user that does not sync well visually. They would expect that the carousel
+should slide through all the slides and arrive at the last one." Root cause:
+`loopEngine.ts`'s `shortestStep` computes the ring's shortest circular
+distance between two slide indices — correct, and necessary, for `next()` /
+`previous()` (a *relative* step: continuing off the last slide should wrap
+forward onto the clone, not rewind across the whole strip) — but the infinite
+engine's positioning effect used it unconditionally for *every* page change,
+including a `goTo()`/`scrollToIndex()` jump to a specific, arbitrary page
+(indicators and thumbnails both call `goTo`). For a direct jump between two
+slides near opposite ends of the ring, the wrap distance can be shorter than
+the literal one, so clicking the last indicator from the first took a single
+step *backward* instead of visibly traversing every slide forward — correct
+by the ring's geometry, wrong against what a left-to-right indicator row
+promises the user.
+
+Fix: added a one-shot ref, `directJumpRef` (mirroring the existing
+`instantScrollRef` pattern) — `goTo()`/`scrollToIndex()` set it `true`;
+`next()`/`previous()` set it `false` (so a leftover flag from an earlier
+`goTo()` can never leak into a later relative step). The engine's positioning
+effect branches on it: a direct jump takes the *literal* difference between
+the two real slide indices (`currentPageOffset - logical`, no modulo — both
+values already live in the same unwrapped `[0, count)` slide-index space,
+unlike `shortestStep`'s ring-aware math), a relative step keeps the existing
+wrap-shortest behaviour. The flag is consumed and reset on the very same
+effect run, so it never outlives the single navigation that set it.
+
+Tests: three new RED tests (confirmed failing against the pre-fix code) —
+jumping from the first page to the last travels the full literal distance
+forward (not the ring's one-step-back shortcut); the reverse (last back to
+first) travels backward through every slide (not the ring's one-step-forward
+shortcut); and a `next()`/`previous()` immediately after a `goTo()` still
+takes the wrap shortcut, proving the one-shot flag doesn't leak into a
+following relative step. Verified end-to-end against the real built app too
+(esbuild + Playwright harness, clicking an actual thumbnail button rather
+than the imperative API) — the track's settled transform moved the full
+multi-slide distance in the expected direction. 100% Carousel coverage
+(statements/branches/functions/lines), tsc clean (react + kitchen-sink).

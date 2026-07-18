@@ -325,6 +325,19 @@ export function useCarouselRoot(
   // outlives the single call that requested it.
   const instantScrollRef = useRef(false);
 
+  // One-shot hint for the infinite-loop engine (useCarouselLoop), consumed and
+  // reset the same way as instantScrollRef above. `next()`/`previous()` are a
+  // relative step, so under looping they should always take the wrap
+  // shortcut — continuing forward off the last slide onto the clone, not
+  // rewinding across the whole strip. `goTo()` (and `scrollToIndex`, which
+  // calls it) is an absolute jump to a *specific* page, most visibly from an
+  // indicator/thumbnail click — there, the wrap shortcut reads wrong: picking
+  // the last thumbnail from the first should visibly travel forward through
+  // every slide in between, matching the indicators' own left-to-right
+  // reading order, not silently take the one-step-back route around the ring
+  // just because it happens to be shorter. See RFC 0018 (loop navigation).
+  const directJumpRef = useRef(false);
+
   const next = useCallback(
     (instant?: boolean) => {
       // At the last page: clamp (no-op) normally, or wrap to the first when
@@ -332,6 +345,7 @@ export function useCarouselRoot(
       if (currentPage >= totalPages - 1 && !(looping && totalPages > 1)) return;
       isProgrammaticScrollRef.current = true;
       instantScrollRef.current = !!instant;
+      directJumpRef.current = false;
       const target = looping
         ? (currentPage + 1) % totalPages
         : currentPage + 1;
@@ -351,6 +365,7 @@ export function useCarouselRoot(
       if (currentPage <= 0 && !(looping && totalPages > 1)) return;
       isProgrammaticScrollRef.current = true;
       instantScrollRef.current = !!instant;
+      directJumpRef.current = false;
       const target = looping
         ? (currentPage - 1 + totalPages) % totalPages
         : currentPage - 1;
@@ -366,6 +381,7 @@ export function useCarouselRoot(
   const goTo = useCallback(
     (target: number, instant?: boolean) => {
       instantScrollRef.current = !!instant;
+      directJumpRef.current = true;
       if (isControlled) {
         onPageChange?.(target);
       } else {
@@ -678,6 +694,7 @@ export function useCarouselRoot(
       setSlideInView,
       isProgrammaticScrollRef,
       instantScrollRef,
+      directJumpRef,
       isDraggingRef,
       setDragging,
       isOverscrollingRef,

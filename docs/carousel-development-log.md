@@ -5012,3 +5012,43 @@ smoother" claim can't be confirmed from a sandbox at all; this is a
 principled, low-risk change (strictly less redundant work, no correctness
 change) offered as a first, verifiable step toward "buttery smooth," not a
 guaranteed fix for a feel that's inherently subjective.
+
+## Audit: do the recent fixes generalize to slidesPerPage > 1?
+
+Human question, not a bug report — every fix this session (the literal-jump
+navigation, the drag wrap-window sweep, the fling/rebase collision) had only
+been driven and tested against the single-slide default. Audited rather
+than assumed: both the literal-jump step (`currentPageOffset - logical`) and
+the rebase-collision fix operate purely on real SLIDE-INDEX / pixel math
+(`currentPageOffset` already folds in `effectiveSlidesPerMove`; the fling's
+`pageStride = stride * effectiveSlidesPerMove` was already the mechanism
+multi-slide flings used before any of these fixes existed) — neither has a
+hardcoded single-slide assumption, so both should already compose for free.
+Verified rather than trusted that reasoning:
+
+- Two new tests (8 slides, `slidesPerPage: 2`) mirror the single-slide
+  literal-jump and seam-crossing-fling tests exactly, hand-computed against
+  the doubled `pageStride`/`effectiveSlidesPerMove` arithmetic. Confirmed
+  RED against each fix's specific pre-fix commit (`9fd9862` for the
+  literal-jump, `07e8298` for the rebase collision) before trusting them —
+  caught one thing my own hand-math missed the first pass: `align` shifts
+  to a nonzero value once a 2-slide page span exceeds the mocked
+  single-slide track width, which every transform in these tests carries as
+  a constant offset (spotted from a failing assertion, not anticipated).
+- The drag wrap-window sweep fix doesn't need a dedicated multi-slide test —
+  it operates on raw track pixel positions during a drag, with no
+  page-grouping concept in its formula at all — but the real-app
+  verification below exercises that exact code path under `slidesPerPage: 2`
+  regardless.
+- Re-verified all three fixed areas against the real built app under
+  `slidesPerPage: 2` (esbuild + Playwright): thumbnail heights stayed
+  uniform across all 8 (11.15625px, matching the single-slide case) despite
+  the multi-slide group-border styling; clicking the last thumbnail from the
+  first moved the track further *negative* (forward, the literal path), not
+  the shorter positive/backward wrap; and a swipe crossing the seam produced
+  the same smooth ~500ms ease-out settle to one trackLength past rest,
+  followed by the invisible rebase — no premature snap.
+
+No code changes — this was a verification pass, not a fix. 100% Carousel
+coverage (statements/branches/functions/lines) maintained, tsc clean
+(react + kitchen-sink).

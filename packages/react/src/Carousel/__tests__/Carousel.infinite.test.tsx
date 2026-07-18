@@ -577,6 +577,36 @@ describe("Carousel infinite — transform engine", () => {
     expect(track!.style.transform).toBe("translate(100px, 0px)");
   });
 
+  it("travels the literal way for a direct jump under slidesPerPage > 1 too", () => {
+    // The literal-jump step is `currentPageOffset - logical` — both already
+    // real SLIDE indices, not page indices, so the fix should compose with
+    // slidesPerPage's own page->slide-index mapping (effectiveSlidesPerMove)
+    // for free. Verifying it, not assuming it: 8 slides, 2 per page (pages
+    // lead at slide index 0, 2, 4, 6). goTo(3) (last page, slide index 6)
+    // from page 0 (slide index 0) — the ring's short way, shortestStep(0, 6,
+    // 8), is -2 (backward onto the tail clone); the literal distance is +6
+    // forward instead.
+    // align shifts to -50 here (a 2-slide page span of 200 vs. the 100px
+    // track — (100 − 200) / 2 — unlike the single-slide tests above, where
+    // align is 0), so every transform below carries that same constant -50
+    // offset; only the *difference* the jump produces is the point.
+    const ref = createRef<CarouselImperativeApi>();
+    const { track } = renderInfinite({
+      apiRef: ref,
+      count: 8,
+      slidesPerPage: 2,
+    });
+    expect(track!.style.transform).toBe("translate(-50px, 0px)");
+
+    act(() => {
+      ref.current!.goTo(3);
+    });
+
+    // offset 0 → 600: +6 slides forward, not the -2 wrap shortcut (which
+    // would have read translate(-50 + 200, 0px) = translate(150px, 0px)).
+    expect(track!.style.transform).toBe("translate(-650px, 0px)");
+  });
+
   it("never gives a real slide its own transform (all ride the track layer)", () => {
     // The seam is filled by clones, not by shifting individual slides, so no real
     // slide ever carries a transform — the whole strip paints into the track's one
@@ -1156,6 +1186,36 @@ describe("Carousel infinite — drag + fling", () => {
     // The fling's true target (900), still animated — not an instant snap to
     // the rebased equivalent (100).
     expect(track!.style.transform).toBe("translate(-900px, 0px)");
+    expect(track!.style.transition).toContain("transform");
+  });
+
+  it("keeps a seam-crossing fling animated under slidesPerPage > 1 too", () => {
+    // The fling snaps to a PAGE boundary (pageStride = stride *
+    // effectiveSlidesPerMove), not a single slide — verifying the same
+    // rebase-collision fix composes with that coarser granularity, not just
+    // the single-slide case above. 8 slides, 2 per page (pageStride 200),
+    // resting on the last page (slide index 6, offset 600, trackLength 800).
+    // flingTarget(660, 1.2, 120, 200) = snap(660 + 144) = 800 — exactly
+    // trackLength, so normalizeOffset(800, 800) = 0 !== 800: the rebase
+    // would fire for real if nothing stopped it, same as the single-slide
+    // case, just landing on a different boundary (a whole page-stride out).
+    // align is -50 here (a 2-slide page span of 200 vs. the 100px track),
+    // so every transform below carries that same constant offset.
+    const { track, getByTestId } = renderInfinite({
+      count: 8,
+      slidesPerPage: 2,
+      defaultPage: 3,
+    });
+    const viewport = getByTestId("viewport");
+
+    pointer(viewport, "pointerdown", { client: 200, time: 1000 });
+    pointer(viewport, "pointermove", { client: 140, time: 1050 });
+    pointer(viewport, "pointerup", { client: 140, time: 1050 });
+
+    // The fling's true target (800), still animated — not an instant snap
+    // to the rebased equivalent (0, which would have read translate(-50px,
+    // 0px)).
+    expect(track!.style.transform).toBe("translate(-850px, 0px)");
     expect(track!.style.transition).toContain("transform");
   });
 

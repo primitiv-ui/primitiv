@@ -5302,3 +5302,18 @@ showcase now tunes both `--primitiv-carousel-coverflow-spread` and `-rotate` liv
 (threaded to all four cells via a `rotate` prop on `CoverFlowSingle`, applied as an
 inline CSS var). Both are already permanent registry knobs; the sliders are the demo
 surface. Kitchen-sink-only; no registry/contract/CSS change.
+
+### Known minor issue (human QA, 2026-07-18) — ratio radios "don't respond well to change"
+
+Human noticed during Cover Flow QA that changing the slide **ratio** radios "doesn't
+respond well." The `ratio` modifier is a pure knob re-point
+(`--primitiv-carousel-slide-aspect-ratio`, no CSS transition), and coverflow just
+rides the slide's box, so nothing in the coverflow layer should swallow the change.
+Leading hypothesis: **not coverflow-specific** — native `scroll-snap-type: x
+mandatory` keeps the old scroll offset when the slide dimensions change under it, so
+the active slide isn't re-centred until a scroll nudge (a known cross-browser
+scroll-snap reflow quirk). Needs confirmation of (a) whether it also happens with
+effect="none", and (b) what "doesn't respond" looks like (no change at all vs.
+off-centre until scrolled). Candidate fix if confirmed: on a dimension-affecting prop
+change, call the imperative re-scroll to the active index (the primitive already
+exposes `scrollToIndex`). Parked as minor pending the infinite-loop pass.

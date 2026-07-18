@@ -723,9 +723,20 @@ export function useCarouselLoop() {
         stopProgressTicker();
       }
       if (!drag.dragging) return;
+      // Carry the offset from *before* this move as `from`, not this move's own
+      // new value — identical on every ordinary frame (a few px apart, same as
+      // the finger), but the one frame a drag crosses the loop seam,
+      // normalizeOffset wraps the new value by a whole trackLength relative to
+      // the old one. Passing both lets paint()'s sweep span that gap, so the
+      // slide the wrap reveals is already unhidden (and had a frame to
+      // rasterise) instead of popping in unrendered on the very frame it's
+      // needed — the same "entering edge blanks for a frame" risk paint()'s
+      // sweep already exists to avoid for a click-driven glide, just reached
+      // here by a drag's continuous wrap instead of an animated transition.
+      const previousOffset = offsetRef.current;
       const raw = drag.startOffset - g.dir * (client - drag.startClient);
       offsetRef.current = normalizeOffset(raw, g.trackLength);
-      paint(offsetRef.current, offsetRef.current, g, false);
+      paint(offsetRef.current, previousOffset, g, false);
     },
     [axisClient, paint, stopProgressTicker],
   );

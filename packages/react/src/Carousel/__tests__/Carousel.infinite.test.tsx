@@ -1157,6 +1157,37 @@ describe("Carousel infinite — drag + fling", () => {
     expect(track!.style.transform).toBe("translate(-100px, 0px)");
   });
 
+  it("sweeps the wrap frame's window instead of just the post-wrap point", () => {
+    // A drag that crosses the loop seam wraps offsetRef by a whole trackLength
+    // in a single pointermove (normalizeOffset) — a discontinuity in the raw
+    // number, even though the finger only moved a normal few px. Painting that
+    // frame with the post-wrap value alone (the pre-fix behaviour) computes a
+    // window around only where the drag ended up, not where it came from —
+    // the same "entering edge blanks for a frame" risk the click-glide's own
+    // swept window already exists to avoid, just reached here by a drag's
+    // continuous wrap instead of an animated transition.
+    // 8 slides, starting on the last (rest offset 700, trackLength 800).
+    // Dragging forward past the end: move 1 lands just before the wrap
+    // (raw 790), move 2 crosses it (raw 810 -> wraps to 10). A real slide
+    // sitting near the middle of the strip (index 4, edge 400) is far
+    // outside a window centred on the post-wrap value (10) alone, but falls
+    // inside the swept range [790, 10] the fix passes to paint() instead.
+    const { getByTestId, container } = renderInfinite({
+      count: 8,
+      defaultPage: 7,
+    });
+    const viewport = getByTestId("viewport");
+
+    pointer(viewport, "pointerdown", { client: 200, time: 0 });
+    pointer(viewport, "pointermove", { client: 110, time: 50 });
+    pointer(viewport, "pointermove", { client: 90, time: 100 });
+
+    const midSlide = container.querySelector<HTMLElement>(
+      '[data-carousel-slide][data-index="4"]',
+    )!;
+    expect(midSlide.style.visibility).toBe("");
+  });
+
   it("ignores pointer events from a second, different pointer", () => {
     const { track, getByTestId } = renderInfinite();
     const viewport = getByTestId("viewport");

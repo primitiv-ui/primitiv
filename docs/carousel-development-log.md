@@ -4850,3 +4850,56 @@ following relative step. Verified end-to-end against the real built app too
 than the imperative API) — the track's settled transform moved the full
 multi-slide distance in the expected direction. 100% Carousel coverage
 (statements/branches/functions/lines), tsc clean (react + kitchen-sink).
+
+## Drag wrap frame lacked the click-glide's pre-paint lookahead
+
+Human report: "the transitions at the loop seams... going from the last
+slide... to the first is a bit too snappy." Ruled out first: I sampled the
+actual mid-transition transform (not just the settled value) for a button
+Next click that wraps vs. one that doesn't — same distance, same 500ms
+duration, same easing curve, no engine-level difference. Also ruled out a
+`slidesPerPage`-driven velocity spike from the last page's end-alignment
+(a real, separate, smaller effect, but not what the human was pointing at).
+Re-asked and the human clarified: **touch swipes only**, and specifically
+"the release/settle" — not the drag itself, not a visible flash.
+
+Root cause: during a drag, every `pointermove` normalizes `offsetRef` into
+`[0, trackLength)` so it never grows unbounded across a long swipe — a
+deliberate, necessary wrap. Exactly once per seam crossing, that wrap moves
+the RAW number by a whole trackLength in a single pointermove, even though
+the finger only moved a few px. `onPointerMove` painted that frame with
+`paint(offsetRef.current, offsetRef.current, g, false)` — the *same* value
+for both `from` and `offset` — so the window for that one frame was
+computed around only where the drag ended up, with no memory of where it
+came from. A click-driven glide never has this problem: `glideTo` sweeps
+the *entire* `[from, target]` range up front, so an entering slide is
+already unhidden (and has had a frame to rasterise) before the animation
+starts. A drag's wrap reaches the identical "entering edge blanks for a
+frame" risk the file's own comments already flag for click-glides on iOS —
+just via a continuous wrap instead of an animated transition, and appearing
+to the user as an abrupt "settle" because a real swipe-to-loop gesture
+typically crosses the seam and releases in close succession.
+
+Fix (`useCarouselLoop.ts`): `onPointerMove` now captures `offsetRef.current`
+*before* overwriting it and passes that as `from` (previously it re-passed
+the brand-new value as both arguments). On every ordinary frame this changes
+nothing (the two values are only a few px apart, same as the finger); on the
+one frame a drag crosses the seam, `paint()`'s sweep now spans the full
+pre-to-post-wrap range instead of a window centred on the post-wrap point
+alone, giving the wrap the same "already-painted before it's needed"
+guarantee a click-glide already had.
+
+Tests: one new RED test (an 8-slide carousel, dragging forward off the last
+slide) hand-computed the exact windowing math for a real slide sitting near
+the middle of the strip (index 4) — outside the post-wrap-only window
+(hidden, pre-fix) but inside the swept `[790, 10]` range the fix produces
+(visible). Confirmed RED against the pre-fix code with the same assertion.
+Also re-verified end-to-end against the real built app (esbuild + Playwright,
+dispatching real touch `PointerEvent`s across the seam): the wrap frame now
+shows every real slide plus extra clones, instead of abruptly swapping
+between two disjoint pairs. 100% Carousel coverage
+(statements/branches/functions/lines), tsc clean (react + kitchen-sink).
+**Device QA still the final word** — this fix targets a plausible, code-
+verifiable rasterisation gap (the same class of iOS tile-rasterisation issue
+this file's windowing already exists to solve for clicks), but a real
+compositor's rasterisation timing can't be observed in this sandbox.

@@ -5292,3 +5292,13 @@ disabled/note affordance). New `coverflowSpread` (40) / `coverflowRotate` (55)
 observation: that's purely the `peek` amount (more peek → more neighbours visible),
 already a Builder axis — nothing else needed. Next: the infinite-loop coverflow
 pass. Kitchen-sink-only change; no registry/contract/CSS touched, so no regen/drift.
+
+### Cover Flow QA round 3 — angle slider promoted to the example page
+
+Human confirmed both the overlap and angle sliders work and are keepers. Brought
+the **angle** slider (previously Builder-only, added there for evaluation) onto the
+`/carousel/coverflow` example page alongside the overlap slider, so the dedicated
+showcase now tunes both `--primitiv-carousel-coverflow-spread` and `-rotate` live
+(threaded to all four cells via a `rotate` prop on `CoverFlowSingle`, applied as an
+inline CSS var). Both are already permanent registry knobs; the sliders are the demo
+surface. Kitchen-sink-only; no registry/contract/CSS change.

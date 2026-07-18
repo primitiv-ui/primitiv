@@ -1079,6 +1079,39 @@ describe("Carousel infinite — drag + fling", () => {
     expect(track!.style.transform).toBe("translate(-100px, 0px)");
   });
 
+  it("keeps a seam-crossing fling's own glide animated, instead of an instant snap", () => {
+    // A fling's release drives the track directly via its own glideTo() call
+    // (which may deliberately target a clone position — the same "animate
+    // onto the clone, rebase on settle" pattern a click-driven glide uses),
+    // then separately calls goTo() to sync `currentPage`. That goTo() is a
+    // state update, and the SAME positioning effect that drives Next/Previous
+    // also reacts to it — its own boundGlideStart() rebases *before*
+    // computing anything, and unlike a click (which never lands off the
+    // clone buffer until the fling's own target does), a fling crossing the
+    // seam usually lands EXACTLY one trackLength past a real position — so
+    // without a way to tell the effect "this navigation is already handled",
+    // the rebase fires for real and instantly snaps the just-started
+    // animated glide to its settled position before the browser renders a
+    // single frame of it. Reported by a human tester as "the release/settle
+    // snaps abruptly" on touch swipes crossing the seam specifically.
+    // 8 slides, resting on the last (offset 700, trackLength 800). Drag
+    // forward with a quick, deterministic flick: flingTarget(760, 1.2, 120,
+    // 100) = snap(760 + 144) = 900 — one trackLength (800) past a real
+    // position, so normalizeOffset(900, 800) = 100 !== 900: the rebase would
+    // fire for real if nothing stopped it.
+    const { track, getByTestId } = renderInfinite({ count: 8, defaultPage: 7 });
+    const viewport = getByTestId("viewport");
+
+    pointer(viewport, "pointerdown", { client: 200, time: 1000 });
+    pointer(viewport, "pointermove", { client: 140, time: 1050 });
+    pointer(viewport, "pointerup", { client: 140, time: 1050 });
+
+    // The fling's true target (900), still animated — not an instant snap to
+    // the rebased equivalent (100).
+    expect(track!.style.transform).toBe("translate(-900px, 0px)");
+    expect(track!.style.transition).toContain("transform");
+  });
+
   it("treats a press that never crosses the threshold as a tap (no move, no glide)", () => {
     const { track, getByTestId } = renderInfinite();
     const viewport = getByTestId("viewport");

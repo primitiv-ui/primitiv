@@ -4903,3 +4903,64 @@ between two disjoint pairs. 100% Carousel coverage
 verifiable rasterisation gap (the same class of iOS tile-rasterisation issue
 this file's windowing already exists to solve for clicks), but a real
 compositor's rasterisation timing can't be observed in this sandbox.
+
+## Follow-up: the actual cause was a rebase colliding with the fling's own glide
+
+Deployed the fix above; human report: "This made no difference at all."
+Re-asked, twice: "of course, I mean when swiping" and then "this is not
+happening on prev/next button press, only on swipes with touch" — narrowing
+it to the drag/fling path specifically, which the previous fix's windowing
+change didn't touch at all (that was about a *different* wrap frame, the
+one during the drag itself, not the release).
+
+Root-caused via direct instrumentation this time, not reasoning alone —
+temporary `console.log`s in `paint()`, `rebase()`, and the positioning
+effect, driven by a deterministic jsdom drag+release (8 slides, resting on
+the last, a quick flick forward) — rather than guess again. The trace:
+`onPointerUp` calls `glideTo(target, false, g)` directly (an **animated**
+glide, `paint()` logs `animate: true`) — then separately calls
+`goTo(pageForSlideIndex(index))` purely to sync `currentPage`. That `goTo()`
+is a state update, and the *same* "drive the track to the active page"
+positioning effect that drives every Next/Previous click also reacts to it.
+That effect always opens with `boundGlideStart()`, which calls `rebase()`
+unconditionally. For an ordinary (non-seam) fling, the target stays inside
+`[0, trackLength)`, so `rebase()`'s `normalizeOffset` is a no-op and nothing
+happens. But a fling that crosses the seam typically lands **exactly one
+trackLength past a real position** (that's what crossing the seam means
+numerically) — so `rebase()` fires for real, on the very next render, before
+the browser has painted a single frame of the just-started animated glide:
+it snaps `offsetRef` straight to the settled equivalent with an *instant,
+untransitioned* repaint. The trace showed it precisely — `PAINT {offset:
+800, from: 760, animate: true}` (the fling's own smooth 40px glide toward
+the clone) immediately followed by `REBASE {current: 800, normalized: 0}` +
+`PAINT {offset: 0, from: 0, animate: false}` (an instant collapse to the
+settled position), then a *third*, zero-distance `PAINT {offset: 0, from:
+0, animate: true}` from the re-triggered effect's own glideTo — which,
+having nothing left to animate, rendered as nothing. Net effect: a fling
+that should glide smoothly for 500ms instead appears to teleport straight
+to its rest position — "the release/settle snaps abruptly," reproducible
+*only* when the fling's own target needs rebasing, which only happens
+crossing the seam. Button clicks never hit this: they only ever reach the
+track via this same effect, never a second, competing direct call.
+
+Fix (`useCarouselLoop.ts`): a new one-shot `dragHandledPositionRef`, set
+right before the `goTo()` call in `onPointerUp` and checked at the very top
+of the positioning effect (after the `isInfinite` guard, before `measure()`
+or `boundGlideStart()`) — when set, the effect skips its own
+rebase/step/glideTo entirely for that one render and just clears the flag,
+since the fling already drove the navigation directly.
+
+Tests: one new RED test (8 slides resting on the last, a quick deterministic
+flick — `flingTarget(760, 1.2, 120, 100)` hand-computed to land on 900,
+exactly one trackLength past a real position) asserted the settled
+`transform` is the fling's own animated target (`translate(-900px, 0px)`,
+transition still present) rather than the collapsed instant snap to the
+rebased equivalent (`translate(-100px, 0px)`, what the pre-fix code
+actually produced). Confirmed RED against the pre-fix code. Re-verified
+against the real built app (esbuild + Playwright, a real touch `PointerEvent`
+drag+release sequence crossing the seam): the settle glide now smoothly
+decelerates through the full ~500ms curve to the fling's true target one
+trackLength past rest, and only *after* it settles does the (now genuinely
+invisible) rebase snap to the equivalent real position — no more premature
+collapse. 100% Carousel coverage (statements/branches/functions/lines), tsc
+clean (react + kitchen-sink).

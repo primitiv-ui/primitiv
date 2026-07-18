@@ -177,6 +177,24 @@ export function useCarouselLoop() {
   // The first positioning is instant — a glide from slide 0 to the initial page
   // on mount would be a pointless animation on load.
   const positionedRef = useRef(false);
+  // One-shot: a fling's release (onPointerUp) already drives the track directly
+  // via its own glideTo() call, which may deliberately target a clone position
+  // (the same "animate onto the clone, rebase on settle" pattern a click-driven
+  // glide uses) — it only calls goTo() afterwards to sync `currentPage`, not to
+  // ask for a second glide. But that goTo() is a state update, and this same
+  // positioning effect (below) reacts to it: its own boundGlideStart() rebases
+  // *before* computing a step, and unlike a click (which never lands off the
+  // clone buffer until the fling's own target does), the fling's target is
+  // usually already exactly one trackLength past a real position at the
+  // instant it crosses the seam — so the rebase fires for real, snapping the
+  // just-started animated glide to its settled position with an *instant,
+  // untransitioned* repaint before the browser ever renders a single frame of
+  // it. Net effect: the fling's fling-worth of smooth motion collapses into a
+  // hard, instant snap — the "release/settle snaps abruptly" a human tester
+  // flagged, reproducible only when a swipe crosses the seam (the one case
+  // where the fling's own target actually needs rebasing). Set right before
+  // that goTo() call, consumed by the effect on its very next run.
+  const dragHandledPositionRef = useRef(false);
   // Live drag state: null when not dragging.
   const dragRef = useRef<{
     pointerId: number;
@@ -555,6 +573,13 @@ export function useCarouselLoop() {
   // after a layout or slide-set change.
   useEffect(() => {
     if (!isInfinite) return;
+    // A fling's own onPointerUp already drove the glide directly and only
+    // triggered this render to sync `currentPage` — skip re-rebasing/re-gliding
+    // on top of that in-flight animation (see dragHandledPositionRef's comment).
+    if (dragHandledPositionRef.current) {
+      dragHandledPositionRef.current = false;
+      return;
+    }
     const g = measure();
     if (!g) return;
     // Keep the resize observer's baseline current, so even its guaranteed first
@@ -741,8 +766,13 @@ export function useCarouselLoop() {
     [axisClient, paint, stopProgressTicker],
   );
 
-  // Release: project the fling to a page boundary, glide there, and sync the
-  // active page to where it lands (which the page effect then sees as a no-op).
+  // Release: project the fling to a page boundary, glide there directly, and
+  // separately sync the active page to where it lands. dragHandledPositionRef
+  // tells the positioning effect (below) this navigation is already fully
+  // driven — its own boundGlideStart()/glideTo() would otherwise re-rebase and
+  // clobber this glide the instant it's already re-rendered off the goTo()
+  // below, snapping it to an instant stop before the browser paints a frame of
+  // it (see the ref's own comment).
   const onPointerUp = useCallback(
     (event: PointerEvent<HTMLDivElement>) => {
       const drag = dragRef.current;
@@ -760,6 +790,7 @@ export function useCarouselLoop() {
         pageStride,
       );
       glideTo(target, false, g);
+      dragHandledPositionRef.current = true;
       const index =
         ((Math.round(target / g.stride) % g.count) + g.count) % g.count;
       goTo(pageForSlideIndex(index));

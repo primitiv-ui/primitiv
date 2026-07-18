@@ -1,0 +1,9 @@
+{
+  "name": "carousel-audit",
+  "private": true,
+  "type": "module",
+  "description": "Pairwise-combinatorial smoke test for the kitchen-sink Carousel Builder — drives the real built app in Chromium via Playwright. See docs/carousel-development-log.md for background.",
+  "dependencies": {
+    "playwright": "^1.48.0"
+  }
+}

@@ -4,6 +4,11 @@ name: Deploy docs
 # web UI (Actions → "Deploy docs" → Run workflow) or by asking Claude to run it.
 on:
   workflow_dispatch:
+    inputs:
+      run_carousel_audit:
+        description: "Also run the Carousel Builder audit (pairwise-combinatorial Chromium smoke test) and publish its report at /primitiv/kitchen-sink-audit/"
+        type: boolean
+        default: false
 
 # Allow one concurrent deployment; let an in-progress run finish.
 concurrency:
@@ -86,13 +91,52 @@ jobs:
       - name: Build docs
         run: pnpm --filter @primitiv-ui/docs docs:build
 
-      # Combine: the workbench and kitchen-sink are served from their own
-      # sub-paths within the docs site — each is a separate SPA (its own HTML
-      # document), so there is no CSS interaction with VitePress or each other.
+      # Opt-in (workflow_dispatch input, default off) — a pairwise-combinatorial
+      # Chromium smoke test over the Carousel Builder's variant axes (see
+      # .github/scripts/carousel-audit and docs/carousel-development-log.md).
+      # Built unbased (plain BrowserRouter, clean /carousel/builder URLs) into
+      # its own output dir — separate from the real sub-path/hash-router build
+      # above — so the audit script doesn't have to reason about the deploy's
+      # hash-routing; this is the same source, just a different Vite `base`.
+      - name: Build kitchen-sink for audit
+        if: ${{ inputs.run_carousel_audit }}
+        run: pnpm exec vite build --outDir dist-audit
+        working-directory: apps/kitchen-sink
+
+      - name: Install Playwright for audit
+        if: ${{ inputs.run_carousel_audit }}
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+        working-directory: .github/scripts/carousel-audit
+
+      - name: Serve kitchen-sink audit build
+        if: ${{ inputs.run_carousel_audit }}
+        run: |
+          pnpm exec vite preview --outDir dist-audit --port 4174 --strictPort &
+          npx --yes wait-on http://localhost:4174 --timeout 30000
+        working-directory: apps/kitchen-sink
+
+      # Diagnostic, not a gate: a failing audit should still publish its report
+      # (that's the whole point — see what broke), not block the docs deploy.
+      - name: Run carousel audit
+        if: ${{ inputs.run_carousel_audit }}
+        env:
+          AUDIT_BASE_URL: http://localhost:4174
+        run: node run-audit.mjs "$GITHUB_WORKSPACE/carousel-audit-report" || true
+        working-directory: .github/scripts/carousel-audit
+
+      # Combine: the workbench, kitchen-sink, and (if run) the carousel audit
+      # report are served from their own sub-paths within the docs site — each
+      # is a separate SPA/page (its own HTML document), so there is no CSS
+      # interaction with VitePress or each other.
       - name: Assemble site
         run: |
           cp -r apps/workbench/dist apps/docs/.vitepress/dist/workbench
           cp -r apps/kitchen-sink/dist apps/docs/.vitepress/dist/kitchen-sink
+          if [ -d carousel-audit-report ]; then
+            cp -r carousel-audit-report apps/docs/.vitepress/dist/kitchen-sink-audit
+          fi
           touch apps/docs/.vitepress/dist/.nojekyll
 
       - name: Upload Pages artifact

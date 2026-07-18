@@ -4539,3 +4539,70 @@ the builder's many toggles. tsc clean. **Awaiting device QA on cell 15** and
 answers to: does the WHOLE carousel (controls + dots too) vanish, or just the
 image area; does it recover after a moment or on interaction; does the same
 combination with gradient (non-picture) content also fail.
+
+### 2026-07-18 — Carousel Builder audit: pairwise-combinatorial CI smoke test
+
+Device QA on cell 15 (overlay + infinite + pictures) came back clean — the bug
+the human hit only reproduces *through the builder's own toggle sequence*, not
+a fresh mount at the same final config. A one-off debug cell can't catch that
+class of bug; only systematic testing of the builder's actual state
+transitions can. Built `.github/scripts/carousel-audit/`:
+
+- **`pairwise.mjs`** — a dependency-free greedy pairwise (all-pairs)
+  combinatorial generator. The builder has ~25 variant axes; a full cartesian
+  product is infeasible, but pairwise coverage (every value-pair from any two
+  axes appears together at least once) catches the large majority of
+  real-world interaction bugs — matching every bug found this session
+  (loop×placement, loop×content, gap×loop). First pass stalled (weak
+  tie-breaking always defaulted to the same value, hitting the 500-case safety
+  cap with incomplete coverage); fixed by rotating the per-case axis order and
+  breaking ties by system-wide remaining demand. Converges to **30 cases with
+  full pairwise coverage** over the real factor set in ~0.1s.
+- **`factors.mjs`** — the builder's axes/values/defaults, hand-mirrored from
+  `CarouselBuilder.tsx` (numeric ranges discretized to a few representative
+  values), plus an **application order matching the accordion sections
+  top-to-bottom** — deliberately puts `loop`/`glide` LAST, since every bug
+  found this session was triggered by switching loop mode *after* other
+  settings were already in place, not by a fresh mount at the target config.
+- **`run-audit.mjs`** — Playwright driver: for each case, loads the builder
+  fresh (default config), applies only the axes that differ from default via
+  real accessible-role queries (`getByRole('group'|'radio'|'checkbox', ...)`,
+  never CSS selectors), settles, then asserts at least one real slide is
+  visible with non-zero size and nothing threw. Screenshots each case.
+- **`report.mjs`** — a single self-contained, theme-aware, mobile-friendly
+  HTML report (pass/fail filter, per-case screenshot + delta chips + full
+  config + any errors) — no build step, safe to open on a phone.
+
+**Validated the whole pipeline end-to-end before wiring into CI**, reusing the
+Playwright+esbuild real-browser harness from the earlier overlay investigation
+— this time bundling the actual `CarouselBuilder.tsx` (+ kitchen-sink's real
+`components` barrel, `class-variance-authority`, `prism-react-renderer`,
+letting esbuild bundle its real CSS imports naturally rather than hand-picking
+files, which is what caused the earlier repro's incomplete token chain) via
+`playwright-core` against the pre-installed sandbox Chromium. That caught a
+real bug in the audit script itself: a RadioField's `<legend>` carries an
+appended " — hint/note" (an em dash) whenever the field has a live hint or is
+disabled for the current combination, so an *exact* accessible-name match on
+the bare legend intermittently failed to find the group — fixed with a
+prefix-anchored regex (careful to require end-of-string or the exact " — "
+separator, not a bare prefix, since "radius" is a genuine literal prefix of
+the unrelated "radius (container)" legend). All 30 cases pass against the
+hand-bundled harness.
+
+**Wired into CI as an opt-in addition to `deploy-docs.yml`** (a new
+`run_carousel_audit` boolean `workflow_dispatch` input, default off) rather
+than a separate workflow that would need its own GitHub Pages deployment —
+`actions/deploy-pages` replaces the whole site per deployment, so a second,
+independent Pages target would race the main docs deploy. When enabled, it
+does a *separate*, unbased (plain `BrowserRouter`, clean `/carousel/builder`
+URLs — decoupled from the deployed build's sub-path hash-routing) kitchen-sink
+build, serves it via `vite preview`, runs the audit (never gates the deploy —
+`|| true`, since a failing audit's whole point is to still publish *what*
+failed), and folds the report into the assembled site at
+`/primitiv/kitchen-sink-audit/`.
+
+**Scope, stated plainly in the report itself:** Chromium-only. Catches thrown
+errors, wrongly-hidden slides, collapsed layout — not iOS-Safari-only
+rendering/compositing bugs (several of which this investigation already hit).
+A real-device pass is still the final word; this is the systematic first pass
+that should eliminate most transition/logic bugs before they reach a phone.

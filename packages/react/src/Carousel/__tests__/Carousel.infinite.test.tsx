@@ -597,6 +597,28 @@ describe("Carousel infinite — transform engine", () => {
     expect(track!.style.transform).toBe("");
   });
 
+  it("does not throw when the loop mode switches at runtime (slides reparent)", () => {
+    // Switching loop reparents the slides into / out of the transform track, so
+    // they unmount + re-register in the same commit that re-runs the native-scroll
+    // effects — the key is still in slideKeys but its element is momentarily out of
+    // slidesRef. Those effects must skip the orphaned key, not read
+    // getBoundingClientRect on `undefined` (white-screen crash in the builder).
+    function App({ loop }: { loop?: "infinite" | "wrap" }) {
+      return (
+        <Carousel.Root ariaLabel="Featured" loop={loop}>
+          <Carousel.Viewport>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Carousel.Slide key={i} />
+            ))}
+          </Carousel.Viewport>
+        </Carousel.Root>
+      );
+    }
+    const { rerender } = render(<App loop="infinite" />);
+    expect(() => rerender(<App loop="wrap" />)).not.toThrow();
+    expect(() => rerender(<App loop={undefined} />)).not.toThrow();
+  });
+
   it("re-homes the track without erroring when unmounted mid-interaction", async () => {
     const user = userEvent.setup();
     const { getByRole, unmount } = renderInfinite();

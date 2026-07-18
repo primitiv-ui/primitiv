@@ -367,7 +367,13 @@ export function useCarouselViewport() {
     // is untouched, so the viewport never drifts on the other axis. `start` aligns
     // the slide's leading edge to the viewport's; `center` centres it; `end`
     // aligns its trailing edge.
-    const targetEl = slidesRef.current!.get(firstSlideKey)!;
+    const targetEl = slidesRef.current!.get(firstSlideKey);
+    // A loop-mode switch reparents the slides into / out of the transform track,
+    // so a slide can unmount + re-register in the same commit that re-runs this
+    // effect: the key is still in slideKeys but its element isn't back in slidesRef
+    // yet. Bail; the re-register bumps slideKeys and re-runs this against the
+    // settled set. (Same race the --slide-progress effect below already guards.)
+    if (!targetEl) return;
     const vertical = orientation === "vertical";
     const viewportRect = viewport.getBoundingClientRect();
     const targetRect = targetEl.getBoundingClientRect();
@@ -398,6 +404,8 @@ export function useCarouselViewport() {
       currentPageOffset + slidesPerPage - 1,
       slideKeys.length - 1,
     );
+    // Present whenever targetEl is (a loop-mode reparent unmounts every slide
+    // together, so the guard above already caught a mid-reparent run).
     const lastMemberEl = slidesRef.current!.get(slideKeys[lastMemberIndex])!;
     const lastMemberRect = lastMemberEl.getBoundingClientRect();
     // Computed as left/top + width/height, not the rect's own .right/.bottom

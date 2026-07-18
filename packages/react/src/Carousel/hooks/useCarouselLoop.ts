@@ -27,6 +27,51 @@ function glideTransition(track: HTMLElement): string {
     GLIDE_EASE;
   return `transform ${duration} ${easing}`;
 }
+
+// The engine's own inline style writes on a real slide (paint()'s `visibility`
+// and `--slide-progress`) happen continuously — every navigation, every drag
+// pointermove, every rAF tick of an animated glide. Strip them out before
+// comparing a "style" mutation's before/after, so the clone-content observer
+// (below) doesn't mistake this routine bookkeeping for a genuine consumer
+// change and thrash rebuildClones() dozens of times a second.
+function styleWithoutEngineProps(cssText: string | null): string {
+  return (cssText ?? "")
+    .split(";")
+    .map((decl) => decl.trim())
+    .filter(
+      (decl) =>
+        decl &&
+        !decl.startsWith("visibility:") &&
+        !decl.startsWith("--slide-progress:"),
+    )
+    .sort()
+    .join(";");
+}
+
+// data-state/data-index churn every navigation (the leading slide's active
+// state flips) — routine, and stripped from the clone anyway (rebuildClones
+// removes both), so reacting to them would rebuild on every page change for
+// no visible difference, including mid-glide while a clone might be on
+// screen (the exact class of flash this whole engine exists to avoid). A
+// "style" mutation needs the finer check above, since the engine and a
+// consumer (e.g. a gradient swap) both write to the same attribute.
+// Everything else — a slide's other attributes, its children, or their text
+// — genuinely can change the clone's content, so those still trigger a
+// rebuild.
+function isMeaningfulSlideMutation(m: MutationRecord): boolean {
+  if (m.type !== "attributes") return true;
+  if (m.attributeName === "data-state" || m.attributeName === "data-index")
+    return false;
+  if (m.attributeName === "style") {
+    const target = m.target as HTMLElement;
+    return (
+      styleWithoutEngineProps(m.oldValue) !==
+      styleWithoutEngineProps(target.getAttribute("style"))
+    );
+  }
+  return true;
+}
+
 // Pointer travel (px, along the axis) before a press becomes a drag — below it
 // a tap still reaches a link/button inside a slide.
 const DRAG_THRESHOLD_PX = 3;
@@ -279,7 +324,10 @@ export function useCarouselLoop() {
         const slideCenter = b + sz / 2;
         const progress =
           viewportHalf > 0
-            ? Math.max(-1, Math.min(1, (slideCenter - viewportHalf) / viewportHalf))
+            ? Math.max(
+                -1,
+                Math.min(1, (slideCenter - viewportHalf) / viewportHalf),
+              )
             : 0;
         el.style.setProperty("--slide-progress", String(progress));
       }
@@ -312,12 +360,13 @@ export function useCarouselLoop() {
         "[data-carousel-slide]",
       )) {
         const r = el.getBoundingClientRect();
-        const center = vertical
-          ? r.top + r.height / 2
-          : r.left + r.width / 2;
+        const center = vertical ? r.top + r.height / 2 : r.left + r.width / 2;
         const progress =
           viewportHalf > 0
-            ? Math.max(-1, Math.min(1, (center - viewportCenter) / viewportHalf))
+            ? Math.max(
+                -1,
+                Math.min(1, (center - viewportCenter) / viewportHalf),
+              )
             : 0;
         el.style.setProperty("--slide-progress", String(progress));
       }
@@ -463,21 +512,8 @@ export function useCarouselLoop() {
     if (!isInfinite) return;
     const slides = realSlides();
     if (slides.length === 0) return;
-    // data-state/data-index churn every navigation (the leading slide's active
-    // state flips) — routine, and stripped from the clone anyway
-    // (rebuildClones removes both), so reacting to them would rebuild on every
-    // page change for no visible difference, including mid-glide while a
-    // clone might be on screen (the exact class of flash this whole engine
-    // exists to avoid). Everything else — a slide's own attributes (style, for
-    // a consumer that swaps a gradient via inline style), its children, or
-    // their text — genuinely can change the clone's content, so those still
-    // trigger a rebuild.
     const observer = new MutationObserver((mutations) => {
-      const meaningful = mutations.some(
-        (m) =>
-          m.type !== "attributes" ||
-          (m.attributeName !== "data-state" && m.attributeName !== "data-index"),
-      );
+      const meaningful = mutations.some((m) => isMeaningfulSlideMutation(m));
       if (meaningful) rebuildClones();
     });
     for (const slide of slides) {
@@ -485,6 +521,7 @@ export function useCarouselLoop() {
         childList: true,
         subtree: true,
         attributes: true,
+        attributeOldValue: true,
         characterData: true,
       });
     }
@@ -535,8 +572,8 @@ export function useCarouselLoop() {
     // accumulate it off the clone buffer.
     boundGlideStart(g);
     const logical =
-      (((Math.round(offsetRef.current / g.stride) % g.count) + g.count) %
-        g.count);
+      ((Math.round(offsetRef.current / g.stride) % g.count) + g.count) %
+      g.count;
     const step = shortestStep(logical, currentPageOffset, g.count);
     const target = offsetRef.current + step * g.stride;
     const instant = instantScrollRef.current || !positionedRef.current;
@@ -700,7 +737,7 @@ export function useCarouselLoop() {
       );
       glideTo(target, false, g);
       const index =
-        (((Math.round(target / g.stride) % g.count) + g.count) % g.count);
+        ((Math.round(target / g.stride) % g.count) + g.count) % g.count;
       goTo(pageForSlideIndex(index));
     },
     [glideTo, goTo, pageForSlideIndex, effectiveSlidesPerMove],

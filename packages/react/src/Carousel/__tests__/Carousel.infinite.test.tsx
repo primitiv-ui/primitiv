@@ -26,7 +26,10 @@ function pointer(
     pointerId: id,
     pointerType,
   });
-  Object.defineProperty(event, "timeStamp", { configurable: true, value: time });
+  Object.defineProperty(event, "timeStamp", {
+    configurable: true,
+    value: time,
+  });
   act(() => {
     fireEvent(target, event);
   });
@@ -93,7 +96,9 @@ function defineGeometry() {
 
 // Install a getBoundingClientRect that derives left/top/width/height from a
 // per-element { start, size } (both axes share the numbers, as the offsets do).
-function defineRect(layout: (this: HTMLElement) => { start: number; size: number }) {
+function defineRect(
+  layout: (this: HTMLElement) => { start: number; size: number },
+) {
   Object.defineProperty(HTMLElement.prototype, "getBoundingClientRect", {
     configurable: true,
     value: function (this: HTMLElement) {
@@ -135,7 +140,13 @@ function stdRect({
     const isSlide = this.hasAttribute?.("data-carousel-slide");
     return {
       start: index != null ? startFor(index) : 0,
-      size: isTrack ? trackSize : isViewport ? viewportSize : isSlide ? SLIDE : 0,
+      size: isTrack
+        ? trackSize
+        : isViewport
+          ? viewportSize
+          : isSlide
+            ? SLIDE
+            : 0,
     };
   });
 }
@@ -265,6 +276,129 @@ describe("Carousel infinite — transform engine", () => {
     });
 
     expect(head.children[0]!.textContent).toBe("picture");
+  });
+
+  it("does not rebuild clones for the engine's own visibility/--slide-progress writes", async () => {
+    // paint() writes `visibility` and `--slide-progress` onto every real
+    // slide's inline style on every navigation, drag pointermove, and rAF
+    // tick of an animated glide. The clone-content observer must not mistake
+    // that continuous bookkeeping for a genuine consumer change, or it
+    // thrashes rebuildClones() (full clone-strip teardown/rebuild) dozens of
+    // times a second — exactly the DOM churn that made images flicker/blank
+    // during a drag or glide. rebuildClones() replaces every clone with a
+    // brand-new node (`replaceChildren` + fresh `cloneNode`s), so a rebuild
+    // is observable as a change of node *identity* at `head.children[0]` —
+    // comparing the node's own attributes to itself would prove nothing,
+    // since a detached node's attributes never change after the fact.
+    render(
+      <Carousel.Root ariaLabel="Featured" loop="infinite">
+        <Carousel.Viewport>
+          {[0, 1, 2, 3].map((i) => (
+            <Carousel.Slide key={i}>{i}</Carousel.Slide>
+          ))}
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+    const head = document.querySelector('[data-carousel-clones="head"]')!;
+    const realSlide = document.querySelector(
+      '[data-carousel-slide][data-index="0"]',
+    ) as HTMLElement;
+    const cloneBefore = head.children[0];
+
+    realSlide.style.visibility = "hidden";
+    realSlide.style.setProperty("--slide-progress", "0.987654");
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(head.children[0]).toBe(cloneBefore);
+  });
+
+  it("does not rebuild clones when a real slide's style attribute is cleared entirely", async () => {
+    // Exercises the other half of the before/after style comparison: the
+    // *current* side reading `null` (no style attribute at all) rather than
+    // the *old* side. A plain slide's only inline style is the engine's own
+    // visibility/--slide-progress, so removing the whole attribute strips to
+    // the same "nothing" on both sides — still not a genuine content change.
+    render(
+      <Carousel.Root ariaLabel="Featured" loop="infinite">
+        <Carousel.Viewport>
+          {[0, 1, 2, 3].map((i) => (
+            <Carousel.Slide key={i}>{i}</Carousel.Slide>
+          ))}
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+    const head = document.querySelector('[data-carousel-clones="head"]')!;
+    const realSlide = document.querySelector(
+      '[data-carousel-slide][data-index="0"]',
+    ) as HTMLElement;
+    const cloneBefore = head.children[0];
+
+    realSlide.removeAttribute("style");
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(head.children[0]).toBe(cloneBefore);
+  });
+
+  it("still rebuilds clones when a slide's own inline style changes for real", async () => {
+    // The reported bug used an inline-style content swap specifically (the
+    // builder's gradient <-> picture toggle sets `style={{ background }}`
+    // directly on the slide) — stripping the engine's own visibility/
+    // --slide-progress properties out of the comparison (above) must not
+    // also blind the observer to this genuine case.
+    function App({ background }: { background: string }) {
+      return (
+        <Carousel.Root ariaLabel="Featured" loop="infinite">
+          <Carousel.Viewport>
+            {[0, 1, 2, 3].map((i) => (
+              <Carousel.Slide key={i} style={{ background }} />
+            ))}
+          </Carousel.Viewport>
+        </Carousel.Root>
+      );
+    }
+    const { container, rerender } = render(<App background="red" />);
+    const head = container.querySelector('[data-carousel-clones="head"]')!;
+    expect((head.children[0] as HTMLElement).style.background).toBe("red");
+
+    rerender(<App background="blue" />);
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect((head.children[0] as HTMLElement).style.background).toBe("blue");
+  });
+
+  it("rebuilds clones when a slide's own class (or any other attribute) changes", async () => {
+    // Only "style" needs the finer before/after check (the engine and a
+    // consumer both write it) and only data-state/data-index are routine
+    // per-navigation noise — every other attribute a consumer might set
+    // (className, aria-*, a data-* the app owns) still means genuinely new
+    // clone content and must still trigger a rebuild.
+    render(
+      <Carousel.Root ariaLabel="Featured" loop="infinite">
+        <Carousel.Viewport>
+          {[0, 1, 2, 3].map((i) => (
+            <Carousel.Slide key={i}>{i}</Carousel.Slide>
+          ))}
+        </Carousel.Viewport>
+      </Carousel.Root>,
+    );
+    const head = document.querySelector('[data-carousel-clones="head"]')!;
+    const realSlide = document.querySelector(
+      '[data-carousel-slide][data-index="0"]',
+    ) as HTMLElement;
+    const cloneBefore = head.children[0];
+
+    realSlide.className = "featured-slide";
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(head.children[0]).not.toBe(cloneBefore);
   });
 
   it("keeps the offset within one period under rapid navigation (no run-off)", async () => {
@@ -895,9 +1029,21 @@ describe("Carousel infinite — drag + fling", () => {
     const { track, getByTestId } = renderInfinite({ allowMouseDrag: false });
     const viewport = getByTestId("viewport");
 
-    pointer(viewport, "pointerdown", { client: 200, time: 0, pointerType: "mouse" });
-    pointer(viewport, "pointermove", { client: 120, time: 100, pointerType: "mouse" });
-    pointer(viewport, "pointerup", { client: 120, time: 120, pointerType: "mouse" });
+    pointer(viewport, "pointerdown", {
+      client: 200,
+      time: 0,
+      pointerType: "mouse",
+    });
+    pointer(viewport, "pointermove", {
+      client: 120,
+      time: 100,
+      pointerType: "mouse",
+    });
+    pointer(viewport, "pointerup", {
+      client: 120,
+      time: 120,
+      pointerType: "mouse",
+    });
 
     // pointerdown bailed on the mouse gate, so no drag state was ever created.
     expect(track!.style.transform).toBe("translate(0px, 0px)");
@@ -907,8 +1053,16 @@ describe("Carousel infinite — drag + fling", () => {
     const { track, getByTestId } = renderInfinite({ allowMouseDrag: true });
     const viewport = getByTestId("viewport");
 
-    pointer(viewport, "pointerdown", { client: 200, time: 0, pointerType: "mouse" });
-    pointer(viewport, "pointermove", { client: 140, time: 100, pointerType: "mouse" });
+    pointer(viewport, "pointerdown", {
+      client: 200,
+      time: 0,
+      pointerType: "mouse",
+    });
+    pointer(viewport, "pointermove", {
+      client: 140,
+      time: 100,
+      pointerType: "mouse",
+    });
 
     expect(track!.style.transform).toBe("translate(-60px, 0px)");
   });
@@ -979,7 +1133,10 @@ describe("Carousel infinite — drag + fling", () => {
     // (offset 100) mid-page, whose page is 0, so the page effect then jerks back to
     // offset 0 — the two-step this fixes.
     stdRect({ trackSize: 200 });
-    const { track, getByTestId } = renderInfinite({ count: 6, slidesPerPage: 2 });
+    const { track, getByTestId } = renderInfinite({
+      count: 6,
+      slidesPerPage: 2,
+    });
     const viewport = getByTestId("viewport");
 
     pointer(viewport, "pointerdown", { client: 200, time: 0 });

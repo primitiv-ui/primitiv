@@ -4715,3 +4715,56 @@ removed in favour of non-null assertions, mirroring the same call earlier
 this session in `liveSlideProgress`. 100% Carousel
 coverage (statements/branches/functions/lines), tsc clean (react +
 kitchen-sink), 3-way CSS sync unaffected (JS-only fix).
+
+## Follow-up: the clone-content observer thrashed on the engine's own writes
+
+Deployed the fix above; human report immediately after: "Strange,
+disappearing images now" — happening both while navigating and
+intermittently while dragging/scrolling, not tied to any particular content
+toggle. Root cause: `paint()` writes `visibility` and `--slide-progress`
+directly onto every real slide's inline `style` on **every** navigation,
+every drag `pointermove`, and every rAF tick of an animated glide (the
+parallax fix from earlier this session). The new MutationObserver treats
+those as ordinary "style" attribute mutations — its only filter excluded
+`data-state`/`data-index`, so every one of those continuous engine writes
+counted as "meaningful" and fired `rebuildClones()` — a full clone-strip
+teardown/rebuild (`replaceChildren` + fresh `cloneNode(true)` of every real
+slide) — dozens of times a second during any glide or drag. That churn is
+what read as images blanking/flickering: constantly destroying and
+recreating the clone strip (images included) while the track is also mid-
+transition. The "no extra coalescing needed, MutationObserver already
+batches a commit into one callback" reasoning from the fix above was true
+for a single React commit, but didn't account for `paint()` firing across
+*many separate* ticks (each drag `pointermove`, each glide rAF frame) —
+each gets its own callback invocation, so there was nothing to batch away.
+
+Fix (`useCarouselLoop.ts`): the observer can't tell *which* CSS property
+changed within `style`, only that the attribute changed — and the engine and
+a consumer (e.g. the builder's gradient swap) both write to that same
+attribute — so attribute *name* filtering alone can't distinguish them.
+Added `styleWithoutEngineProps()`, which strips `visibility` and
+`--slide-progress` declarations out of a style string, and compares the
+mutation's `oldValue` (added `attributeOldValue: true` to the observe
+options) against the slide's current style, both stripped: unchanged after
+stripping means the mutation was purely the engine's own bookkeeping,
+untouched means a real content change. `data-state`/`data-index` keep their
+existing outright exclusion (no finer check needed — those never carry
+consumer content). Everything else (children, text, other attributes) is
+still unconditionally meaningful, unchanged from the earlier fix.
+
+Tests: confirmed each new test was a genuine RED against the regressed code
+before trusting it, having been burned by a false-green once already this
+session (a `clone.getAttribute("style")` self-comparison that couldn't
+fail, since it compared a node to its own later self rather than checking
+whether `rebuildClones()` had replaced it with a new node — fixed to compare
+node *identity* at `head.children[0]` instead, which changes when
+`replaceChildren()` actually runs). Final set: (1) setting
+`visibility`/`--slide-progress` directly on a real slide, mimicking exactly
+what `paint()` does, does *not* replace the clone node; (2) removing a
+plain slide's style attribute entirely (only engine props were ever on it)
+also doesn't rebuild — exercises the "current side is `null`" half of the
+comparison; (3) a genuine inline-style change (rerendering with a different
+`background`) still rebuilds, so the stripping doesn't blind the observer to
+the exact case the previous fix was for; (4) a non-style attribute change
+(`className`) still rebuilds unconditionally. 100% Carousel coverage
+(statements/branches/functions/lines), tsc clean (react + kitchen-sink).

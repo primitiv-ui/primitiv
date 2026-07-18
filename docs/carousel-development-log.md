@@ -2596,7 +2596,12 @@ iteration 13), `size` (density/size scaling, iteration 14), `images` (real
 
 **Advanced**
 
-- Cover Flow (scroll-driven 3D, `--cf-*` playground). **No route yet.**
+- Cover Flow (scroll-driven 3D). _(landed 2026-07-18 — see the "Cover Flow"
+  iteration entry below)_ — the third `effect` value (`coverflow`), a native
+  view-timeline-driven `rotateY`/`rotateX` + `scale` off a per-slide
+  `perspective`, with the `--primitiv-carousel-coverflow-{rotate,scale,perspective}`
+  knobs (the `--cf-*` playground). Route `coverflow`; also wired into the Builder.
+  Awaiting human QA.
 - Autoplay + play/pause. The headless primitive already supports both
   (`PlayPauseTrigger`, autoplay); **no example route yet** — that's the
   remaining work.
@@ -5103,3 +5108,97 @@ Verified rather than trusted that reasoning:
 No code changes — this was a verification pass, not a fix. 100% Carousel
 coverage (statements/branches/functions/lines) maintained, tsc clean
 (react + kitchen-sink).
+
+### Cover Flow — registry `effect="coverflow"` (kitchen-sink `/carousel/coverflow` + Builder, awaiting human QA)
+
+The next Advanced-backlog item off the list above, replicating Blossom
+Carousel's Cover Flow example (the iTunes/Apple "Cover Flow" 3D tilt). **No
+Figma cell** — same code-first class as Slideshow/Cover Flow/"progress", so the
+Figma-pairing step was skipped (Figma-last N/A: a code-only, design-divergent
+technique). Landed as **the third value on the existing `effect` root modifier**
+(`none` · `parallax` · `coverflow`), reusing the parallax scaffold end to end.
+
+**Pure registry-CSS + kitchen-sink, no headless change.** Like parallax, the
+whole technique is CSS reading the already-shipped `--slide-progress` signal +
+the existing `<CarouselSlideContent>` presentational layer — nothing in
+`packages/react` changed, so no dev-alias was needed and the kitchen-sink
+consumes it straight from the hand-synced surface.
+
+**The architecture decision — target `<CarouselSlideContent>`, not the slide.**
+Cover Flow tilts the *whole card* (unlike parallax, which drifts *inside* the
+clipped slide box), so the instinct is to `rotateY` the slide itself. Two
+reasons not to: (1) the infinite-loop engine (`useCarouselLoop`) measures every
+slide via `getBoundingClientRect()`, which a transform on the slide would
+corrupt (a rotated box reports rotated bounds); (2) native scroll-snap keys off
+the slide's layout box. A **child** transform leaves the slide's own box (and
+the engine, and snap) untouched. So Cover Flow transforms `<CarouselSlideContent>`
+and instead sets the slide **`overflow: visible`** to let the tilted card escape
+its flat slot and overlap its neighbours, moving the rounding/clip onto the
+content layer (which inherits `--primitiv-carousel-slide-radius`). Net: a genuine
+3D card tilt that's safe in every mode, including infinite.
+
+**Built (registry).** `contract.json` gained the `coverflow` `effect` option +
+three knobs (`--primitiv-carousel-coverflow-{perspective,rotate,scale}`, defaults
+`1200px` / `45deg` / `0.85` — technique geometry, not design tokens, the same
+exception class as the parallax knobs). `styles.css`/`.scss` gained: the slide
+`overflow: visible` + `perspective`; the content layer's `border-radius` +
+`overflow: hidden`; a `@supports (animation-timeline: view())` block naming a
+`--primitiv-carousel-coverflow-timeline` on the slide (physical `x`/`y` axis
+following orientation) and animating the content along it via `animation-range:
+cover`; the horizontal-RTL and `loop="infinite"` `--slide-progress` overrides
+(both mirroring parallax's for the same documented Chromium cover-range bug /
+no-native-scroll reasons); a `@supports not (...)` fallback reading
+`--slide-progress` (with an **`abs()`-free** scale via
+`max(p, calc(p * -1))` so the shrink works in Firefox stable too); the two
+orientation keyframes (`-inline` rotateY, `-block` rotateX, each `edge → 0 →
+edge` with the scale dipping to `--coverflow-scale` at the edges and `1` at
+centre); and the `prefers-reduced-motion: reduce` cancel. Sign convention matches
+Blossom's published `rotate-cover` (edge slide reads `∓rotate`, consistent with
+`--slide-progress`'s `entering = -1` convention). **The default tilt direction is
+the one QA item to confirm live** — it's a single knob-sign flip if it reads
+mirrored.
+
+**Regenerated** `carousel.recipe.ts` (the `coverflow` variant line), `carousel.tsx`
+(the `effect?: "none" | "parallax" | "coverflow"` union + JSDoc), and `styles.scss`
+(CSS body + three new `$…coverflow-*` aliases) via the throwaway
+`crates/primitiv-emit/examples/gen_carousel.rs` (deleted after). Drift guards
+green — `cargo test -p primitiv-emit` (106) + `-p primitiv-cli` (20).
+
+**Built (kitchen-sink).** `CarouselPage.tsx` (`CoverFlowSingle` +
+`CarouselCoverFlow`, route `coverflow`): a 4-cell grid — default horizontal
+(peek `lg`, `snapAlign="center"`, `gap="lg"`), vertical (proving the axis
+follows the scroll direction → rotateX), RTL (proving the `--slide-progress`
+fallback path), and real imagery (a real `<img>` per rounded card, which Cover
+Flow shows off — no backdrop needed, unlike parallax's Ken-Burns pan). The gradient
+cells put the fill on `<CarouselSlideContent>` itself (the tilting card), not the
+slide. `CarouselLayout.tsx` gained the sidebar entry ("Cover Flow"); `Shell.tsx`
+the route. Hand-synced the registry surface into
+`apps/kitchen-sink/src/components/` + `src/styles/primitiv/carousel/` exactly as
+`add` installs it.
+
+**Builder wiring.** `type Effect` + the "effect" `RadioField` now carry `coverflow`
+(with its own hint); `LiveCarousel`'s slide rendering gained a coverflow branch —
+the gradient rides `<CarouselSlideContent>` (via `style`) with the marker on top
+(not the flat slide, since the slide is `overflow: visible` under coverflow), and
+real-picture / content-width slides wrap their `<img>` in `<CarouselSlideContent>`
+for any non-`none` effect. `describe()`/`state.json` already echo `effect`
+generically. New `.carousel-builder__slide-content--coverflow` CSS (grid-centres
+the marker, same as the parallax one).
+
+**Registry README** — a new **Cover Flow** bullet (mechanism, the slide-content
+targeting rationale + engine-safety note, the three knobs, the peek/snapAlign
+composition), the intro summary and the `__slide-content` callout both extended.
+
+**Gates:** `cargo test -p primitiv-emit -p primitiv-cli` green; `node
+scripts/check-registry-types.mjs` green. Kitchen-sink can't build in the sandbox
+(no `node_modules`) — authored to the strict `noUnusedLocals`/`noUnusedParameters`
+rules, brace-balanced, JSX cross-checked against the parallax example it mirrors.
+
+**Next:** human QA of `/carousel/coverflow` (all four cells + the Builder's
+"coverflow" toggle composing with peek/orientation/rtl). Specifically confirm:
+the centred card rests flat and forward while neighbours tilt; the **tilt
+direction** reads right (else flip the `--coverflow-rotate` sign / the keyframe);
+vertical tilts on the correct axis; RTL rests symmetric; and no cross-axis
+viewport clipping of the tilted cards. Figma lockstep is N/A (code-only,
+design-divergent, same as parallax/progress). Remaining Advanced backlog: Autoplay
+example, Multi-step, Stories, Smart Stack, Cards, Flipbook, Timeline.

@@ -342,6 +342,7 @@
     { "name": "--primitiv-carousel-parallax-amount", "defaultsTo": "calc((var(--primitiv-carousel-parallax-scale) - 1) / 2 * 100%)" },
     { "name": "--primitiv-carousel-coverflow-perspective", "defaultsTo": "1200px" },
     { "name": "--primitiv-carousel-coverflow-rotate", "defaultsTo": "55deg" },
-    { "name": "--primitiv-carousel-coverflow-scale", "defaultsTo": "0.85" }
+    { "name": "--primitiv-carousel-coverflow-scale", "defaultsTo": "0.85" },
+    { "name": "--primitiv-carousel-coverflow-spread", "defaultsTo": "40%" }
   ]
 }

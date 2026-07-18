@@ -350,8 +350,13 @@ so they can't fall out of sync.
   design tokens): **`--primitiv-carousel-coverflow-rotate`** (edge tilt angle,
   default `55deg`, matching Blossom's `rotateY(±55deg)`),
   **`--primitiv-carousel-coverflow-scale`** (how far an edge slide shrinks, default
-  `0.85`), and **`--primitiv-carousel-coverflow-perspective`** (scene depth, default
-  `1200px`). Best composed with **`peek`** (to reveal the tilting neighbours) and
+  `0.85`), **`--primitiv-carousel-coverflow-spread`** (Blossom's `slide-cover`
+  translateX — how far each neighbour slides *toward the centre* along the scroll
+  axis as a fraction of its own size, so higher values pull the neighbours in and
+  overlap them onto the centred card; default `40%`, `0` leaves them at their
+  scroll-snap positions), and **`--primitiv-carousel-coverflow-perspective`** (scene
+  depth, default `1200px`). The centred (active) slide is lifted with `z-index` so
+  the crowd overlaps behind it, not over it. Best composed with **`peek`** (to reveal the tilting neighbours) and
   **`snapAlign="center"`** (so the flat, forward card is the one that rests centred) —
   both orthogonal, so they just compose. Requires wrapping the slide's visual (a
   gradient/`<img>`) in `<CarouselSlideContent>`, the card that tilts. See the

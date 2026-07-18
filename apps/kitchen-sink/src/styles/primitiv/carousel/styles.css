@@ -207,11 +207,16 @@
        its slides are tiny in tall padding — ours fill the viewport, so growing the
        centre past 100% would clip against the viewport's cross-axis. Shrinking the
        edges to 0.85 instead gives the same ~1.2x centre-to-neighbour ratio
-       (1 / 0.85) with no clipping. Not design tokens — the technique's own 3D
-       geometry, the same exception class as the parallax knobs above. */
+       (1 / 0.85) with no clipping. `spread` is Blossom's `slide-cover` translateX
+       — how far each slide slides *toward the centre* along the scroll axis as a
+       fraction of its own size, so higher values pull the neighbours in and
+       overlap them onto the centred card (0 leaves them at their scroll-snap
+       positions). Not design tokens — the technique's own 3D geometry, the same
+       exception class as the parallax knobs above. */
     --primitiv-carousel-coverflow-perspective: 1200px;
     --primitiv-carousel-coverflow-rotate: 55deg;
     --primitiv-carousel-coverflow-scale: 0.85;
+    --primitiv-carousel-coverflow-spread: 40%;
 
     /* Fill the container and stack the viewport above the controls row, spaced
        by the block gap. The single column is an explicit full-width track
@@ -1111,6 +1116,16 @@
     border-radius: var(--primitiv-carousel-slide-radius);
     overflow: hidden;
   }
+  /* Lift the centred (active) card above its neighbours so the inward `spread`
+     crowd overlaps *behind* it, not over it. Cross-slide 3D z-sorting isn't
+     available — each slide is its own perspective context (the scroll container
+     can't be preserve-3d), so this 2D stacking keeps the flat, forward card on
+     top; the neighbours keep DOM order among themselves. The slide is a flex
+     item, so z-index applies without needing an extra positioning context. */
+  .primitiv-carousel--effect-coverflow
+    .primitiv-carousel__slide[data-state="active"] {
+    z-index: 1;
+  }
   @supports (animation-timeline: view()) {
     .primitiv-carousel--effect-coverflow .primitiv-carousel__slide {
       view-timeline-name: --primitiv-carousel-coverflow-timeline;
@@ -1135,7 +1150,10 @@
     .primitiv-carousel--effect-coverflow:not([data-orientation="vertical"])
       .primitiv-carousel__slide-content:dir(rtl) {
       animation: none;
-      transform: rotateY(
+      transform: translateX(
+          calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-spread))
+        )
+        rotateY(
           calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-rotate))
         )
         scale(
@@ -1151,7 +1169,10 @@
     .primitiv-carousel[data-loop="infinite"].primitiv-carousel--effect-coverflow
       .primitiv-carousel__slide-content {
       animation: none;
-      transform: rotateY(
+      transform: translateX(
+          calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-spread))
+        )
+        rotateY(
           calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-rotate))
         )
         scale(
@@ -1163,7 +1184,10 @@
     }
     .primitiv-carousel[data-loop="infinite"][data-orientation="vertical"].primitiv-carousel--effect-coverflow
       .primitiv-carousel__slide-content {
-      transform: rotateX(
+      transform: translateY(
+          calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-spread))
+        )
+        rotateX(
           calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-rotate))
         )
         scale(
@@ -1179,7 +1203,10 @@
      the primitive writes on every slide regardless of technique. */
   @supports not (animation-timeline: view()) {
     .primitiv-carousel--effect-coverflow .primitiv-carousel__slide-content {
-      transform: rotateY(
+      transform: translateX(
+          calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-spread))
+        )
+        rotateY(
           calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-rotate))
         )
         scale(
@@ -1191,7 +1218,10 @@
     }
     .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--effect-coverflow
       .primitiv-carousel__slide-content {
-      transform: rotateX(
+      transform: translateY(
+          calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-spread))
+        )
+        rotateX(
           calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-rotate))
         )
         scale(
@@ -1205,27 +1235,31 @@
 
   @keyframes primitiv-carousel-coverflow-inline {
     0% {
-      transform: rotateY(calc(var(--primitiv-carousel-coverflow-rotate) * -1))
+      transform: translateX(calc(var(--primitiv-carousel-coverflow-spread) * -1))
+        rotateY(calc(var(--primitiv-carousel-coverflow-rotate) * -1))
         scale(var(--primitiv-carousel-coverflow-scale));
     }
     50% {
-      transform: rotateY(0deg) scale(1);
+      transform: translateX(0) rotateY(0deg) scale(1);
     }
     100% {
-      transform: rotateY(var(--primitiv-carousel-coverflow-rotate))
+      transform: translateX(var(--primitiv-carousel-coverflow-spread))
+        rotateY(var(--primitiv-carousel-coverflow-rotate))
         scale(var(--primitiv-carousel-coverflow-scale));
     }
   }
   @keyframes primitiv-carousel-coverflow-block {
     0% {
-      transform: rotateX(calc(var(--primitiv-carousel-coverflow-rotate) * -1))
+      transform: translateY(calc(var(--primitiv-carousel-coverflow-spread) * -1))
+        rotateX(calc(var(--primitiv-carousel-coverflow-rotate) * -1))
         scale(var(--primitiv-carousel-coverflow-scale));
     }
     50% {
-      transform: rotateX(0deg) scale(1);
+      transform: translateY(0) rotateX(0deg) scale(1);
     }
     100% {
-      transform: rotateX(var(--primitiv-carousel-coverflow-rotate))
+      transform: translateY(var(--primitiv-carousel-coverflow-spread))
+        rotateX(var(--primitiv-carousel-coverflow-rotate))
         scale(var(--primitiv-carousel-coverflow-scale));
     }
   }

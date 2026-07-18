@@ -187,12 +187,17 @@
        and settles, like the momentum of a swipe. */
     --primitiv-carousel-glide-duration: var(--primitiv-duration-500);
     --primitiv-carousel-glide-easing: var(--primitiv-motion-easing-enter);
-    /* Slideshow-parallax drift — the max translate offset a slide's content
-       layer travels from entering to exiting the viewport, read only under
-       the `effect="parallax"` modifier (see primitiv.variants). Not a design
-       token: it's the technique's own geometry (how far the content shifts
-       relative to its own box), not a themeable value. */
-    --primitiv-carousel-parallax-amount: 50%;
+    /* Slideshow-parallax geometry, read only under the `effect="parallax"`
+       modifier. `scale` zooms the drifting media (its slide-content layer) so it
+       overhangs the slide; the drift `amount` is derived from it as exactly half
+       that overhang, so a full-bleed photo drifts end to end (a Ken-Burns pan)
+       and never slides its own edge into view — the "cut in half" a 100%-sized
+       layer showed. Bump `scale` for a bigger drift + zoom; both track together.
+       Not design tokens — the technique's own geometry, not themeable values. */
+    --primitiv-carousel-parallax-scale: 1.3;
+    --primitiv-carousel-parallax-amount: calc(
+      (var(--primitiv-carousel-parallax-scale) - 1) / 2 * 100%
+    );
 
     /* Fill the container and stack the viewport above the controls row, spaced
        by the block gap. The single column is an explicit full-width track
@@ -926,6 +931,21 @@
      construction). Vertical is unaffected (block scrolling doesn't flip under
      RTL), so only the `[data-orientation="vertical"]` axis swap is needed for
      it. Both confirmed live in-browser. */
+  /* Oversize the drifting media by the parallax scale so the drift never exposes
+     the slide edge: scaled, it overhangs the slide by exactly the drift amount
+     (which is derived from the scale), so a full-bleed photo stays covered end to
+     end — a Ken-Burns pan — instead of sliding half out of the box. A uniform
+     scale (object-fit still governs the fit) zooms without stretching; it rides
+     the same slide-content layer the drift translates, so the two compose. */
+  .primitiv-carousel--effect-parallax .primitiv-carousel__slide-content > img,
+  .primitiv-carousel--effect-parallax .primitiv-carousel__slide-content > video,
+  .primitiv-carousel--effect-parallax .primitiv-carousel__slide-content > picture,
+  .primitiv-carousel--effect-parallax
+    .primitiv-carousel__slide-content
+    > picture
+    > img {
+    transform: scale(var(--primitiv-carousel-parallax-scale));
+  }
   @supports (animation-timeline: view()) {
     .primitiv-carousel--effect-parallax .primitiv-carousel__slide {
       view-timeline-name: --primitiv-carousel-slide-timeline;
@@ -2026,4 +2046,5 @@ $primitiv-carousel-fade-duration: var(--primitiv-carousel-fade-duration);
 $primitiv-carousel-fade-easing: var(--primitiv-carousel-fade-easing);
 $primitiv-carousel-glide-duration: var(--primitiv-carousel-glide-duration);
 $primitiv-carousel-glide-easing: var(--primitiv-carousel-glide-easing);
+$primitiv-carousel-parallax-scale: var(--primitiv-carousel-parallax-scale);
 $primitiv-carousel-parallax-amount: var(--primitiv-carousel-parallax-amount);

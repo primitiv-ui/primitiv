@@ -4438,3 +4438,19 @@ the human's values: `fast` 200ms · `medium` 500ms · `slow` 1000ms (was
 is the default everywhere. Contract + regenerated recipe/wrapper + 3-way CSS +
 engine constant/test + READMEs; drift guards green, 100% Carousel coverage,
 type-checks clean.
+
+### 2026-07-17 (cont.) — Parallax: full-bleed media auto-oversized (fix "cut in half")
+
+Builder QA: parallax on a picture slide sliced the photo — a full-bleed `<img>` in
+the drifting `<CarouselSlideContent>` (100%×100%) translated up to the drift amount
+and slid half out of the box (gradients dodged it by keeping the photo as a static
+Slide backdrop + a small drifting marker). Fix: the parallax media (`img`/`video`/
+`picture`) is now auto-oversized by a new **`--primitiv-carousel-parallax-scale`**
+knob (default `1.3`, a uniform zoom that keeps `object-fit`), and the drift
+**`--primitiv-carousel-parallax-amount`** is *derived* from it
+(`calc((scale − 1) / 2 * 100%)`) so the media overhangs the slide by exactly the
+drift — a full-bleed photo now pans end to end (Ken-Burns) with no exposed edge.
+Non-media drifting layers (the marker) still use the backdrop pattern. Default drift
+drops from 50% to a tasteful 15% (scale-derived). 3-way CSS + contract (+ kitchen-sink
+copy, which was stale — now synced) + README + example/builder notes; drift guards
+green. CSS-only effect, no engine change. NOT deployed (batching more builder fixes).

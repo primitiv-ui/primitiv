@@ -2298,15 +2298,15 @@ export function CarouselProgress() {
  *
  * The backdrop lives on the Slide itself (a static gradient), and only a
  * small foreground marker sits inside <CarouselSlideContent> — the layer
- * that actually drifts. <CarouselSlideContent> fills the slide box exactly
- * (100% × 100%, no oversize), so a translate up to the full
- * --primitiv-carousel-parallax-amount can move its edge past the slide's own
- * — the transparent region that reveals just shows the matching backdrop
- * underneath rather than a visible gap. Putting full-bleed opaque content
- * (e.g. a cover photo with no backdrop behind it) directly in
- * <CarouselSlideContent> would reveal empty space at that edge instead;
- * either keep a same-scene backdrop behind it (as here) or size the content
- * layer generously oversized before translating it that far.
+ * that actually drifts. This marker isn't media, so it isn't auto-oversized;
+ * <CarouselSlideContent> fills the slide box exactly (100% × 100%), so a
+ * translate up to the full --primitiv-carousel-parallax-amount moves its edge
+ * past the slide's own — the transparent region that reveals just shows the
+ * matching backdrop underneath rather than a visible gap. (Full-bleed *media* —
+ * an <img>/<video>/<picture> in <CarouselSlideContent> — needs no backdrop: the
+ * registry auto-oversizes it by --primitiv-carousel-parallax-scale so it pans
+ * end to end without exposing an edge. The backdrop pattern here is for the
+ * non-media marker case.)
  */
 function SlideshowSingle({
   label,

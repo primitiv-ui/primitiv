@@ -166,6 +166,16 @@
         { "name": "none", "class": "primitiv-carousel--effect-none", "description": "Plain slides — no scroll-driven motion (the default)." },
         { "name": "parallax", "class": "primitiv-carousel--effect-parallax", "description": "Each slide's <CarouselSlideContent> drifts against the scroll as the slide crosses the viewport." }
       ]
+    },
+    {
+      "name": "glide",
+      "default": "medium",
+      "description": "How fast the infinite loop glides between pages (loop=\"infinite\" only — every other mode uses native scroll). A preset re-points --primitiv-carousel-glide-duration to a motion duration token; the engine reads it, with --primitiv-carousel-glide-easing, off the track and drives the transform transition. `medium` is the default. For a duration or easing outside the presets, re-point either custom property directly.",
+      "options": [
+        { "name": "fast", "class": "primitiv-carousel--glide-fast", "description": "A quick glide (200ms)." },
+        { "name": "medium", "class": "primitiv-carousel--glide-medium", "description": "The default glide (500ms)." },
+        { "name": "slow", "class": "primitiv-carousel--glide-slow", "description": "A slow, unhurried glide (1000ms)." }
+      ]
     }
   ],
   "styleProps": [
@@ -325,6 +335,9 @@
     { "name": "--primitiv-carousel-overlay-pill-padding-block", "defaultsTo": "var(--primitiv-carousel-md-pill-padding-block)" },
     { "name": "--primitiv-carousel-fade-duration", "defaultsTo": "var(--primitiv-motion-duration-overlay)" },
     { "name": "--primitiv-carousel-fade-easing", "defaultsTo": "var(--primitiv-motion-easing-default)" },
-    { "name": "--primitiv-carousel-parallax-amount", "defaultsTo": "50%" }
+    { "name": "--primitiv-carousel-glide-duration", "defaultsTo": "var(--primitiv-duration-500)" },
+    { "name": "--primitiv-carousel-glide-easing", "defaultsTo": "var(--primitiv-motion-easing-enter)" },
+    { "name": "--primitiv-carousel-parallax-scale", "defaultsTo": "1.3" },
+    { "name": "--primitiv-carousel-parallax-amount", "defaultsTo": "calc((var(--primitiv-carousel-parallax-scale) - 1) / 2 * 100%)" }
   ]
 }

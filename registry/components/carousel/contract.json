@@ -337,6 +337,7 @@
     { "name": "--primitiv-carousel-fade-easing", "defaultsTo": "var(--primitiv-motion-easing-default)" },
     { "name": "--primitiv-carousel-glide-duration", "defaultsTo": "var(--primitiv-duration-500)" },
     { "name": "--primitiv-carousel-glide-easing", "defaultsTo": "var(--primitiv-motion-easing-enter)" },
-    { "name": "--primitiv-carousel-parallax-amount", "defaultsTo": "50%" }
+    { "name": "--primitiv-carousel-parallax-scale", "defaultsTo": "1.3" },
+    { "name": "--primitiv-carousel-parallax-amount", "defaultsTo": "calc((var(--primitiv-carousel-parallax-scale) - 1) / 2 * 100%)" }
   ]
 }

@@ -584,12 +584,11 @@ function LiveCarousel({
                 );
               })
             : slides.map((background, index) => {
-                // Parallax drifts <CarouselSlideContent>, so the backdrop
-                // stays on the Slide (already true here) and only a small
-                // marker rides the drifting layer — a full-bleed photo placed
-                // directly in CarouselSlideContent with no backdrop behind it
-                // would reveal empty space at the translated edge instead
-                // (see the kitchen-sink slideshow example's own note).
+                // Parallax drifts <CarouselSlideContent>. Full-bleed media in it
+                // is auto-oversized by the registry (--parallax-scale), so a photo
+                // pans without exposing an edge; the gradient case has no media, so
+                // the backdrop stays on the Slide and only a small marker rides the
+                // drifting layer (a bare non-media layer isn't oversized).
                 const isParallax = config.effect === "parallax";
                 return (
                   <CarouselSlide

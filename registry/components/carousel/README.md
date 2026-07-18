@@ -283,17 +283,20 @@ so they can't fall out of sync.
   `prefers-reduced-motion: reduce`. **`<CarouselSlideContent>`** (a new
   **presentational subcomponent**, styled the same way as `__controls` — a
   plain `<div>` with no headless backing) is the layer the animation actually
-  targets, sized to fill the slide exactly (100% × 100%, no oversize) — the
-  slide itself keeps clipping it via the `overflow: hidden` already on
-  `.primitiv-carousel__slide`. **Layering gotcha:** because
-  `<CarouselSlideContent>` isn't oversized, a translate can move its edge past
-  the slide's own; put a **static backdrop on `<CarouselSlide>` itself** (e.g.
-  a background image/gradient) and keep only a smaller foreground layer inside
-  `<CarouselSlideContent>` (see the kitchen-sink `/carousel/slideshow`
-  example), so the region a translate reveals just shows the matching backdrop
-  underneath rather than empty space — putting full-bleed opaque content with
-  no backdrop behind it directly in `<CarouselSlideContent>` will reveal a gap
-  at the extremes instead. Composes with orientation (the timeline axis and
+  targets; the slide itself keeps clipping it via the `overflow: hidden` already
+  on `.primitiv-carousel__slide`. **Full-bleed media just works:** any
+  `img` / `video` / `picture` inside `<CarouselSlideContent>` is auto-oversized
+  by **`--primitiv-carousel-parallax-scale`** (default `1.3`, a uniform zoom that
+  keeps `object-fit`), and the drift **`--primitiv-carousel-parallax-amount`** is
+  *derived* from it (`(scale − 1) / 2`) so the media overhangs the slide by
+  exactly the drift — a full-bleed photo pans end to end (Ken-Burns) and never
+  slides its own edge into view. Bump `--parallax-scale` for a bigger zoom + drift
+  (both track together). **Non-media drifting layers** (a marker or card that
+  *isn't* oversized) still take the backdrop pattern: put a **static backdrop on
+  `<CarouselSlide>` itself** and keep the smaller foreground layer inside
+  `<CarouselSlideContent>` (see the kitchen-sink `/carousel/slideshow` example),
+  so the region its translate reveals shows the matching backdrop rather than a
+  gap. Composes with orientation (the timeline axis and
   the translate axis both follow it) and every other modifier for free — it's
   just another root class. **RTL note:** the view-timeline axis is the
   **physical** `x`/`y` keyword (following the scroll axis, like `peek`/`gap`),

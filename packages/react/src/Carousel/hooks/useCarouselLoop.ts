@@ -10,7 +10,7 @@ import { useCarouselContext } from "./useCarouselContext";
 // --primitiv-carousel-glide-{duration,easing} (default: the same motion tokens,
 // re-pointable per --glide-* preset or by hand) override them. Ease-out gives the
 // momentum feel of a page flying in and settling.
-const GLIDE_DURATION = "300ms";
+const GLIDE_DURATION = "500ms";
 const GLIDE_EASE = "cubic-bezier(0, 0, 0.2, 1)";
 
 // Build the glide's `transition` value, reading the duration/easing custom

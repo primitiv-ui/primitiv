@@ -4423,3 +4423,18 @@ Contract + regenerated recipe/wrapper + 3-way CSS + engine, all drift guards gre
 section (none/wrap/infinite + glide speed, the glide control hinted as infinite-only)
 so the loop + glide compose against every other axis live. Kitchen-sink surface copy
 synced.
+
+### 2026-07-17 (cont.) — Glide feedback: gap in infinite + retuned speeds
+
+Two builder-QA fixes. **Gap now works in infinite mode.** The infinite `__track`
+forced `gap: 0` for single-slide (restored only under peek/multi), so the `gap`
+modifier was a no-op on a single-slide loop and adding peek abruptly switched the
+gap 0→16px, shifting the stride (the "alignment gets messed up" report). The track
+gap now follows `--primitiv-carousel-gap` in every case — exactly like the
+native-scroll viewport — so the modifier works and peek no longer changes the gap
+out from under the layout; `gap="none"` gives a flush loop. **Speeds retuned** to
+the human's values: `fast` 200ms · `medium` 500ms · `slow` 1000ms (was
+200/300/500), with the base default + engine fallback moved to 500ms so `medium`
+is the default everywhere. Contract + regenerated recipe/wrapper + 3-way CSS +
+engine constant/test + READMEs; drift guards green, 100% Carousel coverage,
+type-checks clean.

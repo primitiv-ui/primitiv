@@ -152,8 +152,8 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
   /**
    * How fast the infinite loop glides between pages (loop="infinite" only — every other mode uses native scroll). A preset re-points --primitiv-carousel-glide-duration to a motion duration token; the engine reads it, with --primitiv-carousel-glide-easing, off the track and drives the transform transition. `medium` is the default. For a duration or easing outside the presets, re-point either custom property directly.
    * - `fast` — A quick glide (200ms).
-   * - `medium` — The default glide (300ms).
-   * - `slow` — A slow, unhurried glide (500ms).
+   * - `medium` — The default glide (500ms).
+   * - `slow` — A slow, unhurried glide (1000ms).
    * @default "medium"
    * @see https://primitiv-ui.dev/docs/components/carousel
    */

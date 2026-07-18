@@ -802,7 +802,7 @@ The glide's **duration and easing** are read off the track from the
 `--primitiv-carousel-glide-duration` and `--primitiv-carousel-glide-easing` custom
 properties, so a consumer retunes the feel purely in CSS (the registry stylesheet
 defaults them to motion tokens and ships `--glide-fast/medium/slow` presets). With
-no stylesheet the engine falls back to a built-in `300ms` ease-out. Every slide is
+no stylesheet the engine falls back to a built-in `500ms` ease-out. Every slide is
 also promoted to its own compositor layer (`transform: translateZ(0)` in the
 registry sheet) so its rounded, clipped bitmap is painted before it scrolls in — no
 iOS entering-edge white — while the engine windows the painted set (far slides are

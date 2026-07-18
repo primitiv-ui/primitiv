@@ -185,7 +185,7 @@
        `transition: transform <duration> <easing>`, so re-pointing either (or picking
        a --glide-* preset) retunes the glide. Ease-out (enter) so the page flies in
        and settles, like the momentum of a swipe. */
-    --primitiv-carousel-glide-duration: var(--primitiv-motion-duration-overlay);
+    --primitiv-carousel-glide-duration: var(--primitiv-duration-500);
     --primitiv-carousel-glide-easing: var(--primitiv-motion-easing-enter);
     /* Slideshow-parallax drift — the max translate offset a slide's content
        layer travels from entering to exiting the viewport, read only under
@@ -305,11 +305,14 @@
        measure — before the JS transform (which would itself make the track the
        offsetParent) has run. */
     position: relative;
-    /* No inter-slide gap by default: at plain one-up only one slide shows, so a
-       gap would just be a strip scrolling through the viewport during the glide.
-       Peek and multi-slide restore it below, where adjacent slides are actually
-       on screen and the gutter between them is wanted. */
-    gap: 0;
+    /* The inter-slide gap follows the gap knob, exactly like the native-scroll
+       viewport — so the `gap` modifier works in every mode (it was a no-op on the
+       single-slide infinite track before) and multi-slide pages read as separated
+       cards. On single-up only one slide rests in view, so the gap is a
+       spaceBetween revealed during the glide and in the peek gutters; set
+       gap="none" for a flush loop. The engine's measured stride includes it, so the
+       seam wrap stays aligned. */
+    gap: var(--primitiv-carousel-gap);
     inline-size: 100%;
     /* Deliberately NOT force-promoted to a permanent GPU layer (no translate3d, no
        backface-visibility, no will-change): the clone strip is several viewports
@@ -323,17 +326,6 @@
   .primitiv-carousel[data-orientation="vertical"] .primitiv-carousel__track {
     flex-direction: column;
     block-size: 100%;
-  }
-  /* Restore the inter-slide gap where adjacent slides are actually on screen — a
-     multi-slide page, or the peeking neighbours — so they read as separated cards.
-     Plain single-slide (no peek) keeps 0 above: only one slide shows, so a gap
-     would just be a strip scrolling through the viewport mid-glide. The engine's
-     measured stride includes the gap, so the seam wrap stays aligned. */
-  .primitiv-carousel__track:not([data-slides-per-page="1"]),
-  .primitiv-carousel--peek-sm .primitiv-carousel__track,
-  .primitiv-carousel--peek-md .primitiv-carousel__track,
-  .primitiv-carousel--peek-lg .primitiv-carousel__track {
-    gap: var(--primitiv-carousel-gap);
   }
   /* Each infinite slide is promoted to its OWN compositor layer (translateZ(0))
      so its rounded, overflow-clipped bitmap is rasterised up front — when the
@@ -751,18 +743,19 @@
   }
 
   /* Glide speed — re-points the infinite loop's glide duration to a motion
-     duration token. `medium` (300ms) is the default the base rule already resolves;
-     fast/slow bracket it. Applies only under loop="infinite" (the JS transform
-     engine reads the knob); native-scroll modes ignore it. Easing stays on
-     --primitiv-carousel-glide-easing — re-point that for a different curve. */
+     duration token. `medium` (500ms) is the default the base rule already resolves;
+     `fast` (200ms) and `slow` (1000ms) bracket it. Applies only under
+     loop="infinite" (the JS transform engine reads the knob); native-scroll modes
+     ignore it. Easing stays on --primitiv-carousel-glide-easing — re-point that for
+     a different curve. */
   .primitiv-carousel--glide-fast {
     --primitiv-carousel-glide-duration: var(--primitiv-duration-200);
   }
   .primitiv-carousel--glide-medium {
-    --primitiv-carousel-glide-duration: var(--primitiv-duration-300);
+    --primitiv-carousel-glide-duration: var(--primitiv-duration-500);
   }
   .primitiv-carousel--glide-slow {
-    --primitiv-carousel-glide-duration: var(--primitiv-duration-500);
+    --primitiv-carousel-glide-duration: var(--primitiv-duration-1000);
   }
 
   /* Slide gap — re-points the inter-slide gap knob on a t-shirt scale. `md`

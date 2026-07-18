@@ -302,15 +302,15 @@ describe("Carousel infinite — transform engine", () => {
     expect(track!.style.transition).toBe("transform 250ms ease-in");
   });
 
-  it("defaults the glide to 300ms ease-out when no custom properties are set", () => {
+  it("defaults the glide to 500ms ease-out when no custom properties are set", () => {
     // Fallback for the headless package with no registry stylesheet: the built-in
-    // glide matches the motion-token default the stylesheet would otherwise supply.
+    // glide matches the default (`medium`) the stylesheet would otherwise supply.
     const { track, getByRole } = renderInfinite();
 
     fireEvent.click(getByRole("button", { name: "Next" }));
 
     expect(track!.style.transition).toBe(
-      "transform 300ms cubic-bezier(0, 0, 0.2, 1)",
+      "transform 500ms cubic-bezier(0, 0, 0.2, 1)",
     );
   });
 

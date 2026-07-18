@@ -461,7 +461,7 @@ Structured per RFC 0008 — the per-component API knobs + resting look in
   geometry verified for feel on real devices).
 - **Glide speed (`glide`)** — a root **`glide`** modifier (`medium` default ·
   `fast` · `slow`) re-points `--primitiv-carousel-glide-duration` to a motion
-  duration token (`fast` 200ms · `medium` 300ms · `slow` 500ms) for the
+  duration token (`fast` 200ms · `medium` 500ms · `slow` 1000ms) for the
   **infinite** loop's glide. The engine reads that knob and
   `--primitiv-carousel-glide-easing` (default `motion-easing-enter`, an ease-out
   so the page flies in and settles) off the track and builds the transform

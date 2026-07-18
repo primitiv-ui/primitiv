@@ -1023,31 +1023,78 @@ describe("Carousel infinite — transform engine", () => {
 
 describe("Carousel infinite — drag + fling", () => {
   it("follows the pointer 1:1 while dragging, with no transition", () => {
-    const { track, getByTestId } = renderInfinite();
-    const viewport = getByTestId("viewport");
+    // The repaint itself coalesces to one per animation frame (touch can
+    // report pointermove faster than the display refreshes), so a test
+    // checking the *painted* result needs to advance to that frame — offsetRef
+    // itself still updates synchronously (asserted separately below).
+    vi.useFakeTimers();
+    try {
+      const { track, getByTestId } = renderInfinite();
+      const viewport = getByTestId("viewport");
 
-    pointer(viewport, "pointerdown", { client: 200, time: 0 });
-    pointer(viewport, "pointermove", { client: 140, time: 100 });
+      pointer(viewport, "pointerdown", { client: 200, time: 0 });
+      pointer(viewport, "pointermove", { client: 140, time: 100 });
+      vi.advanceTimersToNextFrame();
 
-    // offset = startOffset(0) − (140 − 200) = 60 → track translate(align − 60).
-    // Dragging paints instantly (no transition) so the track tracks the finger.
-    expect(track!.style.transform).toBe("translate(-60px, 0px)");
-    expect(track!.style.transition).toBe("none");
+      // offset = startOffset(0) − (140 − 200) = 60 → track translate(align − 60).
+      // Dragging paints with no transition so the track tracks the finger.
+      expect(track!.style.transform).toBe("translate(-60px, 0px)");
+      expect(track!.style.transition).toBe("none");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("coalesces several pointermoves within the same frame into a single paint", () => {
+    // The whole point of deferring to rAF: two moves that both land before
+    // the browser's next frame should produce ONE repaint reflecting the
+    // LATEST position, not two repaints (or a stale one showing the first).
+    vi.useFakeTimers();
+    try {
+      const { track, getByTestId } = renderInfinite();
+      const viewport = getByTestId("viewport");
+
+      pointer(viewport, "pointerdown", { client: 200, time: 0 });
+      pointer(viewport, "pointermove", { client: 170, time: 50 });
+      // No frame has run yet — still showing the pre-drag position.
+      expect(track!.style.transform).toBe("translate(0px, 0px)");
+
+      // A second move, same (unflushed) frame.
+      pointer(viewport, "pointermove", { client: 140, time: 100 });
+      expect(track!.style.transform).toBe("translate(0px, 0px)");
+
+      vi.advanceTimersToNextFrame();
+
+      // The single coalesced paint jumps straight to the latest offset (60),
+      // skipping the intermediate one (30) entirely.
+      expect(track!.style.transform).toBe("translate(-60px, 0px)");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("settles back to the current slide when the drag stays under half a stride", () => {
-    const { track, getByTestId } = renderInfinite();
-    const viewport = getByTestId("viewport");
+    // Also covers flushDragFrame's no-op branch: the coalesced repaint is
+    // flushed by advancing to its frame *before* release, so onPointerUp's
+    // own flush call finds nothing pending.
+    vi.useFakeTimers();
+    try {
+      const { track, getByTestId } = renderInfinite();
+      const viewport = getByTestId("viewport");
 
-    pointer(viewport, "pointerdown", { client: 200, time: 0 });
-    pointer(viewport, "pointermove", { client: 180, time: 100 });
-    // A second move at the same point zeroes the release velocity.
-    pointer(viewport, "pointermove", { client: 180, time: 200 });
-    pointer(viewport, "pointerup", { client: 180, time: 220 });
+      pointer(viewport, "pointerdown", { client: 200, time: 0 });
+      pointer(viewport, "pointermove", { client: 180, time: 100 });
+      // A second move at the same point zeroes the release velocity.
+      pointer(viewport, "pointermove", { client: 180, time: 200 });
+      vi.advanceTimersToNextFrame();
+      pointer(viewport, "pointerup", { client: 180, time: 220 });
 
-    // offset 20, velocity 0 → snap to the nearest stride (0). Back home, animated.
-    expect(track!.style.transform).toBe("translate(0px, 0px)");
-    expect(track!.style.transition).toContain("transform");
+      // offset 20, velocity 0 → snap to the nearest stride (0). Back home, animated.
+      expect(track!.style.transform).toBe("translate(0px, 0px)");
+      expect(track!.style.transition).toContain("transform");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("advances a slide when the drag passes the half-stride point", () => {
@@ -1149,45 +1196,65 @@ describe("Carousel infinite — drag + fling", () => {
   });
 
   it("drags with the mouse when allowMouseDrag is set", () => {
-    const { track, getByTestId } = renderInfinite({ allowMouseDrag: true });
-    const viewport = getByTestId("viewport");
+    vi.useFakeTimers();
+    try {
+      const { track, getByTestId } = renderInfinite({ allowMouseDrag: true });
+      const viewport = getByTestId("viewport");
 
-    pointer(viewport, "pointerdown", {
-      client: 200,
-      time: 0,
-      pointerType: "mouse",
-    });
-    pointer(viewport, "pointermove", {
-      client: 140,
-      time: 100,
-      pointerType: "mouse",
-    });
+      pointer(viewport, "pointerdown", {
+        client: 200,
+        time: 0,
+        pointerType: "mouse",
+      });
+      pointer(viewport, "pointermove", {
+        client: 140,
+        time: 100,
+        pointerType: "mouse",
+      });
+      vi.advanceTimersToNextFrame();
 
-    expect(track!.style.transform).toBe("translate(-60px, 0px)");
+      expect(track!.style.transform).toBe("translate(-60px, 0px)");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("drags along the block axis for a vertical loop", () => {
-    const { track, getByTestId } = renderInfinite({ orientation: "vertical" });
-    const viewport = getByTestId("viewport");
+    vi.useFakeTimers();
+    try {
+      const { track, getByTestId } = renderInfinite({
+        orientation: "vertical",
+      });
+      const viewport = getByTestId("viewport");
 
-    pointer(viewport, "pointerdown", { client: 200, time: 0 });
-    pointer(viewport, "pointermove", { client: 140, time: 100 });
+      pointer(viewport, "pointerdown", { client: 200, time: 0 });
+      pointer(viewport, "pointermove", { client: 140, time: 100 });
+      vi.advanceTimersToNextFrame();
 
-    // Vertical reads clientY (the helper sets both), so the block axis moves.
-    expect(track!.style.transform).toBe("translate(0px, -60px)");
+      // Vertical reads clientY (the helper sets both), so the block axis moves.
+      expect(track!.style.transform).toBe("translate(0px, -60px)");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("skips the velocity update when two moves share a timestamp", () => {
-    const { track, getByTestId } = renderInfinite();
-    const viewport = getByTestId("viewport");
+    vi.useFakeTimers();
+    try {
+      const { track, getByTestId } = renderInfinite();
+      const viewport = getByTestId("viewport");
 
-    pointer(viewport, "pointerdown", { client: 200, time: 0 });
-    pointer(viewport, "pointermove", { client: 140, time: 100 });
-    // Same timestamp → elapsed 0 → velocity keeps its prior value, no divide.
-    pointer(viewport, "pointermove", { client: 100, time: 100 });
+      pointer(viewport, "pointerdown", { client: 200, time: 0 });
+      pointer(viewport, "pointermove", { client: 140, time: 100 });
+      // Same timestamp → elapsed 0 → velocity keeps its prior value, no divide.
+      pointer(viewport, "pointermove", { client: 100, time: 100 });
+      vi.advanceTimersToNextFrame();
 
-    // The move still repositions (offset 100) even though velocity wasn't updated.
-    expect(track!.style.transform).toBe("translate(-100px, 0px)");
+      // The move still repositions (offset 100) even though velocity wasn't updated.
+      expect(track!.style.transform).toBe("translate(-100px, 0px)");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("sweeps the wrap frame's window instead of just the post-wrap point", () => {
@@ -1205,34 +1272,46 @@ describe("Carousel infinite — drag + fling", () => {
     // sitting near the middle of the strip (index 4, edge 400) is far
     // outside a window centred on the post-wrap value (10) alone, but falls
     // inside the swept range [790, 10] the fix passes to paint() instead.
-    const { getByTestId, container } = renderInfinite({
-      count: 8,
-      defaultPage: 7,
-    });
-    const viewport = getByTestId("viewport");
+    vi.useFakeTimers();
+    try {
+      const { getByTestId, container } = renderInfinite({
+        count: 8,
+        defaultPage: 7,
+      });
+      const viewport = getByTestId("viewport");
 
-    pointer(viewport, "pointerdown", { client: 200, time: 0 });
-    pointer(viewport, "pointermove", { client: 110, time: 50 });
-    pointer(viewport, "pointermove", { client: 90, time: 100 });
+      pointer(viewport, "pointerdown", { client: 200, time: 0 });
+      pointer(viewport, "pointermove", { client: 110, time: 50 });
+      pointer(viewport, "pointermove", { client: 90, time: 100 });
+      vi.advanceTimersToNextFrame();
 
-    const midSlide = container.querySelector<HTMLElement>(
-      '[data-carousel-slide][data-index="4"]',
-    )!;
-    expect(midSlide.style.visibility).toBe("");
+      const midSlide = container.querySelector<HTMLElement>(
+        '[data-carousel-slide][data-index="4"]',
+      )!;
+      expect(midSlide.style.visibility).toBe("");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("ignores pointer events from a second, different pointer", () => {
-    const { track, getByTestId } = renderInfinite();
-    const viewport = getByTestId("viewport");
+    vi.useFakeTimers();
+    try {
+      const { track, getByTestId } = renderInfinite();
+      const viewport = getByTestId("viewport");
 
-    pointer(viewport, "pointerdown", { client: 200, time: 0, id: 1 });
-    // A different pointerId must not steer or end the active drag.
-    pointer(viewport, "pointermove", { client: 500, time: 50, id: 2 });
-    pointer(viewport, "pointerup", { client: 500, time: 60, id: 2 });
-    // The original pointer still drives it.
-    pointer(viewport, "pointermove", { client: 140, time: 100, id: 1 });
+      pointer(viewport, "pointerdown", { client: 200, time: 0, id: 1 });
+      // A different pointerId must not steer or end the active drag.
+      pointer(viewport, "pointermove", { client: 500, time: 50, id: 2 });
+      pointer(viewport, "pointerup", { client: 500, time: 60, id: 2 });
+      // The original pointer still drives it.
+      pointer(viewport, "pointermove", { client: 140, time: 100, id: 1 });
+      vi.advanceTimersToNextFrame();
 
-    expect(track!.style.transform).toBe("translate(-60px, 0px)");
+      expect(track!.style.transform).toBe("translate(-60px, 0px)");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("ignores a move with no active drag", () => {
@@ -1290,5 +1369,25 @@ describe("Carousel infinite — drag + fling", () => {
     pointer(viewport, "pointercancel", { client: 140, time: 220 });
 
     expect(track!.style.transform).toBe("translate(-100px, 0px)");
+  });
+
+  it("cancels a pending coalesced repaint on unmount", () => {
+    // Otherwise a still-scheduled rAF would fire against a detached track
+    // once the component (and its DOM) are gone.
+    vi.useFakeTimers();
+    try {
+      const { getByTestId, unmount } = renderInfinite();
+      const viewport = getByTestId("viewport");
+      const cancelSpy = vi.spyOn(window, "cancelAnimationFrame");
+
+      pointer(viewport, "pointerdown", { client: 200, time: 0 });
+      pointer(viewport, "pointermove", { client: 140, time: 100 });
+      // Left pending on purpose — no advanceTimersToNextFrame() before unmount.
+
+      expect(() => act(() => unmount())).not.toThrow();
+      expect(cancelSpy).toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

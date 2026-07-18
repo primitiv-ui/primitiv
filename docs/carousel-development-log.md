@@ -4964,3 +4964,51 @@ trackLength past rest, and only *after* it settles does the (now genuinely
 invisible) rebase snap to the equivalent real position — no more premature
 collapse. 100% Carousel coverage (statements/branches/functions/lines), tsc
 clean (react + kitchen-sink).
+
+## Coalesce the drag's per-pointermove repaint to one per animation frame
+
+Human feedback after the fixes above: "Brilliant this is much much better...
+Ideally I want touch to feel buttery smooth." An open-ended feel request,
+not a specific bug — proposed one concrete, verifiable candidate rather than
+guessing blind: touch can report `pointermove` faster than the display
+refreshes, and every repaint re-measures every slide's live position
+(`getBoundingClientRect`, one per slide) — reacting to each raw event
+instead of once per frame reads/writes layout more than the compositor can
+use, on real hardware jsdom can't demonstrate. User agreed to try it.
+
+Fix (`useCarouselLoop.ts`): `offsetRef` still updates synchronously on
+*every* `pointermove` (cheap — no DOM access — and velocity tracking / the
+eventual fling need it exact per event, not per frame), but the expensive
+`paint()` call itself now coalesces to at most one per `requestAnimationFrame`,
+always painting whichever offset was current when that frame actually ran.
+A new `dragPaintFromRef` tracks the offset as of the *last actual paint*
+(not the last pointermove) so the coalesced call's sweep still spans
+everything since the previous paint, not just the latest event — matters
+for the seam-crossing case the prior fix's sweep protects. `onPointerUp`
+flushes any still-pending frame immediately (`flushDragFrame`) before
+computing the fling, so the release always starts from what's actually
+on screen rather than a stale pre-rAF position; the same flush guard
+covers unmount, so a stray scheduled frame can't paint a detached track.
+
+Tests: six pre-existing drag tests that asserted the *painted* result
+synchronously right after a `pointermove` (no following `pointerup`, which
+is what used to force a synchronous paint and now still does via
+`flushDragFrame`) needed `vi.useFakeTimers()` + `vi.advanceTimersToNextFrame()`
+added to reach the now-deferred repaint — an API change to the test, not a
+behavior regression, confirmed by diffing exactly which tests broke and
+why. Two new tests: one asserts two `pointermove`s within the same
+(unadvanced) frame produce zero repaints until the frame runs, then a
+*single* repaint reflecting the latest position (skipping the intermediate
+one entirely) — the actual new behavior, not just "it still ends up
+correct eventually"; another asserts a still-pending frame is cancelled on
+unmount (`cancelAnimationFrame` spy). Re-verified against the real built
+app (esbuild + Playwright, a real touch `PointerEvent` drag+release
+crossing the seam): the settle glide's smooth ~500ms deceleration and the
+invisible rebase-on-settle both still work exactly as before — the
+coalescing changes *when* the drag paints, not what it paints. 100%
+Carousel coverage (statements/branches/functions/lines), tsc clean (react +
+kitchen-sink). **Device QA is the real verdict here** — a "does this feel
+smoother" claim can't be confirmed from a sandbox at all; this is a
+principled, low-risk change (strictly less redundant work, no correctness
+change) offered as a first, verifiable step toward "buttery smooth," not a
+guaranteed fix for a feel that's inherently subjective.

@@ -719,11 +719,52 @@ export function useCarouselLoop() {
     [allowMouseDrag, measure, axisClient],
   );
 
+  // The offset as of the last actual paint() call during a drag — separate
+  // from offsetRef itself, which onPointerMove updates on *every* event, so
+  // the coalesced repaint below still knows the true "from" for its sweep
+  // even after several pointermoves were skipped in favour of one per frame.
+  const dragPaintFromRef = useRef(0);
+  // rAF id for a pending, not-yet-run coalesced drag repaint; null when none
+  // is scheduled.
+  const dragFrameRef = useRef<number | null>(null);
+
+  // Paint the drag's current position (if a frame is pending) right away and
+  // cancel it, instead of waiting for rAF — called on release so the fling's
+  // own glide always starts from what's actually on screen, not a stale
+  // pre-rAF frame.
+  const flushDragFrame = useCallback(
+    (g: Geometry) => {
+      if (dragFrameRef.current === null) return;
+      cancelAnimationFrame(dragFrameRef.current);
+      dragFrameRef.current = null;
+      paint(offsetRef.current, dragPaintFromRef.current, g, false);
+      dragPaintFromRef.current = offsetRef.current;
+    },
+    [paint],
+  );
+  // A stray pending frame would otherwise paint against a detached track.
+  useEffect(() => {
+    return () => {
+      if (dragFrameRef.current !== null)
+        cancelAnimationFrame(dragFrameRef.current);
+    };
+  }, []);
+
   // Follow the pointer 1:1 (offset moves opposite the finger), tracking velocity
   // for the release fling. The painted offset is normalized so the track wraps
   // within the one-period buffer however far the drag runs — invisibly, since a
   // period shows identical content. Crossing the threshold captures the pointer
   // and marks it a drag so the synthesised click is suppressed.
+  //
+  // Touch can report pointermove faster than the display refreshes, and every
+  // paint() re-measures every slide's live position — reacting to each raw
+  // event instead of once per frame reads/writes layout more than the
+  // compositor can use, the kind of per-event work that reads as jank on real
+  // hardware even though jsdom can't show it. `offsetRef` (cheap: no DOM
+  // access) still updates on every event so velocity tracking and the
+  // eventual fling stay exact; only the paint() call itself — the expensive
+  // part — coalesces to one per animation frame, always using whichever
+  // offset was current when that frame actually ran.
   const onPointerMove = useCallback(
     (event: PointerEvent<HTMLDivElement>) => {
       const drag = dragRef.current;
@@ -746,22 +787,28 @@ export function useCarouselLoop() {
         // pointermove already repaints the analytic value, so a still-running
         // ticker from that interrupted glide would just be redundant work.
         stopProgressTicker();
+        dragPaintFromRef.current = offsetRef.current;
       }
       if (!drag.dragging) return;
-      // Carry the offset from *before* this move as `from`, not this move's own
-      // new value — identical on every ordinary frame (a few px apart, same as
-      // the finger), but the one frame a drag crosses the loop seam,
-      // normalizeOffset wraps the new value by a whole trackLength relative to
-      // the old one. Passing both lets paint()'s sweep span that gap, so the
-      // slide the wrap reveals is already unhidden (and had a frame to
-      // rasterise) instead of popping in unrendered on the very frame it's
-      // needed — the same "entering edge blanks for a frame" risk paint()'s
-      // sweep already exists to avoid for a click-driven glide, just reached
-      // here by a drag's continuous wrap instead of an animated transition.
-      const previousOffset = offsetRef.current;
       const raw = drag.startOffset - g.dir * (client - drag.startClient);
       offsetRef.current = normalizeOffset(raw, g.trackLength);
-      paint(offsetRef.current, previousOffset, g, false);
+      if (dragFrameRef.current !== null) return;
+      dragFrameRef.current = requestAnimationFrame(() => {
+        dragFrameRef.current = null;
+        // Carry the offset from *before* this coalesced repaint as `from`, not
+        // this frame's own new value — identical across ordinary frames (a few
+        // px apart, same as the finger), but the one frame a drag crosses the
+        // loop seam, normalizeOffset wraps the new value by a whole
+        // trackLength relative to the old one. Passing both lets paint()'s
+        // sweep span that gap, so the slide the wrap reveals is already
+        // unhidden (and had a frame to rasterise) instead of popping in
+        // unrendered on the very frame it's needed — the same "entering edge
+        // blanks for a frame" risk paint()'s sweep already exists to avoid for
+        // a click-driven glide, just reached here by a drag's continuous wrap
+        // instead of an animated transition.
+        paint(offsetRef.current, dragPaintFromRef.current, g, false);
+        dragPaintFromRef.current = offsetRef.current;
+      });
     },
     [axisClient, paint, stopProgressTicker],
   );
@@ -780,6 +827,11 @@ export function useCarouselLoop() {
       dragRef.current = null;
       if (!drag.dragging) return;
       const g = drag.geometry;
+      // Paint the drag's true final position now rather than leaving it to a
+      // pending rAF that may not have run yet — otherwise the fling's own
+      // glide below would sweep from a stale, pre-rAF-frame position instead
+      // of where the finger actually released.
+      flushDragFrame(g);
       // Snap to PAGE boundaries: a page advances `effectiveSlidesPerMove` slides.
       // For a single-slide page this is just `g.stride`.
       const pageStride = g.stride * effectiveSlidesPerMove;
@@ -795,7 +847,7 @@ export function useCarouselLoop() {
         ((Math.round(target / g.stride) % g.count) + g.count) % g.count;
       goTo(pageForSlideIndex(index));
     },
-    [glideTo, goTo, pageForSlideIndex, effectiveSlidesPerMove],
+    [glideTo, goTo, pageForSlideIndex, effectiveSlidesPerMove, flushDragFrame],
   );
 
   const dragHandlers = isInfinite

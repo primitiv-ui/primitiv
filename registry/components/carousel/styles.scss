@@ -1624,7 +1624,18 @@
     display: none;
   }
   /* The thumbnail image (or background element) fills and rounds with the frame.
-     Its radius is the frame's own radius *inset by the reserved border width*,
+     Absolutely positioned (inset: 0, against the frame's own `position: relative`
+     set above) rather than flowed at `inline-size/block-size: 100%` — the frame is
+     `display: inline-grid` (for the dot's centring, elsewhere in this file), and a
+     percentage block-size on an in-flow grid item resolves against its *row
+     track's* size, not the frame's own `aspect-ratio` box: with no explicit
+     `grid-template-rows`, that track is intrinsically sized to the item's content —
+     for a real `<img>`, its natural aspect ratio — so the thumbnail silently
+     tracked each photo's own proportions instead of the frame's, off by however far
+     that photo's ratio sits from the configured one. Taking the child out of flow
+     sidesteps grid track sizing entirely, positioning it against the frame's own
+     padding box instead — the same reason the dot below is `position: absolute`.
+     The radius is the frame's own radius *inset by the reserved border width*,
      not a flat `inherit` — the content sits on a box shrunk by the border (
      box-sizing: border-box), so nesting concentrically with the frame's outer
      curve needs the smaller inner radius; reusing the same radius value on
@@ -1636,9 +1647,8 @@
     .primitiv-carousel__indicator-group
     > button
     > * {
-    display: block;
-    inline-size: 100%;
-    block-size: 100%;
+    position: absolute;
+    inset: 0;
     object-fit: cover;
     border-radius: max(
       var(--primitiv-radii-0),

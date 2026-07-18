@@ -4768,3 +4768,42 @@ comparison; (3) a genuine inline-style change (rerendering with a different
 the exact case the previous fix was for; (4) a non-style attribute change
 (`className`) still rebuilds unconditionally. 100% Carousel coverage
 (statements/branches/functions/lines), tsc clean (react + kitchen-sink).
+
+## Thumbnail indicators silently tracking each photo's own aspect ratio
+
+Human report: "the thumbnails are shrinking in height in some cases," with a
+screenshot showing one thumbnail visibly shorter than its siblings. Root
+cause, found via a real-browser repro (esbuild-bundled `CarouselBuilder` +
+Playwright against `/opt/pw-browsers/chromium`, content="pictures" +
+indicators="thumbnails", inspecting computed styles rather than guessing):
+`.primitiv-carousel__indicator` is `display: inline-grid` (for the *dot*
+variant's centred `::before`), with no explicit `grid-template-rows` — an
+implicit `auto` row. The thumbnail's `<img>` child had `inline-size: 100%;
+block-size: 100%` (flowed, an in-flow grid item), and a percentage block-size
+on a grid item resolves against its *row track's* size — for an intrinsically
+("auto") sized row, that's the item's own content size, i.e. the image's
+natural aspect ratio, not the frame's `aspect-ratio`-driven box. Confirmed via
+`getComputedStyle(button).gridTemplateRows`, which read a different pixel
+value per thumbnail, exactly matching each photo's own natural ratio scaled to
+the frame's fixed width — the frame's own border-box height never changed
+(uniform across every thumbnail), only the *image* silently tracked its own
+proportions instead. The effect's visible size depends on how far a given
+photo's ratio sits from the configured `ratio` token, which is why the human
+report called it "shrinking... in some cases" — not universal, and not
+reproducible with the app's checked-in stock photos without navigating to the
+specific one whose ratio diverges most.
+
+Fix (`registry/components/carousel/styles.css`): took the thumbnail's content
+child out of grid flow entirely — `position: absolute; inset: 0` (against the
+frame's own `position: relative`, already set for the dot) instead of
+`display: block; inline-size/block-size: 100%` — the same technique the dot's
+own `::before` already uses one rule below, for the same reason. An
+out-of-flow child doesn't participate in row/column track sizing at all, so
+there's no longer an intrinsic-vs-fixed-size mismatch to fall into.
+`object-fit: cover` and the inset border-radius calc are unchanged. No JS/test
+surface (pure CSS layout fix) — verified via the 3-way sync (`cargo test -p
+primitiv-emit the_committed_carousel_scss`/`_recipe`/`_wrapper`, `.scss`
+regenerated via the throwaway-example convention, `.css` copied to
+kitchen-sink) and the same Playwright repro harness, re-run after the fix:
+`getComputedStyle` now reports an identical rendered height across every
+thumbnail regardless of its photo's natural aspect ratio.

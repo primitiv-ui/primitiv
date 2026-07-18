@@ -4454,3 +4454,23 @@ Non-media drifting layers (the marker) still use the backdrop pattern. Default d
 drops from 50% to a tasteful 15% (scale-derived). 3-way CSS + contract (+ kitchen-sink
 copy, which was stale — now synced) + README + example/builder notes; drift guards
 green. CSS-only effect, no engine change. NOT deployed (batching more builder fixes).
+
+### 2026-07-17 (cont.) — Infinite engine self-heals on resize (ResizeObserver)
+
+Root-cause audit of the "adjusting settings breaks infinite" class (prompted by the
+builder QA): the two engines have different *robustness*, not just different
+mechanisms. Native (`useCarouselViewport`) has ResizeObservers that re-measure on
+any layout change; the infinite engine (`useCarouselLoop`) had **none** — it only
+re-measured on a few React deps (slide count, slidesPerPage, orientation, snapAlign,
+`refresh()`). So a CSS-driven size change the engine can't see (peek, ratio, ambient
+density, a multi-slide gap, a container/window resize) left the track measuring stale
+geometry → misalignment, and — the likely cause of **"pictures disappear in
+infinite"** — a first, pre-layout measure could window the wrong slides to
+`visibility:hidden` with nothing to re-run it. Fix: give the infinite engine its own
+ResizeObserver (watching the track + slides) that re-homes to the current page
+instantly and re-runs the paint window against fresh geometry. Also audited the
+loop-mode-switch style leak (#2 in the plan): unnecessary — a mode switch reparents
+the slides (React remounts them), which clears the windowing `visibility` for free
+(verified). Single-slide `gap` changes resize no box → not observable; documented
+`refresh()` / self-correct-on-nav for that. Engine 100% coverage, 45 Carousel tests,
+tsc clean. Device QA pending. NOT deployed yet.

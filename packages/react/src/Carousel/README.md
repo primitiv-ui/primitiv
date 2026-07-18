@@ -808,6 +808,15 @@ registry sheet) so its rounded, clipped bitmap is painted before it scrolls in �
 iOS entering-edge white — while the engine windows the painted set (far slides are
 `visibility: hidden`) to keep that layer count bounded.
 
+The engine **re-measures on a `ResizeObserver`** (watching the track and the
+slides), so it self-heals when the container resizes or a size-affecting knob
+changes at runtime — `peek`, the slide `ratio`, ambient density, a multi-slide
+`gap` — re-homing the track to the current page and re-running the paint window
+against the fresh geometry. (A change that resizes *no* box — e.g. a single-slide
+`gap`, which only alters the between-slide spacing — isn't observable; call the
+imperative `refresh()` after one of those, or it self-corrects on the next
+navigation.)
+
 **Touch / mouse drag.** The track follows the pointer 1:1 (transition off), and
 on release a velocity-projected **fling** snaps to the nearest **page** boundary
 with the same glide, updating the active page from where it lands. With

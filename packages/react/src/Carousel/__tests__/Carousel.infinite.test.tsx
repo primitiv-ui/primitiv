@@ -1,6 +1,7 @@
 import { render, act, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
+import { MockResizeObserver } from "../../test/resizeObserverPolyfill";
 import { Carousel } from "../index.ts";
 
 /**
@@ -588,6 +589,13 @@ describe("Carousel infinite — transform engine", () => {
     const { track } = renderInfinite({ count: 1 });
     // measure() bails (count < 2) — the track renders but gets no transform.
     expect(track!.style.transform).toBe("");
+    // A resize is a no-op too — the observer's re-home bails on the same measure.
+    expect(() =>
+      act(() => {
+        MockResizeObserver.fireAll();
+      }),
+    ).not.toThrow();
+    expect(track!.style.transform).toBe("");
   });
 
   it("does not loop when slides report a zero stride (not yet laid out)", () => {
@@ -595,6 +603,22 @@ describe("Carousel infinite — transform engine", () => {
     stdRect({ startFor: () => 0 });
     const { track } = renderInfinite();
     expect(track!.style.transform).toBe("");
+  });
+
+  it("re-measures and re-homes on a resize with the fresh geometry", () => {
+    // The infinite engine gets no React signal for a CSS-driven size change (peek,
+    // ratio, density, a container resize), so a ResizeObserver re-homes it. Mount on
+    // page 2 at stride 100 (rests at −200); grow the stride to 150 and fire the
+    // observer — it must re-home page 2 at the NEW stride (−300), not stay stale.
+    const { track } = renderInfinite({ defaultPage: 2 });
+    expect(track!.style.transform).toBe("translate(-200px, 0px)");
+
+    stdRect({ startFor: (i) => i * 150 });
+    act(() => {
+      MockResizeObserver.fireAll();
+    });
+
+    expect(track!.style.transform).toBe("translate(-300px, 0px)");
   });
 
   it("does not throw when the loop mode switches at runtime (slides reparent)", () => {

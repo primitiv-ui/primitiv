@@ -113,6 +113,10 @@ export function useCarouselLoop() {
   // At rest it's a page boundary within [0, trackLength); a glide may carry it
   // outside that range onto a clone, and the settle re-base brings it back.
   const offsetRef = useRef(0);
+  // Latest active-page leading index, read by the resize observer — so it can
+  // re-home to the current page without re-subscribing on every navigation.
+  const currentPageOffsetRef = useRef(currentPageOffset);
+  currentPageOffsetRef.current = currentPageOffset;
   // The first positioning is instant — a glide from slide 0 to the initial page
   // on mount would be a pointless animation on load.
   const positionedRef = useRef(false);
@@ -383,6 +387,37 @@ export function useCarouselLoop() {
     boundGlideStart,
     instantScrollRef,
   ]);
+
+  // Re-measure on any layout / size change. The native-scroll viewport has its own
+  // ResizeObservers; the transform engine needs one too, or it keeps stale geometry
+  // whenever the container resizes or a size-affecting knob changes with no React
+  // signal the engine can see (peek, ratio, density, a multi-slide gap — all
+  // registry CSS) — leaving the track misaligned, or the paint window hiding the
+  // wrong slides, until the next navigation. Observing the track catches container /
+  // peek changes; observing a slide catches ratio / density / multi-slide-gap
+  // changes (which resize the slide but not the 100%-wide track). Re-home to the
+  // current page instantly, which also re-runs the paint window against the fresh
+  // geometry — this is what recovers slides a first, pre-layout measure mis-hid.
+  useEffect(() => {
+    if (!isInfinite) return;
+    const track = trackRef.current!;
+    const rehome = () => {
+      const g = measure();
+      if (!g) return;
+      offsetRef.current = normalizeOffset(
+        currentPageOffsetRef.current * g.stride,
+        g.trackLength,
+      );
+      paint(offsetRef.current, offsetRef.current, g, false);
+    };
+    const observer = new ResizeObserver(rehome);
+    // The track catches container / peek changes; the slides catch ratio /
+    // density / multi-slide-gap changes (which resize a slide but not the
+    // 100%-wide track). One observer, many targets.
+    observer.observe(track);
+    for (const slide of realSlides()) observer.observe(slide);
+    return () => observer.disconnect();
+  }, [isInfinite, measure, paint, realSlides]);
 
   const axisClient = useCallback(
     (event: PointerEvent) => (vertical ? event.clientY : event.clientX),

@@ -2286,7 +2286,57 @@ iPhone-Safari device-QA gate for the momentum feel.
 Tracked so we know what's outstanding; only built when an example needs
 it (decision 4).
 
-- [~] Looping / infinite — **Phase C (semantic wrap) + the infinite clone
+- [x] Looping / infinite — **feature-complete, human-approved, on a JS
+      transform engine (RFC 0018).** The scroll-based clone-buffer/recentre
+      architecture this tracker item originally described (2026-07-15,
+      preserved unedited below for historical narrative) was **entirely
+      superseded 2026-07-17** by a **contiguous clone strip** on a single
+      translated track (`useCarouselLoop.ts`) —
+      `[head clones][real slides][tail clones]`, one full period each side,
+      so every seam is already-painted DOM. Navigation only ever translates
+      the *whole track* (no per-slide native scroll under infinite); a
+      glide that lands on a clone re-bases invisibly by one period on
+      settle. This structurally killed the iOS seam-flash the scroll-based
+      approach could never fully avoid.
+
+      An extended device-QA round (2026-07-18) then found and fixed five
+      more real bugs on top of the re-architecture — each has its own
+      detailed entry later in this file (search the heading text, listed
+      chronologically): **"Parallax was frozen under loop=\"infinite\""**
+      (the engine now drives `--slide-progress` itself, since nothing ever
+      scrolls under infinite for the native signal to key off) ·
+      **"Stale clones after a slide's content changes"** + its **"clone-
+      content observer thrashed on the engine's own writes"** follow-up (a
+      `MutationObserver` rebuilds clones on content change, filtering out
+      the engine's own style writes) · **"Thumbnail indicators silently
+      tracking each photo's own aspect ratio"** (a CSS grid-track-sizing
+      trap, not an engine bug, found in the same QA round) ·
+      **"Indicator/thumbnail jumps took the ring's wrap shortcut"** (a
+      direct jump now travels the literal reading-order path;
+      `next()`/`previous()` still take the ring's short way) · **"Drag wrap
+      frame lacked the click-glide's pre-paint lookahead"** + its **"rebase
+      colliding with the fling's own glide"** follow-up (the drag/fling
+      path's two remaining seam-crossing bugs) · **"Coalesce the drag's
+      per-pointermove repaint to one per animation frame"** (touch feel) ·
+      and an **"Audit: do the recent fixes generalize to slidesPerPage > 1"**
+      pass verifying (not assuming) the navigation and drag/fling fixes
+      compose with multi-slide pages.
+
+      **Known, documented gap:** the imperative `getScrollProgress()` /
+      `getSlideProgress()` getters still don't work under infinite (only the
+      CSS `--slide-progress` custom property does — flagged in both
+      READMEs rather than left silently inconsistent); there's also no
+      infinite equivalent of `--carousel-progress` (no natural start/end for
+      a loop). **Reusable gotchas and the debugging methodology that found
+      the five bugs above** now live in the `carousel-infinite-loop-engine`
+      skill — load it before making further changes to this engine.
+
+      <!-- SUPERSEDED below this line — the scroll-based clone-buffer /
+      recentre architecture it describes no longer exists in the code.
+      Kept verbatim for historical narrative only; see the current-state
+      summary above for what's actually true today. -->
+
+      **Phase C (semantic wrap) + the infinite clone
       buffer landed** (loop iteration, 2026-07-15). (1) `loop` is now a **mode
       selector** (`boolean | "wrap" | "infinite"`, `true`→`"wrap"`) resolving to
       `data-loop="none" | "wrap" | "infinite"` — so wrap stays a first-class
@@ -2963,7 +3013,8 @@ Embla-grade headlessness/zero-style, plus drag / overscroll / autoplay
 every item below must preserve it, not trade it away.
 
 **Already tracked or already built (no new entry needed):** loop / infinite
-(our "Looping / infinite" backlog item — table stakes, still open) ·
+(our "Looping / infinite" backlog item — table stakes, **landed 2026-07-17,
+hardened through 2026-07-18**, see the Headless gaps tracker above) ·
 variable-width slides (the `slideWidth` follow-up) · the imperative API,
 autoplay + play/pause, RTL, aspect-ratio slides, mouse/touch drag (all
 landed or tracked, per the Ark/Blossom sections above) · grid / multi-row

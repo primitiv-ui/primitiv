@@ -52,6 +52,11 @@ variants after it.
    lacks (**looping/infinite, vertical + `data-orientation`, mouse-drag, RTL** —
    see the log's tracker). Red → green → refactor in `packages/react`, 100%
    lines/branches/functions, per the repo's strict TDD rules. Then consume it.
+   Touching `useCarouselLoop.ts` (the `loop="infinite"` transform engine)
+   specifically? Load `carousel-infinite-loop-engine` first — its clone-strip
+   windowing, rebase, and drag/fling mechanics have several sharp edges
+   already found and fixed once each; re-hitting one from scratch costs a
+   full debugging session.
    ⚠️ **A `packages/react` change is NOT visible to the kitchen-sink by default**
    — it consumes the *published* `@primitiv-ui/react`, not the workspace source
    (see the Gotchas). Any variant needing a new headless capability must

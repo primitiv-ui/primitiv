@@ -41,12 +41,13 @@ not visual components and do not need a Figma design.
 | Avatar | ✓ | 433:7944 |
 | Breadcrumb | ✓ | 436:12220 (Item), 436:12221 (Separator), 436:12911 (composition) |
 | Button | ✓ | 347:14161 |
-| Carousel | — | |
+| Carousel | 🟡 in progress | Carousel page live — `CarouselSlide` set + autoplay/control parts; full set not yet assembled |
 | Checkbox | ✓ | 369:30652 |
 | CheckboxCard | — | |
 | Collapsible | — | |
-| ContextMenu | — | |
+| ContextMenu | ✓ | 1142:25899 (reuses Dropdown/* rows via slots — no ContextMenu-specific sub-components) |
 | Divider | ✓ | |
+| Drawer | ✓ design | 1142:26332 (Side×Size; reuses Modal/Header·Body·Footer + Modal/Backdrop) — React build pending |
 | Dropdown | ✓ | 402:18499 |
 | EmptyState | — | |
 | Field | ✓ | 394:7449 |
@@ -56,6 +57,7 @@ not visual components and do not need a Figma design.
 | InputGroup | — | |
 | MillerColumns | — | |
 | Modal | ✓ | 435:10250 (Modal), 435:9450 (Header), 435:10108 (Body), 435:10161 (Footer) |
+| Popover | ✓ | 1140:25762 (+ Popover/Arrow 1140:25793) |
 | Progress | ✓ | 443:7839 |
 | RadioCard | — | |
 | RadioGroup | ✓ | 401:17958 |
@@ -68,7 +70,7 @@ not visual components and do not need a Figma design.
 | Textarea | ✓ | 439:14511 |
 | Toggle | ✓ | 385:1418 |
 | ToggleGroup | ✓ | assembled from Toggle |
-| Tooltip | — | |
+| Tooltip | ✓ | 1142:25897 (+ Tooltip/Arrow 1142:25864) |
 | Tree | — | |
 
 ## Components to build
@@ -203,27 +205,11 @@ behaviour, but were kept for meaningful ARIA semantics:
 
 ## Workbench examples
 
-`apps/workbench` carries one example page per component. Every public
-component now has a workbench example:
-
-- [x] Accessible Icon
-- [x] Alert
-- [x] Button
-- [x] Checkbox
-- [x] Direction Provider
-- [x] Divider
-- [x] Empty State
-- [x] Field
-- [x] Input
-- [x] Input Group
-- [x] Portal
-- [x] Radio
-- [x] Radio Group
-- [x] Skip Nav
-- [x] Status
-- [x] Table
-- [x] Tabs
-- [x] Visually Hidden
+`apps/workbench` carries one example page per component, and the backlog
+is **clear** — every public component in `packages/react/src` now has a
+matching `…Example` page under `apps/workbench/src/pages` (40 pages),
+alongside specimen pages for the Design-System test, Elevation, and the
+Harmoni plugin frame.
 
 `Slot` is an internal composition utility, not a public component —
 it does not need a workbench page.

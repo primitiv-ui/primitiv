@@ -1080,6 +1080,21 @@ implementation takes the absolute value before normalising — the same
 reasoning that lets the mouse-drag handler skip RTL special-casing (see
 "Mouse input" above).
 
+**Under `loop="infinite"`**, this effect stands down (nothing ever
+scrolls — the engine translates the track via a JS transform instead),
+so `--slide-progress` is driven by the infinite engine itself: analytically
+on every discrete paint (an instant move, or any of a drag's many calls),
+plus a live-reading rAF ticker for the duration of an animated glide so
+the drift keeps pace with the track's own CSS transition rather than
+snapping to the settled value once it ends. This covers every CSS
+consumer of `--slide-progress` (parallax included) — the imperative
+**`getSlideProgress()` / `getScrollProgress()` getters are not** (they
+still only read what the native-scroll effect last wrote, so they read
+frozen under infinite); reach for the CSS custom property there instead.
+There is also no infinite equivalent of `--carousel-progress` — a
+0 (start) .. 1 (end) reading has no natural definition for a loop with
+no start or end.
+
 ### Indicator dots (manual)
 
 For full control over indicator content, map them yourself with

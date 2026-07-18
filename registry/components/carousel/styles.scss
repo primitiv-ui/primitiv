@@ -975,6 +975,32 @@
         calc(var(--slide-progress, 0) * var(--primitiv-carousel-parallax-amount))
       );
     }
+    /* loop="infinite": the transform engine translates the TRACK via a JS
+       transform — no native scroll ever happens, so a view-timeline (which is
+       fundamentally tied to actual scroll position) never progresses; the
+       drift would be permanently frozen at whatever phase it mounted in,
+       reading as "parallax doesn't do anything". Unlike the RTL case above,
+       this needs BOTH orientations (there's no native path to fall back to
+       here — infinite never scrolls regardless of axis), so it isn't scoped to
+       horizontal. The engine (useCarouselLoop) drives --slide-progress itself
+       for this mode: analytically on every discrete paint (an instant move, or
+       any of a drag's many calls), and via a live-reading rAF ticker for the
+       duration of an animated (button/autoplay) glide, so the drift keeps
+       pace with the slide's own CSS transition instead of snapping to the
+       settled value. */
+    .primitiv-carousel[data-loop="infinite"].primitiv-carousel--effect-parallax
+      .primitiv-carousel__slide-content {
+      animation: none;
+      transform: translateX(
+        calc(var(--slide-progress, 0) * var(--primitiv-carousel-parallax-amount))
+      );
+    }
+    .primitiv-carousel[data-loop="infinite"][data-orientation="vertical"].primitiv-carousel--effect-parallax
+      .primitiv-carousel__slide-content {
+      transform: translateY(
+        calc(var(--slide-progress, 0) * var(--primitiv-carousel-parallax-amount))
+      );
+    }
   }
 
   /* Fallback for browsers without view-timeline support: read the headless

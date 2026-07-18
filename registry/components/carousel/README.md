@@ -313,7 +313,19 @@ so they can't fall out of sync.
   (block scrolling doesn't flip under RTL) and keeps its native `y`-axis
   timeline. The `prefers-reduced-motion` cancel carries a matching
   higher-specificity selector so it still wins over that RTL override.
-  Confirmed live in-browser (Chromium). No headless change.
+  Confirmed live in-browser (Chromium). **`loop="infinite"` note:** the
+  view-timeline is unconditionally abandoned there too (both orientations,
+  not just horizontal RTL) — the infinite engine translates the track via a
+  JS transform, so nothing ever scrolls and the native timeline would just
+  sit frozen at whatever phase it mounted in. The transform engine
+  (`useCarouselLoop`, headless) drives `--slide-progress` itself for this
+  mode instead: analytically on every discrete paint (an instant move or any
+  of a drag's many calls) and via a live rAF ticker for the duration of an
+  animated glide, so the drift tracks the slide's own CSS transition rather
+  than snapping straight to the settled value. Covers every CSS consumer of
+  `--slide-progress` (this effect included); the imperative
+  `getSlideProgress()` / `getScrollProgress()` getters do not follow — see
+  the headless README's "Continuous scroll progress" section.
 - **Multi-slide (`slidesPerPage` / `slidesPerMove`).** These are **not**
   modifiers — they are **`styleProps`**: numeric props forwarded straight to the
   headless page model *and* written onto `--primitiv-carousel-slides-per-page`

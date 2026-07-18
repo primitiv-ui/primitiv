@@ -248,6 +248,7 @@ export function useCarouselLoop() {
       // so an entering slide is already painted before it arrives and a leaving one
       // stays painted until it's gone.
       const margin = g.trackSize;
+      const viewportHalf = g.trackSize / 2;
       const trackRect = g.track.getBoundingClientRect();
       const trackStart = vertical ? trackRect.top : trackRect.left;
       for (const el of g.track.querySelectorAll<HTMLElement>(
@@ -264,10 +265,93 @@ export function useCarouselLoop() {
         const near = Math.max(a, b) + sz >= -margin;
         const far = Math.min(a, b) <= g.trackSize + margin;
         el.style.visibility = near && far ? "" : "hidden";
+        // --slide-progress: the same -1..0..1 signal native scroll mode writes
+        // (see useCarouselViewport's "Continuous scroll progress" effect) —
+        // parallax (and any other consumer) reads this, and native mode derives
+        // it from real scroll position, which never exists here (the engine
+        // translates the track via transform; nothing ever scrolls). `b` is
+        // already this slide's viewport-relative position at the settled
+        // offset, so its center compared to the viewport's own center
+        // (trackSize/2) gives the identical signal with no extra DOM reads —
+        // correct for every discrete paint (instant moves, and every one of a
+        // drag's many calls); an animated glide's *live* mid-transition value
+        // is additionally driven by the rAF ticker below.
+        const slideCenter = b + sz / 2;
+        const progress =
+          viewportHalf > 0
+            ? Math.max(-1, Math.min(1, (slideCenter - viewportHalf) / viewportHalf))
+            : 0;
+        el.style.setProperty("--slide-progress", String(progress));
       }
     },
     [vertical],
   );
+
+  // Re-read *live* (as-currently-rendered) positions and re-derive
+  // --slide-progress from them — unlike paint()'s analytic version (which
+  // computes the settled value from the target offset, correct for every
+  // discrete call but not for what's on screen mid-transition), this reflects
+  // whatever position the CSS transition has actually interpolated to at the
+  // moment of the call. Mirrors useCarouselViewport's native recomputeProgress
+  // (viewport-center vs. slide-center, both from getBoundingClientRect) — the
+  // same signal, just derived from the track's transform instead of real
+  // scroll, since nothing here ever scrolls.
+  const liveSlideProgress = useCallback(
+    (g: Geometry) => {
+      // Structural, not defensive: the track is always rendered as the
+      // viewport's direct child (Carousel.tsx) whenever isInfinite is true,
+      // which is the only condition under which this ever runs.
+      const viewportEl = g.track.parentElement!;
+      const viewportRect = viewportEl.getBoundingClientRect();
+      const viewportCenter = vertical
+        ? viewportRect.top + viewportRect.height / 2
+        : viewportRect.left + viewportRect.width / 2;
+      const viewportHalf =
+        (vertical ? viewportRect.height : viewportRect.width) / 2;
+      for (const el of g.track.querySelectorAll<HTMLElement>(
+        "[data-carousel-slide]",
+      )) {
+        const r = el.getBoundingClientRect();
+        const center = vertical
+          ? r.top + r.height / 2
+          : r.left + r.width / 2;
+        const progress =
+          viewportHalf > 0
+            ? Math.max(-1, Math.min(1, (center - viewportCenter) / viewportHalf))
+            : 0;
+        el.style.setProperty("--slide-progress", String(progress));
+      }
+    },
+    [vertical],
+  );
+
+  // Live-read on every frame for the DURATION of an animated glide, so a
+  // parallax slide's content drifts smoothly alongside the track's own CSS
+  // transition instead of snapping straight to the settled value paint()
+  // already set. Only animated glides need this — an instant move or a drag
+  // (which calls paint() on every pointermove) is already exact and smooth
+  // from the analytic value alone.
+  const progressRafRef = useRef<number | null>(null);
+  const stopProgressTicker = useCallback(() => {
+    if (progressRafRef.current !== null) {
+      cancelAnimationFrame(progressRafRef.current);
+      progressRafRef.current = null;
+    }
+  }, []);
+  const startProgressTicker = useCallback(
+    (g: Geometry) => {
+      stopProgressTicker();
+      const tick = () => {
+        liveSlideProgress(g);
+        progressRafRef.current = requestAnimationFrame(tick);
+      };
+      progressRafRef.current = requestAnimationFrame(tick);
+    },
+    [stopProgressTicker, liveSlideProgress],
+  );
+  // Stop any in-flight ticker on unmount — otherwise it keeps firing against a
+  // detached DOM forever.
+  useEffect(() => stopProgressTicker, [stopProgressTicker]);
 
   // Bring `offsetRef` back into [0, trackLength) and repaint instantly. A period
   // is a whole clone buffer, so the shown pixels are identical — invisible.
@@ -310,12 +394,14 @@ export function useCarouselLoop() {
         const from = offsetRef.current;
         offsetRef.current = target;
         paint(target, from, g, true);
+        startProgressTicker(g);
       } else {
         offsetRef.current = normalizeOffset(target, g.trackLength);
         paint(offsetRef.current, offsetRef.current, g, false);
+        stopProgressTicker();
       }
     },
-    [paint],
+    [paint, startProgressTicker, stopProgressTicker],
   );
 
   // Rebuild the clone buffers whenever the slide set changes: a full period of
@@ -360,12 +446,15 @@ export function useCarouselLoop() {
     const track = trackRef.current!;
     const onEnd = (event: TransitionEvent) => {
       if (event.propertyName !== "transform") return;
+      // The glide is over — stop live-reading every frame (rebase's own
+      // paint(), if it runs, already set the settled analytic value).
+      stopProgressTicker();
       const g = measure();
       if (g) rebase(g);
     };
     track.addEventListener("transitionend", onEnd);
     return () => track.removeEventListener("transitionend", onEnd);
-  }, [isInfinite, measure, rebase]);
+  }, [isInfinite, measure, rebase, stopProgressTicker]);
 
   // Drive the track to the active page whenever it changes — the short way, so a
   // wrap glides one step onto the adjacent (clone) slide. Targets the page's
@@ -524,13 +613,17 @@ export function useCarouselLoop() {
       ) {
         drag.dragging = true;
         event.currentTarget.setPointerCapture?.(drag.pointerId);
+        // A drag starting mid-glide takes over from here — every subsequent
+        // pointermove already repaints the analytic value, so a still-running
+        // ticker from that interrupted glide would just be redundant work.
+        stopProgressTicker();
       }
       if (!drag.dragging) return;
       const raw = drag.startOffset - g.dir * (client - drag.startClient);
       offsetRef.current = normalizeOffset(raw, g.trackLength);
       paint(offsetRef.current, offsetRef.current, g, false);
     },
-    [axisClient, paint],
+    [axisClient, paint, stopProgressTicker],
   );
 
   // Release: project the fling to a page boundary, glide there, and sync the

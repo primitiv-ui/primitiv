@@ -4606,3 +4606,66 @@ errors, wrongly-hidden slides, collapsed layout — not iOS-Safari-only
 rendering/compositing bugs (several of which this investigation already hit).
 A real-device pass is still the final word; this is the systematic first pass
 that should eliminate most transition/logic bugs before they reach a phone.
+
+### 2026-07-18 (cont.) — Parallax was frozen under loop="infinite"
+
+Human report: "I don't think the parallax effect works for infinite." Root
+cause: parallax is entirely scroll-driven — either the native
+`animation-timeline: view()` (used when the browser supports it) or its
+`--slide-progress`-based fallback for browsers that don't — and BOTH are
+ultimately anchored to real scroll. Under `loop="infinite"` nothing ever
+scrolls (the engine translates the TRACK via a JS transform instead; the
+viewport is `overflow: hidden` with `scroll-snap-type: none`), so a
+view-timeline can never progress, and the native scroll-progress effect
+(`useCarouselViewport`'s `--slide-progress` writer) never re-fires either —
+its `scroll`-event listener and ResizeObserver both depend on something the
+viewport itself never does under infinite. The signal was coincidentally
+*correct at rest* (effect ordering means its one synchronous read-on-mount
+happens after the engine's own first paint) but then **frozen forever** —
+parallax silently never drifted on any subsequent navigation, exactly
+matching "I can't seem to see it".
+
+Fix, two parts:
+1. **Engine drives `--slide-progress` itself** (`useCarouselLoop.ts`).
+   `paint()` now derives it analytically from the same geometry it already
+   reads for windowing (`b` — a slide's settled viewport-relative position —
+   vs. the viewport's own center, clamped ±1, mirroring the native effect's
+   viewport-center/slide-center formula) — correct for every discrete call
+   (an instant move, and every one of a drag's many pointermove-triggered
+   paints) with zero extra DOM reads. For an **animated** (button/autoplay)
+   glide specifically, a `requestAnimationFrame` ticker additionally
+   live-reads (`liveSlideProgress` — real `getBoundingClientRect` on the
+   viewport and each slide, mirroring the native effect's own approach)
+   every frame for the transition's duration, so the drift keeps pace with
+   the track's own CSS transition instead of snapping straight to the
+   settled value; it stops itself on `transitionend`, when a drag interrupts
+   an in-flight glide, and on unmount (an indefinitely-running ticker would
+   burn a frame's work forever). Scope: this drives the **CSS custom
+   property** every consumer of the "Continuous scroll progress" feature
+   reads (parallax included) — it does **not** wire the imperative
+   `getScrollProgress()` / `getSlideProgress()` getters (those still only
+   read what the native effect last wrote, so they stay frozen under
+   infinite); documented as a known, separate gap in both READMEs rather
+   than silently left inconsistent. There's also no infinite equivalent of
+   `--carousel-progress` (a 0..1 start/end reading has no natural definition
+   for a loop with no start or end).
+2. **CSS**: added a `[data-loop="infinite"]` override (both orientations,
+   inside the `@supports (view())` block) that abandons the native
+   view-timeline and reads `--slide-progress` instead — the same pattern the
+   horizontal-RTL override already used for an unrelated Chromium bug, just
+   generalised to both axes (infinite has no working native path at all,
+   unlike RTL where only the *horizontal* axis is broken).
+
+Added a permanent kitchen-sink example (loop cell 16, "Infinite + parallax")
+alongside the existing "Slideshow (parallax)" page so the two are directly
+comparable. `SlideshowSingle` gained a `loop` prop.
+
+Tests: two new RED tests pinned the actual bug (not just the coincidentally-
+correct at-rest value — the first version of the test read at rest only and
+passed against the *unfixed* code, so it was rewritten to assert progress
+after a navigation, which only the fix satisfies) plus zero-guard and
+vertical-axis coverage for both the analytic and live-ticker paths (mirroring
+the native scroll-progress test file's own zero-guard precedent). 100%
+Carousel coverage (statements/branches/functions/lines), tsc clean (react +
+kitchen-sink), 3-way CSS sync + drift guard green. **Device QA pending** on
+cell 16 vs. the plain Slideshow page.

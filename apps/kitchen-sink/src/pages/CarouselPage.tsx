@@ -2317,10 +2317,12 @@ function SlideshowSingle({
   label,
   orientation = "horizontal",
   peek,
+  loop,
 }: {
   label: string;
   orientation?: "horizontal" | "vertical";
   peek?: "none" | "sm" | "md" | "lg";
+  loop?: boolean | "wrap" | "infinite";
 }) {
   const Prev = orientation === "vertical" ? ChevronUp : ChevronLeft;
   const Next = orientation === "vertical" ? ChevronDown : ChevronRight;
@@ -2333,6 +2335,7 @@ function SlideshowSingle({
       peek={peek}
       radius="none"
       gap="none"
+      loop={loop}
     >
       <CarouselViewport>
         {GALLERY.map((bg, i) => (
@@ -2714,6 +2717,14 @@ export function CarouselLoop() {
               <ChevronRight />
             </CarouselNextTrigger>
           </Carousel>
+        </GridCell>
+
+        <GridCell
+          n={16}
+          title="Infinite + parallax"
+          note="loop=&quot;infinite&quot; drives its own JS transform track, not native scroll, so the parallax effect's usual view-timeline/--slide-progress fallback would otherwise sit frozen (nothing ever scrolls). The transform engine now drives --slide-progress itself, so the drift keeps working here too — compare against the separate 'Slideshow (parallax)' page for the plain, non-infinite version."
+        >
+          <SlideshowSingle label="Featured products — infinite parallax" loop="infinite" />
         </GridCell>
       </div>
     </Example>

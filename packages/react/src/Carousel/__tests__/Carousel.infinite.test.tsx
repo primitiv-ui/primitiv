@@ -113,22 +113,29 @@ function defineRect(layout: (this: HTMLElement) => { start: number; size: number
   });
 }
 
-// The standard rect layout, with per-test overrides: the track is `trackSize`
-// wide, a slide is SLIDE, and a real slide (data-index) starts at `startFor(i)`
-// (default index × stride; negate for RTL, offset for the clone buffer, zero to
-// collapse the stride). Clones/other elements start at 0.
+// The standard rect layout, with per-test overrides: the track (and, by
+// default, the viewport around it — coincident with no peek/padding) is
+// `trackSize` wide, a slide is SLIDE, and a real slide (data-index) starts at
+// `startFor(i)` (default index × stride; negate for RTL, offset for the clone
+// buffer, zero to collapse the stride). Clones/other elements start at 0.
 function stdRect({
   trackSize = VIEWPORT,
+  viewportSize = trackSize,
   startFor = (i: number) => i * STRIDE,
-}: { trackSize?: number; startFor?: (index: number) => number } = {}) {
+}: {
+  trackSize?: number;
+  viewportSize?: number;
+  startFor?: (index: number) => number;
+} = {}) {
   defineRect(function (this: HTMLElement) {
     const raw = this.getAttribute?.("data-index");
     const index = raw != null ? Number(raw) : null;
     const isTrack = this.hasAttribute?.("data-carousel-track");
+    const isViewport = this.hasAttribute?.("data-carousel-viewport");
     const isSlide = this.hasAttribute?.("data-carousel-slide");
     return {
       start: index != null ? startFor(index) : 0,
-      size: isTrack ? trackSize : isSlide ? SLIDE : 0,
+      size: isTrack ? trackSize : isViewport ? viewportSize : isSlide ? SLIDE : 0,
     };
   });
 }
@@ -366,6 +373,110 @@ describe("Carousel infinite — transform engine", () => {
     expect(real(0).style.visibility).toBe("");
     expect(real(2).style.visibility).toBe("");
     expect(real(3).style.visibility).toBe("hidden");
+  });
+
+  it("keeps --slide-progress live across a navigation, the way native scroll mode does", async () => {
+    // Parallax (and any other consumer of the "Continuous scroll progress"
+    // signal) reads --slide-progress. Native mode's effect (useCarouselViewport)
+    // recomputes it from real scroll position — a `scroll` event fires on every
+    // native scroll step. Under infinite, nothing ever scrolls (the engine
+    // translates the TRACK via CSS transform instead), so that effect's
+    // listeners never fire again after its one synchronous read on mount: the
+    // signal is coincidentally correct at rest (mount happens to run after the
+    // engine's own first paint) but then FROZEN forever — parallax would never
+    // visibly drift on any subsequent navigation. Click Next and confirm the
+    // newly-active slide (1) becomes centred (0) and the previously-active one
+    // (0) moves off-centre (1) — this is what would stay stale without the
+    // engine driving its own --slide-progress.
+    const user = userEvent.setup();
+    const { track, getByRole } = renderInfinite({ count: 4 });
+    const real = (i: number) =>
+      track!.querySelector<HTMLElement>(
+        `[data-carousel-slide][data-index="${i}"]`,
+      )!;
+    expect(real(0).style.getPropertyValue("--slide-progress")).toBe("0");
+
+    await user.click(getByRole("button", { name: "Next" }));
+
+    expect(real(1).style.getPropertyValue("--slide-progress")).toBe("0");
+    expect(real(0).style.getPropertyValue("--slide-progress")).toBe("-1");
+  });
+
+  it("defends --slide-progress against a zero-size track (divide-by-zero guard)", () => {
+    // Mirrors the native scroll-progress signal's own defensive guard
+    // (Carousel.scroll-progress.test.tsx) for the same reason: a 0 track (and,
+    // by default, viewport) size — nothing measured yet — would otherwise
+    // divide by zero. Covers both paint()'s analytic guard and the live
+    // ticker's own copy of it (triggered by an animated glide).
+    stdRect({ trackSize: 0 });
+    vi.useFakeTimers();
+    try {
+      const { track, getByRole } = renderInfinite({ count: 4 });
+      const real0 = track!.querySelector<HTMLElement>(
+        '[data-carousel-slide][data-index="0"]',
+      )!;
+      expect(real0.style.getPropertyValue("--slide-progress")).toBe("0");
+
+      fireEvent.click(getByRole("button", { name: "Next" }));
+      expect(() => vi.advanceTimersToNextFrame()).not.toThrow();
+      expect(real0.style.getPropertyValue("--slide-progress")).toBe("0");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("live-updates --slide-progress on the block axis for a vertical infinite loop", () => {
+    // Same live ticker as the horizontal case, just the block-axis branch of
+    // its viewport-center / slide-center math.
+    vi.useFakeTimers();
+    try {
+      const { track, getByRole } = renderInfinite({
+        count: 4,
+        orientation: "vertical",
+      });
+      const real0 = track!.querySelector<HTMLElement>(
+        '[data-carousel-slide][data-index="0"]',
+      )!;
+
+      fireEvent.click(getByRole("button", { name: "Next" }));
+      expect(() => vi.advanceTimersToNextFrame()).not.toThrow();
+      expect(real0.style.getPropertyValue("--slide-progress")).toBe("0");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("live-updates --slide-progress every frame while an animated glide is in flight, then stops on settle", () => {
+    // Unlike paint()'s analytic value (set once, correct only for the settled
+    // target), a button-driven glide's *visual* position is mid-transition for
+    // its whole duration — parallax content needs to track that continuously or
+    // it snaps to the end value instead of drifting alongside the slide. The
+    // engine runs a rAF ticker for exactly the animated-glide duration, reading
+    // live positions each frame. jsdom applies no real transform (this harness's
+    // mocked rects are transform-invariant by design, like every other geometry
+    // mock in this file), so the ticker's *value* can't be distinguished from
+    // paint()'s here — device/Playwright confirms the visual drift — but its
+    // code path (including the zero-guard) still runs and must not throw, and it
+    // must stop itself once the transition ends (an indefinitely-running ticker
+    // would burn a frame's work forever).
+    vi.useFakeTimers();
+    try {
+      const { track, getByRole } = renderInfinite({ count: 4 });
+      const real0 = track!.querySelector<HTMLElement>(
+        '[data-carousel-slide][data-index="0"]',
+      )!;
+      const cancelSpy = vi.spyOn(window, "cancelAnimationFrame");
+
+      fireEvent.click(getByRole("button", { name: "Next" }));
+      expect(() => vi.advanceTimersToNextFrame()).not.toThrow();
+      expect(real0.style.getPropertyValue("--slide-progress")).toBe("0");
+
+      // The settle (transitionend) stops the ticker.
+      fireEnd(track!);
+      expect(cancelSpy).toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("strips ids from the cloned subtree so no id is duplicated", () => {

@@ -1116,6 +1116,22 @@
     border-radius: var(--primitiv-carousel-slide-radius);
     overflow: hidden;
   }
+  /* `ratio` fix: the coverflow slide both hosts the `view-timeline-name` and is
+     `overflow: visible` — either can stop its own `aspect-ratio` from reshaping the
+     card, so changing the `ratio` modifier looked inert under coverflow. Carry the
+     aspect-ratio on the *content card* instead (which hosts neither) and let the
+     slide box follow it (`aspect-ratio: auto`), so the visible card honours `ratio`
+     again. Horizontal only — vertical's slide shape is driven by its own rule. */
+  .primitiv-carousel--effect-coverflow:not([data-orientation="vertical"])
+    .primitiv-carousel__slide {
+    aspect-ratio: auto;
+    block-size: auto;
+  }
+  .primitiv-carousel--effect-coverflow:not([data-orientation="vertical"])
+    .primitiv-carousel__slide-content {
+    aspect-ratio: var(--primitiv-carousel-slide-aspect-ratio);
+    block-size: auto;
+  }
   /* Lift the centred (active) card above its neighbours so the inward `spread`
      crowd overlaps *behind* it, not over it. Cross-slide 3D z-sorting isn't
      available — each slide is its own perspective context (the scroll container

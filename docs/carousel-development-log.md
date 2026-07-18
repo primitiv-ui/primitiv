@@ -5317,3 +5317,20 @@ effect="none", and (b) what "doesn't respond" looks like (no change at all vs.
 off-centre until scrolled). Candidate fix if confirmed: on a dimension-affecting prop
 change, call the imperative re-scroll to the active index (the primitive already
 exposes `scrollToIndex`). Parked as minor pending the infinite-loop pass.
+
+### Cover Flow ratio fix (attempt, awaiting human verify)
+
+Human clarified the earlier "ratio radios" observation: under `effect="coverflow"`
+the effect renders fine, but changing the **ratio** modifier (e.g. to `square`)
+doesn't reshape the card — coverflow-specific (works with other effects). Coverflow
+doesn't touch the slide's `aspect-ratio`, but two coverflow-only things sit on the
+slide that can suppress its own aspect-ratio sizing: it hosts the
+`view-timeline-name`, and it's `overflow: visible`. Rather than gamble on which,
+moved the aspect-ratio onto the **content card** (`__slide-content`, which hosts
+neither) with `block-size: auto`, and set the slide box to `aspect-ratio: auto` so it
+follows the card — robust to either cause. Scoped to **horizontal** (the repro);
+vertical's slide shape is driven by its own rule, left untouched pending a separate
+check. Can't reproduce headless (no browser in the sandbox), so this is a best-effort
+fix pending human verify on `/carousel/builder` (coverflow + ratio square/standard/
+ultrawide) and `/carousel/coverflow`. Regenerated scss, re-synced; `cargo test -p
+primitiv-emit` green.

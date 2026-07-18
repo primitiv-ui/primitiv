@@ -4503,3 +4503,39 @@ this sandbox (isolated workspace, no node_modules — expected, per
 `sandbox-gotchas`), so a real Vite bundle of the import wasn't verified here,
 just typechecked. Device QA pending on both the resize-observer fix and the
 new images (no network flicker, and does pictures + infinite still work).
+
+### 2026-07-17 (cont.) — Investigating overlay + pictures + infinite ("images disappear")
+
+Third device report from the batch: switching `placement="overlay"` + `content="pictures"`
+to `loop="infinite"` in the builder makes the images disappear. Confirmed via a code
+audit that **this exact combination was never previously exercised** — every existing
+infinite example cell (7–14) uses the default `placement="external"`; overlay's
+device QA (cells with `OverlaySingle`) never used `loop="infinite"`.
+
+Built a real-browser (Chromium via Playwright, pre-installed binary + a scratch
+`esbuild` bundle of the actual `useCarouselLoop` engine + the actual registry
+`carousel.tsx` wrapper + `carousel.recipe.ts`, aliased onto a single React
+instance to avoid the dual-React hook error) to reproduce it outside the
+sandbox's normal jsdom-only test harness. Ruled out two hypotheses this way:
+1. **Windowing/visibility bug** — checked in every run; the on-screen slide's
+   `visibility` was always `""` (shown), never incorrectly hidden.
+2. **The infinite viewport's `display: flex → block` switch collapsing height**
+   (the viewport becomes a block wrapper around the new flex `.__track`) — an
+   isolated minimal CSS test (no tokens, no React) confirmed the block viewport
+   sizes correctly to the track/slide's aspect-ratio height; no collapse.
+
+Could not get a byte-perfect CSS assembly by hand (a `--primitiv-carousel-gap`
+custom-property chain didn't fully resolve in the scratch harness — a token
+completeness gap in *the throwaway test setup*, not the product; confirmed by
+reading the CSS directly, the real registry stylesheet is correct), so a clean
+end-to-end repro wasn't reached; the deployed kitchen-sink build (not reachable
+from this sandbox — `github.io` is blocked by the egress policy, only
+`api.github.com` is allowlisted) would be the trustworthy source. Given the
+sandbox's ceiling here, added a **permanent-until-resolved debug cell** (cell 15
+in the loop `<Example>`, `apps/kitchen-sink/src/pages/CarouselPage.tsx`) —
+`placement="overlay"` + real local photos + `loop="infinite"` — as a stable,
+directly comparable deployed test surface instead of debugging blind through
+the builder's many toggles. tsc clean. **Awaiting device QA on cell 15** and
+answers to: does the WHOLE carousel (controls + dots too) vanish, or just the
+image area; does it recover after a moment or on interaction; does the same
+combination with gradient (non-picture) content also fail.

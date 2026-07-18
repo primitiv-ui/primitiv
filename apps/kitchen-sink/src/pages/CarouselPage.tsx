@@ -25,6 +25,11 @@ import {
 } from "../components";
 import "./CarouselPage.css";
 
+import debugPhoto1 from "../assets/carousel-photos/photo-1.jpg";
+import debugPhoto2 from "../assets/carousel-photos/photo-2.jpg";
+import debugPhoto3 from "../assets/carousel-photos/photo-3.jpg";
+import debugPhoto4 from "../assets/carousel-photos/photo-4.jpg";
+
 // Gradients stand in for photography (the Figma examples do the same — real
 // imagery is a per-slide fill override the consumer supplies).
 const SLIDES = [
@@ -2668,6 +2673,47 @@ export function CarouselLoop() {
             loop="infinite"
             allowMouseDrag
           />
+        </GridCell>
+
+        {/* TEMP diagnostic cell: builder QA reported images disappearing under
+            placement="overlay" + content="pictures" + loop="infinite" — a
+            combination no prior example exercised (every other infinite cell
+            above uses the default external placement). A real-browser repro
+            (real registry CSS, real engine, Chromium) didn't reproduce it, so
+            this cell exists to get a directly comparable, deployed test
+            surface rather than debugging blind through the builder's many
+            toggles. Remove once the report is confirmed fixed or narrowed
+            further. */}
+        <GridCell
+          n={15}
+          title="DEBUG — Infinite + overlay + pictures"
+          note="Temporary diagnostic cell for a builder-reported bug (images disappearing under this exact combination). If this renders correctly, the bug is likely builder-specific (a different config axis) rather than this base combination."
+        >
+          <Carousel
+            ariaLabel="Featured products — infinite overlay pictures"
+            placement="overlay"
+            loop="infinite"
+            allowMouseDrag
+          >
+            <CarouselViewport>
+              {[debugPhoto1, debugPhoto2, debugPhoto3, debugPhoto4].map((src, i) => (
+                <CarouselSlide key={i}>
+                  <img src={src} alt="" />
+                </CarouselSlide>
+              ))}
+            </CarouselViewport>
+            <CarouselPreviousTrigger aria-label="Previous slide">
+              <ChevronLeft />
+            </CarouselPreviousTrigger>
+            <CarouselIndicatorGroup label="Choose slide">
+              {[0, 1, 2, 3].map((i) => (
+                <CarouselIndicator key={i} index={i} />
+              ))}
+            </CarouselIndicatorGroup>
+            <CarouselNextTrigger aria-label="Next slide">
+              <ChevronRight />
+            </CarouselNextTrigger>
+          </Carousel>
         </GridCell>
       </div>
     </Example>

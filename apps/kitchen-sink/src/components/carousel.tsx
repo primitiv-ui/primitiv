@@ -143,13 +143,14 @@ export type CarouselProps = DistributiveOmit<ComponentPropsWithRef<typeof Carous
    */
   slideWidth?: "equal" | "content";
   /**
-   * An opt-in scroll-driven visual effect for the slide content, layered on top of scroll-snap paging. `none` (the default) renders slides plain. `parallax` gives each slide's <CarouselSlideContent> a native, zero-JavaScript drift as the slide crosses the viewport (Blossom Carousel's Slideshow example) — a CSS view-timeline scoped to the slide drives the content's transform via animation-range: cover, following the scroll axis (inline horizontal, block vertical). Requires wrapping the slide's media in <CarouselSlideContent>. Browsers without animation-timeline: view() support fall back to reading the headless --slide-progress signal instead (an equivalent, continuously-updated drift with no extra JavaScript of our own), and the effect disables entirely under prefers-reduced-motion.
+   * An opt-in scroll-driven visual effect for the slide content, layered on top of scroll-snap paging. `none` (the default) renders slides plain. `parallax` gives each slide's <CarouselSlideContent> a native, zero-JavaScript drift as the slide crosses the viewport (Blossom Carousel's Slideshow example) — a CSS view-timeline scoped to the slide drives the content's transform via animation-range: cover, following the scroll axis (inline horizontal, block vertical). `coverflow` tilts each slide's <CarouselSlideContent> in 3D as it crosses the viewport (the iTunes/Apple Cover Flow look, Blossom's Cover Flow example) — the same view-timeline drives a rotateY (rotateX when vertical) + scale off perspective set on the slide, so the centred slide sits flat and forward while its neighbours rotate away. Best composed with peek (to reveal the tilting neighbours) and snapAlign="center". Both effects require wrapping the slide's media in <CarouselSlideContent>; browsers without animation-timeline: view() support fall back to reading the headless --slide-progress signal instead (an equivalent, continuously-updated transform with no extra JavaScript of our own), and both disable entirely under prefers-reduced-motion.
    * - `none` — Plain slides — no scroll-driven motion (the default).
    * - `parallax` — Each slide's <CarouselSlideContent> drifts against the scroll as the slide crosses the viewport.
+   * - `coverflow` — Each slide's <CarouselSlideContent> tilts in 3D (rotateY + scale off a perspective) as it crosses the viewport — the Cover Flow look. Pair with peek and snapAlign="center".
    * @default "none"
    * @see https://primitiv-ui.dev/docs/components/carousel
    */
-  effect?: "none" | "parallax";
+  effect?: "none" | "parallax" | "coverflow";
   /**
    * How fast the infinite loop glides between pages (loop="infinite" only — every other mode uses native scroll). A preset re-points --primitiv-carousel-glide-duration to a motion duration token; the engine reads it, with --primitiv-carousel-glide-easing, off the track and drives the transform transition. `medium` is the default. For a duration or easing outside the presets, re-point either custom property directly.
    * - `fast` — A quick glide (200ms).

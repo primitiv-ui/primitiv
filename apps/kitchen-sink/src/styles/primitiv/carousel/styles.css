@@ -198,6 +198,16 @@
     --primitiv-carousel-parallax-amount: calc(
       (var(--primitiv-carousel-parallax-scale) - 1) / 2 * 100%
     );
+    /* Cover Flow geometry, read only under the `effect="coverflow"` modifier.
+       `perspective` is the depth of the 3D scene set on each slide (a larger
+       value flattens the tilt, a smaller one exaggerates it); `rotate` is the
+       tilt angle a slide reaches at the viewport edges (0 flat at centre); and
+       `scale` is how far an edge slide shrinks, so the centred one pops forward.
+       Not design tokens — the technique's own 3D geometry, not themeable values
+       (the same exception class as the parallax knobs above). */
+    --primitiv-carousel-coverflow-perspective: 1200px;
+    --primitiv-carousel-coverflow-rotate: 45deg;
+    --primitiv-carousel-coverflow-scale: 0.85;
 
     /* Fill the container and stack the viewport above the controls row, spaced
        by the block gap. The single column is an explicit full-width track
@@ -1056,6 +1066,166 @@
        that rule — source order alone wouldn't beat its higher specificity. */
     .primitiv-carousel--effect-parallax .primitiv-carousel__slide-content,
     .primitiv-carousel--effect-parallax:not([data-orientation="vertical"])
+      .primitiv-carousel__slide-content:dir(rtl) {
+      animation: none;
+      transform: none;
+    }
+  }
+
+  /* Cover Flow — a native, scroll-driven 3D tilt (the iTunes/Apple "Cover Flow"
+     look; Blossom Carousel's Cover Flow example). Each slide is its own 3D scene
+     (`perspective` on the slide) and its <CarouselSlideContent> layer rotates —
+     rotateY (horizontal) / rotateX (vertical) — and scales down as the slide
+     crosses the viewport, so the centred slide sits flat, forward and full-size
+     while its neighbours tilt away. Driven by the same per-slide view-timeline as
+     parallax (animation-range: cover), and targeting <CarouselSlideContent>, NOT
+     the slide itself: the infinite-loop engine measures each slide's
+     getBoundingClientRect, which a transform on the slide would corrupt, whereas a
+     child transform leaves the slide's own box (and native scroll-snap) untouched.
+     So the slide opts out of its own clipping (overflow: visible) to let the
+     tilted content escape its flat slot and overlap its neighbours, and the
+     rounding/clip moves onto the content layer instead. Composes best with `peek`
+     (to reveal the tilting neighbours) and snapAlign="center". Requires wrapping
+     the slide's media in <CarouselSlideContent>, like parallax. The @supports /
+     RTL / infinite / reduced-motion handling mirrors the parallax block above —
+     see it for the full rationale on each branch. */
+  .primitiv-carousel--effect-coverflow .primitiv-carousel__slide {
+    overflow: visible;
+    perspective: var(--primitiv-carousel-coverflow-perspective);
+  }
+  /* The content layer becomes the clipped, rounded card that tilts: it inherits
+     the slide's own radius so the corners still round, and clips its media the way
+     the slide box did before it went overflow: visible. */
+  .primitiv-carousel--effect-coverflow .primitiv-carousel__slide-content {
+    border-radius: var(--primitiv-carousel-slide-radius);
+    overflow: hidden;
+  }
+  @supports (animation-timeline: view()) {
+    .primitiv-carousel--effect-coverflow .primitiv-carousel__slide {
+      view-timeline-name: --primitiv-carousel-coverflow-timeline;
+      view-timeline-axis: x;
+    }
+    .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--effect-coverflow
+      .primitiv-carousel__slide {
+      view-timeline-axis: y;
+    }
+    .primitiv-carousel--effect-coverflow .primitiv-carousel__slide-content {
+      animation: primitiv-carousel-coverflow-inline linear both;
+      animation-timeline: --primitiv-carousel-coverflow-timeline;
+      animation-range: cover;
+    }
+    .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--effect-coverflow
+      .primitiv-carousel__slide-content {
+      animation-name: primitiv-carousel-coverflow-block;
+    }
+    /* Horizontal RTL: skip the Chromium-broken native timeline and drive the tilt
+       off --slide-progress instead (the same cover-range bug parallax documents);
+       scoped to horizontal so vertical RTL keeps its correct native y-axis. */
+    .primitiv-carousel--effect-coverflow:not([data-orientation="vertical"])
+      .primitiv-carousel__slide-content:dir(rtl) {
+      animation: none;
+      transform: rotateY(
+          calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-rotate))
+        )
+        scale(
+          calc(
+            1 - (1 - var(--primitiv-carousel-coverflow-scale)) *
+              max(var(--slide-progress, 0), calc(var(--slide-progress, 0) * -1))
+          )
+        );
+    }
+    /* loop="infinite": the engine translates the track via JS, so a view-timeline
+       never progresses — drive the tilt off --slide-progress in both orientations
+       (there's no native scroll to fall back to here). Mirrors parallax. */
+    .primitiv-carousel[data-loop="infinite"].primitiv-carousel--effect-coverflow
+      .primitiv-carousel__slide-content {
+      animation: none;
+      transform: rotateY(
+          calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-rotate))
+        )
+        scale(
+          calc(
+            1 - (1 - var(--primitiv-carousel-coverflow-scale)) *
+              max(var(--slide-progress, 0), calc(var(--slide-progress, 0) * -1))
+          )
+        );
+    }
+    .primitiv-carousel[data-loop="infinite"][data-orientation="vertical"].primitiv-carousel--effect-coverflow
+      .primitiv-carousel__slide-content {
+      transform: rotateX(
+          calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-rotate))
+        )
+        scale(
+          calc(
+            1 - (1 - var(--primitiv-carousel-coverflow-scale)) *
+              max(var(--slide-progress, 0), calc(var(--slide-progress, 0) * -1))
+          )
+        );
+    }
+  }
+  /* Fallback for browsers without view-timeline support (Firefox stable, as of
+     writing): read the headless --slide-progress signal, the same -1..0..1 value
+     the primitive writes on every slide regardless of technique. */
+  @supports not (animation-timeline: view()) {
+    .primitiv-carousel--effect-coverflow .primitiv-carousel__slide-content {
+      transform: rotateY(
+          calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-rotate))
+        )
+        scale(
+          calc(
+            1 - (1 - var(--primitiv-carousel-coverflow-scale)) *
+              max(var(--slide-progress, 0), calc(var(--slide-progress, 0) * -1))
+          )
+        );
+    }
+    .primitiv-carousel[data-orientation="vertical"].primitiv-carousel--effect-coverflow
+      .primitiv-carousel__slide-content {
+      transform: rotateX(
+          calc(var(--slide-progress, 0) * var(--primitiv-carousel-coverflow-rotate))
+        )
+        scale(
+          calc(
+            1 - (1 - var(--primitiv-carousel-coverflow-scale)) *
+              max(var(--slide-progress, 0), calc(var(--slide-progress, 0) * -1))
+          )
+        );
+    }
+  }
+
+  @keyframes primitiv-carousel-coverflow-inline {
+    0% {
+      transform: rotateY(calc(var(--primitiv-carousel-coverflow-rotate) * -1))
+        scale(var(--primitiv-carousel-coverflow-scale));
+    }
+    50% {
+      transform: rotateY(0deg) scale(1);
+    }
+    100% {
+      transform: rotateY(var(--primitiv-carousel-coverflow-rotate))
+        scale(var(--primitiv-carousel-coverflow-scale));
+    }
+  }
+  @keyframes primitiv-carousel-coverflow-block {
+    0% {
+      transform: rotateX(calc(var(--primitiv-carousel-coverflow-rotate) * -1))
+        scale(var(--primitiv-carousel-coverflow-scale));
+    }
+    50% {
+      transform: rotateX(0deg) scale(1);
+    }
+    100% {
+      transform: rotateX(var(--primitiv-carousel-coverflow-rotate))
+        scale(var(--primitiv-carousel-coverflow-scale));
+    }
+  }
+
+  /* Cover Flow is scroll-linked decorative 3D motion — disable it entirely under
+     reduced motion, in both the view-timeline and the --slide-progress branches.
+     Textually later + matching specificity (the RTL selector carries the same
+     :not()+:dir()), so it wins the tie (RFC 0008 §3.1). */
+  @media (prefers-reduced-motion: reduce) {
+    .primitiv-carousel--effect-coverflow .primitiv-carousel__slide-content,
+    .primitiv-carousel--effect-coverflow:not([data-orientation="vertical"])
       .primitiv-carousel__slide-content:dir(rtl) {
       animation: none;
       transform: none;

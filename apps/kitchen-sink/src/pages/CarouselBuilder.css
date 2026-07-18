@@ -193,6 +193,15 @@
   place-items: center;
 }
 
+/* effect="coverflow" toggle. Unlike parallax, the whole card tilts and the slide
+ * goes overflow: visible, so the gradient rides this tilting content layer itself
+ * (set via the `style` prop) rather than the flat slide behind it; the marker is
+ * centred on top. */
+.carousel-builder__slide-content--coverflow {
+  display: grid;
+  place-items: center;
+}
+
 .carousel-builder__slide-marker {
   font-size: 2rem;
   font-weight: 700;

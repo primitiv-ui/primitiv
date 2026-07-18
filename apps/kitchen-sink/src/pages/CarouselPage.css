@@ -202,6 +202,24 @@
   text-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
 }
 
+/* Cover Flow card (effect="coverflow"). The content layer IS the tilting card
+ * here (the registry rounds + clips it and the slide goes overflow: visible), so
+ * the visual lives on it directly — a gradient background or a real <img>. Centre
+ * the numeral for the gradient cells. */
+.carousel-page__coverflow-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-page__coverflow-label {
+  text-align: center;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--primitiv-content-inverse);
+  text-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
+}
+
 /* Linked-slide fixture (loop cell 13). The anchor fills the slide so a tap
  * anywhere on it navigates — the drag layer only swallows the click once the
  * pointer crosses the drag threshold, so a genuine tap always reaches the link. */

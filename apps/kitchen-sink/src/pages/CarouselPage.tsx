@@ -2415,6 +2415,132 @@ export function CarouselSlideshow() {
 }
 
 /**
+ * Cover Flow — the iTunes/Apple "Cover Flow" look (Blossom Carousel's Cover Flow
+ * example) via `effect="coverflow"`: each slide's <CarouselSlideContent> tilts in
+ * 3D (rotateY + scale off a per-slide perspective) as it crosses the viewport, so
+ * the centred slide sits flat, forward and full-size while its neighbours rotate
+ * away. Like `parallax`, the registry stylesheet owns the whole technique — this
+ * component just opts in and wraps each slide's visual in <CarouselSlideContent>,
+ * the layer that tilts (the slide goes overflow: visible so the tilted card can
+ * escape its flat slot and overlap its neighbours; the rounding/clip moves onto
+ * the content layer). Driven by the same per-slide view-timeline as parallax, with
+ * the identical --slide-progress fallback for browsers without view-timeline
+ * support (Firefox stable), the same RTL/infinite handling, and disabled entirely
+ * under prefers-reduced-motion.
+ *
+ * Best composed with `peek` (to reveal the tilting neighbours) and
+ * snapAlign="center" (so the flat, forward card is the one that rests centred) —
+ * the effect is orthogonal to both, so they just compose. The visual (gradient or
+ * a real <img>) lives on <CarouselSlideContent> itself, the card that tilts.
+ */
+function CoverFlowSingle({
+  label,
+  orientation = "horizontal",
+  images = false,
+}: {
+  label: string;
+  orientation?: "horizontal" | "vertical";
+  images?: boolean;
+}) {
+  const Prev = orientation === "vertical" ? ChevronUp : ChevronLeft;
+  const Next = orientation === "vertical" ? ChevronDown : ChevronRight;
+  const photos = [debugPhoto1, debugPhoto2, debugPhoto3, debugPhoto4];
+  const items = images ? photos : GALLERY;
+  return (
+    <Carousel
+      ariaLabel={label}
+      cluster="joined"
+      effect="coverflow"
+      orientation={orientation}
+      peek="lg"
+      gap="lg"
+      snapAlign="center"
+    >
+      <CarouselViewport>
+        {items.map((item, i) => (
+          <CarouselSlide key={i} radius="md">
+            <CarouselSlideContent
+              className="carousel-page__coverflow-card"
+              style={images ? undefined : { background: item }}
+            >
+              {images ? (
+                <img src={item} alt="" />
+              ) : (
+                <span className="carousel-page__coverflow-label">{i + 1}</span>
+              )}
+            </CarouselSlideContent>
+          </CarouselSlide>
+        ))}
+      </CarouselViewport>
+      <CarouselControls>
+        <CarouselPreviousTrigger aria-label="Previous slide">
+          <Prev />
+        </CarouselPreviousTrigger>
+        <CarouselIndicatorGroup label="Choose slide">
+          {items.map((_, i) => (
+            <CarouselIndicator key={i} index={i} />
+          ))}
+        </CarouselIndicatorGroup>
+        <CarouselNextTrigger aria-label="Next slide">
+          <Next />
+        </CarouselNextTrigger>
+      </CarouselControls>
+    </Carousel>
+  );
+}
+
+export function CarouselCoverFlow() {
+  return (
+    <Example
+      title="Cover Flow — scroll-driven 3D, zero JavaScript"
+      note="effect='coverflow' tilts each slide's <CarouselSlideContent> in 3D (rotateY + scale off a per-slide perspective) as it crosses the viewport — the iTunes Cover Flow look. Same engine as the Slideshow (parallax) example: a native CSS view-timeline scoped to the slide (animation-range: cover), with a --slide-progress fallback for browsers without view-timeline support, RTL/infinite handled the same way, and disabled under prefers-reduced-motion. Pair with peek (to reveal the tilting neighbours) and snapAlign='center'. Tune the look with the --primitiv-carousel-coverflow-{rotate,scale,perspective} knobs."
+      wide
+    >
+      <div className="carousel-grid">
+        <GridCell
+          n={1}
+          title="Default — horizontal"
+          note="The centred card sits flat and forward; its neighbours (revealed by peek) tilt away. Scroll/swipe/drag and the tilt tracks continuously."
+        >
+          <CoverFlowSingle label="Featured products — cover flow" />
+        </GridCell>
+
+        <GridCell
+          n={2}
+          title="Vertical"
+          note="The view-timeline axis follows the scroll axis, so a vertical scroller tilts on the x axis (rotateX) — cards fan forward/back up the column."
+        >
+          <CoverFlowSingle
+            label="Featured products — cover flow, vertical"
+            orientation="vertical"
+          />
+        </GridCell>
+
+        <GridCell
+          n={3}
+          title="RTL"
+          note="Chromium mis-resolves a horizontal view-timeline's cover progress in an RTL scroller, so horizontal RTL drives the tilt off the RTL-correct --slide-progress signal instead (same as the parallax example). The centred card should rest flat and its neighbours tilt symmetrically."
+          dir="rtl"
+        >
+          <CoverFlowSingle label="Featured products — cover flow, RTL" />
+        </GridCell>
+
+        <GridCell
+          n={4}
+          title="Real imagery"
+          note="Cover Flow shines with photography: a real <img> in <CarouselSlideContent> tilts as the rounded card, no backdrop needed (unlike parallax's Ken-Burns pan)."
+        >
+          <CoverFlowSingle
+            label="Featured products — cover flow, photos"
+            images
+          />
+        </GridCell>
+      </div>
+    </Example>
+  );
+}
+
+/**
  * Loop — wrap-around navigation (Phase C, "no disabled ends"). The `loop` prop
  * makes Next/Previous and autoplay wrap past the ends instead of clamping: the
  * triggers never disable at a boundary, Next on the last slide returns to the

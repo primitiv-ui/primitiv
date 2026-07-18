@@ -128,7 +128,7 @@ type Surface = "none" | "subtle";
 type Indicators = "dots" | "thumbnails";
 type SlideContent = "gradient" | "pictures";
 type Transition = "slide" | "fade";
-type Effect = "none" | "parallax";
+type Effect = "none" | "parallax" | "coverflow";
 type Loop = "none" | "wrap" | "infinite";
 type Glide = "fast" | "medium" | "slow";
 
@@ -582,7 +582,7 @@ function LiveCarousel({
                         : undefined
                     }
                   >
-                    {config.effect === "parallax" ? (
+                    {config.effect !== "none" ? (
                       <CarouselSlideContent>{media}</CarouselSlideContent>
                     ) : (
                       media
@@ -596,7 +596,11 @@ function LiveCarousel({
                 // pans without exposing an edge; the gradient case has no media, so
                 // the backdrop stays on the Slide and only a small marker rides the
                 // drifting layer (a bare non-media layer isn't oversized).
+                // Cover Flow, by contrast, tilts the whole card and lets it escape
+                // the slide (overflow: visible), so the gradient rides the tilting
+                // content layer itself, not the flat slide behind it.
                 const isParallax = config.effect === "parallax";
+                const isCoverflow = config.effect === "coverflow";
                 return (
                   <CarouselSlide
                     key={index}
@@ -606,16 +610,27 @@ function LiveCarousel({
                         ? "carousel-builder__slide--progress"
                         : undefined
                     }
-                    style={usePictures ? undefined : { background }}
+                    style={
+                      usePictures || isCoverflow ? undefined : { background }
+                    }
                   >
                     {usePictures ? (
-                      isParallax ? (
+                      isParallax || isCoverflow ? (
                         <CarouselSlideContent>
                           <img src={pictures[index % pictures.length]} alt="" />
                         </CarouselSlideContent>
                       ) : (
                         <img src={pictures[index % pictures.length]} alt="" />
                       )
+                    ) : isCoverflow ? (
+                      <CarouselSlideContent
+                        className="carousel-builder__slide-content--coverflow"
+                        style={{ background }}
+                      >
+                        <span className="carousel-builder__slide-marker">
+                          {index + 1}
+                        </span>
+                      </CarouselSlideContent>
                     ) : isParallax ? (
                       <CarouselSlideContent className="carousel-builder__slide-content--parallax">
                         <span className="carousel-builder__slide-marker">
@@ -935,12 +950,14 @@ export function CarouselBuilder() {
               legend="effect"
               name="effect"
               value={config.effect}
-              options={["none", "parallax"] as const}
+              options={["none", "parallax", "coverflow"] as const}
               onChange={(value) => set("effect", value)}
               hint={
                 config.effect === "parallax"
                   ? "scroll-driven, zero-JS drift on each slide's content layer (a native view-timeline; falls back to --slide-progress where unsupported) — most visible mid-drag or on a slow scroll"
-                  : undefined
+                  : config.effect === "coverflow"
+                    ? "scroll-driven 3D tilt on each slide's content layer (rotateY + scale off a per-slide perspective) — the iTunes Cover Flow look; best with peek + snapAlign=\"center\""
+                    : undefined
               }
             />
           </Section>

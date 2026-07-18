@@ -348,13 +348,21 @@ so they can't fall out of sync.
   itself would corrupt — a child transform leaves the slide's own box and native
   scroll-snap untouched. Three knobs tune the look (all technique geometry, not
   design tokens): **`--primitiv-carousel-coverflow-rotate`** (edge tilt angle,
-  default `45deg`), **`--primitiv-carousel-coverflow-scale`** (how far an edge
-  slide shrinks, default `0.85`), and **`--primitiv-carousel-coverflow-perspective`**
-  (scene depth, default `1200px`). Best composed with **`peek`** (to reveal the
-  tilting neighbours) and **`snapAlign="center"`** (so the flat, forward card is the
-  one that rests centred) — both orthogonal, so they just compose. Requires wrapping
-  the slide's visual (a gradient/`<img>`) in `<CarouselSlideContent>`, the card that
-  tilts. See the kitchen-sink `/carousel/coverflow` example.
+  default `55deg`, matching Blossom's `rotateY(±55deg)`),
+  **`--primitiv-carousel-coverflow-scale`** (how far an edge slide shrinks, default
+  `0.85`), and **`--primitiv-carousel-coverflow-perspective`** (scene depth, default
+  `1200px`). Best composed with **`peek`** (to reveal the tilting neighbours) and
+  **`snapAlign="center"`** (so the flat, forward card is the one that rests centred) —
+  both orthogonal, so they just compose. Requires wrapping the slide's visual (a
+  gradient/`<img>`) in `<CarouselSlideContent>`, the card that tilts. See the
+  kitchen-sink `/carousel/coverflow` example. **Two deliberate adaptations of
+  Blossom's recipe** for our full-bleed-slide geometry (Blossom's are calibrated for
+  tiny 100px slides in tall padding): (1) **`animation-range: cover`, not `contain`**
+  — `contain` collapses to nothing when the slide fills the viewport, whereas
+  `cover`'s 50% mark is exactly the centred rest position; (2) **the edges shrink
+  rather than the centre growing** — growing the centre past 100% would clip against
+  the viewport's cross-axis, and shrinking the edges to `0.85` gives the same ~1.2×
+  centre-to-neighbour ratio without clipping.
 - **Multi-slide (`slidesPerPage` / `slidesPerMove`).** These are **not**
   modifiers — they are **`styleProps`**: numeric props forwarded straight to the
   headless page model *and* written onto `--primitiv-carousel-slides-per-page`

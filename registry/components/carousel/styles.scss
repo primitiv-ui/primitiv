@@ -199,14 +199,18 @@
       (var(--primitiv-carousel-parallax-scale) - 1) / 2 * 100%
     );
     /* Cover Flow geometry, read only under the `effect="coverflow"` modifier.
-       `perspective` is the depth of the 3D scene set on each slide (a larger
-       value flattens the tilt, a smaller one exaggerates it); `rotate` is the
-       tilt angle a slide reaches at the viewport edges (0 flat at centre); and
-       `scale` is how far an edge slide shrinks, so the centred one pops forward.
-       Not design tokens — the technique's own 3D geometry, not themeable values
-       (the same exception class as the parallax knobs above). */
+       Tuned to Blossom Carousel's Cover Flow recipe — its `rotate-cover` sweeps
+       rotateY ±55deg edge to edge, matched here. `perspective` is the depth of the
+       3D scene set on each slide (a smaller value exaggerates the tilt); `rotate`
+       is the edge tilt angle (0 flat at centre). `scale` shrinks the *edge* slides
+       rather than growing the centre: Blossom grows its centred card to 1.2x, but
+       its slides are tiny in tall padding — ours fill the viewport, so growing the
+       centre past 100% would clip against the viewport's cross-axis. Shrinking the
+       edges to 0.85 instead gives the same ~1.2x centre-to-neighbour ratio
+       (1 / 0.85) with no clipping. Not design tokens — the technique's own 3D
+       geometry, the same exception class as the parallax knobs above. */
     --primitiv-carousel-coverflow-perspective: 1200px;
-    --primitiv-carousel-coverflow-rotate: 45deg;
+    --primitiv-carousel-coverflow-rotate: 55deg;
     --primitiv-carousel-coverflow-scale: 0.85;
 
     /* Fill the container and stack the viewport above the controls row, spaced
@@ -1088,7 +1092,14 @@
      (to reveal the tilting neighbours) and snapAlign="center". Requires wrapping
      the slide's media in <CarouselSlideContent>, like parallax. The @supports /
      RTL / infinite / reduced-motion handling mirrors the parallax block above —
-     see it for the full rationale on each branch. */
+     see it for the full rationale on each branch.
+
+     `animation-range: cover` (not Blossom's `contain` + a `view-timeline` inset):
+     Blossom's `contain` range is calibrated for tiny (100px) slides in a wide
+     scrollport, where the slide is briefly fully contained. Our slides fill the
+     viewport, so `contain` would collapse to nothing — `cover`'s 50% mark ("slide
+     centre aligns with scrollport centre") is exactly the snapAlign="center" rest
+     position, so the flat state lands on the resting slide for our geometry. */
   .primitiv-carousel--effect-coverflow .primitiv-carousel__slide {
     overflow: visible;
     perspective: var(--primitiv-carousel-coverflow-perspective);

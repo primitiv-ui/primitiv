@@ -60,9 +60,18 @@ export type ControlledTabsRootProps = {
  * the `HTMLDivElement` `ref` left in, a styled wrapper that spreads these props
  * straight back into `Tabs.Root` (`<Tabs.Root {...props} />`) would fail to
  * type-check on incompatible `ref` types (D58). */
-export type TabsRootProps = Omit<ComponentProps<"div">, "onChange" | "ref"> & {
+export type TabsRootProps = Omit<
+  ComponentProps<"div">,
+  "onChange" | "ref" | "dir"
+> & {
+  /** Layout axis; see {@link TabsOrientation}.
+   * @default "horizontal" */
   orientation?: TabsOrientation;
+  /** Reading direction; see {@link TabsReadingDirection}. Inherited from the
+   * nearest `DirectionProvider` when omitted, falling back to `"ltr"`. */
   dir?: TabsReadingDirection;
+  /** When a focused trigger becomes active; see {@link TabsActivationMode}.
+   * @default "automatic" */
   activationMode?: TabsActivationMode;
   /** When `true`, a panel's children are not rendered until that tab is first
    * activated. Once mounted they remain in the DOM across subsequent tab
@@ -105,8 +114,19 @@ export type TabsListProps = Omit<
   "label" | "aria-labelledby"
 > &
   (
-    | { label: string; ariaLabelledBy?: never }
-    | { label?: never; ariaLabelledBy: string }
+    | {
+        /** Accessible name for the tablist, announced as `aria-label`. Pick a
+         * short, human-readable description of the set (e.g. `"Account
+         * sections"`, not `"Tabs"`). Mutually exclusive with `ariaLabelledBy`. */
+        label: string;
+        ariaLabelledBy?: never;
+      }
+    | {
+        label?: never;
+        /** Id of an existing element to use as the tablist's accessible name,
+         * set as `aria-labelledby`. Mutually exclusive with `label`. */
+        ariaLabelledBy: string;
+      }
   );
 /** Props for `Tabs.Trigger` — an individual `role="tab"` button. Identified by
  * its required `value`, which links it to the `Tabs.Content` of the same value.
@@ -116,7 +136,12 @@ export type TabsTriggerProps<T extends HTMLElement = HTMLButtonElement> = Omit<
   ComponentProps<"button">,
   "ref"
 > & {
+  /** Removes the trigger from the roving tab order and marks it
+   * `aria-disabled`/`data-disabled`; arrow-key navigation skips it.
+   * @default false */
   disabled?: boolean;
+  /** Identifies this trigger, linking it to the `Tabs.Content` of the same
+   * value. Not the visible label — use `children` for that. */
   value: string;
   /** Render the child element instead of the default `<button>`. All tab
    * ARIA attributes and event handlers are merged onto the child. The child

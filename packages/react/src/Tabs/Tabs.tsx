@@ -66,6 +66,8 @@ import type {
  * inherited from the nearest {@link DirectionProvider}, falling back to
  * `"ltr"` when there is no provider.
  *
+ * @extends HTMLDivElement
+ *
  * @example Uncontrolled
  * ```tsx
  * <Tabs.Root defaultValue="overview">
@@ -160,6 +162,8 @@ TabsRoot.displayName = "TabsRoot";
  *
  * **Styling hooks.** `data-orientation="horizontal" | "vertical"`.
  *
+ * @extends HTMLDivElement
+ *
  * @example
  * ```tsx
  * <Tabs.List label="Document sections">
@@ -240,6 +244,8 @@ TabsList.displayName = "TabsList";
  * - `data-orientation="horizontal" | "vertical"`.
  * - `data-disabled=""` when disabled (omitted otherwise), so CSS can target
  *   `[data-disabled]` without the `:disabled` pseudo-class.
+ *
+ * @extends HTMLButtonElement
  *
  * @example Basic usage
  * ```tsx
@@ -344,6 +350,8 @@ TabsTrigger.displayName = "TabsTrigger";
  * **Styling hooks.**
  * - `data-state="active" | "inactive"`.
  * - `data-orientation="horizontal" | "vertical"`.
+ *
+ * @extends HTMLDivElement
  *
  * @example
  * ```tsx

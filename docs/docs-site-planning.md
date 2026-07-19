@@ -314,13 +314,28 @@ relies on):
   `element: "button"` → `HTMLButtonElement` via a small static lookup
   table (HTML tag name → interface name) — free, from already-structured
   data.
-- **A genuinely nice side effect, also confirmed by testing:** `children`
-  and `ref` don't appear as bespoke prop rows even when `ButtonProps`
-  redeclares them (it does, for `ref`'s type and a JSDoc-annotated
-  `children`) — TypeScript's declaration merging resolves them back to
-  the base HTML element type, so the `propFilter` correctly folds them
-  into "extends `HTMLButtonElement`" rather than showing them twice. This
-  is the *correct* outcome, not a bug to work around.
+- **Correction, found while testing against Tabs (§1.16): the naive
+  `propFilter` is wrong.** A filter that excludes a prop when its
+  *nearest* declaration (`prop.parent`) is in `node_modules` produces
+  **false negatives**: `Tabs.Trigger`'s `value` and `disabled` — genuine,
+  required, custom-documented props — were silently dropped, because
+  `HTMLButtonElement` also happens to have attributes of those names, and
+  react-docgen-typescript's `.parent` only reports one of the two
+  declaration sites. The correct rule is to exclude a prop **only when
+  every one of its declarations** is in `node_modules`
+  (`prop.declarations.every(d => d.fileName.includes("node_modules"))`),
+  not just the nearest one. Re-verified against both Button and Tabs with
+  the corrected filter (§1.16).
+- **New wrinkle from the correction: descriptions can end up
+  concatenated.** With the corrected filter, `Button`'s `ref` and
+  `children` *do* reappear (they also have a real declaration in
+  `types.ts`, from being redeclared for type-narrowing/JSDoc) — but their
+  `description` is React's own built-in doc text concatenated with ours,
+  which reads as noise. **Not yet decided:** the extraction step should
+  post-process this — when a prop has both an own-file and a
+  `node_modules` declaration, keep only the own-file description — but
+  this is pipeline logic, not something fixable from the source side.
+  Logged as open question 4 below.
 
 `headless.subComponents[].props` in the §1.7 schema needs one more field:
 `extends: "HTMLButtonElement"` (or `null` for a component with no root
@@ -344,7 +359,39 @@ controlled/uncontrolled unions, and multiple root elements (`Tabs.Root`
 is a `div`, `Tabs.Trigger` is a `button`) to prove the per-sub-component
 `extends` mapping, not just a single-element one.
 
-### 1.16 New gap found: the docs site itself needs components that don't exist yet
+### 1.16 Landed: Tabs polished as the second data point, plus a real source-pattern bug found and fixed
+
+`packages/react/src/Tabs/{Tabs.tsx,types.ts}` now carries `@extends` tags
+on all four sub-components (`TabsRoot`/`TabsList`/`TabsTrigger`/
+`TabsContent` → `HTMLDivElement`/`HTMLDivElement`/`HTMLButtonElement`/
+`HTMLDivElement`) and fills the per-prop JSDoc gaps that existed
+(`orientation`, `dir`, `activationMode` on Root; the `label`/
+`ariaLabelledBy` union on List; `disabled`/`value` on Trigger) —
+Tabs was already close to the bar Button was raised to, this closes the
+remaining gaps. `tsc --noEmit` and the full Tabs vitest suite (134 tests)
+pass unchanged.
+
+**A genuine source-code bug found and fixed while verifying extraction,
+not just a docs artifact.** `TabsRootProps` narrowed `dir` from the
+native `ComponentProps<"div">`'s `dir?: string` to the component's own
+`TabsReadingDirection` (`"ltr" | "rtl"`) **without first `Omit`-ting
+`"dir"`** from the base type — unlike `onChange` and `ref` in that exact
+same type declaration, which *do* follow the correct pattern. TypeScript
+itself resolves the intersection correctly at the type-check level (no
+compile error, `"ltr" | "rtl"` is what a consumer actually sees), but
+`react-docgen-typescript`'s static analysis isn't doing that same
+narrowing math — it picked only the wider `node_modules` declaration,
+silently losing both the narrowed type and all JSDoc for `dir` in the
+extracted output. Fixed by adding `"dir"` to the existing `Omit` list,
+matching the established convention already used for `onChange`/`ref` in
+the same file. **General rule for future component authoring, worth
+carrying into a lint rule or the `new-react-component`/
+`react-component-patterns` skills later:** any custom prop that narrows
+or redefines a same-named native HTML attribute must `Omit` it from the
+base `ComponentProps<T>` first, or the docs-data pipeline will silently
+drop it.
+
+### 1.17 New gap found: the docs site itself needs components that don't exist yet
 
 Cross-checked the 41-component headless inventory
 (`.claude/skills/new-react-component/_generated/component-inventory.md`)
@@ -375,12 +422,12 @@ one-off internal CSS; not yet decided, see open question 2 below.
 
 ## 2. Open questions
 
-The original six are resolved (§1.8–§1.13, plus §1.5–§1.6); two new ones
-surfaced while validating the extraction pipeline against Button/Tabs
-(§1.14–§1.16):
+The original six are resolved (§1.8–§1.13, plus §1.5–§1.6); several new
+ones surfaced while validating the extraction pipeline against
+Button/Tabs (§1.14–§1.17):
 
 1. **Registry coverage for v1 launch.** Only 17 of 41 headless components
-   have a `contract.json`/styled surface (§1.16's component check). Every
+   have a `contract.json`/styled surface (§1.17's component check). Every
    other component's docs page would only ever render "Headless" mode
    content. Is a "Styled mode: coming soon" state acceptable per-component
    for v1, or does registry coverage need to expand first (and if so, how
@@ -389,7 +436,7 @@ surfaced while validating the extraction pipeline against Button/Tabs
    components** (dogfooding — `primitiv add tree`, `primitiv add
    breadcrumb` after building their registry surfaces) **or hand-rolled
    internal CSS**, for the navigation/breadcrumb pieces that are
-   currently headless-only (§1.16)? Affects whether building the docs
+   currently headless-only (§1.17)? Affects whether building the docs
    site first requires building those registry surfaces first.
 3. **Where does Figma reference data (`figma.componentSetKey`/node IDs)
    come from structurally?** It currently lives in `ROADMAP.md`'s
@@ -399,6 +446,13 @@ surfaced while validating the extraction pipeline against Button/Tabs
    library, independent of the docs site. Does the docs-data pipeline
    parse that table, or does this data need migrating to something
    structured first?
+4. **How does the extraction step handle a prop with both an own-file
+   and a `node_modules` declaration** (§1.14's corrected-filter finding)
+   — post-process to keep only the own-file description (the practical
+   answer, not yet implemented), or something else? Small in scope, but
+   needed before the pipeline can be trusted on components beyond
+   Button/Tabs, since any component redeclaring `ref`/`children`/or a
+   narrowed native attribute (the exact §1.16 `dir` pattern) will hit it.
 
 ## 3. Explicitly not yet started
 

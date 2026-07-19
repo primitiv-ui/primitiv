@@ -284,16 +284,121 @@ standalone "Registry & CLI" section for concepts that span components
 (`primitiv.json`/`primitiv.lock`, non-`add` commands, registry-vs-npm
 rationale).
 
+### 1.14 Resolved: props tables note the extended HTML element, don't enumerate inherited attributes
+
+A component's props table shows only props it actually declares —
+`asChild`, `type` on `ButtonProps`, for example — plus a single "extends
+`HTMLButtonElement`" note, rather than listing every inherited native
+DOM attribute (`onClick`, every `aria-*`, `style`, …). Verified against a
+real, working extraction (`react-docgen-typescript@14`, `typescript@6.0.3`
+— the repo's actual TS version; note this doesn't yet work against
+`typescript@7.x`, which changed the internal API `react-docgen-typescript`
+relies on):
+
+- **Headless side.** A `propFilter` excluding any prop whose declaration
+  resolves into `node_modules` (the standard Storybook technique) leaves
+  only the genuinely custom props. The "extends" note itself comes from
+  a **`@extends HTMLButtonElement` JSDoc tag**, which must live in the
+  *component's own* doc comment (the one directly above `export function
+  Button`), not on the `*Props` type — react-docgen-typescript only reads
+  the component-level doc block when the component has one, which every
+  component here does. **Sharp edge, confirmed by testing:** a JSDoc
+  block tag consumes every line after it up to the *next* tag, so
+  `@extends` must sit immediately before `@example` (or be the very last
+  tag if there's no `@example`) — placing it right after the opening
+  description silently swallows the rest of the comment into the tag's
+  value. Landed as a working example on `Button.tsx` (§1.15).
+- **Styled/registry side — no new authoring needed.** `contract.json`
+  already has this: `root.element` (`"button"` for Button, `"div"` for
+  `Tabs.Root`) and each `subcomponents[].element`. The pipeline maps
+  `element: "button"` → `HTMLButtonElement` via a small static lookup
+  table (HTML tag name → interface name) — free, from already-structured
+  data.
+- **A genuinely nice side effect, also confirmed by testing:** `children`
+  and `ref` don't appear as bespoke prop rows even when `ButtonProps`
+  redeclares them (it does, for `ref`'s type and a JSDoc-annotated
+  `children`) — TypeScript's declaration merging resolves them back to
+  the base HTML element type, so the `propFilter` correctly folds them
+  into "extends `HTMLButtonElement`" rather than showing them twice. This
+  is the *correct* outcome, not a bug to work around.
+
+`headless.subComponents[].props` in the §1.7 schema needs one more field:
+`extends: "HTMLButtonElement"` (or `null` for a component with no root
+HTML element, if any exist). Full worked example, not just a draft: see
+`packages/react/src/Button/Button.tsx`'s `@extends` tag and
+`types.ts`'s per-prop JSDoc, added directly to prove this out.
+
+### 1.15 Landed: Button's JSDoc expanded as the first concrete example
+
+`packages/react/src/Button/{Button.tsx,types.ts}` now carry the full
+per-prop JSDoc bar (matching `Tabs/types.ts`'s existing quality) plus the
+`@extends HTMLButtonElement` tag, verified end-to-end against a real
+`react-docgen-typescript` run (§1.14) — not just written speculatively.
+`tsc --noEmit` and the Button vitest suite both pass unchanged (pure
+documentation addition, no behaviour change, so no test/coverage impact
+under the strict-TDD rule in the root `CLAUDE.md`). **Tabs is the
+deliberate second data point** (§1.7's original reasoning) — its
+per-prop JSDoc already exists, but it has never been run through
+`react-docgen-typescript`, and it's a richer case: sub-components,
+controlled/uncontrolled unions, and multiple root elements (`Tabs.Root`
+is a `div`, `Tabs.Trigger` is a `button`) to prove the per-sub-component
+`extends` mapping, not just a single-element one.
+
+### 1.16 New gap found: the docs site itself needs components that don't exist yet
+
+Cross-checked the 41-component headless inventory
+(`.claude/skills/new-react-component/_generated/component-inventory.md`)
+and the 17-component registry (`registry/registry.json`) against what a
+docs UI structurally needs. Most of it is already covered — `Tree`
+(nav sidebar), `Breadcrumb`, `Table` (props tables), `Accordion`/
+`Collapsible` (collapsible nav/FAQ sections), `code-block`/`inline-code`
+(already registry components, built for this), `prose` (already the
+flow-rhythm foundation RFC 0016 built, i.e. the reading-experience base),
+`SkipNav`, and `ToggleGroup` (a plausible fit for the mode-switch control
+itself — already has a registry surface, so no new component needed
+there). **Missing entirely:**
+
+- **Callout / admonition** (info/warning/tip boxes) — not in the
+  inventory at all.
+- **Badge / status pill** (stable/beta status, required-prop indicator)
+  — not in the inventory at all.
+- **Search / command palette** — the biggest gap; `Select`'s
+  Combobox/Command gap is already tracked in `docs/select-future-work.md`,
+  this would build on closing that.
+
+`Tree` and `Breadcrumb` exist headless but have no registry/styled
+surface — relevant only if the docs site itself should be built the
+"eat your own dogfood" way (styled registry components) rather than
+one-off internal CSS; not yet decided, see open question 2 below.
+
 ---
 
 ## 2. Open questions
 
-None currently blocking further planning — all six questions originally
-logged here are resolved (§1.8–§1.13, plus §1.5–§1.6). A few
-implementation-level details were deliberately left for the
-implementation phase rather than decided speculatively here (see the
-"Not yet decided" notes inside §1.9 and §1.12). New questions should be
-logged here as they come up, the same way the original six were.
+The original six are resolved (§1.8–§1.13, plus §1.5–§1.6); two new ones
+surfaced while validating the extraction pipeline against Button/Tabs
+(§1.14–§1.16):
+
+1. **Registry coverage for v1 launch.** Only 17 of 41 headless components
+   have a `contract.json`/styled surface (§1.16's component check). Every
+   other component's docs page would only ever render "Headless" mode
+   content. Is a "Styled mode: coming soon" state acceptable per-component
+   for v1, or does registry coverage need to expand first (and if so, how
+   far — everything, or just what the docs site itself uses)?
+2. **Should the docs site's own UI be built with registry/styled
+   components** (dogfooding — `primitiv add tree`, `primitiv add
+   breadcrumb` after building their registry surfaces) **or hand-rolled
+   internal CSS**, for the navigation/breadcrumb pieces that are
+   currently headless-only (§1.16)? Affects whether building the docs
+   site first requires building those registry surfaces first.
+3. **Where does Figma reference data (`figma.componentSetKey`/node IDs)
+   come from structurally?** It currently lives in `ROADMAP.md`'s
+   hand-maintained "Figma design coverage" prose table, which also shows
+   several components as `—` (no Figma design yet) or `🟡 in progress`
+   (e.g. Carousel) — so Figma-mode coverage is incomplete across the
+   library, independent of the docs site. Does the docs-data pipeline
+   parse that table, or does this data need migrating to something
+   structured first?
 
 ## 3. Explicitly not yet started
 

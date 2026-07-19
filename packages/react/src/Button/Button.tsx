@@ -46,6 +46,8 @@ import { ButtonProps } from "./types";
  * </Button>
  * ```
  *
+ * @extends HTMLButtonElement
+ *
  * @example Text button
  * ```tsx
  * <Button onClick={handleSave}>Save</Button>

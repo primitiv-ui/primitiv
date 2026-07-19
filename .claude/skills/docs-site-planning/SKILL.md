@@ -61,3 +61,22 @@ table. That means:
    planning doc is strictly about how that model gets *documented* on the
    public site. If a question turns out to actually be about the
    distribution model itself, it belongs in an RFC, not here.
+
+## Wireframing (current stage)
+
+Planning has moved to rough box/text wireframes in Figma, landing page
+first, before any framework scaffolding. For this phase:
+
+- The nav/page structure to wireframe from is §1.4 (top-level structure)
+  plus §1.1 (the mode switch), §1.4's resolved "Getting this component"
+  block (§1.13), and §1.17's flagged missing components (Callout, Badge,
+  Search — a wireframe can still block these out even though they don't
+  exist yet).
+- These are rough boxes/text, not high-fidelity — refinement happens by
+  hand in Figma afterwards, so don't over-invest in exact spacing/tokens
+  at this stage. For once real Figma component placement/token values
+  are needed later, see `figma-wireframe-tokens`; for scripting frame
+  creation, see `figma-console-scripts`.
+- Button and Tabs (§1.15–1.16) are the two components with fully verified
+  docs-data — good candidates if the wireframe needs to show real
+  component-page content rather than lorem ipsum.

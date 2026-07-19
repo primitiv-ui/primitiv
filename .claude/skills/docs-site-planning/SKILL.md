@@ -25,7 +25,7 @@ table. That means:
 - The docs site is a **consumer of generated data**, not hand-authored
   content, for anything that already exists as structured source (props,
   contract.json additions, CSS variable bindings, dependsOn). See
-  `docs/docs-site-planning.md` §1.5–1.6 for the draft schema and exact
+  `docs/docs-site-planning.md` §1.5–1.7 for the draft schema and exact
   sourcing per field.
 - The consumption-mode switch is global/persistent (§1.1), not a
   per-page toggle — don't redesign this without a clear reason logged
@@ -40,13 +40,16 @@ table. That means:
    or extended §1 subsection in the same doc, with the rationale — don't
    just implement silently. The doc is the source of truth for future
    sessions, not this conversation's history.
-3. **Before extending the prop-data schema (§1.6)**, validate against a
+3. **Before extending the prop-data schema (§1.7)**, validate against a
    real file — e.g. read an actual `registry/components/*/contract.json`
    and a headless component's JSDoc in `packages/react` — rather than
-   extending the draft shape speculatively.
+   extending the draft shape speculatively. `crates/primitiv-emit`
+   already parses `contract.json` (`src/contract.rs`, `src/wrapper.rs`) —
+   reuse it for the styled/contract half instead of writing a second
+   parser (§1.6).
 4. **Don't touch the workbench/kitchen-sink apps** as part of this work
    unless a question explicitly requires it (e.g. resolving open question
-   2.2, examples reuse) — they're a separate POC surface per the
+   2, examples reuse) — they're a separate POC surface per the
    `workbench-examples` skill and the root `CLAUDE.md`.
 5. **This doc doesn't replace `docs/consumption-design.md` or RFCs
    0004–0006.** Those own the distribution/styling-contract model. This

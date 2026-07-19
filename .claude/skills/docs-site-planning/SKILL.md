@@ -12,8 +12,13 @@ the durable record of what's decided and what's open, not this file.
 ## What this skill is for
 
 Resuming or extending the docs-site planning conversation across
-sessions, and later, driving implementation once the open questions in
-`docs/docs-site-planning.md` §2 are resolved.
+sessions, and now driving implementation — the original six open
+questions in `docs/docs-site-planning.md` §2 are all resolved (§1.8–1.13):
+`react-docgen-typescript` for headless props, separate docs-only
+examples, Next.js, latest-only (no versioning) for v1, a Node/TS
+orchestrator shelling out to a new Rust JSON subcommand for the
+docs-data pipeline, and keeping both the per-component inline install
+block and the standalone Registry & CLI section.
 
 ## The core constraint driving every downstream decision
 
@@ -46,11 +51,11 @@ table. That means:
    extending the draft shape speculatively. `crates/primitiv-emit`
    already parses `contract.json` (`src/contract.rs`, `src/wrapper.rs`) —
    reuse it for the styled/contract half instead of writing a second
-   parser (§1.6).
-4. **Don't touch the workbench/kitchen-sink apps** as part of this work
-   unless a question explicitly requires it (e.g. resolving open question
-   2, examples reuse) — they're a separate POC surface per the
-   `workbench-examples` skill and the root `CLAUDE.md`.
+   parser (§1.6), surfaced as a new JSON-emitting subcommand per §1.12.
+4. **Docs examples are their own files (§1.9), not embeds of workbench/
+   kitchen-sink.** Don't touch those apps as part of this work unless a
+   question explicitly requires it — they're a separate POC surface per
+   the `workbench-examples` skill and the root `CLAUDE.md`.
 5. **This doc doesn't replace `docs/consumption-design.md` or RFCs
    0004–0006.** Those own the distribution/styling-contract model. This
    planning doc is strictly about how that model gets *documented* on the

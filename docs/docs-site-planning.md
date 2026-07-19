@@ -95,14 +95,15 @@ Primitiv Docs
 └── Changelog / Releases
 ```
 
-**Known tension, not yet resolved (flagged in discussion, not fixed):**
-the "Registry & CLI" section and the mode switch on Components pages
-overlap. A styled-mode reader needs the install command (`primitiv add
-<name>`) inline on the component page, not just cross-referenced to a
-separate CLI section. Leaning towards a small mode-aware "Getting this
-component" block per component page (shows `npm install` in headless
-mode, `primitiv add` in styled mode) rather than forcing cross-navigation
-— but this hasn't been designed in detail.
+**Resolved (was open question 6):** keep both, don't collapse one into
+the other. Every component page gets a small mode-aware "Getting this
+component" block (`npm install` in headless mode, `primitiv add <name>`
+in styled mode) for the 80% case — a reader on a component page should
+never have to leave it to find the install command. The standalone
+"Registry & CLI" nav section stays as the deep-dive for concepts that
+aren't about any single component: `primitiv.json`/`primitiv.lock` shape,
+the non-`add` commands (`theme`, `tokens`, `list`), and the registry-vs-
+npm rationale.
 
 ### 1.5 Props tables must be generated, not hand-maintained
 
@@ -214,57 +215,94 @@ Sourcing summary:
 - `figma.*` — from stored Figma node/component-set references.
 - `a11y.*` — hand-authored (schema-shaped for consistent rendering, but
   not auto-generatable).
-- `examples[].sourceFile` — convention-based, see open question 2.2 below.
+- `examples[].sourceFile` — convention-based (see §1.9).
+
+### 1.8 Headless prop extraction: `react-docgen-typescript`
+
+Checked its dependency footprint before committing, given the concern
+that a docs-tooling dependency shouldn't risk contaminating the styling
+solution: `npm view react-docgen-typescript dependencies
+peerDependencies` returns **zero runtime dependencies**, only a
+`typescript` peer dependency (already present in the repo). No CSS or
+styling packages anywhere in its tree, so it's safe on that front. Chosen
+over a hand-rolled TS-compiler-API walk — it already handles the fiddly
+cases (generics, distributive `Omit` types like `TabsProps` in
+`tabs.tsx`, inherited props) that a custom walker would have to
+reimplement.
+
+### 1.9 Examples: separate docs-only example files, not embedded workbench/kitchen-sink
+
+Public docs demos are authored as their own files, not embeds of the
+existing workbench/kitchen-sink examples. Keeps the documented boundary
+intact — workbench/kitchen-sink stays "not a production surface" (per
+`workbench-examples` and the root `CLAUDE.md`) — and lets docs examples
+be held to a public-facing bar independent of how workbench evolves.
+`examples[].sourceFile` in the §1.7 schema points at these new files, not
+at `apps/workbench` or `apps/kitchen-sink`. **Not yet decided:** the
+exact location/convention for these files (e.g. a new
+`docs/examples/<component>/` tree) — a detail for implementation, not
+blocking further planning.
+
+### 1.10 Docs site framework: Next.js
+
+Chosen over Astro and Docusaurus. Rationale from discussion: the team
+already knows Next/React deeply, and removing a second framework to
+learn outweighs Astro's smaller default JS footprint for a mostly-reading
+site. Next also leaves room for more interactive tooling later (e.g. an
+in-browser playground) without a framework swap. Docusaurus's built-in
+versioning was a point in its favour, but moot given §1.11 (no versioning
+needed for v1).
+
+### 1.11 Versioning: always latest for v1
+
+Docs track `main`/latest; no version-pinning infrastructure for v1.
+Matches the project's current fast-moving v0.1.0 stage and the repo's
+general bias against premature infrastructure. Revisit once there's an
+actual second major version to pin against.
+
+### 1.12 Docs-data pipeline: Node/TS orchestrator, shells out to Rust
+
+A Node/TS script (e.g. `scripts/generate-docs-data.mjs`) is the
+orchestrator: it runs `react-docgen-typescript` in-process for the
+headless half (§1.8), and shells out to a small new JSON-emitting
+subcommand on `primitiv-cli`/`primitiv-emit` (e.g. `primitiv-emit
+contract --json`) for the styled/contract half (§1.6), then merges both
+into the per-component JSON described in §1.7. Rationale: keeps the
+TS-heavy extraction where TS tooling lives naturally, and only requires
+one small new Rust-side surface (a JSON-emitting subcommand) rather than
+Rust spawning and trusting a Node subprocess's output shape.
+**Not yet decided:** the exact new Rust subcommand's name/flags, and
+where the merged JSON is committed (candidates from earlier discussion:
+a new `docs/data/` tree, or alongside `registry/components/*/`) — both
+are implementation details, not blocking.
+
+### 1.13 Registry & CLI section vs. per-component inline install: keep both
+
+See the resolution folded into §1.4 above — a mode-aware "Getting this
+component" block per component page for the 80% case, plus the
+standalone "Registry & CLI" section for concepts that span components
+(`primitiv.json`/`primitiv.lock`, non-`add` commands, registry-vs-npm
+rationale).
 
 ---
 
-## 2. Open questions (not yet decided)
+## 2. Open questions
 
-These are blocking or near-blocking for implementation. Listed roughly in
-the order they'd need resolving. (Renumbered — former 2.1, 2.4, and half
-of 2.5 are resolved and now live in §1.5–§1.6.)
-
-1. **Headless prop extraction tooling.** Extracting `props` + JSDoc from
-   TSX needs either a dependency like `react-docgen-typescript` or a
-   hand-rolled TS-compiler-API walk. The repo has a general bias toward
-   minimal dependencies (see harmoni-core's 3-direct-deps discipline) —
-   worth deciding deliberately rather than defaulting to the first
-   library found. Unlike the styled/contract half (§1.6), there's no
-   existing Rust parser to reuse here — this is new tooling either way.
-2. **Examples: single source or two?** Should the public docs demo *be*
-   the existing workbench/kitchen-sink example (embedded), reusing the
-   "Definition of done" workbench example that every new component
-   already ships with — or a separate, more polished example file
-   authored just for docs? Reusing avoids duplication; workbench is
-   explicitly documented as "not a production surface," so embedding it
-   live on a public site blurs that boundary.
-3. **Where the combined docs-data pipeline lives and runs.** §1.6
-   resolved *reusing* `crates/primitiv-emit`'s contract parser for the
-   styled/contract half, but not how that Rust output and the headless
-   TS/JSDoc output (question 1 above) get combined into one JSON-per-
-   component artifact — a Rust step shelling out to/from a Node step, a
-   Node step invoking a small Rust CLI subcommand for the contract half,
-   or something else. Candidate for the combined artifact's location:
-   committed JSON (e.g. under a new `docs/data/` or emitted alongside
-   `registry/components/*/`) so it's diffable in PRs and docs builds
-   don't re-run extraction.
-4. **Versioning.** Does v1 of the docs site need version-pinned docs, or
-   is "docs always track main/latest" acceptable until multi-version
-   support is actually needed?
-5. **Docs site framework choice.** Deferred until the schema above is
-   validated further — but whatever is chosen needs solid build-time
-   data-fetching into per-page dynamic content (e.g. Astro/Next-style),
-   not a purely static Markdown tool with no data layer.
-6. **Registry & CLI section vs. per-component inline install** (see
-   §1.4's flagged tension) — needs an actual layout decision, not just a
-   leaning.
+None currently blocking further planning — all six questions originally
+logged here are resolved (§1.8–§1.13, plus §1.5–§1.6). A few
+implementation-level details were deliberately left for the
+implementation phase rather than decided speculatively here (see the
+"Not yet decided" notes inside §1.9 and §1.12). New questions should be
+logged here as they come up, the same way the original six were.
 
 ## 3. Explicitly not yet started
 
 - Visual design / theming of the site itself (deliberately deferred —
   the reading/consumption experience was prioritized first, per the
   planning conversation that produced this doc).
-- Any framework scaffolding, page templates, or nav implementation.
-- Building the combined docs-data pipeline (open question 3) — §1.6/§1.7
-  validated the schema and sourcing against a real `contract.json` and
-  its generated wrapper, but no extraction code exists yet.
+- Any framework scaffolding, page templates, or nav implementation
+  (Next.js is chosen per §1.10, but no project has been created).
+- Building the docs-data pipeline (§1.12) — the schema (§1.7) and both
+  data sources (§1.6, §1.8) are validated/chosen, but no extraction code
+  exists yet, including the new Rust subcommand it depends on.
+- Authoring the docs-only example files (§1.9).

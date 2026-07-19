@@ -564,6 +564,31 @@ dark ramp) and Figma (`neutral-alpha-inverse/*`, resolving through Light) while
 the resolved values agree exactly — the same idiom every dark Intent token
 already uses for the solid neutral ramp.
 
+## 🫧 `surface/floating` — elevated overlay surface (landed web + Figma, 2026-07-19)
+
+New Intent token **`surface/floating`** in `intent.json` (both blocks): light =
+`{color.absolute-white}` (a white card — the shadow does the lift), dark =
+`{color.neutral.100}` → resolves to **`#1e2126`** through the dark ramp, one step
+off the `#141414` background. Reason: **shadows don't read on dark**, so an
+overlay panel that reuses `surface/default` (same colour as the page behind it)
+vanishes in dark mode — the fix is elevation *by surface*, a lighter surface
+instead of a shadow. The Popover panel **and its pointer tail** bind to it (the
+Tooltip escapes the problem — its default tone is an always-contrasting dark
+fill). Also added to `intentSpec.ts` (`aliasTo: absolute-white`, `darkAliasTo:
+neutral/100`) and the `dark-mode-content.test.ts` theme-tracking list.
+
+Same **Figma vs repo dark-alias-path** caveat as the neutral-alpha ramp above:
+because the specimen forces **Palette = Light** on dark frames, the Figma
+variable's dark mode is a **raw `#1e2126`** (palette-invariant) so it renders the
+elevated dark there too, while the repo aliases `{color.neutral.100}` (resolving
+through the dark ramp). Resolved values agree exactly.
+
+**Not yet regenerated / bound** (no local Rust — CI/build owns it): `tokens.css`
+is still stale (needs a `primitiv tokens` rebuild), and the registry **Popover**
+(and Tooltip, once built) must bind its panel + tail fill to
+`--primitiv-surface-floating` in the build phase. `surface/default` → the
+elevated `surface/floating` is the one-line change on the styled surface.
+
 ## ❓ Open questions
 
 **Cleared before the build (2026-06-10, D45–D49)** — the pre-build open questions

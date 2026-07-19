@@ -92,6 +92,13 @@ export const INTENT_SPEC: {
     { name: 'surface/subtle',   type: 'COLOR', aliasTo: 'color/neutral/100' },
     { name: 'surface/raised',   type: 'COLOR', aliasTo: 'color/neutral/50' },
     { name: 'surface/overlay',  type: 'COLOR', aliasTo: 'color/neutral/900', darkAliasTo: 'color/neutral/50' },
+    // surface/floating — the elevated overlay surface (Popover/Tooltip panels).
+    // Light: a white card (the shadow does the lift). Dark: shadows don't read on
+    // dark, so it lifts via a lighter surface — neutral/100 (dark palette) = #1e2126,
+    // one step off the near-black background. In the Palette=Light specimen the
+    // Figma variable's dark mode is a raw #1e2126 (palette-invariant) so it renders
+    // correctly there too.
+    { name: 'surface/floating', type: 'COLOR', aliasTo: 'color/absolute-white', darkAliasTo: 'color/neutral/100' },
     { name: 'surface/inverse',  type: 'COLOR', aliasTo: 'color/neutral/800' },
 
     // content — inverse sits on a light surface in dark mode so needs dark text (color/black)

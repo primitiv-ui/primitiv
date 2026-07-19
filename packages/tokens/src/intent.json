@@ -179,6 +179,10 @@
         "$type": "color",
         "$value": "{color.absolute-white}"
       },
+      "floating": {
+        "$type": "color",
+        "$value": "{color.absolute-white}"
+      },
       "subtle": {
         "$type": "color",
         "$value": "{color.neutral.100}"
@@ -480,6 +484,10 @@
       "default": {
         "$type": "color",
         "$value": "{color.black}"
+      },
+      "floating": {
+        "$type": "color",
+        "$value": "{color.neutral.100}"
       },
       "subtle": {
         "$type": "color",

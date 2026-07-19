@@ -111,6 +111,7 @@ describe.each([
   'surface/subtle',
   'surface/raised',
   'surface/overlay',
+  'surface/floating',
   'surface/inverse',
   'surface/sunken',
   'border/subtle',

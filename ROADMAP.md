@@ -51,7 +51,7 @@ hand-authored **prose family** — no Figma set, no standalone headless componen
 | Collapsible | — | ✓ | — | |
 | ContextMenu | ✓ | ✓ | — | 1142:25899 (reuses Dropdown/* rows via slots — no ContextMenu-specific sub-components) |
 | Divider | ✓ | ✓ | ✓ | |
-| Drawer | ✓ | — | — | 1142:26332 (Side×Size; reuses Modal/Header·Body·Footer + Backdrop) — **headless + registry pending** |
+| Drawer | ✓ | ✓ | — | 1142:26332 (Side×Size; reuses Modal/Header·Body·Footer + Backdrop); headless = thin composition over Modal + `side` axis — **registry pending** |
 | Dropdown | ✓ | ✓ | — | 402:18499 |
 | EmptyState | — | ✓ | — | |
 | Field | ✓ | ✓ | ✓ | 394:7449 |
@@ -136,7 +136,7 @@ semantics that CSS alone cannot provide.
 - [x] Action Bar
 - [ ] Alert Dialog
 - [x] Context Menu
-- [ ] Drawer
+- [x] Drawer
 - [x] Dropdown
 - [ ] Hover Card
 - [x] Modal

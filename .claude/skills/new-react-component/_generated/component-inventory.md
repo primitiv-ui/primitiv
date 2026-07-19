@@ -24,6 +24,7 @@ non-visual primitive.
 | ContextMenu | Compound, very complex (menu) | no | ContextMenuContext + Content/Group/ItemIndicator/RadioGroup/Sub contexts | 15 | Right-click menu; sub-menus, checkbox/radio items, typeahead. Sibling of Dropdown — shares the menu machinery, differs on the trigger. |
 | DirectionProvider | Simple utility | no | DirectionContext | 1 | Supplies LTR/RTL direction to descendants via context. |
 | Divider | Simple element | no | none | 2 | Horizontal / vertical separator. |
+| Drawer | Compound, disclosure | no | none (reuses Modal) | 3 | Thin composition over Modal — renders each `Modal.*` sub-component and inherits its native `<dialog>` behaviour (focus trap, portal, controlled/uncontrolled, imperative API); the only addition is a `side` axis on Content emitted as `data-side`. Copy this when a new component is behaviourally another component + a presentational axis. |
 | Dropdown | Compound, very complex (menu) | yes | DropdownContext + Content/Group/ItemIndicator/RadioGroup/Sub contexts | 18 | Menu with sub-menus, checkbox/radio items, typeahead, item indicators. Has its own `constants.ts`. |
 | EmptyState | Simple element | no | none | 5 | Placeholder for empty collections; composable icon/title/description/actions slots. |
 | Field | Compound, controllable | yes | FieldContext | 5 | Label + control + helper/error wiring; distributes ids/aria to a nested control. |
@@ -65,6 +66,6 @@ Patterns by inheritance:
 - For a **sub-component family without state**: copy Table.
 - For a **non-visual utility primitive**: copy Portal (DOM escape) or VisuallyHidden / AccessibleIcon (a11y-only).
 
-Total components: 41 (35 visual + interactive, 6 utility primitives). The
+Total components: 42 (36 visual + interactive, 6 utility primitives). The
 shared utilities they all build on are in `shared-hooks.md` and
 `shared-utils.md`.

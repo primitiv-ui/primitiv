@@ -11,6 +11,7 @@ export * from "./Collapsible/index.ts";
 export * from "./ContextMenu/index.ts";
 export * from "./DirectionProvider/index.ts";
 export * from "./Divider/index.ts";
+export * from "./Drawer/index.ts";
 export * from "./Dropdown/index.ts";
 export * from "./EmptyState/index.ts";
 export * from "./Field/index.ts";

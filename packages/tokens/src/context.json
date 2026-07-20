@@ -4318,7 +4318,7 @@
         },
         "arrow-size": {
           "$type": "number",
-          "$value": "{space.space-8}"
+          "$value": "{space.space-6}"
         }
       },
       "md": {
@@ -4340,7 +4340,7 @@
         },
         "arrow-size": {
           "$type": "number",
-          "$value": "{space.space-10}"
+          "$value": "{space.space-8}"
         }
       },
       "lg": {
@@ -4362,7 +4362,7 @@
         },
         "arrow-size": {
           "$type": "number",
-          "$value": "{space.space-12}"
+          "$value": "{space.space-10}"
         }
       },
       "xl": {
@@ -4384,7 +4384,7 @@
         },
         "arrow-size": {
           "$type": "number",
-          "$value": "{space.space-14}"
+          "$value": "{space.space-12}"
         }
       },
       "border-width": {
@@ -6738,7 +6738,7 @@
         },
         "arrow-size": {
           "$type": "number",
-          "$value": "{space.space-8}"
+          "$value": "{space.space-10}"
         }
       },
       "md": {
@@ -6760,7 +6760,7 @@
         },
         "arrow-size": {
           "$type": "number",
-          "$value": "{space.space-10}"
+          "$value": "{space.space-12}"
         }
       },
       "lg": {
@@ -6782,7 +6782,7 @@
         },
         "arrow-size": {
           "$type": "number",
-          "$value": "{space.space-12}"
+          "$value": "{space.space-14}"
         }
       },
       "xl": {
@@ -6804,7 +6804,7 @@
         },
         "arrow-size": {
           "$type": "number",
-          "$value": "{space.space-14}"
+          "$value": "{space.space-16}"
         }
       },
       "border-width": {
@@ -9158,7 +9158,7 @@
         },
         "arrow-size": {
           "$type": "number",
-          "$value": "{space.space-8}"
+          "$value": "{space.space-4}"
         }
       },
       "md": {
@@ -9180,7 +9180,7 @@
         },
         "arrow-size": {
           "$type": "number",
-          "$value": "{space.space-10}"
+          "$value": "{space.space-6}"
         }
       },
       "lg": {
@@ -9202,7 +9202,7 @@
         },
         "arrow-size": {
           "$type": "number",
-          "$value": "{space.space-12}"
+          "$value": "{space.space-8}"
         }
       },
       "xl": {
@@ -9224,7 +9224,7 @@
         },
         "arrow-size": {
           "$type": "number",
-          "$value": "{space.space-14}"
+          "$value": "{space.space-10}"
         }
       },
       "border-width": {

@@ -598,6 +598,20 @@ surfaces are still to come (they compose on Popover's approach). Real-browser
 visual QA of the Popover arrow geometry + the `-start`/`-end` `position-area`
 alignment is the outstanding item (authored blind — no local render).
 
+**Popover arrow now density-scales (2026-07-20).** The `popover/{size}/arrow-size`
+token aliased the same `space` step in every density block — so the arrow scaled
+with size but not density, unlike `radius`/`padding`/`gap` (which all shift step
+per density). Fixed to mirror the radius/padding shift (dense −2 · compact −1 ·
+comfortable 0 · spacious +1): `md` arrow-size is now `space-6 / 8 / 10 / 12` across
+dense/compact/comfortable/spacious. Landed in **code** (`context.json` → regen)
+**and** the **Figma Context variables** (synced via the bridge). Known gap: the
+**Figma Popover/Arrow *component*** uses fixed per-size vector dims (only `fills`
+bound) — Figma can't bind a vector's width/height to a variable, and
+Side×Size×Density = 64 variants is impractical — so it is size-scaled but
+density-invariant (shows the Comfortable arrow at each size). The arrow-size
+variable is the density source of truth (the code honours it; the Figma component
+approximates it) — documented on the component description, not a bug.
+
 ## ❓ Open questions
 
 **Cleared before the build (2026-06-10, D45–D49)** — the pre-build open questions

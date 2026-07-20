@@ -73,32 +73,6 @@
       box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
-  /* The wrapped Input surrenders its frame to the group: the group draws the
-     border / background / ring and owns the inline padding, so the Input fills
-     the remaining space frameless and inherits the group's typography. These
-     override the Input's own `--primitiv-input-*` knobs on a more specific
-     selector, so they win without an !important or a specificity battle. */
-  .primitiv-input-group .primitiv-input {
-    --primitiv-input-bg: var(--primitiv-color-transparent);
-    --primitiv-input-border-color: var(--primitiv-color-transparent);
-    --primitiv-input-border-color-focus: var(--primitiv-color-transparent);
-    --primitiv-input-border-color-invalid: var(--primitiv-color-transparent);
-    --primitiv-input-height: auto;
-    --primitiv-input-padding-inline: var(--primitiv-space-space-0);
-    /* Point the Input's own font knobs straight at the group's size-scoped ones,
-       so the input text tracks the group's `size` (the group re-points these per
-       size modifier). Previously `inherit`, which leaned on an invalid-var →
-       inherited-font fallback through this element — fragile, and it left the
-       input text stuck near the base size. */
-    --primitiv-input-font-family: var(--primitiv-input-group-font-family);
-    --primitiv-input-font-size: var(--primitiv-input-group-font-size);
-    --primitiv-input-font-weight: var(--primitiv-input-group-font-weight);
-    --primitiv-input-line-height: var(--primitiv-input-group-line-height);
-
-    flex: 1 1 auto;
-    min-inline-size: 0;
-  }
-
   /* Adornment slots — non-shrinking, vertically centred, dimmed relative to the
      typed text. Decorative glyphs inside take the frame's icon size. */
   .primitiv-input-group__leading,
@@ -117,6 +91,33 @@
 }
 
 @layer primitiv.variants {
+  /* The wrapped Input surrenders its frame to the group: the group draws the
+     border / background / ring and owns the inline padding, so the Input fills
+     the remaining space frameless and tracks the group's size + typography.
+     These override the Input's own `--primitiv-input-*` knobs.
+     IMPORTANT: this MUST live in `primitiv.variants`, not `primitiv.base` — the
+     Input's own size class (`.primitiv-input--md` etc., applied by its cva
+     default when no `size` prop is passed) also lives in `primitiv.variants` and
+     re-points these knobs, and a later layer always beats an earlier one
+     regardless of specificity. In the same layer, this rule's higher specificity
+     (`.primitiv-input-group .primitiv-input`) wins, so the input's font + box
+     follow the GROUP's size, not the Input's default `md`. */
+  .primitiv-input-group .primitiv-input {
+    --primitiv-input-bg: var(--primitiv-color-transparent);
+    --primitiv-input-border-color: var(--primitiv-color-transparent);
+    --primitiv-input-border-color-focus: var(--primitiv-color-transparent);
+    --primitiv-input-border-color-invalid: var(--primitiv-color-transparent);
+    --primitiv-input-height: auto;
+    --primitiv-input-padding-inline: var(--primitiv-space-space-0);
+    --primitiv-input-font-family: var(--primitiv-input-group-font-family);
+    --primitiv-input-font-size: var(--primitiv-input-group-font-size);
+    --primitiv-input-font-weight: var(--primitiv-input-group-font-weight);
+    --primitiv-input-line-height: var(--primitiv-input-group-line-height);
+
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+
   /* Size — re-points the framed-control knobs to the chosen slot. Density stays
      ambient via [data-density] on the token values themselves (RFC 0009). */
   .primitiv-input-group--xs {

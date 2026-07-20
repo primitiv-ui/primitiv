@@ -85,10 +85,15 @@
     --primitiv-input-border-color-invalid: var(--primitiv-color-transparent);
     --primitiv-input-height: auto;
     --primitiv-input-padding-inline: var(--primitiv-space-space-0);
-    --primitiv-input-font-family: inherit;
-    --primitiv-input-font-size: inherit;
-    --primitiv-input-font-weight: inherit;
-    --primitiv-input-line-height: inherit;
+    /* Point the Input's own font knobs straight at the group's size-scoped ones,
+       so the input text tracks the group's `size` (the group re-points these per
+       size modifier). Previously `inherit`, which leaned on an invalid-var →
+       inherited-font fallback through this element — fragile, and it left the
+       input text stuck near the base size. */
+    --primitiv-input-font-family: var(--primitiv-input-group-font-family);
+    --primitiv-input-font-size: var(--primitiv-input-group-font-size);
+    --primitiv-input-font-weight: var(--primitiv-input-group-font-weight);
+    --primitiv-input-line-height: var(--primitiv-input-group-line-height);
 
     flex: 1 1 auto;
     min-inline-size: 0;

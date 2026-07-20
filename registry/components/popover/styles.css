@@ -42,12 +42,15 @@
 
 @layer primitiv.reset {
   .primitiv-popover {
-    /* Native [popover] centers itself in the viewport with `margin: auto; inset:
-       0` — reset both so the placement modifiers' anchor positioning takes over. */
+    /* Reset the native [popover] UA defaults: `margin: auto; inset: 0` (viewport
+       centering) so the placement modifiers' anchor positioning takes over, and
+       `overflow: auto` — which clips the ::after arrow poking past the panel edge
+       (hiding the tail) and turns the overflow into scrollbars — back to visible. */
     margin: 0;
     inset: auto;
     padding: 0;
     border: 0;
+    overflow: visible;
   }
 }
 

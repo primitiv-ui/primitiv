@@ -57,7 +57,7 @@ Figma set, no standalone headless component.
 | Collapsible | — | ✓ | — | — | |
 | ContextMenu | ✓ | ✓ | — | — | 1142:25899 (reuses Dropdown/* rows via slots — no ContextMenu-specific sub-components) |
 | Divider | ✓ | ✓ | ✓ | ✓ | |
-| Drawer | ✓ | ✓ | — | — | 1142:26332 (Side×Size; reuses Modal/Header·Body·Footer + Backdrop); headless = thin composition over Modal + `side` axis — **registry pending** |
+| Drawer | ✓ | ✓ | ✓ | — | 1142:26332 (Side×Size; reuses Modal/Header·Body·Footer + Backdrop); headless = thin composition over Modal + `side` axis; registry = standalone `.primitiv-drawer` (edge-docked Modal, `data-side` slide + `size` cross-axis, reuses `modal/*` tokens); **kitchen-sink demo pending the next release** — it imports the published `@primitiv-ui/react`, and the headless Drawer isn't published yet |
 | Dropdown | ✓ | ✓ | — | — | 402:18499 |
 | EmptyState | — | ✓ | — | — | |
 | Field | ✓ | ✓ | ✓ | ✓ | 394:7449 |

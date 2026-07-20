@@ -30,6 +30,12 @@ import {
   ModalTitle,
   ModalDescription,
   ModalClose,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverTitle,
+  PopoverDescription,
+  PopoverClose,
   Prose,
   Radio,
   Switch,
@@ -523,6 +529,65 @@ export function ramp(hue: number, chroma = 0.12) {
             </ModalContent>
           </ModalPortal>
         </Modal>
+      </Section>
+
+      <Section title="Popover">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="secondary" style={{ anchorName: "--ks-pop-bottom" }}>
+              Bottom-start
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            placement="bottom-start"
+            size={size}
+            style={{ positionAnchor: "--ks-pop-bottom" }}
+          >
+            <PopoverTitle>Filters</PopoverTitle>
+            <PopoverDescription>Narrow the results below.</PopoverDescription>
+            <PopoverClose asChild>
+              <Button variant="ghost" size="sm" aria-label="Close">
+                <Close aria-hidden="true" />
+              </Button>
+            </PopoverClose>
+          </PopoverContent>
+        </Popover>
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="secondary" style={{ anchorName: "--ks-pop-top" }}>
+              Top
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent placement="top" size={size} style={{ positionAnchor: "--ks-pop-top" }}>
+            <PopoverTitle>Top</PopoverTitle>
+            <PopoverDescription>The arrow points down at the trigger.</PopoverDescription>
+          </PopoverContent>
+        </Popover>
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="secondary" style={{ anchorName: "--ks-pop-right" }}>
+              Right
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent placement="right" size={size} style={{ positionAnchor: "--ks-pop-right" }}>
+            <PopoverTitle>Right</PopoverTitle>
+            <PopoverDescription>The arrow points left at the trigger.</PopoverDescription>
+          </PopoverContent>
+        </Popover>
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="secondary" style={{ anchorName: "--ks-pop-left" }}>
+              Left
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent placement="left" size={size} style={{ positionAnchor: "--ks-pop-left" }}>
+            <PopoverTitle>Left</PopoverTitle>
+            <PopoverDescription>The arrow points right at the trigger.</PopoverDescription>
+          </PopoverContent>
+        </Popover>
       </Section>
     </div>
   );

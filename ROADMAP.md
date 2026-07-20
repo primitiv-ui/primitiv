@@ -62,7 +62,7 @@ hand-authored **prose family** — no Figma set, no standalone headless componen
 | InputGroup | — | ✓ | ✓ | input-group |
 | MillerColumns | — | ✓ | — | |
 | Modal | ✓ | ✓ | ✓ | 435:10250 (Modal), 435:9450 (Header), 435:10108 (Body), 435:10161 (Footer) |
-| Popover | ✓ | ✓ | — | 1168:36142 (composition), 1140:25762 (Content), 1168:35023 (Arrow) |
+| Popover | ✓ | ✓ | ✓ | 1168:36142 (composition), 1140:25762 (Content), 1168:35023 (Arrow); registry = borderless panel + `::after` arrow + 12 placements (CSS anchor positioning) |
 | Progress | ✓ | ✓ | — | 443:7839 |
 | Prose | — | — | ✓ | registry-only (`.primitiv-flow` + `<Prose>` wrapper) |
 | RadioCard | — | ✓ | — | |

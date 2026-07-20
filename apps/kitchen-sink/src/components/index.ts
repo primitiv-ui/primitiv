@@ -9,6 +9,7 @@ export * from "./inline-code";
 export * from "./input";
 export * from "./input-group";
 export * from "./modal";
+export * from "./popover";
 export * from "./prose";
 export * from "./radio";
 export * from "./switch";

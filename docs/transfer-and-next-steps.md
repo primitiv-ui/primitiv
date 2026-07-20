@@ -590,9 +590,13 @@ the result back (authenticates with `RELEASE_TOKEN` to push past branch
 protection, like `release.yml`). A **`token-drift`** CI check re-emits and fails
 if the committed `tokens.css` is stale, so it can't silently drift again — a
 failure means "run Regenerate tokens", never hand-edit `tokens.css`. The registry
-**Popover** (and Tooltip, once built) must bind its panel + tail fill to
-`--primitiv-surface-floating` in the build phase. `surface/default` → the
-elevated `surface/floating` is the one-line change on the styled surface.
+**Popover** is landed and binds its panel + `::after` arrow to
+`--primitiv-surface-floating` (borderless, twelve placements via CSS anchor
+positioning + `position-try` auto-flip; hand-authored like Modal, kitchen-sink
+demo under the "Popover" section). **Tooltip / ContextMenu / Drawer** registry
+surfaces are still to come (they compose on Popover's approach). Real-browser
+visual QA of the Popover arrow geometry + the `-start`/`-end` `position-area`
+alignment is the outstanding item (authored blind — no local render).
 
 ## ❓ Open questions
 

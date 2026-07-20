@@ -30,54 +30,60 @@ Build priority: ~~Select (native)~~ → ~~Input~~ → ~~InputGroup~~ → ~~Field
 
 ## Component coverage — Figma · headless · registry
 
-Tri-state status per component: a **Figma** component set, a **Headless**
-component in `packages/react/src`, and a **Registry** (styled, copy-in) component
-in `registry/components`. Utility-only primitives (AccessibleIcon,
-DirectionProvider, Portal, SkipNav, Slot, VisuallyHidden) are headless-only and
-omitted. The three registry-only rows (Code Block, Inline Code, Prose) are the
-hand-authored **prose family** — no Figma set, no standalone headless component.
+Quad-state status per component: a **Figma** component set, a **Headless**
+component in `packages/react/src`, a **Registry** (styled, copy-in) component
+in `registry/components`, and a **Kitchen Sink** demo in `apps/kitchen-sink`
+(an `App.tsx` section, or a dedicated page — Carousel). The kitchen-sink installs
+*every* registry component via `add --all`, so the Kitchen Sink column tracks a
+hand-built **demo**, not mere installation — a `Registry ✓ / Kitchen Sink —` row
+flags a styled surface that still needs a demo (the kitchen-sink is the ultimate
+reference, so every registry surface should earn a ✓ here). Utility-only
+primitives (AccessibleIcon, DirectionProvider, Portal, SkipNav, Slot,
+VisuallyHidden) are headless-only and omitted. The three registry-only rows
+(Code Block, Inline Code, Prose) are the hand-authored **prose family** — no
+Figma set, no standalone headless component.
 
-| Component | Figma | Headless | Registry | Node ID / notes |
-|---|---|---|---|---|
-| Accordion | ✓ | ✓ | ✓ | 416:6729 (Item), 417:6881 (Panel) |
-| Alert | — | ✓ | — | |
-| Avatar | ✓ | ✓ | — | 433:7944 |
-| Breadcrumb | ✓ | ✓ | — | 436:12220 (Item), 436:12221 (Separator), 436:12911 (composition) |
-| Button | ✓ | ✓ | ✓ | 347:14161 |
-| Carousel | 🟡 | ✓ | ✓ | Figma set in progress — `CarouselSlide` + parts, full set not yet assembled |
-| Checkbox | ✓ | ✓ | ✓ | 369:30652 |
-| CheckboxCard | — | ✓ | — | |
-| Code Block | — | — | ✓ | registry-only (Prism highlighting via prism-react-renderer) |
-| Collapsible | — | ✓ | — | |
-| ContextMenu | ✓ | ✓ | — | 1142:25899 (reuses Dropdown/* rows via slots — no ContextMenu-specific sub-components) |
-| Divider | ✓ | ✓ | ✓ | |
-| Drawer | ✓ | ✓ | — | 1142:26332 (Side×Size; reuses Modal/Header·Body·Footer + Backdrop); headless = thin composition over Modal + `side` axis — **registry pending** |
-| Dropdown | ✓ | ✓ | — | 402:18499 |
-| EmptyState | — | ✓ | — | |
-| Field | ✓ | ✓ | ✓ | 394:7449 |
-| Fieldset | — | ✓ | — | |
-| Icon Button | ✓ | — | — | 433:8386 (icon-only Button — no separate headless/registry) |
-| Inline Code | — | — | ✓ | registry-only (dedicated `code/*` font-size ramp) |
-| Input | ✓ | ✓ | ✓ | 393:6159 |
-| InputGroup | — | ✓ | ✓ | input-group |
-| MillerColumns | — | ✓ | — | |
-| Modal | ✓ | ✓ | ✓ | 435:10250 (Modal), 435:9450 (Header), 435:10108 (Body), 435:10161 (Footer) |
-| Popover | ✓ | ✓ | ✓ | 1168:36142 (composition), 1140:25762 (Content), 1168:35023 (Arrow); registry = borderless panel + `::after` arrow + 12 placements (CSS anchor positioning) |
-| Progress | ✓ | ✓ | — | 443:7839 |
-| Prose | — | — | ✓ | registry-only (`.primitiv-flow` + `<Prose>` wrapper) |
-| RadioCard | — | ✓ | — | |
-| RadioGroup | ✓ | ✓ | ✓ | 401:17958 (registry `radio`) |
-| Select | ✓ | ✓ | — | 403:1883 |
-| Slider | ✓ | ✓ | — | 392:5196 (track), 392:4353 (thumb) |
-| Status | — | ✓ | — | |
-| Switch | ✓ | ✓ | ✓ | 315:5884 |
-| Table | ✓ | ✓ | ✓ | 605:13524 (Table), 604:9802 (Cell), 604:9991 (Header Cell), 604:10228 (Row) |
-| Tabs | ✓ | ✓ | ✓ | 425:5528 (Trigger), 425:5539 (Panel) |
-| Textarea | ✓ | ✓ | — | 439:14511 |
-| Toggle | ✓ | ✓ | — | 385:1418 |
-| ToggleGroup | ✓ | ✓ | ✓ | assembled from Toggle |
-| Tooltip | ✓ | ✓ | — | 1168:35600 (composition), 1142:25897 (Content), 1168:34990 (Arrow) |
-| Tree | — | ✓ | — | |
+| Component | Figma | Headless | Registry | Kitchen Sink | Node ID / notes |
+|---|---|---|---|---|---|
+| Accordion | ✓ | ✓ | ✓ | ✓ | 416:6729 (Item), 417:6881 (Panel) |
+| Alert | — | ✓ | — | — | |
+| Avatar | ✓ | ✓ | — | — | 433:7944 |
+| Breadcrumb | ✓ | ✓ | — | — | 436:12220 (Item), 436:12221 (Separator), 436:12911 (composition) |
+| Button | ✓ | ✓ | ✓ | ✓ | 347:14161 |
+| Carousel | 🟡 | ✓ | ✓ | ✓ | Figma set in progress — `CarouselSlide` + parts, full set not yet assembled |
+| Checkbox | ✓ | ✓ | ✓ | ✓ | 369:30652 |
+| CheckboxCard | — | ✓ | — | — | |
+| Code Block | — | — | ✓ | ✓ | registry-only (Prism highlighting via prism-react-renderer) |
+| Collapsible | — | ✓ | — | — | |
+| ContextMenu | ✓ | ✓ | — | — | 1142:25899 (reuses Dropdown/* rows via slots — no ContextMenu-specific sub-components) |
+| Divider | ✓ | ✓ | ✓ | ✓ | |
+| Drawer | ✓ | ✓ | — | — | 1142:26332 (Side×Size; reuses Modal/Header·Body·Footer + Backdrop); headless = thin composition over Modal + `side` axis — **registry pending** |
+| Dropdown | ✓ | ✓ | — | — | 402:18499 |
+| EmptyState | — | ✓ | — | — | |
+| Field | ✓ | ✓ | ✓ | ✓ | 394:7449 |
+| Fieldset | — | ✓ | — | — | |
+| Icon Button | ✓ | — | — | — | 433:8386 (icon-only Button — no separate headless/registry) |
+| Inline Code | — | — | ✓ | ✓ | registry-only (dedicated `code/*` font-size ramp) |
+| Input | ✓ | ✓ | ✓ | ✓ | 393:6159 |
+| InputGroup | — | ✓ | ✓ | ✓ | input-group |
+| MillerColumns | — | ✓ | — | — | |
+| Modal | ✓ | ✓ | ✓ | ✓ | 435:10250 (Modal), 435:9450 (Header), 435:10108 (Body), 435:10161 (Footer) |
+| Popover | ✓ | ✓ | ✓ | ✓ | 1168:36142 (composition), 1140:25762 (Content), 1168:35023 (Arrow); registry = borderless panel + `::after` arrow + 12 placements (CSS anchor positioning) |
+| Progress | ✓ | ✓ | — | — | 443:7839 |
+| Prose | — | — | ✓ | ✓ | registry-only (`.primitiv-flow` + `<Prose>` wrapper) |
+| RadioCard | — | ✓ | — | — | |
+| RadioGroup | ✓ | ✓ | ✓ | ✓ | 401:17958 (registry `radio`) |
+| Select | ✓ | ✓ | — | — | 403:1883 |
+| Slider | ✓ | ✓ | — | — | 392:5196 (track), 392:4353 (thumb) |
+| Status | — | ✓ | — | — | |
+| Switch | ✓ | ✓ | ✓ | ✓ | 315:5884 |
+| Table | ✓ | ✓ | ✓ | ✓ | 605:13524 (Table), 604:9802 (Cell), 604:9991 (Header Cell), 604:10228 (Row) |
+| Tabs | ✓ | ✓ | ✓ | ✓ | 425:5528 (Trigger), 425:5539 (Panel) |
+| Textarea | ✓ | ✓ | — | — | 439:14511 |
+| Toggle | ✓ | ✓ | — | — | 385:1418 |
+| ToggleGroup | ✓ | ✓ | ✓ | ✓ | assembled from Toggle |
+| Tooltip | ✓ | ✓ | — | — | 1168:35600 (composition), 1142:25897 (Content), 1168:34990 (Arrow) |
+| Tree | — | ✓ | — | — | |
 
 ## Components to build
 

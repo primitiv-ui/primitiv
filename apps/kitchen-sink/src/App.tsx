@@ -197,7 +197,7 @@ export function App(): ReactElement {
           <h3>Heading 3 - Inline code, sized</h3>
           <p>
             The bare <code>&lt;code&gt;</code> element above is fixed at the md
-            step. The <InlineCode>InlineCode</InlineCode> component adds a size
+            step. The <InlineCode size={size}>InlineCode</InlineCode> component adds a size
             axis — these snippets{" "}
             <InlineCode size={size}>npm create primitiv-ui</InlineCode>,{" "}
             <InlineCode size={size}>useState</InlineCode> and{" "}
@@ -443,7 +443,7 @@ primitiv add --all`}</code>
       </Section>
 
       <Section title="Toggle Group">
-        <ToggleGroup type="single" defaultValue="left" aria-label="Alignment">
+        <ToggleGroup type="single" size={size} defaultValue="left" aria-label="Alignment">
           <ToggleGroupItem value="left">Left</ToggleGroupItem>
           <ToggleGroupItem value="center">Center</ToggleGroupItem>
           <ToggleGroupItem value="right">Right</ToggleGroupItem>
@@ -534,9 +534,9 @@ export function ramp(hue: number, chroma = 0.12) {
               </ModalHeader>
               <ModalBody>
                   <ModalDescription>
-                    This dialog is portalled to <InlineCode>document.body</InlineCode>,
-                    which is why <InlineCode>data-theme</InlineCode> lives on{" "}
-                    <InlineCode>&lt;html&gt;</InlineCode> above, not on this page&apos;s
+                    This dialog is portalled to <InlineCode size={size}>document.body</InlineCode>,
+                    which is why <InlineCode size={size}>data-theme</InlineCode> lives on{" "}
+                    <InlineCode size={size}>&lt;html&gt;</InlineCode> above, not on this page&apos;s
                     wrapper.
                   </ModalDescription>
               </ModalBody>
@@ -554,7 +554,7 @@ export function ramp(hue: number, chroma = 0.12) {
       <Section title="Popover" column>
         <p className="kitchen-sink__note">
           Click any trigger to open its placement (one at a time — the panels are
-          native <InlineCode>popover=&quot;auto&quot;</InlineCode>). Panel + arrow
+          native <InlineCode size={size}>popover=&quot;auto&quot;</InlineCode>). Panel + arrow
           track the Size and Density controls above.
         </p>
         <div
@@ -583,7 +583,7 @@ export function ramp(hue: number, chroma = 0.12) {
               >
                 <PopoverTitle>{placement}</PopoverTitle>
                 <PopoverDescription>
-                  Placement <InlineCode>{placement}</InlineCode>.
+                  Placement <InlineCode size={size}>{placement}</InlineCode>.
                 </PopoverDescription>
                 <PopoverClose asChild>
                   <Button variant="ghost" size="sm" aria-label="Close">

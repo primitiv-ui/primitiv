@@ -46,6 +46,7 @@ import {
   TableHeader,
   TableCell,
   TableCaption,
+  TableScrollArea,
   Tabs,
   TabsList,
   TabsTrigger,
@@ -451,51 +452,55 @@ primitiv add --all`}</code>
       </Section>
 
       <Section title="Table" column>
-        <Table size={size}>
-          <TableCaption>Package downloads this month — click a header to sort.</TableCaption>
-          <TableHead>
-            <TableRow>
-              {TABLE_COLUMNS.map((col) => {
-                const active = sort.key === col.key;
-                return (
-                  <TableHeader
-                    key={col.key}
-                    className={`ks-table__align-${col.align}`}
-                    aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
-                  >
-                    <button
-                      type="button"
-                      className="ks-table__sort"
-                      onClick={() => toggleSort(col.key)}
+        {/* Wrapped in TableScrollArea so a wide table scrolls horizontally within
+            its own area on narrow viewports instead of forcing the page wider. */}
+        <TableScrollArea>
+          <Table size={size}>
+            <TableCaption>Package downloads this month — click a header to sort.</TableCaption>
+            <TableHead>
+              <TableRow>
+                {TABLE_COLUMNS.map((col) => {
+                  const active = sort.key === col.key;
+                  return (
+                    <TableHeader
+                      key={col.key}
+                      className={`ks-table__align-${col.align}`}
+                      aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
                     >
-                      <span>{col.label}</span>
-                      {active ? (
-                        sort.dir === "asc" ? (
-                          <ChevronUp aria-hidden="true" />
+                      <button
+                        type="button"
+                        className="ks-table__sort"
+                        onClick={() => toggleSort(col.key)}
+                      >
+                        <span>{col.label}</span>
+                        {active ? (
+                          sort.dir === "asc" ? (
+                            <ChevronUp aria-hidden="true" />
+                          ) : (
+                            <ChevronDown aria-hidden="true" />
+                          )
                         ) : (
-                          <ChevronDown aria-hidden="true" />
-                        )
-                      ) : (
-                        <Sort className="ks-table__sort-idle" aria-hidden="true" />
-                      )}
-                    </button>
-                  </TableHeader>
-                );
-              })}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {sortedReleases.map((r) => (
-              <TableRow key={r.pkg}>
-                {TABLE_COLUMNS.map((col) => (
-                  <TableCell key={col.key} className={`ks-table__align-${col.align}`}>
-                    {col.numeric ? (r[col.key] as number).toLocaleString() : r[col.key]}
-                  </TableCell>
-                ))}
+                          <Sort className="ks-table__sort-idle" aria-hidden="true" />
+                        )}
+                      </button>
+                    </TableHeader>
+                  );
+                })}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHead>
+            <TableBody>
+              {sortedReleases.map((r) => (
+                <TableRow key={r.pkg}>
+                  {TABLE_COLUMNS.map((col) => (
+                    <TableCell key={col.key} className={`ks-table__align-${col.align}`}>
+                      {col.numeric ? (r[col.key] as number).toLocaleString() : r[col.key]}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableScrollArea>
       </Section>
 
       <Section title="Code Block" column>

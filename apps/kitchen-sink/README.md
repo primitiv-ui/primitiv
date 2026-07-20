@@ -20,6 +20,11 @@ say so in a comment).
 
 - **Density is ambient.** The shell applies `data-density` on `<html>`, so any
   token-driven component picks it up with no prop — nothing to wire per demo.
+  - **Typography is a deliberate exception.** Density scales *spacing and box
+    dimensions* (padding, gap, control height), but the type scale (`body/*`,
+    `label/*`) is **mostly density-invariant** for readability — only `dense`
+    tightens it. So a control's box shrinks/grows across densities while its text
+    largely holds steady; that is by design, not a bug (decided 2026-07-20).
 - **Size is a prop.** Thread it from `useChrome().size` as `size={size}` onto
   every component that has a size axis (Button, Input, Table, the Popover
   triggers, Modal, …). A new demo **must** pass `size={size}`.

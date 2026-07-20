@@ -1,0 +1,54 @@
+name: Token drift
+
+# Guards against a stale committed token layer: if someone edits the DTCG source
+# (packages/tokens/src/*.json) or the emitter (primitiv-emit / primitiv-cli) but
+# doesn't regenerate apps/kitchen-sink/src/styles/primitiv/tokens.css, this fails.
+#
+# It re-emits the token layer into a temp file and diffs it against the committed
+# one. To FIX a failure, don't hand-edit tokens.css — run the "Regenerate tokens"
+# workflow (Actions -> Regenerate tokens -> Run workflow), which re-emits and
+# commits it for you.
+#
+# The CLI `include_str!`s the DTCG at compile time, so `cargo run` reflects the
+# current source with no Node/pnpm.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/tokens/src/**'
+      - 'crates/primitiv-emit/**'
+      - 'crates/primitiv-cli/**'
+      - 'apps/kitchen-sink/src/styles/primitiv/tokens.css'
+      - '.github/workflows/token-drift.yml'
+  pull_request:
+    paths:
+      - 'packages/tokens/src/**'
+      - 'crates/primitiv-emit/**'
+      - 'crates/primitiv-cli/**'
+      - 'apps/kitchen-sink/src/styles/primitiv/tokens.css'
+      - '.github/workflows/token-drift.yml'
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+
+      - name: Re-emit the token layer to a temp file
+        run: cargo run -q -p primitiv-cli -- tokens --format css --out "${RUNNER_TEMP}/tokens.css"
+
+      - name: Fail if the committed tokens.css is stale
+        run: |
+          if ! diff -u apps/kitchen-sink/src/styles/primitiv/tokens.css "${RUNNER_TEMP}/tokens.css"; then
+            echo "::error::apps/kitchen-sink/src/styles/primitiv/tokens.css is out of date with the DTCG source. Run the 'Regenerate tokens' workflow (Actions -> Regenerate tokens -> Run workflow) to refresh and commit it."
+            exit 1
+          fi
+          echo "tokens.css is up to date with the DTCG source."

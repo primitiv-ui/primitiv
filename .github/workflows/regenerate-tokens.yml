@@ -1,0 +1,62 @@
+name: Regenerate tokens
+
+# Re-emits the kitchen-sink token layer
+# (apps/kitchen-sink/src/styles/primitiv/tokens.css) from the DTCG source
+# (packages/tokens/src/*.json) and commits the result.
+#
+# tokens.css is a COMMITTED, generated file. No other workflow regenerates it,
+# and it can't be emitted without Rust (`primitiv tokens`) — so this is the
+# no-local-Rust, one-click way to refresh it after a token change.
+#
+#   Actions -> "Regenerate tokens" -> Run workflow -> pick a branch -> Run.
+#
+# The CLI `include_str!`s the DTCG at compile time, so `cargo run` recompiles
+# against the current source and emits current tokens — no Node/pnpm needed.
+#
+# Pushes the commit back to the branch, so it authenticates with RELEASE_TOKEN
+# (the maintainer PAT that can bypass branch protection), exactly like
+# release.yml — the default GITHUB_TOKEN / github-actions[bot] can't be on the
+# `main` bypass list. See RELEASING.md §5.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: regenerate-tokens-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.RELEASE_TOKEN }}
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Regenerate the kitchen-sink token layer
+        run: cargo run -q -p primitiv-cli -- tokens --format css --out apps/kitchen-sink/src/styles/primitiv/tokens.css
+
+      - name: Commit and push if changed
+        run: |
+          git add apps/kitchen-sink/src/styles/primitiv/tokens.css
+          if git diff --cached --quiet; then
+            echo "tokens.css already up to date — nothing to commit."
+          else
+            git commit -m "chore: regenerate kitchen-sink tokens.css"
+            git push origin HEAD
+          fi

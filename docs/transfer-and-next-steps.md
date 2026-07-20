@@ -583,9 +583,14 @@ variable's dark mode is a **raw `#1e2126`** (palette-invariant) so it renders th
 elevated dark there too, while the repo aliases `{color.neutral.100}` (resolving
 through the dark ramp). Resolved values agree exactly.
 
-**Not yet regenerated / bound** (no local Rust — CI/build owns it): `tokens.css`
-is still stale (needs a `primitiv tokens` rebuild), and the registry **Popover**
-(and Tooltip, once built) must bind its panel + tail fill to
+**Not yet regenerated / bound** (no local Rust): refresh `tokens.css` with the
+**"Regenerate tokens"** GitHub workflow (Actions → Regenerate tokens → Run
+workflow → pick a branch), which runs `primitiv tokens` on a runner and commits
+the result back (authenticates with `RELEASE_TOKEN` to push past branch
+protection, like `release.yml`). A **`token-drift`** CI check re-emits and fails
+if the committed `tokens.css` is stale, so it can't silently drift again — a
+failure means "run Regenerate tokens", never hand-edit `tokens.css`. The registry
+**Popover** (and Tooltip, once built) must bind its panel + tail fill to
 `--primitiv-surface-floating` in the build phase. `surface/default` → the
 elevated `surface/floating` is the one-line change on the styled surface.
 

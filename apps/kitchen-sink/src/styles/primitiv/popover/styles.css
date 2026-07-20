@@ -61,13 +61,26 @@
        touching the rule. */
     --primitiv-popover-surface: var(--primitiv-surface-floating);
     --primitiv-popover-fg: var(--primitiv-content-primary);
-    --primitiv-popover-shadow: var(--primitiv-elevation-overlay);
+    /* elevation/overlay (= shadow-3) rebuilt as chained drop-shadows so the
+       shadow follows the panel + ::after arrow silhouette as ONE shape. A
+       box-shadow is per-element — it would draw a seam across the arrow's base
+       and leave the poking tail unshadowed. Same offsets / blurs / colours as
+       --primitiv-shadow-3 (three layers, zero spread → drop-shadow-compatible);
+       keep in step if elevation/overlay changes. */
+    --primitiv-popover-shadow:
+      drop-shadow(0 var(--primitiv-space-space-2) var(--primitiv-space-space-4) var(--primitiv-shadow-color-strong))
+      drop-shadow(0 var(--primitiv-space-space-4) var(--primitiv-space-space-8) var(--primitiv-shadow-color-medium))
+      drop-shadow(0 var(--primitiv-space-space-8) var(--primitiv-space-space-16) var(--primitiv-shadow-color-soft));
     --primitiv-popover-radius: var(--primitiv-popover-md-radius);
     --primitiv-popover-padding-inline: var(--primitiv-popover-md-padding-inline);
     --primitiv-popover-padding-block: var(--primitiv-popover-md-padding-block);
     --primitiv-popover-gap: var(--primitiv-popover-md-gap);
     --primitiv-popover-arrow-size: var(--primitiv-popover-md-arrow-size);
-    --primitiv-popover-offset: 0.5rem;
+    /* Gap between the panel and the anchor. Tied to the arrow size (not a fixed
+       length) so the arrow's tip — which pokes ~0.7 × arrow-size past the panel
+       edge — always clears into the gap instead of overlapping the anchor, at
+       every size and density. */
+    --primitiv-popover-offset: var(--primitiv-popover-arrow-size);
     --primitiv-popover-max-inline-size: 20rem;
     --primitiv-popover-title-color: var(--primitiv-content-primary);
     --primitiv-popover-title-font-family: var(--primitiv-label-md-font-family);
@@ -86,8 +99,10 @@
     border-radius: var(--primitiv-popover-radius);
     background: var(--primitiv-popover-surface);
     color: var(--primitiv-popover-fg);
-    /* Borderless: the surface + shadow define the panel (no stroke). */
-    box-shadow: var(--primitiv-popover-shadow);
+    /* Borderless: the surface + shadow define the panel (no stroke). `filter`
+       (not box-shadow) so the shadow wraps the panel + arrow as one silhouette
+       (see --primitiv-popover-shadow above). */
+    filter: var(--primitiv-popover-shadow);
     /* Auto-flip to the opposite side if the chosen placement would overflow. */
     position-try-fallbacks: flip-block, flip-inline;
   }

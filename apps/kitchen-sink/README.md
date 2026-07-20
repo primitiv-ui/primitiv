@@ -10,6 +10,28 @@ workspace source. If a release is broken, this app is where it shows up.
 surface the CLI copied in) plus icons from `@primitiv-ui/icons`. Nothing
 here imports `@primitiv-ui/react` directly — that would defeat the point.
 
+## Every demo responds to Size and Density by default
+
+The sticky header exposes global **Size** and **Density** controls
+(`chrome.tsx` / `useChrome`). The rule for this testbed: **every component and
+control demoed here responds to both by default** — never add a demo pinned to
+a fixed size or density unless that's deliberately the point of the demo (and
+say so in a comment).
+
+- **Density is ambient.** The shell applies `data-density` on `<html>`, so any
+  token-driven component picks it up with no prop — nothing to wire per demo.
+- **Size is a prop.** Thread it from `useChrome().size` as `size={size}` onto
+  every component that has a size axis (Button, Input, Table, the Popover
+  triggers, Modal, …). A new demo **must** pass `size={size}`.
+  - Overlay *panels* (Popover, Modal) have no `xs` size, so pass the clamped
+    `overlaySize` (`xs → sm`) to those, while their triggers take the raw
+    `size`. That is the only sanctioned deviation, and it's a clamp, not an
+    opt-out.
+
+If a component genuinely has no size axis (e.g. Divider), that's a fine reason
+to omit `size` — but it should still inherit density ambiently. When in doubt,
+wire both.
+
 ## You do not need Rust installed
 
 `primitiv-ui` ships a precompiled binary per platform via npm

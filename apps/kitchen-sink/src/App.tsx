@@ -106,11 +106,31 @@ function Section({
   );
 }
 
+// The twelve Popover placements, grouped by side (three per row in the demo
+// grid): top · right · bottom · left, each with start / center / end.
+const POPOVER_PLACEMENTS = [
+  "top-start",
+  "top",
+  "top-end",
+  "right-start",
+  "right",
+  "right-end",
+  "bottom-start",
+  "bottom",
+  "bottom-end",
+  "left-start",
+  "left",
+  "left-end",
+] as const;
+
 export function App(): ReactElement {
   // Density and theme are ambient (applied on <html> by the shell's
   // ChromeProvider); this page only needs `size`, which it threads as a prop to
   // the components that expose a size axis.
   const { size } = useChrome();
+  // Popover and Modal panels have no `xs` size (they start at `sm`), so clamp the
+  // shared control's `xs` down to `sm` for those overlay surfaces.
+  const overlaySize = size === "xs" ? "sm" : size;
   const [sort, setSort] = useState<{ key: keyof Release; dir: "asc" | "desc" }>({
     key: "downloads",
     dir: "desc",
@@ -499,11 +519,11 @@ export function ramp(hue: number, chroma = 0.12) {
       <Section title="Modal">
         <Modal>
           <ModalTrigger asChild>
-            <Button variant="primary">Open modal</Button>
+            <Button variant="primary" size={size}>Open modal</Button>
           </ModalTrigger>
           <ModalPortal>
             <ModalOverlay />
-            <ModalContent size="md">
+            <ModalContent size={overlaySize}>
               <ModalHeader>
                 <ModalTitle>Confirm</ModalTitle>
                 <ModalClose asChild>
@@ -531,63 +551,49 @@ export function ramp(hue: number, chroma = 0.12) {
         </Modal>
       </Section>
 
-      <Section title="Popover">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="secondary" style={{ anchorName: "--ks-pop-bottom" }}>
-              Bottom-start
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            placement="bottom-start"
-            size={size}
-            style={{ positionAnchor: "--ks-pop-bottom" }}
-          >
-            <PopoverTitle>Filters</PopoverTitle>
-            <PopoverDescription>Narrow the results below.</PopoverDescription>
-            <PopoverClose asChild>
-              <Button variant="ghost" size="sm" aria-label="Close">
-                <Close aria-hidden="true" />
-              </Button>
-            </PopoverClose>
-          </PopoverContent>
-        </Popover>
-
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="secondary" style={{ anchorName: "--ks-pop-top" }}>
-              Top
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent placement="top" size={size} style={{ positionAnchor: "--ks-pop-top" }}>
-            <PopoverTitle>Top</PopoverTitle>
-            <PopoverDescription>The arrow points down at the trigger.</PopoverDescription>
-          </PopoverContent>
-        </Popover>
-
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="secondary" style={{ anchorName: "--ks-pop-right" }}>
-              Right
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent placement="right" size={size} style={{ positionAnchor: "--ks-pop-right" }}>
-            <PopoverTitle>Right</PopoverTitle>
-            <PopoverDescription>The arrow points left at the trigger.</PopoverDescription>
-          </PopoverContent>
-        </Popover>
-
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="secondary" style={{ anchorName: "--ks-pop-left" }}>
-              Left
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent placement="left" size={size} style={{ positionAnchor: "--ks-pop-left" }}>
-            <PopoverTitle>Left</PopoverTitle>
-            <PopoverDescription>The arrow points right at the trigger.</PopoverDescription>
-          </PopoverContent>
-        </Popover>
+      <Section title="Popover" column>
+        <p className="kitchen-sink__note">
+          Click any trigger to open its placement (one at a time — the panels are
+          native <InlineCode>popover=&quot;auto&quot;</InlineCode>). Panel + arrow
+          track the Size and Density controls above.
+        </p>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, max-content)",
+            gap: "2rem 1.5rem",
+            justifyContent: "start",
+          }}
+        >
+          {POPOVER_PLACEMENTS.map((placement) => (
+            <Popover key={placement}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="secondary"
+                  size={size}
+                  style={{ anchorName: `--ks-pop-${placement}` }}
+                >
+                  {placement}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                placement={placement}
+                size={overlaySize}
+                style={{ positionAnchor: `--ks-pop-${placement}` }}
+              >
+                <PopoverTitle>{placement}</PopoverTitle>
+                <PopoverDescription>
+                  Placement <InlineCode>{placement}</InlineCode>.
+                </PopoverDescription>
+                <PopoverClose asChild>
+                  <Button variant="ghost" size="sm" aria-label="Close">
+                    <Close aria-hidden="true" />
+                  </Button>
+                </PopoverClose>
+              </PopoverContent>
+            </Popover>
+          ))}
+        </div>
       </Section>
     </div>
   );

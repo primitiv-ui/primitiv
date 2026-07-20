@@ -4,6 +4,7 @@ export * from "./carousel";
 export * from "./checkbox";
 export * from "./code-block";
 export * from "./divider";
+export * from "./drawer";
 export * from "./field";
 export * from "./inline-code";
 export * from "./input";

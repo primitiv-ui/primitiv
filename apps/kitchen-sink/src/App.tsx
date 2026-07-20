@@ -10,6 +10,17 @@ import {
   Checkbox,
   CodeBlock,
   Divider,
+  Drawer,
+  DrawerTrigger,
+  DrawerPortal,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerHeader,
+  DrawerBody,
+  DrawerFooter,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerClose,
   Field,
   FieldLabel,
   FieldDescription,
@@ -123,6 +134,8 @@ const POPOVER_PLACEMENTS = [
   "left",
   "left-end",
 ] as const;
+
+const DRAWER_SIDES = ["left", "right", "top", "bottom"] as const;
 
 export function App(): ReactElement {
   // Density and theme are ambient (applied on <html> by the shell's
@@ -554,6 +567,51 @@ export function ramp(hue: number, chroma = 0.12) {
             </ModalContent>
           </ModalPortal>
         </Modal>
+      </Section>
+
+      {/* One uncontrolled drawer per edge. Triggers take the raw `size`; the
+          panels take the clamped `overlaySize` (no xs), mirroring Modal. */}
+      <Section title="Drawer">
+        {DRAWER_SIDES.map((side) => (
+          <Drawer key={side}>
+            <DrawerTrigger asChild>
+              <Button variant="secondary" size={size}>
+                From {side}
+              </Button>
+            </DrawerTrigger>
+            <DrawerPortal>
+              <DrawerOverlay />
+              <DrawerContent side={side} size={overlaySize}>
+                <DrawerHeader>
+                  <DrawerTitle>{side[0].toUpperCase() + side.slice(1)} drawer</DrawerTitle>
+                  <DrawerClose asChild>
+                    <Button variant="ghost" size="sm" aria-label="Close">
+                      <Close aria-hidden="true" />
+                    </Button>
+                  </DrawerClose>
+                </DrawerHeader>
+                <DrawerBody>
+                  <DrawerDescription>
+                    A dialog that slides in from the {side} edge. It reuses the{" "}
+                    <InlineCode size={size}>Modal</InlineCode> machinery — focus trap,{" "}
+                    <InlineCode size={size}>Esc</InlineCode>, and click-outside — and adds
+                    only the <InlineCode size={size}>side</InlineCode> axis.
+                  </DrawerDescription>
+                  <p>
+                    The body is the region that scrolls when its content overflows, so the
+                    header and footer stay pinned to the panel edges.
+                  </p>
+                </DrawerBody>
+                <DrawerFooter>
+                  <DrawerClose asChild>
+                    <Button variant="secondary">Cancel</Button>
+                  </DrawerClose>
+                  <Button variant="primary">Save</Button>
+                </DrawerFooter>
+              </DrawerContent>
+            </DrawerPortal>
+          </Drawer>
+        ))}
       </Section>
 
       <Section title="Popover" column>

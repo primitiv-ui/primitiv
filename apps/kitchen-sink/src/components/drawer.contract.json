@@ -1,0 +1,105 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "drawer",
+  "version": "0.1.0",
+  "description": "An accessible drawer — a Modal dialog built on the native `<dialog>` element that slides in from a screen edge (top, right, bottom, or left).",
+  "docs": "https://primitiv-ui.dev/docs/components/drawer",
+  "root": {
+    "element": "dialog",
+    "class": "primitiv-drawer",
+    "component": "Content"
+  },
+  "dataAttributes": [
+    { "name": "data-state", "value": "open", "when": "open", "source": "auto" },
+    { "name": "data-state", "value": "closed", "when": "closed", "source": "auto" },
+    { "name": "data-side", "value": "top", "when": "side=top", "source": "auto" },
+    { "name": "data-side", "value": "right", "when": "side=right", "source": "auto" },
+    { "name": "data-side", "value": "bottom", "when": "side=bottom", "source": "auto" },
+    { "name": "data-side", "value": "left", "when": "side=left", "source": "auto" }
+  ],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Panel extent along its cross axis — width for a left/right drawer, height for a top/bottom sheet; `data-density` scales the padding within each size.",
+      "options": [
+        { "name": "sm", "class": "primitiv-drawer--sm", "description": "Small (320px cross axis)." },
+        { "name": "md", "class": "primitiv-drawer--md", "description": "Medium (384px, the default)." },
+        { "name": "lg", "class": "primitiv-drawer--lg", "description": "Large (480px)." },
+        { "name": "xl", "class": "primitiv-drawer--xl", "description": "Extra large (576px)." }
+      ]
+    }
+  ],
+  "subcomponents": [
+    {
+      "name": "overlay",
+      "component": "Overlay",
+      "element": "div",
+      "class": "primitiv-drawer__overlay",
+      "dataAttributes": [
+        { "name": "data-state", "value": "open", "when": "open", "source": "auto" },
+        { "name": "data-state", "value": "closed", "when": "closed", "source": "auto" }
+      ]
+    },
+    {
+      "name": "header",
+      "component": "Header",
+      "element": "div",
+      "class": "primitiv-drawer__header"
+    },
+    {
+      "name": "body",
+      "component": "Body",
+      "element": "div",
+      "class": "primitiv-drawer__body"
+    },
+    {
+      "name": "footer",
+      "component": "Footer",
+      "element": "div",
+      "class": "primitiv-drawer__footer"
+    },
+    {
+      "name": "title",
+      "component": "Title",
+      "element": "h2",
+      "class": "primitiv-drawer__title"
+    },
+    {
+      "name": "description",
+      "component": "Description",
+      "element": "p",
+      "class": "primitiv-drawer__description"
+    },
+    {
+      "name": "close",
+      "component": "Close",
+      "element": "button",
+      "class": "primitiv-drawer__close"
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-drawer-surface", "defaultsTo": "var(--primitiv-surface-default)" },
+    { "name": "--primitiv-drawer-fg", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-drawer-shadow", "defaultsTo": "var(--primitiv-elevation-modal)" },
+    { "name": "--primitiv-drawer-scrim", "defaultsTo": "var(--primitiv-scrim)" },
+    { "name": "--primitiv-drawer-radius", "defaultsTo": "var(--primitiv-modal-md-radius)" },
+    { "name": "--primitiv-drawer-padding-inline", "defaultsTo": "var(--primitiv-modal-md-padding-inline)" },
+    { "name": "--primitiv-drawer-padding-block", "defaultsTo": "var(--primitiv-modal-md-padding-block)" },
+    { "name": "--primitiv-drawer-gap", "defaultsTo": "var(--primitiv-modal-md-gap)" },
+    { "name": "--primitiv-drawer-size", "defaultsTo": "24rem" },
+    { "name": "--primitiv-drawer-border-width", "defaultsTo": "var(--primitiv-border-width-1)" },
+    { "name": "--primitiv-drawer-border-color", "defaultsTo": "var(--primitiv-border-default)" },
+    { "name": "--primitiv-drawer-divider-color", "defaultsTo": "var(--primitiv-border-subtle)" },
+    { "name": "--primitiv-drawer-title-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-drawer-title-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
+    { "name": "--primitiv-drawer-title-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },
+    { "name": "--primitiv-drawer-title-font-weight", "defaultsTo": "var(--primitiv-label-md-font-weight)" },
+    { "name": "--primitiv-drawer-title-line-height", "defaultsTo": "var(--primitiv-label-md-line-height)" },
+    { "name": "--primitiv-drawer-description-color", "defaultsTo": "var(--primitiv-content-secondary)" },
+    { "name": "--primitiv-drawer-description-font-family", "defaultsTo": "var(--primitiv-body-sm-font-family)" },
+    { "name": "--primitiv-drawer-description-font-size", "defaultsTo": "var(--primitiv-body-sm-font-size)" },
+    { "name": "--primitiv-drawer-description-font-weight", "defaultsTo": "var(--primitiv-body-sm-font-weight)" },
+    { "name": "--primitiv-drawer-description-line-height", "defaultsTo": "var(--primitiv-body-sm-line-height)" }
+  ]
+}

@@ -7,7 +7,20 @@
  */
 import { cva, type VariantProps } from "class-variance-authority";
 
-export const field = cva("primitiv-field");
+export const field = cva("primitiv-field", {
+  variants: {
+    size: {
+      xs: "primitiv-field--xs",
+      sm: "primitiv-field--sm",
+      md: "primitiv-field--md",
+      lg: "primitiv-field--lg",
+      xl: "primitiv-field--xl",
+    },
+  },
+  defaultVariants: {
+    size: "md",
+  },
+});
 
 export type FieldVariants = VariantProps<typeof field>;
 

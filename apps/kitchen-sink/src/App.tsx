@@ -338,12 +338,12 @@ primitiv add --all`}</code>
       </Section>
 
       <Section title="Field" column>
-        <Field>
+        <Field size={size}>
           <FieldLabel>Email</FieldLabel>
           <Input type="email" size={size} placeholder="you@example.com" />
           <FieldDescription>We won't share it.</FieldDescription>
         </Field>
-        <Field>
+        <Field size={size}>
           <FieldLabel>Username</FieldLabel>
           <Input type="text" size={size} defaultValue="taken" aria-invalid />
           <FieldErrorText>That username is already taken.</FieldErrorText>

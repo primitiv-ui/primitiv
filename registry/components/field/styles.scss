@@ -79,6 +79,48 @@
   }
 }
 
+@layer primitiv.variants {
+  /* Size — re-points the label + helper typography and the stack gap. Font family
+     and weight are size-invariant (they stay at the base). Density stays ambient
+     via [data-density] on the token values (RFC 0009). The helper sits one step
+     below the label (floored at xs), matching the md default (label md / helper sm). */
+  .primitiv-field--xs {
+    --primitiv-field-gap: var(--primitiv-space-space-4);
+    --primitiv-field-label-font-size: var(--primitiv-label-xs-font-size);
+    --primitiv-field-label-line-height: var(--primitiv-label-xs-line-height);
+    --primitiv-field-helper-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-field-helper-line-height: var(--primitiv-body-xs-line-height);
+  }
+  .primitiv-field--sm {
+    --primitiv-field-gap: var(--primitiv-space-space-6);
+    --primitiv-field-label-font-size: var(--primitiv-label-sm-font-size);
+    --primitiv-field-label-line-height: var(--primitiv-label-sm-line-height);
+    --primitiv-field-helper-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-field-helper-line-height: var(--primitiv-body-xs-line-height);
+  }
+  .primitiv-field--md {
+    --primitiv-field-gap: var(--primitiv-space-space-8);
+    --primitiv-field-label-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-field-label-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-field-helper-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-field-helper-line-height: var(--primitiv-body-sm-line-height);
+  }
+  .primitiv-field--lg {
+    --primitiv-field-gap: var(--primitiv-space-space-10);
+    --primitiv-field-label-font-size: var(--primitiv-label-lg-font-size);
+    --primitiv-field-label-line-height: var(--primitiv-label-lg-line-height);
+    --primitiv-field-helper-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-field-helper-line-height: var(--primitiv-body-md-line-height);
+  }
+  .primitiv-field--xl {
+    --primitiv-field-gap: var(--primitiv-space-space-12);
+    --primitiv-field-label-font-size: var(--primitiv-label-xl-font-size);
+    --primitiv-field-label-line-height: var(--primitiv-label-xl-line-height);
+    --primitiv-field-helper-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-field-helper-line-height: var(--primitiv-body-lg-line-height);
+  }
+}
+
 @layer primitiv.states {
   /* Required — the label grows a trailing marker. Driven by the field's own
      data-field-required hook so the whole group stays a single source of truth. */

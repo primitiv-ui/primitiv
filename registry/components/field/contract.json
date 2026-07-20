@@ -15,6 +15,20 @@
     { "name": "data-field-disabled", "value": "", "when": "disabled", "source": "auto" },
     { "name": "data-field-required", "value": "", "when": "required", "source": "auto" }
   ],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Control size for the whole field; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-field--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-field--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-field--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-field--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-field--xl", "description": "Extra large." }
+      ]
+    }
+  ],
   "subcomponents": [
     {
       "name": "label",

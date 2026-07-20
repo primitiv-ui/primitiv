@@ -1,10 +1,13 @@
 # `field` — registry entry
 
 The artefacts `primitiv add field` resolves and copies into a consumer repo.
-Field is the **form-field-wrapper proof**: a structural compound with **no
-modifiers** whose job is layout and state, not a sized control. It sits *around*
-a control (`Input`, a future `Textarea`, …) and owns the label, helper text, and
-error message.
+Field is a **form-field wrapper**: a structural compound that owns the label,
+helper text, and error message around a control (`Input`, a future `Textarea`, …).
+It carries a **`size`** axis that scales its own label / helper typography and
+stack gap (density scales each size further, ambiently). Field does **not**
+cascade size to the control it wraps — the control carries its own `size`, so set
+`size` on both and keep them matched (a single-prop cascade would need the
+headless `Field` to distribute size through context; tracked as a future option).
 
 ## Files
 
@@ -34,14 +37,16 @@ A **hybrid** document with two halves and two sources of truth (D15):
   `.primitiv-field` root + `__label` / `__description` / `__error` part classes,
   the structural subcomponents the consumer composes, and the `--primitiv-field-*`
   custom-property API are styling conventions the headless layer does not emit.
-  There are **no `modifiers`** — Field is a layout coordinator, not a sized
-  control; the control it wraps carries its own `size`.
+- **`modifiers`** — a single **`size`** modifier (`xs`–`xl`, default `md`) that
+  re-points the label / helper typography + stack gap to the matching step.
+  Density scales each size further via `[data-density]` (RFC 0009). Field does not
+  cascade this to the wrapped control — that carries its own `size`.
 
 ## The default theme (`styles.css`)
 
 Structured per RFC 0008 — the per-component API tokens + resting layout in
-`primitiv.base`, the required / disabled styling in `primitiv.states` (no
-`primitiv.variants` — Field has no modifiers). The field is a vertical flex stack
+`primitiv.base`, the `size` classes in `primitiv.variants`, the required /
+disabled styling in `primitiv.states`. The field is a vertical flex stack
 (label, control, description, error) separated by one `--primitiv-field-gap`; the
 label uses `label/*` typography, helper + error text use `body/*`, and colour
 comes from `content/*` (`content-error` for the error and the required marker).
@@ -73,9 +78,9 @@ via a base-only `cva`. There is no auto-rendered subtree: the consumer writes th
 label / control / description / error in the order they want.
 
 ```tsx
-<Field>
+<Field size="md">
   <FieldLabel>Email</FieldLabel>
-  <Input type="email" required />
+  <Input type="email" size="md" required />
   <FieldDescription>We won't share it.</FieldDescription>
   <FieldErrorText>Enter a valid email.</FieldErrorText>
 </Field>

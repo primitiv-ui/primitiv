@@ -9,15 +9,29 @@ import { Field as FieldPrimitive } from "@primitiv-ui/react";
 import { type ComponentPropsWithRef } from "react";
 import { field, fieldLabel, fieldDescription, fieldErrorText } from "./field.recipe";
 
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
+
 /**
  * A form-field wrapper — coordinates a label, control, description, and error message and cascades id / validity / disabled / required to the control it wraps.
  *
  * @see https://primitiv-ui.dev/docs/components/field
  */
-export type FieldProps = ComponentPropsWithRef<typeof FieldPrimitive.Root>;
+export type FieldProps = DistributiveOmit<ComponentPropsWithRef<typeof FieldPrimitive.Root>, "size"> & {
+  /**
+   * Control size for the whole field; `data-density` scales each size further.
+   * - `xs` — Extra small.
+   * - `sm` — Small.
+   * - `md` — Medium (the default).
+   * - `lg` — Large.
+   * - `xl` — Extra large.
+   * @default "md"
+   * @see https://primitiv-ui.dev/docs/components/field
+   */
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
+};
 
-export function Field({ className, ...props }: FieldProps) {
-  return <FieldPrimitive.Root className={[field(), className].filter(Boolean).join(" ")} {...props} />;
+export function Field({ size, className, ...props }: FieldProps) {
+  return <FieldPrimitive.Root className={[field({ size }), className].filter(Boolean).join(" ")} {...props} />;
 }
 
 export type FieldLabelProps = ComponentPropsWithRef<typeof FieldPrimitive.Label>;

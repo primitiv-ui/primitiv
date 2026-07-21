@@ -49,6 +49,8 @@ import {
  * **`asChild` prop.** Pass `asChild` to render any consumer-supplied
  * element with the RadioCard's props merged in. The native `<div>` is dropped.
  *
+ * @extends HTMLDivElement
+ *
  * @example Uncontrolled
  * ```tsx
  * <RadioCard.Root defaultValue="pro" aria-label="Plan">
@@ -157,6 +159,8 @@ RadioCardRoot.displayName = "RadioCardRoot";
  * the Item's ARIA, data-state, tabIndex, onClick, onKeyDown, disabled, and
  * ref merged onto it.
  *
+ * @extends HTMLButtonElement
+ *
  * @throws if rendered outside a `RadioCard.Root`.
  */
 export function RadioCardItem({
@@ -251,6 +255,8 @@ RadioCardItem.displayName = "RadioCardItem";
  * **`forceMount` prop.** Pass `forceMount` to keep the indicator in the DOM
  * while unchecked so a CSS exit animation can play against
  * `data-state="unchecked"`.
+ *
+ * @extends HTMLSpanElement
  *
  * @example
  * ```tsx

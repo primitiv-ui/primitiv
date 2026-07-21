@@ -5,12 +5,9 @@ import { Slot } from "../Slot/index.ts";
 import { InputProps } from "./types";
 
 /**
- * A headless, accessible single-line text input.
- *
- * Renders a native `<input>` and passes every standard input attribute
- * straight through to the DOM — `value` / `defaultValue`, `placeholder`,
- * `type`, `name`, `required`, `pattern`, `min`, `max`, `step`,
- * `maxLength`, and so on. No styles ship with the component.
+ * A headless, accessible single-line text input. Renders a native
+ * `<input>` element and passes every standard attribute straight through
+ * to the DOM. No styles ship with the component.
  *
  * **Default type.** `type="text"` is set by default. Override with the
  * `type` prop for any native variant (`"email"`, `"password"`,
@@ -45,6 +42,11 @@ import { InputProps } from "./types";
  * ids first, then field-supplied description / error ids). Outside a
  * `<Field.Root>`, behaviour is unchanged.
  *
+ * **Styling hooks.**
+ * - `data-disabled=""` — present when `disabled` is `true`; absent
+ *   otherwise. Lets CSS target `[data-disabled]` without depending on
+ *   the `:disabled` pseudo-class.
+ *
  * **Ref forwarding.** Pass a `ref` prop to access the underlying
  * `HTMLInputElement`:
  *
@@ -62,13 +64,16 @@ import { InputProps } from "./types";
  * ```
  *
  * **`asChild` composition.** Renders the consumer's element instead of
- * `<input>`, merging all props (aria-*, data-*, event handlers, ref)
- * via the {@link Slot} utility. `type` is **not** forwarded in this
- * mode — the child element owns its own type semantics.
+ * `<input>`, merging all props (`aria-*`, `data-*`, event handlers,
+ * `ref`) via the {@link Slot} utility. Event handlers compose with the
+ * child's own handlers (child runs first). `type` is **not** forwarded
+ * in this mode — the child element owns its own type semantics.
  *
  * **Adornments** live in the separate `InputGroup` primitive — leading
  * / trailing icons, currency symbols, clear buttons, password-reveal
  * toggles.
+ *
+ * @extends HTMLInputElement
  *
  * @example Basic usage
  * ```tsx

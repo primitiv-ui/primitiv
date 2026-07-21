@@ -19,14 +19,15 @@
   ],
   "modifiers": [
     {
-      "name": "size",
+      "name": "width",
       "default": "md",
-      "description": "Panel extent along its cross axis — width for a left/right drawer, height for a top/bottom sheet; `data-density` scales the padding within each size.",
+      "description": "The drawer's cross-axis extent — width for a left/right drawer, height for a top/bottom sheet — stepped off the size/* scale. The long axis always fills the viewport; padding stays density-driven, independent of width.",
       "options": [
-        { "name": "sm", "class": "primitiv-drawer--sm", "description": "Small (320px cross axis)." },
-        { "name": "md", "class": "primitiv-drawer--md", "description": "Medium (384px, the default)." },
-        { "name": "lg", "class": "primitiv-drawer--lg", "description": "Large (480px)." },
-        { "name": "xl", "class": "primitiv-drawer--xl", "description": "Extra large (576px)." }
+        { "name": "xs", "class": "primitiv-drawer--xs", "description": "168px." },
+        { "name": "sm", "class": "primitiv-drawer--sm", "description": "200px." },
+        { "name": "md", "class": "primitiv-drawer--md", "description": "240px (the default)." },
+        { "name": "lg", "class": "primitiv-drawer--lg", "description": "288px." },
+        { "name": "xl", "class": "primitiv-drawer--xl", "description": "344px." }
       ]
     }
   ],
@@ -87,7 +88,7 @@
     { "name": "--primitiv-drawer-padding-inline", "defaultsTo": "var(--primitiv-modal-md-padding-inline)" },
     { "name": "--primitiv-drawer-padding-block", "defaultsTo": "var(--primitiv-modal-md-padding-block)" },
     { "name": "--primitiv-drawer-gap", "defaultsTo": "var(--primitiv-modal-md-gap)" },
-    { "name": "--primitiv-drawer-size", "defaultsTo": "24rem" },
+    { "name": "--primitiv-drawer-size", "defaultsTo": "var(--primitiv-size-size-240)" },
     { "name": "--primitiv-drawer-border-width", "defaultsTo": "var(--primitiv-border-width-1)" },
     { "name": "--primitiv-drawer-border-color", "defaultsTo": "var(--primitiv-border-default)" },
     { "name": "--primitiv-drawer-divider-color", "defaultsTo": "var(--primitiv-border-subtle)" },

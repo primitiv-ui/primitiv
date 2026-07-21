@@ -3,18 +3,19 @@
  *
  * Like Modal (and unlike the generated registry components), Drawer's wrapper is
  * hand-authored (drawer.tsx) because Drawer.Root / Drawer.Portal take no
- * className. This recipe still follows the generated shape: it maps the `size`
- * variant to the contract's modifier classes; the styling lives in the copied
- * stylesheet (RFC 0006 §6.1 / D53). The `side` axis is NOT a class — it rides on
- * the `data-side` attribute the headless Drawer.Content emits, which the
- * stylesheet keys off for positioning + the slide direction. Change
- * registry/components/drawer/contract.json + this file together.
+ * className. This recipe still follows the generated shape: it maps the `width`
+ * variant (the drawer's cross-axis extent) to the contract's modifier classes;
+ * the styling lives in the copied stylesheet (RFC 0006 §6.1 / D53). The `side`
+ * axis is NOT a class — it rides on the `data-side` attribute the headless
+ * Drawer.Content emits, which the stylesheet keys off for positioning + the slide
+ * direction. Change registry/components/drawer/contract.json + this file together.
  */
 import { cva, type VariantProps } from "class-variance-authority";
 
 export const drawer = cva("primitiv-drawer", {
   variants: {
-    size: {
+    width: {
+      xs: "primitiv-drawer--xs",
       sm: "primitiv-drawer--sm",
       md: "primitiv-drawer--md",
       lg: "primitiv-drawer--lg",
@@ -22,7 +23,7 @@ export const drawer = cva("primitiv-drawer", {
     },
   },
   defaultVariants: {
-    size: "md",
+    width: "md",
   },
 });
 

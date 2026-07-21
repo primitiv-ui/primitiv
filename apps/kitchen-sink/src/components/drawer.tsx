@@ -60,22 +60,27 @@ export function DrawerOverlay({ className, ...props }: DrawerOverlayProps) {
   return <DrawerPrimitive.Overlay className={[drawerOverlay(), className].filter(Boolean).join(" ")} {...props} />;
 }
 
-export type DrawerContentProps = DistributiveOmit<ComponentPropsWithRef<typeof DrawerPrimitive.Content>, "size"> & {
+export type DrawerContentProps = DistributiveOmit<ComponentPropsWithRef<typeof DrawerPrimitive.Content>, "width"> & {
   /**
-   * Panel extent along its cross axis — width for a left/right drawer, height for
-   * a top/bottom sheet; `data-density` scales the padding within each size.
-   * - `sm` — Small (320px cross axis).
-   * - `md` — Medium (384px, the default).
-   * - `lg` — Large (480px).
-   * - `xl` — Extra large (576px).
+   * The drawer's cross-axis extent — the **width** for a left/right drawer, the
+   * **height** for a top/bottom sheet — stepped off the `size/*` scale. The long
+   * axis always fills the viewport; only this cross axis changes.
+   * - `xs` — 168px
+   * - `sm` — 200px
+   * - `md` — 240px (the default)
+   * - `lg` — 288px
+   * - `xl` — 344px
+   *
+   * For an arbitrary value, override the `--primitiv-drawer-size` custom property
+   * via `style` instead of using this prop.
    * @default "md"
    * @see https://primitiv-ui.dev/docs/components/drawer
    */
-  size?: "sm" | "md" | "lg" | "xl";
+  width?: "xs" | "sm" | "md" | "lg" | "xl";
 };
 
 /**
- * The sliding panel — the native `<dialog>`. Combines the styled `size` axis
+ * The sliding panel — the native `<dialog>`. Combines the styled `width` axis
  * (cross-axis extent, applied as a modifier class) with the headless `side` axis
  * (`"top" | "right" | "bottom" | "left"`, default `"right"`), which passes
  * through unchanged and is emitted as `data-side` for the stylesheet to dock the
@@ -83,8 +88,8 @@ export type DrawerContentProps = DistributiveOmit<ComponentPropsWithRef<typeof D
  *
  * @see https://primitiv-ui.dev/docs/components/drawer
  */
-export function DrawerContent({ size, className, ...props }: DrawerContentProps) {
-  return <DrawerPrimitive.Content className={[drawer({ size }), className].filter(Boolean).join(" ")} {...props} />;
+export function DrawerContent({ width, className, ...props }: DrawerContentProps) {
+  return <DrawerPrimitive.Content className={[drawer({ width }), className].filter(Boolean).join(" ")} {...props} />;
 }
 
 /**

@@ -73,7 +73,7 @@
     --primitiv-drawer-padding-inline: var(--primitiv-modal-md-padding-inline);
     --primitiv-drawer-padding-block: var(--primitiv-modal-md-padding-block);
     --primitiv-drawer-gap: var(--primitiv-modal-md-gap);
-    --primitiv-drawer-size: 24rem;
+    --primitiv-drawer-size: var(--primitiv-size-size-240);
     --primitiv-drawer-border-width: var(--primitiv-border-width-1);
     --primitiv-drawer-border-color: var(--primitiv-border-default);
     --primitiv-drawer-divider-color: var(--primitiv-border-subtle);
@@ -97,8 +97,8 @@
     /* Never exceed the viewport — a wide `size` clamps on small screens. */
     max-inline-size: 100dvw;
     max-block-size: 100dvh;
-    border: 0 solid var(--primitiv-drawer-border-color);
-    border-radius: 0;
+    border: var(--primitiv-border-width-0) solid var(--primitiv-drawer-border-color);
+    border-radius: var(--primitiv-radii-0);
     background: var(--primitiv-drawer-surface);
     color: var(--primitiv-drawer-fg);
     box-shadow: var(--primitiv-drawer-shadow);
@@ -251,37 +251,25 @@
 }
 
 @layer primitiv.variants {
-  /* Size — re-points the sizing knobs to the chosen slot: the cross-axis extent
-     plus the shared modal/* radius / padding / gap. Density stays ambient via
-     [data-density] on the token values themselves (RFC 0009). The extent literals
-     are intentionally fixed (sm 320 · md 384 · lg 480 · xl 576). */
+  /* Width — the cross-axis extent (width for a left/right drawer, height for a
+     top/bottom sheet), stepped xs–xl off the size/* scale. Only the extent scales
+     here: padding / gap / radius stay on the base's modal-md tokens and track
+     density ambiently (RFC 0009), so a drawer's inner spacing is independent of
+     how wide it is. */
+  .primitiv-drawer--xs {
+    --primitiv-drawer-size: var(--primitiv-size-size-168);
+  }
   .primitiv-drawer--sm {
-    --primitiv-drawer-size: 20rem;
-    --primitiv-drawer-radius: var(--primitiv-modal-sm-radius);
-    --primitiv-drawer-padding-inline: var(--primitiv-modal-sm-padding-inline);
-    --primitiv-drawer-padding-block: var(--primitiv-modal-sm-padding-block);
-    --primitiv-drawer-gap: var(--primitiv-modal-sm-gap);
+    --primitiv-drawer-size: var(--primitiv-size-size-200);
   }
   .primitiv-drawer--md {
-    --primitiv-drawer-size: 24rem;
-    --primitiv-drawer-radius: var(--primitiv-modal-md-radius);
-    --primitiv-drawer-padding-inline: var(--primitiv-modal-md-padding-inline);
-    --primitiv-drawer-padding-block: var(--primitiv-modal-md-padding-block);
-    --primitiv-drawer-gap: var(--primitiv-modal-md-gap);
+    --primitiv-drawer-size: var(--primitiv-size-size-240);
   }
   .primitiv-drawer--lg {
-    --primitiv-drawer-size: 30rem;
-    --primitiv-drawer-radius: var(--primitiv-modal-lg-radius);
-    --primitiv-drawer-padding-inline: var(--primitiv-modal-lg-padding-inline);
-    --primitiv-drawer-padding-block: var(--primitiv-modal-lg-padding-block);
-    --primitiv-drawer-gap: var(--primitiv-modal-lg-gap);
+    --primitiv-drawer-size: var(--primitiv-size-size-288);
   }
   .primitiv-drawer--xl {
-    --primitiv-drawer-size: 36rem;
-    --primitiv-drawer-radius: var(--primitiv-modal-xl-radius);
-    --primitiv-drawer-padding-inline: var(--primitiv-modal-xl-padding-inline);
-    --primitiv-drawer-padding-block: var(--primitiv-modal-xl-padding-block);
-    --primitiv-drawer-gap: var(--primitiv-modal-xl-gap);
+    --primitiv-drawer-size: var(--primitiv-size-size-344);
   }
 }
 

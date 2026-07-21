@@ -569,8 +569,9 @@ export function ramp(hue: number, chroma = 0.12) {
         </Modal>
       </Section>
 
-      {/* One uncontrolled drawer per edge. Triggers take the raw `size`; the
-          panels take the clamped `overlaySize` (no xs), mirroring Modal. */}
+      {/* One uncontrolled drawer per edge. Triggers take the raw `size`; the panels
+          take `width` (the drawer's own xs–xl cross-axis, off the size/* scale),
+          threaded from the same control — it has an xs step, so no clamp needed. */}
       <Section title="Drawer">
         {DRAWER_SIDES.map((side) => (
           <Drawer key={side}>
@@ -581,7 +582,7 @@ export function ramp(hue: number, chroma = 0.12) {
             </DrawerTrigger>
             <DrawerPortal>
               <DrawerOverlay />
-              <DrawerContent side={side} size={overlaySize}>
+              <DrawerContent side={side} width={size}>
                 <DrawerHeader>
                   <DrawerTitle>{side[0].toUpperCase() + side.slice(1)} drawer</DrawerTitle>
                   <DrawerClose asChild>

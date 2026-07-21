@@ -48,7 +48,7 @@ import { Close } from "@primitiv-ui/icons";
   </DrawerTrigger>
   <DrawerPortal>
     <DrawerOverlay />
-    <DrawerContent side="right" size="md">
+    <DrawerContent side="right" width="md">
       <DrawerHeader>
         <DrawerTitle>Filters</DrawerTitle>
         <DrawerClose asChild>
@@ -80,10 +80,15 @@ its native element props (plus `asChild` on the headless parts).
 | Prop | Values | Default | Effect |
 |---|---|---|---|
 | `side` | `top` · `right` · `bottom` · `left` | `right` | Which edge the panel docks to and slides in from. Emitted as `data-side`. |
-| `size` | `sm` · `md` · `lg` · `xl` | `md` | The panel's **cross-axis** extent — width for a left/right drawer (320 · 384 · 480 · 576px), height for a top/bottom sheet. |
+| `width` | `xs` · `sm` · `md` · `lg` · `xl` | `md` | The panel's **cross-axis** extent, off the `size/*` scale — width for a left/right drawer (168 · 200 · 240 · 288 · 344px), height for a top/bottom sheet. The long axis always fills the viewport. |
 
-Density is ambient: `data-density` on an ancestor scales the padding within each
-size (the spacing reuses the `modal/*` tokens, so a drawer matches a modal).
+For an arbitrary cross-axis size, override the `--primitiv-drawer-size` custom
+property via `style` (e.g. `style={{ "--primitiv-drawer-size": "32rem" }}`)
+instead of the `width` prop.
+
+Padding, gap, and radius stay density-driven and **independent of `width`** —
+`data-density` on an ancestor scales them (they reuse the `modal/*` tokens, so a
+drawer's inner spacing matches a modal's), whatever width you pick.
 
 ## Files
 

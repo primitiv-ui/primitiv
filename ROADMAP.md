@@ -57,7 +57,7 @@ Figma set, no standalone headless component.
 | Collapsible | — | ✓ | — | — | |
 | ContextMenu | ✓ | ✓ | — | — | 1142:25899 (reuses Dropdown/* rows via slots — no ContextMenu-specific sub-components) |
 | Divider | ✓ | ✓ | ✓ | ✓ | |
-| Drawer | ✓ | ✓ | ✓ | ✓ | 1142:26332 (Side×Size; reuses Modal/Header·Body·Footer + Backdrop); headless = thin composition over Modal + `side` axis; registry = standalone `.primitiv-drawer` (edge-docked Modal, `data-side` slide + `size` cross-axis, reuses `modal/*` tokens); kitchen-sink = one drawer per edge |
+| Drawer | ✓ | ✓ | ✓ | ✓ | 1142:26332 (Side×Size; reuses Modal/Header·Body·Footer + Backdrop); headless = thin composition over Modal + `side` axis; registry = standalone `.primitiv-drawer` (edge-docked Modal, `data-side` slide + `width` cross-axis off the `size/*` scale, density-driven padding via `modal/*` tokens); kitchen-sink = one drawer per edge |
 | Dropdown | ✓ | ✓ | — | — | 402:18499 |
 | EmptyState | — | ✓ | — | — | |
 | Field | ✓ | ✓ | ✓ | ✓ | 394:7449 |

@@ -46,6 +46,8 @@ function dataStateOf(checked: boolean) {
  * visibility off the input's native `:checked` / `:has()` selectors;
  * `data-state` is a convenience mirror.
  *
+ * @extends HTMLInputElement
+ *
  * @example Native group (the browser owns selection)
  * ```tsx
  * <Radio.Root name="density" value="compact" defaultChecked aria-label="Compact">
@@ -128,6 +130,8 @@ RadioRoot.displayName = "RadioRoot";
  * **`asChild` prop.** Pass `asChild` to render the consumer's own element
  * (typically an `<svg>` dot) as the indicator itself, with `data-state` merged
  * onto that element rather than a wrapper.
+ *
+ * @extends HTMLSpanElement
  *
  * @example Dot as the indicator via `asChild`
  * ```tsx

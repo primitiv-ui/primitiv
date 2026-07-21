@@ -8,7 +8,16 @@ import { ChangeEventHandler, ComponentProps, ReactNode, Ref } from "react";
  * grouped sibling (which fires no React event).
  */
 export type RadioIndicatorProps = ComponentProps<"span"> & {
+  /** Custom dot content. Omit to let the shipped CSS draw the dot off the
+   * input's native `:checked` state; provide your own (an icon, glyph, or
+   * nested element) to override it. */
   children?: ReactNode;
+  /**
+   * When `true`, render `children` as the indicator element itself (via the
+   * {@link Slot} pattern) instead of wrapping them in a `<span>`. `data-state`
+   * and `aria-hidden` are merged onto that element.
+   * @default false
+   */
   asChild?: boolean;
 };
 
@@ -42,7 +51,11 @@ export type RadioRootBaseProps = Omit<
  * forbidden.
  */
 export type RadioRootUncontrolledProps = RadioRootBaseProps & {
+  /** Whether this radio is selected on first render; the **browser** owns it
+   * thereafter, so native `name`-grouping (including silent deselection of
+   * siblings) works for free. Omit for an initially unselected radio. */
   defaultChecked?: boolean;
+  /** Forbidden in uncontrolled mode — use `defaultChecked` instead. */
   checked?: never;
 };
 
@@ -52,8 +65,15 @@ export type RadioRootUncontrolledProps = RadioRootBaseProps & {
  * forbidden. The consumer owns grouping in this mode.
  */
 export type RadioRootControlledProps = RadioRootBaseProps & {
+  /** Forbidden in controlled mode — use `checked` instead. */
   defaultChecked?: never;
+  /** Whether this radio is currently selected, owned by the parent. The
+   * consumer owns grouping in this mode (typically deriving each radio's
+   * `checked` from a single shared value). Keep it in sync via
+   * `onCheckedChange`. */
   checked: boolean;
+  /** Called (always with `true`) whenever this radio becomes selected —
+   * required in controlled mode so the parent can update its shared value. */
   onCheckedChange: (checked: boolean) => void;
 };
 

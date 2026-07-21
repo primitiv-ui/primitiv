@@ -24,11 +24,27 @@ import type {
 } from "./types";
 
 /**
- * Wraps one or more `Tooltip.Root` instances and provides shared
- * delay configuration. Required ancestor — rendering `Tooltip.Root`
- * without a Provider throws a context error.
+ * Wraps one or more {@link TooltipRoot | `Tooltip.Root`} instances and provides
+ * the shared delay configuration and group-wide open coordination. Required
+ * ancestor — rendering `Tooltip.Root` without a Provider throws a context
+ * error. Renders no DOM of its own (a `TooltipProviderContext` provider only).
  *
- * @example
+ * **Delay coordination.** Two timings govern how a group of tooltips feels:
+ *
+ * - `delayDuration` — how long a pointer must rest on a trigger before its
+ *   tooltip opens (hover only; focus always opens immediately).
+ * - `skipDelayDuration` — the grace window after a tooltip closes during which
+ *   moving to *another* trigger in the same Provider opens that tooltip
+ *   instantly, with no `delayDuration` wait. Rest longer than this window and
+ *   the next hover pays the full `delayDuration` again. This is what makes a
+ *   toolbar of icon buttons feel responsive once the first tip has shown.
+ *
+ * Place a single Provider high in the tree (typically at the app root) so every
+ * tooltip shares one skip window. A per-instance
+ * {@link TooltipRootProps.delayDuration | `delayDuration`} on `Tooltip.Root`
+ * overrides the Provider's value for that one tooltip.
+ *
+ * @example App-wide provider
  * ```tsx
  * <Tooltip.Provider delayDuration={400}>
  *   <App />
@@ -55,13 +71,27 @@ export function TooltipProviderComponent({
 TooltipProviderComponent.displayName = "TooltipProvider";
 
 /**
- * The state boundary for a single tooltip. Owns the open/closed
- * state and wires it down to all sub-components via context.
+ * The state boundary for a single tooltip. Owns the open/closed state, runs the
+ * open-delay and grace-period timers, and wires everything down to the
+ * sub-components via `TooltipContext`. Renders no DOM of its own. Must be a
+ * descendant of {@link TooltipProviderComponent | `Tooltip.Provider`}.
  *
- * Supports two state modes, statically discriminated at the type level:
+ * **Controlled vs uncontrolled**, statically discriminated at the type level so
+ * TypeScript accepts only one shape:
  *
- * - **Uncontrolled** — pass `defaultOpen` or omit for closed-on-mount.
- * - **Controlled** — pass `open` (and optionally `onOpenChange`).
+ * - **Uncontrolled** — pass {@link UncontrolledTooltipRootProps.defaultOpen | `defaultOpen`}
+ *   (or omit it for closed-on-mount). The component owns the flag; observe
+ *   transitions with `onOpenChange`.
+ * - **Controlled** — pass {@link ControlledTooltipRootProps.open | `open`}
+ *   (with an optional `onOpenChange`). The parent owns the flag; the delay and
+ *   grace timers still run and drive `onOpenChange`, but the tooltip only moves
+ *   when the parent updates `open`.
+ *
+ * **Timing overrides.** {@link TooltipRootProps.delayDuration | `delayDuration`}
+ * overrides the Provider's open delay for this tooltip only.
+ * {@link TooltipRootProps.disableHoverableContent | `disableHoverableContent`}
+ * removes the grace period, so the tooltip closes the instant the pointer
+ * leaves the trigger (the user cannot move into the content).
  *
  * @example
  * ```tsx
@@ -94,13 +124,24 @@ export function TooltipRoot({
 TooltipRoot.displayName = "TooltipRoot";
 
 /**
- * The element that triggers the tooltip on hover and focus. Renders a
- * `<button type="button">` by default; use `asChild` to wrap a custom
- * element.
+ * The element that opens the tooltip. Renders a `<button type="button">` by
+ * default; pass `asChild` to project the trigger behaviour onto a custom
+ * element (a link, an icon button, etc.).
  *
- * ARIA wiring:
- * - `aria-describedby` points at `Tooltip.Content`'s id.
- * - `data-state="open" | "closed"` mirrors the tooltip state.
+ * **Open / close behaviour.** Pointer-enter opens after the effective
+ * `delayDuration` (immediately if the group's skip window is active);
+ * pointer-leave closes after a short grace period so the pointer can travel
+ * into hoverable content (immediately when `disableHoverableContent` is set on
+ * Root). Focus opens immediately and blur closes immediately, and `Escape`
+ * while focused closes immediately — matching the WAI-ARIA tooltip pattern.
+ * Consumer `onPointerEnter` / `onPointerLeave` / `onFocus` / `onBlur` /
+ * `onKeyDown` all compose (they run first).
+ *
+ * **ARIA wiring.**
+ * - `aria-describedby` points at {@link TooltipContent | `Tooltip.Content`}'s id.
+ * - `data-state="open" | "closed"` mirrors the tooltip state for CSS.
+ *
+ * @extends HTMLButtonElement
  *
  * @example
  * ```tsx
@@ -148,7 +189,8 @@ TooltipTrigger.displayName = "TooltipTrigger";
  *
  * By default the portal only renders while the tooltip is open. Pass
  * `forceMount` to keep the subtree mounted when closed — useful for
- * CSS exit animations driven by `data-state="closed"`.
+ * CSS exit animations driven by `data-state="closed"`. Renders no wrapper
+ * element of its own.
  *
  * @example
  * ```tsx
@@ -192,6 +234,8 @@ TooltipPortal.displayName = "TooltipPortal";
  * `anchor-name` to the trigger and `position-anchor` / `position-area`
  * to the content in your own stylesheet.
  *
+ * @extends HTMLDivElement
+ *
  * @example
  * ```tsx
  * <Tooltip.Content className="tooltip__content">
@@ -233,6 +277,8 @@ TooltipContent.displayName = "TooltipContent";
  *
  * All positioning and styling is the consumer's responsibility via CSS.
  *
+ * @extends HTMLSpanElement
+ *
  * @example
  * ```tsx
  * <Tooltip.Content>
@@ -270,11 +316,43 @@ export type TooltipCompound = typeof TooltipRoot & {
  * Headless, accessible **Tooltip** — a compound component implementing the
  * [WAI-ARIA tooltip pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/):
  * a deferred, hoverable label anchored to a trigger, with a shared
- * {@link Tooltip.Provider} governing open / skip delays across a group. Zero
- * styles ship.
+ * {@link TooltipProviderComponent | `Tooltip.Provider`} governing open / skip
+ * delays across a group. Opens on hover (after a delay) and on focus
+ * (immediately); closes on blur, on `Escape`, and after a short grace period on
+ * pointer-leave so the pointer can travel into hoverable content. Zero styles
+ * ship; visual placement is your CSS concern (CSS anchor positioning).
  *
- * The default export is the `Root`; sub-components are attached as static
- * properties (`Tooltip.Provider`, `Tooltip.Trigger`, `Tooltip.Content`, …).
+ * `Tooltip` is both callable (an alias of {@link TooltipRoot | `Tooltip.Root`})
+ * and carries its sub-components as static properties. A `Tooltip.Provider`
+ * ancestor is required — `Tooltip.Root` throws without one.
+ *
+ * - {@link TooltipProviderComponent | `Tooltip.Provider`} — shared delay config + group open coordination.
+ * - {@link TooltipRoot | `Tooltip.Root`} — per-tooltip state owner and timing.
+ * - {@link TooltipTrigger | `Tooltip.Trigger`} — `<button>` that opens on hover/focus.
+ * - {@link TooltipPortal | `Tooltip.Portal`} — optional portal to `document.body`.
+ * - {@link TooltipContent | `Tooltip.Content`} — the `role="tooltip"` panel.
+ * - {@link TooltipArrow | `Tooltip.Arrow`} — optional visual pointer.
+ *
+ * @example Minimal usage
+ * ```tsx
+ * import { Tooltip } from "@primitiv-ui/react";
+ *
+ * <Tooltip.Provider>
+ *   <Tooltip.Root>
+ *     <Tooltip.Trigger>Save</Tooltip.Trigger>
+ *     <Tooltip.Portal>
+ *       <Tooltip.Content>
+ *         Save your changes
+ *         <Tooltip.Arrow />
+ *       </Tooltip.Content>
+ *     </Tooltip.Portal>
+ *   </Tooltip.Root>
+ * </Tooltip.Provider>;
+ * ```
+ *
+ * @see {@link TooltipProviderComponent} for delay / skip-delay coordination.
+ * @see {@link TooltipRoot} for the controlled/uncontrolled state modes and timing overrides.
+ * @see {@link TooltipContent} for the grace period and the Escape / outside-pointer escape hatches.
  */
 const TooltipCompound: TooltipCompound = Object.assign(TooltipRoot, {
   Provider: TooltipProviderComponent,

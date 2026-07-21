@@ -19,6 +19,8 @@ import { InputGroupAdornmentProps, InputGroupRootProps } from "./types";
  * element instead of `<div>` — e.g. a `<label>` so a click anywhere on
  * the frame focuses the wrapped input.
  *
+ * @extends HTMLDivElement
+ *
  * @example Basic frame with no adornments
  * ```tsx
  * <InputGroup>
@@ -76,6 +78,8 @@ InputGroupRoot.displayName = "InputGroupRoot";
  * search, opens a colour picker, or any other action. Event handlers
  * compose (child runs first); refs forward to the consumer element.
  *
+ * @extends HTMLSpanElement
+ *
  * @example Decorative leading icon
  * ```tsx
  * <InputGroup.LeadingAdornment>
@@ -130,6 +134,8 @@ InputGroupLeadingAdornment.displayName = "InputGroupLeadingAdornment";
  * **`asChild` composition.** Pass `asChild` to render an interactive
  * element such as `<button>`. Event handlers compose (child runs
  * first); refs forward to the consumer element.
+ *
+ * @extends HTMLSpanElement
  *
  * @example Trailing clear button via asChild
  * ```tsx
@@ -191,9 +197,10 @@ export type TInputGroupCompound = typeof InputGroupRoot & {
  *   trailing slot, `data-input-group-adornment="trailing"`.
  *
  * **State coordination.** None. CSS handles disabled / invalid /
- * focus-within styling via `:has()` and `:focus-within`. When `Field`
- * lands it will sit *outside* `InputGroup` and own label / error /
- * description wiring without InputGroup needing to change.
+ * focus-within styling via `:has()` and `:focus-within`. {@link Field}
+ * sits *outside* `InputGroup` and owns the label / error / description
+ * wiring, so the two compose without `InputGroup` needing to know about
+ * it — wrap the `Input` in an `InputGroup` inside a `Field.Root`.
  *
  * @example Leading search icon
  * ```tsx

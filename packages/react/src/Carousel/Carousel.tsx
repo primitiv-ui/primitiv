@@ -60,6 +60,12 @@ import type {
  *   parent owns the active page; the component defers every state
  *   change back through the callback.
  *
+ * The `ref` is an imperative handle ({@link CarouselImperativeApi}), not
+ * the DOM node — the `<section>`'s native attributes are still spread
+ * through from the remaining props.
+ *
+ * @extends HTMLElement
+ *
  * @example Labelled inline, uncontrolled
  * ```tsx
  * <Carousel.Root ariaLabel="Featured products" defaultPage={0}>…</Carousel.Root>
@@ -248,6 +254,8 @@ CarouselRoot.displayName = "CarouselRoot";
  * touch/swipe overscroll (OS-level rubber-banding) isn't covered — that's
  * browser-owned scroll physics with no JS hook to observe it from.
  *
+ * @extends HTMLDivElement
+ *
  * @example
  * ```tsx
  * <Carousel.Root ariaLabel="Featured products">
@@ -379,6 +387,8 @@ CarouselViewport.displayName = "CarouselViewport";
  * Must be rendered as a descendant of `Carousel.Root`; rendering it
  * elsewhere throws a descriptive error.
  *
+ * @extends HTMLDivElement
+ *
  * @example Auto-labelled
  * ```tsx
  * <Carousel.Viewport>
@@ -452,6 +462,8 @@ CarouselSlide.displayName = "CarouselSlide";
  * Must be rendered as a descendant of `Carousel.Root`; rendering it
  * elsewhere throws a descriptive error.
  *
+ * @extends HTMLButtonElement
+ *
  * @example
  * ```tsx
  * <Carousel.NextTrigger>Next</Carousel.NextTrigger>
@@ -519,6 +531,8 @@ CarouselNextTrigger.displayName = "CarouselNextTrigger";
  * Must be rendered as a descendant of `Carousel.Root`; rendering it
  * elsewhere throws a descriptive error.
  *
+ * @extends HTMLButtonElement
+ *
  * @example
  * ```tsx
  * <Carousel.PreviousTrigger>Previous</Carousel.PreviousTrigger>
@@ -585,6 +599,8 @@ CarouselPreviousTrigger.displayName = "CarouselPreviousTrigger";
  * Must be rendered as a descendant of `Carousel.Root`; rendering it
  * elsewhere throws a descriptive error.
  *
+ * @extends HTMLDivElement
+ *
  * @example
  * ```tsx
  * <Carousel.IndicatorGroup label="Choose slide">
@@ -649,6 +665,8 @@ CarouselIndicatorGroup.displayName = "CarouselIndicatorGroup";
  *
  * Must be rendered as a descendant of `Carousel.Root`; rendering it
  * elsewhere throws a descriptive error.
+ *
+ * @extends HTMLButtonElement
  *
  * @example
  * ```tsx
@@ -726,6 +744,8 @@ CarouselIndicator.displayName = "CarouselIndicator";
  * Must be rendered as a descendant of `Carousel.Root`; rendering it
  * elsewhere throws a descriptive error.
  *
+ * @extends HTMLDivElement
+ *
  * @example
  * ```tsx
  * <Carousel.Indicators label="Choose slide" />
@@ -768,9 +788,23 @@ CarouselIndicators.displayName = "CarouselIndicators";
  * Static children also work — useful when you want a single icon and
  * style it via `[data-state]` selectors.
  *
+ * Requires autoplay to be enabled on `Carousel.Root` — a control that
+ * toggled a non-existent slideshow would be misleading, so rendering
+ * this trigger without an `autoplay` prop on the Root throws a
+ * descriptive error. Toggling `playing` to `true` starts the timer that
+ * advances the page on each tick (see {@link CarouselAutoplay}).
+ *
  * Must be rendered as a descendant of `Carousel.Root`; rendering it
- * elsewhere throws a descriptive error. The autoplay timer that
- * advances the page when `playing` flips to `true` lands in cycle 12.
+ * elsewhere throws a descriptive error.
+ *
+ * @extends HTMLButtonElement
+ *
+ * @example State-aware render prop
+ * ```tsx
+ * <Carousel.PlayPauseTrigger>
+ *   {({ playing }) => (playing ? "Pause" : "Play")}
+ * </Carousel.PlayPauseTrigger>
+ * ```
  */
 export function CarouselPlayPauseTrigger({
   className = "",
@@ -841,6 +875,13 @@ CarouselPlayPauseTrigger.displayName = "CarouselPlayPauseTrigger";
  * Must be rendered as a descendant of `Carousel.Root`; rendering it
  * elsewhere throws a descriptive error (via the shared Carousel
  * context guard).
+ *
+ * @extends HTMLSpanElement
+ *
+ * @example
+ * ```tsx
+ * <Carousel.ProgressText />
+ * ```
  */
 export function CarouselProgressText({
   children,

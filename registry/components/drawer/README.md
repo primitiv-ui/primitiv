@@ -20,8 +20,12 @@ A vertical stack of three regions, mirroring Modal:
   when content overflows, so the header and footer stay pinned to the edges.
 - **`DrawerFooter`** — right-aligned actions, divided above.
 
-`DrawerOverlay` is the decorative backdrop sibling (the native `::backdrop`
-handles the real dim + click-outside).
+The native `::backdrop` is the dim (and the click-outside surface). `DrawerOverlay`
+is an optional decorative sibling for a custom backdrop layer — not needed for the
+default dim.
+
+**Pass `forceMount` to `DrawerPortal`** so the panel stays mounted while closed and
+its slide-out exit can play (see [Animation](#animation)).
 
 ## Usage
 
@@ -30,7 +34,6 @@ import {
   Drawer,
   DrawerTrigger,
   DrawerPortal,
-  DrawerOverlay,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
@@ -46,8 +49,7 @@ import { Close } from "@primitiv-ui/icons";
   <DrawerTrigger asChild>
     <Button variant="secondary">Open filters</Button>
   </DrawerTrigger>
-  <DrawerPortal>
-    <DrawerOverlay />
+  <DrawerPortal forceMount>
     <DrawerContent side="right" width="md">
       <DrawerHeader>
         <DrawerTitle>Filters</DrawerTitle>
@@ -90,12 +92,28 @@ Padding, gap, and radius stay density-driven and **independent of `width`** —
 `data-density` on an ancestor scales them (they reuse the `modal/*` tokens, so a
 drawer's inner spacing matches a modal's), whatever width you pick.
 
+## Animation
+
+The panel slides in from its `side` and the `::backdrop` fades — and on close it
+slides **back out the same way** (the exit is the reverse of the enter). It's done
+with CSS transitions keyed off the native `[open]` attribute plus `@starting-style`
+(for the enter's starting frame); `transition-behavior: allow-discrete` on
+`display` + `overlay` keeps the dialog painted in the top layer through the close,
+so it animates out instead of snapping (a native `<dialog>` sets `display: none`
+the instant it closes). Both phases use `--primitiv-motion-duration-overlay` with
+`--primitiv-motion-easing-enter` / `-exit`; `prefers-reduced-motion: reduce` drops
+them.
+
+**The exit only plays if the panel stays mounted while closed — pass `forceMount`
+to `DrawerPortal`** (without it the subtree unmounts immediately and you'll see the
+enter but not the exit).
+
 ## Files
 
 | File | Purpose |
 |---|---|
 | `drawer.tsx` | The styled wrapper — parts wrapping the headless `Drawer` primitive. |
-| `drawer.recipe.ts` | `cva` recipe mapping the `size` variant to modifier classes. |
+| `drawer.recipe.ts` | `cva` recipe mapping the `width` variant to modifier classes. |
 | `styles.css` | The default theme (canonical). |
 | `styles.scss` | The CSS plus a `$`-alias per custom property, for SCSS consumers. |
 | `contract.json` | The stable surface metadata (parts, modifiers, custom properties). |

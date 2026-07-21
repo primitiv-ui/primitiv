@@ -13,7 +13,6 @@ import {
   Drawer,
   DrawerTrigger,
   DrawerPortal,
-  DrawerOverlay,
   DrawerContent,
   DrawerHeader,
   DrawerBody,
@@ -33,7 +32,6 @@ import {
   Modal,
   ModalTrigger,
   ModalPortal,
-  ModalOverlay,
   ModalContent,
   ModalHeader,
   ModalBody,
@@ -539,8 +537,7 @@ export function ramp(hue: number, chroma = 0.12) {
           <ModalTrigger asChild>
             <Button variant="primary" size={size}>Open modal</Button>
           </ModalTrigger>
-          <ModalPortal>
-            <ModalOverlay />
+          <ModalPortal forceMount>
             <ModalContent size={overlaySize}>
               <ModalHeader>
                 <ModalTitle>Confirm</ModalTitle>
@@ -580,8 +577,7 @@ export function ramp(hue: number, chroma = 0.12) {
                 From {side}
               </Button>
             </DrawerTrigger>
-            <DrawerPortal>
-              <DrawerOverlay />
+            <DrawerPortal forceMount>
               <DrawerContent side={side} width={size}>
                 <DrawerHeader>
                   <DrawerTitle>{side[0].toUpperCase() + side.slice(1)} drawer</DrawerTitle>

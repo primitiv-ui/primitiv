@@ -59,11 +59,16 @@ modifiers in `primitiv.variants`, the enter / exit animations + close-button foc
 ring + disabled styling in `primitiv.states`.
 
 Both animation phases are **token-driven**: the dialog scales + fades and the
-backdrop fades, keyed off the `data-state` (`open` / `closed`) the headless layer
-sets, using the shared `--primitiv-motion-duration-overlay` with
-`--primitiv-motion-easing-enter` / `-exit`. The **exit** phase only plays when the
-subtree is kept mounted via `Modal.Portal` / `Modal.Overlay` `forceMount`
-(otherwise it unmounts immediately); `prefers-reduced-motion: reduce` drops both.
+`::backdrop` fades, using the shared `--primitiv-motion-duration-overlay` with
+`--primitiv-motion-easing-enter` / `-exit`. They're CSS **transitions** keyed off
+the native `[open]` attribute plus `@starting-style` (for the enter's starting
+frame), so the exit is the exact reverse of the enter. `transition-behavior:
+allow-discrete` on `display` + `overlay` keeps the dialog painted in the top layer
+through the close, so it animates out instead of snapping — a native `<dialog>`
+sets `display: none` the instant it closes. **This requires the dialog to stay
+mounted while closed: pass `forceMount` to `Modal.Portal`** (without it the subtree
+unmounts immediately and only the enter shows). `prefers-reduced-motion: reduce`
+drops both.
 
 Two Modal-specific notes:
 

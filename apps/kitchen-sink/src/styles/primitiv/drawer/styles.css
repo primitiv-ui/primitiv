@@ -92,7 +92,10 @@
     --primitiv-drawer-slide: 0 0;
 
     position: fixed;
-    display: flex;
+    /* Hidden while closed (so a force-mounted drawer stays out of view); the
+       [open] rule below flips it to the flex column when the dialog opens, and
+       the states layer transitions that flip (allow-discrete) for the exit. */
+    display: none;
     flex-direction: column;
     /* Never exceed the viewport — a wide `size` clamps on small screens. */
     max-inline-size: 100dvw;
@@ -102,6 +105,10 @@
     background: var(--primitiv-drawer-surface);
     color: var(--primitiv-drawer-fg);
     box-shadow: var(--primitiv-drawer-shadow);
+  }
+
+  .primitiv-drawer[open] {
+    display: flex;
   }
 
   .primitiv-drawer::backdrop {
@@ -274,38 +281,56 @@
 }
 
 @layer primitiv.states {
-  /* Enter / exit — the panel slides from the docked edge (translate driven by the
-     per-side --primitiv-drawer-slide), the backdrop fades. Keyed off the
-     data-state the headless component sets; both phases are token-driven (the
-     shared overlay duration + the enter / exit easings) so they match every other
-     layered surface. The exit phase plays only when the subtree is kept mounted
-     via Drawer.Portal / Drawer.Overlay `forceMount` (otherwise it unmounts at
-     once); `forwards` holds the closed frame for that hand-off window. */
-  .primitiv-drawer[data-state="open"] {
-    animation: primitiv-drawer-in var(--primitiv-motion-duration-overlay)
-      var(--primitiv-motion-easing-enter);
+  /* Enter / exit — the panel slides from its docked edge and the backdrop fades,
+     driven by the native [open] attribute (showModal / close toggle it). The
+     resting/closed state (base rule) is off-screen + faded; [open] brings it home;
+     @starting-style gives the enter its off-screen starting frame. Because the
+     same two states drive both directions, the exit is the exact reverse of the
+     enter. transition-behavior: allow-discrete on `display` + `overlay` keeps the
+     dialog painted in the top layer through the close, so it slides out instead of
+     snapping (a native <dialog> sets display:none the instant it closes). This
+     needs the dialog kept mounted while closed — pass `forceMount` to
+     Drawer.Portal. Both phases are token-driven (shared overlay duration + the
+     enter / exit easings). */
+  .primitiv-drawer {
+    translate: var(--primitiv-drawer-slide);
+    transition:
+      translate var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
+      display var(--primitiv-motion-duration-overlay) allow-discrete,
+      overlay var(--primitiv-motion-duration-overlay) allow-discrete;
   }
-  .primitiv-drawer[data-state="closed"] {
-    animation: primitiv-drawer-out var(--primitiv-motion-duration-overlay)
-      var(--primitiv-motion-easing-exit) forwards;
+  .primitiv-drawer[open] {
+    translate: 0 0;
+    transition-timing-function: var(--primitiv-motion-easing-enter);
   }
-  .primitiv-drawer[data-state="open"]::backdrop,
-  .primitiv-drawer__overlay[data-state="open"] {
-    animation: primitiv-drawer-backdrop-in var(--primitiv-motion-duration-overlay)
-      var(--primitiv-motion-easing-enter);
-  }
-  .primitiv-drawer[data-state="closed"]::backdrop,
-  .primitiv-drawer__overlay[data-state="closed"] {
-    animation: primitiv-drawer-backdrop-out var(--primitiv-motion-duration-overlay)
-      var(--primitiv-motion-easing-exit) forwards;
+  @starting-style {
+    .primitiv-drawer[open] {
+      translate: var(--primitiv-drawer-slide);
+    }
   }
 
-  /* Honour reduced-motion: drop the enter / exit animations entirely. */
+  .primitiv-drawer::backdrop {
+    opacity: 0;
+    transition:
+      opacity var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
+      display var(--primitiv-motion-duration-overlay) allow-discrete,
+      overlay var(--primitiv-motion-duration-overlay) allow-discrete;
+  }
+  .primitiv-drawer[open]::backdrop {
+    opacity: 1;
+    transition-timing-function: var(--primitiv-motion-easing-enter);
+  }
+  @starting-style {
+    .primitiv-drawer[open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  /* Honour reduced-motion: no slide / fade, just show / hide. */
   @media (prefers-reduced-motion: reduce) {
     .primitiv-drawer,
-    .primitiv-drawer::backdrop,
-    .primitiv-drawer__overlay {
-      animation: none;
+    .primitiv-drawer::backdrop {
+      transition: none;
     }
   }
 
@@ -324,29 +349,5 @@
   .primitiv-drawer__close:disabled {
     opacity: var(--primitiv-opacity-50);
     cursor: not-allowed;
-  }
-}
-
-@keyframes primitiv-drawer-in {
-  from {
-    translate: var(--primitiv-drawer-slide);
-  }
-}
-
-@keyframes primitiv-drawer-backdrop-in {
-  from {
-    opacity: 0;
-  }
-}
-
-@keyframes primitiv-drawer-out {
-  to {
-    translate: var(--primitiv-drawer-slide);
-  }
-}
-
-@keyframes primitiv-drawer-backdrop-out {
-  to {
-    opacity: 0;
   }
 }

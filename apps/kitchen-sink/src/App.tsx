@@ -62,6 +62,11 @@ import {
   TabsContent,
   ToggleGroup,
   ToggleGroupItem,
+  Tooltip,
+  TooltipTrigger,
+  TooltipPortal,
+  TooltipContent,
+  TooltipArrow,
 } from "./components";
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Close, Search, Sort } from "@primitiv-ui/icons";
 import { useChrome } from "./chrome";
@@ -134,6 +139,15 @@ const POPOVER_PLACEMENTS = [
 ] as const;
 
 const DRAWER_SIDES = ["left", "right", "top", "bottom"] as const;
+
+// Tooltip demo: one per side (default tone) plus an inverted-tone example.
+const TOOLTIP_DEMOS = [
+  { placement: "top", tone: "default", label: "Top" },
+  { placement: "right", tone: "default", label: "Right" },
+  { placement: "bottom", tone: "default", label: "Bottom" },
+  { placement: "left", tone: "default", label: "Left" },
+  { placement: "top", tone: "inverted", label: "Inverted" },
+] as const;
 
 export function App(): ReactElement {
   // Density and theme are ambient (applied on <html> by the shell's
@@ -654,6 +668,35 @@ export function ramp(hue: number, chroma = 0.12) {
             </Popover>
           ))}
         </div>
+      </Section>
+
+      {/* Hover / focus a trigger to show its tooltip. Each is anchor-wired
+          (unique anchor-name ↔ position-anchor) like the popovers; the Portal is
+          force-mounted so the exit animation can play. */}
+      <Section title="Tooltip">
+        {TOOLTIP_DEMOS.map(({ placement, tone, label }) => {
+          const anchor = `--ks-tip-${tone}-${placement}`;
+          return (
+            <Tooltip key={`${tone}-${placement}`}>
+              <TooltipTrigger asChild>
+                <Button variant="secondary" size={size} style={{ anchorName: anchor }}>
+                  {label}
+                </Button>
+              </TooltipTrigger>
+              <TooltipPortal forceMount>
+                <TooltipContent
+                  placement={placement}
+                  tone={tone}
+                  size={overlaySize}
+                  style={{ positionAnchor: anchor }}
+                >
+                  {label} tooltip
+                  <TooltipArrow />
+                </TooltipContent>
+              </TooltipPortal>
+            </Tooltip>
+          );
+        })}
       </Section>
     </div>
   );

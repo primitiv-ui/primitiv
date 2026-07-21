@@ -148,6 +148,11 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("drawer", "drawer.recipe.ts"),
     registry_file!("drawer", "drawer.tsx"),
     registry_file!("drawer", "contract.json"),
+    registry_file!("tooltip", "styles.css"),
+    registry_file!("tooltip", "styles.scss"),
+    registry_file!("tooltip", "tooltip.recipe.ts"),
+    registry_file!("tooltip", "tooltip.tsx"),
+    registry_file!("tooltip", "contract.json"),
 ];
 
 impl Registry for EmbeddedRegistry {

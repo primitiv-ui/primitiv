@@ -1,0 +1,300 @@
+/*
+ * Tooltip — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add tooltip`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-tooltip root + __arrow part,
+ * the --default/--inverted tone modifiers, the --sm…--xl size modifiers, the
+ * --top…--left-end placement modifiers, the data-state hook, and the
+ * --primitiv-tooltip-* custom properties), not these values (RFC 0006 Principle 2
+ * — names are stable, values are not).
+ *
+ * A tooltip is a deferred, non-modal label anchored to a trigger. Unlike the
+ * Popover (a native [popover]) it is a plain portalled `<div role="tooltip">`, so
+ * it is NOT in the top layer: it needs a z-index, and its enter/exit animation
+ * keys off `data-state` (not a native `:popover-open`) with `display`
+ * allow-discrete but no `overlay`. Pass `forceMount` to Tooltip.Portal so the
+ * bubble survives the close and the exit can play.
+ *
+ * Flat + borderless per the Figma spec (no shadow, no stroke): the tone provides
+ * the contrast. `tone` re-points the bubble surface + text — default is a
+ * high-contrast dark bubble (content/primary fill, content/inverse text, both
+ * theme-scoped so it inverts), inverted is a surface-coloured bubble. The arrow
+ * shares --primitiv-tooltip-surface so it always matches the bubble.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look in
+ * primitiv.base, tone + size + placement in primitiv.variants, the open/closed
+ * animation in primitiv.states. Placement uses CSS anchor positioning — wire
+ * `anchor-name` on the trigger and a matching `position-anchor` on the bubble.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-content-*,
+ * --primitiv-surface-*, --primitiv-tooltip-*, --primitiv-body-*, --primitiv-size-*
+ * and --primitiv-motion-* custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of the
+ * token layer (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-tooltip {
+    /* Per-component API — the themable knobs, defaulting to the md size + default
+       tone. The tone modifier re-points surface + fg; the size modifiers re-point
+       the sizing + type knobs. */
+    --primitiv-tooltip-surface: var(--primitiv-content-primary);
+    --primitiv-tooltip-fg: var(--primitiv-content-inverse);
+    --primitiv-tooltip-radius: var(--primitiv-tooltip-md-radius);
+    --primitiv-tooltip-padding-inline: var(--primitiv-tooltip-md-padding-inline);
+    --primitiv-tooltip-padding-block: var(--primitiv-tooltip-md-padding-block);
+    --primitiv-tooltip-arrow-size: var(--primitiv-tooltip-md-arrow-size);
+    /* Gap between the bubble and the anchor, tied to the arrow size so the tail
+       always clears into the gap (matches the Popover). */
+    --primitiv-tooltip-offset: var(--primitiv-tooltip-arrow-size);
+    --primitiv-tooltip-max-inline-size: var(--primitiv-size-size-240);
+    --primitiv-tooltip-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-tooltip-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-tooltip-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-tooltip-line-height: var(--primitiv-body-md-line-height);
+
+    position: fixed;
+    /* Hidden while closed so a force-mounted tooltip stays out of view; the
+       [data-state="open"] rule shows it, and the states layer transitions that
+       flip (allow-discrete) for the exit. */
+    display: none;
+    /* Above page content. Not the top layer (a plain <div>, not a [popover]), so
+       it can't sit over a modal's ::backdrop — z-index is a CSS mechanic here. */
+    z-index: 50;
+    margin: 0;
+    inline-size: max-content;
+    max-inline-size: var(--primitiv-tooltip-max-inline-size);
+    padding: var(--primitiv-tooltip-padding-block) var(--primitiv-tooltip-padding-inline);
+    border-radius: var(--primitiv-tooltip-radius);
+    background: var(--primitiv-tooltip-surface);
+    color: var(--primitiv-tooltip-fg);
+    font-family: var(--primitiv-tooltip-font-family);
+    font-size: var(--primitiv-tooltip-font-size);
+    font-weight: var(--primitiv-tooltip-font-weight);
+    line-height: var(--primitiv-tooltip-line-height);
+    /* Auto-flip to the opposite side if the chosen placement would overflow. */
+    position-try-fallbacks: flip-block, flip-inline;
+  }
+
+  .primitiv-tooltip[data-state="open"] {
+    display: block;
+  }
+
+  /* Pointer arrow — a rotated square sharing the bubble fill (so it always tracks
+     the tone). Half tucked under the bubble edge (see the placement modifiers'
+     inset) so the join is seamless and the outer half is the tail. `rotate` +
+     `translate` are individual transform properties (they compose). */
+  .primitiv-tooltip__arrow {
+    position: absolute;
+    inline-size: var(--primitiv-tooltip-arrow-size);
+    block-size: var(--primitiv-tooltip-arrow-size);
+    background: var(--primitiv-tooltip-surface);
+    rotate: 45deg;
+  }
+}
+
+@layer primitiv.variants {
+  /* Tone — re-points the bubble surface + text. Both families are theme-scoped, so
+     `default` inverts (dark bubble in light mode, light in dark) and `inverted`
+     tracks the surface. The arrow reads --primitiv-tooltip-surface, so it follows. */
+  .primitiv-tooltip--default {
+    --primitiv-tooltip-surface: var(--primitiv-content-primary);
+    --primitiv-tooltip-fg: var(--primitiv-content-inverse);
+  }
+  .primitiv-tooltip--inverted {
+    --primitiv-tooltip-surface: var(--primitiv-surface-default);
+    --primitiv-tooltip-fg: var(--primitiv-content-primary);
+  }
+
+  /* Size — re-points the sizing + type knobs to the chosen slot. Density stays
+     ambient via [data-density] on the token values themselves (RFC 0009). */
+  .primitiv-tooltip--sm {
+    --primitiv-tooltip-radius: var(--primitiv-tooltip-sm-radius);
+    --primitiv-tooltip-padding-inline: var(--primitiv-tooltip-sm-padding-inline);
+    --primitiv-tooltip-padding-block: var(--primitiv-tooltip-sm-padding-block);
+    --primitiv-tooltip-arrow-size: var(--primitiv-tooltip-sm-arrow-size);
+    --primitiv-tooltip-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-tooltip-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-tooltip-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-tooltip-line-height: var(--primitiv-body-sm-line-height);
+  }
+  .primitiv-tooltip--md {
+    --primitiv-tooltip-radius: var(--primitiv-tooltip-md-radius);
+    --primitiv-tooltip-padding-inline: var(--primitiv-tooltip-md-padding-inline);
+    --primitiv-tooltip-padding-block: var(--primitiv-tooltip-md-padding-block);
+    --primitiv-tooltip-arrow-size: var(--primitiv-tooltip-md-arrow-size);
+    --primitiv-tooltip-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-tooltip-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-tooltip-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-tooltip-line-height: var(--primitiv-body-md-line-height);
+  }
+  .primitiv-tooltip--lg {
+    --primitiv-tooltip-radius: var(--primitiv-tooltip-lg-radius);
+    --primitiv-tooltip-padding-inline: var(--primitiv-tooltip-lg-padding-inline);
+    --primitiv-tooltip-padding-block: var(--primitiv-tooltip-lg-padding-block);
+    --primitiv-tooltip-arrow-size: var(--primitiv-tooltip-lg-arrow-size);
+    --primitiv-tooltip-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-tooltip-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-tooltip-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-tooltip-line-height: var(--primitiv-body-lg-line-height);
+  }
+  .primitiv-tooltip--xl {
+    --primitiv-tooltip-radius: var(--primitiv-tooltip-xl-radius);
+    --primitiv-tooltip-padding-inline: var(--primitiv-tooltip-xl-padding-inline);
+    --primitiv-tooltip-padding-block: var(--primitiv-tooltip-xl-padding-block);
+    --primitiv-tooltip-arrow-size: var(--primitiv-tooltip-xl-arrow-size);
+    --primitiv-tooltip-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-tooltip-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-tooltip-font-weight: var(--primitiv-body-xl-font-weight);
+    --primitiv-tooltip-line-height: var(--primitiv-body-xl-line-height);
+  }
+
+  /* Placement — sets `position-area` (relative to the consumer's
+     `position-anchor`), an offset margin toward the anchor, and the arrow's edge
+     + cross-axis alignment. Mirrors the Popover. */
+
+  /* --- TOP: bubble above the anchor · arrow on the block-end (bottom) edge --- */
+  .primitiv-tooltip--top {
+    position-area: top;
+    margin-block-end: var(--primitiv-tooltip-offset);
+  }
+  .primitiv-tooltip--top-start {
+    position-area: top span-right;
+    margin-block-end: var(--primitiv-tooltip-offset);
+  }
+  .primitiv-tooltip--top-end {
+    position-area: top span-left;
+    margin-block-end: var(--primitiv-tooltip-offset);
+  }
+  .primitiv-tooltip--top .primitiv-tooltip__arrow,
+  .primitiv-tooltip--top-start .primitiv-tooltip__arrow,
+  .primitiv-tooltip--top-end .primitiv-tooltip__arrow {
+    inset-block-end: calc(var(--primitiv-tooltip-arrow-size) / -2);
+  }
+
+  /* --- BOTTOM: bubble below the anchor · arrow on the block-start (top) edge --- */
+  .primitiv-tooltip--bottom {
+    position-area: bottom;
+    margin-block-start: var(--primitiv-tooltip-offset);
+  }
+  .primitiv-tooltip--bottom-start {
+    position-area: bottom span-right;
+    margin-block-start: var(--primitiv-tooltip-offset);
+  }
+  .primitiv-tooltip--bottom-end {
+    position-area: bottom span-left;
+    margin-block-start: var(--primitiv-tooltip-offset);
+  }
+  .primitiv-tooltip--bottom .primitiv-tooltip__arrow,
+  .primitiv-tooltip--bottom-start .primitiv-tooltip__arrow,
+  .primitiv-tooltip--bottom-end .primitiv-tooltip__arrow {
+    inset-block-start: calc(var(--primitiv-tooltip-arrow-size) / -2);
+  }
+
+  /* Arrow cross-axis (horizontal) for TOP/BOTTOM — center / start / end. */
+  .primitiv-tooltip--top .primitiv-tooltip__arrow,
+  .primitiv-tooltip--bottom .primitiv-tooltip__arrow {
+    inset-inline-start: 50%;
+    translate: -50% 0;
+  }
+  .primitiv-tooltip--top-start .primitiv-tooltip__arrow,
+  .primitiv-tooltip--bottom-start .primitiv-tooltip__arrow {
+    inset-inline-start: var(--primitiv-tooltip-padding-inline);
+  }
+  .primitiv-tooltip--top-end .primitiv-tooltip__arrow,
+  .primitiv-tooltip--bottom-end .primitiv-tooltip__arrow {
+    inset-inline-end: var(--primitiv-tooltip-padding-inline);
+  }
+
+  /* --- LEFT: bubble before the anchor · arrow on the inline-end (right) edge --- */
+  .primitiv-tooltip--left {
+    position-area: left;
+    margin-inline-end: var(--primitiv-tooltip-offset);
+  }
+  .primitiv-tooltip--left-start {
+    position-area: left span-bottom;
+    margin-inline-end: var(--primitiv-tooltip-offset);
+  }
+  .primitiv-tooltip--left-end {
+    position-area: left span-top;
+    margin-inline-end: var(--primitiv-tooltip-offset);
+  }
+  .primitiv-tooltip--left .primitiv-tooltip__arrow,
+  .primitiv-tooltip--left-start .primitiv-tooltip__arrow,
+  .primitiv-tooltip--left-end .primitiv-tooltip__arrow {
+    inset-inline-end: calc(var(--primitiv-tooltip-arrow-size) / -2);
+  }
+
+  /* --- RIGHT: bubble after the anchor · arrow on the inline-start (left) edge --- */
+  .primitiv-tooltip--right {
+    position-area: right;
+    margin-inline-start: var(--primitiv-tooltip-offset);
+  }
+  .primitiv-tooltip--right-start {
+    position-area: right span-bottom;
+    margin-inline-start: var(--primitiv-tooltip-offset);
+  }
+  .primitiv-tooltip--right-end {
+    position-area: right span-top;
+    margin-inline-start: var(--primitiv-tooltip-offset);
+  }
+  .primitiv-tooltip--right .primitiv-tooltip__arrow,
+  .primitiv-tooltip--right-start .primitiv-tooltip__arrow,
+  .primitiv-tooltip--right-end .primitiv-tooltip__arrow {
+    inset-inline-start: calc(var(--primitiv-tooltip-arrow-size) / -2);
+  }
+
+  /* Arrow cross-axis (vertical) for LEFT/RIGHT — center / start / end. */
+  .primitiv-tooltip--left .primitiv-tooltip__arrow,
+  .primitiv-tooltip--right .primitiv-tooltip__arrow {
+    inset-block-start: 50%;
+    translate: 0 -50%;
+  }
+  .primitiv-tooltip--left-start .primitiv-tooltip__arrow,
+  .primitiv-tooltip--right-start .primitiv-tooltip__arrow {
+    inset-block-start: var(--primitiv-tooltip-padding-block);
+  }
+  .primitiv-tooltip--left-end .primitiv-tooltip__arrow,
+  .primitiv-tooltip--right-end .primitiv-tooltip__arrow {
+    inset-block-end: var(--primitiv-tooltip-padding-block);
+  }
+}
+
+@layer primitiv.states {
+  /* Enter / exit — the bubble scales + fades, driven by the data-state the
+     headless sets. The resting/closed state (base rule) is faded + scaled down;
+     [data-state="open"] brings it in; @starting-style gives the enter its starting
+     frame — so the exit is the exact reverse of the enter. transition-behavior:
+     allow-discrete on `display` holds the bubble through the close so it animates
+     out instead of snapping. No `overlay` — a tooltip <div> isn't in the top
+     layer. Needs the bubble kept mounted while closed: pass `forceMount` to
+     Tooltip.Portal. Token-driven (shared overlay duration + enter / exit easings). */
+  .primitiv-tooltip {
+    opacity: 0;
+    scale: 0.97;
+    transition:
+      opacity var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
+      scale var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
+      display var(--primitiv-motion-duration-overlay) allow-discrete;
+  }
+  .primitiv-tooltip[data-state="open"] {
+    opacity: 1;
+    scale: 1;
+    transition-timing-function: var(--primitiv-motion-easing-enter);
+  }
+  @starting-style {
+    .primitiv-tooltip[data-state="open"] {
+      opacity: 0;
+      scale: 0.97;
+    }
+  }
+
+  /* Honour reduced-motion: no scale / fade, just show / hide. */
+  @media (prefers-reduced-motion: reduce) {
+    .primitiv-tooltip {
+      transition: none;
+    }
+  }
+}

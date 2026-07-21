@@ -17,3 +17,4 @@ export * from "./switch";
 export * from "./table";
 export * from "./tabs";
 export * from "./toggle-group";
+export * from "./tooltip";

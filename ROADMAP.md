@@ -82,7 +82,7 @@ Figma set, no standalone headless component.
 | Textarea | ✓ | ✓ | — | — | 439:14511 |
 | Toggle | ✓ | ✓ | — | — | 385:1418 |
 | ToggleGroup | ✓ | ✓ | ✓ | ✓ | assembled from Toggle |
-| Tooltip | ✓ | ✓ | — | — | 1168:35600 (composition), 1142:25897 (Content), 1168:34990 (Arrow) |
+| Tooltip | ✓ | ✓ | ✓ | ✓ | 1168:35600 (composition), 1142:25897 (Content), 1168:34990 (Arrow); registry = flat bubble + `__arrow`, `tone` (default dark / inverted surface) × `size` × 12 placements (CSS anchor positioning), `data-state` exit (no overlay, needs `forceMount`) |
 | Tree | — | ✓ | — | — | |
 
 ## Components to build

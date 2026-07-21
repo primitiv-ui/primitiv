@@ -7,26 +7,37 @@ export type TreeRootBaseProps = ComponentProps<"div"> & {
 
 /** Uncontrolled expansion — initial expanded branches via `defaultExpandedValues`. */
 export type TreeRootUncontrolledExpansionProps = {
-  /** Branch values expanded on first render when uncontrolled. */
+  /** Branch values expanded on first render when uncontrolled. Omit for a
+   * fully-collapsed tree. */
   defaultExpandedValues?: string[];
   expandedValues?: never;
+  /** Called with the full set of expanded branch values whenever a branch
+   * is toggled. Optional in uncontrolled mode. */
   onExpandedChange?: (values: string[]) => void;
 };
 
 /** Controlled expansion — the expanded set is owned by the consumer. */
 export type TreeRootControlledExpansionProps = {
   defaultExpandedValues?: never;
-  /** The set of expanded branch values, owned by the consumer. */
+  /** The set of expanded branch values, owned by the consumer. Keep in
+   * sync via `onExpandedChange`. */
   expandedValues: string[];
+  /** Called with the full set of expanded branch values the user requested
+   * on each toggle. Required in controlled mode. */
   onExpandedChange: (values: string[]) => void;
 };
 
 /** Single-selection mode, uncontrolled — initial value via `defaultSelectedValue`. */
 export type TreeRootSingleUncontrolledSelectionProps = {
+  /** At most one node may be selected; see {@link SelectionMode}.
+   * @default "single" */
   selectionMode?: "single";
-  /** The value selected on first render when uncontrolled. */
+  /** The value selected on first render when uncontrolled. `null` selects
+   * nothing. */
   defaultSelectedValue?: string | null;
   selectedValue?: never;
+  /** Called with the newly-selected value (or `null` when cleared) on each
+   * user selection. Optional in uncontrolled mode. */
   onSelectedValueChange?: (value: string | null) => void;
   defaultSelectedValues?: never;
   selectedValues?: never;
@@ -35,10 +46,15 @@ export type TreeRootSingleUncontrolledSelectionProps = {
 
 /** Single-selection mode, controlled — the selected value is owned by the consumer. */
 export type TreeRootSingleControlledSelectionProps = {
+  /** At most one node may be selected; see {@link SelectionMode}.
+   * @default "single" */
   selectionMode?: "single";
   defaultSelectedValue?: never;
-  /** The selected value, owned by the consumer. */
+  /** The selected value, owned by the consumer (or `null` for no
+   * selection). Keep it in sync via `onSelectedValueChange`. */
   selectedValue: string | null;
+  /** Called with the value the user requested to select (or `null` when
+   * cleared). Required in controlled mode. */
   onSelectedValueChange: (value: string | null) => void;
   defaultSelectedValues?: never;
   selectedValues?: never;
@@ -47,10 +63,14 @@ export type TreeRootSingleControlledSelectionProps = {
 
 /** Multiple-selection mode, uncontrolled — initial values via `defaultSelectedValues`. */
 export type TreeRootMultipleUncontrolledSelectionProps = {
+  /** Many nodes may be selected via `Ctrl`/`Cmd`+click and `Shift`+click
+   * ranges; see {@link SelectionMode}. */
   selectionMode: "multiple";
   /** The values selected on first render when uncontrolled. */
   defaultSelectedValues?: string[];
   selectedValues?: never;
+  /** Called with the full selected set (in selection order) on each
+   * change. Optional in uncontrolled mode. */
   onSelectedValuesChange?: (values: string[]) => void;
   defaultSelectedValue?: never;
   selectedValue?: never;
@@ -59,10 +79,15 @@ export type TreeRootMultipleUncontrolledSelectionProps = {
 
 /** Multiple-selection mode, controlled — the selected values are owned by the consumer. */
 export type TreeRootMultipleControlledSelectionProps = {
+  /** Many nodes may be selected via `Ctrl`/`Cmd`+click and `Shift`+click
+   * ranges; see {@link SelectionMode}. */
   selectionMode: "multiple";
   defaultSelectedValues?: never;
-  /** The selected values, owned by the consumer. */
+  /** The selected values, owned by the consumer. Keep in sync via
+   * `onSelectedValuesChange`. */
   selectedValues: string[];
+  /** Called with the full selected set (in selection order) the user
+   * requested. Required in controlled mode. */
   onSelectedValuesChange: (values: string[]) => void;
   defaultSelectedValue?: never;
   selectedValue?: never;
@@ -86,7 +111,9 @@ export type TreeRootProps = TreeRootBaseProps &
 
 /** Props for `Tree.Item` — a selectable, focusable leaf treeitem. */
 export type TreeItemProps = ComponentProps<"div"> & {
-  /** Stable identifier for this item, unique within the tree. */
+  /** Stable identifier for this item, unique within the tree. Links the
+   * item to selection / expansion state and to its
+   * {@link TreePathSegment} in a resolved path. */
   value: string;
   /**
    * Optional display label for this item. Stored alongside the value
@@ -95,16 +122,23 @@ export type TreeItemProps = ComponentProps<"div"> & {
    * Has no effect on what `Tree.Item` renders.
    */
   label?: string;
-  /** Disable selection and remove the item from roving navigation. */
+  /** Disable selection and remove the item from roving navigation
+   * (`Home`/`End` still skip past it to a non-disabled neighbour).
+   * @default false */
   disabled?: boolean;
-  /** Render the item as the supplied child element instead of `<div>`. */
+  /** Render the item as the supplied child element instead of `<div>`,
+   * merging the treeitem behaviour onto it via the {@link Slot} pattern.
+   * The child must accept a `ref`.
+   * @default false */
   asChild?: boolean;
   children: ReactNode;
 };
 
 /** Props for `Tree.Branch` — an expandable treeitem with nested children. */
 export type TreeBranchProps = Omit<ComponentProps<"div">, "ref"> & {
-  /** Stable identifier for this branch, unique within the tree. */
+  /** Stable identifier for this branch, unique within the tree. Also seeds
+   * the `parentValue` of its {@link TreeBranchContent}'s children and the
+   * derived `aria-labelledby` control id. */
   value: string;
   /**
    * Optional display label for this branch. Stored alongside the value
@@ -116,6 +150,7 @@ export type TreeBranchProps = Omit<ComponentProps<"div">, "ref"> & {
   /**
    * Disable selection, expansion-toggling, and roving navigation for
    * this branch. The branch and its current content remain rendered.
+   * @default false
    */
   disabled?: boolean;
   children: ReactNode;
@@ -123,7 +158,10 @@ export type TreeBranchProps = Omit<ComponentProps<"div">, "ref"> & {
 
 /** Props for `Tree.BranchControl` — the branch's selectable, toggling control row. */
 export type TreeBranchControlProps = ComponentProps<"div"> & {
-  /** Render the control as the supplied child element instead of `<div>`. */
+  /** Render the control as the supplied child element instead of `<div>`,
+   * merging its props (including the `aria-labelledby` id) onto the child
+   * via the {@link Slot} pattern. The child must accept a `ref`.
+   * @default false */
   asChild?: boolean;
   children: ReactNode;
 };
@@ -134,14 +172,18 @@ export type TreeBranchContentProps = ComponentProps<"div"> & {
   /**
    * Keep the content mounted while the branch is collapsed so CSS can
    * animate it in and out. When collapsed it is hidden from assistive
-   * technology with `aria-hidden`.
+   * technology with `aria-hidden` and carries `data-state="closed"`.
+   * @default false
    */
   forceMount?: boolean;
 };
 
 /** Props for `Tree.BranchIndicator` — the expand/collapse affordance. */
 export type TreeBranchIndicatorProps = ComponentProps<"span"> & {
-  /** Render as the supplied child element instead of `<span>`. */
+  /** Render as the supplied child element instead of `<span>`, merging
+   * `aria-hidden` and `data-state` onto it via the {@link Slot} pattern
+   * (e.g. an icon that rotates on `data-state="open"`).
+   * @default false */
   asChild?: boolean;
 };
 

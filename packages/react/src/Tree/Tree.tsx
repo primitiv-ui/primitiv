@@ -36,11 +36,39 @@ import type {
  * `<div role="tree">` and provides every descendant with the expansion
  * set, selection set, and roving-tabstop coordination.
  *
- * Expansion is controlled/uncontrolled via the `expandedValues` /
- * `defaultExpandedValues` pair (with `onExpandedChange`). Selection
- * follows the same shape under `selectionMode="single"` (default) or
- * `"multiple"`, the two modes statically discriminated so passing the
- * wrong prop pair is a type error.
+ * **State ownership.** Root owns two independent axes, each controllable
+ * or uncontrolled:
+ *
+ * - **Expansion** — which branches are open. Controlled via
+ *   {@link TreeRootControlledExpansionProps.expandedValues | `expandedValues`}
+ *   + {@link TreeRootControlledExpansionProps.onExpandedChange | `onExpandedChange`};
+ *   uncontrolled via
+ *   {@link TreeRootUncontrolledExpansionProps.defaultExpandedValues | `defaultExpandedValues`}.
+ * - **Selection** — which node(s) are selected, gated by
+ *   {@link SelectionMode | `selectionMode`} (`"single"` default, or
+ *   `"multiple"`). Each mode has its own controlled / uncontrolled
+ *   `value` / `defaultValue` / `onChange` prop trio, statically
+ *   discriminated so passing the wrong prop pair for the active mode is
+ *   a type error.
+ *
+ * **Roving tabindex.** The whole tree exposes a **single tab stop** — at
+ * most one `treeitem` carries `tabIndex={0}` (the last-focused visible
+ * item, else the first non-disabled item in visible depth-first order);
+ * every other item is `tabIndex={-1}`. `Tab` therefore enters and leaves
+ * the tree once, and the arrow keys move focus *within* it. See
+ * {@link TreeItem} / {@link TreeBranch} for the full key table.
+ *
+ * **Context.** Root provides the `TreeContext` (expansion/selection
+ * state, the node registry, roving bookkeeping, path resolver) and seeds
+ * the `TreeLevelContext` at `{ depth: 0, parentValue: null }`, which each
+ * {@link TreeBranchContent} deepens for its children.
+ *
+ * **Styling hooks.**
+ * - `role="tree"` on the rendered container.
+ * - `aria-multiselectable="true"` only when `selectionMode="multiple"`.
+ * - `data-selection-mode="single" | "multiple"`.
+ *
+ * @extends HTMLDivElement
  *
  * @example Uncontrolled, single selection
  * ```tsx
@@ -120,17 +148,56 @@ export function TreeRoot(props: TreeRootProps): ReactElement {
 TreeRoot.displayName = "TreeRoot";
 
 /**
- * A leaf treeitem — a selectable, focusable node that has no children.
- * Renders a `<div role="treeitem">` by default; pass `asChild` to merge
- * Tree behaviour onto a consumer element (e.g. `<a>`).
+ * A leaf treeitem — a selectable, focusable node with no children.
+ * Renders a `<div role="treeitem">` by default; pass
+ * {@link TreeItemProps.asChild | `asChild`} to merge the tree behaviour
+ * onto a consumer element instead (e.g. an `<a>` for a navigable file).
  *
- * Clicking the item replaces the selection in single mode and toggles
- * it under `Ctrl`/`Cmd` in multiple mode; `Shift+click` selects the
- * range between the previous click and this one.
+ * **Selection.** Clicking the item *replaces* the selection in single
+ * mode. In multiple mode, `Ctrl`/`Cmd`+click toggles it into or out of
+ * the set, and `Shift`+click selects the contiguous range (in visible
+ * depth-first order, disabled nodes excluded) between the previous
+ * selection anchor and this item.
+ *
+ * **Depth & registry.** The item reads its nesting depth and enclosing
+ * branch from `TreeLevelContext`, emits `aria-level={depth + 1}`, and
+ * registers itself (value, {@link TreeItemProps.label | `label`}, depth,
+ * parent) in the tree's node registry. The registry keeps the last-seen
+ * entry per value even after unmount, so `Tree.SelectionPath` and
+ * {@link useTreePath} can resolve ancestry through a collapsed branch.
+ *
+ * **Keyboard** (while focused; movement is over *visible* items in
+ * depth-first order, skipping collapsed subtrees and disabled nodes):
+ *
+ * | Key                     | Behaviour                                     |
+ * | ----------------------- | --------------------------------------------- |
+ * | `ArrowDown` / `ArrowUp` | Move focus to the next / previous visible item |
+ * | `ArrowLeft`             | Move focus to the parent branch (no-op at root)|
+ * | `Home` / `End`          | Focus the first / last visible item            |
+ * | `Enter` / `Space`       | Select the item                                |
+ *
+ * A `disabled` item is removed from the roving order and ignores
+ * selection, but `Home`/`End` still land on non-disabled neighbours.
+ *
+ * **Styling hooks.**
+ * - `role="treeitem"`, `aria-level`, `aria-selected`, and `aria-disabled`
+ *   (omitted when not disabled).
+ * - `data-leaf=""` (always), `data-depth="{n}"`.
+ * - `data-selected=""` when selected, `data-disabled=""` when disabled
+ *   (both omitted otherwise).
+ *
+ * @extends HTMLDivElement
  *
  * @example
  * ```tsx
  * <Tree.Item value="readme">readme</Tree.Item>
+ * ```
+ *
+ * @example asChild — a navigable leaf
+ * ```tsx
+ * <Tree.Item asChild value="readme">
+ *   <a href="/readme">readme</a>
+ * </Tree.Item>
  * ```
  */
 export function TreeItem({
@@ -212,10 +279,43 @@ TreeItem.displayName = "TreeItem";
  * with `partitionBranchChildren`.
  *
  * The branch carries `aria-expanded`, `aria-selected`, `aria-level`,
- * and is labelled by its control row via `aria-labelledby` so its
- * accessible name is not polluted by descendant text. Content is
- * unmounted while collapsed unless the inner `Tree.BranchContent`
- * opts in to `forceMount`.
+ * and is labelled by its control row via `aria-labelledby` (an id
+ * derived from the root id + this branch's `value`), so its accessible
+ * name is the control text alone and not polluted by descendant text.
+ * Content is unmounted while collapsed unless the inner
+ * {@link TreeBranchContent} opts in to
+ * {@link TreeBranchContentProps.forceMount | `forceMount`}.
+ *
+ * **Composition.** A `Tree.Branch` must contain exactly one
+ * {@link TreeBranchControl} and at most one {@link TreeBranchContent};
+ * both are matched however deeply they are wrapped in fragments (so
+ * `{open && <BranchContent/>}` partitions the same as a bare element).
+ * Violating that throws a descriptive error during render. The branch
+ * provides `TreeItemContext` (its value, expanded/disabled state, and
+ * control id) to those two sub-components.
+ *
+ * **Keyboard** (adds branch semantics on top of the roving keys shared
+ * with {@link TreeItem}):
+ *
+ * | Key          | Behaviour                                                     |
+ * | ------------ | ------------------------------------------------------------- |
+ * | `ArrowRight` | Expand if collapsed; if already open, move focus to first child|
+ * | `ArrowLeft`  | Collapse if open; otherwise move focus to the parent branch    |
+ * | `Enter` / `Space` | Toggle expansion **and** select the branch in one gesture |
+ *
+ * A `disabled` branch keeps its row and current content rendered but
+ * ignores expansion, selection, and the branch arrow keys, and is
+ * skipped by roving navigation.
+ *
+ * **Styling hooks.**
+ * - `role="treeitem"`, `aria-level`, `aria-expanded`, `aria-selected`,
+ *   `aria-labelledby`, and `aria-disabled` (omitted when not disabled).
+ * - `data-branch=""` (always), `data-depth="{n}"`,
+ *   `data-state="open" | "closed"`.
+ * - `data-selected=""` / `data-disabled=""` when applicable (omitted
+ *   otherwise).
+ *
+ * @extends HTMLDivElement
  *
  * @example
  * ```tsx
@@ -307,11 +407,21 @@ export function TreeBranch({
 TreeBranch.displayName = "TreeBranch";
 
 /**
- * The clickable row of a `Tree.Branch`. Renders a `<div>` by default
- * (or any element via `asChild`) and is identified by the id the
- * surrounding branch points `aria-labelledby` at. Clicking the row
- * toggles the branch's expansion and selects it in a single gesture;
- * the inner `Tree.BranchIndicator` is decorative.
+ * The clickable row of a {@link TreeBranch | `Tree.Branch`}. Renders a
+ * `<div>` by default, or any element via
+ * {@link TreeBranchControlProps.asChild | `asChild`}. It carries the
+ * `id` that the surrounding branch points `aria-labelledby` at, so its
+ * text becomes the branch's accessible name — keep the label content
+ * here rather than on the branch.
+ *
+ * Clicking the row toggles the branch's expansion **and** selects it in
+ * a single gesture (with the same `Ctrl`/`Cmd` / `Shift` modifier rules
+ * as {@link TreeItem}); the inner {@link TreeBranchIndicator} is purely
+ * decorative. A disabled branch's control ignores the click. Reads its
+ * value / disabled state / id from the branch's `TreeItemContext`, so it
+ * must be rendered inside a `Tree.Branch`.
+ *
+ * @extends HTMLDivElement
  *
  * @example
  * ```tsx
@@ -356,13 +466,30 @@ export function TreeBranchControl({
 TreeBranchControl.displayName = "TreeBranchControl";
 
 /**
- * The nested group of items inside a `Tree.Branch`. Renders a
- * `<div role="group">` whose children sit at one deeper nesting level.
+ * The nested group of items inside a {@link TreeBranch | `Tree.Branch`}.
+ * Renders a `<div role="group">` and deepens the `TreeLevelContext` for
+ * its children (`depth + 1`, `parentValue` = the enclosing branch), so
+ * they emit the correct `aria-level` and register under the right parent.
  *
- * By default the content is unmounted while the branch is collapsed —
- * the lean DOM strategy. Pass `forceMount` to keep it mounted with
- * `aria-hidden="true"` and `data-state="closed"`, so CSS can animate
- * it in and out without the browser tearing the subtree down.
+ * By default the content is **unmounted** while the branch is collapsed —
+ * the lean-DOM strategy. Pass
+ * {@link TreeBranchContentProps.forceMount | `forceMount`} to keep it
+ * mounted while collapsed with `aria-hidden="true"` and
+ * `data-state="closed"`, so CSS can animate it in and out without the
+ * browser tearing the subtree down.
+ *
+ * **Styling hooks.**
+ * - `role="group"`, `data-depth="{n}"`, `data-state="open" | "closed"`.
+ * - `aria-hidden="true"` only while force-mounted and collapsed.
+ *
+ * @extends HTMLDivElement
+ *
+ * @example forceMount for CSS transitions
+ * ```tsx
+ * <Tree.BranchContent forceMount>
+ *   <Tree.Item value="index">index.ts</Tree.Item>
+ * </Tree.BranchContent>
+ * ```
  */
 export function TreeBranchContent({
   children,
@@ -398,10 +525,15 @@ TreeBranchContent.displayName = "TreeBranchContent";
  * `"closed"` so a consumer's CSS can rotate or swap the glyph. Only
  * meaningful inside a `Tree.BranchControl`.
  *
- * Pass `asChild` to merge the indicator's props — including
- * `aria-hidden` and `data-state` — onto the supplied child element.
- * This is useful when passing an icon component that must receive
- * `data-state` directly rather than inheriting it from a wrapper:
+ * Pass {@link TreeBranchIndicatorProps.asChild | `asChild`} to merge the
+ * indicator's props — including `aria-hidden` and `data-state` — onto the
+ * supplied child element. This is useful when passing an icon component
+ * that must receive `data-state` directly rather than inheriting it from
+ * a wrapper. Reads its `expanded` state from the branch's
+ * `TreeItemContext`, so it must be rendered inside a
+ * {@link TreeBranchControl}.
+ *
+ * @extends HTMLSpanElement
  *
  * @example Default (wraps children in a `<span>`)
  * ```tsx
@@ -456,9 +588,24 @@ TreeBranchIndicator.displayName = "TreeBranchIndicator";
  *
  * Pass `separator` to customise the divider glyph between segments.
  *
- * Pass a function as `children` to take full control of rendering
- * (e.g. wire up router links). The function receives the resolved
- * paths and replaces the default markup entirely.
+ * Pass {@link TreeSelectionPathProps.separator | `separator`} to
+ * customise the divider glyph between segments, or a function as
+ * `children` to take full control of rendering (e.g. wire up router
+ * links). The function receives the resolved
+ * {@link TreeSelectionPathRenderProps.paths | `paths`} and replaces the
+ * default markup entirely.
+ *
+ * Backed by {@link useTreeSelectionPaths}, which reads ancestry from the
+ * persistent node registry — so trails stay resolvable even when an
+ * ancestor branch has collapsed and its descendants have unmounted.
+ *
+ * **Styling hooks.**
+ * - `data-tree-selection-path=""` on the wrapper (always).
+ * - `data-empty=""` on the wrapper when nothing is selected.
+ * - `data-tree-selection-segment=""` + `data-value` (and `data-disabled`
+ *   when the node is disabled) on each rendered segment.
+ *
+ * @extends HTMLDivElement
  *
  * @example Default rendering
  * ```tsx
@@ -600,6 +747,13 @@ export type TreeCompound = typeof TreeRoot & {
  *   </Tree.Branch>
  * </Tree.Root>;
  * ```
+ *
+ * @see {@link TreeRoot} for the expansion / selection state modes and the
+ *   single tree-wide roving tab stop.
+ * @see {@link TreeItem} and {@link TreeBranch} for the keyboard tables and
+ *   selection modifiers.
+ * @see {@link useTreePath} / {@link useTreeSelectionPaths} for reading a
+ *   node's ancestry outside `Tree.SelectionPath`.
  */
 const TreeCompound: TreeCompound = Object.assign(TreeRoot, {
   Root: TreeRoot,

@@ -42,7 +42,15 @@ function setRef<T>(ref: PossibleRef<T>, value: T) {
 /**
  * Combines multiple refs into a single callback ref that sets all of them
  * simultaneously. Handles function refs, object refs (`{ current }`), and
- * `undefined` — any of which may be mixed freely.
+ * `undefined` — any of which may be mixed freely, in any order, and any
+ * number of them.
+ *
+ * Used throughout the headless components whenever a sub-component owns an
+ * internal ref (for measuring, focus management, roving-tabindex, etc.)
+ * *and* needs to forward the consumer's own `ref` to the same DOM node —
+ * two refs, one element, one callback ref that satisfies both. `Slot`
+ * itself uses `composeRefs` internally to merge its `forwardedRef` with the
+ * child element's own ref (see {@link Slot}).
  *
  * @example Compose an internal ref with a consumer-supplied external ref:
  * ```tsx
@@ -109,35 +117,84 @@ function mergeProps(slotProps: AnyProps, childProps: AnyProps): AnyProps {
 /**
  * Renders its single child element with the Slot's own props merged in.
  *
- * Used to implement the `asChild` pattern: a component that normally renders
- * its own DOM element can instead delegate to a consumer-supplied element
- * while preserving all of its own behaviour (ARIA attributes, event handlers,
- * `ref`, etc.).
+ * `Slot` is the composition primitive behind every `asChild` prop in this
+ * library (`Button`, `Tabs.Trigger`, `Select.Root`, `Breadcrumb.Link`, and
+ * more). A component that normally renders its own DOM element (say,
+ * `<button>`) can instead delegate rendering to a single consumer-supplied
+ * element — typically a routing library's `<Link>` or a custom styled
+ * element — while preserving all of its own behaviour: ARIA attributes,
+ * data attributes, event handlers, and `ref` all still land on the
+ * rendered DOM node, just not the node `Slot` itself would have created.
+ * The pattern avoids an extra wrapper element in the DOM, which matters for
+ * layout (no unwanted `<button><a>…</a></button>` nesting) and for CSS
+ * selectors that expect a single element.
  *
- * **Prop-merging rules**:
- * - **Event handlers** compose — child's handler fires first, then Slot's.
- * - **`style`** is shallow-merged — child wins on key collisions.
- * - **`className`** strings are concatenated (`slotClass childClass`).
- * - **All other props** default to the child's value; Slot provides the
- *   fallback when the child doesn't specify one.
- * - **Refs** from both sides are composed via {@link composeRefs}.
+ * **Usage shape** — every component using `Slot` follows the same
+ * branch:
  *
- * **Constraints**
- * - Exactly one React element child is required; Slot throws otherwise.
- * - The child must accept a `ref` (i.e. a DOM element or a `forwardRef`
- *   component).
+ * ```tsx
+ * if (asChild) {
+ *   return <Slot {...ownProps}>{children}</Slot>;
+ * }
+ * return <button {...ownProps}>{children}</button>;
+ * ```
  *
- * **React version compatibility.** Slot reads the child's ref from
+ * `ownProps` is the exact same object passed to both branches — `Slot`'s
+ * job is only to change *where* those props land, never to change what
+ * they are.
+ *
+ * **Prop-merging rules** (`Slot`'s own props are the "slot" side, the
+ * single child's own props are the "child" side):
+ * - **Event handlers** (any prop matching `/^on[A-Z]/`) compose — the
+ *   **child's** handler fires first, then the **slot's**. This is the
+ *   opposite composition direction, and a different merge strategy, from
+ *   the standalone {@link composeEventHandlers} helper (their-handler-first
+ *   with a `preventDefault()` veto) — the two are unrelated mechanisms
+ *   that happen to solve adjacent problems. `Slot`'s handlers always both
+ *   run; there is no opt-out.
+ * - **`style`** is shallow-merged — the child's style object wins on key
+ *   collisions, so a consumer's inline `style` can override individual
+ *   properties Slot would otherwise set.
+ * - **`className`** strings are concatenated (`"slotClass childClass"`),
+ *   so both the component's own class hooks and the consumer's class
+ *   survive.
+ * - **All other props** default to the child's value; Slot's value is only
+ *   used as a fallback when the child doesn't specify that prop at all
+ *   (key absent, or explicitly `undefined`).
+ * - **Refs** from both sides are composed via {@link composeRefs}, so
+ *   neither the component's internal ref nor the consumer's own ref on the
+ *   child element is lost.
+ *
+ * **Constraints.** Exactly one React element child is required — `Slot`
+ * throws `"Slot requires exactly one React element child."` for zero
+ * children or a non-element child (e.g. a plain string). The child must
+ * also accept a `ref` (a DOM element or a `forwardRef` component); passing
+ * a plain function component as the child silently drops the ref.
+ *
+ * **React version compatibility.** Slot reads the child's own ref from
  * `element.props.ref` (React 19+) with a fallback to `element.ref`
  * (React ≤18) so both runtime versions compose refs correctly.
  *
- * @example
+ * @extends HTMLElement
+ *
+ * @example Basic `asChild` branch inside a component
  * ```tsx
  * // Inside a component that normally renders <button>:
  * if (asChild) {
  *   return <Slot {...buttonProps}>{children}</Slot>;
  * }
  * return <button {...buttonProps}>{children}</button>;
+ * ```
+ *
+ * @example Consumer rendering a router link in place of the default element
+ * ```tsx
+ * <Button asChild onClick={trackClick}>
+ *   <RouterLink to="/settings" className="settings-link">
+ *     Settings
+ *   </RouterLink>
+ * </Button>
+ * // Rendered DOM: a single <a class="…settings-link"> — trackClick and the
+ * // link's own onClick both fire; no wrapping <button>.
  * ```
  */
 export const Slot: ForwardRefExoticComponent<

@@ -1,68 +1,118 @@
 import { ComponentProps, ReactNode, Ref } from "react";
 
-/** Props common to both controlled and uncontrolled `Collapsible.Root` modes. */
+/**
+ * Shared base for both {@link CollapsibleRootProps} variants — the native
+ * `<div>` attributes (minus the conflicting `onChange`) plus the `disabled`
+ * flag common to both state modes.
+ */
 export type CollapsibleRootBaseProps = Omit<
   ComponentProps<"div">,
   "onChange"
 > & {
-  /** When `true`, disables the widget and short-circuits trigger activation. */
+  /**
+   * When `true`, disables the widget: the {@link CollapsibleTriggerProps |
+   * Trigger} renders `aria-disabled="true"` (staying focusable) and both
+   * click and keyboard activation are short-circuited. Mirrored as
+   * `data-disabled` onto Root, Trigger, and Content.
+   * @default false
+   */
   disabled?: boolean;
 };
 
 /**
- * Props for `Collapsible.Root` in uncontrolled mode — the component owns the
- * open state. Pass `defaultOpen` to set the initial value; `open` is forbidden.
+ * Uncontrolled variant of {@link CollapsibleRootProps}: the component owns
+ * the open state. Pass `defaultOpen` (or omit it); `open` is forbidden.
  */
 export type CollapsibleRootUncontrolledProps = CollapsibleRootBaseProps & {
-  /** Initial open state when uncontrolled. Defaults to `false`. */
+  /**
+   * Initial open state on first render. The component owns the value
+   * thereafter.
+   * @default false
+   */
   defaultOpen?: boolean;
-  /** Forbidden in uncontrolled mode. */
+  /** Forbidden in uncontrolled mode — use `defaultOpen` instead. */
   open?: never;
-  /** Called whenever the open state changes. */
+  /** Called with the new open state on every toggle. Optional in
+   * uncontrolled mode (Collapsible fires it in both modes). */
   onOpenChange?: (open: boolean) => void;
 };
 
 /**
- * Props for `Collapsible.Root` in controlled mode — the parent owns the open
- * value. Pass `open` and `onOpenChange` together; `defaultOpen` is forbidden.
+ * Controlled variant of {@link CollapsibleRootProps}: the parent owns the
+ * open value. Pass `open` and `onOpenChange` together; `defaultOpen` is
+ * forbidden.
  */
 export type CollapsibleRootControlledProps = CollapsibleRootBaseProps & {
-  /** The controlled open state. */
+  /** The controlled open state. Must be kept in sync by the parent via
+   * `onOpenChange`. */
   open: boolean;
-  /** Called whenever the component requests an open-state change. */
+  /** Called with the requested open state on every toggle. Required in
+   * controlled mode. */
   onOpenChange: (open: boolean) => void;
-  /** Forbidden in controlled mode. */
+  /** Forbidden in controlled mode — use `open` instead. */
   defaultOpen?: never;
 };
 
-/** Props for `Collapsible.Root` — discriminated controlled/uncontrolled union. */
+/**
+ * Props for {@link CollapsibleRoot | `Collapsible.Root`}.
+ *
+ * Resolves to either {@link CollapsibleRootUncontrolledProps} or
+ * {@link CollapsibleRootControlledProps} — only one shape is accepted by
+ * TypeScript at a time.
+ */
 export type CollapsibleRootProps =
   | CollapsibleRootUncontrolledProps
   | CollapsibleRootControlledProps;
 
-/** Props for `Collapsible.Trigger`, the button that toggles the panel. */
+/**
+ * Props for {@link CollapsibleTrigger | `Collapsible.Trigger`}, the button
+ * that toggles the panel.
+ *
+ * Generic over the rendered element type so `asChild` consumers can type
+ * the forwarded `ref` (e.g. `Collapsible.Trigger<HTMLAnchorElement>`).
+ */
 export type CollapsibleTriggerProps<T extends HTMLElement = HTMLButtonElement> =
   Omit<ComponentProps<"button">, "ref"> & {
-    /** Trigger content (label, icon, etc.). */
+    /** Trigger content (label, and optionally a
+     * {@link CollapsibleTriggerIconProps | TriggerIcon}). */
     children: ReactNode;
-    /** Render the child element instead of the default `<button>`. */
+    /**
+     * Render a single consumer-supplied child element instead of the default
+     * `<button>`, merging the Trigger's ARIA, handlers, and ref onto it via
+     * the {@link Slot} pattern. When `asChild` and the Root is `disabled`,
+     * `role="button"` is injected so `aria-disabled` is semantically valid.
+     * @default false
+     */
     asChild?: boolean;
-    /** Ref to the rendered element. Defaults to `HTMLButtonElement`; when using
-     * `asChild`, specify the child's element type (e.g. `HTMLAnchorElement`). */
+    /** Forwarded to the rendered element. Defaults to `HTMLButtonElement`;
+     * when using `asChild`, specify the child's element type (e.g.
+     * `HTMLAnchorElement`). Composed with the library's internal ref. */
     ref?: Ref<T>;
   };
 
-/** Props for `Collapsible.Content`, the panel revealed when open. */
+/**
+ * Props for {@link CollapsibleContent | `Collapsible.Content`}, the panel
+ * revealed when open.
+ */
 export type CollapsibleContentProps = ComponentProps<"div"> & {
   /** Panel content. */
   children: ReactNode;
-  /** Keep the panel mounted when closed so transitions can be CSS-driven. */
+  /**
+   * Keep the panel mounted (and in the DOM) even when closed, so open/close
+   * transitions can be CSS-driven. When closed under `forceMount`, the panel
+   * gets `aria-hidden="true"` instead of the `hidden` attribute. Consumers
+   * may override `aria-hidden` explicitly.
+   * @default false
+   */
   forceMount?: boolean;
 };
 
-/** Props for `Collapsible.TriggerIcon`, the aria-hidden icon wrapper. */
+/**
+ * Props for {@link CollapsibleTriggerIcon | `Collapsible.TriggerIcon`}, the
+ * `aria-hidden` icon wrapper carrying an open/closed `data-state` hook.
+ */
 export type CollapsibleTriggerIconProps = ComponentProps<"span"> & {
-  /** The icon to render (inline SVG or icon component). */
+  /** The icon to render (inline SVG or an icon component). */
   children: ReactNode;
 };
 

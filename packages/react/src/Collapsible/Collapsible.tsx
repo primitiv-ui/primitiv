@@ -39,8 +39,17 @@ import type {
  * mirrored onto Root, Trigger, and Content so a single selector covers
  * every sub-component.
  *
+ * **Context.** Root establishes {@link CollapsibleContext}, from which
+ * {@link CollapsibleTrigger}, {@link CollapsibleContent}, and
+ * {@link CollapsibleTriggerIcon} read the open state, the `disabled` flag,
+ * the `toggle` action, and the generated `triggerId` / `contentId` that
+ * wire the Trigger's `aria-controls` to the Content's `id`. Rendering any
+ * sub-component outside a Root throws.
+ *
  * **Styling hooks.** `data-state="open" | "closed"` and
  * `data-disabled="true" | "false"` are emitted on the rendered container.
+ *
+ * @extends HTMLDivElement
  *
  * @example Uncontrolled
  * ```tsx
@@ -133,6 +142,8 @@ CollapsibleRoot.displayName = "CollapsibleRoot";
  * - `data-state="open" | "closed"` on the rendered element.
  * - `data-disabled="true" | "false"`.
  *
+ * @extends HTMLButtonElement
+ *
  * @example Basic
  * ```tsx
  * <Collapsible.Trigger>Toggle</Collapsible.Trigger>
@@ -210,6 +221,8 @@ CollapsibleTrigger.displayName = "CollapsibleTrigger";
  * - `data-state="open" | "closed"` on the rendered element.
  * - `data-disabled="true" | "false"`.
  *
+ * @extends HTMLDivElement
+ *
  * @example Default (hidden attribute)
  * ```tsx
  * <Collapsible.Content>Hidden content</Collapsible.Content>
@@ -260,6 +273,8 @@ CollapsibleContent.displayName = "CollapsibleContent";
  * **Styling hooks.**
  * - `data-state="open" | "closed"` on the rendered `<span>`.
  * - `aria-hidden="true"` on the rendered `<span>`.
+ *
+ * @extends HTMLSpanElement
  *
  * @example Inline SVG
  * ```tsx

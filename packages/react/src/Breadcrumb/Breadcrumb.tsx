@@ -15,13 +15,29 @@ import {
  * The root of a Breadcrumb — a `<nav>` landmark that wraps the breadcrumb
  * trail.
  *
+ * Stateless: `Breadcrumb.Root` holds no context and derives no state — it
+ * is purely a semantic wrapper. All native `<nav>` attributes pass straight
+ * through to the DOM, so there is no controlled/uncontrolled shape to
+ * reason about.
+ *
  * The `<nav>` defaults to `aria-label="Breadcrumb"` so assistive technology
- * announces it as the breadcrumb navigation landmark. Override `aria-label`
- * if your product uses different terminology.
+ * announces it as the breadcrumb navigation landmark, distinguishing it
+ * from any other `<nav>` on the page (e.g. primary site navigation).
+ * Override `aria-label` if your product uses different terminology (e.g.
+ * `"You are here"`).
+ *
+ * @extends HTMLElement
  *
  * @example
  * ```tsx
  * <Breadcrumb.Root>
+ *   <Breadcrumb.List>…</Breadcrumb.List>
+ * </Breadcrumb.Root>
+ * ```
+ *
+ * @example Custom accessible name
+ * ```tsx
+ * <Breadcrumb.Root aria-label="You are here">
  *   <Breadcrumb.List>…</Breadcrumb.List>
  * </Breadcrumb.Root>
  * ```
@@ -44,9 +60,14 @@ BreadcrumbRoot.displayName = "BreadcrumbRoot";
  * The ordered list of breadcrumb entries — renders an `<ol>`.
  *
  * An ordered list is the correct semantic: breadcrumb entries have a
- * meaningful sequence from the site root to the current page. Contains
+ * meaningful sequence from the site root to the current page (unlike a
+ * `<ul>`, whose items are unordered). Renders as a direct child of
+ * {@link BreadcrumbRoot | `Breadcrumb.Root`}'s `<nav>`, and contains
  * {@link BreadcrumbItem | `Breadcrumb.Item`}s interleaved with
- * {@link BreadcrumbSeparator | `Breadcrumb.Separator`}s.
+ * {@link BreadcrumbSeparator | `Breadcrumb.Separator`}s. Stateless — no
+ * context is read or provided.
+ *
+ * @extends HTMLOListElement
  *
  * @example
  * ```tsx
@@ -71,7 +92,13 @@ BreadcrumbList.displayName = "BreadcrumbList";
  * A single entry in the breadcrumb trail — renders an `<li>`.
  *
  * Wraps either a {@link BreadcrumbLink | `Breadcrumb.Link`} (an ancestor
- * page) or a {@link BreadcrumbPage | `Breadcrumb.Page`} (the current page).
+ * page) or a {@link BreadcrumbPage | `Breadcrumb.Page`} (the current page),
+ * as a child of {@link BreadcrumbList | `Breadcrumb.List`}'s `<ol>`.
+ * {@link BreadcrumbSeparator | `Breadcrumb.Separator`}s are siblings of
+ * `Breadcrumb.Item`, not nested inside it. Purely structural — no ARIA
+ * attributes or state of its own.
+ *
+ * @extends HTMLLIElement
  *
  * @example
  * ```tsx
@@ -93,12 +120,18 @@ BreadcrumbItem.displayName = "BreadcrumbItem";
 /**
  * A link to an ancestor page — renders an `<a>`.
  *
- * Use for every entry except the current page. Pass `href` (and any other
- * anchor attributes) directly.
+ * Use for every entry except the current page (the last entry should be a
+ * {@link BreadcrumbPage | `Breadcrumb.Page`} instead). Pass `href` (and any
+ * other anchor attributes) directly; nothing is inferred or defaulted.
  *
- * **`asChild` prop.** Pass `asChild` to render a consumer-supplied element —
- * typically a routing library's `<Link>` — with the breadcrumb link's props
- * merged in. The native `<a>` is dropped.
+ * **`asChild` composition.** Pass `asChild` to render a consumer-supplied
+ * element — typically a routing library's `<Link>` — instead of the native
+ * `<a>`, with all of `Breadcrumb.Link`'s props (`href`, event handlers,
+ * `className`, `ref`, …) merged onto it via the {@link Slot} pattern. The
+ * child **must** be a single React element that accepts a `ref`; the
+ * native `<a>` is dropped entirely rather than wrapping the child.
+ *
+ * @extends HTMLAnchorElement
  *
  * @example
  * ```tsx
@@ -129,9 +162,13 @@ BreadcrumbLink.displayName = "BreadcrumbLink";
 /**
  * The current page in the trail — renders a `<span aria-current="page">`.
  *
- * The last entry of a breadcrumb is the page the user is on, so it is not a
- * link. `aria-current="page"` tells assistive technology this entry
- * represents the current location.
+ * The last entry of a breadcrumb is the page the user is already on, so it
+ * is deliberately not a {@link BreadcrumbLink | `Breadcrumb.Link`} — a link
+ * to the current page is not a meaningful navigation target.
+ * `aria-current="page"` is fixed by the component (not overridable) and
+ * tells assistive technology this entry represents the current location.
+ *
+ * @extends HTMLSpanElement
  *
  * @example
  * ```tsx
@@ -159,12 +196,18 @@ BreadcrumbPage.displayName = "BreadcrumbPage";
  * `<li role="presentation" aria-hidden="true">`.
  *
  * The separator sits inside the `<ol>` as a sibling of the
- * {@link BreadcrumbItem | `Breadcrumb.Item`}s, but `role="presentation"`
- * removes it from the list semantics and `aria-hidden` hides it from the
- * accessibility tree — it is purely decorative.
+ * {@link BreadcrumbItem | `Breadcrumb.Item`}s (an `<ol>`'s valid children
+ * are all `<li>`s, so the separator is one too), but `role="presentation"`
+ * removes it from the list semantics — screen readers don't announce it as
+ * a list item — and `aria-hidden="true"` hides it from the accessibility
+ * tree entirely. Both attributes are fixed by the component and not
+ * overridable; it is purely decorative.
  *
  * Defaults to a `"/"` glyph; pass `children` to use a custom separator (an
- * icon, a chevron, etc.).
+ * icon, a chevron, `"›"`, etc.) — whatever is passed replaces the default
+ * entirely rather than being appended to it.
+ *
+ * @extends HTMLLIElement
  *
  * @example Default separator
  * ```tsx
@@ -239,6 +282,9 @@ export type TBreadcrumbCompound = typeof BreadcrumbRoot & {
  * </Breadcrumb.Root>
  * ```
  *
+ * @see {@link BreadcrumbRoot} for the `aria-label` landmark default.
+ * @see {@link BreadcrumbLink} for the `asChild` router-link pattern.
+ * @see {@link BreadcrumbPage} for marking the current, non-linked entry.
  * @see {@link BreadcrumbSeparator} for customising the divider glyph.
  */
 const BreadcrumbCompound: TBreadcrumbCompound = Object.assign(BreadcrumbRoot, {

@@ -1,50 +1,67 @@
 import { ChangeEventHandler, ComponentProps, ReactNode, Ref } from "react";
 
 /**
- * Props common to both controlled and uncontrolled `Switch.Root` modes — the
- * native `<input type="checkbox">` attributes (minus the ones the component
- * owns). `className` / `style` style the **track** (the visible control), not
- * the hidden input; everything else spreads onto the input, because
- * semantically the Root *is* the switch.
+ * Shared base for both {@link SwitchRootProps} variants — the native
+ * `<input type="checkbox">` attributes (minus the ones the component owns:
+ * `type`, `role`, `checked`, and `defaultChecked`), plus `children` and a
+ * typed `ref`.
+ *
+ * Prop routing: `className` / `style` style the **track** (the visible
+ * `<label>`, since the input is visually hidden); every other prop — `name`,
+ * `value`, `id`, `aria-*`, `required`, `disabled`, `ref`, … — spreads onto the
+ * hidden `<input>`, because semantically the Root *is* the switch.
  */
 export type SwitchRootBaseProps = Omit<
   ComponentProps<"input">,
   "type" | "role" | "checked" | "defaultChecked"
 > & {
-  /** Optional content (typically `Switch.Thumb`). */
+  /** Content of the switch — typically a single
+   * {@link SwitchThumbProps | `Switch.Thumb`}. */
   children?: ReactNode;
-  /** Ref to the underlying native `<input>` element. */
+  /** Forwarded to the underlying native `HTMLInputElement` (the real,
+   * visually-hidden checkbox), not the visible track. */
   ref?: Ref<HTMLInputElement>;
 };
 
 /**
- * Props for `Switch.Root` in uncontrolled mode — the **browser** owns the
- * checked state. Pass `defaultChecked` to set the initial value; `checked` is
- * forbidden.
+ * Uncontrolled variant of {@link SwitchRootProps}: the **browser** owns the
+ * checked state, so the switch participates in native form submission and
+ * reset. Pass `defaultChecked` (or omit it); `checked` is forbidden.
  */
 export type SwitchRootUncontrolledProps = SwitchRootBaseProps & {
-  /** Initial checked state when uncontrolled. */
+  /** Checked state on first render. Defaults to `false` when omitted.
+   * @default false */
   defaultChecked?: boolean;
-  /** Forbidden in uncontrolled mode. */
+  /** Forbidden in uncontrolled mode — use `defaultChecked` instead. */
   checked?: never;
-  /** Called whenever the checked state changes. */
+  /** Called with the new boolean state whenever the switch toggles. Optional
+   * in uncontrolled mode. */
   onCheckedChange?: (checked: boolean) => void;
 };
 
 /**
- * Props for `Switch.Root` in controlled mode — the parent owns the checked
- * value. Pass `checked` and `onCheckedChange` together.
+ * Controlled variant of {@link SwitchRootProps}: the parent owns the checked
+ * value. Pass `checked` and `onCheckedChange` together; `defaultChecked` is
+ * forbidden.
  */
 export type SwitchRootControlledProps = SwitchRootBaseProps & {
-  /** Forbidden in controlled mode. */
+  /** Forbidden in controlled mode — use `checked` instead. */
   defaultChecked?: never;
-  /** The controlled checked state. */
+  /** The controlled checked state. Must be kept in sync by the parent via
+   * `onCheckedChange`. */
   checked: boolean;
-  /** Called whenever the component requests a checked-state change. */
+  /** Called with the new boolean state whenever the user requests a toggle.
+   * Required in controlled mode. */
   onCheckedChange: (checked: boolean) => void;
 };
 
-/** Props for `Switch.Root` — discriminated controlled/uncontrolled union. */
+/**
+ * Props for {@link SwitchRoot | `Switch.Root`}.
+ *
+ * Resolves to either {@link SwitchRootUncontrolledProps} or
+ * {@link SwitchRootControlledProps} — only one shape is accepted by TypeScript
+ * at a time.
+ */
 export type SwitchRootProps =
   | SwitchRootUncontrolledProps
   | SwitchRootControlledProps;
@@ -56,11 +73,21 @@ export type SwitchRootProps =
  */
 export type SwitchProps = SwitchRootProps;
 
-/** Props for `Switch.Thumb`, the sliding indicator inside the track. */
+/**
+ * Props for {@link SwitchThumb | `Switch.Thumb`} — the decorative sliding
+ * indicator inside the track. All `HTMLSpanElement` attributes, plus the
+ * `asChild` escape hatch.
+ */
 export type SwitchThumbProps = ComponentProps<"span"> & {
-  /** Optional thumb content. */
+  /** Optional thumb content (rarely needed — the thumb is usually styled
+   * purely with CSS). */
   children?: ReactNode;
-  /** Render the child element instead of the default `<span>`. */
+  /**
+   * When `true`, render the consumer's own element as the thumb instead of the
+   * default `<span>`, merging `aria-hidden` and `data-state` onto it via the
+   * {@link Slot} pattern.
+   * @default false
+   */
   asChild?: boolean;
 };
 

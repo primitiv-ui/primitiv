@@ -42,6 +42,12 @@ function dataStateOf(checked: boolean) {
  * **Keyboard.** Toggles on `Space` (the native checkbox behaviour); `Enter`
  * does not toggle a checkbox-based control.
  *
+ * **`onChange` composition.** The consumer's raw `onChange` fires first; if it
+ * calls `event.preventDefault()`, the internal mirror update and
+ * `onCheckedChange` are skipped for that event. See {@link SwitchRootBaseProps}.
+ *
+ * @extends HTMLInputElement
+ *
  * @example Uncontrolled
  * ```tsx
  * <Switch.Root name="notify" value="on" defaultChecked aria-label="Enable notifications">
@@ -114,7 +120,10 @@ SwitchRoot.displayName = "SwitchRoot";
  * **Styling hook.** Mirrors the root's `data-state="checked" | "unchecked"`.
  *
  * **`asChild` prop.** Pass `asChild` to render the consumer's own element as
- * the thumb, with `aria-hidden` and `data-state` merged in.
+ * the thumb, with `aria-hidden` and `data-state` merged in via the
+ * {@link Slot} pattern. See {@link SwitchThumbProps}.
+ *
+ * @extends HTMLSpanElement
  *
  * @example
  * ```tsx

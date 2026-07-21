@@ -306,13 +306,8 @@ return (async function () {
 
     // global mode switch — full-width sub-bar (§1.1)
     const mbY = 60;
-    rect(F, M, mbY, CW, 36, C.white, { radius: 8, stroke: C.border });
-    const segW = (CW - 4) / 3;
-    rect(F, M + 2, mbY + 2, segW, 32, C.dark, { radius: 6 });
-    text(F, "Headless", M + 2, mbY + 9, 13, HEADM, C.white, { width: segW, align: "CENTER" });
-    text(F, "Styled", M + 2 + segW, mbY + 9, 13, HEADM, C.sec, { width: segW, align: "CENTER" });
-    text(F, "Figma", M + 2 + segW * 2, mbY + 9, 13, HEADM, C.sec, { width: segW, align: "CENTER" });
-    marker(F, 1, W - M - 14, mbY - 6, 18);
+    rect(F, M, mbY, CW, 40, C.white, { radius: 8, stroke: C.border });
+    dropdownRow(F, M, mbY, CW, 40, "Mode", "Headless", { marker: 1 });
 
     // hero content
     const inst = await lockup(F, 130, null, 160); inst.x = (W - inst.width) / 2;

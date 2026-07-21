@@ -16,13 +16,22 @@ import {
  * The root of a Table widget — renders a plain `<table>` element and passes
  * all `TableHTMLAttributes` through to the DOM.
  *
+ * Stateless: `Table` is a purely structural compound with no context, no
+ * internal state, and no `data-*` attributes of its own (verified by
+ * `Table.contract.test.tsx` against the registry contract) — every part
+ * renders exactly what its native HTML element provides.
+ *
  * The `<table>` element carries an implicit `role="table"` in the accessibility
  * tree. Assistive technology will announce it as a table and report the number
  * of rows and columns to the user.
  *
- * Always pair column headers (`Table.Header`) with the correct
- * {@link TableHeaderProps.scope | `scope`} attribute so screen readers can
- * associate data cells with their headers.
+ * Always pair column headers ({@link TableHeader | `Table.Header`}) with the
+ * correct {@link TableHeaderProps.scope | `scope`} attribute so screen
+ * readers can associate data cells with their headers. Wrap the whole table
+ * in {@link TableScrollArea | `Table.ScrollArea`} when it has many columns
+ * and needs to scroll horizontally on narrow viewports.
+ *
+ * @extends HTMLTableElement
  *
  * @example
  * ```tsx
@@ -54,7 +63,12 @@ TableRoot.displayName = "Table";
  *
  * Browsers and assistive technology treat rows inside `<thead>` as column
  * headers. When a table is printed across multiple pages, the browser may
- * repeat the `<thead>` content at the top of each page.
+ * repeat the `<thead>` content at the top of each page. Renders as a direct
+ * child of {@link TableRoot | `Table.Root`}'s `<table>`, typically
+ * containing a single {@link TableRow | `Table.Row`} of
+ * {@link TableHeader | `Table.Header`}s.
+ *
+ * @extends HTMLTableSectionElement
  *
  * @example
  * ```tsx
@@ -79,7 +93,9 @@ TableHead.displayName = "TableHead";
  * Using `<tbody>` explicitly improves accessibility and allows browsers to
  * scroll the body independently of a fixed header. Multiple `<tbody>` elements
  * are valid and useful for visually separating logical row groups within a
- * single table.
+ * single table — render more than one `Table.Body` as siblings for that case.
+ *
+ * @extends HTMLTableSectionElement
  *
  * @example
  * ```tsx
@@ -103,7 +119,11 @@ TableBody.displayName = "TableBody";
  *
  * Typically used for summary rows — totals, averages, counts. When a table is
  * printed across multiple pages some browsers repeat the `<tfoot>` content at
- * the bottom of each page.
+ * the bottom of each page. Renders as a sibling of
+ * {@link TableHead | `Table.Head`} and {@link TableBody | `Table.Body`}
+ * inside {@link TableRoot | `Table.Root`}.
+ *
+ * @extends HTMLTableSectionElement
  *
  * @example
  * ```tsx
@@ -128,9 +148,13 @@ TableFooter.displayName = "TableFooter";
 /**
  * An individual table row — renders a `<tr>` element.
  *
- * May contain `Table.Header` (`<th>`) or `Table.Cell` (`<td>`) children, or a
- * mix of both when the row contains both header and data cells (e.g. the first
- * column of each row is a row header).
+ * May contain {@link TableHeader | `Table.Header`} (`<th>`) or
+ * {@link TableCell | `Table.Cell`} (`<td>`) children, or a mix of both when
+ * the row contains both header and data cells (e.g. the first column of each
+ * row is a row header). Lives inside {@link TableHead | `Table.Head`},
+ * {@link TableBody | `Table.Body`}, or {@link TableFooter | `Table.Footer`}.
+ *
+ * @extends HTMLTableRowElement
  *
  * @example
  * ```tsx
@@ -166,6 +190,8 @@ TableRow.displayName = "TableRow";
  * All `ThHTMLAttributes` (including `colSpan`, `rowSpan`, `abbr`) pass
  * through to the DOM.
  *
+ * @extends HTMLTableCellElement
+ *
  * @example Column header
  * ```tsx
  * <Table.Header scope="col">Name</Table.Header>
@@ -190,7 +216,11 @@ TableHeader.displayName = "TableHeader";
  * A data cell — renders a `<td>` element.
  *
  * All `TdHTMLAttributes` pass through to the DOM, including `colSpan` and
- * `rowSpan` for spanning multiple columns or rows.
+ * `rowSpan` for spanning multiple columns or rows. Use
+ * {@link TableHeader | `Table.Header`} instead when a cell's content is a
+ * label for a row or column rather than data.
+ *
+ * @extends HTMLTableCellElement
  *
  * @example Basic cell
  * ```tsx
@@ -227,6 +257,8 @@ TableCell.displayName = "TableCell";
  *   …
  * </Table.ScrollArea>
  * ```
+ *
+ * @extends HTMLDivElement
  *
  * @example
  * ```tsx
@@ -276,6 +308,8 @@ TableScrollArea.displayName = "TableScrollArea";
  * | ----- | -------- |
  * | `"bottom"` (default) | Below the table |
  * | `"top"` | Above the table |
+ *
+ * @extends HTMLTableCaptionElement
  *
  * @example Default (caption below table)
  * ```tsx

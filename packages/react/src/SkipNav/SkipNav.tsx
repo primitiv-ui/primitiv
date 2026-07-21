@@ -5,29 +5,42 @@ import { SkipNavContentProps, SkipNavLinkProps } from "./types";
 const DEFAULT_CONTENT_ID = "primitiv-skip-nav";
 
 /**
- * The skip link itself — an `<a>` that jumps keyboard and screen-reader
- * users past repeated navigation straight to the main content.
+ * The skip link — an `<a>` that jumps keyboard and screen-reader users past
+ * repeated navigation straight to the main content.
  *
  * Place it as the very first focusable element on the page (typically the
- * first child of `<body>`). It is a normal in-page anchor: its `href` is a
+ * first child of `<body>`). It is a plain in-page anchor: its `href` is a
  * URL fragment pointing at the `id` of the matching {@link SkipNavContent |
  * `SkipNav.Content`}, so following it moves focus there with no JavaScript.
  *
  * **`contentId`.** The `href` is derived as `#${contentId}` and defaults to
- * a shared id, so an unconfigured `SkipNav.Link` / `SkipNav.Content` pair
- * works out of the box. Override `contentId` on the link only if you also
- * set a matching `id` on the content.
+ * a shared id (`"primitiv-skip-nav"`), so an unconfigured
+ * `SkipNav.Link` / `SkipNav.Content` pair works out of the box. Override
+ * `contentId` on the link only if you also set a matching `id` on
+ * {@link SkipNavContent | `SkipNav.Content`}.
  *
- * **Visibility.** The link ships with no styles. The conventional pattern
- * is to keep it visually hidden until focused — see the component README
- * for the canonical CSS.
+ * **Visibility.** No styles ship with the component. The conventional
+ * pattern keeps the link visually hidden until it receives focus — position
+ * it off-screen by default and restore it on `:focus`. Do **not** use
+ * `display: none` or `visibility: hidden`, as those remove it from the tab
+ * order entirely:
+ *
+ * ```css
+ * a[href="#primitiv-skip-nav"] { position: absolute; left: -9999px; }
+ * a[href="#primitiv-skip-nav"]:focus { left: 0; top: 0; }
+ * ```
+ *
+ * Alternatively, pass a `className` and target that class in your
+ * stylesheet.
+ *
+ * @extends HTMLAnchorElement
  *
  * @example Default — shared content id
  * ```tsx
  * <SkipNav.Link>Skip to main content</SkipNav.Link>
  * ```
  *
- * @example Custom content id
+ * @example Custom content id (must match the `id` on `SkipNav.Content`)
  * ```tsx
  * <SkipNav.Link contentId="main">Skip to main content</SkipNav.Link>
  * ```
@@ -47,20 +60,33 @@ function SkipNavLink({
 SkipNavLink.displayName = "SkipNavLink";
 
 /**
- * The skip target — a `<div>` placed at the start of the main content that
- * {@link SkipNavLink | `SkipNav.Link`} jumps to.
+ * The skip target — a `<div tabIndex={-1}>` placed at the start of the main
+ * content that {@link SkipNavLink | `SkipNav.Link`} jumps to.
  *
- * It carries `tabIndex={-1}` so it is a valid focus destination for an
- * in-page fragment navigation: when the link is followed, the browser
- * scrolls to this element *and* moves focus into it, so the next Tab press
- * continues from the main content rather than the top of the page.
+ * `tabIndex={-1}` makes the element a valid programmatic focus destination:
+ * when the link is followed the browser scrolls to this element *and* moves
+ * focus into it, so the next <kbd>Tab</kbd> press continues from within the
+ * main content rather than cycling back to the top of the page. No
+ * JavaScript runs; it is pure anchor navigation.
  *
- * **`id`.** Defaults to the same shared id as `SkipNav.Link`'s `contentId`.
- * Pass a custom `id` only if you set a matching `contentId` on the link.
+ * **`id`.** Defaults to the same shared id (`"primitiv-skip-nav"`) as
+ * {@link SkipNavLink | `SkipNav.Link`}'s `contentId`. Pass a custom `id`
+ * via the native `id` prop only if you set a matching `contentId` on the
+ * link — the spread props override the default, so the two always stay in
+ * sync.
  *
- * @example
+ * @extends HTMLDivElement
+ *
+ * @example Default — wraps the main page content
  * ```tsx
  * <SkipNav.Content>
+ *   <main>…</main>
+ * </SkipNav.Content>
+ * ```
+ *
+ * @example Custom id (must match `contentId` on `SkipNav.Link`)
+ * ```tsx
+ * <SkipNav.Content id="main">
  *   <main>…</main>
  * </SkipNav.Content>
  * ```
@@ -81,18 +107,22 @@ SkipNavContent.displayName = "SkipNavContent";
 /**
  * Headless, accessible **Skip Nav** — a "skip to main content" link and its
  * focus target, letting keyboard and screen-reader users bypass repeated
- * navigation.
+ * navigation. Implements the
+ * [WCAG 2.4.1 Bypass Blocks](https://www.w3.org/WAI/WCAG22/Understanding/bypass-blocks.html)
+ * technique with no JavaScript — pure in-page anchor navigation.
  *
- * It is a stateless pair of sub-components, used as siblings rather than
- * nested:
+ * `SkipNav` is a stateless pair of sub-components used as siblings (not
+ * nested). Render the link first; place the content wrapper at the start of
+ * the main content area:
  *
- * - {@link SkipNavLink | `SkipNav.Link`} — the `<a>` skip link; render it
- *   first on the page.
- * - {@link SkipNavContent | `SkipNav.Content`} — the focusable `<div>`
- *   target wrapping the main content.
+ * - {@link SkipNavLink | `SkipNav.Link`} — the `<a>` skip link; must be
+ *   the first focusable element on the page.
+ * - {@link SkipNavContent | `SkipNav.Content`} — the `<div tabIndex={-1}>`
+ *   target; wrap it around (or immediately before) your main content.
  *
- * The two connect by a shared content id with a sensible default, so the
- * common case needs no configuration.
+ * The two sub-components are connected by a shared content id
+ * (`"primitiv-skip-nav"`) with no configuration required. Override both
+ * sides when you need a custom id.
  *
  * @example Minimal usage
  * ```tsx
@@ -111,7 +141,17 @@ SkipNavContent.displayName = "SkipNavContent";
  * }
  * ```
  *
- * @see {@link SkipNavLink} for the `contentId` contract and the visually-hidden-until-focused CSS pattern.
+ * @example Custom id — both sides must match
+ * ```tsx
+ * <SkipNav.Link contentId="main">Skip to main content</SkipNav.Link>
+ * <SkipNav.Content id="main">
+ *   <main>…</main>
+ * </SkipNav.Content>
+ * ```
+ *
+ * @see {@link SkipNavLink} for the `contentId` contract and the
+ *   visually-hidden-until-focused CSS pattern.
+ * @see {@link SkipNavContent} for the `tabIndex={-1}` focus-target behaviour.
  */
 const SkipNav = {
   Link: SkipNavLink,

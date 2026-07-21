@@ -215,8 +215,15 @@ ModalOverlay.displayName = "ModalOverlay";
 /**
  * The native `<dialog>` element. React drives its `showModal()` and
  * `close()` calls in response to `open` state changes, letting the
- * browser own focus trapping, inert background, top-layer rendering,
- * and the `Esc` key.
+ * browser own the inert background, top-layer rendering, and the `Esc`
+ * key.
+ *
+ * **Focus trapping.** `showModal()` inerts the background but does
+ * *not* cycle focus — `Tab` past the last element escapes to the
+ * browser chrome, then wraps back in. To conform to the WAI-ARIA APG
+ * Modal Dialog pattern, a `keydown` handler wraps `Tab` (last → first)
+ * and `Shift+Tab` (first → last); interior Tabs are left to the
+ * browser's native, inert-aware order.
  *
  * **ARIA wiring.** `aria-labelledby` and `aria-describedby` are set
  * automatically when `Modal.Title` and `Modal.Description` are rendered
@@ -234,8 +241,9 @@ ModalOverlay.displayName = "ModalOverlay";
  *   `PointerEvent` is passed through, not a synthetic React event.
  *
  * **`asChild` is intentionally not supported.** The native dialog
- * primitive is what provides the focus trap and the inert background;
- * swapping it for a `<div>` would break both.
+ * primitive is what provides the inert background and top-layer
+ * stacking (and hosts the Tab-wrap handler above); swapping it for a
+ * `<div>` would break all of it.
  *
  * **Styling hook.** `data-state="open" | "closed"` on the dialog.
  *

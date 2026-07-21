@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 
+import { FOCUSABLE_SELECTOR } from "../../utils/index.ts";
 import { useModalContext } from "./useModalContext";
 
 export function useModalContent() {
@@ -48,13 +49,44 @@ export function useModalContent() {
       if (event.defaultPrevented) return;
       setOpen(false);
     };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // WAI-ARIA APG Modal Dialog: Tab must cycle within the dialog. A native
+      // modal <dialog> inerts the background (Tab can't reach the page) but
+      // does NOT wrap — Tab past the last element escapes to the browser
+      // chrome, then returns. Close only the two boundary gaps here; interior
+      // Tabs stay native so the browser's inert-aware order (radio groups,
+      // etc.) keeps working.
+      if (event.key !== "Tab") return;
+      if (!dialog.open) return;
+      const focusables = Array.from(
+        dialog.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+      );
+      if (focusables.length === 0) {
+        // Nothing tabbable inside — block Tab so focus can't leak to the
+        // browser chrome (native <dialog> would otherwise let it out).
+        event.preventDefault();
+        return;
+      }
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+      if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      } else if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      }
+    };
     dialog.addEventListener("close", handleClose);
     dialog.addEventListener("cancel", handleCancel);
     dialog.addEventListener("pointerdown", handlePointerDown);
+    dialog.addEventListener("keydown", handleKeyDown);
     return () => {
       dialog.removeEventListener("close", handleClose);
       dialog.removeEventListener("cancel", handleCancel);
       dialog.removeEventListener("pointerdown", handlePointerDown);
+      dialog.removeEventListener("keydown", handleKeyDown);
     };
   }, [setOpen, contentCallbacksRef]);
 

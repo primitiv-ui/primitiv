@@ -3,29 +3,50 @@ import type { ReactElement } from "react";
 import { FieldsetLegendProps, FieldsetProps } from "./types";
 
 /**
- * The root of a Fieldset — renders a native `<fieldset>` element.
+ * The root of a Fieldset — renders a native `<fieldset>` element with an
+ * implicit `role="group"`.
  *
- * A `<fieldset>` carries an implicit `role="group"` and groups a set of
- * related form controls (radios, checkboxes, inputs). Pair it with a
- * {@link FieldsetLegend} so the group is announced with an accessible
- * name when the user enters any control inside it.
+ * Groups a set of related form controls (radios, checkboxes, inputs). Pair
+ * it with a {@link FieldsetLegend} as the first child so the group is
+ * announced with an accessible name when the user moves focus into any
+ * control inside it.
  *
- * **Disabled.** Setting `disabled` forwards the native attribute, which
- * disables *every* form control nested inside the fieldset at once — the
- * standard way to disable a whole section of a form. It also sets
- * `data-disabled=""` so CSS can target the state without the `:disabled`
- * pseudo-class:
+ * **Styling hooks.** `data-disabled=""` is set when the `disabled` prop is
+ * truthy (omitted otherwise), so CSS can target the state without relying
+ * on the `:disabled` pseudo-class:
  *
  * ```css
- * fieldset[data-disabled] { opacity: 0.5; }
+ * fieldset[data-disabled] { opacity: 0.5; cursor: not-allowed; }
  * ```
  *
- * @example
+ * **Disabled.** Forwarding the native `disabled` attribute disables *every*
+ * form control nested inside the fieldset at once — the standard way to
+ * disable a whole section of a form.
+ *
+ * **Ref forwarding.** Pass a `ref` prop to access the underlying
+ * `HTMLFieldSetElement` directly:
+ *
+ * ```tsx
+ * const ref = useRef<HTMLFieldSetElement>(null);
+ * <Fieldset.Root ref={ref}>…</Fieldset.Root>
+ * ```
+ *
+ * @extends HTMLFieldSetElement
+ *
+ * @example Basic grouping
  * ```tsx
  * <Fieldset.Root>
  *   <Fieldset.Legend>Notifications</Fieldset.Legend>
  *   <label><input type="checkbox" name="email" /> Email</label>
  *   <label><input type="checkbox" name="sms" /> SMS</label>
+ * </Fieldset.Root>
+ * ```
+ *
+ * @example Disabled section
+ * ```tsx
+ * <Fieldset.Root disabled>
+ *   <Fieldset.Legend>Billing</Fieldset.Legend>
+ *   …every nested control is disabled…
  * </Fieldset.Root>
  * ```
  */
@@ -49,11 +70,22 @@ export function FieldsetRoot({
 FieldsetRoot.displayName = "Fieldset";
 
 /**
- * The caption for a {@link Fieldset} — renders a native `<legend>`.
+ * The caption for a {@link FieldsetRoot | `Fieldset.Root`} — renders a
+ * native `<legend>`.
  *
- * The `<legend>` must be the first child of the `<fieldset>`. It supplies
- * the group's accessible name, so assistive technology announces it when
- * the user moves focus into any control within the group.
+ * Must be the **first child** of the `<fieldset>`. It supplies the group's
+ * accessible name; assistive technology announces it when the user moves
+ * focus into any control within the group.
+ *
+ * **Ref forwarding.** Pass a `ref` prop to access the underlying
+ * `HTMLLegendElement` directly:
+ *
+ * ```tsx
+ * const ref = useRef<HTMLLegendElement>(null);
+ * <Fieldset.Legend ref={ref}>Address</Fieldset.Legend>
+ * ```
+ *
+ * @extends HTMLLegendElement
  *
  * @example
  * ```tsx
@@ -83,11 +115,11 @@ export type FieldsetCompound = typeof FieldsetRoot & {
  * Headless, accessible **Fieldset** — a stateless compound component that
  * groups related form controls, with zero styles.
  *
- * `Fieldset` is both callable (an alias of {@link Fieldset | `Fieldset.Root`})
+ * `Fieldset` is both callable (an alias of {@link FieldsetRoot | `Fieldset.Root`})
  * and carries its sub-component as a static property. Prefer the
  * namespaced form in application code:
  *
- * - {@link Fieldset | `Fieldset.Root`} — `<fieldset>`, implicit `role="group"`.
+ * - {@link FieldsetRoot | `Fieldset.Root`} — `<fieldset>`, implicit `role="group"`.
  * - {@link FieldsetLegend | `Fieldset.Legend`} — `<legend>`, the group's accessible name.
  *
  * @example Grouping a set of radios
@@ -108,6 +140,9 @@ export type FieldsetCompound = typeof FieldsetRoot & {
  *   …every nested control is disabled…
  * </Fieldset.Root>
  * ```
+ *
+ * @see {@link FieldsetRoot} for the `disabled` prop and `data-disabled` styling hook.
+ * @see {@link FieldsetLegend} for accessible name requirements.
  */
 const FieldsetCompound: FieldsetCompound = Object.assign(FieldsetRoot, {
   Root: FieldsetRoot,

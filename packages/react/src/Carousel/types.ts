@@ -7,8 +7,20 @@ import { ComponentProps, ReactNode, RefObject } from "react";
  * rejects shapes that supply both or neither.
  */
 export type CarouselRootLabelProps =
-  | { ariaLabel: string; ariaLabelledBy?: never }
-  | { ariaLabel?: never; ariaLabelledBy: string };
+  | {
+      /** Accessible name for the carousel region, announced as
+       * `aria-label`. Prefer a short, human-readable description (e.g.
+       * `"Featured products"`). Mutually exclusive with `ariaLabelledBy`. */
+      ariaLabel: string;
+      ariaLabelledBy?: never;
+    }
+  | {
+      ariaLabel?: never;
+      /** Id of an existing element to name the carousel region, set as
+       * `aria-labelledby`. Use when a visible heading already labels the
+       * carousel. Mutually exclusive with `ariaLabel`. */
+      ariaLabelledBy: string;
+    };
 
 /**
  * Uncontrolled page state — the Root owns the active page internally,
@@ -637,8 +649,19 @@ export type CarouselIndicatorGroupProps = Omit<
   "label" | "aria-labelledby"
 > &
   (
-    | { label: string; ariaLabelledBy?: never }
-    | { label?: never; ariaLabelledBy: string }
+    | {
+        /** Accessible name for the indicator group, announced as
+         * `aria-label` (e.g. `"Choose slide"`). Mutually exclusive with
+         * `ariaLabelledBy`. */
+        label: string;
+        ariaLabelledBy?: never;
+      }
+    | {
+        label?: never;
+        /** Id of an existing element to name the indicator group, set as
+         * `aria-labelledby`. Mutually exclusive with `label`. */
+        ariaLabelledBy: string;
+      }
   );
 
 /** Props for `Carousel.Indicator` — a button that jumps to its target page; native `<button>` props plus the target `index` and `asChild`. */
@@ -760,8 +783,19 @@ export type CarouselIndicatorsProps = Omit<
   "label" | "aria-labelledby" | "children"
 > &
   (
-    | { label: string; ariaLabelledBy?: never }
-    | { label?: never; ariaLabelledBy: string }
+    | {
+        /** Accessible name for the indicator group, announced as
+         * `aria-label` (e.g. `"Choose slide"`). Mutually exclusive with
+         * `ariaLabelledBy`. */
+        label: string;
+        ariaLabelledBy?: never;
+      }
+    | {
+        label?: never;
+        /** Id of an existing element to name the indicator group, set as
+         * `aria-labelledby`. Mutually exclusive with `label`. */
+        ariaLabelledBy: string;
+      }
   ) & {
     /** Forwarded to every generated `Carousel.Indicator`. See
      * `CarouselIndicatorProps.readOnly`. Default `false`. */

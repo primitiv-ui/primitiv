@@ -104,6 +104,28 @@ Hand control back to the user. They will:
 
 This skill does not run those steps.
 
+### The DOCS commit's JSDoc bar is not optional
+
+The public docs site generates its prop tables by running
+`react-docgen-typescript` over this source, so the JSDoc a new
+component ships with must land at the **same bar every existing
+component was brought to** — thin JSDoc produces thin or silently
+broken generated docs. That means, in the DOCS commit:
+
+- Component-level prose + a correctly-placed `@extends HTMLXElement`
+  tag on every DOM-rendering sub-component + `@example` blocks.
+- Per-prop JSDoc with `@default` and `{@link}` cross-refs on every
+  prop in `types.ts`.
+- The **`Omit`-narrowing check**: any prop that narrows a same-named
+  native attribute (`dir`, `value`, `defaultValue`, `label`, `type`,
+  `role`, `size`, …) must be `Omit`-ted from the base
+  `ComponentProps<T>`, or the extractor silently drops it.
+
+Full rules, the `@extends`-placement gotcha, and the gold-standard
+reference components (Button/Tabs/Select) are in the
+`react-component-patterns` skill, §9 ("JSDoc for docgen extraction");
+the rationale is `docs/docs-site-planning.md` §1.14–1.16.
+
 ## Don't
 
 - Don't scaffold more files than the component needs. If it's not

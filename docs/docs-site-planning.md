@@ -290,10 +290,23 @@ A component's props table shows only props it actually declares —
 `asChild`, `type` on `ButtonProps`, for example — plus a single "extends
 `HTMLButtonElement`" note, rather than listing every inherited native
 DOM attribute (`onClick`, every `aria-*`, `style`, …). Verified against a
-real, working extraction (`react-docgen-typescript@14`, `typescript@6.0.3`
+real, working extraction (`react-docgen-typescript@2.4.0`, `typescript@6.0.3`
 — the repo's actual TS version; note this doesn't yet work against
 `typescript@7.x`, which changed the internal API `react-docgen-typescript`
 relies on):
+
+> **Version + API note (corrected 2026-07-21).** An earlier draft of this
+> section cited `@14` — that version does not exist; the package's whole
+> line is 2.x and the verified version is **`2.4.0`** (zero runtime deps,
+> only a `typescript >= 4.3.x` peer). Also: on TS 6.0.3 the parser must be
+> built with **`withCustomConfig(tsconfigPath, opts)`**, not
+> `withCompilerOptions({...})` — the latter's string enum values (e.g.
+> `jsx: "react-jsx"`) make `createProgram` throw. With that setup the
+> **entire headless library was run through extraction (2026-07-21): 42
+> files → 159 component symbols → 511 props, every prop with a non-empty
+> description, zero parse errors** — so §1.16's `Omit`-narrowing rule and
+> the `@extends`-placement rule are confirmed across every component, not
+> just Button/Tabs.
 
 - **Headless side.** A `propFilter` excluding any prop whose declaration
   resolves into `node_modules` (the standard Storybook technique) leaves

@@ -86,6 +86,8 @@ PopoverRoot.displayName = "PopoverRoot";
  * handlers, and ref merged in. Supply the child's element type via the generic
  * (e.g. `Popover.Trigger<HTMLAnchorElement>`).
  *
+ * @extends HTMLButtonElement
+ *
  * @example
  * ```tsx
  * <Popover.Trigger>Open</Popover.Trigger>
@@ -142,6 +144,8 @@ PopoverTrigger.displayName = "PopoverTrigger";
  *
  * **Styling hook.** `data-state="open" | "closed"`.
  *
+ * @extends HTMLDivElement
+ *
  * @example
  * ```tsx
  * <Popover.Content className="panel">
@@ -190,6 +194,8 @@ PopoverContent.displayName = "PopoverContent";
  * this element and a matching `position-anchor` to `Popover.Content`. Pass
  * `asChild` to project the anchor semantics onto an existing element.
  *
+ * @extends HTMLDivElement
+ *
  * @example
  * ```tsx
  * <Popover.Anchor asChild>
@@ -226,6 +232,8 @@ PopoverAnchor.displayName = "PopoverAnchor";
  *
  * Pass `asChild` to render any element (e.g. a text link or your own icon
  * button) with the close behaviour merged in.
+ *
+ * @extends HTMLButtonElement
  *
  * @example
  * ```tsx
@@ -268,6 +276,8 @@ PopoverClose.displayName = "PopoverClose";
  * `aria-labelledby`. Pass `asChild` to render your own heading element (e.g.
  * an `<h3>`); the id is still registered.
  *
+ * @extends HTMLHeadingElement
+ *
  * @example
  * ```tsx
  * <Popover.Title>Filters</Popover.Title>
@@ -309,6 +319,8 @@ PopoverTitle.displayName = "PopoverTitle";
  * auto-registers its generated id so `Popover.Content` wires it up as
  * `aria-describedby`. Pass `asChild` to render any element; the id is still
  * registered.
+ *
+ * @extends HTMLParagraphElement
  *
  * @example
  * ```tsx

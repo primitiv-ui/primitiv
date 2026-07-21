@@ -39,10 +39,18 @@ import { TextareaProps } from "./types";
  * textarea[data-disabled] { opacity: 0.5; cursor: not-allowed; }
  * ```
  *
+ * **Styling hooks.**
+ * - `data-disabled=""` — present when `disabled` is `true`; omitted otherwise.
+ *   Target with `[data-disabled]` rather than the `:disabled` pseudo-class so
+ *   styles work identically in both native and `asChild` modes.
+ *
  * **`asChild` composition.** Renders the consumer's element instead of
  * `<textarea>`, merging all props (aria-*, data-*, event handlers, ref)
  * via the {@link Slot} utility. Use it to wrap an autosizing textarea
- * implementation while keeping this component's prop contract.
+ * implementation while keeping this component's prop contract. Event handlers
+ * compose with the child's own handlers (child runs first).
+ *
+ * @extends HTMLTextAreaElement
  *
  * @example Basic usage
  * ```tsx

@@ -79,19 +79,30 @@ return (async function () {
       const d = figma.createEllipse(); d.x = gx; d.y = gy; d.resize(ds, ds); d.fills = solid(C.dot); parent.appendChild(d);
     }
   }
-  const REACT_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="22" viewBox="-12 -11 24 22"><circle r="2" fill="#FFFFFF"/><g fill="none" stroke="#FFFFFF" stroke-width="1.3"><ellipse rx="11" ry="4.2"/><ellipse rx="11" ry="4.2" transform="rotate(60)"/><ellipse rx="11" ry="4.2" transform="rotate(120)"/></g></svg>';
-  // Framework radio group — React active (+ logo); Vue/Svelte greyed (future, v1 is React-only).
+  const REACT_SVG = (col) => `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="22" viewBox="-12 -11 24 22"><circle r="2" fill="${col}"/><g fill="none" stroke="${col}" stroke-width="1.3"><ellipse rx="11" ry="4.2"/><ellipse rx="11" ry="4.2" transform="rotate(60)"/><ellipse rx="11" ry="4.2" transform="rotate(120)"/></g></svg>`;
+  // Vue / Svelte logo marks in greyed tones (the options are disabled/future).
+  const VUE_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M24 1.61h-9.94L12 5.16 9.94 1.61H0l12 20.78z" fill="#B7B7BD"/><path d="M14.06 1.61 12 5.16 9.94 1.61H5.16L12 13.42 18.84 1.61z" fill="#87878F"/></svg>';
+  const SVELTE_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#9A9AA0" d="M10.354 21.125a4.44 4.44 0 0 1-4.765-1.767 4.109 4.109 0 0 1-.703-3.107 3.898 3.898 0 0 1 .134-.522l.105-.321.287.21a7.21 7.21 0 0 0 2.186 1.092l.208.063-.02.208a1.253 1.253 0 0 0 .226.83 1.337 1.337 0 0 0 1.435.533 1.231 1.231 0 0 0 .343-.15l5.59-3.562a1.164 1.164 0 0 0 .524-.778 1.242 1.242 0 0 0-.211-.937 1.338 1.338 0 0 0-1.435-.533 1.231 1.231 0 0 0-.343.15l-2.133 1.36a4.078 4.078 0 0 1-1.135.499 4.44 4.44 0 0 1-4.765-1.766 4.108 4.108 0 0 1-.702-3.108 3.855 3.855 0 0 1 1.742-2.582l5.589-3.563a4.072 4.072 0 0 1 1.135-.499 4.44 4.44 0 0 1 4.765 1.767 4.109 4.109 0 0 1 .703 3.107 3.943 3.943 0 0 1-.134.522l-.105.321-.286-.21a7.204 7.204 0 0 0-2.187-1.093l-.208-.063.02-.207a1.255 1.255 0 0 0-.226-.831 1.337 1.337 0 0 0-1.435-.532 1.231 1.231 0 0 0-.343.15L8.62 9.368a1.162 1.162 0 0 0-.524.778 1.24 1.24 0 0 0 .211.937 1.338 1.338 0 0 0 1.435.533 1.235 1.235 0 0 0 .344-.151l2.132-1.36a4.067 4.067 0 0 1 1.135-.498 4.44 4.44 0 0 1 4.765 1.766 4.108 4.108 0 0 1 .702 3.108 3.857 3.857 0 0 1-1.742 2.583l-5.589 3.562a4.072 4.072 0 0 1-1.135.499m10.358-17.95C18.484-.015 14.082-.96 10.9 1.068L5.31 4.63a6.412 6.412 0 0 0-2.896 4.295 6.753 6.753 0 0 0 .666 4.336 6.43 6.43 0 0 0-.96 2.396 6.833 6.833 0 0 0 1.168 5.167c2.229 3.19 6.63 4.135 9.812 2.108l5.59-3.562a6.41 6.41 0 0 0 2.896-4.295 6.756 6.756 0 0 0-.665-4.336 6.429 6.429 0 0 0 .958-2.396 6.831 6.831 0 0 0-1.167-5.168Z"/></svg>';
+  // Framework radio group — each option carries its logo mark. React active
+  // (white logo on dark); Vue/Svelte greyed (future, v1 is React-only).
   function frameworkSwitch(parent, x, y, w, h) {
     rect(parent, x, y, w, h, C.white, { radius: 8, stroke: C.border });
     const seg = (w - 4) / 3;
-    rect(parent, x + 2, y + 2, seg, h - 4, C.dark, { radius: 6 });
-    const atom = figma.createNodeFromSvg(REACT_SVG);
-    atom.rescale(15 / atom.height);
-    const contentW = atom.width + 5 + 34, cLeft = x + 2 + (seg - contentW) / 2;
-    atom.x = cLeft; atom.y = y + (h - atom.height) / 2; parent.appendChild(atom);
-    text(parent, "React", cLeft + atom.width + 5, y + (h - 16) / 2, 13, HEADM, C.white);
-    text(parent, "Vue", x + 2 + seg, y + (h - 16) / 2, 13, HEADM, C.muted, { width: seg, align: "CENTER" });
-    text(parent, "Svelte", x + 2 + seg * 2, y + (h - 16) / 2, 13, HEADM, C.muted, { width: seg, align: "CENTER" });
+    rect(parent, x + 2, y + 2, seg, h - 4, C.dark, { radius: 6 }); // React active
+    const items = [
+      { svg: REACT_SVG("#FFFFFF"), label: "React", color: C.white },
+      { svg: VUE_SVG, label: "Vue", color: C.muted },
+      { svg: SVELTE_SVG, label: "Svelte", color: C.muted },
+    ];
+    items.forEach((it, i) => {
+      const sx = x + 2 + i * seg;
+      const logo = figma.createNodeFromSvg(it.svg);
+      logo.rescale(15 / logo.height);
+      const t = text(parent, it.label, 0, y + (h - 16) / 2, 13, HEADM, it.color);
+      const cLeft = sx + (seg - (logo.width + 5 + t.width)) / 2;
+      logo.x = cLeft; logo.y = y + (h - logo.height) / 2; parent.appendChild(logo);
+      t.x = cLeft + logo.width + 5;
+    });
   }
   // Install code block with package-manager tabs (npm active).
   function pmCodeBlock(parent, x, y, w, cmd, cmdSize) {
@@ -491,7 +502,7 @@ return (async function () {
       ["6", "Components section is mode-scoped — the switch lives here (§1.4)."],
       ["7", "Per-component “Getting this component” install block — now a tabbed code block so the reader can switch package manager (npm / pnpm / yarn / bun). (§1.4 / §1.13)"],
       ["8", "Status Badge — flagged missing in §1.17 (Callout/admonition also absent)."],
-      ["10", "Framework selector (new) — React active with its logo; Vue / Svelte greyed as future (v1 is React-only). Global control beside the mode switch (desktop nav) and in the mobile menu."],
+      ["10", "Framework selector — each option carries its logo mark; React active; Vue / Svelte greyed as future (v1 is React-only). Beside the mode switch (desktop nav) and in the mobile menu."],
     ];
     let ny = 96;
     notes.forEach(n => {

@@ -50,6 +50,8 @@ import {
  * element (e.g. `<menu role="menu">` for dropdown composition) with
  * the RadioGroup's props merged in. The native `<div>` is dropped.
  *
+ * @extends HTMLDivElement
+ *
  * @example Uncontrolled
  * ```tsx
  * <RadioGroup.Root defaultValue="comfortable" aria-label="Density">
@@ -163,6 +165,8 @@ RadioGroupRoot.displayName = "RadioGroupRoot";
  * consumers who render a non-focusable element are responsible for
  * making it focusable.
  *
+ * @extends HTMLButtonElement
+ *
  * @throws if rendered outside a `RadioGroup.Root`.
  */
 export function RadioGroupItem({
@@ -262,6 +266,8 @@ RadioGroupItem.displayName = "RadioGroupItem";
  * the DOM while unchecked so a CSS exit animation can play against
  * `data-state="unchecked"`. Consumers who use `forceMount` own the
  * exit lifecycle themselves.
+ *
+ * @extends HTMLSpanElement
  *
  * @example Default span wrapper
  * ```tsx

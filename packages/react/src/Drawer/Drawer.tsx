@@ -135,11 +135,12 @@ DrawerOverlay.displayName = "DrawerOverlay";
 /**
  * The native `<dialog>` element — the sliding panel. Behaviour is
  * `Modal.Content`'s: React drives `showModal()` / `close()` in response to
- * open state, so the browser owns focus trapping, the inert background, the
- * top layer, and the `Esc` key. `aria-labelledby` / `aria-describedby` are
- * wired automatically from `Drawer.Title` / `Drawer.Description`, and the
- * `onEscapeKeyDown` / `onPointerDownOutside` escape hatches pass straight
- * through.
+ * open state, so the browser owns the inert background, the top layer, and
+ * the `Esc` key, while the same JS `Tab`-wrap focus trap (last ⇄ first)
+ * applies — inherited from `Modal.Content`. `aria-labelledby` /
+ * `aria-describedby` are wired automatically from `Drawer.Title` /
+ * `Drawer.Description`, and the `onEscapeKeyDown` / `onPointerDownOutside`
+ * escape hatches pass straight through.
  *
  * **The one drawer-specific addition —
  * {@link DrawerContentProps.side | `side`}.** Which edge the panel slides in
@@ -148,7 +149,8 @@ DrawerOverlay.displayName = "DrawerOverlay";
  * position and animate against; it changes no behaviour, focus, or ARIA.
  *
  * **`asChild` is intentionally not supported** (as with `Modal.Content`) —
- * the native dialog is what provides the focus trap and inert background.
+ * the native dialog is what provides the inert background and top layer (and
+ * hosts the inherited Tab-wrap focus trap).
  *
  * **Styling hooks.** `data-state="open" | "closed"` and
  * `data-side="top|right|bottom|left"` on the dialog.

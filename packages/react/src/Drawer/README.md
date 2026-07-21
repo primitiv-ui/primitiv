@@ -4,9 +4,10 @@ A headless, accessible **dialog that slides in from a screen edge** — a
 settings panel, a filter sheet, a navigation drawer, a cart. Behaviourally it
 _is_ [Modal](../Modal/README.md): it reuses the same native
 [`<dialog>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog) +
-`showModal()` machinery, so focus trapping, the inert background, top-layer
-stacking, and `Esc`-to-close are handled by the browser. The single addition is
-a **`side`** axis on `Drawer.Content` that says which edge the panel enters from.
+`showModal()` machinery, so the inert background, top-layer stacking, and
+`Esc`-to-close are handled by the browser, and the same JS `Tab`-wrap focus
+trap (last ⇄ first) applies. The single addition is a **`side`** axis on
+`Drawer.Content` that says which edge the panel enters from.
 
 ```tsx
 import { Drawer } from "@primitiv-ui/react";
@@ -84,8 +85,9 @@ detail:
   `onOpenChange` (statically discriminated; mixing them is a type error).
 - **Imperative API** — `ref.current?.open()` / `.close()` on `Drawer.Root`
   (`DrawerImperativeApi`). In controlled mode these delegate to `onOpenChange`.
-- **Keyboard** — `Esc` closes (native `cancel`), `Tab` is trapped by the native
-  modal dialog.
+- **Keyboard** — `Esc` closes (native `cancel`); `Tab` / `Shift+Tab` wrap
+  focus at the dialog's boundaries (the JS trap inherited from `Modal.Content`,
+  since native `showModal()` doesn't cycle focus).
 - **Escape hatches** — `onEscapeKeyDown` and `onPointerDownOutside` on
   `Drawer.Content`; call `event.preventDefault()` to keep the drawer open.
 - **Click-outside** — detected on the dialog itself (the `::backdrop` sits above
@@ -118,4 +120,5 @@ dialog[data-side="right"][data-state="open"] {
 Every rendered sub-component except `Drawer.Content` accepts `asChild` to project
 its behaviour onto a consumer element via [Slot](../Slot.tsx), exactly as in
 Modal. `Drawer.Content` is intentionally not slot-able — its native `<dialog>` is
-what provides the focus trap and inert background.
+what provides the inert background and top layer (and hosts the inherited
+Tab-wrap focus trap).

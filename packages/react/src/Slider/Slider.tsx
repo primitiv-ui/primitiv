@@ -55,6 +55,8 @@ import { getRangeStyle } from "./utils";
  *
  * @throws if `min` is not less than `max`, or `step` is not greater than 0.
  *
+ * @extends HTMLSpanElement
+ *
  * @example Single-thumb, uncontrolled
  * ```tsx
  * <Slider.Root defaultValue={[50]}>
@@ -153,6 +155,15 @@ SliderRoot.displayName = "SliderRoot";
  * **`asChild` prop.** Render a consumer element in place of the `<span>`.
  *
  * @throws if rendered outside a `Slider.Root`.
+ *
+ * @extends HTMLSpanElement
+ *
+ * @example
+ * ```tsx
+ * <Slider.Track>
+ *   <Slider.Range />
+ * </Slider.Track>
+ * ```
  */
 export function SliderTrack({
   children,
@@ -184,6 +195,15 @@ SliderTrack.displayName = "SliderTrack";
  * **`asChild` prop.** Render a consumer element in place of the `<span>`.
  *
  * @throws if rendered outside a `Slider.Root`.
+ *
+ * @extends HTMLSpanElement
+ *
+ * @example
+ * ```tsx
+ * <Slider.Track>
+ *   <Slider.Range />
+ * </Slider.Track>
+ * ```
  */
 export function SliderRange({
   style,
@@ -226,12 +246,24 @@ SliderRange.displayName = "SliderRange";
  * **Styling hooks.** `data-orientation` and `data-disabled`. Position is set
  * via an inline `style` offset; consumer `style` is shallow-merged on top.
  *
- * Provide an accessible name with `aria-label` / `aria-labelledby`.
+ * **Accessibility.** Provide an accessible name with `aria-label` /
+ * `aria-labelledby`. `aria-valuenow` always tracks the raw number; when that
+ * number is not self-explanatory to a screen reader (a currency amount, a
+ * date, a named step), pass `aria-valuetext` with the human-readable form
+ * (e.g. `aria-valuetext="$50"`) — it is forwarded straight through to the
+ * element and read in place of the bare number.
  *
  * **`asChild` prop.** Render a consumer element in place of the `<span>`;
  * the slider role, ARIA value attributes, keyboard handler, and ref merge in.
  *
  * @throws if rendered outside a `Slider.Root`.
+ *
+ * @extends HTMLSpanElement
+ *
+ * @example Named value with `aria-valuetext`
+ * ```tsx
+ * <Slider.Thumb aria-label="Price" aria-valuetext={`$${value}`} />
+ * ```
  */
 export function SliderThumb({
   style,

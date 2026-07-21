@@ -2,7 +2,11 @@
 //
 // Paste into the Figma desktop developer console (Plugins → Development →
 // Open console; type "allow pasting" first). Creates / refreshes the page
-// "Wireframes — Docs Site (v1 — landing)" with three artefacts:
+// "Wireframes — Docs Site (v1 — landing)". Artefacts: desktop frame,
+// mobile frame, mobile menu-open frame (390×844), and a notes panel.
+// Also adds a framework selector (React active + logo; Vue/Svelte greyed
+// as future) and package-manager-tabbed install blocks (npm/pnpm/yarn/bun).
+// Legacy list below:
 //   • "Landing (desktop)" — 1440-wide frame
 //   • "Landing (mobile)"  — 390-wide frame
 //   • "Wireframe notes"    — reviewer notes panel keyed to the markers
@@ -75,6 +79,36 @@ return (async function () {
       const d = figma.createEllipse(); d.x = gx; d.y = gy; d.resize(ds, ds); d.fills = solid(C.dot); parent.appendChild(d);
     }
   }
+  const REACT_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="22" viewBox="-12 -11 24 22"><circle r="2" fill="#FFFFFF"/><g fill="none" stroke="#FFFFFF" stroke-width="1.3"><ellipse rx="11" ry="4.2"/><ellipse rx="11" ry="4.2" transform="rotate(60)"/><ellipse rx="11" ry="4.2" transform="rotate(120)"/></g></svg>';
+  // Framework radio group — React active (+ logo); Vue/Svelte greyed (future, v1 is React-only).
+  function frameworkSwitch(parent, x, y, w, h) {
+    rect(parent, x, y, w, h, C.white, { radius: 8, stroke: C.border });
+    const seg = (w - 4) / 3;
+    rect(parent, x + 2, y + 2, seg, h - 4, C.dark, { radius: 6 });
+    const atom = figma.createNodeFromSvg(REACT_SVG);
+    atom.rescale(15 / atom.height);
+    const contentW = atom.width + 5 + 34, cLeft = x + 2 + (seg - contentW) / 2;
+    atom.x = cLeft; atom.y = y + (h - atom.height) / 2; parent.appendChild(atom);
+    text(parent, "React", cLeft + atom.width + 5, y + (h - 16) / 2, 13, HEADM, C.white);
+    text(parent, "Vue", x + 2 + seg, y + (h - 16) / 2, 13, HEADM, C.muted, { width: seg, align: "CENTER" });
+    text(parent, "Svelte", x + 2 + seg * 2, y + (h - 16) / 2, 13, HEADM, C.muted, { width: seg, align: "CENTER" });
+  }
+  // Install code block with package-manager tabs (npm active).
+  function pmCodeBlock(parent, x, y, w, cmd, cmdSize) {
+    const bh = 84;
+    rect(parent, x, y, w, bh, C.dark, { radius: 8 });
+    let tx = x + 16;
+    ["npm", "pnpm", "yarn", "bun"].forEach((p, i) => {
+      const active = i === 0;
+      const tn = text(parent, p, tx, y + 12, 13, HEADM, active ? C.white : "#8A8A93");
+      if (active) rect(parent, tx, y + 31, tn.width, 2, C.white);
+      tx += tn.width + 20;
+    });
+    rect(parent, x + w - 64, y + 10, 48, 22, null, { radius: 6, stroke: "#4A4A52" });
+    text(parent, "Copy", x + w - 64, y + 13, 12, HEADM, "#B8B8C0", { width: 48, align: "CENTER" });
+    rect(parent, x, y + 42, w, 1, "#33333B");
+    text(parent, "$  " + cmd, x + 16, y + 56, cmdSize || 14, HEADM, C.white);
+  }
 
   const PAGE_NAME = "Wireframes — Docs Site (v1 — landing)";
   let page = figma.root.children.find(p => p.name === PAGE_NAME);
@@ -105,7 +139,13 @@ return (async function () {
     rect(F, forkX + 150, 46, 116, 2, C.dark);
     marker(F, 2, forkX + 268, 8);
     const rightEnd = W - M, themeW = 32, themeX = rightEnd - themeW;
-    const searchW = 220, searchX = themeX - 16 - searchW, modeW = 280, modeX = searchX - 16 - modeW;
+    const searchW = 190, searchX = themeX - 16 - searchW;
+    const modeW = 220, modeX = searchX - 16 - modeW;
+    const fwW = 216, fwX = modeX - 16 - fwW;
+    // framework selector — React-only for v1; Vue/Svelte greyed as future
+    frameworkSwitch(F, fwX, 14, fwW, 36);
+    marker(F, 10, fwX + fwW / 2 - 10, -6);
+    // mode switch (§1.1)
     rect(F, modeX, 14, modeW, 36, C.white, { radius: 8, stroke: C.border });
     const segW = (modeW - 4) / 3;
     rect(F, modeX + 2, 16, segW, 32, C.dark, { radius: 6 });
@@ -113,11 +153,12 @@ return (async function () {
     text(F, "Styled", modeX + 2 + segW, 24, 13, HEADM, C.sec, { width: segW, align: "CENTER" });
     text(F, "Figma", modeX + 2 + segW * 2, 24, 13, HEADM, C.sec, { width: segW, align: "CENTER" });
     marker(F, 1, modeX + modeW / 2 - 10, -6);
+    // search (§1.17)
     rect(F, searchX, 14, searchW, 36, C.white, { radius: 8, stroke: C.border });
     rect(F, searchX + 12, 25, 12, 12, null, { stroke: C.muted, radius: 6 });
     text(F, "Search docs…", searchX + 34, 24, 13, BODY, C.muted);
-    text(F, "⌘K", searchX + searchW - 32, 24, 12, HEADM, C.muted);
     marker(F, 3, searchX + searchW / 2 - 10, -6);
+    // theme
     rect(F, themeX, 14, themeW, 32, C.white, { radius: 8, stroke: C.border });
     rect(F, themeX + 9, 21, 14, 14, C.dark, { radius: 7 });
 
@@ -197,9 +238,8 @@ return (async function () {
     text(F, "Stable", M + 128, y + 35, 12, HEADM, "#2F7A45", { width: 64, align: "CENTER" });
     marker(F, 8, M + 204, y + 30);
     text(F, "Reflects the global mode switch — currently Headless:", M + 32, y + 72, 14, BODY, C.sec);
-    rect(F, M + 32, y + 98, 420, 40, C.dark, { radius: 8 });
-    text(F, "$  npm i @primitiv-ui/react", M + 48, y + 110, 14, HEADM, C.white);
-    text(F, "import path · @primitiv-ui/react/button", M + 32, y + 150, 13, BODY, C.muted);
+    pmCodeBlock(F, M + 32, y + 96, 460, "npm i @primitiv-ui/react");
+    text(F, "import path · @primitiv-ui/react/button", M + 32, y + 192, 13, BODY, C.muted);
     text(F, "PROPS", M + 500, y + 34, 12, HEADM, C.muted, { spacing: 4 });
     ["Prop", "Type", "Default"].forEach((c, i) => text(F, c, M + 500 + i * 200, y + 60, 13, HEADM, C.dark));
     rect(F, M + 500, y + 82, CW - 500 - 32, 1, C.border);
@@ -316,20 +356,19 @@ return (async function () {
     y += 22;
     text(F, "“Getting this component”", M, y, 26, HEAD, C.dark);
     y += 44;
-    const tH = 260;
+    const tH = 300;
     rect(F, M, y, CW, tH, C.card, { radius: 12, stroke: C.border });
     text(F, "Button", M + 20, y + 20, 24, HEAD, C.dark);
     rect(F, M + 110, y + 26, 60, 22, "#E6F4EA", { radius: 11, stroke: "#9BD3AE" });
     text(F, "Stable", M + 110, y + 29, 12, HEADM, "#2F7A45", { width: 60, align: "CENTER" });
     marker(F, 8, M + 182, y + 24, 18);
     text(F, "Reflects the global mode switch — Headless:", M + 20, y + 60, 13, BODY, C.sec);
-    rect(F, M + 20, y + 84, CW - 40, 38, C.dark, { radius: 8 });
-    text(F, "$  npm i @primitiv-ui/react", M + 34, y + 95, 13, HEADM, C.white);
-    text(F, "PROPS", M + 20, y + 138, 11, HEADM, C.muted, { spacing: 4 });
-    rect(F, M + 20, y + 158, CW - 40, 1, C.border);
+    pmCodeBlock(F, M + 20, y + 82, CW - 40, "npm i @primitiv-ui/react", 13);
+    text(F, "PROPS", M + 20, y + 180, 11, HEADM, C.muted, { spacing: 4 });
+    rect(F, M + 20, y + 200, CW - 40, 1, C.border);
     [["asChild", "boolean"], ["variant", "\"solid\" | …"], ["+ extends", "HTMLButtonElement"]].forEach((r, ri) => {
-      text(F, r[0], M + 20, y + 170 + ri * 26, 13, HEADM, C.dark);
-      text(F, r[1], M + 150, y + 170 + ri * 26, 13, BODY, C.sec);
+      text(F, r[0], M + 20, y + 212 + ri * 26, 13, HEADM, C.dark);
+      text(F, r[1], M + 150, y + 212 + ri * 26, 13, BODY, C.sec);
     });
     y += tH + 44;
 
@@ -394,6 +433,12 @@ return (async function () {
     ["Headless", "Styled", "Figma"].forEach((l, i) => text(F, l, M + 2 + i * sW, y + 12, 14, HEADM, i === 0 ? C.white : C.sec, { width: sW, align: "CENTER" }));
     y += 62;
 
+    text(F, "FRAMEWORK", M, y, 11, HEADM, C.muted, { spacing: 6 });
+    marker(F, 10, M + 96, y - 3, 18);
+    y += 20;
+    frameworkSwitch(F, M, y, CW, 42);
+    y += 62;
+
     rect(F, M, y, CW, 1, C.border);
     y += 16;
 
@@ -403,7 +448,7 @@ return (async function () {
       ["Registry & CLI", false], ["Design in Figma", false],
       ["Recipes / Guides", false], ["Changelog / Releases", false],
     ];
-    const rowH = 52;
+    const rowH = 50;
     links.forEach((lk, i) => {
       const [lbl, scoped] = lk;
       text(F, lbl, M, y + 15, 20, HEADM, C.dark);
@@ -444,8 +489,9 @@ return (async function () {
       ["4", "Three path cards mirror the mode switch + the one-paragraph Start-Here framing (§1.3)."],
       ["5", "Documentation map = the §1.4 top-level structure. Desktop: two columns. Mobile: single column."],
       ["6", "Components section is mode-scoped — the switch lives here (§1.4)."],
-      ["7", "Per-component “Getting this component” install block (§1.4 / §1.13)."],
+      ["7", "Per-component “Getting this component” install block — now a tabbed code block so the reader can switch package manager (npm / pnpm / yarn / bun). (§1.4 / §1.13)"],
       ["8", "Status Badge — flagged missing in §1.17 (Callout/admonition also absent)."],
+      ["10", "Framework selector (new) — React active with its logo; Vue / Svelte greyed as future (v1 is React-only). Global control beside the mode switch (desktop nav) and in the mobile menu."],
     ];
     let ny = 96;
     notes.forEach(n => {

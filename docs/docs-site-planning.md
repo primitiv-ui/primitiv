@@ -431,6 +431,32 @@ surface — relevant only if the docs site itself should be built the
 "eat your own dogfood" way (styled registry components) rather than
 one-off internal CSS; not yet decided, see open question 2 below.
 
+### 1.18 Wireframe-surfaced UI decisions: framework selector + package-manager-tabbed installs
+
+Two site-chrome controls settled while wireframing the landing page
+(`scripts/figma/create-v2-docs-landing-wireframe.js`):
+
+- **Framework selector.** The library targets React only for v1 (the
+  headless package is `@primitiv-ui/react`, the sole framework surface).
+  Rather than leaving that implicit, the site carries a small **framework
+  radio group mirroring the mode switch — React active (with its logo);
+  Vue / Svelte shown greyed as "future"** — so an evaluator sees both the
+  current scope and the intended direction at a glance. It's a global
+  control (desktop nav, beside the mode switch; folded into the mobile
+  menu as its own `FRAMEWORK` section), not per-page. It is orthogonal to
+  the §1.1 consumption-mode switch: mode = *what you consume*
+  (headless / styled / Figma), framework = *which code flavour* — for v1
+  the latter has exactly one enabled option.
+- **Install code blocks are package-manager-tabbed.** Every install code
+  block (the per-component "Getting this component" block, §1.13) carries
+  **npm / pnpm / yarn / bun** tabs so the reader copies the command for
+  their own manager; npm is the default/active tab. (The at-a-glance
+  install *chips* on the three consumption-path cards stay single-line —
+  the tabbed block is the interactive one.)
+
+Both are wireframe-level IA/site-chrome decisions, not distribution-model
+changes — `docs/consumption-design.md` and the RFCs are unaffected.
+
 ---
 
 ## 2. Open questions

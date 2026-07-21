@@ -45,11 +45,17 @@
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
 @layer primitiv.reset {
-  /* Shed the UA dialog defaults: no inner padding, and no auto-centring margin —
-     the drawer docks to an edge via the per-side inset rules below. */
+  /* Shed the UA dialog defaults: no inner padding, no auto-centring margin, and
+     no `fit-content` sizing. A `<dialog>` defaults to width/height: fit-content,
+     which would size the drawer to its content (not the viewport) and defeat the
+     `inset: 0` stretch below — so reset both axes to `auto`. Each per-side rule
+     then stretches the long axis via its insets and sets only the cross axis
+     (width for left/right, height for top/bottom). */
   .primitiv-drawer {
     margin: 0;
     padding: 0;
+    block-size: auto;
+    inline-size: auto;
   }
 }
 
@@ -151,6 +157,7 @@
      resolve the size-scoped --primitiv-drawer-* knobs (re-pointed by the size
      modifier and inherited down), so they track size and density. */
   .primitiv-drawer__header {
+    flex: none;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -159,11 +166,13 @@
     border-block-end: var(--primitiv-drawer-border-width) solid var(--primitiv-drawer-divider-color);
   }
 
-  /* The body is the one region that scrolls: it takes the remaining space and
-     overflows internally so the header + footer stay pinned to the panel edges.
-     min-block-size:0 lets it shrink below its content in the flex column. */
+  /* The body is the one region that scrolls: `flex: 1 1 0%` makes it take all the
+     space the (pinned) header + footer leave, ignoring its own content height, so
+     a full-height drawer with long content scrolls internally instead of pushing
+     the header/footer off-screen. min-block-size:0 lets it shrink below its
+     content in the flex column (the Chakra pattern). */
   .primitiv-drawer__body {
-    flex: 1 1 auto;
+    flex: 1 1 0%;
     min-block-size: 0;
     overflow: auto;
     display: flex;
@@ -173,6 +182,7 @@
   }
 
   .primitiv-drawer__footer {
+    flex: none;
     display: flex;
     align-items: center;
     justify-content: flex-end;

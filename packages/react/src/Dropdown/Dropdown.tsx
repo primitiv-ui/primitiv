@@ -121,6 +121,8 @@ DropdownRoot.displayName = "DropdownRoot";
  * component). All ARIA attributes and event handlers are merged onto the
  * child following the {@link Slot} composition rules.
  *
+ * @extends HTMLButtonElement
+ *
  * @example With an anchor via `asChild`
  * ```tsx
  * <Dropdown.Trigger asChild>
@@ -180,6 +182,17 @@ DropdownTrigger.displayName = "DropdownTrigger";
  * so `ArrowDown` past a {@link DropdownSubTrigger | `Dropdown.SubTrigger`}
  * lands on the next sibling item in the parent rather than getting
  * stuck on a non-focusable item inside a closed sub-popover.
+ *
+ * @extends HTMLMenuElement
+ *
+ * @example
+ * ```tsx
+ * <Dropdown.Content>
+ *   <Dropdown.Item onSelect={rename}>Rename</Dropdown.Item>
+ *   <Dropdown.Separator />
+ *   <Dropdown.Item onSelect={remove}>Delete</Dropdown.Item>
+ * </Dropdown.Content>
+ * ```
  */
 export function DropdownContent({
   children,
@@ -218,6 +231,18 @@ DropdownContent.displayName = "DropdownContent";
  *
  * Disabled items receive `aria-disabled="true"` and are skipped by arrow
  * navigation, typeahead, and activation handlers.
+ *
+ * @extends HTMLLIElement
+ *
+ * @example Keep the menu open after selecting
+ * ```tsx
+ * <Dropdown.Item onSelect={(event) => {
+ *   copyToClipboard();
+ *   event.preventDefault();
+ * }}>
+ *   Copy link
+ * </Dropdown.Item>
+ * ```
  */
 export function DropdownItem({
   children,
@@ -248,6 +273,15 @@ DropdownItem.displayName = "DropdownItem";
  * A visual separator between groups of items. Renders a `<li role="separator">`
  * by default; pass `asChild` to render any element with separator semantics.
  * Non-interactive — skipped by focus, arrow navigation, and typeahead.
+ *
+ * @extends HTMLLIElement
+ *
+ * @example
+ * ```tsx
+ * <Dropdown.Item>Cut</Dropdown.Item>
+ * <Dropdown.Separator />
+ * <Dropdown.Item>Paste</Dropdown.Item>
+ * ```
  */
 export function DropdownSeparator({
   asChild = false,
@@ -275,6 +309,17 @@ DropdownSeparator.displayName = "DropdownSeparator";
  * wired automatically via `aria-labelledby`. Nest a `Dropdown.Label` as the
  * first child to provide the accessible name; screen readers will announce
  * the group when arrowing into it.
+ *
+ * @extends HTMLLIElement
+ *
+ * @example
+ * ```tsx
+ * <Dropdown.Group>
+ *   <Dropdown.Label>Sort by</Dropdown.Label>
+ *   <Dropdown.Item>Name</Dropdown.Item>
+ *   <Dropdown.Item>Date</Dropdown.Item>
+ * </Dropdown.Group>
+ * ```
  */
 export function DropdownGroup({
   children,
@@ -307,6 +352,16 @@ DropdownGroup.displayName = "DropdownGroup";
  *
  * Renders a `<li>` by default; pass `asChild` to render any element. A
  * caller-supplied `id` takes precedence over the auto-generated one.
+ *
+ * @extends HTMLLIElement
+ *
+ * @example
+ * ```tsx
+ * <Dropdown.Group>
+ *   <Dropdown.Label>Actions</Dropdown.Label>
+ *   <Dropdown.Item>Duplicate</Dropdown.Item>
+ * </Dropdown.Group>
+ * ```
  */
 export function DropdownLabel({
   id,
@@ -350,6 +405,18 @@ DropdownLabel.displayName = "DropdownLabel";
  * context and exposes `data-state` for styling.
  *
  * Disabled items receive `aria-disabled="true"` and no-op on activation.
+ *
+ * @extends HTMLLIElement
+ *
+ * @example Controlled checkbox item
+ * ```tsx
+ * <Dropdown.CheckboxItem checked={showGrid} onCheckedChange={setShowGrid}>
+ *   <Dropdown.ItemIndicator>
+ *     <CheckIcon />
+ *   </Dropdown.ItemIndicator>
+ *   Show grid
+ * </Dropdown.CheckboxItem>
+ * ```
  */
 export function DropdownCheckboxItem({
   children,
@@ -425,6 +492,22 @@ DropdownCheckboxItem.displayName = "DropdownCheckboxItem";
  * - **Uncontrolled** — pass `defaultValue` (or omit for no initial selection).
  *   Optional `onValueChange` observes selections.
  * - **Controlled** — pass `value` *and* `onValueChange` together.
+ *
+ * @extends HTMLLIElement
+ *
+ * @example
+ * ```tsx
+ * <Dropdown.RadioGroup value={sort} onValueChange={setSort}>
+ *   <Dropdown.RadioItem value="name">
+ *     <Dropdown.ItemIndicator>•</Dropdown.ItemIndicator>
+ *     Name
+ *   </Dropdown.RadioItem>
+ *   <Dropdown.RadioItem value="date">
+ *     <Dropdown.ItemIndicator>•</Dropdown.ItemIndicator>
+ *     Date
+ *   </Dropdown.RadioItem>
+ * </Dropdown.RadioGroup>
+ * ```
  */
 export function DropdownRadioGroup({
   defaultValue,
@@ -476,6 +559,16 @@ DropdownRadioGroup.displayName = "DropdownRadioGroup";
  * and exposes `data-state` for styling.
  *
  * Disabled items receive `aria-disabled="true"` and no-op on activation.
+ *
+ * @extends HTMLLIElement
+ *
+ * @example
+ * ```tsx
+ * <Dropdown.RadioItem value="compact">
+ *   <Dropdown.ItemIndicator>•</Dropdown.ItemIndicator>
+ *   Compact
+ * </Dropdown.RadioItem>
+ * ```
  */
 export function DropdownRadioItem({
   children,
@@ -554,6 +647,8 @@ DropdownRadioItem.displayName = "DropdownRadioItem";
  * {@link DropdownItemIndicatorProps.forceMount | `forceMount`} to keep
  * the DOM node mounted in both states, which is handy when animating the
  * indicator in and out via CSS transitions or a React animation library.
+ *
+ * @extends HTMLSpanElement
  *
  * @example
  * ```tsx
@@ -683,6 +778,18 @@ DropdownSub.displayName = "DropdownSub";
  *
  * Disabled triggers receive `aria-disabled="true"` and ignore both click
  * and the open arrow key.
+ *
+ * @extends HTMLLIElement
+ *
+ * @example
+ * ```tsx
+ * <Dropdown.Sub>
+ *   <Dropdown.SubTrigger>Share</Dropdown.SubTrigger>
+ *   <Dropdown.SubContent>
+ *     <Dropdown.Item>Email link</Dropdown.Item>
+ *   </Dropdown.SubContent>
+ * </Dropdown.Sub>
+ * ```
  */
 export function DropdownSubTrigger({
   children,
@@ -749,6 +856,16 @@ DropdownSubTrigger.displayName = "DropdownSubTrigger";
  * `ArrowLeft` in `"ltr"`, `ArrowRight` in `"rtl"`. All other keys bubble
  * to the parent {@link DropdownContent | `Dropdown.Content`} so arrow
  * navigation and typeahead apply to the submenu's items.
+ *
+ * @extends HTMLMenuElement
+ *
+ * @example
+ * ```tsx
+ * <Dropdown.SubContent>
+ *   <Dropdown.Item>Project A</Dropdown.Item>
+ *   <Dropdown.Item>Project B</Dropdown.Item>
+ * </Dropdown.SubContent>
+ * ```
  */
 export function DropdownSubContent({
   children,

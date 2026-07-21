@@ -36,6 +36,12 @@ import {
  * `<section>`. The `data-field-*` hooks and context provider stay
  * intact.
  *
+ * **Styling hooks.** `data-field=""` always; `data-field-invalid` /
+ * `data-field-disabled` / `data-field-required` present (empty string)
+ * only when the corresponding flag is truthy.
+ *
+ * @extends HTMLDivElement
+ *
  * @example
  * ```tsx
  * <Field.Root id="email" invalid={!!errors.email}>
@@ -95,6 +101,13 @@ FieldRoot.displayName = "FieldRoot";
  * element with the `htmlFor` attribute merged on.
  *
  * @throws If rendered outside a `<Field.Root>`.
+ *
+ * @extends HTMLLabelElement
+ *
+ * @example
+ * ```tsx
+ * <Field.Label>Email address</Field.Label>
+ * ```
  */
 export function FieldLabel({
   asChild = false,
@@ -123,6 +136,13 @@ FieldLabel.displayName = "FieldLabel";
  * `<span>`, or any other element with the `id` merged on.
  *
  * @throws If rendered outside a `<Field.Root>`.
+ *
+ * @extends HTMLDivElement
+ *
+ * @example
+ * ```tsx
+ * <Field.Description>We'll only use this to sign you in.</Field.Description>
+ * ```
  */
 export function FieldDescription({
   asChild = false,
@@ -149,6 +169,8 @@ FieldDescription.displayName = "FieldDescription";
  *
  * **`asChild` composition.** Pass `asChild` to render the consumer's
  * element with the `id` and `role="alert"` merged on.
+ *
+ * @extends HTMLDivElement
  *
  * @example
  * ```tsx

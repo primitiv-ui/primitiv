@@ -16,7 +16,11 @@ export type AvatarImageLoadingStatus = "idle" | "loading" | "loaded" | "error";
  * Props for {@link Avatar.Root} — all `<span>` attributes plus `asChild`.
  */
 export type AvatarRootProps = ComponentProps<"span"> & {
-  /** Render the consumer's own element instead of the native `<span>`. */
+  /**
+   * Render the consumer's own element instead of the native `<span>`, merging
+   * the `data-status` hook onto it via {@link Slot}.
+   * @default false
+   */
   asChild?: boolean;
 };
 
@@ -24,7 +28,11 @@ export type AvatarRootProps = ComponentProps<"span"> & {
  * Props for {@link Avatar.Image} — all `<img>` attributes plus `asChild`.
  */
 export type AvatarImageProps = ComponentProps<"img"> & {
-  /** Render the consumer's own element instead of the native `<img>`. */
+  /**
+   * Render the consumer's own `<img>` instead of the native one, merging the
+   * load handlers, ref, and `data-status` hook onto it via {@link Slot}.
+   * @default false
+   */
   asChild?: boolean;
 };
 
@@ -39,6 +47,10 @@ export type AvatarFallbackProps = ComponentProps<"span"> & {
    * loads almost immediately. Omit to render the fallback straight away.
    */
   delayMs?: number;
-  /** Render the consumer's own element instead of the native `<span>`. */
+  /**
+   * Render the consumer's own element instead of the native `<span>`, merging
+   * the `data-status` hook onto it via {@link Slot}.
+   * @default false
+   */
   asChild?: boolean;
 };

@@ -33,6 +33,16 @@ function defaultGetValueLabel(value: number, max: number): string {
  * **Styling hooks.** `data-state="indeterminate" | "loading" | "complete"`,
  * plus `data-value` (determinate only) and `data-max` on the root.
  *
+ * **Validation.** `max` must be a positive, finite number and `value` (when
+ * not `null`) must be finite and within `0..max`; either violation throws a
+ * descriptive error during render so bad inputs surface early in development.
+ *
+ * **`asChild` composition.** Pass `asChild` to render the consumer's own
+ * element as the root instead of the native `<div>`, merging the ARIA and
+ * `data-*` hooks onto it via the {@link Slot} pattern.
+ *
+ * @extends HTMLDivElement
+ *
  * @example Determinate
  * ```tsx
  * <Progress.Root value={60} aria-label="Upload progress">
@@ -43,6 +53,18 @@ function defaultGetValueLabel(value: number, max: number): string {
  * @example Indeterminate
  * ```tsx
  * <Progress.Root aria-label="Loading">
+ *   <Progress.Indicator />
+ * </Progress.Root>
+ * ```
+ *
+ * @example Custom value label
+ * ```tsx
+ * <Progress.Root
+ *   value={3}
+ *   max={5}
+ *   getValueLabel={(v, m) => `Step ${v} of ${m}`}
+ *   aria-label="Setup progress"
+ * >
  *   <Progress.Indicator />
  * </Progress.Root>
  * ```
@@ -108,6 +130,8 @@ ProgressRoot.displayName = "ProgressRoot";
  *
  * **`asChild` prop.** Pass `asChild` to render the consumer's own element as
  * the indicator, with the `data-*` hooks merged in.
+ *
+ * @extends HTMLDivElement
  *
  * @example
  * ```tsx

@@ -71,9 +71,10 @@ open/close delay); every `Tooltip` beneath it works.
 
 ## Animation
 
-The bubble scales + fades in, and **out in reverse on close**. It's CSS
-transitions keyed off `data-state` plus `@starting-style`; `transition-behavior:
-allow-discrete` on `display` holds the bubble through the close so it animates out
+The bubble fades in, and **out in reverse on close**. It's a straight opacity
+transition (no scale — a small bubble scaling from its centre visibly drifts the
+text + arrow) keyed off `data-state` plus `@starting-style`; `transition-behavior:
+allow-discrete` on `display` holds the bubble through the close so it fades out
 instead of snapping. Unlike Modal / Drawer / Popover there's **no `overlay`** —
 a tooltip `<div>` isn't a top-layer element — but it **does need `forceMount` on
 both `TooltipPortal` and `TooltipContent`** (each gates on it independently:

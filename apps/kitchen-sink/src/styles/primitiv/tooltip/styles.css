@@ -263,35 +263,34 @@
 }
 
 @layer primitiv.states {
-  /* Enter / exit — the bubble scales + fades, driven by the data-state the
-     headless sets. The resting/closed state (base rule) is faded + scaled down;
-     [data-state="open"] brings it in; @starting-style gives the enter its starting
-     frame — so the exit is the exact reverse of the enter. transition-behavior:
-     allow-discrete on `display` holds the bubble through the close so it animates
-     out instead of snapping. No `overlay` — a tooltip <div> isn't in the top
-     layer. Needs the bubble kept mounted while closed: pass `forceMount` to
-     Tooltip.Portal. Token-driven (shared overlay duration + enter / exit easings). */
+  /* Enter / exit — the bubble fades, driven by the data-state the headless sets.
+     Opacity only, no scale: a small bubble scaling from its centre drifts the text
+     and the edge-anchored arrow outward, which reads as a wobble on such a small
+     surface — a straight fade keeps everything still. The resting/closed state
+     (base rule) is transparent; [data-state="open"] brings it in; @starting-style
+     gives the enter its starting frame — so the exit is the exact reverse of the
+     enter. transition-behavior: allow-discrete on `display` holds the bubble
+     through the close so it fades out instead of snapping. No `overlay` — a
+     tooltip <div> isn't in the top layer. Needs the bubble kept mounted while
+     closed: pass `forceMount` to Tooltip.Portal + Tooltip.Content. Token-driven
+     (shared overlay duration + enter / exit easings). */
   .primitiv-tooltip {
     opacity: 0;
-    scale: 0.97;
     transition:
       opacity var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
-      scale var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
       display var(--primitiv-motion-duration-overlay) allow-discrete;
   }
   .primitiv-tooltip[data-state="open"] {
     opacity: 1;
-    scale: 1;
     transition-timing-function: var(--primitiv-motion-easing-enter);
   }
   @starting-style {
     .primitiv-tooltip[data-state="open"] {
       opacity: 0;
-      scale: 0.97;
     }
   }
 
-  /* Honour reduced-motion: no scale / fade, just show / hide. */
+  /* Honour reduced-motion: no fade, just show / hide. */
   @media (prefers-reduced-motion: reduce) {
     .primitiv-tooltip {
       transition: none;

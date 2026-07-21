@@ -84,6 +84,18 @@ The panel binds to `--primitiv-surface-floating`, which is white in light mode
 because a shadow doesn't read on a dark background, elevation is shown with a
 lighter surface instead. Borderless works in both themes as a result.
 
+## Animation
+
+The panel scales + fades in on open and **out in reverse on close**. It's CSS
+transitions keyed off the native `:popover-open` state plus `@starting-style` (for
+the enter's starting frame); `transition-behavior: allow-discrete` on `display` +
+`overlay` keeps the panel painted in the top layer through the close, so it
+animates out instead of snapping (a native `[popover]` sets `display: none` the
+instant it closes). Unlike Modal / Drawer this needs **no `forceMount`** — a
+native popover stays in the DOM, so the browser toggles it in place. Both phases
+use `--primitiv-motion-duration-overlay` with `--primitiv-motion-easing-enter` /
+`-exit`; `prefers-reduced-motion: reduce` drops them.
+
 ## Files
 
 | File                | Purpose                                                    |

@@ -326,21 +326,41 @@
 }
 
 @layer primitiv.states {
-  /* Enter / exit — the panel scales + fades, keyed off the data-state the
-     headless component sets. Token-driven (shared overlay duration + enter / exit
-     easings) so it matches every other layered surface. */
-  .primitiv-popover[data-state="open"] {
-    animation: primitiv-popover-in var(--primitiv-motion-duration-overlay)
-      var(--primitiv-motion-easing-enter);
+  /* Enter / exit — the panel scales + fades, driven by the native :popover-open
+     state (showPopover / hidePopover toggle it). The resting/closed state (base
+     rule) is faded + scaled down; :popover-open brings it in; @starting-style
+     gives the enter its starting frame — so the exit is the exact reverse of the
+     enter. transition-behavior: allow-discrete on `display` + `overlay` keeps the
+     panel painted in the top layer through the close, so it animates out instead
+     of snapping (a native [popover] sets display:none the instant it closes).
+     No forceMount needed — a native popover stays in the DOM (no portal); the
+     scale is a separate transform property so it composes with the placement
+     translate. Token-driven (shared overlay duration + enter / exit easings). */
+  .primitiv-popover {
+    opacity: 0;
+    scale: 0.97;
+    transition:
+      opacity var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
+      scale var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
+      display var(--primitiv-motion-duration-overlay) allow-discrete,
+      overlay var(--primitiv-motion-duration-overlay) allow-discrete;
   }
-  .primitiv-popover[data-state="closed"] {
-    animation: primitiv-popover-out var(--primitiv-motion-duration-overlay)
-      var(--primitiv-motion-easing-exit) forwards;
+  .primitiv-popover:popover-open {
+    opacity: 1;
+    scale: 1;
+    transition-timing-function: var(--primitiv-motion-easing-enter);
+  }
+  @starting-style {
+    .primitiv-popover:popover-open {
+      opacity: 0;
+      scale: 0.97;
+    }
   }
 
+  /* Honour reduced-motion: no scale / fade, just show / hide. */
   @media (prefers-reduced-motion: reduce) {
     .primitiv-popover {
-      animation: none;
+      transition: none;
     }
   }
 
@@ -358,20 +378,6 @@
   .primitiv-popover__close:disabled {
     opacity: var(--primitiv-opacity-50);
     cursor: not-allowed;
-  }
-}
-
-@keyframes primitiv-popover-in {
-  from {
-    opacity: 0;
-    scale: 0.97;
-  }
-}
-
-@keyframes primitiv-popover-out {
-  to {
-    opacity: 0;
-    scale: 0.97;
   }
 }
 

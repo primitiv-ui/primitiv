@@ -67,6 +67,30 @@ import { MENUITEM_SELECTOR, TYPEAHEAD_RESET_MS } from "./constants";
  * set `"ltr"` or `"rtl"`, which inverts the submenu open / close arrow
  * keys (`ArrowRight` ↔ `ArrowLeft`). When omitted, the component reads
  * the inherited {@link DirectionProvider} value, falling back to `"ltr"`.
+ *
+ * Renders no DOM of its own — no extended host element — it is purely a
+ * context provider around its `children`.
+ *
+ * @example Uncontrolled
+ * ```tsx
+ * <ContextMenu.Root>
+ *   <ContextMenu.Trigger>
+ *     <div className="canvas">Right-click here</div>
+ *   </ContextMenu.Trigger>
+ *   <ContextMenu.Content>
+ *     <ContextMenu.Item onSelect={paste}>Paste</ContextMenu.Item>
+ *   </ContextMenu.Content>
+ * </ContextMenu.Root>
+ * ```
+ *
+ * @example Controlled
+ * ```tsx
+ * const [open, setOpen] = useState(false);
+ *
+ * <ContextMenu.Root open={open} onOpenChange={setOpen}>
+ *   …
+ * </ContextMenu.Root>
+ * ```
  */
 export function ContextMenuRoot({
   defaultOpen = false,
@@ -141,6 +165,26 @@ function useCloseSiblingSub() {
  * right-click, long-press on touch, or the keyboard context-menu key),
  * the native menu is suppressed and the ContextMenu opens, positioned at
  * the pointer.
+ *
+ * A `disabled` Trigger ignores the gesture entirely, letting the native
+ * browser menu through. `data-disabled=""` and `data-state="closed"` are
+ * exposed for styling.
+ *
+ * @extends HTMLSpanElement
+ *
+ * @example Default `<span>` host
+ * ```tsx
+ * <ContextMenu.Trigger>
+ *   <div className="canvas">Right-click anywhere</div>
+ * </ContextMenu.Trigger>
+ * ```
+ *
+ * @example asChild — attach the gesture to any element
+ * ```tsx
+ * <ContextMenu.Trigger asChild>
+ *   <ImageCard src="…" alt="…" />
+ * </ContextMenu.Trigger>
+ * ```
  */
 export function ContextMenuTrigger({
   children,
@@ -197,6 +241,27 @@ ContextMenuTrigger.displayName = "ContextMenuTrigger";
  * custom properties so consumer CSS can write `@position-try` fallbacks
  * that flip the menu to the opposite side when it would overflow the
  * viewport. Pass `asChild` to render any element with menu semantics.
+ *
+ * **Focus & keyboard.** On open, focus moves to the first enabled item.
+ * `ArrowDown` / `ArrowUp` move between items (wrapping), `Home` / `End`
+ * jump to the first / last, `Enter` / `Space` activate the focused item,
+ * `Escape` closes and returns focus to the Trigger, and any printable
+ * character starts a typeahead search (accumulated within a 500 ms window;
+ * repeating a character cycles items sharing that first letter). Disabled
+ * items are skipped throughout. `data-state="open" | "closed"` is exposed
+ * for state-driven styling.
+ *
+ * @extends HTMLMenuElement
+ *
+ * @example
+ * ```tsx
+ * <ContextMenu.Content>
+ *   <ContextMenu.Item onSelect={cut}>Cut</ContextMenu.Item>
+ *   <ContextMenu.Item onSelect={copy}>Copy</ContextMenu.Item>
+ *   <ContextMenu.Separator />
+ *   <ContextMenu.Item disabled>Archive</ContextMenu.Item>
+ * </ContextMenu.Content>
+ * ```
  */
 export function ContextMenuContent({
   children,
@@ -388,7 +453,24 @@ ContextMenuContent.displayName = "ContextMenuContent";
  * `Event`. The menu auto-closes after selection; call
  * `event.preventDefault()` inside `onSelect` to keep it open.
  *
- * Disabled items receive `aria-disabled="true"` and no-op on activation.
+ * Disabled items receive `aria-disabled="true"` and no-op on activation;
+ * arrow navigation and typeahead skip them. `data-highlighted=""` is
+ * present while the pointer hovers the item.
+ *
+ * @extends HTMLLIElement
+ *
+ * @example
+ * ```tsx
+ * <ContextMenu.Item onSelect={() => rename()}>Rename</ContextMenu.Item>
+ * <ContextMenu.Item disabled>Archive (coming soon)</ContextMenu.Item>
+ * ```
+ *
+ * @example asChild — render a link with menuitem semantics
+ * ```tsx
+ * <ContextMenu.Item asChild>
+ *   <a href="/rename">Rename</a>
+ * </ContextMenu.Item>
+ * ```
  */
 export function ContextMenuItem({
   children,
@@ -441,6 +523,15 @@ ContextMenuItem.displayName = "ContextMenuItem";
  * A visual separator between groups of items. Renders a `<li role="separator">`
  * by default. Non-interactive — skipped by focus, arrow navigation, and
  * typeahead.
+ *
+ * @extends HTMLLIElement
+ *
+ * @example
+ * ```tsx
+ * <ContextMenu.Item>Copy</ContextMenu.Item>
+ * <ContextMenu.Separator />
+ * <ContextMenu.Item>Delete</ContextMenu.Item>
+ * ```
  */
 export function ContextMenuSeparator({
   asChild = false,
@@ -466,6 +557,17 @@ ContextMenuSeparator.displayName = "ContextMenuSeparator";
  *
  * Generates a stable id for its accompanying {@link ContextMenuLabel |
  * `ContextMenu.Label`}, wired automatically via `aria-labelledby`.
+ *
+ * @extends HTMLLIElement
+ *
+ * @example
+ * ```tsx
+ * <ContextMenu.Group>
+ *   <ContextMenu.Label>Edit</ContextMenu.Label>
+ *   <ContextMenu.Item>Undo</ContextMenu.Item>
+ *   <ContextMenu.Item>Redo</ContextMenu.Item>
+ * </ContextMenu.Group>
+ * ```
  */
 export function ContextMenuGroup({
   children,
@@ -502,6 +604,16 @@ ContextMenuGroup.displayName = "ContextMenuGroup";
  * a group, the label's `id` is auto-wired to the group's `aria-labelledby` —
  * consumers don't need to thread ids manually. A caller-supplied `id` takes
  * precedence over the auto-generated one.
+ *
+ * @extends HTMLLIElement
+ *
+ * @example
+ * ```tsx
+ * <ContextMenu.Group>
+ *   <ContextMenu.Label>View</ContextMenu.Label>
+ *   <ContextMenu.CheckboxItem>Show grid</ContextMenu.CheckboxItem>
+ * </ContextMenu.Group>
+ * ```
  */
 export function ContextMenuLabel({
   id,
@@ -532,7 +644,36 @@ ContextMenuLabel.displayName = "ContextMenuLabel";
  * {@link ContextMenuCheckboxItemProps.onSelect | `onSelect`} with a
  * cancellable `Event`. Call `event.preventDefault()` to keep the menu open.
  *
+ * Supports both state modes: uncontrolled via
+ * {@link ContextMenuCheckboxItemUncontrolledProps.defaultChecked | `defaultChecked`},
+ * or controlled via
+ * {@link ContextMenuCheckboxItemControlledProps.checked | `checked`} +
+ * {@link ContextMenuCheckboxItemControlledProps.onCheckedChange | `onCheckedChange`}.
+ * Render a {@link ContextMenuItemIndicator | `ContextMenu.ItemIndicator`}
+ * inside it for the visible mark.
+ *
  * Disabled items receive `aria-disabled="true"` and no-op on activation.
+ *
+ * @extends HTMLLIElement
+ *
+ * @example Uncontrolled, with an indicator
+ * ```tsx
+ * <ContextMenu.CheckboxItem defaultChecked>
+ *   <ContextMenu.ItemIndicator><CheckIcon /></ContextMenu.ItemIndicator>
+ *   Show grid
+ * </ContextMenu.CheckboxItem>
+ * ```
+ *
+ * @example Controlled, kept open for rapid toggling
+ * ```tsx
+ * <ContextMenu.CheckboxItem
+ *   checked={showRuler}
+ *   onCheckedChange={setShowRuler}
+ *   onSelect={(event) => event.preventDefault()}
+ * >
+ *   Show ruler
+ * </ContextMenu.CheckboxItem>
+ * ```
  */
 export function ContextMenuCheckboxItem({
   children,
@@ -612,6 +753,25 @@ ContextMenuCheckboxItem.displayName = "ContextMenuCheckboxItem";
  * By default the indicator unmounts when its parent is unchecked. Pass
  * {@link ContextMenuItemIndicatorProps.forceMount | `forceMount`} to keep
  * the DOM node mounted in both states for animation use cases.
+ *
+ * @extends HTMLSpanElement
+ *
+ * @example Compose onto an icon
+ * ```tsx
+ * <ContextMenu.CheckboxItem checked={bookmarked} onCheckedChange={setBookmarked}>
+ *   <ContextMenu.ItemIndicator asChild>
+ *     <CheckIcon aria-hidden />
+ *   </ContextMenu.ItemIndicator>
+ *   Bookmark
+ * </ContextMenu.CheckboxItem>
+ * ```
+ *
+ * @example forceMount for CSS-driven transitions
+ * ```tsx
+ * <ContextMenu.ItemIndicator forceMount>
+ *   <CheckIcon />
+ * </ContextMenu.ItemIndicator>
+ * ```
  */
 export function ContextMenuItemIndicator({
   children,
@@ -652,6 +812,23 @@ ContextMenuItemIndicator.displayName = "ContextMenuItemIndicator";
  * A single-selection group of menu items. Children must be
  * {@link ContextMenuRadioItem | `ContextMenu.RadioItem`} elements. Renders a
  * `<li role="group">` wrapping `<ul role="none">`.
+ *
+ * Owns the selected value: uncontrolled via
+ * {@link ContextMenuRadioGroupUncontrolledProps.defaultValue | `defaultValue`},
+ * or controlled via
+ * {@link ContextMenuRadioGroupControlledProps.value | `value`} +
+ * {@link ContextMenuRadioGroupControlledProps.onValueChange | `onValueChange`}.
+ *
+ * @extends HTMLLIElement
+ *
+ * @example
+ * ```tsx
+ * <ContextMenu.RadioGroup defaultValue="system">
+ *   <ContextMenu.RadioItem value="light">Light</ContextMenu.RadioItem>
+ *   <ContextMenu.RadioItem value="dark">Dark</ContextMenu.RadioItem>
+ *   <ContextMenu.RadioItem value="system">Match system</ContextMenu.RadioItem>
+ * </ContextMenu.RadioGroup>
+ * ```
  */
 export function ContextMenuRadioGroup({
   defaultValue,
@@ -696,6 +873,18 @@ ContextMenuRadioGroup.displayName = "ContextMenuRadioGroup";
  * Activation (click) selects this item, updating the group's value, then fires
  * {@link ContextMenuRadioItemProps.onSelect | `onSelect`} with a cancellable
  * `Event`. Call `event.preventDefault()` to keep the menu open.
+ *
+ * Disabled items receive `aria-disabled="true"` and no-op on activation.
+ *
+ * @extends HTMLLIElement
+ *
+ * @example
+ * ```tsx
+ * <ContextMenu.RadioItem value="dark">
+ *   <ContextMenu.ItemIndicator><DotIcon /></ContextMenu.ItemIndicator>
+ *   Dark
+ * </ContextMenu.RadioItem>
+ * ```
  */
 export function ContextMenuRadioItem({
   children,
@@ -767,6 +956,20 @@ ContextMenuRadioItem.displayName = "ContextMenuRadioItem";
  * `ContextMenu.Sub` to establish an independent open state for the nested
  * menu. Supports uncontrolled (`defaultOpen`) and controlled (`open` +
  * `onOpenChange`) modes.
+ *
+ * Renders no DOM of its own — no extended host element — it is purely a
+ * context boundary around the SubTrigger / SubContent pair.
+ *
+ * @example
+ * ```tsx
+ * <ContextMenu.Sub>
+ *   <ContextMenu.SubTrigger>Share</ContextMenu.SubTrigger>
+ *   <ContextMenu.SubContent>
+ *     <ContextMenu.Item>Email</ContextMenu.Item>
+ *     <ContextMenu.Item>Copy link</ContextMenu.Item>
+ *   </ContextMenu.SubContent>
+ * </ContextMenu.Sub>
+ * ```
  */
 export function ContextMenuSub({
   defaultOpen,
@@ -838,7 +1041,18 @@ ContextMenuSub.displayName = "ContextMenuSub";
  * Opens the submenu on click, the inline-forward arrow key, or pointer
  * hover. The open key follows the resolved reading direction —
  * `ArrowRight` in `"ltr"`, `ArrowLeft` in `"rtl"`. Disabled triggers
- * ignore both click and the open arrow key.
+ * ignore both click and the open arrow key. `data-highlighted=""` is
+ * present while hovered or while its submenu is open.
+ *
+ * @extends HTMLLIElement
+ *
+ * @example
+ * ```tsx
+ * <ContextMenu.Sub>
+ *   <ContextMenu.SubTrigger>More tools</ContextMenu.SubTrigger>
+ *   <ContextMenu.SubContent>…</ContextMenu.SubContent>
+ * </ContextMenu.Sub>
+ * ```
  */
 export function ContextMenuSubTrigger({
   children,
@@ -902,6 +1116,20 @@ ContextMenuSubTrigger.displayName = "ContextMenuSubTrigger";
  * opens, focus moves to its first enabled item. The inline-backward arrow
  * key closes the submenu and returns focus to the SubTrigger —
  * `ArrowLeft` in `"ltr"`, `ArrowRight` in `"rtl"`.
+ *
+ * Unlike {@link ContextMenuContent | `ContextMenu.Content`}, the submenu
+ * panel uses `popover="auto"` — it is opened programmatically and nests
+ * inside the already-open manual root popover.
+ *
+ * @extends HTMLMenuElement
+ *
+ * @example
+ * ```tsx
+ * <ContextMenu.SubContent>
+ *   <ContextMenu.Item>Email</ContextMenu.Item>
+ *   <ContextMenu.Item>Copy link</ContextMenu.Item>
+ * </ContextMenu.SubContent>
+ * ```
  */
 export function ContextMenuSubContent({
   children,
@@ -1001,8 +1229,46 @@ export type TContextMenuCompound = typeof ContextMenuRoot & {
  * by a right-click (or long-press) on its trigger, with submenus, checkbox and
  * radio items, groups, labels and separators. Zero styles ship.
  *
- * The default export is the `Root`; sub-components are attached as static
- * properties (`ContextMenu.Trigger`, `ContextMenu.Content`, …).
+ * `ContextMenu` is both callable (it is an alias of
+ * {@link ContextMenuRoot | `ContextMenu.Root`}) and carries its
+ * sub-components as static properties. Prefer the namespaced form in
+ * application code for readability and grep-ability:
+ *
+ * - {@link ContextMenuRoot | `ContextMenu.Root`} — open-state owner and direction provider (no DOM).
+ * - {@link ContextMenuTrigger | `ContextMenu.Trigger`} — the right-click target (`<span>`).
+ * - {@link ContextMenuContent | `ContextMenu.Content`} — the `role="menu"` popover panel.
+ * - {@link ContextMenuItem | `ContextMenu.Item`} — a `role="menuitem"` row.
+ * - {@link ContextMenuCheckboxItem | `ContextMenu.CheckboxItem`} — a tri-state `role="menuitemcheckbox"`.
+ * - {@link ContextMenuRadioGroup | `ContextMenu.RadioGroup`} — single-selection container.
+ * - {@link ContextMenuRadioItem | `ContextMenu.RadioItem`} — a `role="menuitemradio"` choice.
+ * - {@link ContextMenuItemIndicator | `ContextMenu.ItemIndicator`} — the checked-state mark.
+ * - {@link ContextMenuGroup | `ContextMenu.Group`} — a `role="group"` of related items.
+ * - {@link ContextMenuLabel | `ContextMenu.Label`} — a non-interactive group caption.
+ * - {@link ContextMenuSeparator | `ContextMenu.Separator`} — a `role="separator"` divider.
+ * - {@link ContextMenuSub | `ContextMenu.Sub`} — a submenu boundary (no DOM).
+ * - {@link ContextMenuSubTrigger | `ContextMenu.SubTrigger`} — opens a submenu.
+ * - {@link ContextMenuSubContent | `ContextMenu.SubContent`} — the submenu panel.
+ *
+ * @example Minimal usage
+ * ```tsx
+ * import { ContextMenu } from "@primitiv-ui/react";
+ *
+ * <ContextMenu.Root>
+ *   <ContextMenu.Trigger>
+ *     <div className="canvas">Right-click anywhere</div>
+ *   </ContextMenu.Trigger>
+ *   <ContextMenu.Content>
+ *     <ContextMenu.Item onSelect={paste}>Paste</ContextMenu.Item>
+ *     <ContextMenu.Separator />
+ *     <ContextMenu.Item disabled>Archive</ContextMenu.Item>
+ *   </ContextMenu.Content>
+ * </ContextMenu.Root>
+ * ```
+ *
+ * @see {@link ContextMenuRoot} for state modes and reading direction.
+ * @see {@link ContextMenuContent} for the popover, positioning, and keyboard model.
+ * @see {@link ContextMenuCheckboxItem} and {@link ContextMenuRadioGroup} for stateful items.
+ * @see {@link ContextMenuSub} for submenus.
  */
 const ContextMenuCompound: TContextMenuCompound = Object.assign(
   ContextMenuRoot,

@@ -5,17 +5,31 @@ import { AccessibleIconProps } from "./types";
 type DecorativeIconProps = { "aria-hidden": string; focusable: string };
 
 /**
- * Gives an icon-only control an accessible name.
+ * Gives an icon-only control an accessible name without adding a visible label.
  *
- * Wraps a single decorative icon: the icon element is cloned with
- * `aria-hidden="true"` (removing it from the accessibility tree) and
- * `focusable="false"` (so legacy browsers skip the `<svg>` in the tab
- * order), and a {@link VisuallyHidden} text label is rendered alongside
- * it. The label is announced by assistive technology while the icon
- * stays the only thing on screen.
+ * Wraps a single decorative icon element and performs two mutations via
+ * `cloneElement`:
  *
- * Place it inside an interactive element — the visually hidden label
- * becomes that element's accessible name:
+ * - Sets `aria-hidden="true"` on the icon, removing the purely decorative
+ *   graphic from the accessibility tree.
+ * - Sets `focusable="false"` on the icon, so legacy browsers (IE/Edge
+ *   classic) do not place the `<svg>` in the tab order.
+ *
+ * The {@link AccessibleIconProps.label | `label`} string is rendered
+ * alongside the icon inside a {@link VisuallyHidden} span — invisible on
+ * screen but announced by assistive technology. When `AccessibleIcon` is
+ * placed inside an interactive element (`<button>`, `<a>`, etc.), the
+ * hidden label becomes that element's accessible name. A screen reader
+ * will announce, for example, "Close dialog, button" rather than nothing.
+ *
+ * **Runtime validation.** `children` must be exactly **one** React
+ * element. Passing zero, multiple, or a plain string throws a React
+ * `Children.only` error. Wrap the glyph in a single `<svg>` or component
+ * if your icon library returns a fragment.
+ *
+ * **Renders no host element.** `AccessibleIcon` returns a React fragment
+ * (`<>…</>`), so it adds no DOM node of its own. The icon element and the
+ * {@link VisuallyHidden} span are the only nodes emitted.
  *
  * @example Icon-only button
  * ```tsx
@@ -24,6 +38,15 @@ type DecorativeIconProps = { "aria-hidden": string; focusable: string };
  *     <CloseIcon />
  *   </AccessibleIcon>
  * </button>
+ * ```
+ *
+ * @example Icon-only link
+ * ```tsx
+ * <a href="/home">
+ *   <AccessibleIcon label="Go to home page">
+ *     <HomeIcon />
+ *   </AccessibleIcon>
+ * </a>
  * ```
  */
 export function AccessibleIcon({

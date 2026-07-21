@@ -97,6 +97,8 @@ ModalRoot.displayName = "ModalRoot";
  * element (e.g. a router `<Link>`) with the trigger's ARIA attributes,
  * composed event handlers, and ref merged in.
  *
+ * @extends HTMLButtonElement
+ *
  * @example
  * ```tsx
  * <Modal.Trigger>Open</Modal.Trigger>
@@ -177,6 +179,8 @@ ModalPortal.displayName = "ModalPortal";
  * **`forceMount` prop.** Pass `forceMount` to keep the overlay in the
  * DOM while `open` is false so a CSS exit animation can play.
  *
+ * @extends HTMLDivElement
+ *
  * @example
  * ```tsx
  * <Modal.Overlay />
@@ -247,6 +251,15 @@ ModalOverlay.displayName = "ModalOverlay";
  *
  * **Styling hook.** `data-state="open" | "closed"` on the dialog.
  *
+ * **Nested modals.** A `Modal.Root` may be rendered inside another modal's
+ * `Modal.Content`. Each root owns its own {@link ModalContextValue | context}
+ * and dialog, so every dialog stacks independently in the browser's top
+ * layer and each dismissal gesture (Close, Esc, click-outside) resolves
+ * against the nearest dialog only — closing the inner modal leaves the
+ * outer one open.
+ *
+ * @extends HTMLDialogElement
+ *
  * @example
  * ```tsx
  * <Modal.Content
@@ -301,6 +314,8 @@ ModalContent.displayName = "ModalContent";
  * an `<h3>` for a nested dialog or a styled heading component); the
  * id is still registered.
  *
+ * @extends HTMLHeadingElement
+ *
  * @example
  * ```tsx
  * <Modal.Title>Payment</Modal.Title>
@@ -348,6 +363,8 @@ ModalTitle.displayName = "ModalTitle";
  * Pass `asChild` to render any consumer-supplied element; the id is
  * still registered.
  *
+ * @extends HTMLParagraphElement
+ *
  * @example
  * ```tsx
  * <Modal.Description>
@@ -393,6 +410,8 @@ ModalDescription.displayName = "ModalDescription";
  * **`asChild` prop.** Pass `asChild` to render any element (e.g. a
  * text link or an icon-only `<button>` of your own) with the close
  * behaviour merged in.
+ *
+ * @extends HTMLButtonElement
  *
  * @example
  * ```tsx

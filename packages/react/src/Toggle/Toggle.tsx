@@ -11,24 +11,50 @@ import { ToggleProps } from "./types";
  * with the `aria-pressed` attribute. Renders a native
  * `<button type="button">` by default.
  *
- * Supports two state modes, statically discriminated at the type level:
+ * **Controlled vs uncontrolled.** Two state modes, statically discriminated at
+ * the type level so TypeScript rejects mixing them:
  *
  * - **Uncontrolled** — pass
- *   {@link ToggleProps.defaultPressed | `defaultPressed`} (or omit for
- *   unpressed on mount). The component owns the value internally.
- * - **Controlled** — pass
- *   {@link ToggleProps.pressed | `pressed`} *and*
- *   {@link ToggleProps.onPressedChange | `onPressedChange`} together.
- *   The parent owns the value; every click defers back through the callback.
+ *   {@link ToggleProps.defaultPressed | `defaultPressed`} (or omit entirely
+ *   for unpressed on mount). The component owns the pressed value internally.
+ * - **Controlled** — pass {@link ToggleProps.pressed | `pressed`} *and*
+ *   {@link ToggleProps.onPressedChange | `onPressedChange`} together. The
+ *   parent owns the value; every click defers back through the callback.
  *
- * **ARIA.** `aria-pressed` is set automatically to reflect the pressed state.
+ * **Keyboard support.** Keyboard activation is provided natively by the
+ * underlying `<button>` element — no custom `keydown` listeners are needed:
  *
- * **Styling hooks.** `data-state="on" | "off"` on the element, plus
- * `data-disabled=""` when disabled.
+ * | Key     | Behaviour                              |
+ * | ------- | -------------------------------------- |
+ * | `Space` | Toggles the button (native `<button>`) |
+ * | `Enter` | Toggles the button (native `<button>`) |
  *
- * **`asChild` prop.** Pass `asChild` to render any consumer-supplied element
- * with the toggle's `aria-pressed`, `data-state`, composed `onClick`, and
- * `ref` merged in. The native `<button>` is dropped.
+ * **Styling hooks.**
+ * - `data-state="on" | "off"` — mirrors the pressed state; use
+ *   `[data-state="on"]` to style the active appearance.
+ * - `data-disabled=""` — set when `disabled` is `true`; lets CSS target
+ *   `[data-disabled]` without relying on the `:disabled` pseudo-class.
+ *
+ * **`asChild` composition.** Pass `asChild` to render any consumer-supplied
+ * element instead of the default `<button>`. The toggle's `aria-pressed`,
+ * `data-state`, composed `onClick`, and `ref` are merged onto the child via
+ * {@link Slot}. The native `<button>` is dropped; the consumer is responsible
+ * for making the element focusable (e.g. `tabIndex={0}`, `role="button"`).
+ *
+ * **Ref forwarding.** Pass a `ref` prop to access the underlying
+ * `HTMLButtonElement` directly (or the `asChild` element when `asChild` is
+ * set):
+ *
+ * ```tsx
+ * const ref = useRef<HTMLButtonElement>(null);
+ * <Toggle ref={ref} aria-label="Bold">B</Toggle>
+ * ```
+ *
+ * **Disabled.** Sets the native `disabled` attribute (removing the button
+ * from the tab order and suppressing clicks) **and** sets `data-disabled=""`
+ * so CSS can target `[data-disabled]` without relying on `:disabled`.
+ *
+ * @extends HTMLButtonElement
  *
  * @example Uncontrolled
  * ```tsx
@@ -40,6 +66,18 @@ import { ToggleProps } from "./types";
  * const [bold, setBold] = useState(false);
  *
  * <Toggle pressed={bold} onPressedChange={setBold} aria-label="Bold">B</Toggle>
+ * ```
+ *
+ * @example Disabled
+ * ```tsx
+ * <Toggle disabled aria-label="Bold (unavailable)">B</Toggle>
+ * ```
+ *
+ * @example asChild — render a custom element with toggle semantics
+ * ```tsx
+ * <Toggle asChild aria-label="Bold">
+ *   <div role="button" tabIndex={0}>B</div>
+ * </Toggle>
  * ```
  */
 function Toggle({

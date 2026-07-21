@@ -52,7 +52,11 @@ split.
 Every behaviour change in `packages/react` ships with:
 
 - A new or updated **test** covering the new/changed behaviour.
-- Updated **JSDoc** on affected sub-components.
+- Updated **JSDoc** on affected sub-components, to the docgen bar —
+  component-level prose + correctly-placed `@extends`, per-prop
+  `@default`/`{@link}`, and the `Omit`-narrowing check (the docs site
+  generates prop tables from this source). Rules: `react-component-patterns`
+  skill §9.
 - Updated component **README** if the change is consumer-facing
   (new props, changed defaults, new patterns, escape hatches,
   gotchas).

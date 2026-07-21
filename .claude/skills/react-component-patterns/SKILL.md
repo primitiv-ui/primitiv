@@ -185,3 +185,69 @@ Don't invent ad-hoc names; match what existing components use.
 Sub-components destructure `ref` directly from props. No `forwardRef`
 wrapper. Slot itself still uses `forwardRef` (a deliberate compatibility
 choice to compose into both React 18 and 19 consumer trees).
+
+## 9. JSDoc for docgen extraction
+
+Every component's JSDoc is not just for editor hovers — the public docs
+site generates its per-component / per-prop prop tables by running
+`react-docgen-typescript` over this source (see
+`docs/docs-site-planning.md` §1.5–1.16). Thin or mis-shaped JSDoc
+produces thin or **silently broken** generated docs. The whole library
+was brought to a single bar; a new component must land at that bar in
+its DOCS commit, not later. Reference gold-standard examples:
+`Button`, `Tabs`, `Select` (`.tsx` + `types.ts` of each).
+
+**Component-level JSDoc** (block above each exported sub-component in
+`<Component>.tsx`):
+
+- Real prose describing what it renders and how it behaves — ARIA
+  semantics, controlled/uncontrolled shape, context requirements,
+  composition/`asChild` notes, gotchas. Not a one-liner.
+- An `@extends HTMLXElement` tag mapping the root element to its DOM
+  interface (`div`→`HTMLDivElement`, `button`→`HTMLButtonElement`,
+  `ul`→`HTMLUListElement`, `li`→`HTMLLIElement`, `a`→`HTMLAnchorElement`,
+  `input`→`HTMLInputElement`, `label`→`HTMLLabelElement`,
+  `dialog`→`HTMLDialogElement`, `nav`/`section`→`HTMLElement`, …).
+- One or more `@example` blocks (basic case + a common variant + any
+  gotcha such as `asChild`).
+- **Placement rule (a real bug the project hit, §1.16):** a JSDoc block
+  tag consumes every line after it up to the *next* tag. `@extends`
+  MUST sit immediately before the first `@example` (or be the very last
+  tag when there is no `@example`) — never in the middle of prose, or it
+  silently swallows the rest of the comment.
+- Components that render **no DOM element** — pure context providers
+  (`Root`/`Provider`) and `Portal`-style wrappers — carry **no
+  `@extends`**. The compound namespace export (`export const Foo = {...}`)
+  also carries none; document it with prose + a sub-component list +
+  `@see` refs (mirror Select).
+
+**Per-prop JSDoc** (in `types.ts`): every prop gets a real doc comment
+(what it does, when to use it, interactions with other props), a
+`@default` tag when it has a default, and `{@link OtherType.prop}` /
+`{@link Component}` cross-references. Mirror the density of Tabs/Select.
+
+**The `Omit`-narrowing rule — the one that silently corrupts extraction
+(§1.16).** Any custom prop that **narrows or redefines a same-named
+native HTML attribute** MUST appear in the `Omit<ComponentProps<"tag">,
+"...">` list on that type, or `react-docgen-typescript` picks only the
+wider `node_modules` declaration and **silently drops the narrowed type
+and all its JSDoc** from the output. TypeScript itself resolves the
+intersection correctly, so there is no compile error to warn you — the
+loss is invisible until you inspect the generated data. This bit **seven
+real props** during the library-wide pass:
+
+- `dir` narrowed to `"ltr" | "rtl"` — Accordion, RadioGroup, RadioCard.
+- native `value` (on `<button>` / the `<li>` ordinal) narrowed to
+  `string` — ToggleGroup, Dropdown & ContextMenu radio group/item.
+- `defaultValue` on `<li>` — ContextMenu radio group.
+
+Common offenders to check on every `types.ts`: `dir`, `value`,
+`defaultValue`, `label`, `type`, `role`, `size`, `checked`. Rule of
+thumb: **grep every prop the component redeclares and confirm it is
+`Omit`-ted from the base `ComponentProps<T>` first.** (`ref` and
+`children` get re-declared for narrowing/JSDoc too; the established
+convention already `Omit`s them where needed — follow it.)
+
+Verify the shape end-to-end when in doubt: `react-docgen-typescript@14`
+works against the repo's `typescript@6.x` (not `7.x`, which changed the
+internal API it relies on) — see §1.14 for the working `propFilter`.

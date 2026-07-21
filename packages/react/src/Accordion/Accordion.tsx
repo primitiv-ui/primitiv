@@ -52,6 +52,8 @@ import { useAccordionTrigger } from "./hooks/useAccordionTrigger";
  * When omitted, it is inherited from the nearest {@link DirectionProvider},
  * falling back to `"ltr"` when there is no provider.
  *
+ * @extends HTMLDivElement
+ *
  * @example Uncontrolled — single open item
  * ```tsx
  * <Accordion.Root defaultValue="item-1">
@@ -112,6 +114,8 @@ AccordionRoot.displayName = "AccordionRoot";
  * stable auto-generated ID is used via `useId()` — useful for fully anonymous
  * items where the consumer doesn't need to drive state from outside.
  *
+ * @extends HTMLDivElement
+ *
  * @example
  * ```tsx
  * <Accordion.Item value="shipping">
@@ -147,6 +151,8 @@ AccordionItem.displayName = "AccordionItem";
  *
  * The WAI-ARIA Accordion pattern requires each trigger to be wrapped in a
  * heading at the appropriate level for its position in the document outline.
+ *
+ * @extends HTMLHeadingElement
  *
  * @example
  * ```tsx
@@ -215,6 +221,8 @@ AccordionHeader.displayName = "AccordionHeader";
  * **Styling hooks.**
  * - `data-state="open" | "closed"` on the rendered element.
  * - `data-disabled="true" | "false"`.
+ *
+ * @extends HTMLButtonElement
  *
  * @example Basic
  * ```tsx
@@ -293,6 +301,8 @@ AccordionTrigger.displayName = "AccordionTrigger";
  * **Styling hooks.**
  * - `data-state="open" | "closed"` on the rendered element.
  *
+ * @extends HTMLDivElement
+ *
  * @example Default (hidden attribute)
  * ```tsx
  * <Accordion.Content>Free shipping on orders over £50.</Accordion.Content>
@@ -351,6 +361,8 @@ AccordionContent.displayName = "AccordionContent";
  * **Styling hooks.**
  * - `data-state="open" | "closed"` on the rendered `<span>`.
  * - `aria-hidden="true"` on the rendered `<span>`.
+ *
+ * @extends HTMLSpanElement
  *
  * @example Inline SVG
  * ```tsx

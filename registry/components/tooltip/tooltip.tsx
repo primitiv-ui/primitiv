@@ -37,8 +37,10 @@ type TooltipPlacement =
   | "left-end";
 
 /**
- * Shares a hover open/close delay across the tooltips nested inside it. Optional —
- * a lone `Tooltip` works without one.
+ * Provides the shared hover open/close delay for the tooltips inside it.
+ * **Required** — the headless Tooltip throws if its parts render without a
+ * `TooltipProvider` ancestor. Wrap it around one tooltip or many (typically once,
+ * high in the tree).
  *
  * @see https://primitiv-ui.dev/docs/components/tooltip
  */

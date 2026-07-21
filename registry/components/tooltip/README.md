@@ -27,6 +27,7 @@ Wire `anchor-name` on the trigger and a matching `position-anchor` on the bubble
 
 ```tsx
 import {
+  TooltipProvider,
   Tooltip,
   TooltipTrigger,
   TooltipPortal,
@@ -35,25 +36,29 @@ import {
 } from "@/components/tooltip";
 import { Button } from "@/components/button";
 
-<Tooltip>
-  <TooltipTrigger asChild>
-    <Button style={{ anchorName: "--save-tip" }}>Save</Button>
-  </TooltipTrigger>
-  <TooltipPortal forceMount>
-    <TooltipContent
-      placement="top"
-      size="md"
-      tone="default"
-      style={{ positionAnchor: "--save-tip" }}
-    >
-      Save your changes
-      <TooltipArrow />
-    </TooltipContent>
-  </TooltipPortal>
-</Tooltip>;
+<TooltipProvider>
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <Button style={{ anchorName: "--save-tip" }}>Save</Button>
+    </TooltipTrigger>
+    <TooltipPortal forceMount>
+      <TooltipContent
+        placement="top"
+        size="md"
+        tone="default"
+        style={{ positionAnchor: "--save-tip" }}
+      >
+        Save your changes
+        <TooltipArrow />
+      </TooltipContent>
+    </TooltipPortal>
+  </Tooltip>
+</TooltipProvider>;
 ```
 
-Share one hover delay across many tooltips by wrapping them in `TooltipProvider`.
+**`TooltipProvider` is required** — the headless Tooltip throws if its parts
+render without one. Wrap it once high in your tree (it holds the shared hover
+open/close delay); every `Tooltip` beneath it works.
 
 ## Props (on `TooltipContent`)
 

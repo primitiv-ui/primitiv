@@ -63,6 +63,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
   Tooltip,
+  TooltipProvider,
   TooltipTrigger,
   TooltipPortal,
   TooltipContent,
@@ -672,9 +673,11 @@ export function ramp(hue: number, chroma = 0.12) {
 
       {/* Hover / focus a trigger to show its tooltip. Each is anchor-wired
           (unique anchor-name ↔ position-anchor) like the popovers; the Portal is
-          force-mounted so the exit animation can play. */}
+          force-mounted so the exit animation can play. A TooltipProvider ancestor
+          is REQUIRED — it holds the shared hover-delay context. */}
       <Section title="Tooltip">
-        {TOOLTIP_DEMOS.map(({ placement, tone, label }) => {
+        <TooltipProvider delayDuration={200}>
+          {TOOLTIP_DEMOS.map(({ placement, tone, label }) => {
           const anchor = `--ks-tip-${tone}-${placement}`;
           return (
             <Tooltip key={`${tone}-${placement}`}>
@@ -696,7 +699,8 @@ export function ramp(hue: number, chroma = 0.12) {
               </TooltipPortal>
             </Tooltip>
           );
-        })}
+          })}
+        </TooltipProvider>
       </Section>
     </div>
   );

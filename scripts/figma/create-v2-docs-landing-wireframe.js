@@ -3,7 +3,8 @@
 // Paste into the Figma desktop developer console (Plugins → Development →
 // Open console; type "allow pasting" first). Creates / refreshes the page
 // "Wireframes — Docs Site (v1 — landing)". Artefacts: desktop frame,
-// mobile frame, mobile menu-open frame (390×844), and a notes panel.
+// mobile frame, mobile menu-open frame (390×844, controls as a dropdown
+// group), mobile framework-dropdown open-state frame, and a notes panel.
 // Also adds a framework selector (React active + logo; Vue/Svelte greyed
 // as future) and package-manager-tabbed install blocks (npm/pnpm/yarn/bun).
 // Legacy list below:
@@ -119,6 +120,19 @@ return (async function () {
     text(parent, "Copy", x + w - 64, y + 13, 12, HEADM, "#B8B8C0", { width: 48, align: "CENTER" });
     rect(parent, x, y + 42, w, 1, "#33333B");
     text(parent, "$  " + cmd, x + 16, y + 56, cmdSize || 14, HEADM, C.white);
+  }
+  // Compact settings dropdown row: inline label + current value (+ optional logo) + chevron.
+  // Used on mobile where three stacked segmented controls are too heavy.
+  function dropdownRow(parent, x, y, w, h, label, value, o = {}) {
+    const lt = text(parent, label, x + 16, y + (h - 16) / 2, 15, HEADM, C.dark);
+    if (o.marker != null) marker(parent, o.marker, x + 16 + lt.width + 8, y + (h - 18) / 2, 18);
+    text(parent, "▾", x + w - 30, y + (h - 15) / 2, 14, HEADM, C.muted, { width: 16, align: "CENTER" });
+    const vt = text(parent, value, 0, y + (h - 15) / 2, 14, HEADM, C.dark);
+    vt.x = x + w - 36 - vt.width;
+    if (o.svg) {
+      const lg = figma.createNodeFromSvg(o.svg); lg.rescale(15 / lg.height);
+      lg.x = vt.x - 6 - lg.width; lg.y = y + (h - lg.height) / 2; parent.appendChild(lg);
+    }
   }
 
   const PAGE_NAME = "Wireframes — Docs Site (v1 — landing)";
@@ -424,31 +438,17 @@ return (async function () {
     marker(F, 3, W - M - 14, y - 8, 18);
     y += 64;
 
-    text(F, "AUDIENCE", M, y, 11, HEADM, C.muted, { spacing: 6 });
-    marker(F, 2, M + 88, y - 3, 18);
+    // Audience / Mode / Framework as one compact dropdown group (mobile pattern).
+    text(F, "VIEW & FRAMEWORK", M, y, 11, HEADM, C.muted, { spacing: 6 });
     y += 20;
-    rect(F, M, y, CW, 42, C.canvas, { radius: 8, stroke: C.border });
-    const aW = (CW - 4) / 2;
-    rect(F, M + 2, y + 2, aW, 38, C.white, { radius: 6, stroke: C.border });
-    text(F, "Design in Figma", M + 2, y + 12, 14, HEADM, C.sec, { width: aW, align: "CENTER" });
-    rect(F, M + 2 + aW, y + 2, aW, 38, C.dark, { radius: 6 });
-    text(F, "Build with code", M + 2 + aW, y + 12, 14, HEADM, C.white, { width: aW, align: "CENTER" });
-    y += 62;
-
-    text(F, "MODE", M, y, 11, HEADM, C.muted, { spacing: 6 });
-    marker(F, 1, M + 54, y - 3, 18);
-    y += 20;
-    rect(F, M, y, CW, 42, C.canvas, { radius: 8, stroke: C.border });
-    const sW = (CW - 4) / 3;
-    rect(F, M + 2, y + 2, sW, 38, C.dark, { radius: 6 });
-    ["Headless", "Styled", "Figma"].forEach((l, i) => text(F, l, M + 2 + i * sW, y + 12, 14, HEADM, i === 0 ? C.white : C.sec, { width: sW, align: "CENTER" }));
-    y += 62;
-
-    text(F, "FRAMEWORK", M, y, 11, HEADM, C.muted, { spacing: 6 });
-    marker(F, 10, M + 96, y - 3, 18);
-    y += 20;
-    frameworkSwitch(F, M, y, CW, 42);
-    y += 62;
+    const gcH = 3 * 48;
+    rect(F, M, y, CW, gcH, C.white, { radius: 10, stroke: C.border });
+    dropdownRow(F, M, y, CW, 48, "Audience", "Build with code", { marker: 2 });
+    rect(F, M + 16, y + 48, CW - 32, 1, C.border);
+    dropdownRow(F, M, y + 48, CW, 48, "Mode", "Headless", { marker: 1 });
+    rect(F, M + 16, y + 96, CW - 32, 1, C.border);
+    dropdownRow(F, M, y + 96, CW, 48, "Framework", "React", { svg: REACT_SVG(C.dark), marker: 10 });
+    y += gcH + 20;
 
     rect(F, M, y, CW, 1, C.border);
     y += 16;
@@ -484,6 +484,41 @@ return (async function () {
     text(F, "Dark", W - M - 44, y + 8, 12, HEADM, C.sec, { width: 42, align: "CENTER" });
   }
 
+  // ============================== MOBILE — FRAMEWORK MENU (OPEN)
+  // The framework dropdown expanded — React selected, Vue/Svelte greyed with
+  // "Soon" tags (retains the future-options info the segmented control showed).
+  {
+    const W = 390, M = 20, CW = W - M * 2, X0 = 2570, Y0 = 904;
+    text(page, "Landing — mobile, framework dropdown (open)", X0, Y0 - 40, 22, HEAD, C.dark);
+    const F = figma.createFrame();
+    F.name = "Landing (mobile — framework menu open)"; F.x = X0; F.y = Y0; F.resize(W, 300);
+    F.fills = solid(C.white); F.clipsContent = false; page.appendChild(F);
+    text(F, "FRAMEWORK", M, 24, 11, HEADM, C.muted, { spacing: 6 });
+    rect(F, M, 44, CW, 46, C.white, { radius: 8, stroke: C.dark, strokeW: 1.5 });
+    const lg0 = figma.createNodeFromSvg(REACT_SVG(C.dark)); lg0.rescale(16 / lg0.height);
+    lg0.x = M + 14; lg0.y = 44 + (46 - lg0.height) / 2; F.appendChild(lg0);
+    text(F, "React", M + 14 + lg0.width + 8, 44 + (46 - 16) / 2, 15, HEADM, C.dark);
+    text(F, "▴", M + CW - 30, 44 + (46 - 15) / 2, 14, HEADM, C.sec, { width: 16, align: "CENTER" });
+    const pv = rect(F, M, 98, CW, 152, C.white, { radius: 10, stroke: C.border });
+    pv.effects = [{ type: "DROP_SHADOW", color: { r: 0, g: 0, b: 0, a: 0.14 }, offset: { x: 0, y: 6 }, radius: 18, spread: 0, visible: true, blendMode: "NORMAL" }];
+    [
+      { svg: REACT_SVG(C.dark), label: "React", color: C.dark, sel: true },
+      { svg: VUE_SVG, label: "Vue", color: C.muted, soon: true },
+      { svg: SVELTE_SVG, label: "Svelte", color: C.muted, soon: true },
+    ].forEach((o, i) => {
+      const oy = 98 + 8 + i * 45;
+      if (o.sel) rect(F, M + 6, oy, CW - 12, 44, C.ph, { radius: 6 });
+      const lg = figma.createNodeFromSvg(o.svg); lg.rescale(16 / lg.height);
+      lg.x = M + 18; lg.y = oy + (44 - lg.height) / 2; F.appendChild(lg);
+      text(F, o.label, M + 18 + lg.width + 10, oy + (44 - 16) / 2, 15, HEADM, o.color);
+      if (o.sel) text(F, "✓", M + CW - 34, oy + (44 - 16) / 2, 16, HEADM, C.dark);
+      if (o.soon) {
+        rect(F, M + CW - 68, oy + 11, 52, 22, "#F0F0F2", { radius: 11 });
+        text(F, "Soon", M + CW - 68, oy + 14, 11, HEADM, C.muted, { width: 52, align: "CENTER" });
+      }
+    });
+  }
+
   // ============================================================ NOTES
   {
     const NP = figma.createFrame();
@@ -502,7 +537,7 @@ return (async function () {
       ["6", "Components section is mode-scoped — the switch lives here (§1.4)."],
       ["7", "Per-component “Getting this component” install block — now a tabbed code block so the reader can switch package manager (npm / pnpm / yarn / bun). (§1.4 / §1.13)"],
       ["8", "Status Badge — flagged missing in §1.17 (Callout/admonition also absent)."],
-      ["10", "Framework selector — each option carries its logo mark; React active; Vue / Svelte greyed as future (v1 is React-only). Beside the mode switch (desktop nav) and in the mobile menu."],
+      ["10", "Framework selector — React active (with logo); Vue / Svelte greyed as future (v1 is React-only). Desktop: segmented control in the nav. Mobile: a compact dropdown grouped with Audience & Mode — see the open-state frame."],
     ];
     let ny = 96;
     notes.forEach(n => {

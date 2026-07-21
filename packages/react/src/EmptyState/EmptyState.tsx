@@ -22,11 +22,16 @@ import {
  * Opt out of the live region by passing `role={undefined}` for an empty
  * state that is part of the initial, static page.
  *
+ * **Styling hooks.** `EmptyState.Root` emits no `data-*` attributes — it is a
+ * static layout component. Target it via `className` or element selectors.
+ *
  * **`asChild` composition.** Renders the consumer's element instead of a
  * `<div>`, merging `role="status"` and all other props in via the
  * {@link Slot} utility.
  *
- * @example
+ * @extends HTMLDivElement
+ *
+ * @example Conditional empty state (live region)
  * ```tsx
  * {results.length === 0 && (
  *   <EmptyState.Root>
@@ -34,6 +39,22 @@ import {
  *     <EmptyState.Description>Try a different search.</EmptyState.Description>
  *   </EmptyState.Root>
  * )}
+ * ```
+ *
+ * @example Static empty state (opt out of live region)
+ * ```tsx
+ * <EmptyState.Root role={undefined}>
+ *   <EmptyState.Title>No projects yet</EmptyState.Title>
+ * </EmptyState.Root>
+ * ```
+ *
+ * @example asChild — render a `<section>` instead of a `<div>`
+ * ```tsx
+ * <EmptyState.Root asChild>
+ *   <section aria-label="Empty inbox">
+ *     <EmptyState.Title>Your inbox is empty</EmptyState.Title>
+ *   </section>
+ * </EmptyState.Root>
  * ```
  */
 export function EmptyStateRoot({
@@ -64,14 +85,26 @@ EmptyStateRoot.displayName = "EmptyStateRoot";
  * genuinely informative, pass `aria-hidden={false}` and give it an accessible
  * name yourself.
  *
+ * **Styling hooks.** `EmptyState.Media` emits no `data-*` attributes. Target it
+ * via `className` or the `[aria-hidden]` attribute selector.
+ *
  * **`asChild` composition.** Renders the consumer's element instead of a
  * `<div>`, merging `aria-hidden="true"` and all other props in via the
  * {@link Slot} utility.
  *
- * @example
+ * @extends HTMLDivElement
+ *
+ * @example Decorative icon (default)
  * ```tsx
  * <EmptyState.Media>
  *   <InboxIcon />
+ * </EmptyState.Media>
+ * ```
+ *
+ * @example Informative artwork — opt back in to accessibility tree
+ * ```tsx
+ * <EmptyState.Media aria-hidden={false}>
+ *   <img src="/chart.svg" alt="Sales trending to zero" />
  * </EmptyState.Media>
  * ```
  */
@@ -101,8 +134,18 @@ EmptyStateMedia.displayName = "EmptyStateMedia";
  * stands in for a titled section, promote the title to a real heading with
  * `asChild` so it joins the page's heading hierarchy.
  *
+ * **Styling hooks.** `EmptyState.Title` emits no `data-*` attributes. Target
+ * it via `className` or the `p` element selector.
+ *
  * **`asChild` composition.** Renders the consumer's element instead of a
  * `<p>`, merging all props in via the {@link Slot} utility.
+ *
+ * @extends HTMLParagraphElement
+ *
+ * @example Default paragraph headline
+ * ```tsx
+ * <EmptyState.Title>No results found</EmptyState.Title>
+ * ```
  *
  * @example Promote to a heading
  * ```tsx
@@ -134,8 +177,13 @@ EmptyStateTitle.displayName = "EmptyStateTitle";
  * Keep it to guidance the user can act on; the actionable controls themselves
  * belong in {@link EmptyStateActions | `Actions`}.
  *
+ * **Styling hooks.** `EmptyState.Description` emits no `data-*` attributes.
+ * Target it via `className` or the `p` element selector.
+ *
  * **`asChild` composition.** Renders the consumer's element instead of a
  * `<p>`, merging all props in via the {@link Slot} utility.
+ *
+ * @extends HTMLParagraphElement
  *
  * @example
  * ```tsx
@@ -167,8 +215,13 @@ EmptyStateDescription.displayName = "EmptyStateDescription";
  * {@link EmptyStateRoot | `Root`}'s live region, the control labels are
  * included when the empty state is announced.
  *
+ * **Styling hooks.** `EmptyState.Actions` emits no `data-*` attributes. Target
+ * it via `className` or the `div` element selector.
+ *
  * **`asChild` composition.** Renders the consumer's element instead of a
  * `<div>`, merging all props in via the {@link Slot} utility.
+ *
+ * @extends HTMLDivElement
  *
  * @example
  * ```tsx
@@ -227,7 +280,7 @@ export type EmptyStateCompound = typeof EmptyStateRoot & {
  * All sub-components are stateless and optional — compose only the parts a
  * given empty state needs.
  *
- * @example
+ * @example Full composition
  * ```tsx
  * import { EmptyState } from "@primitiv-ui/react";
  *
@@ -244,6 +297,19 @@ export type EmptyStateCompound = typeof EmptyStateRoot & {
  *   </EmptyState.Root>
  * )}
  * ```
+ *
+ * @example Minimal — title only
+ * ```tsx
+ * <EmptyState.Root>
+ *   <EmptyState.Title>No messages</EmptyState.Title>
+ * </EmptyState.Root>
+ * ```
+ *
+ * @see {@link EmptyStateRoot} for the live-region opt-out and `asChild` details.
+ * @see {@link EmptyStateMedia} for the `aria-hidden` default and opt-back-in pattern.
+ * @see {@link EmptyStateTitle} for the `<p>` default and heading promotion via `asChild`.
+ * @see {@link EmptyStateDescription} for secondary copy placement guidance.
+ * @see {@link EmptyStateActions} for grouping recovery controls.
  */
 const EmptyState: EmptyStateCompound = Object.assign(EmptyStateRoot, {
   Root: EmptyStateRoot,

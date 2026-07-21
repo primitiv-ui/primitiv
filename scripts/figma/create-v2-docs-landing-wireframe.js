@@ -342,6 +342,92 @@ return (async function () {
     F.resize(W, y + 40);
   }
 
+  // ============================================== MOBILE — MENU OPEN
+  // Device-height (390×844) frame showing the hero with the hamburger
+  // expanded into a full-screen menu: audience fork + mode switch + the
+  // §1.4 nav links + search + theme toggle.
+  {
+    const W = 390, H = 844, M = 20, CW = W - M * 2, X0 = 2570;
+    text(page, "Landing — mobile, menu open (390×844)", X0, -64, 22, HEAD, C.dark);
+
+    const F = figma.createFrame();
+    F.name = "Landing (mobile — menu open)"; F.x = X0; F.y = 0; F.resize(W, H);
+    F.fills = solid(C.heroBg); F.clipsContent = true; page.appendChild(F);
+
+    // faint hero texture underneath — the menu overlays the hero
+    const tex = figma.createFrame();
+    tex.name = "menu-hero-texture"; tex.x = 0; tex.y = 0; tex.resize(W, H);
+    tex.fills = solid(C.heroBg); tex.clipsContent = true; F.appendChild(tex);
+    dotGrid(tex, W, H, 40, 2.5);
+    rect(F, 0, 0, W, H, C.white, { opacity: 0.97 }); // near-opaque menu sheet
+
+    // top bar: logo + close (×)
+    rect(F, M, 16, 22, 22, C.dark, { radius: 6 });
+    text(F, "Primitiv", M + 30, 15, 18, HEAD, C.dark);
+    text(F, "✕", W - M - 24, 14, 22, HEADM, C.dark, { width: 24, align: "CENTER" });
+    rect(F, 0, 56, W, 1, C.border);
+
+    let y = 78;
+    rect(F, M, y, CW, 44, C.white, { radius: 8, stroke: C.border });
+    rect(F, M + 14, y + 15, 14, 14, null, { stroke: C.muted, radius: 7 });
+    text(F, "Search docs…", M + 38, y + 12, 14, BODY, C.muted);
+    marker(F, 3, W - M - 14, y - 8, 18);
+    y += 64;
+
+    text(F, "AUDIENCE", M, y, 11, HEADM, C.muted, { spacing: 6 });
+    marker(F, 2, M + 88, y - 3, 18);
+    y += 20;
+    rect(F, M, y, CW, 42, C.canvas, { radius: 8, stroke: C.border });
+    const aW = (CW - 4) / 2;
+    rect(F, M + 2, y + 2, aW, 38, C.white, { radius: 6, stroke: C.border });
+    text(F, "Design in Figma", M + 2, y + 12, 14, HEADM, C.sec, { width: aW, align: "CENTER" });
+    rect(F, M + 2 + aW, y + 2, aW, 38, C.dark, { radius: 6 });
+    text(F, "Build with code", M + 2 + aW, y + 12, 14, HEADM, C.white, { width: aW, align: "CENTER" });
+    y += 62;
+
+    text(F, "MODE", M, y, 11, HEADM, C.muted, { spacing: 6 });
+    marker(F, 1, M + 54, y - 3, 18);
+    y += 20;
+    rect(F, M, y, CW, 42, C.canvas, { radius: 8, stroke: C.border });
+    const sW = (CW - 4) / 3;
+    rect(F, M + 2, y + 2, sW, 38, C.dark, { radius: 6 });
+    ["Headless", "Styled", "Figma"].forEach((l, i) => text(F, l, M + 2 + i * sW, y + 12, 14, HEADM, i === 0 ? C.white : C.sec, { width: sW, align: "CENTER" }));
+    y += 62;
+
+    rect(F, M, y, CW, 1, C.border);
+    y += 16;
+
+    // primary nav (§1.4 top-level)
+    const links = [
+      ["Start Here", false], ["Concepts", false], ["Components", true],
+      ["Registry & CLI", false], ["Design in Figma", false],
+      ["Recipes / Guides", false], ["Changelog / Releases", false],
+    ];
+    const rowH = 52;
+    links.forEach((lk, i) => {
+      const [lbl, scoped] = lk;
+      text(F, lbl, M, y + 15, 20, HEADM, C.dark);
+      if (scoped) {
+        const bx = M + lbl.length * 10 + 14;
+        rect(F, bx, y + 16, 100, 20, C.note, { radius: 10, stroke: C.noteBorder });
+        text(F, "mode-scoped", bx, y + 18, 11, HEADM, C.noteText, { width: 100, align: "CENTER" });
+        marker(F, 6, bx + 110, y + 15, 18);
+      }
+      text(F, "›", W - M - 16, y + 8, 24, HEADM, C.muted, { width: 16, align: "CENTER" });
+      if (i < links.length - 1) rect(F, M, y + rowH, CW, 1, C.border);
+      y += rowH;
+    });
+
+    y += 14;
+    rect(F, M, y, CW, 1, C.border);
+    y += 16;
+    text(F, "Theme", M, y + 4, 16, HEADM, C.dark);
+    rect(F, W - M - 88, y, 88, 32, C.canvas, { radius: 8, stroke: C.border });
+    rect(F, W - M - 86, y + 2, 42, 28, C.dark, { radius: 6 });
+    text(F, "Light", W - M - 86, y + 8, 12, HEADM, C.white, { width: 42, align: "CENTER" });
+    text(F, "Dark", W - M - 44, y + 8, 12, HEADM, C.sec, { width: 42, align: "CENTER" });
+  }
+
   // ============================================================ NOTES
   {
     const NP = figma.createFrame();

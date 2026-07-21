@@ -94,6 +94,13 @@
     --primitiv-popover-description-line-height: var(--primitiv-body-sm-line-height);
 
     position: fixed;
+    /* The flex column direction + gap live on the base (not :popover-open) so they
+       survive the exit: `display` is gated on :popover-open and held through the
+       close by allow-discrete, but if the direction + gap were open-only they'd
+       revert the instant it starts closing and the content would reflow to a row
+       mid-animation. Inert while closed (display is none until :popover-open). */
+    flex-direction: column;
+    gap: var(--primitiv-popover-gap);
     max-inline-size: var(--primitiv-popover-max-inline-size);
     padding: var(--primitiv-popover-padding-block) var(--primitiv-popover-padding-inline);
     border-radius: var(--primitiv-popover-radius);
@@ -107,14 +114,13 @@
     position-try-fallbacks: flip-block, flip-inline;
   }
 
-  /* Layout only when open. A closed [popover] is display:none via the UA rule
-     `[popover]:not(:popover-open) { display: none }`; setting display on the base
-     rule would override it and leak the panel while closed (headless README
-     gotcha). */
+  /* Show when open. A closed [popover] is display:none via the UA rule
+     `[popover]:not(:popover-open) { display: none }`; setting a *visible* display
+     on the base rule would override it and leak the panel while closed (headless
+     README gotcha), so only the display flip is gated here. The flex direction +
+     gap live on the base so they persist through the exit animation (see above). */
   .primitiv-popover:popover-open {
     display: flex;
-    flex-direction: column;
-    gap: var(--primitiv-popover-gap);
   }
 
   /* Pointer arrow — a rotated square sharing the panel fill. `translate` +

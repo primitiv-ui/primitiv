@@ -10,7 +10,16 @@ export type CheckedState = boolean | "indeterminate";
  * `:indeterminate` state.
  */
 export type CheckboxIndicatorProps = ComponentProps<"span"> & {
+  /** Custom mark content. Omit to let the shipped CSS draw the tick/bar off the
+   * input's native `:checked` / `:indeterminate` state; provide your own (an
+   * icon, glyph, or nested element) to override it. */
   children?: ReactNode;
+  /**
+   * When `true`, render `children` as the indicator element itself
+   * (via the {@link Slot} pattern) instead of wrapping them in a `<span>`.
+   * `data-state` and `aria-hidden` are merged onto that element.
+   * @default false
+   */
   asChild?: boolean;
 };
 
@@ -38,7 +47,11 @@ export type CheckboxRootBaseProps = Omit<
  * `defaultChecked` may be `"indeterminate"` for a mixed-on-mount checkbox.
  */
 export type CheckboxRootUncontrolledProps = CheckboxRootBaseProps & {
+  /** Checked value on first render; the component owns it thereafter. May be
+   * `"indeterminate"` for a mixed-on-mount checkbox. Omit for an initially
+   * unchecked box. */
   defaultChecked?: CheckedState;
+  /** Forbidden in uncontrolled mode — use `defaultChecked` instead. */
   checked?: never;
 };
 
@@ -48,8 +61,14 @@ export type CheckboxRootUncontrolledProps = CheckboxRootBaseProps & {
  * forbidden.
  */
 export type CheckboxRootControlledProps = CheckboxRootBaseProps & {
+  /** Forbidden in controlled mode — use `checked` instead. */
   defaultChecked?: never;
+  /** The current checked value, owned by the parent. May be `"indeterminate"`
+   * for the tri-state; clicking a mixed checkbox resolves it to `true`. Keep it
+   * in sync via `onCheckedChange`. */
   checked: CheckedState;
+  /** Called with the new boolean checked value on every user toggle. Required
+   * in controlled mode so the parent can keep `checked` in sync. */
   onCheckedChange: (checked: boolean) => void;
 };
 

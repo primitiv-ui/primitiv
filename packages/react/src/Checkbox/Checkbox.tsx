@@ -50,6 +50,8 @@ function dataStateOf(checked: CheckedState) {
  * mirror the input, but shipped CSS keys the mark off the input's native
  * `:checked` / `:indeterminate` instead; `data-state` is a convenience mirror.
  *
+ * @extends HTMLInputElement
+ *
  * @example Uncontrolled
  * ```tsx
  * <Checkbox.Root name="terms" value="accepted" defaultChecked aria-label="Accept terms">
@@ -137,6 +139,8 @@ CheckboxRoot.displayName = "CheckboxRoot";
  * **`asChild` prop.** Pass `asChild` to render the consumer's own element
  * (typically an `<svg>` tick) as the indicator itself, with `data-state`
  * merged onto that element rather than a wrapper.
+ *
+ * @extends HTMLSpanElement
  *
  * @example Icon as the indicator via `asChild`
  * ```tsx

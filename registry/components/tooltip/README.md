@@ -43,6 +43,7 @@ import { Button } from "@/components/button";
     </TooltipTrigger>
     <TooltipPortal forceMount>
       <TooltipContent
+        forceMount
         placement="top"
         size="md"
         tone="default"
@@ -74,9 +75,10 @@ The bubble scales + fades in, and **out in reverse on close**. It's CSS
 transitions keyed off `data-state` plus `@starting-style`; `transition-behavior:
 allow-discrete` on `display` holds the bubble through the close so it animates out
 instead of snapping. Unlike Modal / Drawer / Popover there's **no `overlay`** —
-a tooltip `<div>` isn't a top-layer element — but it **does need `forceMount`** on
-`TooltipPortal` (otherwise it unmounts on close and only the enter shows).
-`prefers-reduced-motion: reduce` drops the animation.
+a tooltip `<div>` isn't a top-layer element — but it **does need `forceMount` on
+both `TooltipPortal` and `TooltipContent`** (each gates on it independently:
+without it on the Content, the `<div>` returns `null` on close and only the enter
+shows). `prefers-reduced-motion: reduce` drops the animation.
 
 ## Files
 

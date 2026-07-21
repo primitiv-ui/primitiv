@@ -672,9 +672,10 @@ export function ramp(hue: number, chroma = 0.12) {
       </Section>
 
       {/* Hover / focus a trigger to show its tooltip. Each is anchor-wired
-          (unique anchor-name ↔ position-anchor) like the popovers; the Portal is
-          force-mounted so the exit animation can play. A TooltipProvider ancestor
-          is REQUIRED — it holds the shared hover-delay context. */}
+          (unique anchor-name ↔ position-anchor) like the popovers; the Portal AND
+          the Content are force-mounted (both gate on it independently) so the exit
+          animation can play. A TooltipProvider ancestor is REQUIRED — it holds the
+          shared hover-delay context. */}
       <Section title="Tooltip">
         <TooltipProvider delayDuration={200}>
           {TOOLTIP_DEMOS.map(({ placement, tone, label }) => {
@@ -688,6 +689,7 @@ export function ramp(hue: number, chroma = 0.12) {
               </TooltipTrigger>
               <TooltipPortal forceMount>
                 <TooltipContent
+                  forceMount
                   placement={placement}
                   tone={tone}
                   size={overlaySize}

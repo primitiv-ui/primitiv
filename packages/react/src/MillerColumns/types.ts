@@ -1,76 +1,129 @@
 import { ComponentProps, ReactNode, Ref } from "react";
 
-/** Props common to both controlled and uncontrolled `MillerColumns.Root` modes. */
+/**
+ * Shared base for both {@link MillerColumnsRootProps} variants — the native
+ * `<div>` attributes (minus `ref`, which the strip owns internally).
+ */
 export type MillerColumnsRootBaseProps = Omit<ComponentProps<"div">, "ref"> & {
-  /** The columns and panels that make up the strip. */
+  /**
+   * The strip's tree, authored recursively: root
+   * {@link MillerColumnsColumnProps | Column(s)} whose branch
+   * {@link MillerColumnsItemProps | Items} nest further Columns, plus an
+   * optional trailing {@link MillerColumnsPreviewPanelProps | PreviewPanel}.
+   * There is no `items` data prop — the JSX *is* the data.
+   */
   children: ReactNode;
 };
 
 /**
- * Props for `MillerColumns.Root` in uncontrolled mode — the component owns the
- * selection path. Pass `defaultValue` to set the initial path.
+ * Uncontrolled variant of {@link MillerColumnsRootProps}: the component owns
+ * the selection path. Pass `defaultValue` (or omit it to start empty).
  */
 export type MillerColumnsRootUncontrolledProps = MillerColumnsRootBaseProps & {
-  /** Initial selection path when uncontrolled. */
+  /** Initial selection path on first render, root column first (e.g.
+   * `["docs", "guides"]`). The component owns the path thereafter. */
   defaultValue?: string[];
-  /** Forbidden in uncontrolled mode. */
+  /** Forbidden in uncontrolled mode — use `defaultValue` instead. */
   value?: never;
-  /** Forbidden in uncontrolled mode. */
+  /** Forbidden in uncontrolled mode — pass `value` + `onValueChange` to
+   * control the component. */
   onValueChange?: never;
 };
 
 /**
- * Props for `MillerColumns.Root` in controlled mode — the parent owns the
+ * Controlled variant of {@link MillerColumnsRootProps}: the parent owns the
  * selection path. Pass `value` and `onValueChange` together.
  */
 export type MillerColumnsRootControlledProps = MillerColumnsRootBaseProps & {
-  /** Forbidden in controlled mode. */
+  /** Forbidden in controlled mode — use `value` instead. */
   defaultValue?: never;
-  /** The controlled selection path, root column first. */
+  /** The controlled selection path, root column first. Must be kept in sync
+   * by the parent via `onValueChange`. */
   value: string[];
-  /** Called with the new path whenever the selection changes. */
+  /** Called with the new selection path whenever the selection changes.
+   * Required in controlled mode. */
   onValueChange: (path: string[]) => void;
 };
 
-/** Props for `MillerColumns.Root` — discriminated controlled/uncontrolled union. */
+/**
+ * Props for {@link MillerColumnsRoot | `MillerColumns.Root`}.
+ *
+ * Resolves to either {@link MillerColumnsRootUncontrolledProps} or
+ * {@link MillerColumnsRootControlledProps} — only one shape is accepted by
+ * TypeScript at a time.
+ */
 export type MillerColumnsRootProps =
   | MillerColumnsRootUncontrolledProps
   | MillerColumnsRootControlledProps;
 
-/** Props for `MillerColumns.Column`, a single vertical list within the strip. */
+/**
+ * Props for {@link MillerColumnsColumn | `MillerColumns.Column`}, a single
+ * vertical list. Rendered element is portal-projected into the Root strip.
+ */
 export type MillerColumnsColumnProps = ComponentProps<"div"> & {
-  /** The items (and optional resize handle) of this column. */
+  /** The column's {@link MillerColumnsItemProps | Items} and, optionally, a
+   * {@link MillerColumnsResizeHandleProps | ResizeHandle}. */
   children: ReactNode;
 };
 
-/** Props for `MillerColumns.Item`, a single selectable node within a column. */
+/**
+ * Props for {@link MillerColumnsItem | `MillerColumns.Item`}, a single
+ * selectable node within a column.
+ *
+ * Generic over the rendered element type so `asChild` consumers can type
+ * the forwarded `ref` (e.g. `MillerColumns.Item<HTMLAnchorElement>`).
+ */
 export type MillerColumnsItemProps<T extends HTMLElement = HTMLDivElement> =
   Omit<ComponentProps<"div">, "ref"> & {
-    /** Stable identifier used to match this item against the selection path. */
+    /** Stable identifier used to match this item against the selection path.
+     * The item is selected when the path entry at its depth equals `value`. */
     value: string;
-    /** When `true`, the item cannot be selected or focused. */
+    /**
+     * When `true`, the item renders `aria-disabled` / `data-disabled` and is
+     * skipped by roving navigation — it cannot be selected, focused, or
+     * activated.
+     * @default false
+     */
     disabled?: boolean;
-    /** Render the child element instead of the default `<div>`. */
+    /**
+     * Render the cell as a single consumer-supplied child element (e.g. an
+     * `<a>`) instead of the default `<div>`, merging the treeitem ARIA,
+     * handlers, and ref onto it via the {@link Slot} pattern. Any nested
+     * `<MillerColumns.Column>` remains a sibling of the cell element.
+     * @default false
+     */
     asChild?: boolean;
-    /** Cell content and, for a branch, a nested `<MillerColumns.Column>`. */
+    /** The cell content and, for a branch item, a single nested
+     * `<MillerColumns.Column>` (split out by `partitionItemChildren`). */
     children: ReactNode;
-    /** Ref to the rendered element. Defaults to `HTMLDivElement`; when using
-     * `asChild`, specify the child's element type. */
+    /** Forwarded to the rendered element. Defaults to `HTMLDivElement`; when
+     * using `asChild`, specify the child's element type. Composed with the
+     * library's internal ref. */
     ref?: Ref<T>;
   };
 
-/** Props for `MillerColumns.ItemIndicator`, the branch chevron affordance. */
+/**
+ * Props for {@link MillerColumnsItemIndicator | `MillerColumns.ItemIndicator`},
+ * the branch chevron affordance (renders nothing for leaf items).
+ */
 export type MillerColumnsItemIndicatorProps = ComponentProps<"span"> & {
-  /** The glyph to render (defaults to none). */
+  /** The glyph to render (e.g. `▸`). Optional. */
   children?: ReactNode;
 };
 
-/** Props for `MillerColumns.ResizeHandle`, the drag-to-resize separator. */
+/**
+ * Props for {@link MillerColumnsResizeHandle | `MillerColumns.ResizeHandle`},
+ * the drag-to-resize separator for its containing column.
+ */
 export type MillerColumnsResizeHandleProps = ComponentProps<"div">;
 
-/** Props for `MillerColumns.PreviewPanel`, the trailing preview pane. */
+/**
+ * Props for {@link MillerColumnsPreviewPanel | `MillerColumns.PreviewPanel`},
+ * the trailing preview pane.
+ */
 export type MillerColumnsPreviewPanelProps = ComponentProps<"div"> & {
-  /** The preview content for the current selection. */
+  /** The preview content for the current selection (typically driven by
+   * {@link useMillerColumnsSelection}). */
   children?: ReactNode;
 };
 

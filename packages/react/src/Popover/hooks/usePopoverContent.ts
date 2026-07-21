@@ -7,7 +7,7 @@ import {
 } from "react";
 
 import { composeEventHandlers, composeRefs } from "../../Slot/index.ts";
-import { FOCUSABLE_SELECTOR } from "../constants";
+import { FOCUSABLE_SELECTOR } from "../../utils/index.ts";
 import { usePopoverContext } from "../PopoverContext";
 
 type UsePopoverContentArgs = {

@@ -46,6 +46,8 @@ import { ToggleGroupItemProps, ToggleGroupRootProps } from "./types";
  * element in place of the native `<div>`, with the group's `role`,
  * `data-orientation`, and ref merged in.
  *
+ * @extends HTMLDivElement
+ *
  * @example Single mode — text alignment
  * ```tsx
  * <ToggleGroup.Root type="single" defaultValue="left" aria-label="Alignment">
@@ -165,9 +167,19 @@ ToggleGroupRoot.displayName = "ToggleGroupRoot";
  *
  * **`asChild` prop.** Pass `asChild` to render any consumer element in
  * place of the native `<button>`, with the Item's `aria-pressed`,
- * `data-state`, `tabIndex`, and event handlers merged onto it.
+ * `data-state`, `tabIndex`, and event handlers merged onto it. The child
+ * must accept a `ref`. Useful for a link or a styled control that needs
+ * toggle-button semantics.
  *
  * @throws if rendered outside a `ToggleGroup.Root`.
+ *
+ * @extends HTMLButtonElement
+ *
+ * @example
+ * ```tsx
+ * <ToggleGroup.Item value="bold">Bold</ToggleGroup.Item>
+ * <ToggleGroup.Item value="strike" disabled>Strikethrough</ToggleGroup.Item>
+ * ```
  */
 export function ToggleGroupItem({
   value,

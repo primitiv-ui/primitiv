@@ -40,8 +40,11 @@ function dataStateOf(checked: CheckedState) {
  * on the root, plus `data-disabled=""` when disabled.
  *
  * **`asChild` prop.** Pass `asChild` to render any consumer-supplied element
- * with the checkbox's ARIA attributes, data-state, composed onClick, and ref
- * merged in.
+ * with the checkbox's ARIA attributes, `data-state`, composed `onClick`, and
+ * `ref` merged in via the {@link Slot} pattern. See
+ * {@link CheckboxCardRootBaseProps}.
+ *
+ * @extends HTMLButtonElement
  *
  * @example Uncontrolled
  * ```tsx
@@ -124,7 +127,9 @@ CheckboxCardRoot.displayName = "CheckboxCardRoot";
  *
  * **`forceMount` prop.** Pass `forceMount` to keep the indicator in the DOM
  * while unchecked so a CSS exit animation can play against
- * `data-state="unchecked"`.
+ * `data-state="unchecked"`. See {@link CheckboxCardIndicatorProps}.
+ *
+ * @extends HTMLSpanElement
  *
  * @example
  * ```tsx

@@ -53,9 +53,12 @@ export function BreadcrumbRoot({
   );
 }
 
-// No displayName here: BreadcrumbRoot is the object the compound aliases via
-// Object.assign (see below), which sets displayName once to "Breadcrumb". An
-// assignment here would be dead — immediately overwritten at module load.
+// Runtime-dead: the compound alias below (same object via Object.assign)
+// overwrites this to "Breadcrumb" at load, so the value is never observable.
+// The assignment stays because it declares `displayName` on
+// `typeof BreadcrumbRoot`, which TBreadcrumbCompound extends.
+// Stryker disable next-line StringLiteral: overwritten by the compound alias — an equivalent mutant.
+BreadcrumbRoot.displayName = "BreadcrumbRoot";
 
 /**
  * The ordered list of breadcrumb entries — renders an `<ol>`.

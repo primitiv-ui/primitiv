@@ -115,9 +115,12 @@ export function ProgressRoot({
   );
 }
 
-// No displayName here: ProgressRoot is the object the compound aliases via
-// Object.assign (see below), which sets displayName once to "Progress". An
-// assignment here would be dead — immediately overwritten at module load.
+// Runtime-dead: the compound alias below (same object via Object.assign)
+// overwrites this to "Progress" at load, so the value is never observable. The
+// assignment stays because it declares `displayName` on `typeof ProgressRoot`,
+// which TProgressCompound extends.
+// Stryker disable next-line StringLiteral: overwritten by the compound alias — an equivalent mutant.
+ProgressRoot.displayName = "ProgressRoot";
 
 /**
  * The visual fill of a Progress bar — a decorative `<div>` that mirrors the

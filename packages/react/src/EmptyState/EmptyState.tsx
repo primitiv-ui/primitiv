@@ -71,9 +71,12 @@ export function EmptyStateRoot({
   return <div {...rootProps}>{children}</div>;
 }
 
-// No displayName here: EmptyStateRoot is the object the compound aliases via
-// Object.assign (see below), which sets displayName once to "EmptyState". An
-// assignment here would be dead — immediately overwritten at module load.
+// Runtime-dead: the compound alias below (same object via Object.assign)
+// overwrites this to "EmptyState" at load, so the value is never observable.
+// The assignment stays because it declares `displayName` on
+// `typeof EmptyStateRoot`, which EmptyStateCompound extends.
+// Stryker disable next-line StringLiteral: overwritten by the compound alias — an equivalent mutant.
+EmptyStateRoot.displayName = "EmptyStateRoot";
 
 /**
  * The illustration slot of an Empty State — renders a `<div aria-hidden="true">`

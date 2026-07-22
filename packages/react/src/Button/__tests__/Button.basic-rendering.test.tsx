@@ -123,4 +123,10 @@ describe("Button basic rendering", () => {
     // Assert
     expect(onClick).toHaveBeenCalledTimes(1);
   });
+
+  it('sets displayName to "Button" for React DevTools and stack traces', () => {
+    // Assert — the component's identity is observable in DevTools and error
+    // output; an empty displayName would render it as an anonymous component.
+    expect(Button.displayName).toBe("Button");
+  });
 });

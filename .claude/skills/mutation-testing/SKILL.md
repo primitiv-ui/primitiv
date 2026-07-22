@@ -1,6 +1,6 @@
 ---
 name: mutation-testing
-description: Set up and run mutation testing with Stryker, including full-project and diff-against-main runs, then use surviving mutants to strengthen weak or missing tests. Use during the MUTATE phase of the TDD cycle, when verifying that tests actually catch bugs (coverage alone is not enough), when the user mentions mutation testing, Stryker, mutation score, or surviving mutants, or when assessing whether a test suite would detect realistic regressions. For writing the tests themselves, see react-test-conventions.
+description: Run Stryker mutation testing over the headless library one component at a time, then use surviving mutants to strengthen weak or missing tests — coverage proves a line ran, mutation proves it is asserted on. TRIGGER during the MUTATE step of a red-green cycle, when the user mentions mutation testing / Stryker / mutation score / surviving mutants, when bringing a component up to the hard 100% gate or adding one to the allowlist, or when judging whether the tests would catch a real regression. SKIP for writing the tests themselves (see react-test-conventions) and non-test work.
 ---
 
 # Mutation Testing
@@ -36,13 +36,13 @@ step here:
   scope.
 - The score gate is a **hard 100%** — a survivor is a missing assertion, and
   `// Stryker disable` is an absolute last resort for provably-equivalent
-  mutants only. This **overrides** the softer "add thresholds after a baseline /
-  score is just a signal" guidance in *CI and Quality Gates* below.
+  mutants only. There is no "establish a baseline first" ramp: a component
+  joins the allowlist only once it already kills every mutant.
 - Reports are inspected as **GitHub Actions artifacts** (HTML report uploaded
   `if: always()`, plus the score in the job summary), since suites aren't run
   locally.
 - For writing the tests that kill survivors, load **`react-test-conventions`**
-  (this repo's stand-in for the `testing` skill referenced below).
+  (this repo's equivalent of a general testing skill).
 
 ---
 
@@ -99,10 +99,12 @@ rg --files | rg '(^|/)(package.json|stryker\.config\.(mjs|cjs|js|json)|stryker\.
 git diff main...HEAD --name-only
 ```
 
-- Identify the package manager, test runner, affected package(s), and existing Stryker config.
-- If the repo uses a base branch other than `main`, substitute that branch in all diff commands.
-- In monorepos, start in the smallest affected package, then widen to the repo-level command when the targeted run is healthy.
-- If no Stryker setup exists in a JS/TS project, recommend adding it before doing manual mutation analysis.
+- Identify the test runner and existing Stryker config. Here that is fixed:
+  pnpm + Vitest (jsdom), config at `packages/react/stryker.config.mjs`.
+- Map the changed files to their component(s) — everything under
+  `src/<Component>/` — and run that component with `mutate:component <Name>`.
+- The mutation scope is always the headless library (`packages/react`); we do
+  not mutate the whole repo.
 
 ### Step 2: Set Up Stryker When Missing
 
@@ -115,50 +117,44 @@ pnpm --filter @primitiv-ui/react add -D @stryker-mutator/core @stryker-mutator/v
 
 Then author and adapt `stryker.config.mjs`:
 
-- Prefer the project test runner plugin when available (`vitest`, `jest`, `mocha`, etc.). Use the generic command runner only when no tighter integration is practical.
-- Mutate first-party production source only. Exclude tests, fixtures, snapshots, generated files, declaration files, build outputs, migrations, and low-signal barrels.
-- For TypeScript, consider `@stryker-mutator/typescript-checker` so type-invalid mutants are reported as compile errors instead of wasting test time.
-- Keep setup changes reviewable: add dependencies, config, scripts, and `.gitignore` entries for Stryker temp/report output only when the project needs them.
+- Use the Vitest runner (`@stryker-mutator/vitest-runner`) — this repo's suite is Vitest + jsdom.
+- Mutate component source only. Mirror the coverage-exclude list in `vite.config.ts`: exclude test files (`**/*.test.{ts,tsx}`, `**/__tests__/**`), the pure-type modules (`types.ts`), and barrels (`index.ts`).
+- Optionally add `@stryker-mutator/typescript-checker` so type-invalid mutants are reported as compile errors instead of wasting test time (this is a TypeScript-only library).
+- Keep setup changes reviewable: dependencies, config, the `mutate*` scripts, and `.gitignore` entries for Stryker temp/report output (`reports/`, `.stryker-tmp/`).
 
-### Step 3: Recommend Useful Commands
+### Step 3: Per-Component Commands
 
-Suggest project scripts for full-project, cached, and branch-diff mutation runs:
+This repo scopes mutation **one component at a time** via `STRYKER_COMPONENT`
+and a per-component allowlist (the config reads the env var and narrows both
+`mutate` and the Vitest dry-run). The package scripts:
 
 ```json
 {
   "scripts": {
-    "mutation": "stryker run",
-    "mutation:incremental": "stryker run --incremental",
-    "mutation:diff": "node scripts/stryker-diff.mjs main"
+    "mutate": "stryker run",
+    "mutate:component": "node ../../scripts/mutate.mjs"
   }
 }
 ```
 
-The `mutation:diff` helper should:
+- `pnpm --filter @primitiv-ui/react mutate:component Button` — mutate a single
+  component (sets `STRYKER_COMPONENT=Button`).
+- `pnpm --filter @primitiv-ui/react mutate` — mutate the whole allowlist (every
+  component already held at 100%).
 
-- Read the base branch argument, defaulting to `main`.
-- Collect changed files with `git diff --name-only --diff-filter=ACMRTUXB <base>...HEAD`.
-- Keep changed production files matching the project's source extensions.
-- Exclude test/spec files, fixtures, snapshots, generated files, declaration files, and build output.
-- Run `stryker run --incremental --force --mutate <comma-separated-files>`.
-- Exit clearly when there are no changed production files to mutate.
+Widen coverage by bringing one new component to a full kill, then adding it to
+the allowlist — never by relaxing the gate.
 
-Prefer a small Node helper over dense shell inside `package.json`; quoting `*`, `!`, and command substitution is fragile across shells. For quick local use, this POSIX one-liner is acceptable:
-
-```bash
-CHANGED=$(git diff --name-only --diff-filter=ACMRTUXB main...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx' | grep -Ev '(^|/)(__tests__|test|tests|fixtures|generated)/|\.(test|spec|d)\.' | paste -sd, -)
-test -n "$CHANGED" && pnpm exec stryker run --incremental --force --mutate "$CHANGED"
-```
-
-Use exact line ranges for tiny follow-up checks when the report points to a specific survivor:
+Use exact line ranges for tiny follow-up checks when the report points to a
+specific survivor:
 
 ```bash
-pnpm exec stryker run --incremental --force --mutate src/example.ts:42-57
+pnpm exec stryker run --mutate "src/Button/Button.tsx:80-92"
 ```
 
 ### Step 4: Run and Triage
 
-Start with `mutation:diff` for branch feedback. Run `mutation` across the full project when introducing Stryker, changing shared test infrastructure, preparing CI gates, or validating a broad test-strengthening pass.
+Run `mutate:component <Name>` for focused feedback while strengthening one component. Run `mutate` (the whole allowlist) after changing shared test infrastructure or the Stryker/Vitest config, to confirm nothing already-green regressed.
 
 Categorize Stryker findings:
 
@@ -187,7 +183,7 @@ For each survivor worth killing:
 2. Write the smallest behavior test that fails against the mutant for the right reason.
 3. Restore the original production code.
 4. Verify the new test passes.
-5. Re-run Stryker scoped to the mutated file or line range, then re-run the diff command.
+5. Re-run Stryker scoped to the mutated file or line range, then re-run `mutate:component <Name>` to confirm the component is fully killed.
 
 Avoid overfitting tests to implementation details. Strong mutation tests assert observable behavior: return values, persisted state, emitted events, permissions, messages, or meaningful collaborator calls.
 
@@ -197,33 +193,38 @@ Stryker should be the normal entry point for JS/TS mutation testing.
 
 ### Starting Configuration
 
-Prefer `stryker.config.mjs` or the format generated by the initializer. Using the Vitest runner requires installing `@stryker-mutator/vitest-runner` alongside `@stryker-mutator/core`. A typical starting point:
+The config is `packages/react/stryker.config.mjs` and reads `STRYKER_COMPONENT`
+to scope the run. The shape (see `docs/mutation-testing-plan.md` for the full
+version):
 
 ```javascript
+const component = process.env.STRYKER_COMPONENT; // e.g. "Button"
+
 export default {
   testRunner: "vitest",
   coverageAnalysis: "perTest",
   reporters: ["html", "clear-text", "progress"],
   mutate: [
-    "src/**/*.{ts,tsx,js,jsx}",
-    "!src/**/*.test.{ts,tsx,js,jsx}",
-    "!src/**/*.spec.{ts,tsx,js,jsx}",
-    "!src/**/*.d.ts"
+    `src/${component}/**/*.{ts,tsx}`,
+    "!src/**/*.test.{ts,tsx}",
+    "!src/**/__tests__/**",
+    "!src/**/types.ts",
+    "!src/**/index.ts"
   ]
 }
 ```
 
-Adapt `testRunner`, `mutate`, `vitest.configFile`, build commands, and checker plugins to match the project. Do not cargo-cult this exact config into a repo with a different layout.
-
-**Vitest Browser Mode caveat:** Stryker's Vitest runner targets Node-based test projects, not browser-mode ones. In a repo that follows the house preference for Browser Mode UI tests, scope `mutate` to non-UI source covered by Node tests, or point Stryker at the Node project of a multi-project Vitest setup. Verify current Browser Mode support in the Stryker docs before assuming a UI package can be mutated.
+**Vitest environment:** the suite runs in **jsdom** (Node-based), which the
+Stryker Vitest runner supports directly — there is no Browser Mode concern
+here. `coverageAnalysis: "perTest"` maps each mutant to its covering tests so
+only those re-run, and `vite.config.ts` narrows the dry-run's `test.include` to
+the target component when `STRYKER_COMPONENT` is set.
 
 ### CI and Quality Gates
 
-- Start with report-only or diff-only mutation checks if the existing suite has many survivors.
-- Add failing thresholds only after establishing a realistic baseline.
-- Persist HTML and clear-text reports as CI artifacts.
-- Use incremental mode for fast local feedback, but periodically force a full run to avoid stale assumptions.
-- Treat mutation score as a signal, not a vanity metric. Prioritize surviving/no-coverage mutants in changed and high-risk code.
+- The gate is a **hard 100%** mutation score (`break: 100`) for every allowlisted component — a single survivor fails the run. There is no "baseline first" ramp: a component only joins the allowlist once it already kills every mutant.
+- `mutation.yml` runs the allowlist (a per-component matrix as the list grows), uploads the HTML report as an artifact with **`if: always()`** and writes the clear-text score to the job summary — so survivors are inspectable on a failed run without running the suite locally.
+- `// Stryker disable` is an absolute last resort, reserved for provably-equivalent mutants with a written justification — never a way to lift the score.
 
 ### Manual Mutation Fallback
 

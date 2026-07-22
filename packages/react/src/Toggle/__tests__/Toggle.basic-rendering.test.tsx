@@ -25,4 +25,9 @@ describe("Toggle basic rendering", () => {
       "off",
     );
   });
+
+  it('sets displayName to "Toggle" for React DevTools and stack traces', () => {
+    // Assert — an empty displayName would render it as an anonymous component.
+    expect(Toggle.displayName).toBe("Toggle");
+  });
 });

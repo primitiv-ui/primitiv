@@ -138,3 +138,18 @@ build/test strategy for 0005–0006 and applies once implementation starts.
   composing the Figcaption `Tone=overlay` variant (the `inverse` token pair), and
   one new `figure/caption-gap` Context token. Figma-only — there is no headless
   React `Figure`.
+
+## React components
+
+| # | Title | Status |
+|---|---|---|
+| [0019](0019-navigation-menu.md) | Navigation Menu (desktop dropdown + composed mobile) | Draft — proposed |
+
+- **0019** — the docs-site primary nav as a headless **Navigation Menu**: keep
+  the component focused on the desktop single-open dropdown nav, and build the
+  mobile "menu open" sheet as a composition — `Drawer` + `Tree`/`Collapsible` +
+  an active-state `Link` — sharing only a nav data model. Records the two
+  presentations' state models, the fork (compose-mobile vs grow-one) and its
+  sibling decisions, the desktop API sketch, and the build sequence (API sketch →
+  TDD headless → Figma both → revisit → kitchen-sink both) for a follow-on
+  session to execute.

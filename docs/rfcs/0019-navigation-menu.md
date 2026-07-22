@@ -1,0 +1,131 @@
+# RFC 0019 — Navigation Menu (desktop dropdown + composed mobile)
+
+> **Status:** **Draft — proposed, not started.** Drafted for review out of the
+> docs-site landing-wireframe discussion (2026-07-22); a follow-on session/agent
+> executes the build. The decisions in §4 are the thing to settle before anyone
+> scaffolds.
+>
+> **Author:** simonrevill, with architectural drafting.
+> **Date:** 2026-07-22
+> **Builds on:** the shared headless component patterns (see the
+> `react-component-patterns` skill — `createStrictContext`,
+> `useControllableState`, `useCollection`, `useRovingTabindex`, `deriveId`).
+> Reuses **Drawer**, **Tree**, **Collapsible** (all headless-✓) for the mobile
+> presentation. Roadmap: `### Navigation` → **Navigation Menu** (logged, unbuilt).
+> **Skills:** `new-react-component` + `react-component-patterns` +
+> `react-test-conventions` (headless build); `figma-*` (the Figma sets);
+> `new-registry-component` + `registry-stylesheet-conventions` (kitchen-sink).
+
+## 1. Why this exists
+
+The docs-site landing wireframe surfaced the product's primary navigation — the
+mobile "menu open" frame (`Landing (mobile — menu open)`, Figma node
+`1186:40682`, page *Wireframes — Docs Site (v1 — landing)*) shows it: **Start
+Here · Concepts · Components (`mode-scoped`) · Registry & CLI · Design in Figma ·
+Recipes · Changelog**, each a full-width row with a chevron, plus a docs search,
+the view/framework control group, and a theme toggle.
+
+That nav is the roadmap's **Navigation Menu** — a genuinely headless-worthy
+component (`<nav>`/menu ARIA, keyboard navigation, expand/collapse, focus
+management). It has to serve **two presentations** whose interaction models
+differ enough that the shape of the headless primitive is a real decision. This
+RFC settles that decision *before* anyone scaffolds.
+
+## 2. The two presentations & their state models
+
+| | Desktop | Mobile |
+|---|---|---|
+| Shape | Horizontal nav bar; triggers open dropdown panels | Full-screen `Drawer`; a vertical list of expandable sections |
+| Open state | **Single-open** — one panel at a time (+ hover-intent, shared viewport) | **Multi-expand tree** — several sections open, expand **in place** |
+| Chevron | down (rotates on open) | right when collapsed → down on expand (Tree/Collapsible indicator) |
+| Model | Radix/Ark `NavigationMenu` | `Drawer` + `Tree`/`Collapsible` |
+
+> The wireframe's chevron-**right** on the mobile rows reads as a *collapsed
+> Tree/Collapsible* indicator (rotates down on expand) — **in-place expansion**,
+> matching "collapsible/tree". It is **not** a slide-to-child *drill-down stack*
+> (which would need a navigation-stack + back-affordance state model — heavier,
+> and out of scope unless decision (b) in §4 flips it).
+
+## 3. Recommended architecture — composition-first
+
+Keep `NavigationMenu` focused on the **desktop dropdown nav**, and build the
+**mobile version as a composition** of primitives we already ship:
+
+- **`NavigationMenu`** (new headless) = the desktop dropdown nav.
+- **Mobile** = `Drawer` (shell — owns overlay/focus-trap/scroll-lock) + `Tree`
+  *or* `Collapsible` (expandable sections) + a nav **`Link`** (active state).
+- **Shared** between the two = a nav **data model** (sections → children, the
+  `mode-scoped` flag) and a `Link` with `aria-current` / active detection. These
+  are the *only* "affordances to revisit" — deliberately small.
+
+Rationale: composition is king. Don't overload `NavigationMenu` with a second
+interaction mode; reuse `Drawer`/`Tree`/`Collapsible`, which already exist.
+
+**Alternative (documented, not recommended):** a single responsive
+`NavigationMenu` that flips presentation by breakpoint/mode. Viable, but it
+pushes *both* state models into one primitive — larger surface, bigger revisit,
+and it duplicates what `Drawer` + `Tree` already do for the mobile shell.
+
+## 4. Decisions to settle in the API-sketch step (before scaffolding)
+
+- **(a) The fork** — desktop-only `NavigationMenu` + composed mobile
+  *(recommended)*, vs one grow-both component.
+- **(b) Mobile interaction** — in-place `Tree`/`Collapsible` expand
+  *(recommended)*, vs slide drill-down stack.
+- **(c) Shared affordances** — where the nav **data model** and the
+  active-state **`Link`** live: a `NavigationMenu.Link` part, a standalone `Link`
+  primitive, or a shared context/hook both presentations consume.
+- **(d) Desktop specifics** — how much of the Radix model to adopt: hover-intent
+  open, single-open `value` state, `Viewport`/`Indicator` parts.
+
+## 5. Headless API sketch (desktop starting point)
+
+Compound parts, following the house patterns (see the `react-component-patterns`
+skill):
+
+- `NavigationMenu.Root` — `value` / `defaultValue` / `onValueChange` (the open
+  item), `orientation`. Context provides the active value + setter, orientation,
+  ids, trigger registration for roving focus.
+- `NavigationMenu.List` — the `role`-appropriate container (`<nav aria-label>`).
+- `NavigationMenu.Item` — `value`.
+- `NavigationMenu.Trigger` — chevron, `aria-expanded`, open on hover/click.
+- `NavigationMenu.Content` — the panel (force-mount for enter/exit animation).
+- `NavigationMenu.Link` — `aria-current`; the shared active-state affordance.
+- *(optional, per (d))* `NavigationMenu.Viewport`, `NavigationMenu.Indicator`.
+- **Keyboard:** arrows (axis-aware), Home/End, Escape to close, Enter/Space to
+  activate. **ARIA:** `<nav>` + menu/link semantics.
+
+## 6. Build sequence
+
+1. **API sketch + settle §4 (a)–(d)** — no code. The cheap step that shrinks the
+   later revisit.
+2. **Scaffold + TDD the headless component** — strict red-green, 100% coverage
+   (lines/branches/statements/functions). `/scaffold-component NavigationMenu`
+   produces the RED shell; see the `new-react-component` skill.
+3. **Figma** — the desktop set (dropdown panels) first, then the mobile
+   composition (Drawer + Tree/Collapsible). See the `figma-*` skills.
+4. **Revisit the headless component** for whatever the mobile composition
+   surfaced (expected: the data model + `Link` active-state), TDD.
+5. **Kitchen-sink** — build **both** the desktop and mobile versions. The
+   integration test *and* real dogfooding (the docs nav is the actual use case).
+6. **Definition of done** (per `CLAUDE.md`): test + JSDoc + component README +
+   the `packages/react/README.md` table row + a workbench example + the roadmap
+   tick.
+
+## 7. Composition inventory (already shipped — reuse, don't rebuild)
+
+- **Drawer** — headless ✓ / registry ✓ — the mobile shell.
+- **Tree** — headless ✓ — expandable mobile sections.
+- **Collapsible** — headless ✓ — alternative in-place expand.
+- **Dropdown** ✓, **Select** ✓, **ToggleGroup** ✓, **Input** ✓ — the mobile
+  sheet's view/framework pickers, theme toggle, and search. These are composed
+  *alongside* the nav in the Drawer; they are **not** part of `NavigationMenu`.
+
+## 8. Non-goals / notes
+
+- **Slide drill-down stack** — out of scope unless §4 (b) flips it.
+- The **`mode-scoped`** Components section (its children depend on the
+  Headless/Styled/Figma mode) is a **data** concern — the nav data is filtered by
+  mode before render — not a `NavigationMenu` behaviour.
+- **Menubar** and **Toolbar** (roadmap `### Navigation` siblings) are separate
+  components; don't conflate them with this.

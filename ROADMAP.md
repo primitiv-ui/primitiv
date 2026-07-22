@@ -163,7 +163,7 @@ semantics that CSS alone cannot provide.
 ### Navigation
 
 - [ ] Menubar
-- [ ] Navigation Menu
+- [ ] Navigation Menu — see [`docs/rfcs/0019-navigation-menu.md`](docs/rfcs/0019-navigation-menu.md)
 - [x] Toggle
 - [x] Toggle Group
 - [ ] Toolbar

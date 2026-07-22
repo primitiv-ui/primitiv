@@ -73,6 +73,7 @@
     { "name": "--primitiv-dropdown-item-color", "defaultsTo": "var(--primitiv-content-primary)" },
     { "name": "--primitiv-dropdown-item-bg", "defaultsTo": "var(--primitiv-color-transparent)" },
     { "name": "--primitiv-dropdown-item-bg-highlighted", "defaultsTo": "var(--primitiv-action-secondary-default)" },
+    { "name": "--primitiv-dropdown-row-inset", "defaultsTo": "var(--primitiv-dropdown-item-padding-inline)" },
     { "name": "--primitiv-dropdown-label-height", "defaultsTo": "var(--primitiv-dropdown-md-label-height)" },
     { "name": "--primitiv-dropdown-label-padding-inline", "defaultsTo": "var(--primitiv-dropdown-md-label-padding-inline)" },
     { "name": "--primitiv-dropdown-label-color", "defaultsTo": "var(--primitiv-content-muted)" },

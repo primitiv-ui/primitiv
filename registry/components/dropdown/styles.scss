@@ -114,6 +114,13 @@
     --primitiv-dropdown-separator-color: var(--primitiv-border-subtle);
     --primitiv-dropdown-separator-thickness: var(--primitiv-border-width-1);
 
+    /* Inline-start inset shared by every row's text. Defaults to the plain item
+       padding; a panel that holds indicator rows promotes it to the full gutter
+       (padding + icon + gap) via the :has() rule below, so items, sub-triggers
+       and labels all line up with the checkbox / radio column. Each panel
+       re-declares it, so a plain submenu stays compact inside a gutter parent. */
+    --primitiv-dropdown-row-inset: var(--primitiv-dropdown-item-padding-inline);
+
     /* The panel. position:fixed lets anchor() resolve; the flex column stacks
        the rows. Inert while closed (native [popover] is display:none until
        :popover-open — see the display flip below). */
@@ -146,6 +153,18 @@
     display: flex;
   }
 
+  /* A panel that contains indicator rows reserves the gutter on ALL its rows so
+     every label aligns with the checkbox / radio column (the macOS-menu
+     convention). :has() is scoped per panel — a nested submenu re-declares the
+     inset from its own content, so a plain submenu doesn't inherit the parent's
+     gutter and stays compact. */
+  .primitiv-dropdown:has(.primitiv-dropdown__checkbox-item, .primitiv-dropdown__radio-item) {
+    --primitiv-dropdown-row-inset: calc(
+      var(--primitiv-dropdown-item-padding-inline) +
+        var(--primitiv-dropdown-item-icon-size) + var(--primitiv-dropdown-item-gap)
+    );
+  }
+
   /* ── Rows — Item / CheckboxItem / RadioItem / SubTrigger share the shell ── */
   .primitiv-dropdown__item,
   .primitiv-dropdown__checkbox-item,
@@ -156,7 +175,9 @@
     gap: var(--primitiv-dropdown-item-gap);
     box-sizing: border-box;
     min-block-size: var(--primitiv-dropdown-item-height);
-    padding-inline: var(--primitiv-dropdown-item-padding-inline);
+    /* Start = the shared row inset (gutter in an indicator panel, plain padding
+       otherwise); end = plain padding. Keeps every row's text on one column. */
+    padding-inline: var(--primitiv-dropdown-row-inset) var(--primitiv-dropdown-item-padding-inline);
     border-radius: var(--primitiv-dropdown-item-radius);
     background: var(--primitiv-dropdown-item-bg);
     color: var(--primitiv-dropdown-item-color);
@@ -183,23 +204,17 @@
     block-size: var(--primitiv-dropdown-item-icon-size);
   }
 
-  /* ── CheckboxItem / RadioItem — a reserved inline-start gutter for the mark ──
-     The ItemIndicator (a ✓ / • the consumer supplies) is absolutely placed in a
-     gutter one icon + gap wide, so checked and unchecked rows keep their text
-     aligned whether or not the mark is mounted (headless unmounts it while
-     unchecked unless forceMount).
-     NOTE (pending design decision A/B, RFC 0019 follow-up): this styles the
-     menu checkmark/dot indicator model — the model the headless CheckboxItem /
-     RadioItem + ItemIndicator actually render. The Figma checkbox/radio items
-     currently embed a full Checkbox/Radio control (with a stray second label);
-     if that visual is kept instead, revisit this block. */
+  /* ── CheckboxItem / RadioItem — the ItemIndicator sits in the shared gutter ──
+     The mark (a ✓ / • / — the consumer supplies) is absolutely placed in the
+     inline-start gutter; position:relative anchors it. The gutter width is the
+     shared row inset above — reserved on every row in an indicator panel — so
+     text stays aligned whether or not the mark is mounted (the headless unmounts
+     it while unchecked unless forceMount). This is the menu checkmark/dot
+     indicator model the headless CheckboxItem / RadioItem + ItemIndicator
+     render (RFC 0019, decision A). */
   .primitiv-dropdown__checkbox-item,
   .primitiv-dropdown__radio-item {
     position: relative;
-    padding-inline-start: calc(
-      var(--primitiv-dropdown-item-padding-inline) +
-        var(--primitiv-dropdown-item-icon-size) + var(--primitiv-dropdown-item-gap)
-    );
   }
 
   .primitiv-dropdown__item-indicator {
@@ -221,7 +236,8 @@
     align-items: center;
     box-sizing: border-box;
     min-block-size: var(--primitiv-dropdown-label-height);
-    padding-inline: var(--primitiv-dropdown-label-padding-inline);
+    /* Start on the shared row inset so the header lines up with its items. */
+    padding-inline: var(--primitiv-dropdown-row-inset) var(--primitiv-dropdown-label-padding-inline);
     color: var(--primitiv-dropdown-label-color);
     font-family: var(--primitiv-dropdown-label-font-family);
     font-size: var(--primitiv-dropdown-label-font-size);
@@ -445,6 +461,7 @@ $primitiv-dropdown-item-font-weight: var(--primitiv-dropdown-item-font-weight);
 $primitiv-dropdown-item-color: var(--primitiv-dropdown-item-color);
 $primitiv-dropdown-item-bg: var(--primitiv-dropdown-item-bg);
 $primitiv-dropdown-item-bg-highlighted: var(--primitiv-dropdown-item-bg-highlighted);
+$primitiv-dropdown-row-inset: var(--primitiv-dropdown-row-inset);
 $primitiv-dropdown-label-height: var(--primitiv-dropdown-label-height);
 $primitiv-dropdown-label-padding-inline: var(--primitiv-dropdown-label-padding-inline);
 $primitiv-dropdown-label-color: var(--primitiv-dropdown-label-color);

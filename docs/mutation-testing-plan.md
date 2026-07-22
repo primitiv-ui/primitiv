@@ -5,11 +5,11 @@ Introducing mutation testing to the headless library with
 starting with **Button** as the test case, then growing a per-component
 allowlist until every component is covered.
 
-> **Status:** the harness is landed and **Button is at 100% mutation score**
+> **Status:** the harness is landed and the allowlist is
+> `["Button", "Divider", "VisuallyHidden"]`, each at **100% mutation score**
 > (`packages/react/stryker.config.mjs`, `mutation-allowlist.json`, the `mutate` /
 > `mutate:component` scripts, `scripts/mutate.mjs`, and `.github/workflows/mutation.yml`).
-> The allowlist is `["Button"]`. Next: bring the next component to a full kill
-> and add it to the allowlist.
+> Next: bring the next component to a full kill and add it to the allowlist.
 
 Mutation testing is the natural next rung above our 100%-coverage bar: line
 coverage proves a line _ran_; mutation testing proves a line is _asserted on_.

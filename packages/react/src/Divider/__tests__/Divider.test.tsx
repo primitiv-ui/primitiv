@@ -38,4 +38,9 @@ describe("Divider component", () => {
     const divider = screen.getByRole("separator");
     expect(divider).toHaveAttribute("class", "");
   });
+
+  it('sets displayName to "Divider" for React DevTools and stack traces', () => {
+    // Assert — an empty displayName would render it as an anonymous component.
+    expect(Divider.displayName).toBe("Divider");
+  });
 });

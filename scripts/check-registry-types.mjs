@@ -18,7 +18,7 @@
 // (the recipes' only external import — not what we're checking), and run
 // `tsc --noEmit`. Exit code propagates.
 import { execFileSync } from "node:child_process";
-import { cpSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -31,16 +31,25 @@ rmSync(workDir, { recursive: true, force: true });
 mkdirSync(workDir, { recursive: true });
 
 try {
-  // Copy the wrappers + recipes (only the TS sources matter), preserving the
-  // per-component directory so each wrapper's `./<name>.recipe` import resolves.
-  cpSync(join(repoRoot, "registry", "components"), join(workDir, "components"), {
-    recursive: true,
-    filter: (src) =>
-      !src.endsWith(".css") &&
-      !src.endsWith(".scss") &&
-      !src.endsWith(".json") &&
-      !src.endsWith(".md"),
-  });
+  // Flatten every component's TS/TSX into ONE dir, mirroring how `add` installs
+  // components (all flat under src/components/*). Each wrapper's `./<name>.recipe`
+  // import resolves as a sibling — and so does a wrapper that imports another
+  // component: code-block's copy control does `import { Button } from "./button"`,
+  // which must resolve here exactly as it does in the consumer. Filenames are
+  // unique across components (<name>.tsx / <name>.recipe.ts), so flattening is
+  // collision-free; only .ts/.tsx are type-checked (css/scss/json/md are skipped).
+  const componentsSrc = join(repoRoot, "registry", "components");
+  const componentsDst = join(workDir, "components");
+  mkdirSync(componentsDst, { recursive: true });
+  for (const entry of readdirSync(componentsSrc, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const dir = join(componentsSrc, entry.name);
+    for (const file of readdirSync(dir)) {
+      if (file.endsWith(".ts") || file.endsWith(".tsx")) {
+        cpSync(join(dir, file), join(componentsDst, file));
+      }
+    }
+  }
 
   writeFileSync(
     join(workDir, "cva-stub.d.ts"),

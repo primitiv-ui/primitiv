@@ -7,16 +7,17 @@ import "../styles/primitiv/code-block/styles.css";
  * --primitiv-code-syntax-* tokens, so it re-colours with light/dark), an optional
  * filename/copy header, and an optional line-number gutter. Hand-written — it
  * carries real behaviour (highlighting + copy-to-clipboard) — so it has no
- * drift-guard test. The copy control wears the Button component's secondary
- * classes (hence the `button` component dependency); the Copy/Check glyphs are
+ * drift-guard test. The copy control composes the registry `Button` component
+ * (variant secondary; hence the `button` dependency), so its text label gets the
+ * `__label` span + text-box-trim like any button; the Copy/Check glyphs are
  * inlined from @primitiv-ui/icons so the block installs no extra package.
  *
  * Compound subcomponents add a tabbed variant (e.g. an npm/pnpm/yarn/bun install
  * block): `CodeBlock.Tabs` composes the headless @primitiv-ui/react `Tabs`
  * primitive for the tab behaviour (roving focus, arrow keys, WAI-ARIA roles) and
  * reuses the Tabs component's `.primitiv-tabs__*` classes for the look (hence the
- * `tabs` component dependency) — the same "borrow the classes, not the component"
- * pattern the copy control uses for Button. The single-block `<CodeBlock code=… />`
+ * `tabs` component dependency); the copy control composes the registry `Button`
+ * component. The single-block `<CodeBlock code=… />`
  * form is unchanged; the subcomponents are purely additive.
  */
 import { Tabs as TabsPrimitive } from "@primitiv-ui/react";
@@ -34,6 +35,10 @@ import {
   type ReactNode,
 } from "react";
 import { codeBlock, type CodeBlockVariants } from "./code-block.recipe";
+// The copy control composes the registry Button (a sibling copied component, so
+// this resolves flat in the consumer where `add` installs both). code-block
+// `dependsOn` button; the Button wraps its text label for text-box-trim parity.
+import { Button } from "./button";
 
 /* Disable Prism's inline theme so the .token.* classes take their colour from
    the stylesheet's --primitiv-code-syntax-* tokens (light/dark via the cascade). */
@@ -142,7 +147,10 @@ function Highlighted({
   );
 }
 
-export type CodeBlockCopyProps = Omit<ComponentPropsWithRef<"button">, "children"> & {
+export type CodeBlockCopyProps = Omit<
+  ComponentPropsWithRef<typeof Button>,
+  "children" | "variant" | "size"
+> & {
   /** Button content. Defaults to the copy/check icon (swapping on success); pass
    * text (e.g. `Copy`) for the text form. */
   children?: ReactNode;
@@ -151,9 +159,11 @@ export type CodeBlockCopyProps = Omit<ComponentPropsWithRef<"button">, "children
 /**
  * The copy-to-clipboard control, shared by the single block and the tabbed form.
  * It copies whatever the enclosing block exposes (the single block's `code`, or
- * the active tab's `code`), wears the Button component's secondary classes, and
- * shows success for ~2s. With no `children` it renders the icon (swapping to a
- * check on success); with `children` it renders them, swapping to `Copied`.
+ * the active tab's `code`) and shows success for ~2s. Composes the registry
+ * `Button` (variant `secondary`, size one step below the block per {@link COPY_SIZE})
+ * so its text label gets the `__label` span + text-box-trim like every other
+ * button. With no `children` it renders the icon (swapping to a check on
+ * success); with `children` it renders them, swapping to `Copied`.
  */
 function CodeBlockCopy({ children, className, onClick, ...props }: CodeBlockCopyProps) {
   const context = useContext(CodeBlockContext);
@@ -174,21 +184,16 @@ function CodeBlockCopy({ children, className, onClick, ...props }: CodeBlockCopy
     children != null ? (copied ? "Copied" : children) : copied ? <CheckGlyph /> : <CopyGlyph />;
 
   return (
-    <button
-      type="button"
+    <Button
+      variant="secondary"
+      size={size}
       onClick={copy}
       aria-label={copied ? "Copied" : "Copy code"}
-      data-copied={copied ? "" : undefined}
-      className={[
-        `primitiv-button primitiv-button--secondary primitiv-button--${size} primitiv-code-block__copy`,
-        className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      className={["primitiv-code-block__copy", className].filter(Boolean).join(" ")}
       {...props}
     >
       {content}
-    </button>
+    </Button>
   );
 }
 

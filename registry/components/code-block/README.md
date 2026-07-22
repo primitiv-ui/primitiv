@@ -15,8 +15,9 @@ and density — that ramp is density-scoped, unlike `body/*`), padded on the
 density-scoped `code/padding`. Three optional parts:
 
 - **Header** — a filename plus a copy-to-clipboard control. Shown when a
-  `filename` is given (or `showHeader`). The copy control wears the **Button**
-  component's `--secondary` classes, so `code-block` **depends on `button`**.
+  `filename` is given (or `showHeader`). The copy control **composes the registry
+  `Button`** (variant `secondary`), so `code-block` **depends on `button`** — the
+  Button wraps its text label for text-box-trim parity with every other button.
 - **Gutter** — a line-number column, shown with `showLineNumbers`.
 - **Highlighting** — [`prism-react-renderer`](https://github.com/FormidableLabs/prism-react-renderer)
   tags each token with a class; the stylesheet colours those classes from seven
@@ -55,9 +56,8 @@ npm / pnpm / yarn / bun — compose the **compound subcomponents**. `CodeBlock.T
 composes the headless [`@primitiv-ui/react`](https://primitiv-ui.dev) **`Tabs`**
 primitive for the behaviour (roving focus, arrow keys, WAI-ARIA `tab`/`tablist`/
 `tabpanel` roles) and reuses the **Tabs** component's `.primitiv-tabs__*` classes
-for the look — the same "borrow the classes, not the component" pattern the copy
-control uses for Button. Hence `code-block` **also depends on `@primitiv-ui/react`
-and the `tabs` component**.
+for the look. Hence `code-block` **also depends on `@primitiv-ui/react` and the
+`tabs` component**.
 
 ```tsx
 import { CodeBlock } from "@/components/code-block";
@@ -116,7 +116,7 @@ wrappers, D53). It is type-checked in CI by `scripts/check-registry-types.mjs`.
   entry, installed by `add code-block`/`add --all`, nothing else).
 - **package** `@primitiv-ui/react` — the headless `Tabs` primitive the tabbed
   variant composes for behaviour + a11y.
-- **component** `button` — the copy control reuses its `--secondary` classes.
+- **component** `button` — the copy control composes it (`Button` variant `secondary`).
 - **component** `tabs` — the tabbed variant reuses its `.primitiv-tabs__*` classes
   for the look (installed alongside `code-block`).
 - **tokens** — `font-family/mono`, `code/*` (font-size + line-height),

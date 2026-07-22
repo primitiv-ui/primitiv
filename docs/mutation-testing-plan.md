@@ -66,13 +66,39 @@ Usage: `pnpm --filter @primitiv-ui/react mutate:component Button`. A tiny
 `scripts/mutate.mjs` sets the env var cross-platform and spawns Stryker —
 avoids a `cross-env` dependency.
 
-### 5. CI — new `mutation.yml`, non-blocking
+### 5. CI — new `mutation.yml`
 
 Path-filtered to `packages/react/**`, mirroring `ci.yml`'s
-wasm-build → install sequence. Runs the allowlist and uploads the HTML report
-as an artifact. Kept **off** the required `test` check so a surviving mutant
-never blocks a merge while the allowlist is still small. Promote to required
-once the list is mature.
+wasm-build → install sequence.
+
+**Viewing runs without a local machine.** The maintainer can't run mutation
+suites locally, so the workflow is the primary way to inspect results. Two
+surfaces come out of every run:
+
+- **HTML report artifact.** Stryker's HTML reporter writes a self-contained
+  `reports/mutation/<Component>.html` (static — download the artifact zip, open
+  in any browser; no server or local run needed). Uploaded via
+  `actions/upload-artifact@v4` with **`if: always()`** — this is essential:
+  with `break: 100` a surviving mutant fails the Stryker step, and `always()`
+  guarantees the report still uploads _on failure_, which is exactly when you
+  need to see which mutants survived.
+- **Job summary.** Stryker's clear-text score (mutation score + survivor count)
+  is piped into `$GITHUB_STEP_SUMMARY`, so the headline number shows on the
+  Actions run page without downloading anything.
+
+The Stryker **Dashboard** (dashboard.stryker-mutator.io) is deliberately _not_
+used — it hosts reports publicly and needs an API key. Artifacts keep results
+inside the repo's access controls.
+
+**Scaling: matrix per component.** Starts as a single job over the allowlist
+(fine while it's just Button). As the list grows it becomes a **matrix, one job
+per allowlisted component** — a setup job reads the allowlist array and emits
+the matrix JSON; each component runs in parallel with its own artifact and
+independent pass/fail, so a survivor in one component doesn't obscure the
+others.
+
+Because the score gate is a hard requirement (below), this is intended to
+become a **required check** once the harness is proven on Button.
 
 ### 6. `.gitignore`
 
@@ -106,12 +132,13 @@ simple surfaces before the rich ones:
 4. Compound / stateful (richest survivor yield): `Tabs`, `Accordion`, `Select`,
    `Carousel`, and the rest of the inventory.
 
-## Open decisions
+## Settled decisions
 
-1. **`break` (mutation-score gate) for allowlisted components.**
-   Recommendation: **100**, with genuinely-equivalent mutants marked via
-   `// Stryker disable` comments. Matches the repo's 100%-coverage culture and
-   makes "on the list" mean "fully killed." Alternative: a softer gate (e.g.
-   90) that tolerates a margin of survivors per component.
-2. **Whether `mutation.yml` ever becomes a required check**, or stays an
-   informational artifact-only run.
+1. **`break` (mutation-score gate) = `100`. Hard requirement.** Every mutant on
+   an allowlisted component must be killed. Genuinely-equivalent mutants — ones
+   that cannot be killed because the mutation produces observably-identical
+   behaviour — are marked with `// Stryker disable` comments and a one-line
+   justification, never left as tolerated survivors. This keeps "on the list"
+   meaning "fully killed" and mirrors the repo's 100%-coverage culture.
+2. **`mutation.yml` becomes a required check** once Button proves the harness.
+   Until then it runs on every PR so reports/artifacts are always available.

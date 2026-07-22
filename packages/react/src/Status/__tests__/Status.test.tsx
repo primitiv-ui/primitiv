@@ -25,4 +25,9 @@ describe("Status component", () => {
     expect(status.tagName).toBe("SECTION");
     expect(status).toHaveTextContent("Saved");
   });
+
+  it('sets displayName to "Status" for React DevTools and stack traces', () => {
+    // Assert — an empty displayName would render it as an anonymous component.
+    expect(Status.displayName).toBe("Status");
+  });
 });

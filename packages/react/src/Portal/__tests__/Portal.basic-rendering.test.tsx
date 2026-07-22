@@ -14,4 +14,9 @@ describe("Portal basic rendering", () => {
     // Assert
     expect(screen.getByText("Portal content")).toBeInTheDocument();
   });
+
+  it('sets displayName to "Portal" for React DevTools and stack traces', () => {
+    // Assert — an empty displayName would render it as an anonymous component.
+    expect(Portal.displayName).toBe("Portal");
+  });
 });

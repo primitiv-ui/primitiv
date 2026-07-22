@@ -26,4 +26,9 @@ describe("DirectionProvider", () => {
     // Assert
     expect(screen.getByTestId("probe")).toHaveTextContent("rtl");
   });
+
+  it('sets displayName to "DirectionProvider" for React DevTools and stack traces', () => {
+    // Assert — an empty displayName would render it as an anonymous component.
+    expect(DirectionProvider.displayName).toBe("DirectionProvider");
+  });
 });

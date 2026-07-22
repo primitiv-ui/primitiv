@@ -20,4 +20,10 @@ describe("SkipNav component", () => {
     expect(content).toHaveAttribute("id", "primitiv-skip-nav");
     expect(content).toHaveAttribute("tabindex", "-1");
   });
+
+  it("sets displayName on each sub-component for React DevTools and stack traces", () => {
+    // Assert — an empty displayName would render each as anonymous.
+    expect(SkipNav.Link.displayName).toBe("SkipNavLink");
+    expect(SkipNav.Content.displayName).toBe("SkipNavContent");
+  });
 });

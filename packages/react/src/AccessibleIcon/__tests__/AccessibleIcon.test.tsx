@@ -44,4 +44,9 @@ describe("AccessibleIcon component", () => {
     const label = screen.getByText("Search");
     expect(label).toHaveStyle({ position: "absolute", overflow: "hidden" });
   });
+
+  it('sets displayName to "AccessibleIcon" for React DevTools and stack traces', () => {
+    // Assert — an empty displayName would render it as an anonymous component.
+    expect(AccessibleIcon.displayName).toBe("AccessibleIcon");
+  });
 });

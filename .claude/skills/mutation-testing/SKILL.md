@@ -1,11 +1,11 @@
 ---
 name: mutation-testing
-description: Set up and run mutation testing with Stryker, including full-project and diff-against-main runs, then use surviving mutants to strengthen weak or missing tests. Use during the MUTATE phase of the TDD cycle, when verifying that tests actually catch bugs (coverage alone is not enough), when the user mentions mutation testing, Stryker, mutation score, or surviving mutants, or when assessing whether a test suite would detect realistic regressions. For writing the tests themselves, see testing.
+description: Set up and run mutation testing with Stryker, including full-project and diff-against-main runs, then use surviving mutants to strengthen weak or missing tests. Use during the MUTATE phase of the TDD cycle, when verifying that tests actually catch bugs (coverage alone is not enough), when the user mentions mutation testing, Stryker, mutation score, or surviving mutants, or when assessing whether a test suite would detect realistic regressions. For writing the tests themselves, see react-test-conventions.
 ---
 
 # Mutation Testing
 
-For writing good tests (factories, behavior-driven patterns), load the `testing` skill. This skill focuses on verifying test effectiveness.
+For writing good tests (factories, behavior-driven patterns), load the `react-test-conventions` skill. This skill focuses on verifying test effectiveness.
 
 Mutation testing answers the question: **"Are my tests actually catching bugs?"**
 
@@ -18,6 +18,31 @@ Code coverage tells you what code your tests execute. Mutation testing tells you
 | Resource | Load when... |
 |----------|-------------|
 | `mutator-rules.md` | Planning tests, scanning changed code for likely gaps, manually applying mutations, or interpreting surviving/equivalent mutants |
+
+---
+
+## In this repo (Primitiv)
+
+Primitiv is a **pnpm** workspace, and the canonical setup lives in
+`docs/mutation-testing-plan.md` + `packages/react/stryker.config.mjs` — read
+those first; the generic flow below is background. When following any generic
+step here:
+
+- Translate commands: `npm …` / `npx …` → `pnpm …` / `pnpm exec …`, and scope
+  to the headless library, e.g.
+  `pnpm --filter @primitiv-ui/react exec stryker run`.
+- Mutation runs **one component at a time** via the `STRYKER_COMPONENT` env var
+  and a per-component **allowlist** (Button first), not a diff-against-main
+  scope.
+- The score gate is a **hard 100%** — a survivor is a missing assertion, and
+  `// Stryker disable` is an absolute last resort for provably-equivalent
+  mutants only. This **overrides** the softer "add thresholds after a baseline /
+  score is just a signal" guidance in *CI and Quality Gates* below.
+- Reports are inspected as **GitHub Actions artifacts** (HTML report uploaded
+  `if: always()`, plus the score in the job summary), since suites aren't run
+  locally.
+- For writing the tests that kill survivors, load **`react-test-conventions`**
+  (this repo's stand-in for the `testing` skill referenced below).
 
 ---
 
@@ -81,13 +106,14 @@ git diff main...HEAD --name-only
 
 ### Step 2: Set Up Stryker When Missing
 
-Use the official initializer as the starting point:
+Install the runner and core alongside the project's test runner, then write the
+config by hand (in this repo, scoped to the headless library):
 
 ```bash
-npm init stryker@latest
+pnpm --filter @primitiv-ui/react add -D @stryker-mutator/core @stryker-mutator/vitest-runner
 ```
 
-Then inspect and adapt the generated `stryker.config.*`:
+Then author and adapt `stryker.config.mjs`:
 
 - Prefer the project test runner plugin when available (`vitest`, `jest`, `mocha`, etc.). Use the generic command runner only when no tighter integration is practical.
 - Mutate first-party production source only. Exclude tests, fixtures, snapshots, generated files, declaration files, build outputs, migrations, and low-signal barrels.
@@ -121,13 +147,13 @@ Prefer a small Node helper over dense shell inside `package.json`; quoting `*`, 
 
 ```bash
 CHANGED=$(git diff --name-only --diff-filter=ACMRTUXB main...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx' | grep -Ev '(^|/)(__tests__|test|tests|fixtures|generated)/|\.(test|spec|d)\.' | paste -sd, -)
-test -n "$CHANGED" && npx stryker run --incremental --force --mutate "$CHANGED"
+test -n "$CHANGED" && pnpm exec stryker run --incremental --force --mutate "$CHANGED"
 ```
 
 Use exact line ranges for tiny follow-up checks when the report points to a specific survivor:
 
 ```bash
-npx stryker run --incremental --force --mutate src/example.ts:42-57
+pnpm exec stryker run --incremental --force --mutate src/example.ts:42-57
 ```
 
 ### Step 4: Run and Triage

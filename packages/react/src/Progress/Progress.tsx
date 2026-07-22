@@ -115,8 +115,9 @@ export function ProgressRoot({
   );
 }
 
-/** @internal */
-ProgressRoot.displayName = "ProgressRoot";
+// No displayName here: ProgressRoot is the object the compound aliases via
+// Object.assign (see below), which sets displayName once to "Progress". An
+// assignment here would be dead — immediately overwritten at module load.
 
 /**
  * The visual fill of a Progress bar — a decorative `<div>` that mirrors the
@@ -151,6 +152,10 @@ export function ProgressIndicator({
   const indicatorProps = {
     ...rest,
     "data-state": state,
+    // Stryker disable next-line ConditionalExpression: `value` is null only
+    // while indeterminate, and React renders null and undefined attributes
+    // identically (both omitted), so the guarded (`undefined`) and unguarded
+    // (`null`) forms produce the same DOM — a provably-equivalent mutant.
     "data-value": value === null ? undefined : value,
     "data-max": max,
   };

@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 
 import { Progress } from "../Progress";
+import { ProgressContext } from "../ProgressContext";
 
 describe("Progress basic rendering", () => {
   it('renders a <div role="progressbar">', () => {
@@ -30,6 +31,7 @@ describe("Progress basic rendering", () => {
     // Assert
     expect(bar).toHaveAttribute("data-state", "indeterminate");
     expect(bar).not.toHaveAttribute("aria-valuenow");
+    expect(bar).not.toHaveAttribute("aria-valuetext");
     expect(bar).not.toHaveAttribute("data-value");
   });
 
@@ -61,5 +63,13 @@ describe("Progress basic rendering", () => {
       "indeterminate",
     );
     expect(screen.getByTestId("indicator")).toHaveAttribute("data-max", "100");
+  });
+
+  it("sets a displayName on the compound, indicator, and context", () => {
+    // Assert — empty displayNames would render each as anonymous in DevTools.
+    // Root aliases the compound (Object.assign), so its name is "Progress".
+    expect(Progress.displayName).toBe("Progress");
+    expect(Progress.Indicator.displayName).toBe("ProgressIndicator");
+    expect(ProgressContext.displayName).toBe("ProgressContext");
   });
 });

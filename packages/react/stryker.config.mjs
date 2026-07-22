@@ -49,8 +49,9 @@ export default {
   plugins: ["@stryker-mutator/vitest-runner"],
   testRunner: "vitest",
   coverageAnalysis: "perTest",
-  reporters: ["html", "clear-text", "progress"],
+  reporters: ["html", "json", "clear-text", "progress"],
   htmlReporter: { fileName: `reports/mutation/${reportName}.html` },
+  jsonReporter: { fileName: `reports/mutation/${reportName}.json` },
   clearTextReporter: { reportMutants: false },
   mutate,
   // Hard gate: any surviving mutant on an allowlisted component fails the run.

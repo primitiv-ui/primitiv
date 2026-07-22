@@ -66,6 +66,27 @@ describe("Progress value", () => {
     expect(screen.getByTestId("indicator")).toHaveAttribute("data-value", "70");
   });
 
+  it("propagates a changed value to the Indicator through context", () => {
+    // Arrange
+    const { rerender } = render(
+      <Progress.Root value={40} aria-label="Upload">
+        <Progress.Indicator data-testid="indicator" />
+      </Progress.Root>,
+    );
+    expect(screen.getByTestId("indicator")).toHaveAttribute("data-value", "40");
+
+    // Act — a new value must recompute the memoised context value, not a stale
+    // one frozen by empty dependencies.
+    rerender(
+      <Progress.Root value={70} aria-label="Upload">
+        <Progress.Indicator data-testid="indicator" />
+      </Progress.Root>,
+    );
+
+    // Assert
+    expect(screen.getByTestId("indicator")).toHaveAttribute("data-value", "70");
+  });
+
   describe.each(determinateStateCases)(
     "value $value of $max",
     ({ value, max, expectedState }) => {

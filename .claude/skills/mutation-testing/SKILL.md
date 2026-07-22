@@ -44,6 +44,37 @@ step here:
 - For writing the tests that kill survivors, load **`react-test-conventions`**
   (this repo's equivalent of a general testing skill).
 
+### Gotchas learned during the sweep
+
+- **Verify every kill with `typecheck`, not just the vitest suite.** vitest runs
+  through esbuild, which strips types without checking them — a type error hides
+  behind a green suite and only fails in CI's separate *Type-check libraries*
+  step. After each component run both
+  `pnpm --filter @primitiv-ui/react exec vitest run src/<Name>` **and**
+  `pnpm --filter @primitiv-ui/react typecheck`.
+- **`displayName` is the universal first survivor.** Every component ships an
+  unasserted `displayName`; assert `Component.displayName` (plus each
+  sub-component and any context's `displayName`) — the reliable first kill.
+- **Compound `Object.assign` components: do NOT delete the `Root.displayName`
+  assignment.** With the `const X = Object.assign(XRoot, { … })` pattern the
+  compound *is* `XRoot`, so `X.displayName = "X"` overwrites `XRoot.displayName`
+  at load — the `XRoot.displayName = "XRoot"` line looks like dead code. It
+  isn't: that assignment is what declares `displayName` on `typeof XRoot`, which
+  the `TXCompound` type extends. Delete it and `tsc` fails on the compound's own
+  `displayName` line (and your test). Keep it and
+  `// Stryker disable next-line StringLiteral` it — the value is genuinely never
+  observable at runtime (equivalent), but the assignment must stay for the type.
+  Kill the rest by asserting the *compound's* and each *separate* sub-component's
+  `displayName`.
+- **A `// Stryker disable` is not always "equivalent".** Most are (a stable
+  `useState` setter in a dep array, a duplicate no-op timer). But Stryker's
+  vitest runner also can't attribute a React **commit-phase throw** (e.g. a
+  callback ref dereferencing null on detach) to a covering test under
+  `coverageAnalysis: perTest` — the identical `BlockStatement` twin scores but
+  the `ConditionalExpression` twin survives. That's a runner limitation, not
+  equivalence; disable the one mutator with a comment that says so, and keep the
+  test that proves the guard is real.
+
 ---
 
 ## Core Concept

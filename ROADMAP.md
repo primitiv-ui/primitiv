@@ -59,7 +59,7 @@ is the exception (Figma set `601:9607`, whose tabbed Type composes Tabs + Button
 | ContextMenu | ✓ | ✓ | — | — | 1142:25899 (reuses Dropdown/* rows via slots — no ContextMenu-specific sub-components) |
 | Divider | ✓ | ✓ | ✓ | ✓ | |
 | Drawer | ✓ | ✓ | ✓ | ✓ | 1142:26332 (Side×Size; reuses Modal/Header·Body·Footer + Backdrop); headless = thin composition over Modal + `side` axis; registry = standalone `.primitiv-drawer` (edge-docked Modal, `data-side` slide + `width` cross-axis off the `size/*` scale, density-driven padding via `modal/*` tokens); kitchen-sink = one drawer per edge |
-| Dropdown | ✓ | ✓ | — | — | 402:18499 |
+| Dropdown | ✓ | ✓ | ✓ | ✓ | 668:42210 (Panel set) + Item/CheckboxItem/RadioItem/SubTrigger/Label/Separator/Group/RadioGroup sets on canvas 317:362; registry `dropdown` (anchor-positioned menu, menu checkmark/dot indicator model — RFC 0019 dep); kitchen-sink = 3-level nested menu |
 | EmptyState | — | ✓ | — | — | |
 | Field | ✓ | ✓ | ✓ | ✓ | 394:7449 |
 | Fieldset | — | ✓ | — | — | |

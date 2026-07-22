@@ -20,6 +20,20 @@ import {
   DrawerTitle,
   DrawerDescription,
   DrawerClose,
+  Dropdown,
+  DropdownTrigger,
+  DropdownContent,
+  DropdownItem,
+  DropdownCheckboxItem,
+  DropdownRadioItem,
+  DropdownItemIndicator,
+  DropdownLabel,
+  DropdownSeparator,
+  DropdownGroup,
+  DropdownRadioGroup,
+  DropdownSub,
+  DropdownSubTrigger,
+  DropdownSubContent,
   Field,
   FieldLabel,
   FieldDescription,
@@ -69,7 +83,7 @@ import {
   TooltipContent,
   TooltipArrow,
 } from "./components";
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Close, Search, Sort } from "@primitiv-ui/icons";
+import { Check, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Close, Minus, Search, Sort } from "@primitiv-ui/icons";
 import { useChrome } from "./chrome";
 import "./App.css";
 
@@ -162,6 +176,12 @@ export function App(): ReactElement {
     key: "downloads",
     dir: "desc",
   });
+  // Dropdown demo state — controlled so the check / dash / dot indicators reflect
+  // real selection as you toggle them (menus stay open via onSelect preventDefault).
+  const [ddSidebar, setDdSidebar] = useState(true);
+  const [ddStatusBar, setDdStatusBar] = useState(false);
+  const [ddPanels, setDdPanels] = useState<boolean | "indeterminate">("indeterminate");
+  const [ddSortOrder, setDdSortOrder] = useState("modified");
 
   const sortedReleases = [...RELEASES].sort((a, b) => {
     const av = a[sort.key];
@@ -685,6 +705,149 @@ export function ramp(hue: number, chroma = 0.12) {
             </Popover>
           ))}
         </div>
+      </Section>
+
+      {/* One menu exercising every part: a labelled Group of Items (with keyboard
+          shortcuts via the row's space-between), CheckboxItems (check / dash mixed)
+          and a RadioGroup (dot) through ItemIndicators, Separators, and a THREE-level
+          nested submenu. Positioning is pure CSS anchor positioning — the trigger and
+          every SubTrigger declare a unique `anchor-name`, each panel a matching
+          `position-anchor`; logical anchor(start/end) means it flips for RTL for free,
+          and position-try-fallbacks fold submenus back on viewport overflow. */}
+      <Section title="Dropdown" column>
+        <p className="kitchen-sink__note">
+          One menu-button dropdown with every part — items, checkbox / radio items,
+          labels, separators, and a three-level nested submenu. Open it and arrow
+          into <InlineCode size={size}>Open Recent →</InlineCode> to watch the
+          submenus anchor and flip.
+        </p>
+        <Dropdown>
+          <DropdownTrigger asChild>
+            <Button variant="secondary" size={size} style={{ anchorName: "--ks-dd" }}>
+              Menu
+              <ChevronDown aria-hidden="true" />
+            </Button>
+          </DropdownTrigger>
+          <DropdownContent size={size} style={{ positionAnchor: "--ks-dd" }}>
+            <DropdownGroup>
+              <DropdownLabel>File</DropdownLabel>
+              <DropdownItem>
+                New file
+                <span style={{ color: "var(--primitiv-content-muted)" }}>⌘N</span>
+              </DropdownItem>
+              <DropdownItem>
+                Open…
+                <span style={{ color: "var(--primitiv-content-muted)" }}>⌘O</span>
+              </DropdownItem>
+              <DropdownItem>
+                Save
+                <span style={{ color: "var(--primitiv-content-muted)" }}>⌘S</span>
+              </DropdownItem>
+            </DropdownGroup>
+
+            <DropdownSeparator />
+
+            <DropdownLabel>View</DropdownLabel>
+            <DropdownCheckboxItem
+              checked={ddSidebar}
+              onCheckedChange={setDdSidebar}
+              onSelect={(e) => e.preventDefault()}
+            >
+              <DropdownItemIndicator>
+                <Check aria-hidden="true" />
+              </DropdownItemIndicator>
+              Show sidebar
+            </DropdownCheckboxItem>
+            <DropdownCheckboxItem
+              checked={ddStatusBar}
+              onCheckedChange={setDdStatusBar}
+              onSelect={(e) => e.preventDefault()}
+            >
+              <DropdownItemIndicator>
+                <Check aria-hidden="true" />
+              </DropdownItemIndicator>
+              Show status bar
+            </DropdownCheckboxItem>
+            <DropdownCheckboxItem
+              checked={ddPanels}
+              onCheckedChange={setDdPanels}
+              onSelect={(e) => e.preventDefault()}
+            >
+              <DropdownItemIndicator>
+                {ddPanels === "indeterminate" ? (
+                  <Minus aria-hidden="true" />
+                ) : (
+                  <Check aria-hidden="true" />
+                )}
+              </DropdownItemIndicator>
+              Show all panels
+            </DropdownCheckboxItem>
+
+            <DropdownSeparator />
+
+            <DropdownLabel>Sort by</DropdownLabel>
+            <DropdownRadioGroup value={ddSortOrder} onValueChange={setDdSortOrder}>
+              {["name", "modified", "size"].map((value) => (
+                <DropdownRadioItem
+                  key={value}
+                  value={value}
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  <DropdownItemIndicator>
+                    <span
+                      style={{
+                        inlineSize: "45%",
+                        blockSize: "45%",
+                        borderRadius: "var(--primitiv-radii-full, 9999px)",
+                        background: "currentColor",
+                      }}
+                    />
+                  </DropdownItemIndicator>
+                  {value[0].toUpperCase() + value.slice(1)}
+                </DropdownRadioItem>
+              ))}
+            </DropdownRadioGroup>
+
+            <DropdownSeparator />
+
+            <DropdownSub>
+              <DropdownSubTrigger style={{ anchorName: "--ks-dd-s1" }}>
+                Open Recent
+                <ChevronRight aria-hidden="true" />
+              </DropdownSubTrigger>
+              <DropdownSubContent size={size} style={{ positionAnchor: "--ks-dd-s1" }}>
+                <DropdownItem>project-alpha</DropdownItem>
+                <DropdownItem>project-beta</DropdownItem>
+                <DropdownSeparator />
+                <DropdownSub>
+                  <DropdownSubTrigger style={{ anchorName: "--ks-dd-s2" }}>
+                    Archived
+                    <ChevronRight aria-hidden="true" />
+                  </DropdownSubTrigger>
+                  <DropdownSubContent size={size} style={{ positionAnchor: "--ks-dd-s2" }}>
+                    <DropdownItem>archive-2025</DropdownItem>
+                    <DropdownItem>archive-2024</DropdownItem>
+                    <DropdownSeparator />
+                    <DropdownSub>
+                      <DropdownSubTrigger style={{ anchorName: "--ks-dd-s3" }}>
+                        Older still
+                        <ChevronRight aria-hidden="true" />
+                      </DropdownSubTrigger>
+                      <DropdownSubContent size={size} style={{ positionAnchor: "--ks-dd-s3" }}>
+                        <DropdownItem>archive-2023</DropdownItem>
+                        <DropdownItem>archive-2022</DropdownItem>
+                      </DropdownSubContent>
+                    </DropdownSub>
+                  </DropdownSubContent>
+                </DropdownSub>
+              </DropdownSubContent>
+            </DropdownSub>
+
+            <DropdownSeparator />
+
+            <DropdownItem disabled>Archive project</DropdownItem>
+          </DropdownContent>
+        </Dropdown>
       </Section>
 
       {/* Hover / focus a trigger to show its tooltip. Each is anchor-wired

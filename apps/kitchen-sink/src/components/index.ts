@@ -5,6 +5,7 @@ export * from "./checkbox";
 export * from "./code-block";
 export * from "./divider";
 export * from "./drawer";
+export * from "./dropdown";
 export * from "./field";
 export * from "./inline-code";
 export * from "./input";

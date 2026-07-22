@@ -1,0 +1,88 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "dropdown",
+  "version": "0.1.0",
+  "description": "A menu-button dropdown built on the native HTML Popover API — a bordered, shadow-defined panel of selectable rows (plain items, checkbox/radio items, submenus), grouped with labels and separators. Positioned with CSS anchor positioning; keyboard, typeahead, and focus are owned by the headless primitive.",
+  "docs": "https://primitiv-ui.dev/docs/components/dropdown",
+  "root": {
+    "element": "menu",
+    "class": "primitiv-dropdown",
+    "component": "Content"
+  },
+  "dataAttributes": [
+    { "name": "data-popover-open", "value": "", "when": "open", "source": "auto" },
+    { "name": "data-state", "value": "open", "when": "open", "source": "auto" },
+    { "name": "data-state", "value": "closed", "when": "closed", "source": "auto" }
+  ],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Panel + row scale; `data-density` scales the sizing within each size. Re-points every child sizing knob (item height/padding/gap/radius/font, panel radius/padding, label, separator).",
+      "options": [
+        { "name": "xs", "class": "primitiv-dropdown--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-dropdown--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-dropdown--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-dropdown--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-dropdown--xl", "description": "Extra large." }
+      ]
+    },
+    {
+      "name": "placement",
+      "default": "bottom-start",
+      "description": "Which side of the trigger the panel opens on, via CSS `position-area`. Requires the consumer to wire `anchor-name` (on the trigger) + `position-anchor` (on Content). Submenus use the `submenu` value, which opens to the inline-end side.",
+      "options": [
+        { "name": "bottom-start", "class": "primitiv-dropdown--bottom-start", "description": "Below, start-aligned (the default)." },
+        { "name": "bottom-end", "class": "primitiv-dropdown--bottom-end", "description": "Below, end-aligned." },
+        { "name": "top-start", "class": "primitiv-dropdown--top-start", "description": "Above, start-aligned." },
+        { "name": "top-end", "class": "primitiv-dropdown--top-end", "description": "Above, end-aligned." },
+        { "name": "submenu", "class": "primitiv-dropdown--submenu", "description": "To the inline-end side of the parent row (for SubContent)." }
+      ]
+    }
+  ],
+  "subcomponents": [
+    { "name": "item", "component": "Item", "element": "li", "class": "primitiv-dropdown__item" },
+    { "name": "checkbox-item", "component": "CheckboxItem", "element": "li", "class": "primitiv-dropdown__checkbox-item" },
+    { "name": "radio-item", "component": "RadioItem", "element": "li", "class": "primitiv-dropdown__radio-item" },
+    { "name": "item-indicator", "component": "ItemIndicator", "element": "span", "class": "primitiv-dropdown__item-indicator" },
+    { "name": "label", "component": "Label", "element": "li", "class": "primitiv-dropdown__label" },
+    { "name": "separator", "component": "Separator", "element": "li", "class": "primitiv-dropdown__separator" },
+    { "name": "group", "component": "Group", "element": "li", "class": "primitiv-dropdown__group" },
+    { "name": "radio-group", "component": "RadioGroup", "element": "li", "class": "primitiv-dropdown__radio-group" },
+    { "name": "sub-trigger", "component": "SubTrigger", "element": "li", "class": "primitiv-dropdown__sub-trigger" }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-dropdown-surface", "defaultsTo": "var(--primitiv-surface-default)" },
+    { "name": "--primitiv-dropdown-fg", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-dropdown-border-width", "defaultsTo": "var(--primitiv-border-width-1)" },
+    { "name": "--primitiv-dropdown-border-color", "defaultsTo": "var(--primitiv-border-default)" },
+    { "name": "--primitiv-dropdown-shadow", "defaultsTo": "var(--primitiv-elevation-overlay)" },
+    { "name": "--primitiv-dropdown-radius", "defaultsTo": "var(--primitiv-dropdown-md-panel-radius)" },
+    { "name": "--primitiv-dropdown-padding-block", "defaultsTo": "var(--primitiv-dropdown-md-panel-padding-block)" },
+    { "name": "--primitiv-dropdown-min-inline-size", "defaultsTo": "12rem" },
+    { "name": "--primitiv-dropdown-offset", "defaultsTo": "var(--primitiv-space-space-4)" },
+    { "name": "--primitiv-dropdown-item-height", "defaultsTo": "var(--primitiv-dropdown-md-item-height)" },
+    { "name": "--primitiv-dropdown-item-padding-inline", "defaultsTo": "var(--primitiv-dropdown-md-item-padding-inline)" },
+    { "name": "--primitiv-dropdown-item-gap", "defaultsTo": "var(--primitiv-dropdown-md-item-gap)" },
+    { "name": "--primitiv-dropdown-item-radius", "defaultsTo": "var(--primitiv-dropdown-md-item-radius)" },
+    { "name": "--primitiv-dropdown-item-font-size", "defaultsTo": "var(--primitiv-dropdown-md-item-font-size)" },
+    { "name": "--primitiv-dropdown-item-line-height", "defaultsTo": "var(--primitiv-dropdown-md-item-line-height)" },
+    { "name": "--primitiv-dropdown-item-icon-size", "defaultsTo": "var(--primitiv-dropdown-md-item-icon-size)" },
+    { "name": "--primitiv-dropdown-item-font-family", "defaultsTo": "var(--primitiv-body-sm-font-family)" },
+    { "name": "--primitiv-dropdown-item-font-weight", "defaultsTo": "var(--primitiv-body-sm-font-weight)" },
+    { "name": "--primitiv-dropdown-item-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-dropdown-item-bg", "defaultsTo": "var(--primitiv-color-transparent)" },
+    { "name": "--primitiv-dropdown-item-bg-highlighted", "defaultsTo": "var(--primitiv-action-secondary-default)" },
+    { "name": "--primitiv-dropdown-label-height", "defaultsTo": "var(--primitiv-dropdown-md-label-height)" },
+    { "name": "--primitiv-dropdown-label-padding-inline", "defaultsTo": "var(--primitiv-dropdown-md-label-padding-inline)" },
+    { "name": "--primitiv-dropdown-label-color", "defaultsTo": "var(--primitiv-content-muted)" },
+    { "name": "--primitiv-dropdown-label-font-family", "defaultsTo": "var(--primitiv-label-xs-font-family)" },
+    { "name": "--primitiv-dropdown-label-font-size", "defaultsTo": "var(--primitiv-label-xs-font-size)" },
+    { "name": "--primitiv-dropdown-label-font-weight", "defaultsTo": "var(--primitiv-label-xs-font-weight)" },
+    { "name": "--primitiv-dropdown-label-line-height", "defaultsTo": "var(--primitiv-label-xs-line-height)" },
+    { "name": "--primitiv-dropdown-label-letter-spacing", "defaultsTo": "var(--primitiv-letter-spacing-wide)" },
+    { "name": "--primitiv-dropdown-separator-spacing", "defaultsTo": "var(--primitiv-dropdown-md-separator-spacing)" },
+    { "name": "--primitiv-dropdown-separator-color", "defaultsTo": "var(--primitiv-border-subtle)" },
+    { "name": "--primitiv-dropdown-separator-thickness", "defaultsTo": "var(--primitiv-border-width-1)" }
+  ]
+}

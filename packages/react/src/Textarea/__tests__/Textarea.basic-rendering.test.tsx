@@ -104,4 +104,9 @@ describe("Textarea basic rendering", () => {
     // Assert
     expect(onChange).toHaveBeenCalledTimes(2);
   });
+
+  it('sets displayName to "Textarea" for React DevTools and stack traces', () => {
+    // Assert — an empty displayName would render it as an anonymous component.
+    expect(Textarea.displayName).toBe("Textarea");
+  });
 });

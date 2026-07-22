@@ -16,5 +16,6 @@
   "Checkbox",
   "Toggle",
   "Radio",
-  "Input"
+  "Input",
+  "Textarea"
 ]

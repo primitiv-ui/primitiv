@@ -12,5 +12,6 @@
   "EmptyState",
   "Avatar",
   "Slot",
-  "Switch"
+  "Switch",
+  "Checkbox"
 ]

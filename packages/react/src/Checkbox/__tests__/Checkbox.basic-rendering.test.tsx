@@ -76,4 +76,18 @@ describe("Checkbox basic rendering", () => {
       "unchecked",
     );
   });
+
+  it("sets a displayName on the compound and the Indicator", () => {
+    // Assert — empty displayNames would render each as anonymous in DevTools.
+    // Root aliases the compound (Object.assign), so its name is "Checkbox".
+    expect(Checkbox.displayName).toBe("Checkbox");
+    expect(Checkbox.Indicator.displayName).toBe("CheckboxIndicator");
+  });
+
+  it("throws a helpful error when a sub-component renders outside Checkbox.Root", () => {
+    // Assert — the strict-context guard names the required parent.
+    expect(() => render(<Checkbox.Indicator />)).toThrow(
+      "Checkbox sub-components must be rendered inside a <Checkbox.Root>.",
+    );
+  });
 });

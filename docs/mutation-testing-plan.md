@@ -18,7 +18,7 @@ the same commit that adds the component to the allowlist. Rough order is
 cheapest-first (leaf → simple control → composite → compound/stateful); it's a
 guide, not a rule.
 
-**Done (14 / 42):** every box below the line is a component in `packages/react/src`.
+**Done (15 / 42):** every box below the line is a component in `packages/react/src`.
 
 Leaf / primitive:
 - [x] Divider
@@ -37,7 +37,7 @@ Leaf / primitive:
 Simple controls:
 - [x] Button
 - [x] Switch
-- [ ] Checkbox
+- [x] Checkbox
 - [ ] Toggle
 - [ ] Radio
 - [ ] Input

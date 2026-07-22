@@ -122,7 +122,11 @@ export function CheckboxRoot(props: CheckboxRootProps): ReactElement {
   );
 }
 
-/** @internal */
+// Runtime-dead: the compound alias below (same object via Object.assign)
+// overwrites this to "Checkbox" at load, so the value is never observable. The
+// assignment stays because it declares `displayName` on `typeof CheckboxRoot`,
+// which TCheckboxCompound extends.
+// Stryker disable next-line StringLiteral: overwritten by the compound alias — an equivalent mutant.
 CheckboxRoot.displayName = "CheckboxRoot";
 
 /**

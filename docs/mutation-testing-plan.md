@@ -5,11 +5,73 @@ Introducing mutation testing to the headless library with
 starting with **Button** as the test case, then growing a per-component
 allowlist until every component is covered.
 
-> **Status:** the harness is landed and the allowlist is
-> `["Button", "Divider", "VisuallyHidden"]`, each at **100% mutation score**
-> (`packages/react/stryker.config.mjs`, `mutation-allowlist.json`, the `mutate` /
-> `mutate:component` scripts, `scripts/mutate.mjs`, and `.github/workflows/mutation.yml`).
-> Next: bring the next component to a full kill and add it to the allowlist.
+> **Status:** the harness is landed. The allowlist
+> (`packages/react/mutation-allowlist.json`) is the machine source of truth for
+> what is at **100% mutation score**; the checklist below is the human tracker.
+> Next: bring the next unchecked component to a full kill and add it to the
+> allowlist.
+
+## Progress
+
+`mutation-allowlist.json` and this list stay in lockstep — tick a box here in
+the same commit that adds the component to the allowlist. Rough order is
+cheapest-first (leaf → simple control → composite → compound/stateful); it's a
+guide, not a rule.
+
+**Done (3 / 42):** every box below the line is a component in `packages/react/src`.
+
+Leaf / primitive:
+- [x] Divider
+- [x] VisuallyHidden
+- [ ] AccessibleIcon
+- [ ] Slot
+- [ ] Status
+- [ ] Portal
+- [ ] DirectionProvider
+- [ ] SkipNav
+- [ ] EmptyState
+- [ ] Avatar
+- [ ] Progress
+- [ ] Breadcrumb
+
+Simple controls:
+- [x] Button
+- [ ] Switch
+- [ ] Checkbox
+- [ ] Toggle
+- [ ] Radio
+- [ ] Input
+- [ ] Textarea
+- [ ] Alert
+
+Composites / groups:
+- [ ] CheckboxCard
+- [ ] RadioCard
+- [ ] RadioGroup
+- [ ] ToggleGroup
+- [ ] Field
+- [ ] Fieldset
+- [ ] InputGroup
+
+Compound / stateful:
+- [ ] Collapsible
+- [ ] Accordion
+- [ ] Tabs
+- [ ] Tooltip
+- [ ] Popover
+- [ ] Dropdown
+- [ ] ContextMenu
+- [ ] Modal
+- [ ] Drawer
+- [ ] Select
+- [ ] Slider
+- [ ] Table
+- [ ] Tree
+- [ ] Carousel
+- [ ] MillerColumns
+
+**Not components** (shared code — a possible later pass, not part of the 42):
+`src/hooks`, `src/utils`, `src/test`.
 
 Mutation testing is the natural next rung above our 100%-coverage bar: line
 coverage proves a line _ran_; mutation testing proves a line is _asserted on_.

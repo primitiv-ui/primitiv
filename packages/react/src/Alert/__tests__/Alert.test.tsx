@@ -25,4 +25,9 @@ describe("Alert component", () => {
     expect(alert.tagName).toBe("SECTION");
     expect(alert).toHaveTextContent("Upload failed");
   });
+
+  it('sets displayName to "Alert" for React DevTools and stack traces', () => {
+    // Assert — an empty displayName would render it as an anonymous component.
+    expect(Alert.displayName).toBe("Alert");
+  });
 });

@@ -17,5 +17,6 @@
   "Toggle",
   "Radio",
   "Input",
-  "Textarea"
+  "Textarea",
+  "Alert"
 ]

@@ -46,6 +46,19 @@ step here:
 
 ### Gotchas learned during the sweep
 
+- **Never test a hook (or internal) in isolation — no `renderHook`.** Hooks are
+  an implementation detail; a mutant in a hook must be killed by exercising the
+  **real component** that uses it, driving the behaviour through the public
+  surface. If a component's own tests can't reach a hook's branch, the natural
+  fix is a component-level interaction that does, not a direct hook test.
+- **Shared hooks are mutation-scoped to their consumer, not their folder.** A
+  hook can physically live under one component's dir yet be consumed by others
+  (e.g. `Checkbox/hooks/useCheckboxRoot.ts` is used by Dropdown / ContextMenu
+  menu checkbox-items, not by Checkbox itself). Testing it "naturally" means
+  through those consumers — so it is mutated under *them*, via the
+  `SHARED_MODULES` map in `stryker.config.mjs` (which pulls it into the
+  consumer's run and excludes it from the host directory's run). Watch for this
+  whenever a component run reports a whole hook file as `NoCoverage`.
 - **Verify every kill with `typecheck`, not just the vitest suite.** vitest runs
   through esbuild, which strips types without checking them — a type error hides
   behind a green suite and only fails in CI's separate *Type-check libraries*

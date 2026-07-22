@@ -129,4 +129,15 @@ describe("Breadcrumb basic rendering", () => {
       "page",
     );
   });
+
+  it("sets a displayName on the compound and each sub-component", () => {
+    // Assert — an empty displayName would render each as anonymous in DevTools.
+    // Root aliases the compound (Object.assign), so its name is "Breadcrumb".
+    expect(Breadcrumb.displayName).toBe("Breadcrumb");
+    expect(Breadcrumb.List.displayName).toBe("BreadcrumbList");
+    expect(Breadcrumb.Item.displayName).toBe("BreadcrumbItem");
+    expect(Breadcrumb.Link.displayName).toBe("BreadcrumbLink");
+    expect(Breadcrumb.Page.displayName).toBe("BreadcrumbPage");
+    expect(Breadcrumb.Separator.displayName).toBe("BreadcrumbSeparator");
+  });
 });

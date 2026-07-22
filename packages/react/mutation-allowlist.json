@@ -6,5 +6,6 @@
   "Portal",
   "DirectionProvider",
   "AccessibleIcon",
-  "SkipNav"
+  "SkipNav",
+  "Breadcrumb"
 ]

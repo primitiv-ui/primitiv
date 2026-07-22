@@ -53,8 +53,9 @@ export function BreadcrumbRoot({
   );
 }
 
-/** @internal */
-BreadcrumbRoot.displayName = "BreadcrumbRoot";
+// No displayName here: BreadcrumbRoot is the object the compound aliases via
+// Object.assign (see below), which sets displayName once to "Breadcrumb". An
+// assignment here would be dead — immediately overwritten at module load.
 
 /**
  * The ordered list of breadcrumb entries — renders an `<ol>`.

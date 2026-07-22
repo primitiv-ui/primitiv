@@ -59,6 +59,7 @@
     { "name": "--primitiv-dropdown-shadow", "defaultsTo": "var(--primitiv-elevation-overlay)" },
     { "name": "--primitiv-dropdown-radius", "defaultsTo": "var(--primitiv-dropdown-md-panel-radius)" },
     { "name": "--primitiv-dropdown-padding-block", "defaultsTo": "var(--primitiv-dropdown-md-panel-padding-block)" },
+    { "name": "--primitiv-dropdown-padding-inline", "defaultsTo": "var(--primitiv-space-space-4)" },
     { "name": "--primitiv-dropdown-min-inline-size", "defaultsTo": "12rem" },
     { "name": "--primitiv-dropdown-offset", "defaultsTo": "var(--primitiv-space-space-4)" },
     { "name": "--primitiv-dropdown-item-height", "defaultsTo": "var(--primitiv-dropdown-md-item-height)" },

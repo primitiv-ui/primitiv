@@ -84,6 +84,10 @@
     --primitiv-dropdown-shadow: var(--primitiv-elevation-overlay);
     --primitiv-dropdown-radius: var(--primitiv-dropdown-md-panel-radius);
     --primitiv-dropdown-padding-block: var(--primitiv-dropdown-md-panel-padding-block);
+    /* A small inline inset so a row's highlight / rounded corners sit inside the
+       panel edge instead of running flush against the border (most visible on
+       hover). */
+    --primitiv-dropdown-padding-inline: var(--primitiv-space-space-4);
     --primitiv-dropdown-min-inline-size: 12rem;
     /* Gap between the trigger and the panel. */
     --primitiv-dropdown-offset: var(--primitiv-space-space-4);
@@ -129,6 +133,7 @@
     box-sizing: border-box;
     min-inline-size: var(--primitiv-dropdown-min-inline-size);
     padding-block: var(--primitiv-dropdown-padding-block);
+    padding-inline: var(--primitiv-dropdown-padding-inline);
     border: var(--primitiv-dropdown-border-width) solid var(--primitiv-dropdown-border-color);
     border-radius: var(--primitiv-dropdown-radius);
     background: var(--primitiv-dropdown-surface);
@@ -447,6 +452,7 @@ $primitiv-dropdown-border-color: var(--primitiv-dropdown-border-color);
 $primitiv-dropdown-shadow: var(--primitiv-dropdown-shadow);
 $primitiv-dropdown-radius: var(--primitiv-dropdown-radius);
 $primitiv-dropdown-padding-block: var(--primitiv-dropdown-padding-block);
+$primitiv-dropdown-padding-inline: var(--primitiv-dropdown-padding-inline);
 $primitiv-dropdown-min-inline-size: var(--primitiv-dropdown-min-inline-size);
 $primitiv-dropdown-offset: var(--primitiv-dropdown-offset);
 $primitiv-dropdown-item-height: var(--primitiv-dropdown-item-height);

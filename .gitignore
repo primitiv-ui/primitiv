@@ -49,6 +49,10 @@ coverage/
 npm/cli-*/primitiv
 npm/cli-*/primitiv.exe
 
+# Stryker mutation testing — reports and temp working dir
+packages/react/reports/
+**/.stryker-tmp/
+
 # --- Claude Code ---
 # Per-machine local overrides — shared settings.json IS tracked
 .claude/settings.local.json

@@ -1,0 +1,90 @@
+name: Mutation
+
+# Stryker mutation testing for the headless library, one job per allowlisted
+# component (packages/react/mutation-allowlist.json). Each job mutates a single
+# component under the hard 100% gate, uploads its HTML report as an artifact
+# (if: always(), so survivors are visible on a failed run) and writes the score
+# to the job summary. See docs/mutation-testing-plan.md.
+#
+# Mirrors ci.yml's build sequence: the pnpm workspace resolves against
+# crates/harmoni-wasm/pkg (gitignored), so wasm must be built before install.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/react/**"
+      - "scripts/mutate.mjs"
+      - ".github/workflows/mutation.yml"
+  pull_request:
+    paths:
+      - "packages/react/**"
+      - "scripts/mutate.mjs"
+      - ".github/workflows/mutation.yml"
+
+jobs:
+  # Read the allowlist into a matrix so components run in parallel, each with its
+  # own artifact and independent pass/fail.
+  components:
+    name: resolve allowlist
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.read.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v5
+      - id: read
+        run: |
+          echo "matrix=$(tr -d '\n ' < packages/react/mutation-allowlist.json)" >> "$GITHUB_OUTPUT"
+
+  mutate:
+    name: mutate ${{ matrix.component }}
+    needs: components
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        component: ${{ fromJson(needs.components.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: jetli/wasm-pack-action@v0.4.0
+
+      - name: Build harmoni-wasm
+        run: wasm-pack build crates/harmoni-wasm --target web
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Mutation test — ${{ matrix.component }}
+        run: |
+          set -o pipefail
+          pnpm --filter @primitiv-ui/react mutate:component ${{ matrix.component }} 2>&1 | tee mutation-output.txt
+
+      - name: Write score to job summary
+        if: always()
+        run: |
+          {
+            echo "## Mutation score — ${{ matrix.component }}"
+            echo '```'
+            sed -n '/Mutation score/,/^-\{5,\}$/p' mutation-output.txt || tail -20 mutation-output.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload mutation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutation-report-${{ matrix.component }}
+          path: packages/react/reports/mutation/${{ matrix.component }}.html
+          if-no-files-found: warn

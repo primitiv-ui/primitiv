@@ -135,10 +135,23 @@ simple surfaces before the rich ones:
 ## Settled decisions
 
 1. **`break` (mutation-score gate) = `100`. Hard requirement.** Every mutant on
-   an allowlisted component must be killed. Genuinely-equivalent mutants — ones
-   that cannot be killed because the mutation produces observably-identical
-   behaviour — are marked with `// Stryker disable` comments and a one-line
-   justification, never left as tolerated survivors. This keeps "on the list"
-   meaning "fully killed" and mirrors the repo's 100%-coverage culture.
+   an allowlisted component must be **killed by a test**. That is the only
+   accepted outcome.
+
+   `// Stryker disable` is an **absolute last resort**, not a routine tool. It
+   is reserved for a mutant that is _provably equivalent_ — one where the
+   mutation produces observably-identical behaviour, so **no test could ever
+   distinguish it** (e.g. a change with no reachable effect on output, state,
+   DOM, or side effects). "The test is awkward / verbose / annoying to write"
+   is never a justification — write the test. Before any disable lands:
+
+   - it carries a comment proving _why_ the mutant is equivalent, not merely
+     _that_ it survived;
+   - the default assumption in review is that a survivor is a **missing
+     assertion**, and the burden is on the disable to overturn that.
+
+   Expect these to be vanishingly rare in a headless library — most survivors
+   will be real gaps. This keeps "on the list" meaning "fully killed" and
+   mirrors the repo's 100%-coverage culture.
 2. **`mutation.yml` becomes a required check** once Button proves the harness.
    Until then it runs on every PR so reports/artifacts are always available.

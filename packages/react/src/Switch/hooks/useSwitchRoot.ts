@@ -34,6 +34,9 @@ export function useSwitchRoot({
     onChange?.(event);
     if (event.defaultPrevented) return;
     const next = event.target.checked;
+    // Stryker disable next-line ConditionalExpression: in controlled mode
+    // `checked` reads controlledChecked, never `mirror`, so setting mirror here
+    // (the mutant's always-run form) has no observable effect — equivalent.
     if (!isControlled) setMirror(next);
     onCheckedChange?.(next);
   };

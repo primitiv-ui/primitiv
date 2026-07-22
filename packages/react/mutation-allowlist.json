@@ -11,5 +11,6 @@
   "Progress",
   "EmptyState",
   "Avatar",
-  "Slot"
+  "Slot",
+  "Switch"
 ]

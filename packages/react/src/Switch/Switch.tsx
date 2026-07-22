@@ -108,7 +108,11 @@ export function SwitchRoot({
   );
 }
 
-/** @internal */
+// Runtime-dead: the compound alias below (same object via Object.assign)
+// overwrites this to "Switch" at load, so the value is never observable. The
+// assignment stays because it declares `displayName` on `typeof SwitchRoot`,
+// which TSwitchCompound extends.
+// Stryker disable next-line StringLiteral: overwritten by the compound alias — an equivalent mutant.
 SwitchRoot.displayName = "SwitchRoot";
 
 /**

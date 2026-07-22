@@ -92,4 +92,11 @@ describe("Switch basic rendering", () => {
     expect(thumb).toHaveAttribute("aria-hidden", "true");
     expect(thumb).toHaveAttribute("data-state", "unchecked");
   });
+
+  it("sets a displayName on the compound and the Thumb", () => {
+    // Assert — empty displayNames would render each as anonymous in DevTools.
+    // Root aliases the compound (Object.assign), so its name is "Switch".
+    expect(Switch.displayName).toBe("Switch");
+    expect(Switch.Thumb.displayName).toBe("SwitchThumb");
+  });
 });

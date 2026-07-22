@@ -8,5 +8,6 @@
   "AccessibleIcon",
   "SkipNav",
   "Breadcrumb",
-  "Progress"
+  "Progress",
+  "EmptyState"
 ]

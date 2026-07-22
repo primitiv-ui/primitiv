@@ -71,8 +71,9 @@ export function EmptyStateRoot({
   return <div {...rootProps}>{children}</div>;
 }
 
-/** @internal */
-EmptyStateRoot.displayName = "EmptyStateRoot";
+// No displayName here: EmptyStateRoot is the object the compound aliases via
+// Object.assign (see below), which sets displayName once to "EmptyState". An
+// assignment here would be dead — immediately overwritten at module load.
 
 /**
  * The illustration slot of an Empty State — renders a `<div aria-hidden="true">`

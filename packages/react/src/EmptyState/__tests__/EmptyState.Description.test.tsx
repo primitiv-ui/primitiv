@@ -17,7 +17,7 @@ describe("EmptyState.Description component", () => {
 
   it("should render the consumer element with asChild", () => {
     // Arrange
-    render(
+    const { container } = render(
       <EmptyState.Description asChild>
         <span>Try adjusting your filters.</span>
       </EmptyState.Description>,
@@ -26,5 +26,7 @@ describe("EmptyState.Description component", () => {
     // Assert
     const description = screen.getByText("Try adjusting your filters.");
     expect(description.tagName).toBe("SPAN");
+    // Slot renders the child in place — no default <p> wrapper around it.
+    expect(container.querySelector("p")).toBeNull();
   });
 });

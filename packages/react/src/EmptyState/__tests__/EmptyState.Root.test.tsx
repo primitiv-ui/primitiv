@@ -25,4 +25,14 @@ describe("EmptyState.Root component", () => {
     expect(root.tagName).toBe("SECTION");
     expect(root).toHaveTextContent("No projects yet");
   });
+
+  it("sets a displayName on the compound and each sub-component", () => {
+    // Assert — empty displayNames would render each as anonymous in DevTools.
+    // Root aliases the compound (Object.assign), so its name is "EmptyState".
+    expect(EmptyState.displayName).toBe("EmptyState");
+    expect(EmptyState.Media.displayName).toBe("EmptyStateMedia");
+    expect(EmptyState.Title.displayName).toBe("EmptyStateTitle");
+    expect(EmptyState.Description.displayName).toBe("EmptyStateDescription");
+    expect(EmptyState.Actions.displayName).toBe("EmptyStateActions");
+  });
 });

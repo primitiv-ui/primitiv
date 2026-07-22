@@ -13,7 +13,7 @@ describe("EmptyState.Title component", () => {
 
   it("should render the consumer element with asChild", () => {
     // Arrange
-    render(
+    const { container } = render(
       <EmptyState.Title asChild>
         <h2>No results found</h2>
       </EmptyState.Title>,
@@ -22,5 +22,7 @@ describe("EmptyState.Title component", () => {
     // Assert
     const title = screen.getByRole("heading", { name: "No results found" });
     expect(title.tagName).toBe("H2");
+    // Slot renders the child in place — no default <p> wrapper around it.
+    expect(container.querySelector("p")).toBeNull();
   });
 });

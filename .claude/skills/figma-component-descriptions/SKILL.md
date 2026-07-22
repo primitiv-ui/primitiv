@@ -976,9 +976,10 @@ Properties: Show Header (BOOL true) — default header (filename + Copy icon-but
 
 Density: Context mode override on parent frame
 Pairs with: Tabs / Trigger (the tab strip, tabbed Type), Button (secondary — the text Copy control, tabbed Type), Icon Button (secondary — the icon Copy control, default Type), Icon (copy glyph)
-Notes: Type=default — filename left, Copy Icon Button (secondary, size tracks the block) right; gutter + line numbers available.
-  Type=tabbed — the header is a full-width row: a Tabs/Trigger strip on the left (npm active by default) on a border/subtle baseline the active ink-bar sits on, and a text Button (secondary, "Copy", size tracks the block, icons off) centred on the right; the panel is a single command line and the line-number gutter is removed. The tablist carries the top breathing-room padding (space/{8|12|16} by size) so the Copy button centres clear of the baseline while the tabs stay anchored to it.
-  Copy success feedback (icon copy→check, or text "Copy"→"Copied") is runtime-only — not a Figma state. The React side mirrors this: CodeBlock.Tabs composes the headless Tabs primitive and reuses the tabs component's classes; CodeBlock.Copy is one shared control whose children set the content (icon default, text when passed).
+Notes: The Copy control is one size step below the block (xs→xs, sm→xs, md→sm, lg→md, xl→lg), so it reads as subordinate to the code rather than a peer.
+  Type=default — filename left, Copy Icon Button (secondary) right; gutter + line numbers available.
+  Type=tabbed — the header is a full-width row: a Tabs/Trigger strip on the left (npm active by default) on a border/subtle baseline the active ink-bar sits on, and a text Button (secondary, "Copy", icons off) centred on the right; the panel is a single command line and the line-number gutter is removed. The tablist carries the top breathing-room padding (space/{8|12|16} by size) so the Copy button centres clear of the baseline while the tabs stay anchored to it.
+  Copy success feedback (icon copy→check, or text "Copy"→"Copied") is runtime-only — not a Figma state. React parity: CodeBlock.Tabs composes the headless Tabs primitive and reuses the tabs component's classes; CodeBlock.Copy composes the registry Button component (variant secondary) — so its text label gets the same __label wrap + text-box-trim as any button — with children setting the content (icon default, text when passed).
 ```
 
 ---

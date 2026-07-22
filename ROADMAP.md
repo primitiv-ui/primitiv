@@ -41,7 +41,8 @@ reference, so every registry surface should earn a ✓ here). Utility-only
 primitives (AccessibleIcon, DirectionProvider, Portal, SkipNav, Slot,
 VisuallyHidden) are headless-only and omitted. The three registry-only rows
 (Code Block, Inline Code, Prose) are the hand-authored **prose family** — no
-Figma set, no standalone headless component.
+standalone headless component. Inline Code and Prose have no Figma set; Code Block
+is the exception (Figma set `601:9607`, whose tabbed Type composes Tabs + Button).
 
 | Component | Figma | Headless | Registry | Kitchen Sink | Node ID / notes |
 |---|---|---|---|---|---|
@@ -53,7 +54,7 @@ Figma set, no standalone headless component.
 | Carousel | 🟡 | ✓ | ✓ | ✓ | Figma set in progress — `CarouselSlide` + parts, full set not yet assembled |
 | Checkbox | ✓ | ✓ | ✓ | ✓ | 369:30652 |
 | CheckboxCard | — | ✓ | — | — | |
-| Code Block | — | — | ✓ | ✓ | registry-only (Prism highlighting via prism-react-renderer) |
+| Code Block | ✓ | — | ✓ | ✓ | 601:9607 (Size×Type=default\|tabbed; tabbed = Tabs/Trigger strip + text Copy Button, Copy one size below block); registry-only React surface (Prism highlighting via prism-react-renderer); tabbed composes headless Tabs + registry Button |
 | Collapsible | — | ✓ | — | — | |
 | ContextMenu | ✓ | ✓ | — | — | 1142:25899 (reuses Dropdown/* rows via slots — no ContextMenu-specific sub-components) |
 | Divider | ✓ | ✓ | ✓ | ✓ | |

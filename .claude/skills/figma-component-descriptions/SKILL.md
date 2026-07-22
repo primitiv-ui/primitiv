@@ -958,6 +958,29 @@ Pairs with: Harmoni OKLCH Picker (nested as the thumb)
 Notes: absolute-white/black chosen deliberately — legible over any painted colour in both themes, matching the workbench cursor (white ring + black halo). Transparent centre is the colour readout.
 ```
 
+### Code Block — `601:9607`
+
+```
+Code block (<pre>) — a monospace code container with an optional filename/copy header and line numbers. The tabbed Type swaps the filename header for a package-manager tab strip (e.g. npm/pnpm/yarn/bun), each tab a different install command, with a text Copy button.
+
+Type: surface component (code container)
+
+Axes: Size xs|sm|md|lg|xl · Type default|tabbed
+
+Tokens: code + gutter fontFamily → font-family/mono; fontSize/fontStyle/lineHeight → body/{size}. Code content/primary, gutter content/muted, filename content/secondary. Single-colour — syntax highlighting is the consuming tooling's job.
+        box → surface/subtle, border/subtle 1px, radii/8, padding code/padding (Context, density-aware).
+        header divider (tabbed) → border/subtle 1px, full-width along the header bottom (doubles as the tablist baseline).
+        tab strip (tabbed) → nested Tabs / Trigger instances (content/secondary inactive · content/primary label + action/primary ink-bar active); tablist top padding → space/8 (xs, sm) · space/12 (md, lg) · space/16 (xl).
+
+Properties: Show Header (BOOL true) — default header (filename + Copy icon-button); the tabbed header is always shown. · Show Line Numbers (BOOL true) — gutter (default Type only; tabbed has no gutter).
+
+Density: Context mode override on parent frame
+Pairs with: Tabs / Trigger (the tab strip, tabbed Type), Button (secondary — the text Copy control, tabbed Type), Icon Button (secondary — the icon Copy control, default Type), Icon (copy glyph)
+Notes: Type=default — filename left, Copy Icon Button (secondary, size tracks the block) right; gutter + line numbers available.
+  Type=tabbed — the header is a full-width row: a Tabs/Trigger strip on the left (npm active by default) on a border/subtle baseline the active ink-bar sits on, and a text Button (secondary, "Copy", size tracks the block, icons off) centred on the right; the panel is a single command line and the line-number gutter is removed. The tablist carries the top breathing-room padding (space/{8|12|16} by size) so the Copy button centres clear of the baseline while the tabs stay anchored to it.
+  Copy success feedback (icon copy→check, or text "Copy"→"Copied") is runtime-only — not a Figma state. The React side mirrors this: CodeBlock.Tabs composes the headless Tabs primitive and reuses the tabs component's classes; CodeBlock.Copy is one shared control whose children set the content (icon default, text when passed).
+```
+
 ---
 
 ## Definition of done checklist

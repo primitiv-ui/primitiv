@@ -185,7 +185,7 @@
     },
     "code-block": {
       "version": "0.1.0",
-      "dependsOn": { "packages": [{ "name": "prism-react-renderer", "version": "^2.4.0" }], "tokens": true, "components": ["button"] },
+      "dependsOn": { "packages": [{ "name": "prism-react-renderer", "version": "^2.4.0" }, { "name": "@primitiv-ui/react", "version": "^0.1.0" }], "tokens": true, "components": ["button", "tabs"] },
       "styles": {
         "packages": ["class-variance-authority"],
         "react": ["code-block.recipe.ts", "code-block.tsx"],

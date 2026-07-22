@@ -2,7 +2,7 @@
   "$schema": "https://primitiv-ui.dev/schema/contract.json",
   "name": "code-block",
   "version": "0.1.0",
-  "description": "A block of source code — a bordered, tinted surface with mono type, an optional filename/copy header, an optional line-number gutter, and Prism syntax highlighting themed from tokens. Sized xs–xl; `data-density` scales the padding.",
+  "description": "A block of source code — a bordered, tinted surface with mono type, an optional filename/copy header, an optional line-number gutter, and Prism syntax highlighting themed from tokens. Sized xs–xl; `data-density` scales the padding. Compound subcomponents (CodeBlock.Tabs/Header/List/Trigger/Content/Copy) add a tabbed variant that composes the headless Tabs primitive and reuses the tabs component's classes.",
   "docs": "https://primitiv-ui.dev/docs/components/code-block",
   "root": {
     "element": "div",
@@ -36,6 +36,7 @@
     { "name": "--primitiv-code-block-line-height", "defaultsTo": "var(--primitiv-code-md-line-height)" },
     { "name": "--primitiv-code-block-gutter-color", "defaultsTo": "var(--primitiv-content-muted)" },
     { "name": "--primitiv-code-block-filename-color", "defaultsTo": "var(--primitiv-content-secondary)" },
+    { "name": "--primitiv-code-block-tabs-header-padding", "defaultsTo": "var(--primitiv-space-space-12)" },
     { "name": "--primitiv-code-syntax-keyword", "defaultsTo": "oklch(0.5 0.19 305)" },
     { "name": "--primitiv-code-syntax-function", "defaultsTo": "oklch(0.52 0.17 258)" },
     { "name": "--primitiv-code-syntax-string", "defaultsTo": "oklch(0.5 0.12 150)" },

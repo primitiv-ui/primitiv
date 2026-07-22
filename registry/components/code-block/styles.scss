@@ -22,7 +22,8 @@
  * Requires the token layer (`primitiv tokens`) for the --primitiv-font-family-mono,
  * --primitiv-code-*, --primitiv-code-padding, --primitiv-content-*, --primitiv-surface-*,
  * --primitiv-border-*, --primitiv-radii-* and --primitiv-space-* custom properties it
- * resolves, plus the `button` component's stylesheet for the copy control.
+ * resolves, plus the `button` component's stylesheet for the copy control and the
+ * `tabs` component's stylesheet for the tabbed variant's tab strip.
  */
 
 /* Declare the sublayer order up front so this sheet is safe to load ahead of
@@ -48,6 +49,9 @@
     --primitiv-code-block-line-height: var(--primitiv-code-md-line-height);
     --primitiv-code-block-gutter-color: var(--primitiv-content-muted);
     --primitiv-code-block-filename-color: var(--primitiv-content-secondary);
+    /* Tabbed variant only — the tablist's top breathing room (re-pointed per
+       size in the variants layer, matching the Figma per-size header padding). */
+    --primitiv-code-block-tabs-header-padding: var(--primitiv-space-space-12);
 
     /* Syntax theme — light. The [data-theme="dark"] block below swaps the set. */
     --primitiv-code-syntax-keyword: oklch(0.5 0.19 305);
@@ -95,6 +99,29 @@
   .primitiv-code-block__copy {
     margin-inline-start: auto;
     flex: none;
+  }
+
+  /* Tabbed variant — the header becomes a tab strip + copy control. The root is
+     co-classed .primitiv-tabs so the borrowed .primitiv-tabs__* classes resolve
+     their tokens; both roots are a flex column, so co-classing is safe. The
+     header's own full-width bottom border is the baseline the active tab's
+     ink-bar sits on, so the borrowed tablist must not draw its own; the tablist
+     carries the top breathing room, so the (smaller) copy control centres clear
+     of the baseline while the tabs stay anchored to it. Needs the `tabs`
+     component stylesheet. */
+  .primitiv-code-block.primitiv-tabs .primitiv-code-block__header {
+    padding-block: var(--primitiv-space-space-0);
+  }
+
+  .primitiv-code-block.primitiv-tabs .primitiv-tabs__list {
+    padding-block-start: var(--primitiv-code-block-tabs-header-padding);
+    border-block-end-width: var(--primitiv-border-width-0);
+  }
+
+  /* The tabbed panel wrapper (role=tabpanel) around the highlighted <pre>; let it
+     shrink below its content width so the code wraps (see __pre). */
+  .primitiv-code-block__panel {
+    min-inline-size: 0;
   }
 
   /* The scroll surface. text-size-adjust stops iOS Safari inflating text in a
@@ -229,22 +256,27 @@
   .primitiv-code-block--xs {
     --primitiv-code-block-font-size: var(--primitiv-code-xs-font-size);
     --primitiv-code-block-line-height: var(--primitiv-code-xs-line-height);
+    --primitiv-code-block-tabs-header-padding: var(--primitiv-space-space-8);
   }
   .primitiv-code-block--sm {
     --primitiv-code-block-font-size: var(--primitiv-code-sm-font-size);
     --primitiv-code-block-line-height: var(--primitiv-code-sm-line-height);
+    --primitiv-code-block-tabs-header-padding: var(--primitiv-space-space-8);
   }
   .primitiv-code-block--md {
     --primitiv-code-block-font-size: var(--primitiv-code-md-font-size);
     --primitiv-code-block-line-height: var(--primitiv-code-md-line-height);
+    --primitiv-code-block-tabs-header-padding: var(--primitiv-space-space-12);
   }
   .primitiv-code-block--lg {
     --primitiv-code-block-font-size: var(--primitiv-code-lg-font-size);
     --primitiv-code-block-line-height: var(--primitiv-code-lg-line-height);
+    --primitiv-code-block-tabs-header-padding: var(--primitiv-space-space-12);
   }
   .primitiv-code-block--xl {
     --primitiv-code-block-font-size: var(--primitiv-code-xl-font-size);
     --primitiv-code-block-line-height: var(--primitiv-code-xl-line-height);
+    --primitiv-code-block-tabs-header-padding: var(--primitiv-space-space-16);
   }
 }
 
@@ -260,6 +292,7 @@ $primitiv-code-block-font-size: var(--primitiv-code-block-font-size);
 $primitiv-code-block-line-height: var(--primitiv-code-block-line-height);
 $primitiv-code-block-gutter-color: var(--primitiv-code-block-gutter-color);
 $primitiv-code-block-filename-color: var(--primitiv-code-block-filename-color);
+$primitiv-code-block-tabs-header-padding: var(--primitiv-code-block-tabs-header-padding);
 $primitiv-code-syntax-keyword: var(--primitiv-code-syntax-keyword);
 $primitiv-code-syntax-function: var(--primitiv-code-syntax-function);
 $primitiv-code-syntax-string: var(--primitiv-code-syntax-string);

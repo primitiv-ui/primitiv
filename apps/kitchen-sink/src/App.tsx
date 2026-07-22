@@ -545,6 +545,22 @@ export function ramp(hue: number, chroma = 0.12) {
     .map((s) => s.hex);
 }`}
         />
+
+        <CodeBlock.Tabs defaultValue="npm" size={size}>
+          <CodeBlock.Header>
+            <CodeBlock.List label="Install with">
+              <CodeBlock.Trigger value="npm">npm</CodeBlock.Trigger>
+              <CodeBlock.Trigger value="pnpm">pnpm</CodeBlock.Trigger>
+              <CodeBlock.Trigger value="yarn">yarn</CodeBlock.Trigger>
+              <CodeBlock.Trigger value="bun">bun</CodeBlock.Trigger>
+            </CodeBlock.List>
+            <CodeBlock.Copy>Copy</CodeBlock.Copy>
+          </CodeBlock.Header>
+          <CodeBlock.Content value="npm" language="bash" code="npm i @primitiv-ui/react" />
+          <CodeBlock.Content value="pnpm" language="bash" code="pnpm add @primitiv-ui/react" />
+          <CodeBlock.Content value="yarn" language="bash" code="yarn add @primitiv-ui/react" />
+          <CodeBlock.Content value="bun" language="bash" code="bun add @primitiv-ui/react" />
+        </CodeBlock.Tabs>
       </Section>
 
       <Section title="Modal">

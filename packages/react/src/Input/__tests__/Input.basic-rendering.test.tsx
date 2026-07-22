@@ -115,4 +115,9 @@ describe("Input basic rendering", () => {
     // Assert
     expect(onChange).toHaveBeenCalledTimes(2);
   });
+
+  it('sets displayName to "Input" for React DevTools and stack traces', () => {
+    // Assert — an empty displayName would render it as an anonymous component.
+    expect(Input.displayName).toBe("Input");
+  });
 });

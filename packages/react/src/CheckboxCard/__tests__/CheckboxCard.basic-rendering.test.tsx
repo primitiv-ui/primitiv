@@ -55,4 +55,11 @@ describe("CheckboxCard basic rendering", () => {
     expect(screen.getByTestId("icon")).toBeInTheDocument();
     expect(screen.getByText("Feature name")).toBeInTheDocument();
   });
+
+  it("sets a displayName on the compound and the Indicator", () => {
+    // Assert — empty displayNames would render each as anonymous in DevTools.
+    // Root aliases the compound (Object.assign), so its name is "CheckboxCard".
+    expect(CheckboxCard.displayName).toBe("CheckboxCard");
+    expect(CheckboxCard.Indicator.displayName).toBe("CheckboxCardIndicator");
+  });
 });

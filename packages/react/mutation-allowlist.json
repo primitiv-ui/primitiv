@@ -18,5 +18,6 @@
   "Radio",
   "Input",
   "Textarea",
-  "Alert"
+  "Alert",
+  "CheckboxCard"
 ]

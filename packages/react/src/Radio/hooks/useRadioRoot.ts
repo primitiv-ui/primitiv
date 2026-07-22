@@ -36,6 +36,9 @@ export function useRadioRoot({
     onChange?.(event);
     if (event.defaultPrevented) return;
     const next = event.target.checked;
+    // Stryker disable next-line ConditionalExpression: in controlled mode the
+    // input reads the controlled value, never `mirror`, so setting mirror here
+    // (the mutant's always-run form) has no observable effect — equivalent.
     if (!isControlled) setMirror(next);
     onCheckedChange?.(next);
   };

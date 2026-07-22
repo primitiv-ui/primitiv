@@ -14,5 +14,6 @@
   "Slot",
   "Switch",
   "Checkbox",
-  "Toggle"
+  "Toggle",
+  "Radio"
 ]

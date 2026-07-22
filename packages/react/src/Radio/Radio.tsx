@@ -114,7 +114,11 @@ export function RadioRoot(props: RadioRootProps): ReactElement {
   );
 }
 
-/** @internal */
+// Runtime-dead: the compound alias below (same object via Object.assign)
+// overwrites this to "Radio" at load, so the value is never observable. The
+// assignment stays because it declares `displayName` on `typeof RadioRoot`,
+// which TRadioCompound extends.
+// Stryker disable next-line StringLiteral: overwritten by the compound alias — an equivalent mutant.
 RadioRoot.displayName = "RadioRoot";
 
 /**

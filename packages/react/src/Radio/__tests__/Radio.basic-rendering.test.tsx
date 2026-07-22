@@ -63,4 +63,18 @@ describe("Radio basic rendering", () => {
       "unchecked",
     );
   });
+
+  it("sets a displayName on the compound and the Indicator", () => {
+    // Assert — empty displayNames would render each as anonymous in DevTools.
+    // Root aliases the compound (Object.assign), so its name is "Radio".
+    expect(Radio.displayName).toBe("Radio");
+    expect(Radio.Indicator.displayName).toBe("RadioIndicator");
+  });
+
+  it("throws a helpful error when a sub-component renders outside Radio.Root", () => {
+    // Assert — the strict-context guard names the required parent.
+    expect(() => render(<Radio.Indicator />)).toThrow(
+      "Radio sub-components must be rendered inside a <Radio.Root>.",
+    );
+  });
 });

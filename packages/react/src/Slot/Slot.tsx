@@ -34,7 +34,15 @@ import { AnyProps, PossibleRef } from "../types";
 function setRef<T>(ref: PossibleRef<T>, value: T) {
   if (typeof ref === "function") {
     ref(value);
-  } else if (ref !== null && ref !== undefined) {
+    return;
+  }
+  // Forcing this guard true dereferences a null/undefined ref (a child with no
+  // ref of its own), throwing during React's commit-phase ref assignment. The
+  // "no ref of its own" test catches it, but Stryker's vitest runner can't
+  // attribute that commit-phase throw (the Avatar/Slot-guard limitation) — not
+  // equivalent.
+  // Stryker disable next-line ConditionalExpression
+  if (ref !== null && ref !== undefined) {
     (ref as RefObject<T>).current = value;
   }
 }

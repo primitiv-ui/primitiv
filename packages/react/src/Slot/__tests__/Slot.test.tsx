@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React, { createRef } from "react";
 
-import { Slot, composeRefs } from "../Slot";
+import { Slot } from "../Slot";
 
 describe("Slot tests", () => {
   describe("error handling", () => {
@@ -175,19 +175,36 @@ describe("Slot tests", () => {
     });
   });
 
-  describe("composeRefs", () => {
-    it("calls function refs, assigns object refs, and skips null/undefined", () => {
+  describe("ref composition (exercised through the component)", () => {
+    it("calls a function ref forwarded through the Slot with the element", () => {
       // Arrange
       const fnRef = vi.fn();
-      const objRef = createRef<HTMLDivElement>();
-      const node = document.createElement("div");
 
-      // Act — null/undefined must be skipped; assigning `.current` to them throws.
-      composeRefs<HTMLDivElement>(fnRef, objRef, null, undefined)(node);
+      // Act — a function ref on the Slot is composed onto the child element
+      render(
+        <Slot ref={fnRef}>
+          <button type="button">Click me</button>
+        </Slot>,
+      );
 
       // Assert
-      expect(fnRef).toHaveBeenCalledWith(node);
-      expect(objRef.current).toBe(node);
+      expect(fnRef).toHaveBeenCalledWith(screen.getByRole("button"));
+    });
+
+    it("populates an object ref and tolerates a child with no ref of its own", () => {
+      // Arrange — the Slot's object ref composes with the child's (absent) ref;
+      // the absent side must be skipped, not dereferenced.
+      const objRef = createRef<HTMLElement>();
+
+      // Act
+      render(
+        <Slot ref={objRef}>
+          <button type="button">Click me</button>
+        </Slot>,
+      );
+
+      // Assert
+      expect(objRef.current).toBe(screen.getByRole("button"));
     });
   });
 

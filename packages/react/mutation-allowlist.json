@@ -9,5 +9,6 @@
   "SkipNav",
   "Breadcrumb",
   "Progress",
-  "EmptyState"
+  "EmptyState",
+  "Avatar"
 ]

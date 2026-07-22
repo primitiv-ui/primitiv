@@ -72,7 +72,11 @@ export function AvatarRoot({
   );
 }
 
-/** @internal */
+// Runtime-dead: the compound alias below (same object via Object.assign)
+// overwrites this to "Avatar" at load, so the value is never observable. The
+// assignment stays because it declares `displayName` on `typeof AvatarRoot`,
+// which TAvatarCompound extends.
+// Stryker disable next-line StringLiteral: overwritten by the compound alias — an equivalent mutant.
 AvatarRoot.displayName = "AvatarRoot";
 
 /**
@@ -170,6 +174,9 @@ export function AvatarFallback({
   const [delayElapsed, setDelayElapsed] = useState(delayMs === undefined);
 
   useEffect(() => {
+    // Stryker disable next-line all: when delayMs is undefined, delayElapsed is
+    // already initialised true, so skipping vs. running this branch only sets a
+    // timer whose setDelayElapsed(true) is a no-op — no observable difference.
     if (delayMs === undefined) {
       return;
     }

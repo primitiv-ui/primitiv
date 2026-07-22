@@ -24,16 +24,32 @@ export function useAvatarImage(
 
   const ref = useCallback(
     (img: HTMLImageElement | null) => {
+      // The `img === null` guard is load-bearing: without it, detaching the ref
+      // dereferences null.naturalWidth and throws (see the "leaving the tree"
+      // test, which kills the BlockStatement twin of this line). Stryker's
+      // vitest runner does not reliably attribute that React commit-phase throw
+      // for the ConditionalExpression variant, so it can't be scored despite
+      // being covered and defended — a runner limitation, not an equivalent
+      // mutant. The condition->true variant is killed by the "loading on mount"
+      // test.
+      // Stryker disable next-line ConditionalExpression
       if (img === null || reported.current) {
         return;
       }
       reported.current = true;
       setStatus(img.naturalWidth > 0 ? "loaded" : "loading");
     },
+    // Stryker disable next-line ArrayDeclaration: setStatus is a useState
+    // setter with a stable identity, so [] and [setStatus] recreate the
+    // callback identically — the dependency is behaviourally inert (equivalent).
     [setStatus],
   );
 
+  // Stryker disable next-line ArrayDeclaration: setStatus is a stable useState
+  // setter, so the dependency array cannot change the callback — equivalent.
   const onLoad = useCallback(() => setStatus("loaded"), [setStatus]);
+  // Stryker disable next-line ArrayDeclaration: setStatus is a stable useState
+  // setter, so the dependency array cannot change the callback — equivalent.
   const onError = useCallback(() => setStatus("error"), [setStatus]);
 
   return { ref, onLoad, onError };

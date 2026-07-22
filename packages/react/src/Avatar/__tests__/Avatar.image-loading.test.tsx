@@ -21,6 +21,41 @@ describe("Avatar image loading", () => {
     expect(img).toHaveAttribute("src", "/ada.png");
   });
 
+  it('reports data-status="loading" on mount before any load event', () => {
+    // Arrange & Act — jsdom images report naturalWidth 0, so the attach-time
+    // inspection sees no cache hit and reports "loading" until load/error.
+    render(
+      <Avatar.Root data-testid="root">
+        <Avatar.Image src="/ada.png" alt="Ada" data-testid="img" />
+      </Avatar.Root>,
+    );
+
+    // Assert
+    expect(screen.getByTestId("root")).toHaveAttribute("data-status", "loading");
+    expect(screen.getByTestId("img")).toHaveAttribute("data-status", "loading");
+  });
+
+  it("tolerates the image leaving the tree (callback ref receives null)", () => {
+    // Arrange — an Avatar whose Image can be swapped out for a Fallback.
+    const { rerender } = render(
+      <Avatar.Root data-testid="root">
+        <Avatar.Image src="/ada.png" alt="Ada" />
+      </Avatar.Root>,
+    );
+
+    // Act — removing the Image detaches its callback ref, calling it with null.
+    // Without the `img === null` guard this dereferences null.naturalWidth and
+    // throws during the commit, failing the render.
+    rerender(
+      <Avatar.Root data-testid="root">
+        <Avatar.Fallback>AL</Avatar.Fallback>
+      </Avatar.Root>,
+    );
+
+    // Assert
+    expect(screen.getByText("AL")).toBeInTheDocument();
+  });
+
   it('reports data-status="loaded" on the Root and Image once the image loads', () => {
     // Arrange
     render(

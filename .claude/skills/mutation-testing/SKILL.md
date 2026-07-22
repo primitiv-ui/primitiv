@@ -40,7 +40,10 @@ step here:
   joins the allowlist only once it already kills every mutant.
 - Reports are inspected as **GitHub Actions artifacts** (HTML report uploaded
   `if: always()`, plus the score in the job summary), since suites aren't run
-  locally.
+  locally. Locally, after a `mutate:component <Name>` run,
+  `node scripts/mutation-survivors.mjs <Name>` prints the surviving /
+  no-coverage mutants grouped by file — the fast way to see exactly what to
+  kill (parses `reports/mutation/<Name>.json`).
 - For writing the tests that kill survivors, load **`react-test-conventions`**
   (this repo's equivalent of a general testing skill).
 

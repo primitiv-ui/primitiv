@@ -75,6 +75,10 @@ function getRef(element: React.ReactElement): PossibleRef<unknown> {
   const { props, ref } = element as React.ReactElement & {
     ref?: PossibleRef<unknown>;
   };
+  // Stryker disable next-line ConditionalExpression: in React 19, element.ref
+  // returns the same ref as props.ref for real elements, so preferring props.ref
+  // vs. falling back to ref is indistinguishable at runtime — an equivalent
+  // mutant. The ternary stays for the React <=18 shape, where the two differ.
   return (props as AnyProps).ref !== undefined
     ? ((props as AnyProps).ref as PossibleRef<unknown>)
     : ref;
@@ -201,6 +205,12 @@ export const Slot: ForwardRefExoticComponent<
   PropsWithoutRef<SlotProps> & RefAttributes<HTMLElement>
 > = forwardRef<HTMLElement, SlotProps>(
   ({ children, ...slotProps }, forwardedRef) => {
+    // Stryker disable next-line ConditionalExpression: forcing this guard false
+    // lets invalid children fall through to a *different* throw (the destructure
+    // in getRef below), which the error tests do catch — but Stryker's vitest
+    // runner does not attribute that React render-time throw to a covering test
+    // (the same limitation seen on Avatar's ref guard). The operator/block twins
+    // of this line are scored; only this variant can't be. Not equivalent.
     if (Children.count(children) !== 1 || !isValidElement(children)) {
       throw new Error("Slot requires exactly one React element child.");
     }

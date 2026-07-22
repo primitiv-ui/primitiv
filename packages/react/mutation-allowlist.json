@@ -10,5 +10,6 @@
   "Breadcrumb",
   "Progress",
   "EmptyState",
-  "Avatar"
+  "Avatar",
+  "Slot"
 ]

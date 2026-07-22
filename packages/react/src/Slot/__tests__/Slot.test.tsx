@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React, { createRef } from "react";
 
-import { Slot } from "../Slot";
+import { Slot, composeRefs } from "../Slot";
 
 describe("Slot tests", () => {
   describe("error handling", () => {
@@ -159,5 +159,98 @@ describe("Slot tests", () => {
       // Assert
       expect(screen.getByText("text")).toHaveClass("slot-class", "child-class");
     });
+
+    it("drops a falsy className from either side (no stray whitespace)", () => {
+      // Arrange — child provides an empty className; the filter must remove it.
+      const { container } = render(
+        <Slot className="slot-class">
+          <span className="">text</span>
+        </Slot>,
+      );
+
+      // Assert — exactly "slot-class", not "slot-class " with a trailing space
+      expect((container.firstChild as HTMLElement).getAttribute("class")).toBe(
+        "slot-class",
+      );
+    });
+  });
+
+  describe("composeRefs", () => {
+    it("calls function refs, assigns object refs, and skips null/undefined", () => {
+      // Arrange
+      const fnRef = vi.fn();
+      const objRef = createRef<HTMLDivElement>();
+      const node = document.createElement("div");
+
+      // Act — null/undefined must be skipped; assigning `.current` to them throws.
+      composeRefs<HTMLDivElement>(fnRef, objRef, null, undefined)(node);
+
+      // Assert
+      expect(fnRef).toHaveBeenCalledWith(node);
+      expect(objRef.current).toBe(node);
+    });
+  });
+
+  describe("mergeProps — event handlers (both sides)", () => {
+    it("composes handlers when both provide one — child first, then slot", async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const calls: string[] = [];
+      const slotClick = vi.fn(() => calls.push("slot"));
+      const childClick = vi.fn(() => calls.push("child"));
+      render(
+        <Slot onClick={slotClick}>
+          <button type="button" onClick={childClick}>
+            Click me
+          </button>
+        </Slot>,
+      );
+
+      // Act
+      await user.click(screen.getByRole("button"));
+
+      // Assert — both fire, child's handler first
+      expect(childClick).toHaveBeenCalledTimes(1);
+      expect(slotClick).toHaveBeenCalledTimes(1);
+      expect(calls).toEqual(["child", "slot"]);
+    });
+  });
+
+  describe("mergeProps — other props", () => {
+    it("keeps non-special props, child winning over the slot on collision", () => {
+      // Arrange
+      const { container } = render(
+        <Slot id="slot-id" data-origin="slot">
+          <span id="child-id">text</span>
+        </Slot>,
+      );
+      const el = container.firstChild as HTMLElement;
+
+      // Assert — child's id wins; the slot-only prop still passes through
+      expect(el.id).toBe("child-id");
+      expect(el.getAttribute("data-origin")).toBe("slot");
+    });
+
+    it("does not treat a prop merely containing on[A-Z] as an event handler", () => {
+      // Arrange — "iconOnly" contains "onO" but is not a handler; only a
+      // start-anchored /^on[A-Z]/ correctly excludes it, so the child value must
+      // win by the default merge rather than being composed into a function.
+      // "iconOnly" is not a real DOM attribute, hence the spread casts.
+      const { container } = render(
+        <Slot {...({ iconOnly: "slot" } as object)}>
+          <span {...({ iconOnly: "child" } as object)}>text</span>
+        </Slot>,
+      );
+
+      // Assert
+      expect((container.firstChild as HTMLElement).getAttribute("icononly")).toBe(
+        "child",
+      );
+    });
+  });
+
+  it('sets displayName to "Slot" for React DevTools and stack traces', () => {
+    // Assert — an empty displayName would render it as an anonymous component.
+    expect(Slot.displayName).toBe("Slot");
   });
 });

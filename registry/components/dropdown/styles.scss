@@ -1,0 +1,458 @@
+/*
+ * Dropdown — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add dropdown`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-dropdown panel + __item /
+ * __checkbox-item / __radio-item / __item-indicator / __label / __separator /
+ * __group / __radio-group / __sub-trigger parts, the --xs…--xl size modifiers,
+ * the placement modifiers, the data-popover-open / data-state hooks, and the
+ * --primitiv-dropdown-* custom properties), not these values (RFC 0006
+ * Principle 2 — names are stable, values are not).
+ *
+ * Anatomy mirrors the Figma design (Dropdown / Panel + Item + Label + Separator
+ * sets): a BORDERED, shadow-defined panel of full-width rows. Definition comes
+ * from surface + 1px border + the elevation/overlay shadow. Rows highlight on
+ * [data-highlighted] (the headless sets it on pointer-enter AND keyboard
+ * navigation, so hover and arrow-key focus share one look).
+ *
+ * Positioning is CSS anchor positioning (no JS), lifted from the workbench
+ * DropdownExample: wire an `anchor-name` on the trigger and a matching
+ * `position-anchor` on Content, then the logical anchor(start)/anchor(end)
+ * insets place the panel below-start of the trigger and flip on overflow. Using
+ * logical `anchor(start)` (not left/right) makes RTL fall out for free — the
+ * panel hugs the trigger's inline-start edge in both directions. Submenus
+ * (SubContent, the `submenu` placement) open to the inline-end side.
+ *
+ *   <button style="anchor-name: --menu">Options</button>
+ *   <DropdownContent style={{ positionAnchor: "--menu" }} />
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look live
+ * in primitiv.base, the size + placement modifiers in primitiv.variants, the
+ * highlighted / disabled / open-close styling in primitiv.states. The sublayer
+ * order is declared once in the shared token layer (primitiv.tokens.css); this
+ * file only re-opens the named sublayers.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-surface-*,
+ * --primitiv-content-*, --primitiv-border-*, --primitiv-elevation-*,
+ * --primitiv-dropdown-*, --primitiv-body-*, --primitiv-label-*,
+ * --primitiv-letter-spacing-*, --primitiv-space-*, --primitiv-color-*,
+ * --primitiv-action-*, --primitiv-opacity-* and --primitiv-motion-* custom
+ * properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of the
+ * token layer (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.reset {
+  .primitiv-dropdown {
+    /* Reset the native [popover] UA defaults: `margin: auto; inset: 0`
+       (viewport centering) so the anchor-positioning insets take over. The
+       panel is a <menu>, so also strip the UA list styling. */
+    margin: 0;
+    inset: auto;
+    padding: 0;
+    border: 0;
+    list-style: none;
+  }
+
+  /* Group / RadioGroup wrap a nested <ul role="none"> — strip its list styling
+     so grouped rows sit flush in the panel column. */
+  .primitiv-dropdown__group,
+  .primitiv-dropdown__radio-group {
+    margin: 0;
+    padding: 0;
+  }
+
+  .primitiv-dropdown__group > ul,
+  .primitiv-dropdown__radio-group > ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+}
+
+@layer primitiv.base {
+  .primitiv-dropdown {
+    /* Per-component API — the themable knobs, defaulting to the md size. The
+       size modifiers re-point the sizing knobs; consumers can override any one
+       without touching the rule. */
+    --primitiv-dropdown-surface: var(--primitiv-surface-default);
+    --primitiv-dropdown-fg: var(--primitiv-content-primary);
+    --primitiv-dropdown-border-width: var(--primitiv-border-width-1);
+    --primitiv-dropdown-border-color: var(--primitiv-border-default);
+    --primitiv-dropdown-shadow: var(--primitiv-elevation-overlay);
+    --primitiv-dropdown-radius: var(--primitiv-dropdown-md-panel-radius);
+    --primitiv-dropdown-padding-block: var(--primitiv-dropdown-md-panel-padding-block);
+    --primitiv-dropdown-min-inline-size: 12rem;
+    /* Gap between the trigger and the panel. */
+    --primitiv-dropdown-offset: var(--primitiv-space-space-4);
+
+    --primitiv-dropdown-item-height: var(--primitiv-dropdown-md-item-height);
+    --primitiv-dropdown-item-padding-inline: var(--primitiv-dropdown-md-item-padding-inline);
+    --primitiv-dropdown-item-gap: var(--primitiv-dropdown-md-item-gap);
+    --primitiv-dropdown-item-radius: var(--primitiv-dropdown-md-item-radius);
+    --primitiv-dropdown-item-font-size: var(--primitiv-dropdown-md-item-font-size);
+    --primitiv-dropdown-item-line-height: var(--primitiv-dropdown-md-item-line-height);
+    --primitiv-dropdown-item-icon-size: var(--primitiv-dropdown-md-item-icon-size);
+    --primitiv-dropdown-item-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-dropdown-item-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-dropdown-item-color: var(--primitiv-content-primary);
+    --primitiv-dropdown-item-bg: var(--primitiv-color-transparent);
+    --primitiv-dropdown-item-bg-highlighted: var(--primitiv-action-secondary-default);
+
+    --primitiv-dropdown-label-height: var(--primitiv-dropdown-md-label-height);
+    --primitiv-dropdown-label-padding-inline: var(--primitiv-dropdown-md-label-padding-inline);
+    --primitiv-dropdown-label-color: var(--primitiv-content-muted);
+    --primitiv-dropdown-label-font-family: var(--primitiv-label-xs-font-family);
+    --primitiv-dropdown-label-font-size: var(--primitiv-label-xs-font-size);
+    --primitiv-dropdown-label-font-weight: var(--primitiv-label-xs-font-weight);
+    --primitiv-dropdown-label-line-height: var(--primitiv-label-xs-line-height);
+    --primitiv-dropdown-label-letter-spacing: var(--primitiv-letter-spacing-wide);
+
+    --primitiv-dropdown-separator-spacing: var(--primitiv-dropdown-md-separator-spacing);
+    --primitiv-dropdown-separator-color: var(--primitiv-border-subtle);
+    --primitiv-dropdown-separator-thickness: var(--primitiv-border-width-1);
+
+    /* The panel. position:fixed lets anchor() resolve; the flex column stacks
+       the rows. Inert while closed (native [popover] is display:none until
+       :popover-open — see the display flip below). */
+    position: fixed;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-inline-size: var(--primitiv-dropdown-min-inline-size);
+    padding-block: var(--primitiv-dropdown-padding-block);
+    border: var(--primitiv-dropdown-border-width) solid var(--primitiv-dropdown-border-color);
+    border-radius: var(--primitiv-dropdown-radius);
+    background: var(--primitiv-dropdown-surface);
+    color: var(--primitiv-dropdown-fg);
+    box-shadow: var(--primitiv-dropdown-shadow);
+
+    /* Default placement: below the trigger, hugging its inline-start edge.
+       Consumers wire `anchor-name` on the trigger + a matching `position-anchor`
+       on this panel (inline style), against which these anchor() insets
+       resolve. */
+    inset-block-start: anchor(end);
+    inset-inline-start: anchor(start);
+    margin-block-start: var(--primitiv-dropdown-offset);
+    /* Flip to the opposite side / edge when the chosen placement overflows. */
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+  }
+
+  /* Show when open. A closed [popover] is display:none via the UA rule; setting
+     a visible display on the base rule would leak the panel while closed
+     (headless README gotcha), so only the display flip is gated here. */
+  .primitiv-dropdown:popover-open {
+    display: flex;
+  }
+
+  /* ── Rows — Item / CheckboxItem / RadioItem / SubTrigger share the shell ── */
+  .primitiv-dropdown__item,
+  .primitiv-dropdown__checkbox-item,
+  .primitiv-dropdown__radio-item,
+  .primitiv-dropdown__sub-trigger {
+    display: flex;
+    align-items: center;
+    gap: var(--primitiv-dropdown-item-gap);
+    box-sizing: border-box;
+    min-block-size: var(--primitiv-dropdown-item-height);
+    padding-inline: var(--primitiv-dropdown-item-padding-inline);
+    border-radius: var(--primitiv-dropdown-item-radius);
+    background: var(--primitiv-dropdown-item-bg);
+    color: var(--primitiv-dropdown-item-color);
+    font-family: var(--primitiv-dropdown-item-font-family);
+    font-size: var(--primitiv-dropdown-item-font-size);
+    font-weight: var(--primitiv-dropdown-item-font-weight);
+    line-height: var(--primitiv-dropdown-item-line-height);
+    cursor: default;
+    user-select: none;
+  }
+
+  /* The row's text label takes the remaining space so the SubTrigger chevron /
+     nothing else is pushed to the inline-end. */
+  .primitiv-dropdown__item,
+  .primitiv-dropdown__sub-trigger {
+    justify-content: space-between;
+  }
+
+  /* SubTrigger chevron — a trailing indicator sized to the item icon scale.
+     Consumers drop an icon (or a ">" glyph) as the last child; this sizes it. */
+  .primitiv-dropdown__sub-trigger > :last-child {
+    flex: none;
+    inline-size: var(--primitiv-dropdown-item-icon-size);
+    block-size: var(--primitiv-dropdown-item-icon-size);
+  }
+
+  /* ── CheckboxItem / RadioItem — a reserved inline-start gutter for the mark ──
+     The ItemIndicator (a ✓ / • the consumer supplies) is absolutely placed in a
+     gutter one icon + gap wide, so checked and unchecked rows keep their text
+     aligned whether or not the mark is mounted (headless unmounts it while
+     unchecked unless forceMount).
+     NOTE (pending design decision A/B, RFC 0019 follow-up): this styles the
+     menu checkmark/dot indicator model — the model the headless CheckboxItem /
+     RadioItem + ItemIndicator actually render. The Figma checkbox/radio items
+     currently embed a full Checkbox/Radio control (with a stray second label);
+     if that visual is kept instead, revisit this block. */
+  .primitiv-dropdown__checkbox-item,
+  .primitiv-dropdown__radio-item {
+    position: relative;
+    padding-inline-start: calc(
+      var(--primitiv-dropdown-item-padding-inline) +
+        var(--primitiv-dropdown-item-icon-size) + var(--primitiv-dropdown-item-gap)
+    );
+  }
+
+  .primitiv-dropdown__item-indicator {
+    position: absolute;
+    inset-inline-start: var(--primitiv-dropdown-item-padding-inline);
+    inset-block-start: 50%;
+    translate: 0 -50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-dropdown-item-icon-size);
+    block-size: var(--primitiv-dropdown-item-icon-size);
+    color: currentColor;
+  }
+
+  /* ── Label — a Khand small-caps section header ── */
+  .primitiv-dropdown__label {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-block-size: var(--primitiv-dropdown-label-height);
+    padding-inline: var(--primitiv-dropdown-label-padding-inline);
+    color: var(--primitiv-dropdown-label-color);
+    font-family: var(--primitiv-dropdown-label-font-family);
+    font-size: var(--primitiv-dropdown-label-font-size);
+    font-weight: var(--primitiv-dropdown-label-font-weight);
+    line-height: var(--primitiv-dropdown-label-line-height);
+    letter-spacing: var(--primitiv-dropdown-label-letter-spacing);
+    text-transform: uppercase;
+    user-select: none;
+  }
+
+  /* ── Separator — a thin rule with breathing room above and below ── */
+  .primitiv-dropdown__separator {
+    block-size: var(--primitiv-dropdown-separator-thickness);
+    margin-block: var(--primitiv-dropdown-separator-spacing);
+    background: var(--primitiv-dropdown-separator-color);
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the sizing knobs to the chosen slot. Density stays ambient
+     via [data-density] on the token values themselves (RFC 0009). */
+  .primitiv-dropdown--xs {
+    --primitiv-dropdown-radius: var(--primitiv-dropdown-xs-panel-radius);
+    --primitiv-dropdown-padding-block: var(--primitiv-dropdown-xs-panel-padding-block);
+    --primitiv-dropdown-item-height: var(--primitiv-dropdown-xs-item-height);
+    --primitiv-dropdown-item-padding-inline: var(--primitiv-dropdown-xs-item-padding-inline);
+    --primitiv-dropdown-item-gap: var(--primitiv-dropdown-xs-item-gap);
+    --primitiv-dropdown-item-radius: var(--primitiv-dropdown-xs-item-radius);
+    --primitiv-dropdown-item-font-size: var(--primitiv-dropdown-xs-item-font-size);
+    --primitiv-dropdown-item-line-height: var(--primitiv-dropdown-xs-item-line-height);
+    --primitiv-dropdown-item-icon-size: var(--primitiv-dropdown-xs-item-icon-size);
+    --primitiv-dropdown-label-height: var(--primitiv-dropdown-xs-label-height);
+    --primitiv-dropdown-label-padding-inline: var(--primitiv-dropdown-xs-label-padding-inline);
+    --primitiv-dropdown-separator-spacing: var(--primitiv-dropdown-xs-separator-spacing);
+  }
+  .primitiv-dropdown--sm {
+    --primitiv-dropdown-radius: var(--primitiv-dropdown-sm-panel-radius);
+    --primitiv-dropdown-padding-block: var(--primitiv-dropdown-sm-panel-padding-block);
+    --primitiv-dropdown-item-height: var(--primitiv-dropdown-sm-item-height);
+    --primitiv-dropdown-item-padding-inline: var(--primitiv-dropdown-sm-item-padding-inline);
+    --primitiv-dropdown-item-gap: var(--primitiv-dropdown-sm-item-gap);
+    --primitiv-dropdown-item-radius: var(--primitiv-dropdown-sm-item-radius);
+    --primitiv-dropdown-item-font-size: var(--primitiv-dropdown-sm-item-font-size);
+    --primitiv-dropdown-item-line-height: var(--primitiv-dropdown-sm-item-line-height);
+    --primitiv-dropdown-item-icon-size: var(--primitiv-dropdown-sm-item-icon-size);
+    --primitiv-dropdown-label-height: var(--primitiv-dropdown-sm-label-height);
+    --primitiv-dropdown-label-padding-inline: var(--primitiv-dropdown-sm-label-padding-inline);
+    --primitiv-dropdown-separator-spacing: var(--primitiv-dropdown-sm-separator-spacing);
+  }
+  .primitiv-dropdown--md {
+    --primitiv-dropdown-radius: var(--primitiv-dropdown-md-panel-radius);
+    --primitiv-dropdown-padding-block: var(--primitiv-dropdown-md-panel-padding-block);
+    --primitiv-dropdown-item-height: var(--primitiv-dropdown-md-item-height);
+    --primitiv-dropdown-item-padding-inline: var(--primitiv-dropdown-md-item-padding-inline);
+    --primitiv-dropdown-item-gap: var(--primitiv-dropdown-md-item-gap);
+    --primitiv-dropdown-item-radius: var(--primitiv-dropdown-md-item-radius);
+    --primitiv-dropdown-item-font-size: var(--primitiv-dropdown-md-item-font-size);
+    --primitiv-dropdown-item-line-height: var(--primitiv-dropdown-md-item-line-height);
+    --primitiv-dropdown-item-icon-size: var(--primitiv-dropdown-md-item-icon-size);
+    --primitiv-dropdown-label-height: var(--primitiv-dropdown-md-label-height);
+    --primitiv-dropdown-label-padding-inline: var(--primitiv-dropdown-md-label-padding-inline);
+    --primitiv-dropdown-separator-spacing: var(--primitiv-dropdown-md-separator-spacing);
+  }
+  .primitiv-dropdown--lg {
+    --primitiv-dropdown-radius: var(--primitiv-dropdown-lg-panel-radius);
+    --primitiv-dropdown-padding-block: var(--primitiv-dropdown-lg-panel-padding-block);
+    --primitiv-dropdown-item-height: var(--primitiv-dropdown-lg-item-height);
+    --primitiv-dropdown-item-padding-inline: var(--primitiv-dropdown-lg-item-padding-inline);
+    --primitiv-dropdown-item-gap: var(--primitiv-dropdown-lg-item-gap);
+    --primitiv-dropdown-item-radius: var(--primitiv-dropdown-lg-item-radius);
+    --primitiv-dropdown-item-font-size: var(--primitiv-dropdown-lg-item-font-size);
+    --primitiv-dropdown-item-line-height: var(--primitiv-dropdown-lg-item-line-height);
+    --primitiv-dropdown-item-icon-size: var(--primitiv-dropdown-lg-item-icon-size);
+    --primitiv-dropdown-label-height: var(--primitiv-dropdown-lg-label-height);
+    --primitiv-dropdown-label-padding-inline: var(--primitiv-dropdown-lg-label-padding-inline);
+    --primitiv-dropdown-separator-spacing: var(--primitiv-dropdown-lg-separator-spacing);
+  }
+  .primitiv-dropdown--xl {
+    --primitiv-dropdown-radius: var(--primitiv-dropdown-xl-panel-radius);
+    --primitiv-dropdown-padding-block: var(--primitiv-dropdown-xl-panel-padding-block);
+    --primitiv-dropdown-item-height: var(--primitiv-dropdown-xl-item-height);
+    --primitiv-dropdown-item-padding-inline: var(--primitiv-dropdown-xl-item-padding-inline);
+    --primitiv-dropdown-item-gap: var(--primitiv-dropdown-xl-item-gap);
+    --primitiv-dropdown-item-radius: var(--primitiv-dropdown-xl-item-radius);
+    --primitiv-dropdown-item-font-size: var(--primitiv-dropdown-xl-item-font-size);
+    --primitiv-dropdown-item-line-height: var(--primitiv-dropdown-xl-item-line-height);
+    --primitiv-dropdown-item-icon-size: var(--primitiv-dropdown-xl-item-icon-size);
+    --primitiv-dropdown-label-height: var(--primitiv-dropdown-xl-label-height);
+    --primitiv-dropdown-label-padding-inline: var(--primitiv-dropdown-xl-label-padding-inline);
+    --primitiv-dropdown-separator-spacing: var(--primitiv-dropdown-xl-separator-spacing);
+  }
+
+  /* Placement — overrides the default bottom-start insets. All expressed with
+     logical anchor(start)/anchor(end) so each flips correctly under RTL. The
+     margin offset always points back toward the trigger. */
+  .primitiv-dropdown--bottom-start {
+    inset-block-start: anchor(end);
+    inset-block-end: auto;
+    inset-inline-start: anchor(start);
+    inset-inline-end: auto;
+    margin-block: var(--primitiv-dropdown-offset) 0;
+    margin-inline: 0;
+  }
+  .primitiv-dropdown--bottom-end {
+    inset-block-start: anchor(end);
+    inset-block-end: auto;
+    inset-inline-end: anchor(end);
+    inset-inline-start: auto;
+    margin-block: var(--primitiv-dropdown-offset) 0;
+    margin-inline: 0;
+  }
+  .primitiv-dropdown--top-start {
+    inset-block-end: anchor(start);
+    inset-block-start: auto;
+    inset-inline-start: anchor(start);
+    inset-inline-end: auto;
+    margin-block: 0 var(--primitiv-dropdown-offset);
+    margin-inline: 0;
+  }
+  .primitiv-dropdown--top-end {
+    inset-block-end: anchor(start);
+    inset-block-start: auto;
+    inset-inline-end: anchor(end);
+    inset-inline-start: auto;
+    margin-block: 0 var(--primitiv-dropdown-offset);
+    margin-inline: 0;
+  }
+
+  /* Submenu (SubContent) — opens to the inline-end side of the parent row,
+     aligned to its block-start. flip-inline first so it folds back to the
+     inline-start side when it would overflow. */
+  .primitiv-dropdown--submenu {
+    inset-block-start: anchor(start);
+    inset-block-end: auto;
+    inset-inline-start: anchor(end);
+    inset-inline-end: auto;
+    margin-block: 0;
+    margin-inline: var(--primitiv-dropdown-offset) 0;
+    position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block;
+  }
+}
+
+@layer primitiv.states {
+  /* Highlighted row — the headless sets [data-highlighted] on pointer-enter and
+     on keyboard navigation, so hover and arrow focus share this fill. On a
+     SubTrigger it also persists while its submenu is open, keeping the active
+     path lit. */
+  .primitiv-dropdown__item[data-highlighted],
+  .primitiv-dropdown__checkbox-item[data-highlighted],
+  .primitiv-dropdown__radio-item[data-highlighted],
+  .primitiv-dropdown__sub-trigger[data-highlighted] {
+    background: var(--primitiv-dropdown-item-bg-highlighted);
+    outline: none;
+  }
+
+  /* Disabled — the headless sets aria-disabled and skips the row for
+     navigation, typeahead, and activation; the styling just dims it. */
+  .primitiv-dropdown__item[aria-disabled="true"],
+  .primitiv-dropdown__checkbox-item[aria-disabled="true"],
+  .primitiv-dropdown__radio-item[aria-disabled="true"],
+  .primitiv-dropdown__sub-trigger[aria-disabled="true"],
+  .primitiv-dropdown__label[aria-disabled="true"] {
+    opacity: var(--primitiv-opacity-50);
+    pointer-events: none;
+  }
+
+  /* Enter / exit — the panel scales + fades, driven by the native :popover-open
+     state (the headless calls showPopover / hidePopover). The resting/closed
+     state (base rule) is faded + scaled down; :popover-open brings it in;
+     @starting-style gives the enter its starting frame so the exit is the exact
+     reverse. allow-discrete on display + overlay keeps the panel painted in the
+     top layer through the close so it animates out instead of snapping.
+     Token-driven (shared overlay duration + enter / exit easings). */
+  .primitiv-dropdown {
+    opacity: 0;
+    scale: 0.97;
+    transition:
+      opacity var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
+      scale var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
+      display var(--primitiv-motion-duration-overlay) allow-discrete,
+      overlay var(--primitiv-motion-duration-overlay) allow-discrete;
+  }
+  .primitiv-dropdown:popover-open {
+    opacity: 1;
+    scale: 1;
+    transition-timing-function: var(--primitiv-motion-easing-enter);
+  }
+  @starting-style {
+    .primitiv-dropdown:popover-open {
+      opacity: 0;
+      scale: 0.97;
+    }
+  }
+
+  /* Honour reduced-motion: no scale / fade, just show / hide. */
+  @media (prefers-reduced-motion: reduce) {
+    .primitiv-dropdown {
+      transition: none;
+    }
+  }
+}
+
+$primitiv-dropdown-surface: var(--primitiv-dropdown-surface);
+$primitiv-dropdown-fg: var(--primitiv-dropdown-fg);
+$primitiv-dropdown-border-width: var(--primitiv-dropdown-border-width);
+$primitiv-dropdown-border-color: var(--primitiv-dropdown-border-color);
+$primitiv-dropdown-shadow: var(--primitiv-dropdown-shadow);
+$primitiv-dropdown-radius: var(--primitiv-dropdown-radius);
+$primitiv-dropdown-padding-block: var(--primitiv-dropdown-padding-block);
+$primitiv-dropdown-min-inline-size: var(--primitiv-dropdown-min-inline-size);
+$primitiv-dropdown-offset: var(--primitiv-dropdown-offset);
+$primitiv-dropdown-item-height: var(--primitiv-dropdown-item-height);
+$primitiv-dropdown-item-padding-inline: var(--primitiv-dropdown-item-padding-inline);
+$primitiv-dropdown-item-gap: var(--primitiv-dropdown-item-gap);
+$primitiv-dropdown-item-radius: var(--primitiv-dropdown-item-radius);
+$primitiv-dropdown-item-font-size: var(--primitiv-dropdown-item-font-size);
+$primitiv-dropdown-item-line-height: var(--primitiv-dropdown-item-line-height);
+$primitiv-dropdown-item-icon-size: var(--primitiv-dropdown-item-icon-size);
+$primitiv-dropdown-item-font-family: var(--primitiv-dropdown-item-font-family);
+$primitiv-dropdown-item-font-weight: var(--primitiv-dropdown-item-font-weight);
+$primitiv-dropdown-item-color: var(--primitiv-dropdown-item-color);
+$primitiv-dropdown-item-bg: var(--primitiv-dropdown-item-bg);
+$primitiv-dropdown-item-bg-highlighted: var(--primitiv-dropdown-item-bg-highlighted);
+$primitiv-dropdown-label-height: var(--primitiv-dropdown-label-height);
+$primitiv-dropdown-label-padding-inline: var(--primitiv-dropdown-label-padding-inline);
+$primitiv-dropdown-label-color: var(--primitiv-dropdown-label-color);
+$primitiv-dropdown-label-font-family: var(--primitiv-dropdown-label-font-family);
+$primitiv-dropdown-label-font-size: var(--primitiv-dropdown-label-font-size);
+$primitiv-dropdown-label-font-weight: var(--primitiv-dropdown-label-font-weight);
+$primitiv-dropdown-label-line-height: var(--primitiv-dropdown-label-line-height);
+$primitiv-dropdown-label-letter-spacing: var(--primitiv-dropdown-label-letter-spacing);
+$primitiv-dropdown-separator-spacing: var(--primitiv-dropdown-separator-spacing);
+$primitiv-dropdown-separator-color: var(--primitiv-dropdown-separator-color);
+$primitiv-dropdown-separator-thickness: var(--primitiv-dropdown-separator-thickness);

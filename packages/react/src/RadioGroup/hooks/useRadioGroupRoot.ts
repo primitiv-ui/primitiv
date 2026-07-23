@@ -71,6 +71,11 @@ export function useRadioGroupRoot({
 
   const focusItem = useCallback(
     (itemValue: string) => {
+      // `itemValue` is always sourced from `navigable` (the enabled subset of
+      // `itemValues`), and `useCollection`'s register() writes `itemsRef` and
+      // the `itemValues` state together in the same call — so a value that
+      // appears here is guaranteed to already have a live entry in the map.
+      // Stryker disable next-line OptionalChaining: unreachable given that invariant.
       itemsRef.current.get(itemValue)?.element.focus();
     },
     [itemsRef],

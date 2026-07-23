@@ -133,6 +133,11 @@ export function RadioGroupRoot({
 }
 
 /** @internal */
+// Runtime-dead: the compound alias below (same object via Object.assign)
+// overwrites this to "RadioGroup" at load, so the value is never observable.
+// The assignment stays because it declares `displayName` on
+// `typeof RadioGroupRoot`, which TRadioGroupCompound extends.
+// Stryker disable next-line StringLiteral: overwritten by the compound alias — an equivalent mutant.
 RadioGroupRoot.displayName = "RadioGroupRoot";
 
 /**

@@ -69,4 +69,12 @@ describe("RadioGroup basic rendering", () => {
       "unchecked",
     );
   });
+
+  it("sets a displayName on the compound, Item, and Indicator", () => {
+    // Assert — empty displayNames would render each as anonymous in DevTools.
+    // Root aliases the compound (Object.assign), so its name is "RadioGroup".
+    expect(RadioGroup.displayName).toBe("RadioGroup");
+    expect(RadioGroup.Item.displayName).toBe("RadioGroupItem");
+    expect(RadioGroup.Indicator.displayName).toBe("RadioGroupIndicator");
+  });
 });

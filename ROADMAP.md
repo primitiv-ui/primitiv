@@ -74,6 +74,7 @@ is the exception (Figma set `601:9607`, whose tabbed Type composes Tabs + Button
 | Prose | — | — | ✓ | ✓ | registry-only (`.primitiv-flow` + `<Prose>` wrapper) |
 | RadioCard | — | ✓ | — | — | |
 | RadioGroup | ✓ | ✓ | ✓ | ✓ | 401:17958 (registry `radio`) |
+| Segmented Control | ✓ | — | — | — | 1216:44224 (track set, Size×Count 2-5) + 1216:43507 (Item set, Size×Selected×Interaction) on page "Segmented Control"; Tabs-model split (track composes Item, like Toggle Group + ToggleGroup Item). Item mirrors Button (Selected=true→primary brand fill, false→secondary) with its own Label/Leading+Trailing Icon props; transparent bordered track (`segmented-control/{size}/radius` concentric = item radius + track padding, `track-padding`+`track-gap` tokens). Verified across 4 densities + Light/Dark. Headless not built; will reuse RadioGroup's single-select semantics (not ToggleGroup's) |
 | Select | ✓ | ✓ | — | — | 403:1883 |
 | Slider | ✓ | ✓ | — | — | 392:5196 (track), 392:4353 (thumb) |
 | Status | — | ✓ | — | — | |
@@ -81,8 +82,8 @@ is the exception (Figma set `601:9607`, whose tabbed Type composes Tabs + Button
 | Table | ✓ | ✓ | ✓ | ✓ | 605:13524 (Table), 604:9802 (Cell), 604:9991 (Header Cell), 604:10228 (Row) |
 | Tabs | ✓ | ✓ | ✓ | ✓ | 425:5528 (Trigger), 425:5539 (Panel) |
 | Textarea | ✓ | ✓ | — | — | 439:14511 |
-| Toggle | ✓ | ✓ | — | — | 385:1418 |
-| ToggleGroup | ✓ | ✓ | ✓ | ✓ | assembled from Toggle |
+| Toggle | — | ✓ | — | — | standalone Figma set (385:1418) deleted 2026-07-01 when ToggleGroup decoupled from it — no dedicated Figma component currently; rebuild from the workbench reference if needed |
+| ToggleGroup | ✓ | ✓ | ✓ | ✓ | 389:3372 (Toggle Group track) + 733:239 (ToggleGroup Item) — redesigned 2026-07-01 as a recessed pill track + floating pill thumb, decoupled from the deleted standalone Toggle set |
 | Tooltip | ✓ | ✓ | ✓ | ✓ | 1168:35600 (composition), 1142:25897 (Content), 1168:34990 (Arrow); registry = flat bubble + `__arrow`, `tone` (default dark / inverted surface) × `size` × 12 placements (CSS anchor positioning), `data-state` exit (no overlay, needs `forceMount`) |
 | Tree | — | ✓ | — | — | |
 

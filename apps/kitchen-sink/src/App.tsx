@@ -89,6 +89,41 @@ import { Check, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Close, Minus,
 import { useChrome } from "./chrome";
 import "./App.css";
 
+/* Simplified, monochrome framework marks for the Segmented Control demo. They
+   fill with `currentColor`, so each adopts its segment's foreground (white on the
+   selected brand pill, dark on the secondary segments) and themes automatically;
+   the registry's `svg` rule sizes them to the item's icon-size token, so they
+   scale with `size` and `data-density` for free. Swap in official SVGs as needed. */
+function ReactLogo(): ReactElement {
+  return (
+    <svg viewBox="-11.5 -10.23 23 20.46" aria-hidden="true" fill="currentColor">
+      <circle r="2.05" />
+      <g fill="none" stroke="currentColor" strokeWidth="1">
+        <ellipse rx="11" ry="4.2" />
+        <ellipse rx="11" ry="4.2" transform="rotate(60)" />
+        <ellipse rx="11" ry="4.2" transform="rotate(120)" />
+      </g>
+    </svg>
+  );
+}
+
+function VueLogo(): ReactElement {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+      <path d="M19 3l-7 12L5 3H1l11 19L23 3z" />
+      <path d="M15 3l-3 5-3-5H6l6 10 6-10z" opacity="0.55" />
+    </svg>
+  );
+}
+
+function SvelteLogo(): ReactElement {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+      <path d="M17.6 4.2c-2-2.9-6-3.8-9-2L4 5.1A5.9 5.9 0 0 0 1.4 9a6.2 6.2 0 0 0 .6 4 5.9 5.9 0 0 0-.9 2.2 6.3 6.3 0 0 0 1.1 4.7c2 2.9 6 3.8 9 2l4.6-2.9a5.9 5.9 0 0 0 2.7-3.9 6.2 6.2 0 0 0-.6-4 5.9 5.9 0 0 0 .9-2.2 6.3 6.3 0 0 0-1.1-4.7zM10.3 19.6a3.6 3.6 0 0 1-3.9-1.4 3.8 3.8 0 0 1-.6-2.8 3.5 3.5 0 0 1 .2-.7l.1-.4.4.3a9.6 9.6 0 0 0 2.8 1.4l.3.1v.3a1.1 1.1 0 0 0 .2.7 1.1 1.1 0 0 0 1.2.4 1 1 0 0 0 .3-.1l4.6-3a1 1 0 0 0 .4-.6 1.1 1.1 0 0 0-.2-.8 1.1 1.1 0 0 0-1.2-.4 1 1 0 0 0-.3.1l-1.7 1.1a3.4 3.4 0 0 1-1 .5 3.6 3.6 0 0 1-3.9-1.4 3.4 3.4 0 0 1-.6-2.6 3.2 3.2 0 0 1 1.5-2.2l4.6-2.9a3.4 3.4 0 0 1 1-.4 3.6 3.6 0 0 1 3.9 1.4 3.8 3.8 0 0 1 .6 2.8 3.5 3.5 0 0 1-.2.7l-.1.4-.4-.3a9.6 9.6 0 0 0-2.8-1.4l-.3-.1v-.3a1.1 1.1 0 0 0-.2-.7 1.1 1.1 0 0 0-1.2-.4 1 1 0 0 0-.3.1l-4.6 3a1 1 0 0 0-.4.6 1.1 1.1 0 0 0 .2.8 1.1 1.1 0 0 0 1.2.4 1 1 0 0 0 .3-.1l1.7-1.1a3.4 3.4 0 0 1 1-.5 3.6 3.6 0 0 1 3.9 1.4 3.4 3.4 0 0 1 .6 2.6 3.2 3.2 0 0 1-1.5 2.2l-4.6 2.9a3.4 3.4 0 0 1-1 .4z" />
+    </svg>
+  );
+}
+
 type Release = { pkg: string; status: string; downloads: number; size: number };
 
 const RELEASES: Release[] = [
@@ -184,7 +219,7 @@ export function App(): ReactElement {
   const [ddStatusBar, setDdStatusBar] = useState(false);
   const [ddPanels, setDdPanels] = useState<boolean | "indeterminate">("indeterminate");
   const [ddSortOrder, setDdSortOrder] = useState("modified");
-  const [consumptionMode, setConsumptionMode] = useState("headless");
+  const [framework, setFramework] = useState("react");
 
   const sortedReleases = [...RELEASES].sort((a, b) => {
     const av = a[sort.key];
@@ -645,16 +680,27 @@ primitiv add --all`}</code>
 
       <Section title="Segmented Control" column>
         {/* Single-select value picker (RadioGroup semantics): exactly one segment
-            is always selected — the brand-filled one — the rest secondary. */}
+            is always selected — the brand-filled one — the rest secondary. The
+            leading logos are plain SVG children — the registry sizes them to the
+            item's icon-size token, so they scale with `size` + density. */}
         <SegmentedControl
           size={size}
-          value={consumptionMode}
-          onValueChange={setConsumptionMode}
-          aria-label="Consumption mode"
+          value={framework}
+          onValueChange={setFramework}
+          aria-label="Framework"
         >
-          <SegmentedControlItem value="headless">Headless</SegmentedControlItem>
-          <SegmentedControlItem value="styled">Styled</SegmentedControlItem>
-          <SegmentedControlItem value="figma">Figma</SegmentedControlItem>
+          <SegmentedControlItem value="react">
+            <ReactLogo />
+            React
+          </SegmentedControlItem>
+          <SegmentedControlItem value="vue">
+            <VueLogo />
+            Vue
+          </SegmentedControlItem>
+          <SegmentedControlItem value="svelte">
+            <SvelteLogo />
+            Svelte
+          </SegmentedControlItem>
         </SegmentedControl>
         {/* Justified — segments share the track width equally. */}
         <SegmentedControl

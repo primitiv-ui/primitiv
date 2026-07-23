@@ -11,8 +11,10 @@
 > `react-component-patterns` skill — `createStrictContext`,
 > `useControllableState`, `useCollection`, `useRovingTabindex`, `deriveId`).
 > Reuses **Drawer** (shell) + **Collapsible** (in-place expand, §4b) for the
-> mobile presentation, with **SegmentedControl** / **Select** / **Input** as the
-> in-sheet pickers. Roadmap: `### Navigation` → **Navigation Menu** (logged, unbuilt).
+> mobile presentation, with the in-sheet controls being a **Rich Select** (the
+> VIEW & FRAMEWORK dropdowns — a **prerequisite still to build**), a
+> **SegmentedControl** (the Theme toggle — shipped), and **Input** (search).
+> Roadmap: `### Navigation` → **Navigation Menu** (logged, unbuilt).
 > **Skills:** `new-react-component` + `react-component-patterns` +
 > `react-test-conventions` (headless build); `figma-*` (the Figma sets);
 > `new-registry-component` + `registry-stylesheet-conventions` (kitchen-sink).
@@ -23,9 +25,13 @@ The docs-site landing wireframe surfaced the product's primary navigation — th
 mobile "menu open" frame (`Landing (mobile — menu open)`, Figma node
 `1186:40682`, page *Wireframes — Docs Site (v1 — landing)*) shows it: **Start
 Here · Concepts · Components (`mode-scoped`) · Registry & CLI · Design in Figma ·
-Recipes · Changelog**, each a full-width row with a chevron, plus a docs search,
-the framework control group (a **`SegmentedControl`** — the single-select
-React/Vue/Svelte picker shipped 2026-07-23), and a theme toggle.
+Recipes · Changelog**, each a full-width row with a chevron, plus a docs search
+(`Input`), the **VIEW & FRAMEWORK** group — three dropdowns (Audience · Mode ·
+Framework), the Framework one rendering a **logo per option + a checkmark
+indicator + "Soon" badges** (`Landing (mobile — framework menu open)`,
+`1186:40961`) — and a **Theme** (Light/Dark) toggle. The dropdowns' custom item
+rendering is what makes them **Rich Select**, not the native `Select`; the Theme
+toggle is a two-option **`SegmentedControl`** (shipped 2026-07-23).
 
 That nav is the roadmap's **Navigation Menu** — a genuinely headless-worthy
 component (`<nav>`/menu ARIA, keyboard navigation, expand/collapse, focus
@@ -124,26 +130,31 @@ skill):
 Ready to reuse as-is:
 
 - **Drawer** — headless ✓ / registry ✓ — the mobile shell.
-- **Dropdown** ✓, **Input** ✓, **ToggleGroup** ✓ — fully shipped.
+- **Dropdown** ✓, **Input** ✓, **ToggleGroup** ✓ — fully shipped (`Input` = the
+  docs search).
 - **SegmentedControl** — headless ✓ / registry ✓ (shipped 2026-07-23) — the
-  mobile sheet's **framework picker** (React/Vue/Svelte); single-select, the
-  correct semantic for a value control (use this, not `ToggleGroup`, for it).
-- **Select (native)** ✓ — any remaining mobile-sheet dropdowns.
+  sheet's **Theme** (Light/Dark) toggle, and the desktop consumption-mode switch.
 - **Tree** — headless ✓ (no Figma / no registry) — **not** the chosen mobile
   model (see §4b); left here only as the roving-tree alternative.
 
-**Prerequisite still to build** (gates the mobile composition + its kitchen-sink,
-§6 steps 4–5 — not the desktop headless):
+**Prerequisites still to build** (gate the mobile composition + its kitchen-sink,
+§6 steps 4–5 — not the desktop headless, which can scaffold in parallel):
 
+- **Rich Select** — **not built** (native `Select` only ships today). The VIEW &
+  FRAMEWORK group (Audience · Mode · Framework, `1186:40961`) needs custom item
+  rendering — a logo per option, a checkmark indicator, disabled "Soon" rows —
+  which native `<select>` cannot do. Its design decisions are already **settled**
+  (`docs/select-future-work.md`: Popover-API top layer + `data-side`/`data-align`
+  hooks, single-select, hidden native `<select>` for forms); scaffold-ready
+  pending a Popover-API browser re-check. Full build: scaffold → headless TDD →
+  Figma → registry → kitchen-sink.
 - **Collapsible** — Figma ✓ / headless ✓ **but incomplete**: the headless still
   needs **`collapsedHeight` + the clamped-panel fade-shadow**, and it has **no
   registry / kitchen-sink surface**. Because §4(b) settled on `Collapsible` for
   the in-place mobile expand, finishing it end-to-end (headless → registry →
-  kitchen-sink) is a prerequisite for the mobile presentation. The desktop
-  `NavigationMenu` (§5) does not depend on it, so design/scaffolding can start in
-  parallel.
+  kitchen-sink) is a prerequisite for the mobile presentation.
 
-These pickers are composed *alongside* the nav inside the Drawer; they are
+These controls are composed *alongside* the nav inside the Drawer; they are
 **not** part of `NavigationMenu`.
 
 ## 8. Non-goals / notes

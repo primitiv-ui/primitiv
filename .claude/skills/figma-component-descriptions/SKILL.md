@@ -316,6 +316,56 @@ Pairs with: Toggle Group (nested — the track holds Count of these)
 Notes: no borders/dividers and no Position axis (pills are independent); no distinct 'active' interaction (matches the redesign CSS). surface/selected + content/on-selected are light-in-both-themes so the thumb + label read on the (dark-in-dark) track. Focus ring is the standard 2-frame anatomy at pill radius with STRETCH constraints. Leading-icon slot deferred.
 ```
 
+### Segmented Control — `1216:44224` (track) + `1216:43507` (Item) — page "Segmented Control"
+
+Two sets, mirroring the Toggle Group (track) + ToggleGroup Item split. The track
+composes Item instances. Redesigned 2026-07-23 from the initial single-component
+(Button-instance) mock into this Tabs-model pair so per-segment text/icon
+properties are editable at the top level.
+
+**Segmented Control / Item — `1216:43507`**
+
+```
+Single segment for a Segmented Control track — a framed control that mirrors Button's look (brand fill when selected, secondary when not), authoring its own text/icon properties like Tabs/Trigger.
+
+Type: framed-control
+
+Axes: Size xs|sm|md|lg|xl · Selected true|false · Interaction default|hover|focus|disabled
+
+Tokens: Selected=true → action/primary/* (fill/stroke/foreground per Interaction — the brand-filled "you are here")
+        Selected=false → action/secondary/* (fill/stroke/foreground per Interaction)
+        sizing → framed-control/{size}/height|padding-inline|gap|radius; typography → label/{size}/* (Khand SemiBold, cap-trimmed)
+        focus ring → framed-control/{size}/focus-ring-* (standard 2-frame anatomy, carried on Interaction=focus)
+
+Properties: Label (TEXT "Segment") · Leading Icon (BOOL false) · Leading Icon Instance (SWAP) · Trailing Icon (BOOL false) · Trailing Icon Instance (SWAP)
+
+Density: Context mode override on parent frame
+Pairs with: Segmented Control (the track — nests Count of these); Button (shares its primary/secondary token families + anatomy)
+Notes: built by cloning Button's primary (Selected=true) and secondary (Selected=false) variants across sizes/states, then re-authoring the content properties on its own child nodes (like Tabs/Trigger) so Label + icons are editable at the top level — the plugin API can't expose a nested Button instance's properties, so a standalone item set is the scriptable path. "active" interaction dropped (matches Tabs). Headless (packages/react) semantics should follow RadioGroup (single-select role=radio), not ToggleGroup.
+```
+
+**Segmented Control (track) — `1216:44224`**
+
+```
+Segmented control — a recessed track holding a row of Segmented Control / Item segments; exactly one segment is selected (brand-filled), the rest secondary. Single-select value picker (the RadioGroup analog), not a toolbar toggle.
+
+Type: non-framed composition (the track)
+
+Axes: Size xs|sm|md|lg|xl · Count 2|3|4|5
+
+Tokens: track fill → none (transparent — segments carry their own surface, so the control sits on any background: card, toolbar, coloured hero)
+        track stroke → border/subtle @ framed-control/border-width (the grouping outline)
+        track radius → segmented-control/{size}/radius (Context, per density — concentric: framed-control/{size}/radius + segmented-control/track-padding, snapped to the radii scale; Spacious/xl off-scale, ideal 18 → radii/16)
+        track padding + gap → segmented-control/track-padding | segmented-control/track-gap (Context collection, per density, size-agnostic — mirrors toggle-group/track-padding)
+        segments → nested Segmented Control / Item instances at the matching Size; first Item Selected=true, the rest Selected=false
+
+Properties: Size · Count only. Per-segment text/icons are edited on each nested Item instance (its Label TEXT + Leading/Trailing Icon props). The selected segment is that item's Selected=true variant. No group-level passthrough props (nested-instance properties don't forward).
+
+Density: Context mode override on parent frame (track padding/gap + radius + nested item sizing all scale across Dense/Compact/Comfortable/Spacious)
+Pairs with: Segmented Control / Item (nested — the track holds Count of them); modelled on Toggle Group (track) + ToggleGroup Item, but single-select (Selected axis) rather than pressed-toggle
+Notes: Selected=primary / unselected=secondary reuse Button's token families — no new colour tokens. Transparent fill (not surface/sunken) so the control reads on any background — filled pills provide structure, the border groups them. Concentric container radius = item radius + track padding. Verified across all 4 densities + Intent Light/Dark 2026-07-23. ToggleGroup stays the toolbar-toggle primitive; this is the single-select segmented control. Headless/registry not yet built (Figma design only).
+```
+
 ### Dropdown/Item — `401:18180`
 
 ```

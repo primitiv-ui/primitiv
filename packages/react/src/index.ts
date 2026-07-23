@@ -26,6 +26,7 @@ export * from "./Progress/index.ts";
 export * from "./Radio/index.ts";
 export * from "./RadioCard/index.ts";
 export * from "./RadioGroup/index.ts";
+export * from "./SegmentedControl/index.ts";
 export * from "./Select/index.ts";
 export * from "./SkipNav/index.ts";
 export * from "./Slider/index.ts";

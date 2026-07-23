@@ -1,1 +1,1 @@
-export {};
+export { useSegmentedControlContext } from "../SegmentedControlContext";

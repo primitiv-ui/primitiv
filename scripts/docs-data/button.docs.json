@@ -1,0 +1,124 @@
+{
+  "id": "button",
+  "displayName": "Button",
+  "kind": "registry",
+  "status": "stable",
+  "description": "A clickable action — a button, or a link styled as one via `asChild`.",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "extends": "HTMLButtonElement",
+    "props": [
+      {
+        "name": "asChild",
+        "type": "boolean",
+        "required": false,
+        "default": "false",
+        "description": "Renders the child element instead of a native `<button>`, merging all\nprops — aria-*, data-*, event handlers, ref — onto it via\n{@link Slot }. `type` is not forwarded in this mode; the child owns its\nown type semantics. See the `asChild` example on {@link Button }."
+      },
+      {
+        "name": "children",
+        "type": "ReactNode",
+        "required": false,
+        "default": null,
+        "description": "Button content. Under `asChild`, becomes the single child element `Slot` merges props onto."
+      },
+      {
+        "name": "ref",
+        "type": "Ref<HTMLButtonElement>",
+        "required": false,
+        "default": null,
+        "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLButtonElement`, or — under\n`asChild` — merged onto the rendered child via {@link Slot }."
+      },
+      {
+        "name": "type",
+        "type": "\"button\" | \"submit\" | \"reset\"",
+        "required": false,
+        "default": "\"button\"",
+        "description": "The button's native `type` attribute, restricted to the three valid\nvalues. Defaults to `\"button\"` (not the DOM's own default of\n`\"submit\"`), so a `Button` placed inside a `<form>` never triggers an\naccidental submit unless set explicitly."
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add button",
+    "rootClass": "primitiv-button",
+    "contractProps": [
+      {
+        "name": "variant",
+        "type": "\"primary\" | \"secondary\" | \"danger\" | \"ghost\" | \"link\"",
+        "default": "primary",
+        "description": "Visual intent / emphasis."
+      },
+      {
+        "name": "size",
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+        "default": "md",
+        "description": "Control size; `data-density` scales each size further."
+      }
+    ],
+    "customProperties": [
+      {
+        "name": "--primitiv-button-bg",
+        "defaultsTo": "var(--primitiv-action-primary-default)"
+      },
+      {
+        "name": "--primitiv-button-fg",
+        "defaultsTo": "var(--primitiv-action-primary-foreground-default)"
+      },
+      {
+        "name": "--primitiv-button-border-color",
+        "defaultsTo": "var(--primitiv-action-primary-border-default)"
+      },
+      {
+        "name": "--primitiv-button-border-width",
+        "defaultsTo": "var(--primitiv-framed-control-border-width)"
+      },
+      {
+        "name": "--primitiv-button-radius",
+        "defaultsTo": "var(--primitiv-framed-control-md-radius)"
+      },
+      {
+        "name": "--primitiv-button-height",
+        "defaultsTo": "var(--primitiv-framed-control-md-height)"
+      },
+      {
+        "name": "--primitiv-button-padding-inline",
+        "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)"
+      },
+      {
+        "name": "--primitiv-button-gap",
+        "defaultsTo": "var(--primitiv-framed-control-md-gap)"
+      },
+      {
+        "name": "--primitiv-button-icon-size",
+        "defaultsTo": "var(--primitiv-framed-control-md-icon-size)"
+      },
+      {
+        "name": "--primitiv-button-font-family",
+        "defaultsTo": "var(--primitiv-label-md-font-family)"
+      },
+      {
+        "name": "--primitiv-button-font-size",
+        "defaultsTo": "var(--primitiv-label-md-font-size)"
+      },
+      {
+        "name": "--primitiv-button-font-weight",
+        "defaultsTo": "var(--primitiv-label-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-button-line-height",
+        "defaultsTo": "var(--primitiv-label-md-line-height)"
+      },
+      {
+        "name": "--primitiv-button-shadow",
+        "defaultsTo": "var(--primitiv-elevation-flat)"
+      }
+    ],
+    "dataAttributes": [
+      "data-disabled"
+    ]
+  },
+  "figma": {
+    "componentSetKey": "347:14161"
+  }
+}

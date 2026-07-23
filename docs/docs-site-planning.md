@@ -457,6 +457,47 @@ Two site-chrome controls settled while wireframing the landing page
 Both are wireframe-level IA/site-chrome decisions, not distribution-model
 changes — `docs/consumption-design.md` and the RFCs are unaffected.
 
+### 1.19 Landed: docs-data extractor POC + a generated-data component-page wireframe
+
+The docs-data pipeline (§1.12) now has a **working proof of concept**, and the
+Component page is wireframed **laid out from its output** rather than
+hand-typed values:
+
+- **`scripts/docs-data/extract-docs-data.mjs`** — emits per-component JSON in
+  the §1.7 schema. The headless half walks the `*Props` type with the
+  **TypeScript compiler API** (resolved from `packages/react`, pinning the
+  repo's TS 6.x) and applies the §1.14/§1.16 `propFilter` — a prop is dropped
+  only when *every* declaration is in `node_modules`, so native DOM attributes
+  fall away but a redeclared `children`/`ref`/narrowed `type` is kept — plus
+  the `@extends` tag and per-prop `@default`/description. The styled half is
+  read straight off `contract.json` (§1.6, no diff): `modifiers[]` →
+  `contractProps`, plus `customProperties`/`dataAttributes`. **Note:** this
+  used the TS compiler API directly rather than `react-docgen-typescript`
+  (§1.8) — neither RDT nor a root TS was installed, and the compiler API needs
+  zero new deps while applying the identical filter rule. The chosen tool for
+  the *real* pipeline is still RDT per §1.8; the compiler-API POC is
+  swap-compatible (same schema out). The styled half should still move to the
+  Rust `contract.rs` parser via a JSON subcommand (§1.12) rather than the
+  POC's inline JS `contract.json` read.
+- **Result for Button** (`scripts/docs-data/button.docs.json`): 4 headless
+  props (`asChild`, `children`, `ref`, `type`) + `extends HTMLButtonElement`,
+  2 contract props (`variant`, `size`), 14 `--primitiv-button-*` CSS vars.
+- **`scripts/figma/create-v1-docs-component-page-wireframe.js`** — the Figma
+  page "Wireframes — Docs Site (v1 — component page)" (desktop + mobile +
+  notes). The props table (types, defaults, descriptions), the `extends` note,
+  and the CSS-variable list are all rendered from that generated data; the
+  Styled-mode `variant`/`size` rows are appended and tinted to show the §1.1
+  content swap. It also establishes the reusable **docs app shell** (persistent
+  top nav + left §1.4 sidebar with the active component + main content +
+  on-this-page TOC) that every non-landing page reuses, and connects from the
+  landing via `Browse Components` → Components → Button (breadcrumb closes the
+  loop). Because the Figma console can't read repo files, the script embeds a
+  snapshot of the JSON (`D`); a real Next.js build imports the JSON directly.
+
+Still POC-grade: single component (Button), no orchestrator merging both
+halves into the committed `docs/data/` tree yet, and the a11y/examples content
+is hand-authored placeholder (§1.7 says a11y isn't auto-generatable).
+
 ---
 
 ## 2. Open questions

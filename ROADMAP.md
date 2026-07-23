@@ -74,7 +74,7 @@ is the exception (Figma set `601:9607`, whose tabbed Type composes Tabs + Button
 | Prose | — | — | ✓ | ✓ | registry-only (`.primitiv-flow` + `<Prose>` wrapper) |
 | RadioCard | — | ✓ | — | — | |
 | RadioGroup | ✓ | ✓ | ✓ | ✓ | 401:17958 (registry `radio`) |
-| Segmented Control | ✓ | — | — | — | 1216:44224 (track set, Size×Count 2-5) + 1216:43507 (Item set, Size×Selected×Interaction) on page "Segmented Control"; Tabs-model split (track composes Item, like Toggle Group + ToggleGroup Item). Item mirrors Button (Selected=true→primary brand fill, false→secondary) with its own Label/Leading+Trailing Icon props; transparent bordered track (`segmented-control/{size}/radius` concentric = item radius + track padding, `track-padding`+`track-gap` tokens). Verified across 4 densities + Light/Dark. Headless not built; will reuse RadioGroup's single-select semantics (not ToggleGroup's) |
+| Segmented Control | ✓ | ✓ | — | — | 1216:44224 (track set, Size×Count 2-5) + 1216:43507 (Item set, Size×Selected×Interaction) on page "Segmented Control"; Tabs-model split (track composes Item, like Toggle Group + ToggleGroup Item). Item mirrors Button (Selected=true→primary brand fill, false→secondary) with its own Label/Leading+Trailing Icon props; transparent bordered track (`segmented-control/{size}/radius` concentric = item radius + track padding, `track-padding`+`track-gap` tokens). Verified across 4 densities + Light/Dark. Headless = `SegmentedControl.Root`/`.Item` on RadioGroup single-select semantics (role=radiogroup/radio, roving tabindex, horizontal-default orientation, group + item disabled); sliding indicator deferred |
 | Select | ✓ | ✓ | — | — | 403:1883 |
 | Slider | ✓ | ✓ | — | — | 392:5196 (track), 392:4353 (thumb) |
 | Status | — | ✓ | — | — | |
@@ -121,7 +121,7 @@ semantics that CSS alone cannot provide.
 - [x] Radio Group
 - [x] Radio Card
 - [ ] Rating
-- [ ] Segmented Control
+- [x] Segmented Control
 - [x] Select (Native)
 - [x] Slider
 - [x] Switch

@@ -27,5 +27,6 @@
   "Fieldset",
   "InputGroup",
   "Collapsible",
-  "Accordion"
+  "Accordion",
+  "SegmentedControl"
 ]

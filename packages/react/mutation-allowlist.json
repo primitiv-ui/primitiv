@@ -26,5 +26,6 @@
   "Field",
   "Fieldset",
   "InputGroup",
-  "Collapsible"
+  "Collapsible",
+  "Accordion"
 ]

@@ -52,6 +52,12 @@ independently of size (matching the Figma model — RFC 0014).
 `aria-selected="true"` on a `.primitiv-table__row` (the headless layer sets
 neither). Row striping is left to the consumer (a fast-follow).
 
+**Full width by default.** The root sets `inline-size: 100%`, so a table fills
+its container rather than shrink-wrapping to content. Content wider than the
+container still overflows into the optional `TableScrollArea` (capped at 100%,
+scrolls) on narrow viewports instead of forcing the page wider; drop the width
+override in your copy if you want a shrink-to-fit table.
+
 **It is yours to edit.** The stable surface is the *contract* (classes,
 custom-property names), not these values (RFC 0006 Principle 2 — names are stable,
 values are not). Requires the token layer (`primitiv tokens`) for the

@@ -48,6 +48,10 @@
     --primitiv-table-caption-foreground: var(--primitiv-content-muted);
 
     border-collapse: collapse;
+    /* Fill the container by default. On a narrow viewport, content wider than
+       100% still overflows into the optional __scroll-area wrapper (which caps
+       at 100% and scrolls) rather than forcing the page wider. */
+    inline-size: 100%;
     font-family: var(--primitiv-table-font-family);
     font-size: var(--primitiv-table-font-size);
     font-weight: var(--primitiv-table-font-weight);

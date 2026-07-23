@@ -97,6 +97,46 @@ is applied automatically so assistive technology skips the off-screen
 content. It is removed when the panel opens. Consumers can override this
 by passing `aria-hidden` explicitly.
 
+## `collapsedHeight` — clamped preview (read-more)
+
+Pass `collapsedHeight` to `Collapsible.Content` to show a **clamped preview**
+of the panel while closed instead of hiding it — the read-more / "show more"
+pattern. A number is pixels; a string is a verbatim CSS length (`"4rem"`,
+`"20cqi"`).
+
+```tsx
+<Collapsible.Content collapsedHeight={96} className="preview">
+  A long passage whose first 96px stays visible while collapsed…
+</Collapsible.Content>
+```
+
+When set, the panel is **always mounted** and never receives `hidden` /
+`aria-hidden` (the preview is real, readable content — so `forceMount` is
+implied), and the value is published as the
+`--primitiv-collapsible-collapsed-height` custom property. The styling layer
+clamps the closed height to it and anchors a bottom fade-shadow, keyed off
+`data-state="closed"`:
+
+```css
+.preview {
+  overflow: hidden;
+  max-block-size: var(--primitiv-collapsible-collapsed-height);
+  transition: max-block-size 250ms;
+}
+.preview[data-state="open"] {
+  max-block-size: 100vh; /* or a large enough clamp */
+}
+/* Bottom fade over the clamped preview, gone once open. */
+.preview[data-state="closed"]::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  block-size: 2rem;
+  background: linear-gradient(to bottom, transparent, var(--surface));
+}
+```
+
 ## `asChild` composition
 
 `Collapsible.Trigger` accepts an `asChild` prop to render any child

@@ -105,6 +105,23 @@ export type CollapsibleContentProps = ComponentProps<"div"> & {
    * @default false
    */
   forceMount?: boolean;
+  /**
+   * Show a **clamped preview** of the panel while closed instead of hiding it
+   * entirely — the "collapsed height" / read-more pattern. A `number` is taken
+   * as pixels; a string is used verbatim as a CSS length (e.g. `"4rem"`,
+   * `"20cqi"`). When set:
+   *
+   * - the panel is always mounted and never gets the `hidden` attribute or
+   *   `aria-hidden` (the preview is real, readable content), so `forceMount` is
+   *   implied;
+   * - the value is emitted as the `--primitiv-collapsible-collapsed-height`
+   *   custom property on the panel, which the styling layer clamps the closed
+   *   height to (e.g. `max-block-size`) and anchors a bottom fade-shadow to,
+   *   keyed off `data-state="closed"`.
+   *
+   * Leave unset for the default fully-hidden / grid-collapse behaviour.
+   */
+  collapsedHeight?: number | string;
 };
 
 /**

@@ -1,5 +1,5 @@
 import { Ref } from "react";
-import type { ReactElement } from "react";
+import type { CSSProperties, ReactElement } from "react";
 
 import { Slot } from "../Slot/index.ts";
 
@@ -218,6 +218,15 @@ CollapsibleTrigger.displayName = "CollapsibleTrigger";
  * this by passing `aria-hidden` explicitly (it appears after the
  * automatic value in the spread).
  *
+ * **`collapsedHeight` prop.** Pass `collapsedHeight` to show a **clamped
+ * preview** of the panel while closed (the read-more pattern) instead of
+ * hiding it. A number is pixels; a string is a verbatim CSS length. When set,
+ * the panel is always mounted and never `hidden` / `aria-hidden` (the preview
+ * is real content), and the value is published as the
+ * `--primitiv-collapsible-collapsed-height` custom property for the styling
+ * layer to clamp the closed height to and anchor a bottom fade-shadow, keyed
+ * off `data-state="closed"`.
+ *
  * **Styling hooks.**
  * - `data-state="open" | "closed"` on the rendered element.
  * - `data-disabled="true" | "false"`.
@@ -239,17 +248,38 @@ CollapsibleTrigger.displayName = "CollapsibleTrigger";
 export function CollapsibleContent({
   children,
   forceMount = false,
+  collapsedHeight,
+  style,
   ...rest
 }: CollapsibleContentProps): ReactElement {
   const { open, disabled, contentId } = useCollapsibleContext();
 
+  // A clamped preview keeps real, readable content on screen while closed, so
+  // it is always mounted (forceMount is implied) and never `hidden` /
+  // `aria-hidden`. The height it clamps to is published as a custom property
+  // the styling layer consumes.
+  const clamped = collapsedHeight != null;
+  const mounted = forceMount || clamped;
+  // Always publish the custom property; an `undefined` value (no
+  // `collapsedHeight`) is dropped by React, so there is no redundant guard to
+  // go stale. `clamped` gates only the mount / aria behaviour, where it is
+  // observable.
+  const mergedStyle = {
+    "--primitiv-collapsible-collapsed-height":
+      typeof collapsedHeight === "number"
+        ? `${collapsedHeight}px`
+        : collapsedHeight,
+    ...style,
+  } as CSSProperties;
+
   return (
     <div
       id={contentId}
-      hidden={forceMount ? undefined : !open}
-      aria-hidden={forceMount && !open ? true : undefined}
+      hidden={mounted ? undefined : !open}
+      aria-hidden={forceMount && !open && !clamped ? true : undefined}
       data-state={open ? "open" : "closed"}
       data-disabled={disabled}
+      style={mergedStyle}
       {...rest}
     >
       {children}

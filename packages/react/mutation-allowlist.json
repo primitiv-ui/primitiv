@@ -23,5 +23,6 @@
   "RadioCard",
   "RadioGroup",
   "ToggleGroup",
-  "Field"
+  "Field",
+  "Fieldset"
 ]

@@ -67,6 +67,7 @@ export function FieldsetRoot({
 }
 
 /** @internal */
+// Stryker disable next-line StringLiteral: overwritten by the compound alias — an equivalent mutant.
 FieldsetRoot.displayName = "Fieldset";
 
 /**

@@ -78,4 +78,13 @@ describe("Fieldset basic rendering", () => {
     // Assert
     expect(screen.getByText("Billing")).toHaveClass("group__legend");
   });
+
+  it("sets a displayName on the compound and Legend", () => {
+    // Assert — empty displayNames would render each as anonymous in DevTools.
+    // `Fieldset`, `Fieldset.Root`, and the underlying function are one object
+    // (Object.assign compound), so the compound's "Fieldset" alias is the
+    // observable Root displayName; Legend is a distinct object.
+    expect(Fieldset.displayName).toBe("Fieldset");
+    expect(Fieldset.Legend.displayName).toBe("FieldsetLegend");
+  });
 });

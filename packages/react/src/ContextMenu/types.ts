@@ -91,7 +91,7 @@ export type ContextMenuTriggerProps = ComponentProps<"span"> & {
  */
 export type ContextMenuContentProps = Omit<
   ComponentProps<"menu">,
-  "role" | "popover" | "id"
+  "role" | "popover" | "id" | "ref"
 > & {
   /** The menu items — {@link ContextMenuItem}, {@link ContextMenuGroup},
    * {@link ContextMenuSub}, and friends. */
@@ -470,7 +470,7 @@ export type ContextMenuSubTriggerProps = Omit<
  */
 export type ContextMenuSubContentProps = Omit<
   ComponentProps<"menu">,
-  "role" | "popover" | "id"
+  "role" | "popover" | "id" | "ref"
 > & {
   /** The submenu's items. */
   children?: ReactNode;

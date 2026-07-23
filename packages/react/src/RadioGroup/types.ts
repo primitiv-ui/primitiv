@@ -18,7 +18,7 @@ export type RadioGroupReadingDirection = "ltr" | "rtl";
  */
 export type RadioGroupRootBaseProps = Omit<
   ComponentProps<"div">,
-  "role" | "dir"
+  "role" | "dir" | "defaultValue"
 > & {
   /** The group's radios — typically {@link RadioGroupItemProps | `RadioGroup.Item`}
    * elements, each optionally wrapping a {@link RadioGroupIndicatorProps | `RadioGroup.Indicator`}. */

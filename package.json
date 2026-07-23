@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "qa:registry-types": "node scripts/check-registry-types.mjs",
+    "qa:prop-collisions": "node scripts/docs-data/scan-prop-collisions.mjs",
     "build:wasm": "pnpm --filter harmoni-wasm exec wasm-pack build --target web",
     "build:core": "pnpm --filter harmoni-core exec cargo build",
     "test:rust": "pnpm --filter \"harmoni-*\" exec cargo test",

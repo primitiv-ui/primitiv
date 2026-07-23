@@ -6,7 +6,10 @@ import { HeadingLevel } from "../types";
  * `string` to {@link AccordionReadingDirection}; without the `Omit` the
  * docs-data extractor picks the wider native declaration and silently drops
  * the narrowed type and its JSDoc (§1.16). */
-export type AccordionRootBaseProps = Omit<ComponentProps<"div">, "dir"> & {
+export type AccordionRootBaseProps = Omit<
+  ComponentProps<"div">,
+  "dir" | "defaultValue"
+> & {
   /** Allow more than one section to be expanded at a time. When `false`,
    * opening an item collapses whichever item was previously open.
    * @default false */

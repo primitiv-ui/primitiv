@@ -18,7 +18,7 @@ export type RadioCardReadingDirection = "ltr" | "rtl";
  */
 export type RadioCardRootBaseProps = Omit<
   ComponentProps<"div">,
-  "role" | "dir"
+  "role" | "dir" | "defaultValue"
 > & {
   /** The group's cards — typically {@link RadioCardItemProps | `RadioCard.Item`}
    * elements, each optionally wrapping a {@link RadioCardIndicatorProps | `RadioCard.Indicator`}. */

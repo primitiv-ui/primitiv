@@ -4,7 +4,10 @@ import { ComponentProps, ReactNode, Ref } from "react";
  * Shared base for both {@link MillerColumnsRootProps} variants — the native
  * `<div>` attributes (minus `ref`, which the strip owns internally).
  */
-export type MillerColumnsRootBaseProps = Omit<ComponentProps<"div">, "ref"> & {
+export type MillerColumnsRootBaseProps = Omit<
+  ComponentProps<"div">,
+  "ref" | "defaultValue"
+> & {
   /**
    * The strip's tree, authored recursively: root
    * {@link MillerColumnsColumnProps | Column(s)} whose branch

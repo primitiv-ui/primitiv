@@ -537,7 +537,7 @@ mobile + a Findings panel). What Tabs surfaced that Button didn't:
    it first**, so extraction saw `string | (readonly string[] & string)`. The
    extractor now normalises the artifact, but the **source should add the
    `Omit`** — a third + fourth instance of the §1.16 pattern, strengthening the
-   case for a lint rule. (Not fixed here — flagged for a follow-up.)
+   case for a lint rule. **(Fixed + swept the whole package — see §1.21.)**
 4. **Aliased / complex types need resolving.** String-literal-union aliases
    (`TabsOrientation` → `"horizontal" | "vertical"`) must be **expanded** — the
    extractor now does this. But non-literal aliases still leak their name
@@ -558,8 +558,46 @@ mobile + a Findings panel). What Tabs surfaced that Button didn't:
    **sourced from three places and labelled by origin**.
 
 Net: the template held up, but items 1–2 (nested/collapsible prop tables +
-a prop-group model) and 3 (the source `Omit` fix + lint) are the concrete
-follow-ups; 4–5 refine the extractor's type handling.
+a prop-group model) are the concrete docs-site follow-ups; item 3 was a real
+source bug now fixed package-wide (§1.21); 4–5 refine the extractor's type
+handling.
+
+### 1.21 Landed: swept + fixed the §1.16 narrow-without-Omit bug across the headless package
+
+Finding §1.20.3 turned out **not** to be Tabs-only. A scan
+(`scripts/docs-data/scan-prop-collisions.mjs`) over every exported `*Props`
+type under `packages/react/src` — flagging any prop whose declarations span
+**both** own-source and `node_modules` (i.e. a native attribute re-declared
+without `Omit`) and classifying NARROW (types differ → real artifact) vs
+benign same-type redefinition — found **19 narrowing artifacts across 10
+components**:
+
+- **`defaultValue`** narrowed without `Omit` on the value-bearing collection
+  roots: **Accordion, RadioGroup, RadioCard, SegmentedControl, ToggleGroup,
+  MillerColumns, Dropdown (RadioGroup), Tabs** — each resolved to
+  `string | (readonly string[] & string)` (or `string[]` variants).
+- **`value`** narrowed on **`TabsTriggerProps`**.
+- **`ref`** narrowed to a menu element on **ContextMenu** and **Dropdown**
+  `Content`/`SubContent` — an intersection of two ref types
+  (`Ref<HTMLElement> & Ref<HTMLMenuElement>`), the genuinely consumer-facing
+  case (D58: a styled wrapper spreading these props back could fail to
+  type-check).
+
+**Fix:** add the native attribute to each base `Omit<ComponentProps<…>, …>`
+(the same fix §1.16 applied to `dir`, and that `Tabs.Root` already used for
+`ref`). Type-only; no runtime change. The 215 benign `ref`/`children`
+same-type re-declarations were left alone.
+
+**Verified:** scan clean (0 NARROW); `tsc --noEmit` green; full React suite
+**2108 tests pass, coverage 100%** (statements/branches/functions/lines — no
+regression); `qa:registry-types` passes (the styled surfaces the kitchen-sink
+consumes type-check against the fixed headless types). Mutation coverage is
+unaffected by construction — no runtime code changed.
+
+**Guard against recurrence:** the scan now exits non-zero on any NARROW and is
+wired as `pnpm qa:prop-collisions`. Worth adding to CI and folding the
+Omit-narrowing rule into the `react-component-patterns` / `new-react-component`
+skills (the §1.16 to-do, now with teeth).
 
 ---
 

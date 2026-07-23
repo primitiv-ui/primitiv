@@ -106,7 +106,7 @@ export type DropdownTriggerProps = Omit<
  */
 export type DropdownContentProps = Omit<
   ComponentProps<"menu">,
-  "role" | "popover" | "id"
+  "role" | "popover" | "id" | "ref"
 > & {
   /**
    * The menu items — any mix of {@link DropdownItemProps | `Dropdown.Item`},
@@ -336,7 +336,7 @@ export type DropdownCheckboxItemProps =
  */
 export type DropdownRadioGroupBaseProps = Omit<
   ComponentProps<"li">,
-  "role" | "value"
+  "role" | "value" | "defaultValue"
 > & {
   /**
    * The radio choices — a set of {@link DropdownRadioItemProps |
@@ -543,7 +543,7 @@ export type DropdownSubTriggerProps = Omit<
  */
 export type DropdownSubContentProps = Omit<
   ComponentProps<"menu">,
-  "role" | "popover" | "id"
+  "role" | "popover" | "id" | "ref"
 > & {
   /** The submenu's items. */
   children?: ReactNode;

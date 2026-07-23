@@ -7,7 +7,7 @@ import { HTMLAttributes, ButtonHTMLAttributes, ReactNode, Ref } from "react";
  */
 export type ToggleGroupRootBaseProps = Omit<
   HTMLAttributes<HTMLDivElement>,
-  "dir"
+  "dir" | "defaultValue"
 > & {
   /** Layout axis for keyboard navigation. `"horizontal"` binds
    * ArrowLeft/ArrowRight; `"vertical"` binds ArrowUp/ArrowDown. Surfaces as

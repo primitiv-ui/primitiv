@@ -18,7 +18,7 @@ export type SegmentedControlReadingDirection = "ltr" | "rtl";
  */
 export type SegmentedControlRootBaseProps = Omit<
   ComponentProps<"div">,
-  "role" | "dir"
+  "role" | "dir" | "defaultValue"
 > & {
   /** The control's segments — {@link SegmentedControlItemProps | `SegmentedControl.Item`}
    * elements. */

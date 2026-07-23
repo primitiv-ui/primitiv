@@ -62,7 +62,7 @@ export type ControlledTabsRootProps = {
  * type-check on incompatible `ref` types (D58). */
 export type TabsRootProps = Omit<
   ComponentProps<"div">,
-  "onChange" | "ref" | "dir"
+  "onChange" | "ref" | "dir" | "defaultValue"
 > & {
   /** Layout axis; see {@link TabsOrientation}.
    * @default "horizontal" */
@@ -134,7 +134,7 @@ export type TabsListProps = Omit<
  * `asChild` and the `ref` type parameter. */
 export type TabsTriggerProps<T extends HTMLElement = HTMLButtonElement> = Omit<
   ComponentProps<"button">,
-  "ref"
+  "ref" | "value"
 > & {
   /** Removes the trigger from the roving tab order and marks it
    * `aria-disabled`/`data-disabled`; arrow-key navigation skips it.

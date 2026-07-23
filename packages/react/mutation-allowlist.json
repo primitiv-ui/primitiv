@@ -21,5 +21,6 @@
   "Alert",
   "CheckboxCard",
   "RadioCard",
-  "RadioGroup"
+  "RadioGroup",
+  "ToggleGroup"
 ]

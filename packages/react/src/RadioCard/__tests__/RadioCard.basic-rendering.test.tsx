@@ -84,4 +84,12 @@ describe("RadioCard basic rendering", () => {
     // Assert
     expect(screen.getByTestId("icon")).toBeInTheDocument();
   });
+
+  it("sets a displayName on the compound, Item, and Indicator", () => {
+    // Assert — empty displayNames would render each as anonymous in DevTools.
+    // Root aliases the compound (Object.assign), so its name is "RadioCard".
+    expect(RadioCard.displayName).toBe("RadioCard");
+    expect(RadioCard.Item.displayName).toBe("RadioCardItem");
+    expect(RadioCard.Indicator.displayName).toBe("RadioCardIndicator");
+  });
 });

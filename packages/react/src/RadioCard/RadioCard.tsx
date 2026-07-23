@@ -132,6 +132,11 @@ export function RadioCardRoot({
 }
 
 /** @internal */
+// Runtime-dead: the compound alias below (same object via Object.assign)
+// overwrites this to "RadioCard" at load, so the value is never observable.
+// The assignment stays because it declares `displayName` on
+// `typeof RadioCardRoot`, which TRadioCardCompound extends.
+// Stryker disable next-line StringLiteral: overwritten by the compound alias — an equivalent mutant.
 RadioCardRoot.displayName = "RadioCardRoot";
 
 /**

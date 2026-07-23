@@ -72,4 +72,25 @@ describe("Field state cascade", () => {
     // Assert
     expect(screen.getByText("Required.")).toBeInTheDocument();
   });
+
+  it("re-derives the cascaded context when a flag changes after mount", () => {
+    // Arrange — a valid field: the error is gated off.
+    const { rerender } = render(
+      <Field.Root>
+        <Field.ErrorText>Required.</Field.ErrorText>
+      </Field.Root>,
+    );
+    expect(screen.queryByText("Required.")).not.toBeInTheDocument();
+
+    // Act — flip to invalid; the memoised context value must recompute.
+    rerender(
+      <Field.Root invalid>
+        <Field.ErrorText>Required.</Field.ErrorText>
+      </Field.Root>,
+    );
+
+    // Assert — a frozen memo (empty dependency array) would leave the error
+    // gated off; the recomputed context reveals it.
+    expect(screen.getByText("Required.")).toBeInTheDocument();
+  });
 });

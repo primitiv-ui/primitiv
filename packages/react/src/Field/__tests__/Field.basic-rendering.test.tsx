@@ -101,4 +101,15 @@ describe("Field basic rendering", () => {
     // Assert
     expect(screen.getByTestId("field")).toHaveClass("form-field");
   });
+
+  it("sets a displayName on the compound and each sub-component", () => {
+    // Assert — empty displayNames would render each as anonymous in DevTools.
+    // `Field`, `Field.Root`, and the underlying function are one object
+    // (Object.assign compound), so the compound's "Field" alias is the
+    // observable Root displayName; the sub-components are distinct objects.
+    expect(Field.displayName).toBe("Field");
+    expect(Field.Label.displayName).toBe("FieldLabel");
+    expect(Field.Description.displayName).toBe("FieldDescription");
+    expect(Field.ErrorText.displayName).toBe("FieldErrorText");
+  });
 });

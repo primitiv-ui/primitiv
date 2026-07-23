@@ -119,6 +119,95 @@ describe("Collapsible asChild and keyboard tests", () => {
     expect(content).toBeVisible();
   });
 
+  // A plain <div> (no native button semantics and no role) never fires a
+  // synthetic click on Enter/Space, so these isolate the Trigger's own
+  // keydown handler — the anchor tests above can toggle via native activation
+  // even when the handler does nothing, masking mutations in it.
+  it("toggles on Enter for a non-native asChild element", async () => {
+    const user = userEvent.setup();
+    render(
+      <Collapsible.Root>
+        <Collapsible.Trigger asChild>
+          <div tabIndex={0} data-testid="trigger">
+            Toggle
+          </div>
+        </Collapsible.Trigger>
+        <Collapsible.Content data-testid="content">Content</Collapsible.Content>
+      </Collapsible.Root>,
+    );
+    screen.getByTestId("trigger").focus();
+    await user.keyboard("{Enter}");
+    expect(screen.getByTestId("content")).toBeVisible();
+  });
+
+  it("toggles on Space for a non-native asChild element", async () => {
+    const user = userEvent.setup();
+    render(
+      <Collapsible.Root>
+        <Collapsible.Trigger asChild>
+          <div tabIndex={0} data-testid="trigger">
+            Toggle
+          </div>
+        </Collapsible.Trigger>
+        <Collapsible.Content data-testid="content">Content</Collapsible.Content>
+      </Collapsible.Root>,
+    );
+    screen.getByTestId("trigger").focus();
+    await user.keyboard(" ");
+    expect(screen.getByTestId("content")).toBeVisible();
+  });
+
+  it("does not toggle on a non-activation key", async () => {
+    const user = userEvent.setup();
+    render(
+      <Collapsible.Root>
+        <Collapsible.Trigger asChild>
+          <div tabIndex={0} data-testid="trigger">
+            Toggle
+          </div>
+        </Collapsible.Trigger>
+        <Collapsible.Content data-testid="content">Content</Collapsible.Content>
+      </Collapsible.Root>,
+    );
+    screen.getByTestId("trigger").focus();
+    await user.keyboard("a");
+    expect(screen.getByTestId("content")).not.toBeVisible();
+  });
+
+  it("does not toggle on Enter when disabled (non-native asChild)", async () => {
+    const user = userEvent.setup();
+    render(
+      <Collapsible.Root disabled>
+        <Collapsible.Trigger asChild>
+          <div tabIndex={0} data-testid="trigger">
+            Toggle
+          </div>
+        </Collapsible.Trigger>
+        <Collapsible.Content data-testid="content">Content</Collapsible.Content>
+      </Collapsible.Root>,
+    );
+    screen.getByTestId("trigger").focus();
+    await user.keyboard("{Enter}");
+    expect(screen.getByTestId("content")).not.toBeVisible();
+  });
+
+  it("does not toggle on Space when disabled (non-native asChild)", async () => {
+    const user = userEvent.setup();
+    render(
+      <Collapsible.Root disabled>
+        <Collapsible.Trigger asChild>
+          <div tabIndex={0} data-testid="trigger">
+            Toggle
+          </div>
+        </Collapsible.Trigger>
+        <Collapsible.Content data-testid="content">Content</Collapsible.Content>
+      </Collapsible.Root>,
+    );
+    screen.getByTestId("trigger").focus();
+    await user.keyboard(" ");
+    expect(screen.getByTestId("content")).not.toBeVisible();
+  });
+
   it("should NOT toggle on Enter or Space when disabled (asChild)", async () => {
     // Arrange
     const user = userEvent.setup();

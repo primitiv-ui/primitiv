@@ -98,6 +98,7 @@ export function CollapsibleRoot({
 }
 
 /** @internal */
+// Stryker disable next-line StringLiteral: overwritten by the compound alias — an equivalent mutant.
 CollapsibleRoot.displayName = "CollapsibleRoot";
 
 /**

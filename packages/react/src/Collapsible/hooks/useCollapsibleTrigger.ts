@@ -9,7 +9,9 @@ export function useCollapsibleTrigger({
   ref,
   onClick,
   onKeyDown,
-  asChild = false,
+  // No default: the `CollapsibleTrigger` component always supplies a resolved
+  // `asChild` boolean, so a default here would be unreachable (dead) code.
+  asChild,
   ...rest
 }: Omit<CollapsibleTriggerProps, "children">) {
   const { open, disabled, toggle, triggerId, contentId } =

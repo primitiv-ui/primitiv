@@ -58,6 +58,33 @@ describe("Collapsible basic rendering tests", () => {
     expect(content.id).not.toBe("");
   });
 
+  it("gives the Trigger a '-trigger' suffixed id distinct from the Content id", () => {
+    // Arrange
+    render(
+      <Collapsible.Root>
+        <Collapsible.Trigger>Toggle</Collapsible.Trigger>
+        <Collapsible.Content data-testid="content">Content</Collapsible.Content>
+      </Collapsible.Root>,
+    );
+    const trigger = screen.getByRole("button", { name: "Toggle" });
+    const content = screen.getByTestId("content");
+
+    // Assert — a derived, non-empty id that cannot collide with the content's.
+    expect(trigger.id).toMatch(/-trigger$/);
+    expect(trigger.id).not.toBe(content.id);
+  });
+
+  it("sets a displayName on the compound and each sub-component", () => {
+    // Assert — empty displayNames would render each as anonymous in DevTools.
+    // `Collapsible`, `Collapsible.Root`, and the underlying function are one
+    // object (Object.assign compound), so the compound's "Collapsible" alias is
+    // the observable Root displayName; the sub-components are distinct objects.
+    expect(Collapsible.displayName).toBe("Collapsible");
+    expect(Collapsible.Trigger.displayName).toBe("CollapsibleTrigger");
+    expect(Collapsible.Content.displayName).toBe("CollapsibleContent");
+    expect(Collapsible.TriggerIcon.displayName).toBe("CollapsibleTriggerIcon");
+  });
+
   it("should hide Content when closed", () => {
     // Arrange
     render(

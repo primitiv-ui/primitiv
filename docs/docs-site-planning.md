@@ -494,6 +494,20 @@ hand-typed values:
   loop). Because the Figma console can't read repo files, the script embeds a
   snapshot of the JSON (`D`); a real Next.js build imports the JSON directly.
 
+**Component-page layout decision — demo-first Playground, shown in Styled
+mode.** The page leads with a Radix-style **Playground** (preview + Variant /
+Size / **Density** controls) above the docs, per feedback. That control set is
+a better fit for Primitiv than for a generic library: **density is the Context
+system** (a `<Density>` ancestor / `data-density`, not a Button prop) and size
+is the contract scale — the playground demos two system concepts live. Because
+those controls are all styled-surface concerns (a headless Button has no CSS,
+and `variant`/`size` aren't in its API), the playground is a **Styled-mode
+feature**; the wireframe therefore shows the page with the mode switch on
+**Styled** (install `primitiv add button`, contract props inline and tagged),
+and notes that Headless mode degrades the playground to a plain preview and
+drops `variant`/`size`. This makes the playground the concrete payoff of the
+§1.1 mode switch.
+
 Still POC-grade: single component (Button), no orchestrator merging both
 halves into the committed `docs/data/` tree yet, and the a11y/examples content
 is hand-authored placeholder (§1.7 says a11y isn't auto-generatable).

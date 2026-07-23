@@ -22,5 +22,6 @@
   "CheckboxCard",
   "RadioCard",
   "RadioGroup",
-  "ToggleGroup"
+  "ToggleGroup",
+  "Field"
 ]

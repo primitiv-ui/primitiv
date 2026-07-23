@@ -234,4 +234,50 @@ describe("Accordion asChild tests", () => {
     // Assert — no role="button" injected on enabled asChild elements
     expect(trigger).not.toHaveAttribute("role", "button");
   });
+
+  // A plain <div> (no native button semantics, no role) fires no synthetic
+  // click on Enter/Space, so these isolate the Trigger's own keydown handler —
+  // a native <button> or anchor would toggle via click even if the handler did
+  // nothing, masking mutations in it.
+  it("toggles on Enter for a non-native asChild element", async () => {
+    const user = userEvent.setup();
+    render(
+      <Accordion.Root>
+        <Accordion.Item value="a">
+          <Accordion.Header>
+            <Accordion.Trigger asChild>
+              <div tabIndex={0} data-testid="trigger">
+                Toggle
+              </div>
+            </Accordion.Trigger>
+          </Accordion.Header>
+          <Accordion.Content data-testid="content">Content</Accordion.Content>
+        </Accordion.Item>
+      </Accordion.Root>,
+    );
+    screen.getByTestId("trigger").focus();
+    await user.keyboard("{Enter}");
+    expect(screen.getByTestId("content")).toBeVisible();
+  });
+
+  it("toggles on Space for a non-native asChild element", async () => {
+    const user = userEvent.setup();
+    render(
+      <Accordion.Root>
+        <Accordion.Item value="a">
+          <Accordion.Header>
+            <Accordion.Trigger asChild>
+              <div tabIndex={0} data-testid="trigger">
+                Toggle
+              </div>
+            </Accordion.Trigger>
+          </Accordion.Header>
+          <Accordion.Content data-testid="content">Content</Accordion.Content>
+        </Accordion.Item>
+      </Accordion.Root>,
+    );
+    screen.getByTestId("trigger").focus();
+    await user.keyboard(" ");
+    expect(screen.getByTestId("content")).toBeVisible();
+  });
 });

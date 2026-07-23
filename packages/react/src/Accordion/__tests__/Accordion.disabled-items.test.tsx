@@ -279,6 +279,48 @@ describe("Accordion disabled items tests", () => {
     expect(trigger2).toHaveFocus();
   });
 
+  it("re-registers a trigger's disabled flag when it changes after mount", async () => {
+    // Arrange — all enabled at mount; the middle trigger becomes disabled after.
+    const user = userEvent.setup();
+    function Fixture({ middleDisabled }: { middleDisabled: boolean }) {
+      return (
+        <Accordion.Root>
+          <Accordion.Item value="a">
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Content>Content</Accordion.Content>
+          </Accordion.Item>
+          <Accordion.Item value="b">
+            <Accordion.Header>
+              <Accordion.Trigger disabled={middleDisabled}>
+                Trigger 2
+              </Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Content>Content</Accordion.Content>
+          </Accordion.Item>
+          <Accordion.Item value="c">
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 3</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Content>Content</Accordion.Content>
+          </Accordion.Item>
+        </Accordion.Root>
+      );
+    }
+    const { rerender } = render(<Fixture middleDisabled={false} />);
+
+    // Act — disable Trigger 2 after mount, then arrow down from Trigger 1.
+    rerender(<Fixture middleDisabled />);
+    screen.getByRole("button", { name: "Trigger 1" }).focus();
+    await user.keyboard("[ArrowDown]");
+
+    // Assert — the registrar effect re-ran, so Trigger 2 is skipped and focus
+    // lands on Trigger 3. A stale registration would keep Trigger 2 navigable,
+    // landing focus on it (aria-disabled stays focusable).
+    expect(screen.getByRole("button", { name: "Trigger 3" })).toHaveFocus();
+  });
+
   it("should not throw when all triggers are disabled and arrow key is pressed", async () => {
     // Arrange
     const user = userEvent.setup();

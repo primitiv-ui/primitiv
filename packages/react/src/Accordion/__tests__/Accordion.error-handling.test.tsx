@@ -92,6 +92,39 @@ describe("Accordion error handling tests", () => {
     }).toThrow(/AccordionTrigger.*no corresponding AccordionContent/);
   });
 
+  it("re-validates after a panel unmounts: a trigger left without content throws", () => {
+    // Arrange — item A valid (trigger + content); item B mountable to force a
+    // re-validation later by changing the registered trigger set.
+    function Fixture({ showAContent }: { showAContent: boolean }) {
+      return (
+        <Accordion.Root>
+          <Accordion.Item value="a">
+            <Accordion.Header>
+              <Accordion.Trigger>A</Accordion.Trigger>
+            </Accordion.Header>
+            {showAContent && <Accordion.Content>A content</Accordion.Content>}
+          </Accordion.Item>
+          {!showAContent && (
+            <Accordion.Item value="b">
+              <Accordion.Header>
+                <Accordion.Trigger>B</Accordion.Trigger>
+              </Accordion.Header>
+              <Accordion.Content>B content</Accordion.Content>
+            </Accordion.Item>
+          )}
+        </Accordion.Root>
+      );
+    }
+    const { rerender } = render(<Fixture showAContent />);
+
+    // Act & Assert — removing A's content unregisters its panel; adding B
+    // re-runs validation, which now finds A's trigger has no content. If the
+    // panel cleanup were a no-op, A would stay registered and no throw occurs.
+    expect(() => rerender(<Fixture showAContent={false} />)).toThrow(
+      /AccordionTrigger.*no corresponding AccordionContent/,
+    );
+  });
+
   it("should not throw when AccordionItem with Trigger and Content is added dynamically", () => {
     // Arrange
     function DynamicAccordion({ showItem }: { showItem: boolean }) {

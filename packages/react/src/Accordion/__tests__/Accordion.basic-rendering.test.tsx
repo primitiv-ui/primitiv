@@ -3,6 +3,21 @@ import { render, screen } from "@testing-library/react";
 import { Accordion } from "../Accordion";
 import { type HeadingLevel } from "../../types";
 
+describe("Accordion displayNames", () => {
+  it("sets a displayName on the compound and each sub-component", () => {
+    // Assert — empty displayNames would render each as anonymous in DevTools.
+    // `Accordion`, `Accordion.Root`, and the underlying function are one object
+    // (Object.assign compound), so the compound's "Accordion" alias is the
+    // observable Root displayName; the sub-components are distinct objects.
+    expect(Accordion.displayName).toBe("Accordion");
+    expect(Accordion.Item.displayName).toBe("AccordionItem");
+    expect(Accordion.Header.displayName).toBe("AccordionHeader");
+    expect(Accordion.Trigger.displayName).toBe("AccordionTrigger");
+    expect(Accordion.Content.displayName).toBe("AccordionContent");
+    expect(Accordion.TriggerIcon.displayName).toBe("AccordionTriggerIcon");
+  });
+});
+
 describe("Accordion basic rendering tests", () => {
   it('should apply the attribute data-orientation="vertical" to the accordion by default', () => {
     // Arrange

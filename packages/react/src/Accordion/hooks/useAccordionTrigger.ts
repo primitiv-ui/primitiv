@@ -12,7 +12,9 @@ export function useAccordionTrigger({
   ref,
   onClick,
   disabled,
-  asChild = false,
+  // No default: the `AccordionTrigger` component always supplies a resolved
+  // `asChild` boolean, so a default here would be unreachable (dead) code.
+  asChild,
   ...rest
 }: Omit<AccordionTriggerProps, "children">) {
   const { buttonId, panelId, itemId, isExpanded } = useAccordionItemContext();
@@ -35,6 +37,12 @@ export function useAccordionTrigger({
   // useRovingTabindex expects.
   useEffect(() => {
     registerTrigger(itemId, triggerRef.current, disabled);
+    // Because the collection uses `updateKeysOnCleanup: false`, an unmount
+    // clears only this trigger's ref entry without a keys change, and focusing
+    // a removed trigger is a no-op whether the entry is absent or detached —
+    // so this cleanup has no observable effect the contract exposes. (On a dep
+    // change the effect body re-registers first, overwriting it.)
+    // Stryker disable next-line ArrowFunction: equivalent — no observable effect.
     return () => registerTrigger(itemId, null);
   }, [itemId, disabled, registerTrigger]);
 

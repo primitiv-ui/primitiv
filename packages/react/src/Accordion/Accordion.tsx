@@ -102,6 +102,7 @@ export function AccordionRoot({
 }
 
 /** @internal */
+// Stryker disable next-line StringLiteral: overwritten by the compound alias — an equivalent mutant.
 AccordionRoot.displayName = "AccordionRoot";
 
 /**
@@ -323,10 +324,18 @@ export function AccordionContent({
   const { panelId, buttonId, itemId, isExpanded } = useAccordionItemContext();
   const { registerPanel, unregisterPanel } = useAccordionContext();
 
-  useEffect(() => {
-    registerPanel(itemId);
-    return () => unregisterPanel(itemId);
-  }, [itemId, registerPanel, unregisterPanel]);
+  useEffect(
+    () => {
+      registerPanel(itemId);
+      return () => unregisterPanel(itemId);
+    },
+    // `registerPanel`/`unregisterPanel` are stable, and `itemId` is effectively
+    // immutable: changing an item's value produces a phantom-key validation
+    // throw (the collection keeps unmounted keys), so it is never a supported
+    // runtime transition. Emptying the deps is therefore equivalent.
+    // Stryker disable next-line ArrayDeclaration: equivalent — stable/immutable dependencies.
+    [itemId, registerPanel, unregisterPanel],
+  );
 
   return (
     <div

@@ -70,6 +70,14 @@
     padding: 0;
     list-style: none;
   }
+
+  /* Neutralise the base `li + li` inter-item margin (the RFC 0016 flow-rhythm
+     rule in the token layer's reset): menu rows stack flush, not with body-list
+     spacing. The Separator sets its own margin in primitiv.base — a higher layer
+     — so it keeps its divider spacing while every other row collapses to zero. */
+  .primitiv-dropdown li {
+    margin-block: 0;
+  }
 }
 
 @layer primitiv.base {

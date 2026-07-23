@@ -203,11 +203,11 @@ export function SegmentedControlItem({
   } = useSegmentedControlContext();
   const isChecked = selectedValue === value;
   const isDisabled = itemDisabled || groupDisabled;
-  // When the whole control is disabled, nothing is navigable; otherwise the
-  // per-item disabled set is excluded from arrow-key navigation.
+  // Arrow-key navigation walks only enabled items: the per-item disabled
+  // set is excluded, and when the whole control is disabled the predicate
+  // fails for every item so the navigable list is empty.
   const enabledValues = useMemo(
-    () =>
-      groupDisabled ? [] : itemValues.filter((v) => !disabledValues.has(v)),
+    () => itemValues.filter((v) => !groupDisabled && !disabledValues.has(v)),
     [groupDisabled, itemValues, disabledValues],
   );
   const isTabStop =

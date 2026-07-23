@@ -103,4 +103,18 @@ describe("InputGroup basic rendering", () => {
     expect(screen.getByTestId("lead")).toHaveClass("lead");
     expect(screen.getByTestId("trail")).toHaveClass("trail");
   });
+
+  it("sets a displayName on the compound and each adornment", () => {
+    // Assert — empty displayNames would render each as anonymous in DevTools.
+    // `InputGroup`, `InputGroup.Root`, and the underlying function are one
+    // object (Object.assign compound), so the compound's "InputGroup" alias is
+    // the observable Root displayName; the adornments are distinct objects.
+    expect(InputGroup.displayName).toBe("InputGroup");
+    expect(InputGroup.LeadingAdornment.displayName).toBe(
+      "InputGroupLeadingAdornment",
+    );
+    expect(InputGroup.TrailingAdornment.displayName).toBe(
+      "InputGroupTrailingAdornment",
+    );
+  });
 });

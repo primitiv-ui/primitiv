@@ -58,6 +58,7 @@ export function InputGroupRoot({
 }
 
 /** @internal */
+// Stryker disable next-line StringLiteral: overwritten by the compound alias — an equivalent mutant.
 InputGroupRoot.displayName = "InputGroupRoot";
 
 /**

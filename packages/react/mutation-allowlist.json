@@ -20,5 +20,6 @@
   "Textarea",
   "Alert",
   "CheckboxCard",
-  "RadioCard"
+  "RadioCard",
+  "RadioGroup"
 ]

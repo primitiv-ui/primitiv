@@ -256,6 +256,66 @@ source of truth for when a skill applies.
   remaining Figma sets with hardcoded shadows — Modal (`elevation/modal`),
   Dropdown/Panel (`elevation/overlay`). See RFC 0017 §5–7 + D8 and
   `docs/transfer-and-next-steps.md`.
+- **NavigationMenu (RFC 0019) dependency build — in progress (2026-07-23).**
+  RFC 0019 needs Dropdown, Collapsible and a new Rich Select headless
+  component built out to full Figma → headless → registry → kitchen-sink
+  surfaces *before* NavigationMenu itself starts, with Figma design done
+  first for each. Sequence: **Dropdown (done) → Collapsible (Figma done,
+  rest pending) → Rich Select (not started) → NavigationMenu (not
+  started)**.
+  - **Dropdown — fully landed, all four stages.** Figma: `668:42210`
+    (Panel set) + Item/CheckboxItem/RadioItem/SubTrigger/Label/Separator/
+    Group/RadioGroup sets on canvas `317:362`, using a menu checkmark/dot
+    indicator model (not embedded Checkbox/Radio controls — a design
+    mistake caught and fixed across 75 variants) and an "Inset gutter"
+    boolean on Item/SubTrigger/Label so rows align whether or not the
+    panel mixes indicator and plain rows. Registry: `dropdown` (anchor-
+    positioned menu; `--primitiv-dropdown-row-inset` custom property gated
+    by `:has()` for the same gutter behaviour in CSS; `--primitiv-dropdown-
+    padding-inline` on the panel). Kitchen-sink: a 3-level nested-menu demo
+    (`apps/kitchen-sink/src/App.tsx`, placed right after Button — a
+    bottom-of-page position broke submenu flip-fallback positioning).
+    Registered in `registry/registry.json`, `crates/primitiv-cli/src/ports/
+    registry.rs`, `crates/primitiv-cli/tests/cli.rs` (roster count 21).
+  - **Collapsible — Figma design landed; headless/registry/kitchen-sink
+    NOT yet started.** New "Collapsible" Figma page (`1207:42772`) holds a
+    `Collapsible / Trigger` component set (`1207:43048`, 30 variants:
+    Variant[plain|card|inline] × State[closed|open] × Size[xs-xl], md
+    reordered first/default) and the composed `Collapsible` set
+    (`1207:43244`, 30 variants, each instancing the size-matched Trigger —
+    the composition requirement). The composed set has a `Content` SLOT
+    property wired on the 20 open/inline variants (so a designer can drop
+    in arbitrary content, same pattern as Accordion) and an exposed
+    `Label` TEXT property (via `isExposedInstance` on the nested Trigger)
+    so the trigger text is editable at the top level. The `inline` variant
+    keeps its clipped-preview fade *outside* the slot (a `Preview` wrapper
+    holding a slot-wired `Content` frame + a `fade` rectangle sibling) so
+    replacing slot content doesn't remove the fade affordance. **Known
+    caveat:** only the default/first-*child* variant is md — the Size
+    property's dropdown list in Figma's UI still lists xs→ascending
+    because Figma orders that list by variant *creation* order, not
+    child order; a true md-first list needs a full rebuild (not done,
+    not requested yet). Still outstanding in Figma: example specimens
+    (light/dark) and component descriptions on the new sets — deferred,
+    not blocking the next stage.
+  - **Collapsible next steps, in order:** (1) headless — add
+    `collapsedHeight` to `packages/react/src/Collapsible` (TDD), using a
+    CSS Grid `grid-template-rows: 0fr → 1fr` collapse animation (matches
+    Accordion's approach) and a light/dark-aware fade shadow at the panel
+    bottom when clamped-but-not-fully-open, fading out on full expansion;
+    (2) registry — `contract.json`/`styles.css`/`styles.scss`/
+    `collapsible.recipe.ts`/`collapsible.tsx`/`README.md`, covering all 3
+    variants; (3) register in registry.json/registry.rs/cli.rs; (4)
+    kitchen-sink demo + hand-sync (see the hand-sync process below).
+  - **Rich Select — not started.** Design decisions parked in
+    `docs/select-future-work.md` need settling first, then Figma, then a
+    from-scratch headless TDD build (it's a new component, not an
+    extension), then registry + kitchen-sink.
+  - **NavigationMenu itself — not started.** RFC 0019 §4 open decisions
+    (the fork, mobile interaction model, shared affordances, desktop
+    specifics) need settling before scaffolding a headless build, which
+    is then followed by Figma design and a kitchen-sink dogfood covering
+    both desktop and mobile.
 
 ## Useful commands
 

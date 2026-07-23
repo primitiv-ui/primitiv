@@ -11,9 +11,9 @@
 > `react-component-patterns` skill — `createStrictContext`,
 > `useControllableState`, `useCollection`, `useRovingTabindex`, `deriveId`).
 > Reuses **Drawer** (shell) + **Collapsible** (in-place expand, §4b) for the
-> mobile presentation, with the in-sheet controls being a **Rich Select** (the
-> VIEW & FRAMEWORK dropdowns — a **prerequisite still to build**), a
-> **SegmentedControl** (the Theme toggle — shipped), and **Input** (search).
+> mobile presentation. The view/mode/framework choices use **SegmentedControl**
+> on **desktop** (shipped) and **Rich Select** on **mobile** (the compact
+> dropdowns — a **prerequisite still to build**); plus **Input** (search).
 > Roadmap: `### Navigation` → **Navigation Menu** (logged, unbuilt).
 > **Skills:** `new-react-component` + `react-component-patterns` +
 > `react-test-conventions` (headless build); `figma-*` (the Figma sets);
@@ -30,8 +30,10 @@ Recipes · Changelog**, each a full-width row with a chevron, plus a docs search
 Framework), the Framework one rendering a **logo per option + a checkmark
 indicator + "Soon" badges** (`Landing (mobile — framework menu open)`,
 `1186:40961`) — and a **Theme** (Light/Dark) toggle. The dropdowns' custom item
-rendering is what makes them **Rich Select**, not the native `Select`; the Theme
-toggle is a two-option **`SegmentedControl`** (shipped 2026-07-23).
+rendering — logos, checkmark, "Soon" badges — is what makes them **Rich Select**,
+not the native `Select`. On **desktop** these same view/mode/framework choices
+are the shipped **`SegmentedControl`** strip: segmented control is the desktop
+affordance, Rich Select the mobile one (shown 2026-07-23).
 
 That nav is the roadmap's **Navigation Menu** — a genuinely headless-worthy
 component (`<nav>`/menu ARIA, keyboard navigation, expand/collapse, focus
@@ -133,7 +135,8 @@ Ready to reuse as-is:
 - **Dropdown** ✓, **Input** ✓, **ToggleGroup** ✓ — fully shipped (`Input` = the
   docs search).
 - **SegmentedControl** — headless ✓ / registry ✓ (shipped 2026-07-23) — the
-  sheet's **Theme** (Light/Dark) toggle, and the desktop consumption-mode switch.
+  **desktop** view/mode/framework strip; on mobile those choices become the Rich
+  Select dropdowns below.
 - **Tree** — headless ✓ (no Figma / no registry) — **not** the chosen mobile
   model (see §4b); left here only as the roving-tree alternative.
 

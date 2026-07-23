@@ -10,8 +10,9 @@
 > **Builds on:** the shared headless component patterns (see the
 > `react-component-patterns` skill — `createStrictContext`,
 > `useControllableState`, `useCollection`, `useRovingTabindex`, `deriveId`).
-> Reuses **Drawer**, **Tree**, **Collapsible** (all headless-✓) for the mobile
-> presentation. Roadmap: `### Navigation` → **Navigation Menu** (logged, unbuilt).
+> Reuses **Drawer** (shell) + **Collapsible** (in-place expand, §4b) for the
+> mobile presentation, with **SegmentedControl** / **Select** / **Input** as the
+> in-sheet pickers. Roadmap: `### Navigation` → **Navigation Menu** (logged, unbuilt).
 > **Skills:** `new-react-component` + `react-component-patterns` +
 > `react-test-conventions` (headless build); `figma-*` (the Figma sets);
 > `new-registry-component` + `registry-stylesheet-conventions` (kitchen-sink).
@@ -23,7 +24,8 @@ mobile "menu open" frame (`Landing (mobile — menu open)`, Figma node
 `1186:40682`, page *Wireframes — Docs Site (v1 — landing)*) shows it: **Start
 Here · Concepts · Components (`mode-scoped`) · Registry & CLI · Design in Figma ·
 Recipes · Changelog**, each a full-width row with a chevron, plus a docs search,
-the view/framework control group, and a theme toggle.
+the framework control group (a **`SegmentedControl`** — the single-select
+React/Vue/Svelte picker shipped 2026-07-23), and a theme toggle.
 
 That nav is the roadmap's **Navigation Menu** — a genuinely headless-worthy
 component (`<nav>`/menu ARIA, keyboard navigation, expand/collapse, focus
@@ -70,8 +72,13 @@ and it duplicates what `Drawer` + `Tree` already do for the mobile shell.
 
 - **(a) The fork** — desktop-only `NavigationMenu` + composed mobile
   *(recommended)*, vs one grow-both component.
-- **(b) Mobile interaction** — in-place `Tree`/`Collapsible` expand
-  *(recommended)*, vs slide drill-down stack.
+- **(b) Mobile interaction** — ~~in-place `Tree`/`Collapsible` expand
+  *(recommended)*, vs slide drill-down stack.~~ **Settled 2026-07-23:
+  in-place expand via `Collapsible`** (one independent expandable row per
+  section, matching the wireframe — not `Tree`'s single-roving-tabstop model).
+  This makes finishing `Collapsible` (headless `collapsedHeight` + fade-shadow)
+  and building its registry + kitchen-sink surface a **prerequisite** for the
+  mobile composition — see §7.
 - **(c) Shared affordances** — where the nav **data model** and the
   active-state **`Link`** live: a `NavigationMenu.Link` part, a standalone `Link`
   primitive, or a shared context/hook both presentations consume.
@@ -112,14 +119,32 @@ skill):
    the `packages/react/README.md` table row + a workbench example + the roadmap
    tick.
 
-## 7. Composition inventory (already shipped — reuse, don't rebuild)
+## 7. Composition inventory — status (reuse; some styling still to build)
+
+Ready to reuse as-is:
 
 - **Drawer** — headless ✓ / registry ✓ — the mobile shell.
-- **Tree** — headless ✓ — expandable mobile sections.
-- **Collapsible** — headless ✓ — alternative in-place expand.
-- **Dropdown** ✓, **Select** ✓, **ToggleGroup** ✓, **Input** ✓ — the mobile
-  sheet's view/framework pickers, theme toggle, and search. These are composed
-  *alongside* the nav in the Drawer; they are **not** part of `NavigationMenu`.
+- **Dropdown** ✓, **Input** ✓, **ToggleGroup** ✓ — fully shipped.
+- **SegmentedControl** — headless ✓ / registry ✓ (shipped 2026-07-23) — the
+  mobile sheet's **framework picker** (React/Vue/Svelte); single-select, the
+  correct semantic for a value control (use this, not `ToggleGroup`, for it).
+- **Select (native)** ✓ — any remaining mobile-sheet dropdowns.
+- **Tree** — headless ✓ (no Figma / no registry) — **not** the chosen mobile
+  model (see §4b); left here only as the roving-tree alternative.
+
+**Prerequisite still to build** (gates the mobile composition + its kitchen-sink,
+§6 steps 4–5 — not the desktop headless):
+
+- **Collapsible** — Figma ✓ / headless ✓ **but incomplete**: the headless still
+  needs **`collapsedHeight` + the clamped-panel fade-shadow**, and it has **no
+  registry / kitchen-sink surface**. Because §4(b) settled on `Collapsible` for
+  the in-place mobile expand, finishing it end-to-end (headless → registry →
+  kitchen-sink) is a prerequisite for the mobile presentation. The desktop
+  `NavigationMenu` (§5) does not depend on it, so design/scaffolding can start in
+  parallel.
+
+These pickers are composed *alongside* the nav inside the Drawer; they are
+**not** part of `NavigationMenu`.
 
 ## 8. Non-goals / notes
 

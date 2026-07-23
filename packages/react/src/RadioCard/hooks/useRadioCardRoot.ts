@@ -46,6 +46,9 @@ export function useRadioCardRoot({
     ) => {
       registerItemBase(itemValue, element ? { element, disabled } : null);
     },
+    // `registerItemBase` is a stable useCollection callback (its own deps never
+    // change), so emptying this array yields the identical memoised function.
+    // Stryker disable next-line ArrayDeclaration: equivalent — stable dependency.
     [registerItemBase],
   );
 
@@ -68,6 +71,9 @@ export function useRadioCardRoot({
       // Stryker disable next-line OptionalChaining: unreachable given that invariant.
       itemsRef.current.get(itemValue)?.element.focus();
     },
+    // `itemsRef` is a stable RefObject, so emptying this array yields the
+    // identical memoised function.
+    // Stryker disable next-line ArrayDeclaration: equivalent — stable dependency.
     [itemsRef],
   );
 

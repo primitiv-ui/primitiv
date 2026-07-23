@@ -105,4 +105,25 @@ describe("RadioCard uncontrolled state", () => {
     // Assert
     expect(onValueChange).not.toHaveBeenCalled();
   });
+
+  it("does not re-fire onValueChange when a freshly selected item is re-clicked", async () => {
+    // Arrange — no defaultValue, so the guard reads a value that changes after
+    // the first click; a stale select closure would re-fire on the second.
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <RadioCard.Root aria-label="Plan" onValueChange={onValueChange}>
+        <RadioCard.Item value="pro">Pro</RadioCard.Item>
+        <RadioCard.Item value="starter">Starter</RadioCard.Item>
+      </RadioCard.Root>,
+    );
+    const pro = screen.getByRole("radio", { name: "Pro" });
+
+    // Act — select Pro, then click it again while it is already selected.
+    await user.click(pro);
+    await user.click(pro);
+
+    // Assert — exactly one change: the redundant second click is a no-op.
+    expect(onValueChange).toHaveBeenCalledOnce();
+  });
 });

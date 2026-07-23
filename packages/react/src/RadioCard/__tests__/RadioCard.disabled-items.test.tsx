@@ -37,6 +37,33 @@ describe("RadioCard disabled items", () => {
     expect(onValueChange).not.toHaveBeenCalled();
   });
 
+  it("re-registers an item's disabled flag when it changes after mount", async () => {
+    // Arrange — all enabled at mount; Pro becomes disabled afterwards.
+    const user = userEvent.setup();
+    function Fixture({ proDisabled }: { proDisabled: boolean }) {
+      return (
+        <RadioCard.Root aria-label="Plan" defaultValue="starter">
+          <RadioCard.Item value="starter">Starter</RadioCard.Item>
+          <RadioCard.Item value="pro" disabled={proDisabled}>
+            Pro
+          </RadioCard.Item>
+          <RadioCard.Item value="enterprise">Enterprise</RadioCard.Item>
+        </RadioCard.Root>
+      );
+    }
+    const { rerender } = render(<Fixture proDisabled={false} />);
+
+    // Act — disable Pro after mount, then arrow forwards from Starter.
+    rerender(<Fixture proDisabled />);
+    screen.getByRole("radio", { name: "Starter" }).focus();
+    await user.keyboard("{ArrowDown}");
+
+    // Assert — the registrar effect re-ran, so Pro is skipped and focus lands
+    // on Enterprise. A stale registration would keep Pro navigable and strand
+    // focus (a disabled button cannot receive it).
+    expect(screen.getByRole("radio", { name: "Enterprise" })).toHaveFocus();
+  });
+
   it("excludes disabled items from the roving-tabindex home base", () => {
     // Arrange & Act — no default value, first NON-disabled item is the tab stop
     render(

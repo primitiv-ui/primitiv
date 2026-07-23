@@ -142,6 +142,7 @@ export function ToggleGroupRoot({
 }
 
 /** @internal */
+// Stryker disable next-line StringLiteral: overwritten by the compound alias — an equivalent mutant.
 ToggleGroupRoot.displayName = "ToggleGroupRoot";
 
 /**

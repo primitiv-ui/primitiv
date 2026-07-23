@@ -42,7 +42,16 @@ export function useToggleGroupRoot({
     (itemValue: string) => {
       const isSelected = value.includes(itemValue);
       if (type === "single") {
-        const next = isSelected ? [] : [itemValue];
+        // Deselecting clears the selection to the empty array. Stryker's
+        // ArrayDeclaration mutant fills this with a phantom value, but since
+        // that value can never equal a registered item's `value` — and single
+        // mode always overwrites the whole array on the next selection — no
+        // item ever reads it as pressed. The mutation is observationally
+        // identical, so it is isolated here to keep the disable off the tested
+        // `[itemValue]` literal below.
+        // Stryker disable next-line ArrayDeclaration
+        const cleared: string[] = [];
+        const next = isSelected ? cleared : [itemValue];
         setValue(next);
         (onValueChange as ((v: string | undefined) => void) | undefined)?.(
           isSelected ? undefined : itemValue,
@@ -68,6 +77,9 @@ export function useToggleGroupRoot({
     (itemValue: string, element: HTMLButtonElement | null, disabled = false) => {
       registerBase(itemValue, element ? { element, disabled } : null);
     },
+    // `registerBase` is a stable useCollection callback (its own deps never
+    // change), so emptying this array yields the identical memoised function.
+    // Stryker disable next-line ArrayDeclaration: equivalent — stable dependency.
     [registerBase],
   );
 
@@ -83,8 +95,16 @@ export function useToggleGroupRoot({
 
   const focusItem = useCallback(
     (itemValue: string) => {
+      // `itemValue` is always sourced from `navigable` (the enabled subset of
+      // `itemValues`), and useCollection's register() writes `itemsRef` and the
+      // `itemValues` state together — so a value that reaches here is guaranteed
+      // to have a live entry in the map.
+      // Stryker disable next-line OptionalChaining: unreachable given that invariant.
       itemsRef.current.get(itemValue)?.element.focus();
     },
+    // `itemsRef` is a stable RefObject, so emptying this array yields the
+    // identical memoised function.
+    // Stryker disable next-line ArrayDeclaration: equivalent — stable dependency.
     [itemsRef],
   );
 

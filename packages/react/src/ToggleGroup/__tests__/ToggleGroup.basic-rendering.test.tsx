@@ -47,4 +47,13 @@ describe("ToggleGroup basic rendering", () => {
       "horizontal",
     );
   });
+
+  it("sets a displayName on the compound and Item", () => {
+    // Assert — empty displayNames would render each as anonymous in DevTools.
+    // `ToggleGroup`, `ToggleGroup.Root`, and the underlying function are one
+    // object (Object.assign compound), so the compound's "ToggleGroup" alias is
+    // the observable Root displayName; only Item is a distinct object.
+    expect(ToggleGroup.displayName).toBe("ToggleGroup");
+    expect(ToggleGroup.Item.displayName).toBe("ToggleGroupItem");
+  });
 });

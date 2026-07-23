@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { ToggleGroup } from "../ToggleGroup";
@@ -37,6 +37,28 @@ describe("ToggleGroup keyboard — roving tabindex", () => {
     render(<SingleFixture defaultValue="center" />);
     await Promise.resolve();
     expect(screen.getByRole("button", { name: "Center" })).toHaveAttribute(
+      "tabindex",
+      "0",
+    );
+    expect(screen.getByRole("button", { name: "Left" })).toHaveAttribute(
+      "tabindex",
+      "-1",
+    );
+  });
+
+  it("moves the tab stop to the focused item (onFocus updates the home base)", () => {
+    // Arrange — nothing selected, so the first item is the initial tab stop.
+    render(<SingleFixture />);
+    expect(screen.getByRole("button", { name: "Left" })).toHaveAttribute(
+      "tabindex",
+      "0",
+    );
+
+    // Act — focusing another item should hand it the tab stop.
+    fireEvent.focus(screen.getByRole("button", { name: "Right" }));
+
+    // Assert — Right is now the sole tab stop; Left drops out of the sequence.
+    expect(screen.getByRole("button", { name: "Right" })).toHaveAttribute(
       "tabindex",
       "0",
     );

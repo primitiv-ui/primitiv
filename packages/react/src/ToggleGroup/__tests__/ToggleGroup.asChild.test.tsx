@@ -62,4 +62,24 @@ describe("ToggleGroup asChild composition", () => {
     expect(consumerClick).toHaveBeenCalledOnce();
     expect(item).toHaveAttribute("aria-pressed", "true");
   });
+
+  it("Item asChild activates on Space through the keyboard handler", async () => {
+    // A non-button element fires no native click on Space, so toggling can
+    // only come from the roving handler's activate mapping — the guarantee a
+    // native <button> would otherwise mask.
+    const user = userEvent.setup();
+    render(
+      <ToggleGroup.Root type="single" aria-label="Alignment">
+        <ToggleGroup.Item value="left" asChild>
+          <div>Left</div>
+        </ToggleGroup.Item>
+      </ToggleGroup.Root>,
+    );
+    const item = screen
+      .getByLabelText("Alignment")
+      .querySelector<HTMLElement>("[data-state]")!;
+    item.focus();
+    await user.keyboard(" ");
+    expect(item).toHaveAttribute("aria-pressed", "true");
+  });
 });

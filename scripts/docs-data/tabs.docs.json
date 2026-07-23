@@ -1,0 +1,272 @@
+{
+  "id": "tabs",
+  "displayName": "Tabs",
+  "kind": "registry",
+  "status": "stable",
+  "description": "An accessible tabbed interface — a tablist of triggers that switch between panels (WAI-ARIA Tabs pattern).",
+  "headless": {
+    "package": "@primitiv-ui/react",
+    "importPath": "@primitiv-ui/react",
+    "subComponents": [
+      {
+        "name": "Tabs.Root",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "activationMode",
+            "type": "\"automatic\" | \"manual\"",
+            "required": false,
+            "default": "\"automatic\"",
+            "description": "When a focused trigger becomes active; see {@link TabsActivationMode}."
+          },
+          {
+            "name": "defaultValue",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Value of the tab active on first render."
+          },
+          {
+            "name": "dir",
+            "type": "\"ltr\" | \"rtl\"",
+            "required": false,
+            "default": null,
+            "description": "Reading direction; see {@link TabsReadingDirection}. Inherited from the\nnearest `DirectionProvider` when omitted, falling back to `\"ltr\"`."
+          },
+          {
+            "name": "lazyMount",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "When `true`, a panel's children are not rendered until that tab is first\nactivated. Once mounted they remain in the DOM across subsequent tab\nswitches (lazy mount, not unmount-on-hide). Useful for panels that own\nexpensive initialisation — e.g. a scroll-snap carousel whose initial\nscroll position must be set while the panel is visible."
+          },
+          {
+            "name": "onChange",
+            "type": "({ index, name }: TabMetadata) => void",
+            "required": false,
+            "default": null,
+            "description": "Fired on every user-driven activation with the activated tab's metadata."
+          },
+          {
+            "name": "onValueChange",
+            "type": "(value: string) => void",
+            "required": false,
+            "default": null,
+            "description": "Called with the requested value when the user activates a tab."
+          },
+          {
+            "name": "orientation",
+            "type": "\"horizontal\" | \"vertical\"",
+            "required": false,
+            "default": "\"horizontal\"",
+            "description": "Layout axis; see {@link TabsOrientation}."
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Value of the currently active tab."
+          }
+        ],
+        "contractProps": [
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Control size for the whole widget; `data-density` scales each size further."
+          }
+        ],
+        "dataAttributes": [
+          "data-orientation"
+        ]
+      },
+      {
+        "name": "Tabs.List",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "ariaLabelledBy",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Id of an existing element to use as the tablist's accessible name,\nset as `aria-labelledby`. Mutually exclusive with `label`."
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "required": false,
+            "default": null,
+            "description": "Accessible name for the tablist, announced as `aria-label`. Pick a\nshort, human-readable description of the set (e.g. `\"Account\nsections\"`, not `\"Tabs\"`). Mutually exclusive with `ariaLabelledBy`."
+          }
+        ],
+        "contractProps": [
+          {
+            "name": "justify",
+            "type": "\"start\" | \"center\" | \"end\"",
+            "default": "start",
+            "description": "Alignment of the triggers along the tablist. Direction-aware — `start`/`end` follow the reading direction, flipping under RTL via the inherited `DirectionProvider`."
+          }
+        ],
+        "dataAttributes": [
+          "data-orientation"
+        ]
+      },
+      {
+        "name": "Tabs.Trigger",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "value",
+            "type": "string",
+            "required": true,
+            "default": null,
+            "description": "Identifies this trigger, linking it to the `Tabs.Content` of the same\nvalue. Not the visible label — use `children` for that."
+          },
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": null,
+            "description": "Render the child element instead of the default `<button>`. All tab\nARIA attributes and event handlers are merged onto the child. The child\nmust accept a `ref`. Useful for routing links that need tab semantics."
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Removes the trigger from the roving tab order and marks it\n`aria-disabled`/`data-disabled`; arrow-key navigation skips it."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<T>",
+            "required": false,
+            "default": null,
+            "description": "Ref to the rendered element. Defaults to `HTMLButtonElement`; when using\n`asChild`, specify the child's element type (e.g. `HTMLAnchorElement`)."
+          }
+        ],
+        "contractProps": [],
+        "dataAttributes": [
+          "data-state",
+          "data-orientation",
+          "data-disabled"
+        ]
+      },
+      {
+        "name": "Tabs.Content",
+        "extends": "HTMLDivElement",
+        "props": [
+          {
+            "name": "value",
+            "type": "string",
+            "required": true,
+            "default": null,
+            "description": "Value of the trigger this panel belongs to."
+          }
+        ],
+        "contractProps": [],
+        "dataAttributes": [
+          "data-state",
+          "data-orientation"
+        ]
+      }
+    ]
+  },
+  "styled": {
+    "installCommand": "primitiv add tabs",
+    "rootClass": "primitiv-tabs",
+    "customProperties": [
+      {
+        "name": "--primitiv-tabs-trigger-height",
+        "defaultsTo": "var(--primitiv-framed-control-md-height)"
+      },
+      {
+        "name": "--primitiv-tabs-trigger-padding-inline",
+        "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)"
+      },
+      {
+        "name": "--primitiv-tabs-trigger-gap",
+        "defaultsTo": "var(--primitiv-framed-control-md-gap)"
+      },
+      {
+        "name": "--primitiv-tabs-trigger-icon-size",
+        "defaultsTo": "var(--primitiv-framed-control-md-icon-size)"
+      },
+      {
+        "name": "--primitiv-tabs-trigger-fg",
+        "defaultsTo": "var(--primitiv-content-secondary)"
+      },
+      {
+        "name": "--primitiv-tabs-trigger-fg-active",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-tabs-trigger-fg-hover",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-tabs-baseline-color",
+        "defaultsTo": "var(--primitiv-border-subtle)"
+      },
+      {
+        "name": "--primitiv-tabs-indicator-height",
+        "defaultsTo": "var(--primitiv-tabs-indicator-thickness)"
+      },
+      {
+        "name": "--primitiv-tabs-indicator-color",
+        "defaultsTo": "transparent"
+      },
+      {
+        "name": "--primitiv-tabs-indicator-color-active",
+        "defaultsTo": "var(--primitiv-action-primary-default)"
+      },
+      {
+        "name": "--primitiv-tabs-trigger-font-family",
+        "defaultsTo": "var(--primitiv-label-md-font-family)"
+      },
+      {
+        "name": "--primitiv-tabs-trigger-font-size",
+        "defaultsTo": "var(--primitiv-label-md-font-size)"
+      },
+      {
+        "name": "--primitiv-tabs-trigger-font-weight",
+        "defaultsTo": "var(--primitiv-label-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-tabs-trigger-line-height",
+        "defaultsTo": "var(--primitiv-label-md-line-height)"
+      },
+      {
+        "name": "--primitiv-tabs-panel-padding-block",
+        "defaultsTo": "var(--primitiv-panel-padding-block)"
+      },
+      {
+        "name": "--primitiv-tabs-panel-padding-inline",
+        "defaultsTo": "var(--primitiv-panel-padding-inline)"
+      },
+      {
+        "name": "--primitiv-tabs-panel-fg",
+        "defaultsTo": "var(--primitiv-content-primary)"
+      },
+      {
+        "name": "--primitiv-tabs-panel-font-family",
+        "defaultsTo": "var(--primitiv-body-md-font-family)"
+      },
+      {
+        "name": "--primitiv-tabs-panel-font-size",
+        "defaultsTo": "var(--primitiv-body-md-font-size)"
+      },
+      {
+        "name": "--primitiv-tabs-panel-font-weight",
+        "defaultsTo": "var(--primitiv-body-md-font-weight)"
+      },
+      {
+        "name": "--primitiv-tabs-panel-line-height",
+        "defaultsTo": "var(--primitiv-body-md-line-height)"
+      }
+    ]
+  },
+  "figma": {
+    "componentSetKey": "425:5528"
+  }
+}

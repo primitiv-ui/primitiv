@@ -7,55 +7,63 @@
   "headless": {
     "package": "@primitiv-ui/react",
     "importPath": "@primitiv-ui/react",
-    "extends": "HTMLButtonElement",
-    "props": [
+    "subComponents": [
       {
-        "name": "asChild",
-        "type": "boolean",
-        "required": false,
-        "default": "false",
-        "description": "Renders the child element instead of a native `<button>`, merging all\nprops — aria-*, data-*, event handlers, ref — onto it via\n{@link Slot }. `type` is not forwarded in this mode; the child owns its\nown type semantics. See the `asChild` example on {@link Button }."
-      },
-      {
-        "name": "children",
-        "type": "ReactNode",
-        "required": false,
-        "default": null,
-        "description": "Button content. Under `asChild`, becomes the single child element `Slot` merges props onto."
-      },
-      {
-        "name": "ref",
-        "type": "Ref<HTMLButtonElement>",
-        "required": false,
-        "default": null,
-        "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLButtonElement`, or — under\n`asChild` — merged onto the rendered child via {@link Slot }."
-      },
-      {
-        "name": "type",
-        "type": "\"button\" | \"submit\" | \"reset\"",
-        "required": false,
-        "default": "\"button\"",
-        "description": "The button's native `type` attribute, restricted to the three valid\nvalues. Defaults to `\"button\"` (not the DOM's own default of\n`\"submit\"`), so a `Button` placed inside a `<form>` never triggers an\naccidental submit unless set explicitly."
+        "name": "Button",
+        "extends": "HTMLButtonElement",
+        "props": [
+          {
+            "name": "asChild",
+            "type": "boolean",
+            "required": false,
+            "default": "false",
+            "description": "Renders the child element instead of a native `<button>`, merging all\nprops — aria-*, data-*, event handlers, ref — onto it via\n{@link Slot }. `type` is not forwarded in this mode; the child owns its\nown type semantics. See the `asChild` example on {@link Button }."
+          },
+          {
+            "name": "children",
+            "type": "ReactNode",
+            "required": false,
+            "default": null,
+            "description": "Button content. Under `asChild`, becomes the single child element `Slot` merges props onto."
+          },
+          {
+            "name": "ref",
+            "type": "Ref<HTMLButtonElement>",
+            "required": false,
+            "default": null,
+            "description": "Allows getting a ref to the component instance.\nOnce the component unmounts, React will set `ref.current` to `null`\n(or call the ref with `null` if you passed a callback ref).\nForwarded to the underlying `HTMLButtonElement`, or — under\n`asChild` — merged onto the rendered child via {@link Slot }."
+          },
+          {
+            "name": "type",
+            "type": "\"button\" | \"submit\" | \"reset\"",
+            "required": false,
+            "default": "\"button\"",
+            "description": "The button's native `type` attribute, restricted to the three valid\nvalues. Defaults to `\"button\"` (not the DOM's own default of\n`\"submit\"`), so a `Button` placed inside a `<form>` never triggers an\naccidental submit unless set explicitly."
+          }
+        ],
+        "contractProps": [
+          {
+            "name": "variant",
+            "type": "\"primary\" | \"secondary\" | \"danger\" | \"ghost\" | \"link\"",
+            "default": "primary",
+            "description": "Visual intent / emphasis."
+          },
+          {
+            "name": "size",
+            "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+            "default": "md",
+            "description": "Control size; `data-density` scales each size further."
+          }
+        ],
+        "dataAttributes": [
+          "data-disabled"
+        ]
       }
     ]
   },
   "styled": {
     "installCommand": "primitiv add button",
     "rootClass": "primitiv-button",
-    "contractProps": [
-      {
-        "name": "variant",
-        "type": "\"primary\" | \"secondary\" | \"danger\" | \"ghost\" | \"link\"",
-        "default": "primary",
-        "description": "Visual intent / emphasis."
-      },
-      {
-        "name": "size",
-        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
-        "default": "md",
-        "description": "Control size; `data-density` scales each size further."
-      }
-    ],
     "customProperties": [
       {
         "name": "--primitiv-button-bg",
@@ -113,9 +121,6 @@
         "name": "--primitiv-button-shadow",
         "defaultsTo": "var(--primitiv-elevation-flat)"
       }
-    ],
-    "dataAttributes": [
-      "data-disabled"
     ]
   },
   "figma": {

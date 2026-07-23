@@ -512,6 +512,55 @@ Still POC-grade: single component (Button), no orchestrator merging both
 halves into the committed `docs/data/` tree yet, and the a11y/examples content
 is hand-authored placeholder (§1.7 says a11y isn't auto-generatable).
 
+### 1.20 Compound-component stress test (Tabs) — findings
+
+The Button POC (§1.19) was repeated on a **compound** component to see what it
+exposes design/layout-wise. The extractor was extended to multiple
+sub-components (`scripts/docs-data/tabs.docs.json`: 4 sub-components, 15
+headless props, 2 contract props, 22 CSS vars) and the page wireframed from it
+(`scripts/figma/create-v1-docs-component-page-tabs-wireframe.js`, desktop +
+mobile + a Findings panel). What Tabs surfaced that Button didn't:
+
+1. **Multiple prop tables.** One table per sub-component
+   (`Root`/`List`/`Trigger`/`Content`), each with its own `extends`. The single
+   "Props" section fans out and the page grows to ~3000px desktop / ~3400px
+   mobile — enough that **collapsible sub-sections and a nested TOC** (Props →
+   the four parts, added) become worthwhile. Mobile especially: a compound
+   component is a very long scroll.
+2. **Controlled/uncontrolled isn't extractable.** The discriminated union on
+   `Tabs.Root` (`value`+`onValueChange` XOR `defaultValue`) flattens to a plain
+   prop list — the mutual-exclusivity is lost. It needs a **hand-authored
+   callout** (added, amber-tagged) or a **schema "prop group" concept**; §1.7's
+   flat `props[]` has no way to model it. General for any stateful component.
+3. **A real source bug — two more §1.16 instances.** `TabsRootProps.defaultValue`
+   and `TabsTriggerProps.value` narrow a native attribute **without `Omit`-ting
+   it first**, so extraction saw `string | (readonly string[] & string)`. The
+   extractor now normalises the artifact, but the **source should add the
+   `Omit`** — a third + fourth instance of the §1.16 pattern, strengthening the
+   case for a lint rule. (Not fixed here — flagged for a follow-up.)
+4. **Aliased / complex types need resolving.** String-literal-union aliases
+   (`TabsOrientation` → `"horizontal" | "vertical"`) must be **expanded** — the
+   extractor now does this. But non-literal aliases still leak their name
+   (`TabMetadata` in `onChange`, `Ref<T>`) → the pipeline needs a **linked
+   types glossary / hover** for those.
+5. **Generics leak a type param.** `Tabs.Trigger<T>` renders `ref: Ref<T>`.
+   Generic sub-components need a display rule (show the default element).
+6. **Interactive ⇒ richer a11y + data-attributes.** A **keyboard-interactions
+   table** (not Button's bullets) and **per-sub-component data-attributes**
+   (`data-state`/`data-orientation`/`data-disabled`) appear. Both are
+   hand-authored (§1.7) — confirming the a11y authoring burden scales with
+   component complexity, and that `a11y.keyboardInteractions[]` in the §1.7
+   schema is the right shape.
+7. **New sections for compound.** An **Anatomy** (composition) section is
+   essential and Button never needed it. The **Playground** control set is now
+   heterogeneous — a headless enum prop (`orientation`), contract props
+   (`size`/`justify`) and the Context system (`density`) — so controls must be
+   **sourced from three places and labelled by origin**.
+
+Net: the template held up, but items 1–2 (nested/collapsible prop tables +
+a prop-group model) and 3 (the source `Omit` fix + lint) are the concrete
+follow-ups; 4–5 refine the extractor's type handling.
+
 ---
 
 ## 2. Open questions

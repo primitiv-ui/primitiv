@@ -14,6 +14,7 @@ export * from "./modal";
 export * from "./popover";
 export * from "./prose";
 export * from "./radio";
+export * from "./segmented-control";
 export * from "./switch";
 export * from "./table";
 export * from "./tabs";

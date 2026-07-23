@@ -70,6 +70,8 @@ import {
   TableCell,
   TableCaption,
   TableScrollArea,
+  SegmentedControl,
+  SegmentedControlItem,
   Tabs,
   TabsList,
   TabsTrigger,
@@ -182,6 +184,7 @@ export function App(): ReactElement {
   const [ddStatusBar, setDdStatusBar] = useState(false);
   const [ddPanels, setDdPanels] = useState<boolean | "indeterminate">("indeterminate");
   const [ddSortOrder, setDdSortOrder] = useState("modified");
+  const [consumptionMode, setConsumptionMode] = useState("headless");
 
   const sortedReleases = [...RELEASES].sort((a, b) => {
     const av = a[sort.key];
@@ -638,6 +641,32 @@ primitiv add --all`}</code>
           <ToggleGroupItem value="center">Center</ToggleGroupItem>
           <ToggleGroupItem value="right">Right</ToggleGroupItem>
         </ToggleGroup>
+      </Section>
+
+      <Section title="Segmented Control" column>
+        {/* Single-select value picker (RadioGroup semantics): exactly one segment
+            is always selected — the brand-filled one — the rest secondary. */}
+        <SegmentedControl
+          size={size}
+          value={consumptionMode}
+          onValueChange={setConsumptionMode}
+          aria-label="Consumption mode"
+        >
+          <SegmentedControlItem value="headless">Headless</SegmentedControlItem>
+          <SegmentedControlItem value="styled">Styled</SegmentedControlItem>
+          <SegmentedControlItem value="figma">Figma</SegmentedControlItem>
+        </SegmentedControl>
+        {/* Justified — segments share the track width equally. */}
+        <SegmentedControl
+          size={size}
+          justify="justified"
+          defaultValue="week"
+          aria-label="Range"
+        >
+          <SegmentedControlItem value="day">Day</SegmentedControlItem>
+          <SegmentedControlItem value="week">Week</SegmentedControlItem>
+          <SegmentedControlItem value="month">Month</SegmentedControlItem>
+        </SegmentedControl>
       </Section>
 
       <Section title="Table" column>

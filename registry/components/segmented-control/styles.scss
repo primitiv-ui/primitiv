@@ -1,0 +1,261 @@
+/*
+ * SegmentedControl — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add segmented-control`. It is yours
+ * to edit: the stable surface is the contract (the .primitiv-segmented-control
+ * root + __item part, the --xs…--xl / --justified modifiers, the data-state /
+ * data-disabled / data-orientation hooks, and the --primitiv-segmented-control-*
+ * custom properties), not these values (RFC 0006 Principle 2 — names are stable,
+ * values are not).
+ *
+ * The look: a single-select value picker that reads as part of the Button
+ * family. The track is a TRANSPARENT, bordered frame (so the control sits on any
+ * surface — card, toolbar, coloured hero) whose corner radius is CONCENTRIC with
+ * the segments (item radius + the track padding). Each segment is a framed
+ * button: the selected one (data-state="checked") is brand-filled (action/primary),
+ * the rest are secondary (action/secondary). This mirrors RadioGroup semantics —
+ * exactly one segment is always selected — not a toggle group.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look live in
+ * primitiv.base, the size/justify modifiers in primitiv.variants, the
+ * selected/hover/focus/disabled styling in primitiv.states. The sublayer order is
+ * declared once in the shared token layer (primitiv.tokens.css); this file only
+ * re-opens the named sublayers.
+ *
+ * Horizontal orientation is the v1 target; vertical (data-orientation="vertical")
+ * stacks the segments. Requires the token layer (`primitiv tokens`) for the
+ * --primitiv-action-*, --primitiv-framed-control-*, --primitiv-border-*,
+ * --primitiv-surface-*, --primitiv-focus-ring-*, --primitiv-space-*,
+ * --primitiv-opacity-*, --primitiv-color-*, --primitiv-label-* and
+ * --primitiv-motion-* custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-segmented-control {
+    /* Per-component API — the themable knobs, defaulting to the md size and the
+       resting (unselected) segment. Size modifiers re-point the sizing knobs; the
+       states layer re-points the colour knobs. They inherit to the item below, so
+       consumers can override any one on the root without touching a rule. */
+    --primitiv-segmented-control-track-bg: var(--primitiv-color-transparent);
+    --primitiv-segmented-control-track-border-color: var(--primitiv-border-subtle);
+    --primitiv-segmented-control-track-border-width: var(--primitiv-framed-control-border-width);
+    /* The inset separating each segment from the track edge and its neighbours
+       (used as both padding and gap so the spacing reads uniform). */
+    --primitiv-segmented-control-track-padding: var(--primitiv-space-space-4);
+    --primitiv-segmented-control-track-gap: var(--primitiv-space-space-4);
+    /* The track radius is CONCENTRIC with the segments: the item radius plus the
+       track padding, so the outer curve runs parallel to the inner one at every
+       size. Re-derives automatically when the size modifier re-points the item
+       radius. */
+    --primitiv-segmented-control-item-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-segmented-control-radius: calc(var(--primitiv-segmented-control-item-radius) + var(--primitiv-segmented-control-track-padding));
+    --primitiv-segmented-control-item-height: var(--primitiv-framed-control-md-height);
+    --primitiv-segmented-control-item-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-segmented-control-item-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-segmented-control-item-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-segmented-control-item-border-width: var(--primitiv-framed-control-border-width);
+    /* Resting (unselected) segment — secondary. */
+    --primitiv-segmented-control-item-bg: var(--primitiv-action-secondary-default);
+    --primitiv-segmented-control-item-fg: var(--primitiv-action-secondary-foreground-default);
+    --primitiv-segmented-control-item-border-color: var(--primitiv-action-secondary-border-default);
+    /* Selected-state targets, re-pointed by the states layer — primary (brand). */
+    --primitiv-segmented-control-item-bg-selected: var(--primitiv-action-primary-default);
+    --primitiv-segmented-control-item-fg-selected: var(--primitiv-action-primary-foreground-default);
+    --primitiv-segmented-control-item-border-color-selected: var(--primitiv-action-primary-border-default);
+    --primitiv-segmented-control-item-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-segmented-control-item-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-segmented-control-item-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-segmented-control-item-line-height: var(--primitiv-label-md-line-height);
+
+    /* The track — a transparent, bordered frame. `overflow` stays VISIBLE so the
+       focus ring (an outset box-shadow on a segment) isn't cropped to the track. */
+    display: inline-flex;
+    flex-direction: row;
+    gap: var(--primitiv-segmented-control-track-gap);
+    padding: var(--primitiv-segmented-control-track-padding);
+    background: var(--primitiv-segmented-control-track-bg);
+    border: var(--primitiv-segmented-control-track-border-width) solid var(--primitiv-segmented-control-track-border-color);
+    border-radius: var(--primitiv-segmented-control-radius);
+  }
+
+  /* Vertical orientation stacks the segments; the framed model is identical. */
+  .primitiv-segmented-control[data-orientation="vertical"] {
+    flex-direction: column;
+  }
+
+  /* A segment — a framed button, secondary by default. */
+  .primitiv-segmented-control__item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--primitiv-segmented-control-item-gap);
+    block-size: var(--primitiv-segmented-control-item-height);
+    padding-inline: var(--primitiv-segmented-control-item-padding-inline);
+    border: var(--primitiv-segmented-control-item-border-width) solid var(--primitiv-segmented-control-item-border-color);
+    background: var(--primitiv-segmented-control-item-bg);
+    color: var(--primitiv-segmented-control-item-fg);
+    border-radius: var(--primitiv-segmented-control-item-radius);
+    font-family: var(--primitiv-segmented-control-item-font-family);
+    font-size: var(--primitiv-segmented-control-item-font-size);
+    font-weight: var(--primitiv-segmented-control-item-font-weight);
+    line-height: var(--primitiv-segmented-control-item-line-height);
+    cursor: pointer;
+    transition:
+      background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  .primitiv-segmented-control__item svg {
+    inline-size: var(--primitiv-segmented-control-item-icon-size);
+    block-size: var(--primitiv-segmented-control-item-icon-size);
+  }
+
+  /* text-box-trim must be applied to the element directly wrapping the text
+     node — not the flex container — for engines to honour it. The registry
+     component wraps string/number children in this span automatically so
+     consumers never need to do it by hand (mirrors Button's __label). */
+  .primitiv-segmented-control__item-label {
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+  }
+}
+
+@layer primitiv.variants {
+  /* Justified — segments share the track width equally (the classic equal-width
+     segmented control). Omitted, segments are content-width. */
+  .primitiv-segmented-control--justified .primitiv-segmented-control__item {
+    flex: 1 1 0;
+  }
+
+  /* Size — re-points the framed-control + typography knobs to the chosen slot.
+     The concentric track radius re-derives from the item radius automatically.
+     Density stays ambient via [data-density] on the token values (RFC 0009). */
+  .primitiv-segmented-control--xs {
+    --primitiv-segmented-control-item-radius: var(--primitiv-framed-control-xs-radius);
+    --primitiv-segmented-control-item-height: var(--primitiv-framed-control-xs-height);
+    --primitiv-segmented-control-item-padding-inline: var(--primitiv-framed-control-xs-padding-inline);
+    --primitiv-segmented-control-item-gap: var(--primitiv-framed-control-xs-gap);
+    --primitiv-segmented-control-item-icon-size: var(--primitiv-framed-control-xs-icon-size);
+    --primitiv-segmented-control-item-font-family: var(--primitiv-label-xs-font-family);
+    --primitiv-segmented-control-item-font-size: var(--primitiv-label-xs-font-size);
+    --primitiv-segmented-control-item-font-weight: var(--primitiv-label-xs-font-weight);
+    --primitiv-segmented-control-item-line-height: var(--primitiv-label-xs-line-height);
+  }
+  .primitiv-segmented-control--sm {
+    --primitiv-segmented-control-item-radius: var(--primitiv-framed-control-sm-radius);
+    --primitiv-segmented-control-item-height: var(--primitiv-framed-control-sm-height);
+    --primitiv-segmented-control-item-padding-inline: var(--primitiv-framed-control-sm-padding-inline);
+    --primitiv-segmented-control-item-gap: var(--primitiv-framed-control-sm-gap);
+    --primitiv-segmented-control-item-icon-size: var(--primitiv-framed-control-sm-icon-size);
+    --primitiv-segmented-control-item-font-family: var(--primitiv-label-sm-font-family);
+    --primitiv-segmented-control-item-font-size: var(--primitiv-label-sm-font-size);
+    --primitiv-segmented-control-item-font-weight: var(--primitiv-label-sm-font-weight);
+    --primitiv-segmented-control-item-line-height: var(--primitiv-label-sm-line-height);
+  }
+  .primitiv-segmented-control--md {
+    --primitiv-segmented-control-item-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-segmented-control-item-height: var(--primitiv-framed-control-md-height);
+    --primitiv-segmented-control-item-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-segmented-control-item-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-segmented-control-item-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-segmented-control-item-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-segmented-control-item-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-segmented-control-item-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-segmented-control-item-line-height: var(--primitiv-label-md-line-height);
+  }
+  .primitiv-segmented-control--lg {
+    --primitiv-segmented-control-item-radius: var(--primitiv-framed-control-lg-radius);
+    --primitiv-segmented-control-item-height: var(--primitiv-framed-control-lg-height);
+    --primitiv-segmented-control-item-padding-inline: var(--primitiv-framed-control-lg-padding-inline);
+    --primitiv-segmented-control-item-gap: var(--primitiv-framed-control-lg-gap);
+    --primitiv-segmented-control-item-icon-size: var(--primitiv-framed-control-lg-icon-size);
+    --primitiv-segmented-control-item-font-family: var(--primitiv-label-lg-font-family);
+    --primitiv-segmented-control-item-font-size: var(--primitiv-label-lg-font-size);
+    --primitiv-segmented-control-item-font-weight: var(--primitiv-label-lg-font-weight);
+    --primitiv-segmented-control-item-line-height: var(--primitiv-label-lg-line-height);
+  }
+  .primitiv-segmented-control--xl {
+    --primitiv-segmented-control-item-radius: var(--primitiv-framed-control-xl-radius);
+    --primitiv-segmented-control-item-height: var(--primitiv-framed-control-xl-height);
+    --primitiv-segmented-control-item-padding-inline: var(--primitiv-framed-control-xl-padding-inline);
+    --primitiv-segmented-control-item-gap: var(--primitiv-framed-control-xl-gap);
+    --primitiv-segmented-control-item-icon-size: var(--primitiv-framed-control-xl-icon-size);
+    --primitiv-segmented-control-item-font-family: var(--primitiv-label-xl-font-family);
+    --primitiv-segmented-control-item-font-size: var(--primitiv-label-xl-font-size);
+    --primitiv-segmented-control-item-font-weight: var(--primitiv-label-xl-font-weight);
+    --primitiv-segmented-control-item-line-height: var(--primitiv-label-xl-line-height);
+  }
+}
+
+@layer primitiv.states {
+  /* Selected — the segment becomes the brand-filled primary button. The states
+     layer sits above base + variants, so it always wins (RFC 0008 §2.3). */
+  .primitiv-segmented-control__item[data-state="checked"] {
+    --primitiv-segmented-control-item-bg: var(--primitiv-segmented-control-item-bg-selected);
+    --primitiv-segmented-control-item-fg: var(--primitiv-segmented-control-item-fg-selected);
+    --primitiv-segmented-control-item-border-color: var(--primitiv-segmented-control-item-border-color-selected);
+  }
+
+  /* Hover — each state deepens toward its own intent's hover token. */
+  .primitiv-segmented-control__item[data-state="unchecked"]:hover {
+    --primitiv-segmented-control-item-bg: var(--primitiv-action-secondary-hover);
+    --primitiv-segmented-control-item-border-color: var(--primitiv-action-secondary-border-hover);
+  }
+  .primitiv-segmented-control__item[data-state="checked"]:hover {
+    --primitiv-segmented-control-item-bg: var(--primitiv-action-primary-hover);
+    --primitiv-segmented-control-item-border-color: var(--primitiv-action-primary-border-hover);
+  }
+
+  /* Focus — the shared two-layer ring, following the segment's own radius so it
+     stays concentric at every size. The gap band uses the page surface so the
+     ring reads cleanly; it is OUTSET (the track keeps overflow: visible) and the
+     focused segment lifts above its neighbours so the ring isn't overdrawn.
+     :focus-visible keeps it to keyboard focus; restyle via the global
+     --primitiv-focus-ring* tokens. */
+  .primitiv-segmented-control__item:focus-visible {
+    position: relative;
+    z-index: 1;
+    outline: none;
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Disabled is state-neutral so it reads the same whether selected or not; a
+     whole-control disable sets data-disabled on every segment too. */
+  .primitiv-segmented-control__item[data-disabled] {
+    opacity: var(--primitiv-opacity-50);
+    cursor: not-allowed;
+  }
+}
+
+$primitiv-segmented-control-track-bg: var(--primitiv-segmented-control-track-bg);
+$primitiv-segmented-control-track-border-color: var(--primitiv-segmented-control-track-border-color);
+$primitiv-segmented-control-track-border-width: var(--primitiv-segmented-control-track-border-width);
+$primitiv-segmented-control-track-padding: var(--primitiv-segmented-control-track-padding);
+$primitiv-segmented-control-track-gap: var(--primitiv-segmented-control-track-gap);
+$primitiv-segmented-control-item-radius: var(--primitiv-segmented-control-item-radius);
+$primitiv-segmented-control-radius: var(--primitiv-segmented-control-radius);
+$primitiv-segmented-control-item-height: var(--primitiv-segmented-control-item-height);
+$primitiv-segmented-control-item-padding-inline: var(--primitiv-segmented-control-item-padding-inline);
+$primitiv-segmented-control-item-gap: var(--primitiv-segmented-control-item-gap);
+$primitiv-segmented-control-item-icon-size: var(--primitiv-segmented-control-item-icon-size);
+$primitiv-segmented-control-item-border-width: var(--primitiv-segmented-control-item-border-width);
+$primitiv-segmented-control-item-bg: var(--primitiv-segmented-control-item-bg);
+$primitiv-segmented-control-item-fg: var(--primitiv-segmented-control-item-fg);
+$primitiv-segmented-control-item-border-color: var(--primitiv-segmented-control-item-border-color);
+$primitiv-segmented-control-item-bg-selected: var(--primitiv-segmented-control-item-bg-selected);
+$primitiv-segmented-control-item-fg-selected: var(--primitiv-segmented-control-item-fg-selected);
+$primitiv-segmented-control-item-border-color-selected: var(--primitiv-segmented-control-item-border-color-selected);
+$primitiv-segmented-control-item-font-family: var(--primitiv-segmented-control-item-font-family);
+$primitiv-segmented-control-item-font-size: var(--primitiv-segmented-control-item-font-size);
+$primitiv-segmented-control-item-font-weight: var(--primitiv-segmented-control-item-font-weight);
+$primitiv-segmented-control-item-line-height: var(--primitiv-segmented-control-item-line-height);

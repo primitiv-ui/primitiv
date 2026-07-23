@@ -54,6 +54,33 @@ describe("RadioGroup disabled", () => {
     expect(red).toHaveAttribute("aria-checked", "true");
   });
 
+  it("re-registers an item's disabled flag when it changes after mount", async () => {
+    // Arrange — all enabled at mount; green becomes disabled afterwards.
+    const user = userEvent.setup();
+    function Fixture({ greenDisabled }: { greenDisabled: boolean }) {
+      return (
+        <RadioGroup.Root aria-label="Colour" defaultValue="red">
+          <RadioGroup.Item value="red">Red</RadioGroup.Item>
+          <RadioGroup.Item value="green" disabled={greenDisabled}>
+            Green
+          </RadioGroup.Item>
+          <RadioGroup.Item value="blue">Blue</RadioGroup.Item>
+        </RadioGroup.Root>
+      );
+    }
+    const { rerender } = render(<Fixture greenDisabled={false} />);
+
+    // Act — disable green after mount, then arrow forwards from red.
+    rerender(<Fixture greenDisabled />);
+    screen.getByRole("radio", { name: "Red" }).focus();
+    await user.keyboard("{ArrowDown}");
+
+    // Assert — the registrar effect re-ran, so green is skipped and focus lands
+    // on blue. A stale registration would keep green navigable and strand focus
+    // (a disabled button cannot receive it).
+    expect(screen.getByRole("radio", { name: "Blue" })).toHaveFocus();
+  });
+
   it("skips disabled items when computing the home-base tab stop", () => {
     // Arrange & Act
     render(

@@ -75,6 +75,37 @@ describe("RadioGroup roving tabindex", () => {
     expect(green).toHaveAttribute("tabindex", "0");
   });
 
+  it("unregisters an unmounted item so the home-base tab stop moves", () => {
+    // Arrange — nothing selected, so the first item is the home base.
+    function Fixture({ items }: { items: string[] }) {
+      return (
+        <RadioGroup.Root aria-label="Colour">
+          {items.map((v) => (
+            <RadioGroup.Item key={v} value={v}>
+              {v}
+            </RadioGroup.Item>
+          ))}
+        </RadioGroup.Root>
+      );
+    }
+    const { rerender } = render(<Fixture items={["red", "green"]} />);
+    expect(screen.getByRole("radio", { name: "red" })).toHaveAttribute(
+      "tabindex",
+      "0",
+    );
+
+    // Act — remove "red"; its effect cleanup must unregister it.
+    rerender(<Fixture items={["green"]} />);
+
+    // Assert — with "red" gone from the registry, "green" is the home base. A
+    // no-op cleanup would leave "red" registered ahead of it, stranding the tab
+    // stop and leaving "green" at tabindex -1.
+    expect(screen.getByRole("radio", { name: "green" })).toHaveAttribute(
+      "tabindex",
+      "0",
+    );
+  });
+
   it("tabs into the single home-base item and not the others", async () => {
     // Arrange
     const user = userEvent.setup();

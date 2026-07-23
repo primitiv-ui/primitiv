@@ -90,4 +90,11 @@ describe("SegmentedControl basic rendering", () => {
       screen.getByRole("radiogroup", { name: "Mode" }),
     ).not.toHaveAttribute("data-disabled");
   });
+
+  it("sets a displayName on the compound and Item", () => {
+    // Assert — empty displayNames would render each as anonymous in DevTools.
+    // Root aliases the compound (Object.assign), so its name is "SegmentedControl".
+    expect(SegmentedControl.displayName).toBe("SegmentedControl");
+    expect(SegmentedControl.Item.displayName).toBe("SegmentedControlItem");
+  });
 });

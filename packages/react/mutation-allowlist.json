@@ -24,5 +24,6 @@
   "RadioGroup",
   "ToggleGroup",
   "Field",
-  "Fieldset"
+  "Fieldset",
+  "InputGroup"
 ]

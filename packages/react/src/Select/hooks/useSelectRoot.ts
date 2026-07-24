@@ -35,7 +35,11 @@ export function useSelectRoot({
   value: controlledValue,
   defaultValue,
   onValueChange,
-}: UseSelectRootArgs): { contextValue: SelectContextValue } {
+}: UseSelectRootArgs): {
+  contextValue: SelectContextValue;
+  value: string;
+  itemValues: string[];
+} {
   const contentId = useId();
   const triggerId = useId();
   const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -100,6 +104,14 @@ export function useSelectRoot({
     [],
   );
 
+  // Registered values, recomputed whenever items mount/unmount, so Root can
+  // render a matching <option> in the hidden form <select>.
+  const itemValues = useMemo(
+    () => Array.from(itemChildrenRef.current.keys()),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [itemVersion],
+  );
+
   const contextValue = useMemo(
     () => ({
       open,
@@ -130,5 +142,5 @@ export function useSelectRoot({
     ],
   );
 
-  return { contextValue };
+  return { contextValue, value, itemValues };
 }

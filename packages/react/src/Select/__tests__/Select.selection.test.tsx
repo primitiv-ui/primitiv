@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 
@@ -29,7 +29,10 @@ describe("Select rich selection", () => {
 
     await user.click(screen.getByRole("button"));
 
-    const options = screen.getAllByRole("option", { hidden: true });
+    // Scope to the listbox — the hidden form <select> also contains (nameless)
+    // <option>s that {hidden:true} would otherwise pick up.
+    const listbox = screen.getByRole("listbox", { hidden: true });
+    const options = within(listbox).getAllByRole("option", { hidden: true });
     expect(options).toHaveLength(3);
     options.forEach((o) => expect(o).toHaveAttribute("aria-selected", "false"));
     expect(screen.getByText("Svelte")).toHaveAttribute("aria-disabled", "true");

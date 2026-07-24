@@ -31,6 +31,19 @@ import {
 
 const ITEM_INDICATOR_DISPLAY_NAME = "SelectItemIndicator";
 
+/** Off-screen but still submitted — the rich mode's hidden form `<select>`. */
+const VISUALLY_HIDDEN = {
+  position: "absolute",
+  width: 1,
+  height: 1,
+  padding: 0,
+  margin: -1,
+  overflow: "hidden",
+  clip: "rect(0, 0, 0, 0)",
+  whiteSpace: "nowrap",
+  border: 0,
+} as const;
+
 const PLACEHOLDER_DISPLAY_NAME = "SelectPlaceholder";
 
 function hasPlaceholderChild(children: ReactNode): boolean {
@@ -168,7 +181,11 @@ export function SelectRoot({
   ...consumer
 }: SelectRootProps): ReactElement {
   const merged = useFieldProps(consumer);
-  const { contextValue } = useSelectRoot({
+  const {
+    contextValue,
+    value: selectedValue,
+    itemValues,
+  } = useSelectRoot({
     defaultOpen,
     open,
     onOpenChange,
@@ -205,11 +222,34 @@ export function SelectRoot({
   };
 
   // Rich (non-native) render path — the fully-styleable Popover listbox.
-  // Root owns the open/close state and provides it to Trigger / Content /
-  // Value via context; selection state and the hidden form field are
-  // layered on in later cycles.
+  // Root provides open/selection state to Trigger / Content / Value via
+  // context, and renders a visually-hidden native <select> so the selection
+  // still submits through the browser (mirroring what `native` gets free).
+  // The hidden select is uncontrolled + remounted by `key` on each change,
+  // so it needs no onChange and stays warning-free.
   if (!native) {
-    return <SelectContext.Provider value={contextValue}>{children}</SelectContext.Provider>;
+    return (
+      <SelectContext.Provider value={contextValue}>
+        {children}
+        <select
+          key={selectedValue}
+          name={merged.name}
+          defaultValue={selectedValue}
+          required={merged.required}
+          disabled={merged.disabled}
+          tabIndex={-1}
+          aria-hidden
+          style={VISUALLY_HIDDEN}
+        >
+          <option value="" />
+          {itemValues
+            .filter((itemValue) => itemValue !== "")
+            .map((itemValue) => (
+              <option key={itemValue} value={itemValue} />
+            ))}
+        </select>
+      </SelectContext.Provider>
+    );
   }
 
   if (asChild) {

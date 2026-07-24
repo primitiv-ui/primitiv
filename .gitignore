@@ -51,6 +51,7 @@ npm/cli-*/primitiv.exe
 
 # Stryker mutation testing — reports and temp working dir
 packages/react/reports/
+packages/core/reports/
 **/.stryker-tmp/
 
 # --- Claude Code ---

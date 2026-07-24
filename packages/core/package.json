@@ -1,0 +1,41 @@
+{
+  "name": "@primitiv-ui/core",
+  "version": "0.1.28",
+  "description": "Framework-agnostic component logic for Primitiv — pure TypeScript constants, state derivation and DOM attribute builders that a React, Vue, Svelte or Solid adapter can all consume.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/primitiv-ui/primitiv.git",
+    "directory": "packages/core"
+  },
+  "scripts": {
+    "qa": "pnpm qa:units",
+    "qa:units": "vitest run --coverage",
+    "qa:units:watch": "vitest --coverage",
+    "mutate": "stryker run",
+    "mutate:component": "node ../../scripts/mutate.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@stryker-mutator/core": "9.6.1",
+    "@stryker-mutator/vitest-runner": "9.6.1",
+    "@vitest/coverage-v8": "^4.1.4",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.4"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

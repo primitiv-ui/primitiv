@@ -290,6 +290,24 @@ importers:
 
   crates/harmoni-wasm/pkg: {}
 
+  packages/core:
+    devDependencies:
+      '@stryker-mutator/core':
+        specifier: 9.6.1
+        version: 9.6.1(@types/node@25.5.0)
+      '@stryker-mutator/vitest-runner':
+        specifier: 9.6.1
+        version: 9.6.1(@stryker-mutator/core@9.6.1(@types/node@25.5.0))(vitest@4.1.4)
+      '@vitest/coverage-v8':
+        specifier: ^4.1.4
+        version: 4.1.4(vitest@4.1.4)
+      typescript:
+        specifier: ^6.0.2
+        version: 6.0.2
+      vitest:
+        specifier: ^4.1.4
+        version: 4.1.4(@types/node@25.5.0)(@vitest/coverage-v8@4.1.4)(jsdom@29.0.2)(vite@8.0.8(@types/node@25.5.0)(esbuild@0.28.0)(sass@1.98.0)(tsx@4.21.0))
+
   packages/icons:
     dependencies:
       '@types/react':
@@ -5015,7 +5033,7 @@ snapshots:
   '@stryker-mutator/instrumenter@9.6.1':
     dependencies:
       '@babel/core': 7.29.0
-      '@babel/generator': 7.29.1
+      '@babel/generator': 7.29.7
       '@babel/parser': 7.29.7
       '@babel/plugin-proposal-decorators': 7.29.7(@babel/core@7.29.0)
       '@babel/plugin-transform-explicit-resource-management': 7.29.7(@babel/core@7.29.0)

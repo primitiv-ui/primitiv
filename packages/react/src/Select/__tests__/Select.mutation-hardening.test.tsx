@@ -145,6 +145,43 @@ describe("Select native-mode edges", () => {
     ).toBe(true);
   });
 
+  it("does not throw on native change when onValueChange is omitted", async () => {
+    const user = userEvent.setup();
+    render(
+      <Select.Root native defaultValue="a">
+        <Select.Item value="a">A</Select.Item>
+        <Select.Item value="b">B</Select.Item>
+      </Select.Root>,
+    );
+    await user.selectOptions(screen.getByRole("combobox"), "b");
+    expect(
+      (screen.getByRole("option", { name: "B" }) as HTMLOptionElement).selected,
+    ).toBe(true);
+  });
+
+  it("filters an empty value out of the hidden select's generated options", () => {
+    const { container } = render(
+      <Select.Root name="framework">
+        <Select.Trigger>
+          <Select.Value placeholder="Pick" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="">None</Select.Item>
+          <Select.Item value="a">A</Select.Item>
+        </Select.Content>
+      </Select.Root>,
+    );
+    const hidden = container.querySelector<HTMLSelectElement>(
+      'select[name="framework"]',
+    )!;
+    const empties = Array.from(hidden.querySelectorAll("option")).filter(
+      (o) => o.value === "",
+    );
+    // Only the single literal placeholder <option value="">, not a duplicate
+    // generated from the registered empty value.
+    expect(empties).toHaveLength(1);
+  });
+
   it("calls onValueChange with the chosen value under native", async () => {
     const user = userEvent.setup();
     const onValueChange = vi.fn();

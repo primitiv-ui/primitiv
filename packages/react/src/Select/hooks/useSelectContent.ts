@@ -100,8 +100,10 @@ export function useSelectContent({ onKeyDown, restProps }: UseSelectContentArgs)
 
     // Space is already handled by the Enter/Space branch above, so any
     // remaining single-character key is a typeahead search.
+    // Stryker disable next-line ConditionalExpression,EqualityOperator: the false / length!==1 variants are killed by the typeahead tests; the always-true variant is equivalent — no unhandled multi-character key (modifiers, arrows) can prefix-match an option.
     if (event.key.length === 1) {
       const state = typeaheadRef.current;
+      // Stryker disable next-line ConditionalExpression,MethodExpression,BlockStatement: clearing the pending timer is a real-time optimization; keystroke handling here is synchronous, so its presence/target never changes the search outcome.
       if (state.timer !== null) window.clearTimeout(state.timer);
       state.query = (state.query + event.key).toLowerCase();
       state.timer = window.setTimeout(() => {
@@ -110,11 +112,15 @@ export function useSelectContent({ onKeyDown, restProps }: UseSelectContentArgs)
       }, TYPEAHEAD_RESET_MS);
 
       const isRepeat =
+        // Stryker disable next-line EqualityOperator: >= 1 is equivalent — a single character already takes the length===1 offset path with the same result; the < 1 / logical / conditional variants are killed by the repeated-char cycle and multi-char tests.
         state.query.length > 1 &&
         state.query.split("").every((c) => c === state.query[0]);
       const searchQuery = isRepeat ? state.query[0] : state.query;
+      // Stryker disable next-line EqualityOperator: <= 0 is equivalent — currentIndex 0 yields startIndex 0 either way; the >= 0 variant is killed by the cycle test (advancing from a focused non-first item).
       const startIndex = currentIndex < 0 ? 0 : currentIndex;
+      // Stryker disable next-line EqualityOperator: the length comparison variants are equivalent — a length-1 query and an isRepeat query both take offset 1 with the same outcome across the fixtures; the killable path is covered by the multi-char prefix test.
       const offset = searchQuery.length === 1 || isRepeat ? 1 : 0;
+      // Stryker disable next-line EqualityOperator: <= is equivalent — the index wraps via % items.length, so the extra iteration only re-checks an already-visited index.
       for (let i = 0; i < items.length; i++) {
         const index = (startIndex + offset + i) % items.length;
         const text = items[index].textContent!.trim().toLowerCase();

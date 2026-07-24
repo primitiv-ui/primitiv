@@ -57,6 +57,14 @@ jobs:
           pnpm --filter @primitiv-ui/icons typecheck
           pnpm --filter @primitiv-ui/tokens lint
 
+      # Guard the §1.16/§1.21 pattern: a custom prop narrowing a same-named
+      # native attribute without Omit-ting it first resolves to an intersection
+      # artifact (e.g. `string | (readonly string[] & string)`) that TS accepts
+      # with no compile error. Fails on any such artifact across the headless
+      # package's exported *Props types.
+      - name: Check headless prop-type hygiene
+        run: pnpm qa:prop-collisions
+
       - name: Type-check registry wrappers
         run: pnpm qa:registry-types
 

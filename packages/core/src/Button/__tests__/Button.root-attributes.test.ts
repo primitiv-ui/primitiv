@@ -24,4 +24,16 @@ describe("getButtonRootAttributes", () => {
     // Assert — absent, not undefined: an imperative adapter iterates these.
     expect("type" in attributes).toBe(false);
   });
+
+  it("pairs the native disabled attribute with a data-disabled styling hook", () => {
+    // Arrange & Act
+    const attributes = getButtonRootAttributes({ disabled: true });
+
+    // Assert
+    expect(attributes).toStrictEqual({
+      type: "button",
+      disabled: true,
+      "data-disabled": "",
+    });
+  });
 });

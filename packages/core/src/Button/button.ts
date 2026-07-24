@@ -17,5 +17,7 @@ export function getButtonRootAttributes(
 ): ButtonRootAttributes {
   return {
     ...(state.asChild ? {} : { type: state.type ?? BUTTON_DEFAULT_TYPE }),
+    disabled: true,
+    "data-disabled": "",
   };
 }

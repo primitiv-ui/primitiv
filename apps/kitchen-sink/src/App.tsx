@@ -224,6 +224,7 @@ export function App(): ReactElement {
   const [ddPanels, setDdPanels] = useState<boolean | "indeterminate">("indeterminate");
   const [ddSortOrder, setDdSortOrder] = useState("modified");
   const [framework, setFramework] = useState("react");
+  const [readMoreOpen, setReadMoreOpen] = useState(false);
 
   const sortedReleases = [...RELEASES].sort((a, b) => {
     const av = a[sort.key];
@@ -715,9 +716,14 @@ primitiv add --all`}</code>
           </CollapsibleContent>
         </Collapsible>
 
-        <Collapsible size={size} variant="inline">
+        <Collapsible
+          size={size}
+          variant="inline"
+          open={readMoreOpen}
+          onOpenChange={setReadMoreOpen}
+        >
           <CollapsibleTrigger>
-            Read more
+            {readMoreOpen ? "Show less" : "Show more"}
             <CollapsibleTriggerIcon>
               <ChevronDown aria-hidden="true" />
             </CollapsibleTriggerIcon>

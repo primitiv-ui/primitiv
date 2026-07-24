@@ -40,6 +40,19 @@ body {
   align-items: stretch;
 }
 
+/* Flex's cross-axis default (align-items: stretch, above) is right for a
+   section full of naturally full-width demos (Table, Accordion, Tabs, …),
+   but it force-stretches genuinely HUG-sized components too — Collapsible's
+   row (especially the `inline` variant's flush trigger) and SegmentedControl's
+   track both hug their own content per their Figma design, so they'd
+   otherwise span the whole row width instead of sitting at their natural
+   size. Opt them out individually rather than flipping the section default,
+   since most other column sections do rely on the stretch. */
+.kitchen-sink__section-body--column .primitiv-collapsible,
+.kitchen-sink__section-body--column .primitiv-segmented-control {
+  align-self: flex-start;
+}
+
 /* A flex row so a vertical Divider has a row height to stretch across. */
 .kitchen-sink__divider-row {
   display: flex;

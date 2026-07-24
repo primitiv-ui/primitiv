@@ -247,29 +247,22 @@
     border-block-end: var(--primitiv-collapsible-border-width) solid var(--primitiv-collapsible-seam-color);
   }
 
-  /* Inline — a link-styled trigger over continuous prose; no frame, no fill,
-     no icon gap to speak of (an icon is optional and still supported). The
-     trigger is flush (no HUG-row padding in either axis) and reads as a link:
-     `action/link` foreground instead of the framed `content/primary`. */
+  /* Inline — a read-more-style trigger over continuous prose; no frame, no
+     fill, no icon gap to speak of (an icon is optional and still supported).
+     The trigger is flush (no HUG-row padding in either axis) and hugs its own
+     content width instead of stretching the row (the Figma trigger frame is
+     HUG-sized) — confirmed against live Figma dev-data: the label + chevron
+     both bind `content/primary` (no separate hover/active colour — Figma
+     models only closed/open, not a hover state, for this trigger). */
   .primitiv-collapsible--inline {
     --primitiv-collapsible-border-width: var(--primitiv-border-width-0);
     --primitiv-collapsible-trigger-padding-block: var(--primitiv-space-space-0);
     --primitiv-collapsible-trigger-padding-inline: var(--primitiv-space-space-0);
-    --primitiv-collapsible-trigger-fg: var(--primitiv-action-link-foreground-default);
+    --primitiv-collapsible-trigger-fg: var(--primitiv-content-primary);
   }
 
-  /* Gated behind (hover: hover): a touchscreen simulates :hover on tap and it
-     "sticks" until the next tap elsewhere, which would otherwise leave a
-     just-tapped inline trigger showing its hover colour instead of its
-     resting/active one. */
-  @media (hover: hover) {
-    .primitiv-collapsible--inline .primitiv-collapsible__trigger:hover {
-      --primitiv-collapsible-trigger-fg: var(--primitiv-action-link-foreground-hover);
-    }
-  }
-
-  .primitiv-collapsible--inline .primitiv-collapsible__trigger:active {
-    --primitiv-collapsible-trigger-fg: var(--primitiv-action-link-foreground-active);
+  .primitiv-collapsible--inline .primitiv-collapsible__trigger {
+    inline-size: auto;
   }
 
   /* Size — re-points the framed-control + typography knobs to the chosen

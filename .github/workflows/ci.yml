@@ -47,6 +47,33 @@ jobs:
       - name: Test libraries
         run: pnpm -r --filter "@primitiv-ui/react" --filter "@primitiv-ui/icons" --filter "@primitiv-ui/tokens" qa:units
 
+      # Reporting only (README coverage badges) — not a gate. The vitest
+      # thresholds above already fail the build on any coverage regression.
+      # One step per package so each carries its own Codecov flag.
+      - name: Upload react coverage to Codecov
+        if: always()
+        uses: codecov/codecov-action@v4
+        with:
+          files: packages/react/coverage/lcov.info
+          flags: react
+          fail_ci_if_error: false
+
+      - name: Upload icons coverage to Codecov
+        if: always()
+        uses: codecov/codecov-action@v4
+        with:
+          files: packages/icons/coverage/lcov.info
+          flags: icons
+          fail_ci_if_error: false
+
+      - name: Upload tokens coverage to Codecov
+        if: always()
+        uses: codecov/codecov-action@v4
+        with:
+          files: packages/tokens/coverage/lcov.info
+          flags: tokens
+          fail_ci_if_error: false
+
       # Type-check the library sources AND their tests. vitest runs through
       # esbuild, which strips types without checking them, so a type error in a
       # component or its test otherwise slips through the suite. The tokens

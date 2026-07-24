@@ -1,0 +1,22 @@
+# Coverage reporting only — the repo's own CI already gates coverage at
+# 100% (vitest thresholds for react/icons/tokens; the cargo-llvm-cov gate
+# for the CLI crates). Codecov here powers the README badges and trend
+# graphs, so it shouldn't add a second, redundant required status check.
+coverage:
+  status:
+    project: off
+    patch: off
+
+flags:
+  react:
+    paths:
+      - packages/react/src
+  icons:
+    paths:
+      - packages/icons/src
+  tokens:
+    paths:
+      - packages/tokens/src
+  rust:
+    paths:
+      - crates/

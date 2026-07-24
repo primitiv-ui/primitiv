@@ -16,6 +16,12 @@ ones), sync design tokens from Figma, and install it all with one command.
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
 [![Built with Rust](https://img.shields.io/badge/engine-Rust%20%2B%20wasm-dea584?logo=rust&logoColor=white)](crates/harmoni-core)
 
+[![react/icons/tokens tests](https://img.shields.io/github/actions/workflow/status/primitiv-ui/primitiv/ci.yml?branch=main&label=react%2Ficons%2Ftokens%20tests&logo=vitest&logoColor=white)](https://github.com/primitiv-ui/primitiv/actions/workflows/ci.yml)
+[![react coverage](https://codecov.io/gh/primitiv-ui/primitiv/branch/main/graph/badge.svg?flag=react)](https://codecov.io/gh/primitiv-ui/primitiv)
+[![react mutation](https://img.shields.io/github/actions/workflow/status/primitiv-ui/primitiv/mutation.yml?branch=main&label=react%20mutation&logo=stryker&logoColor=white)](https://github.com/primitiv-ui/primitiv/actions/workflows/mutation.yml)
+[![rust tests](https://img.shields.io/github/actions/workflow/status/primitiv-ui/primitiv/rust.yml?branch=main&label=rust%20tests&logo=rust&logoColor=white)](https://github.com/primitiv-ui/primitiv/actions/workflows/rust.yml)
+[![rust coverage](https://codecov.io/gh/primitiv-ui/primitiv/branch/main/graph/badge.svg?flag=rust)](https://codecov.io/gh/primitiv-ui/primitiv)
+
 </div>
 
 ---

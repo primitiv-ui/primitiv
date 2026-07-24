@@ -65,3 +65,18 @@ jobs:
       # carve-out (RFC 0007 §7, "glue not exempted").
       - name: Coverage gate (CLI crates, 100%)
         run: cargo llvm-cov --workspace --exclude harmoni-core --exclude harmoni-wasm --fail-under-lines 100 --fail-under-regions 100 --fail-under-functions 100
+
+      # Full-workspace report (harmoni-core/wasm included, unlike the gate
+      # above) so the README's Rust coverage badge shows a real, moving
+      # number instead of one pinned at 100 by construction. Reporting
+      # only — not a gate.
+      - name: Generate full-workspace coverage report
+        run: cargo llvm-cov --workspace --lcov --output-path lcov.info
+
+      - name: Upload coverage to Codecov
+        if: always()
+        uses: codecov/codecov-action@v4
+        with:
+          files: lcov.info
+          flags: rust
+          fail_ci_if_error: false

@@ -387,14 +387,32 @@ source of truth for when a skill applies.
     Rich-mode decision list (Popover API popup layer, single-select only,
     no scroll buttons/arrow/item-aligned positioning, hidden native
     `<select>` for form submission — the Firefox Popover-API-support caveat
-    is now resolved, shipped since Firefox 125) and a newly-raised, not-yet-
-    started composition-depth gap: `Item` needs its own leading/trailing
-    `SLOT` variants (text-only / leading+text / leading+text+trailing) and
-    `Select / Trigger` needs content-state variants (placeholder / filled /
-    filled+leading-icon) — both bigger, more foundational changes than the
-    Select-specific work above since Item is shared with Dropdown. Next:
-    the headless TDD build in `packages/react/src/Select`, then registry +
-    kitchen-sink (composition-depth work can land before or after that).
+    is now resolved, shipped since Firefox 125). **Composition depth —
+    landed in Figma (2026-07-24).** Scope was flagged and chosen: extend the
+    *shared* `Dropdown / Item` family (not a Select-scoped row), across all
+    three selectable rows (`Item` + `CheckboxItem` + `RadioItem`). Each gained
+    `Show leading icon` / `Show trailing icon` BOOLEANs + `Leading/Trailing
+    icon instance` INSTANCE_SWAPs (the Button framed-control pattern, NOT a
+    variant axis — that would've exploded CheckboxItem 45→135), layout
+    `[indicator/gutter][leading][label FILL][trailing]`, both slots off by
+    default (backward-compatible). The built-in check/dot indicator stays
+    leading (identity); the new leading slot is an additional icon after it.
+    `Select / Trigger` already had `Filled` (placeholder↔filled); the third
+    content state (filled+leading-icon) landed as a `Show leading icon`
+    BOOLEAN + `Leading icon instance` SWAP. **INSTANCE_SWAP needed no manual
+    UI step** — the slots default to the *published* Icon set, so
+    `addComponentProperty(…, 'INSTANCE_SWAP', …)` resolves via the plugin API
+    (the two-step slotted-components limitation is only for *local* default
+    components). Also corrected a stale claim: `isExposedInstance=true` is a
+    no-op via the plugin API (per `figma-framed-control-component`'s
+    component-properties reference), so the doc's earlier "exposed Panel Slot"
+    note was wrong — formal INSTANCE_SWAP is the working path. Descriptions on
+    all four sets + the `figma-component-descriptions` canonical entries
+    updated. Verified via a framework-picker composition (Panel → 3
+    CheckboxItem rows → per-row leading glyph + checkmark). Full account in
+    `docs/select-future-work.md`. Next: the headless TDD build in
+    `packages/react/src/Select`, then registry + kitchen-sink (the headless
+    slots ride along with that rich-mode build).
   - **NavigationMenu itself — not started.** RFC 0019 §4 open decisions
     (the fork, mobile interaction model, shared affordances, desktop
     specifics) need settling before scaffolding a headless build, which

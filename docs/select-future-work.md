@@ -175,30 +175,99 @@ reference composition before committing to the real build):
   needs deleting and recreating the variants in md-first order by hand in
   Figma's UI, not an API-side reorder.
 
-## Composition depth still missing (raised 2026-07-24, not started)
+## Composition depth — landed in Figma (2026-07-24)
 
-Feedback on the landed Figma set: "composition is king," and the current
-build doesn't go deep enough yet. Two gaps, both bigger than the Select-
-specific work above since they touch shared Dropdown components:
+Feedback on the landed Figma set was "composition is king," and the earlier
+build didn't go deep enough. Both gaps are now built in Figma (headless /
+registry / kitchen-sink still to follow the separate rich-mode build). The
+composition now nests three levels: **Panel → row (Item/CheckboxItem/
+RadioItem) → leading/trailing icon slot**.
 
-- **Item needs its own leading/trailing slot variants.** The 3 demo rows in
-  the composed `Select` set reuse plain `Dropdown / CheckboxItem` (checkmark
-  + label only, no icon slot) — fine as a placeholder, but it can't
-  reproduce the icons-in-the-option case from the "Rich value display"
-  section above (a leading framework icon + trailing "Soon" badge). The
-  right fix is a generic row component with real leading/trailing `SLOT`
-  properties, built out as three variants: text-only, leading+text,
-  leading+text+trailing. Then Panel's row slots swap between
-  `Item`/`CheckboxItem`/`RadioItem`/etc. per row, same as Dropdown's own
-  row-slot model.
-- **Trigger needs content-state variants.** `Select / Trigger`'s `Value` is
-  currently a plain exposed text property — no explicit placeholder vs.
-  filled vs. filled-with-leading-icon variants.
+### Scope decision (asked before building)
 
-Tradeoff flagged before starting either: the Item slot upgrade touches a
-component Dropdown itself uses too, not just Select, so it's a bigger,
-more foundational change than the Select-specific work above. Not yet
-scoped or started.
+The Item slot upgrade touches components Dropdown itself uses, not just
+Select, so scope was flagged as an explicit choice:
+
+- **Scope: extend the shared `Dropdown / Item` family** (chosen over a new
+  Select-scoped row component) — every Dropdown menu gains the capability, no
+  parallel row model to keep in sync.
+- **Coverage: `Item` + `CheckboxItem` + `RadioItem`** (chosen over
+  CheckboxItem-only or Item-only) — full parity across every selectable row.
+
+### Gap 1 — Item leading/trailing icon slots (Item, CheckboxItem, RadioItem)
+
+Each of the three row sets gained two icon slots, built on the **Button
+framed-control pattern** rather than a variant axis:
+
+- `Show leading icon` / `Show trailing icon` **BOOLEAN** props (both default
+  **off**) toggle the slots' visibility; `Leading icon instance` /
+  `Trailing icon instance` **INSTANCE_SWAP** props swap the glyph. Layout is
+  `[indicator/gutter][leading icon][label (FILL)][trailing icon]`.
+- **Why booleans, not a `Slots` variant axis** ("text-only / leading+text /
+  leading+text+trailing" as the doc originally sketched): a 3-option variant
+  axis would have exploded CheckboxItem from 45 → 135 variants. The doc's
+  three states map to boolean combinations instead (default both-off = today's
+  text-only row, fully backward-compatible; existing menus and the composed
+  `Select` set render unchanged).
+- **Why the built-in indicator stays leading.** The checkmark (CheckboxItem)
+  and dot (RadioItem) keep their leading-gutter position — that's each
+  component's identity and preserves all existing variants. The new leading
+  icon slot sits *after* the indicator, so a selected framework row reads
+  `[✓][framework logo][React][badge]`. (The "Rich value display" screenshot
+  above shows a *trailing* checkmark; moving the shared indicator to trailing
+  would be a separate CheckboxItem redesign. Kept the menu convention — a
+  Select-listbox trailing-check affordance is just the trailing slot swapped
+  to a check glyph.)
+- Slots are sized to `dropdown/{size}/item/icon-size` per variant and filled
+  `content/primary`.
+- **INSTANCE_SWAP needed no manual UI step** — the `figma-slotted-components`
+  skill's two-step limitation applies to *local* (unpublished) default
+  components (Panel's row slots). These slots default to the **published**
+  Icon set, which resolves via `importComponentByKeyAsync`, so
+  `addComponentProperty(name, 'INSTANCE_SWAP', <glyphId>, { preferredValues:
+  [{ type: 'COMPONENT_SET', key: <iconSetKey> }] })` succeeds from the plugin
+  API — exactly how Button's `Leading Icon Instance` works.
+- **Correction to record:** the "Figma design landed" note above claimed
+  `isExposedInstance = true` on the Panel Slot instance promoted its swap to
+  the top level. Per `figma-framed-control-component`'s
+  `references/component-properties.md` (verified 2026-05-31),
+  `isExposedInstance` is a **no-op via the plugin API** — the boolean persists
+  but `exposedInstances` stays empty. The slots here therefore use formal
+  INSTANCE_SWAP properties (which do work for published icons), not exposed
+  instances.
+
+### Gap 2 — Trigger content states
+
+`Select / Trigger` **already** carried a `Filled` variant axis (false =
+placeholder colour `content/muted`, true = filled `content/primary`) from the
+earlier build, so placeholder-vs-filled was done. The remaining state —
+**filled-with-leading-icon** — was added as a `Show leading icon` BOOLEAN
+(default off) + `Leading icon instance` INSTANCE_SWAP, a leading Icon before
+the value text, sized to `framed-control/{size}/icon-size` (matching the
+chevron) and `content/primary`-filled. `Filled` × `Show leading icon` now give
+all three content states. This is the trigger half of `Select.Value`'s rich
+display — the selected option's leading icon mirrors here.
+
+### Verification
+
+Instanced a Dropdown `Panel` with three `CheckboxItem` rows, each with
+`Show leading icon` on and its `Leading icon instance` swapped to a distinct
+glyph (the framework-picker case) — the leading icons aligned in a column, the
+built-in checkmark coexisted on the selected row, labels aligned, all via
+`setProperties` using only the names in the updated component descriptions.
+The Trigger's placeholder / filled / filled+leading-icon states verified
+likewise. Rosters after the build: Trigger 50 variants, Item 15, CheckboxItem
+45, RadioItem 30 — variant counts unchanged (properties are component-level,
+not new variants). All four sets' descriptions updated per the
+`figma-component-descriptions` skill.
+
+### Still open (deferred, non-blocking)
+
+- The **headless / registry / kitchen-sink** surfaces for these slots ride
+  along with the separate rich-mode `Select` build (not started).
+- `Select / Trigger`'s `md`-first default variant is still `xs` — the same
+  `ComponentSetNode.defaultVariant` read-only limitation logged above; a true
+  fix needs a hand rebuild in Figma's UI.
 
 ## Settled design decisions for the rich render path
 

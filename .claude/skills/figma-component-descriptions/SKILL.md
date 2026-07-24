@@ -373,16 +373,19 @@ Plain-text menu row inside a Dropdown panel.
 
 Type: surface component (child of Dropdown/Panel)
 
-Axes: State default|hover|disabled
+Axes: Size xs|sm|md|lg|xl · State default|hover|disabled
 
 Tokens: bg → action/secondary/default (hover) · color/transparent (default/disabled)
         text → content/primary; typography → body/sm/* (Asta Sans Regular)
-        sizing → dropdown/item/height|padding-inline|gap|radius (Context collection)
+        sizing → dropdown/{size}/item/height|padding-inline|gap|radius (Context collection)
+        leading/trailing icon → content/primary; size → dropdown/{size}/item/icon-size
 
-Properties: Label (TEXT "Menu item")
+Properties: Label (TEXT "Menu item") · Inset gutter (BOOL false) · Show leading icon (BOOL false) · Leading icon instance (SWAP image) · Show trailing icon (BOOL false) · Trailing icon instance (SWAP check)
 
 Density: Context mode override on parent frame
 Pairs with: Dropdown/Panel (parent), Dropdown/Label (group header), Dropdown/Separator (divider)
+Notes: Inset gutter reveals a leading spacer sized to dropdown/{size}/item/icon-size so text aligns with the indicator column (web `:has()` gutter, RFC 0019).
+  Icon slots (2026-07-24) — Show leading/trailing icon reveal Icon slots either side of the label, layout [gutter][leading][label (FILL)][trailing]; both hidden by default (backward-compatible). Glyph swaps via Leading/Trailing icon instance (published Icon set, INSTANCE_SWAP wired via plugin API — no manual step, per Button). Row stays swappable in Panel's row slots → composition nests Panel → row → icon slot.
 ```
 
 ### Dropdown/SubTrigger — `401:18196`
@@ -405,35 +408,43 @@ Pairs with: Dropdown/Panel (parent), another Dropdown/Panel (child submenu)
 ### Dropdown/CheckboxItem — `401:18278`
 
 ```
-Menu row with embedded Checkbox for multi-select dropdown menus.
+Menu row with a check indicator for multi-select dropdown menus.
 
 Type: surface component (child of Dropdown/Panel)
 
-Axes: State default|hover|disabled · Checked false|true|indeterminate
+Axes: Size xs|sm|md|lg|xl · State default|hover|disabled · Checked false|true|indeterminate
 
-Tokens: sizing → dropdown/item/*; nested Checkbox variant coordinated to Checked axis
+Tokens: sizing → dropdown/{size}/item/*; indicator (check/minus glyph) sized to dropdown/{size}/item/icon-size, content/primary; gutter reserved when unchecked
+        leading/trailing icon → content/primary; size → dropdown/{size}/item/icon-size
 
-Properties: Label (TEXT "Option")
+Model: menu checkmark indicator (Radix / macOS convention) — NOT an embedded Checkbox control. Mirrors headless Dropdown.CheckboxItem + Dropdown.ItemIndicator.
+
+Properties: Label (TEXT "Option") · Show leading icon (BOOL false) · Leading icon instance (SWAP image) · Show trailing icon (BOOL false) · Trailing icon instance (SWAP check)
 
 Density: Context mode override on parent frame
 Pairs with: Dropdown/Panel
+Notes: Icon slots (2026-07-24) — layout [check indicator][leading icon][label (FILL)][trailing icon]; the built-in checkmark stays leading (identity), the leading slot is an additional icon after it, trailing a decoration/badge. Both hidden by default. This is the row the composed Select set uses for its rich listbox. Glyph swaps via published Icon set (INSTANCE_SWAP, no manual step).
 ```
 
 ### Dropdown/RadioItem — `401:18312`
 
 ```
-Menu row with embedded Radio for single-select dropdown menus.
+Menu row with a dot indicator for single-select dropdown menus.
 
 Type: surface component (child of Dropdown/Panel)
 
-Axes: State default|hover|disabled · Selected false|true
+Axes: Size xs|sm|md|lg|xl · State default|hover|disabled · Selected false|true
 
-Tokens: sizing → dropdown/item/*; nested Radio variant coordinated to Selected axis
+Tokens: sizing → dropdown/{size}/item/*; indicator (filled dot) sized within dropdown/{size}/item/icon-size, content/primary; gutter reserved when unselected
+        leading/trailing icon → content/primary; size → dropdown/{size}/item/icon-size
 
-Properties: Label (TEXT "Option")
+Model: menu dot indicator (Radix / macOS convention) — NOT an embedded Radio control. Mirrors headless Dropdown.RadioItem + Dropdown.ItemIndicator.
+
+Properties: Label (TEXT "Option") · Show leading icon (BOOL false) · Leading icon instance (SWAP image) · Show trailing icon (BOOL false) · Trailing icon instance (SWAP check)
 
 Density: Context mode override on parent frame
 Pairs with: Dropdown/Panel
+Notes: Icon slots (2026-07-24) — layout [dot indicator][leading icon][label (FILL)][trailing icon]; the built-in dot stays leading (identity), the leading slot is an additional icon after it, trailing a decoration/badge. Both hidden by default. Glyph swaps via published Icon set (INSTANCE_SWAP, no manual step).
 ```
 
 ### Dropdown/Label — `401:18181`
@@ -488,7 +499,7 @@ Contains: Dropdown/Item, Dropdown/SubTrigger, Dropdown/CheckboxItem, Dropdown/Ra
 Notes: set panel width manually to fit the widest item; shadow will rebind to elevation/md once elevation variables exist
 ```
 
-### Select — `403:1883`
+### Select / Trigger — `403:1883` (renamed 2026-07-24, was plain "Select")
 
 ```
 Framed trigger control that opens a select panel; no intent axis.
@@ -502,12 +513,15 @@ Tokens: fill → surface/default (disabled: surface/subtle)
         text → content/muted (Filled=false) · content/primary (Filled=true) · content/disabled
         sizing → framed-control/{size}/*; typography → body/{size}/* (Asta Sans Regular)
         chevron → content/secondary|content/disabled; size → framed-control/{size}/icon-size
+        leading icon → content/primary; size → framed-control/{size}/icon-size (matches chevron)
 
-Properties: Value (TEXT "Select option")
+Properties: Value (TEXT "Select option") · Show leading icon (BOOL false) · Leading icon instance (SWAP image)
 
 Density: Context mode override on parent frame
 Pairs with: Dropdown (panel + items), Field (wrapper)
-Notes: focused keeps border/default — ring is sole focus indicator; trailing chevron-down always present
+Notes: focused keeps border/default — ring is sole focus indicator; trailing chevron-down always present.
+  Content states (2026-07-24) — Filled × Show leading icon give placeholder (Filled=false), filled (Filled=true), filled+leading-icon (both on). Leading Icon slot sits before the value text, swap glyph via Leading icon instance (published Icon set, INSTANCE_SWAP, no manual step). Trigger half of Select.Value's rich display.
+  Composed 'Select' set on the Select page instances this per size/state.
 ```
 
 ### Divider — `401:18380`

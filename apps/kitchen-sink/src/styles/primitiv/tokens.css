@@ -588,6 +588,7 @@
     --primitiv-code-xl-line-height: var(--primitiv-line-height-28);
     --primitiv-code-xs-font-size: var(--primitiv-font-size-10);
     --primitiv-code-xs-line-height: var(--primitiv-line-height-16);
+    --primitiv-collapsible-trigger-padding-block: var(--primitiv-space-space-16);
     --primitiv-container-lg-gap: var(--primitiv-space-space-16);
     --primitiv-container-lg-padding: var(--primitiv-space-space-24);
     --primitiv-container-lg-radius: var(--primitiv-radii-12);
@@ -1113,6 +1114,7 @@
     --primitiv-code-xl-line-height: var(--primitiv-line-height-24);
     --primitiv-code-xs-font-size: var(--primitiv-font-size-10);
     --primitiv-code-xs-line-height: var(--primitiv-line-height-16);
+    --primitiv-collapsible-trigger-padding-block: var(--primitiv-space-space-14);
     --primitiv-container-lg-gap: var(--primitiv-space-space-12);
     --primitiv-container-lg-padding: var(--primitiv-space-space-20);
     --primitiv-container-lg-radius: var(--primitiv-radii-10);
@@ -1638,6 +1640,7 @@
     --primitiv-code-xl-line-height: var(--primitiv-line-height-18);
     --primitiv-code-xs-font-size: var(--primitiv-font-size-10);
     --primitiv-code-xs-line-height: var(--primitiv-line-height-12);
+    --primitiv-collapsible-trigger-padding-block: var(--primitiv-space-space-12);
     --primitiv-container-lg-gap: var(--primitiv-space-space-10);
     --primitiv-container-lg-padding: var(--primitiv-space-space-14);
     --primitiv-container-lg-radius: var(--primitiv-radii-6);
@@ -2163,6 +2166,7 @@
     --primitiv-code-xl-line-height: var(--primitiv-line-height-32);
     --primitiv-code-xs-font-size: var(--primitiv-font-size-10);
     --primitiv-code-xs-line-height: var(--primitiv-line-height-16);
+    --primitiv-collapsible-trigger-padding-block: var(--primitiv-space-space-20);
     --primitiv-container-lg-gap: var(--primitiv-space-space-20);
     --primitiv-container-lg-padding: var(--primitiv-space-space-32);
     --primitiv-container-lg-radius: var(--primitiv-radii-16);

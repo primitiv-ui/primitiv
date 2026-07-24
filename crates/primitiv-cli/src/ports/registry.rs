@@ -163,6 +163,11 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("segmented-control", "segmented-control.recipe.ts"),
     registry_file!("segmented-control", "segmented-control.tsx"),
     registry_file!("segmented-control", "contract.json"),
+    registry_file!("collapsible", "styles.css"),
+    registry_file!("collapsible", "styles.scss"),
+    registry_file!("collapsible", "collapsible.recipe.ts"),
+    registry_file!("collapsible", "collapsible.tsx"),
+    registry_file!("collapsible", "contract.json"),
 ];
 
 impl Registry for EmbeddedRegistry {

@@ -22,6 +22,12 @@
         "$value": "{space.space-16}"
       }
     },
+    "collapsible": {
+      "trigger-padding-block": {
+        "$type": "number",
+        "$value": "{space.space-16}"
+      }
+    },
     "flow": {
       "tight": {
         "$type": "number",
@@ -2437,6 +2443,12 @@
       }
     },
     "accordion": {
+      "trigger-padding-block": {
+        "$type": "number",
+        "$value": "{space.space-14}"
+      }
+    },
+    "collapsible": {
       "trigger-padding-block": {
         "$type": "number",
         "$value": "{space.space-14}"
@@ -4862,6 +4874,12 @@
         "$value": "{space.space-20}"
       }
     },
+    "collapsible": {
+      "trigger-padding-block": {
+        "$type": "number",
+        "$value": "{space.space-20}"
+      }
+    },
     "flow": {
       "tight": {
         "$type": "number",
@@ -7277,6 +7295,12 @@
       }
     },
     "accordion": {
+      "trigger-padding-block": {
+        "$type": "number",
+        "$value": "{space.space-12}"
+      }
+    },
+    "collapsible": {
       "trigger-padding-block": {
         "$type": "number",
         "$value": "{space.space-12}"

@@ -9,6 +9,10 @@ import {
   Button,
   Checkbox,
   CodeBlock,
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleTriggerIcon,
+  CollapsibleContent,
   Divider,
   Drawer,
   DrawerTrigger,
@@ -668,6 +672,75 @@ primitiv add --all`}</code>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
+      </Section>
+
+      <Section title="Collapsible" column>
+        {/* Three visual dressings sharing one open/close mechanism (RFC 0019 dep):
+            plain (bare row), card (bordered box, its own seam divider once open),
+            and inline (link-styled trigger + collapsedHeight read-more, complete
+            with the bottom fade that disappears once fully open). */}
+        <Collapsible size={size} variant="plain" defaultOpen>
+          <CollapsibleTrigger>
+            What is Primitiv?
+            <CollapsibleTriggerIcon>
+              <ChevronDown aria-hidden="true" />
+            </CollapsibleTriggerIcon>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <Prose>
+              <p>
+                Primitiv is a headless component library paired with a styled
+                surface you own outright — the same behaviour Accordion uses,
+                for a single panel instead of a stacked list.
+              </p>
+            </Prose>
+          </CollapsibleContent>
+        </Collapsible>
+
+        <Collapsible size={size} variant="card">
+          <CollapsibleTrigger>
+            Advanced settings
+            <CollapsibleTriggerIcon>
+              <ChevronDown aria-hidden="true" />
+            </CollapsibleTriggerIcon>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <Prose>
+              <p>
+                The card dressing encloses the trigger and panel in one
+                bordered, radiused box — opening it reveals a hairline seam in
+                place of the whitespace gap the other two dressings use.
+              </p>
+            </Prose>
+          </CollapsibleContent>
+        </Collapsible>
+
+        <Collapsible size={size} variant="inline">
+          <CollapsibleTrigger>
+            Read more
+            <CollapsibleTriggerIcon>
+              <ChevronDown aria-hidden="true" />
+            </CollapsibleTriggerIcon>
+          </CollapsibleTrigger>
+          <CollapsibleContent collapsedHeight={72}>
+            <Prose>
+              <p>
+                Harmoni is the palette generation engine underneath Primitiv —
+                a Rust core compiled to WebAssembly that turns a brand colour
+                into a full, perceptually even ramp. It handles light and dark
+                modes, neutral and soft-neutral ramps, brand-hue tinting, and
+                an OKLCH picker for dialling in the exact anchor colours — all
+                from one input.
+              </p>
+              <p>
+                Because a fixed <code>collapsedHeight</code> is set, this panel
+                stays visible while closed — clamped to a short preview with a
+                bottom fade — instead of hiding completely. Opening it reveals
+                the rest of the passage and the fade disappears.
+              </p>
+            </Prose>
+          </CollapsibleContent>
+        </Collapsible>
       </Section>
 
       <Section title="Toggle Group">

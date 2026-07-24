@@ -256,13 +256,12 @@ source of truth for when a skill applies.
   remaining Figma sets with hardcoded shadows — Modal (`elevation/modal`),
   Dropdown/Panel (`elevation/overlay`). See RFC 0017 §5–7 + D8 and
   `docs/transfer-and-next-steps.md`.
-- **NavigationMenu (RFC 0019) dependency build — in progress (2026-07-23).**
+- **NavigationMenu (RFC 0019) dependency build — in progress (2026-07-24).**
   RFC 0019 needs Dropdown, Collapsible and a new Rich Select headless
   component built out to full Figma → headless → registry → kitchen-sink
   surfaces *before* NavigationMenu itself starts, with Figma design done
-  first for each. Sequence: **Dropdown (done) → Collapsible (Figma done,
-  rest pending) → Rich Select (not started) → NavigationMenu (not
-  started)**.
+  first for each. Sequence: **Dropdown (done) → Collapsible (done) →
+  Rich Select (not started) → NavigationMenu (not started)**.
   - **Dropdown — fully landed, all four stages.** Figma: `668:42210`
     (Panel set) + Item/CheckboxItem/RadioItem/SubTrigger/Label/Separator/
     Group/RadioGroup sets on canvas `317:362`, using a menu checkmark/dot
@@ -277,36 +276,54 @@ source of truth for when a skill applies.
     bottom-of-page position broke submenu flip-fallback positioning).
     Registered in `registry/registry.json`, `crates/primitiv-cli/src/ports/
     registry.rs`, `crates/primitiv-cli/tests/cli.rs` (roster count 21).
-  - **Collapsible — Figma design landed; headless/registry/kitchen-sink
-    NOT yet started.** New "Collapsible" Figma page (`1207:42772`) holds a
-    `Collapsible / Trigger` component set (`1207:43048`, 30 variants:
-    Variant[plain|card|inline] × State[closed|open] × Size[xs-xl], md
-    reordered first/default) and the composed `Collapsible` set
-    (`1207:43244`, 30 variants, each instancing the size-matched Trigger —
-    the composition requirement). The composed set has a `Content` SLOT
-    property wired on the 20 open/inline variants (so a designer can drop
-    in arbitrary content, same pattern as Accordion) and an exposed
-    `Label` TEXT property (via `isExposedInstance` on the nested Trigger)
-    so the trigger text is editable at the top level. The `inline` variant
-    keeps its clipped-preview fade *outside* the slot (a `Preview` wrapper
-    holding a slot-wired `Content` frame + a `fade` rectangle sibling) so
-    replacing slot content doesn't remove the fade affordance. **Known
-    caveat:** only the default/first-*child* variant is md — the Size
-    property's dropdown list in Figma's UI still lists xs→ascending
-    because Figma orders that list by variant *creation* order, not
-    child order; a true md-first list needs a full rebuild (not done,
-    not requested yet). Still outstanding in Figma: example specimens
-    (light/dark) and component descriptions on the new sets — deferred,
-    not blocking the next stage.
-  - **Collapsible next steps, in order:** (1) headless — add
-    `collapsedHeight` to `packages/react/src/Collapsible` (TDD), using a
-    CSS Grid `grid-template-rows: 0fr → 1fr` collapse animation (matches
-    Accordion's approach) and a light/dark-aware fade shadow at the panel
-    bottom when clamped-but-not-fully-open, fading out on full expansion;
-    (2) registry — `contract.json`/`styles.css`/`styles.scss`/
-    `collapsible.recipe.ts`/`collapsible.tsx`/`README.md`, covering all 3
-    variants; (3) register in registry.json/registry.rs/cli.rs; (4)
-    kitchen-sink demo + hand-sync (see the hand-sync process below).
+  - **Collapsible — fully landed, all four stages.** Figma: new
+    "Collapsible" page (`1207:42772`) holds a `Collapsible / Trigger`
+    component set (`1207:43048`, 30 variants: Variant[plain|card|inline] ×
+    State[closed|open] × Size[xs-xl], md first/default) and the composed
+    `Collapsible` set (`1207:43244`, 30 variants, each instancing the
+    size-matched Trigger — the composition requirement), with a `Content`
+    SLOT property (20 open/inline variants), an exposed `Label` TEXT
+    property, and (on `inline`) the clipped-preview fade kept *outside*
+    the slot so replacing slot content doesn't remove the fade affordance.
+    **Known caveat, still open:** only the default/first-*child* variant
+    is md — the Size property's dropdown list in Figma's UI still lists
+    xs→ascending (Figma orders that list by variant *creation* order, not
+    child order); a true md-first list needs a full rebuild. Also still
+    outstanding in Figma: example specimens (light/dark) and component
+    descriptions on the new sets — deferred, non-blocking. Headless:
+    `collapsedHeight` landed on `packages/react/src/Collapsible` (a
+    `--primitiv-collapsible-collapsed-height` custom property published
+    on `Collapsible.Content`, clamped/anchored by the styling layer — see
+    its README). Registry: `collapsible` (root + `Trigger`/`Content`/
+    `TriggerIcon`, the same `display:grid` 0fr↔1fr row-track technique as
+    Accordion, generalised so the closed track targets
+    `var(--primitiv-collapsible-collapsed-height, 0fr)` — 0fr unless
+    `collapsedHeight` is set, in which case the same mechanism clamps to a
+    preview height instead of closing to nothing; a `.content-fade`
+    overlay reads over the clamp and fades out on open). Three dressings
+    (`plain`/`card`/`inline`) confirmed against live Figma dev-data via a
+    background research pass (a `figma_get_component_for_development` dump
+    of both component sets, extracted by a subagent since the raw JSON was
+    >100K chars each): `card`'s box is one shared bordered/radiused/filled
+    frame around both Trigger and Content (not two separate boxes), its
+    border-color is `border/default` (confirmed by exact hex match against
+    `neutral-300`, not `border/subtle` as first guessed), and its
+    trigger↔content whitespace gap collapses to 0 in favour of a hairline
+    seam (`border/subtle`) on the trigger's bottom edge, present only when
+    open. A new density-scaled `collapsible.trigger-padding-block` Context
+    token (`packages/tokens/src/context.json`, values 12/14/16/20 across
+    dense/compact/comfortable/spacious) was added to back the trigger's
+    block padding, mirroring `accordion.trigger-padding-block` exactly
+    (its comfortable/md value, 16, is independently confirmed by the Figma
+    dump). Every other token binding (label/body type, framed-control
+    padding-inline/gap/icon-size/radius, content/primary/secondary,
+    surface/default, action/link/foreground/*) matched the pre-existing
+    semantic-token guesses exactly, pixel/hex for pixel/hex. Registered in
+    `registry/registry.json`, `crates/primitiv-cli/src/ports/registry.rs`,
+    `crates/primitiv-cli/tests/cli.rs` (roster count 23; segmented-control
+    landed in between via a separate, already-merged session). Kitchen-
+    sink: one collapsible per dressing right after the Accordion section,
+    the `inline` one demonstrating `collapsedHeight={72}` + the fade.
   - **Rich Select — not started.** Design decisions parked in
     `docs/select-future-work.md` need settling first, then Figma, then a
     from-scratch headless TDD build (it's a new component, not an

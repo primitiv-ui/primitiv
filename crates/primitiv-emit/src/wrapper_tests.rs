@@ -512,3 +512,35 @@ fn the_committed_segmented_control_wrapper_is_the_generated_form_of_its_contract
         ))
     );
 }
+
+/// Generator guard for the collapsible contract — a three-subcomponent structural
+/// compound (trigger / content / trigger-icon) mirroring accordion's shape, whose
+/// `trigger` opts into `wrapTextChildren` and whose root carries both a `variant`
+/// (plain/card/inline) and `size` modifier group.
+///
+/// Unlike the other committed wrappers, this asserts against a golden of the
+/// *pure generated form* rather than the committed
+/// `registry/components/collapsible/collapsible.tsx`, because that file is
+/// hand-tuned: `CollapsibleContent` force-mounts the panel and wraps its children
+/// in `.primitiv-collapsible__content-inner` / `-content-body` / `-content-fade`
+/// elements to drive the display:grid open/close transition and the
+/// `collapsedHeight` fade-shadow (a bespoke escape hatch, RFC 0004 D53, like
+/// Accordion — which for the same reason has no committed-wrapper drift test).
+/// The generator still runs on the real contract here, so its naming branches
+/// stay covered; the committed wrapper is guarded by `check-registry-types.mjs`.
+#[test]
+fn the_collapsible_contract_generates_its_expected_wrapper_form() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/collapsible/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_wrapper(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/golden/collapsible.wrapper.tsx"
+        ))
+    );
+}

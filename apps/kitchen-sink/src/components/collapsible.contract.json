@@ -1,0 +1,107 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "collapsible",
+  "version": "0.1.0",
+  "description": "A single disclosure widget pairing a trigger with a panel that expands and collapses — the single-item analogue of Accordion.",
+  "docs": "https://primitiv-ui.dev/docs/components/collapsible",
+  "root": {
+    "element": "div",
+    "class": "primitiv-collapsible",
+    "component": "Root"
+  },
+  "dataAttributes": [
+    { "name": "data-state", "value": "open", "when": "open", "source": "auto" },
+    { "name": "data-state", "value": "closed", "when": "closed", "source": "auto" },
+    { "name": "data-disabled", "value": "true", "when": "disabled", "source": "auto" },
+    { "name": "data-disabled", "value": "false", "when": "not disabled", "source": "auto" }
+  ],
+  "modifiers": [
+    {
+      "name": "variant",
+      "default": "plain",
+      "description": "Visual style of the widget.",
+      "options": [
+        { "name": "plain", "class": "primitiv-collapsible--plain", "description": "No frame — a bare trigger row above a frameless panel." },
+        { "name": "card", "class": "primitiv-collapsible--card", "description": "A bordered, padded box enclosing both the trigger and the panel." },
+        { "name": "inline", "class": "primitiv-collapsible--inline", "description": "A text-flow trigger (reads as a link) over continuous prose — the read-more pattern." }
+      ]
+    },
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Control size for the whole widget; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-collapsible--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-collapsible--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-collapsible--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-collapsible--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-collapsible--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "subcomponents": [
+    {
+      "name": "trigger",
+      "component": "Trigger",
+      "element": "button",
+      "class": "primitiv-collapsible__trigger",
+      "wrapTextChildren": true,
+      "dataAttributes": [
+        { "name": "data-state", "value": "open", "when": "open", "source": "auto" },
+        { "name": "data-state", "value": "closed", "when": "closed", "source": "auto" },
+        { "name": "data-disabled", "value": "true", "when": "disabled", "source": "auto" },
+        { "name": "data-disabled", "value": "false", "when": "not disabled", "source": "auto" }
+      ]
+    },
+    {
+      "name": "content",
+      "component": "Content",
+      "element": "div",
+      "class": "primitiv-collapsible__content",
+      "dataAttributes": [
+        { "name": "data-state", "value": "open", "when": "open", "source": "auto" },
+        { "name": "data-state", "value": "closed", "when": "closed", "source": "auto" },
+        { "name": "data-disabled", "value": "true", "when": "disabled", "source": "auto" },
+        { "name": "data-disabled", "value": "false", "when": "not disabled", "source": "auto" }
+      ]
+    },
+    {
+      "name": "trigger-icon",
+      "component": "TriggerIcon",
+      "element": "span",
+      "class": "primitiv-collapsible__trigger-icon",
+      "dataAttributes": [
+        { "name": "data-state", "value": "open", "when": "open", "source": "auto" },
+        { "name": "data-state", "value": "closed", "when": "closed", "source": "auto" }
+      ]
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-collapsible-border-color", "defaultsTo": "var(--primitiv-border-default)" },
+    { "name": "--primitiv-collapsible-border-width", "defaultsTo": "var(--primitiv-framed-control-border-width)" },
+    { "name": "--primitiv-collapsible-seam-color", "defaultsTo": "var(--primitiv-border-subtle)" },
+    { "name": "--primitiv-collapsible-radius", "defaultsTo": "var(--primitiv-framed-control-md-radius)" },
+    { "name": "--primitiv-collapsible-bg", "defaultsTo": "var(--primitiv-color-transparent)" },
+    { "name": "--primitiv-collapsible-gap", "defaultsTo": "var(--primitiv-space-space-8)" },
+    { "name": "--primitiv-collapsible-trigger-padding-inline", "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)" },
+    { "name": "--primitiv-collapsible-trigger-gap", "defaultsTo": "var(--primitiv-framed-control-md-gap)" },
+    { "name": "--primitiv-collapsible-trigger-icon-size", "defaultsTo": "var(--primitiv-framed-control-md-icon-size)" },
+    { "name": "--primitiv-collapsible-trigger-icon-rotation", "defaultsTo": "0deg" },
+    { "name": "--primitiv-collapsible-trigger-fg", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-collapsible-trigger-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
+    { "name": "--primitiv-collapsible-trigger-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },
+    { "name": "--primitiv-collapsible-trigger-font-weight", "defaultsTo": "var(--primitiv-label-md-font-weight)" },
+    { "name": "--primitiv-collapsible-trigger-line-height", "defaultsTo": "var(--primitiv-label-md-line-height)" },
+    { "name": "--primitiv-collapsible-content-fg", "defaultsTo": "var(--primitiv-content-secondary)" },
+    { "name": "--primitiv-collapsible-content-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
+    { "name": "--primitiv-collapsible-content-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-collapsible-content-font-weight", "defaultsTo": "var(--primitiv-body-md-font-weight)" },
+    { "name": "--primitiv-collapsible-content-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" },
+    { "name": "--primitiv-collapsible-content-padding-block", "defaultsTo": "var(--primitiv-panel-padding-block)" },
+    { "name": "--primitiv-collapsible-content-padding-inline", "defaultsTo": "var(--primitiv-panel-padding-inline)" },
+    { "name": "--primitiv-collapsible-content-transition-duration", "defaultsTo": "var(--primitiv-motion-duration-control)" },
+    { "name": "--primitiv-collapsible-content-transition-easing", "defaultsTo": "var(--primitiv-motion-easing-default)" },
+    { "name": "--primitiv-collapsible-fade-color", "defaultsTo": "var(--primitiv-surface-default)" },
+    { "name": "--primitiv-collapsible-fade-height", "defaultsTo": "var(--primitiv-space-space-32)" }
+  ]
+}

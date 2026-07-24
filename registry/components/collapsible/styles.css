@@ -1,0 +1,399 @@
+/*
+ * Collapsible — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add collapsible`. It is yours to
+ * edit: the stable surface is the contract (the .primitiv-collapsible root +
+ * __trigger / __content / __trigger-icon parts, the --plain/--card/--inline
+ * variant + --xs…--xl size modifiers, the data-state / data-disabled hooks,
+ * and the --primitiv-collapsible-* custom properties), not these values
+ * (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * The single-item analogue of Accordion — same display:grid row-track
+ * open/close technique (0fr↔1fr), but offered in three visual dressings:
+ * `plain` (no frame — a bare trigger row over a frameless panel), `card` (a
+ * bordered, radiused, filled box enclosing both trigger and panel), and
+ * `inline` (a link-styled trigger over continuous prose — the read-more
+ * pattern, using `action/link` foreground tokens instead of a framed control).
+ *
+ * `Collapsible.Content` additionally supports a `collapsedHeight` prop (see the
+ * headless README): when set, the closed row-track targets that height instead
+ * of 0fr, showing a clamped preview instead of fully hiding the panel, and a
+ * bottom fade overlay (`.primitiv-collapsible__content-fade`) reads over the
+ * clamp — it is always rendered but only visible while closed (and, without
+ * `collapsedHeight`, invisible anyway: it sits inside the same zero-height
+ * clipped row as the rest of the panel). The fade colour is `--primitiv-
+ * collapsible-fade-color`, re-pointed to the card's own fill under `--card` so
+ * it blends into whichever surface the panel actually sits on.
+ *
+ * `--card` also swaps the trigger↔content whitespace gap for a hairline seam
+ * on the open trigger's bottom edge (`--primitiv-collapsible-seam-color`,
+ * distinct from the box's own `--primitiv-collapsible-border-color`) — there
+ * being no gap left to read as a divider once the box collapses it to zero.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look live
+ * in primitiv.base, the `variant` + `size` modifiers in primitiv.variants, the
+ * data-state / :focus-visible / data-disabled styling in primitiv.states. The
+ * sublayer order is declared once in the shared token layer
+ * (primitiv.tokens.css); this file only re-opens the named sublayers.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-content-*,
+ * --primitiv-border-*, --primitiv-framed-control-*, --primitiv-action-link-*,
+ * --primitiv-surface-*, --primitiv-focus-ring-*, --primitiv-opacity-*,
+ * --primitiv-label-*, --primitiv-body-*, --primitiv-motion-* and
+ * --primitiv-collapsible-* custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-collapsible {
+    /* Per-component API — the themable knobs, defaulting to the md size and
+       the plain (frameless) dressing. Size modifiers re-point the sizing
+       knobs; the variants layer re-points the box knobs for --card. They
+       inherit to the parts below, so consumers can override any one on the
+       root without touching a rule. */
+    --primitiv-collapsible-border-color: var(--primitiv-border-default);
+    --primitiv-collapsible-border-width: var(--primitiv-framed-control-border-width);
+    --primitiv-collapsible-seam-color: var(--primitiv-border-subtle);
+    --primitiv-collapsible-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-collapsible-bg: var(--primitiv-color-transparent);
+    --primitiv-collapsible-gap: var(--primitiv-space-space-8);
+    --primitiv-collapsible-trigger-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-collapsible-trigger-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-collapsible-trigger-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-collapsible-trigger-icon-rotation: 0deg;
+    --primitiv-collapsible-trigger-fg: var(--primitiv-content-primary);
+    --primitiv-collapsible-trigger-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-collapsible-trigger-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-collapsible-trigger-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-collapsible-trigger-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-collapsible-content-fg: var(--primitiv-content-secondary);
+    --primitiv-collapsible-content-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-collapsible-content-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-collapsible-content-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-collapsible-content-line-height: var(--primitiv-body-md-line-height);
+    --primitiv-collapsible-content-padding-block: var(--primitiv-panel-padding-block);
+    --primitiv-collapsible-content-padding-inline: var(--primitiv-panel-padding-inline);
+    --primitiv-collapsible-content-transition-duration: var(--primitiv-motion-duration-control);
+    --primitiv-collapsible-content-transition-easing: var(--primitiv-motion-easing-default);
+    --primitiv-collapsible-fade-color: var(--primitiv-surface-default);
+    --primitiv-collapsible-fade-height: var(--primitiv-space-space-32);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--primitiv-collapsible-gap);
+    border: var(--primitiv-collapsible-border-width) solid var(--primitiv-collapsible-border-color);
+    border-radius: var(--primitiv-collapsible-radius);
+    background: var(--primitiv-collapsible-bg);
+  }
+
+  /* The trigger — a HUG-height row (content + the framed-control gap, not a
+     fixed framed-control/{size}/height slot like Tabs' trigger), label ↔
+     chevron pushed to opposite ends. */
+  .primitiv-collapsible__trigger {
+    display: flex;
+    inline-size: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--primitiv-collapsible-trigger-gap);
+    padding-block: var(--primitiv-collapsible-trigger-padding-block);
+    padding-inline: var(--primitiv-collapsible-trigger-padding-inline);
+    border: none;
+    background: transparent;
+    color: var(--primitiv-collapsible-trigger-fg);
+    font-family: var(--primitiv-collapsible-trigger-font-family);
+    font-size: var(--primitiv-collapsible-trigger-font-size);
+    font-weight: var(--primitiv-collapsible-trigger-font-weight);
+    line-height: var(--primitiv-collapsible-trigger-line-height);
+    text-align: start;
+    cursor: pointer;
+  }
+
+  /* text-box-trim must be applied to the element directly wrapping the text
+     node — not the flex container — for engines to honour it. The registry
+     component wraps string/number children in this span automatically so
+     consumers never need to do it by hand (mirrors AccordionTrigger's
+     __trigger-label). */
+  .primitiv-collapsible__trigger-label {
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+  }
+
+  /* The chevron wrapper — sized independently of the trigger's own
+     typography, rotated by the states layer on open. transform-origin stays
+     centred (the default) so the rotation reads in place. */
+  .primitiv-collapsible__trigger-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-collapsible-trigger-icon-size);
+    block-size: var(--primitiv-collapsible-trigger-icon-size);
+    transform: rotate(var(--primitiv-collapsible-trigger-icon-rotation));
+    transition: transform var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  .primitiv-collapsible__trigger-icon svg {
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  /* The content — a display:grid collapse container. The panel is force-mounted
+     (the wrapper passes forceMount, so it is never `hidden`), which lets it
+     animate: the row track transitions between a closed value and 1fr (open),
+     so the panel opens to its content's exact height with no max-height guess.
+     The closed value defaults to 0fr (fully collapsed); when the consumer sets
+     `collapsedHeight` on Collapsible.Content, the headless layer publishes it as
+     --primitiv-collapsible-collapsed-height inline, which the var() fallback
+     below picks up instead — the same grid technique now clamps to a preview
+     height rather than closing to nothing. type/colour stay here and inherit
+     down. */
+  .primitiv-collapsible__content {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows
+      var(--primitiv-collapsible-content-transition-duration)
+      var(--primitiv-collapsible-content-transition-easing);
+    color: var(--primitiv-collapsible-content-fg);
+    font-family: var(--primitiv-collapsible-content-font-family);
+    font-size: var(--primitiv-collapsible-content-font-size);
+    font-weight: var(--primitiv-collapsible-content-font-weight);
+    line-height: var(--primitiv-collapsible-content-line-height);
+  }
+
+  .primitiv-collapsible__content[data-state="closed"] {
+    grid-template-rows: var(--primitiv-collapsible-collapsed-height, 0fr);
+  }
+
+  /* The clip — the single grid item in the animated row, and the positioning
+     context for the fade overlay. overflow:hidden gives it a zero block
+     min-size so the 0fr track can collapse all the way, and clips the body (or
+     the tail of a clamped preview) as the row shrinks; min-height:0 is
+     belt-and-braces for the same. It deliberately carries NO padding: padding
+     on the collapsing item (or on the grid container) sits outside the row's
+     content box and floors how far the row can shrink — that is why the
+     padding lives one level down, on the body. visibility flips to hidden at
+     the end of a full close (it transitions, so it stays visible for the whole
+     animation, then switches) so collapsed content is removed from the tab
+     order and the accessibility tree — but only when there is no clamped
+     preview to keep readable. */
+  .primitiv-collapsible__content-inner {
+    position: relative;
+    overflow: hidden;
+    min-height: 0;
+    transition: visibility
+      var(--primitiv-collapsible-content-transition-duration)
+      var(--primitiv-collapsible-content-transition-easing);
+  }
+
+  /* The body — the padded content, a level below the clip so its padding sits
+     inside the clipped region: it collapses away with the row instead of
+     holding the panel open, giving the panel constant, un-animated padding
+     that still closes to zero (no padding is added mid-open, so the copy
+     never shifts). */
+  .primitiv-collapsible__content-body {
+    padding-block: var(--primitiv-collapsible-content-padding-block);
+    padding-inline: var(--primitiv-collapsible-content-padding-inline);
+  }
+
+  /* The fade overlay — anchored to the clip's bottom edge, gradating from
+     transparent into the ambient surface colour so it reads as the panel
+     fading into the page rather than a hard cut. Visible while closed (whether
+     that means fully collapsed, where its zero-height clip already hides it, or
+     clamped to a collapsedHeight preview, where it is the affordance that more
+     content follows); it fades out over the same transition once the panel
+     opens. */
+  .primitiv-collapsible__content-fade {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    block-size: var(--primitiv-collapsible-fade-height);
+    background: linear-gradient(to bottom, transparent, var(--primitiv-collapsible-fade-color));
+    opacity: 1;
+    transition: opacity
+      var(--primitiv-collapsible-content-transition-duration)
+      var(--primitiv-collapsible-content-transition-easing);
+  }
+}
+
+@layer primitiv.variants {
+  /* Plain — the default: no frame, no fill (set in primitiv.base already);
+     this rule exists only so the class has a documented, matching selector. */
+  .primitiv-collapsible--plain {
+    --primitiv-collapsible-border-width: var(--primitiv-border-width-0);
+  }
+
+  /* Card — a bordered, filled box enclosing both the trigger and the panel.
+     Re-points the box knobs the base layer already declares; the trigger and
+     content parts keep their own padding, so the box simply wraps snugly
+     around the same rows a `plain` collapsible renders (mirrors how
+     AccordionItem's hairline needs no extra padding management). The gap
+     between trigger and content collapses to 0 — a seam border on the open
+     trigger (below) substitutes for the whitespace gap the other two variants
+     use. The fade is re-pointed to the card's own fill so it blends into the
+     box instead of the page behind it. */
+  .primitiv-collapsible--card {
+    --primitiv-collapsible-border-width: var(--primitiv-framed-control-border-width);
+    --primitiv-collapsible-bg: var(--primitiv-surface-default);
+    --primitiv-collapsible-gap: var(--primitiv-space-space-0);
+    --primitiv-collapsible-fade-color: var(--primitiv-surface-default);
+  }
+
+  /* Card, open — a hairline seam divides the trigger from the revealed panel
+     (there being no gap to read as a divider under --card). Absent when
+     closed, since there is no panel below to separate from. */
+  .primitiv-collapsible--card .primitiv-collapsible__trigger[data-state="open"] {
+    border-block-end: var(--primitiv-collapsible-border-width) solid var(--primitiv-collapsible-seam-color);
+  }
+
+  /* Inline — a link-styled trigger over continuous prose; no frame, no fill,
+     no icon gap to speak of (an icon is optional and still supported). The
+     trigger is flush (no HUG-row padding in either axis) and reads as a link:
+     `action/link` foreground instead of the framed `content/primary`. */
+  .primitiv-collapsible--inline {
+    --primitiv-collapsible-border-width: var(--primitiv-border-width-0);
+    --primitiv-collapsible-trigger-padding-block: var(--primitiv-space-space-0);
+    --primitiv-collapsible-trigger-padding-inline: var(--primitiv-space-space-0);
+    --primitiv-collapsible-trigger-fg: var(--primitiv-action-link-foreground-default);
+  }
+
+  .primitiv-collapsible--inline .primitiv-collapsible__trigger:hover {
+    --primitiv-collapsible-trigger-fg: var(--primitiv-action-link-foreground-hover);
+  }
+
+  .primitiv-collapsible--inline .primitiv-collapsible__trigger:active {
+    --primitiv-collapsible-trigger-fg: var(--primitiv-action-link-foreground-active);
+  }
+
+  /* Size — re-points the framed-control + typography knobs to the chosen
+     slot. Density stays ambient via [data-density] on the token values
+     themselves (RFC 0009); the content padding-block token is
+     density-scaled only (not size-sliced), so it doesn't re-point here. */
+  .primitiv-collapsible--xs {
+    --primitiv-collapsible-radius: var(--primitiv-framed-control-xs-radius);
+    --primitiv-collapsible-trigger-padding-inline: var(--primitiv-framed-control-xs-padding-inline);
+    --primitiv-collapsible-trigger-gap: var(--primitiv-framed-control-xs-gap);
+    --primitiv-collapsible-trigger-icon-size: var(--primitiv-framed-control-xs-icon-size);
+    --primitiv-collapsible-trigger-font-family: var(--primitiv-label-xs-font-family);
+    --primitiv-collapsible-trigger-font-size: var(--primitiv-label-xs-font-size);
+    --primitiv-collapsible-trigger-font-weight: var(--primitiv-label-xs-font-weight);
+    --primitiv-collapsible-trigger-line-height: var(--primitiv-label-xs-line-height);
+    --primitiv-collapsible-content-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-collapsible-content-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-collapsible-content-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-collapsible-content-line-height: var(--primitiv-body-xs-line-height);
+  }
+  .primitiv-collapsible--sm {
+    --primitiv-collapsible-radius: var(--primitiv-framed-control-sm-radius);
+    --primitiv-collapsible-trigger-padding-inline: var(--primitiv-framed-control-sm-padding-inline);
+    --primitiv-collapsible-trigger-gap: var(--primitiv-framed-control-sm-gap);
+    --primitiv-collapsible-trigger-icon-size: var(--primitiv-framed-control-sm-icon-size);
+    --primitiv-collapsible-trigger-font-family: var(--primitiv-label-sm-font-family);
+    --primitiv-collapsible-trigger-font-size: var(--primitiv-label-sm-font-size);
+    --primitiv-collapsible-trigger-font-weight: var(--primitiv-label-sm-font-weight);
+    --primitiv-collapsible-trigger-line-height: var(--primitiv-label-sm-line-height);
+    --primitiv-collapsible-content-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-collapsible-content-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-collapsible-content-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-collapsible-content-line-height: var(--primitiv-body-sm-line-height);
+  }
+  .primitiv-collapsible--md {
+    --primitiv-collapsible-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-collapsible-trigger-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-collapsible-trigger-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-collapsible-trigger-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-collapsible-trigger-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-collapsible-trigger-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-collapsible-trigger-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-collapsible-trigger-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-collapsible-content-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-collapsible-content-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-collapsible-content-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-collapsible-content-line-height: var(--primitiv-body-md-line-height);
+  }
+  .primitiv-collapsible--lg {
+    --primitiv-collapsible-radius: var(--primitiv-framed-control-lg-radius);
+    --primitiv-collapsible-trigger-padding-inline: var(--primitiv-framed-control-lg-padding-inline);
+    --primitiv-collapsible-trigger-gap: var(--primitiv-framed-control-lg-gap);
+    --primitiv-collapsible-trigger-icon-size: var(--primitiv-framed-control-lg-icon-size);
+    --primitiv-collapsible-trigger-font-family: var(--primitiv-label-lg-font-family);
+    --primitiv-collapsible-trigger-font-size: var(--primitiv-label-lg-font-size);
+    --primitiv-collapsible-trigger-font-weight: var(--primitiv-label-lg-font-weight);
+    --primitiv-collapsible-trigger-line-height: var(--primitiv-label-lg-line-height);
+    --primitiv-collapsible-content-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-collapsible-content-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-collapsible-content-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-collapsible-content-line-height: var(--primitiv-body-lg-line-height);
+  }
+  .primitiv-collapsible--xl {
+    --primitiv-collapsible-radius: var(--primitiv-framed-control-xl-radius);
+    --primitiv-collapsible-trigger-padding-inline: var(--primitiv-framed-control-xl-padding-inline);
+    --primitiv-collapsible-trigger-gap: var(--primitiv-framed-control-xl-gap);
+    --primitiv-collapsible-trigger-icon-size: var(--primitiv-framed-control-xl-icon-size);
+    --primitiv-collapsible-trigger-font-family: var(--primitiv-label-xl-font-family);
+    --primitiv-collapsible-trigger-font-size: var(--primitiv-label-xl-font-size);
+    --primitiv-collapsible-trigger-font-weight: var(--primitiv-label-xl-font-weight);
+    --primitiv-collapsible-trigger-line-height: var(--primitiv-label-xl-line-height);
+    --primitiv-collapsible-content-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-collapsible-content-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-collapsible-content-font-weight: var(--primitiv-body-xl-font-weight);
+    --primitiv-collapsible-content-line-height: var(--primitiv-body-xl-line-height);
+  }
+}
+
+@layer primitiv.states {
+  /* Open — the chevron rotates 180°; the fade overlay disappears (there is
+     nothing left to preview once the panel is fully revealed). */
+  .primitiv-collapsible__trigger-icon[data-state="open"] {
+    --primitiv-collapsible-trigger-icon-rotation: 180deg;
+  }
+
+  .primitiv-collapsible__content[data-state="open"] {
+    grid-template-rows: 1fr;
+  }
+
+  .primitiv-collapsible__content[data-state="open"] .primitiv-collapsible__content-inner {
+    visibility: visible;
+  }
+
+  .primitiv-collapsible__content[data-state="closed"] .primitiv-collapsible__content-inner {
+    visibility: hidden;
+  }
+
+  .primitiv-collapsible__content[data-state="open"] .primitiv-collapsible__content-fade {
+    opacity: 0;
+  }
+
+  /* Honour reduced-motion: keep the open/close (and the chevron flip)
+     instantaneous. */
+  @media (prefers-reduced-motion: reduce) {
+    .primitiv-collapsible__content,
+    .primitiv-collapsible__content-inner,
+    .primitiv-collapsible__content-fade,
+    .primitiv-collapsible__trigger-icon {
+      transition: none;
+    }
+  }
+
+  /* Focus — the shared two-layer focus ring. */
+  .primitiv-collapsible__trigger:focus-visible {
+    position: relative;
+    z-index: 1;
+    outline: none;
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Disabled dims the whole widget (root, so the trigger row and any card
+     frame fade together) rather than muting only the trigger label. */
+  .primitiv-collapsible[data-disabled="true"] {
+    opacity: var(--primitiv-opacity-50);
+    cursor: not-allowed;
+  }
+}

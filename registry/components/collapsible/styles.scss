@@ -145,14 +145,9 @@
 
   /* The content — a display:grid collapse container. The panel is force-mounted
      (the wrapper passes forceMount, so it is never `hidden`), which lets it
-     animate: the row track transitions between a closed value and 1fr (open),
-     so the panel opens to its content's exact height with no max-height guess.
-     The closed value defaults to 0fr (fully collapsed); when the consumer sets
-     `collapsedHeight` on Collapsible.Content, the headless layer publishes it as
-     --primitiv-collapsible-collapsed-height inline, which the var() fallback
-     below picks up instead — the same grid technique now clamps to a preview
-     height rather than closing to nothing. type/colour stay here and inherit
-     down. */
+     animate: the row track transitions between 0fr (closed) and 1fr (open), so
+     the panel opens to its content's exact height with no max-height guess.
+     type/colour stay here and inherit down. */
   .primitiv-collapsible__content {
     display: grid;
     grid-template-rows: 0fr;
@@ -166,29 +161,30 @@
     line-height: var(--primitiv-collapsible-content-line-height);
   }
 
-  .primitiv-collapsible__content[data-state="closed"] {
-    grid-template-rows: var(--primitiv-collapsible-collapsed-height, 0fr);
-  }
-
   /* The clip — the single grid item in the animated row, and the positioning
      context for the fade overlay. overflow:hidden gives it a zero block
-     min-size so the 0fr track can collapse all the way, and clips the body (or
-     the tail of a clamped preview) as the row shrinks; min-height:0 is
-     belt-and-braces for the same. It deliberately carries NO padding: padding
-     on the collapsing item (or on the grid container) sits outside the row's
-     content box and floors how far the row can shrink — that is why the
-     padding lives one level down, on the body. visibility flips to hidden at
-     the end of a full close (it transitions, so it stays visible for the whole
-     animation, then switches) so collapsed content is removed from the tab
-     order and the accessibility tree — but only when there is no clamped
-     preview to keep readable. */
+     min-size so the 0fr track can collapse all the way, and clips the body as
+     the row shrinks; min-height:0 is belt-and-braces for the same. It
+     deliberately carries NO padding: padding on the collapsing item (or on the
+     grid container) sits outside the row's content box and floors how far the
+     row can shrink — that is why the padding lives one level down, on the
+     body. visibility flips to hidden at the end of a full close (it
+     transitions, so it stays visible for the whole animation, then switches)
+     so collapsed content is removed from the tab order and the accessibility
+     tree — overridden back to always-visible under `data-clamped` in
+     primitiv.states, since a clamped preview is real, readable content that is
+     never actually hidden. */
   .primitiv-collapsible__content-inner {
     position: relative;
     overflow: hidden;
     min-height: 0;
-    transition: visibility
-      var(--primitiv-collapsible-content-transition-duration)
-      var(--primitiv-collapsible-content-transition-easing);
+    transition:
+      visibility
+        var(--primitiv-collapsible-content-transition-duration)
+        var(--primitiv-collapsible-content-transition-easing),
+      max-block-size
+        var(--primitiv-collapsible-content-transition-duration)
+        var(--primitiv-collapsible-content-transition-easing);
   }
 
   /* The body — the padded content, a level below the clip so its padding sits
@@ -262,8 +258,14 @@
     --primitiv-collapsible-trigger-fg: var(--primitiv-action-link-foreground-default);
   }
 
-  .primitiv-collapsible--inline .primitiv-collapsible__trigger:hover {
-    --primitiv-collapsible-trigger-fg: var(--primitiv-action-link-foreground-hover);
+  /* Gated behind (hover: hover): a touchscreen simulates :hover on tap and it
+     "sticks" until the next tap elsewhere, which would otherwise leave a
+     just-tapped inline trigger showing its hover colour instead of its
+     resting/active one. */
+  @media (hover: hover) {
+    .primitiv-collapsible--inline .primitiv-collapsible__trigger:hover {
+      --primitiv-collapsible-trigger-fg: var(--primitiv-action-link-foreground-hover);
+    }
   }
 
   .primitiv-collapsible--inline .primitiv-collapsible__trigger:active {
@@ -357,12 +359,42 @@
     grid-template-rows: 1fr;
   }
 
+  /* Clamped preview (the consumer set `collapsedHeight`, published as
+     --primitiv-collapsible-collapsed-height inline and reflected here as
+     `data-clamped="true"` on the same element by the wrapper). The row track
+     can't clamp this: animating grid-template-rows between a fixed length and
+     1fr does not interpolate (they are different track-sizing function
+     types), which is what made an earlier version of this rule stagger
+     instead of animating smoothly. So the row stays fully open (1fr) at all
+     times when clamped, and the clip's own max-block-size does the clamping
+     instead — a plain length-to-length transition, which does interpolate. */
+  .primitiv-collapsible__content[data-clamped="true"] {
+    grid-template-rows: 1fr;
+  }
+
+  .primitiv-collapsible__content[data-clamped="true"][data-state="closed"] .primitiv-collapsible__content-inner {
+    max-block-size: var(--primitiv-collapsible-collapsed-height);
+  }
+
+  /* Open, clamped — a generous fixed length (never actually reached by real
+     content) so the max-block-size transition still animates between two
+     lengths, growing the clip to reveal the rest of the passage. */
+  .primitiv-collapsible__content[data-clamped="true"][data-state="open"] .primitiv-collapsible__content-inner {
+    max-block-size: 100vh;
+  }
+
   .primitiv-collapsible__content[data-state="open"] .primitiv-collapsible__content-inner {
     visibility: visible;
   }
 
   .primitiv-collapsible__content[data-state="closed"] .primitiv-collapsible__content-inner {
     visibility: hidden;
+  }
+
+  /* A clamped preview is real, readable content — never actually hidden, in
+     either state. */
+  .primitiv-collapsible__content[data-clamped="true"] .primitiv-collapsible__content-inner {
+    visibility: visible;
   }
 
   .primitiv-collapsible__content[data-state="open"] .primitiv-collapsible__content-fade {

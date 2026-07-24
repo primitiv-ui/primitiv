@@ -62,7 +62,9 @@
         { "name": "data-state", "value": "open", "when": "open", "source": "auto" },
         { "name": "data-state", "value": "closed", "when": "closed", "source": "auto" },
         { "name": "data-disabled", "value": "true", "when": "disabled", "source": "auto" },
-        { "name": "data-disabled", "value": "false", "when": "not disabled", "source": "auto" }
+        { "name": "data-disabled", "value": "false", "when": "not disabled", "source": "auto" },
+        { "name": "data-clamped", "value": "true", "when": "collapsedHeight is set", "source": "wrapper" },
+        { "name": "data-clamped", "value": "false", "when": "collapsedHeight is unset", "source": "wrapper" }
       ]
     },
     {

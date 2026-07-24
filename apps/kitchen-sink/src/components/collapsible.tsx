@@ -11,10 +11,15 @@ import "../styles/primitiv/collapsible/styles.css";
  * `.primitiv-collapsible__content-inner` clip (the `overflow: hidden` grid item
  * the row-track collapses), a `.primitiv-collapsible__content-body` inside it
  * that carries the panel padding (mirrors AccordionContent), and a sibling
- * `.primitiv-collapsible__content-fade` overlay that reads the `collapsedHeight`
- * prop and fades away once the panel is fully open. `forceMount` is therefore
- * not exposed as a prop (it is always on). Keep this file, contract.json, and
- * the stylesheet in sync by hand.
+ * `.primitiv-collapsible__content-fade` overlay that fades away once the panel
+ * is fully open. It also reads `collapsedHeight` itself to compute
+ * `data-clamped` on the same element the headless layer already publishes
+ * `--primitiv-collapsible-collapsed-height` on: animating grid-template-rows
+ * between a fixed length and `1fr` does not interpolate, so the stylesheet
+ * needs a hook to know when to switch to clamping via the clip's
+ * `max-block-size` instead (a plain length-to-length transition) — see
+ * styles.css. `forceMount` is not exposed as a prop (it is always on). Keep
+ * this file, contract.json, and the stylesheet in sync by hand.
  */
 import { Collapsible as CollapsiblePrimitive } from "@primitiv-ui/react";
 import { Children, type ComponentPropsWithRef, type ReactNode } from "react";
@@ -74,9 +79,15 @@ export function CollapsibleTrigger({ className, children, ...props }: Collapsibl
 
 export type CollapsibleContentProps = DistributiveOmit<ComponentPropsWithRef<typeof CollapsiblePrimitive.Content>, "forceMount">;
 
-export function CollapsibleContent({ className, children, ...props }: CollapsibleContentProps) {
+export function CollapsibleContent({ className, children, collapsedHeight, ...props }: CollapsibleContentProps) {
   return (
-    <CollapsiblePrimitive.Content className={[collapsibleContent(), className].filter(Boolean).join(" ")} {...props} forceMount>
+    <CollapsiblePrimitive.Content
+      className={[collapsibleContent(), className].filter(Boolean).join(" ")}
+      collapsedHeight={collapsedHeight}
+      data-clamped={collapsedHeight != null}
+      {...props}
+      forceMount
+    >
       <div className="primitiv-collapsible__content-inner">
         <div className="primitiv-collapsible__content-body">{children}</div>
         <div className="primitiv-collapsible__content-fade" aria-hidden="true" />

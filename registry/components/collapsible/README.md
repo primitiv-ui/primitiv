@@ -14,7 +14,7 @@ visual dressings (`plain` / `card` / `inline`).
 | `styles.css` | **authored** | The canonical default theme (plain / card / inline dressings). |
 | `styles.scss` | generated | The canonical CSS re-expressed for SCSS consumers (from `styles.css`). |
 | `collapsible.recipe.ts` | generated | One `cva` per styled part (from `contract.json`). |
-| `collapsible.tsx` | generated (`Content` hand-tuned) | The styled wrappers — `Collapsible` / `CollapsibleTrigger` / `CollapsibleContent` / `CollapsibleTriggerIcon` (from `contract.json`). `CollapsibleContent` deviates by hand: it force-mounts the panel and wraps its children in a `.primitiv-collapsible__content-inner` clip, a padded `.primitiv-collapsible__content-body`, and a `.primitiv-collapsible__content-fade` overlay, so the grid open/close transition and the `collapsedHeight` read-more pattern can both animate. |
+| `collapsible.tsx` | generated (`Content` hand-tuned) | The styled wrappers — `Collapsible` / `CollapsibleTrigger` / `CollapsibleContent` / `CollapsibleTriggerIcon` (from `contract.json`). `CollapsibleContent` deviates by hand: it force-mounts the panel, computes `data-clamped` from whether `collapsedHeight` is set, and wraps its children in a `.primitiv-collapsible__content-inner` clip, a padded `.primitiv-collapsible__content-body`, and a `.primitiv-collapsible__content-fade` overlay, so the grid open/close transition and the `collapsedHeight` read-more pattern can both animate. |
 
 Only `contract.json` (the API) and `styles.css` (the design) are **authored**;
 the SCSS form and recipe are **generated** and pinned to their source by
@@ -37,26 +37,35 @@ Three visual dressings share one open/close mechanism:
 
 The panel **animates open and closed** with the same `display: grid`
 row-track technique as Accordion: `.primitiv-collapsible__content`'s
-`grid-template-rows` transitions between a closed value and `1fr` (open). The
-closed value is `var(--primitiv-collapsible-collapsed-height, 0fr)` — `0fr`
-(fully collapsed) unless the consumer passes `collapsedHeight` to
-`Collapsible.Content`, in which case the headless layer publishes that length
-as `--primitiv-collapsible-collapsed-height` inline and the same grid
-technique clamps to a preview height instead of closing to nothing.
+`grid-template-rows` transitions between `0fr` (closed) and `1fr` (open).
+
+When the consumer passes `collapsedHeight` to `Collapsible.Content`, the
+wrapper reflects it as `data-clamped="true"` on the same element (alongside
+the headless layer's own `--primitiv-collapsible-collapsed-height` custom
+property). The row does **not** clamp to that height — animating
+`grid-template-rows` between a fixed length and `1fr` does not interpolate
+(they're different track-sizing function types), which staggers instead of
+animating smoothly. So `[data-clamped="true"]` keeps the row at `1fr`
+*unconditionally*, and the clip (`.primitiv-collapsible__content-inner`)
+carries its own `max-block-size` transition instead — between the
+`collapsedHeight` value (closed) and a generous fixed length like `100vh`
+(open) — a plain length-to-length transition, which does animate. The clip's
+`visibility` is also forced back to `visible` under `data-clamped`: a clamped
+preview is real, readable content, never actually hidden.
 
 Three nested elements do the work: the `.primitiv-collapsible__content-inner`
 clip (`overflow: hidden` + `min-height: 0`, the positioning context for the
-fade), the padded `.primitiv-collapsible__content-body` inside it (padding
-lives here, one level below the clip, so it collapses away with the row
-instead of flooring how far the row can shrink), and a
-`.primitiv-collapsible__content-fade` sibling — a bottom gradient
-(`transparent` → `--primitiv-collapsible-fade-color`) that reads as the panel
-fading into its surface. The fade is always rendered but only visible while
-closed: without `collapsedHeight` it sits inside a zero-height clipped row
-anyway; with it, it's the affordance that more content follows. It fades out
-over the same transition once the panel opens. `--primitiv-collapsible-fade-color`
-re-points to the card's own fill under `--card` so the fade blends into the
-box rather than the page behind it.
+fade and, when clamped, the element that does the clamping), the padded
+`.primitiv-collapsible__content-body` inside it (padding lives here, one level
+below the clip, so it collapses away with the row instead of flooring how far
+the row can shrink), and a `.primitiv-collapsible__content-fade` sibling — a
+bottom gradient (`transparent` → `--primitiv-collapsible-fade-color`) that
+reads as the panel fading into its surface. The fade is always rendered but
+only visible while closed: without `collapsedHeight` it sits inside a
+zero-height clipped row anyway; with it, it's the affordance that more content
+follows. It fades out over the same transition once the panel opens.
+`--primitiv-collapsible-fade-color` re-points to the card's own fill under
+`--card` so the fade blends into the box rather than the page behind it.
 
 Structured per RFC 0008 — per-component API tokens + resting look in
 `primitiv.base`, the `variant` + `size` modifiers in `primitiv.variants`, the
@@ -91,3 +100,7 @@ fade transitions.
   can pass it to `Collapsible.Content`; Figma's own examples only demonstrate
   it on `inline` (the read-more pattern reads most naturally over prose), but
   the stylesheet supports it uniformly.
+- **The `inline` trigger's hover is gated behind `(hover: hover)`** — a
+  touchscreen simulates `:hover` on tap and it sticks until the next tap
+  elsewhere, which would otherwise leave a just-tapped trigger showing its
+  hover colour instead of resting/active.

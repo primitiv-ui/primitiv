@@ -71,6 +71,31 @@ describe("Select typeahead", () => {
     expect(option("Apple")).toHaveFocus();
   });
 
+  it("matches the full multi-char prefix, not just the first character (isRepeat off)", async () => {
+    const user = userEvent.setup();
+    render(
+      <Select.Root>
+        <Select.Trigger>
+          <Select.Value placeholder="Pick" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="bat">Bat</Select.Item>
+          <Select.Item value="bengal">Bengal</Select.Item>
+          <Select.Item value="banana">Banana</Select.Item>
+          <Select.Item value="cat">Cat</Select.Item>
+        </Select.Content>
+      </Select.Root>,
+    );
+    await user.click(screen.getByRole("button")); // Bat focused (index 0)
+
+    // "ban" must resolve to Banana. If isRepeat were (wrongly) true, the
+    // search would use just "b" and land on Bengal (or wrap to Bat).
+    await user.keyboard("ban");
+    expect(
+      screen.getByRole("option", { name: "Banana", hidden: true }),
+    ).toHaveFocus();
+  });
+
   it("matches a prefix, not a substring", async () => {
     const user = userEvent.setup();
     renderSelect();

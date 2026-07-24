@@ -51,6 +51,24 @@ export type SelectRootBaseProps = Omit<
    * @default false
    */
   native?: boolean;
+  /**
+   * Rich mode only — whether the listbox popover is open on first render.
+   * Ignored under `native` (the browser owns the popup). Uncontrolled: pass
+   * this (or omit for closed) and let the component manage the state.
+   * @default false
+   */
+  defaultOpen?: boolean;
+  /**
+   * Rich mode only — the controlled open state of the listbox popover. Pass
+   * together with {@link SelectRootBaseProps.onOpenChange | `onOpenChange`}
+   * to own the state from the parent.
+   */
+  open?: boolean;
+  /**
+   * Rich mode only — called with the next open state whenever the listbox
+   * opens or closes (trigger click, selection, Escape, light-dismiss).
+   */
+  onOpenChange?: (open: boolean) => void;
 };
 
 /**
@@ -152,4 +170,54 @@ export type SelectPlaceholderProps = Omit<
   children?: ReactNode;
   /** Forwarded to the underlying `HTMLOptionElement`. */
   ref?: Ref<HTMLOptionElement>;
+};
+
+/**
+ * Props for {@link SelectTrigger | `Select.Trigger`} — the rich-mode button
+ * that opens the listbox. Extends the native `<button>` attributes.
+ */
+export type SelectTriggerProps = ComponentProps<"button"> & {
+  /** Trigger content — typically a {@link SelectValue | `Select.Value`}. */
+  children?: ReactNode;
+  /**
+   * Render the composed child element instead of a `<button>`, merging the
+   * trigger's ARIA attributes and click handler via the {@link Slot}
+   * pattern.
+   * @default false
+   */
+  asChild?: boolean;
+  /** Forwarded to the underlying `HTMLButtonElement`. */
+  ref?: Ref<HTMLButtonElement>;
+};
+
+/**
+ * Props for {@link SelectValue | `Select.Value`} — the rich-mode element,
+ * placed inside {@link SelectTrigger | `Select.Trigger`}, that displays the
+ * current selection (mirrored from the selected item in a later cycle) or a
+ * placeholder when nothing is selected. Extends `<span>` attributes minus
+ * `children`, which the component owns.
+ */
+export type SelectValueProps = Omit<ComponentProps<"span">, "children"> & {
+  /** Shown when no value is selected (e.g. `"Select a framework…"`). */
+  placeholder?: ReactNode;
+  /** Forwarded to the underlying `HTMLSpanElement`. */
+  ref?: Ref<HTMLSpanElement>;
+};
+
+/**
+ * Props for {@link SelectContent | `Select.Content`} — the rich-mode
+ * Popover-API listbox panel. Extends the native `<div>` attributes.
+ */
+export type SelectContentProps = ComponentProps<"div"> & {
+  /** Listbox content — {@link SelectItem | `Select.Item`} /
+   * {@link SelectGroup | `Select.Group`} elements. */
+  children?: ReactNode;
+  /**
+   * Render the composed child element instead of a `<div>`, merging the
+   * listbox props via the {@link Slot} pattern.
+   * @default false
+   */
+  asChild?: boolean;
+  /** Forwarded to the underlying `HTMLDivElement`. */
+  ref?: Ref<HTMLDivElement>;
 };

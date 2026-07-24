@@ -2,13 +2,18 @@ import { ChangeEvent, Children, isValidElement, ReactNode } from "react";
 import type { ReactElement } from "react";
 
 import { useFieldProps } from "../Field/hooks/index.ts";
-import { Slot } from "../Slot/index.ts";
+import { composeEventHandlers, Slot } from "../Slot/index.ts";
 
+import { SelectContext, useSelectContext } from "./SelectContext";
+import { useSelectContent, useSelectRoot } from "./hooks/index.ts";
 import {
+  SelectContentProps,
   SelectGroupProps,
   SelectItemProps,
   SelectPlaceholderProps,
   SelectRootProps,
+  SelectTriggerProps,
+  SelectValueProps,
 } from "./types";
 
 const PLACEHOLDER_DISPLAY_NAME = "SelectPlaceholder";
@@ -142,9 +147,13 @@ export function SelectRoot({
   onValueChange,
   value,
   defaultValue,
+  defaultOpen,
+  open,
+  onOpenChange,
   ...consumer
 }: SelectRootProps): ReactElement {
   const merged = useFieldProps(consumer);
+  const { contextValue } = useSelectRoot({ defaultOpen, open, onOpenChange });
 
   const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
     onChange?.(event);
@@ -174,11 +183,11 @@ export function SelectRoot({
   };
 
   // Rich (non-native) render path — the fully-styleable Popover listbox.
-  // The state owner, trigger, value, content and hidden form field are
-  // layered on in later cycles; for now Root is a context boundary that
-  // renders its composed children (Trigger / Content / …) directly.
+  // Root owns the open/close state and provides it to Trigger / Content /
+  // Value via context; selection state and the hidden form field are
+  // layered on in later cycles.
   if (!native) {
-    return <>{children}</>;
+    return <SelectContext.Provider value={contextValue}>{children}</SelectContext.Provider>;
   }
 
   if (asChild) {
@@ -228,6 +237,118 @@ export function SelectItem({
 
 /** @internal */
 SelectItem.displayName = "SelectItem";
+
+/**
+ * The rich-mode trigger button that opens the listbox. Exposes the
+ * WAI-ARIA listbox-combobox contract: `aria-haspopup="listbox"`,
+ * `aria-expanded` reflecting the open state, and `aria-controls` pointing
+ * at the {@link SelectContent | `Select.Content`} id. Place a
+ * {@link SelectValue | `Select.Value`} inside it to show the current
+ * selection.
+ *
+ * Renders a `<button type="button">` by default; pass `asChild` to compose
+ * the ARIA attributes and click handler onto a consumer element via the
+ * {@link Slot} pattern.
+ *
+ * @extends HTMLButtonElement
+ *
+ * @example
+ * ```tsx
+ * <Select.Trigger>
+ *   <Select.Value placeholder="Pick a framework…" />
+ * </Select.Trigger>
+ * ```
+ */
+export function SelectTrigger({
+  children,
+  onClick,
+  asChild = false,
+  ...rest
+}: SelectTriggerProps): ReactElement {
+  const { open, setOpen, contentId, triggerId, triggerRef } = useSelectContext();
+
+  const triggerProps = {
+    ...rest,
+    ref: triggerRef,
+    id: triggerId,
+    type: "button" as const,
+    "aria-haspopup": "listbox" as const,
+    "aria-expanded": open,
+    "aria-controls": contentId,
+    onClick: composeEventHandlers(onClick, () => setOpen(!open)),
+  };
+
+  if (asChild) {
+    return <Slot {...triggerProps}>{children}</Slot>;
+  }
+  return <button {...triggerProps}>{children}</button>;
+}
+
+/** @internal */
+SelectTrigger.displayName = "SelectTrigger";
+
+/**
+ * The rich-mode display of the current selection, placed inside a
+ * {@link SelectTrigger | `Select.Trigger`}. Shows the `placeholder` when
+ * nothing is selected; mirroring the selected item's content is layered on
+ * in a later cycle.
+ *
+ * Renders a `<span>`.
+ *
+ * @extends HTMLSpanElement
+ *
+ * @example
+ * ```tsx
+ * <Select.Value placeholder="Select a framework…" />
+ * ```
+ */
+export function SelectValue({
+  placeholder,
+  ...rest
+}: SelectValueProps): ReactElement {
+  return <span {...rest}>{placeholder}</span>;
+}
+
+/** @internal */
+SelectValue.displayName = "SelectValue";
+
+/**
+ * The rich-mode listbox panel, rendered with the native
+ * [Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API)
+ * (`popover="auto"`) — no portal, no floating-ui. The browser manages the
+ * top layer and light-dismiss (outside click / Escape). Opens and closes in
+ * sync with the trigger; on open, focus moves into the listbox, and Escape
+ * closes it and returns focus to the trigger.
+ *
+ * Renders a `<div role="listbox">` by default; pass `asChild` to compose the
+ * listbox props onto a consumer element via the {@link Slot} pattern.
+ *
+ * @extends HTMLDivElement
+ *
+ * @example
+ * ```tsx
+ * <Select.Content>
+ *   <Select.Item value="react">React</Select.Item>
+ *   <Select.Item value="vue">Vue</Select.Item>
+ * </Select.Content>
+ * ```
+ */
+export function SelectContent({
+  children,
+  onKeyDown,
+  asChild = false,
+  ...rest
+}: SelectContentProps): ReactElement {
+  const { contentProps } = useSelectContent({ onKeyDown, restProps: rest });
+
+  if (asChild) {
+    return <Slot {...contentProps}>{children}</Slot>;
+  }
+  return <div {...contentProps}>{children}</div>;
+}
+
+/** @internal */
+SelectContent.displayName = "SelectContent";
 
 /**
  * Visually groups related options inside the Select popup — renders a
@@ -306,6 +427,9 @@ SelectPlaceholder.displayName = "SelectPlaceholder";
 /** Type of the {@link Select} compound: the root callable plus its attached sub-components. */
 export type TSelectCompound = typeof SelectRoot & {
   Root: typeof SelectRoot;
+  Trigger: typeof SelectTrigger;
+  Value: typeof SelectValue;
+  Content: typeof SelectContent;
   Item: typeof SelectItem;
   Group: typeof SelectGroup;
   Placeholder: typeof SelectPlaceholder;
@@ -370,6 +494,9 @@ export type TSelectCompound = typeof SelectRoot & {
  */
 const SelectCompound: TSelectCompound = Object.assign(SelectRoot, {
   Root: SelectRoot,
+  Trigger: SelectTrigger,
+  Value: SelectValue,
+  Content: SelectContent,
   Item: SelectItem,
   Group: SelectGroup,
   Placeholder: SelectPlaceholder,

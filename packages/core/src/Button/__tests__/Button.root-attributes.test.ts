@@ -36,4 +36,12 @@ describe("getButtonRootAttributes", () => {
       "data-disabled": "",
     });
   });
+
+  it("omits both disabled keys when the button is not disabled", () => {
+    // Arrange & Act
+    const attributes = getButtonRootAttributes({});
+
+    // Assert — `toStrictEqual` also proves no key is present-but-undefined.
+    expect(attributes).toStrictEqual({ type: "button" });
+  });
 });

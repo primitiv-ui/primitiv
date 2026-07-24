@@ -123,6 +123,87 @@ describe("Select selection commit + hidden form field", () => {
   });
 });
 
+describe("Select native-mode edges", () => {
+  it("keeps a numeric child as the option text under native", () => {
+    render(
+      <Select.Root native defaultValue="1">
+        <Select.Item value="1">{42}</Select.Item>
+      </Select.Root>,
+    );
+    expect(screen.getByRole("option", { name: "42" })).toBeInTheDocument();
+  });
+
+  it("marks the matching option selected for a native controlled value", () => {
+    render(
+      <Select.Root native value="b" onValueChange={() => {}}>
+        <Select.Item value="a">A</Select.Item>
+        <Select.Item value="b">B</Select.Item>
+      </Select.Root>,
+    );
+    expect(
+      (screen.getByRole("option", { name: "B" }) as HTMLOptionElement).selected,
+    ).toBe(true);
+  });
+
+  it("calls onValueChange with the chosen value under native", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <Select.Root native defaultValue="a" onValueChange={onValueChange}>
+        <Select.Item value="a">A</Select.Item>
+        <Select.Item value="b">B</Select.Item>
+      </Select.Root>,
+    );
+    await user.selectOptions(screen.getByRole("combobox"), "b");
+    expect(onValueChange).toHaveBeenCalledWith("b");
+  });
+});
+
+describe("Select rich data-disabled + typeahead reach", () => {
+  it("exposes data-disabled on a rich item only when disabled", async () => {
+    const user = userEvent.setup();
+    render(
+      <Select.Root>
+        <Select.Trigger>
+          <Select.Value placeholder="Pick" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="a">Enabled</Select.Item>
+          <Select.Item value="b" disabled>
+            Disabled
+          </Select.Item>
+        </Select.Content>
+      </Select.Root>,
+    );
+    await user.click(screen.getByRole("button"));
+    expect(
+      screen.getByRole("option", { name: "Enabled", hidden: true }),
+    ).not.toHaveAttribute("data-disabled");
+    expect(screen.getByText("Disabled")).toHaveAttribute("data-disabled", "");
+  });
+
+  it("typeahead reaches the last option in a 5-item list (loop bound + modulo)", async () => {
+    const user = userEvent.setup();
+    render(
+      <Select.Root>
+        <Select.Trigger>
+          <Select.Value placeholder="Pick" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="a">Alpha</Select.Item>
+          <Select.Item value="b">Bravo</Select.Item>
+          <Select.Item value="c">Charlie</Select.Item>
+          <Select.Item value="d">Delta</Select.Item>
+          <Select.Item value="e">Echo</Select.Item>
+        </Select.Content>
+      </Select.Root>,
+    );
+    await user.click(screen.getByRole("button")); // Alpha focused (index 0)
+    await user.keyboard("e"); // only Echo (index 4) matches — loop must reach it
+    expect(screen.getByRole("option", { name: "Echo", hidden: true })).toHaveFocus();
+  });
+});
+
 describe("Select ARIA / data-state wiring", () => {
   it("wires the trigger, listbox, and options with the exact contract", async () => {
     const user = userEvent.setup();

@@ -70,4 +70,15 @@ describe("Select typeahead", () => {
     // Focus stays on Apple — nothing starts with "z".
     expect(option("Apple")).toHaveFocus();
   });
+
+  it("matches a prefix, not a substring", async () => {
+    const user = userEvent.setup();
+    renderSelect();
+    await user.click(screen.getByRole("button")); // Apple focused
+
+    // "n" is a substring of "Banana" but a prefix of nothing, so focus must
+    // not jump to Banana (guards startsWith, not includes).
+    await user.keyboard("n");
+    expect(option("Apple")).toHaveFocus();
+  });
 });

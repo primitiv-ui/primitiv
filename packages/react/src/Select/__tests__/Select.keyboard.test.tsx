@@ -91,6 +91,27 @@ describe("Select keyboard navigation", () => {
     expect(screen.getByRole("button")).toHaveAttribute("aria-expanded", "false");
   });
 
+  it("selects the first option with Enter when it is the focused one", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <Select.Root onValueChange={onValueChange}>
+        <Select.Trigger>
+          <Select.Value placeholder="Pick one" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="react">React</Select.Item>
+          <Select.Item value="vue">Vue</Select.Item>
+        </Select.Content>
+      </Select.Root>,
+    );
+
+    await user.click(screen.getByRole("button")); // opens, focuses React (index 0)
+    await user.keyboard("{Enter}"); // index 0 is a valid selection, not "< 0"
+
+    expect(onValueChange).toHaveBeenCalledWith("react");
+  });
+
   it("typeahead focuses the option whose label starts with the typed text", async () => {
     const user = userEvent.setup();
     renderSelect();

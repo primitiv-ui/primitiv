@@ -53,7 +53,7 @@ export function useSelectContent({ onKeyDown, restProps }: UseSelectContentArgs)
       if ((event as ToggleEvent).newState === "closed") setOpen(false);
     };
     list.addEventListener("toggle", handleToggle);
-    // Stryker disable next-line StringLiteral: equivalent — unmount cleanup; a wrong event name only leaks a listener on a discarded node, unobservable.
+    // Stryker disable next-line StringLiteral,ArrowFunction: equivalent — unmount cleanup on a discarded node; removing/altering it only leaks a listener, unobservable.
     return () => list.removeEventListener("toggle", handleToggle);
     // Stryker disable next-line ArrayDeclaration: equivalent — setOpen is stable, so the effect runs once either way.
   }, [setOpen]);

@@ -1,0 +1,114 @@
+import { fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+
+import { Select } from "../Select";
+
+/**
+ * Discriminating assertions that pin down behaviour equivalent mutants would
+ * otherwise slip past (preventDefault calls, the toggle-sync listener, and
+ * the exact ARIA / data-state / role wiring). Complements the behavioural
+ * suites, which assert *where focus lands* but not *how* it got there.
+ */
+
+function open() {
+  render(
+    <Select.Root defaultValue="vue">
+      <Select.Trigger>
+        <Select.Value placeholder="Pick" />
+      </Select.Trigger>
+      <Select.Content>
+        <Select.Item value="react">React</Select.Item>
+        <Select.Item value="vue">Vue</Select.Item>
+        <Select.Item value="solid">Solid</Select.Item>
+      </Select.Content>
+    </Select.Root>,
+  );
+  fireEvent.click(screen.getByRole("button"));
+  return screen.getByRole("listbox", { hidden: true });
+}
+
+describe("Select preventDefault on handled keys", () => {
+  it.each(["ArrowDown", "ArrowUp", "Home", "End", "Enter", " ", "Escape"])(
+    "cancels the default action for %s",
+    (key) => {
+      const list = open();
+      // fireEvent returns false when a handler called preventDefault.
+      const notCancelled = fireEvent.keyDown(list, { key });
+      expect(notCancelled).toBe(false);
+    },
+  );
+
+  it("cancels the default action for a typeahead match", () => {
+    const list = open();
+    const notCancelled = fireEvent.keyDown(list, { key: "s" }); // matches Solid
+    expect(notCancelled).toBe(false);
+  });
+
+  it("does not cancel an unhandled key", () => {
+    const list = open();
+    // A modifier / multi-char key falls through untouched.
+    const notCancelled = fireEvent.keyDown(list, { key: "Shift" });
+    expect(notCancelled).toBe(true);
+  });
+});
+
+describe("Select toggle-event sync", () => {
+  it("closes when the popover dispatches a toggle→closed (browser light-dismiss)", () => {
+    const list = open();
+    expect(screen.getByRole("button")).toHaveAttribute("aria-expanded", "true");
+
+    // Simulate the browser's own light-dismiss: a toggle event to "closed".
+    const event = new Event("toggle");
+    Object.defineProperty(event, "newState", { value: "closed" });
+    fireEvent(list, event);
+
+    expect(screen.getByRole("button")).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("ignores a toggle→open event (does not thrash state)", () => {
+    const list = open();
+    const openEvent = new Event("toggle");
+    Object.defineProperty(openEvent, "newState", { value: "open" });
+    fireEvent(list, openEvent);
+    expect(screen.getByRole("button")).toHaveAttribute("aria-expanded", "true");
+  });
+});
+
+describe("Select ARIA / data-state wiring", () => {
+  it("wires the trigger, listbox, and options with the exact contract", async () => {
+    const user = userEvent.setup();
+    render(
+      <Select.Root defaultValue="vue">
+        <Select.Trigger>
+          <Select.Value placeholder="Pick" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="react">React</Select.Item>
+          <Select.Item value="vue">
+            Vue
+            <Select.ItemIndicator>✓</Select.ItemIndicator>
+          </Select.Item>
+        </Select.Content>
+      </Select.Root>,
+    );
+
+    const trigger = screen.getByRole("button");
+    expect(trigger).toHaveAttribute("type", "button");
+    expect(trigger).toHaveAttribute("aria-haspopup", "listbox");
+
+    await user.click(trigger);
+
+    const list = screen.getByRole("listbox", { hidden: true });
+    expect(list).toHaveAttribute("tabindex", "-1");
+
+    const react = screen.getByRole("option", { name: "React", hidden: true });
+    const vue = screen.getByRole("option", { name: /Vue/, hidden: true });
+    expect(react).toHaveAttribute("tabindex", "-1");
+    expect(react).toHaveAttribute("data-state", "unchecked");
+    expect(react).toHaveAttribute("aria-selected", "false");
+    expect(vue).toHaveAttribute("data-state", "checked");
+    expect(vue).toHaveAttribute("aria-selected", "true");
+    // The indicator only mounts on the selected item, as "checked".
+    expect(screen.getByText("✓")).toHaveAttribute("data-state", "checked");
+  });
+});

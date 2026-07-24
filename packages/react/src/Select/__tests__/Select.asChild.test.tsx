@@ -18,9 +18,9 @@ describe("Select asChild", () => {
   it("delegates to a consumer-supplied <select> wrapper, merging Root's props onto it", () => {
     // Arrange & Act
     render(
-      <Select.Root asChild disabled>
+      <Select.Root native asChild disabled>
         <StyledSelect>
-          <Select.Option value="apple">Apple</Select.Option>
+          <Select.Item value="apple">Apple</Select.Item>
         </StyledSelect>
       </Select.Root>,
     );

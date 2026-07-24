@@ -6,7 +6,7 @@ import { Slot } from "../Slot/index.ts";
 
 import {
   SelectGroupProps,
-  SelectOptionProps,
+  SelectItemProps,
   SelectPlaceholderProps,
   SelectRootProps,
 } from "./types";
@@ -136,6 +136,7 @@ function hasPlaceholderChild(children: ReactNode): boolean {
  */
 export function SelectRoot({
   children,
+  native = false,
   asChild = false,
   onChange,
   onValueChange,
@@ -172,6 +173,14 @@ export function SelectRoot({
     onChange: handleChange,
   };
 
+  // Rich (non-native) render path — the fully-styleable Popover listbox.
+  // The state owner, trigger, value, content and hidden form field are
+  // layered on in later cycles; for now Root is a context boundary that
+  // renders its composed children (Trigger / Content / …) directly.
+  if (!native) {
+    return <>{children}</>;
+  }
+
   if (asChild) {
     return <Slot {...rootProps}>{children}</Slot>;
   }
@@ -182,32 +191,43 @@ export function SelectRoot({
 SelectRoot.displayName = "SelectRoot";
 
 /**
- * An individual choice inside a Select — renders a native `<option>`
- * element with an implicit `role="option"` as provided by the browser.
+ * An individual choice inside a Select.
  *
- * Passes all `OptionHTMLAttributes` through to the DOM. Native `<option>`
- * only renders text; rich content (icons, descriptions) is not supported.
+ * In `native` mode (the case handled in this cycle) it renders a native
+ * `<option>` element with an implicit `role="option"`. Because an
+ * `<option>` can only hold text, `Select.Item` keeps **only the
+ * string/number parts** of its children — joined as the option's visible
+ * text — and **drops every element child** (icons, indicators). This is
+ * the inverse of the string-vs-element split used elsewhere in the
+ * library, and it means an icon-only item with no text renders an empty,
+ * unlabelled `<option>` under `native`.
  *
  * Pass `disabled` to make a single choice unreachable from the dropdown
  * while still visible.
  *
  * @extends HTMLOptionElement
  *
- * @example
+ * @example Native
  * ```tsx
- * <Select.Option value="apple">Apple</Select.Option>
- * <Select.Option value="durian" disabled>Durian (sold out)</Select.Option>
+ * <Select.Root native>
+ *   <Select.Item value="apple">Apple</Select.Item>
+ *   <Select.Item value="durian" disabled>Durian (sold out)</Select.Item>
+ * </Select.Root>
  * ```
  */
-export function SelectOption({
+export function SelectItem({
   children,
   ...rest
-}: SelectOptionProps): ReactElement {
-  return <option {...rest}>{children}</option>;
+}: SelectItemProps): ReactElement {
+  const text = Children.toArray(children).filter(
+    (child): child is string | number =>
+      typeof child === "string" || typeof child === "number",
+  );
+  return <option {...rest}>{text}</option>;
 }
 
 /** @internal */
-SelectOption.displayName = "SelectOption";
+SelectItem.displayName = "SelectItem";
 
 /**
  * Visually groups related options inside the Select popup — renders a
@@ -246,7 +266,7 @@ SelectGroup.displayName = "SelectGroup";
  *
  * Always render it as the **first** child of
  * {@link SelectRoot | `Select.Root`}, above any
- * {@link SelectOption | `Select.Option`} or
+ * {@link SelectItem | `Select.Item`} or
  * {@link SelectGroup | `Select.Group`}.
  *
  * When `Select.Placeholder` is present among Root's direct children and
@@ -286,7 +306,7 @@ SelectPlaceholder.displayName = "SelectPlaceholder";
 /** Type of the {@link Select} compound: the root callable plus its attached sub-components. */
 export type TSelectCompound = typeof SelectRoot & {
   Root: typeof SelectRoot;
-  Option: typeof SelectOption;
+  Item: typeof SelectItem;
   Group: typeof SelectGroup;
   Placeholder: typeof SelectPlaceholder;
 };
@@ -306,7 +326,7 @@ export type TSelectCompound = typeof SelectRoot & {
  * readability and grep-ability:
  *
  * - {@link SelectRoot | `Select.Root`} — state owner, renders `<select>`, field integration.
- * - {@link SelectOption | `Select.Option`} — renders `<option>`.
+ * - {@link SelectItem | `Select.Item`} — renders `<option>` in `native` mode.
  * - {@link SelectGroup | `Select.Group`} — renders `<optgroup>` with a required `label`.
  * - {@link SelectPlaceholder | `Select.Placeholder`} — always `value=""`, disabled, hidden; the initial hint.
  *
@@ -350,7 +370,7 @@ export type TSelectCompound = typeof SelectRoot & {
  */
 const SelectCompound: TSelectCompound = Object.assign(SelectRoot, {
   Root: SelectRoot,
-  Option: SelectOption,
+  Item: SelectItem,
   Group: SelectGroup,
   Placeholder: SelectPlaceholder,
 });

@@ -17,9 +17,9 @@ describe("Select controlled state", () => {
         setValue(next);
       };
       return (
-        <Select.Root value={value} onValueChange={handle}>
-          <Select.Option value="apple">Apple</Select.Option>
-          <Select.Option value="banana">Banana</Select.Option>
+        <Select.Root native value={value} onValueChange={handle}>
+          <Select.Item value="apple">Apple</Select.Item>
+          <Select.Item value="banana">Banana</Select.Item>
         </Select.Root>
       );
     }
@@ -43,7 +43,7 @@ describe("Select controlled state", () => {
     function Wrapper() {
       const [value, setValue] = useState("apple");
       return (
-        <Select.Root
+        <Select.Root native
           value={value}
           onChange={(event) => {
             onChange(event.target.value);
@@ -51,8 +51,8 @@ describe("Select controlled state", () => {
           }}
           onValueChange={onValueChange}
         >
-          <Select.Option value="apple">Apple</Select.Option>
-          <Select.Option value="banana">Banana</Select.Option>
+          <Select.Item value="apple">Apple</Select.Item>
+          <Select.Item value="banana">Banana</Select.Item>
         </Select.Root>
       );
     }

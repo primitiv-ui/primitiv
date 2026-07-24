@@ -3,11 +3,11 @@ import { render, screen } from "@testing-library/react";
 import { Select } from "../Select";
 
 describe("Select basic rendering", () => {
-  it("renders an <option> for each Select.Option child so the value is in the DOM", () => {
+  it("renders an <option> for each Select.Item child so the value is in the DOM", () => {
     // Arrange & Act
     render(
-      <Select.Root>
-        <Select.Option value="apple">Apple</Select.Option>
+      <Select.Root native>
+        <Select.Item value="apple">Apple</Select.Item>
       </Select.Root>,
     );
 

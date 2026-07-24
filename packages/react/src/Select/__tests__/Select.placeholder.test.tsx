@@ -6,9 +6,9 @@ describe("Select placeholder", () => {
   it("renders a non-selectable placeholder option that holds the initial selection until the user picks something", () => {
     // Arrange & Act
     const { container } = render(
-      <Select.Root>
+      <Select.Root native>
         <Select.Placeholder>Choose a fruit…</Select.Placeholder>
-        <Select.Option value="apple">Apple</Select.Option>
+        <Select.Item value="apple">Apple</Select.Item>
       </Select.Root>,
     );
 
@@ -35,9 +35,9 @@ describe("Select placeholder", () => {
     // whitespace or a conditional that resolved to a string). The placeholder
     // scan must skip it rather than treat it as a candidate.
     const { container } = render(
-      <Select.Root>
+      <Select.Root native>
         {"  "}
-        <Select.Option value="apple">Apple</Select.Option>
+        <Select.Item value="apple">Apple</Select.Item>
       </Select.Root>,
     );
 

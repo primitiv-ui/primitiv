@@ -6,13 +6,13 @@ describe("Select group", () => {
   it("renders an <optgroup> with the given label so options can be visually grouped", () => {
     // Arrange & Act
     render(
-      <Select.Root>
+      <Select.Root native>
         <Select.Group label="Fruits">
-          <Select.Option value="apple">Apple</Select.Option>
-          <Select.Option value="banana">Banana</Select.Option>
+          <Select.Item value="apple">Apple</Select.Item>
+          <Select.Item value="banana">Banana</Select.Item>
         </Select.Group>
         <Select.Group label="Vegetables">
-          <Select.Option value="carrot">Carrot</Select.Option>
+          <Select.Item value="carrot">Carrot</Select.Item>
         </Select.Group>
       </Select.Root>,
     );
@@ -28,9 +28,9 @@ describe("Select group", () => {
   it("nests its Option children inside the rendered <optgroup>", () => {
     // Arrange & Act
     render(
-      <Select.Root>
+      <Select.Root native>
         <Select.Group label="Fruits">
-          <Select.Option value="apple">Apple</Select.Option>
+          <Select.Item value="apple">Apple</Select.Item>
         </Select.Group>
       </Select.Root>,
     );

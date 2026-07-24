@@ -246,11 +246,11 @@ export function FieldExample() {
           <Field.Label className="primitiv-field__label">
             Favourite fruit
           </Field.Label>
-          <Select.Root className="primitiv-input">
+          <Select.Root native className="primitiv-input">
             <Select.Placeholder>Choose a fruit…</Select.Placeholder>
-            <Select.Option value="apple">Apple</Select.Option>
-            <Select.Option value="banana">Banana</Select.Option>
-            <Select.Option value="cherry">Cherry</Select.Option>
+            <Select.Item value="apple">Apple</Select.Item>
+            <Select.Item value="banana">Banana</Select.Item>
+            <Select.Item value="cherry">Cherry</Select.Item>
           </Select.Root>
           <Field.Description className="primitiv-field__description">
             We&rsquo;ll feature this on the menu.

@@ -30,6 +30,27 @@ export type SelectRootBaseProps = Omit<
    * @default false
    */
   asChild?: boolean;
+  /**
+   * Selects the render path:
+   *
+   * - `false` (the default) — the **rich** render path: a fully-styleable
+   *   Popover-API listbox built from {@link SelectTrigger | `Select.Trigger`},
+   *   {@link SelectValue | `Select.Value`},
+   *   {@link SelectContent | `Select.Content`} and
+   *   {@link SelectItem | `Select.Item`}. Icons and other rich content on an
+   *   item render as authored.
+   * - `true` — the **native** render path: a thin wrapper over a real
+   *   `<select>` / `<option>` / `<optgroup>`, for flat, OS-native cases
+   *   (mobile wheel pickers, maximum-compatibility forms). Under `native`,
+   *   {@link SelectItem | `Select.Item`} renders an `<option>` from its
+   *   string/number children only — element children (icons, indicators)
+   *   are dropped.
+   *
+   * Both modes share the same `value` / `onValueChange` / `disabled` / form
+   * `name` API.
+   * @default false
+   */
+  native?: boolean;
 };
 
 /**
@@ -79,14 +100,19 @@ export type SelectRootProps =
   | SelectRootControlledProps;
 
 /**
- * Props for {@link SelectOption | `Select.Option`} — all
- * `OptionHTMLAttributes` on the underlying `<option>` element, plus a
- * typed `ref`.
+ * Props for {@link SelectItem | `Select.Item`}.
+ *
+ * In `native` mode this renders an `<option>`, so it extends
+ * `OptionHTMLAttributes`. Only the string/number `children` become the
+ * option's visible text; element children are dropped (see
+ * {@link SelectItem}).
  */
-export type SelectOptionProps = ComponentProps<"option"> & {
-  /** The option label, rendered as the visible text inside the dropdown. */
+export type SelectItemProps = ComponentProps<"option"> & {
+  /** The item label. In `native` mode only its string/number parts are
+   * kept as the `<option>` text; element children (icons, indicators) are
+   * dropped. */
   children?: ReactNode;
-  /** Forwarded to the underlying `HTMLOptionElement`. */
+  /** Forwarded to the underlying `HTMLOptionElement` in `native` mode. */
   ref?: Ref<HTMLOptionElement>;
 };
 

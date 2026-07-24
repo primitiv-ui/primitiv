@@ -6,8 +6,8 @@ describe("Select data attributes", () => {
   it("renders data-disabled='' on the root <select> when disabled is true so CSS can style the disabled state", () => {
     // Arrange & Act
     render(
-      <Select.Root disabled>
-        <Select.Option value="apple">Apple</Select.Option>
+      <Select.Root native disabled>
+        <Select.Item value="apple">Apple</Select.Item>
       </Select.Root>,
     );
 
@@ -18,8 +18,8 @@ describe("Select data attributes", () => {
   it("omits data-disabled entirely when disabled is false or absent so the enabled state has nothing to override", () => {
     // Arrange & Act
     render(
-      <Select.Root>
-        <Select.Option value="apple">Apple</Select.Option>
+      <Select.Root native>
+        <Select.Item value="apple">Apple</Select.Item>
       </Select.Root>,
     );
 

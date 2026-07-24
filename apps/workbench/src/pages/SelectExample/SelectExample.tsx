@@ -24,10 +24,10 @@ export function SelectExample() {
         </p>
         <label className="sel-example__row">
           <span className="sel-example__label">Pick a fruit</span>
-          <Select.Root className="sel-example__select" defaultValue="banana">
-            <Select.Option value="apple">Apple</Select.Option>
-            <Select.Option value="banana">Banana</Select.Option>
-            <Select.Option value="cherry">Cherry</Select.Option>
+          <Select.Root native className="sel-example__select" defaultValue="banana">
+            <Select.Item value="apple">Apple</Select.Item>
+            <Select.Item value="banana">Banana</Select.Item>
+            <Select.Item value="cherry">Cherry</Select.Item>
           </Select.Root>
         </label>
       </section>
@@ -42,14 +42,14 @@ export function SelectExample() {
         </p>
         <label className="sel-example__row">
           <span className="sel-example__label">Pick a fruit</span>
-          <Select.Root
+          <Select.Root native
             className="sel-example__select"
             value={fruit}
             onValueChange={setFruit}
           >
-            <Select.Option value="apple">Apple</Select.Option>
-            <Select.Option value="banana">Banana</Select.Option>
-            <Select.Option value="cherry">Cherry</Select.Option>
+            <Select.Item value="apple">Apple</Select.Item>
+            <Select.Item value="banana">Banana</Select.Item>
+            <Select.Item value="cherry">Cherry</Select.Item>
           </Select.Root>
         </label>
       </section>
@@ -62,15 +62,15 @@ export function SelectExample() {
         </p>
         <label className="sel-example__row">
           <span className="sel-example__label">Pick a food</span>
-          <Select.Root className="sel-example__select">
+          <Select.Root native className="sel-example__select">
             <Select.Placeholder>Choose a food…</Select.Placeholder>
             <Select.Group label="Fruits">
-              <Select.Option value="apple">Apple</Select.Option>
-              <Select.Option value="banana">Banana</Select.Option>
+              <Select.Item value="apple">Apple</Select.Item>
+              <Select.Item value="banana">Banana</Select.Item>
             </Select.Group>
             <Select.Group label="Vegetables">
-              <Select.Option value="carrot">Carrot</Select.Option>
-              <Select.Option value="celery">Celery</Select.Option>
+              <Select.Item value="carrot">Carrot</Select.Item>
+              <Select.Item value="celery">Celery</Select.Item>
             </Select.Group>
           </Select.Root>
         </label>
@@ -98,14 +98,14 @@ export function SelectExample() {
         >
           <label className="sel-example__row">
             <span className="sel-example__label">Fruit</span>
-            <Select.Root
+            <Select.Root native
               className="sel-example__select"
               name="fruit"
               required
             >
               <Select.Placeholder>Choose a fruit…</Select.Placeholder>
-              <Select.Option value="apple">Apple</Select.Option>
-              <Select.Option value="banana">Banana</Select.Option>
+              <Select.Item value="apple">Apple</Select.Item>
+              <Select.Item value="banana">Banana</Select.Item>
             </Select.Root>
           </label>
           <button type="submit" className="sel-example__submit">
@@ -119,17 +119,17 @@ export function SelectExample() {
         <div className="sel-example__list">
           <label className="sel-example__row">
             <span className="sel-example__label">Whole control disabled</span>
-            <Select.Root className="sel-example__select" disabled>
-              <Select.Option value="apple">Apple</Select.Option>
+            <Select.Root native className="sel-example__select" disabled>
+              <Select.Item value="apple">Apple</Select.Item>
             </Select.Root>
           </label>
           <label className="sel-example__row">
             <span className="sel-example__label">Individual option disabled</span>
-            <Select.Root className="sel-example__select" defaultValue="apple">
-              <Select.Option value="apple">Apple</Select.Option>
-              <Select.Option value="durian" disabled>
+            <Select.Root native className="sel-example__select" defaultValue="apple">
+              <Select.Item value="apple">Apple</Select.Item>
+              <Select.Item value="durian" disabled>
                 Durian (sold out)
-              </Select.Option>
+              </Select.Item>
             </Select.Root>
           </label>
         </div>
@@ -143,10 +143,10 @@ export function SelectExample() {
         </p>
         <label className="sel-example__row">
           <span className="sel-example__label">Custom-styled select</span>
-          <Select.Root asChild defaultValue="apple">
+          <Select.Root native asChild defaultValue="apple">
             <StyledSelect>
-              <Select.Option value="apple">Apple</Select.Option>
-              <Select.Option value="banana">Banana</Select.Option>
+              <Select.Item value="apple">Apple</Select.Item>
+              <Select.Item value="banana">Banana</Select.Item>
             </StyledSelect>
           </Select.Root>
         </label>

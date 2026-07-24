@@ -7,8 +7,8 @@ function renderSelect(children?: React.ReactNode) {
   return (
     <>
       {children}
-      <Select.Option value="apple">Apple</Select.Option>
-      <Select.Option value="banana">Banana</Select.Option>
+      <Select.Item value="apple">Apple</Select.Item>
+      <Select.Item value="banana">Banana</Select.Item>
     </>
   );
 }
@@ -18,7 +18,7 @@ describe("Select — Field integration", () => {
     // Arrange & Act
     render(
       <Field.Root id="fruit">
-        <Select.Root aria-label="Fruit">{renderSelect()}</Select.Root>
+        <Select.Root native aria-label="Fruit">{renderSelect()}</Select.Root>
       </Field.Root>,
     );
 
@@ -33,7 +33,7 @@ describe("Select — Field integration", () => {
     // Arrange & Act
     render(
       <Field.Root id="fruit">
-        <Select.Root id="my-fruit" aria-label="Fruit">
+        <Select.Root native id="my-fruit" aria-label="Fruit">
           {renderSelect()}
         </Select.Root>
       </Field.Root>,
@@ -50,7 +50,7 @@ describe("Select — Field integration", () => {
     // Arrange & Act
     render(
       <Field.Root id="fruit">
-        <Select.Root aria-label="Fruit">{renderSelect()}</Select.Root>
+        <Select.Root native aria-label="Fruit">{renderSelect()}</Select.Root>
       </Field.Root>,
     );
 
@@ -65,7 +65,7 @@ describe("Select — Field integration", () => {
     // Arrange & Act
     render(
       <Field.Root id="fruit" invalid>
-        <Select.Root aria-label="Fruit">{renderSelect()}</Select.Root>
+        <Select.Root native aria-label="Fruit">{renderSelect()}</Select.Root>
       </Field.Root>,
     );
 
@@ -81,7 +81,7 @@ describe("Select — Field integration", () => {
     // Arrange & Act
     render(
       <Field.Root id="fruit">
-        <Select.Root aria-label="Fruit" aria-describedby="extra-hint">
+        <Select.Root native aria-label="Fruit" aria-describedby="extra-hint">
           {renderSelect()}
         </Select.Root>
       </Field.Root>,
@@ -99,7 +99,7 @@ describe("Select — Field integration", () => {
     // Arrange & Act
     render(
       <Field.Root id="fruit" invalid>
-        <Select.Root aria-label="Fruit">{renderSelect()}</Select.Root>
+        <Select.Root native aria-label="Fruit">{renderSelect()}</Select.Root>
       </Field.Root>,
     );
 
@@ -114,7 +114,7 @@ describe("Select — Field integration", () => {
     // Arrange & Act
     render(
       <Field.Root id="fruit" disabled>
-        <Select.Root aria-label="Fruit">{renderSelect()}</Select.Root>
+        <Select.Root native aria-label="Fruit">{renderSelect()}</Select.Root>
       </Field.Root>,
     );
 
@@ -126,7 +126,7 @@ describe("Select — Field integration", () => {
     // Arrange & Act
     render(
       <Field.Root id="fruit" required>
-        <Select.Root aria-label="Fruit">{renderSelect()}</Select.Root>
+        <Select.Root native aria-label="Fruit">{renderSelect()}</Select.Root>
       </Field.Root>,
     );
 
@@ -137,7 +137,7 @@ describe("Select — Field integration", () => {
   it("Select outside Field.Root behaves identically to before — no field-derived attributes", () => {
     // Arrange & Act
     render(
-      <Select.Root aria-label="Fruit">{renderSelect()}</Select.Root>,
+      <Select.Root native aria-label="Fruit">{renderSelect()}</Select.Root>,
     );
     const select = screen.getByRole("combobox", { name: "Fruit" });
 

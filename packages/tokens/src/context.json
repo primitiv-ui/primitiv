@@ -1427,11 +1427,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.11}"
+            "$value": "{body.xs.font-size}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.14}"
+            "$value": "{body.xs.line-height}"
           }
         },
         "label": {
@@ -1485,11 +1485,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.13}"
+            "$value": "{body.sm.font-size}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.16}"
+            "$value": "{body.sm.line-height}"
           }
         },
         "label": {
@@ -1543,11 +1543,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.14}"
+            "$value": "{body.md.font-size}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.20}"
+            "$value": "{body.md.line-height}"
           }
         },
         "label": {
@@ -1601,11 +1601,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.15}"
+            "$value": "{body.lg.font-size}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.20}"
+            "$value": "{body.lg.line-height}"
           }
         },
         "label": {
@@ -1659,11 +1659,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.16}"
+            "$value": "{body.xl.font-size}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.24}"
+            "$value": "{body.xl.line-height}"
           }
         },
         "label": {
@@ -3853,11 +3853,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.11}"
+            "$value": "{body.xs.font-size}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.14}"
+            "$value": "{body.xs.line-height}"
           }
         },
         "label": {
@@ -3911,11 +3911,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.13}"
+            "$value": "{body.sm.font-size}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.16}"
+            "$value": "{body.sm.line-height}"
           }
         },
         "label": {
@@ -3969,11 +3969,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.14}"
+            "$value": "{body.md.font-size}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.20}"
+            "$value": "{body.md.line-height}"
           }
         },
         "label": {
@@ -4027,11 +4027,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.15}"
+            "$value": "{body.lg.font-size}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.20}"
+            "$value": "{body.lg.line-height}"
           }
         },
         "label": {
@@ -4085,11 +4085,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.16}"
+            "$value": "{body.xl.font-size}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.24}"
+            "$value": "{body.xl.line-height}"
           }
         },
         "label": {
@@ -6279,11 +6279,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.11}"
+            "$value": "{body.xs.font-size}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.14}"
+            "$value": "{body.xs.line-height}"
           }
         },
         "label": {
@@ -6337,11 +6337,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.13}"
+            "$value": "{body.sm.font-size}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.16}"
+            "$value": "{body.sm.line-height}"
           }
         },
         "label": {
@@ -6395,11 +6395,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.14}"
+            "$value": "{body.md.font-size}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.20}"
+            "$value": "{body.md.line-height}"
           }
         },
         "label": {
@@ -6453,11 +6453,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.15}"
+            "$value": "{body.lg.font-size}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.20}"
+            "$value": "{body.lg.line-height}"
           }
         },
         "label": {
@@ -6511,11 +6511,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.16}"
+            "$value": "{body.xl.font-size}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.24}"
+            "$value": "{body.xl.line-height}"
           }
         },
         "label": {
@@ -8705,11 +8705,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.11}"
+            "$value": "{body.xs.font-size}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.14}"
+            "$value": "{body.xs.line-height}"
           }
         },
         "label": {
@@ -8763,11 +8763,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.13}"
+            "$value": "{body.sm.font-size}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.16}"
+            "$value": "{body.sm.line-height}"
           }
         },
         "label": {
@@ -8821,11 +8821,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.14}"
+            "$value": "{body.md.font-size}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.20}"
+            "$value": "{body.md.line-height}"
           }
         },
         "label": {
@@ -8879,11 +8879,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.15}"
+            "$value": "{body.lg.font-size}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.20}"
+            "$value": "{body.lg.line-height}"
           }
         },
         "label": {
@@ -8937,11 +8937,11 @@
           },
           "font-size": {
             "$type": "number",
-            "$value": "{font-size.16}"
+            "$value": "{body.xl.font-size}"
           },
           "line-height": {
             "$type": "number",
-            "$value": "{line-height.24}"
+            "$value": "{body.xl.line-height}"
           }
         },
         "label": {

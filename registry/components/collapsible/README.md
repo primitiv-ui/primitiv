@@ -32,8 +32,12 @@ Three visual dressings share one open/close mechanism:
   the panel. The trigger and content keep their own padding; the box simply
   wraps snugly around the same rows a `plain` collapsible renders (mirrors how
   `AccordionItem`'s hairline needs no extra padding management).
-- **`inline`** — a link-styled trigger (`action/link` foreground, no framed
-  padding) over continuous prose — the read-more pattern.
+- **`inline`** — a hug-width trigger (`content/primary` foreground, no framed
+  padding, no forced full-row width — confirmed against Figma dev-data: the
+  trigger frame is HUG-sized and the label + chevron both bind
+  `content/primary`, not a link colour) over continuous prose — the
+  read-more pattern (e.g. "Show more" / "Show less", swapped by the
+  consumer off `data-state`).
 
 The panel **animates open and closed** with the same `display: grid`
 row-track technique as Accordion: `.primitiv-collapsible__content`'s
@@ -73,10 +77,10 @@ Structured per RFC 0008 — per-component API tokens + resting look in
 It wires `--primitiv-collapsible-*` to **semantic tokens only**:
 `framed-control/{size}/*` for the trigger's inline sizing and the card's
 radius, `border/subtle` + `framed-control/border-width` for the card's frame,
-`action/link/foreground/*` for the inline trigger, `content/primary` (trigger
-label) + `content/secondary` (content copy), `label/{size}/*` + `body/{size}/*`
-for type, `panel/padding/block` / `panel/padding/inline` for the content
-padding (the same family Tabs/Accordion use), and
+`content/primary` for the trigger label (every dressing, including
+`inline`) + `content/secondary` (content copy), `label/{size}/*` +
+`body/{size}/*` for type, `panel/padding/block` / `panel/padding/inline` for
+the content padding (the same family Tabs/Accordion use), and
 `motion/duration/control` / `motion/easing/default` for the open/close and
 fade transitions.
 
@@ -100,7 +104,8 @@ fade transitions.
   can pass it to `Collapsible.Content`; Figma's own examples only demonstrate
   it on `inline` (the read-more pattern reads most naturally over prose), but
   the stylesheet supports it uniformly.
-- **The `inline` trigger's hover is gated behind `(hover: hover)`** — a
-  touchscreen simulates `:hover` on tap and it sticks until the next tap
-  elsewhere, which would otherwise leave a just-tapped trigger showing its
-  hover colour instead of resting/active.
+- **`inline` has no hover colour.** Figma's Trigger set models only
+  closed/open for this variant, not a hover state, so the trigger stays
+  `content/primary` regardless of pointer state — no `:hover` rule to gate
+  behind `(hover: hover)` here (unlike Button/SegmentedControl/etc., which
+  do have a real hover colour and need the guard).

@@ -26,7 +26,7 @@ components now have Figma component sets. The Field wrapper
 (label + nested control + helper) also has a Figma set, though it is not one of
 the six base components above.
 
-Build priority: ~~Select (native)~~ → ~~Input~~ → ~~InputGroup~~ → ~~Field~~ → Figma design for Select.
+Build priority: ~~Select (native)~~ → ~~Input~~ → ~~InputGroup~~ → ~~Field~~ → ~~Figma design for Select~~.
 
 ## Component coverage — Figma · headless · registry
 
@@ -75,7 +75,7 @@ is the exception (Figma set `601:9607`, whose tabbed Type composes Tabs + Button
 | RadioCard | — | ✓ | — | — | |
 | RadioGroup | ✓ | ✓ | ✓ | ✓ | 401:17958 (registry `radio`) |
 | Segmented Control | ✓ | ✓ | ✓ | ✓ | Figma 1216:44224 (track set, Size×Count 2-5) + 1216:43507 (Item set, Size×Selected×Interaction) on page "Segmented Control" — Tabs-model split (track composes Item). Headless = `SegmentedControl.Root`/`.Item` on RadioGroup single-select semantics (role=radiogroup/radio, roving tabindex, horizontal-default orientation, group + item disabled; 100% mutation). Registry `segmented-control` = transparent bordered track (concentric `calc(item-radius + track-padding)` radius) + framed primary/secondary segments via shared tokens (own styles.css like Tabs/Trigger + ToggleGroup Item, not composing Button). Kitchen-sink = controlled React/Vue/Svelte picker with leading logos + a justified example. Sliding indicator deferred |
-| Select | ✓ | ✓ | — | — | 403:1883 |
+| Select | ✓ | ✓ | — | — | `Select / Trigger` (403:1883, renamed) + composed `Select` set (1282:46193, Variant[closed\|open] × Size[xs-xl], stacks a real Dropdown/Panel instance with a working exposed Slot for free row composition — RFC 0019 dep); rich (`native={false}`) headless/registry/kitchen-sink not yet built, see `docs/select-future-work.md` |
 | Slider | ✓ | ✓ | — | — | 392:5196 (track), 392:4353 (thumb) |
 | Status | — | ✓ | — | — | |
 | Switch | ✓ | ✓ | ✓ | ✓ | 315:5884 |

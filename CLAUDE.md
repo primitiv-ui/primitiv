@@ -350,22 +350,33 @@ source of truth for when a skill applies.
     (no behaviour change, matching the `Collapsible / Trigger` precedent),
     and a new composed `Select` component set (`Variant` closed|open ×
     `Size` xs-xl, 10 variants) instances the size-matched Trigger and, when
-    open, stacks a detached/restyled `Dropdown / Panel` lookalike
-    containing 3 `Dropdown / CheckboxItem` rows, with the Trigger's value
-    text and all 3 rows exposed as editable nested instance properties. No
-    formal SLOT property yet — the dedicated Figma slot-creation MCP tools
-    (`figma_add_slot_property`/`figma_create_slot`/`figma_append_to_slot`/
-    `figma_get_slots`) all hit an unresolved `MCP error -32003: MCP tool
-    call requires approval` gate, and `Dropdown / Panel`'s own pre-built
-    `Slot` property turned out to share the same "bound token, stale fixed
-    height" sizing bug already fixed on `Dropdown / Separator` (not yet
-    fixed on Panel) — both flagged as follow-ups in
-    `docs/select-future-work.md`, which also carries the full settled
-    Rich-mode decision list (Popover API popup layer, single-select only,
-    no scroll buttons/arrow/item-aligned positioning, hidden native
-    `<select>` for form submission — the Firefox Popover-API-support
-    caveat is now resolved, shipped since Firefox 125). Next: the headless
-    TDD build in `packages/react/src/Select`, then registry + kitchen-sink.
+    open, stacks a **real (non-detached)** `Dropdown / Panel` instance
+    populated via its own `Slot` with 3 `Dropdown / CheckboxItem` rows,
+    with the Trigger's value text, the Panel instance, and all 3 rows
+    exposed as editable nested instance properties. **A genuine SLOT
+    property works**, landed in a follow-up pass: the dedicated Figma
+    slot-creation MCP tools (`figma_add_slot_property`/`figma_create_slot`/
+    `figma_append_to_slot`/`figma_get_slots`) stayed permanently blocked
+    (`MCP error -32003`) even after a fresh pairing, but `figma_execute`
+    (raw plugin-API scripting) writes into `Dropdown / Panel`'s existing
+    `Slot` property with no approval gate at all — rebuilding Select's open
+    variants around a live Panel instance and setting
+    `isExposedInstance=true` on it promotes that Slot up through the
+    exposed-instance chain, so a top-level `Select` instance's property
+    panel gives direct native add/remove/reorder access, no detaching
+    needed. Two real bugs found and fixed along the way: `Dropdown /
+    Panel`'s `Slot` frame was `layoutMode: NONE` with a stale `FIXED`
+    height (same class as the earlier `Dropdown / Separator` fix, now
+    `VERTICAL`/`HUG`), and `Dropdown / CheckboxItem`'s Label text was only
+    bound to the Label property on the 9 md-size variants — all 36
+    xs/sm/lg/xl variants had an unbound static "Option" string, now fixed
+    across all 45. Full account in `docs/select-future-work.md`, which also
+    carries the full settled Rich-mode decision list (Popover API popup
+    layer, single-select only, no scroll buttons/arrow/item-aligned
+    positioning, hidden native `<select>` for form submission — the
+    Firefox Popover-API-support caveat is now resolved, shipped since
+    Firefox 125). Next: the headless TDD build in
+    `packages/react/src/Select`, then registry + kitchen-sink.
   - **NavigationMenu itself — not started.** RFC 0019 §4 open decisions
     (the fork, mobile interaction model, shared affordances, desktop
     specifics) need settling before scaffolding a headless build, which

@@ -1,67 +1,45 @@
-# Select mutation survivors (CI run 30126354895, commit 9f63dc01) — 60 total
+# Select mutation-gate hardening — progress
 
-## Select.tsx (15)
-- L50:19 ConditionalExpression
-- L51:40 MethodExpression
-- L192:5 ConditionalExpression
-- L205:9 ObjectLiteral
-- L233:21 EqualityOperator
-- L238:12 MethodExpression
-- L239:36 ConditionalExpression
-- L239:50 ConditionalExpression
-- L308:38 OptionalChaining
-- L308:55 EqualityOperator
-- L326:15 UnaryOperator
-- L329:33 EqualityOperator
-- L330:30 BooleanLiteral
-- L330:42 ObjectLiteral
-- L510:45 BlockStatement
+Tracking the Stryker mutation gate for the new rich `Select` (added to the
+allowlist 2026-07-24). CI's Mutation job is the source of truth — Stryker is
+**not** installable in the sandbox (`pnpm install` fails; an `npm install`
+would rewrite the pnpm-managed `node_modules` and break the working local
+vitest), so each batch is verified by a CI re-run (~12 min) rather than
+locally.
 
-## hooks/useSelectContent.ts (39)
-- L52:44 BooleanLiteral
-- L53:11 ConditionalExpression
-- L53:47 StringLiteral
-- L55:27 StringLiteral
-- L56:12 ArrowFunction
-- L56:43 BlockStatement
-- L57:6 BlockStatement
-- L63:7 BooleanLiteral
-- L91:34 ConditionalExpression
-- L91:48 StringLiteral
-- L92:11 EqualityOperator
-- L100:9 ConditionalExpression
-- L102:11 ConditionalExpression
-- L102:11 ConditionalExpression
-- L102:11 EqualityOperator
-- L110:9 BlockStatement
-- L110:9 ConditionalExpression
-- L110:9 ConditionalExpression
-- L110:9 EqualityOperator
-- L110:9 EqualityOperator
-- L110:9 LogicalOperator
-- L111:9 MethodExpression
-- L111:27 StringLiteral
-- L111:37 ArrowFunction
-- L111:44 ConditionalExpression
-- L111:44 ConditionalExpression
-- L111:44 EqualityOperator
-- L113:26 ConditionalExpression
-- L113:26 ConditionalExpression
-- L113:26 EqualityOperator
-- L113:26 EqualityOperator
-- L114:22 ConditionalExpression
-- L114:22 ConditionalExpression
-- L114:22 ConditionalExpression
-- L114:22 ConditionalExpression
-- L114:22 LogicalOperator
-- L115:23 EqualityOperator
-- L117:22 ArithmeticOperator
-- L132:15 UnaryOperator
+## Progress
 
-## hooks/useSelectRoot.ts (6)
-- L64:11 BlockStatement
-- L77:25 BooleanLiteral
-- L78:7 OptionalChaining
-- L94:38 ArithmeticOperator
-- L99:20 ArrowFunction
-- L99:27 ArrayDeclaration
+- **Initial (commit 9f63dc01):** 60 survivors.
+- **Batch 1 (5c43299e):** preventDefault-on-handled-keys, toggle-event
+  light-dismiss sync, exact trigger/listbox/option ARIA + data-state wiring.
+  → 50.
+- **Batch 2 (d1f055d8):** dedicated typeahead suite (same-first-letter fixture:
+  single-char jump, offset skip, repeated-char cycle + wrap, multi-char prefix,
+  no-match) + `[setOpen]` equivalent marker. → **37.**
+
+## Remaining (37, after run 30128847909)
+
+The tail is **equivalent-mutant-heavy** — mutants with no observable behaviour
+difference, retired with `// Stryker disable next-line <Mutator>: <reason>`
+(repo convention; see RadioGroup / Accordion), not tests. High-confidence
+equivalents to mark:
+
+- `useSelectRoot.ts` `setItemVersion((v) => v + 1)` (ArithmeticOperator) — the
+  version value is opaque; any change fires the same re-render.
+- `useSelectContent.ts` cleanup `removeEventListener("toggle", …)` (StringLiteral)
+  — a wrong event name on unmount leaks a listener but is unobservable in test.
+- `useSelectRoot.ts` `itemValues` memo dep / `Array.from(keys())` — assess:
+  likely equivalent under jsdom's `<select>` value handling, but verify before
+  disabling.
+
+Genuinely-testable remainder: typeahead `every`/`split`/boundary internals, the
+`select()` close path, and native text-extraction / Value-mirror conditionals
+in `Select.tsx`.
+
+Regenerate the exact line list from the latest run's `mutation-report-Select`
+artifact before each batch (parse survivors by `"status":"Survived"` + the
+trailing `location.start`). Note: regex extraction from the HTML report has
+been slightly unreliable on line attribution — for confident
+equivalent-vs-testable calls, prefer per-mutant manual mutation (apply to
+source, run the covering vitest, confirm it fails, revert) or a session with
+working local Stryker.

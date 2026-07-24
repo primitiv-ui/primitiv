@@ -204,14 +204,21 @@
     --primitiv-segmented-control-item-border-color: var(--primitiv-segmented-control-item-border-color-selected);
   }
 
-  /* Hover — each state deepens toward its own intent's hover token. */
-  .primitiv-segmented-control__item[data-state="unchecked"]:hover {
-    --primitiv-segmented-control-item-bg: var(--primitiv-action-secondary-hover);
-    --primitiv-segmented-control-item-border-color: var(--primitiv-action-secondary-border-hover);
-  }
-  .primitiv-segmented-control__item[data-state="checked"]:hover {
-    --primitiv-segmented-control-item-bg: var(--primitiv-action-primary-hover);
-    --primitiv-segmented-control-item-border-color: var(--primitiv-action-primary-border-hover);
+  /* Hover — each state deepens toward its own intent's hover token. Gated behind
+     (hover: hover): a touchscreen simulates :hover on tap and it "sticks" until
+     the next tap elsewhere (there is no real pointer to leave), which would
+     otherwise leave a just-tapped segment showing its hover shade instead of its
+     resting selected/unselected one. Guarding the whole rule means a real mouse
+     still gets the hover feedback, unaffected. */
+  @media (hover: hover) {
+    .primitiv-segmented-control__item[data-state="unchecked"]:hover {
+      --primitiv-segmented-control-item-bg: var(--primitiv-action-secondary-hover);
+      --primitiv-segmented-control-item-border-color: var(--primitiv-action-secondary-border-hover);
+    }
+    .primitiv-segmented-control__item[data-state="checked"]:hover {
+      --primitiv-segmented-control-item-bg: var(--primitiv-action-primary-hover);
+      --primitiv-segmented-control-item-border-color: var(--primitiv-action-primary-border-hover);
+    }
   }
 
   /* Focus — the shared two-layer ring, following the segment's own radius so it

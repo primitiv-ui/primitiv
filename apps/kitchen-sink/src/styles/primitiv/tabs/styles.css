@@ -252,9 +252,14 @@
     --primitiv-tabs-indicator-color: var(--primitiv-tabs-indicator-color-active);
   }
 
-  /* Hover — only on an inactive trigger; the active one stays put. */
-  .primitiv-tabs__trigger[data-state="inactive"]:hover {
-    --primitiv-tabs-trigger-fg: var(--primitiv-tabs-trigger-fg-hover);
+  /* Hover — only on an inactive trigger; the active one stays put. Gated behind
+     (hover: hover): a touchscreen simulates :hover on tap and it "sticks" until
+     the next tap elsewhere, which would otherwise leave a just-tapped trigger
+     showing its hover colour instead of its resting/active one. */
+  @media (hover: hover) {
+    .primitiv-tabs__trigger[data-state="inactive"]:hover {
+      --primitiv-tabs-trigger-fg: var(--primitiv-tabs-trigger-fg-hover);
+    }
   }
 
   /* Focus — the shared two-layer ring. Neither the trigger nor the ring carries

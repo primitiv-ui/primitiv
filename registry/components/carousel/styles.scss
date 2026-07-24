@@ -1308,10 +1308,15 @@
   }
 
   /* Control hover / active re-point the fill knob, matching the secondary-action
-     button so the two stay visually consistent. */
-  .primitiv-carousel__prev:hover,
-  .primitiv-carousel__next:hover {
-    --primitiv-carousel-control-bg: var(--primitiv-carousel-control-bg-hover);
+     button so the two stay visually consistent. Hover is gated behind
+     (hover: hover): a touchscreen simulates :hover on tap and it "sticks" until
+     the next tap elsewhere, which would otherwise leave a just-tapped control
+     showing its hover fill instead of its resting one. */
+  @media (hover: hover) {
+    .primitiv-carousel__prev:hover,
+    .primitiv-carousel__next:hover {
+      --primitiv-carousel-control-bg: var(--primitiv-carousel-control-bg-hover);
+    }
   }
   .primitiv-carousel__prev:active,
   .primitiv-carousel__next:active {
@@ -1909,11 +1914,19 @@
      group membership from :hover alone (no selector projects it onto an
      arbitrary-length sibling run), so the consumer's own composition tracks
      it via the headless pageForSlideIndex and marks every sharing thumbnail;
-     see the registry README's thumbnail composition section. */
-  .primitiv-carousel--indicators-thumbnails .primitiv-carousel__indicator:hover,
-  .primitiv-carousel--indicators-thumbnails
-    .primitiv-carousel__indicator-group
-    > button:hover,
+     see the registry README's thumbnail composition section. The bare :hover
+     pair is gated behind (hover: hover) — a touchscreen simulates :hover on tap
+     and it sticks until the next tap elsewhere; `[data-group-hover]` is left
+     unguarded since it is the consumer's own tracked attribute, not this
+     stylesheet's concern. */
+  @media (hover: hover) {
+    .primitiv-carousel--indicators-thumbnails .primitiv-carousel__indicator:hover,
+    .primitiv-carousel--indicators-thumbnails
+      .primitiv-carousel__indicator-group
+      > button:hover {
+      opacity: var(--primitiv-opacity-100);
+    }
+  }
   .primitiv-carousel--indicators-thumbnails
     .primitiv-carousel__indicator[data-group-hover],
   .primitiv-carousel--indicators-thumbnails

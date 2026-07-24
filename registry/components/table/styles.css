@@ -132,9 +132,15 @@
 }
 
 @layer primitiv.states {
-  /* Body rows respond to the pointer and to an explicit selection. */
-  .primitiv-table__body .primitiv-table__row:hover {
-    background-color: var(--primitiv-table-row-hover);
+  /* Body rows respond to the pointer and to an explicit selection. Hover is
+     gated behind (hover: hover): a touchscreen simulates :hover on tap and it
+     "sticks" until the next tap elsewhere, which would otherwise leave a
+     just-tapped row (a consumer commonly wires an onClick for row selection)
+     showing its hover fill instead of its resting/selected one. */
+  @media (hover: hover) {
+    .primitiv-table__body .primitiv-table__row:hover {
+      background-color: var(--primitiv-table-row-hover);
+    }
   }
 
   .primitiv-table__body .primitiv-table__row[aria-selected="true"] {

@@ -248,9 +248,15 @@
       color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
-  .primitiv-drawer__close:hover {
-    background: var(--primitiv-action-ghost-hover);
-    color: var(--primitiv-content-primary);
+  /* Gated behind (hover: hover): a touchscreen simulates :hover on tap and it
+     "sticks" until the next tap elsewhere, which would otherwise leave a
+     just-tapped close button showing its hover fill instead of its resting
+     one. */
+  @media (hover: hover) {
+    .primitiv-drawer__close:hover {
+      background: var(--primitiv-action-ghost-hover);
+      color: var(--primitiv-content-primary);
+    }
   }
 
   .primitiv-drawer__close:active {

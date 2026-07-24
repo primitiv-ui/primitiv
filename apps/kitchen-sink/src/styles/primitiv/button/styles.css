@@ -89,9 +89,13 @@
     --primitiv-button-fg: var(--primitiv-action-primary-foreground-default);
     --primitiv-button-border-color: var(--primitiv-action-primary-border-default);
   }
-  .primitiv-button--primary:hover {
-    --primitiv-button-bg: var(--primitiv-action-primary-hover);
-    --primitiv-button-border-color: var(--primitiv-action-primary-border-hover);
+  /* Gated behind (hover: hover) — see the note by the elevation hover rules
+     below for why every :hover rule in this file is guarded. */
+  @media (hover: hover) {
+    .primitiv-button--primary:hover {
+      --primitiv-button-bg: var(--primitiv-action-primary-hover);
+      --primitiv-button-border-color: var(--primitiv-action-primary-border-hover);
+    }
   }
   .primitiv-button--primary:active {
     --primitiv-button-bg: var(--primitiv-action-primary-active);
@@ -103,9 +107,11 @@
     --primitiv-button-fg: var(--primitiv-action-secondary-foreground-default);
     --primitiv-button-border-color: var(--primitiv-action-secondary-border-default);
   }
-  .primitiv-button--secondary:hover {
-    --primitiv-button-bg: var(--primitiv-action-secondary-hover);
-    --primitiv-button-border-color: var(--primitiv-action-secondary-border-hover);
+  @media (hover: hover) {
+    .primitiv-button--secondary:hover {
+      --primitiv-button-bg: var(--primitiv-action-secondary-hover);
+      --primitiv-button-border-color: var(--primitiv-action-secondary-border-hover);
+    }
   }
   .primitiv-button--secondary:active {
     --primitiv-button-bg: var(--primitiv-action-secondary-active);
@@ -117,9 +123,11 @@
     --primitiv-button-fg: var(--primitiv-action-danger-foreground-default);
     --primitiv-button-border-color: var(--primitiv-action-danger-border-default);
   }
-  .primitiv-button--danger:hover {
-    --primitiv-button-bg: var(--primitiv-action-danger-hover);
-    --primitiv-button-border-color: var(--primitiv-action-danger-border-hover);
+  @media (hover: hover) {
+    .primitiv-button--danger:hover {
+      --primitiv-button-bg: var(--primitiv-action-danger-hover);
+      --primitiv-button-border-color: var(--primitiv-action-danger-border-hover);
+    }
   }
   .primitiv-button--danger:active {
     --primitiv-button-bg: var(--primitiv-action-danger-active);
@@ -137,8 +145,10 @@
     --primitiv-button-border-color: var(--primitiv-color-transparent);
     --primitiv-button-fg: var(--primitiv-action-secondary-foreground-default);
   }
-  .primitiv-button--ghost:hover {
-    --primitiv-button-bg: var(--primitiv-action-ghost-hover);
+  @media (hover: hover) {
+    .primitiv-button--ghost:hover {
+      --primitiv-button-bg: var(--primitiv-action-ghost-hover);
+    }
   }
   .primitiv-button--ghost:active {
     --primitiv-button-bg: var(--primitiv-action-ghost-active);
@@ -153,8 +163,10 @@
     --primitiv-button-fg: var(--primitiv-action-link-foreground-default);
     text-decoration: underline;
   }
-  .primitiv-button--link:hover {
-    --primitiv-button-fg: var(--primitiv-action-link-foreground-hover);
+  @media (hover: hover) {
+    .primitiv-button--link:hover {
+      --primitiv-button-fg: var(--primitiv-action-link-foreground-hover);
+    }
   }
   .primitiv-button--link:active {
     --primitiv-button-fg: var(--primitiv-action-link-foreground-active);
@@ -163,13 +175,20 @@
   /* Elevation — every framed intent lifts to the `raised` rung on hover; the
      frameless link and ghost variants stay flat (no border to lift, so a shadow
      would float). The lift transitions via the button's --primitiv-motion-*
-     tokens (the box-shadow is in the base rule's transition). */
-  .primitiv-button:hover {
-    --primitiv-button-shadow: var(--primitiv-elevation-raised);
-  }
-  .primitiv-button--link:hover,
-  .primitiv-button--ghost:hover {
-    --primitiv-button-shadow: var(--primitiv-elevation-flat);
+     tokens (the box-shadow is in the base rule's transition). Gated behind
+     (hover: hover), like every other :hover rule in this file: a touchscreen
+     simulates :hover on tap and it "sticks" until the next tap elsewhere (no
+     real pointer to leave), which would otherwise leave a just-tapped button
+     showing its hover shade instead of its resting one. A real mouse is
+     unaffected. */
+  @media (hover: hover) {
+    .primitiv-button:hover {
+      --primitiv-button-shadow: var(--primitiv-elevation-raised);
+    }
+    .primitiv-button--link:hover,
+    .primitiv-button--ghost:hover {
+      --primitiv-button-shadow: var(--primitiv-elevation-flat);
+    }
   }
 
   /* Size — re-points the framed-control knobs to the chosen slot. Density stays

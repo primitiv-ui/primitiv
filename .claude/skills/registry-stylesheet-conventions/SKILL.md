@@ -77,6 +77,54 @@ takes no className — see its `.tsx` header comment) needs no fix: it inherits
 whatever real interactive element the consumer wraps (usually `Button`, which
 already carries it).
 
+## Every `:hover` rule needs an `(hover: hover)` guard
+
+A raw `:hover` selector fires on touch devices too: tapping an element
+simulates `:hover`, and it **sticks** until the user taps elsewhere (there is
+no real pointer to leave). An unguarded rule leaves a just-tapped control
+showing its hover shade instead of its resting/selected/active one — on
+SegmentedControl this reads as "the background stays on the wrong colour
+after tapping". Wrap every `:hover` rule (never `:active` — that clears
+correctly on touchend, it isn't the problem) in:
+
+```css
+@media (hover: hover) {
+  .primitiv-x__item:hover {
+    /* … */
+  }
+}
+```
+
+`@media` nests inside `@layer` and keeps the rule's layer membership, so this
+is a pure guard, not a restructure. If a selector list mixes a real `:hover`
+with a JS/consumer-tracked attribute hook (e.g. Carousel's thumbnail
+`[data-group-hover]`), split them: guard the `:hover` half, leave the
+attribute half alone (it isn't this stylesheet's concern). Check every new
+`:hover` rule against this — grep the file for `:hover` before calling a
+stylesheet done.
+
+## Animating a grid-collapse row that also clamps to a fixed preview height
+
+The grid-row open/close technique (`grid-template-rows: 0fr` closed, `1fr`
+open — see "Animating open/close" below) only interpolates between **the same
+track-sizing function type**. `0fr ↔ 1fr` animates smoothly; a fixed length
+(e.g. an animated `Npx` clamp) mixed with `1fr` on the same property does
+**not** — the transition staggers or jumps instead of animating (caught on
+Collapsible's `collapsedHeight` read-more variant). If a component needs a
+"clamped preview, not fully closed" state (Collapsible's `collapsedHeight`),
+don't try to fold the clamp value into the row track. Instead:
+
+- Keep the row unconditionally `1fr` whenever the clamp is active (a `data-*`
+  flag the wrapper sets from the relevant prop, e.g. `data-clamped`) — the row
+  itself never needs to shrink.
+- Put the actual clamp on the **clip** (the grid item inside the row) as a
+  `max-block-size` transition between the clamp length and a generous fixed
+  length (e.g. `100vh` — not `none`, which doesn't interpolate either). This is
+  a plain length-to-length transition, which does animate.
+- Force the clip's `visibility` back to `visible` under the clamp flag: the
+  ordinary "hide on close" rule doesn't apply — a clamped preview is real,
+  readable content that is never actually hidden.
+
 ## Finding the token name
 
 The custom property is `--primitiv-<dtcg-path-joined-by-dashes>`. Confirm a token
@@ -226,6 +274,11 @@ simplification to reach for across the library.
 - Adding a new clickable/tappable rule (anything with `cursor: pointer` or a
   clickable `cursor: default`)? Pair it with
   `-webkit-tap-highlight-color: transparent;` — see above.
+- Adding a new `:hover` rule? Wrap it in `@media (hover: hover)` — see above.
+- Animating a grid-collapse row to a fixed clamp height (a read-more /
+  collapsedHeight-style preview)? Don't mix a length with `1fr` on
+  `grid-template-rows` — clamp on the clip's `max-block-size` instead. See
+  above.
 
 ## Horizontally-scrolling code (`code-block`)
 

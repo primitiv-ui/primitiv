@@ -204,9 +204,14 @@
   }
 
   /* Hover — only lifts the label of an OFF item toward primary; the thumb stays
-     put. No background change, so the track stays the sole ground. */
-  .primitiv-toggle-group__item[data-state="off"]:hover {
-    --primitiv-toggle-group-item-fg: var(--primitiv-toggle-group-item-fg-hover);
+     put. No background change, so the track stays the sole ground. Gated behind
+     (hover: hover): a touchscreen simulates :hover on tap and it "sticks" until
+     the next tap elsewhere, which would otherwise leave a just-tapped item
+     showing its hover colour instead of its resting one. */
+  @media (hover: hover) {
+    .primitiv-toggle-group__item[data-state="off"]:hover {
+      --primitiv-toggle-group-item-fg: var(--primitiv-toggle-group-item-fg-hover);
+    }
   }
 
   /* Focus — the shared two-layer ring, composed with the item's own shadow so a

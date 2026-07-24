@@ -1,3 +1,4 @@
+import { getButtonRootAttributes } from "@primitiv-ui/core";
 import type { ReactElement } from "react";
 
 import { Slot } from "../Slot/index.ts";
@@ -72,28 +73,27 @@ import { ButtonProps } from "./types";
  */
 export function Button({
   asChild = false,
-  type = "button",
+  type,
   disabled,
   children,
   ref,
   ...rest
 }: ButtonProps): ReactElement {
+  // Everything framework-agnostic — the `type` default, its suppression under
+  // `asChild`, and the disabled/data-disabled pairing — comes from
+  // `@primitiv-ui/core`. What's left here is React's share of the job: forward
+  // the consumer's props and the ref, then choose the host element.
   const rootProps = {
     ...rest,
     ref,
-    disabled,
-    "data-disabled": disabled ? "" : undefined,
+    ...getButtonRootAttributes({ type, disabled, asChild }),
   };
 
   if (asChild) {
     return <Slot {...rootProps}>{children}</Slot>;
   }
 
-  return (
-    <button type={type} {...rootProps}>
-      {children}
-    </button>
-  );
+  return <button {...rootProps}>{children}</button>;
 }
 
 /** @internal */

@@ -1,3 +1,4 @@
+import type { ButtonType } from "@primitiv-ui/core";
 import { ComponentProps, ReactNode, Ref } from "react";
 
 /**
@@ -12,9 +13,12 @@ export type ButtonProps = Omit<ComponentProps<"button">, "type"> & {
    * values. Defaults to `"button"` (not the DOM's own default of
    * `"submit"`), so a `Button` placed inside a `<form>` never triggers an
    * accidental submit unless set explicitly.
+   *
+   * The union is {@link ButtonType}, owned by `@primitiv-ui/core` so every
+   * framework adapter narrows to the same three values.
    * @default "button"
    */
-  type?: "button" | "submit" | "reset";
+  type?: ButtonType;
   /**
    * Renders the child element instead of a native `<button>`, merging all
    * props — aria-*, data-*, event handlers, ref — onto it via

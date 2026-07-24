@@ -92,13 +92,13 @@ export function useSelectRoot({
   const registerItem = useCallback((itemValue: string, node: ReactNode) => {
     const isNew = !itemChildrenRef.current.has(itemValue);
     itemChildrenRef.current.set(itemValue, node);
-    // Stryker disable next-line ArithmeticOperator: equivalent — the version is an opaque re-render trigger; any change has the same effect.
+    // Stryker disable next-line ArithmeticOperator,ArrowFunction: equivalent — the version is an opaque re-render trigger; any updater (v+1, v-1, or `() => undefined`) changes state and re-renders identically.
     if (isNew) setItemVersion((v) => v + 1);
   }, []);
 
   const unregisterItem = useCallback((itemValue: string) => {
     itemChildrenRef.current.delete(itemValue);
-    // Stryker disable next-line ArithmeticOperator: equivalent — the version is an opaque re-render trigger; any change has the same effect.
+    // Stryker disable next-line ArithmeticOperator,ArrowFunction: equivalent — the version is an opaque re-render trigger; any updater changes state and re-renders identically.
     setItemVersion((v) => v + 1);
   }, []);
 

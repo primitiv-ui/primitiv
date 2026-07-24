@@ -196,6 +196,42 @@ describe("Select native-mode edges", () => {
   });
 });
 
+describe("Select hidden field + Content prop forwarding", () => {
+  it("renders the hidden form <select> non-focusable and aria-hidden", () => {
+    const { container } = render(
+      <Select.Root name="framework">
+        <Select.Trigger>
+          <Select.Value placeholder="Pick" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="a">A</Select.Item>
+        </Select.Content>
+      </Select.Root>,
+    );
+    const hidden = container.querySelector('select[name="framework"]')!;
+    expect(hidden).toHaveAttribute("tabindex", "-1");
+    expect(hidden).toHaveAttribute("aria-hidden", "true");
+  });
+
+  it("forwards arbitrary props from Select.Content onto the listbox", async () => {
+    const user = userEvent.setup();
+    render(
+      <Select.Root>
+        <Select.Trigger>
+          <Select.Value placeholder="Pick" />
+        </Select.Trigger>
+        <Select.Content data-testid="lb" className="my-list">
+          <Select.Item value="a">A</Select.Item>
+        </Select.Content>
+      </Select.Root>,
+    );
+    await user.click(screen.getByRole("button"));
+    const lb = screen.getByRole("listbox", { hidden: true });
+    expect(lb).toHaveAttribute("data-testid", "lb");
+    expect(lb).toHaveClass("my-list");
+  });
+});
+
 describe("Select rich data-disabled + typeahead reach", () => {
   it("exposes data-disabled on a rich item only when disabled", async () => {
     const user = userEvent.setup();

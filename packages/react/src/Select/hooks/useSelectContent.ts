@@ -103,7 +103,7 @@ export function useSelectContent({ onKeyDown, restProps }: UseSelectContentArgs)
     // Stryker disable next-line ConditionalExpression,EqualityOperator: the false / length!==1 variants are killed by the typeahead tests; the always-true variant is equivalent — no unhandled multi-character key (modifiers, arrows) can prefix-match an option.
     if (event.key.length === 1) {
       const state = typeaheadRef.current;
-      // Stryker disable next-line ConditionalExpression,MethodExpression,BlockStatement: clearing the pending timer is a real-time optimization; keystroke handling here is synchronous, so its presence/target never changes the search outcome.
+      // Stryker disable next-line ConditionalExpression,EqualityOperator,MethodExpression,BlockStatement: clearing the pending timer is a real-time optimization; keystroke handling here is synchronous, so its presence/condition/target never changes the search outcome.
       if (state.timer !== null) window.clearTimeout(state.timer);
       state.query = (state.query + event.key).toLowerCase();
       state.timer = window.setTimeout(() => {

@@ -226,28 +226,45 @@ its DOCS commit, not later. Reference gold-standard examples:
 `@default` tag when it has a default, and `{@link OtherType.prop}` /
 `{@link Component}` cross-references. Mirror the density of Tabs/Select.
 
-**The `Omit`-narrowing rule — the one that silently corrupts extraction
-(§1.16).** Any custom prop that **narrows or redefines a same-named
-native HTML attribute** MUST appear in the `Omit<ComponentProps<"tag">,
-"...">` list on that type, or `react-docgen-typescript` picks only the
-wider `node_modules` declaration and **silently drops the narrowed type
-and all its JSDoc** from the output. TypeScript itself resolves the
-intersection correctly, so there is no compile error to warn you — the
-loss is invisible until you inspect the generated data. This bit **seven
-real props** during the library-wide pass:
+**The `Omit`-narrowing rule — `Omit` a native attribute before you narrow
+it (§1.16 / §1.21).** Any custom prop that **narrows or redefines a
+same-named native HTML attribute** MUST appear in the
+`Omit<ComponentProps<"tag">, "...">` list on that type first. If it
+doesn't, TypeScript keeps *both* declarations (yours + the `node_modules`
+one) and resolves them into an **intersection artifact** — and because TS
+resolves that to something assignable, there is **no compile error** to
+warn you:
 
-- `dir` narrowed to `"ltr" | "rtl"` — Accordion, RadioGroup, RadioCard.
-- native `value` (on `<button>` / the `<li>` ordinal) narrowed to
-  `string` — ToggleGroup, Dropdown & ContextMenu radio group/item.
-- `defaultValue` on `<li>` — ContextMenu radio group.
+- the resolved type turns into noise like
+  `defaultValue: string | (readonly string[] & string)` instead of clean
+  `string` — leaked into consumer hovers and the generated prop tables;
+- a `ref` narrowed to a *different* element (e.g. `Ref<HTMLMenuElement>` on
+  a base `<menu>` whose native ref is `HTMLElement`) becomes
+  `Ref<HTMLElement> & Ref<HTMLMenuElement>` — a genuinely unusable type that
+  breaks a styled wrapper spreading the props straight back (D58);
+- `react-docgen-typescript` can also pick only the wider `node_modules`
+  declaration and silently drop the narrowed type + its JSDoc.
 
-Common offenders to check on every `types.ts`: `dir`, `value`,
-`defaultValue`, `label`, `type`, `role`, `size`, `checked`. Rule of
-thumb: **grep every prop the component redeclares and confirm it is
-`Omit`-ted from the base `ComponentProps<T>` first.** (`ref` and
-`children` get re-declared for narrowing/JSDoc too; the established
-convention already `Omit`s them where needed — follow it.)
+A package-wide sweep (§1.21) found this in **10 components / 19 props** —
+`defaultValue` on every value-bearing collection root (Accordion,
+RadioGroup, RadioCard, SegmentedControl, ToggleGroup, MillerColumns,
+Dropdown, Tabs), `value` on `Tabs.Trigger`, and `ref` on the
+ContextMenu/Dropdown menu `Content`/`SubContent`. The fix is always the
+same: add the attribute to the base `Omit`.
 
-Verify the shape end-to-end when in doubt: `react-docgen-typescript@14`
-works against the repo's `typescript@6.x` (not `7.x`, which changed the
-internal API it relies on) — see §1.14 for the working `propFilter`.
+**Catch it automatically — don't rely on remembering to grep.** Run
+**`pnpm qa:prop-collisions`** (`scripts/docs-data/scan-prop-collisions.mjs`):
+it scans every exported `*Props`, flags any prop declared in *both*
+own-source and `node_modules`, classifies NARROW (real artifact) vs benign
+same-type redefinition, and **exits non-zero on any NARROW**. Run it before
+the DOCS commit — it is the guard that keeps a new component from
+reintroducing this, and belongs in CI. Common offenders it watches for:
+`dir`, `value`, `defaultValue`, `label`, `type`, `role`, `size`, `checked`.
+(`ref` / `children` re-declared with the *same* type for narrowing/JSDoc
+are benign — the scan lists them separately; follow the established
+convention.)
+
+Verify the generated shape end-to-end when in doubt:
+`react-docgen-typescript@2.4.0` works against the repo's `typescript@6.x`
+(not `7.x`, which changed the internal API it relies on) — see §1.14 for
+the working `propFilter`.

@@ -122,6 +122,24 @@ source of truth for when a skill applies.
 - `packages/react` is the headless component library
   (`@primitiv-ui/react`). Component inventory lives at
   `.claude/skills/new-react-component/_generated/component-inventory.md`.
+- **`packages/core` (`@primitiv-ui/core`) — framework-agnostic component logic,
+  one component landed as a study (2026-07-24).** Pure TypeScript, zero runtime
+  deps, no DOM lib, node-environment vitest, held at the same 100% coverage +
+  100% mutation gates as `packages/react` (its own `mutation-allowlist.json`;
+  the core pass runs inside each component's existing mutation job). `Button`
+  is extracted: `getButtonRootAttributes` owns the `type` default, its
+  `asChild` suppression and the `disabled`/`data-disabled` pairing, and
+  `Button.tsx` keeps only React's share (render, ref, prop forwarding, `Slot`).
+  All 33 Button tests passed **unmodified** through the refactor — that's the
+  proof of behaviour preservation. Attribute maps **omit** keys rather than
+  setting `undefined`, so they're safe to apply imperatively. `@primitiv-ui/react`
+  now has a real published dependency on it: `workspace:*` on npm (pnpm rewrites
+  at publish), an import-map range in `packages/react/jsr.json` on JSR (core
+  publishes first) — **the JSR path is unverified**, run `npx jsr publish
+  --dry-run` before the next release. Full study, the core/adapter dividing
+  line, the four-tier survey of what the remaining components would take, and
+  the open tier-3 DOM question: `docs/framework-agnostic-core.md`. Not yet an
+  RFC — it's a study, not a decided design.
 - **Registry prose family extended** (kitchen-sink feedback session): the
   hand-authored, primitive-less **`inline-code`** and **`code-block`** registry
   components landed (see the `new-registry-component` skill — the end-to-end flow
@@ -433,9 +451,11 @@ cargo llvm-cov --workspace --exclude harmoni-core --exclude harmoni-wasm \
   --fail-under-lines 100 --fail-under-regions 100 --fail-under-functions 100
 pnpm --filter @primitiv-ui/react qa:units            # React tests + coverage
 pnpm --filter @primitiv-ui/react exec vitest run src/X    # scoped, during a cycle
+pnpm --filter @primitiv-ui/core qa:units             # core tests + coverage
+pnpm --filter @primitiv-ui/core mutate:component X   # core mutation pass
 pnpm run build:wasm                               # rebuild wasm pkg
 pnpm run dev                                      # workbench dev server
-node scripts/bump-version.mjs 0.x.y              # bump all 13 version fields atomically
+node scripts/bump-version.mjs 0.x.y              # bump all 15 version fields atomically
 ```
 
 ## Releasing

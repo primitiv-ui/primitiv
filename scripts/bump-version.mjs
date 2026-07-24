@@ -3,9 +3,10 @@
  * Bumps all published package versions in lockstep.
  *
  * Covers every location that must move together:
- *   - 10 package.json "version" fields
- *   - 3 jsr.json "version" fields
+ *   - 11 package.json "version" fields
+ *   - 4 jsr.json "version" fields
  *   - 5 optionalDependencies in npm/cli-wrapper/package.json
+ *   - the JSR import-map range pinning @primitiv-ui/react to /core
  *
  * Usage:
  *   node scripts/bump-version.mjs 0.1.8
@@ -27,6 +28,7 @@ if (!version || !/^\d+\.\d+\.\d+(-[\w.]+)?$/.test(version)) {
 }
 
 const PACKAGE_JSON_PATHS = [
+  "packages/core/package.json",
   "packages/react/package.json",
   "packages/icons/package.json",
   "packages/tokens/package.json",
@@ -40,6 +42,7 @@ const PACKAGE_JSON_PATHS = [
 ];
 
 const JSR_JSON_PATHS = [
+  "packages/core/jsr.json",
   "packages/react/jsr.json",
   "packages/icons/jsr.json",
   "packages/tokens/jsr.json",
@@ -94,4 +97,15 @@ const changed = CLI_OPTIONAL_DEP_NAMES.filter(
 ).length;
 console.log(`  ${wrapperPath}: optionalDependencies (${changed} entries) → ${version}`);
 
-console.log(`\nDone. ${PACKAGE_JSON_PATHS.length + JSR_JSON_PATHS.length} version fields + ${CLI_OPTIONAL_DEP_NAMES.length} optionalDependencies updated.\n`);
+// npm resolves @primitiv-ui/react -> /core through the `workspace:*` specifier,
+// which pnpm rewrites at publish time. JSR has no workspace protocol, so the
+// same edge is declared as an import-map range in jsr.json and must be moved
+// here or a release ships a react that points at the previous core.
+const reactJsrPath = "packages/react/jsr.json";
+const reactJsr = readJson(reactJsrPath);
+const prevRange = reactJsr.imports["@primitiv-ui/core"];
+reactJsr.imports["@primitiv-ui/core"] = `jsr:@primitiv-ui/core@^${version}`;
+writeJson(reactJsrPath, reactJsr);
+console.log(`  ${reactJsrPath}: imports["@primitiv-ui/core"] ${prevRange} → ${reactJsr.imports["@primitiv-ui/core"]}`);
+
+console.log(`\nDone. ${PACKAGE_JSON_PATHS.length + JSR_JSON_PATHS.length} version fields + ${CLI_OPTIONAL_DEP_NAMES.length} optionalDependencies + 1 JSR import range updated.\n`);

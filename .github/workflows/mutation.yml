@@ -1,10 +1,14 @@
 name: Mutation
 
-# Stryker mutation testing for the headless library, one job per allowlisted
-# component (packages/react/mutation-allowlist.json). Each job mutates a single
-# component under the hard 100% gate, uploads its HTML report as an artifact
-# (if: always(), so survivors are visible on a failed run) and writes the score
-# to the job summary. See docs/mutation-testing-plan.md.
+# Stryker mutation testing, one job per allowlisted component. Each job mutates
+# a single component under the hard 100% gate, uploads its HTML report as an
+# artifact (if: always(), so survivors are visible on a failed run) and writes
+# the score to the job summary. See docs/mutation-testing-plan.md.
+#
+# Two allowlists, because a component's logic lives in two packages: the
+# framework-agnostic half in packages/core and the React adapter half in
+# packages/react. Each half carries its own gate — extraction must not let
+# logic slip out of one suite without arriving under the other.
 #
 # Mirrors ci.yml's build sequence: the pnpm workspace resolves against
 # crates/harmoni-wasm/pkg (gitignored), so wasm must be built before install.
@@ -13,11 +17,13 @@ on:
   push:
     branches: [main]
     paths:
+      - "packages/core/**"
       - "packages/react/**"
       - "scripts/mutate.mjs"
       - ".github/workflows/mutation.yml"
   pull_request:
     paths:
+      - "packages/core/**"
       - "packages/react/**"
       - "scripts/mutate.mjs"
       - ".github/workflows/mutation.yml"
@@ -66,25 +72,42 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Mutation test — ${{ matrix.component }}
+      - name: Mutation test (react adapter) — ${{ matrix.component }}
         run: |
           set -o pipefail
           pnpm --filter @primitiv-ui/react mutate:component ${{ matrix.component }} 2>&1 | tee mutation-output.txt
 
-      - name: Write score to job summary
+      # Runs in the same job rather than a second matrix: a core pass takes
+      # seconds, and a separate job would repeat the wasm build and install for
+      # no benefit. Skipped for components with no core logic extracted yet.
+      - name: Mutation test (core) — ${{ matrix.component }}
+        run: |
+          set -o pipefail
+          if node -e "process.exit(require('./packages/core/mutation-allowlist.json').includes('${{ matrix.component }}') ? 0 : 1)"; then
+            pnpm --filter @primitiv-ui/core mutate:component ${{ matrix.component }} 2>&1 | tee mutation-core-output.txt
+          else
+            echo "No core logic extracted for ${{ matrix.component }} — nothing to mutate." | tee mutation-core-output.txt
+          fi
+
+      - name: Write scores to job summary
         if: always()
         run: |
           {
             echo "## Mutation score — ${{ matrix.component }}"
-            echo '```'
-            sed -n '/Mutation score/,/^-\{5,\}$/p' mutation-output.txt || tail -20 mutation-output.txt
-            echo '```'
+            for half in "react adapter:mutation-output.txt" "core:mutation-core-output.txt"; do
+              echo "### ${half%%:*}"
+              echo '```'
+              sed -n '/Mutation score/,/^-\{5,\}$/p' "${half#*:}" || tail -20 "${half#*:}"
+              echo '```'
+            done
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload mutation report
+      - name: Upload mutation reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: mutation-report-${{ matrix.component }}
-          path: packages/react/reports/mutation/${{ matrix.component }}.html
+          path: |
+            packages/react/reports/mutation/${{ matrix.component }}.html
+            packages/core/reports/mutation/${{ matrix.component }}.html
           if-no-files-found: warn

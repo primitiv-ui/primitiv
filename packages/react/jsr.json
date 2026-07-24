@@ -2,5 +2,8 @@
   "name": "@primitiv-ui/react",
   "version": "0.1.28",
   "exports": "./src/index.ts",
-  "license": "MIT"
+  "license": "MIT",
+  "imports": {
+    "@primitiv-ui/core": "jsr:@primitiv-ui/core@^0.1.28"
+  }
 }

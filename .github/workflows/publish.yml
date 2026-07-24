@@ -112,7 +112,7 @@ jobs:
         run: pnpm --filter @primitiv-ui/icons generate
 
       - name: Test libraries
-        run: pnpm -r --filter "@primitiv-ui/react" --filter "@primitiv-ui/icons" --filter "@primitiv-ui/tokens" qa:units
+        run: pnpm -r --filter "@primitiv-ui/core" --filter "@primitiv-ui/react" --filter "@primitiv-ui/icons" --filter "@primitiv-ui/tokens" qa:units
 
       # Preflight: validate JSR publishability (slow-types check) for every
       # library BEFORE any npm publish runs. npm versions are immutable, so a
@@ -123,7 +123,7 @@ jobs:
       # the JSR step at 0.1.20 exactly this way.)
       - name: Preflight — JSR slow-types check (before any npm publish)
         run: |
-          for pkg in packages/react packages/icons packages/tokens; do
+          for pkg in packages/core packages/react packages/icons packages/tokens; do
             echo "::group::jsr publish --dry-run $pkg"
             (cd "$pkg" && npx jsr publish --dry-run)
             echo "::endgroup::"
@@ -169,9 +169,12 @@ jobs:
         run: pnpm -r publish --access public --no-git-checks --provenance
 
       # JSR authenticates via OIDC automatically inside GitHub Actions.
+      # /core must land before /react: react's jsr.json import map pins
+      # `jsr:@primitiv-ui/core@^<version>`, and JSR rejects a publish whose
+      # import map points at a version that does not exist yet.
       - name: Publish libraries to JSR
         run: |
-          for pkg in packages/react packages/icons packages/tokens; do
+          for pkg in packages/core packages/react packages/icons packages/tokens; do
             echo "::group::jsr publish $pkg"
             (cd "$pkg" && npx jsr publish)
             echo "::endgroup::"

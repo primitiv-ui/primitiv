@@ -28,5 +28,6 @@
   "InputGroup",
   "Collapsible",
   "Accordion",
-  "SegmentedControl"
+  "SegmentedControl",
+  "Select"
 ]

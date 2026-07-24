@@ -199,6 +199,7 @@
     font-weight: var(--primitiv-dropdown-item-font-weight);
     line-height: var(--primitiv-dropdown-item-line-height);
     cursor: default;
+    -webkit-tap-highlight-color: transparent;
     user-select: none;
   }
 

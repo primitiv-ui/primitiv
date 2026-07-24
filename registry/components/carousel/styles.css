@@ -511,6 +511,7 @@
     background: var(--primitiv-carousel-control-bg);
     color: var(--primitiv-carousel-control-fg);
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
     transition: background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
   .primitiv-carousel__prev svg,
@@ -544,6 +545,7 @@
     background: none;
     border: none;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
   }
   .primitiv-carousel__indicator::before,
   .primitiv-carousel__indicator-group > button::before {

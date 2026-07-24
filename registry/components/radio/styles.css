@@ -70,6 +70,7 @@
     align-items: center;
     gap: var(--primitiv-radio-gap);
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
   }
 
   /* The real native input — visually hidden (the canonical sr-only clip) but

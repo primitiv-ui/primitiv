@@ -49,6 +49,34 @@ firmed up.
   `flex-shrink: 0`, `z-index: 1`, and the `box-shadow` geometry zeros
   (`0 0 0 …`) in the focus ring.
 
+## Mobile tap-highlight on every interactive element
+
+Any rule that styles a genuinely clickable/tappable element — recognisable by
+a `cursor: pointer` (or `cursor: default` on a still-clickable row, like
+Dropdown's menu items) sitting in the same rule — **must** also set:
+
+```css
+-webkit-tap-highlight-color: transparent;
+```
+
+Mobile WebKit/Chrome apply a translucent grey/black overlay to any tappable
+element on `:active` by default, entirely independent of the component's own
+`:hover`/`:active` styling — so without this, a real device shows a jarring
+flash on tap that never appears in desktop testing or in Storybook/kitchen-sink
+screenshots. It is a **CSS mechanic with no token home** (the value must
+literally be `transparent`, like `outline: none`) — leave it as a literal, but
+never omit it from an interactive rule.
+
+This is deliberately **per-component**, not a shared reset: `primitiv.reset`
+(`crates/primitiv-emit/assets/base.css`) is a narrow, prose-only reset (RFC
+0008 §7/D60, "not a Normalize-style blanket") — every interactive control
+already owns its base rule in its own registry stylesheet, so the fix belongs
+there too, next to the `cursor` declaration it travels with. A trigger that is
+a **pass-through** with no styling of its own (Dropdown's `Trigger`, which
+takes no className — see its `.tsx` header comment) needs no fix: it inherits
+whatever real interactive element the consumer wraps (usually `Button`, which
+already carries it).
+
 ## Finding the token name
 
 The custom property is `--primitiv-<dtcg-path-joined-by-dashes>`. Confirm a token
@@ -195,6 +223,9 @@ simplification to reach for across the library.
   reference a **new token family**.
 - If the value is an API token's default (a `--primitiv-<component>-*` knob),
   mirror the change into `contract.json`'s `defaultsTo`.
+- Adding a new clickable/tappable rule (anything with `cursor: pointer` or a
+  clickable `cursor: default`)? Pair it with
+  `-webkit-tap-highlight-color: transparent;` — see above.
 
 ## Horizontally-scrolling code (`code-block`)
 

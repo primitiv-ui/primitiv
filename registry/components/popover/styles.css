@@ -168,6 +168,7 @@
     background: var(--primitiv-color-transparent);
     color: var(--primitiv-content-secondary);
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
     transition:
       background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
       border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),

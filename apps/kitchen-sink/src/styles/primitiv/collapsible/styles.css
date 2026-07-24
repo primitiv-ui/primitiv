@@ -111,6 +111,7 @@
     line-height: var(--primitiv-collapsible-trigger-line-height);
     text-align: start;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
   }
 
   /* text-box-trim must be applied to the element directly wrapping the text

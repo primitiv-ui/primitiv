@@ -107,6 +107,7 @@
     font-weight: var(--primitiv-tabs-trigger-font-weight);
     line-height: var(--primitiv-tabs-trigger-line-height);
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
     transition:
       color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
       box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);

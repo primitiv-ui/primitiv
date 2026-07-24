@@ -63,6 +63,19 @@ checked and unchecked rows keep their labels aligned:
 </DropdownCheckboxItem>
 ```
 
+### Group heading spacing
+
+The panel stacks every row flush (zero inter-row gap — each row supplies its
+own spacing), so a second-or-later `DropdownLabel` / `DropdownGroup` /
+`DropdownRadioGroup` gets an explicit `margin-block-start` (the panel's own
+top-inset token) above it — the separator's own `margin-block` alone read
+too tight against the heading immediately following it. The very first
+group is left alone; the panel's own `padding-block` already covers it.
+Applies whether the label is a bare `DropdownLabel` (a direct panel child)
+or nested inside `DropdownGroup`/`DropdownRadioGroup` (whose own `<li>`
+wrapper is what gets the margin, since the label sits first inside the
+group's nested `<ul>`).
+
 ## Parts
 
 | Export                  | Wraps                    | Styled? | Notes                                                    |

@@ -199,10 +199,10 @@ Select, so scope was flagged as an explicit choice:
 Each of the three row sets gained two icon slots, built on the **Button
 framed-control pattern** rather than a variant axis:
 
-- `Show leading icon` / `Show trailing icon` **BOOLEAN** props (both default
-  **off**) toggle the slots' visibility; `Leading icon instance` /
-  `Trailing icon instance` **INSTANCE_SWAP** props swap the glyph. Layout is
-  `[indicator/gutter][leading icon][label (FILL)][trailing icon]`.
+- `Show leading` / `Show trailing` **BOOLEAN** props (both default **off**)
+  toggle the slots' visibility; `Leading` / `Trailing` **INSTANCE_SWAP** props
+  swap the content. Layout is
+  `[indicator/gutter][leading][label (FILL)][trailing]`.
 - **Why booleans, not a `Slots` variant axis** ("text-only / leading+text /
   leading+text+trailing" as the doc originally sketched): a 3-option variant
   axis would have exploded CheckboxItem from 45 → 135 variants. The doc's
@@ -236,22 +236,51 @@ framed-control pattern** rather than a variant axis:
   INSTANCE_SWAP properties (which do work for published icons), not exposed
   instances.
 
+### Slots are general content slots — curate + rename (2026-07-24 follow-up)
+
+Raised right after the build: the slots "may be icons, may be a Tag/Chip/Badge
+later — don't we need preferred instances?" Clarified and acted on:
+
+- **INSTANCE_SWAP `preferredValues` is a curated *shortlist*, not a whitelist.**
+  A designer can already swap a slot to *any* component in the file via the
+  picker's search — so a future `Tag`/`Chip`/`Badge` drops in with zero rework.
+  `preferredValues` only decides what sits at the top of that picker.
+- **Renamed** the props from icon-specific to general slot names, so the
+  contract doesn't read icon-only: `Show leading icon`→`Show leading`,
+  `Show trailing icon`→`Show trailing`, `Leading icon instance`→`Leading`,
+  `Trailing icon instance`→`Trailing`. Done via `editComponentProperty`
+  (property IDs preserved, so every variant's `componentPropertyReferences`
+  auto-followed — verified).
+- **Broadened `preferredValues`** on all four SWAP props to the sensible
+  candidates that exist *today*: `Icon` + `Avatar` + `Kbd`. (`Tag`/`Chip`/
+  `Badge` don't exist in the file yet, so they can't be listed until built —
+  but they'll be swap-able the moment they land.) A trailing `Kbd` (keyboard
+  shortcut) is a classic menu affordance and works now — verified by swapping a
+  CheckboxItem's `Trailing` to a `Kbd` ("Esc"), which rendered at its **natural
+  width** (a swapped-in non-icon component keeps its own hug sizing; it is not
+  forced into the icon square). Sizing stays icon-tuned (square, per-size
+  `icon-size`) for the default icon case.
+- Chose **not** to relax the trailing slot's sizing further (the "also relax
+  sizing" option) — the natural-width behaviour above already covers the
+  Kbd/chip case well enough, and keeping the square binding preserves the
+  icon's per-size auto-scaling.
+
 ### Gap 2 — Trigger content states
 
 `Select / Trigger` **already** carried a `Filled` variant axis (false =
 placeholder colour `content/muted`, true = filled `content/primary`) from the
 earlier build, so placeholder-vs-filled was done. The remaining state —
-**filled-with-leading-icon** — was added as a `Show leading icon` BOOLEAN
-(default off) + `Leading icon instance` INSTANCE_SWAP, a leading Icon before
+**filled-with-leading-icon** — was added as a `Show leading` BOOLEAN
+(default off) + `Leading` INSTANCE_SWAP, a leading Icon before
 the value text, sized to `framed-control/{size}/icon-size` (matching the
-chevron) and `content/primary`-filled. `Filled` × `Show leading icon` now give
+chevron) and `content/primary`-filled. `Filled` × `Show leading` now give
 all three content states. This is the trigger half of `Select.Value`'s rich
 display — the selected option's leading icon mirrors here.
 
 ### Verification
 
 Instanced a Dropdown `Panel` with three `CheckboxItem` rows, each with
-`Show leading icon` on and its `Leading icon instance` swapped to a distinct
+`Show leading` on and its `Leading` swapped to a distinct
 glyph (the framework-picker case) — the leading icons aligned in a column, the
 built-in checkmark coexisted on the selected row, labels aligned, all via
 `setProperties` using only the names in the updated component descriptions.

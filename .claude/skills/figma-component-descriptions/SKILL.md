@@ -380,12 +380,12 @@ Tokens: bg → action/secondary/default (hover) · color/transparent (default/di
         sizing → dropdown/{size}/item/height|padding-inline|gap|radius (Context collection)
         leading/trailing icon → content/primary; size → dropdown/{size}/item/icon-size
 
-Properties: Label (TEXT "Menu item") · Inset gutter (BOOL false) · Show leading icon (BOOL false) · Leading icon instance (SWAP image) · Show trailing icon (BOOL false) · Trailing icon instance (SWAP check)
+Properties: Label (TEXT "Menu item") · Inset gutter (BOOL false) · Show leading (BOOL false) · Leading (SWAP image) · Show trailing (BOOL false) · Trailing (SWAP check)
 
 Density: Context mode override on parent frame
 Pairs with: Dropdown/Panel (parent), Dropdown/Label (group header), Dropdown/Separator (divider)
 Notes: Inset gutter reveals a leading spacer sized to dropdown/{size}/item/icon-size so text aligns with the indicator column (web `:has()` gutter, RFC 0019).
-  Icon slots (2026-07-24) — Show leading/trailing icon reveal Icon slots either side of the label, layout [gutter][leading][label (FILL)][trailing]; both hidden by default (backward-compatible). Glyph swaps via Leading/Trailing icon instance (published Icon set, INSTANCE_SWAP wired via plugin API — no manual step, per Button). Row stays swappable in Panel's row slots → composition nests Panel → row → icon slot.
+  Content slots (2026-07-24) — Show leading / Show trailing reveal general slots either side of the label, layout [gutter][leading][label (FILL)][trailing]; both hidden by default (backward-compatible). Swap via Leading / Trailing — INSTANCE_SWAP wired via the plugin API (no manual step, per Button, since the defaults are the published Icon set); preferredValues curates Icon + Avatar + Kbd but is only a shortlist — any component (a future Tag/Chip/Badge) swaps in. Sizing is icon-tuned (square, per-size); non-square content keeps its natural width. Row stays swappable in Panel's row slots → composition nests Panel → row → content slot.
 ```
 
 ### Dropdown/SubTrigger — `401:18196`
@@ -419,11 +419,11 @@ Tokens: sizing → dropdown/{size}/item/*; indicator (check/minus glyph) sized t
 
 Model: menu checkmark indicator (Radix / macOS convention) — NOT an embedded Checkbox control. Mirrors headless Dropdown.CheckboxItem + Dropdown.ItemIndicator.
 
-Properties: Label (TEXT "Option") · Show leading icon (BOOL false) · Leading icon instance (SWAP image) · Show trailing icon (BOOL false) · Trailing icon instance (SWAP check)
+Properties: Label (TEXT "Option") · Show leading (BOOL false) · Leading (SWAP image) · Show trailing (BOOL false) · Trailing (SWAP check)
 
 Density: Context mode override on parent frame
 Pairs with: Dropdown/Panel
-Notes: Icon slots (2026-07-24) — layout [check indicator][leading icon][label (FILL)][trailing icon]; the built-in checkmark stays leading (identity), the leading slot is an additional icon after it, trailing a decoration/badge. Both hidden by default. This is the row the composed Select set uses for its rich listbox. Glyph swaps via published Icon set (INSTANCE_SWAP, no manual step).
+Notes: Content slots (2026-07-24) — layout [check indicator][leading][label (FILL)][trailing]; the built-in checkmark stays leading (identity), the leading slot is an additional icon after it, trailing a decoration/badge/Kbd. Both hidden by default. This is the row the composed Select set uses for its rich listbox. Swap via Leading / Trailing (INSTANCE_SWAP, no manual step); preferredValues curates Icon + Avatar + Kbd but is only a shortlist — any component swaps in. Non-square content (a Kbd shortcut) keeps its natural width.
 ```
 
 ### Dropdown/RadioItem — `401:18312`
@@ -440,11 +440,11 @@ Tokens: sizing → dropdown/{size}/item/*; indicator (filled dot) sized within d
 
 Model: menu dot indicator (Radix / macOS convention) — NOT an embedded Radio control. Mirrors headless Dropdown.RadioItem + Dropdown.ItemIndicator.
 
-Properties: Label (TEXT "Option") · Show leading icon (BOOL false) · Leading icon instance (SWAP image) · Show trailing icon (BOOL false) · Trailing icon instance (SWAP check)
+Properties: Label (TEXT "Option") · Show leading (BOOL false) · Leading (SWAP image) · Show trailing (BOOL false) · Trailing (SWAP check)
 
 Density: Context mode override on parent frame
 Pairs with: Dropdown/Panel
-Notes: Icon slots (2026-07-24) — layout [dot indicator][leading icon][label (FILL)][trailing icon]; the built-in dot stays leading (identity), the leading slot is an additional icon after it, trailing a decoration/badge. Both hidden by default. Glyph swaps via published Icon set (INSTANCE_SWAP, no manual step).
+Notes: Content slots (2026-07-24) — layout [dot indicator][leading][label (FILL)][trailing]; the built-in dot stays leading (identity), the leading slot is an additional icon after it, trailing a decoration/badge/Kbd. Both hidden by default. Swap via Leading / Trailing (INSTANCE_SWAP, no manual step); preferredValues curates Icon + Avatar + Kbd but is only a shortlist — any component swaps in.
 ```
 
 ### Dropdown/Label — `401:18181`
@@ -515,12 +515,12 @@ Tokens: fill → surface/default (disabled: surface/subtle)
         chevron → content/secondary|content/disabled; size → framed-control/{size}/icon-size
         leading icon → content/primary; size → framed-control/{size}/icon-size (matches chevron)
 
-Properties: Value (TEXT "Select option") · Show leading icon (BOOL false) · Leading icon instance (SWAP image)
+Properties: Value (TEXT "Select option") · Show leading (BOOL false) · Leading (SWAP image)
 
 Density: Context mode override on parent frame
 Pairs with: Dropdown (panel + items), Field (wrapper)
 Notes: focused keeps border/default — ring is sole focus indicator; trailing chevron-down always present.
-  Content states (2026-07-24) — Filled × Show leading icon give placeholder (Filled=false), filled (Filled=true), filled+leading-icon (both on). Leading Icon slot sits before the value text, swap glyph via Leading icon instance (published Icon set, INSTANCE_SWAP, no manual step). Trigger half of Select.Value's rich display.
+  Content states (2026-07-24) — Filled × Show leading give placeholder (Filled=false), filled (Filled=true), filled+leading-icon (both on). Leading slot sits before the value text; swap via Leading (INSTANCE_SWAP, no manual step) — preferredValues curates Icon + Avatar + Kbd but any component swaps in. Trigger half of Select.Value's rich display.
   Composed 'Select' set on the Select page instances this per size/state.
 ```
 

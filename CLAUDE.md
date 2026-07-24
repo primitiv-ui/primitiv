@@ -391,15 +391,15 @@ source of truth for when a skill applies.
     landed in Figma (2026-07-24).** Scope was flagged and chosen: extend the
     *shared* `Dropdown / Item` family (not a Select-scoped row), across all
     three selectable rows (`Item` + `CheckboxItem` + `RadioItem`). Each gained
-    `Show leading icon` / `Show trailing icon` BOOLEANs + `Leading/Trailing
-    icon instance` INSTANCE_SWAPs (the Button framed-control pattern, NOT a
+    `Show leading` / `Show trailing` BOOLEANs + `Leading` / `Trailing`
+    INSTANCE_SWAPs (the Button framed-control pattern, NOT a
     variant axis — that would've exploded CheckboxItem 45→135), layout
     `[indicator/gutter][leading][label FILL][trailing]`, both slots off by
     default (backward-compatible). The built-in check/dot indicator stays
     leading (identity); the new leading slot is an additional icon after it.
     `Select / Trigger` already had `Filled` (placeholder↔filled); the third
-    content state (filled+leading-icon) landed as a `Show leading icon`
-    BOOLEAN + `Leading icon instance` SWAP. **INSTANCE_SWAP needed no manual
+    content state (filled+leading-icon) landed as a `Show leading`
+    BOOLEAN + `Leading` SWAP. **INSTANCE_SWAP needed no manual
     UI step** — the slots default to the *published* Icon set, so
     `addComponentProperty(…, 'INSTANCE_SWAP', …)` resolves via the plugin API
     (the two-step slotted-components limitation is only for *local* default
@@ -409,7 +409,12 @@ source of truth for when a skill applies.
     note was wrong — formal INSTANCE_SWAP is the working path. Descriptions on
     all four sets + the `figma-component-descriptions` canonical entries
     updated. Verified via a framework-picker composition (Panel → 3
-    CheckboxItem rows → per-row leading glyph + checkmark). Full account in
+    CheckboxItem rows → per-row leading glyph + checkmark). Slots are
+    **general content slots**, not icon-only: `preferredValues` is a curated
+    shortlist (broadened to Icon + Avatar + Kbd — all published; Tag/Chip/Badge
+    swap in once built) not a whitelist, so any component swaps in via the
+    picker. Verified a trailing `Kbd` ("Esc") swap — a non-icon component keeps
+    its natural width (not squashed into the icon square). Full account in
     `docs/select-future-work.md`. Next: the headless TDD build in
     `packages/react/src/Select`, then registry + kitchen-sink (the headless
     slots ride along with that rich-mode build).

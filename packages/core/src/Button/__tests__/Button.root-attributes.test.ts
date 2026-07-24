@@ -8,4 +8,12 @@ describe("getButtonRootAttributes", () => {
     // Assert
     expect(attributes.type).toBe("button");
   });
+
+  it("honours an explicitly supplied type", () => {
+    // Arrange & Act
+    const attributes = getButtonRootAttributes({ type: "submit" });
+
+    // Assert
+    expect(attributes.type).toBe("submit");
+  });
 });

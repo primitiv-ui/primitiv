@@ -7,6 +7,9 @@ type UseSelectRootArgs = {
   defaultOpen?: boolean;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  value?: string;
+  defaultValue?: string;
+  onValueChange?: (value: string) => void;
 };
 
 /**
@@ -21,6 +24,9 @@ export function useSelectRoot({
   defaultOpen = false,
   open: controlledOpen,
   onOpenChange,
+  value: controlledValue,
+  defaultValue,
+  onValueChange,
 }: UseSelectRootArgs): { contextValue: SelectContextValue } {
   const contentId = useId();
   const triggerId = useId();
@@ -29,6 +35,11 @@ export function useSelectRoot({
     controlledOpen,
     defaultOpen,
     onOpenChange,
+  );
+  const [value, setValue] = useControllableState<string>(
+    controlledValue,
+    defaultValue ?? "",
+    onValueChange,
   );
 
   const openRef = useRef(open);
@@ -45,9 +56,21 @@ export function useSelectRoot({
     [setOpenBase],
   );
 
+  // Commit a selection: update the value, close the listbox, and return
+  // focus to the trigger (the standard listbox close-on-select behaviour).
+  const select = useCallback(
+    (next: string) => {
+      setValue(next);
+      setOpenBase(false);
+      openRef.current = false;
+      triggerRef.current?.focus();
+    },
+    [setValue, setOpenBase],
+  );
+
   const contextValue = useMemo(
-    () => ({ open, setOpen, contentId, triggerId, triggerRef }),
-    [open, setOpen, contentId, triggerId],
+    () => ({ open, setOpen, value, select, contentId, triggerId, triggerRef }),
+    [open, setOpen, value, select, contentId, triggerId],
   );
 
   return { contextValue };

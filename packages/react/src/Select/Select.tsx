@@ -1,4 +1,10 @@
-import { ChangeEvent, Children, isValidElement, ReactNode } from "react";
+import {
+  ChangeEvent,
+  Children,
+  isValidElement,
+  ReactNode,
+  useContext,
+} from "react";
 import type { ReactElement } from "react";
 
 import { useFieldProps } from "../Field/hooks/index.ts";
@@ -153,7 +159,14 @@ export function SelectRoot({
   ...consumer
 }: SelectRootProps): ReactElement {
   const merged = useFieldProps(consumer);
-  const { contextValue } = useSelectRoot({ defaultOpen, open, onOpenChange });
+  const { contextValue } = useSelectRoot({
+    defaultOpen,
+    open,
+    onOpenChange,
+    value,
+    defaultValue,
+    onValueChange,
+  });
 
   const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
     onChange?.(event);
@@ -226,13 +239,45 @@ SelectRoot.displayName = "SelectRoot";
  */
 export function SelectItem({
   children,
+  value,
+  disabled,
+  onClick,
   ...rest
 }: SelectItemProps): ReactElement {
-  const text = Children.toArray(children).filter(
-    (child): child is string | number =>
-      typeof child === "string" || typeof child === "number",
-  );
-  return <option {...rest}>{text}</option>;
+  const ctx = useContext(SelectContext);
+
+  // Native mode — no rich context is provided, so render an <option> whose
+  // text is only the string/number children (element children are dropped).
+  if (!ctx) {
+    const text = Children.toArray(children).filter(
+      (child): child is string | number =>
+        typeof child === "string" || typeof child === "number",
+    );
+    return (
+      <option value={value} disabled={disabled} onClick={onClick} {...rest}>
+        {text}
+      </option>
+    );
+  }
+
+  // Rich mode — a listbox option that can carry arbitrary content. Clicking
+  // it (when enabled) commits the selection and closes the listbox.
+  const selected = ctx.value === value;
+  const handleClick = () => {
+    if (disabled) return;
+    ctx.select(value);
+  };
+  const itemProps = {
+    ...rest,
+    role: "option" as const,
+    tabIndex: -1,
+    "aria-selected": selected,
+    "aria-disabled": disabled || undefined,
+    "data-disabled": disabled ? "" : undefined,
+    "data-state": selected ? "checked" : "unchecked",
+    onClick: composeEventHandlers(onClick, handleClick),
+  };
+  return <div {...itemProps}>{children}</div>;
 }
 
 /** @internal */

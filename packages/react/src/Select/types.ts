@@ -1,4 +1,10 @@
-import { ChangeEventHandler, ComponentProps, ReactNode, Ref } from "react";
+import {
+  ChangeEventHandler,
+  ComponentProps,
+  HTMLAttributes,
+  ReactNode,
+  Ref,
+} from "react";
 
 /**
  * Shared base for both {@link SelectRootProps} variants — the native
@@ -120,18 +126,21 @@ export type SelectRootProps =
 /**
  * Props for {@link SelectItem | `Select.Item`}.
  *
- * In `native` mode this renders an `<option>`, so it extends
- * `OptionHTMLAttributes`. Only the string/number `children` become the
- * option's visible text; element children are dropped (see
- * {@link SelectItem}).
+ * `Select.Item` renders different elements per mode — an `<option>` under
+ * `native`, a `<div role="option">` in rich mode — so it extends the
+ * element-agnostic `HTMLAttributes<HTMLElement>` rather than an
+ * option-specific type.
  */
-export type SelectItemProps = ComponentProps<"option"> & {
-  /** The item label. In `native` mode only its string/number parts are
-   * kept as the `<option>` text; element children (icons, indicators) are
-   * dropped. */
+export type SelectItemProps = HTMLAttributes<HTMLElement> & {
+  /** The value this item represents; committed as the Select's value when
+   * chosen, and matched against the current value for the selected state. */
+  value: string;
+  /** Marks the item unselectable while still visible. */
+  disabled?: boolean;
+  /** The item content. In `native` mode only its string/number parts are
+   * kept as the `<option>` text (element children are dropped); in rich mode
+   * arbitrary content (icons, indicators) renders as authored. */
   children?: ReactNode;
-  /** Forwarded to the underlying `HTMLOptionElement` in `native` mode. */
-  ref?: Ref<HTMLOptionElement>;
 };
 
 /**

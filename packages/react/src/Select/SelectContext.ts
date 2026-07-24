@@ -14,6 +14,10 @@ export type SelectContextValue = {
   open: boolean;
   /** Open/close the listbox. De-dupes repeat transitions. */
   setOpen: (open: boolean) => void;
+  /** The currently selected item value (`""` when nothing is selected). */
+  value: string;
+  /** Commit a selection: sets the value, closes the listbox, focuses the trigger. */
+  select: (value: string) => void;
   /** `id` of the listbox content, wired to the trigger's `aria-controls`. */
   contentId: string;
   /** `id` of the trigger, available for labelling. */

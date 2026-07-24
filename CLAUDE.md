@@ -370,13 +370,31 @@ source of truth for when a skill applies.
     `VERTICAL`/`HUG`), and `Dropdown / CheckboxItem`'s Label text was only
     bound to the Label property on the 9 md-size variants — all 36
     xs/sm/lg/xl variants had an unbound static "Option" string, now fixed
-    across all 45. Full account in `docs/select-future-work.md`, which also
-    carries the full settled Rich-mode decision list (Popover API popup
-    layer, single-select only, no scroll buttons/arrow/item-aligned
-    positioning, hidden native `<select>` for form submission — the
-    Firefox Popover-API-support caveat is now resolved, shipped since
-    Firefox 125). Next: the headless TDD build in
-    `packages/react/src/Select`, then registry + kitchen-sink.
+    across all 45. A follow-up QA pass then found and fixed a real,
+    code-matching design-token gap: dropdown item text barely scaled across
+    sizes (`dropdown.{size}.item.font-size`/`line-height` had their own flat
+    scale, 11/13/14/15/16px, not even density-sensitive) — aliased to
+    `body.{size}.font-size`/`line-height` (the same scale Trigger's own
+    value text already used) in `packages/tokens/src/context.json`,
+    regenerated `tokens.css`, and mirrored into the matching Figma
+    variables. Also attempted an `md`-first reorder on the composed
+    `Select` set (`closed, Size=md` moved to child index 0), but
+    `ComponentSetNode.defaultVariant` turned out to be **read-only** via the
+    plugin API — the reorder only affects children-array/list order, not
+    the actual default variant Figma pre-selects (still `xs`), the same
+    open limitation already logged on Collapsible. Full account in
+    `docs/select-future-work.md`, which also carries the full settled
+    Rich-mode decision list (Popover API popup layer, single-select only,
+    no scroll buttons/arrow/item-aligned positioning, hidden native
+    `<select>` for form submission — the Firefox Popover-API-support caveat
+    is now resolved, shipped since Firefox 125) and a newly-raised, not-yet-
+    started composition-depth gap: `Item` needs its own leading/trailing
+    `SLOT` variants (text-only / leading+text / leading+text+trailing) and
+    `Select / Trigger` needs content-state variants (placeholder / filled /
+    filled+leading-icon) — both bigger, more foundational changes than the
+    Select-specific work above since Item is shared with Dropdown. Next:
+    the headless TDD build in `packages/react/src/Select`, then registry +
+    kitchen-sink (composition-depth work can land before or after that).
   - **NavigationMenu itself — not started.** RFC 0019 §4 open decisions
     (the fork, mobile interaction model, shared affordances, desktop
     specifics) need settling before scaffolding a headless build, which

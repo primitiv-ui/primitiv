@@ -145,6 +145,60 @@ reference composition before committing to the real build):
   capability is reachable via `figma_execute` before concluding the feature
   is blocked — it often is, since `figma_execute` runs arbitrary plugin-API
   code with no such gate.
+- **Item text font-size widened to the body scale (2026-07-24 follow-up).**
+  QA caught that item text barely scaled across sizes — `dropdown.{size}.
+  item.font-size`/`line-height` had their own flat scale (11/13/14/15/16px,
+  just 1px steps at md→xl) that didn't even vary by density, unlike every
+  other control (Select/Trigger's own value text scales 12/14/16/20/22px on
+  the `body` type ramp). Confirmed this was a real, code-matching design
+  value (not a Figma-only drift bug — `packages/tokens/src/context.json`
+  had the identical narrow scale), so the fix went through the full
+  code-first loop: aliased `dropdown.{size}.item.font-size`/`line-height`
+  to `body.{size}.font-size`/`line-height` in `context.json` (20 leaf edits
+  across 4 densities × 5 sizes), regenerated `tokens.css` via the CLI, ran
+  `cargo test --workspace` (green, no golden churn), then mirrored the same
+  aliasing into the 5 `dropdown/{size}/item/font-size`+`line-height` Figma
+  variables (now pointing at the same `body/{size}/*` variables Trigger
+  already used, across all 4 Context modes). No registry CSS/SCSS edit was
+  needed — `--primitiv-dropdown-{size}-item-font-size` already referenced
+  the token, so the alias change alone flows through.
+- **`md`-first ordering — attempted, not actually fixed.** QA also flagged
+  that `md` isn't the first/default `Size` variant on this composed `Select`
+  set (the `closed` group's children were created `xs, sm, md, lg, xl`).
+  Moved `closed, Size=md` to child index 0 via `insertChild`, but this only
+  reorders the children array (cosmetic/layer-panel + likely the property
+  dropdown's list order) — `ComponentSetNode.defaultVariant` (what Figma
+  actually pre-selects for a fresh instance) is **read-only** via the plugin
+  API (`"no setter for property"`). This is the exact same limitation
+  already logged on Collapsible ("only the default/first-child variant is
+  md... a true md-first list needs a full rebuild"). Still open: a true fix
+  needs deleting and recreating the variants in md-first order by hand in
+  Figma's UI, not an API-side reorder.
+
+## Composition depth still missing (raised 2026-07-24, not started)
+
+Feedback on the landed Figma set: "composition is king," and the current
+build doesn't go deep enough yet. Two gaps, both bigger than the Select-
+specific work above since they touch shared Dropdown components:
+
+- **Item needs its own leading/trailing slot variants.** The 3 demo rows in
+  the composed `Select` set reuse plain `Dropdown / CheckboxItem` (checkmark
+  + label only, no icon slot) — fine as a placeholder, but it can't
+  reproduce the icons-in-the-option case from the "Rich value display"
+  section above (a leading framework icon + trailing "Soon" badge). The
+  right fix is a generic row component with real leading/trailing `SLOT`
+  properties, built out as three variants: text-only, leading+text,
+  leading+text+trailing. Then Panel's row slots swap between
+  `Item`/`CheckboxItem`/`RadioItem`/etc. per row, same as Dropdown's own
+  row-slot model.
+- **Trigger needs content-state variants.** `Select / Trigger`'s `Value` is
+  currently a plain exposed text property — no explicit placeholder vs.
+  filled vs. filled-with-leading-icon variants.
+
+Tradeoff flagged before starting either: the Item slot upgrade touches a
+component Dropdown itself uses too, not just Select, so it's a bigger,
+more foundational change than the Select-specific work above. Not yet
+scoped or started.
 
 ## Settled design decisions for the rich render path
 

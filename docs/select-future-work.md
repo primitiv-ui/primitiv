@@ -42,9 +42,13 @@ icon-only item with no text renders an empty, unlabelled `<option>` under
 `native`.
 
 `Select.Group`'s label is a plain **string prop**, not JSX children —
-`<optgroup>` only accepts a `label` attribute, so making it a string from
-the start sidesteps the same extraction problem for groups entirely rather
-than relying on the text-filtering trick twice.
+`<optgroup>` only accepts a `label` attribute, so this sidesteps the same
+extraction problem for groups entirely rather than relying on the
+text-filtering trick twice. **Already the shipped shape** (checked
+`packages/react/src/Select/Select.tsx` — `SelectGroup` already takes
+`label` as a prop and renders `<optgroup label={label}>`, unchanged since
+groups were first built): nothing needs to change here for `native` mode;
+rich mode's group heading just needs to render that same string.
 
 **No backward-compatibility path needed.** `@primitiv-ui/react` isn't being
 released again imminently, so flipping the default from native to rich is
@@ -87,11 +91,13 @@ tier and still hold for `Select`'s default (non-`native`) render path.
 - Virtualization — accept a `windowed` prop, or document a recipe with
   `react-virtual` / `tanstack-virtual`?
 
-## Browser-support caveat
+## Browser-support caveat — resolved (2026-07-24)
 
-Popover API support is Chromium/Safari evergreen as of 2026-05-28;
-Firefox is patchy. Re-check browser support before starting the `Select`
-rich-mode build — if Firefox stable still doesn't have it, evaluate the
-Floating-only fallback that was on the table during the planning
-conversation (fixed positioning + ResizeObserver) vs the Popover API
-with a polyfill.
+Re-checked: Firefox shipped a full, spec-compliant Popover API in **Firefox
+125** (April 2024), over two years before this recheck, with follow-on
+consistency fixes as recently as Firefox 153. Combined with Chrome 114+ and
+Safari 17.4+, all four evergreen engines (Chrome/Edge/Firefox/Safari) have
+had stable support for years — Firefox is no longer the caveat it was when
+this doc was first written. No fallback (Floating-UI-style fixed
+positioning + ResizeObserver, or a polyfill) is needed; build directly on
+the Popover API as settled above.

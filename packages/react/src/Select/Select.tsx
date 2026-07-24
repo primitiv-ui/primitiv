@@ -55,15 +55,22 @@ function hasPlaceholderChild(children: ReactNode): boolean {
 }
 
 /**
- * The root of a Select — renders a native `<select>` element with an
- * implicit `role="combobox"` as provided by the browser.
+ * The root of a Select — owns the selection (and, in rich mode, the open)
+ * state and provides it to the sub-components.
  *
- * Browser-native behaviour is preserved: keyboard navigation (arrow keys,
- * Home/End, typeahead), the platform popup, mobile UX (iOS/Android wheel
- * pickers), and form submission all work without additional JS. No
- * positioning JS or Portal is involved.
+ * **Two render paths, one API** — chosen by {@link SelectRootBaseProps.native | `native`}:
  *
- * **Controlled vs uncontrolled.** Two state modes are statically
+ * - `native={false}` (**default**) — the rich Popover-API listbox, composed
+ *   from {@link SelectTrigger}, {@link SelectValue}, {@link SelectContent},
+ *   {@link SelectItem} and {@link SelectItemIndicator}. Items carry arbitrary
+ *   content; a visually-hidden `<select name>` is rendered for form
+ *   submission.
+ * - `native={true}` — a thin wrapper over a real `<select>` (implicit
+ *   `role="combobox"`); the browser owns the popup, keyboard, mobile UX and
+ *   form submission. {@link SelectItem} becomes an `<option>` (string/number
+ *   children only), {@link SelectGroup} an `<optgroup>`.
+ *
+ * **Controlled vs uncontrolled.** Two selection modes are statically
  * discriminated at the type level so only one shape is accepted by
  * TypeScript at a time:
  *
@@ -101,70 +108,56 @@ function hasPlaceholderChild(children: ReactNode): boolean {
  * - `data-disabled=""` — present on the `<select>` when `disabled` is set,
  *   so CSS can target `[data-disabled]` without relying on `:disabled`.
  *
- * **Ref forwarding.** Pass a `ref` to access the underlying
- * `HTMLSelectElement` directly:
+ * Root renders no single semantic element of its own in the default (rich)
+ * path — it is a context boundary that also emits a visually-hidden form
+ * `<select>`. Under `native` it renders the real `<select>`.
  *
+ * @example Rich (default)
  * ```tsx
- * const ref = useRef<HTMLSelectElement>(null);
- * <Select.Root ref={ref} defaultValue="apple" aria-label="Pick a fruit">…</Select.Root>
- * ```
- *
- * @extends HTMLSelectElement
- *
- * @example Uncontrolled
- * ```tsx
- * <Select.Root defaultValue="apple" aria-label="Pick a fruit">
- *   <Select.Option value="apple">Apple</Select.Option>
- *   <Select.Option value="banana">Banana</Select.Option>
+ * <Select.Root value={framework} onValueChange={setFramework}>
+ *   <Select.Trigger>
+ *     <Select.Value placeholder="Pick a framework…" />
+ *   </Select.Trigger>
+ *   <Select.Content>
+ *     <Select.Item value="react">
+ *       <ReactIcon />
+ *       React
+ *       <Select.ItemIndicator>✓</Select.ItemIndicator>
+ *     </Select.Item>
+ *     <Select.Item value="vue">
+ *       <VueIcon />
+ *       Vue
+ *       <Select.ItemIndicator>✓</Select.ItemIndicator>
+ *     </Select.Item>
+ *   </Select.Content>
  * </Select.Root>
  * ```
  *
- * @example Controlled
+ * @example Native
  * ```tsx
- * const [fruit, setFruit] = useState("apple");
- *
- * <Select.Root value={fruit} onValueChange={setFruit} aria-label="Pick a fruit">
- *   <Select.Option value="apple">Apple</Select.Option>
- *   <Select.Option value="banana">Banana</Select.Option>
- * </Select.Root>
- * ```
- *
- * @example With placeholder and groups
- * ```tsx
- * <Select.Root required aria-label="Pick a food">
+ * <Select.Root native defaultValue="apple" aria-label="Pick a fruit">
  *   <Select.Placeholder>Choose…</Select.Placeholder>
  *   <Select.Group label="Fruits">
- *     <Select.Option value="apple">Apple</Select.Option>
- *   </Select.Group>
- *   <Select.Group label="Vegetables">
- *     <Select.Option value="carrot">Carrot</Select.Option>
+ *     <Select.Item value="apple">Apple</Select.Item>
+ *     <Select.Item value="banana">Banana</Select.Item>
  *   </Select.Group>
  * </Select.Root>
  * ```
  *
  * @example Field integration
  * ```tsx
- * <Field.Root invalid={!!errors.fruit}>
- *   <Field.Label>Fruit</Field.Label>
- *   <Select.Root {...register("fruit")}>
- *     <Select.Placeholder>Choose a fruit…</Select.Placeholder>
- *     <Select.Option value="apple">Apple</Select.Option>
+ * <Field.Root invalid={!!errors.framework}>
+ *   <Field.Label>Framework</Field.Label>
+ *   <Select.Root name="framework" value={value} onValueChange={onChange}>
+ *     <Select.Trigger>
+ *       <Select.Value placeholder="Choose…" />
+ *     </Select.Trigger>
+ *     <Select.Content>
+ *       <Select.Item value="react">React</Select.Item>
+ *     </Select.Content>
  *   </Select.Root>
- *   <Field.ErrorText>{errors.fruit?.message}</Field.ErrorText>
+ *   <Field.ErrorText>{errors.framework?.message}</Field.ErrorText>
  * </Field.Root>
- * ```
- *
- * @example asChild — styled select wrapper
- * ```tsx
- * function StyledSelect(props: ComponentProps<"select">) {
- *   return <select {...props} className="ds-select" />;
- * }
- *
- * <Select.Root asChild value={fruit} onValueChange={setFruit}>
- *   <StyledSelect>
- *     <Select.Option value="apple">Apple</Select.Option>
- *   </StyledSelect>
- * </Select.Root>
  * ```
  */
 export function SelectRoot({
@@ -526,29 +519,38 @@ export function SelectContent({
 SelectContent.displayName = "SelectContent";
 
 /**
- * Visually groups related options inside the Select popup — renders a
- * native `<optgroup>` element with an implicit `role="group"` as provided
- * by the browser.
- *
- * The required {@link SelectGroupProps.label | `label`} prop is shown by
- * the browser as a non-selectable heading above the group and is announced
- * as the group's accessible name by assistive technology.
- *
- * @extends HTMLOptGroupElement
+ * Visually groups related options. In `native` mode it renders an
+ * `<optgroup>` (the browser shows {@link SelectGroupProps.label | `label`}
+ * as a non-selectable heading); in rich mode it renders a
+ * `<div role="group">` with `aria-label={label}`. Either way the `label` is
+ * the group's accessible name.
  *
  * @example
  * ```tsx
  * <Select.Group label="Fruits">
- *   <Select.Option value="apple">Apple</Select.Option>
- *   <Select.Option value="banana">Banana</Select.Option>
+ *   <Select.Item value="apple">Apple</Select.Item>
+ *   <Select.Item value="banana">Banana</Select.Item>
  * </Select.Group>
  * ```
  */
 export function SelectGroup({
   children,
+  label,
   ...rest
 }: SelectGroupProps): ReactElement {
-  return <optgroup {...rest}>{children}</optgroup>;
+  const ctx = useContext(SelectContext);
+  if (!ctx) {
+    return (
+      <optgroup label={label} {...rest}>
+        {children}
+      </optgroup>
+    );
+  }
+  return (
+    <div role="group" aria-label={label} {...rest}>
+      {children}
+    </div>
+  );
 }
 
 /** @internal */
@@ -578,10 +580,10 @@ SelectGroup.displayName = "SelectGroup";
  *
  * @example
  * ```tsx
- * <Select.Root required aria-label="Pick a fruit">
+ * <Select.Root native required aria-label="Pick a fruit">
  *   <Select.Placeholder>Choose a fruit…</Select.Placeholder>
- *   <Select.Option value="apple">Apple</Select.Option>
- *   <Select.Option value="banana">Banana</Select.Option>
+ *   <Select.Item value="apple">Apple</Select.Item>
+ *   <Select.Item value="banana">Banana</Select.Item>
  * </Select.Root>
  * ```
  */
@@ -612,61 +614,60 @@ export type TSelectCompound = typeof SelectRoot & {
 };
 
 /**
- * Headless **Select** — a compound component wrapping the native
- * `<select>` / `<option>` / `<optgroup>` elements. Zero styles ship.
+ * Headless, accessible single-select **Select** — a compound with two render
+ * paths behind one API, chosen by {@link SelectRootBaseProps.native | `native`}:
+ * a rich Popover-API listbox (default) or a native `<select>` wrapper. Zero
+ * styles ship.
  *
- * Because the underlying element is the real `<select>`, the browser owns
- * the popup, keyboard interaction (arrow keys, Home/End, typeahead), mobile
- * UX (iOS/Android wheel pickers), and form submission. No positioning JS,
- * no Portal, no anchor positioning.
+ * `Select` is both callable (an alias of {@link SelectRoot | `Select.Root`})
+ * and carries its sub-components as static properties. Prefer the namespaced
+ * form in application code:
  *
- * `Select` is both callable (it is an alias of
- * {@link SelectRoot | `Select.Root`}) and carries its sub-components as
- * static properties. Prefer the namespaced form in application code for
- * readability and grep-ability:
+ * - {@link SelectRoot | `Select.Root`} — state owner + context boundary.
+ * - {@link SelectTrigger | `Select.Trigger`} — rich mode: the listbox button.
+ * - {@link SelectValue | `Select.Value`} — rich mode: mirrors the selection.
+ * - {@link SelectContent | `Select.Content`} — rich mode: the popover listbox.
+ * - {@link SelectItem | `Select.Item`} — an option (rich `<div>` / native `<option>`).
+ * - {@link SelectItemIndicator | `Select.ItemIndicator`} — rich mode: the selected mark.
+ * - {@link SelectGroup | `Select.Group`} — a group (rich `role="group"` / native `<optgroup>`).
+ * - {@link SelectPlaceholder | `Select.Placeholder`} — native mode: the initial hint.
  *
- * - {@link SelectRoot | `Select.Root`} — state owner, renders `<select>`, field integration.
- * - {@link SelectItem | `Select.Item`} — renders `<option>` in `native` mode.
- * - {@link SelectGroup | `Select.Group`} — renders `<optgroup>` with a required `label`.
- * - {@link SelectPlaceholder | `Select.Placeholder`} — always `value=""`, disabled, hidden; the initial hint.
- *
- * @example Minimal usage
+ * @example Rich (default)
  * ```tsx
  * import { Select } from "@primitiv-ui/react";
  *
- * <Select.Root defaultValue="apple" aria-label="Pick a fruit">
- *   <Select.Option value="apple">Apple</Select.Option>
- *   <Select.Option value="banana">Banana</Select.Option>
+ * <Select.Root value={framework} onValueChange={setFramework}>
+ *   <Select.Trigger>
+ *     <Select.Value placeholder="Pick a framework…" />
+ *   </Select.Trigger>
+ *   <Select.Content>
+ *     <Select.Item value="react">
+ *       React
+ *       <Select.ItemIndicator>✓</Select.ItemIndicator>
+ *     </Select.Item>
+ *     <Select.Item value="vue">
+ *       Vue
+ *       <Select.ItemIndicator>✓</Select.ItemIndicator>
+ *     </Select.Item>
+ *   </Select.Content>
  * </Select.Root>
  * ```
  *
- * @example Controlled
+ * @example Native
  * ```tsx
- * const [fruit, setFruit] = useState("apple");
- *
- * <Select.Root value={fruit} onValueChange={setFruit} aria-label="Pick a fruit">
- *   <Select.Option value="apple">Apple</Select.Option>
- *   <Select.Option value="banana">Banana</Select.Option>
- * </Select.Root>
- * ```
- *
- * @example With placeholder and groups
- * ```tsx
- * <Select.Root required aria-label="Pick a food">
+ * <Select.Root native defaultValue="apple" aria-label="Pick a fruit">
  *   <Select.Placeholder>Choose…</Select.Placeholder>
  *   <Select.Group label="Fruits">
- *     <Select.Option value="apple">Apple</Select.Option>
- *   </Select.Group>
- *   <Select.Group label="Vegetables">
- *     <Select.Option value="carrot">Carrot</Select.Option>
+ *     <Select.Item value="apple">Apple</Select.Item>
+ *     <Select.Item value="banana">Banana</Select.Item>
  *   </Select.Group>
  * </Select.Root>
  * ```
  *
- * @see {@link SelectRoot} for state modes, placeholder inference, field integration, and `asChild`.
- * @see {@link SelectOption} for per-option disabled state.
- * @see {@link SelectGroup} for the required `label` prop.
- * @see {@link SelectPlaceholder} for the placeholder + `defaultValue` interaction.
+ * @see {@link SelectRoot} for the mode + state contract and Field integration.
+ * @see {@link SelectValue} for how the selection mirrors into the trigger.
+ * @see {@link SelectContent} for the listbox keyboard contract.
+ * @see {@link SelectPlaceholder} for the native placeholder + `defaultValue` interaction.
  */
 const SelectCompound: TSelectCompound = Object.assign(SelectRoot, {
   Root: SelectRoot,

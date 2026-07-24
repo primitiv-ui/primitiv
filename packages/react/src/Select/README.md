@@ -1,203 +1,156 @@
 # Select
 
-Headless **Select** — a compound component wrapping the native
-`<select>` / `<option>` / `<optgroup>` elements. Zero styles ship.
+Headless **Select** — a single-select compound with two render paths chosen
+by the `native` prop:
+
+- **Rich** (`native={false}`, the default) — a fully-styleable Popover-API
+  listbox (`Select.Trigger` / `Select.Value` / `Select.Content` /
+  `Select.Item` / `Select.ItemIndicator`). Items carry arbitrary content
+  (icons, badges, indicators).
+- **Native** (`native={true}`) — a thin wrapper over a real `<select>` /
+  `<option>` / `<optgroup>` for flat, OS-native cases (mobile wheel pickers,
+  maximum-compatibility forms).
+
+Both modes share the same `value` / `onValueChange` / `disabled` / `name`
+(form) API. Zero styles ship.
 
 ```tsx
 import { Select } from "@primitiv-ui/react";
 
-<Select.Root defaultValue="apple" aria-label="Pick a fruit">
-  <Select.Option value="apple">Apple</Select.Option>
-  <Select.Option value="banana">Banana</Select.Option>
-  <Select.Option value="cherry">Cherry</Select.Option>
+// Rich (default)
+<Select.Root value={framework} onValueChange={setFramework}>
+  <Select.Trigger>
+    <Select.Value placeholder="Pick a framework…" />
+  </Select.Trigger>
+  <Select.Content>
+    <Select.Item value="react">
+      <ReactIcon />
+      React
+      <Select.ItemIndicator>✓</Select.ItemIndicator>
+    </Select.Item>
+    <Select.Item value="vue">
+      <VueIcon />
+      Vue
+      <Select.ItemIndicator>✓</Select.ItemIndicator>
+    </Select.Item>
+  </Select.Content>
 </Select.Root>;
 ```
-
-Because the underlying element is the real `<select>`, the browser owns
-the popup, the keyboard interaction (arrow keys, Home/End, typeahead),
-the mobile UX (iOS/Android wheel pickers), and form submission. No
-positioning JS, no Portal, no anchor positioning.
 
 ## Sub-components
 
-| Export                | Element      | ARIA / data hooks                                  | `asChild` |
-| --------------------- | ------------ | -------------------------------------------------- | --------- |
-| `Select.Root`         | `<select>`   | implicit `role="combobox"`, `data-disabled`        | yes       |
-| `Select.Option`       | `<option>`   | implicit `role="option"`                           | —         |
-| `Select.Group`        | `<optgroup>` | implicit `role="group"`, `label` as accessible name | —         |
-| `Select.Placeholder`  | `<option>`   | always `value=""`, `disabled`, `hidden`            | —         |
+| Export                 | Rich element             | Native element | Notes                                          |
+| ---------------------- | ------------------------ | -------------- | ---------------------------------------------- |
+| `Select.Root`          | context boundary + hidden `<select>` | `<select>` | owns value + open state                        |
+| `Select.Trigger`       | `<button>`               | —              | `aria-haspopup="listbox"`, `aria-expanded`, `aria-controls`; `asChild` |
+| `Select.Value`         | `<span>`                 | —              | mirrors the selected item's content            |
+| `Select.Content`       | `<div role="listbox">` (`popover="auto"`) | — | keyboard nav; `asChild`                        |
+| `Select.Item`          | `<div role="option">`    | `<option>`     | `value` (required), `disabled`                 |
+| `Select.ItemIndicator` | `<span>`                 | —              | selected-only; `forceMount`, `asChild`         |
+| `Select.Group`         | `<div role="group">`     | `<optgroup>`   | `label` (required string)                      |
+| `Select.Placeholder`   | —                        | `<option value="" hidden disabled>` | native-only initial hint      |
 
-## State modes
+## State
 
-### Uncontrolled
+**Selection** — controlled (`value` + `onValueChange`) or uncontrolled
+(`defaultValue`, or omit for none), discriminated at the type level so only
+one shape is accepted. `onValueChange` receives the new value as a string.
 
-Pass `defaultValue` (or omit it). The browser owns the selection.
-`onValueChange` is optional.
+**Open** (rich only) — controlled (`open` + `onOpenChange`) or uncontrolled
+(`defaultOpen`). The trigger toggles it; selection, Escape, and light-dismiss
+close it.
+
+## Rich mode
+
+### Value mirroring
+
+`Select.Value` **automatically mirrors the selected `Select.Item`'s
+children** into the trigger — write the icon + label once, on the item, and
+it shows up in the closed trigger. `Select.ItemIndicator` is **excluded** from
+the mirror (the checkmark answers "which row is selected" — redundant on the
+trigger it already represents). `placeholder` shows when nothing is selected.
+
+### Item indicator
+
+`Select.ItemIndicator`, nested in a `Select.Item`, renders **only when that
+item is selected** and exposes `data-state="checked" | "unchecked"`. Pass
+`forceMount` to keep it in the DOM (as `unchecked`) for CSS enter/exit
+animation.
+
+### Keyboard
+
+While the listbox is open:
+
+| Key                     | Behaviour                                          |
+| ----------------------- | -------------------------------------------------- |
+| `ArrowDown` / `ArrowUp` | Move focus to next / previous option (wraps)       |
+| `Home` / `End`          | First / last option                                |
+| `Enter` / `Space`       | Select the focused option and close                |
+| `Escape`                | Close and return focus to the trigger              |
+| printable character     | Typeahead — focus the next option matching prefix  |
+
+Disabled options are skipped by arrows and typeahead. On open, focus moves to
+the selected option (or the first enabled one).
+
+### Popup placement
+
+`Select.Content` uses the native Popover API (`popover="auto"`) for the top
+layer and light-dismiss — no Portal, no positioning JS. Consumers place the
+popup themselves via CSS (the component ships no anchor positioning).
+
+## Native mode
+
+Pass `native` to render a real `<select>`. `Select.Item` becomes an
+`<option>` — keeping **only its string/number children** as the option text
+and **dropping element children** (icons, indicators don't render). An
+icon-only item with no text renders an empty, unlabelled `<option>`.
 
 ```tsx
-<Select.Root defaultValue="banana" aria-label="Pick a fruit">
-  <Select.Option value="apple">Apple</Select.Option>
-  <Select.Option value="banana">Banana</Select.Option>
-</Select.Root>
-```
-
-### Controlled
-
-Pass `value` and `onValueChange` together. The parent owns the
-selection; the component defers every transition back through the
-callback.
-
-```tsx
-const [fruit, setFruit] = useState("apple");
-
-<Select.Root value={fruit} onValueChange={setFruit} aria-label="…">
-  <Select.Option value="apple">Apple</Select.Option>
-  <Select.Option value="banana">Banana</Select.Option>
-</Select.Root>;
-```
-
-`onValueChange` receives the new selection as a plain string. The
-consumer's own `onChange` (the raw `ChangeEvent`) still fires alongside
-it if provided.
-
-## Placeholder
-
-`Select.Placeholder` renders a non-selectable hint that holds the
-initial selection. The underlying option is rendered with `value=""`,
-`disabled`, and `hidden`, so it shows in the closed Select's display
-but is unreachable from the dropdown after the user picks something.
-
-```tsx
-<Select.Root required aria-label="Pick a fruit">
+<Select.Root native defaultValue="apple" aria-label="Pick a fruit">
   <Select.Placeholder>Choose a fruit…</Select.Placeholder>
-  <Select.Option value="apple">Apple</Select.Option>
-  <Select.Option value="banana">Banana</Select.Option>
-</Select.Root>
-```
-
-When a `Select.Placeholder` is among Root's direct children and neither
-`value` nor `defaultValue` is set, Root infers `defaultValue=""` so the
-placeholder — not the first selectable option — is the initial
-selection. Pair with `required` on Root to make the browser's native
-form validation catch an unchosen value at submit time.
-
-`asChild` on Root walks direct children only for this detection, so the
-`asChild` + Placeholder combination requires the consumer to set
-`defaultValue=""` explicitly.
-
-## Groups
-
-`Select.Group` wraps options in a native `<optgroup>` with a labelled,
-non-selectable heading.
-
-```tsx
-<Select.Root aria-label="Pick a food">
   <Select.Group label="Fruits">
-    <Select.Option value="apple">Apple</Select.Option>
-    <Select.Option value="banana">Banana</Select.Option>
-  </Select.Group>
-  <Select.Group label="Vegetables">
-    <Select.Option value="carrot">Carrot</Select.Option>
+    <Select.Item value="apple">Apple</Select.Item>
+    <Select.Item value="banana">Banana</Select.Item>
   </Select.Group>
 </Select.Root>
 ```
 
-The `label` is announced as the group's accessible name by assistive
-technology.
+`Select.Placeholder` (native-only) renders `<option value="" disabled hidden>`.
+When present with no `value`/`defaultValue`, Root infers `defaultValue=""` so
+the placeholder is the initial selection; pair with `required` for native form
+validation. `Select.Group` renders `<optgroup label>`.
 
-## Disabled
+## Forms
 
-Pass `disabled` on Root to disable the whole control, or on an
-individual `Select.Option` to disable that single choice. The native
-`disabled` attribute does the work; `data-disabled=""` is mirrored on
-the root `<select>` for CSS targeting.
-
-```tsx
-<Select.Root disabled aria-label="Pick a fruit">
-  <Select.Option value="apple">Apple</Select.Option>
-</Select.Root>
-
-<Select.Root aria-label="Pick a fruit">
-  <Select.Option value="apple">Apple</Select.Option>
-  <Select.Option value="durian" disabled>Durian (sold out)</Select.Option>
-</Select.Root>
-```
+Pass `name` and place the Select in a `<form>`. In native mode the `<select>`
+submits directly; in rich mode Root renders a visually-hidden native
+`<select name>` that carries the value, so submission works identically. Pair
+with `required` for browser validation.
 
 ## Field integration
 
-When rendered inside a [`<Field.Root>`](../Field/README.md),
-`Select.Root` reads `FieldContext` and inherits:
+Inside a [`<Field.Root>`](../Field/README.md), `Select.Root` reads
+`FieldContext` and inherits `id`, `aria-describedby`, `aria-invalid`,
+`disabled`, and `required` (consumer props win). In native mode these apply to
+the `<select>`; in rich mode `disabled` / `required` / `name` flow to the
+hidden form `<select>`.
 
-- `id` (from `field.id`)
-- `aria-describedby` (composed: consumer ids first, then the field's
-  `descriptionId`, then `errorId` when invalid)
-- `aria-invalid` (`"true"` when the field is invalid)
-- `disabled`
-- `required`
+## `asChild`
 
-Consumer-supplied props always win — pass an explicit value on the
-`Select.Root` to override any field-derived one. Outside a `<Field.Root>`,
-behaviour is unchanged.
-
-```tsx
-<Field.Root invalid={!!errors.fruit}>
-  <Field.Label>Fruit</Field.Label>
-  <Select.Root {...register("fruit")}>
-    <Select.Placeholder>Choose a fruit…</Select.Placeholder>
-    <Select.Option value="apple">Apple</Select.Option>
-    <Select.Option value="banana">Banana</Select.Option>
-  </Select.Root>
-  <Field.ErrorText>{errors.fruit?.message}</Field.ErrorText>
-</Field.Root>
-```
-
-## Form integration
-
-Native `<select>` is a form-associated element. Pass `name` and
-`required`, place the Select inside a `<form>`, and submission carries
-the selected value with no extra wiring.
-
-```tsx
-<form onSubmit={…}>
-  <label>
-    Fruit
-    <Select.Root name="fruit" required>
-      <Select.Placeholder>Choose a fruit…</Select.Placeholder>
-      <Select.Option value="apple">Apple</Select.Option>
-    </Select.Root>
-  </label>
-  <button type="submit">Submit</button>
-</form>
-```
-
-## `asChild` composition
-
-Root accepts `asChild`. The consumer supplies a single element that
-renders a `<select>` (typically a styled wrapper). Root's `onChange`,
-`data-disabled`, `value` / `defaultValue`, and other native attributes
-are merged onto it.
-
-```tsx
-function StyledSelect(props: ComponentProps<"select">) {
-  return <select {...props} className="ds-select" />;
-}
-
-<Select.Root asChild value={fruit} onValueChange={setFruit}>
-  <StyledSelect>
-    <Select.Option value="apple">Apple</Select.Option>
-  </StyledSelect>
-</Select.Root>
-```
+- `Select.Root` (native mode) — delegate to a styled `<select>` wrapper.
+- `Select.Trigger` / `Select.Content` / `Select.ItemIndicator` (rich mode) —
+  compose the merged props onto a consumer element.
 
 ## Styling hooks
 
-| Attribute       | Values                       | Set on        |
-| --------------- | ---------------------------- | ------------- |
-| `data-disabled` | `""` (present when disabled) | `Select.Root` |
+| Attribute       | Values                          | Set on                 |
+| --------------- | ------------------------------- | ---------------------- |
+| `aria-expanded` | `"true"` / `"false"`            | `Select.Trigger`       |
+| `aria-selected` | `"true"` / `"false"`            | rich `Select.Item`     |
+| `data-state`    | `"checked"` / `"unchecked"`     | rich `Select.Item`, `Select.ItemIndicator` |
+| `data-disabled` | `""` (present when disabled)    | rich `Select.Item`, native `Select.Root` |
 
-## Limitations
+## Future work
 
-Native `<select>` only renders text inside `<option>`. Rich item content
-(icons, descriptions, indicators) is not supported. A richer Select and
-a Combobox with filtering are planned — see [Future
-work](../../../../docs/select-future-work.md).
+A Combobox with filtering is planned — see
+[Future work](../../../../docs/select-future-work.md).

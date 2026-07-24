@@ -148,19 +148,16 @@ export type SelectItemProps = HTMLAttributes<HTMLElement> & {
  * `OptgroupHTMLAttributes` on the underlying `<optgroup>` element (with
  * `label` narrowed to a required `string`), plus a typed `ref`.
  */
-export type SelectGroupProps = Omit<ComponentProps<"optgroup">, "label"> & {
+export type SelectGroupProps = HTMLAttributes<HTMLElement> & {
   /**
-   * The group heading shown by the browser as a non-selectable label above
-   * the grouped options. Announced as the group's accessible name by
-   * assistive technology. Required — an `<optgroup>` without a label is
-   * inaccessible.
+   * The group heading. In `native` mode it is the `<optgroup>`'s `label`
+   * attribute; in rich mode it becomes the `<div role="group">`'s
+   * `aria-label`. Either way it is the group's accessible name. Required —
+   * a group without one is inaccessible.
    */
   label: string;
-  /** The {@link SelectOption} / {@link SelectPlaceholder} elements belonging
-   * to this group. */
+  /** The {@link SelectItem} elements belonging to this group. */
   children?: ReactNode;
-  /** Forwarded to the underlying `HTMLOptGroupElement`. */
-  ref?: Ref<HTMLOptGroupElement>;
 };
 
 /**

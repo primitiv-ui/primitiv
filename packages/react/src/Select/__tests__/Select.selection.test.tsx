@@ -67,6 +67,29 @@ describe("Select rich selection", () => {
     ).toHaveAttribute("aria-selected", "false");
   });
 
+  it("renders a rich Group as role=group with the label as its accessible name", async () => {
+    const user = userEvent.setup();
+    render(
+      <Select.Root>
+        <Select.Trigger>
+          <Select.Value placeholder="Pick one" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Group label="Frontend">
+            <Select.Item value="react">React</Select.Item>
+          </Select.Group>
+        </Select.Content>
+      </Select.Root>,
+    );
+
+    await user.click(screen.getByRole("button"));
+
+    expect(screen.getByRole("group", { hidden: true })).toHaveAttribute(
+      "aria-label",
+      "Frontend",
+    );
+  });
+
   it("does not select a disabled item and keeps the listbox open", async () => {
     const user = userEvent.setup();
     const onValueChange = vi.fn();

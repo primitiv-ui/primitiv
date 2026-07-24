@@ -54,6 +54,7 @@ jobs:
         if: always()
         uses: codecov/codecov-action@v4
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: packages/react/coverage/lcov.info
           flags: react
           fail_ci_if_error: false
@@ -62,6 +63,7 @@ jobs:
         if: always()
         uses: codecov/codecov-action@v4
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: packages/icons/coverage/lcov.info
           flags: icons
           fail_ci_if_error: false
@@ -70,6 +72,7 @@ jobs:
         if: always()
         uses: codecov/codecov-action@v4
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: packages/tokens/coverage/lcov.info
           flags: tokens
           fail_ci_if_error: false

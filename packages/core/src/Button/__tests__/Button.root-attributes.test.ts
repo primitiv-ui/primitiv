@@ -16,4 +16,12 @@ describe("getButtonRootAttributes", () => {
     // Assert
     expect(attributes.type).toBe("submit");
   });
+
+  it("omits type entirely when the adapter delegates rendering (asChild)", () => {
+    // Arrange & Act — the host element owns its own type semantics.
+    const attributes = getButtonRootAttributes({ asChild: true });
+
+    // Assert — absent, not undefined: an imperative adapter iterates these.
+    expect("type" in attributes).toBe(false);
+  });
 });

@@ -15,5 +15,7 @@ export const BUTTON_DEFAULT_TYPE: ButtonType = "button";
 export function getButtonRootAttributes(
   state: ButtonState,
 ): ButtonRootAttributes {
-  return { type: state.type ?? BUTTON_DEFAULT_TYPE };
+  return {
+    ...(state.asChild ? {} : { type: state.type ?? BUTTON_DEFAULT_TYPE }),
+  };
 }

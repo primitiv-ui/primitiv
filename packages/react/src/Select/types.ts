@@ -214,6 +214,30 @@ export type SelectValueProps = Omit<ComponentProps<"span">, "children"> & {
 };
 
 /**
+ * Props for {@link SelectItemIndicator | `Select.ItemIndicator`} — the
+ * selection mark inside a rich {@link SelectItem | `Select.Item`}. Extends
+ * the native `<span>` attributes.
+ */
+export type SelectItemIndicatorProps = ComponentProps<"span"> & {
+  /** The mark to render (e.g. a checkmark glyph or icon). */
+  children?: ReactNode;
+  /**
+   * Render the composed child element instead of a `<span>` via the
+   * {@link Slot} pattern.
+   * @default false
+   */
+  asChild?: boolean;
+  /**
+   * Keep the indicator mounted even when the item is not selected (it still
+   * exposes `data-state="unchecked"`), useful for CSS enter/exit animation.
+   * @default false
+   */
+  forceMount?: boolean;
+  /** Forwarded to the underlying `HTMLSpanElement`. */
+  ref?: Ref<HTMLSpanElement>;
+};
+
+/**
  * Props for {@link SelectContent | `Select.Content`} — the rich-mode
  * Popover-API listbox panel. Extends the native `<div>` attributes.
  */

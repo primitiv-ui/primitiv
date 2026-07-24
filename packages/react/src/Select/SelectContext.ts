@@ -1,4 +1,4 @@
-import { RefObject } from "react";
+import { ReactNode, RefObject } from "react";
 
 import { createStrictContext } from "../utils/index.ts";
 
@@ -18,6 +18,12 @@ export type SelectContextValue = {
   value: string;
   /** Commit a selection: sets the value, closes the listbox, focuses the trigger. */
   select: (value: string) => void;
+  /** Register (or refresh) a rich item's content for value-mirroring. */
+  registerItem: (value: string, children: ReactNode) => void;
+  /** Remove a rich item's registration on unmount. */
+  unregisterItem: (value: string) => void;
+  /** Read the registered content for a value (used by Select.Value). */
+  getItemChildren: (value: string) => ReactNode | undefined;
   /** `id` of the listbox content, wired to the trigger's `aria-controls`. */
   contentId: string;
   /** `id` of the trigger, available for labelling. */

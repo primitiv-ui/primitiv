@@ -4,6 +4,8 @@ import {
   isValidElement,
   ReactNode,
   useContext,
+  useEffect,
+  useMemo,
 } from "react";
 import type { ReactElement } from "react";
 
@@ -11,16 +13,23 @@ import { useFieldProps } from "../Field/hooks/index.ts";
 import { composeEventHandlers, Slot } from "../Slot/index.ts";
 
 import { SelectContext, useSelectContext } from "./SelectContext";
+import {
+  SelectItemIndicatorContext,
+  useSelectItemIndicatorContext,
+} from "./SelectItemIndicatorContext";
 import { useSelectContent, useSelectRoot } from "./hooks/index.ts";
 import {
   SelectContentProps,
   SelectGroupProps,
+  SelectItemIndicatorProps,
   SelectItemProps,
   SelectPlaceholderProps,
   SelectRootProps,
   SelectTriggerProps,
   SelectValueProps,
 } from "./types";
+
+const ITEM_INDICATOR_DISPLAY_NAME = "SelectItemIndicator";
 
 const PLACEHOLDER_DISPLAY_NAME = "SelectPlaceholder";
 
@@ -245,6 +254,18 @@ export function SelectItem({
   ...rest
 }: SelectItemProps): ReactElement {
   const ctx = useContext(SelectContext);
+  const registerItem = ctx?.registerItem;
+  const unregisterItem = ctx?.unregisterItem;
+  const selected = ctx?.value === value;
+
+  // Keep the registered content current every render (silent — no bump).
+  useEffect(() => {
+    registerItem?.(value, children);
+  });
+  // Drop the registration when the item unmounts or changes value.
+  useEffect(() => () => unregisterItem?.(value), [unregisterItem, value]);
+
+  const indicatorContext = useMemo(() => ({ selected }), [selected]);
 
   // Native mode — no rich context is provided, so render an <option> whose
   // text is only the string/number children (element children are dropped).
@@ -262,7 +283,6 @@ export function SelectItem({
 
   // Rich mode — a listbox option that can carry arbitrary content. Clicking
   // it (when enabled) commits the selection and closes the listbox.
-  const selected = ctx.value === value;
   const handleClick = () => {
     if (disabled) return;
     ctx.select(value);
@@ -277,7 +297,11 @@ export function SelectItem({
     "data-state": selected ? "checked" : "unchecked",
     onClick: composeEventHandlers(onClick, handleClick),
   };
-  return <div {...itemProps}>{children}</div>;
+  return (
+    <SelectItemIndicatorContext.Provider value={indicatorContext}>
+      <div {...itemProps}>{children}</div>
+    </SelectItemIndicatorContext.Provider>
+  );
 }
 
 /** @internal */
@@ -351,11 +375,77 @@ export function SelectValue({
   placeholder,
   ...rest
 }: SelectValueProps): ReactElement {
-  return <span {...rest}>{placeholder}</span>;
+  const { value, getItemChildren } = useSelectContext();
+  const selectedChildren = value ? getItemChildren(value) : undefined;
+
+  // Mirror the selected item's content, minus its ItemIndicator (the
+  // checkmark answers "which row is selected" — redundant on the trigger it
+  // already represents). Everything else — icons, badges, text — carries
+  // through. Falls back to the placeholder when nothing is selected (or the
+  // selected value has no registered item yet).
+  const mirrored =
+    selectedChildren === undefined
+      ? null
+      : Children.toArray(selectedChildren).filter(
+          (child) =>
+            !(
+              isValidElement(child) &&
+              (child.type as { displayName?: string }).displayName ===
+                ITEM_INDICATOR_DISPLAY_NAME
+            ),
+        );
+
+  return <span {...rest}>{mirrored ?? placeholder}</span>;
 }
 
 /** @internal */
 SelectValue.displayName = "SelectValue";
+
+/**
+ * The selection mark rendered inside a rich {@link SelectItem} — typically a
+ * checkmark. Reads its item's selected state from context and renders only
+ * when that item is selected (pass `forceMount` to keep it mounted for
+ * CSS/animation), exposing `data-state` (`"checked"` / `"unchecked"`).
+ *
+ * `Select.Value` deliberately excludes the indicator when mirroring the
+ * selection into the trigger.
+ *
+ * Renders a `<span>` by default; pass `asChild` to compose onto any element
+ * (commonly an SVG icon) via the {@link Slot} pattern.
+ *
+ * @extends HTMLSpanElement
+ *
+ * @example
+ * ```tsx
+ * <Select.Item value="react">
+ *   <ReactIcon />
+ *   React
+ *   <Select.ItemIndicator>✓</Select.ItemIndicator>
+ * </Select.Item>
+ * ```
+ */
+export function SelectItemIndicator({
+  children,
+  asChild = false,
+  forceMount = false,
+  ...rest
+}: SelectItemIndicatorProps): ReactElement | null {
+  const { selected } = useSelectItemIndicatorContext();
+
+  if (!forceMount && !selected) return null;
+
+  const indicatorProps = {
+    ...rest,
+    "data-state": selected ? "checked" : "unchecked",
+  };
+  if (asChild) {
+    return <Slot {...indicatorProps}>{children}</Slot>;
+  }
+  return <span {...indicatorProps}>{children}</span>;
+}
+
+/** @internal */
+SelectItemIndicator.displayName = ITEM_INDICATOR_DISPLAY_NAME;
 
 /**
  * The rich-mode listbox panel, rendered with the native
@@ -476,6 +566,7 @@ export type TSelectCompound = typeof SelectRoot & {
   Value: typeof SelectValue;
   Content: typeof SelectContent;
   Item: typeof SelectItem;
+  ItemIndicator: typeof SelectItemIndicator;
   Group: typeof SelectGroup;
   Placeholder: typeof SelectPlaceholder;
 };
@@ -543,6 +634,7 @@ const SelectCompound: TSelectCompound = Object.assign(SelectRoot, {
   Value: SelectValue,
   Content: SelectContent,
   Item: SelectItem,
+  ItemIndicator: SelectItemIndicator,
   Group: SelectGroup,
   Placeholder: SelectPlaceholder,
 });

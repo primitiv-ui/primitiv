@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useId, useMemo, useRef } from "react";
+import {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { useControllableState } from "../../hooks/index.ts";
 import type { SelectContextValue } from "../SelectContext";
@@ -68,9 +76,58 @@ export function useSelectRoot({
     [setValue, setOpenBase],
   );
 
+  // Item registry — lets Select.Value mirror the selected item's content
+  // (written once on the Item). Children live in a ref (updated silently
+  // every render, no re-render churn); `itemVersion` bumps only when the set
+  // of registered values changes (mount/unmount), so Value re-renders when
+  // items appear or disappear. See the react-component-patterns skill.
+  const itemChildrenRef = useRef<Map<string, ReactNode>>(new Map());
+  const [itemVersion, setItemVersion] = useState(0);
+
+  const registerItem = useCallback((itemValue: string, node: ReactNode) => {
+    const isNew = !itemChildrenRef.current.has(itemValue);
+    itemChildrenRef.current.set(itemValue, node);
+    if (isNew) setItemVersion((v) => v + 1);
+  }, []);
+
+  const unregisterItem = useCallback((itemValue: string) => {
+    itemChildrenRef.current.delete(itemValue);
+    setItemVersion((v) => v + 1);
+  }, []);
+
+  const getItemChildren = useCallback(
+    (itemValue: string) => itemChildrenRef.current.get(itemValue),
+    [],
+  );
+
   const contextValue = useMemo(
-    () => ({ open, setOpen, value, select, contentId, triggerId, triggerRef }),
-    [open, setOpen, value, select, contentId, triggerId],
+    () => ({
+      open,
+      setOpen,
+      value,
+      select,
+      registerItem,
+      unregisterItem,
+      getItemChildren,
+      contentId,
+      triggerId,
+      triggerRef,
+    }),
+    // itemVersion is intentionally in the dep list (not the value) so the
+    // context identity changes when items mount/unmount, re-rendering
+    // Select.Value even though the callbacks are stable.
+    [
+      open,
+      setOpen,
+      value,
+      select,
+      registerItem,
+      unregisterItem,
+      getItemChildren,
+      contentId,
+      triggerId,
+      itemVersion,
+    ],
   );
 
   return { contextValue };

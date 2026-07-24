@@ -54,8 +54,14 @@ describe("Select rich selection", () => {
 
     await user.click(screen.getByRole("button"));
 
-    expect(screen.getByText("Vue")).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByText("React")).toHaveAttribute("aria-selected", "false");
+    // The selected label is mirrored into the trigger too, so scope to the
+    // listbox options rather than getByText.
+    expect(
+      screen.getByRole("option", { name: "Vue", hidden: true }),
+    ).toHaveAttribute("aria-selected", "true");
+    expect(
+      screen.getByRole("option", { name: "React", hidden: true }),
+    ).toHaveAttribute("aria-selected", "false");
   });
 
   it("does not select a disabled item and keeps the listbox open", async () => {

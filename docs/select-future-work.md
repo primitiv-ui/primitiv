@@ -2,26 +2,59 @@
 
 The shipped `@primitiv-ui/react` `Select` is a thin wrapper over the native
 `<select>` element. This doc captures the design conversation behind
-the two richer components that are deliberately deferred, so the next
-session can pick them up cold.
+folding a richer, fully-styleable render path into that same component,
+plus the separately-deferred Combobox, so the next session can pick either
+up cold.
 
-## Tiers
+## One `Select`, not a second component (D: unify, 2026-07-24)
 
-| Tier            | What it is                                                            | Status                                                |
-| --------------- | --------------------------------------------------------------------- | ----------------------------------------------------- |
-| Native Select   | Wrapper over `<select>` / `<option>` / `<optgroup>`.                  | **Shipped.** See `packages/react/src/Select/README.md`. |
-| Rich Select     | Headless, fully styleable Select with custom item rendering, indicators, groups, etc. | Deferred.                                             |
-| Combobox        | Filterable Select with free-text entry, async loading, etc.           | Deferred.                                             |
+Originally planned as two components — a shipped "Native Select" and a
+deferred "Rich Select" — this is now **one `Select` compound with a `native`
+boolean prop**, not a second component:
 
-Native covers the Harmoni plugin's workspace picker and collection
-dropdown (flat short lists). The Rich Select and Combobox unlock the
-remaining use cases — icons next to options, indicator checkmarks,
-search, etc.
+- **`native` (default `false`)** — the rich render path: a Popover-API
+  listbox (`Select.Content`/`Item`/`Group`/`ItemIndicator`, custom item
+  rendering, icons, indicators). This is the new default.
+- **`native={true}`** — today's shipped behaviour: a thin wrapper over a
+  real `<select>`/`<option>`/`<optgroup>`, for the flat/OS-native cases
+  (the Harmoni plugin's workspace picker, a mobile-native picker wheel).
 
-## Settled design decisions for the Rich Select
+Rationale: the two tiers share the same `value`/`onChange`/`disabled`/form
+`name` API and largely-overlapping behaviour (both need arrow-key nav,
+though native gets it free from the OS) — building them as one component
+with one composition tree, rather than two components with two APIs to
+document and keep in sync, is the simpler long-term shape. This does **not**
+reduce the Rich-mode implementation work (the popover listbox internals
+still need to be built from scratch) — it only unifies the exported API
+surface and the docs.
 
-These were agreed during the planning conversation for the Native
-tier. Revisit them if you're starting the Rich Select cycle.
+**Composition converges, but doesn't unify perfectly.** `Select.Item`
+children can be arbitrary JSX in rich mode (icon + label + indicator), but a
+real `<option>` can't render arbitrary elements. Under `native`, the
+component walks each `Select.Item`'s children (the same `Children.map`
+string/number-vs-element split used elsewhere in this library — Button,
+Accordion, ToggleGroup — but inverted: **keep only the string/number nodes,
+joined as the option's text; drop every element child** — icons and
+indicators simply don't render) to build the real `<option>`. Document this
+plainly rather than adding a runtime dev-warning (nothing else in this
+library warns on this class of prop misuse); flag the edge case where an
+icon-only item with no text renders an empty, unlabelled `<option>` under
+`native`.
+
+`Select.Group`'s label is a plain **string prop**, not JSX children —
+`<optgroup>` only accepts a `label` attribute, so making it a string from
+the start sidesteps the same extraction problem for groups entirely rather
+than relying on the text-filtering trick twice.
+
+**No backward-compatibility path needed.** `@primitiv-ui/react` isn't being
+released again imminently, so flipping the default from native to rich is
+free to do outright — no `native` deprecation window, no major-version
+gymnastics.
+
+## Settled design decisions for the rich render path
+
+These were agreed during the planning conversation for the original Native
+tier and still hold for `Select`'s default (non-`native`) render path.
 
 - **Popup layer: Popover API only, manual placement via consumer CSS.**
   Content uses `popover="auto"` for the top-layer + light-dismiss
@@ -40,7 +73,7 @@ tier. Revisit them if you're starting the Rich Select cycle.
   pseudo-elements on Content.
 - **Form integration: hidden native `<select>`.** Render an invisible
   `<select name=…>` so submission works through the browser, mirroring
-  what the Native tier already gets for free.
+  what `native` mode already gets for free.
 
 ## Open questions for the Combobox
 
@@ -57,8 +90,8 @@ tier. Revisit them if you're starting the Rich Select cycle.
 ## Browser-support caveat
 
 Popover API support is Chromium/Safari evergreen as of 2026-05-28;
-Firefox is patchy. Re-check browser support before starting the Rich
-Select cycle — if Firefox stable still doesn't have it, evaluate the
+Firefox is patchy. Re-check browser support before starting the `Select`
+rich-mode build — if Firefox stable still doesn't have it, evaluate the
 Floating-only fallback that was on the table during the planning
 conversation (fixed positioning + ResizeObserver) vs the Popover API
 with a polyfill.

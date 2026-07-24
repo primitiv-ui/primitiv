@@ -257,11 +257,11 @@ source of truth for when a skill applies.
   Dropdown/Panel (`elevation/overlay`). See RFC 0017 §5–7 + D8 and
   `docs/transfer-and-next-steps.md`.
 - **NavigationMenu (RFC 0019) dependency build — in progress (2026-07-24).**
-  RFC 0019 needs Dropdown, Collapsible and a new Rich Select headless
+  RFC 0019 needs Dropdown, Collapsible and a richer `Select` headless
   component built out to full Figma → headless → registry → kitchen-sink
   surfaces *before* NavigationMenu itself starts, with Figma design done
   first for each. Sequence: **Dropdown (done) → Collapsible (done) →
-  Rich Select (not started) → NavigationMenu (not started)**.
+  Select refactor (not started) → NavigationMenu (not started)**.
   - **Dropdown — fully landed, all four stages.** Figma: `668:42210`
     (Panel set) + Item/CheckboxItem/RadioItem/SubTrigger/Label/Separator/
     Group/RadioGroup sets on canvas `317:362`, using a menu checkmark/dot
@@ -324,10 +324,27 @@ source of truth for when a skill applies.
     landed in between via a separate, already-merged session). Kitchen-
     sink: one collapsible per dressing right after the Accordion section,
     the `inline` one demonstrating `collapsedHeight={72}` + the fade.
-  - **Rich Select — not started.** Design decisions parked in
-    `docs/select-future-work.md` need settling first, then Figma, then a
-    from-scratch headless TDD build (it's a new component, not an
-    extension), then registry + kitchen-sink.
+  - **Select refactor — not started, design settled (2026-07-24).**
+    Decided against a second "Rich Select" component: `Select` gains a
+    `native` boolean prop (default `false`) instead. `native={false}`
+    (the new default) is the rich Popover-API listbox (`Select.Content`/
+    `Item`/`Group`/`ItemIndicator`, custom item rendering, icons,
+    indicators); `native={true}` is today's shipped thin `<select>`
+    wrapper, kept for flat/OS-native cases. Composition converges but
+    doesn't unify perfectly: under `native`, `Select.Item` keeps only its
+    string/number children (joined as the real `<option>`'s text) and
+    drops every element child (icons, indicators don't render) — the
+    inverse of the `Children.map` text-vs-element split Button/Accordion/
+    ToggleGroup already use; `Select.Group`'s label is a plain string prop,
+    not JSX children, sidestepping the same extraction problem for groups
+    entirely. No backward-compat path needed — `@primitiv-ui/react` isn't
+    releasing again imminently, so flipping the default outright is fine.
+    Full writeup in `docs/select-future-work.md`. Next: settle the
+    remaining Rich-mode decisions already parked there (Popover API popup
+    layer, single-select only, no scroll buttons/arrow/item-aligned
+    positioning, hidden native `<select>` for form submission, and the
+    Firefox Popover-API-support recheck), then Figma, then a headless TDD
+    build, then registry + kitchen-sink.
   - **NavigationMenu itself — not started.** RFC 0019 §4 open decisions
     (the fork, mobile interaction model, shared affordances, desktop
     specifics) need settling before scaffolding a headless build, which

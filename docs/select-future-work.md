@@ -92,6 +92,45 @@ a `placeholder` prop shown only when nothing is selected.
   trigger like any other non-indicator child *if* that item is ever
   selected (uncommon for a disabled option, but not prevented).
 
+## Figma design — landed (2026-07-24)
+
+The rich-mode listbox is designed and built in Figma, reusing Dropdown's own
+components rather than inventing new ones (confirmed viable with a
+reference composition before committing to the real build):
+
+- **`Select` (was plain "Select") renamed to `Select / Trigger`** — no
+  behaviour change, purely a naming split matching the
+  `Collapsible / Trigger` + `Collapsible` precedent. All 5 sizes are a flat
+  240px width (only height scales by size) — the composed set's Content
+  frame therefore always matches the Trigger at 240px regardless of size.
+- **A new composed `Select` component set** (`Variant` closed|open ×
+  `Size` xs-xl, 10 variants) instances the size-matched `Select / Trigger`
+  and, when open, stacks a **detached, restyled `Dropdown / Panel`**
+  instance below it (same fill/stroke/radius/shadow tokens as Dropdown,
+  `space-4` gap matching the `--primitiv-dropdown-offset` registry token)
+  containing 3 `Dropdown / CheckboxItem` rows (checkmark model, not
+  RadioItem's dot — confirmed as the right choice per the earlier
+  reference). The Trigger's `Value` text and all 3 row instances are
+  `isExposedInstance=true`, editable directly on a top-level `Select`
+  instance.
+- **No formal SLOT property** — attempted (so a designer could freely
+  add/remove/reorder rows, matching Collapsible's `Content` slot), but the
+  dedicated Figma slot-creation tools (`figma_add_slot_property` /
+  `figma_create_slot` / `figma_append_to_slot`, plus `figma_get_slots`) all
+  required an approval gate unavailable in that session — every call
+  returned `MCP error -32003: MCP tool call requires approval`. Separately,
+  Dropdown's own `Panel` component already carries a `Slot` property, but
+  it turned out to be non-functional for stacking: the slot's own frame is
+  `layoutMode: NONE` with a stale `layoutSizingVertical: FIXED` height (a
+  second instance of the exact "bound token, but sizing mode ignores it"
+  bug already found and fixed on `Dropdown / Separator` — **not yet fixed
+  on `Dropdown / Panel`'s Slot**, flagged here as a known follow-up since
+  fixing it might also fix the Panel's-own-Slot approach and make it usable
+  for Select too). Retry the dedicated tools in a future session (or ask
+  the user to grant the approval) before ruling a real SLOT out — the panel
+  content is a real, exposed-property-editable composition in the meantime,
+  just not swappable via Figma's "Swap instance" UX.
+
 ## Settled design decisions for the rich render path
 
 These were agreed during the planning conversation for the original Native

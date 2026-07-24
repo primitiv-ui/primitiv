@@ -110,3 +110,17 @@ Keyboard activation is handled natively by the underlying `<button>` element.
 | `Space` | Activates the button      |
 | `Enter` | Activates the button      |
 | `Tab`   | Moves focus to the button |
+
+## Where the behaviour lives
+
+The three rules above that aren't about React — `type` defaulting to
+`"button"`, `type` being withheld under `asChild`, and `disabled` emitting the
+`data-disabled` pair — come from `getButtonRootAttributes` in
+[`@primitiv-ui/core`](../../../core/src/Button/README.md), so a future Vue,
+Svelte or Solid adapter derives them identically rather than reimplementing
+them. Nothing about this component's public API changes as a result; it is
+noted here only because the core function is the right place to read (or
+change) those rules.
+
+Rendering, ref forwarding, prop pass-through and the `asChild` merge stay in
+this package — they are React's share of the job.

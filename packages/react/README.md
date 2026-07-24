@@ -66,6 +66,20 @@ import { Tabs } from "@primitiv-ui/react";
 **`Slot`** is the `asChild` composition utility used internally by components
 such as `Tabs.Trigger`. It is not a public component API.
 
+## Relationship to `@primitiv-ui/core`
+
+This package is the **React adapter**. Behaviour that isn't about React — the
+defaults that carry meaning, which `data-*` and ARIA attributes a part carries
+in a given state, which item a key press moves to — lives in
+[`@primitiv-ui/core`](../core/README.md), a dependency of this package, so
+that other frameworks can be adapted without reimplementing or re-testing
+those rules. Rendering, hooks, `ref` composition, context, portals and the
+`asChild` merge stay here.
+
+The migration is incremental: a component works exactly the same whether or not
+its core half has been extracted yet, and consumers see no difference either
+way. `Button` is the first one done.
+
 ## Testing
 
 Tests use [Vitest](https://vitest.dev/) and

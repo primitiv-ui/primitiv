@@ -187,8 +187,9 @@ these by hand across multiple commits:
 
 | Location | What changes |
 |---|---|
-| `packages/{react,icons,tokens}/package.json` | `"version"` |
-| `packages/{react,icons,tokens}/jsr.json` | `"version"` |
+| `packages/{core,react,icons,tokens}/package.json` | `"version"` |
+| `packages/{core,react,icons,tokens}/jsr.json` | `"version"` |
+| `packages/react/jsr.json` | `"imports"["@primitiv-ui/core"]` — the JSR range pinning react to core |
 | `npm/cli-{darwin-arm64,darwin-x64,linux-arm64-gnu,linux-x64-gnu,win32-x64}/package.json` | `"version"` |
 | `npm/cli-wrapper/package.json` | `"version"` **and** all 5 `"optionalDependencies"` entries |
 | `npm/create-primitiv-ui/package.json` | `"version"` |
@@ -197,6 +198,14 @@ these by hand across multiple commits:
 > `package.json`. Omitting the `jsr.json` bump silently re-publishes the
 > previous version on JSR — the npm versions advance but jsr.io stays stale.
 > The script handles both; do not bypass it.
+
+> **Cross-package gotcha:** `@primitiv-ui/react` depends on
+> `@primitiv-ui/core`. On npm that edge is `"workspace:*"`, which `pnpm -r
+> publish` rewrites to the concrete version at publish time. JSR has no
+> workspace protocol, so the same edge is declared as an import-map range in
+> `packages/react/jsr.json` (`jsr:@primitiv-ui/core@^<version>`) — which is why
+> `publish.yml` publishes `packages/core` to JSR **before** `packages/react`,
+> and why the bump script moves that range too.
 
 > **optionalDependencies gotcha:** the `cli-wrapper`'s `optionalDependencies`
 > must match the platform package versions. The script updates both the

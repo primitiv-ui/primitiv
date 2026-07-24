@@ -262,25 +262,6 @@
     user-select: none;
   }
 
-  /* A second-or-later group's heading needs its own breathing room above it —
-     the panel stacks rows with zero inter-row gap (every row supplies its own
-     spacing), and the separator's own margin-block alone read too tight
-     against the label immediately following it. Re-uses the panel's own
-     top-inset token, so a new group gets exactly as much room above its
-     heading as the panel gives its very first row. Two selectors, one rule:
-     a bare Label used directly as a Panel child is `:not(:first-child)` among
-     its own siblings there; a Label composed inside `Dropdown.Group` /
-     `.RadioGroup` sits first inside that wrapper's own nested `<ul>` instead
-     (see the Group/RadioGroup note above), so the margin has to land on the
-     *wrapper* `<li>` there, not the Label itself — either way, the very first
-     group/label is left alone, already covered by the panel's own
-     padding-block. */
-  .primitiv-dropdown__label:not(:first-child),
-  .primitiv-dropdown__group:not(:first-child),
-  .primitiv-dropdown__radio-group:not(:first-child) {
-    margin-block-start: var(--primitiv-dropdown-padding-block);
-  }
-
   /* ── Separator — a thin rule with breathing room above and below ── */
   .primitiv-dropdown__separator {
     block-size: var(--primitiv-dropdown-separator-thickness);
@@ -495,6 +476,7 @@ $primitiv-dropdown-item-font-weight: var(--primitiv-dropdown-item-font-weight);
 $primitiv-dropdown-item-color: var(--primitiv-dropdown-item-color);
 $primitiv-dropdown-item-bg: var(--primitiv-dropdown-item-bg);
 $primitiv-dropdown-item-bg-highlighted: var(--primitiv-dropdown-item-bg-highlighted);
+$primitiv-dropdown-row-inset: var(--primitiv-dropdown-row-inset);
 $primitiv-dropdown-label-height: var(--primitiv-dropdown-label-height);
 $primitiv-dropdown-label-padding-inline: var(--primitiv-dropdown-label-padding-inline);
 $primitiv-dropdown-label-color: var(--primitiv-dropdown-label-color);
@@ -506,4 +488,3 @@ $primitiv-dropdown-label-letter-spacing: var(--primitiv-dropdown-label-letter-sp
 $primitiv-dropdown-separator-spacing: var(--primitiv-dropdown-separator-spacing);
 $primitiv-dropdown-separator-color: var(--primitiv-dropdown-separator-color);
 $primitiv-dropdown-separator-thickness: var(--primitiv-dropdown-separator-thickness);
-$primitiv-dropdown-row-inset: var(--primitiv-dropdown-row-inset);

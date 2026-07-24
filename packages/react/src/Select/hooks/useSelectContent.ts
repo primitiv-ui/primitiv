@@ -53,6 +53,7 @@ export function useSelectContent({ onKeyDown, restProps }: UseSelectContentArgs)
       if ((event as ToggleEvent).newState === "closed") setOpen(false);
     };
     list.addEventListener("toggle", handleToggle);
+    // Stryker disable next-line StringLiteral: equivalent — unmount cleanup; a wrong event name only leaks a listener on a discarded node, unobservable.
     return () => list.removeEventListener("toggle", handleToggle);
     // Stryker disable next-line ArrayDeclaration: equivalent — setOpen is stable, so the effect runs once either way.
   }, [setOpen]);
@@ -61,6 +62,7 @@ export function useSelectContent({ onKeyDown, restProps }: UseSelectContentArgs)
     if (event.key === "Escape") {
       event.preventDefault();
       setOpen(false);
+      // Stryker disable next-line OptionalChaining: unreachable — the trigger is always mounted while the listbox is open.
       triggerRef.current?.focus();
       return;
     }

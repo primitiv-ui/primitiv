@@ -75,6 +75,7 @@ export function useSelectRoot({
       setValue(next);
       setOpenBase(false);
       openRef.current = false;
+      // Stryker disable next-line OptionalChaining: unreachable — the trigger is always mounted when an item is selected (selection happens inside the open Content).
       triggerRef.current?.focus();
     },
     [setValue, setOpenBase],
@@ -91,11 +92,13 @@ export function useSelectRoot({
   const registerItem = useCallback((itemValue: string, node: ReactNode) => {
     const isNew = !itemChildrenRef.current.has(itemValue);
     itemChildrenRef.current.set(itemValue, node);
+    // Stryker disable next-line ArithmeticOperator: equivalent — the version is an opaque re-render trigger; any change has the same effect.
     if (isNew) setItemVersion((v) => v + 1);
   }, []);
 
   const unregisterItem = useCallback((itemValue: string) => {
     itemChildrenRef.current.delete(itemValue);
+    // Stryker disable next-line ArithmeticOperator: equivalent — the version is an opaque re-render trigger; any change has the same effect.
     setItemVersion((v) => v + 1);
   }, []);
 

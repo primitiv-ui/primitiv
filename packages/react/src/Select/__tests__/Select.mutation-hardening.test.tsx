@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { vi } from "vitest";
 
 import { Select } from "../Select";
 
@@ -71,6 +72,54 @@ describe("Select toggle-event sync", () => {
     Object.defineProperty(openEvent, "newState", { value: "open" });
     fireEvent(list, openEvent);
     expect(screen.getByRole("button")).toHaveAttribute("aria-expanded", "true");
+  });
+});
+
+describe("Select selection commit + hidden form field", () => {
+  it("fires onOpenChange exactly once (to false) when a selection commits", async () => {
+    const user = userEvent.setup();
+    const onOpenChange = vi.fn();
+    render(
+      <Select.Root onOpenChange={onOpenChange}>
+        <Select.Trigger>
+          <Select.Value placeholder="Pick" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="react">React</Select.Item>
+          <Select.Item value="vue">Vue</Select.Item>
+        </Select.Content>
+      </Select.Root>,
+    );
+
+    await user.click(screen.getByRole("button")); // opens
+    onOpenChange.mockClear();
+    await user.click(screen.getByText("Vue")); // selecting closes — exactly once
+
+    expect(onOpenChange).toHaveBeenCalledTimes(1);
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it("renders a hidden form <select> option for each registered item value", () => {
+    const { container } = render(
+      <Select.Root name="framework">
+        <Select.Trigger>
+          <Select.Value placeholder="Pick" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="react">React</Select.Item>
+          <Select.Item value="vue">Vue</Select.Item>
+        </Select.Content>
+      </Select.Root>,
+    );
+
+    const hidden = container.querySelector<HTMLSelectElement>(
+      'select[name="framework"]',
+    )!;
+    const values = Array.from(hidden.querySelectorAll("option")).map(
+      (o) => o.value,
+    );
+    expect(values).toContain("react");
+    expect(values).toContain("vue");
   });
 });
 

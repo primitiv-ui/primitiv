@@ -54,6 +54,7 @@ export function useSelectContent({ onKeyDown, restProps }: UseSelectContentArgs)
     };
     list.addEventListener("toggle", handleToggle);
     return () => list.removeEventListener("toggle", handleToggle);
+    // Stryker disable next-line ArrayDeclaration: equivalent — setOpen is stable, so the effect runs once either way.
   }, [setOpen]);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {

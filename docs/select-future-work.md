@@ -55,6 +55,43 @@ released again imminently, so flipping the default from native to rich is
 free to do outright — no `native` deprecation window, no major-version
 gymnastics.
 
+## Rich value display — icons in the trigger, not just text (D: 2026-07-24)
+
+A real-world case (screenshot: a "Framework" picker — a leading React/Vue/
+Svelte icon in **both** the closed trigger and each open row, a trailing
+checkmark on the selected row, a trailing "Soon" badge on disabled rows)
+means `Select.Item` content (icon + label + trailing decoration) has to
+show up in the **closed trigger**, not just the open listbox — plain-text
+mirroring isn't enough.
+
+Settled mechanism (same shape as Radix's `Select.Value`, which solves this
+exact problem): a `Select.Value` sub-component, placed inside
+`Select.Trigger`, that **automatically mirrors the currently-selected
+`Select.Item`'s children** — the consumer writes the icon + label once, on
+the `Item`, and never duplicates it for the trigger. `Select.Value` accepts
+a `placeholder` prop shown only when nothing is selected.
+
+- **Registration, not prop-drilling.** Each mounted `Select.Item` registers
+  `{ value, children }` in a shared collection via context — the same
+  `useCollection` shape already used by Tabs/RadioGroup elsewhere in this
+  library (see the `react-component-patterns` skill) — and `Select.Value`
+  looks up the entry matching the current `value` to render.
+- **The mirror excludes `Select.ItemIndicator`.** The screenshot's
+  checkmark is meaningful only inside the open row (it answers "which one
+  is selected" — redundant and confusing repeated on the trigger it already
+  represents); an icon or any other Item child mirrors through untouched.
+  Mechanically: `Select.Value`'s render walks the matched Item's children
+  and drops any element whose type is `SelectItemIndicator`, keeping
+  everything else (text and any other elements — icons, badges) — a
+  narrower, targeted filter, not the same string/number-vs-element split
+  used for the `native`-mode text extraction above.
+- **A trailing badge/pill (the screenshot's "Soon") needs no dedicated
+  API** — it's just another child of `Select.Item`, disabled items are
+  still visible/unselectable via the existing `disabled` prop (matches
+  `Select.Option`'s current `disabled` behaviour), and it mirrors into the
+  trigger like any other non-indicator child *if* that item is ever
+  selected (uncommon for a disabled option, but not prevented).
+
 ## Settled design decisions for the rich render path
 
 These were agreed during the planning conversation for the original Native

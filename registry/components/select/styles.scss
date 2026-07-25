@@ -266,6 +266,10 @@
     --primitiv-select-group-label-line-height: var(--primitiv-label-xs-line-height);
     --primitiv-select-group-label-letter-spacing: var(--primitiv-letter-spacing-wide);
 
+    --primitiv-select-separator-spacing: var(--primitiv-dropdown-md-separator-spacing);
+    --primitiv-select-separator-color: var(--primitiv-border-subtle);
+    --primitiv-select-separator-thickness: var(--primitiv-border-width-1);
+
     /* position:fixed lets anchor() resolve; the flex column stacks the rows.
        Inert while closed (native [popover] is display:none until :popover-open
        — see the display flip below). */
@@ -403,6 +407,17 @@
     text-transform: uppercase;
     user-select: none;
   }
+
+  /* ── Separator — a thin rule with breathing room above and below, between
+     groups of options (mirrors Dropdown / Separator exactly, down to the
+     shared --primitiv-dropdown-*-separator-* token defaults). Stretches full
+     width for free: the content panel's flex column defaults to
+     align-items: stretch, same as every row. ── */
+  .primitiv-select__separator {
+    block-size: var(--primitiv-select-separator-thickness);
+    margin-block: var(--primitiv-select-separator-spacing);
+    background: var(--primitiv-select-separator-color);
+  }
 }
 
 @layer primitiv.variants {
@@ -522,6 +537,7 @@
     --primitiv-select-item-icon-size: var(--primitiv-dropdown-xs-item-icon-size);
     --primitiv-select-group-label-height: var(--primitiv-dropdown-xs-label-height);
     --primitiv-select-group-label-padding-inline: var(--primitiv-dropdown-xs-label-padding-inline);
+    --primitiv-select-separator-spacing: var(--primitiv-dropdown-xs-separator-spacing);
   }
   .primitiv-select__content--sm {
     --primitiv-select-content-radius: var(--primitiv-dropdown-sm-panel-radius);
@@ -535,6 +551,7 @@
     --primitiv-select-item-icon-size: var(--primitiv-dropdown-sm-item-icon-size);
     --primitiv-select-group-label-height: var(--primitiv-dropdown-sm-label-height);
     --primitiv-select-group-label-padding-inline: var(--primitiv-dropdown-sm-label-padding-inline);
+    --primitiv-select-separator-spacing: var(--primitiv-dropdown-sm-separator-spacing);
   }
   .primitiv-select__content--md {
     --primitiv-select-content-radius: var(--primitiv-dropdown-md-panel-radius);
@@ -548,6 +565,7 @@
     --primitiv-select-item-icon-size: var(--primitiv-dropdown-md-item-icon-size);
     --primitiv-select-group-label-height: var(--primitiv-dropdown-md-label-height);
     --primitiv-select-group-label-padding-inline: var(--primitiv-dropdown-md-label-padding-inline);
+    --primitiv-select-separator-spacing: var(--primitiv-dropdown-md-separator-spacing);
   }
   .primitiv-select__content--lg {
     --primitiv-select-content-radius: var(--primitiv-dropdown-lg-panel-radius);
@@ -561,6 +579,7 @@
     --primitiv-select-item-icon-size: var(--primitiv-dropdown-lg-item-icon-size);
     --primitiv-select-group-label-height: var(--primitiv-dropdown-lg-label-height);
     --primitiv-select-group-label-padding-inline: var(--primitiv-dropdown-lg-label-padding-inline);
+    --primitiv-select-separator-spacing: var(--primitiv-dropdown-lg-separator-spacing);
   }
   .primitiv-select__content--xl {
     --primitiv-select-content-radius: var(--primitiv-dropdown-xl-panel-radius);
@@ -574,6 +593,7 @@
     --primitiv-select-item-icon-size: var(--primitiv-dropdown-xl-item-icon-size);
     --primitiv-select-group-label-height: var(--primitiv-dropdown-xl-label-height);
     --primitiv-select-group-label-padding-inline: var(--primitiv-dropdown-xl-label-padding-inline);
+    --primitiv-select-separator-spacing: var(--primitiv-dropdown-xl-separator-spacing);
   }
 
   /* Placement — overrides the default bottom-start insets. All expressed with
@@ -787,3 +807,6 @@ $primitiv-select-group-label-font-size: var(--primitiv-select-group-label-font-s
 $primitiv-select-group-label-font-weight: var(--primitiv-select-group-label-font-weight);
 $primitiv-select-group-label-line-height: var(--primitiv-select-group-label-line-height);
 $primitiv-select-group-label-letter-spacing: var(--primitiv-select-group-label-letter-spacing);
+$primitiv-select-separator-spacing: var(--primitiv-select-separator-spacing);
+$primitiv-select-separator-color: var(--primitiv-select-separator-color);
+$primitiv-select-separator-thickness: var(--primitiv-select-separator-thickness);

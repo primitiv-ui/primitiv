@@ -98,3 +98,7 @@ export type SelectGroupVariants = VariantProps<typeof selectGroup>;
 export const selectGroupLabel = cva("primitiv-select__group-label");
 
 export type SelectGroupLabelVariants = VariantProps<typeof selectGroupLabel>;
+
+export const selectSeparator = cva("primitiv-select__separator");
+
+export type SelectSeparatorVariants = VariantProps<typeof selectSeparator>;

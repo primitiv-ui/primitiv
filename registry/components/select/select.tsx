@@ -31,6 +31,7 @@ import {
   selectItemTrailing,
   selectGroup,
   selectGroupLabel,
+  selectSeparator,
 } from "./select.recipe";
 
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
@@ -227,6 +228,22 @@ export type SelectGroupLabelProps = ComponentPropsWithRef<"span">;
 
 export function SelectGroupLabel({ className, ...props }: SelectGroupLabelProps) {
   return <span aria-hidden="true" className={cx(selectGroupLabel(), className)} {...props} />;
+}
+
+/**
+ * A visual divider between groups of options, mirroring `Dropdown.Separator`'s
+ * look via the shared `--primitiv-dropdown-*-separator-*` tokens. Purely
+ * decorative — `role="separator"` marks it non-interactive, and rich mode's
+ * keyboard navigation only ever targets `[role="option"]`, so it's skipped by
+ * arrow-key traversal automatically, with no extra wiring. Rich mode only — a
+ * native `<select>` can't hold anything but `<option>`/`<optgroup>`.
+ *
+ * @see https://primitiv-ui.dev/docs/components/select
+ */
+export type SelectSeparatorProps = ComponentPropsWithRef<"div">;
+
+export function SelectSeparator({ className, ...props }: SelectSeparatorProps) {
+  return <div role="separator" className={cx(selectSeparator(), className)} {...props} />;
 }
 
 export type SelectPlaceholderProps = ComponentPropsWithRef<typeof SelectPrimitive.Placeholder>;

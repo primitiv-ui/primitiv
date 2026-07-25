@@ -1,4 +1,4 @@
-import { useState, type CSSProperties, type ReactElement } from "react";
+import { Fragment, useState, type CSSProperties, type ReactElement } from "react";
 import {
   Accordion,
   AccordionItem,
@@ -92,6 +92,7 @@ import {
   SelectItemTrailing,
   SelectGroup,
   SelectGroupLabel,
+  SelectSeparator,
   SelectPlaceholder,
   Tabs,
   TabsList,
@@ -904,7 +905,9 @@ primitiv add --all`}</code>
             accessible name only, so the *visible* heading is a GroupLabel with the
             same text (aria-hidden, so it isn't announced twice). SelectLeading is
             the other kind of trigger glyph: a standing mark that never changes
-            with the selection. */}
+            with the selection. A SelectSeparator marks the boundary between
+            groups — skipped by arrow-key navigation for free, since it carries
+            no role="option". */}
         <div className="ks-select-demo">
           <span className="ks-select-demo__caption">
             Rich · groups + standing icon
@@ -927,18 +930,21 @@ primitiv add --all`}</code>
               size={size}
               style={{ positionAnchor: "--ks-sel-region" } as CSSProperties}
             >
-              {REGIONS.map(({ label, options }) => (
-                <SelectGroup key={label} label={label}>
-                  <SelectGroupLabel>{label}</SelectGroupLabel>
-                  {options.map(({ value, name }) => (
-                    <SelectItem key={value} value={value}>
-                      <SelectItemIndicator>
-                        <Check aria-hidden="true" />
-                      </SelectItemIndicator>
-                      <SelectItemLabel>{name}</SelectItemLabel>
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
+              {REGIONS.map(({ label, options }, index) => (
+                <Fragment key={label}>
+                  {index > 0 && <SelectSeparator />}
+                  <SelectGroup label={label}>
+                    <SelectGroupLabel>{label}</SelectGroupLabel>
+                    {options.map(({ value, name }) => (
+                      <SelectItem key={value} value={value}>
+                        <SelectItemIndicator>
+                          <Check aria-hidden="true" />
+                        </SelectItemIndicator>
+                        <SelectItemLabel>{name}</SelectItemLabel>
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </Fragment>
               ))}
             </SelectContent>
           </Select>

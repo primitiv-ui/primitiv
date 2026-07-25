@@ -147,6 +147,14 @@ only. When the heading should also be *seen* in rich mode, render a
 the name is not announced twice). Native mode needs none of this — `<optgroup>`
 draws its own heading.
 
+Drop a `SelectSeparator` between groups (or between any two items) for a
+visual divider — it mirrors `Dropdown.Separator`'s look via the shared
+`--primitiv-dropdown-*-separator-*` tokens. It's a plain, non-interactive
+`<div role="separator">`: rich mode's keyboard navigation only ever targets
+`[role="option"]`, so it's skipped by arrow-key traversal with no extra
+wiring. Rich mode only — a native `<select>` can't hold anything but
+`<option>`/`<optgroup>`.
+
 ### Disabled
 
 In rich mode `disabled` on the root reaches the hidden form `<select>`, not the
@@ -170,6 +178,7 @@ itself. Native mode needs it on the root only.
 | `SelectItemTrailing`  | —                      | ✓       | Trailing slot; natural width, icon height                  |
 | `SelectGroup`         | `Select.Group`         | ✓       | Group of options; `label` is the accessible name           |
 | `SelectGroupLabel`    | —                      | ✓       | The visible group heading (rich mode)                      |
+| `SelectSeparator`     | —                      | ✓       | Divider between groups (rich mode); skipped by navigation  |
 | `SelectPlaceholder`   | `Select.Placeholder`   | —       | Native-only initial hint; the browser styles it            |
 
 ## Props

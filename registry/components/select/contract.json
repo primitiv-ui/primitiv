@@ -63,7 +63,8 @@
     { "name": "item-label", "component": "ItemLabel", "element": "span", "class": "primitiv-select__item-label" },
     { "name": "item-trailing", "component": "ItemTrailing", "element": "span", "class": "primitiv-select__item-trailing" },
     { "name": "group", "component": "Group", "element": "div", "class": "primitiv-select__group" },
-    { "name": "group-label", "component": "GroupLabel", "element": "span", "class": "primitiv-select__group-label" }
+    { "name": "group-label", "component": "GroupLabel", "element": "span", "class": "primitiv-select__group-label" },
+    { "name": "separator", "component": "Separator", "element": "div", "class": "primitiv-select__separator" }
   ],
   "customProperties": [
     { "name": "--primitiv-select-bg", "defaultsTo": "var(--primitiv-surface-default)" },
@@ -117,6 +118,9 @@
     { "name": "--primitiv-select-group-label-font-size", "defaultsTo": "var(--primitiv-label-xs-font-size)" },
     { "name": "--primitiv-select-group-label-font-weight", "defaultsTo": "var(--primitiv-label-xs-font-weight)" },
     { "name": "--primitiv-select-group-label-line-height", "defaultsTo": "var(--primitiv-label-xs-line-height)" },
-    { "name": "--primitiv-select-group-label-letter-spacing", "defaultsTo": "var(--primitiv-letter-spacing-wide)" }
+    { "name": "--primitiv-select-group-label-letter-spacing", "defaultsTo": "var(--primitiv-letter-spacing-wide)" },
+    { "name": "--primitiv-select-separator-spacing", "defaultsTo": "var(--primitiv-dropdown-md-separator-spacing)" },
+    { "name": "--primitiv-select-separator-color", "defaultsTo": "var(--primitiv-border-subtle)" },
+    { "name": "--primitiv-select-separator-thickness", "defaultsTo": "var(--primitiv-border-width-1)" }
   ]
 }

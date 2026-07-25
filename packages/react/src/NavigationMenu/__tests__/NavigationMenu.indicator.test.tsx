@@ -136,6 +136,21 @@ describe("NavigationMenu.Indicator", () => {
     expect(indicator).toHaveAttribute("data-orientation", "horizontal");
   });
 
+  it("publishes no geometry when the open value has no rendered trigger", () => {
+    render(<Nav value="ghost" onValueChange={() => {}} />);
+
+    const indicator = screen.getByTestId("indicator");
+
+    // Open by state, but there is nothing to measure — better a marker with no
+    // geometry than one parked at 0.
+    expect(indicator).toHaveAttribute("data-state", "open");
+    expect(
+      indicator.style.getPropertyValue(
+        "--primitiv-navigation-menu-indicator-position",
+      ),
+    ).toBe("");
+  });
+
   it("keeps a force-mounted indicator unhidden so it can animate away", () => {
     render(<Nav />);
     const { container } = render(

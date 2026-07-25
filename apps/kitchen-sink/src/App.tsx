@@ -1,4 +1,4 @@
-import { useState, type ReactElement } from "react";
+import { useState, type CSSProperties, type ReactElement } from "react";
 import {
   Accordion,
   AccordionItem,
@@ -31,6 +31,9 @@ import {
   DropdownCheckboxItem,
   DropdownRadioItem,
   DropdownItemIndicator,
+  DropdownItemLeading,
+  DropdownItemLabel,
+  DropdownItemTrailing,
   DropdownLabel,
   DropdownSeparator,
   DropdownGroup,
@@ -76,6 +79,20 @@ import {
   TableScrollArea,
   SegmentedControl,
   SegmentedControlItem,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectLeading,
+  SelectIcon,
+  SelectContent,
+  SelectItem,
+  SelectItemIndicator,
+  SelectItemLeading,
+  SelectItemLabel,
+  SelectItemTrailing,
+  SelectGroup,
+  SelectGroupLabel,
+  SelectPlaceholder,
   Tabs,
   TabsList,
   TabsTrigger,
@@ -89,7 +106,7 @@ import {
   TooltipContent,
   TooltipArrow,
 } from "./components";
-import { Check, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Close, Minus, Search, Sort } from "@primitiv-ui/icons";
+import { Check, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Close, Download, File, Folder, Minus, Search, Sort } from "@primitiv-ui/icons";
 import { useChrome } from "./chrome";
 import "./App.css";
 
@@ -127,6 +144,40 @@ function SvelteLogo(): ReactElement {
     </svg>
   );
 }
+
+/* Select demo fixtures — the same framework marks the Segmented Control uses,
+   reused here as the options' leading slot content. */
+const FRAMEWORKS = [
+  { value: "react", label: "React", Logo: ReactLogo },
+  { value: "vue", label: "Vue", Logo: VueLogo },
+  { value: "svelte", label: "Svelte", Logo: SvelteLogo },
+] as const;
+
+/* Both row slots at once: a leading mark plus a trailing shortcut or "Soon"
+   pill. `soon` doubles as the disabled flag, so the unavailable row stays
+   visible and unselectable. */
+const RUNTIMES = [
+  { value: "react", label: "React", Logo: ReactLogo, shortcut: "⌘1", soon: false },
+  { value: "vue", label: "Vue", Logo: VueLogo, shortcut: "⌘2", soon: false },
+  { value: "svelte", label: "Svelte", Logo: SvelteLogo, shortcut: "", soon: true },
+] as const;
+
+const REGIONS = [
+  {
+    label: "Europe",
+    options: [
+      { value: "lon", name: "London" },
+      { value: "fra", name: "Frankfurt" },
+    ],
+  },
+  {
+    label: "North America",
+    options: [
+      { value: "iad", name: "Virginia" },
+      { value: "sfo", name: "San Francisco" },
+    ],
+  },
+] as const;
 
 type Release = { pkg: string; status: string; downloads: number; size: number };
 
@@ -224,6 +275,12 @@ export function App(): ReactElement {
   const [ddPanels, setDdPanels] = useState<boolean | "indeterminate">("indeterminate");
   const [ddSortOrder, setDdSortOrder] = useState("modified");
   const [framework, setFramework] = useState("react");
+  // Select demo state — controlled so the trigger's mirrored content and the
+  // checkmark indicator both track a real selection.
+  const [selFramework, setSelFramework] = useState("");
+  const [selRuntime, setSelRuntime] = useState("vue");
+  const [selRegion, setSelRegion] = useState("");
+  const [selFruit, setSelFruit] = useState("");
   const [readMoreOpen, setReadMoreOpen] = useState(false);
 
   const sortedReleases = [...RELEASES].sort((a, b) => {
@@ -411,19 +468,36 @@ primitiv add --all`}</code>
             </Button>
           </DropdownTrigger>
           <DropdownContent size={size} style={{ positionAnchor: "--ks-dd" }}>
+            {/* The row slots: a leading glyph, a label that takes the free space,
+                and a trailing shortcut that keeps its natural width. */}
             <DropdownGroup>
               <DropdownLabel>File</DropdownLabel>
               <DropdownItem>
-                New file
-                <span style={{ color: "var(--primitiv-content-muted)" }}>⌘N</span>
+                <DropdownItemLeading>
+                  <File aria-hidden="true" />
+                </DropdownItemLeading>
+                <DropdownItemLabel>New file</DropdownItemLabel>
+                <DropdownItemTrailing>
+                  <span className="ks-select-kbd">⌘N</span>
+                </DropdownItemTrailing>
               </DropdownItem>
               <DropdownItem>
-                Open…
-                <span style={{ color: "var(--primitiv-content-muted)" }}>⌘O</span>
+                <DropdownItemLeading>
+                  <Folder aria-hidden="true" />
+                </DropdownItemLeading>
+                <DropdownItemLabel>Open…</DropdownItemLabel>
+                <DropdownItemTrailing>
+                  <span className="ks-select-kbd">⌘O</span>
+                </DropdownItemTrailing>
               </DropdownItem>
               <DropdownItem>
-                Save
-                <span style={{ color: "var(--primitiv-content-muted)" }}>⌘S</span>
+                <DropdownItemLeading>
+                  <Download aria-hidden="true" />
+                </DropdownItemLeading>
+                <DropdownItemLabel>Save</DropdownItemLabel>
+                <DropdownItemTrailing>
+                  <span className="ks-select-kbd">⌘S</span>
+                </DropdownItemTrailing>
               </DropdownItem>
             </DropdownGroup>
 
@@ -595,6 +669,259 @@ primitiv add --all`}</code>
             </Button>
           </InputGroupTrailingAdornment>
         </InputGroup>
+      </Section>
+
+      <Section title="Select">
+        {/* Rich (the default) — the trigger's content is not written here: it is
+            mirrored out of the selected option, so the React mark and the label
+            appear in the closed control for free. The checkmark indicator is
+            excluded from that mirror. */}
+        <div className="ks-select-demo">
+          <span className="ks-select-demo__caption">Rich · leading marks</span>
+          <Select value={selFramework} onValueChange={setSelFramework}>
+            <SelectTrigger
+              size={size}
+              aria-label="Framework"
+              style={{ anchorName: "--ks-sel-framework" } as CSSProperties}
+            >
+              <SelectValue placeholder="Pick a framework…" />
+              <SelectIcon>
+                <ChevronDown />
+              </SelectIcon>
+            </SelectTrigger>
+            <SelectContent
+              size={size}
+              style={{ positionAnchor: "--ks-sel-framework" } as CSSProperties}
+            >
+              {FRAMEWORKS.map(({ value, label, Logo }) => (
+                <SelectItem key={value} value={value}>
+                  <SelectItemIndicator>
+                    <Check aria-hidden="true" />
+                  </SelectItemIndicator>
+                  <SelectItemLeading>
+                    <Logo />
+                  </SelectItemLeading>
+                  <SelectItemLabel>{label}</SelectItemLabel>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Both row slots at once: a leading logo and a trailing pill / shortcut.
+            The trailing slot keeps its content's natural width, so a "Soon" badge
+            sits there as happily as an icon. The disabled row stays visible and
+            unselectable. */}
+        <div className="ks-select-demo">
+          <span className="ks-select-demo__caption">Rich · leading + trailing</span>
+          <Select value={selRuntime} onValueChange={setSelRuntime}>
+            <SelectTrigger
+              size={size}
+              aria-label="Runtime"
+              style={{ anchorName: "--ks-sel-runtime" } as CSSProperties}
+            >
+              <SelectValue placeholder="Pick a runtime…" />
+              <SelectIcon>
+                <ChevronDown />
+              </SelectIcon>
+            </SelectTrigger>
+            <SelectContent
+              size={size}
+              style={{ positionAnchor: "--ks-sel-runtime" } as CSSProperties}
+            >
+              {RUNTIMES.map(({ value, label, Logo, shortcut, soon }) => (
+                <SelectItem key={value} value={value} disabled={soon}>
+                  <SelectItemIndicator>
+                    <Check aria-hidden="true" />
+                  </SelectItemIndicator>
+                  <SelectItemLeading>
+                    <Logo />
+                  </SelectItemLeading>
+                  <SelectItemLabel>{label}</SelectItemLabel>
+                  <SelectItemTrailing>
+                    {soon ? (
+                      <span className="ks-select-badge">Soon</span>
+                    ) : (
+                      <span className="ks-select-kbd">{shortcut}</span>
+                    )}
+                  </SelectItemTrailing>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Grouped options. The headless Group exposes `label` as the group's
+            accessible name only, so the *visible* heading is a GroupLabel with the
+            same text (aria-hidden, so it isn't announced twice). SelectLeading is
+            the other kind of trigger glyph: a standing mark that never changes
+            with the selection. */}
+        <div className="ks-select-demo">
+          <span className="ks-select-demo__caption">Rich · groups + standing icon</span>
+          <Select value={selRegion} onValueChange={setSelRegion}>
+            <SelectTrigger
+              size={size}
+              aria-label="Region"
+              style={{ anchorName: "--ks-sel-region" } as CSSProperties}
+            >
+              <SelectLeading>
+                <Search aria-hidden="true" />
+              </SelectLeading>
+              <SelectValue placeholder="Nearest region…" />
+              <SelectIcon>
+                <ChevronDown />
+              </SelectIcon>
+            </SelectTrigger>
+            <SelectContent
+              size={size}
+              style={{ positionAnchor: "--ks-sel-region" } as CSSProperties}
+            >
+              {REGIONS.map(({ label, options }) => (
+                <SelectGroup key={label} label={label}>
+                  <SelectGroupLabel>{label}</SelectGroupLabel>
+                  {options.map(({ value, name }) => (
+                    <SelectItem key={value} value={value}>
+                      <SelectItemIndicator>
+                        <Check aria-hidden="true" />
+                      </SelectItemIndicator>
+                      <SelectItemLabel>{name}</SelectItemLabel>
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Placement — the same panel opening upward, wired through the same
+            anchor-name / position-anchor pair. */}
+        <div className="ks-select-demo">
+          <span className="ks-select-demo__caption">Rich · top-end placement</span>
+          <Select value={selFramework} onValueChange={setSelFramework}>
+            <SelectTrigger
+              size={size}
+              aria-label="Framework, opening upward"
+              style={{ anchorName: "--ks-sel-up" } as CSSProperties}
+            >
+              <SelectValue placeholder="Pick a framework…" />
+              <SelectIcon>
+                <ChevronDown />
+              </SelectIcon>
+            </SelectTrigger>
+            <SelectContent
+              size={size}
+              placement="top-end"
+              style={{ positionAnchor: "--ks-sel-up" } as CSSProperties}
+            >
+              {FRAMEWORKS.map(({ value, label, Logo }) => (
+                <SelectItem key={value} value={value}>
+                  <SelectItemIndicator>
+                    <Check aria-hidden="true" />
+                  </SelectItemIndicator>
+                  <SelectItemLeading>
+                    <Logo />
+                  </SelectItemLeading>
+                  <SelectItemLabel>{label}</SelectItemLabel>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Invalid + disabled, on the rich control. `disabled` on the root reaches
+            the hidden form <select>, so the trigger takes its own. */}
+        <div className="ks-select-demo">
+          <span className="ks-select-demo__caption">Rich · invalid</span>
+          <Select value="" onValueChange={() => {}}>
+            <SelectTrigger
+              size={size}
+              aria-invalid
+              aria-label="Framework, invalid"
+              style={{ anchorName: "--ks-sel-invalid" } as CSSProperties}
+            >
+              <SelectValue placeholder="Required" />
+              <SelectIcon>
+                <ChevronDown />
+              </SelectIcon>
+            </SelectTrigger>
+            <SelectContent
+              size={size}
+              style={{ positionAnchor: "--ks-sel-invalid" } as CSSProperties}
+            >
+              <SelectItem value="react">
+                <SelectItemIndicator>
+                  <Check aria-hidden="true" />
+                </SelectItemIndicator>
+                <SelectItemLabel>React</SelectItemLabel>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="ks-select-demo">
+          <span className="ks-select-demo__caption">Rich · disabled</span>
+          <Select value="react" onValueChange={() => {}}>
+            <SelectTrigger size={size} disabled aria-label="Framework, disabled">
+              <SelectValue placeholder="Pick a framework…" />
+              <SelectIcon>
+                <ChevronDown />
+              </SelectIcon>
+            </SelectTrigger>
+            <SelectContent size={size}>
+              <SelectItem value="react">
+                <SelectItemLabel>React</SelectItemLabel>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Native — the same component with `native` set. The platform owns the
+            popup, the arrow and the selected text; only the frame is ours. Element
+            children of an Item are dropped here, so the options are plain text and
+            the group is a real <optgroup>. */}
+        <div className="ks-select-demo">
+          <span className="ks-select-demo__caption">Native · placeholder + groups</span>
+          <Select
+            native
+            size={size}
+            value={selFruit}
+            onValueChange={setSelFruit}
+            aria-label="Fruit"
+          >
+            <SelectPlaceholder>Choose a fruit…</SelectPlaceholder>
+            <SelectGroup label="Stone fruit">
+              <SelectItem value="peach">Peach</SelectItem>
+              <SelectItem value="plum">Plum</SelectItem>
+            </SelectGroup>
+            <SelectGroup label="Citrus">
+              <SelectItem value="lemon">Lemon</SelectItem>
+              <SelectItem value="orange">Orange</SelectItem>
+              <SelectItem value="durian" disabled>
+                Durian (sold out)
+              </SelectItem>
+            </SelectGroup>
+          </Select>
+        </div>
+
+        <div className="ks-select-demo">
+          <span className="ks-select-demo__caption">Native · in a Field</span>
+          <Field size={size}>
+            <FieldLabel>Deploy target</FieldLabel>
+            <Select native size={size} defaultValue="edge">
+              <SelectItem value="edge">Edge</SelectItem>
+              <SelectItem value="node">Node</SelectItem>
+              <SelectItem value="static">Static</SelectItem>
+            </Select>
+            <FieldDescription>Inherits the field's id and description.</FieldDescription>
+          </Field>
+        </div>
+
+        <div className="ks-select-demo">
+          <span className="ks-select-demo__caption">Native · disabled</span>
+          <Select native size={size} disabled defaultValue="edge" aria-label="Disabled target">
+            <SelectItem value="edge">Edge</SelectItem>
+          </Select>
+        </div>
       </Section>
 
       <Section title="Tabs" column>

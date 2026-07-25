@@ -53,6 +53,43 @@ body {
   align-self: flex-start;
 }
 
+/* Select demos — the control fills its container (it tracks a form column, like
+   Input), so give each demo the 240px form width the Figma Select set uses and
+   stack a caption above it. The panel then inherits that width through
+   `anchor-size(width)`. */
+.ks-select-demo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-8);
+  inline-size: var(--primitiv-size-size-240);
+}
+
+.ks-select-demo__caption {
+  color: var(--primitiv-content-muted);
+  font-size: var(--primitiv-label-sm-font-size);
+  line-height: var(--primitiv-label-sm-line-height);
+}
+
+/* A "Soon" style pill for the trailing slot, showing that the slot takes any
+   content at its natural width — not just an icon square. */
+.ks-select-badge {
+  padding-inline: var(--primitiv-space-space-6);
+  border-radius: var(--primitiv-radii-full);
+  background: var(--primitiv-surface-subtle);
+  color: var(--primitiv-content-muted);
+  font-size: var(--primitiv-label-xs-font-size);
+  line-height: var(--primitiv-label-xs-line-height);
+  text-transform: uppercase;
+  letter-spacing: var(--primitiv-letter-spacing-wide);
+}
+
+/* A monospace shortcut hint for the trailing slot. */
+.ks-select-kbd {
+  color: var(--primitiv-content-muted);
+  font-family: var(--primitiv-font-family-mono);
+  font-size: var(--primitiv-label-xs-font-size);
+}
+
 /* A flex row so a vertical Divider has a row height to stretch across. */
 .kitchen-sink__divider-row {
   display: flex;

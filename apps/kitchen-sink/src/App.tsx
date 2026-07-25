@@ -60,6 +60,21 @@ import {
   ModalTitle,
   ModalDescription,
   ModalClose,
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+  NavigationMenuTrigger,
+  NavigationMenuTriggerLabel,
+  NavigationMenuTriggerIcon,
+  NavigationMenuContent,
+  NavigationMenuViewport,
+  NavigationMenuIndicator,
+  NavigationMenuLink,
+  NavigationMenuLinkText,
+  NavigationMenuLinkTitle,
+  NavigationMenuLinkDescription,
+  NavigationMenuLinkLeading,
+  NavigationMenuLinkTrailing,
   Popover,
   PopoverTrigger,
   PopoverContent,
@@ -287,6 +302,49 @@ const POPOVER_PLACEMENTS = [
 ] as const;
 
 const DRAWER_SIDES = ["left", "right", "top", "bottom"] as const;
+
+// NavigationMenu demo: the docs-site nav from RFC 0019 — two disclosure entries
+// with mega-menu panels, plus a plain bar link. Each panel is two columns of
+// title + description rows, the shape the Panel Link placement is built for.
+const NAV_SECTIONS = [
+  {
+    value: "concepts",
+    label: "Concepts",
+    columns: [
+      [
+        { title: "Tokens", description: "The three-tier token architecture" },
+        { title: "Density & theming", description: "Four densities, light and dark" },
+      ],
+      [
+        { title: "Cascade layers", description: "How the CSS layers stack" },
+        { title: "Elevation", description: "Shadow and depth hierarchy" },
+      ],
+    ],
+  },
+  {
+    value: "components",
+    label: "Components",
+    columns: [
+      [
+        { title: "Overview", description: "Every component, per mode" },
+        { title: "Forms", description: "Input, Select, Checkbox, Radio" },
+      ],
+      [
+        { title: "Overlays", description: "Modal, Drawer, Popover, Tooltip" },
+        { title: "Navigation", description: "Tabs, Breadcrumb, this menu" },
+      ],
+    ],
+  },
+] as const;
+
+// The composed mobile presentation (RFC 0019 §3): a Drawer shell holding one
+// Collapsible per section, reusing NavigationMenuLink so active-state logic is
+// written once across both presentations.
+const MOBILE_NAV = [
+  { label: "Start Here", links: ["Installation", "Quick start"] },
+  { label: "Concepts", links: ["Tokens", "Density & theming", "Cascade layers"] },
+  { label: "Registry & CLI", links: ["Adding components", "The lockfile"] },
+] as const;
 
 // Tooltip demo: one per side (default tone) plus an inverted-tone example.
 const TOOLTIP_DEMOS = [
@@ -697,6 +755,163 @@ primitiv add --all`}</code>
             <DropdownItem disabled>Archive project</DropdownItem>
           </DropdownContent>
         </Dropdown>
+      </Section>
+
+      {/* Sits high on the page for the same reason Dropdown does: the panel opens
+          downward and needs room below it. Unlike Dropdown it is normal-flow — the
+          <nav> is the containing block — so there is no anchor-name wiring. */}
+      <Section title="Navigation Menu" column>
+        {/* Desktop: two disclosure entries with mega-menu panels, one plain bar
+            link, an arrow marker, and the shared Viewport every panel projects
+            into. forceMount on all three so the close can be transitioned rather
+            than snapping (the headless applies `hidden` without it). */}
+        <NavigationMenu size={size} aria-label="Docs">
+          <NavigationMenuList>
+            {NAV_SECTIONS.map((section) => (
+              <NavigationMenuItem key={section.value} value={section.value}>
+                <NavigationMenuTrigger>
+                  <NavigationMenuTriggerLabel>{section.label}</NavigationMenuTriggerLabel>
+                  <NavigationMenuTriggerIcon>
+                    <ChevronDown aria-hidden="true" />
+                  </NavigationMenuTriggerIcon>
+                </NavigationMenuTrigger>
+                <NavigationMenuContent forceMount>
+                  {section.columns.map((column, columnIndex) => (
+                    <div key={columnIndex}>
+                      {column.map((row) => (
+                        <NavigationMenuLink
+                          key={row.title}
+                          placement="panel"
+                          href={`#${section.value}-${row.title}`}
+                        >
+                          <NavigationMenuLinkLeading>
+                            <File aria-hidden="true" />
+                          </NavigationMenuLinkLeading>
+                          <NavigationMenuLinkText>
+                            <NavigationMenuLinkTitle>{row.title}</NavigationMenuLinkTitle>
+                            <NavigationMenuLinkDescription>
+                              {row.description}
+                            </NavigationMenuLinkDescription>
+                          </NavigationMenuLinkText>
+                          <NavigationMenuLinkTrailing>
+                            <ChevronRight aria-hidden="true" />
+                          </NavigationMenuLinkTrailing>
+                        </NavigationMenuLink>
+                      ))}
+                    </div>
+                  ))}
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            ))}
+
+            {/* A value-less Item is what makes this a plain link rather than a
+                disclosure — no Trigger, no panel. */}
+            <NavigationMenuItem>
+              <NavigationMenuLink href="#changelog" active>
+                Changelog
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+
+          <NavigationMenuIndicator forceMount />
+          <NavigationMenuViewport forceMount />
+        </NavigationMenu>
+
+        {/* The same nav with the underline marker — the docs-site wireframe's
+            treatment, and the reason Indicator ships two styles. */}
+        <NavigationMenu size={size} aria-label="Docs (underline marker)">
+          <NavigationMenuList>
+            <NavigationMenuItem value="registry">
+              <NavigationMenuTrigger>
+                <NavigationMenuTriggerLabel>Registry &amp; CLI</NavigationMenuTriggerLabel>
+                <NavigationMenuTriggerIcon>
+                  <ChevronDown aria-hidden="true" />
+                </NavigationMenuTriggerIcon>
+              </NavigationMenuTrigger>
+              <NavigationMenuContent forceMount>
+                <div>
+                  <NavigationMenuLink placement="panel" href="#adding">
+                    <NavigationMenuLinkText>
+                      <NavigationMenuLinkTitle>Adding components</NavigationMenuLinkTitle>
+                      <NavigationMenuLinkDescription>
+                        primitiv add, and what it copies
+                      </NavigationMenuLinkDescription>
+                    </NavigationMenuLinkText>
+                  </NavigationMenuLink>
+                  {/* A row with the description omitted collapses to one line. */}
+                  <NavigationMenuLink placement="panel" href="#lockfile">
+                    <NavigationMenuLinkText>
+                      <NavigationMenuLinkTitle>The lockfile</NavigationMenuLinkTitle>
+                    </NavigationMenuLinkText>
+                  </NavigationMenuLink>
+                </div>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+
+            <NavigationMenuItem>
+              <NavigationMenuLink href="#figma">Design in Figma</NavigationMenuLink>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+
+          <NavigationMenuIndicator marker="underline" forceMount />
+          <NavigationMenuViewport forceMount />
+        </NavigationMenu>
+
+        {/* Mobile, composed rather than a mode of the component: a Drawer shell +
+            one Collapsible per section, with the same NavigationMenuLink leaf. The
+            nav data and the active-state logic stay single-sourced; only the
+            wrapper elements differ (RFC 0019 §4a). */}
+        <Drawer>
+          <DrawerTrigger asChild>
+            <Button variant="secondary" size={size}>
+              Mobile nav (composed)
+            </Button>
+          </DrawerTrigger>
+          <DrawerPortal forceMount>
+            <DrawerContent side="left" width={size}>
+              <DrawerHeader>
+                <DrawerTitle>Menu</DrawerTitle>
+                <DrawerClose asChild>
+                  <Button variant="ghost" size="sm" aria-label="Close">
+                    <Close aria-hidden="true" />
+                  </Button>
+                </DrawerClose>
+              </DrawerHeader>
+              <DrawerBody>
+                {/* Root still wraps the mobile tree — it renders the <nav>
+                    landmark, and NavigationMenuLink reads its context (a strict
+                    one: the Link throws without a Root ancestor). What the mobile
+                    presentation drops is List / Item / Trigger / Viewport, which
+                    Collapsible replaces. */}
+                <NavigationMenu size={size} aria-label="Docs (mobile)">
+                  {MOBILE_NAV.map((section) => (
+                    <Collapsible key={section.label} size={size} variant="plain">
+                      <CollapsibleTrigger>
+                        {section.label}
+                        <CollapsibleTriggerIcon>
+                          <ChevronDown aria-hidden="true" />
+                        </CollapsibleTriggerIcon>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        {section.links.map((link) => (
+                          <NavigationMenuLink
+                            key={link}
+                            placement="panel"
+                            href={`#${link}`}
+                          >
+                            <NavigationMenuLinkText>
+                              <NavigationMenuLinkTitle>{link}</NavigationMenuLinkTitle>
+                            </NavigationMenuLinkText>
+                          </NavigationMenuLink>
+                        ))}
+                      </CollapsibleContent>
+                    </Collapsible>
+                  ))}
+                </NavigationMenu>
+              </DrawerBody>
+            </DrawerContent>
+          </DrawerPortal>
+        </Drawer>
       </Section>
 
       <Section title="Checkbox" column>

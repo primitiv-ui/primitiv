@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { ThreeEntryNav } from "./NavigationMenu.fixtures";
@@ -58,15 +58,19 @@ describe("NavigationMenu — hover interaction", () => {
     );
   });
 
-  it("cancels the pending close when the pointer returns to the nav", async () => {
+  it("forgets the pointer's arrival once it leaves, so Enter still toggles", async () => {
     const user = userEvent.setup();
-    render(<ThreeEntryNav defaultValue="concepts" closeDelay={5000} />);
+    render(<ThreeEntryNav delayDuration={0} closeDelay={5000} />);
+    const trigger = screen.getByRole("button", { name: "Concepts" });
 
-    const nav = screen.getByRole("navigation", { name: "Main" });
-    await user.unhover(nav);
-    await user.hover(nav);
+    await user.hover(trigger);
+    await user.hover(screen.getByRole("list"));
+    trigger.focus();
+    await user.keyboard("{Enter}");
 
-    expect(screen.getByTestId("concepts-panel")).toBeVisible();
+    // The pointer has gone, so there is no arrival state left to toggle
+    // against: Enter has to read the panel that is actually open.
+    expect(screen.getByTestId("concepts-panel")).not.toBeVisible();
   });
 
   it("ignores hover entirely when openOnHover is false", async () => {
@@ -102,116 +106,139 @@ describe("NavigationMenu — hover interaction", () => {
 
 });
 
+/** Lets real time pass so a timer that was *not* cancelled gets its chance to
+ * fire. Wrapped in `act` at the call site: a state update from a timer that
+ * fires outside `act` is queued rather than applied, so an unwrapped wait
+ * cannot see the panel it opened. */
+function waitPast(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 /**
- * The timing half of hover intent. Real timers can't tell "the open timer was
- * cancelled" from "the open timer hasn't fired yet", so these drive the clock
- * directly — and with it, `fireEvent` rather than `userEvent`.
+ * The timing half of hover intent, where "the timer was cancelled" has to stay
+ * distinguishable from "the timer hasn't fired yet". Two techniques do that:
  *
- * `pointerOut` carries an explicit `relatedTarget` inside the nav where the
- * pointer is meant to stay in the nav: leaving the `<nav>` runs
- * `closeWithDelay`, which cancels any pending open of its own and would mask
- * what the trigger's own leave handler does.
+ * - **Short delays plus a real wait past them.** A panel that is still closed
+ *   after several times its own `delayDuration` was cancelled, not merely
+ *   outrun.
+ * - **`delay: null` with a multi-step `user.pointer` call.** `userEvent`
+ *   normally awaits a macrotask between events, which is long enough for a
+ *   zero-delay timer to fire and so hides the difference between opening *now*
+ *   and opening *on the next tick*. With the waits switched off, the whole
+ *   pointer sequence runs before any timer gets a turn.
+ *
+ * Where the pointer is meant to stay inside the nav it moves to the `<ul>`
+ * rather than out: leaving the `<nav>` runs `closeWithDelay`, which cancels a
+ * pending open of its own and would mask what the trigger's own leave handler
+ * does.
  */
 describe("NavigationMenu — hover intent timing", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  it("opens synchronously, scheduling nothing, when delayDuration is zero", () => {
+  it("opens on a zero delay outright, so leaving straight away cannot undo it", async () => {
+    const user = userEvent.setup({ delay: null });
     render(<ThreeEntryNav delayDuration={0} />);
 
-    fireEvent.pointerOver(screen.getByRole("button", { name: "Concepts" }));
+    await user.pointer([
+      { target: screen.getByRole("button", { name: "Concepts" }) },
+      { target: screen.getByRole("list") },
+    ]);
 
-    // No clock advance: zero means "now", not "on the next tick".
+    // Zero means "now": the panel is already open by the time the pointer has
+    // moved off, so there is no pending open left for the leave to cancel.
     expect(screen.getByTestId("concepts-panel")).toBeVisible();
   });
 
-  it("drops the pending open when the pointer leaves the trigger for the list", () => {
-    render(<ThreeEntryNav delayDuration={200} />);
-    const trigger = screen.getByRole("button", { name: "Concepts" });
+  it("drops the pending open when the pointer leaves the trigger for the list", async () => {
+    const user = userEvent.setup();
+    render(<ThreeEntryNav delayDuration={20} />);
 
-    fireEvent.pointerOver(trigger);
-    fireEvent.pointerOut(trigger, { relatedTarget: screen.getByRole("list") });
-    act(() => {
-      vi.advanceTimersByTime(500);
-    });
+    await user.hover(screen.getByRole("button", { name: "Concepts" }));
+    await user.hover(screen.getByRole("list"));
+    await act(() => waitPast(200));
 
     expect(screen.getByTestId("concepts-panel")).not.toBeVisible();
   });
 
-  it("abandons a pending open when the nav unmounts", () => {
+  it("abandons a pending open when the nav unmounts", async () => {
+    const user = userEvent.setup();
     const onValueChange = vi.fn();
     const { unmount } = render(
-      <ThreeEntryNav value="" onValueChange={onValueChange} delayDuration={200} />,
+      <ThreeEntryNav value="" onValueChange={onValueChange} delayDuration={20} />,
     );
 
-    fireEvent.pointerOver(screen.getByRole("button", { name: "Concepts" }));
+    await user.hover(screen.getByRole("button", { name: "Concepts" }));
     unmount();
-    act(() => {
-      vi.advanceTimersByTime(500);
-    });
+    await act(() => waitPast(200));
 
     expect(onValueChange).not.toHaveBeenCalled();
   });
 
-  it("honours a delayDuration changed after the first render", () => {
+  it("keeps the panel open past the closeDelay when the pointer returns", async () => {
+    const user = userEvent.setup();
+    render(<ThreeEntryNav defaultValue="concepts" closeDelay={20} />);
+    const nav = screen.getByRole("navigation", { name: "Main" });
+
+    await user.hover(screen.getByRole("button", { name: "Concepts" }));
+    await user.unhover(nav);
+    await user.hover(nav);
+    await act(() => waitPast(200));
+
+    // Returning has to cancel the pending close outright — not merely outrun it.
+    expect(screen.getByTestId("concepts-panel")).toBeVisible();
+  });
+
+  it("honours a delayDuration changed after the first render", async () => {
+    const user = userEvent.setup();
     const { rerender } = render(<ThreeEntryNav delayDuration={5000} />);
 
     rerender(<ThreeEntryNav delayDuration={0} />);
-    fireEvent.pointerOver(screen.getByRole("button", { name: "Concepts" }));
+    await user.hover(screen.getByRole("button", { name: "Concepts" }));
 
     expect(screen.getByTestId("concepts-panel")).toBeVisible();
   });
 
-  it("honours a closeDelay changed after the first render", () => {
+  it("honours a closeDelay changed after the first render", async () => {
+    const user = userEvent.setup();
     const { rerender } = render(
       <ThreeEntryNav defaultValue="concepts" closeDelay={5000} />,
     );
 
-    rerender(<ThreeEntryNav defaultValue="concepts" closeDelay={0} />);
-    fireEvent.pointerOut(screen.getByRole("navigation", { name: "Main" }), {
-      relatedTarget: document.body,
-    });
-    act(() => {
-      vi.advanceTimersByTime(1);
-    });
+    rerender(<ThreeEntryNav defaultValue="concepts" closeDelay={20} />);
+    await user.hover(screen.getByRole("button", { name: "Concepts" }));
+    await user.unhover(screen.getByRole("navigation", { name: "Main" }));
 
-    expect(screen.getByTestId("concepts-panel")).not.toBeVisible();
+    await waitFor(() =>
+      expect(screen.getByTestId("concepts-panel")).not.toBeVisible(),
+    );
   });
 
-  it("requests the delayed close with the empty string", () => {
+  it("requests the delayed close with the empty string", async () => {
+    const user = userEvent.setup();
     const onValueChange = vi.fn();
     render(
       <ThreeEntryNav
         value="concepts"
         onValueChange={onValueChange}
-        closeDelay={150}
+        closeDelay={20}
       />,
     );
 
-    fireEvent.pointerOut(screen.getByRole("navigation", { name: "Main" }), {
-      relatedTarget: document.body,
-    });
-    act(() => {
-      vi.advanceTimersByTime(150);
-    });
+    await user.hover(screen.getByRole("button", { name: "Concepts" }));
+    await user.unhover(screen.getByRole("navigation", { name: "Main" }));
 
-    expect(onValueChange).toHaveBeenCalledWith("");
+    await waitFor(() => expect(onValueChange).toHaveBeenCalledWith(""));
   });
 
-  it("closes a panel the pointer left and re-entered while it was open", () => {
+  it("closes a panel the pointer left and re-entered while it was open", async () => {
+    const user = userEvent.setup();
     render(<ThreeEntryNav delayDuration={0} />);
     const trigger = screen.getByRole("button", { name: "Concepts" });
-    const list = screen.getByRole("list");
 
-    fireEvent.pointerOver(trigger);
-    fireEvent.pointerOut(trigger, { relatedTarget: list });
-    fireEvent.pointerOver(trigger, { relatedTarget: list });
-    fireEvent.click(trigger);
+    await user.hover(trigger);
+    await user.hover(screen.getByRole("list"));
+    await user.hover(trigger);
+    await user.click(trigger);
 
     // The second arrival sees an open panel, so the click that follows it is a
     // close — the arrival value has to be read live, not captured at mount.

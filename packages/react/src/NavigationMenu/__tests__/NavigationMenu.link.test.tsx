@@ -40,6 +40,19 @@ describe("NavigationMenu.Link", () => {
     expect(screen.getByTestId("concepts-panel")).not.toBeVisible();
   });
 
+  it("requests the close with the empty string, not the link's own entry", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(<ThreeEntryNav value="concepts" onValueChange={onValueChange} />);
+
+    await user.click(screen.getByRole("link", { name: "Tokens" }));
+
+    // A controlled parent has to be told "nothing is open" — any other value
+    // reads as "open that entry instead", which only looks like a close because
+    // no entry answers to it.
+    expect(onValueChange).toHaveBeenCalledWith("");
+  });
+
   it("closes the open panel when a top-level link is clicked", async () => {
     const user = userEvent.setup();
     render(<ThreeEntryNav defaultValue="concepts" />);

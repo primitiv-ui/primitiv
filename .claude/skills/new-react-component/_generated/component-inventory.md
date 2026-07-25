@@ -33,6 +33,7 @@ non-visual primitive.
 | InputGroup | Simple element | no | none | 3 | Composes leading/trailing addons (icons, buttons, text) around an Input. |
 | MillerColumns | Compound, roving tabindex | yes | MillerColumnsContext, MillerColumnsColumnContext, MillerColumnsItemContext | 16 | Miller columns / cascading lists. Recursive composition (no data prop); child columns portal-projected into the Root strip; single tree-wide roving tabstop; `partitionItemChildren` splits an Item's cell from its nested Column. |
 | Modal | Compound, disclosure | yes | ModalContext | 14 | Uses native `<dialog>` with a polyfill (`dialog-polyfill.ts`); nested modals, click-outside, escape-hatches. |
+| NavigationMenu | Compound, disclosure + keymap | yes | NavigationMenuContext, NavigationMenuItemContext, NavigationMenuPanelContext | 14 | Desktop dropdown site nav (ARIA APG Disclosure Navigation Menu). Single-open `value` where `""` = closed; hover-intent open with instant sibling switching and a nav-wide close grace; uses `useRovingTabindex` for its keymap only — no `tabIndex` manipulation, every entry stays tabbable. Optional `Viewport` panels portal into (MillerColumns-style projection) and an `Indicator` publishing measured geometry as custom properties. Copy this for a widget that needs an axis keymap *without* a roving tabstop. |
 | Popover | Compound, disclosure | yes | PopoverContext | 12 | Floating panel anchored to a trigger; open/close, outside-dismiss, focus management. Shares the anchored-overlay family with Tooltip. |
 | Portal | Simple utility | no | none | 1 | Public DOM-escape primitive wrapping `createPortal`. No state or context; consumed by Modal.Portal. |
 | Progress | Compound, controllable | yes | ProgressContext | 4 | `role="progressbar"` with aria-valuenow/min/max; determinate & indeterminate. |
@@ -60,12 +61,13 @@ Patterns by inheritance:
 - Closest to a new **disclosure** (open/close, no roving): copy Collapsible.
 - Closest to a new **portal + overlay** widget: copy Modal.
 - Closest to a new **anchored overlay** (tooltip / popover / hover-card): copy Popover, or Tooltip when you need hover/focus + provider-level delay.
+- Closest to a new **site-navigation** widget (links, not commands): copy NavigationMenu — note it deliberately keeps every entry in the tab order.
 - Closest to a new **menu-like** widget: copy Dropdown — but it's the heaviest, only mirror what you actually need. For a right-click trigger, ContextMenu is the ready-made variant.
 - Closest to a new **card-wrapped form control**: copy CheckboxCard or RadioCard.
 - For a **simple element** wrapper: copy Button or Divider.
 - For a **sub-component family without state**: copy Table.
 - For a **non-visual utility primitive**: copy Portal (DOM escape) or VisuallyHidden / AccessibleIcon (a11y-only).
 
-Total components: 42 (36 visual + interactive, 6 utility primitives). The
+Total components: 43 (37 visual + interactive, 6 utility primitives). The
 shared utilities they all build on are in `shared-hooks.md` and
 `shared-utils.md`.

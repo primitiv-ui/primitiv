@@ -164,7 +164,7 @@ semantics that CSS alone cannot provide.
 ### Navigation
 
 - [ ] Menubar
-- [ ] Navigation Menu — see [`docs/rfcs/0019-navigation-menu.md`](docs/rfcs/0019-navigation-menu.md)
+- [x] Navigation Menu — headless; desktop presentation. See [`docs/rfcs/0019-navigation-menu.md`](docs/rfcs/0019-navigation-menu.md)
 - [x] Toggle
 - [x] Toggle Group
 - [ ] Toolbar
@@ -221,7 +221,7 @@ behaviour, but were kept for meaningful ARIA semantics:
 
 `apps/workbench` carries one example page per component, and the backlog
 is **clear** — every public component in `packages/react/src` now has a
-matching `…Example` page under `apps/workbench/src/pages` (40 pages),
+matching `…Example` page under `apps/workbench/src/pages` (41 pages),
 alongside specimen pages for the Design-System test, Elevation, and the
 Harmoni plugin frame.
 

@@ -31,6 +31,28 @@ export function ThreeEntryNav(props: NavigationMenuRootProps): ReactElement {
   );
 }
 
+/** A nav whose two disclosure entries are both dead ends for keyboard focus:
+ * `panelless` renders no `Content` at all, and `prose`'s panel holds nothing
+ * focusable. Between them they cover the enter-panel arrow's two
+ * nothing-to-focus cases — no panel element, and a panel with no target. */
+export function DeadEndNav(props: NavigationMenuRootProps): ReactElement {
+  return (
+    <NavigationMenu.Root {...props}>
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="panelless">
+          <NavigationMenu.Trigger>Panelless</NavigationMenu.Trigger>
+        </NavigationMenu.Item>
+        <NavigationMenu.Item value="prose">
+          <NavigationMenu.Trigger>Prose</NavigationMenu.Trigger>
+          <NavigationMenu.Content data-testid="prose-panel">
+            Nothing in this panel can take focus.
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+    </NavigationMenu.Root>
+  );
+}
+
 /** Arrow-key cases for a horizontal LTR nav. `from` / `expected` are the
  * accessible names of the top-level entries in `ThreeEntryNav`. */
 export const horizontalArrowCases = [

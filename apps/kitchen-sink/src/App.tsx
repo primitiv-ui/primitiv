@@ -106,7 +106,20 @@ import {
   TooltipContent,
   TooltipArrow,
 } from "./components";
-import { Check, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Close, Download, File, Folder, Minus, Search, Sort } from "@primitiv-ui/icons";
+import {
+  Check,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  Close,
+  Download,
+  File,
+  Folder,
+  Minus,
+  Search,
+  Sort,
+} from "@primitiv-ui/icons";
 import { useChrome } from "./chrome";
 import "./App.css";
 
@@ -157,9 +170,21 @@ const FRAMEWORKS = [
    pill. `soon` doubles as the disabled flag, so the unavailable row stays
    visible and unselectable. */
 const RUNTIMES = [
-  { value: "react", label: "React", Logo: ReactLogo, shortcut: "⌘1", soon: false },
+  {
+    value: "react",
+    label: "React",
+    Logo: ReactLogo,
+    shortcut: "⌘1",
+    soon: false,
+  },
   { value: "vue", label: "Vue", Logo: VueLogo, shortcut: "⌘2", soon: false },
-  { value: "svelte", label: "Svelte", Logo: SvelteLogo, shortcut: "", soon: true },
+  {
+    value: "svelte",
+    label: "Svelte",
+    Logo: SvelteLogo,
+    shortcut: "",
+    soon: true,
+  },
 ] as const;
 
 const REGIONS = [
@@ -182,11 +207,26 @@ const REGIONS = [
 type Release = { pkg: string; status: string; downloads: number; size: number };
 
 const RELEASES: Release[] = [
-  { pkg: "@primitiv-ui/react", status: "Stable", downloads: 128430, size: 84.2 },
-  { pkg: "@primitiv-ui/tokens", status: "Stable", downloads: 96210, size: 12.7 },
+  {
+    pkg: "@primitiv-ui/react",
+    status: "Stable",
+    downloads: 128430,
+    size: 84.2,
+  },
+  {
+    pkg: "@primitiv-ui/tokens",
+    status: "Stable",
+    downloads: 96210,
+    size: 12.7,
+  },
   { pkg: "@primitiv-ui/icons", status: "Stable", downloads: 74880, size: 41.3 },
   { pkg: "primitiv", status: "Beta", downloads: 18540, size: 5.1 },
-  { pkg: "@primitiv-ui/harmoni", status: "Alpha", downloads: 4320, size: 156.9 },
+  {
+    pkg: "@primitiv-ui/harmoni",
+    status: "Alpha",
+    downloads: 4320,
+    size: 156.9,
+  },
 ];
 
 type Align = "start" | "center" | "end";
@@ -264,15 +304,19 @@ export function App(): ReactElement {
   // Popover and Modal panels have no `xs` size (they start at `sm`), so clamp the
   // shared control's `xs` down to `sm` for those overlay surfaces.
   const overlaySize = size === "xs" ? "sm" : size;
-  const [sort, setSort] = useState<{ key: keyof Release; dir: "asc" | "desc" }>({
-    key: "downloads",
-    dir: "desc",
-  });
+  const [sort, setSort] = useState<{ key: keyof Release; dir: "asc" | "desc" }>(
+    {
+      key: "downloads",
+      dir: "desc",
+    },
+  );
   // Dropdown demo state — controlled so the check / dash / dot indicators reflect
   // real selection as you toggle them (menus stay open via onSelect preventDefault).
   const [ddSidebar, setDdSidebar] = useState(true);
   const [ddStatusBar, setDdStatusBar] = useState(false);
-  const [ddPanels, setDdPanels] = useState<boolean | "indeterminate">("indeterminate");
+  const [ddPanels, setDdPanels] = useState<boolean | "indeterminate">(
+    "indeterminate",
+  );
   const [ddSortOrder, setDdSortOrder] = useState("modified");
   const [framework, setFramework] = useState("react");
   // Select demo state — controlled so the trigger's mirrored content and the
@@ -295,7 +339,9 @@ export function App(): ReactElement {
 
   const toggleSort = (key: keyof Release) =>
     setSort((s) =>
-      s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" },
+      s.key === key
+        ? { key, dir: s.dir === "asc" ? "desc" : "asc" }
+        : { key, dir: "asc" },
     );
 
   return (
@@ -304,13 +350,13 @@ export function App(): ReactElement {
         <article>
           <h1>Heading 1 - Primitiv Kitchen Sink</h1>
           <p>
-            Every component the registry currently carries, installed exactly
-            as a consumer would via <code>primitiv-ui</code>: <code>npm
-              create primitiv-ui</code>, then <code>primitiv add --all</code>,
-            in CSS mode with the default settings. Nothing here imports{" "}
-            <code>@primitiv-ui/react</code> directly — every component below
-            comes from <code>./components</code>, the styled surface the CLI
-            copied in.
+            Every component the registry currently carries, installed exactly as
+            a consumer would via <code>primitiv-ui</code>:{" "}
+            <code>npm create primitiv-ui</code>, then{" "}
+            <code>primitiv add --all</code>, in CSS mode with the default
+            settings. Nothing here imports <code>@primitiv-ui/react</code>{" "}
+            directly — every component below comes from{" "}
+            <code>./components</code>, the styled surface the CLI copied in.
           </p>
           <h2>Heading 2 - Typography</h2>
           <p>
@@ -321,36 +367,35 @@ export function App(): ReactElement {
             just to show <strong>strong</strong>, <em>emphasis</em>, and{" "}
             <code>inline code</code> together. The flow rhythm gives tighter
             spacing below a heading than above it. Nothing in this article sets
-            its own spacing — every gap comes from the <code>.primitiv-flow</code>{" "}
-            owl, so the rhythm is the demonstration.
+            its own spacing — every gap comes from the{" "}
+            <code>.primitiv-flow</code> owl, so the rhythm is the demonstration.
           </p>
           <h3>Heading 3 - Inline text-level marks</h3>
           <p>
             Body copy threads a <a href="#inline">hyperlink</a> through{" "}
             <strong>strong importance</strong> and <b>stylistically bold</b>{" "}
-            runs, <em>stressed emphasis</em> beside <i>alternate-voice italic</i>,
-            a <mark>highlighted phrase</mark>, tracked{" "}
-            <del>deleted</del> and <ins>inserted</ins> edits, an{" "}
+            runs, <em>stressed emphasis</em> beside{" "}
+            <i>alternate-voice italic</i>, a <mark>highlighted phrase</mark>,
+            tracked <del>deleted</del> and <ins>inserted</ins> edits, an{" "}
             <s>obsolete</s> price, an <u>annotated</u> span, an{" "}
             <abbr title="Design Tokens Community Group">DTCG</abbr>{" "}
-            abbreviation, some <small>small print</small>, the formula
-            H<sub>2</sub>O next to E = mc<sup>2</sup>, an inline{" "}
+            abbreviation, some <small>small print</small>, the formula H
+            <sub>2</sub>O next to E = mc<sup>2</sup>, an inline{" "}
             <q>quotation with curly marks</q>, a <cite>Cited Work</cite>, a{" "}
-            <dfn>defined term</dfn>, the shortcut <kbd>Ctrl</kbd> +{" "}
-            <kbd>K</kbd>, sample output <samp>Done.</samp>, a variable{" "}
-            <var>x</var>, and a <time dateTime="2026-07-03">3 July 2026</time>{" "}
-            timestamp.
+            <dfn>defined term</dfn>, the shortcut <kbd>Ctrl</kbd> + <kbd>K</kbd>
+            , sample output <samp>Done.</samp>, a variable <var>x</var>, and a{" "}
+            <time dateTime="2026-07-03">3 July 2026</time> timestamp.
           </p>
           <h3>Heading 3 - Inline code, sized</h3>
           <p>
             The bare <code>&lt;code&gt;</code> element above is fixed at the md
-            step. The <InlineCode size={size}>InlineCode</InlineCode> component adds a size
-            axis — these snippets{" "}
+            step. The <InlineCode size={size}>InlineCode</InlineCode> component
+            adds a size axis — these snippets{" "}
             <InlineCode size={size}>npm create primitiv-ui</InlineCode>,{" "}
             <InlineCode size={size}>useState</InlineCode> and{" "}
-            <InlineCode size={size}>--primitiv-flow-normal</InlineCode> track the
-            Size control above, and every size still densifies with the Density
-            control.
+            <InlineCode size={size}>--primitiv-flow-normal</InlineCode> track
+            the Size control above, and every size still densifies with the
+            Density control.
           </p>
           <h3>Heading 3 - An unordered list</h3>
           <ul>
@@ -394,11 +439,41 @@ primitiv add --all`}</code>
                 borderRadius: "var(--primitiv-radii-8)",
               }}
             >
-              <rect x="0" width="64" height="120" fill="currentColor" opacity="0.6" />
-              <rect x="64" width="64" height="120" fill="currentColor" opacity="0.45" />
-              <rect x="128" width="64" height="120" fill="currentColor" opacity="0.3" />
-              <rect x="192" width="64" height="120" fill="currentColor" opacity="0.18" />
-              <rect x="256" width="64" height="120" fill="currentColor" opacity="0.1" />
+              <rect
+                x="0"
+                width="64"
+                height="120"
+                fill="currentColor"
+                opacity="0.6"
+              />
+              <rect
+                x="64"
+                width="64"
+                height="120"
+                fill="currentColor"
+                opacity="0.45"
+              />
+              <rect
+                x="128"
+                width="64"
+                height="120"
+                fill="currentColor"
+                opacity="0.3"
+              />
+              <rect
+                x="192"
+                width="64"
+                height="120"
+                fill="currentColor"
+                opacity="0.18"
+              />
+              <rect
+                x="256"
+                width="64"
+                height="120"
+                fill="currentColor"
+                opacity="0.1"
+              />
             </svg>
             <figcaption>
               Figure 1 - the caption sits below its media in the muted body-sm
@@ -455,14 +530,18 @@ primitiv add --all`}</code>
           and position-try-fallbacks fold submenus back on viewport overflow. */}
       <Section title="Dropdown" column>
         <p className="kitchen-sink__note">
-          One menu-button dropdown with every part — items, checkbox / radio items,
-          labels, separators, and a three-level nested submenu. Open it and arrow
-          into <InlineCode size={size}>Open Recent →</InlineCode> to watch the
-          submenus anchor and flip.
+          One menu-button dropdown with every part — items, checkbox / radio
+          items, labels, separators, and a three-level nested submenu. Open it
+          and arrow into <InlineCode size={size}>Open Recent →</InlineCode> to
+          watch the submenus anchor and flip.
         </p>
         <Dropdown>
           <DropdownTrigger asChild>
-            <Button variant="secondary" size={size} style={{ anchorName: "--ks-dd" }}>
+            <Button
+              variant="secondary"
+              size={size}
+              style={{ anchorName: "--ks-dd" }}
+            >
               Menu
               <ChevronDown aria-hidden="true" />
             </Button>
@@ -542,7 +621,10 @@ primitiv add --all`}</code>
             <DropdownSeparator />
 
             <DropdownLabel>Sort by</DropdownLabel>
-            <DropdownRadioGroup value={ddSortOrder} onValueChange={setDdSortOrder}>
+            <DropdownRadioGroup
+              value={ddSortOrder}
+              onValueChange={setDdSortOrder}
+            >
               {["name", "modified", "size"].map((value) => (
                 <DropdownRadioItem
                   key={value}
@@ -571,7 +653,10 @@ primitiv add --all`}</code>
                 Open Recent
                 <ChevronRight aria-hidden="true" />
               </DropdownSubTrigger>
-              <DropdownSubContent size={size} style={{ positionAnchor: "--ks-dd-s1" }}>
+              <DropdownSubContent
+                size={size}
+                style={{ positionAnchor: "--ks-dd-s1" }}
+              >
                 <DropdownItem>project-alpha</DropdownItem>
                 <DropdownItem>project-beta</DropdownItem>
                 <DropdownSeparator />
@@ -580,7 +665,10 @@ primitiv add --all`}</code>
                     Archived
                     <ChevronRight aria-hidden="true" />
                   </DropdownSubTrigger>
-                  <DropdownSubContent size={size} style={{ positionAnchor: "--ks-dd-s2" }}>
+                  <DropdownSubContent
+                    size={size}
+                    style={{ positionAnchor: "--ks-dd-s2" }}
+                  >
                     <DropdownItem>archive-2025</DropdownItem>
                     <DropdownItem>archive-2024</DropdownItem>
                     <DropdownSeparator />
@@ -589,7 +677,10 @@ primitiv add --all`}</code>
                         Older still
                         <ChevronRight aria-hidden="true" />
                       </DropdownSubTrigger>
-                      <DropdownSubContent size={size} style={{ positionAnchor: "--ks-dd-s3" }}>
+                      <DropdownSubContent
+                        size={size}
+                        style={{ positionAnchor: "--ks-dd-s3" }}
+                      >
                         <DropdownItem>archive-2023</DropdownItem>
                         <DropdownItem>archive-2022</DropdownItem>
                       </DropdownSubContent>
@@ -629,7 +720,9 @@ primitiv add --all`}</code>
       </Section>
 
       <Section title="Switch" column>
-        <Switch size={size} defaultChecked>Wi-Fi</Switch>
+        <Switch size={size} defaultChecked>
+          Wi-Fi
+        </Switch>
         <Switch size={size}>Bluetooth</Switch>
       </Section>
 
@@ -664,7 +757,7 @@ primitiv add --all`}</code>
           </InputGroupLeadingAdornment>
           <Input aria-label="Search" type="search" placeholder="Search..." />
           <InputGroupTrailingAdornment asChild>
-            <Button variant="ghost" size='xs' aria-label="Clear">
+            <Button variant="ghost" size="xs" aria-label="Clear">
               <Close aria-hidden="true" />
             </Button>
           </InputGroupTrailingAdornment>
@@ -684,7 +777,7 @@ primitiv add --all`}</code>
               aria-label="Framework"
               style={{ anchorName: "--ks-sel-framework" } as CSSProperties}
             >
-              <SelectValue placeholder="Pick a framework…" />
+              <SelectValue placeholder="Pick a framework..." />
               <SelectIcon>
                 <ChevronDown />
               </SelectIcon>
@@ -713,7 +806,9 @@ primitiv add --all`}</code>
             sits there as happily as an icon. The disabled row stays visible and
             unselectable. */}
         <div className="ks-select-demo">
-          <span className="ks-select-demo__caption">Rich · leading + trailing</span>
+          <span className="ks-select-demo__caption">
+            Rich · leading + trailing
+          </span>
           <Select value={selRuntime} onValueChange={setSelRuntime}>
             <SelectTrigger
               size={size}
@@ -757,7 +852,9 @@ primitiv add --all`}</code>
             the other kind of trigger glyph: a standing mark that never changes
             with the selection. */}
         <div className="ks-select-demo">
-          <span className="ks-select-demo__caption">Rich · groups + standing icon</span>
+          <span className="ks-select-demo__caption">
+            Rich · groups + standing icon
+          </span>
           <Select value={selRegion} onValueChange={setSelRegion}>
             <SelectTrigger
               size={size}
@@ -767,7 +864,7 @@ primitiv add --all`}</code>
               <SelectLeading>
                 <Search aria-hidden="true" />
               </SelectLeading>
-              <SelectValue placeholder="Nearest region…" />
+              <SelectValue placeholder="Nearest region..." />
               <SelectIcon>
                 <ChevronDown />
               </SelectIcon>
@@ -796,14 +893,16 @@ primitiv add --all`}</code>
         {/* Placement — the same panel opening upward, wired through the same
             anchor-name / position-anchor pair. */}
         <div className="ks-select-demo">
-          <span className="ks-select-demo__caption">Rich · top-end placement</span>
+          <span className="ks-select-demo__caption">
+            Rich · top-end placement
+          </span>
           <Select value={selFramework} onValueChange={setSelFramework}>
             <SelectTrigger
               size={size}
               aria-label="Framework, opening upward"
               style={{ anchorName: "--ks-sel-up" } as CSSProperties}
             >
-              <SelectValue placeholder="Pick a framework…" />
+              <SelectValue placeholder="Pick a framework..." />
               <SelectIcon>
                 <ChevronDown />
               </SelectIcon>
@@ -861,8 +960,12 @@ primitiv add --all`}</code>
         <div className="ks-select-demo">
           <span className="ks-select-demo__caption">Rich · disabled</span>
           <Select value="react" onValueChange={() => {}}>
-            <SelectTrigger size={size} disabled aria-label="Framework, disabled">
-              <SelectValue placeholder="Pick a framework…" />
+            <SelectTrigger
+              size={size}
+              disabled
+              aria-label="Framework, disabled"
+            >
+              <SelectValue placeholder="Pick a framework..." />
               <SelectIcon>
                 <ChevronDown />
               </SelectIcon>
@@ -881,7 +984,9 @@ primitiv add --all`}</code>
             Element children of an Item are dropped here, so the options are
             plain text and the group is a real <optgroup>. */}
         <div className="ks-select-demo">
-          <span className="ks-select-demo__caption">Native · placeholder + groups</span>
+          <span className="ks-select-demo__caption">
+            Native · placeholder + groups
+          </span>
           <Select
             native
             size={size}
@@ -889,7 +994,7 @@ primitiv add --all`}</code>
             onValueChange={setSelFruit}
             aria-label="Fruit"
           >
-            <SelectPlaceholder>Choose a fruit…</SelectPlaceholder>
+            <SelectPlaceholder>Choose a fruit...</SelectPlaceholder>
             <SelectGroup label="Stone fruit">
               <SelectItem value="peach">Peach</SelectItem>
               <SelectItem value="plum">Plum</SelectItem>
@@ -913,13 +1018,21 @@ primitiv add --all`}</code>
               <SelectItem value="node">Node</SelectItem>
               <SelectItem value="static">Static</SelectItem>
             </Select>
-            <FieldDescription>Inherits the field's id and description.</FieldDescription>
+            <FieldDescription>
+              Inherits the field's id and description.
+            </FieldDescription>
           </Field>
         </div>
 
         <div className="ks-select-demo">
           <span className="ks-select-demo__caption">Native · disabled</span>
-          <Select native size={size} disabled defaultValue="edge" aria-label="Disabled target">
+          <Select
+            native
+            size={size}
+            disabled
+            defaultValue="edge"
+            aria-label="Disabled target"
+          >
             <SelectItem value="edge">Edge</SelectItem>
           </Select>
         </div>
@@ -1059,12 +1172,12 @@ primitiv add --all`}</code>
           <CollapsibleContent collapsedHeight={72}>
             <Prose>
               <p>
-                Harmoni is the palette generation engine underneath Primitiv —
-                a Rust core compiled to WebAssembly that turns a brand colour
-                into a full, perceptually even ramp. It handles light and dark
-                modes, neutral and soft-neutral ramps, brand-hue tinting, and
-                an OKLCH picker for dialling in the exact anchor colours — all
-                from one input.
+                Harmoni is the palette generation engine underneath Primitiv — a
+                Rust core compiled to WebAssembly that turns a brand colour into
+                a full, perceptually even ramp. It handles light and dark modes,
+                neutral and soft-neutral ramps, brand-hue tinting, and an OKLCH
+                picker for dialling in the exact anchor colours — all from one
+                input.
               </p>
               <p>
                 Because a fixed <code>collapsedHeight</code> is set, this panel
@@ -1078,7 +1191,12 @@ primitiv add --all`}</code>
       </Section>
 
       <Section title="Toggle Group">
-        <ToggleGroup type="single" size={size} defaultValue="left" aria-label="Alignment">
+        <ToggleGroup
+          type="single"
+          size={size}
+          defaultValue="left"
+          aria-label="Alignment"
+        >
           <ToggleGroupItem value="left">Left</ToggleGroupItem>
           <ToggleGroupItem value="center">Center</ToggleGroupItem>
           <ToggleGroupItem value="right">Right</ToggleGroupItem>
@@ -1127,7 +1245,9 @@ primitiv add --all`}</code>
             its own area on narrow viewports instead of forcing the page wider. */}
         <TableScrollArea>
           <Table size={size}>
-            <TableCaption>Package downloads this month — click a header to sort.</TableCaption>
+            <TableCaption>
+              Package downloads this month — click a header to sort.
+            </TableCaption>
             <TableHead>
               <TableRow>
                 {TABLE_COLUMNS.map((col) => {
@@ -1136,7 +1256,13 @@ primitiv add --all`}</code>
                     <TableHeader
                       key={col.key}
                       className={`ks-table__align-${col.align}`}
-                      aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
+                      aria-sort={
+                        active
+                          ? sort.dir === "asc"
+                            ? "ascending"
+                            : "descending"
+                          : "none"
+                      }
                     >
                       <button
                         type="button"
@@ -1151,7 +1277,10 @@ primitiv add --all`}</code>
                             <ChevronDown aria-hidden="true" />
                           )
                         ) : (
-                          <Sort className="ks-table__sort-idle" aria-hidden="true" />
+                          <Sort
+                            className="ks-table__sort-idle"
+                            aria-hidden="true"
+                          />
                         )}
                       </button>
                     </TableHeader>
@@ -1163,8 +1292,13 @@ primitiv add --all`}</code>
               {sortedReleases.map((r) => (
                 <TableRow key={r.pkg}>
                   {TABLE_COLUMNS.map((col) => (
-                    <TableCell key={col.key} className={`ks-table__align-${col.align}`}>
-                      {col.numeric ? (r[col.key] as number).toLocaleString() : r[col.key]}
+                    <TableCell
+                      key={col.key}
+                      className={`ks-table__align-${col.align}`}
+                    >
+                      {col.numeric
+                        ? (r[col.key] as number).toLocaleString()
+                        : r[col.key]}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -1201,17 +1335,35 @@ export function ramp(hue: number, chroma = 0.12) {
             </CodeBlock.List>
             <CodeBlock.Copy>Copy</CodeBlock.Copy>
           </CodeBlock.Header>
-          <CodeBlock.Content value="npm" language="bash" code="npm i @primitiv-ui/react" />
-          <CodeBlock.Content value="pnpm" language="bash" code="pnpm add @primitiv-ui/react" />
-          <CodeBlock.Content value="yarn" language="bash" code="yarn add @primitiv-ui/react" />
-          <CodeBlock.Content value="bun" language="bash" code="bun add @primitiv-ui/react" />
+          <CodeBlock.Content
+            value="npm"
+            language="bash"
+            code="npm i @primitiv-ui/react"
+          />
+          <CodeBlock.Content
+            value="pnpm"
+            language="bash"
+            code="pnpm add @primitiv-ui/react"
+          />
+          <CodeBlock.Content
+            value="yarn"
+            language="bash"
+            code="yarn add @primitiv-ui/react"
+          />
+          <CodeBlock.Content
+            value="bun"
+            language="bash"
+            code="bun add @primitiv-ui/react"
+          />
         </CodeBlock.Tabs>
       </Section>
 
       <Section title="Modal">
         <Modal>
           <ModalTrigger asChild>
-            <Button variant="primary" size={size}>Open modal</Button>
+            <Button variant="primary" size={size}>
+              Open modal
+            </Button>
           </ModalTrigger>
           <ModalPortal forceMount>
             <ModalContent size={overlaySize}>
@@ -1224,12 +1376,13 @@ export function ramp(hue: number, chroma = 0.12) {
                 </ModalClose>
               </ModalHeader>
               <ModalBody>
-                  <ModalDescription>
-                    This dialog is portalled to <InlineCode size={size}>document.body</InlineCode>,
-                    which is why <InlineCode size={size}>data-theme</InlineCode> lives on{" "}
-                    <InlineCode size={size}>&lt;html&gt;</InlineCode> above, not on this page&apos;s
-                    wrapper.
-                  </ModalDescription>
+                <ModalDescription>
+                  This dialog is portalled to{" "}
+                  <InlineCode size={size}>document.body</InlineCode>, which is
+                  why <InlineCode size={size}>data-theme</InlineCode> lives on{" "}
+                  <InlineCode size={size}>&lt;html&gt;</InlineCode> above, not
+                  on this page&apos;s wrapper.
+                </ModalDescription>
               </ModalBody>
               <ModalFooter>
                 <ModalClose asChild>
@@ -1256,7 +1409,9 @@ export function ramp(hue: number, chroma = 0.12) {
             <DrawerPortal forceMount>
               <DrawerContent side={side} width={size}>
                 <DrawerHeader>
-                  <DrawerTitle>{side[0].toUpperCase() + side.slice(1)} drawer</DrawerTitle>
+                  <DrawerTitle>
+                    {side[0].toUpperCase() + side.slice(1)} drawer
+                  </DrawerTitle>
                   <DrawerClose asChild>
                     <Button variant="ghost" size="sm" aria-label="Close">
                       <Close aria-hidden="true" />
@@ -1266,13 +1421,15 @@ export function ramp(hue: number, chroma = 0.12) {
                 <DrawerBody>
                   <DrawerDescription>
                     A dialog that slides in from the {side} edge. It reuses the{" "}
-                    <InlineCode size={size}>Modal</InlineCode> machinery — focus trap,{" "}
-                    <InlineCode size={size}>Esc</InlineCode>, and click-outside — and adds
-                    only the <InlineCode size={size}>side</InlineCode> axis.
+                    <InlineCode size={size}>Modal</InlineCode> machinery — focus
+                    trap, <InlineCode size={size}>Esc</InlineCode>, and
+                    click-outside — and adds only the{" "}
+                    <InlineCode size={size}>side</InlineCode> axis.
                   </DrawerDescription>
                   <p>
-                    The body is the region that scrolls when its content overflows, so the
-                    header and footer stay pinned to the panel edges.
+                    The body is the region that scrolls when its content
+                    overflows, so the header and footer stay pinned to the panel
+                    edges.
                   </p>
                 </DrawerBody>
                 <DrawerFooter>
@@ -1289,9 +1446,10 @@ export function ramp(hue: number, chroma = 0.12) {
 
       <Section title="Popover" column>
         <p className="kitchen-sink__note">
-          Click any trigger to open its placement (one at a time — the panels are
-          native <InlineCode size={size}>popover=&quot;auto&quot;</InlineCode>). Panel + arrow
-          track the Size and Density controls above.
+          Click any trigger to open its placement (one at a time — the panels
+          are native{" "}
+          <InlineCode size={size}>popover=&quot;auto&quot;</InlineCode>). Panel
+          + arrow track the Size and Density controls above.
         </p>
         <div
           style={{
@@ -1340,28 +1498,32 @@ export function ramp(hue: number, chroma = 0.12) {
       <Section title="Tooltip">
         <TooltipProvider delayDuration={200}>
           {TOOLTIP_DEMOS.map(({ placement, tone, label }) => {
-          const anchor = `--ks-tip-${tone}-${placement}`;
-          return (
-            <Tooltip key={`${tone}-${placement}`}>
-              <TooltipTrigger asChild>
-                <Button variant="secondary" size={size} style={{ anchorName: anchor }}>
-                  {label}
-                </Button>
-              </TooltipTrigger>
-              <TooltipPortal forceMount>
-                <TooltipContent
-                  forceMount
-                  placement={placement}
-                  tone={tone}
-                  size={overlaySize}
-                  style={{ positionAnchor: anchor }}
-                >
-                  {label} tooltip
-                  <TooltipArrow />
-                </TooltipContent>
-              </TooltipPortal>
-            </Tooltip>
-          );
+            const anchor = `--ks-tip-${tone}-${placement}`;
+            return (
+              <Tooltip key={`${tone}-${placement}`}>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="secondary"
+                    size={size}
+                    style={{ anchorName: anchor }}
+                  >
+                    {label}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipPortal forceMount>
+                  <TooltipContent
+                    forceMount
+                    placement={placement}
+                    tone={tone}
+                    size={overlaySize}
+                    style={{ positionAnchor: anchor }}
+                  >
+                    {label} tooltip
+                    <TooltipArrow />
+                  </TooltipContent>
+                </TooltipPortal>
+              </Tooltip>
+            );
           })}
         </TooltipProvider>
       </Section>

@@ -92,20 +92,26 @@ export function useNavigationMenuRoot({
   const openValueRef = useRef(openValue);
   openValueRef.current = openValue;
 
-  const cancelOpen = useCallback(() => {
-    clearTimeout(openTimerRef.current);
-    openTimerRef.current = undefined;
+  const cancelOpen = useCallback(
+    () => {
+      clearTimeout(openTimerRef.current);
+      openTimerRef.current = undefined;
+    },
     // Stryker's only mutation of an empty dependency array is
     // `["Stryker was here"]` — a string literal React compares `===`-equal on
     // every render, so the memoised identity is unchanged either way.
     // Stryker disable next-line ArrayDeclaration: equivalent — no dependency to freeze.
-  }, []);
+    [],
+  );
 
-  const cancelClose = useCallback(() => {
-    clearTimeout(closeTimerRef.current);
-    closeTimerRef.current = undefined;
+  const cancelClose = useCallback(
+    () => {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = undefined;
+    },
     // Stryker disable next-line ArrayDeclaration: equivalent — no dependency to freeze (see cancelOpen).
-  }, []);
+    [],
+  );
 
   const openWithIntent = useCallback(
     (next: string) => {

@@ -487,26 +487,44 @@ source of truth for when a skill applies.
     place. `Indicator` measures the open trigger and publishes
     `--primitiv-navigation-menu-indicator-position` / `-size` (re-measured
     on resize), and takes `asChild` so the marker can be an icon rather
-    than a styled box. 76 tests at 100% lines/branches/functions/statements.
+    than a styled box. 100% lines/branches/functions/statements.
+    **Mutation hardening is landed (106 tests).** NavigationMenu is in
+    `mutation-allowlist.json` and holds **100%** — every mutant killed by a
+    test bar 9 disabled lines, each with a written equivalence
+    justification. Getting there deleted the code behind four mutant
+    clusters rather than arguing about them (the hook's duplicate prop
+    defaults, the `clearTimeout` null-guards — `clearTimeout(undefined)` is
+    a spec'd no-op — the Viewport registrar wrapper, the Indicator's
+    redundant closed early-out, and `navigable: enabled ? keys : []`, now an
+    explicit no-op handler). Four hard-won testing facts worth reusing:
+    **(a)** a state update from a real timer that fires outside `act` is
+    *queued, not applied*, so a wait that must observe one has to be
+    `await act(() => …)`-wrapped or it reads a stale DOM; **(b)**
+    `userEvent` awaits a macrotask between events, which is long enough for
+    a 0 ms timer to fire — a **`delay: null` multi-step `user.pointer`
+    call** is the only way to keep "opens now" distinguishable from "opens
+    next tick" (this is what the surviving `delayDuration === 0` mutant
+    turned on); **(c)** any timing test also needs its delay to outlast the
+    gap *before* the cancelling action, or a loaded machine wins the race
+    and it flakes; **(d)** the Trigger's own `pointerLeave` is unobservable
+    through hover alone — `userEvent` sets no `relatedTarget`, so React
+    fires the `<nav>`'s leave too and `closeWithDelay` cancels the open
+    anyway — a **keyboard** toggle after the pointer has left is what
+    exposes it. `userEvent` + fake timers does **not** work in this repo at
+    all: RTL's `asyncWrapper` advances fake clocks only via a global `jest`,
+    which vitest doesn't define, so every call hangs (hence the real-timer
+    approach above, and why the older fake-timer suites use `fireEvent`).
+    Stryker itself can't be installed here, so `scripts/mutate-local.mjs`
+    (`pnpm --filter @primitiv-ui/react mutate:local <Name>`) reproduces its
+    mutators off the TypeScript AST — see the `mutation-testing` skill. The
+    prop-collision scan caught one real narrowing artifact on the way —
+    `Item.value` shadows `<li value>` and needed the `Omit`.
     **No example surface yet, deliberately** — the registry styles and the
     kitchen-sink example are the next session's work (examples live in the
     kitchen-sink now, not the workbench).
-    **Mutation hardening is NOT finished** — a scoped
-    `mutate:component NavigationMenu` run (252 mutants) still had survivors
-    when the session ended, so the component is **not** in
-    `mutation-allowlist.json` yet and must not be added until it kills
-    every mutant. **Score was 77.29% — 60 survived, 3 no-coverage of 251.**
-    The full survivor list, categorised with the test that should kill each,
-    plus the two deferred decisions (deps-array mutants judged case by case;
-    prefer deleting defensive code over disabling its mutants), is in
-    `docs/navigation-menu-mutation-handoff.md` — start there. Run a scoped
-    mutation pass after each milestone, not just at the end. The
-    prop-collision scan caught one real narrowing artifact on the way —
-    `Item.value` shadows `<li value>` and needed the `Omit`. Workbench
-**Next:** kill the mutation survivors, then
-    registry styles + a kitchen-sink example, then the Figma desktop set —
-    the kitchen-sink dogfood needs to cover desktop *and* the composed
-    mobile (`Drawer` + `Collapsible` + `NavigationMenu.Link`).
+**Next:** registry styles + a kitchen-sink example, then the Figma
+    desktop set — the kitchen-sink dogfood needs to cover desktop *and* the
+    composed mobile (`Drawer` + `Collapsible` + `NavigationMenu.Link`).
 
 ## Useful commands
 

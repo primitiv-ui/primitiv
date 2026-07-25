@@ -103,7 +103,6 @@ describe("NavigationMenu — hover interaction", () => {
 
     expect(screen.getByTestId("concepts-panel")).not.toBeVisible();
   });
-
 });
 
 /** Lets real time pass so a timer that was *not* cancelled gets its chance to
@@ -120,9 +119,10 @@ function waitPast(ms: number): Promise<void> {
  * The timing half of hover intent, where "the timer was cancelled" has to stay
  * distinguishable from "the timer hasn't fired yet". Two techniques do that:
  *
- * - **Short delays plus a real wait past them.** A panel that is still closed
- *   after several times its own `delayDuration` was cancelled, not merely
- *   outrun.
+ * - **A short delay plus a real wait several times past it.** A panel that is
+ *   still closed then was cancelled, not merely outrun. The delay also has to
+ *   outlast the gap before the cancelling action, or a loaded machine lets the
+ *   timer win that race and the test flakes.
  * - **`delay: null` with a multi-step `user.pointer` call.** `userEvent`
  *   normally awaits a macrotask between events, which is long enough for a
  *   zero-delay timer to fire and so hides the difference between opening *now*
@@ -150,39 +150,46 @@ describe("NavigationMenu — hover intent timing", () => {
   });
 
   it("drops the pending open when the pointer leaves the trigger for the list", async () => {
-    const user = userEvent.setup();
-    render(<ThreeEntryNav delayDuration={20} />);
+    const user = userEvent.setup({ delay: null });
+    render(<ThreeEntryNav delayDuration={100} />);
 
-    await user.hover(screen.getByRole("button", { name: "Concepts" }));
-    await user.hover(screen.getByRole("list"));
-    await act(() => waitPast(200));
+    await user.pointer([
+      { target: screen.getByRole("button", { name: "Concepts" }) },
+      { target: screen.getByRole("list") },
+    ]);
+    await act(() => waitPast(400));
 
     expect(screen.getByTestId("concepts-panel")).not.toBeVisible();
   });
 
   it("abandons a pending open when the nav unmounts", async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     const onValueChange = vi.fn();
     const { unmount } = render(
-      <ThreeEntryNav value="" onValueChange={onValueChange} delayDuration={20} />,
+      <ThreeEntryNav
+        value=""
+        onValueChange={onValueChange}
+        delayDuration={100}
+      />,
     );
 
     await user.hover(screen.getByRole("button", { name: "Concepts" }));
+    // Nothing has opened yet, so the timer this cancels is genuinely pending.
+    expect(onValueChange).not.toHaveBeenCalled();
     unmount();
-    await act(() => waitPast(200));
+    await act(() => waitPast(400));
 
     expect(onValueChange).not.toHaveBeenCalled();
   });
 
   it("keeps the panel open past the closeDelay when the pointer returns", async () => {
-    const user = userEvent.setup();
-    render(<ThreeEntryNav defaultValue="concepts" closeDelay={20} />);
+    const user = userEvent.setup({ delay: null });
+    render(<ThreeEntryNav defaultValue="concepts" closeDelay={100} />);
     const nav = screen.getByRole("navigation", { name: "Main" });
 
     await user.hover(screen.getByRole("button", { name: "Concepts" }));
-    await user.unhover(nav);
-    await user.hover(nav);
-    await act(() => waitPast(200));
+    await user.pointer([{ target: document.body }, { target: nav }]);
+    await act(() => waitPast(400));
 
     // Returning has to cancel the pending close outright — not merely outrun it.
     expect(screen.getByTestId("concepts-panel")).toBeVisible();

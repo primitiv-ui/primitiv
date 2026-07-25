@@ -219,11 +219,12 @@ behaviour, but were kept for meaningful ARIA semantics:
 
 ## Workbench examples
 
-`apps/workbench` carries one example page per component, and the backlog
-is **clear** — every public component in `packages/react/src` now has a
-matching `…Example` page under `apps/workbench/src/pages` (41 pages),
-alongside specimen pages for the Design-System test, Elevation, and the
-Harmoni plugin frame.
+**Closed as a backlog (2026-07-25): new component examples go in the
+kitchen-sink, not the workbench.** `apps/workbench` keeps the 40 pages it
+already has — one per component that predates the change, alongside
+specimen pages for the Design-System test, Elevation, and the Harmoni
+plugin frame — but it is no longer extended. Examples for new components
+are built in `apps/kitchen-sink` against the registry styling surface.
 
 `Slot` is an internal composition utility, not a public component —
 it does not need a workbench page.

@@ -36,10 +36,9 @@ split.
 4. **Push little and often.** Short-lived branches over long
    unshared history.
 5. **Leave the workbench app alone** unless mechanically forced (e.g.
-   import paths after a rename) or adding a **new component**, which
-   ships with its own example page (see "Definition of done"). It's
-   an iteration workbench, not a production surface — don't expand it
-   for anything else.
+   import paths after a rename). It's a legacy iteration surface — new
+   component examples go in the **kitchen-sink** instead (decided
+   2026-07-25), so don't expand the workbench at all.
 6. **Never open PRs unprompted.** "Update the PR description" /
    "create a new PR" are explicit; silence is not.
 7. **GitHub interactions: prefer the MCP tools** (`mcp__github__*`)
@@ -65,13 +64,15 @@ Every behaviour change in `packages/react` ships with:
   - a new row in `packages/react/README.md`'s components table,
     linking to the component's own `src/<Component>/README.md`. The
     component README alone is not the index — the table is.
-  - a **workbench example** page under `apps/workbench/src/pages` wired
-    into the router (see the `workbench-examples` skill).
-  - the component's `ROADMAP.md` checkbox ticked `[x]` (and removed
-    from the "Workbench examples" backlog if it was listed there).
+  - a **kitchen-sink example** in `apps/kitchen-sink` (see the
+    `new-registry-component` skill). **Examples live in the kitchen-sink
+    now, not the workbench** — decided 2026-07-25. Don't add
+    `apps/workbench/src/pages` examples for new components; the workbench
+    keeps only the pages it already has.
+  - the component's `ROADMAP.md` checkbox ticked `[x]`.
 
 These (test, JSDoc, README — plus, for a new component, the table
-row, workbench example, and roadmap tick) are not follow-ups — they
+row, kitchen-sink example, and roadmap tick) are not follow-ups — they
 are part of "done".
 
 ## Working efficiency under TDD
@@ -487,19 +488,22 @@ source of truth for when a skill applies.
     `--primitiv-navigation-menu-indicator-position` / `-size` (re-measured
     on resize), and takes `asChild` so the marker can be an icon rather
     than a styled box. 76 tests at 100% lines/branches/functions/statements.
+    **No example surface yet, deliberately** — the registry styles and the
+    kitchen-sink example are the next session's work (examples live in the
+    kitchen-sink now, not the workbench).
     **Mutation hardening is NOT finished** — a scoped
     `mutate:component NavigationMenu` run (252 mutants) still had survivors
     when the session ended, so the component is **not** in
     `mutation-allowlist.json` yet and must not be added until it kills
     every mutant. Pick that up first: re-run the scoped mutation command,
-    then `node scripts/mutation-survivors.mjs NavigationMenu`. The
+    then `node scripts/mutation-survivors.mjs NavigationMenu`. Run a scoped
+    mutation pass after each milestone, not just at the end. The
     prop-collision scan caught one real narrowing artifact on the way —
     `Item.value` shadows `<li value>` and needed the `Omit`. Workbench
-    example at `/navigation-menu` (4 specimens) — **not yet visually
-    QA'd in a browser** (no browser in the sandbox). **Next:** Figma
-    desktop set, then registry, then the kitchen-sink dogfood covering
-    desktop *and* the composed mobile (`Drawer` + `Collapsible` +
-    `NavigationMenu.Link`).
+**Next:** kill the mutation survivors, then
+    registry styles + a kitchen-sink example, then the Figma desktop set —
+    the kitchen-sink dogfood needs to cover desktop *and* the composed
+    mobile (`Drawer` + `Collapsible` + `NavigationMenu.Link`).
 
 ## Useful commands
 

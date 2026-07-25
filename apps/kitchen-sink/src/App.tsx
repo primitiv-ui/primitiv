@@ -323,6 +323,7 @@ export function App(): ReactElement {
   // checkmark indicator both track a real selection.
   const [selFramework, setSelFramework] = useState("");
   const [selRuntime, setSelRuntime] = useState("vue");
+  const [selRuntimeHiddenTrailing, setSelRuntimeHiddenTrailing] = useState("vue");
   const [selRegion, setSelRegion] = useState("");
   const [selFruit, setSelFruit] = useState("");
   const [readMoreOpen, setReadMoreOpen] = useState(false);
@@ -858,7 +859,10 @@ primitiv add --all`}</code>
           <span className="ks-select-demo__caption">
             Rich · leading + trailing, hidden in trigger
           </span>
-          <Select value={selRuntime} onValueChange={setSelRuntime}>
+          <Select
+            value={selRuntimeHiddenTrailing}
+            onValueChange={setSelRuntimeHiddenTrailing}
+          >
             <SelectTrigger
               size={size}
               className="ks-select-hide-trailing-value"

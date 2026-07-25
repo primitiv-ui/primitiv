@@ -135,12 +135,22 @@
     --primitiv-select-item-icon-size: var(--primitiv-select-icon-size);
   }
 
+  /* Both slots are `display: inline-flex` atomic boxes (never a bare <svg> —
+     SelectItemLeading/Trailing always render a span wrapper), so unlike the
+     bare-svg case below they don't inherit any vertical-align and default to
+     `baseline`. An inline-flex box has no text baseline of its own, so the
+     browser falls back to its bottom margin edge — aligning that to the
+     value's text baseline left the icon's full height standing above the
+     text instead of sitting level with it. text-bottom matches the bare-svg
+     rule below so every mirrored slot rides the same line. */
   .primitiv-select__value .primitiv-select__item-leading {
     margin-inline-end: var(--primitiv-select-gap);
+    vertical-align: text-bottom;
   }
 
   .primitiv-select__value .primitiv-select__item-trailing {
     margin-inline-start: var(--primitiv-select-gap);
+    vertical-align: text-bottom;
   }
 
   /* An icon mirrored out of the selected item (or dropped into the leading

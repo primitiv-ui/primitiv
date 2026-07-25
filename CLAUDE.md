@@ -440,10 +440,16 @@ source of truth for when a skill applies.
     selection (`--primitiv-select-item-inset` is the escape hatch).
     Dropdown gained the matching `__item-leading` / `__item-label` /
     `__item-trailing` row slots from the Figma `Show leading` / `Show
-    trailing` work. **Two caveats:** the kitchen-sink demos cannot build
-    until `@primitiv-ui/react` is republished (`apps/kitchen-sink` is
-    excluded from the pnpm workspace on purpose, so it consumes the
-    published packages), and two pre-existing Figma↔registry drifts were
+    trailing` work. **The kitchen-sink demos need no release** — although
+    `apps/kitchen-sink` is excluded from the pnpm workspace and depends on
+    the published packages, its `vite.config.ts` + `tsconfig.app.json` alias
+    `@primitiv-ui/react` / `/icons` to the workspace **source** precisely so
+    unpublished headless work can be exercised, so a docs redeploy surfaces
+    them (build with `pnpm exec vite build`, not `pnpm build` — the
+    `composite` tsconfig rejects the aliased out-of-tree source with TS6307,
+    which is why `deploy-docs.yml` calls vite directly). Only the registry
+    half carries the embedded-registry gotcha (CLI rebuild before `primitiv
+    add select` serves it). Two pre-existing Figma↔registry drifts were
     flagged but deliberately not changed (focused-trigger border colour;
     `Dropdown / Panel`'s `border/subtle` stroke). Full account in
     `docs/select-future-work.md`.

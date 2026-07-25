@@ -368,14 +368,25 @@ sets rather than from this doc's prose. What it confirmed:
 
 ### Open / flagged
 
-- **The kitchen-sink cannot build until `@primitiv-ui/react` is republished.**
-  `apps/kitchen-sink` is excluded from the pnpm workspace (`!apps/kitchen-sink`)
-  precisely so it consumes the published packages like a real consumer — and the
-  published build has neither the rich `Select` sub-components nor
-  `data-placeholder`. The native demos would run today; the rich ones need the
-  release first. (The registry half has the usual embedded-registry gotcha on top
-  of that: the CLI binary must be rebuilt before `primitiv add select` serves
-  anything.)
+- **No release is needed to see the demos** — verified by running the deploy's
+  own build. `apps/kitchen-sink` is excluded from the pnpm workspace and depends
+  on the *published* packages, **but its `vite.config.ts` and `tsconfig.app.json`
+  both alias `@primitiv-ui/react` and `@primitiv-ui/icons` to the workspace
+  source** exactly so unpublished headless changes can be exercised. So the rich
+  demos run against this branch's `Select`, `data-placeholder` and all. Redeploy
+  the docs (Actions → Deploy docs) and they show up at
+  `/primitiv/kitchen-sink/`.
+  - **Build it with `pnpm exec vite build`, not `pnpm build`.** The package
+    script is `tsc -b && vite build`, and `tsconfig.app.json` is a `composite`
+    project whose `include` is `["src"]` — composite rejects program files
+    outside that, which the aliased `packages/react/src/**` files are, so `tsc
+    -b` fails with a wall of TS6307. `deploy-docs.yml` runs `vite build`
+    directly for this reason and documents it; the real type gates live on
+    `packages/react`.
+  - The **registry** half still has the usual embedded-registry gotcha — the CLI
+    binary must be rebuilt and published before `primitiv add select` serves
+    anything. That is independent of the kitchen-sink, which carries the
+    hand-synced copy.
 - **Figma vs registry drift, pre-existing, not touched.** Two mismatches turned
   up while reading the file and are the human's call, since both would change a
   shipped look:

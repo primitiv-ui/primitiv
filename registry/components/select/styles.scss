@@ -386,15 +386,48 @@
 
 @layer primitiv.variants {
   /* Mode — the rich trigger is a <button> laid out [leading][value][chevron];
-     the native root is a real <select> whose popup, arrow, and inner text the
-     platform renders, so it deliberately keeps its UA appearance and takes no
-     inner layout (`display: flex` on a <select> makes some engines lay the
-     <option> elements out as flex items). */
+     the native root is a real <select> whose popup and inner text the platform
+     renders, so it keeps the UA's own layout (`display: flex` on a <select>
+     makes some engines lay the <option> elements out as flex items). The UA's
+     own disclosure arrow doesn't match the rich chevron's shape or inset
+     though, so `.primitiv-select--native` below strips it and paints the same
+     glyph itself. */
   .primitiv-select--rich {
     display: flex;
     align-items: center;
     gap: var(--primitiv-select-gap);
     text-align: start;
+  }
+
+  /* Native — appearance: none removes the platform's own arrow (its shape and
+     inset vary by browser/OS and never matched the rich chevron), then a
+     background-image repaints the identical glyph (the ChevronDown icon's
+     path) at the same size and inset the rich layout uses. `currentColor`
+     ties it to --primitiv-select-fg — the control's own text colour — rather
+     than the quieter --primitiv-select-icon-color the rich chevron uses: a
+     native <select> has one `color` for both its text and this background
+     image, and `native` renders no wrapper element to hang a second colour
+     on. The reserved end padding mirrors the rich row's trailing
+     [gap][icon] footprint so the platform never lays selected text under the
+     glyph. */
+  .primitiv-select--native {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-inline-end: calc(
+      var(--primitiv-select-padding-inline) + var(--primitiv-select-icon-size) +
+        var(--primitiv-select-gap)
+    );
+    background-repeat: no-repeat;
+    background-position: right var(--primitiv-select-padding-inline) center;
+    background-size: var(--primitiv-select-icon-size) var(--primitiv-select-icon-size);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M20.06 9 12 17.06 3.94 9 5 7.94l7 7 7-7z'/%3E%3C/svg%3E");
+  }
+
+  /* Mirror the paint position under RTL — background-position has no logical
+     equivalent, unlike the padding above, which already flips on its own. */
+  .primitiv-select--native:dir(rtl) {
+    background-position: left var(--primitiv-select-padding-inline) center;
   }
 
   /* Size — re-points the framed-control knobs to the chosen slot. Density stays

@@ -876,9 +876,10 @@ primitiv add --all`}</code>
         </div>
 
         {/* Native — the same component with `native` set. The platform owns the
-            popup, the arrow and the selected text; only the frame is ours. Element
-            children of an Item are dropped here, so the options are plain text and
-            the group is a real <optgroup>. */}
+            popup and the selected text; the frame and the chevron are ours (the
+            UA's own arrow is stripped and repainted to match the rich one).
+            Element children of an Item are dropped here, so the options are
+            plain text and the group is a real <optgroup>. */}
         <div className="ks-select-demo">
           <span className="ks-select-demo__caption">Native · placeholder + groups</span>
           <Select

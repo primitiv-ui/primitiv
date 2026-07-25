@@ -6,8 +6,9 @@ control with **two render paths behind one API**, chosen by the `native` prop:
 - **Rich** (`native={false}`, the default) — a Popover-API listbox whose options
   carry icons, labels, badges and a selected mark. The control is a framed field
   on the same geometry as `Input`, laid out `[leading][value][chevron]`.
-- **Native** (`native`) — a real `<select>`, dressed in the same frame, with the
-  platform drawing the popup, the arrow, and the selected text.
+- **Native** (`native`) — a real `<select>`, dressed in the same frame and
+  chevron as rich mode; the platform still draws the popup and the selected
+  text.
 
 The panel and its rows deliberately resolve the shared `--primitiv-dropdown-*`
 tokens: the Figma composition stacks a real `Dropdown / Panel` under the trigger,
@@ -79,6 +80,16 @@ The panel is at least as wide as its trigger (`anchor-size(width)`, matching the
 Figma composition) and flips to the opposite side on overflow. Past
 `--primitiv-select-content-max-block-size` the list scrolls — there are no scroll
 buttons by design.
+
+### Native chevron
+
+The native `<select>`'s own disclosure arrow is stripped (`appearance: none`)
+and repainted as a `background-image` — the same glyph, size, and inset as the
+rich chevron. One difference: it's coloured via `currentColor`, so it tracks
+`--primitiv-select-fg` (the control's own text colour) rather than the
+quieter `--primitiv-select-icon-color` the rich chevron uses. A native
+`<select>` has a single `color` for both its text and this background image,
+and `native` renders no wrapper element to hang a second colour on.
 
 ### Where the trigger's content comes from
 

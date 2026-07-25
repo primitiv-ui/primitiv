@@ -34,7 +34,7 @@
     {
       "name": "mode",
       "default": "rich",
-      "description": "Which render path the frame is dressing. `rich` lays the control out as `[leading][value][chevron]`; `native` leaves the inner layout to the platform, which draws the popup, the arrow, and the selected text itself.",
+      "description": "Which render path the frame is dressing. `rich` lays the control out as `[leading][value][chevron]`; `native` leaves the inner layout and the popup to the platform, but paints its own chevron (matching the rich one's shape/size/inset) over the UA's default arrow.",
       "options": [
         { "name": "rich", "class": "primitiv-select--rich", "description": "The Popover-API listbox trigger (the default)." },
         { "name": "native", "class": "primitiv-select--native", "description": "A real `<select>` element." }

@@ -1,7 +1,13 @@
 import { ComponentProps } from "react";
 
-/** Layout axis of the navigation list. */
+/** Layout axis of the navigation list. `"horizontal"` binds
+ * ArrowLeft/ArrowRight between top-level entries; `"vertical"` binds
+ * ArrowUp/ArrowDown. */
 export type NavigationMenuOrientation = "horizontal" | "vertical";
+
+/** Reading direction of the navigation list. In `"rtl"` the horizontal arrow
+ * pair is mirrored so navigation follows the visual order. */
+export type NavigationMenuReadingDirection = "ltr" | "rtl";
 
 /** Uncontrolled `NavigationMenu.Root` props: the component owns which panel is
  * open, seeded by an optional `defaultValue`. */
@@ -29,11 +35,15 @@ export type ControlledNavigationMenuRootProps = {
 /** Props for `NavigationMenu.Root` — the `<nav>` landmark and state owner. */
 export type NavigationMenuRootProps = Omit<
   ComponentProps<"nav">,
-  "defaultValue"
+  "defaultValue" | "dir"
 > & {
   /** Layout axis; see {@link NavigationMenuOrientation}.
    * @default "horizontal" */
   orientation?: NavigationMenuOrientation;
+  /** Reading direction; see {@link NavigationMenuReadingDirection}. Inherited
+   * from the nearest `DirectionProvider` when omitted, falling back to
+   * `"ltr"`. */
+  dir?: NavigationMenuReadingDirection;
   /** Whether hovering a trigger opens its panel. Set `false` for a
    * click-only nav — hover-to-open is the desktop convention, but it has no
    * touch equivalent and some products prefer to opt out.
@@ -77,9 +87,16 @@ export type NavigationMenuContentProps = ComponentProps<"div">;
 /** Props for `NavigationMenu.Link` — an `<a>` to a page. */
 export type NavigationMenuLinkProps = ComponentProps<"a">;
 
+/** Whether the surrounding subtree is inside a `NavigationMenu.Content`
+ * panel. A `NavigationMenu.Link` uses it to tell a top-level entry (which
+ * joins the arrow-key travel order) from a link inside a panel (which does
+ * not). */
+export type NavigationMenuPanelContextValue = boolean;
+
 /** The value shared by `NavigationMenu.Root` with its descendants. */
 export type NavigationMenuContextValue = {
   orientation: NavigationMenuOrientation;
+  dir: NavigationMenuReadingDirection;
   navigationMenuId: string;
   openValue: string;
   setOpenValue: (next: string) => void;
@@ -89,6 +106,13 @@ export type NavigationMenuContextValue = {
   openWithIntent: (value: string) => void;
   /** Abandons a hover-intent open that hasn't fired yet. */
   cancelOpen: () => void;
+  /** Adds (or, with `null`, removes) a top-level entry's element from the
+   * registry that arrow-key navigation walks. */
+  registerEntry: (key: string, element: HTMLElement | null) => void;
+  /** Registry keys in DOM order — the arrow-key travel order. */
+  entryKeys: string[];
+  /** Moves DOM focus to a registered top-level entry. */
+  focusEntry: (key: string) => void;
 };
 
 /** The value shared by `NavigationMenu.Item` with its descendants. */

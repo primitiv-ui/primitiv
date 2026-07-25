@@ -1,15 +1,18 @@
 import { useMemo } from "react";
 import type { PointerEvent, ReactElement } from "react";
 
+import { useDirection } from "../DirectionProvider/index.ts";
 import { composeEventHandlers } from "../Slot/index.ts";
 
 import {
   useNavigationMenuEntry,
+  useNavigationMenuLink,
   useNavigationMenuRoot,
   useNavigationMenuTrigger,
 } from "./hooks/index.ts";
 import {
   NavigationMenuItemProvider,
+  NavigationMenuPanelProvider,
   NavigationMenuProvider,
   useNavigationMenuContext,
 } from "./NavigationMenuContext";
@@ -26,6 +29,7 @@ import type {
 export function NavigationMenuRoot({
   children,
   orientation = "horizontal",
+  dir,
   openOnHover = true,
   delayDuration = 200,
   closeDelay = 150,
@@ -36,8 +40,10 @@ export function NavigationMenuRoot({
   onPointerLeave,
   ...rest
 }: NavigationMenuRootProps): ReactElement {
+  const resolvedDir = dir ?? useDirection();
   const { contextValue, cancelClose, closeWithDelay } = useNavigationMenuRoot({
     orientation,
+    dir: resolvedDir,
     openOnHover,
     delayDuration,
     closeDelay,
@@ -62,6 +68,7 @@ export function NavigationMenuRoot({
     <NavigationMenuProvider value={contextValue}>
       <nav
         aria-label="Main"
+        dir={resolvedDir}
         data-orientation={orientation}
         onPointerEnter={handlePointerEnter}
         onPointerLeave={handlePointerLeave}
@@ -108,9 +115,11 @@ export function NavigationMenuTrigger({
   onClick,
   onPointerEnter,
   onPointerLeave,
+  onKeyDown,
   ...rest
 }: NavigationMenuTriggerProps): ReactElement {
   const {
+    triggerRef,
     triggerId,
     panelId,
     open,
@@ -118,10 +127,17 @@ export function NavigationMenuTrigger({
     handleClick,
     handlePointerEnter,
     handlePointerLeave,
-  } = useNavigationMenuTrigger({ onClick, onPointerEnter, onPointerLeave });
+    handleKeyDown,
+  } = useNavigationMenuTrigger({
+    onClick,
+    onPointerEnter,
+    onPointerLeave,
+    onKeyDown,
+  });
 
   return (
     <button
+      ref={triggerRef}
       type="button"
       id={triggerId}
       aria-expanded={open}
@@ -130,6 +146,7 @@ export function NavigationMenuTrigger({
       onClick={handleClick}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
+      onKeyDown={handleKeyDown}
       {...rest}
     >
       {children}
@@ -144,23 +161,32 @@ export function NavigationMenuContent({
   const { triggerId, panelId, open, state } = useNavigationMenuEntry();
 
   return (
-    <div
-      id={panelId}
-      aria-labelledby={triggerId}
-      data-state={state}
-      hidden={!open}
-      {...rest}
-    >
-      {children}
-    </div>
+    <NavigationMenuPanelProvider value={true}>
+      <div
+        id={panelId}
+        aria-labelledby={triggerId}
+        data-state={state}
+        hidden={!open}
+        {...rest}
+      >
+        {children}
+      </div>
+    </NavigationMenuPanelProvider>
   );
 }
 
 export function NavigationMenuLink({
   children,
+  onKeyDown,
   ...rest
 }: NavigationMenuLinkProps): ReactElement {
-  return <a {...rest}>{children}</a>;
+  const { linkRef, handleKeyDown } = useNavigationMenuLink({ onKeyDown });
+
+  return (
+    <a ref={linkRef} onKeyDown={handleKeyDown} {...rest}>
+      {children}
+    </a>
+  );
 }
 
 export type TNavigationMenuCompound = typeof NavigationMenuRoot & {

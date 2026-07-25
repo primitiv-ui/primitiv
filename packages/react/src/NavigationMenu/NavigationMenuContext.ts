@@ -1,3 +1,4 @@
+import { createContext } from "react";
 import type { Context, Provider } from "react";
 
 import { createStrictContext } from "../utils/index.ts";
@@ -5,6 +6,7 @@ import { createStrictContext } from "../utils/index.ts";
 import type {
   NavigationMenuContextValue,
   NavigationMenuItemContextValue,
+  NavigationMenuPanelContextValue,
 } from "./types";
 
 const navigationMenuContextPair = createStrictContext<NavigationMenuContextValue>(
@@ -49,3 +51,17 @@ const NavigationMenuItemProvider: Provider<NavigationMenuItemContextValue | null
   NavigationMenuItemContext.Provider;
 
 export { NavigationMenuItemProvider };
+
+/** Marks its subtree as being inside a `NavigationMenu.Content` panel.
+ * Deliberately **not** strict: the default `false` is the meaningful "I am a
+ * top-level entry" answer, so a Link outside any panel must read it without
+ * throwing. */
+export const NavigationMenuPanelContext: Context<NavigationMenuPanelContextValue> =
+  createContext<NavigationMenuPanelContextValue>(false);
+
+/** Provider for {@link NavigationMenuPanelContext}, used by
+ * `NavigationMenu.Content`. */
+const NavigationMenuPanelProvider: Provider<NavigationMenuPanelContextValue> =
+  NavigationMenuPanelContext.Provider;
+
+export { NavigationMenuPanelProvider };

@@ -1,20 +1,23 @@
 import { useCallback, useRef } from "react";
-import type { MouseEvent, PointerEvent } from "react";
+import type { KeyboardEvent, MouseEvent, PointerEvent, RefObject } from "react";
 
 import { composeEventHandlers } from "../../Slot/index.ts";
 import { useNavigationMenuContext } from "../NavigationMenuContext";
 import type { NavigationMenuTriggerProps } from "../types";
 
 import { useNavigationMenuEntry } from "./useNavigationMenuEntry";
+import { useNavigationMenuTopLevelEntry } from "./useNavigationMenuTopLevelEntry";
 
 export function useNavigationMenuTrigger({
   onClick,
   onPointerEnter,
   onPointerLeave,
+  onKeyDown,
 }: Pick<
   NavigationMenuTriggerProps,
-  "onClick" | "onPointerEnter" | "onPointerLeave"
+  "onClick" | "onPointerEnter" | "onPointerLeave" | "onKeyDown"
 >): {
+  triggerRef: RefObject<HTMLButtonElement | null>;
   triggerId: string;
   panelId: string;
   open: boolean;
@@ -22,10 +25,13 @@ export function useNavigationMenuTrigger({
   handleClick: (event: MouseEvent<HTMLButtonElement>) => void;
   handlePointerEnter: (event: PointerEvent<HTMLButtonElement>) => void;
   handlePointerLeave: (event: PointerEvent<HTMLButtonElement>) => void;
+  handleKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void;
 } {
   const { setOpenValue, openOnHover, openWithIntent, cancelOpen } =
     useNavigationMenuContext();
   const { value, triggerId, panelId, open, state } = useNavigationMenuEntry();
+  const { entryRef: triggerRef, handleKeyDown: handleArrowKeyDown } =
+    useNavigationMenuTopLevelEntry<HTMLButtonElement>();
 
   // What `open` was when the pointer arrived, or `undefined` when no pointer
   // is over the trigger. A pointer that comes to click first fires
@@ -66,8 +72,13 @@ export function useNavigationMenuTrigger({
   const handlePointerLeave = composeEventHandlers<
     PointerEvent<HTMLButtonElement>
   >(onPointerLeave, pointerLeave);
+  const handleKeyDown = composeEventHandlers<KeyboardEvent<HTMLButtonElement>>(
+    onKeyDown,
+    handleArrowKeyDown,
+  );
 
   return {
+    triggerRef,
     triggerId,
     panelId,
     open,
@@ -75,5 +86,6 @@ export function useNavigationMenuTrigger({
     handleClick,
     handlePointerEnter,
     handlePointerLeave,
+    handleKeyDown,
   };
 }

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useMemo, useRef } from "react";
 
-import { useControllableState } from "../../hooks/index.ts";
+import { useCollection, useControllableState } from "../../hooks/index.ts";
 
 import type {
   NavigationMenuContextValue,
@@ -10,6 +10,7 @@ import type {
 type UseNavigationMenuRootArgs = Pick<
   NavigationMenuRootProps,
   | "orientation"
+  | "dir"
   | "openOnHover"
   | "delayDuration"
   | "closeDelay"
@@ -20,6 +21,7 @@ type UseNavigationMenuRootArgs = Pick<
 
 export function useNavigationMenuRoot({
   orientation = "horizontal",
+  dir = "ltr",
   openOnHover = true,
   delayDuration = 200,
   closeDelay = 150,
@@ -36,6 +38,19 @@ export function useNavigationMenuRoot({
     value,
     defaultValue ?? "",
     onValueChange,
+  );
+
+  const {
+    register: registerEntry,
+    itemsRef: entriesRef,
+    keys: entryKeys,
+  } = useCollection<string, HTMLElement>();
+
+  const focusEntry = useCallback(
+    (key: string) => {
+      entriesRef.current.get(key)?.focus();
+    },
+    [entriesRef],
   );
 
   const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -99,21 +114,29 @@ export function useNavigationMenuRoot({
   const contextValue = useMemo<NavigationMenuContextValue>(
     () => ({
       orientation,
+      dir,
       navigationMenuId,
       openValue,
       setOpenValue,
       openOnHover,
       openWithIntent,
       cancelOpen,
+      registerEntry,
+      entryKeys,
+      focusEntry,
     }),
     [
       orientation,
+      dir,
       navigationMenuId,
       openValue,
       setOpenValue,
       openOnHover,
       openWithIntent,
       cancelOpen,
+      registerEntry,
+      entryKeys,
+      focusEntry,
     ],
   );
 

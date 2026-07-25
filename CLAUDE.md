@@ -454,8 +454,8 @@ source of truth for when a skill applies.
     flagged but deliberately not changed (focused-trigger border colour;
     `Dropdown / Panel`'s `border/subtle` stroke). Full account in
     `docs/select-future-work.md`.
-  - **NavigationMenu — headless landed (2026-07-25); Figma + registry +
-    kitchen-sink still to do.** RFC 0019 §4 is fully settled and §5 now
+  - **NavigationMenu — headless + Figma desktop set landed (2026-07-25);
+    registry + kitchen-sink still to do.** RFC 0019 §4 is fully settled and §5 now
     fixes the API. Decisions: **(a)** desktop-only `NavigationMenu` +
     composed mobile — the duplication worry was raised and closed in
     RFC 0019 **§4a** (the nav *data* and the active-state `Link` stay
@@ -519,12 +519,31 @@ source of truth for when a skill applies.
     mutators off the TypeScript AST — see the `mutation-testing` skill. The
     prop-collision scan caught one real narrowing artifact on the way —
     `Item.value` shadows `<li value>` and needed the `Omit`.
-    **No example surface yet, deliberately** — the registry styles and the
-    kitchen-sink example are the next session's work (examples live in the
-    kitchen-sink now, not the workbench).
-**Next:** registry styles + a kitchen-sink example, then the Figma
-    desktop set — the kitchen-sink dogfood needs to cover desktop *and* the
-    composed mobile (`Drawer` + `Collapsible` + `NavigationMenu.Link`).
+    **Figma desktop set landed (2026-07-25)** — five sets on a new
+    "Navigation Menu" page (`1333:50772`), 150 variants, all **md-first**
+    (building the md variants first is what finally produced a genuinely
+    md-first Size dropdown — the thing Collapsible and Select couldn't get
+    retroactively, since `defaultVariant` is read-only): `Trigger`
+    (`1333:50847`), `Bar Link` (`1333:51136`) + `Panel Link` (`1333:51304`)
+    — the two placements of the one headless `Link` part — `Indicator`
+    (`1334:51727`, arrow reusing `Tooltip / Arrow` Tone=inverted, plus an
+    underline style), and the composed `Navigation Menu` (`1334:51944`).
+    Three decisions worth keeping: the panel is a **`Dropdown / Panel`
+    instance with its stroke and own shadow overridden off**, with
+    `elevation/overlay` moved to a transparent wrapper so the shadow wraps
+    arrow + panel as one silhouette — the Tooltip/Popover model, because a
+    border would seam across the arrow's base (the registry solves the same
+    problem with `filter: drop-shadow`); geometry adopts the
+    previously-unconsumed **`nav-item/*`** Context family rather than
+    `framed-control/*` (a nav entry isn't a bordered control), extended
+    code-first with an `xl` slot + `padding-block`, `text-gap` and
+    `panel-offset`; and the Figma↔headless name drift is deliberate and
+    recorded in the descriptions (`Content`→`Panel` is the existing house
+    convention, and one `Link` part legitimately needs two geometries).
+    Arrange script: `apps/harmoni-figma-plugin/scripts/arrange-navigation-menu-component-sets.js`.
+**Next:** registry styles + a kitchen-sink example — the dogfood needs to
+    cover desktop *and* the composed mobile (`Drawer` + `Collapsible` +
+    `NavigationMenu.Link`).
 
 ## Useful commands
 

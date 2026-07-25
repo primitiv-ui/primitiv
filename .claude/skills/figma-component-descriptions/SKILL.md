@@ -1046,6 +1046,149 @@ Notes: The Copy control is one size step below the block (xs→xs, sm→xs, md�
   Copy success feedback (icon copy→check, or text "Copy"→"Copied") is runtime-only — not a Figma state. React parity: CodeBlock.Tabs composes the headless Tabs primitive and reuses the tabs component's classes; CodeBlock.Copy composes the registry Button component (variant secondary) — so its text label gets the same __label wrap + text-box-trim as any button — with children setting the content (icon default, text when passed).
 ```
 
+### NavigationMenu — five sets on page "Navigation Menu" (RFC 0019)
+
+Desktop dropdown site nav. Built 2026-07-25, all five sets **md-first** (the `md`
+variants were created before the other sizes, so the Size dropdown genuinely
+lists md first — the reorder Collapsible and Select could not get retroactively).
+
+**Headless ↔ Figma mapping** (settled 2026-07-25 — descriptive Figma names kept,
+with the mapping recorded here and in each description rather than renaming):
+
+| Headless part | Figma |
+| --- | --- |
+| `Root`, `List`, `Item` | no set — structural (`<nav>`, `<ul>`, `<li>`), as with Tabs' List |
+| `Trigger` | `Navigation Menu / Trigger` |
+| `Indicator` | `Navigation Menu / Indicator` |
+| `Content` + `Viewport` | one panel box in the composed set (a `Dropdown / Panel` instance) — Figma cannot model portal projection; Content → Panel is the existing house convention (Dropdown, Tabs) |
+| `Link` | **two** sets — `Bar Link` (bar placement) + `Panel Link` (panel placement); one part, two geometries |
+
+**Navigation Menu / Trigger — `1333:50847`** (50 variants)
+
+```
+Top-level disclosure entry in a desktop navigation bar — a label plus a chevron that flips when its panel is open. Mirrors headless NavigationMenu.Trigger.
+
+Type: framed-control (frameless — transparent fill; the ghost tint is the hover/open affordance)
+
+Axes: Size md|xs|sm|lg|xl · State closed|open · Interaction default|hover|active|focus|disabled
+
+Tokens: fill → color/transparent (closed default/focus/disabled) · action/ghost/hover (hover, and State=open) · action/ghost/active (active)
+        label → content/secondary → content/primary on hover and whenever State=open · content/disabled
+        chevron → matches the label fill; size → nav-item/{size}/icon-size
+        sizing → nav-item/{size}/height|padding-inline|gap; radius → framed-control/{size}/radius
+        focus ring → framed-control/{size}/focus-ring-gap-radius|focus-ring-radius + focus/ring, focus/ring/width
+
+Properties: Label (TEXT "Menu")
+
+Density: Context mode override on parent frame
+Pairs with: Navigation Menu (composed), Navigation Menu / Bar Link, Navigation Menu / Indicator, Icon (the chevron)
+Notes: the chevron is the State axis, not a rotation — chevron-down closed, chevron-up open, as size-matched Icon instances.
+  Geometry binds to nav-item/* — a nav entry is not a bordered control, so the family deliberately carries no border tokens; only radius and the focus-ring radii come from framed-control/*, since nav-item/* has none.
+  State=open keeps the ghost tint at every Interaction except disabled.
+  Interaction=disabled is 50% frame opacity over content/disabled, matching Button's link variant.
+```
+
+**Navigation Menu / Bar Link — `1333:51136`** (40 variants)
+
+```
+Plain link entry in a desktop navigation bar — no panel, no chevron. The bar placement of headless NavigationMenu.Link; Navigation Menu / Panel Link is the panel placement of the same part.
+
+Type: framed-control (frameless — transparent fill; ghost tint on hover)
+
+Axes: Size md|xs|sm|lg|xl · State inactive|active · Interaction default|hover|focus|disabled
+
+Tokens: fill → color/transparent · action/ghost/hover (hover)
+        label → content/secondary (inactive) → content/primary on hover · action/primary/default (State=active) · content/disabled
+        sizing → nav-item/{size}/height|padding-inline|gap; radius → framed-control/{size}/radius; typography → label/{size}/*
+
+Properties: Label (TEXT "Docs")
+
+Density: Context mode override on parent frame
+Notes: State=active is aria-current="page" — the current-page marker, NOT a pressed state. A variant axis rather than a boolean because it changes the label colour (Figma booleans only toggle visibility).
+  Active is brand-coloured rather than Tabs' secondary→primary shift, which in a bar would make active/default indistinguishable from inactive/hover.
+  Four Interaction values (no pressed 'active'), matching Tabs / Trigger.
+```
+
+**Navigation Menu / Panel Link — `1333:51304`** (40 variants)
+
+```
+Two-line link row inside an open navigation panel — title plus optional description, with optional leading and trailing slots. The panel placement of headless NavigationMenu.Link.
+
+Type: surface component (child of the composed set's panel)
+
+Axes: Size md|xs|sm|lg|xl · State inactive|active · Interaction default|hover|focus|disabled
+
+Tokens: fill → color/transparent · action/ghost/hover (hover)
+        label → content/primary · action/primary/default (State=active) · content/disabled; typography → label/{size}/*
+        description → content/secondary; typography → body/{one slot below size}/* (xs→xs, sm→xs, md→sm, lg→md, xl→lg)
+        sizing → nav-item/{size}/padding-inline|padding-block|gap; label↔description gap → nav-item/{size}/text-gap
+        radius → framed-control/{size}/radius; leading/trailing → nav-item/{size}/icon-size
+
+Properties: Label (TEXT "Components") · Description (TEXT "Every component, per mode") · Show description (BOOL true) · Show leading (BOOL false) · Show trailing (BOOL false) · Leading (SWAP file) · Trailing (SWAP chevron-right)
+
+Density: Context mode override on parent frame
+Notes: FIXED width with the text stack FILLing, so a trailing slot right-aligns and the row stretches to its panel column.
+  The description sits one size slot BELOW the label — bound to the same slot they were identical at lg/xl and the hierarchy collapsed.
+  Show description off collapses the row to a single line (md 52 → 28).
+  nav-item/{size}/padding-block + text-gap were added for this row: a two-line row cannot use nav-item/{size}/height.
+```
+
+**Navigation Menu / Indicator — `1334:51727`** (10 variants)
+
+```
+Marker tracking the open trigger — an arrow pointing up at it from the panel, or an underline beneath it. Mirrors headless NavigationMenu.Indicator.
+
+Type: surface component (marker)
+
+Axes: Style arrow|underline · Size md|xs|sm|lg|xl
+
+Tokens: arrow → nested Tooltip / Arrow instance (Side=top, Tone=inverted — its vector fill is surface/default, matching the panel)
+        underline → action/primary/default; thickness → border-width/2
+
+Properties: (none — Style and Size only)
+
+Density: Context mode override on parent frame
+Notes: Style=arrow reuses Tooltip / Arrow rather than drawing a triangle. Tone=inverted is the surface-coloured one; Tone=default is the dark tooltip fill.
+  Tooltip / Arrow has no xs slot, so nav xs maps onto its sm — xs and sm arrows are identical (12×7).
+  Thickness binds straight to the border-width/2 primitive: tabs/indicator-thickness aliases that same value in all four density modes, so re-wrapping it would add nothing.
+  Style=underline's width is a placeholder — the headless publishes --primitiv-navigation-menu-indicator-size from the open trigger's offsetWidth. The bar rect is FILL, so resizing an instance stretches it.
+```
+
+**Navigation Menu (composed) — `1334:51944`** (10 variants)
+
+```
+Desktop dropdown site navigation — a transparent bar of top-level entries with one panel open at a time. The ARIA APG Disclosure Navigation Menu pattern, NOT a menubar.
+
+Type: non-framed composition
+
+Axes: Variant closed|open · Size md|xs|sm|lg|xl
+
+Tokens: bar → no fill (transparent, reads over any background); entries adjacent (itemSpacing 0), their own padding-inline separates them
+        bar → panel offset → nav-item/{size}/panel-offset
+        panel → a Dropdown / Panel instance with stroke and shadow overridden off; fill surface/default, radius + padding from dropdown/{size}/panel/*
+        shadow → elevation/overlay effect style on the transparent Panel wrapper, wrapping arrow + panel as ONE silhouette
+        nested → Navigation Menu / Trigger · Bar Link · Panel Link · Indicator at the matching Size
+
+Properties: Variant · Size only. Entry labels and panel rows are edited on the nested instances — nested-instance properties do not forward.
+
+Density: Context mode override on parent frame
+Notes: the panel deliberately has NO border. A border would seam across the arrow's base — the registry solves the same problem with filter: drop-shadow on a wrapper ("the shadow wraps the panel + arrow as one silhouette", registry/components/popover/styles.css). Figma's equivalent is a transparent wrapper carrying elevation/overlay, exactly as the composed Tooltip and Popover sets do.
+  Arrow overlaps the panel edge by 2px (wrapper itemSpacing -2) — the same -2 the composed Tooltip uses.
+  Indicator rail is FILL width with paddingLeft centring the arrow under the open trigger (the Tooltip "Arrow rail" pattern).
+  Panel content lives in the Dropdown / Panel Slot — here a 2×2 mega-menu of Panel Links; the Slot takes any content.
+  Only the arrow Indicator style is composed here; the underline ships in Navigation Menu / Indicator.
+```
+
+**Build gotchas hit while making these** (all cost a cycle; see also
+`figma-framed-control-component/references/`):
+
+- **A bound paint carries a resolved RGBA snapshot that `setBoundVariableForPaint` does not fill in.** The literal `color`/`opacity` beside the binding is what renders. A freshly built paint keeps the `{0,0,0}, opacity 1` placeholder, so an alpha token (`color/transparent`, `action/ghost/*`, whose RGB is near-black `#121418`) renders **solid black**. Clones made in the *same script run* as their source inherit the placeholder — a set can look right at one size and be wrong at the other four. Fix: write `resolveForConsumer(node).value` into the paint's `color` and its `.a` into `opacity`.
+- **`INSTANCE_SWAP` defaultValue is a node id, not a component key.** Passing `component.key` throws `"Property value is incompatible with component property type"`. The live `Dropdown / Item` swaps use `defaultValue: "153:1825"`.
+- **Add component properties AFTER fanning out sizes.** `clone()` on a variant component drops `componentPropertyReferences`, so variants cloned after a TEXT property was wired render the component default while their instances still report the right property value — a silent, confusing failure. (Bar Link and Panel Link avoided it by adding properties last; the Trigger needed 40 references re-wired.)
+- **`figma.createFrame()` clips by default.** A cap-height-trimmed label in a clipping inner frame loses its descenders. Set `clipsContent = false` on helper frames.
+- **`componentPropertyReferences` takes `{}`, not `null`,** to drop a reference.
+- **Figma's undo rolls back plugin operations** — an undo mid-session silently removed an arrange pass and one INSTANCE_SWAP property. Re-verify rather than trusting the last reported state.
+
 ---
 
 ## Definition of done checklist

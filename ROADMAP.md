@@ -69,6 +69,7 @@ is the exception (Figma set `601:9607`, whose tabbed Type composes Tabs + Button
 | InputGroup | — | ✓ | ✓ | ✓ | input-group |
 | MillerColumns | — | ✓ | — | — | |
 | Modal | ✓ | ✓ | ✓ | ✓ | 435:10250 (Modal), 435:9450 (Header), 435:10108 (Body), 435:10161 (Footer) |
+| NavigationMenu | ✓ | ✓ | — | — | Five sets on page "Navigation Menu" (`1333:50772`), all **md-first** (md variants built before the other sizes, so the Size dropdown genuinely leads with md — the reorder Collapsible and Select couldn't get retroactively): `Trigger` (1333:50847, Size×State[closed\|open]×Interaction, chevron flips glyph via Icon rather than rotating), `Bar Link` (1333:51136) + `Panel Link` (1333:51304) — the two placements of the single headless `Link` part (bar = one-line entry; panel = two-line title+description with optional leading/trailing swaps), `Indicator` (1334:51727, Style[arrow\|underline] — the arrow reuses `Tooltip / Arrow` Tone=inverted, the underline binds `border-width/2`), and composed `Navigation Menu` (1334:51944, Variant[closed\|open]×Size) = transparent bar + a `Dropdown / Panel` instance with its stroke and own shadow overridden off, `elevation/overlay` moved to a transparent wrapper so the shadow wraps arrow + panel as ONE silhouette (the Tooltip/Popover model — a border would seam across the arrow base). Geometry adopts the previously-unconsumed `nav-item/*` Context family, extended for this build with an `xl` slot + `padding-block`, `text-gap` and `panel-offset`. Registry styles + kitchen-sink demo (desktop **and** the composed mobile) still to do |
 | Popover | ✓ | ✓ | ✓ | ✓ | 1168:36142 (composition), 1140:25762 (Content), 1168:35023 (Arrow); registry = borderless panel + `::after` arrow + 12 placements (CSS anchor positioning) |
 | Progress | ✓ | ✓ | — | — | 443:7839 |
 | Prose | — | — | ✓ | ✓ | registry-only (`.primitiv-flow` + `<Prose>` wrapper) |
@@ -164,7 +165,7 @@ semantics that CSS alone cannot provide.
 ### Navigation
 
 - [ ] Menubar
-- [x] Navigation Menu — headless; desktop presentation. See [`docs/rfcs/0019-navigation-menu.md`](docs/rfcs/0019-navigation-menu.md)
+- [x] Navigation Menu — headless + Figma desktop set (5 sets, 150 variants); desktop presentation. Registry styles + kitchen-sink demo (desktop and composed mobile) outstanding. See [`docs/rfcs/0019-navigation-menu.md`](docs/rfcs/0019-navigation-menu.md)
 - [x] Toggle
 - [x] Toggle Group
 - [ ] Toolbar

@@ -32,8 +32,12 @@ arc must shift out by 4 px from the control radius to stay concentric.
 ## Focus ring stroke spec (live Button set)
 
 - Width: **2 px**, bound to `focus/ring/width` (in the `Interaction` collection).
-- Colour: bound to the **`focus/ring`** token, which aliases
-  `action/primary/default` → `color/brand/light/500` (**#20836F**, brand/teal).
+- Colour: bound to the **`focus/ring`** token, which resolves through
+  `color/brand/500` — **#236ce1** (brand blue) as of 2026-07-25. Do not trust a
+  hex here: the brand ramp is Harmoni-generated and has changed at least once
+  (this line previously read `color/brand/light/500` / **#20836F** teal). Resolve
+  `focus/ring` in the live file when the exact value matters; `border/focus` and
+  `action/primary/default` resolve to the same colour.
   It is **intent-neutral** — the ring is the brand colour on *every* variant
   (primary, secondary, link, danger), because it points at the primary action
   token regardless of the variant's own colour. It is **not** a fixed `#99C8FF`.

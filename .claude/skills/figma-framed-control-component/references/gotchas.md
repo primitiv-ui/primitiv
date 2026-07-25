@@ -89,3 +89,39 @@ Read this before any build or audit sweep. Geometry/auto-layout gotchas live in
   centred coords: that breaks density (it won't re-centre when the box resizes per
   mode). Leave the mark `AUTO` and let the Control's auto-layout centre it. Bit
   Checkbox/Radio/Switch during the 2026-07 label build.
+- **A bound paint carries a resolved RGBA snapshot that `setBoundVariableForPaint`
+  does not fill in — and that snapshot is what renders.** The paint keeps a literal
+  `color` + `opacity` alongside the variable binding. Build a paint from scratch and
+  it stays at the placeholder (`{0,0,0}`, `opacity 1`), so an **alpha** token —
+  `color/transparent`, `action/ghost/hover|active`, any `color/neutral-alpha/*`,
+  whose RGB is the near-black veil `#121418` — renders as **solid opaque black**,
+  and every token renders black until the snapshot resolves. Worse, clones made in
+  the **same script run** as their source inherit the placeholder, so a set can look
+  correct at one size and be wrong at the other four. Fix deterministically after
+  binding: write `v.resolveForConsumer(node).value` into the paint's `color` and its
+  `.a` into `opacity`, then re-assign the array. Bit NavigationMenu's Bar Link
+  (2026-07-25); the Trigger escaped it only because its variants were cloned from a
+  donor whose paints had already resolved.
+- **`INSTANCE_SWAP` `defaultValue` is a node id, not a component key.** Passing
+  `component.key` (a perfectly valid 40-char key) throws `"Property value is
+  incompatible with component property type"`. The live `Dropdown / Item` swaps use
+  `defaultValue: "153:1825"` — a plain node id. Read a working set's
+  `componentPropertyDefinitions` when in doubt.
+- **Add component properties AFTER fanning out sizes, not before.** `clone()` on a
+  variant *component* drops its `componentPropertyReferences` (documented in
+  `component-properties.md`), so any variant cloned after a TEXT/BOOL property was
+  wired renders the component's **default** while its instances still report the
+  right property value — a silent failure that looks like `setProperties()` not
+  working. NavigationMenu's Trigger needed 40 references re-wired for this reason;
+  Bar Link and Panel Link avoided it by adding properties last.
+- **`figma.createFrame()` clips its content by default.** A cap-height-trimmed label
+  (`leadingTrim: CAP_HEIGHT`) sits in a box shorter than its glyphs, so a clipping
+  wrapper crops the descenders — invisible at grid zoom, obvious on a single
+  instance. Set `clipsContent = false` on every helper frame you create. Component
+  roots made by `createComponent()` already default to `false`, which is why focus
+  rings (absolute, at −2/−4) show at all.
+- **Figma's undo rolls back plugin operations.** A user pressing ⌘Z mid-session
+  silently reverted an entire arrange pass **and** the last-added INSTANCE_SWAP
+  property, leaving 40 otherwise-correct variants stacked at `0,0`. If anything is
+  undone after you report state, re-verify from the document rather than trusting
+  your last report.

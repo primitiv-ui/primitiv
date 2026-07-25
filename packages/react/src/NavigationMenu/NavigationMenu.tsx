@@ -13,6 +13,7 @@ import { Slot, composeEventHandlers, composeRefs } from "../Slot/index.ts";
 
 import {
   useNavigationMenuEntry,
+  useNavigationMenuIndicator,
   useNavigationMenuLink,
   useNavigationMenuRoot,
   useNavigationMenuTrigger,
@@ -25,6 +26,7 @@ import {
 } from "./NavigationMenuContext";
 import type {
   NavigationMenuContentProps,
+  NavigationMenuIndicatorProps,
   NavigationMenuItemContextValue,
   NavigationMenuItemProps,
   NavigationMenuLinkProps,
@@ -240,6 +242,32 @@ export function NavigationMenuViewport({
   );
 }
 
+export function NavigationMenuIndicator({
+  forceMount = false,
+  style,
+  ...rest
+}: NavigationMenuIndicatorProps): ReactElement {
+  const {
+    open,
+    openValue,
+    orientation,
+    style: geometryStyle,
+  } = useNavigationMenuIndicator();
+
+  return (
+    <div
+      data-orientation={orientation}
+      data-state={open ? "open" : "closed"}
+      data-value={openValue || undefined}
+      hidden={forceMount ? undefined : !open}
+      // Consumer style last: the geometry is ours to publish, but everything
+      // else about the marker belongs to the stylesheet.
+      style={{ ...geometryStyle, ...style }}
+      {...rest}
+    />
+  );
+}
+
 export function NavigationMenuLink({
   children,
   active = false,
@@ -276,6 +304,7 @@ export type TNavigationMenuCompound = typeof NavigationMenuRoot & {
   Trigger: typeof NavigationMenuTrigger;
   Content: typeof NavigationMenuContent;
   Viewport: typeof NavigationMenuViewport;
+  Indicator: typeof NavigationMenuIndicator;
   Link: typeof NavigationMenuLink;
 };
 
@@ -288,6 +317,7 @@ const NavigationMenuCompound: TNavigationMenuCompound = Object.assign(
     Trigger: NavigationMenuTrigger,
     Content: NavigationMenuContent,
     Viewport: NavigationMenuViewport,
+    Indicator: NavigationMenuIndicator,
     Link: NavigationMenuLink,
   },
 );

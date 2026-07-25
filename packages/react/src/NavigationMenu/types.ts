@@ -115,6 +115,15 @@ export type NavigationMenuViewportProps = ComponentProps<"div"> & {
   forceMount?: boolean;
 };
 
+/** Props for `NavigationMenu.Indicator` — the marker that tracks the open
+ * trigger. */
+export type NavigationMenuIndicatorProps = ComponentProps<"div"> & {
+  /** Keeps the indicator unhidden while nothing is open so CSS can animate it
+   * out rather than having it vanish.
+   * @default false */
+  forceMount?: boolean;
+};
+
 /** Props for `NavigationMenu.Link` — an `<a>` to a page. */
 export type NavigationMenuLinkProps = ComponentProps<"a"> & {
   /** Marks this link as the page the user is currently on, setting

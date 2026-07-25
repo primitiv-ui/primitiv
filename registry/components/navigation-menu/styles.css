@@ -519,7 +519,7 @@
      rather than snapping them away. */
   .primitiv-navigation-menu__viewport[data-state="closed"],
   .primitiv-navigation-menu__indicator[data-state="closed"] {
-    opacity: 0;
+    opacity: var(--primitiv-opacity-transparent);
   }
 
   /* EVERY force-mounted Content projects into the one Viewport, so without this
@@ -531,18 +531,18 @@
     position: absolute;
     inset-block-start: var(--primitiv-space-space-0);
     inset-inline-start: var(--primitiv-space-space-0);
-    opacity: 0;
+    opacity: var(--primitiv-opacity-transparent);
     pointer-events: none;
   }
 
   .primitiv-navigation-menu__content[data-state="open"] {
     position: relative;
-    opacity: 1;
+    opacity: var(--primitiv-opacity-100);
   }
 
   .primitiv-navigation-menu__viewport[data-state="open"],
   .primitiv-navigation-menu__indicator[data-state="open"] {
-    opacity: 1;
+    opacity: var(--primitiv-opacity-100);
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -546,6 +546,12 @@ NavigationMenuViewport.displayName = "NavigationMenuViewport";
  * open value names an entry with no rendered trigger, neither property is set —
  * better an unpositioned marker than one parked at `0`.
  *
+ * **`asChild` prop.** Pass `asChild` to make the marker an element of your own
+ * — an `<svg>` arrow, an icon component — instead of a styled `<div>`. The
+ * `data-*` hooks and the geometry custom properties are merged onto the child
+ * via {@link Slot}, so an icon tracks the trigger exactly as the default box
+ * does.
+ *
  * **Styling hooks.** `data-state="open" | "closed"`,
  * `data-orientation="horizontal" | "vertical"`, `data-value`.
  *
@@ -554,6 +560,13 @@ NavigationMenuViewport.displayName = "NavigationMenuViewport";
  * @example
  * ```tsx
  * <NavigationMenu.Indicator className="indicator" />
+ * ```
+ *
+ * @example asChild — an arrow icon rather than a styled box
+ * ```tsx
+ * <NavigationMenu.Indicator asChild>
+ *   <ChevronUpIcon aria-hidden />
+ * </NavigationMenu.Indicator>
  * ```
  * ```css
  * .indicator {
@@ -567,7 +580,9 @@ NavigationMenuViewport.displayName = "NavigationMenuViewport";
  * ```
  */
 export function NavigationMenuIndicator({
+  children,
   forceMount = false,
+  asChild = false,
   style,
   ...rest
 }: NavigationMenuIndicatorProps): ReactElement {
@@ -578,18 +593,22 @@ export function NavigationMenuIndicator({
     style: geometryStyle,
   } = useNavigationMenuIndicator();
 
-  return (
-    <div
-      data-orientation={orientation}
-      data-state={open ? "open" : "closed"}
-      data-value={openValue || undefined}
-      hidden={forceMount ? undefined : !open}
-      // Consumer style last: the geometry is ours to publish, but everything
-      // else about the marker belongs to the stylesheet.
-      style={{ ...geometryStyle, ...style }}
-      {...rest}
-    />
-  );
+  const indicatorProps = {
+    "data-orientation": orientation,
+    "data-state": open ? ("open" as const) : ("closed" as const),
+    "data-value": openValue || undefined,
+    hidden: forceMount ? undefined : !open,
+    // Consumer style last: the geometry is ours to publish, but everything
+    // else about the marker belongs to the stylesheet.
+    style: { ...geometryStyle, ...style },
+    ...rest,
+  };
+
+  if (asChild) {
+    return <Slot {...indicatorProps}>{children}</Slot>;
+  }
+
+  return <div {...indicatorProps}>{children}</div>;
 }
 
 /** @internal */

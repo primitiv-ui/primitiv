@@ -178,6 +178,13 @@ export type NavigationMenuIndicatorProps = ComponentProps<"div"> & {
    * out rather than having it vanish.
    * @default false */
   forceMount?: boolean;
+  /** Renders the child element instead of the default `<div>`, merging the
+   * `data-*` state hooks and the geometry custom properties onto it via
+   * {@link Slot}. Use it to make the marker an icon — an `<svg>` arrow, a
+   * `<Chevron />` component — rather than a styled box. The child must be a
+   * single React element that accepts a `ref`.
+   * @default false */
+  asChild?: boolean;
 };
 
 /**

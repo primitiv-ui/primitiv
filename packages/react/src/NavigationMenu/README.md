@@ -58,7 +58,7 @@ duplicate `id`s in the accessibility tree. See RFC 0019 §3–4a.
 | `NavigationMenu.Trigger` | `<button>` | `aria-expanded`/`aria-controls`, hover-intent, keyboard; supports `asChild` and ref composition |
 | `NavigationMenu.Content` | The panel | `hidden` while closed; `forceMount` for CSS animation; portals into a `Viewport` when one exists |
 | `NavigationMenu.Viewport` | Shared panel host | **Optional.** All panels render into this one box so the open one morphs into the next |
-| `NavigationMenu.Indicator` | Marker | **Optional.** Publishes the open trigger's measured geometry as custom properties |
+| `NavigationMenu.Indicator` | Marker | **Optional.** Publishes the open trigger's measured geometry as custom properties; supports `asChild` so the marker can be an icon |
 | `NavigationMenu.Link` | `<a>` | `active` → `aria-current="page"` + `data-active`; closes the menu on click; supports `asChild` |
 
 ## `Item` value: disclosure vs plain link
@@ -202,6 +202,16 @@ Both are re-measured when the open entry changes and on window `resize`.
 When the open value names an entry with no rendered trigger, neither property
 is set — better an unpositioned marker than one parked at `0`.
 
+`Indicator` also supports `asChild`, so the marker can be an icon rather than a
+styled box — the `data-*` hooks and the geometry properties are merged onto your
+element either way:
+
+```tsx
+<NavigationMenu.Indicator asChild>
+  <ChevronUpIcon aria-hidden />
+</NavigationMenu.Indicator>
+```
+
 ## Link active state
 
 `NavigationMenu.Link` does **no route matching**. You own the router, so you
@@ -220,7 +230,7 @@ own `onClick`.
 
 ## `asChild`
 
-`Trigger` and `Link` both support `asChild`, merging their props onto a
+`Trigger`, `Link` and `Indicator` all support `asChild`, merging their props onto a
 consumer element via [`Slot`](../Slot/README.md) — handlers compose, `style`
 shallow-merges with the child winning, `className` concatenates, refs compose.
 

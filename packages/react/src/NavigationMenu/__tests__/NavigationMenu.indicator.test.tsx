@@ -151,6 +151,44 @@ describe("NavigationMenu.Indicator", () => {
     ).toBe("");
   });
 
+  it("renders a consumer element instead of the div with asChild", async () => {
+    const user = userEvent.setup();
+    render(
+      <NavigationMenu.Root>
+        <NavigationMenu.List>
+          <NavigationMenu.Item value="concepts">
+            <NavigationMenu.Trigger>Concepts</NavigationMenu.Trigger>
+          </NavigationMenu.Item>
+        </NavigationMenu.List>
+        <NavigationMenu.Indicator asChild>
+          <svg data-testid="arrow" viewBox="0 0 10 10" aria-hidden>
+            <polygon points="0,10 5,0 10,10" />
+          </svg>
+        </NavigationMenu.Indicator>
+      </NavigationMenu.Root>,
+    );
+
+    const arrow = screen.getByTestId("arrow");
+    plantGeometry(screen.getByRole("button", { name: "Concepts" }), {
+      left: 24,
+      width: 64,
+      top: 0,
+      height: 32,
+    });
+
+    expect(arrow.tagName).toBe("svg");
+    expect(arrow).toHaveAttribute("data-state", "closed");
+
+    await user.click(screen.getByRole("button", { name: "Concepts" }));
+
+    expect(arrow).toHaveAttribute("data-state", "open");
+    expect(
+      arrow.style.getPropertyValue(
+        "--primitiv-navigation-menu-indicator-position",
+      ),
+    ).toBe("24px");
+  });
+
   it("keeps a force-mounted indicator unhidden so it can animate away", () => {
     render(<Nav />);
     const { container } = render(

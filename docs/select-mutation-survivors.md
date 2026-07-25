@@ -1,73 +1,68 @@
-# Select mutation-gate hardening — progress & residual
+# Select mutation-gate hardening — COMPLETE (0 survivors, gate green)
 
-Stryker mutation gate for the rich `Select` (in the allowlist since
-2026-07-24). CI's Mutation job is the source of truth — Stryker is **not**
-installable in the sandbox (`pnpm install` fails; `npm install` would rewrite
-the pnpm-managed `node_modules` and break the working local vitest), so each
-batch is verified by a CI re-run (~12 min).
+The rich `Select` reached a **100% Stryker mutation score** (run 30135955248,
+commit 75843065). Record of how, for future refactors.
 
-## Progress
+## Journey
 
-- Initial (9f63dc01): **60** survivors.
-- Batch 1 (5c43299e): preventDefault-per-key, toggle light-dismiss sync, exact
-  ARIA/data-state wiring. → 50.
-- Batch 2 (d1f055d8): dedicated typeahead suite (single/offset/cycle/wrap/
-  prefix). → 37.
-- Batch 3 (55b93fa0): equivalents (opaque `setItemVersion(v+1)` ×2, unreachable
-  `triggerRef?.focus()` ×2, cleanup `removeEventListener`) + select-commit
-  onOpenChange-once + hidden-form-field tests. → 30.
-- Batch 4 (0de0d9f1): Enter-selects-first, typeahead prefix-not-substring,
-  cleanup-arrow equivalent. → **28**.
+60 → 50 → 37 → 30 → 28 → 24 → 14 → 10 → 6 → **0**, over 9 CI-verified batches.
+CI's Mutation job was the only verifier — Stryker is not installable in the
+sandbox (`pnpm install` fails; an `npm install` would rewrite the pnpm-managed
+`node_modules` and break the working local vitest).
 
-## Residual (28, run 30131345016) — the hard tail
+## Reliable survivor extraction (for next time)
 
-Line numbers below are approximate (±2 — the HTML report's embedded source has
-literal newlines that defeat JSON parsing, so extraction is regex-based). Group
-by construct, not line.
+The HTML report's embedded JSON won't parse whole (literal newlines in
+`source`/`statusReason` defeat `json.loads`, even `strict=False`). What works:
+download the run's `mutation-report-Select` artifact and regex each survivor,
+capturing **mutatorName + replacement + location.start**, then read the source
+line from disk — the `replacement` field is what disambiguates (a bare
+line+mutator drifts ±2 lines):
 
-### `useSelectContent.ts` — typeahead boundary logic (~17)
-`if (event.key.length === 1)`, `if (state.timer !== null) clearTimeout(...)`,
-`state.query.length > 1 && every(c === query[0])`,
-`searchQuery = isRepeat ? query[0] : query`,
-`startIndex = currentIndex < 0 ? 0 : currentIndex`,
-`offset = searchQuery.length === 1 || isRepeat ? 1 : 0`,
-`for (i=0; i<items.length; i++)`, `(startIndex + offset + i) % items.length`.
-- **Killable** (add discriminating tests): the `%` modulo (a 5+ item fixture
-  where the wrap index differs under `*`/`+`), `i < items.length` bound (a
-  match only at the last item), `timer !== null` (type two chars within the
-  window vs after — a first-keystroke path has `timer===null`).
-- **Equivalent variants** (mark per-line with justification, à la RadioGroup):
-  `length > 1` → `>= 1` is equivalent because a single char already takes the
-  `length === 1` offset path identically; `searchQuery.length === 1 || isRepeat`
-  has overlapping true-regions. Mark ConditionalExpression/EqualityOperator on
-  those two lines with a note that the killable sibling is covered by the
-  cycle/offset tests and the residual variant is behaviourally identical.
+```
+re.finditer(r'"mutatorName":"([^"]+)","replacement":"((?:[^"\\]|\\.)*)",'
+            r'"status":"Survived".*?"location":\{"end":\{[^}]*\},'
+            r'"start":\{"column":(\d+),"line":(\d+)\}\}', raw)
+```
 
-### `Select.tsx` — conditionals (~10)
-`onValueChange?.(…)` (native), `value !== undefined ? {value} : …` (controlProps),
-rich item `tabIndex`/`data-disabled ? "" : undefined`, `itemValues.filter(v => v !== "")`,
-native text-extraction `typeof child === "string" || … === "number"`, Group/Content
-`asChild` branches.
-- **Killable**: assert a rich item with `disabled` gets `data-disabled=""` and an
-  enabled one does not (kills the `disabled ? "" : undefined`); assert native
-  controlled vs uncontrolled `value`/`defaultValue` reach the `<select>`
-  (controlProps); assert native text-extraction keeps a *number* child (kills the
-  `=== "number"` arm); assert Content/Group `asChild` compose (some already
-  tested — extend).
+## Killed by tests (the discriminating cases)
 
-### `useSelectRoot.ts` (~1)
-`useControllableState` call args (likely equivalent / covered) — verify.
+- preventDefault per handled key (`fireEvent` canceled return); toggle-event
+  light-dismiss sync; exact trigger/listbox/option ARIA + `data-state`; rich
+  `data-disabled`; hidden `<select>` `tabIndex`/`aria-hidden`; `Content`
+  restProps forwarding; native numeric-child extraction / controlled value /
+  `onValueChange` (incl. omitted → no throw); the empty-value filter.
+- **Typeahead** needed *discriminating fixtures*, not just "does it work":
+  - repeated-char **cycle + wrap** and **isRepeat** — a fixture where the
+    first-char match ≠ the multi-char match (`Bat/Bengal/Banana`, type "ban").
+  - **prefix, not substring** ("n" must not jump to Banana).
+  - **startIndex** — typeahead from the listbox (no focused option) starts at 0
+    and skips index 0 via offset (`Solid/Sun/Vue`, focus the listbox, type "s"
+    → Sun).
+  - **offset 0** — narrowing keeps the current match (`Apple/Apricot/Avocado`,
+    type "a" then "p" → stays Apricot; an offset=1 mutant wraps to Apple).
+  - reach-last-item + `% items.length` (5-item list).
 
-## How to continue efficiently
-1. Regenerate the residual before each batch: download the run's
-   `mutation-report-Select` artifact and grep survivors
-   (`"status":"Survived"` + trailing `location.start`); cross-check each line
-   against the current source (regex drifts ±2).
-2. Prefer **killable tests first**; only mark a mutant equivalent when you can
-   state *why* a test cannot distinguish it (unreachable branch, opaque value,
-   overlapping condition region) — never blanket-disable to force green.
-3. Each batch → commit → push → CI Mutation re-run → repeat until the Select
-   job reports score 100 and the gate is green.
+## Marked equivalent (`// Stryker disable next-line`, with justification)
 
-A fresh session (more budget) or one with working local Stryker/`--incremental`
-would close this out fastest.
+- `setItemVersion((v) => v + 1)` ×2 — ArithmeticOperator + ArrowFunction: the
+  version is an opaque re-render trigger.
+- `triggerRef.current?.focus()` ×2 — OptionalChaining: the trigger is always
+  mounted when this runs.
+- toggle-listener cleanup `removeEventListener("toggle", …)` — StringLiteral +
+  ArrowFunction: unmount-only, unobservable.
+- toggle-effect `[setOpen]` dep — ArrayDeclaration: `setOpen` is stable (the dep
+  had to be reformatted onto its own line for the marker to bind).
+- timer `if (state.timer !== null) clearTimeout(...)` — the clear is a real-time
+  optimization; keystroke handling is synchronous.
+- isRepeat `state.query.length > 1` — EqualityOperator/ConditionalExpression:
+  `length > 1 → true` reduces to `every(...)`, identical searchQuery/offset for
+  a single char.
+- `.trim()` on the option text — MethodExpression: labels carry no surrounding
+  whitespace (`.toLowerCase()` removal is killed by the typeahead tests).
+- `hasPlaceholderChild` non-element `return false` — BooleanLiteral: returning
+  true would infer `defaultValue=""`, but with no matching `<option value="">`
+  the select still shows the first option.
+
+Every marker names the killable sibling variant that a test still covers, so a
+disable never hides a real gap.

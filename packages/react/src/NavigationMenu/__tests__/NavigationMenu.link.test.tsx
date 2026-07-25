@@ -40,6 +40,19 @@ describe("NavigationMenu.Link", () => {
     expect(screen.getByTestId("concepts-panel")).not.toBeVisible();
   });
 
+  it("requests the close with the empty string, not the link's own entry", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(<ThreeEntryNav value="concepts" onValueChange={onValueChange} />);
+
+    await user.click(screen.getByRole("link", { name: "Tokens" }));
+
+    // A controlled parent has to be told "nothing is open" — any other value
+    // reads as "open that entry instead", which only looks like a close because
+    // no entry answers to it.
+    expect(onValueChange).toHaveBeenCalledWith("");
+  });
+
   it("closes the open panel when a top-level link is clicked", async () => {
     const user = userEvent.setup();
     render(<ThreeEntryNav defaultValue="concepts" />);
@@ -47,6 +60,35 @@ describe("NavigationMenu.Link", () => {
     await user.click(screen.getByRole("link", { name: "Changelog" }));
 
     expect(screen.getByTestId("concepts-panel")).not.toBeVisible();
+  });
+
+  it("composes the consumer's own link handlers with its own", async () => {
+    const user = userEvent.setup();
+    const onClick = vi.fn();
+    const onKeyDown = vi.fn();
+    render(
+      <NavigationMenu.Root>
+        <NavigationMenu.List>
+          <NavigationMenu.Item>
+            <NavigationMenu.Link
+              href="/changelog"
+              onClick={onClick}
+              onKeyDown={onKeyDown}
+            >
+              Changelog
+            </NavigationMenu.Link>
+          </NavigationMenu.Item>
+        </NavigationMenu.List>
+      </NavigationMenu.Root>,
+    );
+
+    const link = screen.getByRole("link", { name: "Changelog" });
+    link.focus();
+    await user.keyboard("{ArrowRight}");
+    await user.click(link);
+
+    expect(onKeyDown).toHaveBeenCalledOnce();
+    expect(onClick).toHaveBeenCalledOnce();
   });
 
   it("renders a consumer element instead of the anchor with asChild", () => {

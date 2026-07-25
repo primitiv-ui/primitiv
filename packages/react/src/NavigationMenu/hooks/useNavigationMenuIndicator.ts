@@ -27,10 +27,9 @@ export function useNavigationMenuIndicator(): {
   const [geometry, setGeometry] = useState<Geometry>(null);
 
   const measure = useCallback(() => {
-    if (openValue === "") {
-      setGeometry(null);
-      return;
-    }
+    // Closed and open-but-unrendered are the same measurement problem, so they
+    // share one path: `openValue === ""` derives a trigger id no element
+    // carries, and the missing-element branch below clears the geometry.
     const { triggerId } = getTriggerAndPanelIds(navigationMenuId, openValue);
     const trigger = document.getElementById(triggerId);
     if (!trigger) {

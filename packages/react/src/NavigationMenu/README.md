@@ -81,6 +81,10 @@ duplicate `id`s in the accessibility tree. See RFC 0019 §3–4a.
 A `Trigger` or `Content` inside a value-less `Item` **throws** with the fix in
 the message, rather than silently deriving an id that could never be opened.
 
+Note `value=""` is *not* the same as omitting it: the empty string is the
+"nothing is open" sentinel, so an `Item` that adopts it gets a `Trigger` and
+`Content` that can never report open. Give every disclosure entry a real value.
+
 ## State modes
 
 - **Uncontrolled** — pass `defaultValue` to start with one panel open, or omit

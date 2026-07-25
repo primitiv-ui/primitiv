@@ -18,7 +18,7 @@ the same commit that adds the component to the allowlist. Rough order is
 cheapest-first (leaf → simple control → composite → compound/stateful); it's a
 guide, not a rule.
 
-**Done (30 / 43):** every box below the line is a component in `packages/react/src`.
+**Done (32 / 44):** every box below the line is a component in `packages/react/src`.
 
 Leaf / primitive:
 - [x] Divider
@@ -64,7 +64,8 @@ Compound / stateful:
 - [ ] ContextMenu
 - [ ] Modal
 - [ ] Drawer
-- [ ] Select
+- [x] Select
+- [x] NavigationMenu
 - [ ] Slider
 - [ ] Table
 - [ ] Tree
@@ -73,6 +74,14 @@ Compound / stateful:
 
 **Not components** (shared code — a possible later pass, not part of the 42):
 `src/hooks`, `src/utils`, `src/test`.
+
+**No Stryker on this machine?** `pnpm install` fails on some checkouts, which
+leaves `@stryker-mutator/*` out of `node_modules`. `scripts/mutate-local.mjs`
+(`pnpm --filter @primitiv-ui/react mutate:local <Name>`) is the stand-in: it
+generates the same mutants off the TypeScript AST using only `typescript` and
+`vitest`, and reads its file list from `stryker.config.mjs` so it can't drift
+from CI. Details and caveats are in the `mutation-testing` skill; CI's Stryker
+run stays the gate.
 
 Mutation testing is the natural next rung above our 100%-coverage bar: line
 coverage proves a line _ran_; mutation testing proves a line is _asserted on_.

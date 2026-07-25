@@ -44,6 +44,24 @@ step here:
   `node scripts/mutation-survivors.mjs <Name>` prints the surviving /
   no-coverage mutants grouped by file — the fast way to see exactly what to
   kill (parses `reports/mutation/<Name>.json`).
+- **When Stryker itself isn't installed** (`pnpm install` fails on some
+  machines, and `@stryker-mutator/*` is then absent from `node_modules`), use
+  the repo's own AST-based stand-in instead of guessing:
+
+  ```sh
+  pnpm --filter @primitiv-ui/react mutate:local <Name>           # run every mutant
+  pnpm --filter @primitiv-ui/react mutate:local <Name> --list      # just enumerate
+  pnpm --filter @primitiv-ui/react mutate:local <Name> --only useXRoot
+  ```
+
+  `scripts/mutate-local.mjs` walks each source file's TypeScript AST, generates
+  the mutants Stryker's mutators would, applies them one at a time and runs the
+  component's vitest suite — using only `typescript` and `vitest`, which are
+  already installed. It reads its file list from `stryker.config.mjs` (so the
+  mutated set can't drift from CI) and honours `// Stryker disable next-line`.
+  It over-generates slightly and has no `perTest` optimisation, so expect ~10s
+  per mutant and treat extra survivors as conservative noise. **Stryker in CI
+  stays the gate**; this is the loop for getting a component *to* 100% first.
 - For writing the tests that kill survivors, load **`react-test-conventions`**
   (this repo's equivalent of a general testing skill).
 

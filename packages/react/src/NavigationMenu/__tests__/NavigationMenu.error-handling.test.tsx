@@ -3,7 +3,8 @@ import { render } from "@testing-library/react";
 import { NavigationMenu } from "../NavigationMenu";
 
 const MISSING_VALUE_ERROR =
-  "NavigationMenu.Trigger and NavigationMenu.Content require a `value` on their NavigationMenu.Item";
+  "NavigationMenu.Trigger and NavigationMenu.Content require a `value` on their NavigationMenu.Item. " +
+  "Omit the value only for a plain link entry, which has no panel to open.";
 const OUTSIDE_ROOT_ERROR =
   "Component must be rendered as a child of NavigationMenu.Root";
 const OUTSIDE_ITEM_ERROR =

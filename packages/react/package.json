@@ -25,6 +25,7 @@
     "qa:units:watch": "vitest --coverage",
     "mutate": "stryker run",
     "mutate:component": "node ../../scripts/mutate.mjs",
+    "mutate:local": "node ../../scripts/mutate-local.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "peerDependencies": {

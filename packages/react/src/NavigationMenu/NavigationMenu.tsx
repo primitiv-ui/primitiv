@@ -364,6 +364,12 @@ export function NavigationMenuTrigger<
   // The external ref is cast to the internal ref's element type: React's
   // RefObject is invariant, but at runtime the callback receives whichever DOM
   // element actually rendered — the button, or the asChild child.
+  //
+  // `composeRefs` accepts `undefined`, so always composing would reach the same
+  // ref target; the ternary is here to avoid handing React a fresh callback-ref
+  // identity on every render, which would detach and re-attach the node each
+  // time. That churn settles within the same commit, so no assertion can see it.
+  // Stryker disable next-line ConditionalExpression: the always-compose variant is equivalent — same ref target, only unobservable re-attach churn.
   const composedRef = externalRef
     ? composeRefs(triggerRef, externalRef as Ref<HTMLButtonElement>)
     : triggerRef;

@@ -4,6 +4,7 @@ import type { ReactElement } from "react";
 import {
   useNavigationMenuEntry,
   useNavigationMenuRoot,
+  useNavigationMenuTrigger,
 } from "./hooks/index.ts";
 import {
   NavigationMenuItemProvider,
@@ -23,9 +24,17 @@ import type {
 export function NavigationMenuRoot({
   children,
   orientation = "horizontal",
+  defaultValue,
+  value,
+  onValueChange,
   ...rest
 }: NavigationMenuRootProps): ReactElement {
-  const { contextValue } = useNavigationMenuRoot({ orientation });
+  const { contextValue } = useNavigationMenuRoot({
+    orientation,
+    defaultValue,
+    value,
+    onValueChange,
+  });
 
   return (
     <NavigationMenuProvider value={contextValue}>
@@ -68,9 +77,11 @@ export function NavigationMenuItem({
 
 export function NavigationMenuTrigger({
   children,
+  onClick,
   ...rest
 }: NavigationMenuTriggerProps): ReactElement {
-  const { triggerId, panelId, open, state } = useNavigationMenuEntry();
+  const { triggerId, panelId, open, state, handleClick } =
+    useNavigationMenuTrigger({ onClick });
 
   return (
     <button
@@ -79,6 +90,7 @@ export function NavigationMenuTrigger({
       aria-expanded={open}
       aria-controls={panelId}
       data-state={state}
+      onClick={handleClick}
       {...rest}
     >
       {children}

@@ -96,7 +96,14 @@ export type NavigationMenuTriggerProps<
 };
 
 /** Props for `NavigationMenu.Content` — an entry's panel. */
-export type NavigationMenuContentProps = ComponentProps<"div">;
+export type NavigationMenuContentProps = ComponentProps<"div"> & {
+  /** Keeps the closed panel out of the `hidden` state so CSS can animate it
+   * in and out, marking it `aria-hidden` instead so assistive technology
+   * still ignores it. Without this the panel is `hidden` when closed, which no
+   * transition can animate away from.
+   * @default false */
+  forceMount?: boolean;
+};
 
 /** Props for `NavigationMenu.Link` — an `<a>` to a page. */
 export type NavigationMenuLinkProps = ComponentProps<"a"> & {

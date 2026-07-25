@@ -183,6 +183,7 @@ export function NavigationMenuTrigger<
 
 export function NavigationMenuContent({
   children,
+  forceMount = false,
   ...rest
 }: NavigationMenuContentProps): ReactElement {
   const { triggerId, panelId, open, state } = useNavigationMenuEntry();
@@ -193,7 +194,8 @@ export function NavigationMenuContent({
         id={panelId}
         aria-labelledby={triggerId}
         data-state={state}
-        hidden={!open}
+        hidden={forceMount ? undefined : !open}
+        aria-hidden={forceMount && !open ? true : undefined}
         {...rest}
       >
         {children}

@@ -19,7 +19,13 @@ export function useNavigationMenuEntry(): {
 } {
   const { navigationMenuId, openValue } = useNavigationMenuContext();
   const { value: itemValue } = useNavigationMenuItemContext();
-  const value = itemValue ?? "";
+  if (itemValue === undefined) {
+    throw new Error(
+      "NavigationMenu.Trigger and NavigationMenu.Content require a `value` on their NavigationMenu.Item. " +
+        "Omit the value only for a plain link entry, which has no panel to open.",
+    );
+  }
+  const value = itemValue;
   const { triggerId, panelId } = getTriggerAndPanelIds(navigationMenuId, value);
   const open = openValue !== "" && openValue === value;
 

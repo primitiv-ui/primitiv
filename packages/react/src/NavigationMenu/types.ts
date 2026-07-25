@@ -34,6 +34,25 @@ export type NavigationMenuRootProps = Omit<
   /** Layout axis; see {@link NavigationMenuOrientation}.
    * @default "horizontal" */
   orientation?: NavigationMenuOrientation;
+  /** Whether hovering a trigger opens its panel. Set `false` for a
+   * click-only nav — hover-to-open is the desktop convention, but it has no
+   * touch equivalent and some products prefer to opt out.
+   * @default true */
+  openOnHover?: boolean;
+  /** Milliseconds a trigger must be hovered before its panel opens — the
+   * hover-intent delay that stops a panel flashing open as the pointer
+   * crosses the nav on its way somewhere else. `0` opens immediately.
+   * Ignored once a panel is already open: moving between triggers always
+   * switches without delay. Ignored entirely when
+   * {@link NavigationMenuRootProps.openOnHover | `openOnHover`} is `false`.
+   * @default 200 */
+  delayDuration?: number;
+  /** Milliseconds the open panel survives after the pointer leaves the
+   * `<nav>`, so a pointer that clips the edge of a panel on its way back
+   * doesn't dismiss it. Returning to the nav within the window cancels the
+   * close.
+   * @default 150 */
+  closeDelay?: number;
 } & (
     | UncontrolledNavigationMenuRootProps
     | ControlledNavigationMenuRootProps
@@ -64,6 +83,12 @@ export type NavigationMenuContextValue = {
   navigationMenuId: string;
   openValue: string;
   setOpenValue: (next: string) => void;
+  openOnHover: boolean;
+  /** Opens `value` after the hover-intent delay, or immediately when another
+   * panel is already open. */
+  openWithIntent: (value: string) => void;
+  /** Abandons a hover-intent open that hasn't fired yet. */
+  cancelOpen: () => void;
 };
 
 /** The value shared by `NavigationMenu.Item` with its descendants. */

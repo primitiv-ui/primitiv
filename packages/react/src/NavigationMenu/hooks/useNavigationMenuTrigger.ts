@@ -1,5 +1,5 @@
-import { useCallback } from "react";
-import type { MouseEvent } from "react";
+import { useCallback, useRef } from "react";
+import type { MouseEvent, PointerEvent } from "react";
 
 import { composeEventHandlers } from "../../Slot/index.ts";
 import { useNavigationMenuContext } from "../NavigationMenuContext";
@@ -9,24 +9,71 @@ import { useNavigationMenuEntry } from "./useNavigationMenuEntry";
 
 export function useNavigationMenuTrigger({
   onClick,
-}: Pick<NavigationMenuTriggerProps, "onClick">): {
+  onPointerEnter,
+  onPointerLeave,
+}: Pick<
+  NavigationMenuTriggerProps,
+  "onClick" | "onPointerEnter" | "onPointerLeave"
+>): {
   triggerId: string;
   panelId: string;
   open: boolean;
   state: "open" | "closed";
   handleClick: (event: MouseEvent<HTMLButtonElement>) => void;
+  handlePointerEnter: (event: PointerEvent<HTMLButtonElement>) => void;
+  handlePointerLeave: (event: PointerEvent<HTMLButtonElement>) => void;
 } {
-  const { setOpenValue } = useNavigationMenuContext();
+  const { setOpenValue, openOnHover, openWithIntent, cancelOpen } =
+    useNavigationMenuContext();
   const { value, triggerId, panelId, open, state } = useNavigationMenuEntry();
 
+  // What `open` was when the pointer arrived, or `undefined` when no pointer
+  // is over the trigger. A pointer that comes to click first fires
+  // `pointerenter`, which — with hover-to-open — opens the panel *before* the
+  // click lands. Toggling against the live `open` would then close it again on
+  // that same click. Toggling against the pre-hover value is what makes a
+  // click mean "toggle what I saw", not "undo my own hover".
+  const openOnPointerEnterRef = useRef<boolean | undefined>(undefined);
+
   const toggle = useCallback(() => {
-    setOpenValue(open ? "" : value);
-  }, [open, setOpenValue, value]);
+    // A click is a decision, so it bypasses hover intent entirely — including
+    // any open timer already ticking from the pointer that arrived to click.
+    cancelOpen();
+    const wasOpen = openOnPointerEnterRef.current ?? open;
+    // Cleared so a second click on a still-hovered trigger toggles against
+    // live state rather than replaying the stale arrival value.
+    openOnPointerEnterRef.current = undefined;
+    setOpenValue(wasOpen ? "" : value);
+  }, [cancelOpen, open, setOpenValue, value]);
+
+  const hoverOpen = useCallback(() => {
+    openOnPointerEnterRef.current = open;
+    if (openOnHover) openWithIntent(value);
+  }, [open, openOnHover, openWithIntent, value]);
+
+  const pointerLeave = useCallback(() => {
+    openOnPointerEnterRef.current = undefined;
+    cancelOpen();
+  }, [cancelOpen]);
 
   const handleClick = composeEventHandlers<MouseEvent<HTMLButtonElement>>(
     onClick,
     toggle,
   );
+  const handlePointerEnter = composeEventHandlers<
+    PointerEvent<HTMLButtonElement>
+  >(onPointerEnter, hoverOpen);
+  const handlePointerLeave = composeEventHandlers<
+    PointerEvent<HTMLButtonElement>
+  >(onPointerLeave, pointerLeave);
 
-  return { triggerId, panelId, open, state, handleClick };
+  return {
+    triggerId,
+    panelId,
+    open,
+    state,
+    handleClick,
+    handlePointerEnter,
+    handlePointerLeave,
+  };
 }

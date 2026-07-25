@@ -1,5 +1,7 @@
 import { useMemo } from "react";
-import type { ReactElement } from "react";
+import type { PointerEvent, ReactElement } from "react";
+
+import { composeEventHandlers } from "../Slot/index.ts";
 
 import {
   useNavigationMenuEntry,
@@ -24,21 +26,47 @@ import type {
 export function NavigationMenuRoot({
   children,
   orientation = "horizontal",
+  openOnHover = true,
+  delayDuration = 200,
+  closeDelay = 150,
   defaultValue,
   value,
   onValueChange,
+  onPointerEnter,
+  onPointerLeave,
   ...rest
 }: NavigationMenuRootProps): ReactElement {
-  const { contextValue } = useNavigationMenuRoot({
+  const { contextValue, cancelClose, closeWithDelay } = useNavigationMenuRoot({
     orientation,
+    openOnHover,
+    delayDuration,
+    closeDelay,
     defaultValue,
     value,
     onValueChange,
   });
 
+  // The close intent belongs to the whole nav, not to any one trigger: leaving
+  // a trigger for its own panel must not dismiss it, and only leaving the
+  // `<nav>` means the user is done with the menu.
+  const handlePointerEnter = composeEventHandlers<PointerEvent<HTMLElement>>(
+    onPointerEnter,
+    cancelClose,
+  );
+  const handlePointerLeave = composeEventHandlers<PointerEvent<HTMLElement>>(
+    onPointerLeave,
+    closeWithDelay,
+  );
+
   return (
     <NavigationMenuProvider value={contextValue}>
-      <nav aria-label="Main" {...rest}>
+      <nav
+        aria-label="Main"
+        data-orientation={orientation}
+        onPointerEnter={handlePointerEnter}
+        onPointerLeave={handlePointerLeave}
+        {...rest}
+      >
         {children}
       </nav>
     </NavigationMenuProvider>
@@ -78,10 +106,19 @@ export function NavigationMenuItem({
 export function NavigationMenuTrigger({
   children,
   onClick,
+  onPointerEnter,
+  onPointerLeave,
   ...rest
 }: NavigationMenuTriggerProps): ReactElement {
-  const { triggerId, panelId, open, state, handleClick } =
-    useNavigationMenuTrigger({ onClick });
+  const {
+    triggerId,
+    panelId,
+    open,
+    state,
+    handleClick,
+    handlePointerEnter,
+    handlePointerLeave,
+  } = useNavigationMenuTrigger({ onClick, onPointerEnter, onPointerLeave });
 
   return (
     <button
@@ -91,6 +128,8 @@ export function NavigationMenuTrigger({
       aria-controls={panelId}
       data-state={state}
       onClick={handleClick}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
       {...rest}
     >
       {children}

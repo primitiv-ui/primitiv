@@ -78,6 +78,24 @@ describe("Select.Value mirroring", () => {
     expect(screen.getByRole("button")).toHaveTextContent("Nothing");
   });
 
+  it("flags the placeholder state with data-placeholder", () => {
+    renderSelect();
+
+    expect(screen.getByText("Pick a framework")).toHaveAttribute(
+      "data-placeholder",
+      "",
+    );
+  });
+
+  it("drops data-placeholder once an item is selected", () => {
+    renderSelect({ defaultValue: "react" });
+
+    const trigger = screen.getByRole("button");
+    expect(within(trigger).getByText("React").closest("span")).not.toHaveAttribute(
+      "data-placeholder",
+    );
+  });
+
   it("updates the mirrored content when the selection changes", async () => {
     const user = userEvent.setup();
     renderSelect();

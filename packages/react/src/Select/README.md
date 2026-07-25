@@ -149,6 +149,10 @@ hidden form `<select>`.
 | `aria-selected` | `"true"` / `"false"`            | rich `Select.Item`     |
 | `data-state`    | `"checked"` / `"unchecked"`     | rich `Select.Item`, `Select.ItemIndicator` |
 | `data-disabled` | `""` (present when disabled)    | rich `Select.Item`, native `Select.Root` |
+| `data-placeholder` | `""` (present while nothing is selected) | `Select.Value` |
+
+`data-placeholder` is what a styled layer keys the muted placeholder colour
+off — it disappears the moment an item's content is mirrored into the trigger.
 
 ## Future work
 

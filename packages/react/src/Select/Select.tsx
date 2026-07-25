@@ -398,6 +398,12 @@ SelectTrigger.displayName = "SelectTrigger";
  *
  * Renders a `<span>`.
  *
+ * **Styling hooks.**
+ * - `data-placeholder=""` — present while nothing is selected (the
+ *   `placeholder` is what's rendered), absent as soon as an item's content is
+ *   mirrored. This is the hook the styled layer uses to render the muted
+ *   placeholder colour versus the filled one.
+ *
  * @extends HTMLSpanElement
  *
  * @example
@@ -429,7 +435,11 @@ export function SelectValue({
             ),
         );
 
-  return <span {...rest}>{mirrored ?? placeholder}</span>;
+  return (
+    <span {...rest} data-placeholder={mirrored === null ? "" : undefined}>
+      {mirrored ?? placeholder}
+    </span>
+  );
 }
 
 /** @internal */

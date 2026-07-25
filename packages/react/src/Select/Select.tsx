@@ -31,6 +31,9 @@ import {
 
 const ITEM_INDICATOR_DISPLAY_NAME = "SelectItemIndicator";
 
+/** Stable context for {@link SelectValue}'s mirrored copy — see `mirrored`. */
+const MIRRORED_CONTEXT = { selected: false, mirrored: true } as const;
+
 /** Off-screen but still submitted — the rich mode's hidden form `<select>`. */
 const VISUALLY_HIDDEN = {
   position: "absolute",
@@ -299,7 +302,10 @@ export function SelectItem({
   // Drop the registration when the item unmounts or changes value.
   useEffect(() => () => unregisterItem?.(value), [unregisterItem, value]);
 
-  const indicatorContext = useMemo(() => ({ selected }), [selected]);
+  const indicatorContext = useMemo(
+    () => ({ selected, mirrored: false }),
+    [selected],
+  );
 
   // Native mode — no rich context is provided, so render an <option> whose
   // text is only the string/number children (element children are dropped).
@@ -418,26 +424,27 @@ export function SelectValue({
   const { value, getItemChildren } = useSelectContext();
   const selectedChildren = value ? getItemChildren(value) : undefined;
 
-  // Mirror the selected item's content, minus its ItemIndicator (the
-  // checkmark answers "which row is selected" — redundant on the trigger it
-  // already represents). Everything else — icons, badges, text — carries
-  // through. Falls back to the placeholder when nothing is selected (or the
-  // selected value has no registered item yet).
-  const mirrored =
-    selectedChildren === undefined
-      ? null
-      : Children.toArray(selectedChildren).filter(
-          (child) =>
-            !(
-              isValidElement(child) &&
-              (child.type as { displayName?: string }).displayName ===
-                ITEM_INDICATOR_DISPLAY_NAME
-            ),
-        );
+  // Mirror the selected item's content — icons, badges, text all carry through.
+  // Falls back to the placeholder when nothing is selected (or the selected
+  // value has no registered item yet).
+  //
+  // Indicators are excluded, but NOT by filtering on element type: a styled
+  // layer wraps Select.ItemIndicator in its own component, and such a wrapper is
+  // opaque to a `child.type` test — the indicator would then be mirrored into
+  // the trigger, render outside any Select.Item, and throw on the strict
+  // context. Instead the mirror publishes `mirrored: true` and each indicator
+  // opts itself out, however deeply it is nested.
+  const mirrored = selectedChildren ?? null;
 
   return (
     <span {...rest} data-placeholder={mirrored === null ? "" : undefined}>
-      {mirrored ?? placeholder}
+      {mirrored === null ? (
+        placeholder
+      ) : (
+        <SelectItemIndicatorContext.Provider value={MIRRORED_CONTEXT}>
+          {mirrored}
+        </SelectItemIndicatorContext.Provider>
+      )}
     </span>
   );
 }
@@ -474,8 +481,12 @@ export function SelectItemIndicator({
   forceMount = false,
   ...rest
 }: SelectItemIndicatorProps): ReactElement | null {
-  const { selected } = useSelectItemIndicatorContext();
+  const { selected, mirrored } = useSelectItemIndicatorContext();
 
+  // The trigger's mirrored copy never shows the mark — not even under
+  // forceMount, whose job is keeping the mark mounted for CSS animation inside
+  // the row.
+  if (mirrored) return null;
   if (!forceMount && !selected) return null;
 
   const indicatorProps = {

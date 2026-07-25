@@ -396,8 +396,49 @@ sets rather than from this doc's prose. What it confirmed:
     framed controls stay consistent with each other.
   - `Dropdown / Panel`'s stroke is `border/subtle` in Figma;
     `--primitiv-dropdown-border-color` defaults to `border-default`.
-- **Real-browser QA is outstanding** (no browser in the sandbox), as is a
-  matching workbench example page for the rich path.
+- **Real-browser QA is done** (2026-07-25) — Chromium is available in the
+  sandbox after all (`/opt/pw-browsers/chromium`; launch Playwright with an
+  explicit `executablePath`, the bundled headless-shell revision is absent).
+  Serving the built kitchen-sink and driving it confirmed: trigger and panel
+  both 240px (`anchor-size(width)` resolves), option labels sharing one column
+  across rows, chevron at `180deg` while open, the "Soon" pill 52px against
+  20px icons (the trailing slot's natural width), keyboard open/arrow/enter,
+  `data-placeholder` clearing on selection, and the native control framed at
+  40px/1px/8px and **not** flex. A matching workbench example page for the rich
+  path is still outstanding.
+
+### The white-screen bug this caught (fixed)
+
+The first deploy white-screened with `Select.ItemIndicator must be rendered
+inside a <Select.Item>`. Root cause was a **design flaw at the headless/registry
+seam**, not a config slip: `Select.Value` excluded the indicator from the mirror
+by matching `child.type.displayName === "SelectItemIndicator"`, and the registry's
+`SelectItemIndicator` is a *wrapper* whose `displayName` was undefined. The filter
+missed it, the indicator was mirrored into the trigger, rendered outside any
+`Select.Item`, and the strict context threw — killing the whole page for any
+Select with an initial selection.
+
+Identity-by-`displayName` breaks for **any** consumer who wraps the part, which
+is exactly what a styled layer does, so the fix went to the mechanism rather than
+the symptom: `SelectItemIndicatorContext` gained a **`mirrored`** flag,
+`Select.Value` provides it around the mirrored subtree, and the indicator returns
+`null` when it sees it. That works at any nesting depth and needs no cooperation
+from the wrapper.
+
+**The same trap still exists one door down**, and is worth knowing about before
+it bites again: `SelectRoot`'s `hasPlaceholderChild` identifies the native
+placeholder the same way. It can't use context (the scan happens before any
+child renders), so the registry's `SelectPlaceholder` wrapper now carries an
+explicit `displayName = "SelectPlaceholder"`. Any *other* consumer wrapping
+`Select.Placeholder` must do the same or lose the inferred `defaultValue=""` —
+silently, since nothing throws. **Rule of thumb: a headless component must not
+identify its own children by element type.**
+
+Browser QA also caught a smaller wart: mirrored slot parts land in the value's
+**inline** flow, where the row's flex `gap` no longer applies and the panel's row
+icon scale is out of scope — a mirrored shortcut abutted the label. The
+stylesheet now re-points `--primitiv-select-item-icon-size` to the control's own
+icon size inside `.primitiv-select__value` and restores the gap as a margin.
 
 ## Settled design decisions for the rich render path
 

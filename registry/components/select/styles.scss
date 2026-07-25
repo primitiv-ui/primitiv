@@ -126,6 +126,23 @@
     text-align: start;
   }
 
+  /* Slot parts mirrored out of the selected option land here in the value's
+     inline flow, where the row's flex `gap` no longer separates them and the
+     panel's row icon scale is out of scope. Re-point the row icon size to the
+     control's own (a trigger and its rows can be different sizes) and restore
+     the spacing, so a mirrored badge or shortcut doesn't abut the label. */
+  .primitiv-select__value {
+    --primitiv-select-item-icon-size: var(--primitiv-select-icon-size);
+  }
+
+  .primitiv-select__value .primitiv-select__item-leading {
+    margin-inline-end: var(--primitiv-select-gap);
+  }
+
+  .primitiv-select__value .primitiv-select__item-trailing {
+    margin-inline-start: var(--primitiv-select-gap);
+  }
+
   /* An icon mirrored out of the selected item (or dropped into the leading
      slot) rides the value's line box at the control's icon scale. */
   .primitiv-select__value > svg,

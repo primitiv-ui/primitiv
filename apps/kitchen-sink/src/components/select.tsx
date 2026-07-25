@@ -235,3 +235,11 @@ export type SelectPlaceholderProps = ComponentPropsWithRef<typeof SelectPrimitiv
 export function SelectPlaceholder(props: SelectPlaceholderProps) {
   return <SelectPrimitive.Placeholder {...props} />;
 }
+
+/*
+ * Root detects a native placeholder among its direct children by display name,
+ * so it can infer `defaultValue=""` and show the hint first. A wrapper is opaque
+ * to that test unless it borrows the name — without this the placeholder still
+ * renders, but the browser selects the first real option instead of it.
+ */
+SelectPlaceholder.displayName = "SelectPlaceholder";

@@ -70,6 +70,13 @@ it shows up in the closed trigger. `Select.ItemIndicator` is **excluded** from
 the mirror (the checkmark answers "which row is selected" — redundant on the
 trigger it already represents). `placeholder` shows when nothing is selected.
 
+The exclusion works **through your own wrappers**: the mirror doesn't test the
+element's type (a wrapper component would be opaque to that, and a styled layer
+always wraps), it publishes its intent through context and each indicator opts
+itself out — at any nesting depth, `forceMount` included. Every other child
+carries through untouched, so a trailing badge on the selected item shows up in
+the trigger too; style it there if it needs different spacing from the row.
+
 ### Item indicator
 
 `Select.ItemIndicator`, nested in a `Select.Item`, renders **only when that

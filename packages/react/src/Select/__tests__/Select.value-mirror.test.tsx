@@ -1,4 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
+import type { ReactNode } from "react";
 import userEvent from "@testing-library/user-event";
 
 import { Select } from "../Select";
@@ -76,6 +77,34 @@ describe("Select.Value mirroring", () => {
       </Select.Root>,
     );
     expect(screen.getByRole("button")).toHaveTextContent("Nothing");
+  });
+
+  it("excludes an indicator nested inside a consumer wrapper from the mirror", () => {
+    // A styled layer wraps Select.ItemIndicator in its own component (the
+    // registry does exactly this), so the mirror cannot identify the indicator
+    // by the element's own type. Mirroring it into the trigger would render it
+    // outside any Select.Item and throw.
+    function StyledIndicator({ children }: { children: ReactNode }) {
+      return <Select.ItemIndicator className="mark">{children}</Select.ItemIndicator>;
+    }
+
+    render(
+      <Select.Root defaultValue="react">
+        <Select.Trigger>
+          <Select.Value placeholder="Pick" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="react">
+            React
+            <StyledIndicator>✓</StyledIndicator>
+          </Select.Item>
+        </Select.Content>
+      </Select.Root>,
+    );
+
+    const trigger = screen.getByRole("button");
+    expect(trigger).toHaveTextContent("React");
+    expect(within(trigger).queryByText("✓")).not.toBeInTheDocument();
   });
 
   it("flags the placeholder state with data-placeholder", () => {

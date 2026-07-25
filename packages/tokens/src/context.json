@@ -832,13 +832,25 @@
           "$type": "number",
           "$value": "{space.space-8}"
         },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
         "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "text-gap": {
           "$type": "number",
           "$value": "{space.space-4}"
         },
         "icon-size": {
           "$type": "number",
           "$value": "{size.size-12}"
+        },
+        "panel-offset": {
+          "$type": "number",
+          "$value": "{space.space-4}"
         }
       },
       "sm": {
@@ -850,13 +862,25 @@
           "$type": "number",
           "$value": "{space.space-12}"
         },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
         "gap": {
           "$type": "number",
           "$value": "{space.space-4}"
         },
+        "text-gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
         "icon-size": {
           "$type": "number",
           "$value": "{size.size-14}"
+        },
+        "panel-offset": {
+          "$type": "number",
+          "$value": "{space.space-4}"
         }
       },
       "md": {
@@ -868,13 +892,25 @@
           "$type": "number",
           "$value": "{space.space-16}"
         },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
         "gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "text-gap": {
           "$type": "number",
           "$value": "{space.space-8}"
         },
         "icon-size": {
           "$type": "number",
           "$value": "{size.size-16}"
+        },
+        "panel-offset": {
+          "$type": "number",
+          "$value": "{space.space-6}"
         }
       },
       "lg": {
@@ -886,13 +922,55 @@
           "$type": "number",
           "$value": "{space.space-20}"
         },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
         "gap": {
           "$type": "number",
           "$value": "{space.space-8}"
         },
+        "text-gap": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
         "icon-size": {
           "$type": "number",
           "$value": "{size.size-20}"
+        },
+        "panel-offset": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        }
+      },
+      "xl": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-56}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-24}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "text-gap": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "icon-size": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "panel-offset": {
+          "$type": "number",
+          "$value": "{space.space-10}"
         }
       }
     },
@@ -3258,13 +3336,25 @@
           "$type": "number",
           "$value": "{space.space-6}"
         },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        },
         "gap": {
           "$type": "number",
           "$value": "{space.space-4}"
         },
+        "text-gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        },
         "icon-size": {
           "$type": "number",
           "$value": "{size.size-12}"
+        },
+        "panel-offset": {
+          "$type": "number",
+          "$value": "{space.space-2}"
         }
       },
       "sm": {
@@ -3276,13 +3366,25 @@
           "$type": "number",
           "$value": "{space.space-10}"
         },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
         "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "text-gap": {
           "$type": "number",
           "$value": "{space.space-4}"
         },
         "icon-size": {
           "$type": "number",
           "$value": "{size.size-14}"
+        },
+        "panel-offset": {
+          "$type": "number",
+          "$value": "{space.space-4}"
         }
       },
       "md": {
@@ -3294,13 +3396,25 @@
           "$type": "number",
           "$value": "{space.space-12}"
         },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
         "gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "text-gap": {
           "$type": "number",
           "$value": "{space.space-6}"
         },
         "icon-size": {
           "$type": "number",
           "$value": "{size.size-16}"
+        },
+        "panel-offset": {
+          "$type": "number",
+          "$value": "{space.space-4}"
         }
       },
       "lg": {
@@ -3312,13 +3426,55 @@
           "$type": "number",
           "$value": "{space.space-16}"
         },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
         "gap": {
           "$type": "number",
           "$value": "{space.space-6}"
         },
+        "text-gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
         "icon-size": {
           "$type": "number",
           "$value": "{size.size-20}"
+        },
+        "panel-offset": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        }
+      },
+      "xl": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-48}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "text-gap": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "icon-size": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "panel-offset": {
+          "$type": "number",
+          "$value": "{space.space-8}"
         }
       }
     },
@@ -5684,13 +5840,25 @@
           "$type": "number",
           "$value": "{space.space-10}"
         },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
         "gap": {
           "$type": "number",
           "$value": "{space.space-4}"
         },
+        "text-gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
         "icon-size": {
           "$type": "number",
           "$value": "{size.size-14}"
+        },
+        "panel-offset": {
+          "$type": "number",
+          "$value": "{space.space-6}"
         }
       },
       "sm": {
@@ -5702,13 +5870,25 @@
           "$type": "number",
           "$value": "{space.space-14}"
         },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
         "gap": {
           "$type": "number",
           "$value": "{space.space-6}"
         },
+        "text-gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
         "icon-size": {
           "$type": "number",
           "$value": "{size.size-16}"
+        },
+        "panel-offset": {
+          "$type": "number",
+          "$value": "{space.space-6}"
         }
       },
       "md": {
@@ -5720,13 +5900,25 @@
           "$type": "number",
           "$value": "{space.space-20}"
         },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
         "gap": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "text-gap": {
           "$type": "number",
           "$value": "{space.space-10}"
         },
         "icon-size": {
           "$type": "number",
           "$value": "{size.size-20}"
+        },
+        "panel-offset": {
+          "$type": "number",
+          "$value": "{space.space-8}"
         }
       },
       "lg": {
@@ -5738,13 +5930,55 @@
           "$type": "number",
           "$value": "{space.space-28}"
         },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
         "gap": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "text-gap": {
           "$type": "number",
           "$value": "{space.space-12}"
         },
         "icon-size": {
           "$type": "number",
           "$value": "{size.size-24}"
+        },
+        "panel-offset": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        }
+      },
+      "xl": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-68}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-32}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-14}"
+        },
+        "text-gap": {
+          "$type": "number",
+          "$value": "{space.space-14}"
+        },
+        "icon-size": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
+        "panel-offset": {
+          "$type": "number",
+          "$value": "{space.space-12}"
         }
       }
     },
@@ -8110,13 +8344,25 @@
           "$type": "number",
           "$value": "{space.space-4}"
         },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        },
         "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        },
+        "text-gap": {
           "$type": "number",
           "$value": "{space.space-2}"
         },
         "icon-size": {
           "$type": "number",
           "$value": "{size.size-10}"
+        },
+        "panel-offset": {
+          "$type": "number",
+          "$value": "{space.space-2}"
         }
       },
       "sm": {
@@ -8128,13 +8374,25 @@
           "$type": "number",
           "$value": "{space.space-6}"
         },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        },
         "gap": {
           "$type": "number",
           "$value": "{space.space-4}"
         },
+        "text-gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        },
         "icon-size": {
           "$type": "number",
           "$value": "{size.size-12}"
+        },
+        "panel-offset": {
+          "$type": "number",
+          "$value": "{space.space-2}"
         }
       },
       "md": {
@@ -8146,13 +8404,25 @@
           "$type": "number",
           "$value": "{space.space-8}"
         },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
         "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "text-gap": {
           "$type": "number",
           "$value": "{space.space-4}"
         },
         "icon-size": {
           "$type": "number",
           "$value": "{size.size-14}"
+        },
+        "panel-offset": {
+          "$type": "number",
+          "$value": "{space.space-4}"
         }
       },
       "lg": {
@@ -8164,13 +8434,55 @@
           "$type": "number",
           "$value": "{space.space-12}"
         },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
         "gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "text-gap": {
           "$type": "number",
           "$value": "{space.space-6}"
         },
         "icon-size": {
           "$type": "number",
           "$value": "{size.size-16}"
+        },
+        "panel-offset": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "xl": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-40}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "padding-block": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "text-gap": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "icon-size": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
+        "panel-offset": {
+          "$type": "number",
+          "$value": "{space.space-6}"
         }
       }
     },

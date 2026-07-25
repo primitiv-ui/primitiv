@@ -90,6 +90,15 @@ body {
   font-size: var(--primitiv-label-xs-font-size);
 }
 
+/* Demonstrates hiding a mirrored slot from the closed trigger while keeping it
+   in the listbox rows: SelectItemTrailing has no built-in "trigger only" /
+   "row only" split (unlike SelectItemIndicator, which always excludes
+   itself), so scoping display:none under .primitiv-select__value is the
+   README-documented way to suppress just the mirrored copy. */
+.ks-select-hide-trailing-value .primitiv-select__value .primitiv-select__item-trailing {
+  display: none;
+}
+
 /* A flex row so a vertical Divider has a row height to stretch across. */
 .kitchen-sink__divider-row {
   display: flex;

@@ -104,6 +104,22 @@ While nothing is selected, `SelectValue` renders its `placeholder` and carries
 `data-placeholder`, which is what switches the text to the muted colour (Figma's
 `Filled` axis).
 
+#### Hiding a slot from the mirror
+
+`SelectItemIndicator` is the only slot excluded unconditionally. If you want,
+say, a trailing shortcut/badge to show in the listbox row but not in the
+closed trigger, scope `display: none` under `.primitiv-select__value` — the
+row's own copy of the same part lives outside that scope, so it's untouched:
+
+```css
+.primitiv-select__value .primitiv-select__item-trailing {
+  display: none;
+}
+```
+
+Add your own class to `SelectTrigger` first if you only want this on one
+particular Select, not every one on the page.
+
 ### Row slots
 
 Options use the same `[gutter][leading][label][trailing]` shape as Dropdown rows.

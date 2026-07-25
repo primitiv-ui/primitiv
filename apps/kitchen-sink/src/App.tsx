@@ -846,6 +846,56 @@ primitiv add --all`}</code>
           </Select>
         </div>
 
+        {/* Same options and the same mirror, but the trigger hides the
+            trailing slot — SelectItemIndicator is the only slot excluded
+            unconditionally, so suppressing another one (here: the shortcut/
+            "Soon" badge, useful while browsing but not once picked) is a
+            consumer-scoped CSS rule targeting .primitiv-select__value's
+            descendant (see the README's "Hiding a slot from the mirror").
+            The row itself is untouched — its own copy lives outside that
+            scope. */}
+        <div className="ks-select-demo">
+          <span className="ks-select-demo__caption">
+            Rich · leading + trailing, hidden in trigger
+          </span>
+          <Select value={selRuntime} onValueChange={setSelRuntime}>
+            <SelectTrigger
+              size={size}
+              className="ks-select-hide-trailing-value"
+              aria-label="Runtime, trailing hidden once selected"
+              style={{ anchorName: "--ks-sel-runtime-notrailing" } as CSSProperties}
+            >
+              <SelectValue placeholder="Pick a runtime…" />
+              <SelectIcon>
+                <ChevronDown />
+              </SelectIcon>
+            </SelectTrigger>
+            <SelectContent
+              size={size}
+              style={{ positionAnchor: "--ks-sel-runtime-notrailing" } as CSSProperties}
+            >
+              {RUNTIMES.map(({ value, label, Logo, shortcut, soon }) => (
+                <SelectItem key={value} value={value} disabled={soon}>
+                  <SelectItemIndicator>
+                    <Check aria-hidden="true" />
+                  </SelectItemIndicator>
+                  <SelectItemLeading>
+                    <Logo />
+                  </SelectItemLeading>
+                  <SelectItemLabel>{label}</SelectItemLabel>
+                  <SelectItemTrailing>
+                    {soon ? (
+                      <span className="ks-select-badge">Soon</span>
+                    ) : (
+                      <span className="ks-select-kbd">{shortcut}</span>
+                    )}
+                  </SelectItemTrailing>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         {/* Grouped options. The headless Group exposes `label` as the group's
             accessible name only, so the *visible* heading is a GroupLabel with the
             same text (aria-hidden, so it isn't announced twice). SelectLeading is

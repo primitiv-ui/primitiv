@@ -114,10 +114,20 @@
   }
 
   /* ── The value — the placeholder, or the selected item's content mirrored ──
-     Inline flow (not flex) so a long selection ellipsizes with any mirrored
-     leading icon in the same line box, matching the Figma trigger's single-line
-     ending truncation. */
+     A flex row, not inline flow: a mirrored SelectItemLeading/Trailing is
+     always a `display: inline-flex` span (never a bare <svg>), and an
+     inline-flex box has no text baseline of its own, so aligning it against
+     surrounding text via `vertical-align` falls back to its bottom margin
+     edge — fine when the icon is no taller than the font's own descent, but
+     an icon-size token taller than that (the common case) still stands proud
+     above the text. `align-items: center` centers every child against the
+     row's actual rendered height instead, matching how the listbox rows
+     already do it. Ellipsis moves to the label specifically below, since
+     text-overflow no longer reaches into flex-item content at the container
+     level. */
   .primitiv-select__value {
+    display: flex;
+    align-items: center;
     flex: 1 1 auto;
     min-inline-size: 0;
     overflow: hidden;
@@ -127,7 +137,7 @@
   }
 
   /* Slot parts mirrored out of the selected option land here in the value's
-     inline flow, where the row's flex `gap` no longer separates them and the
+     flex row, where the row's flex `gap` no longer separates them and the
      panel's row icon scale is out of scope. Re-point the row icon size to the
      control's own (a trigger and its rows can be different sizes) and restore
      the spacing, so a mirrored badge or shortcut doesn't abut the label. */
@@ -135,31 +145,32 @@
     --primitiv-select-item-icon-size: var(--primitiv-select-icon-size);
   }
 
-  /* Both slots are `display: inline-flex` atomic boxes (never a bare <svg> —
-     SelectItemLeading/Trailing always render a span wrapper), so unlike the
-     bare-svg case below they don't inherit any vertical-align and default to
-     `baseline`. An inline-flex box has no text baseline of its own, so the
-     browser falls back to its bottom margin edge — aligning that to the
-     value's text baseline left the icon's full height standing above the
-     text instead of sitting level with it. text-bottom matches the bare-svg
-     rule below so every mirrored slot rides the same line. */
   .primitiv-select__value .primitiv-select__item-leading {
     margin-inline-end: var(--primitiv-select-gap);
-    vertical-align: text-bottom;
   }
 
   .primitiv-select__value .primitiv-select__item-trailing {
     margin-inline-start: var(--primitiv-select-gap);
-    vertical-align: text-bottom;
+  }
+
+  /* The one part that actually holds overflowing text — clip it to the value's
+     available width so a long selection still ends in "…" (Figma's single-line
+     ending truncation) instead of a hard, unindicated cut once the row's own
+     flex-shrink kicks in. */
+  .primitiv-select__value .primitiv-select__item-label {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   /* An icon mirrored out of the selected item (or dropped into the leading
-     slot) rides the value's line box at the control's icon scale. */
+     slot) rides the value's flex row at the control's icon scale; centering
+     comes from align-items above, the same as the leading slot's own square
+     below. */
   .primitiv-select__value > svg,
   .primitiv-select__leading > svg {
     inline-size: var(--primitiv-select-icon-size);
     block-size: var(--primitiv-select-icon-size);
-    vertical-align: text-bottom;
   }
 
   .primitiv-select__value > svg {

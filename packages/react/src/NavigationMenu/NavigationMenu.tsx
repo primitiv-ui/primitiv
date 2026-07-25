@@ -1,8 +1,8 @@
 import { useMemo } from "react";
-import type { KeyboardEvent, PointerEvent, ReactElement } from "react";
+import type { KeyboardEvent, PointerEvent, ReactElement, Ref } from "react";
 
 import { useDirection } from "../DirectionProvider/index.ts";
-import { Slot, composeEventHandlers } from "../Slot/index.ts";
+import { Slot, composeEventHandlers, composeRefs } from "../Slot/index.ts";
 
 import {
   useNavigationMenuEntry,
@@ -121,14 +121,18 @@ export function NavigationMenuItem({
   );
 }
 
-export function NavigationMenuTrigger({
+export function NavigationMenuTrigger<
+  T extends HTMLElement = HTMLButtonElement,
+>({
+  ref: externalRef,
   children,
+  asChild = false,
   onClick,
   onPointerEnter,
   onPointerLeave,
   onKeyDown,
   ...rest
-}: NavigationMenuTriggerProps): ReactElement {
+}: NavigationMenuTriggerProps<T>): ReactElement {
   const {
     triggerRef,
     triggerId,
@@ -146,20 +150,32 @@ export function NavigationMenuTrigger({
     onKeyDown,
   });
 
+  // The external ref is cast to the internal ref's element type: React's
+  // RefObject is invariant, but at runtime the callback receives whichever DOM
+  // element actually rendered — the button, or the asChild child.
+  const composedRef = externalRef
+    ? composeRefs(triggerRef, externalRef as Ref<HTMLButtonElement>)
+    : triggerRef;
+
+  const triggerProps = {
+    ref: composedRef,
+    id: triggerId,
+    "aria-expanded": open,
+    "aria-controls": panelId,
+    "data-state": state,
+    onClick: handleClick,
+    onPointerEnter: handlePointerEnter,
+    onPointerLeave: handlePointerLeave,
+    onKeyDown: handleKeyDown,
+    ...rest,
+  };
+
+  if (asChild) {
+    return <Slot {...triggerProps}>{children}</Slot>;
+  }
+
   return (
-    <button
-      ref={triggerRef}
-      type="button"
-      id={triggerId}
-      aria-expanded={open}
-      aria-controls={panelId}
-      data-state={state}
-      onClick={handleClick}
-      onPointerEnter={handlePointerEnter}
-      onPointerLeave={handlePointerLeave}
-      onKeyDown={handleKeyDown}
-      {...rest}
-    >
+    <button type="button" {...triggerProps}>
       {children}
     </button>
   );

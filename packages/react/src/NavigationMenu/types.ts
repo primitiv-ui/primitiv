@@ -1,4 +1,4 @@
-import { ComponentProps } from "react";
+import { ComponentProps, Ref } from "react";
 
 /** Layout axis of the navigation list. `"horizontal"` binds
  * ArrowLeft/ArrowRight between top-level entries; `"vertical"` binds
@@ -78,8 +78,22 @@ export type NavigationMenuItemProps = ComponentProps<"li"> & {
   value?: string;
 };
 
-/** Props for `NavigationMenu.Trigger` — the `<button>` that opens a panel. */
-export type NavigationMenuTriggerProps = ComponentProps<"button">;
+/** Props for `NavigationMenu.Trigger` — the `<button>` that opens a panel. The
+ * element type defaults to `HTMLButtonElement` and can be overridden via
+ * `asChild` and the `ref` type parameter. */
+export type NavigationMenuTriggerProps<
+  T extends HTMLElement = HTMLButtonElement,
+> = Omit<ComponentProps<"button">, "ref"> & {
+  /** Renders the child element instead of the default `<button>`. All
+   * disclosure ARIA attributes, the hover-intent and keyboard handlers, and
+   * the internal ref are merged onto the child via {@link Slot}. The child
+   * must be a single React element that accepts a `ref`.
+   * @default false */
+  asChild?: boolean;
+  /** Ref to the rendered element. Defaults to `HTMLButtonElement`; when using
+   * `asChild`, specify the child's element type. */
+  ref?: Ref<T>;
+};
 
 /** Props for `NavigationMenu.Content` — an entry's panel. */
 export type NavigationMenuContentProps = ComponentProps<"div">;

@@ -96,6 +96,53 @@ describe("Select typeahead", () => {
     ).toHaveFocus();
   });
 
+  it("starts the search at index 0 when no option is focused (startIndex)", async () => {
+    const user = userEvent.setup();
+    render(
+      <Select.Root>
+        <Select.Trigger>
+          <Select.Value placeholder="Pick" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="solid">Solid</Select.Item>
+          <Select.Item value="sun">Sun</Select.Item>
+          <Select.Item value="vue">Vue</Select.Item>
+        </Select.Content>
+      </Select.Root>,
+    );
+    await user.click(screen.getByRole("button"));
+    screen.getByRole("listbox", { hidden: true }).focus(); // no option focused → currentIndex -1
+
+    // startIndex 0 + offset 1 → search from index 1 → Sun (skips Solid at 0).
+    // A `startIndex = currentIndex` (-1) mutant would instead land on Solid.
+    await user.keyboard("s");
+    expect(screen.getByRole("option", { name: "Sun", hidden: true })).toHaveFocus();
+  });
+
+  it("keeps the current match when narrowing with more characters (offset 0)", async () => {
+    const user = userEvent.setup();
+    render(
+      <Select.Root>
+        <Select.Trigger>
+          <Select.Value placeholder="Pick" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="apple">Apple</Select.Item>
+          <Select.Item value="apricot">Apricot</Select.Item>
+          <Select.Item value="avocado">Avocado</Select.Item>
+        </Select.Content>
+      </Select.Root>,
+    );
+    await user.click(screen.getByRole("button")); // Apple focused
+    await user.keyboard("a"); // → Apricot (single-char offset skip)
+    await user.keyboard("p"); // "ap" is multi-char, offset 0 → Apricot still matches, stays
+
+    // An `offset = 1` mutant would skip Apricot and wrap to Apple.
+    expect(
+      screen.getByRole("option", { name: "Apricot", hidden: true }),
+    ).toHaveFocus();
+  });
+
   it("matches a prefix, not a substring", async () => {
     const user = userEvent.setup();
     renderSelect();

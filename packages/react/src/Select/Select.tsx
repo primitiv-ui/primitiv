@@ -48,6 +48,7 @@ const PLACEHOLDER_DISPLAY_NAME = "SelectPlaceholder";
 
 function hasPlaceholderChild(children: ReactNode): boolean {
   return Children.toArray(children).some((child) => {
+    // Stryker disable next-line BooleanLiteral: equivalent — a non-element child is never a placeholder; returning true would infer defaultValue="", but with no matching <option value=""> the browser still selects the first option, so the rendered selection is unchanged.
     if (!isValidElement(child)) return false;
     const type = child.type as { displayName?: string };
     return type.displayName === PLACEHOLDER_DISPLAY_NAME;

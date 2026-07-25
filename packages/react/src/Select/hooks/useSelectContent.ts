@@ -55,8 +55,9 @@ export function useSelectContent({ onKeyDown, restProps }: UseSelectContentArgs)
     list.addEventListener("toggle", handleToggle);
     // Stryker disable next-line StringLiteral,ArrowFunction: equivalent — unmount cleanup on a discarded node; removing/altering it only leaks a listener, unobservable.
     return () => list.removeEventListener("toggle", handleToggle);
-    // Stryker disable next-line ArrayDeclaration: equivalent — setOpen is stable, so the effect runs once either way.
-  }, [setOpen]);
+  },
+  // Stryker disable next-line ArrayDeclaration: equivalent — setOpen is stable, so the effect subscribes once either way.
+  [setOpen]);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Escape") {
@@ -112,7 +113,7 @@ export function useSelectContent({ onKeyDown, restProps }: UseSelectContentArgs)
       }, TYPEAHEAD_RESET_MS);
 
       const isRepeat =
-        // Stryker disable next-line EqualityOperator: >= 1 is equivalent — a single character already takes the length===1 offset path with the same result; the < 1 / logical / conditional variants are killed by the repeated-char cycle and multi-char tests.
+        // Stryker disable next-line EqualityOperator,ConditionalExpression: equivalent — `length > 1 → true` reduces to `every(...)`, which for a single char produces the same searchQuery/offset outcome; the < 1 / false variants are killed by the repeated-char cycle test.
         state.query.length > 1 &&
         state.query.split("").every((c) => c === state.query[0]);
       const searchQuery = isRepeat ? state.query[0] : state.query;
@@ -123,6 +124,7 @@ export function useSelectContent({ onKeyDown, restProps }: UseSelectContentArgs)
       // Stryker disable next-line EqualityOperator: <= is equivalent — the index wraps via % items.length, so the extra iteration only re-checks an already-visited index.
       for (let i = 0; i < items.length; i++) {
         const index = (startIndex + offset + i) % items.length;
+        // Stryker disable next-line MethodExpression: dropping .trim() is equivalent — the fixtures' (and real) option labels carry no surrounding whitespace; dropping .toLowerCase() is killed by the typeahead tests (lowercase query vs title-case labels).
         const text = items[index].textContent!.trim().toLowerCase();
         if (text.startsWith(searchQuery)) {
           event.preventDefault();

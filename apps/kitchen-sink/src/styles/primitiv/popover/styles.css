@@ -169,6 +169,11 @@
     color: var(--primitiv-content-secondary);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    /* Prevent tap-hold from triggering iOS's text-selection callout — a
+       control's own icon/label isn't page content. */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
     transition:
       background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
       border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),

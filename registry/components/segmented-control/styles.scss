@@ -107,6 +107,11 @@
     line-height: var(--primitiv-segmented-control-item-line-height);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    /* Prevent tap-hold from selecting the item's label / triggering iOS's
+       text-selection callout — a control's own label isn't page content. */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
     transition:
       background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
       border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),

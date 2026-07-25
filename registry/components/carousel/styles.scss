@@ -512,6 +512,11 @@
     color: var(--primitiv-carousel-control-fg);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    /* Prevent tap-hold from triggering iOS's text-selection callout — a
+       control's own icon isn't page content. */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
     transition: background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
   .primitiv-carousel__prev svg,
@@ -546,6 +551,11 @@
     border: none;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    /* Prevent tap-hold from triggering iOS's text-selection callout — a
+       control has no text to select in the first place. */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
   }
   .primitiv-carousel__indicator::before,
   .primitiv-carousel__indicator-group > button::before {

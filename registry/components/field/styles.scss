@@ -60,6 +60,13 @@
     font-size: var(--primitiv-field-label-font-size);
     font-weight: var(--primitiv-field-label-font-weight);
     line-height: var(--primitiv-field-label-line-height);
+    /* A native <label for=…> click-proxies to its control — prevent tap-hold
+       from selecting its text / triggering iOS's text-selection callout
+       instead of just focusing the field. */
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
   }
 
   .primitiv-field__description {

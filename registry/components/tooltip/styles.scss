@@ -74,6 +74,12 @@
     font-size: var(--primitiv-tooltip-font-size);
     font-weight: var(--primitiv-tooltip-font-weight);
     line-height: var(--primitiv-tooltip-line-height);
+    /* A tooltip is a transient hint, not selectable page content — prevent
+       tap-hold on the trigger from also selecting the bubble's own text or
+       triggering iOS's text-selection callout on it. */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
     /* Auto-flip to the opposite side if the chosen placement would overflow. */
     position-try-fallbacks: flip-block, flip-inline;
   }

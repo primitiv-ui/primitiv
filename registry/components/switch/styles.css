@@ -66,6 +66,11 @@
     gap: var(--primitiv-switch-gap);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    /* Prevent tap-hold from selecting the label / triggering iOS's
+       text-selection callout — a control's own label isn't page content. */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
   }
 
   /* The real native input — visually hidden (the canonical sr-only clip) but

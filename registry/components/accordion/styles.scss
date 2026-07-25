@@ -110,6 +110,11 @@
     text-align: start;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    /* Prevent tap-hold from selecting the trigger's label / triggering iOS's
+       text-selection callout — a control's own label isn't page content. */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
     transition: box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 

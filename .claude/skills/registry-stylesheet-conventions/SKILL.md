@@ -77,6 +77,37 @@ takes no className — see its `.tsx` header comment) needs no fix: it inherits
 whatever real interactive element the consumer wraps (usually `Button`, which
 already carries it).
 
+## No tap-hold text selection on a control's own label
+
+The same rule that needs `-webkit-tap-highlight-color` above **must** also set:
+
+```css
+user-select: none;
+-webkit-user-select: none;
+-webkit-touch-callout: none;
+```
+
+A control's own label/value/icon isn't page content — a button, tab, toggle
+item, switch/checkbox/radio label, or a modal/drawer/popover close icon isn't
+something a user is trying to copy, so a tap-hold there shouldn't select its
+text or (on iOS specifically) pop up the text-selection callout menu. All
+three declarations are needed: `user-select` alone stops the highlighted
+selection in modern evergreen browsers, `-webkit-user-select` covers older
+WebKit, and **`-webkit-touch-callout` is the one that actually suppresses
+iOS's long-press callout bubble** — without it a real iPhone can still show
+the Copy/Look Up popup on tap-hold even though nothing visibly highlights.
+These are **CSS mechanics with no token home**, exactly like the tap-highlight
+fix above — leave the values as literals.
+
+This applies more broadly than the tap-highlight rule: it also belongs on
+non-clickable transient content that still isn't meant to be selected, like
+Tooltip's bubble (no `cursor` there at all — it's a `role="tooltip"` `<div>`,
+not a button) and a `<label for=…>` that click-proxies to a separate control
+(Field's `__label`). Dropdown/Select's menu and listbox rows already carry
+`user-select: none` from an earlier pass (their own reason: a long-press
+shouldn't select row text either) — this section generalises that to every
+interactive/transient-label surface, not just menu rows.
+
 ## Every `:hover` rule needs an `(hover: hover)` guard
 
 A raw `:hover` selector fires on touch devices too: tapping an element
@@ -274,6 +305,11 @@ simplification to reach for across the library.
 - Adding a new clickable/tappable rule (anything with `cursor: pointer` or a
   clickable `cursor: default`)? Pair it with
   `-webkit-tap-highlight-color: transparent;` — see above.
+- Same rule: also pair it with `user-select: none; -webkit-user-select: none;
+  -webkit-touch-callout: none;` so tap-hold can't select the control's own
+  label or pop the iOS callout — see above. Also add it to non-clickable
+  transient/label-only surfaces (a tooltip bubble, a `<label for=…>`) even
+  without a `cursor` rule to pair it with.
 - Adding a new `:hover` rule? Wrap it in `@media (hover: hover)` — see above.
 - Animating a grid-collapse row to a fixed clamp height (a read-more /
   collapsedHeight-style preview)? Don't mix a length with `1fr` on

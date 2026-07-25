@@ -107,6 +107,34 @@ describe("Select.Value mirroring", () => {
     expect(within(trigger).queryByText("✓")).not.toBeInTheDocument();
   });
 
+  it("keeps a forceMount indicator out of the mirror too", () => {
+    // forceMount keeps the mark in the DOM while its row is unselected, for CSS
+    // animation inside the listbox. The trigger's mirrored copy must still drop
+    // it — this is the only path where the mirror check is load-bearing, since
+    // an ordinary indicator already self-hides on the mirror's unselected state.
+    render(
+      <Select.Root defaultValue="react">
+        <Select.Trigger>
+          <Select.Value placeholder="Pick" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="react">
+            React
+            <Select.ItemIndicator forceMount data-testid="mark">
+              ✓
+            </Select.ItemIndicator>
+          </Select.Item>
+        </Select.Content>
+      </Select.Root>,
+    );
+
+    const trigger = screen.getByRole("button");
+    expect(trigger).toHaveTextContent("React");
+    expect(within(trigger).queryByTestId("mark")).not.toBeInTheDocument();
+    // …while the row's own copy stays mounted.
+    expect(screen.getByTestId("mark")).toBeInTheDocument();
+  });
+
   it("flags the placeholder state with data-placeholder", () => {
     renderSelect();
 

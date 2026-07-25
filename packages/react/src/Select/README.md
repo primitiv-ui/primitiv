@@ -48,6 +48,7 @@ import { Select } from "@primitiv-ui/react";
 | `Select.Item`          | `<div role="option">`    | `<option>`     | `value` (required), `disabled`                 |
 | `Select.ItemIndicator` | `<span>`                 | —              | selected-only; `forceMount`, `asChild`         |
 | `Select.Group`         | `<div role="group">`     | `<optgroup>`   | `label` (required string)                      |
+| `Select.Separator`     | `<div role="separator">` | —              | rich-only divider; skipped by keyboard nav; `asChild` |
 | `Select.Placeholder`   | —                        | `<option value="" hidden disabled>` | native-only initial hint      |
 
 ## State

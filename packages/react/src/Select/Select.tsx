@@ -25,6 +25,7 @@ import {
   SelectItemProps,
   SelectPlaceholderProps,
   SelectRootProps,
+  SelectSeparatorProps,
   SelectTriggerProps,
   SelectValueProps,
 } from "./types";
@@ -579,6 +580,41 @@ export function SelectGroup({
 SelectGroup.displayName = "SelectGroup";
 
 /**
+ * A visual divider between groups of options in rich mode — typically
+ * placed between two {@link SelectGroup | `Select.Group`} elements (or any
+ * two {@link SelectItem | `Select.Item`}s). Renders a `<div role="separator">`
+ * by default; pass `asChild` to render any element with separator semantics.
+ * Non-interactive — {@link SelectContent | `Select.Content`}'s keyboard
+ * navigation only ever targets `[role="option"]`, so it is skipped by arrow
+ * key traversal without any extra wiring.
+ *
+ * @extends HTMLDivElement
+ *
+ * @example
+ * ```tsx
+ * <Select.Item value="apple">Apple</Select.Item>
+ * <Select.Separator />
+ * <Select.Item value="banana">Banana</Select.Item>
+ * ```
+ */
+export function SelectSeparator({
+  asChild = false,
+  children,
+  ...rest
+}: SelectSeparatorProps): ReactElement {
+  const separatorProps = { ...rest, role: "separator" as const };
+
+  if (asChild) {
+    return <Slot {...separatorProps}>{children}</Slot>;
+  }
+
+  return <div {...separatorProps} />;
+}
+
+/** @internal */
+SelectSeparator.displayName = "SelectSeparator";
+
+/**
  * A non-selectable hint shown as the initial selection of a Select.
  * Renders a native `<option value="" disabled hidden>` so the browser
  * displays it in the closed control before the user picks anything but
@@ -632,6 +668,7 @@ export type TSelectCompound = typeof SelectRoot & {
   Item: typeof SelectItem;
   ItemIndicator: typeof SelectItemIndicator;
   Group: typeof SelectGroup;
+  Separator: typeof SelectSeparator;
   Placeholder: typeof SelectPlaceholder;
 };
 
@@ -652,6 +689,7 @@ export type TSelectCompound = typeof SelectRoot & {
  * - {@link SelectItem | `Select.Item`} — an option (rich `<div>` / native `<option>`).
  * - {@link SelectItemIndicator | `Select.ItemIndicator`} — rich mode: the selected mark.
  * - {@link SelectGroup | `Select.Group`} — a group (rich `role="group"` / native `<optgroup>`).
+ * - {@link SelectSeparator | `Select.Separator`} — rich mode: a divider between groups/items.
  * - {@link SelectPlaceholder | `Select.Placeholder`} — native mode: the initial hint.
  *
  * @example Rich (default)
@@ -699,6 +737,7 @@ const SelectCompound: TSelectCompound = Object.assign(SelectRoot, {
   Item: SelectItem,
   ItemIndicator: SelectItemIndicator,
   Group: SelectGroup,
+  Separator: SelectSeparator,
   Placeholder: SelectPlaceholder,
 });
 

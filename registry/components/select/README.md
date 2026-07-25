@@ -178,7 +178,7 @@ itself. Native mode needs it on the root only.
 | `SelectItemTrailing`  | —                      | ✓       | Trailing slot; natural width, icon height                  |
 | `SelectGroup`         | `Select.Group`         | ✓       | Group of options; `label` is the accessible name           |
 | `SelectGroupLabel`    | —                      | ✓       | The visible group heading (rich mode)                      |
-| `SelectSeparator`     | —                      | ✓       | Divider between groups (rich mode); skipped by navigation  |
+| `SelectSeparator`     | `Select.Separator`     | ✓       | Divider between groups (rich mode); skipped by navigation  |
 | `SelectPlaceholder`   | `Select.Placeholder`   | —       | Native-only initial hint; the browser styles it            |
 
 ## Props

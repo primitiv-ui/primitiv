@@ -34,4 +34,27 @@ describe("Select rich asChild composition", () => {
     expect(trigger).toHaveAttribute("aria-expanded", "true");
     expect(content).toHaveAttribute("data-popover-open");
   });
+
+  it("delegates Separator to the child element via asChild", () => {
+    // Arrange & Act
+    render(
+      <Select.Root>
+        <Select.Trigger>
+          <Select.Value placeholder="Pick one" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="apple">Apple</Select.Item>
+          <Select.Separator asChild>
+            <hr data-testid="custom-sep" />
+          </Select.Separator>
+          <Select.Item value="banana">Banana</Select.Item>
+        </Select.Content>
+      </Select.Root>,
+    );
+
+    // Assert
+    const sep = screen.getByTestId("custom-sep");
+    expect(sep.tagName).toBe("HR");
+    expect(sep).toHaveAttribute("role", "separator");
+  });
 });

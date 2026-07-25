@@ -251,3 +251,22 @@ export type SelectContentProps = ComponentProps<"div"> & {
   /** Forwarded to the underlying `HTMLDivElement`. */
   ref?: Ref<HTMLDivElement>;
 };
+
+/**
+ * Props for {@link SelectSeparator | `Select.Separator`} — a non-interactive
+ * divider between groups of options in rich mode. Extends the native `<div>`
+ * attributes and adds `asChild`.
+ */
+export type SelectSeparatorProps = Omit<ComponentProps<"div">, "role"> & {
+  /** Optional content; separators are usually empty, and only render (via
+   * the {@link Slot} pattern) when `asChild` composes onto a custom element. */
+  children?: ReactNode;
+  /** Forwarded to the underlying `HTMLDivElement`. */
+  ref?: Ref<HTMLDivElement>;
+  /**
+   * Render the composed child element (with separator semantics) instead of
+   * the default `<div role="separator">`.
+   * @default false
+   */
+  asChild?: boolean;
+};

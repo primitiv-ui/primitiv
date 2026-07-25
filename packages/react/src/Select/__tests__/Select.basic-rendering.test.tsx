@@ -30,6 +30,7 @@ describe("Select basic rendering", () => {
     expect(Select.Item.displayName).toBe("SelectItem");
     expect(Select.ItemIndicator.displayName).toBe("SelectItemIndicator");
     expect(Select.Group.displayName).toBe("SelectGroup");
+    expect(Select.Separator.displayName).toBe("SelectSeparator");
     expect(Select.Placeholder.displayName).toBe("SelectPlaceholder");
   });
 });

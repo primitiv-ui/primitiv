@@ -462,15 +462,25 @@
   /* Native — appearance: none removes the platform's own arrow (its shape and
      inset vary by browser/OS and never matched the rich chevron), then a
      background-image repaints the identical glyph (the ChevronDown icon's
-     path) at the same size and inset the rich layout uses. `currentColor`
-     ties it to --primitiv-select-fg — the control's own text colour — rather
-     than the quieter --primitiv-select-icon-color the rich chevron uses: a
-     native <select> has one `color` for both its text and this background
-     image, and `native` renders no wrapper element to hang a second colour
-     on. The reserved end padding mirrors the rich row's trailing
-     [gap][icon] footprint so the platform never lays selected text under the
-     glyph. */
+     path) at the same size and inset the rich layout uses. The reserved end
+     padding mirrors the rich row's trailing [gap][icon] footprint so the
+     platform never lays selected text under the glyph.
+
+     THE GLYPH COLOUR IS BAKED INTO THE URI, PER THEME. `fill='currentColor'`
+     inside a `data:` URI does NOT resolve against this element — an external
+     SVG is its own document, so `currentColor` there falls back to the SVG's
+     initial colour (black). The arrow therefore ignored the theme entirely and
+     stayed black in dark mode. Neither usual workaround applies: a `mask` would
+     have to mask the <select> itself, erasing its frame along with everything
+     else, and <select> renders no ::before/::after in most engines to hang a
+     separately-coloured pseudo-element on. So the URI is themed instead —
+     `--primitiv-select-native-chevron` holds the light glyph and the
+     [data-theme="dark"] rule below swaps it. The two literal hexes are this
+     knob's definition (the same exemption code-block's syntax colours take);
+     keep them in step with content/primary — #121418 light, #e5ecf6 dark. */
   .primitiv-select--native {
+    --primitiv-select-native-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23121418'%3E%3Cpath d='M20.06 9 12 17.06 3.94 9 5 7.94l7 7 7-7z'/%3E%3C/svg%3E");
+
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -481,7 +491,14 @@
     background-repeat: no-repeat;
     background-position: right var(--primitiv-select-padding-inline) center;
     background-size: var(--primitiv-select-icon-size) var(--primitiv-select-icon-size);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M20.06 9 12 17.06 3.94 9 5 7.94l7 7 7-7z'/%3E%3C/svg%3E");
+    background-image: var(--primitiv-select-native-chevron);
+  }
+
+  /* Dark — repaint the same path in content/primary's dark value. Scoped to the
+     theme attribute (not a media query) so it follows the same explicit switch
+     the token layer uses. */
+  [data-theme="dark"] .primitiv-select--native {
+    --primitiv-select-native-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e5ecf6'%3E%3Cpath d='M20.06 9 12 17.06 3.94 9 5 7.94l7 7 7-7z'/%3E%3C/svg%3E");
   }
 
   /* Mirror the paint position under RTL — background-position has no logical
@@ -793,6 +810,7 @@ $primitiv-select-padding-inline: var(--primitiv-select-padding-inline);
 $primitiv-select-gap: var(--primitiv-select-gap);
 $primitiv-select-icon-size: var(--primitiv-select-icon-size);
 $primitiv-select-icon-color: var(--primitiv-select-icon-color);
+$primitiv-select-native-chevron: var(--primitiv-select-native-chevron);
 $primitiv-select-font-family: var(--primitiv-select-font-family);
 $primitiv-select-font-size: var(--primitiv-select-font-size);
 $primitiv-select-font-weight: var(--primitiv-select-font-weight);

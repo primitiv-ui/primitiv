@@ -81,6 +81,7 @@
     { "name": "--primitiv-select-gap", "defaultsTo": "var(--primitiv-framed-control-md-gap)" },
     { "name": "--primitiv-select-icon-size", "defaultsTo": "var(--primitiv-framed-control-md-icon-size)" },
     { "name": "--primitiv-select-icon-color", "defaultsTo": "var(--primitiv-content-secondary)" },
+    { "name": "--primitiv-select-native-chevron", "defaultsTo": "a data: URI of the ChevronDown path, filled #121418 (light) / #e5ecf6 (dark) — currentColor cannot cross into a data: URI, so the glyph colour is baked per theme" },
     { "name": "--primitiv-select-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
     { "name": "--primitiv-select-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
     { "name": "--primitiv-select-font-weight", "defaultsTo": "var(--primitiv-body-md-font-weight)" },

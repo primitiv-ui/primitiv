@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useMemo, useRef } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 
 import { useCollection, useControllableState } from "../../hooks/index.ts";
@@ -54,6 +54,16 @@ export function useNavigationMenuRoot({
       entriesRef.current.get(key)?.focus();
     },
     [entriesRef],
+  );
+
+  // Held as state, not a ref, because Content has to re-render once the
+  // viewport exists in order to portal into it. The Viewport hands its element
+  // over in a ref callback, which React runs before paint — so the one commit
+  // where Content still renders in place never reaches the screen.
+  const [viewport, setViewport] = useState<HTMLDivElement | null>(null);
+  const registerViewport = useCallback(
+    (element: HTMLDivElement | null) => setViewport(element),
+    [],
   );
 
   const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -140,6 +150,8 @@ export function useNavigationMenuRoot({
       registerEntry,
       entryKeys,
       focusEntry,
+      viewport,
+      registerViewport,
     }),
     [
       orientation,
@@ -153,6 +165,8 @@ export function useNavigationMenuRoot({
       registerEntry,
       entryKeys,
       focusEntry,
+      viewport,
+      registerViewport,
     ],
   );
 

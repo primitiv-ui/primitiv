@@ -1,5 +1,12 @@
 import { useMemo } from "react";
-import type { KeyboardEvent, PointerEvent, ReactElement, Ref } from "react";
+import type {
+  KeyboardEvent,
+  PointerEvent,
+  ReactElement,
+  ReactPortal,
+  Ref,
+} from "react";
+import { createPortal } from "react-dom";
 
 import { useDirection } from "../DirectionProvider/index.ts";
 import { Slot, composeEventHandlers, composeRefs } from "../Slot/index.ts";
@@ -24,6 +31,7 @@ import type {
   NavigationMenuListProps,
   NavigationMenuRootProps,
   NavigationMenuTriggerProps,
+  NavigationMenuViewportProps,
 } from "./types";
 
 export function NavigationMenuRoot({
@@ -185,10 +193,11 @@ export function NavigationMenuContent({
   children,
   forceMount = false,
   ...rest
-}: NavigationMenuContentProps): ReactElement {
+}: NavigationMenuContentProps): ReactElement | ReactPortal {
+  const { viewport } = useNavigationMenuContext();
   const { triggerId, panelId, open, state } = useNavigationMenuEntry();
 
-  return (
+  const panel = (
     <NavigationMenuPanelProvider value={true}>
       <div
         id={panelId}
@@ -201,6 +210,33 @@ export function NavigationMenuContent({
         {children}
       </div>
     </NavigationMenuPanelProvider>
+  );
+
+  // With a Viewport every panel lives in that one box, which is what lets the
+  // open panel morph into the next instead of each entry growing its own.
+  // Without one the panel simply stays where it was authored.
+  return viewport ? createPortal(panel, viewport) : panel;
+}
+
+export function NavigationMenuViewport({
+  forceMount = false,
+  ...rest
+}: NavigationMenuViewportProps): ReactElement {
+  const { orientation, openValue, registerViewport } =
+    useNavigationMenuContext();
+  const open = openValue !== "";
+
+  return (
+    <div
+      ref={registerViewport}
+      data-orientation={orientation}
+      data-state={open ? "open" : "closed"}
+      // The open entry's value, so a stylesheet can size or theme the shared
+      // box per panel without the consumer threading state back in.
+      data-value={openValue || undefined}
+      hidden={forceMount ? undefined : !open}
+      {...rest}
+    />
   );
 }
 
@@ -239,6 +275,7 @@ export type TNavigationMenuCompound = typeof NavigationMenuRoot & {
   Item: typeof NavigationMenuItem;
   Trigger: typeof NavigationMenuTrigger;
   Content: typeof NavigationMenuContent;
+  Viewport: typeof NavigationMenuViewport;
   Link: typeof NavigationMenuLink;
 };
 
@@ -250,6 +287,7 @@ const NavigationMenuCompound: TNavigationMenuCompound = Object.assign(
     Item: NavigationMenuItem,
     Trigger: NavigationMenuTrigger,
     Content: NavigationMenuContent,
+    Viewport: NavigationMenuViewport,
     Link: NavigationMenuLink,
   },
 );

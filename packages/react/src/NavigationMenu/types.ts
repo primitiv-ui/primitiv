@@ -105,6 +105,16 @@ export type NavigationMenuContentProps = ComponentProps<"div"> & {
   forceMount?: boolean;
 };
 
+/** Props for `NavigationMenu.Viewport` — the shared host every panel renders
+ * into. */
+export type NavigationMenuViewportProps = ComponentProps<"div"> & {
+  /** Keeps the viewport unhidden while nothing is open so CSS can animate the
+   * box collapsing and expanding. Mirrors
+   * {@link NavigationMenuContentProps.forceMount | `Content`'s `forceMount`}.
+   * @default false */
+  forceMount?: boolean;
+};
+
 /** Props for `NavigationMenu.Link` — an `<a>` to a page. */
 export type NavigationMenuLinkProps = ComponentProps<"a"> & {
   /** Marks this link as the page the user is currently on, setting
@@ -147,6 +157,11 @@ export type NavigationMenuContextValue = {
   entryKeys: string[];
   /** Moves DOM focus to a registered top-level entry. */
   focusEntry: (key: string) => void;
+  /** The mounted `NavigationMenu.Viewport` element, or `null` when the nav
+   * doesn't use one. Panels project into it when it exists. */
+  viewport: HTMLDivElement | null;
+  /** Ref callback a `NavigationMenu.Viewport` hands its element to. */
+  registerViewport: (element: HTMLDivElement | null) => void;
 };
 
 /** The value shared by `NavigationMenu.Item` with its descendants. */

@@ -495,8 +495,11 @@ source of truth for when a skill applies.
     `mutate:component NavigationMenu` run (252 mutants) still had survivors
     when the session ended, so the component is **not** in
     `mutation-allowlist.json` yet and must not be added until it kills
-    every mutant. Pick that up first: re-run the scoped mutation command,
-    then `node scripts/mutation-survivors.mjs NavigationMenu`. Run a scoped
+    every mutant. **Score was 77.29% — 60 survived, 3 no-coverage of 251.**
+    The full survivor list, categorised with the test that should kill each,
+    plus the two deferred decisions (deps-array mutants judged case by case;
+    prefer deleting defensive code over disabling its mutants), is in
+    `docs/navigation-menu-mutation-handoff.md` — start there. Run a scoped
     mutation pass after each milestone, not just at the end. The
     prop-collision scan caught one real narrowing artifact on the way —
     `Item.value` shadows `<li value>` and needed the `Omit`. Workbench

@@ -415,9 +415,38 @@ source of truth for when a skill applies.
     swap in once built) not a whitelist, so any component swaps in via the
     picker. Verified a trailing `Kbd` ("Esc") swap — a non-icon component keeps
     its natural width (not squashed into the icon square). Full account in
-    `docs/select-future-work.md`. Next: the headless TDD build in
-    `packages/react/src/Select`, then registry + kitchen-sink (the headless
-    slots ride along with that rich-mode build).
+    `docs/select-future-work.md`.
+  - **Select rich mode — fully landed, all four stages (2026-07-25).** The
+    headless build (one compound, two render paths behind `native`; rich is
+    the default) reached 100% unit + mutation, then the registry and
+    kitchen-sink surfaces landed against a live `figma_execute` dump of
+    `Select / Trigger` + the composed `Select` set (read the file, don't
+    trust the prose — the dump is what confirmed the trigger is Input's
+    geometry exactly, that its value is single-line ending-truncated, and
+    that the `Filled` axis is a pure `content/muted` ↔ `content/primary`
+    swap). That last point drove one headless cycle: `Select.Value` now
+    exposes **`data-placeholder`**, the hook the styled layer keys the muted
+    colour off — nothing in the DOM distinguished the two states before.
+    Registry `select` = one frame class for both paths with a `mode`
+    (`--rich` / `--native`) modifier, where only `--rich` sets `display:
+    flex` (a `<select>` with an inner flex layout makes some engines lay the
+    `<option>`s out as flex items); the panel + rows resolve the shared
+    `--primitiv-dropdown-*` tokens rather than depending on the `dropdown`
+    component, so a listbox is a menu by construction with no forced install.
+    The mark gutter is reserved **unconditionally** — Dropdown's `:has()`
+    trick keys off a row *class* that is always present, but a listbox row is
+    one class whether or not it holds a mark and the mark unmounts while
+    unselected, so the equivalent would collapse the gutter on first
+    selection (`--primitiv-select-item-inset` is the escape hatch).
+    Dropdown gained the matching `__item-leading` / `__item-label` /
+    `__item-trailing` row slots from the Figma `Show leading` / `Show
+    trailing` work. **Two caveats:** the kitchen-sink demos cannot build
+    until `@primitiv-ui/react` is republished (`apps/kitchen-sink` is
+    excluded from the pnpm workspace on purpose, so it consumes the
+    published packages), and two pre-existing Figma↔registry drifts were
+    flagged but deliberately not changed (focused-trigger border colour;
+    `Dropdown / Panel`'s `border/subtle` stroke). Full account in
+    `docs/select-future-work.md`.
   - **NavigationMenu itself — not started.** RFC 0019 §4 open decisions
     (the fork, mobile interaction model, shared affordances, desktop
     specifics) need settling before scaffolding a headless build, which

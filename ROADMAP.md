@@ -19,7 +19,7 @@ Composite components (PaletteRamp, Swatch, etc.) are out of scope here.
 | Switch | ✓ built | ✓ | Step labels and A11y badges on/off toggles |
 | Toggle Group | ✓ built | ✓ | Layout, Shape, Naming, and Modes pill selectors |
 | Input | ✓ built | ✓ | Hex colour text inputs; pair with `InputGroup` for the leading colour-swatch slot |
-| Select | ✓ built (native) | ✓ | Workspace picker and Collection dropdown; a `native` prop (rich Popover-API listbox by default) + the separately-deferred Combobox are tracked in [`docs/select-future-work.md`](docs/select-future-work.md) |
+| Select | ✓ built (rich + native) | ✓ | Workspace picker and Collection dropdown; the rich Popover-API listbox is the default (`native` opts back into the `<select>` wrapper). The separately-deferred Combobox is tracked in [`docs/select-future-work.md`](docs/select-future-work.md) |
 
 "Figma design" = a Figma component set exists for the component. All six base
 components now have Figma component sets. The Field wrapper
@@ -59,7 +59,7 @@ is the exception (Figma set `601:9607`, whose tabbed Type composes Tabs + Button
 | ContextMenu | ✓ | ✓ | — | — | 1142:25899 (reuses Dropdown/* rows via slots — no ContextMenu-specific sub-components) |
 | Divider | ✓ | ✓ | ✓ | ✓ | |
 | Drawer | ✓ | ✓ | ✓ | ✓ | 1142:26332 (Side×Size; reuses Modal/Header·Body·Footer + Backdrop); headless = thin composition over Modal + `side` axis; registry = standalone `.primitiv-drawer` (edge-docked Modal, `data-side` slide + `width` cross-axis off the `size/*` scale, density-driven padding via `modal/*` tokens); kitchen-sink = one drawer per edge |
-| Dropdown | ✓ | ✓ | ✓ | ✓ | 668:42210 (Panel set) + Item/CheckboxItem/RadioItem/SubTrigger/Label/Separator/Group/RadioGroup sets on canvas 317:362; registry `dropdown` (anchor-positioned menu, menu checkmark/dot indicator model — RFC 0019 dep); kitchen-sink = 3-level nested menu |
+| Dropdown | ✓ | ✓ | ✓ | ✓ | 668:42210 (Panel set) + Item/CheckboxItem/RadioItem/SubTrigger/Label/Separator/Group/RadioGroup sets on canvas 317:362; registry `dropdown` (anchor-positioned menu, menu checkmark/dot indicator model — RFC 0019 dep) + the `__item-leading` / `__item-label` / `__item-trailing` row slots mirroring the Figma Show leading / Show trailing properties; kitchen-sink = 3-level nested menu |
 | EmptyState | — | ✓ | — | — | |
 | Field | ✓ | ✓ | ✓ | ✓ | 394:7449 |
 | Fieldset | — | ✓ | — | — | |
@@ -75,7 +75,7 @@ is the exception (Figma set `601:9607`, whose tabbed Type composes Tabs + Button
 | RadioCard | — | ✓ | — | — | |
 | RadioGroup | ✓ | ✓ | ✓ | ✓ | 401:17958 (registry `radio`) |
 | Segmented Control | ✓ | ✓ | ✓ | ✓ | Figma 1216:44224 (track set, Size×Count 2-5) + 1216:43507 (Item set, Size×Selected×Interaction) on page "Segmented Control" — Tabs-model split (track composes Item). Headless = `SegmentedControl.Root`/`.Item` on RadioGroup single-select semantics (role=radiogroup/radio, roving tabindex, horizontal-default orientation, group + item disabled; 100% mutation). Registry `segmented-control` = transparent bordered track (concentric `calc(item-radius + track-padding)` radius) + framed primary/secondary segments via shared tokens (own styles.css like Tabs/Trigger + ToggleGroup Item, not composing Button). Kitchen-sink = controlled React/Vue/Svelte picker with leading logos + a justified example. Sliding indicator deferred |
-| Select | ✓ | ✓ | — | — | `Select / Trigger` (403:1883, renamed) + composed `Select` set (1282:46193, Variant[closed\|open] × Size[xs-xl], stacks a real Dropdown/Panel instance with a working exposed Slot for free row composition — RFC 0019 dep); rich (`native={false}`) headless/registry/kitchen-sink not yet built, see `docs/select-future-work.md` |
+| Select | ✓ | ✓ | ✓ | ✓ | `Select / Trigger` (403:1883, renamed) + composed `Select` set (1282:46193, Variant[closed\|open] × Size[xs-xl], stacks a real Dropdown/Panel instance with a working Slot for free row composition — RFC 0019 dep). Headless = one compound, two render paths behind `native` (rich Popover-API listbox by default; 100% mutation), `Select.Value` mirroring the selected item's content into the trigger via a `data-placeholder` hook. Registry `select` = framed trigger on Input's geometry + a panel/rows resolving the shared `dropdown/*` tokens (so a listbox and a menu are one surface, with no `dropdown` dependency), `mode` rich\|native modifier, 4 placements. Kitchen-sink = 7 rich demos (leading marks, leading+trailing slots, groups, top-end, invalid, disabled) + 3 native. Combobox still deferred, see `docs/select-future-work.md` |
 | Slider | ✓ | ✓ | — | — | 392:5196 (track), 392:4353 (thumb) |
 | Status | — | ✓ | — | — | |
 | Switch | ✓ | ✓ | ✓ | ✓ | 315:5884 |
@@ -132,7 +132,7 @@ semantics that CSS alone cannot provide.
 
 - [ ] Combobox — see [`docs/select-future-work.md`](docs/select-future-work.md)
 - [ ] Listbox
-- [ ] Select (`native={false}`, the rich Popover-API listbox) — see [`docs/select-future-work.md`](docs/select-future-work.md)
+- [x] Select (`native={false}`, the rich Popover-API listbox)
 - [x] Tree
 - [x] Miller Columns
 - [ ] Date & Time

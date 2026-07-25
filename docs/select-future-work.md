@@ -298,6 +298,96 @@ not new variants). All four sets' descriptions updated per the
   `ComponentSetNode.defaultVariant` read-only limitation logged above; a true
   fix needs a hand rebuild in Figma's UI.
 
+## Registry + kitchen-sink — landed (2026-07-25)
+
+The last two surfaces are built, so the rich Select is complete end to end
+(Figma → headless → registry → kitchen-sink).
+
+### Verified against live Figma, not inferred
+
+The stylesheet was written against a `figma_execute` dump of the real component
+sets rather than from this doc's prose. What it confirmed:
+
+- **`Select / Trigger` is Input's geometry exactly** — `framed-control/{size}/`
+  `height` · `padding-inline` · `radius` · `gap` · `icon-size`,
+  `framed-control/border-width`, `body/{size}/font-size` + `line-height`, fill
+  `surface/default`, stroke `border/default`. Laid out `[Leading][value FILL]
+  [icon]`, and the value text is **single-line with ending truncation** — which
+  is why the styled value is inline flow with `text-overflow: ellipsis` rather
+  than a flex row (a flex container can't ellipsize an anonymous text item).
+- **The `Filled` axis is a colour swap only** — `content/muted` placeholder vs
+  `content/primary` filled. Nothing in the DOM distinguished the two, so
+  `Select.Value` gained a **`data-placeholder`** hook in its own red-green cycle;
+  that attribute is what the stylesheet keys the muted colour off.
+- **The chevron is `content/secondary`**, a step quieter than the value.
+- **States**: hover → `border/strong`; disabled → `surface/subtle` fill +
+  `content/disabled` text and chevron; error → `border/invalid`; focus → the
+  standard two-layer `focus-ring-gap` / `focus-ring` frames.
+- **Rows have no selected-state background** — only the indicator marks the
+  selection. Row hover is `action/secondary/default`, disabled is opacity 0.5.
+- **The panel + rows are the Dropdown ones** (the open variant instances a real
+  `Dropdown / Panel` with `space-4` between it and the trigger, FILLing the
+  trigger's 240px width).
+
+### What that produced
+
+- **`registry/components/select/`** — the six files plus the three registration
+  edits. Two shape decisions worth recording:
+  - **One frame class, two modes.** `.primitiv-select` dresses both the rich
+    `<button>` trigger and the native `<select>`; a `mode` modifier
+    (`--rich` / `--native`) carries the difference. Only `--rich` sets
+    `display: flex` — a `<select>` with an inner flex layout makes some engines
+    lay the `<option>` elements out as flex items, and native mode wants the
+    platform popup, arrow and text anyway.
+  - **No `dependsOn: ["dropdown"]`.** The panel and rows resolve the shared
+    `--primitiv-dropdown-*` tokens instead of importing Dropdown's classes, so a
+    listbox is a menu by construction (matching the Figma composition) without
+    forcing `primitiv add dropdown` on anyone who only wants a Select. The
+    behavioural differences would have needed overrides anyway: rows are
+    `<div role="option">` not `<li>`, and the headless moves **real DOM focus**
+    between options, so highlighting keys off `:focus`, not Dropdown's
+    `[data-highlighted]`.
+  - **The mark gutter is reserved unconditionally.** Dropdown detects indicator
+    rows with `:has(.primitiv-dropdown__checkbox-item)` — a *row class*, always
+    present. A listbox row is one class whether or not it holds a mark, and the
+    mark unmounts while unselected, so the equivalent `:has()` would collapse the
+    gutter and shift every label on the first selection.
+    `--primitiv-select-item-inset` is the documented knob for a Select that
+    genuinely has no indicators.
+- **Dropdown gained the row slots** the Figma `Show leading` / `Show trailing`
+  work added: `__item-leading` / `__item-label` / `__item-trailing`, laid out
+  `[gutter][leading][label FILL][trailing]`, with the trailing slot icon-height
+  but free to grow inline (the verified Kbd behaviour). `justify-content:
+  space-between` stays on plain items so the long-standing `label + shortcut`
+  shape is unchanged; the label part is what a row with a *leading* slot needs.
+- **Kitchen-sink** — seven rich demos (leading marks, leading + trailing slots
+  with a "Soon" pill on a disabled row, groups with a visible `GroupLabel`,
+  `top-end` placement, invalid, disabled) and three native ones (placeholder +
+  `<optgroup>`, inside a `Field`, disabled), plus the File menu rewired onto the
+  new Dropdown slots.
+
+### Open / flagged
+
+- **The kitchen-sink cannot build until `@primitiv-ui/react` is republished.**
+  `apps/kitchen-sink` is excluded from the pnpm workspace (`!apps/kitchen-sink`)
+  precisely so it consumes the published packages like a real consumer — and the
+  published build has neither the rich `Select` sub-components nor
+  `data-placeholder`. The native demos would run today; the rich ones need the
+  release first. (The registry half has the usual embedded-registry gotcha on top
+  of that: the CLI binary must be rebuilt before `primitiv add select` serves
+  anything.)
+- **Figma vs registry drift, pre-existing, not touched.** Two mismatches turned
+  up while reading the file and are the human's call, since both would change a
+  shipped look:
+  - The **focused** `Select / Trigger` (and `Input`) keeps `border/default` in
+    Figma, while the Input *registry* stylesheet swaps to `border-focus` on
+    `:focus-visible`. Select's stylesheet follows the registry, so the two
+    framed controls stay consistent with each other.
+  - `Dropdown / Panel`'s stroke is `border/subtle` in Figma;
+    `--primitiv-dropdown-border-color` defaults to `border-default`.
+- **Real-browser QA is outstanding** (no browser in the sandbox), as is a
+  matching workbench example page for the rich path.
+
 ## Settled design decisions for the rich render path
 
 These were agreed during the planning conversation for the original Native

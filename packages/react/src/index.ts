@@ -20,6 +20,7 @@ export * from "./Input/index.ts";
 export * from "./InputGroup/index.ts";
 export * from "./MillerColumns/index.ts";
 export * from "./Modal/index.ts";
+export * from "./NavigationMenu/index.ts";
 export * from "./Popover/index.ts";
 export * from "./Portal/index.ts";
 export * from "./Progress/index.ts";

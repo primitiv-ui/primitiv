@@ -32,7 +32,21 @@ export type ControlledNavigationMenuRootProps = {
   defaultValue?: never;
 };
 
-/** Props for `NavigationMenu.Root` — the `<nav>` landmark and state owner. */
+/**
+ * Props for {@link NavigationMenuRoot | `NavigationMenu.Root`} — the `<nav>`
+ * landmark and the owner of which panel is open. Extends the native `<nav>`
+ * props and resolves to either the
+ * {@link UncontrolledNavigationMenuRootProps | uncontrolled} or the
+ * {@link ControlledNavigationMenuRootProps | controlled} shape, never a mix.
+ *
+ * `defaultValue` and `dir` are `Omit`-ted from the inherited `<nav>` props
+ * before being re-declared: both narrow a same-named native attribute
+ * (`defaultValue` to the open-panel value, `dir` to `"ltr" | "rtl"`), and
+ * leaving the native declarations in place would resolve them to intersection
+ * artifacts that leak into consumer types and the generated prop tables.
+ *
+ * @extends HTMLElement
+ */
 export type NavigationMenuRootProps = Omit<
   ComponentProps<"nav">,
   "defaultValue" | "dir"
@@ -68,19 +82,45 @@ export type NavigationMenuRootProps = Omit<
     | ControlledNavigationMenuRootProps
   );
 
-/** Props for `NavigationMenu.List` — the `<ul>` of top-level entries. */
+/**
+ * Props for {@link NavigationMenuList | `NavigationMenu.List`} — all native
+ * `<ul>` attributes. No props are added; content is
+ * {@link NavigationMenuItem | `NavigationMenu.Item`}s.
+ *
+ * @extends HTMLUListElement
+ */
 export type NavigationMenuListProps = ComponentProps<"ul">;
 
-/** Props for `NavigationMenu.Item` — one `<li>` entry. */
-export type NavigationMenuItemProps = ComponentProps<"li"> & {
+/**
+ * Props for {@link NavigationMenuItem | `NavigationMenu.Item`} — all native
+ * `<li>` attributes plus the entry's `value`.
+ *
+ * `value` is `Omit`-ted from the inherited `<li>` props before being
+ * re-declared: `<li value>` is a native ordinal number attribute, and leaving
+ * it in place resolves this prop to an intersection artifact
+ * (`string | (readonly string[] & string)`) that leaks into consumer hovers and
+ * the generated prop tables.
+ *
+ * @extends HTMLLIElement
+ */
+export type NavigationMenuItemProps = Omit<ComponentProps<"li">, "value"> & {
   /** Identifies the entry's panel. Required for an entry that has a
    * `NavigationMenu.Trigger`; omit it for a plain link entry. */
   value?: string;
 };
 
-/** Props for `NavigationMenu.Trigger` — the `<button>` that opens a panel. The
- * element type defaults to `HTMLButtonElement` and can be overridden via
- * `asChild` and the `ref` type parameter. */
+/**
+ * Props for {@link NavigationMenuTrigger | `NavigationMenu.Trigger`} — the
+ * `<button>` that opens an entry's panel. The element type defaults to
+ * `HTMLButtonElement` and can be overridden through `asChild` and the `ref`
+ * type parameter.
+ *
+ * `ref` is `Omit`-ted from the inherited `<button>` props before being
+ * re-declared, so narrowing it to a different element under `asChild` yields a
+ * usable `Ref<T>` rather than an unusable intersection of both.
+ *
+ * @extends HTMLButtonElement
+ */
 export type NavigationMenuTriggerProps<
   T extends HTMLElement = HTMLButtonElement,
 > = Omit<ComponentProps<"button">, "ref"> & {
@@ -95,7 +135,12 @@ export type NavigationMenuTriggerProps<
   ref?: Ref<T>;
 };
 
-/** Props for `NavigationMenu.Content` — an entry's panel. */
+/**
+ * Props for {@link NavigationMenuContent | `NavigationMenu.Content`} — all
+ * native `<div>` attributes plus `forceMount`.
+ *
+ * @extends HTMLDivElement
+ */
 export type NavigationMenuContentProps = ComponentProps<"div"> & {
   /** Keeps the closed panel out of the `hidden` state so CSS can animate it
    * in and out, marking it `aria-hidden` instead so assistive technology
@@ -105,8 +150,12 @@ export type NavigationMenuContentProps = ComponentProps<"div"> & {
   forceMount?: boolean;
 };
 
-/** Props for `NavigationMenu.Viewport` — the shared host every panel renders
- * into. */
+/**
+ * Props for {@link NavigationMenuViewport | `NavigationMenu.Viewport`} — all
+ * native `<div>` attributes plus `forceMount`.
+ *
+ * @extends HTMLDivElement
+ */
 export type NavigationMenuViewportProps = ComponentProps<"div"> & {
   /** Keeps the viewport unhidden while nothing is open so CSS can animate the
    * box collapsing and expanding. Mirrors
@@ -115,8 +164,15 @@ export type NavigationMenuViewportProps = ComponentProps<"div"> & {
   forceMount?: boolean;
 };
 
-/** Props for `NavigationMenu.Indicator` — the marker that tracks the open
- * trigger. */
+/**
+ * Props for {@link NavigationMenuIndicator | `NavigationMenu.Indicator`} — all
+ * native `<div>` attributes plus `forceMount`. The measured geometry arrives as
+ * inline custom properties on `style`; a consumer `style` is merged over the
+ * top, so it can override everything except the two geometry properties it
+ * doesn't set.
+ *
+ * @extends HTMLDivElement
+ */
 export type NavigationMenuIndicatorProps = ComponentProps<"div"> & {
   /** Keeps the indicator unhidden while nothing is open so CSS can animate it
    * out rather than having it vanish.
@@ -124,7 +180,12 @@ export type NavigationMenuIndicatorProps = ComponentProps<"div"> & {
   forceMount?: boolean;
 };
 
-/** Props for `NavigationMenu.Link` — an `<a>` to a page. */
+/**
+ * Props for {@link NavigationMenuLink | `NavigationMenu.Link`} — all native
+ * `<a>` attributes plus `active` and the `asChild` escape hatch.
+ *
+ * @extends HTMLAnchorElement
+ */
 export type NavigationMenuLinkProps = ComponentProps<"a"> & {
   /** Marks this link as the page the user is currently on, setting
    * `aria-current="page"` and the `data-active` styling hook. The component

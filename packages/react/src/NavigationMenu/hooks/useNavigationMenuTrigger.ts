@@ -67,6 +67,10 @@ export function useNavigationMenuTrigger({
   const pointerLeave = useCallback(() => {
     openOnPointerEnterRef.current = undefined;
     cancelOpen();
+    // `cancelOpen` is a `useCallback(…, [])` on the Root, so its identity is
+    // fixed for the nav's lifetime — emptying this array yields the identical
+    // memoised function.
+    // Stryker disable next-line ArrayDeclaration: equivalent — stable dependency.
   }, [cancelOpen]);
 
   // The arrow that "goes into" the panel is the one pointing across the list's

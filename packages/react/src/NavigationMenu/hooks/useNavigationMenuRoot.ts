@@ -5,28 +5,33 @@ import { useCollection, useControllableState } from "../../hooks/index.ts";
 
 import type {
   NavigationMenuContextValue,
+  NavigationMenuOrientation,
+  NavigationMenuReadingDirection,
   NavigationMenuRootProps,
 } from "../types";
 import { getTriggerAndPanelIds } from "../utils";
 
-type UseNavigationMenuRootArgs = Pick<
+/** The presentation props arrive **resolved**: `NavigationMenu.Root` applies
+ * its own documented defaults (and inherits `dir` from `DirectionProvider`)
+ * before calling the hook, so they are required here rather than defaulted a
+ * second time — one set of defaults, in the place consumers read them from. */
+type UseNavigationMenuRootArgs = {
+  orientation: NavigationMenuOrientation;
+  dir: NavigationMenuReadingDirection;
+  openOnHover: boolean;
+  delayDuration: number;
+  closeDelay: number;
+} & Pick<
   NavigationMenuRootProps,
-  | "orientation"
-  | "dir"
-  | "openOnHover"
-  | "delayDuration"
-  | "closeDelay"
-  | "defaultValue"
-  | "value"
-  | "onValueChange"
+  "defaultValue" | "value" | "onValueChange"
 >;
 
 export function useNavigationMenuRoot({
-  orientation = "horizontal",
-  dir = "ltr",
-  openOnHover = true,
-  delayDuration = 200,
-  closeDelay = 150,
+  orientation,
+  dir,
+  openOnHover,
+  delayDuration,
+  closeDelay,
   defaultValue,
   value,
   onValueChange,
@@ -51,23 +56,35 @@ export function useNavigationMenuRoot({
 
   const focusEntry = useCallback(
     (key: string) => {
+      // `key` only ever arrives from `entryKeys`, and `useCollection`'s
+      // register() writes `entriesRef` and the `keys` state in the same call —
+      // so a key that reaches here always has a live element in the map.
+      // Stryker disable next-line OptionalChaining: unreachable given that invariant.
       entriesRef.current.get(key)?.focus();
     },
+    // `entriesRef` is a stable RefObject, so emptying this array yields the
+    // identical memoised function.
+    // Stryker disable next-line ArrayDeclaration: equivalent — stable dependency.
     [entriesRef],
   );
 
   // Held as state, not a ref, because Content has to re-render once the
   // viewport exists in order to portal into it. The Viewport hands its element
   // over in a ref callback, which React runs before paint — so the one commit
-  // where Content still renders in place never reaches the screen.
+  // where Content still renders in place never reaches the screen. `setViewport`
+  // *is* the registrar: it already has the ref-callback signature and a stable
+  // identity, so wrapping it would only add indirection.
   const [viewport, setViewport] = useState<HTMLDivElement | null>(null);
-  const registerViewport = useCallback(
-    (element: HTMLDivElement | null) => setViewport(element),
-    [],
-  );
 
-  const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // `undefined` rather than `null` for "no timer pending", because
+  // `clearTimeout(undefined)` is a spec'd no-op — cancelling is then one
+  // unconditional clear instead of a guarded one, with nothing to get wrong.
+  const openTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
 
   // `openValue` is read inside callbacks that must not be re-created on every
   // open/close — a fresh `openWithIntent` identity would re-run the Trigger's
@@ -76,17 +93,18 @@ export function useNavigationMenuRoot({
   openValueRef.current = openValue;
 
   const cancelOpen = useCallback(() => {
-    if (openTimerRef.current !== null) {
-      clearTimeout(openTimerRef.current);
-      openTimerRef.current = null;
-    }
+    clearTimeout(openTimerRef.current);
+    openTimerRef.current = undefined;
+    // Stryker's only mutation of an empty dependency array is
+    // `["Stryker was here"]` — a string literal React compares `===`-equal on
+    // every render, so the memoised identity is unchanged either way.
+    // Stryker disable next-line ArrayDeclaration: equivalent — no dependency to freeze.
   }, []);
 
   const cancelClose = useCallback(() => {
-    if (closeTimerRef.current !== null) {
-      clearTimeout(closeTimerRef.current);
-      closeTimerRef.current = null;
-    }
+    clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = undefined;
+    // Stryker disable next-line ArrayDeclaration: equivalent — no dependency to freeze (see cancelOpen).
   }, []);
 
   const openWithIntent = useCallback(
@@ -101,7 +119,7 @@ export function useNavigationMenuRoot({
         return;
       }
       openTimerRef.current = setTimeout(() => {
-        openTimerRef.current = null;
+        openTimerRef.current = undefined;
         setOpenValue(next);
       }, delayDuration);
     },
@@ -124,7 +142,7 @@ export function useNavigationMenuRoot({
   const closeWithDelay = useCallback(() => {
     cancelOpen();
     closeTimerRef.current = setTimeout(() => {
-      closeTimerRef.current = null;
+      closeTimerRef.current = undefined;
       setOpenValue("");
     }, closeDelay);
   }, [cancelOpen, closeDelay, setOpenValue]);
@@ -134,6 +152,10 @@ export function useNavigationMenuRoot({
       cancelOpen();
       cancelClose();
     },
+    // Both are `useCallback(…, [])`, so their identities are fixed for the
+    // component's lifetime: emptying this array subscribes the cleanup exactly
+    // once either way.
+    // Stryker disable next-line ArrayDeclaration: equivalent — stable dependencies.
     [cancelOpen, cancelClose],
   );
 
@@ -151,7 +173,7 @@ export function useNavigationMenuRoot({
       entryKeys,
       focusEntry,
       viewport,
-      registerViewport,
+      registerViewport: setViewport,
     }),
     [
       orientation,
@@ -166,7 +188,6 @@ export function useNavigationMenuRoot({
       entryKeys,
       focusEntry,
       viewport,
-      registerViewport,
     ],
   );
 

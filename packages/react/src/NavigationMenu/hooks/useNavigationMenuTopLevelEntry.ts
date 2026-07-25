@@ -4,6 +4,11 @@ import type { KeyboardEvent, RefObject } from "react";
 import { useRovingTabindex } from "../../hooks/index.ts";
 import { useNavigationMenuContext } from "../NavigationMenuContext";
 
+/** Keydown handler for an element that is not a top-level entry: every travel
+ * key is left to the browser, so `Home` inside an open panel still scrolls the
+ * page rather than jumping out of the panel. */
+function ignoreTravelKeys(): void {}
+
 /**
  * Joins an element to the nav's top-level travel order: registers it so the
  * arrow keys can reach it, and returns the keydown handler that does the
@@ -35,15 +40,16 @@ export function useNavigationMenuTopLevelEntry<T extends HTMLElement>(
     if (!enabled) return;
     registerEntry(key, entryRef.current);
     return () => registerEntry(key, null);
+    // `key` is a `useId`, `registerEntry` a stable context callback, and
+    // `enabled` is fixed by this element's position in the tree (inside a
+    // Content panel or not) — none can change while the entry stays mounted.
+    // Stryker disable next-line ArrayDeclaration: equivalent — stable dependencies.
   }, [enabled, key, registerEntry]);
 
-  const { handleKeyDown } = useRovingTabindex<string>({
+  const { handleKeyDown: travel } = useRovingTabindex<string>({
     orientation,
     dir,
-    // Empty when this element isn't a top-level entry, which makes
-    // `useRovingTabindex` bail on every key — a panel link must not be able to
-    // jump the top-level order with Home/End either.
-    navigable: enabled ? entryKeys : [],
+    navigable: entryKeys,
     currentKey: key,
     includeHomeEnd: true,
     // Enter/Space must reach the element as a native activation — a button's
@@ -53,5 +59,7 @@ export function useNavigationMenuTopLevelEntry<T extends HTMLElement>(
     onNavigate: (target) => focusEntry(target),
   });
 
-  return { entryRef, handleKeyDown };
+  // A panel link must not be able to reach the top-level order — not with the
+  // arrows, and not with Home/End either — so it gets no travel handler at all.
+  return { entryRef, handleKeyDown: enabled ? travel : ignoreTravelKeys };
 }

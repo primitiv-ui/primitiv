@@ -1,0 +1,665 @@
+/*
+ * Select — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add select`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-select control + __value /
+ * __leading / __icon / __content / __item / __item-indicator / __item-leading /
+ * __item-label / __item-trailing / __group / __group-label parts, the --xs…--xl
+ * size modifiers, the --rich / --native mode modifiers, the content placement
+ * modifiers, the aria-expanded / data-placeholder / data-state / aria-selected
+ * hooks, and the --primitiv-select-* custom properties), not these values
+ * (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * Anatomy mirrors the Figma design. The control is the `Select / Trigger` set —
+ * a framed control on the same geometry as Input (framed-control height /
+ * padding-inline / radius / border-width / gap / icon-size, body typography),
+ * laid out [leading][value FILL][chevron]. The value is `content/muted` while it
+ * shows the placeholder and `content/primary` once filled (Figma's `Filled`
+ * axis, driven here by the headless `data-placeholder` hook); the chevron is
+ * `content/secondary`.
+ *
+ * The listbox panel is the composed `Select` set's second half, which instances
+ * a real `Dropdown / Panel` with `Dropdown / CheckboxItem` rows — so the panel
+ * and its rows deliberately resolve the shared `--primitiv-dropdown-*` panel /
+ * row tokens rather than a parallel `select/*` ramp. That is what keeps a Select
+ * listbox pixel-identical to a Dropdown menu without this component depending on
+ * the `dropdown` one; re-point the `--primitiv-select-content-*` /
+ * `--primitiv-select-item-*` knobs to break the tie.
+ *
+ * Positioning is CSS anchor positioning (no JS), the same wiring as Dropdown:
+ * put an `anchor-name` on the trigger and a matching `position-anchor` on
+ * Content, then the logical anchor(start)/anchor(end) insets place the panel
+ * below-start of the trigger and flip on overflow. `anchor-size(width)` makes the
+ * panel at least as wide as its trigger, matching the Figma composition where
+ * the Panel instance FILLs the Trigger's width.
+ *
+ *   <SelectTrigger style={{ anchorName: "--framework" }} />
+ *   <SelectContent style={{ positionAnchor: "--framework" }} />
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look live
+ * in primitiv.base, the size / mode / placement modifiers in primitiv.variants,
+ * the hover / focus / invalid / disabled / highlighted / open-close styling in
+ * primitiv.states. The sublayer order is declared once in the shared token layer
+ * (primitiv.tokens.css); this file only re-opens the named sublayers.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-surface-*,
+ * --primitiv-content-*, --primitiv-border-*, --primitiv-elevation-*,
+ * --primitiv-framed-control-*, --primitiv-dropdown-*, --primitiv-body-*,
+ * --primitiv-label-*, --primitiv-letter-spacing-*, --primitiv-space-*,
+ * --primitiv-color-*, --primitiv-action-*, --primitiv-focus-ring-*,
+ * --primitiv-opacity-* and --primitiv-motion-* custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of the
+ * token layer (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.reset {
+  .primitiv-select__content {
+    /* Reset the native [popover] UA defaults: `margin: auto; inset: 0`
+       (viewport centering) so the anchor-positioning insets take over. */
+    margin: 0;
+    inset: auto;
+    padding: var(--primitiv-space-space-0);
+    border: var(--primitiv-border-width-0);
+  }
+}
+
+@layer primitiv.base {
+  .primitiv-select {
+    /* Per-component API — the themable knobs, defaulting to the md size and the
+       resting (default) border. The states layer below re-points the border on
+       hover / focus / invalid; consumers can override any one without touching
+       the rule. */
+    --primitiv-select-bg: var(--primitiv-surface-default);
+    --primitiv-select-fg: var(--primitiv-content-primary);
+    --primitiv-select-placeholder-color: var(--primitiv-content-muted);
+    --primitiv-select-border-color: var(--primitiv-border-default);
+    --primitiv-select-border-color-hover: var(--primitiv-border-strong);
+    --primitiv-select-border-color-focus: var(--primitiv-border-focus);
+    --primitiv-select-border-color-invalid: var(--primitiv-border-invalid);
+    --primitiv-select-border-width: var(--primitiv-framed-control-border-width);
+    --primitiv-select-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-select-height: var(--primitiv-framed-control-md-height);
+    --primitiv-select-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-select-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-select-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-select-icon-color: var(--primitiv-content-secondary);
+    --primitiv-select-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-select-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-select-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-select-line-height: var(--primitiv-body-md-line-height);
+    --primitiv-select-bg-disabled: var(--primitiv-surface-subtle);
+    --primitiv-select-fg-disabled: var(--primitiv-content-disabled);
+
+    /* Fill the field's inline space so it tracks the Field / form column; height
+       and padding stay token-driven, so border-box keeps the frame honest. */
+    box-sizing: border-box;
+    inline-size: 100%;
+    block-size: var(--primitiv-select-height);
+    padding-inline: var(--primitiv-select-padding-inline);
+    border: var(--primitiv-select-border-width) solid var(--primitiv-select-border-color);
+    border-radius: var(--primitiv-select-radius);
+    background: var(--primitiv-select-bg);
+    color: var(--primitiv-select-fg);
+    font-family: var(--primitiv-select-font-family);
+    font-size: var(--primitiv-select-font-size);
+    font-weight: var(--primitiv-select-font-weight);
+    line-height: var(--primitiv-select-line-height);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  /* ── The value — the placeholder, or the selected item's content mirrored ──
+     Inline flow (not flex) so a long selection ellipsizes with any mirrored
+     leading icon in the same line box, matching the Figma trigger's single-line
+     ending truncation. */
+  .primitiv-select__value {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align: start;
+  }
+
+  /* An icon mirrored out of the selected item (or dropped into the leading
+     slot) rides the value's line box at the control's icon scale. */
+  .primitiv-select__value > svg,
+  .primitiv-select__leading > svg {
+    inline-size: var(--primitiv-select-icon-size);
+    block-size: var(--primitiv-select-icon-size);
+    vertical-align: text-bottom;
+  }
+
+  .primitiv-select__value > svg {
+    margin-inline-end: var(--primitiv-select-gap);
+  }
+
+  /* ── Leading slot — a standing glyph in the trigger, independent of the
+     selection (Figma's `Show leading` / `Leading`). Prefer putting the icon on
+     the Item, where Value mirrors it for free; this is for the case where the
+     trigger always shows the same mark. ── */
+  .primitiv-select__leading {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-select-icon-size);
+    block-size: var(--primitiv-select-icon-size);
+  }
+
+  /* ── Chevron — the trailing disclosure mark. `content/secondary`, a step
+     quieter than the value, and it flips when the listbox opens. ── */
+  .primitiv-select__icon {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-select-icon-size);
+    block-size: var(--primitiv-select-icon-size);
+    color: var(--primitiv-select-icon-color);
+    transition: rotate var(--primitiv-motion-duration-control)
+      var(--primitiv-motion-easing-default);
+  }
+
+  .primitiv-select__icon > svg {
+    inline-size: var(--primitiv-select-icon-size);
+    block-size: var(--primitiv-select-icon-size);
+  }
+
+  /* ── The listbox panel ──
+     Deliberately built on the shared --primitiv-dropdown-* panel tokens: the
+     Figma composition stacks a real Dropdown / Panel under the trigger, so a
+     Select listbox and a Dropdown menu are the same surface by construction. */
+  .primitiv-select__content {
+    --primitiv-select-content-surface: var(--primitiv-surface-default);
+    --primitiv-select-content-fg: var(--primitiv-content-primary);
+    --primitiv-select-content-border-width: var(--primitiv-border-width-1);
+    --primitiv-select-content-border-color: var(--primitiv-border-default);
+    --primitiv-select-content-shadow: var(--primitiv-elevation-overlay);
+    --primitiv-select-content-radius: var(--primitiv-dropdown-md-panel-radius);
+    --primitiv-select-content-padding-block: var(--primitiv-dropdown-md-panel-padding-block);
+    /* A small inline inset so a row's highlight / rounded corners sit inside the
+       panel edge instead of running flush against the border. */
+    --primitiv-select-content-padding-inline: var(--primitiv-space-space-4);
+    /* At least as wide as the trigger it is anchored to (Figma: the Panel
+       instance FILLs the Trigger's width), free to grow for longer options. */
+    --primitiv-select-content-min-inline-size: anchor-size(width);
+    /* Past this the list scrolls — the settled "no scroll buttons, rely on
+       overflow" decision. There is no token for a popup viewport height. */
+    --primitiv-select-content-max-block-size: 18rem;
+    /* Gap between the trigger and the panel. */
+    --primitiv-select-offset: var(--primitiv-space-space-4);
+
+    --primitiv-select-item-height: var(--primitiv-dropdown-md-item-height);
+    --primitiv-select-item-padding-inline: var(--primitiv-dropdown-md-item-padding-inline);
+    --primitiv-select-item-gap: var(--primitiv-dropdown-md-item-gap);
+    --primitiv-select-item-radius: var(--primitiv-dropdown-md-item-radius);
+    --primitiv-select-item-font-size: var(--primitiv-dropdown-md-item-font-size);
+    --primitiv-select-item-line-height: var(--primitiv-dropdown-md-item-line-height);
+    --primitiv-select-item-icon-size: var(--primitiv-dropdown-md-item-icon-size);
+    --primitiv-select-item-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-select-item-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-select-item-color: var(--primitiv-content-primary);
+    --primitiv-select-item-bg: var(--primitiv-color-transparent);
+    --primitiv-select-item-bg-highlighted: var(--primitiv-action-secondary-default);
+
+    /* Inline-start inset shared by every row's text, holding the column the
+       selected-item mark sits in. Unlike Dropdown — whose CheckboxItem rows are
+       a distinct class the panel can detect with :has() — a listbox row is one
+       class whether or not it carries a mark, and the mark unmounts while
+       unselected. So the gutter is reserved unconditionally; a Select with no
+       ItemIndicator collapses it by re-pointing this to the plain padding. */
+    --primitiv-select-item-inset: calc(
+      var(--primitiv-select-item-padding-inline) + var(--primitiv-select-item-icon-size) +
+        var(--primitiv-select-item-gap)
+    );
+
+    --primitiv-select-group-label-height: var(--primitiv-dropdown-md-label-height);
+    --primitiv-select-group-label-padding-inline: var(--primitiv-dropdown-md-label-padding-inline);
+    --primitiv-select-group-label-color: var(--primitiv-content-muted);
+    --primitiv-select-group-label-font-family: var(--primitiv-label-xs-font-family);
+    --primitiv-select-group-label-font-size: var(--primitiv-label-xs-font-size);
+    --primitiv-select-group-label-font-weight: var(--primitiv-label-xs-font-weight);
+    --primitiv-select-group-label-line-height: var(--primitiv-label-xs-line-height);
+    --primitiv-select-group-label-letter-spacing: var(--primitiv-letter-spacing-wide);
+
+    /* position:fixed lets anchor() resolve; the flex column stacks the rows.
+       Inert while closed (native [popover] is display:none until :popover-open
+       — see the display flip below). */
+    position: fixed;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-inline-size: var(--primitiv-select-content-min-inline-size);
+    max-block-size: var(--primitiv-select-content-max-block-size);
+    padding-block: var(--primitiv-select-content-padding-block);
+    padding-inline: var(--primitiv-select-content-padding-inline);
+    border: var(--primitiv-select-content-border-width) solid
+      var(--primitiv-select-content-border-color);
+    border-radius: var(--primitiv-select-content-radius);
+    background: var(--primitiv-select-content-surface);
+    color: var(--primitiv-select-content-fg);
+    box-shadow: var(--primitiv-select-content-shadow);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    /* Default placement: below the trigger, hugging its inline-start edge.
+       Consumers wire `anchor-name` on the trigger + a matching `position-anchor`
+       on this panel (inline style), against which these anchor() insets
+       resolve. */
+    inset-block-start: anchor(end);
+    inset-inline-start: anchor(start);
+    margin-block-start: var(--primitiv-select-offset);
+    /* Flip to the opposite side / edge when the chosen placement overflows. */
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+  }
+
+  /* Show when open. A closed [popover] is display:none via the UA rule; setting
+     a visible display on the base rule would leak the panel while closed, so
+     only the display flip is gated here. */
+  .primitiv-select__content:popover-open {
+    display: flex;
+  }
+
+  /* ── Rows ── */
+  .primitiv-select__item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--primitiv-select-item-gap);
+    box-sizing: border-box;
+    min-block-size: var(--primitiv-select-item-height);
+    /* Start = the reserved mark gutter; end = plain padding. Keeps every row's
+       text on one column whether or not it is the selected one. */
+    padding-inline: var(--primitiv-select-item-inset) var(--primitiv-select-item-padding-inline);
+    border-radius: var(--primitiv-select-item-radius);
+    background: var(--primitiv-select-item-bg);
+    color: var(--primitiv-select-item-color);
+    font-family: var(--primitiv-select-item-font-family);
+    font-size: var(--primitiv-select-item-font-size);
+    font-weight: var(--primitiv-select-item-font-weight);
+    line-height: var(--primitiv-select-item-line-height);
+    cursor: default;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  /* The selected mark, absolutely placed in the gutter the row already reserves
+     — so mounting it (the headless renders it only for the selected row, unless
+     forceMount) never shifts the label. */
+  .primitiv-select__item-indicator {
+    position: absolute;
+    inset-inline-start: var(--primitiv-select-item-padding-inline);
+    inset-block-start: 50%;
+    translate: 0 -50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-select-item-icon-size);
+    block-size: var(--primitiv-select-item-icon-size);
+    color: currentColor;
+  }
+
+  /* ── Row slots — the same [gutter][leading][label FILL][trailing] shape the
+     Dropdown rows use, so a Select listbox row and a menu row compose alike.
+     Leading is a fixed icon square; trailing is icon-height but free to grow
+     inline, so a badge or shortcut keeps its natural width. ── */
+  .primitiv-select__item-leading,
+  .primitiv-select__item-trailing {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    block-size: var(--primitiv-select-item-icon-size);
+  }
+
+  .primitiv-select__item-leading {
+    inline-size: var(--primitiv-select-item-icon-size);
+  }
+
+  .primitiv-select__item-trailing {
+    min-inline-size: var(--primitiv-select-item-icon-size);
+  }
+
+  .primitiv-select__item-indicator > svg,
+  .primitiv-select__item-leading > svg,
+  .primitiv-select__item-trailing > svg {
+    inline-size: var(--primitiv-select-item-icon-size);
+    block-size: var(--primitiv-select-item-icon-size);
+  }
+
+  /* The label absorbs the row's free space (Figma: FILL). min-inline-size: 0
+     overrides the flex item's auto content floor so a long option shrinks rather
+     than pushing the trailing slot past the panel edge. */
+  .primitiv-select__item-label {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+
+  /* ── Group — a plain column of rows; the class is the styling hook. ── */
+  .primitiv-select__group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Group label — the headless renders role="group" with the label as its
+     accessible name only, so the visible heading is this separate part. ── */
+  .primitiv-select__group-label {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-block-size: var(--primitiv-select-group-label-height);
+    /* Start on the same row inset so the header lines up with its options. */
+    padding-inline: var(--primitiv-select-item-inset)
+      var(--primitiv-select-group-label-padding-inline);
+    color: var(--primitiv-select-group-label-color);
+    font-family: var(--primitiv-select-group-label-font-family);
+    font-size: var(--primitiv-select-group-label-font-size);
+    font-weight: var(--primitiv-select-group-label-font-weight);
+    line-height: var(--primitiv-select-group-label-line-height);
+    letter-spacing: var(--primitiv-select-group-label-letter-spacing);
+    text-transform: uppercase;
+    user-select: none;
+  }
+}
+
+@layer primitiv.variants {
+  /* Mode — the rich trigger is a <button> laid out [leading][value][chevron];
+     the native root is a real <select> whose popup, arrow, and inner text the
+     platform renders, so it deliberately keeps its UA appearance and takes no
+     inner layout (`display: flex` on a <select> makes some engines lay the
+     <option> elements out as flex items). */
+  .primitiv-select--rich {
+    display: flex;
+    align-items: center;
+    gap: var(--primitiv-select-gap);
+    text-align: start;
+  }
+
+  /* Size — re-points the framed-control knobs to the chosen slot. Density stays
+     ambient via [data-density] on the token values themselves (RFC 0009). */
+  .primitiv-select--xs {
+    --primitiv-select-radius: var(--primitiv-framed-control-xs-radius);
+    --primitiv-select-height: var(--primitiv-framed-control-xs-height);
+    --primitiv-select-padding-inline: var(--primitiv-framed-control-xs-padding-inline);
+    --primitiv-select-gap: var(--primitiv-framed-control-xs-gap);
+    --primitiv-select-icon-size: var(--primitiv-framed-control-xs-icon-size);
+    --primitiv-select-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-select-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-select-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-select-line-height: var(--primitiv-body-xs-line-height);
+  }
+  .primitiv-select--sm {
+    --primitiv-select-radius: var(--primitiv-framed-control-sm-radius);
+    --primitiv-select-height: var(--primitiv-framed-control-sm-height);
+    --primitiv-select-padding-inline: var(--primitiv-framed-control-sm-padding-inline);
+    --primitiv-select-gap: var(--primitiv-framed-control-sm-gap);
+    --primitiv-select-icon-size: var(--primitiv-framed-control-sm-icon-size);
+    --primitiv-select-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-select-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-select-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-select-line-height: var(--primitiv-body-sm-line-height);
+  }
+  .primitiv-select--md {
+    --primitiv-select-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-select-height: var(--primitiv-framed-control-md-height);
+    --primitiv-select-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-select-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-select-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-select-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-select-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-select-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-select-line-height: var(--primitiv-body-md-line-height);
+  }
+  .primitiv-select--lg {
+    --primitiv-select-radius: var(--primitiv-framed-control-lg-radius);
+    --primitiv-select-height: var(--primitiv-framed-control-lg-height);
+    --primitiv-select-padding-inline: var(--primitiv-framed-control-lg-padding-inline);
+    --primitiv-select-gap: var(--primitiv-framed-control-lg-gap);
+    --primitiv-select-icon-size: var(--primitiv-framed-control-lg-icon-size);
+    --primitiv-select-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-select-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-select-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-select-line-height: var(--primitiv-body-lg-line-height);
+  }
+  .primitiv-select--xl {
+    --primitiv-select-radius: var(--primitiv-framed-control-xl-radius);
+    --primitiv-select-height: var(--primitiv-framed-control-xl-height);
+    --primitiv-select-padding-inline: var(--primitiv-framed-control-xl-padding-inline);
+    --primitiv-select-gap: var(--primitiv-framed-control-xl-gap);
+    --primitiv-select-icon-size: var(--primitiv-framed-control-xl-icon-size);
+    --primitiv-select-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-select-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-select-font-weight: var(--primitiv-body-xl-font-weight);
+    --primitiv-select-line-height: var(--primitiv-body-xl-line-height);
+  }
+
+  /* Panel + row size — the shared dropdown ramp, one slot per size. */
+  .primitiv-select__content--xs {
+    --primitiv-select-content-radius: var(--primitiv-dropdown-xs-panel-radius);
+    --primitiv-select-content-padding-block: var(--primitiv-dropdown-xs-panel-padding-block);
+    --primitiv-select-item-height: var(--primitiv-dropdown-xs-item-height);
+    --primitiv-select-item-padding-inline: var(--primitiv-dropdown-xs-item-padding-inline);
+    --primitiv-select-item-gap: var(--primitiv-dropdown-xs-item-gap);
+    --primitiv-select-item-radius: var(--primitiv-dropdown-xs-item-radius);
+    --primitiv-select-item-font-size: var(--primitiv-dropdown-xs-item-font-size);
+    --primitiv-select-item-line-height: var(--primitiv-dropdown-xs-item-line-height);
+    --primitiv-select-item-icon-size: var(--primitiv-dropdown-xs-item-icon-size);
+    --primitiv-select-group-label-height: var(--primitiv-dropdown-xs-label-height);
+    --primitiv-select-group-label-padding-inline: var(--primitiv-dropdown-xs-label-padding-inline);
+  }
+  .primitiv-select__content--sm {
+    --primitiv-select-content-radius: var(--primitiv-dropdown-sm-panel-radius);
+    --primitiv-select-content-padding-block: var(--primitiv-dropdown-sm-panel-padding-block);
+    --primitiv-select-item-height: var(--primitiv-dropdown-sm-item-height);
+    --primitiv-select-item-padding-inline: var(--primitiv-dropdown-sm-item-padding-inline);
+    --primitiv-select-item-gap: var(--primitiv-dropdown-sm-item-gap);
+    --primitiv-select-item-radius: var(--primitiv-dropdown-sm-item-radius);
+    --primitiv-select-item-font-size: var(--primitiv-dropdown-sm-item-font-size);
+    --primitiv-select-item-line-height: var(--primitiv-dropdown-sm-item-line-height);
+    --primitiv-select-item-icon-size: var(--primitiv-dropdown-sm-item-icon-size);
+    --primitiv-select-group-label-height: var(--primitiv-dropdown-sm-label-height);
+    --primitiv-select-group-label-padding-inline: var(--primitiv-dropdown-sm-label-padding-inline);
+  }
+  .primitiv-select__content--md {
+    --primitiv-select-content-radius: var(--primitiv-dropdown-md-panel-radius);
+    --primitiv-select-content-padding-block: var(--primitiv-dropdown-md-panel-padding-block);
+    --primitiv-select-item-height: var(--primitiv-dropdown-md-item-height);
+    --primitiv-select-item-padding-inline: var(--primitiv-dropdown-md-item-padding-inline);
+    --primitiv-select-item-gap: var(--primitiv-dropdown-md-item-gap);
+    --primitiv-select-item-radius: var(--primitiv-dropdown-md-item-radius);
+    --primitiv-select-item-font-size: var(--primitiv-dropdown-md-item-font-size);
+    --primitiv-select-item-line-height: var(--primitiv-dropdown-md-item-line-height);
+    --primitiv-select-item-icon-size: var(--primitiv-dropdown-md-item-icon-size);
+    --primitiv-select-group-label-height: var(--primitiv-dropdown-md-label-height);
+    --primitiv-select-group-label-padding-inline: var(--primitiv-dropdown-md-label-padding-inline);
+  }
+  .primitiv-select__content--lg {
+    --primitiv-select-content-radius: var(--primitiv-dropdown-lg-panel-radius);
+    --primitiv-select-content-padding-block: var(--primitiv-dropdown-lg-panel-padding-block);
+    --primitiv-select-item-height: var(--primitiv-dropdown-lg-item-height);
+    --primitiv-select-item-padding-inline: var(--primitiv-dropdown-lg-item-padding-inline);
+    --primitiv-select-item-gap: var(--primitiv-dropdown-lg-item-gap);
+    --primitiv-select-item-radius: var(--primitiv-dropdown-lg-item-radius);
+    --primitiv-select-item-font-size: var(--primitiv-dropdown-lg-item-font-size);
+    --primitiv-select-item-line-height: var(--primitiv-dropdown-lg-item-line-height);
+    --primitiv-select-item-icon-size: var(--primitiv-dropdown-lg-item-icon-size);
+    --primitiv-select-group-label-height: var(--primitiv-dropdown-lg-label-height);
+    --primitiv-select-group-label-padding-inline: var(--primitiv-dropdown-lg-label-padding-inline);
+  }
+  .primitiv-select__content--xl {
+    --primitiv-select-content-radius: var(--primitiv-dropdown-xl-panel-radius);
+    --primitiv-select-content-padding-block: var(--primitiv-dropdown-xl-panel-padding-block);
+    --primitiv-select-item-height: var(--primitiv-dropdown-xl-item-height);
+    --primitiv-select-item-padding-inline: var(--primitiv-dropdown-xl-item-padding-inline);
+    --primitiv-select-item-gap: var(--primitiv-dropdown-xl-item-gap);
+    --primitiv-select-item-radius: var(--primitiv-dropdown-xl-item-radius);
+    --primitiv-select-item-font-size: var(--primitiv-dropdown-xl-item-font-size);
+    --primitiv-select-item-line-height: var(--primitiv-dropdown-xl-item-line-height);
+    --primitiv-select-item-icon-size: var(--primitiv-dropdown-xl-item-icon-size);
+    --primitiv-select-group-label-height: var(--primitiv-dropdown-xl-label-height);
+    --primitiv-select-group-label-padding-inline: var(--primitiv-dropdown-xl-label-padding-inline);
+  }
+
+  /* Placement — overrides the default bottom-start insets. All expressed with
+     logical anchor(start)/anchor(end) so each flips correctly under RTL. The
+     margin offset always points back toward the trigger. */
+  .primitiv-select__content--bottom-start {
+    inset-block-start: anchor(end);
+    inset-block-end: auto;
+    inset-inline-start: anchor(start);
+    inset-inline-end: auto;
+    margin-block: var(--primitiv-select-offset) 0;
+    margin-inline: 0;
+  }
+  .primitiv-select__content--bottom-end {
+    inset-block-start: anchor(end);
+    inset-block-end: auto;
+    inset-inline-end: anchor(end);
+    inset-inline-start: auto;
+    margin-block: var(--primitiv-select-offset) 0;
+    margin-inline: 0;
+  }
+  .primitiv-select__content--top-start {
+    inset-block-end: anchor(start);
+    inset-block-start: auto;
+    inset-inline-start: anchor(start);
+    inset-inline-end: auto;
+    margin-block: 0 var(--primitiv-select-offset);
+    margin-inline: 0;
+  }
+  .primitiv-select__content--top-end {
+    inset-block-end: anchor(start);
+    inset-block-start: auto;
+    inset-inline-end: anchor(end);
+    inset-inline-start: auto;
+    margin-block: 0 var(--primitiv-select-offset);
+    margin-inline: 0;
+  }
+}
+
+@layer primitiv.states {
+  /* Hover — the frame firms up, matching Input. Guarded so a tap on a touch
+     device doesn't leave the control stuck in its hover shade. */
+  @media (hover: hover) {
+    .primitiv-select:hover:not(:disabled, [data-disabled]) {
+      border-color: var(--primitiv-select-border-color-hover);
+    }
+  }
+
+  /* Focus — the border adopts the focus colour and the shared two-layer focus
+     ring draws outside it. Two stacked box-shadows follow the control's own
+     radius: a surface-coloured gap band, then the brand ring just outside it.
+     The ring is a system concern — restyle it by overriding the
+     --primitiv-focus-ring* / --primitiv-surface-default tokens globally, not via
+     a per-component knob. */
+  .primitiv-select:focus-visible {
+    outline: none;
+    border-color: var(--primitiv-select-border-color-focus);
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Open — the chevron flips and the frame keeps the focus colour, so the
+     control reads as active for the whole time its listbox is up. */
+  .primitiv-select[aria-expanded="true"] {
+    border-color: var(--primitiv-select-border-color-focus);
+  }
+
+  .primitiv-select[aria-expanded="true"] .primitiv-select__icon {
+    rotate: 180deg;
+  }
+
+  /* Placeholder — the value is muted until something is selected (Figma's
+     `Filled` axis; the headless drops data-placeholder on the first selection). */
+  .primitiv-select__value[data-placeholder] {
+    color: var(--primitiv-select-placeholder-color);
+  }
+
+  /* Invalid — the control flags itself with aria-invalid (set directly or
+     cascaded from a Field.Root). The danger border wins over the resting, hover
+     and focus colours because this rule follows them in the same layer
+     (RFC 0008 §2.3). */
+  .primitiv-select[aria-invalid="true"] {
+    border-color: var(--primitiv-select-border-color-invalid);
+  }
+
+  /* Disabled — a filled, dimmed frame rather than a blanket opacity, so the
+     control still reads as a field. State-neutral: the same valid or invalid. */
+  .primitiv-select:disabled,
+  .primitiv-select[data-disabled] {
+    border-color: var(--primitiv-select-border-color);
+    background: var(--primitiv-select-bg-disabled);
+    color: var(--primitiv-select-fg-disabled);
+    cursor: not-allowed;
+  }
+
+  .primitiv-select:disabled .primitiv-select__icon,
+  .primitiv-select[data-disabled] .primitiv-select__icon,
+  .primitiv-select:disabled .primitiv-select__value[data-placeholder],
+  .primitiv-select[data-disabled] .primitiv-select__value[data-placeholder] {
+    color: var(--primitiv-select-fg-disabled);
+  }
+
+  /* Highlighted row — the headless moves real DOM focus between options as you
+     arrow / typeahead, so keyboard navigation and pointer hover share one fill.
+     :focus (not :focus-visible) because the focus is programmatic. */
+  .primitiv-select__item:focus {
+    background: var(--primitiv-select-item-bg-highlighted);
+    outline: none;
+  }
+
+  @media (hover: hover) {
+    .primitiv-select__item:hover:not([aria-disabled="true"]) {
+      background: var(--primitiv-select-item-bg-highlighted);
+    }
+  }
+
+  /* Disabled option — the headless leaves it unselectable; the styling dims it. */
+  .primitiv-select__item[aria-disabled="true"] {
+    opacity: var(--primitiv-opacity-50);
+    pointer-events: none;
+  }
+
+  /* Enter / exit — the panel scales + fades, driven by the native
+     :popover-open state (the headless calls showPopover / hidePopover). The
+     resting/closed state (base rule) is faded + scaled down; :popover-open brings
+     it in; @starting-style gives the enter its starting frame so the exit is the
+     exact reverse. allow-discrete on display + overlay keeps the panel painted in
+     the top layer through the close so it animates out instead of snapping. */
+  .primitiv-select__content {
+    opacity: 0;
+    scale: 0.97;
+    transition:
+      opacity var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
+      scale var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
+      display var(--primitiv-motion-duration-overlay) allow-discrete,
+      overlay var(--primitiv-motion-duration-overlay) allow-discrete;
+  }
+  .primitiv-select__content:popover-open {
+    opacity: 1;
+    scale: 1;
+    transition-timing-function: var(--primitiv-motion-easing-enter);
+  }
+  @starting-style {
+    .primitiv-select__content:popover-open {
+      opacity: 0;
+      scale: 0.97;
+    }
+  }
+
+  /* Honour reduced-motion: no scale / fade / chevron sweep, just show / hide. */
+  @media (prefers-reduced-motion: reduce) {
+    .primitiv-select,
+    .primitiv-select__icon,
+    .primitiv-select__content {
+      transition: none;
+    }
+  }
+}

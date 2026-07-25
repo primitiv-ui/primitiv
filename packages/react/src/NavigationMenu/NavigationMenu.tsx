@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import type { KeyboardEvent, PointerEvent, ReactElement } from "react";
 
 import { useDirection } from "../DirectionProvider/index.ts";
-import { composeEventHandlers } from "../Slot/index.ts";
+import { Slot, composeEventHandlers } from "../Slot/index.ts";
 
 import {
   useNavigationMenuEntry,
@@ -188,16 +188,31 @@ export function NavigationMenuContent({
 
 export function NavigationMenuLink({
   children,
+  active = false,
+  asChild = false,
   onKeyDown,
+  onClick,
   ...rest
 }: NavigationMenuLinkProps): ReactElement {
-  const { linkRef, handleKeyDown } = useNavigationMenuLink({ onKeyDown });
+  const { linkRef, handleKeyDown, handleClick } = useNavigationMenuLink({
+    onKeyDown,
+    onClick,
+  });
 
-  return (
-    <a ref={linkRef} onKeyDown={handleKeyDown} {...rest}>
-      {children}
-    </a>
-  );
+  const linkProps = {
+    ref: linkRef,
+    "aria-current": active ? ("page" as const) : undefined,
+    "data-active": active ? "" : undefined,
+    onKeyDown: handleKeyDown,
+    onClick: handleClick,
+    ...rest,
+  };
+
+  if (asChild) {
+    return <Slot {...linkProps}>{children}</Slot>;
+  }
+
+  return <a {...linkProps}>{children}</a>;
 }
 
 export type TNavigationMenuCompound = typeof NavigationMenuRoot & {

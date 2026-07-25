@@ -85,7 +85,20 @@ export type NavigationMenuTriggerProps = ComponentProps<"button">;
 export type NavigationMenuContentProps = ComponentProps<"div">;
 
 /** Props for `NavigationMenu.Link` — an `<a>` to a page. */
-export type NavigationMenuLinkProps = ComponentProps<"a">;
+export type NavigationMenuLinkProps = ComponentProps<"a"> & {
+  /** Marks this link as the page the user is currently on, setting
+   * `aria-current="page"` and the `data-active` styling hook. The component
+   * does no route matching of its own — the consumer owns the router, so it
+   * owns the comparison.
+   * @default false */
+  active?: boolean;
+  /** Renders the child element instead of a native `<a>`, merging all of
+   * `NavigationMenu.Link`'s props — `aria-current`, `data-active`, the
+   * panel-dismissing click handler, `ref` — onto it via {@link Slot}. Use for
+   * routing-library link components.
+   * @default false */
+  asChild?: boolean;
+};
 
 /** Whether the surrounding subtree is inside a `NavigationMenu.Content`
  * panel. A `NavigationMenu.Link` uses it to tell a top-level entry (which

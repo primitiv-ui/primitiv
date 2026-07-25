@@ -5,11 +5,14 @@
  * Trigger is a pass-through button — so they take no className. The styled parts
  * (Content, Item, CheckboxItem, RadioItem, ItemIndicator, Label, Separator,
  * Group, RadioGroup, SubTrigger, SubContent) follow the generated shape against
- * dropdown.recipe.ts. Content carries the size + placement modifiers; SubContent
- * reuses the panel with the `submenu` placement default. Positioning is CSS
- * anchor positioning — wire an `anchor-name` on the trigger and a matching
- * `position-anchor` on Content / SubContent. Keep contract.json + the stylesheet
- * + this file in sync by hand.
+ * dropdown.recipe.ts. ItemLeading / ItemLabel / ItemTrailing are presentational
+ * row slots with no headless counterpart — plain spans carrying the row-layout
+ * classes, mirroring the Figma Item / CheckboxItem / RadioItem slot properties.
+ * Content carries the size + placement modifiers; SubContent reuses the panel
+ * with the `submenu` placement default. Positioning is CSS anchor positioning —
+ * wire an `anchor-name` on the trigger and a matching `position-anchor` on
+ * Content / SubContent. Keep contract.json + the stylesheet + this file in sync
+ * by hand.
  */
 import { Dropdown as DropdownPrimitive } from "@primitiv-ui/react";
 import { type ComponentPropsWithRef } from "react";
@@ -18,6 +21,9 @@ import {
   dropdownItem,
   dropdownCheckboxItem,
   dropdownRadioItem,
+  dropdownItemLeading,
+  dropdownItemLabel,
+  dropdownItemTrailing,
   dropdownItemIndicator,
   dropdownLabel,
   dropdownSeparator,
@@ -107,6 +113,44 @@ export function DropdownRadioItem({ className, ...props }: DropdownRadioItemProp
   return (
     <DropdownPrimitive.RadioItem className={cx(dropdownRadioItem(), className)} {...props} />
   );
+}
+
+/**
+ * Optional leading slot inside a row — an icon (or any small glyph) placed
+ * after the checkbox / radio gutter and before the label.
+ *
+ * @see https://primitiv-ui.dev/docs/components/dropdown
+ */
+export type DropdownItemLeadingProps = ComponentPropsWithRef<"span">;
+
+export function DropdownItemLeading({ className, ...props }: DropdownItemLeadingProps) {
+  return <span className={cx(dropdownItemLeading(), className)} {...props} />;
+}
+
+/**
+ * The row's text label. Takes the row's free space, so pair it with
+ * {@link DropdownItemLeading} / {@link DropdownItemTrailing} to keep a glyph
+ * hugging the gutter and a trailing affordance on the inline-end edge.
+ *
+ * @see https://primitiv-ui.dev/docs/components/dropdown
+ */
+export type DropdownItemLabelProps = ComponentPropsWithRef<"span">;
+
+export function DropdownItemLabel({ className, ...props }: DropdownItemLabelProps) {
+  return <span className={cx(dropdownItemLabel(), className)} {...props} />;
+}
+
+/**
+ * Optional trailing slot inside a row — a keyboard shortcut, badge, or icon on
+ * the inline-end edge. Sized to the row's icon scale in the block axis but free
+ * to grow inline, so non-icon content keeps its natural width.
+ *
+ * @see https://primitiv-ui.dev/docs/components/dropdown
+ */
+export type DropdownItemTrailingProps = ComponentPropsWithRef<"span">;
+
+export function DropdownItemTrailing({ className, ...props }: DropdownItemTrailingProps) {
+  return <span className={cx(dropdownItemTrailing(), className)} {...props} />;
 }
 
 export type DropdownItemIndicatorProps = ComponentPropsWithRef<

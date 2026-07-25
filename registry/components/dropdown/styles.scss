@@ -3,7 +3,8 @@
  *
  * Copied into the consumer repo by `primitiv add dropdown`. It is yours to edit:
  * the stable surface is the contract (the .primitiv-dropdown panel + __item /
- * __checkbox-item / __radio-item / __item-indicator / __label / __separator /
+ * __checkbox-item / __radio-item / __item-indicator / __item-leading /
+ * __item-label / __item-trailing / __label / __separator /
  * __group / __radio-group / __sub-trigger parts, the --xs…--xl size modifiers,
  * the placement modifiers, the data-popover-open / data-state hooks, and the
  * --primitiv-dropdown-* custom properties), not these values (RFC 0006
@@ -216,6 +217,50 @@
     flex: none;
     inline-size: var(--primitiv-dropdown-item-icon-size);
     block-size: var(--primitiv-dropdown-item-icon-size);
+  }
+
+  /* ── Row slots — the Figma [gutter][leading][label FILL][trailing] shape ──
+     All three parts are optional; a plain text row needs none of them. The
+     label takes the free space so a leading glyph hugs the indicator gutter and
+     a trailing affordance (shortcut, badge, chevron) sits on the inline-end
+     edge, with the row's own `gap` spacing them. Leading is a fixed icon square;
+     trailing is icon-height but free to grow inline, so a swapped-in Kbd or
+     badge keeps its natural width — matching the Figma slots, whose sizing is
+     icon-tuned for the default case without forcing a non-icon into the square.
+
+     Reach for these whenever a row carries a leading slot: without the label
+     part the flex row has free space to distribute, and the plain-item
+     `space-between` below would push a bare text node away from its glyph. */
+  .primitiv-dropdown__item-leading,
+  .primitiv-dropdown__item-trailing {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    block-size: var(--primitiv-dropdown-item-icon-size);
+  }
+
+  .primitiv-dropdown__item-leading {
+    inline-size: var(--primitiv-dropdown-item-icon-size);
+  }
+
+  .primitiv-dropdown__item-trailing {
+    min-inline-size: var(--primitiv-dropdown-item-icon-size);
+  }
+
+  /* An icon dropped straight into either slot scales with the row. */
+  .primitiv-dropdown__item-leading > svg,
+  .primitiv-dropdown__item-trailing > svg {
+    inline-size: var(--primitiv-dropdown-item-icon-size);
+    block-size: var(--primitiv-dropdown-item-icon-size);
+  }
+
+  /* The label absorbs the row's free space (Figma: FILL). min-inline-size: 0
+     overrides the flex item's auto content floor so a long label shrinks rather
+     than pushing the trailing slot past the panel edge. */
+  .primitiv-dropdown__item-label {
+    flex: 1 1 auto;
+    min-inline-size: 0;
   }
 
   /* ── CheckboxItem / RadioItem — the ItemIndicator sits in the shared gutter ──

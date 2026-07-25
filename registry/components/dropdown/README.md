@@ -63,6 +63,32 @@ checked and unchecked rows keep their labels aligned:
 </DropdownCheckboxItem>
 ```
 
+### Row slots — leading, label, trailing
+
+Any row (`DropdownItem`, `DropdownCheckboxItem`, `DropdownRadioItem`,
+`DropdownSubTrigger`) can carry a leading glyph and a trailing affordance
+alongside its label, laid out as
+`[indicator gutter][leading][label][trailing]`:
+
+```tsx
+<DropdownCheckboxItem checked={checked} onCheckedChange={setChecked}>
+  <DropdownItemIndicator><Check /></DropdownItemIndicator>
+  <DropdownItemLeading><ReactLogo /></DropdownItemLeading>
+  <DropdownItemLabel>React</DropdownItemLabel>
+  <DropdownItemTrailing>⌘1</DropdownItemTrailing>
+</DropdownCheckboxItem>
+```
+
+`DropdownItemLabel` takes the row's free space, which is what keeps the leading
+glyph hugging the gutter and the trailing content on the inline-end edge — **use
+it whenever a row has a leading slot**, or the bare text node drifts away from
+its glyph. A text-only row (or the long-standing `label + shortcut` shape) needs
+none of the three and is unchanged.
+
+`DropdownItemTrailing` is icon-height but free to grow inline, so a shortcut,
+badge, or `<Kbd>` keeps its natural width while a plain icon still lands on the
+row's icon scale.
+
 ## Parts
 
 | Export                  | Wraps                    | Styled? | Notes                                                    |
@@ -74,6 +100,9 @@ checked and unchecked rows keep their labels aligned:
 | `DropdownCheckboxItem`  | `Dropdown.CheckboxItem`  | ✓       | Togglable row; holds an indicator gutter                 |
 | `DropdownRadioItem`     | `Dropdown.RadioItem`     | ✓       | Single-select row; holds an indicator gutter             |
 | `DropdownItemIndicator` | `Dropdown.ItemIndicator` | ✓       | The `✓` / `•` mark inside a checkbox/radio row           |
+| `DropdownItemLeading`   | —                        | ✓       | Presentational leading slot (icon square) inside a row   |
+| `DropdownItemLabel`     | —                        | ✓       | Presentational row label; absorbs the row's free space   |
+| `DropdownItemTrailing`  | —                        | ✓       | Presentational trailing slot; natural width, icon height |
 | `DropdownLabel`         | `Dropdown.Label`         | ✓       | Uppercase section header                                 |
 | `DropdownSeparator`     | `Dropdown.Separator`     | ✓       | Thin rule between groups                                 |
 | `DropdownGroup`         | `Dropdown.Group`         | ✓       | Semantic grouping of related rows                        |

@@ -47,6 +47,18 @@ export const dropdownRadioItem = cva("primitiv-dropdown__radio-item");
 
 export type DropdownRadioItemVariants = VariantProps<typeof dropdownRadioItem>;
 
+export const dropdownItemLeading = cva("primitiv-dropdown__item-leading");
+
+export type DropdownItemLeadingVariants = VariantProps<typeof dropdownItemLeading>;
+
+export const dropdownItemLabel = cva("primitiv-dropdown__item-label");
+
+export type DropdownItemLabelVariants = VariantProps<typeof dropdownItemLabel>;
+
+export const dropdownItemTrailing = cva("primitiv-dropdown__item-trailing");
+
+export type DropdownItemTrailingVariants = VariantProps<typeof dropdownItemTrailing>;
+
 export const dropdownItemIndicator = cva("primitiv-dropdown__item-indicator");
 
 export type DropdownItemIndicatorVariants = VariantProps<typeof dropdownItemIndicator>;

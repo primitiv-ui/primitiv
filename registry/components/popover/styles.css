@@ -355,7 +355,7 @@
      scale is a separate transform property so it composes with the placement
      translate. Token-driven (shared overlay duration + enter / exit easings). */
   .primitiv-popover {
-    opacity: 0;
+    opacity: var(--primitiv-opacity-transparent);
     scale: 0.97;
     transition:
       opacity var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
@@ -364,13 +364,13 @@
       overlay var(--primitiv-motion-duration-overlay) allow-discrete;
   }
   .primitiv-popover:popover-open {
-    opacity: 1;
+    opacity: var(--primitiv-opacity-100);
     scale: 1;
     transition-timing-function: var(--primitiv-motion-easing-enter);
   }
   @starting-style {
     .primitiv-popover:popover-open {
-      opacity: 0;
+      opacity: var(--primitiv-opacity-transparent);
       scale: 0.97;
     }
   }

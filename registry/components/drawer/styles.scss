@@ -322,19 +322,19 @@
   }
 
   .primitiv-drawer::backdrop {
-    opacity: 0;
+    opacity: var(--primitiv-opacity-transparent);
     transition:
       opacity var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
       display var(--primitiv-motion-duration-overlay) allow-discrete,
       overlay var(--primitiv-motion-duration-overlay) allow-discrete;
   }
   .primitiv-drawer[open]::backdrop {
-    opacity: 1;
+    opacity: var(--primitiv-opacity-100);
     transition-timing-function: var(--primitiv-motion-easing-enter);
   }
   @starting-style {
     .primitiv-drawer[open]::backdrop {
-      opacity: 0;
+      opacity: var(--primitiv-opacity-transparent);
     }
   }
 

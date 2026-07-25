@@ -27,8 +27,8 @@
  * `anchor-name` on the trigger and a matching `position-anchor` on the bubble.
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-content-*,
- * --primitiv-surface-*, --primitiv-tooltip-*, --primitiv-body-*, --primitiv-size-*
- * and --primitiv-motion-* custom properties it resolves.
+ * --primitiv-surface-*, --primitiv-tooltip-*, --primitiv-body-*, --primitiv-size-*,
+ * --primitiv-opacity-* and --primitiv-motion-* custom properties it resolves.
  */
 
 /* Declare the sublayer order up front so this sheet is safe to load ahead of the
@@ -281,18 +281,18 @@
      closed: pass `forceMount` to Tooltip.Portal + Tooltip.Content. Token-driven
      (shared overlay duration + enter / exit easings). */
   .primitiv-tooltip {
-    opacity: 0;
+    opacity: var(--primitiv-opacity-transparent);
     transition:
       opacity var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
       display var(--primitiv-motion-duration-overlay) allow-discrete;
   }
   .primitiv-tooltip[data-state="open"] {
-    opacity: 1;
+    opacity: var(--primitiv-opacity-100);
     transition-timing-function: var(--primitiv-motion-easing-enter);
   }
   @starting-style {
     .primitiv-tooltip[data-state="open"] {
-      opacity: 0;
+      opacity: var(--primitiv-opacity-transparent);
     }
   }
 

@@ -766,7 +766,7 @@
      exact reverse. allow-discrete on display + overlay keeps the panel painted in
      the top layer through the close so it animates out instead of snapping. */
   .primitiv-select__content {
-    opacity: 0;
+    opacity: var(--primitiv-opacity-transparent);
     scale: 0.97;
     transition:
       opacity var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
@@ -775,13 +775,13 @@
       overlay var(--primitiv-motion-duration-overlay) allow-discrete;
   }
   .primitiv-select__content:popover-open {
-    opacity: 1;
+    opacity: var(--primitiv-opacity-100);
     scale: 1;
     transition-timing-function: var(--primitiv-motion-easing-enter);
   }
   @starting-style {
     .primitiv-select__content:popover-open {
-      opacity: 0;
+      opacity: var(--primitiv-opacity-transparent);
       scale: 0.97;
     }
   }

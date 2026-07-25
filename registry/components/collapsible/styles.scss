@@ -215,7 +215,7 @@
     inset-block-end: 0;
     block-size: var(--primitiv-collapsible-fade-height);
     background: linear-gradient(to bottom, transparent, var(--primitiv-collapsible-fade-color));
-    opacity: 1;
+    opacity: var(--primitiv-opacity-100);
     transition: opacity
       var(--primitiv-collapsible-content-transition-duration)
       var(--primitiv-collapsible-content-transition-easing);
@@ -396,7 +396,7 @@
   }
 
   .primitiv-collapsible__content[data-state="open"] .primitiv-collapsible__content-fade {
-    opacity: 0;
+    opacity: var(--primitiv-opacity-transparent);
   }
 
   /* Honour reduced-motion: keep the open/close (and the chevron flip)

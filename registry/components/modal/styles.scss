@@ -245,7 +245,7 @@
      mounted while closed — pass `forceMount` to Modal.Portal. Both phases are
      token-driven (shared overlay duration + the enter / exit easings). */
   .primitiv-modal {
-    opacity: 0;
+    opacity: var(--primitiv-opacity-transparent);
     scale: 0.97;
     transition:
       opacity var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
@@ -254,31 +254,31 @@
       overlay var(--primitiv-motion-duration-overlay) allow-discrete;
   }
   .primitiv-modal[open] {
-    opacity: 1;
+    opacity: var(--primitiv-opacity-100);
     scale: 1;
     transition-timing-function: var(--primitiv-motion-easing-enter);
   }
   @starting-style {
     .primitiv-modal[open] {
-      opacity: 0;
+      opacity: var(--primitiv-opacity-transparent);
       scale: 0.97;
     }
   }
 
   .primitiv-modal::backdrop {
-    opacity: 0;
+    opacity: var(--primitiv-opacity-transparent);
     transition:
       opacity var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
       display var(--primitiv-motion-duration-overlay) allow-discrete,
       overlay var(--primitiv-motion-duration-overlay) allow-discrete;
   }
   .primitiv-modal[open]::backdrop {
-    opacity: 1;
+    opacity: var(--primitiv-opacity-100);
     transition-timing-function: var(--primitiv-motion-easing-enter);
   }
   @starting-style {
     .primitiv-modal[open]::backdrop {
-      opacity: 0;
+      opacity: var(--primitiv-opacity-transparent);
     }
   }
 

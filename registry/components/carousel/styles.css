@@ -20,8 +20,8 @@
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-space-*,
  * --primitiv-framed-control-*, --primitiv-surface-*, --primitiv-content-*,
- * --primitiv-border-*, --primitiv-action-* and --primitiv-focus-ring-* custom
- * properties it resolves.
+ * --primitiv-border-*, --primitiv-action-*, --primitiv-opacity-* and
+ * --primitiv-focus-ring-* custom properties it resolves.
  */
 
 /* Declare the sublayer order up front so this sheet is safe to load ahead of
@@ -2105,7 +2105,7 @@
      slide appears at once). */
   .primitiv-carousel[data-transition="fade"] .primitiv-carousel__slide {
     grid-area: 1 / 1;
-    opacity: 0;
+    opacity: var(--primitiv-opacity-transparent);
     visibility: hidden;
     transition:
       opacity var(--primitiv-carousel-fade-duration) var(--primitiv-carousel-fade-easing),
@@ -2261,7 +2261,7 @@
      while the outgoing one fades under it. */
   .primitiv-carousel[data-transition="fade"]
     .primitiv-carousel__slide[data-state="active"] {
-    opacity: 1;
+    opacity: var(--primitiv-opacity-100);
     visibility: visible;
     transition:
       opacity var(--primitiv-carousel-fade-duration) var(--primitiv-carousel-fade-easing),

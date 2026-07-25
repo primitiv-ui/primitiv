@@ -764,7 +764,7 @@ primitiv add --all`}</code>
         </InputGroup>
       </Section>
 
-      <Section title="Select">
+      <Section title="Select" column>
         {/* Rich (the default) — the trigger's content is not written here: it is
             mirrored out of the selected option, so the React mark and the label
             appear in the closed control for free. The checkmark indicator is

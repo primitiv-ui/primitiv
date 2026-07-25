@@ -53,15 +53,16 @@ body {
   align-self: flex-start;
 }
 
-/* Select demos — the control fills its container (it tracks a form column, like
-   Input), so give each demo the 240px form width the Figma Select set uses and
-   stack a caption above it. The panel then inherits that width through
-   `anchor-size(width)`. */
+/* Select demos — the control fills its container (it tracks a form column,
+   like Input), so the section uses `column` and each demo stretches to the
+   section's full width (the same `align-items: stretch` mechanism the Field /
+   Input Group demos rely on) rather than a fixed form width. Each demo still
+   stacks its own caption above the control. The panel then inherits the
+   trigger's width through `anchor-size(width)`. */
 .ks-select-demo {
   display: flex;
   flex-direction: column;
   gap: var(--primitiv-space-space-8);
-  inline-size: var(--primitiv-size-size-240);
 }
 
 .ks-select-demo__caption {

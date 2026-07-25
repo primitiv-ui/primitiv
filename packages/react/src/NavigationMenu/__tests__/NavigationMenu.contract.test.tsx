@@ -8,6 +8,10 @@ import {
   NavigationMenuTrigger,
   NavigationMenuViewport,
 } from "../NavigationMenu";
+import {
+  NavigationMenuContext,
+  NavigationMenuItemContext,
+} from "../NavigationMenuContext";
 
 describe("NavigationMenu — public contract", () => {
   it("exposes every sub-component on the compound", () => {
@@ -30,5 +34,12 @@ describe("NavigationMenu — public contract", () => {
     expect(NavigationMenuViewport.displayName).toBe("NavigationMenuViewport");
     expect(NavigationMenuIndicator.displayName).toBe("NavigationMenuIndicator");
     expect(NavigationMenuLink.displayName).toBe("NavigationMenuLink");
+  });
+
+  it("names both strict contexts for React DevTools", () => {
+    expect(NavigationMenuContext.displayName).toBe("NavigationMenuContext");
+    expect(NavigationMenuItemContext.displayName).toBe(
+      "NavigationMenuItemContext",
+    );
   });
 });

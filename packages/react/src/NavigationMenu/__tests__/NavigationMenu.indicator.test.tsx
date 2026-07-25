@@ -124,6 +124,49 @@ describe("NavigationMenu.Indicator", () => {
     ).toBe("90px");
   });
 
+  it("clears the geometry when the panel closes", async () => {
+    const user = userEvent.setup();
+    render(<Nav />);
+
+    const trigger = screen.getByRole("button", { name: "Concepts" });
+    plantGeometry(trigger, { left: 8, width: 72, top: 0, height: 32 });
+
+    await user.click(trigger);
+    await user.click(trigger);
+
+    const indicator = screen.getByTestId("indicator");
+
+    // A marker left holding the last trigger's geometry would animate from the
+    // wrong place on the next open.
+    expect(
+      indicator.style.getPropertyValue(
+        "--primitiv-navigation-menu-indicator-position",
+      ),
+    ).toBe("");
+    expect(
+      indicator.style.getPropertyValue(
+        "--primitiv-navigation-menu-indicator-size",
+      ),
+    ).toBe("");
+  });
+
+  it("removes its resize listener on unmount", () => {
+    const addEventListener = vi.spyOn(window, "addEventListener");
+    const removeEventListener = vi.spyOn(window, "removeEventListener");
+
+    const { unmount } = render(<Nav />);
+    const measure = addEventListener.mock.calls.find(
+      ([type]) => type === "resize",
+    )?.[1];
+    unmount();
+
+    expect(measure).toBeTypeOf("function");
+    expect(removeEventListener).toHaveBeenCalledWith("resize", measure);
+
+    addEventListener.mockRestore();
+    removeEventListener.mockRestore();
+  });
+
   it("carries the open value and the orientation as styling hooks", async () => {
     const user = userEvent.setup();
     render(<Nav />);

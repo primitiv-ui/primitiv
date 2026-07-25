@@ -49,6 +49,35 @@ describe("NavigationMenu.Link", () => {
     expect(screen.getByTestId("concepts-panel")).not.toBeVisible();
   });
 
+  it("composes the consumer's own link handlers with its own", async () => {
+    const user = userEvent.setup();
+    const onClick = vi.fn();
+    const onKeyDown = vi.fn();
+    render(
+      <NavigationMenu.Root>
+        <NavigationMenu.List>
+          <NavigationMenu.Item>
+            <NavigationMenu.Link
+              href="/changelog"
+              onClick={onClick}
+              onKeyDown={onKeyDown}
+            >
+              Changelog
+            </NavigationMenu.Link>
+          </NavigationMenu.Item>
+        </NavigationMenu.List>
+      </NavigationMenu.Root>,
+    );
+
+    const link = screen.getByRole("link", { name: "Changelog" });
+    link.focus();
+    await user.keyboard("{ArrowRight}");
+    await user.click(link);
+
+    expect(onKeyDown).toHaveBeenCalledOnce();
+    expect(onClick).toHaveBeenCalledOnce();
+  });
+
   it("renders a consumer element instead of the anchor with asChild", () => {
     render(
       <NavigationMenu.Root>

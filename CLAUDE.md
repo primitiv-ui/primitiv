@@ -453,11 +453,53 @@ source of truth for when a skill applies.
     flagged but deliberately not changed (focused-trigger border colour;
     `Dropdown / Panel`'s `border/subtle` stroke). Full account in
     `docs/select-future-work.md`.
-  - **NavigationMenu itself — not started.** RFC 0019 §4 open decisions
-    (the fork, mobile interaction model, shared affordances, desktop
-    specifics) need settling before scaffolding a headless build, which
-    is then followed by Figma design and a kitchen-sink dogfood covering
-    both desktop and mobile.
+  - **NavigationMenu — headless landed (2026-07-25); Figma + registry +
+    kitchen-sink still to do.** RFC 0019 §4 is fully settled and §5 now
+    fixes the API. Decisions: **(a)** desktop-only `NavigationMenu` +
+    composed mobile — the duplication worry was raised and closed in
+    RFC 0019 **§4a** (the nav *data* and the active-state `Link` stay
+    single-sourced; only ~15 lines of wrapper elements differ per
+    presentation, and a single shared tree hidden by breakpoint would
+    put duplicate landmarks/ids in the a11y tree); **(c)** a
+    `NavigationMenu.Link` part is the *only* shared affordance — no
+    standalone `Link` primitive, and no nav data model in the library;
+    **(d)** the full Radix model, `Viewport` + `Indicator` included.
+    Eight parts: `Root` (the `<nav>`, `aria-label="Main"` default, owns
+    the open value where **`""` = closed**, `openOnHover`/`delayDuration`
+    /`closeDelay`, and the single Escape handler), `List` (`<ul>`),
+    `Item` (`<li>` — **its `value` is what makes an entry a disclosure**;
+    omit it for a plain link entry, and a Trigger/Content inside a
+    value-less Item throws), `Trigger`, `Content` (mounted-with-`hidden`
+    per the Collapsible convention, `forceMount` for animation), `Viewport`,
+    `Indicator`, `Link`. Three things worth knowing before touching it:
+    **(1)** it is the ARIA APG *Disclosure Navigation Menu*, **not** a
+    menubar — `useRovingTabindex` is used for its axis/RTL keymap only and
+    **no `tabIndex` is manipulated**, so every top-level entry stays
+    tabbable (correct for links-to-pages; don't "fix" this into a roving
+    tabstop). **(2)** hover-intent has a real trap that cost a cycle: the
+    pointer that arrives to *click* fires `pointerenter` first, so with
+    hover-to-open the panel opens before the click lands and a naive
+    toggle closes it again — the Trigger therefore toggles against what
+    was open when the pointer **arrived**. **(3)** `Content` portals into
+    a mounted `Viewport` (the same projection `MillerColumns.Column` uses),
+    so panels share one morphing box; without a Viewport they render in
+    place. `Indicator` measures the open trigger and publishes
+    `--primitiv-navigation-menu-indicator-position` / `-size` (re-measured
+    on resize), and takes `asChild` so the marker can be an icon rather
+    than a styled box. 76 tests at 100% lines/branches/functions/statements.
+    **Mutation hardening is NOT finished** — a scoped
+    `mutate:component NavigationMenu` run (252 mutants) still had survivors
+    when the session ended, so the component is **not** in
+    `mutation-allowlist.json` yet and must not be added until it kills
+    every mutant. Pick that up first: re-run the scoped mutation command,
+    then `node scripts/mutation-survivors.mjs NavigationMenu`. The
+    prop-collision scan caught one real narrowing artifact on the way —
+    `Item.value` shadows `<li value>` and needed the `Omit`. Workbench
+    example at `/navigation-menu` (4 specimens) — **not yet visually
+    QA'd in a browser** (no browser in the sandbox). **Next:** Figma
+    desktop set, then registry, then the kitchen-sink dogfood covering
+    desktop *and* the composed mobile (`Drawer` + `Collapsible` +
+    `NavigationMenu.Link`).
 
 ## Useful commands
 

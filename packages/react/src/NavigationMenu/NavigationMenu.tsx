@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { PointerEvent, ReactElement } from "react";
+import type { KeyboardEvent, PointerEvent, ReactElement } from "react";
 
 import { useDirection } from "../DirectionProvider/index.ts";
 import { composeEventHandlers } from "../Slot/index.ts";
@@ -38,10 +38,16 @@ export function NavigationMenuRoot({
   onValueChange,
   onPointerEnter,
   onPointerLeave,
+  onKeyDown,
   ...rest
 }: NavigationMenuRootProps): ReactElement {
   const resolvedDir = dir ?? useDirection();
-  const { contextValue, cancelClose, closeWithDelay } = useNavigationMenuRoot({
+  const {
+    contextValue,
+    cancelClose,
+    closeWithDelay,
+    handleKeyDown: handleEscapeKeyDown,
+  } = useNavigationMenuRoot({
     orientation,
     dir: resolvedDir,
     openOnHover,
@@ -63,6 +69,10 @@ export function NavigationMenuRoot({
     onPointerLeave,
     closeWithDelay,
   );
+  const handleKeyDown = composeEventHandlers<KeyboardEvent<HTMLElement>>(
+    onKeyDown,
+    handleEscapeKeyDown,
+  );
 
   return (
     <NavigationMenuProvider value={contextValue}>
@@ -72,6 +82,7 @@ export function NavigationMenuRoot({
         data-orientation={orientation}
         onPointerEnter={handlePointerEnter}
         onPointerLeave={handlePointerLeave}
+        onKeyDown={handleKeyDown}
         {...rest}
       >
         {children}

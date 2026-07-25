@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useMemo, useRef } from "react";
+import type { KeyboardEvent } from "react";
 
 import { useCollection, useControllableState } from "../../hooks/index.ts";
 
@@ -6,6 +7,7 @@ import type {
   NavigationMenuContextValue,
   NavigationMenuRootProps,
 } from "../types";
+import { getTriggerAndPanelIds } from "../utils";
 
 type UseNavigationMenuRootArgs = Pick<
   NavigationMenuRootProps,
@@ -32,6 +34,7 @@ export function useNavigationMenuRoot({
   contextValue: NavigationMenuContextValue;
   cancelClose: () => void;
   closeWithDelay: () => void;
+  handleKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
 } {
   const navigationMenuId = useId();
   const [openValue, setOpenValue] = useControllableState<string>(
@@ -95,6 +98,19 @@ export function useNavigationMenuRoot({
     [cancelClose, cancelOpen, delayDuration, setOpenValue],
   );
 
+  // Escape is handled once, at the `<nav>`, because it must work from anywhere
+  // inside the menu — including from a link deep in an open panel — and
+  // returning focus to the trigger is what stops the user being stranded on an
+  // element that just went `hidden`.
+  const closeAndRefocusTrigger = useCallback(() => {
+    const value = openValueRef.current;
+    if (value === "") return;
+    cancelOpen();
+    const { triggerId } = getTriggerAndPanelIds(navigationMenuId, value);
+    document.getElementById(triggerId)?.focus();
+    setOpenValue("");
+  }, [cancelOpen, navigationMenuId, setOpenValue]);
+
   const closeWithDelay = useCallback(() => {
     cancelOpen();
     closeTimerRef.current = setTimeout(() => {
@@ -140,5 +156,13 @@ export function useNavigationMenuRoot({
     ],
   );
 
-  return { contextValue, cancelClose, closeWithDelay };
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLElement>) => {
+      if (event.key !== "Escape") return;
+      closeAndRefocusTrigger();
+    },
+    [closeAndRefocusTrigger],
+  );
+
+  return { contextValue, cancelClose, closeWithDelay, handleKeyDown };
 }

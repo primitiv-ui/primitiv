@@ -1,7 +1,8 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import type { KeyboardEvent, MouseEvent, PointerEvent, RefObject } from "react";
 
 import { composeEventHandlers } from "../../Slot/index.ts";
+import { PANEL_FOCUSABLE_SELECTOR } from "../constants";
 import { useNavigationMenuContext } from "../NavigationMenuContext";
 import type { NavigationMenuTriggerProps } from "../types";
 
@@ -27,8 +28,14 @@ export function useNavigationMenuTrigger({
   handlePointerLeave: (event: PointerEvent<HTMLButtonElement>) => void;
   handleKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void;
 } {
-  const { setOpenValue, openOnHover, openWithIntent, cancelOpen } =
-    useNavigationMenuContext();
+  const {
+    orientation,
+    dir,
+    setOpenValue,
+    openOnHover,
+    openWithIntent,
+    cancelOpen,
+  } = useNavigationMenuContext();
   const { value, triggerId, panelId, open, state } = useNavigationMenuEntry();
   const { entryRef: triggerRef, handleKeyDown: handleArrowKeyDown } =
     useNavigationMenuTopLevelEntry<HTMLButtonElement>();
@@ -62,6 +69,49 @@ export function useNavigationMenuTrigger({
     cancelOpen();
   }, [cancelOpen]);
 
+  // The arrow that "goes into" the panel is the one pointing across the list's
+  // axis: down out of a horizontal bar, sideways out of a vertical rail (and
+  // that sideways key mirrors under RTL).
+  const enterPanelKey =
+    orientation === "horizontal"
+      ? "ArrowDown"
+      : dir === "rtl"
+        ? "ArrowLeft"
+        : "ArrowRight";
+
+  // Focus can only land in the panel once it has actually rendered unhidden, so
+  // the keypress records the intent and this effect spends it.
+  const enterPanelPendingRef = useRef(false);
+  useEffect(() => {
+    if (!enterPanelPendingRef.current || !open) return;
+    enterPanelPendingRef.current = false;
+    document
+      .getElementById(panelId)
+      ?.querySelector<HTMLElement>(PANEL_FOCUSABLE_SELECTOR)
+      ?.focus();
+  }, [open, panelId]);
+
+  const enterPanel = useCallback(
+    (event: KeyboardEvent<HTMLButtonElement>) => {
+      if (event.key !== enterPanelKey) return;
+      event.preventDefault();
+      cancelOpen();
+      enterPanelPendingRef.current = true;
+      // Already-open panels never re-run the effect (`open` doesn't change), so
+      // move focus straight away in that case.
+      if (open) {
+        enterPanelPendingRef.current = false;
+        document
+          .getElementById(panelId)
+          ?.querySelector<HTMLElement>(PANEL_FOCUSABLE_SELECTOR)
+          ?.focus();
+        return;
+      }
+      setOpenValue(value);
+    },
+    [cancelOpen, enterPanelKey, open, panelId, setOpenValue, value],
+  );
+
   const handleClick = composeEventHandlers<MouseEvent<HTMLButtonElement>>(
     onClick,
     toggle,
@@ -72,9 +122,14 @@ export function useNavigationMenuTrigger({
   const handlePointerLeave = composeEventHandlers<
     PointerEvent<HTMLButtonElement>
   >(onPointerLeave, pointerLeave);
+  // enterPanel runs first and claims its arrow with preventDefault; the travel
+  // keymap only sees keys it left alone.
   const handleKeyDown = composeEventHandlers<KeyboardEvent<HTMLButtonElement>>(
     onKeyDown,
-    handleArrowKeyDown,
+    composeEventHandlers<KeyboardEvent<HTMLButtonElement>>(
+      enterPanel,
+      handleArrowKeyDown,
+    ),
   );
 
   return {

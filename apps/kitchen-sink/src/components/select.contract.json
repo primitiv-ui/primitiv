@@ -110,6 +110,7 @@
     { "name": "--primitiv-select-item-color", "defaultsTo": "var(--primitiv-content-primary)" },
     { "name": "--primitiv-select-item-bg", "defaultsTo": "var(--primitiv-color-transparent)" },
     { "name": "--primitiv-select-item-bg-highlighted", "defaultsTo": "var(--primitiv-action-secondary-default)" },
+    { "name": "--primitiv-select-item-spacing", "defaultsTo": "calc(var(--primitiv-select-item-gap) / 2)" },
     { "name": "--primitiv-select-item-inset", "defaultsTo": "calc(var(--primitiv-select-item-padding-inline) + var(--primitiv-select-item-icon-size) + var(--primitiv-select-item-gap))" },
     { "name": "--primitiv-select-group-label-height", "defaultsTo": "var(--primitiv-dropdown-md-label-height)" },
     { "name": "--primitiv-select-group-label-padding-inline", "defaultsTo": "var(--primitiv-dropdown-md-label-padding-inline)" },

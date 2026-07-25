@@ -245,6 +245,10 @@
     --primitiv-select-item-color: var(--primitiv-content-primary);
     --primitiv-select-item-bg: var(--primitiv-color-transparent);
     --primitiv-select-item-bg-highlighted: var(--primitiv-action-secondary-default);
+    /* Breathing room between rows, a step down from the row's own internal
+       icon-to-label gap — scales with it, so both size and density track
+       automatically with no separate per-size ramp of its own. */
+    --primitiv-select-item-spacing: calc(var(--primitiv-select-item-gap) / 2);
 
     /* Inline-start inset shared by every row's text, holding the column the
        selected-item mark sits in. Unlike Dropdown — whose CheckboxItem rows are
@@ -328,6 +332,20 @@
     cursor: default;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
+  }
+
+  /* Breathing room between rows — margin-block-start on the second of an
+     adjacent pair (the "owl" pattern) rather than margin-block-end on every
+     row. That's deliberate, not just tidier: it needs no :first-child /
+     :last-child bookkeeping to skip the top of a list/group's first row or
+     the bottom of its last (the common flat list, and every group, since a
+     `<div role="group">`'s own last DOM child is always its last row), and
+     it never fires next to a Separator (whichever item neighbours one has a
+     separator, not another item, as its adjacent sibling there) — so the
+     separator's own --primitiv-select-separator-spacing is never doubled
+     up against this. */
+  .primitiv-select__item + .primitiv-select__item {
+    margin-block-start: var(--primitiv-select-item-spacing);
   }
 
   /* The selected mark, absolutely placed in the gutter the row already reserves
@@ -798,6 +816,7 @@ $primitiv-select-item-font-weight: var(--primitiv-select-item-font-weight);
 $primitiv-select-item-color: var(--primitiv-select-item-color);
 $primitiv-select-item-bg: var(--primitiv-select-item-bg);
 $primitiv-select-item-bg-highlighted: var(--primitiv-select-item-bg-highlighted);
+$primitiv-select-item-spacing: var(--primitiv-select-item-spacing);
 $primitiv-select-item-inset: var(--primitiv-select-item-inset);
 $primitiv-select-group-label-height: var(--primitiv-select-group-label-height);
 $primitiv-select-group-label-padding-inline: var(--primitiv-select-group-label-padding-inline);

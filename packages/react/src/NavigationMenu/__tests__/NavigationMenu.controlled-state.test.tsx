@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 
@@ -77,6 +77,43 @@ describe("NavigationMenu — controlled state", () => {
 
     // An inline `onValueChange` is a new function every render, so a handler
     // pinned at mount would report to a closure over stale parent state.
+    expect(second).toHaveBeenCalledWith("");
+    expect(first).not.toHaveBeenCalled();
+  });
+
+  it("reports nothing when focus moves outside with everything already closed", () => {
+    const onValueChange = vi.fn();
+    render(<ThreeEntryNav value="" onValueChange={onValueChange} />);
+
+    const trigger = screen.getByRole("button", { name: "Concepts" });
+    fireEvent.blur(trigger, { relatedTarget: document.body });
+
+    // A spurious "" would make a controlled parent re-render on every stray
+    // blur inside the nav, exactly like the Escape case above.
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+
+  it("requests a close with the empty string when focus moves outside", () => {
+    const onValueChange = vi.fn();
+    render(<ThreeEntryNav value="concepts" onValueChange={onValueChange} />);
+
+    const trigger = screen.getByRole("button", { name: "Concepts" });
+    fireEvent.blur(trigger, { relatedTarget: document.body });
+
+    expect(onValueChange).toHaveBeenCalledWith("");
+  });
+
+  it("calls the latest onValueChange on a focus-outside close too, not the one from first render", () => {
+    const first = vi.fn();
+    const second = vi.fn();
+    const { rerender } = render(
+      <ThreeEntryNav value="concepts" onValueChange={first} />,
+    );
+
+    rerender(<ThreeEntryNav value="concepts" onValueChange={second} />);
+    const trigger = screen.getByRole("button", { name: "Concepts" });
+    fireEvent.blur(trigger, { relatedTarget: document.body });
+
     expect(second).toHaveBeenCalledWith("");
     expect(first).not.toHaveBeenCalled();
   });

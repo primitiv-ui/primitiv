@@ -538,7 +538,8 @@ NavigationMenuContent.displayName = "NavigationMenuContent";
  * Omit it and panels render in place, which is the simpler layout.
  *
  * Place it as a sibling of {@link NavigationMenuList | `List`}, inside the
- * Root. It renders no children of its own — the panels arrive by portal.
+ * Root. It has no children of its own to author — panels arrive by portal,
+ * projected into an internal element it renders for exactly that.
  *
  * **Styling hooks.** `data-state="open" | "closed"`,
  * `data-orientation="horizontal" | "vertical"`, and `data-value` carrying the
@@ -570,7 +571,6 @@ export function NavigationMenuViewport({
 
   return (
     <div
-      ref={registerViewport}
       data-orientation={orientation}
       data-state={open ? "open" : "closed"}
       // The open entry's value, so a stylesheet can size or theme the shared
@@ -581,7 +581,22 @@ export function NavigationMenuViewport({
       // between panels. A consumer `style` merges over the top.
       style={{ ...style, ...rest.style }}
       {...rest}
-    />
+    >
+      {/* The portal target, split from the outer box above: the outer one
+          hosts the hover-forgiveness collar (a ::before that must extend past
+          its own edges to widen the hit area — see the registry stylesheet),
+          which an overflow clip on that same box would cut off. This inner
+          element is what actually clips a sliding panel to the visible box,
+          and is what Content portals into — `viewport` in context is this
+          node, not the outer one. className is hardcoded (the same pattern
+          Carousel's own internal track div uses): it names an implementation
+          detail no consumer ever targets via a prop, not a themable part. */}
+      <div
+        ref={registerViewport}
+        className="primitiv-navigation-menu__viewport-clip"
+        data-navigation-menu-viewport-clip=""
+      />
+    </div>
   );
 }
 

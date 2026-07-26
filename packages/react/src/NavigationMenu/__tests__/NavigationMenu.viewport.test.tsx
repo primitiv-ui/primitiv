@@ -32,10 +32,18 @@ describe("NavigationMenu.Viewport", () => {
 
     const viewport = screen.getByTestId("viewport");
 
-    await waitFor(() =>
-      expect(screen.getByTestId("concepts-panel").parentElement).toBe(viewport),
-    );
-    expect(screen.getByTestId("registry-panel").parentElement).toBe(viewport);
+    // Panels portal into an inner clip element, not the outer box itself — the
+    // split that lets the outer box host the hover-forgiveness collar (which
+    // must extend past its own edges) while the inner one clips a sliding
+    // panel to the visible box. See the registry stylesheet.
+    await waitFor(() => {
+      const clip = screen.getByTestId("concepts-panel").parentElement;
+      expect(clip).toHaveAttribute("data-navigation-menu-viewport-clip");
+      expect(clip?.parentElement).toBe(viewport);
+    });
+    expect(
+      screen.getByTestId("registry-panel").parentElement?.parentElement,
+    ).toBe(viewport);
   });
 
   it("leaves panels in place when there is no Viewport", () => {

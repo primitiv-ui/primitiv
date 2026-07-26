@@ -242,15 +242,34 @@
        seam across the arrow's base. `filter` (not box-shadow) so the shadow wraps
        panel + arrow as one silhouette — see --primitiv-navigation-menu-panel-shadow. */
     filter: var(--primitiv-navigation-menu-panel-shadow);
-    /* ONE grid cell shared by every panel. Each Content is placed in that same cell,
-       which fixes two things at once: switching panels can't stack them (the
-       outgoing panel has to hold its flow through the exit for the fade to be
-       visible, which used to push the incoming one below it before snapping back),
-       and the box is sized to the largest panel — so opening or switching never
-       resizes it, which is what made the enter feel rougher than the exit. */
-    display: grid;
-    /* The fade — and the size morph, once dimensions are published — lives in
+    /* No overflow clip here — the hover-forgiveness collar below is this box's
+       own ::before, and it has to extend past these edges to widen the hit
+       area. The headless renders a second, inner element (the portal target
+       every Content actually projects into) for that; see
+       __viewport-clip below.
+
+       The fade — and the size morph, once dimensions are published — lives in
        primitiv.states beside the open/closed rules. */
+  }
+
+  /* The portal target, and the ONE grid cell shared by every panel. Each
+     Content is placed in that same cell, which fixes two things at once:
+     switching panels can't stack them (the outgoing panel has to hold its flow
+     through the exit for the fade to be visible, which used to push the
+     incoming one below it before snapping back), and the box is sized to the
+     largest panel — so opening or switching never resizes it, which is what
+     made the enter feel rougher than the exit.
+
+     Split from .viewport itself so THIS is what clips a sliding panel to the
+     visible box — the outer box can't take the clip directly, or it would cut
+     off its own hover-forgiveness collar (see below). Fills the outer box's
+     padded content area exactly (100%/100%), so a panel's directional slide
+     stops being visible once it crosses the panel's own edge. */
+  .primitiv-navigation-menu__viewport-clip {
+    display: grid;
+    overflow: hidden;
+    inline-size: 100%;
+    block-size: 100%;
   }
 
   /* The per-entry panel body — a grid, so consumers arrange the panel however they
@@ -353,8 +372,9 @@
      Only while open, because it does capture pointer events in that ring: an
      always-on collar would swallow clicks on whatever sits beside a closed panel.
      Tree order puts it before the projected content, so it never covers the rows.
-     Note this is why the viewport can't clip: overflow:hidden would cut the collar
-     off. When the size morph lands, the clip belongs on an inner wrapper, not here. */
+     Lives on THIS box (not __viewport-clip) precisely because it has to extend
+     past its own edges — an overflow clip on the same box it's a pseudo-element
+     of would cut it off along with everything else that crosses the boundary. */
   .primitiv-navigation-menu__viewport[data-state="open"]::before {
     content: "";
     position: absolute;
@@ -666,7 +686,18 @@
      `[data-state="open"][data-motion="from-*"]` always plays its `from` keyframe,
      the same way Radix's own `enterFromLeft` / `enterFromRight` do. Panels with no
      direction — the first open and the full close — simply fade (no matching
-     `data-motion`, so no animation is triggered at all). */
+     `data-motion`, so no animation is triggered at all).
+
+     A leaving panel's opacity rides along in ITS keyframe too, front-loaded to
+     resolve by 40% — well before translate finishes its exit — rather than
+     fading over the whole duration on the shared `transition` above (an
+     animation owns a property outright once it touches it, so this opacity
+     keyframe simply wins over that transition while the exit is playing).
+     Legible text visibly sliding away was the tell: readable text still
+     travelling most of the distance read as a glitch, not a leaving panel.
+     Entering panels keep the plain transition's fade untouched (unaffected
+     visually, and there's nothing left to leak) — arriving into place doesn't
+     have the same problem. */
   @keyframes primitiv-navigation-menu-enter-from-start {
     from {
       translate: calc(-1 * var(--primitiv-navigation-menu-panel-slide)) 0;
@@ -680,12 +711,20 @@
   }
 
   @keyframes primitiv-navigation-menu-exit-to-start {
+    40% {
+      opacity: var(--primitiv-opacity-transparent);
+    }
+
     to {
       translate: calc(-1 * var(--primitiv-navigation-menu-panel-slide)) 0;
     }
   }
 
   @keyframes primitiv-navigation-menu-exit-to-end {
+    40% {
+      opacity: var(--primitiv-opacity-transparent);
+    }
+
     to {
       translate: var(--primitiv-navigation-menu-panel-slide) 0;
     }

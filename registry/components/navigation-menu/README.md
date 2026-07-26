@@ -136,6 +136,16 @@ Override the size per entry if you'd rather pin it than measure it:
 }
 ```
 
+`--primitiv-navigation-menu-panel-slide` (default `space-8`, 8px) is deliberately
+small — a hint about which way the pointer travelled, not a journey. Widen it to
+travel further, closer to Radix's own reference implementation (200px):
+
+```css
+.primitiv-navigation-menu {
+  --primitiv-navigation-menu-panel-slide: 200px;
+}
+```
+
 ## Hover forgiveness
 
 Two things keep the panel from vanishing the moment the pointer strays:

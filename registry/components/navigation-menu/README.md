@@ -127,6 +127,21 @@ value:
 }
 ```
 
+## Hover forgiveness
+
+Two things keep the panel from vanishing the moment the pointer strays:
+
+- A transparent strip bridges the gap between the bar and the panel, so travelling
+  down into the panel never leaves the nav.
+- `--primitiv-navigation-menu-safe-area` (default `space-8`) adds a transparent
+  collar just outside the open panel, so grazing its edge doesn't immediately trip
+  the close timer. It only exists while the panel is open — an always-on collar
+  would capture clicks on whatever sits beside a closed panel. Set it to `0` to
+  opt out.
+
+Neither is a substitute for the headless `closeDelay` prop (default 150 ms), which
+is the other lever: raise it for a more forgiving nav, lower it for a snappier one.
+
 Fading the panel in and out at all requires `forceMount` on `Content` /
 `Viewport` / `Indicator` — without it the headless applies `hidden` when closed
 and there is nothing left to transition.

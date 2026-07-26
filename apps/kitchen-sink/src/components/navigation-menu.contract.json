@@ -289,6 +289,10 @@
       "defaultsTo": "var(--primitiv-nav-item-md-panel-offset)"
     },
     {
+      "name": "--primitiv-navigation-menu-safe-area",
+      "defaultsTo": "var(--primitiv-space-space-8)"
+    },
+    {
       "name": "--primitiv-navigation-menu-panel-shadow",
       "defaultsTo": "a three-layer drop-shadow() chain matching elevation/overlay"
     },

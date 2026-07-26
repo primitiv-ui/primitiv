@@ -69,6 +69,11 @@
     --primitiv-navigation-menu-panel-padding-block: var(--primitiv-dropdown-md-panel-padding-block);
     --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-space-4);
     --primitiv-navigation-menu-panel-offset: var(--primitiv-nav-item-md-panel-offset);
+    /* Transparent hit-area collar around the open panel. Slipping a few pixels
+       off the panel edge otherwise leaves the nav immediately and starts the
+       close timer, which reads as the panel vanishing the instant you graze it.
+       Set to 0 to opt out. */
+    --primitiv-navigation-menu-safe-area: var(--primitiv-space-space-8);
     /* elevation/overlay (= shadow-3) rebuilt as chained drop-shadows so the shadow
        follows the panel + arrow silhouette as ONE shape. A box-shadow is
        per-element — it would draw a seam across the arrow's base and leave the
@@ -218,9 +223,6 @@
        seam across the arrow's base. `filter` (not box-shadow) so the shadow wraps
        panel + arrow as one silhouette — see --primitiv-navigation-menu-panel-shadow. */
     filter: var(--primitiv-navigation-menu-panel-shadow);
-    /* Clip the outgoing panel while the box resizes, so content never spills past
-       the morphing edge. */
-    overflow: hidden;
     transition:
       inline-size var(--primitiv-navigation-menu-transition-duration)
         var(--primitiv-navigation-menu-transition-easing),
@@ -317,6 +319,21 @@
   .primitiv-navigation-menu__link-trailing > svg {
     inline-size: 100%;
     block-size: 100%;
+  }
+
+  /* The hover-forgiveness collar. A transparent ring just outside the panel that
+     is still a descendant of the nav, so grazing the edge keeps the pointer inside
+     the subtree instead of tripping pointerleave -> closeDelay.
+
+     Only while open, because it does capture pointer events in that ring: an
+     always-on collar would swallow clicks on whatever sits beside a closed panel.
+     Tree order puts it before the projected content, so it never covers the rows.
+     Note this is why the viewport can't clip: overflow:hidden would cut the collar
+     off. When the size morph lands, the clip belongs on an inner wrapper, not here. */
+  .primitiv-navigation-menu__viewport[data-state="open"]::before {
+    content: "";
+    position: absolute;
+    inset: calc(-1 * var(--primitiv-navigation-menu-safe-area));
   }
 
   /* The marker tracking the open trigger. Both styles read the geometry the
@@ -631,6 +648,7 @@ $primitiv-navigation-menu-panel-radius: var(--primitiv-navigation-menu-panel-rad
 $primitiv-navigation-menu-panel-padding-block: var(--primitiv-navigation-menu-panel-padding-block);
 $primitiv-navigation-menu-panel-padding-inline: var(--primitiv-navigation-menu-panel-padding-inline);
 $primitiv-navigation-menu-panel-offset: var(--primitiv-navigation-menu-panel-offset);
+$primitiv-navigation-menu-safe-area: var(--primitiv-navigation-menu-safe-area);
 $primitiv-navigation-menu-panel-shadow: var(--primitiv-navigation-menu-panel-shadow);
 $primitiv-navigation-menu-content-gap: var(--primitiv-navigation-menu-content-gap);
 $primitiv-navigation-menu-row-padding-inline: var(--primitiv-navigation-menu-row-padding-inline);

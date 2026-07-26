@@ -784,18 +784,12 @@ primitiv add --all`}</code>
                           placement="panel"
                           href={`#${section.value}-${row.title}`}
                         >
-                          <NavigationMenuLinkLeading>
-                            <File aria-hidden="true" />
-                          </NavigationMenuLinkLeading>
                           <NavigationMenuLinkText>
                             <NavigationMenuLinkTitle>{row.title}</NavigationMenuLinkTitle>
                             <NavigationMenuLinkDescription>
                               {row.description}
                             </NavigationMenuLinkDescription>
                           </NavigationMenuLinkText>
-                          <NavigationMenuLinkTrailing>
-                            <ChevronRight aria-hidden="true" />
-                          </NavigationMenuLinkTrailing>
                         </NavigationMenuLink>
                       ))}
                     </div>
@@ -843,6 +837,23 @@ primitiv add --all`}</code>
                     <NavigationMenuLinkText>
                       <NavigationMenuLinkTitle>The lockfile</NavigationMenuLinkTitle>
                     </NavigationMenuLinkText>
+                  </NavigationMenuLink>
+                  {/* The only row using the leading/trailing slots. Both default OFF
+                      (matching the Figma set's Show leading / Show trailing booleans)
+                      — a row opts in by rendering the slot at all. */}
+                  <NavigationMenuLink placement="panel" href="#slots">
+                    <NavigationMenuLinkLeading>
+                      <File aria-hidden="true" />
+                    </NavigationMenuLinkLeading>
+                    <NavigationMenuLinkText>
+                      <NavigationMenuLinkTitle>With row slots</NavigationMenuLinkTitle>
+                      <NavigationMenuLinkDescription>
+                        Optional leading and trailing content
+                      </NavigationMenuLinkDescription>
+                    </NavigationMenuLinkText>
+                    <NavigationMenuLinkTrailing>
+                      <ChevronRight aria-hidden="true" />
+                    </NavigationMenuLinkTrailing>
                   </NavigationMenuLink>
                 </div>
               </NavigationMenuContent>

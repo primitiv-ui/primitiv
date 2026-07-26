@@ -127,6 +127,7 @@
   .primitiv-navigation-menu__link--bar {
     display: inline-flex;
     align-items: center;
+    box-sizing: border-box;
     gap: var(--primitiv-navigation-menu-entry-gap);
     block-size: var(--primitiv-navigation-menu-entry-height);
     padding-inline: var(--primitiv-navigation-menu-entry-padding-inline);
@@ -245,6 +246,10 @@
     display: flex;
     align-items: center;
     gap: var(--primitiv-navigation-menu-entry-gap);
+    /* There is no global border-box reset (each component sets its own), so a
+       100%-wide row with inline padding would measure 100% + 2x padding and spill
+       into the neighbouring column — visible as overlapping rows. */
+    box-sizing: border-box;
     inline-size: 100%;
     padding: var(--primitiv-navigation-menu-row-padding-block)
       var(--primitiv-navigation-menu-row-padding-inline);

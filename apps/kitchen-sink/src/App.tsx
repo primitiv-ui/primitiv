@@ -878,6 +878,67 @@ primitiv add --all`}</code>
           <NavigationMenuViewport forceMount />
         </NavigationMenu>
 
+        {/* Radix comparison — same component, same sections, only
+            --primitiv-navigation-menu-panel-slide overridden to Radix's own
+            200px (its docs example travels a full 200px; ours defaults to a
+            token-driven 8px, "a hint about where the panel came from, not a
+            journey"). Side by side with the nav above, this isolates whether
+            the felt difference is the slide *distance* or something else. */}
+        <NavigationMenu
+          size={size}
+          aria-label="Docs (Radix-scale slide, for comparison)"
+          style={{ "--primitiv-navigation-menu-panel-slide": "200px" } as CSSProperties}
+        >
+          <NavigationMenuList>
+            {NAV_SECTIONS.map((section) => (
+              <NavigationMenuItem key={section.value} value={section.value}>
+                <NavigationMenuTrigger>
+                  <NavigationMenuTriggerLabel>{section.label}</NavigationMenuTriggerLabel>
+                  <NavigationMenuTriggerIcon>
+                    <ChevronDown aria-hidden="true" />
+                  </NavigationMenuTriggerIcon>
+                </NavigationMenuTrigger>
+                <NavigationMenuContent
+                  forceMount
+                  style={
+                    {
+                      "--primitiv-navigation-menu-content-columns": "1fr 1fr",
+                    } as CSSProperties
+                  }
+                >
+                  {section.columns.map((column, columnIndex) => (
+                    <div key={columnIndex}>
+                      {column.map((row) => (
+                        <NavigationMenuLink
+                          key={row.title}
+                          placement="panel"
+                          href={`#${section.value}-${row.title}-radix-scale`}
+                        >
+                          <NavigationMenuLinkText>
+                            <NavigationMenuLinkTitle>{row.title}</NavigationMenuLinkTitle>
+                            <NavigationMenuLinkDescription>
+                              {row.description}
+                            </NavigationMenuLinkDescription>
+                          </NavigationMenuLinkText>
+                        </NavigationMenuLink>
+                      ))}
+                    </div>
+                  ))}
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            ))}
+
+            <NavigationMenuItem>
+              <NavigationMenuLink href="#changelog-radix-scale" active>
+                Changelog
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+
+          <NavigationMenuIndicator forceMount />
+          <NavigationMenuViewport forceMount />
+        </NavigationMenu>
+
         {/* Mobile, composed rather than a mode of the component: a Drawer shell +
             one Collapsible per section, with the same NavigationMenuLink leaf. The
             nav data and the active-state logic stay single-sourced; only the

@@ -206,6 +206,13 @@
       var(--primitiv-navigation-menu-panel-padding-inline);
     border-radius: var(--primitiv-navigation-menu-panel-radius);
     background: var(--primitiv-navigation-menu-surface);
+    /* Paint above whatever follows the nav. Both the panel and any sibling nav are
+       positioned with z-index:auto, so without this a *later* positioned sibling
+       paints over this panel (DOM order decides at equal z-index) and its bar text
+       shows through the open panel. A positive z-index moves the panel into the
+       positive-stacking step, above every auto/0 positioned sibling. CSS mechanic,
+       no token home. */
+    z-index: 1;
     /* Borderless: the surface + shadow define the panel. A border would draw a
        seam across the arrow's base. `filter` (not box-shadow) so the shadow wraps
        panel + arrow as one silhouette — see --primitiv-navigation-menu-panel-shadow. */
@@ -314,6 +321,9 @@
      misleading position. */
   .primitiv-navigation-menu__indicator {
     position: absolute;
+    /* Same reason as the viewport — the arrow straddles the panel edge and would
+       otherwise be painted over by a following sibling. */
+    z-index: 1;
     pointer-events: none;
     transition:
       translate var(--primitiv-navigation-menu-transition-duration)
@@ -547,6 +557,10 @@
   .primitiv-navigation-menu__viewport[data-state="closed"],
   .primitiv-navigation-menu__indicator[data-state="closed"] {
     opacity: var(--primitiv-opacity-transparent);
+    /* forceMount keeps the closed panel in the DOM, and it now paints above what
+       follows the nav — so it has to stop hit-testing too, or an invisible box
+       swallows clicks on the content beneath it. */
+    pointer-events: none;
   }
 
   /* EVERY force-mounted Content projects into the one Viewport, so without this

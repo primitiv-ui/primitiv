@@ -66,8 +66,11 @@
        to a raised neutral in dark where default is the page black. */
     --primitiv-navigation-menu-surface: var(--primitiv-surface-floating);
     --primitiv-navigation-menu-panel-radius: var(--primitiv-dropdown-md-panel-radius);
-    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-dropdown-md-panel-padding-block);
-    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-space-4);
+    /* Equal on all sides, and generous: unlike a Dropdown panel — whose rows run
+       edge to edge so it needs almost none — a mega-menu panel is a content surface
+       and reads cramped without real breathing room. */
+    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-space-16);
+    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-space-16);
     --primitiv-navigation-menu-panel-offset: var(--primitiv-nav-item-md-panel-offset);
     /* Transparent hit-area collar around the open panel. Slipping a few pixels
        off the panel edge otherwise leaves the nav immediately and starts the
@@ -85,6 +88,11 @@
       drop-shadow(0 var(--primitiv-space-space-4) var(--primitiv-space-space-8) var(--primitiv-shadow-color-medium))
       drop-shadow(0 var(--primitiv-space-space-8) var(--primitiv-space-space-16) var(--primitiv-shadow-color-soft));
     --primitiv-navigation-menu-content-gap: var(--primitiv-space-space-16);
+    /* The panel's whole grid definition — override it for any arrangement (`1fr 1fr`,
+       `repeat(auto-fit, minmax(14rem, 1fr))`, named areas). One column is the default
+       because it is the only predictable one: auto-fitting would silently spread a
+       simple list of rows sideways as soon as the panel got wide. */
+    --primitiv-navigation-menu-content-columns: 1fr;
 
     /* Panel rows. */
     --primitiv-navigation-menu-row-padding-inline: var(--primitiv-nav-item-md-padding-inline);
@@ -223,23 +231,20 @@
        seam across the arrow's base. `filter` (not box-shadow) so the shadow wraps
        panel + arrow as one silhouette — see --primitiv-navigation-menu-panel-shadow. */
     filter: var(--primitiv-navigation-menu-panel-shadow);
-    transition:
-      inline-size var(--primitiv-navigation-menu-transition-duration)
-        var(--primitiv-navigation-menu-transition-easing),
-      block-size var(--primitiv-navigation-menu-transition-duration)
-        var(--primitiv-navigation-menu-transition-easing),
-      opacity var(--primitiv-navigation-menu-transition-duration)
-        var(--primitiv-navigation-menu-transition-easing);
+    /* The fade — and the size morph, once dimensions are published — lives in
+       primitiv.states beside the open/closed rules. */
   }
 
-  /* The per-entry panel body. Lay columns out here; the viewport owns the box.
-     The opacity transition is what cross-fades one panel into the next (see the
-     force-mount rules in primitiv.states). */
+  /* The per-entry panel body — a grid, so consumers arrange the panel however they
+     like by re-pointing --primitiv-navigation-menu-content-columns (or by styling
+     their own wrapper inside Content and ignoring this entirely). The viewport owns
+     the box; this owns the arrangement. Hidden here and revealed by
+     [data-state="open"] in primitiv.states, so only ONE content is ever in flow —
+     which is what lets the shared viewport size itself to the open panel. */
   .primitiv-navigation-menu__content {
-    display: flex;
+    display: none;
+    grid-template-columns: var(--primitiv-navigation-menu-content-columns);
     gap: var(--primitiv-navigation-menu-content-gap);
-    transition: opacity var(--primitiv-navigation-menu-transition-duration)
-      var(--primitiv-navigation-menu-transition-easing);
   }
 
   /* A panel row — two lines (title + optional description) with optional slots
@@ -406,7 +411,8 @@
     --primitiv-navigation-menu-entry-line-height: var(--primitiv-label-xs-line-height);
     --primitiv-navigation-menu-icon-size: var(--primitiv-nav-item-xs-icon-size);
     --primitiv-navigation-menu-panel-radius: var(--primitiv-dropdown-xs-panel-radius);
-    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-dropdown-xs-panel-padding-block);
+    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-space-8);
+    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-space-8);
     --primitiv-navigation-menu-panel-offset: var(--primitiv-nav-item-xs-panel-offset);
     --primitiv-navigation-menu-row-padding-inline: var(--primitiv-nav-item-xs-padding-inline);
     --primitiv-navigation-menu-row-padding-block: var(--primitiv-nav-item-xs-padding-block);
@@ -430,7 +436,8 @@
     --primitiv-navigation-menu-entry-line-height: var(--primitiv-label-sm-line-height);
     --primitiv-navigation-menu-icon-size: var(--primitiv-nav-item-sm-icon-size);
     --primitiv-navigation-menu-panel-radius: var(--primitiv-dropdown-sm-panel-radius);
-    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-dropdown-sm-panel-padding-block);
+    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-space-12);
+    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-space-12);
     --primitiv-navigation-menu-panel-offset: var(--primitiv-nav-item-sm-panel-offset);
     --primitiv-navigation-menu-row-padding-inline: var(--primitiv-nav-item-sm-padding-inline);
     --primitiv-navigation-menu-row-padding-block: var(--primitiv-nav-item-sm-padding-block);
@@ -452,7 +459,8 @@
     --primitiv-navigation-menu-entry-line-height: var(--primitiv-label-md-line-height);
     --primitiv-navigation-menu-icon-size: var(--primitiv-nav-item-md-icon-size);
     --primitiv-navigation-menu-panel-radius: var(--primitiv-dropdown-md-panel-radius);
-    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-dropdown-md-panel-padding-block);
+    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-space-16);
+    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-space-16);
     --primitiv-navigation-menu-panel-offset: var(--primitiv-nav-item-md-panel-offset);
     --primitiv-navigation-menu-row-padding-inline: var(--primitiv-nav-item-md-padding-inline);
     --primitiv-navigation-menu-row-padding-block: var(--primitiv-nav-item-md-padding-block);
@@ -474,7 +482,8 @@
     --primitiv-navigation-menu-entry-line-height: var(--primitiv-label-lg-line-height);
     --primitiv-navigation-menu-icon-size: var(--primitiv-nav-item-lg-icon-size);
     --primitiv-navigation-menu-panel-radius: var(--primitiv-dropdown-lg-panel-radius);
-    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-dropdown-lg-panel-padding-block);
+    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-space-20);
+    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-space-20);
     --primitiv-navigation-menu-panel-offset: var(--primitiv-nav-item-lg-panel-offset);
     --primitiv-navigation-menu-row-padding-inline: var(--primitiv-nav-item-lg-padding-inline);
     --primitiv-navigation-menu-row-padding-block: var(--primitiv-nav-item-lg-padding-block);
@@ -496,7 +505,8 @@
     --primitiv-navigation-menu-entry-line-height: var(--primitiv-label-xl-line-height);
     --primitiv-navigation-menu-icon-size: var(--primitiv-nav-item-xl-icon-size);
     --primitiv-navigation-menu-panel-radius: var(--primitiv-dropdown-xl-panel-radius);
-    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-dropdown-xl-panel-padding-block);
+    --primitiv-navigation-menu-panel-padding-block: var(--primitiv-space-space-24);
+    --primitiv-navigation-menu-panel-padding-inline: var(--primitiv-space-space-24);
     --primitiv-navigation-menu-panel-offset: var(--primitiv-nav-item-xl-panel-offset);
     --primitiv-navigation-menu-row-padding-inline: var(--primitiv-nav-item-xl-padding-inline);
     --primitiv-navigation-menu-row-padding-block: var(--primitiv-nav-item-xl-padding-block);
@@ -573,39 +583,72 @@
     cursor: not-allowed;
   }
 
-  /* Closed — only reachable with forceMount (without it the headless sets
-     `hidden` and there is nothing to fade). Fades the panel and the marker out
-     rather than snapping them away. */
-  .primitiv-navigation-menu__viewport[data-state="closed"],
-  .primitiv-navigation-menu__indicator[data-state="closed"] {
-    opacity: var(--primitiv-opacity-transparent);
-    /* forceMount keeps the closed panel in the DOM, and it now paints above what
-       follows the nav — so it has to stop hit-testing too, or an invisible box
-       swallows clicks on the content beneath it. */
-    pointer-events: none;
-  }
+  /* Open / close — the straight fade Tooltip and Popover use, for the same reason:
+     the panel is a surface, so moving or scaling it draws the eye to chrome instead
+     of content. Closed is the resting state, [data-state="open"] brings it in, and
+     @starting-style gives the enter its first frame so the exit mirrors the enter.
 
-  /* EVERY force-mounted Content projects into the one Viewport, so without this
-     the closed panels stay in flow and stack under the open one. Taking them out
-     of flow leaves the open panel as the only in-flow child — which is also what
-     lets the viewport hug the right panel — while keeping them paintable, so the
-     swap cross-fades instead of cutting. */
-  .primitiv-navigation-menu__content[data-state="closed"] {
-    position: absolute;
-    inset-block-start: var(--primitiv-space-space-0);
-    inset-inline-start: var(--primitiv-space-space-0);
+     `display ... allow-discrete` is what makes an exit possible at all. Only the open
+     Content is in flow (every force-mounted Content projects into this one viewport,
+     so if they all participated they would stack), and a plain display flip would
+     yank the panel out of flow the instant it closed — collapsing the viewport to its
+     padding and shrink-wrapping the columns before any fade could run. allow-discrete
+     holds `display` until the fade finishes.
+
+     Needs the panel kept mounted while closed: pass forceMount to Content, Viewport
+     and Indicator, or the headless applies `hidden` and there is nothing to animate. */
+  .primitiv-navigation-menu__content {
     opacity: var(--primitiv-opacity-transparent);
-    pointer-events: none;
+    transition:
+      opacity var(--primitiv-navigation-menu-transition-duration) var(--primitiv-motion-easing-exit),
+      display var(--primitiv-navigation-menu-transition-duration) allow-discrete;
   }
 
   .primitiv-navigation-menu__content[data-state="open"] {
-    position: relative;
+    display: grid;
     opacity: var(--primitiv-opacity-100);
+    transition-timing-function: var(--primitiv-motion-easing-enter);
+  }
+
+  @starting-style {
+    .primitiv-navigation-menu__content[data-state="open"] {
+      opacity: var(--primitiv-opacity-transparent);
+    }
+  }
+
+  /* The box and the marker fade on the same curve. Because the content above holds
+     its flow through the exit, the viewport keeps its size while fading rather than
+     collapsing first. */
+  .primitiv-navigation-menu__viewport,
+  .primitiv-navigation-menu__indicator {
+    opacity: var(--primitiv-opacity-transparent);
+    transition:
+      opacity var(--primitiv-navigation-menu-transition-duration) var(--primitiv-motion-easing-exit),
+      translate var(--primitiv-navigation-menu-transition-duration)
+        var(--primitiv-navigation-menu-transition-easing),
+      inline-size var(--primitiv-navigation-menu-transition-duration)
+        var(--primitiv-navigation-menu-transition-easing);
   }
 
   .primitiv-navigation-menu__viewport[data-state="open"],
   .primitiv-navigation-menu__indicator[data-state="open"] {
     opacity: var(--primitiv-opacity-100);
+    transition-timing-function: var(--primitiv-motion-easing-enter);
+  }
+
+  @starting-style {
+    .primitiv-navigation-menu__viewport[data-state="open"],
+    .primitiv-navigation-menu__indicator[data-state="open"] {
+      opacity: var(--primitiv-opacity-transparent);
+    }
+  }
+
+  /* forceMount keeps the closed panel in the DOM, and it paints above what follows
+     the nav — so it must stop hit-testing, or an invisible box swallows clicks on the
+     content beneath it. */
+  .primitiv-navigation-menu__viewport[data-state="closed"],
+  .primitiv-navigation-menu__indicator[data-state="closed"] {
+    pointer-events: none;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -651,6 +694,7 @@ $primitiv-navigation-menu-panel-offset: var(--primitiv-navigation-menu-panel-off
 $primitiv-navigation-menu-safe-area: var(--primitiv-navigation-menu-safe-area);
 $primitiv-navigation-menu-panel-shadow: var(--primitiv-navigation-menu-panel-shadow);
 $primitiv-navigation-menu-content-gap: var(--primitiv-navigation-menu-content-gap);
+$primitiv-navigation-menu-content-columns: var(--primitiv-navigation-menu-content-columns);
 $primitiv-navigation-menu-row-padding-inline: var(--primitiv-navigation-menu-row-padding-inline);
 $primitiv-navigation-menu-row-padding-block: var(--primitiv-navigation-menu-row-padding-block);
 $primitiv-navigation-menu-row-text-gap: var(--primitiv-navigation-menu-row-text-gap);

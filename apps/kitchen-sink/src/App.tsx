@@ -775,7 +775,17 @@ primitiv add --all`}</code>
                     <ChevronDown aria-hidden="true" />
                   </NavigationMenuTriggerIcon>
                 </NavigationMenuTrigger>
-                <NavigationMenuContent forceMount>
+                {/* The panel's arrangement is the consumer's: Content is a grid whose
+                    track list is a single custom property. Two columns here; the
+                    default is one. */}
+                <NavigationMenuContent
+                  forceMount
+                  style={
+                    {
+                      "--primitiv-navigation-menu-content-columns": "1fr 1fr",
+                    } as CSSProperties
+                  }
+                >
                   {section.columns.map((column, columnIndex) => (
                     <div key={columnIndex}>
                       {column.map((row) => (

@@ -301,6 +301,10 @@
       "defaultsTo": "var(--primitiv-space-space-16)"
     },
     {
+      "name": "--primitiv-navigation-menu-content-columns",
+      "defaultsTo": "1fr"
+    },
+    {
       "name": "--primitiv-navigation-menu-row-padding-inline",
       "defaultsTo": "var(--primitiv-nav-item-md-padding-inline)"
     },

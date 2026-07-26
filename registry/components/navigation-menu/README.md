@@ -136,13 +136,14 @@ Override the size per entry if you'd rather pin it than measure it:
 }
 ```
 
-`--primitiv-navigation-menu-panel-slide` (default `space-8`, 8px) is deliberately
-small — a hint about which way the pointer travelled, not a journey. Widen it to
-travel further, closer to Radix's own reference implementation (200px):
+`--primitiv-navigation-menu-panel-slide` (default `space-68`, 4.25rem/68px — the
+scale's nearest step to a 64px target) is a hint about which way the pointer
+travelled, not the full journey Radix's own reference implementation makes
+(200px). Override it with any token or length to travel further or less:
 
 ```css
 .primitiv-navigation-menu {
-  --primitiv-navigation-menu-panel-slide: 200px;
+  --primitiv-navigation-menu-panel-slide: var(--primitiv-space-space-200);
 }
 ```
 

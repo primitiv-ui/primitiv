@@ -312,7 +312,7 @@
     },
     {
       "name": "--primitiv-navigation-menu-panel-slide",
-      "defaultsTo": "var(--primitiv-space-space-8)"
+      "defaultsTo": "var(--primitiv-space-space-68)"
     },
     {
       "name": "--primitiv-navigation-menu-row-padding-inline",

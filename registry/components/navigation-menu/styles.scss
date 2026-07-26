@@ -93,9 +93,11 @@
        because it is the only predictable one: auto-fitting would silently spread a
        simple list of rows sideways as soon as the panel got wide. */
     --primitiv-navigation-menu-content-columns: 1fr;
-    /* How far a panel slides in the direction of travel. Small on purpose — the
-       movement is a hint about where the panel came from, not a journey. */
-    --primitiv-navigation-menu-panel-slide: var(--primitiv-space-space-8);
+    /* How far a panel slides in the direction of travel — a hint about where it
+       came from, not a full journey like Radix's own 200px reference. space-68
+       (4.25rem, 68px) is the closest step to a 64px target: the scale jumps
+       from space-56 straight to space-68, nothing sits at 64px. */
+    --primitiv-navigation-menu-panel-slide: var(--primitiv-space-space-68);
 
     /* Panel rows. */
     --primitiv-navigation-menu-row-padding-inline: var(--primitiv-nav-item-md-padding-inline);
@@ -378,7 +380,7 @@
   .primitiv-navigation-menu__viewport[data-state="open"]::before {
     content: "";
     position: absolute;
-    inset: calc(-1 * var(--primitiv-navigation-menu-safe-area));
+    inset: calc(var(--primitiv-navigation-menu-safe-area) * -1);
     /* Behind the rows. A positioned box paints above in-flow content, so without
        this the collar covers the panel and swallows every row's hover and click.
        Negative z-index paints above the viewport's own background but below its
@@ -700,7 +702,7 @@
      have the same problem. */
   @keyframes primitiv-navigation-menu-enter-from-start {
     from {
-      translate: calc(-1 * var(--primitiv-navigation-menu-panel-slide)) 0;
+      translate: calc(var(--primitiv-navigation-menu-panel-slide) * -1) 0;
     }
   }
 
@@ -716,7 +718,7 @@
     }
 
     to {
-      translate: calc(-1 * var(--primitiv-navigation-menu-panel-slide)) 0;
+      translate: calc(var(--primitiv-navigation-menu-panel-slide) * -1) 0;
     }
   }
 

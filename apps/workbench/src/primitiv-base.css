@@ -28,6 +28,24 @@
  */
 
 @layer primitiv.reset {
+  /* ===== UA-rendered chrome follows the app's theme ===== */
+
+  /* `data-theme` is the design system's theme switch (RFC 0009), but a browser
+     paints scrollbar tracks and thumbs, native <select> popups, form-control
+     internals, spellcheck underlines and the like from `color-scheme` — which by
+     default follows the OS via prefers-color-scheme, NOT our attribute. So a
+     light-themed page on a dark-mode OS gets black scrollbar tracks (and a dark
+     page on a light OS gets glaring white ones). Binding color-scheme to the same
+     attribute keeps that chrome in step with the theme the page is actually
+     rendering. In the lowest layer, so a consumer can still override it. */
+  [data-theme="light"] {
+    color-scheme: light;
+  }
+
+  [data-theme="dark"] {
+    color-scheme: dark;
+  }
+
   /* ===== Inline / text-level marks ===== */
 
   /* Bold stays in-family (Asta Sans now ships Bold). */

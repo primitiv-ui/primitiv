@@ -1,6 +1,7 @@
-:root {
-  color-scheme: light dark;
-}
+/* color-scheme is NOT set here: `light dark` would hand the choice to the OS via
+ * prefers-color-scheme, so a light-themed page on a dark-mode OS got black
+ * scrollbar tracks. The token layer's reset binds color-scheme to [data-theme]
+ * instead — and an unlayered rule here would beat that layered one. */
 
 body {
   margin: 0;

@@ -220,6 +220,10 @@ export type NavigationMenuContextValue = {
   dir: NavigationMenuReadingDirection;
   navigationMenuId: string;
   openValue: string;
+  /** The entry that was open immediately before {@link openValue}, or `""` when
+   * the menu was closed. Together with `entryKeys` this is what lets a panel
+   * derive its travel direction; see `getPanelMotion`. */
+  previousValue: string;
   setOpenValue: (next: string) => void;
   openOnHover: boolean;
   /** Opens `value` after the hover-intent delay, or immediately when another

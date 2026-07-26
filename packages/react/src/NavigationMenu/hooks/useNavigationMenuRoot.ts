@@ -48,6 +48,18 @@ export function useNavigationMenuRoot({
     onValueChange,
   );
 
+  // What was open before the current value, so a panel can tell which way the
+  // pointer travelled. Adjusted during render — the pattern React documents for
+  // deriving state from a changed input — rather than in an effect: an effect
+  // lands a frame late, by which time the panel has already begun animating with
+  // no direction to animate in.
+  const [trackedValue, setTrackedValue] = useState(openValue);
+  const [previousValue, setPreviousValue] = useState("");
+  if (trackedValue !== openValue) {
+    setPreviousValue(trackedValue);
+    setTrackedValue(openValue);
+  }
+
   const {
     register: registerEntry,
     itemsRef: entriesRef,
@@ -171,6 +183,7 @@ export function useNavigationMenuRoot({
       dir,
       navigationMenuId,
       openValue,
+      previousValue,
       setOpenValue,
       openOnHover,
       openWithIntent,
@@ -186,6 +199,7 @@ export function useNavigationMenuRoot({
       dir,
       navigationMenuId,
       openValue,
+      previousValue,
       setOpenValue,
       openOnHover,
       openWithIntent,

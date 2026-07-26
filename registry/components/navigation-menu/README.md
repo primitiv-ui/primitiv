@@ -113,13 +113,22 @@ trigger.
 
 ## Panel transitions
 
-The viewport is sized by `--primitiv-navigation-menu-viewport-width` /
-`-height`, each falling back to `auto`. **The headless does not publish these
-yet**, so today the panel hugs its content and cross-fades between entries. When
-the primitive starts publishing measured panel dimensions, the same rules animate
-the box between panels — the Radix viewport-morph effect — with no stylesheet
-change. Until then, a consumer can drive the morph by setting the size per open
-value:
+Three things happen when the open entry changes:
+
+- **The box morphs.** `Viewport` measures the open panel and publishes
+  `--primitiv-navigation-menu-viewport-width` / `-height`; the stylesheet
+  transitions both, falling back to hugging its content before the first
+  measurement lands.
+- **The panels slide in the direction of travel.** `Content` publishes
+  `data-motion` (`from-start` / `from-end` / `to-start` / `to-end`), and the
+  stylesheet turns that into a translate of
+  `--primitiv-navigation-menu-panel-slide`. Transitions with no direction — the
+  first open and the full close — just fade.
+- **Nothing reflows.** Every panel shares one grid cell in the viewport and is
+  hidden with `visibility`, not `display`, so a switch can't stack them and the
+  closing panel keeps its size and its place while it fades.
+
+Override the size per entry if you'd rather pin it than measure it:
 
 ```css
 .primitiv-navigation-menu__viewport[data-value="concepts"] {

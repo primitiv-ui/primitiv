@@ -39,6 +39,12 @@
       "value": "",
       "when": "the link is the current page",
       "source": "auto"
+    },
+    {
+      "name": "data-motion",
+      "value": "from-start | from-end | to-start | to-end",
+      "when": "the open entry changes and this panel is the one entering or leaving",
+      "source": "auto"
     }
   ],
   "modifiers": [
@@ -305,6 +311,10 @@
       "defaultsTo": "1fr"
     },
     {
+      "name": "--primitiv-navigation-menu-panel-slide",
+      "defaultsTo": "var(--primitiv-space-space-8)"
+    },
+    {
       "name": "--primitiv-navigation-menu-row-padding-inline",
       "defaultsTo": "var(--primitiv-nav-item-md-padding-inline)"
     },
@@ -378,13 +388,13 @@
     },
     {
       "name": "--primitiv-navigation-menu-viewport-width",
-      "source": "headless (planned)",
-      "description": "The measured inline size of the open panel. NOT published by the headless yet \u2014 the stylesheet consumes it with an `auto` fallback, so the viewport hugs its content today and morphs between panels the moment the primitive starts publishing it (the Radix viewport-morph effect)."
+      "source": "headless",
+      "description": "The measured inline size of the open panel, published by `Viewport`. The stylesheet consumes it with an `auto` fallback, so the box hugs its content until the first measurement lands and morphs between panels thereafter."
     },
     {
       "name": "--primitiv-navigation-menu-viewport-height",
-      "source": "headless (planned)",
-      "description": "The measured block size of the open panel. Same status and fallback as -viewport-width."
+      "source": "headless",
+      "description": "The measured block size of the open panel. Same mechanism as -viewport-width."
     }
   ],
   "dependsOn": {

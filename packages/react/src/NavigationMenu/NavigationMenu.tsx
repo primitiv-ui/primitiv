@@ -17,6 +17,7 @@ import {
   useNavigationMenuLink,
   useNavigationMenuRoot,
   useNavigationMenuTrigger,
+  useNavigationMenuViewport,
 } from "./hooks/index.ts";
 import {
   NavigationMenuItemProvider,
@@ -24,6 +25,7 @@ import {
   NavigationMenuProvider,
   useNavigationMenuContext,
 } from "./NavigationMenuContext";
+import { getPanelMotion } from "./utils";
 import type {
   NavigationMenuContentProps,
   NavigationMenuIndicatorProps,
@@ -441,14 +443,24 @@ NavigationMenuTrigger.displayName = "NavigationMenuTrigger";
  * .panel { opacity: 0; transition: opacity 150ms; }
  * .panel[data-state="open"] { opacity: 1; }
  * ```
+ *
+ * **`data-motion`.** When the open entry changes, the entering and leaving panels
+ * report the direction of travel — `from-start` / `from-end` / `to-start` /
+ * `to-end` — so a stylesheet can slide them rather than cross-fading every
+ * switch. Absent for the first open and the full close, which have no direction.
  */
 export function NavigationMenuContent({
   children,
   forceMount = false,
   ...rest
 }: NavigationMenuContentProps): ReactElement | ReactPortal {
-  const { viewport } = useNavigationMenuContext();
-  const { triggerId, panelId, open, state } = useNavigationMenuEntry();
+  const { viewport, openValue, previousValue, entryKeys } =
+    useNavigationMenuContext();
+  const { triggerId, panelId, open, state, value } = useNavigationMenuEntry();
+  // Which way this panel is travelling, so a stylesheet can slide it in the
+  // direction of the pointer rather than cross-fading every switch. Absent for
+  // the first open and the full close, which have no direction.
+  const motion = getPanelMotion({ value, openValue, previousValue, entryKeys });
 
   const panel = (
     <NavigationMenuPanelProvider value={true}>
@@ -456,6 +468,7 @@ export function NavigationMenuContent({
         id={panelId}
         aria-labelledby={triggerId}
         data-state={state}
+        data-motion={motion}
         hidden={forceMount ? undefined : !open}
         aria-hidden={forceMount && !open ? true : undefined}
         {...rest}
@@ -475,6 +488,11 @@ export function NavigationMenuContent({
 NavigationMenuContent.displayName = "NavigationMenuContent";
 
 /**
+ * Publishes the open panel's measured size as
+ * `--primitiv-navigation-menu-viewport-width` / `-height`, so a stylesheet can
+ * transition the shared box between panels. The measurement is kept through the
+ * close — clearing it would collapse the box just as the exit needs its size.
+ *
  * The single shared box every {@link NavigationMenuContent | `Content`} renders
  * into — renders a `<div>`, hidden while nothing is open.
  *
@@ -511,9 +529,8 @@ export function NavigationMenuViewport({
   forceMount = false,
   ...rest
 }: NavigationMenuViewportProps): ReactElement {
-  const { orientation, openValue, registerViewport } =
-    useNavigationMenuContext();
-  const open = openValue !== "";
+  const { registerViewport } = useNavigationMenuContext();
+  const { open, openValue, orientation, style } = useNavigationMenuViewport();
 
   return (
     <div
@@ -524,6 +541,9 @@ export function NavigationMenuViewport({
       // box per panel without the consumer threading state back in.
       data-value={openValue || undefined}
       hidden={forceMount ? undefined : !open}
+      // The measured size of the open panel, so the shared box can transition
+      // between panels. A consumer `style` merges over the top.
+      style={{ ...style, ...rest.style }}
       {...rest}
     />
   );
@@ -672,12 +692,15 @@ export function NavigationMenuLink({
   asChild = false,
   onKeyDown,
   onClick,
+  onPointerEnter,
   ...rest
 }: NavigationMenuLinkProps): ReactElement {
-  const { linkRef, handleKeyDown, handleClick } = useNavigationMenuLink({
-    onKeyDown,
-    onClick,
-  });
+  const { linkRef, handleKeyDown, handleClick, handlePointerEnter } =
+    useNavigationMenuLink({
+      onKeyDown,
+      onClick,
+      onPointerEnter,
+    });
 
   const linkProps = {
     ref: linkRef,
@@ -685,6 +708,7 @@ export function NavigationMenuLink({
     "data-active": active ? "" : undefined,
     onKeyDown: handleKeyDown,
     onClick: handleClick,
+    onPointerEnter: handlePointerEnter,
     ...rest,
   };
 

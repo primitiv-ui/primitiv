@@ -216,6 +216,46 @@ element either way:
 </NavigationMenu.Indicator>
 ```
 
+## Panel motion — which way the pointer travelled
+
+When the open entry changes, the two panels involved report the direction of
+travel as `data-motion`, so a stylesheet can slide them instead of cross-fading
+every switch:
+
+| Value | Meaning |
+| --- | --- |
+| `from-end` | Entering, and the previous entry was earlier in the list |
+| `from-start` | Entering, and the previous entry was later |
+| `to-start` | Leaving, and the newly-open entry is later |
+| `to-end` | Leaving, and the newly-open entry is earlier |
+
+The attribute is **absent** for the two transitions with no direction — the first
+open (nothing to travel from) and the full close (nothing to travel to) — and for
+an entry with no registered trigger, since a direction derived from an unknown
+position would be a guess. Those cases just fade.
+
+## Viewport size — the one-box morph
+
+`Viewport` measures the open panel and publishes it, the same split the
+`Indicator` uses:
+
+| Custom property | Value |
+| --- | --- |
+| `--primitiv-navigation-menu-viewport-width` | the open panel's `offsetWidth` |
+| `--primitiv-navigation-menu-viewport-height` | its `offsetHeight` |
+
+```css
+.viewport {
+  inline-size: var(--primitiv-navigation-menu-viewport-width, auto);
+  block-size: var(--primitiv-navigation-menu-viewport-height, auto);
+  transition: inline-size 200ms, block-size 200ms;
+}
+```
+
+The measurement is **kept through the close** rather than cleared: clearing it
+would collapse the box at the very moment the exit needs its size. Re-measured on
+window `resize`, like the Indicator.
+
 ## Link active state
 
 `NavigationMenu.Link` does **no route matching**. You own the router, so you
@@ -226,6 +266,12 @@ own the comparison:
   Tokens
 </NavigationMenu.Link>
 ```
+
+**A top-level link also closes on hover** (when `openOnHover` is on), so
+travelling along the bar past a plain entry behaves like travelling onto another
+trigger — without it, moving from an open trigger onto a link beside it leaves
+that panel hanging over the page. Links *inside* a panel are exempt, for the
+obvious reason.
 
 Clicking any `Link` closes the open panel, whether the link sits in a panel or
 beside one — leaving a panel hanging open over the page the user just navigated
@@ -254,8 +300,8 @@ travel keeps working through either escape hatch.
 | `Root` (`<nav>`) | `data-orientation` |
 | `List` (`<ul>`) | `data-orientation` |
 | `Trigger` | `data-state="open" \| "closed"` |
-| `Content` | `data-state="open" \| "closed"` |
-| `Viewport` | `data-state`, `data-orientation`, `data-value` |
+| `Content` | `data-state="open" \| "closed"`, `data-motion` |
+| `Viewport` | `data-state`, `data-orientation`, `data-value`, measured-size custom properties |
 | `Indicator` | `data-state`, `data-orientation`, `data-value`, geometry custom properties |
 | `Link` | `data-active=""` when active (omitted otherwise) |
 

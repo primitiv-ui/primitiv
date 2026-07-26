@@ -93,6 +93,9 @@
        because it is the only predictable one: auto-fitting would silently spread a
        simple list of rows sideways as soon as the panel got wide. */
     --primitiv-navigation-menu-content-columns: 1fr;
+    /* How far a panel slides in the direction of travel. Small on purpose — the
+       movement is a hint about where the panel came from, not a journey. */
+    --primitiv-navigation-menu-panel-slide: var(--primitiv-space-space-8);
 
     /* Panel rows. */
     --primitiv-navigation-menu-row-padding-inline: var(--primitiv-nav-item-md-padding-inline);
@@ -219,6 +222,9 @@
     inset-block-start: 100%;
     inset-inline-start: var(--primitiv-space-space-0);
     margin-block-start: var(--primitiv-navigation-menu-panel-offset);
+    /* The measured size of the open panel, published by the headless Viewport, so
+       the shared box morphs between panels. Falls back to hugging its content, which
+       is what happens before the first measurement lands. */
     inline-size: var(--primitiv-navigation-menu-viewport-width, auto);
     block-size: var(--primitiv-navigation-menu-viewport-height, auto);
     padding: var(--primitiv-navigation-menu-panel-padding-block)
@@ -627,6 +633,7 @@
     pointer-events: none;
     transition:
       opacity var(--primitiv-navigation-menu-transition-duration) var(--primitiv-motion-easing-exit),
+      translate var(--primitiv-navigation-menu-transition-duration) var(--primitiv-motion-easing-exit),
       visibility var(--primitiv-navigation-menu-transition-duration) var(--primitiv-motion-easing-exit);
   }
 
@@ -643,6 +650,33 @@
     }
   }
 
+  /* Directional slide. The headless publishes data-motion on the panel — which way
+     the pointer travelled between entries — so an incoming panel enters from the
+     side it came from and the outgoing one leaves the opposite way, instead of every
+     switch being the same cross-fade. Because all panels share one grid cell this is
+     a pure translate: nothing reflows.
+
+     The enter's starting frame is the offset (via @starting-style) and its resting
+     state is zero; the exit sets the offset directly. Panels with no direction —
+     the first open and the full close — simply fade. */
+  @starting-style {
+    .primitiv-navigation-menu__content[data-state="open"][data-motion="from-end"] {
+      translate: var(--primitiv-navigation-menu-panel-slide) 0;
+    }
+
+    .primitiv-navigation-menu__content[data-state="open"][data-motion="from-start"] {
+      translate: calc(-1 * var(--primitiv-navigation-menu-panel-slide)) 0;
+    }
+  }
+
+  .primitiv-navigation-menu__content[data-state="closed"][data-motion="to-start"] {
+    translate: calc(-1 * var(--primitiv-navigation-menu-panel-slide)) 0;
+  }
+
+  .primitiv-navigation-menu__content[data-state="closed"][data-motion="to-end"] {
+    translate: var(--primitiv-navigation-menu-panel-slide) 0;
+  }
+
   /* The box and the marker fade on the same curve. Because the content above holds
      its flow through the exit, the viewport keeps its size while fading rather than
      collapsing first. */
@@ -654,6 +688,8 @@
       translate var(--primitiv-navigation-menu-transition-duration)
         var(--primitiv-navigation-menu-transition-easing),
       inline-size var(--primitiv-navigation-menu-transition-duration)
+        var(--primitiv-navigation-menu-transition-easing),
+      block-size var(--primitiv-navigation-menu-transition-duration)
         var(--primitiv-navigation-menu-transition-easing);
   }
 
@@ -722,6 +758,7 @@ $primitiv-navigation-menu-safe-area: var(--primitiv-navigation-menu-safe-area);
 $primitiv-navigation-menu-panel-shadow: var(--primitiv-navigation-menu-panel-shadow);
 $primitiv-navigation-menu-content-gap: var(--primitiv-navigation-menu-content-gap);
 $primitiv-navigation-menu-content-columns: var(--primitiv-navigation-menu-content-columns);
+$primitiv-navigation-menu-panel-slide: var(--primitiv-navigation-menu-panel-slide);
 $primitiv-navigation-menu-row-padding-inline: var(--primitiv-navigation-menu-row-padding-inline);
 $primitiv-navigation-menu-row-padding-block: var(--primitiv-navigation-menu-row-padding-block);
 $primitiv-navigation-menu-row-text-gap: var(--primitiv-navigation-menu-row-text-gap);

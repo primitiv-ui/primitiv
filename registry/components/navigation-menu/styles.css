@@ -231,6 +231,13 @@
        seam across the arrow's base. `filter` (not box-shadow) so the shadow wraps
        panel + arrow as one silhouette — see --primitiv-navigation-menu-panel-shadow. */
     filter: var(--primitiv-navigation-menu-panel-shadow);
+    /* ONE grid cell shared by every panel. Each Content is placed in that same cell,
+       which fixes two things at once: switching panels can't stack them (the
+       outgoing panel has to hold its flow through the exit for the fade to be
+       visible, which used to push the incoming one below it before snapping back),
+       and the box is sized to the largest panel — so opening or switching never
+       resizes it, which is what made the enter feel rougher than the exit. */
+    display: grid;
     /* The fade — and the size morph, once dimensions are published — lives in
        primitiv.states beside the open/closed rules. */
   }
@@ -238,11 +245,13 @@
   /* The per-entry panel body — a grid, so consumers arrange the panel however they
      like by re-pointing --primitiv-navigation-menu-content-columns (or by styling
      their own wrapper inside Content and ignoring this entirely). The viewport owns
-     the box; this owns the arrangement. Hidden here and revealed by
-     [data-state="open"] in primitiv.states, so only ONE content is ever in flow —
-     which is what lets the shared viewport size itself to the open panel. */
+     the box; this owns the arrangement. Visibility is handled in primitiv.states —
+     every panel stays in flow, overlapping in one grid cell. */
   .primitiv-navigation-menu__content {
-    display: none;
+    display: grid;
+    /* Every panel occupies the viewport's single cell, so they overlap rather than
+       stack. All of them stay in flow — that is what keeps the box a constant size. */
+    grid-area: 1 / 1;
     grid-template-columns: var(--primitiv-navigation-menu-content-columns);
     gap: var(--primitiv-navigation-menu-content-gap);
   }
@@ -588,25 +597,31 @@
      of content. Closed is the resting state, [data-state="open"] brings it in, and
      @starting-style gives the enter its first frame so the exit mirrors the enter.
 
-     `display ... allow-discrete` is what makes an exit possible at all. Only the open
-     Content is in flow (every force-mounted Content projects into this one viewport,
-     so if they all participated they would stack), and a plain display flip would
-     yank the panel out of flow the instant it closed — collapsing the viewport to its
-     padding and shrink-wrapping the columns before any fade could run. allow-discrete
-     holds `display` until the fade finishes.
+     Nothing here toggles `display`. Every force-mounted Content projects into this one
+     viewport and stays in flow, overlapping in a single grid cell — so the box holds a
+     constant size and panels can neither stack on switch nor collapse it on exit.
+     `visibility` does the hiding (see below), because it transitions and so survives
+     the fade; `display` would not.
 
      Needs the panel kept mounted while closed: pass forceMount to Content, Viewport
      and Indicator, or the headless applies `hidden` and there is nothing to animate. */
   .primitiv-navigation-menu__content {
     opacity: var(--primitiv-opacity-transparent);
+    /* visibility, not display: it transitions, so the panel stays visible for the
+       whole fade and only then flips — which also takes closed panels out of the tab
+       order and the accessibility tree, exactly the trick Accordion's clip uses.
+       Toggling `display` instead is what caused the stacking on switch. */
+    visibility: hidden;
+    pointer-events: none;
     transition:
       opacity var(--primitiv-navigation-menu-transition-duration) var(--primitiv-motion-easing-exit),
-      display var(--primitiv-navigation-menu-transition-duration) allow-discrete;
+      visibility var(--primitiv-navigation-menu-transition-duration) var(--primitiv-motion-easing-exit);
   }
 
   .primitiv-navigation-menu__content[data-state="open"] {
-    display: grid;
     opacity: var(--primitiv-opacity-100);
+    visibility: visible;
+    pointer-events: auto;
     transition-timing-function: var(--primitiv-motion-easing-enter);
   }
 

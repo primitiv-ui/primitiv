@@ -44,6 +44,7 @@ live in [`../consumption-design.md`](../consumption-design.md).
 | [0008](0008-css-architecture-cascade-layers-and-token-scoping.md) | CSS architecture: cascade layers & token scoping | Draft |
 | [0009](0009-mode-scoping-theme-and-density.md) | Mode scoping: theme & density as inheritable attributes | Draft |
 | [0016](0016-spacing-and-flow-rhythm.md) | Spacing & flow rhythm | Implemented — no default margins; opt-in `.primitiv-flow` / `<Prose>` |
+| [0020](0020-agent-manifest-and-mcp-server.md) | Agent manifest & MCP server | Draft |
 
 - **0004** — the foundation: the hybrid model (versioned headless packages +
   opt-in copy-in styles) and the four-part styling contract (root class +
@@ -78,10 +79,25 @@ live in [`../consumption-design.md`](../consumption-design.md).
   two registry surfaces (the class + an `asChild` `<Prose>`); `gap` stays the
   tool for component-internal spacing.
 
+- **0020** — agent manifest & MCP server: prompted by Meta's Astryx (an
+  open-source design system built ground-up to be machine-readable via a
+  JSON manifest + MCP server). Proposes a config-less `primitiv manifest
+  [--json]` command that aggregates the command surface, the full registry
+  index with contracts inlined, and the token format matrix into one
+  versioned artifact; real JSON Schema files for `contract.json` /
+  `primitiv.json` / `registry.json` (their `$schema` URLs don't resolve to
+  anything today); and an MCP server as a thin transport over the existing
+  CLI core exposing `list_components` / `get_contract` / `get_manifest` /
+  `get_tokens` / `add_component` as typed tools. Follows through on the
+  "(future) an MCP server" stub in RFC 0005 §6.5. Codemods and any schema
+  redesign are explicitly out of scope.
+
 Read **0004 → 0005 → 0006** in order; each builds on the one before. **0008**
 constrains the *shape* of 0006's emitted CSS (layers + token scoping) and **0009**
 the *mode scopes* it emits; both are read alongside 0006. **0007** is the
 build/test strategy for 0005–0006 and applies once implementation starts.
+**0020** aggregates what 0004–0006 already produce into one agent-facing
+surface and applies once those are read.
 
 ## Input & tooling
 

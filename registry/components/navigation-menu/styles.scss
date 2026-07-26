@@ -27,6 +27,17 @@
  */
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
+@layer primitiv.reset {
+  /* Neutralise the base `li + li` inter-item margin (the RFC 0016 flow-rhythm rule
+     in the token layer's reset). Nav entries sit flush in a row; without this every
+     entry after the first is pushed down by --primitiv-list-item-gap, which in a
+     horizontal bar reads as a stray top margin on each button. Same fix Dropdown
+     applies to its menu rows. */
+  .primitiv-navigation-menu li {
+    margin-block: var(--primitiv-space-space-0);
+  }
+}
+
 @layer primitiv.base {
   .primitiv-navigation-menu {
     /* Per-component API — the themable knobs, defaulting to the md size. The size
@@ -163,6 +174,22 @@
   .primitiv-navigation-menu__trigger-icon > svg {
     inline-size: 100%;
     block-size: 100%;
+  }
+
+  /* Bridge the bar → panel gap while a panel is open. The viewport is absolutely
+     positioned, so the panel-offset strip above it is part of neither the nav's own
+     border box nor any descendant: dragging the pointer down through it fires the
+     nav's pointerleave, starts closeDelay, and the panel vanishes mid-travel. A
+     transparent strip on the root — which is NOT clipped, unlike a pseudo-element on
+     the overflow-hidden viewport — keeps the pointer inside the nav subtree the whole
+     way down. Gated on the open state so it never swallows pointer events over the
+     page while the nav is closed. */
+  .primitiv-navigation-menu:has(.primitiv-navigation-menu__viewport[data-state="open"])::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 100%;
+    inset-inline: var(--primitiv-space-space-0);
+    block-size: var(--primitiv-navigation-menu-panel-offset);
   }
 
   /* The shared panel host every Content projects into. Sized to its content by

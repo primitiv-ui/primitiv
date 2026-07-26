@@ -317,6 +317,10 @@
       "defaultsTo": "var(--primitiv-nav-item-md-text-gap)"
     },
     {
+      "name": "--primitiv-navigation-menu-row-bg-hover",
+      "defaultsTo": "var(--primitiv-color-neutral-alpha-100)"
+    },
+    {
       "name": "--primitiv-navigation-menu-row-title-color",
       "defaultsTo": "var(--primitiv-content-primary)"
     },

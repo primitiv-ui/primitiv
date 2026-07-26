@@ -98,6 +98,7 @@
     --primitiv-navigation-menu-row-padding-inline: var(--primitiv-nav-item-md-padding-inline);
     --primitiv-navigation-menu-row-padding-block: var(--primitiv-nav-item-md-padding-block);
     --primitiv-navigation-menu-row-text-gap: var(--primitiv-nav-item-md-text-gap);
+    --primitiv-navigation-menu-row-bg-hover: var(--primitiv-color-neutral-alpha-100);
     --primitiv-navigation-menu-row-title-color: var(--primitiv-content-primary);
     --primitiv-navigation-menu-row-description-color: var(--primitiv-content-secondary);
     --primitiv-navigation-menu-row-description-font-family: var(--primitiv-body-sm-font-family);
@@ -205,6 +206,10 @@
     inset-inline: var(--primitiv-space-space-0);
     block-size: var(--primitiv-navigation-menu-panel-offset);
   }
+
+  /* Row hover tint — deliberately lighter than the bar entries' ghost tint: a panel
+     row is a large target on an already-raised surface, so it needs far less to read
+     as hovered than a small entry on the page background does. */
 
   /* The shared panel host every Content projects into. Sized to its content by
      default; when the headless publishes measured viewport dimensions the two
@@ -348,6 +353,13 @@
     content: "";
     position: absolute;
     inset: calc(-1 * var(--primitiv-navigation-menu-safe-area));
+    /* Behind the rows. A positioned box paints above in-flow content, so without
+       this the collar covers the panel and swallows every row's hover and click.
+       Negative z-index paints above the viewport's own background but below its
+       in-flow children — and the collar is still the only thing out in the ring, so
+       it keeps doing its job there. The viewport's `filter` makes it a stacking
+       context, so this can't escape behind the page. */
+    z-index: -1;
   }
 
   /* The marker tracking the open trigger. Both styles read the geometry the
@@ -538,7 +550,7 @@
     }
 
     .primitiv-navigation-menu__link--panel:hover {
-      background: var(--primitiv-navigation-menu-entry-bg-hover);
+      background: var(--primitiv-navigation-menu-row-bg-hover);
     }
   }
 
@@ -713,6 +725,7 @@ $primitiv-navigation-menu-content-columns: var(--primitiv-navigation-menu-conten
 $primitiv-navigation-menu-row-padding-inline: var(--primitiv-navigation-menu-row-padding-inline);
 $primitiv-navigation-menu-row-padding-block: var(--primitiv-navigation-menu-row-padding-block);
 $primitiv-navigation-menu-row-text-gap: var(--primitiv-navigation-menu-row-text-gap);
+$primitiv-navigation-menu-row-bg-hover: var(--primitiv-navigation-menu-row-bg-hover);
 $primitiv-navigation-menu-row-title-color: var(--primitiv-navigation-menu-row-title-color);
 $primitiv-navigation-menu-row-description-color: var(--primitiv-navigation-menu-row-description-color);
 $primitiv-navigation-menu-row-description-font-family: var(--primitiv-navigation-menu-row-description-font-family);

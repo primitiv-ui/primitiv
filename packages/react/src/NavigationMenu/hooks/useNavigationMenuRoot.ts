@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
-import type { KeyboardEvent } from "react";
+import type { FocusEvent, KeyboardEvent } from "react";
 
 import { useCollection, useControllableState } from "../../hooks/index.ts";
 
@@ -39,6 +39,7 @@ export function useNavigationMenuRoot({
   contextValue: NavigationMenuContextValue;
   cancelClose: () => void;
   closeWithDelay: () => void;
+  closeOnFocusOutside: (event: FocusEvent<HTMLElement>) => void;
   handleKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
 } {
   const navigationMenuId = useId();
@@ -202,6 +203,21 @@ export function useNavigationMenuRoot({
     }, closeDelay);
   }, [cancelOpen, closeDelay, setOpenValue]);
 
+  // Keyboard focus leaving the `<nav>` entirely — Tab past the last entry, or
+  // into an unrelated element such as a second, independent NavigationMenu —
+  // means the open panel is no longer where focus is. Unlike Escape this
+  // doesn't refocus the trigger: focus already chose where it's going, and
+  // fighting that would break Tab order. `relatedTarget` is `null` for some
+  // focus transitions (e.g. the browser chrome); treated as "outside", the
+  // same call Carousel's own blur handler makes.
+  const closeOnFocusOutside = useCallback((event: FocusEvent<HTMLElement>) => {
+    if (openValueRef.current === "") return;
+    const next = event.relatedTarget;
+    if (next && event.currentTarget.contains(next)) return;
+    cancelOpen();
+    setOpenValue("");
+  }, [cancelOpen, setOpenValue]);
+
   useEffect(
     () => () => {
       cancelOpen();
@@ -260,5 +276,11 @@ export function useNavigationMenuRoot({
     [closeAndRefocusTrigger],
   );
 
-  return { contextValue, cancelClose, closeWithDelay, handleKeyDown };
+  return {
+    contextValue,
+    cancelClose,
+    closeWithDelay,
+    closeOnFocusOutside,
+    handleKeyDown,
+  };
 }

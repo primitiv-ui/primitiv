@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import type {
+  FocusEvent,
   KeyboardEvent,
   PointerEvent,
   ReactElement,
@@ -135,6 +136,7 @@ export function NavigationMenuRoot({
   onPointerEnter,
   onPointerLeave,
   onKeyDown,
+  onBlur,
   ...rest
 }: NavigationMenuRootProps): ReactElement {
   const resolvedDir = dir ?? useDirection();
@@ -142,6 +144,7 @@ export function NavigationMenuRoot({
     contextValue,
     cancelClose,
     closeWithDelay,
+    closeOnFocusOutside,
     handleKeyDown: handleEscapeKeyDown,
   } = useNavigationMenuRoot({
     orientation,
@@ -169,6 +172,13 @@ export function NavigationMenuRoot({
     onKeyDown,
     handleEscapeKeyDown,
   );
+  // Closes an open panel when keyboard focus leaves the nav for good — Tab
+  // past the last entry, or into an unrelated element such as a second,
+  // independent NavigationMenu. See useNavigationMenuRoot's closeOnFocusOutside.
+  const handleBlur = composeEventHandlers<FocusEvent<HTMLElement>>(
+    onBlur,
+    closeOnFocusOutside,
+  );
 
   return (
     <NavigationMenuProvider value={contextValue}>
@@ -179,6 +189,7 @@ export function NavigationMenuRoot({
         onPointerEnter={handlePointerEnter}
         onPointerLeave={handlePointerLeave}
         onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
         {...rest}
       >
         {children}

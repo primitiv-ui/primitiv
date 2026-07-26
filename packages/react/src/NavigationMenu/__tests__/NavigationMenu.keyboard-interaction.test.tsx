@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { DeadEndNav, ThreeEntryNav } from "./NavigationMenu.fixtures";
@@ -135,6 +135,40 @@ describe("NavigationMenu — keyboard interaction", () => {
     await waitFor(() =>
       expect(screen.getByRole("link", { name: "Tokens" })).toHaveFocus(),
     );
+  });
+
+  it("keeps the panel open while tabbing across its own entries", async () => {
+    const user = userEvent.setup();
+    render(<ThreeEntryNav defaultValue="concepts" />);
+
+    screen.getByRole("button", { name: "Concepts" }).focus();
+    await user.tab(); // Tokens
+    await user.tab(); // Themes
+    await user.tab(); // Changelog
+    await user.tab(); // Registry & CLI
+
+    expect(screen.getByTestId("concepts-panel")).toBeVisible();
+  });
+
+  it("closes an open panel when Tab moves focus into a separate NavigationMenu instance", async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <ThreeEntryNav defaultValue="concepts" aria-label="First" />
+        <ThreeEntryNav aria-label="Second" />
+      </>,
+    );
+
+    const [firstNav, secondNav] = screen.getAllByRole("navigation");
+    within(firstNav)
+      .getByRole("button", { name: "Registry & CLI" })
+      .focus();
+    await user.tab();
+
+    expect(
+      within(secondNav).getByRole("button", { name: "Concepts" }),
+    ).toHaveFocus();
+    expect(within(firstNav).getByTestId("concepts-panel")).not.toBeVisible();
   });
 
   it("leaves Home and End to the browser inside an open panel", async () => {

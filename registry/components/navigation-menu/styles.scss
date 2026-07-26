@@ -633,7 +633,6 @@
     pointer-events: none;
     transition:
       opacity var(--primitiv-navigation-menu-transition-duration) var(--primitiv-motion-easing-exit),
-      translate var(--primitiv-navigation-menu-transition-duration) var(--primitiv-motion-easing-exit),
       visibility var(--primitiv-navigation-menu-transition-duration) var(--primitiv-motion-easing-exit);
   }
 
@@ -656,25 +655,60 @@
      switch being the same cross-fade. Because all panels share one grid cell this is
      a pure translate: nothing reflows.
 
-     The enter's starting frame is the offset (via @starting-style) and its resting
-     state is zero; the exit sets the offset directly. Panels with no direction —
-     the first open and the full close — simply fade. */
-  @starting-style {
-    .primitiv-navigation-menu__content[data-state="open"][data-motion="from-end"] {
-      translate: var(--primitiv-navigation-menu-panel-slide) 0;
-    }
-
-    .primitiv-navigation-menu__content[data-state="open"][data-motion="from-start"] {
+     `animation`, not `@starting-style` + `transition`: a force-mounted panel never
+     goes through `display: none`, so it already has a "previous style" the very
+     first time a switch opens it — there is no residual offset for a transition to
+     interpolate from, only an accidental one left over from that *same* panel's own
+     prior exit (its `[data-state="closed"]` translate happens to still be sitting
+     there). That meant a panel's first-ever entrance never slid, only its second
+     and later ones — reproduced by sampling `getComputedStyle(...).translate`
+     through a live switch. A keyframe `animation` has no such dependency: matching
+     `[data-state="open"][data-motion="from-*"]` always plays its `from` keyframe,
+     the same way Radix's own `enterFromLeft` / `enterFromRight` do. Panels with no
+     direction — the first open and the full close — simply fade (no matching
+     `data-motion`, so no animation is triggered at all). */
+  @keyframes primitiv-navigation-menu-enter-from-start {
+    from {
       translate: calc(-1 * var(--primitiv-navigation-menu-panel-slide)) 0;
     }
   }
 
+  @keyframes primitiv-navigation-menu-enter-from-end {
+    from {
+      translate: var(--primitiv-navigation-menu-panel-slide) 0;
+    }
+  }
+
+  @keyframes primitiv-navigation-menu-exit-to-start {
+    to {
+      translate: calc(-1 * var(--primitiv-navigation-menu-panel-slide)) 0;
+    }
+  }
+
+  @keyframes primitiv-navigation-menu-exit-to-end {
+    to {
+      translate: var(--primitiv-navigation-menu-panel-slide) 0;
+    }
+  }
+
+  .primitiv-navigation-menu__content[data-state="open"][data-motion="from-start"] {
+    animation: primitiv-navigation-menu-enter-from-start
+      var(--primitiv-navigation-menu-transition-duration) var(--primitiv-motion-easing-enter);
+  }
+
+  .primitiv-navigation-menu__content[data-state="open"][data-motion="from-end"] {
+    animation: primitiv-navigation-menu-enter-from-end
+      var(--primitiv-navigation-menu-transition-duration) var(--primitiv-motion-easing-enter);
+  }
+
   .primitiv-navigation-menu__content[data-state="closed"][data-motion="to-start"] {
-    translate: calc(-1 * var(--primitiv-navigation-menu-panel-slide)) 0;
+    animation: primitiv-navigation-menu-exit-to-start
+      var(--primitiv-navigation-menu-transition-duration) var(--primitiv-motion-easing-exit);
   }
 
   .primitiv-navigation-menu__content[data-state="closed"][data-motion="to-end"] {
-    translate: var(--primitiv-navigation-menu-panel-slide) 0;
+    animation: primitiv-navigation-menu-exit-to-end
+      var(--primitiv-navigation-menu-transition-duration) var(--primitiv-motion-easing-exit);
   }
 
   /* The box and the marker fade on the same curve. Because the content above holds
@@ -722,6 +756,12 @@
     .primitiv-navigation-menu__viewport,
     .primitiv-navigation-menu__indicator {
       transition: none;
+    }
+
+    /* The directional slide is animation-driven (see above), so reduced motion
+       has to silence animation-name too — transition:none alone doesn't touch it. */
+    .primitiv-navigation-menu__content {
+      animation: none;
     }
   }
 }

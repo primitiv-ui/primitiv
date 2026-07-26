@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type {
   KeyboardEvent,
   PointerEvent,
@@ -265,14 +265,34 @@ export function NavigationMenuItem({
   value,
   ...rest
 }: NavigationMenuItemProps): ReactElement {
+  const { registerItem } = useNavigationMenuContext();
+  const itemRef = useRef<HTMLLIElement | null>(null);
   const itemContextValue = useMemo<NavigationMenuItemContextValue>(
     () => ({ value }),
     [value],
   );
 
+  // Only a disclosure entry joins the value-keyed registry: a plain link entry has
+  // no value, and nothing derives a direction from it.
+  useEffect(() => {
+    // The guard is here to narrow the type — registering `undefined` would also be
+    // harmless, since the only consumer compares *positions* of real values and a
+    // key nothing can match never changes their relative order.
+    // Stryker disable next-line ConditionalExpression: equivalent — see above.
+    if (value === undefined) return;
+    registerItem(value, itemRef.current);
+    // Unregistering can't be observed through the published order: a replaced key
+    // still points at the same <li>, so a leaked one sorts to the same position as
+    // its replacement. It is here to stop the registry growing without bound.
+    // Stryker disable next-line ArrowFunction: equivalent — see above.
+    return () => registerItem(value, null);
+  }, [value, registerItem]);
+
   return (
     <NavigationMenuItemProvider value={itemContextValue}>
-      <li {...rest}>{children}</li>
+      <li ref={itemRef} {...rest}>
+        {children}
+      </li>
     </NavigationMenuItemProvider>
   );
 }
@@ -454,13 +474,18 @@ export function NavigationMenuContent({
   forceMount = false,
   ...rest
 }: NavigationMenuContentProps): ReactElement | ReactPortal {
-  const { viewport, openValue, previousValue, entryKeys } =
+  const { viewport, openValue, previousValue, itemValues } =
     useNavigationMenuContext();
   const { triggerId, panelId, open, state, value } = useNavigationMenuEntry();
   // Which way this panel is travelling, so a stylesheet can slide it in the
   // direction of the pointer rather than cross-fading every switch. Absent for
   // the first open and the full close, which have no direction.
-  const motion = getPanelMotion({ value, openValue, previousValue, entryKeys });
+  const motion = getPanelMotion({
+    value,
+    openValue,
+    previousValue,
+    itemValues,
+  });
 
   const panel = (
     <NavigationMenuPanelProvider value={true}>

@@ -24,7 +24,8 @@ export type NavigationMenuPanelMotion =
   | "to-end";
 
 /**
- * Derives a panel's motion from the entry order and which entry was open before.
+ * Derives a panel's motion from the disclosure-entry order (`itemValues`, in DOM
+ * order) and which entry was open before.
  *
  * Returns `undefined` — meaning "no direction, just fade" — for the two cases
  * that genuinely have none: the first open (nothing to travel from) and the full
@@ -35,30 +36,38 @@ export function getPanelMotion({
   value,
   openValue,
   previousValue,
-  entryKeys,
+  itemValues,
 }: {
   value: string;
   openValue: string;
   previousValue: string;
-  entryKeys: readonly string[];
+  itemValues: readonly string[];
 }): NavigationMenuPanelMotion | undefined {
-  const opening = value !== "" && value === openValue;
-  const closing = value !== "" && value === previousValue;
+  const opening = value === openValue;
+  const closing = value === previousValue;
   // A panel that is neither the current nor the outgoing one is a bystander.
   if (!opening && !closing) return undefined;
 
-  const selfIndex = entryKeys.indexOf(value);
+  // No `value !== ""` guard: the empty string is never a registered entry, so the
+  // lookup below rejects it on the same path as any other unknown value.
+  const selfIndex = itemValues.indexOf(value);
   if (selfIndex === -1) return undefined;
 
   if (opening) {
-    const fromIndex = entryKeys.indexOf(previousValue);
+    const fromIndex = itemValues.indexOf(previousValue);
     if (fromIndex === -1) return undefined;
     // Travelling toward the end means the new panel arrives from the end side.
+    // The two indices can only be equal if previousValue === openValue, and Root
+    // records a previous value only when the open value *changes* — so `<` and `<=`
+    // agree on every input that can actually reach here.
+    // Stryker disable next-line EqualityOperator: equivalent — see above.
     return fromIndex < selfIndex ? "from-end" : "from-start";
   }
 
-  const toIndex = entryKeys.indexOf(openValue);
+  const toIndex = itemValues.indexOf(openValue);
   if (toIndex === -1) return undefined;
-  // The outgoing panel leaves opposite the direction of travel.
+  // The outgoing panel leaves opposite the direction of travel. Equal indices are
+  // unreachable for the same reason as the entering branch above.
+  // Stryker disable next-line EqualityOperator: equivalent — see above.
   return toIndex > selfIndex ? "to-start" : "to-end";
 }

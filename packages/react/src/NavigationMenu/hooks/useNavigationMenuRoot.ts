@@ -54,6 +54,11 @@ export function useNavigationMenuRoot({
   // lands a frame late, by which time the panel has already begun animating with
   // no direction to animate in.
   const [trackedValue, setTrackedValue] = useState(openValue);
+  // The seed is only ever fed to `itemValues.indexOf()`, which rejects "" and any
+  // other unregistered string identically — so its value is unobservable. It has to
+  // be "" rather than `openValue`, though: seeding it with the open value would give
+  // a nav mounted with a `defaultValue` a spurious travel direction on first paint.
+  // Stryker disable next-line StringLiteral: equivalent — see above.
   const [previousValue, setPreviousValue] = useState("");
   if (trackedValue !== openValue) {
     setPreviousValue(trackedValue);
@@ -65,6 +70,38 @@ export function useNavigationMenuRoot({
     itemsRef: entriesRef,
     keys: entryKeys,
   } = useCollection<string, HTMLElement>();
+
+  // A second registry, keyed by the Item's own `value`. The entry registry above
+  // can't serve this: it keys by a generated id because plain link entries join it
+  // too and have no value. Registration order is mount order, which for siblings is
+  // DOM order — so `itemValues` is the left-to-right order of the disclosure
+  // entries, which is what a panel needs to know which way it is travelling.
+  const {
+    register: registerItem,
+    itemsRef: itemElementsRef,
+    keys: registeredValues,
+  } = useCollection<string, HTMLLIElement>();
+
+  // Sorted by document position, not registration order. `useCollection` keys are
+  // insertion-ordered, which matches the DOM only while nothing changes: re-register
+  // an entry (a `value` that changes) and its key is appended, so the order silently
+  // stops describing the layout and panels slide the wrong way. Asking the DOM is the
+  // only source that cannot drift.
+  const itemValues = useMemo(
+    () =>
+      [...registeredValues].sort((a, b) => {
+        // Non-null: `register` writes the element and the key in the same call, so a
+        // key present in `registeredValues` always has a live element in the map —
+        // the same invariant Tree's root relies on for its own registry reads.
+        const first = itemElementsRef.current.get(a)!;
+        const second = itemElementsRef.current.get(b)!;
+        return first.compareDocumentPosition(second) &
+          Node.DOCUMENT_POSITION_FOLLOWING
+          ? -1
+          : 1;
+      }),
+    [registeredValues, itemElementsRef],
+  );
 
   const focusEntry = useCallback(
     (key: string) => {
@@ -190,6 +227,8 @@ export function useNavigationMenuRoot({
       cancelOpen,
       registerEntry,
       entryKeys,
+      registerItem,
+      itemValues,
       focusEntry,
       viewport,
       registerViewport: setViewport,
@@ -206,6 +245,8 @@ export function useNavigationMenuRoot({
       cancelOpen,
       registerEntry,
       entryKeys,
+      registerItem,
+      itemValues,
       focusEntry,
       viewport,
     ],

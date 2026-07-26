@@ -236,6 +236,14 @@ export type NavigationMenuContextValue = {
   registerEntry: (key: string, element: HTMLElement | null) => void;
   /** Registry keys in DOM order — the arrow-key travel order. */
   entryKeys: string[];
+  /** Adds (or, with `null`, removes) a disclosure entry's `<li>` from the
+   * value-keyed registry. */
+  registerItem: (value: string, element: HTMLLIElement | null) => void;
+  /** The disclosure entries' `value`s in DOM order. Distinct from
+   * {@link NavigationMenuContextValue.entryKeys | `entryKeys`}, which is keyed by
+   * generated id so plain link entries can join it — this one is what a panel
+   * uses to work out which direction the open entry moved. */
+  itemValues: string[];
   /** Moves DOM focus to a registered top-level entry. */
   focusEntry: (key: string) => void;
   /** The mounted `NavigationMenu.Viewport` element, or `null` when the nav

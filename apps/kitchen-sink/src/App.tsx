@@ -1,7 +1,5 @@
 import {
   Fragment,
-  useEffect,
-  useRef,
   useState,
   type CSSProperties,
   type ReactElement,
@@ -382,36 +380,11 @@ function scrollToId(event: React.MouseEvent<HTMLAnchorElement>, id: string) {
 // need for a styled Tree registry surface (which doesn't exist yet — Tree is
 // headless-only, see packages/react/src/Tree) just for this. Fixed to the
 // viewport's top-right, desktop only; see .kitchen-sink__toc in App.css for
-// the breakpoint.
+// the breakpoint and the --kitchen-sink-toc-top offset (a fixed value, not
+// measured — see the token there).
 function PageToc() {
-  const ref = useRef<HTMLElement>(null);
-
-  // Shell's two chrome bars (.ks-header, sticky, + .ks-nav, plain — see
-  // Shell.css) aren't a fixed height: the header's content is a live
-  // ToggleGroup pair, so a font/zoom/OS difference changes it. A guessed
-  // static px offset either left a visible gap above the nav (too tall) or
-  // tucked it under the header (too short). Measuring both bars directly and
-  // publishing the sum as a custom property means the offset is never wrong
-  // by construction. Re-measures on resize since the header can wrap at
-  // narrower widths; it does NOT need to watch density/size — .ks-chrome
-  // forces data-density="dense" on itself regardless of the page's own
-  // controls, so the chrome's own height is otherwise stable.
-  useEffect(() => {
-    const measure = () => {
-      const header = document.querySelector(".ks-header");
-      const nav = document.querySelector(".ks-nav");
-      const top =
-        (header?.getBoundingClientRect().height ?? 0) +
-        (nav?.getBoundingClientRect().height ?? 0);
-      ref.current?.style.setProperty("--kitchen-sink-toc-top", `${top}px`);
-    };
-    measure();
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
-  }, []);
-
   return (
-    <nav ref={ref} className="kitchen-sink__toc" aria-label="Page sections">
+    <nav className="kitchen-sink__toc" aria-label="Page sections">
       <p className="kitchen-sink__toc-heading">On this page</p>
       <ul className="kitchen-sink__toc-intro">
         <li>

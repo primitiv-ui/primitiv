@@ -14,6 +14,15 @@ body {
   color: var(--primitiv-content-primary);
 }
 
+:root {
+  /* Clears Shell's two chrome bars (.ks-header, sticky, + .ks-nav, plain —
+     see Shell.css) for both the "On this page" nav's own resting position
+     and the scroll-margin-top every section anchors against, so the two stay
+     in lockstep off one value. 120px (7.5rem) isn't a single token step, so
+     it's the sum of two: space-96 (6rem) + space-24 (1.5rem). */
+  --kitchen-sink-toc-top: calc(var(--primitiv-space-space-96) + var(--primitiv-space-space-24));
+}
+
 .kitchen-sink {
   max-width: 960px;
   margin-inline: auto;
@@ -26,23 +35,17 @@ body {
 /* Lands the section's top a comfortable distance below Shell's sticky
    .ks-header once PageToc scrolls it into view (scrollIntoView respects
    scroll-margin-*, same as a native #hash jump would) — otherwise the
-   header overlaps the section's own heading. Same measured custom property
-   PageToc publishes for its own `top` below, so both stay in lockstep
-   without a second guessed value; the fallback only applies before that
-   effect has run once. */
+   header overlaps the section's own heading. */
 .kitchen-sink__section {
-  scroll-margin-top: var(--kitchen-sink-toc-top, var(--primitiv-space-space-68));
+  scroll-margin-top: var(--kitchen-sink-toc-top);
 }
 
 /* The "On this page" nav (PageToc in App.tsx) — a static, always-expanded
    table of contents. Fixed to the viewport's top-right, clear of Shell's two
-   chrome bars (.ks-header, sticky, + .ks-nav, plain — see Shell.css). Their
-   combined height isn't a fixed value (the header's content is a live
-   ToggleGroup pair, so font/zoom/OS differences change it), so PageToc
-   measures both bars itself and publishes --kitchen-sink-toc-top on this
-   element — a guessed static px offset either left a visible gap above the
-   nav or tucked it under the header. The fallback here only covers the one
-   frame before that effect runs.
+   chrome bars via --kitchen-sink-toc-top (:root, above). surface-floating is
+   the same "panel floating over the page" surface Popover / NavigationMenu's
+   own panel use, so this reads as a floating panel rather than page
+   background showing through.
    Desktop only: 80rem is not one of RFC 0025's proposed tiers exactly, but
    it's roughly where the fixed 960px main column (plus its own padding)
    still leaves a comfortable right-hand gutter for this wider, 2-column box
@@ -59,13 +62,12 @@ body {
   .kitchen-sink__toc {
     display: block;
     position: fixed;
-    top: var(--kitchen-sink-toc-top, var(--primitiv-space-space-68));
+    top: var(--kitchen-sink-toc-top);
     right: var(--primitiv-space-space-24);
     inline-size: 22rem;
-    max-block-size: calc(
-      100vh - var(--kitchen-sink-toc-top, var(--primitiv-space-space-68)) - var(--primitiv-space-space-24)
-    );
+    max-block-size: calc(100vh - var(--kitchen-sink-toc-top) - var(--primitiv-space-space-24));
     overflow-y: auto;
+    background: var(--primitiv-surface-floating);
   }
 }
 
@@ -76,7 +78,7 @@ body {
 }
 
 .kitchen-sink__toc-intro {
-  margin-block-end: var(--primitiv-space-space-8);
+  margin-block-end: var(--primitiv-space-space-32);
 }
 
 /* The category list is what was making the box tall enough to need its own

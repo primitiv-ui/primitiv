@@ -28,6 +28,18 @@
  * primitiv.reset and let the reset win (RFC 0008 §7). */
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
+@layer primitiv.reset {
+  /* Neutralise the base `li + li` inter-item margin (the RFC 0016 flow-rhythm
+     rule in the token layer's reset). Breadcrumb entries sit flush in a row;
+     without this every entry after the first is pushed down by
+     --primitiv-list-item-gap, which in a horizontal trail reads as each
+     item/separator sitting on its own stray baseline. Same fix Dropdown and
+     NavigationMenu apply to their own rows. */
+  .primitiv-breadcrumb li {
+    margin-block: var(--primitiv-space-space-0);
+  }
+}
+
 @layer primitiv.base {
   .primitiv-breadcrumb {
     /* Per-component API — the themable knobs, defaulting to the md size. The

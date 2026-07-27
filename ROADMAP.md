@@ -88,6 +88,43 @@ is the exception (Figma set `601:9607`, whose tabbed Type composes Tabs + Button
 | Tooltip | ✓ | ✓ | ✓ | ✓ | 1168:35600 (composition), 1142:25897 (Content), 1168:34990 (Arrow); registry = flat bubble + `__arrow`, `tone` (default dark / inverted surface) × `size` × 12 placements (CSS anchor positioning), `data-state` exit (no overlay, needs `forceMount`) |
 | Tree | — | ✓ | — | — | |
 
+## Composite components (proposed)
+
+With the primitive layer nearing completion, the next roadmap phase is
+**composite components** — registry-only surfaces built by composing ≥2
+existing primitives, with no new ARIA pattern of their own. Full rationale,
+selection criteria, and per-candidate composition notes are in
+[`docs/rfcs/0021-composite-components.md`](docs/rfcs/0021-composite-components.md).
+None of these are built yet; listed here for backlog visibility.
+
+**Tier 1 — buildable now, no prerequisites:**
+
+- [ ] Confirm / Alert Dialog (`Modal` + `Button`)
+- [ ] Breadcrumb overflow menu (`Breadcrumb` + `Dropdown`)
+- [ ] Avatar Group (`Avatar` + `Tooltip` + overflow badge)
+- [ ] Badge / Tag / Chip (primitive-less leaf; unblocks several others)
+- [ ] Card (`Divider` + `Avatar`/`Badge` + `Button` slots)
+- [ ] Stepper / Wizard (`Tabs` + `Button` + decorative step row)
+- [ ] Pagination (`Button` + `Select`)
+- [ ] Data Table (`Table` + `Checkbox` + `Dropdown` + `Select` + Pagination + `InputGroup`)
+- [ ] Rating (`RadioGroup` re-skinned — reclassified out of Forms below)
+- [ ] Stat / KPI tile (`Progress` + `Badge` + `Prose`)
+- [ ] Notification / inbox popover (`Popover` + `Badge` + `Status`)
+
+**Tier 2 — needs one small shared extraction first:**
+
+- [ ] Hover Card (`Popover` + a shared hover-intent hook, extracted from
+      Tooltip/NavigationMenu's duplicated logic)
+- [ ] Toast / notification stack (`Alert`/`Status` + `Portal` + a new
+      `useToastQueue` hook)
+
+**Tier 3 — blocked on a primitive-backlog item landing first:**
+
+- [ ] Command Palette (⌘K) — needs Listbox
+- [ ] Search with suggestions — needs Listbox
+- [ ] Date Picker — needs Calendar
+- [ ] File Upload UI (dropzone + previews) — needs File Upload
+
 ## Components to build
 
 What remains is every component that carries genuine interaction
@@ -121,7 +158,7 @@ semantics that CSS alone cannot provide.
 - [x] Radio
 - [x] Radio Group
 - [x] Radio Card
-- [ ] Rating
+- [ ] Rating — reclassified as a composite (see RFC 0021), no new headless logic needed
 - [x] Segmented Control
 - [x] Select (Native)
 - [x] Slider

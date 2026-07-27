@@ -11,6 +11,7 @@ status, summary, and decision record; this page is the index.
 | [0002](0002-harmoni-to-intent-to-plugin.md) | Harmoni → Intent → Plugin | Phase B complete; Phase C in progress |
 | [0003](0003-dynamic-foreground-wiring.md) | Dynamic foreground wiring | Implemented (engine + sync-plugin + DTCG) |
 | [0017](0017-elevation-and-shadow-tokens.md) | Elevation & shadow tokens | Draft — in progress |
+| [0025](0025-responsive-breakpoints.md) | Responsive breakpoints | Draft — proposed |
 
 - **0001** — the six-pattern layered token stack (primitives → intent → role →
   anatomy → interaction → component), the contexts model, and the Button worked
@@ -28,6 +29,14 @@ status, summary, and decision record; this page is the index.
   effect styles are elevation's Figma form), and adopts it on Button (hover lift)
   + Switch (thumb). Applying the effect styles to existing Figma components — direct
   or behind a Boolean component property — is a documented follow-up session (§7).
+- **0025** — responsive breakpoints: a six-tier, mobile-first `min-width`
+  scale (`xxs`/360 → `2xl`/1536), emitted in `rem` at the same 16px base every
+  other length token uses, plus matching Figma design-frame presets. `xxs` is
+  additive over Tailwind's default 5-tier scale, anchored to the current
+  dominant small-Android viewport width rather than the older 375px default.
+  Directly unblocks RFC 0022's deferred `Container`/`Grid` responsiveness.
+  Scopes (without building) a future public `useMediaQuery` hook and its
+  package boundary as a follow-on session.
 
 ## Consumption layer
 

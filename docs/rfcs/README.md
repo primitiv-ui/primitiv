@@ -30,8 +30,8 @@ status, summary, and decision record; this page is the index.
   + Switch (thumb). Applying the effect styles to existing Figma components — direct
   or behind a Boolean component property — is a documented follow-up session (§7).
 - **0025** — responsive breakpoints: a six-tier, mobile-first `min-width`
-  scale (`xxs`/360 → `2xl`/1536), emitted in `rem` at the same 16px base every
-  other length token uses, plus matching Figma design-frame presets. `xxs` is
+  scale (`xs`/360 → `2xl`/1536), emitted in `rem` at the same 16px base every
+  other length token uses, plus matching Figma design-frame presets. `xs` is
   additive over Tailwind's default 5-tier scale, anchored to the current
   dominant small-Android viewport width rather than the older 375px default.
   Directly unblocks RFC 0022's deferred `Container`/`Grid` responsiveness.

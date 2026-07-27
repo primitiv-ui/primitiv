@@ -23,7 +23,7 @@
 ## 0. Summary
 
 Primitiv has no breakpoint scale. This RFC settles one: a six-tier,
-mobile-first, `min-width` set (`xxs` → `2xl`), emitted in `rem` for
+mobile-first, `min-width` set (`xs` → `2xl`), emitted in `rem` for
 consistency with every other length token, plus the matching Figma
 design-frame presets to mock up screens against. It also records why the
 scale needs a small JS-consumable numeric export alongside the emitted CSS
@@ -34,19 +34,19 @@ custom properties, and scopes (without building) a future public
 
 Mobile-first, `min-width` media queries — base/unstyled styles are the
 smallest tier, each named breakpoint is a floor, not a range. Content-driven
-choices except `xxs`, which is deliberately device-representative rather than
+choices except `xs`, which is deliberately device-representative rather than
 tied to a specific layout shift (D1):
 
 | Token | px | rem | Represents |
 |---|---|---|---|
-| `xxs` | 360 | `22.5rem` | current dominant small-Android viewport width — the narrowest tier worth designing for explicitly |
+| `xs` | 360 | `22.5rem` | current dominant small-Android viewport width — the narrowest tier worth designing for explicitly |
 | `sm` | 640 | `40rem` | large phone / phone landscape |
 | `md` | 768 | `48rem` | tablet |
 | `lg` | 1024 | `64rem` | small laptop — typically where a persistent sidebar nav replaces a drawer |
 | `xl` | 1280 | `80rem` | desktop |
 | `2xl` | 1536 | `96rem` | wide desktop |
 
-`sm`–`2xl` match Tailwind's default scale (D2). `xxs` is additive — a
+`sm`–`2xl` match Tailwind's default scale (D2). `xs` is additive — a
 Primitiv-specific tier the default Tailwind scale doesn't have.
 
 ## 2. Units — `rem`, not `px`
@@ -72,7 +72,7 @@ optional above-the-fold check frame per breakpoint):
 
 | Frame name | Width |
 |---|---|
-| `<Page> — xxs (360)` | 360 |
+| `<Page> — xs (360)` | 360 |
 | `<Page> — sm (640)` | 640 |
 | `<Page> — md (768)` | 768 |
 | `<Page> — lg (1024)` | 1024 |
@@ -92,7 +92,7 @@ gaps in between are fluid and don't need their own frame.
 ```jsonc
 {
   "breakpoint": {
-    "xxs": { "$type": "dimension", "$value": "360" },
+    "xs": { "$type": "dimension", "$value": "360" },
     "sm":  { "$type": "dimension", "$value": "640" },
     "md":  { "$type": "dimension", "$value": "768" },
     "lg":  { "$type": "dimension", "$value": "1024" },
@@ -150,14 +150,14 @@ scoped in detail this session**:
 
 ## 6. Decision log
 
-- **D1 — `xxs` at 360, not 375.** 375 (iPhone SE-class) was the long-standing
+- **D1 — `xs` at 360, not 375.** 375 (iPhone SE-class) was the long-standing
   default; current small-viewport traffic skews toward 360 (dominant
   small-Android width) as the narrower, more representative floor. Chosen as
   a device-representative design-frame anchor, not a strict "layout changes
   here" breakpoint like the rest of the scale.
 - **D2 — `sm`–`2xl` match Tailwind's default 5-tier scale exactly.** Chosen
   so Tailwind-based consumers of the emitted token layer get correct values
-  with zero remapping; `xxs` is additive on top, not a divergence from the
+  with zero remapping; `xs` is additive on top, not a divergence from the
   other five.
 - **D3 — `rem`, 16px base, mobile-first `min-width`.** Consistent with every
   other length token in the emitter and with the accessibility rationale in

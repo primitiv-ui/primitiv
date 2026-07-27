@@ -6,12 +6,11 @@
  * trigger. The bar is deliberately unfilled so the nav reads over any page
  * background — a hero texture, a coloured band, or plain surface.
  *
- * Layout is normal flow, not anchor positioning: the panel is a child of the
- * <nav>, which is the positioned containing block, so there is no `anchor-name` /
- * `position-anchor` wiring for the consumer (unlike Dropdown and Popover). This
- * also makes the published indicator geometry usable directly — the headless
- * measures the trigger's `offsetLeft` / `offsetWidth`, and the <nav> is that
- * trigger's offsetParent, so the same numbers place the marker.
+ * The indicator's geometry needs no anchor positioning of its own: the headless
+ * measures the trigger's `offsetLeft` / `offsetWidth` directly, and the <nav> is
+ * that trigger's offsetParent (`.primitiv-navigation-menu` is `position: relative`),
+ * so the same numbers place the marker regardless of how the panel itself is
+ * positioned.
  *
  * Requires the token layer for: --primitiv-nav-item-*, --primitiv-framed-control-*,
  * --primitiv-dropdown-*-panel-*, --primitiv-content-*, --primitiv-action-*,
@@ -25,14 +24,18 @@
  * shipped — the mobile presentation is a Drawer + Collapsible composition (RFC
  * 0019 §3), not a rotated version of this.
  *
- * Positioning is CSS anchor positioning, but — unlike Dropdown and Popover —
- * entirely headless-managed, no consumer wiring: every Trigger publishes its own
- * `anchor-name`, and the Root publishes whichever one is open as
- * `--primitiv-navigation-menu-active-trigger-anchor`, so the shared panel box
- * can re-target itself per trigger with no JS positioning math. Gated behind
- * `@supports (anchor-name: …)` — NavigationMenu has to keep working everywhere,
- * unlike Dropdown/Popover, which have no non-anchor fallback to protect — so a
- * browser without support keeps the plain nav-start-anchored insets below.
+ * Panel positioning is CSS anchor positioning, but — unlike Dropdown and
+ * Popover — entirely headless-managed, no consumer wiring: every Trigger
+ * publishes its own `anchor-name`, and the Root publishes whichever one is
+ * open as `--primitiv-navigation-menu-active-trigger-anchor`, so the shared
+ * panel box can re-target itself per trigger with no JS positioning math.
+ * Gated behind `@supports (anchor-name: …)` — NavigationMenu has to keep
+ * working everywhere, unlike Dropdown/Popover, which have no non-anchor
+ * fallback to protect — so a browser without support keeps the plain
+ * nav-start-anchored insets below. See the `.primitiv-navigation-menu__viewport`
+ * rule for why that positioning is `position: fixed` + `anchor()` +
+ * `anchor-center`, not `position-area` — the technique Popover itself uses,
+ * but one that mis-computes here (see that rule's comment for why).
  */
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
@@ -269,41 +272,45 @@
 
   /* Anchor positioning (Chromium): re-target the shared box to whichever
      trigger is open and center it there, instead of always hugging the nav's
-     start edge. `position-anchor` reads the headless-published active-anchor
-     custom property directly — when nothing is open it's unset, `var()` then
-     resolves to the guaranteed-invalid value, and `position-anchor` falls back
-     to its initial `none`, which is harmless (the box is invisible while
-     closed anyway). `block-end` alone centers the cross (inline) axis by
-     default — the same one-keyword-centers behaviour `--bottom` relies on in
-     the Popover stylesheet. */
+     start edge. `position: fixed` is required, not just a style choice: an
+     anchor-positioned box sharing its *containing block* with its own anchor
+     (as this one does — `.primitiv-navigation-menu` is `position: relative`,
+     the containing block for both the trigger and, if left `absolute`, this
+     box too) computes anchor insets and `position-area` wrong under
+     `position: absolute` — confirmed in complete isolation, a bare anchor +
+     target with no other CSS involved — which is the same reason Dropdown
+     and Popover both already use `position: fixed`. `position-anchor` reads
+     the headless-published active-anchor custom property directly — when
+     nothing is open it's unset, `var()` then resolves to the
+     guaranteed-invalid value, and `position-anchor` falls back to its
+     initial `none`, which is harmless (the box is invisible while closed
+     anyway). Anchor positioning re-targets and re-measures on scroll even
+     under `position: fixed`, so the panel still tracks the trigger as the
+     page scrolls rather than staying pinned to the viewport.
+
+     `inset-block-start: anchor(end)` (not `position-area`) for the block
+     axis: `position-area` silently auto-flips to the opposite side when a
+     tall panel doesn't fit in the remaining viewport height below the
+     trigger — reading as a mega-menu popping up *above* the bar, never the
+     right call here. A plain `anchor()` inset has no such auto-flip.
+
+     `justify-self: anchor-center` (not `position-area`, not a manual
+     `translate`) for centering: confirmed the only one of the three that (a)
+     genuinely re-centers under `position: fixed` and (b) keeps its own
+     built-in overflow avoidance against the containing block — a
+     `translate`-based center is invisible to the overflow check
+     `position-try-fallbacks` would need to clamp near an edge, so a
+     center-then-clamp built that way never actually clamps. `anchor-center`
+     already clamps a trigger near either end of the nav on its own, so no
+     extra `@position-try` fallbacks are needed. */
   @supports (anchor-name: --primitiv-navigation-menu-probe) {
     .primitiv-navigation-menu__viewport {
+      position: fixed;
       position-anchor: var(--primitiv-navigation-menu-active-trigger-anchor);
-      inset-block-start: auto;
+      inset-block-start: anchor(end);
       inset-inline-start: auto;
-      position-area: block-end;
-      /* Clamp instead of overflow for a trigger near either end of the nav —
-         growing from the anchor toward whichever side still has room, rather
-         than spilling past the nav's own edge (its nearest positioned
-         ancestor, and so the boundary `position-try-fallbacks` checks against
-         for an absolutely-positioned box). Logical `span-inline-*`, unlike the
-         Popover stylesheet's physical `span-left`/`span-right` placements, so
-         this mirrors correctly under `dir="rtl"`. */
-      position-try-fallbacks:
-        --primitiv-navigation-menu-edge-start,
-        --primitiv-navigation-menu-edge-end;
+      justify-self: anchor-center;
     }
-  }
-
-  /* Trigger near the nav's start: keep the box's own start edge at the
-     anchor and grow toward the end, so it can't spill past the start. */
-  @position-try --primitiv-navigation-menu-edge-start {
-    position-area: block-end span-inline-end;
-  }
-
-  /* Trigger near the nav's end: the mirror image — grow toward the start. */
-  @position-try --primitiv-navigation-menu-edge-end {
-    position-area: block-end span-inline-start;
   }
 
   /* The portal target, and the ONE grid cell shared by every panel. Each
@@ -348,11 +355,20 @@
        every open, matching whichever panel is actually rendered. */
     align-self: start;
     /* Grid items stretch to fill their column by default too — the inline-axis
-       twin of the bug above. Without this, a panel narrower than the box's
-       current width (set by a previous, wider panel's measurement) stretches
-       to match it, the headless Viewport measures that stretched width back,
-       and the box never shrinks for a genuinely narrow panel again. */
-    justify-self: start;
+       twin of the bug above, but `justify-self: start` alone isn't the fix
+       here: it still sizes via `fit-content`, which clamps to the grid
+       track's *current* available width as a ceiling — so switching from a
+       narrow panel (which just shrank the box) to a wide one got stuck
+       reporting back the previous, too-narrow width forever, the same
+       self-reinforcing loop in the opposite direction. An explicit
+       `max-content` size has no such ceiling: it's computed purely from the
+       panel's own content, ignoring whatever the box currently happens to
+       be — confirmed to escape the loop in both directions (verified live,
+       switching narrow-to-wide and wide-to-narrow repeatedly). This also
+       makes `justify-self` moot: `stretch` (the default) only stretches an
+       item whose size is `auto` — an explicit `inline-size` already behaves
+       like `start` on its own. */
+    inline-size: max-content;
   }
 
   /* A panel row — two lines (title + optional description) with optional slots

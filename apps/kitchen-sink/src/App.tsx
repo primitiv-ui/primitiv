@@ -27,6 +27,22 @@ import {
   CollapsibleTrigger,
   CollapsibleTriggerIcon,
   CollapsibleContent,
+  ContextMenu,
+  ContextMenuTrigger,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuCheckboxItem,
+  ContextMenuRadioItem,
+  ContextMenuItemIndicator,
+  ContextMenuItemLeading,
+  ContextMenuItemLabel,
+  ContextMenuItemTrailing,
+  ContextMenuLabel,
+  ContextMenuSeparator,
+  ContextMenuRadioGroup,
+  ContextMenuSub,
+  ContextMenuSubTrigger,
+  ContextMenuSubContent,
   Divider,
   Drawer,
   DrawerTrigger,
@@ -143,11 +159,15 @@ import {
   ChevronRight,
   ChevronUp,
   Close,
+  Copy,
+  Delete,
   Download,
   File,
   Folder,
+  Grid,
   Minus,
   Search,
+  Settings,
   Sort,
   User,
 } from "@primitiv-ui/icons";
@@ -446,6 +466,14 @@ export function App(): ReactElement {
     "indeterminate",
   );
   const [ddSortOrder, setDdSortOrder] = useState("modified");
+  // Context Menu demo state — same controlled pattern as Dropdown; this menu is
+  // themed as a canvas/shape editor's right-click menu rather than a file menu.
+  const [cmShowGrid, setCmShowGrid] = useState(true);
+  const [cmSnapToGrid, setCmSnapToGrid] = useState(false);
+  const [cmLockAspect, setCmLockAspect] = useState<boolean | "indeterminate">(
+    "indeterminate",
+  );
+  const [cmAlign, setCmAlign] = useState("left");
   const [framework, setFramework] = useState("react");
   // Select demo state — controlled so the trigger's mirrored content and the
   // checkmark indicator both track a real selection.
@@ -900,6 +928,157 @@ primitiv add --all`}</code>
             <DropdownItem disabled>Archive project</DropdownItem>
           </DropdownContent>
         </Dropdown>
+      </Section>
+
+      {/* Unlike Dropdown, the panel needs no anchor-name to open in the right
+          place — the headless layer places Content at the cursor itself. The
+          anchor-name / position-anchor pair wired below is the OPTIONAL escape
+          hatch that unlocks the @position-try overflow-flip (see styles.css);
+          right-click near an edge of the viewport to see it fold back on-screen.
+          The submenu still needs real anchor positioning against its
+          SubTrigger, same as Dropdown. */}
+      <Section title="Context Menu" column>
+        <p className="kitchen-sink__note">
+          A canvas/shape-editor right-click menu — items with leading icons and
+          shortcuts, a disabled row, checkbox items (including a tri-state
+          indeterminate one), a radio group, and a one-level submenu. Right-click
+          near the edge of the viewport to see the panel flip back on-screen.
+        </p>
+        <ContextMenu>
+          <ContextMenuTrigger asChild>
+            <div
+              className="ks-context-menu-canvas"
+              style={{ anchorName: "--ks-cm" }}
+            >
+              Right-click anywhere in this area
+            </div>
+          </ContextMenuTrigger>
+          <ContextMenuContent size={size} style={{ positionAnchor: "--ks-cm" }}>
+            <ContextMenuItem>
+              <ContextMenuItemLeading>
+                <Copy aria-hidden="true" />
+              </ContextMenuItemLeading>
+              <ContextMenuItemLabel>Copy</ContextMenuItemLabel>
+              <ContextMenuItemTrailing>
+                <span className="ks-select-kbd">⌘C</span>
+              </ContextMenuItemTrailing>
+            </ContextMenuItem>
+            <ContextMenuItem>
+              <ContextMenuItemLeading>
+                <Copy aria-hidden="true" />
+              </ContextMenuItemLeading>
+              <ContextMenuItemLabel>Duplicate</ContextMenuItemLabel>
+              <ContextMenuItemTrailing>
+                <span className="ks-select-kbd">⌘D</span>
+              </ContextMenuItemTrailing>
+            </ContextMenuItem>
+            <ContextMenuItem>
+              <ContextMenuItemLeading>
+                <Delete aria-hidden="true" />
+              </ContextMenuItemLeading>
+              <ContextMenuItemLabel>Delete</ContextMenuItemLabel>
+              <ContextMenuItemTrailing>
+                <span className="ks-select-kbd">⌫</span>
+              </ContextMenuItemTrailing>
+            </ContextMenuItem>
+
+            <ContextMenuSeparator />
+
+            <ContextMenuSub>
+              <ContextMenuSubTrigger style={{ anchorName: "--ks-cm-s1" }}>
+                Arrange
+                <ChevronRight aria-hidden="true" />
+              </ContextMenuSubTrigger>
+              <ContextMenuSubContent
+                size={size}
+                style={{ positionAnchor: "--ks-cm-s1" }}
+              >
+                <ContextMenuItem>Bring to front</ContextMenuItem>
+                <ContextMenuItem>Bring forward</ContextMenuItem>
+                <ContextMenuSeparator />
+                <ContextMenuItem>Send backward</ContextMenuItem>
+                <ContextMenuItem>Send to back</ContextMenuItem>
+              </ContextMenuSubContent>
+            </ContextMenuSub>
+
+            <ContextMenuSeparator />
+
+            <ContextMenuCheckboxItem
+              checked={cmShowGrid}
+              onCheckedChange={setCmShowGrid}
+              onSelect={(e) => e.preventDefault()}
+            >
+              <ContextMenuItemIndicator>
+                <Check aria-hidden="true" />
+              </ContextMenuItemIndicator>
+              Show grid
+            </ContextMenuCheckboxItem>
+            <ContextMenuCheckboxItem
+              checked={cmSnapToGrid}
+              onCheckedChange={setCmSnapToGrid}
+              onSelect={(e) => e.preventDefault()}
+            >
+              <ContextMenuItemIndicator>
+                <Check aria-hidden="true" />
+              </ContextMenuItemIndicator>
+              Snap to grid
+            </ContextMenuCheckboxItem>
+            <ContextMenuCheckboxItem
+              checked={cmLockAspect}
+              onCheckedChange={setCmLockAspect}
+              onSelect={(e) => e.preventDefault()}
+            >
+              <ContextMenuItemIndicator>
+                {cmLockAspect === "indeterminate" ? (
+                  <Minus aria-hidden="true" />
+                ) : (
+                  <Check aria-hidden="true" />
+                )}
+              </ContextMenuItemIndicator>
+              Lock aspect ratio
+            </ContextMenuCheckboxItem>
+
+            <ContextMenuSeparator />
+
+            <ContextMenuLabel>Align</ContextMenuLabel>
+            <ContextMenuRadioGroup value={cmAlign} onValueChange={setCmAlign}>
+              {["left", "center", "right"].map((value) => (
+                <ContextMenuRadioItem
+                  key={value}
+                  value={value}
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  <ContextMenuItemIndicator>
+                    <span
+                      style={{
+                        inlineSize: "45%",
+                        blockSize: "45%",
+                        borderRadius: "var(--primitiv-radii-full, 9999px)",
+                        background: "currentColor",
+                      }}
+                    />
+                  </ContextMenuItemIndicator>
+                  {value[0].toUpperCase() + value.slice(1)}
+                </ContextMenuRadioItem>
+              ))}
+            </ContextMenuRadioGroup>
+
+            <ContextMenuSeparator />
+
+            <ContextMenuItem>
+              <ContextMenuItemLeading>
+                <Settings aria-hidden="true" />
+              </ContextMenuItemLeading>
+              <ContextMenuItemLabel>Layer settings…</ContextMenuItemLabel>
+            </ContextMenuItem>
+            <ContextMenuItem disabled>
+              <ContextMenuItemLeading>
+                <Grid aria-hidden="true" />
+              </ContextMenuItemLeading>
+              <ContextMenuItemLabel>Export as image</ContextMenuItemLabel>
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
       </Section>
 
       {/* Sits high on the page for the same reason Dropdown does: the panel opens

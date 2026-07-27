@@ -92,6 +92,22 @@ body {
   font-size: var(--primitiv-label-xs-font-size);
 }
 
+/* The Context Menu demo's right-click surface — a placeholder canvas, not a
+   registry pattern. `anchor-name` lives inline on the element (wired per
+   ContextMenu instance, per its README), this rule is just the look. */
+.ks-context-menu-canvas {
+  display: grid;
+  place-items: center;
+  min-block-size: 12rem;
+  padding: var(--primitiv-space-space-24);
+  border: var(--primitiv-border-width-1) dashed var(--primitiv-border-default);
+  border-radius: var(--primitiv-radii-8);
+  background: var(--primitiv-surface-subtle);
+  color: var(--primitiv-content-muted);
+  text-align: center;
+  user-select: none;
+}
+
 /* Demonstrates hiding a mirrored slot from the closed trigger while keeping it
    in the listbox rows: SelectItemTrailing has no built-in "trigger only" /
    "row only" split (unlike SelectItemIndicator, which always excludes

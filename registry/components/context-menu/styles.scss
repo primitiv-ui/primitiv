@@ -1,0 +1,574 @@
+/*
+ * ContextMenu — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add context-menu`. It is yours to
+ * edit: the stable surface is the contract (the .primitiv-context-menu panel +
+ * __item / __checkbox-item / __radio-item / __item-indicator / __item-leading /
+ * __item-label / __item-trailing / __label / __separator / __group /
+ * __radio-group / __sub-trigger parts, the --xs…--xl size modifiers, the
+ * placement modifiers, the data-popover-open / data-state hooks, and the
+ * --primitiv-context-menu-* custom properties), not these values (RFC 0006
+ * Principle 2 — names are stable, values are not).
+ *
+ * ContextMenu deliberately resolves the shared --primitiv-dropdown-* panel /
+ * row tokens (size defaults below) rather than a parallel context-menu/*
+ * token ramp — the same escape hatch Select's listbox uses. A right-click
+ * menu and a Dropdown menu are the same row anatomy by construction (Figma
+ * reuses Dropdown's Item / CheckboxItem / RadioItem / SubTrigger rows via
+ * slots for this component too); re-point the --primitiv-context-menu-item-*
+ * / -label-* / -separator-* knobs below to break the tie.
+ *
+ * Positioning is NOT anchor positioning for the root panel — unlike Dropdown,
+ * the headless layer already places Content at the pointer via inline
+ * `left` / `top` (position: fixed), so no `anchor-name` wiring is required
+ * for the menu to open in the right place. It also exposes those same
+ * coordinates as --primitiv-context-menu-x / -y custom properties so this
+ * sheet can write `@position-try` fallbacks that flip the menu to the
+ * opposite side of the cursor when it would overflow the viewport (there is
+ * no anchor to flip around, so the built-in flip-inline / flip-block
+ * keywords Dropdown uses don't apply here — these are bespoke named
+ * fallbacks using the exposed coordinates instead).
+ *
+ * That said, `position-try-fallbacks` still needs the box to be an
+ * anchor-positioned element to engage at all — wire a (unique, per-instance)
+ * `anchor-name` on the Trigger's host element and a matching
+ * `position-anchor` on Content to opt in, mirroring Dropdown's escape hatch:
+ *
+ *   <ContextMenuTrigger asChild>
+ *     <div style={{ anchorName: "--menu" }}>Right-click here</div>
+ *   </ContextMenuTrigger>
+ *   <ContextMenuContent style={{ positionAnchor: "--menu" }} />
+ *
+ * Without it the menu still opens correctly at the cursor; it just won't
+ * auto-flip on overflow. Submenus (SubContent) are unaffected by this — they
+ * use real CSS anchor positioning against their SubTrigger, identically to
+ * Dropdown's subs, `anchor-name` + `position-anchor` required either way.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look
+ * live in primitiv.base, the size + placement modifiers in primitiv.variants,
+ * the highlighted / disabled / open-close styling in primitiv.states. The
+ * sublayer order is declared once in the shared token layer
+ * (primitiv.tokens.css); this file only re-opens the named sublayers.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-surface-*,
+ * --primitiv-content-*, --primitiv-border-*, --primitiv-elevation-*,
+ * --primitiv-dropdown-*, --primitiv-body-*, --primitiv-label-*,
+ * --primitiv-letter-spacing-*, --primitiv-space-*, --primitiv-color-*,
+ * --primitiv-action-*, --primitiv-opacity-* and --primitiv-motion-* custom
+ * properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of the
+ * token layer (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.reset {
+  .primitiv-context-menu {
+    /* Reset the native [popover] UA defaults: `margin: auto; inset: 0`
+       (viewport centering) so the headless layer's inline `left` / `top`
+       take over. The panel is a <menu>, so also strip the UA list styling. */
+    margin: 0;
+    inset: auto;
+    padding: 0;
+    border: 0;
+    list-style: none;
+  }
+
+  /* Group / RadioGroup wrap a nested <ul role="none"> — strip its list styling
+     so grouped rows sit flush in the panel column. */
+  .primitiv-context-menu__group,
+  .primitiv-context-menu__radio-group {
+    margin: 0;
+    padding: 0;
+  }
+
+  .primitiv-context-menu__group > ul,
+  .primitiv-context-menu__radio-group > ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Neutralise the base `li + li` inter-item margin (the RFC 0016 flow-rhythm
+     rule in the token layer's reset): menu rows stack flush, not with body-list
+     spacing. The Separator sets its own margin in primitiv.base — a higher layer
+     — so it keeps its divider spacing while every other row collapses to zero. */
+  .primitiv-context-menu li {
+    margin-block: 0;
+  }
+}
+
+@layer primitiv.base {
+  .primitiv-context-menu {
+    /* Per-component API — the themable knobs, defaulting to the md size and
+       resolving Dropdown's shared row tokens (see the header comment). The
+       size modifiers re-point the sizing knobs; consumers can override any
+       one without touching the rule. */
+    --primitiv-context-menu-surface: var(--primitiv-surface-default);
+    --primitiv-context-menu-fg: var(--primitiv-content-primary);
+    --primitiv-context-menu-border-width: var(--primitiv-border-width-1);
+    --primitiv-context-menu-border-color: var(--primitiv-border-default);
+    --primitiv-context-menu-shadow: var(--primitiv-elevation-overlay);
+    --primitiv-context-menu-radius: var(--primitiv-dropdown-md-panel-radius);
+    --primitiv-context-menu-padding-block: var(--primitiv-dropdown-md-panel-padding-block);
+    /* A small inline inset so a row's highlight / rounded corners sit inside the
+       panel edge instead of running flush against the border (most visible on
+       hover). */
+    --primitiv-context-menu-padding-inline: var(--primitiv-space-space-4);
+    --primitiv-context-menu-min-inline-size: 12rem;
+    /* Gap between a SubTrigger and its SubContent — the root panel needs no
+       offset of its own, it opens flush at the cursor. */
+    --primitiv-context-menu-offset: var(--primitiv-space-space-4);
+
+    --primitiv-context-menu-item-height: var(--primitiv-dropdown-md-item-height);
+    --primitiv-context-menu-item-padding-inline: var(--primitiv-dropdown-md-item-padding-inline);
+    --primitiv-context-menu-item-gap: var(--primitiv-dropdown-md-item-gap);
+    --primitiv-context-menu-item-radius: var(--primitiv-dropdown-md-item-radius);
+    --primitiv-context-menu-item-font-size: var(--primitiv-dropdown-md-item-font-size);
+    --primitiv-context-menu-item-line-height: var(--primitiv-dropdown-md-item-line-height);
+    --primitiv-context-menu-item-icon-size: var(--primitiv-dropdown-md-item-icon-size);
+    --primitiv-context-menu-item-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-context-menu-item-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-context-menu-item-color: var(--primitiv-content-primary);
+    --primitiv-context-menu-item-bg: var(--primitiv-color-transparent);
+    --primitiv-context-menu-item-bg-highlighted: var(--primitiv-action-secondary-default);
+
+    --primitiv-context-menu-label-height: var(--primitiv-dropdown-md-label-height);
+    --primitiv-context-menu-label-padding-inline: var(--primitiv-dropdown-md-label-padding-inline);
+    --primitiv-context-menu-label-color: var(--primitiv-content-muted);
+    --primitiv-context-menu-label-font-family: var(--primitiv-label-xs-font-family);
+    --primitiv-context-menu-label-font-size: var(--primitiv-label-xs-font-size);
+    --primitiv-context-menu-label-font-weight: var(--primitiv-label-xs-font-weight);
+    --primitiv-context-menu-label-line-height: var(--primitiv-label-xs-line-height);
+    --primitiv-context-menu-label-letter-spacing: var(--primitiv-letter-spacing-wide);
+
+    --primitiv-context-menu-separator-spacing: var(--primitiv-dropdown-md-separator-spacing);
+    --primitiv-context-menu-separator-color: var(--primitiv-border-subtle);
+    --primitiv-context-menu-separator-thickness: var(--primitiv-border-width-1);
+
+    /* Inline-start inset shared by every row's text. Defaults to the plain item
+       padding; a panel that holds indicator rows promotes it to the full gutter
+       (padding + icon + gap) via the :has() rule below, so items, sub-triggers
+       and labels all line up with the checkbox / radio column. Each panel
+       re-declares it, so a plain submenu stays compact inside a gutter parent. */
+    --primitiv-context-menu-row-inset: var(--primitiv-context-menu-item-padding-inline);
+
+    /* The panel. Fixed positioning + the headless layer's inline `left` / `top`
+       place it at the cursor with zero consumer CSS; the try-fallbacks below
+       flip it off the opposite edge when it would overflow. Inert while closed
+       (native [popover] is display:none until :popover-open). */
+    position: fixed;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-inline-size: var(--primitiv-context-menu-min-inline-size);
+    padding-block: var(--primitiv-context-menu-padding-block);
+    padding-inline: var(--primitiv-context-menu-padding-inline);
+    border: var(--primitiv-context-menu-border-width) solid var(--primitiv-context-menu-border-color);
+    border-radius: var(--primitiv-context-menu-radius);
+    background: var(--primitiv-context-menu-surface);
+    color: var(--primitiv-context-menu-fg);
+    box-shadow: var(--primitiv-context-menu-shadow);
+
+    /* Opt-in overflow flip — see the header comment. Inert unless the consumer
+       also wires anchor-name (Trigger) + position-anchor (this element); with
+       neither, the menu still opens correctly, it just can't try an alternate
+       position. */
+    position-try-fallbacks:
+      --primitiv-context-menu-flip-inline,
+      --primitiv-context-menu-flip-block,
+      --primitiv-context-menu-flip-both;
+  }
+
+  /* Named fallbacks for the root panel only — there is no anchor to flip
+     around (unlike Dropdown's flip-inline / flip-block keywords), so these
+     recompute the opposite edge directly from the pointer coordinates the
+     headless layer exposes as --primitiv-context-menu-x / -y. */
+  @position-try --primitiv-context-menu-flip-inline {
+    left: auto;
+    right: calc(100vw - var(--primitiv-context-menu-x));
+  }
+  @position-try --primitiv-context-menu-flip-block {
+    top: auto;
+    bottom: calc(100vh - var(--primitiv-context-menu-y));
+  }
+  @position-try --primitiv-context-menu-flip-both {
+    left: auto;
+    right: calc(100vw - var(--primitiv-context-menu-x));
+    top: auto;
+    bottom: calc(100vh - var(--primitiv-context-menu-y));
+  }
+
+  /* Show when open. A closed [popover] is display:none via the UA rule; setting
+     a visible display on the base rule would leak the panel while closed
+     (headless README gotcha), so only the display flip is gated here. */
+  .primitiv-context-menu:popover-open {
+    display: flex;
+  }
+
+  /* A panel that contains indicator rows reserves the gutter on ALL its rows so
+     every label aligns with the checkbox / radio column (the macOS-menu
+     convention). :has() is scoped per panel — a nested submenu re-declares the
+     inset from its own content, so a plain submenu doesn't inherit the parent's
+     gutter and stays compact. */
+  .primitiv-context-menu:has(.primitiv-context-menu__checkbox-item, .primitiv-context-menu__radio-item) {
+    --primitiv-context-menu-row-inset: calc(
+      var(--primitiv-context-menu-item-padding-inline) +
+        var(--primitiv-context-menu-item-icon-size) + var(--primitiv-context-menu-item-gap)
+    );
+  }
+
+  /* ── Rows — Item / CheckboxItem / RadioItem / SubTrigger share the shell ── */
+  .primitiv-context-menu__item,
+  .primitiv-context-menu__checkbox-item,
+  .primitiv-context-menu__radio-item,
+  .primitiv-context-menu__sub-trigger {
+    display: flex;
+    align-items: center;
+    gap: var(--primitiv-context-menu-item-gap);
+    box-sizing: border-box;
+    min-block-size: var(--primitiv-context-menu-item-height);
+    /* Start = the shared row inset (gutter in an indicator panel, plain padding
+       otherwise); end = plain padding. Keeps every row's text on one column. */
+    padding-inline: var(--primitiv-context-menu-row-inset) var(--primitiv-context-menu-item-padding-inline);
+    border-radius: var(--primitiv-context-menu-item-radius);
+    background: var(--primitiv-context-menu-item-bg);
+    color: var(--primitiv-context-menu-item-color);
+    font-family: var(--primitiv-context-menu-item-font-family);
+    font-size: var(--primitiv-context-menu-item-font-size);
+    font-weight: var(--primitiv-context-menu-item-font-weight);
+    line-height: var(--primitiv-context-menu-item-line-height);
+    cursor: default;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  /* The row's text label takes the remaining space so the SubTrigger chevron /
+     nothing else is pushed to the inline-end. */
+  .primitiv-context-menu__item,
+  .primitiv-context-menu__sub-trigger {
+    justify-content: space-between;
+  }
+
+  /* SubTrigger chevron — a trailing indicator sized to the item icon scale.
+     Consumers drop an icon (or a ">" glyph) as the last child; this sizes it. */
+  .primitiv-context-menu__sub-trigger > :last-child {
+    flex: none;
+    inline-size: var(--primitiv-context-menu-item-icon-size);
+    block-size: var(--primitiv-context-menu-item-icon-size);
+  }
+
+  /* ── Row slots — the Figma [gutter][leading][label FILL][trailing] shape ──
+     All three parts are optional; a plain text row needs none of them. The
+     label takes the free space so a leading glyph hugs the indicator gutter and
+     a trailing affordance (shortcut, badge, chevron) sits on the inline-end
+     edge, with the row's own `gap` spacing them. Leading is a fixed icon square;
+     trailing is icon-height but free to grow inline, so a swapped-in Kbd or
+     badge keeps its natural width.
+
+     Reach for these whenever a row carries a leading slot: without the label
+     part the flex row has free space to distribute, and the plain-item
+     `space-between` below would push a bare text node away from its glyph. */
+  .primitiv-context-menu__item-leading,
+  .primitiv-context-menu__item-trailing {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    block-size: var(--primitiv-context-menu-item-icon-size);
+  }
+
+  .primitiv-context-menu__item-leading {
+    inline-size: var(--primitiv-context-menu-item-icon-size);
+  }
+
+  .primitiv-context-menu__item-trailing {
+    min-inline-size: var(--primitiv-context-menu-item-icon-size);
+  }
+
+  /* An icon dropped straight into either slot scales with the row. */
+  .primitiv-context-menu__item-leading > svg,
+  .primitiv-context-menu__item-trailing > svg {
+    inline-size: var(--primitiv-context-menu-item-icon-size);
+    block-size: var(--primitiv-context-menu-item-icon-size);
+  }
+
+  /* The label absorbs the row's free space (Figma: FILL). min-inline-size: 0
+     overrides the flex item's auto content floor so a long label shrinks rather
+     than pushing the trailing slot past the panel edge. */
+  .primitiv-context-menu__item-label {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+
+  /* ── CheckboxItem / RadioItem — the ItemIndicator sits in the shared gutter ──
+     The mark (a ✓ / • / — the consumer supplies) is absolutely placed in the
+     inline-start gutter; position:relative anchors it. The gutter width is the
+     shared row inset above — reserved on every row in an indicator panel — so
+     text stays aligned whether or not the mark is mounted (the headless unmounts
+     it while unchecked unless forceMount). This is the same menu checkmark/dot
+     indicator model Dropdown's CheckboxItem / RadioItem + ItemIndicator render. */
+  .primitiv-context-menu__checkbox-item,
+  .primitiv-context-menu__radio-item {
+    position: relative;
+  }
+
+  .primitiv-context-menu__item-indicator {
+    position: absolute;
+    inset-inline-start: var(--primitiv-context-menu-item-padding-inline);
+    inset-block-start: 50%;
+    translate: 0 -50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-context-menu-item-icon-size);
+    block-size: var(--primitiv-context-menu-item-icon-size);
+    color: currentColor;
+  }
+
+  /* ── Label — a small-caps section header ── */
+  .primitiv-context-menu__label {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-block-size: var(--primitiv-context-menu-label-height);
+    /* Start on the shared row inset so the header lines up with its items. */
+    padding-inline: var(--primitiv-context-menu-row-inset) var(--primitiv-context-menu-label-padding-inline);
+    color: var(--primitiv-context-menu-label-color);
+    font-family: var(--primitiv-context-menu-label-font-family);
+    font-size: var(--primitiv-context-menu-label-font-size);
+    font-weight: var(--primitiv-context-menu-label-font-weight);
+    line-height: var(--primitiv-context-menu-label-line-height);
+    letter-spacing: var(--primitiv-context-menu-label-letter-spacing);
+    text-transform: uppercase;
+    user-select: none;
+  }
+
+  /* ── Separator — a thin rule with breathing room above and below ── */
+  .primitiv-context-menu__separator {
+    block-size: var(--primitiv-context-menu-separator-thickness);
+    margin-block: var(--primitiv-context-menu-separator-spacing);
+    background: var(--primitiv-context-menu-separator-color);
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the sizing knobs to the chosen slot, resolving Dropdown's
+     matching size tokens (see the header comment). Density stays ambient via
+     [data-density] on the token values themselves (RFC 0009). */
+  .primitiv-context-menu--xs {
+    --primitiv-context-menu-radius: var(--primitiv-dropdown-xs-panel-radius);
+    --primitiv-context-menu-padding-block: var(--primitiv-dropdown-xs-panel-padding-block);
+    --primitiv-context-menu-item-height: var(--primitiv-dropdown-xs-item-height);
+    --primitiv-context-menu-item-padding-inline: var(--primitiv-dropdown-xs-item-padding-inline);
+    --primitiv-context-menu-item-gap: var(--primitiv-dropdown-xs-item-gap);
+    --primitiv-context-menu-item-radius: var(--primitiv-dropdown-xs-item-radius);
+    --primitiv-context-menu-item-font-size: var(--primitiv-dropdown-xs-item-font-size);
+    --primitiv-context-menu-item-line-height: var(--primitiv-dropdown-xs-item-line-height);
+    --primitiv-context-menu-item-icon-size: var(--primitiv-dropdown-xs-item-icon-size);
+    --primitiv-context-menu-label-height: var(--primitiv-dropdown-xs-label-height);
+    --primitiv-context-menu-label-padding-inline: var(--primitiv-dropdown-xs-label-padding-inline);
+    --primitiv-context-menu-separator-spacing: var(--primitiv-dropdown-xs-separator-spacing);
+  }
+  .primitiv-context-menu--sm {
+    --primitiv-context-menu-radius: var(--primitiv-dropdown-sm-panel-radius);
+    --primitiv-context-menu-padding-block: var(--primitiv-dropdown-sm-panel-padding-block);
+    --primitiv-context-menu-item-height: var(--primitiv-dropdown-sm-item-height);
+    --primitiv-context-menu-item-padding-inline: var(--primitiv-dropdown-sm-item-padding-inline);
+    --primitiv-context-menu-item-gap: var(--primitiv-dropdown-sm-item-gap);
+    --primitiv-context-menu-item-radius: var(--primitiv-dropdown-sm-item-radius);
+    --primitiv-context-menu-item-font-size: var(--primitiv-dropdown-sm-item-font-size);
+    --primitiv-context-menu-item-line-height: var(--primitiv-dropdown-sm-item-line-height);
+    --primitiv-context-menu-item-icon-size: var(--primitiv-dropdown-sm-item-icon-size);
+    --primitiv-context-menu-label-height: var(--primitiv-dropdown-sm-label-height);
+    --primitiv-context-menu-label-padding-inline: var(--primitiv-dropdown-sm-label-padding-inline);
+    --primitiv-context-menu-separator-spacing: var(--primitiv-dropdown-sm-separator-spacing);
+  }
+  .primitiv-context-menu--md {
+    --primitiv-context-menu-radius: var(--primitiv-dropdown-md-panel-radius);
+    --primitiv-context-menu-padding-block: var(--primitiv-dropdown-md-panel-padding-block);
+    --primitiv-context-menu-item-height: var(--primitiv-dropdown-md-item-height);
+    --primitiv-context-menu-item-padding-inline: var(--primitiv-dropdown-md-item-padding-inline);
+    --primitiv-context-menu-item-gap: var(--primitiv-dropdown-md-item-gap);
+    --primitiv-context-menu-item-radius: var(--primitiv-dropdown-md-item-radius);
+    --primitiv-context-menu-item-font-size: var(--primitiv-dropdown-md-item-font-size);
+    --primitiv-context-menu-item-line-height: var(--primitiv-dropdown-md-item-line-height);
+    --primitiv-context-menu-item-icon-size: var(--primitiv-dropdown-md-item-icon-size);
+    --primitiv-context-menu-label-height: var(--primitiv-dropdown-md-label-height);
+    --primitiv-context-menu-label-padding-inline: var(--primitiv-dropdown-md-label-padding-inline);
+    --primitiv-context-menu-separator-spacing: var(--primitiv-dropdown-md-separator-spacing);
+  }
+  .primitiv-context-menu--lg {
+    --primitiv-context-menu-radius: var(--primitiv-dropdown-lg-panel-radius);
+    --primitiv-context-menu-padding-block: var(--primitiv-dropdown-lg-panel-padding-block);
+    --primitiv-context-menu-item-height: var(--primitiv-dropdown-lg-item-height);
+    --primitiv-context-menu-item-padding-inline: var(--primitiv-dropdown-lg-item-padding-inline);
+    --primitiv-context-menu-item-gap: var(--primitiv-dropdown-lg-item-gap);
+    --primitiv-context-menu-item-radius: var(--primitiv-dropdown-lg-item-radius);
+    --primitiv-context-menu-item-font-size: var(--primitiv-dropdown-lg-item-font-size);
+    --primitiv-context-menu-item-line-height: var(--primitiv-dropdown-lg-item-line-height);
+    --primitiv-context-menu-item-icon-size: var(--primitiv-dropdown-lg-item-icon-size);
+    --primitiv-context-menu-label-height: var(--primitiv-dropdown-lg-label-height);
+    --primitiv-context-menu-label-padding-inline: var(--primitiv-dropdown-lg-label-padding-inline);
+    --primitiv-context-menu-separator-spacing: var(--primitiv-dropdown-lg-separator-spacing);
+  }
+  .primitiv-context-menu--xl {
+    --primitiv-context-menu-radius: var(--primitiv-dropdown-xl-panel-radius);
+    --primitiv-context-menu-padding-block: var(--primitiv-dropdown-xl-panel-padding-block);
+    --primitiv-context-menu-item-height: var(--primitiv-dropdown-xl-item-height);
+    --primitiv-context-menu-item-padding-inline: var(--primitiv-dropdown-xl-item-padding-inline);
+    --primitiv-context-menu-item-gap: var(--primitiv-dropdown-xl-item-gap);
+    --primitiv-context-menu-item-radius: var(--primitiv-dropdown-xl-item-radius);
+    --primitiv-context-menu-item-font-size: var(--primitiv-dropdown-xl-item-font-size);
+    --primitiv-context-menu-item-line-height: var(--primitiv-dropdown-xl-item-line-height);
+    --primitiv-context-menu-item-icon-size: var(--primitiv-dropdown-xl-item-icon-size);
+    --primitiv-context-menu-label-height: var(--primitiv-dropdown-xl-label-height);
+    --primitiv-context-menu-label-padding-inline: var(--primitiv-dropdown-xl-label-padding-inline);
+    --primitiv-context-menu-separator-spacing: var(--primitiv-dropdown-xl-separator-spacing);
+  }
+
+  /* Placement — SubContent only (see the contract). Identical mechanics to
+     Dropdown's subs: real CSS anchor positioning against the SubTrigger, all
+     expressed with logical anchor(start)/anchor(end) so each flips correctly
+     under RTL. The root Content never carries one of these classes. */
+  .primitiv-context-menu--bottom-start {
+    inset-block-start: anchor(end);
+    inset-block-end: auto;
+    inset-inline-start: anchor(start);
+    inset-inline-end: auto;
+    margin-block: var(--primitiv-context-menu-offset) 0;
+    margin-inline: 0;
+  }
+  .primitiv-context-menu--bottom-end {
+    inset-block-start: anchor(end);
+    inset-block-end: auto;
+    inset-inline-end: anchor(end);
+    inset-inline-start: auto;
+    margin-block: var(--primitiv-context-menu-offset) 0;
+    margin-inline: 0;
+  }
+  .primitiv-context-menu--top-start {
+    inset-block-end: anchor(start);
+    inset-block-start: auto;
+    inset-inline-start: anchor(start);
+    inset-inline-end: auto;
+    margin-block: 0 var(--primitiv-context-menu-offset);
+    margin-inline: 0;
+  }
+  .primitiv-context-menu--top-end {
+    inset-block-end: anchor(start);
+    inset-block-start: auto;
+    inset-inline-end: anchor(end);
+    inset-inline-start: auto;
+    margin-block: 0 var(--primitiv-context-menu-offset);
+    margin-inline: 0;
+  }
+
+  /* Submenu (SubContent) — opens to the inline-end side of the parent row,
+     aligned to its block-start. flip-inline first so it folds back to the
+     inline-start side when it would overflow. Unlike the root panel, this
+     genuinely is anchor()-based, so the built-in keyword fallbacks apply. */
+  .primitiv-context-menu--submenu {
+    inset-block-start: anchor(start);
+    inset-block-end: auto;
+    inset-inline-start: anchor(end);
+    inset-inline-end: auto;
+    margin-block: 0;
+    margin-inline: var(--primitiv-context-menu-offset) 0;
+    position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block;
+  }
+}
+
+@layer primitiv.states {
+  /* Highlighted row — the headless sets [data-highlighted] on pointer-enter and
+     on keyboard navigation, so hover and arrow focus share this fill. On a
+     SubTrigger it also persists while its submenu is open, keeping the active
+     path lit. */
+  .primitiv-context-menu__item[data-highlighted],
+  .primitiv-context-menu__checkbox-item[data-highlighted],
+  .primitiv-context-menu__radio-item[data-highlighted],
+  .primitiv-context-menu__sub-trigger[data-highlighted] {
+    background: var(--primitiv-context-menu-item-bg-highlighted);
+    outline: none;
+  }
+
+  /* Disabled — the headless sets aria-disabled and skips the row for
+     navigation, typeahead, and activation; the styling just dims it. */
+  .primitiv-context-menu__item[aria-disabled="true"],
+  .primitiv-context-menu__checkbox-item[aria-disabled="true"],
+  .primitiv-context-menu__radio-item[aria-disabled="true"],
+  .primitiv-context-menu__sub-trigger[aria-disabled="true"],
+  .primitiv-context-menu__label[aria-disabled="true"] {
+    opacity: var(--primitiv-opacity-50);
+    pointer-events: none;
+  }
+
+  /* Enter / exit — the panel scales + fades, driven by the native :popover-open
+     state (the headless calls showPopover / hidePopover). The resting/closed
+     state (base rule) is faded + scaled down; :popover-open brings it in;
+     @starting-style gives the enter its starting frame so the exit is the exact
+     reverse. allow-discrete on display + overlay keeps the panel painted in the
+     top layer through the close so it animates out instead of snapping.
+     Token-driven (shared overlay duration + enter / exit easings). */
+  .primitiv-context-menu {
+    opacity: var(--primitiv-opacity-transparent);
+    scale: 0.97;
+    transition:
+      opacity var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
+      scale var(--primitiv-motion-duration-overlay) var(--primitiv-motion-easing-exit),
+      display var(--primitiv-motion-duration-overlay) allow-discrete,
+      overlay var(--primitiv-motion-duration-overlay) allow-discrete;
+  }
+  .primitiv-context-menu:popover-open {
+    opacity: var(--primitiv-opacity-100);
+    scale: 1;
+    transition-timing-function: var(--primitiv-motion-easing-enter);
+  }
+  @starting-style {
+    .primitiv-context-menu:popover-open {
+      opacity: var(--primitiv-opacity-transparent);
+      scale: 0.97;
+    }
+  }
+
+  /* Honour reduced-motion: no scale / fade, just show / hide. */
+  @media (prefers-reduced-motion: reduce) {
+    .primitiv-context-menu {
+      transition: none;
+    }
+  }
+}
+
+$primitiv-context-menu-surface: var(--primitiv-context-menu-surface);
+$primitiv-context-menu-fg: var(--primitiv-context-menu-fg);
+$primitiv-context-menu-border-width: var(--primitiv-context-menu-border-width);
+$primitiv-context-menu-border-color: var(--primitiv-context-menu-border-color);
+$primitiv-context-menu-shadow: var(--primitiv-context-menu-shadow);
+$primitiv-context-menu-radius: var(--primitiv-context-menu-radius);
+$primitiv-context-menu-padding-block: var(--primitiv-context-menu-padding-block);
+$primitiv-context-menu-padding-inline: var(--primitiv-context-menu-padding-inline);
+$primitiv-context-menu-min-inline-size: var(--primitiv-context-menu-min-inline-size);
+$primitiv-context-menu-offset: var(--primitiv-context-menu-offset);
+$primitiv-context-menu-item-height: var(--primitiv-context-menu-item-height);
+$primitiv-context-menu-item-padding-inline: var(--primitiv-context-menu-item-padding-inline);
+$primitiv-context-menu-item-gap: var(--primitiv-context-menu-item-gap);
+$primitiv-context-menu-item-radius: var(--primitiv-context-menu-item-radius);
+$primitiv-context-menu-item-font-size: var(--primitiv-context-menu-item-font-size);
+$primitiv-context-menu-item-line-height: var(--primitiv-context-menu-item-line-height);
+$primitiv-context-menu-item-icon-size: var(--primitiv-context-menu-item-icon-size);
+$primitiv-context-menu-item-font-family: var(--primitiv-context-menu-item-font-family);
+$primitiv-context-menu-item-font-weight: var(--primitiv-context-menu-item-font-weight);
+$primitiv-context-menu-item-color: var(--primitiv-context-menu-item-color);
+$primitiv-context-menu-item-bg: var(--primitiv-context-menu-item-bg);
+$primitiv-context-menu-item-bg-highlighted: var(--primitiv-context-menu-item-bg-highlighted);
+$primitiv-context-menu-row-inset: var(--primitiv-context-menu-row-inset);
+$primitiv-context-menu-label-height: var(--primitiv-context-menu-label-height);
+$primitiv-context-menu-label-padding-inline: var(--primitiv-context-menu-label-padding-inline);
+$primitiv-context-menu-label-color: var(--primitiv-context-menu-label-color);
+$primitiv-context-menu-label-font-family: var(--primitiv-context-menu-label-font-family);
+$primitiv-context-menu-label-font-size: var(--primitiv-context-menu-label-font-size);
+$primitiv-context-menu-label-font-weight: var(--primitiv-context-menu-label-font-weight);
+$primitiv-context-menu-label-line-height: var(--primitiv-context-menu-label-line-height);
+$primitiv-context-menu-label-letter-spacing: var(--primitiv-context-menu-label-letter-spacing);
+$primitiv-context-menu-separator-spacing: var(--primitiv-context-menu-separator-spacing);
+$primitiv-context-menu-separator-color: var(--primitiv-context-menu-separator-color);
+$primitiv-context-menu-separator-thickness: var(--primitiv-context-menu-separator-thickness);

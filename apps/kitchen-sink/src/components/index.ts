@@ -6,6 +6,7 @@ export * from "./carousel";
 export * from "./checkbox";
 export * from "./code-block";
 export * from "./collapsible";
+export * from "./context-menu";
 export * from "./divider";
 export * from "./drawer";
 export * from "./dropdown";

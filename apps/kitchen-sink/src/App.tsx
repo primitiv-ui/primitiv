@@ -1,4 +1,9 @@
-import { Fragment, useState, type CSSProperties, type ReactElement } from "react";
+import {
+  Fragment,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+} from "react";
 import {
   Accordion,
   AccordionItem,
@@ -6,6 +11,9 @@ import {
   AccordionTrigger,
   AccordionContent,
   AccordionTriggerIcon,
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
   Button,
   Checkbox,
   CodeBlock,
@@ -135,6 +143,7 @@ import {
   Minus,
   Search,
   Sort,
+  User,
 } from "@primitiv-ui/icons";
 import { useChrome } from "./chrome";
 import "./App.css";
@@ -313,7 +322,10 @@ const NAV_SECTIONS = [
     columns: [
       [
         { title: "Tokens", description: "The three-tier token architecture" },
-        { title: "Density & theming", description: "Four densities, light and dark" },
+        {
+          title: "Density & theming",
+          description: "Four densities, light and dark",
+        },
       ],
       [
         { title: "Cascade layers", description: "How the CSS layers stack" },
@@ -354,14 +366,23 @@ const RESOURCES_LINKS = [
 // callout beside its link grid).
 const EXPLORE_COLUMNS = [
   [
-    { title: "Installation", description: "Add the token layer and your first component" },
-    { title: "Quick start", description: "A working page in under five minutes" },
+    {
+      title: "Installation",
+      description: "Add the token layer and your first component",
+    },
+    {
+      title: "Quick start",
+      description: "A working page in under five minutes",
+    },
     { title: "CLI", description: "add, tokens, theme and list" },
     { title: "Theming", description: "Light, dark, and your own brand colour" },
     { title: "FAQ", description: "Common questions, answered" },
   ],
   [
-    { title: "Forms & controls", description: "Input, Select, Checkbox, Radio" },
+    {
+      title: "Forms & controls",
+      description: "Input, Select, Checkbox, Radio",
+    },
     { title: "Overlays", description: "Modal, Drawer, Popover, Tooltip" },
     { title: "Navigation", description: "Tabs, Breadcrumb, this menu" },
     { title: "Data display", description: "Table, Accordion, Carousel" },
@@ -381,7 +402,10 @@ const EXPLORE_COLUMNS = [
 // written once across both presentations.
 const MOBILE_NAV = [
   { label: "Start Here", links: ["Installation", "Quick start"] },
-  { label: "Concepts", links: ["Tokens", "Density & theming", "Cascade layers"] },
+  {
+    label: "Concepts",
+    links: ["Tokens", "Density & theming", "Cascade layers"],
+  },
   { label: "Registry & CLI", links: ["Adding components", "The lockfile"] },
 ] as const;
 
@@ -421,7 +445,8 @@ export function App(): ReactElement {
   // checkmark indicator both track a real selection.
   const [selFramework, setSelFramework] = useState("");
   const [selRuntime, setSelRuntime] = useState("vue");
-  const [selRuntimeHiddenTrailing, setSelRuntimeHiddenTrailing] = useState("vue");
+  const [selRuntimeHiddenTrailing, setSelRuntimeHiddenTrailing] =
+    useState("vue");
   const [selRegion, setSelRegion] = useState("");
   const [selFruit, setSelFruit] = useState("");
   const [readMoreOpen, setReadMoreOpen] = useState(false);
@@ -620,6 +645,30 @@ primitiv add --all`}</code>
         </Button>
       </Section>
 
+      {/* Root is a fixed-size clipping frame; only one of Image/Fallback is ever
+          visible. The broken-src avatar demonstrates the error status still
+          falling back cleanly (the image stays mounted so its load lifecycle
+          isn't lost — see Avatar's README — it's just hidden). */}
+      <Section title="Avatar">
+        <Avatar size={size}>
+          <AvatarImage src={`${import.meta.env.BASE_URL}avatar-demo.jpg`} alt="Ada Lovelace" />
+          <AvatarFallback>AL</AvatarFallback>
+        </Avatar>
+        <Avatar size={size} shape="square">
+          <AvatarImage src={`${import.meta.env.BASE_URL}avatar-demo.jpg`} alt="Ada Lovelace" />
+          <AvatarFallback>AL</AvatarFallback>
+        </Avatar>
+        <Avatar size={size}>
+          <AvatarImage src={`${import.meta.env.BASE_URL}does-not-exist.jpg`} alt="Broken image" />
+          <AvatarFallback>BI</AvatarFallback>
+        </Avatar>
+        <Avatar size={size}>
+          <AvatarFallback>
+            <User aria-hidden="true" />
+          </AvatarFallback>
+        </Avatar>
+      </Section>
+
       {/* One menu exercising every part: a labelled Group of Items (with keyboard
           shortcuts via the row's space-between), CheckboxItems (check / dash mixed)
           and a RadioGroup (dot) through ItemIndicators, Separators, and a THREE-level
@@ -812,7 +861,9 @@ primitiv add --all`}</code>
             {NAV_SECTIONS.map((section) => (
               <NavigationMenuItem key={section.value} value={section.value}>
                 <NavigationMenuTrigger>
-                  <NavigationMenuTriggerLabel>{section.label}</NavigationMenuTriggerLabel>
+                  <NavigationMenuTriggerLabel>
+                    {section.label}
+                  </NavigationMenuTriggerLabel>
                   <NavigationMenuTriggerIcon>
                     <ChevronDown aria-hidden="true" />
                   </NavigationMenuTriggerIcon>
@@ -837,7 +888,9 @@ primitiv add --all`}</code>
                           href={`#${section.value}-${row.title}`}
                         >
                           <NavigationMenuLinkText>
-                            <NavigationMenuLinkTitle>{row.title}</NavigationMenuLinkTitle>
+                            <NavigationMenuLinkTitle>
+                              {row.title}
+                            </NavigationMenuLinkTitle>
                             <NavigationMenuLinkDescription>
                               {row.description}
                             </NavigationMenuLinkDescription>
@@ -856,7 +909,9 @@ primitiv add --all`}</code>
                 the slot at all). */}
             <NavigationMenuItem value="registry">
               <NavigationMenuTrigger>
-                <NavigationMenuTriggerLabel>Registry &amp; CLI</NavigationMenuTriggerLabel>
+                <NavigationMenuTriggerLabel>
+                  Registry &amp; CLI
+                </NavigationMenuTriggerLabel>
                 <NavigationMenuTriggerIcon>
                   <ChevronDown aria-hidden="true" />
                 </NavigationMenuTriggerIcon>
@@ -865,7 +920,9 @@ primitiv add --all`}</code>
                 <div>
                   <NavigationMenuLink placement="panel" href="#adding">
                     <NavigationMenuLinkText>
-                      <NavigationMenuLinkTitle>Adding components</NavigationMenuLinkTitle>
+                      <NavigationMenuLinkTitle>
+                        Adding components
+                      </NavigationMenuLinkTitle>
                       <NavigationMenuLinkDescription>
                         primitiv add, and what it copies
                       </NavigationMenuLinkDescription>
@@ -873,7 +930,9 @@ primitiv add --all`}</code>
                   </NavigationMenuLink>
                   <NavigationMenuLink placement="panel" href="#lockfile">
                     <NavigationMenuLinkText>
-                      <NavigationMenuLinkTitle>The lockfile</NavigationMenuLinkTitle>
+                      <NavigationMenuLinkTitle>
+                        The lockfile
+                      </NavigationMenuLinkTitle>
                     </NavigationMenuLinkText>
                   </NavigationMenuLink>
                   <NavigationMenuLink placement="panel" href="#slots">
@@ -881,7 +940,9 @@ primitiv add --all`}</code>
                       <File aria-hidden="true" />
                     </NavigationMenuLinkLeading>
                     <NavigationMenuLinkText>
-                      <NavigationMenuLinkTitle>With row slots</NavigationMenuLinkTitle>
+                      <NavigationMenuLinkTitle>
+                        With row slots
+                      </NavigationMenuLinkTitle>
                       <NavigationMenuLinkDescription>
                         Optional leading and trailing content
                       </NavigationMenuLinkDescription>
@@ -908,14 +969,15 @@ primitiv add --all`}</code>
                 forceMount
                 style={
                   {
-                    "--primitiv-navigation-menu-content-columns": "13rem repeat(3, 1fr)",
+                    "--primitiv-navigation-menu-content-columns":
+                      "13rem repeat(3, 1fr)",
                   } as CSSProperties
                 }
               >
                 <a href="#explore" className="ks-nav-callout">
                   <img
                     className="ks-nav-callout__mark"
-                    src="/primitiv-logo.svg"
+                    src={`${import.meta.env.BASE_URL}primitiv-logo.svg`}
                     alt=""
                     aria-hidden="true"
                   />
@@ -933,7 +995,9 @@ primitiv add --all`}</code>
                         href={`#explore-${row.title}`}
                       >
                         <NavigationMenuLinkText>
-                          <NavigationMenuLinkTitle>{row.title}</NavigationMenuLinkTitle>
+                          <NavigationMenuLinkTitle>
+                            {row.title}
+                          </NavigationMenuLinkTitle>
                           <NavigationMenuLinkDescription>
                             {row.description}
                           </NavigationMenuLinkDescription>
@@ -950,7 +1014,9 @@ primitiv add --all`}</code>
                 than the two/four-column overrides the other panels set. */}
             <NavigationMenuItem value="resources">
               <NavigationMenuTrigger>
-                <NavigationMenuTriggerLabel>Resources</NavigationMenuTriggerLabel>
+                <NavigationMenuTriggerLabel>
+                  Resources
+                </NavigationMenuTriggerLabel>
                 <NavigationMenuTriggerIcon>
                   <ChevronDown aria-hidden="true" />
                 </NavigationMenuTriggerIcon>
@@ -964,7 +1030,9 @@ primitiv add --all`}</code>
                       href={`#resources-${row.title}`}
                     >
                       <NavigationMenuLinkText>
-                        <NavigationMenuLinkTitle>{row.title}</NavigationMenuLinkTitle>
+                        <NavigationMenuLinkTitle>
+                          {row.title}
+                        </NavigationMenuLinkTitle>
                         <NavigationMenuLinkDescription>
                           {row.description}
                         </NavigationMenuLinkDescription>
@@ -983,7 +1051,9 @@ primitiv add --all`}</code>
               </NavigationMenuLink>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <NavigationMenuLink href="#figma">Design in Figma</NavigationMenuLink>
+              <NavigationMenuLink href="#figma">
+                Design in Figma
+              </NavigationMenuLink>
             </NavigationMenuItem>
           </NavigationMenuList>
 
@@ -1019,7 +1089,11 @@ primitiv add --all`}</code>
                     Collapsible replaces. */}
                 <NavigationMenu size={size} aria-label="Docs (mobile)">
                   {MOBILE_NAV.map((section) => (
-                    <Collapsible key={section.label} size={size} variant="plain">
+                    <Collapsible
+                      key={section.label}
+                      size={size}
+                      variant="plain"
+                    >
                       <CollapsibleTrigger>
                         {section.label}
                         <CollapsibleTriggerIcon>
@@ -1034,7 +1108,9 @@ primitiv add --all`}</code>
                             href={`#${link}`}
                           >
                             <NavigationMenuLinkText>
-                              <NavigationMenuLinkTitle>{link}</NavigationMenuLinkTitle>
+                              <NavigationMenuLinkTitle>
+                                {link}
+                              </NavigationMenuLinkTitle>
                             </NavigationMenuLinkText>
                           </NavigationMenuLink>
                         ))}
@@ -1217,7 +1293,9 @@ primitiv add --all`}</code>
               size={size}
               className="ks-select-hide-trailing-value"
               aria-label="Runtime, trailing hidden once selected"
-              style={{ anchorName: "--ks-sel-runtime-notrailing" } as CSSProperties}
+              style={
+                { anchorName: "--ks-sel-runtime-notrailing" } as CSSProperties
+              }
             >
               <SelectValue placeholder="Pick a runtime…" />
               <SelectIcon>
@@ -1226,7 +1304,11 @@ primitiv add --all`}</code>
             </SelectTrigger>
             <SelectContent
               size={size}
-              style={{ positionAnchor: "--ks-sel-runtime-notrailing" } as CSSProperties}
+              style={
+                {
+                  positionAnchor: "--ks-sel-runtime-notrailing",
+                } as CSSProperties
+              }
             >
               {RUNTIMES.map(({ value, label, Logo, shortcut, soon }) => (
                 <SelectItem key={value} value={value} disabled={soon}>

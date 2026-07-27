@@ -544,3 +544,24 @@ fn the_collapsible_contract_generates_its_expected_wrapper_form() {
         ))
     );
 }
+
+/// Drift guard: the committed `registry/components/avatar/avatar.tsx` is exactly
+/// the generated form of its contract — a structural compound (root + `image` +
+/// `fallback`) with a modifier-bearing root (`size` / `shape`) and two
+/// modifier-free subcomponents, neither opting into `wrapTextChildren`.
+#[test]
+fn the_committed_avatar_wrapper_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/avatar/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_wrapper(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/components/avatar/avatar.tsx"
+        ))
+    );
+}

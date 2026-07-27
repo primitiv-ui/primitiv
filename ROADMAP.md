@@ -48,7 +48,7 @@ is the exception (Figma set `601:9607`, whose tabbed Type composes Tabs + Button
 |---|---|---|---|---|---|
 | Accordion | ✓ | ✓ | ✓ | ✓ | 416:6729 (Item), 417:6881 (Panel) |
 | Alert | — | ✓ | — | — | |
-| Avatar | ✓ | ✓ | — | — | 433:7944 |
+| Avatar | ✓ | ✓ | ✓ | ✓ | 433:7944 (Size xs-xl × Type Image\|Initials\|Placeholder × Shape Circle\|Square, 30 variants). Headless `Avatar.Root`/`.Image`/`.Fallback` (image load-status compound). Registry `avatar` = fixed-size clipping frame (`.primitiv-avatar` root, `overflow: hidden` + `border-radius`) with the image/fallback absolutely stacked and only one shown per `data-status`; sizing/icon-size reuse `framed-control/*` directly (matches Figma's own binding), radius is the avatar-specific `avatar/radius/*` family (pre-existing token, circle = `full` regardless of size, square = size-scaled); one flagged Figma drift (Placeholder's icon uses `content/secondary`, Initials' text uses `action/secondary/foreground/default` — registry uses the latter for both via `currentColor`). Kitchen-sink = working image, broken-image→error-fallback, square shape, icon-only fallback |
 | Breadcrumb | ✓ | ✓ | — | — | 436:12220 (Item), 436:12221 (Separator), 436:12911 (composition) |
 | Button | ✓ | ✓ | ✓ | ✓ | 347:14161 |
 | Carousel | 🟡 | ✓ | ✓ | ✓ | Figma set in progress — `CarouselSlide` + parts, full set not yet assembled |

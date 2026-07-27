@@ -1,0 +1,164 @@
+/*
+ * Avatar — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add avatar`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-avatar root + __image /
+ * __fallback parts, the data-status="loaded" hooks, and the
+ * --primitiv-avatar-* custom properties), not these values (RFC 0006
+ * Principle 2 — names are stable, values are not).
+ *
+ * The root is a fixed-size <span> — the clipping frame — holding two
+ * absolutely-stacked children: the __image (an <img>, hidden until its
+ * data-status reaches "loaded") and the __fallback (a <span>, the initials or
+ * icon a consumer renders while idle/loading/error). Only one is ever visible
+ * at a time, so there is no crossfade to choreograph.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look live
+ * in primitiv.base, size / shape modifiers in primitiv.variants, the
+ * status-driven image visibility in primitiv.states. The sublayer order is
+ * declared once in the shared token layer (primitiv.tokens.css).
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-framed-control-*,
+ * --primitiv-avatar-radius-*, --primitiv-border-*, --primitiv-action-*,
+ * --primitiv-label-* and --primitiv-content-* custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-avatar {
+    /* Per-component API — the themable knobs, defaulting to the md size and
+       the circle shape. The variants layer below re-points them; consumers
+       can override any one without touching the rule. */
+    --primitiv-avatar-size: var(--primitiv-framed-control-md-height);
+    --primitiv-avatar-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-avatar-radius: var(--primitiv-avatar-radius-full);
+    --primitiv-avatar-square-radius: var(--primitiv-avatar-radius-md);
+    --primitiv-avatar-border-width: var(--primitiv-framed-control-border-width);
+    --primitiv-avatar-border-color: var(--primitiv-border-default);
+    --primitiv-avatar-fallback-bg: var(--primitiv-action-secondary-default);
+    --primitiv-avatar-fallback-fg: var(--primitiv-action-secondary-foreground-default);
+    --primitiv-avatar-fallback-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-avatar-fallback-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-avatar-fallback-font-weight: var(--primitiv-label-md-font-weight);
+
+    /* The root is the clipping frame: a fixed square box, its own positioning
+       context for the absolutely-stacked image/fallback, and the ring drawn
+       right at the clipped edge. flex-shrink keeps it from being squeezed when
+       it sits in a flex row (an avatar stack, a list row). */
+    box-sizing: border-box;
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    inline-size: var(--primitiv-avatar-size);
+    block-size: var(--primitiv-avatar-size);
+    overflow: hidden;
+    border-radius: var(--primitiv-avatar-radius);
+    border: var(--primitiv-avatar-border-width) solid var(--primitiv-avatar-border-color);
+  }
+
+  /* The image fills the frame and crops to it — object-fit is the CSS
+     equivalent of the Figma frame's IMAGE-paint scaleMode: FILL. Absolutely
+     stacked over the fallback so swapping visibility (states layer) needs no
+     layout change. */
+  .primitiv-avatar__image {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  /* The fallback is the same frame filled with the resting background,
+     flex-centring whatever content a consumer renders — generated initials
+     (styled directly here) or a stand-in icon (sized via the descendant
+     selector below, coloured by inheriting --primitiv-avatar-fallback-fg
+     through currentColor). */
+  .primitiv-avatar__fallback {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primitiv-avatar-fallback-bg);
+    color: var(--primitiv-avatar-fallback-fg);
+    font-family: var(--primitiv-avatar-fallback-font-family);
+    font-size: var(--primitiv-avatar-fallback-font-size);
+    font-weight: var(--primitiv-avatar-fallback-font-weight);
+    /* Figma's initials text carries no line-height token — the design is
+       unbound/AUTO so the glyph hugs the flex-centred box exactly. No
+       --primitiv-label-*-line-height reproduces that; a token here would add
+       leading the design doesn't have and throw the centring off. */
+    line-height: 1;
+    /* Stand-in content, not page content — a tap-hold shouldn't select the
+       initials or pop iOS's text-selection callout. */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  .primitiv-avatar__fallback svg {
+    inline-size: var(--primitiv-avatar-icon-size);
+    block-size: var(--primitiv-avatar-icon-size);
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the frame dimension, the fallback icon size and the
+     initials type slot together, plus the square shape's size-scaled radius.
+     Density stays ambient via [data-density] on the token values themselves
+     (RFC 0009). */
+  .primitiv-avatar--xs {
+    --primitiv-avatar-size: var(--primitiv-framed-control-xs-height);
+    --primitiv-avatar-icon-size: var(--primitiv-framed-control-xs-icon-size);
+    --primitiv-avatar-square-radius: var(--primitiv-avatar-radius-xs);
+    --primitiv-avatar-fallback-font-size: var(--primitiv-label-xs-font-size);
+  }
+  .primitiv-avatar--sm {
+    --primitiv-avatar-size: var(--primitiv-framed-control-sm-height);
+    --primitiv-avatar-icon-size: var(--primitiv-framed-control-sm-icon-size);
+    --primitiv-avatar-square-radius: var(--primitiv-avatar-radius-sm);
+    --primitiv-avatar-fallback-font-size: var(--primitiv-label-sm-font-size);
+  }
+  .primitiv-avatar--md {
+    --primitiv-avatar-size: var(--primitiv-framed-control-md-height);
+    --primitiv-avatar-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-avatar-square-radius: var(--primitiv-avatar-radius-md);
+    --primitiv-avatar-fallback-font-size: var(--primitiv-label-md-font-size);
+  }
+  .primitiv-avatar--lg {
+    --primitiv-avatar-size: var(--primitiv-framed-control-lg-height);
+    --primitiv-avatar-icon-size: var(--primitiv-framed-control-lg-icon-size);
+    --primitiv-avatar-square-radius: var(--primitiv-avatar-radius-lg);
+    --primitiv-avatar-fallback-font-size: var(--primitiv-label-lg-font-size);
+  }
+  .primitiv-avatar--xl {
+    --primitiv-avatar-size: var(--primitiv-framed-control-xl-height);
+    --primitiv-avatar-icon-size: var(--primitiv-framed-control-xl-icon-size);
+    --primitiv-avatar-square-radius: var(--primitiv-avatar-radius-xl);
+    --primitiv-avatar-fallback-font-size: var(--primitiv-label-xl-font-size);
+  }
+
+  /* Shape — circle is the full-pill radius regardless of size; square swaps
+     in the size-scaled radius the block above keeps current. */
+  .primitiv-avatar--circle {
+    --primitiv-avatar-radius: var(--primitiv-avatar-radius-full);
+  }
+  .primitiv-avatar--square {
+    --primitiv-avatar-radius: var(--primitiv-avatar-square-radius);
+  }
+}
+
+@layer primitiv.states {
+  /* Only one of image/fallback is ever meant to be visible: the image stays
+     mounted through "loading"/"error" (so its own load lifecycle isn't lost)
+     but is hidden until it actually decodes, leaving the fallback showing
+     through in every other status. */
+  .primitiv-avatar__image:not([data-status="loaded"]) {
+    display: none;
+  }
+}

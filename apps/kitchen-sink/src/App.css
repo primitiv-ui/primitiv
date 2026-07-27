@@ -101,6 +101,52 @@ body {
   display: none;
 }
 
+/* The "Explore" NavigationMenu panel's brand callout — Radix's own
+   NavigationMenu example demo carries an identical block (their own logo, a
+   gradient card) beside its link grid; this is the same idea with Primitiv's
+   own mark. A one-off flourish for this specific demo panel, not a registry
+   pattern — it sits in the panel's first grid column and stretches to the
+   link columns' height for free (Grid's own align-items: stretch default). */
+.ks-nav-callout {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--primitiv-space-space-8);
+  padding: var(--primitiv-space-space-20);
+  border-radius: var(--primitiv-radii-12);
+  background: linear-gradient(
+    135deg,
+    var(--primitiv-action-primary-default),
+    var(--primitiv-content-primary)
+  );
+  color: var(--primitiv-color-white);
+  text-decoration: none;
+}
+
+/* The real asset (apps/kitchen-sink/public/primitiv-logo.svg) is a solid black
+   mark on transparent — invert() is the standard flip to white for a
+   single-colour SVG referenced by <img>, which can't take a `fill` override
+   the way an inlined <svg> could. */
+.ks-nav-callout__mark {
+  display: inline-flex;
+  inline-size: var(--primitiv-space-space-32);
+  block-size: var(--primitiv-space-space-32);
+  filter: invert(1);
+}
+
+.ks-nav-callout__wordmark {
+  font-family: var(--primitiv-font-family-heading);
+  font-size: var(--primitiv-label-lg-font-size);
+  font-weight: 700;
+  letter-spacing: var(--primitiv-letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+.ks-nav-callout__text {
+  font-size: var(--primitiv-body-sm-font-size);
+  opacity: var(--primitiv-opacity-70);
+}
+
 /* A flex row so a vertical Divider has a row height to stretch across. */
 .kitchen-sink__divider-row {
   display: flex;

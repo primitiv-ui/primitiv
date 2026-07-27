@@ -337,6 +337,45 @@ const NAV_SECTIONS = [
   },
 ] as const;
 
+// A single-column panel — the narrow end of the same layout freedom Concepts /
+// Components demonstrate at two columns. --primitiv-navigation-menu-content-columns
+// defaults to 1fr, so this panel needs no style override at all.
+const RESOURCES_LINKS = [
+  { title: "GitHub", description: "Source, issues and discussions" },
+  { title: "Releases", description: "Version history and changelog" },
+  { title: "RFCs", description: "Design decisions, written down" },
+  { title: "Contributing", description: "How to propose a change" },
+  { title: "License", description: "MIT, and what that means" },
+] as const;
+
+// The wide end: a fixed-width brand callout beside three link columns — the
+// same per-panel column override as Concepts / Components, just a different
+// track list (Radix's own NavigationMenu example carries an identical brand
+// callout beside its link grid).
+const EXPLORE_COLUMNS = [
+  [
+    { title: "Installation", description: "Add the token layer and your first component" },
+    { title: "Quick start", description: "A working page in under five minutes" },
+    { title: "CLI", description: "add, tokens, theme and list" },
+    { title: "Theming", description: "Light, dark, and your own brand colour" },
+    { title: "FAQ", description: "Common questions, answered" },
+  ],
+  [
+    { title: "Forms & controls", description: "Input, Select, Checkbox, Radio" },
+    { title: "Overlays", description: "Modal, Drawer, Popover, Tooltip" },
+    { title: "Navigation", description: "Tabs, Breadcrumb, this menu" },
+    { title: "Data display", description: "Table, Accordion, Carousel" },
+    { title: "Typography", description: "Prose, Blockquote, Code block" },
+  ],
+  [
+    { title: "Discord", description: "Chat with the community" },
+    { title: "Blog", description: "Release notes and deep dives" },
+    { title: "Showcase", description: "Real products built on Primitiv" },
+    { title: "Sponsors", description: "Support the project" },
+    { title: "Roadmap", description: "What's shipping next" },
+  ],
+] as const;
+
 // The composed mobile presentation (RFC 0019 §3): a Drawer shell holding one
 // Collapsible per section, reusing NavigationMenuLink so active-state logic is
 // written once across both presentations.
@@ -761,10 +800,13 @@ primitiv add --all`}</code>
           downward and needs room below it. Unlike Dropdown it is normal-flow — the
           <nav> is the containing block — so there is no anchor-name wiring. */}
       <Section title="Navigation Menu" column>
-        {/* Desktop: two disclosure entries with mega-menu panels, one plain bar
-            link, an arrow marker, and the shared Viewport every panel projects
-            into. forceMount on all three so the close can be transitioned rather
-            than snapping (the headless applies `hidden` without it). */}
+        {/* Desktop: five disclosure entries — each panel free to arrange itself
+            differently via its own --primitiv-navigation-menu-content-columns
+            (two columns, a single column, a four-column brand callout + grid) —
+            two plain bar links, an arrow marker, and the shared Viewport every
+            panel projects into. forceMount on all three so the close can be
+            transitioned rather than snapping (the headless applies `hidden`
+            without it). */}
         <NavigationMenu size={size} aria-label="Docs">
           <NavigationMenuList>
             {NAV_SECTIONS.map((section) => (
@@ -808,23 +850,10 @@ primitiv add --all`}</code>
               </NavigationMenuItem>
             ))}
 
-            {/* A value-less Item is what makes this a plain link rather than a
-                disclosure — no Trigger, no panel. */}
-            <NavigationMenuItem>
-              <NavigationMenuLink href="#changelog" active>
-                Changelog
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-
-          <NavigationMenuIndicator forceMount />
-          <NavigationMenuViewport forceMount />
-        </NavigationMenu>
-
-        {/* The same nav with the underline marker — the docs-site wireframe's
-            treatment, and the reason Indicator ships two styles. */}
-        <NavigationMenu size={size} aria-label="Docs (underline marker)">
-          <NavigationMenuList>
+            {/* A single column of three rows: one with a description, one
+                without (collapses to one line), and one using the leading /
+                trailing slots (both default off — a row opts in by rendering
+                the slot at all). */}
             <NavigationMenuItem value="registry">
               <NavigationMenuTrigger>
                 <NavigationMenuTriggerLabel>Registry &amp; CLI</NavigationMenuTriggerLabel>
@@ -842,15 +871,11 @@ primitiv add --all`}</code>
                       </NavigationMenuLinkDescription>
                     </NavigationMenuLinkText>
                   </NavigationMenuLink>
-                  {/* A row with the description omitted collapses to one line. */}
                   <NavigationMenuLink placement="panel" href="#lockfile">
                     <NavigationMenuLinkText>
                       <NavigationMenuLinkTitle>The lockfile</NavigationMenuLinkTitle>
                     </NavigationMenuLinkText>
                   </NavigationMenuLink>
-                  {/* The only row using the leading/trailing slots. Both default OFF
-                      (matching the Figma set's Show leading / Show trailing booleans)
-                      — a row opts in by rendering the slot at all. */}
                   <NavigationMenuLink placement="panel" href="#slots">
                     <NavigationMenuLinkLeading>
                       <File aria-hidden="true" />
@@ -869,12 +894,100 @@ primitiv add --all`}</code>
               </NavigationMenuContent>
             </NavigationMenuItem>
 
+            {/* Wide: a fixed-width brand callout (a bespoke kitchen-sink-only
+                flourish — see .ks-nav-callout in App.css, not a registry pattern)
+                beside three link columns. */}
+            <NavigationMenuItem value="explore">
+              <NavigationMenuTrigger>
+                <NavigationMenuTriggerLabel>Explore</NavigationMenuTriggerLabel>
+                <NavigationMenuTriggerIcon>
+                  <ChevronDown aria-hidden="true" />
+                </NavigationMenuTriggerIcon>
+              </NavigationMenuTrigger>
+              <NavigationMenuContent
+                forceMount
+                style={
+                  {
+                    "--primitiv-navigation-menu-content-columns": "13rem repeat(3, 1fr)",
+                  } as CSSProperties
+                }
+              >
+                <a href="#explore" className="ks-nav-callout">
+                  <img
+                    className="ks-nav-callout__mark"
+                    src="/primitiv-logo.svg"
+                    alt=""
+                    aria-hidden="true"
+                  />
+                  <span className="ks-nav-callout__wordmark">Primitiv</span>
+                  <span className="ks-nav-callout__text">
+                    A headless, themeable component library
+                  </span>
+                </a>
+                {EXPLORE_COLUMNS.map((column, columnIndex) => (
+                  <div key={columnIndex}>
+                    {column.map((row) => (
+                      <NavigationMenuLink
+                        key={row.title}
+                        placement="panel"
+                        href={`#explore-${row.title}`}
+                      >
+                        <NavigationMenuLinkText>
+                          <NavigationMenuLinkTitle>{row.title}</NavigationMenuLinkTitle>
+                          <NavigationMenuLinkDescription>
+                            {row.description}
+                          </NavigationMenuLinkDescription>
+                        </NavigationMenuLinkText>
+                      </NavigationMenuLink>
+                    ))}
+                  </div>
+                ))}
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+
+            {/* Narrow: a single column, no style override — demonstrates the
+                default --primitiv-navigation-menu-content-columns (1fr) rather
+                than the two/four-column overrides the other panels set. */}
+            <NavigationMenuItem value="resources">
+              <NavigationMenuTrigger>
+                <NavigationMenuTriggerLabel>Resources</NavigationMenuTriggerLabel>
+                <NavigationMenuTriggerIcon>
+                  <ChevronDown aria-hidden="true" />
+                </NavigationMenuTriggerIcon>
+              </NavigationMenuTrigger>
+              <NavigationMenuContent forceMount>
+                <div>
+                  {RESOURCES_LINKS.map((row) => (
+                    <NavigationMenuLink
+                      key={row.title}
+                      placement="panel"
+                      href={`#resources-${row.title}`}
+                    >
+                      <NavigationMenuLinkText>
+                        <NavigationMenuLinkTitle>{row.title}</NavigationMenuLinkTitle>
+                        <NavigationMenuLinkDescription>
+                          {row.description}
+                        </NavigationMenuLinkDescription>
+                      </NavigationMenuLinkText>
+                    </NavigationMenuLink>
+                  ))}
+                </div>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+
+            {/* Value-less Items are what make these plain links rather than
+                disclosures — no Trigger, no panel. */}
+            <NavigationMenuItem>
+              <NavigationMenuLink href="#changelog" active>
+                Changelog
+              </NavigationMenuLink>
+            </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuLink href="#figma">Design in Figma</NavigationMenuLink>
             </NavigationMenuItem>
           </NavigationMenuList>
 
-          <NavigationMenuIndicator marker="underline" forceMount />
+          <NavigationMenuIndicator forceMount />
           <NavigationMenuViewport forceMount />
         </NavigationMenu>
 

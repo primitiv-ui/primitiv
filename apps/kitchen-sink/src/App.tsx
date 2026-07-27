@@ -1545,7 +1545,7 @@ export function ramp(hue: number, chroma = 0.12) {
                         <NavigationMenuLink
                           key={row.title}
                           placement="panel"
-                          href={`#${section.value}-${row.title}`}
+                          href="#"
                         >
                           <NavigationMenuLinkText>
                             <NavigationMenuLinkTitle>
@@ -1578,7 +1578,7 @@ export function ramp(hue: number, chroma = 0.12) {
               </NavigationMenuTrigger>
               <NavigationMenuContent forceMount>
                 <div>
-                  <NavigationMenuLink placement="panel" href="#adding">
+                  <NavigationMenuLink placement="panel" href="#">
                     <NavigationMenuLinkText>
                       <NavigationMenuLinkTitle>
                         Adding components
@@ -1588,14 +1588,14 @@ export function ramp(hue: number, chroma = 0.12) {
                       </NavigationMenuLinkDescription>
                     </NavigationMenuLinkText>
                   </NavigationMenuLink>
-                  <NavigationMenuLink placement="panel" href="#lockfile">
+                  <NavigationMenuLink placement="panel" href="#">
                     <NavigationMenuLinkText>
                       <NavigationMenuLinkTitle>
                         The lockfile
                       </NavigationMenuLinkTitle>
                     </NavigationMenuLinkText>
                   </NavigationMenuLink>
-                  <NavigationMenuLink placement="panel" href="#slots">
+                  <NavigationMenuLink placement="panel" href="#">
                     <NavigationMenuLinkLeading>
                       <File aria-hidden="true" />
                     </NavigationMenuLinkLeading>
@@ -1634,7 +1634,7 @@ export function ramp(hue: number, chroma = 0.12) {
                   } as CSSProperties
                 }
               >
-                <a href="#explore" className="ks-nav-callout">
+                <a href="#" className="ks-nav-callout">
                   <img
                     className="ks-nav-callout__mark"
                     src={`${import.meta.env.BASE_URL}primitiv-logo.svg`}
@@ -1652,7 +1652,7 @@ export function ramp(hue: number, chroma = 0.12) {
                       <NavigationMenuLink
                         key={row.title}
                         placement="panel"
-                        href={`#explore-${row.title}`}
+                        href="#"
                       >
                         <NavigationMenuLinkText>
                           <NavigationMenuLinkTitle>
@@ -1687,7 +1687,7 @@ export function ramp(hue: number, chroma = 0.12) {
                     <NavigationMenuLink
                       key={row.title}
                       placement="panel"
-                      href={`#resources-${row.title}`}
+                      href="#"
                     >
                       <NavigationMenuLinkText>
                         <NavigationMenuLinkTitle>
@@ -1706,12 +1706,12 @@ export function ramp(hue: number, chroma = 0.12) {
             {/* Value-less Items are what make these plain links rather than
                 disclosures — no Trigger, no panel. */}
             <NavigationMenuItem>
-              <NavigationMenuLink href="#changelog" active>
+              <NavigationMenuLink href="#" active>
                 Changelog
               </NavigationMenuLink>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <NavigationMenuLink href="#figma">
+              <NavigationMenuLink href="#">
                 Design in Figma
               </NavigationMenuLink>
             </NavigationMenuItem>
@@ -1767,7 +1767,7 @@ export function ramp(hue: number, chroma = 0.12) {
                           <NavigationMenuLink
                             key={link}
                             placement="panel"
-                            href={`#${link}`}
+                            href="#"
                           >
                             <NavigationMenuLinkText>
                               <NavigationMenuLinkTitle>

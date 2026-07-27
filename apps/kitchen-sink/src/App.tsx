@@ -657,15 +657,24 @@ primitiv add --all`}</code>
           isn't lost — see Avatar's README — it's just hidden). */}
       <Section title="Avatar">
         <Avatar size={size}>
-          <AvatarImage src={`${import.meta.env.BASE_URL}avatar-demo.jpg`} alt="Ada Lovelace" />
+          <AvatarImage
+            src={`${import.meta.env.BASE_URL}avatar-demo.jpg`}
+            alt="Ada Lovelace"
+          />
           <AvatarFallback>AL</AvatarFallback>
         </Avatar>
         <Avatar size={size} shape="square">
-          <AvatarImage src={`${import.meta.env.BASE_URL}avatar-demo.jpg`} alt="Ada Lovelace" />
+          <AvatarImage
+            src={`${import.meta.env.BASE_URL}avatar-demo.jpg`}
+            alt="Ada Lovelace"
+          />
           <AvatarFallback>AL</AvatarFallback>
         </Avatar>
         <Avatar size={size}>
-          <AvatarImage src={`${import.meta.env.BASE_URL}does-not-exist.jpg`} alt="Broken image" />
+          <AvatarImage
+            src={`${import.meta.env.BASE_URL}does-not-exist.jpg`}
+            alt="Broken image"
+          />
           <AvatarFallback>BI</AvatarFallback>
         </Avatar>
         <Avatar size={size}>
@@ -760,7 +769,7 @@ primitiv add --all`}</code>
                 <DropdownItemLeading>
                   <Folder aria-hidden="true" />
                 </DropdownItemLeading>
-                <DropdownItemLabel>Open…</DropdownItemLabel>
+                <DropdownItemLabel>Open...</DropdownItemLabel>
                 <DropdownItemTrailing>
                   <span className="ks-select-kbd">⌘O</span>
                 </DropdownItemTrailing>

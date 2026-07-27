@@ -395,6 +395,11 @@
       "name": "--primitiv-navigation-menu-viewport-height",
       "source": "headless",
       "description": "The measured block size of the open panel. Same mechanism as -viewport-width."
+    },
+    {
+      "name": "--primitiv-navigation-menu-active-trigger-anchor",
+      "source": "headless",
+      "description": "Published by `Root` — the `anchor-name` of whichever trigger is currently open (every `Trigger` publishes its own). The stylesheet's `position-anchor` reads this to re-target the shared `Viewport` per trigger; unset while nothing is open. Only takes effect in browsers with CSS anchor-positioning support (see the stylesheet's `@supports` gate)."
     }
   ],
   "dependsOn": {

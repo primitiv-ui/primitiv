@@ -111,6 +111,28 @@ because the `<nav>` is `position: relative` and therefore the trigger's
 space. Both fall back to `0` when the open value names an entry with no rendered
 trigger.
 
+## Panel positioning
+
+The panel hugs its own content's width and centers itself under whichever
+trigger is open — it does **not** stretch to the nav's full width, and it
+isn't always anchored to the nav's start edge. This is CSS anchor positioning,
+but unlike [`dropdown`](../dropdown/README.md) and
+[`popover`](../popover/README.md) it needs **no consumer wiring at all**: every
+`Trigger` publishes its own `anchor-name`, and `Root` publishes whichever one
+is open as `--primitiv-navigation-menu-active-trigger-anchor`, which the
+stylesheet's `position-anchor` reads directly.
+
+A trigger near either end of the bar clamps instead of overflowing: the panel
+grows away from the edge it's nearest to (toward the end when the trigger is
+near the start, and vice versa) rather than spilling past the nav's own
+boundary, via named `@position-try` fallbacks.
+
+This only takes effect in browsers with CSS anchor-positioning support — the
+whole mechanism sits behind `@supports (anchor-name: …)`. Elsewhere the panel
+falls back to the plain nav-start-anchored insets, which is why NavigationMenu
+keeps this fallback at all: unlike Dropdown/Popover it has to keep working
+everywhere, not just in Chromium.
+
 ## Panel transitions
 
 Three things happen when the open entry changes:

@@ -5,6 +5,7 @@ import { composeEventHandlers } from "../../Slot/index.ts";
 import { PANEL_FOCUSABLE_SELECTOR } from "../constants";
 import { useNavigationMenuContext } from "../NavigationMenuContext";
 import type { NavigationMenuTriggerProps } from "../types";
+import { getTriggerAnchorName } from "../utils";
 
 import { useNavigationMenuEntry } from "./useNavigationMenuEntry";
 import { useNavigationMenuTopLevelEntry } from "./useNavigationMenuTopLevelEntry";
@@ -23,6 +24,9 @@ export function useNavigationMenuTrigger({
   panelId: string;
   open: boolean;
   state: "open" | "closed";
+  /** This trigger's own `anchor-name`, so the shared Viewport can position
+   * its panel relative to whichever trigger opened it. */
+  anchorName: string;
   handleClick: (event: MouseEvent<HTMLButtonElement>) => void;
   handlePointerEnter: (event: PointerEvent<HTMLButtonElement>) => void;
   handlePointerLeave: (event: PointerEvent<HTMLButtonElement>) => void;
@@ -145,6 +149,7 @@ export function useNavigationMenuTrigger({
     panelId,
     open,
     state,
+    anchorName: getTriggerAnchorName(triggerId),
     handleClick,
     handlePointerEnter,
     handlePointerLeave,

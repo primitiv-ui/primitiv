@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
-import type { FocusEvent, KeyboardEvent } from "react";
+import type { CSSProperties, FocusEvent, KeyboardEvent } from "react";
 
 import { useCollection, useControllableState } from "../../hooks/index.ts";
 
@@ -9,7 +9,7 @@ import type {
   NavigationMenuReadingDirection,
   NavigationMenuRootProps,
 } from "../types";
-import { getTriggerAndPanelIds } from "../utils";
+import { getTriggerAnchorName, getTriggerAndPanelIds } from "../utils";
 
 /** The presentation props arrive **resolved**: `NavigationMenu.Root` applies
  * its own documented defaults (and inherits `dir` from `DirectionProvider`)
@@ -41,6 +41,11 @@ export function useNavigationMenuRoot({
   closeWithDelay: () => void;
   closeOnFocusOutside: (event: FocusEvent<HTMLElement>) => void;
   handleKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
+  /** Publishes the open entry's trigger `anchor-name` as
+   * `--primitiv-navigation-menu-active-trigger-anchor`, so the shared
+   * Viewport's `position-anchor` can target whichever trigger is open. Unset
+   * (dropped by React) while nothing is open. */
+  style: CSSProperties;
 } {
   const navigationMenuId = useId();
   const [openValue, setOpenValue] = useControllableState<string>(
@@ -276,11 +281,21 @@ export function useNavigationMenuRoot({
     [closeAndRefocusTrigger],
   );
 
+  const style = {
+    "--primitiv-navigation-menu-active-trigger-anchor":
+      openValue === ""
+        ? undefined
+        : getTriggerAnchorName(
+            getTriggerAndPanelIds(navigationMenuId, openValue).triggerId,
+          ),
+  } as CSSProperties;
+
   return {
     contextValue,
     cancelClose,
     closeWithDelay,
     closeOnFocusOutside,
     handleKeyDown,
+    style,
   };
 }

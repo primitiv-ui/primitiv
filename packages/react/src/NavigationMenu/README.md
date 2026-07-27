@@ -180,6 +180,31 @@ animates between panels instead of each entry expanding separately:
 Authoring does not change: always nest each `Content` inside its `Item`, next
 to its `Trigger`. Omit the `Viewport` entirely and panels render in place.
 
+## Anchoring the Viewport to the open trigger
+
+Every `Trigger` publishes its own `anchor-name` (a plain CSS property, set
+inline), and `Root` publishes whichever one is currently open as
+`--primitiv-navigation-menu-active-trigger-anchor` on the `<nav>` — unset
+while nothing is open. Together they let a stylesheet position `Viewport`
+relative to whichever trigger opened it, via CSS anchor positioning, with
+**no consumer wiring**: unlike a single-instance overlay (`Dropdown`,
+`Popover`), where the consumer hand-authors a matching `anchor-name` /
+`position-anchor` pair, here the library already knows which of several
+triggers is the right one and publishes the pairing itself.
+
+```css
+.viewport {
+  position: absolute;
+  position-anchor: var(--primitiv-navigation-menu-active-trigger-anchor);
+  position-area: block-end; /* centers under the anchor by default */
+}
+```
+
+This is purely a positioning *building block* — the library ships no styles,
+so nothing above is applied for you. It only does anything in a browser that
+supports CSS anchor positioning; write a plain fallback (e.g. insets pinned to
+the nav's own edge) alongside it for browsers that don't.
+
 ## Indicator — geometry, not styling
 
 No styles ship with the library, so the `Indicator` cannot position itself —
@@ -297,9 +322,9 @@ travel keeps working through either escape hatch.
 
 | Element | Attributes |
 | --- | --- |
-| `Root` (`<nav>`) | `data-orientation` |
+| `Root` (`<nav>`) | `data-orientation`, `--primitiv-navigation-menu-active-trigger-anchor` |
 | `List` (`<ul>`) | `data-orientation` |
-| `Trigger` | `data-state="open" \| "closed"` |
+| `Trigger` | `data-state="open" \| "closed"`, `anchor-name` (inline style) |
 | `Content` | `data-state="open" \| "closed"`, `data-motion` |
 | `Viewport` | `data-state`, `data-orientation`, `data-value`, measured-size custom properties |
 | `Indicator` | `data-state`, `data-orientation`, `data-value`, geometry custom properties |

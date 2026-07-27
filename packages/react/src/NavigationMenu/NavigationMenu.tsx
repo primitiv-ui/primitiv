@@ -77,7 +77,10 @@ import type {
  * to that panel's trigger, so the user is never left focused on an element that
  * just became `hidden`.
  *
- * **Styling hooks.** `data-orientation="horizontal" | "vertical"`.
+ * **Styling hooks.** `data-orientation="horizontal" | "vertical"`,
+ * `--primitiv-navigation-menu-active-trigger-anchor` (the open trigger's
+ * `anchor-name`, for CSS-anchor-positioning the {@link NavigationMenuViewport
+ * | `Viewport`} — see its docs).
  *
  * **Reading direction.** {@link NavigationMenuRootProps.dir | `dir`} sets the
  * horizontal arrow-key direction and the container's `dir` attribute. When
@@ -146,6 +149,7 @@ export function NavigationMenuRoot({
     closeWithDelay,
     closeOnFocusOutside,
     handleKeyDown: handleEscapeKeyDown,
+    style,
   } = useNavigationMenuRoot({
     orientation,
     dir: resolvedDir,
@@ -191,6 +195,10 @@ export function NavigationMenuRoot({
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
         {...rest}
+        // Placed after `...rest` so it isn't clobbered by a bare consumer
+        // `style` — a consumer's own value for this property (unlikely, but
+        // possible) still wins inside this merge.
+        style={{ ...style, ...rest.style }}
       >
         {children}
       </nav>
@@ -348,7 +356,10 @@ NavigationMenuItem.displayName = "NavigationMenuItem";
  * concatenates, refs compose). The child must be a single element accepting a
  * `ref`.
  *
- * **Styling hooks.** `data-state="open" | "closed"`.
+ * **Styling hooks.** `data-state="open" | "closed"`. Also publishes its own
+ * `anchor-name` (a plain inline style, not a data attribute) so the shared
+ * {@link NavigationMenuViewport | `Viewport`} can be CSS-anchor-positioned to
+ * whichever trigger opened it — no consumer wiring required.
  *
  * @extends HTMLButtonElement
  *
@@ -383,6 +394,7 @@ export function NavigationMenuTrigger<
     panelId,
     open,
     state,
+    anchorName,
     handleClick,
     handlePointerEnter,
     handlePointerLeave,
@@ -418,6 +430,9 @@ export function NavigationMenuTrigger<
     onPointerLeave: handlePointerLeave,
     onKeyDown: handleKeyDown,
     ...rest,
+    // Placed after `...rest` so it isn't clobbered by a bare consumer `style` —
+    // a consumer's own anchor-name (if any) still wins inside this merge.
+    style: { anchorName, ...rest.style },
   };
 
   if (asChild) {

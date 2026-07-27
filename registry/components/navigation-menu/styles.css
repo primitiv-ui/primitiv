@@ -24,6 +24,15 @@
  * supports `orientation="vertical"`; a vertical styled surface is deliberately not
  * shipped — the mobile presentation is a Drawer + Collapsible composition (RFC
  * 0019 §3), not a rotated version of this.
+ *
+ * Positioning is CSS anchor positioning, but — unlike Dropdown and Popover —
+ * entirely headless-managed, no consumer wiring: every Trigger publishes its own
+ * `anchor-name`, and the Root publishes whichever one is open as
+ * `--primitiv-navigation-menu-active-trigger-anchor`, so the shared panel box
+ * can re-target itself per trigger with no JS positioning math. Gated behind
+ * `@supports (anchor-name: …)` — NavigationMenu has to keep working everywhere,
+ * unlike Dropdown/Popover, which have no non-anchor fallback to protect — so a
+ * browser without support keeps the plain nav-start-anchored insets below.
  */
 @layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
 
@@ -221,6 +230,10 @@
      custom properties below take over and the box morphs between panels. */
   .primitiv-navigation-menu__viewport {
     position: absolute;
+    /* The nav-start-anchored default, and the fallback for browsers without
+       anchor-positioning support (see the @supports block below, which
+       overrides these two insets to center the box under whichever trigger is
+       open instead). */
     inset-block-start: 100%;
     inset-inline-start: var(--primitiv-space-space-0);
     margin-block-start: var(--primitiv-navigation-menu-panel-offset);
@@ -252,6 +265,45 @@
 
        The fade — and the size morph, once dimensions are published — lives in
        primitiv.states beside the open/closed rules. */
+  }
+
+  /* Anchor positioning (Chromium): re-target the shared box to whichever
+     trigger is open and center it there, instead of always hugging the nav's
+     start edge. `position-anchor` reads the headless-published active-anchor
+     custom property directly — when nothing is open it's unset, `var()` then
+     resolves to the guaranteed-invalid value, and `position-anchor` falls back
+     to its initial `none`, which is harmless (the box is invisible while
+     closed anyway). `block-end` alone centers the cross (inline) axis by
+     default — the same one-keyword-centers behaviour `--bottom` relies on in
+     the Popover stylesheet. */
+  @supports (anchor-name: --primitiv-navigation-menu-probe) {
+    .primitiv-navigation-menu__viewport {
+      position-anchor: var(--primitiv-navigation-menu-active-trigger-anchor);
+      inset-block-start: auto;
+      inset-inline-start: auto;
+      position-area: block-end;
+      /* Clamp instead of overflow for a trigger near either end of the nav —
+         growing from the anchor toward whichever side still has room, rather
+         than spilling past the nav's own edge (its nearest positioned
+         ancestor, and so the boundary `position-try-fallbacks` checks against
+         for an absolutely-positioned box). Logical `span-inline-*`, unlike the
+         Popover stylesheet's physical `span-left`/`span-right` placements, so
+         this mirrors correctly under `dir="rtl"`. */
+      position-try-fallbacks:
+        --primitiv-navigation-menu-edge-start,
+        --primitiv-navigation-menu-edge-end;
+    }
+  }
+
+  /* Trigger near the nav's start: keep the box's own start edge at the
+     anchor and grow toward the end, so it can't spill past the start. */
+  @position-try --primitiv-navigation-menu-edge-start {
+    position-area: block-end span-inline-end;
+  }
+
+  /* Trigger near the nav's end: the mirror image — grow toward the start. */
+  @position-try --primitiv-navigation-menu-edge-end {
+    position-area: block-end span-inline-start;
   }
 
   /* The portal target, and the ONE grid cell shared by every panel. Each
@@ -295,6 +347,12 @@
        the stale, too-tall value forever. `start` measures true content size on
        every open, matching whichever panel is actually rendered. */
     align-self: start;
+    /* Grid items stretch to fill their column by default too — the inline-axis
+       twin of the bug above. Without this, a panel narrower than the box's
+       current width (set by a previous, wider panel's measurement) stretches
+       to match it, the headless Viewport measures that stretched width back,
+       and the box never shrinks for a genuinely narrow panel again. */
+    justify-self: start;
   }
 
   /* A panel row — two lines (title + optional description) with optional slots

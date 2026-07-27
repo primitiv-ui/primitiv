@@ -286,6 +286,15 @@
     grid-area: 1 / 1;
     grid-template-columns: var(--primitiv-navigation-menu-content-columns);
     gap: var(--primitiv-navigation-menu-content-gap);
+    /* Grid items stretch to fill their row by default — exactly what breaks the
+       measurement below. The headless Viewport reads this panel's own
+       `offsetHeight` and publishes it as the box's height; a stretched panel
+       reports back whatever height was already applied instead of its own
+       natural one, so shrinking (a smaller `size`/density, or switching to a
+       shorter panel) never took effect — every later measurement just echoed
+       the stale, too-tall value forever. `start` measures true content size on
+       every open, matching whichever panel is actually rendered. */
+    align-self: start;
   }
 
   /* A panel row — two lines (title + optional description) with optional slots

@@ -294,6 +294,12 @@ const TABLE_COLUMNS: {
   { key: "size", label: "Size (kB)", align: "end", numeric: true },
 ];
 
+// Drives both the section's own anchor id and the "On this page" nav links —
+// one computation, so the two can never drift apart.
+function sectionSlug(title: string): string {
+  return title.toLowerCase().replace(/\s+/g, "-");
+}
+
 function Section({
   title,
   children,
@@ -304,7 +310,7 @@ function Section({
   column?: boolean;
 }) {
   return (
-    <section className="kitchen-sink__section">
+    <section id={sectionSlug(title)} className="kitchen-sink__section">
       <h2>{title}</h2>
       <div
         className={
@@ -316,6 +322,73 @@ function Section({
         {children}
       </div>
     </section>
+  );
+}
+
+// The "On this page" nav's grouping — the same taxonomy as ROADMAP.md's
+// "Components to build" section, so a category means the same thing in both
+// places. The page body itself stays alphabetical (see App.tsx's own
+// top-of-file note) — a category home for a new component is a judgement call
+// only this nav needs to make, not every section on the page. "Typography"
+// isn't one of ROADMAP's categories (Code Block is registry-only, no headless
+// entry, so it never appears there) — it's this nav's own addition, grouping
+// it with the intro article it's a sibling of.
+const PAGE_TOC: { category: string; titles: string[] }[] = [
+  { category: "Layout", titles: ["Divider"] },
+  { category: "Buttons", titles: ["Button"] },
+  {
+    category: "Forms",
+    titles: [
+      "Checkbox",
+      "Field",
+      "Input Group",
+      "Radio",
+      "Segmented Control",
+      "Switch",
+    ],
+  },
+  { category: "Collections & Selection", titles: ["Select"] },
+  { category: "Typography", titles: ["Code Block"] },
+  {
+    category: "Overlays",
+    titles: ["Context Menu", "Drawer", "Dropdown", "Modal", "Popover", "Tooltip"],
+  },
+  {
+    category: "Disclosure",
+    titles: ["Accordion", "Breadcrumb", "Collapsible", "Tabs"],
+  },
+  { category: "Navigation", titles: ["Navigation Menu", "Toggle Group"] },
+  { category: "Data Display", titles: ["Avatar", "Table"] },
+];
+
+// A static, always-expanded table of contents — every entry is permanently
+// visible, so this is deliberately a plain nested list rather than the Tree
+// component: nothing here ever collapses, so there is no state to own and no
+// need for a styled Tree registry surface (which doesn't exist yet — Tree is
+// headless-only, see packages/react/src/Tree) just for this. Desktop only;
+// see .kitchen-sink__toc in App.css for the breakpoint.
+function PageToc() {
+  return (
+    <nav className="kitchen-sink__toc" aria-label="Page sections">
+      <p className="kitchen-sink__toc-heading">On this page</p>
+      <ul>
+        <li>
+          <a href="#introduction">Introduction</a>
+        </li>
+        {PAGE_TOC.map(({ category, titles }) => (
+          <li key={category}>
+            <span className="kitchen-sink__toc-category">{category}</span>
+            <ul>
+              {titles.map((title) => (
+                <li key={title}>
+                  <a href={`#${sectionSlug(title)}`}>{title}</a>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }
 
@@ -503,9 +576,10 @@ export function App(): ReactElement {
     );
 
   return (
-    <div className="kitchen-sink">
+    <div className="kitchen-sink-layout">
+      <div className="kitchen-sink">
       <Prose asChild>
-        <article>
+        <article id="introduction">
           <h1>Heading 1 - Primitiv Kitchen Sink</h1>
           <p>
             Every component the registry currently carries, installed exactly as
@@ -651,32 +725,63 @@ primitiv add --all`}</code>
         </article>
       </Prose>
 
-      <Section title="Button">
-        <Button variant="primary" size={size}>
-          <ChevronLeft />
-          Primary
-          <ChevronRight />
-        </Button>
-        <Button variant="secondary" size={size}>
-          <ChevronLeft />
-          Secondary
-          <ChevronRight />
-        </Button>
-        <Button variant="ghost" size={size}>
-          <ChevronLeft />
-          Ghost
-          <ChevronRight />
-        </Button>
-        <Button variant="danger" size={size}>
-          <ChevronLeft />
-          Danger
-          <ChevronRight />
-        </Button>
-        <Button variant="link" size={size}>
-          <ChevronLeft />
-          Link
-          <ChevronRight />
-        </Button>
+      <Section title="Accordion" column>
+        <Accordion size={size} defaultValue="item-1">
+          <AccordionItem value="item-1">
+            <AccordionHeader>
+              <AccordionTrigger>
+                What is Primitiv?
+                <AccordionTriggerIcon>
+                  <ChevronDown aria-hidden="true" />
+                </AccordionTriggerIcon>
+              </AccordionTrigger>
+            </AccordionHeader>
+            <AccordionContent>
+              <Prose>
+                <p>
+                  Primitiv is a headless component library paired with a styled
+                  surface you own outright. The behaviour — focus management,
+                  keyboard navigation, ARIA wiring — lives in the headless
+                  layer, while the look is a copied stylesheet you are free to
+                  re-theme.
+                </p>
+                <p>
+                  Every value is a design token, so a single set of custom
+                  properties re-skins the whole system across size, density and
+                  colour mode.
+                </p>
+              </Prose>
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="item-2">
+            <AccordionHeader>
+              <AccordionTrigger>
+                What is Harmoni?
+                <AccordionTriggerIcon>
+                  <ChevronDown aria-hidden="true" />
+                </AccordionTriggerIcon>
+              </AccordionTrigger>
+            </AccordionHeader>
+            <AccordionContent>
+              <Prose>
+                <p>
+                  Harmoni is the palette generation engine underneath Primitiv —
+                  a Rust core compiled to WebAssembly that turns a brand colour
+                  into a full, perceptually even ramp.
+                </p>
+                <p>
+                  It handles light and dark modes, neutral and soft-neutral
+                  ramps, brand-hue tinting, and an OKLCH picker for dialling in
+                  the exact anchor colours — all from one input.
+                </p>
+                <p>
+                  Because the panels above are different lengths, opening each
+                  one animates the grid to its own natural height.
+                </p>
+              </Prose>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </Section>
 
       {/* Root is a fixed-size clipping frame; only one of Image/Fallback is ever
@@ -752,6 +857,380 @@ primitiv add --all`}</code>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
+      </Section>
+
+      <Section title="Button">
+        <Button variant="primary" size={size}>
+          <ChevronLeft />
+          Primary
+          <ChevronRight />
+        </Button>
+        <Button variant="secondary" size={size}>
+          <ChevronLeft />
+          Secondary
+          <ChevronRight />
+        </Button>
+        <Button variant="ghost" size={size}>
+          <ChevronLeft />
+          Ghost
+          <ChevronRight />
+        </Button>
+        <Button variant="danger" size={size}>
+          <ChevronLeft />
+          Danger
+          <ChevronRight />
+        </Button>
+        <Button variant="link" size={size}>
+          <ChevronLeft />
+          Link
+          <ChevronRight />
+        </Button>
+      </Section>
+
+      <Section title="Checkbox" column>
+        <Checkbox size={size} defaultChecked aria-label="Subscribe">
+          Subscribe to updates
+        </Checkbox>
+        <Checkbox size={size}>Accept terms</Checkbox>
+        <Checkbox size={size} disabled>
+          Disabled
+        </Checkbox>
+      </Section>
+
+      <Section title="Code Block" column>
+        <CodeBlock
+          size={size}
+          language="tsx"
+          filename="ramp.ts"
+          showLineNumbers
+          code={`import { generate } from "@primitiv-ui/harmoni";
+
+const STEPS = 11;
+
+export function ramp(hue: number, chroma = 0.12) {
+  return generate({ hue, chroma, steps: STEPS })
+    .filter((s) => s.inGamut)
+    .map((s) => s.hex);
+}`}
+        />
+
+        <CodeBlock.Tabs defaultValue="npm" size={size}>
+          <CodeBlock.Header>
+            <CodeBlock.List label="Install with">
+              <CodeBlock.Trigger value="npm">npm</CodeBlock.Trigger>
+              <CodeBlock.Trigger value="pnpm">pnpm</CodeBlock.Trigger>
+              <CodeBlock.Trigger value="yarn">yarn</CodeBlock.Trigger>
+              <CodeBlock.Trigger value="bun">bun</CodeBlock.Trigger>
+            </CodeBlock.List>
+            <CodeBlock.Copy>Copy</CodeBlock.Copy>
+          </CodeBlock.Header>
+          <CodeBlock.Content
+            value="npm"
+            language="bash"
+            code="npm i @primitiv-ui/react"
+          />
+          <CodeBlock.Content
+            value="pnpm"
+            language="bash"
+            code="pnpm add @primitiv-ui/react"
+          />
+          <CodeBlock.Content
+            value="yarn"
+            language="bash"
+            code="yarn add @primitiv-ui/react"
+          />
+          <CodeBlock.Content
+            value="bun"
+            language="bash"
+            code="bun add @primitiv-ui/react"
+          />
+        </CodeBlock.Tabs>
+      </Section>
+
+      <Section title="Collapsible" column>
+        {/* Three visual dressings sharing one open/close mechanism (RFC 0019 dep):
+            plain (bare row), card (bordered box, its own seam divider once open),
+            and inline (link-styled trigger + collapsedHeight read-more, complete
+            with the bottom fade that disappears once fully open). */}
+        <Collapsible size={size} variant="plain" defaultOpen>
+          <CollapsibleTrigger>
+            What is Primitiv?
+            <CollapsibleTriggerIcon>
+              <ChevronDown aria-hidden="true" />
+            </CollapsibleTriggerIcon>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <Prose>
+              <p>
+                Primitiv is a headless component library paired with a styled
+                surface you own outright — the same behaviour Accordion uses,
+                for a single panel instead of a stacked list.
+              </p>
+            </Prose>
+          </CollapsibleContent>
+        </Collapsible>
+
+        <Collapsible size={size} variant="card">
+          <CollapsibleTrigger>
+            Advanced settings
+            <CollapsibleTriggerIcon>
+              <ChevronDown aria-hidden="true" />
+            </CollapsibleTriggerIcon>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <Prose>
+              <p>
+                The card dressing encloses the trigger and panel in one
+                bordered, radiused box — opening it reveals a hairline seam in
+                place of the whitespace gap the other two dressings use.
+              </p>
+            </Prose>
+          </CollapsibleContent>
+        </Collapsible>
+
+        <Collapsible
+          size={size}
+          variant="inline"
+          open={readMoreOpen}
+          onOpenChange={setReadMoreOpen}
+        >
+          <CollapsibleTrigger>
+            {readMoreOpen ? "Show less" : "Show more"}
+            <CollapsibleTriggerIcon>
+              <ChevronDown aria-hidden="true" />
+            </CollapsibleTriggerIcon>
+          </CollapsibleTrigger>
+          <CollapsibleContent collapsedHeight={72}>
+            <Prose>
+              <p>
+                Harmoni is the palette generation engine underneath Primitiv — a
+                Rust core compiled to WebAssembly that turns a brand colour into
+                a full, perceptually even ramp. It handles light and dark modes,
+                neutral and soft-neutral ramps, brand-hue tinting, and an OKLCH
+                picker for dialling in the exact anchor colours — all from one
+                input.
+              </p>
+              <p>
+                Because a fixed <code>collapsedHeight</code> is set, this panel
+                stays visible while closed — clamped to a short preview with a
+                bottom fade — instead of hiding completely. Opening it reveals
+                the rest of the passage and the fade disappears.
+              </p>
+            </Prose>
+          </CollapsibleContent>
+        </Collapsible>
+      </Section>
+
+      {/* Unlike Dropdown, the panel needs no anchor-name to open in the right
+          place — the headless layer places Content at the cursor itself. The
+          anchor-name / position-anchor pair wired below is the OPTIONAL escape
+          hatch that unlocks the @position-try overflow-flip (see styles.css);
+          right-click near an edge of the viewport to see it fold back on-screen.
+          The submenu still needs real anchor positioning against its
+          SubTrigger, same as Dropdown. */}
+      <Section title="Context Menu" column>
+        <p className="kitchen-sink__note">
+          A canvas/shape-editor right-click menu — items with leading icons and
+          shortcuts, a disabled row, checkbox items (including a tri-state
+          indeterminate one), a radio group, and a one-level submenu.
+          Right-click near the edge of the viewport to see the panel flip back
+          on-screen.
+        </p>
+        <ContextMenu>
+          <ContextMenuTrigger asChild>
+            <div
+              className="ks-context-menu-canvas"
+              style={{ anchorName: "--ks-cm" }}
+            >
+              Right-click anywhere in this area
+            </div>
+          </ContextMenuTrigger>
+          <ContextMenuContent size={size} style={{ positionAnchor: "--ks-cm" }}>
+            <ContextMenuItem>
+              <ContextMenuItemLeading>
+                <Copy aria-hidden="true" />
+              </ContextMenuItemLeading>
+              <ContextMenuItemLabel>Copy</ContextMenuItemLabel>
+              <ContextMenuItemTrailing>
+                <span className="ks-select-kbd">⌘C</span>
+              </ContextMenuItemTrailing>
+            </ContextMenuItem>
+            <ContextMenuItem>
+              <ContextMenuItemLeading>
+                <Copy aria-hidden="true" />
+              </ContextMenuItemLeading>
+              <ContextMenuItemLabel>Duplicate</ContextMenuItemLabel>
+              <ContextMenuItemTrailing>
+                <span className="ks-select-kbd">⌘D</span>
+              </ContextMenuItemTrailing>
+            </ContextMenuItem>
+            <ContextMenuItem>
+              <ContextMenuItemLeading>
+                <Delete aria-hidden="true" />
+              </ContextMenuItemLeading>
+              <ContextMenuItemLabel>Delete</ContextMenuItemLabel>
+              <ContextMenuItemTrailing>
+                <span className="ks-select-kbd">⌫</span>
+              </ContextMenuItemTrailing>
+            </ContextMenuItem>
+
+            <ContextMenuSeparator />
+
+            <ContextMenuSub>
+              <ContextMenuSubTrigger style={{ anchorName: "--ks-cm-s1" }}>
+                Arrange
+                <ChevronRight aria-hidden="true" />
+              </ContextMenuSubTrigger>
+              <ContextMenuSubContent
+                size={size}
+                style={{ positionAnchor: "--ks-cm-s1" }}
+              >
+                <ContextMenuItem>Bring to front</ContextMenuItem>
+                <ContextMenuItem>Bring forward</ContextMenuItem>
+                <ContextMenuSeparator />
+                <ContextMenuItem>Send backward</ContextMenuItem>
+                <ContextMenuItem>Send to back</ContextMenuItem>
+              </ContextMenuSubContent>
+            </ContextMenuSub>
+
+            <ContextMenuSeparator />
+
+            <ContextMenuCheckboxItem
+              checked={cmShowGrid}
+              onCheckedChange={setCmShowGrid}
+              onSelect={(e) => e.preventDefault()}
+            >
+              <ContextMenuItemIndicator>
+                <Check aria-hidden="true" />
+              </ContextMenuItemIndicator>
+              Show grid
+            </ContextMenuCheckboxItem>
+            <ContextMenuCheckboxItem
+              checked={cmSnapToGrid}
+              onCheckedChange={setCmSnapToGrid}
+              onSelect={(e) => e.preventDefault()}
+            >
+              <ContextMenuItemIndicator>
+                <Check aria-hidden="true" />
+              </ContextMenuItemIndicator>
+              Snap to grid
+            </ContextMenuCheckboxItem>
+            <ContextMenuCheckboxItem
+              checked={cmLockAspect}
+              onCheckedChange={setCmLockAspect}
+              onSelect={(e) => e.preventDefault()}
+            >
+              <ContextMenuItemIndicator>
+                {cmLockAspect === "indeterminate" ? (
+                  <Minus aria-hidden="true" />
+                ) : (
+                  <Check aria-hidden="true" />
+                )}
+              </ContextMenuItemIndicator>
+              Lock aspect ratio
+            </ContextMenuCheckboxItem>
+
+            <ContextMenuSeparator />
+
+            <ContextMenuLabel>Align</ContextMenuLabel>
+            <ContextMenuRadioGroup value={cmAlign} onValueChange={setCmAlign}>
+              {["left", "center", "right"].map((value) => (
+                <ContextMenuRadioItem
+                  key={value}
+                  value={value}
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  <ContextMenuItemIndicator>
+                    <span
+                      style={{
+                        inlineSize: "45%",
+                        blockSize: "45%",
+                        borderRadius: "var(--primitiv-radii-full, 9999px)",
+                        background: "currentColor",
+                      }}
+                    />
+                  </ContextMenuItemIndicator>
+                  {value[0].toUpperCase() + value.slice(1)}
+                </ContextMenuRadioItem>
+              ))}
+            </ContextMenuRadioGroup>
+
+            <ContextMenuSeparator />
+
+            <ContextMenuItem>
+              <ContextMenuItemLeading>
+                <Settings aria-hidden="true" />
+              </ContextMenuItemLeading>
+              <ContextMenuItemLabel>Layer settings...</ContextMenuItemLabel>
+            </ContextMenuItem>
+            <ContextMenuItem disabled>
+              <ContextMenuItemLeading>
+                <Grid aria-hidden="true" />
+              </ContextMenuItemLeading>
+              <ContextMenuItemLabel>Export as image</ContextMenuItemLabel>
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
+      </Section>
+
+      <Section title="Divider" column>
+        <p>Above the horizontal divider.</p>
+        <Divider />
+        <p>Below the horizontal divider.</p>
+        <div className="kitchen-sink__divider-row">
+          <p>Left of the vertical divider</p>
+          <Divider orientation="vertical" />
+          <p>Right of the vertical divider</p>
+        </div>
+      </Section>
+
+      {/* One uncontrolled drawer per edge. Triggers take the raw `size`; the panels
+          take `width` (the drawer's own xs–xl cross-axis, off the size/* scale),
+          threaded from the same control — it has an xs step, so no clamp needed. */}
+      <Section title="Drawer">
+        {DRAWER_SIDES.map((side) => (
+          <Drawer key={side}>
+            <DrawerTrigger asChild>
+              <Button variant="secondary" size={size}>
+                From {side}
+              </Button>
+            </DrawerTrigger>
+            <DrawerPortal forceMount>
+              <DrawerContent side={side} width={size}>
+                <DrawerHeader>
+                  <DrawerTitle>
+                    {side[0].toUpperCase() + side.slice(1)} drawer
+                  </DrawerTitle>
+                  <DrawerClose asChild>
+                    <Button variant="ghost" size="sm" aria-label="Close">
+                      <Close aria-hidden="true" />
+                    </Button>
+                  </DrawerClose>
+                </DrawerHeader>
+                <DrawerBody>
+                  <DrawerDescription>
+                    A dialog that slides in from the {side} edge. It reuses the{" "}
+                    <InlineCode size={size}>Modal</InlineCode> machinery — focus
+                    trap, <InlineCode size={size}>Esc</InlineCode>, and
+                    click-outside — and adds only the{" "}
+                    <InlineCode size={size}>side</InlineCode> axis.
+                  </DrawerDescription>
+                  <p>
+                    The body is the region that scrolls when its content
+                    overflows, so the header and footer stay pinned to the panel
+                    edges.
+                  </p>
+                </DrawerBody>
+                <DrawerFooter>
+                  <DrawerClose asChild>
+                    <Button variant="secondary">Cancel</Button>
+                  </DrawerClose>
+                  <Button variant="primary">Save</Button>
+                </DrawerFooter>
+              </DrawerContent>
+            </DrawerPortal>
+          </Drawer>
+        ))}
       </Section>
 
       {/* One menu exercising every part: a labelled Group of Items (with keyboard
@@ -930,156 +1409,68 @@ primitiv add --all`}</code>
         </Dropdown>
       </Section>
 
-      {/* Unlike Dropdown, the panel needs no anchor-name to open in the right
-          place — the headless layer places Content at the cursor itself. The
-          anchor-name / position-anchor pair wired below is the OPTIONAL escape
-          hatch that unlocks the @position-try overflow-flip (see styles.css);
-          right-click near an edge of the viewport to see it fold back on-screen.
-          The submenu still needs real anchor positioning against its
-          SubTrigger, same as Dropdown. */}
-      <Section title="Context Menu" column>
-        <p className="kitchen-sink__note">
-          A canvas/shape-editor right-click menu — items with leading icons and
-          shortcuts, a disabled row, checkbox items (including a tri-state
-          indeterminate one), a radio group, and a one-level submenu.
-          Right-click near the edge of the viewport to see the panel flip back
-          on-screen.
-        </p>
-        <ContextMenu>
-          <ContextMenuTrigger asChild>
-            <div
-              className="ks-context-menu-canvas"
-              style={{ anchorName: "--ks-cm" }}
-            >
-              Right-click anywhere in this area
-            </div>
-          </ContextMenuTrigger>
-          <ContextMenuContent size={size} style={{ positionAnchor: "--ks-cm" }}>
-            <ContextMenuItem>
-              <ContextMenuItemLeading>
-                <Copy aria-hidden="true" />
-              </ContextMenuItemLeading>
-              <ContextMenuItemLabel>Copy</ContextMenuItemLabel>
-              <ContextMenuItemTrailing>
-                <span className="ks-select-kbd">⌘C</span>
-              </ContextMenuItemTrailing>
-            </ContextMenuItem>
-            <ContextMenuItem>
-              <ContextMenuItemLeading>
-                <Copy aria-hidden="true" />
-              </ContextMenuItemLeading>
-              <ContextMenuItemLabel>Duplicate</ContextMenuItemLabel>
-              <ContextMenuItemTrailing>
-                <span className="ks-select-kbd">⌘D</span>
-              </ContextMenuItemTrailing>
-            </ContextMenuItem>
-            <ContextMenuItem>
-              <ContextMenuItemLeading>
-                <Delete aria-hidden="true" />
-              </ContextMenuItemLeading>
-              <ContextMenuItemLabel>Delete</ContextMenuItemLabel>
-              <ContextMenuItemTrailing>
-                <span className="ks-select-kbd">⌫</span>
-              </ContextMenuItemTrailing>
-            </ContextMenuItem>
+      <Section title="Field" column>
+        <Field size={size}>
+          <FieldLabel>Email</FieldLabel>
+          <Input type="email" size={size} placeholder="you@example.com" />
+          <FieldDescription>We won't share it.</FieldDescription>
+        </Field>
+        <Field size={size}>
+          <FieldLabel>Username</FieldLabel>
+          <Input type="text" size={size} defaultValue="taken" aria-invalid />
+          <FieldErrorText>That username is already taken.</FieldErrorText>
+        </Field>
+      </Section>
 
-            <ContextMenuSeparator />
+      <Section title="Input Group" column>
+        <InputGroup size={size}>
+          <InputGroupLeadingAdornment>
+            <Search aria-hidden="true" />
+          </InputGroupLeadingAdornment>
+          <Input aria-label="Search" type="search" placeholder="Search..." />
+          <InputGroupTrailingAdornment asChild>
+            <Button variant="ghost" size="xs" aria-label="Clear">
+              <Close aria-hidden="true" />
+            </Button>
+          </InputGroupTrailingAdornment>
+        </InputGroup>
+      </Section>
 
-            <ContextMenuSub>
-              <ContextMenuSubTrigger style={{ anchorName: "--ks-cm-s1" }}>
-                Arrange
-                <ChevronRight aria-hidden="true" />
-              </ContextMenuSubTrigger>
-              <ContextMenuSubContent
-                size={size}
-                style={{ positionAnchor: "--ks-cm-s1" }}
-              >
-                <ContextMenuItem>Bring to front</ContextMenuItem>
-                <ContextMenuItem>Bring forward</ContextMenuItem>
-                <ContextMenuSeparator />
-                <ContextMenuItem>Send backward</ContextMenuItem>
-                <ContextMenuItem>Send to back</ContextMenuItem>
-              </ContextMenuSubContent>
-            </ContextMenuSub>
-
-            <ContextMenuSeparator />
-
-            <ContextMenuCheckboxItem
-              checked={cmShowGrid}
-              onCheckedChange={setCmShowGrid}
-              onSelect={(e) => e.preventDefault()}
-            >
-              <ContextMenuItemIndicator>
-                <Check aria-hidden="true" />
-              </ContextMenuItemIndicator>
-              Show grid
-            </ContextMenuCheckboxItem>
-            <ContextMenuCheckboxItem
-              checked={cmSnapToGrid}
-              onCheckedChange={setCmSnapToGrid}
-              onSelect={(e) => e.preventDefault()}
-            >
-              <ContextMenuItemIndicator>
-                <Check aria-hidden="true" />
-              </ContextMenuItemIndicator>
-              Snap to grid
-            </ContextMenuCheckboxItem>
-            <ContextMenuCheckboxItem
-              checked={cmLockAspect}
-              onCheckedChange={setCmLockAspect}
-              onSelect={(e) => e.preventDefault()}
-            >
-              <ContextMenuItemIndicator>
-                {cmLockAspect === "indeterminate" ? (
-                  <Minus aria-hidden="true" />
-                ) : (
-                  <Check aria-hidden="true" />
-                )}
-              </ContextMenuItemIndicator>
-              Lock aspect ratio
-            </ContextMenuCheckboxItem>
-
-            <ContextMenuSeparator />
-
-            <ContextMenuLabel>Align</ContextMenuLabel>
-            <ContextMenuRadioGroup value={cmAlign} onValueChange={setCmAlign}>
-              {["left", "center", "right"].map((value) => (
-                <ContextMenuRadioItem
-                  key={value}
-                  value={value}
-                  onSelect={(e) => e.preventDefault()}
-                >
-                  <ContextMenuItemIndicator>
-                    <span
-                      style={{
-                        inlineSize: "45%",
-                        blockSize: "45%",
-                        borderRadius: "var(--primitiv-radii-full, 9999px)",
-                        background: "currentColor",
-                      }}
-                    />
-                  </ContextMenuItemIndicator>
-                  {value[0].toUpperCase() + value.slice(1)}
-                </ContextMenuRadioItem>
-              ))}
-            </ContextMenuRadioGroup>
-
-            <ContextMenuSeparator />
-
-            <ContextMenuItem>
-              <ContextMenuItemLeading>
-                <Settings aria-hidden="true" />
-              </ContextMenuItemLeading>
-              <ContextMenuItemLabel>Layer settings...</ContextMenuItemLabel>
-            </ContextMenuItem>
-            <ContextMenuItem disabled>
-              <ContextMenuItemLeading>
-                <Grid aria-hidden="true" />
-              </ContextMenuItemLeading>
-              <ContextMenuItemLabel>Export as image</ContextMenuItemLabel>
-            </ContextMenuItem>
-          </ContextMenuContent>
-        </ContextMenu>
+      <Section title="Modal">
+        <Modal>
+          <ModalTrigger asChild>
+            <Button variant="primary" size={size}>
+              Open modal
+            </Button>
+          </ModalTrigger>
+          <ModalPortal forceMount>
+            <ModalContent size={overlaySize}>
+              <ModalHeader>
+                <ModalTitle>Confirm</ModalTitle>
+                <ModalClose asChild>
+                  <Button variant="ghost" size="sm" aria-label="Close">
+                    <Close aria-hidden="true" />
+                  </Button>
+                </ModalClose>
+              </ModalHeader>
+              <ModalBody>
+                <ModalDescription>
+                  This dialog is portalled to{" "}
+                  <InlineCode size={size}>document.body</InlineCode>, which is
+                  why <InlineCode size={size}>data-theme</InlineCode> lives on{" "}
+                  <InlineCode size={size}>&lt;html&gt;</InlineCode> above, not
+                  on this page&apos;s wrapper.
+                </ModalDescription>
+              </ModalBody>
+              <ModalFooter>
+                <ModalClose asChild>
+                  <Button variant="secondary">Cancel</Button>
+                </ModalClose>
+                <Button variant="primary">Confirm</Button>
+              </ModalFooter>
+            </ModalContent>
+          </ModalPortal>
+        </Modal>
       </Section>
 
       {/* Sits high on the page for the same reason Dropdown does: the panel opens
@@ -1092,7 +1483,17 @@ primitiv add --all`}</code>
             two plain bar links, an arrow marker, and the shared Viewport every
             panel projects into. forceMount on all three so the close can be
             transitioned rather than snapping (the headless applies `hidden`
-            without it). */}
+            without it).
+
+            Gated by viewport width, not just "wrapped" — a mega-menu bar has no
+            sane small-screen fallback of its own (five-plus disclosure triggers
+            in one flex row, plus panels sized to their own widest content, e.g.
+            the Explore panel's 13rem + 3 columns). Below the breakpoint only
+            the composed Drawer/Collapsible presentation renders instead.
+            ks-nav-desktop-only / ks-nav-mobile-only are kitchen-sink-only
+            classes (see App.css for the breakpoint value), not a registry
+            pattern. */}
+        <div className="ks-nav-desktop-only">
         <NavigationMenu size={size} aria-label="Docs">
           <NavigationMenuList>
             {NAV_SECTIONS.map((section) => (
@@ -1297,11 +1698,13 @@ primitiv add --all`}</code>
           <NavigationMenuIndicator forceMount />
           <NavigationMenuViewport forceMount />
         </NavigationMenu>
+        </div>
 
         {/* Mobile, composed rather than a mode of the component: a Drawer shell +
             one Collapsible per section, with the same NavigationMenuLink leaf. The
             nav data and the active-state logic stay single-sourced; only the
             wrapper elements differ (RFC 0019 §4a). */}
+        <div className="ks-nav-mobile-only">
         <Drawer>
           <DrawerTrigger asChild>
             <Button variant="secondary" size={size}>
@@ -1359,16 +1762,53 @@ primitiv add --all`}</code>
             </DrawerContent>
           </DrawerPortal>
         </Drawer>
+        </div>
       </Section>
 
-      <Section title="Checkbox" column>
-        <Checkbox size={size} defaultChecked aria-label="Subscribe">
-          Subscribe to updates
-        </Checkbox>
-        <Checkbox size={size}>Accept terms</Checkbox>
-        <Checkbox size={size} disabled>
-          Disabled
-        </Checkbox>
+      <Section title="Popover" column>
+        <p className="kitchen-sink__note">
+          Click any trigger to open its placement (one at a time — the panels
+          are native{" "}
+          <InlineCode size={size}>popover=&quot;auto&quot;</InlineCode>). Panel
+          + arrow track the Size and Density controls above.
+        </p>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, max-content)",
+            gap: "2rem 1.5rem",
+            justifyContent: "start",
+          }}
+        >
+          {POPOVER_PLACEMENTS.map((placement) => (
+            <Popover key={placement}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="secondary"
+                  size={size}
+                  style={{ anchorName: `--ks-pop-${placement}` }}
+                >
+                  {placement}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                placement={placement}
+                size={overlaySize}
+                style={{ positionAnchor: `--ks-pop-${placement}` }}
+              >
+                <PopoverTitle>{placement}</PopoverTitle>
+                <PopoverDescription>
+                  Placement <InlineCode size={size}>{placement}</InlineCode>.
+                </PopoverDescription>
+                <PopoverClose asChild>
+                  <Button variant="ghost" size="sm" aria-label="Close">
+                    <Close aria-hidden="true" />
+                  </Button>
+                </PopoverClose>
+              </PopoverContent>
+            </Popover>
+          ))}
+        </div>
       </Section>
 
       <Section title="Radio" column>
@@ -1383,49 +1823,41 @@ primitiv add --all`}</code>
         </Radio>
       </Section>
 
-      <Section title="Switch" column>
-        <Switch size={size} defaultChecked>
-          Wi-Fi
-        </Switch>
-        <Switch size={size}>Bluetooth</Switch>
-      </Section>
-
-      <Section title="Divider" column>
-        <p>Above the horizontal divider.</p>
-        <Divider />
-        <p>Below the horizontal divider.</p>
-        <div className="kitchen-sink__divider-row">
-          <p>Left of the vertical divider</p>
-          <Divider orientation="vertical" />
-          <p>Right of the vertical divider</p>
-        </div>
-      </Section>
-
-      <Section title="Field" column>
-        <Field size={size}>
-          <FieldLabel>Email</FieldLabel>
-          <Input type="email" size={size} placeholder="you@example.com" />
-          <FieldDescription>We won't share it.</FieldDescription>
-        </Field>
-        <Field size={size}>
-          <FieldLabel>Username</FieldLabel>
-          <Input type="text" size={size} defaultValue="taken" aria-invalid />
-          <FieldErrorText>That username is already taken.</FieldErrorText>
-        </Field>
-      </Section>
-
-      <Section title="Input Group" column>
-        <InputGroup size={size}>
-          <InputGroupLeadingAdornment>
-            <Search aria-hidden="true" />
-          </InputGroupLeadingAdornment>
-          <Input aria-label="Search" type="search" placeholder="Search..." />
-          <InputGroupTrailingAdornment asChild>
-            <Button variant="ghost" size="xs" aria-label="Clear">
-              <Close aria-hidden="true" />
-            </Button>
-          </InputGroupTrailingAdornment>
-        </InputGroup>
+      <Section title="Segmented Control" column>
+        {/* Single-select value picker (RadioGroup semantics): exactly one segment
+            is always selected — the brand-filled one — the rest secondary. The
+            leading logos are plain SVG children — the registry sizes them to the
+            item's icon-size token, so they scale with `size` + density. */}
+        <SegmentedControl
+          size={size}
+          value={framework}
+          onValueChange={setFramework}
+          aria-label="Framework"
+        >
+          <SegmentedControlItem value="react">
+            <ReactLogo />
+            React
+          </SegmentedControlItem>
+          <SegmentedControlItem value="vue">
+            <VueLogo />
+            Vue
+          </SegmentedControlItem>
+          <SegmentedControlItem value="svelte">
+            <SvelteLogo />
+            Svelte
+          </SegmentedControlItem>
+        </SegmentedControl>
+        {/* Justified — segments share the track width equally. */}
+        <SegmentedControl
+          size={size}
+          justify="justified"
+          defaultValue="week"
+          aria-label="Range"
+        >
+          <SegmentedControlItem value="day">Day</SegmentedControlItem>
+          <SegmentedControlItem value="week">Week</SegmentedControlItem>
+          <SegmentedControlItem value="month">Month</SegmentedControlItem>
+        </SegmentedControl>
       </Section>
 
       <Section title="Select" column>
@@ -1766,206 +2198,11 @@ primitiv add --all`}</code>
         </div>
       </Section>
 
-      <Section title="Tabs" column>
-        <Tabs defaultValue="overview" size={size}>
-          <TabsList label="Sections">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-            <TabsTrigger value="history">History</TabsTrigger>
-          </TabsList>
-          <TabsContent value="overview">
-            <p>Overview panel content.</p>
-          </TabsContent>
-          <TabsContent value="settings">
-            <p>Settings panel content.</p>
-          </TabsContent>
-          <TabsContent value="history">
-            <p>History panel content.</p>
-          </TabsContent>
-        </Tabs>
-      </Section>
-
-      <Section title="Accordion" column>
-        <Accordion size={size} defaultValue="item-1">
-          <AccordionItem value="item-1">
-            <AccordionHeader>
-              <AccordionTrigger>
-                What is Primitiv?
-                <AccordionTriggerIcon>
-                  <ChevronDown aria-hidden="true" />
-                </AccordionTriggerIcon>
-              </AccordionTrigger>
-            </AccordionHeader>
-            <AccordionContent>
-              <Prose>
-                <p>
-                  Primitiv is a headless component library paired with a styled
-                  surface you own outright. The behaviour — focus management,
-                  keyboard navigation, ARIA wiring — lives in the headless
-                  layer, while the look is a copied stylesheet you are free to
-                  re-theme.
-                </p>
-                <p>
-                  Every value is a design token, so a single set of custom
-                  properties re-skins the whole system across size, density and
-                  colour mode.
-                </p>
-              </Prose>
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="item-2">
-            <AccordionHeader>
-              <AccordionTrigger>
-                What is Harmoni?
-                <AccordionTriggerIcon>
-                  <ChevronDown aria-hidden="true" />
-                </AccordionTriggerIcon>
-              </AccordionTrigger>
-            </AccordionHeader>
-            <AccordionContent>
-              <Prose>
-                <p>
-                  Harmoni is the palette generation engine underneath Primitiv —
-                  a Rust core compiled to WebAssembly that turns a brand colour
-                  into a full, perceptually even ramp.
-                </p>
-                <p>
-                  It handles light and dark modes, neutral and soft-neutral
-                  ramps, brand-hue tinting, and an OKLCH picker for dialling in
-                  the exact anchor colours — all from one input.
-                </p>
-                <p>
-                  Because the panels above are different lengths, opening each
-                  one animates the grid to its own natural height.
-                </p>
-              </Prose>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      </Section>
-
-      <Section title="Collapsible" column>
-        {/* Three visual dressings sharing one open/close mechanism (RFC 0019 dep):
-            plain (bare row), card (bordered box, its own seam divider once open),
-            and inline (link-styled trigger + collapsedHeight read-more, complete
-            with the bottom fade that disappears once fully open). */}
-        <Collapsible size={size} variant="plain" defaultOpen>
-          <CollapsibleTrigger>
-            What is Primitiv?
-            <CollapsibleTriggerIcon>
-              <ChevronDown aria-hidden="true" />
-            </CollapsibleTriggerIcon>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <Prose>
-              <p>
-                Primitiv is a headless component library paired with a styled
-                surface you own outright — the same behaviour Accordion uses,
-                for a single panel instead of a stacked list.
-              </p>
-            </Prose>
-          </CollapsibleContent>
-        </Collapsible>
-
-        <Collapsible size={size} variant="card">
-          <CollapsibleTrigger>
-            Advanced settings
-            <CollapsibleTriggerIcon>
-              <ChevronDown aria-hidden="true" />
-            </CollapsibleTriggerIcon>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <Prose>
-              <p>
-                The card dressing encloses the trigger and panel in one
-                bordered, radiused box — opening it reveals a hairline seam in
-                place of the whitespace gap the other two dressings use.
-              </p>
-            </Prose>
-          </CollapsibleContent>
-        </Collapsible>
-
-        <Collapsible
-          size={size}
-          variant="inline"
-          open={readMoreOpen}
-          onOpenChange={setReadMoreOpen}
-        >
-          <CollapsibleTrigger>
-            {readMoreOpen ? "Show less" : "Show more"}
-            <CollapsibleTriggerIcon>
-              <ChevronDown aria-hidden="true" />
-            </CollapsibleTriggerIcon>
-          </CollapsibleTrigger>
-          <CollapsibleContent collapsedHeight={72}>
-            <Prose>
-              <p>
-                Harmoni is the palette generation engine underneath Primitiv — a
-                Rust core compiled to WebAssembly that turns a brand colour into
-                a full, perceptually even ramp. It handles light and dark modes,
-                neutral and soft-neutral ramps, brand-hue tinting, and an OKLCH
-                picker for dialling in the exact anchor colours — all from one
-                input.
-              </p>
-              <p>
-                Because a fixed <code>collapsedHeight</code> is set, this panel
-                stays visible while closed — clamped to a short preview with a
-                bottom fade — instead of hiding completely. Opening it reveals
-                the rest of the passage and the fade disappears.
-              </p>
-            </Prose>
-          </CollapsibleContent>
-        </Collapsible>
-      </Section>
-
-      <Section title="Toggle Group">
-        <ToggleGroup
-          type="single"
-          size={size}
-          defaultValue="left"
-          aria-label="Alignment"
-        >
-          <ToggleGroupItem value="left">Left</ToggleGroupItem>
-          <ToggleGroupItem value="center">Center</ToggleGroupItem>
-          <ToggleGroupItem value="right">Right</ToggleGroupItem>
-        </ToggleGroup>
-      </Section>
-
-      <Section title="Segmented Control" column>
-        {/* Single-select value picker (RadioGroup semantics): exactly one segment
-            is always selected — the brand-filled one — the rest secondary. The
-            leading logos are plain SVG children — the registry sizes them to the
-            item's icon-size token, so they scale with `size` + density. */}
-        <SegmentedControl
-          size={size}
-          value={framework}
-          onValueChange={setFramework}
-          aria-label="Framework"
-        >
-          <SegmentedControlItem value="react">
-            <ReactLogo />
-            React
-          </SegmentedControlItem>
-          <SegmentedControlItem value="vue">
-            <VueLogo />
-            Vue
-          </SegmentedControlItem>
-          <SegmentedControlItem value="svelte">
-            <SvelteLogo />
-            Svelte
-          </SegmentedControlItem>
-        </SegmentedControl>
-        {/* Justified — segments share the track width equally. */}
-        <SegmentedControl
-          size={size}
-          justify="justified"
-          defaultValue="week"
-          aria-label="Range"
-        >
-          <SegmentedControlItem value="day">Day</SegmentedControlItem>
-          <SegmentedControlItem value="week">Week</SegmentedControlItem>
-          <SegmentedControlItem value="month">Month</SegmentedControlItem>
-        </SegmentedControl>
+      <Section title="Switch" column>
+        <Switch size={size} defaultChecked>
+          Wi-Fi
+        </Switch>
+        <Switch size={size}>Bluetooth</Switch>
       </Section>
 
       <Section title="Table" column>
@@ -2036,186 +2273,36 @@ primitiv add --all`}</code>
         </TableScrollArea>
       </Section>
 
-      <Section title="Code Block" column>
-        <CodeBlock
+      <Section title="Tabs" column>
+        <Tabs defaultValue="overview" size={size}>
+          <TabsList label="Sections">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="history">History</TabsTrigger>
+          </TabsList>
+          <TabsContent value="overview">
+            <p>Overview panel content.</p>
+          </TabsContent>
+          <TabsContent value="settings">
+            <p>Settings panel content.</p>
+          </TabsContent>
+          <TabsContent value="history">
+            <p>History panel content.</p>
+          </TabsContent>
+        </Tabs>
+      </Section>
+
+      <Section title="Toggle Group">
+        <ToggleGroup
+          type="single"
           size={size}
-          language="tsx"
-          filename="ramp.ts"
-          showLineNumbers
-          code={`import { generate } from "@primitiv-ui/harmoni";
-
-const STEPS = 11;
-
-export function ramp(hue: number, chroma = 0.12) {
-  return generate({ hue, chroma, steps: STEPS })
-    .filter((s) => s.inGamut)
-    .map((s) => s.hex);
-}`}
-        />
-
-        <CodeBlock.Tabs defaultValue="npm" size={size}>
-          <CodeBlock.Header>
-            <CodeBlock.List label="Install with">
-              <CodeBlock.Trigger value="npm">npm</CodeBlock.Trigger>
-              <CodeBlock.Trigger value="pnpm">pnpm</CodeBlock.Trigger>
-              <CodeBlock.Trigger value="yarn">yarn</CodeBlock.Trigger>
-              <CodeBlock.Trigger value="bun">bun</CodeBlock.Trigger>
-            </CodeBlock.List>
-            <CodeBlock.Copy>Copy</CodeBlock.Copy>
-          </CodeBlock.Header>
-          <CodeBlock.Content
-            value="npm"
-            language="bash"
-            code="npm i @primitiv-ui/react"
-          />
-          <CodeBlock.Content
-            value="pnpm"
-            language="bash"
-            code="pnpm add @primitiv-ui/react"
-          />
-          <CodeBlock.Content
-            value="yarn"
-            language="bash"
-            code="yarn add @primitiv-ui/react"
-          />
-          <CodeBlock.Content
-            value="bun"
-            language="bash"
-            code="bun add @primitiv-ui/react"
-          />
-        </CodeBlock.Tabs>
-      </Section>
-
-      <Section title="Modal">
-        <Modal>
-          <ModalTrigger asChild>
-            <Button variant="primary" size={size}>
-              Open modal
-            </Button>
-          </ModalTrigger>
-          <ModalPortal forceMount>
-            <ModalContent size={overlaySize}>
-              <ModalHeader>
-                <ModalTitle>Confirm</ModalTitle>
-                <ModalClose asChild>
-                  <Button variant="ghost" size="sm" aria-label="Close">
-                    <Close aria-hidden="true" />
-                  </Button>
-                </ModalClose>
-              </ModalHeader>
-              <ModalBody>
-                <ModalDescription>
-                  This dialog is portalled to{" "}
-                  <InlineCode size={size}>document.body</InlineCode>, which is
-                  why <InlineCode size={size}>data-theme</InlineCode> lives on{" "}
-                  <InlineCode size={size}>&lt;html&gt;</InlineCode> above, not
-                  on this page&apos;s wrapper.
-                </ModalDescription>
-              </ModalBody>
-              <ModalFooter>
-                <ModalClose asChild>
-                  <Button variant="secondary">Cancel</Button>
-                </ModalClose>
-                <Button variant="primary">Confirm</Button>
-              </ModalFooter>
-            </ModalContent>
-          </ModalPortal>
-        </Modal>
-      </Section>
-
-      {/* One uncontrolled drawer per edge. Triggers take the raw `size`; the panels
-          take `width` (the drawer's own xs–xl cross-axis, off the size/* scale),
-          threaded from the same control — it has an xs step, so no clamp needed. */}
-      <Section title="Drawer">
-        {DRAWER_SIDES.map((side) => (
-          <Drawer key={side}>
-            <DrawerTrigger asChild>
-              <Button variant="secondary" size={size}>
-                From {side}
-              </Button>
-            </DrawerTrigger>
-            <DrawerPortal forceMount>
-              <DrawerContent side={side} width={size}>
-                <DrawerHeader>
-                  <DrawerTitle>
-                    {side[0].toUpperCase() + side.slice(1)} drawer
-                  </DrawerTitle>
-                  <DrawerClose asChild>
-                    <Button variant="ghost" size="sm" aria-label="Close">
-                      <Close aria-hidden="true" />
-                    </Button>
-                  </DrawerClose>
-                </DrawerHeader>
-                <DrawerBody>
-                  <DrawerDescription>
-                    A dialog that slides in from the {side} edge. It reuses the{" "}
-                    <InlineCode size={size}>Modal</InlineCode> machinery — focus
-                    trap, <InlineCode size={size}>Esc</InlineCode>, and
-                    click-outside — and adds only the{" "}
-                    <InlineCode size={size}>side</InlineCode> axis.
-                  </DrawerDescription>
-                  <p>
-                    The body is the region that scrolls when its content
-                    overflows, so the header and footer stay pinned to the panel
-                    edges.
-                  </p>
-                </DrawerBody>
-                <DrawerFooter>
-                  <DrawerClose asChild>
-                    <Button variant="secondary">Cancel</Button>
-                  </DrawerClose>
-                  <Button variant="primary">Save</Button>
-                </DrawerFooter>
-              </DrawerContent>
-            </DrawerPortal>
-          </Drawer>
-        ))}
-      </Section>
-
-      <Section title="Popover" column>
-        <p className="kitchen-sink__note">
-          Click any trigger to open its placement (one at a time — the panels
-          are native{" "}
-          <InlineCode size={size}>popover=&quot;auto&quot;</InlineCode>). Panel
-          + arrow track the Size and Density controls above.
-        </p>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, max-content)",
-            gap: "2rem 1.5rem",
-            justifyContent: "start",
-          }}
+          defaultValue="left"
+          aria-label="Alignment"
         >
-          {POPOVER_PLACEMENTS.map((placement) => (
-            <Popover key={placement}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="secondary"
-                  size={size}
-                  style={{ anchorName: `--ks-pop-${placement}` }}
-                >
-                  {placement}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                placement={placement}
-                size={overlaySize}
-                style={{ positionAnchor: `--ks-pop-${placement}` }}
-              >
-                <PopoverTitle>{placement}</PopoverTitle>
-                <PopoverDescription>
-                  Placement <InlineCode size={size}>{placement}</InlineCode>.
-                </PopoverDescription>
-                <PopoverClose asChild>
-                  <Button variant="ghost" size="sm" aria-label="Close">
-                    <Close aria-hidden="true" />
-                  </Button>
-                </PopoverClose>
-              </PopoverContent>
-            </Popover>
-          ))}
-        </div>
+          <ToggleGroupItem value="left">Left</ToggleGroupItem>
+          <ToggleGroupItem value="center">Center</ToggleGroupItem>
+          <ToggleGroupItem value="right">Right</ToggleGroupItem>
+        </ToggleGroup>
       </Section>
 
       {/* Hover / focus a trigger to show its tooltip. Each is anchor-wired
@@ -2255,6 +2342,8 @@ export function ramp(hue: number, chroma = 0.12) {
           })}
         </TooltipProvider>
       </Section>
+      </div>
+      <PageToc />
     </div>
   );
 }

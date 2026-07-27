@@ -14,13 +14,106 @@ body {
   color: var(--primitiv-content-primary);
 }
 
+/* The centering flex row for the main column + the desktop-only "On this
+   page" nav (.kitchen-sink__toc below) — .kitchen-sink no longer centers
+   itself (no margin-inline: auto below); as the only flex child most of the
+   time (the toc is display:none below its own breakpoint) it still lands
+   centered via justify-content, and the pair centers together as one unit
+   once the toc appears. */
+.kitchen-sink-layout {
+  display: flex;
+  justify-content: center;
+}
+
 .kitchen-sink {
   max-width: 960px;
-  margin-inline: auto;
   padding: var(--primitiv-space-space-48) var(--primitiv-space-space-16) var(--primitiv-space-space-140);
   display: flex;
   flex-direction: column;
   gap: var(--primitiv-space-space-48);
+}
+
+/* The "On this page" nav (PageToc in App.tsx) — a static, always-expanded
+   table of contents, desktop only. 80rem is not one of RFC 0025's proposed
+   tiers exactly, but it's the point at which the fixed 960px main column
+   (plus its own padding) leaves enough room in the right-hand gutter for this
+   nav without the two crowding each other — close enough to the RFC's
+   proposed `xl` (80rem) that it can become var(--primitiv-breakpoint-xl) once
+   that RFC's tokens are emitted. Below it the nav simply isn't rendered
+   (display:none), so it never competes for space on a page already tight
+   enough to need the mobile nav (see .ks-nav-mobile-only). */
+.kitchen-sink__toc {
+  display: none;
+}
+
+@media (min-width: 80rem) {
+  .kitchen-sink__toc {
+    display: block;
+    flex: none;
+    position: sticky;
+    top: var(--primitiv-space-space-48);
+    align-self: flex-start;
+    inline-size: 14rem;
+    max-block-size: calc(100vh - var(--primitiv-space-space-48) * 2);
+    margin-block-start: var(--primitiv-space-space-48);
+    margin-inline-start: var(--primitiv-space-space-24);
+    overflow-y: auto;
+  }
+}
+
+.kitchen-sink__toc ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kitchen-sink__toc > ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-16);
+}
+
+.kitchen-sink__toc-heading {
+  margin: 0;
+  color: var(--primitiv-content-muted);
+  font-family: var(--primitiv-label-xs-font-family);
+  font-size: var(--primitiv-label-xs-font-size);
+  font-weight: var(--primitiv-label-xs-font-weight);
+  line-height: var(--primitiv-label-xs-line-height);
+  letter-spacing: var(--primitiv-letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+.kitchen-sink__toc-category {
+  display: block;
+  margin-block-end: var(--primitiv-space-space-4);
+  color: var(--primitiv-content-secondary);
+  font-family: var(--primitiv-label-xs-font-family);
+  font-size: var(--primitiv-label-xs-font-size);
+  font-weight: var(--primitiv-label-xs-font-weight);
+  line-height: var(--primitiv-label-xs-line-height);
+  letter-spacing: var(--primitiv-letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+.kitchen-sink__toc ul ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--primitiv-space-space-4);
+}
+
+.kitchen-sink__toc a {
+  display: block;
+  padding-block: var(--primitiv-space-space-2);
+  color: var(--primitiv-content-secondary);
+  font-size: var(--primitiv-body-sm-font-size);
+  line-height: var(--primitiv-body-sm-line-height);
+  text-decoration: none;
+}
+
+.kitchen-sink__toc a:hover {
+  color: var(--primitiv-content-primary);
+  text-decoration: underline;
 }
 
 .kitchen-sink__section {
@@ -106,6 +199,41 @@ body {
   color: var(--primitiv-content-muted);
   text-align: center;
   user-select: none;
+}
+
+/* The Navigation Menu demo's two presentations (RFC 0019 §4a): the desktop bar
+   + mega-menu panels, and the composed Drawer/Collapsible mobile nav. Below
+   the breakpoint the desktop bar has no sane fallback of its own — its
+   `display:flex` row of trigger entries doesn't wrap, and each forceMount'd
+   panel auto-sizes to its own widest content (the Explore panel's
+   `13rem repeat(3, 1fr)` grid) even while closed (`visibility:hidden` still
+   occupies layout space, unlike `display:none`) — both were the actual source
+   of the page-wide horizontal scroll on narrow viewports. `display:none`
+   removes the whole gated subtree from layout, so it can't contribute
+   overflow either way; simply letting the bar wrap would still leave the
+   oversized panels in place.
+
+   64rem matches RFC 0025's proposed `lg` tier (1024px) — "typically where a
+   persistent sidebar nav replaces a drawer" is that RFC's own framing for this
+   exact switch. The token isn't emitted yet (RFC 0025 is still a draft), so
+   this is a literal value for now; swap in var(--primitiv-breakpoint-lg) once
+   it lands. */
+.ks-nav-mobile-only {
+  display: block;
+}
+
+.ks-nav-desktop-only {
+  display: none;
+}
+
+@media (min-width: 64rem) {
+  .ks-nav-mobile-only {
+    display: none;
+  }
+
+  .ks-nav-desktop-only {
+    display: block;
+  }
 }
 
 /* Demonstrates hiding a mirrored slot from the closed trigger while keeping it

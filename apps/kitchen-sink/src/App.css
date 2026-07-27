@@ -23,21 +23,45 @@ body {
   gap: var(--primitiv-space-space-48);
 }
 
-/* Lands every section's top a comfortable distance below Shell's sticky
-   .ks-header once PageToc scrolls it into view (scrollIntoView respects
-   scroll-margin-*, same as a native #hash jump would) — otherwise the header
-   overlaps the section's own heading. space-68 is a generous clearance for
-   the header's tallest state (the density/size ToggleGroups), not an exact
-   measurement. */
+/* Flows every section (everything but the intro Prose article, which stays
+   full-width above this) into 2 newspaper-style columns instead of one long
+   stack — the page was getting long enough to need a lot of vertical
+   scrolling. Plain CSS multi-column, not Grid: grid-auto-flow: column needs
+   an explicit row count to know where to wrap, and since every row track
+   spans both columns, an oversized section in one column would stretch the
+   unrelated section sharing its row in the other — multicol's columns fill
+   and balance independently of each other, which is what "column 1, then
+   column 2" actually wants here. break-inside: avoid (below, on the section
+   itself) keeps a single section from being sliced across the column gap;
+   it can't help a section individually taller than a full column, but nothing
+   on this page is that tall. */
+.kitchen-sink__sections {
+  columns: 2;
+  column-gap: var(--primitiv-space-space-48);
+}
+
 .kitchen-sink__section {
-  scroll-margin-top: var(--primitiv-space-space-68);
+  break-inside: avoid;
+  margin-block-end: var(--primitiv-space-space-48);
+  /* Lands the section's top a comfortable distance below Shell's sticky
+     .ks-header once PageToc scrolls it into view (scrollIntoView respects
+     scroll-margin-*, same as a native #hash jump would) — otherwise the
+     header overlaps the section's own heading. Same measured custom property
+     PageToc publishes for its own `top` below, so both stay in lockstep
+     without a second guessed value; the fallback only applies before that
+     effect has run once. */
+  scroll-margin-top: var(--kitchen-sink-toc-top, var(--primitiv-space-space-68));
 }
 
 /* The "On this page" nav (PageToc in App.tsx) — a static, always-expanded
    table of contents. Fixed to the viewport's top-right, clear of Shell's two
-   chrome bars (.ks-header, sticky, + .ks-nav, plain) — 116px approximates
-   their combined height in the default (comfortable/md) density; a taller
-   density pushes content down slightly but doesn't collide with anything.
+   chrome bars (.ks-header, sticky, + .ks-nav, plain — see Shell.css). Their
+   combined height isn't a fixed value (the header's content is a live
+   ToggleGroup pair, so font/zoom/OS differences change it), so PageToc
+   measures both bars itself and publishes --kitchen-sink-toc-top on this
+   element — a guessed static px offset either left a visible gap above the
+   nav or tucked it under the header. The fallback here only covers the one
+   frame before that effect runs.
    Desktop only: 80rem is not one of RFC 0025's proposed tiers exactly, but
    it's roughly where the fixed 960px main column (plus its own padding)
    still leaves a comfortable right-hand gutter for a fixed 12rem column
@@ -54,10 +78,12 @@ body {
   .kitchen-sink__toc {
     display: block;
     position: fixed;
-    top: var(--primitiv-space-space-116);
+    top: var(--kitchen-sink-toc-top, var(--primitiv-space-space-68));
     right: var(--primitiv-space-space-24);
     inline-size: 12rem;
-    max-block-size: calc(100vh - var(--primitiv-space-space-116) - var(--primitiv-space-space-24));
+    max-block-size: calc(
+      100vh - var(--kitchen-sink-toc-top, var(--primitiv-space-space-68)) - var(--primitiv-space-space-24)
+    );
     overflow-y: auto;
   }
 }

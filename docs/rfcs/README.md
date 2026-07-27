@@ -161,6 +161,9 @@ surface and applies once those are read.
 |---|---|---|
 | [0019](0019-navigation-menu.md) | Navigation Menu (desktop dropdown + composed mobile) | Draft — proposed |
 | [0021](0021-composite-components.md) | Composite components | Draft — proposed |
+| [0022](0022-layout-primitives.md) | Layout primitives | Draft — proposed |
+| [0023](0023-prose-content-components.md) | Prose & content components | Draft — proposed |
+| [0024](0024-app-shell-and-marketing-patterns.md) | App-shell & marketing patterns | Draft — exploratory |
 
 - **0019** — the docs-site primary nav as a headless **Navigation Menu**: keep
   the component focused on the desktop single-open dropdown nav, and build the
@@ -180,3 +183,25 @@ surface and applies once those are read.
   primitive-backlog item), what got filtered out for needing genuine new ARIA
   (Toolbar, Menubar, Splitter, QR Code), and a suggested build order starting
   with the cheapest end-to-end proof (a Breadcrumb overflow menu).
+- **0022** — the structural gap behind every other proposal: **layout
+  primitives** (`Box`, `Stack`, `Spacer`, `Center`, `AspectRatio`,
+  `Container`, `Grid`), all hand-authored/primitive-less like `prose`. Flags
+  the one open decision — `Container`/`Grid` want viewport responsiveness,
+  but no breakpoint token scale exists yet (RFC 0009 §5 designed but
+  deferred the same container-query mechanism) — and recommends shipping
+  non-responsive in v1 rather than solving that unilaterally. A hard
+  prerequisite for RFC 0024.
+- **0023** — **prose & content components**: crossing List, DescriptionList,
+  Blockquote, Pull Quote, and Kbd from Figma-only (RFC 0012) into React +
+  registry, the same way Table already did (RFC 0014). Unusually low-risk —
+  every token binding and Figma variant already exists, so this is a pure
+  code build against an already-paid-for design. Also proposes a
+  registry-only Figure/Figcaption wrapper, explicitly *not* reopening RFC
+  0015's "no headless React Figure" decision.
+- **0024** — **app-shell & marketing patterns** (Page Header, Error/Empty
+  page shell, app-shell/sidebar layout, Hero, Footer). Deliberately lighter
+  than 0021/0023: unlike those, none of these have existing Figma design, so
+  this is a scoped candidate list awaiting a design session, not a build
+  plan. Flags Hero/Footer as content-shaped rather than component-shaped,
+  and recommends Page Header + Error/Empty page shell as the strongest,
+  most build-ready starting point if the category gets picked up.

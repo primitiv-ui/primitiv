@@ -125,6 +125,52 @@ None of these are built yet; listed here for backlog visibility.
 - [ ] Date Picker — needs Calendar
 - [ ] File Upload UI (dropzone + previews) — needs File Upload
 
+## Layout primitives (proposed)
+
+A structural gap flagged separately from the composites above: nothing in
+the library today arranges components *on a page* — every entry is a
+widget. See
+[`docs/rfcs/0022-layout-primitives.md`](docs/rfcs/0022-layout-primitives.md).
+Hand-authored/primitive-less, same shape as `prose`. `Container`/`Grid`
+raise an open question (no breakpoint token scale exists yet) the RFC
+recommends deferring rather than solving inline.
+
+- [ ] Box
+- [ ] Stack
+- [ ] Spacer
+- [ ] Center
+- [ ] AspectRatio
+- [ ] Container — responsive `size` deferred, see RFC 0022 §4
+- [ ] Grid — responsive `columns` deferred, see RFC 0022 §4
+
+## Prose & content components (proposed)
+
+Five components with fully-landed Figma design (RFC 0012/0015) that never
+crossed into React + registry — a pure code build, no new design or tokens
+needed. See
+[`docs/rfcs/0023-prose-content-components.md`](docs/rfcs/0023-prose-content-components.md).
+
+- [ ] Kbd
+- [ ] Blockquote
+- [ ] Pull Quote
+- [ ] List
+- [ ] DescriptionList
+- [ ] Figure + Figcaption — registry-only wrapper; no headless companion (RFC 0015)
+
+## App-shell & marketing patterns (proposed, exploratory)
+
+No existing Figma design behind any of these — needs a design session
+before a build plan, unlike the two sections above. See
+[`docs/rfcs/0024-app-shell-and-marketing-patterns.md`](docs/rfcs/0024-app-shell-and-marketing-patterns.md).
+Depends on the Layout primitives section landing first.
+
+- [ ] Page Header — strongest candidate, build-ready once Layout primitives land
+- [ ] Error / Empty page shell — strongest candidate, build-ready once Layout primitives land
+- [ ] Auth / form page shell
+- [ ] App shell / sidebar layout
+- [ ] Hero — content-shaped; may end up a documented recipe, not a registry component
+- [ ] Footer — content-shaped; may end up a documented recipe, not a registry component
+
 ## Components to build
 
 What remains is every component that carries genuine interaction

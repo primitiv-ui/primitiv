@@ -333,6 +333,109 @@ describe("NavigationMenu.Viewport measurement", () => {
     removeEventListener.mockRestore();
   });
 
+  /** jsdom doesn't implement the CSS Font Loading API at all (`document.fonts`
+   * is `undefined`), so a minimal EventTarget-shaped stub stands in for it —
+   * just enough surface for the hook's addEventListener/removeEventListener
+   * calls to record and fire a "loadingdone" listener. */
+  function stubDocumentFonts() {
+    const listeners = new Map<string, EventListener>();
+    const stub = {
+      addEventListener: (type: string, listener: EventListener) =>
+        listeners.set(type, listener),
+      removeEventListener: (type: string, listener: EventListener) => {
+        if (listeners.get(type) === listener) listeners.delete(type);
+      },
+      dispatch: (type: string) => listeners.get(type)?.(new Event(type)),
+      listeners,
+    };
+    const original = Object.getOwnPropertyDescriptor(document, "fonts");
+    Object.defineProperty(document, "fonts", { value: stub, configurable: true });
+    return {
+      stub,
+      restore: () => {
+        if (original) Object.defineProperty(document, "fonts", original);
+        else delete (document as { fonts?: unknown }).fonts;
+      },
+    };
+  }
+
+  it("re-measures the open panel once a swapped web font finishes loading", async () => {
+    // A late font swap (e.g. Google Fonts' display=swap) reflows text after the
+    // effect's own measurement already ran — nothing else invalidates it, so the
+    // published size would otherwise stay locked to the pre-swap layout forever.
+    const { stub, restore } = stubDocumentFonts();
+    try {
+      const user = userEvent.setup();
+      render(<MotionNav />);
+
+      const viewport = screen.getByTestId("viewport");
+      const panel = screen.getByTestId("panel-two");
+      plantSize(panel, { width: 240, height: 96 });
+      await user.click(screen.getByRole("button", { name: "Two" }));
+      await waitFor(() => expect(widthOf(viewport)).toBe("240px"));
+
+      plantSize(panel, { width: 320, height: 128 });
+      act(() => {
+        stub.dispatch("loadingdone");
+      });
+
+      expect(widthOf(viewport)).toBe("320px");
+      expect(heightOf(viewport)).toBe("128px");
+    } finally {
+      restore();
+    }
+  });
+
+  it("removes its font-loading listener on unmount", () => {
+    const { stub, restore } = stubDocumentFonts();
+    try {
+      const addEventListener = vi.spyOn(stub, "addEventListener");
+      const removeEventListener = vi.spyOn(stub, "removeEventListener");
+
+      const { unmount } = render(<MotionNav />);
+      const measure = addEventListener.mock.calls.find(
+        ([type]) => type === "loadingdone",
+      )?.[1];
+      unmount();
+
+      expect(measure).toBeTypeOf("function");
+      expect(removeEventListener).toHaveBeenCalledWith("loadingdone", measure);
+    } finally {
+      restore();
+    }
+  });
+
+  it("skips the font-loading listener when the Font Loading API is unavailable", () => {
+    const original = Object.getOwnPropertyDescriptor(document, "fonts");
+    // jsdom already lacks document.fonts, but assert the guard explicitly so this
+    // doesn't rely on that being jsdom's default forever.
+    Object.defineProperty(document, "fonts", {
+      value: undefined,
+      configurable: true,
+    });
+    try {
+      expect(() => render(<MotionNav />)).not.toThrow();
+    } finally {
+      if (original) Object.defineProperty(document, "fonts", original);
+      else delete (document as { fonts?: unknown }).fonts;
+    }
+  });
+
+  it("cancels its pending re-measurement frame on unmount", () => {
+    const requestAnimationFrame = vi.spyOn(window, "requestAnimationFrame");
+    const cancelAnimationFrame = vi.spyOn(window, "cancelAnimationFrame");
+
+    const { unmount } = render(<MotionNav />);
+    const frameId = requestAnimationFrame.mock.results[0]?.value;
+    unmount();
+
+    expect(frameId).toBeTypeOf("number");
+    expect(cancelAnimationFrame).toHaveBeenCalledWith(frameId);
+
+    requestAnimationFrame.mockRestore();
+    cancelAnimationFrame.mockRestore();
+  });
+
   it("publishes nothing when the open value has no panel to measure", () => {
     // Mirrors the Indicator's no-rendered-trigger case: better an unsized box than
     // one reporting a size that belongs to nothing.

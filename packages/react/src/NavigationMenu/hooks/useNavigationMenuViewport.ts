@@ -53,6 +53,16 @@ export function useNavigationMenuViewport(): {
 
   useEffect(() => {
     measure();
+    // A panel's very first paint can still be mid a browser-internal multi-pass
+    // layout — confirmed live: a multi-line description's true wrapped height
+    // was consistently one frame behind this effect's own synchronous read (a
+    // CSS Grid intrinsic-sizing quirk on a genuinely new subtree), publishing a
+    // too-short height that only self-corrected on the next real open. One
+    // rAF-deferred re-measurement catches that up; it's harmless to repeat on
+    // an already-settled panel, since re-measuring just republishes the same
+    // numbers.
+    const raf = requestAnimationFrame(measure);
+    return () => cancelAnimationFrame(raf);
   }, [measure]);
 
   // Panel size is layout-dependent, so a reflow invalidates it — the same reason
@@ -60,6 +70,19 @@ export function useNavigationMenuViewport(): {
   useEffect(() => {
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
+  }, [measure]);
+
+  // A web font (e.g. Google Fonts' display=swap) can still be loading when this
+  // effect's own measurement runs, and the swap's reflow lands asynchronously,
+  // after — nothing else invalidates the published size when that happens, so it
+  // stays locked to the pre-swap layout until some unrelated event (a resize, or
+  // the next open) happens to re-measure. `document.fonts` is absent in jsdom
+  // (and, historically, some very old browsers), hence the guard.
+  useEffect(() => {
+    const fonts = document.fonts;
+    if (!fonts) return;
+    fonts.addEventListener("loadingdone", measure);
+    return () => fonts.removeEventListener("loadingdone", measure);
   }, [measure]);
 
   // `undefined` is dropped by React, so a viewport that has never hosted an open

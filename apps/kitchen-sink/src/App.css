@@ -14,34 +14,38 @@ body {
   color: var(--primitiv-content-primary);
 }
 
-/* The centering flex row for the main column + the desktop-only "On this
-   page" nav (.kitchen-sink__toc below) — .kitchen-sink no longer centers
-   itself (no margin-inline: auto below); as the only flex child most of the
-   time (the toc is display:none below its own breakpoint) it still lands
-   centered via justify-content, and the pair centers together as one unit
-   once the toc appears. */
-.kitchen-sink-layout {
-  display: flex;
-  justify-content: center;
-}
-
 .kitchen-sink {
   max-width: 960px;
+  margin-inline: auto;
   padding: var(--primitiv-space-space-48) var(--primitiv-space-space-16) var(--primitiv-space-space-140);
   display: flex;
   flex-direction: column;
   gap: var(--primitiv-space-space-48);
 }
 
+/* Lands every section's top a comfortable distance below Shell's sticky
+   .ks-header once PageToc scrolls it into view (scrollIntoView respects
+   scroll-margin-*, same as a native #hash jump would) — otherwise the header
+   overlaps the section's own heading. space-68 is a generous clearance for
+   the header's tallest state (the density/size ToggleGroups), not an exact
+   measurement. */
+.kitchen-sink__section {
+  scroll-margin-top: var(--primitiv-space-space-68);
+}
+
 /* The "On this page" nav (PageToc in App.tsx) — a static, always-expanded
-   table of contents, desktop only. 80rem is not one of RFC 0025's proposed
-   tiers exactly, but it's the point at which the fixed 960px main column
-   (plus its own padding) leaves enough room in the right-hand gutter for this
-   nav without the two crowding each other — close enough to the RFC's
-   proposed `xl` (80rem) that it can become var(--primitiv-breakpoint-xl) once
-   that RFC's tokens are emitted. Below it the nav simply isn't rendered
-   (display:none), so it never competes for space on a page already tight
-   enough to need the mobile nav (see .ks-nav-mobile-only). */
+   table of contents. Fixed to the viewport's top-right, clear of Shell's two
+   chrome bars (.ks-header, sticky, + .ks-nav, plain) — 116px approximates
+   their combined height in the default (comfortable/md) density; a taller
+   density pushes content down slightly but doesn't collide with anything.
+   Desktop only: 80rem is not one of RFC 0025's proposed tiers exactly, but
+   it's roughly where the fixed 960px main column (plus its own padding)
+   still leaves a comfortable right-hand gutter for a fixed 12rem column
+   without crowding it — close enough to the RFC's proposed `xl` (80rem) that
+   it can become var(--primitiv-breakpoint-xl) once that RFC's tokens are
+   emitted. Below it the nav simply isn't rendered (display:none), so it
+   never overlaps a page already tight enough to need the mobile nav (see
+   .ks-nav-mobile-only). */
 .kitchen-sink__toc {
   display: none;
 }
@@ -49,14 +53,11 @@ body {
 @media (min-width: 80rem) {
   .kitchen-sink__toc {
     display: block;
-    flex: none;
-    position: sticky;
-    top: var(--primitiv-space-space-48);
-    align-self: flex-start;
-    inline-size: 14rem;
-    max-block-size: calc(100vh - var(--primitiv-space-space-48) * 2);
-    margin-block-start: var(--primitiv-space-space-48);
-    margin-inline-start: var(--primitiv-space-space-24);
+    position: fixed;
+    top: var(--primitiv-space-space-116);
+    right: var(--primitiv-space-space-24);
+    inline-size: 12rem;
+    max-block-size: calc(100vh - var(--primitiv-space-space-116) - var(--primitiv-space-space-24));
     overflow-y: auto;
   }
 }
@@ -70,7 +71,7 @@ body {
 .kitchen-sink__toc > ul {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-16);
+  gap: var(--primitiv-space-space-8);
 }
 
 .kitchen-sink__toc-heading {
@@ -86,7 +87,7 @@ body {
 
 .kitchen-sink__toc-category {
   display: block;
-  margin-block-end: var(--primitiv-space-space-4);
+  margin-block-end: var(--primitiv-space-space-2);
   color: var(--primitiv-content-secondary);
   font-family: var(--primitiv-label-xs-font-family);
   font-size: var(--primitiv-label-xs-font-size);
@@ -99,15 +100,17 @@ body {
 .kitchen-sink__toc ul ul {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-4);
+  gap: var(--primitiv-space-space-2);
 }
 
 .kitchen-sink__toc a {
   display: block;
-  padding-block: var(--primitiv-space-space-2);
+  padding-block: var(--primitiv-space-space-1);
   color: var(--primitiv-content-secondary);
-  font-size: var(--primitiv-body-sm-font-size);
-  line-height: var(--primitiv-body-sm-line-height);
+  font-family: var(--primitiv-body-xs-font-family);
+  font-size: var(--primitiv-body-xs-font-size);
+  font-weight: var(--primitiv-body-xs-font-weight);
+  line-height: var(--primitiv-body-xs-line-height);
   text-decoration: none;
 }
 

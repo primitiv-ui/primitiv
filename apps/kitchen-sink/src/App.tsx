@@ -361,29 +361,50 @@ const PAGE_TOC: { category: string; titles: string[] }[] = [
   { category: "Data Display", titles: ["Avatar", "Table"] },
 ];
 
+// The GitHub Pages deploy switches the app to a HashRouter (see main.tsx —
+// GitHub Pages can't fall back to index.html for path-based SPA routes, so
+// deep links need the route to live in the hash instead). That means the "#"
+// is HashRouter's own path delimiter: a plain `<a href="#button">` changes
+// `location.hash` to "button", which HashRouter reads as "navigate to the
+// route /button" — no such route exists, so <Routes> renders nothing and the
+// page goes blank. Scrolling by hand instead of letting the browser's native
+// hash-jump run means this nav never touches location.hash at all.
+function scrollToId(event: React.MouseEvent<HTMLAnchorElement>, id: string) {
+  event.preventDefault();
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 // A static, always-expanded table of contents — every entry is permanently
 // visible, so this is deliberately a plain nested list rather than the Tree
 // component: nothing here ever collapses, so there is no state to own and no
 // need for a styled Tree registry surface (which doesn't exist yet — Tree is
-// headless-only, see packages/react/src/Tree) just for this. Desktop only;
-// see .kitchen-sink__toc in App.css for the breakpoint.
+// headless-only, see packages/react/src/Tree) just for this. Fixed to the
+// viewport's top-right, desktop only; see .kitchen-sink__toc in App.css for
+// the breakpoint and offset.
 function PageToc() {
   return (
     <nav className="kitchen-sink__toc" aria-label="Page sections">
       <p className="kitchen-sink__toc-heading">On this page</p>
       <ul>
         <li>
-          <a href="#introduction">Introduction</a>
+          <a href="#introduction" onClick={(e) => scrollToId(e, "introduction")}>
+            Introduction
+          </a>
         </li>
         {PAGE_TOC.map(({ category, titles }) => (
           <li key={category}>
             <span className="kitchen-sink__toc-category">{category}</span>
             <ul>
-              {titles.map((title) => (
-                <li key={title}>
-                  <a href={`#${sectionSlug(title)}`}>{title}</a>
-                </li>
-              ))}
+              {titles.map((title) => {
+                const id = sectionSlug(title);
+                return (
+                  <li key={title}>
+                    <a href={`#${id}`} onClick={(e) => scrollToId(e, id)}>
+                      {title}
+                    </a>
+                  </li>
+                );
+              })}
             </ul>
           </li>
         ))}
@@ -576,7 +597,8 @@ export function App(): ReactElement {
     );
 
   return (
-    <div className="kitchen-sink-layout">
+    <>
+      <PageToc />
       <div className="kitchen-sink">
       <Prose asChild>
         <article id="introduction">
@@ -2343,7 +2365,6 @@ export function ramp(hue: number, chroma = 0.12) {
         </TooltipProvider>
       </Section>
       </div>
-      <PageToc />
-    </div>
+    </>
   );
 }

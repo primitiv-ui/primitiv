@@ -77,7 +77,11 @@ body {
   list-style: none;
 }
 
-.kitchen-sink__toc-intro {
+/* Two classes (0,2,0) to unambiguously beat .kitchen-sink__toc ul's margin: 0
+   reset (0,1,1) above — margin-block-end alone here would lose to it on
+   specificity regardless of source order, since .kitchen-sink__toc-intro
+   alone is only (0,1,0). */
+.kitchen-sink__toc .kitchen-sink__toc-intro {
   margin-block-end: var(--primitiv-space-space-32);
 }
 

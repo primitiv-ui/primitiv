@@ -34,10 +34,13 @@ body {
    column 2" actually wants here. break-inside: avoid (below, on the section
    itself) keeps a single section from being sliced across the column gap;
    it can't help a section individually taller than a full column, but nothing
-   on this page is that tall. */
-.kitchen-sink__sections {
-  columns: 2;
-  column-gap: var(--primitiv-space-space-48);
+   on this page is that tall. Below 48rem it stays a single column — a demo
+   like Table or Select in a phone-width half-column would just overflow. */
+@media (min-width: 48rem) {
+  .kitchen-sink__sections {
+    columns: 2;
+    column-gap: var(--primitiv-space-space-48);
+  }
 }
 
 .kitchen-sink__section {

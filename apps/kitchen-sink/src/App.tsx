@@ -941,8 +941,9 @@ primitiv add --all`}</code>
         <p className="kitchen-sink__note">
           A canvas/shape-editor right-click menu — items with leading icons and
           shortcuts, a disabled row, checkbox items (including a tri-state
-          indeterminate one), a radio group, and a one-level submenu. Right-click
-          near the edge of the viewport to see the panel flip back on-screen.
+          indeterminate one), a radio group, and a one-level submenu.
+          Right-click near the edge of the viewport to see the panel flip back
+          on-screen.
         </p>
         <ContextMenu>
           <ContextMenuTrigger asChild>
@@ -1069,7 +1070,7 @@ primitiv add --all`}</code>
               <ContextMenuItemLeading>
                 <Settings aria-hidden="true" />
               </ContextMenuItemLeading>
-              <ContextMenuItemLabel>Layer settings…</ContextMenuItemLabel>
+              <ContextMenuItemLabel>Layer settings...</ContextMenuItemLabel>
             </ContextMenuItem>
             <ContextMenuItem disabled>
               <ContextMenuItemLeading>

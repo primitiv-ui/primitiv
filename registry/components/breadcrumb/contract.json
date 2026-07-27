@@ -1,0 +1,73 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "breadcrumb",
+  "version": "0.1.0",
+  "description": "A WAI-ARIA breadcrumb trail — a nav landmark wrapping an ordered list of ancestor-page links, ending with the current page.",
+  "docs": "https://primitiv-ui.dev/docs/components/breadcrumb",
+  "root": {
+    "element": "nav",
+    "class": "primitiv-breadcrumb",
+    "component": "Root"
+  },
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Control size; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-breadcrumb--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-breadcrumb--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-breadcrumb--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-breadcrumb--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-breadcrumb--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "subcomponents": [
+    {
+      "name": "list",
+      "component": "List",
+      "element": "ol",
+      "class": "primitiv-breadcrumb__list"
+    },
+    {
+      "name": "item",
+      "component": "Item",
+      "element": "li",
+      "class": "primitiv-breadcrumb__item"
+    },
+    {
+      "name": "link",
+      "component": "Link",
+      "element": "a",
+      "class": "primitiv-breadcrumb__link"
+    },
+    {
+      "name": "page",
+      "component": "Page",
+      "element": "span",
+      "class": "primitiv-breadcrumb__page",
+      "dataAttributes": [
+        { "name": "aria-current", "value": "page", "when": "always", "source": "auto" }
+      ]
+    },
+    {
+      "name": "separator",
+      "component": "Separator",
+      "element": "li",
+      "class": "primitiv-breadcrumb__separator"
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-breadcrumb-gap", "defaultsTo": "var(--primitiv-space-space-4)" },
+    { "name": "--primitiv-breadcrumb-icon-size", "defaultsTo": "var(--primitiv-breadcrumb-md-icon-size)" },
+    { "name": "--primitiv-breadcrumb-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
+    { "name": "--primitiv-breadcrumb-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-breadcrumb-font-weight", "defaultsTo": "var(--primitiv-body-md-font-weight)" },
+    { "name": "--primitiv-breadcrumb-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" },
+    { "name": "--primitiv-breadcrumb-link-color", "defaultsTo": "var(--primitiv-content-muted)" },
+    { "name": "--primitiv-breadcrumb-link-color-hover", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-breadcrumb-page-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-breadcrumb-separator-color", "defaultsTo": "var(--primitiv-content-muted)" }
+  ]
+}

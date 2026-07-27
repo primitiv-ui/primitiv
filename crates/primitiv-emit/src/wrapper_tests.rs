@@ -565,3 +565,25 @@ fn the_committed_avatar_wrapper_is_the_generated_form_of_its_contract() {
         ))
     );
 }
+
+/// Drift guard: the committed `registry/components/breadcrumb/breadcrumb.tsx` is
+/// exactly the generated form of its contract — a five-subcomponent structural
+/// compound (`list` / `item` / `link` / `page` / `separator`) with a single
+/// modifier-bearing root (`size`) and no subcomponent opting into
+/// `wrapTextChildren`.
+#[test]
+fn the_committed_breadcrumb_wrapper_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/breadcrumb/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_wrapper(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/components/breadcrumb/breadcrumb.tsx"
+        ))
+    );
+}

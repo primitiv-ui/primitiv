@@ -1,0 +1,179 @@
+/*
+ * Breadcrumb — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add breadcrumb`. It is yours to
+ * edit: the stable surface is the contract (the .primitiv-breadcrumb root +
+ * __list / __item / __link / __page / __separator parts, and the
+ * --primitiv-breadcrumb-* custom properties), not these values (RFC 0006
+ * Principle 2 — names are stable, values are not).
+ *
+ * The trail reads as one de-emphasised line with the current page picked out:
+ * every ancestor Link and every Separator sit on content/muted, while the
+ * trailing Page sits on content/primary — previously all three rendered on
+ * the same content/secondary, with no visual distinction for "where you are".
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look live
+ * in primitiv.base, size modifiers in primitiv.variants, the link hover
+ * affordance in primitiv.states. The sublayer order is declared once in the
+ * shared token layer (primitiv.tokens.css).
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-space-*,
+ * --primitiv-breadcrumb-*-icon-size, --primitiv-body-*, --primitiv-content-*
+ * and --primitiv-motion-* custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-breadcrumb {
+    /* Per-component API — the themable knobs, defaulting to the md size. The
+       variants layer below re-points them; consumers can override any one
+       without touching the rule. */
+    --primitiv-breadcrumb-gap: var(--primitiv-space-space-4);
+    --primitiv-breadcrumb-icon-size: var(--primitiv-breadcrumb-md-icon-size);
+    --primitiv-breadcrumb-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-breadcrumb-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-breadcrumb-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-breadcrumb-line-height: var(--primitiv-body-md-line-height);
+    --primitiv-breadcrumb-link-color: var(--primitiv-content-muted);
+    --primitiv-breadcrumb-link-color-hover: var(--primitiv-content-primary);
+    --primitiv-breadcrumb-page-color: var(--primitiv-content-primary);
+    --primitiv-breadcrumb-separator-color: var(--primitiv-content-muted);
+  }
+
+  /* The ordered list is the flex row; list markers and the UA's own block
+     margin/padding are reset since it's a navigation trail, not prose. Wraps
+     rather than forcing horizontal overflow when a long trail outgrows its
+     container. */
+  .primitiv-breadcrumb__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--primitiv-breadcrumb-gap);
+    margin: var(--primitiv-space-space-0);
+    padding-inline-start: var(--primitiv-space-space-0);
+    list-style: none;
+  }
+
+  /* Purely structural — the colour lives on the Link/Page it wraps. Centred
+     so a Link/Page and its neighbouring Separator share a baseline. */
+  .primitiv-breadcrumb__item {
+    display: flex;
+    align-items: center;
+  }
+
+  /* An ancestor-page link. The underline is always in the layout (as an
+     invisible, transparent decoration) so revealing it on hover is a colour
+     transition, not a reflow — see the states layer below. */
+  .primitiv-breadcrumb__link {
+    color: var(--primitiv-breadcrumb-link-color);
+    font-family: var(--primitiv-breadcrumb-font-family);
+    font-size: var(--primitiv-breadcrumb-font-size);
+    font-weight: var(--primitiv-breadcrumb-font-weight);
+    line-height: var(--primitiv-breadcrumb-line-height);
+    text-decoration-line: underline;
+    text-decoration-color: var(--primitiv-color-transparent);
+    transition:
+      color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      text-decoration-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* The current page — not a link, so no hover/focus affordance of its own. */
+  .primitiv-breadcrumb__page {
+    color: var(--primitiv-breadcrumb-page-color);
+    font-family: var(--primitiv-breadcrumb-font-family);
+    font-size: var(--primitiv-breadcrumb-font-size);
+    font-weight: var(--primitiv-breadcrumb-font-weight);
+    line-height: var(--primitiv-breadcrumb-line-height);
+  }
+
+  /* Decorative divider — role="presentation" + aria-hidden already remove it
+     from the accessibility tree; user-select keeps a tap-hold from selecting
+     the glyph the way Tooltip's bubble does for its own non-interactive
+     content. */
+  .primitiv-breadcrumb__separator {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    color: var(--primitiv-breadcrumb-separator-color);
+    font-family: var(--primitiv-breadcrumb-font-family);
+    font-size: var(--primitiv-breadcrumb-font-size);
+    font-weight: var(--primitiv-breadcrumb-font-weight);
+    line-height: var(--primitiv-breadcrumb-line-height);
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  .primitiv-breadcrumb__separator svg {
+    inline-size: var(--primitiv-breadcrumb-icon-size);
+    block-size: var(--primitiv-breadcrumb-icon-size);
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the type scale and the separator icon size together.
+     Density stays ambient via [data-density] on the token values themselves
+     (RFC 0009). The inter-item gap does not scale with size — it doesn't in
+     the source design either (Figma's own itemSpacing is a flat, unbound 4px
+     at every size). */
+  .primitiv-breadcrumb--xs {
+    --primitiv-breadcrumb-icon-size: var(--primitiv-breadcrumb-xs-icon-size);
+    --primitiv-breadcrumb-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-breadcrumb-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-breadcrumb-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-breadcrumb-line-height: var(--primitiv-body-xs-line-height);
+  }
+  .primitiv-breadcrumb--sm {
+    --primitiv-breadcrumb-icon-size: var(--primitiv-breadcrumb-sm-icon-size);
+    --primitiv-breadcrumb-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-breadcrumb-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-breadcrumb-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-breadcrumb-line-height: var(--primitiv-body-sm-line-height);
+  }
+  .primitiv-breadcrumb--md {
+    --primitiv-breadcrumb-icon-size: var(--primitiv-breadcrumb-md-icon-size);
+    --primitiv-breadcrumb-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-breadcrumb-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-breadcrumb-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-breadcrumb-line-height: var(--primitiv-body-md-line-height);
+  }
+  .primitiv-breadcrumb--lg {
+    --primitiv-breadcrumb-icon-size: var(--primitiv-breadcrumb-lg-icon-size);
+    --primitiv-breadcrumb-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-breadcrumb-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-breadcrumb-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-breadcrumb-line-height: var(--primitiv-body-lg-line-height);
+  }
+  .primitiv-breadcrumb--xl {
+    --primitiv-breadcrumb-icon-size: var(--primitiv-breadcrumb-xl-icon-size);
+    --primitiv-breadcrumb-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-breadcrumb-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-breadcrumb-font-weight: var(--primitiv-body-xl-font-weight);
+    --primitiv-breadcrumb-line-height: var(--primitiv-body-xl-line-height);
+  }
+}
+
+@layer primitiv.states {
+  /* Hover reveals the underline already sitting in the layout (transparent →
+     currentColor) and lifts the text from muted to primary, so hovering an
+     ancestor link previews the same foreground weight the current page
+     carries. Guarded so a tap on touch doesn't stick the hover look. */
+  @media (hover: hover) {
+    .primitiv-breadcrumb__link:hover {
+      color: var(--primitiv-breadcrumb-link-color-hover);
+      text-decoration-color: currentColor;
+    }
+  }
+
+  .primitiv-breadcrumb__link:focus-visible {
+    outline: var(--primitiv-focus-ring-width) solid var(--primitiv-focus-ring);
+    outline-offset: var(--primitiv-focus-ring-offset);
+    border-radius: var(--primitiv-radii-4);
+  }
+}

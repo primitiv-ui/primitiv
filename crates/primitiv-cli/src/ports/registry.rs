@@ -183,6 +183,11 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("avatar", "avatar.recipe.ts"),
     registry_file!("avatar", "avatar.tsx"),
     registry_file!("avatar", "contract.json"),
+    registry_file!("breadcrumb", "styles.css"),
+    registry_file!("breadcrumb", "styles.scss"),
+    registry_file!("breadcrumb", "breadcrumb.recipe.ts"),
+    registry_file!("breadcrumb", "breadcrumb.tsx"),
+    registry_file!("breadcrumb", "contract.json"),
 ];
 
 impl Registry for EmbeddedRegistry {

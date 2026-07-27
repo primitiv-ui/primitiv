@@ -524,6 +524,62 @@ Notes: focused keeps border/default — ring is sole focus indicator; trailing c
   Composed 'Select' set on the Select page instances this per size/state.
 ```
 
+### Breadcrumb/Item — `436:12220`
+
+```
+Single entry in a breadcrumb trail — plain text label, muted for an ancestor link and primary for the current page.
+
+Type: surface component (child of the composed Breadcrumb trail)
+
+Axes: Size xs|sm|md|lg|xl · State link|current
+
+Tokens: text → content/muted (State=link) · content/primary (State=current); typography → body/{size}/* (Asta Sans Regular, weight 400 in both states)
+
+Properties: Label (TEXT "Home")
+
+Density: Context mode override on parent frame
+Pairs with: Breadcrumb/Separator (sits between two Items), composed Breadcrumb (the trail)
+Notes: State added 2026-07-27 — previously link and current-page items were visually identical (both content/secondary). Mirrors headless Breadcrumb.Link (State=link, an <a>) vs Breadcrumb.Page (State=current, a <span aria-current="page">). State=current is a real VARIANT rather than a boolean because it recolours the label — Figma booleans can only toggle visibility, not rebind a fill.
+```
+
+### Breadcrumb/Separator — `436:12221`
+
+```
+Decorative divider between two Breadcrumb/Item entries — a chevron glyph or a literal character.
+
+Type: surface component (child of the composed Breadcrumb trail)
+
+Axes: Size xs|sm|md|lg|xl · Type icon|text
+
+Tokens: glyph/character fill → content/muted (matches the link/ancestor foreground, 2026-07-27 — was content/secondary)
+        icon sizing → breadcrumb/{size}/icon-size (Context collection, component-specific namespace); text uses the shared body/{size}/* scale
+
+Properties: Character (TEXT "/") — Type=text only; Type=icon uses a fixed chevron-right Icon instance
+
+Density: Context mode override on parent frame
+Pairs with: Breadcrumb/Item (sits between two of these), composed Breadcrumb (the trail)
+Notes: mirrors headless Breadcrumb.Separator (role="presentation" aria-hidden, defaults to "/", children override entirely). Icon-mode's outer frame is the density-scaled token; the nested Icon instance's own size property is set inconsistently relative to it (a cosmetic mismatch, not a second sizing axis — the outer frame governs rendered size).
+```
+
+### Breadcrumb (composed) — `436:12911`
+
+```
+Composed breadcrumb trail — an ordered row of Breadcrumb/Item entries divided by Breadcrumb/Separators, ending with the current page. The WAI-ARIA Breadcrumb pattern.
+
+Type: non-framed composition
+
+Axes: Size xs|sm|md|lg|xl · Separator icon|text
+
+Tokens: resolves entirely through nested Breadcrumb/Item + Breadcrumb/Separator instances (content/muted for the trail, content/primary for the current page)
+        gap between entries → hardcoded 4px, unbound to any token, uniform across every size (a genuine gap versus the Context scale — flag to design if it should scale)
+
+Properties: Size · Separator only. Per-entry text is edited on each nested Breadcrumb/Item instance's Label property; the current-page item is that instance's State=current variant. No group-level passthrough props.
+
+Density: Context mode override on parent frame (via the nested Item/Separator instances)
+Pairs with: Breadcrumb/Item, Breadcrumb/Separator (both nested)
+Notes: fixed 3-item sample trail (Home / Section / Page) at every Size×Separator combination — no 4+-item example, no truncation/ellipsis affordance modeled. State=current wired onto the trailing item across all 10 variants 2026-07-27, alongside the Item State axis itself.
+```
+
 ### Divider — `401:18380`
 
 ```

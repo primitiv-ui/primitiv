@@ -323,3 +323,19 @@ fn the_committed_avatar_scss_is_the_derived_form_of_its_css() {
 
     assert_eq!(emit_component_scss(css), scss);
 }
+
+/// Drift guard: the committed `registry/components/breadcrumb/styles.scss` is
+/// the derived form of its CSS.
+#[test]
+fn the_committed_breadcrumb_scss_is_the_derived_form_of_its_css() {
+    let css = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/breadcrumb/styles.css"
+    ));
+    let scss = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/breadcrumb/styles.scss"
+    ));
+
+    assert_eq!(emit_component_scss(css), scss);
+}

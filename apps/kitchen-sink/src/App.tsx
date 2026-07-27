@@ -14,6 +14,12 @@ import {
   Avatar,
   AvatarImage,
   AvatarFallback,
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
   Button,
   Checkbox,
   CodeBlock,
@@ -667,6 +673,48 @@ primitiv add --all`}</code>
             <User aria-hidden="true" />
           </AvatarFallback>
         </Avatar>
+      </Section>
+
+      {/* Ancestor Links read muted, the trailing Page reads primary — link
+          hover previews that same primary weight via a fading underline
+          (the decoration sits transparent at rest, so revealing it on hover
+          is a colour transition, not a layout shift). Second trail swaps the
+          default "/" separator for a custom chevron icon. */}
+      <Section title="Breadcrumb" column>
+        <Breadcrumb size={size}>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#home">Home</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#library">Library</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Current article</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <Breadcrumb size={size}>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#home">Home</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator>
+              <ChevronRight aria-hidden="true" />
+            </BreadcrumbSeparator>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#library">Library</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator>
+              <ChevronRight aria-hidden="true" />
+            </BreadcrumbSeparator>
+            <BreadcrumbItem>
+              <BreadcrumbPage>Current article</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
       </Section>
 
       {/* One menu exercising every part: a labelled Group of Items (with keyboard

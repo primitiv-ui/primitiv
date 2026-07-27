@@ -413,12 +413,14 @@ function PageToc() {
   return (
     <nav ref={ref} className="kitchen-sink__toc" aria-label="Page sections">
       <p className="kitchen-sink__toc-heading">On this page</p>
-      <ul>
+      <ul className="kitchen-sink__toc-intro">
         <li>
           <a href="#introduction" onClick={(e) => scrollToId(e, "introduction")}>
             Introduction
           </a>
         </li>
+      </ul>
+      <ul className="kitchen-sink__toc-categories">
         {PAGE_TOC.map(({ category, titles }) => (
           <li key={category}>
             <span className="kitchen-sink__toc-category">{category}</span>
@@ -775,7 +777,6 @@ primitiv add --all`}</code>
         </article>
       </Prose>
 
-      <div className="kitchen-sink__sections">
       <Section title="Accordion" column>
         <Accordion size={size} defaultValue="item-1">
           <AccordionItem value="item-1">
@@ -2393,7 +2394,6 @@ export function ramp(hue: number, chroma = 0.12) {
           })}
         </TooltipProvider>
       </Section>
-      </div>
       </div>
     </>
   );

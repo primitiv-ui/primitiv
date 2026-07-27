@@ -23,36 +23,14 @@ body {
   gap: var(--primitiv-space-space-48);
 }
 
-/* Flows every section (everything but the intro Prose article, which stays
-   full-width above this) into 2 newspaper-style columns instead of one long
-   stack — the page was getting long enough to need a lot of vertical
-   scrolling. Plain CSS multi-column, not Grid: grid-auto-flow: column needs
-   an explicit row count to know where to wrap, and since every row track
-   spans both columns, an oversized section in one column would stretch the
-   unrelated section sharing its row in the other — multicol's columns fill
-   and balance independently of each other, which is what "column 1, then
-   column 2" actually wants here. break-inside: avoid (below, on the section
-   itself) keeps a single section from being sliced across the column gap;
-   it can't help a section individually taller than a full column, but nothing
-   on this page is that tall. Below 48rem it stays a single column — a demo
-   like Table or Select in a phone-width half-column would just overflow. */
-@media (min-width: 48rem) {
-  .kitchen-sink__sections {
-    columns: 2;
-    column-gap: var(--primitiv-space-space-48);
-  }
-}
-
+/* Lands the section's top a comfortable distance below Shell's sticky
+   .ks-header once PageToc scrolls it into view (scrollIntoView respects
+   scroll-margin-*, same as a native #hash jump would) — otherwise the
+   header overlaps the section's own heading. Same measured custom property
+   PageToc publishes for its own `top` below, so both stay in lockstep
+   without a second guessed value; the fallback only applies before that
+   effect has run once. */
 .kitchen-sink__section {
-  break-inside: avoid;
-  margin-block-end: var(--primitiv-space-space-48);
-  /* Lands the section's top a comfortable distance below Shell's sticky
-     .ks-header once PageToc scrolls it into view (scrollIntoView respects
-     scroll-margin-*, same as a native #hash jump would) — otherwise the
-     header overlaps the section's own heading. Same measured custom property
-     PageToc publishes for its own `top` below, so both stay in lockstep
-     without a second guessed value; the fallback only applies before that
-     effect has run once. */
   scroll-margin-top: var(--kitchen-sink-toc-top, var(--primitiv-space-space-68));
 }
 
@@ -67,7 +45,7 @@ body {
    frame before that effect runs.
    Desktop only: 80rem is not one of RFC 0025's proposed tiers exactly, but
    it's roughly where the fixed 960px main column (plus its own padding)
-   still leaves a comfortable right-hand gutter for a fixed 12rem column
+   still leaves a comfortable right-hand gutter for this wider, 2-column box
    without crowding it — close enough to the RFC's proposed `xl` (80rem) that
    it can become var(--primitiv-breakpoint-xl) once that RFC's tokens are
    emitted. Below it the nav simply isn't rendered (display:none), so it
@@ -83,7 +61,7 @@ body {
     position: fixed;
     top: var(--kitchen-sink-toc-top, var(--primitiv-space-space-68));
     right: var(--primitiv-space-space-24);
-    inline-size: 12rem;
+    inline-size: 22rem;
     max-block-size: calc(
       100vh - var(--kitchen-sink-toc-top, var(--primitiv-space-space-68)) - var(--primitiv-space-space-24)
     );
@@ -97,14 +75,29 @@ body {
   list-style: none;
 }
 
-.kitchen-sink__toc > ul {
-  display: flex;
-  flex-direction: column;
-  gap: var(--primitiv-space-space-8);
+.kitchen-sink__toc-intro {
+  margin-block-end: var(--primitiv-space-space-8);
+}
+
+/* The category list is what was making the box tall enough to need its own
+   scrollbar (the original complaint) — flowing it into 2 columns instead of
+   one long stack roughly halves that height. Needs display:block (not the
+   flex-column the single-item intro list above uses) since the `columns`
+   property has no effect on a flex container. break-inside: avoid on each
+   category <li> below keeps a category's heading from separating from its
+   own links across the column gap. */
+.kitchen-sink__toc-categories {
+  column-count: 2;
+  column-gap: var(--primitiv-space-space-16);
+}
+
+.kitchen-sink__toc-categories > li {
+  break-inside: avoid;
+  margin-block-end: var(--primitiv-space-space-8);
 }
 
 .kitchen-sink__toc-heading {
-  margin: 0;
+  margin: 0 0 var(--primitiv-space-space-8);
   color: var(--primitiv-content-muted);
   font-family: var(--primitiv-label-xs-font-family);
   font-size: var(--primitiv-label-xs-font-size);

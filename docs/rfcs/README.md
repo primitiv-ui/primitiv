@@ -160,6 +160,7 @@ surface and applies once those are read.
 | # | Title | Status |
 |---|---|---|
 | [0019](0019-navigation-menu.md) | Navigation Menu (desktop dropdown + composed mobile) | Draft — proposed |
+| [0021](0021-composite-components.md) | Composite components | Draft — proposed |
 
 - **0019** — the docs-site primary nav as a headless **Navigation Menu**: keep
   the component focused on the desktop single-open dropdown nav, and build the
@@ -169,3 +170,13 @@ surface and applies once those are read.
   sibling decisions, the desktop API sketch, and the build sequence (API sketch →
   TDD headless → Figma both → revisit → kitchen-sink both) for a follow-on
   session to execute.
+- **0021** — the next roadmap phase now that the primitive layer is nearly
+  complete: **composite components**, registry-only surfaces built by
+  composing ≥2 existing primitives with no new ARIA pattern (Confirm Dialog =
+  `Modal` + `Button`; Data Table = `Table` + `Checkbox` + `Dropdown` + `Select`
+  + `Pagination`; Card, Avatar Group, Stepper, Toast, Command Palette, Date
+  Picker, …). Defines the selection criteria, a three-tier candidate list
+  (buildable now / needs one small shared extraction / blocked on a
+  primitive-backlog item), what got filtered out for needing genuine new ARIA
+  (Toolbar, Menubar, Splitter, QR Code), and a suggested build order starting
+  with the cheapest end-to-end proof (a Breadcrumb overflow menu).

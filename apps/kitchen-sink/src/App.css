@@ -20,13 +20,16 @@ body {
      and the scroll-margin-top every section anchors against, so the two stay
      in lockstep off one value. 120px (7.5rem) isn't a single token step, so
      it's the sum of two: space-96 (6rem) + space-24 (1.5rem). */
-  --kitchen-sink-toc-top: calc(var(--primitiv-space-space-96) + var(--primitiv-space-space-24));
+  --kitchen-sink-toc-top: calc(
+    var(--primitiv-space-space-96) + var(--primitiv-space-space-24)
+  );
 }
 
 .kitchen-sink {
   max-width: 960px;
   margin-inline: auto;
-  padding: var(--primitiv-space-space-48) var(--primitiv-space-space-16) var(--primitiv-space-space-140);
+  padding: var(--primitiv-space-space-48) var(--primitiv-space-space-16)
+    var(--primitiv-space-space-140);
   display: flex;
   flex-direction: column;
   gap: var(--primitiv-space-space-48);
@@ -65,7 +68,9 @@ body {
     top: var(--kitchen-sink-toc-top);
     right: var(--primitiv-space-space-24);
     inline-size: 22rem;
-    max-block-size: calc(100vh - var(--kitchen-sink-toc-top) - var(--primitiv-space-space-24));
+    max-block-size: calc(
+      100vh - var(--kitchen-sink-toc-top) - var(--primitiv-space-space-24)
+    );
     overflow-y: auto;
     background: var(--primitiv-surface-floating);
   }
@@ -99,7 +104,7 @@ body {
 
 .kitchen-sink__toc-categories > li {
   break-inside: avoid;
-  margin-block-end: var(--primitiv-space-space-8);
+  margin-block-end: var(--primitiv-space-space-32);
 }
 
 .kitchen-sink__toc-heading {
@@ -115,7 +120,7 @@ body {
 
 .kitchen-sink__toc-category {
   display: block;
-  margin-block-end: var(--primitiv-space-space-2);
+  margin-block-end: var(--primitiv-space-space-12);
   color: var(--primitiv-content-secondary);
   font-family: var(--primitiv-label-xs-font-family);
   font-size: var(--primitiv-label-xs-font-size);
@@ -272,7 +277,9 @@ body {
    "row only" split (unlike SelectItemIndicator, which always excludes
    itself), so scoping display:none under .primitiv-select__value is the
    README-documented way to suppress just the mirrored copy. */
-.ks-select-hide-trailing-value .primitiv-select__value .primitiv-select__item-trailing {
+.ks-select-hide-trailing-value
+  .primitiv-select__value
+  .primitiv-select__item-trailing {
   display: none;
 }
 

@@ -47,7 +47,14 @@
       "name": "item",
       "component": "Item",
       "class": "primitiv-list__item",
-      "dataAttributes": []
+      "dataAttributes": [
+        {
+          "name": "data-disabled",
+          "value": "",
+          "when": "disabled",
+          "source": "wrapper"
+        }
+      ]
     }
   ],
   "customProperties": [
@@ -55,6 +62,7 @@
     { "name": "--primitiv-list-marker-gap", "defaultsTo": "var(--primitiv-space-space-8)" },
     { "name": "--primitiv-list-indent", "defaultsTo": "var(--primitiv-space-space-28)" },
     { "name": "--primitiv-list-marker-color", "defaultsTo": "var(--primitiv-list-marker-foreground)" },
+    { "name": "--primitiv-list-item-disabled-opacity", "defaultsTo": "var(--primitiv-opacity-50)" },
     { "name": "--primitiv-list-item-color", "defaultsTo": "var(--primitiv-content-primary)" },
     { "name": "--primitiv-list-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
     { "name": "--primitiv-list-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },

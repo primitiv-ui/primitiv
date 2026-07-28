@@ -37,6 +37,7 @@
        consumed directly rather than re-declared under a component-owned
        name, the same "no renaming" treatment `prose` gives `flow/*`. */
     --primitiv-list-marker-color: var(--primitiv-list-marker-foreground);
+    --primitiv-list-item-disabled-opacity: var(--primitiv-opacity-50);
     --primitiv-list-item-color: var(--primitiv-content-primary);
     --primitiv-list-font-family: var(--primitiv-body-md-font-family);
     --primitiv-list-font-size: var(--primitiv-body-md-font-size);
@@ -109,5 +110,21 @@
     --primitiv-list-font-family: var(--primitiv-body-xl-font-family);
     --primitiv-list-font-size: var(--primitiv-body-xl-font-size);
     --primitiv-list-line-height: var(--primitiv-body-xl-line-height);
+  }
+}
+
+@layer primitiv.states {
+  /* Disabled — the ListItem set's second axis (RFC 0012 D9: "States (2):
+     default, disabled", "Disabled = opacity 0.5 on component frame"). An
+     `<li>` isn't interactive, so this is a *presentational* dimming of an
+     unavailable entry, not an interaction state: `List.Item`'s `disabled`
+     prop publishes the `data-disabled` hook and the whole row — marker
+     included, since the marker is this element's own ::before — fades
+     together, exactly as the Figma frame's 50% opacity does. Anything
+     genuinely focusable inside the row still needs its own disabled
+     treatment from the consumer; dimming a row does not remove it from the
+     tab order. */
+  .primitiv-list__item[data-disabled] {
+    opacity: var(--primitiv-list-item-disabled-opacity);
   }
 }

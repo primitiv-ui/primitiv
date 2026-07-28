@@ -51,10 +51,30 @@ export function List({ type = "unordered", indent, size, className, ref, ...prop
   );
 }
 
-export type ListItemProps = ComponentPropsWithRef<"li">;
+export type ListItemProps = ComponentPropsWithRef<"li"> & {
+  /**
+   * Dims the row to mark the entry as unavailable, matching the Figma
+   * `ListItem` set's `State=disabled` variant (RFC 0012 D9 — 50% opacity over
+   * the whole row, marker included).
+   *
+   * Presentational only. An `<li>` isn't interactive, so this publishes the
+   * `data-disabled` styling hook and nothing else — it does not remove
+   * anything focusable inside the row from the tab order, which stays the
+   * consumer's job.
+   *
+   * @default false
+   */
+  disabled?: boolean;
+};
 
-function ListItem({ className, ...props }: ListItemProps) {
-  return <li className={["primitiv-list__item", className].filter(Boolean).join(" ")} {...props} />;
+function ListItem({ className, disabled, ...props }: ListItemProps) {
+  return (
+    <li
+      className={["primitiv-list__item", className].filter(Boolean).join(" ")}
+      data-disabled={disabled ? "" : undefined}
+      {...props}
+    />
+  );
 }
 
 List.Item = ListItem;

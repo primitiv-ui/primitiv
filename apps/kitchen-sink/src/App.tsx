@@ -733,6 +733,11 @@ export function App(): ReactElement {
               <List.Item>Add every component</List.Item>
               <List.Item>Flip the switches above</List.Item>
             </List>
+            <List type="unordered" size={size}>
+              <List.Item>An available entry</List.Item>
+              <List.Item disabled>A disabled entry — the whole row dims, marker included</List.Item>
+              <List.Item>Another available entry</List.Item>
+            </List>
           </Stack>
           <h3>Heading 3 - A description list</h3>
           <dl>

@@ -17,7 +17,8 @@ compose multiple pairs to form a full description list.
 - `layout` — `"stacked" | "inline"` (default `"stacked"`), matching the two
   layouts in the Figma component set:
   - `"stacked"`: `<dt>` above `<dd>`, `<dd>` indented under it.
-  - `"inline"`: `<dt>` : `<dd>` side by side, in a two-column grid.
+  - `"inline"`: `<dt>` : `<dd>` side by side, in a two-column grid, with the
+    `<dd>` **end-aligned** and each pair vertically centred (see below).
 - The term is **fixed SemiBold weight** across every size and density mode
   (RFC 0012 D10) — only its family/size/line-height move with `size`. Both
   term and details use `content/primary` — no new colour tokens.
@@ -39,6 +40,28 @@ Figma file (node `585:6947`) via the Figma Desktop Bridge, which is also
 where `"inline"` itself came from: the first build only shipped the
 `"stacked"` shape, missing the `Layout` variant axis Figma's component set
 actually has.
+
+### `inline` end-aligns the detail
+
+In Figma, an inline pair is a row (`counterAxisAlignItems: CENTER`) whose
+`Detail` **FILLs** the remaining width with `textAlignHorizontal: RIGHT`. So
+the stylesheet gives the inline `<dd>` `text-align: end` (logical, so it flips
+under RTL) and the grid `align-items: center`. That's what makes the layout read
+as a two-column table of pairs — values lining up on the far edge — rather than
+two ragged columns. A follow-up pass added both; the layout landed without them.
+
+### Gotcha: the token rename that shipped without a regenerated token layer
+
+`layout` also renamed this component's Context tokens (`term-gap` → `row-gap`,
+plus a new `column-gap`) in `packages/tokens/src/context.json` — but the commit
+**did not regenerate `tokens.css`**, so the emitted layer still defined the old
+`term-gap`/`pair-gap` names while the stylesheet consumed `row-gap`/`column-gap`.
+Undefined custom properties make `gap`/`column-gap` invalid at computed-value
+time, so **both gaps silently collapsed to zero** and the deployed kitchen-sink
+showed a cramped, un-gapped list — the styling looked wrong while every value in
+`context.json` was correct. Renaming a Context token is a two-file change: the
+DTCG source *and* the emitted `tokens.css` (`primitiv tokens --format css`,
+which needs a `cargo` build — see `figma-bridge-token-sync` §2).
 
 ## Usage
 

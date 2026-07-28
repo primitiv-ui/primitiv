@@ -739,14 +739,20 @@ export function App(): ReactElement {
               <List.Item>Another available entry</List.Item>
             </List>
           </Stack>
-          <h3>Heading 3 - A description list</h3>
+          <h3>Heading 3 - A bare description list</h3>
+          <p>
+            A plain <code>&lt;dl&gt;</code> with no component — exactly like
+            the bare lists above, this leans on <code>primitiv.reset</code>{" "}
+            alone, so it is deliberately unstyled. The two below are the{" "}
+            <code>DescriptionList</code> component; compare them.
+          </p>
           <dl>
             <dt>Primitiv</dt>
             <dd>The product — the design system a consumer installs.</dd>
             <dt>Harmoni</dt>
             <dd>The palette-generation engine underneath it.</dd>
           </dl>
-          <h3>Heading 3 - A description list, styled</h3>
+          <h3>Heading 3 - A description list, stacked (the default)</h3>
           <DescriptionList size={size}>
             <DescriptionList.Term>Primitiv</DescriptionList.Term>
             <DescriptionList.Details>

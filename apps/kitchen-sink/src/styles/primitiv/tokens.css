@@ -601,9 +601,9 @@
     --primitiv-container-xl-gap: var(--primitiv-space-space-20);
     --primitiv-container-xl-padding: var(--primitiv-space-space-32);
     --primitiv-container-xl-radius: var(--primitiv-radii-16);
+    --primitiv-description-list-column-gap: var(--primitiv-space-space-24);
     --primitiv-description-list-details-indent: var(--primitiv-space-space-16);
-    --primitiv-description-list-pair-gap: var(--primitiv-space-space-16);
-    --primitiv-description-list-term-gap: var(--primitiv-space-space-4);
+    --primitiv-description-list-row-gap: var(--primitiv-space-space-2);
     --primitiv-display-lg-font-family: var(--primitiv-font-family-heading);
     --primitiv-display-lg-font-size: var(--primitiv-font-size-56);
     --primitiv-display-lg-font-style: var(--primitiv-font-style-medium);
@@ -1154,9 +1154,9 @@
     --primitiv-container-xl-gap: var(--primitiv-space-space-16);
     --primitiv-container-xl-padding: var(--primitiv-space-space-28);
     --primitiv-container-xl-radius: var(--primitiv-radii-12);
+    --primitiv-description-list-column-gap: var(--primitiv-space-space-20);
     --primitiv-description-list-details-indent: var(--primitiv-space-space-12);
-    --primitiv-description-list-pair-gap: var(--primitiv-space-space-12);
-    --primitiv-description-list-term-gap: var(--primitiv-space-space-3);
+    --primitiv-description-list-row-gap: var(--primitiv-space-space-1);
     --primitiv-display-lg-font-family: var(--primitiv-font-family-heading);
     --primitiv-display-lg-font-size: var(--primitiv-font-size-36);
     --primitiv-display-lg-font-style: var(--primitiv-font-style-medium);
@@ -1707,9 +1707,9 @@
     --primitiv-container-xl-gap: var(--primitiv-space-space-14);
     --primitiv-container-xl-padding: var(--primitiv-space-space-20);
     --primitiv-container-xl-radius: var(--primitiv-radii-8);
+    --primitiv-description-list-column-gap: var(--primitiv-space-space-16);
     --primitiv-description-list-details-indent: var(--primitiv-space-space-12);
-    --primitiv-description-list-pair-gap: var(--primitiv-space-space-8);
-    --primitiv-description-list-term-gap: var(--primitiv-space-space-2);
+    --primitiv-description-list-row-gap: var(--primitiv-space-space-1);
     --primitiv-display-lg-font-family: var(--primitiv-font-family-heading);
     --primitiv-display-lg-font-size: var(--primitiv-font-size-20);
     --primitiv-display-lg-font-style: var(--primitiv-font-style-medium);
@@ -2260,9 +2260,9 @@
     --primitiv-container-xl-gap: var(--primitiv-space-space-32);
     --primitiv-container-xl-padding: var(--primitiv-space-space-48);
     --primitiv-container-xl-radius: var(--primitiv-radii-20);
+    --primitiv-description-list-column-gap: var(--primitiv-space-space-32);
     --primitiv-description-list-details-indent: var(--primitiv-space-space-20);
-    --primitiv-description-list-pair-gap: var(--primitiv-space-space-20);
-    --primitiv-description-list-term-gap: var(--primitiv-space-space-6);
+    --primitiv-description-list-row-gap: var(--primitiv-space-space-3);
     --primitiv-display-lg-font-family: var(--primitiv-font-family-heading);
     --primitiv-display-lg-font-size: var(--primitiv-font-size-120);
     --primitiv-display-lg-font-style: var(--primitiv-font-style-medium);

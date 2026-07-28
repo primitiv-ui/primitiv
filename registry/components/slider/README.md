@@ -69,13 +69,45 @@ Sized off the pre-existing `slider/{size}/*` Context family
 so a draggable handle gets a visibly bigger ring than a text field's
 border-hugging one; the spread is derived as `(ring token − thumb size) / 2`
 since a ring token is a diameter and `box-shadow` spread is a radius delta.
-Colour is `surface/subtle` (track), `action/primary/default` (range + thumb
-border), `surface/default` (thumb fill) — no new colour tokens.
+
+Colour, verified binding-for-binding against the live Figma `Slider` set via
+the Desktop Bridge:
+
+| Part | Token |
+|---|---|
+| Track | `action/secondary/border/default` |
+| Range (the filled portion) | `action/primary/default` |
+| Thumb border | `action/secondary/border/default` |
+| Thumb fill | `surface/default` (see below) |
+| Thumb hover glow | `action/primary/default` at `opacity/20` |
+
+An earlier build had the track on `surface/subtle` (`neutral/100` — visibly
+paler than the spec'd `neutral/300`), the thumb border on
+`action/primary/default` (a brand-coloured ring where Figma draws a neutral
+one), and **no hover state at all** — Figma's Thumb component carries a
+`glow` layer, hidden on every variant but `State=hover`.
+
+The glow is an annulus (`::before` with a transparent interior and a border as
+thick as the glow extends), not a filled disc: within a stacking context — and
+`translate` on the thumb creates one — a `z-index: -1` child still paints
+*above* its parent's background, so a disc could not be put behind the thumb's
+face. Keeping it off `box-shadow` also lets it coexist with the focus ring,
+which owns that property.
+
+### One deliberate difference: the thumb fill
+
+Figma binds the thumb's fill to the **`color/white` primitive**, which resolves
+to `#ebebeb` in *both* Light and Dark modes — so in Figma the thumb does not
+invert with the theme. This build uses **`surface/default`** instead
+(`absolute-white` / `black`), which does. That is a deliberate departure: a
+control that keeps a near-white face on a dark surface is a theming bug, and
+`surface/default` is the token every other framed control uses for its own
+face. Worth correcting on the Figma side rather than matching here.
 
 ## Tokens
 
 `--primitiv-slider-*` wires to the pre-existing `slider/{size}/*` Context
-family, `radii/full` (track + thumb shape), `surface/*` +
-`action/primary/default` for colour, and the shared
-`--primitiv-framed-control-border-width` for the thumb's border. Requires
-the token layer (`primitiv tokens`).
+family, `radii/full` (track + thumb shape), `action/secondary/border/default` +
+`action/primary/default` + `surface/default` for colour, `opacity/20` for the
+hover glow, and the shared `--primitiv-framed-control-border-width` for the
+thumb's border. Requires the token layer (`primitiv tokens`). No new tokens.

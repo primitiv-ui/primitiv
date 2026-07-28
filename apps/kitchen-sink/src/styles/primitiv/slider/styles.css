@@ -41,14 +41,16 @@
   .primitiv-slider {
     /* Per-component API — the themable knobs, defaulting to the md size. */
     --primitiv-slider-track-thickness: var(--primitiv-slider-md-track-thickness);
-    --primitiv-slider-track-bg: var(--primitiv-surface-subtle);
+    --primitiv-slider-track-bg: var(--primitiv-action-secondary-border-default);
     --primitiv-slider-range-bg: var(--primitiv-action-primary-default);
     --primitiv-slider-thumb-size: var(--primitiv-slider-md-thumb-size);
     --primitiv-slider-thumb-bg: var(--primitiv-surface-default);
-    --primitiv-slider-thumb-border-color: var(--primitiv-action-primary-default);
+    --primitiv-slider-thumb-border-color: var(--primitiv-action-secondary-border-default);
     --primitiv-slider-thumb-border-width: var(--primitiv-framed-control-border-width);
     --primitiv-slider-thumb-ring-gap-size: var(--primitiv-slider-md-thumb-ring-gap-size);
     --primitiv-slider-thumb-ring-size: var(--primitiv-slider-md-thumb-ring-size);
+    --primitiv-slider-thumb-glow-color: var(--primitiv-action-primary-default);
+    --primitiv-slider-thumb-glow-opacity: var(--primitiv-opacity-20);
 
     position: relative;
     display: flex;
@@ -174,12 +176,46 @@
         var(--primitiv-focus-ring);
   }
 
+  /* Hover — the Figma Thumb component carries a "glow" layer, hidden on every
+     state but hover: a brand-coloured disc at thumb-ring-size behind the thumb
+     at 20% opacity. Reproduced as a ::before so the 20% stays an *opacity on a
+     solid token*, exactly as in Figma — there is no brand-alpha token family to
+     mix a translucent colour from.
+     Drawn as an annulus (transparent interior, a border exactly as thick as the
+     glow extends) rather than a filled disc: a filled ::before would paint over
+     the thumb's own face. Within a stacking context — and `translate` on the
+     thumb makes one — a negative-z-index child still paints *above* its
+     parent's background, so `z-index: -1` would not put a disc behind the
+     thumb; an annulus needs no stacking trick at all. Keeping it off box-shadow
+     also lets it coexist with the focus ring below, which owns that property.
+     Thickness is derived the same way the focus ring derives its spread: ring
+     token minus thumb size, halved (a ring token is a diameter, an inset delta
+     is a radius). */
+  .primitiv-slider__thumb::before {
+    content: "";
+    position: absolute;
+    inset: calc((var(--primitiv-slider-thumb-ring-size) - var(--primitiv-slider-thumb-size)) / -2);
+    border: calc((var(--primitiv-slider-thumb-ring-size) - var(--primitiv-slider-thumb-size)) / 2) solid
+      var(--primitiv-slider-thumb-glow-color);
+    border-radius: var(--primitiv-radii-full);
+    opacity: var(--primitiv-opacity-transparent);
+    transition: opacity var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+  .primitiv-slider__thumb:hover::before {
+    opacity: var(--primitiv-slider-thumb-glow-opacity);
+  }
+
   /* Disabled — every part shares the hook so the whole control dims and
-     locks as one unit; the thumb also drops its grab affordance. */
+     locks as one unit; the thumb also drops its grab affordance, and the
+     hover glow stays down (a locked handle shouldn't light up under the
+     pointer). */
   .primitiv-slider[data-disabled] {
     opacity: var(--primitiv-opacity-50);
   }
   .primitiv-slider[data-disabled] .primitiv-slider__thumb {
     cursor: not-allowed;
+  }
+  .primitiv-slider[data-disabled] .primitiv-slider__thumb:hover::before {
+    opacity: var(--primitiv-opacity-transparent);
   }
 }

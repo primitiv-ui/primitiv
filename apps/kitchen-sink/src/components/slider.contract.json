@@ -62,13 +62,15 @@
   ],
   "customProperties": [
     { "name": "--primitiv-slider-track-thickness", "defaultsTo": "var(--primitiv-slider-md-track-thickness)" },
-    { "name": "--primitiv-slider-track-bg", "defaultsTo": "var(--primitiv-surface-subtle)" },
+    { "name": "--primitiv-slider-track-bg", "defaultsTo": "var(--primitiv-action-secondary-border-default)" },
     { "name": "--primitiv-slider-range-bg", "defaultsTo": "var(--primitiv-action-primary-default)" },
     { "name": "--primitiv-slider-thumb-size", "defaultsTo": "var(--primitiv-slider-md-thumb-size)" },
     { "name": "--primitiv-slider-thumb-bg", "defaultsTo": "var(--primitiv-surface-default)" },
-    { "name": "--primitiv-slider-thumb-border-color", "defaultsTo": "var(--primitiv-action-primary-default)" },
+    { "name": "--primitiv-slider-thumb-border-color", "defaultsTo": "var(--primitiv-action-secondary-border-default)" },
     { "name": "--primitiv-slider-thumb-border-width", "defaultsTo": "var(--primitiv-framed-control-border-width)" },
     { "name": "--primitiv-slider-thumb-ring-gap-size", "defaultsTo": "var(--primitiv-slider-md-thumb-ring-gap-size)" },
-    { "name": "--primitiv-slider-thumb-ring-size", "defaultsTo": "var(--primitiv-slider-md-thumb-ring-size)" }
+    { "name": "--primitiv-slider-thumb-ring-size", "defaultsTo": "var(--primitiv-slider-md-thumb-ring-size)" },
+    { "name": "--primitiv-slider-thumb-glow-color", "defaultsTo": "var(--primitiv-action-primary-default)" },
+    { "name": "--primitiv-slider-thumb-glow-opacity", "defaultsTo": "var(--primitiv-opacity-20)" }
   ]
 }

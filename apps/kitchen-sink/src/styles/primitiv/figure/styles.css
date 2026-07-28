@@ -88,11 +88,23 @@
     border-end-end-radius: var(--primitiv-figure-media-radius);
     padding: var(--primitiv-figure-caption-gap);
     color: var(--primitiv-figure-overlay-caption-color);
+    /* Contain the scrim below. `position: absolute` alone does NOT make a
+       stacking context, so the `z-index: -1` scrim would escape this element
+       and paint against the nearest ancestor that is one — landing *behind*
+       the media instead of over it. With a media element that isn't fully
+       opaque the scrim then showed through it, reading as a stray dark panel
+       under the artwork with the media's own tone floating above it. */
+    isolation: isolate;
   }
   .primitiv-figure--overlay > .primitiv-figure__caption::before {
     content: "";
     position: absolute;
     inset: 0;
+    /* Behind the caption text but, thanks to the `isolation` above, still
+       inside this element — so it covers the media rather than sliding under
+       it. A pseudo-element (rather than a background on the caption itself)
+       is what lets the 90% stay an opacity on a solid token: there is no
+       inverse-alpha token family to mix a translucent colour from. */
     z-index: -1;
     opacity: var(--primitiv-opacity-90);
     background: var(--primitiv-figure-overlay-scrim);

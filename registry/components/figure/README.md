@@ -46,6 +46,15 @@ inside a `position: relative` figure, and matches the caption's own bottom
 corner radii to the media's radius, achieving the same seamless look without
 requiring the two parts to nest.
 
+Keeping them as siblings does mean the scrim has to be **explicitly contained**.
+The caption carries `isolation: isolate`, because `position: absolute` alone
+does *not* create a stacking context — without it the scrim's `z-index: -1`
+escapes the caption and paints against the nearest ancestor that is one, landing
+*behind* the media instead of over it. With any media that isn't fully opaque
+the scrim then shows through the artwork, reading as a stray dark panel behind
+it with the media's own tone floating on top. A follow-up pass fixed this; the
+overlay shipped without the containment.
+
 ### Known Figma-side drift: the overlay scrim opacity
 
 The scrim here is `surface/inverse` at **90%** opacity, which is what RFC 0015

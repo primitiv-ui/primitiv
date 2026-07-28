@@ -59,9 +59,17 @@
     color: var(--primitiv-blockquote-quote-color);
   }
 
+  /* The citation is end-aligned, matching the Figma build (its Citation text
+     node is `textAlignHorizontal: RIGHT` and fills the quote's width, so the
+     attribution settles under the *end* of the quote rather than restarting
+     at the start edge). `end` rather than `right` so it follows the reading
+     direction and flips under RTL. The <cite> is a flex item in the column,
+     stretched to full width by the default `align-items: stretch`, so the
+     alignment has room to take effect. */
   .primitiv-blockquote__citation {
     margin: 0;
     font-style: normal;
+    text-align: end;
     color: var(--primitiv-blockquote-citation-color);
   }
 }

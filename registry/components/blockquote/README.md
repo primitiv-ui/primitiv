@@ -19,10 +19,20 @@ D12), plus an optional attribution line.
   fixed size for the citation (D12's explicit correction: an early Figma
   build accidentally fixed the citation to `body/sm` for every size and had
   to be fixed).
-- `cite` — the attribution line, rendered in a `<cite>` beneath the quote.
-  **Narrows** the native `<blockquote cite>` attribute (a source URL) to a
-  display string, per the RFC 0023 sketch's own shape — the same
-  `Omit`-narrowing pattern already used elsewhere in the registry.
+- `cite` — the attribution line, rendered in a `<cite>` beneath the quote,
+  **end-aligned** (see below). **Narrows** the native `<blockquote cite>`
+  attribute (a source URL) to a display string, per the RFC 0023 sketch's own
+  shape — the same `Omit`-narrowing pattern already used elsewhere in the
+  registry.
+
+### The citation is end-aligned
+
+Verified against the live Figma `Blockquote` set via the Desktop Bridge: the
+Citation text node is `textAlignHorizontal: RIGHT` and fills the quote's
+width, so the attribution settles under the *end* of the quote rather than
+restarting at the start edge. The stylesheet uses `text-align: end` (not
+`right`) so it follows the reading direction and flips under RTL. An earlier
+build left the citation start-aligned.
 
 ## Usage
 

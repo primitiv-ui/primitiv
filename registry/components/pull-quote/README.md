@@ -41,10 +41,15 @@ step. Colour is `currentColor`, driven by `--primitiv-pull-quote-mark-color`
 
 ### One platform difference from the Figma build
 
-The Figma set fixes the quote to a 480px width. That is **deliberately not
-reproduced here** — `Container`'s max-width scale doesn't exist yet (RFC
-0022 §4 defers it) — so `PullQuote` takes no width opinion; a consumer
-constrains it with their own layout (or `Container`, once it lands).
+The Figma set is a fixed 480px-wide frame with 24px padding on every side —
+both unbound raw literals (no token binding on either, confirmed via the
+Figma Desktop Bridge), i.e. the padding is the gutter *inside that specific
+480px card*, not an independent typographic spacing decision. Both are
+**deliberately not reproduced here** — `Container`'s max-width scale doesn't
+exist yet (RFC 0022 §4 defers it) — so `PullQuote` takes no width or padding
+opinion; a consumer constrains it with their own layout (or `Container`,
+once it lands, at which point the 24px padding is worth revisiting
+alongside it, since it only makes sense paired with a width).
 
 ## Usage
 

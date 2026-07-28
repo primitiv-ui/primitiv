@@ -5,6 +5,17 @@ repo — the centring layout primitive from RFC 0022 (build-order step 2).
 Like `box`, `center` has **no headless `@primitiv-ui/react` counterpart**:
 `<Center>` carries zero behaviour, so it ships entirely from the registry.
 
+## No Figma counterpart
+
+There is deliberately **no Figma component set** for this primitive, and none is
+planned — confirmed by a sweep of every page in the Primitiv Design System file
+(the `---- LAYOUT ----` section holds only `Divider`). It renders no visual
+affordance of its own: everything it does is layout behaviour that Figma
+expresses natively through auto-layout, so a component set would encode
+nothing a designer could use. There is therefore nothing to cross-check its
+tokens or variant axes against — RFC 0022 (§5, §8, §9) is its whole spec, and
+the `Figma` column of `ROADMAP.md` reads `—` for exactly this reason.
+
 ## What it does
 
 `Center` is a single- or both-axis Flexbox centring box. It carries no

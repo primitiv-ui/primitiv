@@ -208,6 +208,21 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("spacer", "spacer.recipe.ts"),
     registry_file!("spacer", "spacer.tsx"),
     registry_file!("spacer", "contract.json"),
+    registry_file!("kbd", "styles.css"),
+    registry_file!("kbd", "styles.scss"),
+    registry_file!("kbd", "kbd.recipe.ts"),
+    registry_file!("kbd", "kbd.tsx"),
+    registry_file!("kbd", "contract.json"),
+    registry_file!("blockquote", "styles.css"),
+    registry_file!("blockquote", "styles.scss"),
+    registry_file!("blockquote", "blockquote.recipe.ts"),
+    registry_file!("blockquote", "blockquote.tsx"),
+    registry_file!("blockquote", "contract.json"),
+    registry_file!("pull-quote", "styles.css"),
+    registry_file!("pull-quote", "styles.scss"),
+    registry_file!("pull-quote", "pull-quote.recipe.ts"),
+    registry_file!("pull-quote", "pull-quote.tsx"),
+    registry_file!("pull-quote", "contract.json"),
 ];
 
 impl Registry for EmbeddedRegistry {

@@ -1,0 +1,123 @@
+/*
+ * Blockquote — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add blockquote`. It is yours to
+ * edit: the stable surface is the contract (the .primitiv-blockquote class,
+ * the --default/--accent tone and --xs…--xl size modifiers, and the
+ * --primitiv-blockquote-* custom properties), not these values (RFC 0006
+ * Principle 2 — names are stable, values are not).
+ *
+ * A 3px left-stroke accent bar on the blockquote itself, not a nested child
+ * frame (RFC 0012 D12 — a separate bar child with a FILL height inside a HUG
+ * parent is a Figma-only concern; on the web `border-inline-start` gets the
+ * same always-full-height bar with none of that indirection). Quote and
+ * citation text both bind the *same* size axis (D12's explicit correction —
+ * do not fix the citation to body/sm). Structure follows RFC 0008:
+ * per-component API tokens + the resting look live in primitiv.base, tone and
+ * size modifiers in primitiv.variants.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-border-*,
+ * --primitiv-quote-*, --primitiv-content-* and --primitiv-body-* custom
+ * properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-blockquote {
+    /* Per-component API — the themable knobs, defaulting to tone=default and
+       size=md. The variants layer below re-points the bar colour and the
+       type scale; consumers can override any one without touching the
+       rule. */
+    --primitiv-blockquote-border-color: var(--primitiv-border-strong);
+    --primitiv-blockquote-border-width: var(--primitiv-border-width-3);
+    --primitiv-blockquote-padding-inline: var(--primitiv-quote-padding-inline);
+    --primitiv-blockquote-gap: var(--primitiv-quote-body-gap-md);
+    --primitiv-blockquote-quote-color: var(--primitiv-content-secondary);
+    --primitiv-blockquote-citation-color: var(--primitiv-content-muted);
+    --primitiv-blockquote-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-blockquote-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-blockquote-line-height: var(--primitiv-body-md-line-height);
+
+    margin: 0;
+    border-inline-start: var(--primitiv-blockquote-border-width) solid var(--primitiv-blockquote-border-color);
+    padding-inline-start: var(--primitiv-blockquote-padding-inline);
+    display: flex;
+    flex-direction: column;
+    gap: var(--primitiv-blockquote-gap);
+    font-family: var(--primitiv-blockquote-font-family);
+    font-size: var(--primitiv-blockquote-font-size);
+    line-height: var(--primitiv-blockquote-line-height);
+  }
+
+  .primitiv-blockquote__quote {
+    margin: 0;
+    color: var(--primitiv-blockquote-quote-color);
+  }
+
+  .primitiv-blockquote__citation {
+    margin: 0;
+    font-style: normal;
+    color: var(--primitiv-blockquote-citation-color);
+  }
+}
+
+@layer primitiv.variants {
+  /* Tone — the accent-bar colour. */
+  .primitiv-blockquote--default {
+    --primitiv-blockquote-border-color: var(--primitiv-border-strong);
+  }
+  .primitiv-blockquote--accent {
+    --primitiv-blockquote-border-color: var(--primitiv-border-focus);
+  }
+
+  /* Size — re-points the type scale and the quote↔citation gap. The gap is a
+     typographic proportion of the size axis, not a density concern (RFC 0012
+     D12), so it stays fixed per size regardless of [data-density]. Density
+     stays ambient via [data-density] on the body/* and quote/padding-inline
+     token values themselves (RFC 0009). */
+  .primitiv-blockquote--xs {
+    --primitiv-blockquote-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-blockquote-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-blockquote-line-height: var(--primitiv-body-xs-line-height);
+    --primitiv-blockquote-gap: var(--primitiv-quote-body-gap-xs);
+  }
+  .primitiv-blockquote--sm {
+    --primitiv-blockquote-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-blockquote-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-blockquote-line-height: var(--primitiv-body-sm-line-height);
+    --primitiv-blockquote-gap: var(--primitiv-quote-body-gap-sm);
+  }
+  .primitiv-blockquote--md {
+    --primitiv-blockquote-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-blockquote-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-blockquote-line-height: var(--primitiv-body-md-line-height);
+    --primitiv-blockquote-gap: var(--primitiv-quote-body-gap-md);
+  }
+  .primitiv-blockquote--lg {
+    --primitiv-blockquote-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-blockquote-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-blockquote-line-height: var(--primitiv-body-lg-line-height);
+    --primitiv-blockquote-gap: var(--primitiv-quote-body-gap-lg);
+  }
+  .primitiv-blockquote--xl {
+    --primitiv-blockquote-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-blockquote-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-blockquote-line-height: var(--primitiv-body-xl-line-height);
+    --primitiv-blockquote-gap: var(--primitiv-quote-body-gap-xl);
+  }
+}
+
+$primitiv-blockquote-border-color: var(--primitiv-blockquote-border-color);
+$primitiv-blockquote-border-width: var(--primitiv-blockquote-border-width);
+$primitiv-blockquote-padding-inline: var(--primitiv-blockquote-padding-inline);
+$primitiv-blockquote-gap: var(--primitiv-blockquote-gap);
+$primitiv-blockquote-quote-color: var(--primitiv-blockquote-quote-color);
+$primitiv-blockquote-citation-color: var(--primitiv-blockquote-citation-color);
+$primitiv-blockquote-font-family: var(--primitiv-blockquote-font-family);
+$primitiv-blockquote-font-size: var(--primitiv-blockquote-font-size);
+$primitiv-blockquote-line-height: var(--primitiv-blockquote-line-height);

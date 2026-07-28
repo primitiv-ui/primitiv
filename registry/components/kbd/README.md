@@ -73,3 +73,18 @@ inflate the line box of the paragraph around it.
 
 An earlier build took `font-size` from `code/{size}` too, rendering every key
 cap 3px smaller than the Figma spec at `md`.
+
+### One deliberate difference: the chip padding densifies
+
+Figma binds the key cap's padding to the **raw `space/space-4`** (inline) and
+**`space/space-2`** (block) primitives. This build uses the density-scaled
+`code/inline/padding-inline` / `-padding-block` Context tokens instead — the
+same pair `inline-code` consumes.
+
+The two are **identical at Comfortable** (`space-4` / `space-2`), so nothing
+renders differently at the default density; they diverge only as
+`[data-density]` moves (Spacious `space-6`/`space-3`, Dense `space-3`/`space-1`).
+Kept as-is deliberately: a raw `space/*` binding cannot densify, and every
+spacing knob in the system is expected to scale with `[data-density]` unless
+there's a reason it can't. Worth rebinding on the Figma side to
+`code/inline/padding-*` so both sides densify together.

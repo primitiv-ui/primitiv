@@ -2,7 +2,7 @@
   "$schema": "https://primitiv-ui.dev/schema/contract.json",
   "name": "description-list",
   "version": "0.1.0",
-  "description": "A <dl> compound — one <dt> (fixed SemiBold) + one <dd> per pair, stacked in a vertical rhythm. Consumers compose multiple Term/Details pairs to form a full description list (RFC 0012 D10). pair-gap/term-gap/details-indent are density-scaled Context tokens, mirroring List's item-gap/marker-gap/indent.",
+  "description": "A <dl> compound — one <dt> (fixed SemiBold) + one <dd> per pair. `layout` picks `stacked` (dt above dd, dd indented) or `inline` (dt : dd side by side in a two-column grid), matching the two layouts in the Figma component set. Consumers compose multiple Term/Details pairs to form a full description list (RFC 0012 D10). row-gap/column-gap/details-indent are density-scaled Context tokens; inline's pair-to-pair gap reuses List's item-gap directly, matching the Figma binding.",
   "docs": "https://primitiv-ui.dev/docs/components/description-list",
   "root": {
     "element": "dl",
@@ -22,6 +22,15 @@
         { "name": "lg", "class": "primitiv-description-list--lg", "description": "Large." },
         { "name": "xl", "class": "primitiv-description-list--xl", "description": "Extra large." }
       ]
+    },
+    {
+      "name": "layout",
+      "default": "stacked",
+      "description": "Pair arrangement, matching Figma's `Layout` axis.",
+      "options": [
+        { "name": "stacked", "class": "primitiv-description-list--stacked", "description": "dt above dd, dd indented — the default." },
+        { "name": "inline", "class": "primitiv-description-list--inline", "description": "dt : dd side by side, in a two-column grid." }
+      ]
     }
   ],
   "subcomponents": [
@@ -39,8 +48,9 @@
     }
   ],
   "customProperties": [
-    { "name": "--primitiv-description-list-pair-gap", "defaultsTo": "var(--primitiv-space-space-16)" },
-    { "name": "--primitiv-description-list-term-gap", "defaultsTo": "var(--primitiv-space-space-4)" },
+    { "name": "--primitiv-description-list-row-gap", "defaultsTo": "var(--primitiv-space-space-2)" },
+    { "name": "--primitiv-description-list-column-gap", "defaultsTo": "var(--primitiv-space-space-24)" },
+    { "name": "--primitiv-description-list-pair-gap", "defaultsTo": "var(--primitiv-list-item-gap)" },
     { "name": "--primitiv-description-list-details-indent", "defaultsTo": "var(--primitiv-space-space-16)" },
     { "name": "--primitiv-description-list-color", "defaultsTo": "var(--primitiv-content-primary)" },
     { "name": "--primitiv-description-list-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },

@@ -2503,13 +2503,13 @@
       }
     },
     "description-list": {
-      "pair-gap": {
+      "row-gap": {
         "$type": "number",
-        "$value": "{space.space-16}"
+        "$value": "{space.space-2}"
       },
-      "term-gap": {
+      "column-gap": {
         "$type": "number",
-        "$value": "{space.space-4}"
+        "$value": "{space.space-24}"
       },
       "details-indent": {
         "$type": "number",
@@ -5045,13 +5045,13 @@
       }
     },
     "description-list": {
-      "pair-gap": {
+      "row-gap": {
         "$type": "number",
-        "$value": "{space.space-12}"
+        "$value": "{space.space-1}"
       },
-      "term-gap": {
+      "column-gap": {
         "$type": "number",
-        "$value": "{space.space-3}"
+        "$value": "{space.space-20}"
       },
       "details-indent": {
         "$type": "number",
@@ -7587,13 +7587,13 @@
       }
     },
     "description-list": {
-      "pair-gap": {
+      "row-gap": {
         "$type": "number",
-        "$value": "{space.space-20}"
+        "$value": "{space.space-3}"
       },
-      "term-gap": {
+      "column-gap": {
         "$type": "number",
-        "$value": "{space.space-6}"
+        "$value": "{space.space-32}"
       },
       "details-indent": {
         "$type": "number",
@@ -10129,13 +10129,13 @@
       }
     },
     "description-list": {
-      "pair-gap": {
+      "row-gap": {
         "$type": "number",
-        "$value": "{space.space-8}"
+        "$value": "{space.space-1}"
       },
-      "term-gap": {
+      "column-gap": {
         "$type": "number",
-        "$value": "{space.space-2}"
+        "$value": "{space.space-16}"
       },
       "details-indent": {
         "$type": "number",

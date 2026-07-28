@@ -752,6 +752,17 @@ export function App(): ReactElement {
               The palette-generation engine underneath it.
             </DescriptionList.Details>
           </DescriptionList>
+          <h3>Heading 3 - A description list, inline layout</h3>
+          <DescriptionList size={size} layout="inline">
+            <DescriptionList.Term>Primitiv</DescriptionList.Term>
+            <DescriptionList.Details>
+              The product — the design system a consumer installs.
+            </DescriptionList.Details>
+            <DescriptionList.Term>Harmoni</DescriptionList.Term>
+            <DescriptionList.Details>
+              The palette-generation engine underneath it.
+            </DescriptionList.Details>
+          </DescriptionList>
           <h3>Heading 3 - A code block</h3>
           <pre>
             <code>{`npm create primitiv-ui@latest

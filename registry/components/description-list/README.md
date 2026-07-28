@@ -9,21 +9,36 @@ ships entirely from the registry.
 ## What it does
 
 `DescriptionList` renders one `<dt>` + one `<dd>` pair per
-`DescriptionList.Term`/`DescriptionList.Details` composition, stacked
-vertically. Consumers compose multiple pairs to form a full description
-list.
+`DescriptionList.Term`/`DescriptionList.Details` composition. Consumers
+compose multiple pairs to form a full description list.
 
 - `size` — `"xs" | "sm" | "md" | "lg" | "xl"` (default `"md"`). Scales the
   term and details type together.
+- `layout` — `"stacked" | "inline"` (default `"stacked"`), matching the two
+  layouts in the Figma component set:
+  - `"stacked"`: `<dt>` above `<dd>`, `<dd>` indented under it.
+  - `"inline"`: `<dt>` : `<dd>` side by side, in a two-column grid.
 - The term is **fixed SemiBold weight** across every size and density mode
   (RFC 0012 D10) — only its family/size/line-height move with `size`. Both
-  term and details use `content/primary` — no new tokens.
+  term and details use `content/primary` — no new colour tokens.
 
 Figma's "fontStyle" vocabulary names the font *instance* (Regular/SemiBold)
 of a variable family; CSS separates that into `font-weight`, so the term
 binds `font-weight: var(--primitiv-font-weight-semibold)` rather than
 `font-style` — the same distinction the base reset stylesheet already
 applies to every heading and `<strong>`.
+
+### `layout` needed no DOM change — only Grid auto-placement
+
+Both layouts compose the exact same flat `Term`/`Details`/`Term`/`Details`…
+children. `"inline"` switches the root to `display: grid;
+grid-template-columns: max-content 1fr`, and Grid's default auto-placement
+already lays plain document-order children into rows two at a time — no
+wrapper element, no API change. This was verified directly against the live
+Figma file (node `585:6947`) via the Figma Desktop Bridge, which is also
+where `"inline"` itself came from: the first build only shipped the
+`"stacked"` shape, missing the `Layout` variant axis Figma's component set
+actually has.
 
 ## Usage
 
@@ -36,14 +51,21 @@ import { DescriptionList } from "@/components/description-list";
   <DescriptionList.Term>License</DescriptionList.Term>
   <DescriptionList.Details>MIT</DescriptionList.Details>
 </DescriptionList>
+
+<DescriptionList layout="inline">
+  <DescriptionList.Term>Version</DescriptionList.Term>
+  <DescriptionList.Details>0.1.0</DescriptionList.Details>
+  <DescriptionList.Term>License</DescriptionList.Term>
+  <DescriptionList.Details>MIT</DescriptionList.Details>
+</DescriptionList>
 ```
 
 ## Files
 
 | File | Authored? | Role |
 |---|---|---|
-| `contract.json` | **authored** | The styling contract — the `.primitiv-description-list` root class, the `--xs…--xl` modifiers, the `.primitiv-description-list__term`/`__details` parts, and the `--primitiv-description-list-*` custom properties. |
-| `styles.css` | **authored** | The canonical default theme: the pair stack + fixed-weight term, in `@layer primitiv.base`/`primitiv.variants`. |
+| `contract.json` | **authored** | The styling contract — the `.primitiv-description-list` root class, the `--xs…--xl` and `--stacked`/`--inline` modifiers, the `.primitiv-description-list__term`/`__details` parts, and the `--primitiv-description-list-*` custom properties. |
+| `styles.css` | **authored** | The canonical default theme: the two `layout` arrangements + fixed-weight term, in `@layer primitiv.base`/`primitiv.variants`. |
 | `styles.scss` | **authored** | `styles.css` plus a trailing `$`-alias block, one `$primitiv-description-list-<prop>` per custom property. |
 | `description-list.recipe.ts` | **authored** | `cva("primitiv-description-list", { variants: { size } })`. |
 | `description-list.tsx` | **authored** | The `<DescriptionList>`/`<DescriptionList.Term>`/`<DescriptionList.Details>` wrappers. Hand-written (there is no primitive to generate from). |
@@ -57,11 +79,18 @@ carry **no drift-guard test** (contrast the generated wrappers, D53).
 ## Tokens
 
 No new *colour* tokens (RFC 0012 D10: "both text nodes use
-`content/primary`"). D10 is silent on spacing, though — the pair gap,
-term↔details gap and details indent are structurally identical to List's
-item-gap/marker-gap/indent (RFC 0012 D9, the adjacent compound from the same
-design session), so they get the same treatment: a new, density-scaled
-`description-list/*` Context token family
-(`--primitiv-description-list-{pair-gap,term-gap,details-indent}`), sized
-proportionally against the existing `space/*` scale rather than a flat,
-density-invariant reference.
+`content/primary`"). D10 is silent on spacing, though. Verified against the
+live Figma file, spacing splits by `layout`:
+
+- `stacked`'s row gap (`--primitiv-description-list-row-gap`) and `inline`'s
+  column gap (`--primitiv-description-list-column-gap`), plus
+  `details-indent`, are a new, density-scaled `description-list/*` Context
+  token family, sized proportionally against the existing `space/*` scale —
+  each anchored to Figma's own (density-unaware) comfortable/md value: 2px
+  row gap, 24px column gap, 16px indent.
+- `inline`'s row gap — the gap between one pair and the next —
+  is **not** a description-list-owned token: Figma binds it directly to
+  `list/item-gap` (RFC 0012 D9, the adjacent compound from the same design
+  session), so `--primitiv-description-list-pair-gap` defaults to
+  `var(--primitiv-list-item-gap)`, matching that binding rather than
+  inventing a parallel token that could drift from it.

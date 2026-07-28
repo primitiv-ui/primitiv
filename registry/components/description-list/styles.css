@@ -8,18 +8,36 @@
  * --primitiv-description-list-* custom properties), not these values (RFC
  * 0006 Principle 2 — names are stable, values are not).
  *
- * The model (RFC 0012 D10): a <dl> compound — each Term/Details pair stacks
- * vertically, <dt> fixed to SemiBold weight across every density mode (bound
- * to the font-weight-semibold primitive, not the body/{size}/font-weight
- * alias, so it stays SemiBold while size and family still scale) and <dd>
- * indented via a fixed padding wrapper rather than leading spaces. D10 is
- * silent on Context/spacing tokens (only "no new tokens" for colour) — the
- * pair-gap/term-gap/details-indent needs are structurally identical to
- * List's item-gap/marker-gap/indent (RFC 0012 D9, the adjacent compound from
- * the same design session), so they get the same treatment: a dedicated
- * `description-list/*` Context token per need, consumed directly rather
- * than re-declared under a component-owned name — the same "no renaming"
- * treatment `prose` gives `flow/*` and `list` gives `list/*`.
+ * The model (RFC 0012 D10): a <dl> compound, <dt> fixed to SemiBold weight
+ * across every density mode (bound to the font-weight-semibold primitive,
+ * not the body/{size}/font-weight alias, so it stays SemiBold while size and
+ * family still scale). `layout` (verified against the live "Description
+ * List" Figma component set, node 585:6947, via the Figma Desktop Bridge)
+ * picks one of two pair arrangements Figma actually ships as a `Layout`
+ * variant axis — this was missing entirely from the first build, which only
+ * had the `stacked` shape:
+ *
+ * - `stacked` (default): <dt> above <dd>, <dd> indented via a fixed padding
+ *   wrapper. Every row (term or detail) shares one uniform gap — Figma's
+ *   `itemSpacing` is a flat, unbound 2px across every size step, not the
+ *   two-tier pair-gap/term-gap split the first build invented.
+ * - `inline`: <dt> : <dd> side by side, via a two-column CSS Grid
+ *   (`max-content 1fr`) — no DOM change from `stacked`, since Grid
+ *   auto-placement pairs dt/dd into rows from plain document order. The
+ *   column gap (dt↔dd on one row) is a dedicated, unbound-in-Figma literal
+ *   (24px at comfortable/md); the row gap (pair↔pair) is bound in Figma
+ *   directly to `list/item-gap` (RFC 0012 D9's token), not a
+ *   description-list-owned token — confirmed via boundVariables on the
+ *   Figma frame — so this sheet consumes `--primitiv-list-item-gap` as
+ *   `--primitiv-description-list-pair-gap`'s default, matching that binding
+ *   exactly.
+ *
+ * `details-indent` (16px at comfortable/md, constant across every Figma size
+ * step) only applies to `stacked` — `inline`'s grid column already does that
+ * job, so it resets to zero there. row-gap/column-gap/details-indent are
+ * density-scaled `description-list/*` Context tokens, consumed directly
+ * rather than re-declared under a component-owned name — the same
+ * "no renaming" treatment `prose` gives `flow/*` and `list` gives `list/*`.
  * Figma's "fontStyle" vocabulary names the font *instance* (Regular/
  * SemiBold) of a variable family — CSS separates that into `font-weight`,
  * so `<dt>` binds `font-weight`, matching how the base reset stylesheet
@@ -27,8 +45,9 @@
  * reserved for italic/oblique, which this component doesn't use).
  *
  * Requires the token layer (`primitiv tokens`) for the
- * --primitiv-description-list-*, --primitiv-content-*, --primitiv-body-*
- * and --primitiv-font-weight-semibold custom properties it resolves.
+ * --primitiv-description-list-*, --primitiv-list-item-gap,
+ * --primitiv-content-*, --primitiv-body-* and
+ * --primitiv-font-weight-semibold custom properties it resolves.
  */
 
 /* Declare the sublayer order up front so this sheet is safe to load ahead of
@@ -40,18 +59,17 @@
 @layer primitiv.base {
   .primitiv-description-list {
     /* Per-component API — the themable knobs, defaulting to the md size. The
-       variants layer below re-points only the type scale. pair-gap/term-gap/
-       details-indent are the shared, density-scaled `description-list/*`
-       Context tokens — consumed directly, not re-declared here. */
+       variants layer below re-points the type scale and lays out each
+       `layout`. row-gap/column-gap/details-indent are the shared,
+       density-scaled `description-list/*` Context tokens — consumed
+       directly, not re-declared here; `pair-gap` is declared per-layout
+       below since only `inline` uses it. */
     --primitiv-description-list-color: var(--primitiv-content-primary);
     --primitiv-description-list-font-family: var(--primitiv-body-md-font-family);
     --primitiv-description-list-font-size: var(--primitiv-body-md-font-size);
     --primitiv-description-list-line-height: var(--primitiv-body-md-line-height);
 
     margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--primitiv-description-list-pair-gap);
     color: var(--primitiv-description-list-color);
     font-family: var(--primitiv-description-list-font-family);
     font-size: var(--primitiv-description-list-font-size);
@@ -60,7 +78,6 @@
 
   .primitiv-description-list__term {
     margin: 0;
-    margin-block-end: var(--primitiv-description-list-term-gap);
     font-weight: var(--primitiv-font-weight-semibold);
   }
 
@@ -71,6 +88,31 @@
 }
 
 @layer primitiv.variants {
+  /* Layout — the pair arrangement. `stacked` is a flex column with one
+     uniform row gap; `inline` is a two-column grid (dt : dd) with a
+     dedicated column gap and a row gap that mirrors the `list` component's
+     item-gap (the Figma binding, not a description-list-owned token). */
+  .primitiv-description-list--stacked {
+    display: flex;
+    flex-direction: column;
+    gap: var(--primitiv-description-list-row-gap);
+  }
+
+  .primitiv-description-list--inline {
+    --primitiv-description-list-pair-gap: var(--primitiv-list-item-gap);
+
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    column-gap: var(--primitiv-description-list-column-gap);
+    row-gap: var(--primitiv-description-list-pair-gap);
+  }
+
+  .primitiv-description-list--inline .primitiv-description-list__details {
+    /* The grid column already separates term from detail — the stacked
+       layout's indent would double up as unwanted inline whitespace. */
+    padding-inline-start: var(--primitiv-space-space-0);
+  }
+
   /* Size — re-points only the type scale. <dt> keeps font-weight pinned to
      semibold in every step (D10) — only font-family/size/line-height move. */
   .primitiv-description-list--xs {

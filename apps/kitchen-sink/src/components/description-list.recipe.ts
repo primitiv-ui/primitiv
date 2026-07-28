@@ -17,9 +17,14 @@ export const descriptionList = cva("primitiv-description-list", {
       lg: "primitiv-description-list--lg",
       xl: "primitiv-description-list--xl",
     },
+    layout: {
+      stacked: "primitiv-description-list--stacked",
+      inline: "primitiv-description-list--inline",
+    },
   },
   defaultVariants: {
     size: "md",
+    layout: "stacked",
   },
 });
 

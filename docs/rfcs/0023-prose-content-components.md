@@ -1,6 +1,8 @@
 # RFC 0023 — Prose & content components
 
-> **Status:** Draft — proposed
+> **Status:** Landed 2026-07-28 — all five entries (six components counting
+> Figure + Figcaption as a pair) built: Kbd, Blockquote, Pull Quote, List,
+> DescriptionList, Figure + Figcaption. See §6 for the build outcome.
 > **Author:** Claude, with architectural drafting
 > **Date:** 2026-07-27
 > **Builds on:** RFC 0012 (Figma web typography build — the 27-item checklist
@@ -154,3 +156,38 @@ any of these — there's no headless component to list there, same as
 4. **Figure + Figcaption** — last, since it benefits from `AspectRatio`
    (RFC 0022) existing first for its media slot, though it isn't blocked on
    it.
+
+## 6. Build outcome (landed 2026-07-28)
+
+All six components landed in this order, exactly as §5 sequenced them,
+against RFC 0012/0015's already-settled token bindings — genuinely "the
+design has already been paid for" (§1). Registry + kitchen-sink for every
+entry; no `packages/react/README.md` changes (per §4, none needed). Two
+things worth recording that the draft didn't anticipate:
+
+- **List's markers use CSS-generated `::before` content, not the native
+  `::marker` pseudo-element.** The native pseudo-element has no
+  controllable gap in standard CSS, so it can't reproduce Figma's bespoke
+  marker + `itemSpacing` model (`list/marker-gap`). A static bullet /
+  CSS counter via `::before`, styled as a flex sibling of the item text,
+  gives full control over both the marker colour and the marker↔text gap —
+  matching the Figma spec exactly, at the cost of disabling the browser's
+  native list semantics styling (the `<ul>`/`<ol>`/`<li>` *elements* are
+  unchanged, only their default marker rendering is opted out of).
+- **A real token-modelling bug, caught during Pull Quote and
+  DescriptionList's build and fixed before landing:** Figma's "fontStyle"
+  property names a variable-font *instance* (e.g. "SemiBold"), which is a
+  different concept from the CSS `font-style` property (italic/oblique).
+  The existing `heading/*` and `body/*` Context tokens carry this Figma
+  vocabulary in their `-font-style` suffix, but on the web that value has
+  to drive CSS `font-weight`, not `font-style` — exactly how the base reset
+  stylesheet already treats every heading and `<strong>`. Both components
+  bind `font-weight` to the token's underlying value, not the token's own
+  `-font-style`-suffixed name.
+- **Figure's overlay caption stays a DOM sibling of Media, not a nested
+  child**, unlike the Figma build (which requires nesting to clip the
+  caption to the media frame). CSS `position: absolute` inside a
+  `position: relative` figure, with the caption's own bottom corner radii
+  matched to the media's, achieves the same seamless look without the two
+  parts needing to nest — see the `figure` registry README for the full
+  rationale.

@@ -1,6 +1,9 @@
 # RFC 0022 — Layout primitives
 
-> **Status:** Draft — proposed
+> **Status:** Partially landed — build-order step 1 shipped 2026-07-28 (Box,
+> Stack, Spacer: registry + kitchen-sink). Step 2 (Center, AspectRatio) and
+> step 3 (Container, Grid — blocked on RFC 0025's breakpoint scale, see §4)
+> remain proposed.
 > **Author:** Claude, with architectural drafting
 > **Date:** 2026-07-27
 > **Builds on:** RFC 0008 (CSS architecture — the `@layer primitiv.*` stack
@@ -118,3 +121,26 @@ isolated example block.
 patterns) — a Hero or Page Header is meaningless without something to
 constrain its width and stack its children. RFC 0024 should not start
 before this RFC lands.
+
+## 8. Build outcome — step 1 (landed 2026-07-28)
+
+Box, Stack and Spacer landed exactly as scoped in §6's build order, all
+hand-authored/primitive-less per §2 — registry (`registry/components/{box,
+stack,spacer}`) + kitchen-sink (a new "Layout Primitives" section, plus
+`Stack` reused throughout the intro article to lay out the RFC 0023 demos
+built alongside this batch). No new tokens for any of the three. Two
+decisions made at build time, not pre-settled by the draft:
+
+- **`Stack`'s `gap` prop is a curated 5-step scale** (`none`/`xs`–`xl` →
+  `space-0`/`4`/`8`/`16`/`24`/`32`), not the raw `space-*` scale directly.
+  The draft's "resolved against the space-* scale" left the exact shape
+  open; a curated set matches the `xs`–`xl` convention every other
+  component in the system already uses, rather than exposing the full
+  ~24-step primitive scale as modifier classes.
+- **`align`/`justify` are inline-style passthroughs, not modifier
+  classes** — they're plain Flexbox keywords (`"center"`,
+  `"space-between"`, …), not design tokens, so there's no fixed enum to
+  drive a `cva` variant from.
+
+Center, AspectRatio (step 2) and Container, Grid (step 3, blocked on RFC
+0025) remain unbuilt.

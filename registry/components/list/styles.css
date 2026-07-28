@@ -1,0 +1,113 @@
+/*
+ * List — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add list`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-list class, the
+ * --unordered/--ordered, --indent and --xs…--xl modifiers, the
+ * .primitiv-list__item part, and the --primitiv-list-* custom properties),
+ * not these values (RFC 0006 Principle 2 — names are stable, values are
+ * not).
+ *
+ * The model (RFC 0012 D9): native list-style is disabled and every marker is
+ * a CSS-generated ::before instead — a static bullet for `type="unordered"`,
+ * a CSS counter for `type="ordered"` — so both the marker colour
+ * (list/marker/foreground) and the marker↔text gap (list/marker-gap) are
+ * directly controllable, matching Figma's bespoke marker + itemSpacing
+ * exactly (the browser's native ::marker pseudo-element has no controllable
+ * gap in standard CSS, so it can't reproduce list/marker-gap). item-gap,
+ * marker-gap and indent are density-scaled Context tokens shared across every
+ * size — only the type scale (font-size/line-height) moves with `size`.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-list-*,
+ * --primitiv-content-* and --primitiv-body-* custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-list {
+    /* Per-component API — the themable knobs, defaulting to the md size. The
+       variants layer below re-points only the type scale; consumers can
+       override any one without touching the rule. item-gap/marker-gap/indent
+       are the shared, density-scaled `list/*` Context tokens (RFC 0012 D9) —
+       consumed directly rather than re-declared under a component-owned
+       name, the same "no renaming" treatment `prose` gives `flow/*`. */
+    --primitiv-list-marker-color: var(--primitiv-list-marker-foreground);
+    --primitiv-list-item-color: var(--primitiv-content-primary);
+    --primitiv-list-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-list-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-list-line-height: var(--primitiv-body-md-line-height);
+
+    list-style: none;
+    margin: 0;
+    padding-inline-start: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--primitiv-list-item-gap);
+    color: var(--primitiv-list-item-color);
+    font-family: var(--primitiv-list-font-family);
+    font-size: var(--primitiv-list-font-size);
+    line-height: var(--primitiv-list-line-height);
+  }
+
+  .primitiv-list__item {
+    display: flex;
+    align-items: baseline;
+    gap: var(--primitiv-list-marker-gap);
+  }
+
+  .primitiv-list__item::before {
+    flex: 0 0 auto;
+    color: var(--primitiv-list-marker-color);
+    content: "\2022";
+  }
+}
+
+@layer primitiv.variants {
+  .primitiv-list--indent {
+    padding-inline-start: var(--primitiv-list-indent);
+  }
+
+  .primitiv-list--ordered {
+    counter-reset: primitiv-list;
+  }
+  .primitiv-list--ordered > .primitiv-list__item {
+    counter-increment: primitiv-list;
+  }
+  .primitiv-list--ordered > .primitiv-list__item::before {
+    content: counter(primitiv-list) ".";
+  }
+
+  /* Size — re-points only the type scale. item-gap, marker-gap and indent
+     stay constant across sizes; they only change with [data-density]
+     (RFC 0012 D9). */
+  .primitiv-list--xs {
+    --primitiv-list-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-list-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-list-line-height: var(--primitiv-body-xs-line-height);
+  }
+  .primitiv-list--sm {
+    --primitiv-list-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-list-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-list-line-height: var(--primitiv-body-sm-line-height);
+  }
+  .primitiv-list--md {
+    --primitiv-list-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-list-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-list-line-height: var(--primitiv-body-md-line-height);
+  }
+  .primitiv-list--lg {
+    --primitiv-list-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-list-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-list-line-height: var(--primitiv-body-lg-line-height);
+  }
+  .primitiv-list--xl {
+    --primitiv-list-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-list-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-list-line-height: var(--primitiv-body-xl-line-height);
+  }
+}

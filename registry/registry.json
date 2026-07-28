@@ -1150,6 +1150,64 @@
         }
       },
       "contract": "contract.json"
+    },
+    "list": {
+      "version": "0.1.0",
+      "dependsOn": {
+        "packages": [],
+        "tokens": true,
+        "components": []
+      },
+      "styles": {
+        "packages": [
+          "class-variance-authority"
+        ],
+        "react": [
+          "list.recipe.ts",
+          "list.tsx"
+        ],
+        "formats": {
+          "css": [
+            "styles.css"
+          ],
+          "scss": [
+            "styles.scss"
+          ],
+          "tailwind": [
+            "styles.css"
+          ]
+        }
+      },
+      "contract": "contract.json"
+    },
+    "description-list": {
+      "version": "0.1.0",
+      "dependsOn": {
+        "packages": [],
+        "tokens": true,
+        "components": []
+      },
+      "styles": {
+        "packages": [
+          "class-variance-authority"
+        ],
+        "react": [
+          "description-list.recipe.ts",
+          "description-list.tsx"
+        ],
+        "formats": {
+          "css": [
+            "styles.css"
+          ],
+          "scss": [
+            "styles.scss"
+          ],
+          "tailwind": [
+            "styles.css"
+          ]
+        }
+      },
+      "contract": "contract.json"
     }
   }
 }

@@ -36,7 +36,7 @@
     --primitiv-pull-quote-font-family: var(--primitiv-heading-h3-font-family);
     --primitiv-pull-quote-font-size: var(--primitiv-heading-h3-font-size);
     --primitiv-pull-quote-line-height: var(--primitiv-heading-h3-line-height);
-    --primitiv-pull-quote-font-style: var(--primitiv-heading-h3-font-style);
+    --primitiv-pull-quote-font-weight: var(--primitiv-heading-h3-font-weight);
     --primitiv-pull-quote-color: var(--primitiv-content-primary);
     --primitiv-pull-quote-mark-color: var(--primitiv-content-muted);
     --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-12);
@@ -61,7 +61,7 @@
     color: var(--primitiv-pull-quote-color);
     font-family: var(--primitiv-pull-quote-font-family);
     font-size: var(--primitiv-pull-quote-font-size);
-    font-style: var(--primitiv-pull-quote-font-style);
+    font-weight: var(--primitiv-pull-quote-font-weight);
     line-height: var(--primitiv-pull-quote-line-height);
   }
 }
@@ -77,35 +77,35 @@
     --primitiv-pull-quote-font-family: var(--primitiv-heading-h5-font-family);
     --primitiv-pull-quote-font-size: var(--primitiv-heading-h5-font-size);
     --primitiv-pull-quote-line-height: var(--primitiv-heading-h5-line-height);
-    --primitiv-pull-quote-font-style: var(--primitiv-heading-h5-font-style);
+    --primitiv-pull-quote-font-weight: var(--primitiv-heading-h5-font-weight);
     --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-8);
   }
   .primitiv-pull-quote--sm {
     --primitiv-pull-quote-font-family: var(--primitiv-heading-h4-font-family);
     --primitiv-pull-quote-font-size: var(--primitiv-heading-h4-font-size);
     --primitiv-pull-quote-line-height: var(--primitiv-heading-h4-line-height);
-    --primitiv-pull-quote-font-style: var(--primitiv-heading-h4-font-style);
+    --primitiv-pull-quote-font-weight: var(--primitiv-heading-h4-font-weight);
     --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-8);
   }
   .primitiv-pull-quote--md {
     --primitiv-pull-quote-font-family: var(--primitiv-heading-h3-font-family);
     --primitiv-pull-quote-font-size: var(--primitiv-heading-h3-font-size);
     --primitiv-pull-quote-line-height: var(--primitiv-heading-h3-line-height);
-    --primitiv-pull-quote-font-style: var(--primitiv-heading-h3-font-style);
+    --primitiv-pull-quote-font-weight: var(--primitiv-heading-h3-font-weight);
     --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-12);
   }
   .primitiv-pull-quote--lg {
     --primitiv-pull-quote-font-family: var(--primitiv-heading-h2-font-family);
     --primitiv-pull-quote-font-size: var(--primitiv-heading-h2-font-size);
     --primitiv-pull-quote-line-height: var(--primitiv-heading-h2-line-height);
-    --primitiv-pull-quote-font-style: var(--primitiv-heading-h2-font-style);
+    --primitiv-pull-quote-font-weight: var(--primitiv-heading-h2-font-weight);
     --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-16);
   }
   .primitiv-pull-quote--xl {
     --primitiv-pull-quote-font-family: var(--primitiv-heading-h1-font-family);
     --primitiv-pull-quote-font-size: var(--primitiv-heading-h1-font-size);
     --primitiv-pull-quote-line-height: var(--primitiv-heading-h1-line-height);
-    --primitiv-pull-quote-font-style: var(--primitiv-heading-h1-font-style);
+    --primitiv-pull-quote-font-weight: var(--primitiv-heading-h1-font-weight);
     --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-20);
   }
 }
@@ -113,7 +113,7 @@
 $primitiv-pull-quote-font-family: var(--primitiv-pull-quote-font-family);
 $primitiv-pull-quote-font-size: var(--primitiv-pull-quote-font-size);
 $primitiv-pull-quote-line-height: var(--primitiv-pull-quote-line-height);
-$primitiv-pull-quote-font-style: var(--primitiv-pull-quote-font-style);
+$primitiv-pull-quote-font-weight: var(--primitiv-pull-quote-font-weight);
 $primitiv-pull-quote-color: var(--primitiv-pull-quote-color);
 $primitiv-pull-quote-mark-color: var(--primitiv-pull-quote-mark-color);
 $primitiv-pull-quote-mark-gap: var(--primitiv-pull-quote-mark-gap);

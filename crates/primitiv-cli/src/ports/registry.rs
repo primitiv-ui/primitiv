@@ -223,6 +223,16 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("pull-quote", "pull-quote.recipe.ts"),
     registry_file!("pull-quote", "pull-quote.tsx"),
     registry_file!("pull-quote", "contract.json"),
+    registry_file!("list", "styles.css"),
+    registry_file!("list", "styles.scss"),
+    registry_file!("list", "list.recipe.ts"),
+    registry_file!("list", "list.tsx"),
+    registry_file!("list", "contract.json"),
+    registry_file!("description-list", "styles.css"),
+    registry_file!("description-list", "styles.scss"),
+    registry_file!("description-list", "description-list.recipe.ts"),
+    registry_file!("description-list", "description-list.tsx"),
+    registry_file!("description-list", "contract.json"),
 ];
 
 impl Registry for EmbeddedRegistry {

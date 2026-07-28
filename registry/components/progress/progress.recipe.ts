@@ -16,9 +16,15 @@ export const progress = cva("primitiv-progress", {
       lg: "primitiv-progress--lg",
       xl: "primitiv-progress--xl",
     },
+    intent: {
+      primary: "primitiv-progress--primary",
+      secondary: "primitiv-progress--secondary",
+      danger: "primitiv-progress--danger",
+    },
   },
   defaultVariants: {
     size: "md",
+    intent: "primary",
   },
 });
 

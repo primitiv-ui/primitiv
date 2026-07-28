@@ -39,7 +39,7 @@
        so the fill still computes correctly if a consumer skips the prop. */
     --primitiv-progress-height: var(--primitiv-progress-md-height);
     --primitiv-progress-radius: var(--primitiv-radii-full);
-    --primitiv-progress-track-bg: var(--primitiv-surface-subtle);
+    --primitiv-progress-track-bg: var(--primitiv-action-secondary-default);
     --primitiv-progress-fill-bg: var(--primitiv-action-primary-default);
     --primitiv-progress-max: 100;
 
@@ -66,13 +66,14 @@
      the scaleX formula above always resolves to 0. Override it with a fixed,
      looping slide instead of reading the absent value. The 40% bar width is
      a decorative proportion with no token home (like the pull-quote mark's
-     1.4em); the 1.4s duration is a slow, *looping* decorative animation, a
+     1.4em) — 30%, matching the Figma indeterminate variant's own fill width
+     (72 of a 240px track); the 1.4s duration is a slow, *looping* decorative animation, a
      different category from the four short one-shot state-transition
      --primitiv-motion-duration-* tokens (75–300ms) — no existing token fits,
      so it stays literal, same as the motion-literal exceptions already
      documented in registry-stylesheet-conventions. */
   .primitiv-progress[data-state="indeterminate"] .primitiv-progress__indicator {
-    inline-size: 40%;
+    inline-size: 30%;
     transform: none;
     animation: primitiv-progress-indeterminate 1.4s var(--primitiv-motion-easing-default) infinite;
   }
@@ -112,6 +113,22 @@
   }
   .primitiv-progress--xl {
     --primitiv-progress-height: var(--primitiv-progress-xl-height);
+  }
+
+  /* Intent — re-points only the fill. The track is deliberately *not* part of
+     this axis: Figma binds it to action/secondary/default on all three
+     intents, so a danger bar reads as a danger fill on the same neutral track,
+     not a wholly recoloured control. `secondary` takes the *active* step
+     rather than `default`, since `default` is what the track already uses —
+     a fill and its track need to differ to be legible. */
+  .primitiv-progress--primary {
+    --primitiv-progress-fill-bg: var(--primitiv-action-primary-default);
+  }
+  .primitiv-progress--secondary {
+    --primitiv-progress-fill-bg: var(--primitiv-action-secondary-active);
+  }
+  .primitiv-progress--danger {
+    --primitiv-progress-fill-bg: var(--primitiv-action-danger-default);
   }
 }
 

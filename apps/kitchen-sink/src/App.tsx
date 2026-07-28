@@ -2509,6 +2509,12 @@ export function ramp(hue: number, chroma = 0.12) {
           <Progress size={size} aria-label="Loading, progress unknown">
             <ProgressIndicator />
           </Progress>
+          <Progress size={size} value={60} intent="secondary" aria-label="60% complete, secondary intent">
+            <ProgressIndicator />
+          </Progress>
+          <Progress size={size} value={60} intent="danger" aria-label="60% of quota used">
+            <ProgressIndicator />
+          </Progress>
         </Stack>
       </Section>
 

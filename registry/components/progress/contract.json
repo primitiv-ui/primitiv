@@ -2,7 +2,7 @@
   "$schema": "https://primitiv-ui.dev/schema/contract.json",
   "name": "progress",
   "version": "0.1.0",
-  "description": "A progress bar — a track with a fill that reports completion, or an animated indeterminate state when the ratio is unknown.",
+  "description": "A progress bar — a track with a fill that reports completion, or an animated indeterminate state when the ratio is unknown. `intent` picks the fill colour (primary/secondary/danger), matching the Figma set; the track stays neutral in every intent.",
   "docs": "https://primitiv-ui.dev/docs/components/progress",
   "root": {
     "element": "div",
@@ -26,6 +26,16 @@
         { "name": "lg", "class": "primitiv-progress--lg", "description": "Large." },
         { "name": "xl", "class": "primitiv-progress--xl", "description": "Extra large." }
       ]
+    },
+    {
+      "name": "intent",
+      "default": "primary",
+      "description": "Fill colour, matching Figma's `Intent` axis. The track is neutral in every intent — only the fill changes.",
+      "options": [
+        { "name": "primary", "class": "primitiv-progress--primary", "description": "Brand fill (the default)." },
+        { "name": "secondary", "class": "primitiv-progress--secondary", "description": "Neutral fill, for progress that shouldn't compete for attention." },
+        { "name": "danger", "class": "primitiv-progress--danger", "description": "Danger fill, for progress toward a destructive or failing outcome." }
+      ]
     }
   ],
   "styleProps": [
@@ -47,7 +57,7 @@
   "customProperties": [
     { "name": "--primitiv-progress-height", "defaultsTo": "var(--primitiv-progress-md-height)" },
     { "name": "--primitiv-progress-radius", "defaultsTo": "var(--primitiv-radii-full)" },
-    { "name": "--primitiv-progress-track-bg", "defaultsTo": "var(--primitiv-surface-subtle)" },
+    { "name": "--primitiv-progress-track-bg", "defaultsTo": "var(--primitiv-action-secondary-default)" },
     { "name": "--primitiv-progress-fill-bg", "defaultsTo": "var(--primitiv-action-primary-default)" },
     { "name": "--primitiv-progress-max", "defaultsTo": "100" }
   ]

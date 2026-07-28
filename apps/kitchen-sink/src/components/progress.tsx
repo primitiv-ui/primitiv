@@ -13,11 +13,11 @@ import { progress, progressIndicator } from "./progress.recipe";
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
 
 /**
- * A progress bar — a track with a fill that reports completion, or an animated indeterminate state when the ratio is unknown.
+ * A progress bar — a track with a fill that reports completion, or an animated indeterminate state when the ratio is unknown. `intent` picks the fill colour (primary/secondary/danger), matching the Figma set; the track stays neutral in every intent.
  *
  * @see https://primitiv-ui.dev/docs/components/progress
  */
-export type ProgressProps = DistributiveOmit<ComponentPropsWithRef<typeof ProgressPrimitive.Root>, "size"> & {
+export type ProgressProps = DistributiveOmit<ComponentPropsWithRef<typeof ProgressPrimitive.Root>, "size" | "intent"> & {
   /**
    * Track height; `data-density` scales each size further.
    * - `xs` — Extra small.
@@ -29,12 +29,21 @@ export type ProgressProps = DistributiveOmit<ComponentPropsWithRef<typeof Progre
    * @see https://primitiv-ui.dev/docs/components/progress
    */
   size?: "xs" | "sm" | "md" | "lg" | "xl";
+  /**
+   * Fill colour, matching Figma's `Intent` axis. The track is neutral in every intent — only the fill changes.
+   * - `primary` — Brand fill (the default).
+   * - `secondary` — Neutral fill, for progress that shouldn't compete for attention.
+   * - `danger` — Danger fill, for progress toward a destructive or failing outcome.
+   * @default "primary"
+   * @see https://primitiv-ui.dev/docs/components/progress
+   */
+  intent?: "primary" | "secondary" | "danger";
 };
 
-export function Progress({ size, value, max, className, style, ...props }: ProgressProps) {
+export function Progress({ size, intent, value, max, className, style, ...props }: ProgressProps) {
   return (
     <ProgressPrimitive.Root
-      className={[progress({ size }), className].filter(Boolean).join(" ")}
+      className={[progress({ size, intent }), className].filter(Boolean).join(" ")}
       style={{ ...style, ...(value === undefined ? {} : { "--primitiv-progress-value": value }), ...(max === undefined ? {} : { "--primitiv-progress-max": max }) } as CSSProperties}
       value={value} max={max}
       {...props}

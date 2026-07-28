@@ -46,8 +46,30 @@ generated wrappers, D53). `kbd.tsx` is type-checked in CI by
 
 ## Tokens
 
-`kbd` consumes `font-family/mono`, the `code/{size}/*` type scale, and
+`kbd` consumes `font-family/mono`, a **split type scale** (see below), and
 existing `content/`, `surface/`, `border/` and `radii/` primitives — the same
 namespace `inline-code` uses, with `surface/raised` + `border/default`
 substituted for `inline-code`'s `surface/subtle` + `border/subtle` (RFC 0012
 D17). No new tokens were added for this component.
+
+### The type scale is split across two families
+
+Verified against the live Figma `Kbd` set via the Desktop Bridge, whose text
+node binds `fontSize` → **`body/{size}/font-size`** and `lineHeight` →
+**`code/{size}/line-height`**:
+
+| Property | Token family | `md` (comfortable) |
+|---|---|---|
+| `--primitiv-kbd-font-size` | `body/{size}/font-size` | 16px |
+| `--primitiv-kbd-line-height` | `code/{size}/line-height` | 20px |
+
+This is the one place `kbd` diverges from `inline-code`, which takes **both**
+from `code/{size}`. The reasoning: `code/*/font-size` sits a deliberate notch
+below `body/*` (13px vs 16px at `md`) because a code *span* is set inside the
+body text it interrupts — but a key cap names a physical key, and shrinking it
+makes a shortcut read as subordinate to the prose rather than part of it. The
+tighter `code/*` line-height is still the right one, so the cap doesn't
+inflate the line box of the paragraph around it.
+
+An earlier build took `font-size` from `code/{size}` too, rendering every key
+cap 3px smaller than the Figma spec at `md`.

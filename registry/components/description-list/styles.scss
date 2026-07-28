@@ -67,6 +67,7 @@
     --primitiv-description-list-color: var(--primitiv-content-primary);
     --primitiv-description-list-font-family: var(--primitiv-body-md-font-family);
     --primitiv-description-list-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-description-list-font-weight: var(--primitiv-body-md-font-weight);
     --primitiv-description-list-line-height: var(--primitiv-body-md-line-height);
 
     margin: 0;
@@ -76,14 +77,38 @@
     line-height: var(--primitiv-description-list-line-height);
   }
 
+  /* Both parts restate **every** inherited font property, and their colour,
+     rather than leaning on the <dl> above them.
+     `primitiv.reset` deliberately dresses a *bare* description list — `dt` in
+     the label face at `label/sm`, `dd` in `content/secondary` — and those are
+     declarations *on the element*, which beat an inherited value no matter what
+     layer they sit in (layer order only arbitrates between declarations on the
+     same element; inheritance always loses to a direct one). Setting these on
+     the root alone therefore did nothing for the parts: the term rendered in
+     Khand instead of Asta Sans, the details in secondary instead of primary,
+     and — worst, because it was invisible at `md` where `label/sm` happens to
+     resolve to the same 1rem/1.5rem — neither part responded to the `size`
+     prop at all. */
   .primitiv-description-list__term {
     margin: 0;
+    font-family: var(--primitiv-description-list-font-family);
+    font-size: var(--primitiv-description-list-font-size);
+    line-height: var(--primitiv-description-list-line-height);
+    /* Fixed SemiBold at every size and density (RFC 0012 D10). */
     font-weight: var(--primitiv-font-weight-semibold);
+    color: var(--primitiv-description-list-color);
   }
 
   .primitiv-description-list__details {
     margin: 0;
     padding-inline-start: var(--primitiv-description-list-details-indent);
+    font-family: var(--primitiv-description-list-font-family);
+    font-size: var(--primitiv-description-list-font-size);
+    line-height: var(--primitiv-description-list-line-height);
+    font-weight: var(--primitiv-description-list-font-weight);
+    /* content/primary, like the term — Figma binds *both* parts to it. The
+       reset's `content/secondary` is for an unstyled `dd`, not this component. */
+    color: var(--primitiv-description-list-color);
   }
 }
 
@@ -127,26 +152,31 @@
   .primitiv-description-list--xs {
     --primitiv-description-list-font-family: var(--primitiv-body-xs-font-family);
     --primitiv-description-list-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-description-list-font-weight: var(--primitiv-body-xs-font-weight);
     --primitiv-description-list-line-height: var(--primitiv-body-xs-line-height);
   }
   .primitiv-description-list--sm {
     --primitiv-description-list-font-family: var(--primitiv-body-sm-font-family);
     --primitiv-description-list-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-description-list-font-weight: var(--primitiv-body-sm-font-weight);
     --primitiv-description-list-line-height: var(--primitiv-body-sm-line-height);
   }
   .primitiv-description-list--md {
     --primitiv-description-list-font-family: var(--primitiv-body-md-font-family);
     --primitiv-description-list-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-description-list-font-weight: var(--primitiv-body-md-font-weight);
     --primitiv-description-list-line-height: var(--primitiv-body-md-line-height);
   }
   .primitiv-description-list--lg {
     --primitiv-description-list-font-family: var(--primitiv-body-lg-font-family);
     --primitiv-description-list-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-description-list-font-weight: var(--primitiv-body-lg-font-weight);
     --primitiv-description-list-line-height: var(--primitiv-body-lg-line-height);
   }
   .primitiv-description-list--xl {
     --primitiv-description-list-font-family: var(--primitiv-body-xl-font-family);
     --primitiv-description-list-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-description-list-font-weight: var(--primitiv-body-xl-font-weight);
     --primitiv-description-list-line-height: var(--primitiv-body-xl-line-height);
   }
 }
@@ -158,4 +188,5 @@ $primitiv-description-list-details-indent: var(--primitiv-description-list-detai
 $primitiv-description-list-color: var(--primitiv-description-list-color);
 $primitiv-description-list-font-family: var(--primitiv-description-list-font-family);
 $primitiv-description-list-font-size: var(--primitiv-description-list-font-size);
+$primitiv-description-list-font-weight: var(--primitiv-description-list-font-weight);
 $primitiv-description-list-line-height: var(--primitiv-description-list-line-height);

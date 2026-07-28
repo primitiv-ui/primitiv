@@ -115,11 +115,12 @@
 }
 
 @layer primitiv.variants {
-  /* Layout — the pair arrangement. `stacked` is a flex column with one
-     uniform row gap; `inline` is a two-column grid (dt : dd) with a
-     dedicated column gap and a row gap that mirrors the `list` component's
-     item-gap (the Figma binding, not a description-list-owned token). */
-  /* Stacked stays in **normal block flow** and spaces its rows with a bottom
+  /* Layout — the pair arrangement. `stacked` is block flow with a per-row
+     bottom margin; `inline` is a two-column grid (dt : dd) with a dedicated
+     column gap and a row gap that mirrors the `list` component's item-gap (the
+     Figma binding, not a description-list-owned token).
+
+     Stacked stays in **normal block flow** and spaces its rows with a bottom
      margin, rather than becoming a flex column with `gap`.
      `gap` only exists inside a flex or grid formatting context, so using it
      means putting `display: flex` on the `<dl>` — the very element whose

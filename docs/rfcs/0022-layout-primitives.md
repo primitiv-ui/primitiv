@@ -180,17 +180,24 @@ dedicated one). No new tokens for either.
   still needs its own `object-fit` from the consumer to crop rather than
   distort.
 
-  **Corrected after the deployed kitchen-sink showed the box out of flow
-  (2026-07-28):** `__content` was originally *absolutely positioned*, which
-  left the box with no in-flow content and therefore no height at all unless
-  `aspect-ratio` resolved — so a parent that muddied the block axis collapsed
-  it and the content painted over the rest of the page. It is now a
-  **single-cell grid** (`display: grid` + `grid-area: 1 / 1`), which fills
-  identically while staying in flow, so the box always reports a real height
-  to its parent. `overflow: hidden` was added alongside it so a mis-sized box
-  crops instead of spilling. The layout lesson, now in the component README:
-  give ratio boxes a **definite inline size** — a Grid track — rather than a
-  `flex: 1 1 0` row, where the width comes out of flex distribution and the
-  ratio-derived height arrives too late for the flex line to size around.
+  **Follow-up (2026-07-28) — the component was right; the *demo* was wrong.**
+  The deployed kitchen-sink showed the 1:1 box painting over the two sections
+  below it. The cause turned out to be **`align-items: start` on the container**,
+  not anything in `AspectRatio`. `start`/`flex-start`/`center`/`end` take the
+  items out of the row's sizing, so the row collapses to the content's own
+  height while each box still renders at its ratio height. The default
+  `stretch` is correct here and does *not* fight the ratio: `aspect-ratio` on a
+  definite width is a **definite** block size, and stretch only applies to an
+  `auto` one — so each box keeps its ratio and the row sizes to the tallest.
+
+  Three plausible CSS diagnoses were shipped and wrong before this was pinned
+  down (content out of flow → in flow → a percentage-padding spacer). What
+  settled it was **measuring the deployed page in Chrome over the DevTools
+  Protocol**, sweeping component × container combinations: only
+  `grid` + default `stretch` produced row 472 with boxes 266/472. Two lessons
+  worth keeping: `overflow: hidden` stays on the box as a backstop so a
+  mis-sized ratio box crops instead of spilling; and a layout bug of this shape
+  should be measured in a browser before any CSS is written, not reasoned about
+  from a screenshot.
 
 Container, Grid (step 3, blocked on RFC 0025) remain unbuilt.

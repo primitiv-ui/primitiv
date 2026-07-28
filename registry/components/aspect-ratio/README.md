@@ -22,8 +22,8 @@ the `Figma` column of `ROADMAP.md` reads `—` for exactly this reason.
 `AspectRatio` constrains embedded media (an image, video, map, iframe) to a
 width-to-height ratio via the modern CSS `aspect-ratio` property — no
 padding-bottom hack. The child is wrapped in a `__content` element that fills
-the ratio box regardless of the child's own intrinsic size — a single-cell
-grid, so it fills while staying in flow (see the Grid gotcha below).
+the ratio box regardless of the child's own intrinsic size — a single-cell grid,
+so it fills while staying in flow.
 
 - `ratio` — a unitless number (`16 / 9`, `4 / 3`, `1`), default `1`. Set
   inline as `--primitiv-aspect-ratio` — a continuous value, not a fixed
@@ -36,34 +36,43 @@ box; it doesn't style the media inside it.
 The box also `overflow: hidden`s, so content larger than the ratio is cropped
 rather than spilling out of it.
 
-### Gotcha: lay ratio boxes out with Grid, not a `flex: 1 1 0` row
+### Gotcha: do not set `align-items` on a container of ratio boxes
 
-`aspect-ratio` needs a **definite inline size** to divide. Grid gives it one —
-a `1fr` track is resolved before any height is asked for — so the row reserves
-the correct height and everything below it stays put:
+Lay ratio boxes out with a Grid and **leave `align-items` alone**:
 
 ```tsx
-// ✓ each column is a definite width, so each box's height is definite too.
+// ✓ the row sizes to the taller box; each box keeps its own ratio.
 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
   <AspectRatio ratio={16 / 9}>…</AspectRatio>
   <AspectRatio ratio={1}>…</AspectRatio>
 </div>
 ```
 
-A **flex row of `flex: 1 1 0` ratio boxes is the case to avoid.** There, each
-item's width comes out of flex distribution, so the ratio-derived heights arrive
-too late for the flex line to size around them — the taller box overflows its own
-row and paints over the next section. The kitchen-sink hit this twice: first with
-`align-items: stretch` (which collapsed both boxes to zero), then again with
-`align-items: start` (which fixed the individual ratios but left the row reserving
-only the *first* box's height). Grid avoids both.
+Grid resolves each column to a definite width before any height is needed, so
+`aspect-ratio` gives each box a **definite block size**. The default
+`align-items: stretch` then leaves that alone — stretch only applies to an `auto`
+cross size — and the row sizes to the tallest box. Everything works.
 
-Two things make the component itself defensive about this rather than relying on
-the caller: the content layer is **in flow** (a single-cell grid, not
-`position: absolute`), so the box always has a real height to report to its
-parent instead of collapsing to nothing when the ratio can't resolve; and
-`overflow: hidden` means even a mis-sized box crops rather than painting over the
-page.
+Adding **`align-items: start`** (or `flex-start`/`center`/`end`) breaks it. Those
+values take the items out of the row's sizing, so the row collapses to the
+content's own height while each box still *renders* at its ratio height — and the
+taller box paints straight over whatever follows it on the page.
+
+This bit the kitchen-sink twice, both times from `align-items` rather than from
+the component:
+
+| Container | Row reserved | Boxes rendered | Result |
+|---|---|---|---|
+| flex, default `stretch`, no in-flow content | 264 | 264 / 264 | both boxes collapsed to the content's height |
+| grid, `align-items: start` | 300 | 266 / **472** | correct ratios, row 172px short — the 1:1 box overflowed |
+| grid, default `stretch` | **472** | 266 / 472 | correct |
+
+Measured in Chrome over the DevTools Protocol against the deployed build, which
+is the only way this was pinned down — three plausible-sounding CSS diagnoses
+were wrong before the measurements arrived.
+
+`overflow: hidden` is kept as a backstop, so even a mis-sized box crops rather
+than painting over the page.
 
 ## Usage
 

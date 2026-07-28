@@ -191,6 +191,7 @@ import {
 } from "@primitiv-ui/icons";
 import { useChrome } from "./chrome";
 import "./App.css";
+import "./demos.css";
 
 /* Simplified, monochrome framework marks for the Segmented Control demo. They
    fill with `currentColor`, so each adopts its segment's foreground (white on the
@@ -1459,21 +1460,16 @@ export function ramp(hue: number, chroma = 0.12) {
           <code>AspectRatio</code> constrains its content to a ratio via CSS{" "}
           <code>aspect-ratio</code> — no padding-bottom hack:
         </p>
-        {/* A two-up grid, not a flex row. Grid resolves each column to a
-            definite width *before* any height is needed, so `aspect-ratio` has
-            something concrete to divide and the row reserves the taller box.
-            A `flex: 1 1 0` row is the case to avoid: its items' widths come out
-            of flex distribution, which leaves the ratio-derived heights arriving
-            too late for the line to size around — the 1:1 box then overflowed
-            its own row. See the AspectRatio README. */}
-        <Box
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "var(--primitiv-space-space-16)",
-            alignItems: "start",
-          }}
-        >
+        {/* A two-up grid, and deliberately WITHOUT `align-items`. Grid resolves
+            each column to a definite width before any height is needed, so
+            `aspect-ratio` gives each box a definite block size — which means the
+            default `stretch` never overrides it, and the row sizes to the taller
+            box. Setting `align-items: start` here is what broke this twice: it
+            drops the items out of the row's sizing, so the row reserved only
+            300px and the 1:1 box painted over the Drawer and Dropdown sections.
+            Verified in Chrome via CDP: with `stretch` the row is 472px and the
+            boxes stay 266/472. See the AspectRatio README. */}
+        <Box className="ks-ratio-grid">
           <AspectRatio ratio={16 / 9}>
             <FigureMediaPlaceholder fill />
           </AspectRatio>

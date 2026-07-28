@@ -1,0 +1,34 @@
+/*
+ * Kitchen-sink demo scaffolding.
+ *
+ * Styling that exists *only* to stage a demo — the frames, rules and grids that
+ * give an opinion-less layout primitive something visible to demonstrate. None
+ * of it is part of any component's contract, and none of it ships: it is the
+ * equivalent of the graph paper behind the drawing.
+ *
+ * It lives here rather than inline on the elements so that:
+ *   - the demo markup reads as composition, not as CSS;
+ *   - nothing in the app implies a registry component needs inline styles to
+ *     look right (if one does, its API is under-designed — that is a component
+ *     bug, not a demo concern);
+ *   - the values can lean on the token layer like any other stylesheet.
+ *
+ * Every class is `ks-`-prefixed and class-only. Never add a bare element or
+ * attribute selector here: this file is bundled globally, so `figure {…}` or
+ * `[data-state] {…}` would leak onto every component on the page.
+ */
+
+/* A two-up grid for ratio boxes.
+ *
+ * Deliberately does NOT set `align-items`. Grid resolves each column to a
+ * definite width before any height is needed, so `aspect-ratio` gives each box a
+ * definite block size — which the default `stretch` then leaves alone, letting
+ * the row size to the taller box. Setting `align-items: start` drops the items
+ * out of the row's sizing entirely: the row collapses to the content's own
+ * height and a taller ratio box paints over whatever follows it on the page.
+ * Verified in Chrome over CDP against the deployed build. */
+.ks-ratio-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--primitiv-space-space-16);
+}

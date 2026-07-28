@@ -222,13 +222,32 @@ function VueLogo(): ReactElement {
 /* A small placeholder media block for the Figure position demo — the same
    stepped-band pattern as the intro article's bare <figure>, just compact
    enough to repeat three times side by side (below/above/overlay). */
-function FigureMediaPlaceholder(): ReactElement {
+/**
+ * Stand-in for real media in the Figure / AspectRatio demos.
+ *
+ * Opaque by design: it lays an explicit `surface/subtle` base under the
+ * stepped band (matching the fill the Figma Media frame carries), so it
+ * behaves like a real image would. A translucent placeholder let the Figure
+ * overlay's scrim show *through* the artwork, which read as a stray panel
+ * behind it rather than a caption bar over it.
+ *
+ * `fill` makes the band stretch to its container instead of keeping its own
+ * 16:9 proportions — what an `AspectRatio` box needs, since the whole point
+ * there is to see the box's ratio, not the placeholder's.
+ */
+function FigureMediaPlaceholder({ fill = false }: { fill?: boolean }): ReactElement {
   return (
     <svg
       viewBox="0 0 160 90"
       role="img"
       aria-label="A stepped band of the current text colour"
-      style={{ display: "block", inlineSize: "100%", blockSize: "auto" }}
+      preserveAspectRatio={fill ? "none" : undefined}
+      style={{
+        display: "block",
+        inlineSize: "100%",
+        blockSize: fill ? "100%" : "auto",
+        background: "var(--primitiv-surface-subtle)",
+      }}
     >
       <rect x="0" width="40" height="90" fill="currentColor" opacity="0.6" />
       <rect x="40" width="40" height="90" fill="currentColor" opacity="0.45" />
@@ -1407,20 +1426,20 @@ export function ramp(hue: number, chroma = 0.12) {
             padding: "var(--primitiv-space-space-12)",
           }}
         >
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size={size}>
             File
           </Button>
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size={size}>
             Edit
           </Button>
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size={size}>
             View
           </Button>
           <Spacer />
-          <Button variant="secondary" size="sm">
+          <Button variant="secondary" size={size}>
             Share
           </Button>
-          <Button size="sm">Publish</Button>
+          <Button size={size}>Publish</Button>
         </Stack>
         <p>
           <code>Center</code> centres content along one or both axes — this
@@ -1434,18 +1453,22 @@ export function ramp(hue: number, chroma = 0.12) {
             borderRadius: "var(--primitiv-radii-8)",
           }}
         >
-          <Button size="sm">Centred both axes</Button>
+          <Button size={size}>Centred both axes</Button>
         </Center>
         <p>
           <code>AspectRatio</code> constrains its content to a ratio via CSS{" "}
           <code>aspect-ratio</code> — no padding-bottom hack:
         </p>
-        <Stack direction="row" gap="md">
+        {/* `align="start"` is required, not cosmetic: Stack's default
+            `align-items: stretch` would force the block axis and collapse a
+            box whose only height comes from its ratio. See the AspectRatio
+            README. */}
+        <Stack direction="row" gap="md" align="start">
           <AspectRatio ratio={16 / 9} style={{ flex: "1 1 0" }}>
-            <FigureMediaPlaceholder />
+            <FigureMediaPlaceholder fill />
           </AspectRatio>
           <AspectRatio ratio={1} style={{ flex: "1 1 0" }}>
-            <FigureMediaPlaceholder />
+            <FigureMediaPlaceholder fill />
           </AspectRatio>
         </Stack>
       </Section>

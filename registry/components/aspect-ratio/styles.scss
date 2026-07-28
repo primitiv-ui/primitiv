@@ -31,6 +31,14 @@
 
     position: relative;
     aspect-ratio: var(--primitiv-aspect-ratio);
+    /* Crop, never spill. The content layer below is absolutely positioned, so
+       this box has no in-flow content to give it an intrinsic height — if a
+       parent ever wins the block axis (a stretched flex item is the case that
+       bites; see the README), the box collapses and unclipped content would
+       paint straight over whatever follows it on the page. Clipping keeps a
+       mis-sized ratio box contained, and cropping is the behaviour a ratio box
+       wants anyway. */
+    overflow: hidden;
   }
 
   .primitiv-aspect-ratio__content {

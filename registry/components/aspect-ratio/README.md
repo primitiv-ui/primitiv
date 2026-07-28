@@ -33,6 +33,38 @@ An `<img>`/`<video>` child still needs its own `object-fit: cover` (or
 `contain`) to crop rather than distort — `AspectRatio` only reserves the
 box; it doesn't style the media inside it.
 
+The box also `overflow: hidden`s, so content larger than the ratio is cropped
+rather than spilling out of it.
+
+### Gotcha: don't let a parent stretch it on the block axis
+
+Because the content layer is absolutely positioned, an `AspectRatio` has **no
+in-flow content to give it an intrinsic height** — the ratio is the only thing
+establishing one. So if a parent forces the block axis, the ratio loses and the
+box collapses.
+
+The case that bites is a **row of ratio boxes in a flex container**, since
+`align-items` defaults to `stretch`:
+
+```tsx
+// ✗ each box is stretched to the row's height, which is itself derived from
+//   content — and there is none, so they collapse.
+<Stack direction="row" gap="md">
+  <AspectRatio ratio={16 / 9}>…</AspectRatio>
+</Stack>
+
+// ✓ opt out of the stretch and each box keeps its own ratio.
+<Stack direction="row" gap="md" align="start">
+  <AspectRatio ratio={16 / 9}>…</AspectRatio>
+</Stack>
+```
+
+This is exactly what went wrong in the kitchen-sink's first Layout Primitives
+demo: the ratio boxes contributed zero height, and their content painted over
+the two sections below them. `overflow: hidden` now contains the spill, but the
+box still needs `align="start"` (or any non-`stretch` `align-self`) to size
+correctly. `Stack`'s own default is `stretch`, matching Flexbox.
+
 ## Usage
 
 ```tsx

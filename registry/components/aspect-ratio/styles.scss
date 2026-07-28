@@ -54,4 +54,37 @@
   }
 }
 
+@layer primitiv.variants {
+  /* Ratio — a curated preset per class, each just re-pointing the one knob.
+     Presets rather than a raw number so the component needs no inline style:
+     a prop that can take any value has to be written to the element at render
+     time, and that is the thing we are avoiding (RFC 0022 §8/§9). A bespoke
+     ratio is a one-line override of --primitiv-aspect-ratio in the consumer's
+     own stylesheet, which keeps it in CSS where it belongs. */
+  .primitiv-aspect-ratio--1-1 {
+    --primitiv-aspect-ratio: 1;
+  }
+  .primitiv-aspect-ratio--4-3 {
+    --primitiv-aspect-ratio: 1.3333;
+  }
+  .primitiv-aspect-ratio--3-2 {
+    --primitiv-aspect-ratio: 1.5;
+  }
+  .primitiv-aspect-ratio--16-9 {
+    --primitiv-aspect-ratio: 1.7778;
+  }
+  .primitiv-aspect-ratio--21-9 {
+    --primitiv-aspect-ratio: 2.3333;
+  }
+  .primitiv-aspect-ratio--3-4 {
+    --primitiv-aspect-ratio: 0.75;
+  }
+  .primitiv-aspect-ratio--2-3 {
+    --primitiv-aspect-ratio: 0.6667;
+  }
+  .primitiv-aspect-ratio--9-16 {
+    --primitiv-aspect-ratio: 0.5625;
+  }
+}
+
 $primitiv-aspect-ratio: var(--primitiv-aspect-ratio);

@@ -23,10 +23,27 @@ export const stack = cva("primitiv-stack", {
       lg: "primitiv-stack--gap-lg",
       xl: "primitiv-stack--gap-xl",
     },
+    align: {
+      start: "primitiv-stack--align-start",
+      center: "primitiv-stack--align-center",
+      end: "primitiv-stack--align-end",
+      stretch: "primitiv-stack--align-stretch",
+      baseline: "primitiv-stack--align-baseline",
+    },
+    justify: {
+      start: "primitiv-stack--justify-start",
+      center: "primitiv-stack--justify-center",
+      end: "primitiv-stack--justify-end",
+      between: "primitiv-stack--justify-between",
+      around: "primitiv-stack--justify-around",
+      evenly: "primitiv-stack--justify-evenly",
+    },
   },
   defaultVariants: {
     direction: "column",
     gap: "md",
+    align: "stretch",
+    justify: "start",
   },
 });
 

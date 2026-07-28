@@ -32,13 +32,15 @@
        column direction. The variants layer below re-points the gap steps and
        the direction; align/justify are set inline per instance. */
     --primitiv-stack-gap: var(--primitiv-stack-gap-md);
-    --primitiv-stack-align: stretch;
-    --primitiv-stack-justify: flex-start;
 
     display: flex;
     flex-direction: column;
-    align-items: var(--primitiv-stack-align);
-    justify-content: var(--primitiv-stack-justify);
+    /* The resting alignment; the variants layer re-points both from a curated
+       preset set. Written as literal keywords rather than custom properties
+       because they are no longer a consumer-supplied passthrough — see the
+       `align`/`justify` note in the file header. */
+    align-items: stretch;
+    justify-content: flex-start;
     gap: var(--primitiv-stack-gap);
   }
 }
@@ -73,5 +75,47 @@
   }
   .primitiv-stack--gap-xl {
     --primitiv-stack-gap: var(--primitiv-stack-gap-xl);
+  }
+
+  /* Align — cross-axis (`align-items`), from a curated preset set. Logical
+     keywords (`start`/`end`, not `flex-start`/`flex-end`) so they follow the
+     writing mode. `stretch` is the base default and is listed here too, so an
+     explicit `align="stretch"` is a no-op rather than a missing class. */
+  .primitiv-stack--align-start {
+    align-items: start;
+  }
+  .primitiv-stack--align-center {
+    align-items: center;
+  }
+  .primitiv-stack--align-end {
+    align-items: end;
+  }
+  .primitiv-stack--align-stretch {
+    align-items: stretch;
+  }
+  .primitiv-stack--align-baseline {
+    align-items: baseline;
+  }
+
+  /* Justify — main-axis (`justify-content`), same preset treatment. The
+     `space-*` keywords get the shorter prop names (`between`/`around`/`evenly`)
+     the rest of the system uses. */
+  .primitiv-stack--justify-start {
+    justify-content: start;
+  }
+  .primitiv-stack--justify-center {
+    justify-content: center;
+  }
+  .primitiv-stack--justify-end {
+    justify-content: end;
+  }
+  .primitiv-stack--justify-between {
+    justify-content: space-between;
+  }
+  .primitiv-stack--justify-around {
+    justify-content: space-around;
+  }
+  .primitiv-stack--justify-evenly {
+    justify-content: space-evenly;
   }
 }

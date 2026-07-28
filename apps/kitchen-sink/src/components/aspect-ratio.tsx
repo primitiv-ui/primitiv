@@ -8,18 +8,10 @@ import "../styles/primitiv/aspect-ratio/styles.css";
  * property — so, unlike the generated wrappers, it composes no headless
  * primitive. Hand-written, so it has no drift-guard test.
  */
-import { type ComponentPropsWithRef, type CSSProperties } from "react";
-import { aspectRatio } from "./aspect-ratio.recipe";
+import { type ComponentPropsWithRef } from "react";
+import { aspectRatio, type AspectRatioVariants } from "./aspect-ratio.recipe";
 
-export type AspectRatioProps = ComponentPropsWithRef<"div"> & {
-  /**
-   * The width-to-height ratio, unitless (`16 / 9`, `4 / 3`, `1`). Set inline
-   * as `--primitiv-aspect-ratio` — a continuous numeric value, not a fixed
-   * enum, so there is no modifier class for it.
-   * @default 1
-   */
-  ratio?: number;
-};
+export type AspectRatioProps = ComponentPropsWithRef<"div"> & AspectRatioVariants;
 
 /**
  * Constrains its content to a width-to-height ratio via CSS `aspect-ratio`.
@@ -27,22 +19,25 @@ export type AspectRatioProps = ComponentPropsWithRef<"div"> & {
  * `<img>`/`<video>` still needs its own `object-fit` to crop rather than
  * distort.
  *
+ * `ratio` is a curated preset (`"1/1"` default, `"4/3"`, `"3/2"`, `"16/9"`,
+ * `"21/9"` and the portrait inverses `"3/4"`, `"2/3"`, `"9/16"`). For a bespoke
+ * ratio, override `--primitiv-aspect-ratio` in your own stylesheet rather than
+ * inline — this component writes no `style` attribute.
+ *
+ * Do not set `align-items` on a container of these; see the README.
+ *
  * @example
  * ```tsx
- * <AspectRatio ratio={16 / 9}>
- *   <img src="…" alt="…" style={{ objectFit: "cover", inlineSize: "100%", blockSize: "100%" }} />
+ * <AspectRatio ratio="16/9">
+ *   <img src="…" alt="…" className="my-cover-image" />
  * </AspectRatio>
  * ```
  *
  * @see https://primitiv-ui.dev/docs/components/aspect-ratio
  */
-export function AspectRatio({ ratio, className, style, children, ...props }: AspectRatioProps) {
+export function AspectRatio({ ratio, className, children, ...props }: AspectRatioProps) {
   return (
-    <div
-      className={[aspectRatio(), className].filter(Boolean).join(" ")}
-      style={{ ...style, ...(ratio === undefined ? {} : { "--primitiv-aspect-ratio": ratio }) } as CSSProperties}
-      {...props}
-    >
+    <div className={[aspectRatio({ ratio }), className].filter(Boolean).join(" ")} {...props}>
       <div className="primitiv-aspect-ratio__content">{children}</div>
     </div>
   );

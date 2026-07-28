@@ -154,6 +154,19 @@ pre-settled by the draft:
   `"space-between"`, …), not design tokens, so there's no fixed enum to
   drive a `cva` variant from.
 
+  **Reversed on human review (2026-07-28).** There *is* a natural finite set,
+  and the deeper objection is that a registry component writing a `style`
+  attribute has an **under-designed API**: it hands the consumer a channel for
+  arbitrary CSS and makes the rendered result unreadable from the class list.
+  `align` is now `start|center|end|stretch|baseline`, `justify` is
+  `start|center|end|between|around|evenly`, both as modifier classes; the two
+  passthrough custom properties are gone and `Stack` writes no `style`
+  attribute. `AspectRatio`'s `ratio` went the same way — a curated preset set
+  (§9). The standing rule from here: **no registry component writes inline
+  styles.** The only survivors are the `styleProps` carrying genuinely
+  continuous *runtime data* — Progress's `value`/`max`, Carousel's
+  `slidesPerPage` — which cannot be an enum and are data, not styling.
+
 Center, AspectRatio (step 2) and Container, Grid (step 3, blocked on RFC
 0025) remain unbuilt.
 
@@ -172,10 +185,13 @@ dedicated one). No new tokens for either.
   stretching to fill it — the draft didn't specify this, and stretching
   turned out to be the wrong default on inspection.
 - **`AspectRatio` uses the modern `aspect-ratio` CSS property directly**, as
-  the draft specified — no padding-bottom hack. `ratio` is a continuous
-  numeric value, so it is set inline as `--primitiv-aspect-ratio` per
-  instance (the same treatment `Stack` gives `align`/`justify`) rather than
-  a modifier class. The child is wrapped in a `__content` element that fills
+  the draft specified — no padding-bottom hack. `ratio` was originally a
+  continuous numeric value set inline as `--primitiv-aspect-ratio` per
+  instance; **it is now a curated preset set of modifier classes** (`1/1`,
+  `4/3`, `3/2`, `16/9`, `21/9` and the portrait inverses), for the same reason
+  `Stack`'s `align`/`justify` changed (§8) — no registry component writes inline
+  styles. A bespoke ratio is a one-line override of `--primitiv-aspect-ratio`
+  in the consumer's own stylesheet. The child is wrapped in a `__content` element that fills
   the ratio box regardless of its own intrinsic size; an `<img>`/`<video>`
   still needs its own `object-fit` from the consumer to crop rather than
   distort.

@@ -148,10 +148,17 @@
     grid-template-columns: max-content 1fr;
     column-gap: var(--primitiv-description-list-column-gap);
     row-gap: var(--primitiv-description-list-pair-gap);
-    /* Each Figma pair is a row with `counterAxisAlignItems: CENTER`, so a term
-       and a detail of unequal height sit centred against each other rather
-       than top-aligned (the grid default is `stretch`). */
-    align-items: center;
+    /* Figma's pair row is `counterAxisAlignItems: CENTER`, but every Figma
+       variant is single-line, where `center` and `start` render pixel-
+       identical (no height difference to centre against) — so `start` matches
+       Figma exactly for every variant that exists there, while also covering
+       the case Figma's fixed component set can't show: a detail that wraps to
+       several lines (routine on a narrow container/mobile). `center` would
+       vertically centre the whole wrapped block, leaving the single-line term
+       floating away from the detail's first line instead of reading as its
+       label; `start` keeps the term anchored to that first line at any width
+       (the grid default is `stretch`, which needs overriding either way). */
+    align-items: start;
   }
 
   .primitiv-description-list--inline .primitiv-description-list__details {

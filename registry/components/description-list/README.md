@@ -18,7 +18,7 @@ compose multiple pairs to form a full description list.
   layouts in the Figma component set:
   - `"stacked"`: `<dt>` above `<dd>`, `<dd>` indented under it.
   - `"inline"`: `<dt>` : `<dd>` side by side, in a two-column grid, with the
-    `<dd>` **end-aligned** and each pair vertically centred (see below).
+    `<dd>` **end-aligned** and each pair **top-aligned** (see below).
 - The term is **fixed SemiBold weight** across every size and density mode
   (RFC 0012 D10) — only its family/size/line-height move with `size`. Both
   term and details use `content/primary` — no new colour tokens.
@@ -41,14 +41,27 @@ where `"inline"` itself came from: the first build only shipped the
 `"stacked"` shape, missing the `Layout` variant axis Figma's component set
 actually has.
 
-### `inline` end-aligns the detail
+### `inline` end-aligns the detail, and top-aligns the pair
 
-In Figma, an inline pair is a row (`counterAxisAlignItems: CENTER`) whose
-`Detail` **FILLs** the remaining width with `textAlignHorizontal: RIGHT`. So
-the stylesheet gives the inline `<dd>` `text-align: end` (logical, so it flips
-under RTL) and the grid `align-items: center`. That's what makes the layout read
-as a two-column table of pairs — values lining up on the far edge — rather than
-two ragged columns. A follow-up pass added both; the layout landed without them.
+In Figma, an inline pair is a row whose `Detail` **FILLs** the remaining width
+with `textAlignHorizontal: RIGHT`. So the stylesheet gives the inline `<dd>`
+`text-align: end` (logical, so it flips under RTL). That's what makes the
+layout read as a two-column table of pairs — values lining up on the far edge
+— rather than two ragged columns. A follow-up pass added this; the layout
+landed without it.
+
+The row's cross-axis alignment is `align-items: start`, not Figma's own
+`counterAxisAlignItems: CENTER` — deliberately. Every Figma variant is
+single-line, where `center` and `start` render pixel-identical (there's no
+height difference to centre against), so `start` still matches Figma exactly
+for anything Figma actually shows. It diverges only for a case Figma's fixed
+component set can't represent: a `<dd>` that wraps to several lines, which is
+routine on a narrow container or mobile viewport. `center` vertically centres
+the whole wrapped block, so the single-line `<dt>` ends up floating in the
+middle of its `<dd>`'s line count instead of sitting next to its first line —
+`start` keeps the term anchored there at any width. (A second follow-up pass;
+`center` was the first attempt, matching Figma literally before the mobile
+wrap case was noticed.)
 
 ### Gotcha: the token rename that shipped without a regenerated token layer
 

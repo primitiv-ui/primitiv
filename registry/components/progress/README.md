@@ -76,10 +76,10 @@ legible.
 
 An earlier build shipped **no `intent` axis at all** (every bar was brand-
 coloured) and had the track on `surface/subtle`. That last one was invisible:
-`surface/subtle` and `action/secondary/default` both resolve to
-`neutral/100`/`neutral/800` in Light/Dark, so the two were pixel-identical —
-which is exactly what made the divergence worth closing, since a later change
-to either token would have silently pulled the track off-spec.
+`surface/subtle` and `action/secondary/default` both alias `color.neutral.100`
+in *both* themes, so the two were pixel-identical — which is exactly what made
+the divergence worth closing, since a later change to either token would have
+silently pulled the track off-spec.
 
 **Indeterminate** (`data-state="indeterminate"`, `value` omitted) swaps to a
 looping slide animation instead of reading the fill formula — the headless

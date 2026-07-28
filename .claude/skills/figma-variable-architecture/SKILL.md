@@ -50,8 +50,9 @@ colours (`content/primary` → `neutral/50` → `[229]` light text on a
 `color/black` `[20]` page). This is the single most common theming mistake:
 
 > **Do NOT also set `Primitives / Palette` to Dark.** The palette ramp is a
-> *palindrome* across its own modes (`neutral/50` Light `[229]` == `neutral/900`
-> Dark `[229]`), so overriding the palette to Dark **double-inverts** — a Dark-Intent
+> *palindrome at its endpoints* across its own modes (`neutral/50` Light `[229]`
+> == `neutral/900` Dark `[229]`; `neutral/900` Light `[18]` == `neutral/50` Dark
+> `[18]`), so overriding the palette to Dark **double-inverts** — a Dark-Intent
 > alias to `neutral/50` then resolves to `[18]` and your body text goes near-black,
 > recessed surfaces collide with the text sitting on them, and the whole dark
 > theme reads as broken-but-not-obviously-so. Verified 2026-07-01 while building the
@@ -62,6 +63,38 @@ colours (`content/primary` → `neutral/50` → `[229]` light text on a
 Frame-level mode overrides on `Intent` control the active theme; a demo that
 shows both themes sets `Intent=Light` on one frame and `Intent=Dark` on the
 other, both keeping `Palette=Light`.
+
+### "Palindrome" holds only at the endpoints — don't diff ramp steps against the code
+
+Only the **ends** of the neutral ramp mirror exactly across the palette's two
+modes. The interior steps do **not**, because the dark ramp is *generated* by
+harmoni's anchored two-segment lightness model rather than being a literal
+reversal of the light one:
+
+| Step | Light | Dark | Mirrors? |
+|---|---|---|---|
+| `50` ↔ `900` | `#e5ecf6` | `#e5ecf6` | ✅ exact |
+| `100` ↔ `800` | `#d3dae3` | `#d1d7e0` | ⚠️ off by 3 |
+| `200` ↔ `700` | `#bcc2cb` | `#b4b9c2` | ⚠️ off by 9 |
+| `300` ↔ `600` | `#a8aeb6` | `#8f949c` | ⚠️ off by 26 |
+
+**The false-drift trap** (hit 2026-07-28, during the RFC 0022/0023 Figma
+cross-check): the repo's `intent.json` uses the *opposite* encoding to Figma —
+its `dark` block flips the **palette** and keeps the **semantic step constant**
+(`content.primary` → `neutral.900` in *both* light and dark), whereas Figma keeps
+the palette on Light and flips the **step** (`content/primary` → `neutral/900`
+Light, `neutral/50` Dark). Diffing Figma's dark ramp *index* against
+`intent.json`'s therefore reports ~24 bogus mismatches across almost the whole
+Dark mode.
+
+Resolve each side through its own model before comparing: **13 of 23** dark
+tokens come out byte-identical, and the other 10 differ by only 3–9/255 — the
+interior-step artifact above, not a binding error. **Do not "fix" it by
+retargeting Figma's dark aliases to the code's steps**: resolved through
+Palette/Light, code's `neutral.200` (`#2f3338` in the dark ramp) becomes
+`#bcc2cb` — a pale grey where a dark one belongs. Those interior dark values are
+simply not expressible as a light-palette alias, so there is nothing better for
+Figma to point at. Reviewed and accepted as-is.
 
 The `Context` collection has 4 modes: **Dense**, **Compact**, **Comfortable**,
 **Spacious**. Frame-level mode overrides let any frame switch density without

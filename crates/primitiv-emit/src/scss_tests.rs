@@ -77,6 +77,48 @@ $primitiv-demo-gap: var(--primitiv-demo-gap);\n"
     );
 }
 
+/// Regression: a prose comment that happens to contain `--name: text,` (a
+/// custom-property-shaped fragment, e.g. explaining a *different* token by
+/// name) must not be scanned as a declaration — comments are inert in CSS,
+/// and the scanner previously didn't know that (caught via a real drift-test
+/// failure on `slider`, whose focus-ring comment reads "...rather than the
+/// generic --primitiv-focus-ring-offset/-width: a draggable handle...").
+const COMPONENT_CSS_WITH_COMMENT_LOOKALIKE: &str = "\
+@layer primitiv.base {
+  .primitiv-demo {
+    /* Sized off the demo's own tokens rather than the generic
+       --primitiv-fake-offset/-width: prose that keeps going here. */
+    --primitiv-demo-gap: 0.5rem;
+  }
+}
+";
+
+#[test]
+fn does_not_alias_a_custom_property_shaped_fragment_inside_a_comment() {
+    let scss = emit_component_scss(COMPONENT_CSS_WITH_COMMENT_LOOKALIKE);
+
+    assert_eq!(
+        scss,
+        format!("{COMPONENT_CSS_WITH_COMMENT_LOOKALIKE}\n$primitiv-demo-gap: var(--primitiv-demo-gap);\n")
+    );
+}
+
+/// An unterminated `/* ...` (malformed input) drops everything from the
+/// opener onward from the scan, rather than panicking or scanning a
+/// mid-comment fragment as a declaration.
+#[test]
+fn treats_an_unterminated_comment_as_extending_to_the_end_of_the_input() {
+    let css = "\
+.primitiv-demo {
+  --primitiv-demo-gap: 0.5rem;
+}
+/* unterminated comment mentioning --primitiv-fake: nope";
+
+    let scss = emit_component_scss(css);
+
+    assert_eq!(scss, format!("{css}\n$primitiv-demo-gap: var(--primitiv-demo-gap);\n"));
+}
+
 /// Drift guard: the committed `registry/components/button/styles.scss` is exactly the
 /// derived form of the canonical `styles.css`. SCSS is the canonical CSS
 /// re-expressed for SCSS consumers (D: "Registry CSS, derive rest"), so it must

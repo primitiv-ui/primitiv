@@ -38,12 +38,17 @@ pub fn emit_theme_scss(scopes: &[Scope]) -> String {
 /// reference, or a backing `--primitiv-action-*` token referenced but not
 /// declared in this file, is skipped — a declaration is a line whose trimmed
 /// form starts `--name:`. A property re-declared by a modifier emits a single
-/// `$`-var, in first-occurrence order.
+/// `$`-var, in first-occurrence order. The scan runs over a comment-stripped
+/// copy of the CSS — a `/* ... */` block is inert, so prose that happens to
+/// contain a `--name:`-shaped fragment (e.g. explaining a *different* token
+/// by name) is never mistaken for a real declaration — while the emitted
+/// output still carries the original CSS, comments included, verbatim.
 pub fn emit_component_scss(css: &str) -> String {
     let mut out = css.to_string();
     out.push('\n');
+    let scannable = strip_comments(css);
     let mut seen = HashSet::new();
-    for line in css.lines() {
+    for line in scannable.lines() {
         if let Some(name) = line
             .trim_start()
             .strip_prefix("--")
@@ -55,6 +60,31 @@ pub fn emit_component_scss(css: &str) -> String {
             }
         }
     }
+    out
+}
+
+/// Remove every `/* ... */` span from `css`, preserving every newline
+/// (including ones inside a removed span) so line structure survives for a
+/// line-oriented scan downstream. An unterminated `/*` drops the remainder of
+/// the input, keeping only its newlines.
+fn strip_comments(css: &str) -> String {
+    let mut out = String::with_capacity(css.len());
+    let mut rest = css;
+    while let Some(start) = rest.find("/*") {
+        out.push_str(&rest[..start]);
+        let after_open = &rest[start + 2..];
+        match after_open.find("*/") {
+            Some(end) => {
+                out.push_str(&"\n".repeat(after_open[..end].matches('\n').count()));
+                rest = &after_open[end + 2..];
+            }
+            None => {
+                out.push_str(&"\n".repeat(rest[start..].matches('\n').count()));
+                rest = "";
+            }
+        }
+    }
+    out.push_str(rest);
     out
 }
 

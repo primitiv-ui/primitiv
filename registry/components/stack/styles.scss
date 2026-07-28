@@ -1,0 +1,73 @@
+/*
+ * Stack — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add stack`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-stack class, the --row/
+ * --column and --gap-* modifiers, and the --primitiv-stack-* custom
+ * properties), not these values (RFC 0006 Principle 2 — names are stable,
+ * values are not).
+ *
+ * The model (RFC 0022): a Flexbox stack, `direction="column"` by default,
+ * with `gap` resolved against the space-* scale — never a raw px value,
+ * continuing RFC 0016's "gap is the tool for component-internal spacing."
+ * `align`/`justify` are plain Flexbox keywords, not tokens, so they pass
+ * through as inline custom properties rather than earning modifier classes.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-space-*
+ * custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-stack {
+    /* Per-component API — the themable knobs, defaulting to the md gap and a
+       column direction. The variants layer below re-points the gap steps and
+       the direction; align/justify are set inline per instance. */
+    --primitiv-stack-gap: var(--primitiv-space-space-16);
+    --primitiv-stack-align: stretch;
+    --primitiv-stack-justify: flex-start;
+
+    display: flex;
+    flex-direction: column;
+    align-items: var(--primitiv-stack-align);
+    justify-content: var(--primitiv-stack-justify);
+    gap: var(--primitiv-stack-gap);
+  }
+}
+
+@layer primitiv.variants {
+  .primitiv-stack--row {
+    flex-direction: row;
+  }
+  .primitiv-stack--column {
+    flex-direction: column;
+  }
+
+  .primitiv-stack--gap-none {
+    --primitiv-stack-gap: var(--primitiv-space-space-0);
+  }
+  .primitiv-stack--gap-xs {
+    --primitiv-stack-gap: var(--primitiv-space-space-4);
+  }
+  .primitiv-stack--gap-sm {
+    --primitiv-stack-gap: var(--primitiv-space-space-8);
+  }
+  .primitiv-stack--gap-md {
+    --primitiv-stack-gap: var(--primitiv-space-space-16);
+  }
+  .primitiv-stack--gap-lg {
+    --primitiv-stack-gap: var(--primitiv-space-space-24);
+  }
+  .primitiv-stack--gap-xl {
+    --primitiv-stack-gap: var(--primitiv-space-space-32);
+  }
+}
+
+$primitiv-stack-gap: var(--primitiv-stack-gap);
+$primitiv-stack-align: var(--primitiv-stack-align);
+$primitiv-stack-justify: var(--primitiv-stack-justify);

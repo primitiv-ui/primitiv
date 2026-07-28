@@ -193,6 +193,21 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("context-menu", "context-menu.recipe.ts"),
     registry_file!("context-menu", "context-menu.tsx"),
     registry_file!("context-menu", "contract.json"),
+    registry_file!("box", "styles.css"),
+    registry_file!("box", "styles.scss"),
+    registry_file!("box", "box.recipe.ts"),
+    registry_file!("box", "box.tsx"),
+    registry_file!("box", "contract.json"),
+    registry_file!("stack", "styles.css"),
+    registry_file!("stack", "styles.scss"),
+    registry_file!("stack", "stack.recipe.ts"),
+    registry_file!("stack", "stack.tsx"),
+    registry_file!("stack", "contract.json"),
+    registry_file!("spacer", "styles.css"),
+    registry_file!("spacer", "styles.scss"),
+    registry_file!("spacer", "spacer.recipe.ts"),
+    registry_file!("spacer", "spacer.tsx"),
+    registry_file!("spacer", "contract.json"),
 ];
 
 impl Registry for EmbeddedRegistry {

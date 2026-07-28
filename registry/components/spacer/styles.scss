@@ -1,0 +1,26 @@
+/*
+ * Spacer — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add spacer`. It is yours to
+ * edit: the stable surface is the contract (the .primitiv-spacer class), not
+ * this rule (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * A blank flex-growing element for pushing flex siblings apart — toolbar
+ * left/right groups, card footers, nav bars (RFC 0022). Only meaningful
+ * inside a flex (or grid) container; it has no opinion of its own otherwise.
+ * `flex-basis: 0` (not `auto`) so it starts from nothing and grows purely
+ * from the shared free space, matching every other flex sibling's content
+ * size rather than competing with it.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-spacer {
+    flex: 1 0 0;
+  }
+}

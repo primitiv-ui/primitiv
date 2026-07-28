@@ -1,7 +1,6 @@
 import {
   Fragment,
   useState,
-  type CSSProperties,
   type ReactElement,
 } from "react";
 import {
@@ -236,19 +235,13 @@ function VueLogo(): ReactElement {
  * 16:9 proportions — what an `AspectRatio` box needs, since the whole point
  * there is to see the box's ratio, not the placeholder's.
  */
-function FigureMediaPlaceholder({ fill = false }: { fill?: boolean }): ReactElement {
+function FigureMediaPlaceholder(): ReactElement {
   return (
     <svg
       viewBox="0 0 160 90"
       role="img"
       aria-label="A stepped band of the current text colour"
-      preserveAspectRatio={fill ? "none" : undefined}
-      style={{
-        display: "block",
-        inlineSize: "100%",
-        blockSize: fill ? "100%" : "auto",
-        background: "var(--primitiv-surface-subtle)",
-      }}
+      className="ks-media-placeholder"
     >
       <rect x="0" width="40" height="90" fill="currentColor" opacity="0.6" />
       <rect x="40" width="40" height="90" fill="currentColor" opacity="0.45" />
@@ -824,12 +817,7 @@ primitiv add --all`}</code>
               viewBox="0 0 320 120"
               role="img"
               aria-label="A stepped band of the current text colour"
-              style={{
-                display: "block",
-                inlineSize: "50%",
-                blockSize: "auto",
-                borderRadius: "var(--primitiv-radii-8)",
-              }}
+              className="ks-media-placeholder ks-media-placeholder--half"
             >
               <rect
                 x="0"
@@ -879,23 +867,27 @@ primitiv add --all`}</code>
             <code>Stack</code> to lay the three side by side:
           </p>
           <Stack direction="row" gap="md">
-            <Figure captionPosition="below" size={size} style={{ flex: "1 1 0" }}>
+            <Figure captionPosition="below" size={size} className="ks-figure-col">
               <Figure.Media>
                 <FigureMediaPlaceholder />
               </Figure.Media>
               <Figure.Caption>Below (the default)</Figure.Caption>
             </Figure>
-            <Figure captionPosition="above" size={size} style={{ flex: "1 1 0" }}>
+            <Figure captionPosition="above" size={size} className="ks-figure-col">
               <Figure.Media>
                 <FigureMediaPlaceholder />
               </Figure.Media>
               <Figure.Caption>Above</Figure.Caption>
             </Figure>
-            <Figure captionPosition="overlay" size={size} style={{ flex: "1 1 0" }}>
+            <Figure captionPosition="overlay" size={size} className="ks-figure-col">
               <Figure.Media>
-                <FigureMediaPlaceholder />
+                <img
+                  className="ks-figure-image"
+                  src={`${import.meta.env.BASE_URL}avatar-demo.jpg`}
+                  alt="A headshot of a woman with brown hair"
+                />
               </Figure.Media>
-              <Figure.Caption>Overlay</Figure.Caption>
+              <Figure.Caption>A headshot of a woman with brown hair</Figure.Caption>
             </Figure>
           </Stack>
           <p>
@@ -903,19 +895,19 @@ primitiv add --all`}</code>
             where it sits:
           </p>
           <Stack direction="row" gap="md">
-            <Figure size={size} style={{ flex: "1 1 0" }}>
+            <Figure size={size} className="ks-figure-col">
               <Figure.Media>
                 <FigureMediaPlaceholder />
               </Figure.Media>
               <Figure.Caption align="start">Start (the default)</Figure.Caption>
             </Figure>
-            <Figure size={size} style={{ flex: "1 1 0" }}>
+            <Figure size={size} className="ks-figure-col">
               <Figure.Media>
                 <FigureMediaPlaceholder />
               </Figure.Media>
               <Figure.Caption align="center">Center</Figure.Caption>
             </Figure>
-            <Figure size={size} style={{ flex: "1 1 0" }}>
+            <Figure size={size} className="ks-figure-col">
               <Figure.Media>
                 <FigureMediaPlaceholder />
               </Figure.Media>
@@ -1248,14 +1240,11 @@ export function ramp(hue: number, chroma = 0.12) {
         </p>
         <ContextMenu>
           <ContextMenuTrigger asChild>
-            <div
-              className="ks-context-menu-canvas"
-              style={{ anchorName: "--ks-cm" }}
-            >
+            <div className="ks-context-menu-canvas ks-anchor-cm">
               Right-click anywhere in this area
             </div>
           </ContextMenuTrigger>
-          <ContextMenuContent size={size} style={{ positionAnchor: "--ks-cm" }}>
+          <ContextMenuContent size={size} className="ks-anchored-cm">
             <ContextMenuItem>
               <ContextMenuItemLeading>
                 <Copy aria-hidden="true" />
@@ -1287,13 +1276,13 @@ export function ramp(hue: number, chroma = 0.12) {
             <ContextMenuSeparator />
 
             <ContextMenuSub>
-              <ContextMenuSubTrigger style={{ anchorName: "--ks-cm-s1" }}>
+              <ContextMenuSubTrigger className="ks-anchor-cm-s1">
                 Arrange
                 <ChevronRight aria-hidden="true" />
               </ContextMenuSubTrigger>
               <ContextMenuSubContent
                 size={size}
-                style={{ positionAnchor: "--ks-cm-s1" }}
+                className="ks-anchored-cm-s1"
               >
                 <ContextMenuItem>Bring to front</ContextMenuItem>
                 <ContextMenuItem>Bring forward</ContextMenuItem>
@@ -1352,12 +1341,7 @@ export function ramp(hue: number, chroma = 0.12) {
                 >
                   <ContextMenuItemIndicator>
                     <span
-                      style={{
-                        inlineSize: "45%",
-                        blockSize: "45%",
-                        borderRadius: "var(--primitiv-radii-full, 9999px)",
-                        background: "currentColor",
-                      }}
+                      className="ks-menu-dot"
                     />
                   </ContextMenuItemIndicator>
                   {value[0].toUpperCase() + value.slice(1)}
@@ -1405,11 +1389,7 @@ export function ramp(hue: number, chroma = 0.12) {
           opinion of its own, so this one carries a one-off inline style:
         </p>
         <Box
-          style={{
-            border: "var(--primitiv-border-width-1) dashed var(--primitiv-border-default)",
-            borderRadius: "var(--primitiv-radii-8)",
-            padding: "var(--primitiv-space-space-16)",
-          }}
+          className="ks-demo-frame ks-demo-frame--dashed"
         >
           A plain Box, styled inline — no built-in look of its own.
         </Box>
@@ -1421,11 +1401,7 @@ export function ramp(hue: number, chroma = 0.12) {
           direction="row"
           gap="sm"
           align="center"
-          style={{
-            border: "var(--primitiv-border-width-1) solid var(--primitiv-border-subtle)",
-            borderRadius: "var(--primitiv-radii-8)",
-            padding: "var(--primitiv-space-space-12)",
-          }}
+          className="ks-demo-frame"
         >
           <Button variant="ghost" size={size}>
             File
@@ -1448,11 +1424,7 @@ export function ramp(hue: number, chroma = 0.12) {
           room to work with:
         </p>
         <Center
-          style={{
-            blockSize: "var(--primitiv-space-space-96)",
-            border: "var(--primitiv-border-width-1) solid var(--primitiv-border-subtle)",
-            borderRadius: "var(--primitiv-radii-8)",
-          }}
+          className="ks-demo-frame ks-demo-frame--tall"
         >
           <Button size={size}>Centred both axes</Button>
         </Center>
@@ -1470,11 +1442,19 @@ export function ramp(hue: number, chroma = 0.12) {
             Verified in Chrome via CDP: with `stretch` the row is 472px and the
             boxes stay 266/472. See the AspectRatio README. */}
         <Box className="ks-ratio-grid">
-          <AspectRatio ratio={16 / 9}>
-            <FigureMediaPlaceholder fill />
+          <AspectRatio ratio="16/9">
+            <img
+              className="ks-ratio-image"
+              src={`${import.meta.env.BASE_URL}avatar-demo.jpg`}
+              alt="A headshot of a woman with brown hair"
+            />
           </AspectRatio>
-          <AspectRatio ratio={1}>
-            <FigureMediaPlaceholder fill />
+          <AspectRatio ratio="1/1">
+            <img
+              className="ks-ratio-image"
+              src={`${import.meta.env.BASE_URL}avatar-demo.jpg`}
+              alt="A headshot of a woman with brown hair"
+            />
           </AspectRatio>
         </Box>
       </Section>
@@ -1547,13 +1527,13 @@ export function ramp(hue: number, chroma = 0.12) {
             <Button
               variant="secondary"
               size={size}
-              style={{ anchorName: "--ks-dd" }}
+              className="ks-anchor-dd"
             >
               Menu
               <ChevronDown aria-hidden="true" />
             </Button>
           </DropdownTrigger>
-          <DropdownContent size={size} style={{ positionAnchor: "--ks-dd" }}>
+          <DropdownContent size={size} className="ks-anchored-dd">
             {/* The row slots: a leading glyph, a label that takes the free space,
                 and a trailing shortcut that keeps its natural width. */}
             <DropdownGroup>
@@ -1640,12 +1620,7 @@ export function ramp(hue: number, chroma = 0.12) {
                 >
                   <DropdownItemIndicator>
                     <span
-                      style={{
-                        inlineSize: "45%",
-                        blockSize: "45%",
-                        borderRadius: "var(--primitiv-radii-full, 9999px)",
-                        background: "currentColor",
-                      }}
+                      className="ks-menu-dot"
                     />
                   </DropdownItemIndicator>
                   {value[0].toUpperCase() + value.slice(1)}
@@ -1656,37 +1631,37 @@ export function ramp(hue: number, chroma = 0.12) {
             <DropdownSeparator />
 
             <DropdownSub>
-              <DropdownSubTrigger style={{ anchorName: "--ks-dd-s1" }}>
+              <DropdownSubTrigger className="ks-anchor-dd-s1">
                 Open Recent
                 <ChevronRight aria-hidden="true" />
               </DropdownSubTrigger>
               <DropdownSubContent
                 size={size}
-                style={{ positionAnchor: "--ks-dd-s1" }}
+                className="ks-anchored-dd-s1"
               >
                 <DropdownItem>project-alpha</DropdownItem>
                 <DropdownItem>project-beta</DropdownItem>
                 <DropdownSeparator />
                 <DropdownSub>
-                  <DropdownSubTrigger style={{ anchorName: "--ks-dd-s2" }}>
+                  <DropdownSubTrigger className="ks-anchor-dd-s2">
                     Archived
                     <ChevronRight aria-hidden="true" />
                   </DropdownSubTrigger>
                   <DropdownSubContent
                     size={size}
-                    style={{ positionAnchor: "--ks-dd-s2" }}
+                    className="ks-anchored-dd-s2"
                   >
                     <DropdownItem>archive-2025</DropdownItem>
                     <DropdownItem>archive-2024</DropdownItem>
                     <DropdownSeparator />
                     <DropdownSub>
-                      <DropdownSubTrigger style={{ anchorName: "--ks-dd-s3" }}>
+                      <DropdownSubTrigger className="ks-anchor-dd-s3">
                         Older still
                         <ChevronRight aria-hidden="true" />
                       </DropdownSubTrigger>
                       <DropdownSubContent
                         size={size}
-                        style={{ positionAnchor: "--ks-dd-s3" }}
+                        className="ks-anchored-dd-s3"
                       >
                         <DropdownItem>archive-2023</DropdownItem>
                         <DropdownItem>archive-2022</DropdownItem>
@@ -1806,11 +1781,7 @@ export function ramp(hue: number, chroma = 0.12) {
                     default is one. */}
                 <NavigationMenuContent
                   forceMount
-                  style={
-                    {
-                      "--primitiv-navigation-menu-content-columns": "1fr 1fr",
-                    } as CSSProperties
-                  }
+                  className="ks-nav-columns-even"
                 >
                   {section.columns.map((column, columnIndex) => (
                     <div key={columnIndex}>
@@ -1900,12 +1871,7 @@ export function ramp(hue: number, chroma = 0.12) {
               </NavigationMenuTrigger>
               <NavigationMenuContent
                 forceMount
-                style={
-                  {
-                    "--primitiv-navigation-menu-content-columns":
-                      "13rem repeat(3, 1fr)",
-                  } as CSSProperties
-                }
+                className="ks-nav-columns-featured"
               >
                 <a href="#" className="ks-nav-callout">
                   <img
@@ -2068,12 +2034,7 @@ export function ramp(hue: number, chroma = 0.12) {
           + arrow track the Size and Density controls above.
         </p>
         <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, max-content)",
-            gap: "2rem 1.5rem",
-            justifyContent: "start",
-          }}
+          className="ks-popover-grid"
         >
           {POPOVER_PLACEMENTS.map((placement) => (
             <Popover key={placement}>
@@ -2081,7 +2042,7 @@ export function ramp(hue: number, chroma = 0.12) {
                 <Button
                   variant="secondary"
                   size={size}
-                  style={{ anchorName: `--ks-pop-${placement}` }}
+                  className={`ks-anchor-pop-${placement}`}
                 >
                   {placement}
                 </Button>
@@ -2089,7 +2050,7 @@ export function ramp(hue: number, chroma = 0.12) {
               <PopoverContent
                 placement={placement}
                 size={overlaySize}
-                style={{ positionAnchor: `--ks-pop-${placement}` }}
+                className={`ks-anchored-pop-${placement}`}
               >
                 <PopoverTitle>{placement}</PopoverTitle>
                 <PopoverDescription>
@@ -2166,7 +2127,7 @@ export function ramp(hue: number, chroma = 0.12) {
             <SelectTrigger
               size={size}
               aria-label="Framework"
-              style={{ anchorName: "--ks-sel-framework" } as CSSProperties}
+              className="ks-anchor-sel-framework"
             >
               <SelectValue placeholder="Pick a framework..." />
               <SelectIcon>
@@ -2175,7 +2136,7 @@ export function ramp(hue: number, chroma = 0.12) {
             </SelectTrigger>
             <SelectContent
               size={size}
-              style={{ positionAnchor: "--ks-sel-framework" } as CSSProperties}
+              className="ks-anchored-sel-framework"
             >
               {FRAMEWORKS.map(({ value, label, Logo }) => (
                 <SelectItem key={value} value={value}>
@@ -2204,7 +2165,7 @@ export function ramp(hue: number, chroma = 0.12) {
             <SelectTrigger
               size={size}
               aria-label="Runtime"
-              style={{ anchorName: "--ks-sel-runtime" } as CSSProperties}
+              className="ks-anchor-sel-runtime"
             >
               <SelectValue placeholder="Pick a runtime…" />
               <SelectIcon>
@@ -2213,7 +2174,7 @@ export function ramp(hue: number, chroma = 0.12) {
             </SelectTrigger>
             <SelectContent
               size={size}
-              style={{ positionAnchor: "--ks-sel-runtime" } as CSSProperties}
+              className="ks-anchored-sel-runtime"
             >
               {RUNTIMES.map(({ value, label, Logo, shortcut, soon }) => (
                 <SelectItem key={value} value={value} disabled={soon}>
@@ -2255,11 +2216,8 @@ export function ramp(hue: number, chroma = 0.12) {
           >
             <SelectTrigger
               size={size}
-              className="ks-select-hide-trailing-value"
+              className="ks-select-hide-trailing-value ks-anchor-sel-runtime-notrailing"
               aria-label="Runtime, trailing hidden once selected"
-              style={
-                { anchorName: "--ks-sel-runtime-notrailing" } as CSSProperties
-              }
             >
               <SelectValue placeholder="Pick a runtime…" />
               <SelectIcon>
@@ -2268,11 +2226,7 @@ export function ramp(hue: number, chroma = 0.12) {
             </SelectTrigger>
             <SelectContent
               size={size}
-              style={
-                {
-                  positionAnchor: "--ks-sel-runtime-notrailing",
-                } as CSSProperties
-              }
+              className="ks-anchored-sel-runtime-notrailing"
             >
               {RUNTIMES.map(({ value, label, Logo, shortcut, soon }) => (
                 <SelectItem key={value} value={value} disabled={soon}>
@@ -2311,7 +2265,7 @@ export function ramp(hue: number, chroma = 0.12) {
             <SelectTrigger
               size={size}
               aria-label="Region"
-              style={{ anchorName: "--ks-sel-region" } as CSSProperties}
+              className="ks-anchor-sel-region"
             >
               <SelectLeading>
                 <Search aria-hidden="true" />
@@ -2323,7 +2277,7 @@ export function ramp(hue: number, chroma = 0.12) {
             </SelectTrigger>
             <SelectContent
               size={size}
-              style={{ positionAnchor: "--ks-sel-region" } as CSSProperties}
+              className="ks-anchored-sel-region"
             >
               {REGIONS.map(({ label, options }, index) => (
                 <Fragment key={label}>
@@ -2355,7 +2309,7 @@ export function ramp(hue: number, chroma = 0.12) {
             <SelectTrigger
               size={size}
               aria-label="Framework, opening upward"
-              style={{ anchorName: "--ks-sel-up" } as CSSProperties}
+              className="ks-anchor-sel-up"
             >
               <SelectValue placeholder="Pick a framework..." />
               <SelectIcon>
@@ -2365,7 +2319,7 @@ export function ramp(hue: number, chroma = 0.12) {
             <SelectContent
               size={size}
               placement="top-end"
-              style={{ positionAnchor: "--ks-sel-up" } as CSSProperties}
+              className="ks-anchored-sel-up"
             >
               {FRAMEWORKS.map(({ value, label, Logo }) => (
                 <SelectItem key={value} value={value}>
@@ -2391,7 +2345,7 @@ export function ramp(hue: number, chroma = 0.12) {
               size={size}
               aria-invalid
               aria-label="Framework, invalid"
-              style={{ anchorName: "--ks-sel-invalid" } as CSSProperties}
+              className="ks-anchor-sel-invalid"
             >
               <SelectValue placeholder="Required" />
               <SelectIcon>
@@ -2400,7 +2354,7 @@ export function ramp(hue: number, chroma = 0.12) {
             </SelectTrigger>
             <SelectContent
               size={size}
-              style={{ positionAnchor: "--ks-sel-invalid" } as CSSProperties}
+              className="ks-anchored-sel-invalid"
             >
               <SelectItem value="react">
                 <SelectItemIndicator>
@@ -2661,14 +2615,14 @@ export function ramp(hue: number, chroma = 0.12) {
       <Section title="Tooltip">
         <TooltipProvider delayDuration={200}>
           {TOOLTIP_DEMOS.map(({ placement, tone, label }) => {
-            const anchor = `--ks-tip-${tone}-${placement}`;
+            const anchorSlug = `tip-${tone}-${placement}`;
             return (
               <Tooltip key={`${tone}-${placement}`}>
                 <TooltipTrigger asChild>
                   <Button
                     variant="secondary"
                     size={size}
-                    style={{ anchorName: anchor }}
+                    className={`ks-anchor-${anchorSlug}`}
                   >
                     {label}
                   </Button>
@@ -2679,7 +2633,7 @@ export function ramp(hue: number, chroma = 0.12) {
                     placement={placement}
                     tone={tone}
                     size={overlaySize}
-                    style={{ positionAnchor: anchor }}
+                    className={`ks-anchored-${anchorSlug}`}
                   >
                     {label} tooltip
                     <TooltipArrow />

@@ -1,34 +1,322 @@
 /*
  * Kitchen-sink demo scaffolding.
  *
- * Styling that exists *only* to stage a demo — the frames, rules and grids that
- * give an opinion-less layout primitive something visible to demonstrate. None
- * of it is part of any component's contract, and none of it ships: it is the
- * equivalent of the graph paper behind the drawing.
+ * Styling that exists *only* to stage a demo — the frames, rules, grids and
+ * anchor wiring that give an opinion-less primitive something visible to
+ * demonstrate. None of it is part of any component's contract, and none of it
+ * ships: it is the graph paper behind the drawing.
  *
  * It lives here rather than inline on the elements so that:
  *   - the demo markup reads as composition, not as CSS;
  *   - nothing in the app implies a registry component needs inline styles to
  *     look right (if one does, its API is under-designed — that is a component
  *     bug, not a demo concern);
- *   - the values can lean on the token layer like any other stylesheet.
+ *   - the values lean on the token layer like any other stylesheet.
  *
- * Every class is `ks-`-prefixed and class-only. Never add a bare element or
+ * Every rule is `ks-`-prefixed and class-only. Never add a bare element or
  * attribute selector here: this file is bundled globally, so `figure {…}` or
  * `[data-state] {…}` would leak onto every component on the page.
  */
 
-/* A two-up grid for ratio boxes.
- *
- * Deliberately does NOT set `align-items`. Grid resolves each column to a
- * definite width before any height is needed, so `aspect-ratio` gives each box a
- * definite block size — which the default `stretch` then leaves alone, letting
+/* ── Layout-primitive demo frames ─────────────────────────────────────────
+ * Box, Stack, Spacer and Center carry no visual opinion by design (RFC 0022
+ * §2), so a demo has to supply its own outline to make the behaviour visible.
+ * That outline is demo furniture, not a hint that these components are
+ * missing a border API. */
+.ks-demo-frame {
+  border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
+  border-radius: var(--primitiv-radii-8);
+  padding: var(--primitiv-space-space-12);
+}
+
+/* Dashed, to read as "this is the escape hatch, it has no look of its own". */
+.ks-demo-frame--dashed {
+  border-style: dashed;
+  border-color: var(--primitiv-border-default);
+  padding: var(--primitiv-space-space-16);
+}
+
+/* Center needs a block-size for vertical centring to have room to work in. */
+.ks-demo-frame--tall {
+  padding: var(--primitiv-space-space-0);
+  block-size: var(--primitiv-space-space-96);
+}
+
+/* ── AspectRatio ──────────────────────────────────────────────────────────
+ * A two-up grid, deliberately WITHOUT `align-items`. Grid resolves each column
+ * to a definite width before any height is needed, so `aspect-ratio` gives each
+ * box a definite block size — which the default `stretch` leaves alone, letting
  * the row size to the taller box. Setting `align-items: start` drops the items
- * out of the row's sizing entirely: the row collapses to the content's own
- * height and a taller ratio box paints over whatever follows it on the page.
- * Verified in Chrome over CDP against the deployed build. */
+ * out of the row's sizing: the row collapses and a taller ratio box paints over
+ * whatever follows. Verified in Chrome over CDP against the deployed build. */
 .ks-ratio-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--primitiv-space-space-16);
+}
+
+/* ── AspectRatio demo image ──────────────────────────────────────────────
+ * Real media rather than a placeholder, so the demo shows what the component is
+ * actually for: the same photograph cropped by two different ratios. `object-fit`
+ * is the consumer's job — AspectRatio only reserves the box — so the demo has to
+ * supply it, which is exactly the point the README makes. */
+.ks-ratio-image {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Real media inside a Figure.Media. The overlay demo in particular needs an
+ * opaque photograph rather than the stepped placeholder: it is the variant being
+ * compared against the Figma frame, and a caption describing a photograph over
+ * grey bars reads as a mistake. */
+.ks-figure-image {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+}
+
+/* ── Media placeholder ───────────────────────────────────────────────────
+ * Opaque on purpose: it lays a `surface/subtle` base under the stepped band
+ * (matching the fill the Figma Media frame carries) so it behaves like a real
+ * image. A translucent placeholder let the Figure overlay's scrim show through
+ * the artwork, which read as a stray panel behind it. */
+.ks-media-placeholder {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  background: var(--primitiv-surface-subtle);
+}
+
+/* Half-width, rounded — the inline media used in the prose Figure demos. */
+.ks-media-placeholder--half {
+  inline-size: 50%;
+  border-radius: var(--primitiv-radii-8);
+}
+
+/* ── Figure ──────────────────────────────────────────────────────────────
+ * Equal columns in the caption-position / caption-align comparison rows. */
+.ks-figure-col {
+  flex: 1 1 0;
+}
+
+/* ── Menu-indicator dot ──────────────────────────────────────────────────
+ * The filled dot standing in for a radio indicator inside the Dropdown and
+ * Context Menu demos. Sized in % of its slot so it tracks the row's size. */
+.ks-menu-dot {
+  inline-size: 45%;
+  block-size: 45%;
+  border-radius: var(--primitiv-radii-full);
+  background: currentColor;
+}
+
+/* ── Popover placement grid ──────────────────────────────────────────────
+ * Three columns of triggers, one per placement. The gaps are demo-only
+ * breathing room around free-floating triggers, not a component measurement. */
+.ks-popover-grid {
+  display: grid;
+  grid-template-columns: repeat(3, max-content);
+  gap: var(--primitiv-space-space-32) var(--primitiv-space-space-24);
+  justify-content: start;
+}
+
+/* ── CSS anchor positioning ──────────────────────────────────────────────
+ * `anchor-name` / `position-anchor` are per-instance *identity*, not styling:
+ * each trigger/panel pair needs its own unique dashed-ident, the way two
+ * elements need two different ids. They still have to reach CSS somehow, so
+ * each pair gets a named class here and the demo markup references it by name.
+ * Generated from the demo arrays — keep in step with POPOVER_PLACEMENTS and
+ * TOOLTIP_DEMOS in App.tsx. */
+
+/* One-off triggers: context menu, dropdown (+ 3 nested submenus), selects. */
+.ks-anchor-cm {
+  anchor-name: --ks-cm;
+}
+.ks-anchored-cm {
+  position-anchor: --ks-cm;
+}
+.ks-anchor-cm-s1 {
+  anchor-name: --ks-cm-s1;
+}
+.ks-anchored-cm-s1 {
+  position-anchor: --ks-cm-s1;
+}
+.ks-anchor-dd {
+  anchor-name: --ks-dd;
+}
+.ks-anchored-dd {
+  position-anchor: --ks-dd;
+}
+.ks-anchor-dd-s1 {
+  anchor-name: --ks-dd-s1;
+}
+.ks-anchored-dd-s1 {
+  position-anchor: --ks-dd-s1;
+}
+.ks-anchor-dd-s2 {
+  anchor-name: --ks-dd-s2;
+}
+.ks-anchored-dd-s2 {
+  position-anchor: --ks-dd-s2;
+}
+.ks-anchor-dd-s3 {
+  anchor-name: --ks-dd-s3;
+}
+.ks-anchored-dd-s3 {
+  position-anchor: --ks-dd-s3;
+}
+.ks-anchor-sel-framework {
+  anchor-name: --ks-sel-framework;
+}
+.ks-anchored-sel-framework {
+  position-anchor: --ks-sel-framework;
+}
+.ks-anchor-sel-runtime {
+  anchor-name: --ks-sel-runtime;
+}
+.ks-anchored-sel-runtime {
+  position-anchor: --ks-sel-runtime;
+}
+.ks-anchor-sel-region {
+  anchor-name: --ks-sel-region;
+}
+.ks-anchored-sel-region {
+  position-anchor: --ks-sel-region;
+}
+.ks-anchor-sel-up {
+  anchor-name: --ks-sel-up;
+}
+.ks-anchored-sel-up {
+  position-anchor: --ks-sel-up;
+}
+.ks-anchor-sel-runtime-notrailing {
+  anchor-name: --ks-sel-runtime-notrailing;
+}
+.ks-anchored-sel-runtime-notrailing {
+  position-anchor: --ks-sel-runtime-notrailing;
+}
+.ks-anchor-sel-invalid {
+  anchor-name: --ks-sel-invalid;
+}
+.ks-anchored-sel-invalid {
+  position-anchor: --ks-sel-invalid;
+}
+
+/* Popover — one per placement. */
+.ks-anchor-pop-top-start {
+  anchor-name: --ks-pop-top-start;
+}
+.ks-anchored-pop-top-start {
+  position-anchor: --ks-pop-top-start;
+}
+.ks-anchor-pop-top {
+  anchor-name: --ks-pop-top;
+}
+.ks-anchored-pop-top {
+  position-anchor: --ks-pop-top;
+}
+.ks-anchor-pop-top-end {
+  anchor-name: --ks-pop-top-end;
+}
+.ks-anchored-pop-top-end {
+  position-anchor: --ks-pop-top-end;
+}
+.ks-anchor-pop-right-start {
+  anchor-name: --ks-pop-right-start;
+}
+.ks-anchored-pop-right-start {
+  position-anchor: --ks-pop-right-start;
+}
+.ks-anchor-pop-right {
+  anchor-name: --ks-pop-right;
+}
+.ks-anchored-pop-right {
+  position-anchor: --ks-pop-right;
+}
+.ks-anchor-pop-right-end {
+  anchor-name: --ks-pop-right-end;
+}
+.ks-anchored-pop-right-end {
+  position-anchor: --ks-pop-right-end;
+}
+.ks-anchor-pop-bottom-start {
+  anchor-name: --ks-pop-bottom-start;
+}
+.ks-anchored-pop-bottom-start {
+  position-anchor: --ks-pop-bottom-start;
+}
+.ks-anchor-pop-bottom {
+  anchor-name: --ks-pop-bottom;
+}
+.ks-anchored-pop-bottom {
+  position-anchor: --ks-pop-bottom;
+}
+.ks-anchor-pop-bottom-end {
+  anchor-name: --ks-pop-bottom-end;
+}
+.ks-anchored-pop-bottom-end {
+  position-anchor: --ks-pop-bottom-end;
+}
+.ks-anchor-pop-left-start {
+  anchor-name: --ks-pop-left-start;
+}
+.ks-anchored-pop-left-start {
+  position-anchor: --ks-pop-left-start;
+}
+.ks-anchor-pop-left {
+  anchor-name: --ks-pop-left;
+}
+.ks-anchored-pop-left {
+  position-anchor: --ks-pop-left;
+}
+.ks-anchor-pop-left-end {
+  anchor-name: --ks-pop-left-end;
+}
+.ks-anchored-pop-left-end {
+  position-anchor: --ks-pop-left-end;
+}
+
+/* Tooltip — one per tone/placement pair. */
+.ks-anchor-tip-default-top {
+  anchor-name: --ks-tip-default-top;
+}
+.ks-anchored-tip-default-top {
+  position-anchor: --ks-tip-default-top;
+}
+.ks-anchor-tip-default-right {
+  anchor-name: --ks-tip-default-right;
+}
+.ks-anchored-tip-default-right {
+  position-anchor: --ks-tip-default-right;
+}
+.ks-anchor-tip-default-bottom {
+  anchor-name: --ks-tip-default-bottom;
+}
+.ks-anchored-tip-default-bottom {
+  position-anchor: --ks-tip-default-bottom;
+}
+.ks-anchor-tip-default-left {
+  anchor-name: --ks-tip-default-left;
+}
+.ks-anchored-tip-default-left {
+  position-anchor: --ks-tip-default-left;
+}
+.ks-anchor-tip-inverted-top {
+  anchor-name: --ks-tip-inverted-top;
+}
+.ks-anchored-tip-inverted-top {
+  position-anchor: --ks-tip-inverted-top;
+}
+
+/* ── NavigationMenu panel columns ────────────────────────────────────────
+ * The demos configure the panel's column template through the component's own
+ * `--primitiv-navigation-menu-content-columns` knob. Which template a given
+ * panel wants is a *demo* composition choice, so it lives here rather than
+ * inline on the element. */
+.ks-nav-columns-even {
+  --primitiv-navigation-menu-content-columns: 1fr 1fr;
+}
+.ks-nav-columns-featured {
+  --primitiv-navigation-menu-content-columns: 13rem repeat(3, 1fr);
 }

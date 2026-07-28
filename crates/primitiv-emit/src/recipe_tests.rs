@@ -357,3 +357,63 @@ fn the_committed_breadcrumb_recipe_is_the_generated_form_of_its_contract() {
         ))
     );
 }
+
+/// Drift guard: the committed `registry/components/textarea/textarea.recipe.ts`
+/// is exactly the generated form of its contract — a single-element recipe,
+/// the same shape as `input`.
+#[test]
+fn the_committed_textarea_recipe_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/textarea/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_recipe(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/components/textarea/textarea.recipe.ts"
+        ))
+    );
+}
+
+/// Drift guard: the committed `registry/components/progress/progress.recipe.ts`
+/// is exactly the generated form of its contract — a root recipe plus one
+/// no-variant subcomponent recipe (`indicator`).
+#[test]
+fn the_committed_progress_recipe_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/progress/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_recipe(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/components/progress/progress.recipe.ts"
+        ))
+    );
+}
+
+/// Drift guard: the committed `registry/components/slider/slider.recipe.ts` is
+/// exactly the generated form of its contract — a root recipe plus three
+/// no-variant subcomponent recipes (`track` / `range` / `thumb`).
+#[test]
+fn the_committed_slider_recipe_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/slider/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_recipe(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/components/slider/slider.recipe.ts"
+        ))
+    );
+}

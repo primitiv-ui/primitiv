@@ -587,3 +587,65 @@ fn the_committed_breadcrumb_wrapper_is_the_generated_form_of_its_contract() {
         ))
     );
 }
+
+/// Drift guard: the committed `registry/components/textarea/textarea.tsx` is
+/// exactly the generated form of its contract — a single-element wrapper with
+/// no subcomponents, the same shape as `input`.
+#[test]
+fn the_committed_textarea_wrapper_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/textarea/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_wrapper(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/components/textarea/textarea.tsx"
+        ))
+    );
+}
+
+/// Drift guard: the committed `registry/components/progress/progress.tsx` is
+/// exactly the generated form of its contract — a structural root carrying
+/// style-props (`value`/`max`, the carousel `slidesPerPage` pattern) alongside
+/// a single structural subcomponent (`indicator`).
+#[test]
+fn the_committed_progress_wrapper_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/progress/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_wrapper(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/components/progress/progress.tsx"
+        ))
+    );
+}
+
+/// Drift guard: the committed `registry/components/slider/slider.tsx` is
+/// exactly the generated form of its contract — a four-part structural
+/// compound (`track` / `range` / `thumb`) with no subcomponent carrying its
+/// own modifiers, unlike `tabs`/`breadcrumb`.
+#[test]
+fn the_committed_slider_wrapper_is_the_generated_form_of_its_contract() {
+    let contract = Contract::parse(include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../registry/components/slider/contract.json"
+    )))
+    .unwrap();
+
+    assert_eq!(
+        emit_wrapper(&contract),
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../registry/components/slider/slider.tsx"
+        ))
+    );
+}

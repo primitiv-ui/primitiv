@@ -1,0 +1,164 @@
+/*
+ * Textarea — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add textarea`. It is yours to
+ * edit: the stable surface is the contract (the .primitiv-textarea class,
+ * the --xs…--xl modifiers, the data-disabled hook, and the
+ * --primitiv-textarea-* custom properties), not these values (RFC 0006
+ * Principle 2 — names are stable, values are not).
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look
+ * live in primitiv.base, size modifiers in primitiv.variants,
+ * focus/invalid/disabled styling in primitiv.states — mirroring `input`
+ * exactly, since a textarea is the multi-line sibling of the same framed
+ * field. Two differences: `min-height` (not a fixed `height`, since content
+ * can grow it) comes from the dedicated `textarea/{size}/min-height`
+ * Context family rather than `framed-control`, and the frame needs real
+ * block padding (a single-line input centres vertically via its fixed
+ * height instead) — reusing `framed-control-{size}-padding-inline` for both
+ * axes rather than inventing a second padding token family.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-surface-*,
+ * --primitiv-content-*, --primitiv-border-*, --primitiv-framed-control-*,
+ * --primitiv-textarea-*, --primitiv-body-*, --primitiv-focus-ring-*,
+ * --primitiv-opacity-* and --primitiv-motion-* custom properties it
+ * resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-textarea {
+    /* Per-component API — the themable knobs, defaulting to the md size and
+       the resting (default) border. The states layer below re-points the
+       border on focus/invalid; consumers can override any one without
+       touching the rule. */
+    --primitiv-textarea-bg: var(--primitiv-surface-default);
+    --primitiv-textarea-fg: var(--primitiv-content-primary);
+    --primitiv-textarea-placeholder-color: var(--primitiv-content-muted);
+    --primitiv-textarea-border-color: var(--primitiv-border-default);
+    --primitiv-textarea-border-color-focus: var(--primitiv-border-focus);
+    --primitiv-textarea-border-color-invalid: var(--primitiv-border-invalid);
+    --primitiv-textarea-border-width: var(--primitiv-framed-control-border-width);
+    --primitiv-textarea-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-textarea-min-height: var(--primitiv-textarea-md-min-height);
+    --primitiv-textarea-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-textarea-padding-block: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-textarea-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-textarea-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-textarea-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-textarea-line-height: var(--primitiv-body-md-line-height);
+
+    /* Fill the field's inline space so it tracks the Field / form column;
+       min-height and padding stay token-driven, so border-box keeps the
+       frame honest. Resizable on the block axis only — the width already
+       tracks the column, so free-axis resize would fight the layout. */
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-block-size: var(--primitiv-textarea-min-height);
+    resize: vertical;
+    padding-inline: var(--primitiv-textarea-padding-inline);
+    padding-block: var(--primitiv-textarea-padding-block);
+    border: var(--primitiv-textarea-border-width) solid var(--primitiv-textarea-border-color);
+    border-radius: var(--primitiv-textarea-radius);
+    background: var(--primitiv-textarea-bg);
+    color: var(--primitiv-textarea-fg);
+    font-family: var(--primitiv-textarea-font-family);
+    font-size: var(--primitiv-textarea-font-size);
+    font-weight: var(--primitiv-textarea-font-weight);
+    line-height: var(--primitiv-textarea-line-height);
+    transition:
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  .primitiv-textarea::placeholder {
+    color: var(--primitiv-textarea-placeholder-color);
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the geometry + type scale. Density stays ambient via
+     [data-density] on the token values themselves (RFC 0009). */
+  .primitiv-textarea--xs {
+    --primitiv-textarea-min-height: var(--primitiv-textarea-xs-min-height);
+    --primitiv-textarea-padding-inline: var(--primitiv-framed-control-xs-padding-inline);
+    --primitiv-textarea-padding-block: var(--primitiv-framed-control-xs-padding-inline);
+    --primitiv-textarea-radius: var(--primitiv-framed-control-xs-radius);
+    --primitiv-textarea-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-textarea-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-textarea-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-textarea-line-height: var(--primitiv-body-xs-line-height);
+  }
+  .primitiv-textarea--sm {
+    --primitiv-textarea-min-height: var(--primitiv-textarea-sm-min-height);
+    --primitiv-textarea-padding-inline: var(--primitiv-framed-control-sm-padding-inline);
+    --primitiv-textarea-padding-block: var(--primitiv-framed-control-sm-padding-inline);
+    --primitiv-textarea-radius: var(--primitiv-framed-control-sm-radius);
+    --primitiv-textarea-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-textarea-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-textarea-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-textarea-line-height: var(--primitiv-body-sm-line-height);
+  }
+  .primitiv-textarea--md {
+    --primitiv-textarea-min-height: var(--primitiv-textarea-md-min-height);
+    --primitiv-textarea-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-textarea-padding-block: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-textarea-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-textarea-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-textarea-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-textarea-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-textarea-line-height: var(--primitiv-body-md-line-height);
+  }
+  .primitiv-textarea--lg {
+    --primitiv-textarea-min-height: var(--primitiv-textarea-lg-min-height);
+    --primitiv-textarea-padding-inline: var(--primitiv-framed-control-lg-padding-inline);
+    --primitiv-textarea-padding-block: var(--primitiv-framed-control-lg-padding-inline);
+    --primitiv-textarea-radius: var(--primitiv-framed-control-lg-radius);
+    --primitiv-textarea-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-textarea-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-textarea-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-textarea-line-height: var(--primitiv-body-lg-line-height);
+  }
+  .primitiv-textarea--xl {
+    --primitiv-textarea-min-height: var(--primitiv-textarea-xl-min-height);
+    --primitiv-textarea-padding-inline: var(--primitiv-framed-control-xl-padding-inline);
+    --primitiv-textarea-padding-block: var(--primitiv-framed-control-xl-padding-inline);
+    --primitiv-textarea-radius: var(--primitiv-framed-control-xl-radius);
+    --primitiv-textarea-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-textarea-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-textarea-font-weight: var(--primitiv-body-xl-font-weight);
+    --primitiv-textarea-line-height: var(--primitiv-body-xl-line-height);
+  }
+}
+
+@layer primitiv.states {
+  /* Focus — the border adopts the focus colour and the shared two-layer focus
+     ring draws outside it, identical to Input's. */
+  .primitiv-textarea:focus-visible {
+    outline: none;
+    border-color: var(--primitiv-textarea-border-color-focus);
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Invalid — the field flags itself with aria-invalid (set directly or cascaded
+     from a Field.Root). The danger border wins over the resting and focus colours
+     because the states layer sits above base/variants and this rule follows the
+     focus rule (RFC 0008 §2.3). */
+  .primitiv-textarea[aria-invalid="true"] {
+    border-color: var(--primitiv-textarea-border-color-invalid);
+  }
+
+  /* Disabled — state-neutral so it reads the same valid or invalid. */
+  .primitiv-textarea[data-disabled] {
+    opacity: var(--primitiv-opacity-50);
+    cursor: not-allowed;
+  }
+}

@@ -1,0 +1,196 @@
+/*
+ * Slider — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add slider`. It is yours to
+ * edit: the stable surface is the contract (the .primitiv-slider class, the
+ * --xs…--xl modifiers, the __track/__range/__thumb parts, the
+ * data-orientation/data-disabled hooks, and the --primitiv-slider-* custom
+ * properties), not these values (RFC 0006 Principle 2 — names are stable,
+ * values are not).
+ *
+ * The model: the headless layer computes every positioning percentage
+ * itself (Root measures its own bounding rect, Range/Thumb receive an
+ * inline `left`/`right`/`top`/`bottom` style already resolved from
+ * value/min/max/orientation/dir/inverted) — this stylesheet supplies no
+ * position math, only the geometry/colour each part reads. Root and Track
+ * are sized to coincide exactly (Track fills Root's content box), so a
+ * single measured rect is correct for both Range's percentages (anchored on
+ * Track, its DOM parent) and Thumb's (anchored on Root directly, since
+ * Thumb is Root's sibling to Track, not nested inside it) — RFC 0004 §3.4's
+ * "geometry lives in CSS, position lives in the headless layer" split.
+ * Thumb's CROSS axis (the one the headless layer doesn't set) is centred in
+ * CSS with `inset-*-start: 50%` — deliberately split per orientation so it
+ * never fights the JS-set inset on the *value* axis (setting opposite insets
+ * on the same axis stretches an absolutely positioned box instead of sizing
+ * it, RFC 0008 §7's "primitiv.states only overrides what it owns" logic
+ * applied to layout).
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-slider-*,
+ * --primitiv-radii-full, --primitiv-surface-*, --primitiv-action-primary-*,
+ * --primitiv-framed-control-border-width, --primitiv-focus-ring-* and
+ * --primitiv-opacity-* custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-slider {
+    /* Per-component API — the themable knobs, defaulting to the md size. */
+    --primitiv-slider-track-thickness: var(--primitiv-slider-md-track-thickness);
+    --primitiv-slider-track-bg: var(--primitiv-surface-subtle);
+    --primitiv-slider-range-bg: var(--primitiv-action-primary-default);
+    --primitiv-slider-thumb-size: var(--primitiv-slider-md-thumb-size);
+    --primitiv-slider-thumb-bg: var(--primitiv-surface-default);
+    --primitiv-slider-thumb-border-color: var(--primitiv-action-primary-default);
+    --primitiv-slider-thumb-border-width: var(--primitiv-framed-control-border-width);
+    --primitiv-slider-thumb-ring-gap-size: var(--primitiv-slider-md-thumb-ring-gap-size);
+    --primitiv-slider-thumb-ring-size: var(--primitiv-slider-md-thumb-ring-size);
+
+    position: relative;
+    display: flex;
+    align-items: center;
+    inline-size: 100%;
+    block-size: var(--primitiv-slider-thumb-ring-size);
+    touch-action: none;
+  }
+
+  .primitiv-slider[data-orientation="vertical"] {
+    flex-direction: column;
+    inline-size: var(--primitiv-slider-thumb-ring-size);
+    block-size: 100%;
+  }
+
+  .primitiv-slider__track {
+    position: relative;
+    flex: 1 1 auto;
+    border-radius: var(--primitiv-radii-full);
+    background: var(--primitiv-slider-track-bg);
+  }
+
+  .primitiv-slider[data-orientation="horizontal"] .primitiv-slider__track {
+    block-size: var(--primitiv-slider-track-thickness);
+  }
+  .primitiv-slider[data-orientation="vertical"] .primitiv-slider__track {
+    inline-size: var(--primitiv-slider-track-thickness);
+  }
+
+  .primitiv-slider__range {
+    position: absolute;
+    border-radius: inherit;
+    background: var(--primitiv-slider-range-bg);
+  }
+
+  .primitiv-slider[data-orientation="horizontal"] .primitiv-slider__range {
+    inset-block: var(--primitiv-space-space-0);
+  }
+  .primitiv-slider[data-orientation="vertical"] .primitiv-slider__range {
+    inset-inline: var(--primitiv-space-space-0);
+  }
+
+  .primitiv-slider__thumb {
+    position: absolute;
+    inline-size: var(--primitiv-slider-thumb-size);
+    block-size: var(--primitiv-slider-thumb-size);
+    border-radius: var(--primitiv-radii-full);
+    background: var(--primitiv-slider-thumb-bg);
+    border: var(--primitiv-slider-thumb-border-width) solid var(--primitiv-slider-thumb-border-color);
+    translate: -50% -50%;
+    cursor: grab;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    transition: box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  /* The headless layer only sets the *value* axis inset (left/right for
+     horizontal, top/bottom for vertical) — the cross axis is centred here,
+     kept to the orientation it doesn't touch so the two never collide on the
+     same physical property (see the file header). */
+  .primitiv-slider[data-orientation="horizontal"] .primitiv-slider__thumb {
+    inset-block-start: 50%;
+  }
+  .primitiv-slider[data-orientation="vertical"] .primitiv-slider__thumb {
+    inset-inline-start: 50%;
+  }
+
+  .primitiv-slider__thumb:active {
+    cursor: grabbing;
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the track/thumb/ring geometry. Density stays ambient
+     via [data-density] on the token values themselves (RFC 0009). */
+  .primitiv-slider--xs {
+    --primitiv-slider-track-thickness: var(--primitiv-slider-xs-track-thickness);
+    --primitiv-slider-thumb-size: var(--primitiv-slider-xs-thumb-size);
+    --primitiv-slider-thumb-ring-gap-size: var(--primitiv-slider-xs-thumb-ring-gap-size);
+    --primitiv-slider-thumb-ring-size: var(--primitiv-slider-xs-thumb-ring-size);
+  }
+  .primitiv-slider--sm {
+    --primitiv-slider-track-thickness: var(--primitiv-slider-sm-track-thickness);
+    --primitiv-slider-thumb-size: var(--primitiv-slider-sm-thumb-size);
+    --primitiv-slider-thumb-ring-gap-size: var(--primitiv-slider-sm-thumb-ring-gap-size);
+    --primitiv-slider-thumb-ring-size: var(--primitiv-slider-sm-thumb-ring-size);
+  }
+  .primitiv-slider--md {
+    --primitiv-slider-track-thickness: var(--primitiv-slider-md-track-thickness);
+    --primitiv-slider-thumb-size: var(--primitiv-slider-md-thumb-size);
+    --primitiv-slider-thumb-ring-gap-size: var(--primitiv-slider-md-thumb-ring-gap-size);
+    --primitiv-slider-thumb-ring-size: var(--primitiv-slider-md-thumb-ring-size);
+  }
+  .primitiv-slider--lg {
+    --primitiv-slider-track-thickness: var(--primitiv-slider-lg-track-thickness);
+    --primitiv-slider-thumb-size: var(--primitiv-slider-lg-thumb-size);
+    --primitiv-slider-thumb-ring-gap-size: var(--primitiv-slider-lg-thumb-ring-gap-size);
+    --primitiv-slider-thumb-ring-size: var(--primitiv-slider-lg-thumb-ring-size);
+  }
+  .primitiv-slider--xl {
+    --primitiv-slider-track-thickness: var(--primitiv-slider-xl-track-thickness);
+    --primitiv-slider-thumb-size: var(--primitiv-slider-xl-thumb-size);
+    --primitiv-slider-thumb-ring-gap-size: var(--primitiv-slider-xl-thumb-ring-gap-size);
+    --primitiv-slider-thumb-ring-size: var(--primitiv-slider-xl-thumb-ring-size);
+  }
+}
+
+@layer primitiv.states {
+  /* Focus — the shared two-layer ring, sized off the slider's own
+     thumb-ring-{gap-size,size} tokens rather than the generic
+     --primitiv-focus-ring-offset/-width: a draggable handle wants a bigger,
+     more visible ring than a text field's border-hugging one. Spread is
+     derived from the gap between each ring token and the thumb's own size,
+     halved (a ring token is a diameter, box-shadow spread is a radius delta). */
+  .primitiv-slider__thumb:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 calc((var(--primitiv-slider-thumb-ring-gap-size) - var(--primitiv-slider-thumb-size)) / 2)
+        var(--primitiv-surface-default),
+      0 0 0 calc((var(--primitiv-slider-thumb-ring-size) - var(--primitiv-slider-thumb-size)) / 2)
+        var(--primitiv-focus-ring);
+  }
+
+  /* Disabled — every part shares the hook so the whole control dims and
+     locks as one unit; the thumb also drops its grab affordance. */
+  .primitiv-slider[data-disabled] {
+    opacity: var(--primitiv-opacity-50);
+  }
+  .primitiv-slider[data-disabled] .primitiv-slider__thumb {
+    cursor: not-allowed;
+  }
+}
+
+$primitiv-slider-track-thickness: var(--primitiv-slider-track-thickness);
+$primitiv-slider-track-bg: var(--primitiv-slider-track-bg);
+$primitiv-slider-range-bg: var(--primitiv-slider-range-bg);
+$primitiv-slider-thumb-size: var(--primitiv-slider-thumb-size);
+$primitiv-slider-thumb-bg: var(--primitiv-slider-thumb-bg);
+$primitiv-slider-thumb-border-color: var(--primitiv-slider-thumb-border-color);
+$primitiv-slider-thumb-border-width: var(--primitiv-slider-thumb-border-width);
+$primitiv-slider-thumb-ring-gap-size: var(--primitiv-slider-thumb-ring-gap-size);
+$primitiv-slider-thumb-ring-size: var(--primitiv-slider-thumb-ring-size);
+$primitiv-focus-ring-offset/-width: var(--primitiv-focus-ring-offset/-width);

@@ -1,0 +1,44 @@
+/*
+ * AspectRatio — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add aspect-ratio`. It is yours
+ * to edit: the stable surface is the contract (the .primitiv-aspect-ratio
+ * class, the __content part, and the --primitiv-aspect-ratio custom
+ * property), not these values (RFC 0006 Principle 2 — names are stable,
+ * values are not).
+ *
+ * Constrains embedded media (image/video/map/iframe) to a ratio via the
+ * modern CSS `aspect-ratio` property (RFC 0022) — no padding-bottom hack.
+ * The content wrapper is absolutely positioned to fill the ratio box
+ * regardless of the child's own intrinsic size (an <img>/<video> still needs
+ * its own `object-fit` from the consumer to crop rather than distort; this
+ * component only reserves the box).
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-aspect-ratio {
+    /* Per-component API — the themable knob, defaulting to a 1:1 square.
+       Consumers pass `ratio` as a prop; the wrapper writes it here inline
+       per instance (a continuous numeric value, not a fixed enum — no
+       modifier class fits it, the same treatment Stack gives align/justify). */
+    --primitiv-aspect-ratio: 1;
+
+    position: relative;
+    aspect-ratio: var(--primitiv-aspect-ratio);
+  }
+
+  .primitiv-aspect-ratio__content {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+}
+
+$primitiv-aspect-ratio: var(--primitiv-aspect-ratio);

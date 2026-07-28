@@ -1,0 +1,17 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "aspect-ratio",
+  "version": "0.1.0",
+  "description": "Constrains embedded media (image/video/map/iframe) to a ratio via CSS aspect-ratio (RFC 0022).",
+  "docs": "https://primitiv-ui.dev/docs/components/aspect-ratio",
+  "root": {
+    "element": "div",
+    "class": "primitiv-aspect-ratio"
+  },
+  "dataAttributes": [],
+  "modifiers": [],
+  "subcomponents": [],
+  "customProperties": [
+    { "name": "--primitiv-aspect-ratio", "defaultsTo": "1" }
+  ]
+}

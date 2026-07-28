@@ -1237,6 +1237,171 @@
         }
       },
       "contract": "contract.json"
+    },
+    "progress": {
+      "version": "0.1.0",
+      "dependsOn": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/react",
+            "version": "^0.1.0"
+          }
+        ],
+        "tokens": true,
+        "components": []
+      },
+      "styles": {
+        "packages": [
+          "class-variance-authority"
+        ],
+        "react": [
+          "progress.recipe.ts",
+          "progress.tsx"
+        ],
+        "formats": {
+          "css": [
+            "styles.css"
+          ],
+          "scss": [
+            "styles.scss"
+          ],
+          "tailwind": [
+            "styles.css"
+          ]
+        }
+      },
+      "contract": "contract.json"
+    },
+    "slider": {
+      "version": "0.1.0",
+      "dependsOn": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/react",
+            "version": "^0.1.0"
+          }
+        ],
+        "tokens": true,
+        "components": []
+      },
+      "styles": {
+        "packages": [
+          "class-variance-authority"
+        ],
+        "react": [
+          "slider.recipe.ts",
+          "slider.tsx"
+        ],
+        "formats": {
+          "css": [
+            "styles.css"
+          ],
+          "scss": [
+            "styles.scss"
+          ],
+          "tailwind": [
+            "styles.css"
+          ]
+        }
+      },
+      "contract": "contract.json"
+    },
+    "textarea": {
+      "version": "0.1.0",
+      "dependsOn": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/react",
+            "version": "^0.1.0"
+          }
+        ],
+        "tokens": true,
+        "components": []
+      },
+      "styles": {
+        "packages": [
+          "class-variance-authority"
+        ],
+        "react": [
+          "textarea.recipe.ts",
+          "textarea.tsx"
+        ],
+        "formats": {
+          "css": [
+            "styles.css"
+          ],
+          "scss": [
+            "styles.scss"
+          ],
+          "tailwind": [
+            "styles.css"
+          ]
+        }
+      },
+      "contract": "contract.json"
+    },
+    "center": {
+      "version": "0.1.0",
+      "dependsOn": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/react",
+            "version": "^0.1.0"
+          }
+        ],
+        "tokens": true,
+        "components": []
+      },
+      "styles": {
+        "packages": [
+          "class-variance-authority"
+        ],
+        "react": [
+          "center.recipe.ts",
+          "center.tsx"
+        ],
+        "formats": {
+          "css": [
+            "styles.css"
+          ],
+          "scss": [
+            "styles.scss"
+          ],
+          "tailwind": [
+            "styles.css"
+          ]
+        }
+      },
+      "contract": "contract.json"
+    },
+    "aspect-ratio": {
+      "version": "0.1.0",
+      "dependsOn": {
+        "packages": [],
+        "tokens": true,
+        "components": []
+      },
+      "styles": {
+        "packages": [
+          "class-variance-authority"
+        ],
+        "react": [
+          "aspect-ratio.recipe.ts",
+          "aspect-ratio.tsx"
+        ],
+        "formats": {
+          "css": [
+            "styles.css"
+          ],
+          "scss": [
+            "styles.scss"
+          ],
+          "tailwind": [
+            "styles.css"
+          ]
+        }
+      },
+      "contract": "contract.json"
     }
   }
 }

@@ -11,6 +11,7 @@ import {
   AccordionTrigger,
   AccordionContent,
   AccordionTriggerIcon,
+  AspectRatio,
   Avatar,
   AvatarImage,
   AvatarFallback,
@@ -23,6 +24,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
   Button,
+  Center,
   Checkbox,
   CodeBlock,
   Collapsible,
@@ -117,6 +119,8 @@ import {
   PopoverTitle,
   PopoverDescription,
   PopoverClose,
+  Progress,
+  ProgressIndicator,
   Prose,
   PullQuote,
   Radio,
@@ -146,12 +150,17 @@ import {
   SelectGroupLabel,
   SelectSeparator,
   SelectPlaceholder,
+  Slider,
+  SliderTrack,
+  SliderRange,
+  SliderThumb,
   Spacer,
   Stack,
   Tabs,
   TabsList,
   TabsTrigger,
   TabsContent,
+  Textarea,
   ToggleGroup,
   ToggleGroupItem,
   Tooltip,
@@ -372,7 +381,9 @@ const PAGE_TOC: { category: string; titles: string[] }[] = [
       "Input Group",
       "Radio",
       "Segmented Control",
+      "Slider",
       "Switch",
+      "Textarea",
     ],
   },
   { category: "Collections & Selection", titles: ["Select"] },
@@ -381,6 +392,7 @@ const PAGE_TOC: { category: string; titles: string[] }[] = [
     category: "Overlays",
     titles: ["Context Menu", "Drawer", "Dropdown", "Modal", "Popover", "Tooltip"],
   },
+  { category: "Feedback & Status", titles: ["Progress"] },
   {
     category: "Disclosure",
     titles: ["Accordion", "Breadcrumb", "Collapsible", "Tabs"],
@@ -1363,6 +1375,32 @@ export function ramp(hue: number, chroma = 0.12) {
             Share
           </Button>
           <Button size="sm">Publish</Button>
+        </Stack>
+        <p>
+          <code>Center</code> centres content along one or both axes — this
+          one needs an explicit block-size for vertical centring to have
+          room to work with:
+        </p>
+        <Center
+          style={{
+            blockSize: "var(--primitiv-space-space-96)",
+            border: "var(--primitiv-border-width-1) solid var(--primitiv-border-subtle)",
+            borderRadius: "var(--primitiv-radii-8)",
+          }}
+        >
+          <Button size="sm">Centred both axes</Button>
+        </Center>
+        <p>
+          <code>AspectRatio</code> constrains its content to a ratio via CSS{" "}
+          <code>aspect-ratio</code> — no padding-bottom hack:
+        </p>
+        <Stack direction="row" gap="md">
+          <AspectRatio ratio={16 / 9} style={{ flex: "1 1 0" }}>
+            <FigureMediaPlaceholder />
+          </AspectRatio>
+          <AspectRatio ratio={1} style={{ flex: "1 1 0" }}>
+            <FigureMediaPlaceholder />
+          </AspectRatio>
         </Stack>
       </Section>
 
@@ -2385,6 +2423,53 @@ export function ramp(hue: number, chroma = 0.12) {
           Wi-Fi
         </Switch>
         <Switch size={size}>Bluetooth</Switch>
+      </Section>
+
+      <Section title="Textarea" column>
+        <Textarea size={size} placeholder="Tell us about yourself" rows={4} aria-label="Bio" />
+        <Textarea size={size} defaultValue="A pre-filled, resizable bio." rows={4} aria-label="Bio, filled" />
+        <Textarea size={size} placeholder="Disabled" rows={4} disabled aria-label="Bio, disabled" />
+      </Section>
+
+      <Section title="Slider" column>
+        <Stack gap="md">
+          <Slider size={size} defaultValue={[40]} aria-label="Volume">
+            <SliderTrack>
+              <SliderRange />
+            </SliderTrack>
+            <SliderThumb />
+          </Slider>
+          <Slider size={size} defaultValue={[20, 80]} aria-label="Price range">
+            <SliderTrack>
+              <SliderRange />
+            </SliderTrack>
+            <SliderThumb aria-label="Minimum" />
+            <SliderThumb aria-label="Maximum" />
+          </Slider>
+          <Slider size={size} defaultValue={[30]} disabled aria-label="Disabled">
+            <SliderTrack>
+              <SliderRange />
+            </SliderTrack>
+            <SliderThumb />
+          </Slider>
+        </Stack>
+      </Section>
+
+      <Section title="Progress" column>
+        <Stack gap="sm">
+          <Progress size={size} value={25} aria-label="25% complete">
+            <ProgressIndicator />
+          </Progress>
+          <Progress size={size} value={60} aria-label="60% complete">
+            <ProgressIndicator />
+          </Progress>
+          <Progress size={size} value={100} aria-label="Complete">
+            <ProgressIndicator />
+          </Progress>
+          <Progress size={size} aria-label="Loading, progress unknown">
+            <ProgressIndicator />
+          </Progress>
+        </Stack>
       </Section>
 
       <Section title="Table" column>

@@ -1,0 +1,99 @@
+/*
+ * Figure — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add figure`. It is yours to
+ * edit: the stable surface is the contract (the .primitiv-figure class, the
+ * --below/--above/--overlay modifiers, the __media/__caption parts, and the
+ * --primitiv-figure-* custom properties), not these values (RFC 0006
+ * Principle 2 — names are stable, values are not).
+ *
+ * The model (RFC 0015): below/above are Flexbox ordering (`column` vs
+ * `column-reverse`); overlay pins the caption over the media's bottom edge
+ * via `position: absolute` on the caption within a `position: relative`
+ * figure, rather than nesting the caption inside the media's DOM the way the
+ * Figma build does (there, the caption must be a physical child of the media
+ * frame to clip to its rounded corners — on the web, matching the caption's
+ * own bottom corner radii to the media's radius achieves the same seamless
+ * look without requiring the two parts to nest, so `Figure.Media` and
+ * `Figure.Caption` stay DOM siblings in every position). The scrim is a
+ * separate ::before layer behind the caption text, not an opacity on the
+ * caption box itself — RFC 0015 §4's "solid at 90% opacity" describes the
+ * fill, not the caption text, which must stay fully legible.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-figure-*,
+ * --primitiv-radii-*, --primitiv-content-*, --primitiv-surface-* and
+ * --primitiv-body-* custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-figure {
+    /* Per-component API — the themable knobs. figure-caption-gap is the
+       shared, density-scaled Context token (RFC 0015 §5.1) — consumed
+       directly rather than re-declared under a component-owned name, the
+       same "no renaming" treatment `prose` gives `flow/*`. */
+    --primitiv-figure-media-radius: var(--primitiv-radii-8);
+    --primitiv-figure-caption-color: var(--primitiv-content-muted);
+    --primitiv-figure-overlay-scrim: var(--primitiv-surface-inverse);
+    --primitiv-figure-overlay-caption-color: var(--primitiv-content-inverse);
+    --primitiv-figure-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-figure-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-figure-line-height: var(--primitiv-body-md-line-height);
+
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--primitiv-figure-caption-gap);
+  }
+
+  .primitiv-figure__media {
+    border-radius: var(--primitiv-figure-media-radius);
+    overflow: hidden;
+  }
+
+  .primitiv-figure__caption {
+    margin: 0;
+    font-style: normal;
+    color: var(--primitiv-figure-caption-color);
+    font-family: var(--primitiv-figure-font-family);
+    font-size: var(--primitiv-figure-font-size);
+    line-height: var(--primitiv-figure-line-height);
+  }
+}
+
+@layer primitiv.variants {
+  .primitiv-figure--below {
+    flex-direction: column;
+  }
+  .primitiv-figure--above {
+    flex-direction: column-reverse;
+  }
+
+  .primitiv-figure--overlay {
+    position: relative;
+    gap: 0;
+  }
+  .primitiv-figure--overlay > .primitiv-figure__caption {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    overflow: hidden;
+    border-end-start-radius: var(--primitiv-figure-media-radius);
+    border-end-end-radius: var(--primitiv-figure-media-radius);
+    padding: var(--primitiv-figure-caption-gap);
+    color: var(--primitiv-figure-overlay-caption-color);
+  }
+  .primitiv-figure--overlay > .primitiv-figure__caption::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: 0.9;
+    background: var(--primitiv-figure-overlay-scrim);
+  }
+}

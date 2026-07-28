@@ -1,0 +1,14 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "spacer",
+  "version": "0.1.0",
+  "description": "A flex: 1 0 0 blank element for pushing flex siblings apart — toolbar left/right groups, card footers, nav bars (RFC 0022).",
+  "docs": "https://primitiv-ui.dev/docs/components/spacer",
+  "root": {
+    "element": "div",
+    "class": "primitiv-spacer"
+  },
+  "dataAttributes": [],
+  "modifiers": [],
+  "customProperties": []
+}

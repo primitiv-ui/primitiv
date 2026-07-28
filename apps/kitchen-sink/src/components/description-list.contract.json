@@ -1,0 +1,50 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "description-list",
+  "version": "0.1.0",
+  "description": "A <dl> compound — one <dt> (fixed SemiBold) + one <dd> per pair, stacked in a vertical rhythm. Consumers compose multiple Term/Details pairs to form a full description list (RFC 0012 D10).",
+  "docs": "https://primitiv-ui.dev/docs/components/description-list",
+  "root": {
+    "element": "dl",
+    "class": "primitiv-description-list",
+    "component": "Root"
+  },
+  "dataAttributes": [],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Term + details text size; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-description-list--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-description-list--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-description-list--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-description-list--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-description-list--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "subcomponents": [
+    {
+      "name": "term",
+      "component": "Term",
+      "class": "primitiv-description-list__term",
+      "dataAttributes": []
+    },
+    {
+      "name": "details",
+      "component": "Details",
+      "class": "primitiv-description-list__details",
+      "dataAttributes": []
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-description-list-pair-gap", "defaultsTo": "var(--primitiv-space-space-16)" },
+    { "name": "--primitiv-description-list-term-gap", "defaultsTo": "var(--primitiv-space-space-4)" },
+    { "name": "--primitiv-description-list-details-indent", "defaultsTo": "var(--primitiv-space-space-16)" },
+    { "name": "--primitiv-description-list-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-description-list-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
+    { "name": "--primitiv-description-list-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-description-list-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" }
+  ]
+}

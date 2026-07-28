@@ -1,0 +1,63 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "list",
+  "version": "0.1.0",
+  "description": "A <ul>/<ol> with custom, token-coloured markers and a controllable item gap, marker gap and indent — the styled counterpart to the bare list styles in primitiv.reset (RFC 0012 D9).",
+  "docs": "https://primitiv-ui.dev/docs/components/list",
+  "root": {
+    "element": "ul",
+    "class": "primitiv-list",
+    "component": "List"
+  },
+  "dataAttributes": [],
+  "modifiers": [
+    {
+      "name": "type",
+      "default": "unordered",
+      "description": "Marker style.",
+      "options": [
+        { "name": "unordered", "class": "primitiv-list--unordered", "description": "Bullet marker (the default)." },
+        { "name": "ordered", "class": "primitiv-list--ordered", "description": "Numbered marker." }
+      ]
+    },
+    {
+      "name": "indent",
+      "default": "true",
+      "description": "Whether the list applies its own left indent, or sits flush for inline/nested contexts where a parent already supplies it.",
+      "options": [
+        { "name": "true", "class": "primitiv-list--indent", "description": "Applies the list/indent token (the default)." },
+        { "name": "false", "class": "", "description": "Flush — no left indent." }
+      ]
+    },
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Item text size; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-list--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-list--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-list--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-list--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-list--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "subcomponents": [
+    {
+      "name": "item",
+      "component": "Item",
+      "class": "primitiv-list__item",
+      "dataAttributes": []
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-list-item-gap", "defaultsTo": "var(--primitiv-space-space-8)" },
+    { "name": "--primitiv-list-marker-gap", "defaultsTo": "var(--primitiv-space-space-8)" },
+    { "name": "--primitiv-list-indent", "defaultsTo": "var(--primitiv-space-space-28)" },
+    { "name": "--primitiv-list-marker-color", "defaultsTo": "var(--primitiv-list-marker-foreground)" },
+    { "name": "--primitiv-list-item-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-list-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
+    { "name": "--primitiv-list-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-list-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" }
+  ]
+}

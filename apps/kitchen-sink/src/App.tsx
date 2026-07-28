@@ -14,6 +14,8 @@ import {
   Avatar,
   AvatarImage,
   AvatarFallback,
+  Blockquote,
+  Box,
   Breadcrumb,
   BreadcrumbList,
   BreadcrumbItem,
@@ -43,6 +45,7 @@ import {
   ContextMenuSub,
   ContextMenuSubTrigger,
   ContextMenuSubContent,
+  DescriptionList,
   Divider,
   Drawer,
   DrawerTrigger,
@@ -75,11 +78,14 @@ import {
   FieldLabel,
   FieldDescription,
   FieldErrorText,
+  Figure,
   InlineCode,
   Input,
   InputGroup,
   InputGroupLeadingAdornment,
   InputGroupTrailingAdornment,
+  Kbd,
+  List,
   Modal,
   ModalTrigger,
   ModalPortal,
@@ -112,6 +118,7 @@ import {
   PopoverDescription,
   PopoverClose,
   Prose,
+  PullQuote,
   Radio,
   Switch,
   Table,
@@ -139,6 +146,8 @@ import {
   SelectGroupLabel,
   SelectSeparator,
   SelectPlaceholder,
+  Spacer,
+  Stack,
   Tabs,
   TabsList,
   TabsTrigger,
@@ -197,6 +206,25 @@ function VueLogo(): ReactElement {
     <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
       <path d="M19 3l-7 12L5 3H1l11 19L23 3z" />
       <path d="M15 3l-3 5-3-5H6l6 10 6-10z" opacity="0.55" />
+    </svg>
+  );
+}
+
+/* A small placeholder media block for the Figure position demo — the same
+   stepped-band pattern as the intro article's bare <figure>, just compact
+   enough to repeat three times side by side (below/above/overlay). */
+function FigureMediaPlaceholder(): ReactElement {
+  return (
+    <svg
+      viewBox="0 0 160 90"
+      role="img"
+      aria-label="A stepped band of the current text colour"
+      style={{ display: "block", inlineSize: "100%", blockSize: "auto" }}
+    >
+      <rect x="0" width="40" height="90" fill="currentColor" opacity="0.6" />
+      <rect x="40" width="40" height="90" fill="currentColor" opacity="0.45" />
+      <rect x="80" width="40" height="90" fill="currentColor" opacity="0.3" />
+      <rect x="120" width="40" height="90" fill="currentColor" opacity="0.18" />
     </svg>
   );
 }
@@ -334,7 +362,7 @@ function Section({
 // entry, so it never appears there) — it's this nav's own addition, grouping
 // it with the intro article it's a sibling of.
 const PAGE_TOC: { category: string; titles: string[] }[] = [
-  { category: "Layout", titles: ["Divider"] },
+  { category: "Layout", titles: ["Divider", "Layout Primitives"] },
   { category: "Buttons", titles: ["Button"] },
   {
     category: "Forms",
@@ -654,6 +682,15 @@ export function App(): ReactElement {
             the Size control above, and every size still densifies with the
             Density control.
           </p>
+          <h3>Heading 3 - Kbd, sized</h3>
+          <p>
+            The bare <code>&lt;kbd&gt;</code> marks above are fixed at the md
+            step, same as bare <code>&lt;code&gt;</code>. The{" "}
+            <Kbd size={size}>Kbd</Kbd> component adds the same size axis —
+            press <Kbd size={size}>Ctrl</Kbd> + <Kbd size={size}>K</Kbd> to
+            open the command palette, or <Kbd size={size}>Esc</Kbd> to close
+            it.
+          </p>
           <h3>Heading 3 - An unordered list</h3>
           <ul>
             <li>Hairline rows, no boxes</li>
@@ -666,6 +703,25 @@ export function App(): ReactElement {
             <li>Add every component</li>
             <li>Flip the switches above</li>
           </ol>
+          <h3>Heading 3 - Lists, styled</h3>
+          <p>
+            The bare lists above lean on <code>primitiv.reset</code>&rsquo;s
+            default marker styling. <code>List</code> swaps in a
+            custom, token-coloured marker (so both its colour and its gap to
+            the text are controllable) and a <code>size</code> axis:
+          </p>
+          <Stack gap="md">
+            <List type="unordered" size={size}>
+              <List.Item>Hairline rows, no boxes</List.Item>
+              <List.Item>Semantic tokens only</List.Item>
+              <List.Item>Density scales every control further</List.Item>
+            </List>
+            <List type="ordered" size={size}>
+              <List.Item>Install the CLI</List.Item>
+              <List.Item>Add every component</List.Item>
+              <List.Item>Flip the switches above</List.Item>
+            </List>
+          </Stack>
           <h3>Heading 3 - A description list</h3>
           <dl>
             <dt>Primitiv</dt>
@@ -673,6 +729,17 @@ export function App(): ReactElement {
             <dt>Harmoni</dt>
             <dd>The palette-generation engine underneath it.</dd>
           </dl>
+          <h3>Heading 3 - A description list, styled</h3>
+          <DescriptionList size={size}>
+            <DescriptionList.Term>Primitiv</DescriptionList.Term>
+            <DescriptionList.Details>
+              The product — the design system a consumer installs.
+            </DescriptionList.Details>
+            <DescriptionList.Term>Harmoni</DescriptionList.Term>
+            <DescriptionList.Details>
+              The palette-generation engine underneath it.
+            </DescriptionList.Details>
+          </DescriptionList>
           <h3>Heading 3 - A code block</h3>
           <pre>
             <code>{`npm create primitiv-ui@latest
@@ -683,6 +750,20 @@ primitiv add --all`}</code>
           <blockquote>
             <p>The stable surface is the contract, not the values.</p>
           </blockquote>
+          <h4>Heading 4 - A blockquote, styled</h4>
+          <Stack gap="sm">
+            <Blockquote size={size} cite="RFC 0006">
+              The stable surface is the contract, not the values.
+            </Blockquote>
+            <Blockquote tone="accent" size={size} cite="RFC 0022">
+              Every component Primitiv ships today is a widget — nothing
+              arranges widgets on a page.
+            </Blockquote>
+          </Stack>
+          <h4>Heading 4 - A pull quote</h4>
+          <PullQuote marks size={size}>
+            The stable surface is the contract, not the values.
+          </PullQuote>
           <h4>Heading 4 - A figure</h4>
           <figure>
             <svg
@@ -737,6 +818,32 @@ primitiv add --all`}</code>
               face.
             </figcaption>
           </figure>
+          <h4>Heading 4 - A figure, positioned</h4>
+          <p>
+            <code>Figure</code> places its caption below (the default),
+            above, or overlaid on the media as a scrim bar — using{" "}
+            <code>Stack</code> to lay the three side by side:
+          </p>
+          <Stack direction="row" gap="md">
+            <Figure captionPosition="below" style={{ flex: "1 1 0" }}>
+              <Figure.Media>
+                <FigureMediaPlaceholder />
+              </Figure.Media>
+              <Figure.Caption>Below (the default)</Figure.Caption>
+            </Figure>
+            <Figure captionPosition="above" style={{ flex: "1 1 0" }}>
+              <Figure.Media>
+                <FigureMediaPlaceholder />
+              </Figure.Media>
+              <Figure.Caption>Above</Figure.Caption>
+            </Figure>
+            <Figure captionPosition="overlay" style={{ flex: "1 1 0" }}>
+              <Figure.Media>
+                <FigureMediaPlaceholder />
+              </Figure.Media>
+              <Figure.Caption>Overlay</Figure.Caption>
+            </Figure>
+          </Stack>
           <h4>Heading 4 - An address</h4>
           <address>
             Primitiv UI
@@ -1207,6 +1314,56 @@ export function ramp(hue: number, chroma = 0.12) {
           <Divider orientation="vertical" />
           <p>Right of the vertical divider</p>
         </div>
+      </Section>
+
+      {/* Box/Stack/Spacer (RFC 0022) — the three "zero design risk" layout
+          primitives. Box is the escape hatch (no visual opinion of its own,
+          so this demo gives it a one-off border via a plain style prop to
+          show it holds one); Stack arranges a toolbar; Spacer pushes the
+          trailing group to the far edge. */}
+      <Section title="Layout Primitives" column>
+        <p>
+          <code>Box</code> is the escape hatch — a bare element with no visual
+          opinion of its own, so this one carries a one-off inline style:
+        </p>
+        <Box
+          style={{
+            border: "var(--primitiv-border-width-1) dashed var(--primitiv-border-default)",
+            borderRadius: "var(--primitiv-radii-8)",
+            padding: "var(--primitiv-space-space-16)",
+          }}
+        >
+          A plain Box, styled inline — no built-in look of its own.
+        </Box>
+        <p>
+          <code>Stack</code> arranges a toolbar row; <code>Spacer</code>{" "}
+          pushes the trailing group to the far edge:
+        </p>
+        <Stack
+          direction="row"
+          gap="sm"
+          align="center"
+          style={{
+            border: "var(--primitiv-border-width-1) solid var(--primitiv-border-subtle)",
+            borderRadius: "var(--primitiv-radii-8)",
+            padding: "var(--primitiv-space-space-12)",
+          }}
+        >
+          <Button variant="ghost" size="sm">
+            File
+          </Button>
+          <Button variant="ghost" size="sm">
+            Edit
+          </Button>
+          <Button variant="ghost" size="sm">
+            View
+          </Button>
+          <Spacer />
+          <Button variant="secondary" size="sm">
+            Share
+          </Button>
+          <Button size="sm">Publish</Button>
+        </Stack>
       </Section>
 
       {/* One uncontrolled drawer per edge. Triggers take the raw `size`; the panels

@@ -1,0 +1,24 @@
+/*
+ * Box — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add box`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-box class), not this rule
+ * (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * Box is the escape hatch (RFC 0022): a bare polymorphic element with no
+ * visual opinion. The only rule it carries is box-sizing, so a consumer's own
+ * padding/border math is predictable without them having to set it themselves
+ * on every one-off element.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-box {
+    box-sizing: border-box;
+  }
+}

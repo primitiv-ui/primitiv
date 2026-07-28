@@ -1,0 +1,37 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "pull-quote",
+  "version": "0.1.0",
+  "description": "A large, centred editorial quote — no accent bar, no attribution, distinct from Blockquote. Rides the existing heading/* type scale; an optional decorative open-quote mark (RFC 0012 D13).",
+  "docs": "https://primitiv-ui.dev/docs/components/pull-quote",
+  "root": {
+    "element": "blockquote",
+    "class": "primitiv-pull-quote"
+  },
+  "dataAttributes": [
+    { "name": "data-marks", "value": "", "when": "marks is true", "source": "prop" }
+  ],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Quote size, mapped to the heading/* scale (xs→h5 … xl→h1); `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-pull-quote--xs", "description": "Extra small (heading/h5)." },
+        { "name": "sm", "class": "primitiv-pull-quote--sm", "description": "Small (heading/h4)." },
+        { "name": "md", "class": "primitiv-pull-quote--md", "description": "Medium — the default (heading/h3)." },
+        { "name": "lg", "class": "primitiv-pull-quote--lg", "description": "Large (heading/h2)." },
+        { "name": "xl", "class": "primitiv-pull-quote--xl", "description": "Extra large (heading/h1)." }
+      ]
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-pull-quote-font-family", "defaultsTo": "var(--primitiv-heading-h3-font-family)" },
+    { "name": "--primitiv-pull-quote-font-size", "defaultsTo": "var(--primitiv-heading-h3-font-size)" },
+    { "name": "--primitiv-pull-quote-line-height", "defaultsTo": "var(--primitiv-heading-h3-line-height)" },
+    { "name": "--primitiv-pull-quote-font-weight", "defaultsTo": "var(--primitiv-heading-h3-font-weight)" },
+    { "name": "--primitiv-pull-quote-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-pull-quote-mark-color", "defaultsTo": "var(--primitiv-content-muted)" },
+    { "name": "--primitiv-pull-quote-mark-gap", "defaultsTo": "var(--primitiv-space-space-12)" }
+  ]
+}

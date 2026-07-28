@@ -2,7 +2,7 @@
   "$schema": "https://primitiv-ui.dev/schema/contract.json",
   "name": "stack",
   "version": "0.1.0",
-  "description": "A Flexbox layout primitive that stacks its children in a column (default) or a row, with a `gap` prop resolved against the space-* scale — never a raw px value (RFC 0022). Continues RFC 0016's 'gap is the tool for component-internal spacing,' generalised into a component.",
+  "description": "A Flexbox layout primitive that stacks its children in a column (default) or a row, with a `gap` prop resolved against a dedicated, density-scaled `stack/gap-*` Context token per step (RFC 0022). Continues RFC 0016's 'gap is the tool for component-internal spacing,' generalised into a component.",
   "docs": "https://primitiv-ui.dev/docs/components/stack",
   "root": {
     "element": "div",
@@ -22,7 +22,7 @@
     {
       "name": "gap",
       "default": "md",
-      "description": "Space between children, resolved against the space-* scale.",
+      "description": "Space between children; each step (except none) is a density-scaled Context token.",
       "options": [
         { "name": "none", "class": "primitiv-stack--gap-none", "description": "No gap." },
         { "name": "xs", "class": "primitiv-stack--gap-xs", "description": "Extra small." },
@@ -34,7 +34,7 @@
     }
   ],
   "customProperties": [
-    { "name": "--primitiv-stack-gap", "defaultsTo": "var(--primitiv-space-space-16)" },
+    { "name": "--primitiv-stack-gap", "defaultsTo": "var(--primitiv-stack-gap-md)" },
     { "name": "--primitiv-stack-align", "defaultsTo": "stretch" },
     { "name": "--primitiv-stack-justify", "defaultsTo": "flex-start" }
   ]

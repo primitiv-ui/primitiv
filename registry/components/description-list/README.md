@@ -56,6 +56,12 @@ carry **no drift-guard test** (contrast the generated wrappers, D53).
 
 ## Tokens
 
-No new tokens (RFC 0012 D10: "both text nodes use `content/primary`"). The
-pair gap, term↔details gap and details indent reuse existing `space/*`
-primitives directly rather than a new Context token family.
+No new *colour* tokens (RFC 0012 D10: "both text nodes use
+`content/primary`"). D10 is silent on spacing, though — the pair gap,
+term↔details gap and details indent are structurally identical to List's
+item-gap/marker-gap/indent (RFC 0012 D9, the adjacent compound from the same
+design session), so they get the same treatment: a new, density-scaled
+`description-list/*` Context token family
+(`--primitiv-description-list-{pair-gap,term-gap,details-indent}`), sized
+proportionally against the existing `space/*` scale rather than a flat,
+density-invariant reference.

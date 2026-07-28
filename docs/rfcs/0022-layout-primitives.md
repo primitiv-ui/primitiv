@@ -128,15 +128,27 @@ Box, Stack and Spacer landed exactly as scoped in §6's build order, all
 hand-authored/primitive-less per §2 — registry (`registry/components/{box,
 stack,spacer}`) + kitchen-sink (a new "Layout Primitives" section, plus
 `Stack` reused throughout the intro article to lay out the RFC 0023 demos
-built alongside this batch). No new tokens for any of the three. Two
-decisions made at build time, not pre-settled by the draft:
+built alongside this batch). Three decisions made at build time, not
+pre-settled by the draft:
 
-- **`Stack`'s `gap` prop is a curated 5-step scale** (`none`/`xs`–`xl` →
-  `space-0`/`4`/`8`/`16`/`24`/`32`), not the raw `space-*` scale directly.
-  The draft's "resolved against the space-* scale" left the exact shape
-  open; a curated set matches the `xs`–`xl` convention every other
-  component in the system already uses, rather than exposing the full
-  ~24-step primitive scale as modifier classes.
+- **`Stack`'s `gap` prop is a curated 5-step scale** (`none`/`xs`–`xl`), not
+  the raw `space-*` scale directly. The draft's "resolved against the
+  space-* scale" left the exact shape open; a curated set matches the
+  `xs`–`xl` convention every other component in the system already uses,
+  rather than exposing the full ~24-step primitive scale as modifier
+  classes.
+- **Each step (except `none`) is its own density-scaled `stack/gap-*`
+  Context token, not a direct reference to a flat `space-*` primitive.**
+  The first build bound the gap steps straight to `space-*` (`gap-md` →
+  `space-space-16`, etc.), which meant a Stack's gap didn't re-tighten
+  under `[data-density]` — every other spacing knob in the system that
+  scales with a size-like axis (Accordion's `framed-control-{size}-gap`,
+  Dropdown's `dropdown-{size}-item-gap`) does so through a dedicated
+  Context-token family, not a raw primitive, so a fresh `stack/gap-*`
+  family (5 new tokens × 4 density modes, sized proportionally against the
+  existing `space-*` scale) was added to `context.json` and wired in as a
+  follow-up fix. `none` is the one exception — zero has no density curve to
+  scale, so it still pins `space-space-0` directly.
 - **`align`/`justify` are inline-style passthroughs, not modifier
   classes** — they're plain Flexbox keywords (`"center"`,
   `"space-between"`, …), not design tokens, so there's no fixed enum to

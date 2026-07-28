@@ -12,19 +12,23 @@
  * vertically, <dt> fixed to SemiBold weight across every density mode (bound
  * to the font-weight-semibold primitive, not the body/{size}/font-weight
  * alias, so it stays SemiBold while size and family still scale) and <dd>
- * indented via a fixed padding wrapper rather than leading spaces. No new
- * Context tokens — the pair/term gaps and the details indent reuse existing
- * space/* primitives directly (D10: "no new tokens... both text nodes use
- * content/primary"). Figma's "fontStyle" vocabulary names the font
- * *instance* (Regular/SemiBold) of a variable family — CSS separates that
- * into `font-weight`, so `<dt>` binds `font-weight`, matching how the base
- * reset stylesheet already applies every other heading/strong weight (CSS
- * `font-style` stays reserved for italic/oblique, which this component
- * doesn't use).
+ * indented via a fixed padding wrapper rather than leading spaces. D10 is
+ * silent on Context/spacing tokens (only "no new tokens" for colour) — the
+ * pair-gap/term-gap/details-indent needs are structurally identical to
+ * List's item-gap/marker-gap/indent (RFC 0012 D9, the adjacent compound from
+ * the same design session), so they get the same treatment: a dedicated
+ * `description-list/*` Context token per need, consumed directly rather
+ * than re-declared under a component-owned name — the same "no renaming"
+ * treatment `prose` gives `flow/*` and `list` gives `list/*`.
+ * Figma's "fontStyle" vocabulary names the font *instance* (Regular/
+ * SemiBold) of a variable family — CSS separates that into `font-weight`,
+ * so `<dt>` binds `font-weight`, matching how the base reset stylesheet
+ * already applies every other heading/strong weight (CSS `font-style` stays
+ * reserved for italic/oblique, which this component doesn't use).
  *
- * Requires the token layer (`primitiv tokens`) for the --primitiv-space-*,
- * --primitiv-content-*, --primitiv-body-* and --primitiv-font-weight-semibold
- * custom properties it resolves.
+ * Requires the token layer (`primitiv tokens`) for the
+ * --primitiv-description-list-*, --primitiv-content-*, --primitiv-body-*
+ * and --primitiv-font-weight-semibold custom properties it resolves.
  */
 
 /* Declare the sublayer order up front so this sheet is safe to load ahead of
@@ -36,10 +40,9 @@
 @layer primitiv.base {
   .primitiv-description-list {
     /* Per-component API — the themable knobs, defaulting to the md size. The
-       variants layer below re-points only the type scale. */
-    --primitiv-description-list-pair-gap: var(--primitiv-space-space-16);
-    --primitiv-description-list-term-gap: var(--primitiv-space-space-4);
-    --primitiv-description-list-details-indent: var(--primitiv-space-space-16);
+       variants layer below re-points only the type scale. pair-gap/term-gap/
+       details-indent are the shared, density-scaled `description-list/*`
+       Context tokens — consumed directly, not re-declared here. */
     --primitiv-description-list-color: var(--primitiv-content-primary);
     --primitiv-description-list-font-family: var(--primitiv-body-md-font-family);
     --primitiv-description-list-font-size: var(--primitiv-body-md-font-size);

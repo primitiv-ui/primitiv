@@ -601,6 +601,9 @@
     --primitiv-container-xl-gap: var(--primitiv-space-space-20);
     --primitiv-container-xl-padding: var(--primitiv-space-space-32);
     --primitiv-container-xl-radius: var(--primitiv-radii-16);
+    --primitiv-description-list-details-indent: var(--primitiv-space-space-16);
+    --primitiv-description-list-pair-gap: var(--primitiv-space-space-16);
+    --primitiv-description-list-term-gap: var(--primitiv-space-space-4);
     --primitiv-display-lg-font-family: var(--primitiv-font-family-heading);
     --primitiv-display-lg-font-size: var(--primitiv-font-size-56);
     --primitiv-display-lg-font-style: var(--primitiv-font-style-medium);
@@ -937,6 +940,11 @@
     --primitiv-slider-xs-thumb-ring-size: var(--primitiv-size-size-20);
     --primitiv-slider-xs-thumb-size: var(--primitiv-size-size-12);
     --primitiv-slider-xs-track-thickness: var(--primitiv-space-space-2);
+    --primitiv-stack-gap-lg: var(--primitiv-space-space-24);
+    --primitiv-stack-gap-md: var(--primitiv-space-space-16);
+    --primitiv-stack-gap-sm: var(--primitiv-space-space-8);
+    --primitiv-stack-gap-xl: var(--primitiv-space-space-32);
+    --primitiv-stack-gap-xs: var(--primitiv-space-space-4);
     --primitiv-switch-lg-thumb-margin: var(--primitiv-space-space-2);
     --primitiv-switch-lg-thumb-size: var(--primitiv-size-size-20);
     --primitiv-switch-lg-track-height: var(--primitiv-size-size-24);
@@ -1146,6 +1154,9 @@
     --primitiv-container-xl-gap: var(--primitiv-space-space-16);
     --primitiv-container-xl-padding: var(--primitiv-space-space-28);
     --primitiv-container-xl-radius: var(--primitiv-radii-12);
+    --primitiv-description-list-details-indent: var(--primitiv-space-space-12);
+    --primitiv-description-list-pair-gap: var(--primitiv-space-space-12);
+    --primitiv-description-list-term-gap: var(--primitiv-space-space-3);
     --primitiv-display-lg-font-family: var(--primitiv-font-family-heading);
     --primitiv-display-lg-font-size: var(--primitiv-font-size-36);
     --primitiv-display-lg-font-style: var(--primitiv-font-style-medium);
@@ -1482,6 +1493,11 @@
     --primitiv-slider-xs-thumb-ring-size: var(--primitiv-size-size-16);
     --primitiv-slider-xs-thumb-size: var(--primitiv-size-size-8);
     --primitiv-slider-xs-track-thickness: var(--primitiv-space-space-2);
+    --primitiv-stack-gap-lg: var(--primitiv-space-space-20);
+    --primitiv-stack-gap-md: var(--primitiv-space-space-12);
+    --primitiv-stack-gap-sm: var(--primitiv-space-space-6);
+    --primitiv-stack-gap-xl: var(--primitiv-space-space-24);
+    --primitiv-stack-gap-xs: var(--primitiv-space-space-3);
     --primitiv-switch-lg-thumb-margin: var(--primitiv-space-space-2);
     --primitiv-switch-lg-thumb-size: var(--primitiv-size-size-16);
     --primitiv-switch-lg-track-height: var(--primitiv-size-size-20);
@@ -1691,6 +1707,9 @@
     --primitiv-container-xl-gap: var(--primitiv-space-space-14);
     --primitiv-container-xl-padding: var(--primitiv-space-space-20);
     --primitiv-container-xl-radius: var(--primitiv-radii-8);
+    --primitiv-description-list-details-indent: var(--primitiv-space-space-12);
+    --primitiv-description-list-pair-gap: var(--primitiv-space-space-8);
+    --primitiv-description-list-term-gap: var(--primitiv-space-space-2);
     --primitiv-display-lg-font-family: var(--primitiv-font-family-heading);
     --primitiv-display-lg-font-size: var(--primitiv-font-size-20);
     --primitiv-display-lg-font-style: var(--primitiv-font-style-medium);
@@ -2027,6 +2046,11 @@
     --primitiv-slider-xs-thumb-ring-size: var(--primitiv-size-size-16);
     --primitiv-slider-xs-thumb-size: var(--primitiv-size-size-8);
     --primitiv-slider-xs-track-thickness: var(--primitiv-space-space-2);
+    --primitiv-stack-gap-lg: var(--primitiv-space-space-16);
+    --primitiv-stack-gap-md: var(--primitiv-space-space-8);
+    --primitiv-stack-gap-sm: var(--primitiv-space-space-4);
+    --primitiv-stack-gap-xl: var(--primitiv-space-space-20);
+    --primitiv-stack-gap-xs: var(--primitiv-space-space-2);
     --primitiv-switch-lg-thumb-margin: var(--primitiv-space-space-2);
     --primitiv-switch-lg-thumb-size: var(--primitiv-size-size-12);
     --primitiv-switch-lg-track-height: var(--primitiv-size-size-16);
@@ -2236,6 +2260,9 @@
     --primitiv-container-xl-gap: var(--primitiv-space-space-32);
     --primitiv-container-xl-padding: var(--primitiv-space-space-48);
     --primitiv-container-xl-radius: var(--primitiv-radii-20);
+    --primitiv-description-list-details-indent: var(--primitiv-space-space-20);
+    --primitiv-description-list-pair-gap: var(--primitiv-space-space-20);
+    --primitiv-description-list-term-gap: var(--primitiv-space-space-6);
     --primitiv-display-lg-font-family: var(--primitiv-font-family-heading);
     --primitiv-display-lg-font-size: var(--primitiv-font-size-120);
     --primitiv-display-lg-font-style: var(--primitiv-font-style-medium);
@@ -2572,6 +2599,11 @@
     --primitiv-slider-xs-thumb-ring-size: var(--primitiv-size-size-20);
     --primitiv-slider-xs-thumb-size: var(--primitiv-size-size-12);
     --primitiv-slider-xs-track-thickness: var(--primitiv-space-space-2);
+    --primitiv-stack-gap-lg: var(--primitiv-space-space-28);
+    --primitiv-stack-gap-md: var(--primitiv-space-space-20);
+    --primitiv-stack-gap-sm: var(--primitiv-space-space-10);
+    --primitiv-stack-gap-xl: var(--primitiv-space-space-40);
+    --primitiv-stack-gap-xs: var(--primitiv-space-space-6);
     --primitiv-switch-lg-thumb-margin: var(--primitiv-space-space-2);
     --primitiv-switch-lg-thumb-size: var(--primitiv-size-size-24);
     --primitiv-switch-lg-track-height: var(--primitiv-size-size-28);

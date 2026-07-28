@@ -44,7 +44,7 @@
 
     list-style: none;
     margin: 0;
-    padding-inline-start: 0;
+    padding-inline-start: var(--primitiv-space-space-0);
     display: flex;
     flex-direction: column;
     gap: var(--primitiv-list-item-gap);

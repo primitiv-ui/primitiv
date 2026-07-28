@@ -8,13 +8,16 @@
  * values are not).
  *
  * The model (RFC 0022): a Flexbox stack, `direction="column"` by default,
- * with `gap` resolved against the space-* scale — never a raw px value,
- * continuing RFC 0016's "gap is the tool for component-internal spacing."
- * `align`/`justify` are plain Flexbox keywords, not tokens, so they pass
- * through as inline custom properties rather than earning modifier classes.
+ * with `gap` resolved against a dedicated, density-scaled `stack/gap-*`
+ * Context token per step (`xs`–`xl`) — never a raw px value, continuing RFC
+ * 0016's "gap is the tool for component-internal spacing." `gap="none"` is
+ * the one step pinned to the flat `space-space-0` primitive directly (zero
+ * is zero at every density, so there is nothing to scale). `align`/`justify`
+ * are plain Flexbox keywords, not tokens, so they pass through as inline
+ * custom properties rather than earning modifier classes.
  *
- * Requires the token layer (`primitiv tokens`) for the --primitiv-space-*
- * custom properties it resolves.
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-stack-gap-*
+ * and --primitiv-space-space-0 custom properties it resolves.
  */
 
 /* Declare the sublayer order up front so this sheet is safe to load ahead of
@@ -28,7 +31,7 @@
     /* Per-component API — the themable knobs, defaulting to the md gap and a
        column direction. The variants layer below re-points the gap steps and
        the direction; align/justify are set inline per instance. */
-    --primitiv-stack-gap: var(--primitiv-space-space-16);
+    --primitiv-stack-gap: var(--primitiv-stack-gap-md);
     --primitiv-stack-align: stretch;
     --primitiv-stack-justify: flex-start;
 
@@ -48,23 +51,28 @@
     flex-direction: column;
   }
 
+  /* gap steps — each a dedicated density-scaled Context token
+     (--primitiv-stack-gap-{xs,sm,md,lg,xl}), so a Stack's gap re-tightens
+     under [data-density] the same way every other spacing knob in the
+     system does. `none` is the one exception: zero has no density curve to
+     scale, so it pins the flat space-space-0 primitive directly. */
   .primitiv-stack--gap-none {
     --primitiv-stack-gap: var(--primitiv-space-space-0);
   }
   .primitiv-stack--gap-xs {
-    --primitiv-stack-gap: var(--primitiv-space-space-4);
+    --primitiv-stack-gap: var(--primitiv-stack-gap-xs);
   }
   .primitiv-stack--gap-sm {
-    --primitiv-stack-gap: var(--primitiv-space-space-8);
+    --primitiv-stack-gap: var(--primitiv-stack-gap-sm);
   }
   .primitiv-stack--gap-md {
-    --primitiv-stack-gap: var(--primitiv-space-space-16);
+    --primitiv-stack-gap: var(--primitiv-stack-gap-md);
   }
   .primitiv-stack--gap-lg {
-    --primitiv-stack-gap: var(--primitiv-space-space-24);
+    --primitiv-stack-gap: var(--primitiv-stack-gap-lg);
   }
   .primitiv-stack--gap-xl {
-    --primitiv-stack-gap: var(--primitiv-space-space-32);
+    --primitiv-stack-gap: var(--primitiv-stack-gap-xl);
   }
 }
 

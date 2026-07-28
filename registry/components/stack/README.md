@@ -8,14 +8,18 @@ interactive behaviour, so it ships entirely from the registry.
 ## What it does
 
 `Stack` arranges its children in a column (default) or a row via Flexbox,
-with a `gap` prop resolved against the `space-*` scale — **never a raw px
-value**. It directly continues RFC 0016's "`gap` is the tool for
-component-internal spacing," generalised into a component instead of ad hoc
-CSS per consumer.
+with a `gap` prop resolved against a dedicated, density-scaled
+`stack/gap-*` Context token per step — **never a raw px value**. It
+directly continues RFC 0016's "`gap` is the tool for component-internal
+spacing," generalised into a component instead of ad hoc CSS per consumer.
 
 - `direction` — `"column"` (default) or `"row"`.
-- `gap` — `"none" | "xs" | "sm" | "md" | "lg" | "xl"` (default `"md"`),
-  resolved against the `space-*` scale.
+- `gap` — `"none" | "xs" | "sm" | "md" | "lg" | "xl"` (default `"md"`). Each
+  step except `none` is its own density-scaled Context token
+  (`--primitiv-stack-gap-{xs,sm,md,lg,xl}`), so the gap re-tightens under
+  `[data-density]` the same way every other spacing knob in the system
+  does; `none` pins the flat `space-space-0` primitive (zero has no density
+  curve to scale).
 - `align` / `justify` — plain Flexbox keywords (`"center"`, `"space-between"`,
   …), **not** design tokens, so they pass straight through as inline styles
   rather than earning modifier classes.
@@ -61,7 +65,10 @@ Because there is no headless primitive, `stack.tsx`/`stack.recipe.ts` are
 
 ## Tokens
 
-`stack` owns `--primitiv-stack-gap` (resolved by the `gap` modifier against
-the `space-*` scale) and two non-tokenised passthroughs,
+`stack` owns `--primitiv-stack-gap` (the component's own API knob, re-pointed
+by the `gap` modifier to one of the five density-scaled
+`--primitiv-stack-gap-{xs,sm,md,lg,xl}` Context tokens — a new family added
+for this component, sized proportionally against the existing `space-*`
+scale) and two non-tokenised passthroughs,
 `--primitiv-stack-align`/`--primitiv-stack-justify`, set inline by the
 `align`/`justify` props. See RFC 0022 §3.

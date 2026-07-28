@@ -2501,6 +2501,44 @@
           "$value": "{size.size-80}"
         }
       }
+    },
+    "description-list": {
+      "pair-gap": {
+        "$type": "number",
+        "$value": "{space.space-16}"
+      },
+      "term-gap": {
+        "$type": "number",
+        "$value": "{space.space-4}"
+      },
+      "details-indent": {
+        "$type": "number",
+        "$value": "{space.space-16}"
+      }
+    },
+    "stack": {
+      "gap": {
+        "xs": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "sm": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "md": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "lg": {
+          "$type": "number",
+          "$value": "{space.space-24}"
+        },
+        "xl": {
+          "$type": "number",
+          "$value": "{space.space-32}"
+        }
+      }
     }
   },
   "compact": {
@@ -5003,6 +5041,44 @@
         "overlay-thumbnail-size": {
           "$type": "number",
           "$value": "{size.size-56}"
+        }
+      }
+    },
+    "description-list": {
+      "pair-gap": {
+        "$type": "number",
+        "$value": "{space.space-12}"
+      },
+      "term-gap": {
+        "$type": "number",
+        "$value": "{space.space-3}"
+      },
+      "details-indent": {
+        "$type": "number",
+        "$value": "{space.space-12}"
+      }
+    },
+    "stack": {
+      "gap": {
+        "xs": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        },
+        "sm": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "md": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "lg": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        },
+        "xl": {
+          "$type": "number",
+          "$value": "{space.space-24}"
         }
       }
     }
@@ -7509,6 +7585,44 @@
           "$value": "{size.size-96}"
         }
       }
+    },
+    "description-list": {
+      "pair-gap": {
+        "$type": "number",
+        "$value": "{space.space-20}"
+      },
+      "term-gap": {
+        "$type": "number",
+        "$value": "{space.space-6}"
+      },
+      "details-indent": {
+        "$type": "number",
+        "$value": "{space.space-20}"
+      }
+    },
+    "stack": {
+      "gap": {
+        "xs": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "sm": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "md": {
+          "$type": "number",
+          "$value": "{space.space-20}"
+        },
+        "lg": {
+          "$type": "number",
+          "$value": "{space.space-28}"
+        },
+        "xl": {
+          "$type": "number",
+          "$value": "{space.space-40}"
+        }
+      }
     }
   },
   "dense": {
@@ -10011,6 +10125,44 @@
         "overlay-thumbnail-size": {
           "$type": "number",
           "$value": "{size.size-48}"
+        }
+      }
+    },
+    "description-list": {
+      "pair-gap": {
+        "$type": "number",
+        "$value": "{space.space-8}"
+      },
+      "term-gap": {
+        "$type": "number",
+        "$value": "{space.space-2}"
+      },
+      "details-indent": {
+        "$type": "number",
+        "$value": "{space.space-12}"
+      }
+    },
+    "stack": {
+      "gap": {
+        "xs": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        },
+        "sm": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "md": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "lg": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "xl": {
+          "$type": "number",
+          "$value": "{space.space-20}"
         }
       }
     }

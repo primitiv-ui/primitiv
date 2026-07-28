@@ -191,3 +191,19 @@ things worth recording that the draft didn't anticipate:
   matched to the media's, achieves the same seamless look without the two
   parts needing to nest — see the `figure` registry README for the full
   rationale.
+- **A magic-number/density audit found two real gaps, fixed as a
+  follow-up:** Figure's overlay scrim used a literal `opacity: 0.9` where
+  `--primitiv-opacity-90` already exists as a primitive, and its zero-value
+  `gap`/`inset-*` overrides were literal `0` where the codebase's own
+  established pattern (Carousel, NavigationMenu, Breadcrumb) tokenizes a
+  themed zero as `var(--primitiv-space-space-0)`. Separately,
+  DescriptionList's pair-gap/term-gap/details-indent were bound directly to
+  flat `space-*` primitives, so they didn't re-tighten under
+  `[data-density]` the way List's structurally-identical item-gap/
+  marker-gap/indent (D9) do — fixed by giving DescriptionList the same
+  treatment: a new density-scaled `description-list/*` Context family (see
+  RFC 0022 §8 for the parallel fix on `Stack`'s gap scale). Pull Quote's
+  `marks` gap stays intentionally flat, mirroring Blockquote's
+  `quote/body-gap/{size}` — that one *is* a documented, pre-existing D12
+  decision ("a typographic proportion of the size axis, not a density
+  concern"), not an oversight.

@@ -21,8 +21,9 @@
  * fill, not the caption text, which must stay fully legible.
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-figure-*,
- * --primitiv-radii-*, --primitiv-content-*, --primitiv-surface-* and
- * --primitiv-body-* custom properties it resolves.
+ * --primitiv-radii-*, --primitiv-content-*, --primitiv-surface-*,
+ * --primitiv-body-*, --primitiv-opacity-90 and --primitiv-space-space-0
+ * custom properties it resolves.
  */
 
 /* Declare the sublayer order up front so this sheet is safe to load ahead of
@@ -76,12 +77,12 @@
 
   .primitiv-figure--overlay {
     position: relative;
-    gap: 0;
+    gap: var(--primitiv-space-space-0);
   }
   .primitiv-figure--overlay > .primitiv-figure__caption {
     position: absolute;
-    inset-inline: 0;
-    inset-block-end: 0;
+    inset-inline: var(--primitiv-space-space-0);
+    inset-block-end: var(--primitiv-space-space-0);
     overflow: hidden;
     border-end-start-radius: var(--primitiv-figure-media-radius);
     border-end-end-radius: var(--primitiv-figure-media-radius);
@@ -93,7 +94,7 @@
     position: absolute;
     inset: 0;
     z-index: -1;
-    opacity: 0.9;
+    opacity: var(--primitiv-opacity-90);
     background: var(--primitiv-figure-overlay-scrim);
   }
 }

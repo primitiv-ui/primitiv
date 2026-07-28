@@ -9,14 +9,19 @@
  *
  * A large, centred editorial quote — no accent bar, no attribution, distinct
  * from Blockquote (RFC 0012 D13). Size rides the existing heading/* Context
- * scale (xs→h5 … xl→h1) rather than a new type ramp. The Figma build's
- * decorative mark is a bespoke outlined glyph; the web equivalent here is the
- * platform-native technique for the same signal — a CSS-generated open-quote
- * character (U+201C), sized in `em` off the quote's own font-size so it
- * scales with `size` without a second token ramp. The Figma set's fixed
- * 480px width is deliberately not reproduced here — Container's max-width
- * scale doesn't exist yet (RFC 0022 §4 defers it), so this component takes no
- * opinion on width; a consumer constrains it once Container lands.
+ * scale (xs→h5 … xl→h1) rather than a new type ramp. The decorative mark is
+ * the *real* Figma asset — an outlined glyph, extracted as an inline SVG
+ * (see pull-quote.tsx) — not a CSS-generated character; this stylesheet only
+ * sizes and colours it. Its block-size is `em`, so it scales with `size` and
+ * densifies with the quote's own font-size, at a per-size ratio matching the
+ * real Figma asset's own proportions (mark height ÷ heading/{step} font-size
+ * at comfortable density — 18/24, 22/28, 28/32, 32/40, 38/48 for xs→xl; no
+ * token exists for a bespoke asset ratio like this, so it stays a literal
+ * per size, same category as the mark↔quote gap below). The Figma set's
+ * fixed 480px width is deliberately not reproduced here — Container's
+ * max-width scale doesn't exist yet (RFC 0022 §4 defers it), so this
+ * component takes no opinion on width; a consumer constrains it once
+ * Container lands.
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-heading-*,
  * --primitiv-content-* and --primitiv-space-* custom properties it resolves.
@@ -40,6 +45,7 @@
     --primitiv-pull-quote-color: var(--primitiv-content-primary);
     --primitiv-pull-quote-mark-color: var(--primitiv-content-muted);
     --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-12);
+    --primitiv-pull-quote-mark-height: 0.875em;
 
     margin: 0;
     display: flex;
@@ -50,10 +56,10 @@
   }
 
   .primitiv-pull-quote__mark {
+    display: block;
+    inline-size: auto;
+    block-size: var(--primitiv-pull-quote-mark-height);
     color: var(--primitiv-pull-quote-mark-color);
-    font-family: var(--primitiv-pull-quote-font-family);
-    font-size: 1.4em;
-    line-height: 1;
   }
 
   .primitiv-pull-quote__text {
@@ -67,18 +73,23 @@
 }
 
 @layer primitiv.variants {
-  /* Size — re-points the type scale (heading/h5…h1) and the fixed
-     mark↔quote gap. Both are typographic proportions of the size axis, not a
-     density concern (mirroring Blockquote's --quote-body-gap treatment), so
-     they stay fixed per size regardless of [data-density]. Density stays
-     ambient via [data-density] on the heading/* token values themselves
-     (RFC 0009). */
+  /* Size — re-points the type scale (heading/h5…h1), the fixed mark↔quote
+     gap, and the mark's em ratio (the real Figma asset's mark-height ÷
+     heading-font-size, per size — not a constant, since the source asset
+     isn't a fixed proportion of its heading step). All three are
+     typographic proportions of the size axis, not a density concern
+     (mirroring Blockquote's --quote-body-gap treatment), so they stay fixed
+     per size regardless of [data-density]. Density stays ambient via
+     [data-density] on the heading/* token values themselves (RFC 0009) —
+     the mark's em sizing rides along automatically since it's relative to
+     the (already density-scaled) font-size. */
   .primitiv-pull-quote--xs {
     --primitiv-pull-quote-font-family: var(--primitiv-heading-h5-font-family);
     --primitiv-pull-quote-font-size: var(--primitiv-heading-h5-font-size);
     --primitiv-pull-quote-line-height: var(--primitiv-heading-h5-line-height);
     --primitiv-pull-quote-font-weight: var(--primitiv-heading-h5-font-weight);
     --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-8);
+    --primitiv-pull-quote-mark-height: 0.75em;
   }
   .primitiv-pull-quote--sm {
     --primitiv-pull-quote-font-family: var(--primitiv-heading-h4-font-family);
@@ -86,6 +97,7 @@
     --primitiv-pull-quote-line-height: var(--primitiv-heading-h4-line-height);
     --primitiv-pull-quote-font-weight: var(--primitiv-heading-h4-font-weight);
     --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-8);
+    --primitiv-pull-quote-mark-height: 0.7857em;
   }
   .primitiv-pull-quote--md {
     --primitiv-pull-quote-font-family: var(--primitiv-heading-h3-font-family);
@@ -93,6 +105,7 @@
     --primitiv-pull-quote-line-height: var(--primitiv-heading-h3-line-height);
     --primitiv-pull-quote-font-weight: var(--primitiv-heading-h3-font-weight);
     --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-12);
+    --primitiv-pull-quote-mark-height: 0.875em;
   }
   .primitiv-pull-quote--lg {
     --primitiv-pull-quote-font-family: var(--primitiv-heading-h2-font-family);
@@ -100,6 +113,7 @@
     --primitiv-pull-quote-line-height: var(--primitiv-heading-h2-line-height);
     --primitiv-pull-quote-font-weight: var(--primitiv-heading-h2-font-weight);
     --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-16);
+    --primitiv-pull-quote-mark-height: 0.8em;
   }
   .primitiv-pull-quote--xl {
     --primitiv-pull-quote-font-family: var(--primitiv-heading-h1-font-family);
@@ -107,6 +121,7 @@
     --primitiv-pull-quote-line-height: var(--primitiv-heading-h1-line-height);
     --primitiv-pull-quote-font-weight: var(--primitiv-heading-h1-font-weight);
     --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-20);
+    --primitiv-pull-quote-mark-height: 0.7917em;
   }
 }
 
@@ -117,3 +132,4 @@ $primitiv-pull-quote-font-weight: var(--primitiv-pull-quote-font-weight);
 $primitiv-pull-quote-color: var(--primitiv-pull-quote-color);
 $primitiv-pull-quote-mark-color: var(--primitiv-pull-quote-mark-color);
 $primitiv-pull-quote-mark-gap: var(--primitiv-pull-quote-mark-gap);
+$primitiv-pull-quote-mark-height: var(--primitiv-pull-quote-mark-height);

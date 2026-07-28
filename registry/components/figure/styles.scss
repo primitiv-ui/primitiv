@@ -15,14 +15,13 @@
  * frame to clip to its rounded corners — on the web, matching the caption's
  * own bottom corner radii to the media's radius achieves the same seamless
  * look without requiring the two parts to nest, so `Figure.Media` and
- * `Figure.Caption` stay DOM siblings in every position). The scrim is a
- * separate ::before layer behind the caption text, not an opacity on the
- * caption box itself — RFC 0015 §4's "solid at 90% opacity" describes the
- * fill, not the caption text, which must stay fully legible.
+ * `Figure.Caption` stay DOM siblings in every position). The scrim is an
+ * opaque background on the caption itself, matching the Figma build — see the
+ * note on the overlay rule for why the earlier 90% pseudo-element went.
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-figure-*,
  * --primitiv-radii-*, --primitiv-content-*, --primitiv-surface-*,
- * --primitiv-body-*, --primitiv-opacity-90 and --primitiv-space-space-0
+ * --primitiv-body-* and --primitiv-space-space-0
  * custom properties it resolves.
  */
 
@@ -75,38 +74,52 @@
     flex-direction: column-reverse;
   }
 
+  /* Overlay — media and caption share one grid cell, so the caption aligns to
+     the **media's** bottom edge rather than the figure's.
+     This has to be a grid rather than `position: absolute` + `inset-block-end`,
+     because those pin to the nearest positioned ancestor — the figure — and a
+     figure is very often taller than its media: put three figures in a row with
+     `align-items: stretch` (the Flexbox default) and the overlay one is stretched
+     to match the tallest sibling. Measured on the deployed build: figure 210px,
+     media 174px, so only 12px of a 48px caption landed on the artwork and 36px
+     hung below it onto the page — the "black strip" under the image. A single
+     grid cell sized to the media (`grid-template-rows: max-content`) leaves any
+     stretched surplus below the cell, where it belongs, and the caption stays on
+     the artwork. Matches the Figma build, where the caption is a child of the
+     Media frame pinned `vertical: MAX`. */
   .primitiv-figure--overlay {
     position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: max-content;
+    align-content: start;
     gap: var(--primitiv-space-space-0);
   }
+  .primitiv-figure--overlay > .primitiv-figure__media {
+    grid-area: 1 / 1;
+  }
   .primitiv-figure--overlay > .primitiv-figure__caption {
-    position: absolute;
-    inset-inline: var(--primitiv-space-space-0);
-    inset-block-end: var(--primitiv-space-space-0);
+    grid-area: 1 / 1;
+    align-self: end;
     overflow: hidden;
     border-end-start-radius: var(--primitiv-figure-media-radius);
     border-end-end-radius: var(--primitiv-figure-media-radius);
     padding: var(--primitiv-figure-caption-gap);
     color: var(--primitiv-figure-overlay-caption-color);
-    /* Contain the scrim below. `position: absolute` alone does NOT make a
-       stacking context, so the `z-index: -1` scrim would escape this element
-       and paint against the nearest ancestor that is one — landing *behind*
-       the media instead of over it. With a media element that isn't fully
-       opaque the scrim then showed through it, reading as a stray dark panel
-       under the artwork with the media's own tone floating above it. */
-    isolation: isolate;
-  }
-  .primitiv-figure--overlay > .primitiv-figure__caption::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    /* Behind the caption text but, thanks to the `isolation` above, still
-       inside this element — so it covers the media rather than sliding under
-       it. A pseudo-element (rather than a background on the caption itself)
-       is what lets the 90% stay an opacity on a solid token: there is no
-       inverse-alpha token family to mix a translucent colour from. */
-    z-index: -1;
-    opacity: var(--primitiv-opacity-90);
+    /* The scrim: a plain **opaque** background on the caption itself, matching
+       the Figma build (its overlay Caption frame is `surface/inverse` at full
+       opacity — verified via the Desktop Bridge, node 607:32823).
+       RFC 0015 §4 originally specified 90% "so a hint of media shows through",
+       and an earlier build implemented that as a `z-index: -1` pseudo-element
+       with `opacity`. Two problems: the pseudo-element needed `isolation:
+       isolate` to stop it escaping the caption and painting *behind* the media
+       (`position: absolute` alone is not a stacking context), and against
+       anything other than flat artwork the 10% read as the media bleeding
+       through the bar rather than as a deliberate hint. Opaque matches the
+       design, and collapses the whole mechanism to one declaration.
+       A translucent scrim is still available to a consumer without touching
+       this rule — set `--primitiv-figure-overlay-scrim` to a colour that
+       carries its own alpha (RFC 0015 §9 defers a first-class one). */
     background: var(--primitiv-figure-overlay-scrim);
   }
 

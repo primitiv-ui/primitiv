@@ -16,10 +16,33 @@ export const figure = cva("primitiv-figure", {
       above: "primitiv-figure--above",
       overlay: "primitiv-figure--overlay",
     },
+    size: {
+      xs: "primitiv-figure--xs",
+      sm: "primitiv-figure--sm",
+      md: "primitiv-figure--md",
+      lg: "primitiv-figure--lg",
+      xl: "primitiv-figure--xl",
+    },
   },
   defaultVariants: {
     captionPosition: "below",
+    size: "md",
   },
 });
 
 export type FigureVariants = VariantProps<typeof figure>;
+
+export const figureCaption = cva("primitiv-figure__caption", {
+  variants: {
+    align: {
+      start: "primitiv-figure__caption--start",
+      center: "primitiv-figure__caption--center",
+      end: "primitiv-figure__caption--end",
+    },
+  },
+  defaultVariants: {
+    align: "start",
+  },
+});
+
+export type FigureCaptionVariants = VariantProps<typeof figureCaption>;

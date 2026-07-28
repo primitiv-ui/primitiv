@@ -853,23 +853,47 @@ primitiv add --all`}</code>
             <code>Stack</code> to lay the three side by side:
           </p>
           <Stack direction="row" gap="md">
-            <Figure captionPosition="below" style={{ flex: "1 1 0" }}>
+            <Figure captionPosition="below" size={size} style={{ flex: "1 1 0" }}>
               <Figure.Media>
                 <FigureMediaPlaceholder />
               </Figure.Media>
               <Figure.Caption>Below (the default)</Figure.Caption>
             </Figure>
-            <Figure captionPosition="above" style={{ flex: "1 1 0" }}>
+            <Figure captionPosition="above" size={size} style={{ flex: "1 1 0" }}>
               <Figure.Media>
                 <FigureMediaPlaceholder />
               </Figure.Media>
               <Figure.Caption>Above</Figure.Caption>
             </Figure>
-            <Figure captionPosition="overlay" style={{ flex: "1 1 0" }}>
+            <Figure captionPosition="overlay" size={size} style={{ flex: "1 1 0" }}>
               <Figure.Media>
                 <FigureMediaPlaceholder />
               </Figure.Media>
               <Figure.Caption>Overlay</Figure.Caption>
+            </Figure>
+          </Stack>
+          <p>
+            The caption has its own <code>align</code> axis, independent of
+            where it sits:
+          </p>
+          <Stack direction="row" gap="md">
+            <Figure size={size} style={{ flex: "1 1 0" }}>
+              <Figure.Media>
+                <FigureMediaPlaceholder />
+              </Figure.Media>
+              <Figure.Caption align="start">Start (the default)</Figure.Caption>
+            </Figure>
+            <Figure size={size} style={{ flex: "1 1 0" }}>
+              <Figure.Media>
+                <FigureMediaPlaceholder />
+              </Figure.Media>
+              <Figure.Caption align="center">Center</Figure.Caption>
+            </Figure>
+            <Figure size={size} style={{ flex: "1 1 0" }}>
+              <Figure.Media>
+                <FigureMediaPlaceholder />
+              </Figure.Media>
+              <Figure.Caption align="end">End</Figure.Caption>
             </Figure>
           </Stack>
           <h4>Heading 4 - An address</h4>

@@ -76,7 +76,7 @@ IDs).
 | EmptyState | — | ✓ | — | — | |
 | Field | ✓ | ✓ | ✓ | ✓ | 394:7449 |
 | Fieldset | — | ✓ | — | — | |
-| Figure | ✓ | registry only | ✓ | ✓ | 607:32844 (Figure), 606:32739 (Figcaption) — RFC 0015 / RFC 0023. Registry-only prose family — RFC 0015 decided against a headless companion. `Figure.Media` + `Figure.Caption`, `captionPosition` below\|above\|overlay; unlike the Figma build (which nests the caption inside the media frame to clip it for the overlay treatment), Media and Caption stay DOM siblings in every position — the stylesheet pins the caption over the media's bottom edge with `position: absolute` and matches its corner radii. Kitchen-sink = below/above/overlay laid out with `Stack` |
+| Figure | ✓ | registry only | ✓ | ✓ | 607:32844 (Figure), 606:32739 (Figcaption) — RFC 0015 / RFC 0023. Registry-only prose family — RFC 0015 decided against a headless companion. `Figure.Media` + `Figure.Caption`, `captionPosition` below\|above\|overlay, `size` xs–xl (drives the caption type only — the media is size-independent, as in Figma) and `Figure.Caption`'s own `align` start\|center\|end; unlike the Figma build (which nests the caption inside the media frame to clip it for the overlay treatment), Media and Caption stay DOM siblings in every position — the stylesheet pins the caption over the media's bottom edge with `position: absolute` and matches its corner radii. Kitchen-sink = below/above/overlay laid out with `Stack` |
 | Icon Button | ✓ | — | — | — | 433:8386 (icon-only Button — no separate headless/registry) |
 | Inline Code | — | registry only | ✓ | ✓ | registry-only (dedicated `code/*` font-size ramp) |
 | Input | ✓ | ✓ | ✓ | ✓ | 393:6159 |

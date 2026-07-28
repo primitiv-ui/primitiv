@@ -97,4 +97,50 @@
     opacity: var(--primitiv-opacity-90);
     background: var(--primitiv-figure-overlay-scrim);
   }
+
+  /* Size — re-points only the caption's type scale. The media is deliberately
+     size-independent (Figma's Figure `Size` axis drives nothing but the nested
+     Figcaption; the media placeholder is resized freely), and caption-gap is a
+     single density-scaled token rather than a per-size one, so neither moves
+     here. Density stays ambient via [data-density] on the body/* values
+     themselves (RFC 0009). */
+  .primitiv-figure--xs {
+    --primitiv-figure-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-figure-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-figure-line-height: var(--primitiv-body-xs-line-height);
+  }
+  .primitiv-figure--sm {
+    --primitiv-figure-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-figure-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-figure-line-height: var(--primitiv-body-sm-line-height);
+  }
+  .primitiv-figure--md {
+    --primitiv-figure-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-figure-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-figure-line-height: var(--primitiv-body-md-line-height);
+  }
+  .primitiv-figure--lg {
+    --primitiv-figure-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-figure-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-figure-line-height: var(--primitiv-body-lg-line-height);
+  }
+  .primitiv-figure--xl {
+    --primitiv-figure-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-figure-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-figure-line-height: var(--primitiv-body-xl-line-height);
+  }
+
+  /* Caption alignment — Figma's Figcaption `Align` axis (start/center/end),
+     which is `textAlignHorizontal` on a caption that fills the figure's width.
+     Logical keywords, not left/right, so start/end follow the reading
+     direction and flip under RTL. */
+  .primitiv-figure__caption--start {
+    text-align: start;
+  }
+  .primitiv-figure__caption--center {
+    text-align: center;
+  }
+  .primitiv-figure__caption--end {
+    text-align: end;
+  }
 }

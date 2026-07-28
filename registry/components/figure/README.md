@@ -17,6 +17,22 @@ listing, table) with an optional caption in one of three positions:
   (`surface/inverse` background at 90% opacity, `content/inverse` text — the
   `inverse` token pair, so it inverts together against either theme).
 
+Two more axes, both matching the Figma sets:
+
+- `size` — `"xs" | "sm" | "md" | "lg" | "xl"` (default `"md"`). Scales the
+  **caption's type only**, off the `body/{size}` ramp. The media is
+  size-independent, exactly as in Figma, where the `Figure` set's `Size` axis
+  drives nothing but the nested Figcaption and the media placeholder is
+  resized freely. `caption-gap` is a single density-scaled token rather than a
+  per-size one, so it doesn't move with `size` either.
+- `Figure.Caption`'s `align` — `"start" | "center" | "end"` (default
+  `"start"`), matching the Figcaption set's `Align` axis
+  (`textAlignHorizontal` on a caption that fills the figure's width). Logical
+  keywords, so `start`/`end` flip under RTL.
+
+An earlier build shipped neither: the caption was locked to `body/md` at every
+size, and had no alignment control at all.
+
 Compose `Figure.Media` (clips its content to the figure's corner radius) and
 `Figure.Caption`.
 
@@ -30,16 +46,32 @@ inside a `position: relative` figure, and matches the caption's own bottom
 corner radii to the media's radius, achieving the same seamless look without
 requiring the two parts to nest.
 
+### Known Figma-side drift: the overlay scrim opacity
+
+The scrim here is `surface/inverse` at **90%** opacity, which is what RFC 0015
+specifies in two places — §4 ("The scrim is **solid** (90% opacity) for v1")
+and its own confirmed-on-human-review deviations list ("Overlay scrim is solid
+at 90% opacity — *a hint of media shows through*"). The **live Figma frame
+does not implement it**: checked via the Desktop Bridge, the overlay Caption
+frame is `opacity: 1` with a single solid fill at `opacity: 1`, bound to
+`surface/inverse`, which itself resolves to `color/neutral/800` at `a = 1` — so
+nothing in that chain carries the 10% transparency.
+
+This is left **as-is deliberately**: the code follows the RFC, and it is the
+Figma build that drifted from the spec, not the other way round. Fixing it
+belongs on the Figma side (drop the scrim fill to 90%), not by hardening a
+spec'd design decision out of the stylesheet.
+
 ## Usage
 
 ```tsx
 import { Figure } from "@/components/figure";
 
-<Figure captionPosition="overlay">
+<Figure captionPosition="overlay" size="sm">
   <Figure.Media>
     <img src="…" alt="…" />
   </Figure.Media>
-  <Figure.Caption>A caption.</Figure.Caption>
+  <Figure.Caption align="center">A caption.</Figure.Caption>
 </Figure>
 ```
 
@@ -47,10 +79,10 @@ import { Figure } from "@/components/figure";
 
 | File | Authored? | Role |
 |---|---|---|
-| `contract.json` | **authored** | The styling contract — the `.primitiv-figure` root class, the `--below`/`--above`/`--overlay` modifiers, the `__media`/`__caption` parts, and the `--primitiv-figure-*` custom properties. |
+| `contract.json` | **authored** | The styling contract — the `.primitiv-figure` root class, the `--below`/`--above`/`--overlay` and `--xs…--xl` modifiers, the `__media`/`__caption` parts (with the caption's own `--start`/`--center`/`--end`), and the `--primitiv-figure-*` custom properties. |
 | `styles.css` | **authored** | The canonical default theme: Flexbox ordering for below/above, absolute positioning + scrim for overlay, in `@layer primitiv.base`/`primitiv.variants`. |
 | `styles.scss` | **authored** | `styles.css` plus a trailing `$`-alias block, one `$primitiv-figure-<prop>` per custom property. |
-| `figure.recipe.ts` | **authored** | `cva("primitiv-figure", { variants: { captionPosition } })`. |
+| `figure.recipe.ts` | **authored** | `cva("primitiv-figure", { variants: { captionPosition, size } })` plus `figureCaption` — `cva("primitiv-figure__caption", { variants: { align } })`. |
 | `figure.tsx` | **authored** | The `<Figure>`/`<Figure.Media>`/`<Figure.Caption>` wrappers. Hand-written (there is no primitive to generate from). |
 
 Because there is no headless primitive, `figure.tsx`/`figure.recipe.ts` are
@@ -66,5 +98,5 @@ under a component-owned name. It also owns `--primitiv-figure-media-radius`
 (aliasing `radii/8`), `--primitiv-figure-caption-color` (`content/muted`),
 and the overlay pair `--primitiv-figure-overlay-scrim`/
 `-overlay-caption-color` (the `inverse` token pair — `surface/inverse` +
-`content/inverse`), plus the `body/md`-aliased type scale. No new tokens
+`content/inverse`), plus the `body/{size}`-aliased type scale. No new tokens
 beyond `figure/caption-gap`, which had already landed (RFC 0015 §5.1).

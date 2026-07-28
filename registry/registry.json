@@ -1208,6 +1208,35 @@
         }
       },
       "contract": "contract.json"
+    },
+    "figure": {
+      "version": "0.1.0",
+      "dependsOn": {
+        "packages": [],
+        "tokens": true,
+        "components": []
+      },
+      "styles": {
+        "packages": [
+          "class-variance-authority"
+        ],
+        "react": [
+          "figure.recipe.ts",
+          "figure.tsx"
+        ],
+        "formats": {
+          "css": [
+            "styles.css"
+          ],
+          "scss": [
+            "styles.scss"
+          ],
+          "tailwind": [
+            "styles.css"
+          ]
+        }
+      },
+      "contract": "contract.json"
     }
   }
 }

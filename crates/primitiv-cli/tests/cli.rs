@@ -155,9 +155,9 @@ fn add_all_resolves_every_embedded_component() {
         // tooltip + toggle-group + accordion + carousel + segmented-control +
         // collapsible + select + navigation-menu + avatar + breadcrumb +
         // context-menu + the three RFC 0022 layout primitives (box, stack,
-        // spacer) + the RFC 0023 prose-family entries built so far (kbd,
-        // blockquote, pull-quote, list, description-list).
-        .stdout(predicate::str::contains("Resolved 36 components to add:"))
+        // spacer) + the RFC 0023 prose-family entries (kbd, blockquote,
+        // pull-quote, list, description-list, figure).
+        .stdout(predicate::str::contains("Resolved 37 components to add:"))
         .stdout(predicate::str::contains("button"))
         .stdout(predicate::str::contains("table"))
         .stdout(predicate::str::contains("divider"))
@@ -186,7 +186,8 @@ fn add_all_resolves_every_embedded_component() {
         .stdout(predicate::str::contains("blockquote"))
         .stdout(predicate::str::contains("pull-quote"))
         .stdout(predicate::str::contains("list"))
-        .stdout(predicate::str::contains("description-list"));
+        .stdout(predicate::str::contains("description-list"))
+        .stdout(predicate::str::contains("figure"));
 }
 
 #[test]

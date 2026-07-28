@@ -175,9 +175,22 @@ dedicated one). No new tokens for either.
   the draft specified — no padding-bottom hack. `ratio` is a continuous
   numeric value, so it is set inline as `--primitiv-aspect-ratio` per
   instance (the same treatment `Stack` gives `align`/`justify`) rather than
-  a modifier class. The child is wrapped in an absolutely-positioned
-  `__content` element that fills the ratio box regardless of its own
-  intrinsic size; an `<img>`/`<video>` still needs its own `object-fit` from
-  the consumer to crop rather than distort.
+  a modifier class. The child is wrapped in a `__content` element that fills
+  the ratio box regardless of its own intrinsic size; an `<img>`/`<video>`
+  still needs its own `object-fit` from the consumer to crop rather than
+  distort.
+
+  **Corrected after the deployed kitchen-sink showed the box out of flow
+  (2026-07-28):** `__content` was originally *absolutely positioned*, which
+  left the box with no in-flow content and therefore no height at all unless
+  `aspect-ratio` resolved — so a parent that muddied the block axis collapsed
+  it and the content painted over the rest of the page. It is now a
+  **single-cell grid** (`display: grid` + `grid-area: 1 / 1`), which fills
+  identically while staying in flow, so the box always reports a real height
+  to its parent. `overflow: hidden` was added alongside it so a mis-sized box
+  crops instead of spilling. The layout lesson, now in the component README:
+  give ratio boxes a **definite inline size** — a Grid track — rather than a
+  `flex: 1 1 0` row, where the width comes out of flex distribution and the
+  ratio-derived height arrives too late for the flex line to size around.
 
 Container, Grid (step 3, blocked on RFC 0025) remain unbuilt.

@@ -21,9 +21,9 @@ the `Figma` column of `ROADMAP.md` reads `—` for exactly this reason.
 
 `AspectRatio` constrains embedded media (an image, video, map, iframe) to a
 width-to-height ratio via the modern CSS `aspect-ratio` property — no
-padding-bottom hack. The child is wrapped in an absolutely-positioned
-`__content` element that fills the ratio box regardless of the child's own
-intrinsic size.
+padding-bottom hack. The child is wrapped in a `__content` element that fills
+the ratio box regardless of the child's own intrinsic size — a single-cell
+grid, so it fills while staying in flow (see the Grid gotcha below).
 
 - `ratio` — a unitless number (`16 / 9`, `4 / 3`, `1`), default `1`. Set
   inline as `--primitiv-aspect-ratio` — a continuous value, not a fixed
@@ -36,34 +36,34 @@ box; it doesn't style the media inside it.
 The box also `overflow: hidden`s, so content larger than the ratio is cropped
 rather than spilling out of it.
 
-### Gotcha: don't let a parent stretch it on the block axis
+### Gotcha: lay ratio boxes out with Grid, not a `flex: 1 1 0` row
 
-Because the content layer is absolutely positioned, an `AspectRatio` has **no
-in-flow content to give it an intrinsic height** — the ratio is the only thing
-establishing one. So if a parent forces the block axis, the ratio loses and the
-box collapses.
-
-The case that bites is a **row of ratio boxes in a flex container**, since
-`align-items` defaults to `stretch`:
+`aspect-ratio` needs a **definite inline size** to divide. Grid gives it one —
+a `1fr` track is resolved before any height is asked for — so the row reserves
+the correct height and everything below it stays put:
 
 ```tsx
-// ✗ each box is stretched to the row's height, which is itself derived from
-//   content — and there is none, so they collapse.
-<Stack direction="row" gap="md">
+// ✓ each column is a definite width, so each box's height is definite too.
+<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
   <AspectRatio ratio={16 / 9}>…</AspectRatio>
-</Stack>
-
-// ✓ opt out of the stretch and each box keeps its own ratio.
-<Stack direction="row" gap="md" align="start">
-  <AspectRatio ratio={16 / 9}>…</AspectRatio>
-</Stack>
+  <AspectRatio ratio={1}>…</AspectRatio>
+</div>
 ```
 
-This is exactly what went wrong in the kitchen-sink's first Layout Primitives
-demo: the ratio boxes contributed zero height, and their content painted over
-the two sections below them. `overflow: hidden` now contains the spill, but the
-box still needs `align="start"` (or any non-`stretch` `align-self`) to size
-correctly. `Stack`'s own default is `stretch`, matching Flexbox.
+A **flex row of `flex: 1 1 0` ratio boxes is the case to avoid.** There, each
+item's width comes out of flex distribution, so the ratio-derived heights arrive
+too late for the flex line to size around them — the taller box overflows its own
+row and paints over the next section. The kitchen-sink hit this twice: first with
+`align-items: stretch` (which collapsed both boxes to zero), then again with
+`align-items: start` (which fixed the individual ratios but left the row reserving
+only the *first* box's height). Grid avoids both.
+
+Two things make the component itself defensive about this rather than relying on
+the caller: the content layer is **in flow** (a single-cell grid, not
+`position: absolute`), so the box always has a real height to report to its
+parent instead of collapsing to nothing when the ratio can't resolve; and
+`overflow: hidden` means even a mis-sized box crops rather than painting over the
+page.
 
 ## Usage
 

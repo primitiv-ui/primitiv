@@ -1459,18 +1459,28 @@ export function ramp(hue: number, chroma = 0.12) {
           <code>AspectRatio</code> constrains its content to a ratio via CSS{" "}
           <code>aspect-ratio</code> — no padding-bottom hack:
         </p>
-        {/* `align="start"` is required, not cosmetic: Stack's default
-            `align-items: stretch` would force the block axis and collapse a
-            box whose only height comes from its ratio. See the AspectRatio
-            README. */}
-        <Stack direction="row" gap="md" align="start">
-          <AspectRatio ratio={16 / 9} style={{ flex: "1 1 0" }}>
+        {/* A two-up grid, not a flex row. Grid resolves each column to a
+            definite width *before* any height is needed, so `aspect-ratio` has
+            something concrete to divide and the row reserves the taller box.
+            A `flex: 1 1 0` row is the case to avoid: its items' widths come out
+            of flex distribution, which leaves the ratio-derived heights arriving
+            too late for the line to size around — the 1:1 box then overflowed
+            its own row. See the AspectRatio README. */}
+        <Box
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "var(--primitiv-space-space-16)",
+            alignItems: "start",
+          }}
+        >
+          <AspectRatio ratio={16 / 9}>
             <FigureMediaPlaceholder fill />
           </AspectRatio>
-          <AspectRatio ratio={1} style={{ flex: "1 1 0" }}>
+          <AspectRatio ratio={1}>
             <FigureMediaPlaceholder fill />
           </AspectRatio>
-        </Stack>
+        </Box>
       </Section>
 
       {/* One uncontrolled drawer per edge. Triggers take the raw `size`; the panels

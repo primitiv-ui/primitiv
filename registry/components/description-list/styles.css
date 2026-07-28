@@ -18,9 +18,11 @@
  * had the `stacked` shape:
  *
  * - `stacked` (default): <dt> above <dd>, <dd> indented via a fixed padding
- *   wrapper. Every row (term or detail) shares one uniform gap — Figma's
+ *   wrapper. Every row (term or detail) shares one uniform 2px step — Figma's
  *   `itemSpacing` is a flat, unbound 2px across every size step, not the
- *   two-tier pair-gap/term-gap split the first build invented.
+ *   two-tier pair-gap/term-gap split the first build invented. Applied as a
+ *   `margin-block-end` per row (zeroed on the last), keeping the <dl> in normal
+ *   block flow — see the note on the `--stacked` rule.
  * - `inline`: <dt> : <dd> side by side, via a two-column CSS Grid
  *   (`max-content 1fr`) — no DOM change from `stacked`, since Grid
  *   auto-placement pairs dt/dd into rows from plain document order. The
@@ -117,10 +119,25 @@
      uniform row gap; `inline` is a two-column grid (dt : dd) with a
      dedicated column gap and a row gap that mirrors the `list` component's
      item-gap (the Figma binding, not a description-list-owned token). */
+  /* Stacked stays in **normal block flow** and spaces its rows with a bottom
+     margin, rather than becoming a flex column with `gap`.
+     `gap` only exists inside a flex or grid formatting context, so using it
+     means putting `display: flex` on the `<dl>` — the very element whose
+     `dt`/`dd` grouping assistive tech reads. A margin needs no such change, and
+     a description list has no layout requirement here that block flow doesn't
+     already satisfy: `dt` and `dd` are block-level and stack on their own.
+     The trailing margin is removed from the last row, so the list ends flush
+     and a parent's own spacing (a `flow/*` rhythm, a Stack `gap`) isn't
+     doubled up. */
   .primitiv-description-list--stacked {
-    display: flex;
-    flex-direction: column;
-    gap: var(--primitiv-description-list-row-gap);
+    display: block;
+  }
+  .primitiv-description-list--stacked > .primitiv-description-list__term,
+  .primitiv-description-list--stacked > .primitiv-description-list__details {
+    margin-block-end: var(--primitiv-description-list-row-gap);
+  }
+  .primitiv-description-list--stacked > :last-child {
+    margin-block-end: var(--primitiv-space-space-0);
   }
 
   .primitiv-description-list--inline {

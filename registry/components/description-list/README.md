@@ -111,6 +111,18 @@ live Figma file, spacing splits by `layout`:
   token family, sized proportionally against the existing `space/*` scale —
   each anchored to Figma's own (density-unaware) comfortable/md value: 2px
   row gap, 24px column gap, 16px indent.
+
+  `stacked` applies its row gap as a **`margin-block-end` on each row, zeroed
+  on the last**, not as `gap`. `gap` only exists inside a flex or grid
+  formatting context, so using it would mean putting `display: flex` on the
+  `<dl>` — the element whose `dt`/`dd` grouping assistive tech reads — and a
+  stacked description list needs nothing from flex that normal block flow
+  doesn't already give it (`dt`/`dd` are block-level and stack on their own).
+  Dropping the trailing margin matters for the same reason `gap` is otherwise
+  attractive: the list ends flush, so a parent's own spacing (a `flow/*`
+  rhythm, a `Stack` gap) isn't doubled up. `inline` **does** keep `row-gap`/
+  `column-gap`, because pairing `dt`/`dd` into two columns needs Grid anyway
+  and Grid's gap never adds trailing space.
 - `inline`'s row gap — the gap between one pair and the next —
   is **not** a description-list-owned token: Figma binds it directly to
   `list/item-gap` (RFC 0012 D9, the adjacent compound from the same design

@@ -1,9 +1,9 @@
 # RFC 0022 — Layout primitives
 
-> **Status:** Partially landed — build-order step 1 shipped 2026-07-28 (Box,
-> Stack, Spacer: registry + kitchen-sink). Step 2 (Center, AspectRatio) and
-> step 3 (Container, Grid — blocked on RFC 0025's breakpoint scale, see §4)
-> remain proposed.
+> **Status:** Partially landed — build-order steps 1 and 2 shipped 2026-07-28
+> (Box, Stack, Spacer, Center, AspectRatio: registry + kitchen-sink). Step 3
+> (Container, Grid — blocked on RFC 0025's breakpoint scale, see §4) remains
+> proposed.
 > **Author:** Claude, with architectural drafting
 > **Date:** 2026-07-27
 > **Builds on:** RFC 0008 (CSS architecture — the `@layer primitiv.*` stack
@@ -156,3 +156,28 @@ pre-settled by the draft:
 
 Center, AspectRatio (step 2) and Container, Grid (step 3, blocked on RFC
 0025) remain unbuilt.
+
+## 9. Build outcome — step 2 (landed 2026-07-28)
+
+Center and AspectRatio landed the same session as the follow-up fix in §8,
+both hand-authored/primitive-less per §2, registry + kitchen-sink (both
+extend the "Layout Primitives" section from step 1 rather than earning a
+dedicated one). No new tokens for either.
+
+- **`Center` carries no sizing opinion** — like `Box`/`Stack`/`Spacer`, it
+  forces no width or height, only alignment. Each `axis` variant
+  (`"both"|"horizontal"|"vertical"`) sets *both* Flexbox alignment
+  properties explicitly, rather than overriding one from a shared base, so
+  the uncentred axis reads as `flex-start` (content-driven) instead of
+  stretching to fill it — the draft didn't specify this, and stretching
+  turned out to be the wrong default on inspection.
+- **`AspectRatio` uses the modern `aspect-ratio` CSS property directly**, as
+  the draft specified — no padding-bottom hack. `ratio` is a continuous
+  numeric value, so it is set inline as `--primitiv-aspect-ratio` per
+  instance (the same treatment `Stack` gives `align`/`justify`) rather than
+  a modifier class. The child is wrapped in an absolutely-positioned
+  `__content` element that fills the ratio box regardless of its own
+  intrinsic size; an `<img>`/`<video>` still needs its own `object-fit` from
+  the consumer to crop rather than distort.
+
+Container, Grid (step 3, blocked on RFC 0025) remain unbuilt.

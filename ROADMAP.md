@@ -43,9 +43,10 @@ VisuallyHidden) are headless-only and omitted. The registry-only rows with no
 standalone headless component fall into two families: the **prose family**
 (Code Block, Inline Code, Prose, and — landed 2026-07-28 — Blockquote, Pull
 Quote, List, DescriptionList, Kbd, Figure; see RFC 0023) and the **layout
-primitives** (Box, Stack, Spacer, landed 2026-07-28; see RFC 0022). Inline
-Code, Prose and the three layout primitives have no Figma set; every other
-prose-family entry does — Code Block's is the composed one (`601:9607`,
+primitives** (Box, Stack, Spacer, Center, AspectRatio — build-order steps 1–2,
+landed 2026-07-28; see RFC 0022). Inline Code, Prose and the five layout
+primitives have no Figma set; every other prose-family entry does — Code
+Block's is the composed one (`601:9607`,
 whose tabbed Type composes Tabs + Button), the RFC 0023 entries each have a
 plain component set from RFC 0012 (Figure's from RFC 0015 — node IDs on its
 row; the others' node IDs aren't recorded in RFC 0012, only their variable
@@ -54,6 +55,7 @@ IDs).
 | Component | Figma | Headless | Registry | Kitchen Sink | Node ID / notes |
 |---|---|---|---|---|---|
 | Accordion | ✓ | ✓ | ✓ | ✓ | 416:6729 (Item), 417:6881 (Panel) |
+| AspectRatio | — | registry only | ✓ | ✓ | RFC 0022 (layout primitives, build-order step 2). Registry-only — constrains content to a width/height ratio via CSS `aspect-ratio` (no padding-bottom hack); `ratio` is a continuous number set inline as `--primitiv-aspect-ratio`, not a modifier class. Kitchen-sink = two ratios in the Layout Primitives section |
 | Alert | — | ✓ | — | — | |
 | Avatar | ✓ | ✓ | ✓ | ✓ | 433:7944 (Size xs-xl × Type Image\|Initials\|Placeholder × Shape Circle\|Square, 30 variants). Headless `Avatar.Root`/`.Image`/`.Fallback` (image load-status compound). Registry `avatar` = fixed-size clipping frame (`.primitiv-avatar` root, `overflow: hidden` + `border-radius`) with the image/fallback absolutely stacked and only one shown per `data-status`; sizing/icon-size reuse `framed-control/*` directly (matches Figma's own binding), radius is the avatar-specific `avatar/radius/*` family (pre-existing token, circle = `full` regardless of size, square = size-scaled); one flagged Figma drift (Placeholder's icon uses `content/secondary`, Initials' text uses `action/secondary/foreground/default` — registry uses the latter for both via `currentColor`). Kitchen-sink = working image, broken-image→error-fallback, square shape, icon-only fallback |
 | Blockquote | ✓ | registry only | ✓ | ✓ | RFC 0012 D12 / RFC 0023. Registry-only prose family — no headless companion. 3px `border-inline-start` accent bar (`tone` default→`border/strong`, accent→`border/focus`), quote + citation bound to the *same* `body/{size}` axis (D12's explicit correction), `cite` prop narrows the native `<blockquote cite>` URL attribute to a display string. Kitchen-sink = tone pair in the intro article |
@@ -61,6 +63,7 @@ IDs).
 | Breadcrumb | ✓ | ✓ | ✓ | ✓ | 436:12220 (Item), 436:12221 (Separator), 436:12911 (composition). Design change (2026-07-27): Item gained a `State` variant (`link`\|`current`, was a single undifferentiated style) so the current page reads `content/primary` against a `content/muted` trail (tuned live from an initial `content/secondary` guess — muted reads with a bigger gap against primary); Separator recoloured to match. Registry `breadcrumb` = flex `<ol>` row (unbound flat `space-4` gap, matching Figma's own unscaled `itemSpacing`), Link/Separator on `content-muted`, Page on `content-primary`, body/{size} type throughout; Link's hover reveals an always-in-layout underline (`text-decoration-color` transparent→`currentColor`) fading in with the muted→primary colour lift, so the affordance is a pure colour transition with no reflow. Kitchen-sink = default "/" separator trail + a custom chevron-icon separator trail |
 | Button | ✓ | ✓ | ✓ | ✓ | 347:14161 |
 | Carousel | 🟡 | ✓ | ✓ | ✓ | Figma set in progress — `CarouselSlide` + parts, full set not yet assembled |
+| Center | — | registry only | ✓ | ✓ | RFC 0022 (layout primitives, build-order step 2). Registry-only — a single- or both-axis Flexbox centring box; each `axis` variant sets both alignment properties explicitly so the uncentred axis reads `flex-start` (content-driven), never stretched. Kitchen-sink = Layout Primitives section |
 | Checkbox | ✓ | ✓ | ✓ | ✓ | 369:30652 |
 | CheckboxCard | — | ✓ | — | — | |
 | Code Block | ✓ | registry only | ✓ | ✓ | 601:9607 (Size×Type=default\|tabbed; tabbed = Tabs/Trigger strip + text Copy Button, Copy one size below block); registry-only React surface (Prism highlighting via prism-react-renderer); tabbed composes headless Tabs + registry Button |
@@ -84,21 +87,21 @@ IDs).
 | Modal | ✓ | ✓ | ✓ | ✓ | 435:10250 (Modal), 435:9450 (Header), 435:10108 (Body), 435:10161 (Footer) |
 | NavigationMenu | ✓ | ✓ | ✓ | ✓ | Five sets on page "Navigation Menu" (`1333:50772`), all **md-first** (md variants built before the other sizes, so the Size dropdown genuinely leads with md — the reorder Collapsible and Select couldn't get retroactively): `Trigger` (1333:50847, Size×State[closed\|open]×Interaction, chevron flips glyph via Icon rather than rotating), `Bar Link` (1333:51136) + `Panel Link` (1333:51304) — the two placements of the single headless `Link` part (bar = one-line entry; panel = two-line title+description with optional leading/trailing swaps), `Indicator` (1334:51727, Style[arrow\|underline] — the arrow reuses `Tooltip / Arrow` Tone=inverted, the underline binds `border-width/2`), and composed `Navigation Menu` (1334:51944, Variant[closed\|open]×Size) = transparent bar + a `Dropdown / Panel` instance with its stroke and own shadow overridden off, `elevation/overlay` moved to a transparent wrapper so the shadow wraps arrow + panel as ONE silhouette (the Tooltip/Popover model — a border would seam across the arrow base). Geometry adopts the previously-unconsumed `nav-item/*` Context family, extended for this build with an `xl` slot + `padding-block`, `text-gap` and `panel-offset`. Registry `navigation-menu` = anchor-positioned Viewport panel projection, trigger chevron flip, arrow/underline `Indicator` modifiers; kitchen-sink = desktop five-panel disclosure nav (two-column, single-column, and a four-column brand-callout panel) **and** the composed mobile presentation (`Drawer` + `Collapsible` + shared `NavigationMenuLink`) |
 | Popover | ✓ | ✓ | ✓ | ✓ | 1168:36142 (composition), 1140:25762 (Content), 1168:35023 (Arrow); registry = borderless panel + `::after` arrow + 12 placements (CSS anchor positioning) |
-| Progress | ✓ | ✓ | — | — | 443:7839 |
+| Progress | ✓ | ✓ | ✓ | ✓ | 443:7839. Generated wrapper (contract root + one structural subcomponent, `Indicator`). `value`/`max` are `styleProps` — the generated `<Progress>` writes them onto `--primitiv-progress-value`/`-max` inline on the root, inheriting down to `Indicator`, so one prop pair drives both the ARIA behaviour and the fill (the same mechanism Carousel's `slidesPerPage` uses). The fill transforms with `scaleX`, not an animated `width`; indeterminate swaps to a looping slide animation (guarded under `prefers-reduced-motion`). Sized off the new `progress/{size}/height` Context family. Kitchen-sink = 25%/60%/100%/indeterminate |
 | Prose | — | registry only | ✓ | ✓ | registry-only (`.primitiv-flow` + `<Prose>` wrapper) |
 | Pull Quote | ✓ | registry only | ✓ | ✓ | RFC 0012 D13 / RFC 0023. Registry-only prose family — no headless companion. Large centred quote riding the existing `heading/h5…h1` scale (xs→xl); `marks` toggles a CSS-generated open-quote glyph (`\201C`) in place of the Figma build's bespoke outlined vector. Deliberately takes no width opinion — Figma's fixed 480px isn't reproduced since `Container`'s max-width scale doesn't exist yet (RFC 0022 §4). No new tokens. Kitchen-sink = in the intro article |
 | RadioCard | — | ✓ | — | — | |
 | RadioGroup | ✓ | ✓ | ✓ | ✓ | 401:17958 (registry `radio`) |
 | Segmented Control | ✓ | ✓ | ✓ | ✓ | Figma 1216:44224 (track set, Size×Count 2-5) + 1216:43507 (Item set, Size×Selected×Interaction) on page "Segmented Control" — Tabs-model split (track composes Item). Headless = `SegmentedControl.Root`/`.Item` on RadioGroup single-select semantics (role=radiogroup/radio, roving tabindex, horizontal-default orientation, group + item disabled; 100% mutation). Registry `segmented-control` = transparent bordered track (concentric `calc(item-radius + track-padding)` radius) + framed primary/secondary segments via shared tokens (own styles.css like Tabs/Trigger + ToggleGroup Item, not composing Button). Kitchen-sink = controlled React/Vue/Svelte picker with leading logos + a justified example. Sliding indicator deferred |
 | Select | ✓ | ✓ | ✓ | ✓ | `Select / Trigger` (403:1883, renamed) + composed `Select` set (1282:46193, Variant[closed\|open] × Size[xs-xl], stacks a real Dropdown/Panel instance with a working Slot for free row composition — RFC 0019 dep). Headless = one compound, two render paths behind `native` (rich Popover-API listbox by default; 100% mutation), `Select.Value` mirroring the selected item's content into the trigger via a `data-placeholder` hook. Registry `select` = framed trigger on Input's geometry + a panel/rows resolving the shared `dropdown/*` tokens (so a listbox and a menu are one surface, with no `dropdown` dependency), `mode` rich\|native modifier, 4 placements. Kitchen-sink = 7 rich demos (leading marks, leading+trailing slots, groups, top-end, invalid, disabled) + 3 native. Combobox still deferred, see `docs/select-future-work.md` |
-| Slider | ✓ | ✓ | — | — | 392:5196 (track), 392:4353 (thumb) |
+| Slider | ✓ | ✓ | ✓ | ✓ | 392:5196 (track), 392:4353 (thumb). Generated wrapper (four-part structural compound — `Root`/`Track`/`Range`/`Thumb`, no subcomponent carrying its own modifiers). No position math in the stylesheet — the headless layer already computes every `left`/`right`/`top`/`bottom` inline; CSS supplies only geometry/colour, with `Thumb`'s cross axis centred via `inset-*-start: 50%` split per `[data-orientation]` so it never collides with the JS-set inset on the value axis. Sized off the pre-existing `slider/{size}/*` Context family (thumb/ring/track tokens, built ahead of this component landing); the focus ring reuses the `thumb-ring-*` tokens rather than the generic system ring. Kitchen-sink = single thumb, range (two thumbs), disabled |
 | Spacer | — | registry only | ✓ | ✓ | RFC 0022 (layout primitives, build-order step 1). Registry-only — a blank `flex: 1 0 0` filler for pushing flex siblings apart, decorative by default (`aria-hidden`). Kitchen-sink = pushes a toolbar's trailing group in the Layout Primitives section |
 | Stack | — | registry only | ✓ | ✓ | RFC 0022 (layout primitives, build-order step 1). Registry-only — a Flexbox stack, `direction` column\|row, `gap` resolved against a new density-scaled `stack/gap-{xs,sm,md,lg,xl}` Context family (never a raw px value, continuing RFC 0016's "gap is the tool"; `none` pins the flat `space-space-0` primitive), `align`/`justify` pass through as inline styles (plain Flexbox keywords, not tokens). Kitchen-sink = a toolbar row in the Layout Primitives section, and reused throughout the intro article to lay out the other RFC 0023 demos |
 | Status | — | ✓ | — | — | |
 | Switch | ✓ | ✓ | ✓ | ✓ | 315:5884 |
 | Table | ✓ | ✓ | ✓ | ✓ | 605:13524 (Table), 604:9802 (Cell), 604:9991 (Header Cell), 604:10228 (Row) |
 | Tabs | ✓ | ✓ | ✓ | ✓ | 425:5528 (Trigger), 425:5539 (Panel) |
-| Textarea | ✓ | ✓ | — | — | 439:14511 |
+| Textarea | ✓ | ✓ | ✓ | ✓ | 439:14511. Generated wrapper — a single-element component, the same shape as `input`. `min-block-size` (content can grow it) comes from the new `textarea/{size}/min-height` Context family rather than `framed-control/{size}/height`; block padding reuses `framed-control-{size}-padding-inline` for both axes (a uniform box padding) rather than inventing a second padding family. `resize: vertical` only — width already tracks the Field/form column. Kitchen-sink = empty, filled, disabled |
 | Toggle | — | ✓ | — | — | standalone Figma set (385:1418) deleted 2026-07-01 when ToggleGroup decoupled from it — no dedicated Figma component currently; rebuild from the workbench reference if needed |
 | ToggleGroup | ✓ | ✓ | ✓ | ✓ | 389:3372 (Toggle Group track) + 733:239 (ToggleGroup Item) — redesigned 2026-07-01 as a recessed pill track + floating pill thumb, decoupled from the deleted standalone Toggle set |
 | Tooltip | ✓ | ✓ | ✓ | ✓ | 1168:35600 (composition), 1142:25897 (Content), 1168:34990 (Arrow); registry = flat bubble + `__arrow`, `tone` (default dark / inverted surface) × `size` × 12 placements (CSS anchor positioning), `data-state` exit (no overlay, needs `forceMount`) |
@@ -149,16 +152,16 @@ widget. See
 [`docs/rfcs/0022-layout-primitives.md`](docs/rfcs/0022-layout-primitives.md).
 Hand-authored/primitive-less, same shape as `prose`. `Container`/`Grid`
 raise an open question (no breakpoint token scale exists yet) the RFC
-recommends deferring rather than solving inline. **Build-order step 1 is
-landed** (registry + kitchen-sink, 2026-07-28) — Box, Stack, Spacer. Step 2
-(Center, AspectRatio) and step 3 (Container, Grid — blocked on RFC 0025's
-breakpoint scale) remain.
+recommends deferring rather than solving inline. **Build-order steps 1 and 2
+are landed** (registry + kitchen-sink, 2026-07-28) — Box, Stack, Spacer,
+Center, AspectRatio. Step 3 (Container, Grid — blocked on RFC 0025's
+breakpoint scale) remains.
 
 - [x] Box
 - [x] Stack
 - [x] Spacer
-- [ ] Center
-- [ ] AspectRatio
+- [x] Center
+- [x] AspectRatio
 - [ ] Container — responsive `size` deferred, see RFC 0022 §4
 - [ ] Grid — responsive `columns` deferred, see RFC 0022 §4
 

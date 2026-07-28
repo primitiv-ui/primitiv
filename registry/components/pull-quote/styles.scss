@@ -45,7 +45,7 @@
     --primitiv-pull-quote-color: var(--primitiv-content-primary);
     --primitiv-pull-quote-mark-color: var(--primitiv-content-muted);
     --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-12);
-    --primitiv-pull-quote-mark-height: 0.875em;
+    --primitiv-pull-quote-mark-height: calc(0.875 * var(--primitiv-pull-quote-font-size));
 
     margin: 0;
     display: flex;
@@ -81,15 +81,24 @@
      (mirroring Blockquote's --quote-body-gap treatment), so they stay fixed
      per size regardless of [data-density]. Density stays ambient via
      [data-density] on the heading/* token values themselves (RFC 0009) —
-     the mark's em sizing rides along automatically since it's relative to
-     the (already density-scaled) font-size. */
+     the mark tracks it because its height is a `calc()` against that same
+     font-size token.
+
+     It must be a calc against the token, NOT an `em`: `font-size` is applied to
+     `.primitiv-pull-quote__text`, not to the root, so an `em` on the mark (a
+     *sibling* of the text) resolves against the root's inherited **body** size
+     instead of the heading step. The mark was therefore frozen at 12–14px at
+     every size, and only moved when the body scale moved — measured in Chrome
+     before the fix. Multiplying the ratio by
+     `--primitiv-pull-quote-font-size` makes it track both axes, and reproduces
+     Figma's own mark heights exactly at comfortable (18/22/28/32/38, xs→xl). */
   .primitiv-pull-quote--xs {
     --primitiv-pull-quote-font-family: var(--primitiv-heading-h5-font-family);
     --primitiv-pull-quote-font-size: var(--primitiv-heading-h5-font-size);
     --primitiv-pull-quote-line-height: var(--primitiv-heading-h5-line-height);
     --primitiv-pull-quote-font-weight: var(--primitiv-heading-h5-font-weight);
     --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-8);
-    --primitiv-pull-quote-mark-height: 0.75em;
+    --primitiv-pull-quote-mark-height: calc(0.75 * var(--primitiv-pull-quote-font-size));
   }
   .primitiv-pull-quote--sm {
     --primitiv-pull-quote-font-family: var(--primitiv-heading-h4-font-family);
@@ -97,7 +106,7 @@
     --primitiv-pull-quote-line-height: var(--primitiv-heading-h4-line-height);
     --primitiv-pull-quote-font-weight: var(--primitiv-heading-h4-font-weight);
     --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-8);
-    --primitiv-pull-quote-mark-height: 0.7857em;
+    --primitiv-pull-quote-mark-height: calc(0.7857 * var(--primitiv-pull-quote-font-size));
   }
   .primitiv-pull-quote--md {
     --primitiv-pull-quote-font-family: var(--primitiv-heading-h3-font-family);
@@ -105,7 +114,7 @@
     --primitiv-pull-quote-line-height: var(--primitiv-heading-h3-line-height);
     --primitiv-pull-quote-font-weight: var(--primitiv-heading-h3-font-weight);
     --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-12);
-    --primitiv-pull-quote-mark-height: 0.875em;
+    --primitiv-pull-quote-mark-height: calc(0.875 * var(--primitiv-pull-quote-font-size));
   }
   .primitiv-pull-quote--lg {
     --primitiv-pull-quote-font-family: var(--primitiv-heading-h2-font-family);
@@ -113,7 +122,7 @@
     --primitiv-pull-quote-line-height: var(--primitiv-heading-h2-line-height);
     --primitiv-pull-quote-font-weight: var(--primitiv-heading-h2-font-weight);
     --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-16);
-    --primitiv-pull-quote-mark-height: 0.8em;
+    --primitiv-pull-quote-mark-height: calc(0.8 * var(--primitiv-pull-quote-font-size));
   }
   .primitiv-pull-quote--xl {
     --primitiv-pull-quote-font-family: var(--primitiv-heading-h1-font-family);
@@ -121,7 +130,7 @@
     --primitiv-pull-quote-line-height: var(--primitiv-heading-h1-line-height);
     --primitiv-pull-quote-font-weight: var(--primitiv-heading-h1-font-weight);
     --primitiv-pull-quote-mark-gap: var(--primitiv-space-space-20);
-    --primitiv-pull-quote-mark-height: 0.7917em;
+    --primitiv-pull-quote-mark-height: calc(0.7917 * var(--primitiv-pull-quote-font-size));
   }
 }
 

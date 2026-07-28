@@ -32,11 +32,18 @@ D13), extracted verbatim via the Figma Desktop Bridge from node `589:9055`
 (the `md` size instance) — not a font character or CSS-generated glyph. All
 five Figma size variants (mark heights 18/22/28/32/38px, xs→xl) are a
 uniform scale of the same path, so one `<path>` at the `md` viewBox covers
-every step; the stylesheet sizes it with `--primitiv-pull-quote-mark-height`
-in `em`, one literal ratio per size (`0.75em`–`0.875em`) derived from the
-real asset's own mark-height ÷ heading-font-size proportion — not a constant
-multiplier, since the source asset isn't a fixed fraction of its heading
-step. Colour is `currentColor`, driven by `--primitiv-pull-quote-mark-color`
+every step; the stylesheet sizes it with `--primitiv-pull-quote-mark-height`, a
+`calc()` of one literal ratio per size (`0.75`–`0.875`, derived from the real
+asset's own mark-height ÷ heading-font-size proportion — not a constant
+multiplier, since the source asset isn't a fixed fraction of its heading step)
+against `--primitiv-pull-quote-font-size`.
+
+It has to be that token and not an `em`: `font-size` lands on
+`.primitiv-pull-quote__text`, not the root, so an `em` on the mark — a *sibling*
+of the text — resolved against the root's inherited **body** size and left the
+mark frozen at 12–14px for every `size`. With the calc it tracks both `size` and
+`[data-density]`, and reproduces Figma's mark heights exactly at comfortable:
+18/22/28/32/38 for xs–xl. Colour is `currentColor`, driven by `--primitiv-pull-quote-mark-color`
 (`content/muted`), matching the Figma fill exactly.
 
 ### One platform difference from the Figma build

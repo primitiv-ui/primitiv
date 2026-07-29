@@ -1019,6 +1019,35 @@ Notes: no Selected/active-filter treatment in v1 — the rough exploration only 
   feedback/* and badge/*|tag/* don't apply here — Chip is the one member of the trio that reuses framed-control/* + action/secondary/* wholesale, exactly as flagged when Badge/Tag first recorded the split (see the Badge and Tag entries' Notes).
 ```
 
+### Alert — `1400:33113` — page "Alert"
+
+```
+An assertive banner for high-priority, time-sensitive messages — icon + title + description + dismiss. Composes the existing headless `Alert` primitive (a `<div role="alert">`, implicit aria-live="assertive"+aria-atomic="true"); the headless layer intentionally owns no visual opinion, so this component supplies all of it.
+
+Type: non-framed composition (a banner)
+
+Axes: Tone info|success|warning|danger · Size xs|sm|md|lg|xl
+
+Tokens: fill/foreground → feedback/{tone}/soft/background|foreground (Intent — reused directly from Badge/Tag, the same soft tint family)
+        sizing → framed-control/{size}/padding-inline|gap|icon-size|radius (Context, reused directly — a bordered, icon-led box, like Chip) + alert/{size}/padding-block (Context, block padding a single-row framed control doesn't need) + alert/{size}/icon-offset-top (Context, the icon's optical-alignment nudge — see Notes)
+        title → label/{size}/* (Khand SemiBold)
+        description → body/{size}/* (Asta Sans Regular)
+
+Properties: Title (TEXT "Heads up") · Description (TEXT "A short, clear message describing what happened and what to do next.") · Show title (BOOL true) · Show dismiss (BOOL true) · Info Icon / Success Icon / Warning Icon / Danger Icon (SWAP, one property per Tone, defaulting to that tone's matching glyph)
+
+Density: Context mode override on parent frame
+Pairs with: Icon Button (the Dismiss anatomy is derived from its ghost variant — see Notes); no dependency required to use standalone; composes into Confirm/Alert Dialog (Modal) and Notification/inbox popover (Popover) per RFC 0021's composite backlog
+Notes: fixed 480px width in this Figma set is a representative canvas width, not a design constraint — the registry component is block-level and fills its container, matching a banner's real usage (unlike Badge/Tag/Chip, which hug their own content).
+  Icon is exposed as a real swappable INSTANCE_SWAP property, one per Tone (Info Icon / Success Icon / Warning Icon / Danger Icon) rather than one shared property — a single shared property can't carry four different per-Tone defaults (the same constraint Badge's Label/Counter split hit), so each Tone's five Size variants reference their own property, defaulting to that tone's matching glyph (info circle / success check / warning triangle / danger x-circle) but overridable per instance. A first attempt used one shared "Icon" property and every variant silently rendered the info glyph regardless of Tone — caught immediately via a live check, not assumed correct.
+  Icon optical alignment: the icon sits inside an "Icon Wrapper" frame whose paddingTop is bound to alert/{size}/icon-offset-top, nudging the icon down so its visual top aligns with the title's cap-height rather than the title text node's full line-box top (which includes leading space the icon's own tight bounding box doesn't have) — the classic icon-vs-heading optical-alignment issue. Values are (title line-height − title font-size) × 0.4 per size×density, rounded to the nearest space/* step and verified visually at the md/Comfortable anchor (4px, at 3x zoom) before deriving the rest — a pure half-leading split read as slightly too much compensation.
+  Root uses counterAxisAlignItems=MIN (top-aligned), so the icon and dismiss button stay level with the first line of the title/description even when the description wraps to multiple lines.
+  Title is optional (Show title) — the headless Alert's own simplest usage is a single message with no title (`<Alert>{error}</Alert>`); Description is always present and is the required message.
+  Context tokens (alert/{size}/padding-block, alert/{size}/icon-offset-top) were created directly in Figma via the Desktop Bridge after being added code-side first (code-first order per the figma-bridge-token-sync skill) — the code-side values are mirrored in as VARIABLE_ALIAS references to the same space/space-N primitives, not literals.
+  Gotcha hit live: grouping two of the base variant's children (while testing the icon offset visually) reparented them out of the component entirely and silently dropped the Title text node's componentPropertyReferences on reinsertion — figma.group()/figures like it are unsafe to use on component children for this reason; verify every affected node's property bindings after any reparenting operation, not just that it visually looks right afterward. Caught via a real setProperties() test (Title didn't update) rather than assumed fine from a screenshot alone.
+  Dismiss anatomy: an instance of Icon Button's ghost/{size}/default variant (matching Modal's close-button convention — same hit target, icon-size, radius, focus-ring geometry), then `detachInstance()`-ed — the live ghost instance's icon carries a hardcoded `action/secondary/foreground/default` fill that doesn't respond to Tone, and detaching frees it while preserving anatomy exactly (outer INSTANCE→FRAME; the nested Icon swap instance stays a live INSTANCE). The Vector's fill is then rebound per-Tone to `feedback/{tone}/soft/foreground` (matches the title/description colour) across all 20 variants; `Show dismiss`'s visibility binding is re-set on the detached frame (detaching drops componentPropertyReferences). Verified structurally against the Icon Button master (identical size/radius/fill/stroke bindings, and the "outer FRAME, inner INSTANCE" fingerprint that only `detachInstance()` produces) rather than assumed from a screenshot.
+  Hover background: `feedback/{tone}/soft/hover` (one step darker/more saturated than the alert's own soft background — light mode uses the same step as dark mode's own foreground, and vice versa) exists as an Intent token but is **not** represented as a Figma variant — Alert has no Interaction/State axis. The registry component applies it as a plain CSS `:hover` on the Dismiss button, the same pattern used elsewhere in the system for hover states with no corresponding static Figma variant.
+```
+
 ### Kbd — `612:35198`
 
 ```

@@ -1,0 +1,263 @@
+/*
+ * Alert — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add alert`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-alert class, the
+ * --xs…--xl / tone modifiers, and the --primitiv-alert-* custom properties),
+ * not these values (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * A non-framed composition (a banner) — see the Figma "Alert" component set
+ * (RFC 0021 backlog) for the full design record. Reuses the `feedback/{tone}/
+ * soft/*` Intent tokens Badge/Tag already established, `framed-control/{size}/*`
+ * for the icon-led box sizing (like Chip), and its own `alert/{size}/{padding-
+ * block,icon-offset-top}` Context tokens. The dismiss button co-classes the
+ * registry Button's `ghost` variant (`.primitiv-alert__dismiss` alongside
+ * `.primitiv-button.primitiv-button--ghost`) rather than reimplementing a
+ * button — it inherits Button's geometry/focus-ring/transitions verbatim and
+ * only its colour custom properties are re-pointed here, per Tone.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the base rule live in
+ * primitiv.base, the tone/size modifiers in primitiv.variants, the dismiss
+ * hover/active colour overrides in primitiv.states.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-feedback-*,
+ * --primitiv-framed-control-*, --primitiv-alert-{size}-*, --primitiv-label-*,
+ * and --primitiv-body-* custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-alert {
+    /* Per-component API — the themable knobs, defaulting to Tone=info,
+       Size=md. The variants layer below re-points these; consumers can
+       override any one without touching a rule. */
+    --primitiv-alert-background: var(--primitiv-feedback-info-soft-background);
+    --primitiv-alert-foreground: var(--primitiv-feedback-info-soft-foreground);
+    --primitiv-alert-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-alert-padding-block: var(--primitiv-alert-md-padding-block);
+    --primitiv-alert-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-alert-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-alert-icon-offset-top: var(--primitiv-alert-md-icon-offset-top);
+    --primitiv-alert-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-alert-title-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-alert-title-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-alert-title-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-alert-title-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-alert-description-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-alert-description-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-alert-description-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-alert-description-line-height: var(--primitiv-body-md-line-height);
+    --primitiv-alert-dismiss-hover-background: var(--primitiv-feedback-info-soft-hover);
+    --primitiv-alert-dismiss-active-background: var(--primitiv-feedback-info-soft-active);
+
+    display: flex;
+    align-items: flex-start;
+    gap: var(--primitiv-alert-gap);
+    padding-inline: var(--primitiv-alert-padding-inline);
+    padding-block: var(--primitiv-alert-padding-block);
+    border-radius: var(--primitiv-alert-radius);
+    background-color: var(--primitiv-alert-background);
+    color: var(--primitiv-alert-foreground);
+  }
+
+  .primitiv-alert__icon-wrapper {
+    flex-shrink: 0;
+    padding-top: var(--primitiv-alert-icon-offset-top);
+  }
+
+  .primitiv-alert__icon-wrapper svg {
+    display: block;
+    inline-size: var(--primitiv-alert-icon-size);
+    block-size: var(--primitiv-alert-icon-size);
+  }
+
+  .primitiv-alert__content {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--primitiv-space-space-4);
+  }
+
+  .primitiv-alert__title {
+    font-family: var(--primitiv-alert-title-font-family);
+    font-size: var(--primitiv-alert-title-font-size);
+    font-weight: var(--primitiv-alert-title-font-weight);
+    line-height: var(--primitiv-alert-title-line-height);
+  }
+
+  .primitiv-alert__description {
+    font-family: var(--primitiv-alert-description-font-family);
+    font-size: var(--primitiv-alert-description-font-size);
+    font-weight: var(--primitiv-alert-description-font-weight);
+    line-height: var(--primitiv-alert-description-line-height);
+  }
+
+  /* The dismiss button co-classes Button's own `.primitiv-button
+     .primitiv-button--ghost` — this rule only re-points the colour custom
+     properties Button already reads (--primitiv-button-fg/-bg), reusing
+     Alert's own tone-repointed tokens rather than duplicating them. Resting
+     background matches --primitiv-alert-background (reads as transparent
+     against the alert surface it sits on) rather than a bare `transparent`
+     literal, so it stays tied to the tone family. */
+  .primitiv-alert__dismiss {
+    flex-shrink: 0;
+    --primitiv-button-fg: var(--primitiv-alert-foreground);
+    --primitiv-button-bg: var(--primitiv-alert-background);
+  }
+}
+
+@layer primitiv.variants {
+  /* Tone — re-points background/foreground (Badge/Tag's feedback/*/soft/*
+     family) plus the dismiss button's hover/active background. */
+  .primitiv-alert--info {
+    --primitiv-alert-background: var(--primitiv-feedback-info-soft-background);
+    --primitiv-alert-foreground: var(--primitiv-feedback-info-soft-foreground);
+    --primitiv-alert-dismiss-hover-background: var(--primitiv-feedback-info-soft-hover);
+    --primitiv-alert-dismiss-active-background: var(--primitiv-feedback-info-soft-active);
+  }
+  .primitiv-alert--success {
+    --primitiv-alert-background: var(--primitiv-feedback-success-soft-background);
+    --primitiv-alert-foreground: var(--primitiv-feedback-success-soft-foreground);
+    --primitiv-alert-dismiss-hover-background: var(--primitiv-feedback-success-soft-hover);
+    --primitiv-alert-dismiss-active-background: var(--primitiv-feedback-success-soft-active);
+  }
+  .primitiv-alert--warning {
+    --primitiv-alert-background: var(--primitiv-feedback-warning-soft-background);
+    --primitiv-alert-foreground: var(--primitiv-feedback-warning-soft-foreground);
+    --primitiv-alert-dismiss-hover-background: var(--primitiv-feedback-warning-soft-hover);
+    --primitiv-alert-dismiss-active-background: var(--primitiv-feedback-warning-soft-active);
+  }
+  .primitiv-alert--danger {
+    --primitiv-alert-background: var(--primitiv-feedback-danger-soft-background);
+    --primitiv-alert-foreground: var(--primitiv-feedback-danger-soft-foreground);
+    --primitiv-alert-dismiss-hover-background: var(--primitiv-feedback-danger-soft-hover);
+    --primitiv-alert-dismiss-active-background: var(--primitiv-feedback-danger-soft-active);
+  }
+
+  /* Size — re-points the framed-control sizing knobs, the alert-specific
+     padding-block/icon-offset-top pair, and the title/description type
+     scale. Density stays ambient via [data-density] on the token values
+     themselves (RFC 0009). */
+  .primitiv-alert--xs {
+    --primitiv-alert-padding-inline: var(--primitiv-framed-control-xs-padding-inline);
+    --primitiv-alert-padding-block: var(--primitiv-alert-xs-padding-block);
+    --primitiv-alert-gap: var(--primitiv-framed-control-xs-gap);
+    --primitiv-alert-icon-size: var(--primitiv-framed-control-xs-icon-size);
+    --primitiv-alert-icon-offset-top: var(--primitiv-alert-xs-icon-offset-top);
+    --primitiv-alert-radius: var(--primitiv-framed-control-xs-radius);
+    --primitiv-alert-title-font-family: var(--primitiv-label-xs-font-family);
+    --primitiv-alert-title-font-size: var(--primitiv-label-xs-font-size);
+    --primitiv-alert-title-font-weight: var(--primitiv-label-xs-font-weight);
+    --primitiv-alert-title-line-height: var(--primitiv-label-xs-line-height);
+    --primitiv-alert-description-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-alert-description-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-alert-description-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-alert-description-line-height: var(--primitiv-body-xs-line-height);
+  }
+  .primitiv-alert--sm {
+    --primitiv-alert-padding-inline: var(--primitiv-framed-control-sm-padding-inline);
+    --primitiv-alert-padding-block: var(--primitiv-alert-sm-padding-block);
+    --primitiv-alert-gap: var(--primitiv-framed-control-sm-gap);
+    --primitiv-alert-icon-size: var(--primitiv-framed-control-sm-icon-size);
+    --primitiv-alert-icon-offset-top: var(--primitiv-alert-sm-icon-offset-top);
+    --primitiv-alert-radius: var(--primitiv-framed-control-sm-radius);
+    --primitiv-alert-title-font-family: var(--primitiv-label-sm-font-family);
+    --primitiv-alert-title-font-size: var(--primitiv-label-sm-font-size);
+    --primitiv-alert-title-font-weight: var(--primitiv-label-sm-font-weight);
+    --primitiv-alert-title-line-height: var(--primitiv-label-sm-line-height);
+    --primitiv-alert-description-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-alert-description-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-alert-description-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-alert-description-line-height: var(--primitiv-body-sm-line-height);
+  }
+  .primitiv-alert--md {
+    --primitiv-alert-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-alert-padding-block: var(--primitiv-alert-md-padding-block);
+    --primitiv-alert-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-alert-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-alert-icon-offset-top: var(--primitiv-alert-md-icon-offset-top);
+    --primitiv-alert-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-alert-title-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-alert-title-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-alert-title-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-alert-title-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-alert-description-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-alert-description-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-alert-description-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-alert-description-line-height: var(--primitiv-body-md-line-height);
+  }
+  .primitiv-alert--lg {
+    --primitiv-alert-padding-inline: var(--primitiv-framed-control-lg-padding-inline);
+    --primitiv-alert-padding-block: var(--primitiv-alert-lg-padding-block);
+    --primitiv-alert-gap: var(--primitiv-framed-control-lg-gap);
+    --primitiv-alert-icon-size: var(--primitiv-framed-control-lg-icon-size);
+    --primitiv-alert-icon-offset-top: var(--primitiv-alert-lg-icon-offset-top);
+    --primitiv-alert-radius: var(--primitiv-framed-control-lg-radius);
+    --primitiv-alert-title-font-family: var(--primitiv-label-lg-font-family);
+    --primitiv-alert-title-font-size: var(--primitiv-label-lg-font-size);
+    --primitiv-alert-title-font-weight: var(--primitiv-label-lg-font-weight);
+    --primitiv-alert-title-line-height: var(--primitiv-label-lg-line-height);
+    --primitiv-alert-description-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-alert-description-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-alert-description-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-alert-description-line-height: var(--primitiv-body-lg-line-height);
+  }
+  .primitiv-alert--xl {
+    --primitiv-alert-padding-inline: var(--primitiv-framed-control-xl-padding-inline);
+    --primitiv-alert-padding-block: var(--primitiv-alert-xl-padding-block);
+    --primitiv-alert-gap: var(--primitiv-framed-control-xl-gap);
+    --primitiv-alert-icon-size: var(--primitiv-framed-control-xl-icon-size);
+    --primitiv-alert-icon-offset-top: var(--primitiv-alert-xl-icon-offset-top);
+    --primitiv-alert-radius: var(--primitiv-framed-control-xl-radius);
+    --primitiv-alert-title-font-family: var(--primitiv-label-xl-font-family);
+    --primitiv-alert-title-font-size: var(--primitiv-label-xl-font-size);
+    --primitiv-alert-title-font-weight: var(--primitiv-label-xl-font-weight);
+    --primitiv-alert-title-line-height: var(--primitiv-label-xl-line-height);
+    --primitiv-alert-description-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-alert-description-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-alert-description-font-weight: var(--primitiv-body-xl-font-weight);
+    --primitiv-alert-description-line-height: var(--primitiv-body-xl-line-height);
+  }
+}
+
+@layer primitiv.states {
+  /* The dismiss button's hover/active colours — one/two steps darker (or, in
+     dark mode, lighter) than the alert's own background, so the affordance
+     stays legible without a border. Gated behind (hover: hover): a
+     touchscreen simulates :hover on tap and it "sticks" until the next tap
+     elsewhere (no real pointer to leave), which would otherwise leave a
+     just-tapped dismiss button showing its hover shade instead of resting. */
+  @media (hover: hover) {
+    .primitiv-alert__dismiss:hover {
+      --primitiv-button-bg: var(--primitiv-alert-dismiss-hover-background);
+    }
+  }
+  .primitiv-alert__dismiss:active {
+    --primitiv-button-bg: var(--primitiv-alert-dismiss-active-background);
+  }
+}
+
+$primitiv-alert-background: var(--primitiv-alert-background);
+$primitiv-alert-foreground: var(--primitiv-alert-foreground);
+$primitiv-alert-padding-inline: var(--primitiv-alert-padding-inline);
+$primitiv-alert-padding-block: var(--primitiv-alert-padding-block);
+$primitiv-alert-gap: var(--primitiv-alert-gap);
+$primitiv-alert-icon-size: var(--primitiv-alert-icon-size);
+$primitiv-alert-icon-offset-top: var(--primitiv-alert-icon-offset-top);
+$primitiv-alert-radius: var(--primitiv-alert-radius);
+$primitiv-alert-title-font-family: var(--primitiv-alert-title-font-family);
+$primitiv-alert-title-font-size: var(--primitiv-alert-title-font-size);
+$primitiv-alert-title-font-weight: var(--primitiv-alert-title-font-weight);
+$primitiv-alert-title-line-height: var(--primitiv-alert-title-line-height);
+$primitiv-alert-description-font-family: var(--primitiv-alert-description-font-family);
+$primitiv-alert-description-font-size: var(--primitiv-alert-description-font-size);
+$primitiv-alert-description-font-weight: var(--primitiv-alert-description-font-weight);
+$primitiv-alert-description-line-height: var(--primitiv-alert-description-line-height);
+$primitiv-alert-dismiss-hover-background: var(--primitiv-alert-dismiss-hover-background);
+$primitiv-alert-dismiss-active-background: var(--primitiv-alert-dismiss-active-background);

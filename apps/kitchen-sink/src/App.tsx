@@ -10,6 +10,7 @@ import {
   AccordionTrigger,
   AccordionContent,
   AccordionTriggerIcon,
+  Alert,
   AspectRatio,
   Avatar,
   AvatarImage,
@@ -644,6 +645,9 @@ export function App(): ReactElement {
     "Status: Active",
     "Owner: You",
   ]);
+  // Alert demo state — the dismissible instance actually unmounts on click,
+  // demonstrating that the dismiss button only renders when `onDismiss` is passed.
+  const [alertDismissed, setAlertDismissed] = useState(false);
 
   const sortedReleases = [...RELEASES].sort((a, b) => {
     const av = a[sort.key];
@@ -994,6 +998,32 @@ primitiv add --all`}</code>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
+      </Section>
+
+      {/* One alert per tone, each with its own default tone-matched icon.
+          The Danger alert carries a title (optional — omit it for a
+          single-message alert, like the other three). The dismissible
+          instance actually unmounts on click, demonstrating that the
+          dismiss button — a real Button ghost instance, not a bespoke
+          element — only renders when `onDismiss` is passed. */}
+      <Section title="Alert" column>
+        <Alert size={size} tone="info">
+          A new version of the design system is available.
+        </Alert>
+        <Alert size={size} tone="success">
+          Changes saved successfully.
+        </Alert>
+        <Alert size={size} tone="warning">
+          Your session will expire in 5 minutes.
+        </Alert>
+        <Alert size={size} tone="danger" title="Payment failed">
+          Your card was declined. Try a different payment method.
+        </Alert>
+        {!alertDismissed && (
+          <Alert size={size} tone="info" onDismiss={() => setAlertDismissed(true)}>
+            Dismiss me — the dismiss button is a real Button ghost instance.
+          </Alert>
+        )}
       </Section>
 
       {/* Root is a fixed-size clipping frame; only one of Image/Fallback is ever

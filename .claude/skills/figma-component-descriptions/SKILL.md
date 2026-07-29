@@ -992,6 +992,32 @@ Pairs with: often shown in a horizontal group (a "Tags" row); no dedicated host 
 Notes: single visual treatment only — no Variant axis (Badge's label/counter split doesn't apply; Tag is always the low-emphasis tinted pill). No circularity trick — unlike Badge, minWidth is left unbound, so Tag simply hugs its content width regardless of length. Tone gains a neutral entry (feedback/neutral/soft/*, bg=neutral.100/fg=neutral.700 in Light, bg=neutral.800/fg=neutral.200 in Dark) that Badge doesn't have — Tag's most common real-world use is a plain grey label ("Design", "Rust"), with the four semantic tones reserved for status ("Shipped" in success). Label text node uses leadingTrim=CAP_HEIGHT and is a real exposed TEXT property (componentPropertyReferences), built correctly from the start this time rather than retrofitted (a gap caught on Badge).
 ```
 
+### Chip — `1390:32827` — page "Chip"
+
+```
+Interactive, removable label chip — filter bars, multi-select fields, inputs. The trailing × is core to the anatomy, not optional; a leading icon or avatar is optional.
+
+Type: framed-control
+
+Axes: Size xs|sm|md|lg|xl · Interaction default|hover|active|focus|disabled
+
+Tokens: fill/stroke/foreground → action/secondary/* per Interaction (the same neutral bordered family Button's secondary variant and ToggleGroup Item's off state use — the "genuinely interactive" reason Chip earns real interaction states where Badge/Tag don't)
+        sizing → framed-control/{size}/height|padding-inline|gap|icon-size (Context collection) — reused directly, no dedicated chip/* family (unlike badge/* and tag/*)
+        radius → radii/full (pill) — overrides framed-control's own {size}/radius, the same override ToggleGroup Item uses for its pill shape
+        border → framed-control/border-width
+        focus ring → focus/ring + focus/ring/width at radii/full, the standard 2-frame (focus-ring-gap + focus-ring) anatomy, cloned from ToggleGroup Item's Interaction=focus construction
+        label → label/{size}/* (Khand Regular, cap-trimmed)
+
+Properties: Label (TEXT "Chip") · Show leading icon (BOOL false) · Leading Icon (SWAP, default icon=user) · Remove Icon (SWAP, default icon=close) — always visible, no BOOL toggle, since removability is core to the anatomy per the rough-exploration decision, not an optional affordance
+
+Density: Context mode override on parent frame
+Pairs with: often shown in a horizontal group (a filter bar / multi-select field); Icon (both swap slots — Leading Icon and Remove Icon)
+Notes: no Selected/active-filter treatment in v1 — the rough exploration only showed the resting removable chip; add a Selected axis later if a real design need surfaces (same "deferred, not designed yet" posture as Badge's border-on-solid question).
+  Interaction=focus keeps the resting Interaction=default fill/border (the ring overlays on top, it doesn't replace the resting look) — verified live: a first attempt left the focus variants rendering with a stale near-black literal paint despite being correctly bound to the same action/secondary/default variable as the resting state (a real Console-MCP gotcha — figma_capture_screenshot's export can render a just-rebound paint's last literal fallback rather than live-resolving the bound variable, so a fill re-bind that changes only which variable is *referenced* isn't enough; re-set the paint with a literal that actually matches, then screenshot again to confirm).
+  Icon sizing follows Button's convention exactly: both the leading and remove Icon instances stay on their "size=md" source variant and get resized via width/height bound to framed-control/{size}/icon-size, rather than swapping the Icon component's own internal size variant.
+  feedback/* and badge/*|tag/* don't apply here — Chip is the one member of the trio that reuses framed-control/* + action/secondary/* wholesale, exactly as flagged when Badge/Tag first recorded the split (see the Badge and Tag entries' Notes).
+```
+
 ### Kbd — `612:35198`
 
 ```

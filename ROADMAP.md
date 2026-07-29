@@ -129,12 +129,16 @@ None of these are built yet; listed here for backlog visibility.
       Palette primitives + `feedback.{tone}.{soft,solid}.*` Intent tokens
       (including a `feedback.neutral.soft.*` entry for Tag) +
       `badge/*`/`tag/*` Context sizing landed (code + Figma, all 4 density
-      modes). **Badge's Figma component set is landed** (40 variants —
-      Tone × Variant × Size — page "Badge") and **Tag's Figma component set
-      is landed** (25 variants — Tone × Size, no Variant axis — page "Tag";
-      see the `figma-component-descriptions` skill for both canonical
-      descriptions). Chip Figma design, plus the headless/registry build for
-      all three, remain.
+      modes). **All three Figma component sets are now landed:** Badge (40
+      variants — Tone × Variant × Size — page "Badge"), Tag (25 variants —
+      Tone × Size, no Variant axis — page "Tag"), and **Chip** (25 variants —
+      Size × Interaction default|hover|active|focus|disabled — page "Chip";
+      genuinely interactive, so it reuses `framed-control/*` + `action/secondary/*`
+      directly instead of a dedicated token family, with a pill radius override
+      and a real Leading Icon / Remove Icon instance-swap pair alongside its
+      Label text property). See the `figma-component-descriptions` skill for
+      all three canonical descriptions. The headless/registry build for all
+      three remains.
 - [ ] Card (`Divider` + `Avatar`/`Badge` + `Button` slots)
 - [ ] Stepper / Wizard (`Tabs` + `Button` + decorative step row)
 - [ ] Pagination (`Button` + `Select`)

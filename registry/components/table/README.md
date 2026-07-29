@@ -50,7 +50,31 @@ independently of size (matching the Figma model — RFC 0014).
 
 **Row hover/selected are styling hooks.** Hover is automatic; `selected` rides
 `aria-selected="true"` on a `.primitiv-table__row` (the headless layer sets
-neither). Row striping is left to the consumer (a fast-follow).
+neither). Row striping is left to the consumer (a fast-follow) — note that
+`table/row/stripe` **is** emitted in both themes and this stylesheet references it
+nowhere, so the token is ready and only the wiring (and an API decision: automatic
+`:nth-child` zebra vs a per-row opt-in, which is how Figma models it) is missing.
+
+**Section rules differ per section, footer included.** Head gets `border/strong`
+on its trailing edge, body gets `border/subtle`, and the **footer gets
+`border/strong` on its *leading* edge with no trailing rule** — Figma draws nothing
+below a footer. That last one was missing until it was measured: the Figma Row
+frames carry no strokes at all, so the rule lives in a `Bottom Border` rectangle
+whose constraint decides the edge, and only the footer's is pinned to
+`vertical: MIN`. `Table.Footer` ships in the headless layer but isn't used in the
+kitchen-sink, which is how an unstyled footer went unnoticed.
+
+**Three Figma axes are not implemented here.** Recorded so they aren't mistaken
+for drift:
+
+- **`Borders` (`none` / `horizontal` / `grid`)** — this build always draws
+  horizontal rules and never vertical ones. `Cell.Right Border` is the grid half.
+- **`Align` (`start` / `center` / `end`)** on cells and header cells — hardcoded
+  `text-align: start` here. `end` is the numeric-column case.
+- **`Sort` (`none` / `sortable` / `ascending` / `descending`)** on header cells,
+  including an icon sized 0.8× the label (10/11/13/16/18 across xs–xl) and
+  `content/muted` when merely sortable vs `content/primary` when active. This one
+  needs headless work too (`aria-sort`, a focusable trigger), not just styling.
 
 **Full width by default.** The root sets `inline-size: 100%`, so a table fills
 its container rather than shrink-wrapping to content. Content wider than the

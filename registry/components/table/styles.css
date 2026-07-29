@@ -45,6 +45,7 @@
     --primitiv-table-header-foreground: var(--primitiv-content-primary);
     --primitiv-table-header-weight: var(--primitiv-font-weight-semibold);
     --primitiv-table-header-rule-color: var(--primitiv-border-strong);
+    --primitiv-table-footer-rule-color: var(--primitiv-border-strong);
     --primitiv-table-caption-foreground: var(--primitiv-content-muted);
     --primitiv-table-caption-font-family: var(--primitiv-body-sm-font-family);
     --primitiv-table-caption-font-size: var(--primitiv-body-sm-font-size);
@@ -82,6 +83,21 @@
      (the design distinguishes the header by the rule + semibold face). */
   .primitiv-table__head .primitiv-table__header {
     border-block-end: var(--primitiv-border-width-1) solid var(--primitiv-table-header-rule-color);
+  }
+
+  /* The footer row: a strong rule on its **leading** edge, and none on the
+     trailing one. Verified at the node level rather than from the component
+     description: the Figma Row frames carry no strokes at all — each has a
+     `Bottom Border` rectangle whose constraint picks the edge, and head/body pin
+     theirs to `vertical: MAX` (bottom) while **footer pins to MIN (top)**, in
+     `border/strong` rather than `border/subtle`. The base cell rule above gives
+     every cell a subtle bottom rule, which the footer must shed — Figma draws no
+     rule below a footer. Without this the footer was indistinguishable from an
+     ordinary body row. */
+  .primitiv-table__footer .primitiv-table__cell,
+  .primitiv-table__footer .primitiv-table__header {
+    border-block-start: var(--primitiv-border-width-1) solid var(--primitiv-table-footer-rule-color);
+    border-block-end: var(--primitiv-border-width-0) solid var(--primitiv-table-footer-rule-color);
   }
 
   /* Caption: muted, padded to align with the cells. */

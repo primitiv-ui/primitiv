@@ -1074,7 +1074,40 @@ questions to answer.
   directly to two open items: the `em/i/cite/dfn` synthetic-oblique skew, and
   whether `<var>` should join that selector list.
 
-**Structural Figma findings to decide on** (all read-only so far, nothing changed):
+**Structural Figma findings — all now resolved (2026-07-29).**
+
+- ✅ **`description-list/*` Context family created in Figma** (`row-gap`,
+  `column-gap`, `details-indent`), scopes `[WIDTH_HEIGHT, GAP]`, four mode values
+  each taken straight from `context.json`, and bound on `DescriptionDetail`'s
+  `paddingLeft`, the stacked `DescriptionList`'s `itemSpacing`, and all 40 inline
+  `Pair` frames. The inline root's existing `list/item-gap` binding was left alone.
+- ✅ **`kbd` padding rebound** to `code/inline/padding-inline` / `-block` on all 5
+  variants, so it now densifies in lockstep with `inline-code` and with this
+  repo's component. Rendered padding is unchanged at Comfortable (2/4/2/4).
+  **Still outstanding on the code side:** `primitiv.reset`'s bare `kbd` rule uses
+  the fixed `space-4`/`space-2`, so a bare `<kbd>` and a `.primitiv-kbd` still
+  disagree at Dense and Spacious. That reset change is the other half of this fix.
+- ✅ **Two stray empty components deleted** (`579:5794`, `579:5795`) after
+  re-verifying every property that made them safe. Both `parent === null`; no
+  `"Component"`-named strays remain anywhere.
+- ✅ **Brand `Mark` renamed to `Brand Mark`** (`441:376`, *Logos & Branding*), so
+  `Mark` belongs unambiguously to the `<mark>` text element and the element-named
+  text sets stay consistent (Em, Sub & Sup, Kbd). **No duplicate component-set
+  names remain anywhere in the file.**
+- ✅ **`Link` needs no component.** `primitiv.reset` already implements it — `a` →
+  `action/link/foreground/default` + underline, with `:visited`, `:hover`,
+  `:active`. Same for `Mark` (`highlight/background`), `Sub & Sup` and `Em`. Those
+  four Figma sets are the **spec for the reset**, so Wave 5 audits
+  `primitiv-base.css` against them rather than building anything. One gap already
+  visible: the reset covers 4 of Figma's 6 link states (no `focus` ring, no
+  `disabled`) and none of its 3 tones.
+- ✅ **`toggle-group` container and `input-group` sets are intentionally absent**
+  (human's call). Both containers are design-risk-free layout wrappers, like
+  Box/Stack — audit them against the RFC and the reset, using the `ToggleGroup
+  Item` set where one exists, and treat the absence as recorded rather than as
+  missing work.
+
+**Earlier read-only findings, for reference:**
 
 - **Two empty stray components** — `579:5794` and `579:5795`, both named
   "Component", 100×100, no children, no description, **zero instances**, sitting on

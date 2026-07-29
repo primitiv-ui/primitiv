@@ -43,6 +43,7 @@
     --primitiv-figure-overlay-caption-color: var(--primitiv-content-inverse);
     --primitiv-figure-font-family: var(--primitiv-body-md-font-family);
     --primitiv-figure-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-figure-font-weight: var(--primitiv-body-md-font-weight);
     --primitiv-figure-line-height: var(--primitiv-body-md-line-height);
 
     margin: 0;
@@ -56,12 +57,26 @@
     overflow: hidden;
   }
 
+  /* The caption restates `font-weight` alongside the rest of its type, rather
+     than letting it inherit. `primitiv.reset` dresses a bare `figcaption` at
+     `body/sm` — weight included — and a declaration on the element beats an
+     inherited one whatever the layer, so the weight was pinned to `body/sm`'s
+     while family/size/line-height tracked `size`. Every step's
+     `body.<size>.font-weight` currently resolves to `regular`, so nothing
+     rendered wrong; it was a latent
+     pin that would have surfaced the moment one step's weight diverged. Figma
+     binds this node to `body/{size}/font-style` (Regular), i.e. the same size
+     axis as the rest. `margin: 0` below is load-bearing for the same reason —
+     the reset also gives `figcaption` a `margin-block-start` of
+     `figure/caption-gap`, which would otherwise add to this figure's flex `gap`
+     and double the media-to-caption distance. */
   .primitiv-figure__caption {
     margin: 0;
     font-style: normal;
     color: var(--primitiv-figure-caption-color);
     font-family: var(--primitiv-figure-font-family);
     font-size: var(--primitiv-figure-font-size);
+    font-weight: var(--primitiv-figure-font-weight);
     line-height: var(--primitiv-figure-line-height);
   }
 }
@@ -132,26 +147,31 @@
   .primitiv-figure--xs {
     --primitiv-figure-font-family: var(--primitiv-body-xs-font-family);
     --primitiv-figure-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-figure-font-weight: var(--primitiv-body-xs-font-weight);
     --primitiv-figure-line-height: var(--primitiv-body-xs-line-height);
   }
   .primitiv-figure--sm {
     --primitiv-figure-font-family: var(--primitiv-body-sm-font-family);
     --primitiv-figure-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-figure-font-weight: var(--primitiv-body-sm-font-weight);
     --primitiv-figure-line-height: var(--primitiv-body-sm-line-height);
   }
   .primitiv-figure--md {
     --primitiv-figure-font-family: var(--primitiv-body-md-font-family);
     --primitiv-figure-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-figure-font-weight: var(--primitiv-body-md-font-weight);
     --primitiv-figure-line-height: var(--primitiv-body-md-line-height);
   }
   .primitiv-figure--lg {
     --primitiv-figure-font-family: var(--primitiv-body-lg-font-family);
     --primitiv-figure-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-figure-font-weight: var(--primitiv-body-lg-font-weight);
     --primitiv-figure-line-height: var(--primitiv-body-lg-line-height);
   }
   .primitiv-figure--xl {
     --primitiv-figure-font-family: var(--primitiv-body-xl-font-family);
     --primitiv-figure-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-figure-font-weight: var(--primitiv-body-xl-font-weight);
     --primitiv-figure-line-height: var(--primitiv-body-xl-line-height);
   }
 
@@ -177,4 +197,5 @@ $primitiv-figure-overlay-scrim: var(--primitiv-figure-overlay-scrim);
 $primitiv-figure-overlay-caption-color: var(--primitiv-figure-overlay-caption-color);
 $primitiv-figure-font-family: var(--primitiv-figure-font-family);
 $primitiv-figure-font-size: var(--primitiv-figure-font-size);
+$primitiv-figure-font-weight: var(--primitiv-figure-font-weight);
 $primitiv-figure-line-height: var(--primitiv-figure-line-height);

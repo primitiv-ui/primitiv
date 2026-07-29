@@ -55,21 +55,50 @@ the scrim then shows through the artwork, reading as a stray dark panel behind
 it with the media's own tone floating on top. A follow-up pass fixed this; the
 overlay shipped without the containment.
 
-### Known Figma-side drift: the overlay scrim opacity
+### The overlay scrim is opaque — the RFC's 90% was dropped
 
-The scrim here is `surface/inverse` at **90%** opacity, which is what RFC 0015
-specifies in two places — §4 ("The scrim is **solid** (90% opacity) for v1")
-and its own confirmed-on-human-review deviations list ("Overlay scrim is solid
-at 90% opacity — *a hint of media shows through*"). The **live Figma frame
-does not implement it**: checked via the Desktop Bridge, the overlay Caption
-frame is `opacity: 1` with a single solid fill at `opacity: 1`, bound to
-`surface/inverse`, which itself resolves to `color/neutral/800` at `a = 1` — so
-nothing in that chain carries the 10% transparency.
+RFC 0015 specifies the scrim in two places as `surface/inverse` at **90%**
+opacity (§4, "The scrim is **solid** (90% opacity) for v1", and its
+confirmed-on-human-review deviations list, "*a hint of media shows through*").
+**The shipped scrim is opaque**, matching the live Figma build rather than the
+RFC — verified both ways via the Desktop Bridge (the overlay Caption frame is
+`opacity: 1` with one solid fill at `opacity: 1` bound to `surface/inverse` →
+`color/neutral/800` at `a = 1`) and by measurement in a browser
+(`rgb(32, 35, 40)`, no alpha channel).
 
-This is left **as-is deliberately**: the code follows the RFC, and it is the
-Figma build that drifted from the spec, not the other way round. Fixing it
-belongs on the Figma side (drop the scrim fill to 90%), not by hardening a
-spec'd design decision out of the stylesheet.
+Two reasons the 90% went, both found while implementing it:
+
+- The translucent build needed a `z-index: -1` pseudo-element, and that needed
+  `isolation: isolate` to stop it escaping the caption and painting *behind* the
+  media — `position: absolute` alone is not a stacking context. Opaque collapses
+  the whole mechanism to one declaration.
+- Against anything other than flat artwork, the 10% read as the media bleeding
+  through the bar rather than as a deliberate hint.
+
+A translucent scrim is still one override away, no rule editing required — point
+`--primitiv-figure-overlay-scrim` at a colour that carries its own alpha. RFC
+0015 §9 defers a first-class token for it.
+
+*(This section previously recorded the opposite — code at 90%, Figma drifted. It
+was left stale when the scrim was made opaque; corrected during the Figma ↔
+kitchen-sink audit.)*
+
+### The caption's `margin: 0` and `font-weight` are both load-bearing
+
+`primitiv.reset` dresses a bare `figcaption` at `body/sm` **and** gives it
+`margin-block-start: var(--primitiv-figure-caption-gap)`. A declaration on the
+element beats an inherited one whatever the layer, so:
+
+- **`margin: 0`** is what stops the reset's margin adding to this figure's flex
+  `gap`. Delete it and the media-to-caption distance silently doubles — the same
+  fault `list` shipped with. Measured at 0 in every density mode.
+- **`font-weight`** is declared from the component's own size axis for the same
+  reason. Without it the caption's weight stayed pinned to `body/sm`'s while
+  family, size and line-height tracked `size`. Every step's
+  `body.<size>.font-weight` currently resolves to `regular`, so nothing rendered
+  wrong — it was a latent pin that would have surfaced the moment one step
+  diverged. Figma binds this node to `body/{size}/font-style` (Regular), i.e. the
+  same axis as the rest of its type.
 
 ## Usage
 

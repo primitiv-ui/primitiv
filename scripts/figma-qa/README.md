@@ -44,6 +44,14 @@ fastest way to test a fix before committing it — that is how the AspectRatio
   `transform` too.
 - `/json/new` needs a PUT in modern Chrome; this uses `Target.createTarget` on
   the browser endpoint instead.
+- **A comment that closes early silently kills the whole rule.** Writing a token
+  family as `body/<star>/font-weight` inside a CSS comment ends it at that
+  `<star>/`; the remaining prose becomes garbage declarations and the browser
+  drops the rule without a word. It happened on `figure`, and the symptom looked
+  like two unrelated regressions (caption pinned to `body/sm` at every size, and
+  its gap doubled — the dead `margin: 0` no longer suppressing the reset's
+  `figcaption` margin). Measuring after the edit is what caught it;
+  `pnpm qa:stylesheets` now guards it in CI.
 
 ## `size-pin.mjs` — find parts that ignore the `size` axis
 

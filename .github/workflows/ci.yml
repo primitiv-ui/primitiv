@@ -98,6 +98,13 @@ jobs:
       - name: Type-check registry wrappers
         run: pnpm qa:registry-types
 
+      # Registry stylesheets are copied verbatim into consumer repos and nothing
+      # parses them, so a comment that closes early — a `body/<star>/prop` glob is
+      # the classic — silently dumps prose into the rule and the browser drops the
+      # whole thing. Caught once by hand on `figure`; guarded from here.
+      - name: Check registry stylesheets parse
+        run: pnpm qa:stylesheets
+
       # Type-check and build the workbench (tsc -b && vite build). The doc-site
       # deploy (deploy-docs.yml) is manual-only, so without this a broken
       # workbench build — a type error in an example page or the OKLCH picker —

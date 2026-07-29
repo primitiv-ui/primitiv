@@ -68,6 +68,7 @@
     { "name": "--primitiv-figure-overlay-caption-color", "defaultsTo": "var(--primitiv-content-inverse)" },
     { "name": "--primitiv-figure-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
     { "name": "--primitiv-figure-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-figure-font-weight", "defaultsTo": "var(--primitiv-body-md-font-weight)" },
     { "name": "--primitiv-figure-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" }
   ]
 }

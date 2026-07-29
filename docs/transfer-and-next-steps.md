@@ -891,7 +891,7 @@ One component at a time.
 | Component | Status |
 |---|---|
 | `inline-code` | ✅ **clean.** Every binding matches, size axis 10/11/13/16/18 (xs→xl) exact, density tracks. Confirms Kbd/inline-code legitimately differ: inline-code binds `code/{size}/font-size`, Kbd binds `body/{size}/font-size`. |
-| `divider` | ⏳ next. Figma spec already pulled: `Orientation` horizontal\|vertical, fill `border/subtle`, thickness `size/size-1`, deliberately **not** density-sensitive (fixed 1px). |
+| `divider` | ✅ **audited, one bug fixed.** Colour (`border/subtle` → `#bcc2cb`), 1px thickness, orientation axis and zero radius all match exactly. **Bug:** the component baked in `margin-block`/`margin-inline: space/16`, which Figma does not specify at all — its `Divider` is a bare 1px rule and all ~30 instances across the layout mockups take separation from the **parent auto-layout `itemSpacing`** (0 / 32 / 48 / 56, i.e. contextual *and* density-dependent). The baked margin double-spaced in gap containers (measured **32px** in the kitchen-sink's own demo: 16 gap + 16 margin, no collapsing in flex), couldn't reach 0, and couldn't track density. Spacing now defaults to `space/0`; the knob stays for block-flow contexts. Two non-bugs recorded in the README: thickness resolves via `border-width/1` not Figma's `size/size-1` (identical 1px — token-family choice), and the vertical rule's `display: inline-block` computes to `block` under flex blockification (kept for inline flow). |
 | `list` | partially audited — the `ListItem` `State=disabled` axis was missing and is now shipped. Not yet given the full table treatment. |
 | `figure` | partially audited — `size` + caption `align` axes were missing, overlay scrim and caption pinning both fixed. Not yet a full table. |
 | `pull-quote` | partially audited — mark sizing fixed. Not yet a full table. |
@@ -914,6 +914,33 @@ invisible at `md`/comfortable:
 
 `scripts/figma-qa/size-pin.mjs` now catches the signature. A sweep of 11
 components × 5 sizes found no further instances.
+
+### The container-spacing bug class — closed, one instance
+
+Found on `divider`: a component that reserves **separation from its siblings** as
+its own `margin`. It always misbehaves, because that spacing isn't the
+component's to own —
+
+- it **double-counts** against a gap-based container (margins don't collapse in
+  flex or grid, so gap + margin add),
+- it **can't reach 0** for flush layouts, and
+- it **can't track `[data-density]`**, since raw `space/*` primitives aren't
+  density-scaled — so the one axis Figma varies is the axis it pins.
+
+Figma states the model plainly: separation lives on the parent auto-layout
+frame's `itemSpacing`, which is why it can be contextual *and* density-dependent
+in a way a baked margin can't.
+
+**The distinguishing test — does the component own its neighbours?** A sweep of
+all 42 registry stylesheets found no second instance. Every other non-zero margin
+is *internal* and therefore legitimate: floating-panel offsets from a trigger
+(`dropdown`/`popover`/`tooltip`/`select`/`context-menu` `*-offset`), separator
+spacing *inside* a menu panel (the same shape as divider, but there the panel is
+the component and the separator is its part), spacing between a component's own
+parts (`description-list` row gaps, `navigation-menu` row text-gap, `prose`'s
+flow rhythm over content it owns), `margin: auto` centring, and the `-1px`
+sr-only clip. Only a **standalone** component — one whose siblings are not its
+parts — can commit this error.
 
 ### Deferred / flagged, not yet actioned
 

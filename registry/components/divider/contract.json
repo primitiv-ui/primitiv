@@ -13,6 +13,6 @@
   "customProperties": [
     { "name": "--primitiv-divider-color", "defaultsTo": "var(--primitiv-border-subtle)" },
     { "name": "--primitiv-divider-thickness", "defaultsTo": "var(--primitiv-border-width-1)" },
-    { "name": "--primitiv-divider-spacing", "defaultsTo": "var(--primitiv-space-space-16)" }
+    { "name": "--primitiv-divider-spacing", "defaultsTo": "var(--primitiv-space-space-0)" }
   ]
 }

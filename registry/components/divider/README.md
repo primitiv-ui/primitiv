@@ -43,10 +43,56 @@ Structured per RFC 0008 — the per-component API tokens + resting look in
 is declared once in the shared token layer, so this file only re-opens the named
 sublayers). The line is painted as a `background-color` fill (so a `<span>` needs
 no border reset); `aria-orientation` chooses the axis — a full-width hairline that
-reserves block margin, or a full-height hairline that reserves inline margin and
-flows inline. It wires `--primitiv-divider-*` to the synced theme tokens —
-`border/subtle` for colour, `border-width/1` for thickness, `space/16` for
-spacing.
+spans its container, or a full-height hairline that spans its flex row. It wires
+`--primitiv-divider-*` to the synced theme tokens — `border/subtle` for colour,
+`border-width/1` for thickness, `space/0` for spacing.
+
+### It reserves no separation — the container owns the rhythm
+
+`--primitiv-divider-spacing` defaults to **0**. Verified against the live Figma
+file: the `Divider` component is a bare 1px rule with no margin or padding, and
+every one of its ~30 instances across the layout mockups draws its separation
+from the **parent auto-layout frame's `itemSpacing`** instead. That value is both
+contextual and density-dependent — `0` in the Account Settings mockup (where the
+neighbouring rows carry their own padding), `32` on Mobile (Compact), `48` on the
+default article column, `56` on Spacious.
+
+An earlier build baked `margin-block`/`margin-inline: space/16` into the
+component. A margin on the component can express none of the above, and it
+misbehaves three ways:
+
+- **It double-spaces in gap-based containers.** Margins don't collapse in flex or
+  grid, so the gap and the margin add. Measured in the kitchen-sink's own demo:
+  a 16px section gap plus a 16px margin gave **32px** of separation.
+- **It can't reach 0**, so the flush-divider layout Figma actually uses needs a
+  per-instance override.
+- **It can't track `[data-density]`**, because a raw `space/*` primitive is not
+  density-scaled — so the one axis Figma varies was the one axis it pinned.
+
+So the spacing knob is deliberately **neither `size`- nor density-scaled**, which
+is the documented exception to the house rule that every spacing property scales
+on both. There is no `size` axis on the Figma component to scale against, and the
+axis that *is* density-dependent is the container's gap — which this component
+does not own. Set the knob when you need reserved margin in a plain block-flow
+context that has no gap of its own:
+
+```css
+.prose > .primitiv-divider { --primitiv-divider-spacing: var(--primitiv-space-space-48); }
+```
+
+### `display: inline-block` on the vertical rule is for inline flow only
+
+The vertical variant declares `display: inline-block`, but a flex item is
+blockified — so in the documented usage (inside a flex row) it computes to
+`block`. Measured, not assumed. The declaration is kept for the inline-flow case,
+where the rule sits between spans of text rather than between flex children.
+
+### Thickness resolves through `border-width/1`, not Figma's `size/size-1`
+
+Figma binds the rule's dimension to `size/size-1`; the stylesheet uses
+`border-width/1`. Both are `0.0625rem` (1px), so there is **no visual drift** —
+this is a token-family choice, kept because `border-width/*` is the family every
+other hairline in the registry resolves through.
 
 **It is yours to edit.** The stable surface is the *contract* (the class,
 `aria-orientation` hooks, custom-property names), not these values (RFC 0006

@@ -182,7 +182,7 @@
         },
         "solid": {
           "background": { "$type": "color", "$value": "{color.success.500}" },
-          "foreground": { "$type": "color", "$value": "{color.absolute-white}" }
+          "foreground": { "$type": "color", "$value": "{color.absolute-black}" }
         }
       },
       "warning": {
@@ -202,7 +202,7 @@
         },
         "solid": {
           "background": { "$type": "color", "$value": "{color.info.500}" },
-          "foreground": { "$type": "color", "$value": "{color.absolute-white}" }
+          "foreground": { "$type": "color", "$value": "{color.absolute-black}" }
         }
       },
       "danger": {
@@ -530,7 +530,7 @@
         },
         "solid": {
           "background": { "$type": "color", "$value": "{color.success.500}" },
-          "foreground": { "$type": "color", "$value": "{color.absolute-white}" }
+          "foreground": { "$type": "color", "$value": "{color.absolute-black}" }
         }
       },
       "warning": {
@@ -550,7 +550,7 @@
         },
         "solid": {
           "background": { "$type": "color", "$value": "{color.info.500}" },
-          "foreground": { "$type": "color", "$value": "{color.absolute-white}" }
+          "foreground": { "$type": "color", "$value": "{color.absolute-black}" }
         }
       },
       "danger": {

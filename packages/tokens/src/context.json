@@ -858,6 +858,13 @@
         }
       }
     },
+    "alert": {
+      "xs": { "padding-block": { "$type": "number", "$value": "{space.space-8}" } },
+      "sm": { "padding-block": { "$type": "number", "$value": "{space.space-10}" } },
+      "md": { "padding-block": { "$type": "number", "$value": "{space.space-12}" } },
+      "lg": { "padding-block": { "$type": "number", "$value": "{space.space-14}" } },
+      "xl": { "padding-block": { "$type": "number", "$value": "{space.space-16}" } }
+    },
     "label-control": {
       "xs": {
         "padding-inline": {
@@ -3563,6 +3570,13 @@
           "$value": "{space.space-4}"
         }
       }
+    },
+    "alert": {
+      "xs": { "padding-block": { "$type": "number", "$value": "{space.space-6}" } },
+      "sm": { "padding-block": { "$type": "number", "$value": "{space.space-8}" } },
+      "md": { "padding-block": { "$type": "number", "$value": "{space.space-10}" } },
+      "lg": { "padding-block": { "$type": "number", "$value": "{space.space-12}" } },
+      "xl": { "padding-block": { "$type": "number", "$value": "{space.space-14}" } }
     },
     "label-control": {
       "xs": {
@@ -6270,6 +6284,13 @@
         }
       }
     },
+    "alert": {
+      "xs": { "padding-block": { "$type": "number", "$value": "{space.space-10}" } },
+      "sm": { "padding-block": { "$type": "number", "$value": "{space.space-12}" } },
+      "md": { "padding-block": { "$type": "number", "$value": "{space.space-16}" } },
+      "lg": { "padding-block": { "$type": "number", "$value": "{space.space-20}" } },
+      "xl": { "padding-block": { "$type": "number", "$value": "{space.space-24}" } }
+    },
     "label-control": {
       "xs": {
         "padding-inline": {
@@ -8975,6 +8996,13 @@
           "$value": "{space.space-4}"
         }
       }
+    },
+    "alert": {
+      "xs": { "padding-block": { "$type": "number", "$value": "{space.space-4}" } },
+      "sm": { "padding-block": { "$type": "number", "$value": "{space.space-6}" } },
+      "md": { "padding-block": { "$type": "number", "$value": "{space.space-8}" } },
+      "lg": { "padding-block": { "$type": "number", "$value": "{space.space-10}" } },
+      "xl": { "padding-block": { "$type": "number", "$value": "{space.space-12}" } }
     },
     "label-control": {
       "xs": {

@@ -230,6 +230,12 @@
         }
       }
     },
+    "choice-card": {
+      "selected": {
+        "background": { "$type": "color", "$value": "{color.brand.100}" },
+        "border": { "$type": "color", "$value": "{color.brand.500}" }
+      }
+    },
     "surface": {
       "default": {
         "$type": "color",
@@ -590,6 +596,12 @@
           "background": { "$type": "color", "$value": "{color.danger.500}" },
           "foreground": { "$type": "color", "$value": "{color.absolute-white}" }
         }
+      }
+    },
+    "choice-card": {
+      "selected": {
+        "background": { "$type": "color", "$value": "{color.brand.800}" },
+        "border": { "$type": "color", "$value": "{color.brand.500}" }
       }
     },
     "surface": {

@@ -175,6 +175,12 @@
       }
     },
     "feedback": {
+      "neutral": {
+        "soft": {
+          "background": { "$type": "color", "$value": "{color.neutral.100}" },
+          "foreground": { "$type": "color", "$value": "{color.neutral.700}" }
+        }
+      },
       "success": {
         "soft": {
           "background": { "$type": "color", "$value": "{color.success.100}" },
@@ -523,6 +529,12 @@
       }
     },
     "feedback": {
+      "neutral": {
+        "soft": {
+          "background": { "$type": "color", "$value": "{color.neutral.800}" },
+          "foreground": { "$type": "color", "$value": "{color.neutral.200}" }
+        }
+      },
       "success": {
         "soft": {
           "background": { "$type": "color", "$value": "{color.success.800}" },

@@ -972,6 +972,85 @@ flow rhythm over content it owns), `margin: auto` centring, and the `-1px`
 sr-only clip. Only a **standalone** component — one whose siblings are not its
 parts — can commit this error.
 
+### The remaining queue — 35 components, ordered by expected yield
+
+42 registry components; 6 audited (the prose family), 1 excluded (`carousel`,
+still in progress). The order below is driven by the **bug classes this run
+actually produced**, not alphabetically — every confirmed bug so far fell into one
+of five, and three of them are cheaply detectable in advance.
+
+**Wave 1 — close out what's already been touched (4).** These had fixes landed
+earlier without a full table, so they need confirmation rather than discovery.
+Cheapest wins in the queue.
+
+| Component | Why first |
+|---|---|
+| `kbd` | Repointed `code/*`→`body/*` earlier (same bug as `code-block`) but never tabled. **It is also the only remaining component that sets `font-size` and never `font-weight`** — the exact latent pin found on `blockquote` and `figure`. |
+| `blockquote` | Three fixes landed (citation skew, quote pin, weight knob). Confirm, then table. |
+| `description-list` | Reset-leak fixes + the `dt` alignment. Confirm the emitted token layer matches after the hand-patched `tokens.css`. |
+| `table` | Caption hardening landed. Also the **largest reset surface of any component** — `caption`, `table`, `td`, `th` — and `Table / Header Cell` is 60 variants. |
+
+Also fold in the agreed **`inline-code` `font-weight`** hardening here — it is the
+one outstanding item from the prose family.
+
+**Wave 2 — reset-element exposure (13).** The highest-yield class: 3 of the 6
+confirmed type bugs came from a part rendering a bare element `primitiv.reset`
+dresses directly. Ordered by exposure.
+
+| Component | Reset-dressed elements | Figma surface |
+|---|---|---|
+| `breadcrumb` | `li`, `ol` | Breadcrumb 10v + Item 10v + Separator 10v |
+| `navigation-menu` | `li`, `ul` | 5 sets, 150v |
+| `accordion` | `h3` | Accordion 20v + Item 40v |
+| `modal` | `h2`, `p` | 4 sets, 16v |
+| `drawer` | `h2`, `p` | 16v |
+| `popover` | `h2`, `p` | 3 sets, 68v |
+| `field` | `label` | 15v |
+| `checkbox` / `radio` / `switch` | `label` | 60v / 40v / 40v — near-identical, audit as one pass |
+| `dropdown` / `context-menu` | `li` | Dropdown 10 sets 134v; **ContextMenu is only 5v** against a 539-line stylesheet — check whether Figma under-specifies it or it legitimately borrows Dropdown's parts |
+
+**Wave 3 — type ramp + form controls (12).** No reset exposure, but every one
+resolves a type ramp, and the ramp choice is what `kbd` and `code-block` both got
+wrong. Check *which* ramp Figma binds, at the binding level.
+
+`input`, `textarea`, `input-group`, `select`, `tabs`, `segmented-control`,
+`toggle-group`, `tooltip`, `avatar`, `button`, `collapsible`, `progress`, `slider`.
+
+Highest Figma surface here: `button` 125v, `tooltip` 96v, `slider` 80v,
+`input`/`textarea`/`select`-trigger 50v each.
+
+**Wave 4 — no Figma counterpart (6).** `box`, `center`, `spacer`, `stack`,
+`aspect-ratio`, `prose`. Confirmed absent from Figma (checked by name across all
+87 sets), which is correct — RFC 0022's "zero design risk" primitives and `prose`
+have no design surface. **Audit these against the RFC and the reset instead**, and
+record the absence so a future pass doesn't read it as missing work.
+
+**Wave 5 — Figma sets with no registry component (4).** Not components to build —
+questions to answer.
+
+- **`Link` [90v]** — a full Figma set, but RFC 0019 §4c deliberately decided
+  against a standalone `Link` primitive (`NavigationMenu.Link` is the only shared
+  affordance). Either the set predates that decision or it documents an intent
+  that was dropped. Needs a call.
+- **`Em` [5v], `Mark` [5v], `Sub & Sup` [10v]** — text-level elements that live in
+  `primitiv.reset`, not the registry. Audit the **reset** against them. Ties
+  directly to two open items: the `em/i/cite/dfn` synthetic-oblique skew, and
+  whether `<var>` should join that selector list.
+
+**Structural Figma findings to decide on** (all read-only so far, nothing changed):
+
+- **Two empty stray components** — `579:5794` and `579:5795`, both named
+  "Component", 100×100, no children, no description, **zero instances**, sitting on
+  the `---- TYPOGRAPHY ----` divider page. Same class as the stale `List` set that
+  was deleted; almost certainly accidental. Safe to remove.
+- **`Mark` name collision** — `441:376` (2v, *Logos & Branding* — the brand mark)
+  and `612:35492` (5v, *Mark* — the `<mark>` text element). Two unrelated concepts
+  sharing one name, so the library picker shows an ambiguous pair. A rename would
+  fix it; not a bug.
+- **`toggle-group`** has a Figma `ToggleGroup Item` [40v] but **no container set**,
+  and **`input-group` has no Figma set at all** — unlike every other compound. Worth
+  confirming both are intentional before auditing those two.
+
 ### Deferred / flagged, not yet actioned
 
 - **`inline-code` `font-weight`** — renders 400 by inheritance, matching Figma,

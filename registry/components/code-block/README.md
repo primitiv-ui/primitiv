@@ -9,9 +9,8 @@ them it carries real behaviour (Prism highlighting + copy-to-clipboard), so the
 
 ## What it does
 
-A bordered, tinted (`surface/subtle`) surface with mono type on the **`code/*`**
-scale (shared with `inline-code`, so both code surfaces size the same across size
-and density — that ramp is density-scoped, unlike `body/*`), padded on the
+A bordered, tinted (`surface/subtle`) surface with mono type on the **`body/*`**
+scale — a mono *face* at the body *size*, not the `code/*` ramp — padded on the
 density-scoped `code/padding`. Three optional parts:
 
 - **Header** — a filename plus a copy-to-clipboard control. Shown when a
@@ -119,5 +118,32 @@ wrappers, D53). It is type-checked in CI by `scripts/check-registry-types.mjs`.
 - **component** `button` — the copy control composes it (`Button` variant `secondary`).
 - **component** `tabs` — the tabbed variant reuses its `.primitiv-tabs__*` classes
   for the look (installed alongside `code-block`).
-- **tokens** — `font-family/mono`, `code/*` (font-size + line-height),
+- **tokens** — `font-family/mono`, `body/*` (font-size + line-height),
   `code/padding`, `surface/subtle`, `content/*`, `border/subtle`, `radii/8`, `space/*`.
+
+### Why `body/*` and not `code/*` — the two code surfaces differ on purpose
+
+An earlier build put this block on the `code/*` ramp, reasoning that both code
+surfaces should size alike. That is the one thing the design deliberately does
+**not** do. Checked at the binding level against the live Figma "Code Block" set
+(`601:9607`) via the Desktop Bridge: the Code, Gutter **and** filename text nodes
+each bind `fontSize` → `body.<size>.font-size` and `lineHeight` →
+`body.<size>.line-height`, with only `fontFamily` on `font-family/mono`. Nothing
+in the set touches `code.<size>`.
+
+The rationale holds up: `inline-code` sits *inside* a run of body text, where a
+mono face at the same nominal size reads optically larger, so it steps down a
+notch. A **block** is standalone — there is no surrounding text to match — so it
+takes the body size straight. `Kbd` binds `body.<size>` for the same reason. So
+`code.<size>` is genuinely inline-code's alone.
+
+The old build rendered every block a full step small — 13px against 16px at
+`md`/comfortable, 2–4px low across `xs`–`xl`, with line-height 20 against 24. Its
+stated justification was also wrong on its facts: it claimed `body/*` is not
+density-scoped, and it is (`body.md.font-size` is 16/16/12/16 across
+comfortable/compact/dense/spacious).
+
+Note that `font-size: inherit` on `__pre` and `__code` stays load-bearing even
+though both now resolve through `body/*`: the reset pins a bare `pre`/`code` to
+`body.md` **specifically**, so without it the block would sit at the `md` size on
+every `size` — identical at `md`, wrong at the other four steps.

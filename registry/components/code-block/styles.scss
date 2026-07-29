@@ -8,11 +8,27 @@
  * not these values (RFC 0006 Principle 2 — names are stable, values are not).
  *
  * Structure follows RFC 0008: per-component API tokens + the resting look live
- * in primitiv.base, size modifiers in primitiv.variants. The block uses the
- * code type scale (shared with inline-code, so both code surfaces size the same
- * across size and density — the code/* ramp is density-scoped, unlike body/*),
- * and code/padding — density-scoped — for its air, matching the Figma
- * "Code Block" set.
+ * in primitiv.base, size modifiers in primitiv.variants.
+ *
+ * Type is the **body** scale in a mono face, not the code scale. Verified against
+ * the live Figma "Code Block" set (601:9607) at the binding level: the Code,
+ * Gutter and filename text nodes all bind fontSize to body.<size>.font-size and
+ * lineHeight to body.<size>.line-height, with only fontFamily on
+ * font-family/mono. An earlier build used the code.<size> ramp on the reasoning
+ * that both code surfaces should size alike; that is the one thing Figma
+ * deliberately does *not* do, and it rendered every block a full step small
+ * (13px against 16px at md/comfortable, 2-4px low across xs-xl). The stated
+ * justification was also wrong on its facts — it claimed body.* is not
+ * density-scoped, and it is (body.md.font-size is 16/16/12/16 across
+ * comfortable/compact/dense/spacious).
+ *
+ * The split is deliberate and worth preserving: inline-code sits *inside* a run
+ * of body text, where a mono face at the same nominal size reads optically
+ * larger, so it steps down a notch (code.<size>). A block is standalone — there
+ * is no surrounding text to optically match — so it takes the body size straight.
+ * Same reason Kbd binds body.<size> rather than code.<size>.
+ *
+ * Air comes from code/padding — density-scoped — matching the Figma set.
  *
  * Syntax colours are a code-only concern (no Figma variable): the seven
  * --primitiv-code-syntax-* roles are defined here with a light set plus a
@@ -45,8 +61,8 @@
     --primitiv-code-block-padding: var(--primitiv-code-padding);
     --primitiv-code-block-header-padding-block: var(--primitiv-space-space-8);
     --primitiv-code-block-font-family: var(--primitiv-font-family-mono);
-    --primitiv-code-block-font-size: var(--primitiv-code-md-font-size);
-    --primitiv-code-block-line-height: var(--primitiv-code-md-line-height);
+    --primitiv-code-block-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-code-block-line-height: var(--primitiv-body-md-line-height);
     --primitiv-code-block-gutter-color: var(--primitiv-content-muted);
     --primitiv-code-block-filename-color: var(--primitiv-content-secondary);
     /* Tabbed variant only — the tablist's top breathing room (re-pointed per
@@ -143,8 +159,11 @@
     tab-size: 2;
     /* Shed the base `pre` element styling (which targets bare prose <pre>): the
        surface + border + radius come from the .primitiv-code-block root, and the
-       type from the root's code/* scale. Without these the block's <pre> keeps a
-       non-scaling body-md font-size and a stray radii-8 corner. */
+       type from the root's body.<size> scale. `font-size: inherit` stays
+       load-bearing even now that both resolve through body.*: the reset pins a
+       bare `pre` to body.md **specifically**, so without it the block would sit at
+       the md size on every `size` — identical at md, wrong at all four other
+       steps. Same for the stray radii-8 corner. */
     font-size: inherit;
     line-height: inherit;
     background-color: var(--primitiv-color-transparent);
@@ -154,8 +173,8 @@
 
   .primitiv-code-block__code {
     display: block;
-    /* Same reason: the base `code` element rule would otherwise pin the code to
-       body-md instead of inheriting the root's code/* scale. */
+    /* Same reason: the base `code` element rule pins to body.md, so without this
+       the code would ignore `size` and sit at the md step throughout. */
     font-size: inherit;
     line-height: inherit;
   }
@@ -250,32 +269,33 @@
 }
 
 @layer primitiv.variants {
-  /* Size — re-points the code type scale to the chosen slot. Padding stays
+  /* Size — re-points the body type scale to the chosen slot (see the file
+     header: Figma binds body.<size>, not code.<size>). Padding stays
      ambient on the density-scoped code/padding (RFC 0009), so only the type
      moves per size. */
   .primitiv-code-block--xs {
-    --primitiv-code-block-font-size: var(--primitiv-code-xs-font-size);
-    --primitiv-code-block-line-height: var(--primitiv-code-xs-line-height);
+    --primitiv-code-block-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-code-block-line-height: var(--primitiv-body-xs-line-height);
     --primitiv-code-block-tabs-header-padding: var(--primitiv-space-space-8);
   }
   .primitiv-code-block--sm {
-    --primitiv-code-block-font-size: var(--primitiv-code-sm-font-size);
-    --primitiv-code-block-line-height: var(--primitiv-code-sm-line-height);
+    --primitiv-code-block-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-code-block-line-height: var(--primitiv-body-sm-line-height);
     --primitiv-code-block-tabs-header-padding: var(--primitiv-space-space-8);
   }
   .primitiv-code-block--md {
-    --primitiv-code-block-font-size: var(--primitiv-code-md-font-size);
-    --primitiv-code-block-line-height: var(--primitiv-code-md-line-height);
+    --primitiv-code-block-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-code-block-line-height: var(--primitiv-body-md-line-height);
     --primitiv-code-block-tabs-header-padding: var(--primitiv-space-space-12);
   }
   .primitiv-code-block--lg {
-    --primitiv-code-block-font-size: var(--primitiv-code-lg-font-size);
-    --primitiv-code-block-line-height: var(--primitiv-code-lg-line-height);
+    --primitiv-code-block-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-code-block-line-height: var(--primitiv-body-lg-line-height);
     --primitiv-code-block-tabs-header-padding: var(--primitiv-space-space-12);
   }
   .primitiv-code-block--xl {
-    --primitiv-code-block-font-size: var(--primitiv-code-xl-font-size);
-    --primitiv-code-block-line-height: var(--primitiv-code-xl-line-height);
+    --primitiv-code-block-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-code-block-line-height: var(--primitiv-body-xl-line-height);
     --primitiv-code-block-tabs-header-padding: var(--primitiv-space-space-16);
   }
 }

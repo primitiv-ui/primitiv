@@ -949,6 +949,28 @@ Pairs with: Table / Row, Table / Cell, Table / Header Cell
 Notes: rows 1-4 always visible; 5-8 collapse when off (8-slot rule). Body rows alternate default/striped. Caption is a bottom node (body/sm, content/muted) — React captionSide="bottom"; for a top caption drag the layer above Head (no Caption Side axis — D2 fixes 15 Size×Borders variants). ScrollArea = a documented wrapping frame with horizontal overflow (nothing to bind). Sort indicators and hover/selected row states are design guidance only — the headless Table is static.
 ```
 
+### Badge — `1387:32589` — page "Badge"
+
+```
+Small status/count indicator — attached to another element or beside a heading. Read-only, never interactive.
+
+Type: non-framed composition (leaf chip — decorative, not a control)
+
+Axes: Tone success|warning|info|danger · Style soft|solid · Size xs|sm|md|lg|xl
+
+Tokens: fill/foreground → feedback/{tone}/{style}/background|foreground (Intent)
+        sizing → badge/{size}/height|padding-inline|font-size|gap (Context collection)
+
+Properties: Label (TEXT "Label" for Style=soft, "9" for Style=solid) — free text; short/numeric content (1-2 chars) renders as a true circle, longer content grows into a pill
+
+Density: Context mode override on parent frame
+Pairs with: any host element (icon, avatar, heading) it overlaps or sits beside — no dedicated host component; positioning is the consumer's concern
+Notes: circularity is structural, not a variant — minWidth is bound to the same badge/{size}/height token as height, so a 1-2 character Label (a notification count) forces a true circle regardless of font metrics, while longer content (a status word) naturally widens into a pill. Label text node uses leadingTrim=CAP_HEIGHT so short digit content sits exactly centred — critical at this scale, since default line-box leading reads as visibly off-centre in a small circle.
+  Style=soft is the low-emphasis status-word treatment (bg=100, fg=700 in Light; bg=800, fg=200 in Dark — Intent picks a different Palette step per mode, Palette itself stays on Light). Style=solid is the high-emphasis count treatment (bg=500 in both modes; foreground is absolute-black for success/warning/info, absolute-white for danger — verified per-tone via a real WCAG contrast check against harmoni-generated ramps, not assumed uniform: warning and info both need black text at step 500 despite danger needing white at the same step).
+  No border on either style for v1 — the tinted/solid fill alone provides definition at this size; revisit if a design need surfaces.
+  feedback/* and badge/* are new families (this component); Chip reuses framed-control/* directly instead of a dedicated family, since it is genuinely interactive.
+```
+
 ### Kbd — `612:35198`
 
 ```

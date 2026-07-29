@@ -121,7 +121,18 @@ None of these are built yet; listed here for backlog visibility.
 - [ ] Confirm / Alert Dialog (`Modal` + `Button`)
 - [ ] Breadcrumb overflow menu (`Breadcrumb` + `Dropdown`)
 - [ ] Avatar Group (`Avatar` + `Tooltip` + overflow badge)
-- [ ] Badge / Tag / Chip (primitive-less leaf; unblocks several others)
+- [ ] Badge / Tag / Chip (primitive-less leaf; unblocks several others). Not itself
+      a composition (RFC 0021 §4 own footnote — listed here only because it
+      unblocks other Tier 1 composites), so structurally it's a hand-authored,
+      primitive-less registry leaf, same shape as `Divider`/`Kbd`/`Blockquote`.
+      **In progress (2026-07-29):** new `color.{success,warning,info}.*`
+      Palette primitives + `feedback.{tone}.{soft,solid}.*` Intent tokens +
+      `badge/*`/`tag/*` Context sizing landed (code + Figma, all 4 density
+      modes). **Badge's Figma component set is landed** (40 variants —
+      Tone × Style × Size — page "Badge"; see the
+      `figma-component-descriptions` skill for the canonical description).
+      Tag and Chip Figma design, plus the headless/registry build for all
+      three, remain.
 - [ ] Card (`Divider` + `Avatar`/`Badge` + `Button` slots)
 - [ ] Stepper / Wizard (`Tabs` + `Button` + decorative step row)
 - [ ] Pagination (`Button` + `Select`)

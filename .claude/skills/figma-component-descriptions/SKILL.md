@@ -956,19 +956,20 @@ Small status/count indicator — attached to another element or beside a heading
 
 Type: non-framed composition (leaf chip — decorative, not a control)
 
-Axes: Tone success|warning|info|danger · Style soft|solid · Size xs|sm|md|lg|xl
+Axes: Tone success|warning|info|danger · Variant label|counter · Size xs|sm|md|lg|xl
 
-Tokens: fill/foreground → feedback/{tone}/{style}/background|foreground (Intent)
+Tokens: fill/foreground → feedback/{tone}/{variant-style}/background|foreground (Intent — internally still soft/solid at the token level; see Notes)
         sizing → badge/{size}/height|padding-inline|font-size|gap (Context collection)
 
-Properties: Label (TEXT "Label" for Style=soft, "9" for Style=solid) — free text; short/numeric content (1-2 chars) renders as a true circle, longer content grows into a pill
+Properties: Label (TEXT "1") — a single shared property across every variant; short/numeric content (1-2 chars) renders as a true circle, longer content grows into a pill
 
 Density: Context mode override on parent frame
 Pairs with: any host element (icon, avatar, heading) it overlaps or sits beside — no dedicated host component; positioning is the consumer's concern
-Notes: circularity is structural, not a variant — minWidth is bound to the same badge/{size}/height token as height, so a 1-2 character Label (a notification count) forces a true circle regardless of font metrics, while longer content (a status word) naturally widens into a pill. Label text node uses leadingTrim=CAP_HEIGHT so short digit content sits exactly centred — critical at this scale, since default line-box leading reads as visibly off-centre in a small circle.
-  Style=soft is the low-emphasis status-word treatment (bg=100, fg=700 in Light; bg=800, fg=200 in Dark — Intent picks a different Palette step per mode, Palette itself stays on Light). Style=solid is the high-emphasis count treatment (bg=500 in both modes; foreground is absolute-white for success/info/danger, absolute-black for warning).
-  success/info's solid foreground was picked by eye over the WCAG-optimal choice, after a human review of the live render: black measures higher contrast there (4.74:1 / 5.34:1 vs white's 4.43:1 / 3.93:1, both technically just under AA's 4.5:1), but white visibly reads clearer at badge scale — a real accessibility trade-off, flagged rather than silently made. Revisit if this needs to be AA-strict (e.g. darken the solid background step for those two tones specifically). warning/danger's foreground picks (black/white respectively) were confirmed by the same contrast check and not revisited.
-  No border on either style for v1 — the tinted/solid fill alone provides definition at this size; revisit if a design need surfaces.
+Notes: circularity is structural, not a variant — minWidth is bound to the same badge/{size}/height token as height, so short Label content (a notification count) forces a true circle regardless of font metrics, while longer content (a status word) naturally widens into a pill. This is independent of the Variant axis — either label or counter can render as either shape, purely by content length (verified: Variant=label with a 1-char Label renders as a circle too). Label text node uses leadingTrim=CAP_HEIGHT so short digit content sits exactly centred — critical at this scale, since default line-box leading reads as visibly off-centre in a small circle.
+  Variant=label is the low-emphasis status-word treatment (bg=100, fg=700 in Light; bg=800, fg=200 in Dark — Intent picks a different Palette step per mode, Palette itself stays on Light). Variant=counter is the high-emphasis count treatment (bg=500 in both modes; foreground is absolute-white for success/info/danger, absolute-black for warning). The underlying token family is still named feedback/{tone}/{soft,solid}/* (soft=label, solid=counter) — renamed only at the component-property level to describe intended use rather than the fill treatment.
+  success/info's counter foreground was picked by eye over the WCAG-optimal choice, after a human review of the live render: black measures higher contrast there (4.74:1 / 5.34:1) but read noticeably muddier than white (4.43:1 / 3.93:1, both technically just under AA's 4.5:1) — a real accessibility trade-off, flagged rather than silently made.
+  No border on either variant for v1 — the tinted/solid fill alone provides definition at this size; revisit if a design need surfaces.
+  Label is one exposed TEXT property shared across all 40 variants (componentPropertyReferences on each variant's Label node), not baked-in per-variant text — the earlier build had set `.characters` directly per variant, which doesn't create a real, panel-editable property.
   feedback/* and badge/* are new families (this component); Chip reuses framed-control/* directly instead of a dedicated family, since it is genuinely interactive.
 ```
 

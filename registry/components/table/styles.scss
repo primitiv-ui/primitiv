@@ -46,6 +46,10 @@
     --primitiv-table-header-weight: var(--primitiv-font-weight-semibold);
     --primitiv-table-header-rule-color: var(--primitiv-border-strong);
     --primitiv-table-caption-foreground: var(--primitiv-content-muted);
+    --primitiv-table-caption-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-table-caption-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-table-caption-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-table-caption-line-height: var(--primitiv-body-sm-line-height);
 
     border-collapse: collapse;
     /* Fill the container by default. On a narrow viewport, content wider than
@@ -81,8 +85,20 @@
   }
 
   /* Caption: muted, padded to align with the cells. */
+  /* The caption is deliberately **size-invariant**: Figma binds it to `body/sm`
+     on every one of the Table set's Size variants (xs…xl all resolve to
+     body/sm/font-size + content/muted), unlike the cells, which do re-point per
+     size. Stated explicitly here rather than inherited from `primitiv.reset`'s
+     bare `caption` rule — that rule happens to say the same thing today, so the
+     rendered result was already correct, but it left the component depending on
+     a reset value it doesn't own. Restating it keeps the Figma decision visible
+     in the component and immune to a reset change. */
   .primitiv-table__caption {
     padding-block: var(--primitiv-table-cell-padding-block);
+    font-family: var(--primitiv-table-caption-font-family);
+    font-size: var(--primitiv-table-caption-font-size);
+    font-weight: var(--primitiv-table-caption-font-weight);
+    line-height: var(--primitiv-table-caption-line-height);
     text-align: start;
     color: var(--primitiv-table-caption-foreground);
   }
@@ -157,4 +173,8 @@ $primitiv-table-rule-color: var(--primitiv-table-rule-color);
 $primitiv-table-header-foreground: var(--primitiv-table-header-foreground);
 $primitiv-table-header-weight: var(--primitiv-table-header-weight);
 $primitiv-table-header-rule-color: var(--primitiv-table-header-rule-color);
+$primitiv-table-caption-font-family: var(--primitiv-table-caption-font-family);
+$primitiv-table-caption-font-size: var(--primitiv-table-caption-font-size);
+$primitiv-table-caption-font-weight: var(--primitiv-table-caption-font-weight);
+$primitiv-table-caption-line-height: var(--primitiv-table-caption-line-height);
 $primitiv-table-caption-foreground: var(--primitiv-table-caption-foreground);

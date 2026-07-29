@@ -1009,14 +1009,47 @@ over-exposing tokens the token layer already provides. Deleting them would narro
 published contract, so the check allows the extra aliases (order and body still
 enforced) and says so out loud. Whoever settles it should empty that list.
 
-### The remaining queue — 35 components, ordered by expected yield
+### The remaining queue — 33 components, ordered by expected yield
 
-42 registry components; 6 audited (the prose family), 1 excluded (`carousel`,
+**45** registry components (Badge/Tag/Chip landed 2026-07-29); **11 audited**
+— the prose family plus Wave 1 and `breadcrumb` — and 1 excluded (`carousel`,
 still in progress). The order below is driven by the **bug classes this run
 actually produced**, not alphabetically — every confirmed bug so far fell into one
 of five, and three of them are cheaply detectable in advance.
 
-**Wave 1 — close out what's already been touched (4).** These had fixes landed
+**Wave 1b — the freshly-landed trio (3): `badge`, `tag`, `chip`.** Built
+Figma-first and added straight to the registry, so the drift risk is lower than
+for legacy components — but a **post-build pass had already found and fixed
+text-box-trim/overflow bugs in all three** (`28776a0f`), so it isn't zero. Worth
+doing while the Figma work is fresh, and the three interlock: they share the new
+`feedback/*` Intent family and the `badge/tag` Context sizing families.
+
+The registration chain is verified complete — `registry.json` entries structurally
+identical to their siblings, `crates/primitiv-cli/src/ports/registry.rs`, the
+`--all` roster test (`Resolved 45 components to add:`), kitchen-sink demos plus
+component and stylesheet copies, and the ROADMAP row ticked. Correctly **absent**
+from `packages/react/README.md`: that table indexes headless components via
+`src/<Component>/README.md`, and all three are registry-only/primitive-less, like
+`kbd`, `blockquote`, `inline-code`, `code-block`, `prose` and `pull-quote` — none
+of which appear there either.
+
+Specific things to check, from their Figma descriptions:
+
+- **`badge`** (`1387:32589`, 40v = `Tone` success\|warning\|info\|danger ×
+  `Variant` label\|counter × `Size`) — resolves 17 `feedback/{tone}/{solid,soft}/
+  {background,foreground}` roles. Note `276f5849` reverted a foreground change to
+  keep success/info's **solid** tone on AA-compliant black, so the contrast
+  decision is deliberate and shouldn't be "fixed" back to white.
+- **`tag`** (`1390:32648`, 25v = `Tone` neutral\|success\|warning\|info\|danger ×
+  `Size`) — soft tones only, and it adds `feedback/neutral/soft` (`0270cf47`).
+  Read-only, so no interaction states.
+- **`chip`** (`1390:32827`, 25v = `Size` × `Interaction`
+  default\|hover\|active\|focus\|disabled) — the only interactive one, so it rides
+  `framed-control/*` rather than `feedback/*`, and its focus ring was given
+  Button's offset anatomy (`fe061aa1`). The trailing × is core anatomy, not
+  optional; a leading icon/avatar is optional.
+
+**Wave 1 — ✅ complete** (`kbd`, `blockquote`, `description-list`, `table`). These had fixes landed
 earlier without a full table, so they need confirmation rather than discovery.
 Cheapest wins in the queue.
 
@@ -1030,7 +1063,7 @@ Cheapest wins in the queue.
 Also fold in the agreed **`inline-code` `font-weight`** hardening here — it is the
 one outstanding item from the prose family.
 
-**Wave 2 — reset-element exposure (13).** The highest-yield class: 3 of the 6
+**Wave 2 — reset-element exposure (13); `breadcrumb` ✅ done, 12 left.** The highest-yield class: 3 of the 6
 confirmed type bugs came from a part rendering a bare element `primitiv.reset`
 dresses directly. Ordered by exposure.
 

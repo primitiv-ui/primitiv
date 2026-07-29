@@ -34,6 +34,22 @@ restarting at the start edge. The stylesheet uses `text-align: end` (not
 `right`) so it follows the reading direction and flips under RTL. An earlier
 build left the citation start-aligned.
 
+### The citation is upright, and that takes more than `font-style: normal`
+
+The brand face ships no native italic, so `primitiv.reset` synthesises an
+oblique for `em, i, cite, dfn` **geometrically**: `transform: skewX(-10deg)`,
+plus `display: inline-block` to give the skew a transformable box (it matches
+the Figma `relativeTransform` skew exactly). That is right for prose italics
+and wrong for this component — Figma binds the Citation node to
+`body/{size}/font-style`, i.e. **Regular**.
+
+The trap is that `font-style: normal` looks like it covers this and doesn't:
+the computed `font-style` *is* `normal` while the glyphs still lean, because the
+lean is a transform. Probing `font-style` to check therefore reports a false
+pass. `.primitiv-blockquote__citation` undoes both halves — `transform: none`
+and `display: block` — leaving a bare `<cite>` elsewhere on the page still
+obliqued.
+
 ## Usage
 
 ```tsx

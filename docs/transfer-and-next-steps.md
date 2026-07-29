@@ -915,6 +915,28 @@ invisible at `md`/comfortable:
 `scripts/figma-qa/size-pin.mjs` now catches the signature. A sweep of 11
 components × 5 sizes found no further instances.
 
+**A fourth instance, spacing rather than type** (found auditing `list`): the reset
+also spaces bare list items — `li + li { margin-block-start: list/item-gap }` —
+and `list` applied the *same token* as flex `gap` on the container. Margins don't
+collapse in flex, so every row gap rendered at **2×**. Same mechanism, and the
+shared token is what made it look deliberate.
+
+**Swept all 20 `li`-rendering registry parts; `list` was the only one.** Every
+other part either zeroes `margin-block` explicitly (breadcrumb item + separator,
+navigation-menu item, all dropdown/context-menu rows) or declares its own intended
+margin (the two menu separators). **Two harness lessons worth keeping:**
+
+- A first pass probing each part inside a bare `<ul>` reported **13 of 20**
+  leaking. All false: a rule scoped to the component's own container
+  (`.primitiv-breadcrumb__list > …`) can't fire without that ancestor. Build the
+  real nesting from `contract.json`.
+- The two menu separators still flagged, because their own
+  `dropdown/separator-spacing` happens to equal `list/item-gap` (8px) at
+  *comfortable*. Re-measuring at **dense** (4px vs 2px) and **spacious** (8px vs
+  12px) proved the component's declaration wins. When two candidate sources agree
+  at the default, measure where they diverge — a single-density probe can't
+  attribute a value.
+
 ### The container-spacing bug class — closed, one instance
 
 Found on `divider`: a component that reserves **separation from its siblings** as

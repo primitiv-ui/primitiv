@@ -859,11 +859,11 @@
       }
     },
     "alert": {
-      "xs": { "padding-block": { "$type": "number", "$value": "{space.space-8}" } },
-      "sm": { "padding-block": { "$type": "number", "$value": "{space.space-10}" } },
-      "md": { "padding-block": { "$type": "number", "$value": "{space.space-12}" } },
-      "lg": { "padding-block": { "$type": "number", "$value": "{space.space-14}" } },
-      "xl": { "padding-block": { "$type": "number", "$value": "{space.space-16}" } }
+      "xs": { "padding-block": { "$type": "number", "$value": "{space.space-8}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-3}" } },
+      "sm": { "padding-block": { "$type": "number", "$value": "{space.space-10}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-3}" } },
+      "md": { "padding-block": { "$type": "number", "$value": "{space.space-12}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-4}" } },
+      "lg": { "padding-block": { "$type": "number", "$value": "{space.space-14}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-4}" } },
+      "xl": { "padding-block": { "$type": "number", "$value": "{space.space-16}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-6}" } }
     },
     "label-control": {
       "xs": {
@@ -3572,11 +3572,11 @@
       }
     },
     "alert": {
-      "xs": { "padding-block": { "$type": "number", "$value": "{space.space-6}" } },
-      "sm": { "padding-block": { "$type": "number", "$value": "{space.space-8}" } },
-      "md": { "padding-block": { "$type": "number", "$value": "{space.space-10}" } },
-      "lg": { "padding-block": { "$type": "number", "$value": "{space.space-12}" } },
-      "xl": { "padding-block": { "$type": "number", "$value": "{space.space-14}" } }
+      "xs": { "padding-block": { "$type": "number", "$value": "{space.space-6}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-2}" } },
+      "sm": { "padding-block": { "$type": "number", "$value": "{space.space-8}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-2}" } },
+      "md": { "padding-block": { "$type": "number", "$value": "{space.space-10}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-3}" } },
+      "lg": { "padding-block": { "$type": "number", "$value": "{space.space-12}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-4}" } },
+      "xl": { "padding-block": { "$type": "number", "$value": "{space.space-14}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-4}" } }
     },
     "label-control": {
       "xs": {
@@ -6285,11 +6285,11 @@
       }
     },
     "alert": {
-      "xs": { "padding-block": { "$type": "number", "$value": "{space.space-10}" } },
-      "sm": { "padding-block": { "$type": "number", "$value": "{space.space-12}" } },
-      "md": { "padding-block": { "$type": "number", "$value": "{space.space-16}" } },
-      "lg": { "padding-block": { "$type": "number", "$value": "{space.space-20}" } },
-      "xl": { "padding-block": { "$type": "number", "$value": "{space.space-24}" } }
+      "xs": { "padding-block": { "$type": "number", "$value": "{space.space-10}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-2}" } },
+      "sm": { "padding-block": { "$type": "number", "$value": "{space.space-12}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-4}" } },
+      "md": { "padding-block": { "$type": "number", "$value": "{space.space-16}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-4}" } },
+      "lg": { "padding-block": { "$type": "number", "$value": "{space.space-20}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-6}" } },
+      "xl": { "padding-block": { "$type": "number", "$value": "{space.space-24}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-6}" } }
     },
     "label-control": {
       "xs": {
@@ -8998,11 +8998,11 @@
       }
     },
     "alert": {
-      "xs": { "padding-block": { "$type": "number", "$value": "{space.space-4}" } },
-      "sm": { "padding-block": { "$type": "number", "$value": "{space.space-6}" } },
-      "md": { "padding-block": { "$type": "number", "$value": "{space.space-8}" } },
-      "lg": { "padding-block": { "$type": "number", "$value": "{space.space-10}" } },
-      "xl": { "padding-block": { "$type": "number", "$value": "{space.space-12}" } }
+      "xs": { "padding-block": { "$type": "number", "$value": "{space.space-4}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-1}" } },
+      "sm": { "padding-block": { "$type": "number", "$value": "{space.space-6}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-1}" } },
+      "md": { "padding-block": { "$type": "number", "$value": "{space.space-8}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-2}" } },
+      "lg": { "padding-block": { "$type": "number", "$value": "{space.space-10}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-1}" } },
+      "xl": { "padding-block": { "$type": "number", "$value": "{space.space-12}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-2}" } }
     },
     "label-control": {
       "xs": {

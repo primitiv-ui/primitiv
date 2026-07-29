@@ -126,13 +126,15 @@ None of these are built yet; listed here for backlog visibility.
       unblocks other Tier 1 composites), so structurally it's a hand-authored,
       primitive-less registry leaf, same shape as `Divider`/`Kbd`/`Blockquote`.
       **In progress (2026-07-29):** new `color.{success,warning,info}.*`
-      Palette primitives + `feedback.{tone}.{soft,solid}.*` Intent tokens +
+      Palette primitives + `feedback.{tone}.{soft,solid}.*` Intent tokens
+      (including a `feedback.neutral.soft.*` entry for Tag) +
       `badge/*`/`tag/*` Context sizing landed (code + Figma, all 4 density
       modes). **Badge's Figma component set is landed** (40 variants —
-      Tone × Style × Size — page "Badge"; see the
-      `figma-component-descriptions` skill for the canonical description).
-      Tag and Chip Figma design, plus the headless/registry build for all
-      three, remain.
+      Tone × Variant × Size — page "Badge") and **Tag's Figma component set
+      is landed** (25 variants — Tone × Size, no Variant axis — page "Tag";
+      see the `figma-component-descriptions` skill for both canonical
+      descriptions). Chip Figma design, plus the headless/registry build for
+      all three, remain.
 - [ ] Card (`Divider` + `Avatar`/`Badge` + `Button` slots)
 - [ ] Stepper / Wizard (`Tabs` + `Button` + decorative step row)
 - [ ] Pagination (`Button` + `Select`)

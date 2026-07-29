@@ -973,6 +973,25 @@ Notes: circularity is structural, not a variant — minWidth is bound to the sam
   feedback/* and badge/* are new families (this component); Chip reuses framed-control/* directly instead of a dedicated family, since it is genuinely interactive.
 ```
 
+### Tag — `1390:32648` — page "Tag"
+
+```
+Small label chip — tags content by category, topic, or status; typically shown in a group. Read-only, never interactive (contrast with Chip, which is interactive and reuses framed-control/* instead).
+
+Type: non-framed composition (leaf chip — decorative, not a control)
+
+Axes: Tone neutral|success|warning|info|danger · Size xs|sm|md|lg|xl
+
+Tokens: fill/foreground → feedback/{tone}/soft/background|foreground (Intent — the same soft family Badge's Variant=label uses)
+        sizing → tag/{size}/height|padding-inline|gap (Context collection; no font-size — typography reuses body/{size}/* directly, Asta Sans Regular)
+
+Properties: Label (TEXT "Tag") — a single shared property across every variant
+
+Density: Context mode override on parent frame
+Pairs with: often shown in a horizontal group (a "Tags" row); no dedicated host component
+Notes: single visual treatment only — no Variant axis (Badge's label/counter split doesn't apply; Tag is always the low-emphasis tinted pill). No circularity trick — unlike Badge, minWidth is left unbound, so Tag simply hugs its content width regardless of length. Tone gains a neutral entry (feedback/neutral/soft/*, bg=neutral.100/fg=neutral.700 in Light, bg=neutral.800/fg=neutral.200 in Dark) that Badge doesn't have — Tag's most common real-world use is a plain grey label ("Design", "Rust"), with the four semantic tones reserved for status ("Shipped" in success). Label text node uses leadingTrim=CAP_HEIGHT and is a real exposed TEXT property (componentPropertyReferences), built correctly from the start this time rather than retrofitted (a gap caught on Badge).
+```
+
 ### Kbd — `612:35198`
 
 ```

@@ -66,14 +66,18 @@
     font-weight: var(--primitiv-badge-font-weight);
     line-height: var(--primitiv-badge-line-height);
     white-space: nowrap;
-    /* Only one child (the label) and no icon slot, so the trim can sit
-       directly on the root — contrast Chip, where a leading icon forces the
-       trim onto a dedicated label span instead. */
-    text-box-trim: trim-both;
-    text-box-edge: cap alphabetic;
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
+  }
+
+  /* text-box-trim must land on the element directly wrapping the text node,
+     never a flex container (registry-stylesheet-conventions) — `.primitiv-badge`
+     is display:inline-flex, so an earlier version that trimmed the root
+     directly silently didn't apply, leaving the label visibly off-centre. */
+  .primitiv-badge__label {
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
   }
 }
 

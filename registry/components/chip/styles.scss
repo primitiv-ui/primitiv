@@ -99,14 +99,19 @@
   }
 
   .primitiv-chip__label {
-    overflow: hidden;
-    text-overflow: ellipsis;
     font-family: var(--primitiv-chip-font-family);
     font-size: var(--primitiv-chip-font-size);
     font-weight: var(--primitiv-chip-font-weight);
     line-height: var(--primitiv-chip-line-height);
     /* Applied to the label span, not the flex row — a control with an icon
-       sibling can't trim on the container (registry-stylesheet-conventions). */
+       sibling can't trim on the container (registry-stylesheet-conventions).
+       No overflow/ellipsis truncation: it isn't a real design requirement
+       here (chips flow in a wrapping row, not a fixed-width slot), and
+       combining overflow:hidden with text-box-trim actively broke rendering
+       — the trimmed box shrinks to the glyphs' cap-height while the
+       untrimmed text still lays out at the full line-height internally, so
+       overflow:hidden clipped the top/bottom of every label (confirmed via
+       scrollHeight 28px vs clientHeight 12px in a real browser). */
     text-box-trim: trim-both;
     text-box-edge: cap alphabetic;
   }

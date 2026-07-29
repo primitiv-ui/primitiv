@@ -8,9 +8,17 @@ import "../styles/primitiv/badge/styles.css";
  * behaviour — it only adds classes — so, unlike the generated wrappers, it
  * composes no headless primitive: it renders a <span>, or the consumer's own
  * element via `asChild` (Slot). Hand-written, so it has no drift-guard test.
+ *
+ * Wraps string/number children in a __label span (element children — the
+ * asChild target — pass through unwrapped), mirroring Button's generated
+ * wrapTextChildren shape exactly: text-box-trim must land on the element
+ * directly wrapping the text node, never a flex container — `.primitiv-badge`
+ * is display:inline-flex, so trimming the root itself (an earlier version of
+ * this component did) silently doesn't apply, leaving the label visibly
+ * off-centre (registry-stylesheet-conventions).
  */
 import { Slot } from "@primitiv-ui/react";
-import { type ComponentPropsWithRef, type ElementType } from "react";
+import { Children, type ComponentPropsWithRef, type ElementType, type ReactNode } from "react";
 import { badge, type BadgeVariants } from "./badge.recipe";
 
 export type BadgeProps = ComponentPropsWithRef<"span"> &
@@ -21,6 +29,16 @@ export type BadgeProps = ComponentPropsWithRef<"span"> &
      */
     asChild?: boolean;
   };
+
+function wrapTextNodes(children: ReactNode): ReactNode {
+  return Children.map(children, (child) =>
+    typeof child === "string" || typeof child === "number" ? (
+      <span className="primitiv-badge__label">{child}</span>
+    ) : (
+      child
+    ),
+  );
+}
 
 /**
  * A small status/count chip attached to another element or beside a
@@ -40,7 +58,11 @@ export type BadgeProps = ComponentPropsWithRef<"span"> &
  *
  * @see https://primitiv-ui.dev/docs/components/badge
  */
-export function Badge({ asChild = false, tone, variant, size, className, ...props }: BadgeProps) {
+export function Badge({ asChild = false, tone, variant, size, className, children, ...props }: BadgeProps) {
   const Comp: ElementType = asChild ? Slot : "span";
-  return <Comp className={[badge({ tone, variant, size }), className].filter(Boolean).join(" ")} {...props} />;
+  return (
+    <Comp className={[badge({ tone, variant, size }), className].filter(Boolean).join(" ")} {...props}>
+      {wrapTextNodes(children)}
+    </Comp>
+  );
 }

@@ -2159,7 +2159,10 @@ export function ramp(hue: number, chroma = 0.12) {
         {/* Single-select value picker (RadioGroup semantics): exactly one segment
             is always selected — the brand-filled one — the rest secondary. The
             leading logos are plain SVG children — the registry sizes them to the
-            item's icon-size token, so they scale with `size` + density. */}
+            item's icon-size token, so they scale with `size` + density.
+            No `justify` prop — demonstrates the default (`justified`): every
+            segment matches the widest one's natural width, even though these
+            three happen to be close in length already. */}
         <SegmentedControl
           size={size}
           value={framework}
@@ -2179,16 +2182,17 @@ export function ramp(hue: number, chroma = 0.12) {
             Svelte
           </SegmentedControlItem>
         </SegmentedControl>
-        {/* Justified — segments share the track width equally. */}
+        {/* justify="content" — opts out of the default equal-width layout, so
+            each segment sizes to its own (here, deliberately uneven) label. */}
         <SegmentedControl
           size={size}
-          justify="justified"
+          justify="content"
           defaultValue="week"
           aria-label="Range"
         >
           <SegmentedControlItem value="day">Day</SegmentedControlItem>
           <SegmentedControlItem value="week">Week</SegmentedControlItem>
-          <SegmentedControlItem value="month">Month</SegmentedControlItem>
+          <SegmentedControlItem value="month">Last 30 days</SegmentedControlItem>
         </SegmentedControl>
       </Section>
 

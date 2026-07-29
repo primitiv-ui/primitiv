@@ -29,11 +29,11 @@
     },
     {
       "name": "justify",
-      "default": "content",
-      "description": "Whether segments size to their content or share the track width equally.",
+      "default": "justified",
+      "description": "Whether segments share the track width equally or size to their content.",
       "options": [
-        { "name": "content", "class": "", "description": "Segments size to their content (the default)." },
-        { "name": "justified", "class": "primitiv-segmented-control--justified", "description": "Segments share the track width equally — the classic equal-width segmented control." }
+        { "name": "content", "class": "", "description": "Segments size to their content — opt out of the default equal-width layout." },
+        { "name": "justified", "class": "primitiv-segmented-control--justified", "description": "Segments share the track width equally, matching the widest one (the default) — the classic equal-width segmented control." }
       ]
     }
   ],

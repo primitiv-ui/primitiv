@@ -23,7 +23,7 @@ export const segmentedControl = cva("primitiv-segmented-control", {
   },
   defaultVariants: {
     size: "md",
-    justify: "content",
+    justify: "justified",
   },
 });
 

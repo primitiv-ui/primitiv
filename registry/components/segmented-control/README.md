@@ -48,9 +48,10 @@ only**: `framed-control/{size}/*` for segment sizing + the item radius,
   `calc(item-radius + track-padding)`, so the frame never looks too tight against
   the segments; it re-derives automatically when the `size` modifier re-points
   the item radius.
-- **`justify`.** Omitted, segments are content-width; `justified` makes them
-  share the track width equally, each matching the widest segment's own
-  natural content — the classic equal-width segmented control. Implemented as
+- **`justify`.** Defaults to `justified` — segments share the track width
+  equally, each matching the widest segment's own natural content (the
+  classic equal-width segmented control). Pass `justify="content"` to opt out
+  and size each segment to its own content instead. Implemented as
   CSS Grid (`display: inline-grid; grid-auto-columns: 1fr`, or
   `grid-auto-rows: 1fr` for `data-orientation="vertical"`), not `flex: 1 1 0`:
   a real-browser check found flex only redistributes each item's own

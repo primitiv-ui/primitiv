@@ -30,10 +30,10 @@ export type SegmentedControlProps = DistributiveOmit<ComponentPropsWithRef<typeo
    */
   size?: "xs" | "sm" | "md" | "lg" | "xl";
   /**
-   * Whether segments size to their content or share the track width equally.
-   * - `content` — Segments size to their content (the default).
-   * - `justified` — Segments share the track width equally — the classic equal-width segmented control.
-   * @default "content"
+   * Whether segments share the track width equally or size to their content.
+   * - `content` — Segments size to their content — opt out of the default equal-width layout.
+   * - `justified` — Segments share the track width equally, matching the widest one (the default) — the classic equal-width segmented control.
+   * @default "justified"
    * @see https://primitiv-ui.dev/docs/components/segmented-control
    */
   justify?: "content" | "justified";

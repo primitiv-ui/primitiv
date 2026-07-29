@@ -866,3 +866,68 @@ nothing extra to do — the contract drives it; just keep convenience props as t
   decorative-slot compound (Switch) and structural (Tabs) alike; for a structural
   compound each part additionally pulls its matching headless part's JSDoc.
   Decide the sourcing approach first.
+
+## 🔍 Figma ↔ kitchen-sink audit — in progress (started 2026-07-29)
+
+Figma is the source of truth; the kitchen-sink exists to validate it. Every
+component gets checked: Figma's per-part token bindings vs what the deployed
+kitchen-sink actually renders, measured in a real browser
+(`scripts/figma-qa/` — read its README first, it carries the gotchas).
+
+**The arbitration rule (agreed with the human, 2026-07-29):**
+- **Figma wins on values.**
+- **Code wins where Figma physically can't express something** — theme
+  inversion, wrapped text, RTL, inline text flow.
+- **Anything else gets flagged, not decided.** Don't silently arbitrate; three
+  earlier calls (Figure scrim opacity, Slider thumb fill, the dark-mode ramp
+  encoding) were each a judgement that should have been surfaced.
+
+**Deliverable:** a written audit per component — a table of Figma binding vs
+rendered value with a verdict per row — reviewed before any batch of fixes.
+One component at a time.
+
+### Prose family — the agreed starting set
+
+| Component | Status |
+|---|---|
+| `inline-code` | ✅ **clean.** Every binding matches, size axis 10/11/13/16/18 (xs→xl) exact, density tracks. Confirms Kbd/inline-code legitimately differ: inline-code binds `code/{size}/font-size`, Kbd binds `body/{size}/font-size`. |
+| `divider` | ⏳ next. Figma spec already pulled: `Orientation` horizontal\|vertical, fill `border/subtle`, thickness `size/size-1`, deliberately **not** density-sensitive (fixed 1px). |
+| `list` | partially audited — the `ListItem` `State=disabled` axis was missing and is now shipped. Not yet given the full table treatment. |
+| `figure` | partially audited — `size` + caption `align` axes were missing, overlay scrim and caption pinning both fixed. Not yet a full table. |
+| `pull-quote` | partially audited — mark sizing fixed. Not yet a full table. |
+| `code-block` | not started. |
+
+### The reset-leak bug class — closed, with a standing check
+
+`primitiv.reset` styles bare elements directly. **A declaration on an element
+beats an inherited one whatever the layer** (layer order only arbitrates between
+declarations on the *same* element), so a component that sets type on its root
+and lets a part inherit silently gets the reset's value. Three instances, all
+invisible at `md`/comfortable:
+
+- `description-list` — `dt` in Khand not Asta Sans, `dd` in secondary not
+  primary, and **`size` inert on both parts**.
+- `blockquote` citation — obliqued by the reset's `transform: skewX(-10deg)`
+  synthetic italic. `font-style` computes `normal`, so probing it is a false pass.
+- `blockquote` quote — pinned to `body/md`, so at `lg`/`xl` the attribution
+  rendered *larger* than the quote.
+
+`scripts/figma-qa/size-pin.mjs` now catches the signature. A sweep of 11
+components × 5 sizes found no further instances.
+
+### Deferred / flagged, not yet actioned
+
+- **`inline-code` `font-weight`** — renders 400 by inheritance, matching Figma,
+  but would inherit 700 inside a `<strong>`. Fold in next time the file is
+  touched (agreed with the human).
+- **`<var>` in the reset** — left on the UA's `font-style: italic`, so the
+  browser synthesises its own oblique while `em, i, cite, dfn` get the house 10°
+  skew. Two different fake italics. Should `var` join that selector list?
+- **Inline styles in `packages/react`** — the kitchen-sink and registry are now
+  clean (bar Progress/Carousel's continuous data style-props, agreed). The
+  headless layer still writes some genuine *styling* inline: Table's
+  `__scroll-area` (`display; overflow-x; max-width`) and the sr-only `<select>`
+  pattern. Different layer from the no-inline-styles rule; worth a pass.
+- **Dark-mode ramp encoding** — reviewed and **accepted as-is**; see
+  `packages/tokens/README.md` and the `figma-variable-architecture` skill. Do not
+  "fix" by ramp index.

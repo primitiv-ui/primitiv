@@ -1036,7 +1036,7 @@ dresses directly. Ordered by exposure.
 
 | Component | Reset-dressed elements | Figma surface |
 |---|---|---|
-| `breadcrumb` | `li`, `ol` | Breadcrumb 10v + Item 10v + Separator 10v |
+| ~~`breadcrumb`~~ | ✅ **audited clean — no change needed.** The best-matched component so far. Every binding exact: link `content/muted` `#6f747b`, current page `content/primary` `#121418`, separator `content/muted`, all three parts on `body.<size>` (12/16 … 22/36), Asta Sans weight 400 in both states — Figma carries no weight difference, colour alone marks the current page. Separator icon resolves `breadcrumb/<size>/icon-size` at 14/16/20/20/24 (comfortable), densifying 12/16/20/20 at md, matching Figma's binding on both width *and* height. The trail gap is a flat `4px` at every size **and** every density, matching Figma's unbound literal `4` — the stylesheet comment already says so. The reset's `li + li` margin is neutralised (measured `0px`) by a `.primitiv-breadcrumb li` rule that outspecifies it inside the same `primitiv.reset` layer. List markers, UA margin and padding all zeroed. The two code-only additions — the muted→primary hover lift with an always-present transparent underline (so revealing it is a colour transition, not a reflow) and the `:focus-visible` ring — are interaction affordances Figma's `link\|current` axis can't express, and the README already documents both. |
 | `navigation-menu` | `li`, `ul` | 5 sets, 150v |
 | `accordion` | `h3` | Accordion 20v + Item 40v |
 | `modal` | `h2`, `p` | 4 sets, 16v |

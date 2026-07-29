@@ -45,6 +45,25 @@ split.
    when they're connected. When they aren't available in the session,
    fall back to the `gh` CLI. Either way, stay scoped to
    `primitiv-ui/primitiv` and never touch the raw API directly.
+8. **Composite / composed components: Figma first, always — never jump
+   straight to the registry.** "This composes two ✓ done primitives, so
+   there's nothing left to design" is a trap. Composing existing
+   components together still surfaces real visual decisions that only
+   show up once you're looking at the composition, not before —
+   Alert's dismiss button is the reference case: building it in Figma
+   first is what surfaced that the icon needed a scalable
+   `icon-offset-top` optical-alignment token against the title, that
+   the dismiss control should be a real Icon Button instance rather
+   than a bare icon (matching the Modal-close convention), and that
+   giving it a tone-tinted icon plus a hover/active background needed
+   two brand-new token families (`feedback/*/soft/hover`,
+   `feedback/*/soft/active`) that didn't exist yet. None of that was
+   visible from the component's spec — it only emerged from iterating
+   on the composition visually. Work every composite the same way: land
+   the Figma component set (or an exploration page for a full
+   composite), settle these cross-component decisions and any new
+   tokens there, *then* build the registry surface. See RFC 0021 §6 for
+   the composite-specific build conventions this feeds into.
 
 ## Definition of done for any component change
 

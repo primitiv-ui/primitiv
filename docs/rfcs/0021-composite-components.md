@@ -145,12 +145,35 @@ Worth naming so a future session doesn't rediscover the same dead end:
 
 ## 6. Conventions for building these
 
-Follow the `new-registry-component` skill exactly as written for the
-Tier 1 list — same six files under `registry/components/<name>/`, same
-`registry.json` / `crates/primitiv-cli/src/ports/registry.rs` /
+**Figma first, always — "zero prerequisites" is not "zero design work."**
+The Tier 1 table above says these ship against today's primitive set with
+no new ARIA pattern; that's a statement about *behaviour*, not about
+*visual decisions*. Composing two ✓-done components together still
+surfaces real design choices that only show up once the composition is
+sitting on a canvas — which existing token family a nested part should
+borrow versus needing a new one, how two components' anatomies actually
+align pixel-for-pixel, what a shared interaction state (hover, focus)
+should look like when it didn't exist on either piece in isolation. Alert
+(a Tier 0 primitive-adjacent composite, but the same lesson applies one
+tier up) is the reference case: building its dismiss button in Figma first
+is what surfaced the need for a scalable `icon-offset-top` optical-
+alignment token, that the dismiss control should be a real Icon Button
+instance rather than a bare icon, and that its hover/active states needed
+two brand-new token families (`feedback/*/soft/hover`,
+`feedback/*/soft/active`). None of that was visible from "compose Button
++ Modal" as a sentence — every composite in this RFC gets the same
+treatment: a Figma component set (or an exploration page, for the larger
+composites like Data Table) lands *before* the registry build, and any new
+tokens or cross-component alignment decisions get settled there. See
+`CLAUDE.md`'s Working style §8 for the general rule this RFC's Tier 1
+table doesn't get to skip.
+
+Beyond that, follow the `new-registry-component` skill exactly as written
+for the Tier 1 list — same six files under `registry/components/<name>/`,
+same `registry.json` / `crates/primitiv-cli/src/ports/registry.rs` /
 `crates/primitiv-cli/tests/cli.rs` three-edit registration, same
-kitchen-sink hand-sync to verify pre-release. Two additions specific to
-composites:
+kitchen-sink hand-sync to verify pre-release. Two more additions specific
+to composites:
 
 - **`dependsOn.components` carries real weight here.** Where `code-block`
   depends on `button` for one reused class, a composite like Data Table

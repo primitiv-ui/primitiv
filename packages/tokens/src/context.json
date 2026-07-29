@@ -694,6 +694,170 @@
         "$value": "{border-width.1}"
       }
     },
+    "badge": {
+      "xs": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-12}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.10}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "sm": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-14}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.11}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "md": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.12}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "lg": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.13}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "xl": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.14}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        }
+      }
+    },
+    "tag": {
+      "xs": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "sm": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "md": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "lg": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "xl": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-32}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        }
+      }
+    },
     "label-control": {
       "xs": {
         "padding-inline": {
@@ -3234,6 +3398,170 @@
       "border-width": {
         "$type": "number",
         "$value": "{border-width.1}"
+      }
+    },
+    "badge": {
+      "xs": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-10}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.10}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "sm": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-12}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.11}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "md": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-14}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.11}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "lg": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.12}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "xl": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.12}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      }
+    },
+    "tag": {
+      "xs": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-14}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "sm": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "md": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "lg": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "xl": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
       }
     },
     "label-control": {
@@ -5778,6 +6106,170 @@
         "$value": "{border-width.1}"
       }
     },
+    "badge": {
+      "xs": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-14}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.11}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "sm": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.12}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "md": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.13}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "lg": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.14}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        }
+      },
+      "xl": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.15}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        }
+      }
+    },
+    "tag": {
+      "xs": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "sm": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "md": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "lg": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-32}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        }
+      },
+      "xl": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-40}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-14}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        }
+      }
+    },
     "label-control": {
       "xs": {
         "padding-inline": {
@@ -8318,6 +8810,170 @@
       "border-width": {
         "$type": "number",
         "$value": "{border-width.1}"
+      }
+    },
+    "badge": {
+      "xs": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-8}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.10}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "sm": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-10}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.10}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "md": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-12}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.11}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "lg": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-14}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.11}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "xl": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.12}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      }
+    },
+    "tag": {
+      "xs": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-12}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "sm": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-14}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-2}"
+        }
+      },
+      "md": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "lg": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "xl": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
       }
     },
     "label-control": {

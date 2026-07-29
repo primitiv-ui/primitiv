@@ -333,22 +333,30 @@
     --primitiv-content-on-selected: var(--primitiv-color-neutral-900);
     --primitiv-content-primary: var(--primitiv-color-neutral-900);
     --primitiv-content-secondary: var(--primitiv-color-neutral-700);
+    --primitiv-feedback-danger-soft-active: var(--primitiv-color-danger-300);
     --primitiv-feedback-danger-soft-background: var(--primitiv-color-danger-100);
     --primitiv-feedback-danger-soft-foreground: var(--primitiv-color-danger-700);
+    --primitiv-feedback-danger-soft-hover: var(--primitiv-color-danger-200);
     --primitiv-feedback-danger-solid-background: var(--primitiv-color-danger-500);
     --primitiv-feedback-danger-solid-foreground: var(--primitiv-color-absolute-white);
+    --primitiv-feedback-info-soft-active: var(--primitiv-color-info-300);
     --primitiv-feedback-info-soft-background: var(--primitiv-color-info-100);
     --primitiv-feedback-info-soft-foreground: var(--primitiv-color-info-700);
+    --primitiv-feedback-info-soft-hover: var(--primitiv-color-info-200);
     --primitiv-feedback-info-solid-background: var(--primitiv-color-info-500);
     --primitiv-feedback-info-solid-foreground: var(--primitiv-color-absolute-black);
     --primitiv-feedback-neutral-soft-background: var(--primitiv-color-neutral-100);
     --primitiv-feedback-neutral-soft-foreground: var(--primitiv-color-neutral-700);
+    --primitiv-feedback-success-soft-active: var(--primitiv-color-success-300);
     --primitiv-feedback-success-soft-background: var(--primitiv-color-success-100);
     --primitiv-feedback-success-soft-foreground: var(--primitiv-color-success-700);
+    --primitiv-feedback-success-soft-hover: var(--primitiv-color-success-200);
     --primitiv-feedback-success-solid-background: var(--primitiv-color-success-500);
     --primitiv-feedback-success-solid-foreground: var(--primitiv-color-absolute-black);
+    --primitiv-feedback-warning-soft-active: var(--primitiv-color-warning-300);
     --primitiv-feedback-warning-soft-background: var(--primitiv-color-warning-100);
     --primitiv-feedback-warning-soft-foreground: var(--primitiv-color-warning-700);
+    --primitiv-feedback-warning-soft-hover: var(--primitiv-color-warning-200);
     --primitiv-feedback-warning-solid-background: var(--primitiv-color-warning-500);
     --primitiv-feedback-warning-solid-foreground: var(--primitiv-color-absolute-black);
     --primitiv-focus-ring: var(--primitiv-color-brand-500);
@@ -503,22 +511,30 @@
     --primitiv-content-on-selected: var(--primitiv-color-neutral-50);
     --primitiv-content-primary: var(--primitiv-color-neutral-900);
     --primitiv-content-secondary: var(--primitiv-color-neutral-700);
+    --primitiv-feedback-danger-soft-active: var(--primitiv-color-danger-600);
     --primitiv-feedback-danger-soft-background: var(--primitiv-color-danger-800);
     --primitiv-feedback-danger-soft-foreground: var(--primitiv-color-danger-200);
+    --primitiv-feedback-danger-soft-hover: var(--primitiv-color-danger-700);
     --primitiv-feedback-danger-solid-background: var(--primitiv-color-danger-500);
     --primitiv-feedback-danger-solid-foreground: var(--primitiv-color-absolute-white);
+    --primitiv-feedback-info-soft-active: var(--primitiv-color-info-600);
     --primitiv-feedback-info-soft-background: var(--primitiv-color-info-800);
     --primitiv-feedback-info-soft-foreground: var(--primitiv-color-info-200);
+    --primitiv-feedback-info-soft-hover: var(--primitiv-color-info-700);
     --primitiv-feedback-info-solid-background: var(--primitiv-color-info-500);
     --primitiv-feedback-info-solid-foreground: var(--primitiv-color-absolute-black);
     --primitiv-feedback-neutral-soft-background: var(--primitiv-color-neutral-800);
     --primitiv-feedback-neutral-soft-foreground: var(--primitiv-color-neutral-200);
+    --primitiv-feedback-success-soft-active: var(--primitiv-color-success-600);
     --primitiv-feedback-success-soft-background: var(--primitiv-color-success-800);
     --primitiv-feedback-success-soft-foreground: var(--primitiv-color-success-200);
+    --primitiv-feedback-success-soft-hover: var(--primitiv-color-success-700);
     --primitiv-feedback-success-solid-background: var(--primitiv-color-success-500);
     --primitiv-feedback-success-solid-foreground: var(--primitiv-color-absolute-black);
+    --primitiv-feedback-warning-soft-active: var(--primitiv-color-warning-600);
     --primitiv-feedback-warning-soft-background: var(--primitiv-color-warning-800);
     --primitiv-feedback-warning-soft-foreground: var(--primitiv-color-warning-200);
+    --primitiv-feedback-warning-soft-hover: var(--primitiv-color-warning-700);
     --primitiv-feedback-warning-solid-background: var(--primitiv-color-warning-500);
     --primitiv-feedback-warning-solid-foreground: var(--primitiv-color-absolute-black);
     --primitiv-focus-ring: var(--primitiv-color-brand-500);
@@ -540,10 +556,15 @@
   :root,
   [data-density="comfortable"] {
     --primitiv-accordion-trigger-padding-block: var(--primitiv-space-space-16);
+    --primitiv-alert-lg-icon-offset-top: var(--primitiv-space-space-4);
     --primitiv-alert-lg-padding-block: var(--primitiv-space-space-14);
+    --primitiv-alert-md-icon-offset-top: var(--primitiv-space-space-4);
     --primitiv-alert-md-padding-block: var(--primitiv-space-space-12);
+    --primitiv-alert-sm-icon-offset-top: var(--primitiv-space-space-3);
     --primitiv-alert-sm-padding-block: var(--primitiv-space-space-10);
+    --primitiv-alert-xl-icon-offset-top: var(--primitiv-space-space-6);
     --primitiv-alert-xl-padding-block: var(--primitiv-space-space-16);
+    --primitiv-alert-xs-icon-offset-top: var(--primitiv-space-space-3);
     --primitiv-alert-xs-padding-block: var(--primitiv-space-space-8);
     --primitiv-avatar-radius-full: var(--primitiv-radii-full);
     --primitiv-avatar-radius-lg: var(--primitiv-framed-control-lg-radius);
@@ -1133,10 +1154,15 @@
   }
   [data-density="compact"] {
     --primitiv-accordion-trigger-padding-block: var(--primitiv-space-space-14);
+    --primitiv-alert-lg-icon-offset-top: var(--primitiv-space-space-4);
     --primitiv-alert-lg-padding-block: var(--primitiv-space-space-12);
+    --primitiv-alert-md-icon-offset-top: var(--primitiv-space-space-3);
     --primitiv-alert-md-padding-block: var(--primitiv-space-space-10);
+    --primitiv-alert-sm-icon-offset-top: var(--primitiv-space-space-2);
     --primitiv-alert-sm-padding-block: var(--primitiv-space-space-8);
+    --primitiv-alert-xl-icon-offset-top: var(--primitiv-space-space-4);
     --primitiv-alert-xl-padding-block: var(--primitiv-space-space-14);
+    --primitiv-alert-xs-icon-offset-top: var(--primitiv-space-space-2);
     --primitiv-alert-xs-padding-block: var(--primitiv-space-space-6);
     --primitiv-avatar-radius-full: var(--primitiv-radii-full);
     --primitiv-avatar-radius-lg: var(--primitiv-framed-control-lg-radius);
@@ -1726,10 +1752,15 @@
   }
   [data-density="dense"] {
     --primitiv-accordion-trigger-padding-block: var(--primitiv-space-space-12);
+    --primitiv-alert-lg-icon-offset-top: var(--primitiv-space-space-1);
     --primitiv-alert-lg-padding-block: var(--primitiv-space-space-10);
+    --primitiv-alert-md-icon-offset-top: var(--primitiv-space-space-2);
     --primitiv-alert-md-padding-block: var(--primitiv-space-space-8);
+    --primitiv-alert-sm-icon-offset-top: var(--primitiv-space-space-1);
     --primitiv-alert-sm-padding-block: var(--primitiv-space-space-6);
+    --primitiv-alert-xl-icon-offset-top: var(--primitiv-space-space-2);
     --primitiv-alert-xl-padding-block: var(--primitiv-space-space-12);
+    --primitiv-alert-xs-icon-offset-top: var(--primitiv-space-space-1);
     --primitiv-alert-xs-padding-block: var(--primitiv-space-space-4);
     --primitiv-avatar-radius-full: var(--primitiv-radii-full);
     --primitiv-avatar-radius-lg: var(--primitiv-framed-control-lg-radius);
@@ -2319,10 +2350,15 @@
   }
   [data-density="spacious"] {
     --primitiv-accordion-trigger-padding-block: var(--primitiv-space-space-20);
+    --primitiv-alert-lg-icon-offset-top: var(--primitiv-space-space-6);
     --primitiv-alert-lg-padding-block: var(--primitiv-space-space-20);
+    --primitiv-alert-md-icon-offset-top: var(--primitiv-space-space-4);
     --primitiv-alert-md-padding-block: var(--primitiv-space-space-16);
+    --primitiv-alert-sm-icon-offset-top: var(--primitiv-space-space-4);
     --primitiv-alert-sm-padding-block: var(--primitiv-space-space-12);
+    --primitiv-alert-xl-icon-offset-top: var(--primitiv-space-space-6);
     --primitiv-alert-xl-padding-block: var(--primitiv-space-space-24);
+    --primitiv-alert-xs-icon-offset-top: var(--primitiv-space-space-2);
     --primitiv-alert-xs-padding-block: var(--primitiv-space-space-10);
     --primitiv-avatar-radius-full: var(--primitiv-radii-full);
     --primitiv-avatar-radius-lg: var(--primitiv-framed-control-lg-radius);

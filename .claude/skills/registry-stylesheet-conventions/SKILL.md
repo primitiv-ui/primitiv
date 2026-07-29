@@ -249,6 +249,23 @@ control on keyboard focus. Same layer + higher specificity is what actually hide
 it (`.primitiv-input-group .primitiv-input:focus-visible` beat
 `.primitiv-input:focus-visible` once both sit in `states`).
 
+**The same rule applies to any custom property, not just the focus ring.**
+When a composite co-classes another component's element (Alert's dismiss
+button co-classing Button's own `.primitiv-button--ghost`, per the Figma-
+first composite convention in `CLAUDE.md`), overriding a custom property
+that component's own variant rule *also* sets must live in a layer at or
+after where that variant rule lives — not wherever feels natural for the
+composite's own rule. Alert's dismiss button re-points
+`--primitiv-button-fg`/`-bg`; Button's own `.primitiv-button--ghost` sets
+those same two properties in `primitiv.variants`. Re-pointing them from
+`primitiv.base` (where a component's own base rule normally lives) silently
+lost every time — the dismiss button rendered with Button's default neutral
+foreground instead of the tone-tinted one, only caught after a real kitchen-
+sink render, not from reading the source. `primitiv.states` was the fix
+(same as the focus-ring case), and since hover/active states already had to
+live there, the resting-state override joined them in one place instead of
+splitting across two layers.
+
 ## Animating open/close — grid row + clipped padded body
 
 To reveal/hide a panel at its natural height with no `max-height` guess and no

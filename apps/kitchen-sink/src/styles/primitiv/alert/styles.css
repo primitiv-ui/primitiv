@@ -17,8 +17,12 @@
  * only its colour custom properties are re-pointed here, per Tone.
  *
  * Structure follows RFC 0008: per-component API tokens + the base rule live in
- * primitiv.base, the tone/size modifiers in primitiv.variants, the dismiss
- * hover/active colour overrides in primitiv.states.
+ * primitiv.base, the tone/size modifiers in primitiv.variants, and all three
+ * of the dismiss button's colour states (resting, hover, active) in
+ * primitiv.states — the dismiss button's resting colour has to live there
+ * too, not primitiv.base, since it re-points custom properties the
+ * registry Button's own ghost variant also sets in primitiv.variants, and a
+ * layer declared later always wins regardless of selector specificity.
  *
  * Requires the token layer (`primitiv tokens`) for the --primitiv-feedback-*,
  * --primitiv-framed-control-*, --primitiv-alert-{size}-*, --primitiv-label-*,
@@ -99,16 +103,11 @@
   }
 
   /* The dismiss button co-classes Button's own `.primitiv-button
-     .primitiv-button--ghost` — this rule only re-points the colour custom
-     properties Button already reads (--primitiv-button-fg/-bg), reusing
-     Alert's own tone-repointed tokens rather than duplicating them. Resting
-     background matches --primitiv-alert-background (reads as transparent
-     against the alert surface it sits on) rather than a bare `transparent`
-     literal, so it stays tied to the tone family. */
+     .primitiv-button--ghost` — layout only here (flex-shrink); its colour
+     custom properties are re-pointed in primitiv.states below, not here —
+     see that rule for why. */
   .primitiv-alert__dismiss {
     flex-shrink: 0;
-    --primitiv-button-fg: var(--primitiv-alert-foreground);
-    --primitiv-button-bg: var(--primitiv-alert-background);
   }
 }
 
@@ -227,6 +226,22 @@
 }
 
 @layer primitiv.states {
+  /* The dismiss button's resting colour — Button's OWN `.primitiv-button
+     .primitiv-button--ghost` rule (button/styles.css) sets these same
+     --primitiv-button-fg/-bg custom properties in @layer primitiv.variants.
+     Layers cascade by declaration order regardless of selector specificity,
+     and primitiv.variants is declared after primitiv.base — so re-pointing
+     these from primitiv.base (as an earlier version of this rule did) loses
+     to Button's own variant rule no matter how specific the selector is.
+     primitiv.states, declared last, is the only layer that reliably wins.
+     Resting background matches --primitiv-alert-background (reads as
+     transparent against the alert surface it sits on) rather than a bare
+     `transparent` literal, so it stays tied to the tone family. */
+  .primitiv-alert__dismiss {
+    --primitiv-button-fg: var(--primitiv-alert-foreground);
+    --primitiv-button-bg: var(--primitiv-alert-background);
+  }
+
   /* The dismiss button's hover/active colours — one/two steps darker (or, in
      dark mode, lighter) than the alert's own background, so the affordance
      stays legible without a border. Gated behind (hover: hover): a

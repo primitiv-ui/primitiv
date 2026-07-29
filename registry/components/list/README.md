@@ -48,6 +48,28 @@ carry it would tokenize a value the design never treated as one. The web rows
 therefore sit `list/item-gap` apart; the Figma rows sit `list/item-gap` + 4px
 apart. Worth revisiting if the Figma side ever binds it.
 
+### The item's `margin-block` is zeroed, or the row rhythm doubles
+
+`primitiv.reset` spaces bare list items with `li + li { margin-block-start:
+var(--primitiv-list-item-gap) }`, and this component spaces them with flex `gap`
+on the container — resolving the **same token**. Margins don't collapse in a flex
+container, so the two were *adding*: every gap rendered at exactly **2×**
+`list/item-gap`. Measured across the density modes before the fix: 4/8/16/24px
+against a token of 2/4/8/12px.
+
+Because both sides resolved the same token, the result stayed proportional and
+looked like a deliberately airy list rather than a bug — which is why it survived
+the original build. It also made the note above wrong: the web rows were sitting
+2× `list/item-gap` apart, not `list/item-gap`.
+
+`.primitiv-list__item` therefore declares `margin-block: 0`. Zeroing it (rather
+than dropping the container's `gap` and leaning on the reset) keeps the component
+self-contained: the marker is a `::before` on the item, so the row has to be a
+flex container anyway, and a consumer who loads this sheet without the reset still
+gets the right rhythm. The override lands because both are declarations **on the
+same element**, which is the only case where layer order arbitrates —
+`primitiv.base` outranks `primitiv.reset`.
+
 ## Usage
 
 ```tsx

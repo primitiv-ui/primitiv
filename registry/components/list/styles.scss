@@ -55,10 +55,27 @@
     line-height: var(--primitiv-list-line-height);
   }
 
+  /* `margin-block` is zeroed because the *container* owns the inter-item
+     rhythm here, via flex `gap`. `primitiv.reset` also spaces bare list items —
+     `li + li { margin-block-start: var(--primitiv-list-item-gap) }` — and
+     margins do not collapse in a flex container, so the reset's margin and this
+     component's gap were **adding**: every gap rendered at exactly 2x
+     `list/item-gap` (measured 4/8/16/24 against a token of 2/4/8/12 across
+     dense→spacious). Both resolve the same token, which is what made the
+     doubling look plausible rather than broken.
+
+     Zeroing it here rather than dropping the gap keeps the component
+     self-contained — the marker is a ::before on this element, so the row must
+     be a flex container regardless, and a consumer who loads the component
+     sheet without the reset still gets the right rhythm. A declaration on the
+     element beats the reset's because primitiv.base outranks primitiv.reset;
+     both are declarations on the same element, which is the only situation
+     where layer order arbitrates at all. */
   .primitiv-list__item {
     display: flex;
     align-items: baseline;
     gap: var(--primitiv-list-marker-gap);
+    margin-block: var(--primitiv-space-space-0);
   }
 
   .primitiv-list__item::before {

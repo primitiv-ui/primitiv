@@ -54,6 +54,7 @@
       "name": "fallback",
       "component": "Fallback",
       "class": "primitiv-avatar__fallback",
+      "wrapTextChildren": true,
       "dataAttributes": [
         { "name": "data-status", "value": "idle", "when": "idle", "source": "auto" },
         { "name": "data-status", "value": "loading", "when": "loading", "source": "auto" },

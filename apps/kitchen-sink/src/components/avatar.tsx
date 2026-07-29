@@ -7,7 +7,7 @@ import "../styles/primitiv/avatar/styles.css";
  * generated recipe — the primary DX (RFC 0004 §3.5 / D51).
  */
 import { Avatar as AvatarPrimitive } from "@primitiv-ui/react";
-import { type ComponentPropsWithRef } from "react";
+import { Children, type ComponentPropsWithRef, type ReactNode } from "react";
 import { avatar, avatarImage, avatarFallback } from "./avatar.recipe";
 
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
@@ -51,6 +51,18 @@ export function AvatarImage({ className, ...props }: AvatarImageProps) {
 
 export type AvatarFallbackProps = ComponentPropsWithRef<typeof AvatarPrimitive.Fallback>;
 
-export function AvatarFallback({ className, ...props }: AvatarFallbackProps) {
-  return <AvatarPrimitive.Fallback className={[avatarFallback(), className].filter(Boolean).join(" ")} {...props} />;
+function wrapAvatarFallbackTextNodes(children: ReactNode): ReactNode {
+  return Children.map(children, (child) =>
+    typeof child === "string" || typeof child === "number"
+      ? <span className="primitiv-avatar__fallback-label">{child}</span>
+      : child,
+  );
+}
+
+export function AvatarFallback({ className, children, ...props }: AvatarFallbackProps) {
+  return (
+    <AvatarPrimitive.Fallback className={[avatarFallback(), className].filter(Boolean).join(" ")} {...props}>
+      {wrapAvatarFallbackTextNodes(children)}
+    </AvatarPrimitive.Fallback>
+  );
 }

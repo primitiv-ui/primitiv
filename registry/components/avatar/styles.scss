@@ -101,6 +101,18 @@
     -webkit-touch-callout: none;
   }
 
+  /* text-box-trim must land on the element directly wrapping the text node,
+     never a flex container (registry-stylesheet-conventions) — `.primitiv-
+     avatar__fallback` is display:flex, so it can't carry the trim itself.
+     The generated wrapper (contract.json's fallback subcomponent now sets
+     wrapTextChildren) wraps initials text in this span; the line-height:1
+     workaround above got the initials roughly centred but not optically —
+     text-box-trim is the precise fix. */
+  .primitiv-avatar__fallback-label {
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+  }
+
   .primitiv-avatar__fallback svg {
     inline-size: var(--primitiv-avatar-icon-size);
     block-size: var(--primitiv-avatar-icon-size);

@@ -36,12 +36,14 @@ A **hybrid** document with two halves and two sources of truth (D15):
 `subcomponents` is what tells the generators this is a **structural compound**:
 instead of one element (Button) or an auto-rendered subtree (Switch), the styled
 surface is thin per-part wrappers the consumer composes themselves (D56), exactly
-mirroring how the headless `Avatar.Root` / `.Image` / `.Fallback` compose. Neither
-subcomponent carries its own modifiers or opts into `wrapTextChildren` — the
-fallback's text (initials) and icon content are both styled directly on
-`.primitiv-avatar__fallback` (flex-centred, `line-height: 1`) rather than through
-a nested label span, since the whole frame — not just the glyph's line box — is
-what needs to centre.
+mirroring how the headless `Avatar.Root` / `.Image` / `.Fallback` compose.
+Neither subcomponent carries its own modifiers, but `fallback` does opt into
+`wrapTextChildren` (added after a real optical-centring bug — see below):
+`.primitiv-avatar__fallback` stays the flex-centred frame (icon content passes
+through it unwrapped), but its initials text now gets wrapped into a nested
+`.primitiv-avatar__fallback-label` span, since `text-box-trim` — the property
+that actually delivers optical centring — silently does nothing on a flex
+container (registry-stylesheet-conventions) and needs a dedicated wrapper.
 
 ## The default theme (`styles.css`)
 
@@ -71,6 +73,13 @@ Bridge — including the deliberate `line-height: 1` rather than a `label/*/
 line-height` token, since Figma's own initials text is unbound/`AUTO`
 line-height so the glyph hugs the flex-centred frame exactly; a line-height
 token would add leading the design doesn't have and throw the centring off.
+**`line-height: 1` alone wasn't precise enough**, though: a real screenshot
+showed the initials sitting visibly high in the circle, not truly centred —
+most fonts' ascent/descent split isn't symmetric around the glyph even at
+`line-height: 1`. `text-box-trim: trim-both` / `text-box-edge: cap alphabetic`
+on the new `.primitiv-avatar__fallback-label` span (not the flex container —
+see above) is the actual fix; `line-height: 1` on the frame is harmless but
+redundant now that trim owns the precise centring.
 **One flagged Figma↔registry drift**, in the same spirit as Select's and
 Dropdown's already-documented ones: Figma's `Placeholder` (icon) variant fills
 the icon with `content/secondary`, a different neutral than the `Initials`

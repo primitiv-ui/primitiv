@@ -1402,6 +1402,103 @@
         }
       },
       "contract": "contract.json"
+    },
+    "badge": {
+      "version": "0.1.0",
+      "dependsOn": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/react",
+            "version": "^0.1.0"
+          }
+        ],
+        "tokens": true,
+        "components": []
+      },
+      "styles": {
+        "packages": [
+          "class-variance-authority"
+        ],
+        "react": [
+          "badge.recipe.ts",
+          "badge.tsx"
+        ],
+        "formats": {
+          "css": [
+            "styles.css"
+          ],
+          "scss": [
+            "styles.scss"
+          ],
+          "tailwind": [
+            "styles.css"
+          ]
+        }
+      },
+      "contract": "contract.json"
+    },
+    "tag": {
+      "version": "0.1.0",
+      "dependsOn": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/react",
+            "version": "^0.1.0"
+          }
+        ],
+        "tokens": true,
+        "components": []
+      },
+      "styles": {
+        "packages": [
+          "class-variance-authority"
+        ],
+        "react": [
+          "tag.recipe.ts",
+          "tag.tsx"
+        ],
+        "formats": {
+          "css": [
+            "styles.css"
+          ],
+          "scss": [
+            "styles.scss"
+          ],
+          "tailwind": [
+            "styles.css"
+          ]
+        }
+      },
+      "contract": "contract.json"
+    },
+    "chip": {
+      "version": "0.1.0",
+      "dependsOn": {
+        "packages": [],
+        "tokens": true,
+        "components": []
+      },
+      "styles": {
+        "packages": [
+          "class-variance-authority"
+        ],
+        "react": [
+          "chip.recipe.ts",
+          "chip.tsx"
+        ],
+        "formats": {
+          "css": [
+            "styles.css"
+          ],
+          "scss": [
+            "styles.scss"
+          ],
+          "tailwind": [
+            "styles.css"
+          ]
+        }
+      },
+      "contract": "contract.json"
     }
   }
 }

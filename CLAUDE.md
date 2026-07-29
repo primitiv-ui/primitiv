@@ -544,6 +544,41 @@ source of truth for when a skill applies.
 **Next:** registry styles + a kitchen-sink example — the dogfood needs to
     cover desktop *and* the composed mobile (`Drawer` + `Collapsible` +
     `NavigationMenu.Link`).
+- **Badge / Tag / Chip (RFC 0021) — fully landed, tokens + Figma + registry
+  (2026-07-29).** All three are hand-authored, primitive-less registry
+  leaves — no `packages/react` primitive, per RFC 0021's explicit call
+  ("as a `prose`-style hand-authored, primitive-less registry leaf").
+  Tokens: `color.{success,warning,info}.*` Palette primitives,
+  `feedback.{tone}.{soft,solid}.*` Intent (including
+  `feedback.neutral.soft.*` for Tag), `badge/*`/`tag/*` Context sizing.
+  Figma: Badge (40 variants, Tone×Variant×Size, page "Badge") — its
+  originally-shared `Label` TEXT property was split into separate `Label`/
+  `Counter` properties after the single-property version made every variant
+  default to the same text (Figma properties can't carry a variant-
+  conditional default); Tag (25 variants, Tone×Size, no Variant axis, page
+  "Tag"); Chip (25 variants, Size×Interaction, page "Chip") — genuinely
+  interactive, reuses `framed-control/*` + `action/secondary/*` directly
+  instead of a dedicated family, with a `radii/full` pill override and
+  Button's exact offset focus-ring anatomy (a first pass copied ToggleGroup
+  Item's flush, no-outset ring, which read wrong on a bordered pill).
+  Registry (`registry/components/{badge,tag,chip}`): `Badge`/`Tag` mirror
+  `kbd`'s zero-behaviour shape (a `cva`-driven `<span>`, `asChild` via
+  `Slot`); `Chip` mirrors `code-block`'s real-behaviour shape — a compound
+  `[leading icon?][label][remove button]` structure with a required
+  `onRemove` (removability is core to the anatomy, not optional), no
+  `asChild` (its root isn't a single pass-through child), and its remove
+  glyph inlined from `@primitiv-ui/icons`' `Close` so it installs no extra
+  package. Chip's Interaction states are drawn on the whole pill even though
+  only the nested `<button>` is truly interactive/focusable: `:hover` on
+  the root directly, `:active`/`:focus-visible`/`:disabled` via
+  `:has(.primitiv-chip__remove:…)`, with the shared two-layer box-shadow
+  focus ring (CSS follows border-radius automatically, unlike Figma's
+  frame-based ring). Registered in `registry/registry.json`,
+  `crates/primitiv-cli/src/ports/registry.rs`,
+  `crates/primitiv-cli/tests/cli.rs` (roster count 45). Kitchen-sink: a
+  combined "Badge, Tag & Chip" section between Avatar and Breadcrumb in
+  `apps/kitchen-sink/src/App.tsx`, Chip's demo backed by real `useState` so
+  the remove button actually removes a filter chip from a live list.
 
 ## Useful commands
 

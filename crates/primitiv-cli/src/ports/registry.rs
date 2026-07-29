@@ -263,6 +263,21 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("aspect-ratio", "aspect-ratio.recipe.ts"),
     registry_file!("aspect-ratio", "aspect-ratio.tsx"),
     registry_file!("aspect-ratio", "contract.json"),
+    registry_file!("badge", "styles.css"),
+    registry_file!("badge", "styles.scss"),
+    registry_file!("badge", "badge.recipe.ts"),
+    registry_file!("badge", "badge.tsx"),
+    registry_file!("badge", "contract.json"),
+    registry_file!("tag", "styles.css"),
+    registry_file!("tag", "styles.scss"),
+    registry_file!("tag", "tag.recipe.ts"),
+    registry_file!("tag", "tag.tsx"),
+    registry_file!("tag", "contract.json"),
+    registry_file!("chip", "styles.css"),
+    registry_file!("chip", "styles.scss"),
+    registry_file!("chip", "chip.recipe.ts"),
+    registry_file!("chip", "chip.tsx"),
+    registry_file!("chip", "contract.json"),
 ];
 
 impl Registry for EmbeddedRegistry {

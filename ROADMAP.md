@@ -121,24 +121,33 @@ None of these are built yet; listed here for backlog visibility.
 - [ ] Confirm / Alert Dialog (`Modal` + `Button`)
 - [ ] Breadcrumb overflow menu (`Breadcrumb` + `Dropdown`)
 - [ ] Avatar Group (`Avatar` + `Tooltip` + overflow badge)
-- [ ] Badge / Tag / Chip (primitive-less leaf; unblocks several others). Not itself
+- [x] Badge / Tag / Chip (primitive-less leaf; unblocks several others). Not itself
       a composition (RFC 0021 §4 own footnote — listed here only because it
       unblocks other Tier 1 composites), so structurally it's a hand-authored,
       primitive-less registry leaf, same shape as `Divider`/`Kbd`/`Blockquote`.
-      **In progress (2026-07-29):** new `color.{success,warning,info}.*`
-      Palette primitives + `feedback.{tone}.{soft,solid}.*` Intent tokens
-      (including a `feedback.neutral.soft.*` entry for Tag) +
-      `badge/*`/`tag/*` Context sizing landed (code + Figma, all 4 density
-      modes). **All three Figma component sets are now landed:** Badge (40
-      variants — Tone × Variant × Size — page "Badge"), Tag (25 variants —
-      Tone × Size, no Variant axis — page "Tag"), and **Chip** (25 variants —
-      Size × Interaction default|hover|active|focus|disabled — page "Chip";
-      genuinely interactive, so it reuses `framed-control/*` + `action/secondary/*`
-      directly instead of a dedicated token family, with a pill radius override
-      and a real Leading Icon / Remove Icon instance-swap pair alongside its
-      Label text property). See the `figma-component-descriptions` skill for
-      all three canonical descriptions. The headless/registry build for all
-      three remains.
+      **Landed 2026-07-29, tokens + Figma + registry, all three components:**
+      new `color.{success,warning,info}.*` Palette primitives +
+      `feedback.{tone}.{soft,solid}.*` Intent tokens (including a
+      `feedback.neutral.soft.*` entry for Tag) + `badge/*`/`tag/*` Context
+      sizing (code + Figma, all 4 density modes). Figma: Badge (40 variants —
+      Tone × Variant × Size — page "Badge"), Tag (25 variants — Tone × Size,
+      no Variant axis — page "Tag"), and Chip (25 variants — Size ×
+      Interaction default|hover|active|focus|disabled — page "Chip";
+      genuinely interactive, so it reuses `framed-control/*` +
+      `action/secondary/*` directly instead of a dedicated token family, with
+      a pill radius override, Button's offset focus-ring anatomy, and a real
+      Leading Icon / Remove Icon instance-swap pair alongside its Label text
+      property) — see the `figma-component-descriptions` skill for all three
+      canonical descriptions. **Registry** (hand-authored, no
+      `@primitiv-ui/react` primitive — `Badge`/`Tag` mirror `kbd`'s
+      zero-behaviour shape; `Chip` mirrors `code-block`'s real-behaviour
+      shape, its remove glyph inlined from `@primitiv-ui/icons`' `Close` so
+      it installs no extra package): all six files × three components,
+      registered in `registry/registry.json`, `crates/primitiv-cli/src/ports/
+      registry.rs`, `crates/primitiv-cli/tests/cli.rs` (roster count 45).
+      Kitchen-sink: a combined "Badge, Tag & Chip" section between Avatar and
+      Breadcrumb, Chip's demo backed by real `useState` so the remove button
+      actually removes a filter chip.
 - [ ] Card (`Divider` + `Avatar`/`Badge` + `Button` slots)
 - [ ] Stepper / Wizard (`Tabs` + `Button` + decorative step row)
 - [ ] Pagination (`Button` + `Select`)

@@ -157,8 +157,9 @@ fn add_all_resolves_every_embedded_component() {
         // context-menu + the RFC 0022 layout primitives (box, stack, spacer,
         // center, aspect-ratio) + the RFC 0023 prose-family entries (kbd,
         // blockquote, pull-quote, list, description-list, figure) + the
-        // pre-existing-headless crossovers (progress, slider, textarea).
-        .stdout(predicate::str::contains("Resolved 42 components to add:"))
+        // pre-existing-headless crossovers (progress, slider, textarea) + the
+        // RFC 0021 Badge/Tag/Chip trio (hand-authored, primitive-less leaves).
+        .stdout(predicate::str::contains("Resolved 45 components to add:"))
         .stdout(predicate::str::contains("button"))
         .stdout(predicate::str::contains("table"))
         .stdout(predicate::str::contains("divider"))
@@ -193,7 +194,10 @@ fn add_all_resolves_every_embedded_component() {
         .stdout(predicate::str::contains("slider"))
         .stdout(predicate::str::contains("textarea"))
         .stdout(predicate::str::contains("center"))
-        .stdout(predicate::str::contains("aspect-ratio"));
+        .stdout(predicate::str::contains("aspect-ratio"))
+        .stdout(predicate::str::contains("badge"))
+        .stdout(predicate::str::contains("tag"))
+        .stdout(predicate::str::contains("chip"));
 }
 
 #[test]

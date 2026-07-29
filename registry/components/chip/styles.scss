@@ -1,0 +1,252 @@
+/*
+ * Chip — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add chip`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-chip root + __leading-icon
+ * / __label / __remove parts, the --xs…--xl modifiers, and the
+ * --primitiv-chip-* custom properties), not these values (RFC 0006
+ * Principle 2 — names are stable, values are not).
+ *
+ * Unlike Badge/Tag, a Chip is genuinely interactive (RFC 0021 — hand-authored,
+ * primitive-less, but with real behaviour like `code-block`'s copy control),
+ * so it reuses `framed-control/{size}/*` sizing and `action/secondary/*`
+ * fill/stroke/foreground directly instead of a dedicated token family — the
+ * same neutral bordered look Button's secondary variant uses — with a
+ * `radii/full` pill-radius override (see the Figma "Chip" component
+ * description for the full design record).
+ *
+ * Only the nested __remove <button> is a real interactive element (the root
+ * <span> is not clickable, avoiding a nested-button a11y problem), but the
+ * Interaction states are drawn on the *whole* chip: `:hover` fires on the
+ * root directly (the whole pill is the natural hover target), while
+ * `:active`/`:focus-visible`/`:disabled` key off the remove button via
+ * `:has()`, since that's the only real interactive/focusable/disableable
+ * part. The focus ring uses the same two-layer box-shadow technique as every
+ * other framed control (see primitiv.states below) — CSS follows the root's
+ * own border-radius automatically, unlike Figma's frame-based ring, which
+ * needed an explicit pill-radius override to match.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look
+ * live in primitiv.base, size modifiers in primitiv.variants, interaction
+ * states in primitiv.states.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-action-secondary-*,
+ * --primitiv-framed-control-*, --primitiv-label-{size}-*, --primitiv-focus-ring-*,
+ * --primitiv-surface-default, --primitiv-motion-* and --primitiv-radii-full
+ * custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-chip {
+    /* Per-component API — the themable knobs, defaulting to the resting
+       (Interaction=default) look at Size=md. The variants layer re-points
+       sizing; the states layer re-points fill/stroke/foreground. */
+    --primitiv-chip-background: var(--primitiv-action-secondary-default);
+    --primitiv-chip-border-color: var(--primitiv-action-secondary-border-default);
+    --primitiv-chip-foreground: var(--primitiv-action-secondary-foreground-default);
+    --primitiv-chip-height: var(--primitiv-framed-control-md-height);
+    --primitiv-chip-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-chip-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-chip-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-chip-border-width: var(--primitiv-framed-control-border-width);
+    --primitiv-chip-radius: var(--primitiv-radii-full);
+    --primitiv-chip-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-chip-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-chip-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-chip-line-height: var(--primitiv-label-md-line-height);
+
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    block-size: var(--primitiv-chip-height);
+    padding-inline: var(--primitiv-chip-padding-inline);
+    gap: var(--primitiv-chip-gap);
+    border-radius: var(--primitiv-chip-radius);
+    border: var(--primitiv-chip-border-width) solid var(--primitiv-chip-border-color);
+    background-color: var(--primitiv-chip-background);
+    color: var(--primitiv-chip-foreground);
+    white-space: nowrap;
+    transition:
+      background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+    /* The chip's own label/icons aren't page content a user is trying to
+       copy — no tap-hold selection or iOS callout on any of it. */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  .primitiv-chip__leading-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-chip-icon-size);
+    block-size: var(--primitiv-chip-icon-size);
+    color: currentColor;
+  }
+
+  .primitiv-chip__leading-icon svg {
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  .primitiv-chip__label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: var(--primitiv-chip-font-family);
+    font-size: var(--primitiv-chip-font-size);
+    font-weight: var(--primitiv-chip-font-weight);
+    line-height: var(--primitiv-chip-line-height);
+    /* Applied to the label span, not the flex row — a control with an icon
+       sibling can't trim on the container (registry-stylesheet-conventions). */
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+  }
+
+  .primitiv-chip__remove {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-chip-icon-size);
+    block-size: var(--primitiv-chip-icon-size);
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: var(--primitiv-radii-full);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    /* The chip root carries the focus ring (:has() below), so the button's
+       own default outline is suppressed here. */
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  .primitiv-chip__remove:disabled {
+    cursor: not-allowed;
+  }
+
+  .primitiv-chip__remove svg {
+    inline-size: 100%;
+    block-size: 100%;
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the box, icon slot and type scale, reusing
+     framed-control/{size}/* and label/{size}/* exactly like Button. */
+  .primitiv-chip--xs {
+    --primitiv-chip-height: var(--primitiv-framed-control-xs-height);
+    --primitiv-chip-padding-inline: var(--primitiv-framed-control-xs-padding-inline);
+    --primitiv-chip-gap: var(--primitiv-framed-control-xs-gap);
+    --primitiv-chip-icon-size: var(--primitiv-framed-control-xs-icon-size);
+    --primitiv-chip-font-family: var(--primitiv-label-xs-font-family);
+    --primitiv-chip-font-size: var(--primitiv-label-xs-font-size);
+    --primitiv-chip-font-weight: var(--primitiv-label-xs-font-weight);
+    --primitiv-chip-line-height: var(--primitiv-label-xs-line-height);
+  }
+  .primitiv-chip--sm {
+    --primitiv-chip-height: var(--primitiv-framed-control-sm-height);
+    --primitiv-chip-padding-inline: var(--primitiv-framed-control-sm-padding-inline);
+    --primitiv-chip-gap: var(--primitiv-framed-control-sm-gap);
+    --primitiv-chip-icon-size: var(--primitiv-framed-control-sm-icon-size);
+    --primitiv-chip-font-family: var(--primitiv-label-sm-font-family);
+    --primitiv-chip-font-size: var(--primitiv-label-sm-font-size);
+    --primitiv-chip-font-weight: var(--primitiv-label-sm-font-weight);
+    --primitiv-chip-line-height: var(--primitiv-label-sm-line-height);
+  }
+  .primitiv-chip--md {
+    --primitiv-chip-height: var(--primitiv-framed-control-md-height);
+    --primitiv-chip-padding-inline: var(--primitiv-framed-control-md-padding-inline);
+    --primitiv-chip-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-chip-icon-size: var(--primitiv-framed-control-md-icon-size);
+    --primitiv-chip-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-chip-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-chip-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-chip-line-height: var(--primitiv-label-md-line-height);
+  }
+  .primitiv-chip--lg {
+    --primitiv-chip-height: var(--primitiv-framed-control-lg-height);
+    --primitiv-chip-padding-inline: var(--primitiv-framed-control-lg-padding-inline);
+    --primitiv-chip-gap: var(--primitiv-framed-control-lg-gap);
+    --primitiv-chip-icon-size: var(--primitiv-framed-control-lg-icon-size);
+    --primitiv-chip-font-family: var(--primitiv-label-lg-font-family);
+    --primitiv-chip-font-size: var(--primitiv-label-lg-font-size);
+    --primitiv-chip-font-weight: var(--primitiv-label-lg-font-weight);
+    --primitiv-chip-line-height: var(--primitiv-label-lg-line-height);
+  }
+  .primitiv-chip--xl {
+    --primitiv-chip-height: var(--primitiv-framed-control-xl-height);
+    --primitiv-chip-padding-inline: var(--primitiv-framed-control-xl-padding-inline);
+    --primitiv-chip-gap: var(--primitiv-framed-control-xl-gap);
+    --primitiv-chip-icon-size: var(--primitiv-framed-control-xl-icon-size);
+    --primitiv-chip-font-family: var(--primitiv-label-xl-font-family);
+    --primitiv-chip-font-size: var(--primitiv-label-xl-font-size);
+    --primitiv-chip-font-weight: var(--primitiv-label-xl-font-weight);
+    --primitiv-chip-line-height: var(--primitiv-label-xl-line-height);
+  }
+}
+
+@layer primitiv.states {
+  /* Hover — the whole pill is the natural hover target (unlike active/focus,
+     which key off the remove button specifically). Gated behind
+     (hover: hover) so a tap doesn't "stick" the hover fill on touch. Excluded
+     while the remove button is disabled, so a disabled chip never shows a
+     hover tint. */
+  @media (hover: hover) {
+    .primitiv-chip:hover:not(:has(.primitiv-chip__remove:disabled)) {
+      --primitiv-chip-background: var(--primitiv-action-secondary-hover);
+      --primitiv-chip-border-color: var(--primitiv-action-secondary-border-hover);
+    }
+  }
+
+  /* Active — only the remove button itself is pressable. */
+  .primitiv-chip:has(.primitiv-chip__remove:active) {
+    --primitiv-chip-background: var(--primitiv-action-secondary-active);
+    --primitiv-chip-border-color: var(--primitiv-action-secondary-border-active);
+  }
+
+  /* Focus — the shared two-layer ring, identical to every other framed
+     control, drawn on the chip root (not the button) so it wraps the whole
+     pill; :focus-visible on the nested button keeps it to keyboard focus. */
+  .primitiv-chip:has(.primitiv-chip__remove:focus-visible) {
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Disabled — intent-neutral, wins over hover/active by appearing last in
+     the layer (RFC 0008 §2.3). */
+  .primitiv-chip:has(.primitiv-chip__remove:disabled) {
+    --primitiv-chip-background: var(--primitiv-action-secondary-disabled);
+    --primitiv-chip-border-color: var(--primitiv-action-secondary-border-disabled);
+    --primitiv-chip-foreground: var(--primitiv-action-secondary-foreground-disabled);
+  }
+}
+
+$primitiv-chip-background: var(--primitiv-chip-background);
+$primitiv-chip-border-color: var(--primitiv-chip-border-color);
+$primitiv-chip-foreground: var(--primitiv-chip-foreground);
+$primitiv-chip-height: var(--primitiv-chip-height);
+$primitiv-chip-padding-inline: var(--primitiv-chip-padding-inline);
+$primitiv-chip-gap: var(--primitiv-chip-gap);
+$primitiv-chip-icon-size: var(--primitiv-chip-icon-size);
+$primitiv-chip-border-width: var(--primitiv-chip-border-width);
+$primitiv-chip-radius: var(--primitiv-chip-radius);
+$primitiv-chip-font-family: var(--primitiv-chip-font-family);
+$primitiv-chip-font-size: var(--primitiv-chip-font-size);
+$primitiv-chip-font-weight: var(--primitiv-chip-font-weight);
+$primitiv-chip-line-height: var(--primitiv-chip-line-height);

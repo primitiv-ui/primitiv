@@ -1,0 +1,57 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "badge",
+  "version": "0.1.0",
+  "description": "A small status/count indicator attached to another element or beside a heading. Read-only, never interactive. Four semantic tones × two treatments (a low-emphasis label chip, a high-emphasis counter chip), sized xs–xl; `data-density` scales each size further.",
+  "docs": "https://primitiv-ui.dev/docs/components/badge",
+  "root": {
+    "element": "span",
+    "class": "primitiv-badge"
+  },
+  "dataAttributes": [],
+  "modifiers": [
+    {
+      "name": "tone",
+      "default": "success",
+      "description": "Semantic colour.",
+      "options": [
+        { "name": "success", "class": "primitiv-badge--success", "description": "Success." },
+        { "name": "warning", "class": "primitiv-badge--warning", "description": "Warning." },
+        { "name": "info", "class": "primitiv-badge--info", "description": "Info." },
+        { "name": "danger", "class": "primitiv-badge--danger", "description": "Danger." }
+      ]
+    },
+    {
+      "name": "variant",
+      "default": "label",
+      "description": "Visual treatment. `label` is the low-emphasis status-word chip; `counter` is the high-emphasis count chip.",
+      "options": [
+        { "name": "label", "class": "primitiv-badge--label", "description": "Low-emphasis tinted chip, for a status word." },
+        { "name": "counter", "class": "primitiv-badge--counter", "description": "High-emphasis solid chip, for a notification count." }
+      ]
+    },
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Badge size; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-badge--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-badge--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-badge--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-badge--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-badge--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-badge-background", "defaultsTo": "var(--primitiv-feedback-success-soft-background)" },
+    { "name": "--primitiv-badge-foreground", "defaultsTo": "var(--primitiv-feedback-success-soft-foreground)" },
+    { "name": "--primitiv-badge-height", "defaultsTo": "var(--primitiv-badge-md-height)" },
+    { "name": "--primitiv-badge-padding-inline", "defaultsTo": "var(--primitiv-badge-md-padding-inline)" },
+    { "name": "--primitiv-badge-font-family", "defaultsTo": "var(--primitiv-font-family-heading)" },
+    { "name": "--primitiv-badge-font-size", "defaultsTo": "var(--primitiv-badge-md-font-size)" },
+    { "name": "--primitiv-badge-font-weight", "defaultsTo": "var(--primitiv-font-weight-semibold)" },
+    { "name": "--primitiv-badge-line-height", "defaultsTo": "1" },
+    { "name": "--primitiv-badge-radius", "defaultsTo": "var(--primitiv-radii-full)" }
+  ]
+}

@@ -18,6 +18,17 @@
  * `[data-state] {…}` would leak onto every component on the page.
  */
 
+/* ── Badge/Tag/Chip demo rows ──────────────────────────────────────────────
+ * A plain wrapping flex row, so the Badge/Tag/Chip section (in `column` mode,
+ * so each group stacks on its own line) can still lay each group's own chips
+ * out horizontally. */
+.ks-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--primitiv-space-space-8);
+}
+
 /* ── Layout-primitive demo frames ─────────────────────────────────────────
  * Box, Stack, Spacer and Center carry no visual opinion by design (RFC 0022
  * §2), so a demo has to supply its own outline to make the behaviour visible.

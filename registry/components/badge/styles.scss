@@ -1,0 +1,156 @@
+/*
+ * Badge — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add badge`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-badge class, the
+ * --xs…--xl / tone / variant modifiers, and the --primitiv-badge-* custom
+ * properties), not these values (RFC 0006 Principle 2 — names are stable,
+ * values are not).
+ *
+ * A read-only status/count chip (RFC 0021 — hand-authored, primitive-less,
+ * like `kbd`/`prose`; see the Figma "Badge" component set for the full design
+ * record). Two treatments: `label` (low-emphasis, tinted — feedback/*\/soft/*)
+ * and `counter` (high-emphasis, solid — feedback/*\/solid/*), independent of
+ * shape: circularity is purely a function of content length, not a variant —
+ * `min-inline-size` is pinned to the same height token so short content (a
+ * notification count) forces a true circle, while longer content (a status
+ * word) naturally widens into a pill.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look
+ * live in primitiv.base, size modifiers in primitiv.variants.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-feedback-*,
+ * --primitiv-badge-{size}-*, --primitiv-font-family-heading and
+ * --primitiv-font-weight-semibold custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-badge {
+    /* Per-component API — the themable knobs, defaulting to
+       Tone=success, Variant=label, Size=md. The variants layer below
+       re-points these; consumers can override any one without touching a
+       rule. */
+    --primitiv-badge-background: var(--primitiv-feedback-success-soft-background);
+    --primitiv-badge-foreground: var(--primitiv-feedback-success-soft-foreground);
+    --primitiv-badge-height: var(--primitiv-badge-md-height);
+    --primitiv-badge-padding-inline: var(--primitiv-badge-md-padding-inline);
+    --primitiv-badge-font-family: var(--primitiv-font-family-heading);
+    --primitiv-badge-font-size: var(--primitiv-badge-md-font-size);
+    --primitiv-badge-font-weight: var(--primitiv-font-weight-semibold);
+    /* No token for this: a badge is a small, cap-trimmed chip, so its line
+       box just needs to stay tight rather than track a type-scale value. */
+    --primitiv-badge-line-height: 1;
+    --primitiv-badge-radius: var(--primitiv-radii-full);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    block-size: var(--primitiv-badge-height);
+    /* Forces a true circle for short (1-2 char) content and lets longer
+       content widen into a pill — the same token drives both height and the
+       floor on inline-size, matching the Figma minWidth trick exactly. */
+    min-inline-size: var(--primitiv-badge-height);
+    padding-inline: var(--primitiv-badge-padding-inline);
+    border-radius: var(--primitiv-badge-radius);
+    background-color: var(--primitiv-badge-background);
+    color: var(--primitiv-badge-foreground);
+    font-family: var(--primitiv-badge-font-family);
+    font-size: var(--primitiv-badge-font-size);
+    font-weight: var(--primitiv-badge-font-weight);
+    line-height: var(--primitiv-badge-line-height);
+    white-space: nowrap;
+    /* Only one child (the label) and no icon slot, so the trim can sit
+       directly on the root — contrast Chip, where a leading icon forces the
+       trim onto a dedicated label span instead. */
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the box + type scale. */
+  .primitiv-badge--xs {
+    --primitiv-badge-height: var(--primitiv-badge-xs-height);
+    --primitiv-badge-padding-inline: var(--primitiv-badge-xs-padding-inline);
+    --primitiv-badge-font-size: var(--primitiv-badge-xs-font-size);
+  }
+  .primitiv-badge--sm {
+    --primitiv-badge-height: var(--primitiv-badge-sm-height);
+    --primitiv-badge-padding-inline: var(--primitiv-badge-sm-padding-inline);
+    --primitiv-badge-font-size: var(--primitiv-badge-sm-font-size);
+  }
+  .primitiv-badge--md {
+    --primitiv-badge-height: var(--primitiv-badge-md-height);
+    --primitiv-badge-padding-inline: var(--primitiv-badge-md-padding-inline);
+    --primitiv-badge-font-size: var(--primitiv-badge-md-font-size);
+  }
+  .primitiv-badge--lg {
+    --primitiv-badge-height: var(--primitiv-badge-lg-height);
+    --primitiv-badge-padding-inline: var(--primitiv-badge-lg-padding-inline);
+    --primitiv-badge-font-size: var(--primitiv-badge-lg-font-size);
+  }
+  .primitiv-badge--xl {
+    --primitiv-badge-height: var(--primitiv-badge-xl-height);
+    --primitiv-badge-padding-inline: var(--primitiv-badge-xl-padding-inline);
+    --primitiv-badge-font-size: var(--primitiv-badge-xl-font-size);
+  }
+
+  /* Tone × Variant — compound selectors, since both classes apply together
+     (cva emits both). `label` = feedback/*\/soft/* (low-emphasis tint);
+     `counter` = feedback/*\/solid/* (high-emphasis, AA-audited per tone —
+     see the Figma "Badge" component description for the full contrast
+     record, including the success/info white-foreground attempt that was
+     reverted for failing AA). */
+  .primitiv-badge--success.primitiv-badge--label {
+    --primitiv-badge-background: var(--primitiv-feedback-success-soft-background);
+    --primitiv-badge-foreground: var(--primitiv-feedback-success-soft-foreground);
+  }
+  .primitiv-badge--success.primitiv-badge--counter {
+    --primitiv-badge-background: var(--primitiv-feedback-success-solid-background);
+    --primitiv-badge-foreground: var(--primitiv-feedback-success-solid-foreground);
+  }
+  .primitiv-badge--warning.primitiv-badge--label {
+    --primitiv-badge-background: var(--primitiv-feedback-warning-soft-background);
+    --primitiv-badge-foreground: var(--primitiv-feedback-warning-soft-foreground);
+  }
+  .primitiv-badge--warning.primitiv-badge--counter {
+    --primitiv-badge-background: var(--primitiv-feedback-warning-solid-background);
+    --primitiv-badge-foreground: var(--primitiv-feedback-warning-solid-foreground);
+  }
+  .primitiv-badge--info.primitiv-badge--label {
+    --primitiv-badge-background: var(--primitiv-feedback-info-soft-background);
+    --primitiv-badge-foreground: var(--primitiv-feedback-info-soft-foreground);
+  }
+  .primitiv-badge--info.primitiv-badge--counter {
+    --primitiv-badge-background: var(--primitiv-feedback-info-solid-background);
+    --primitiv-badge-foreground: var(--primitiv-feedback-info-solid-foreground);
+  }
+  .primitiv-badge--danger.primitiv-badge--label {
+    --primitiv-badge-background: var(--primitiv-feedback-danger-soft-background);
+    --primitiv-badge-foreground: var(--primitiv-feedback-danger-soft-foreground);
+  }
+  .primitiv-badge--danger.primitiv-badge--counter {
+    --primitiv-badge-background: var(--primitiv-feedback-danger-solid-background);
+    --primitiv-badge-foreground: var(--primitiv-feedback-danger-solid-foreground);
+  }
+}
+
+$primitiv-badge-background: var(--primitiv-badge-background);
+$primitiv-badge-foreground: var(--primitiv-badge-foreground);
+$primitiv-badge-height: var(--primitiv-badge-height);
+$primitiv-badge-padding-inline: var(--primitiv-badge-padding-inline);
+$primitiv-badge-font-family: var(--primitiv-badge-font-family);
+$primitiv-badge-font-size: var(--primitiv-badge-font-size);
+$primitiv-badge-font-weight: var(--primitiv-badge-font-weight);
+$primitiv-badge-line-height: var(--primitiv-badge-line-height);
+$primitiv-badge-radius: var(--primitiv-badge-radius);

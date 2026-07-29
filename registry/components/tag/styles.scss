@@ -1,0 +1,149 @@
+/*
+ * Tag — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add tag`. It is yours to edit:
+ * the stable surface is the contract (the .primitiv-tag class, the
+ * --xs…--xl / tone modifiers, and the --primitiv-tag-* custom properties),
+ * not these values (RFC 0006 Principle 2 — names are stable, values are
+ * not).
+ *
+ * A read-only label chip (RFC 0021 — hand-authored, primitive-less, like
+ * `badge`/`kbd`/`prose`; see the Figma "Tag" component set for the full
+ * design record). Reuses Badge's `feedback/*` soft tokens directly — a Tag
+ * is always the low-emphasis tinted treatment, so unlike Badge there is no
+ * `variant` axis (no solid/counter equivalent) and no circularity trick
+ * (`min-inline-size` is left unbound — a Tag simply hugs its content).
+ * Typography is `body/{size}/*` (Asta Sans Regular), not Badge's Khand
+ * SemiBold — a Tag reads as a plain label, not a stat.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the resting look
+ * live in primitiv.base, size modifiers in primitiv.variants.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-feedback-*,
+ * --primitiv-tag-{size}-*, and --primitiv-body-{size}-* custom properties
+ * it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-tag {
+    /* Per-component API — the themable knobs, defaulting to Tone=neutral,
+       Size=md. The variants layer below re-points these; consumers can
+       override any one without touching a rule. */
+    --primitiv-tag-background: var(--primitiv-feedback-neutral-soft-background);
+    --primitiv-tag-foreground: var(--primitiv-feedback-neutral-soft-foreground);
+    --primitiv-tag-height: var(--primitiv-tag-md-height);
+    --primitiv-tag-padding-inline: var(--primitiv-tag-md-padding-inline);
+    --primitiv-tag-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-tag-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-tag-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-tag-line-height: var(--primitiv-body-md-line-height);
+    --primitiv-tag-radius: var(--primitiv-radii-full);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    block-size: var(--primitiv-tag-height);
+    padding-inline: var(--primitiv-tag-padding-inline);
+    border-radius: var(--primitiv-tag-radius);
+    background-color: var(--primitiv-tag-background);
+    color: var(--primitiv-tag-foreground);
+    font-family: var(--primitiv-tag-font-family);
+    font-size: var(--primitiv-tag-font-size);
+    font-weight: var(--primitiv-tag-font-weight);
+    line-height: var(--primitiv-tag-line-height);
+    white-space: nowrap;
+    /* Only one child (the label) and no icon slot, so the trim can sit
+       directly on the root — contrast Chip, where a leading icon forces the
+       trim onto a dedicated label span instead. */
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points the box + type scale (body/*, unlike Badge's own
+     badge/{size}/font-size — a Tag's type tracks surrounding body text). */
+  .primitiv-tag--xs {
+    --primitiv-tag-height: var(--primitiv-tag-xs-height);
+    --primitiv-tag-padding-inline: var(--primitiv-tag-xs-padding-inline);
+    --primitiv-tag-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-tag-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-tag-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-tag-line-height: var(--primitiv-body-xs-line-height);
+  }
+  .primitiv-tag--sm {
+    --primitiv-tag-height: var(--primitiv-tag-sm-height);
+    --primitiv-tag-padding-inline: var(--primitiv-tag-sm-padding-inline);
+    --primitiv-tag-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-tag-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-tag-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-tag-line-height: var(--primitiv-body-sm-line-height);
+  }
+  .primitiv-tag--md {
+    --primitiv-tag-height: var(--primitiv-tag-md-height);
+    --primitiv-tag-padding-inline: var(--primitiv-tag-md-padding-inline);
+    --primitiv-tag-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-tag-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-tag-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-tag-line-height: var(--primitiv-body-md-line-height);
+  }
+  .primitiv-tag--lg {
+    --primitiv-tag-height: var(--primitiv-tag-lg-height);
+    --primitiv-tag-padding-inline: var(--primitiv-tag-lg-padding-inline);
+    --primitiv-tag-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-tag-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-tag-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-tag-line-height: var(--primitiv-body-lg-line-height);
+  }
+  .primitiv-tag--xl {
+    --primitiv-tag-height: var(--primitiv-tag-xl-height);
+    --primitiv-tag-padding-inline: var(--primitiv-tag-xl-padding-inline);
+    --primitiv-tag-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-tag-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-tag-font-weight: var(--primitiv-body-xl-font-weight);
+    --primitiv-tag-line-height: var(--primitiv-body-xl-line-height);
+  }
+
+  /* Tone — a single class per tone (no Variant axis: a Tag is always the
+     soft/tinted treatment). */
+  .primitiv-tag--neutral {
+    --primitiv-tag-background: var(--primitiv-feedback-neutral-soft-background);
+    --primitiv-tag-foreground: var(--primitiv-feedback-neutral-soft-foreground);
+  }
+  .primitiv-tag--success {
+    --primitiv-tag-background: var(--primitiv-feedback-success-soft-background);
+    --primitiv-tag-foreground: var(--primitiv-feedback-success-soft-foreground);
+  }
+  .primitiv-tag--warning {
+    --primitiv-tag-background: var(--primitiv-feedback-warning-soft-background);
+    --primitiv-tag-foreground: var(--primitiv-feedback-warning-soft-foreground);
+  }
+  .primitiv-tag--info {
+    --primitiv-tag-background: var(--primitiv-feedback-info-soft-background);
+    --primitiv-tag-foreground: var(--primitiv-feedback-info-soft-foreground);
+  }
+  .primitiv-tag--danger {
+    --primitiv-tag-background: var(--primitiv-feedback-danger-soft-background);
+    --primitiv-tag-foreground: var(--primitiv-feedback-danger-soft-foreground);
+  }
+}
+
+$primitiv-tag-background: var(--primitiv-tag-background);
+$primitiv-tag-foreground: var(--primitiv-tag-foreground);
+$primitiv-tag-height: var(--primitiv-tag-height);
+$primitiv-tag-padding-inline: var(--primitiv-tag-padding-inline);
+$primitiv-tag-font-family: var(--primitiv-tag-font-family);
+$primitiv-tag-font-size: var(--primitiv-tag-font-size);
+$primitiv-tag-font-weight: var(--primitiv-tag-font-weight);
+$primitiv-tag-line-height: var(--primitiv-tag-line-height);
+$primitiv-tag-radius: var(--primitiv-tag-radius);

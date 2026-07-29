@@ -14,6 +14,7 @@ import {
   Avatar,
   AvatarImage,
   AvatarFallback,
+  Badge,
   Blockquote,
   Box,
   Breadcrumb,
@@ -25,6 +26,7 @@ import {
   Button,
   Center,
   Checkbox,
+  Chip,
   CodeBlock,
   Collapsible,
   CollapsibleTrigger,
@@ -160,6 +162,7 @@ import {
   TabsList,
   TabsTrigger,
   TabsContent,
+  Tag,
   Textarea,
   ToggleGroup,
   ToggleGroupItem,
@@ -635,6 +638,12 @@ export function App(): ReactElement {
   const [selRegion, setSelRegion] = useState("");
   const [selFruit, setSelFruit] = useState("");
   const [readMoreOpen, setReadMoreOpen] = useState(false);
+  // Chip demo state — a real removable filter list, so the remove button
+  // does something rather than just showing the hover/active/focus styling.
+  const [chipFilters, setChipFilters] = useState([
+    "Status: Active",
+    "Owner: You",
+  ]);
 
   const sortedReleases = [...RELEASES].sort((a, b) => {
     const av = a[sort.key];
@@ -1018,6 +1027,72 @@ primitiv add --all`}</code>
             <User aria-hidden="true" />
           </AvatarFallback>
         </Avatar>
+      </Section>
+
+      {/* Badge/Tag/Chip (RFC 0021) — hand-authored, primitive-less leaves,
+          built together and sharing a lot of their token infrastructure
+          (feedback/* Intent tokens). Badge: variant="label" is the
+          low-emphasis status word, variant="counter" is the high-emphasis
+          count — the last two counters demonstrate the circularity trick
+          (1-2 char content forces a true circle; longer content widens into
+          a pill, independent of variant). Tag: a plain grouped-label list,
+          tone="neutral" by default. Chip: a real removable filter list —
+          clicking × actually removes the chip from `chipFilters` state,
+          demonstrating the required `onRemove` handler and the leading-icon
+          slot. */}
+      <Section title="Badge, Tag & Chip" column>
+        <div className="ks-row">
+          <Badge size={size} tone="success">
+            Shipped
+          </Badge>
+          <Badge size={size} tone="warning">
+            Beta
+          </Badge>
+          <Badge size={size} tone="info">
+            New
+          </Badge>
+          <Badge size={size} tone="danger" variant="counter">
+            1
+          </Badge>
+          <Badge size={size} tone="danger" variant="counter">
+            12
+          </Badge>
+        </div>
+        <div className="ks-row">
+          <Tag size={size}>Design</Tag>
+          <Tag size={size}>Rust</Tag>
+          <Tag size={size} tone="success">
+            Shipped
+          </Tag>
+        </div>
+        <div className="ks-row">
+          {chipFilters.map((filter) => (
+            <Chip
+              key={filter}
+              size={size}
+              onRemove={() =>
+                setChipFilters((current) => current.filter((f) => f !== filter))
+              }
+            >
+              {filter}
+            </Chip>
+          ))}
+          <Chip
+            size={size}
+            leadingIcon={<User aria-hidden="true" />}
+            onRemove={() => {}}
+          >
+            Jane Doe
+          </Chip>
+          <Chip size={size} disabled onRemove={() => {}}>
+            Locked
+          </Chip>
+          {chipFilters.length === 0 && (
+            <Button size={size} variant="secondary" onClick={() => setChipFilters(["Status: Active", "Owner: You"])}>
+              Reset filters
+            </Button>
+          )}
+        </div>
       </Section>
 
       {/* Ancestor Links read muted, the trailing Page reads primary — link

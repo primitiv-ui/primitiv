@@ -134,10 +134,28 @@
 }
 
 @layer primitiv.variants {
-  /* Justified — segments share the track width equally (the classic equal-width
-     segmented control). Omitted, segments are content-width. */
-  .primitiv-segmented-control--justified .primitiv-segmented-control__item {
-    flex: 1 1 0;
+  /* Justified — segments share the track width equally, each matching the
+     widest segment's own natural content (the classic equal-width segmented
+     control). CSS Grid with equal 1fr tracks, not flex: 1 1 0 — verified
+     live in a real browser that flex only redistributes each item's own
+     *leftover* growable space: in the common case (a shrink-to-fit track
+     with no explicit width), flex left every segment at its own unequal
+     content width, never equalising at all. Grid's 1fr tracks correctly
+     size every column to the widest participant's max-content instead, and
+     behave identically to the old flex rule in the other case (a track
+     explicitly stretched narrower than the segments' combined content) — a
+     strict fix, not a behaviour change for that case. Omitted, segments are
+     content-width. */
+  .primitiv-segmented-control--justified {
+    display: inline-grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+  }
+
+  .primitiv-segmented-control--justified[data-orientation="vertical"] {
+    grid-auto-flow: row;
+    grid-auto-columns: unset;
+    grid-auto-rows: 1fr;
   }
 
   /* Size — re-points the framed-control + typography knobs to the chosen slot.

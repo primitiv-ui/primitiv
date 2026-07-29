@@ -540,6 +540,11 @@
   :root,
   [data-density="comfortable"] {
     --primitiv-accordion-trigger-padding-block: var(--primitiv-space-space-16);
+    --primitiv-alert-lg-padding-block: var(--primitiv-space-space-14);
+    --primitiv-alert-md-padding-block: var(--primitiv-space-space-12);
+    --primitiv-alert-sm-padding-block: var(--primitiv-space-space-10);
+    --primitiv-alert-xl-padding-block: var(--primitiv-space-space-16);
+    --primitiv-alert-xs-padding-block: var(--primitiv-space-space-8);
     --primitiv-avatar-radius-full: var(--primitiv-radii-full);
     --primitiv-avatar-radius-lg: var(--primitiv-framed-control-lg-radius);
     --primitiv-avatar-radius-md: var(--primitiv-framed-control-md-radius);
@@ -1128,6 +1133,11 @@
   }
   [data-density="compact"] {
     --primitiv-accordion-trigger-padding-block: var(--primitiv-space-space-14);
+    --primitiv-alert-lg-padding-block: var(--primitiv-space-space-12);
+    --primitiv-alert-md-padding-block: var(--primitiv-space-space-10);
+    --primitiv-alert-sm-padding-block: var(--primitiv-space-space-8);
+    --primitiv-alert-xl-padding-block: var(--primitiv-space-space-14);
+    --primitiv-alert-xs-padding-block: var(--primitiv-space-space-6);
     --primitiv-avatar-radius-full: var(--primitiv-radii-full);
     --primitiv-avatar-radius-lg: var(--primitiv-framed-control-lg-radius);
     --primitiv-avatar-radius-md: var(--primitiv-framed-control-md-radius);
@@ -1716,6 +1726,11 @@
   }
   [data-density="dense"] {
     --primitiv-accordion-trigger-padding-block: var(--primitiv-space-space-12);
+    --primitiv-alert-lg-padding-block: var(--primitiv-space-space-10);
+    --primitiv-alert-md-padding-block: var(--primitiv-space-space-8);
+    --primitiv-alert-sm-padding-block: var(--primitiv-space-space-6);
+    --primitiv-alert-xl-padding-block: var(--primitiv-space-space-12);
+    --primitiv-alert-xs-padding-block: var(--primitiv-space-space-4);
     --primitiv-avatar-radius-full: var(--primitiv-radii-full);
     --primitiv-avatar-radius-lg: var(--primitiv-framed-control-lg-radius);
     --primitiv-avatar-radius-md: var(--primitiv-framed-control-md-radius);
@@ -2304,6 +2319,11 @@
   }
   [data-density="spacious"] {
     --primitiv-accordion-trigger-padding-block: var(--primitiv-space-space-20);
+    --primitiv-alert-lg-padding-block: var(--primitiv-space-space-20);
+    --primitiv-alert-md-padding-block: var(--primitiv-space-space-16);
+    --primitiv-alert-sm-padding-block: var(--primitiv-space-space-12);
+    --primitiv-alert-xl-padding-block: var(--primitiv-space-space-24);
+    --primitiv-alert-xs-padding-block: var(--primitiv-space-space-10);
     --primitiv-avatar-radius-full: var(--primitiv-radii-full);
     --primitiv-avatar-radius-lg: var(--primitiv-framed-control-lg-radius);
     --primitiv-avatar-radius-md: var(--primitiv-framed-control-md-radius);

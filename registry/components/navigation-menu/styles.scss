@@ -890,12 +890,6 @@
   }
 }
 
-/*
- * SCSS mirror of styles.css — the CSS body verbatim, plus a $-alias per custom
- * property so Sass consumers can reference the knobs without repeating the
- * var() call. Generated from contract.json's customProperties order; keep the
- * CSS body byte-identical to styles.css.
- */
 $primitiv-navigation-menu-entry-height: var(--primitiv-navigation-menu-entry-height);
 $primitiv-navigation-menu-entry-padding-inline: var(--primitiv-navigation-menu-entry-padding-inline);
 $primitiv-navigation-menu-entry-gap: var(--primitiv-navigation-menu-entry-gap);

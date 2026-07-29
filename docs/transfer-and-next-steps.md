@@ -972,6 +972,43 @@ flow rhythm over content it owns), `margin: auto` centring, and the `-1px`
 sr-only clip. Only a **standalone** component — one whose siblings are not its
 parts — can commit this error.
 
+### The SCSS drift class — closed, all 42 guarded
+
+`primitiv-emit`'s `emit_component_scss` is the generator of record, but its Rust
+drift guards are **hand-written per component — 19 of 42**. The other 23 drifted
+silently. That is how a `table` alias landed in the wrong order and only went red
+because someone had happened to write that one's test.
+
+**The rule, exactly:** the CSS body verbatim, then `\n`, then one
+`$name: var(--name);` per **declared** custom property — a line whose trimmed form
+starts `--name:` — in **source first-appearance order**, deduped, scanned over
+*comment-stripped* CSS so a property named only in prose doesn't count.
+
+It is **not** `contract.json` order. `navigation-menu/styles.scss` carried a
+comment asserting it was "generated from contract.json's customProperties order",
+which is wrong and is exactly the misconception behind the `table` failure — that
+comment is now gone (the generator wouldn't emit it either, so it was itself
+drift).
+
+`pnpm qa:stylesheets` now ports the generator to JS and checks **all 42** in CI,
+which is cheaper than writing 23 more Rust tests. Rust stays authoritative for the
+19 it guards; the two must agree, and `table` passing both is the cross-check.
+Nine files were brought into line — 4 missing a trailing newline (`box`, `center`,
+`prose`, `spacer`), 1 stray comment (`navigation-menu`), 4 alias-order
+(`context-menu`, `dropdown`, `select`, `description-list`). No CSS body changed.
+
+**One open question, deliberately not settled** (`CONSUMED_ALIAS_EXEMPT` in the
+script). `description-list`, `figure` and `list` each expose aliases for custom
+properties their stylesheet **consumes but never declares** —
+`$primitiv-figure-caption-gap`, `$primitiv-list-item-gap`, and so on. Those are
+**Context tokens that share the component's name prefix**, supplied by the token
+layer, and each is listed in the component's `contract.json`. The generator only
+scans declarations, so it would not emit them. Either `emit_component_scss` should
+also scan `var(--primitiv-<component>-…)` usages, or those three files are
+over-exposing tokens the token layer already provides. Deleting them would narrow a
+published contract, so the check allows the extra aliases (order and body still
+enforced) and says so out loud. Whoever settles it should empty that list.
+
 ### The remaining queue — 35 components, ordered by expected yield
 
 42 registry components; 6 audited (the prose family), 1 excluded (`carousel`,

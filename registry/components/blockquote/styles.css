@@ -41,6 +41,7 @@
     --primitiv-blockquote-citation-color: var(--primitiv-content-muted);
     --primitiv-blockquote-font-family: var(--primitiv-body-md-font-family);
     --primitiv-blockquote-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-blockquote-font-weight: var(--primitiv-body-md-font-weight);
     --primitiv-blockquote-line-height: var(--primitiv-body-md-line-height);
 
     margin: 0;
@@ -54,8 +55,20 @@
     line-height: var(--primitiv-blockquote-line-height);
   }
 
+  /* The quote restates every type property, rather than inheriting them from
+     the <blockquote> above it. `primitiv.reset` styles a bare `p` directly —
+     family, size, weight, line-height — and a declaration on the element beats
+     an inherited one whatever the layer, so the root's `size`-driven values
+     never reached this `<p>`: the quote sat at `body/md` (16px/24px) at every
+     step while the <cite> below it scaled correctly, making the attribution
+     *larger* than the quote at `lg`/`xl` — the exact inversion of D12's "quote
+     and citation share one size axis". */
   .primitiv-blockquote__quote {
     margin: 0;
+    font-family: var(--primitiv-blockquote-font-family);
+    font-size: var(--primitiv-blockquote-font-size);
+    font-weight: var(--primitiv-blockquote-font-weight);
+    line-height: var(--primitiv-blockquote-line-height);
     color: var(--primitiv-blockquote-quote-color);
   }
 
@@ -78,6 +91,10 @@
   .primitiv-blockquote__citation {
     margin: 0;
     display: block;
+    font-family: var(--primitiv-blockquote-font-family);
+    font-size: var(--primitiv-blockquote-font-size);
+    font-weight: var(--primitiv-blockquote-font-weight);
+    line-height: var(--primitiv-blockquote-line-height);
     font-style: normal;
     transform: none;
     text-align: end;
@@ -102,30 +119,35 @@
   .primitiv-blockquote--xs {
     --primitiv-blockquote-font-family: var(--primitiv-body-xs-font-family);
     --primitiv-blockquote-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-blockquote-font-weight: var(--primitiv-body-xs-font-weight);
     --primitiv-blockquote-line-height: var(--primitiv-body-xs-line-height);
     --primitiv-blockquote-gap: var(--primitiv-quote-body-gap-xs);
   }
   .primitiv-blockquote--sm {
     --primitiv-blockquote-font-family: var(--primitiv-body-sm-font-family);
     --primitiv-blockquote-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-blockquote-font-weight: var(--primitiv-body-sm-font-weight);
     --primitiv-blockquote-line-height: var(--primitiv-body-sm-line-height);
     --primitiv-blockquote-gap: var(--primitiv-quote-body-gap-sm);
   }
   .primitiv-blockquote--md {
     --primitiv-blockquote-font-family: var(--primitiv-body-md-font-family);
     --primitiv-blockquote-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-blockquote-font-weight: var(--primitiv-body-md-font-weight);
     --primitiv-blockquote-line-height: var(--primitiv-body-md-line-height);
     --primitiv-blockquote-gap: var(--primitiv-quote-body-gap-md);
   }
   .primitiv-blockquote--lg {
     --primitiv-blockquote-font-family: var(--primitiv-body-lg-font-family);
     --primitiv-blockquote-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-blockquote-font-weight: var(--primitiv-body-lg-font-weight);
     --primitiv-blockquote-line-height: var(--primitiv-body-lg-line-height);
     --primitiv-blockquote-gap: var(--primitiv-quote-body-gap-lg);
   }
   .primitiv-blockquote--xl {
     --primitiv-blockquote-font-family: var(--primitiv-body-xl-font-family);
     --primitiv-blockquote-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-blockquote-font-weight: var(--primitiv-body-xl-font-weight);
     --primitiv-blockquote-line-height: var(--primitiv-body-xl-line-height);
     --primitiv-blockquote-gap: var(--primitiv-quote-body-gap-xl);
   }

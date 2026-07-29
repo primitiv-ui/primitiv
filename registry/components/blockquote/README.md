@@ -34,6 +34,23 @@ restarting at the start edge. The stylesheet uses `text-align: end` (not
 `right`) so it follows the reading direction and flips under RTL. An earlier
 build left the citation start-aligned.
 
+### Both parts restate their type — the reset overrides inheritance
+
+`primitiv.reset` styles a bare `p` directly (family, size, weight,
+line-height), and a declaration **on the element** beats an inherited one
+whatever the layer it sits in — layer order only arbitrates between declarations
+on the *same* element. So setting the type on the `<blockquote>` root and letting
+the parts inherit silently failed for the quote: it sat at `body/md`
+(16px/24px) at every `size`, while the `<cite>` — which the reset happens not to
+give a `font-size` — scaled correctly. At `lg`/`xl` that made the **attribution
+larger than the quote**, the exact inversion of D12's "quote and citation share
+one size axis".
+
+Both parts now restate `font-family`/`font-size`/`font-weight`/`line-height` from
+the component's own knobs. Measured across the full matrix, the quote matches
+Figma's `body/{size}` at comfortable (12/14/16/20/22, line-heights
+16/20/24/32/36) and quote and citation are identical at every step.
+
 ### The citation is upright, and that takes more than `font-style: normal`
 
 The brand face ships no native italic, so `primitiv.reset` synthesises an

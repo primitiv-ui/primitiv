@@ -42,6 +42,7 @@
     { "name": "--primitiv-blockquote-citation-color", "defaultsTo": "var(--primitiv-content-muted)" },
     { "name": "--primitiv-blockquote-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
     { "name": "--primitiv-blockquote-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-blockquote-font-weight", "defaultsTo": "var(--primitiv-body-md-font-weight)" },
     { "name": "--primitiv-blockquote-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" }
   ]
 }

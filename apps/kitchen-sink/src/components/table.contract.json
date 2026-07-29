@@ -22,6 +22,15 @@
         { "name": "lg", "class": "primitiv-table--lg", "description": "Large." },
         { "name": "xl", "class": "primitiv-table--xl", "description": "Extra large." }
       ]
+    },
+    {
+      "name": "rows",
+      "default": "plain",
+      "description": "Whether body rows alternate a subtle stripe for readability.",
+      "options": [
+        { "name": "plain", "class": "", "description": "No banding (the default)." },
+        { "name": "striped", "class": "primitiv-table--striped", "description": "Even body rows take the table/row/stripe fill." }
+      ]
     }
   ],
   "subcomponents": [
@@ -44,6 +53,7 @@
     { "name": "--primitiv-table-header-foreground", "defaultsTo": "var(--primitiv-content-primary)" },
     { "name": "--primitiv-table-header-weight", "defaultsTo": "var(--primitiv-font-weight-semibold)" },
     { "name": "--primitiv-table-header-rule-color", "defaultsTo": "var(--primitiv-border-strong)" },
+    { "name": "--primitiv-table-footer-rule-color", "defaultsTo": "var(--primitiv-border-strong)" },
     { "name": "--primitiv-table-caption-font-family", "defaultsTo": "var(--primitiv-body-sm-font-family)" },
     { "name": "--primitiv-table-caption-font-size", "defaultsTo": "var(--primitiv-body-sm-font-size)" },
     { "name": "--primitiv-table-caption-font-weight", "defaultsTo": "var(--primitiv-body-sm-font-weight)" },

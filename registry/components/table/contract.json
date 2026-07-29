@@ -22,6 +22,15 @@
         { "name": "lg", "class": "primitiv-table--lg", "description": "Large." },
         { "name": "xl", "class": "primitiv-table--xl", "description": "Extra large." }
       ]
+    },
+    {
+      "name": "rows",
+      "default": "plain",
+      "description": "Whether body rows alternate a subtle stripe for readability.",
+      "options": [
+        { "name": "plain", "class": "", "description": "No banding (the default)." },
+        { "name": "striped", "class": "primitiv-table--striped", "description": "Even body rows take the table/row/stripe fill." }
+      ]
     }
   ],
   "subcomponents": [

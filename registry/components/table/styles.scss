@@ -161,6 +161,20 @@
     --primitiv-table-font-weight: var(--primitiv-body-xl-font-weight);
     --primitiv-table-line-height: var(--primitiv-body-xl-line-height);
   }
+
+  /* Striped body rows. Figma models striping as a per-row `State=striped`, but on
+     the web a `:nth-child(even)` zebra driven from the table is the idiomatic
+     shape (the human's call), so `rows="striped"` is a table-level presentation
+     rather than something set on each row. `even` leaves the first body row
+     unbanded, which reads better immediately under the header rule.
+
+     It lives here rather than in primitiv.states on purpose: the hover and
+     selected fills below sit in a *later* layer, so they still win over the
+     stripe — a striped row that is hovered or selected shows the interaction,
+     not the banding. */
+  .primitiv-table--striped .primitiv-table__body .primitiv-table__row:nth-child(even) {
+    background-color: var(--primitiv-table-row-stripe);
+  }
 }
 
 @layer primitiv.states {

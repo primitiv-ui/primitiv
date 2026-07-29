@@ -31,13 +31,14 @@ exactly like the headless API (D56).
   static layout component: it carries no state, so it emits no `data-*` (sort /
   row-state are design-guidance only — RFC 0014 §11).
 - **`root` / `modifiers` / `customProperties`** — authored. The `.primitiv-table`
-  root class with the `--xs…--xl` **size** modifier (the type scale), the part
-  classes, and the `--primitiv-table-*` custom-property API.
+  root class with the `--xs…--xl` **size** modifier (the type scale) and the
+  **rows** modifier (`plain` / `striped`), the part classes, and the
+  `--primitiv-table-*` custom-property API.
 
 ## The default theme (`styles.css`)
 
 Structured per RFC 0008 — the per-component API tokens + the resting look in
-`primitiv.base`, the size modifiers in `primitiv.variants`, the hover/selected row
+`primitiv.base`, the size + rows modifiers in `primitiv.variants`, the hover/selected row
 styling in `primitiv.states` (the sublayer order is declared once in the shared
 token layer, so this file only re-opens the named sublayers). Collapsed rules,
 body type, a header row set off by a strong underline (no fill band), subtle row
@@ -50,10 +51,28 @@ independently of size (matching the Figma model — RFC 0014).
 
 **Row hover/selected are styling hooks.** Hover is automatic; `selected` rides
 `aria-selected="true"` on a `.primitiv-table__row` (the headless layer sets
-neither). Row striping is left to the consumer (a fast-follow) — note that
-`table/row/stripe` **is** emitted in both themes and this stylesheet references it
-nowhere, so the token is ready and only the wiring (and an API decision: automatic
-`:nth-child` zebra vs a per-row opt-in, which is how Figma models it) is missing.
+neither).
+
+**`rows="striped"` is a table-level zebra.** Figma models striping as a per-row
+`State=striped` alongside hover and selected, but on the web the idiomatic shape is
+a `:nth-child(even)` banding driven from the table, so it's a `rows` prop rather
+than something set on each row. `even` leaves the first body row unbanded, which
+reads better immediately under the header rule.
+
+It's a **variant, not a state**, and that placement is load-bearing: the rule sits
+in `primitiv.variants` while hover and selected sit in the later
+`primitiv.states`, so an even row that is hovered or selected shows the
+interaction rather than the banding. Verified by measurement on a row that is
+*both* even and `aria-selected` — the first attempt at that test used an odd row,
+where the stripe rule never applies, and so proved nothing.
+
+It's an enum rather than a boolean `striped` prop for a generator reason worth
+knowing: `emit_part` writes `defaultVariants` values **quoted**, and a cva boolean
+variant (keys `true`/`false`) needs an unquoted `false`, so the generator cannot
+currently emit a valid boolean modifier. No generated component has one; the only
+boolean modifier in the registry — `list`'s `indent` — lives in a hand-authored
+recipe. Teaching `emit_part` to emit unquoted defaults for true/false options would
+unblock a real `striped` boolean.
 
 **Section rules differ per section, footer included.** Head gets `border/strong`
 on its trailing edge, body gets `border/subtle`, and the **footer gets
@@ -64,8 +83,10 @@ whose constraint decides the edge, and only the footer's is pinned to
 `vertical: MIN`. `Table.Footer` ships in the headless layer but isn't used in the
 kitchen-sink, which is how an unstyled footer went unnoticed.
 
-**Three Figma axes are not implemented here.** Recorded so they aren't mistaken
-for drift:
+**Three Figma axes are still not implemented here.** Recorded so they aren't
+mistaken for drift — and note the kitchen-sink demo already hand-rolls both with
+local `ks-table__*` classes, so the need is proven and the styling exists in a form
+that could be promoted into this component:
 
 - **`Borders` (`none` / `horizontal` / `grid`)** — this build always draws
   horizontal rules and never vertical ones. `Cell.Right Border` is the grid half.
@@ -101,7 +122,7 @@ that output.
 Both are **generated** from `contract.json` (RFC 0004 §3.5 / D53):
 
 - **`table.recipe.ts`** — one [`class-variance-authority`](https://cva.style)
-  recipe per part: a `table` recipe carrying the `size` variant, and a base-only
+  recipe per part: a `table` recipe carrying the `size` and `rows` variants, and a base-only
   `cva` for each subcomponent class.
 - **`table.tsx`** — N thin per-part wrappers (`Table`, `TableHead`, `TableBody`,
   `TableFooter`, `TableRow`, `TableHeader`, `TableCell`, `TableScrollArea`,

@@ -16,9 +16,14 @@ export const table = cva("primitiv-table", {
       lg: "primitiv-table--lg",
       xl: "primitiv-table--xl",
     },
+    rows: {
+      plain: "",
+      striped: "primitiv-table--striped",
+    },
   },
   defaultVariants: {
     size: "md",
+    rows: "plain",
   },
 });
 

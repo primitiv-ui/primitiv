@@ -16,7 +16,7 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K>
  *
  * @see https://primitiv-ui.dev/docs/components/table
  */
-export type TableProps = DistributiveOmit<ComponentPropsWithRef<typeof TablePrimitive.Root>, "size"> & {
+export type TableProps = DistributiveOmit<ComponentPropsWithRef<typeof TablePrimitive.Root>, "size" | "rows"> & {
   /**
    * Type scale for the whole table; `data-density` scales cell padding further.
    * - `xs` — Extra small.
@@ -28,10 +28,18 @@ export type TableProps = DistributiveOmit<ComponentPropsWithRef<typeof TablePrim
    * @see https://primitiv-ui.dev/docs/components/table
    */
   size?: "xs" | "sm" | "md" | "lg" | "xl";
+  /**
+   * Whether body rows alternate a subtle stripe for readability.
+   * - `plain` — No banding (the default).
+   * - `striped` — Even body rows take the table/row/stripe fill.
+   * @default "plain"
+   * @see https://primitiv-ui.dev/docs/components/table
+   */
+  rows?: "plain" | "striped";
 };
 
-export function Table({ size, className, ...props }: TableProps) {
-  return <TablePrimitive.Root className={[table({ size }), className].filter(Boolean).join(" ")} {...props} />;
+export function Table({ size, rows, className, ...props }: TableProps) {
+  return <TablePrimitive.Root className={[table({ size, rows }), className].filter(Boolean).join(" ")} {...props} />;
 }
 
 export type TableHeadProps = ComponentPropsWithRef<typeof TablePrimitive.Head>;

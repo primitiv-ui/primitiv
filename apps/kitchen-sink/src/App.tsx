@@ -127,6 +127,7 @@ import {
   Table,
   TableHead,
   TableBody,
+  TableFooter,
   TableRow,
   TableHeader,
   TableCell,
@@ -2511,7 +2512,7 @@ export function ramp(hue: number, chroma = 0.12) {
         {/* Wrapped in TableScrollArea so a wide table scrolls horizontally within
             its own area on narrow viewports instead of forcing the page wider. */}
         <TableScrollArea>
-          <Table size={size}>
+          <Table size={size} rows="striped">
             <TableCaption>
               Package downloads this month — click a header to sort.
             </TableCaption>
@@ -2571,6 +2572,28 @@ export function ramp(hue: number, chroma = 0.12) {
                 </TableRow>
               ))}
             </TableBody>
+            {/* A totals row, so the demo actually exercises `<tfoot>` — the
+                footer's leading-edge `border/strong` rule had gone unnoticed
+                precisely because nothing here rendered one. */}
+            <TableFooter>
+              <TableRow>
+                {TABLE_COLUMNS.map((col) => (
+                  <TableCell
+                    key={col.key}
+                    className={`ks-table__align-${col.align}`}
+                  >
+                    {col.key === "pkg"
+                      ? "Total"
+                      : col.numeric
+                        ? RELEASES.reduce(
+                            (sum, r) => sum + (r[col.key] as number),
+                            0,
+                          ).toLocaleString()
+                        : ""}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableFooter>
           </Table>
         </TableScrollArea>
       </Section>

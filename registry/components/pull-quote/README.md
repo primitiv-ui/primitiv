@@ -46,6 +46,33 @@ mark frozen at 12–14px for every `size`. With the calc it tracks both `size` a
 18/22/28/32/38 for xs–xl. Colour is `currentColor`, driven by `--primitiv-pull-quote-mark-color`
 (`content/muted`), matching the Figma fill exactly.
 
+### The mark tracks density here; in Figma it can't
+
+At **comfortable** — Figma's own mode — the two sides are identical: mark heights
+18/22/28/32/38 against quote sizes 24/28/32/40/48, i.e. the exact per-size ratios
+this stylesheet encodes. Away from comfortable they diverge, deliberately.
+
+Figma's `Pull Quote / Mark` is a **fixed vector per `Size` variant**, with no
+variable bound to its width or height (confirmed via the Desktop Bridge). The
+quote text beside it *is* bound to `heading/{step}/font-size`, which is
+density-scaled — so in Figma, switching to `dense` shrinks the quote while the
+mark stays put, and the ratio drifts. Expressing it properly there would need
+either 20 variants (size × density) or a variable per bespoke asset ratio, which
+doesn't exist.
+
+The `calc()` here keeps the ratio **constant across all four density modes** —
+verified by measurement: `md` holds 0.875 at dense/compact/comfortable/spacious
+(font-size 16/26/32/52 → mark 14/22.75/28/45.5). That is the intended
+relationship, and it's the web side that can express it, so this is a case of the
+platform doing better rather than drifting.
+
+One consequence worth knowing, and it is **not** a `PullQuote` bug: the
+`heading/*` ramp compresses hard at `dense` (h6 13 → h1 18) and expands hard at
+`spacious` (20 → 88). Code and Figma agree exactly in all four modes, so it is
+the deliberate token design — but it does mean an `xl` pull quote at `dense`
+renders at 18px, barely above body text. Anything to change there belongs to the
+heading scale, system-wide.
+
 ### One platform difference from the Figma build
 
 The Figma set is a fixed 480px-wide frame with 24px padding on every side —

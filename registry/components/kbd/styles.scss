@@ -40,6 +40,7 @@
        override any one without touching the rule. */
     --primitiv-kbd-font-family: var(--primitiv-font-family-mono);
     --primitiv-kbd-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-kbd-font-weight: var(--primitiv-body-md-font-weight);
     --primitiv-kbd-line-height: var(--primitiv-code-md-line-height);
     --primitiv-kbd-color: var(--primitiv-content-primary);
     --primitiv-kbd-background: var(--primitiv-surface-raised);
@@ -51,6 +52,13 @@
 
     font-family: var(--primitiv-kbd-font-family);
     font-size: var(--primitiv-kbd-font-size);
+    /* Declared, not inherited. Figma binds this node to body.<size>.font-style
+       (Regular) at every size, but a `kbd` inherits weight from its context, so
+       a key cap inside a <strong> or a heading rendered **bold** — measured at
+       700 in a bold host before this line. `primitiv.reset` dresses a bare `kbd`
+       fully (surface, border, radius, padding, mono face) yet also leaves weight
+       to inheritance, so the bare element has the same gap. */
+    font-weight: var(--primitiv-kbd-font-weight);
     line-height: var(--primitiv-kbd-line-height);
     color: var(--primitiv-kbd-color);
     background-color: var(--primitiv-kbd-background);
@@ -70,28 +78,34 @@
      families (body/* and code/* respectively), per the file header. */
   .primitiv-kbd--xs {
     --primitiv-kbd-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-kbd-font-weight: var(--primitiv-body-xs-font-weight);
     --primitiv-kbd-line-height: var(--primitiv-code-xs-line-height);
   }
   .primitiv-kbd--sm {
     --primitiv-kbd-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-kbd-font-weight: var(--primitiv-body-sm-font-weight);
     --primitiv-kbd-line-height: var(--primitiv-code-sm-line-height);
   }
   .primitiv-kbd--md {
     --primitiv-kbd-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-kbd-font-weight: var(--primitiv-body-md-font-weight);
     --primitiv-kbd-line-height: var(--primitiv-code-md-line-height);
   }
   .primitiv-kbd--lg {
     --primitiv-kbd-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-kbd-font-weight: var(--primitiv-body-lg-font-weight);
     --primitiv-kbd-line-height: var(--primitiv-code-lg-line-height);
   }
   .primitiv-kbd--xl {
     --primitiv-kbd-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-kbd-font-weight: var(--primitiv-body-xl-font-weight);
     --primitiv-kbd-line-height: var(--primitiv-code-xl-line-height);
   }
 }
 
 $primitiv-kbd-font-family: var(--primitiv-kbd-font-family);
 $primitiv-kbd-font-size: var(--primitiv-kbd-font-size);
+$primitiv-kbd-font-weight: var(--primitiv-kbd-font-weight);
 $primitiv-kbd-line-height: var(--primitiv-kbd-line-height);
 $primitiv-kbd-color: var(--primitiv-kbd-color);
 $primitiv-kbd-background: var(--primitiv-kbd-background);

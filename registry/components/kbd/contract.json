@@ -26,6 +26,7 @@
   "customProperties": [
     { "name": "--primitiv-kbd-font-family", "defaultsTo": "var(--primitiv-font-family-mono)" },
     { "name": "--primitiv-kbd-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-kbd-font-weight", "defaultsTo": "var(--primitiv-body-md-font-weight)" },
     { "name": "--primitiv-kbd-line-height", "defaultsTo": "var(--primitiv-code-md-line-height)" },
     { "name": "--primitiv-kbd-color", "defaultsTo": "var(--primitiv-content-primary)" },
     { "name": "--primitiv-kbd-background", "defaultsTo": "var(--primitiv-surface-raised)" },

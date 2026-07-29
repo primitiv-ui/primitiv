@@ -74,6 +74,19 @@ inflate the line box of the paragraph around it.
 An earlier build took `font-size` from `code/{size}` too, rendering every key
 cap 3px smaller than the Figma spec at `md`.
 
+### The weight is declared, not inherited
+
+Figma binds the key label to `body.<size>.font-style` — **Regular** at every size.
+A `<kbd>` otherwise inherits its weight from context, so a key cap inside a
+`<strong>` or a heading rendered **bold**: measured at 700 in a bold host before
+`font-weight` was declared, 400 after. `primitiv.reset` has the same gap on a bare
+`<kbd>` (it sets the surface, border, radius, padding and mono face, but leaves
+weight to inheritance), so the fix belongs on the component either way.
+
+Every `body.<size>.font-weight` currently resolves to `regular`, so this changed
+nothing in ordinary prose — it only closes the bold-host case, and stops the
+weight silently tracking a future change to one step of the body scale.
+
 ### One deliberate difference: the chip padding densifies
 
 Figma binds the key cap's padding to the **raw `space/space-4`** (inline) and
@@ -88,3 +101,12 @@ Kept as-is deliberately: a raw `space/*` binding cannot densify, and every
 spacing knob in the system is expected to scale with `[data-density]` unless
 there's a reason it can't. Worth rebinding on the Figma side to
 `code/inline/padding-*` so both sides densify together.
+
+**A third party disagrees, which strengthens that case.** `primitiv.reset`
+dresses a bare `<kbd>` as a full chip — surface, border, radius, mono face *and*
+padding — and it uses the fixed `space-4`/`space-2`, matching Figma rather than
+this component. Measured: at Dense the component pads `3px`/`1px` while a bare
+`<kbd>` beside it pads `4px`/`2px`; at Spacious, `6px`/`3px` against `4px`/`2px`.
+So the same key cap renders two different ways on one page depending on whether it
+carries the class. The Figma rebind should therefore come with a matching change to
+the reset's `kbd` rule, so all three agree.

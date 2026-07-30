@@ -1,0 +1,18 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "confirm-dialog",
+  "version": "0.1.0",
+  "description": "A pre-arranged Modal for confirming or cancelling a single action — title, body slot, and a Cancel/Confirm footer, with the Confirm button's tone following the action (primary, or danger for a destructive one). Composes the registry `modal` and `button` components directly rather than introducing new dialog anatomy.",
+  "docs": "https://primitiv-ui.dev/docs/components/confirm-dialog",
+  "root": {
+    "element": "dialog",
+    "class": "primitiv-confirm-dialog",
+    "component": "Content"
+  },
+  "dataAttributes": [
+    { "name": "data-state", "value": "open", "when": "open", "source": "auto" },
+    { "name": "data-state", "value": "closed", "when": "closed", "source": "auto" }
+  ],
+  "modifiers": [],
+  "customProperties": []
+}

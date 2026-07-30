@@ -14,6 +14,7 @@ export * from "./checkbox-card";
 export * from "./chip";
 export * from "./code-block";
 export * from "./collapsible";
+export * from "./confirm-dialog";
 export * from "./context-menu";
 export * from "./description-list";
 export * from "./divider";

@@ -34,6 +34,9 @@ import {
   CollapsibleTrigger,
   CollapsibleTriggerIcon,
   CollapsibleContent,
+  ConfirmDialog,
+  ConfirmDialogTrigger,
+  ConfirmDialogContent,
   ContextMenu,
   ContextMenuTrigger,
   ContextMenuContent,
@@ -413,7 +416,7 @@ const PAGE_TOC: { category: string; titles: string[] }[] = [
   { category: "Typography", titles: ["Code Block"] },
   {
     category: "Overlays",
-    titles: ["Context Menu", "Drawer", "Dropdown", "Modal", "Popover", "Tooltip"],
+    titles: ["Confirm Dialog", "Context Menu", "Drawer", "Dropdown", "Modal", "Popover", "Tooltip"],
   },
   { category: "Feedback & Status", titles: ["Alert", "Progress"] },
   {
@@ -667,6 +670,9 @@ export function App(): ReactElement {
   const setAllPermissions = (value: boolean) =>
     setPermissions({ read: value, write: value, delete: value });
   const [radioPlan, setRadioPlan] = useState("pro");
+  // ConfirmDialog demo state — controlled so onConfirm can close the dialog
+  // itself (the component deliberately doesn't do this for you).
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
   const sortedReleases = [...RELEASES].sort((a, b) => {
     const av = a[sort.key];
@@ -1933,6 +1939,28 @@ export function ramp(hue: number, chroma = 0.12) {
             </ModalContent>
           </ModalPortal>
         </Modal>
+      </Section>
+
+      <Section title="Confirm Dialog">
+        <ConfirmDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+          <ConfirmDialogTrigger asChild>
+            <Button variant="danger" size={size}>
+              Remove member
+            </Button>
+          </ConfirmDialogTrigger>
+          <ModalPortal forceMount>
+            <ConfirmDialogContent
+              size={overlaySize}
+              title="Remove member?"
+              tone="danger"
+              confirmLabel="Remove"
+              onConfirm={() => setConfirmDialogOpen(false)}
+            >
+              This person will lose access immediately. This can&apos;t be
+              undone.
+            </ConfirmDialogContent>
+          </ModalPortal>
+        </ConfirmDialog>
       </Section>
 
       {/* Sits high on the page for the same reason Dropdown does: the panel opens

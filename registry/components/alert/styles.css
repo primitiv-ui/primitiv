@@ -42,6 +42,8 @@
        override any one without touching a rule. */
     --primitiv-alert-background: var(--primitiv-feedback-info-soft-background);
     --primitiv-alert-foreground: var(--primitiv-feedback-info-soft-foreground);
+    --primitiv-alert-border-color: var(--primitiv-feedback-info-soft-border);
+    --primitiv-alert-border-width: var(--primitiv-framed-control-border-width);
     --primitiv-alert-padding-inline: var(--primitiv-framed-control-md-padding-inline);
     --primitiv-alert-padding-block: var(--primitiv-alert-md-padding-block);
     --primitiv-alert-gap: var(--primitiv-framed-control-md-gap);
@@ -64,6 +66,7 @@
     gap: var(--primitiv-alert-gap);
     padding-inline: var(--primitiv-alert-padding-inline);
     padding-block: var(--primitiv-alert-padding-block);
+    border: var(--primitiv-alert-border-width) solid var(--primitiv-alert-border-color);
     border-radius: var(--primitiv-alert-radius);
     background-color: var(--primitiv-alert-background);
     color: var(--primitiv-alert-foreground);
@@ -112,29 +115,36 @@
 }
 
 @layer primitiv.variants {
-  /* Tone — re-points background/foreground (Badge/Tag's feedback/*/soft/*
-     family) plus the dismiss button's hover/active background. */
+  /* Tone — re-points background/foreground/border (Badge/Tag's feedback/{tone}/soft/*
+     family) plus the dismiss button's hover/active background. The border
+     always matches the tone's foreground — feedback/{tone}/soft/border is a
+     dedicated token (not a reuse of -foreground) so the two can diverge later
+     without a structural change here. */
   .primitiv-alert--info {
     --primitiv-alert-background: var(--primitiv-feedback-info-soft-background);
     --primitiv-alert-foreground: var(--primitiv-feedback-info-soft-foreground);
+    --primitiv-alert-border-color: var(--primitiv-feedback-info-soft-border);
     --primitiv-alert-dismiss-hover-background: var(--primitiv-feedback-info-soft-hover);
     --primitiv-alert-dismiss-active-background: var(--primitiv-feedback-info-soft-active);
   }
   .primitiv-alert--success {
     --primitiv-alert-background: var(--primitiv-feedback-success-soft-background);
     --primitiv-alert-foreground: var(--primitiv-feedback-success-soft-foreground);
+    --primitiv-alert-border-color: var(--primitiv-feedback-success-soft-border);
     --primitiv-alert-dismiss-hover-background: var(--primitiv-feedback-success-soft-hover);
     --primitiv-alert-dismiss-active-background: var(--primitiv-feedback-success-soft-active);
   }
   .primitiv-alert--warning {
     --primitiv-alert-background: var(--primitiv-feedback-warning-soft-background);
     --primitiv-alert-foreground: var(--primitiv-feedback-warning-soft-foreground);
+    --primitiv-alert-border-color: var(--primitiv-feedback-warning-soft-border);
     --primitiv-alert-dismiss-hover-background: var(--primitiv-feedback-warning-soft-hover);
     --primitiv-alert-dismiss-active-background: var(--primitiv-feedback-warning-soft-active);
   }
   .primitiv-alert--danger {
     --primitiv-alert-background: var(--primitiv-feedback-danger-soft-background);
     --primitiv-alert-foreground: var(--primitiv-feedback-danger-soft-foreground);
+    --primitiv-alert-border-color: var(--primitiv-feedback-danger-soft-border);
     --primitiv-alert-dismiss-hover-background: var(--primitiv-feedback-danger-soft-hover);
     --primitiv-alert-dismiss-active-background: var(--primitiv-feedback-danger-soft-active);
   }

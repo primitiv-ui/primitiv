@@ -1591,7 +1591,7 @@ export function ramp(hue: number, chroma = 0.12) {
           direction="row"
           gap="sm"
           align="center"
-          className="ks-demo-frame"
+          className="ks-demo-frame ks-demo-frame--scroll-x"
         >
           <Button variant="ghost" size={size}>
             File

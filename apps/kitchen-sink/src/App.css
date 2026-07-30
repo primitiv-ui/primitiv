@@ -170,6 +170,23 @@ body {
   align-items: stretch;
 }
 
+/* A stretched flex item defaults to min-width: auto — it can't shrink below
+   its own content's intrinsic minimum. A single-line flex container's cross
+   size is capped to the container's own available space per spec, but a
+   child whose min-content exceeds that (e.g. a nowrap toolbar row wider than
+   the viewport) still overflows, and because every sibling stretches to the
+   SAME line cross size, that one overflow was measured to widen every other
+   sibling in the section too — unrelated captions and demos included — not
+   just the one demo that's actually too wide (caught on mobile: the Layout
+   Primitives section's Stack toolbar row forced every sibling to ~439px in a
+   375px viewport). min-width: 0 lets each child shrink to the container's
+   real width instead; a demo that still doesn't fit (like a nowrap row)
+   scrolls within its own box via .ks-demo-frame--scroll-x rather than
+   blowing out the page. */
+.kitchen-sink__section-body--column > * {
+  min-width: 0;
+}
+
 /* Flex's cross-axis default (align-items: stretch, above) is right for a
    section full of naturally full-width demos (Table, Accordion, Tabs, …),
    but it force-stretches genuinely HUG-sized components too — Collapsible's
@@ -181,6 +198,15 @@ body {
 .kitchen-sink__section-body--column .primitiv-collapsible,
 .kitchen-sink__section-body--column .primitiv-segmented-control {
   align-self: flex-start;
+}
+
+/* Hugging its own content (above) doesn't cap that content's width — a
+   SegmentedControl with a long label ("Last 30 days") can still be wider than
+   a narrow viewport on its own. Scroll within the control instead of
+   overflowing the page. */
+.kitchen-sink__section-body--column .primitiv-segmented-control {
+  overflow-x: auto;
+  max-inline-size: 100%;
 }
 
 /* Select demos — the control fills its container (it tracks a form column,

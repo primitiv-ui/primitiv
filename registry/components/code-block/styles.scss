@@ -87,6 +87,13 @@
        the code wraps instead (see __pre) rather than pushing a horizontal
        scrollbar past the viewport. */
     min-inline-size: 0;
+    /* A flex item that is itself a flex container with `overflow: hidden`
+       (this element) doesn't reliably resolve `width: auto` via the parent's
+       `align-items: stretch` — it can settle on its own content's width
+       instead, overflowing a narrow flex column (caught on mobile: CodeBlock.
+       Tabs' file-tab header). An explicit 100% makes the width definite so
+       stretch always wins. */
+    inline-size: 100%;
     background: var(--primitiv-code-block-background);
     color: var(--primitiv-code-block-color);
     border: var(--primitiv-code-block-border-width) solid var(--primitiv-code-block-border-color);

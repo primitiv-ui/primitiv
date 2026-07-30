@@ -35,6 +35,13 @@
  * That outline is demo furniture, not a hint that these components are
  * missing a border API. */
 .ks-demo-frame {
+  /* Stretched under align-items: stretch (below), a content-box element's
+     specified width is its CONTENT box — border + padding then render on top
+     of that, past the width the flex column actually stretched it to.
+     border-box folds them back inside, so the rendered box matches the
+     stretched width exactly (caught on mobile: every framed demo ran ~26px
+     over its column). */
+  box-sizing: border-box;
   border: var(--primitiv-border-width-1) solid var(--primitiv-border-subtle);
   border-radius: var(--primitiv-radii-8);
   padding: var(--primitiv-space-space-12);
@@ -51,6 +58,16 @@
 .ks-demo-frame--tall {
   padding: var(--primitiv-space-space-0);
   block-size: var(--primitiv-space-space-96);
+}
+
+/* For a demo whose content shouldn't wrap (a toolbar row, a nowrap Stack) but
+   can be wider than a narrow viewport — scrolls within its own box instead of
+   overflowing the page. Paired with .kitchen-sink__section-body--column's
+   min-width: 0 fix, which is what lets this element shrink to the section's
+   width in the first place rather than forcing every sibling wider too. */
+.ks-demo-frame--scroll-x {
+  overflow-x: auto;
+  max-inline-size: 100%;
 }
 
 /* ── AspectRatio ──────────────────────────────────────────────────────────
@@ -130,6 +147,14 @@
   grid-template-columns: repeat(3, max-content);
   gap: var(--primitiv-space-space-32) var(--primitiv-space-space-24);
   justify-content: start;
+  /* max-content columns are a hard floor CSS Grid won't shrink below — on a
+     narrow viewport the 3-up grid doesn't fit, and unlike a flex item's
+     min-width: auto (fixed section-wide via .kitchen-sink__section-body--
+     column > * { min-width: 0 }), a grid container's own box respects that
+     constraint but its tracks can still overflow it. Scroll within the grid
+     itself instead of overflowing the page. */
+  overflow-x: auto;
+  max-inline-size: 100%;
 }
 
 /* ── CSS anchor positioning ──────────────────────────────────────────────

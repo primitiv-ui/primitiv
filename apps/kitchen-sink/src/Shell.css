@@ -7,9 +7,13 @@
   z-index: 20;
   /* Three tracks: the brand at the start, the controls centred in the middle
    * auto track (flanked by equal 1fr tracks), a balancing empty track at the
-   * end. */
+   * end. A bare `auto` track is a hard floor Grid won't shrink below — on a
+   * narrow viewport it locked the middle track (and the whole header) to the
+   * chrome bar's unwrapped content width, overflowing the page instead of
+   * letting `.ks-chrome`'s own `flex-wrap: wrap` do its job. `minmax(0, auto)`
+   * keeps the same sizing when there's room but lets it shrink under pressure. */
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 1fr minmax(0, auto) 1fr;
   align-items: center;
   column-gap: var(--primitiv-space-space-16);
   padding: var(--primitiv-space-space-12) var(--primitiv-space-space-16);

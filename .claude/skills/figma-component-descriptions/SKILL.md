@@ -231,6 +231,48 @@ Pairs with: Checkbox, Switch (shared choice-control gap + label scale); use with
 Notes: root is a [Control, Label] auto-layout row — the circle is the Control child (holds the dot + focus rings); the Label is cap-height trimmed so it centres against the circle. Show label toggles Label visibility. Dot is auto-layout-centred in the Control (density-responsive). No indeterminate state (unlike Checkbox). Label + choice-control gap added 2026-07.
 ```
 
+### CheckboxCard — `1417:34712` — page "CheckboxCard"
+
+```
+A card/tile-shaped checkbox — the whole bordered surface is the interactive element (a real "button", not Checkbox's small-control-plus-label row). Independent tri-state (unchecked/checked/indeterminate); no grouping with siblings.
+
+Type: framed-control (a large one — the whole card, not just the indicator)
+
+Axes: State unchecked|checked|indeterminate · Interaction default|hover|focus|disabled · Size xs|sm|md|lg|xl
+
+Tokens: card fill/border → surface/default + border/default (unchecked) · choice-card/selected/background + choice-card/selected/border (checked/indeterminate) — a dedicated family, decoupled from ToggleGroup's surface/selected
+        card sizing → choice-card/{size}/padding (new) + framed-control/{size}/radius (reused) + choice-control/{size}/gap (reused)
+        indicator → cloned directly from the Checkbox component set at the matching Size/State/Interaction, so it inherits Checkbox's own box-size/box-radius/mark-size bindings automatically
+        indicator optical alignment → choice-card/{size}/indicator-offset-top (new, same derivation as Alert's icon-offset-top — a function of the shared label/* scale, independent of indicator size)
+        hover → unselected border → border/strong; whole card → elevation/raised effect style
+        focus → card-level two-frame focus ring cloned from Button's own focus-ring/focus-ring-gap at the matching size
+        disabled → whole card opacity 0.5
+
+Properties: Title (TEXT "Label") · Description (TEXT "Helper text describing this option.") · Show description (BOOL true)
+
+Density: Context mode override on parent frame
+Pairs with: Checkbox (indicator cloned from it — re-clone on any Checkbox update), Button (focus-ring cloned from it), RadioCard/Item (shares the whole choice-card/* token family + card anatomy)
+Notes: Layout (row/column/grid stacking, the indented "select all" nested-list pattern) is deliberately NOT baked in — composes with Stack/a grid wrapper in the registry. See the "CheckboxCard, RadioCard — exploration" page for the full design record. Focus ring is card-level, not indicator-level (Interaction=focus always sources the indicator from Interaction=default to avoid a doubled ring).
+```
+
+### RadioCard/Item — `1417:35178` — page "RadioCard"
+
+```
+A card/tile-shaped radio item — the individual selectable card in a RadioCard group. RadioCard.Root (role="radiogroup") carries no visual anatomy of its own in the headless layer, so there is no separate group/track component set — only Item.
+
+Type: framed-control (a large one — the whole card, not just the indicator)
+
+Axes: State unchecked|checked · Interaction default|hover|focus|disabled · Size xs|sm|md|lg|xl
+
+Tokens: identical family to CheckboxCard — card fill/border, sizing, hover/focus/disabled treatment all shared (choice-card/*); indicator cloned from the Radio component set instead of Checkbox (circular dot, no indeterminate); indicator optical alignment shares choice-card/{size}/indicator-offset-top with CheckboxCard
+
+Properties: Title (TEXT "Label") · Description (TEXT "Helper text describing this option.") · Show description (BOOL true)
+
+Density: Context mode override on parent frame
+Pairs with: Radio (indicator cloned from it), Button (focus-ring cloned from it), other RadioCard/Item instances inside a RadioCard.Root group, CheckboxCard (shares the choice-card/* family)
+Notes: Indicator is at inline-start (leading), matching CheckboxCard and the plain Radio/Checkbox components' own leading-control convention — deliberately not trailing, unlike the rougher exploration mockup's plan-picker-style trailing dot. RadioCard.Root's own `orientation` prop (the arrow-key nav axis) is a headless concern, not visual — whatever Stack/grid layout Items are composed into, Root's `orientation` must be passed to match so keyboard behaviour tracks what's on screen.
+```
+
 ### Slider — `392:5196`
 
 ```

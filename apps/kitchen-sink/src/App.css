@@ -28,25 +28,31 @@ body {
 /* Below the desktop breakpoint this is just a plain block wrapper (PageToc's
    nav is display:none, see .kitchen-sink__toc below) — .kitchen-sink alone
    still centres itself via its own max-width/margin-inline. At desktop size
-   it becomes the real 3-column grid: a flexible left gutter, the fixed-width
-   main content column, and a third column sized to the TOC's own 22rem
-   (matching .kitchen-sink__toc's inline-size below) rather than another 1fr
-   — a bare 1fr is really `minmax(auto, 1fr)`, and that auto minimum grows to
-   fit the TOC's declared width before the 1fr split happens, which pulled
-   space unevenly from the *other* flexible column and left the content
-   column off-centre. Fixing column 3's width sidesteps that: column 1 alone
-   absorbs all the leftover space, so the content sits a predictable distance
-   from the left edge and the TOC sits flush against the content's right
-   edge, same as it visually did under the old position:fixed. Giving the TOC
-   its own grid column — instead of position:fixed, which is positioned
-   purely against the viewport and knows nothing about where the content
-   column actually sits — is what makes the "can never overlap the main
-   content" guarantee structural rather than a width/breakpoint tuning
-   exercise. */
-@media (min-width: 80rem) {
+   it becomes the real 3-column grid: two *equal* flexible gutters flanking
+   the fixed-width main content column, so the content column is genuinely
+   centred on the viewport — not shifted left to make room for the TOC.
+   Both outer tracks are a bare 1fr (`minmax(auto, 1fr)`); ordinarily the TOC's
+   own 22rem width would grow column 3's `auto` minimum past its fair 1fr
+   share (its min-width:0 below is what stops that — see the comment there),
+   so with that neutralised both tracks size purely off the equal 1fr weight
+   and come out equal. Giving the TOC its own grid column — instead of
+   position:fixed, which is positioned purely against the viewport and knows
+   nothing about where the content column actually sits — is what makes the
+   "can never overlap the main content" guarantee structural rather than a
+   width/breakpoint tuning exercise.
+   Breakpoint: 108rem (1728px), well above the 80rem the rest of the page's
+   desktop-only chrome uses. This one specifically has to be wide enough that
+   each flexible gutter's fair half-share is still at least the TOC's own
+   22rem (352px) once the fixed 960px content column and the two 24px
+   column-gaps are subtracted — 960 + 2×352 + 2×24 = 1712px (107rem) is the
+   exact floor below which the TOC (justify-self: start below, so it hugs
+   column 3's near edge) would spill past the container's right edge instead
+   of just eating into its own gutter's slack; 108rem adds a full rem of
+   headroom over that floor. */
+@media (min-width: 108rem) {
   .kitchen-sink-layout {
     display: grid;
-    grid-template-columns: 1fr minmax(0, 960px) 22rem;
+    grid-template-columns: 1fr minmax(0, 960px) 1fr;
     column-gap: var(--primitiv-space-space-24);
   }
 
@@ -79,22 +85,35 @@ body {
    position:fixed over the page, there's nothing beneath it to visually
    separate it from — it never overlaps page content, so a "floating panel"
    surface isn't needed.
-   Desktop only: 80rem is not one of RFC 0025's proposed tiers exactly, but
-   it's roughly where the fixed 960px main column (plus its own padding)
-   still leaves a comfortable right-hand gutter for this wider, 2-column box
-   without crowding it — close enough to the RFC's proposed `xl` (80rem) that
-   it can become var(--primitiv-breakpoint-xl) once that RFC's tokens are
-   emitted. Below it the nav simply isn't rendered (display:none), so it
-   never overlaps a page already tight enough to need the mobile nav (see
+   Desktop only, and gated at the same 108rem breakpoint as
+   .kitchen-sink-layout's grid above (they have to move together — this rule
+   places the TOC into grid-column: 3, which only exists once the grid is
+   active; below that width the nav simply isn't rendered (display:none), so
+   it never overlaps a page already tight enough to need the mobile nav (see
    .ks-nav-mobile-only). */
 .kitchen-sink__toc {
   display: none;
 }
 
-@media (min-width: 80rem) {
+@media (min-width: 108rem) {
   .kitchen-sink__toc {
     display: block;
     grid-column: 3;
+    /* Hugs the near (left) edge of column 3, right next to the content —
+       matching where it visually sat under the old position:fixed — rather
+       than the far edge, which on a very wide viewport would strand it out
+       near the browser's edge, disconnected from the content it annotates. */
+    justify-self: start;
+    /* Without this, the TOC's own 22rem width would set column 3's `auto`
+       minimum (see .kitchen-sink-layout's comment above) and break the
+       symmetric 1fr/1fr split, pulling the content column off-centre again
+       — the exact bug this whole rework exists to fix. min-width: 0 tells
+       Grid this item is allowed to sit in a track narrower than its own
+       content width; since `inline-size` below still pins its actual
+       rendered width to 22rem regardless, the visual result is unchanged —
+       only the column-sizing math changes. Same fix as the classic flexbox
+       min-width:auto overflow trick. */
+    min-width: 0;
     /* sticky, not fixed: a grid item's containing block for sticky purposes
        is its own grid area, which — left at the default align-items:stretch
        (no align-self override here) — spans the full row, i.e. the same

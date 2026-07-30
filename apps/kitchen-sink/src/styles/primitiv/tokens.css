@@ -509,7 +509,7 @@
     --primitiv-border-invalid: var(--primitiv-color-danger-500);
     --primitiv-border-strong: var(--primitiv-color-neutral-500);
     --primitiv-border-subtle: var(--primitiv-color-neutral-200);
-    --primitiv-choice-card-selected-background: var(--primitiv-color-brand-800);
+    --primitiv-choice-card-selected-background: var(--primitiv-color-brand-100);
     --primitiv-choice-card-selected-border: var(--primitiv-color-brand-500);
     --primitiv-content-disabled: var(--primitiv-color-neutral-500);
     --primitiv-content-error: var(--primitiv-color-danger-500);

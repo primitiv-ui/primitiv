@@ -62,13 +62,13 @@
     --primitiv-checkbox-card-indicator-mark-size: var(--primitiv-checkbox-md-mark-size);
     --primitiv-checkbox-card-indicator-mark-color: var(--primitiv-action-primary-foreground-default);
     --primitiv-checkbox-card-title-color: var(--primitiv-content-primary);
-    --primitiv-checkbox-card-title-color-selected: var(--primitiv-content-on-selected);
+    --primitiv-checkbox-card-title-color-selected: var(--primitiv-content-primary);
     --primitiv-checkbox-card-title-font-family: var(--primitiv-label-md-font-family);
     --primitiv-checkbox-card-title-font-size: var(--primitiv-label-md-font-size);
     --primitiv-checkbox-card-title-font-weight: var(--primitiv-label-md-font-weight);
     --primitiv-checkbox-card-title-line-height: var(--primitiv-label-md-line-height);
     --primitiv-checkbox-card-description-color: var(--primitiv-content-secondary);
-    --primitiv-checkbox-card-description-color-selected: var(--primitiv-content-on-selected);
+    --primitiv-checkbox-card-description-color-selected: var(--primitiv-content-secondary);
     --primitiv-checkbox-card-description-font-family: var(--primitiv-body-md-font-family);
     --primitiv-checkbox-card-description-font-size: var(--primitiv-body-md-font-size);
     --primitiv-checkbox-card-description-font-weight: var(--primitiv-body-md-font-weight);
@@ -250,24 +250,26 @@
 
 @layer primitiv.states {
   /* Checked and indeterminate both fill the card with the selected treatment
-     and the indicator with the primary action colour. The selected fill
-     really is light-in-both-themes (choice-card/selected/background aliases
-     brand.100 in light mode and brand.800 in dark mode, and the brand ramp
-     is hand-authored per theme in palette.json — dark-mode brand.800 is
-     #a6d6ff, a pale blue, not a flipped-literal artifact), so title and
-     description both need a dark-on-light text colour regardless of the
-     ambient theme: content-on-selected (neutral.900 light / neutral.50 dark,
-     which — because the neutral ramp *is* flipped per theme — is the same
-     near-black #121418 in both modes). Do NOT swap description to
-     content-secondary: that token is tuned for the ambient dark-in-dark page
-     surface, not this always-light fill, and reads as near-invisible light
-     grey on the light-blue selected card (verified 2026-07-30 — a Figma
-     screenshot that looks like a dark navy selected card is a known Figma
-     rendering artifact, not the true design: Figma only shows the correct
-     colour when the Primitives/Palette collection's own mode is explicitly
-     forced to Dark on the frame, since it doesn't auto-follow the Intent
-     collection's Light/Dark mode — see the neutral-alpha-inverse mirror
-     family entry in CLAUDE.md for the same underlying Figma quirk). */
+     and the indicator with the primary action colour. The selected fill is
+     genuinely theme-appropriate, NOT light-in-both-themes: choice-card/
+     selected/background aliases brand.100 in light mode and brand.100 again
+     in dark mode (2026-07-30 fix — it used to alias brand.800 for dark,
+     which looked right by variable NAME but was wrong in practice, because
+     the Primitives/Palette collection never gets its own mode switched to
+     Dark anywhere in the Figma file — only Intent does. So Figma always
+     renders a Dark-Intent alias through the Palette's Light-authored ramp;
+     brand.100 there is #cbe5ff, and step 800 there is #001352, dark navy —
+     which is what every dark frame in the file actually shows and what the
+     team has designed against. The compiled dark-theme CSS, by contrast, has
+     its own independently-authored dark ramp where brand.800 is redefined to
+     #a6d6ff, pale — so the two diverged. Picking the *opposite-end* step
+     (100, not 800) for dark mode — the same "opposite step" pattern
+     content-primary already uses via neutral.900 light / neutral.50 dark —
+     lands on brand.100's dark-ramp value, #0e2140, a proper dark navy that
+     matches Figma). Because the fill now genuinely flips with the theme,
+     title/description use the ordinary ambient content-primary/
+     content-secondary tokens (not content-on-selected) — matching what the
+     Figma Title/Description text nodes are actually bound to. */
   .primitiv-checkbox-card[data-state="checked"],
   .primitiv-checkbox-card[data-state="indeterminate"] {
     border-color: var(--primitiv-checkbox-card-border-color-selected);

@@ -59,13 +59,13 @@
     --primitiv-radio-card-indicator-border-color-selected: var(--primitiv-action-primary-default);
     --primitiv-radio-card-indicator-dot-color: var(--primitiv-action-primary-default);
     --primitiv-radio-card-title-color: var(--primitiv-content-primary);
-    --primitiv-radio-card-title-color-selected: var(--primitiv-content-on-selected);
+    --primitiv-radio-card-title-color-selected: var(--primitiv-content-primary);
     --primitiv-radio-card-title-font-family: var(--primitiv-label-md-font-family);
     --primitiv-radio-card-title-font-size: var(--primitiv-label-md-font-size);
     --primitiv-radio-card-title-font-weight: var(--primitiv-label-md-font-weight);
     --primitiv-radio-card-title-line-height: var(--primitiv-label-md-line-height);
     --primitiv-radio-card-description-color: var(--primitiv-content-secondary);
-    --primitiv-radio-card-description-color-selected: var(--primitiv-content-on-selected);
+    --primitiv-radio-card-description-color-selected: var(--primitiv-content-secondary);
     --primitiv-radio-card-description-font-family: var(--primitiv-body-md-font-family);
     --primitiv-radio-card-description-font-size: var(--primitiv-body-md-font-size);
     --primitiv-radio-card-description-font-weight: var(--primitiv-body-md-font-weight);
@@ -239,16 +239,12 @@
   /* Checked fills the CARD with the selected treatment (choice-card/selected/*
      — shared with checkbox-card); the indicator circle itself stays light,
      only its border escalates to brand — Radio's own convention. The
-     selected fill really is light-in-both-themes — see checkbox-card's
-     styles.css for the full account (dark-mode brand.800 is a hand-authored
-     pale blue, #a6d6ff, not a flipped-literal artifact) — so title and
-     description both stay on content-on-selected (a near-black #121418 in
-     both themes) rather than the ambient content-secondary, which is tuned
-     for the dark-in-dark page surface and reads as near-invisible on this
-     always-light fill. A Figma screenshot showing a dark navy selected card
-     is a known Figma rendering artifact (the Primitives/Palette collection
-     doesn't auto-follow Intent's Light/Dark mode unless explicitly forced —
-     see the neutral-alpha-inverse entry in CLAUDE.md), not the true design. */
+     selected fill is genuinely theme-appropriate, not light-in-both-themes
+     — see checkbox-card's styles.css for the full account of the 2026-07-30
+     fix (choice-card/selected/background's dark alias moved from brand.800
+     to brand.100, matching Figma's actual rendering — #0e2140 dark navy, not
+     the #a6d6ff pale blue the old alias produced). Title/description use the
+     ordinary ambient content-primary/content-secondary tokens accordingly. */
   .primitiv-radio-card[data-state="checked"] {
     border-color: var(--primitiv-radio-card-border-color-selected);
     background: var(--primitiv-radio-card-bg-selected);

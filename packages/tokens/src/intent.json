@@ -608,7 +608,7 @@
     },
     "choice-card": {
       "selected": {
-        "background": { "$type": "color", "$value": "{color.brand.800}" },
+        "background": { "$type": "color", "$value": "{color.brand.100}" },
         "border": { "$type": "color", "$value": "{color.brand.500}" }
       }
     },

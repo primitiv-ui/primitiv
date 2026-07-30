@@ -830,15 +830,19 @@
       "xs": {
         "height": {
           "$type": "number",
-          "$value": "{size.size-20}"
+          "$value": "{size.size-24}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": "{space.space-8}"
+          "$value": "{space.space-10}"
         },
         "font-size": {
           "$type": "number",
           "$value": "{font-size.12}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.16}"
         },
         "gap": {
           "$type": "number",
@@ -848,15 +852,19 @@
       "sm": {
         "height": {
           "$type": "number",
-          "$value": "{size.size-20}"
+          "$value": "{size.size-24}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": "{space.space-8}"
+          "$value": "{space.space-10}"
         },
         "font-size": {
           "$type": "number",
           "$value": "{font-size.14}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.18}"
         },
         "gap": {
           "$type": "number",
@@ -864,24 +872,6 @@
         }
       },
       "md": {
-        "height": {
-          "$type": "number",
-          "$value": "{size.size-24}"
-        },
-        "padding-inline": {
-          "$type": "number",
-          "$value": "{space.space-8}"
-        },
-        "font-size": {
-          "$type": "number",
-          "$value": "{font-size.16}"
-        },
-        "gap": {
-          "$type": "number",
-          "$value": "{space.space-4}"
-        }
-      },
-      "lg": {
         "height": {
           "$type": "number",
           "$value": "{size.size-28}"
@@ -892,14 +882,18 @@
         },
         "font-size": {
           "$type": "number",
-          "$value": "{font-size.20}"
+          "$value": "{font-size.16}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.20}"
         },
         "gap": {
           "$type": "number",
           "$value": "{space.space-4}"
         }
       },
-      "xl": {
+      "lg": {
         "height": {
           "$type": "number",
           "$value": "{size.size-32}"
@@ -910,7 +904,33 @@
         },
         "font-size": {
           "$type": "number",
+          "$value": "{font-size.20}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.24}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "xl": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-40}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-16}"
+        },
+        "font-size": {
+          "$type": "number",
           "$value": "{font-size.22}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.28}"
         },
         "gap": {
           "$type": "number",
@@ -3610,15 +3630,19 @@
       "xs": {
         "height": {
           "$type": "number",
-          "$value": "{size.size-20}"
+          "$value": "{size.size-24}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": "{space.space-8}"
+          "$value": "{space.space-10}"
         },
         "font-size": {
           "$type": "number",
           "$value": "{font-size.12}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.16}"
         },
         "gap": {
           "$type": "number",
@@ -3628,15 +3652,19 @@
       "sm": {
         "height": {
           "$type": "number",
-          "$value": "{size.size-20}"
+          "$value": "{size.size-24}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": "{space.space-8}"
+          "$value": "{space.space-10}"
         },
         "font-size": {
           "$type": "number",
           "$value": "{font-size.14}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.18}"
         },
         "gap": {
           "$type": "number",
@@ -3644,42 +3672,6 @@
         }
       },
       "md": {
-        "height": {
-          "$type": "number",
-          "$value": "{size.size-24}"
-        },
-        "padding-inline": {
-          "$type": "number",
-          "$value": "{space.space-8}"
-        },
-        "font-size": {
-          "$type": "number",
-          "$value": "{font-size.16}"
-        },
-        "gap": {
-          "$type": "number",
-          "$value": "{space.space-3}"
-        }
-      },
-      "lg": {
-        "height": {
-          "$type": "number",
-          "$value": "{size.size-24}"
-        },
-        "padding-inline": {
-          "$type": "number",
-          "$value": "{space.space-8}"
-        },
-        "font-size": {
-          "$type": "number",
-          "$value": "{font-size.18}"
-        },
-        "gap": {
-          "$type": "number",
-          "$value": "{space.space-4}"
-        }
-      },
-      "xl": {
         "height": {
           "$type": "number",
           "$value": "{size.size-28}"
@@ -3690,7 +3682,55 @@
         },
         "font-size": {
           "$type": "number",
+          "$value": "{font-size.16}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.20}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-3}"
+        }
+      },
+      "lg": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-32}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.18}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.24}"
+        },
+        "gap": {
+          "$type": "number",
+          "$value": "{space.space-4}"
+        }
+      },
+      "xl": {
+        "height": {
+          "$type": "number",
+          "$value": "{size.size-32}"
+        },
+        "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-12}"
+        },
+        "font-size": {
+          "$type": "number",
           "$value": "{font-size.20}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.24}"
         },
         "gap": {
           "$type": "number",
@@ -6390,15 +6430,19 @@
       "xs": {
         "height": {
           "$type": "number",
-          "$value": "{size.size-20}"
+          "$value": "{size.size-24}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": "{space.space-6}"
+          "$value": "{space.space-8}"
         },
         "font-size": {
           "$type": "number",
           "$value": "{font-size.12}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.16}"
         },
         "gap": {
           "$type": "number",
@@ -6418,6 +6462,10 @@
           "$type": "number",
           "$value": "{font-size.14}"
         },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.18}"
+        },
         "gap": {
           "$type": "number",
           "$value": "{space.space-4}"
@@ -6436,6 +6484,10 @@
           "$type": "number",
           "$value": "{font-size.16}"
         },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.20}"
+        },
         "gap": {
           "$type": "number",
           "$value": "{space.space-4}"
@@ -6444,15 +6496,19 @@
       "lg": {
         "height": {
           "$type": "number",
-          "$value": "{size.size-32}"
+          "$value": "{size.size-40}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": "{space.space-12}"
+          "$value": "{space.space-16}"
         },
         "font-size": {
           "$type": "number",
           "$value": "{font-size.22}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.28}"
         },
         "gap": {
           "$type": "number",
@@ -6471,6 +6527,10 @@
         "font-size": {
           "$type": "number",
           "$value": "{font-size.24}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.32}"
         },
         "gap": {
           "$type": "number",
@@ -9170,15 +9230,19 @@
       "xs": {
         "height": {
           "$type": "number",
-          "$value": "{size.size-16}"
+          "$value": "{size.size-20}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": "{space.space-6}"
+          "$value": "{space.space-8}"
         },
         "font-size": {
           "$type": "number",
           "$value": "{font-size.10}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.12}"
         },
         "gap": {
           "$type": "number",
@@ -9188,15 +9252,19 @@
       "sm": {
         "height": {
           "$type": "number",
-          "$value": "{size.size-20}"
+          "$value": "{size.size-24}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": "{space.space-8}"
+          "$value": "{space.space-10}"
         },
         "font-size": {
           "$type": "number",
           "$value": "{font-size.12}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.16}"
         },
         "gap": {
           "$type": "number",
@@ -9206,15 +9274,19 @@
       "md": {
         "height": {
           "$type": "number",
-          "$value": "{size.size-20}"
+          "$value": "{size.size-24}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": "{space.space-8}"
+          "$value": "{space.space-10}"
         },
         "font-size": {
           "$type": "number",
           "$value": "{font-size.13}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.16}"
         },
         "gap": {
           "$type": "number",
@@ -9224,15 +9296,19 @@
       "lg": {
         "height": {
           "$type": "number",
-          "$value": "{size.size-24}"
+          "$value": "{size.size-28}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": "{space.space-8}"
+          "$value": "{space.space-10}"
         },
         "font-size": {
           "$type": "number",
           "$value": "{font-size.15}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.20}"
         },
         "gap": {
           "$type": "number",
@@ -9242,15 +9318,19 @@
       "xl": {
         "height": {
           "$type": "number",
-          "$value": "{size.size-24}"
+          "$value": "{size.size-32}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": "{space.space-8}"
+          "$value": "{space.space-12}"
         },
         "font-size": {
           "$type": "number",
           "$value": "{font-size.17}"
+        },
+        "line-height": {
+          "$type": "number",
+          "$value": "{line-height.24}"
         },
         "gap": {
           "$type": "number",

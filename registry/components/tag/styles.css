@@ -46,7 +46,7 @@
     --primitiv-tag-font-family: var(--primitiv-body-md-font-family);
     --primitiv-tag-font-size: var(--primitiv-tag-md-font-size);
     --primitiv-tag-font-weight: var(--primitiv-body-md-font-weight);
-    --primitiv-tag-line-height: var(--primitiv-body-md-line-height);
+    --primitiv-tag-line-height: var(--primitiv-tag-md-line-height);
     --primitiv-tag-radius: var(--primitiv-radii-full);
 
     display: inline-flex;
@@ -79,17 +79,22 @@
 }
 
 @layer primitiv.variants {
-  /* Size — re-points the box + type scale. font-size comes from Tag's own
-     tag/{size}/font-size (like Badge's badge/{size}/font-size); font-family/
-     weight/line-height still track body/{size} — a Tag's type tracks
-     surrounding body text in every way except the size step itself. */
+  /* Size — re-points the box + type scale. font-size and line-height come
+     from Tag's own tag/{size}/* (like Badge's badge/{size}/font-size);
+     font-family/weight still track body/{size}. line-height was decoupled
+     from body/{size}/line-height 2026-07-30: once font-size stopped tracking
+     body/{size}, that pairing broke — several sizes ended up with a real
+     vertical gap (height - line-height) of zero or negative, i.e. the line
+     box taller than the pill itself. tag/{size}/height and
+     tag/{size}/padding-inline were re-derived against the new
+     tag/{size}/line-height so every size clears a minimum ~6px gap. */
   .primitiv-tag--xs {
     --primitiv-tag-height: var(--primitiv-tag-xs-height);
     --primitiv-tag-padding-inline: var(--primitiv-tag-xs-padding-inline);
     --primitiv-tag-font-family: var(--primitiv-body-xs-font-family);
     --primitiv-tag-font-size: var(--primitiv-tag-xs-font-size);
     --primitiv-tag-font-weight: var(--primitiv-body-xs-font-weight);
-    --primitiv-tag-line-height: var(--primitiv-body-xs-line-height);
+    --primitiv-tag-line-height: var(--primitiv-tag-xs-line-height);
   }
   .primitiv-tag--sm {
     --primitiv-tag-height: var(--primitiv-tag-sm-height);
@@ -97,7 +102,7 @@
     --primitiv-tag-font-family: var(--primitiv-body-sm-font-family);
     --primitiv-tag-font-size: var(--primitiv-tag-sm-font-size);
     --primitiv-tag-font-weight: var(--primitiv-body-sm-font-weight);
-    --primitiv-tag-line-height: var(--primitiv-body-sm-line-height);
+    --primitiv-tag-line-height: var(--primitiv-tag-sm-line-height);
   }
   .primitiv-tag--md {
     --primitiv-tag-height: var(--primitiv-tag-md-height);
@@ -105,7 +110,7 @@
     --primitiv-tag-font-family: var(--primitiv-body-md-font-family);
     --primitiv-tag-font-size: var(--primitiv-tag-md-font-size);
     --primitiv-tag-font-weight: var(--primitiv-body-md-font-weight);
-    --primitiv-tag-line-height: var(--primitiv-body-md-line-height);
+    --primitiv-tag-line-height: var(--primitiv-tag-md-line-height);
   }
   .primitiv-tag--lg {
     --primitiv-tag-height: var(--primitiv-tag-lg-height);
@@ -113,7 +118,7 @@
     --primitiv-tag-font-family: var(--primitiv-body-lg-font-family);
     --primitiv-tag-font-size: var(--primitiv-tag-lg-font-size);
     --primitiv-tag-font-weight: var(--primitiv-body-lg-font-weight);
-    --primitiv-tag-line-height: var(--primitiv-body-lg-line-height);
+    --primitiv-tag-line-height: var(--primitiv-tag-lg-line-height);
   }
   .primitiv-tag--xl {
     --primitiv-tag-height: var(--primitiv-tag-xl-height);
@@ -121,7 +126,7 @@
     --primitiv-tag-font-family: var(--primitiv-body-xl-font-family);
     --primitiv-tag-font-size: var(--primitiv-tag-xl-font-size);
     --primitiv-tag-font-weight: var(--primitiv-body-xl-font-weight);
-    --primitiv-tag-line-height: var(--primitiv-body-xl-line-height);
+    --primitiv-tag-line-height: var(--primitiv-tag-xl-line-height);
   }
 
   /* Tone — a single class per tone (no Variant axis: a Tag is always the

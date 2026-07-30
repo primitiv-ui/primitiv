@@ -62,11 +62,13 @@
     --primitiv-checkbox-card-indicator-mark-size: var(--primitiv-checkbox-md-mark-size);
     --primitiv-checkbox-card-indicator-mark-color: var(--primitiv-action-primary-foreground-default);
     --primitiv-checkbox-card-title-color: var(--primitiv-content-primary);
+    --primitiv-checkbox-card-title-color-selected: var(--primitiv-content-on-selected);
     --primitiv-checkbox-card-title-font-family: var(--primitiv-label-md-font-family);
     --primitiv-checkbox-card-title-font-size: var(--primitiv-label-md-font-size);
     --primitiv-checkbox-card-title-font-weight: var(--primitiv-label-md-font-weight);
     --primitiv-checkbox-card-title-line-height: var(--primitiv-label-md-line-height);
     --primitiv-checkbox-card-description-color: var(--primitiv-content-secondary);
+    --primitiv-checkbox-card-description-color-selected: var(--primitiv-content-on-selected);
     --primitiv-checkbox-card-description-font-family: var(--primitiv-body-md-font-family);
     --primitiv-checkbox-card-description-font-size: var(--primitiv-body-md-font-size);
     --primitiv-checkbox-card-description-font-weight: var(--primitiv-body-md-font-weight);
@@ -142,6 +144,7 @@
     font-size: var(--primitiv-checkbox-card-title-font-size);
     font-weight: var(--primitiv-checkbox-card-title-font-weight);
     line-height: var(--primitiv-checkbox-card-title-line-height);
+    transition: color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   .primitiv-checkbox-card__description {
@@ -150,6 +153,7 @@
     font-size: var(--primitiv-checkbox-card-description-font-size);
     font-weight: var(--primitiv-checkbox-card-description-font-weight);
     line-height: var(--primitiv-checkbox-card-description-line-height);
+    transition: color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 }
 
@@ -246,11 +250,24 @@
 
 @layer primitiv.states {
   /* Checked and indeterminate both fill the card with the selected treatment
-     and the indicator with the primary action colour. */
+     and the indicator with the primary action colour. The selected fill is
+     light-in-both-themes (like ToggleGroup's own selected pill — see its
+     Figma description), so the title/description switch to
+     content/on-selected too; content-primary/secondary are tuned to read on
+     the ambient (dark-in-dark) surface, not this fill, and stay unreadably
+     light-on-light without the swap. */
   .primitiv-checkbox-card[data-state="checked"],
   .primitiv-checkbox-card[data-state="indeterminate"] {
     border-color: var(--primitiv-checkbox-card-border-color-selected);
     background: var(--primitiv-checkbox-card-bg-selected);
+  }
+  .primitiv-checkbox-card[data-state="checked"] .primitiv-checkbox-card__title,
+  .primitiv-checkbox-card[data-state="indeterminate"] .primitiv-checkbox-card__title {
+    color: var(--primitiv-checkbox-card-title-color-selected);
+  }
+  .primitiv-checkbox-card[data-state="checked"] .primitiv-checkbox-card__description,
+  .primitiv-checkbox-card[data-state="indeterminate"] .primitiv-checkbox-card__description {
+    color: var(--primitiv-checkbox-card-description-color-selected);
   }
   .primitiv-checkbox-card[data-state="checked"] .primitiv-checkbox-card__indicator,
   .primitiv-checkbox-card[data-state="indeterminate"] .primitiv-checkbox-card__indicator {

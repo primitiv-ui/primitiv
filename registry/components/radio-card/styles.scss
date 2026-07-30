@@ -59,11 +59,13 @@
     --primitiv-radio-card-indicator-border-color-selected: var(--primitiv-action-primary-default);
     --primitiv-radio-card-indicator-dot-color: var(--primitiv-action-primary-default);
     --primitiv-radio-card-title-color: var(--primitiv-content-primary);
+    --primitiv-radio-card-title-color-selected: var(--primitiv-content-on-selected);
     --primitiv-radio-card-title-font-family: var(--primitiv-label-md-font-family);
     --primitiv-radio-card-title-font-size: var(--primitiv-label-md-font-size);
     --primitiv-radio-card-title-font-weight: var(--primitiv-label-md-font-weight);
     --primitiv-radio-card-title-line-height: var(--primitiv-label-md-line-height);
     --primitiv-radio-card-description-color: var(--primitiv-content-secondary);
+    --primitiv-radio-card-description-color-selected: var(--primitiv-content-on-selected);
     --primitiv-radio-card-description-font-family: var(--primitiv-body-md-font-family);
     --primitiv-radio-card-description-font-size: var(--primitiv-body-md-font-size);
     --primitiv-radio-card-description-font-weight: var(--primitiv-body-md-font-weight);
@@ -139,6 +141,7 @@
     font-size: var(--primitiv-radio-card-title-font-size);
     font-weight: var(--primitiv-radio-card-title-font-weight);
     line-height: var(--primitiv-radio-card-title-line-height);
+    transition: color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   .primitiv-radio-card__description {
@@ -147,6 +150,7 @@
     font-size: var(--primitiv-radio-card-description-font-size);
     font-weight: var(--primitiv-radio-card-description-font-weight);
     line-height: var(--primitiv-radio-card-description-line-height);
+    transition: color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 }
 
@@ -234,13 +238,24 @@
 @layer primitiv.states {
   /* Checked fills the CARD with the selected treatment (choice-card/selected/*
      — shared with checkbox-card); the indicator circle itself stays light,
-     only its border escalates to brand — Radio's own convention. */
+     only its border escalates to brand — Radio's own convention. The
+     selected fill is light-in-both-themes (like ToggleGroup's own selected
+     pill — see its Figma description), so the title/description switch to
+     content/on-selected too; content-primary/secondary are tuned to read on
+     the ambient (dark-in-dark) surface, not this fill, and stay unreadably
+     light-on-light without the swap. */
   .primitiv-radio-card[data-state="checked"] {
     border-color: var(--primitiv-radio-card-border-color-selected);
     background: var(--primitiv-radio-card-bg-selected);
   }
   .primitiv-radio-card[data-state="checked"] .primitiv-radio-card__indicator {
     border-color: var(--primitiv-radio-card-indicator-border-color-selected);
+  }
+  .primitiv-radio-card[data-state="checked"] .primitiv-radio-card__title {
+    color: var(--primitiv-radio-card-title-color-selected);
+  }
+  .primitiv-radio-card[data-state="checked"] .primitiv-radio-card__description {
+    color: var(--primitiv-radio-card-description-color-selected);
   }
   .primitiv-radio-card[data-state="checked"] .primitiv-radio-card__dot {
     scale: 1;
@@ -297,11 +312,13 @@ $primitiv-radio-card-indicator-border-color: var(--primitiv-radio-card-indicator
 $primitiv-radio-card-indicator-border-color-selected: var(--primitiv-radio-card-indicator-border-color-selected);
 $primitiv-radio-card-indicator-dot-color: var(--primitiv-radio-card-indicator-dot-color);
 $primitiv-radio-card-title-color: var(--primitiv-radio-card-title-color);
+$primitiv-radio-card-title-color-selected: var(--primitiv-radio-card-title-color-selected);
 $primitiv-radio-card-title-font-family: var(--primitiv-radio-card-title-font-family);
 $primitiv-radio-card-title-font-size: var(--primitiv-radio-card-title-font-size);
 $primitiv-radio-card-title-font-weight: var(--primitiv-radio-card-title-font-weight);
 $primitiv-radio-card-title-line-height: var(--primitiv-radio-card-title-line-height);
 $primitiv-radio-card-description-color: var(--primitiv-radio-card-description-color);
+$primitiv-radio-card-description-color-selected: var(--primitiv-radio-card-description-color-selected);
 $primitiv-radio-card-description-font-family: var(--primitiv-radio-card-description-font-family);
 $primitiv-radio-card-description-font-size: var(--primitiv-radio-card-description-font-size);
 $primitiv-radio-card-description-font-weight: var(--primitiv-radio-card-description-font-weight);

@@ -25,6 +25,36 @@ body {
   );
 }
 
+/* Below the desktop breakpoint this is just a plain block wrapper (PageToc's
+   nav is display:none, see .kitchen-sink__toc below) — .kitchen-sink alone
+   still centres itself via its own max-width/margin-inline. At desktop size
+   it becomes the real 3-column grid: a flexible left gutter, the fixed-width
+   main content column, and a third column sized to the TOC's own 22rem
+   (matching .kitchen-sink__toc's inline-size below) rather than another 1fr
+   — a bare 1fr is really `minmax(auto, 1fr)`, and that auto minimum grows to
+   fit the TOC's declared width before the 1fr split happens, which pulled
+   space unevenly from the *other* flexible column and left the content
+   column off-centre. Fixing column 3's width sidesteps that: column 1 alone
+   absorbs all the leftover space, so the content sits a predictable distance
+   from the left edge and the TOC sits flush against the content's right
+   edge, same as it visually did under the old position:fixed. Giving the TOC
+   its own grid column — instead of position:fixed, which is positioned
+   purely against the viewport and knows nothing about where the content
+   column actually sits — is what makes the "can never overlap the main
+   content" guarantee structural rather than a width/breakpoint tuning
+   exercise. */
+@media (min-width: 80rem) {
+  .kitchen-sink-layout {
+    display: grid;
+    grid-template-columns: 1fr minmax(0, 960px) 22rem;
+    column-gap: var(--primitiv-space-space-24);
+  }
+
+  .kitchen-sink {
+    grid-column: 2;
+  }
+}
+
 .kitchen-sink {
   max-width: 960px;
   margin-inline: auto;
@@ -44,11 +74,11 @@ body {
 }
 
 /* The "On this page" nav (PageToc in App.tsx) — a static, always-expanded
-   table of contents. Fixed to the viewport's top-right, clear of Shell's two
-   chrome bars via --kitchen-sink-toc-top (:root, above). surface-floating is
-   the same "panel floating over the page" surface Popover / NavigationMenu's
-   own panel use, so this reads as a floating panel rather than page
-   background showing through.
+   table of contents. No background any more: now that it lives in its own
+   grid column (see .kitchen-sink-layout above) rather than floating via
+   position:fixed over the page, there's nothing beneath it to visually
+   separate it from — it never overlaps page content, so a "floating panel"
+   surface isn't needed.
    Desktop only: 80rem is not one of RFC 0025's proposed tiers exactly, but
    it's roughly where the fixed 960px main column (plus its own padding)
    still leaves a comfortable right-hand gutter for this wider, 2-column box
@@ -64,15 +94,22 @@ body {
 @media (min-width: 80rem) {
   .kitchen-sink__toc {
     display: block;
-    position: fixed;
+    grid-column: 3;
+    /* sticky, not fixed: a grid item's containing block for sticky purposes
+       is its own grid area, which — left at the default align-items:stretch
+       (no align-self override here) — spans the full row, i.e. the same
+       height as the (much taller) main content column. That's what lets the
+       box stay pinned near the top for the whole page scroll instead of
+       un-sticking the moment its own short content's height is scrolled
+       past; align-self: start would shrink the box back down to its content
+       height and defeat that. */
+    position: sticky;
     top: var(--kitchen-sink-toc-top);
-    right: var(--primitiv-space-space-24);
     inline-size: 22rem;
     max-block-size: calc(
       100vh - var(--kitchen-sink-toc-top) - var(--primitiv-space-space-24)
     );
     overflow-y: auto;
-    background: var(--primitiv-surface-floating);
   }
 }
 

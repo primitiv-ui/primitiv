@@ -686,7 +686,7 @@ export function App(): ReactElement {
     );
 
   return (
-    <>
+    <div className="kitchen-sink-layout">
       <PageToc />
       <div className="kitchen-sink">
       <Prose asChild>
@@ -2876,6 +2876,6 @@ export function ramp(hue: number, chroma = 0.12) {
         </TooltipProvider>
       </Section>
       </div>
-    </>
+    </div>
   );
 }

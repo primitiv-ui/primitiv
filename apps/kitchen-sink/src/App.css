@@ -48,7 +48,16 @@ body {
    exact floor below which the TOC (justify-self: start below, so it hugs
    column 3's near edge) would spill past the container's right edge instead
    of just eating into its own gutter's slack; 108rem adds a full rem of
-   headroom over that floor. */
+   headroom over that floor.
+   Both .kitchen-sink and .kitchen-sink__toc need an explicit `grid-row: 1`
+   (set on each below) — without one, only their `grid-column` is fixed, so
+   auto-placement still has to pick a row for each, in DOM order. PageToc
+   renders before .kitchen-sink, so the TOC claims row 1 first; the
+   auto-placement cursor then advances past the last column, wraps to row 2,
+   and that's where .kitchen-sink lands — a whole empty row (as tall as the
+   TOC's own short content) above the real content, read as "a huge gap at
+   the top of the page". Pinning both to grid-row: 1 keeps them in the same
+   row regardless of DOM order. */
 @media (min-width: 108rem) {
   .kitchen-sink-layout {
     display: grid;
@@ -58,6 +67,7 @@ body {
 
   .kitchen-sink {
     grid-column: 2;
+    grid-row: 1;
   }
 }
 
@@ -99,6 +109,7 @@ body {
   .kitchen-sink__toc {
     display: block;
     grid-column: 3;
+    grid-row: 1;
     /* Hugs the near (left) edge of column 3, right next to the content —
        matching where it visually sat under the old position:fixed — rather
        than the far edge, which on a very wide viewport would strand it out

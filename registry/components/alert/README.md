@@ -62,8 +62,16 @@ Intent tokens directly, plus two more from the same family for the dismiss
 button's interaction states — `feedback/{tone}/soft/{hover,active}`, one and
 two steps further from the background toward the foreground respectively
 (light mode: background 100 → hover 200 → active 300; dark mode: background
-800 → hover 700 → active 600 — the mirror-image direction, since dark's soft
-background is already the *darkest* step). Sizing reuses
+100 → hover 200 → active 300, the same steps as light — every
+`feedback/{tone}/soft/*` property names one ramp step and lets the
+independently-authored dark ramp do the inverting, not a different step per
+theme; see `packages/tokens/README.md`'s "Dark mode: this repo and Figma
+encode it oppositely"). Alert also carries a **border**, matching the tone's
+foreground colour: `--primitiv-alert-border-color` defaults to
+`feedback/{tone}/soft/border` (a fourth property in the same family, sharing
+the border/foreground alias — a tone's border and text are always the same
+colour) and `--primitiv-alert-border-width` to the shared
+`framed-control/border-width`. Sizing reuses
 `framed-control/{size}/{padding-inline,gap,icon-size,radius}` directly (a
 bordered — well, borderless — icon-led box, like Chip), plus two
 Alert-specific Context tokens `alert/{size}/padding-block` (block padding a

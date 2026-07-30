@@ -69,6 +69,17 @@ Because there is no headless primitive, `badge.tsx`/`badge.recipe.ts` are
 - **`badge/{size}/{height,padding-inline,font-size,gap}`** (Context) — sizing,
   density-scaled. `gap` is reserved for a future leading-indicator slot; the
   current single-child (label-only) anatomy doesn't consume it.
+- **`badge/{size}/{label-height,label-padding-inline}`** (Context) — a second,
+  taller height + wider padding-inline pair, applied via a
+  `.primitiv-badge--label.primitiv-badge--{size}` compound selector so it
+  only ever re-points the `variant="label"` shape's `--primitiv-badge-height`
+  / `-padding-inline`. Descenders (`g`, `j`, `p`, `q`, `y`) were crowding the
+  pill's bottom curve at the tighter density/size combinations — worst at
+  Dense — under the shared `badge/{size}/height`, so `label` gets a bit more
+  vertical room than `counter`. Deliberately **not** shared with `counter`:
+  counter's circularity comes from `min-inline-size` clamping to that same
+  shared `badge/{size}/height`, and digits have no descenders, so bumping the
+  shared token would have inflated the counter circle for no visual reason.
 
 Typography is Khand SemiBold (`--primitiv-font-family-heading` +
 `--primitiv-font-weight-semibold`), matching the Figma build; line-height is

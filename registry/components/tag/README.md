@@ -55,12 +55,19 @@ tokens directly (including a `feedback/neutral/soft/*` entry Badge doesn't
 use — Tag's most common real-world case is a plain grey label), plus its own
 sizing family:
 
-- **`tag/{size}/{height,padding-inline,gap}`** (Context) — sizing,
-  density-scaled. No `font-size` entry — unlike Badge, Tag's typography
-  rides `body/{size}/*` directly (Asta Sans Regular) rather than a
-  component-specific type step, and `gap` is reserved for a future
-  leading-indicator slot the current single-child anatomy doesn't consume.
+- **`tag/{size}/{height,padding-inline,font-size,line-height,gap}`** (Context)
+  — sizing, density-scaled. `font-size` and `line-height` are Tag's own scale
+  (2026-07-30), like Badge's `badge/{size}/font-size` — `body/{size}`'s own
+  scale is flat at Dense (10/11/12/13/14, barely distinguishable across
+  sizes, the same problem Badge had), so Tag needed a dedicated scale there.
+  `line-height` was decoupled from `body/{size}/line-height` the same day:
+  once `font-size` stopped tracking `body/{size}`, that pairing broke —
+  several size/density cells ended up with a real vertical gap
+  (`height - line-height`) of zero or negative. `gap` is reserved for a
+  future leading-indicator slot the current single-child anatomy doesn't
+  consume.
 
-Typography is `body/{size}/font-family|font-size|font-weight|line-height` —
-a Tag reads as a plain label, not a stat, so it tracks surrounding body text
-rather than Badge's Khand SemiBold.
+Typography is `tag/{size}/font-size|line-height` + `body/{size}/font-family
+|font-weight` — a Tag reads as a plain label, not a stat, so it tracks
+surrounding body text's family/weight rather than Badge's Khand SemiBold,
+while still needing its own size/line-height scale for density contrast.

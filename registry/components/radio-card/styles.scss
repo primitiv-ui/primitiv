@@ -1,0 +1,302 @@
+/*
+ * RadioCard — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add radio-card`. It is yours
+ * to edit: the stable surface is the contract (the .primitiv-radio-card
+ * class, the --xs…--xl modifiers, the data-state="checked|unchecked" hooks,
+ * and the --primitiv-radio-card-* custom properties), not these values
+ * (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * A card/tile-shaped radio item — RadioCard.Root (role="radiogroup") has no
+ * visual anatomy of its own in the headless layer, so this styles only the
+ * Item. Shares the whole `choice-card/*` token family and card anatomy with
+ * `checkbox-card`; only the indicator differs — a circular dot (Radio's own
+ * convention: the box stays light even when checked, the brand colour shows
+ * as a centred dot and a highlighted ring) rather than a filled square with a
+ * tick. The indicator sits at inline-start (leading), matching Checkbox/
+ * Radio/CheckboxCard's own convention. See the "CheckboxCard, RadioCard —
+ * exploration" page and the "RadioCard/Item" Figma component set (RFC 0021
+ * backlog) for the full design record.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the base rule live
+ * in primitiv.base, size modifiers in primitiv.variants, checked/hover/
+ * focus/disabled styling in primitiv.states.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-surface-*,
+ * --primitiv-border-*, --primitiv-choice-card-*, --primitiv-choice-control-*,
+ * --primitiv-radio-{size}-*, --primitiv-radii-*, --primitiv-framed-control-*,
+ * --primitiv-action-primary-*, --primitiv-content-*, --primitiv-label-*,
+ * --primitiv-body-*, --primitiv-elevation-*, --primitiv-focus-ring-*,
+ * --primitiv-opacity-* and --primitiv-motion-* custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-radio-card {
+    /* Per-component API — the themable knobs, defaulting to the md size and
+       the resting (unchecked) look. The states/variants layers below
+       re-point them; consumers can override any one without touching a
+       rule. */
+    --primitiv-radio-card-bg: var(--primitiv-surface-default);
+    --primitiv-radio-card-bg-selected: var(--primitiv-choice-card-selected-background);
+    --primitiv-radio-card-border-color: var(--primitiv-border-default);
+    --primitiv-radio-card-border-color-hover: var(--primitiv-border-strong);
+    --primitiv-radio-card-border-color-selected: var(--primitiv-choice-card-selected-border);
+    --primitiv-radio-card-border-width: var(--primitiv-framed-control-border-width);
+    --primitiv-radio-card-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-radio-card-padding: var(--primitiv-choice-card-md-padding);
+    --primitiv-radio-card-gap: var(--primitiv-choice-control-md-gap);
+    --primitiv-radio-card-shadow-hover: var(--primitiv-elevation-raised);
+    --primitiv-radio-card-indicator-size: var(--primitiv-radio-md-box-size);
+    --primitiv-radio-card-indicator-offset-top: var(--primitiv-choice-card-md-indicator-offset-top);
+    --primitiv-radio-card-indicator-bg: var(--primitiv-surface-default);
+    --primitiv-radio-card-indicator-border-color: var(--primitiv-border-strong);
+    --primitiv-radio-card-indicator-border-color-selected: var(--primitiv-action-primary-default);
+    --primitiv-radio-card-indicator-dot-color: var(--primitiv-action-primary-default);
+    --primitiv-radio-card-title-color: var(--primitiv-content-primary);
+    --primitiv-radio-card-title-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-radio-card-title-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-radio-card-title-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-radio-card-title-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-radio-card-description-color: var(--primitiv-content-secondary);
+    --primitiv-radio-card-description-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-radio-card-description-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-radio-card-description-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-radio-card-description-line-height: var(--primitiv-body-md-line-height);
+
+    box-sizing: border-box;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--primitiv-radio-card-gap);
+    padding: var(--primitiv-radio-card-padding);
+    border: var(--primitiv-radio-card-border-width) solid var(--primitiv-radio-card-border-color);
+    border-radius: var(--primitiv-radio-card-radius);
+    background: var(--primitiv-radio-card-bg);
+    text-align: start;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    transition:
+      background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  /* The indicator wrapper's padding-top is the optical-alignment nudge —
+     see the file header. It has no border/fill of its own. */
+  .primitiv-radio-card__indicator-wrapper {
+    flex-shrink: 0;
+    padding-top: var(--primitiv-radio-card-indicator-offset-top);
+  }
+
+  /* The circle stays light (surface/default) even when checked — Radio's own
+     convention (unlike Checkbox, which fills solid) — the brand colour shows
+     as the border plus a centred dot. */
+  .primitiv-radio-card__indicator {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-radio-card-indicator-size);
+    block-size: var(--primitiv-radio-card-indicator-size);
+    border: var(--primitiv-radio-card-border-width) solid var(--primitiv-radio-card-indicator-border-color);
+    border-radius: var(--primitiv-radii-full);
+    background: var(--primitiv-radio-card-indicator-bg);
+    color: var(--primitiv-radio-card-indicator-dot-color);
+    transition: border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  /* The dot — half the indicator's own size, filled with the current colour.
+     Only rendered while the headless Indicator is mounted (checked), so no
+     reveal transition is needed by default. */
+  .primitiv-radio-card__dot {
+    inline-size: calc(var(--primitiv-radio-card-indicator-size) / 2);
+    block-size: calc(var(--primitiv-radio-card-indicator-size) / 2);
+    border-radius: var(--primitiv-radii-full);
+    background: currentColor;
+  }
+
+  .primitiv-radio-card__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--primitiv-space-space-4);
+    min-inline-size: 0;
+  }
+
+  .primitiv-radio-card__title {
+    color: var(--primitiv-radio-card-title-color);
+    font-family: var(--primitiv-radio-card-title-font-family);
+    font-size: var(--primitiv-radio-card-title-font-size);
+    font-weight: var(--primitiv-radio-card-title-font-weight);
+    line-height: var(--primitiv-radio-card-title-line-height);
+  }
+
+  .primitiv-radio-card__description {
+    color: var(--primitiv-radio-card-description-color);
+    font-family: var(--primitiv-radio-card-description-font-family);
+    font-size: var(--primitiv-radio-card-description-font-size);
+    font-weight: var(--primitiv-radio-card-description-font-weight);
+    line-height: var(--primitiv-radio-card-description-line-height);
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points every sizing/type knob for the card, the indicator, and
+     the title/description scale. Density stays ambient via [data-density]
+     on the token values themselves (RFC 0009). */
+  .primitiv-radio-card--xs {
+    --primitiv-radio-card-radius: var(--primitiv-framed-control-xs-radius);
+    --primitiv-radio-card-padding: var(--primitiv-choice-card-xs-padding);
+    --primitiv-radio-card-gap: var(--primitiv-choice-control-xs-gap);
+    --primitiv-radio-card-indicator-size: var(--primitiv-radio-xs-box-size);
+    --primitiv-radio-card-indicator-offset-top: var(--primitiv-choice-card-xs-indicator-offset-top);
+    --primitiv-radio-card-title-font-family: var(--primitiv-label-xs-font-family);
+    --primitiv-radio-card-title-font-size: var(--primitiv-label-xs-font-size);
+    --primitiv-radio-card-title-font-weight: var(--primitiv-label-xs-font-weight);
+    --primitiv-radio-card-title-line-height: var(--primitiv-label-xs-line-height);
+    --primitiv-radio-card-description-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-radio-card-description-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-radio-card-description-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-radio-card-description-line-height: var(--primitiv-body-xs-line-height);
+  }
+  .primitiv-radio-card--sm {
+    --primitiv-radio-card-radius: var(--primitiv-framed-control-sm-radius);
+    --primitiv-radio-card-padding: var(--primitiv-choice-card-sm-padding);
+    --primitiv-radio-card-gap: var(--primitiv-choice-control-sm-gap);
+    --primitiv-radio-card-indicator-size: var(--primitiv-radio-sm-box-size);
+    --primitiv-radio-card-indicator-offset-top: var(--primitiv-choice-card-sm-indicator-offset-top);
+    --primitiv-radio-card-title-font-family: var(--primitiv-label-sm-font-family);
+    --primitiv-radio-card-title-font-size: var(--primitiv-label-sm-font-size);
+    --primitiv-radio-card-title-font-weight: var(--primitiv-label-sm-font-weight);
+    --primitiv-radio-card-title-line-height: var(--primitiv-label-sm-line-height);
+    --primitiv-radio-card-description-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-radio-card-description-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-radio-card-description-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-radio-card-description-line-height: var(--primitiv-body-sm-line-height);
+  }
+  .primitiv-radio-card--md {
+    --primitiv-radio-card-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-radio-card-padding: var(--primitiv-choice-card-md-padding);
+    --primitiv-radio-card-gap: var(--primitiv-choice-control-md-gap);
+    --primitiv-radio-card-indicator-size: var(--primitiv-radio-md-box-size);
+    --primitiv-radio-card-indicator-offset-top: var(--primitiv-choice-card-md-indicator-offset-top);
+    --primitiv-radio-card-title-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-radio-card-title-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-radio-card-title-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-radio-card-title-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-radio-card-description-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-radio-card-description-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-radio-card-description-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-radio-card-description-line-height: var(--primitiv-body-md-line-height);
+  }
+  .primitiv-radio-card--lg {
+    --primitiv-radio-card-radius: var(--primitiv-framed-control-lg-radius);
+    --primitiv-radio-card-padding: var(--primitiv-choice-card-lg-padding);
+    --primitiv-radio-card-gap: var(--primitiv-choice-control-lg-gap);
+    --primitiv-radio-card-indicator-size: var(--primitiv-radio-lg-box-size);
+    --primitiv-radio-card-indicator-offset-top: var(--primitiv-choice-card-lg-indicator-offset-top);
+    --primitiv-radio-card-title-font-family: var(--primitiv-label-lg-font-family);
+    --primitiv-radio-card-title-font-size: var(--primitiv-label-lg-font-size);
+    --primitiv-radio-card-title-font-weight: var(--primitiv-label-lg-font-weight);
+    --primitiv-radio-card-title-line-height: var(--primitiv-label-lg-line-height);
+    --primitiv-radio-card-description-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-radio-card-description-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-radio-card-description-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-radio-card-description-line-height: var(--primitiv-body-lg-line-height);
+  }
+  .primitiv-radio-card--xl {
+    --primitiv-radio-card-radius: var(--primitiv-framed-control-xl-radius);
+    --primitiv-radio-card-padding: var(--primitiv-choice-card-xl-padding);
+    --primitiv-radio-card-gap: var(--primitiv-choice-control-xl-gap);
+    --primitiv-radio-card-indicator-size: var(--primitiv-radio-xl-box-size);
+    --primitiv-radio-card-indicator-offset-top: var(--primitiv-choice-card-xl-indicator-offset-top);
+    --primitiv-radio-card-title-font-family: var(--primitiv-label-xl-font-family);
+    --primitiv-radio-card-title-font-size: var(--primitiv-label-xl-font-size);
+    --primitiv-radio-card-title-font-weight: var(--primitiv-label-xl-font-weight);
+    --primitiv-radio-card-title-line-height: var(--primitiv-label-xl-line-height);
+    --primitiv-radio-card-description-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-radio-card-description-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-radio-card-description-font-weight: var(--primitiv-body-xl-font-weight);
+    --primitiv-radio-card-description-line-height: var(--primitiv-body-xl-line-height);
+  }
+}
+
+@layer primitiv.states {
+  /* Checked fills the CARD with the selected treatment (choice-card/selected/*
+     — shared with checkbox-card); the indicator circle itself stays light,
+     only its border escalates to brand — Radio's own convention. */
+  .primitiv-radio-card[data-state="checked"] {
+    border-color: var(--primitiv-radio-card-border-color-selected);
+    background: var(--primitiv-radio-card-bg-selected);
+  }
+  .primitiv-radio-card[data-state="checked"] .primitiv-radio-card__indicator {
+    border-color: var(--primitiv-radio-card-indicator-border-color-selected);
+  }
+
+  /* Hover — border escalates a step; the whole card lifts (matches Button's
+     own hover lift). Gated behind (hover: hover): a touchscreen simulates
+     :hover on tap and it "sticks" until the next tap elsewhere (no real
+     pointer to leave). Skipped for the selected treatment — the brand
+     border/fill already carries enough emphasis. */
+  @media (hover: hover) {
+    .primitiv-radio-card:not([data-state="checked"]):hover {
+      border-color: var(--primitiv-radio-card-border-color-hover);
+    }
+    .primitiv-radio-card:hover {
+      box-shadow: var(--primitiv-radio-card-shadow-hover);
+    }
+  }
+
+  /* Focus — the shared two-layer ring, identical on every framed control.
+     Restyle it by overriding the --primitiv-focus-ring* /
+     --primitiv-surface-default tokens globally, not via a per-component
+     knob. */
+  .primitiv-radio-card:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Disabled is intent-neutral so it reads the same on every state; the
+     states layer sits above variants, so it always wins (RFC 0008 §2.3). */
+  .primitiv-radio-card[data-disabled] {
+    opacity: var(--primitiv-opacity-50);
+    cursor: not-allowed;
+  }
+}
+
+$primitiv-radio-card-bg: var(--primitiv-radio-card-bg);
+$primitiv-radio-card-bg-selected: var(--primitiv-radio-card-bg-selected);
+$primitiv-radio-card-border-color: var(--primitiv-radio-card-border-color);
+$primitiv-radio-card-border-color-hover: var(--primitiv-radio-card-border-color-hover);
+$primitiv-radio-card-border-color-selected: var(--primitiv-radio-card-border-color-selected);
+$primitiv-radio-card-border-width: var(--primitiv-radio-card-border-width);
+$primitiv-radio-card-radius: var(--primitiv-radio-card-radius);
+$primitiv-radio-card-padding: var(--primitiv-radio-card-padding);
+$primitiv-radio-card-gap: var(--primitiv-radio-card-gap);
+$primitiv-radio-card-shadow-hover: var(--primitiv-radio-card-shadow-hover);
+$primitiv-radio-card-indicator-size: var(--primitiv-radio-card-indicator-size);
+$primitiv-radio-card-indicator-offset-top: var(--primitiv-radio-card-indicator-offset-top);
+$primitiv-radio-card-indicator-bg: var(--primitiv-radio-card-indicator-bg);
+$primitiv-radio-card-indicator-border-color: var(--primitiv-radio-card-indicator-border-color);
+$primitiv-radio-card-indicator-border-color-selected: var(--primitiv-radio-card-indicator-border-color-selected);
+$primitiv-radio-card-indicator-dot-color: var(--primitiv-radio-card-indicator-dot-color);
+$primitiv-radio-card-title-color: var(--primitiv-radio-card-title-color);
+$primitiv-radio-card-title-font-family: var(--primitiv-radio-card-title-font-family);
+$primitiv-radio-card-title-font-size: var(--primitiv-radio-card-title-font-size);
+$primitiv-radio-card-title-font-weight: var(--primitiv-radio-card-title-font-weight);
+$primitiv-radio-card-title-line-height: var(--primitiv-radio-card-title-line-height);
+$primitiv-radio-card-description-color: var(--primitiv-radio-card-description-color);
+$primitiv-radio-card-description-font-family: var(--primitiv-radio-card-description-font-family);
+$primitiv-radio-card-description-font-size: var(--primitiv-radio-card-description-font-size);
+$primitiv-radio-card-description-font-weight: var(--primitiv-radio-card-description-font-weight);
+$primitiv-radio-card-description-line-height: var(--primitiv-radio-card-description-line-height);

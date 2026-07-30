@@ -1,0 +1,61 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "checkbox-card",
+  "version": "0.1.0",
+  "description": "A card/tile-shaped checkbox — the whole bordered surface is the interactive element, not a small control plus a separate label. Composes the headless CheckboxCard primitive (role=\"checkbox\", tri-state unchecked/checked/indeterminate). Sized xs–xl; `data-density` scales each size further.",
+  "docs": "https://primitiv-ui.dev/docs/components/checkbox-card",
+  "root": {
+    "element": "button",
+    "class": "primitiv-checkbox-card"
+  },
+  "dataAttributes": [
+    { "name": "data-state", "value": "checked", "when": "checked", "source": "auto" },
+    { "name": "data-state", "value": "unchecked", "when": "unchecked", "source": "auto" },
+    { "name": "data-state", "value": "indeterminate", "when": "indeterminate", "source": "auto" },
+    { "name": "data-disabled", "value": "", "when": "disabled", "source": "auto" }
+  ],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Card size; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-checkbox-card--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-checkbox-card--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-checkbox-card--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-checkbox-card--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-checkbox-card--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-checkbox-card-bg", "defaultsTo": "var(--primitiv-surface-default)" },
+    { "name": "--primitiv-checkbox-card-bg-selected", "defaultsTo": "var(--primitiv-choice-card-selected-background)" },
+    { "name": "--primitiv-checkbox-card-border-color", "defaultsTo": "var(--primitiv-border-default)" },
+    { "name": "--primitiv-checkbox-card-border-color-hover", "defaultsTo": "var(--primitiv-border-strong)" },
+    { "name": "--primitiv-checkbox-card-border-color-selected", "defaultsTo": "var(--primitiv-choice-card-selected-border)" },
+    { "name": "--primitiv-checkbox-card-border-width", "defaultsTo": "var(--primitiv-framed-control-border-width)" },
+    { "name": "--primitiv-checkbox-card-radius", "defaultsTo": "var(--primitiv-framed-control-md-radius)" },
+    { "name": "--primitiv-checkbox-card-padding", "defaultsTo": "var(--primitiv-choice-card-md-padding)" },
+    { "name": "--primitiv-checkbox-card-gap", "defaultsTo": "var(--primitiv-choice-control-md-gap)" },
+    { "name": "--primitiv-checkbox-card-shadow-hover", "defaultsTo": "var(--primitiv-elevation-raised)" },
+    { "name": "--primitiv-checkbox-card-indicator-size", "defaultsTo": "var(--primitiv-checkbox-md-box-size)" },
+    { "name": "--primitiv-checkbox-card-indicator-radius", "defaultsTo": "var(--primitiv-checkbox-md-box-radius)" },
+    { "name": "--primitiv-checkbox-card-indicator-offset-top", "defaultsTo": "var(--primitiv-choice-card-md-indicator-offset-top)" },
+    { "name": "--primitiv-checkbox-card-indicator-bg", "defaultsTo": "var(--primitiv-surface-default)" },
+    { "name": "--primitiv-checkbox-card-indicator-bg-selected", "defaultsTo": "var(--primitiv-action-primary-default)" },
+    { "name": "--primitiv-checkbox-card-indicator-border-color", "defaultsTo": "var(--primitiv-border-strong)" },
+    { "name": "--primitiv-checkbox-card-indicator-mark-size", "defaultsTo": "var(--primitiv-checkbox-md-mark-size)" },
+    { "name": "--primitiv-checkbox-card-indicator-mark-color", "defaultsTo": "var(--primitiv-action-primary-foreground-default)" },
+    { "name": "--primitiv-checkbox-card-title-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-checkbox-card-title-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
+    { "name": "--primitiv-checkbox-card-title-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },
+    { "name": "--primitiv-checkbox-card-title-font-weight", "defaultsTo": "var(--primitiv-label-md-font-weight)" },
+    { "name": "--primitiv-checkbox-card-title-line-height", "defaultsTo": "var(--primitiv-label-md-line-height)" },
+    { "name": "--primitiv-checkbox-card-description-color", "defaultsTo": "var(--primitiv-content-secondary)" },
+    { "name": "--primitiv-checkbox-card-description-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
+    { "name": "--primitiv-checkbox-card-description-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-checkbox-card-description-font-weight", "defaultsTo": "var(--primitiv-body-md-font-weight)" },
+    { "name": "--primitiv-checkbox-card-description-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" }
+  ]
+}

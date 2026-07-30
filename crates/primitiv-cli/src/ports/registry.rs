@@ -283,6 +283,16 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("alert", "alert.recipe.ts"),
     registry_file!("alert", "alert.tsx"),
     registry_file!("alert", "contract.json"),
+    registry_file!("checkbox-card", "styles.css"),
+    registry_file!("checkbox-card", "styles.scss"),
+    registry_file!("checkbox-card", "checkbox-card.recipe.ts"),
+    registry_file!("checkbox-card", "checkbox-card.tsx"),
+    registry_file!("checkbox-card", "contract.json"),
+    registry_file!("radio-card", "styles.css"),
+    registry_file!("radio-card", "styles.scss"),
+    registry_file!("radio-card", "radio-card.recipe.ts"),
+    registry_file!("radio-card", "radio-card.tsx"),
+    registry_file!("radio-card", "contract.json"),
 ];
 
 impl Registry for EmbeddedRegistry {

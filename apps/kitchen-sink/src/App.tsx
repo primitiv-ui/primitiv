@@ -27,6 +27,7 @@ import {
   Button,
   Center,
   Checkbox,
+  CheckboxCard,
   Chip,
   CodeBlock,
   Collapsible,
@@ -126,6 +127,8 @@ import {
   Prose,
   PullQuote,
   Radio,
+  RadioCard,
+  RadioCardItem,
   Switch,
   Table,
   TableHead,
@@ -648,6 +651,20 @@ export function App(): ReactElement {
   // Alert demo state — the dismissible instance actually unmounts on click,
   // demonstrating that the dismiss button only renders when `onDismiss` is passed.
   const [alertDismissed, setAlertDismissed] = useState(false);
+  // CheckboxCard demo state — the "select all" nested-list pattern from the
+  // "CheckboxCard, RadioCard — exploration" page, driven by real children so
+  // the parent's tri-state is genuinely derived, not hardcoded.
+  const [permissions, setPermissions] = useState({
+    read: true,
+    write: true,
+    delete: false,
+  });
+  const permissionCount = Object.values(permissions).filter(Boolean).length;
+  const selectAllChecked =
+    permissionCount === 0 ? false : permissionCount === 3 ? true : "indeterminate";
+  const setAllPermissions = (value: boolean) =>
+    setPermissions({ read: value, write: value, delete: value });
+  const [radioPlan, setRadioPlan] = useState("pro");
 
   const sortedReleases = [...RELEASES].sort((a, b) => {
     const av = a[sort.key];
@@ -1203,6 +1220,73 @@ primitiv add --all`}</code>
         <Checkbox size={size} disabled>
           Disabled
         </Checkbox>
+      </Section>
+
+      {/* Two standalone tri-state cards, then the "select all" nested-list
+          pattern from the exploration page: the parent's checked state is
+          genuinely derived from its three children (2 of 3 → indeterminate),
+          not hardcoded, and clicking the parent sets all three at once. */}
+      <Section title="CheckboxCard" column>
+        <CheckboxCard
+          size={size}
+          defaultChecked
+          aria-label="Dark mode"
+          title="Dark mode"
+          description="Switch the interface to a dark colour scheme."
+        />
+        <CheckboxCard
+          size={size}
+          aria-label="Email notifications"
+          title="Email notifications"
+          description="Get a weekly summary by email."
+        />
+        <CheckboxCard
+          size={size}
+          checked={selectAllChecked}
+          onCheckedChange={(checked) => setAllPermissions(checked)}
+          aria-label="Select all permissions"
+          title="Select all permissions"
+          description={`${permissionCount} of 3 permissions granted.`}
+        />
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--primitiv-space-space-8)",
+            paddingInlineStart: "var(--primitiv-space-space-40)",
+          }}
+        >
+          <CheckboxCard
+            size={size}
+            checked={permissions.read}
+            onCheckedChange={(checked) =>
+              setPermissions((p) => ({ ...p, read: checked }))
+            }
+            aria-label="Read"
+            title="Read"
+            description="View records and their fields."
+          />
+          <CheckboxCard
+            size={size}
+            checked={permissions.write}
+            onCheckedChange={(checked) =>
+              setPermissions((p) => ({ ...p, write: checked }))
+            }
+            aria-label="Write"
+            title="Write"
+            description="Create and edit records."
+          />
+          <CheckboxCard
+            size={size}
+            checked={permissions.delete}
+            onCheckedChange={(checked) =>
+              setPermissions((p) => ({ ...p, delete: checked }))
+            }
+            aria-label="Delete"
+            title="Delete"
+            description="Permanently remove records."
+          />
+        </div>
       </Section>
 
       <Section title="Code Block" column>
@@ -2183,6 +2267,19 @@ export function ramp(hue: number, chroma = 0.12) {
         <Radio name="kitchen-sink-radio" value="c" size={size} disabled>
           Disabled option
         </Radio>
+      </Section>
+
+      {/* A plan-picker group — exclusive selection across three RadioCardItems,
+          controlled state so the selected plan is real app state, not just
+          visual. */}
+      <Section title="RadioCard" column>
+        <RadioCard value={radioPlan} onValueChange={setRadioPlan} aria-label="Plan">
+          <div className="ks-row" style={{ alignItems: "stretch" }}>
+            <RadioCardItem size={size} value="starter" title="Starter" description="Free forever" style={{ flex: "1 1 0" }} />
+            <RadioCardItem size={size} value="pro" title="Pro" description="$9/month" style={{ flex: "1 1 0" }} />
+            <RadioCardItem size={size} value="enterprise" title="Enterprise" description="Contact us" style={{ flex: "1 1 0" }} />
+          </div>
+        </RadioCard>
       </Section>
 
       <Section title="Segmented Control" column>

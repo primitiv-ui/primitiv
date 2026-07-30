@@ -1,0 +1,296 @@
+/*
+ * CheckboxCard — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add checkbox-card`. It is yours
+ * to edit: the stable surface is the contract (the .primitiv-checkbox-card
+ * class, the --xs…--xl modifiers, the data-state="checked|unchecked|
+ * indeterminate" hooks, and the --primitiv-checkbox-card-* custom
+ * properties), not these values (RFC 0006 Principle 2 — names are stable,
+ * values are not).
+ *
+ * A card/tile-shaped checkbox — the whole bordered surface is the button
+ * (unlike Checkbox, which is a small control plus a separate label). See the
+ * "CheckboxCard, RadioCard — exploration" page and the "CheckboxCard" Figma
+ * component set (RFC 0021 backlog) for the full design record: the card
+ * surface uses a dedicated `choice-card/*` token family (decoupled from
+ * ToggleGroup's `surface/selected`), the indicator mark reuses Checkbox's own
+ * clip-path polygon and `checkbox/{size}/*` sizing tokens, and the indicator
+ * carries the same `choice-card/{size}/indicator-offset-top` optical
+ * alignment nudge Alert's icon uses (a function of the shared label/* type
+ * scale, independent of the indicator's own size).
+ *
+ * Structure follows RFC 0008: per-component API tokens + the base rule live
+ * in primitiv.base, size modifiers in primitiv.variants, checked/
+ * indeterminate/hover/focus/disabled styling in primitiv.states.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-surface-*,
+ * --primitiv-border-*, --primitiv-choice-card-*, --primitiv-choice-control-*,
+ * --primitiv-checkbox-{size}-*, --primitiv-framed-control-*,
+ * --primitiv-action-primary-*, --primitiv-content-*, --primitiv-label-*,
+ * --primitiv-body-*, --primitiv-elevation-*, --primitiv-focus-ring-*,
+ * --primitiv-opacity-* and --primitiv-motion-* custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-checkbox-card {
+    /* Per-component API — the themable knobs, defaulting to the md size and
+       the resting (unchecked) look. The states/variants layers below
+       re-point them; consumers can override any one without touching a
+       rule. */
+    --primitiv-checkbox-card-bg: var(--primitiv-surface-default);
+    --primitiv-checkbox-card-bg-selected: var(--primitiv-choice-card-selected-background);
+    --primitiv-checkbox-card-border-color: var(--primitiv-border-default);
+    --primitiv-checkbox-card-border-color-hover: var(--primitiv-border-strong);
+    --primitiv-checkbox-card-border-color-selected: var(--primitiv-choice-card-selected-border);
+    --primitiv-checkbox-card-border-width: var(--primitiv-framed-control-border-width);
+    --primitiv-checkbox-card-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-checkbox-card-padding: var(--primitiv-choice-card-md-padding);
+    --primitiv-checkbox-card-gap: var(--primitiv-choice-control-md-gap);
+    --primitiv-checkbox-card-shadow-hover: var(--primitiv-elevation-raised);
+    --primitiv-checkbox-card-indicator-size: var(--primitiv-checkbox-md-box-size);
+    --primitiv-checkbox-card-indicator-radius: var(--primitiv-checkbox-md-box-radius);
+    --primitiv-checkbox-card-indicator-offset-top: var(--primitiv-choice-card-md-indicator-offset-top);
+    --primitiv-checkbox-card-indicator-bg: var(--primitiv-surface-default);
+    --primitiv-checkbox-card-indicator-bg-selected: var(--primitiv-action-primary-default);
+    --primitiv-checkbox-card-indicator-border-color: var(--primitiv-border-strong);
+    --primitiv-checkbox-card-indicator-mark-size: var(--primitiv-checkbox-md-mark-size);
+    --primitiv-checkbox-card-indicator-mark-color: var(--primitiv-action-primary-foreground-default);
+    --primitiv-checkbox-card-title-color: var(--primitiv-content-primary);
+    --primitiv-checkbox-card-title-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-checkbox-card-title-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-checkbox-card-title-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-checkbox-card-title-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-checkbox-card-description-color: var(--primitiv-content-secondary);
+    --primitiv-checkbox-card-description-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-checkbox-card-description-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-checkbox-card-description-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-checkbox-card-description-line-height: var(--primitiv-body-md-line-height);
+
+    box-sizing: border-box;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--primitiv-checkbox-card-gap);
+    padding: var(--primitiv-checkbox-card-padding);
+    border: var(--primitiv-checkbox-card-border-width) solid var(--primitiv-checkbox-card-border-color);
+    border-radius: var(--primitiv-checkbox-card-radius);
+    background: var(--primitiv-checkbox-card-bg);
+    text-align: start;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    transition:
+      background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  /* The indicator wrapper's padding-top is the optical-alignment nudge —
+     see the file header. It has no border/fill of its own. */
+  .primitiv-checkbox-card__indicator-wrapper {
+    flex-shrink: 0;
+    padding-top: var(--primitiv-checkbox-card-indicator-offset-top);
+  }
+
+  .primitiv-checkbox-card__indicator {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-checkbox-card-indicator-size);
+    block-size: var(--primitiv-checkbox-card-indicator-size);
+    border: var(--primitiv-checkbox-card-border-width) solid var(--primitiv-checkbox-card-indicator-border-color);
+    border-radius: var(--primitiv-checkbox-card-indicator-radius);
+    background: var(--primitiv-checkbox-card-indicator-bg);
+    color: var(--primitiv-checkbox-card-indicator-mark-color);
+    transition:
+      background-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default),
+      border-color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  /* The mark itself — reuses Checkbox's own clip-path polygon (a tick),
+     re-clipped to a bar for indeterminate below. Only rendered while the
+     headless Indicator is mounted (checked/indeterminate), so no reveal
+     transition is needed by default. */
+  .primitiv-checkbox-card__mark {
+    inline-size: var(--primitiv-checkbox-card-indicator-mark-size);
+    block-size: var(--primitiv-checkbox-card-indicator-mark-size);
+    background: currentColor;
+    clip-path: polygon(40% 68%, 12% 40%, 0% 52%, 40% 92%, 100% 22%, 88% 10%);
+  }
+
+  .primitiv-checkbox-card__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--primitiv-space-space-4);
+    min-inline-size: 0;
+  }
+
+  .primitiv-checkbox-card__title {
+    color: var(--primitiv-checkbox-card-title-color);
+    font-family: var(--primitiv-checkbox-card-title-font-family);
+    font-size: var(--primitiv-checkbox-card-title-font-size);
+    font-weight: var(--primitiv-checkbox-card-title-font-weight);
+    line-height: var(--primitiv-checkbox-card-title-line-height);
+  }
+
+  .primitiv-checkbox-card__description {
+    color: var(--primitiv-checkbox-card-description-color);
+    font-family: var(--primitiv-checkbox-card-description-font-family);
+    font-size: var(--primitiv-checkbox-card-description-font-size);
+    font-weight: var(--primitiv-checkbox-card-description-font-weight);
+    line-height: var(--primitiv-checkbox-card-description-line-height);
+  }
+}
+
+@layer primitiv.variants {
+  /* Size — re-points every sizing/type knob for the card, the indicator, and
+     the title/description scale. Density stays ambient via [data-density]
+     on the token values themselves (RFC 0009). */
+  .primitiv-checkbox-card--xs {
+    --primitiv-checkbox-card-radius: var(--primitiv-framed-control-xs-radius);
+    --primitiv-checkbox-card-padding: var(--primitiv-choice-card-xs-padding);
+    --primitiv-checkbox-card-gap: var(--primitiv-choice-control-xs-gap);
+    --primitiv-checkbox-card-indicator-size: var(--primitiv-checkbox-xs-box-size);
+    --primitiv-checkbox-card-indicator-radius: var(--primitiv-checkbox-xs-box-radius);
+    --primitiv-checkbox-card-indicator-offset-top: var(--primitiv-choice-card-xs-indicator-offset-top);
+    --primitiv-checkbox-card-indicator-mark-size: var(--primitiv-checkbox-xs-mark-size);
+    --primitiv-checkbox-card-title-font-family: var(--primitiv-label-xs-font-family);
+    --primitiv-checkbox-card-title-font-size: var(--primitiv-label-xs-font-size);
+    --primitiv-checkbox-card-title-font-weight: var(--primitiv-label-xs-font-weight);
+    --primitiv-checkbox-card-title-line-height: var(--primitiv-label-xs-line-height);
+    --primitiv-checkbox-card-description-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-checkbox-card-description-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-checkbox-card-description-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-checkbox-card-description-line-height: var(--primitiv-body-xs-line-height);
+  }
+  .primitiv-checkbox-card--sm {
+    --primitiv-checkbox-card-radius: var(--primitiv-framed-control-sm-radius);
+    --primitiv-checkbox-card-padding: var(--primitiv-choice-card-sm-padding);
+    --primitiv-checkbox-card-gap: var(--primitiv-choice-control-sm-gap);
+    --primitiv-checkbox-card-indicator-size: var(--primitiv-checkbox-sm-box-size);
+    --primitiv-checkbox-card-indicator-radius: var(--primitiv-checkbox-sm-box-radius);
+    --primitiv-checkbox-card-indicator-offset-top: var(--primitiv-choice-card-sm-indicator-offset-top);
+    --primitiv-checkbox-card-indicator-mark-size: var(--primitiv-checkbox-sm-mark-size);
+    --primitiv-checkbox-card-title-font-family: var(--primitiv-label-sm-font-family);
+    --primitiv-checkbox-card-title-font-size: var(--primitiv-label-sm-font-size);
+    --primitiv-checkbox-card-title-font-weight: var(--primitiv-label-sm-font-weight);
+    --primitiv-checkbox-card-title-line-height: var(--primitiv-label-sm-line-height);
+    --primitiv-checkbox-card-description-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-checkbox-card-description-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-checkbox-card-description-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-checkbox-card-description-line-height: var(--primitiv-body-sm-line-height);
+  }
+  .primitiv-checkbox-card--md {
+    --primitiv-checkbox-card-radius: var(--primitiv-framed-control-md-radius);
+    --primitiv-checkbox-card-padding: var(--primitiv-choice-card-md-padding);
+    --primitiv-checkbox-card-gap: var(--primitiv-choice-control-md-gap);
+    --primitiv-checkbox-card-indicator-size: var(--primitiv-checkbox-md-box-size);
+    --primitiv-checkbox-card-indicator-radius: var(--primitiv-checkbox-md-box-radius);
+    --primitiv-checkbox-card-indicator-offset-top: var(--primitiv-choice-card-md-indicator-offset-top);
+    --primitiv-checkbox-card-indicator-mark-size: var(--primitiv-checkbox-md-mark-size);
+    --primitiv-checkbox-card-title-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-checkbox-card-title-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-checkbox-card-title-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-checkbox-card-title-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-checkbox-card-description-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-checkbox-card-description-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-checkbox-card-description-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-checkbox-card-description-line-height: var(--primitiv-body-md-line-height);
+  }
+  .primitiv-checkbox-card--lg {
+    --primitiv-checkbox-card-radius: var(--primitiv-framed-control-lg-radius);
+    --primitiv-checkbox-card-padding: var(--primitiv-choice-card-lg-padding);
+    --primitiv-checkbox-card-gap: var(--primitiv-choice-control-lg-gap);
+    --primitiv-checkbox-card-indicator-size: var(--primitiv-checkbox-lg-box-size);
+    --primitiv-checkbox-card-indicator-radius: var(--primitiv-checkbox-lg-box-radius);
+    --primitiv-checkbox-card-indicator-offset-top: var(--primitiv-choice-card-lg-indicator-offset-top);
+    --primitiv-checkbox-card-indicator-mark-size: var(--primitiv-checkbox-lg-mark-size);
+    --primitiv-checkbox-card-title-font-family: var(--primitiv-label-lg-font-family);
+    --primitiv-checkbox-card-title-font-size: var(--primitiv-label-lg-font-size);
+    --primitiv-checkbox-card-title-font-weight: var(--primitiv-label-lg-font-weight);
+    --primitiv-checkbox-card-title-line-height: var(--primitiv-label-lg-line-height);
+    --primitiv-checkbox-card-description-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-checkbox-card-description-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-checkbox-card-description-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-checkbox-card-description-line-height: var(--primitiv-body-lg-line-height);
+  }
+  .primitiv-checkbox-card--xl {
+    --primitiv-checkbox-card-radius: var(--primitiv-framed-control-xl-radius);
+    --primitiv-checkbox-card-padding: var(--primitiv-choice-card-xl-padding);
+    --primitiv-checkbox-card-gap: var(--primitiv-choice-control-xl-gap);
+    --primitiv-checkbox-card-indicator-size: var(--primitiv-checkbox-xl-box-size);
+    --primitiv-checkbox-card-indicator-radius: var(--primitiv-checkbox-xl-box-radius);
+    --primitiv-checkbox-card-indicator-offset-top: var(--primitiv-choice-card-xl-indicator-offset-top);
+    --primitiv-checkbox-card-indicator-mark-size: var(--primitiv-checkbox-xl-mark-size);
+    --primitiv-checkbox-card-title-font-family: var(--primitiv-label-xl-font-family);
+    --primitiv-checkbox-card-title-font-size: var(--primitiv-label-xl-font-size);
+    --primitiv-checkbox-card-title-font-weight: var(--primitiv-label-xl-font-weight);
+    --primitiv-checkbox-card-title-line-height: var(--primitiv-label-xl-line-height);
+    --primitiv-checkbox-card-description-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-checkbox-card-description-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-checkbox-card-description-font-weight: var(--primitiv-body-xl-font-weight);
+    --primitiv-checkbox-card-description-line-height: var(--primitiv-body-xl-line-height);
+  }
+}
+
+@layer primitiv.states {
+  /* Checked and indeterminate both fill the card with the selected treatment
+     and the indicator with the primary action colour. */
+  .primitiv-checkbox-card[data-state="checked"],
+  .primitiv-checkbox-card[data-state="indeterminate"] {
+    border-color: var(--primitiv-checkbox-card-border-color-selected);
+    background: var(--primitiv-checkbox-card-bg-selected);
+  }
+  .primitiv-checkbox-card[data-state="checked"] .primitiv-checkbox-card__indicator,
+  .primitiv-checkbox-card[data-state="indeterminate"] .primitiv-checkbox-card__indicator {
+    border-color: var(--primitiv-checkbox-card-indicator-bg-selected);
+    background: var(--primitiv-checkbox-card-indicator-bg-selected);
+  }
+
+  /* Re-clip the mark to a bar when mixed. */
+  .primitiv-checkbox-card[data-state="indeterminate"] .primitiv-checkbox-card__mark {
+    clip-path: polygon(0% 38%, 100% 38%, 100% 62%, 0% 62%);
+  }
+
+  /* Hover — border escalates a step; the whole card lifts (matches Button's
+     own hover lift). Gated behind (hover: hover): a touchscreen simulates
+     :hover on tap and it "sticks" until the next tap elsewhere (no real
+     pointer to leave), which would otherwise leave a just-tapped card
+     showing its hover shade instead of resting. Skipped for the selected
+     treatment — the brand border/fill already carries enough emphasis. */
+  @media (hover: hover) {
+    .primitiv-checkbox-card:not([data-state="checked"]):not([data-state="indeterminate"]):hover {
+      border-color: var(--primitiv-checkbox-card-border-color-hover);
+    }
+    .primitiv-checkbox-card:hover {
+      box-shadow: var(--primitiv-checkbox-card-shadow-hover);
+    }
+  }
+
+  /* Focus — the shared two-layer ring, identical on every framed control.
+     Restyle it by overriding the --primitiv-focus-ring* /
+     --primitiv-surface-default tokens globally, not via a per-component
+     knob. */
+  .primitiv-checkbox-card:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default),
+      0 0 0 calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))
+        var(--primitiv-focus-ring);
+  }
+
+  /* Disabled is intent-neutral so it reads the same on every state; the
+     states layer sits above variants, so it always wins (RFC 0008 §2.3). */
+  .primitiv-checkbox-card[data-disabled] {
+    opacity: var(--primitiv-opacity-50);
+    cursor: not-allowed;
+  }
+}

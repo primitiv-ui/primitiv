@@ -1,0 +1,58 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "radio-card",
+  "version": "0.1.0",
+  "description": "A card/tile-shaped radio item — the whole bordered surface is the interactive element, not a small control plus a separate label. Composes the headless RadioCard primitive (RadioCard.Root is role=\"radiogroup\" with no visual anatomy of its own; RadioCard.Item is role=\"radio\"). Sized xs–xl; `data-density` scales each size further.",
+  "docs": "https://primitiv-ui.dev/docs/components/radio-card",
+  "root": {
+    "element": "button",
+    "class": "primitiv-radio-card"
+  },
+  "dataAttributes": [
+    { "name": "data-state", "value": "checked", "when": "checked", "source": "auto" },
+    { "name": "data-state", "value": "unchecked", "when": "unchecked", "source": "auto" },
+    { "name": "data-disabled", "value": "", "when": "disabled", "source": "auto" }
+  ],
+  "modifiers": [
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Card size; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-radio-card--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-radio-card--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-radio-card--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-radio-card--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-radio-card--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-radio-card-bg", "defaultsTo": "var(--primitiv-surface-default)" },
+    { "name": "--primitiv-radio-card-bg-selected", "defaultsTo": "var(--primitiv-choice-card-selected-background)" },
+    { "name": "--primitiv-radio-card-border-color", "defaultsTo": "var(--primitiv-border-default)" },
+    { "name": "--primitiv-radio-card-border-color-hover", "defaultsTo": "var(--primitiv-border-strong)" },
+    { "name": "--primitiv-radio-card-border-color-selected", "defaultsTo": "var(--primitiv-choice-card-selected-border)" },
+    { "name": "--primitiv-radio-card-border-width", "defaultsTo": "var(--primitiv-framed-control-border-width)" },
+    { "name": "--primitiv-radio-card-radius", "defaultsTo": "var(--primitiv-framed-control-md-radius)" },
+    { "name": "--primitiv-radio-card-padding", "defaultsTo": "var(--primitiv-choice-card-md-padding)" },
+    { "name": "--primitiv-radio-card-gap", "defaultsTo": "var(--primitiv-choice-control-md-gap)" },
+    { "name": "--primitiv-radio-card-shadow-hover", "defaultsTo": "var(--primitiv-elevation-raised)" },
+    { "name": "--primitiv-radio-card-indicator-size", "defaultsTo": "var(--primitiv-radio-md-box-size)" },
+    { "name": "--primitiv-radio-card-indicator-offset-top", "defaultsTo": "var(--primitiv-choice-card-md-indicator-offset-top)" },
+    { "name": "--primitiv-radio-card-indicator-bg", "defaultsTo": "var(--primitiv-surface-default)" },
+    { "name": "--primitiv-radio-card-indicator-border-color", "defaultsTo": "var(--primitiv-border-strong)" },
+    { "name": "--primitiv-radio-card-indicator-border-color-selected", "defaultsTo": "var(--primitiv-action-primary-default)" },
+    { "name": "--primitiv-radio-card-indicator-dot-color", "defaultsTo": "var(--primitiv-action-primary-default)" },
+    { "name": "--primitiv-radio-card-title-color", "defaultsTo": "var(--primitiv-content-primary)" },
+    { "name": "--primitiv-radio-card-title-font-family", "defaultsTo": "var(--primitiv-label-md-font-family)" },
+    { "name": "--primitiv-radio-card-title-font-size", "defaultsTo": "var(--primitiv-label-md-font-size)" },
+    { "name": "--primitiv-radio-card-title-font-weight", "defaultsTo": "var(--primitiv-label-md-font-weight)" },
+    { "name": "--primitiv-radio-card-title-line-height", "defaultsTo": "var(--primitiv-label-md-line-height)" },
+    { "name": "--primitiv-radio-card-description-color", "defaultsTo": "var(--primitiv-content-secondary)" },
+    { "name": "--primitiv-radio-card-description-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
+    { "name": "--primitiv-radio-card-description-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-radio-card-description-font-weight", "defaultsTo": "var(--primitiv-body-md-font-weight)" },
+    { "name": "--primitiv-radio-card-description-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" }
+  ]
+}

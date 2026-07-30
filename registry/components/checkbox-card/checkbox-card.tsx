@@ -72,7 +72,7 @@ export function CheckboxCard({
               which only happens for a DIRECT flex-item child of __indicator.
               A span one level deeper (inside this unstyled Indicator) stays a
               plain inline box and silently collapses to zero size. */}
-          <CheckboxCardPrimitive.Indicator className="primitiv-checkbox-card__mark" />
+          <CheckboxCardPrimitive.Indicator forceMount className="primitiv-checkbox-card__mark" />
         </span>
       </span>
       <span className="primitiv-checkbox-card__content">

@@ -59,11 +59,13 @@
     --primitiv-radio-card-indicator-border-color-selected: var(--primitiv-action-primary-default);
     --primitiv-radio-card-indicator-dot-color: var(--primitiv-action-primary-default);
     --primitiv-radio-card-title-color: var(--primitiv-content-primary);
+    --primitiv-radio-card-title-color-selected: var(--primitiv-content-primary);
     --primitiv-radio-card-title-font-family: var(--primitiv-label-md-font-family);
     --primitiv-radio-card-title-font-size: var(--primitiv-label-md-font-size);
     --primitiv-radio-card-title-font-weight: var(--primitiv-label-md-font-weight);
     --primitiv-radio-card-title-line-height: var(--primitiv-label-md-line-height);
     --primitiv-radio-card-description-color: var(--primitiv-content-secondary);
+    --primitiv-radio-card-description-color-selected: var(--primitiv-content-secondary);
     --primitiv-radio-card-description-font-family: var(--primitiv-body-md-font-family);
     --primitiv-radio-card-description-font-size: var(--primitiv-body-md-font-size);
     --primitiv-radio-card-description-font-weight: var(--primitiv-body-md-font-weight);
@@ -114,13 +116,16 @@
   }
 
   /* The dot — half the indicator's own size, filled with the current colour.
-     Only rendered while the headless Indicator is mounted (checked), so no
-     reveal transition is needed by default. */
+     forceMount keeps it in the DOM always (see the .tsx), scaled to nothing
+     until checked (see the states layer), so the reveal can animate — the
+     same grow-from-nothing motion as the standalone Radio's own dot. */
   .primitiv-radio-card__dot {
     inline-size: calc(var(--primitiv-radio-card-indicator-size) / 2);
     block-size: calc(var(--primitiv-radio-card-indicator-size) / 2);
     border-radius: var(--primitiv-radii-full);
     background: currentColor;
+    scale: 0;
+    transition: scale var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   .primitiv-radio-card__content {
@@ -136,6 +141,7 @@
     font-size: var(--primitiv-radio-card-title-font-size);
     font-weight: var(--primitiv-radio-card-title-font-weight);
     line-height: var(--primitiv-radio-card-title-line-height);
+    transition: color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   .primitiv-radio-card__description {
@@ -144,6 +150,7 @@
     font-size: var(--primitiv-radio-card-description-font-size);
     font-weight: var(--primitiv-radio-card-description-font-weight);
     line-height: var(--primitiv-radio-card-description-line-height);
+    transition: color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 }
 
@@ -231,13 +238,28 @@
 @layer primitiv.states {
   /* Checked fills the CARD with the selected treatment (choice-card/selected/*
      — shared with checkbox-card); the indicator circle itself stays light,
-     only its border escalates to brand — Radio's own convention. */
+     only its border escalates to brand — Radio's own convention. The
+     selected fill is genuinely theme-appropriate, not light-in-both-themes
+     — see checkbox-card's styles.css for the full account of the 2026-07-30
+     fix (choice-card/selected/background's dark alias moved from brand.800
+     to brand.100, matching Figma's actual rendering — #0e2140 dark navy, not
+     the #a6d6ff pale blue the old alias produced). Title/description use the
+     ordinary ambient content-primary/content-secondary tokens accordingly. */
   .primitiv-radio-card[data-state="checked"] {
     border-color: var(--primitiv-radio-card-border-color-selected);
     background: var(--primitiv-radio-card-bg-selected);
   }
   .primitiv-radio-card[data-state="checked"] .primitiv-radio-card__indicator {
     border-color: var(--primitiv-radio-card-indicator-border-color-selected);
+  }
+  .primitiv-radio-card[data-state="checked"] .primitiv-radio-card__title {
+    color: var(--primitiv-radio-card-title-color-selected);
+  }
+  .primitiv-radio-card[data-state="checked"] .primitiv-radio-card__description {
+    color: var(--primitiv-radio-card-description-color-selected);
+  }
+  .primitiv-radio-card[data-state="checked"] .primitiv-radio-card__dot {
+    scale: 1;
   }
 
   /* Hover — border escalates a step; the whole card lifts (matches Button's

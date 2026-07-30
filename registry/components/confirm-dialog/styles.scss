@@ -1,0 +1,35 @@
+/*
+ * ConfirmDialog — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add confirm-dialog`. It is
+ * yours to edit: the stable surface is the contract (the .primitiv-confirm-
+ * dialog class and the data-state hook), not these values (RFC 0006
+ * Principle 2 — names are stable, values are not).
+ *
+ * ConfirmDialog is a pre-arranged Modal, not a new visual surface — its
+ * `ConfirmDialogContent` renders the registry Modal's own Content/Header/
+ * Body/Footer/Title/Close parts directly, so every declaration (surface,
+ * border, radius, padding, divider, title/description type, close-button
+ * treatment, size scale, open/close transitions, focus ring) already lives
+ * in modal/styles.css and needs no restatement here — contrast `drawer`,
+ * which is a genuinely different surface (edge-docked, not centered) and so
+ * carries its own full parallel ruleset. `.primitiv-confirm-dialog` is
+ * applied alongside `.primitiv-modal.primitiv-modal--{size}` purely as a
+ * reserved identification hook for a future confirm-dialog-specific
+ * override, and carries no declarations of its own today.
+ *
+ * Requires the token layer only insofar as modal/styles.css does — this
+ * sheet itself resolves no custom properties directly.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-confirm-dialog {
+    /* Reserved hook — see the file header. */
+  }
+}

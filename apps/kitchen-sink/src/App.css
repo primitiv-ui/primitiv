@@ -25,6 +25,52 @@ body {
   );
 }
 
+/* Below the desktop breakpoint this is just a plain block wrapper (PageToc's
+   nav is display:none, see .kitchen-sink__toc below) — .kitchen-sink alone
+   still centres itself via its own max-width/margin-inline. At desktop size
+   it becomes the real 3-column grid: two *equal* flexible gutters flanking
+   the fixed-width main content column, so the content column is genuinely
+   centred on the viewport — not shifted left to make room for the TOC.
+   Both outer tracks are a bare 1fr (`minmax(auto, 1fr)`); ordinarily the TOC's
+   own 22rem width would grow column 3's `auto` minimum past its fair 1fr
+   share (its min-width:0 below is what stops that — see the comment there),
+   so with that neutralised both tracks size purely off the equal 1fr weight
+   and come out equal. Giving the TOC its own grid column — instead of
+   position:fixed, which is positioned purely against the viewport and knows
+   nothing about where the content column actually sits — is what makes the
+   "can never overlap the main content" guarantee structural rather than a
+   width/breakpoint tuning exercise.
+   Breakpoint: 108rem (1728px), well above the 80rem the rest of the page's
+   desktop-only chrome uses. This one specifically has to be wide enough that
+   each flexible gutter's fair half-share is still at least the TOC's own
+   22rem (352px) once the fixed 960px content column and the two 24px
+   column-gaps are subtracted — 960 + 2×352 + 2×24 = 1712px (107rem) is the
+   exact floor below which the TOC (justify-self: start below, so it hugs
+   column 3's near edge) would spill past the container's right edge instead
+   of just eating into its own gutter's slack; 108rem adds a full rem of
+   headroom over that floor.
+   Both .kitchen-sink and .kitchen-sink__toc need an explicit `grid-row: 1`
+   (set on each below) — without one, only their `grid-column` is fixed, so
+   auto-placement still has to pick a row for each, in DOM order. PageToc
+   renders before .kitchen-sink, so the TOC claims row 1 first; the
+   auto-placement cursor then advances past the last column, wraps to row 2,
+   and that's where .kitchen-sink lands — a whole empty row (as tall as the
+   TOC's own short content) above the real content, read as "a huge gap at
+   the top of the page". Pinning both to grid-row: 1 keeps them in the same
+   row regardless of DOM order. */
+@media (min-width: 108rem) {
+  .kitchen-sink-layout {
+    display: grid;
+    grid-template-columns: 1fr minmax(0, 960px) 1fr;
+    column-gap: var(--primitiv-space-space-24);
+  }
+
+  .kitchen-sink {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
 .kitchen-sink {
   max-width: 960px;
   margin-inline: auto;
@@ -44,35 +90,56 @@ body {
 }
 
 /* The "On this page" nav (PageToc in App.tsx) — a static, always-expanded
-   table of contents. Fixed to the viewport's top-right, clear of Shell's two
-   chrome bars via --kitchen-sink-toc-top (:root, above). surface-floating is
-   the same "panel floating over the page" surface Popover / NavigationMenu's
-   own panel use, so this reads as a floating panel rather than page
-   background showing through.
-   Desktop only: 80rem is not one of RFC 0025's proposed tiers exactly, but
-   it's roughly where the fixed 960px main column (plus its own padding)
-   still leaves a comfortable right-hand gutter for this wider, 2-column box
-   without crowding it — close enough to the RFC's proposed `xl` (80rem) that
-   it can become var(--primitiv-breakpoint-xl) once that RFC's tokens are
-   emitted. Below it the nav simply isn't rendered (display:none), so it
-   never overlaps a page already tight enough to need the mobile nav (see
+   table of contents. No background any more: now that it lives in its own
+   grid column (see .kitchen-sink-layout above) rather than floating via
+   position:fixed over the page, there's nothing beneath it to visually
+   separate it from — it never overlaps page content, so a "floating panel"
+   surface isn't needed.
+   Desktop only, and gated at the same 108rem breakpoint as
+   .kitchen-sink-layout's grid above (they have to move together — this rule
+   places the TOC into grid-column: 3, which only exists once the grid is
+   active; below that width the nav simply isn't rendered (display:none), so
+   it never overlaps a page already tight enough to need the mobile nav (see
    .ks-nav-mobile-only). */
 .kitchen-sink__toc {
   display: none;
 }
 
-@media (min-width: 80rem) {
+@media (min-width: 108rem) {
   .kitchen-sink__toc {
     display: block;
-    position: fixed;
+    grid-column: 3;
+    grid-row: 1;
+    /* Hugs the near (left) edge of column 3, right next to the content —
+       matching where it visually sat under the old position:fixed — rather
+       than the far edge, which on a very wide viewport would strand it out
+       near the browser's edge, disconnected from the content it annotates. */
+    justify-self: start;
+    /* Without this, the TOC's own 22rem width would set column 3's `auto`
+       minimum (see .kitchen-sink-layout's comment above) and break the
+       symmetric 1fr/1fr split, pulling the content column off-centre again
+       — the exact bug this whole rework exists to fix. min-width: 0 tells
+       Grid this item is allowed to sit in a track narrower than its own
+       content width; since `inline-size` below still pins its actual
+       rendered width to 22rem regardless, the visual result is unchanged —
+       only the column-sizing math changes. Same fix as the classic flexbox
+       min-width:auto overflow trick. */
+    min-width: 0;
+    /* sticky, not fixed: a grid item's containing block for sticky purposes
+       is its own grid area, which — left at the default align-items:stretch
+       (no align-self override here) — spans the full row, i.e. the same
+       height as the (much taller) main content column. That's what lets the
+       box stay pinned near the top for the whole page scroll instead of
+       un-sticking the moment its own short content's height is scrolled
+       past; align-self: start would shrink the box back down to its content
+       height and defeat that. */
+    position: sticky;
     top: var(--kitchen-sink-toc-top);
-    right: var(--primitiv-space-space-24);
     inline-size: 22rem;
     max-block-size: calc(
       100vh - var(--kitchen-sink-toc-top) - var(--primitiv-space-space-24)
     );
     overflow-y: auto;
-    background: var(--primitiv-surface-floating);
   }
 }
 
@@ -170,6 +237,23 @@ body {
   align-items: stretch;
 }
 
+/* A stretched flex item defaults to min-width: auto — it can't shrink below
+   its own content's intrinsic minimum. A single-line flex container's cross
+   size is capped to the container's own available space per spec, but a
+   child whose min-content exceeds that (e.g. a nowrap toolbar row wider than
+   the viewport) still overflows, and because every sibling stretches to the
+   SAME line cross size, that one overflow was measured to widen every other
+   sibling in the section too — unrelated captions and demos included — not
+   just the one demo that's actually too wide (caught on mobile: the Layout
+   Primitives section's Stack toolbar row forced every sibling to ~439px in a
+   375px viewport). min-width: 0 lets each child shrink to the container's
+   real width instead; a demo that still doesn't fit (like a nowrap row)
+   scrolls within its own box via .ks-demo-frame--scroll-x rather than
+   blowing out the page. */
+.kitchen-sink__section-body--column > * {
+  min-width: 0;
+}
+
 /* Flex's cross-axis default (align-items: stretch, above) is right for a
    section full of naturally full-width demos (Table, Accordion, Tabs, …),
    but it force-stretches genuinely HUG-sized components too — Collapsible's
@@ -181,6 +265,15 @@ body {
 .kitchen-sink__section-body--column .primitiv-collapsible,
 .kitchen-sink__section-body--column .primitiv-segmented-control {
   align-self: flex-start;
+}
+
+/* Hugging its own content (above) doesn't cap that content's width — a
+   SegmentedControl with a long label ("Last 30 days") can still be wider than
+   a narrow viewport on its own. Scroll within the control instead of
+   overflowing the page. */
+.kitchen-sink__section-body--column .primitiv-segmented-control {
+  overflow-x: auto;
+  max-inline-size: 100%;
 }
 
 /* Select demos — the control fills its container (it tracks a form column,

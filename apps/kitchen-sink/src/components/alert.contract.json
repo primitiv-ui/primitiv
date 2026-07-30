@@ -37,6 +37,8 @@
   "customProperties": [
     { "name": "--primitiv-alert-background", "defaultsTo": "var(--primitiv-feedback-info-soft-background)" },
     { "name": "--primitiv-alert-foreground", "defaultsTo": "var(--primitiv-feedback-info-soft-foreground)" },
+    { "name": "--primitiv-alert-border-color", "defaultsTo": "var(--primitiv-feedback-info-soft-border)" },
+    { "name": "--primitiv-alert-border-width", "defaultsTo": "var(--primitiv-framed-control-border-width)" },
     { "name": "--primitiv-alert-padding-inline", "defaultsTo": "var(--primitiv-framed-control-md-padding-inline)" },
     { "name": "--primitiv-alert-padding-block", "defaultsTo": "var(--primitiv-alert-md-padding-block)" },
     { "name": "--primitiv-alert-gap", "defaultsTo": "var(--primitiv-framed-control-md-gap)" },

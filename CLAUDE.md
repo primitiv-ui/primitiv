@@ -276,13 +276,12 @@ source of truth for when a skill applies.
   remaining Figma sets with hardcoded shadows — Modal (`elevation/modal`),
   Dropdown/Panel (`elevation/overlay`). See RFC 0017 §5–7 + D8 and
   `docs/transfer-and-next-steps.md`.
-- **NavigationMenu (RFC 0019) dependency build — in progress (2026-07-24).**
-  RFC 0019 needs Dropdown, Collapsible and a richer `Select` headless
+- **NavigationMenu (RFC 0019) dependency build — fully complete (2026-07-25).**
+  RFC 0019 needed Dropdown, Collapsible and a richer `Select` headless
   component built out to full Figma → headless → registry → kitchen-sink
-  surfaces *before* NavigationMenu itself starts, with Figma design done
-  first for each. Sequence: **Dropdown (done) → Collapsible (done) →
-  Select refactor (design settled, Figma landed, headless build not
-  started) → NavigationMenu (not started)**.
+  surfaces *before* NavigationMenu itself started, with Figma design done
+  first for each. Sequence, all stages done: **Dropdown → Collapsible →
+  Select refactor → NavigationMenu.**
   - **Dropdown — fully landed, all four stages.** Figma: `668:42210`
     (Panel set) + Item/CheckboxItem/RadioItem/SubTrigger/Label/Separator/
     Group/RadioGroup sets on canvas `317:362`, using a menu checkmark/dot
@@ -345,8 +344,9 @@ source of truth for when a skill applies.
     landed in between via a separate, already-merged session). Kitchen-
     sink: one collapsible per dressing right after the Accordion section,
     the `inline` one demonstrating `collapsedHeight={72}` + the fade.
-  - **Select refactor — design settled, Figma landed (2026-07-24);
-    headless build not started.** Decided against a second "Rich Select"
+  - **Select refactor — design settled, Figma landed (2026-07-24); headless
+    build landed the next day (see the "Select rich mode" entry below).**
+    Decided against a second "Rich Select"
     component: `Select` gains a `native` boolean prop (default `false`)
     instead. `native={false}` (the new default) is the rich Popover-API
     listbox (`Select.Content`/`Item`/`Group`/`ItemIndicator`, custom item
@@ -473,9 +473,9 @@ source of truth for when a skill applies.
     flagged but deliberately not changed (focused-trigger border colour;
     `Dropdown / Panel`'s `border/subtle` stroke). Full account in
     `docs/select-future-work.md`.
-  - **NavigationMenu — headless + Figma desktop set landed (2026-07-25);
-    registry + kitchen-sink still to do.** RFC 0019 §4 is fully settled and §5 now
-    fixes the API. Decisions: **(a)** desktop-only `NavigationMenu` +
+  - **NavigationMenu — fully landed, all four stages (2026-07-25).** RFC 0019 §4
+    is fully settled and §5 fixed the API. Decisions: **(a)** desktop-only
+    `NavigationMenu` +
     composed mobile — the duplication worry was raised and closed in
     RFC 0019 **§4a** (the nav *data* and the active-state `Link` stay
     single-sourced; only ~15 lines of wrapper elements differ per
@@ -560,9 +560,14 @@ source of truth for when a skill applies.
     recorded in the descriptions (`Content`→`Panel` is the existing house
     convention, and one `Link` part legitimately needs two geometries).
     Arrange script: `apps/harmoni-figma-plugin/scripts/arrange-navigation-menu-component-sets.js`.
-**Next:** registry styles + a kitchen-sink example — the dogfood needs to
-    cover desktop *and* the composed mobile (`Drawer` + `Collapsible` +
-    `NavigationMenu.Link`).
+    Registry `navigation-menu` (anchor-positioned Viewport panel projection,
+    trigger chevron flip, arrow/underline `Indicator` modifiers) and the
+    kitchen-sink demo (desktop five-panel disclosure nav — two-column,
+    single-column, and a four-column brand-callout panel — plus the composed
+    mobile presentation via `Drawer` + `Collapsible` + `NavigationMenuLink`)
+    both landed too. Registered in `registry/registry.json`,
+    `crates/primitiv-cli/src/ports/registry.rs`,
+    `crates/primitiv-cli/tests/cli.rs` (roster count 48).
 - **Badge / Tag / Chip (RFC 0021) — fully landed, tokens + Figma + registry
   (2026-07-29).** All three are hand-authored, primitive-less registry
   leaves — no `packages/react` primitive, per RFC 0021's explicit call
@@ -598,6 +603,45 @@ source of truth for when a skill applies.
   combined "Badge, Tag & Chip" section between Avatar and Breadcrumb in
   `apps/kitchen-sink/src/App.tsx`, Chip's demo backed by real `useState` so
   the remove button actually removes a filter chip from a live list.
+- **ConfirmDialog (RFC 0021 Tier 1 composite, `Modal` + `Button`) — fully
+  landed, Figma + registry (2026-07-30).** Figma-first per RFC 0021 §6: a
+  "Confirm / Alert Dialog — exploration" page (built from real Modal/Button/
+  Icon instances) settled tone-follows-the-action, no default leading icon,
+  editable labels, and close-button-off-by-default, before the real
+  `ConfirmDialog` component set (8 variants, Tone default\|danger × Size
+  sm\|md\|lg\|xl) landed on a new "ConfirmDialog" page, positioned right after
+  "Modal" in the Overlays section. The body is a genuine Figma SLOT — a live,
+  non-detached nested `Modal/Body` instance (preserving its native slot),
+  while Header/Footer are detached plain frames with `componentPropertyReferences`
+  wired directly to their text/visibility nodes (Modal's own nested-instance
+  property exposure — `header.componentPropertyReferences` — was found to be
+  genuinely broken/unsettable via the plugin API; detach-and-rewire was the
+  workaround, scoped to ConfirmDialog only, not fixed at Modal's shared
+  master). Building the slot surfaced and fixed a real shared-master bug along
+  the way: `Modal/Body`'s slot was a fixed 80px frame that silently
+  overlapped the footer on long content — now hug-with-a-`minHeight:80`-floor,
+  benefiting every Modal in the file. **No headless `@primitiv-ui/react`
+  primitive** — Modal's own native-`<dialog>`-based focus trap and
+  Escape/backdrop dismissal (`packages/react/src/Modal/hooks/useModalContent.ts`)
+  already cover everything this needs, so it ships as a pure registry
+  composition, hand-authored like `alert`. Registry `confirm-dialog`
+  (`ConfirmDialog`/`ConfirmDialogTrigger`/`ConfirmDialogContent`) composes the
+  registry `modal` (Content/Header/Body/Footer/Title/Close) and `button`
+  components directly — no new dialog anatomy, just `title`/children-as-slot/
+  `tone` (`default`→primary, `danger`→danger Confirm button)/`size` (default
+  `sm`, smaller than Modal's `md`)/`confirmLabel`/`cancelLabel`/`onConfirm`
+  (does not auto-close)/`showClose` (default `false`) as props.
+  `contract.json`/`styles.css` carry no new custom properties or modifiers —
+  every visual declaration is Modal's own; `.primitiv-confirm-dialog` is a
+  reserved, currently-empty identification class. `Portal`/`Overlay` are
+  deliberately not re-exported (identical to a plain Modal's — compose
+  `ModalPortal`/`ModalOverlay` from `./modal` directly in usage). Registered
+  in `registry/registry.json` (`dependsOn.components: ["modal", "button"]`),
+  `crates/primitiv-cli/src/ports/registry.rs`,
+  `crates/primitiv-cli/tests/cli.rs` (roster count 49). Kitchen-sink: a
+  "Confirm Dialog" section right after Modal in `apps/kitchen-sink/src/App.tsx`,
+  a controlled danger-tone "Remove member" demo whose `onConfirm` closes the
+  dialog.
 
 ## Useful commands
 

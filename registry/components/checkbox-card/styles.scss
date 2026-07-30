@@ -62,11 +62,13 @@
     --primitiv-checkbox-card-indicator-mark-size: var(--primitiv-checkbox-md-mark-size);
     --primitiv-checkbox-card-indicator-mark-color: var(--primitiv-action-primary-foreground-default);
     --primitiv-checkbox-card-title-color: var(--primitiv-content-primary);
+    --primitiv-checkbox-card-title-color-selected: var(--primitiv-content-primary);
     --primitiv-checkbox-card-title-font-family: var(--primitiv-label-md-font-family);
     --primitiv-checkbox-card-title-font-size: var(--primitiv-label-md-font-size);
     --primitiv-checkbox-card-title-font-weight: var(--primitiv-label-md-font-weight);
     --primitiv-checkbox-card-title-line-height: var(--primitiv-label-md-line-height);
     --primitiv-checkbox-card-description-color: var(--primitiv-content-secondary);
+    --primitiv-checkbox-card-description-color-selected: var(--primitiv-content-secondary);
     --primitiv-checkbox-card-description-font-family: var(--primitiv-body-md-font-family);
     --primitiv-checkbox-card-description-font-size: var(--primitiv-body-md-font-size);
     --primitiv-checkbox-card-description-font-weight: var(--primitiv-body-md-font-weight);
@@ -116,14 +118,17 @@
   }
 
   /* The mark itself — reuses Checkbox's own clip-path polygon (a tick),
-     re-clipped to a bar for indeterminate below. Only rendered while the
-     headless Indicator is mounted (checked/indeterminate), so no reveal
-     transition is needed by default. */
+     re-clipped to a bar for indeterminate below. forceMount keeps it in the
+     DOM always (see the .tsx), scaled to nothing until checked/indeterminate
+     (see the states layer), so the reveal can animate — the same
+     grow-from-nothing motion as the standalone Checkbox's own mark. */
   .primitiv-checkbox-card__mark {
     inline-size: var(--primitiv-checkbox-card-indicator-mark-size);
     block-size: var(--primitiv-checkbox-card-indicator-mark-size);
     background: currentColor;
     clip-path: polygon(40% 68%, 12% 40%, 0% 52%, 40% 92%, 100% 22%, 88% 10%);
+    scale: 0;
+    transition: scale var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   .primitiv-checkbox-card__content {
@@ -139,6 +144,7 @@
     font-size: var(--primitiv-checkbox-card-title-font-size);
     font-weight: var(--primitiv-checkbox-card-title-font-weight);
     line-height: var(--primitiv-checkbox-card-title-line-height);
+    transition: color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   .primitiv-checkbox-card__description {
@@ -147,6 +153,7 @@
     font-size: var(--primitiv-checkbox-card-description-font-size);
     font-weight: var(--primitiv-checkbox-card-description-font-weight);
     line-height: var(--primitiv-checkbox-card-description-line-height);
+    transition: color var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 }
 
@@ -243,16 +250,47 @@
 
 @layer primitiv.states {
   /* Checked and indeterminate both fill the card with the selected treatment
-     and the indicator with the primary action colour. */
+     and the indicator with the primary action colour. The selected fill is
+     genuinely theme-appropriate, NOT light-in-both-themes: choice-card/
+     selected/background aliases brand.100 in light mode and brand.100 again
+     in dark mode (2026-07-30 fix — it used to alias brand.800 for dark,
+     which looked right by variable NAME but was wrong in practice, because
+     the Primitives/Palette collection never gets its own mode switched to
+     Dark anywhere in the Figma file — only Intent does. So Figma always
+     renders a Dark-Intent alias through the Palette's Light-authored ramp;
+     brand.100 there is #cbe5ff, and step 800 there is #001352, dark navy —
+     which is what every dark frame in the file actually shows and what the
+     team has designed against. The compiled dark-theme CSS, by contrast, has
+     its own independently-authored dark ramp where brand.800 is redefined to
+     #a6d6ff, pale — so the two diverged. Picking the *opposite-end* step
+     (100, not 800) for dark mode — the same "opposite step" pattern
+     content-primary already uses via neutral.900 light / neutral.50 dark —
+     lands on brand.100's dark-ramp value, #0e2140, a proper dark navy that
+     matches Figma). Because the fill now genuinely flips with the theme,
+     title/description use the ordinary ambient content-primary/
+     content-secondary tokens (not content-on-selected) — matching what the
+     Figma Title/Description text nodes are actually bound to. */
   .primitiv-checkbox-card[data-state="checked"],
   .primitiv-checkbox-card[data-state="indeterminate"] {
     border-color: var(--primitiv-checkbox-card-border-color-selected);
     background: var(--primitiv-checkbox-card-bg-selected);
   }
+  .primitiv-checkbox-card[data-state="checked"] .primitiv-checkbox-card__title,
+  .primitiv-checkbox-card[data-state="indeterminate"] .primitiv-checkbox-card__title {
+    color: var(--primitiv-checkbox-card-title-color-selected);
+  }
+  .primitiv-checkbox-card[data-state="checked"] .primitiv-checkbox-card__description,
+  .primitiv-checkbox-card[data-state="indeterminate"] .primitiv-checkbox-card__description {
+    color: var(--primitiv-checkbox-card-description-color-selected);
+  }
   .primitiv-checkbox-card[data-state="checked"] .primitiv-checkbox-card__indicator,
   .primitiv-checkbox-card[data-state="indeterminate"] .primitiv-checkbox-card__indicator {
     border-color: var(--primitiv-checkbox-card-indicator-bg-selected);
     background: var(--primitiv-checkbox-card-indicator-bg-selected);
+  }
+  .primitiv-checkbox-card[data-state="checked"] .primitiv-checkbox-card__mark,
+  .primitiv-checkbox-card[data-state="indeterminate"] .primitiv-checkbox-card__mark {
+    scale: 1;
   }
 
   /* Re-clip the mark to a bar when mixed. */
@@ -315,11 +353,13 @@ $primitiv-checkbox-card-indicator-border-color: var(--primitiv-checkbox-card-ind
 $primitiv-checkbox-card-indicator-mark-size: var(--primitiv-checkbox-card-indicator-mark-size);
 $primitiv-checkbox-card-indicator-mark-color: var(--primitiv-checkbox-card-indicator-mark-color);
 $primitiv-checkbox-card-title-color: var(--primitiv-checkbox-card-title-color);
+$primitiv-checkbox-card-title-color-selected: var(--primitiv-checkbox-card-title-color-selected);
 $primitiv-checkbox-card-title-font-family: var(--primitiv-checkbox-card-title-font-family);
 $primitiv-checkbox-card-title-font-size: var(--primitiv-checkbox-card-title-font-size);
 $primitiv-checkbox-card-title-font-weight: var(--primitiv-checkbox-card-title-font-weight);
 $primitiv-checkbox-card-title-line-height: var(--primitiv-checkbox-card-title-line-height);
 $primitiv-checkbox-card-description-color: var(--primitiv-checkbox-card-description-color);
+$primitiv-checkbox-card-description-color-selected: var(--primitiv-checkbox-card-description-color-selected);
 $primitiv-checkbox-card-description-font-family: var(--primitiv-checkbox-card-description-font-family);
 $primitiv-checkbox-card-description-font-size: var(--primitiv-checkbox-card-description-font-size);
 $primitiv-checkbox-card-description-font-weight: var(--primitiv-checkbox-card-description-font-weight);

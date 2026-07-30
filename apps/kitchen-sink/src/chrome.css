@@ -10,6 +10,12 @@
   display: flex;
   align-items: center;
   gap: var(--primitiv-space-space-8);
+  /* A group's own row (label + a ToggleGroup like Density's 4 segments,
+     "Comfortable" included) doesn't wrap internally, and can still be wider
+     than a narrow viewport even once `.ks-chrome` wraps groups onto their own
+     lines. Scroll within the group instead of overflowing the page. */
+  overflow-x: auto;
+  max-inline-size: 100%;
 }
 
 .ks-chrome__label {

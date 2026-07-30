@@ -700,9 +700,17 @@
           "$type": "number",
           "$value": "{size.size-12}"
         },
+        "label-height": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-4}"
+        },
+        "label-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
         },
         "font-size": {
           "$type": "number",
@@ -718,9 +726,17 @@
           "$type": "number",
           "$value": "{size.size-14}"
         },
+        "label-height": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-4}"
+        },
+        "label-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
         },
         "font-size": {
           "$type": "number",
@@ -736,9 +752,17 @@
           "$type": "number",
           "$value": "{size.size-16}"
         },
+        "label-height": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-6}"
+        },
+        "label-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
         },
         "font-size": {
           "$type": "number",
@@ -754,9 +778,17 @@
           "$type": "number",
           "$value": "{size.size-20}"
         },
+        "label-height": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-6}"
+        },
+        "label-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
         },
         "font-size": {
           "$type": "number",
@@ -772,7 +804,15 @@
           "$type": "number",
           "$value": "{size.size-24}"
         },
+        "label-height": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
         "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "label-padding-inline": {
           "$type": "number",
           "$value": "{space.space-8}"
         },
@@ -790,11 +830,11 @@
       "xs": {
         "height": {
           "$type": "number",
-          "$value": "{size.size-16}"
+          "$value": "{size.size-20}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": "{space.space-6}"
+          "$value": "{space.space-8}"
         },
         "font-size": {
           "$type": "number",
@@ -3440,9 +3480,17 @@
           "$type": "number",
           "$value": "{size.size-12}"
         },
+        "label-height": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-3}"
+        },
+        "label-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
         },
         "font-size": {
           "$type": "number",
@@ -3458,9 +3506,17 @@
           "$type": "number",
           "$value": "{size.size-14}"
         },
+        "label-height": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-4}"
+        },
+        "label-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
         },
         "font-size": {
           "$type": "number",
@@ -3476,9 +3532,17 @@
           "$type": "number",
           "$value": "{size.size-16}"
         },
+        "label-height": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-4}"
+        },
+        "label-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
         },
         "font-size": {
           "$type": "number",
@@ -3494,9 +3558,17 @@
           "$type": "number",
           "$value": "{size.size-20}"
         },
+        "label-height": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-6}"
+        },
+        "label-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
         },
         "font-size": {
           "$type": "number",
@@ -3512,7 +3584,15 @@
           "$type": "number",
           "$value": "{size.size-24}"
         },
+        "label-height": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
         "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
+        },
+        "label-padding-inline": {
           "$type": "number",
           "$value": "{space.space-6}"
         },
@@ -3530,11 +3610,11 @@
       "xs": {
         "height": {
           "$type": "number",
-          "$value": "{size.size-14}"
+          "$value": "{size.size-20}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": "{space.space-4}"
+          "$value": "{space.space-8}"
         },
         "font-size": {
           "$type": "number",
@@ -3548,11 +3628,11 @@
       "sm": {
         "height": {
           "$type": "number",
-          "$value": "{size.size-16}"
+          "$value": "{size.size-20}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": "{space.space-6}"
+          "$value": "{space.space-8}"
         },
         "font-size": {
           "$type": "number",
@@ -3566,11 +3646,11 @@
       "md": {
         "height": {
           "$type": "number",
-          "$value": "{size.size-20}"
+          "$value": "{size.size-24}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": "{space.space-6}"
+          "$value": "{space.space-8}"
         },
         "font-size": {
           "$type": "number",
@@ -6180,9 +6260,17 @@
           "$type": "number",
           "$value": "{size.size-14}"
         },
+        "label-height": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-4}"
+        },
+        "label-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
         },
         "font-size": {
           "$type": "number",
@@ -6198,9 +6286,17 @@
           "$type": "number",
           "$value": "{size.size-16}"
         },
+        "label-height": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-6}"
+        },
+        "label-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
         },
         "font-size": {
           "$type": "number",
@@ -6216,9 +6312,17 @@
           "$type": "number",
           "$value": "{size.size-20}"
         },
+        "label-height": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-6}"
+        },
+        "label-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
         },
         "font-size": {
           "$type": "number",
@@ -6234,7 +6338,15 @@
           "$type": "number",
           "$value": "{size.size-24}"
         },
+        "label-height": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
         "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
+        },
+        "label-padding-inline": {
           "$type": "number",
           "$value": "{space.space-8}"
         },
@@ -6252,7 +6364,15 @@
           "$type": "number",
           "$value": "{size.size-28}"
         },
+        "label-height": {
+          "$type": "number",
+          "$value": "{size.size-28}"
+        },
         "padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-10}"
+        },
+        "label-padding-inline": {
           "$type": "number",
           "$value": "{space.space-10}"
         },
@@ -8920,9 +9040,17 @@
           "$type": "number",
           "$value": "{size.size-12}"
         },
+        "label-height": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-2}"
+        },
+        "label-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-4}"
         },
         "font-size": {
           "$type": "number",
@@ -8938,9 +9066,17 @@
           "$type": "number",
           "$value": "{size.size-12}"
         },
+        "label-height": {
+          "$type": "number",
+          "$value": "{size.size-16}"
+        },
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-3}"
+        },
+        "label-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
         },
         "font-size": {
           "$type": "number",
@@ -8956,9 +9092,17 @@
           "$type": "number",
           "$value": "{size.size-14}"
         },
+        "label-height": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-4}"
+        },
+        "label-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
         },
         "font-size": {
           "$type": "number",
@@ -8974,9 +9118,17 @@
           "$type": "number",
           "$value": "{size.size-16}"
         },
+        "label-height": {
+          "$type": "number",
+          "$value": "{size.size-20}"
+        },
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-4}"
+        },
+        "label-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-6}"
         },
         "font-size": {
           "$type": "number",
@@ -8992,9 +9144,17 @@
           "$type": "number",
           "$value": "{size.size-20}"
         },
+        "label-height": {
+          "$type": "number",
+          "$value": "{size.size-24}"
+        },
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-6}"
+        },
+        "label-padding-inline": {
+          "$type": "number",
+          "$value": "{space.space-8}"
         },
         "font-size": {
           "$type": "number",
@@ -9010,11 +9170,11 @@
       "xs": {
         "height": {
           "$type": "number",
-          "$value": "{size.size-12}"
+          "$value": "{size.size-16}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": "{space.space-4}"
+          "$value": "{space.space-6}"
         },
         "font-size": {
           "$type": "number",
@@ -9028,11 +9188,11 @@
       "sm": {
         "height": {
           "$type": "number",
-          "$value": "{size.size-14}"
+          "$value": "{size.size-20}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": "{space.space-4}"
+          "$value": "{space.space-8}"
         },
         "font-size": {
           "$type": "number",
@@ -9046,11 +9206,11 @@
       "md": {
         "height": {
           "$type": "number",
-          "$value": "{size.size-16}"
+          "$value": "{size.size-20}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": "{space.space-6}"
+          "$value": "{space.space-8}"
         },
         "font-size": {
           "$type": "number",
@@ -9064,11 +9224,11 @@
       "lg": {
         "height": {
           "$type": "number",
-          "$value": "{size.size-20}"
+          "$value": "{size.size-24}"
         },
         "padding-inline": {
           "$type": "number",
-          "$value": "{space.space-6}"
+          "$value": "{space.space-8}"
         },
         "font-size": {
           "$type": "number",

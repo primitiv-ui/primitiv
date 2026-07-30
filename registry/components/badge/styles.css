@@ -12,9 +12,14 @@
  * record). Two treatments: `label` (low-emphasis, tinted — feedback/*\/soft/*)
  * and `counter` (high-emphasis, solid — feedback/*\/solid/*), independent of
  * shape: circularity is purely a function of content length, not a variant —
- * `min-inline-size` is pinned to the same height token so short content (a
- * notification count) forces a true circle, while longer content (a status
- * word) naturally widens into a pill.
+ * `min-inline-size` is pinned to the same height custom property so short
+ * content (a notification count) forces a true circle, while longer content
+ * (a status word) naturally widens into a pill. label and counter resolve
+ * that shared `--primitiv-badge-height` custom property to two *different*
+ * underlying Context tokens (badge/{size}/label-height vs badge/{size}/height,
+ * see primitiv.variants) — label needs the extra vertical room descenders
+ * (g, j, p, q, y) leave no space for at counter's tighter box; the circle
+ * mechanism itself is identical, just sized differently per variant.
  *
  * Structure follows RFC 0008: per-component API tokens + the resting look
  * live in primitiv.base, size modifiers in primitiv.variants.
@@ -107,6 +112,42 @@
     --primitiv-badge-height: var(--primitiv-badge-xl-height);
     --primitiv-badge-padding-inline: var(--primitiv-badge-xl-padding-inline);
     --primitiv-badge-font-size: var(--primitiv-badge-xl-font-size);
+  }
+
+  /* Size × Label — re-points height/padding-inline again, on top of the
+     plain size rules above, ONLY for the label variant (a compound selector
+     beats a single-class one on specificity, so these always win once both
+     classes are present). Label needs more vertical room than the shared
+     badge/{size}/height gives: descenders (g, j, p, q, y) were crowding the
+     pill's bottom curve at the tighter density/size combinations (worst at
+     Dense, ~1px each side) — verified with a "gjpqy" stress test in Figma.
+     Deliberately NOT shared with counter: counter's circularity comes from
+     minWidth clamping to that same badge/{size}/height, so bumping the
+     shared token would have inflated the counter circle for no reason
+     (digits have no descenders). padding-inline gets a partial compensating
+     bump alongside each height increase, since radii-full ties the pill's
+     corner radius to height/2 — without it the text would sit closer to the
+     curved end-cap than before even though horizontal spacing wasn't the
+     thing being fixed. */
+  .primitiv-badge--label.primitiv-badge--xs {
+    --primitiv-badge-height: var(--primitiv-badge-xs-label-height);
+    --primitiv-badge-padding-inline: var(--primitiv-badge-xs-label-padding-inline);
+  }
+  .primitiv-badge--label.primitiv-badge--sm {
+    --primitiv-badge-height: var(--primitiv-badge-sm-label-height);
+    --primitiv-badge-padding-inline: var(--primitiv-badge-sm-label-padding-inline);
+  }
+  .primitiv-badge--label.primitiv-badge--md {
+    --primitiv-badge-height: var(--primitiv-badge-md-label-height);
+    --primitiv-badge-padding-inline: var(--primitiv-badge-md-label-padding-inline);
+  }
+  .primitiv-badge--label.primitiv-badge--lg {
+    --primitiv-badge-height: var(--primitiv-badge-lg-label-height);
+    --primitiv-badge-padding-inline: var(--primitiv-badge-lg-label-padding-inline);
+  }
+  .primitiv-badge--label.primitiv-badge--xl {
+    --primitiv-badge-height: var(--primitiv-badge-xl-label-height);
+    --primitiv-badge-padding-inline: var(--primitiv-badge-xl-label-padding-inline);
   }
 
   /* Tone × Variant — compound selectors, since both classes apply together

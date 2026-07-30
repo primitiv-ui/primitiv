@@ -239,11 +239,16 @@
   /* Checked fills the CARD with the selected treatment (choice-card/selected/*
      — shared with checkbox-card); the indicator circle itself stays light,
      only its border escalates to brand — Radio's own convention. The
-     selected fill is light-in-both-themes (like ToggleGroup's own selected
-     pill — see its Figma description), so the title/description switch to
-     content/on-selected too; content-primary/secondary are tuned to read on
-     the ambient (dark-in-dark) surface, not this fill, and stay unreadably
-     light-on-light without the swap. */
+     selected fill really is light-in-both-themes — see checkbox-card's
+     styles.css for the full account (dark-mode brand.800 is a hand-authored
+     pale blue, #a6d6ff, not a flipped-literal artifact) — so title and
+     description both stay on content-on-selected (a near-black #121418 in
+     both themes) rather than the ambient content-secondary, which is tuned
+     for the dark-in-dark page surface and reads as near-invisible on this
+     always-light fill. A Figma screenshot showing a dark navy selected card
+     is a known Figma rendering artifact (the Primitives/Palette collection
+     doesn't auto-follow Intent's Light/Dark mode unless explicitly forced —
+     see the neutral-alpha-inverse entry in CLAUDE.md), not the true design. */
   .primitiv-radio-card[data-state="checked"] {
     border-color: var(--primitiv-radio-card-border-color-selected);
     background: var(--primitiv-radio-card-bg-selected);

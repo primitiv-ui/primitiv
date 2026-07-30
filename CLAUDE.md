@@ -603,6 +603,45 @@ source of truth for when a skill applies.
   combined "Badge, Tag & Chip" section between Avatar and Breadcrumb in
   `apps/kitchen-sink/src/App.tsx`, Chip's demo backed by real `useState` so
   the remove button actually removes a filter chip from a live list.
+- **ConfirmDialog (RFC 0021 Tier 1 composite, `Modal` + `Button`) — fully
+  landed, Figma + registry (2026-07-30).** Figma-first per RFC 0021 §6: a
+  "Confirm / Alert Dialog — exploration" page (built from real Modal/Button/
+  Icon instances) settled tone-follows-the-action, no default leading icon,
+  editable labels, and close-button-off-by-default, before the real
+  `ConfirmDialog` component set (8 variants, Tone default\|danger × Size
+  sm\|md\|lg\|xl) landed on a new "ConfirmDialog" page, positioned right after
+  "Modal" in the Overlays section. The body is a genuine Figma SLOT — a live,
+  non-detached nested `Modal/Body` instance (preserving its native slot),
+  while Header/Footer are detached plain frames with `componentPropertyReferences`
+  wired directly to their text/visibility nodes (Modal's own nested-instance
+  property exposure — `header.componentPropertyReferences` — was found to be
+  genuinely broken/unsettable via the plugin API; detach-and-rewire was the
+  workaround, scoped to ConfirmDialog only, not fixed at Modal's shared
+  master). Building the slot surfaced and fixed a real shared-master bug along
+  the way: `Modal/Body`'s slot was a fixed 80px frame that silently
+  overlapped the footer on long content — now hug-with-a-`minHeight:80`-floor,
+  benefiting every Modal in the file. **No headless `@primitiv-ui/react`
+  primitive** — Modal's own native-`<dialog>`-based focus trap and
+  Escape/backdrop dismissal (`packages/react/src/Modal/hooks/useModalContent.ts`)
+  already cover everything this needs, so it ships as a pure registry
+  composition, hand-authored like `alert`. Registry `confirm-dialog`
+  (`ConfirmDialog`/`ConfirmDialogTrigger`/`ConfirmDialogContent`) composes the
+  registry `modal` (Content/Header/Body/Footer/Title/Close) and `button`
+  components directly — no new dialog anatomy, just `title`/children-as-slot/
+  `tone` (`default`→primary, `danger`→danger Confirm button)/`size` (default
+  `sm`, smaller than Modal's `md`)/`confirmLabel`/`cancelLabel`/`onConfirm`
+  (does not auto-close)/`showClose` (default `false`) as props.
+  `contract.json`/`styles.css` carry no new custom properties or modifiers —
+  every visual declaration is Modal's own; `.primitiv-confirm-dialog` is a
+  reserved, currently-empty identification class. `Portal`/`Overlay` are
+  deliberately not re-exported (identical to a plain Modal's — compose
+  `ModalPortal`/`ModalOverlay` from `./modal` directly in usage). Registered
+  in `registry/registry.json` (`dependsOn.components: ["modal", "button"]`),
+  `crates/primitiv-cli/src/ports/registry.rs`,
+  `crates/primitiv-cli/tests/cli.rs` (roster count 49). Kitchen-sink: a
+  "Confirm Dialog" section right after Modal in `apps/kitchen-sink/src/App.tsx`,
+  a controlled danger-tone "Remove member" demo whose `onConfirm` closes the
+  dialog.
 
 ## Useful commands
 

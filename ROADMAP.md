@@ -70,6 +70,7 @@ IDs).
 | Chip | ✓ | registry only | ✓ | ✓ | RFC 0021. Registry-only — genuinely interactive, but still no headless companion (the remove affordance is a plain `<button>`, no bespoke ARIA pattern of its own). 25 variants (Size×Interaction default\|hover\|active\|focus\|disabled, page "Chip"); reuses `framed-control/{size}/*` + `action/secondary/*` directly (no dedicated token family) with a `radii/full` pill-radius override and Button's exact offset focus-ring anatomy; the root `<span>` isn't itself clickable, so Interaction states are driven by CSS `:has()` against the nested remove `<button>` (`:hover` on the root, `:active`/`:focus-visible`/`:disabled` via `:has()`). Kitchen-sink = a real removable-filter-list demo backed by `useState` |
 | Code Block | ✓ | registry only | ✓ | ✓ | 601:9607 (Size×Type=default\|tabbed; tabbed = Tabs/Trigger strip + text Copy Button, Copy one size below block); registry-only React surface (Prism highlighting via prism-react-renderer); tabbed composes headless Tabs + registry Button |
 | Collapsible | ✓ | ✓ | ✓ | ✓ | New "Collapsible" page (`1207:42772`): `Collapsible / Trigger` set (`1207:43048`, 30 variants — Variant[plain\|card\|inline] × State[closed\|open] × Size[xs-xl], md first/default) + composed `Collapsible` set (`1207:43244`, 30 variants) instancing the size-matched Trigger; `Content` SLOT property (20 open/inline variants) + exposed `Label` TEXT property (RFC 0019 dep); headless `collapsedHeight` + fade-shadow landed; registry `collapsible` (grid open/close shared with Accordion, plain/card/inline dressings, card gets a hairline seam instead of a gap once open); kitchen-sink = one collapsible per dressing, inline demonstrating `collapsedHeight` |
+| ConfirmDialog | ✓ | registry only | ✓ | ✓ | RFC 0021 (Tier 1 composite, `Modal` + `Button`). Figma-first per RFC 0021 §6: a "Confirm / Alert Dialog — exploration" page (real Modal/Button/Icon instances) settled tone-follows-the-action, no default leading icon, editable labels, close-off-by-default — then the real `ConfirmDialog` component set (8 variants, Tone default\|danger × Size sm-xl) landed on a new "ConfirmDialog" page, right after "Modal". Body uses a genuine Figma SLOT (a live nested `Modal/Body` instance, not a `Message` text property) — building it surfaced and fixed a real `Modal/Body` shared-master bug (fixed-80px slot silently overlapping the footer on long content → hug-with-`minHeight:80`-floor, fixing every Modal in the file). No headless companion — Modal's own native-`<dialog>` focus trap and dismissal already cover everything needed. Registry `confirm-dialog` composes the registry `modal` (Content/Header/Body/Footer/Title/Close) and `button` directly, exposing `title`/children-as-slot/`tone` (→ Confirm button primary\|danger)/`size` (default `sm`, smaller than Modal's `md`)/`confirmLabel`/`cancelLabel`/`onConfirm`/`showClose` (default off) as props rather than new dialog anatomy; `Portal`/`Overlay` aren't re-exported (identical to a plain Modal's — compose `./modal`'s directly). Kitchen-sink = a controlled danger-tone "Remove member" demo |
 | ContextMenu | ✓ | ✓ | ✓ | ✓ | 1142:25899 (reuses Dropdown/* rows via slots — no ContextMenu-specific sub-components). Registry `context-menu` = same row anatomy as Dropdown, resolving the shared `--primitiv-dropdown-*` panel/row tokens rather than a parallel ramp (the same escape hatch Select's listbox uses); root Content is positioned at the cursor by the headless layer, with a bespoke `@position-try` overflow-flip (no anchor to flip around, unlike Dropdown's `flip-inline`/`flip-block` keywords) — opt-in via `anchor-name` (Trigger) + `position-anchor` (Content). Submenus are unchanged anchor-positioned Dropdown-style subs. Kitchen-sink = a canvas/shape-editor right-click menu (leading-icon items + shortcuts, a disabled row, a tri-state checkbox, a radio group, one-level submenu) |
 | DescriptionList | ✓ | registry only | ✓ | ✓ | RFC 0012 D10 / RFC 0023. Registry-only prose family — no headless companion. `<dl>` compound (`DescriptionList.Term`/`.Details`); term fixed `font-weight: font-weight-semibold` across every density (D10) — CSS separates Figma's "fontStyle" instance-naming into `font-weight`, so the term binds weight, not style. `layout` (`stacked` default \| `inline`) matches Figma's `Layout` axis (added after a Figma re-check found the first build was missing it entirely) — `inline` is a two-column CSS Grid, no DOM change. No new *colour* tokens; row-gap/column-gap/details-indent are a density-scaled `description-list/*` Context family; `inline`'s pair-to-pair gap reuses List's item-gap directly (the real Figma binding). Kitchen-sink = styled pair in the intro article, both layouts |
 | Divider | ✓ | ✓ | ✓ | ✓ | |
@@ -121,7 +122,34 @@ None of these are built yet; listed here for backlog visibility.
 
 **Tier 1 — buildable now, no prerequisites:**
 
-- [ ] Confirm / Alert Dialog (`Modal` + `Button`)
+- [x] Confirm / Alert Dialog (`Modal` + `Button`). **Landed 2026-07-30, Figma +
+      registry.** Figma-first, per RFC 0021 §6: a "Confirm / Alert Dialog —
+      exploration" page (built from real Modal/Button/Icon instances) settled
+      tone-follows-the-action, no default leading icon, editable labels, and
+      close-button-off-by-default, before the real `ConfirmDialog` component
+      set (8 variants, Tone default|danger × Size sm|md|lg|xl) landed on a new
+      "ConfirmDialog" page, positioned after "Modal" in the Overlays section.
+      Uses a genuine Figma SLOT for the body (reusing `Modal/Body`'s own
+      native slot on a live nested instance, not a `Message` text property —
+      "it is up to the consumer to put the content in there") — building it
+      surfaced and fixed a real shared-master bug along the way: `Modal/Body`'s
+      slot was a fixed 80px frame that silently overlapped the footer on long
+      content, now hug-with-a-`minHeight:80`-floor, fixing every Modal in the
+      file. **No headless `@primitiv-ui/react` primitive** — Modal's own
+      native-`<dialog>` focus trap and dismissal already cover everything this
+      needs (verified against `useModalContent.ts`), so it's pure registry
+      composition, hand-authored like `alert`. `ConfirmDialogContent` composes
+      the registry `modal` (Content/Header/Body/Footer/Title/Close) and
+      `button` components directly, exposing `title`/children-as-slot/`tone`
+      (`default`→primary, `danger`→danger)/`size` (default `sm`, smaller than
+      Modal's `md`)/`confirmLabel`/`cancelLabel`/`onConfirm`/`showClose`
+      (default `false`) as props rather than new dialog anatomy — `Portal`/
+      `Overlay` are not re-exported (identical to a plain Modal's, composed
+      from `./modal` directly). Registered in `registry/registry.json`,
+      `crates/primitiv-cli/src/ports/registry.rs`,
+      `crates/primitiv-cli/tests/cli.rs` (roster count 49). Kitchen-sink: a
+      "Confirm Dialog" section right after Modal, a controlled danger-tone
+      "Remove member" demo whose `onConfirm` closes the dialog.
 - [ ] Breadcrumb overflow menu (`Breadcrumb` + `Dropdown`)
 - [ ] Avatar Group (`Avatar` + `Tooltip` + overflow badge)
 - [x] Badge / Tag / Chip (primitive-less leaf; unblocks several others). Not itself
@@ -279,7 +307,7 @@ semantics that CSS alone cannot provide.
 ### Overlays
 
 - [x] Action Bar
-- [ ] Alert Dialog
+- [x] Alert Dialog
 - [x] Context Menu
 - [x] Drawer
 - [x] Dropdown

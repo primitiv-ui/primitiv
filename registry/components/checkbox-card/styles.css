@@ -116,14 +116,17 @@
   }
 
   /* The mark itself — reuses Checkbox's own clip-path polygon (a tick),
-     re-clipped to a bar for indeterminate below. Only rendered while the
-     headless Indicator is mounted (checked/indeterminate), so no reveal
-     transition is needed by default. */
+     re-clipped to a bar for indeterminate below. forceMount keeps it in the
+     DOM always (see the .tsx), scaled to nothing until checked/indeterminate
+     (see the states layer), so the reveal can animate — the same
+     grow-from-nothing motion as the standalone Checkbox's own mark. */
   .primitiv-checkbox-card__mark {
     inline-size: var(--primitiv-checkbox-card-indicator-mark-size);
     block-size: var(--primitiv-checkbox-card-indicator-mark-size);
     background: currentColor;
     clip-path: polygon(40% 68%, 12% 40%, 0% 52%, 40% 92%, 100% 22%, 88% 10%);
+    scale: 0;
+    transition: scale var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
   }
 
   .primitiv-checkbox-card__content {
@@ -253,6 +256,10 @@
   .primitiv-checkbox-card[data-state="indeterminate"] .primitiv-checkbox-card__indicator {
     border-color: var(--primitiv-checkbox-card-indicator-bg-selected);
     background: var(--primitiv-checkbox-card-indicator-bg-selected);
+  }
+  .primitiv-checkbox-card[data-state="checked"] .primitiv-checkbox-card__mark,
+  .primitiv-checkbox-card[data-state="indeterminate"] .primitiv-checkbox-card__mark {
+    scale: 1;
   }
 
   /* Re-clip the mark to a bar when mixed. */

@@ -75,7 +75,7 @@ export function RadioCardItem({
               nested inside it — see checkbox-card.tsx for the full gotcha
               (inline-size/block-size only apply once blockified, which
               needs a DIRECT flex-item child of __indicator). */}
-          <RadioCardPrimitive.Indicator className="primitiv-radio-card__dot" />
+          <RadioCardPrimitive.Indicator forceMount className="primitiv-radio-card__dot" />
         </span>
       </span>
       <span className="primitiv-radio-card__content">

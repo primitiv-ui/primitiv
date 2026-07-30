@@ -866,11 +866,11 @@
       "xl": { "padding-block": { "$type": "number", "$value": "{space.space-16}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-6}" } }
     },
     "choice-card": {
-      "xs": { "padding": { "$type": "number", "$value": "{space.space-12}" } },
-      "sm": { "padding": { "$type": "number", "$value": "{space.space-14}" } },
-      "md": { "padding": { "$type": "number", "$value": "{space.space-16}" } },
-      "lg": { "padding": { "$type": "number", "$value": "{space.space-20}" } },
-      "xl": { "padding": { "$type": "number", "$value": "{space.space-24}" } }
+      "xs": { "padding": { "$type": "number", "$value": "{space.space-12}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-3}" } },
+      "sm": { "padding": { "$type": "number", "$value": "{space.space-14}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-3}" } },
+      "md": { "padding": { "$type": "number", "$value": "{space.space-16}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-4}" } },
+      "lg": { "padding": { "$type": "number", "$value": "{space.space-20}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-4}" } },
+      "xl": { "padding": { "$type": "number", "$value": "{space.space-24}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-6}" } }
     },
     "label-control": {
       "xs": {
@@ -3586,11 +3586,11 @@
       "xl": { "padding-block": { "$type": "number", "$value": "{space.space-14}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-4}" } }
     },
     "choice-card": {
-      "xs": { "padding": { "$type": "number", "$value": "{space.space-10}" } },
-      "sm": { "padding": { "$type": "number", "$value": "{space.space-12}" } },
-      "md": { "padding": { "$type": "number", "$value": "{space.space-14}" } },
-      "lg": { "padding": { "$type": "number", "$value": "{space.space-16}" } },
-      "xl": { "padding": { "$type": "number", "$value": "{space.space-20}" } }
+      "xs": { "padding": { "$type": "number", "$value": "{space.space-10}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-2}" } },
+      "sm": { "padding": { "$type": "number", "$value": "{space.space-12}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-2}" } },
+      "md": { "padding": { "$type": "number", "$value": "{space.space-14}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-3}" } },
+      "lg": { "padding": { "$type": "number", "$value": "{space.space-16}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-4}" } },
+      "xl": { "padding": { "$type": "number", "$value": "{space.space-20}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-4}" } }
     },
     "label-control": {
       "xs": {
@@ -6306,11 +6306,11 @@
       "xl": { "padding-block": { "$type": "number", "$value": "{space.space-24}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-6}" } }
     },
     "choice-card": {
-      "xs": { "padding": { "$type": "number", "$value": "{space.space-14}" } },
-      "sm": { "padding": { "$type": "number", "$value": "{space.space-16}" } },
-      "md": { "padding": { "$type": "number", "$value": "{space.space-20}" } },
-      "lg": { "padding": { "$type": "number", "$value": "{space.space-24}" } },
-      "xl": { "padding": { "$type": "number", "$value": "{space.space-28}" } }
+      "xs": { "padding": { "$type": "number", "$value": "{space.space-14}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-2}" } },
+      "sm": { "padding": { "$type": "number", "$value": "{space.space-16}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-4}" } },
+      "md": { "padding": { "$type": "number", "$value": "{space.space-20}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-4}" } },
+      "lg": { "padding": { "$type": "number", "$value": "{space.space-24}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-6}" } },
+      "xl": { "padding": { "$type": "number", "$value": "{space.space-28}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-6}" } }
     },
     "label-control": {
       "xs": {
@@ -9026,11 +9026,11 @@
       "xl": { "padding-block": { "$type": "number", "$value": "{space.space-12}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-2}" } }
     },
     "choice-card": {
-      "xs": { "padding": { "$type": "number", "$value": "{space.space-8}" } },
-      "sm": { "padding": { "$type": "number", "$value": "{space.space-10}" } },
-      "md": { "padding": { "$type": "number", "$value": "{space.space-12}" } },
-      "lg": { "padding": { "$type": "number", "$value": "{space.space-14}" } },
-      "xl": { "padding": { "$type": "number", "$value": "{space.space-16}" } }
+      "xs": { "padding": { "$type": "number", "$value": "{space.space-8}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-1}" } },
+      "sm": { "padding": { "$type": "number", "$value": "{space.space-10}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-1}" } },
+      "md": { "padding": { "$type": "number", "$value": "{space.space-12}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-2}" } },
+      "lg": { "padding": { "$type": "number", "$value": "{space.space-14}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-1}" } },
+      "xl": { "padding": { "$type": "number", "$value": "{space.space-16}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-2}" } }
     },
     "label-control": {
       "xs": {

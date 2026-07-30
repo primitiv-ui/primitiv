@@ -14,7 +14,11 @@
  * `variant` axis (no solid/counter equivalent) and no circularity trick
  * (`min-inline-size` is left unbound — a Tag simply hugs its content).
  * Typography is `body/{size}/*` (Asta Sans Regular), not Badge's Khand
- * SemiBold — a Tag reads as a plain label, not a stat.
+ * SemiBold — a Tag reads as a plain label, not a stat. font-size is its own
+ * `tag/{size}/font-size` (2026-07-30), decoupled from `body/{size}/font-size`
+ * — body's own scale is flat at Dense (10/11/12/13/14, the same
+ * barely-distinguishable-across-sizes problem Badge had), so Tag needed its
+ * own scale there; font-family/weight/line-height still track body/*.
  *
  * Structure follows RFC 0008: per-component API tokens + the resting look
  * live in primitiv.base, size modifiers in primitiv.variants.
@@ -40,7 +44,7 @@
     --primitiv-tag-height: var(--primitiv-tag-md-height);
     --primitiv-tag-padding-inline: var(--primitiv-tag-md-padding-inline);
     --primitiv-tag-font-family: var(--primitiv-body-md-font-family);
-    --primitiv-tag-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-tag-font-size: var(--primitiv-tag-md-font-size);
     --primitiv-tag-font-weight: var(--primitiv-body-md-font-weight);
     --primitiv-tag-line-height: var(--primitiv-body-md-line-height);
     --primitiv-tag-radius: var(--primitiv-radii-full);
@@ -75,13 +79,15 @@
 }
 
 @layer primitiv.variants {
-  /* Size — re-points the box + type scale (body/*, unlike Badge's own
-     badge/{size}/font-size — a Tag's type tracks surrounding body text). */
+  /* Size — re-points the box + type scale. font-size comes from Tag's own
+     tag/{size}/font-size (like Badge's badge/{size}/font-size); font-family/
+     weight/line-height still track body/{size} — a Tag's type tracks
+     surrounding body text in every way except the size step itself. */
   .primitiv-tag--xs {
     --primitiv-tag-height: var(--primitiv-tag-xs-height);
     --primitiv-tag-padding-inline: var(--primitiv-tag-xs-padding-inline);
     --primitiv-tag-font-family: var(--primitiv-body-xs-font-family);
-    --primitiv-tag-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-tag-font-size: var(--primitiv-tag-xs-font-size);
     --primitiv-tag-font-weight: var(--primitiv-body-xs-font-weight);
     --primitiv-tag-line-height: var(--primitiv-body-xs-line-height);
   }
@@ -89,7 +95,7 @@
     --primitiv-tag-height: var(--primitiv-tag-sm-height);
     --primitiv-tag-padding-inline: var(--primitiv-tag-sm-padding-inline);
     --primitiv-tag-font-family: var(--primitiv-body-sm-font-family);
-    --primitiv-tag-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-tag-font-size: var(--primitiv-tag-sm-font-size);
     --primitiv-tag-font-weight: var(--primitiv-body-sm-font-weight);
     --primitiv-tag-line-height: var(--primitiv-body-sm-line-height);
   }
@@ -97,7 +103,7 @@
     --primitiv-tag-height: var(--primitiv-tag-md-height);
     --primitiv-tag-padding-inline: var(--primitiv-tag-md-padding-inline);
     --primitiv-tag-font-family: var(--primitiv-body-md-font-family);
-    --primitiv-tag-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-tag-font-size: var(--primitiv-tag-md-font-size);
     --primitiv-tag-font-weight: var(--primitiv-body-md-font-weight);
     --primitiv-tag-line-height: var(--primitiv-body-md-line-height);
   }
@@ -105,7 +111,7 @@
     --primitiv-tag-height: var(--primitiv-tag-lg-height);
     --primitiv-tag-padding-inline: var(--primitiv-tag-lg-padding-inline);
     --primitiv-tag-font-family: var(--primitiv-body-lg-font-family);
-    --primitiv-tag-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-tag-font-size: var(--primitiv-tag-lg-font-size);
     --primitiv-tag-font-weight: var(--primitiv-body-lg-font-weight);
     --primitiv-tag-line-height: var(--primitiv-body-lg-line-height);
   }
@@ -113,7 +119,7 @@
     --primitiv-tag-height: var(--primitiv-tag-xl-height);
     --primitiv-tag-padding-inline: var(--primitiv-tag-xl-padding-inline);
     --primitiv-tag-font-family: var(--primitiv-body-xl-font-family);
-    --primitiv-tag-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-tag-font-size: var(--primitiv-tag-xl-font-size);
     --primitiv-tag-font-weight: var(--primitiv-body-xl-font-weight);
     --primitiv-tag-line-height: var(--primitiv-body-xl-line-height);
   }

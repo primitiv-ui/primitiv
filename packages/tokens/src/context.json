@@ -796,6 +796,10 @@
           "$type": "number",
           "$value": "{space.space-6}"
         },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.12}"
+        },
         "gap": {
           "$type": "number",
           "$value": "{space.space-3}"
@@ -809,6 +813,10 @@
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-8}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.14}"
         },
         "gap": {
           "$type": "number",
@@ -824,6 +832,10 @@
           "$type": "number",
           "$value": "{space.space-8}"
         },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.16}"
+        },
         "gap": {
           "$type": "number",
           "$value": "{space.space-4}"
@@ -838,6 +850,10 @@
           "$type": "number",
           "$value": "{space.space-10}"
         },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.20}"
+        },
         "gap": {
           "$type": "number",
           "$value": "{space.space-4}"
@@ -851,6 +867,10 @@
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-12}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.22}"
         },
         "gap": {
           "$type": "number",
@@ -3516,6 +3536,10 @@
           "$type": "number",
           "$value": "{space.space-4}"
         },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.12}"
+        },
         "gap": {
           "$type": "number",
           "$value": "{space.space-2}"
@@ -3529,6 +3553,10 @@
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-6}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.14}"
         },
         "gap": {
           "$type": "number",
@@ -3544,6 +3572,10 @@
           "$type": "number",
           "$value": "{space.space-6}"
         },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.16}"
+        },
         "gap": {
           "$type": "number",
           "$value": "{space.space-3}"
@@ -3558,6 +3590,10 @@
           "$type": "number",
           "$value": "{space.space-8}"
         },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.18}"
+        },
         "gap": {
           "$type": "number",
           "$value": "{space.space-4}"
@@ -3571,6 +3607,10 @@
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-10}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.20}"
         },
         "gap": {
           "$type": "number",
@@ -6236,6 +6276,10 @@
           "$type": "number",
           "$value": "{space.space-6}"
         },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.12}"
+        },
         "gap": {
           "$type": "number",
           "$value": "{space.space-3}"
@@ -6249,6 +6293,10 @@
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-8}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.14}"
         },
         "gap": {
           "$type": "number",
@@ -6264,6 +6312,10 @@
           "$type": "number",
           "$value": "{space.space-10}"
         },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.16}"
+        },
         "gap": {
           "$type": "number",
           "$value": "{space.space-4}"
@@ -6278,6 +6330,10 @@
           "$type": "number",
           "$value": "{space.space-12}"
         },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.22}"
+        },
         "gap": {
           "$type": "number",
           "$value": "{space.space-6}"
@@ -6291,6 +6347,10 @@
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-14}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.24}"
         },
         "gap": {
           "$type": "number",
@@ -8956,6 +9016,10 @@
           "$type": "number",
           "$value": "{space.space-4}"
         },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.10}"
+        },
         "gap": {
           "$type": "number",
           "$value": "{space.space-2}"
@@ -8969,6 +9033,10 @@
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-4}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.12}"
         },
         "gap": {
           "$type": "number",
@@ -8984,6 +9052,10 @@
           "$type": "number",
           "$value": "{space.space-6}"
         },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.13}"
+        },
         "gap": {
           "$type": "number",
           "$value": "{space.space-3}"
@@ -8998,6 +9070,10 @@
           "$type": "number",
           "$value": "{space.space-6}"
         },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.15}"
+        },
         "gap": {
           "$type": "number",
           "$value": "{space.space-3}"
@@ -9011,6 +9087,10 @@
         "padding-inline": {
           "$type": "number",
           "$value": "{space.space-8}"
+        },
+        "font-size": {
+          "$type": "number",
+          "$value": "{font-size.17}"
         },
         "gap": {
           "$type": "number",

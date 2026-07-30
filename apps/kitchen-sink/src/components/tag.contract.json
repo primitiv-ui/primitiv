@@ -41,7 +41,7 @@
     { "name": "--primitiv-tag-height", "defaultsTo": "var(--primitiv-tag-md-height)" },
     { "name": "--primitiv-tag-padding-inline", "defaultsTo": "var(--primitiv-tag-md-padding-inline)" },
     { "name": "--primitiv-tag-font-family", "defaultsTo": "var(--primitiv-body-md-font-family)" },
-    { "name": "--primitiv-tag-font-size", "defaultsTo": "var(--primitiv-body-md-font-size)" },
+    { "name": "--primitiv-tag-font-size", "defaultsTo": "var(--primitiv-tag-md-font-size)" },
     { "name": "--primitiv-tag-font-weight", "defaultsTo": "var(--primitiv-body-md-font-weight)" },
     { "name": "--primitiv-tag-line-height", "defaultsTo": "var(--primitiv-body-md-line-height)" },
     { "name": "--primitiv-tag-radius", "defaultsTo": "var(--primitiv-radii-full)" }

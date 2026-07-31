@@ -945,6 +945,20 @@
       "lg": { "padding-block": { "$type": "number", "$value": "{space.space-14}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-4}" } },
       "xl": { "padding-block": { "$type": "number", "$value": "{space.space-16}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-6}" } }
     },
+    "card": {
+      "xs": { "padding": { "$type": "number", "$value": "{space.space-12}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "radius": { "$type": "number", "$value": "{radii.6}" } },
+      "sm": { "padding": { "$type": "number", "$value": "{space.space-14}" }, "gap": { "$type": "number", "$value": "{space.space-10}" }, "radius": { "$type": "number", "$value": "{radii.8}" } },
+      "md": { "padding": { "$type": "number", "$value": "{space.space-16}" }, "gap": { "$type": "number", "$value": "{space.space-12}" }, "radius": { "$type": "number", "$value": "{radii.10}" } },
+      "lg": { "padding": { "$type": "number", "$value": "{space.space-20}" }, "gap": { "$type": "number", "$value": "{space.space-14}" }, "radius": { "$type": "number", "$value": "{radii.12}" } },
+      "xl": { "padding": { "$type": "number", "$value": "{space.space-24}" }, "gap": { "$type": "number", "$value": "{space.space-16}" }, "radius": { "$type": "number", "$value": "{radii.16}" } }
+    },
+    "card-media": {
+      "xs": { "radius-inset": { "$type": "number", "$value": "{radii.4}" } },
+      "sm": { "radius-inset": { "$type": "number", "$value": "{radii.6}" } },
+      "md": { "radius-inset": { "$type": "number", "$value": "{radii.8}" } },
+      "lg": { "radius-inset": { "$type": "number", "$value": "{radii.10}" } },
+      "xl": { "radius-inset": { "$type": "number", "$value": "{radii.12}" } }
+    },
     "choice-card": {
       "xs": { "padding": { "$type": "number", "$value": "{space.space-12}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-3}" } },
       "sm": { "padding": { "$type": "number", "$value": "{space.space-14}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-3}" } },
@@ -3744,6 +3758,20 @@
       "md": { "padding-block": { "$type": "number", "$value": "{space.space-10}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-3}" } },
       "lg": { "padding-block": { "$type": "number", "$value": "{space.space-12}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-4}" } },
       "xl": { "padding-block": { "$type": "number", "$value": "{space.space-14}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-4}" } }
+    },
+    "card": {
+      "xs": { "padding": { "$type": "number", "$value": "{space.space-10}" }, "gap": { "$type": "number", "$value": "{space.space-6}" }, "radius": { "$type": "number", "$value": "{radii.4}" } },
+      "sm": { "padding": { "$type": "number", "$value": "{space.space-12}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "radius": { "$type": "number", "$value": "{radii.6}" } },
+      "md": { "padding": { "$type": "number", "$value": "{space.space-14}" }, "gap": { "$type": "number", "$value": "{space.space-10}" }, "radius": { "$type": "number", "$value": "{radii.8}" } },
+      "lg": { "padding": { "$type": "number", "$value": "{space.space-16}" }, "gap": { "$type": "number", "$value": "{space.space-12}" }, "radius": { "$type": "number", "$value": "{radii.10}" } },
+      "xl": { "padding": { "$type": "number", "$value": "{space.space-20}" }, "gap": { "$type": "number", "$value": "{space.space-12}" }, "radius": { "$type": "number", "$value": "{radii.12}" } }
+    },
+    "card-media": {
+      "xs": { "radius-inset": { "$type": "number", "$value": "{radii.3}" } },
+      "sm": { "radius-inset": { "$type": "number", "$value": "{radii.4}" } },
+      "md": { "radius-inset": { "$type": "number", "$value": "{radii.6}" } },
+      "lg": { "radius-inset": { "$type": "number", "$value": "{radii.8}" } },
+      "xl": { "radius-inset": { "$type": "number", "$value": "{radii.10}" } }
     },
     "choice-card": {
       "xs": { "padding": { "$type": "number", "$value": "{space.space-10}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-2}" } },
@@ -6545,6 +6573,20 @@
       "lg": { "padding-block": { "$type": "number", "$value": "{space.space-20}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-6}" } },
       "xl": { "padding-block": { "$type": "number", "$value": "{space.space-24}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-6}" } }
     },
+    "card": {
+      "xs": { "padding": { "$type": "number", "$value": "{space.space-14}" }, "gap": { "$type": "number", "$value": "{space.space-10}" }, "radius": { "$type": "number", "$value": "{radii.8}" } },
+      "sm": { "padding": { "$type": "number", "$value": "{space.space-16}" }, "gap": { "$type": "number", "$value": "{space.space-12}" }, "radius": { "$type": "number", "$value": "{radii.10}" } },
+      "md": { "padding": { "$type": "number", "$value": "{space.space-20}" }, "gap": { "$type": "number", "$value": "{space.space-16}" }, "radius": { "$type": "number", "$value": "{radii.12}" } },
+      "lg": { "padding": { "$type": "number", "$value": "{space.space-24}" }, "gap": { "$type": "number", "$value": "{space.space-16}" }, "radius": { "$type": "number", "$value": "{radii.16}" } },
+      "xl": { "padding": { "$type": "number", "$value": "{space.space-28}" }, "gap": { "$type": "number", "$value": "{space.space-20}" }, "radius": { "$type": "number", "$value": "{radii.20}" } }
+    },
+    "card-media": {
+      "xs": { "radius-inset": { "$type": "number", "$value": "{radii.6}" } },
+      "sm": { "radius-inset": { "$type": "number", "$value": "{radii.8}" } },
+      "md": { "radius-inset": { "$type": "number", "$value": "{radii.10}" } },
+      "lg": { "radius-inset": { "$type": "number", "$value": "{radii.12}" } },
+      "xl": { "radius-inset": { "$type": "number", "$value": "{radii.16}" } }
+    },
     "choice-card": {
       "xs": { "padding": { "$type": "number", "$value": "{space.space-14}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-2}" } },
       "sm": { "padding": { "$type": "number", "$value": "{space.space-16}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-4}" } },
@@ -9344,6 +9386,20 @@
       "md": { "padding-block": { "$type": "number", "$value": "{space.space-8}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-2}" } },
       "lg": { "padding-block": { "$type": "number", "$value": "{space.space-10}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-1}" } },
       "xl": { "padding-block": { "$type": "number", "$value": "{space.space-12}" }, "icon-offset-top": { "$type": "number", "$value": "{space.space-2}" } }
+    },
+    "card": {
+      "xs": { "padding": { "$type": "number", "$value": "{space.space-8}" }, "gap": { "$type": "number", "$value": "{space.space-4}" }, "radius": { "$type": "number", "$value": "{radii.3}" } },
+      "sm": { "padding": { "$type": "number", "$value": "{space.space-10}" }, "gap": { "$type": "number", "$value": "{space.space-6}" }, "radius": { "$type": "number", "$value": "{radii.4}" } },
+      "md": { "padding": { "$type": "number", "$value": "{space.space-12}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "radius": { "$type": "number", "$value": "{radii.6}" } },
+      "lg": { "padding": { "$type": "number", "$value": "{space.space-14}" }, "gap": { "$type": "number", "$value": "{space.space-8}" }, "radius": { "$type": "number", "$value": "{radii.8}" } },
+      "xl": { "padding": { "$type": "number", "$value": "{space.space-16}" }, "gap": { "$type": "number", "$value": "{space.space-10}" }, "radius": { "$type": "number", "$value": "{radii.10}" } }
+    },
+    "card-media": {
+      "xs": { "radius-inset": { "$type": "number", "$value": "{radii.2}" } },
+      "sm": { "radius-inset": { "$type": "number", "$value": "{radii.3}" } },
+      "md": { "radius-inset": { "$type": "number", "$value": "{radii.4}" } },
+      "lg": { "radius-inset": { "$type": "number", "$value": "{radii.6}" } },
+      "xl": { "radius-inset": { "$type": "number", "$value": "{radii.8}" } }
     },
     "choice-card": {
       "xs": { "padding": { "$type": "number", "$value": "{space.space-8}" }, "indicator-offset-top": { "$type": "number", "$value": "{space.space-1}" } },

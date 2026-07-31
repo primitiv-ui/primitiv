@@ -1,0 +1,381 @@
+/*
+ * Card — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add card`. It is yours to edit:
+ * the stable surface is the contract (the class names and the
+ * --primitiv-card-* custom properties), not these values (RFC 0006
+ * Principle 2 — names are stable, values are not).
+ *
+ * Requires the token layer for: surface/*, border/*, content/*, card/{size}/*,
+ * card-media/{size}/*, elevation/*, opacity/*, colour primitives
+ * (absolute-black, transparent), label/*, body/*, motion/*, focus/*.
+ *
+ * Three structural rules worth knowing before editing:
+ *
+ * 1. `.primitiv-card__content` owns ALL the padding. The header, description
+ *    and footer carry none of their own — an earlier build gave each region
+ *    its own full padding and every seam between them was doubled. Do not
+ *    reintroduce per-region padding.
+ *
+ * 2. Flush media is square-cornered on purpose; the card's own
+ *    `overflow: hidden` supplies the outer radius. Giving flush media its own
+ *    radius also rounds the inner seam where it meets the content, leaving a
+ *    visible notch. Only `--inset` media, which genuinely floats inside the
+ *    padding, gets a radius.
+ *
+ * 3. `--inset` is a margin, not a different DOM shape: `.primitiv-card__media`
+ *    is a sibling of `.primitiv-card__content` in every layout. That is what
+ *    lets one markup structure serve flush and inset media alike.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-card {
+    --primitiv-card-background: var(--primitiv-surface-default);
+    --primitiv-card-border-color: var(--primitiv-border-subtle);
+    --primitiv-card-border-width: var(--primitiv-framed-control-border-width);
+    --primitiv-card-radius: var(--primitiv-card-md-radius);
+    --primitiv-card-padding: var(--primitiv-card-md-padding);
+    --primitiv-card-gap: var(--primitiv-card-md-gap);
+    --primitiv-card-shadow: var(--primitiv-elevation-raised);
+    --primitiv-card-media-radius-inset: var(--primitiv-card-media-md-radius-inset);
+    --primitiv-card-media-aspect-ratio: 16 / 9;
+    --primitiv-card-media-inline-size: 36%;
+    --primitiv-card-media-background: var(--primitiv-surface-subtle);
+    --primitiv-card-cover-aspect-ratio: 6 / 5;
+    --primitiv-card-scrim-color: var(--primitiv-color-absolute-black);
+    --primitiv-card-scrim-opacity: var(--primitiv-opacity-70);
+    --primitiv-card-scrim-mid: 6rem;
+    --primitiv-card-scrim-end: 14rem;
+    --primitiv-card-title-color: var(--primitiv-content-primary);
+    --primitiv-card-title-font-family: var(--primitiv-label-md-font-family);
+    --primitiv-card-title-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-card-title-font-weight: var(--primitiv-label-md-font-weight);
+    --primitiv-card-title-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-card-description-color: var(--primitiv-content-secondary);
+    --primitiv-card-description-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-card-description-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-card-description-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-card-description-line-height: var(--primitiv-body-md-line-height);
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: var(--primitiv-card-background);
+    border: var(--primitiv-card-border-width) solid var(--primitiv-card-border-color);
+    border-radius: var(--primitiv-card-radius);
+    /* box-shadow so elevation and the focus ring interpolate rather than snap
+       (registry-stylesheet-conventions — animated focus ring). */
+    transition: box-shadow var(--primitiv-motion-duration-control) var(--primitiv-motion-easing-default);
+  }
+
+  .primitiv-card__media {
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    background-color: var(--primitiv-card-media-background);
+  }
+
+  /* The consumer's own <img>/<video>/<picture> covers the region, so it needs
+     no sizing of its own. */
+  .primitiv-card__media > :is(img, picture, video, svg, canvas) {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  .primitiv-card__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--primitiv-card-gap);
+    padding: var(--primitiv-card-padding);
+    /* min-inline-size:0 lets long unbroken content shrink instead of forcing
+       the card wider than its container. */
+    min-inline-size: 0;
+  }
+
+  .primitiv-card__header {
+    display: flex;
+    align-items: center;
+    gap: var(--primitiv-card-gap);
+  }
+
+  /* The title stretches; leading/trailing slots hug. */
+  .primitiv-card__header > .primitiv-card__title {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+
+  .primitiv-card__title {
+    margin: var(--primitiv-space-space-0);
+    color: var(--primitiv-card-title-color);
+    font-family: var(--primitiv-card-title-font-family);
+    font-size: var(--primitiv-card-title-font-size);
+    font-weight: var(--primitiv-card-title-font-weight);
+    line-height: var(--primitiv-card-title-line-height);
+  }
+
+  .primitiv-card__description {
+    margin: var(--primitiv-space-space-0);
+    color: var(--primitiv-card-description-color);
+    font-family: var(--primitiv-card-description-font-family);
+    font-size: var(--primitiv-card-description-font-size);
+    font-weight: var(--primitiv-card-description-font-weight);
+    line-height: var(--primitiv-card-description-line-height);
+  }
+
+  .primitiv-card__footer {
+    display: flex;
+    align-items: center;
+    gap: var(--primitiv-card-gap);
+    /* Pins the actions to the bottom whenever the content block is taller
+       than its natural height — e.g. cards stretched to equal heights in a
+       grid. A no-op otherwise. */
+    margin-block-start: auto;
+  }
+}
+
+@layer primitiv.variants {
+  /* --- Size: re-point the geometry knobs at the matching token step ------ */
+  .primitiv-card--xs {
+    --primitiv-card-radius: var(--primitiv-card-xs-radius);
+    --primitiv-card-padding: var(--primitiv-card-xs-padding);
+    --primitiv-card-gap: var(--primitiv-card-xs-gap);
+    --primitiv-card-media-radius-inset: var(--primitiv-card-media-xs-radius-inset);
+    --primitiv-card-title-font-size: var(--primitiv-label-xs-font-size);
+    --primitiv-card-title-line-height: var(--primitiv-label-xs-line-height);
+    --primitiv-card-description-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-card-description-line-height: var(--primitiv-body-xs-line-height);
+  }
+
+  .primitiv-card--sm {
+    --primitiv-card-radius: var(--primitiv-card-sm-radius);
+    --primitiv-card-padding: var(--primitiv-card-sm-padding);
+    --primitiv-card-gap: var(--primitiv-card-sm-gap);
+    --primitiv-card-media-radius-inset: var(--primitiv-card-media-sm-radius-inset);
+    --primitiv-card-title-font-size: var(--primitiv-label-sm-font-size);
+    --primitiv-card-title-line-height: var(--primitiv-label-sm-line-height);
+    --primitiv-card-description-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-card-description-line-height: var(--primitiv-body-sm-line-height);
+  }
+
+  .primitiv-card--md {
+    --primitiv-card-radius: var(--primitiv-card-md-radius);
+    --primitiv-card-padding: var(--primitiv-card-md-padding);
+    --primitiv-card-gap: var(--primitiv-card-md-gap);
+    --primitiv-card-media-radius-inset: var(--primitiv-card-media-md-radius-inset);
+    --primitiv-card-title-font-size: var(--primitiv-label-md-font-size);
+    --primitiv-card-title-line-height: var(--primitiv-label-md-line-height);
+    --primitiv-card-description-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-card-description-line-height: var(--primitiv-body-md-line-height);
+  }
+
+  .primitiv-card--lg {
+    --primitiv-card-radius: var(--primitiv-card-lg-radius);
+    --primitiv-card-padding: var(--primitiv-card-lg-padding);
+    --primitiv-card-gap: var(--primitiv-card-lg-gap);
+    --primitiv-card-media-radius-inset: var(--primitiv-card-media-lg-radius-inset);
+    --primitiv-card-title-font-size: var(--primitiv-label-lg-font-size);
+    --primitiv-card-title-line-height: var(--primitiv-label-lg-line-height);
+    --primitiv-card-description-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-card-description-line-height: var(--primitiv-body-lg-line-height);
+  }
+
+  .primitiv-card--xl {
+    --primitiv-card-radius: var(--primitiv-card-xl-radius);
+    --primitiv-card-padding: var(--primitiv-card-xl-padding);
+    --primitiv-card-gap: var(--primitiv-card-xl-gap);
+    --primitiv-card-media-radius-inset: var(--primitiv-card-media-xl-radius-inset);
+    --primitiv-card-title-font-size: var(--primitiv-label-xl-font-size);
+    --primitiv-card-title-line-height: var(--primitiv-label-xl-line-height);
+    --primitiv-card-description-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-card-description-line-height: var(--primitiv-body-xl-line-height);
+  }
+
+  /* --- Layout: vertical -------------------------------------------------- */
+  .primitiv-card--vertical > .primitiv-card__media {
+    aspect-ratio: var(--primitiv-card-media-aspect-ratio);
+    /* Absorbs the extra height when the card is given a taller definite size
+       (a grid row stretching its items). A no-op at natural height, where a
+       column flex container has no free space to distribute. This is the one
+       behaviour the Figma master cannot express — there, hug and fill on the
+       same axis collapse the frame. */
+    flex-grow: 1;
+    min-block-size: 0;
+  }
+
+  .primitiv-card--vertical > .primitiv-card__content {
+    flex: 0 1 auto;
+  }
+
+  /* --- Layout: horizontal ------------------------------------------------ */
+  .primitiv-card--horizontal {
+    flex-direction: row;
+  }
+
+  /* A percentage width grows with the card natively, holding the media's
+     design proportion at any width instead of thinning to a sliver. */
+  .primitiv-card--horizontal > .primitiv-card__media {
+    inline-size: var(--primitiv-card-media-inline-size);
+    align-self: stretch;
+  }
+
+  .primitiv-card--horizontal > .primitiv-card__content {
+    flex: 1 1 auto;
+  }
+
+  /* --- Layout: cover ----------------------------------------------------- */
+  .primitiv-card--cover {
+    /* A preferred size, not a cap — longer content still grows the card. */
+    aspect-ratio: var(--primitiv-card-cover-aspect-ratio);
+    justify-content: flex-end;
+    /* Content sits over photography, so it flips to the inverse ramp. */
+    --primitiv-card-title-color: var(--primitiv-content-inverse);
+    --primitiv-card-description-color: var(--primitiv-content-inverse);
+  }
+
+  .primitiv-card--cover > .primitiv-card__media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  /* The legibility scrim is a pseudo-element, so it costs no DOM and no
+     component of its own. Unlike the Figma master — where a stretched
+     gradient is necessarily proportional to the frame — the stops are fixed
+     distances from the bottom edge, so the wash tracks the CONTENT rather
+     than the card: a tall card gets the same readable band as a short one,
+     not a 2.5x taller one. */
+  .primitiv-card--cover::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background-image: linear-gradient(
+      to top,
+      color-mix(
+          in srgb,
+          var(--primitiv-card-scrim-color) calc(var(--primitiv-card-scrim-opacity) * 100%),
+          var(--primitiv-color-transparent)
+        )
+        0,
+      color-mix(
+          in srgb,
+          var(--primitiv-card-scrim-color) calc(var(--primitiv-card-scrim-opacity) * 55%),
+          var(--primitiv-color-transparent)
+        )
+        var(--primitiv-card-scrim-mid),
+      var(--primitiv-color-transparent) var(--primitiv-card-scrim-end)
+    );
+  }
+
+  .primitiv-card--cover > .primitiv-card__content {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* --- Media: inset ------------------------------------------------------ */
+  .primitiv-card__media--inset {
+    margin: var(--primitiv-card-padding);
+    border-radius: var(--primitiv-card-media-radius-inset);
+  }
+
+  /* The adjacent edge is dropped so the content block's own padding provides
+     the single gap — otherwise media margin and content padding stack. */
+  .primitiv-card--vertical > .primitiv-card__media--inset {
+    margin-block-end: var(--primitiv-space-space-0);
+  }
+
+  .primitiv-card--horizontal > .primitiv-card__media--inset {
+    margin-inline-end: var(--primitiv-space-space-0);
+  }
+
+  /* --- Elevation --------------------------------------------------------- */
+  .primitiv-card--raised {
+    box-shadow: var(--primitiv-card-shadow);
+  }
+
+  /* --- Scrim strength ---------------------------------------------------- */
+  .primitiv-card--scrim-soft {
+    --primitiv-card-scrim-opacity: var(--primitiv-opacity-50);
+  }
+
+  .primitiv-card--scrim-medium {
+    --primitiv-card-scrim-opacity: var(--primitiv-opacity-70);
+  }
+
+  .primitiv-card--scrim-strong {
+    --primitiv-card-scrim-opacity: var(--primitiv-opacity-90);
+  }
+
+  /* --- Footer justification ---------------------------------------------- */
+  .primitiv-card__footer--start {
+    justify-content: flex-start;
+  }
+
+  .primitiv-card__footer--center {
+    justify-content: center;
+  }
+
+  .primitiv-card__footer--end {
+    justify-content: flex-end;
+  }
+}
+
+@layer primitiv.states {
+  /* Card is only focusable when the consumer makes it one (`asChild` onto an
+     <a>/<button> for a wholly-clickable card). The ring is an outline rather
+     than the house two-layer box-shadow because box-shadow is already spoken
+     for by `--raised`; an outline composes with it instead of replacing it.
+     Restyle it by overriding the --primitiv-focus-ring* tokens globally, not
+     via a per-component knob. */
+  .primitiv-card:focus-visible {
+    outline: var(--primitiv-focus-ring-width) solid var(--primitiv-focus-ring);
+    outline-offset: var(--primitiv-focus-ring-offset);
+  }
+
+  /* Suppresses the grey flash mobile WebKit/Chrome paint over any tappable
+     element on :active, independent of our own styling. CSS mechanic with no
+     token home, like `outline: none`. */
+  a.primitiv-card,
+  button.primitiv-card {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* SCSS aliases — one per contract custom property, in contract order.
+ * The CSS body above is byte-identical to styles.css; only this block differs. */
+$primitiv-card-background: var(--primitiv-card-background);
+$primitiv-card-border-color: var(--primitiv-card-border-color);
+$primitiv-card-border-width: var(--primitiv-card-border-width);
+$primitiv-card-radius: var(--primitiv-card-radius);
+$primitiv-card-padding: var(--primitiv-card-padding);
+$primitiv-card-gap: var(--primitiv-card-gap);
+$primitiv-card-shadow: var(--primitiv-card-shadow);
+$primitiv-card-media-radius-inset: var(--primitiv-card-media-radius-inset);
+$primitiv-card-media-aspect-ratio: var(--primitiv-card-media-aspect-ratio);
+$primitiv-card-media-inline-size: var(--primitiv-card-media-inline-size);
+$primitiv-card-media-background: var(--primitiv-card-media-background);
+$primitiv-card-cover-aspect-ratio: var(--primitiv-card-cover-aspect-ratio);
+$primitiv-card-scrim-color: var(--primitiv-card-scrim-color);
+$primitiv-card-scrim-opacity: var(--primitiv-card-scrim-opacity);
+$primitiv-card-scrim-mid: var(--primitiv-card-scrim-mid);
+$primitiv-card-scrim-end: var(--primitiv-card-scrim-end);
+$primitiv-card-title-color: var(--primitiv-card-title-color);
+$primitiv-card-title-font-family: var(--primitiv-card-title-font-family);
+$primitiv-card-title-font-size: var(--primitiv-card-title-font-size);
+$primitiv-card-title-font-weight: var(--primitiv-card-title-font-weight);
+$primitiv-card-title-line-height: var(--primitiv-card-title-line-height);
+$primitiv-card-description-color: var(--primitiv-card-description-color);
+$primitiv-card-description-font-family: var(--primitiv-card-description-font-family);
+$primitiv-card-description-font-size: var(--primitiv-card-description-font-size);
+$primitiv-card-description-font-weight: var(--primitiv-card-description-font-weight);
+$primitiv-card-description-line-height: var(--primitiv-card-description-line-height);

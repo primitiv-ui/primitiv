@@ -1452,3 +1452,60 @@ Avatar/Badge are **live** (their own props matter more than bridging).
   there the media stretches on the *counter* axis, which is well-defined. This
   is an authoring artifact only; the registry CSS does it correctly via
   `flex-grow`.
+
+### Avatar Group — `1480:44052` — page "Avatar Group" (RFC 0021 Tier 1)
+
+```
+Overlapping row of Avatars with an optional "+N" overflow counter — the collaborators/attendees pattern.
+
+Type: non-framed composition
+
+Axes: Size md|xs|sm|lg|xl · Count 2|3|4|5 · Direction ltr|rtl
+
+Tokens: overlap → avatar-group/{size}/overlap (NEGATIVE itemSpacing, ~30% of avatar diameter at every size and density)
+        ring    → avatar-group/{size}/ring-width, colour surface/default (a 0-blur drop shadow with spread, not a stroke)
+        avatars → nested Avatar instances at the matching Size (framed-control/{size}/height)
+
+Properties: Show counter (BOOL true)
+
+Density: Context mode override on parent frame
+Pairs with: Avatar (nested), Card, Tooltip (consumer-wired)
+```
+
+**The two-stack structure is load-bearing — do not flatten it.** Both rules have
+to hold at once: the *first* face paints on top (a stack you count into), and
+the counter paints above *everything*. `itemReverseZIndex` is all-or-nothing, so
+a flat list gives one or the other — leading-on-top buries the counter (it is
+the last child), trailing-on-top buries the first face. So the faces get their
+own stack with leading-on-top, and the ROOT overlaps the counter onto that stack
+as a sibling, where ordinary child order puts it above. The registry CSS does
+*not* mirror this: it has real z-index, so one flat row with a descending inline
+z-index per face suffices. Same behaviour, deliberately different mechanisms.
+
+**The overlap variable is stored NEGATIVE here and POSITIVE in DTCG.** Figma
+cannot negate a bound variable and there is no negative primitive to alias, but a
+bound *negative* variable does work — which is what keeps this component
+density-responsive instead of a hardcoded literal per variant. The code side
+stores the positive space step and negates with `calc()`, because a raw negative
+number emits unitless from the token pipeline (`avatar-group` is not a
+`LENGTH_CATEGORIES` entry) and would be invalid for a margin. The opposite signs
+are correct on both sides; do not "fix" either to match the other.
+
+**Other settled decisions** (from the "Avatar Group — exploration" page):
+
+- **The counter is an Avatar, not a Badge.** Badge ships only
+  `success | warning | info | danger` with no neutral, so it would force a
+  semantic colour onto something that is not a status — and a counter Badge is a
+  dot beside a 40px avatar. RFC 0021's "overflow badge" wording is superseded.
+- **Circles only** — no Shape axis. Overlapping squares turn the ring into a
+  notch and lose the row-of-faces read.
+- **No spaced/non-overlapping variant** — positive spacing needs no ring and is
+  just a Stack of Avatars.
+- **Direction is a real axis, not a boolean** — it reverses child order, which a
+  boolean cannot do.
+- **Tooltip is consumer-owned.** Naming faces would mean owning member data,
+  which NavigationMenu explicitly refused (RFC 0019 §4c).
+- The ring is surface-coloured to read as a cutout, so it is wrong by
+  construction on any other background; in the registry it is a knob, and it must
+  be set **on the group** (the component re-declares its own default, shadowing
+  any inherited value).

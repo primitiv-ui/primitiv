@@ -681,6 +681,43 @@ source of truth for when a skill applies.
   every colour a token; the positions were retuned once against real
   photography after the first shape left only 0.15–0.30 alpha where the title
   sits. Kitchen-sink: a three-column showcase covering all six layouts.
+- **Avatar Group (RFC 0021 Tier 1 composite) — fully landed, tokens + Figma +
+  registry + kitchen-sink (2026-07-31).** Figma-first per §8: an "Avatar Group
+  — exploration" page (10 sections + a settled-decisions panel) fixed every
+  choice before the set was built. New Context tokens
+  `avatar-group/{size}/overlap` (~30% of avatar diameter) and `/ring-width`
+  (~5%) — both **density-aware, and they have to be**: avatar diameter is
+  itself density-scaled (`framed-control/{size}/height`, md runs 24/32/40/48
+  across modes), so a fixed offset drifts badly at the extremes. Figma set
+  `1480:44052` on page "Avatar Group" (40 variants: Size × Count 2|3|4|5 ×
+  Direction ltr|rtl) + a `Show counter` BOOLEAN. Registry `avatar-group`
+  composes the registry `avatar`; `max` truncates and renders the counter.
+  Roster count 51.
+  **The counter is an Avatar, NOT a Badge** — Badge ships only
+  success|warning|info|danger with no neutral, so it would force a semantic
+  colour onto something that is not a status, and a counter Badge is a dot
+  beside a 40px avatar. RFC 0021's "overflow badge" wording is superseded.
+  **One behaviour, two platform mechanisms.** The first face must paint on top
+  AND the counter above everything. Figma needs **two nested auto-layout
+  stacks**, because `itemReverseZIndex` is all-or-nothing and a flat list
+  buries either the first face (trailing-on-top) or the counter (leading-on-top,
+  since it is the last child). CSS has real z-index, so one flat row works with
+  a descending inline z-index per face. Do not "simplify" either into the other.
+  **The overlap token carries opposite signs on the two platforms, on purpose.**
+  DTCG stores it positive, aliased to the space scale, and the CSS negates with
+  `calc(-1 * …)`; a raw negative number emits **unitless** (`avatar-group` is not
+  in the emitter's `LENGTH_CATEGORIES`) and is invalid for a margin. Figma
+  stores it negative, because Figma cannot negate a bound variable — verified
+  that a bound *negative* variable does work, which is what keeps the Figma
+  component density-responsive rather than a hardcoded literal per variant.
+  Also settled: circles only (overlapping squares turn the ring into a notch);
+  no spaced variant (positive spacing needs no ring and is just a Stack of
+  Avatars); Tooltip is consumer-owned (naming faces would mean owning member
+  data, which NavigationMenu explicitly refused, RFC 0019 §4c). The ring is
+  surface-coloured to read as a cutout, so it is wrong by construction on any
+  other background — `--primitiv-avatar-group-ring-color` is the knob, and it
+  must be set **on the group**, not an ancestor (the component re-declares its
+  own default, which shadows an inherited value).
 
 ## Useful commands
 

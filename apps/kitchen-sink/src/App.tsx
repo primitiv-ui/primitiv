@@ -25,6 +25,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
   Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardMedia,
+  CardTitle,
   Center,
   Checkbox,
   CheckboxCard,
@@ -199,6 +206,12 @@ import {
   Sort,
   User,
 } from "@primitiv-ui/icons";
+import cardPhoto1 from "./assets/carousel-photos/photo-1.jpg";
+import cardPhoto2 from "./assets/carousel-photos/photo-2.jpg";
+import cardPhoto3 from "./assets/carousel-photos/photo-3.jpg";
+import cardPhoto4 from "./assets/carousel-photos/photo-4.jpg";
+import cardPhoto5 from "./assets/carousel-photos/photo-5.jpg";
+import cardPhoto6 from "./assets/carousel-photos/photo-6.jpg";
 import { useChrome } from "./chrome";
 import "./App.css";
 import "./demos.css";
@@ -1218,6 +1231,142 @@ primitiv add --all`}</code>
           Link
           <ChevronRight />
         </Button>
+      </Section>
+
+      {/* Mirrors the Figma "Example" showcase frame: three columns covering
+          all six media layouts at once. Column 1 is a single Cover card
+          stretched to the full column height — the tall-portrait case, which
+          is where the scrim's fixed-distance stops earn their keep (a
+          proportional gradient would swamp a card this tall). Columns 2 and 3
+          stack the remaining layouts. */}
+      <Section title="Card" column>
+        <div className="card-showcase">
+          <div className="card-showcase__column">
+            <Card layout="cover" size={size} className="card-showcase__tall">
+              <CardMedia>
+                <img src={cardPhoto1} alt="" />
+              </CardMedia>
+              <CardContent>
+                <CardHeader>
+                  <CardTitle>Winter light</CardTitle>
+                </CardHeader>
+                <CardDescription>
+                  A short description of what this card links to or represents.
+                </CardDescription>
+                <CardFooter>
+                  <Button variant="secondary" size={size}>
+                    Learn more
+                  </Button>
+                  <Button size={size}>View</Button>
+                </CardFooter>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="card-showcase__column">
+            <Card layout="horizontal" size={size}>
+              <CardMedia inset>
+                <img src={cardPhoto2} alt="" />
+              </CardMedia>
+              <CardContent>
+                <CardHeader>
+                  <CardTitle>Card title</CardTitle>
+                </CardHeader>
+                <CardDescription>
+                  A short description of what this card links to or represents.
+                </CardDescription>
+                <CardFooter>
+                  <Button variant="secondary" size={size}>
+                    Learn more
+                  </Button>
+                  <Button size={size}>View</Button>
+                </CardFooter>
+              </CardContent>
+            </Card>
+
+            <Card layout="vertical" size={size}>
+              <CardMedia inset>
+                <img src={cardPhoto3} alt="" />
+              </CardMedia>
+              <CardContent>
+                <CardHeader>
+                  <CardTitle>Card title</CardTitle>
+                </CardHeader>
+                <CardDescription>
+                  A short description of what this card links to or represents.
+                </CardDescription>
+                <CardFooter>
+                  <Button variant="secondary" size={size}>
+                    Learn more
+                  </Button>
+                  <Button size={size}>View</Button>
+                </CardFooter>
+              </CardContent>
+            </Card>
+
+            <Card layout="horizontal" size={size}>
+              <CardMedia>
+                <img src={cardPhoto4} alt="" />
+              </CardMedia>
+              <CardContent>
+                <CardHeader>
+                  <CardTitle>Card title</CardTitle>
+                </CardHeader>
+                <CardDescription>
+                  A short description of what this card links to or represents.
+                </CardDescription>
+                <CardFooter>
+                  <Button variant="secondary" size={size}>
+                    Learn more
+                  </Button>
+                  <Button size={size}>View</Button>
+                </CardFooter>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="card-showcase__column">
+            <Card layout="vertical" size={size}>
+              <CardMedia>
+                <img src={cardPhoto5} alt="" />
+              </CardMedia>
+              <CardContent>
+                <CardHeader>
+                  <CardTitle>Card title</CardTitle>
+                </CardHeader>
+                <CardDescription>
+                  A short description of what this card links to or represents.
+                </CardDescription>
+                <CardFooter>
+                  <Button variant="secondary" size={size}>
+                    Learn more
+                  </Button>
+                  <Button size={size}>View</Button>
+                </CardFooter>
+              </CardContent>
+            </Card>
+
+            <Card layout="cover" size={size} scrim="strong">
+              <CardMedia>
+                <img src={cardPhoto6} alt="" />
+              </CardMedia>
+              <CardContent>
+                <CardHeader>
+                  <CardTitle>Card title</CardTitle>
+                </CardHeader>
+                <CardDescription>
+                  A short description of what this card links to or represents.
+                </CardDescription>
+                <CardFooter>
+                  <Button variant="secondary" size={size}>
+                    Learn more
+                  </Button>
+                  <Button size={size}>View</Button>
+                </CardFooter>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </Section>
 
       <Section title="Checkbox" column>

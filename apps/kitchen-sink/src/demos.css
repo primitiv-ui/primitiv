@@ -356,3 +356,45 @@
 .ks-nav-columns-featured {
   --primitiv-navigation-menu-content-columns: 13rem repeat(3, 1fr);
 }
+
+/* ── Card showcase ────────────────────────────────────────────────────────
+ * Mirrors the Figma "Example" frame: three equal columns, each a stack of
+ * cards, covering all six media layouts side by side. Purely a *demo*
+ * composition — Card itself brings no layout opinion beyond its own box, so
+ * arranging it is the page's job, not the component's.
+ *
+ * Columns stretch to the tallest one (the grid default), which is what lets
+ * .card-showcase__tall fill its column — `align-items: start` would size each
+ * column to its own content and leave the tall Cover card short. Stacked
+ * cards still hug their content, because a flex column only stretches its
+ * children on the cross axis. The stretched Cover is the case worth showing:
+ * it is where the fixed-distance scrim stops visibly beat a proportional
+ * gradient. */
+.card-showcase {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  inline-size: 100%;
+}
+
+.card-showcase__column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-inline-size: 0;
+}
+
+/* Stretch the first column's Cover card to match the tallest column. */
+.card-showcase__tall {
+  block-size: 100%;
+}
+
+@media (max-width: 60rem) {
+  .card-showcase {
+    grid-template-columns: 1fr;
+  }
+
+  .card-showcase__tall {
+    block-size: auto;
+  }
+}

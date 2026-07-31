@@ -134,6 +134,10 @@
   .primitiv-card__footer {
     display: flex;
     align-items: center;
+    /* Actions drop to a second row rather than being squashed below their
+       label's width — a horizontal card's content column gets narrow fast,
+       and a shrunken button wraps its own label mid-word. */
+    flex-wrap: wrap;
     gap: var(--primitiv-card-gap);
     /* Pins the actions to the bottom whenever the content block is taller
        than its natural height — e.g. cards stretched to equal heights in a

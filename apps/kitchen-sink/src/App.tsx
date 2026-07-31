@@ -437,7 +437,7 @@ const PAGE_TOC: { category: string; titles: string[] }[] = [
     titles: ["Accordion", "Breadcrumb", "Collapsible", "Tabs"],
   },
   { category: "Navigation", titles: ["Navigation Menu", "Toggle Group"] },
-  { category: "Data Display", titles: ["Avatar", "Badge, Tag & Chip", "Table"] },
+  { category: "Data Display", titles: ["Avatar", "Badge, Tag & Chip", "Card", "Table"] },
 ];
 
 // The GitHub Pages deploy switches the app to a HashRouter (see main.tsx —

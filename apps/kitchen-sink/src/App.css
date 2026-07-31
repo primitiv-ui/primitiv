@@ -158,14 +158,15 @@ body {
 }
 
 /* The category list is what was making the box tall enough to need its own
-   scrollbar (the original complaint) — flowing it into 2 columns instead of
-   one long stack roughly halves that height. Needs display:block (not the
-   flex-column the single-item intro list above uses) since the `columns`
-   property has no effect on a flex container. break-inside: avoid on each
-   category <li> below keeps a category's heading from separating from its
-   own links across the column gap. */
+   scrollbar (the original complaint) — flowing it into columns instead of one
+   long stack cuts that height proportionally. Three columns, not two: two
+   still left the box tall enough to scroll once the list had grown. Needs
+   display:block (not the flex-column the single-item intro list above uses)
+   since the `columns` property has no effect on a flex container.
+   break-inside: avoid on each category <li> below keeps a category's heading
+   from separating from its own links across the column gap. */
 .kitchen-sink__toc-categories {
-  column-count: 2;
+  column-count: 3;
   column-gap: var(--primitiv-space-space-16);
 }
 
@@ -197,10 +198,14 @@ body {
   text-transform: uppercase;
 }
 
+/* No gap between the nested links: at this type size the line boxes already
+   separate them legibly, and the gap was multiplying across ~50 entries into
+   a real chunk of the box's height. The links keep their own padding-block
+   as tap/click target. */
 .kitchen-sink__toc ul ul {
   display: flex;
   flex-direction: column;
-  gap: var(--primitiv-space-space-2);
+  gap: var(--primitiv-space-space-0);
 }
 
 .kitchen-sink__toc a {

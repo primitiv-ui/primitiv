@@ -642,6 +642,45 @@ source of truth for when a skill applies.
   "Confirm Dialog" section right after Modal in `apps/kitchen-sink/src/App.tsx`,
   a controlled danger-tone "Remove member" demo whose `onConfirm` closes the
   dialog.
+- **Card (RFC 0021 Tier 1 composite) — fully landed, tokens + Figma + registry
+  + kitchen-sink (2026-07-31).** Figma-first per §8. New Context tokens
+  `card/{size}/{padding,gap,radius}` + `card-media/{size}/radius-inset` (all 4
+  density modes, code and Figma in lockstep). **Five Figma sets** on page
+  "Card": `Card` (`1444:37322`, 30 variants — Media None|Top|Side|Top
+  Inset|Side Inset|Cover × Size), `Card / Media` (`1444:36867`, 30),
+  `Card / Header` (`1464:38775`, 10 — Tone default|inverse),
+  `Card / Footer` (`1463:38714`, 15 — Justification Start|Center|End) and
+  `Card / Scrim` (`1466:41396`, 3 — Strength soft|medium|strong). Header and
+  Footer are their **own sets, nested as live instances**, because the plugin
+  API cannot bridge a nested instance's text up to a parent panel (the same
+  boundary ConfirmDialog hit): Card's own panel is deliberately just
+  `Description` + `Show header`/`Show footer` (a BOOLEAN *can* drive a nested
+  instance's `visible`, just not its text), and everything else is edited by
+  selecting the nested instance. Footer's buttons are detached (its labels are
+  the point); Header's Avatar/Badge are **live** instances (their own props
+  matter more than bridging) — opposite resolutions of one API limit, on
+  purpose. Registry `card` is **hand-authored and primitive-less** — structure
+  and styling only, no keyboard model or focus management, so nothing for a
+  `packages/react` primitive to own. Seven parts; `CardContent` owns **all**
+  padding (an earlier build gave each region its own and doubled every seam —
+  do not reintroduce); the cover scrim is a `::before`, not a component.
+  Roster count 50. **Three deliberate Figma↔CSS divergences**, documented in
+  both the component descriptions and the stylesheet header, all cases where
+  CSS expresses something Figma auto-layout cannot: media absorbs extra card
+  height via `flex-grow` (Figma collapses a frame on hug+fill *on the same
+  axis* — measured, including that a `minHeight` floor makes hug resolve to
+  the max of its children rather than the sum), side media grows via a
+  percentage width, and the scrim's stops are **fixed distances from the
+  bottom edge** so the wash tracks the content rather than scaling with the
+  card. Elevation is a registry-only prop: a Figma BOOLEAN binds only
+  `visible`/`characters`/`mainComponent`, so it cannot toggle an effect style,
+  and a variant axis would have doubled the set to 60 — a designer needing a
+  lifted card in a mockup detaches and applies `elevation/raised` directly.
+  Gradient stops **can** bind variables but adopt that variable's own alpha,
+  so the scrim's shape comes from stop *positions* (0 / 0.25 / 0.85 / 1) with
+  every colour a token; the positions were retuned once against real
+  photography after the first shape left only 0.15–0.30 alpha where the title
+  sits. Kitchen-sink: a three-column showcase covering all six layouts.
 
 ## Useful commands
 

@@ -63,6 +63,7 @@ IDs).
 | Box | — | registry only | ✓ | ✓ | RFC 0022 (layout primitives, build-order step 1). Registry-only — the escape hatch, a bare polymorphic element (`asChild`) with no visual opinion beyond `box-sizing: border-box`. Kitchen-sink = Layout Primitives section |
 | Breadcrumb | ✓ | ✓ | ✓ | ✓ | 436:12220 (Item), 436:12221 (Separator), 436:12911 (composition). Design change (2026-07-27): Item gained a `State` variant (`link`\|`current`, was a single undifferentiated style) so the current page reads `content/primary` against a `content/muted` trail (tuned live from an initial `content/secondary` guess — muted reads with a bigger gap against primary); Separator recoloured to match. Registry `breadcrumb` = flex `<ol>` row (unbound flat `space-4` gap, matching Figma's own unscaled `itemSpacing`), Link/Separator on `content-muted`, Page on `content-primary`, body/{size} type throughout; Link's hover reveals an always-in-layout underline (`text-decoration-color` transparent→`currentColor`) fading in with the muted→primary colour lift, so the affordance is a pure colour transition with no reflow. Kitchen-sink = default "/" separator trail + a custom chevron-icon separator trail |
 | Button | ✓ | ✓ | ✓ | ✓ | 347:14161 |
+| Card | ✓ | registry only | ✓ | ✓ | RFC 0021 Tier 1 composite. Registry-only — structure and styling with no keyboard model, focus management or open/close state, so nothing for a headless primitive to own. Five Figma sets on page "Card": `Card` `1444:37322` (30 variants, Media None\|Top\|Side\|Top Inset\|Side Inset\|Cover × Size xs-xl), `Card / Media` `1444:36867` (30 — Treatment Full-bleed\|Inset × Rounded × Show overlay × Size; Full-bleed is always `Rounded=false`/`radii/0` so the card's own clip supplies the outer corners and the media↔content seam stays flush), `Card / Header` `1464:38775` (10, Tone default\|inverse), `Card / Footer` `1463:38714` (15, Justification Start\|Center\|End) and `Card / Scrim` `1466:41396` (3, Strength soft\|medium\|strong from `opacity/50\|70\|90`, colours from `color/transparent` → `color/absolute-black`). New tokens: `card/{size}/{padding,gap,radius}`, `card-media/{size}/radius-inset`. Registry `card` = 7 parts; `CardContent` owns **all** padding (per-region padding doubled every seam in an earlier build); scrim is a `::before`, not a component. Deliberate Figma↔CSS divergences (all documented in the component descriptions + stylesheet header): media absorbs extra height via `flex-grow`, side media grows via a percentage width, scrim stops are fixed distances from the bottom so the wash tracks content — none of which Figma auto-layout can express. Elevation is a registry-only prop (a Figma BOOLEAN cannot toggle an effect style) |
 | Carousel | 🟡 | ✓ | ✓ | ✓ | Figma set in progress — `CarouselSlide` + parts, full set not yet assembled |
 | Center | — | registry only | ✓ | ✓ | RFC 0022 (layout primitives, build-order step 2). Registry-only — a single- or both-axis Flexbox centring box; each `axis` variant sets both alignment properties explicitly so the uncentred axis reads `flex-start` (content-driven), never stretched. Kitchen-sink = Layout Primitives section |
 | Checkbox | ✓ | ✓ | ✓ | ✓ | 369:30652 |
@@ -179,7 +180,33 @@ None of these are built yet; listed here for backlog visibility.
       Kitchen-sink: a combined "Badge, Tag & Chip" section between Avatar and
       Breadcrumb, Chip's demo backed by real `useState` so the remove button
       actually removes a filter chip.
-- [ ] Card (`Divider` + `Avatar`/`Badge` + `Button` slots)
+- [x] Card (`Divider` + `Avatar`/`Badge` + `Button` slots). **Landed 2026-07-31,
+      tokens + Figma + registry + kitchen-sink.** New `card/{size}/{padding,gap,
+      radius}` + `card-media/{size}/radius-inset` Context tokens (code + Figma,
+      all 4 density modes). Figma: five sets on page "Card" — `Card` (30
+      variants, Media None|Top|Side|Top Inset|Side Inset|Cover × Size),
+      `Card / Media` (30), `Card / Header` (10, Tone default|inverse),
+      `Card / Footer` (15, Justification Start|Center|End) and `Card / Scrim`
+      (3, Strength soft|medium|strong). Header/Footer were extracted as their
+      own sets — the plugin API cannot bridge a nested instance's text up to a
+      parent panel, so Card's own panel is deliberately small (`Description`
+      plus two visibility booleans) and the rest is edited by selecting the
+      nested instance, exactly as `Card / Media` already worked.
+      **Registry** (hand-authored, primitive-less — Card has no keyboard model
+      or focus management, so there is nothing for a headless primitive to
+      own): seven compound parts, `layout` vertical|horizontal|cover, with the
+      scrim drawn as a `::before` pseudo-element rather than a component.
+      Registered in `registry/registry.json`, `crates/primitiv-cli/src/ports/
+      registry.rs`, `crates/primitiv-cli/tests/cli.rs` (roster count 50).
+      Kitchen-sink: a three-column showcase covering all six layouts at once.
+      Three behaviours are **better in CSS than the Figma master can express**
+      and are deliberate divergences, documented in both places: the media
+      absorbs extra card height via `flex-grow` (Figma collapses on hug+fill),
+      side media grows with the card via a percentage width, and the cover
+      scrim's stops are fixed distances from the bottom edge so the wash
+      tracks the content rather than scaling with the card. Elevation is a
+      registry-only `elevation` prop — a Figma BOOLEAN cannot toggle an effect
+      style, and an `Elevation` variant axis would have doubled the set to 60.
 - [ ] Stepper / Wizard (`Tabs` + `Button` + decorative step row)
 - [ ] Pagination (`Button` + `Select`)
 - [ ] Data Table (`Table` + `Checkbox` + `Dropdown` + `Select` + Pagination + `InputGroup`)

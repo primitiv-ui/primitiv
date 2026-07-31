@@ -534,6 +534,21 @@ ramp would change dark-mode behaviour; the revisit needs a decision first (e.g. 
 `absolute-black`-anchored alpha ramp as a second family). Until then the literals
 stand, consistent with the elevation-colour precedent.
 
+**Update (2026-07-31): Card's cover scrim demonstrates a working pattern that
+needs no new token family** — worth weighing when this is revisited. It gets a
+theme-static, fully-tokenised translucent black by **separating colour from
+alpha**: the gradient stops bind `color/transparent` (a=0) and
+`color/absolute-black` (a=1), and the *opacity* comes from the frame's own
+`opacity` bound to an `opacity/*` primitive (`opacity/50|70|90` for its three
+strengths). In Figma a bound gradient stop adopts that variable's own alpha, so
+this split is what makes a token-only gradient possible at all; in CSS the same
+split is `color-mix(in srgb, var(--primitiv-color-absolute-black) …%,
+var(--primitiv-color-transparent))`. If `scrim` were re-expressed the same way
+(`absolute-black` × `opacity/50`) it would stay theme-static, lose the hardcoded
+`#00000080`, and need no second alpha ramp. Not done here — `scrim` is consumed
+by Modal's backdrop and changing it is a separate, testable change — but the
+precedent now exists and is shipped.
+
 ## 👻 Neutral alpha ramps + action.ghost state layer — landed (2026-07-06)
 
 The engine's Path-A alpha ramp (`generate_alpha_ramp`: one anchor colour across

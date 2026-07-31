@@ -1399,3 +1399,56 @@ After building or significantly updating a component set, verify:
 - [ ] Notes captures any non-obvious design decisions
 - [ ] This skill's "Canonical descriptions" section updated with the new/revised entry
 - [ ] **Throwaway component test passed** — instantiate the component using only the description (axes, properties, density), screenshot it, verify it renders correctly, then delete the test frame. This catches stale Properties fields and incorrect axis values that a read-back alone won't reveal.
+
+### Card — five sets on page "Card" (RFC 0021 Tier 1 composite)
+
+Content container. Built 2026-07-31, Figma-first. The live descriptions on the
+nodes are the source of truth and are longer than the summaries here — read them
+before editing any of these sets.
+
+**Why five sets, not one.** The plugin API cannot bridge a nested instance's
+text up to a parent's panel (setting `componentPropertyReferences` on an
+instance sublayer errors; so does referencing the nested instance's own property
+key). So Header and Footer are their own sets, nested as live instances, and
+Card's own panel is deliberately tiny. Their internals resolve that same limit
+in *opposite* directions, on purpose: Footer's Buttons are **detached** (its
+labels are the whole point, worth losing live-instance status for), Header's
+Avatar/Badge are **live** (their own props matter more than bridging).
+
+| Set | Node | Variants |
+| --- | --- | --- |
+| `Card` | `1444:37322` | 30 — Media None\|Top\|Side\|Top Inset\|Side Inset\|Cover × Size xs–xl |
+| `Card / Media` | `1444:36867` | 30 — Treatment Full-bleed\|Inset × Rounded × Show overlay × Size |
+| `Card / Header` | `1464:38775` | 10 — Tone default\|inverse × Size |
+| `Card / Footer` | `1463:38714` | 15 — Justification Start\|Center\|End × Size |
+| `Card / Scrim` | `1466:41396` | 3 — Strength soft\|medium\|strong |
+
+**Things that will look like bugs and are not:**
+
+- **Full-bleed media is square** (`Rounded=false` → `radii/0`). The card's own
+  `clipsContent` supplies the outer corners; giving the media its own radius
+  also rounds the *inner* seam where it meets the content and leaves a notch.
+  `Rounded=true` exists only on `Inset`. The `Rounded` axis still lists
+  true\|false on every child because Figma requires uniform property *names*
+  across a set — a sparse value matrix is legal, a missing name is not.
+- **`Card / Scrim`'s gradient shape comes from stop positions** (0 / 0.25 /
+  0.85 / 1), not hand-tuned alphas. Binding a variable to a gradient stop makes
+  the stop adopt that variable's alpha, so `color/transparent` supplies a=0 and
+  `color/absolute-black` a=1; overall strength is the frame's `opacity` bound to
+  `opacity/50|70|90`. Positions were retuned once against real photography —
+  the first shape gave only 0.15–0.30 alpha where the title sits, even at
+  `strong`.
+- **`absolute-black`, not `surface/inverse`** — a scrim sits over photography
+  and must not invert with the theme (same reasoning as RFC 0017's
+  `shadow.color`).
+- **No Elevation axis.** A BOOLEAN binds only `visible`/`characters`/
+  `mainComponent`, so it cannot toggle an effect style, and an axis would
+  double the set to 60. Elevation is a registry-only prop; a designer needing a
+  lifted card detaches and applies `elevation/raised`.
+- **A stretched Top/Top Inset card gains dead space below the footer.** Making
+  the media absorb it needs hug and fill on the same axis, which collapses the
+  frame (measured: bare → 100px; with a `minHeight` floor, hug resolves to the
+  *max* of its children rather than the sum). Side layouts are unaffected —
+  there the media stretches on the *counter* axis, which is well-defined. This
+  is an authoring artifact only; the registry CSS does it correctly via
+  `flex-grow`.

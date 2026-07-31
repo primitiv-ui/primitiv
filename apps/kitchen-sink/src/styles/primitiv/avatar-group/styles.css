@@ -34,6 +34,11 @@
     /* Not `width: max-content` — the group must be able to shrink inside a
        flex/grid parent without forcing its container wider. */
     inline-size: fit-content;
+    /* Confines the children's z-index to this element. Without it the
+       counter's z-index competes in the PAGE's stacking context and paints
+       over sticky headers, modals and anything else it has no business being
+       above. The counter only ever needs to beat its own siblings. */
+    isolation: isolate;
   }
 
   .primitiv-avatar-group__item {

@@ -399,26 +399,10 @@
   }
 }
 
-/* ── Avatar Group demos ───────────────────────────────────────────────────
- * The panel shows the ring knob being re-pointed: the ring is surface-coloured
- * so it reads as a cutout between overlapping faces, which makes it wrong by
- * construction on any non-surface background. */
+/* ── Avatar Group demos ─────────────────────────────────────────────────── */
 .ks-avatar-group-demos {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
   align-items: flex-start;
-}
-
-.ks-avatar-group-panel {
-  padding: 1rem 1.25rem;
-  border-radius: 0.625rem;
-  background-color: var(--primitiv-color-brand-600);
-}
-
-/* The knob has to be set ON the group, not on an ancestor: the component
-   re-declares its own default on .primitiv-avatar-group, which shadows any
-   value inherited from a parent. This is the usage the README documents. */
-.ks-avatar-group-panel .primitiv-avatar-group {
-  --primitiv-avatar-group-ring-color: var(--primitiv-color-brand-600);
 }

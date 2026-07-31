@@ -496,6 +496,26 @@ function PageToc() {
   );
 }
 
+// The five faces generated for the Figma Avatar Group set, served from
+// public/ (BASE_URL-relative, same pattern as avatar-demo.jpg above) rather
+// than imported — they're demo fixtures, not bundled assets. Each Avatar
+// still carries initials as its AvatarFallback, which is what renders if an
+// image 404s.
+const AVATAR_FACES = [
+  { src: `${import.meta.env.BASE_URL}avatar-1.png`, initials: "AB" },
+  { src: `${import.meta.env.BASE_URL}avatar-2.png`, initials: "CD" },
+  { src: `${import.meta.env.BASE_URL}avatar-3.png`, initials: "EF" },
+  { src: `${import.meta.env.BASE_URL}avatar-4.png`, initials: "GH" },
+  { src: `${import.meta.env.BASE_URL}avatar-5.png`, initials: "JK" },
+];
+
+// A team longer than the face set, so `max` has something real to truncate;
+// faces cycle by position exactly as the Figma variants do.
+const AVATAR_TEAM = Array.from({ length: 7 }, (_, i) => ({
+  key: `member-${i}`,
+  ...AVATAR_FACES[i % AVATAR_FACES.length],
+}));
+
 // The twelve Popover placements, grouped by side (three per row in the demo
 // grid): top · right · bottom · left, each with start / center / end.
 const POPOVER_PLACEMENTS = [
@@ -1111,44 +1131,38 @@ primitiv add --all`}</code>
           slot. */}
       {/* max truncates and renders the "+N" counter. The counter is an Avatar,
           not a Badge: Badge has no neutral tone and would be a dot at this
-          scale (see the Figma "Avatar Group — exploration" §5). The last row
-          shows the ring knob — it is surface-coloured to read as a cutout, so
-          on a coloured panel it has to be re-pointed. */}
+          scale (see the Figma "Avatar Group — exploration" §5). Faces cycle
+          through AVATAR_FACES by position, exactly as the Figma variants do —
+          each Avatar still carries its initials as AvatarFallback, so the
+          demo exercises both the image and fallback paths at once. */}
       <Section title="Avatar Group" column>
         <div className="ks-avatar-group-demos">
           <AvatarGroup size={size}>
-            {["AB", "CD", "EF"].map((t) => (
-              <Avatar key={t} size={size}>
-                <AvatarFallback>{t}</AvatarFallback>
+            {AVATAR_FACES.slice(0, 3).map((f) => (
+              <Avatar key={f.initials} size={size}>
+                <AvatarImage src={f.src} alt="" />
+                <AvatarFallback>{f.initials}</AvatarFallback>
               </Avatar>
             ))}
           </AvatarGroup>
 
           <AvatarGroup size={size} max={4}>
-            {["AB", "CD", "EF", "GH", "JK", "LM", "NP"].map((t) => (
-              <Avatar key={t} size={size}>
-                <AvatarFallback>{t}</AvatarFallback>
+            {AVATAR_TEAM.map((f) => (
+              <Avatar key={f.key} size={size}>
+                <AvatarImage src={f.src} alt="" />
+                <AvatarFallback>{f.initials}</AvatarFallback>
               </Avatar>
             ))}
           </AvatarGroup>
 
           <AvatarGroup size={size} direction="rtl" max={4}>
-            {["AB", "CD", "EF", "GH", "JK", "LM"].map((t) => (
-              <Avatar key={t} size={size}>
-                <AvatarFallback>{t}</AvatarFallback>
+            {AVATAR_TEAM.slice(0, 6).map((f) => (
+              <Avatar key={f.key} size={size}>
+                <AvatarImage src={f.src} alt="" />
+                <AvatarFallback>{f.initials}</AvatarFallback>
               </Avatar>
             ))}
           </AvatarGroup>
-
-          <div className="ks-avatar-group-panel">
-            <AvatarGroup size={size} max={3}>
-              {["AB", "CD", "EF", "GH", "JK"].map((t) => (
-                <Avatar key={t} size={size}>
-                  <AvatarFallback>{t}</AvatarFallback>
-                </Avatar>
-              ))}
-            </AvatarGroup>
-          </div>
         </div>
       </Section>
 

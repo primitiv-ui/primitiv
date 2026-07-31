@@ -165,9 +165,10 @@ fn add_all_resolves_every_embedded_component() {
         // ConfirmDialog (hand-authored, composes the registry Modal + Button —
         // no headless primitive of its own) + Card (hand-authored, composes no
         // primitive at all — structure and styling only).
-        .stdout(predicate::str::contains("Resolved 50 components to add:"))
+        .stdout(predicate::str::contains("Resolved 51 components to add:"))
         .stdout(predicate::str::contains("button"))
         .stdout(predicate::str::contains("card"))
+        .stdout(predicate::str::contains("avatar-group"))
         .stdout(predicate::str::contains("table"))
         .stdout(predicate::str::contains("divider"))
         .stdout(predicate::str::contains("prose"))

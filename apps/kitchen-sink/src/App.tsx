@@ -13,6 +13,7 @@ import {
   Alert,
   AspectRatio,
   Avatar,
+  AvatarGroup,
   AvatarImage,
   AvatarFallback,
   Badge,
@@ -437,7 +438,7 @@ const PAGE_TOC: { category: string; titles: string[] }[] = [
     titles: ["Accordion", "Breadcrumb", "Collapsible", "Tabs"],
   },
   { category: "Navigation", titles: ["Navigation Menu", "Toggle Group"] },
-  { category: "Data Display", titles: ["Avatar", "Badge, Tag & Chip", "Card", "Table"] },
+  { category: "Data Display", titles: ["Avatar", "Avatar Group", "Badge, Tag & Chip", "Card", "Table"] },
 ];
 
 // The GitHub Pages deploy switches the app to a HashRouter (see main.tsx —
@@ -1108,6 +1109,49 @@ primitiv add --all`}</code>
           clicking × actually removes the chip from `chipFilters` state,
           demonstrating the required `onRemove` handler and the leading-icon
           slot. */}
+      {/* max truncates and renders the "+N" counter. The counter is an Avatar,
+          not a Badge: Badge has no neutral tone and would be a dot at this
+          scale (see the Figma "Avatar Group — exploration" §5). The last row
+          shows the ring knob — it is surface-coloured to read as a cutout, so
+          on a coloured panel it has to be re-pointed. */}
+      <Section title="Avatar Group" column>
+        <div className="ks-avatar-group-demos">
+          <AvatarGroup size={size}>
+            {["AB", "CD", "EF"].map((t) => (
+              <Avatar key={t} size={size}>
+                <AvatarFallback>{t}</AvatarFallback>
+              </Avatar>
+            ))}
+          </AvatarGroup>
+
+          <AvatarGroup size={size} max={4}>
+            {["AB", "CD", "EF", "GH", "JK", "LM", "NP"].map((t) => (
+              <Avatar key={t} size={size}>
+                <AvatarFallback>{t}</AvatarFallback>
+              </Avatar>
+            ))}
+          </AvatarGroup>
+
+          <AvatarGroup size={size} direction="rtl" max={4}>
+            {["AB", "CD", "EF", "GH", "JK", "LM"].map((t) => (
+              <Avatar key={t} size={size}>
+                <AvatarFallback>{t}</AvatarFallback>
+              </Avatar>
+            ))}
+          </AvatarGroup>
+
+          <div className="ks-avatar-group-panel">
+            <AvatarGroup size={size} max={3}>
+              {["AB", "CD", "EF", "GH", "JK"].map((t) => (
+                <Avatar key={t} size={size}>
+                  <AvatarFallback>{t}</AvatarFallback>
+                </Avatar>
+              ))}
+            </AvatarGroup>
+          </div>
+        </div>
+      </Section>
+
       <Section title="Badge, Tag & Chip" column>
         <div className="ks-row">
           <Badge size={size} tone="success">
@@ -1240,9 +1284,9 @@ primitiv add --all`}</code>
           proportional gradient would swamp a card this tall). Columns 2 and 3
           stack the remaining layouts. */}
       <Section title="Card" column>
-        <div className="card-showcase">
-          <div className="card-showcase__column">
-            <Card layout="cover" size={size} className="card-showcase__tall">
+        <div className="ks-card-showcase">
+          <div className="ks-card-showcase__column">
+            <Card layout="cover" size={size} className="ks-card-showcase__tall">
               <CardMedia>
                 <img src={cardPhoto1} alt="" />
               </CardMedia>
@@ -1263,7 +1307,7 @@ primitiv add --all`}</code>
             </Card>
           </div>
 
-          <div className="card-showcase__column">
+          <div className="ks-card-showcase__column">
             <Card layout="horizontal" size={size}>
               <CardMedia inset>
                 <img src={cardPhoto2} alt="" />
@@ -1325,7 +1369,7 @@ primitiv add --all`}</code>
             </Card>
           </div>
 
-          <div className="card-showcase__column">
+          <div className="ks-card-showcase__column">
             <Card layout="vertical" size={size}>
               <CardMedia>
                 <img src={cardPhoto5} alt="" />

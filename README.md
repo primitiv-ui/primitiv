@@ -17,10 +17,16 @@ ones), sync design tokens from Figma, and install it all with one command.
 [![Built with Rust](https://img.shields.io/badge/engine-Rust%20%2B%20wasm-dea584?logo=rust&logoColor=white)](crates/harmoni-core)
 
 [![react/icons/tokens tests](https://img.shields.io/github/actions/workflow/status/primitiv-ui/primitiv/ci.yml?branch=main&label=react%2Ficons%2Ftokens%20tests&logo=vitest&logoColor=white)](https://github.com/primitiv-ui/primitiv/actions/workflows/ci.yml)
-[![react coverage](https://codecov.io/gh/primitiv-ui/primitiv/branch/main/graph/badge.svg?flag=react)](https://codecov.io/gh/primitiv-ui/primitiv)
 
 [![rust tests](https://img.shields.io/github/actions/workflow/status/primitiv-ui/primitiv/rust.yml?branch=main&label=rust%20tests&logo=rust&logoColor=white)](https://github.com/primitiv-ui/primitiv/actions/workflows/rust.yml)
-[![rust coverage](https://codecov.io/gh/primitiv-ui/primitiv/branch/main/graph/badge.svg?flag=rust)](https://codecov.io/gh/primitiv-ui/primitiv)
+
+[![react coverage](https://codecov.io/gh/primitiv-ui/primitiv/branch/main/graph/badge.svg?flag=react)](https://codecov.io/gh/primitiv-ui/primitiv)
+
+[![icons coverage](https://codecov.io/gh/primitiv-ui/primitiv/branch/main/graph/badge.svg?flag=icons)](https://codecov.io/gh/primitiv-ui/primitiv)
+
+[![tokens coverage](https://codecov.io/gh/primitiv-ui/primitiv/branch/main/graph/badge.svg?flag=tokens)](https://codecov.io/gh/primitiv-ui/primitiv)
+
+[![harmoni-core coverage](https://codecov.io/gh/primitiv-ui/primitiv/branch/main/graph/badge.svg?flag=harmoni-core)](https://codecov.io/gh/primitiv-ui/primitiv)
 
 [![react mutation](https://img.shields.io/github/actions/workflow/status/primitiv-ui/primitiv/mutation.yml?branch=main&label=react%20mutation&logo=stryker&logoColor=white)](https://github.com/primitiv-ui/primitiv/actions/workflows/mutation.yml)
 

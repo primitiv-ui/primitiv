@@ -17,6 +17,6 @@ flags:
   tokens:
     paths:
       - packages/tokens/src
-  rust:
+  harmoni-core:
     paths:
-      - crates/
+      - crates/harmoni-core/src

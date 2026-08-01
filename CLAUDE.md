@@ -718,6 +718,70 @@ source of truth for when a skill applies.
   other background — `--primitiv-avatar-group-ring-color` is the knob, and it
   must be set **on the group**, not an ancestor (the component re-declares its
   own default, which shadows an inherited value).
+- **Breadcrumb Overflow (RFC 0021 Tier 1 composite) — fully landed, Figma +
+  headless + registry + kitchen-sink (2026-08-01).** Figma-first even though
+  it composes only one existing primitive twice over (`Breadcrumb` +
+  `Dropdown`) — "this is just a Breadcrumb variant, no new component needed"
+  was flagged and corrected: the composed set (`436:12911`) gained a real,
+  selectable `Overflow` false|true axis (10→20 variants), not documentation
+  alone. At `Overflow=true` the middle crumb is a bare `Breadcrumb/Item`
+  (`State=link`, label `"…"`) with **no fill and no padding** — inherits
+  hover/focus/colour/sizing for free from the plain-link treatment, per that
+  component set's own description — which is what set the registry trigger's
+  entire visual contract below. Headless `Breadcrumb.Ellipsis` landed next: a
+  decorative `role="presentation"`/`aria-hidden` glyph, `asChild`-capable,
+  defaulting to `"…"`. Breadcrumb still owns no truncation or menu-open state
+  of its own (RFC 0019 §4c) — Ellipsis is the composition seam, documented in
+  both READMEs with a `Dropdown`-composition example.
+  **`keepStart`/`keepEnd`, not a single `maxVisible`** — settled by directly
+  asking, since collapsing an *arbitrary* number of crumbs at each end (not
+  just "N visible total") is a real, independently-useful axis once you can
+  choose it.
+  Registry `breadcrumb-overflow` is hand-authored (composes the registry
+  `breadcrumb` + `dropdown`, no drift-guard test): takes `children` — plain
+  `BreadcrumbLink`/`BreadcrumbPage` elements, not a `label`/`href` data array,
+  matching every other compound's refusal to own a data model — and
+  re-renders the hidden middle crumbs, **unmodified**, as `DropdownItem
+  asChild` children inside the menu, so any `href`, click handler, or
+  routing-library `asChild` composition on them keeps working untouched.
+  **The trigger deliberately does not compose the registry `Button`** — a
+  first pass did, and it visually read as "a secondary button" sitting
+  inside a text trail (caught from a real Playwright render, not a review):
+  Button's framed-control padding scale is far too heavy against Figma's
+  zero-padding spec. Fixed with a bare `<button>` styled by a new `__trigger`
+  part, whose padding is cancelled by an equal negative margin (so
+  `:hover`/`:active` get a comfortable pill with **zero** layout footprint
+  beyond the bare glyph) and a code-only ghost-hover/active affordance (two
+  new `--primitiv-breadcrumb-overflow-trigger-{hover,active}-background`
+  knobs, borrowing `action/ghost/*` — Figma's static design models no
+  interaction state at all here).
+  **A second real bug, also caught only by rendering it**: the overflow menu
+  opened pinned to the page's top-left corner instead of anchored under the
+  trigger, because nothing set a CSS `anchor-name` — the bare `dropdown`
+  component leaves that wiring to the consumer, but `BreadcrumbOverflow` can
+  appear more than once on a page, so it derives its own unique `anchor-name`
+  from `useId()` internally (mirroring NavigationMenu's
+  `toAnchorIdentFragment`: `useId()`'s colon-bracketed output isn't a valid
+  CSS `<custom-ident>`, so every character outside `[A-Za-z0-9_-]` becomes a
+  hyphen) rather than asking the consumer to wire one. Roster count 52.
+  Kitchen-sink: a "Breadcrumb Overflow" section right after Breadcrumb — a
+  5-crumb trail collapsing to `Home / … / Neuromancer`, beside a 3-crumb
+  trail short enough that `keepStart + keepEnd` already covers it (no
+  overflow menu appears, confirming the below-threshold fallback).
+  Along the way, also fixed two things unrelated to the composite itself but
+  found while getting `main`'s CI green: `pnpm qa:stylesheets` had 5 real
+  failures (byte-level `styles.scss` drift on `avatar-group`/`card` from this
+  session's own earlier regenerations, plus pre-existing drift on
+  `checkbox-card`/`confirm-dialog`/`alert`) — the `alert` one was a real
+  generator-heuristic gap (it re-points *Button's own* `--primitiv-button-fg`/
+  `-bg` custom properties for its dismiss button, which the naive `--name:`
+  scss-alias scanner still picks up as if they were Alert's own); and the
+  kitchen-sink's committed `tokens.css` had a 411-line duplicate of the
+  base-element reset block left over from before `primitiv-base.css` was
+  split out as its own `@import`'d sibling — regenerating via `primitiv
+  tokens` dropped the stale copy (`primitiv-base.css` itself was already
+  current). Both were CI-gating (`qa:stylesheets`, the separate "Token drift"
+  workflow) and neither was caused by this composite's own work.
 
 ## Useful commands
 

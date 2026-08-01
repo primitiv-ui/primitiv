@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 import { Slot } from "../Slot/index.ts";
 
 import {
+  BreadcrumbEllipsisProps,
   BreadcrumbItemProps,
   BreadcrumbLinkProps,
   BreadcrumbListProps,
@@ -237,6 +238,69 @@ export function BreadcrumbSeparator({
 /** @internal */
 BreadcrumbSeparator.displayName = "BreadcrumbSeparator";
 
+/**
+ * The decorative "more" glyph for an overflow trigger — renders a
+ * `<span role="presentation" aria-hidden="true">`.
+ *
+ * Purely a visual glyph, not itself the interactive element. Breadcrumb
+ * owns no truncation or menu-open state of its own — composing an overflow
+ * trigger means wrapping this glyph in a real interactive element (a
+ * `<button>`, or any {@link Slot}-compatible component) and reaching for
+ * {@link https://primitiv-ui.dev/docs/components/dropdown | `Dropdown`} for
+ * the menu itself. `Breadcrumb.Ellipsis` sits inside that button as its
+ * decorative content; the button's *accessible name* must come from
+ * elsewhere (visible text, or a
+ * {@link https://primitiv-ui.dev/docs/components/visually-hidden | `VisuallyHidden`}
+ * label) — `aria-hidden="true"` excludes this glyph from accessible-name
+ * computation entirely, exactly like {@link BreadcrumbSeparator}.
+ *
+ * Defaults to a `"…"` glyph; pass `children` to use a custom one (an icon,
+ * `"···"`, etc.) — whatever is passed replaces the default entirely rather
+ * than being appended to it.
+ *
+ * @extends HTMLSpanElement
+ *
+ * @example Default glyph
+ * ```tsx
+ * <Breadcrumb.Ellipsis />
+ * ```
+ *
+ * @example Composed as an overflow trigger with Dropdown
+ * ```tsx
+ * <Breadcrumb.Item>
+ *   <Dropdown.Root>
+ *     <Dropdown.Trigger asChild>
+ *       <button type="button">
+ *         <Breadcrumb.Ellipsis />
+ *         <VisuallyHidden>Show hidden pages</VisuallyHidden>
+ *       </button>
+ *     </Dropdown.Trigger>
+ *     <Dropdown.Content>
+ *       <Dropdown.Item onSelect={() => navigate("/products")}>
+ *         Products
+ *       </Dropdown.Item>
+ *     </Dropdown.Content>
+ *   </Dropdown.Root>
+ * </Breadcrumb.Item>
+ * ```
+ */
+export function BreadcrumbEllipsis({
+  children = "…",
+  asChild = false,
+  ...rest
+}: BreadcrumbEllipsisProps): ReactElement {
+  const ellipsisProps = { ...rest, role: "presentation" as const, "aria-hidden": true as const };
+
+  if (asChild) {
+    return <Slot {...ellipsisProps}>{children}</Slot>;
+  }
+
+  return <span {...ellipsisProps}>{children}</span>;
+}
+
+/** @internal */
+BreadcrumbEllipsis.displayName = "BreadcrumbEllipsis";
+
 /** Type of the {@link Breadcrumb} compound: the root callable plus its attached sub-components. */
 export type TBreadcrumbCompound = typeof BreadcrumbRoot & {
   Root: typeof BreadcrumbRoot;
@@ -245,6 +309,7 @@ export type TBreadcrumbCompound = typeof BreadcrumbRoot & {
   Link: typeof BreadcrumbLink;
   Page: typeof BreadcrumbPage;
   Separator: typeof BreadcrumbSeparator;
+  Ellipsis: typeof BreadcrumbEllipsis;
 };
 
 /**
@@ -264,6 +329,7 @@ export type TBreadcrumbCompound = typeof BreadcrumbRoot & {
  * - {@link BreadcrumbLink | `Breadcrumb.Link`} — `<a>`, an ancestor-page link.
  * - {@link BreadcrumbPage | `Breadcrumb.Page`} — `<span aria-current="page">`, the current page.
  * - {@link BreadcrumbSeparator | `Breadcrumb.Separator`} — decorative `<li>` divider.
+ * - {@link BreadcrumbEllipsis | `Breadcrumb.Ellipsis`} — decorative `<span>` overflow-trigger glyph.
  *
  * @example Minimal usage
  * ```tsx
@@ -290,6 +356,7 @@ export type TBreadcrumbCompound = typeof BreadcrumbRoot & {
  * @see {@link BreadcrumbLink} for the `asChild` router-link pattern.
  * @see {@link BreadcrumbPage} for marking the current, non-linked entry.
  * @see {@link BreadcrumbSeparator} for customising the divider glyph.
+ * @see {@link BreadcrumbEllipsis} for composing an overflow trigger with `Dropdown`.
  */
 const BreadcrumbCompound: TBreadcrumbCompound = Object.assign(BreadcrumbRoot, {
   Root: BreadcrumbRoot,
@@ -298,6 +365,7 @@ const BreadcrumbCompound: TBreadcrumbCompound = Object.assign(BreadcrumbRoot, {
   Link: BreadcrumbLink,
   Page: BreadcrumbPage,
   Separator: BreadcrumbSeparator,
+  Ellipsis: BreadcrumbEllipsis,
 });
 
 /** @internal */

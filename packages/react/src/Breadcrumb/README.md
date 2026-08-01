@@ -35,6 +35,7 @@ import { Breadcrumb } from "@primitiv-ui/react";
 | `Breadcrumb.Link` | `<a>` | — | yes |
 | `Breadcrumb.Page` | `<span>` | `aria-current="page"` | — |
 | `Breadcrumb.Separator` | `<li>` | `role="presentation"`, `aria-hidden="true"` | — |
+| `Breadcrumb.Ellipsis` | `<span>` | `role="presentation"`, `aria-hidden="true"` | yes |
 
 Every sub-component passes all of its element's native attributes straight
 through to the DOM.
@@ -77,6 +78,52 @@ It defaults to a `"/"` glyph. Pass `children` to use a custom separator:
 ```tsx
 <Breadcrumb.Separator>›</Breadcrumb.Separator>
 <Breadcrumb.Separator><ChevronRight /></Breadcrumb.Separator>
+```
+
+## Overflow trigger
+
+`Breadcrumb` owns no truncation or menu-open state of its own — deciding
+which crumbs collapse is a styled-surface concern (see the registry `card`
+composite for the same "no data model in the primitive" philosophy). What
+the headless layer provides is `Breadcrumb.Ellipsis`: a purely decorative
+`"…"` glyph for the trigger's visual content.
+
+Compose it with [`Dropdown`](../Dropdown/README.md) to build the actual
+trigger — a real interactive element (a `<button>`, or anything
+`asChild`-compatible) wrapping the glyph, with the accessible name coming
+from visible text or a `VisuallyHidden` label rather than the glyph itself
+(`Breadcrumb.Ellipsis` is `aria-hidden`, exactly like `Breadcrumb.Separator`,
+so it never contributes to accessible-name computation):
+
+```tsx
+import { Breadcrumb, Dropdown, VisuallyHidden } from "@primitiv-ui/react";
+
+<Breadcrumb.Item>
+  <Dropdown.Root>
+    <Dropdown.Trigger asChild>
+      <button type="button">
+        <Breadcrumb.Ellipsis />
+        <VisuallyHidden>Show hidden pages</VisuallyHidden>
+      </button>
+    </Dropdown.Trigger>
+    <Dropdown.Content>
+      <Dropdown.Item onSelect={() => navigate("/products")}>
+        Products
+      </Dropdown.Item>
+      <Dropdown.Item onSelect={() => navigate("/products/electronics")}>
+        Electronics
+      </Dropdown.Item>
+    </Dropdown.Content>
+  </Dropdown.Root>
+</Breadcrumb.Item>;
+```
+
+`Breadcrumb.Ellipsis` defaults to a `"…"` glyph; pass `children` to use a
+custom one:
+
+```tsx
+<Breadcrumb.Ellipsis>···</Breadcrumb.Ellipsis>
+<Breadcrumb.Ellipsis><MoreIcon /></Breadcrumb.Ellipsis>
 ```
 
 ## `asChild` composition

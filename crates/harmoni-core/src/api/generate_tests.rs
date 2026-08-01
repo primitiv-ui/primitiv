@@ -2,7 +2,7 @@ use crate::api::generate::{
     generate, generate_brand_pair, generate_pair, generate_with_lightness, generate_with_options,
     GenerateOptions,
 };
-use crate::color::input::ColorInput;
+use crate::color::input::{ColorInput, ColorInputError};
 use crate::palette::generator::{SwatchLabel, TARGET_LIGHTNESS, TARGET_LIGHTNESS_DARK};
 use palette::Oklch;
 
@@ -12,6 +12,10 @@ fn sample_input() -> ColorInput {
         c: 0.15,
         h: 240.0,
     }
+}
+
+fn invalid_input() -> ColorInput {
+    ColorInput::Css("not-a-color".to_string())
 }
 
 #[test]
@@ -115,5 +119,55 @@ fn generate_with_options_light_padding_brightens_the_lightest_step() {
         "expected padded 50 step ({}) to be lighter than default ({})",
         padded_result.swatches[0].l,
         default_result.swatches[0].l
+    );
+}
+
+#[test]
+fn generate_with_options_propagates_an_invalid_color_input() {
+    let result = generate_with_options(invalid_input(), GenerateOptions::default());
+
+    assert_eq!(
+        result,
+        Err(ColorInputError::InvalidCss("not-a-color".to_string()))
+    );
+}
+
+#[test]
+fn generate_pair_propagates_an_invalid_color_input() {
+    let result = generate_pair(
+        invalid_input(),
+        &TARGET_LIGHTNESS,
+        &TARGET_LIGHTNESS_DARK,
+        GenerateOptions::default(),
+    );
+
+    assert_eq!(
+        result,
+        Err(ColorInputError::InvalidCss("not-a-color".to_string()))
+    );
+}
+
+#[test]
+fn generate_with_lightness_propagates_an_invalid_color_input() {
+    let result = generate_with_lightness(invalid_input(), [0.5; 10], GenerateOptions::default());
+
+    assert_eq!(
+        result,
+        Err(ColorInputError::InvalidCss("not-a-color".to_string()))
+    );
+}
+
+#[test]
+fn generate_with_lightness_rejects_a_lightness_curve_with_an_out_of_range_step() {
+    let mut lightness = [0.5; 10];
+    lightness[3] = 1.5;
+
+    let result = generate_with_lightness(sample_input(), lightness, GenerateOptions::default());
+
+    assert_eq!(
+        result,
+        Err(ColorInputError::InvalidCss(
+            "Lightness at index 3 out of range: 1.5".to_string()
+        ))
     );
 }

@@ -1,8 +1,24 @@
 use crate::api::neutral::{
     derive_soft_neutrals, generate_neutral_ramp, tint_neutrals, tint_neutrals_duotone,
 };
-use crate::color::input::ColorInput;
+use crate::color::input::{ColorInput, ColorInputError};
 use crate::neutral::ramp::{RampOptions, TintMode};
+
+fn invalid() -> ColorInput {
+    ColorInput::Css("not-a-color".to_string())
+}
+
+fn valid() -> ColorInput {
+    ColorInput::Oklch {
+        l: 0.5,
+        c: 0.1,
+        h: 0.0,
+    }
+}
+
+fn invalid_error() -> ColorInputError {
+    ColorInputError::InvalidCss("not-a-color".to_string())
+}
 
 #[test]
 fn tint_neutrals_layers_source_hue_onto_color_input_endpoints() {
@@ -151,4 +167,74 @@ fn tint_neutrals_duotone_layers_two_hues_onto_color_input_endpoints() {
     assert!(result.black.chroma > 0.0);
     assert_eq!(result.white.hue.into_degrees(), 60.0);
     assert_eq!(result.black.hue.into_degrees(), -100.0);
+}
+
+#[test]
+fn generate_neutral_ramp_propagates_an_invalid_white_input() {
+    let result = generate_neutral_ramp(invalid(), valid(), TintMode::Inherit, RampOptions::default());
+
+    assert_eq!(result.unwrap_err(), invalid_error());
+}
+
+#[test]
+fn generate_neutral_ramp_propagates_an_invalid_black_input_when_white_is_valid() {
+    let result = generate_neutral_ramp(valid(), invalid(), TintMode::Inherit, RampOptions::default());
+
+    assert_eq!(result.unwrap_err(), invalid_error());
+}
+
+#[test]
+fn derive_soft_neutrals_propagates_an_invalid_brand_input() {
+    let result = derive_soft_neutrals(invalid(), 0.5);
+
+    assert_eq!(result.unwrap_err(), invalid_error());
+}
+
+#[test]
+fn tint_neutrals_propagates_an_invalid_white_input() {
+    let result = tint_neutrals(invalid(), valid(), valid(), 0.5);
+
+    assert_eq!(result.unwrap_err(), invalid_error());
+}
+
+#[test]
+fn tint_neutrals_propagates_an_invalid_black_input_when_white_is_valid() {
+    let result = tint_neutrals(valid(), invalid(), valid(), 0.5);
+
+    assert_eq!(result.unwrap_err(), invalid_error());
+}
+
+#[test]
+fn tint_neutrals_propagates_an_invalid_source_input_when_white_and_black_are_valid() {
+    let result = tint_neutrals(valid(), valid(), invalid(), 0.5);
+
+    assert_eq!(result.unwrap_err(), invalid_error());
+}
+
+#[test]
+fn tint_neutrals_duotone_propagates_an_invalid_white_input() {
+    let result = tint_neutrals_duotone(invalid(), valid(), valid(), valid(), 0.5);
+
+    assert_eq!(result.unwrap_err(), invalid_error());
+}
+
+#[test]
+fn tint_neutrals_duotone_propagates_an_invalid_black_input_when_white_is_valid() {
+    let result = tint_neutrals_duotone(valid(), invalid(), valid(), valid(), 0.5);
+
+    assert_eq!(result.unwrap_err(), invalid_error());
+}
+
+#[test]
+fn tint_neutrals_duotone_propagates_an_invalid_highlight_input_when_white_and_black_are_valid() {
+    let result = tint_neutrals_duotone(valid(), valid(), invalid(), valid(), 0.5);
+
+    assert_eq!(result.unwrap_err(), invalid_error());
+}
+
+#[test]
+fn tint_neutrals_duotone_propagates_an_invalid_shadow_input_when_the_rest_are_valid() {
+    let result = tint_neutrals_duotone(valid(), valid(), valid(), invalid(), 0.5);
+
+    assert_eq!(result.unwrap_err(), invalid_error());
 }

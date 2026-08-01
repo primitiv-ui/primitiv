@@ -99,8 +99,6 @@
   }
 }
 
-/* SCSS aliases — one per contract custom property, in contract order.
- * The CSS body above is byte-identical to styles.css; only this block differs. */
 $primitiv-avatar-group-overlap: var(--primitiv-avatar-group-overlap);
 $primitiv-avatar-group-ring-width: var(--primitiv-avatar-group-ring-width);
 $primitiv-avatar-group-ring-color: var(--primitiv-avatar-group-ring-color);

@@ -355,8 +355,6 @@
   }
 }
 
-/* SCSS aliases — one per contract custom property, in contract order.
- * The CSS body above is byte-identical to styles.css; only this block differs. */
 $primitiv-card-background: var(--primitiv-card-background);
 $primitiv-card-border-color: var(--primitiv-card-border-color);
 $primitiv-card-border-width: var(--primitiv-card-border-width);

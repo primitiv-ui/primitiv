@@ -66,18 +66,20 @@ jobs:
       - name: Coverage gate (CLI crates, 100%)
         run: cargo llvm-cov --workspace --exclude harmoni-core --exclude harmoni-wasm --fail-under-lines 100 --fail-under-regions 100 --fail-under-functions 100
 
-      # Full-workspace report (harmoni-core/wasm included, unlike the gate
-      # above) so the README's Rust coverage badge shows a real, moving
-      # number instead of one pinned at 100 by construction. Reporting
-      # only — not a gate.
-      - name: Generate full-workspace coverage report
-        run: cargo llvm-cov --workspace --lcov --output-path lcov.info
+      # harmoni-core-only report (harmoni-wasm excluded) so the README's
+      # Harmoni core coverage badge shows a real, moving number instead of
+      # one dragged to near-zero by the untested wasm-bindgen glue in
+      # harmoni-wasm/src/lib.rs (which needs a wasm-bindgen-test harness,
+      # not cargo-llvm-cov, to exercise meaningfully). Reporting only — not
+      # a gate; the CLI crates keep their own 100% gate above.
+      - name: Generate harmoni-core coverage report
+        run: cargo llvm-cov -p harmoni-core --lcov --output-path harmoni-core-lcov.info
 
-      - name: Upload coverage to Codecov
+      - name: Upload harmoni-core coverage to Codecov
         if: always()
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: lcov.info
-          flags: rust
+          files: harmoni-core-lcov.info
+          flags: harmoni-core
           fail_ci_if_error: false

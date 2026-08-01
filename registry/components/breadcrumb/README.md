@@ -2,10 +2,10 @@
 
 The artefacts `primitiv add breadcrumb` resolves and copies into a consumer
 repo. Breadcrumb is a **structural compound** like Tabs and Avatar (RFC 0004
-§3, D56): the styled surface is a root plus five consumer-composed
-subcomponents (`List` / `Item` / `Link` / `Page` / `Separator`), flowing
-through the same `primitiv-emit` generators (D54) rather than a hand-authored
-escape hatch.
+§3, D56): the styled surface is a root plus six consumer-composed
+subcomponents (`List` / `Item` / `Link` / `Page` / `Separator` / `Ellipsis`),
+flowing through the same `primitiv-emit` generators (D54) rather than a
+hand-authored escape hatch.
 
 ## Files
 
@@ -15,7 +15,7 @@ escape hatch.
 | `styles.css` | **authored** | The canonical default theme (the muted-trail / primary-current-page visual design). |
 | `styles.scss` | generated | The canonical CSS re-expressed for SCSS consumers (from `styles.css`). |
 | `breadcrumb.recipe.ts` | generated | One `cva` per styled part (from `contract.json`). |
-| `breadcrumb.tsx` | generated | The styled wrappers — `Breadcrumb` / `BreadcrumbList` / `BreadcrumbItem` / `BreadcrumbLink` / `BreadcrumbPage` / `BreadcrumbSeparator` (from `contract.json`). |
+| `breadcrumb.tsx` | generated | The styled wrappers — `Breadcrumb` / `BreadcrumbList` / `BreadcrumbItem` / `BreadcrumbLink` / `BreadcrumbPage` / `BreadcrumbSeparator` / `BreadcrumbEllipsis` (from `contract.json`). |
 
 Only `contract.json` (the API) and `styles.css` (the design) are **authored**;
 the SCSS form, recipe and wrapper are **generated** by `primitiv-emit` and pinned
@@ -27,21 +27,23 @@ A **hybrid** document with two halves and two sources of truth (D15):
 
 - **`dataAttributes`** — `source: "auto"`. `Page` carries `aria-current="page"`,
   unconditionally, mirroring the headless `Breadcrumb.Page`. `Root`, `List`,
-  `Item`, `Link` and `Separator` carry no ARIA/data hooks of their own.
+  `Item`, `Link`, `Separator` and `Ellipsis` carry no ARIA/data hooks of their
+  own here — `Ellipsis`'s `role="presentation"` / `aria-hidden="true"` are
+  fixed by the headless primitive itself, not generated onto the wrapper.
 - **`root` / `subcomponents` / `modifiers` / `customProperties`** — authored
   styling conventions the headless layer does not emit: the `.primitiv-breadcrumb`
-  root and the `__list` / `__item` / `__link` / `__page` / `__separator` BEM
-  parts, the root's single `size` modifier, and the `--primitiv-breadcrumb-*`
-  custom-property API.
+  root and the `__list` / `__item` / `__link` / `__page` / `__separator` /
+  `__ellipsis` BEM parts, the root's single `size` modifier, and the
+  `--primitiv-breadcrumb-*` custom-property API.
 
 `subcomponents` is what tells the generators this is a **structural compound**:
 instead of one element (Button) or an auto-rendered subtree (Switch), the styled
 surface is thin per-part wrappers the consumer composes themselves (D56), exactly
 mirroring how the headless `Breadcrumb.Root` / `.List` / `.Item` / `.Link` /
-`.Page` / `.Separator` compose. None of the five subcomponents carries its own
-modifiers or opts into `wrapTextChildren` — every part's text is styled directly
-on its own class, since none of them read as a button/pill shape needing a
-trimmed label span.
+`.Page` / `.Separator` / `.Ellipsis` compose. None of the six subcomponents
+carries its own modifiers or opts into `wrapTextChildren` — every part's text
+is styled directly on its own class, since none of them read as a button/pill
+shape needing a trimmed label span.
 
 ## The default theme (`styles.css`)
 
@@ -86,6 +88,12 @@ size — Figma's own `itemSpacing` is an unbound literal `4` that does not scale
 with size either, so the registry mirrors that rather than inventing a
 scaling behaviour the design doesn't have.
 
+`Ellipsis` (the overflow-trigger glyph) reuses `--primitiv-breadcrumb-link-color`
+rather than a token of its own — it stands in for the links it hides, so it
+reads at the same weight as an ancestor `Link`. It carries no hover/focus
+styling: the real interactive element that wraps it (a `<button>`, per the
+composition pattern below) owns those states, not this `aria-hidden` span.
+
 Structured per RFC 0008 — the per-component API tokens + resting look in
 `primitiv.base`, the `size` re-pointing in `primitiv.variants`, the link hover/
 focus affordance in `primitiv.states`.
@@ -111,18 +119,18 @@ that output.
 
 The primary DX is **flat, shadcn-shaped exports** the consumer composes (D56) —
 the headless package is the Radix-equivalent (compound `Breadcrumb.Root` /
-`.List` / `.Item` / `.Link` / `.Page` / `.Separator`); the styled surface is the
-shadcn-equivalent (`Breadcrumb` / `BreadcrumbList` / `BreadcrumbItem` /
-`BreadcrumbLink` / `BreadcrumbPage` / `BreadcrumbSeparator`). Both files are
-**generated** from `contract.json` (D53):
+`.List` / `.Item` / `.Link` / `.Page` / `.Separator` / `.Ellipsis`); the styled
+surface is the shadcn-equivalent (`Breadcrumb` / `BreadcrumbList` /
+`BreadcrumbItem` / `BreadcrumbLink` / `BreadcrumbPage` / `BreadcrumbSeparator` /
+`BreadcrumbEllipsis`). Both files are **generated** from `contract.json` (D53):
 
 - **`breadcrumb.recipe.ts`** — one `cva` per styled part: `breadcrumb` (the
   root's `size` axis) and base-only `breadcrumbList` / `breadcrumbItem` /
-  `breadcrumbLink` / `breadcrumbPage` / `breadcrumbSeparator`.
+  `breadcrumbLink` / `breadcrumbPage` / `breadcrumbSeparator` / `breadcrumbEllipsis`.
 - **`breadcrumb.tsx`** — one thin wrapper per part, each applying its part class
   via its recipe and forwarding the rest to the headless
-  `Breadcrumb.{Root,List,Item,Link,Page,Separator}`. The consumer writes the
-  familiar shape:
+  `Breadcrumb.{Root,List,Item,Link,Page,Separator,Ellipsis}`. The consumer
+  writes the familiar shape:
 
   ```tsx
   <Breadcrumb size="md">
@@ -141,6 +149,33 @@ shadcn-equivalent (`Breadcrumb` / `BreadcrumbList` / `BreadcrumbItem` /
     </BreadcrumbList>
   </Breadcrumb>
   ```
+
+### Overflow trigger
+
+`Breadcrumb` owns no truncation or menu-open state of its own — same
+philosophy as the headless layer (see its README). `BreadcrumbEllipsis` is a
+purely decorative `"…"` glyph; compose it with the registry `dropdown`
+component to build the real trigger. See `registry/components/breadcrumb-overflow`
+for a ready-made compound that wires this pattern up with `keepStart` /
+`keepEnd` truncation, or compose it directly:
+
+```tsx
+<BreadcrumbItem>
+  <Dropdown>
+    <DropdownTrigger asChild>
+      <button type="button">
+        <BreadcrumbEllipsis />
+        <VisuallyHidden>Show hidden pages</VisuallyHidden>
+      </button>
+    </DropdownTrigger>
+    <DropdownContent>
+      <DropdownItem onSelect={() => navigate("/products")}>
+        Products
+      </DropdownItem>
+    </DropdownContent>
+  </Dropdown>
+</BreadcrumbItem>
+```
 
 The styled surface is **format-independent** and gated by the **styles opt-in**,
 not the format (D55): any styled React consumer (css / scss / tailwind) gets the

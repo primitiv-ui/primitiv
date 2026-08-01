@@ -7,7 +7,7 @@
  */
 import { Breadcrumb as BreadcrumbPrimitive } from "@primitiv-ui/react";
 import { type ComponentPropsWithRef } from "react";
-import { breadcrumb, breadcrumbList, breadcrumbItem, breadcrumbLink, breadcrumbPage, breadcrumbSeparator } from "./breadcrumb.recipe";
+import { breadcrumb, breadcrumbList, breadcrumbItem, breadcrumbLink, breadcrumbPage, breadcrumbSeparator, breadcrumbEllipsis } from "./breadcrumb.recipe";
 
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
 
@@ -62,4 +62,10 @@ export type BreadcrumbSeparatorProps = ComponentPropsWithRef<typeof BreadcrumbPr
 
 export function BreadcrumbSeparator({ className, ...props }: BreadcrumbSeparatorProps) {
   return <BreadcrumbPrimitive.Separator className={[breadcrumbSeparator(), className].filter(Boolean).join(" ")} {...props} />;
+}
+
+export type BreadcrumbEllipsisProps = ComponentPropsWithRef<typeof BreadcrumbPrimitive.Ellipsis>;
+
+export function BreadcrumbEllipsis({ className, ...props }: BreadcrumbEllipsisProps) {
+  return <BreadcrumbPrimitive.Ellipsis className={[breadcrumbEllipsis(), className].filter(Boolean).join(" ")} {...props} />;
 }

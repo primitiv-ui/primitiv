@@ -43,3 +43,7 @@ export type BreadcrumbPageVariants = VariantProps<typeof breadcrumbPage>;
 export const breadcrumbSeparator = cva("primitiv-breadcrumb__separator");
 
 export type BreadcrumbSeparatorVariants = VariantProps<typeof breadcrumbSeparator>;
+
+export const breadcrumbEllipsis = cva("primitiv-breadcrumb__ellipsis");
+
+export type BreadcrumbEllipsisVariants = VariantProps<typeof breadcrumbEllipsis>;

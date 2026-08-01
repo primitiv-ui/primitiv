@@ -126,6 +126,24 @@
     inline-size: var(--primitiv-breadcrumb-icon-size);
     block-size: var(--primitiv-breadcrumb-icon-size);
   }
+
+  /* Decorative overflow-trigger glyph — role="presentation" + aria-hidden
+     already remove it from the accessibility tree, exactly like __separator.
+     Coloured like a Link (it stands in for the links it hides) rather than
+     given its own token: the real interactive element that wraps it (a
+     button, per the composition pattern) owns hover/focus, not this span. */
+  .primitiv-breadcrumb__ellipsis {
+    display: flex;
+    align-items: center;
+    color: var(--primitiv-breadcrumb-link-color);
+    font-family: var(--primitiv-breadcrumb-font-family);
+    font-size: var(--primitiv-breadcrumb-font-size);
+    font-weight: var(--primitiv-breadcrumb-font-weight);
+    line-height: var(--primitiv-breadcrumb-line-height);
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
 }
 
 @layer primitiv.variants {

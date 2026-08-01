@@ -56,6 +56,12 @@
       "component": "Separator",
       "element": "li",
       "class": "primitiv-breadcrumb__separator"
+    },
+    {
+      "name": "ellipsis",
+      "component": "Ellipsis",
+      "element": "span",
+      "class": "primitiv-breadcrumb__ellipsis"
     }
   ],
   "customProperties": [

@@ -52,7 +52,7 @@ jobs:
       # One step per package so each carries its own Codecov flag.
       - name: Upload react coverage to Codecov
         if: always()
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: packages/react/coverage/lcov.info
@@ -61,7 +61,7 @@ jobs:
 
       - name: Upload icons coverage to Codecov
         if: always()
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: packages/icons/coverage/lcov.info
@@ -70,7 +70,7 @@ jobs:
 
       - name: Upload tokens coverage to Codecov
         if: always()
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: packages/tokens/coverage/lcov.info

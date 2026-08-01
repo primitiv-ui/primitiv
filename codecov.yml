@@ -9,14 +9,18 @@ coverage:
 
 flags:
   react:
+    carryforward: true
     paths:
       - packages/react/src
   icons:
+    carryforward: true
     paths:
       - packages/icons/src
   tokens:
+    carryforward: true
     paths:
       - packages/tokens/src
   rust:
+    carryforward: true
     paths:
       - crates/

@@ -154,6 +154,72 @@ mod generator_tests {
         }
     }
 
+    mod max_in_gamut_chroma_edge_cases {
+        use super::*;
+
+        #[test]
+        fn returns_zero_when_hue_is_nan() {
+            // Every srgb.{red,green,blue} >= -0.001 comparison is false
+            // against a NaN-poisoned conversion, so the binary search's
+            // "out of gamut" branch (hi = mid) runs on every iteration and
+            // `lo` never advances past its 0.0 starting point.
+            let result = max_in_gamut_chroma(0.5, f32::NAN);
+
+            assert_eq!(result, 0.0);
+        }
+    }
+
+    mod gamut_fallback_propagation {
+        use super::*;
+
+        // A NaN hue drives max_in_gamut_chroma to 0.0 (see
+        // max_in_gamut_chroma_edge_cases above), so base_ratio takes the
+        // "0.0" fallback arm instead of dividing by the gamut ceiling. The
+        // NaN hue then poisons every background's Oklab a/b via `chroma *
+        // hue.cos()` (0.0 * NaN is NaN, not 0.0), which in turn poisons
+        // relative luminance — so the audit's "impossible" guarantee in
+        // get_best_foreground is genuinely violated and it panics. This
+        // documents the real, reachable current behaviour for a NaN-hue
+        // input rather than the palette silently producing garbage.
+        #[test]
+        #[should_panic(expected = "Pure white and pure black both failed AA")]
+        fn generate_palette_with_scale_panics_when_base_hue_is_nan() {
+            let base = Oklch::new(0.5, 0.1, f32::NAN);
+            generate_palette_with_scale(base, &TARGET_LIGHTNESS, &TARGET_CHROMA_SCALE, 0.0, 0.0, None, None);
+        }
+
+        #[test]
+        #[should_panic(expected = "Pure white and pure black both failed AA")]
+        fn generate_dark_palette_panics_when_base_hue_is_nan() {
+            let base = Oklch::new(0.5, 0.1, f32::NAN);
+            generate_dark_palette(base, &TARGET_LIGHTNESS_DARK, 0.0, 0.0, None, None);
+        }
+    }
+
+    mod padding_wrapper_functions {
+        use super::*;
+
+        #[test]
+        fn generate_palette_with_light_padding_matches_generate_palette_with_zero_dark_padding() {
+            let base = Oklch::new(0.55, 0.15, 240.0);
+
+            let via_wrapper = generate_palette_with_light_padding(base, 0.2);
+            let via_generate_palette = generate_palette(base, 0.2, 0.0);
+
+            assert_eq!(via_wrapper, via_generate_palette);
+        }
+
+        #[test]
+        fn generate_palette_with_dark_padding_matches_generate_palette_with_zero_light_padding() {
+            let base = Oklch::new(0.55, 0.15, 240.0);
+
+            let via_wrapper = generate_palette_with_dark_padding(base, 0.15);
+            let via_generate_palette = generate_palette(base, 0.0, 0.15);
+
+            assert_eq!(via_wrapper, via_generate_palette);
+        }
+    }
+
     mod light_padding {
         use super::*;
 
@@ -599,3 +665,5 @@ mod generator_tests {
     }
 }
 }
+
+

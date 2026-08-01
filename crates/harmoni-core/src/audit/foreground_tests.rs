@@ -294,3 +294,22 @@ fn should_pick_black_in_fallback_when_black_has_higher_ratio() {
         SwatchStep::from_label(0.01, 0.0, 0.0, SwatchLabel::Name(String::from("Black")));
     assert_eq!(result.color, expected_black);
 }
+
+#[test]
+#[should_panic(expected = "Pure white and pure black both failed AA")]
+fn should_panic_when_a_nan_background_defeats_every_ratio_comparison() {
+    // NaN propagates through every `>= 4.5` comparison as false (NaN never
+    // compares true), so a NaN background clears none of the tiers above —
+    // not because it's a real "impossible" sRGB background, but because NaN
+    // isn't a valid color at all. The guarantee in the doc comment only
+    // holds for finite inputs.
+    let nan_background = SwatchStep::from_label(f32::NAN, 0.0, 0.0, SwatchLabel::Number(1));
+    let candidate = SwatchStep::from_label(0.5, 0.0, 0.0, SwatchLabel::Number(2));
+
+    get_best_foreground(&nan_background, &candidate, &candidate, None, None);
+}
+
+
+
+
+

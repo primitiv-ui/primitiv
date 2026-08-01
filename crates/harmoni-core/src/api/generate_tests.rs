@@ -59,6 +59,39 @@ fn generate_with_options_threads_soft_white_through_to_audit_foreground() {
 }
 
 #[test]
+fn generate_with_options_threads_soft_black_through_to_audit_foreground() {
+    let custom_black = Oklch::new(0.08, 0.01, 240.0);
+
+    // A flat, light lightness curve puts every step at the same high L, so
+    // neither the step-50 nor the step-900 harmonious candidate has any
+    // contrast — the audit falls through to the soft black candidate, which
+    // does clear AA against such a light background. The picked black must
+    // carry the custom L/C, not pure #000.
+    let palette = generate_with_lightness(
+        sample_input(),
+        [0.85; 10],
+        GenerateOptions {
+            soft_black: Some(custom_black),
+            ..GenerateOptions::default()
+        },
+    )
+    .expect("valid input");
+
+    let black_swatch = palette
+        .swatches
+        .iter()
+        .find(|s| matches!(&s.best_foreground.label, SwatchLabel::Name(name) if name == "Black"))
+        .expect("flat-curve palette should fall through to a black foreground");
+
+    assert!(
+        (black_swatch.best_foreground.l - 0.08).abs() < 1e-5,
+        "black foreground should use custom soft black L, got {}",
+        black_swatch.best_foreground.l
+    );
+    assert!((black_swatch.best_foreground.c - 0.01).abs() < 1e-5);
+}
+
+#[test]
 fn generate_pair_returns_a_light_palette_matching_generate_and_an_anchored_dark_palette() {
     let set = generate_pair(
         sample_input(),

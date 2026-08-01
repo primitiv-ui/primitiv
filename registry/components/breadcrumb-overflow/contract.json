@@ -1,0 +1,18 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "breadcrumb-overflow",
+  "version": "0.1.0",
+  "description": "A Breadcrumb trail that collapses its middle entries behind an overflow menu once the trail exceeds keepStart + keepEnd items.",
+  "docs": "https://primitiv-ui.dev/docs/components/breadcrumb-overflow",
+  "root": {
+    "element": "nav",
+    "class": "primitiv-breadcrumb-overflow",
+    "component": "BreadcrumbOverflow"
+  },
+  "subcomponents": [],
+  "modifiers": [],
+  "customProperties": [
+    { "name": "--primitiv-breadcrumb-overflow-trigger-hover-background", "defaultsTo": "var(--primitiv-action-ghost-hover)" },
+    { "name": "--primitiv-breadcrumb-overflow-trigger-active-background", "defaultsTo": "var(--primitiv-action-ghost-active)" }
+  ]
+}

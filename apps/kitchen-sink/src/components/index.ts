@@ -7,6 +7,7 @@ export * from "./badge";
 export * from "./blockquote";
 export * from "./box";
 export * from "./breadcrumb";
+export * from "./breadcrumb-overflow";
 export * from "./button";
 export * from "./card";
 export * from "./carousel";

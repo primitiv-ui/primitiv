@@ -139,6 +139,43 @@
       },
       "contract": "contract.json"
     },
+    "breadcrumb-overflow": {
+      "version": "0.1.0",
+      "dependsOn": {
+        "packages": [
+          {
+            "name": "@primitiv-ui/react",
+            "version": "^0.1.0"
+          }
+        ],
+        "tokens": true,
+        "components": [
+          "breadcrumb",
+          "dropdown"
+        ]
+      },
+      "styles": {
+        "packages": [
+          "class-variance-authority"
+        ],
+        "react": [
+          "breadcrumb-overflow.recipe.ts",
+          "breadcrumb-overflow.tsx"
+        ],
+        "formats": {
+          "css": [
+            "styles.css"
+          ],
+          "scss": [
+            "styles.scss"
+          ],
+          "tailwind": [
+            "styles.css"
+          ]
+        }
+      },
+      "contract": "contract.json"
+    },
     "button": {
       "version": "0.1.0",
       "dependsOn": {

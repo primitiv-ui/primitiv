@@ -25,6 +25,7 @@ import {
   BreadcrumbLink,
   BreadcrumbPage,
   BreadcrumbSeparator,
+  BreadcrumbOverflow,
   Button,
   Card,
   CardContent,
@@ -435,7 +436,7 @@ const PAGE_TOC: { category: string; titles: string[] }[] = [
   { category: "Feedback & Status", titles: ["Alert", "Progress"] },
   {
     category: "Disclosure",
-    titles: ["Accordion", "Breadcrumb", "Collapsible", "Tabs"],
+    titles: ["Accordion", "Breadcrumb", "Breadcrumb Overflow", "Collapsible", "Tabs"],
   },
   { category: "Navigation", titles: ["Navigation Menu", "Toggle Group"] },
   { category: "Data Display", titles: ["Avatar", "Avatar Group", "Badge, Tag & Chip", "Card", "Table"] },
@@ -1261,6 +1262,27 @@ primitiv add --all`}</code>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
+      </Section>
+
+      {/* Five crumbs with keepStart=1/keepEnd=1 collapses the middle three
+          behind an overflow menu (Breadcrumb.Ellipsis + Dropdown); the
+          hidden BreadcrumbLinks become real, navigable menu items,
+          unmodified. The second trail is short enough that keepStart + keepEnd
+          already covers every crumb, so it falls back to rendering the full
+          trail — no overflow menu appears. */}
+      <Section title="Breadcrumb Overflow" column>
+        <BreadcrumbOverflow size={size} keepStart={1} keepEnd={1}>
+          <BreadcrumbLink href="#home">Home</BreadcrumbLink>
+          <BreadcrumbLink href="#library">Library</BreadcrumbLink>
+          <BreadcrumbLink href="#library-fiction">Fiction</BreadcrumbLink>
+          <BreadcrumbLink href="#library-fiction-mystery">Mystery</BreadcrumbLink>
+          <BreadcrumbPage>Neuromancer</BreadcrumbPage>
+        </BreadcrumbOverflow>
+        <BreadcrumbOverflow size={size} keepStart={1} keepEnd={1}>
+          <BreadcrumbLink href="#home">Home</BreadcrumbLink>
+          <BreadcrumbLink href="#library">Library</BreadcrumbLink>
+          <BreadcrumbPage>Current article</BreadcrumbPage>
+        </BreadcrumbOverflow>
       </Section>
 
       <Section title="Button">

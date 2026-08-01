@@ -15,6 +15,14 @@ export default defineConfig({
   // src/main.tsx) so deep links survive a hard refresh on GitHub Pages.
   base: process.env.KITCHEN_SINK_BASE ?? '/',
   plugins: [react()],
+  build: {
+    // Default cssMinify is lightningcss, which doesn't yet recognise the
+    // `@position-try` at-rule (CSS Anchor Positioning fallback blocks, used
+    // by context-menu/navigation-menu) and warns "Unknown at rule" on every
+    // build even though the output is unaffected. esbuild's CSS minifier
+    // doesn't validate at-rule names, so it passes these through silently.
+    cssMinify: 'esbuild',
+  },
   resolve: {
     // The @primitiv-ui/react alias points at the workspace *source*, which lives
     // outside this app's install (the kitchen-sink is excluded from the pnpm

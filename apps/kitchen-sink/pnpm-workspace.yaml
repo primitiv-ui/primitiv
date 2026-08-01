@@ -1,4 +1,9 @@
 packages: []
+# esbuild's postinstall fetches its platform binary; without this it's a
+# no-op script under pnpm's default ignore-build-scripts policy and every
+# `esbuild` build silently no-ops or errors depending on version.
+allowBuilds:
+  esbuild: true
 # This app's whole purpose is validating a release the moment it's published,
 # which is fundamentally incompatible with pnpm's minimumReleaseAge
 # supply-chain policy (a personal/org-level setting some pnpm configs enable

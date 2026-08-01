@@ -240,9 +240,23 @@
     /* A preferred size, not a cap — longer content still grows the card. */
     aspect-ratio: var(--primitiv-card-cover-aspect-ratio);
     justify-content: flex-end;
-    /* Content sits over photography, so it flips to the inverse ramp. */
-    --primitiv-card-title-color: var(--primitiv-content-inverse);
-    --primitiv-card-description-color: var(--primitiv-content-inverse);
+    /* Content sits over photography under a fixed-dark scrim (scrim-color is
+       colour/absolute-black — deliberately NOT theme-aware, see its own
+       declaration above), so the default foreground is a fixed light colour
+       too rather than the theme-flipping content/inverse this used to be:
+       content/inverse resolves to BLACK in dark theme (it is the inverse of
+       content/primary, not a "read on a dark scrim" token), which read as
+       illegible dark-on-dark text once the page itself switched to dark mode
+       — caught from a live dark-mode screenshot, not a review. The two
+       `-light`/`-dark` custom properties (not just one) exist so a consumer
+       can override per app-theme independently via `coverForegroundLight`/
+       `coverForegroundDark` — a given photograph's legibility doesn't
+       necessarily track the app's own light/dark switch. See the
+       [data-theme="dark"] rule below for the dark-theme half. */
+    --primitiv-card-cover-foreground-light: var(--primitiv-color-absolute-white);
+    --primitiv-card-cover-foreground-dark: var(--primitiv-color-absolute-white);
+    --primitiv-card-title-color: var(--primitiv-card-cover-foreground-light);
+    --primitiv-card-description-color: var(--primitiv-card-cover-foreground-light);
   }
 
   .primitiv-card--cover > .primitiv-card__media {
@@ -353,6 +367,18 @@
   button.primitiv-card {
     -webkit-tap-highlight-color: transparent;
   }
+
+  /* The dark-theme half of the cover layout's foreground (see the base rule
+     above): a HIGHER-SPECIFICITY selector in a LATER layer, so it wins over
+     the light-context default regardless of where each stylesheet is loaded
+     relative to the token layer. Reads its own `-dark` custom property
+     (independent of `-light`) so overriding one via `coverForegroundLight`/
+     `coverForegroundDark` never accidentally changes the other theme's
+     colour. */
+  [data-theme="dark"] .primitiv-card--cover {
+    --primitiv-card-title-color: var(--primitiv-card-cover-foreground-dark);
+    --primitiv-card-description-color: var(--primitiv-card-cover-foreground-dark);
+  }
 }
 
 $primitiv-card-background: var(--primitiv-card-background);
@@ -381,3 +407,5 @@ $primitiv-card-description-font-family: var(--primitiv-card-description-font-fam
 $primitiv-card-description-font-size: var(--primitiv-card-description-font-size);
 $primitiv-card-description-font-weight: var(--primitiv-card-description-font-weight);
 $primitiv-card-description-line-height: var(--primitiv-card-description-line-height);
+$primitiv-card-cover-foreground-light: var(--primitiv-card-cover-foreground-light);
+$primitiv-card-cover-foreground-dark: var(--primitiv-card-cover-foreground-dark);

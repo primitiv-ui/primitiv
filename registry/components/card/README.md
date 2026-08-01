@@ -48,8 +48,26 @@ all three — `CardMedia` is always a **sibling** of `CardContent`, never a chil
 </Card>
 ```
 
-`cover` flips the title and description to `content/inverse` automatically and
-draws the scrim as a pseudo-element — no extra component, no extra DOM.
+`cover` flips the title and description to a fixed light foreground
+(`color/absolute-white`) automatically and draws the scrim as a pseudo-element
+— no extra component, no extra DOM. The foreground is fixed rather than
+theme-following on purpose: the scrim itself is always `color/absolute-black`
+regardless of app theme, so white text reads against it in both light and dark
+mode. If a particular photo needs the opposite treatment in one theme (e.g. an
+unusually bright image), override it independently per theme:
+
+```tsx
+<Card layout="cover" coverForegroundLight="black" coverForegroundDark="white">
+  <CardMedia><img src={brightSkyPhoto} alt="" /></CardMedia>
+  <CardContent>…</CardContent>
+</Card>
+```
+
+`coverForegroundLight`/`coverForegroundDark` are limited to `"white"` |
+`"black"` — the two absolute (non-theme-flipping) tones — rather than
+arbitrary colour, so the override stays within the token system. Each maps to
+its own CSS custom property (`--primitiv-card-cover-foreground-light` /
+`-dark`), so setting one never affects the other theme's colour.
 
 ## Props
 
@@ -61,6 +79,8 @@ draws the scrim as a pseudo-element — no extra component, no extra DOM.
 | `size` | `"xs" \| "sm" \| "md" \| "lg" \| "xl"` | `"md"` | `data-density` scales each size further. |
 | `elevation` | `"flat" \| "raised"` | `"flat"` | `raised` applies `elevation/raised`. |
 | `scrim` | `"soft" \| "medium" \| "strong"` | `"medium"` | Only has an effect with `layout="cover"`. |
+| `coverForegroundLight` | `"white" \| "black"` | `"white"` | Title/description colour while the app is in light theme. Only has an effect with `layout="cover"`. |
+| `coverForegroundDark` | `"white" \| "black"` | `"white"` | Title/description colour while the app is in dark theme. Only has an effect with `layout="cover"`. |
 | `asChild` | `boolean` | `false` | Render your own element — e.g. an `<a>` for a wholly-clickable card. |
 
 ### `CardMedia`

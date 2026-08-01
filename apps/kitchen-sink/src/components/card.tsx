@@ -23,7 +23,7 @@ import "../styles/primitiv/card/styles.css";
  * flush and inset media alike.
  */
 import { Slot } from "@primitiv-ui/react";
-import { type ComponentPropsWithRef, type ReactNode } from "react";
+import { type ComponentPropsWithRef, type CSSProperties, type ReactNode } from "react";
 import {
   card,
   cardFooter,
@@ -46,6 +46,7 @@ type Size = "xs" | "sm" | "md" | "lg" | "xl";
 type Elevation = "flat" | "raised";
 type Scrim = "soft" | "medium" | "strong";
 type Justify = "start" | "center" | "end";
+type CoverForeground = "white" | "black";
 
 export type CardProps = ComponentPropsWithRef<"div"> &
   Omit<CardVariants, "layout" | "size" | "elevation" | "scrim"> & {
@@ -71,6 +72,23 @@ export type CardProps = ComponentPropsWithRef<"div"> &
      * @default "medium"
      */
     scrim?: Scrim;
+    /**
+     * The title/description colour while the app is in **light** theme.
+     * Only has an effect when `layout="cover"`. Limited to the two absolute
+     * (non-theme-flipping) tones — the scrim itself is always
+     * `color/absolute-black` regardless of theme, so `"white"` is legible
+     * against it in every case except an unusually bright photo. Set this
+     * independently of `coverForegroundDark`: a given photo's legibility
+     * doesn't necessarily track the app's own light/dark switch.
+     * @default "white"
+     */
+    coverForegroundLight?: CoverForeground;
+    /**
+     * The title/description colour while the app is in **dark** theme. Only
+     * has an effect when `layout="cover"`. See {@link coverForegroundLight}.
+     * @default "white"
+     */
+    coverForegroundDark?: CoverForeground;
     /**
      * Render the single child element instead of a wrapping `<div>`, merging
      * the card classes onto it — e.g. `<Card asChild><a href="…">…</a></Card>`
@@ -103,11 +121,30 @@ export function Card({
   size,
   elevation,
   scrim,
+  coverForegroundLight,
+  coverForegroundDark,
   className,
+  style,
   ...props
 }: CardProps) {
   const Component = asChild ? Slot : "div";
-  return <Component className={cx(card({ layout, size, elevation, scrim }), className)} {...props} />;
+  return (
+    <Component
+      className={cx(card({ layout, size, elevation, scrim }), className)}
+      style={
+        {
+          ...style,
+          ...(coverForegroundLight === undefined
+            ? {}
+            : { "--primitiv-card-cover-foreground-light": `var(--primitiv-color-absolute-${coverForegroundLight})` }),
+          ...(coverForegroundDark === undefined
+            ? {}
+            : { "--primitiv-card-cover-foreground-dark": `var(--primitiv-color-absolute-${coverForegroundDark})` }),
+        } as CSSProperties
+      }
+      {...props}
+    />
+  );
 }
 
 export type CardMediaProps = ComponentPropsWithRef<"div"> & {

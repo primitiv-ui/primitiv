@@ -65,6 +65,8 @@
     { "name": "--primitiv-card-media-inline-size", "defaultsTo": "36%" },
     { "name": "--primitiv-card-media-background", "defaultsTo": "var(--primitiv-surface-subtle)" },
     { "name": "--primitiv-card-cover-aspect-ratio", "defaultsTo": "6 / 5" },
+    { "name": "--primitiv-card-cover-foreground-light", "defaultsTo": "var(--primitiv-color-absolute-white)" },
+    { "name": "--primitiv-card-cover-foreground-dark", "defaultsTo": "var(--primitiv-color-absolute-white)" },
     { "name": "--primitiv-card-scrim-color", "defaultsTo": "var(--primitiv-color-absolute-black)" },
     { "name": "--primitiv-card-scrim-opacity", "defaultsTo": "var(--primitiv-opacity-70)" },
     { "name": "--primitiv-card-scrim-mid", "defaultsTo": "6rem" },

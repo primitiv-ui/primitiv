@@ -389,15 +389,145 @@ Every run produces, alongside the built site:
 ## 13. Suggested sequencing
 
 1. Settle this RFC's open questions (§10's environment approach in
-   particular needs a concrete decision on tooling before anything runs).
-2. Build Profile B's brownfield fixture (§5) — the one piece of prep work
-   that doesn't yet exist.
-3. Run Profile A first (cheapest, fewest moving parts) as a dry run of the
+   particular needs a concrete decision on tooling before anything runs)
+   — done in §14–§16.
+2. Author `docs/consumer-testing/brief.md` + the per-profile addenda
+   (§15) and provision the run environments (§14).
+3. Build Profile B's brownfield fixture (§5, §16) — the one piece of prep
+   work that doesn't yet exist.
+4. Run Profile A first (cheapest, fewest moving parts) as a dry run of the
    process itself — report template, screenshot pass, escape-hatch
    logging — before committing to B and C, which are more expensive to
    set up.
-4. Run B and C.
-5. Synthesise across all three into one cross-profile findings doc, feed
+5. Run B and C.
+6. Synthesise across all three into one cross-profile findings doc, feed
    concrete items back into `ROADMAP.md` (tagged with which run surfaced
    them) and this RFC's status updated with the outcome.
-6. Re-run (§8) once Container/Grid/breakpoints land, to measure the delta.
+7. Re-run (§8) once Container/Grid/breakpoints land, to measure the delta.
+
+## 14. Environment & tooling — the concrete decision
+
+§10 settled *what kind* of environment this needs; here's the mechanism.
+
+- **One dedicated, bare environment per profile**, containing no
+  `primitiv-ui/primitiv` source, no `CLAUDE.md`, no skills — created by the
+  operator (not the test agent) before the run starts. Concretely, a fresh
+  Claude Code Remote environment with no repository attached, or
+  equivalently isolated infrastructure if that's unavailable. The
+  non-negotiable invariant, regardless of backing infra: **the session
+  driving a profile has never had this repo in its context.** A worktree
+  of this checkout does not satisfy that — this file would still sit at
+  its root. A subagent spawned from *this* conversation doesn't either —
+  it inherits this session's ambient repo attachment. It has to be a
+  genuinely fresh top-level session.
+- **The test agent's first actions inside that environment** are the
+  scaffold command appropriate to its profile (`npm create vite@latest`
+  for A/C; Profile B starts from its pre-seeded fixture, never
+  self-scaffolded — see §16) followed by the CLI, installed and pinned
+  exactly: `npm install -D primitiv-ui@0.1.29` (or the profile's package
+  manager equivalent), not a floating `^0.1.29` that could silently drift
+  mid-run.
+- **Network egress** from that environment needs to reach
+  `registry.npmjs.org`, `jsr.io`, GitHub raw (the CLI's `HttpsRegistry`
+  fallback path, RFC 0005 §6) and Google Fonts. It should *not* be able to
+  reach `github.com/primitiv-ui/primitiv` at all — if the environment's
+  default credentials happen to grant that, revoke it explicitly rather
+  than relying on the agent not thinking to look.
+- **The reviewer pass (§11.1) runs in its own fresh session too**, handed
+  only the finished site (pulled out of the throwaway environment first,
+  since Claude Code Remote environments are reclaimed after inactivity) —
+  not the builder's `NOTES.md`, not told what to expect. It renders and
+  screenshots cold, then its findings are diffed against the builder's own
+  report. A reviewer primed by the builder's narrative isn't independent.
+- **Reuse across runs of the same profile is fine**, if it saves
+  provisioning cost — reuse across *different* profiles, or of an
+  environment a prior run already touched, is not; that's the same
+  contamination risk as running in-repo, just quieter.
+
+## 15. Agent preparation — brief authoring & prompt strategy
+
+Yes — a tailored prompt per profile, but **composed, not freehand**.
+Freehand risks the shared portion silently drifting between profiles,
+which would quietly break comparability the same way a different brand
+hex per profile would (§16). Concretely:
+
+- A new `docs/consumer-testing/` folder holds `brief.md` (the shared
+  content from §3 — task, dense/sparse requirement, imagery rule,
+  token-only-styling rule, completion criteria, budget) plus one addendum
+  per profile (`profile-a-greenfield.md`, `profile-b-brownfield.md`,
+  `profile-c-tailwind.md`) and `report-template.md` (§12). `brief.md` is
+  the single source of truth for everything that must stay identical
+  across runs.
+- **The literal first message to each fresh session is `brief.md` +
+  that profile's addendum, concatenated verbatim** — scripted, not
+  retyped by hand, specifically so the shared portion is byte-identical
+  across every profile. That identity is what makes a difference in the
+  friction logs attributable to the *profile* rather than to incidental
+  wording drift.
+- **Framing settles the §11.5 tension directly: this reads as an ordinary
+  client brief, never as an evaluation.** `brief.md` opens as "you've been
+  hired to build a 3-page site for `<business>`," and the diligence
+  logging requirement is folded in as ordinary delivery hygiene — "keep a
+  `NOTES.md` of any decision you made because the obvious approach didn't
+  work, the way you would on a real project" — never "critique," "log
+  friction," or "evaluate." Every mention of Primitiv-as-subject, RFC
+  numbers, `ROADMAP.md`, or "this is a known gap" stays entirely on the
+  operator side (this RFC, the report template) and never appears in
+  agent-facing text. The agent should discover the Container/Grid absence
+  itself, not be told about it in advance — telling it up front would be
+  exactly the same contamination §10 rules out for CLAUDE.md, just moved
+  into the prompt instead of the repo.
+- **Completion criteria are explicit in `brief.md`** so the agent
+  self-terminates rather than wandering: three pages built and rendering
+  with no console errors, `NOTES.md` written, screenshots taken (the
+  agent's own environment should also have Chromium/Playwright available
+  for this, mirroring what this session already has) — a checklist the
+  agent ticks off itself before ending its turn, not an open-ended "make
+  it good."
+
+## 16. Brand colour via `primitiv theme --brand`
+
+Good addition, and it costs nothing to add — the CLI already does exactly
+this. RFC 0005 documents `primitiv theme --brand <hex>` (and `init`'s
+interactive brand prompt / non-interactive `--brand` flag): it runs the
+Harmoni engine against a hex input and emits a **paired light + dark**
+theme-token overrides layer (RFC 0005 D48), through the same dynamic
+foreground wiring RFC 0003 built. That last part matters — nothing else in
+this program exercises RFC 0002/0003's contrast-correct foreground
+computation in a real, composed, multi-component page; this is a free
+integration test riding along on top of the consumer-experience one.
+
+Two decisions, both left open by "give each profile a brand colour":
+
+- **Hold the hex constant across profiles that choose one freely**
+  (Profile A, and Profile C if it goes the registry-styling route).
+  Distinct colours per fictional business would read more naturally, but
+  they introduce a real confound: a friction-log difference between two
+  profiles could be the *hue* hitting a genuine harmoni-engine edge case
+  rather than the *consumption profile* being tested, and the two would be
+  indistinguishable after the fact. Reuse the exact hex RFC 0005's own
+  worked example already uses, `#0a7755`, so the emitted token layer is
+  identical and directly diffable across runs. Varying brand hue across
+  runs is a legitimate follow-on experiment in its own right — it
+  stress-tests the palette engine, not the consumer experience — but
+  belongs in a separate program, not folded into this one.
+- **Profile B doesn't get a free choice, on purpose.** A brownfield
+  consumer already has a house brand; the interesting question isn't
+  which hex the agent picks, it's whether it even tries to reconcile
+  Primitiv's theme with the existing one, or leaves Primitiv unthemed and
+  takes only headless behaviour. Bake a specific, *different* hex into
+  Profile B's fixture (§5) as an established fact stated in its addendum
+  ("the app's existing primary brand colour is `#…`"), and let the agent
+  decide what to do with it — log the decision either way. The addendum
+  must not itself suggest running `theme --brand`; that would hand the
+  agent the answer to the thing being observed.
+
+**Report template addition** (§12): the literal `theme`/`init --brand`
+invocation, if any, and the emitted token diff, so a reviewer can check
+whether the auto-paired dark values actually hold up once placed against
+real Khand/Asta Sans copy in a dense layout — nothing has verified that in
+a live composed page before, only in isolation. Where a theme was set
+(Profiles A and, situationally, C), the brief should require the site's
+light/dark toggle to actually be exercised at least once, specifically so
+the auto-generated dark pairing gets a real visual check rather than
+shipping unverified.

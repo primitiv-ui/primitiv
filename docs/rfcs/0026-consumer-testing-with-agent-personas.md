@@ -531,3 +531,31 @@ a live composed page before, only in isolation. Where a theme was set
 light/dark toggle to actually be exercised at least once, specifically so
 the auto-generated dark pairing gets a real visual check rather than
 shipping unverified.
+
+## 17. Build outcome — brief materials landed
+
+`docs/consumer-testing/` now holds everything §15 scoped: `brief.md` (the
+shared, agent-facing brief, worded per §15's framing rule — no mention of
+Primitiv-as-subject, "critique," or known gaps), the three profile
+addenda, `report-template.md` (operator-only, never shown to the building
+agent), and Profile B's fixture app under `fixtures/profile-b-existing-app/`
+(a small React + React Router site — one fully-built home page on plain,
+unlayered, hardcoded-hex legacy CSS, two stub routes waiting to be built
+out, brand colour `#c1440e` baked into the nav/hero/footer). The fixture
+was smoke-tested (`npm install`, `tsc -b`, `vite build`) end to end before
+being committed — it builds clean. `README.md` in that folder records the
+agent-facing/operator-facing split and how to hand a run its materials.
+
+One divergence from the draft worth flagging: §15 originally described
+`report-template.md` as something "handed to the agent... not just to the
+reviewer after the fact." Writing the actual file surfaced why that was
+wrong — a structured template with fields like an escape-hatch log and
+known-gap/new-finding tags is exactly the kind of framing §15's own
+"never evaluate, always ordinary client brief" rule rules out. The
+building agent gets only the informal `NOTES.md` instruction from
+`brief.md`; `report-template.md` is reviewer-only, synthesising `NOTES.md`
+after the fact rather than being filled in live. `README.md` states this
+split explicitly so it doesn't drift back the other way.
+
+Not yet done: no run has actually happened. §13's next step is executing
+Profile A as the dry run.

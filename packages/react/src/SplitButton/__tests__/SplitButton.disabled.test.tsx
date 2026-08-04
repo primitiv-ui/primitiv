@@ -21,4 +21,39 @@ describe("SplitButton — disabled", () => {
       screen.getByRole("button", { name: "More merge options" }),
     ).toBeDisabled();
   });
+
+  it("disables one half independently, leaving the other interactive", () => {
+    render(
+      <SplitButton>
+        <SplitButton.Action disabled>Squash and merge</SplitButton.Action>
+        <SplitButton.Trigger aria-label="More merge options" />
+        <SplitButton.Menu />
+      </SplitButton>,
+    );
+
+    expect(screen.getByRole("group")).not.toHaveAttribute("data-disabled");
+    expect(
+      screen.getByRole("button", { name: "Squash and merge" }),
+    ).toHaveAttribute("data-disabled", "");
+    expect(
+      screen.getByRole("button", { name: "More merge options" }),
+    ).toBeEnabled();
+  });
+
+  it("disables only the menu half when the trigger is disabled", () => {
+    render(
+      <SplitButton>
+        <SplitButton.Action>Squash and merge</SplitButton.Action>
+        <SplitButton.Trigger disabled aria-label="More merge options" />
+        <SplitButton.Menu />
+      </SplitButton>,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Squash and merge" }),
+    ).toBeEnabled();
+    expect(
+      screen.getByRole("button", { name: "More merge options" }),
+    ).toHaveAttribute("data-disabled", "");
+  });
 });

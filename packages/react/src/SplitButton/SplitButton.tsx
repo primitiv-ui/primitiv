@@ -1,7 +1,12 @@
-import type { ReactElement } from "react";
+import { useId, useMemo, type ReactElement } from "react";
 
 import { Dropdown } from "../Dropdown/index.ts";
 import type { DropdownRootProps } from "../Dropdown/types";
+import { deriveId } from "../utils/index.ts";
+import {
+  SplitButtonProvider,
+  useSplitButtonContext,
+} from "./SplitButtonContext";
 import {
   SplitButtonActionProps,
   SplitButtonItemProps,
@@ -20,13 +25,24 @@ export function SplitButtonRoot({
   ref,
   ...rest
 }: SplitButtonRootProps): ReactElement {
+  const rootId = useId();
+  const contextValue = useMemo(
+    () => ({
+      actionId: deriveId(rootId, "split-button", "action"),
+      triggerId: deriveId(rootId, "split-button", "trigger"),
+    }),
+    [rootId],
+  );
+
   return (
     <Dropdown.Root
       {...({ defaultOpen, open, onOpenChange, dir } as DropdownRootProps)}
     >
-      <div {...rest} ref={ref} role="group" data-split-button="">
-        {children}
-      </div>
+      <SplitButtonProvider value={contextValue}>
+        <div {...rest} ref={ref} role="group" data-split-button="">
+          {children}
+        </div>
+      </SplitButtonProvider>
     </Dropdown.Root>
   );
 }
@@ -38,8 +54,16 @@ export function SplitButtonAction({
   ref,
   ...rest
 }: SplitButtonActionProps): ReactElement {
+  const { actionId } = useSplitButtonContext();
+
   return (
-    <button type="button" {...rest} ref={ref} data-split-button-action="">
+    <button
+      type="button"
+      {...rest}
+      ref={ref}
+      id={actionId}
+      data-split-button-action=""
+    >
       {children}
     </button>
   );
@@ -47,10 +71,23 @@ export function SplitButtonAction({
 
 SplitButtonAction.displayName = "SplitButtonAction";
 
-export function SplitButtonTrigger(
-  props: SplitButtonTriggerProps,
-): ReactElement {
-  return <Dropdown.Trigger {...props} data-split-button-trigger="" />;
+export function SplitButtonTrigger({
+  "aria-label": ariaLabel,
+  ...rest
+}: SplitButtonTriggerProps): ReactElement {
+  const { actionId, triggerId } = useSplitButtonContext();
+
+  return (
+    <Dropdown.Trigger
+      {...rest}
+      id={triggerId}
+      aria-label={ariaLabel}
+      aria-labelledby={
+        ariaLabel === undefined ? `${triggerId} ${actionId}` : undefined
+      }
+      data-split-button-trigger=""
+    />
+  );
 }
 
 SplitButtonTrigger.displayName = "SplitButtonTrigger";

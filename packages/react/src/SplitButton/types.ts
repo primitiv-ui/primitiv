@@ -33,12 +33,17 @@ export type SplitButtonRootProps =
   | SplitButtonRootUncontrolledProps
   | SplitButtonRootControlledProps;
 
-export type SplitButtonActionProps = ComponentProps<"button"> & {
+export type SplitButtonContextValue = {
+  actionId: string;
+  triggerId: string;
+};
+
+export type SplitButtonActionProps = Omit<ComponentProps<"button">, "id"> & {
   children?: ReactNode;
   ref?: Ref<HTMLButtonElement>;
 };
 
-export type SplitButtonTriggerProps = DropdownTriggerProps;
+export type SplitButtonTriggerProps = Omit<DropdownTriggerProps, "id">;
 
 export type SplitButtonMenuProps = DropdownContentProps;
 

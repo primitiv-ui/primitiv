@@ -21,6 +21,7 @@ export function SplitButtonRoot({
   open,
   onOpenChange,
   dir,
+  disabled = false,
   children,
   ref,
   ...rest
@@ -30,8 +31,9 @@ export function SplitButtonRoot({
     () => ({
       actionId: deriveId(rootId, "split-button", "action"),
       triggerId: deriveId(rootId, "split-button", "trigger"),
+      disabled,
     }),
-    [rootId],
+    [rootId, disabled],
   );
 
   return (
@@ -39,7 +41,13 @@ export function SplitButtonRoot({
       {...({ defaultOpen, open, onOpenChange, dir } as DropdownRootProps)}
     >
       <SplitButtonProvider value={contextValue}>
-        <div {...rest} ref={ref} role="group" data-split-button="">
+        <div
+          {...rest}
+          ref={ref}
+          role="group"
+          data-split-button=""
+          data-disabled={disabled ? "" : undefined}
+        >
           {children}
         </div>
       </SplitButtonProvider>
@@ -51,10 +59,12 @@ SplitButtonRoot.displayName = "SplitButtonRoot";
 
 export function SplitButtonAction({
   children,
+  disabled,
   ref,
   ...rest
 }: SplitButtonActionProps): ReactElement {
-  const { actionId } = useSplitButtonContext();
+  const { actionId, disabled: groupDisabled } = useSplitButtonContext();
+  const isDisabled = groupDisabled || disabled === true;
 
   return (
     <button
@@ -62,6 +72,8 @@ export function SplitButtonAction({
       {...rest}
       ref={ref}
       id={actionId}
+      disabled={isDisabled}
+      data-disabled={isDisabled ? "" : undefined}
       data-split-button-action=""
     >
       {children}
@@ -74,10 +86,16 @@ SplitButtonAction.displayName = "SplitButtonAction";
 export function SplitButtonTrigger({
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
+  disabled,
   ...rest
 }: SplitButtonTriggerProps): ReactElement {
-  const { actionId, triggerId } = useSplitButtonContext();
+  const {
+    actionId,
+    triggerId,
+    disabled: groupDisabled,
+  } = useSplitButtonContext();
   const named = ariaLabel !== undefined || ariaLabelledBy !== undefined;
+  const isDisabled = groupDisabled || disabled === true;
 
   return (
     <Dropdown.Trigger
@@ -85,6 +103,8 @@ export function SplitButtonTrigger({
       id={triggerId}
       aria-label={ariaLabel}
       aria-labelledby={named ? ariaLabelledBy : `${triggerId} ${actionId}`}
+      disabled={isDisabled}
+      data-disabled={isDisabled ? "" : undefined}
       data-split-button-trigger=""
     />
   );

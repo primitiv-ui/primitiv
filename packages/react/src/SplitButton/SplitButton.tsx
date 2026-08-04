@@ -73,18 +73,18 @@ SplitButtonAction.displayName = "SplitButtonAction";
 
 export function SplitButtonTrigger({
   "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledBy,
   ...rest
 }: SplitButtonTriggerProps): ReactElement {
   const { actionId, triggerId } = useSplitButtonContext();
+  const named = ariaLabel !== undefined || ariaLabelledBy !== undefined;
 
   return (
     <Dropdown.Trigger
       {...rest}
       id={triggerId}
       aria-label={ariaLabel}
-      aria-labelledby={
-        ariaLabel === undefined ? `${triggerId} ${actionId}` : undefined
-      }
+      aria-labelledby={named ? ariaLabelledBy : `${triggerId} ${actionId}`}
       data-split-button-trigger=""
     />
   );

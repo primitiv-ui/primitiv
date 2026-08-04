@@ -19,4 +19,21 @@ describe("SplitButton — accessibility", () => {
       screen.getByRole("button", { name: "More options Squash and merge" }),
     ).toHaveAttribute("aria-haspopup", "menu");
   });
+
+  it("lets an explicit aria-labelledby replace the derived name", () => {
+    render(
+      <>
+        <span id="external-label">Merge options</span>
+        <SplitButton>
+          <SplitButton.Action>Squash and merge</SplitButton.Action>
+          <SplitButton.Trigger aria-labelledby="external-label" />
+          <SplitButton.Menu />
+        </SplitButton>
+      </>,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Merge options" }),
+    ).toHaveAttribute("aria-labelledby", "external-label");
+  });
 });

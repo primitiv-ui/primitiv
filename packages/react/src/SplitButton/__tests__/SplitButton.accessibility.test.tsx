@@ -36,4 +36,20 @@ describe("SplitButton — accessibility", () => {
       screen.getByRole("button", { name: "Merge options" }),
     ).toHaveAttribute("aria-labelledby", "external-label");
   });
+
+  it("gives each half a stable, role-suffixed id derived from the root", () => {
+    render(
+      <SplitButton>
+        <SplitButton.Action>Squash and merge</SplitButton.Action>
+        <SplitButton.Trigger aria-label="More merge options" />
+        <SplitButton.Menu />
+      </SplitButton>,
+    );
+
+    const action = screen.getByRole("button", { name: "Squash and merge" });
+    const trigger = screen.getByRole("button", { name: "More merge options" });
+
+    expect(action.id).toMatch(/-split-button-action$/);
+    expect(trigger.id).toMatch(/-split-button-trigger$/);
+  });
 });

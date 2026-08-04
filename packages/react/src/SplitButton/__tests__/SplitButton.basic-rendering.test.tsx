@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { SplitButton } from "../SplitButton";
+import { SplitButtonContext } from "../SplitButtonContext";
 
 describe("SplitButton — basic rendering", () => {
   it("renders a group wrapping the primary action", () => {
@@ -40,5 +41,17 @@ describe("SplitButton — basic rendering", () => {
     );
     expect(screen.getAllByRole("menuitem", { hidden: true })).toHaveLength(2);
     expect(screen.getByRole("separator", { hidden: true })).toBeInTheDocument();
+  });
+
+  it("sets a displayName on the compound, every sub-component and the context", () => {
+    // Empty displayNames would render each as anonymous in DevTools. Root
+    // aliases the compound (Object.assign), so its name is "SplitButton".
+    expect(SplitButton.displayName).toBe("SplitButton");
+    expect(SplitButton.Action.displayName).toBe("SplitButtonAction");
+    expect(SplitButton.Trigger.displayName).toBe("SplitButtonTrigger");
+    expect(SplitButton.Menu.displayName).toBe("SplitButtonMenu");
+    expect(SplitButton.Item.displayName).toBe("SplitButtonItem");
+    expect(SplitButton.Separator.displayName).toBe("SplitButtonSeparator");
+    expect(SplitButtonContext.displayName).toBe("SplitButtonContext");
   });
 });

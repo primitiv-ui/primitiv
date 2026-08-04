@@ -56,4 +56,24 @@ describe("SplitButton — disabled", () => {
       screen.getByRole("button", { name: "More merge options" }),
     ).toHaveAttribute("data-disabled", "");
   });
+
+  it("re-propagates when the group's disabled flips after mount", () => {
+    const markup = (disabled: boolean) => (
+      <SplitButton disabled={disabled}>
+        <SplitButton.Action>Squash and merge</SplitButton.Action>
+        <SplitButton.Trigger aria-label="More merge options" />
+        <SplitButton.Menu />
+      </SplitButton>
+    );
+    const { rerender } = render(markup(false));
+
+    rerender(markup(true));
+
+    expect(
+      screen.getByRole("button", { name: "Squash and merge" }),
+    ).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "More merge options" }),
+    ).toBeDisabled();
+  });
 });

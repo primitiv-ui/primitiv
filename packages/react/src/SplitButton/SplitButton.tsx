@@ -1,7 +1,9 @@
-import { useId, useMemo, type ReactElement } from "react";
+import { useId, useMemo, type KeyboardEvent, type ReactElement } from "react";
 
 import { Dropdown } from "../Dropdown/index.ts";
+import { useDropdownContext } from "../Dropdown/hooks/index.ts";
 import type { DropdownRootProps } from "../Dropdown/types";
+import { composeEventHandlers } from "../Slot/index.ts";
 import { deriveId } from "../utils/index.ts";
 import {
   SplitButtonProvider,
@@ -60,11 +62,19 @@ SplitButtonRoot.displayName = "SplitButtonRoot";
 export function SplitButtonAction({
   children,
   disabled,
+  onKeyDown,
   ref,
   ...rest
 }: SplitButtonActionProps): ReactElement {
   const { actionId, disabled: groupDisabled } = useSplitButtonContext();
+  const { setOpen } = useDropdownContext();
   const isDisabled = groupDisabled || disabled === true;
+
+  const openMenu = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key !== "ArrowDown") return;
+    event.preventDefault();
+    setOpen(true);
+  };
 
   return (
     <button
@@ -73,6 +83,7 @@ export function SplitButtonAction({
       ref={ref}
       id={actionId}
       disabled={isDisabled}
+      onKeyDown={composeEventHandlers(onKeyDown, openMenu)}
       data-disabled={isDisabled ? "" : undefined}
       data-split-button-action=""
     >

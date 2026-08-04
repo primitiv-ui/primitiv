@@ -59,7 +59,12 @@ spacing — alias existing tokens (`label/{size}/*`, the same family
 `Field.Label` uses, and `stack/gap-*`) rather than opening any new ones, so
 it's a thin structural leaf like the layout primitives, not a composite
 needing a Figma pass first — it just hasn't been built into the registry yet.
-Four rows below are genuine backlog gaps, not deliberate omissions:
+**SplitButton** is a fifth kind of row again: its headless layer landed
+2026-08-04 and the Figma + registry + kitchen-sink stages are simply the
+next steps in its own build, not a gap — CLAUDE.md §8 puts Figma before the
+registry surface, and the headless layer legitimately goes first (the
+NavigationMenu order). Four rows below are genuine backlog gaps, not
+deliberate omissions:
 **EmptyState** has real anatomy (Media/Title/Description/Actions slots) meant
 for a styled composite, same class as Card or ConfirmDialog before they
 landed, just not built yet; **InputGroup** already has a registry + kitchen-
@@ -118,6 +123,7 @@ one (or both) to ship, so neither got a design pass (see RFC 0013 §4.1).
 | Select | ✓ | ✓ | ✓ | ✓ | `Select / Trigger` (403:1883, renamed) + composed `Select` set (1282:46193, Variant[closed\|open] × Size[xs-xl], stacks a real Dropdown/Panel instance with a working Slot for free row composition — RFC 0019 dep). Headless = one compound, two render paths behind `native` (rich Popover-API listbox by default; 100% mutation), `Select.Value` mirroring the selected item's content into the trigger via a `data-placeholder` hook. Registry `select` = framed trigger on Input's geometry + a panel/rows resolving the shared `dropdown/*` tokens (so a listbox and a menu are one surface, with no `dropdown` dependency), `mode` rich\|native modifier, 4 placements. Kitchen-sink = 7 rich demos (leading marks, leading+trailing slots, groups, top-end, invalid, disabled) + 3 native. Combobox still deferred, see `docs/select-future-work.md` |
 | Slider | ✓ | ✓ | ✓ | ✓ | 392:5196 (track), 392:4353 (thumb). Generated wrapper (four-part structural compound — `Root`/`Track`/`Range`/`Thumb`, no subcomponent carrying its own modifiers). No position math in the stylesheet — the headless layer already computes every `left`/`right`/`top`/`bottom` inline; CSS supplies only geometry/colour, with `Thumb`'s cross axis centred via `inset-*-start: 50%` split per `[data-orientation]` so it never collides with the JS-set inset on the value axis. Sized off the pre-existing `slider/{size}/*` Context family (thumb/ring/track tokens, built ahead of this component landing); the focus ring reuses the `thumb-ring-*` tokens rather than the generic system ring. Kitchen-sink = single thumb, range (two thumbs), disabled |
 | Spacer | — | registry only | ✓ | ✓ | RFC 0022 (layout primitives, build-order step 1). Registry-only — a blank `flex: 1 0 0` filler for pushing flex siblings apart, decorative by default (`aria-hidden`). Kitchen-sink = pushes a toolbar's trailing group in the Layout Primitives section |
+| SplitButton | — | ✓ | — | — | Headless landed 2026-08-04; Figma + registry + kitchen-sink still to come (Figma first, per CLAUDE.md §8 / RFC 0021 §6). **Decided headless, not a registry-only composite** — the call was live, since it composes `Button` + `Dropdown` and so looks like a Tier 1 composite. It isn't: unlike Breadcrumb Overflow / ConfirmDialog / Card (arrangement and pure-function arithmetic only), a split button carries genuine cross-part *behaviour* that no existing primitive provides, which is RFC 0021 §2.3's own test for growing a `packages/react` presence — (1) the `role="group"` boundary binding two controls into one widget, (2) the menu trigger's accessible name **derived from the primary action** (`aria-labelledby="<trigger's own id> <action id>"`, a valid self-reference resolving to the trigger's own contents, so hidden text inside it yields "More merge options, Squash and merge" rather than an unlabelled chevron — the thing hand-rolled split buttons get wrong most often; passing `aria-label`/`aria-labelledby` opts out), (3) group `disabled` OR-ed into both halves, and (4) **ArrowDown on the action opening the menu** — the action is *not* the Dropdown trigger, so nothing wired this before (and note the affordance is SplitButton-specific: `Dropdown.Trigger` still opens on click/Enter/Space only). `InputGroup` ships headless with *zero* state, so the bar is comfortably cleared. Structurally it's a thin composition over `Dropdown` in the `Drawer`-over-`Modal` mould: Root renders a `Dropdown.Root` around the group element (as an internal frame component, so it can read the open state for `data-state`), and `Menu`/`Item`/`Separator` delegate to `Dropdown.Content`/`.Item`/`.Separator` — only those two menu parts are re-exported, since Root provides the same Dropdown context and every richer part (`Group`, `Label`, `CheckboxItem`, `Sub`) composes inside `SplitButton.Menu` directly. **Both halves stay independently tabbable** (two distinct commands — deliberately not a roving-tabindex widget). `id` is component-owned on Action and Trigger (`Omit`-ted from their prop types) because the derived name references both. 100% lines/branches/functions/statements **and 100% mutation** (62 mutants, one written equivalence justification on Root's `Object.assign`-overwritten `displayName`); in `mutation-allowlist.json` |
 | Stack | — | registry only | ✓ | ✓ | RFC 0022 (layout primitives, build-order step 1). Registry-only — a Flexbox stack, `direction` column\|row, `gap` resolved against a new density-scaled `stack/gap-{xs,sm,md,lg,xl}` Context family (never a raw px value, continuing RFC 0016's "gap is the tool"; `none` pins the flat `space-space-0` primitive), `align`/`justify` pass through as inline styles (plain Flexbox keywords, not tokens). Kitchen-sink = a toolbar row in the Layout Primitives section, and reused throughout the intro article to lay out the other RFC 0023 demos |
 | Switch | ✓ | ✓ | ✓ | ✓ | 315:5884 |
 | Table | ✓ | ✓ | ✓ | ✓ | 605:13524 (Table), 604:9802 (Cell), 604:9991 (Header Cell), 604:10228 (Row) |
@@ -338,6 +344,10 @@ semantics that CSS alone cannot provide.
 ### Buttons
 
 - [x] Button
+- [x] Split Button — headless landed; kept here rather than under the
+      composites section because it owns genuine cross-part behaviour
+      (group semantics, derived trigger name, disabled propagation,
+      ArrowDown-to-open), not just arrangement. See the coverage table row.
 
 ### Forms
 

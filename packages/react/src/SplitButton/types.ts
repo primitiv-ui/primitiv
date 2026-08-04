@@ -34,6 +34,13 @@ export type SplitButtonRootProps =
   | SplitButtonRootUncontrolledProps
   | SplitButtonRootControlledProps;
 
+export type SplitButtonFrameProps = Omit<
+  SplitButtonRootBaseProps,
+  "dir" | "disabled"
+> & {
+  disabled: boolean;
+};
+
 export type SplitButtonContextValue = {
   actionId: string;
   triggerId: string;

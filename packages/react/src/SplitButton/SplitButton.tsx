@@ -11,6 +11,7 @@ import {
 } from "./SplitButtonContext";
 import {
   SplitButtonActionProps,
+  SplitButtonFrameProps,
   SplitButtonItemProps,
   SplitButtonMenuProps,
   SplitButtonRootProps,
@@ -28,6 +29,32 @@ export function SplitButtonRoot({
   ref,
   ...rest
 }: SplitButtonRootProps): ReactElement {
+  return (
+    <Dropdown.Root
+      {...({ defaultOpen, open, onOpenChange, dir } as DropdownRootProps)}
+    >
+      <SplitButtonFrame {...rest} ref={ref} disabled={disabled}>
+        {children}
+      </SplitButtonFrame>
+    </Dropdown.Root>
+  );
+}
+
+SplitButtonRoot.displayName = "SplitButtonRoot";
+
+/**
+ * The group element itself, split out of {@link SplitButtonRoot} so it can
+ * read the open state of the `Dropdown.Root` that Root renders around it.
+ *
+ * @internal
+ */
+function SplitButtonFrame({
+  disabled,
+  children,
+  ref,
+  ...rest
+}: SplitButtonFrameProps): ReactElement {
+  const { open } = useDropdownContext();
   const rootId = useId();
   const contextValue = useMemo(
     () => ({
@@ -39,25 +66,20 @@ export function SplitButtonRoot({
   );
 
   return (
-    <Dropdown.Root
-      {...({ defaultOpen, open, onOpenChange, dir } as DropdownRootProps)}
-    >
-      <SplitButtonProvider value={contextValue}>
-        <div
-          {...rest}
-          ref={ref}
-          role="group"
-          data-split-button=""
-          data-disabled={disabled ? "" : undefined}
-        >
-          {children}
-        </div>
-      </SplitButtonProvider>
-    </Dropdown.Root>
+    <SplitButtonProvider value={contextValue}>
+      <div
+        {...rest}
+        ref={ref}
+        role="group"
+        data-split-button=""
+        data-state={open ? "open" : "closed"}
+        data-disabled={disabled ? "" : undefined}
+      >
+        {children}
+      </div>
+    </SplitButtonProvider>
   );
 }
-
-SplitButtonRoot.displayName = "SplitButtonRoot";
 
 export function SplitButtonAction({
   children,

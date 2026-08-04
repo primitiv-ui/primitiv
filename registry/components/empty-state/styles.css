@@ -1,0 +1,304 @@
+/*
+ * EmptyState — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add empty-state`. It is yours to
+ * edit: the stable surface is the contract (the .primitiv-empty-state class,
+ * the --xs…--xl / orientation modifiers, and the --primitiv-empty-state-*
+ * custom properties), not these values (RFC 0006 Principle 2 — names are
+ * stable, values are not).
+ *
+ * A non-framed composition — see the Figma "EmptyState" component set
+ * (`1523:889`) for the full design record. It uses its own
+ * `empty-state/{size}/{media-size,max-inline-size,gap,text-gap}` Context
+ * tokens plus the size-agnostic `empty-state/media-offset-top`, reuses
+ * `framed-control/{size}/gap` for the actions row (as Alert reuses it for its
+ * outer row), and takes its type from `heading/*` + `body/*`.
+ *
+ * The DOM is FLAT — media, title, description and actions are all direct
+ * children of the root, exactly as the headless compound renders them. There
+ * are deliberately no inner wrapper elements, because the registry component
+ * exposes the parts for the consumer to compose (and reorder, and interleave
+ * with their own elements), so it cannot inject wrappers around them. Both of
+ * the layout problems that a wrapper would have solved are solved in CSS
+ * instead — see the two notes below.
+ *
+ * Three things that look like mistakes and are not:
+ *
+ * 1. The title resolves `heading/*`, NOT `label/*` — the one deliberate break
+ *    from Alert, which is otherwise the structural precedent. `label/{size}`
+ *    and `body/{size}` resolve to the SAME value at lg and xl, and because the
+ *    label face is condensed the title then reads as the *smaller* of the two
+ *    — an inverted hierarchy. Size maps onto a heading slot instead:
+ *    xs→h6, sm→h5, md→h4, lg→h3, xl→h2.
+ * 2. There is no padding knob, deliberately. The root fills and centres inside
+ *    whatever box it is given; padding is the container's job. Giving this
+ *    component its own would double every seam. (The horizontal media gutter
+ *    below is an internal layout inset, not outer padding.)
+ * 3. The gap rhythm is graduated, not uniform, and it is built from `gap` PLUS
+ *    sibling margins rather than a wrapper per group. The flex `gap` is the
+ *    TIGHT `-text-gap` — the title/description seam, which reads as one unit —
+ *    and the two wide seams (media→next, →actions) add the remainder back as a
+ *    `margin-block-start`. This is what makes the rhythm survive any subset or
+ *    order of parts: drop the description and media→title is still wide; drop
+ *    the media and nothing is left dangling.
+ *
+ * Figma↔CSS divergences, both cases where CSS expresses something Figma
+ * auto-layout cannot:
+ *
+ * - Figma nests a "Body" frame (text + actions) so the media can sit beside
+ *   both at once, and wraps the media in a "Media Wrapper" carrying
+ *   `paddingTop` because auto-layout has no margins. CSS needs neither: at
+ *   Orientation=horizontal the root stays a single column and the media is
+ *   taken OUT of flow (absolutely positioned into a reserved inline-start
+ *   gutter), with the optical nudge applied as `inset-block-start`. That keeps
+ *   the DOM flat and — unlike a two-column grid with a row-spanning media —
+ *   cannot inflate the title/description seam when the media is taller than
+ *   the text column. `min-block-size` floors the root at the media height so a
+ *   one-line empty state can't be overlapped.
+ * - Figma's actions row contains a SLOT node that carries the row gap (a slot
+ *   is the only way to get native add/remove/reorder of Buttons there). In CSS
+ *   the `__actions` element carries the gap and holds the children directly.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the base rule live in
+ * primitiv.base, and the orientation/size modifiers in primitiv.variants.
+ * There is no primitiv.states rule — the component has no interactive element
+ * of its own (the recovery controls are the consumer's own Buttons, which
+ * carry their own states).
+ *
+ * Requires the token layer (`primitiv tokens`) for the
+ * --primitiv-empty-state-*, --primitiv-framed-control-*, --primitiv-heading-*,
+ * --primitiv-body-*, --primitiv-content-*, and --primitiv-space-* custom
+ * properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-empty-state {
+    /* Per-component API — the themable knobs, defaulting to
+       Orientation=vertical, Size=md. The variants layer below re-points these;
+       consumers can override any one without touching a rule. */
+    --primitiv-empty-state-gap: var(--primitiv-empty-state-md-gap);
+    --primitiv-empty-state-text-gap: var(--primitiv-empty-state-md-text-gap);
+    --primitiv-empty-state-actions-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-empty-state-max-inline-size: var(--primitiv-empty-state-md-max-inline-size);
+    --primitiv-empty-state-media-size: var(--primitiv-empty-state-md-media-size);
+    /* The knob is `-media-offset`, not `-media-offset-top`, because the Context
+       token is already called `--primitiv-empty-state-media-offset-top` and a
+       knob of the same name would be a self-referential cycle. Same reason
+       toggle-group's knob is `-track-inset` over the `track-padding` token. */
+    --primitiv-empty-state-media-offset: var(--primitiv-empty-state-media-offset-top);
+    --primitiv-empty-state-media-color: var(--primitiv-content-primary);
+    --primitiv-empty-state-title-font-family: var(--primitiv-heading-h4-font-family);
+    --primitiv-empty-state-title-font-size: var(--primitiv-heading-h4-font-size);
+    --primitiv-empty-state-title-font-weight: var(--primitiv-heading-h4-font-weight);
+    --primitiv-empty-state-title-line-height: var(--primitiv-heading-h4-line-height);
+    --primitiv-empty-state-title-color: var(--primitiv-content-primary);
+    --primitiv-empty-state-description-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-empty-state-description-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-empty-state-description-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-empty-state-description-line-height: var(--primitiv-body-md-line-height);
+    --primitiv-empty-state-description-color: var(--primitiv-content-secondary);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* the TIGHT seam; the wide ones add the remainder as margins — see note 3 */
+    gap: var(--primitiv-empty-state-text-gap);
+    text-align: center;
+  }
+
+  /* The two wide seams. Both set the same property, so a media followed
+     directly by the actions gets one wide seam, not two. */
+  .primitiv-empty-state > .primitiv-empty-state__media + *,
+  .primitiv-empty-state > .primitiv-empty-state__actions {
+    margin-block-start: calc(
+      var(--primitiv-empty-state-gap) - var(--primitiv-empty-state-text-gap)
+    );
+  }
+
+  /* A fixed square box; the glyph inside scales to fill it, so any svg — or an
+     Icon instance — lands at media-size without needing its own sizing props. */
+  .primitiv-empty-state__media {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--primitiv-empty-state-media-size);
+    block-size: var(--primitiv-empty-state-media-size);
+    color: var(--primitiv-empty-state-media-color);
+  }
+
+  .primitiv-empty-state__media svg {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  /* The measure cap sits on each text part rather than a shared wrapper — same
+     result, since both resolve the same cap and centre independently. */
+  .primitiv-empty-state__title {
+    margin-block: var(--primitiv-space-space-0);
+    max-inline-size: var(--primitiv-empty-state-max-inline-size);
+    font-family: var(--primitiv-empty-state-title-font-family);
+    font-size: var(--primitiv-empty-state-title-font-size);
+    font-weight: var(--primitiv-empty-state-title-font-weight);
+    line-height: var(--primitiv-empty-state-title-line-height);
+    color: var(--primitiv-empty-state-title-color);
+  }
+
+  .primitiv-empty-state__description {
+    margin-block: var(--primitiv-space-space-0);
+    max-inline-size: var(--primitiv-empty-state-max-inline-size);
+    font-family: var(--primitiv-empty-state-description-font-family);
+    font-size: var(--primitiv-empty-state-description-font-size);
+    font-weight: var(--primitiv-empty-state-description-font-weight);
+    line-height: var(--primitiv-empty-state-description-line-height);
+    color: var(--primitiv-empty-state-description-color);
+  }
+
+  /* Hugs its content and never stretches — no component in the system
+     stretches its buttons (Card's and Modal's footers both hug). Wraps rather
+     than overflowing when the container is narrower than the button row. */
+  .primitiv-empty-state__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--primitiv-empty-state-actions-gap);
+  }
+}
+
+@layer primitiv.variants {
+  /* Orientation — the root is a single column in BOTH orientations; horizontal
+     only changes the alignment and moves the media into a reserved gutter
+     beside the column (see the divergence note in the header). */
+  .primitiv-empty-state--vertical {
+    align-items: center;
+    text-align: center;
+  }
+
+  .primitiv-empty-state--horizontal {
+    position: relative;
+    align-items: flex-start;
+    text-align: start;
+  }
+
+  /* Reserve the gutter only when a media part is actually present, so a
+     media-less horizontal empty state isn't indented by a phantom column. */
+  .primitiv-empty-state--horizontal:has(> .primitiv-empty-state__media) {
+    padding-inline-start: calc(
+      var(--primitiv-empty-state-media-size) + var(--primitiv-empty-state-gap)
+    );
+    min-block-size: var(--primitiv-empty-state-media-size);
+  }
+
+  /* Out of flow, into the gutter. `inset-block-start` is the optical nudge that
+     aligns the media with the title's cap-height rather than its line-box top. */
+  .primitiv-empty-state--horizontal > .primitiv-empty-state__media {
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: var(--primitiv-empty-state-media-offset);
+  }
+
+  /* The media contributes no seam once it is out of flow. */
+  .primitiv-empty-state--horizontal > .primitiv-empty-state__media + * {
+    margin-block-start: var(--primitiv-space-space-0);
+  }
+
+  .primitiv-empty-state--horizontal .primitiv-empty-state__actions {
+    justify-content: flex-start;
+  }
+
+  /* Size — re-points the sizing knobs and the title/description type scale.
+     The title maps onto a heading slot (xs→h6 … xl→h2), not label/*; see the
+     header comment for why. media-offset is deliberately absent: the token
+     behind it is size-agnostic (one value per density), because every heading
+     slot's line-height is font-size + 8, so the half-leading is constant
+     across sizes. Density stays ambient via [data-density] on the token values
+     themselves (RFC 0009). */
+  .primitiv-empty-state--xs {
+    --primitiv-empty-state-gap: var(--primitiv-empty-state-xs-gap);
+    --primitiv-empty-state-text-gap: var(--primitiv-empty-state-xs-text-gap);
+    --primitiv-empty-state-actions-gap: var(--primitiv-framed-control-xs-gap);
+    --primitiv-empty-state-max-inline-size: var(--primitiv-empty-state-xs-max-inline-size);
+    --primitiv-empty-state-media-size: var(--primitiv-empty-state-xs-media-size);
+    --primitiv-empty-state-title-font-family: var(--primitiv-heading-h6-font-family);
+    --primitiv-empty-state-title-font-size: var(--primitiv-heading-h6-font-size);
+    --primitiv-empty-state-title-font-weight: var(--primitiv-heading-h6-font-weight);
+    --primitiv-empty-state-title-line-height: var(--primitiv-heading-h6-line-height);
+    --primitiv-empty-state-description-font-family: var(--primitiv-body-xs-font-family);
+    --primitiv-empty-state-description-font-size: var(--primitiv-body-xs-font-size);
+    --primitiv-empty-state-description-font-weight: var(--primitiv-body-xs-font-weight);
+    --primitiv-empty-state-description-line-height: var(--primitiv-body-xs-line-height);
+  }
+
+  .primitiv-empty-state--sm {
+    --primitiv-empty-state-gap: var(--primitiv-empty-state-sm-gap);
+    --primitiv-empty-state-text-gap: var(--primitiv-empty-state-sm-text-gap);
+    --primitiv-empty-state-actions-gap: var(--primitiv-framed-control-sm-gap);
+    --primitiv-empty-state-max-inline-size: var(--primitiv-empty-state-sm-max-inline-size);
+    --primitiv-empty-state-media-size: var(--primitiv-empty-state-sm-media-size);
+    --primitiv-empty-state-title-font-family: var(--primitiv-heading-h5-font-family);
+    --primitiv-empty-state-title-font-size: var(--primitiv-heading-h5-font-size);
+    --primitiv-empty-state-title-font-weight: var(--primitiv-heading-h5-font-weight);
+    --primitiv-empty-state-title-line-height: var(--primitiv-heading-h5-line-height);
+    --primitiv-empty-state-description-font-family: var(--primitiv-body-sm-font-family);
+    --primitiv-empty-state-description-font-size: var(--primitiv-body-sm-font-size);
+    --primitiv-empty-state-description-font-weight: var(--primitiv-body-sm-font-weight);
+    --primitiv-empty-state-description-line-height: var(--primitiv-body-sm-line-height);
+  }
+
+  .primitiv-empty-state--md {
+    --primitiv-empty-state-gap: var(--primitiv-empty-state-md-gap);
+    --primitiv-empty-state-text-gap: var(--primitiv-empty-state-md-text-gap);
+    --primitiv-empty-state-actions-gap: var(--primitiv-framed-control-md-gap);
+    --primitiv-empty-state-max-inline-size: var(--primitiv-empty-state-md-max-inline-size);
+    --primitiv-empty-state-media-size: var(--primitiv-empty-state-md-media-size);
+    --primitiv-empty-state-title-font-family: var(--primitiv-heading-h4-font-family);
+    --primitiv-empty-state-title-font-size: var(--primitiv-heading-h4-font-size);
+    --primitiv-empty-state-title-font-weight: var(--primitiv-heading-h4-font-weight);
+    --primitiv-empty-state-title-line-height: var(--primitiv-heading-h4-line-height);
+    --primitiv-empty-state-description-font-family: var(--primitiv-body-md-font-family);
+    --primitiv-empty-state-description-font-size: var(--primitiv-body-md-font-size);
+    --primitiv-empty-state-description-font-weight: var(--primitiv-body-md-font-weight);
+    --primitiv-empty-state-description-line-height: var(--primitiv-body-md-line-height);
+  }
+
+  .primitiv-empty-state--lg {
+    --primitiv-empty-state-gap: var(--primitiv-empty-state-lg-gap);
+    --primitiv-empty-state-text-gap: var(--primitiv-empty-state-lg-text-gap);
+    --primitiv-empty-state-actions-gap: var(--primitiv-framed-control-lg-gap);
+    --primitiv-empty-state-max-inline-size: var(--primitiv-empty-state-lg-max-inline-size);
+    --primitiv-empty-state-media-size: var(--primitiv-empty-state-lg-media-size);
+    --primitiv-empty-state-title-font-family: var(--primitiv-heading-h3-font-family);
+    --primitiv-empty-state-title-font-size: var(--primitiv-heading-h3-font-size);
+    --primitiv-empty-state-title-font-weight: var(--primitiv-heading-h3-font-weight);
+    --primitiv-empty-state-title-line-height: var(--primitiv-heading-h3-line-height);
+    --primitiv-empty-state-description-font-family: var(--primitiv-body-lg-font-family);
+    --primitiv-empty-state-description-font-size: var(--primitiv-body-lg-font-size);
+    --primitiv-empty-state-description-font-weight: var(--primitiv-body-lg-font-weight);
+    --primitiv-empty-state-description-line-height: var(--primitiv-body-lg-line-height);
+  }
+
+  .primitiv-empty-state--xl {
+    --primitiv-empty-state-gap: var(--primitiv-empty-state-xl-gap);
+    --primitiv-empty-state-text-gap: var(--primitiv-empty-state-xl-text-gap);
+    --primitiv-empty-state-actions-gap: var(--primitiv-framed-control-xl-gap);
+    --primitiv-empty-state-max-inline-size: var(--primitiv-empty-state-xl-max-inline-size);
+    --primitiv-empty-state-media-size: var(--primitiv-empty-state-xl-media-size);
+    --primitiv-empty-state-title-font-family: var(--primitiv-heading-h2-font-family);
+    --primitiv-empty-state-title-font-size: var(--primitiv-heading-h2-font-size);
+    --primitiv-empty-state-title-font-weight: var(--primitiv-heading-h2-font-weight);
+    --primitiv-empty-state-title-line-height: var(--primitiv-heading-h2-line-height);
+    --primitiv-empty-state-description-font-family: var(--primitiv-body-xl-font-family);
+    --primitiv-empty-state-description-font-size: var(--primitiv-body-xl-font-size);
+    --primitiv-empty-state-description-font-weight: var(--primitiv-body-xl-font-weight);
+    --primitiv-empty-state-description-line-height: var(--primitiv-body-xl-line-height);
+  }
+}

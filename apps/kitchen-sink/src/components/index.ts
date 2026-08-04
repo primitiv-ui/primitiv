@@ -23,6 +23,7 @@ export * from "./description-list";
 export * from "./divider";
 export * from "./drawer";
 export * from "./dropdown";
+export * from "./empty-state";
 export * from "./field";
 export * from "./figure";
 export * from "./inline-code";

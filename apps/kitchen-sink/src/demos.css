@@ -406,3 +406,45 @@
   gap: 1.25rem;
   align-items: flex-start;
 }
+
+/* ── EmptyState demos ───────────────────────────────────────────────────── */
+/* The component deliberately carries no padding and centres itself in whatever
+   box it is given, so the demo has to supply the box — that IS the thing being
+   shown. The dashed border marks the region the empty state is filling. */
+.ks-empty-state-demos {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  inline-size: 100%;
+}
+
+.ks-empty-state-region {
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  border: 1px dashed var(--primitiv-border-default);
+  border-radius: var(--primitiv-radii-8);
+  background-color: var(--primitiv-surface-subtle);
+}
+
+/* Tall enough to show that the empty state centres in the space rather than
+   sitting at the top of it. */
+.ks-empty-state-region--tall {
+  min-block-size: 20rem;
+}
+
+/* A narrow region, so the horizontal orientation reads as the compact/inline
+   case it is meant for. */
+.ks-empty-state-region--inline {
+  place-items: stretch;
+  padding: 1.25rem;
+  min-block-size: 0;
+}
+
+.ks-empty-state-caption {
+  margin-block: 0 0.5rem;
+  font-family: var(--primitiv-body-sm-font-family);
+  font-size: var(--primitiv-body-sm-font-size);
+  line-height: var(--primitiv-body-sm-line-height);
+  color: var(--primitiv-content-muted);
+}

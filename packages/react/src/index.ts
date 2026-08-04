@@ -33,6 +33,7 @@ export * from "./SkipNav/index.ts";
 export * from "./Slider/index.ts";
 export { Slot } from "./Slot/index.ts";
 export type { SlotProps } from "./Slot/index.ts";
+export * from "./SplitButton/index.ts";
 export * from "./Status/index.ts";
 export * from "./Switch/index.ts";
 export * from "./Table/index.ts";

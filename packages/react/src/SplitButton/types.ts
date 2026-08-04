@@ -14,6 +14,7 @@ export type SplitButtonRootBaseProps = Omit<
 > & {
   children?: ReactNode;
   ref?: Ref<HTMLDivElement>;
+  asChild?: boolean;
   dir?: Direction;
   disabled?: boolean;
 };
@@ -50,6 +51,7 @@ export type SplitButtonContextValue = {
 export type SplitButtonActionProps = Omit<ComponentProps<"button">, "id"> & {
   children?: ReactNode;
   ref?: Ref<HTMLButtonElement>;
+  asChild?: boolean;
 };
 
 export type SplitButtonTriggerProps = Omit<DropdownTriggerProps, "id">;

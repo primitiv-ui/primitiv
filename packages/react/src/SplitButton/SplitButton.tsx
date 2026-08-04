@@ -3,7 +3,7 @@ import { useId, useMemo, type KeyboardEvent, type ReactElement } from "react";
 import { Dropdown } from "../Dropdown/index.ts";
 import { useDropdownContext } from "../Dropdown/hooks/index.ts";
 import type { DropdownRootProps } from "../Dropdown/types";
-import { composeEventHandlers } from "../Slot/index.ts";
+import { Slot, composeEventHandlers } from "../Slot/index.ts";
 import { deriveId } from "../utils/index.ts";
 import {
   SplitButtonProvider,
@@ -49,6 +49,7 @@ SplitButtonRoot.displayName = "SplitButtonRoot";
  * @internal
  */
 function SplitButtonFrame({
+  asChild = false,
   disabled,
   children,
   ref,
@@ -65,23 +66,28 @@ function SplitButtonFrame({
     [rootId, disabled],
   );
 
+  const frameProps = {
+    ...rest,
+    ref,
+    role: "group" as const,
+    "data-split-button": "",
+    "data-state": open ? ("open" as const) : ("closed" as const),
+    "data-disabled": disabled ? "" : undefined,
+  };
+
   return (
     <SplitButtonProvider value={contextValue}>
-      <div
-        {...rest}
-        ref={ref}
-        role="group"
-        data-split-button=""
-        data-state={open ? "open" : "closed"}
-        data-disabled={disabled ? "" : undefined}
-      >
-        {children}
-      </div>
+      {asChild ? (
+        <Slot {...frameProps}>{children}</Slot>
+      ) : (
+        <div {...frameProps}>{children}</div>
+      )}
     </SplitButtonProvider>
   );
 }
 
 export function SplitButtonAction({
+  asChild = false,
   children,
   disabled,
   onKeyDown,
@@ -98,17 +104,22 @@ export function SplitButtonAction({
     setOpen(true);
   };
 
+  const actionProps = {
+    ...rest,
+    ref,
+    id: actionId,
+    disabled: isDisabled,
+    onKeyDown: composeEventHandlers(onKeyDown, openMenu),
+    "data-disabled": isDisabled ? "" : undefined,
+    "data-split-button-action": "",
+  };
+
+  if (asChild) {
+    return <Slot {...actionProps}>{children}</Slot>;
+  }
+
   return (
-    <button
-      type="button"
-      {...rest}
-      ref={ref}
-      id={actionId}
-      disabled={isDisabled}
-      onKeyDown={composeEventHandlers(onKeyDown, openMenu)}
-      data-disabled={isDisabled ? "" : undefined}
-      data-split-button-action=""
-    >
+    <button type="button" {...actionProps}>
       {children}
     </button>
   );

@@ -166,12 +166,16 @@ fn add_all_resolves_every_embedded_component() {
         // no headless primitive of its own) + Card (hand-authored, composes no
         // primitive at all — structure and styling only) + BreadcrumbOverflow
         // (hand-authored, composes the registry Breadcrumb + Dropdown + Button —
-        // no headless primitive of its own beyond Breadcrumb.Ellipsis).
-        .stdout(predicate::str::contains("Resolved 52 components to add:"))
+        // no headless primitive of its own beyond Breadcrumb.Ellipsis) +
+        // EmptyState (hand-authored, composes the headless EmptyState compound
+        // — a compound registry surface because the primitive is a compound,
+        // unlike props-based alert/chip whose primitives are single elements).
+        .stdout(predicate::str::contains("Resolved 53 components to add:"))
         .stdout(predicate::str::contains("button"))
         .stdout(predicate::str::contains("card"))
         .stdout(predicate::str::contains("avatar-group"))
         .stdout(predicate::str::contains("breadcrumb-overflow"))
+        .stdout(predicate::str::contains("empty-state"))
         .stdout(predicate::str::contains("table"))
         .stdout(predicate::str::contains("divider"))
         .stdout(predicate::str::contains("prose"))

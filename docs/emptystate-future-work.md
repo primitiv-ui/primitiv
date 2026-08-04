@@ -1,9 +1,10 @@
 # EmptyState — Figma design, session handoff
 
-Status as of 2026-08-04 (second session): **headless compound done; tokens
-landed; Figma design landed.** What remains is the registry styling +
-kitchen-sink example, and the `tokens.css` regeneration that this sandbox
-cannot run.
+Status as of 2026-08-04 (second session): **headless compound, tokens, Figma
+design, registry surface and kitchen-sink example are all landed.** The only
+thing outstanding is the `tokens.css` regeneration this sandbox cannot run —
+which the kitchen-sink demo needs before it will render correctly. See
+"Remaining work".
 
 The previous session's Figma write-access blocker is **gone** — see
 "Blocker (resolved)" below before assuming anything about it.
@@ -90,7 +91,7 @@ visually and **held**:
 3. **Graduated gap rhythm** — correct. Section C shows the uniform-gap version
    for contrast, where the title visibly floats away from its own description.
 4. **Actions hug, not stretch, in a centred horizontal row regardless of
-   Direction** — correct. Verified across one, two and three actions (section D).
+   orientation** — correct. Verified across one, two and three actions (section D).
 
 Three further decisions were settled **this** session:
 
@@ -102,13 +103,13 @@ Three further decisions were settled **this** session:
    empty state is a centred full-region moment and wants headline type. Mapping:
    xs=h6 (20) · sm=h5 (24) · md=h4 (28) · lg=h3 (32) · xl=h2 (40). Exploration
    section F is the evidence, built as an (a)-vs-(b) comparison at md/lg/xl.
-6. **Direction=horizontal top-aligns the media against the title**, via the
+6. **Orientation=horizontal top-aligns the media against the title**, via the
    `Media Wrapper` + `media-offset-top` anatomy — Alert's optical-alignment
    model. (An earlier answer in this session chose centring against the whole
    body column; that was reversed on review of the render. Exploration section D's
    horizontal specimen has been updated to match, so the page is not
    self-contradictory.)
-7. **Direction defaults to `vertical`**, not horizontal as the first session's
+7. **Orientation defaults to `vertical`**, not horizontal as the first session's
    proposal had it. Vertical is the canonical empty state; horizontal is the
    compact/inline case. This was in the *proposed structure* section, not the
    settled-decisions list, so it was treated as a build judgment.
@@ -117,7 +118,13 @@ Three further decisions were settled **this** session:
 
 Page **"EmptyState"**, positioned directly after "Alert" in the
 `---- FEEDBACK & STATUS ----` group. Component set **`1523:889`**, 10 variants
-(Direction vertical|horizontal × Size xs–xl), arranged as a labelled grid.
+(Orientation vertical|horizontal × Size xs–xl), arranged as a labelled grid.
+
+The axis is **`Orientation`, not `Direction`** — renamed during the registry
+build, because this system already uses `Direction` for ltr|rtl (Avatar Group)
+and `Orientation` for a layout axis (Divider, Slider, Tabs). Renaming it in
+Figma removed the drift rather than documenting it, so the Figma axis and the
+registry prop now match exactly.
 
 **Built md-first** — the md variants were created before the other sizes, so the
 Size dropdown genuinely lists md first. This is the ordering Collapsible and
@@ -190,6 +197,59 @@ record behind the decisions above.
   beside the binding and the literal is what renders (the same trap recorded
   against the NavigationMenu build).
 
+## Registry — landed
+
+`registry/components/empty-state/` — hand-authored, six files, registered in
+`registry/registry.json`, `crates/primitiv-cli/src/ports/registry.rs` and
+`crates/primitiv-cli/tests/cli.rs` (roster count 52 → 53).
+
+**The Actions question is settled: (b).** The consumer composes real registry
+`Button`s as children of `EmptyStateActions`; there is no "Action Button"
+alias, and `empty-state` declares **no** `dependsOn.components` at all, so
+installing it does not drag `button` in. The Figma slot's `preferredValues`
+already pointed at the Button set, which matches.
+
+**The API is a compound of five parts, not props.** A first pass built it
+props-based (`media`/`title`/`description`/`actions`) like `alert`, which was
+wrong and was called out on review. The rule is that **the registry surface
+mirrors the headless surface's shape**: `alert` and `chip` take props because
+their headless primitive is a *single element*, whereas every compound
+primitive (Accordion, Tabs, Modal, Dropdown, Card) has a compound registry
+surface. `EmptyState`'s headless is a five-part compound, so the registry
+exports `EmptyState` + `EmptyStateMedia` / `Title` / `Description` / `Actions`,
+each a thin class-applying pass-through. That restores what a props API
+quietly forbids: `<EmptyStateTitle asChild><h2>` to fix the heading level,
+putting your own element between the description and the actions, reordering
+parts, or dropping the title.
+
+Only `orientation` and `size` remain as props — they are the recipe's
+modifiers.
+
+Two layout problems had to move from the DOM into CSS once the wrappers were
+gone (the props version had used `__body`/`__text` frames mirroring Figma):
+
+- **The graduated gap rhythm** is now the flex `gap` set to the *tight*
+  `-text-gap`, with the two wide seams (`media + *`, and `__actions`) adding
+  the remainder back as a `margin-block-start`. Both selectors set the same
+  property, so a media followed directly by the actions gets one wide seam, not
+  two — and the rhythm survives any subset or order of parts.
+- **`horizontal`** takes the media *out of flow*, absolutely positioned into an
+  inline-start gutter reserved by `padding-inline-start` on the root and gated
+  by `:has()` so a media-less horizontal state isn't indented. This was chosen
+  over a two-column grid with a row-spanning media specifically because
+  `grid-row: 1 / -1` only spans the *explicit* grid, and a media taller than
+  the text column would otherwise inflate the title/description seam.
+
+One real bug the contract caught: the knob was first named
+`--primitiv-empty-state-media-offset-top`, identical to the Context token it
+defaults to, which is a self-referential `var()` cycle. It is
+`--primitiv-empty-state-media-offset` now — the same distinct-knob-name fix
+`toggle-group` uses (`-track-inset` over the `track-padding` token). A scan
+confirmed this was the only self-reference in the whole registry.
+
+`text-box-trim` needed no attention: it lives on the registry Button's own
+label, and nothing here re-wraps it.
+
 ## Remaining work
 
 1. **Regenerate `tokens.css`** — `cargo` cannot run in this sandbox, so
@@ -201,27 +261,20 @@ record behind the decisions above.
      --out apps/kitchen-sink/src/styles/primitiv/tokens.css
    ```
    Expect only new `--primitiv-empty-state-*` lines in the diff.
-2. **Registry styling + kitchen-sink example.** Decide the deferred Actions-slot
-   question below during this stage, and verify `text-box-trim` still works on
-   whatever renders the action labels (same class of bug already fixed once on
-   Avatar's fallback label).
+2. **Visual verification of the kitchen-sink demo** — blocked on step 1. Until
+   `tokens.css` carries `--primitiv-empty-state-*`, the demo renders with no
+   gaps, no media box and no measure cap, because every knob resolves to an
+   undefined custom property. This is the one thing a human needs to eyeball
+   once the token layer is regenerated.
 3. **Figma example specimens** (light/dark, size × density) on the EmptyState
    page — deferred and non-blocking, same posture as Collapsible's.
-4. Once EmptyState is fully done per CLAUDE.md's definition of done (test,
-   JSDoc, README, `packages/react/README.md` table row, kitchen-sink example,
-   roadmap tick) — **then** MillerColumns. Discuss process at that point; do not
+4. Once verified — **then** MillerColumns. Discuss process at that point; do not
    start it speculatively.
 
-## Registry-phase open question (still open)
-
-For the `Actions` slot, two options, unchanged from the first session:
-
-- (a) re-export the registry Button as an aliased "Action Button"
-- (b) let the consumer compose the real registry Button directly as children
-  (no wrapper) — **still the leaning choice**, since Actions holds arbitrary,
-  open-ended controls unlike ConfirmDialog's fixed Confirm/Cancel pair, similar
-  to how Card's Footer treats its buttons. The Figma slot's `preferredValues`
-  points at the Button set, which matches (b).
+Everything else in CLAUDE.md's definition of done is already in place: the
+headless tests/JSDoc/README, the `packages/react/README.md` table row (it was
+already there), the component README, the kitchen-sink example, and the
+`ROADMAP.md` row (now `✓ ✓ ✓ ✓`).
 
 ## Reference IDs (Primitiv Design System file)
 

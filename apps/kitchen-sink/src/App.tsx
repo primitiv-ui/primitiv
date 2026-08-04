@@ -91,6 +91,11 @@ import {
   DropdownSub,
   DropdownSubTrigger,
   DropdownSubContent,
+  EmptyState,
+  EmptyStateMedia,
+  EmptyStateTitle,
+  EmptyStateDescription,
+  EmptyStateActions,
   Field,
   FieldLabel,
   FieldDescription,
@@ -433,7 +438,7 @@ const PAGE_TOC: { category: string; titles: string[] }[] = [
     category: "Overlays",
     titles: ["Confirm Dialog", "Context Menu", "Drawer", "Dropdown", "Modal", "Popover", "Tooltip"],
   },
-  { category: "Feedback & Status", titles: ["Alert", "Progress"] },
+  { category: "Feedback & Status", titles: ["Alert", "Empty State", "Progress"] },
   {
     category: "Disclosure",
     titles: ["Accordion", "Breadcrumb", "Breadcrumb Overflow", "Collapsible", "Tabs"],
@@ -1084,6 +1089,79 @@ primitiv add --all`}</code>
             Dismiss me — the dismiss button is a real Button ghost instance.
           </Alert>
         )}
+      </Section>
+
+      {/* A compound of parts, not a props API — the registry surface mirrors the
+          headless compound's shape. That is what lets the third demo promote its
+          title to a real <h3> via asChild, which a `title` prop could not.
+          The component carries no padding and centres itself in the box it is
+          given, so each demo supplies the dashed region it fills. */}
+      <Section title="Empty State" column>
+        <div className="ks-empty-state-demos">
+          <div>
+            <p className="ks-empty-state-caption">
+              vertical (default) — fills and centres in the region; the description
+              holds its measure instead of stretching to the full width
+            </p>
+            <div className="ks-empty-state-region ks-empty-state-region--tall">
+              <EmptyState size={size}>
+                <EmptyStateMedia>
+                  <Search />
+                </EmptyStateMedia>
+                <EmptyStateTitle>No results found</EmptyStateTitle>
+                <EmptyStateDescription>
+                  We could not find anything matching your search. Try adjusting
+                  your filters or using different keywords.
+                </EmptyStateDescription>
+                <EmptyStateActions>
+                  <Button size={size} onClick={() => undefined}>
+                    Clear filters
+                  </Button>
+                  <Button size={size} variant="secondary" onClick={() => undefined}>
+                    Browse all
+                  </Button>
+                </EmptyStateActions>
+              </EmptyState>
+            </div>
+          </div>
+
+          <div>
+            <p className="ks-empty-state-caption">
+              horizontal — the media sits in a gutter beside the text, optically
+              top-aligned to the title's cap-height rather than centred on the block
+            </p>
+            <div className="ks-empty-state-region ks-empty-state-region--inline">
+              <EmptyState size={size} orientation="horizontal">
+                <EmptyStateMedia>
+                  <Folder />
+                </EmptyStateMedia>
+                <EmptyStateTitle>This folder is empty</EmptyStateTitle>
+                <EmptyStateDescription>
+                  Drag files here, or upload them from your device.
+                </EmptyStateDescription>
+                <EmptyStateActions>
+                  <Button size={size} variant="secondary" onClick={() => undefined}>
+                    Upload files
+                  </Button>
+                </EmptyStateActions>
+              </EmptyState>
+            </div>
+          </div>
+
+          <div>
+            <p className="ks-empty-state-caption">
+              minimal — title only, promoted to a real heading with asChild, and
+              role={"{undefined}"} because a static empty state has nothing to announce
+            </p>
+            <div className="ks-empty-state-region ks-empty-state-region--inline">
+              <EmptyState size={size} role={undefined}>
+                <EmptyStateTitle asChild>
+                  <h3>No messages</h3>
+                </EmptyStateTitle>
+              </EmptyState>
+            </div>
+          </div>
+        </div>
       </Section>
 
       {/* Root is a fixed-size clipping frame; only one of Image/Fallback is ever

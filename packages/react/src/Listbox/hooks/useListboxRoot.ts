@@ -17,6 +17,7 @@ type UseListboxRootArgs = {
   defaultValue: string | undefined;
   value: string | undefined;
   onValueChange: ((value: string) => void) | undefined;
+  selectionFollowsFocus: boolean;
 };
 
 /**
@@ -36,6 +37,7 @@ export function useListboxRoot({
   defaultValue,
   value: controlledValue,
   onValueChange,
+  selectionFollowsFocus,
 }: UseListboxRootArgs): {
   selectedValues: string[];
   select: (optionValue: string) => void;
@@ -110,6 +112,7 @@ export function useListboxRoot({
         return;
       }
       moveCursor(target);
+      if (selectionFollowsFocus) select(target);
     },
   });
 

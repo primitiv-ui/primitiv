@@ -11,6 +11,7 @@ export function ListboxRoot({
   defaultValue,
   value: controlledValue,
   onValueChange,
+  selectionFollowsFocus = false,
   onFocus,
   onBlur,
   onKeyDown,
@@ -31,6 +32,7 @@ export function ListboxRoot({
     defaultValue,
     value: controlledValue,
     onValueChange,
+    selectionFollowsFocus,
   });
 
   const contextValue = useMemo(

@@ -8,6 +8,9 @@ export type ListboxRootBaseProps = Omit<
   HTMLAttributes<HTMLDivElement>,
   "defaultValue"
 > & {
+  /** When `true`, moving the cursor with the arrow / Home / End keys also
+   * selects the option it lands on. */
+  selectionFollowsFocus?: boolean;
   /** The {@link ListboxOptionProps | `Listbox.Option`} elements that make up
    * the list. */
   children?: ReactNode;

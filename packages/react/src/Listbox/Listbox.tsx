@@ -13,6 +13,7 @@ export function ListboxRoot({
   onValueChange,
   onFocus,
   onBlur,
+  onKeyDown,
   children,
   ref,
   ...rest
@@ -25,6 +26,7 @@ export function ListboxRoot({
     getOptionId,
     seedActiveValue,
     clearActiveValue,
+    handleKeyDown,
   } = useListboxRoot({
     defaultValue,
     value: controlledValue,
@@ -48,6 +50,7 @@ export function ListboxRoot({
         }
         onFocus={composeEventHandlers(onFocus, seedActiveValue)}
         onBlur={composeEventHandlers(onBlur, clearActiveValue)}
+        onKeyDown={composeEventHandlers(onKeyDown, handleKeyDown)}
       >
         {children}
       </div>

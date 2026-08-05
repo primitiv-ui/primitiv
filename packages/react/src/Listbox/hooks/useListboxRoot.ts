@@ -1,6 +1,16 @@
-import { useCallback, useId, useMemo, useState } from "react";
+import {
+  useCallback,
+  useId,
+  useMemo,
+  useState,
+  type KeyboardEvent,
+} from "react";
 
-import { useCollection, useControllableState } from "../../hooks/index.ts";
+import {
+  useCollection,
+  useControllableState,
+  useRovingTabindex,
+} from "../../hooks/index.ts";
 import { deriveId } from "../../utils/index.ts";
 
 type UseListboxRootArgs = {
@@ -17,6 +27,10 @@ type UseListboxRootArgs = {
  * `aria-activedescendant` points at — real DOM focus stays on the root, so
  * the cursor is seeded when the root takes focus and cleared when it loses
  * it.
+ *
+ * `useRovingTabindex` supplies the keymap only. No `tabIndex` is moved
+ * between options: the root is the single tab stop, and navigation just
+ * repoints the cursor.
  */
 export function useListboxRoot({
   defaultValue,
@@ -30,6 +44,7 @@ export function useListboxRoot({
   getOptionId: (optionValue: string) => string;
   seedActiveValue: () => void;
   clearActiveValue: () => void;
+  handleKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
 } {
   const rootId = useId();
   const [value, setValue] = useControllableState<string>(
@@ -38,10 +53,11 @@ export function useListboxRoot({
     onValueChange,
   );
   const [activeValue, setActiveValue] = useState<string | undefined>(undefined);
-  const { register: registerOption, keys: optionValues } = useCollection<
-    string,
-    HTMLElement
-  >();
+  const {
+    register: registerOption,
+    itemsRef,
+    keys: optionValues,
+  } = useCollection<string, HTMLElement>();
 
   const selectedValues = useMemo(
     () => (value === undefined ? [] : [value]),
@@ -60,6 +76,15 @@ export function useListboxRoot({
     [rootId],
   );
 
+  // APG: when the referenced option is not fully visible, scroll it into view.
+  const moveCursor = useCallback(
+    (optionValue: string) => {
+      setActiveValue(optionValue);
+      itemsRef.current.get(optionValue)?.scrollIntoView({ block: "nearest" });
+    },
+    [itemsRef],
+  );
+
   // APG: when the listbox receives focus, the first selected option takes
   // the cursor; with nothing selected, the first option does.
   const seedActiveValue = useCallback(() => {
@@ -73,6 +98,21 @@ export function useListboxRoot({
 
   const clearActiveValue = useCallback(() => setActiveValue(undefined), []);
 
+  const { handleKeyDown } = useRovingTabindex<string>({
+    orientation: "vertical",
+    navigable: optionValues,
+    currentKey: activeValue ?? "",
+    includeHomeEnd: true,
+    includeActivate: true,
+    onNavigate: (target, action) => {
+      if (action === "activate") {
+        select(target);
+        return;
+      }
+      moveCursor(target);
+    },
+  });
+
   return {
     selectedValues,
     select,
@@ -81,5 +121,6 @@ export function useListboxRoot({
     getOptionId,
     seedActiveValue,
     clearActiveValue,
+    handleKeyDown,
   };
 }

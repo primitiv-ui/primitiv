@@ -55,4 +55,7 @@ export type ListboxOptionProps = HTMLAttributes<HTMLDivElement> & {
 export type ListboxContextValue = {
   selectedValues: string[];
   select: (optionValue: string) => void;
+  activeValue: string | undefined;
+  registerOption: (optionValue: string, element: HTMLElement | null) => void;
+  getOptionId: (optionValue: string) => string;
 };

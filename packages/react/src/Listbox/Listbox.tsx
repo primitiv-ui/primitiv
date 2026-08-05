@@ -1,6 +1,6 @@
-import { useMemo, type ReactElement } from "react";
+import { useEffect, useMemo, useRef, type ReactElement } from "react";
 
-import { composeEventHandlers } from "../Slot/index.ts";
+import { composeEventHandlers, composeRefs } from "../Slot/index.ts";
 
 import { ListboxProvider, useListboxContext } from "./ListboxContext";
 import { useListboxRoot } from "./hooks/index.ts";
@@ -11,24 +11,44 @@ export function ListboxRoot({
   defaultValue,
   value: controlledValue,
   onValueChange,
+  onFocus,
+  onBlur,
   children,
   ref,
   ...rest
 }: ListboxRootProps): ReactElement {
-  const { selectedValues, select } = useListboxRoot({
+  const {
+    selectedValues,
+    select,
+    activeValue,
+    registerOption,
+    getOptionId,
+    seedActiveValue,
+    clearActiveValue,
+  } = useListboxRoot({
     defaultValue,
     value: controlledValue,
     onValueChange,
   });
 
   const contextValue = useMemo(
-    () => ({ selectedValues, select }),
-    [selectedValues, select],
+    () => ({ selectedValues, select, activeValue, registerOption, getOptionId }),
+    [selectedValues, select, activeValue, registerOption, getOptionId],
   );
 
   return (
     <ListboxProvider value={contextValue}>
-      <div {...rest} ref={ref} role="listbox">
+      <div
+        {...rest}
+        ref={ref}
+        role="listbox"
+        tabIndex={0}
+        aria-activedescendant={
+          activeValue === undefined ? undefined : getOptionId(activeValue)
+        }
+        onFocus={composeEventHandlers(onFocus, seedActiveValue)}
+        onBlur={composeEventHandlers(onBlur, clearActiveValue)}
+      >
         {children}
       </div>
     </ListboxProvider>
@@ -42,15 +62,26 @@ export function ListboxOption({
   ref,
   ...rest
 }: ListboxOptionProps): ReactElement {
-  const { selectedValues, select } = useListboxContext();
+  const { selectedValues, select, activeValue, registerOption, getOptionId } =
+    useListboxContext();
   const selected = selectedValues.includes(value);
+
+  const localRef = useRef<HTMLDivElement | null>(null);
+  const setRef = useMemo(() => composeRefs(localRef, ref), [ref]);
+
+  useEffect(() => {
+    registerOption(value, localRef.current);
+    return () => registerOption(value, null);
+  }, [value, registerOption]);
 
   return (
     <div
       {...rest}
-      ref={ref}
+      ref={setRef}
+      id={getOptionId(value)}
       role="option"
       aria-selected={selected}
+      data-highlighted={activeValue === value ? "" : undefined}
       onClick={composeEventHandlers(onClick, () => select(value))}
     >
       {children}

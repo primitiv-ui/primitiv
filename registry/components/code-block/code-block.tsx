@@ -299,13 +299,14 @@ export type CodeBlockTriggerProps = ComponentPropsWithRef<typeof TabsPrimitive.T
 /* Wrap bare text in the label span so `text-box-trim` can be honoured, mirroring
    the styled Tabs component's trigger. */
 function wrapTriggerLabel(children: ReactNode): ReactNode {
-  return Children.map(children, (child) =>
+  const mapped = Children.map(children, (child) =>
     typeof child === "string" || typeof child === "number" ? (
       <span className="primitiv-tabs__trigger-label">{child}</span>
     ) : (
       child
     ),
   );
+  return Array.isArray(mapped) && mapped.length === 1 ? mapped[0] : mapped;
 }
 
 /** A tab of the tabbed form. Wraps the headless `Tabs.Trigger` with the Tabs

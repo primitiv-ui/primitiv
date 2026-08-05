@@ -45,11 +45,12 @@ export function SegmentedControl({ size, justify, className, ...props }: Segment
 export type SegmentedControlItemProps = ComponentPropsWithRef<typeof SegmentedControlPrimitive.Item>;
 
 function wrapSegmentedControlItemTextNodes(children: ReactNode): ReactNode {
-  return Children.map(children, (child) =>
+  const mapped = Children.map(children, (child) =>
     typeof child === "string" || typeof child === "number"
       ? <span className="primitiv-segmented-control__item-label">{child}</span>
       : child,
   );
+  return Array.isArray(mapped) && mapped.length === 1 ? mapped[0] : mapped;
 }
 
 export function SegmentedControlItem({ className, children, ...props }: SegmentedControlItemProps) {

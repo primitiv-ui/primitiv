@@ -46,11 +46,12 @@ export function ToggleGroup({ size, justify, className, ...props }: ToggleGroupP
 export type ToggleGroupItemProps = ComponentPropsWithRef<typeof ToggleGroupPrimitive.Item>;
 
 function wrapToggleGroupItemTextNodes(children: ReactNode): ReactNode {
-  return Children.map(children, (child) =>
+  const mapped = Children.map(children, (child) =>
     typeof child === "string" || typeof child === "number"
       ? <span className="primitiv-toggle-group__item-label">{child}</span>
       : child,
   );
+  return Array.isArray(mapped) && mapped.length === 1 ? mapped[0] : mapped;
 }
 
 export function ToggleGroupItem({ className, children, ...props }: ToggleGroupItemProps) {

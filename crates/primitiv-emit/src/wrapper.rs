@@ -312,16 +312,23 @@ fn emit_distributive_omit_helper(out: &mut String, contract: &Contract) {
 /// The `wrapTextNodes` helper for a text-wrapping single-element wrapper: it maps
 /// string/number children into a `…__label` span (so `text-box-trim` sits on the
 /// label, not the flex box) and passes element children — icons — through
-/// untouched, leaving the icon↔label gap intact.
+/// untouched, leaving the icon↔label gap intact. `Children.map` always returns
+/// an array, even for one child, which breaks `asChild`'s `Slot` — a `Slot`
+/// requires exactly one element child, and an array-of-one is not one child as
+/// far as `Children.only` is concerned. Unwrapping the single-child case back to
+/// a bare node (rather than a length-1 array) keeps both paths working: a plain
+/// `<Button>Text</Button>` still gets its label span, and
+/// `<Button asChild><a>Text</a></Button>` still hands `Slot` a single element.
 fn emit_wrap_text_helper(out: &mut String, root_class: &str) {
     out.push_str("function wrapTextNodes(children: ReactNode): ReactNode {\n");
-    out.push_str("  return Children.map(children, (child) =>\n");
+    out.push_str("  const mapped = Children.map(children, (child) =>\n");
     out.push_str("    typeof child === \"string\" || typeof child === \"number\"\n");
     out.push_str(&format!(
         "      ? <span className=\"{root_class}__label\">{{child}}</span>\n"
     ));
     out.push_str("      : child,\n");
     out.push_str("  );\n");
+    out.push_str("  return Array.isArray(mapped) && mapped.length === 1 ? mapped[0] : mapped;\n");
     out.push_str("}\n\n");
 }
 
@@ -429,21 +436,23 @@ fn emit_part_function(
 }
 
 /// The `wrap{Sub}TextNodes` helper for a text-wrapping structural subcomponent:
-/// mirrors [`emit_wrap_text_helper`] but is named per subcomponent so multiple
-/// structural parts can each opt in without colliding, and wraps into a
-/// `{sub_class}-label` span (a BEM element already ends in `__part`, so `-label`
-/// reads as a sibling qualifier rather than nesting another `__`).
+/// mirrors [`emit_wrap_text_helper`] — including the single-child array unwrap,
+/// for the same `asChild`/`Slot` reason — but is named per subcomponent so
+/// multiple structural parts can each opt in without colliding, and wraps into
+/// a `{sub_class}-label` span (a BEM element already ends in `__part`, so
+/// `-label` reads as a sibling qualifier rather than nesting another `__`).
 fn emit_structural_wrap_text_helper(out: &mut String, sub_pascal: &str, sub_class: &str) {
     out.push_str(&format!(
         "function wrap{sub_pascal}TextNodes(children: ReactNode): ReactNode {{\n"
     ));
-    out.push_str("  return Children.map(children, (child) =>\n");
+    out.push_str("  const mapped = Children.map(children, (child) =>\n");
     out.push_str("    typeof child === \"string\" || typeof child === \"number\"\n");
     out.push_str(&format!(
         "      ? <span className=\"{sub_class}-label\">{{child}}</span>\n"
     ));
     out.push_str("      : child,\n");
     out.push_str("  );\n");
+    out.push_str("  return Array.isArray(mapped) && mapped.length === 1 ? mapped[0] : mapped;\n");
     out.push_str("}\n\n");
 }
 

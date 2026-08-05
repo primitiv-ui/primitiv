@@ -115,6 +115,25 @@ export function useListboxRoot({
     [type, selectedValues, setSelectedValues, onValueChange],
   );
 
+  // Bulk selection writes. Multiple-mode only: single mode's onValueChange
+  // takes a string, and none of the range shortcuts apply to it.
+  const commitSelection = useCallback(
+    (next: string[]) => {
+      setSelectedValues(next);
+      (onValueChange as ((value: string[]) => void) | undefined)?.(next);
+    },
+    [setSelectedValues, onValueChange],
+  );
+
+  // APG: Ctrl+A selects all, or deselects if everything is already selected.
+  // Disabled options are not selectable, so they are not part of "all".
+  const toggleSelectAll = useCallback(() => {
+    const allSelected =
+      enabledValues.length > 0 &&
+      enabledValues.every((key) => selectedValues.includes(key));
+    commitSelection(allSelected ? [] : enabledValues);
+  }, [enabledValues, selectedValues, commitSelection]);
+
   const getOptionId = useCallback(
     (optionValue: string) => deriveId(rootId, "option", optionValue),
     [rootId],
@@ -190,16 +209,25 @@ export function useListboxRoot({
   // typeahead (and Space, which activates, never does).
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLElement>) => {
-      // Chorded shortcuts belong to the browser and the consumer: Ctrl/Cmd+A
-      // is select-all, and APG's rearrangeable example binds Alt+Arrow to its
-      // toolbar. Only Shift is ours, for range selection.
-      if (event.ctrlKey || event.metaKey || event.altKey) return;
+      const chord = event.ctrlKey || event.metaKey;
+
+      if (chord && !event.altKey && event.key.toLowerCase() === "a") {
+        if (type !== "multiple") return;
+        event.preventDefault();
+        toggleSelectAll();
+        return;
+      }
+
+      // Every other chorded shortcut belongs to the browser and the consumer —
+      // APG's rearrangeable example binds Alt+Arrow to its toolbar. Only Shift
+      // is ours, for range selection.
+      if (chord || event.altKey) return;
 
       handleRovingKeyDown(event);
       if (event.defaultPrevented) return;
       handleTypeahead(event);
     },
-    [handleRovingKeyDown, handleTypeahead],
+    [type, toggleSelectAll, handleRovingKeyDown, handleTypeahead],
   );
 
   return {

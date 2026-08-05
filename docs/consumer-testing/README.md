@@ -38,6 +38,21 @@ scaffold it).
   the site was built), synthesising the agent's own `NOTES.md`, the
   screenshots it took, and the built site itself.
 
+## Live operational copy
+
+Everything here is mirrored at
+[`github.com/simonrevill/primitiv-consumer-testing`](https://github.com/simonrevill/primitiv-consumer-testing)
+(RFC 0026 §18) — the repo a bare, repo-free run session actually attaches
+to (Profile B's fixture, plus any run's `runs/<profile>-<date>/` output:
+the built site, `NOTES.md`, screenshots, and the reviewer's filled
+`report-template.md`).
+
+**This folder is the source of truth, not that repo.** Edit `brief.md` /
+the profile addenda / `report-template.md` here first — they're versioned
+alongside this RFC and reviewed the same way any other change in this repo
+is — then re-push the updated copy to the scratch repo. Don't edit the
+scratch repo's copy directly; it'll drift silently otherwise.
+
 ## Why the split
 
 `brief.md` asks the building agent to keep an informal `NOTES.md` as

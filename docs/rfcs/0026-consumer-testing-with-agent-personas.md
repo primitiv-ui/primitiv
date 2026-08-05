@@ -559,3 +559,37 @@ split explicitly so it doesn't drift back the other way.
 
 Not yet done: no run has actually happened. §13's next step is executing
 Profile A as the dry run.
+
+## 18. Build outcome — scratch artifact repo provisioned
+
+The §14/§16 scratch repo is live: `simonrevill/primitiv-consumer-testing`
+(personal account, per the operator's choice — a `primitiv-ui`-org repo
+was the discussed alternative if this hadn't worked out, see below). It
+holds a seeded copy of everything under this repo's `docs/consumer-testing/`
+(brief, profile addenda, report template, the Profile B fixture) and is
+where each run's `runs/<profile>-<date>/` output — the builder's finished
+site, `NOTES.md`, screenshots, and the reviewer's filled `report-template.md`
+— will land.
+
+**Source-of-truth convention, to avoid the two copies drifting apart:**
+`docs/consumer-testing/` in *this* repo is canonical — it's versioned
+alongside this RFC and reviewed the same way any other change here is.
+The scratch repo is the operational copy a bare session actually attaches
+to; it is not where `brief.md`/the addenda/the report template get edited.
+Change the brief materials here first, then re-push the updated copy to
+the scratch repo, mirroring the code-first-then-sync pattern this repo
+already uses elsewhere (see the `figma-bridge-token-sync` skill for the
+same shape of rule applied to tokens).
+
+**One tooling quirk worth recording, not a design problem:** `add_repo`
+against `simonrevill/primitiv-consumer-testing` failed repeatedly from
+*this* long-running session (six attempts, including after the repo had
+real content pushed, ruling out "empty repo" and "GitHub App installation"
+as causes) but succeeded immediately from a fresh session — the same kind
+every real builder/reviewer run will be. This session's GitHub scope
+appears to have been pinned at creation and can't be widened after the
+fact; it doesn't reflect anything about the target repo or account, and
+doesn't affect §14's plan. Worth knowing if this resurfaces: don't assume
+a repo-attachment failure in a long-running session generalises to fresh
+ones — verify in a fresh session before concluding the repo itself is the
+problem.

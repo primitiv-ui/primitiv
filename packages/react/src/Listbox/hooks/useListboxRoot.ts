@@ -170,9 +170,11 @@ export function useListboxRoot({
     },
   });
 
+  // `optionValue` is always drawn from `navigable` (the enabled subset of the
+  // registered keys), and useCollection writes `itemsRef` and the keys state
+  // together — so the entry, and an element with textContent, always exist.
   const getLabel = useCallback(
-    (optionValue: string) =>
-      itemsRef.current.get(optionValue)?.element.textContent ?? "",
+    (optionValue: string) => itemsRef.current.get(optionValue)!.element.textContent!,
     [itemsRef],
   );
 

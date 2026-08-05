@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { Listbox } from "../Listbox";
+import { TYPEAHEAD_RESET_MS } from "../constants";
 
 import { typeaheadOptions } from "./Listbox.fixtures";
 
@@ -88,5 +89,35 @@ describe("Listbox typeahead", () => {
     await user.keyboard("b");
 
     cursorIsOn("Blueberry");
+  });
+});
+
+/**
+ * The accumulation window is real elapsed time. userEvent + fake timers
+ * deadlocks in this repo (RTL's asyncWrapper drives fake clocks through a
+ * global `jest`, which vitest does not define), so this waits on the real
+ * clock rather than reaching for fireEvent. The timer callback only clears a
+ * ref, so nothing lands outside act.
+ */
+describe("Listbox typeahead reset window", () => {
+  it("starts a fresh query once the accumulation window lapses", async () => {
+    const user = userEvent.setup();
+    renderListbox();
+
+    await user.tab();
+
+    // A two-character query narrows in place onto the only "av…" match.
+    await user.keyboard("av");
+    cursorIsOn("Avocado");
+
+    await new Promise((resolve) =>
+      setTimeout(resolve, TYPEAHEAD_RESET_MS + 100),
+    );
+
+    // With the buffer cleared this is a fresh single "a", which advances past
+    // Avocado and wraps to Apple. Had "av" survived, "ava" would match nothing
+    // and the cursor would not move.
+    await user.keyboard("a");
+    cursorIsOn("Apple");
   });
 });

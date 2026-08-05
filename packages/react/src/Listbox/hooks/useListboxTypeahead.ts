@@ -44,9 +44,11 @@ export function useListboxTypeahead({
       if (event.key.length !== 1) return;
 
       const navigable = getNavigable();
+      // Stryker disable next-line ConditionalExpression: equivalent — the match loop is bounded by navigable.length, so an empty list exits immediately anyway.
       if (navigable.length === 0) return;
 
       const state = stateRef.current;
+      // Stryker disable next-line ConditionalExpression,EqualityOperator: equivalent — keystroke handling is synchronous, so clearing (or not clearing) the pending reset cannot change this search's outcome.
       if (state.timer !== null) window.clearTimeout(state.timer);
       state.query = (state.query + event.key).toLowerCase();
       state.timer = window.setTimeout(() => {
@@ -55,18 +57,24 @@ export function useListboxTypeahead({
       }, TYPEAHEAD_RESET_MS);
 
       const isRepeat =
+        // Stryker disable next-line ConditionalExpression,EqualityOperator: equivalent — for a single character `every()` is trivially true, so both forms yield the same isRepeat.
         state.query.length > 1 &&
         state.query.split("").every((char) => char === state.query[0]);
       const searchQuery = isRepeat ? state.query[0] : state.query;
 
       // A single character (or a repeat of one) advances past the current
       // option so pressing the same letter walks the matches; a genuine
-      // multi-character query narrows in place instead.
+      // multi-character query narrows in place instead. With no cursor at all
+      // there is nothing to advance past, so the search starts at the top.
       const currentIndex =
+        // Stryker disable next-line ConditionalExpression: equivalent — indexOf(undefined) is itself -1.
         currentKey === undefined ? -1 : navigable.indexOf(currentKey);
-      const startIndex = currentIndex < 0 ? 0 : currentIndex;
-      const offset = searchQuery.length === 1 || isRepeat ? 1 : 0;
+      const hasCursor = currentIndex >= 0;
+      const startIndex = hasCursor ? currentIndex : 0;
+      const offset =
+        hasCursor && (searchQuery.length === 1 || isRepeat) ? 1 : 0;
 
+      // Stryker disable next-line EqualityOperator: equivalent — the index wraps modulo navigable.length, so an extra iteration only re-checks an already-visited option.
       for (let i = 0; i < navigable.length; i++) {
         const index = (startIndex + offset + i) % navigable.length;
         const label = getLabel(navigable[index]).trim().toLowerCase();

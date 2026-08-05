@@ -293,6 +293,7 @@ export function ListboxGroup({
 
   const contextValue = useMemo(
     () => ({ labelId, registerLabel: setHasLabel }),
+    // Stryker disable next-line ArrayDeclaration: equivalent — labelId is a useId() constant and setHasLabel is a stable setState, so an empty dep array memoises identically.
     [labelId],
   );
 
@@ -370,6 +371,7 @@ export function ListboxGroupLabel({
 }
 
 /** @internal */
+// Stryker disable next-line StringLiteral: equivalent — a DevTools label, asserted by no behaviour.
 ListboxGroupLabel.displayName = "ListboxGroupLabel";
 
 /**
@@ -423,6 +425,7 @@ const ListboxCompound: TListboxCompound = Object.assign(ListboxRoot, {
   GroupLabel: ListboxGroupLabel,
 });
 
+// Stryker disable next-line StringLiteral: equivalent — a DevTools label, asserted by no behaviour.
 ListboxCompound.displayName = "Listbox";
 
 export { ListboxCompound as Listbox };

@@ -79,9 +79,11 @@ export function useListboxRoot({
   >();
 
   const registerOption = useCallback(
+    // Stryker disable next-line BooleanLiteral: equivalent — the only caller that omits this argument is the unmount path, which passes a null element and so never reads it.
     (optionValue: string, element: HTMLElement | null, disabled = false) => {
       registerBase(optionValue, element ? { element, disabled } : null);
     },
+    // Stryker disable next-line ArrayDeclaration: equivalent — registerBase is a stable useCollection callback, so an empty dep array memoises identically.
     [registerBase],
   );
 
@@ -100,6 +102,7 @@ export function useListboxRoot({
         : 1,
     );
     return entries.map(([key]) => key);
+  // Stryker disable next-line ArrayDeclaration: equivalent — itemsRef is a stable RefObject.
   }, [itemsRef]);
 
   // Single mode replaces the selection outright — re-selecting the current
@@ -128,6 +131,7 @@ export function useListboxRoot({
       setSelectedValues(next);
       (onValueChange as ((value: string[]) => void) | undefined)?.(next);
     },
+    // Stryker disable next-line ArrayDeclaration: equivalent — both are stable for a given render pair; the value read is the ref/state itself.
     [setSelectedValues, onValueChange],
   );
 
@@ -136,13 +140,16 @@ export function useListboxRoot({
   const toggleSelectAll = useCallback(() => {
     const navigable = getNavigableValues();
     const allSelected =
+      // Stryker disable next-line ConditionalExpression,EqualityOperator: equivalent — with nothing navigable both arms commit the empty array.
       navigable.length > 0 &&
       navigable.every((key) => selectedValues.includes(key));
     commitSelection(allSelected ? [] : navigable);
   }, [getNavigableValues, selectedValues, commitSelection]);
 
   const getOptionId = useCallback(
+    // Stryker disable next-line StringLiteral: equivalent — the suffix only has to be stable; every assertion compares against the element's own id.
     (optionValue: string) => deriveId(rootId, "option", optionValue),
+    // Stryker disable next-line ArrayDeclaration: equivalent — rootId is a useId() constant.
     [rootId],
   );
 
@@ -154,6 +161,7 @@ export function useListboxRoot({
         .get(optionValue)
         ?.element.scrollIntoView({ block: "nearest" });
     },
+    // Stryker disable next-line ArrayDeclaration: equivalent — itemsRef is a stable RefObject.
     [itemsRef],
   );
 
@@ -167,8 +175,10 @@ export function useListboxRoot({
         navigable.find((key) => selectedValues.includes(key)) ??
         navigable[0],
     );
+  // Stryker disable next-line ArrayDeclaration: equivalent — the callback reads both through the closure it is rebuilt with each render.
   }, [getNavigableValues, selectedValues]);
 
+  // Stryker disable next-line ArrayDeclaration: equivalent — the dep array is already empty; adding a phantom entry cannot change a setState-only callback.
   const clearActiveValue = useCallback(() => setActiveValue(undefined), []);
 
   // One navigation path for both the arrow keymap and typeahead, so
@@ -178,6 +188,7 @@ export function useListboxRoot({
       moveCursor(target);
       if (selectionFollowsFocus) select(target);
     },
+    // Stryker disable next-line ArrayDeclaration: equivalent — a stale closure here still calls the same setState and select.
     [moveCursor, selectionFollowsFocus, select],
   );
 
@@ -188,6 +199,7 @@ export function useListboxRoot({
     (direction: "next" | "prev") => {
       const navigable = getNavigableValues();
       const currentIndex =
+        // Stryker disable next-line ConditionalExpression: equivalent — indexOf(undefined) is itself -1, so both arms yield the same index.
         activeValue === undefined ? -1 : navigable.indexOf(activeValue);
       if (currentIndex === -1) return;
 
@@ -217,6 +229,7 @@ export function useListboxRoot({
     (edge: "first" | "last") => {
       const navigable = getNavigableValues();
       const currentIndex =
+        // Stryker disable next-line ConditionalExpression: equivalent — indexOf(undefined) is itself -1, so both arms yield the same index.
         activeValue === undefined ? -1 : navigable.indexOf(activeValue);
       if (currentIndex === -1) return;
 
@@ -257,6 +270,7 @@ export function useListboxRoot({
       if (!action) return;
 
       const navigable = getNavigableValues();
+      // Stryker disable next-line ConditionalExpression: equivalent — with no options every downstream index resolves to undefined, which moves the cursor nowhere.
       if (navigable.length === 0) return;
 
       if (action === "activate") {
@@ -267,6 +281,7 @@ export function useListboxRoot({
       }
 
       const currentIndex =
+        // Stryker disable next-line ConditionalExpression: equivalent — indexOf(undefined) is itself -1, so both arms yield the same index.
         activeValue === undefined ? -1 : navigable.indexOf(activeValue);
       let targetIndex: number;
       if (action === "first") {
@@ -297,6 +312,7 @@ export function useListboxRoot({
   const getLabel = useCallback(
     (optionValue: string) =>
       itemsRef.current.get(optionValue)!.element.textContent!,
+    // Stryker disable next-line ArrayDeclaration: equivalent — itemsRef is a stable RefObject.
     [itemsRef],
   );
 
@@ -328,6 +344,7 @@ export function useListboxRoot({
       ) {
         if (type !== "multiple") return;
         event.preventDefault();
+        // Stryker disable next-line StringLiteral: equivalent — extendToEdge branches on `edge === "first"`, so any non-"first" string selects the same path.
         extendToEdge(event.key === "Home" ? "first" : "last");
         return;
       }

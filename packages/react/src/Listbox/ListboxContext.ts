@@ -6,6 +6,7 @@ import type { ListboxContextValue, ListboxGroupContextValue } from "./types";
 
 const listboxContextPair = createStrictContext<ListboxContextValue>(
   "Listbox.Option must be rendered as a child of Listbox.Root",
+    // Stryker disable next-line StringLiteral: equivalent — a DevTools label, asserted by no behaviour.
   "ListboxContext",
 );
 
@@ -26,6 +27,7 @@ export { ListboxProvider };
 
 const listboxGroupContextPair = createStrictContext<ListboxGroupContextValue>(
   "Listbox.GroupLabel must be rendered as a child of Listbox.Group",
+    // Stryker disable next-line StringLiteral: equivalent — a DevTools label, asserted by no behaviour.
   "ListboxGroupContext",
 );
 

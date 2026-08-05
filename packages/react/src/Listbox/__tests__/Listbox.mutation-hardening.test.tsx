@@ -401,3 +401,78 @@ describe("Listbox GroupLabel lifecycle", () => {
     expect(group).not.toHaveAttribute("aria-labelledby");
   });
 });
+
+describe("Listbox chord requirements", () => {
+  // The range sweep needs Ctrl/Cmd AND Shift. Shift+Home alone is a plain
+  // cursor move, so requiring only one of the two would sweep unbidden.
+  it.each([
+    ["Shift+Home", "{Shift>}{Home}{/Shift}", "Apple"],
+    ["Shift+End", "{Shift>}{End}{/Shift}", "Cherry"],
+  ])("%s moves the cursor without sweeping a selection", async (_n, keys, landing) => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <Listbox.Root
+        type="multiple"
+        defaultValue={["banana"]}
+        onValueChange={onValueChange}
+        aria-label="Fruits"
+      >
+        {fruits.map((f) => (
+          <Listbox.Option key={f.value} value={f.value}>
+            {f.label}
+          </Listbox.Option>
+        ))}
+      </Listbox.Root>,
+    );
+
+    await user.tab();
+    await user.keyboard(keys);
+
+    cursorIsOn(landing);
+    selectionIs("Banana");
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+});
+
+describe("Listbox typeahead entry point", () => {
+  // With no cursor the scan must start at index 0. A sentinel of +1 instead of
+  // -1 would silently enter the list one option in.
+  it("starts a multi-character search at the very first option", async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(
+      <Listbox.Root type="single" aria-label="Fruits" />,
+    );
+
+    await user.tab();
+    rerender(
+      <Listbox.Root type="single" aria-label="Fruits">
+        <Listbox.Option value="apple">Apple</Listbox.Option>
+        <Listbox.Option value="apricot">Apricot</Listbox.Option>
+        <Listbox.Option value="banana">Banana</Listbox.Option>
+      </Listbox.Root>,
+    );
+
+    await user.keyboard("ap");
+
+    cursorIsOn("Apple");
+  });
+
+  it("matches an option whose text is padded with whitespace", async () => {
+    const user = userEvent.setup();
+    render(
+      <Listbox.Root type="single" aria-label="Fruits">
+        <Listbox.Option value="apple">Apple</Listbox.Option>
+        <Listbox.Option value="banana">{"  Banana  "}</Listbox.Option>
+      </Listbox.Root>,
+    );
+
+    await user.tab();
+    await user.keyboard("b");
+
+    expect(screen.getByRole("listbox")).toHaveAttribute(
+      "aria-activedescendant",
+      screen.getByRole("option", { name: "Banana" }).id,
+    );
+  });
+});

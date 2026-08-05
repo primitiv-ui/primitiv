@@ -354,11 +354,14 @@ export function ListboxGroupLabel({
 }: ListboxGroupLabelProps): ReactElement {
   const { labelId, registerLabel } = useListboxGroupContext();
 
-  useEffect(() => {
-    registerLabel(true);
-    return () => registerLabel(false);
-  // Stryker disable next-line ArrayDeclaration: equivalent — registerLabel is a stable setState from the Group above.
-  }, [registerLabel]);
+  useEffect(
+    () => {
+      registerLabel(true);
+      return () => registerLabel(false);
+    },
+    // Stryker disable next-line ArrayDeclaration: equivalent — registerLabel is a stable setState from the Group above.
+    [registerLabel],
+  );
 
   const labelProps = {
     ...rest,

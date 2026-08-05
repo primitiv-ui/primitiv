@@ -91,19 +91,22 @@ export function useListboxRoot({
   // every navigable list: cursor movement and focus seeding both skip them.
   //
   // Sorted by document position, not registration order — see the note above.
-  const getNavigableValues = useCallback(() => {
-    const entries = Array.from(itemsRef.current.entries()).filter(
-      ([, meta]) => !meta.disabled,
-    );
-    entries.sort(([, a], [, b]) =>
-      a.element.compareDocumentPosition(b.element) &
-      Node.DOCUMENT_POSITION_FOLLOWING
-        ? -1
-        : 1,
-    );
-    return entries.map(([key]) => key);
-  // Stryker disable next-line ArrayDeclaration: equivalent — itemsRef is a stable RefObject.
-  }, [itemsRef]);
+  const getNavigableValues = useCallback(
+    () => {
+      const entries = Array.from(itemsRef.current.entries()).filter(
+        ([, meta]) => !meta.disabled,
+      );
+      entries.sort(([, a], [, b]) =>
+        a.element.compareDocumentPosition(b.element) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+          ? -1
+          : 1,
+      );
+      return entries.map(([key]) => key);
+    },
+    // Stryker disable next-line ArrayDeclaration: equivalent — itemsRef is a stable RefObject.
+    [itemsRef],
+  );
 
   // Single mode replaces the selection outright — re-selecting the current
   // option is a no-op re-select, not a deselect (a listbox is not a toggle).
@@ -157,6 +160,7 @@ export function useListboxRoot({
   const moveCursor = useCallback(
     (optionValue: string) => {
       setActiveValue(optionValue);
+      // Stryker disable next-line OptionalChaining: unreachable — every value reaching moveCursor comes from getNavigableValues(), so the entry is always registered.
       itemsRef.current
         .get(optionValue)
         ?.element.scrollIntoView({ block: "nearest" });
@@ -167,16 +171,19 @@ export function useListboxRoot({
 
   // APG: when the listbox receives focus, the first selected option takes
   // the cursor; with nothing selected, the first option does.
-  const seedActiveValue = useCallback(() => {
-    const navigable = getNavigableValues();
-    setActiveValue(
-      (current) =>
-        current ??
-        navigable.find((key) => selectedValues.includes(key)) ??
-        navigable[0],
-    );
-  // Stryker disable next-line ArrayDeclaration: equivalent — the callback reads both through the closure it is rebuilt with each render.
-  }, [getNavigableValues, selectedValues]);
+  const seedActiveValue = useCallback(
+    () => {
+      const navigable = getNavigableValues();
+      setActiveValue(
+        (current) =>
+          current ??
+          navigable.find((key) => selectedValues.includes(key)) ??
+          navigable[0],
+      );
+    },
+    // Stryker disable next-line ArrayDeclaration: equivalent — the callback is rebuilt each render and reads both through its closure.
+    [getNavigableValues, selectedValues],
+  );
 
   // Stryker disable next-line ArrayDeclaration: equivalent — the dep array is already empty; adding a phantom entry cannot change a setState-only callback.
   const clearActiveValue = useCallback(() => setActiveValue(undefined), []);

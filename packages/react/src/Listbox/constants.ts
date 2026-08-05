@@ -1,0 +1,2 @@
+/** Typeahead accumulation window, in milliseconds. */
+export const TYPEAHEAD_RESET_MS = 500;

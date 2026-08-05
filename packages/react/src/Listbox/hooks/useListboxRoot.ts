@@ -13,6 +13,8 @@ import {
 } from "../../hooks/index.ts";
 import { deriveId } from "../../utils/index.ts";
 
+import { useListboxTypeahead } from "./useListboxTypeahead";
+
 type OptionMeta = { element: HTMLElement; disabled: boolean };
 
 type UseListboxRootArgs = {
@@ -142,7 +144,17 @@ export function useListboxRoot({
 
   const clearActiveValue = useCallback(() => setActiveValue(undefined), []);
 
-  const { handleKeyDown } = useRovingTabindex<string>({
+  // One navigation path for both the arrow keymap and typeahead, so
+  // `selectionFollowsFocus` applies identically to each.
+  const navigateTo = useCallback(
+    (target: string) => {
+      moveCursor(target);
+      if (selectionFollowsFocus) select(target);
+    },
+    [moveCursor, selectionFollowsFocus, select],
+  );
+
+  const { handleKeyDown: handleRovingKeyDown } = useRovingTabindex<string>({
     orientation,
     dir,
     navigable: enabledValues,
@@ -154,10 +166,34 @@ export function useListboxRoot({
         select(target);
         return;
       }
-      moveCursor(target);
-      if (selectionFollowsFocus) select(target);
+      navigateTo(target);
     },
   });
+
+  const getLabel = useCallback(
+    (optionValue: string) =>
+      itemsRef.current.get(optionValue)?.element.textContent ?? "",
+    [itemsRef],
+  );
+
+  const { handleTypeahead } = useListboxTypeahead({
+    navigable: enabledValues,
+    getLabel,
+    currentKey: activeValue,
+    onMatch: navigateTo,
+  });
+
+  // The keymap gets first refusal: it calls preventDefault on every key it
+  // consumes, so a still-unhandled printable character falls through to
+  // typeahead (and Space, which activates, never does).
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLElement>) => {
+      handleRovingKeyDown(event);
+      if (event.defaultPrevented) return;
+      handleTypeahead(event);
+    },
+    [handleRovingKeyDown, handleTypeahead],
+  );
 
   return {
     selectedValues,

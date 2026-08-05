@@ -17,3 +17,11 @@ export const cursorKeyCases = [
   { key: "{Home}", from: "cherry", expected: "Apple" },
   { key: "{End}", from: "apple", expected: "Cherry" },
 ] as const;
+
+/** Four options with overlapping prefixes, for typeahead cycling. */
+export const typeaheadOptions = [
+  { value: "apple", label: "Apple" },
+  { value: "apricot", label: "Apricot" },
+  { value: "avocado", label: "Avocado" },
+  { value: "banana", label: "Banana" },
+] as const;

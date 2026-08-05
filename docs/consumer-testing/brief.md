@@ -83,6 +83,11 @@ isn't a design document — a running list is fine.
   `screenshots/` folder is fine).
 - A one-paragraph summary at the top of your `NOTES.md` (or a short
   `README.md`) describing what you built and how to run it.
+- As your final step, push the whole project (site, `NOTES.md`,
+  screenshots included) to `https://github.com/simonrevill/primitiv-consumer-testing`,
+  into a new folder named after today's date and a short slug for what
+  you built, e.g. `runs/2026-08-02-northbound-fitness/`. Attach that repo
+  only now, at the very end — not before.
 
 This is a fixed-scope engagement — get it done well, not exhaustively.
 Once the checklist above is met, you're done.

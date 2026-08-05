@@ -108,6 +108,7 @@ one (or both) to ship, so neither got a design pass (see RFC 0013 §4.1).
 | InputGroup | — | ✓ | ✓ | ✓ | Registry + kitchen-sink landed; missing only a Figma set — the smallest of the remaining gaps (likely an adornment-framed Input, see the intro paragraph) |
 | Kbd | ✓ | registry only | ✓ | ✓ | RFC 0012 D17 / RFC 0023. Registry-only prose family — no headless companion, the raised-key sibling of Inline Code (`surface/raised` + `border/default` vs Inline Code's `surface/subtle` + `border/subtle`; every other token shared). No new tokens. Kitchen-sink = sized demo in the intro article |
 | List | ✓ | registry only | ✓ | ✓ | RFC 0012 D9 / RFC 0023. Registry-only prose family — no headless companion. Custom `::before` markers (bullet/counter) instead of native `::marker`, so both marker colour (`list/marker/foreground`) and marker↔text gap (`list/marker-gap`) are controllable — the native pseudo-element has no controllable gap. `type` unordered\|ordered, `indent` toggle, `size` scales type only (item-gap/marker-gap/indent are density-scaled, not size-scaled). Kitchen-sink = both types in the intro article |
+| Listbox | — | ✓ | — | — | WAI-ARIA APG Listbox pattern. Headless only so far — no Figma set, registry surface or kitchen-sink demo yet. Uses a **virtual-focus** cursor (`aria-activedescendant` on the root, `data-highlighted` on the option) instead of a roving tabstop, which is the whole reason it is a separate component from `Select`'s popup listbox: DOM focus never leaves the root, so an external input can hold focus and drive the list. Single/multiple selection, opt-in `selectionFollowsFocus` (APG leaves it optional), prefix typeahead, groups, disabled options (a house extension — APG does not specify them), orientation/RTL, `asChild` on every part. Unblocks the Tier 3 Command Palette and Search-with-suggestions composites |
 | MillerColumns | — | ✓ | — | — | Blocked on RFC 0013's undecided MillerColumns-vs-Tree destination-browser call, not a priority gap — see the intro paragraph and RFC 0013 §4.1 |
 | Modal | ✓ | ✓ | ✓ | ✓ | 435:10250 (Modal), 435:9450 (Header), 435:10108 (Body), 435:10161 (Footer) |
 | NavigationMenu | ✓ | ✓ | ✓ | ✓ | Five sets on page "Navigation Menu" (`1333:50772`), all **md-first** (md variants built before the other sizes, so the Size dropdown genuinely leads with md — the reorder Collapsible and Select couldn't get retroactively): `Trigger` (1333:50847, Size×State[closed\|open]×Interaction, chevron flips glyph via Icon rather than rotating), `Bar Link` (1333:51136) + `Panel Link` (1333:51304) — the two placements of the single headless `Link` part (bar = one-line entry; panel = two-line title+description with optional leading/trailing swaps), `Indicator` (1334:51727, Style[arrow\|underline] — the arrow reuses `Tooltip / Arrow` Tone=inverted, the underline binds `border-width/2`), and composed `Navigation Menu` (1334:51944, Variant[closed\|open]×Size) = transparent bar + a `Dropdown / Panel` instance with its stroke and own shadow overridden off, `elevation/overlay` moved to a transparent wrapper so the shadow wraps arrow + panel as ONE silhouette (the Tooltip/Popover model — a border would seam across the arrow base). Geometry adopts the previously-unconsumed `nav-item/*` Context family, extended for this build with an `xl` slot + `padding-block`, `text-gap` and `panel-offset`. Registry `navigation-menu` = anchor-positioned Viewport panel projection, trigger chevron flip, arrow/underline `Indicator` modifiers; kitchen-sink = desktop five-panel disclosure nav (two-column, single-column, and a four-column brand-callout panel) **and** the composed mobile presentation (`Drawer` + `Collapsible` + shared `NavigationMenuLink`) |
@@ -273,8 +274,8 @@ None of these are built yet; listed here for backlog visibility.
 
 **Tier 3 — blocked on a primitive-backlog item landing first:**
 
-- [ ] Command Palette (⌘K) — needs Listbox
-- [ ] Search with suggestions — needs Listbox
+- [ ] Command Palette (⌘K) — `Listbox` landed (headless); needs its registry surface
+- [ ] Search with suggestions — `Listbox` landed (headless); needs its registry surface
 - [ ] Date Picker — needs Calendar
 - [ ] File Upload UI (dropzone + previews) — needs File Upload
 
@@ -377,7 +378,7 @@ semantics that CSS alone cannot provide.
 ### Collections & Selection
 
 - [ ] Combobox — see [`docs/select-future-work.md`](docs/select-future-work.md)
-- [ ] Listbox
+- [x] Listbox
 - [x] Select (`native={false}`, the rich Popover-API listbox)
 - [x] Tree
 - [x] Miller Columns

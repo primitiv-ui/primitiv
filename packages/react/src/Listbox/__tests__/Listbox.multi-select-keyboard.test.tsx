@@ -113,3 +113,101 @@ describe("Listbox multi-select keyboard — select all", () => {
     expect(onValueChange).not.toHaveBeenCalled();
   });
 });
+
+/**
+ * Shift+Arrow "moves focus and selects" the option it lands on. Deliberately
+ * does NOT wrap, unlike the plain arrows: extending a range off the end and
+ * round to the top selects something the user never travelled past.
+ */
+describe("Listbox multi-select keyboard — Shift+Arrow", () => {
+  it("selects the option it moves onto", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    renderMultiple({ onValueChange });
+
+    await user.tab();
+    await user.keyboard("{Shift>}{ArrowDown}{/Shift}");
+
+    expect(screen.getByRole("listbox")).toHaveAttribute(
+      "aria-activedescendant",
+      screen.getByRole("option", { name: "Banana" }).id,
+    );
+    selectionIs("Banana");
+    expect(onValueChange).toHaveBeenCalledWith(["banana"]);
+  });
+
+  it("accumulates a contiguous range", async () => {
+    const user = userEvent.setup();
+    renderMultiple();
+
+    await user.tab();
+    await user.keyboard("{Shift>}{ArrowDown}{ArrowDown}{/Shift}");
+
+    selectionIs("Banana", "Cherry");
+  });
+
+  it("extends upwards too", async () => {
+    const user = userEvent.setup();
+    renderMultiple({ defaultValue: ["cherry"] });
+
+    await user.tab();
+    await user.keyboard("{Shift>}{ArrowUp}{/Shift}");
+
+    selectionIs("Banana", "Cherry");
+  });
+
+  it("stops at the last option instead of wrapping", async () => {
+    const user = userEvent.setup();
+    renderMultiple({ defaultValue: ["cherry"] });
+
+    await user.tab();
+    await user.keyboard("{Shift>}{ArrowDown}{/Shift}");
+
+    expect(screen.getByRole("listbox")).toHaveAttribute(
+      "aria-activedescendant",
+      screen.getByRole("option", { name: "Cherry" }).id,
+    );
+    selectionIs("Cherry");
+  });
+
+  it("skips a disabled option while extending", async () => {
+    const user = userEvent.setup();
+    render(
+      <Listbox.Root type="multiple" aria-label="Fruits">
+        <Listbox.Option value="apple">Apple</Listbox.Option>
+        <Listbox.Option value="banana" disabled>
+          Banana
+        </Listbox.Option>
+        <Listbox.Option value="cherry">Cherry</Listbox.Option>
+      </Listbox.Root>,
+    );
+
+    await user.tab();
+    await user.keyboard("{Shift>}{ArrowDown}{/Shift}");
+
+    selectionIs("Cherry");
+  });
+
+  it("is a plain cursor move in single-selection mode", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <Listbox.Root type="single" onValueChange={onValueChange} aria-label="Fruits">
+        {fruits.map((fruit) => (
+          <Listbox.Option key={fruit.value} value={fruit.value}>
+            {fruit.label}
+          </Listbox.Option>
+        ))}
+      </Listbox.Root>,
+    );
+
+    await user.tab();
+    await user.keyboard("{Shift>}{ArrowDown}{/Shift}");
+
+    expect(screen.getByRole("listbox")).toHaveAttribute(
+      "aria-activedescendant",
+      screen.getByRole("option", { name: "Banana" }).id,
+    );
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+});

@@ -11,7 +11,7 @@ import {
   useControllableState,
   useRovingTabindex,
 } from "../../hooks/index.ts";
-import { deriveId } from "../../utils/index.ts";
+import { deriveId, getKeyToActionMap } from "../../utils/index.ts";
 
 import { useListboxTypeahead } from "./useListboxTypeahead";
 
@@ -173,6 +173,28 @@ export function useListboxRoot({
     [moveCursor, selectionFollowsFocus, select],
   );
 
+  // APG: Shift+Arrow "moves focus and selects" the option it lands on. Unlike
+  // the plain arrows this deliberately does not wrap — extending a range off
+  // the end and round to the top would select options never travelled past.
+  const extendSelection = useCallback(
+    (direction: "next" | "prev") => {
+      const currentIndex =
+        activeValue === undefined ? -1 : enabledValues.indexOf(activeValue);
+      if (currentIndex === -1) return;
+
+      const targetIndex =
+        direction === "next" ? currentIndex + 1 : currentIndex - 1;
+      if (targetIndex < 0 || targetIndex >= enabledValues.length) return;
+
+      const target = enabledValues[targetIndex];
+      moveCursor(target);
+      if (!selectedValues.includes(target)) {
+        commitSelection([...selectedValues, target]);
+      }
+    },
+    [activeValue, enabledValues, moveCursor, selectedValues, commitSelection],
+  );
+
   const { handleKeyDown: handleRovingKeyDown } = useRovingTabindex<string>({
     orientation,
     dir,
@@ -223,11 +245,28 @@ export function useListboxRoot({
       // is ours, for range selection.
       if (chord || event.altKey) return;
 
+      if (event.shiftKey && type === "multiple") {
+        const action = getKeyToActionMap({ orientation, dir })[event.key];
+        if (action === "next" || action === "prev") {
+          event.preventDefault();
+          extendSelection(action);
+          return;
+        }
+      }
+
       handleRovingKeyDown(event);
       if (event.defaultPrevented) return;
       handleTypeahead(event);
     },
-    [type, toggleSelectAll, handleRovingKeyDown, handleTypeahead],
+    [
+      type,
+      orientation,
+      dir,
+      toggleSelectAll,
+      extendSelection,
+      handleRovingKeyDown,
+      handleTypeahead,
+    ],
   );
 
   return {

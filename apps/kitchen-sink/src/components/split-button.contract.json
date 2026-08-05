@@ -40,6 +40,6 @@
     { "name": "--primitiv-split-button-trigger-inline-size", "defaultsTo": "var(--primitiv-framed-control-md-height)" },
     { "name": "--primitiv-split-button-ring-outset", "defaultsTo": "calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))" },
     { "name": "--primitiv-split-button-ring-radius", "defaultsTo": "calc(var(--primitiv-button-radius) + var(--primitiv-split-button-ring-outset))" },
-    { "name": "--primitiv-dropdown-min-inline-size", "defaultsTo": "0" }
+    { "name": "--primitiv-dropdown-min-inline-size", "defaultsTo": "anchor-size(width)" }
   ]
 }

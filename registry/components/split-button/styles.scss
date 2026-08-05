@@ -89,15 +89,18 @@
     flex: none;
   }
 
-  /* The menu takes the group's width exactly, so panel and control read as one
-     column rather than the panel floating at its own natural width. The group
-     carries the anchor-name (set inline by the wrapper from useId, so several
-     split buttons on a page never collide) and Dropdown's own bottom-start
-     placement supplies the insets. */
+  /* The menu is at least as wide as the group, then grows to fit its rows.
+     Re-pointing Dropdown's own floor at the anchor's width is all it takes:
+     the panel is otherwise shrink-to-fit, so it lines up with the control
+     whenever the rows are shorter and widens when they are longer.
+     Pinning it to the group's width EXACTLY was tried first and is wrong — a
+     narrow action ("Delete") next to long alternatives ("Delete and archive")
+     wrapped every row and added a scrollbar. The group carries the anchor-name
+     (set inline by the wrapper from useId, so several split buttons on a page
+     never collide) and Dropdown's own bottom-start placement supplies the
+     insets. */
   .primitiv-split-button .primitiv-split-button__menu {
-    --primitiv-dropdown-min-inline-size: 0;
-
-    inline-size: anchor-size(width);
+    --primitiv-dropdown-min-inline-size: anchor-size(width);
   }
 }
 

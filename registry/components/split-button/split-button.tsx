@@ -9,7 +9,7 @@
  * file adds only what the composition needs: the shared variant/size context,
  * the per-part classes, and the anchor wiring.
  *
- * Anchor positioning: the MENU takes the group's width exactly and aligns to
+ * Anchor positioning: the MENU is floored at the group's width and aligns to
  * its leading edge, so the anchor is the group, not the trigger. The ident is
  * derived per instance from `useId` — several split buttons on one page must
  * not share an `anchor-name`. Sanitising mirrors `toAnchorIdentFragment`
@@ -187,9 +187,9 @@ export function SplitButtonTrigger({ className, children, ...props }: SplitButto
 }
 
 /**
- * The menu panel — a Dropdown panel sized to the group's width and aligned to
- * its leading edge, because the alternatives belong to the action rather than
- * to the chevron.
+ * The menu panel — a Dropdown panel at least as wide as the group, growing to
+ * fit its rows, aligned to the group's leading edge because the alternatives
+ * belong to the action rather than to the chevron.
  *
  * @see https://primitiv-ui.dev/docs/components/split-button
  */

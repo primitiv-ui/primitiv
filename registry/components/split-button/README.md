@@ -109,10 +109,19 @@ stay reachable), or the trigger alone. The seam steps down one stop whenever any
 of them applies, so it doesn't read as a hard dark line across a washed-out
 control.
 
-**The menu is the group's width**, not its own natural width, and aligns to the
-group's leading edge — the alternatives belong to the action, not to the
-chevron. The group carries a per-instance `anchor-name` derived from `useId`, so
-several split buttons on one page never collide. You don't wire anything.
+**The menu is at least the group's width**, then grows to fit its rows, and
+aligns to the group's **leading** edge — the alternatives belong to the action,
+not to the chevron, so the rows start on the same line as the action's label.
+
+Pinning the panel to the group's width *exactly* was tried first and is wrong:
+a narrow action ("Delete") beside long alternatives ("Delete and archive")
+wrapped every row and added a scrollbar. Leading-edge alignment means a panel
+wider than its group grows toward the inline-end, which is both the
+conventional direction and the one `position-try-fallbacks: flip-inline`
+already handles at the viewport edge.
+
+The group carries a per-instance `anchor-name` derived from `useId`, so several
+split buttons on one page never collide. You don't wire anything.
 
 ## Custom properties
 

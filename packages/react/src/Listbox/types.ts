@@ -42,9 +42,38 @@ export type ListboxSingleControlledProps = {
   defaultValue?: never;
 };
 
+/** Multiple-selection mode, uncontrolled. */
+export type ListboxMultipleUncontrolledProps = {
+  /** Selects multiple-selection semantics: options toggle independently. */
+  type: "multiple";
+  /** Values of the options selected on first render. */
+  defaultValue?: string[];
+  /** Forbidden in uncontrolled mode — use `defaultValue`. */
+  value?: never;
+  /** Called with the complete next set of selected values. */
+  onValueChange?: (value: string[]) => void;
+};
+
+/** Multiple-selection mode, controlled. */
+export type ListboxMultipleControlledProps = {
+  /** Selects multiple-selection semantics: options toggle independently. */
+  type: "multiple";
+  /** The full set of currently selected values. */
+  value: string[];
+  /** Called with the complete next set of selected values. */
+  onValueChange?: (value: string[]) => void;
+  /** Forbidden in controlled mode — use `value`. */
+  defaultValue?: never;
+};
+
 /** Props for `Listbox.Root`. */
 export type ListboxRootProps = ListboxRootBaseProps &
-  (ListboxSingleUncontrolledProps | ListboxSingleControlledProps);
+  (
+    | ListboxSingleUncontrolledProps
+    | ListboxSingleControlledProps
+    | ListboxMultipleUncontrolledProps
+    | ListboxMultipleControlledProps
+  );
 
 /** Props for `Listbox.Option`. */
 export type ListboxOptionProps = HTMLAttributes<HTMLDivElement> & {
@@ -62,6 +91,10 @@ export type ListboxContextValue = {
   selectedValues: string[];
   select: (optionValue: string) => void;
   activeValue: string | undefined;
-  registerOption: (optionValue: string, element: HTMLElement | null) => void;
+  registerOption: (
+    optionValue: string,
+    element: HTMLElement | null,
+    disabled?: boolean,
+  ) => void;
   getOptionId: (optionValue: string) => string;
 };

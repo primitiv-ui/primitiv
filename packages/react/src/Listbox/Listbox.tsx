@@ -7,7 +7,7 @@ import { useListboxRoot } from "./hooks/index.ts";
 import type { ListboxOptionProps, ListboxRootProps } from "./types";
 
 export function ListboxRoot({
-  type: _type,
+  type,
   defaultValue,
   value: controlledValue,
   onValueChange,
@@ -29,6 +29,7 @@ export function ListboxRoot({
     clearActiveValue,
     handleKeyDown,
   } = useListboxRoot({
+    type,
     defaultValue,
     value: controlledValue,
     onValueChange,
@@ -47,6 +48,7 @@ export function ListboxRoot({
         ref={ref}
         role="listbox"
         tabIndex={0}
+        aria-multiselectable={type === "multiple" ? true : undefined}
         aria-activedescendant={
           activeValue === undefined ? undefined : getOptionId(activeValue)
         }

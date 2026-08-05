@@ -16,11 +16,20 @@ import { deriveId } from "../../utils/index.ts";
 type OptionMeta = { element: HTMLElement; disabled: boolean };
 
 type UseListboxRootArgs = {
-  defaultValue: string | undefined;
-  value: string | undefined;
-  onValueChange: ((value: string) => void) | undefined;
+  type: "single" | "multiple";
+  defaultValue: string | string[] | undefined;
+  value: string | string[] | undefined;
+  onValueChange:
+    | ((value: string) => void)
+    | ((value: string[]) => void)
+    | undefined;
   selectionFollowsFocus: boolean;
 };
+
+function toArray(value: string | string[] | undefined): string[] {
+  if (value === undefined) return [];
+  return typeof value === "string" ? [value] : value;
+}
 
 /**
  * Owns the Listbox's selection state and its virtual-focus cursor.
@@ -36,6 +45,7 @@ type UseListboxRootArgs = {
  * repoints the cursor.
  */
 export function useListboxRoot({
+  type,
   defaultValue,
   value: controlledValue,
   onValueChange,
@@ -55,10 +65,9 @@ export function useListboxRoot({
   handleKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
 } {
   const rootId = useId();
-  const [value, setValue] = useControllableState<string>(
-    controlledValue,
-    defaultValue,
-    onValueChange,
+  const [selectedValues, setSelectedValues] = useControllableState<string[]>(
+    controlledValue === undefined ? undefined : toArray(controlledValue),
+    toArray(defaultValue),
   );
   const [activeValue, setActiveValue] = useState<string | undefined>(undefined);
   const {
@@ -74,11 +83,6 @@ export function useListboxRoot({
     [registerBase],
   );
 
-  const selectedValues = useMemo(
-    () => (value === undefined ? [] : [value]),
-    [value],
-  );
-
   // Disabled options stay in the DOM and in the a11y tree, but drop out of
   // every navigable list: cursor movement and focus seeding both skip them.
   const enabledValues = useMemo(
@@ -86,11 +90,23 @@ export function useListboxRoot({
     [optionValues, itemsRef],
   );
 
+  // Single mode replaces the selection outright — re-selecting the current
+  // option is a no-op re-select, not a deselect (a listbox is not a toggle).
+  // Multiple mode toggles the option in place, preserving the rest.
   const select = useCallback(
     (optionValue: string) => {
-      setValue(optionValue);
+      if (type === "single") {
+        setSelectedValues([optionValue]);
+        (onValueChange as ((value: string) => void) | undefined)?.(optionValue);
+        return;
+      }
+      const next = selectedValues.includes(optionValue)
+        ? selectedValues.filter((key) => key !== optionValue)
+        : [...selectedValues, optionValue];
+      setSelectedValues(next);
+      (onValueChange as ((value: string[]) => void) | undefined)?.(next);
     },
-    [setValue],
+    [type, selectedValues, setSelectedValues, onValueChange],
   );
 
   const getOptionId = useCallback(

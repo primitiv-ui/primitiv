@@ -31,13 +31,14 @@ export type BadgeProps = ComponentPropsWithRef<"span"> &
   };
 
 function wrapTextNodes(children: ReactNode): ReactNode {
-  return Children.map(children, (child) =>
+  const mapped = Children.map(children, (child) =>
     typeof child === "string" || typeof child === "number" ? (
       <span className="primitiv-badge__label">{child}</span>
     ) : (
       child
     ),
   );
+  return Array.isArray(mapped) && mapped.length === 1 ? mapped[0] : mapped;
 }
 
 /**

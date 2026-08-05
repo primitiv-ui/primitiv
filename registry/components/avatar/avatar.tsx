@@ -51,11 +51,12 @@ export function AvatarImage({ className, ...props }: AvatarImageProps) {
 export type AvatarFallbackProps = ComponentPropsWithRef<typeof AvatarPrimitive.Fallback>;
 
 function wrapAvatarFallbackTextNodes(children: ReactNode): ReactNode {
-  return Children.map(children, (child) =>
+  const mapped = Children.map(children, (child) =>
     typeof child === "string" || typeof child === "number"
       ? <span className="primitiv-avatar__fallback-label">{child}</span>
       : child,
   );
+  return Array.isArray(mapped) && mapped.length === 1 ? mapped[0] : mapped;
 }
 
 export function AvatarFallback({ className, children, ...props }: AvatarFallbackProps) {

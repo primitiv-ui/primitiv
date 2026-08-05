@@ -24,8 +24,23 @@ Full report: `simonrevill/primitiv-consumer-testing/runs/2026-08-05-fernglass-pl
   unconditional text-wrapping step hands `Slot` an array instead of one
   element — `Slot` requires exactly one. Confirmed real, reproducible,
   root-caused (`button.tsx:45-60`). Every `primitiv add button` consumer
-  gets the same broken generated file today. **Status: open** — fix
-  belongs in the `contract.json` generator, not as a per-consumer patch.
+  gets the same broken generated file today. **Status: fixed** —
+  `crates/primitiv-emit/src/wrapper.rs`'s `emit_wrap_text_helper` and
+  `emit_structural_wrap_text_helper` now unwrap a single mapped child back
+  to a bare node instead of a length-1 array (RED/GREEN test:
+  `unwraps_a_single_mapped_child_instead_of_returning_a_length_one_array`
+  / `..._for_a_structural_subcomponent_too`). Regenerated every committed
+  wrapper the bug could reach: `button`, `toggle-group`, `tabs`,
+  `segmented-control`, `avatar` (drift-guarded — the fix is proven to
+  match the generator exactly) plus the hand-tuned `accordion` and
+  `collapsible` triggers (same pattern, no drift guard, fixed by hand for
+  consistency). Also found and fixed the identical pattern in three
+  hand-authored components sharing Button's `wrapTextChildren` shape by
+  design (`badge`, `tag`, `code-block`'s tabbed trigger) — `badge`/`tag`
+  both explicitly support `asChild` too, so they had the exact same
+  defect. All copies mirrored into `apps/kitchen-sink/src/components/`.
+  `check-registry-types.mjs` and the full `cargo test --workspace`
+  (`--exclude harmoni-core --exclude harmoni-wasm`) pass.
 - **`primitiv init` doesn't generate the theme layer from `theme.brand`.**
   A consumer who answers the brand-colour prompt during `init` still has
   to separately discover and run `primitiv theme --brand` by hand.

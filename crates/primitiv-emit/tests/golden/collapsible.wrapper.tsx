@@ -46,11 +46,12 @@ export function Collapsible({ variant, size, className, ...props }: CollapsibleP
 export type CollapsibleTriggerProps = ComponentPropsWithRef<typeof CollapsiblePrimitive.Trigger>;
 
 function wrapCollapsibleTriggerTextNodes(children: ReactNode): ReactNode {
-  return Children.map(children, (child) =>
+  const mapped = Children.map(children, (child) =>
     typeof child === "string" || typeof child === "number"
       ? <span className="primitiv-collapsible__trigger-label">{child}</span>
       : child,
   );
+  return Array.isArray(mapped) && mapped.length === 1 ? mapped[0] : mapped;
 }
 
 export function CollapsibleTrigger({ className, children, ...props }: CollapsibleTriggerProps) {

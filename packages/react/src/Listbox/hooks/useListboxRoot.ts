@@ -24,6 +24,8 @@ type UseListboxRootArgs = {
     | ((value: string[]) => void)
     | undefined;
   selectionFollowsFocus: boolean;
+  orientation: "horizontal" | "vertical";
+  dir: "ltr" | "rtl";
 };
 
 function toArray(value: string | string[] | undefined): string[] {
@@ -50,6 +52,8 @@ export function useListboxRoot({
   value: controlledValue,
   onValueChange,
   selectionFollowsFocus,
+  orientation,
+  dir,
 }: UseListboxRootArgs): {
   selectedValues: string[];
   select: (optionValue: string) => void;
@@ -139,7 +143,8 @@ export function useListboxRoot({
   const clearActiveValue = useCallback(() => setActiveValue(undefined), []);
 
   const { handleKeyDown } = useRovingTabindex<string>({
-    orientation: "vertical",
+    orientation,
+    dir,
     navigable: enabledValues,
     currentKey: activeValue ?? "",
     includeHomeEnd: true,

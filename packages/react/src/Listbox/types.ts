@@ -6,8 +6,14 @@ import type { HTMLAttributes, ReactNode, Ref } from "react";
  */
 export type ListboxRootBaseProps = Omit<
   HTMLAttributes<HTMLDivElement>,
-  "defaultValue"
+  "defaultValue" | "dir"
 > & {
+  /** Layout axis for cursor navigation. `"vertical"` binds ArrowUp/ArrowDown;
+   * `"horizontal"` binds ArrowLeft/ArrowRight. */
+  orientation?: "horizontal" | "vertical";
+  /** Reading direction. In `"rtl"` the horizontal arrow keys are mirrored.
+   * Inherited from the nearest DirectionProvider when omitted. */
+  dir?: "ltr" | "rtl";
   /** When `true`, moving the cursor with the arrow / Home / End keys also
    * selects the option it lands on. */
   selectionFollowsFocus?: boolean;

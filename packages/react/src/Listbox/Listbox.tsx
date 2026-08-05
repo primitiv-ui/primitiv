@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, type ReactElement } from "react";
 
+import { useDirection } from "../DirectionProvider/index.ts";
 import { composeEventHandlers, composeRefs } from "../Slot/index.ts";
 
 import { ListboxProvider, useListboxContext } from "./ListboxContext";
@@ -12,6 +13,8 @@ export function ListboxRoot({
   value: controlledValue,
   onValueChange,
   selectionFollowsFocus = false,
+  orientation = "vertical",
+  dir,
   onFocus,
   onBlur,
   onKeyDown,
@@ -19,6 +22,7 @@ export function ListboxRoot({
   ref,
   ...rest
 }: ListboxRootProps): ReactElement {
+  const resolvedDir = dir ?? useDirection();
   const {
     selectedValues,
     select,
@@ -34,6 +38,8 @@ export function ListboxRoot({
     value: controlledValue,
     onValueChange,
     selectionFollowsFocus,
+    orientation,
+    dir: resolvedDir,
   });
 
   const contextValue = useMemo(
@@ -49,6 +55,8 @@ export function ListboxRoot({
         role="listbox"
         tabIndex={0}
         aria-multiselectable={type === "multiple" ? true : undefined}
+        aria-orientation={orientation === "horizontal" ? "horizontal" : undefined}
+        data-orientation={orientation}
         aria-activedescendant={
           activeValue === undefined ? undefined : getOptionId(activeValue)
         }

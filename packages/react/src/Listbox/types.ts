@@ -92,6 +92,15 @@ export type ListboxOptionProps = HTMLAttributes<HTMLDivElement> & {
   ref?: Ref<HTMLDivElement>;
 };
 
+/** Props for `Listbox.Group`. */
+export type ListboxGroupProps = HTMLAttributes<HTMLDivElement> & {
+  /** Accessible name for the group, applied as `aria-label`. APG requires
+   * every option group to carry one. */
+  label: string;
+  /** Forwarded to the underlying `HTMLDivElement`. */
+  ref?: Ref<HTMLDivElement>;
+};
+
 /** Context shared from `Listbox.Root` to its options. */
 export type ListboxContextValue = {
   selectedValues: string[];

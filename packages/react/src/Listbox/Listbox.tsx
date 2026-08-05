@@ -5,7 +5,11 @@ import { composeEventHandlers, composeRefs } from "../Slot/index.ts";
 
 import { ListboxProvider, useListboxContext } from "./ListboxContext";
 import { useListboxRoot } from "./hooks/index.ts";
-import type { ListboxOptionProps, ListboxRootProps } from "./types";
+import type {
+  ListboxGroupProps,
+  ListboxOptionProps,
+  ListboxRootProps,
+} from "./types";
 
 export function ListboxRoot({
   type,
@@ -110,15 +114,30 @@ export function ListboxOption({
   );
 }
 
+export function ListboxGroup({
+  label,
+  children,
+  ref,
+  ...rest
+}: ListboxGroupProps): ReactElement {
+  return (
+    <div {...rest} ref={ref} role="group" aria-label={label}>
+      {children}
+    </div>
+  );
+}
+
 /** The shape of the exported `Listbox` value. */
 export type TListboxCompound = typeof ListboxRoot & {
   Root: typeof ListboxRoot;
   Option: typeof ListboxOption;
+  Group: typeof ListboxGroup;
 };
 
 const ListboxCompound: TListboxCompound = Object.assign(ListboxRoot, {
   Root: ListboxRoot,
   Option: ListboxOption,
+  Group: ListboxGroup,
 });
 
 ListboxCompound.displayName = "Listbox";

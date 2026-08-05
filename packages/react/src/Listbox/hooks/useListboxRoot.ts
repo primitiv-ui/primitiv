@@ -190,6 +190,11 @@ export function useListboxRoot({
   // typeahead (and Space, which activates, never does).
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLElement>) => {
+      // Chorded shortcuts belong to the browser and the consumer: Ctrl/Cmd+A
+      // is select-all, and APG's rearrangeable example binds Alt+Arrow to its
+      // toolbar. Only Shift is ours, for range selection.
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+
       handleRovingKeyDown(event);
       if (event.defaultPrevented) return;
       handleTypeahead(event);

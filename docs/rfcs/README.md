@@ -214,3 +214,27 @@ surface and applies once those are read.
   plan. Flags Hero/Footer as content-shaped rather than component-shaped,
   and recommends Page Header + Error/Empty page shell as the strongest,
   most build-ready starting point if the category gets picked up.
+
+## Evaluation & consumer testing
+
+| # | Title | Status |
+|---|---|---|
+| [0026](0026-consumer-testing-with-agent-personas.md) | Consumer testing with agent personas | Draft — proposed |
+
+- **0026** — an outside-in usability program: AI agents role-play distinct
+  consumer profiles (greenfield + full styled registry, brownfield headless
+  inside an existing design system, Tailwind-powered) against one shared
+  three-page-showcase brief, at a pinned Primitiv version, using only the
+  published CLI/npm/JSR surface — never this repo's own source or
+  `CLAUDE.md`. Critiques the "showcase all components" instruction (coverage
+  is a property of the whole program, not one site), flags that Profile B
+  needs a real brownfield fixture or the brownfield signal is lost, argues
+  for running now rather than waiting on the roadmap (missing components are
+  themselves the signal), and for running now despite Container/Grid/
+  breakpoints not existing (RFC 0022 §4 / 0025) — treating the hand-rolled
+  layout workaround as the expected, most valuable finding of the first run,
+  as long as it's logged rather than left to swamp everything else. Requires
+  a real environment separated from this repo (no `CLAUDE.md`, no
+  workspace-source-aliased packages like `apps/kitchen-sink` uses) and an
+  independent, browser-verified reviewer pass rather than trusting the
+  building agent's self-report.

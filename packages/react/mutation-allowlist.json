@@ -31,5 +31,6 @@
   "SegmentedControl",
   "Select",
   "NavigationMenu",
-  "SplitButton"
+  "SplitButton",
+  "Listbox"
 ]

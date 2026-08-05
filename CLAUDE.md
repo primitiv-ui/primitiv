@@ -533,9 +533,15 @@ source of truth for when a skill applies.
     all: RTL's `asyncWrapper` advances fake clocks only via a global `jest`,
     which vitest doesn't define, so every call hangs (hence the real-timer
     approach above, and why the older fake-timer suites use `fireEvent`).
-    Stryker itself can't be installed here, so `scripts/mutate-local.mjs`
-    (`pnpm --filter @primitiv-ui/react mutate:local <Name>`) reproduces its
-    mutators off the TypeScript AST — see the `mutation-testing` skill. The
+    Stryker's availability is **environment-dependent** — some machines can't
+    `pnpm install` it, others have it. Check before choosing a tool
+    (`ls packages/react/node_modules/.bin/stryker`): when present, run the real
+    thing (`mutate:component <Name>`, ~7 min) and read survivors with
+    `node scripts/mutation-survivors.mjs <Name>`; when absent, fall back to
+    `scripts/mutate-local.mjs` (`mutate:local <Name>`), which reproduces its
+    mutators off the TypeScript AST. The stand-in is an approximation — it
+    over-generates and disagrees with Stryker on which mutants exist, so treat
+    its output as a guide, never as the gate. See the `mutation-testing` skill. The
     prop-collision scan caught one real narrowing artifact on the way —
     `Item.value` shadows `<li value>` and needed the `Omit`.
     **Figma desktop set landed (2026-07-25)** — five sets on a new

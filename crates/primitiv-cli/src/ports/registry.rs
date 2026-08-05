@@ -313,6 +313,16 @@ const FILES: &[(&str, &str, &str)] = &[
     registry_file!("confirm-dialog", "confirm-dialog.recipe.ts"),
     registry_file!("confirm-dialog", "confirm-dialog.tsx"),
     registry_file!("confirm-dialog", "contract.json"),
+    registry_file!("empty-state", "styles.css"),
+    registry_file!("empty-state", "styles.scss"),
+    registry_file!("empty-state", "empty-state.recipe.ts"),
+    registry_file!("empty-state", "empty-state.tsx"),
+    registry_file!("empty-state", "contract.json"),
+    registry_file!("split-button", "styles.css"),
+    registry_file!("split-button", "styles.scss"),
+    registry_file!("split-button", "split-button.recipe.ts"),
+    registry_file!("split-button", "split-button.tsx"),
+    registry_file!("split-button", "contract.json"),
 ];
 
 impl Registry for EmbeddedRegistry {

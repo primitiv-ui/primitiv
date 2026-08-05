@@ -30,5 +30,7 @@
   "Accordion",
   "SegmentedControl",
   "Select",
-  "NavigationMenu"
+  "NavigationMenu",
+  "SplitButton",
+  "Listbox"
 ]

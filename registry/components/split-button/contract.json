@@ -1,0 +1,45 @@
+{
+  "$schema": "https://primitiv-ui.dev/schema/contract.json",
+  "name": "split-button",
+  "version": "0.1.0",
+  "description": "One primary action welded to a chevron trigger that opens a menu of related alternatives, bound into a single role=\"group\" widget.",
+  "docs": "https://primitiv-ui.dev/docs/components/split-button",
+  "root": {
+    "element": "div",
+    "class": "primitiv-split-button",
+    "component": "SplitButton"
+  },
+  "subcomponents": [],
+  "modifiers": [
+    {
+      "name": "intent",
+      "prop": "variant",
+      "default": "primary",
+      "description": "Visual intent, applied to both halves. Ghost and link are deliberately unavailable — neither has a box at rest for the seam to divide.",
+      "options": [
+        { "name": "primary", "class": "primitiv-split-button--primary", "description": "High-emphasis primary action." },
+        { "name": "secondary", "class": "primitiv-split-button--secondary", "description": "Medium-emphasis secondary action." },
+        { "name": "danger", "class": "primitiv-split-button--danger", "description": "Destructive action — delete, remove." }
+      ]
+    },
+    {
+      "name": "size",
+      "default": "md",
+      "description": "Control size, applied to both halves and the menu; `data-density` scales each size further.",
+      "options": [
+        { "name": "xs", "class": "primitiv-split-button--xs", "description": "Extra small." },
+        { "name": "sm", "class": "primitiv-split-button--sm", "description": "Small." },
+        { "name": "md", "class": "primitiv-split-button--md", "description": "Medium (the default)." },
+        { "name": "lg", "class": "primitiv-split-button--lg", "description": "Large." },
+        { "name": "xl", "class": "primitiv-split-button--xl", "description": "Extra large." }
+      ]
+    }
+  ],
+  "customProperties": [
+    { "name": "--primitiv-split-button-seam", "defaultsTo": "var(--primitiv-action-primary-active)" },
+    { "name": "--primitiv-split-button-trigger-inline-size", "defaultsTo": "var(--primitiv-framed-control-md-height)" },
+    { "name": "--primitiv-split-button-ring-outset", "defaultsTo": "calc(var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width))" },
+    { "name": "--primitiv-split-button-ring-radius", "defaultsTo": "calc(var(--primitiv-button-radius) + var(--primitiv-split-button-ring-outset))" },
+    { "name": "--primitiv-dropdown-min-inline-size", "defaultsTo": "anchor-size(width)" }
+  ]
+}

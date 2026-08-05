@@ -1512,3 +1512,74 @@ are correct on both sides; do not "fix" either to match the other.
   construction on any other background; in the registry it is a knob, and it must
   be set **on the group** (the component re-declares its own default, shadowing
   any inherited value).
+
+### EmptyState — `1523:889` — page "EmptyState"
+
+```
+Placeholder for a region that has no content yet — media, title, description and recovery actions, centred in the space it fills. Composes the headless `EmptyState` primitive (a `<div role="status">` polite live region).
+
+Type: non-framed composition
+
+Axes: Direction vertical|horizontal · Size xs|sm|md|lg|xl
+
+Tokens: media box -> empty-state/{size}/media-size (~2.8x framed-control/{size}/icon-size)
+        media optical offset (horizontal only) -> empty-state/media-offset-top (size-agnostic, density-scoped)
+        text measure cap -> empty-state/{size}/max-inline-size (bound to the Text frame's maxWidth)
+        region gap -> empty-state/{size}/gap · title<->description -> empty-state/{size}/text-gap
+        actions row gap -> framed-control/{size}/gap (reused, as Alert reuses it)
+        media icon fill -> content/primary (bound on the Icon instance's Vector)
+        title -> heading/{h6|h5|h4|h3|h2}/* by size · content/primary
+        description -> body/{size}/* · content/secondary
+        root fill -> none
+
+Properties: Title (TEXT "Nothing here yet") · Description (TEXT "When you add your first item it will show up here.") · Show media (BOOL true) · Show actions (BOOL true) · Media (SWAP icon=search) · Actions (SLOT, preferredValues Button)
+
+Density: Context mode override on parent frame
+Pairs with: Icon (Media swap), Button (Actions slot), Card / Table / any container whose empty state this is
+```
+
+The live description on the node is longer and is the source of truth — read it
+before editing. The four things most likely to be "corrected" by mistake:
+
+- **Title binds `heading/*`, not `label/*`** — a deliberate break from Alert.
+  `label/{size}` and `body/{size}` resolve to the *same px value* at lg (20/20)
+  and xl (22/22), and because Khand is condensed the title then reads as the
+  **smaller** of the two — an inverted hierarchy. Alert gets away with `label/*`
+  because it is a compact inline banner. Mapping: xs=h6 · sm=h5 · md=h4 · lg=h3
+  · xl=h2. See exploration section F.
+- **`empty-state/media-offset-top` is size-agnostic on purpose** (one value per
+  density, unlike Alert's per-size `icon-offset-top` family). Every heading slot's
+  line-height is font-size + 8, so the half-leading is genuinely constant across
+  all five sizes — measured 3.2px at every size in Comfortable. Values are
+  `(line-height − font-size) × 0.4` snapped to the space scale: Comfortable 3 ·
+  Compact 4 · Spacious 4 · Dense 1.
+- **`max-inline-size` repeats 344 at lg *and* xl** because the `size/*` primitive
+  scale ends at 344. Signed off; only Dense and Compact keep lg < xl distinct.
+  Extend the primitive scale rather than hardcoding a literal here.
+- **There is no padding token, deliberately.** The root fills and centres inside
+  whatever box it is given; padding is the container's job. Adding one would
+  double every seam the way an early Card build did.
+
+**Two build facts worth reusing elsewhere:**
+
+- **A genuine multi-child `SLOT` *is* creatable from the plugin API**, despite
+  `figma.createSlot` not existing and the dedicated slot MCP tools being blocked.
+  `addComponentProperty(name, 'SLOT', '')` is accepted (the earlier `null`
+  rejection was `defaultValue` validation, not the type), and a `SLOT` **node** is
+  obtained by `clone()`-ing an existing one — `Dropdown / Panel`'s — then
+  re-pointing `componentPropertyReferences = { slotContentId: propId }`. This
+  supersedes the note in `docs/select-future-work.md` that only pre-existing slots
+  can be written to.
+- **A cloned `SLOT` inherits the source slot's auto-layout.** `Dropdown / Panel`'s
+  stacks **vertically**, so two Buttons stacked and overlapped instead of forming
+  a row; the horizontal wrapper around it was irrelevant, because the wrapper held
+  only the single slot child. Set the SLOT node itself HORIZONTAL with
+  `itemSpacing` bound and HUG on both axes. **Only the definition-of-done
+  throwaway instantiation caught this** — every read-back looked correct. Always
+  drop *two* children into a new slot and look at it.
+
+Also note: `combineAsVariants` reconciles same-named non-variant properties into
+a **single** definition, and `set.appendChild(component)` on an already-combined
+set reconciles the same way — the appended variants' refs re-point at the
+canonical ids automatically (verified: zero orphans across all 10). So a large set
+can be built in batches without hand-fixing property ids.

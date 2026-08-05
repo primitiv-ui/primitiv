@@ -91,6 +91,11 @@ import {
   DropdownSub,
   DropdownSubTrigger,
   DropdownSubContent,
+  EmptyState,
+  EmptyStateMedia,
+  EmptyStateTitle,
+  EmptyStateDescription,
+  EmptyStateActions,
   Field,
   FieldLabel,
   FieldDescription,
@@ -173,6 +178,12 @@ import {
   SliderRange,
   SliderThumb,
   Spacer,
+  SplitButton,
+  SplitButtonAction,
+  SplitButtonTrigger,
+  SplitButtonMenu,
+  SplitButtonItem,
+  SplitButtonSeparator,
   Stack,
   Tabs,
   TabsList,
@@ -190,6 +201,7 @@ import {
   TooltipArrow,
 } from "./components";
 import {
+  Calendar,
   Check,
   ChevronDown,
   ChevronLeft,
@@ -199,6 +211,7 @@ import {
   Copy,
   Delete,
   Download,
+  Eye,
   File,
   Folder,
   Grid,
@@ -206,8 +219,10 @@ import {
   Search,
   Settings,
   Sort,
+  Upload,
   User,
 } from "@primitiv-ui/icons";
+import { VisuallyHidden } from "@primitiv-ui/react";
 import cardPhoto1 from "./assets/carousel-photos/photo-1.jpg";
 import cardPhoto2 from "./assets/carousel-photos/photo-2.jpg";
 import cardPhoto3 from "./assets/carousel-photos/photo-3.jpg";
@@ -411,7 +426,7 @@ function Section({
 // it with the intro article it's a sibling of.
 const PAGE_TOC: { category: string; titles: string[] }[] = [
   { category: "Layout", titles: ["Divider", "Layout Primitives"] },
-  { category: "Buttons", titles: ["Button"] },
+  { category: "Buttons", titles: ["Button", "Split Button"] },
   {
     category: "Forms",
     titles: [
@@ -433,7 +448,7 @@ const PAGE_TOC: { category: string; titles: string[] }[] = [
     category: "Overlays",
     titles: ["Confirm Dialog", "Context Menu", "Drawer", "Dropdown", "Modal", "Popover", "Tooltip"],
   },
-  { category: "Feedback & Status", titles: ["Alert", "Progress"] },
+  { category: "Feedback & Status", titles: ["Alert", "Empty State", "Progress"] },
   {
     category: "Disclosure",
     titles: ["Accordion", "Breadcrumb", "Breadcrumb Overflow", "Collapsible", "Tabs"],
@@ -666,6 +681,9 @@ export function App(): ReactElement {
   const [ddSortOrder, setDdSortOrder] = useState("modified");
   // Context Menu demo state — same controlled pattern as Dropdown; this menu is
   // themed as a canvas/shape editor's right-click menu rather than a file menu.
+  const [publishAction, setPublishAction] = useState(
+    "Nothing published yet.",
+  );
   const [cmShowGrid, setCmShowGrid] = useState(true);
   const [cmSnapToGrid, setCmSnapToGrid] = useState(false);
   const [cmLockAspect, setCmLockAspect] = useState<boolean | "indeterminate">(
@@ -1086,6 +1104,79 @@ primitiv add --all`}</code>
         )}
       </Section>
 
+      {/* A compound of parts, not a props API — the registry surface mirrors the
+          headless compound's shape. That is what lets the third demo promote its
+          title to a real <h3> via asChild, which a `title` prop could not.
+          The component carries no padding and centres itself in the box it is
+          given, so each demo supplies the dashed region it fills. */}
+      <Section title="Empty State" column>
+        <div className="ks-empty-state-demos">
+          <div>
+            <p className="ks-empty-state-caption">
+              vertical (default) — fills and centres in the region; the description
+              holds its measure instead of stretching to the full width
+            </p>
+            <div className="ks-empty-state-region ks-empty-state-region--tall">
+              <EmptyState size={size}>
+                <EmptyStateMedia>
+                  <Search />
+                </EmptyStateMedia>
+                <EmptyStateTitle>No results found</EmptyStateTitle>
+                <EmptyStateDescription>
+                  We could not find anything matching your search. Try adjusting
+                  your filters or using different keywords.
+                </EmptyStateDescription>
+                <EmptyStateActions>
+                  <Button size={size} onClick={() => undefined}>
+                    Clear filters
+                  </Button>
+                  <Button size={size} variant="secondary" onClick={() => undefined}>
+                    Browse all
+                  </Button>
+                </EmptyStateActions>
+              </EmptyState>
+            </div>
+          </div>
+
+          <div>
+            <p className="ks-empty-state-caption">
+              horizontal — the media sits in a gutter beside the text, optically
+              top-aligned to the title's cap-height rather than centred on the block
+            </p>
+            <div className="ks-empty-state-region ks-empty-state-region--inline">
+              <EmptyState size={size} orientation="horizontal">
+                <EmptyStateMedia>
+                  <Folder />
+                </EmptyStateMedia>
+                <EmptyStateTitle>This folder is empty</EmptyStateTitle>
+                <EmptyStateDescription>
+                  Drag files here, or upload them from your device.
+                </EmptyStateDescription>
+                <EmptyStateActions>
+                  <Button size={size} variant="secondary" onClick={() => undefined}>
+                    Upload files
+                  </Button>
+                </EmptyStateActions>
+              </EmptyState>
+            </div>
+          </div>
+
+          <div>
+            <p className="ks-empty-state-caption">
+              minimal — title only, promoted to a real heading with asChild, and
+              role={"{undefined}"} because a static empty state has nothing to announce
+            </p>
+            <div className="ks-empty-state-region ks-empty-state-region--inline">
+              <EmptyState size={size} role={undefined}>
+                <EmptyStateTitle asChild>
+                  <h3>No messages</h3>
+                </EmptyStateTitle>
+              </EmptyState>
+            </div>
+          </div>
+        </div>
+      </Section>
+
       {/* Root is a fixed-size clipping frame; only one of Image/Fallback is ever
           visible. The broken-src avatar demonstrates the error status still
           falling back cleanly (the image stays mounted so its load lifecycle
@@ -1311,6 +1402,167 @@ primitiv add --all`}</code>
           Link
           <ChevronRight />
         </Button>
+      </Section>
+
+      {/* Sits directly under Button: it is a button first and a menu second, so
+          it reads as a Button variation rather than a Dropdown one. Also, like
+          Navigation Menu, deliberately not near the bottom of the page, where a
+          menu that opens downward has no room and flips. */}
+      <Section title="Split Button" column>
+        <p className="kitchen-sink__note">
+          One primary action welded to a chevron that opens the alternatives.
+          The menu is at least as wide as the group and grows to fit its rows,
+          aligned to the leading edge so each alternative starts on the same
+          line as the action's label. Unlike the bare Dropdown further down
+          this page there is no anchor wiring to do — Split Button derives its
+          own <InlineCode size={size}>anchor-name</InlineCode> per instance.
+          Tab through the halves to see the focus ring sit flush against the
+          seam rather than painting over the other half.
+        </p>
+
+        <Stack direction="row" gap="md">
+          <SplitButton size={size}>
+            <SplitButtonAction>Squash and merge</SplitButtonAction>
+            <SplitButtonTrigger>
+              <ChevronDown aria-hidden="true" />
+              <VisuallyHidden>More merge options</VisuallyHidden>
+            </SplitButtonTrigger>
+            <SplitButtonMenu>
+              <SplitButtonItem>Create a merge commit</SplitButtonItem>
+              <SplitButtonItem>Rebase and merge</SplitButtonItem>
+            </SplitButtonMenu>
+          </SplitButton>
+
+          <SplitButton variant="secondary" size={size}>
+            <SplitButtonAction>Save</SplitButtonAction>
+            <SplitButtonTrigger>
+              <ChevronDown aria-hidden="true" />
+              <VisuallyHidden>More save options</VisuallyHidden>
+            </SplitButtonTrigger>
+            <SplitButtonMenu>
+              <SplitButtonItem>Save and close</SplitButtonItem>
+              <SplitButtonItem>Save a copy</SplitButtonItem>
+            </SplitButtonMenu>
+          </SplitButton>
+
+          <SplitButton variant="danger" size={size}>
+            <SplitButtonAction>Delete</SplitButtonAction>
+            <SplitButtonTrigger>
+              <ChevronDown aria-hidden="true" />
+              <VisuallyHidden>More delete options</VisuallyHidden>
+            </SplitButtonTrigger>
+            <SplitButtonMenu>
+              <SplitButtonItem>Delete and archive</SplitButtonItem>
+              <SplitButtonItem>Delete permanently</SplitButtonItem>
+            </SplitButtonMenu>
+          </SplitButton>
+        </Stack>
+
+        {/* Icons on both sides of the composition: a leading glyph on the
+            action, and a leading glyph on every row. The rows use Dropdown's
+            own slot parts — Split Button re-exports only Item and Separator,
+            because Root provides the same Dropdown context and everything
+            else composes inside the menu directly. */}
+        <p className="kitchen-sink__note">
+          With a leading icon on the action and one on every row. The rows are
+          real <InlineCode size={size}>DropdownItemLeading</InlineCode> /{" "}
+          <InlineCode size={size}>DropdownItemLabel</InlineCode> slots, so the
+          glyph gutter lines up whichever rows carry an icon.
+        </p>
+
+        <Stack direction="row" gap="md" align="center">
+          <SplitButton size={size}>
+            <SplitButtonAction
+              onClick={() => setPublishAction("Published immediately.")}
+            >
+              <Upload aria-hidden="true" />
+              Publish
+            </SplitButtonAction>
+            <SplitButtonTrigger>
+              <ChevronDown aria-hidden="true" />
+              <VisuallyHidden>More publish options</VisuallyHidden>
+            </SplitButtonTrigger>
+            <SplitButtonMenu>
+              <SplitButtonItem
+                onSelect={() => setPublishAction("Published, then previewed.")}
+              >
+                <DropdownItemLeading>
+                  <Eye aria-hidden="true" />
+                </DropdownItemLeading>
+                <DropdownItemLabel>Publish and preview</DropdownItemLabel>
+              </SplitButtonItem>
+              <SplitButtonItem
+                onSelect={() => setPublishAction("Scheduled for tomorrow.")}
+              >
+                <DropdownItemLeading>
+                  <Calendar aria-hidden="true" />
+                </DropdownItemLeading>
+                <DropdownItemLabel>Schedule for later</DropdownItemLabel>
+              </SplitButtonItem>
+              <SplitButtonItem
+                onSelect={() => setPublishAction("Saved as a draft.")}
+              >
+                <DropdownItemLeading>
+                  <File aria-hidden="true" />
+                </DropdownItemLeading>
+                <DropdownItemLabel>Save as draft</DropdownItemLabel>
+              </SplitButtonItem>
+              <SplitButtonSeparator />
+              <SplitButtonItem
+                onSelect={() => setPublishAction("Changes discarded.")}
+              >
+                <DropdownItemLeading>
+                  <Delete aria-hidden="true" />
+                </DropdownItemLeading>
+                <DropdownItemLabel>Discard changes</DropdownItemLabel>
+              </SplitButtonItem>
+            </SplitButtonMenu>
+          </SplitButton>
+
+          <span className="kitchen-sink__note">{publishAction}</span>
+        </Stack>
+
+        {/* All three disabled combinations are legal. The seam steps down one
+            stop whenever any half is disabled, so it stops reading as a hard
+            dark line across a washed-out control. */}
+        <p className="kitchen-sink__note">
+          Disabled works three ways — the whole group, the action alone (the
+          alternatives stay reachable), or the trigger alone.
+        </p>
+
+        <Stack direction="row" gap="md">
+          <SplitButton size={size} disabled>
+            <SplitButtonAction>Whole group</SplitButtonAction>
+            <SplitButtonTrigger>
+              <ChevronDown aria-hidden="true" />
+              <VisuallyHidden>More options</VisuallyHidden>
+            </SplitButtonTrigger>
+            <SplitButtonMenu>
+              <SplitButtonItem>Unreachable</SplitButtonItem>
+            </SplitButtonMenu>
+          </SplitButton>
+
+          <SplitButton size={size}>
+            <SplitButtonAction disabled>Action only</SplitButtonAction>
+            <SplitButtonTrigger>
+              <ChevronDown aria-hidden="true" />
+              <VisuallyHidden>More options</VisuallyHidden>
+            </SplitButtonTrigger>
+            <SplitButtonMenu>
+              <SplitButtonItem>Still reachable</SplitButtonItem>
+            </SplitButtonMenu>
+          </SplitButton>
+
+          <SplitButton size={size}>
+            <SplitButtonAction>Trigger only</SplitButtonAction>
+            <SplitButtonTrigger disabled aria-label="More options">
+              <ChevronDown aria-hidden="true" />
+            </SplitButtonTrigger>
+            <SplitButtonMenu>
+              <SplitButtonItem>Unreachable</SplitButtonItem>
+            </SplitButtonMenu>
+          </SplitButton>
+        </Stack>
       </Section>
 
       {/* Mirrors the Figma "Example" showcase frame: three columns covering

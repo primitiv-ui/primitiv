@@ -34,9 +34,16 @@ scaffold it).
 ## Operator/reviewer-facing (never shown to the building agent)
 
 - **[`report-template.md`](report-template.md)** — filled in after the run
-  by a reviewer (ideally a separate, fresh session with no knowledge of how
-  the site was built), synthesising the agent's own `NOTES.md`, the
+  by a reviewer (a separate, fresh session with no knowledge of how the
+  site was built), synthesising the agent's own `NOTES.md`, the
   screenshots it took, and the built site itself.
+- **[`reviewer-prompt.md`](reviewer-prompt.md)** — the kickoff message for
+  that reviewer session. Unlike the builder, the reviewer session *should*
+  attach `primitiv-ui/primitiv` (it needs `ROADMAP.md`/RFC context to tag
+  findings `known-gap` vs. `new-finding`) as well as the scratch repo. It
+  renders the site cold and screenshots it itself *before* reading the
+  builder's `NOTES.md`, so its first impression isn't primed by the
+  builder's own account.
 
 ## Live operational copy
 

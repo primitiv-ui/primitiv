@@ -56,6 +56,26 @@ describe("Listbox asChild", () => {
     );
   });
 
+  it("renders a GroupLabel as a consumer-supplied element", () => {
+    render(
+      <Listbox.Root type="single" aria-label="Fruits">
+        <Listbox.Group>
+          <Listbox.GroupLabel asChild>
+            <h3>Citrus</h3>
+          </Listbox.GroupLabel>
+          <Listbox.Option value="lemon">Lemon</Listbox.Option>
+        </Listbox.Group>
+      </Listbox.Root>,
+    );
+
+    const heading = screen.getByText("Citrus");
+    expect(heading.tagName).toBe("H3");
+    expect(screen.getByRole("group", { name: "Citrus" })).toHaveAttribute(
+      "aria-labelledby",
+      heading.id,
+    );
+  });
+
   it("forwards a ref through an asChild Option", () => {
     const ref = createRef<HTMLDivElement>();
     render(

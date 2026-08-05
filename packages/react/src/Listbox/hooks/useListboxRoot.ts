@@ -1,16 +1,6 @@
-import {
-  useCallback,
-  useId,
-  useMemo,
-  useState,
-  type KeyboardEvent,
-} from "react";
+import { useCallback, useId, useState, type KeyboardEvent } from "react";
 
-import {
-  useCollection,
-  useControllableState,
-  useRovingTabindex,
-} from "../../hooks/index.ts";
+import { useCollection, useControllableState } from "../../hooks/index.ts";
 import { deriveId, getKeyToActionMap } from "../../utils/index.ts";
 
 import { useListboxTypeahead } from "./useListboxTypeahead";
@@ -44,9 +34,13 @@ function toArray(value: string | string[] | undefined): string[] {
  * the cursor is seeded when the root takes focus and cleared when it loses
  * it.
  *
- * `useRovingTabindex` supplies the keymap only. No `tabIndex` is moved
- * between options: the root is the single tab stop, and navigation just
- * repoints the cursor.
+ * No `tabIndex` is moved between options: the root is the single tab stop,
+ * and navigation just repoints the cursor.
+ *
+ * Navigation order is read from the **live DOM** on every interaction rather
+ * than from a memoised array. Reordering options in place (APG's rearrangeable
+ * example) keeps the same elements mounted with unchanged props, so nothing
+ * re-registers and any cached order would silently go stale.
  */
 export function useListboxRoot({
   type,
@@ -76,11 +70,13 @@ export function useListboxRoot({
     toArray(defaultValue),
   );
   const [activeValue, setActiveValue] = useState<string | undefined>(undefined);
-  const {
-    register: registerBase,
-    itemsRef,
-    keys: optionValues,
-  } = useCollection<string, OptionMeta>();
+  // `keys` is deliberately unused: navigation order comes from the DOM, not
+  // from registration order. The collection is still what keeps `itemsRef`
+  // populated and re-renders the Root as options mount and unmount.
+  const { register: registerBase, itemsRef } = useCollection<
+    string,
+    OptionMeta
+  >();
 
   const registerOption = useCallback(
     (optionValue: string, element: HTMLElement | null, disabled = false) => {
@@ -91,10 +87,20 @@ export function useListboxRoot({
 
   // Disabled options stay in the DOM and in the a11y tree, but drop out of
   // every navigable list: cursor movement and focus seeding both skip them.
-  const enabledValues = useMemo(
-    () => optionValues.filter((key) => !itemsRef.current.get(key)?.disabled),
-    [optionValues, itemsRef],
-  );
+  //
+  // Sorted by document position, not registration order — see the note above.
+  const getNavigableValues = useCallback(() => {
+    const entries = Array.from(itemsRef.current.entries()).filter(
+      ([, meta]) => !meta.disabled,
+    );
+    entries.sort(([, a], [, b]) =>
+      a.element.compareDocumentPosition(b.element) &
+      Node.DOCUMENT_POSITION_FOLLOWING
+        ? -1
+        : 1,
+    );
+    return entries.map(([key]) => key);
+  }, [itemsRef]);
 
   // Single mode replaces the selection outright — re-selecting the current
   // option is a no-op re-select, not a deselect (a listbox is not a toggle).
@@ -128,11 +134,12 @@ export function useListboxRoot({
   // APG: Ctrl+A selects all, or deselects if everything is already selected.
   // Disabled options are not selectable, so they are not part of "all".
   const toggleSelectAll = useCallback(() => {
+    const navigable = getNavigableValues();
     const allSelected =
-      enabledValues.length > 0 &&
-      enabledValues.every((key) => selectedValues.includes(key));
-    commitSelection(allSelected ? [] : enabledValues);
-  }, [enabledValues, selectedValues, commitSelection]);
+      navigable.length > 0 &&
+      navigable.every((key) => selectedValues.includes(key));
+    commitSelection(allSelected ? [] : navigable);
+  }, [getNavigableValues, selectedValues, commitSelection]);
 
   const getOptionId = useCallback(
     (optionValue: string) => deriveId(rootId, "option", optionValue),
@@ -153,13 +160,14 @@ export function useListboxRoot({
   // APG: when the listbox receives focus, the first selected option takes
   // the cursor; with nothing selected, the first option does.
   const seedActiveValue = useCallback(() => {
+    const navigable = getNavigableValues();
     setActiveValue(
       (current) =>
         current ??
-        enabledValues.find((key) => selectedValues.includes(key)) ??
-        enabledValues[0],
+        navigable.find((key) => selectedValues.includes(key)) ??
+        navigable[0],
     );
-  }, [enabledValues, selectedValues]);
+  }, [getNavigableValues, selectedValues]);
 
   const clearActiveValue = useCallback(() => setActiveValue(undefined), []);
 
@@ -178,21 +186,28 @@ export function useListboxRoot({
   // the end and round to the top would select options never travelled past.
   const extendSelection = useCallback(
     (direction: "next" | "prev") => {
+      const navigable = getNavigableValues();
       const currentIndex =
-        activeValue === undefined ? -1 : enabledValues.indexOf(activeValue);
+        activeValue === undefined ? -1 : navigable.indexOf(activeValue);
       if (currentIndex === -1) return;
 
       const targetIndex =
         direction === "next" ? currentIndex + 1 : currentIndex - 1;
-      if (targetIndex < 0 || targetIndex >= enabledValues.length) return;
+      if (targetIndex < 0 || targetIndex >= navigable.length) return;
 
-      const target = enabledValues[targetIndex];
+      const target = navigable[targetIndex];
       moveCursor(target);
       if (!selectedValues.includes(target)) {
         commitSelection([...selectedValues, target]);
       }
     },
-    [activeValue, enabledValues, moveCursor, selectedValues, commitSelection],
+    [
+      activeValue,
+      getNavigableValues,
+      moveCursor,
+      selectedValues,
+      commitSelection,
+    ],
   );
 
   // APG: Ctrl+Shift+Home/End selects from the cursor through to the first or
@@ -200,14 +215,15 @@ export function useListboxRoot({
   // swept range are preserved.
   const extendToEdge = useCallback(
     (edge: "first" | "last") => {
+      const navigable = getNavigableValues();
       const currentIndex =
-        activeValue === undefined ? -1 : enabledValues.indexOf(activeValue);
+        activeValue === undefined ? -1 : navigable.indexOf(activeValue);
       if (currentIndex === -1) return;
 
       const range =
         edge === "first"
-          ? enabledValues.slice(0, currentIndex + 1)
-          : enabledValues.slice(currentIndex);
+          ? navigable.slice(0, currentIndex + 1)
+          : navigable.slice(currentIndex);
 
       const next = [...selectedValues];
       for (const key of range) {
@@ -215,40 +231,77 @@ export function useListboxRoot({
       }
       commitSelection(next);
       moveCursor(
-        edge === "first"
-          ? enabledValues[0]
-          : enabledValues[enabledValues.length - 1],
+        edge === "first" ? navigable[0] : navigable[navigable.length - 1],
       );
     },
-    [activeValue, enabledValues, selectedValues, commitSelection, moveCursor],
+    [
+      activeValue,
+      getNavigableValues,
+      selectedValues,
+      commitSelection,
+      moveCursor,
+    ],
   );
 
-  const { handleKeyDown: handleRovingKeyDown } = useRovingTabindex<string>({
-    orientation,
-    dir,
-    navigable: enabledValues,
-    currentKey: activeValue ?? "",
-    includeHomeEnd: true,
-    includeActivate: true,
-    onNavigate: (target, action) => {
+  // The arrow / Home / End / Enter-Space keymap. This mirrors what
+  // `useRovingTabindex` does, but resolves `navigable` at event time so a
+  // reorder is picked up; that hook takes its list at render time.
+  const handleNavigationKey = useCallback(
+    (event: KeyboardEvent<HTMLElement>) => {
+      const action = getKeyToActionMap({
+        orientation,
+        dir,
+        homeEnd: true,
+        activate: true,
+      })[event.key];
+      if (!action) return;
+
+      const navigable = getNavigableValues();
+      if (navigable.length === 0) return;
+
       if (action === "activate") {
-        select(target);
+        if (activeValue === undefined) return;
+        event.preventDefault();
+        select(activeValue);
         return;
       }
-      navigateTo(target);
+
+      const currentIndex =
+        activeValue === undefined ? -1 : navigable.indexOf(activeValue);
+      let targetIndex: number;
+      if (action === "first") {
+        targetIndex = 0;
+      } else if (action === "last") {
+        targetIndex = navigable.length - 1;
+      } else if (currentIndex === -1) {
+        // No cursor yet — the options streamed in after the listbox took
+        // focus, so seeding never ran. Enter the list from the near end
+        // rather than swallowing the keystroke.
+        targetIndex = action === "next" ? 0 : navigable.length - 1;
+      } else {
+        targetIndex =
+          action === "next"
+            ? (currentIndex + 1) % navigable.length
+            : (currentIndex - 1 + navigable.length) % navigable.length;
+      }
+
+      event.preventDefault();
+      navigateTo(navigable[targetIndex]);
     },
-  });
+    [orientation, dir, getNavigableValues, activeValue, select, navigateTo],
+  );
 
   // `optionValue` is always drawn from `navigable` (the enabled subset of the
   // registered keys), and useCollection writes `itemsRef` and the keys state
   // together — so the entry, and an element with textContent, always exist.
   const getLabel = useCallback(
-    (optionValue: string) => itemsRef.current.get(optionValue)!.element.textContent!,
+    (optionValue: string) =>
+      itemsRef.current.get(optionValue)!.element.textContent!,
     [itemsRef],
   );
 
   const { handleTypeahead } = useListboxTypeahead({
-    navigable: enabledValues,
+    getNavigable: getNavigableValues,
     getLabel,
     currentKey: activeValue,
     onMatch: navigateTo,
@@ -293,7 +346,7 @@ export function useListboxRoot({
         }
       }
 
-      handleRovingKeyDown(event);
+      handleNavigationKey(event);
       if (event.defaultPrevented) return;
       handleTypeahead(event);
     },
@@ -304,7 +357,7 @@ export function useListboxRoot({
       toggleSelectAll,
       extendSelection,
       extendToEdge,
-      handleRovingKeyDown,
+      handleNavigationKey,
       handleTypeahead,
     ],
   );

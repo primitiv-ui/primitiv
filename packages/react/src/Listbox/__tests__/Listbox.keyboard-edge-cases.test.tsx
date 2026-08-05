@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { Listbox } from "../Listbox";
 
@@ -38,6 +38,80 @@ describe("Listbox keyboard edge cases", () => {
       "aria-activedescendant",
     );
   });
+
+  it("ignores arrow keys on a listbox with nothing to navigate", async () => {
+    const user = userEvent.setup();
+    render(<Listbox.Root type="single" aria-label="Fruits" />);
+
+    await user.tab();
+    await user.keyboard("{ArrowDown}{End}");
+
+    expect(screen.getByRole("listbox")).not.toHaveAttribute(
+      "aria-activedescendant",
+    );
+  });
+
+  it("has nothing to select when Enter arrives with no cursor", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    const { rerender } = render(
+      <Listbox.Root
+        type="single"
+        onValueChange={onValueChange}
+        aria-label="Fruits"
+      />,
+    );
+
+    await user.tab();
+    rerender(
+      <Listbox.Root
+        type="single"
+        onValueChange={onValueChange}
+        aria-label="Fruits"
+      >
+        {fruits.map((fruit) => (
+          <Listbox.Option key={fruit.value} value={fruit.value}>
+            {fruit.label}
+          </Listbox.Option>
+        ))}
+      </Listbox.Root>,
+    );
+
+    await user.keyboard("{Enter}");
+
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["{ArrowDown}", "Apple"],
+    ["{ArrowUp}", "Cherry"],
+  ])(
+    "%s enters the list at %s when options arrived after focus",
+    async (key, expected) => {
+      const user = userEvent.setup();
+      const { rerender } = render(
+        <Listbox.Root type="single" aria-label="Fruits" />,
+      );
+
+      await user.tab();
+      rerender(
+        <Listbox.Root type="single" aria-label="Fruits">
+          {fruits.map((fruit) => (
+            <Listbox.Option key={fruit.value} value={fruit.value}>
+              {fruit.label}
+            </Listbox.Option>
+          ))}
+        </Listbox.Root>,
+      );
+
+      await user.keyboard(key);
+
+      expect(screen.getByRole("listbox")).toHaveAttribute(
+        "aria-activedescendant",
+        screen.getByRole("option", { name: expected }).id,
+      );
+    },
+  );
 
   // The search-suggestions case: the listbox is focused while still empty and
   // its options stream in afterwards, so the cursor was never seeded. Typeahead

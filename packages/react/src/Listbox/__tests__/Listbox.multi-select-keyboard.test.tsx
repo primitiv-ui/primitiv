@@ -156,6 +156,22 @@ describe("Listbox multi-select keyboard — Shift+Arrow", () => {
     selectionIs("Banana", "Cherry");
   });
 
+  it("does not re-announce an option that is already selected", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    renderMultiple({ defaultValue: ["apple", "banana"], onValueChange });
+
+    await user.tab();
+    await user.keyboard("{Shift>}{ArrowDown}{/Shift}");
+
+    expect(screen.getByRole("listbox")).toHaveAttribute(
+      "aria-activedescendant",
+      screen.getByRole("option", { name: "Banana" }).id,
+    );
+    selectionIs("Apple", "Banana");
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+
   it("stops at the last option instead of wrapping", async () => {
     const user = userEvent.setup();
     renderMultiple({ defaultValue: ["cherry"] });
@@ -305,6 +321,48 @@ describe("Listbox multi-select keyboard — Ctrl+Shift+Home/End", () => {
     await user.keyboard("{Control>}{Shift>}{End}{/Shift}{/Control}");
 
     selectionIs("Banana");
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * Both range operations pivot on the cursor. When options stream in after the
+ * listbox took focus there is no cursor to pivot on, so they must decline
+ * rather than sweep from a phantom position.
+ */
+describe("Listbox multi-select keyboard — no cursor to pivot on", () => {
+  it.each([
+    ["Shift+ArrowDown", "{Shift>}{ArrowDown}{/Shift}"],
+    ["Ctrl+Shift+End", "{Control>}{Shift>}{End}{/Shift}{/Control}"],
+  ])("%s selects nothing", async (_name, keys) => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    const { rerender } = render(
+      <Listbox.Root
+        type="multiple"
+        onValueChange={onValueChange}
+        aria-label="Fruits"
+      />,
+    );
+
+    await user.tab();
+    rerender(
+      <Listbox.Root
+        type="multiple"
+        onValueChange={onValueChange}
+        aria-label="Fruits"
+      >
+        {fruits.map((fruit) => (
+          <Listbox.Option key={fruit.value} value={fruit.value}>
+            {fruit.label}
+          </Listbox.Option>
+        ))}
+      </Listbox.Root>,
+    );
+
+    await user.keyboard(keys);
+
+    selectionIs();
     expect(onValueChange).not.toHaveBeenCalled();
   });
 });

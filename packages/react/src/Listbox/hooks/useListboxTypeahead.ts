@@ -3,8 +3,9 @@ import { useCallback, useRef, type KeyboardEvent } from "react";
 import { TYPEAHEAD_RESET_MS } from "../constants";
 
 type UseListboxTypeaheadArgs = {
-  /** The navigable (enabled) option values, in DOM order. */
-  navigable: string[];
+  /** Reads the navigable (enabled) option values in current DOM order. Called
+   * per keystroke so an in-place reorder is picked up. */
+  getNavigable: () => string[];
   /** Reads an option's visible label, used for prefix matching. */
   getLabel: (optionValue: string) => string;
   /** The option the cursor is on, or `undefined` before it is seeded. */
@@ -26,7 +27,7 @@ type UseListboxTypeaheadArgs = {
  * text, and the search wraps.
  */
 export function useListboxTypeahead({
-  navigable,
+  getNavigable,
   getLabel,
   currentKey,
   onMatch,
@@ -41,6 +42,8 @@ export function useListboxTypeahead({
   const handleTypeahead = useCallback(
     (event: KeyboardEvent<HTMLElement>) => {
       if (event.key.length !== 1) return;
+
+      const navigable = getNavigable();
       if (navigable.length === 0) return;
 
       const state = stateRef.current;
@@ -74,7 +77,7 @@ export function useListboxTypeahead({
         }
       }
     },
-    [navigable, getLabel, currentKey, onMatch],
+    [getNavigable, getLabel, currentKey, onMatch],
   );
 
   return { handleTypeahead };

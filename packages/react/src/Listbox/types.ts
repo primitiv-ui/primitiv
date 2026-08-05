@@ -50,6 +50,9 @@ export type ListboxRootProps = ListboxRootBaseProps &
 export type ListboxOptionProps = HTMLAttributes<HTMLDivElement> & {
   /** Identifies this option within the listbox. */
   value: string;
+  /** Removes the option from cursor navigation and from focus seeding, and
+   * makes it unselectable. */
+  disabled?: boolean;
   /** Forwarded to the underlying `HTMLDivElement`. */
   ref?: Ref<HTMLDivElement>;
 };

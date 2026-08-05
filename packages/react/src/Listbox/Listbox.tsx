@@ -62,6 +62,7 @@ export function ListboxRoot({
 
 export function ListboxOption({
   value,
+  disabled = false,
   onClick,
   children,
   ref,
@@ -75,9 +76,9 @@ export function ListboxOption({
   const setRef = useMemo(() => composeRefs(localRef, ref), [ref]);
 
   useEffect(() => {
-    registerOption(value, localRef.current);
+    registerOption(value, localRef.current, disabled);
     return () => registerOption(value, null);
-  }, [value, registerOption]);
+  }, [value, disabled, registerOption]);
 
   return (
     <div
@@ -86,8 +87,13 @@ export function ListboxOption({
       id={getOptionId(value)}
       role="option"
       aria-selected={selected}
+      aria-disabled={disabled || undefined}
+      data-disabled={disabled ? "" : undefined}
       data-highlighted={activeValue === value ? "" : undefined}
-      onClick={composeEventHandlers(onClick, () => select(value))}
+      onClick={composeEventHandlers(onClick, () => {
+        if (disabled) return;
+        select(value);
+      })}
     >
       {children}
     </div>

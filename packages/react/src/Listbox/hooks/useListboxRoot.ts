@@ -13,6 +13,8 @@ import {
 } from "../../hooks/index.ts";
 import { deriveId } from "../../utils/index.ts";
 
+type OptionMeta = { element: HTMLElement; disabled: boolean };
+
 type UseListboxRootArgs = {
   defaultValue: string | undefined;
   value: string | undefined;
@@ -42,7 +44,11 @@ export function useListboxRoot({
   selectedValues: string[];
   select: (optionValue: string) => void;
   activeValue: string | undefined;
-  registerOption: (optionValue: string, element: HTMLElement | null) => void;
+  registerOption: (
+    optionValue: string,
+    element: HTMLElement | null,
+    disabled?: boolean,
+  ) => void;
   getOptionId: (optionValue: string) => string;
   seedActiveValue: () => void;
   clearActiveValue: () => void;
@@ -56,14 +62,28 @@ export function useListboxRoot({
   );
   const [activeValue, setActiveValue] = useState<string | undefined>(undefined);
   const {
-    register: registerOption,
+    register: registerBase,
     itemsRef,
     keys: optionValues,
-  } = useCollection<string, HTMLElement>();
+  } = useCollection<string, OptionMeta>();
+
+  const registerOption = useCallback(
+    (optionValue: string, element: HTMLElement | null, disabled = false) => {
+      registerBase(optionValue, element ? { element, disabled } : null);
+    },
+    [registerBase],
+  );
 
   const selectedValues = useMemo(
     () => (value === undefined ? [] : [value]),
     [value],
+  );
+
+  // Disabled options stay in the DOM and in the a11y tree, but drop out of
+  // every navigable list: cursor movement and focus seeding both skip them.
+  const enabledValues = useMemo(
+    () => optionValues.filter((key) => !itemsRef.current.get(key)?.disabled),
+    [optionValues, itemsRef],
   );
 
   const select = useCallback(
@@ -82,7 +102,9 @@ export function useListboxRoot({
   const moveCursor = useCallback(
     (optionValue: string) => {
       setActiveValue(optionValue);
-      itemsRef.current.get(optionValue)?.scrollIntoView({ block: "nearest" });
+      itemsRef.current
+        .get(optionValue)
+        ?.element.scrollIntoView({ block: "nearest" });
     },
     [itemsRef],
   );
@@ -93,16 +115,16 @@ export function useListboxRoot({
     setActiveValue(
       (current) =>
         current ??
-        optionValues.find((key) => selectedValues.includes(key)) ??
-        optionValues[0],
+        enabledValues.find((key) => selectedValues.includes(key)) ??
+        enabledValues[0],
     );
-  }, [optionValues, selectedValues]);
+  }, [enabledValues, selectedValues]);
 
   const clearActiveValue = useCallback(() => setActiveValue(undefined), []);
 
   const { handleKeyDown } = useRovingTabindex<string>({
     orientation: "vertical",
-    navigable: optionValues,
+    navigable: enabledValues,
     currentKey: activeValue ?? "",
     includeHomeEnd: true,
     includeActivate: true,

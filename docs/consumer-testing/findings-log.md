@@ -54,6 +54,21 @@ Full report: `simonrevill/primitiv-consumer-testing/runs/2026-08-05-fernglass-pl
   `node_modules`*, which is a confusing place for a consumer to have to
   look. **Status: open** — worth a README note at minimum, a packaging
   fix at best.
+- **No token covers a reading-width/"measure" content constraint.** Five
+  hand-written `max-width` values (`42rem`/`44rem`/`46rem`/`36rem`/`32ch`,
+  `site.css:120,168,377,396,477`) with nothing token-shaped to reach for
+  — the space/size scales don't cover a ~1000px+ content measure.
+  Arguably covered by the brief's structural-CSS carve-out (same bucket
+  as the breakpoints), but unlike those, no RFC tracks a future token
+  for this category. **Status: open** — flagging in case a `measure`/
+  `prose-width` token family is ever considered; not urgent.
+- **An inline `style` override on `Plans.tsx:270`** sets
+  `--primitiv-font-size-24` on `.price__value` via `style={{ fontSize:
+  ... }}`, overriding the class's own `--primitiv-font-size-40`
+  (`site.css:424-429`). Resolves a real token, so not a compliance
+  breach — but it's an inline override standing in for a proper size
+  modifier class (e.g. `.price__value--sm`) that doesn't exist.
+  **Status: open** — minor pattern smell, not urgent.
 - **Generated `tokens.css` has no generic font-family fallback** on
   `--primitiv-font-family-*`. **Status: open** — small emitter fix.
   **Independently reproduced in Profile B** (2026-08-05), which upgrades

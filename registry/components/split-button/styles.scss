@@ -1,0 +1,219 @@
+/*
+ * SplitButton — Primitiv default theme (canonical CSS).
+ *
+ * Copied into the consumer repo by `primitiv add split-button`. It is yours to
+ * edit: the stable surface is the contract (the .primitiv-split-button class,
+ * the --primary/--secondary/--danger and --xs…--xl modifiers, and the
+ * --primitiv-split-button-* custom properties), not these values
+ * (RFC 0006 Principle 2 — names are stable, values are not).
+ *
+ * Both halves are real .primitiv-button elements and the menu is a real
+ * .primitiv-dropdown panel, so intent, size, transitions, elevation and every
+ * menu-row style come from those components verbatim rather than being
+ * restyled here. This sheet only adds what the composition itself needs: the
+ * weld, the seam, the square trigger, the flush focus ring, and the menu's
+ * width. Requires `button` and `dropdown` to be installed.
+ *
+ * Structure follows RFC 0008: per-component API tokens + the base rule live in
+ * primitiv.base, visual modifiers in primitiv.variants, state styling in
+ * primitiv.states.
+ *
+ * Requires the token layer (`primitiv tokens`) for the --primitiv-action-*,
+ * --primitiv-framed-control-*, --primitiv-focus-ring-* and --primitiv-surface-*
+ * custom properties it resolves.
+ */
+
+/* Declare the sublayer order up front so this sheet is safe to load ahead of
+ * the token layer: CSS fixes layer precedence by first appearance, so without
+ * this a component stylesheet seen first would register primitiv.base before
+ * primitiv.reset and let the reset win (RFC 0008 §7). */
+@layer primitiv.reset, primitiv.tokens, primitiv.theme, primitiv.base, primitiv.variants, primitiv.states;
+
+@layer primitiv.base {
+  .primitiv-split-button {
+    /* Per-component API. The seam is the hairline dividing the two halves. On
+       secondary it resolves to the ordinary border colour, because there the
+       two overlapping borders already are the seam. */
+    --primitiv-split-button-seam: var(--primitiv-action-primary-active);
+    --primitiv-split-button-trigger-inline-size: var(--primitiv-framed-control-md-height);
+
+    display: inline-flex;
+    align-items: stretch;
+  }
+
+  /* Everything targeting a half is scoped under the group so it outranks
+     Button's own rules whichever order the bundler emits the two sheets in —
+     a bare .primitiv-split-button__action would only tie with .primitiv-button
+     and lose or win by source position. */
+  .primitiv-split-button .primitiv-split-button__action,
+  .primitiv-split-button .primitiv-split-button__trigger {
+    --primitiv-split-button-ring-outset: calc(
+      var(--primitiv-focus-ring-offset) + var(--primitiv-focus-ring-width)
+    );
+    --primitiv-split-button-ring-radius: calc(
+      var(--primitiv-button-radius) + var(--primitiv-split-button-ring-outset)
+    );
+
+    /* The focus ring below is an ::after overlay, which needs a containing
+       block on each half. */
+    position: relative;
+  }
+
+  /* The weld — flatten the two inner corners only. The outer corners keep
+     Button's own radius, so the pair reads as one silhouette at every size and
+     density without this sheet knowing any radius value. */
+  .primitiv-split-button .primitiv-split-button__action {
+    border-start-end-radius: 0;
+    border-end-end-radius: 0;
+  }
+
+  .primitiv-split-button .primitiv-split-button__trigger {
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+
+    /* Pull the halves together by one border-width so the action's trailing
+       border and the trigger's leading border land in the same pixel column.
+       On secondary that single hairline IS the seam. On the solid intents the
+       leading border is re-coloured instead, which is the only way to draw a
+       line inside a filled button: action/{intent}/border/default resolves to
+       exactly the same value as the fill, so there is no built-in edge there. */
+    margin-inline-start: calc(-1 * var(--primitiv-button-border-width));
+    border-inline-start-color: var(--primitiv-split-button-seam);
+
+    /* Square: the trigger is exactly as wide as the control is tall, which is
+       what lets it reuse Button's geometry with no size token of its own. A
+       narrower chevron is a one-line override of the custom property on the
+       group. */
+    inline-size: var(--primitiv-split-button-trigger-inline-size);
+    padding-inline: 0;
+    flex: none;
+  }
+
+  /* The menu takes the group's width exactly, so panel and control read as one
+     column rather than the panel floating at its own natural width. The group
+     carries the anchor-name (set inline by the wrapper from useId, so several
+     split buttons on a page never collide) and Dropdown's own bottom-start
+     placement supplies the insets. */
+  .primitiv-split-button .primitiv-split-button__menu {
+    --primitiv-dropdown-min-inline-size: 0;
+
+    inline-size: anchor-size(width);
+  }
+}
+
+@layer primitiv.variants {
+  /* Seam per intent — one step darker than the fill, which is what a seam is.
+     Secondary keeps the ordinary border colour: its two borders already
+     overlap into a single hairline, so re-colouring would only make the join
+     heavier than the control's own outline. */
+  .primitiv-split-button--primary {
+    --primitiv-split-button-seam: var(--primitiv-action-primary-active);
+  }
+
+  .primitiv-split-button--secondary {
+    --primitiv-split-button-seam: var(--primitiv-action-secondary-border-default);
+  }
+
+  .primitiv-split-button--danger {
+    --primitiv-split-button-seam: var(--primitiv-action-danger-active);
+  }
+
+  /* The trigger is square, so its inline size tracks the control height at
+     each size. Both operands are already density-aware, so this needs no
+     token of its own. */
+  .primitiv-split-button--xs {
+    --primitiv-split-button-trigger-inline-size: var(--primitiv-framed-control-xs-height);
+  }
+
+  .primitiv-split-button--sm {
+    --primitiv-split-button-trigger-inline-size: var(--primitiv-framed-control-sm-height);
+  }
+
+  .primitiv-split-button--md {
+    --primitiv-split-button-trigger-inline-size: var(--primitiv-framed-control-md-height);
+  }
+
+  .primitiv-split-button--lg {
+    --primitiv-split-button-trigger-inline-size: var(--primitiv-framed-control-lg-height);
+  }
+
+  .primitiv-split-button--xl {
+    --primitiv-split-button-trigger-inline-size: var(--primitiv-framed-control-xl-height);
+  }
+}
+
+@layer primitiv.states {
+  /* Focus ring — flush at the seam.
+     Button's own ring is a two-layer box-shadow outset on all four sides,
+     which on a welded pair paints a band of focus colour on top of the
+     neighbouring half. Each half instead draws its own ring as an ::after
+     overlay: outset on the three outer edges, flush with the button edge on
+     the seam side, and the two inner corners squared. The ring stays wholly
+     inside its own half and still reads as a closed shape.
+     Button's box-shadow ring is cancelled back to the elevation value so the
+     hover lift survives while focused. */
+  .primitiv-split-button .primitiv-split-button__action:focus-visible,
+  .primitiv-split-button .primitiv-split-button__trigger:focus-visible {
+    outline: none;
+    box-shadow: var(--primitiv-button-shadow);
+    /* The focused half paints above its neighbour so the ring's seam-side edge
+       is never clipped by the adjacent border. */
+    z-index: 1;
+  }
+
+  /* The border is the ring itself; the inset shadow is the surface-coloured
+     gap band that keeps it legible on any background — the same two-part
+     construction as Button's box-shadow ring, expressed as a box so the seam
+     side can differ from the other three. */
+  .primitiv-split-button .primitiv-split-button__action:focus-visible::after,
+  .primitiv-split-button .primitiv-split-button__trigger:focus-visible::after {
+    content: "";
+    position: absolute;
+    inset-block: calc(-1 * var(--primitiv-split-button-ring-outset));
+    border: var(--primitiv-focus-ring-width) solid var(--primitiv-focus-ring);
+    box-shadow: inset 0 0 0 var(--primitiv-focus-ring-offset) var(--primitiv-surface-default);
+    pointer-events: none;
+  }
+
+  .primitiv-split-button .primitiv-split-button__action:focus-visible::after {
+    inset-inline-start: calc(-1 * var(--primitiv-split-button-ring-outset));
+    inset-inline-end: 0;
+    border-start-start-radius: var(--primitiv-split-button-ring-radius);
+    border-end-start-radius: var(--primitiv-split-button-ring-radius);
+    border-start-end-radius: 0;
+    border-end-end-radius: 0;
+  }
+
+  .primitiv-split-button .primitiv-split-button__trigger:focus-visible::after {
+    inset-inline-start: 0;
+    inset-inline-end: calc(-1 * var(--primitiv-split-button-ring-outset));
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+    border-start-end-radius: var(--primitiv-split-button-ring-radius);
+    border-end-end-radius: var(--primitiv-split-button-ring-radius);
+  }
+
+  /* Disabled steps the seam down one stop, so it stays in the same hue family
+     without reading as a hard dark line across a washed-out control. :has()
+     covers all three legal combinations — the whole group, the action alone,
+     or the trigger alone — because each disabled half carries data-disabled
+     whichever way it got there. Note the seam is the trigger's own border in
+     CSS, so it also dims with the half's opacity for free. */
+  .primitiv-split-button:has([data-disabled]) {
+    --primitiv-split-button-seam: var(--primitiv-action-primary-hover);
+  }
+
+  .primitiv-split-button--secondary:has([data-disabled]) {
+    --primitiv-split-button-seam: var(--primitiv-action-secondary-border-default);
+  }
+
+  .primitiv-split-button--danger:has([data-disabled]) {
+    --primitiv-split-button-seam: var(--primitiv-action-danger-hover);
+  }
+}
+
+$primitiv-split-button-seam: var(--primitiv-split-button-seam);
+$primitiv-split-button-trigger-inline-size: var(--primitiv-split-button-trigger-inline-size);
+$primitiv-split-button-ring-outset: var(--primitiv-split-button-ring-outset);
+$primitiv-split-button-ring-radius: var(--primitiv-split-button-ring-radius);
+$primitiv-dropdown-min-inline-size: var(--primitiv-dropdown-min-inline-size);

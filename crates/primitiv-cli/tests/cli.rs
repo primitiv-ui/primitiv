@@ -169,9 +169,13 @@ fn add_all_resolves_every_embedded_component() {
         // no headless primitive of its own beyond Breadcrumb.Ellipsis) +
         // EmptyState (hand-authored, composes the headless EmptyState compound
         // — a compound registry surface because the primitive is a compound,
-        // unlike props-based alert/chip whose primitives are single elements).
-        .stdout(predicate::str::contains("Resolved 53 components to add:"))
+        // unlike props-based alert/chip whose primitives are single elements) +
+        // SplitButton (hand-authored, composes the headless SplitButton compound
+        // plus the registry Button for both halves and Dropdown for the menu —
+        // three surfaces, so no generator shape fits).
+        .stdout(predicate::str::contains("Resolved 54 components to add:"))
         .stdout(predicate::str::contains("button"))
+        .stdout(predicate::str::contains("split-button"))
         .stdout(predicate::str::contains("card"))
         .stdout(predicate::str::contains("avatar-group"))
         .stdout(predicate::str::contains("breadcrumb-overflow"))

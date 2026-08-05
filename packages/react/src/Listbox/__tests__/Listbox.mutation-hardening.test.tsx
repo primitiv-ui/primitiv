@@ -317,3 +317,87 @@ describe("Listbox GroupLabel strict context", () => {
     ).toThrow("Listbox.GroupLabel must be rendered as a child of Listbox.Group");
   });
 });
+
+describe("Listbox reactive option props", () => {
+  it("picks up an option becoming disabled after mount", async () => {
+    const user = userEvent.setup();
+
+    function Toggleable() {
+      const [locked, setLocked] = useState(false);
+      return (
+        <>
+          <button type="button" onClick={() => setLocked(true)}>
+            Lock
+          </button>
+          <Listbox.Root type="single" aria-label="Fruits">
+            <Listbox.Option value="apple">Apple</Listbox.Option>
+            <Listbox.Option value="banana" disabled={locked}>
+              Banana
+            </Listbox.Option>
+            <Listbox.Option value="cherry">Cherry</Listbox.Option>
+          </Listbox.Root>
+        </>
+      );
+    }
+
+    render(<Toggleable />);
+    await user.click(screen.getByRole("button", { name: "Lock" }));
+    await user.tab();
+    await user.keyboard("{ArrowDown}");
+
+    cursorIsOn("Cherry");
+  });
+
+  it("leaves aria-disabled off an enabled option", () => {
+    render(
+      <Listbox.Root type="single" aria-label="Fruits">
+        <Listbox.Option value="apple">Apple</Listbox.Option>
+        <Listbox.Option value="banana" disabled>
+          Banana
+        </Listbox.Option>
+      </Listbox.Root>,
+    );
+
+    expect(screen.getByRole("option", { name: "Apple" })).not.toHaveAttribute(
+      "aria-disabled",
+    );
+    expect(screen.getByRole("option", { name: "Banana" })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
+  });
+});
+
+describe("Listbox GroupLabel lifecycle", () => {
+  it("falls back to the label prop when the heading unmounts", async () => {
+    const user = userEvent.setup();
+
+    function Swappable() {
+      const [heading, setHeading] = useState(true);
+      return (
+        <>
+          <button type="button" onClick={() => setHeading(false)}>
+            Hide
+          </button>
+          <Listbox.Root type="single" aria-label="Fruits">
+            <Listbox.Group label="Fallback">
+              {heading ? (
+                <Listbox.GroupLabel>Citrus</Listbox.GroupLabel>
+              ) : null}
+              <Listbox.Option value="lemon">Lemon</Listbox.Option>
+            </Listbox.Group>
+          </Listbox.Root>
+        </>
+      );
+    }
+
+    render(<Swappable />);
+    expect(screen.getByRole("group", { name: "Citrus" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Hide" }));
+
+    const group = screen.getByRole("group", { name: "Fallback" });
+    expect(group).toHaveAttribute("aria-label", "Fallback");
+    expect(group).not.toHaveAttribute("aria-labelledby");
+  });
+});

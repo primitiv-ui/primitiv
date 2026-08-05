@@ -227,6 +227,7 @@ export function ListboxOption({
   const selected = selectedValues.includes(value);
 
   const localRef = useRef<HTMLDivElement | null>(null);
+  // Stryker disable next-line ArrayDeclaration: equivalent — localRef is a stable RefObject, so the composed ref behaves identically however the deps are spelled.
   const setRef = useMemo(() => composeRefs(localRef, ref), [ref]);
 
   useEffect(() => {
@@ -257,6 +258,7 @@ export function ListboxOption({
 }
 
 /** @internal */
+// Stryker disable next-line StringLiteral: equivalent — a DevTools label, asserted by no behaviour.
 ListboxOption.displayName = "ListboxOption";
 
 /**
@@ -319,6 +321,7 @@ export function ListboxGroup({
 }
 
 /** @internal */
+// Stryker disable next-line StringLiteral: equivalent — a DevTools label, asserted by no behaviour.
 ListboxGroup.displayName = "ListboxGroup";
 
 /**
@@ -354,6 +357,7 @@ export function ListboxGroupLabel({
   useEffect(() => {
     registerLabel(true);
     return () => registerLabel(false);
+  // Stryker disable next-line ArrayDeclaration: equivalent — registerLabel is a stable setState from the Group above.
   }, [registerLabel]);
 
   const labelProps = {

@@ -69,6 +69,7 @@ export function useListboxTypeahead({
       const currentIndex =
         // Stryker disable next-line ConditionalExpression: equivalent — indexOf(undefined) is itself -1.
         currentKey === undefined ? -1 : navigable.indexOf(currentKey);
+      // Stryker disable next-line ConditionalExpression,EqualityOperator: equivalent — with no cursor the two spellings produce the same scan: startIndex -1 with offset 1 and startIndex 0 with offset 0 both begin at index 0 and step identically.
       const hasCursor = currentIndex >= 0;
       const startIndex = hasCursor ? currentIndex : 0;
       const offset =

@@ -23,6 +23,9 @@ describe("Listbox group label", () => {
     const heading = screen.getByText("Land");
     expect(group).toHaveAttribute("aria-labelledby", heading.id);
     expect(heading).toBeVisible();
+    // Only one naming attribute: emitting both would be misleading, since
+    // aria-labelledby silently outranks aria-label.
+    expect(group).not.toHaveAttribute("aria-label");
   });
 
   it("keeps the heading out of the option list", () => {

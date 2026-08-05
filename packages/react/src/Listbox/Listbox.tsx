@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, type ReactElement } from "react";
 
 import { useDirection } from "../DirectionProvider/index.ts";
-import { composeEventHandlers, composeRefs } from "../Slot/index.ts";
+import { Slot, composeEventHandlers, composeRefs } from "../Slot/index.ts";
 
 import { ListboxProvider, useListboxContext } from "./ListboxContext";
 import { useListboxRoot } from "./hooks/index.ts";
@@ -19,6 +19,7 @@ export function ListboxRoot({
   selectionFollowsFocus = false,
   orientation = "vertical",
   dir,
+  asChild = false,
   onFocus,
   onBlur,
   onKeyDown,
@@ -51,25 +52,29 @@ export function ListboxRoot({
     [selectedValues, select, activeValue, registerOption, getOptionId],
   );
 
+  const rootProps = {
+    ...rest,
+    ref,
+    role: "listbox" as const,
+    tabIndex: 0,
+    "aria-multiselectable": type === "multiple" ? true : undefined,
+    "aria-orientation":
+      orientation === "horizontal" ? ("horizontal" as const) : undefined,
+    "data-orientation": orientation,
+    "aria-activedescendant":
+      activeValue === undefined ? undefined : getOptionId(activeValue),
+    onFocus: composeEventHandlers(onFocus, seedActiveValue),
+    onBlur: composeEventHandlers(onBlur, clearActiveValue),
+    onKeyDown: composeEventHandlers(onKeyDown, handleKeyDown),
+  };
+
   return (
     <ListboxProvider value={contextValue}>
-      <div
-        {...rest}
-        ref={ref}
-        role="listbox"
-        tabIndex={0}
-        aria-multiselectable={type === "multiple" ? true : undefined}
-        aria-orientation={orientation === "horizontal" ? "horizontal" : undefined}
-        data-orientation={orientation}
-        aria-activedescendant={
-          activeValue === undefined ? undefined : getOptionId(activeValue)
-        }
-        onFocus={composeEventHandlers(onFocus, seedActiveValue)}
-        onBlur={composeEventHandlers(onBlur, clearActiveValue)}
-        onKeyDown={composeEventHandlers(onKeyDown, handleKeyDown)}
-      >
-        {children}
-      </div>
+      {asChild ? (
+        <Slot {...rootProps}>{children}</Slot>
+      ) : (
+        <div {...rootProps}>{children}</div>
+      )}
     </ListboxProvider>
   );
 }
@@ -77,6 +82,7 @@ export function ListboxRoot({
 export function ListboxOption({
   value,
   disabled = false,
+  asChild = false,
   onClick,
   children,
   ref,
@@ -94,36 +100,46 @@ export function ListboxOption({
     return () => registerOption(value, null);
   }, [value, disabled, registerOption]);
 
-  return (
-    <div
-      {...rest}
-      ref={setRef}
-      id={getOptionId(value)}
-      role="option"
-      aria-selected={selected}
-      aria-disabled={disabled || undefined}
-      data-disabled={disabled ? "" : undefined}
-      data-highlighted={activeValue === value ? "" : undefined}
-      onClick={composeEventHandlers(onClick, () => {
-        if (disabled) return;
-        select(value);
-      })}
-    >
-      {children}
-    </div>
+  const optionProps = {
+    ...rest,
+    ref: setRef,
+    id: getOptionId(value),
+    role: "option" as const,
+    "aria-selected": selected,
+    "aria-disabled": disabled || undefined,
+    "data-disabled": disabled ? "" : undefined,
+    "data-highlighted": activeValue === value ? "" : undefined,
+    onClick: composeEventHandlers(onClick, () => {
+      if (disabled) return;
+      select(value);
+    }),
+  };
+
+  return asChild ? (
+    <Slot {...optionProps}>{children}</Slot>
+  ) : (
+    <div {...optionProps}>{children}</div>
   );
 }
 
 export function ListboxGroup({
   label,
+  asChild = false,
   children,
   ref,
   ...rest
 }: ListboxGroupProps): ReactElement {
-  return (
-    <div {...rest} ref={ref} role="group" aria-label={label}>
-      {children}
-    </div>
+  const groupProps = {
+    ...rest,
+    ref,
+    role: "group" as const,
+    "aria-label": label,
+  };
+
+  return asChild ? (
+    <Slot {...groupProps}>{children}</Slot>
+  ) : (
+    <div {...groupProps}>{children}</div>
   );
 }
 

@@ -17,6 +17,9 @@ export type ListboxRootBaseProps = Omit<
   /** When `true`, moving the cursor with the arrow / Home / End keys also
    * selects the option it lands on. */
   selectionFollowsFocus?: boolean;
+  /** Render a single consumer-supplied element in place of the native
+   * `<div>`, with the listbox's role, ARIA state, and handlers merged in. */
+  asChild?: boolean;
   /** The {@link ListboxOptionProps | `Listbox.Option`} elements that make up
    * the list. */
   children?: ReactNode;
@@ -88,6 +91,9 @@ export type ListboxOptionProps = HTMLAttributes<HTMLDivElement> & {
   /** Removes the option from cursor navigation and from focus seeding, and
    * makes it unselectable. */
   disabled?: boolean;
+  /** Render a single consumer-supplied element in place of the native
+   * `<div>`, with the option's role, ARIA state, and handlers merged in. */
+  asChild?: boolean;
   /** Forwarded to the underlying `HTMLDivElement`. */
   ref?: Ref<HTMLDivElement>;
 };
@@ -97,6 +103,9 @@ export type ListboxGroupProps = HTMLAttributes<HTMLDivElement> & {
   /** Accessible name for the group, applied as `aria-label`. APG requires
    * every option group to carry one. */
   label: string;
+  /** Render a single consumer-supplied element in place of the native
+   * `<div>`, with the group's role and label merged in. */
+  asChild?: boolean;
   /** Forwarded to the underlying `HTMLDivElement`. */
   ref?: Ref<HTMLDivElement>;
 };

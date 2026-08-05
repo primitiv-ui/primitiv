@@ -269,10 +269,12 @@ describe("Listbox typeahead with no cursor", () => {
       <Listbox.Root type="single" aria-label="Fruits">
         <Listbox.Option value="apple">Apple</Listbox.Option>
         <Listbox.Option value="apricot">Apricot</Listbox.Option>
-        <Listbox.Option value="banana">Banana</Listbox.Option>
+        <Listbox.Option value="avocado">Avocado</Listbox.Option>
       </Listbox.Root>,
     );
 
+    // Every option matches, so a scan that starts anywhere but index 0 lands
+    // somewhere visibly different rather than wrapping back onto Apple.
     await user.keyboard("a");
 
     cursorIsOn("Apple");

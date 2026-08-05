@@ -39,7 +39,9 @@ sourcing real photography — keeps things legally clean and reproducible.
 
 Your client has one non-negotiable requirement: the site's components come
 from **Primitiv**, their in-house component library, and nothing else —
-no other UI/component package. Two more hard rules, both non-negotiable:
+no other UI/component package. That includes icons: Primitiv ships its own
+icon package alongside the component packages — use that for any icon you
+need, not a separate icon library. Two more hard rules, both non-negotiable:
 
 - **Install and update Primitiv only via its official CLI or your package
   manager** (`primitiv`, `npm`/`pnpm`/`yarn install`) — never by copying

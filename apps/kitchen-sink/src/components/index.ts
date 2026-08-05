@@ -43,6 +43,7 @@ export * from "./segmented-control";
 export * from "./select";
 export * from "./slider";
 export * from "./spacer";
+export * from "./split-button";
 export * from "./stack";
 export * from "./switch";
 export * from "./table";

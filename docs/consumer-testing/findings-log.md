@@ -103,14 +103,24 @@ Container/Grid, the breakpoint gap, and the font-family-fallback and
 table-scroll-affordance items above all recurred here independently —
 see those entries. New items, not seen in Profile A:
 
-- **`primitiv.json`'s `styles.enabled: false` is ignored** — set to
-  suppress the global element reset (which fights a brownfield app's own
-  bare-element rules), it had no effect; `primitiv-base.css` got written
-  regardless. Worked around by running `primitiv tokens` with no
-  `primitiv.json` present at all. **Status: open** — not yet root-caused
-  (no file/line from this run), needs investigation into `init`/`tokens`'
-  handling of that flag before it can be fixed the way the `asChild` bug
-  was.
+- **`primitiv.json`'s `styles.enabled: false` "ignored" for the global
+  element reset.** Investigated in depth; **status: wontfix**, not a
+  defect. `styles.enabled` correctly gates only per-component style
+  copying (`crates/primitiv-cli/src/commands/add.rs`) — the base
+  element-reset companion (`primitiv-base.css`) is deliberately
+  unconditional (RFC 0008 D60), and `init` deliberately skips the whole
+  token layer for a headless-only project rather than forcing it on a
+  consumer who explicitly asked for none (confirmed correct behaviour,
+  not an oversight, via the existing
+  `init_does_not_emit_the_token_layer_when_styles_are_disabled` test).
+  What the run actually wanted — tokens.css *without* the reset, because
+  the reset fights a brownfield app's existing bare-element CSS — already
+  has a zero-code-change fix: `primitiv-base.css` is a plain sibling
+  file, pulled in by one `@import` line at the top of the emitted
+  `tokens.css`; a consumer who doesn't want it deletes that line (or the
+  file) in their own copy, same as any other generated file. No CLI
+  change needed; the run's workaround (deleting `primitiv.json` entirely)
+  solved a problem that had a smaller solution already available.
 - **`Avatar.Image` needs a documented CSS rule the consumer has to
   remember to add — and this run forgot it.** `Avatar.tsx`'s own doc
   comment and `Avatar/README.md` both specify

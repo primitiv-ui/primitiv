@@ -167,9 +167,12 @@ export type ListboxOptionProps = HTMLAttributes<HTMLDivElement> & {
  */
 export type ListboxGroupProps = HTMLAttributes<HTMLDivElement> & {
   /** Accessible name for the group, applied as `aria-label`. APG requires
-   * every option group to carry one, so this is required rather than
-   * optional. */
-  label: string;
+   * every option group to carry a name — supply it either with this prop (an
+   * invisible name) or by rendering a
+   * {@link ListboxGroupLabelProps | `Listbox.GroupLabel`} heading inside the
+   * group, which names it via `aria-labelledby` instead. A rendered
+   * `GroupLabel` takes precedence. */
+  label?: string;
   /** Render a single consumer-supplied element in place of the native `<div>`,
    * with the group's `role` and `aria-label` merged onto it via the
    * {@link Slot} pattern.
@@ -177,6 +180,33 @@ export type ListboxGroupProps = HTMLAttributes<HTMLDivElement> & {
   asChild?: boolean;
   /** Forwarded to the underlying `HTMLDivElement`. */
   ref?: Ref<HTMLDivElement>;
+};
+
+/**
+ * Props for {@link ListboxGroupLabel | `Listbox.GroupLabel`} — the visible
+ * heading that names its enclosing {@link ListboxGroup | `Listbox.Group`}.
+ */
+export type ListboxGroupLabelProps = HTMLAttributes<HTMLDivElement> & {
+  /** Render a single consumer-supplied element in place of the native
+   * `<div>`, with the heading's `id` and `role="presentation"` merged onto it
+   * via the {@link Slot} pattern.
+   * @default false */
+  asChild?: boolean;
+  /** Forwarded to the underlying `HTMLDivElement`. */
+  ref?: Ref<HTMLDivElement>;
+};
+
+/**
+ * Context shared from {@link ListboxGroup | `Listbox.Group`} to its label —
+ * the id the heading must adopt so the group can point `aria-labelledby` at
+ * it, and the registrar telling the group a heading is present.
+ */
+export type ListboxGroupContextValue = {
+  /** The DOM id the {@link ListboxGroupLabel} must render with. */
+  labelId: string;
+  /** Called by the label on mount/unmount so the group knows whether to emit
+   * `aria-labelledby`. */
+  registerLabel: (present: boolean) => void;
 };
 
 /**

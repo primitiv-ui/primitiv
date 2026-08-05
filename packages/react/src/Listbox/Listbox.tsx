@@ -1,11 +1,24 @@
-import { useEffect, useMemo, useRef, type ReactElement } from "react";
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type ReactElement,
+} from "react";
 
 import { useDirection } from "../DirectionProvider/index.ts";
 import { Slot, composeEventHandlers, composeRefs } from "../Slot/index.ts";
 
-import { ListboxProvider, useListboxContext } from "./ListboxContext";
+import {
+  ListboxGroupProvider,
+  ListboxProvider,
+  useListboxContext,
+  useListboxGroupContext,
+} from "./ListboxContext";
 import { useListboxRoot } from "./hooks/index.ts";
 import type {
+  ListboxGroupLabelProps,
   ListboxGroupProps,
   ListboxOptionProps,
   ListboxRootProps,
@@ -262,22 +275,89 @@ export function ListboxGroup({
   ref,
   ...rest
 }: ListboxGroupProps): ReactElement {
+  const labelId = useId();
+  const [hasLabel, setHasLabel] = useState(false);
+
+  const contextValue = useMemo(
+    () => ({ labelId, registerLabel: setHasLabel }),
+    [labelId],
+  );
+
   const groupProps = {
     ...rest,
     ref,
     role: "group" as const,
-    "aria-label": label,
+    // A rendered GroupLabel wins: aria-labelledby outranks aria-label in the
+    // accessible-name algorithm, so emitting both would be misleading.
+    "aria-labelledby": hasLabel ? labelId : undefined,
+    "aria-label": hasLabel ? undefined : label,
   };
 
-  return asChild ? (
-    <Slot {...groupProps}>{children}</Slot>
-  ) : (
-    <div {...groupProps}>{children}</div>
+  return (
+    <ListboxGroupProvider value={contextValue}>
+      {asChild ? (
+        <Slot {...groupProps}>{children}</Slot>
+      ) : (
+        <div {...groupProps}>{children}</div>
+      )}
+    </ListboxGroupProvider>
   );
 }
 
 /** @internal */
 ListboxGroup.displayName = "ListboxGroup";
+
+/**
+ * The visible heading that names its enclosing
+ * {@link ListboxGroup | `Listbox.Group`} — APG's grouped-options example
+ * labels each group this way rather than with an invisible `aria-label`.
+ *
+ * Renders `role="presentation"` so the heading is not exposed as an option
+ * (only `role="option"` elements may sit inside a listbox), while still being
+ * referenceable: the Group points `aria-labelledby` at this element's id,
+ * which is derived and wired automatically.
+ *
+ * @throws if rendered outside a `Listbox.Group`.
+ *
+ * @extends HTMLDivElement
+ *
+ * @example
+ * ```tsx
+ * <Listbox.Group>
+ *   <Listbox.GroupLabel>Land</Listbox.GroupLabel>
+ *   <Listbox.Option value="cat">Cat</Listbox.Option>
+ * </Listbox.Group>
+ * ```
+ */
+export function ListboxGroupLabel({
+  asChild = false,
+  children,
+  ref,
+  ...rest
+}: ListboxGroupLabelProps): ReactElement {
+  const { labelId, registerLabel } = useListboxGroupContext();
+
+  useEffect(() => {
+    registerLabel(true);
+    return () => registerLabel(false);
+  }, [registerLabel]);
+
+  const labelProps = {
+    ...rest,
+    ref,
+    id: labelId,
+    role: "presentation" as const,
+  };
+
+  return asChild ? (
+    <Slot {...labelProps}>{children}</Slot>
+  ) : (
+    <div {...labelProps}>{children}</div>
+  );
+}
+
+/** @internal */
+ListboxGroupLabel.displayName = "ListboxGroupLabel";
 
 /**
  * The shape of the exported `Listbox` value — callable as `Listbox.Root` and
@@ -287,6 +367,7 @@ export type TListboxCompound = typeof ListboxRoot & {
   Root: typeof ListboxRoot;
   Option: typeof ListboxOption;
   Group: typeof ListboxGroup;
+  GroupLabel: typeof ListboxGroupLabel;
 };
 
 /**
@@ -306,6 +387,7 @@ export type TListboxCompound = typeof ListboxRoot & {
  *   stop, `<div role="listbox">` wrapper.
  * - {@link ListboxOption | `Listbox.Option`} — one selectable choice.
  * - {@link ListboxGroup | `Listbox.Group`} — a named cluster of options.
+ * - {@link ListboxGroupLabel | `Listbox.GroupLabel`} — a group's visible heading.
  *
  * @example
  * ```tsx
@@ -325,6 +407,7 @@ const ListboxCompound: TListboxCompound = Object.assign(ListboxRoot, {
   Root: ListboxRoot,
   Option: ListboxOption,
   Group: ListboxGroup,
+  GroupLabel: ListboxGroupLabel,
 });
 
 ListboxCompound.displayName = "Listbox";

@@ -45,6 +45,13 @@ scaffold it).
   builder's `NOTES.md`, so its first impression isn't primed by the
   builder's own account.
 
+## Findings & fixes
+
+- **[`findings-log.md`](findings-log.md)** — a running, append-only log of
+  concrete engineering action items surfaced by each run, and their
+  status. Lives only here (not mirrored to the scratch repo) since it
+  tracks fixes landing in this codebase.
+
 ## Live operational copy
 
 Everything here is mirrored at

@@ -59,11 +59,12 @@ export function AccordionHeader({ className, ...props }: AccordionHeaderProps) {
 export type AccordionTriggerProps = ComponentPropsWithRef<typeof AccordionPrimitive.Trigger>;
 
 function wrapAccordionTriggerTextNodes(children: ReactNode): ReactNode {
-  return Children.map(children, (child) =>
+  const mapped = Children.map(children, (child) =>
     typeof child === "string" || typeof child === "number"
       ? <span className="primitiv-accordion__trigger-label">{child}</span>
       : child,
   );
+  return Array.isArray(mapped) && mapped.length === 1 ? mapped[0] : mapped;
 }
 
 export function AccordionTrigger({ className, children, ...props }: AccordionTriggerProps) {

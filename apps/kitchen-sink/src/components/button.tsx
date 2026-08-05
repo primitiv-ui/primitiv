@@ -43,11 +43,12 @@ export type ButtonProps = DistributiveOmit<ComponentPropsWithRef<typeof ButtonPr
 };
 
 function wrapTextNodes(children: ReactNode): ReactNode {
-  return Children.map(children, (child) =>
+  const mapped = Children.map(children, (child) =>
     typeof child === "string" || typeof child === "number"
       ? <span className="primitiv-button__label">{child}</span>
       : child,
   );
+  return Array.isArray(mapped) && mapped.length === 1 ? mapped[0] : mapped;
 }
 
 export function Button({ variant, size, className, children, ...props }: ButtonProps) {

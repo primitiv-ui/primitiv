@@ -303,6 +303,41 @@ fn wraps_text_children_in_a_label_span_when_the_contract_opts_in() {
     assert!(wrapper.contains("className, children, ...props"));
 }
 
+/// `Children.map` always returns an array, even for a single child — which
+/// breaks `asChild`'s `Slot` (it requires exactly one element child, and an
+/// array-of-one isn't one child as far as `Slot` is concerned). The generated
+/// `wrapTextNodes` must unwrap the single-child case back to a bare node rather
+/// than a length-1 array, so `<Button asChild><a>Text</a></Button>` still hands
+/// `Slot` a single element.
+#[test]
+fn unwraps_a_single_mapped_child_instead_of_returning_a_length_one_array() {
+    let json = br#"{
+        "name": "button",
+        "description": "A clickable action.",
+        "root": { "element": "button", "class": "primitiv-button" },
+        "wrapTextChildren": true
+    }"#;
+    let wrapper = emit_wrapper(&Contract::parse(json).unwrap());
+
+    assert!(wrapper.contains("const mapped = Children.map(children, (child) =>"));
+    assert!(wrapper
+        .contains("return Array.isArray(mapped) && mapped.length === 1 ? mapped[0] : mapped;"));
+}
+
+/// The same single-child unwrap applies to a structural subcomponent's own
+/// `wrap{Sub}TextNodes` helper (ToggleGroup.Item, Accordion.Trigger) — it's the
+/// identical `asChild`/`Slot` hazard, just on a per-part helper instead of the
+/// single-element one.
+#[test]
+fn unwraps_a_single_mapped_child_for_a_structural_subcomponent_too() {
+    let contract = Contract::parse(DEMO_STRIP.as_bytes()).unwrap();
+    let wrapper = emit_wrapper(&contract);
+
+    assert!(wrapper.contains("const mapped = Children.map(children, (child) =>"));
+    assert!(wrapper
+        .contains("return Array.isArray(mapped) && mapped.length === 1 ? mapped[0] : mapped;"));
+}
+
 /// Without the opt-in, a single-element wrapper stays self-closing with no helper.
 #[test]
 fn omits_the_text_wrapping_helper_by_default() {

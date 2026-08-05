@@ -20,7 +20,8 @@ import { Listbox } from "@primitiv-ui/react";
 | ----------------- | ------- | ------------------------------------------------------------------------- |
 | `Listbox.Root`    | `<div>` | `role="listbox"`, the tab stop, `aria-activedescendant`, context provider, `asChild` |
 | `Listbox.Option`  | `<div>` | `role="option"`, `aria-selected`, `data-highlighted`, `disabled`, `asChild` |
-| `Listbox.Group`   | `<div>` | `role="group"` with a required `label`, `asChild`                          |
+| `Listbox.Group`   | `<div>` | `role="group"`, named by `label` or a nested `GroupLabel`, `asChild`        |
+| `Listbox.GroupLabel` | `<div>` | `role="presentation"` visible heading; wires the group's `aria-labelledby` |
 
 ## Why this is not `Select`
 
@@ -80,6 +81,20 @@ const [toppings, setToppings] = useState<string[]>([]);
 | Enter, Space           | Select (single) or toggle (multiple) the cursor option            |
 | Printable characters   | Prefix typeahead — moves the cursor, resets after 500 ms idle     |
 
+Multiple-selection mode adds APG's optional modifier shortcuts:
+
+| Key                    | Behaviour                                                        |
+| ---------------------- | ---------------------------------------------------------------- |
+| Shift+Arrow            | Moves the cursor and selects the option it lands on. Does **not** wrap |
+| Ctrl/Cmd+Shift+Home    | Selects from the cursor to the first option, cursor parks there   |
+| Ctrl/Cmd+Shift+End     | Selects from the cursor to the last option, cursor parks there    |
+| Ctrl/Cmd+A             | Selects every enabled option, or clears the selection if all are already selected |
+
+Every other chorded shortcut is left alone: `Alt+Arrow` and any unclaimed
+`Ctrl`/`Cmd` combination pass straight through to your own `onKeyDown` and to
+the browser. That is what lets you bind a toolbar to `Alt+Arrow`, as APG's
+rearrangeable example does.
+
 Moving the cursor **does not** select, by default. APG leaves
 selection-follows-focus optional for single-select listboxes and warns it can
 degrade accessibility; the manual model is also what a command palette needs,
@@ -99,19 +114,29 @@ against the option's rendered text, so keep the label in `children`.
 
 Groups are presentational. The cursor walks every option in DOM order,
 crossing group boundaries without stopping, and typeahead searches the whole
-list. The `label` is required — APG requires every option group to have an
-accessible name.
+list.
+
+APG requires every option group to carry an accessible name. There are two
+ways to give it one, and you must use one of them:
 
 ```tsx
-<Listbox.Root type="single" aria-label="Fruit">
-  <Listbox.Group label="Citrus">
-    <Listbox.Option value="lemon">Lemon</Listbox.Option>
-  </Listbox.Group>
-  <Listbox.Group label="Stone fruit">
-    <Listbox.Option value="peach">Peach</Listbox.Option>
-  </Listbox.Group>
-</Listbox.Root>
+{/* Visible heading — what APG's grouped-options example does. */}
+<Listbox.Group>
+  <Listbox.GroupLabel>Citrus</Listbox.GroupLabel>
+  <Listbox.Option value="lemon">Lemon</Listbox.Option>
+</Listbox.Group>
+
+{/* Invisible name, when the grouping is implied visually some other way. */}
+<Listbox.Group label="Citrus">
+  <Listbox.Option value="lemon">Lemon</Listbox.Option>
+</Listbox.Group>
 ```
+
+`GroupLabel` renders `role="presentation"` — only `role="option"` elements may
+sit inside a listbox — and the group points `aria-labelledby` at it, with the
+id derived for you. If both are supplied the rendered `GroupLabel` wins, since
+`aria-labelledby` outranks `aria-label` in the accessible-name algorithm and
+emitting both would be misleading.
 
 ## Disabled options
 
@@ -163,14 +188,31 @@ listbox can be a semantic list:
 </Listbox.Root>
 ```
 
+## Reordering options
+
+Navigation order is read from the **live DOM** on every interaction, not from
+the order options happened to mount in. Moving an option in place — as APG's
+rearrangeable example does — keeps the same element mounted with unchanged
+props, so nothing re-registers and any cached order would silently go stale.
+Arrow keys, `Home`/`End`, focus seeding, typeahead and the range shortcuts all
+follow the new visual order immediately.
+
+## APG example coverage
+
+| Example | Status |
+| ------- | ------ |
+| [Scrollable Listbox](https://www.w3.org/WAI/ARIA/apg/patterns/listbox/examples/listbox-scrollable/) | Covered. Set `selectionFollowsFocus`, which is what that example does |
+| [Listbox with Grouped Options](https://www.w3.org/WAI/ARIA/apg/patterns/listbox/examples/listbox-grouped/) | Covered via `Listbox.GroupLabel` |
+| [Rearrangeable Options](https://www.w3.org/WAI/ARIA/apg/patterns/listbox/examples/listbox-rearrangeable/) | Keyboard model covered — both selection modes, the modifier shortcuts, chord pass-through for the toolbar, and in-place reordering. The toolbar buttons and the move/transfer logic are the consumer's, since the component owns no data model |
+
 ## Not in scope
 
 - **`aria-setsize` / `aria-posinset`** for virtualised or lazily-loaded lists.
   APG calls for these when the full option set is not in the DOM; add them
   yourself on each Option (they pass straight through) if you virtualise.
-- **The optional multi-select keyboard extras** — Shift+Arrow, Shift+Space,
-  Ctrl+A, Ctrl+Shift+Home/End. APG marks all of these optional and Space-toggles
-  is its recommended no-modifier model, which is what ships here.
+- **Shift+Space** to select a contiguous run from an anchor. APG marks it
+  optional, and the shortcuts that ship here cover the same ground without
+  needing anchor state.
 - **Combobox integration.** The virtual-focus model is what makes it possible,
   but the input wiring itself belongs to `Combobox`
   (see [`docs/select-future-work.md`](../../../../docs/select-future-work.md)).

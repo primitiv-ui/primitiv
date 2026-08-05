@@ -58,6 +58,19 @@ import type {
  * {@link ListboxRootBaseProps.selectionFollowsFocus | `selectionFollowsFocus`}
  * for the APG example's select-as-you-arrow behaviour.
  *
+ * In `type="multiple"`, APG's optional modifier shortcuts are implemented too:
+ * `Shift+Arrow` moves the cursor and selects what it lands on (without
+ * wrapping), `Ctrl`/`Cmd`+`Shift`+`Home`/`End` sweeps the selection to that
+ * edge, and `Ctrl`/`Cmd`+`A` selects every enabled option or clears the
+ * selection when all are already selected. Every **other** chorded shortcut is
+ * deliberately left alone — `Alt+Arrow` and unclaimed `Ctrl`/`Cmd` combinations
+ * reach your own `onKeyDown` and the browser untouched, so a toolbar can bind
+ * them.
+ *
+ * **Reordering.** Navigation order is read from the live DOM on each
+ * interaction rather than from mount order, so moving an option in place is
+ * picked up immediately.
+ *
  * **ARIA.** `role="listbox"` on the root, plus `aria-activedescendant`,
  * `aria-multiselectable` (multiple mode only) and `aria-orientation`
  * (horizontal only — vertical is the ARIA default). The root needs an

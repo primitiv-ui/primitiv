@@ -195,6 +195,34 @@ export function useListboxRoot({
     [activeValue, enabledValues, moveCursor, selectedValues, commitSelection],
   );
 
+  // APG: Ctrl+Shift+Home/End selects from the cursor through to the first or
+  // last option and moves the cursor to that edge. Selections outside the
+  // swept range are preserved.
+  const extendToEdge = useCallback(
+    (edge: "first" | "last") => {
+      const currentIndex =
+        activeValue === undefined ? -1 : enabledValues.indexOf(activeValue);
+      if (currentIndex === -1) return;
+
+      const range =
+        edge === "first"
+          ? enabledValues.slice(0, currentIndex + 1)
+          : enabledValues.slice(currentIndex);
+
+      const next = [...selectedValues];
+      for (const key of range) {
+        if (!next.includes(key)) next.push(key);
+      }
+      commitSelection(next);
+      moveCursor(
+        edge === "first"
+          ? enabledValues[0]
+          : enabledValues[enabledValues.length - 1],
+      );
+    },
+    [activeValue, enabledValues, selectedValues, commitSelection, moveCursor],
+  );
+
   const { handleKeyDown: handleRovingKeyDown } = useRovingTabindex<string>({
     orientation,
     dir,
@@ -240,6 +268,17 @@ export function useListboxRoot({
         return;
       }
 
+      if (
+        chord &&
+        event.shiftKey &&
+        (event.key === "Home" || event.key === "End")
+      ) {
+        if (type !== "multiple") return;
+        event.preventDefault();
+        extendToEdge(event.key === "Home" ? "first" : "last");
+        return;
+      }
+
       // Every other chorded shortcut belongs to the browser and the consumer —
       // APG's rearrangeable example binds Alt+Arrow to its toolbar. Only Shift
       // is ours, for range selection.
@@ -264,6 +303,7 @@ export function useListboxRoot({
       dir,
       toggleSelectAll,
       extendSelection,
+      extendToEdge,
       handleRovingKeyDown,
       handleTypeahead,
     ],

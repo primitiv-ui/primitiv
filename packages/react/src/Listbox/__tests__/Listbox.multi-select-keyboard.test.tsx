@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { Listbox } from "../Listbox";
 
-import { fruits } from "./Listbox.fixtures";
+import { fruits, typeaheadOptions } from "./Listbox.fixtures";
 
 function renderMultiple(props: Record<string, unknown> = {}) {
   return render(
@@ -208,6 +208,103 @@ describe("Listbox multi-select keyboard — Shift+Arrow", () => {
       "aria-activedescendant",
       screen.getByRole("option", { name: "Banana" }).id,
     );
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * APG: Ctrl+Shift+Home/End selects from the focused option through to the
+ * first/last option, and moves the cursor to that edge. Selections outside the
+ * swept range survive.
+ */
+describe("Listbox multi-select keyboard — Ctrl+Shift+Home/End", () => {
+  it("sweeps the selection to the end and parks the cursor there", async () => {
+    const user = userEvent.setup();
+    renderMultiple({ defaultValue: ["banana"] });
+
+    await user.tab();
+    await user.keyboard("{Control>}{Shift>}{End}{/Shift}{/Control}");
+
+    selectionIs("Banana", "Cherry");
+    expect(screen.getByRole("listbox")).toHaveAttribute(
+      "aria-activedescendant",
+      screen.getByRole("option", { name: "Cherry" }).id,
+    );
+  });
+
+  it("sweeps the selection to the beginning and parks the cursor there", async () => {
+    const user = userEvent.setup();
+    renderMultiple({ defaultValue: ["banana"] });
+
+    await user.tab();
+    await user.keyboard("{Control>}{Shift>}{Home}{/Shift}{/Control}");
+
+    selectionIs("Apple", "Banana");
+    expect(screen.getByRole("listbox")).toHaveAttribute(
+      "aria-activedescendant",
+      screen.getByRole("option", { name: "Apple" }).id,
+    );
+  });
+
+  it("keeps selections that lie outside the swept range", async () => {
+    const user = userEvent.setup();
+    render(
+      <Listbox.Root type="multiple" defaultValue={["banana"]} aria-label="Fruits">
+        {typeaheadOptions.map((fruit) => (
+          <Listbox.Option key={fruit.value} value={fruit.value}>
+            {fruit.label}
+          </Listbox.Option>
+        ))}
+      </Listbox.Root>,
+    );
+
+    await user.tab();
+    await user.keyboard("{ArrowUp}{ArrowUp}");
+    await user.keyboard("{Control>}{Shift>}{Home}{/Shift}{/Control}");
+
+    selectionIs("Apple", "Apricot", "Banana");
+  });
+
+  it("leaves disabled options unselected while sweeping", async () => {
+    const user = userEvent.setup();
+    render(
+      <Listbox.Root type="multiple" defaultValue={["cherry"]} aria-label="Fruits">
+        <Listbox.Option value="apple">Apple</Listbox.Option>
+        <Listbox.Option value="banana" disabled>
+          Banana
+        </Listbox.Option>
+        <Listbox.Option value="cherry">Cherry</Listbox.Option>
+      </Listbox.Root>,
+    );
+
+    await user.tab();
+    await user.keyboard("{Control>}{Shift>}{Home}{/Shift}{/Control}");
+
+    selectionIs("Apple", "Cherry");
+  });
+
+  it("does nothing in single-selection mode", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <Listbox.Root
+        type="single"
+        defaultValue="banana"
+        onValueChange={onValueChange}
+        aria-label="Fruits"
+      >
+        {fruits.map((fruit) => (
+          <Listbox.Option key={fruit.value} value={fruit.value}>
+            {fruit.label}
+          </Listbox.Option>
+        ))}
+      </Listbox.Root>,
+    );
+
+    await user.tab();
+    await user.keyboard("{Control>}{Shift>}{End}{/Shift}{/Control}");
+
+    selectionIs("Banana");
     expect(onValueChange).not.toHaveBeenCalled();
   });
 });

@@ -219,7 +219,7 @@ surface and applies once those are read.
 
 | # | Title | Status |
 |---|---|---|
-| [0026](0026-consumer-testing-with-agent-personas.md) | Consumer testing with agent personas | Draft — proposed |
+| [0026](0026-consumer-testing-with-agent-personas.md) | Consumer testing with agent personas | First cycle complete — re-run scoped |
 
 - **0026** — an outside-in usability program: AI agents role-play distinct
   consumer profiles (greenfield + full styled registry, brownfield headless

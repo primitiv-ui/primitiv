@@ -51,6 +51,10 @@ scaffold it).
   concrete engineering action items surfaced by each run, and their
   status. Lives only here (not mirrored to the scratch repo) since it
   tracks fixes landing in this codebase.
+- **[`synthesis.md`](synthesis.md)** — the cross-profile synthesis, written
+  once a full cycle of profiles has run (RFC 0026 §13). What recurred
+  across runs (strongest signal), what got fixed, and what to re-test
+  next cycle.
 
 ## Live operational copy
 

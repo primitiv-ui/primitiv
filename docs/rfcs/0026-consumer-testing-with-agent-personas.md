@@ -1,6 +1,10 @@
 # RFC 0026 — Consumer testing with agent personas
 
-> **Status:** Draft — proposed
+> **Status:** First cycle complete (Profiles A/B/C run 2026-08-05/06;
+> `Button`/`asChild` fixed, `styles.enabled` investigated and downgraded to
+> wontfix, a real isolation breach found and a first fix applied — see §19
+> and `docs/consumer-testing/synthesis.md`). Next cycle scoped, not yet
+> scheduled: re-run once Container/Grid/breakpoints land (§8).
 > **Author:** Claude, with architectural drafting
 > **Date:** 2026-08-01
 > **Builds on:** RFC 0004 (consumption/styling contract — what a consumer is

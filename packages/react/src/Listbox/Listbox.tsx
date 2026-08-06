@@ -135,6 +135,7 @@ export function ListboxRoot({
     seedActiveValue,
     clearActiveValue,
     handleKeyDown,
+    moveCursor,
   } = useListboxRoot({
     type,
     defaultValue,
@@ -146,8 +147,22 @@ export function ListboxRoot({
   });
 
   const contextValue = useMemo(
-    () => ({ selectedValues, select, activeValue, registerOption, getOptionId }),
-    [selectedValues, select, activeValue, registerOption, getOptionId],
+    () => ({
+      selectedValues,
+      select,
+      activeValue,
+      registerOption,
+      getOptionId,
+      moveCursor,
+    }),
+    [
+      selectedValues,
+      select,
+      activeValue,
+      registerOption,
+      getOptionId,
+      moveCursor,
+    ],
   );
 
   const rootProps = {
@@ -190,7 +205,14 @@ ListboxRoot.displayName = "ListboxRoot";
  * cursor reaches it. Style the cursor from `data-highlighted`, not `:focus`.
  *
  * **Selection.** Clicking an option selects it (single) or toggles it
- * (multiple), as does Enter / Space while the cursor is on it.
+ * (multiple), as does Enter / Space while the cursor is on it. A click also
+ * moves the cursor onto the clicked option, so a following arrow key resumes
+ * from there — APG treats the clicked option as the focused one.
+ *
+ * **Hover does nothing.** Unlike `Select`'s popup listbox, pointing at an
+ * option does not move the cursor: a mouse resting over the list would
+ * otherwise steal it mid-keystroke. Give hover its own weaker treatment in
+ * CSS, distinct from `data-highlighted`.
  *
  * **Disabled.** `disabled` sets `aria-disabled` and removes the option from
  * cursor navigation, focus seeding, and typeahead — it stays in the
@@ -222,8 +244,14 @@ export function ListboxOption({
   ref,
   ...rest
 }: ListboxOptionProps): ReactElement {
-  const { selectedValues, select, activeValue, registerOption, getOptionId } =
-    useListboxContext();
+  const {
+    selectedValues,
+    select,
+    activeValue,
+    registerOption,
+    getOptionId,
+    moveCursor,
+  } = useListboxContext();
   const selected = selectedValues.includes(value);
 
   const localRef = useRef<HTMLDivElement | null>(null);
@@ -247,6 +275,15 @@ export function ListboxOption({
     onClick: composeEventHandlers(onClick, () => {
       if (disabled) return;
       select(value);
+      // A click is a deliberate act of choosing, so it also becomes the
+      // cursor's position — APG treats the clicked option as the focused one.
+      // Without this the two ways of choosing disagree about where you are in
+      // the list: focus (which fires first) seeds the cursor onto the
+      // previously-selected option, and the next arrow key would resume from
+      // there rather than from the row just clicked. Deliberately not
+      // `navigateTo`, which would re-apply selectionFollowsFocus and, in
+      // multiple mode, toggle the option straight back off.
+      moveCursor(value);
     }),
   };
 

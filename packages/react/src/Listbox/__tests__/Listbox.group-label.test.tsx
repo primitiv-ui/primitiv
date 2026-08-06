@@ -28,6 +28,26 @@ describe("Listbox group label", () => {
     expect(group).not.toHaveAttribute("aria-label");
   });
 
+  it("lets the rendered heading win over the label prop when both are given", () => {
+    render(
+      <Listbox.Root type="single" aria-label="Animals">
+        <Listbox.Group label="Water">
+          <Listbox.GroupLabel>Land</Listbox.GroupLabel>
+          <Listbox.Option value="cat">Cat</Listbox.Option>
+        </Listbox.Group>
+      </Listbox.Root>,
+    );
+
+    const group = screen.getByRole("group", { name: "Land" });
+    expect(group).toHaveAttribute(
+      "aria-labelledby",
+      screen.getByText("Land").id,
+    );
+    // The label prop is dropped rather than emitted alongside. The test above
+    // cannot show this: with no label prop, aria-label is absent either way.
+    expect(group).not.toHaveAttribute("aria-label");
+  });
+
   it("keeps the heading out of the option list", () => {
     render(
       <Listbox.Root type="single" aria-label="Animals">

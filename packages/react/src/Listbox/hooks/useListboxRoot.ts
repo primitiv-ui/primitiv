@@ -63,6 +63,7 @@ export function useListboxRoot({
   seedActiveValue: () => void;
   clearActiveValue: () => void;
   handleKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
+  moveCursor: (optionValue: string) => void;
 } {
   const rootId = useId();
   const [selectedValues, setSelectedValues] = useControllableState<string[]>(
@@ -395,5 +396,6 @@ export function useListboxRoot({
     seedActiveValue,
     clearActiveValue,
     handleKeyDown,
+    moveCursor,
   };
 }

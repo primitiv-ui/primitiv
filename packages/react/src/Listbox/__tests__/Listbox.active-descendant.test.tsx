@@ -62,6 +62,48 @@ describe("Listbox active descendant", () => {
     );
   });
 
+  it("moves the cursor to the option that was clicked", async () => {
+    const user = userEvent.setup();
+    render(
+      <Listbox.Root type="single" defaultValue="apple" aria-label="Fruits">
+        <Listbox.Option value="apple">Apple</Listbox.Option>
+        <Listbox.Option value="banana">Banana</Listbox.Option>
+        <Listbox.Option value="cherry">Cherry</Listbox.Option>
+      </Listbox.Root>,
+    );
+
+    await user.click(screen.getByRole("option", { name: "Cherry" }));
+
+    const cherry = screen.getByRole("option", { name: "Cherry" });
+    expect(cherry).toHaveAttribute("data-highlighted", "");
+    expect(screen.getByRole("listbox")).toHaveAttribute(
+      "aria-activedescendant",
+      cherry.id,
+    );
+    expect(screen.getByRole("option", { name: "Apple" })).not.toHaveAttribute(
+      "data-highlighted",
+    );
+  });
+
+  it("continues arrow navigation from the clicked option", async () => {
+    const user = userEvent.setup();
+    render(
+      <Listbox.Root type="single" defaultValue="apple" aria-label="Fruits">
+        <Listbox.Option value="apple">Apple</Listbox.Option>
+        <Listbox.Option value="banana">Banana</Listbox.Option>
+        <Listbox.Option value="cherry">Cherry</Listbox.Option>
+      </Listbox.Root>,
+    );
+
+    await user.click(screen.getByRole("option", { name: "Banana" }));
+    await user.keyboard("{ArrowDown}");
+
+    expect(screen.getByRole("option", { name: "Cherry" })).toHaveAttribute(
+      "data-highlighted",
+      "",
+    );
+  });
+
   it("drops the highlight when focus leaves the listbox", async () => {
     const user = userEvent.setup();
     render(

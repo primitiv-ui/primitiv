@@ -110,6 +110,26 @@ cycles through the options starting with it, rather than searching for a
 literal run of that character. Matching is a case-insensitive prefix test
 against the option's rendered text, so keep the label in `children`.
 
+## Pointer
+
+Clicking an option selects it (single) or toggles it (multiple), **and moves
+the cursor onto it**, so a following arrow key resumes from the row you
+clicked rather than from wherever focus seeding left the cursor. APG treats
+the clicked option as the focused option. Clicking a disabled option does
+neither.
+
+**Hovering does not move the cursor**, deliberately — there are no pointer
+handlers on the option at all. `Select`'s popup listbox and `Dropdown` both
+move their highlight on pointer movement, but those are transient surfaces
+you are about to dismiss. This list is persistent and an external input may
+be driving it, so a mouse resting anywhere over the list would steal the
+cursor mid-keystroke.
+
+The styling consequence: **hover needs its own treatment, weaker than the
+cursor's and visually distinct from it.** If hover reused the cursor
+treatment, two rows would look current at once and the pointer would appear
+to move a cursor it cannot move.
+
 ## Grouping
 
 Groups are presentational. The cursor walks every option in DOM order,
@@ -169,9 +189,19 @@ Zero styles ship with this library. Style from:
 | Attribute                              | Where   | Meaning                             |
 | -------------------------------------- | ------- | ----------------------------------- |
 | `data-orientation="vertical\|horizontal"` | Root    | Layout axis                         |
+| `aria-invalid="true"`                  | Root    | Invalid — **you** set this; see below |
 | `data-highlighted=""`                  | Option  | The cursor is on this option        |
 | `data-disabled=""`                     | Option  | The option is disabled              |
 | `aria-selected="true\|false"`           | Option  | Selection state                     |
+
+There is deliberately **no `invalid` prop**. `Listbox.Root` spreads unknown
+props onto its `<div>`, so `aria-invalid` already reaches the DOM — style the
+invalid frame from `[aria-invalid="true"]`, the same way `InputGroup` styles
+itself with `:has(input[aria-invalid="true"])`. A bespoke prop would only
+restate what the ARIA attribute already says.
+
+There is also no root-level `disabled`. Only individual options can be
+disabled; a whole inert listbox is out of scope.
 
 ## `asChild`
 

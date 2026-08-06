@@ -189,9 +189,19 @@ Zero styles ship with this library. Style from:
 | Attribute                              | Where   | Meaning                             |
 | -------------------------------------- | ------- | ----------------------------------- |
 | `data-orientation="vertical\|horizontal"` | Root    | Layout axis                         |
+| `aria-invalid="true"`                  | Root    | Invalid — **you** set this; see below |
 | `data-highlighted=""`                  | Option  | The cursor is on this option        |
 | `data-disabled=""`                     | Option  | The option is disabled              |
 | `aria-selected="true\|false"`           | Option  | Selection state                     |
+
+There is deliberately **no `invalid` prop**. `Listbox.Root` spreads unknown
+props onto its `<div>`, so `aria-invalid` already reaches the DOM — style the
+invalid frame from `[aria-invalid="true"]`, the same way `InputGroup` styles
+itself with `:has(input[aria-invalid="true"])`. A bespoke prop would only
+restate what the ARIA attribute already says.
+
+There is also no root-level `disabled`. Only individual options can be
+disabled; a whole inert listbox is out of scope.
 
 ## `asChild`
 

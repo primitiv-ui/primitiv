@@ -129,6 +129,50 @@ await rebind(clone); // walk boundVariables; skip fills/strokes; text fields are
   the source value. After clone-and-rebind, sweep these separately using
   the resolved `node.width`/`node.height` values.
 
+### Icon instances — bind the size, never pick a per-size variant
+
+The **Icon set's own size scale is 16 / 20 / 24 / 32 / 48**, which is *not* the
+`icon-size` token scale (`dropdown/*/item/icon-size` is 12 / 14 / 16 / 20 / 24;
+`framed-control/*/icon-size` differs again). Picking `Icon` variants by name to
+match a row size therefore produces visibly wrong glyphs — `size=md` is 24 px,
+not 16.
+
+The house convention (read off `Dropdown / Item`, and what every row component
+follows) is:
+
+- Instance the **`size=md`** Icon variant everywhere, whatever the control size.
+- **Bind `width` and `height`** to the component's own icon-size token. The
+  binding does the sizing; the variant choice is irrelevant.
+
+This is not merely tidier — it is **required**, because of the next gotcha.
+
+### Attaching an INSTANCE_SWAP property resets every nested instance
+
+`addComponentProperty(…, 'INSTANCE_SWAP', default)` followed by
+`node.componentPropertyReferences = { mainComponent: propId }` **overwrites the
+node's current `mainComponent` with the property's single default** across every
+variant. Any per-variant, size-matched nested instance is silently replaced.
+
+Consequence: per-size nested instances cannot survive property wiring, so the
+bound-dimensions convention above is the only approach that works. Verify after
+wiring with `await node.getMainComponentAsync()` plus a width check — the failure
+is silent and looks like a design mistake, not an API one.
+
+### A bound variable cannot be overridden inside an instance
+
+`setBoundVariable` on a node **inside an instance** returns without throwing and
+then silently no-ops — the main component's binding wins. Re-read
+`node.boundVariables` to confirm; you will find the original variable still
+attached.
+
+This decides architecture, not just implementation. If component B is
+"component A but with one geometry token different", B **cannot** be an instance
+of A — it has to be its own set. (Concretely: `Listbox / CheckboxOption` needs
+its mark column bound to `checkbox/{size}/box-size` instead of
+`dropdown/{size}/item/icon-size`, so it is a standalone set rather than an
+`Option` instance with an override.) Duplicated geometry is the price; there is
+no way around it.
+
 ### Component-specific sizing tokens
 
 When a component has geometry that does not map to shared `framed-control/*`
@@ -158,11 +202,20 @@ auto-layout before width/height can be bound — see
 
 Cross-link only — do not re-derive. The two-frame anatomy (`focus-ring-gap`
 at +2 px/R+2, `focus-ring` at +4 px/R+4, both INSIDE strokes, ring colour
-`focus/ring`, gap `color/neutral/transparent`, width `focus/ring/width`,
+`focus/ring`, gap `color/transparent`, width `focus/ring/width`,
 toggled by a "Focus ring" boolean) and the **canonical build recipe** are in
 `figma-variable-architecture` → "Canonical recipe — focus ring on ANY
 component". This is the shared standard for every framed control; build it
 identically each time.
+
+**Do not try to reproduce the CSS ring as effects.** Figma ignores `spread` on
+`DROP_SHADOW` here, so the web's two-layer `box-shadow` ring renders as nothing
+at all — silently, with no error. The two-frame anatomy is the only thing that
+works, which is why `focus-ring-radius` *and* `focus-ring-gap-radius` both exist
+as tokens. Both frames need
+`constraints = { horizontal: 'STRETCH', vertical: 'STRETCH' }`, which matters
+doubly on a container whose height depends on its content (a slot, a row stack):
+without it the ring keeps its build-time size while the control grows.
 
 ## 4. Incremental audit loop (one group at a time)
 

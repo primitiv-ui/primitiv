@@ -2,8 +2,9 @@
 
 Status as of 2026-08-06: **the headless compound is landed** (100% unit +
 mutation, in `mutation-allowlist.json`); the **Figma exploration page is
-built and all twelve design calls are settled**; the **Figma component set,
-the registry surface and the kitchen-sink demo are not started.**
+built and all twelve design calls are settled**; the **Figma component sets
+are landed** (four sets, 100 variants, all md-first); the **registry surface
+and the kitchen-sink demo are not started.**
 
 The exploration turned up two headless items. One was real and **has landed**
 (a click now moves the cursor). The other — an `invalid` prop — turned out
@@ -240,6 +241,74 @@ none was visible until it was rendered.
   would actually drop it in. The stronger argument is now on the page:
   stripping EmptyState down far enough to fit just reproduces H1.
 
+## Figma component sets — landed 2026-08-06
+
+Page **"Listbox"** (`1569:150`), placed directly under the
+"---- COLLECTIONS & SELECTION ----" divider, which was previously an empty
+section. Four sets, 100 variants, **every one md-first** — `Size` reports
+`["md","xs","sm","lg","xl"]` on all four, achieved by creating the md variants
+before the others (the one thing that works, since `defaultVariant` is
+read-only via the plugin API — the lesson Collapsible and Select couldn't
+apply retroactively).
+
+| Set | ID | Variants | Axes |
+| --- | --- | --- | --- |
+| `Listbox / Option` | `1569:2859` | 40 | Size × State `default\|hover\|cursor\|disabled` × Selected |
+| `Listbox / CheckboxOption` | `1569:4221` | 40 | same |
+| `Listbox / Empty` | `1569:4246` | 5 | Size |
+| `Listbox` (composed) | `1569:4829` | 15 | Size × State `default\|focus\|invalid` |
+
+**`State` carries four values, not three.** `cursor` is its own state
+alongside `hover`, which is the whole reason this component exists separately
+from a menu row — and the cursor tint is deliberately *stronger* than hover's,
+with the cursor winning outright where both apply (§B5).
+
+**The composed set is a real composition.** Its `Slot` holds live, size-matched
+`Listbox / Option` instances, and `preferredValues` curates the picker to
+`Option`, `CheckboxOption`, `Empty`, `Dropdown / Label` and
+`Dropdown / Separator` — so a designer adds, removes and reorders rows natively
+with no detaching.
+
+### Figma API findings from this build
+
+Five, all found by measuring rather than assuming. The first three will bite
+any future component build.
+
+1. **The Icon set's own size scale is 16 / 20 / 24 / 32 / 48 — NOT the
+   `icon-size` token scale (12 / 14 / 16 / 20 / 24).** The house convention
+   (read off `Dropdown / Item`) is to use the **`size=md`** variant everywhere
+   and bind `width`/`height` to `dropdown/{size}/item/icon-size`. Using
+   per-size Icon variants gives visibly wrong glyph sizes.
+2. **Attaching an `INSTANCE_SWAP` property resets every nested instance to the
+   property's single default**, so per-size nested instances cannot survive
+   the property wiring. This is *why* convention 1 works — the bound
+   dimensions do the sizing, not the variant.
+3. **A bound variable cannot be overridden on a node inside an instance.**
+   `setBoundVariable` returns without throwing and silently no-ops; the main
+   component's binding wins. This is what forces `CheckboxOption` to be its
+   own set rather than an instance of `Option` (it needs `checkbox/{size}/box-size`
+   for its mark column, not `icon-size`).
+4. **A SLOT can be created from scratch via the plugin API**, contrary to the
+   note in `CLAUDE.md` that only writing into an *existing* slot works:
+   `addComponentProperty('Slot','SLOT','')` succeeds (the `defaultValue` must
+   be a string or boolean — `null` and `{}` both fail validation), and a `SLOT`
+   node can be `clone()`d from `Dropdown / Panel` and re-pointed via
+   `componentPropertyReferences = { slotContentId }`. `figma.createSlot` is
+   undefined, and a cloned slot loses its `slotContentId` (the known
+   clone-drops-refs gotcha).
+5. **Figma ignores `spread` on `DROP_SHADOW` effects here**, so the CSS
+   two-layer box-shadow focus ring cannot be reproduced as effects — it renders
+   as nothing at all. Drawn instead as an absolutely-positioned rectangle
+   outset by `focus/ring/offset + focus/ring/width` with
+   `constraints: {horizontal:'STRETCH', vertical:'STRETCH'}` so it tracks the
+   panel as slot content changes its height. The `framed-control/{size}/focus-ring-radius`
+   + `/focus-ring-gap-radius` token pair existing at all is the signal that the
+   house draws this geometrically.
+
+Also confirmed (same boundary Card and ConfirmDialog hit): **a wrapper set
+cannot expose a nested instance's `Label`** — `Cannot attach 'TEXT' component
+property reference on a node that does not accept references of that type`.
+
 ## Remaining work
 
 In order. Nothing here is blocked.
@@ -260,13 +329,11 @@ In order. Nothing here is blocked.
    not apply to a `<div>`, and `Field.Label`'s `<label for>` cannot label a
    `role="listbox"`). Revisit when the registry surface exercises a real
    Field composition.
-4. **Figma component set.** Under "---- COLLECTIONS & SELECTION ----"
-   (`391:3480`), which is currently an empty section. Build **md-first** —
-   create the md variants before the others, since `defaultVariant` is
-   read-only via the plugin API (the lesson from Collapsible and Select, and
-   what Navigation Menu got right). Size xs–xl. **No Orientation axis** —
-   horizontal is supported in code but a horizontal listbox is visually a
-   Segmented Control, so it is documented rather than modelled.
+4. ~~**Figma component set.**~~ **Landed** — see "Figma component sets" above.
+   Four sets, 100 variants, all md-first, no Orientation axis. Descriptions
+   written on all four. Outstanding cosmetics, non-blocking: example specimens
+   (light/dark) and the canonical entries in the
+   `figma-component-descriptions` skill.
 5. **Registry surface** `registry/components/listbox/` — see the
    `new-registry-component` skill for the mechanical flow. Exposes
    `ListboxEmpty` and `ListboxGroupLabel` as named parts. Roster count goes
@@ -295,7 +362,12 @@ In order. Nothing here is blocked.
 | §G size ramp | `1555:42428` |
 | §H empty state | `1555:42466` |
 | §I settled contract | `1555:42503` |
-| "---- COLLECTIONS & SELECTION ----" (where the set goes) | `391:3480` |
+| "---- COLLECTIONS & SELECTION ----" divider | `391:3480` |
+| **"Listbox" page** (the component sets) | `1569:150` |
+| `Listbox / Option` | `1569:2859` |
+| `Listbox / CheckboxOption` | `1569:4221` |
+| `Listbox / Empty` | `1569:4246` |
+| `Listbox` (composed, with the Slot) | `1569:4829` |
 
 Instances the specimens are built from:
 

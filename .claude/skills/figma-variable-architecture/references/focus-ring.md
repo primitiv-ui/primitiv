@@ -4,7 +4,7 @@ Every framed control's focus state uses a three-layer anatomy:
 
 ```
 [ focus-ring layer     ]  ← 2px brand-colour stroke (focus/ring token), enlarged frame
-[ focus-ring-gap layer ]  ← 2px transparent stroke (color/neutral/transparent), enlarged frame
+[ focus-ring-gap layer ]  ← 2px transparent stroke (color/transparent), enlarged frame
 [ control frame        ]  ← the button/control itself
 ```
 
@@ -43,7 +43,7 @@ arc must shift out by 4 px from the control radius to stay concentric.
   token regardless of the variant's own colour. It is **not** a fixed `#99C8FF`.
 - The ring is a **2 px INSIDE stroke on an enlarged frame** (R + 4, +4 px/side),
   not an OUTSIDE stroke on the control.
-- The gap layer is a **2 px INSIDE stroke** bound to `color/neutral/transparent`
+- The gap layer is a **2 px INSIDE stroke** bound to `color/transparent`
   (white at alpha 0) on a +2 px/side frame (R + 2) — a transparent spacer band,
   not a white fill.
 - Toggled via a **"Focus ring"** boolean component property on each variant frame.
@@ -60,7 +60,7 @@ For a focus variant of size `S` in context collection `C`, add two frames as the
    - size = control **+2 px per side** (w+4, h+4); position x=y=**−2** rel. control.
    - **constraints = `{ horizontal: "STRETCH", vertical: "STRETCH" }`** — anchors all four edges to the parent so the ring follows when label text (and thus control width) changes.
    - 4 corner radii → `C` `framed-control/${S}/focus-ring-gap-radius`.
-   - stroke INSIDE, 4 weights → `focus/ring/width`; stroke colour → `color/neutral/transparent`.
+   - stroke INSIDE, 4 weights → `focus/ring/width`; stroke colour → `color/transparent`.
    - no fill.
 2. **`focus-ring`** (outermost):
    - size = control **+4 px per side** (w+8, h+8); position x=y=**−4** rel. control.

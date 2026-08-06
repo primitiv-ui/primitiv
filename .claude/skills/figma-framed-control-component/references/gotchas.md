@@ -114,6 +114,31 @@ Read this before any build or audit sweep. Geometry/auto-layout gotchas live in
   right property value — a silent failure that looks like `setProperties()` not
   working. NavigationMenu's Trigger needed 40 references re-wired for this reason;
   Bar Link and Panel Link avoided it by adding properties last.
+- **Wiring an `INSTANCE_SWAP` reference resets the node to the property's
+  default component.** Setting
+  `node.componentPropertyReferences = { mainComponent: propId }` overwrites that
+  node's current `mainComponent` with the property's single `defaultValue`, on
+  **every** variant. So any per-variant, size-matched nested instance you built
+  is silently replaced — the set then renders one glyph size at every control
+  size, which reads as a design mistake rather than an API one. This is why the
+  house convention instances the **`size=md`** Icon variant everywhere and binds
+  `width`/`height` to the icon-size token instead (see SKILL.md §2). Verify with
+  `await node.getMainComponentAsync()` plus a width check after wiring. Found
+  building `Listbox / Option`, 2026-08-06.
+- **A bound variable cannot be overridden on a node inside an instance.**
+  `setBoundVariable` there returns without throwing and then no-ops — re-read
+  `node.boundVariables` and the original variable is still attached. This is an
+  **architectural** constraint, not a workaround-able one: if component B is
+  "component A with one geometry token swapped", B cannot be an instance of A and
+  must be its own set. `Listbox / CheckboxOption` is standalone for exactly this
+  reason (its mark column needs `checkbox/{size}/box-size`, not
+  `dropdown/{size}/item/icon-size`). Found 2026-08-06.
+- **Figma ignores `spread` on `DROP_SHADOW`, so a CSS box-shadow focus ring
+  cannot be ported as effects.** It renders as nothing, silently. Use the
+  canonical two-frame ring (`focus-ring-gap` + `focus-ring`) — which is why both
+  `focus-ring-radius` and `focus-ring-gap-radius` exist as tokens. On a container
+  whose height comes from its content (a slot, a row stack), the `STRETCH`
+  constraints on both frames are load-bearing, not optional.
 - **`figma.createFrame()` clips its content by default.** A cap-height-trimmed label
   (`leadingTrim: CAP_HEIGHT`) sits in a box shorter than its glyphs, so a clipping
   wrapper crops the descenders — invisible at grid zoom, obvious on a single

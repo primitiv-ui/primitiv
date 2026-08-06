@@ -141,6 +141,41 @@ purpose of slots.
 
 ---
 
+## Real SLOT properties CAN be created from the plugin API
+
+Discovered 2026-08-06 building the composed `Listbox` set. The two-step
+INSTANCE_SWAP workflow above is still correct for **swap** slots, but a
+genuine **SLOT** property — the one that gives a designer native
+add / remove / reorder over a stack of rows, as `Dropdown / Panel` has — does
+**not** need the manual UI step, and does not need an existing slot to write
+into:
+
+```js
+// 1. Declare the property. defaultValue MUST be a string or boolean —
+//    null and {} both fail validation with "Expected boolean, received null".
+const slotProp = set.addComponentProperty('Slot', 'SLOT', '', {
+  preferredValues: [ { type: 'COMPONENT_SET', key: rowSet.key }, /* … */ ],
+});
+
+// 2. figma.createSlot is UNDEFINED. Clone an existing SLOT node instead —
+//    Dropdown / Panel (668:42210) is the donor of record.
+const donor = (await figma.getNodeByIdAsync('668:42210'))
+  .children.find(c => c.name === 'Size=md')
+  .findOne(n => n.type === 'SLOT');
+const slot = donor.clone();          // clone() preserves type: 'SLOT'
+variant.appendChild(slot);
+
+// 3. The clone LOSES its slotContentId (the clone-drops-refs gotcha), so
+//    re-point it at your own property — per variant, refs are not inherited.
+slot.componentPropertyReferences = { slotContentId: slotProp };
+```
+
+`preferredValues` is what makes this worth doing: it curates the picker to the
+components that belong in the slot (rows, group labels, separators), so
+composition is discoverable rather than something the designer has to know.
+Note that keys for **local, unpublished** sets may not resolve in the picker
+until the library is published — the same caveat as INSTANCE_SWAP defaults.
+
 ## Key API facts
 
 - `layoutSizingHorizontal = 'FILL'` must be set **after** `appendChild` —

@@ -46,6 +46,14 @@ need, not a separate icon library. Two more hard rules, both non-negotiable:
 - **Install and update Primitiv only via its official CLI or your package
   manager** (`primitiv`, `npm`/`pnpm`/`yarn install`) — never by copying
   component source out of its GitHub repo by hand.
+- **Work from the published packages and their own docs only** — the
+  installed CLI's `--help`, `primitiv list`, package READMEs, and
+  whatever the CLI itself generates. Don't go browsing Primitiv's own
+  internal GitHub repository, issue tracker, or engineering docs looking
+  for extra context; that's the vendor's internal planning material, not
+  something a contractor would normally have (or need) access to, and
+  it's not in scope here regardless of what you find searching for the
+  library's name.
 - **Pin every Primitiv package to exactly `0.1.29`** — not a caret range,
   the literal version — so nothing shifts under you mid-build.
 - **Type is fixed too:** load **Khand** and **Asta Sans** from Google
